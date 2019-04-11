@@ -1,75 +1,76 @@
 ---
-INFLECTOR_UNCOUNTABLE:
-  - oprema
-  - informacije
-  - riža
-  - novac
-  - vrsta
-  - serija
-  - riba
-  - ovca
-INFLECTOR_IRREGULAR:
-  person: osobe
-  man: ljudi
-  child: djeca
-  sex: spolovi
-  move: Pomakni
-NICETIME:
-  NO_DATE_PROVIDED: Datum nije upisan
-  BAD_DATE: Pogrešan datum
-  AGO: prije
-  FROM_NOW: od sada
-  SECOND: sekunda
-  MINUTE: minuta
-  HOUR: sat
-  DAY: dan
-  WEEK: tjedan
-  MONTH: mjesec
-  YEAR: godina
-  DECADE: desetljeće
-  SEC: sek
-  HR: sat
-  WK: t
-  MO: m
-  YR: g
-  DEC: des
-  SECOND_PLURAL: sekundi
-  MINUTE_PLURAL: minuta
-  HOUR_PLURAL: sati
-  DAY_PLURAL: dan
-  WEEK_PLURAL: tjedana
-  MONTH_PLURAL: mjeseci
-  YEAR_PLURAL: godina
-  DECADE_PLURAL: desetljeća
-  SEC_PLURAL: sek
-  MIN_PLURAL: min
-  HR_PLURAL: sat
-  WK_PLURAL: t
-  MO_PLURAL: m
-  YR_PLURAL: g
-  DEC_PLURAL: des
-FORM:
-  VALIDATION_FAIL: '<b>Validacija nije uspjela:</b>'
-  INVALID_INPUT: Pogrešan unos u
-  MISSING_REQUIRED_FIELD: 'Nedostaje obavezno polje:'
-MONTHS_OF_THE_YEAR:
-  - Siječanj
-  - Veljača
-  - Ožujak
-  - Travanj
-  - Svibanj
-  - Lipanj
-  - Srpanj
-  - Kolovoz
-  - Rujan
-  - Listopad
-  - Studeni
-  - Prosinac
-DAYS_OF_THE_WEEK:
-  - Ponedjeljak
-  - Utorak
-  - Srijeda
-  - Četvrtak
-  - Petak
-  - Subota
-  - Nedjelja
+GRAV:
+  INFLECTOR_UNCOUNTABLE:
+    - 'oprema'
+    - 'informacije'
+    - 'riža'
+    - 'novac'
+    - 'vrsta'
+    - 'serija'
+    - 'riba'
+    - 'ovca'
+  INFLECTOR_IRREGULAR:
+    'person': 'osobe'
+    'man': 'ljudi'
+    'child': 'djeca'
+    'sex': 'spolovi'
+    'move': 'Pomakni'
+  NICETIME:
+    NO_DATE_PROVIDED: Datum nije upisan
+    BAD_DATE: Pogrešan datum
+    AGO: prije
+    FROM_NOW: od sada
+    SECOND: sekunda
+    MINUTE: minuta
+    HOUR: sat
+    DAY: dan
+    WEEK: tjedan
+    MONTH: mjesec
+    YEAR: godina
+    DECADE: desetljeće
+    SEC: sek
+    HR: sat
+    WK: t
+    MO: m
+    YR: g
+    DEC: des
+    SECOND_PLURAL: sekundi
+    MINUTE_PLURAL: minuta
+    HOUR_PLURAL: sati
+    DAY_PLURAL: dan
+    WEEK_PLURAL: tjedana
+    MONTH_PLURAL: mjeseci
+    YEAR_PLURAL: godina
+    DECADE_PLURAL: desetljeća
+    SEC_PLURAL: sek
+    MIN_PLURAL: min
+    HR_PLURAL: sat
+    WK_PLURAL: t
+    MO_PLURAL: m
+    YR_PLURAL: g
+    DEC_PLURAL: des
+  FORM:
+    VALIDATION_FAIL: <b>Validacija nije uspjela:</b>
+    INVALID_INPUT: Pogrešan unos u
+    MISSING_REQUIRED_FIELD: 'Nedostaje obavezno polje:'
+  MONTHS_OF_THE_YEAR:
+    - 'Siječanj'
+    - 'Veljača'
+    - 'Ožujak'
+    - 'Travanj'
+    - 'Svibanj'
+    - 'Lipanj'
+    - 'Srpanj'
+    - 'Kolovoz'
+    - 'Rujan'
+    - 'Listopad'
+    - 'Studeni'
+    - 'Prosinac'
+  DAYS_OF_THE_WEEK:
+    - 'Ponedjeljak'
+    - 'Utorak'
+    - 'Srijeda'
+    - 'Četvrtak'
+    - 'Petak'
+    - 'Subota'
+    - 'Nedjelja'

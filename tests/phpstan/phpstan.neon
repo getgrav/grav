@@ -1,0 +1,106 @@
+includes:
+    #- '../../vendor/phpstan/phpstan-strict-rules/rules.neon'
+    - '../../vendor/phpstan/phpstan-deprecation-rules/rules.neon'
+parameters:
+    fileExtensions:
+        - php
+        - dist
+    bootstrap: tests/phpstan/phpstan-bootstrap.php
+    excludes_analyse:
+        - system/src/Grav/Common/Errors/Resources/layout.html.php
+    reportUnmatchedIgnoredErrors: false
+    universalObjectCratesClasses:
+        - Grav\Common\Config\Config
+        - Grav\Common\Config\Languages
+        - Grav\Common\Config\Setup
+        - Grav\Common\Data\Data
+        - Grav\Common\GPM\Common\Package
+        - Grav\Common\GPM\Local\Package
+        - Grav\Common\GPM\Remote\Package
+        - Grav\Common\Session
+    ignoreErrors:
+
+        # FIXME: Bugs that need to be fixed
+
+        # TODO: Errors that needs some more thinking (bad design?)
+        - '#Access to an undefined property RocketTheme\\Toolbox\\Event\\Event::#'
+        - '#Access to an undefined property Grav\\Common\\Data\\Blueprint::#'
+        - '#Access to an undefined property Grav\\Common\\Media\\Interfaces\\MediaObjectInterface::#'
+        - '#Access to an undefined property Grav\\Common\\Page\\Interfaces\\PageInterface::#'
+        -
+            message: '#Cannot call method path\(\) on string#'
+            path: 'system/src/Grav/Common/Page/Media.php'
+
+        # TODO: system.twig.umask_fix will not work with Twig 2 anymore
+        -
+            message: '#Call to deprecated method writeCacheFile\(\) of class Twig\\Environment#'
+            path: 'system/src/Grav/Common/Twig/WriteCacheFileTrait.php'
+
+        # Needed: full coverage (probably with admin plugin...) then redesign constructor
+        -
+            message: '#Grav\\Common\\GPM\\Remote\\GravCore::__construct\(\) does not call parent constructor from Grav\\Common\\GPM\\Remote\\AbstractPackageCollection#'
+            path: 'system/src/Grav/Common/GPM/Remote/GravCore.php'
+
+        # Needed: psr-17 (http-factories) support (through decorator or further investigations)
+        -
+            message: '#Call to an undefined static method Grav\\Framework\\Psr7\\Stream::create\(\)#'
+            path: 'system/src/Grav/Framework/Form/FormFlashFile.php'
+
+        # PSR-16 Exception interfaces do not extend \Throwable
+        - '#PHPDoc tag \@throws with type Psr\\SimpleCache\\(CacheException|InvalidArgumentException) is not subtype of Throwable#'
+
+        # Medium __call() methods
+        - '#Call to an undefined method Grav\\Common\\Page\\Medium\\(\w*)Medium::#'
+
+        # Filesystem::getInstance()
+        -
+            message: '#Strict comparison using === between null and static#'
+            path: 'system/src/Grav/Framework/Filesystem/Filesystem.php'
+
+        # These errors are about plugins (need to find a better solution)
+        -
+            message: '#Call to static method sendEmail\(\) on an unknown class Grav\\Plugin\\Email\\Utils#'
+            path: 'system/src/Grav/Common/Scheduler/Job.php'
+        -
+            message: '#on an unknown class Grav\\Plugin\\Admin#'
+            path: 'system/src/Grav/Common/Page/Pages.php'
+        -
+            message: '#Call to method getFlash\(\) on an unknown class Grav\\Common\\Grav\\Plugin\\Form\\Forms#'
+            path: 'system/src/Grav/Common/Session.php'
+
+        # Can be ignored, after fopen there's always an $http_response_header locally available
+        -
+            message: '#Variable \$http_response_header in isset\(\) always exists and is not nullable#'
+            path: 'system/src/Grav/Common/GPM/Response.php'
+
+
+        # These errors can be ignored (they depend on installed extensions)
+        -
+            message: '#Instantiated class (Memcache|Memcached|Redis|RedisException) not found#'
+            path: 'system/src/Grav/Common/Cache.php'
+        -
+            message: '#on an unknown class (Memcache|Memcached|Redis|RedisException)#'
+            path: 'system/src/Grav/Common/Cache.php'
+        -
+            message: '#on an unknown class Collator#'
+            path: 'system/src/Grav/Common/Page/Pages.php'
+
+        # Support for deprecated features
+        -
+            message: '#Instantiation of deprecated class Doctrine\\Common\\Cache\\MemcacheCache#'
+            path: 'system/src/Grav/Common/Cache.php'
+        -
+            message: '#Call to deprecated method order#'
+            path: 'system/src/Grav/Common/Page/Pages.php'
+        -
+            message: '#Fetching class constant class of deprecated class Grav\\Common\\User\\User#'
+            path: 'system/src/Grav/Common/Service/AccountsServiceProvider.php'
+        -
+            message: '#Call to deprecated method getLegacyFiles\(\)#'
+            path: 'system/src/Grav/Common/Session.php'
+        -
+            message: '#Call to deprecated method getType\(\) of class#'
+            path: 'system/src/Grav/Framework/Object/Base/ObjectTrait.php'
+        -
+            message: '#deprecated class#'
+            path: 'system/src/Grav/Framework/Uri/Uri.php'

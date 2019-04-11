@@ -1,17 +1,20 @@
 <?php
+
 /**
- * @package    Grav.Common
+ * @package    Grav\Common
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Common;
 
+use Grav\Common\Page\Pages;
+
 class Security
 {
 
-    public static function detectXssFromPages($pages, callable $status = null)
+    public static function detectXssFromPages(Pages $pages, $route = true, callable $status = null)
     {
         $routes = $pages->routes();
 
@@ -20,11 +23,11 @@ class Security
 
         $list = [];
 
-//        // This needs Symfony 4.1 to work
-//        $status && $status([
-//            'type' => 'count',
-//            'steps' => count($routes),
-//        ]);
+        // This needs Symfony 4.1 to work
+        $status && $status([
+            'type' => 'count',
+            'steps' => count($routes),
+        ]);
 
         foreach ($routes as $path) {
 
@@ -43,7 +46,12 @@ class Security
                 $results = Security::detectXssFromArray($data);
 
                 if (!empty($results)) {
-                    $list[$page->filePathClean()] = $results;
+                    if ($route) {
+                        $list[$page->route()] = $results;
+                    } else {
+                        $list[$page->filePathClean()] = $results;
+                    }
+
                 }
 
             } catch (\Exception $e) {
@@ -85,7 +93,7 @@ class Security
      * their content.
      *
      * @param string $string The string to run XSS detection logic on
-     * @return boolean|string       Type of XSS vector if the given `$string` may contain XSS, false otherwise.
+     * @return bool|string       Type of XSS vector if the given `$string` may contain XSS, false otherwise.
      *
      * Copies the code from: https://github.com/symphonycms/xssfilter/blob/master/extension.driver.php#L138
      */
@@ -118,9 +126,8 @@ class Security
 
         $config = Grav::instance()['config'];
 
-        $dangerous_tags = $config->get('security.xss_dangerous_tags');
-        $dangerous_tags = array_map('preg_quote', array_map("trim", $dangerous_tags));
-
+        $dangerous_tags = array_map('preg_quote', array_map("trim", $config->get('security.xss_dangerous_tags')));
+        $invalid_protocols =  array_map('preg_quote', array_map("trim", $config->get('security.xss_invalid_protocols')));
         $enabled_rules = $config->get('security.xss_enabled');
 
         // Set the patterns we'll test against
@@ -129,7 +136,7 @@ class Security
             'on_events' => '#(<[^>]+[[a-z\x00-\x20\"\'\/])(\son|\sxmlns)[a-z].*=>?#iUu',
 
             // Match javascript:, livescript:, vbscript:, mocha:, feed: and data: protocols
-            'invalid_protocols' => '#((java|live|vb)script|mocha|feed|data):.*?#iUu',
+            'invalid_protocols' => '#(' . implode('|', $invalid_protocols) . '):.*?#iUu',
 
             // Match -moz-bindings
             'moz_binding' => '#-moz-binding[a-z\x00-\x20]*:#u',
@@ -138,7 +145,7 @@ class Security
             'html_inline_styles' => '#(<[^>]+[a-z\x00-\x20\"\'\/])(style=[^>]*(url\:|x\:expression).*)>?#iUu',
 
             // Match potentially dangerous tags
-            'dangerous_tags' => '#</*(' . implode('|', $dangerous_tags ) . ')[^>]*>?#ui'
+            'dangerous_tags' => '#</*(' . implode('|', $dangerous_tags) . ')[^>]*>?#ui'
         ];
 
 

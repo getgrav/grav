@@ -1,64 +1,83 @@
 <?php
+
+declare(strict_types=1);
+
 /**
  * @package    Grav\Framework\File\Formatter
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Framework\File\Formatter;
 
-class JsonFormatter implements FormatterInterface
-{
-    /** @var array */
-    private $config;
+use Grav\Framework\File\Interfaces\FileFormatterInterface;
 
+class JsonFormatter extends AbstractFormatter
+{
     public function __construct(array $config = [])
     {
-        $this->config = $config + [
+        $config += [
             'file_extension' => '.json',
             'encode_options' => 0,
-            'decode_assoc' => true
+            'decode_assoc' => true,
+            'decode_depth' => 512,
+            'decode_options' => 0
         ];
+
+        parent::__construct($config);
     }
 
     /**
-     * @deprecated 1.5 Use $formatter->getDefaultFileExtension() instead.
+     * Returns options used in encode() function.
+     *
+     * @return int
      */
-    public function getFileExtension()
+    public function getEncodeOptions(): int
     {
-        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.5, use getDefaultFileExtension() method instead', E_USER_DEPRECATED);
+        return $this->getConfig('encode_options');
+    }
 
-        return $this->getDefaultFileExtension();
+    /**
+     * Returns options used in decode() function.
+     *
+     * @return int
+     */
+    public function getDecodeOptions(): int
+    {
+        return $this->getConfig('decode_options');
+    }
+
+    /**
+     * Returns recursion depth used in decode() function.
+     *
+     * @return int
+     */
+    public function getDecodeDepth(): int
+    {
+        return $this->getConfig('decode_depth');
+    }
+
+    /**
+     * Returns true if JSON objects will be converted into associative arrays.
+     *
+     * @return bool
+     */
+    public function getDecodeAssoc(): bool
+    {
+        return $this->getConfig('decode_assoc');
     }
 
     /**
      * {@inheritdoc}
+     * @see FileFormatterInterface::encode()
      */
-    public function getDefaultFileExtension()
+    public function encode($data): string
     {
-        $extensions = $this->getSupportedFileExtensions();
+        $encoded = @json_encode($data, $this->getEncodeOptions());
 
-        return (string) reset($extensions);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getSupportedFileExtensions()
-    {
-        return (array) $this->config['file_extension'];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function encode($data)
-    {
-        $encoded = @json_encode($data, $this->config['encode_options']);
-
-        if ($encoded === false) {
-            throw new \RuntimeException('Encoding JSON failed');
+        if ($encoded === false && json_last_error() !== JSON_ERROR_NONE) {
+            throw new \RuntimeException('Encoding JSON failed: ' . json_last_error_msg());
         }
 
         return $encoded;
@@ -66,13 +85,14 @@ class JsonFormatter implements FormatterInterface
 
     /**
      * {@inheritdoc}
+     * @see FileFormatterInterface::decode()
      */
     public function decode($data)
     {
-        $decoded = @json_decode($data, $this->config['decode_assoc']);
+        $decoded = @json_decode($data, $this->getDecodeAssoc(), $this->getDecodeDepth(), $this->getDecodeOptions());
 
-        if ($decoded === false) {
-            throw new \RuntimeException('Decoding JSON failed');
+        if (null === $decoded && json_last_error() !== JSON_ERROR_NONE) {
+            throw new \RuntimeException('Decoding JSON failed: ' . json_last_error_msg());
         }
 
         return $decoded;

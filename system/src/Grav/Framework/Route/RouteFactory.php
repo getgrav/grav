@@ -1,8 +1,9 @@
 <?php
+
 /**
  * @package    Grav\Framework\Route
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -72,7 +73,7 @@ class RouteFactory
 
     public static function setParamValueDelimiter($delimiter)
     {
-        self::$delimiter = $delimiter;
+        self::$delimiter = $delimiter ?: ':';
     }
 
     /**
@@ -108,7 +109,7 @@ class RouteFactory
             return $path;
         }
 
-        $path = dirname(substr($path, 0, $pos));
+        $path = \dirname(substr($path, 0, $pos));
         if ($path === '.') {
             return '';
         }
@@ -122,7 +123,7 @@ class RouteFactory
      */
     public static function getParams($path)
     {
-        $params = ltrim(substr($path, strlen(static::stripParams($path))), '/');
+        $params = ltrim(substr($path, \strlen(static::stripParams($path))), '/');
 
         return $params !== '' ? static::parseParams($params) : [];
     }
@@ -133,13 +134,21 @@ class RouteFactory
      */
     public static function parseParams($str)
     {
+        if ($str === '') {
+            return [];
+        }
+
         $delimiter = self::$delimiter;
 
+        /** @var array $params */
         $params = explode('/', $str);
         foreach ($params as &$param) {
+            /** @var array $parts */
             $parts = explode($delimiter, $param, 2);
             if (isset($parts[1])) {
-                $param[rawurldecode($parts[0])] = rawurldecode($parts[1]);
+                $var = rawurldecode($parts[0]);
+                $val = rawurldecode($parts[1]);
+                $param = [$var => $val];
             }
         }
 

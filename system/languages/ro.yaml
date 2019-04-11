@@ -1,101 +1,96 @@
 ---
-FRONTMATTER_ERROR_PAGE: |
-  ---
-  Titlu: %1$s
-  ---
-  # Eroare: Frontmatter este invalid
-  
-  Calea: `%2$s`
-  
-  **%3$s**
-  
-  ```
-  %4$s
-INFLECTOR_PLURALS:
-  /(quiz)$/i: '\1zes'
-  /^(ox)$/i: '\1en'
-  "/([m|l])ouse$/i": '\1ice'
-  /(matr|vert|ind)ix|ex$/i: '\1ices'
-  /(x|ch|ss|sh)$/i: '\1es'
-  "/([^aeiouy]|qu)ies$/i": '\1y'
-  "/([^aeiouy]|qu)y$/i": '\1ies'
-  /(hive)$/i: '\1s'
-  "/(?:([^f])fe|([lr])f)$/i": '\1\2ves'
-  /sis$/i: ses
-  "/([ti])um$/i": '\1a'
-  /(buffal|tomat)o$/i: '\1oes'
-INFLECTOR_UNCOUNTABLE:
-  - echipament
-  - informaţie
-  - orez
-  - bani
-  - specii
-  - serii
-  - peşte
-  - oaie
-INFLECTOR_IRREGULAR:
-  person: persoane
-  man: bărbați
-  child: copii
-  sex: sexe
-  move: mutări
-NICETIME:
-  NO_DATE_PROVIDED: Nu există o dată prevăzută
-  BAD_DATE: Dată incorectă
-  AGO: în urmă
-  FROM_NOW: de acum
-  SECOND: secundă
-  MINUTE: minut
-  HOUR: oră
-  DAY: zi
-  WEEK: săptămână
-  MONTH: lună
-  YEAR: an
-  DECADE: decadă
-  SEC: sec
-  MIN: min
-  HR: oră
-  WK: săpt
-  MO: lună
-  YR: an
-  DEC: decadă
-  SECOND_PLURAL: secunde
-  MINUTE_PLURAL: minute
-  HOUR_PLURAL: ore
-  DAY_PLURAL: zile
-  WEEK_PLURAL: săptămâni
-  MONTH_PLURAL: luni
-  YEAR_PLURAL: ani
-  DECADE_PLURAL: decade
-  SEC_PLURAL: sec
-  MIN_PLURAL: min
-  HR_PLURAL: ore
-  WK_PLURAL: săpt
-  MO_PLURAL: luni
-  YR_PLURAL: ani
-  DEC_PLURAL: decenii
-FORM:
-  VALIDATION_FAIL: '<b>Validare nereușită</b>'
-  INVALID_INPUT: Date incorecte în
-  MISSING_REQUIRED_FIELD: 'Câmp obligatoriu lipsă:'
-MONTHS_OF_THE_YEAR:
-  - Ianuarie
-  - Februarie
-  - Martie
-  - Aprilie
-  - Mai
-  - Iunie
-  - Iulie
-  - August
-  - Septembrie
-  - Octombrie
-  - Noiembrie
-  - Decembrie
-DAYS_OF_THE_WEEK:
-  - Luni
-  - Marți
-  - Miercuri
-  - Joi
-  - Vineri
-  - Sâmbătă
-  - Duminică
+GRAV:
+  FRONTMATTER_ERROR_PAGE: "---\nTitlu: %1$s\n---\n# Eroare: Frontmatter este invalid\n\nCalea: `%2$s`\n\n**%3$s**\n\n```\n%4$s"
+  INFLECTOR_UNCOUNTABLE:
+    - 'echipament'
+    - 'informaţie'
+    - 'orez'
+    - 'bani'
+    - 'specii'
+    - 'serii'
+    - 'peşte'
+    - 'oaie'
+  INFLECTOR_IRREGULAR:
+    'person': 'persoane'
+    'man': 'bărbați'
+    'child': 'copii'
+    'sex': 'sexe'
+    'move': 'mutări'
+  NICETIME:
+    NO_DATE_PROVIDED: Nu există o dată prevăzută
+    BAD_DATE: Dată incorectă
+    AGO: în urmă
+    FROM_NOW: de acum
+    JUST_NOW: chiar acum
+    SECOND: secundă
+    MINUTE: minut
+    HOUR: oră
+    DAY: zi
+    WEEK: săptămână
+    MONTH: lună
+    YEAR: an
+    DECADE: decadă
+    SEC: secunde
+    MIN: minute
+    HR: oră
+    WK: săpt
+    MO: lună
+    YR: an
+    DEC: decadă
+    SECOND_PLURAL: secunde
+    MINUTE_PLURAL: minute
+    HOUR_PLURAL: ore
+    DAY_PLURAL: zile
+    WEEK_PLURAL: săptămâni
+    MONTH_PLURAL: luni
+    YEAR_PLURAL: ani
+    DECADE_PLURAL: decade
+    SEC_PLURAL: sec
+    MIN_PLURAL: min
+    HR_PLURAL: ore
+    WK_PLURAL: săpt
+    MO_PLURAL: luni
+    YR_PLURAL: ani
+    DEC_PLURAL: decenii
+  FORM:
+    VALIDATION_FAIL: <b>Validare nereușită</b>
+    INVALID_INPUT: Date incorecte în
+    MISSING_REQUIRED_FIELD: 'Câmp obligatoriu lipsă:'
+  MONTHS_OF_THE_YEAR:
+    - 'Ianuarie'
+    - 'Februarie'
+    - 'Martie'
+    - 'Aprilie'
+    - 'Mai'
+    - 'Iunie'
+    - 'Iulie'
+    - 'August'
+    - 'Septembrie'
+    - 'Octombrie'
+    - 'Noiembrie'
+    - 'Decembrie'
+  DAYS_OF_THE_WEEK:
+    - 'Luni'
+    - 'Marți'
+    - 'Miercuri'
+    - 'Joi'
+    - 'Vineri'
+    - 'Sâmbătă'
+    - 'Duminică'
+  CRON:
+    EVERY: la fiecare
+    EVERY_HOUR: la fiecare oră
+    EVERY_MINUTE: la fiecare minut
+    EVERY_DAY_OF_WEEK: fiecare zi a săptămânii
+    EVERY_DAY_OF_MONTH: fiecare zi a lunii
+    EVERY_MONTH: fiecare lună
+    TEXT_PERIOD: Fiecare <b />
+    TEXT_MINS: ' la <b /> minut(e) ale fiecărei ore'
+    TEXT_TIME: ' la <b />:<b />'
+    TEXT_DOW: ' pe <b />'
+    TEXT_MONTH: 'al(e) <b />'
+    TEXT_DOM: ' pe <b />'
+    ERROR1: Eticheta %s nu este acceptată!
+    ERROR2: Număr nevalid de elemente
+    ERROR3: jquery_element ar trebui setat în opțiunile jqCron
+    ERROR4: Expresie necunoscută

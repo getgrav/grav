@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @package    Grav.Common.Processors
+ * @package    Grav\Common\Processors
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -11,14 +12,20 @@ namespace Grav\Common\Processors;
 use Grav\Common\Config\Config;
 use Grav\Common\Uri;
 use Grav\Common\Utils;
+use Grav\Framework\Session\Exceptions\SessionException;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 
-class InitializeProcessor extends ProcessorBase implements ProcessorInterface
+class InitializeProcessor extends ProcessorBase
 {
     public $id = 'init';
     public $title = 'Initialize';
 
-    public function process()
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler) : ResponseInterface
     {
+        $this->startTimer();
+
         /** @var Config $config */
         $config = $this->container['config'];
         $config->debug();
@@ -31,13 +38,24 @@ class InitializeProcessor extends ProcessorBase implements ProcessorInterface
         }
 
         // Initialize the timezone.
-        if ($config->get('system.timezone')) {
-            date_default_timezone_set($this->container['config']->get('system.timezone'));
+        $timezone = $config->get('system.timezone');
+        if ($timezone) {
+            date_default_timezone_set($timezone);
         }
 
         // FIXME: Initialize session should happen later after plugins have been loaded. This is a workaround to fix session issues in AWS.
         if (isset($this->container['session']) && $config->get('system.session.initialize', true)) {
-            $this->container['session']->init();
+            // TODO: remove in 2.0.
+            $this->container['accounts'];
+
+            try {
+                $this->container['session']->init();
+            } catch (SessionException $e) {
+                $this->container['session']->init();
+                $message = 'Session corruption detected, restarting session...';
+                $this->addMessage($message);
+                $this->container['messages']->add($message, 'error');
+            }
         }
 
         /** @var Uri $uri */
@@ -46,10 +64,17 @@ class InitializeProcessor extends ProcessorBase implements ProcessorInterface
 
         // Redirect pages with trailing slash if configured to do so.
         $path = $uri->path() ?: '/';
-        if ($path !== '/' && $config->get('system.pages.redirect_trailing_slash', false) && Utils::endsWith($path, '/')) {
-            $this->container->redirectLangSafe(rtrim($path, '/'));
+        if ($path !== '/'
+            && $config->get('system.pages.redirect_trailing_slash', false)
+            && Utils::endsWith($path, '/')) {
+
+            $redirect = (string) $uri::getCurrentRoute()->toString();
+            $this->container->redirect($redirect);
         }
 
         $this->container->setLocale();
+        $this->stopTimer();
+
+        return $handler->handle($request);
     }
 }

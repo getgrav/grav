@@ -5,6 +5,13 @@ xss_enabled:
     moz_binding: true
     html_inline_styles: true
     dangerous_tags: true
+xss_invalid_protocols:
+    - javascript
+    - livescript
+    - vbscript
+    - mocha
+    - feed
+    - data
 xss_dangerous_tags:
     - applet
     - meta

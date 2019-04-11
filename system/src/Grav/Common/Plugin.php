@@ -1,20 +1,21 @@
 <?php
+
 /**
- * @package    Grav.Common
+ * @package    Grav\Common
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Common;
 
+use Grav\Common\Data\Blueprint;
 use Grav\Common\Data\Data;
-use Grav\Common\Page\Page;
+use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Config\Config;
 use RocketTheme\Toolbox\Event\EventDispatcher;
 use RocketTheme\Toolbox\Event\EventSubscriberInterface;
 use RocketTheme\Toolbox\File\YamlFile;
-use Symfony\Component\Console\Exception\LogicException;
 
 class Plugin implements EventSubscriberInterface, \ArrayAccess
 {
@@ -98,7 +99,7 @@ class Plugin implements EventSubscriberInterface, \ArrayAccess
     }
 
     /**
-     * Determine if this is running under the admin
+     * Determine if plugin is running under the admin
      *
      * @return bool
      */
@@ -108,9 +109,19 @@ class Plugin implements EventSubscriberInterface, \ArrayAccess
     }
 
     /**
+     * Determine if plugin is running under the CLI
+     *
+     * @return bool
+     */
+    public function isCli()
+    {
+        return \defined('GRAV_CLI');
+    }
+
+    /**
      * Determine if this route is in Admin and active for the plugin
      *
-     * @param $plugin_route
+     * @param string $plugin_route
      * @return bool
      */
     protected function isPluginActiveAdmin($plugin_route)
@@ -137,13 +148,13 @@ class Plugin implements EventSubscriberInterface, \ArrayAccess
         $dispatcher = $this->grav['events'];
 
         foreach ($events as $eventName => $params) {
-            if (is_string($params)) {
+            if (\is_string($params)) {
                 $dispatcher->addListener($eventName, [$this, $params]);
-            } elseif (is_string($params[0])) {
-                $dispatcher->addListener($eventName, [$this, $params[0]], isset($params[1]) ? $params[1] : 0);
+            } elseif (\is_string($params[0])) {
+                $dispatcher->addListener($eventName, [$this, $params[0]], $params[1] ?? 0);
             } else {
                 foreach ($params as $listener) {
-                    $dispatcher->addListener($eventName, [$this, $listener[0]], isset($listener[1]) ? $listener[1] : 0);
+                    $dispatcher->addListener($eventName, [$this, $listener[0]], $listener[1] ?? 0);
                 }
             }
         }
@@ -158,9 +169,9 @@ class Plugin implements EventSubscriberInterface, \ArrayAccess
         $dispatcher = $this->grav['events'];
 
         foreach ($events as $eventName => $params) {
-            if (is_string($params)) {
+            if (\is_string($params)) {
                 $dispatcher->removeListener($eventName, [$this, $params]);
-            } elseif (is_string($params[0])) {
+            } elseif (\is_string($params[0])) {
                 $dispatcher->removeListener($eventName, [$this, $params[0]]);
             } else {
                 foreach ($params as $listener) {
@@ -173,7 +184,7 @@ class Plugin implements EventSubscriberInterface, \ArrayAccess
     /**
      * Whether or not an offset exists.
      *
-     * @param mixed $offset  An offset to check for.
+     * @param string $offset  An offset to check for.
      * @return bool          Returns TRUE on success or FALSE on failure.
      */
     public function offsetExists($offset)
@@ -189,7 +200,7 @@ class Plugin implements EventSubscriberInterface, \ArrayAccess
     /**
      * Returns the value at specified offset.
      *
-     * @param mixed $offset  The offset to retrieve.
+     * @param string $offset  The offset to retrieve.
      * @return mixed         Can return all value types.
      */
     public function offsetGet($offset)
@@ -199,30 +210,30 @@ class Plugin implements EventSubscriberInterface, \ArrayAccess
         if ($offset === 'title') {
             $offset = 'name';
         }
-        return isset($this->blueprint[$offset]) ? $this->blueprint[$offset] : null;
+        return $this->blueprint[$offset] ?? null;
     }
 
     /**
      * Assigns a value to the specified offset.
      *
-     * @param mixed $offset  The offset to assign the value to.
+     * @param string $offset  The offset to assign the value to.
      * @param mixed $value   The value to set.
-     * @throws LogicException
+     * @throws \LogicException
      */
     public function offsetSet($offset, $value)
     {
-        throw new LogicException(__CLASS__ . ' blueprints cannot be modified.');
+        throw new \LogicException(__CLASS__ . ' blueprints cannot be modified.');
     }
 
     /**
      * Unsets an offset.
      *
-     * @param mixed $offset  The offset to unset.
-     * @throws LogicException
+     * @param string $offset  The offset to unset.
+     * @throws \LogicException
      */
     public function offsetUnset($offset)
     {
-        throw new LogicException(__CLASS__ . ' blueprints cannot be modified.');
+        throw new \LogicException(__CLASS__ . ' blueprints cannot be modified.');
     }
 
     /**
@@ -248,7 +259,7 @@ class Plugin implements EventSubscriberInterface, \ArrayAccess
     /**
      * Merge global and page configurations.
      *
-     * @param Page $page The page to merge the configurations with the
+     * @param PageInterface $page The page to merge the configurations with the
      *                       plugin settings.
      * @param mixed $deep false = shallow|true = recursive|merge = recursive+unique
      * @param array $params Array of additional configuration options to
@@ -257,7 +268,7 @@ class Plugin implements EventSubscriberInterface, \ArrayAccess
      *
      * @return Data
      */
-    protected function mergeConfig(Page $page, $deep = false, $params = [], $type = 'plugins')
+    protected function mergeConfig(PageInterface $page, $deep = false, $params = [], $type = 'plugins')
     {
         $class_name = $this->name;
         $class_name_merged = $class_name . '.merged';
@@ -265,10 +276,10 @@ class Plugin implements EventSubscriberInterface, \ArrayAccess
         $page_header = $page->header();
         $header = [];
 
-        if (!isset($page_header->$class_name_merged) && isset($page_header->$class_name)) {
+        if (!isset($page_header->{$class_name_merged}) && isset($page_header->{$class_name})) {
             // Get default plugin configurations and retrieve page header configuration
-            $config = $page_header->$class_name;
-            if (is_bool($config)) {
+            $config = $page_header->{$class_name};
+            if (\is_bool($config)) {
                 // Overwrite enabled option with boolean value in page header
                 $config = ['enabled' => $config];
             }
@@ -277,8 +288,8 @@ class Plugin implements EventSubscriberInterface, \ArrayAccess
 
             // Create new config object and set it on the page object so it's cached for next time
             $page->modifyHeader($class_name_merged, new Data($header));
-        } else if (isset($page_header->$class_name_merged)) {
-            $merged = $page_header->$class_name_merged;
+        } else if (isset($page_header->{$class_name_merged})) {
+            $merged = $page_header->{$class_name_merged};
             $header = $merged->toArray();
         }
         if (empty($header)) {
@@ -294,12 +305,12 @@ class Plugin implements EventSubscriberInterface, \ArrayAccess
     /**
      * Merge arrays based on deepness
      *
-     * @param bool $deep
-     * @param $array1
-     * @param $array2
-     * @return array|mixed
+     * @param string|bool $deep
+     * @param array $array1
+     * @param array $array2
+     * @return array
      */
-    private function mergeArrays($deep = false, $array1, $array2)
+    private function mergeArrays($deep, $array1, $array2)
     {
         if ($deep === 'merge') {
             return Utils::arrayMergeRecursiveUnique($array1, $array2);
@@ -316,7 +327,7 @@ class Plugin implements EventSubscriberInterface, \ArrayAccess
      *
      * @param string $plugin_name The name of the plugin whose config it should store.
      *
-     * @return true
+     * @return bool
      */
     public static function saveConfig($plugin_name)
     {
@@ -338,7 +349,7 @@ class Plugin implements EventSubscriberInterface, \ArrayAccess
     /**
      * Simpler getter for the plugin blueprint
      *
-     * @return mixed
+     * @return Blueprint
      */
     public function getBlueprint()
     {

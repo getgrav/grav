@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @package    Grav.Common.Twig
+ * @package    Grav\Common\Twig
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -12,7 +13,7 @@ use Grav\Common\Grav;
 use Grav\Common\Config\Config;
 use Grav\Common\Language\Language;
 use Grav\Common\Language\LanguageCodes;
-use Grav\Common\Page\Page;
+use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Page\Pages;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use RocketTheme\Toolbox\Event\Event;
@@ -75,12 +76,11 @@ class Twig
      */
     public function init()
     {
-        if (!isset($this->twig)) {
+        if (null === $this->twig) {
             /** @var Config $config */
             $config = $this->grav['config'];
             /** @var UniformResourceLocator $locator */
             $locator = $this->grav['locator'];
-
             /** @var Language $language */
             $language = $this->grav['language'];
 
@@ -99,7 +99,8 @@ class Twig
             $this->grav->fireEvent('onTwigTemplatePaths');
 
             // Add Grav core templates location
-            $this->twig_paths = array_merge($this->twig_paths, $locator->findResources('system://templates'));
+            $core_templates = array_merge($locator->findResources('system://templates'), $locator->findResources('system://templates/testing'));
+            $this->twig_paths = array_merge($this->twig_paths, $core_templates);
 
             $this->loader = new \Twig_Loader_Filesystem($this->twig_paths);
 
@@ -175,7 +176,9 @@ class Twig
 
             // set default date format if set in config
             if ($config->get('system.pages.dateformat.long')) {
-                $this->twig->getExtension('Twig_Extension_Core')->setDateFormat($config->get('system.pages.dateformat.long'));
+                /** @var \Twig_Extension_Core $extension */
+                $extension = $this->twig->getExtension('Twig_Extension_Core');
+                $extension->setDateFormat($config->get('system.pages.dateformat.long'));
             }
             // enable the debug extension if required
             if ($config->get('system.twig.debug')) {
@@ -211,6 +214,8 @@ class Twig
                     'language_codes'    => new LanguageCodes,
                 ];
         }
+
+        return $this;
     }
 
     /**
@@ -245,15 +250,15 @@ class Twig
      * 1) Handles modular pages by rendering a specific page based on its modular twig template
      * 2) Renders individual page items for twig processing before the site rendering
      *
-     * @param  Page   $item    The page item to render
+     * @param  PageInterface   $item    The page item to render
      * @param  string $content Optional content override
      *
      * @return string          The rendered output
      * @throws \Twig_Error_Loader
      */
-    public function processPage(Page $item, $content = null)
+    public function processPage(PageInterface $item, $content = null)
     {
-        $content = $content !== null ? $content : $item->content();
+        $content = $content ?? $item->content();
 
         // override the twig header vars for local resolution
         $this->grav->fireEvent('onTwigPageVariables', new Event(['page' => $item]));
@@ -263,8 +268,9 @@ class Twig
         $twig_vars['media'] = $item->media();
         $twig_vars['header'] = $item->header();
 
-        $local_twig = clone($this->twig);
+        $local_twig = clone $this->twig;
 
+        $output = '';
         try {
             // Process Modular Twig
             if ($item->modularTwig()) {
@@ -367,7 +373,7 @@ class Twig
         $twig_vars['header'] = $page->header();
         $twig_vars['media'] = $page->media();
         $twig_vars['content'] = $content;
-        $ext = '.' . ($format ? $format : 'html') . TWIG_EXT;
+        $ext = '.' . ($format ?: 'html') . TWIG_EXT;
 
         // determine if params are set, if so disable twig cache
         $params = $this->grav['uri']->params(null, true);
@@ -383,7 +389,7 @@ class Twig
         } catch (\Twig_Error_Loader $e) {
             $error_msg = $e->getMessage();
             // Try html version of this template if initial template was NOT html
-            if ($ext != '.html' . TWIG_EXT) {
+            if ($ext !== '.html' . TWIG_EXT) {
                 try {
                     $page->templateFormat('html');
                     $output = $this->twig->render($page->template() . '.html' . TWIG_EXT, $vars + $twig_vars);
@@ -400,8 +406,8 @@ class Twig
 
     /**
      * Wraps the Twig_Loader_Filesystem addPath method (should be used only in `onTwigLoader()` event
-     * @param $template_path
-     * @param null $namespace
+     * @param string $template_path
+     * @param string $namespace
      */
     public function addPath($template_path, $namespace = '__main__')
     {
@@ -410,8 +416,8 @@ class Twig
 
     /**
      * Wraps the Twig_Loader_Filesystem prependPath method (should be used only in `onTwigLoader()` event
-     * @param $template_path
-     * @param null $namespace
+     * @param string $template_path
+     * @param string $namespace
      */
     public function prependPath($template_path, $namespace = '__main__')
     {
@@ -428,18 +434,14 @@ class Twig
      */
     public function template($template)
     {
-        if (isset($this->template)) {
-            return $this->template;
-        } else {
-            return $template;
-        }
+        return $this->template ?? $template;
     }
 
     /**
      * Overrides the autoescape setting
      *
-     * @param boolean $state
-     * @deprecated 1.5
+     * @param bool $state
+     * @deprecated 1.5 Auto-escape should always be turned on to protect against XSS issues (can be disabled per template file).
      */
     public function setAutoescape($state)
     {

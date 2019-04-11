@@ -1,7 +1,5 @@
 language: php
 php:
-  - '5.6'
-  - '7.0.21'
   - '7.1'
   - '7.2'
 branches:
@@ -53,7 +51,7 @@ before_install:
   - if [ $TRAVIS_BRANCH == 'develop' ] || [ $TRAVIS_PULL_REQUEST != 'false' ]; then
         composer install --dev --prefer-dist;
     fi
-  - if [ $TRAVIS_BRANCH != 'develop' ] && [ $TRAVIS_PHP_VERSION == "5.6" ] && [ $TRAVIS_PULL_REQUEST == "false" ]; then
+  - if [ $TRAVIS_BRANCH != 'develop' ] && [ $TRAVIS_PHP_VERSION == "7.1" ] && [ $TRAVIS_PULL_REQUEST == "false" ]; then
         export TRAVIS_TAG=$(curl --fail --user "${GH_API_USER}" -s https://api.github.com/repos/getgrav/grav/releases/latest | grep tag_name | head -n 1 | cut -d '"' -f 4);
         eval "$(curl -sL https://raw.githubusercontent.com/travis-ci/gimme/master/gimme | GIMME_GO_VERSION=1.8 bash)";
         go get github.com/aktau/github-release;
@@ -70,7 +68,7 @@ script:
         vendor/bin/codecept run;
     fi
   - echo "Latest Release Tag - ${TRAVIS_TAG}"
-  - if [ ! -z "$TRAVIS_TAG" ] && [ $TRAVIS_BRANCH != 'develop' ] && [ $TRAVIS_PHP_VERSION == "5.6" ] && [ $TRAVIS_PULL_REQUEST == "false" ]; then
+  - if [ ! -z "$TRAVIS_TAG" ] && [ $TRAVIS_BRANCH != 'develop' ] && [ $TRAVIS_PHP_VERSION == "7.1" ] && [ $TRAVIS_PULL_REQUEST == "false" ]; then
       FILES="$RT_DEVTOOLS/grav-dist/*.zip";
       for file in ${FILES[@]}; do
         NAME=${file##*/};

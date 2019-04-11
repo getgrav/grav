@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @package    Grav.Common.Errors
+ * @package    Grav\Common\Errors
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -20,7 +21,7 @@ class SimplePageHandler extends Handler
     public function __construct()
     {
         // Add the default, local resource search path:
-        $this->searchPaths[] = __DIR__ . "/Resources";
+        $this->searchPaths[] = __DIR__ . '/Resources';
     }
 
     /**
@@ -31,8 +32,8 @@ class SimplePageHandler extends Handler
         $inspector = $this->getInspector();
 
         $helper = new TemplateHelper();
-        $templateFile = $this->getResource("layout.html.php");
-        $cssFile      = $this->getResource("error.css");
+        $templateFile = $this->getResource('layout.html.php');
+        $cssFile      = $this->getResource('error.css');
 
         $code = $inspector->getException()->getCode();
         if ( ($code >= 400) && ($code < 600) )
@@ -46,9 +47,9 @@ class SimplePageHandler extends Handler
         }
 
         $vars = array(
-            "stylesheet" => file_get_contents($cssFile),
-            "code"        => $code,
-            "message"     => filter_var(rawurldecode($message), FILTER_SANITIZE_STRING),
+            'stylesheet' => file_get_contents($cssFile),
+            'code'        => $code,
+            'message'     => filter_var(rawurldecode($message), FILTER_SANITIZE_STRING),
         );
 
         $helper->setVariables($vars);
@@ -58,7 +59,7 @@ class SimplePageHandler extends Handler
     }
 
     /**
-     * @param $resource
+     * @param string $resource
      *
      * @return string
      * @throws \RuntimeException
@@ -74,7 +75,7 @@ class SimplePageHandler extends Handler
         // Search through available search paths, until we find the
         // resource we're after:
         foreach ($this->searchPaths as $path) {
-            $fullPath = $path . "/$resource";
+            $fullPath = "{$path}/{$resource}";
 
             if (is_file($fullPath)) {
                 // Cache the result:

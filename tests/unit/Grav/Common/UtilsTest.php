@@ -2,6 +2,7 @@
 
 use Codeception\Util\Fixtures;
 use Grav\Common\Grav;
+use Grav\Common\Uri;
 use Grav\Common\Utils;
 
 /**
@@ -12,10 +13,14 @@ class UtilsTest extends \Codeception\TestCase\Test
     /** @var Grav $grav */
     protected $grav;
 
+    /** @var Uri $uri */
+    protected $uri;
+
     protected function _before()
     {
         $grav = Fixtures::get('grav');
         $this->grav = $grav();
+        $this->uri = $this->grav['uri'];
     }
 
     protected function _after()
@@ -35,6 +40,13 @@ class UtilsTest extends \Codeception\TestCase\Test
         $this->assertFalse(Utils::startsWith('ENGLISH', 'en'));
         $this->assertFalse(Utils::startsWith('ENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISH',
             'e'));
+
+        $this->assertTrue(Utils::startsWith('english', 'En', false));
+        $this->assertTrue(Utils::startsWith('English', 'EN', false));
+        $this->assertTrue(Utils::startsWith('ENGLISH', 'en', false));
+        $this->assertTrue(Utils::startsWith('ENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISH',
+            'e', false));
+
     }
 
     public function testEndsWith()
@@ -50,6 +62,12 @@ class UtilsTest extends \Codeception\TestCase\Test
         $this->assertFalse(Utils::endsWith('ENGLISH', 'Sh'));
         $this->assertFalse(Utils::endsWith('ENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISH',
             'DEUSTCH'));
+
+        $this->assertTrue(Utils::endsWith('english', 'SH', false));
+        $this->assertTrue(Utils::endsWith('EngliSh', 'sH', false));
+        $this->assertTrue(Utils::endsWith('ENGLISH', 'sh', false));
+        $this->assertTrue(Utils::endsWith('ENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISH',
+            'english', false));
     }
 
     public function testContains()
@@ -65,6 +83,12 @@ class UtilsTest extends \Codeception\TestCase\Test
         $this->assertFalse(Utils::contains('ENGLISH', 'SCH'));
         $this->assertFalse(Utils::contains('ENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISH',
             'DEUSTCH'));
+
+        $this->assertTrue(Utils::contains('EngliSh', 'GLI', false));
+        $this->assertTrue(Utils::contains('EngliSh', 'ENGLISH', false));
+        $this->assertTrue(Utils::contains('ENGLISH', 'ish', false));
+        $this->assertTrue(Utils::contains('ENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISH',
+            'english', false));
     }
 
     public function testSubstrToString()
@@ -72,6 +96,10 @@ class UtilsTest extends \Codeception\TestCase\Test
         $this->assertEquals('en', Utils::substrToString('english', 'glish'));
         $this->assertEquals('english', Utils::substrToString('english', 'test'));
         $this->assertNotEquals('en', Utils::substrToString('english', 'lish'));
+
+        $this->assertEquals('en', Utils::substrToString('english', 'GLISH', false));
+        $this->assertEquals('english', Utils::substrToString('english', 'TEST', false));
+        $this->assertNotEquals('en', Utils::substrToString('english', 'LISH', false));
     }
 
     public function testMergeObjects()
@@ -123,6 +151,8 @@ class UtilsTest extends \Codeception\TestCase\Test
 
     public function testTruncateHtml()
     {
+        $this->assertEquals('T...', Utils::truncateHtml('This is a string to truncate', 1));
+        $this->assertEquals('This is...', Utils::truncateHtml('This is a string to truncate', 7));
         $this->assertEquals('<p>T...</p>', Utils::truncateHtml('<p>This is a string to truncate</p>', 1));
         $this->assertEquals('<p>This...</p>', Utils::truncateHtml('<p>This is a string to truncate</p>', 4));
         $this->assertEquals('<p>This is a...</p>', Utils::truncateHtml('<p>This is a string to truncate</p>', 10));
@@ -134,6 +164,8 @@ class UtilsTest extends \Codeception\TestCase\Test
 
     public function testSafeTruncateHtml()
     {
+        $this->assertEquals('This...', Utils::safeTruncateHtml('This is a string to truncate', 1));
+        $this->assertEquals('This is a...', Utils::safeTruncateHtml('This is a string to truncate', 3));
         $this->assertEquals('<p>This...</p>', Utils::safeTruncateHtml('<p>This is a string to truncate</p>', 1));
         $this->assertEquals('<p>This is...</p>', Utils::safeTruncateHtml('<p>This is a string to truncate</p>', 2));
         $this->assertEquals('<p>This is a string to...</p>', Utils::safeTruncateHtml('<p>This is a string to truncate</p>', 5));
@@ -193,6 +225,9 @@ class UtilsTest extends \Codeception\TestCase\Test
         $this->assertEquals('/test', Utils::normalizePath('/../test'));
         $this->assertEquals('/test2', Utils::normalizePath('/test/../test2'));
         $this->assertEquals('/test/test2', Utils::normalizePath('/test/./test2'));
+        $this->assertEquals('//something/test/test2', Utils::normalizePath('//../something/test/test2'));
+        $this->assertEquals('//something/test2', Utils::normalizePath('//something/test/../test2'));
+        $this->assertEquals('//test2', Utils::normalizePath('//something/../test/../test2'));
     }
 
     public function testIsFunctionDisabled()
@@ -329,5 +364,66 @@ class UtilsTest extends \Codeception\TestCase\Test
     public function testVerifyNonce()
     {
         $this->assertTrue(Utils::verifyNonce(Utils::getNonce('test-action'), 'test-action'));
+    }
+
+    public function testUrl()
+    {
+        $this->uri->initializeWithUrl('http://testing.dev/path1/path2')->init();
+
+        $this->assertSame('http://testing.dev/', Utils::url('/', true));
+        $this->assertSame('http://testing.dev/', Utils::url('', true));
+        $this->assertSame('http://testing.dev/path1', Utils::url('/path1', true));
+        $this->assertSame('/', Utils::url('/'));
+        $this->assertSame('/', Utils::url(''));
+        $this->assertSame('/path1', Utils::url('/path1'));
+        $this->assertSame('/path1/path2', Utils::url('/path1/path2'));
+
+        $this->assertSame('http://testing.dev/foobar.jpg', Utils::url('foobar.jpg', true));
+        $this->assertSame('http://testing.dev/foobar.jpg', Utils::url('/foobar.jpg', true));
+        $this->assertSame('http://testing.dev/path1/foobar.jpg', Utils::url('/path1/foobar.jpg', true));
+        $this->assertSame('/foobar.jpg', Utils::url('/foobar.jpg'));
+        $this->assertSame('/foobar.jpg', Utils::url('foobar.jpg'));
+        $this->assertSame('/path1/foobar.jpg', Utils::url('/path1/foobar.jpg'));
+        $this->assertSame('/path1/path2/foobar.jpg', Utils::url('/path1/path2/foobar.jpg'));
+    }
+
+    public function testUrlWithRoot()
+    {
+        $this->uri->initializeWithUrlAndRootPath('http://testing.dev/subdir/path1/path2', '/subdir')->init();
+
+        $this->assertSame('http://testing.dev/subdir/', Utils::url('/', true));
+        $this->assertSame('http://testing.dev/subdir/', Utils::url('', true));
+        $this->assertSame('http://testing.dev/subdir/path1', Utils::url('/path1', true));
+        $this->assertSame('http://testing.dev/subdir/path1', Utils::url('/subdir/path1', true));
+        $this->assertSame('/subdir/', Utils::url('/'));
+        $this->assertSame('/subdir/', Utils::url(''));
+        $this->assertSame('/subdir/path1', Utils::url('/path1'));
+        $this->assertSame('/subdir/path1/path2', Utils::url('/path1/path2'));
+        $this->assertSame('/subdir/path1/path2', Utils::url('/subdir/path1/path2'));
+
+        $this->assertSame('http://testing.dev/subdir/foobar.jpg', Utils::url('foobar.jpg', true));
+        $this->assertSame('http://testing.dev/subdir/foobar.jpg', Utils::url('/foobar.jpg', true));
+        $this->assertSame('http://testing.dev/subdir/foobar.jpg', Utils::url('/subdir/foobar.jpg', true));
+        $this->assertSame('http://testing.dev/subdir/path1/foobar.jpg', Utils::url('/path1/foobar.jpg', true));
+        $this->assertSame('http://testing.dev/subdir/path1/foobar.jpg', Utils::url('/subdir/path1/foobar.jpg', true));
+        $this->assertSame('/subdir/foobar.jpg', Utils::url('/foobar.jpg'));
+        $this->assertSame('/subdir/foobar.jpg', Utils::url('foobar.jpg'));
+        $this->assertSame('/subdir/foobar.jpg', Utils::url('/subdir/foobar.jpg'));
+        $this->assertSame('/subdir/path1/foobar.jpg', Utils::url('/path1/foobar.jpg'));
+        $this->assertSame('/subdir/path1/foobar.jpg', Utils::url('/subdir/path1/foobar.jpg'));
+    }
+
+    public function testUrlWithStreams()
+    {
+
+    }
+
+    public function testUrlwithExternals()
+    {
+        $this->uri->initializeWithUrl('http://testing.dev/path1/path2')->init();
+        $this->assertSame('http://foo.com', Utils::url('http://foo.com'));
+        $this->assertSame('https://foo.com', Utils::url('https://foo.com'));
+        $this->assertSame('//foo.com', Utils::url('//foo.com'));
+        $this->assertSame('//foo.com?param=x', Utils::url('//foo.com?param=x'));
     }
 }

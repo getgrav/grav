@@ -1,8 +1,9 @@
 <?php
+
 /**
  * @package    Grav\Framework\Cache
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -17,8 +18,8 @@ use Grav\Framework\Cache\AbstractCache;
  */
 class SessionCache extends AbstractCache
 {
-    const VALUE = 0;
-    const LIFETIME = 1;
+    public const VALUE = 0;
+    public const LIFETIME = 1;
 
     public function doGet($key, $miss)
     {
@@ -66,7 +67,7 @@ class SessionCache extends AbstractCache
 
     protected function doGetStored($key)
     {
-        $stored = isset($_SESSION[$this->getNamespace()][$key]) ? $_SESSION[$this->getNamespace()][$key] : null;
+        $stored = $_SESSION[$this->getNamespace()][$key] ?? null;
 
         if (isset($stored[self::LIFETIME]) && $stored[self::LIFETIME] < time()) {
             unset($_SESSION[$this->getNamespace()][$key]);

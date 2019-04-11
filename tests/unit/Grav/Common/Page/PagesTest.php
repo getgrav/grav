@@ -18,7 +18,7 @@ class PagesTest extends \Codeception\TestCase\Test
     /** @var Pages $pages */
     protected $pages;
 
-    /** @var Page $root_page */
+    /** @var PageInterface $root_page */
     protected $root_page;
 
     protected function _before()

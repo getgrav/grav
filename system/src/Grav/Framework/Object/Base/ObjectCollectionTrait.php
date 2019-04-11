@@ -1,8 +1,9 @@
 <?php
+
 /**
  * @package    Grav\Framework\Object
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -29,7 +30,7 @@ trait ObjectCollectionTrait
     {
         $list = [];
         foreach ($this->getIterator() as $key => $value) {
-            $list[$key] = is_object($value) ? clone $value : $value;
+            $list[$key] = \is_object($value) ? clone $value : $value;
         }
 
         return $this->createFrom($list);
@@ -45,7 +46,7 @@ trait ObjectCollectionTrait
 
     /**
      * @param string $property      Object property to be matched.
-     * @return array                Key/Value pairs of the properties.
+     * @return bool[]               Key/Value pairs of the properties.
      */
     public function doHasProperty($property)
     {
@@ -62,7 +63,7 @@ trait ObjectCollectionTrait
     /**
      * @param string $property      Object property to be fetched.
      * @param mixed $default        Default value if not set.
-     * @return array                Key/Value pairs of the properties.
+     * @return mixed[]              Key/Value pairs of the properties.
      */
     public function doGetProperty($property, $default = null)
     {
@@ -78,7 +79,7 @@ trait ObjectCollectionTrait
 
     /**
      * @param string $property  Object property to be updated.
-     * @param string $value     New value.
+     * @param mixed  $value     New value.
      * @return $this
      */
     public function doSetProperty($property, $value)
@@ -107,7 +108,7 @@ trait ObjectCollectionTrait
 
     /**
      * @param string $property  Object property to be updated.
-     * @param string $default   Default value.
+     * @param mixed  $default   Default value.
      * @return $this
      */
     public function doDefProperty($property, $default)
@@ -123,15 +124,19 @@ trait ObjectCollectionTrait
     /**
      * @param string $method        Method name.
      * @param array  $arguments     List of arguments passed to the function.
-     * @return array                Return values.
+     * @return mixed[]              Return values.
      */
     public function call($method, array $arguments = [])
     {
         $list = [];
 
+        /**
+         * @var string|int $id
+         * @var ObjectInterface $element
+         */
         foreach ($this->getIterator() as $id => $element) {
-            $list[$id] = method_exists($element, $method)
-                ? call_user_func_array([$element, $method], $arguments) : null;
+            $callable = method_exists($element, $method) ? [$element, $method] : null;
+            $list[$id] = $callable ? \call_user_func_array($callable, $arguments) : null;
         }
 
         return $list;

@@ -1,0 +1,42 @@
+---
+GRAV:
+  NICETIME:
+    SECOND: 秒
+    MINUTE: 分
+    HOUR: 小時
+    SECOND_PLURAL: 秒
+    MINUTE_PLURAL: 分
+    HOUR_PLURAL: 時
+    DAY_PLURAL: 日
+    WEEK_PLURAL: 周
+    MONTH_PLURAL: 月
+    YEAR_PLURAL: 年
+    DECADE_PLURAL: 十年
+    SEC_PLURAL: 秒
+    MIN_PLURAL: 分
+    HR_PLURAL: 時
+    WK_PLURAL: 周
+    MO_PLURAL: 月
+    YR_PLURAL: 年
+    DEC_PLURAL: 十年
+  MONTHS_OF_THE_YEAR:
+    - '一月'
+    - '二月'
+    - '三月'
+    - '四月'
+    - '五月'
+    - '六月'
+    - '七月'
+    - '八月'
+    - '九月'
+    - '十月'
+    - '十一月'
+    - '十二月'
+  DAYS_OF_THE_WEEK:
+    - '星期一'
+    - '星期二'
+    - '星期三'
+    - '星期四'
+    - '星期五'
+    - '星期六'
+    - '星期日'

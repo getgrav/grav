@@ -1,33 +1,39 @@
 <?php
+
 /**
- * @package    Grav.Common.Twig
+ * @package    Grav\Common\Twig
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Common\Twig\Node;
 
-class TwigNodeScript extends \Twig_Node implements \Twig_NodeCaptureInterface
+use Twig\Compiler;
+use Twig\Node\Expression\AbstractExpression;
+use Twig\Node\Node;
+use Twig\Node\NodeCaptureInterface;
+
+class TwigNodeScript extends Node implements NodeCaptureInterface
 {
     protected $tagName = 'script';
 
     /**
      * TwigNodeScript constructor.
-     * @param \Twig_Node|null $body
-     * @param \Twig_Node_Expression|null $file
-     * @param \Twig_Node_Expression|null $group
-     * @param \Twig_Node_Expression|null $priority
-     * @param \Twig_Node_Expression|null $attributes
+     * @param Node|null $body
+     * @param AbstractExpression|null $file
+     * @param AbstractExpression|null $group
+     * @param AbstractExpression|null $priority
+     * @param AbstractExpression|null $attributes
      * @param int $lineno
      * @param string|null $tag
      */
     public function __construct(
-        \Twig_Node $body = null,
-        \Twig_Node_Expression $file = null,
-        \Twig_Node_Expression $group = null,
-        \Twig_Node_Expression $priority = null,
-        \Twig_Node_Expression $attributes = null,
+        Node $body = null,
+        AbstractExpression $file = null,
+        AbstractExpression $group = null,
+        AbstractExpression $priority = null,
+        AbstractExpression $attributes = null,
         $lineno = 0,
         $tag = null
     )
@@ -37,19 +43,21 @@ class TwigNodeScript extends \Twig_Node implements \Twig_NodeCaptureInterface
     /**
      * Compiles the node to PHP.
      *
-     * @param \Twig_Compiler $compiler A Twig_Compiler instance
+     * @param Compiler $compiler A Twig_Compiler instance
      * @throws \LogicException
      */
-    public function compile(\Twig_Compiler $compiler)
+    public function compile(Compiler $compiler)
     {
         $compiler->addDebugInfo($this);
+
+        $compiler->write("\$assets = \\Grav\\Common\\Grav::instance()['assets'];\n");
 
         if ($this->getNode('attributes') !== null) {
             $compiler
                 ->write('$attributes = ')
                 ->subcompile($this->getNode('attributes'))
                 ->raw(";\n")
-                ->write("if (\$attributes !== null && !is_array(\$attributes)) {\n")
+                ->write("if (!is_array(\$attributes)) {\n")
                 ->indent()
                 ->write("throw new UnexpectedValueException('{% {$this->tagName} with x %}: x is not an array');\n")
                 ->outdent()
@@ -60,43 +68,34 @@ class TwigNodeScript extends \Twig_Node implements \Twig_NodeCaptureInterface
 
          if ($this->getNode('group') !== null) {
              $compiler
-                 ->write('$group = ')
+                 ->write("\$attributes['group'] = ")
                  ->subcompile($this->getNode('group'))
                  ->raw(";\n")
-                 ->write("if (\$group !== null && !is_string(\$group)) {\n")
+                 ->write("if (!is_string(\$attributes['group'])) {\n")
                  ->indent()
                  ->write("throw new UnexpectedValueException('{% {$this->tagName} in x %}: x is not a string');\n")
                  ->outdent()
                  ->write("}\n");
-         } else {
-            $compiler->write('$group = null;' . "\n");
          }
 
         if ($this->getNode('priority') !== null) {
             $compiler
-                ->write('$priority = (int)(')
+                ->write("\$attributes['priority'] = (int)(")
                 ->subcompile($this->getNode('priority'))
                 ->raw(");\n");
-        } else {
-            $compiler->write('$priority = null;' . "\n");
         }
-
-        $compiler->write("\$assets = \\Grav\\Common\\Grav::instance()['assets'];\n");
 
         if ($this->getNode('file') !== null) {
             $compiler
-                ->write('$file = ')
+                ->write('$assets->addJs(')
                 ->subcompile($this->getNode('file'))
-                ->write(";\n")
-                ->write("\$pipeline = !empty(\$attributes['pipeline']);\n")
-                ->write("\$loading = !empty(\$attributes['defer']) ? 'defer' : (!empty(\$attributes['async']) ? 'async' : null);\n")
-                ->write("\$assets->addJs(\$file, \$priority, \$pipeline, \$loading, \$group);\n");
+                ->raw(", \$attributes);\n");
         } else {
             $compiler
                 ->write("ob_start();\n")
                 ->subcompile($this->getNode('body'))
-                ->write("\$content = ob_get_clean();")
-                ->write("\$assets->addInlineJs(\$content, \$priority, \$group, \$attributes);\n");
+                ->write('$content = ob_get_clean();' . "\n")
+                ->write("\$assets->addInlineJs(\$content, \$attributes);\n");
         }
     }
 }

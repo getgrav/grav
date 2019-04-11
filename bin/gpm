@@ -1,26 +1,24 @@
 #!/usr/bin/env php
 <?php
-define('GRAV_CLI', true);
-
-if (!file_exists(__DIR__ . '/../vendor')){
-    require_once __DIR__ . '/../system/src/Grav/Common/Composer.php';
-}
 
 use Grav\Common\Composer;
-use Grav\Common\Config\Setup;
+use Symfony\Component\Console\Application;
+use Grav\Common\Grav;
 
-if (!file_exists(__DIR__ . '/../vendor')){
+\define('GRAV_CLI', true);
+\define('GRAV_REQUEST_TIME', microtime(true));
+
+if (!file_exists(__DIR__ . '/../vendor/autoload.php')){
     // Before we can even start, we need to run composer first
+    require_once __DIR__ . '/../system/src/Grav/Common/Composer.php';
+
     $composer = Composer::getComposerExecutor();
     echo "Preparing to install vendor dependencies...\n\n";
     echo system($composer.' --working-dir="'.__DIR__.'/../" --no-interaction --no-dev --prefer-dist -o install');
     echo "\n\n";
 }
 
-use Symfony\Component\Console\Application;
-use Grav\Common\Grav;
-
-$autoload = require_once(__DIR__ . '/../vendor/autoload.php');
+$autoload = require __DIR__ . '/../vendor/autoload.php';
 
 if (version_compare($ver = PHP_VERSION, $req = GRAV_PHP_MIN, '<')) {
     exit(sprintf("You are running PHP %s, but Grav needs at least PHP %s to run.\n", $ver, $req));
@@ -30,7 +28,7 @@ if (!ini_get('date.timezone')) {
     date_default_timezone_set('UTC');
 }
 
-if (!file_exists(ROOT_DIR . 'index.php')) {
+if (!file_exists(GRAV_ROOT . '/index.php')) {
     exit('FATAL: Must be run from ROOT directory of Grav!');
 }
 
@@ -48,15 +46,16 @@ $climate->arguments->add([
     ]
 ]);
 $climate->arguments->parse();
-$environment = $climate->arguments->get('environment');
 
 // Set up environment based on params.
-Setup::$environment = $environment;
+$environment = $climate->arguments->get('environment');
 
 $grav = Grav::instance(array('loader' => $autoload));
-$grav['uri']->init();
+$grav->setup($environment);
+
 $grav['config']->init();
-$grav['streams'];
+$grav['uri']->init();
+$grav['users'];
 
 $app = new Application('Grav Package Manager', GRAV_VERSION);
 $app->addCommands(array(

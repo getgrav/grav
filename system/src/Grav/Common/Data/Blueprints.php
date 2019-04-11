@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @package    Grav.Common.Data
+ * @package    Grav\Common\Data
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -13,8 +14,11 @@ use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 class Blueprints
 {
+    /** @var array|string */
     protected $search;
+    /** @var array */
     protected $types;
+    /** @var array */
     protected $instances = [];
 
     /**
@@ -49,7 +53,7 @@ class Blueprints
     public function types()
     {
         if ($this->types === null) {
-            $this->types = array();
+            $this->types = [];
 
             $grav = Grav::instance();
 
@@ -87,7 +91,7 @@ class Blueprints
     {
         $blueprint = new Blueprint($name);
 
-        if (is_array($this->search) || is_object($this->search)) {
+        if (\is_array($this->search) || \is_object($this->search)) {
             // Page types.
             $blueprint->setOverrides($this->search);
             $blueprint->setContext('blueprints://pages');

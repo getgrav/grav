@@ -1,24 +1,15 @@
-FRONTMATTER_ERROR_PAGE: "---\ntitle: %1$s\n---\n\n# Error: Invalid Frontmatter\n\nPath: `%2$s`\n\n**%3$s**\n\n```\n%4$s\n```"
-INFLECTOR_PLURALS: []
-
-INFLECTOR_SINGULAR: []
-
-INFLECTOR_UNCOUNTABLE: []
-
-INFLECTOR_IRREGULAR:
+---
+GRAV:
+  INFLECTOR_IRREGULAR:
     'person': 'みんな'
     'man': '人'
     'child': '子供'
     'sex': '性別'
     'move': '移動'
-    
-INFLECTOR_ORDINALS: []
-
-NICETIME:
+  NICETIME:
     NO_DATE_PROVIDED: 日付が設定されていません
     BAD_DATE: 不正な日付
     AGO: 前
-    FROM_NOW: from now
     SECOND: 秒
     MINUTE: 分
     HOUR: 時
@@ -33,7 +24,6 @@ NICETIME:
     WK: 週
     MO: 月
     YR: 年
-    DEC: dec
     SECOND_PLURAL: 秒
     MINUTE_PLURAL: 分
     HOUR_PLURAL: 時
@@ -49,9 +39,28 @@ NICETIME:
     MO_PLURAL: 月
     YR_PLURAL: 年
     DEC_PLURAL: 10年
-FORM:
+  FORM:
     VALIDATION_FAIL: <b>バリデーション失敗 :</b>
     INVALID_INPUT: 不正な入力：
-    MISSING_REQUIRED_FIELD: 必須項目が入力されていません:
-MONTHS_OF_THE_YEAR: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月']
-DAYS_OF_THE_WEEK: ['月', '火', '水', '木', '金', '土', '日']
+    MISSING_REQUIRED_FIELD: '必須項目が入力されていません:'
+  MONTHS_OF_THE_YEAR:
+    - '1月'
+    - '2月'
+    - '3月'
+    - '4月'
+    - '5月'
+    - '6月'
+    - '7月'
+    - '8月'
+    - '9月'
+    - '10月'
+    - '11月'
+    - '12月'
+  DAYS_OF_THE_WEEK:
+    - '月'
+    - '火'
+    - '水'
+    - '木'
+    - '金'
+    - '土'
+    - '日'

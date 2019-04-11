@@ -1,19 +1,31 @@
 <?php
+
 /**
- * @package    Grav.Common.Twig
+ * @package    Grav\Common\Twig
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Common\Twig\Node;
 
-class TwigNodeSwitch extends \Twig_Node
+use Twig\Compiler;
+use Twig\Node\Node;
+
+class TwigNodeSwitch extends Node
 {
+    /**
+     * TwigNodeSwitch constructor.
+     * @param Node $value
+     * @param Node $cases
+     * @param Node|null $default
+     * @param int $lineno
+     * @param string|null $tag
+     */
     public function __construct(
-        \Twig_Node $value,
-        \Twig_Node $cases,
-        \Twig_Node $default = null,
+        Node $value,
+        Node $cases,
+        Node $default = null,
         $lineno = 0,
         $tag = null
     )
@@ -24,9 +36,9 @@ class TwigNodeSwitch extends \Twig_Node
     /**
      * Compiles the node to PHP.
      *
-     * @param \Twig_Compiler A Twig_Compiler instance
+     * @param Compiler $compiler A Twig_Compiler instance
      */
-    public function compile(\Twig_Compiler $compiler)
+    public function compile(Compiler $compiler)
     {
         $compiler
             ->addDebugInfo($this)

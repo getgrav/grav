@@ -1,12 +1,15 @@
 <?php
+
 /**
- * @package    Grav.Common.Markdown
+ * @package    Grav\Common\Markdown
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Common\Markdown;
+
+use Grav\Common\Page\Interfaces\PageInterface;
 
 class Parsedown extends \Parsedown
 {
@@ -15,8 +18,8 @@ class Parsedown extends \Parsedown
     /**
      * Parsedown constructor.
      *
-     * @param $page
-     * @param $defaults
+     * @param PageInterface $page
+     * @param array|null $defaults
      */
     public function __construct($page, $defaults)
     {

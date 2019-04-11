@@ -1,6 +1,6 @@
 schemes:
   image:
-    type: ReadOnlyStream
+    type: Stream
     paths:
       - user://images
       - system://images

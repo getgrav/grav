@@ -1,8 +1,9 @@
 <?php
+
 /**
  * @package    Grav\Framework\Object
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -43,7 +44,7 @@ trait ObjectTrait
             return $type . static::$type;
         }
 
-        $class = get_class($this);
+        $class = \get_class($this);
         return $type . strtolower(substr($class, strrpos($class, '\\') + 1));
     }
 
@@ -52,12 +53,20 @@ trait ObjectTrait
      */
     public function getKey()
     {
-        return $this->_key ?: $this->getType() . '@' . spl_object_hash($this);
+        return $this->_key ?: $this->getType() . '@@' . spl_object_hash($this);
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasKey()
+    {
+        return !empty($this->_key);
     }
 
     /**
      * @param string $property      Object property name.
-     * @return bool                 True if property has been defined (can be null).
+     * @return bool|bool[]          True if property has been defined (can be null).
      */
     public function hasProperty($property)
     {
@@ -67,7 +76,7 @@ trait ObjectTrait
     /**
      * @param string $property      Object property to be fetched.
      * @param mixed $default        Default value if property has not been set.
-     * @return mixed                Property value.
+     * @return mixed|mixed[]        Property value.
      */
     public function getProperty($property, $default = null)
     {
@@ -76,7 +85,7 @@ trait ObjectTrait
 
     /**
      * @param string $property      Object property to be updated.
-     * @param string $value         New value.
+     * @param mixed  $value         New value.
      * @return $this
      */
     public function setProperty($property, $value)
@@ -139,7 +148,7 @@ trait ObjectTrait
      */
     protected function doSerialize()
     {
-        return $this->jsonSerialize();
+        return ['key' => $this->getKey(), 'type' => $this->getType(), 'elements' => $this->getElements()];
     }
 
     /**
@@ -162,7 +171,7 @@ trait ObjectTrait
      */
     public function jsonSerialize()
     {
-        return ['key' => $this->getKey(), 'type' => $this->getType(), 'elements' => $this->getElements()];
+        return $this->doSerialize();
     }
 
     /**

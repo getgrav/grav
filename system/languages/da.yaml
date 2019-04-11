@@ -1,75 +1,62 @@
 ---
-FRONTMATTER_ERROR_PAGE: |
-  ---
-  Titel: %1$s
-  ---
-  
-  # Fejl: Ugyldigt frontmatter
-  
-  Sti: `%2$s`
-  
-  **%3$s**
-  
-  ```
-  %4$s
-  ```
-NICETIME:
-  NO_DATE_PROVIDED: Ingen dato angivet
-  BAD_DATE: Ugyldig dato
-  AGO: siden
-  FROM_NOW: fra nu
-  SECOND: sekund
-  MINUTE: minut
-  HOUR: time
-  DAY: dag
-  WEEK: uge
-  MONTH: måned
-  YEAR: år
-  DECADE: årti
-  SEC: sek
-  MIN: min
-  HR: t
-  WK: u
-  MO: md
-  YR: år
-  DEC: årti
-  SECOND_PLURAL: sekunder
-  MINUTE_PLURAL: minutter
-  HOUR_PLURAL: timer
-  DAY_PLURAL: dage
-  WEEK_PLURAL: uger
-  MONTH_PLURAL: måneder
-  YEAR_PLURAL: år
-  DECADE_PLURAL: årtier
-  SEC_PLURAL: sek
-  MIN_PLURAL: min
-  HR_PLURAL: timer
-  WK_PLURAL: uger
-  MO_PLURAL: mdr
-  YR_PLURAL: år
-  DEC_PLURAL: årtier
-FORM:
-  VALIDATION_FAIL: '<b>Validering mislykkedes:</b>'
-  INVALID_INPUT: Ugyldigt input i
-  MISSING_REQUIRED_FIELD: 'Mangler obligatorisk felt:'
-MONTHS_OF_THE_YEAR:
-  - Januar
-  - Februar
-  - Marts
-  - April
-  - Maj
-  - Juni
-  - Juli
-  - August
-  - September
-  - Oktober
-  - November
-  - December
-DAYS_OF_THE_WEEK:
-  - Mandag
-  - Tirsdag
-  - Onsdag
-  - Torsdag
-  - Fredag
-  - Lørdag
-  - Søndag
+GRAV:
+  FRONTMATTER_ERROR_PAGE: "---\nTitel: %1$s\n---\n\n# Fejl: Ugyldigt frontmatter\n\nSti: `%2$s`\n\n**%3$s**\n\n```\n%4$s\n```"
+  NICETIME:
+    NO_DATE_PROVIDED: Ingen dato angivet
+    BAD_DATE: Ugyldig dato
+    AGO: siden
+    FROM_NOW: fra nu
+    SECOND: sekund
+    MINUTE: minut
+    HOUR: time
+    DAY: dag
+    WEEK: uge
+    MONTH: måned
+    YEAR: år
+    DECADE: årti
+    SEC: sek
+    HR: t
+    WK: u
+    MO: md
+    YR: år
+    DEC: årti
+    SECOND_PLURAL: sekunder
+    MINUTE_PLURAL: minutter
+    HOUR_PLURAL: timer
+    DAY_PLURAL: dage
+    WEEK_PLURAL: uger
+    MONTH_PLURAL: måneder
+    YEAR_PLURAL: år
+    DECADE_PLURAL: årtier
+    SEC_PLURAL: sek
+    MIN_PLURAL: min
+    HR_PLURAL: timer
+    WK_PLURAL: uger
+    MO_PLURAL: mdr
+    YR_PLURAL: år
+    DEC_PLURAL: årtier
+  FORM:
+    VALIDATION_FAIL: <b>Validering mislykkedes:</b>
+    INVALID_INPUT: Ugyldigt input i
+    MISSING_REQUIRED_FIELD: 'Mangler obligatorisk felt:'
+  MONTHS_OF_THE_YEAR:
+    - 'januar'
+    - 'februar'
+    - 'mars'
+    - 'april'
+    - 'mai'
+    - 'juni'
+    - 'juli'
+    - 'august'
+    - 'september'
+    - 'oktober'
+    - 'november'
+    - 'desember'
+  DAYS_OF_THE_WEEK:
+    - 'mandag'
+    - 'tirsdag'
+    - 'onsdag'
+    - 'torsdag'
+    - 'fredag'
+    - 'lørdag'
+    - 'søndag'

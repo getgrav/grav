@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @package    Grav.Common.Service
+ * @package    Grav\Common\Service
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -20,22 +21,22 @@ class StreamsServiceProvider implements ServiceProviderInterface
 {
     public function register(Container $container)
     {
-        $container['locator'] = function($c) {
+        $container['locator'] = function(Container $container) {
             $locator = new UniformResourceLocator(GRAV_ROOT);
 
             /** @var Setup $setup */
-            $setup = $c['setup'];
+            $setup = $container['setup'];
             $setup->initializeLocator($locator);
 
             return $locator;
         };
 
-        $container['streams'] = function($c) {
+        $container['streams'] = function(Container $container) {
             /** @var Setup $setup */
-            $setup = $c['setup'];
+            $setup = $container['setup'];
 
             /** @var UniformResourceLocator $locator */
-            $locator = $c['locator'];
+            $locator = $container['locator'];
 
             // Set locator to both streams.
             Stream::setLocator($locator);

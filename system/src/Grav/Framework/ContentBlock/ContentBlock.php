@@ -1,8 +1,9 @@
 <?php
+
 /**
  * @package    Grav\Framework\ContentBlock
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -28,6 +29,7 @@ class ContentBlock implements ContentBlockInterface
     protected $content = '';
     protected $blocks = [];
     protected $checksum;
+    protected $cached = true;
 
     /**
      * @param string $id
@@ -46,10 +48,10 @@ class ContentBlock implements ContentBlockInterface
     public static function fromArray(array $serialized)
     {
         try {
-            $type = isset($serialized['_type']) ? $serialized['_type'] : null;
-            $id = isset($serialized['id']) ? $serialized['id'] : null;
+            $type = $serialized['_type'] ?? null;
+            $id = $serialized['id'] ?? null;
 
-            if (!$type || !$id || !is_a($type, 'Grav\Framework\ContentBlock\ContentBlockInterface', true)) {
+            if (!$type || !$id || !is_a($type, ContentBlockInterface::class, true)) {
                 throw new \InvalidArgumentException('Bad data');
             }
 
@@ -104,9 +106,10 @@ class ContentBlock implements ContentBlockInterface
         }
 
         $array = [
-            '_type' => get_class($this),
+            '_type' => \get_class($this),
             '_version' => $this->version,
-            'id' => $this->id
+            'id' => $this->id,
+            'cached' => $this->cached
         ];
 
         if ($this->checksum) {
@@ -163,8 +166,9 @@ class ContentBlock implements ContentBlockInterface
     {
         $this->checkVersion($serialized);
 
-        $this->id = isset($serialized['id']) ? $serialized['id'] : $this->generateId();
-        $this->checksum = isset($serialized['checksum']) ? $serialized['checksum'] : null;
+        $this->id = $serialized['id'] ?? $this->generateId();
+        $this->checksum = $serialized['checksum'] ?? null;
+        $this->cached = $serialized['cached'] ?? null;
 
         if (isset($serialized['content'])) {
             $this->setContent($serialized['content']);
@@ -174,6 +178,34 @@ class ContentBlock implements ContentBlockInterface
         foreach ($blocks as $block) {
             $this->addBlock(self::fromArray($block));
         }
+    }
+
+    /**
+     * @return bool
+     */
+    public function isCached()
+    {
+        if (!$this->cached) {
+            return false;
+        }
+
+        foreach ($this->blocks as $block) {
+            if (!$block->isCached()) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * @return $this
+     */
+    public function disableCache()
+    {
+        $this->cached = false;
+
+        return $this;
     }
 
     /**

@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @package    Grav.Common.Page
+ * @package    Grav\Common\Page
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -16,7 +17,7 @@ class AudioMedium extends Medium
      * Parsedown element for source display mode
      *
      * @param  array $attributes
-     * @param  boolean $reset
+     * @param  bool $reset
      * @return array
      */
     protected function sourceParsedownElement(array $attributes, $reset = true)
@@ -38,31 +39,29 @@ class AudioMedium extends Medium
      */
     public function controls($display = true)
     {
-        if($display)
-        {
+        if($display) {
             $this->attributes['controls'] = true;
-        }
-        else
-        {
+        } else {
             unset($this->attributes['controls']);
         }
+
         return $this;
     }
 
     /**
      * Allows to set the preload behaviour
      *
-     * @param $preload
+     * @param string $preload
      * @return $this
      */
     public function preload($preload)
     {
-        $validPreloadAttrs = array('auto','metadata','none');
+        $validPreloadAttrs = ['auto', 'metadata', 'none'];
         
-        if (in_array($preload, $validPreloadAttrs))
-        {
+        if (\in_array($preload, $validPreloadAttrs, true)) {
             $this->attributes['preload'] = $preload;
         }
+
         return $this;
     }
 
@@ -70,13 +69,14 @@ class AudioMedium extends Medium
      * Allows to set the controlsList behaviour
      * Separate multiple values with a hyphen
      *
-     * @param $controlsList
+     * @param string $controlsList
      * @return $this
      */
     public function controlsList($controlsList)
     {
         $controlsList = str_replace('-', ' ', $controlsList);
         $this->attributes['controlsList'] = $controlsList;
+
         return $this;
     }
 
@@ -88,14 +88,12 @@ class AudioMedium extends Medium
      */
     public function muted($status = false)
     {
-        if($status)
-        {
+        if($status) {
             $this->attributes['muted'] = true;
-        }
-        else
-        {
+        } else {
             unset($this->attributes['muted']);
         }
+
         return $this;
     }
 
@@ -107,14 +105,12 @@ class AudioMedium extends Medium
      */
     public function loop($status = false)
     {
-        if($status)
-        {
+        if($status) {
             $this->attributes['loop'] = true;
-        }
-        else
-        {
+        } else {
             unset($this->attributes['loop']);
         }
+
         return $this;
     }
 
@@ -126,14 +122,12 @@ class AudioMedium extends Medium
      */
     public function autoplay($status = false)
     {
-        if($status)
-        {
+        if($status) {
             $this->attributes['autoplay'] = true;
-        }
-        else
-        {
+        } else {
             unset($this->attributes['autoplay']);
         }
+
         return $this;
     }
 
@@ -148,6 +142,7 @@ class AudioMedium extends Medium
         parent::reset();
 
         $this->attributes['controls'] = true;
+
         return $this;
     }
 }

@@ -1,0 +1,62 @@
+---
+GRAV:
+  NICETIME:
+    NO_DATE_PROVIDED: Не е въведена дата
+    BAD_DATE: Невалидна дата
+    AGO: преди
+    FROM_NOW: от сега
+    SECOND: секунда
+    MINUTE: минута
+    HOUR: час
+    DAY: ден
+    WEEK: седмица
+    MONTH: месец
+    YEAR: година
+    DECADE: десетилетие
+    SEC: сек
+    MIN: мин
+    HR: ч
+    WK: седм
+    MO: мес
+    YR: г
+    DEC: дстлт
+    SECOND_PLURAL: секунди
+    MINUTE_PLURAL: минути
+    HOUR_PLURAL: часа
+    DAY_PLURAL: дена
+    WEEK_PLURAL: седмици
+    MONTH_PLURAL: месеца
+    YEAR_PLURAL: години
+    DECADE_PLURAL: десетилетия
+    SEC_PLURAL: сек
+    MIN_PLURAL: мин
+    HR_PLURAL: ч
+    WK_PLURAL: седм
+    MO_PLURAL: мес
+    YR_PLURAL: г
+    DEC_PLURAL: дстлт
+  FORM:
+    VALIDATION_FAIL: <b>Неуспешна проверка:</b>
+    INVALID_INPUT: Невалидно въвеждане в
+    MISSING_REQUIRED_FIELD: 'Липсва задължително поле:'
+  MONTHS_OF_THE_YEAR:
+    - 'януари'
+    - 'февруари'
+    - 'март'
+    - 'април'
+    - 'май'
+    - 'юни'
+    - 'юли'
+    - 'август'
+    - 'септември'
+    - 'октомври'
+    - 'ноември'
+    - 'декември'
+  DAYS_OF_THE_WEEK:
+    - 'понеделник'
+    - 'вторник'
+    - 'сряда'
+    - 'четвъртък'
+    - 'петък'
+    - 'събота'
+    - 'неделя'

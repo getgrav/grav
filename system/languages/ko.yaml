@@ -1,0 +1,63 @@
+---
+GRAV:
+  FRONTMATTER_ERROR_PAGE: "---\ntitle: %1$s\n---\n\n# 오류: 무효의 Frontmatter\n\n경로: `%2$s`\n\n**%3$s**\n\n```\n%4$s\n```"
+  NICETIME:
+    NO_DATE_PROVIDED: 제공된 날짜가 없습니다
+    BAD_DATE: 잘못된 날짜
+    AGO: 전
+    FROM_NOW: 후
+    SECOND: 초
+    MINUTE: 분
+    HOUR: 시간
+    DAY: 일
+    WEEK: 주
+    MONTH: 개월
+    YEAR: 년
+    DECADE: 년간
+    SEC: 초
+    MIN: 분
+    HR: 시간
+    WK: 주
+    MO: 개월
+    YR: 년
+    DEC: 년간
+    SECOND_PLURAL: 초
+    MINUTE_PLURAL: 분
+    HOUR_PLURAL: 시간
+    DAY_PLURAL: 일
+    WEEK_PLURAL: 주
+    MONTH_PLURAL: 개월
+    YEAR_PLURAL: 년
+    DECADE_PLURAL: 년간
+    SEC_PLURAL: 초
+    MIN_PLURAL: 분
+    HR_PLURAL: 시간
+    WK_PLURAL: 주
+    MO_PLURAL: 개월
+    YR_PLURAL: 년
+    DEC_PLURAL: 년간
+  FORM:
+    VALIDATION_FAIL: <b>유효성 검사 실패:</b>
+    INVALID_INPUT: 잘못된 입력
+    MISSING_REQUIRED_FIELD: '누락 된 필수 필드:'
+  MONTHS_OF_THE_YEAR:
+    - '일월'
+    - '이월'
+    - '삼월'
+    - '사월'
+    - '오월'
+    - '유월'
+    - '칠월'
+    - '팔월'
+    - '구월'
+    - '시월'
+    - '십일월'
+    - '십이월'
+  DAYS_OF_THE_WEEK:
+    - '월요일'
+    - '화요일'
+    - '수요일'
+    - '목요일'
+    - '금요일'
+    - '토요일'
+    - '일요일'

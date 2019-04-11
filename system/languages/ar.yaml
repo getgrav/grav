@@ -1,75 +1,63 @@
 ---
-FRONTMATTER_ERROR_PAGE: |
-  ---
-  العنوان: %1$s
-  ---
-  # خطأ: مادة أمامية غير صحيحة
-  
-  مسار: '%2$s'
-  
-  **%3$s**
-  
-  , , ,
-  
-  %4$s
-  , , ,
-NICETIME:
-  NO_DATE_PROVIDED: لم يتم تقديم التاريخ
-  BAD_DATE: تاريخ خاطئ
-  AGO: من قبل
-  FROM_NOW: من الآن
-  SECOND: ثانية
-  MINUTE: دقيقة
-  HOUR: ساعة
-  DAY: يوم
-  WEEK: أسبوع
-  MONTH: شهر
-  YEAR: سنة
-  DECADE: عقد
-  SEC: ثانية
-  MIN: دقيقة
-  HR: ساعة
-  WK: أسبوع
-  MO: شهر
-  YR: سنة
-  DEC: عقد
-  SECOND_PLURAL: ثواني
-  MINUTE_PLURAL: ‮دقائق
-  HOUR_PLURAL: ساعات
-  DAY_PLURAL: أيام
-  WEEK_PLURAL: أسابيع
-  MONTH_PLURAL: أشهر
-  YEAR_PLURAL: سنوات
-  DECADE_PLURAL: عقود
-  SEC_PLURAL: ثواني
-  MIN_PLURAL: دقائق
-  HR_PLURAL: ساعات
-  WK_PLURAL: أسابيع
-  MO_PLURAL: أشهر
-  YR_PLURAL: سنوات
-  DEC_PLURAL: عقود
-FORM:
-  VALIDATION_FAIL: '<b>فشل التحقق من صحة:</b>'
-  INVALID_INPUT: إدخال غير صحيح في
-  MISSING_REQUIRED_FIELD: 'حقل مطلوب مفقود:'
-MONTHS_OF_THE_YEAR:
-  - كانون الثاني
-  - شباط
-  - آذار/ مارس
-  - نيسان
-  - أيار
-  - حزيران
-  - تموز
-  - آب
-  - أيلول
-  - تشرين الأول
-  - تشرين الثاني
-  - كانون الأول
-DAYS_OF_THE_WEEK:
-  - الاثنين
-  - الثلاثاء
-  - الأربعاء
-  - الخميس
-  - الجمعة
-  - السبت
-  - الأحد
+GRAV:
+  FRONTMATTER_ERROR_PAGE: "---\nالعنوان: %1$s\n---\n# خطأ: مادة أمامية غير صحيحة\n\nمسار: '%2$s'\n\n**%3$s**\n\n, , ,\n\n%4$s\n, , ,"
+  NICETIME:
+    NO_DATE_PROVIDED: لم يتم تقديم التاريخ
+    BAD_DATE: تاريخ خاطئ
+    AGO: من قبل
+    FROM_NOW: من الآن
+    SECOND: ثانية
+    MINUTE: دقيقة
+    HOUR: ساعة
+    DAY: يوم
+    WEEK: أسبوع
+    MONTH: شهر
+    YEAR: سنة
+    DECADE: عقد
+    SEC: ثانية
+    MIN: دقيقة
+    HR: ساعة
+    WK: أسبوع
+    MO: شهر
+    YR: سنة
+    DEC: عقد
+    SECOND_PLURAL: ثواني
+    MINUTE_PLURAL: '‮دقائق'
+    HOUR_PLURAL: ساعات
+    DAY_PLURAL: أيام
+    WEEK_PLURAL: أسابيع
+    MONTH_PLURAL: أشهر
+    YEAR_PLURAL: سنوات
+    DECADE_PLURAL: عقود
+    SEC_PLURAL: ثواني
+    MIN_PLURAL: دقائق
+    HR_PLURAL: ساعات
+    WK_PLURAL: أسابيع
+    MO_PLURAL: أشهر
+    YR_PLURAL: سنوات
+    DEC_PLURAL: عقود
+  FORM:
+    VALIDATION_FAIL: <b>فشل التحقق من صحة:</b>
+    INVALID_INPUT: إدخال غير صحيح في
+    MISSING_REQUIRED_FIELD: 'حقل مطلوب مفقود:'
+  MONTHS_OF_THE_YEAR:
+    - 'كانون الثاني'
+    - 'شباط'
+    - 'آذار/ مارس'
+    - 'نيسان'
+    - 'أيار'
+    - 'حزيران'
+    - 'تموز'
+    - 'آب'
+    - 'أيلول'
+    - 'تشرين الأول'
+    - 'تشرين الثاني'
+    - 'كانون الأول'
+  DAYS_OF_THE_WEEK:
+    - 'الاثنين'
+    - 'الثلاثاء'
+    - 'الأربعاء'
+    - 'الخميس'
+    - 'الجمعة'
+    - 'السبت'
+    - 'الأحد'

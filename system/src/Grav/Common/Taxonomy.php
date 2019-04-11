@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @package    Grav.Common
+ * @package    Grav\Common
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -10,7 +11,7 @@ namespace Grav\Common;
 
 use Grav\Common\Config\Config;
 use Grav\Common\Page\Collection;
-use Grav\Common\Page\Page;
+use Grav\Common\Page\Interfaces\PageInterface;
 
 /**
  * The Taxonomy object is a singleton that holds a reference to a 'taxonomy map'. This map is
@@ -49,16 +50,16 @@ class Taxonomy
      * Takes an individual page and processes the taxonomies configured in its header. It
      * then adds those taxonomies to the map
      *
-     * @param Page  $page the page to process
+     * @param PageInterface  $page the page to process
      * @param array $page_taxonomy
      */
-    public function addTaxonomy(Page $page, $page_taxonomy = null)
+    public function addTaxonomy(PageInterface $page, $page_taxonomy = null)
     {
         if (!$page_taxonomy) {
             $page_taxonomy = $page->taxonomy();
         }
 
-        if (!$page->published() || empty($page_taxonomy)) {
+        if (empty($page_taxonomy) || !$page->published()) {
             return;
         }
 
@@ -99,7 +100,7 @@ class Taxonomy
             }
         }
 
-        if (strtolower($operator) == 'or') {
+        if (strtolower($operator) === 'or') {
             foreach ($matches as $match) {
                 $results = array_merge($results, $match);
             }
@@ -136,14 +137,8 @@ class Taxonomy
      *
      * @return array                  keys of this taxonomy
      */
-    public function getTaxonomyItemKeys($taxonomy) {
-        if (isset($this->taxonomy_map[$taxonomy])) {
-
-            $results = array_keys($this->taxonomy_map[$taxonomy]);
-
-            return $results;
-        }
-
-        return [];
+    public function getTaxonomyItemKeys($taxonomy)
+    {
+        return isset($this->taxonomy_map[$taxonomy]) ? array_keys($this->taxonomy_map[$taxonomy]) : [];
     }
 }

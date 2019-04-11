@@ -1,15 +1,16 @@
 <?php
+
 /**
- * @package    Grav.Common.Helpers
+ * @package    Grav\Common\Helpers
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Common\Helpers;
 
 use Grav\Common\Grav;
-use Grav\Common\Page\Page;
+use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Uri;
 use Grav\Common\Page\Medium\Medium;
 use Grav\Common\Utils;
@@ -22,10 +23,10 @@ class Excerpts
      * Process Grav image media URL from HTML tag
      *
      * @param string $html         HTML tag e.g. `<img src="image.jpg" />`
-     * @param Page   $page         The current page object
+     * @param PageInterface $page  The current page object
      * @return string              Returns final HTML string
      */
-    public static function processImageHtml($html, Page $page)
+    public static function processImageHtml($html, PageInterface $page)
     {
         $excerpt = static::getExcerptFromHtml($html, 'img');
 
@@ -79,7 +80,7 @@ class Excerpts
     /**
      * Rebuild HTML tag from an excerpt array
      *
-     * @param $excerpt
+     * @param array $excerpt
      * @return string
      */
     public static function getHtmlFromExcerpt($excerpt)
@@ -110,12 +111,12 @@ class Excerpts
     /**
      * Process a Link excerpt
      *
-     * @param $excerpt
-     * @param Page $page
+     * @param array $excerpt
+     * @param PageInterface $page
      * @param string $type
      * @return mixed
      */
-    public static function processLinkExcerpt($excerpt, Page $page, $type = 'link')
+    public static function processLinkExcerpt($excerpt, PageInterface $page, $type = 'link')
     {
         $url = htmlspecialchars_decode(rawurldecode($excerpt['element']['attributes']['href']));
 
@@ -191,10 +192,10 @@ class Excerpts
      * Process an image excerpt
      *
      * @param array $excerpt
-     * @param Page $page
-     * @return mixed
+     * @param PageInterface $page
+     * @return array
      */
-    public static function processImageExcerpt(array $excerpt, Page $page)
+    public static function processImageExcerpt(array $excerpt, PageInterface $page)
     {
         $url = htmlspecialchars_decode(urldecode($excerpt['element']['attributes']['src']));
         $url_parts = static::parseUrl($url);
@@ -203,15 +204,17 @@ class Excerpts
         $filename = null;
 
         if (!empty($url_parts['stream'])) {
-            $filename = $url_parts['scheme'] . '://' . (isset($url_parts['path']) ? $url_parts['path'] : '');
+            $filename = $url_parts['scheme'] . '://' . ($url_parts['path'] ?? '');
 
-            $media = $page->media();
+            $media = $page->getMedia();
 
         } else {
+            $grav = Grav::instance();
+
             // File is also local if scheme is http(s) and host matches.
             $local_file = isset($url_parts['path'])
                 && (empty($url_parts['scheme']) || in_array($url_parts['scheme'], ['http', 'https'], true))
-                && (empty($url_parts['host']) || $url_parts['host'] === Grav::instance()['uri']->host());
+                && (empty($url_parts['host']) || $url_parts['host'] === $grav['uri']->host());
 
             if ($local_file) {
                 $filename = basename($url_parts['path']);
@@ -220,18 +223,18 @@ class Excerpts
                 // Get the local path to page media if possible.
                 if ($folder === $page->url(false, false, false)) {
                     // Get the media objects for this page.
-                    $media = $page->media();
+                    $media = $page->getMedia();
                 } else {
                     // see if this is an external page to this one
-                    $base_url = rtrim(Grav::instance()['base_url_relative'] . Grav::instance()['pages']->base(), '/');
+                    $base_url = rtrim($grav['base_url_relative'] . $grav['pages']->base(), '/');
                     $page_route = '/' . ltrim(str_replace($base_url, '', $folder), '/');
 
-                    /** @var Page $ext_page */
-                    $ext_page = Grav::instance()['pages']->dispatch($page_route, true);
+                    /** @var PageInterface $ext_page */
+                    $ext_page = $grav['pages']->dispatch($page_route, true);
                     if ($ext_page) {
-                        $media = $ext_page->media();
+                        $media = $ext_page->getMedia();
                     } else {
-                        Grav::instance()->fireEvent('onMediaLocate', new Event(['route' => $page_route, 'media' => &$media]));
+                        $grav->fireEvent('onMediaLocate', new Event(['route' => $page_route, 'media' => &$media]));
                     }
                 }
             }
@@ -247,10 +250,10 @@ class Excerpts
             $medium = static::processMediaActions($medium, $url_parts);
             $element_excerpt = $excerpt['element']['attributes'];
 
-            $alt = isset($element_excerpt['alt']) ? $element_excerpt['alt'] : '';
-            $title = isset($element_excerpt['title']) ? $element_excerpt['title'] : '';
-            $class = isset($element_excerpt['class']) ? $element_excerpt['class'] : '';
-            $id = isset($element_excerpt['id']) ? $element_excerpt['id'] : '';
+            $alt = $element_excerpt['alt'] ?? '';
+            $title = $element_excerpt['title'] ?? '';
+            $class = $element_excerpt['class'] ?? '';
+            $id = $element_excerpt['id'] ?? '';
 
             $excerpt['element'] = $medium->parsedownElement($title, $alt, $class, $id, true);
 
@@ -265,9 +268,9 @@ class Excerpts
     /**
      * Process media actions
      *
-     * @param $medium
-     * @param $url
-     * @return mixed
+     * @param Medium $medium
+     * @param string|array $url
+     * @return Medium
      */
     public static function processMediaActions($medium, $url)
     {
@@ -283,7 +286,7 @@ class Excerpts
         if (isset($url_parts['query'])) {
             $actions = array_reduce(explode('&', $url_parts['query']), function ($carry, $item) {
                 $parts = explode('=', $item, 2);
-                $value = isset($parts[1]) ? $parts[1] : null;
+                $value = $parts[1] ?? null;
                 $carry[] = ['method' => $parts[0], 'params' => $value];
 
                 return $carry;
@@ -352,11 +355,19 @@ class Excerpts
         return $url_parts;
     }
 
+    /**
+     * @param string $url
+     * @return bool|string
+     */
     protected static function resolveStream($url)
     {
         /** @var UniformResourceLocator $locator */
         $locator = Grav::instance()['locator'];
 
-        return $locator->isStream($url) ? ($locator->findResource($url, false) ?: $locator->findResource($url, false, true)) : $url;
+        if ($locator->isStream($url)) {
+            return $locator->findResource($url, false) ?: $locator->findResource($url, false, true);
+        }
+
+        return $url;
     }
 }

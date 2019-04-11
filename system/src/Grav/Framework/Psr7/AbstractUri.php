@@ -1,8 +1,9 @@
 <?php
+
 /**
  * @package    Grav\Framework\Psr7
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -15,6 +16,7 @@ use Psr\Http\Message\UriInterface;
  * Bare minimum PSR7 implementation.
  *
  * @package Grav\Framework\Uri\Psr7
+ * @deprecated 1.6 Using message PSR-7 decorators instead.
  */
 abstract class AbstractUri implements UriInterface
 {
@@ -156,10 +158,10 @@ abstract class AbstractUri implements UriInterface
      * @inheritdoc
      * @throws \InvalidArgumentException
      */
-    public function withUserInfo($user, $password = '')
+    public function withUserInfo($user, $password = null)
     {
         $user = UriPartsFilter::filterUserInfo($user);
-        $password = UriPartsFilter::filterUserInfo($password);
+        $password = UriPartsFilter::filterUserInfo($password ?? '');
 
         if ($this->user === $user && $this->password === $password) {
             return $this;

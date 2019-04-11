@@ -1,12 +1,15 @@
 <?php
+
 /**
- * @package    Grav.Common
+ * @package    Grav\Common
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Common;
+
+use Grav\Common\Form\FormFlash;
 
 class Session extends \Grav\Framework\Session\Session
 {
@@ -15,11 +18,11 @@ class Session extends \Grav\Framework\Session\Session
 
     /**
      * @return \Grav\Framework\Session\Session
-     * @deprecated 1.5 Use getInstance() method instead
+     * @deprecated 1.5 Use ->getInstance() method instead.
      */
     public static function instance()
     {
-        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.5, use getInstance() method instead', E_USER_DEPRECATED);
+        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.5, use ->getInstance() method instead', E_USER_DEPRECATED);
 
         return static::getInstance();
     }
@@ -31,7 +34,7 @@ class Session extends \Grav\Framework\Session\Session
      */
     public function init()
     {
-        if ($this->autoStart) {
+        if ($this->autoStart && !$this->isStarted()) {
             $this->start();
 
             $this->autoStart = false;
@@ -53,11 +56,11 @@ class Session extends \Grav\Framework\Session\Session
      * Returns attributes.
      *
      * @return array Attributes
-     * @deprecated 1.5 Use getAll() method instead
+     * @deprecated 1.5 Use ->getAll() method instead.
      */
     public function all()
     {
-        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.5, use getAll() method instead', E_USER_DEPRECATED);
+        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.5, use ->getAll() method instead', E_USER_DEPRECATED);
 
         return $this->getAll();
     }
@@ -66,11 +69,11 @@ class Session extends \Grav\Framework\Session\Session
      * Checks if the session was started.
      *
      * @return Boolean
-     * @deprecated 1.5 Use isStarted() method instead
+     * @deprecated 1.5 Use ->isStarted() method instead.
      */
     public function started()
     {
-        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.5, use isStarted() method instead', E_USER_DEPRECATED);
+        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.5, use ->isStarted() method instead', E_USER_DEPRECATED);
 
         return $this->isStarted();
     }
@@ -84,7 +87,7 @@ class Session extends \Grav\Framework\Session\Session
      */
     public function setFlashObject($name, $object)
     {
-        $this->{$name} = serialize($object);
+        $this->__set($name, serialize($object));
 
         return $this;
     }
@@ -97,9 +100,34 @@ class Session extends \Grav\Framework\Session\Session
      */
     public function getFlashObject($name)
     {
-        $object = unserialize($this->{$name});
+        $serialized = $this->__get($name);
 
-        $this->{$name} = null;
+        $object = \is_string($serialized) ? unserialize($serialized, ['allowed_classes' => true]) : $serialized;
+
+        $this->__unset($name);
+
+        if ($name === 'files-upload') {
+            $grav = Grav::instance();
+
+            // Make sure that Forms 3.0+ has been installed.
+            if (null === $object && isset($grav['forms'])) {
+                user_error(
+                    __CLASS__ . '::' . __FUNCTION__ . '(\'files-upload\') is deprecated since Grav 1.6, use $form->getFlash()->getLegacyFiles() instead',
+                    E_USER_DEPRECATED
+                );
+
+                /** @var Uri $uri */
+                $uri = $grav['uri'];
+                /** @var Grav\Plugin\Form\Forms $form */
+                $form = $grav['forms']->getActiveForm();
+
+                $sessionField = base64_encode($uri->url);
+
+                /** @var FormFlash $flash */
+                $flash = $form ? $form->getFlash() : null;
+                $object = $flash ? [$sessionField => $flash->getLegacyFiles()] : null;
+            }
+        }
 
         return $object;
     }

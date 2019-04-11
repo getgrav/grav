@@ -1,8 +1,9 @@
 <?php
+
 /**
  * @package    Grav\Framework\Object
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -100,7 +101,7 @@ class ObjectExpressionVisitor extends ClosureExpressionVisitor
     public static function sortByField($name, $orientation = 1, \Closure $next = null)
     {
         if (!$next) {
-            $next = function() {
+            $next = function($a, $b) {
                 return 0;
             };
         }
@@ -174,7 +175,7 @@ class ObjectExpressionVisitor extends ClosureExpressionVisitor
             case Comparison::MEMBER_OF:
                 return function ($object) use ($field, $value) {
                     $fieldValues = static::getObjectFieldValue($object, $field);
-                    if (!is_array($fieldValues)) {
+                    if (!\is_array($fieldValues)) {
                         $fieldValues = iterator_to_array($fieldValues);
                     }
                     return \in_array($value, $fieldValues, true);
