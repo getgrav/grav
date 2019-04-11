@@ -5,7 +5,6 @@
     * Improved CSS for the bottom filter bar of DebugBar
 1. [](#bugfix)
     * Fixed issue with `@import` not being added to top of pipelined css [#2440](https://github.com/getgrav/grav/issues/2440)
-    * Hopefull fixed an error with `DebuggerAssetsProcessor` and  `RendereProcessor` on upgrade
 
 # v1.6.0
 ## 04/11/2019
