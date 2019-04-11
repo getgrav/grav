@@ -1,5 +1,5 @@
 # v1.6.1
-## mm/dd/2019
+## 04/11/2019
 
 1. [](#improved)
     * Improved CSS for the bottom filter bar of DebugBar
