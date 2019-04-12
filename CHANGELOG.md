@@ -1,3 +1,9 @@
+# v1.6.3
+## mm/dd/2019
+
+1. [](#new)
+    * Added `Blueprint::addDynamicHandler()` method to allow custom dynamic handlers, for example `custom-options@: getCustomOptions`
+
 # v1.6.2
 ## 04/11/2019
 

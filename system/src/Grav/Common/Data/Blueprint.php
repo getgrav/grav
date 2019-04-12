@@ -28,6 +28,15 @@ class Blueprint extends BlueprintForm
     /** @var array */
     protected $defaults;
 
+    protected $handlers = [];
+
+    public function __clone()
+    {
+        if ($this->blueprintSchema) {
+            $this->blueprintSchema = clone $this->blueprintSchema;
+        }
+    }
+
     public function setScope($scope)
     {
         $this->scope = $scope;
@@ -64,6 +73,55 @@ class Blueprint extends BlueprintForm
         }
 
         return $this->defaults;
+    }
+
+    /**
+     * Initialize blueprints with its dynamic fields.
+     *
+     * @return $this
+     */
+    public function init()
+    {
+        foreach ($this->dynamic as $key => $data) {
+            // Locate field.
+            $path = explode('/', $key);
+            $current = &$this->items;
+
+            foreach ($path as $field) {
+                if (\is_object($current)) {
+                    // Handle objects.
+                    if (!isset($current->{$field})) {
+                        $current->{$field} = [];
+                    }
+
+                    $current = &$current->{$field};
+                } else {
+                    // Handle arrays and scalars.
+                    if (!\is_array($current)) {
+                        $current = [$field => []];
+                    } elseif (!isset($current[$field])) {
+                        $current[$field] = [];
+                    }
+
+                    $current = &$current[$field];
+                }
+            }
+
+            // Set dynamic property.
+            foreach ($data as $property => $call) {
+                $action = $call['action'];
+                $method = 'dynamic' . ucfirst($action);
+
+                if (isset($this->handlers[$action])) {
+                    $callable = $this->handlers[$action];
+                    $callable($current, $property, $call);
+                } elseif (method_exists($this, $method)) {
+                    $this->{$method}($current, $property, $call);
+                }
+            }
+        }
+
+        return $this;
     }
 
     /**
@@ -163,6 +221,11 @@ class Blueprint extends BlueprintForm
         $this->initInternals();
 
         return $this->blueprintSchema;
+    }
+
+    public function addDynamicHandler(string $name, callable $callable): void
+    {
+        $this->handlers[$name] = $callable;
     }
 
     /**
