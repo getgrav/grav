@@ -2,7 +2,7 @@
 ## 04/11/2019
 
 1. [](#bugfix)
-    * Revert renaming of `ClearCacheCommand` to ensure GPM upgrades go smoothly
+    * Revert renaming of `ClearCacheCommand` to ensure CLI GPM upgrades go smoothly
 
 # v1.6.1
 ## 04/11/2019
