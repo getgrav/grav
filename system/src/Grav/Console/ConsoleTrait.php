@@ -13,7 +13,7 @@ use Grav\Common\Cache;
 use Grav\Common\Grav;
 use Grav\Common\Composer;
 use Grav\Common\GravTrait;
-use Grav\Console\Cli\CacheCommand;
+use Grav\Console\Cli\ClearCacheCommand;
 use RocketTheme\Toolbox\File\YamlFile;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -107,7 +107,7 @@ trait ConsoleTrait
             $all = ['--all' => true];
         }
 
-        $command = new CacheCommand();
+        $command = new ClearCacheCommand();
         $input = new ArrayInput($all);
         return $command->run($input, $this->output);
     }
