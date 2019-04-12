@@ -6,6 +6,7 @@
 1. [](#bugfix)
     * Missed a `CacheCommand` reference in `bin/grav` [#2442](https://github.com/getgrav/grav/issues/2442)
     * Fixed issue with `Utils::normalizePath` messing with external URLs [#2216](https://github.com/getgrav/grav/issues/2216)
+    * Fix for `vUndefined` versions when upgrading
 
 # v1.6.2
 ## 04/11/2019
