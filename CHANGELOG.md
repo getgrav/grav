@@ -3,6 +3,9 @@
 
 1. [](#new)
     * Added `Blueprint::addDynamicHandler()` method to allow custom dynamic handlers, for example `custom-options@: getCustomOptions`
+1. [](#bugfix)
+    * Missed a `CacheCommand` reference in `bin/grav` [#2442](https://github.com/getgrav/grav/issues/2442)
+    * Fixed issue with `Utils::normalizePath` messing with external URLs [#2216](https://github.com/getgrav/grav/issues/2216)
 
 # v1.6.2
 ## 04/11/2019
