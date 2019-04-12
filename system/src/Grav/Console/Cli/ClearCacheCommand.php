@@ -13,7 +13,7 @@ use Grav\Common\Cache;
 use Grav\Console\ConsoleCommand;
 use Symfony\Component\Console\Input\InputOption;
 
-class CacheCommand extends ConsoleCommand
+class ClearCacheCommand extends ConsoleCommand
 {
     protected function configure()
     {
