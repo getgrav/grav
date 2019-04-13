@@ -784,6 +784,11 @@ abstract class Utils
      */
     public static function normalizePath($path)
     {
+
+        if (Uri::isExternal($path)) {
+            return $path;
+        }
+
         $root = '';
         preg_match(self::ROOTURL_REGEX, $path, $matches);
         if ($matches) {

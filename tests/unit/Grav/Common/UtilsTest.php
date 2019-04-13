@@ -225,9 +225,8 @@ class UtilsTest extends \Codeception\TestCase\Test
         $this->assertEquals('/test', Utils::normalizePath('/../test'));
         $this->assertEquals('/test2', Utils::normalizePath('/test/../test2'));
         $this->assertEquals('/test/test2', Utils::normalizePath('/test/./test2'));
-        $this->assertEquals('//something/test/test2', Utils::normalizePath('//../something/test/test2'));
-        $this->assertEquals('//something/test2', Utils::normalizePath('//something/test/../test2'));
-        $this->assertEquals('//test2', Utils::normalizePath('//something/../test/../test2'));
+        $this->assertEquals('https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css', Utils::normalizePath('https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css'));
+        $this->assertEquals('//something.com/../test/test2', Utils::normalizePath('//something.com/../test/test2'));
     }
 
     public function testIsFunctionDisabled()

@@ -40,7 +40,7 @@ $app->addCommands(array(
     new \Grav\Console\Cli\ComposerCommand(),
     new \Grav\Console\Cli\SandboxCommand(),
     new \Grav\Console\Cli\CleanCommand(),
-    new \Grav\Console\Cli\CacheCommand(),
+    new \Grav\Console\Cli\ClearCacheCommand(),
     new \Grav\Console\Cli\BackupCommand(),
     new \Grav\Console\Cli\NewProjectCommand(),
     new \Grav\Console\Cli\SchedulerCommand(),
