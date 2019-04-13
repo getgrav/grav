@@ -2,6 +2,7 @@
 ## mm/dd/2019
 
 1. [](#bugfix)
+    * Rework logic to pull out excluded files from pipeline more reliably [#2445](https://github.com/getgrav/grav/issues/2445)
     * Better logic in `Utils::normalizePath` to handle externals properly [#2216](https://github.com/getgrav/grav/issues/2216)
 
 # v1.6.3

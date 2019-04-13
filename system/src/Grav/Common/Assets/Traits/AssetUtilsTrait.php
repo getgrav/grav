@@ -38,11 +38,10 @@ trait AssetUtilsTrait
      *
      * @param  array $assets
      * @param  bool $css
-     * @param array $no_pipeline
      *
      * @return string
      */
-    protected function gatherLinks(array $assets, $css = true, &$no_pipeline = [])
+    protected function gatherLinks(array $assets, $css = true)
     {
         $buffer = '';
 
@@ -74,9 +73,6 @@ trait AssetUtilsTrait
 
             // No file found, skip it...
             if ($file === false) {
-                if (!$local) { // Assume we couldn't download this file for some reason assume it's not pipeline compatible
-                    $no_pipeline[$id] = $asset;
-                }
                 continue;
             }
 
