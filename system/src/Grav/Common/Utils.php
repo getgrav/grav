@@ -786,12 +786,14 @@ abstract class Utils
      */
     public static function normalizePath($path)
     {
+        // Resolve any streams
         /** @var UniformResourceLocator $locator */
         $locator = Grav::instance()['locator'];
         if ($locator->isStream($path)) {
             $path = $locator->findResource($path);
         }
 
+        // Set root properly for any URLs
         $root = '';
         preg_match(self::ROOTURL_REGEX, $path, $matches);
         if ($matches) {
@@ -799,13 +801,13 @@ abstract class Utils
             $path = $matches[2];
         }
 
+        // Strip off leading / to ensure explode is accurate
         if (Utils::startsWith($path,'/')) {
             $root .= '/';
             $path = ltrim($path, '/');
         }
 
-//        $path = ltrim(static::replaceFirstOccurrence($root, '', $path), '/');
-
+        // If there are any relative paths (..) handle those
         if (Utils::contains($path, '..')) {
             $segments = explode('/', trim($path, '/'));
             $ret = [];
@@ -822,6 +824,7 @@ abstract class Utils
             $path = implode('/', $ret);
         }
 
+        // Stick everything back together
         $normalized = $root . $path;
         return $normalized;
     }
