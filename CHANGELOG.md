@@ -1,3 +1,9 @@
+# v1.6.4
+## mm/dd/2019
+
+1. [](#bugfix)
+    * Better logic in `Utils::normalizePath` to handle externals properly [#2216](https://github.com/getgrav/grav/issues/2216)
+
 # v1.6.3
 ## 04/12/2019
 
