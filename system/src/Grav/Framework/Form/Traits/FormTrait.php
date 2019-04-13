@@ -16,7 +16,6 @@ use Grav\Common\Form\FormFlash;
 use Grav\Common\Grav;
 use Grav\Common\Utils;
 use Grav\Framework\Form\Interfaces\FormInterface;
-use Grav\Framework\Session\Session;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UploadedFileInterface;
 
@@ -309,24 +308,30 @@ trait FormTrait
     public function getFlash(): FormFlash
     {
         if (null === $this->flash) {
+            /** @var Grav $grav */
             $grav = Grav::instance();
-            $user = $grav['user'];
             $id = null;
 
-            $rememberState = $this->getBlueprint()->get('form/remember_state');
-            if ($rememberState === 'user') {
-                $id = $user->username;
+            $user = $grav['user'] ?? null;
+            if (isset($user)) {
+                $rememberState = $this->getBlueprint()->get('form/remember_state');
+                if ($rememberState === 'user') {
+                    $id = $user->username;
+                }
             }
 
-            // By default store flash by the session id.
-            if (null === $id) {
-                /** @var Session $session */
-                $session = $grav['session'];
-                $id = $session->getId();
-            }
+            // Session Required for flash form
+            $session = $grav['session'] ?? null;
+            if (isset($session)) {
+                // By default store flash by the session id.
+                if (null === $id) {
+                    $id = $session->getId();
+                }
 
-            $this->flash = new FormFlash($id, $this->getUniqueId(), $this->getName());
-            $this->flash->setUrl($grav['uri']->url)->setUser($user);
+
+                $this->flash = new FormFlash($id, $this->getUniqueId(), $this->getName());
+                $this->flash->setUrl($grav['uri']->url)->setUser($user);
+            }
         }
 
         return $this->flash;
