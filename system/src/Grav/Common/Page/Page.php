@@ -2294,6 +2294,11 @@ class Page implements PageInterface
     public function taxonomy($var = null)
     {
         if ($var !== null) {
+            // make sure first level are arrays
+            array_walk($var, function(&$value) {
+                $value = (array) $value;
+            });
+            // make sure all values are strings
             array_walk_recursive($var, function(&$value) {
                 $value = (string) $value;
             });
