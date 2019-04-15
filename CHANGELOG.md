@@ -6,6 +6,7 @@
     * Better logic in `Utils::normalizePath` to handle externals properly [#2216](https://github.com/getgrav/grav/issues/2216)
     * Fixed to force all `Page::taxonomy` to be treated as strings [#2446](https://github.com/getgrav/grav/issues/2446)
     * Fixed issue with `Grav['user']` not being available [form#332](https://github.com/getgrav/grav-plugin-form/issues/332)
+    * Updated rounding logic for `Utils::parseSize()` [#2394](https://github.com/getgrav/grav/issues/2394)
     * Fixed Flex simple storage not being properly initialized if used with caching
 
 # v1.6.3

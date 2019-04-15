@@ -1405,10 +1405,10 @@ abstract class Utils
         $unit = preg_replace('/[^bkmgtpezy]/i', '', $size);
         $size = preg_replace('/[^0-9\.]/', '', $size);
         if ($unit) {
-            return (int)((int)$size * (1024 ** stripos('bkmgtpezy', $unit[0])));
+            return round($size * pow(1024, stripos('bkmgtpezy', $unit[0])));
+        } else {
+            return round($size);
         }
-
-        return (int)$size;
     }
 
     /**
