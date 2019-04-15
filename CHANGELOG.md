@@ -1,3 +1,15 @@
+# v1.6.4
+## 04/15/2019
+
+1. [](#bugfix)
+    * Improved `redirect_default_route` logic as well as `Uri::toArray()` to take into account `root_path` and `extension`
+    * Rework logic to pull out excluded files from pipeline more reliably [#2445](https://github.com/getgrav/grav/issues/2445)
+    * Better logic in `Utils::normalizePath` to handle externals properly [#2216](https://github.com/getgrav/grav/issues/2216)
+    * Fixed to force all `Page::taxonomy` to be treated as strings [#2446](https://github.com/getgrav/grav/issues/2446)
+    * Fixed issue with `Grav['user']` not being available [form#332](https://github.com/getgrav/grav-plugin-form/issues/332)
+    * Updated rounding logic for `Utils::parseSize()` [#2394](https://github.com/getgrav/grav/issues/2394)
+    * Fixed Flex simple storage not being properly initialized if used with caching
+
 # v1.6.3
 ## 04/12/2019
 

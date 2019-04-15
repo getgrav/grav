@@ -20,7 +20,9 @@ abstract class Utils
 {
     protected static $nonces = [];
 
-    protected const ROOTURL_REGEX = '{^(\/*)}';
+    protected const ROOTURL_REGEX = '{^((?:http[s]?:\/\/[^\/]+)|(?:\/\/[^\/]+))(.*)}';
+
+    // ^((?:http[s]?:)?[\/]?(?:\/))
 
     /**
      * Simple helper method to make getting a Grav URL easier
@@ -784,31 +786,46 @@ abstract class Utils
      */
     public static function normalizePath($path)
     {
-
-        if (Uri::isExternal($path)) {
-            return $path;
+        // Resolve any streams
+        /** @var UniformResourceLocator $locator */
+        $locator = Grav::instance()['locator'];
+        if ($locator->isStream($path)) {
+            $path = $locator->findResource($path);
         }
 
+        // Set root properly for any URLs
         $root = '';
         preg_match(self::ROOTURL_REGEX, $path, $matches);
         if ($matches) {
-            $root = $matches[0];
+            $root = $matches[1];
+            $path = $matches[2];
         }
 
-        $clean_path = static::replaceFirstOccurrence($root, '', $path);
-        $segments = explode('/', trim($clean_path, '/'));
-        $ret = [];
-        foreach ($segments as $segment) {
-            if (($segment === '.') || $segment === '') {
-                continue;
-            }
-            if ($segment === '..') {
-                array_pop($ret);
-            } else {
-                $ret[] = $segment;
-            }
+        // Strip off leading / to ensure explode is accurate
+        if (Utils::startsWith($path,'/')) {
+            $root .= '/';
+            $path = ltrim($path, '/');
         }
-        $normalized = $root . implode('/', $ret);
+
+        // If there are any relative paths (..) handle those
+        if (Utils::contains($path, '..')) {
+            $segments = explode('/', trim($path, '/'));
+            $ret = [];
+            foreach ($segments as $segment) {
+                if (($segment === '.') || $segment === '') {
+                    continue;
+                }
+                if ($segment === '..') {
+                    array_pop($ret);
+                } else {
+                    $ret[] = $segment;
+                }
+            }
+            $path = implode('/', $ret);
+        }
+
+        // Stick everything back together
+        $normalized = $root . $path;
         return $normalized;
     }
 
@@ -1388,10 +1405,10 @@ abstract class Utils
         $unit = preg_replace('/[^bkmgtpezy]/i', '', $size);
         $size = preg_replace('/[^0-9\.]/', '', $size);
         if ($unit) {
-            return (int)((int)$size * (1024 ** stripos('bkmgtpezy', $unit[0])));
+            return round($size * pow(1024, stripos('bkmgtpezy', $unit[0])));
+        } else {
+            return round($size);
         }
-
-        return (int)$size;
     }
 
     /**

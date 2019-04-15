@@ -224,9 +224,19 @@ class UtilsTest extends \Codeception\TestCase\Test
         $this->assertEquals('test', Utils::normalizePath('../test'));
         $this->assertEquals('/test', Utils::normalizePath('/../test'));
         $this->assertEquals('/test2', Utils::normalizePath('/test/../test2'));
-        $this->assertEquals('/test/test2', Utils::normalizePath('/test/./test2'));
+        $this->assertEquals('/test3', Utils::normalizePath('/test/../test2/../test3'));
+
+        $this->assertEquals('//cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css', Utils::normalizePath('//cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css'));
+        $this->assertEquals('//use.fontawesome.com/releases/v5.8.1/css/all.css', Utils::normalizePath('//use.fontawesome.com/releases/v5.8.1/css/all.css'));
+        $this->assertEquals('//use.fontawesome.com/releases/v5.8.1/webfonts/fa-brands-400.eot', Utils::normalizePath('//use.fontawesome.com/releases/v5.8.1/css/../webfonts/fa-brands-400.eot'));
+
+        $this->assertEquals('http://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css', Utils::normalizePath('http://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css'));
+        $this->assertEquals('http://use.fontawesome.com/releases/v5.8.1/css/all.css', Utils::normalizePath('http://use.fontawesome.com/releases/v5.8.1/css/all.css'));
+        $this->assertEquals('http://use.fontawesome.com/releases/v5.8.1/webfonts/fa-brands-400.eot', Utils::normalizePath('http://use.fontawesome.com/releases/v5.8.1/css/../webfonts/fa-brands-400.eot'));
+
         $this->assertEquals('https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css', Utils::normalizePath('https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css'));
-        $this->assertEquals('//something.com/../test/test2', Utils::normalizePath('//something.com/../test/test2'));
+        $this->assertEquals('https://use.fontawesome.com/releases/v5.8.1/css/all.css', Utils::normalizePath('https://use.fontawesome.com/releases/v5.8.1/css/all.css'));
+        $this->assertEquals('https://use.fontawesome.com/releases/v5.8.1/webfonts/fa-brands-400.eot', Utils::normalizePath('https://use.fontawesome.com/releases/v5.8.1/css/../webfonts/fa-brands-400.eot'));
     }
 
     public function testIsFunctionDisabled()

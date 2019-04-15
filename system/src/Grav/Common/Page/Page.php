@@ -414,9 +414,7 @@ class Page implements PageInterface
                 $this->markdown_extra = (bool)$this->header->markdown_extra;
             }
             if (isset($this->header->taxonomy)) {
-                foreach ((array)$this->header->taxonomy as $taxonomy => $taxitems) {
-                    $this->taxonomy[$taxonomy] = (array)$taxitems;
-                }
+                $this->taxonomy($this->header->taxonomy);
             }
             if (isset($this->header->max_count)) {
                 $this->max_count = (int)$this->header->max_count;
@@ -2296,6 +2294,14 @@ class Page implements PageInterface
     public function taxonomy($var = null)
     {
         if ($var !== null) {
+            // make sure first level are arrays
+            array_walk($var, function(&$value) {
+                $value = (array) $value;
+            });
+            // make sure all values are strings
+            array_walk_recursive($var, function(&$value) {
+                $value = (string) $value;
+            });
             $this->taxonomy = $var;
         }
 

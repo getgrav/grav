@@ -45,8 +45,10 @@ class Assets extends PropertyObject
 
     // Config Options
     protected $css_pipeline;
+    protected $css_pipeline_include_externals;
     protected $css_pipeline_before_excludes;
     protected $js_pipeline;
+    protected $js_pipeline_include_externals;
     protected $js_pipeline_before_excludes;
     protected $pipeline_options = [];
 
@@ -264,6 +266,21 @@ class Assets extends PropertyObject
     protected function filterAssets($assets, $key, $value, $sort = false)
     {
         $results = array_filter($assets, function($asset) use ($key, $value) {
+
+            if ($key === 'position' && $value === 'pipeline') {
+
+                $type = $asset->getType();
+
+                if ($asset->getRemote() && $this->{$type . '_pipeline_include_externals'} === false) {
+                    if ($this->{$type . '_pipeline_before_excludes'}) {
+                        $asset->setPosition('after');
+                    } else {
+                        $asset->setPosition('before');
+                    }
+                    return false;
+                }
+
+            }
             if ($asset[$key] === $value) return true;
             return false;
         });
@@ -292,11 +309,9 @@ class Assets extends PropertyObject
         $before_output = '';
         $pipeline_output = '';
         $after_output = '';
-        $no_pipeline = [];
 
         $assets = 'assets_' . $type;
         $pipeline_enabled = $type . '_pipeline';
-        $before_excludes = $type . '_pipeline_before_excludes';
         $render_pipeline = 'render' . ucfirst($type);
 
         $group_assets = $this->filterAssets($this->$assets, 'group', $group);
@@ -309,19 +324,10 @@ class Assets extends PropertyObject
             $options = array_merge($this->pipeline_options, ['timestamp' => $this->timestamp]);
 
             $pipeline = new Pipeline($options);
-            $pipeline_output = $pipeline->$render_pipeline($pipeline_assets, $group, $attributes, $no_pipeline);
+            $pipeline_output = $pipeline->$render_pipeline($pipeline_assets, $group, $attributes);
         } else {
             foreach ($pipeline_assets as $asset) {
                 $pipeline_output .= $asset->render();
-            }
-        }
-
-        // Handle stuff that couldn't be pipelined
-        if (!empty($no_pipeline)) {
-            if ($this->{$before_excludes}) {
-                $after_assets = array_merge($after_assets, $no_pipeline);
-            } else {
-                $before_assets = array_merge($before_assets, $no_pipeline);
             }
         }
 

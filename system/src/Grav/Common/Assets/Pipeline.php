@@ -50,9 +50,6 @@ class Pipeline extends PropertyObject
     protected $query;
     protected $asset;
 
-    protected $css_pipeline_include_externals;
-    protected $js_pipeline_include_externals;
-
     /**
      * Closure used by the pipeline to fetch assets.
      *
@@ -91,11 +88,10 @@ class Pipeline extends PropertyObject
      * @param array $assets
      * @param string $group
      * @param array $attributes
-     * @param array $no_pipeline
      *
      * @return bool|string     URL or generated content if available, else false
      */
-    public function renderCss($assets, $group, $attributes = [], &$no_pipeline = [])
+    public function renderCss($assets, $group, $attributes = [])
     {
         // temporary list of assets to pipeline
         $inline_group = false;
@@ -119,21 +115,13 @@ class Pipeline extends PropertyObject
         if (file_exists($this->assets_dir . $file)) {
             $buffer = file_get_contents($this->assets_dir . $file) . "\n";
         } else {
-
-            foreach ($assets as $id => $asset) {
-                if ($this->css_pipeline_include_externals === false && $asset->getRemote()) {
-                    $no_pipeline[$id] = $asset;
-                    unset($assets[$id]);
-                }
-            }
-
             //if nothing found get out of here!
-            if (empty($assets) && empty($no_pipeline)) {
+            if (empty($assets)) {
                 return false;
             }
 
             // Concatenate files
-            $buffer = $this->gatherLinks($assets, self::CSS_ASSET, $no_pipeline);
+            $buffer = $this->gatherLinks($assets, self::CSS_ASSET);
 
             // Minify if required
             if ($this->shouldMinify('css')) {
@@ -164,11 +152,10 @@ class Pipeline extends PropertyObject
      * @param array $assets
      * @param string $group
      * @param array $attributes
-     * @param array $no_pipeline
      *
      * @return bool|string     URL or generated content if available, else false
      */
-    public function renderJs($assets, $group, $attributes = [], &$no_pipeline = [])
+    public function renderJs($assets, $group, $attributes = [])
     {
         // temporary list of assets to pipeline
         $inline_group = false;
@@ -192,21 +179,13 @@ class Pipeline extends PropertyObject
         if (file_exists($this->assets_dir . $file)) {
             $buffer = file_get_contents($this->assets_dir . $file) . "\n";
         } else {
-
-            foreach ($assets as $id => $asset) {
-                if ($this->js_pipeline_include_externals === false && $asset->getRemote()) {
-                    $no_pipeline[$id] = $asset;
-                    unset($assets[$id]);
-                }
-            }
-
             //if nothing found get out of here!
-            if (empty($assets) && empty($no_pipeline)) {
+            if (empty($assets)) {
                 return false;
             }
 
             // Concatenate files
-            $buffer = $this->gatherLinks($assets, self::JS_ASSET, $no_pipeline);
+            $buffer = $this->gatherLinks($assets, self::JS_ASSET);
 
             // Minify if required
             if ($this->shouldMinify('js')) {

@@ -129,6 +129,12 @@ abstract class BaseAsset extends PropertyObject
         return $this->remote;
     }
 
+    public function setPosition($position)
+    {
+        $this->position = $position;
+        return $this;
+    }
+
 
     /**
      *
