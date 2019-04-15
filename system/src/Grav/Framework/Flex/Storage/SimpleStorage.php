@@ -71,7 +71,11 @@ class SimpleStorage extends AbstractFilesystemStorage
      */
     public function hasKey(string $key): bool
     {
-        return $key && !strpos($key, '@@') && isset($this->data[$key]);
+        if (null === $this->data) {
+            $this->buildIndex();
+        }
+
+        return $key && strpos($key, '@@') === false && isset($this->data[$key]);
     }
 
     /**
@@ -80,6 +84,10 @@ class SimpleStorage extends AbstractFilesystemStorage
      */
     public function createRows(array $rows): array
     {
+        if (null === $this->data) {
+            $this->buildIndex();
+        }
+
         $list = [];
         foreach ($rows as $key => $row) {
             $key = $this->getNewKey();
@@ -99,6 +107,10 @@ class SimpleStorage extends AbstractFilesystemStorage
      */
     public function readRows(array $rows, array &$fetched = null): array
     {
+        if (null === $this->data) {
+            $this->buildIndex();
+        }
+
         $list = [];
         foreach ($rows as $key => $row) {
             if (null === $row || (!\is_object($row) && !\is_array($row))) {
@@ -123,6 +135,10 @@ class SimpleStorage extends AbstractFilesystemStorage
      */
     public function updateRows(array $rows): array
     {
+        if (null === $this->data) {
+            $this->buildIndex();
+        }
+
         $list = [];
         foreach ($rows as $key => $row) {
             $key = (string)$key;
@@ -144,6 +160,10 @@ class SimpleStorage extends AbstractFilesystemStorage
      */
     public function deleteRows(array $rows): array
     {
+        if (null === $this->data) {
+            $this->buildIndex();
+        }
+
         $list = [];
         foreach ($rows as $key => $row) {
             $key = (string)$key;
@@ -166,6 +186,10 @@ class SimpleStorage extends AbstractFilesystemStorage
      */
     public function replaceRows(array $rows): array
     {
+        if (null === $this->data) {
+            $this->buildIndex();
+        }
+
         $list = [];
         foreach ($rows as $key => $row) {
             $this->data[$key] = $list[$key] = $row;
@@ -184,6 +208,10 @@ class SimpleStorage extends AbstractFilesystemStorage
      */
     public function renameRow(string $src, string $dst): bool
     {
+        if (null === $this->data) {
+            $this->buildIndex();
+        }
+
         if ($this->hasKey($dst)) {
             throw new \RuntimeException("Cannot rename object: key '{$dst}' is already taken");
         }
@@ -221,6 +249,10 @@ class SimpleStorage extends AbstractFilesystemStorage
 
     protected function save() : void
     {
+        if (null === $this->data) {
+            $this->buildIndex();
+        }
+
         try {
             $file = $this->getFile($this->getStoragePath());
             $file->save($this->data);

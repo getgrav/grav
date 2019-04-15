@@ -71,7 +71,7 @@ class FolderStorage extends AbstractFilesystemStorage
      */
     public function hasKey(string $key): bool
     {
-        return $key && !strpos($key, '@@') && file_exists($this->getPathFromKey($key));
+        return $key && strpos($key, '@@') === false && file_exists($this->getPathFromKey($key));
     }
 
     /**
