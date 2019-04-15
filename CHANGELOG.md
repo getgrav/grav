@@ -1,5 +1,5 @@
 # v1.6.4
-## mm/dd/2019
+## 04/15/2019
 
 1. [](#bugfix)
     * Improved `redirect_default_route` logic as well as `Uri::toArray()` to take into account `root_path` and `extension`
