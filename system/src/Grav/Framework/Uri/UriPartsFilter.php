@@ -84,11 +84,11 @@ class UriPartsFilter
      */
     public static function filterPort($port = null)
     {
-        if (null === $port || (\is_int($port) && ($port >= 1 && $port <= 65535))) {
+        if (null === $port || (\is_int($port) && ($port >= 0 && $port <= 65535))) {
             return $port;
         }
 
-        throw new \InvalidArgumentException('Uri port must be null or an integer between 1 and 65535');
+        throw new \InvalidArgumentException('Uri port must be null or an integer between 0 and 65535');
     }
 
     /**
