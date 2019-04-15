@@ -187,11 +187,9 @@ class Uri
             $this->extension = $parts['extension'];
         }
 
-        $valid_page_types = implode('|', $config->get('system.pages.types'));
-
         // Strip the file extension for valid page types
-        if (preg_match('/\.(' . $valid_page_types . ')$/', $parts['basename'])) {
-            $path = rtrim(str_replace(DIRECTORY_SEPARATOR, DS, $parts['dirname']), DS) . '/' . $parts['filename'];
+        if ($this->isValidExtension($this->extension)) {
+            $path = Utils::replaceLastOccurrence(".{$this->extension}", '', $path);
         }
 
         // set the new url
@@ -586,13 +584,16 @@ class Uri
 
     public function toArray()
     {
+        $root_path = $this->root_path ?? '';
+        $extension = isset($this->extension) && $this->isValidExtension($this->extension) ? '.' . $this->extension : '';
+        $path = $root_path . $this->path . $extension;
         return [
             'scheme'    => $this->scheme,
             'host'      => $this->host,
             'port'      => $this->port,
             'user'      => $this->user,
             'pass'      => $this->password,
-            'path'      => $this->path,
+            'path'      => $path,
             'params'    => $this->params,
             'query'     => $this->query,
             'fragment'  => $this->fragment
@@ -1324,6 +1325,38 @@ class Uri
             return $content_type;
         }
         return null;
+    }
+
+    /**
+     * Check if this is a valid Grav extension
+     *
+     * @param $extension
+     * @return bool
+     */
+    public function isValidExtension($extension)
+    {
+        $valid_page_types = implode('|', Grav::instance()['config']->get('system.pages.types'));
+
+        // Strip the file extension for valid page types
+        if (preg_match('/(' . $valid_page_types . ')/', $extension)) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Allow overriding of any element (be careful!)
+     *
+     * @param $data
+     * @return Uri
+     */
+    public function setUriProperties($data)
+    {
+        foreach (get_object_vars($this) as $property => $default) {
+            if (!array_key_exists($property, $data)) continue;
+            $this->{$property} = $data[$property]; // assign value to object
+        }
+        return $this;
     }
 
     /**

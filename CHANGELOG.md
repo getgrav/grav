@@ -2,6 +2,7 @@
 ## mm/dd/2019
 
 1. [](#bugfix)
+    * Improved `redirect_default_route` logic as well as `Uri::toArray()` to take into account `root_path` and `extension`
     * Rework logic to pull out excluded files from pipeline more reliably [#2445](https://github.com/getgrav/grav/issues/2445)
     * Better logic in `Utils::normalizePath` to handle externals properly [#2216](https://github.com/getgrav/grav/issues/2216)
     * Fixed to force all `Page::taxonomy` to be treated as strings [#2446](https://github.com/getgrav/grav/issues/2446)

@@ -573,7 +573,7 @@ class UriTest extends \Codeception\TestCase\Test
             'rootUrl' => 'http://localhost',
             'extension' => 'html',
             'addNonce' => 'http://localhost/a-page.html/nonce:{{nonce}}',
-            '__toString' => 'http://localhost/a-page', // FIXME <-
+            '__toString' => 'http://localhost/a-page.html',
         ],
         'http://localhost/a-page.json' => [
             'scheme' => 'http://',
@@ -596,7 +596,7 @@ class UriTest extends \Codeception\TestCase\Test
             'rootUrl' => 'http://localhost',
             'extension' => 'json',
             'addNonce' => 'http://localhost/a-page.json/nonce:{{nonce}}',
-            '__toString' => 'http://localhost/a-page', // FIX ME <-
+            '__toString' => 'http://localhost/a-page.json',
         ],
         'http://localhost/admin/ajax.json/task:getnewsfeed' => [
             'scheme' => 'http://',
@@ -619,7 +619,7 @@ class UriTest extends \Codeception\TestCase\Test
             'rootUrl' => 'http://localhost',
             'extension' => 'json',
             'addNonce' => 'http://localhost/admin/ajax.json/task:getnewsfeed/nonce:{{nonce}}',
-            '__toString' => 'http://localhost/admin/ajax/task:getnewsfeed',
+            '__toString' => 'http://localhost/admin/ajax.json/task:getnewsfeed',
         ],
         'http://localhost/grav/admin/media.json/route:L1VzZXJzL3JodWsvd29ya3NwYWNlL2dyYXYtZGVtby1zYW1wbGVyL3VzZXIvYXNzZXRzL3FRMXB4Vk1ERTNJZzh5Ni5qcGc=/task:removeFileFromBlueprint/proute:/blueprint:Y29uZmlnL2RldGFpbHM=/type:config/field:deep.nested.custom_file/path:dXNlci9hc3NldHMvcVExcHhWTURFM0lnOHk2LmpwZw==' => [
             'scheme' => 'http://',
@@ -642,7 +642,7 @@ class UriTest extends \Codeception\TestCase\Test
             'rootUrl' => 'http://localhost',
             'extension' => 'json',
             'addNonce' => 'http://localhost/grav/admin/media.json/route:L1VzZXJzL3JodWsvd29ya3NwYWNlL2dyYXYtZGVtby1zYW1wbGVyL3VzZXIvYXNzZXRzL3FRMXB4Vk1ERTNJZzh5Ni5qcGc=/task:removeFileFromBlueprint/proute:/blueprint:Y29uZmlnL2RldGFpbHM=/type:config/field:deep.nested.custom_file/path:dXNlci9hc3NldHMvcVExcHhWTURFM0lnOHk2LmpwZw==/nonce:{{nonce}}',
-            '__toString' => 'http://localhost/grav/admin/media/route:L1VzZXJzL3JodWsvd29ya3NwYWNlL2dyYXYtZGVtby1zYW1wbGVyL3VzZXIvYXNzZXRzL3FRMXB4Vk1ERTNJZzh5Ni5qcGc=/task:removeFileFromBlueprint/proute:/blueprint:Y29uZmlnL2RldGFpbHM=/type:config/field:deep.nested.custom_file/path:dXNlci9hc3NldHMvcVExcHhWTURFM0lnOHk2LmpwZw==', // FIXME <-
+            '__toString' => 'http://localhost/grav/admin/media.json/route:L1VzZXJzL3JodWsvd29ya3NwYWNlL2dyYXYtZGVtby1zYW1wbGVyL3VzZXIvYXNzZXRzL3FRMXB4Vk1ERTNJZzh5Ni5qcGc=/task:removeFileFromBlueprint/proute:/blueprint:Y29uZmlnL2RldGFpbHM=/type:config/field:deep.nested.custom_file/path:dXNlci9hc3NldHMvcVExcHhWTURFM0lnOHk2LmpwZw==',
         ],
         'http://localhost/a-page.foo' => [
             'scheme' => 'http://',
@@ -1121,6 +1121,24 @@ class UriTest extends \Codeception\TestCase\Test
         ];
 
         $this->assertSame('http://foo:bar@localhost:8080/test?x=2#xxx', Uri::buildUrl($parsed_url));
+
+        /** @var Uri $uri */
+        $uri = Grav::instance()['uri'];
+
+        $uri->initializeWithUrlAndRootPath('https://testing.dev/subdir/path1/path2/file.html', '/subdir')->init();
+        $this->assertSame('https://testing.dev/subdir/path1/path2/file.html', Uri::buildUrl($uri->toArray()));
+
+        $uri->initializeWithUrlAndRootPath('https://testing.dev/subdir/path1/path2/file.foo', '/subdir')->init();
+        $this->assertSame('https://testing.dev/subdir/path1/path2/file.foo', Uri::buildUrl($uri->toArray()));
+
+        $uri->initializeWithUrlAndRootPath('https://testing.dev/subdir/path1/path2/file.html', '/subdir/path1')->init();
+        $this->assertSame('https://testing.dev/subdir/path1/path2/file.html', Uri::buildUrl($uri->toArray()));
+
+        $uri->initializeWithUrlAndRootPath('https://testing.dev/subdir/path1/path2/file.html/foo:blah/bang:boom', '/subdir')->init();
+        $this->assertSame('https://testing.dev/subdir/path1/path2/file.html/foo:blah/bang:boom', Uri::buildUrl($uri->toArray()));
+
+        $uri->initializeWithUrlAndRootPath('https://testing.dev/subdir/path1/path2/file.html/foo:blah/bang:boom?fig=something', '/subdir')->init();
+        $this->assertSame('https://testing.dev/subdir/path1/path2/file.html/foo:blah/bang:boom?fig=something', Uri::buildUrl($uri->toArray()));
     }
 
     public function testConvertUrl()
