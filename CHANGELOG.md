@@ -1,3 +1,9 @@
+# v1.6.6
+## mm/dd/2019
+
+1. [](#new)
+    * `FormInterface` now implements `RenderInterface` 
+
 # v1.6.5
 ## 04/15/2019
 

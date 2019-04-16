@@ -12,11 +12,15 @@ namespace Grav\Framework\Flex;
 use Grav\Common\Data\Blueprint;
 use Grav\Common\Data\Data;
 use Grav\Common\Grav;
+use Grav\Common\Twig\Twig;
 use Grav\Common\Utils;
 use Grav\Framework\Flex\Interfaces\FlexFormInterface;
 use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
 use Grav\Framework\Form\Traits\FormTrait;
 use Grav\Framework\Route\Route;
+use Twig\Error\LoaderError;
+use Twig\Error\SyntaxError;
+use Twig\TemplateWrapper;
 
 /**
  * Class FlexForm
@@ -232,6 +236,29 @@ class FlexForm implements FlexFormInterface
         $this->object = clone $object;
 
         return $this;
+    }
+
+    /**
+     * @param string $layout
+     * @return TemplateWrapper
+     * @throws LoaderError
+     * @throws SyntaxError
+     */
+    protected function getTemplate($layout)
+    {
+        $grav = Grav::instance();
+
+        /** @var Twig $twig */
+        $twig = $grav['twig'];
+
+        return $twig->twig()->resolveTemplate(
+            [
+                "flex-objects/layouts/{$this->getFlexType()}/form/{$layout}.html.twig",
+                "flex-objects/layouts/_default/form/{$layout}.html.twig",
+                "forms/{$layout}/form.html.twig",
+                'forms/default/form.html.twig'
+            ]
+        );
     }
 
     /**

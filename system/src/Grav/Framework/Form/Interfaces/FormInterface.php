@@ -11,6 +11,7 @@ namespace Grav\Framework\Form\Interfaces;
 
 use Grav\Common\Data\Blueprint;
 use Grav\Common\Data\Data;
+use Grav\Framework\Interfaces\RenderInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UploadedFileInterface;
 
@@ -18,7 +19,7 @@ use Psr\Http\Message\UploadedFileInterface;
  * Interface FormInterface
  * @package Grav\Framework\Form
  */
-interface FormInterface extends \Serializable
+interface FormInterface extends RenderInterface, \Serializable
 {
     /**
      * Get HTML id="..." attribute.
