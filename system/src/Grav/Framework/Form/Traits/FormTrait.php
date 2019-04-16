@@ -99,6 +99,11 @@ trait FormTrait
         return '';
     }
 
+    public function getTask(): string
+    {
+        return $this->getBlueprint()->get('form/task') ?? '';
+    }
+
     public function getData(string $name = null)
     {
         return null !== $name ? $this->data[$name] : $this->data;

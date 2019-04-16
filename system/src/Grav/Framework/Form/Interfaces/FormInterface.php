@@ -85,6 +85,13 @@ interface FormInterface extends RenderInterface, \Serializable
     public function getNonce(): string;
 
     /**
+     * Get task for the form if set in blueprints.
+     *
+     * @return string
+     */
+    public function getTask(): string;
+
+    /**
      * Get form action (URL). If action is empty, it points to the current page.
      *
      * @return string
