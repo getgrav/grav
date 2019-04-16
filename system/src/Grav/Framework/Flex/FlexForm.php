@@ -49,6 +49,7 @@ class FlexForm implements FlexFormInterface
     {
         $this->name = $name;
         $this->form = $form;
+
         $uniqueId = $object->exists() ? $object->getStorageKey() : "{$object->getFlexType()}:new";
         $this->setObject($object);
         $this->setId($this->getName());
@@ -270,6 +271,7 @@ class FlexForm implements FlexFormInterface
     {
         /** @var FlexObject $object */
         $object = clone $this->getObject();
+
         $object->update($data, $files);
         $object->save();
 
