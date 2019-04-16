@@ -144,7 +144,7 @@ class Uri
             } else {
                 $this->root = $this->base . $this->root_path;
             }
-            $this->uri       = Utils::replaceFirstOccurrence($orig_root_path, $this->root_path, $this->uri);
+            $this->uri = Utils::replaceFirstOccurrence($orig_root_path, $this->root_path, $this->uri);
         } else {
             $this->root = $this->base . $this->root_path;
         }
@@ -212,7 +212,7 @@ class Uri
     /**
      * Return URI path.
      *
-     * @param  string $id
+     * @param string $id
      *
      * @return string|string[]
      */
@@ -228,8 +228,8 @@ class Uri
     /**
      * Return route to the current URI. By default route doesn't include base path.
      *
-     * @param  bool $absolute True to include full path.
-     * @param  bool $domain   True to include domain. Works only if first parameter is also true.
+     * @param bool $absolute True to include full path.
+     * @param bool $domain True to include domain. Works only if first parameter is also true.
      *
      * @return string
      */
@@ -241,8 +241,8 @@ class Uri
     /**
      * Return full query string or a single query attribute.
      *
-     * @param  string $id  Optional attribute. Get a single query attribute if set
-     * @param  bool   $raw If true and $id is not set, return the full query array. Otherwise return the query string
+     * @param string $id Optional attribute. Get a single query attribute if set
+     * @param bool $raw If true and $id is not set, return the full query array. Otherwise return the query string
      *
      * @return string|array Returns an array if $id = null and $raw = true
      */
@@ -266,8 +266,8 @@ class Uri
     /**
      * Return all or a single query parameter as a URI compatible string.
      *
-     * @param  string  $id    Optional parameter name.
-     * @param  boolean $array return the array format or not
+     * @param string $id Optional parameter name.
+     * @param boolean $array return the array format or not
      *
      * @return null|string|array
      */
@@ -299,7 +299,7 @@ class Uri
     /**
      * Get URI parameter.
      *
-     * @param  string $id
+     * @param string $id
      *
      * @return bool|string
      */
@@ -330,7 +330,7 @@ class Uri
     /**
      * Return URL.
      *
-     * @param  bool $include_host Include hostname.
+     * @param bool $include_host Include hostname.
      *
      * @return string
      */
@@ -521,7 +521,7 @@ class Uri
     /**
      * Return root URL to the site.
      *
-     * @param  bool $include_host Include hostname.
+     * @param bool $include_host Include hostname.
      *
      * @return mixed
      */
@@ -582,11 +582,21 @@ class Uri
         return static::buildUrl($this->toArray());
     }
 
-    public function toArray()
+    public function toOriginalString()
     {
-        $root_path = $this->root_path ?? '';
-        $extension = isset($this->extension) && $this->isValidExtension($this->extension) ? '.' . $this->extension : '';
-        $path = $root_path . $this->path . $extension;
+        return static::buildUrl($this->toArray(true));
+    }
+
+    public function toArray($full = false)
+    {
+        if ($full === true) {
+            $root_path = $this->root_path ?? '';
+            $extension = isset($this->extension) && $this->isValidExtension($this->extension) ? '.' . $this->extension : '';
+            $path = $root_path . $this->path . $extension;
+        } else {
+            $path = $this->path;
+        }
+
         return [
             'scheme'    => $this->scheme,
             'host'      => $this->host,

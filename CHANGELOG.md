@@ -1,3 +1,9 @@
+# v1.6.5
+## 04/15/2019
+
+1. [](#bugfix)
+    * Backwards compatiblity with old `Uri::__toString()` output
+
 # v1.6.4
 ## 04/15/2019
 
