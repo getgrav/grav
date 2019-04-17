@@ -6,6 +6,7 @@
     * Added new `FormInterface::getTask()` method which reads the task from `form.task` in the blueprint 
 1. [](#bugfix)
     * Fixed bug in text field filtering: return empty string if value isn't a string or number
+    * Fixed `FlexForm` missing getter methods for defining form variables
     
 # v1.6.5
 ## 04/15/2019

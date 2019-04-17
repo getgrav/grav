@@ -226,6 +226,42 @@ class FlexForm implements FlexFormInterface
         $this->doUnserialize($data);
     }
 
+    public function __get($name)
+    {
+        $method = "get{$name}";
+        if (method_exists($this, $method)) {
+            return $this->{$method}();
+        }
+
+        $form = $this->getBlueprint()->form();
+
+        return $form[$name] ?? null;
+    }
+
+    public function __set($name, $value)
+    {
+        $method = "set{$name}";
+        if (method_exists($this, $method)) {
+            $this->{$method}($value);
+        }
+    }
+
+    public function __isset($name)
+    {
+        $method = "get{$name}";
+        if (method_exists($this, $method)) {
+            return true;
+        }
+
+        $form = $this->getBlueprint()->form();
+
+        return isset($form[$name]);
+    }
+
+    public function __unset($name)
+    {
+    }
+
     /**
      * Note: this method clones the object.
      *
