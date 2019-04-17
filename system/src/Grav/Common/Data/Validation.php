@@ -154,6 +154,10 @@ class Validation
 
     protected static function filterText($value, array $params, array $field)
     {
+        if (!\is_string($value) && !is_numeric($value)) {
+            return '';
+        }
+
         if (!empty($params['trim'])) {
             $value = trim($value);
         }
