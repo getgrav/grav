@@ -103,7 +103,7 @@ trait NestedPropertyTrait
                     $current[$offset] = [];
                 }
             } else {
-                throw new \RuntimeException('Cannot set nested property on non-array value');
+                throw new \RuntimeException("Cannot set nested property {$property} on non-array value");
             }
 
             $current = &$current[$offset];
@@ -147,7 +147,7 @@ trait NestedPropertyTrait
                     return $this;
                 }
             } else {
-                throw new \RuntimeException('Cannot set nested property on non-array value');
+                throw new \RuntimeException("Cannot unset nested property {$property} on non-array value");
             }
 
             $current = &$current[$offset];
