@@ -6,7 +6,8 @@
     * Added new `FormInterface::getTask()` method which reads the task from `form.task` in the blueprint 
 1. [](#bugfix)
     * Rollback `redirect_default_route` logic as it has issues with multilang [#2459](https://github.com/getgrav/grav/issues/2459)
-    * Fixed bug in text field filtering: return empty string if value isn't a string or number
+    * Fix potential issue with `|contains` Twig filter on PHP 7.3 
+    * Fixed bug in text field filtering: return empty string if value isn't a string or number [#2460](https://github.com/getgrav/grav/issues/2460)
     
 # v1.6.5
 ## 04/15/2019
