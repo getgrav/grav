@@ -168,6 +168,11 @@ class Flex implements \Countable
             $keyFieldFind = 'storage_key';
 
             foreach ($keys as $flexKey) {
+                if (!$flexKey) {
+                    continue;
+                }
+
+                $flexKey = (string)$flexKey;
                 // Normalize key and type using fallback to default type if it was set.
                 [$key, $type, $guess] = $this->resolveKeyAndType($flexKey, $defaultType);
 

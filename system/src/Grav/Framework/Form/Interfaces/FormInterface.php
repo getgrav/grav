@@ -11,6 +11,7 @@ namespace Grav\Framework\Form\Interfaces;
 
 use Grav\Common\Data\Blueprint;
 use Grav\Common\Data\Data;
+use Grav\Framework\Interfaces\RenderInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UploadedFileInterface;
 
@@ -18,7 +19,7 @@ use Psr\Http\Message\UploadedFileInterface;
  * Interface FormInterface
  * @package Grav\Framework\Form
  */
-interface FormInterface extends \Serializable
+interface FormInterface extends RenderInterface, \Serializable
 {
     /**
      * Get HTML id="..." attribute.
@@ -82,6 +83,13 @@ interface FormInterface extends \Serializable
      * @return string
      */
     public function getNonce(): string;
+
+    /**
+     * Get task for the form if set in blueprints.
+     *
+     * @return string
+     */
+    public function getTask(): string;
 
     /**
      * Get form action (URL). If action is empty, it points to the current page.

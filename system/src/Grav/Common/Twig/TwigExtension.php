@@ -447,7 +447,11 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
      */
     public function containsFilter($haystack, $needle)
     {
-        return (strpos($haystack, $needle) !== false);
+        if (empty($needle)) {
+            return $haystack;
+        }
+
+        return (strpos($haystack, (string) $needle) !== false);
     }
 
     /**

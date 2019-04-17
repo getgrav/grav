@@ -80,8 +80,6 @@ class PagesServiceProvider implements ServiceProviderInterface
                 }
                 // Default route test and redirect
                 if ($config->get('system.pages.redirect_default_route') && $page->route() !== $path) {
-                    $uri->setUriProperties(['path' => $page->route()]);
-                    $url = $uri->toOriginalString();
                     $c->redirect($url);
                 }
             }

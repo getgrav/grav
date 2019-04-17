@@ -12,11 +12,15 @@ namespace Grav\Framework\Flex;
 use Grav\Common\Data\Blueprint;
 use Grav\Common\Data\Data;
 use Grav\Common\Grav;
+use Grav\Common\Twig\Twig;
 use Grav\Common\Utils;
 use Grav\Framework\Flex\Interfaces\FlexFormInterface;
 use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
 use Grav\Framework\Form\Traits\FormTrait;
 use Grav\Framework\Route\Route;
+use Twig\Error\LoaderError;
+use Twig\Error\SyntaxError;
+use Twig\TemplateWrapper;
 
 /**
  * Class FlexForm
@@ -45,6 +49,7 @@ class FlexForm implements FlexFormInterface
     {
         $this->name = $name;
         $this->form = $form;
+
         $uniqueId = $object->exists() ? $object->getStorageKey() : "{$object->getFlexType()}:new";
         $this->setObject($object);
         $this->setId($this->getName());
@@ -221,6 +226,42 @@ class FlexForm implements FlexFormInterface
         $this->doUnserialize($data);
     }
 
+    public function __get($name)
+    {
+        $method = "get{$name}";
+        if (method_exists($this, $method)) {
+            return $this->{$method}();
+        }
+
+        $form = $this->getBlueprint()->form();
+
+        return $form[$name] ?? null;
+    }
+
+    public function __set($name, $value)
+    {
+        $method = "set{$name}";
+        if (method_exists($this, $method)) {
+            $this->{$method}($value);
+        }
+    }
+
+    public function __isset($name)
+    {
+        $method = "get{$name}";
+        if (method_exists($this, $method)) {
+            return true;
+        }
+
+        $form = $this->getBlueprint()->form();
+
+        return isset($form[$name]);
+    }
+
+    public function __unset($name)
+    {
+    }
+
     /**
      * Note: this method clones the object.
      *
@@ -235,6 +276,29 @@ class FlexForm implements FlexFormInterface
     }
 
     /**
+     * @param string $layout
+     * @return TemplateWrapper
+     * @throws LoaderError
+     * @throws SyntaxError
+     */
+    protected function getTemplate($layout)
+    {
+        $grav = Grav::instance();
+
+        /** @var Twig $twig */
+        $twig = $grav['twig'];
+
+        return $twig->twig()->resolveTemplate(
+            [
+                "flex-objects/layouts/{$this->getFlexType()}/form/{$layout}.html.twig",
+                "flex-objects/layouts/_default/form/{$layout}.html.twig",
+                "forms/{$layout}/form.html.twig",
+                'forms/default/form.html.twig'
+            ]
+        );
+    }
+
+    /**
      * @param array $data
      * @param array $files
      * @throws \Exception
@@ -243,6 +307,7 @@ class FlexForm implements FlexFormInterface
     {
         /** @var FlexObject $object */
         $object = clone $this->getObject();
+
         $object->update($data, $files);
         $object->save();
 
