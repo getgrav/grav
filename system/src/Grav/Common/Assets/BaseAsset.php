@@ -78,6 +78,9 @@ abstract class BaseAsset extends PropertyObject
             }
         }
 
+        // Force priority to be an int
+        $this->priority = (int) $this->priority;
+
         // Do some special stuff for CSS/JS (not inline)
         if (!Utils::startsWith($this->getType(), 'inline')) {
             $this->base_url = rtrim($uri->rootUrl($config->get('system.absolute_urls')), '/') . '/';
