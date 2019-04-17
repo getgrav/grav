@@ -8,6 +8,7 @@
     * Rollback `redirect_default_route` logic as it has issues with multilang [#2459](https://github.com/getgrav/grav/issues/2459)
     * Fix potential issue with `|contains` Twig filter on PHP 7.3 
     * Fixed bug in text field filtering: return empty string if value isn't a string or number [#2460](https://github.com/getgrav/grav/issues/2460)
+    * Force Asset `priority` to be an integer and not throw error if invalid string passed [#2461](https://github.com/getgrav/grav/issues/2461)
     
 # v1.6.5
 ## 04/15/2019
