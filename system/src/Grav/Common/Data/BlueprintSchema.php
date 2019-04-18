@@ -142,7 +142,7 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
 
             if ($rule) {
                 // Item has been defined in blueprints.
-                if (!empty($rule['validate']['ignore'])) {
+                if (!empty($rule['disabled']) || !empty($rule['validate']['ignore'])) {
                     // Skip validation in the ignored field.
                     continue;
                 }
@@ -178,7 +178,7 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
                     $val = $rules[$key] ?? $rules['*'] ?? null;
                     $rule = \is_string($val) ? $this->items[$val] : null;
 
-                    if (empty($rule['validate']['ignore'])) {
+                    if (empty($rule['disabled']) && empty($rule['validate']['ignore'])) {
                         continue;
                     }
                 }
@@ -191,7 +191,7 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
 
             if ($rule) {
                 // Item has been defined in blueprints.
-                if (!empty($rule['validate']['ignore'])) {
+                if (!empty($rule['disabled']) || !empty($rule['validate']['ignore'])) {
                     // Skip any data in the ignored field.
                     unset($results[$key]);
                     continue;
@@ -240,6 +240,8 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
                 if (
                     // Not an input field
                     !$field
+                    // Field has been disabled
+                    || !empty($field['disabled'])
                     // Field validation is set to be ignored
                     || !empty($field['validate']['ignore'])
                     // Field is toggleable and the toggle is turned off
@@ -273,7 +275,7 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
             $field = $this->items[$field];
 
             // Skip ignored field, it will not be required.
-            if (!empty($field['validate']['ignore'])) {
+            if (!empty($field['disabled']) || !empty($field['validate']['ignore'])) {
                 continue;
             }
 

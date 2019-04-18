@@ -2,7 +2,9 @@
 ## mm/dd/2019
 
 1. [](#improved)
-    * Improve `FormTrait` backwards compatibility with existing forms 
+    * Improve `FormTrait` backwards compatibility with existing forms
+1. [](#bugfix)
+    * Remove disabled fields from the form schema
 
 # v1.6.6
 ## 04/17/2019
