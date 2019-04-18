@@ -1,3 +1,9 @@
+# v1.6.7
+## mm/dd/2019
+
+1. [](#improved)
+    * Improve `FormTrait` backwards compatibility with existing forms 
+
 # v1.6.6
 ## 04/17/2019
 
