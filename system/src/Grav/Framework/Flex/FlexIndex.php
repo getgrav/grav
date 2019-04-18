@@ -386,10 +386,6 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
                         $cached = $result;
                     }
 
-                    if ($cached === null) {
-                        throw new \RuntimeException('Flex: Internal error');
-                    }
-
                     $cache->set($key, $cached);
                 } catch (InvalidArgumentException $e) {
                     $debugger->addException($e);
