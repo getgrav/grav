@@ -3,6 +3,7 @@
 
 1. [](#improved)
     * Improve `FormTrait` backwards compatibility with existing forms
+    * Added a new `Utils::getSubnet()` function for IPv6 parsing [#2465](https://github.com/getgrav/grav/pull/2465)
 1. [](#bugfix)
     * Remove disabled fields from the form schema
 
