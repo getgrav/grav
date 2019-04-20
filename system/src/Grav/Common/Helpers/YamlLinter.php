@@ -16,6 +16,14 @@ use Symfony\Component\Yaml\Yaml;
 
 class YamlLinter
 {
+    public static function lint()
+    {
+        $errors = static::lintConfig();
+        $errors = $errors + static::lintPages();
+
+        return $errors;
+    }
+
     public static function lintPages()
     {
         return static::recurseFolder('page://');
