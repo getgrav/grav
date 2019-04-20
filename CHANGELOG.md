@@ -6,6 +6,7 @@
     * Added a new `Utils::getSubnet()` function for IPv6 parsing [#2465](https://github.com/getgrav/grav/pull/2465)
 1. [](#bugfix)
     * Remove disabled fields from the form schema
+    * Fix issue when excluding `inlineJs` and `inlineCss` from Assets pipeline [#2468](https://github.com/getgrav/grav/issues/2468)
 
 # v1.6.6
 ## 04/17/2019
