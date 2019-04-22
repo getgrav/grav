@@ -9,6 +9,7 @@
 1. [](#bugfix)
     * Remove disabled fields from the form schema
     * Fix issue when excluding `inlineJs` and `inlineCss` from Assets pipeline [#2468](https://github.com/getgrav/grav/issues/2468)
+    * Fix for manually set position on external URLs [#2470](https://github.com/getgrav/grav/issues/2470)
 
 # v1.6.6
 ## 04/17/2019
