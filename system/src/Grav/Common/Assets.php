@@ -267,6 +267,22 @@ class Assets extends PropertyObject
     protected function filterAssets($assets, $key, $value, $sort = false)
     {
         $results = array_filter($assets, function($asset) use ($key, $value) {
+
+            if ($key === 'position' && $value === 'pipeline') {
+
+                $type = $asset->getType();
+
+                if ($asset->getRemote() && $this->{$type . '_pipeline_include_externals'} === false && $asset['position'] === 'pipeline' ) {
+                    if ($this->{$type . '_pipeline_before_excludes'}) {
+                        $asset->setPosition('after');
+                    } else {
+                        $asset->setPosition('before');
+                    }
+                    return false;
+                }
+
+            }
+
             if ($asset[$key] === $value) return true;
             return false;
         });
