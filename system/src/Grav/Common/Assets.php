@@ -172,7 +172,8 @@ class Assets extends PropertyObject
         // If pipeline disabled, set to position if provided, else after
         if (isset($options['pipeline'])) {
             if ($options['pipeline'] === false) {
-                $excludes = strtolower($type . '_pipeline_before_excludes');
+                $exclude_type = ($type === $this::JS_TYPE || $type === $this::INLINE_JS_TYPE) ? $this::JS_TYPE : $this::CSS_TYPE;
+                $excludes = strtolower($exclude_type . '_pipeline_before_excludes');
                 if ($this->{$excludes}) {
                     $default = 'after';
                 } else {
@@ -271,7 +272,7 @@ class Assets extends PropertyObject
 
                 $type = $asset->getType();
 
-                if ($asset->getRemote() && $this->{$type . '_pipeline_include_externals'} === false) {
+                if ($asset->getRemote() && $this->{$type . '_pipeline_include_externals'} === false && $asset['position'] === 'pipeline' ) {
                     if ($this->{$type . '_pipeline_before_excludes'}) {
                         $asset->setPosition('after');
                     } else {
@@ -281,6 +282,7 @@ class Assets extends PropertyObject
                 }
 
             }
+
             if ($asset[$key] === $value) return true;
             return false;
         });

@@ -1469,4 +1469,44 @@ abstract class Utils
 
         return $string;
     }
+
+    /**
+     * Find the subnet of an ip with CIDR prefix size
+     *
+     * @param string $ip
+     * @param int $prefix
+     *
+     * @return string
+     * @throws \InvalidArgumentException if provided an invalid IP
+     */
+    public static function getSubnet($ip, $prefix = 64)
+    {
+        if (!filter_var($ip, FILTER_VALIDATE_IP)) {
+            throw new \InvalidArgumentException('Invalid IP: ' . $ip);
+        }
+
+        // Packed representation of IP
+        $ip = inet_pton($ip);
+
+        // Maximum netmask length = same as packed address
+        $len = 8*strlen($ip);
+        if ($prefix > $len) $prefix = $len;
+
+        $mask  = str_repeat('f', $prefix>>2);
+
+        switch($prefix & 3)
+        {
+            case 3: $mask .= 'e'; break;
+            case 2: $mask .= 'c'; break;
+            case 1: $mask .= '8'; break;
+        }
+        $mask = str_pad($mask, $len>>2, '0');
+
+        // Packed representation of netmask
+        $mask = pack('H*', $mask);
+        // Bitwise - Take all bits that are both 1 to generate subnet
+        $subnet = inet_ntop($ip & $mask);
+
+        return $subnet;
+    }
 }

@@ -141,6 +141,11 @@ interface FormInterface extends RenderInterface, \Serializable
     public function isValid(): bool;
 
     /**
+     * @return string
+     */
+    public function getError(): ?string;
+
+    /**
      * @return array
      */
     public function getErrors(): array;

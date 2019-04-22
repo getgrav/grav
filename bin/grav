@@ -3,6 +3,7 @@
 
 use Grav\Common\Composer;
 use Grav\Common\Grav;
+use League\CLImate\CLImate;
 use Symfony\Component\Console\Application;
 
 \define('GRAV_CLI', true);
@@ -24,7 +25,22 @@ if (version_compare($ver = PHP_VERSION, $req = GRAV_PHP_MIN, '<')) {
     exit(sprintf("You are running PHP %s, but Grav needs at least PHP %s to run.\n", $ver, $req));
 }
 
-Grav::instance(array('loader' => $autoload));
+$climate = new League\CLImate\CLImate;
+$climate->arguments->add([
+    'environment' => [
+        'prefix'        => 'e',
+        'longPrefix'    => 'env',
+        'description'   => 'Configuration Environment',
+        'defaultValue'  => 'localhost'
+    ]
+]);
+$climate->arguments->parse();
+
+// Set up environment based on params.
+$environment = $climate->arguments->get('environment');
+
+$grav = Grav::instance(array('loader' => $autoload));
+$grav->setup($environment);
 
 if (!ini_get('date.timezone')) {
     date_default_timezone_set('UTC');
@@ -46,5 +62,6 @@ $app->addCommands(array(
     new \Grav\Console\Cli\SchedulerCommand(),
     new \Grav\Console\Cli\SecurityCommand(),
     new \Grav\Console\Cli\LogViewerCommand(),
+    new \Grav\Console\Cli\YamlLinterCommand(),
 ));
 $app->run();

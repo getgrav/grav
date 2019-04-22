@@ -54,7 +54,7 @@ class FlexForm implements FlexFormInterface
         $this->setObject($object);
         $this->setId($this->getName());
         $this->setUniqueId(md5($uniqueId));
-        $this->errors = [];
+        $this->messages = [];
         $this->submitted = false;
 
         $flash = $this->getFlash();
