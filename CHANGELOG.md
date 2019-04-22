@@ -1,11 +1,11 @@
 # v1.6.7
-## mm/dd/2019
+## 04/22/2019
 
 1. [](#new)
     * Added a new `bin/grav yamllinter` CLI command to find YAML Linting issues [#2468](https://github.com/getgrav/grav/issues/2468#issuecomment-485151681)
 1. [](#improved)
     * Improve `FormTrait` backwards compatibility with existing forms
-    * Added a new `Utils::getSubnet()` function for IPv6 parsing [#2465](https://github.com/getgrav/grav/pull/2465)
+    * Added a new `Utils::getSubnet()` function for IPv4/IPv6 parsing [#2465](https://github.com/getgrav/grav/pull/2465)
 1. [](#bugfix)
     * Remove disabled fields from the form schema
     * Fix issue when excluding `inlineJs` and `inlineCss` from Assets pipeline [#2468](https://github.com/getgrav/grav/issues/2468)
