@@ -6,6 +6,7 @@
 1. [](#bugfix)
     * Revert `Use Null Coalesce Operator` [#2466](https://github.com/getgrav/grav/pull/2466)
     * Fixed `FormTrait::render()` not providing config variable
+    * Updated `bin/grav clean` to clear `cache/compiled` and `user/config/security.yaml`
 
 # v1.6.7
 ## 04/22/2019
