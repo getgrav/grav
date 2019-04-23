@@ -381,7 +381,7 @@ trait FormTrait
         $block->disableCache();
 
         $output = $this->getTemplate($layout)->render(
-            ['grav' => $grav, 'block' => $block, 'form' => $this, 'layout' => $layout] + $context
+            ['grav' => $grav, 'config' => $grav['config'], 'block' => $block, 'form' => $this, 'layout' => $layout] + $context
         );
 
         $block->setContent($output);
