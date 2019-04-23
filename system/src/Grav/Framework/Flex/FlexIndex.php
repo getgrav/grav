@@ -98,6 +98,16 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
         return $this->orderBy($orderings);
     }
 
+
+    /**
+     * {@inheritdoc}
+     * @see FlexCollectionInterface::filterBy()
+     */
+    public function filterBy(array $filters)
+    {
+        return $this->__call('filterBy', [$filters]);
+    }
+
     /**
      * {@inheritdoc}
      * @see FlexCollectionInterface::getFlexType()

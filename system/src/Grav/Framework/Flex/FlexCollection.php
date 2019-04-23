@@ -124,6 +124,22 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
     }
 
     /**
+     * @param array $filters
+     * @return FlexCollectionInterface
+     */
+    public function filterBy(array $filters)
+    {
+        $expr = Criteria::expr();
+        $criteria = Criteria::create();
+
+        foreach ($filters as $key => $value) {
+            $criteria->andWhere($expr->eq($key, $value));
+        }
+
+        return $this->matching($criteria);
+    }
+
+    /**
      * {@inheritdoc}
      * @see FlexCollectionInterface::getFlexType()
      */

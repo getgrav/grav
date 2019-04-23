@@ -1,9 +1,11 @@
 # v1.6.8
 ## mm/dd/2019
 
+1. [](#new)
+    * Added `FlexCollection::filterBy()` method
 1. [](#bugfix)
     * Revert `Use Null Coalesce Operator` [#2466](https://github.com/getgrav/grav/pull/2466)
-    * Fixed `FlexForm::render()` not providing config variable
+    * Fixed `FormTrait::render()` not providing config variable
 
 # v1.6.7
 ## 04/22/2019

@@ -71,6 +71,14 @@ interface FlexCollectionInterface extends FlexCommonInterface, ObjectCollectionI
     public function sort(array $orderings);
 
     /**
+     * Filter collection by filter array with keys and values.
+     *
+     * @param array $filters
+     * @return FlexCollectionInterface
+     */
+    public function filterBy(array $filters);
+
+    /**
      * Get timestamps from all the objects in the collection.
      *
      * This method can be used for example in caching.
