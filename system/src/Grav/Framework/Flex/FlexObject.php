@@ -416,7 +416,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
             ]));
 
             $output = $this->getTemplate($layout)->render(
-                ['grav' => $grav, 'block' => $block, 'object' => $this, 'layout' => $layout] + $context
+                ['grav' => $grav, 'config' => $grav['config'], 'block' => $block, 'object' => $this, 'layout' => $layout] + $context
             );
 
             if ($debugger->enabled()) {

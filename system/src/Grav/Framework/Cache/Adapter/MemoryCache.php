@@ -27,7 +27,11 @@ class MemoryCache extends AbstractCache
 
     public function doGet($key, $miss)
     {
-        return $this->cache[$key] ?? $miss;
+        if (!array_key_exists($key, $this->cache)) {
+            return $miss;
+        }
+
+        return $this->cache[$key];
     }
 
     public function doSet($key, $value, $ttl)

@@ -124,6 +124,22 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
     }
 
     /**
+     * @param array $filters
+     * @return FlexCollectionInterface
+     */
+    public function filterBy(array $filters)
+    {
+        $expr = Criteria::expr();
+        $criteria = Criteria::create();
+
+        foreach ($filters as $key => $value) {
+            $criteria->andWhere($expr->eq($key, $value));
+        }
+
+        return $this->matching($criteria);
+    }
+
+    /**
      * {@inheritdoc}
      * @see FlexCollectionInterface::getFlexType()
      */
@@ -301,7 +317,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
             ]));
 
             $output = $this->getTemplate($layout)->render(
-                ['grav' => $grav, 'block' => $block, 'collection' => $this, 'layout' => $layout] + $context
+                ['grav' => $grav, 'config' => $grav['config'], 'block' => $block, 'collection' => $this, 'layout' => $layout] + $context
             );
 
             if ($debugger->enabled()) {
