@@ -193,6 +193,7 @@ class Route
     public function withRoute($route)
     {
         $this->route = $route;
+
         return $this;
     }
 
@@ -205,6 +206,7 @@ class Route
     public function withRoot($root)
     {
         $this->root = $root;
+
         return $this;
     }
 

@@ -1,3 +1,9 @@
+# v1.6.9
+## mm/dd/2019
+
+1. [](#bugfix)
+    * Fixed `$grav['route']` from being modified when the route instance gets modified
+
 # v1.6.8
 ## 04/23/2019
 
