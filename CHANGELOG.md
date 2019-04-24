@@ -1,6 +1,8 @@
 # v1.6.9
 ## mm/dd/2019
 
+1. [](#new)
+    * Added `Route::withoutParams()` methods
 1. [](#bugfix)
     * Fixed `$grav['route']` from being modified when the route instance gets modified
 
