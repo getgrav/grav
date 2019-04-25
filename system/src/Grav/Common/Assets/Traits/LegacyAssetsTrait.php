@@ -24,19 +24,21 @@ trait LegacyAssetsTrait
         // First argument is always the asset
         array_shift($args);
 
-        if (\count($args) === 0) {
+        if (count($args) === 0) {
             return [];
         }
-        if (\count($args) === 1 && \is_array($args[0])) {
+        // New options array format
+        if (count($args) === 1 && is_array($args[0])) {
             return $args[0];
+        }
+        // Handle obscure case where options array is mixed with a priority
+        if (count($args) === 2 && is_array($args[0]) && is_int($args[1])) {
+            $arguments = $args[0];
+            $arguments['priority'] = $args[1];
+            return $arguments;
         }
 
         switch ($type) {
-            case(Assets::INLINE_CSS_TYPE):
-                $defaults = ['priority' => null, 'group' => null];
-                $arguments = $this->createArgumentsFromLegacy($args, $defaults);
-                break;
-
             case(Assets::JS_TYPE):
                 $defaults = ['priority' => null, 'pipeline' => true, 'loading' => null, 'group' => null];
                 $arguments = $this->createArgumentsFromLegacy($args, $defaults);
@@ -53,6 +55,11 @@ trait LegacyAssetsTrait
                 }
                 unset($arguments['attributes']);
 
+                break;
+
+            case(Assets::INLINE_CSS_TYPE):
+                $defaults = ['priority' => null, 'group' => null];
+                $arguments = $this->createArgumentsFromLegacy($args, $defaults);
                 break;
 
             default:
