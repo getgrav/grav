@@ -3,6 +3,7 @@
 
 1. [](#new)
     * Added `Route::withoutParams()` methods
+    * Added `Pages::setCheckMethod()` method to override page configuration in Admin Plugin
 1. [](#bugfix)
     * Fixed `$grav['route']` from being modified when the route instance gets modified
 
