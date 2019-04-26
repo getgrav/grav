@@ -437,7 +437,7 @@ class Cache extends Getters
             case 'tmp-only':
                 $remove_paths = self::$tmp_remove;
                 break;
-            case 'touch':
+            case 'invalidate':
                 $remove_paths = [];
                 break;
             default:
