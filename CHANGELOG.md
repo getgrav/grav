@@ -7,6 +7,7 @@
 1. [](#bugfix)
     * Fixed `$grav['route']` from being modified when the route instance gets modified
     * Fixed Assets options array mixed with standalone priority [#2477](https://github.com/getgrav/grav/issues/2477)
+    * Fix for `avatar_url` provided by 3rd party providers
 
 # v1.6.8
 ## 04/23/2019
