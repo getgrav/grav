@@ -437,6 +437,9 @@ class Cache extends Getters
             case 'tmp-only':
                 $remove_paths = self::$tmp_remove;
                 break;
+            case 'invalidate':
+                $remove_paths = [];
+                break;
             default:
                 if (Grav::instance()['config']->get('system.cache.clear_images_by_default')) {
                     $remove_paths = self::$standard_remove;
