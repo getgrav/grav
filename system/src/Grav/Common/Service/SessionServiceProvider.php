@@ -13,6 +13,7 @@ use Grav\Common\Config\Config;
 use Grav\Common\Debugger;
 use Grav\Common\Session;
 use Grav\Common\Uri;
+use Grav\Common\Utils;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 use RocketTheme\Toolbox\Session\Message;
@@ -55,8 +56,7 @@ class SessionServiceProvider implements ServiceProviderInterface
                 $current_route = str_replace(Uri::filterPath($uri->rootUrl(false)), '', parse_url($uri->url(true), PHP_URL_PATH));
 
                 // Check no language, simple language prefix (en) and region specific language prefix (en-US).
-                $pos = strpos($current_route, $base);
-                if ($pos === 0 || $pos === 3 || $pos === 6) {
+                if (Utils::startsWith($current_route, $base) || Utils::pathPrefixedByLangCode($current_route)) {
                     $cookie_lifetime = $config->get('plugins.admin.session.timeout', 1800);
                     $enabled = $is_admin = true;
                 }

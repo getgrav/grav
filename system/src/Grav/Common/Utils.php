@@ -975,6 +975,7 @@ abstract class Utils
      * @param string $string The path
      *
      * @return bool
+     *
      */
     public static function pathPrefixedByLangCode($string)
     {
@@ -983,8 +984,13 @@ abstract class Utils
         }
 
         $languages_enabled = Grav::instance()['config']->get('system.languages.supported', []);
+        $parts = explode('/', trim($string, '/'));
 
-        return $string[0] === '/' && $string[3] === '/' && \in_array(substr($string, 1, 2), $languages_enabled, true);
+        if (count($parts) > 0 && in_array($parts[0], $languages_enabled)) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
