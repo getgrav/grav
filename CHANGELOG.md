@@ -5,6 +5,8 @@
     * Added `Route::withoutParams()` methods
     * Added `Pages::setCheckMethod()` method to override page configuration in Admin Plugin
     * Added `Cache::clearCache('invalidate')` parameter for just invalidating the cache without deleting any cached files
+1. [](#improved)
+    * Flex admin: added default search options for flex objects
 1. [](#bugfix)
     * Fixed `$grav['route']` from being modified when the route instance gets modified
     * Fixed Assets options array mixed with standalone priority [#2477](https://github.com/getgrav/grav/issues/2477)
