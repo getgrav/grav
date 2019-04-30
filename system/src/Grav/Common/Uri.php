@@ -1154,7 +1154,7 @@ class Uri
             $this->scheme = $env['X-FORWARDED-PROTO'];
         } elseif (isset($env['HTTP_CLOUDFRONT_FORWARDED_PROTO'])) {
             $this->scheme = $env['HTTP_CLOUDFRONT_FORWARDED_PROTO'];
-        } elseif (isset($env['REQUEST_SCHEME'])) {
+        } elseif (isset($env['REQUEST_SCHEME']) && empty($env['HTTPS'])) {
            $this->scheme = $env['REQUEST_SCHEME'];
         } else {
             $https = $env['HTTPS'] ?? '';
