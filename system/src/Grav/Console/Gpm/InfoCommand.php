@@ -114,7 +114,7 @@ class InfoCommand extends ConsoleCommand
 
                 if ($info === 'date') {
                     $name = 'Last Update';
-                    $data = date('D, j M Y, H:i:s, P ', strtotime('2014-09-16T00:07:16Z'));
+                    $data = date('D, j M Y, H:i:s, P ', strtotime($data));
                 }
 
                 $name = str_pad($name, 12);
