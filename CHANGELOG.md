@@ -15,6 +15,7 @@
     * Fix for `avatar_url` provided by 3rd party providers
     * Fixed non standard `lang` code lengths in `Utils` and `Session` detection
     * Fixed saving a new object in Flex `SimpleStorage`
+    * Fixed exception in `Flex::getDirectories()` if the first parameter is set
 
 # v1.6.8
 ## 04/23/2019

@@ -91,7 +91,7 @@ class Flex implements \Countable
         // Return the directories in the given order.
         $directories = [];
         foreach ($types as $type) {
-            $directories = $this->types[$type] ?? null;
+            $directories[$type] = $this->types[$type] ?? null;
         }
 
         return $keepMissing ? $directories : array_filter($directories);
