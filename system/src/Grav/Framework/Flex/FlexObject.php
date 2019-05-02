@@ -819,7 +819,12 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
         $twig = $grav['twig'];
 
         try {
-            return $twig->twig()->resolveTemplate(["flex-objects/layouts/{$this->getFlexType()}/object/{$layout}.html.twig"]);
+            return $twig->twig()->resolveTemplate(
+                [
+                    "flex-objects/layouts/{$this->getFlexType()}/object/{$layout}.html.twig",
+                    "flex-objects/layouts/_default/object/{$layout}.html.twig"
+                ]
+            );
         } catch (LoaderError $e) {
             /** @var Debugger $debugger */
             $debugger = Grav::instance()['debugger'];

@@ -8,6 +8,7 @@
     * Made `UserCollectionInderface` to extend `Countable` to get the count of existing users
 1. [](#improved)
     * Flex admin: added default search options for flex objects
+    * Flex collection and object now fall back to the default template if template file doesn't exist
 1. [](#bugfix)
     * Fixed `$grav['route']` from being modified when the route instance gets modified
     * Fixed Assets options array mixed with standalone priority [#2477](https://github.com/getgrav/grav/issues/2477)
