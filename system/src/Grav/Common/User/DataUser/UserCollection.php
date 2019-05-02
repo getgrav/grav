@@ -118,4 +118,13 @@ class UserCollection implements UserCollectionInterface
 
         return $file_path && unlink($file_path);
     }
+
+    public function count(): int
+    {
+        // check for existence of a user account
+        $account_dir = $file_path = Grav::instance()['locator']->findResource('account://');
+        $accounts = glob($account_dir . '/*.yaml') ?: [];
+
+        return count($accounts);
+    }
 }

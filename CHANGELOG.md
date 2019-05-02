@@ -4,7 +4,8 @@
 1. [](#new)
     * Added `Route::withoutParams()` methods
     * Added `Pages::setCheckMethod()` method to override page configuration in Admin Plugin
-    * Added `Cache::clearCache('invalidate')` parameter for just invalidating the cache without deleting any cached files
+    * Added `Cache::clearCache('invalidate')` parameter for just invalidating the cache without deleting any cached files 
+    * Made `UserCollectionInderface` to extend `Countable` to get the count of existing users
 1. [](#improved)
     * Flex admin: added default search options for flex objects
 1. [](#bugfix)
