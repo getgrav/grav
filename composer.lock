@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ab11f03dcee35ae50dcb26f9973b8cd9",
+    "content-hash": "f9429e7cd2e75a232f968b01a1024983",
     "packages": [
         {
             "name": "antoligy/dom-string-iterators",
@@ -2021,7 +2021,7 @@
                 },
                 {
                     "name": "Gert de Pagter",
-                    "email": "BackEndTea@gmail.com"
+                    "email": "backendtea@gmail.com"
                 }
             ],
             "description": "Symfony polyfill for ctype functions",
