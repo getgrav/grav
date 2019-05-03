@@ -1344,14 +1344,14 @@ abstract class Utils
         static $max_size = -1;
 
         if ($max_size < 0) {
-            $post_max_size = (int) static::parseSize(ini_get('post_max_size'));
+            $post_max_size = static::parseSize(ini_get('post_max_size'));
             if ($post_max_size > 0) {
                 $max_size = $post_max_size;
             } else {
                 $max_size = 0;
             }
 
-            $upload_max = (int) static::parseSize(ini_get('upload_max_filesize'));
+            $upload_max = static::parseSize(ini_get('upload_max_filesize'));
             if ($upload_max > 0 && $upload_max < $max_size) {
                 $max_size = $upload_max;
             }
@@ -1412,11 +1412,12 @@ abstract class Utils
     {
         $unit = preg_replace('/[^bkmgtpezy]/i', '', $size);
         $size = preg_replace('/[^0-9\.]/', '', $size);
+
         if ($unit) {
-            return round($size * pow(1024, stripos('bkmgtpezy', $unit[0])));
-        } else {
-            return round($size);
+            $size = $size * pow(1024, stripos('bkmgtpezy', $unit[0]));
         }
+
+        return (int) abs(round($size));
     }
 
     /**
