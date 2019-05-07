@@ -102,7 +102,7 @@ class YamlFormatter extends AbstractFormatter
         }
 
         try {
-            return YamlParser::parse($data);
+            return (array) YamlParser::parse($data);
         } catch (ParseException $e) {
             if ($this->useCompatibleDecoder()) {
                 return (array) FallbackYamlParser::parse($data);
