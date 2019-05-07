@@ -20,6 +20,7 @@
     * Output correct "Last Updated" in `bin/gpm info` command
     * Checkbox getting interpreted as string, so created new `Validation::filterCheckbox()`
     * Fixed backwards compatibility to `select` field with `selectize.create` set to true [git-sync#141](https://github.com/trilbymedia/grav-plugin-git-sync/issues/141)
+    * Fixed `YamlFormatter::decode()` to always return array [#2494](https://github.com/getgrav/grav/pull/2494)
 
 # v1.6.8
 ## 04/23/2019
