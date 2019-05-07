@@ -576,6 +576,11 @@ class Validation
             }
         }
 
+        // If creating new values is allowed, no further checks are needed.
+        if (!empty($field['selectize']['create'])) {
+            return true;
+        }
+
         $options = $field['options'] ?? [];
         $use = $field['use'] ?? 'values';
 
