@@ -35,3 +35,12 @@ GRAV:
     - 'Outubro'
     - 'Novembro'
     - 'Dezembro'
+  INFLECTOR_UNCOUNTABLE:
+    - 'equipment'
+    - 'information'
+    - 'arroz'
+    - 'money'
+    - 'species'
+    - 'series'
+    - 'fish'
+    - 'sheep'

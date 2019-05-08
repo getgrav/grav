@@ -14,6 +14,8 @@ GRAV:
     '/sis$/i': 'ses'
     '/([ti])um$/i': '\1a'
     '/(buffal|tomat)o$/i': '\1es'
+    '/(bu)s$/i': 'Bus'
+    '/(alias|status)/i': 'alias|status'
     '/(ax|test)is$/i': '\1s'
     '/s$/i': 's'
     '/$/': 's'
