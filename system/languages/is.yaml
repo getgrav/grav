@@ -11,6 +11,8 @@ GRAV:
     - 'fish'
     - 'sheep'
   NICETIME:
+    NO_DATE_PROVIDED: Engin dagsetning gefin
+    BAD_DATE: Röng dagsetning
     AGO: síðan
     JUST_NOW: í þessu
     SECOND: sekúndu
@@ -45,6 +47,7 @@ GRAV:
     DEC_PLURAL: árat
   FORM:
     VALIDATION_FAIL: <b>Sannvottun mistókst:</b>
+    INVALID_INPUT: Ógilt inntak í
     MISSING_REQUIRED_FIELD: 'Vantar nauðsynlegan reit:'
   MONTHS_OF_THE_YEAR:
     - 'janúar'
@@ -67,3 +70,11 @@ GRAV:
     - 'Föstudagur'
     - 'Laugardagur'
     - 'Sunnudagur'
+  CRON:
+    TEXT_TIME: ' á <b />:<b />'
+    TEXT_DOW: ' á <b />'
+    TEXT_MONTH: ' af <b />'
+    TEXT_DOM: ' á <b />'
+    ERROR1: Merkið %s er ekki stutt!
+    ERROR3: Það ætti að setja jquery_element inn í stillingar jqCron
+    ERROR4: Óþekkt segð

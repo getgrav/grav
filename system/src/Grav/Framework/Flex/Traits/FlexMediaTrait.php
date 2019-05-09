@@ -229,7 +229,6 @@ trait FlexMediaTrait
         }
 
         // Remove Extra Files
-
         foreach (scandir($targetPath, SCANDIR_SORT_NONE) as $file) {
             $preg_name = preg_quote($fileParts['filename'], '`');
             $preg_ext =preg_quote($fileParts['extension'], '`');

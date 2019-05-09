@@ -193,6 +193,7 @@ class Route
     public function withRoute($route)
     {
         $this->route = $route;
+
         return $this;
     }
 
@@ -205,6 +206,7 @@ class Route
     public function withRoot($root)
     {
         $this->root = $root;
+
         return $this;
     }
 
@@ -248,6 +250,25 @@ class Route
     public function withQueryParam($param, $value)
     {
         return $this->withParam('queryParams', $param, $value);
+    }
+
+    public function withoutParams()
+    {
+        return $this->withoutGravParams()->withoutQueryParams();
+    }
+
+    public function withoutGravParams()
+    {
+        $this->gravParams = [];
+
+        return $this;
+    }
+
+    public function withoutQueryParams()
+    {
+        $this->queryParams = [];
+
+        return $this;
     }
 
     /**
@@ -298,7 +319,7 @@ class Route
             return $this;
         }
 
-        $new = clone $this;
+        $new = $this->copy();
         if ($value === null) {
             unset($new->{$type}[$param]);
         } else {
@@ -306,6 +327,11 @@ class Route
         }
 
         return $new;
+    }
+
+    protected function copy()
+    {
+        return clone $this;
     }
 
     /**

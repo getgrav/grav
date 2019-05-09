@@ -490,7 +490,12 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
         $twig = $grav['twig'];
 
         try {
-            return $twig->twig()->resolveTemplate(["flex-objects/layouts/{$this->getFlexType()}/collection/{$layout}.html.twig"]);
+            return $twig->twig()->resolveTemplate(
+                [
+                    "flex-objects/layouts/{$this->getFlexType()}/collection/{$layout}.html.twig",
+                    "flex-objects/layouts/_default/collection/{$layout}.html.twig"
+                ]
+            );
         } catch (LoaderError $e) {
             /** @var Debugger $debugger */
             $debugger = Grav::instance()['debugger'];

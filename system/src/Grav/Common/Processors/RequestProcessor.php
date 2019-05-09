@@ -30,10 +30,13 @@ class RequestProcessor extends ProcessorBase
             $request = $request->withParsedBody(json_decode($request->getBody()->getContents(), true));
         }
 
+        $uri = $request->getUri();
+        $ext = mb_strtolower(pathinfo($uri->getPath(), PATHINFO_EXTENSION));
+
         $request = $request
             ->withAttribute('grav', $this->container)
             ->withAttribute('time', $_SERVER['REQUEST_TIME_FLOAT'] ?? GRAV_REQUEST_TIME)
-            ->withAttribute('route', Uri::getCurrentRoute())
+            ->withAttribute('route', Uri::getCurrentRoute()->withExtension($ext))
             ->withAttribute('referrer', $this->container['uri']->referrer());
 
         $event = new RequestHandlerEvent(['request' => $request, 'handler' => $handler]);

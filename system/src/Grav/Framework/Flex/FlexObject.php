@@ -162,6 +162,13 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     {
         $options = $options ?? $this->getFlexDirectory()->getConfig('data.search.options', []);
         $properties = $properties ?? $this->getFlexDirectory()->getConfig('data.search.fields', []);
+        if (!$properties) {
+            foreach ($this->getFlexDirectory()->getConfig('admin.list.fields', []) as $property => $value) {
+                if (!empty($value['link'])) {
+                    $properties[] = $property;
+                }
+            }
+        }
 
         $weight = 0;
         foreach ((array)$properties as $property) {
@@ -273,7 +280,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
             return (float)$options['ends_with'];
         }
         if ((!$tested || !empty($options['contains'])) && Utils::contains($value, $search, $options['case_sensitive'] ?? false)) {
-            return (float)$options['contains'];
+            return (float)($options['contains'] ?? 1);
         }
 
         return 0;
@@ -812,7 +819,12 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
         $twig = $grav['twig'];
 
         try {
-            return $twig->twig()->resolveTemplate(["flex-objects/layouts/{$this->getFlexType()}/object/{$layout}.html.twig"]);
+            return $twig->twig()->resolveTemplate(
+                [
+                    "flex-objects/layouts/{$this->getFlexType()}/object/{$layout}.html.twig",
+                    "flex-objects/layouts/_default/object/{$layout}.html.twig"
+                ]
+            );
         } catch (LoaderError $e) {
             /** @var Debugger $debugger */
             $debugger = Grav::instance()['debugger'];

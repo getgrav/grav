@@ -148,12 +148,13 @@ trait UserTrait
 
         // Try looking for provider.
         $provider = $this->get('provider');
-        if (\is_array($provider)) {
-            if (isset($provider['avatar_url']) && \is_string($provider['avatar_url'])) {
-                return $provider['avatar_url'];
+        $provider_options = $this->get($provider);
+        if (\is_array($provider_options)) {
+            if (isset($provider_options['avatar_url']) && \is_string($provider_options['avatar_url'])) {
+                return $provider_options['avatar_url'];
             }
-            if (isset($provider['avatar']) && \is_string($provider['avatar'])) {
-                return $provider['avatar'];
+            if (isset($provider_options['avatar']) && \is_string($provider_options['avatar'])) {
+                return $provider_options['avatar'];
             }
         }
 

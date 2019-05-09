@@ -21,6 +21,7 @@ class ClearCacheCommand extends ConsoleCommand
             ->setName('cache')
             ->setAliases(['clearcache', 'cache-clear'])
             ->setDescription('Clears Grav cache')
+            ->addOption('invalidate', null, InputOption::VALUE_NONE, 'Invalidate cache, but do not remove any files')
             ->addOption('purge', null, InputOption::VALUE_NONE, 'If set purge old caches')
             ->addOption('all', null, InputOption::VALUE_NONE, 'If set will remove all including compiled, twig, doctrine caches')
             ->addOption('assets-only', null, InputOption::VALUE_NONE, 'If set will remove only assets/*')
@@ -64,6 +65,8 @@ class ClearCacheCommand extends ConsoleCommand
                 $remove = 'cache-only';
             } elseif ($this->input->getOption('tmp-only')) {
                 $remove = 'tmp-only';
+            } elseif ($this->input->getOption('invalidate')) {
+                $remove = 'invalidate';
             } else {
                 $remove = 'standard';
             }

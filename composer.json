@@ -24,7 +24,7 @@
         "kodus/psr7-server": "*",
         "nyholm/psr7": "^1.0",
 
-        "twig/twig": "~1.35",
+        "twig/twig": "~1.40",
         "erusev/parsedown": "1.6.4",
         "erusev/parsedown-extra": "~0.7",
         "symfony/yaml": "~4.2",
@@ -89,6 +89,8 @@
         "exclude": ["VERSION"]
     },
     "scripts": {
+        "api-16": "vendor/bin/phpdoc-md generate system/src > user/pages/14.api/default.16.md",
+        "api-15": "vendor/bin/phpdoc-md generate system/src > user/pages/14.api/default.md",
         "post-create-project-cmd": "bin/grav install",
         "phpstan": "vendor/bin/phpstan analyse -l 2 -c ./tests/phpstan/phpstan.neon system/src --memory-limit=256M",
         "phpstan-framework": "vendor/bin/phpstan analyse -l 5 -c ./tests/phpstan/phpstan.neon system/src/Grav/Framework --memory-limit=256M",

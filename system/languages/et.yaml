@@ -1,11 +1,30 @@
 ---
 GRAV:
   FRONTMATTER_ERROR_PAGE: "---\npealkiri: %1$s\n---\n\n# Viga: vigane Frontmatter'i\n\nasukoht: `%2$s`\n\n**%3$s**\n\n```\n%4$s\n```"
+  INFLECTOR_UNCOUNTABLE:
+    - 'equipment'
+    - 'informatsioon'
+    - 'rice'
+    - 'money'
+    - 'species'
+    - 'series'
+    - 'kala'
+    - 'lammas'
+  INFLECTOR_IRREGULAR:
+    'person': 'inimesed'
+    'man': 'mees'
+    'child': 'lapsed'
+  INFLECTOR_ORDINALS:
+    'default': '.'
+    'first': '.'
+    'second': '.'
+    'third': '.'
   NICETIME:
     NO_DATE_PROVIDED: Kuupäev määramata
     BAD_DATE: Vigane kuupäev
     AGO: tagasi
     FROM_NOW: praegusest
+    JUST_NOW: just nüüd
     SECOND: sekund
     MINUTE: minut
     HOUR: tundi
@@ -60,3 +79,7 @@ GRAV:
     - 'reede'
     - 'laupäev'
     - 'pühapäev'
+  CRON:
+    EVERY: iga
+    EVERY_MONTH: iga kuu
+    TEXT_PERIOD: Iga <b />

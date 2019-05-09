@@ -165,6 +165,11 @@ class Validation
         return (string) $value;
     }
 
+    protected static function filterCheckbox($value, array $params, array $field)
+    {
+        return (bool) $value;
+    }
+
     protected static function filterCommaList($value, array $params, array $field)
     {
         return \is_array($value) ? $value : preg_split('/\s*,\s*/', $value, -1, PREG_SPLIT_NO_EMPTY);
@@ -569,6 +574,11 @@ class Validation
             if (isset($params['step']) && (\count($value) - $min) % $params['step'] === 0) {
                 return false;
             }
+        }
+
+        // If creating new values is allowed, no further checks are needed.
+        if (!empty($field['selectize']['create'])) {
+            return true;
         }
 
         $options = $field['options'] ?? [];

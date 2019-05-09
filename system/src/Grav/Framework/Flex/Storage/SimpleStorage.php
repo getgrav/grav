@@ -192,6 +192,9 @@ class SimpleStorage extends AbstractFilesystemStorage
 
         $list = [];
         foreach ($rows as $key => $row) {
+            if (strpos($key, '@@')) {
+                $key = $this->getNewKey();
+            }
             $this->data[$key] = $list[$key] = $row;
         }
 

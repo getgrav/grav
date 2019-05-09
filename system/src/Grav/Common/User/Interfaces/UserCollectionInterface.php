@@ -9,7 +9,7 @@
 
 namespace Grav\Common\User\Interfaces;
 
-interface UserCollectionInterface
+interface UserCollectionInterface extends \Countable
 {
     /**
      * Load user account.

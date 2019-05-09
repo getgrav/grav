@@ -234,7 +234,7 @@ class Truncator {
     }
 
     /**
-     * @inheritDoc
+     *
      */
     public function truncate(
         $text,

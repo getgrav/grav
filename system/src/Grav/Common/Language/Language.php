@@ -104,6 +104,11 @@ class Language
     public function getAvailable()
     {
         $languagesArray = $this->languages; //Make local copy
+
+        $languagesArray = array_map(function($value) {
+            return preg_quote($value);
+        }, $languagesArray);
+
         sort($languagesArray);
 
         return implode('|', array_reverse($languagesArray));

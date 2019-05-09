@@ -1,3 +1,29 @@
+# v1.6.9
+## 05/09/2019
+
+1. [](#new)
+    * Added `Route::withoutParams()` methods
+    * Added `Pages::setCheckMethod()` method to override page configuration in Admin Plugin
+    * Added `Cache::clearCache('invalidate')` parameter for just invalidating the cache without deleting any cached files
+    * Made `UserCollectionInderface` to extend `Countable` to get the count of existing users
+1. [](#improved)
+    * Flex admin: added default search options for flex objects
+    * Flex collection and object now fall back to the default template if template file doesn't exist
+    * Updated Vendor libraries including Twig 1.40.1
+    * Updated language files from `https://crowdin.com/project/grav-core`
+1. [](#bugfix)
+    * Fixed `$grav['route']` from being modified when the route instance gets modified
+    * Fixed Assets options array mixed with standalone priority [#2477](https://github.com/getgrav/grav/issues/2477)
+    * Fix for `avatar_url` provided by 3rd party providers
+    * Fixed non standard `lang` code lengths in `Utils` and `Session` detection
+    * Fixed saving a new object in Flex `SimpleStorage`
+    * Fixed exception in `Flex::getDirectories()` if the first parameter is set
+    * Output correct "Last Updated" in `bin/gpm info` command
+    * Checkbox getting interpreted as string, so created new `Validation::filterCheckbox()`
+    * Fixed backwards compatibility to `select` field with `selectize.create` set to true [git-sync#141](https://github.com/trilbymedia/grav-plugin-git-sync/issues/141)
+    * Fixed `YamlFormatter::decode()` to always return array [#2494](https://github.com/getgrav/grav/pull/2494)
+    * Fixed empty `$grav['request']->getAttribute('route')->getExtension()`
+
 # v1.6.8
 ## 04/23/2019
 
@@ -25,18 +51,18 @@
 ## 04/17/2019
 
 1. [](#new)
-    * `FormInterface` now implements `RenderInterface` 
-    * Added new `FormInterface::getTask()` method which reads the task from `form.task` in the blueprint 
+    * `FormInterface` now implements `RenderInterface`
+    * Added new `FormInterface::getTask()` method which reads the task from `form.task` in the blueprint
 1. [](#improved)
     * Updated vendor libraries to latest
 1. [](#bugfix)
     * Rollback `redirect_default_route` logic as it has issues with multi-lang [#2459](https://github.com/getgrav/grav/issues/2459)
-    * Fix potential issue with `|contains` Twig filter on PHP 7.3 
+    * Fix potential issue with `|contains` Twig filter on PHP 7.3
     * Fixed bug in text field filtering: return empty string if value isn't a string or number [#2460](https://github.com/getgrav/grav/issues/2460)
     * Force Asset `priority` to be an integer and not throw error if invalid string passed [#2461](https://github.com/getgrav/grav/issues/2461)
     * Fixed bug in text field filtering: return empty string if value isn't a string or number
     * Fixed `FlexForm` missing getter methods for defining form variables
-    
+
 # v1.6.5
 ## 04/15/2019
 
@@ -97,7 +123,7 @@
     * Added `Grav\Framework\Object\ObjectIndex` class
     * Added `Grav\Framework\Flex` classes
     * Added support for hiding form fields in blueprints by using dynamic property like `security@: admin.foobar`, `scope@: object` or `scope-ignore@: object` to any field
-    * New experimental **FlexObjects** powered `Users` for increased performance and capability (**disabled** by default)    
+    * New experimental **FlexObjects** powered `Users` for increased performance and capability (**disabled** by default)
     * Added PSR-7 and PSR-15 classes
     * Added `Grav\Framework\DI\Container` class
     * Added `Grav\Framework\RequestHandler\RequestHandler` class
@@ -173,7 +199,7 @@
     * Added ability to reset `Page::metadata` to allow rebuilding from automatically generated values
     * Added back missing `page.types` field in system content configuration [admin#1612](https://github.com/getgrav/grav-plugin-admin/issues/1612)
     * Console commands: add method for invalidating cache
-    * Updated languages    
+    * Updated languages
     * Improved `$page->forms()` call, added `$page->addForms()`
     * Updated languages from crowdin
     * Fixed `ImageMedium` constructor warning when file does not exist
@@ -194,7 +220,7 @@
     * Added apcu autoloader optimization
     * Additional helper methods in `Language`, `Languages`, and `LanguageCodes` classes
     * Call `onFatalException` event also on internal PHP errors
-    * Built-in PHP Webserver: log requests before handling them 
+    * Built-in PHP Webserver: log requests before handling them
     * Added support for syslog and syslog facility logging (default: 'file')
     * Improved usability of `System` configuration blueprint with side-tabs
  1. [](#bugfix)
@@ -219,7 +245,7 @@
     * Fixed failed login if user attempts to log in with upper case non-english letters
     * Removed extra authenticated/authorized fields when saving existing user from a form
     * Fixed `Grav\Framework\Route::__toString()` returning relative URL, not relative route
-    * Fixed handling of `append_url_extension` inside of `Page::templateFormat()` [#2264](https://github.com/getgrav/grav/issues/2264) 
+    * Fixed handling of `append_url_extension` inside of `Page::templateFormat()` [#2264](https://github.com/getgrav/grav/issues/2264)
     * Fixed a broken language string [#2261](https://github.com/getgrav/grav/issues/2261)
     * Fixed clearing cache having no effect on Doctrine cache
     * Fixed `Medium::relativePath()` for streams
@@ -272,7 +298,7 @@
     * Updated vendor libraries
 1. [](#bugfix)
     * Support spaces with filenames in responsive images [#2300](https://github.com/getgrav/grav/pull/2300)
-    
+
 # v1.5.6
 ## 12/14/2018
 

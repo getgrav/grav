@@ -1,6 +1,17 @@
 ---
 GRAV:
   FRONTMATTER_ERROR_PAGE: "--- titel: %1$s --- # Fel: Ogiltig Frontmatter-sökväg: `%2$s` **%3$s** ``` %4$s ```"
+  INFLECTOR_UNCOUNTABLE:
+    - 'utrustning'
+    - 'information'
+    - 'ris'
+    - 'pengar'
+    - 'arter'
+    - 'serier'
+    - 'fisk'
+    - 'får'
+  INFLECTOR_IRREGULAR:
+    'person': 'personer'
   NICETIME:
     NO_DATE_PROVIDED: Inget datum har angivits
     BAD_DATE: Ogiltigt datum
