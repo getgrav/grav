@@ -1,5 +1,5 @@
 # v1.6.9
-## mm/dd/2019
+## 05/09/2019
 
 1. [](#new)
     * Added `Route::withoutParams()` methods
