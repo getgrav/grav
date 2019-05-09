@@ -234,7 +234,7 @@ class Truncator {
     }
 
     /**
-     * 
+     *
      */
     public function truncate(
         $text,
