@@ -185,24 +185,31 @@ class Plugins extends Iterator
         $grav = Grav::instance();
         $locator = $grav['locator'];
 
-        $filePath = $locator->findResource('plugins://' . $name . DS . $name . PLUGIN_EXT);
-        if (!is_file($filePath)) {
+        $file = $locator->findResource('plugins://' . $name . DS . $name . PLUGIN_EXT);
+
+        if (is_file($file)) {
+            // Local variables available in the file: $grav, $config, $name, $file
+            $class = include_once $file;
+
+            $pluginClassFormat = [
+                'Grav\\Plugin\\' . ucfirst($name). 'Plugin',
+                'Grav\\Plugin\\' . Inflector::camelize($name) . 'Plugin'
+            ];
+
+            foreach ($pluginClassFormat as $pluginClass) {
+                if (class_exists($pluginClass)) {
+                    $class = new $pluginClass($name, $grav);
+                    break;
+                }
+            }
+        } else {
             $grav['log']->addWarning(
                 sprintf("Plugin '%s' enabled but not found! Try clearing cache with `bin/grav clear-cache`", $name)
             );
             return null;
         }
 
-        require_once $filePath;
-
-        $pluginClassName = 'Grav\\Plugin\\' . ucfirst($name) . 'Plugin';
-        if (!class_exists($pluginClassName)) {
-            $pluginClassName = 'Grav\\Plugin\\' . Inflector::camelize($name) . 'Plugin';
-            if (!class_exists($pluginClassName)) {
-                throw new \RuntimeException(sprintf("Plugin '%s' class not found! Try reinstalling this plugin.", $name));
-            }
-        }
-        return new $pluginClassName($name, $grav);
+        return $class;
     }
 
 }

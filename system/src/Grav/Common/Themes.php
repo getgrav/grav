@@ -196,8 +196,7 @@ class Themes extends Iterator
 
                 foreach ($themeClassFormat as $themeClass) {
                     if (class_exists($themeClass)) {
-                        $themeClassName = $themeClass;
-                        $class = new $themeClassName($grav, $config, $name);
+                        $class = new $themeClass($grav, $config, $name);
                         break;
                     }
                 }
