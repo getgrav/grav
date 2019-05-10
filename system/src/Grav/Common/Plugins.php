@@ -197,7 +197,7 @@ class Plugins extends Iterator
 
         $pluginClassName = 'Grav\\Plugin\\' . ucfirst($name) . 'Plugin';
         if (!class_exists($pluginClassName)) {
-            $pluginClassName = 'Grav\\Plugin\\' . $grav['inflector']->camelize($name) . 'Plugin';
+            $pluginClassName = 'Grav\\Plugin\\' . Inflector::camelize($name) . 'Plugin';
             if (!class_exists($pluginClassName)) {
                 throw new \RuntimeException(sprintf("Plugin '%s' class not found! Try reinstalling this plugin.", $name));
             }
