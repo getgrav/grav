@@ -1,3 +1,9 @@
+# v1.6.10
+## mm/dd/2019
+
+1. [](#improved)
+    * Added **page blueprints** to `YamlLinter` CLI and Admin reports
+
 # v1.6.9
 ## 05/09/2019
 

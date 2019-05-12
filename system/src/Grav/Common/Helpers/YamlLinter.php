@@ -20,7 +20,8 @@ class YamlLinter
     {
         $errors = static::lintConfig();
         $errors = $errors + static::lintPages();
-
+        $errors = $errors + static::lintBlueprints();
+        
         return $errors;
     }
 
@@ -32,6 +33,18 @@ class YamlLinter
     public static function lintConfig()
     {
         return static::recurseFolder('config://');
+    }
+
+    public static function lintBlueprints()
+    {
+        /** @var UniformResourceLocator $locator */
+        $locator = Grav::instance()['locator'];
+
+        $current_theme = Grav::instance()['config']->get('system.pages.theme');
+        $theme_path = 'themes://' . $current_theme . '/blueprints';
+
+        $locator->addPath('blueprints', '', [$theme_path]);
+        return static::recurseFolder('blueprints://');
     }
 
     public static function recurseFolder($path, $extensions = 'md|yaml')
