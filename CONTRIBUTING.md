@@ -29,7 +29,7 @@ The issue tracker is the preferred channel for [bug reports](#bugs),
 requests](#pull-requests), but please respect the following restrictions:
 
 * Please **do not** use the issue tracker for support requests. Use
-  [the Forum](http://getgrav.org/forum) or [the Gitter chat](https://gitter.im/getgrav/grav).
+  [the Forum](http://getgrav.org/forum) or [the Chat](https://chat.getgrav.org/).
 
 
 <a name="bugs"></a>
@@ -110,7 +110,8 @@ Good pull requests - patches, improvements, new features - are a fantastic
 help. They should remain focused in scope and avoid containing unrelated
 commits.
 
-**Please ask first** in [Slack](https://getgrav.org/slack) or in the Forum before embarking on any significant pull request (e.g.
+**Please ask first** in [the Forum](http://getgrav.org/forum) or [the Chat](https://chat.getgrav.org/) 
+before embarking on any significant pull request (e.g.
 implementing features, refactoring code..),
 otherwise you risk spending a lot of time working on something that the
 project's developers might not want to merge into the project.
