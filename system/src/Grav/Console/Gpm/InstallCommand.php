@@ -372,7 +372,7 @@ class InstallCommand extends ConsoleCommand
             $helper = $this->getHelper('question');
             $question = new ConfirmationQuestion('Do you wish to install this demo content? [y|N] ', false);
 
-            $answer = $this->all_yes ? true : $helper->ask($this->input, $this->output, $question);
+            $answer = $helper->ask($this->input, $this->output, $question);
 
             if (!$answer) {
                 $this->output->writeln("  '- <red>Skipped!</red>  ");

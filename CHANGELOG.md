@@ -3,7 +3,11 @@
 
 1. [](#improved)
     * Added **page blueprints** to `YamlLinter` CLI and Admin reports
-
+    * Removed `Gitter` and `Slack` [#2502](https://github.com/getgrav/grav/issues/2502)
+    * Optimizations for Plugin/Theme loading
+1. [](#bugfix)
+    * Force question to install demo content in theme update [#2493](https://github.com/getgrav/grav/issues/2493)
+        
 # v1.6.9
 ## 05/09/2019
 
