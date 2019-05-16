@@ -133,12 +133,25 @@ class Plugins extends Iterator
      */
     public static function all()
     {
-        $plugins = Grav::instance()['plugins'];
+        $grav = Grav::instance();
+        $plugins = $grav['plugins'];
         $list = [];
 
         foreach ($plugins as $instance) {
             $name = $instance->name;
-            $result = self::get($name);
+
+            try {
+                $result = self::get($name);
+            } catch (\Exception $e) {
+                $exception = new \RuntimeException(sprintf('Plugin %s: %s', $name, $e->getMessage()), $e->getCode(), $e);
+
+                /** @var Debugger $debugger */
+                $debugger = $grav['debugger'];
+                $debugger->addMessage("Plugin {$name} cannot be loaded, please check Exceptions tab", 'error');
+                $debugger->addException($exception);
+
+                continue;
+            }
 
             if ($result) {
                 $list[$name] = $result;

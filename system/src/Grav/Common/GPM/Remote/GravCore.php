@@ -37,9 +37,9 @@ class GravCore extends AbstractPackageCollection
         $this->fetch($refresh, $callback);
 
         $this->data    = json_decode($this->raw, true);
-        $this->version = isset($this->data['version']) ? $this->data['version'] : '-';
-        $this->date    = isset($this->data['date']) ? $this->data['date'] : '-';
-        $this->min_php = isset($this->data['min_php']) ? $this->data['min_php'] : null;
+        $this->version = $this->data['version'] ?? '-';
+        $this->date    = $this->data['date'] ?? '-';
+        $this->min_php = $this->data['min_php'] ?? null;
 
         if (isset($this->data['assets'])) {
             foreach ((array)$this->data['assets'] as $slug => $data) {

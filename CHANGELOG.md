@@ -7,6 +7,7 @@
     * Optimizations for Plugin/Theme loading
 1. [](#bugfix)
     * Force question to install demo content in theme update [#2493](https://github.com/getgrav/grav/issues/2493)
+    * Fixed GPM errors from blueprints not being logged [#2505](https://github.com/getgrav/grav/issues/2505)
         
 # v1.6.9
 ## 05/09/2019

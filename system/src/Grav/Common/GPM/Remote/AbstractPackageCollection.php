@@ -43,7 +43,7 @@ class AbstractPackageCollection extends BaseCollection
     {
         parent::__construct();
         if ($repository === null) {
-            throw new \RuntimeException("A repository is required to indicate the origin of the remote collection");
+            throw new \RuntimeException('A repository is required to indicate the origin of the remote collection');
         }
 
         $channel = Grav::instance()['config']->get('system.gpm.releases', 'stable');
