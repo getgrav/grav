@@ -1494,12 +1494,11 @@ abstract class Utils
      * @param int $prefix
      *
      * @return string
-     * @throws \InvalidArgumentException if provided an invalid IP
      */
     public static function getSubnet($ip, $prefix = 64)
     {
         if (!filter_var($ip, FILTER_VALIDATE_IP)) {
-            throw new \InvalidArgumentException('Invalid IP: ' . $ip);
+            return $ip;
         }
 
         // Packed representation of IP
