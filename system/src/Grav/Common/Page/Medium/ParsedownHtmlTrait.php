@@ -33,7 +33,7 @@ trait ParsedownHtmlTrait
         $element = $this->parsedownElement($title, $alt, $class, $id, $reset);
 
         if (!$this->parsedown) {
-            $this->parsedown = new Parsedown(null, null);
+            $this->parsedown = new Parsedown();
         }
 
         return $this->parsedown->elementToHtml($element);

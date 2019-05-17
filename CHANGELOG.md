@@ -5,6 +5,7 @@
     * Added **page blueprints** to `YamlLinter` CLI and Admin reports
     * Removed `Gitter` and `Slack` [#2502](https://github.com/getgrav/grav/issues/2502)
     * Optimizations for Plugin/Theme loading
+    * Generalized markdown classes so they can be used outside of `Page` scope with a custom `Excerpts` class instance
 1. [](#bugfix)
     * Force question to install demo content in theme update [#2493](https://github.com/getgrav/grav/issues/2493)
     * Fixed GPM errors from blueprints not being logged [#2505](https://github.com/getgrav/grav/issues/2505)

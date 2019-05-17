@@ -13,6 +13,7 @@ use Grav\Common\Helpers\Truncator;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Markdown\Parsedown;
 use Grav\Common\Markdown\ParsedownExtra;
+use Grav\Common\Page\Markdown\Excerpts;
 use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
@@ -1396,7 +1397,7 @@ abstract class Utils
         $pow = min($pow, count($units) - 1);
 
         // Uncomment one of the following alternatives
-         $bytes /= pow(1024, $pow);
+        $bytes /= 1024 ** $pow;
         // $bytes /= (1 << (10 * $pow));
 
         return round($bytes, $precision) . ' ' . $units[$pow];
@@ -1460,14 +1461,21 @@ abstract class Utils
      */
     public static function processMarkdown($string, $block = true)
     {
-        $page     = Grav::instance()['page'] ?? null;
-        $defaults = Grav::instance()['config']->get('system.pages.markdown');
+        $grav = Grav::instance();
+        $page     = $grav['page'] ?? null;
+        $defaults = [
+            'markdown' => $grav['config']->get('system.pages.markdown', []),
+            'images' => $grav['config']->get('system.images', [])
+        ];
+        $extra = $defaults['markdown']['extra'] ?? false;
+
+        $excerpts = new Excerpts($page, $defaults);
 
         // Initialize the preferred variant of Parsedown
-        if ($defaults['extra']) {
-            $parsedown = new ParsedownExtra($page, $defaults);
+        if ($extra) {
+            $parsedown = new ParsedownExtra($excerpts);
         } else {
-            $parsedown = new Parsedown($page, $defaults);
+            $parsedown = new Parsedown($excerpts);
         }
 
         if ($block) {
