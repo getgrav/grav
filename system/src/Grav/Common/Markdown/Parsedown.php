@@ -19,10 +19,10 @@ class Parsedown extends \Parsedown
     /**
      * Parsedown constructor.
      *
-     * @param Excerpts $excerpts
+     * @param Excerpts|null $excerpts
      * @param array|null $defaults
      */
-    public function __construct($excerpts, $defaults = null)
+    public function __construct($excerpts = null, $defaults = null)
     {
         if (!$excerpts || $excerpts instanceof PageInterface || null !== $defaults) {
             // Deprecated in Grav 1.6.10

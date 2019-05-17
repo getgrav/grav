@@ -26,10 +26,10 @@ trait ParsedownGravTrait
     /**
      * Initialization function to setup key variables needed by the MarkdownGravLinkTrait
      *
-     * @param PageInterface|Excerpts $excerpts
+     * @param PageInterface|Excerpts|null $excerpts
      * @param array|null $defaults
      */
-    protected function init($excerpts, $defaults = null)
+    protected function init($excerpts = null, $defaults = null)
     {
         if (!$excerpts || $excerpts instanceof PageInterface) {
             // Deprecated in Grav 1.6.10
