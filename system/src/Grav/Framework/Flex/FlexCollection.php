@@ -9,6 +9,7 @@
 
 namespace Grav\Framework\Flex;
 
+use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\Criteria;
 use Grav\Common\Debugger;
 use Grav\Common\Grav;
@@ -125,7 +126,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
 
     /**
      * @param array $filters
-     * @return FlexCollectionInterface
+     * @return FlexCollectionInterface|Collection
      */
     public function filterBy(array $filters)
     {

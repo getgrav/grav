@@ -736,7 +736,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
         }
 
         $grav = Grav::instance();
-        /** @var Flex $flex */
+        /** @var Flex|null $flex */
         $flex = $grav['flex_objects'] ?? null;
         $directory = $flex ? $flex->getDirectory($type) : null;
         if (!$directory) {

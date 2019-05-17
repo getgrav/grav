@@ -82,7 +82,7 @@ class FlexForm implements FlexFormInterface
     }
 
     /**
-     * @return Data|FlexObjectInterface
+     * @return Data|FlexObjectInterface|object
      */
     public function getData()
     {
@@ -103,7 +103,7 @@ class FlexForm implements FlexFormInterface
         $value = $this->data ? $this->data[$name] : null;
 
         // Return the form data or fall back to the object property.
-        return $value ?? $this->getObject()->value($name);
+        return $value ?? $this->getObject()->getFormValue($name);
     }
 
     public function getDefaultValue(string $name)
