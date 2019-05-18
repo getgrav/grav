@@ -10,7 +10,8 @@
     * Force question to install demo content in theme update [#2493](https://github.com/getgrav/grav/issues/2493)
     * Fixed GPM errors from blueprints not being logged [#2505](https://github.com/getgrav/grav/issues/2505)
     * Don't error when IP is invalid [#2507](https://github.com/getgrav/grav/issues/2507)
-        
+    * Fixed regression with `bin/plugin` not listing the plugins available (1c725c0)
+
 # v1.6.9
 ## 05/09/2019
 
