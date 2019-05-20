@@ -312,9 +312,10 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
         // Ordering can be done by using index only.
         $previous = null;
         foreach (array_reverse($orderings) as $field => $ordering) {
+            $field = (string)$field;
             if ($this->getKeyField() === $field) {
                 $keys = $this->getKeys();
-                $search = array_combine($keys, $keys);
+                $search = array_combine($keys, $keys) ?: [];
             } elseif ($field === 'flex_key') {
                 $search = $this->getFlexKeys();
             } else {
@@ -462,7 +463,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
             $first = reset($entries);
             if ($first) {
                 $keys = array_keys($first);
-                $keys = array_combine($keys, $keys);
+                $keys = array_combine($keys, $keys) ?: [];
             } else {
                 $keys = [];
             }

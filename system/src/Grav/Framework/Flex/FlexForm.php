@@ -20,6 +20,7 @@ use Grav\Framework\Form\Traits\FormTrait;
 use Grav\Framework\Route\Route;
 use Twig\Error\LoaderError;
 use Twig\Error\SyntaxError;
+use Twig\Template;
 use Twig\TemplateWrapper;
 
 /**
@@ -277,7 +278,7 @@ class FlexForm implements FlexFormInterface
 
     /**
      * @param string $layout
-     * @return TemplateWrapper
+     * @return Template|TemplateWrapper
      * @throws LoaderError
      * @throws SyntaxError
      */

@@ -41,13 +41,14 @@ parameters:
             message: '#Grav\\Common\\GPM\\Remote\\GravCore::__construct\(\) does not call parent constructor from Grav\\Common\\GPM\\Remote\\AbstractPackageCollection#'
             path: 'system/src/Grav/Common/GPM/Remote/GravCore.php'
 
+        # PSR-16 Exception interfaces do not extend \Throwable
+        - '#PHPDoc tag \@throws with type Psr\\SimpleCache\\(CacheException|InvalidArgumentException) is not subtype of Throwable#'
+        - '#expects Exception, Psr\\SimpleCache\\InvalidArgumentException&Throwable given#'
+
         # Needed: psr-17 (http-factories) support (through decorator or further investigations)
         -
             message: '#Call to an undefined static method Grav\\Framework\\Psr7\\Stream::create\(\)#'
             path: 'system/src/Grav/Framework/Form/FormFlashFile.php'
-
-        # PSR-16 Exception interfaces do not extend \Throwable
-        - '#PHPDoc tag \@throws with type Psr\\SimpleCache\\(CacheException|InvalidArgumentException) is not subtype of Throwable#'
 
         # Medium __call() methods
         - '#Call to an undefined method Grav\\Common\\Page\\Medium\\(\w*)Medium::#'
