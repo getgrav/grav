@@ -980,7 +980,7 @@ abstract class Utils
      */
     public static function pathPrefixedByLangCode($string)
     {
-        if (strlen($string) <= 3) {
+        if (strlen($string) < 3) {
             return false;
         }
 
