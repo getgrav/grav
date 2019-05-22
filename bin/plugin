@@ -79,19 +79,6 @@ $output = new ConsoleOutput();
 $output->getFormatter()->setStyle('red', new OutputFormatterStyle('red', null, array('bold')));
 $output->getFormatter()->setStyle('white', new OutputFormatterStyle('white', null, array('bold')));
 
-if (is_null($plugin)) {
-    $output->writeln('');
-    $output->writeln("<red>$name plugin not found</red>");
-    die;
-}
-
-if (!$plugin->enabled) {
-    $output->writeln('');
-    $output->writeln("<red>$name not enabled</red>");
-    die;
-}
-
-
 if (!$name) {
     $output->writeln('');
     $output->writeln('<red>Usage:</red>');
@@ -123,6 +110,18 @@ if (!$name) {
     }
 
     exit;
+} else {
+    if (is_null($plugin)) {
+        $output->writeln('');
+        $output->writeln("<red>$name plugin not found</red>");
+        die;
+    }
+
+    if (!$plugin->enabled) {
+        $output->writeln('');
+        $output->writeln("<red>$name not enabled</red>");
+        die;
+    }
 }
 
 if ($plugin === null) {
