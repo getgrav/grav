@@ -9,6 +9,9 @@
 
 namespace Grav\Common;
 
+use Clockwork\Clockwork;
+use Clockwork\DataSource\PhpDataSource;
+use Clockwork\Storage\FileStorage;
 use DebugBar\DataCollector\ConfigCollector;
 use DebugBar\DataCollector\DataCollectorInterface;
 use DebugBar\DataCollector\ExceptionsCollector;
@@ -39,6 +42,9 @@ class Debugger
     /** @var StandardDebugBar $debugbar */
     protected $debugbar;
 
+    /** @var Clockwork */
+    protected $clockwork;
+
     /** @var bool */
     protected $enabled;
 
@@ -64,23 +70,44 @@ class Debugger
             \define('GRAV_REQUEST_TIME', $currentTime);
         }
 
+        $requestTime = $_SERVER['REQUEST_TIME_FLOAT'] ?? GRAV_REQUEST_TIME;
+
         // Enable debugger until $this->init() gets called.
         $this->enabled = true;
 
+        // Clockwork initialization.
+        $clockwork = new Clockwork();
+        $clockwork->addDataSource(new PhpDataSource());
+        $clockwork->setStorage(new FileStorage(GRAV_ROOT . '/cache/clockwork'));
+        $clockwork->getLog()->collectStackTraces(false);
+
+        $this->clockwork = $clockwork;
+
+        // Debugbar initialization.
         $debugbar = new DebugBar();
         $debugbar->addCollector(new PhpInfoCollector());
         $debugbar->addCollector(new MessagesCollector());
         $debugbar->addCollector(new RequestDataCollector());
-        $debugbar->addCollector(new TimeDataCollector($_SERVER['REQUEST_TIME_FLOAT'] ?? GRAV_REQUEST_TIME));
+        $debugbar->addCollector(new TimeDataCollector($requestTime));
+
+        $this->debugbar = $debugbar;
+
+        $timeLine = $clockwork->getTimeline();
+        $timeLine->addEvent('server', 'Server', $requestTime, GRAV_REQUEST_TIME);
+        $timeLine->addEvent('loading', 'Loading', GRAV_REQUEST_TIME, microtime(true));
+        $timeLine->addEvent('debugger', 'Debugger', $currentTime, microtime(true));
 
         $debugbar['time']->addMeasure('Server', $debugbar['time']->getRequestStartTime(), GRAV_REQUEST_TIME);
         $debugbar['time']->addMeasure('Loading', GRAV_REQUEST_TIME, $currentTime);
         $debugbar['time']->addMeasure('Debugger', $currentTime, microtime(true));
 
-        $this->debugbar = $debugbar;
-
         // Set deprecation collector.
         $this->setErrorHandler();
+    }
+
+    public function getClockwork(): Clockwork
+    {
+        return $this->clockwork;
     }
 
     /**
@@ -276,6 +303,7 @@ class Debugger
     {
         if (strpos($name, '_') === 0 || $this->enabled()) {
             $this->debugbar['time']->startMeasure($name, $description);
+            $this->clockwork->startEvent($name, $description ?? $name);
             $this->timers[] = $name;
         }
 
@@ -293,6 +321,7 @@ class Debugger
     {
         if (\in_array($name, $this->timers, true) && (strpos($name, '_') === 0 || $this->enabled())) {
             $this->debugbar['time']->stopMeasure($name);
+            $this->clockwork->endEvent($name);
         }
 
         return $this;
@@ -311,6 +340,7 @@ class Debugger
     {
         if ($this->enabled()) {
             $this->debugbar['messages']->addMessage($message, $label, $isString);
+            $this->clockwork->log($label, $message);
         }
 
         return $this;

@@ -237,12 +237,9 @@ class Grav extends Container
             ]
         );
 
-        $default = function (ServerRequestInterface $request) {
+        $default = static function () {
             return new Response(404);
         };
-
-        /** @var Debugger $debugger */
-        $debugger = $this['debugger'];
 
         $collection = new RequestHandler($this->middleware, $default, $container);
 
@@ -251,9 +248,13 @@ class Grav extends Container
         $this->header($response);
         echo $response->getBody();
 
-        $debugger->render();
+        $this['debugger']->render();
 
-        register_shutdown_function([$this, 'shutdown']);
+        // Response object can turn off all shutdown processing. This can be used for example to speed up AJAX responses.
+        // Note that using this feature will also turn off response compression.
+        if ($response->getHeaderLine('Grav-Internal-SkipShutdown') !== '1') {
+            register_shutdown_function([$this, 'shutdown']);
+        }
     }
 
     /**
@@ -343,6 +344,10 @@ class Grav extends Container
 
         header("HTTP/{$response->getProtocolVersion()} {$response->getStatusCode()} {$response->getReasonPhrase()}");
         foreach ($response->getHeaders() as $key => $values) {
+            // Skip internal Grav headers.
+            if (strpos($key, 'Grav-Internal-') === 0) {
+                continue;
+            }
             foreach ($values as $i => $value) {
                 header($key . ': ' . $value, $i === 0);
             }
