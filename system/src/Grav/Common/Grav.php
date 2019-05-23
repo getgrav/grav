@@ -34,7 +34,6 @@ use Grav\Framework\DI\Container;
 use Grav\Framework\Psr7\Response;
 use Grav\Framework\RequestHandler\RequestHandler;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
 use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\Event\EventDispatcher;
 
@@ -366,6 +365,10 @@ class Grav extends Container
     {
         /** @var EventDispatcher $events */
         $events = $this['events'];
+
+        /** @var Debugger $debugger */
+        $debugger = $this['debugger'];
+        $debugger->addEvent($eventName, $event, $events);
 
         return $events->dispatch($eventName, $event);
     }

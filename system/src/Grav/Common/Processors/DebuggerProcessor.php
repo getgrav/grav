@@ -59,7 +59,13 @@ class DebuggerProcessor extends ProcessorBase
 
         $response = $handler->handle($request);
 
-        return $clockwork ? $this->logRequest($request, $response, $clockwork) : $response;
+        if ($clockwork) {
+            $debugger->finalize();
+
+            return $this->logRequest($request, $response, $clockwork);
+        }
+
+        return $response;
     }
 
     protected function logRequest(ServerRequestInterface $request, ResponseInterface $response, Clockwork $clockwork)
