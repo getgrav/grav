@@ -26,6 +26,7 @@ trait FlexAuthorizeTrait
     public function isAuthorized(string $action, string $scope = null, UserInterface $user = null) : bool
     {
         if (null === $user) {
+            /** @var UserInterface $user */
             $user = Grav::instance()['user'];
         }
 
