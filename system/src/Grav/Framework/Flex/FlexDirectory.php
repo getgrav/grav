@@ -315,15 +315,16 @@ class FlexDirectory implements FlexAuthorizeInterface
                 $gravCache = $grav['cache'];
                 $config = $this->getConfig('cache.' . $namespace);
                 if (empty($config['enabled'])) {
-                    throw new \RuntimeException(sprintf('Flex: %s %s cache not enabled', $this->type, $namespace));
-                }
-                $timeout = $config['timeout'] ?? 60;
+                    $cache = new MemoryCache('flex-objects-' . $this->getFlexType());
+                } else {
+                    $timeout = $config['timeout'] ?? 60;
 
-                $key = $gravCache->getKey();
-                if (Utils::isAdminPlugin()) {
-                    $key = substr($key, 0, -1);
+                    $key = $gravCache->getKey();
+                    if (Utils::isAdminPlugin()) {
+                        $key = substr($key, 0, -1);
+                    }
+                    $cache = new DoctrineCache($gravCache->getCacheDriver(), 'flex-objects-' . $this->getFlexType() . $key, $timeout);
                 }
-                $cache = new DoctrineCache($gravCache->getCacheDriver(), 'flex-objects-' . $this->getFlexType() . $key, $timeout);
             } catch (\Exception $e) {
                 /** @var Debugger $debugger */
                 $debugger = Grav::instance()['debugger'];
@@ -519,7 +520,9 @@ class FlexDirectory implements FlexAuthorizeInterface
         // Store updated rows to the cache.
         if ($updated) {
             try {
-                $debugger->addMessage(sprintf('Flex: Caching %d %s: %s', \count($updated), $this->type, implode(', ', array_keys($updated))), 'debug');
+                if (!$cache instanceof MemoryCache) {
+                    $debugger->addMessage(sprintf('Flex: Caching %d %s: %s', \count($updated), $this->type, implode(', ', array_keys($updated))), 'debug');
+                }
                 $cache->setMultiple($updated);
             } catch (InvalidArgumentException $e) {
                 $debugger->addException($e);
@@ -640,7 +643,10 @@ class FlexDirectory implements FlexAuthorizeInterface
                 /** @var string|FlexIndexInterface $className */
                 $className = $this->getIndexClass();
                 $keys = $className::loadEntriesFromStorage($storage);
-                $debugger->addMessage(sprintf('Flex: Caching %s index of %d objects', $this->type, \count($keys)), 'debug');
+                if (!$cache instanceof MemoryCache) {
+                    $debugger->addMessage(sprintf('Flex: Caching %s index of %d objects', $this->type, \count($keys)),
+                        'debug');
+                }
                 try {
                     $cache->set('__keys', $keys);
                 } catch (InvalidArgumentException $e) {
