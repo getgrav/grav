@@ -11,6 +11,7 @@ namespace Grav\Common\Page\Markdown;
 
 use Grav\Common\Grav;
 use Grav\Common\Page\Interfaces\PageInterface;
+use Grav\Common\Page\Medium\Link;
 use Grav\Common\Uri;
 use Grav\Common\Page\Medium\Medium;
 use Grav\Common\Utils;
@@ -224,9 +225,9 @@ class Excerpts
      *
      * @param Medium $medium
      * @param string|array $url
-     * @return Medium
+     * @return Medium|Link
      */
-    public function processMediaActions($medium, $url): Medium
+    public function processMediaActions($medium, $url)
     {
         $url_parts = is_string($url) ? $this->parseUrl($url) : $url;
         $actions = [];
