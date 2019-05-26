@@ -132,7 +132,9 @@ class Debugger
                 $log = $this->grav['log'];
                 $clockwork->setStorage(new FileStorage(GRAV_ROOT . '/cache/clockwork'));
                 $clockwork->addDataSource(new PhpDataSource());
-                $clockwork->addDataSource(new XdebugDataSource());
+                if (extension_loaded('xdebug')) {
+                    $clockwork->addDataSource(new XdebugDataSource());
+                }
                 if ($log instanceof Logger) {
                     $clockwork->addDataSource(new MonologDataSource($log));
                 }
@@ -156,8 +158,12 @@ class Debugger
                 $debugbar->addCollector(new ConfigCollector((array)$this->config->get('system'), 'Config'));
                 $debugbar->addCollector(new ConfigCollector($plugins_config, 'Plugins'));
 
-                $debugbar['time']->addMeasure('Server', $debugbar['time']->getRequestStartTime(), GRAV_REQUEST_TIME);
-                $debugbar['time']->addMeasure('Loading', GRAV_REQUEST_TIME, $this->currentTime);
+                if ($this->requestTime !== GRAV_REQUEST_TIME) {
+                    $debugbar['time']->addMeasure('Server', $debugbar['time']->getRequestStartTime(), GRAV_REQUEST_TIME);
+                }
+                if ($this->currentTime !== GRAV_REQUEST_TIME) {
+                    $debugbar['time']->addMeasure('Loading', GRAV_REQUEST_TIME, $this->currentTime);
+                }
                 $debugbar['time']->addMeasure('Site Setup', $this->currentTime,  microtime(true));
             }
 
