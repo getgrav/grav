@@ -36,6 +36,9 @@ use Twig\TemplateWrapper;
 
 class Debugger
 {
+    /** @var static */
+    protected static $instance;
+
     /** @var Grav $grav */
     protected $grav;
 
@@ -73,29 +76,18 @@ class Debugger
      */
     public function __construct()
     {
+        static::$instance = $this;
+
         $this->currentTime = microtime(true);
-        $this->requestTime = $_SERVER['REQUEST_TIME_FLOAT'] ?? GRAV_REQUEST_TIME;
 
         if (!\defined('GRAV_REQUEST_TIME')) {
             \define('GRAV_REQUEST_TIME', $this->currentTime);
         }
 
+        $this->requestTime = $_SERVER['REQUEST_TIME_FLOAT'] ?? GRAV_REQUEST_TIME;
+
         // Enable debugger until $this->init() gets called.
         $this->enabled = true;
-
-        // Clockwork initialization.
-        $this->clockwork = new Clockwork();
-
-        // Debugbar initialization.
-        $this->debugbar = $debugbar = new DebugBar();
-        $debugbar->addCollector(new PhpInfoCollector());
-        $debugbar->addCollector(new MessagesCollector());
-        $debugbar->addCollector(new RequestDataCollector());
-        $debugbar->addCollector(new TimeDataCollector($this->requestTime));
-
-        $debugbar['time']->addMeasure('Server', $debugbar['time']->getRequestStartTime(), GRAV_REQUEST_TIME);
-        $debugbar['time']->addMeasure('Loading', GRAV_REQUEST_TIME, $this->currentTime);
-        $debugbar['time']->addMeasure('Debugger', $this->currentTime, microtime(true));
 
         // Set deprecation collector.
         $this->setErrorHandler();
@@ -127,10 +119,15 @@ class Debugger
         if ($this->enabled) {
             $this->initialized = true;
 
+            // Clockwork initialization.
+            $this->clockwork = $clockwork = new Clockwork();
+
+            // Debugbar initialization.
+            $this->debugbar = $debugbar = new DebugBar();
+
             $plugins_config = (array)$this->config->get('plugins');
             ksort($plugins_config);
 
-            $clockwork = $this->clockwork;
             if ($clockwork) {
                 $log = $this->grav['log'];
                 $clockwork->setStorage(new FileStorage(GRAV_ROOT . '/cache/clockwork'));
@@ -146,14 +143,22 @@ class Debugger
                 if ($this->currentTime !== GRAV_REQUEST_TIME) {
                     $timeLine->addEvent('loading', 'Loading', GRAV_REQUEST_TIME, $this->currentTime);
                 }
+                $timeLine->addEvent('setup', 'Site Setup', $this->currentTime, microtime(true));
             }
 
-            $debugbar = $this->debugbar;
             if ($debugbar) {
+                $debugbar->addCollector(new PhpInfoCollector());
+                $debugbar->addCollector(new MessagesCollector());
+                $debugbar->addCollector(new RequestDataCollector());
+                $debugbar->addCollector(new TimeDataCollector($this->requestTime));
                 $debugbar->addCollector(new MemoryCollector());
                 $debugbar->addCollector(new ExceptionsCollector());
                 $debugbar->addCollector(new ConfigCollector((array)$this->config->get('system'), 'Config'));
                 $debugbar->addCollector(new ConfigCollector($plugins_config, 'Plugins'));
+
+                $debugbar['time']->addMeasure('Server', $debugbar['time']->getRequestStartTime(), GRAV_REQUEST_TIME);
+                $debugbar['time']->addMeasure('Loading', GRAV_REQUEST_TIME, $this->currentTime);
+                $debugbar['time']->addMeasure('Site Setup', $this->currentTime,  microtime(true));
             }
 
             $this->addMessage('Grav v' . GRAV_VERSION);
@@ -349,16 +354,8 @@ class Debugger
      */
     public function startTimer($name, $description = null)
     {
-        if (strpos($name, '_') === 0 || $this->enabled) {
-            if ($this->debugbar) {
-                $this->debugbar['time']->startMeasure($name, $description);
-            }
-
-            if ($this->clockwork) {
-                $this->clockwork->startEvent($name, $description ?? $name);
-            }
-
-            $this->timers[] = $name;
+        if ($this->enabled || strpos($name, '_') === 0) {
+            $this->timers[$name] = [$description, microtime(true)];
         }
 
         return $this;
@@ -373,15 +370,23 @@ class Debugger
      */
     public function stopTimer($name)
     {
-        if (\in_array($name, $this->timers, true) && (strpos($name, '_') === 0 || $this->enabled)) {
+        if (isset($this->timers[$name]) && (strpos($name, '_') === 0 || $this->enabled)) {
+            [$description, $startTime] = $this->timers[$name];
+            $endTime = microtime(true);
+            if ($endTime - $startTime < 0.001) {
+                return $this;
+            }
+
             if ($this->debugbar) {
-                $this->debugbar['time']->stopMeasure($name);
+                $this->debugbar['time']->addMeasure($description, $startTime,  $endTime);
             }
 
             if ($this->clockwork) {
-                $this->clockwork->endEvent($name);
+                $timeLine = $this->clockwork->getTimeline();
+                $timeLine->addEvent($name, $description, $startTime, $endTime);
             }
         }
+        unset($this->timers[$name]);
 
         return $this;
     }

@@ -51,7 +51,7 @@
         "dragonmantank/cron-expression": "^1.2",
         "phive/twig-extensions-deferred": "^1.0",
         "willdurand/negotiation": "^2.3",
-        "itsgoingd/clockwork": "^3.1"
+        "itsgoingd/clockwork": "dev-master"
     },
     "require-dev": {
         "codeception/codeception": "^2.4",
@@ -78,6 +78,10 @@
         {
             "type": "vcs",
             "url": "https://github.com/trilbymedia/PHP-Markdown-Documentation-Generator"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/itsgoingd/clockwork"
         }
     ],
     "autoload": {

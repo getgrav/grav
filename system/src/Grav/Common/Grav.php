@@ -90,8 +90,6 @@ class Grav extends Container
      */
     protected $middleware = [
         'configurationProcessor',
-        'loggerProcessor',
-        'errorsProcessor',
         'debuggerProcessor',
         'initializeProcessor',
         'pluginsProcessor',
@@ -156,15 +154,13 @@ class Grav extends Container
 
         $this->initialized['setup'] = true;
 
-        $this->measureTime('_setup', 'Site Setup', function () use ($environment) {
-            // Force environment if passed to the method.
-            if ($environment) {
-                Setup::$environment = $environment;
-            }
+        // Force environment if passed to the method.
+        if ($environment) {
+            Setup::$environment = $environment;
+        }
 
-            $this['setup'];
-            $this['streams'];
-        });
+        $this['setup'];
+        $this['streams'];
 
         return $this;
     }
@@ -187,12 +183,6 @@ class Grav extends Container
             [
                 'configurationProcessor' => function () {
                     return new ConfigurationProcessor($this);
-                },
-                'loggerProcessor' => function () {
-                    return new LoggerProcessor($this);
-                },
-                'errorsProcessor' => function () {
-                    return new ErrorsProcessor($this);
                 },
                 'debuggerProcessor' => function () {
                     return new DebuggerProcessor($this);
@@ -478,9 +468,7 @@ class Grav extends Container
             return $container;
         };
 
-        $container->measureTime('_services', 'Services', function () use ($container) {
-            $container->registerServices();
-        });
+        $container->registerServices();
 
         return $container;
     }
