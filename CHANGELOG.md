@@ -11,6 +11,7 @@
     * Fixed GPM errors from blueprints not being logged [#2505](https://github.com/getgrav/grav/issues/2505)
     * Don't error when IP is invalid [#2507](https://github.com/getgrav/grav/issues/2507)
     * Fixed regression with `bin/plugin` not listing the plugins available (1c725c0)
+    * Fixed bitwise operator in `TwigExtension::exifFunc()` [#2518](https://github.com/getgrav/grav/issues/2518)
 
 # v1.6.9
 ## 05/09/2019
