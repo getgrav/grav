@@ -1406,16 +1406,16 @@ abstract class Utils
     /**
      * Parse a readable file size and return a value in bytes
      *
-     * @param string|int $size
+     * @param string|int|float $size
      * @return int
      */
     public static function parseSize($size)
     {
         $unit = preg_replace('/[^bkmgtpezy]/i', '', $size);
-        $size = preg_replace('/[^0-9\.]/', '', $size);
+        $size = (float)preg_replace('/[^0-9\.]/', '', $size);
 
         if ($unit) {
-            $size = $size * pow(1024, stripos('bkmgtpezy', $unit[0]));
+            $size *= 1024 ** stripos('bkmgtpezy', $unit[0]);
         }
 
         return (int) abs(round($size));
@@ -1502,7 +1502,7 @@ abstract class Utils
         }
 
         // Packed representation of IP
-        $ip = inet_pton($ip);
+        $ip = (string)inet_pton($ip);
 
         // Maximum netmask length = same as packed address
         $len = 8*strlen($ip);

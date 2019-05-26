@@ -1340,7 +1340,7 @@ class Uri
     /**
      * Check if this is a valid Grav extension
      *
-     * @param $extension
+     * @param string $extension
      * @return bool
      */
     public function isValidExtension($extension)
@@ -1357,7 +1357,7 @@ class Uri
     /**
      * Allow overriding of any element (be careful!)
      *
-     * @param $data
+     * @param array $data
      * @return Uri
      */
     public function setUriProperties($data)

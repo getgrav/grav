@@ -190,7 +190,7 @@ class Truncator {
      * Clean extra code
      *
      * @param DOMDocument $doc
-     * @param $container
+     * @param DOMDocument $container
      * @return string
      */
     private static function getCleanedHTML(DOMDocument $doc, $container)
@@ -203,8 +203,7 @@ class Truncator {
             $doc->appendChild($container->firstChild);
         }
 
-        $html = trim($doc->saveHTML());
-        return $html;
+        return trim($doc->saveHTML());
     }
 
     /**
@@ -242,17 +241,20 @@ class Truncator {
         $ending = '...',
         $exact = false,
         $considerHtml = true
-    ) {
+    )
+    {
         if ($considerHtml) {
             // if the plain text is shorter than the maximum length, return the whole text
             if (strlen(preg_replace('/<.*?>/', '', $text)) <= $length) {
                 return $text;
             }
+
             // splits all html-tags to scanable lines
             preg_match_all('/(<.+?>)?([^<>]*)/s', $text, $lines, PREG_SET_ORDER);
             $total_length = strlen($ending);
-            $open_tags = array();
             $truncate = '';
+            $open_tags = [];
+
             foreach ($lines as $line_matchings) {
                 // if there is any html-tag in this line, handle it and add it (uncounted) to the output
                 if (!empty($line_matchings[1])) {
@@ -308,22 +310,22 @@ class Truncator {
         } else {
             if (strlen($text) <= $length) {
                 return $text;
-            } else {
-                $truncate = substr($text, 0, $length - strlen($ending));
             }
+
+            $truncate = substr($text, 0, $length - strlen($ending));
         }
         // if the words shouldn't be cut in the middle...
         if (!$exact) {
             // ...search the last occurance of a space...
             $spacepos = strrpos($truncate, ' ');
-            if (isset($spacepos)) {
+            if (false !== $spacepos) {
                 // ...and cut the text in this position
                 $truncate = substr($truncate, 0, $spacepos);
             }
         }
         // add the defined ending to the text
         $truncate .= $ending;
-        if($considerHtml) {
+        if (isset($open_tags)) {
             // close all unclosed html-tags
             foreach ($open_tags as $tag) {
                 $truncate .= '</' . $tag . '>';

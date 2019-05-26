@@ -32,7 +32,7 @@ trait FormTrait
 {
     /** @var string */
     public $status = 'success';
-    /** @var string */
+    /** @var string|null */
     public $message;
     /** @var string[] */
     public $messages = [];
@@ -45,7 +45,7 @@ trait FormTrait
     private $uniqueid;
     /** @var bool */
     private $submitted;
-    /** @var Data|object|null */
+    /** @var \ArrayAccess|Data|object|null */
     private $data;
     /** @var array|UploadedFileInterface[] */
     private $files;
@@ -485,11 +485,11 @@ trait FormTrait
     /**
      * Validate data and throw validation exceptions if validation fails.
      *
-     * @param \ArrayAccess $data
+     * @param \ArrayAccess|Data $data
      * @throws ValidationException
      * @throws \Exception
      */
-    protected function validateData(\ArrayAccess $data): void
+    protected function validateData($data): void
     {
         if ($data instanceof Data) {
             $data->validate();
@@ -499,7 +499,7 @@ trait FormTrait
     /**
      * Filter validated data.
      *
-     * @param \ArrayAccess $data
+     * @param \ArrayAccess|Data $data
      */
     protected function filterData(\ArrayAccess $data): void
     {
