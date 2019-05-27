@@ -379,14 +379,25 @@ class UtilsTest extends \Codeception\TestCase\Test
     {
         $this->uri->initializeWithUrl('http://testing.dev/path1/path2')->init();
 
-        $this->assertSame('http://testing.dev/', Utils::url('/', true));
-        $this->assertSame('http://testing.dev/', Utils::url('', true));
-        $this->assertSame('http://testing.dev/path1', Utils::url('/path1', true));
+        // Fail hard
+        $this->assertSame(false, Utils::url('', true));
+        $this->assertSame(false, Utils::url(''));
+        $this->assertSame(false, Utils::url('foo://bar/baz'));
+        $this->assertSame(false, Utils::url(new stdClass()));
+        $this->assertSame(false, Utils::url(['foo','bar','baz']));
+
+        // Fail Gracefully
+        $this->assertSame('/', Utils::url('/', false, true));
+        $this->assertSame('/', Utils::url('', false, true));
+        $this->assertSame('foo://bar/baz', Utils::url('foo://bar/baz', false, true));
+        $this->assertSame('/', Utils::url(new stdClass(), false, true));
+        $this->assertSame('/', Utils::url(['foo','bar','baz'], false, true));
+
         $this->assertSame('/', Utils::url('/'));
-        $this->assertSame('/', Utils::url(''));
+        $this->assertSame('http://testing.dev/', Utils::url('/', true));
+        $this->assertSame('http://testing.dev/path1', Utils::url('/path1', true));
         $this->assertSame('/path1', Utils::url('/path1'));
         $this->assertSame('/path1/path2', Utils::url('/path1/path2'));
-
         $this->assertSame('http://testing.dev/foobar.jpg', Utils::url('foobar.jpg', true));
         $this->assertSame('http://testing.dev/foobar.jpg', Utils::url('/foobar.jpg', true));
         $this->assertSame('http://testing.dev/path1/foobar.jpg', Utils::url('/path1/foobar.jpg', true));
@@ -394,18 +405,27 @@ class UtilsTest extends \Codeception\TestCase\Test
         $this->assertSame('/foobar.jpg', Utils::url('foobar.jpg'));
         $this->assertSame('/path1/foobar.jpg', Utils::url('/path1/foobar.jpg'));
         $this->assertSame('/path1/path2/foobar.jpg', Utils::url('/path1/path2/foobar.jpg'));
+
     }
 
     public function testUrlWithRoot()
     {
         $this->uri->initializeWithUrlAndRootPath('http://testing.dev/subdir/path1/path2', '/subdir')->init();
 
+        // Fail hard
+        $this->assertSame(false, Utils::url('', true));
+        $this->assertSame(false, Utils::url(''));
+        $this->assertSame(false, Utils::url('foo://bar/baz'));
+
+        // Fail Gracefully
+        $this->assertSame('/subdir/', Utils::url('/', false, true));
+        $this->assertSame('/subdir/', Utils::url('', false, true));
+        $this->assertSame('foo://bar/baz', Utils::url('foo://bar/baz', false, true));
+
         $this->assertSame('http://testing.dev/subdir/', Utils::url('/', true));
-        $this->assertSame('http://testing.dev/subdir/', Utils::url('', true));
         $this->assertSame('http://testing.dev/subdir/path1', Utils::url('/path1', true));
         $this->assertSame('http://testing.dev/subdir/path1', Utils::url('/subdir/path1', true));
         $this->assertSame('/subdir/', Utils::url('/'));
-        $this->assertSame('/subdir/', Utils::url(''));
         $this->assertSame('/subdir/path1', Utils::url('/path1'));
         $this->assertSame('/subdir/path1/path2', Utils::url('/path1/path2'));
         $this->assertSame('/subdir/path1/path2', Utils::url('/subdir/path1/path2'));
