@@ -16,12 +16,8 @@ use Grav\Common\Page\Medium\ImageMedium;
 use Grav\Common\Page\Medium\Medium;
 use Grav\Common\Processors\AssetsProcessor;
 use Grav\Common\Processors\BackupsProcessor;
-use Grav\Common\Processors\ConfigurationProcessor;
 use Grav\Common\Processors\DebuggerAssetsProcessor;
-use Grav\Common\Processors\DebuggerProcessor;
-use Grav\Common\Processors\ErrorsProcessor;
 use Grav\Common\Processors\InitializeProcessor;
-use Grav\Common\Processors\LoggerProcessor;
 use Grav\Common\Processors\PagesProcessor;
 use Grav\Common\Processors\PluginsProcessor;
 use Grav\Common\Processors\RenderProcessor;
@@ -89,8 +85,6 @@ class Grav extends Container
      * @var array All middleware processors that are processed in $this->process()
      */
     protected $middleware = [
-        'configurationProcessor',
-        'debuggerProcessor',
         'initializeProcessor',
         'pluginsProcessor',
         'themesProcessor',
@@ -181,12 +175,6 @@ class Grav extends Container
 
         $container = new Container(
             [
-                'configurationProcessor' => function () {
-                    return new ConfigurationProcessor($this);
-                },
-                'debuggerProcessor' => function () {
-                    return new DebuggerProcessor($this);
-                },
                 'initializeProcessor' => function () {
                     return new InitializeProcessor($this);
                 },
