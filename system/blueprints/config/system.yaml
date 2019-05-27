@@ -418,7 +418,7 @@ form:
 
             pages.expires:
               type: text
-              size: small
+              size: x-small
               append: GRAV.NICETIME.SECOND_PLURAL
               label: PLUGIN_ADMIN.EXPIRES
               help: PLUGIN_ADMIN.EXPIRES_HELP
@@ -999,7 +999,7 @@ form:
               type: select
               label: PLUGIN_ADMIN.DEBUGGER_PROVIDER
               help: PLUGIN_ADMIN.DEBUGGER_PROVIDER_HELP
-              size: small
+              size: medium
               default: debugbar
               options:
                 debugbar: PLUGIN_ADMIN.DEBUGGER_DEBUGBAR
