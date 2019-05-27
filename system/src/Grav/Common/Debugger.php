@@ -168,6 +168,13 @@ class Debugger
             }
 
             $this->addMessage('Grav v' . GRAV_VERSION);
+
+            if ($clockwork) {
+                $clockwork->info('System Configuration', $this->config->get('system'));
+                $clockwork->info('Plugins Configuration', $plugins_config);
+                $clockwork->info('Streams', $this->config->get('streams.schemes'));
+
+            }
         }
 
         return $this;
