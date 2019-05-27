@@ -57,7 +57,7 @@ class Debugger
     protected $clockwork;
 
     /** @var bool */
-    protected $enabled;
+    protected $enabled = false;
 
     protected $initialized = false;
 
@@ -87,9 +87,6 @@ class Debugger
         }
 
         $this->requestTime = $_SERVER['REQUEST_TIME_FLOAT'] ?? GRAV_REQUEST_TIME;
-
-        // Enable debugger until $this->init() gets called.
-        $this->enabled = true;
 
         // Set deprecation collector.
         $this->setErrorHandler();
@@ -173,6 +170,7 @@ class Debugger
             }
 
             $this->addMessage('Grav v' . GRAV_VERSION);
+            $this->config->debug();
 
             if ($clockwork) {
                 $clockwork->info('System Configuration', $this->config->get('system'));
@@ -188,6 +186,8 @@ class Debugger
     public function finalize(): void
     {
         if ($this->clockwork && $this->enabled) {
+            $this->addMeasures();
+
             $deprecations = $this->getDeprecations();
             $count = count($deprecations);
             if (!$count) {
@@ -195,7 +195,7 @@ class Debugger
             }
 
             /** @var UserData $userData */
-            $userData = $this->clockwork->userData("Deprecated ({$count})");
+            $userData = $this->clockwork->userData('Deprecated');
             $userData->counters([
                 'Deprecated' => count($deprecations)
             ]);
@@ -211,6 +211,34 @@ class Debugger
 
             $userData->table('Your site is using following deprecated features', $deprecations);
         }
+    }
+
+    protected function addMeasures()
+    {
+        if (!$this->enabled) {
+            return;
+        }
+
+        $nowTime = microtime(true);
+        $clkTimeLine = $this->clockwork ? $this->clockwork->getTimeline() : null;
+        $debTimeLine = $this->debugbar ? $this->debugbar['time'] : null;
+        foreach ($this->timers as $name => $data) {
+            $description = $data[0];
+            $startTime = $data[1];
+            $endTime = $data[2] ?? $nowTime;
+            if ($endTime - $startTime < 0.001) {
+                continue;
+            }
+
+            if ($clkTimeLine) {
+                $clkTimeLine->addEvent($name, $description, $startTime, $endTime);
+            }
+
+            if ($debTimeLine) {
+                $debTimeLine->addMeasure($description, $startTime,  $endTime);
+            }
+        }
+        $this->timers = [];
     }
 
     /**
@@ -306,6 +334,8 @@ class Debugger
         if ($this->debugbar) {
             return $this->debugbar->getCollector($collector);
         }
+
+        return null;
     }
 
     /**
@@ -322,6 +352,7 @@ class Debugger
                 return $this;
             }
 
+            $this->addMeasures();
             $this->addDeprecations();
 
             echo $this->renderer->render();
@@ -338,6 +369,7 @@ class Debugger
     public function sendDataInHeaders()
     {
         if ($this->enabled && $this->debugbar) {
+            $this->addMeasures();
             $this->addDeprecations();
             $this->debugbar->sendDataInHeaders();
         }
@@ -356,6 +388,7 @@ class Debugger
             return null;
         }
 
+        $this->addMeasures();
         $this->addDeprecations();
         $this->timers = [];
 
@@ -372,9 +405,7 @@ class Debugger
      */
     public function startTimer($name, $description = null)
     {
-        if ($this->enabled || strpos($name, '_') === 0) {
-            $this->timers[$name] = [$description, microtime(true)];
-        }
+        $this->timers[$name] = [$description, microtime(true)];
 
         return $this;
     }
@@ -388,23 +419,10 @@ class Debugger
      */
     public function stopTimer($name)
     {
-        if (isset($this->timers[$name]) && (strpos($name, '_') === 0 || $this->enabled)) {
-            [$description, $startTime] = $this->timers[$name];
+        if (isset($this->timers[$name])) {
             $endTime = microtime(true);
-            if ($endTime - $startTime < 0.001) {
-                return $this;
-            }
-
-            if ($this->debugbar) {
-                $this->debugbar['time']->addMeasure($description, $startTime,  $endTime);
-            }
-
-            if ($this->clockwork) {
-                $timeLine = $this->clockwork->getTimeline();
-                $timeLine->addEvent($name, $description, $startTime, $endTime);
-            }
+            $this->timers[$name][] = $endTime;
         }
-        unset($this->timers[$name]);
 
         return $this;
     }
