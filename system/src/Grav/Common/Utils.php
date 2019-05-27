@@ -30,19 +30,24 @@ abstract class Utils
      *
      * @param string $input
      * @param bool $domain
+     * @param bool $fail_gracefully
      * @return bool|null|string
      */
-    public static function url($input, $domain = false)
+    public static function url($input, $domain = false, $fail_gracefully = false)
     {
-        if (!trim((string)$input)) {
-            $input = '/';
+        if ((!is_string($input) && !method_exists($input, '__toString')) || !trim($input)) {
+            if ($fail_gracefully) {
+                $input = '/';
+            } else {
+                return false;
+            }
         }
 
         if (Grav::instance()['config']->get('system.absolute_urls', false)) {
             $domain = true;
         }
 
-        if (Grav::instance()['uri']->isExternal($input)) {
+        if (Uri::isExternal($input)) {
             return $input;
         }
 
@@ -57,13 +62,20 @@ abstract class Utils
         if (Utils::contains((string)$input, '://')) {
             /** @var UniformResourceLocator $locator */
             $locator = Grav::instance()['locator'];
-
             $parts = Uri::parseUrl($input);
 
             if ($parts) {
-                $resource = $locator->findResource("{$parts['scheme']}://{$parts['host']}{$parts['path']}", false);
+                try {
+                    $resource = $locator->findResource("{$parts['scheme']}://{$parts['host']}{$parts['path']}", false);
+                } catch (\Exception $e) {
+                    if ($fail_gracefully) {
+                        return $input;
+                    } else {
+                        return false;
+                    }
+                }
 
-                if (isset($parts['query'])) {
+                if ($resource && isset($parts['query'])) {
                     $resource = $resource . '?' . $parts['query'];
                 }
             } else {
@@ -71,12 +83,13 @@ abstract class Utils
                 $resource = $locator->findResource($input, false);
             }
 
-
         } else {
             $resource = $input;
         }
 
-
+        if (!$fail_gracefully && $resource === false) {
+            return false;
+        }
 
         return rtrim($uri->rootUrl($domain), '/') . '/' . ($resource ?? '');
     }

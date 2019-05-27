@@ -14,6 +14,7 @@
     * Fixed bitwise operator in `TwigExtension::exifFunc()` [#2518](https://github.com/getgrav/grav/issues/2518)
     * Fixed issue with lang prefix incorrectly identifying as admin [#2511](https://github.com/getgrav/grav/issues/2511)
     * Fixed issue with `U0ils::pathPrefixedBYLanguageCode()` and trailing slash [#2510](https://github.com/getgrav/grav/issues/2511) 
+    * Fixed regresssion issue of `Utils::Url()` not returning `false` on failure. Added new optional `fail_gracefully` 3rd attribute to return string that caused failure [#2524](https://github.com/getgrav/grav/issues/2524)
 
 # v1.6.9
 ## 05/09/2019
