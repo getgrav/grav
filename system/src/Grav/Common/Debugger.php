@@ -13,6 +13,7 @@ use Clockwork\Clockwork;
 use Clockwork\DataSource\MonologDataSource;
 use Clockwork\DataSource\PhpDataSource;
 use Clockwork\DataSource\XdebugDataSource;
+use Clockwork\Request\Timeline;
 use Clockwork\Request\UserData;
 use Clockwork\Storage\FileStorage;
 use DebugBar\DataCollector\ConfigCollector;
@@ -28,6 +29,7 @@ use DebugBar\JavascriptRenderer;
 use DebugBar\StandardDebugBar;
 use Grav\Common\Config\Config;
 use Grav\Common\Processors\ProcessorInterface;
+use Grav\Common\Twig\TwigClockworkDataSource;
 use Monolog\Logger;
 use RocketTheme\Toolbox\Event\Event;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -138,6 +140,9 @@ class Debugger
                 if ($log instanceof Logger) {
                     $clockwork->addDataSource(new MonologDataSource($log));
                 }
+
+                $clockwork->addDataSource(new TwigClockworkDataSource($this->grav['twig']));
+
                 $timeLine = $clockwork->getTimeline();
                 if ($this->requestTime !== GRAV_REQUEST_TIME) {
                     $timeLine->addEvent('server', 'Server', $this->requestTime, GRAV_REQUEST_TIME);
