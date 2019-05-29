@@ -9,6 +9,7 @@
 
 namespace Grav\Common\Twig;
 
+use Grav\Common\Utils;
 use Twig\Profiler\Profile;
 use Clockwork\Request\Timeline;
 
@@ -16,24 +17,30 @@ class TwigProfileProcessor
 {
     private $root;
 
-    public function process(Profile $profile, Timeline $views, $counter = 0)
+    public function process(Profile $profile, Timeline $views, $counter = 0, $prefix = '', $sibling = false)
     {
-
         if ($profile->isRoot()) {
             $this->root = $profile->getDuration();
             $name = $profile->getName();
         } else {
             if ($profile->isTemplate()) {
-                $name = $profile->getTemplate();
+                $name = $this->formatTemplate($profile, $prefix);
             } else {
-                $name = $this->formatNonTemplate($profile);
+                $name = $this->formatNonTemplate($profile, $prefix);
             }
+            $prefix .= '⎯⎯';
         }
 
         $percent = $this->root ? $profile->getDuration() / $this->root * 100 : 0;
 
+        $data = [
+            'tm' => $this->formatTime($profile, $percent),
+            'mu' => Utils::prettySize($profile->getMemoryUsage())
+        ];
 
-        $data = [$this->formatTime($profile, $percent)];
+        if ($profile->isRoot()) {
+            $data += ['pmu' => Utils::prettySize($profile->getPeakMemoryUsage())];
+        }
 
 
         $views->addEvent(
@@ -44,16 +51,20 @@ class TwigProfileProcessor
             [ 'name' => $name, 'data' => $data ]
         );
 
+        $nCount = count($profile->getProfiles());
         foreach ($profile as $i => $p) {
-            $this->process($p, $views, ++$counter);
+            $this->process($p, $views, ++$counter, $prefix, $i + 1 !== $nCount);
         }
-
-
     }
 
-    protected function formatNonTemplate(Profile $profile)
+    protected function formatTemplate(Profile $profile, $prefix)
     {
-        return sprintf('%s::%s(%s)', $profile->getTemplate(), $profile->getType(), $profile->getName());
+        return sprintf('%s⤍ %s', $prefix, $profile->getTemplate());
+    }
+
+    protected function formatNonTemplate(Profile $profile, $prefix)
+    {
+        return sprintf('%s⤍ %s::%s(%s)', $prefix, $profile->getTemplate(), $profile->getType(), $profile->getName());
     }
 
     protected function formatTime(Profile $profile, $percent)
