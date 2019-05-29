@@ -14,6 +14,7 @@ use Clockwork\Helpers\Serializer;
 use Clockwork\Request\Request;
 use Clockwork\Request\Timeline;
 use Grav\Common\Grav;
+use Twig\Profiler\Profile;
 
 class TwigClockworkDataSource extends DataSource
 {
@@ -21,6 +22,8 @@ class TwigClockworkDataSource extends DataSource
      * Views data structure
      */
     protected $views;
+
+    protected $root;
 
     /**
      * Create a new data source, takes Twig instance as an argument
@@ -44,19 +47,16 @@ class TwigClockworkDataSource extends DataSource
 
     protected function processTwigTimings()
     {
-        $time = 10;
 
-        $data = ['foo', 'bar'];
+        $profile = Grav::instance()['twig']->profile();
 
-        $dumper = new \Twig\Profiler\Dumper\TextDumper();
-        $output = $dumper->dump(Grav::instance()['twig']->profile());
+        $processor = new TwigProfileProcessor();
 
-        $this->views->addEvent(
-            'Twig',
-            'Test Description',
-            $time,
-            $time + 10,
-            [$output]
-        );
+        $processor->process($profile, $this->views);
+
+
+
     }
+
+
 }
