@@ -59,6 +59,8 @@ class Twig
 
     protected $autoescape;
 
+    protected $profile;
+
     /**
      * Constructor
      *
@@ -187,6 +189,10 @@ class Twig
             $this->twig->addExtension(new TwigExtension());
             $this->twig->addExtension(new DeferredExtension());
 
+            $this->profile = new \Twig\Profiler\Profile();
+            $this->twig->addExtension(new \Twig\Extension\ProfilerExtension($this->profile));
+
+
             $this->grav->fireEvent('onTwigExtensions');
 
             /** @var Pages $pages */
@@ -233,6 +239,12 @@ class Twig
     {
         return $this->loader;
     }
+
+    public function profile()
+    {
+        return $this->profile;
+    }
+
 
     /**
      * Adds or overrides a template.

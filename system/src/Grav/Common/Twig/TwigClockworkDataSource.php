@@ -13,6 +13,7 @@ use Clockwork\DataSource\DataSource;
 use Clockwork\Helpers\Serializer;
 use Clockwork\Request\Request;
 use Clockwork\Request\Timeline;
+use Grav\Common\Grav;
 
 class TwigClockworkDataSource extends DataSource
 {
@@ -47,12 +48,15 @@ class TwigClockworkDataSource extends DataSource
 
         $data = ['foo', 'bar'];
 
+        $dumper = new \Twig\Profiler\Dumper\TextDumper();
+        $output = $dumper->dump(Grav::instance()['twig']->profile());
+
         $this->views->addEvent(
-            'view Test',
-            'Rendering a view',
+            'Twig',
+            'Test Description',
             $time,
             $time + 10,
-            [ 'name' => 'Test Name', 'data' => (new Serializer)->normalize($data) ]
+            [$output]
         );
     }
 }
