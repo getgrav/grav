@@ -1260,7 +1260,7 @@ abstract class Utils
      */
     public static function sortArrayByArray(array $array, array $orderArray)
     {
-        $ordered = array();
+        $ordered = [];
         foreach ($orderArray as $key) {
             if (array_key_exists($key, $array)) {
                 $ordered[$key] = $array[$key];

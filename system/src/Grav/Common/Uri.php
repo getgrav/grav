@@ -300,16 +300,17 @@ class Uri
      * Get URI parameter.
      *
      * @param string $id
+     * @param bool $default
      *
      * @return bool|string
      */
-    public function param($id)
+    public function param($id, $default = false)
     {
         if (isset($this->params[$id])) {
             return html_entity_decode(rawurldecode($this->params[$id]));
         }
 
-        return false;
+        return $default;
     }
 
     /**

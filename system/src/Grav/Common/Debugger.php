@@ -118,11 +118,15 @@ class Debugger
         if ($this->enabled) {
             $this->initialized = true;
 
-            // Clockwork initialization.
-            $this->clockwork = $clockwork = new Clockwork();
+            $clockwork = $debugbar = null;
 
-            // Debugbar initialization.
-            $this->debugbar = $debugbar = new DebugBar();
+            switch ($this->config->get('system.debugger.provider', 'debugbar')) {
+                case 'clockwork':
+                    $this->clockwork = $clockwork = new Clockwork();
+                    break;
+                default:
+                    $this->debugbar = $debugbar = new DebugBar();
+            }
 
             $plugins_config = (array)$this->config->get('plugins');
             ksort($plugins_config);
@@ -169,7 +173,7 @@ class Debugger
                 $debugbar['time']->addMeasure('Site Setup', $this->currentTime,  microtime(true));
             }
 
-            $this->addMessage('Grav v' . GRAV_VERSION);
+            $this->addMessage('Grav v' . GRAV_VERSION . ' - PHP ' . PHP_VERSION);
             $this->config->debug();
 
             if ($clockwork) {
