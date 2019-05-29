@@ -33,7 +33,10 @@ class TwigNodeRender extends Node implements NodeCaptureInterface
         $tag = null
     )
     {
-        parent::__construct(['object' => $object, 'layout' => $layout, 'context' => $context], [], $lineno, $tag);
+        $nodes = ['object' => $object, 'layout' => $layout, 'context' => $context];
+        $nodes = array_filter($nodes);
+
+        parent::__construct($nodes, [], $lineno, $tag);
     }
     /**
      * Compiles the node to PHP.
@@ -46,15 +49,15 @@ class TwigNodeRender extends Node implements NodeCaptureInterface
         $compiler->addDebugInfo($this);
         $compiler->write('$object = ')->subcompile($this->getNode('object'))->raw(';' . PHP_EOL);
 
-        $layout = $this->getNode('layout');
-        if ($layout) {
+        if ($this->hasNode('layout')) {
+            $layout = $this->getNode('layout');
             $compiler->write('$layout = ')->subcompile($layout)->raw(';' . PHP_EOL);
         } else {
             $compiler->write('$layout = null;' . PHP_EOL);
         }
 
-        $context = $this->getNode('context');
-        if ($context) {
+        if ($this->hasNode('context')) {
+            $context = $this->getNode('context');
             $compiler->write('$attributes = ')->subcompile($context)->raw(';' . PHP_EOL);
         } else {
             $compiler->write('$attributes = null;' . PHP_EOL);
