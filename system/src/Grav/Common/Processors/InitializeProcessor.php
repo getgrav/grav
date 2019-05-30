@@ -76,19 +76,23 @@ class InitializeProcessor extends ProcessorBase
 
         $this->initializeSession($config);
 
-        $response = $handler->handle($request);
+        // Wrap call to next handler so that debugger can profile it.
+        /** @var Response $response */
+        $response = $debugger->profile('Profiler', function () use ($handler, $request) {
+            return $handler->handle($request);
+        });
 
-        if ($clockwork) {
-            $debugger->finalize();
+        $debugger->finalize();
 
-            return $this->logRequest($request, $response, $clockwork);
-        }
-
-        return $response;
+        return $this->logRequest($request, $response, $clockwork);
     }
 
-    protected function logRequest(ServerRequestInterface $request, ResponseInterface $response, Clockwork $clockwork)
+    protected function logRequest(ServerRequestInterface $request, ResponseInterface $response, Clockwork $clockwork = null)
     {
+        if (!$clockwork) {
+            return $response;
+        }
+
         $clockwork->getTimeline()->finalize($request->getAttribute('request_time'));
         $clockwork->addDataSource(new PsrMessageDataSource($request, $response));
 
