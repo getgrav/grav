@@ -236,7 +236,7 @@ class Debugger
             }
 
             if ($debTimeLine) {
-                $debTimeLine->addMeasure($description, $startTime,  $endTime);
+                $debTimeLine->addMeasure($description ?? $name, $startTime,  $endTime);
             }
         }
         $this->timers = [];
