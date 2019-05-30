@@ -33,11 +33,11 @@ class InitializeProcessor extends ProcessorBase
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler) : ResponseInterface
     {
         $this->startTimer('_config', 'Configuration');
-        $this->initializeConfig();
+        $config = $this->initializeConfig();
         $this->stopTimer('_config');
 
         $this->startTimer('_logger', 'Logger');
-        $this->initializeLogger();
+        $this->initializeLogger($config);
         $this->stopTimer('_logger');
 
         $this->startTimer('_errors', 'Error Handlers Reset');
@@ -70,10 +70,11 @@ class InitializeProcessor extends ProcessorBase
         }
         $this->stopTimer('_debugger');
 
-
         $this->startTimer('_init', 'Initialize');
-        $this->initialize();
+        $this->initialize($config);
         $this->stopTimer('_init');
+
+        $this->initializeSession($config);
 
         $response = $handler->handle($request);
 
@@ -154,7 +155,7 @@ class InitializeProcessor extends ProcessorBase
         return new Response(200, $headers, json_encode($data));
     }
 
-    protected function initializeConfig()
+    protected function initializeConfig(): Config
     {
         // Initialize Configuration
         $grav = $this->container;
@@ -162,14 +163,15 @@ class InitializeProcessor extends ProcessorBase
         $config = $grav['config'];
         $config->init();
         $grav['plugins']->setup();
+
+        return $config;
     }
 
-    protected function initializeLogger()
+    protected function initializeLogger(Config $config)
     {
         // Initialize Logging
         $grav = $this->container;
-        /** @var Config $config */
-        $config = $grav['config'];
+
         switch ($config->get('system.log.handler', 'file')) {
             case 'syslog':
                 $log = $grav['log'];
@@ -191,11 +193,8 @@ class InitializeProcessor extends ProcessorBase
         $this->container['errors']->resetHandlers();
     }
 
-    protected function initialize()
+    protected function initialize(Config $config)
     {
-        /** @var Config $config */
-        $config = $this->container['config'];
-
         // Use output buffering to prevent headers from being sent too early.
         ob_start();
         if ($config->get('system.cache.gzip') && !@ob_start('ob_gzhandler')) {
@@ -207,21 +206,6 @@ class InitializeProcessor extends ProcessorBase
         $timezone = $config->get('system.timezone');
         if ($timezone) {
             date_default_timezone_set($timezone);
-        }
-
-        // FIXME: Initialize session should happen later after plugins have been loaded. This is a workaround to fix session issues in AWS.
-        if (isset($this->container['session']) && $config->get('system.session.initialize', true)) {
-            // TODO: remove in 2.0.
-            $this->container['accounts'];
-
-            try {
-                $this->container['session']->init();
-            } catch (SessionException $e) {
-                $this->container['session']->init();
-                $message = 'Session corruption detected, restarting session...';
-                $this->addMessage($message);
-                $this->container['messages']->add($message, 'error');
-            }
         }
 
         /** @var Uri $uri */
@@ -239,5 +223,27 @@ class InitializeProcessor extends ProcessorBase
         }
 
         $this->container->setLocale();
+    }
+
+    protected function initializeSession(Config $config)
+    {
+        // FIXME: Initialize session should happen later after plugins have been loaded. This is a workaround to fix session issues in AWS.
+        if (isset($this->container['session']) && $config->get('system.session.initialize', true)) {
+            $this->startTimer('_session', 'Start Session');
+
+            // TODO: remove in 2.0.
+            $this->container['accounts'];
+
+            try {
+                $this->container['session']->init();
+            } catch (SessionException $e) {
+                $this->container['session']->init();
+                $message = 'Session corruption detected, restarting session...';
+                $this->addMessage($message);
+                $this->container['messages']->add($message, 'error');
+            }
+
+            $this->stopTimer('_session');
+        }
     }
 }

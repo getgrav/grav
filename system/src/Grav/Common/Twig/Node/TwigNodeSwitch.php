@@ -30,7 +30,10 @@ class TwigNodeSwitch extends Node
         $tag = null
     )
     {
-        parent::__construct(array('value' => $value, 'cases' => $cases, 'default' => $default), array(), $lineno, $tag);
+        $nodes = ['value' => $value, 'cases' => $cases, 'default' => $default];
+        $nodes = array_filter($nodes);
+
+        parent::__construct($nodes, [], $lineno, $tag);
     }
 
     /**
@@ -68,7 +71,7 @@ class TwigNodeSwitch extends Node
                 ->write("}\n");
         }
 
-        if ($this->hasNode('default') && $this->getNode('default') !== null) {
+        if ($this->hasNode('default')) {
             $compiler
                 ->write("default:\n")
                 ->write("{\n")

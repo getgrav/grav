@@ -29,16 +29,19 @@ class TwigNodeScript extends Node implements NodeCaptureInterface
      * @param string|null $tag
      */
     public function __construct(
-        Node $body = null,
-        AbstractExpression $file = null,
-        AbstractExpression $group = null,
-        AbstractExpression $priority = null,
-        AbstractExpression $attributes = null,
+        ?Node $body,
+        ?AbstractExpression $file,
+        ?AbstractExpression $group,
+        ?AbstractExpression $priority,
+        ?AbstractExpression $attributes,
         $lineno = 0,
         $tag = null
     )
     {
-        parent::__construct(['body' => $body, 'file' => $file, 'group' => $group, 'priority' => $priority, 'attributes' => $attributes], [], $lineno, $tag);
+        $nodes = ['body' => $body, 'file' => $file, 'group' => $group, 'priority' => $priority, 'attributes' => $attributes];
+        $nodes = array_filter($nodes);
+
+        parent::__construct($nodes, [], $lineno, $tag);
     }
     /**
      * Compiles the node to PHP.
@@ -52,7 +55,7 @@ class TwigNodeScript extends Node implements NodeCaptureInterface
 
         $compiler->write("\$assets = \\Grav\\Common\\Grav::instance()['assets'];\n");
 
-        if ($this->getNode('attributes') !== null) {
+        if ($this->hasNode('attributes')) {
             $compiler
                 ->write('$attributes = ')
                 ->subcompile($this->getNode('attributes'))
@@ -66,7 +69,7 @@ class TwigNodeScript extends Node implements NodeCaptureInterface
             $compiler->write('$attributes = [];' . "\n");
         }
 
-         if ($this->getNode('group') !== null) {
+         if ($this->hasNode('group')) {
              $compiler
                  ->write("\$attributes['group'] = ")
                  ->subcompile($this->getNode('group'))
@@ -78,14 +81,14 @@ class TwigNodeScript extends Node implements NodeCaptureInterface
                  ->write("}\n");
          }
 
-        if ($this->getNode('priority') !== null) {
+        if ($this->hasNode('priority')) {
             $compiler
                 ->write("\$attributes['priority'] = (int)(")
                 ->subcompile($this->getNode('priority'))
                 ->raw(");\n");
         }
 
-        if ($this->getNode('file') !== null) {
+        if ($this->hasNode('file')) {
             $compiler
                 ->write('$assets->addJs(')
                 ->subcompile($this->getNode('file'))
