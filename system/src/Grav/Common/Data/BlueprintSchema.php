@@ -244,8 +244,8 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
                     || !empty($field['disabled'])
                     // Field validation is set to be ignored
                     || !empty($field['validate']['ignore'])
-                    // Field is toggleable and the toggle is turned off
-                    || (!empty($field['toggleable']) && empty($toggles[$key]))
+                    // Field is overridable and the toggle is turned off
+                    || (!empty($field['overridable']) && empty($toggles[$key]))
                 ) {
                     continue;
                 }
@@ -276,6 +276,12 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
 
             // Skip ignored field, it will not be required.
             if (!empty($field['disabled']) || !empty($field['validate']['ignore'])) {
+                continue;
+            }
+
+            // Skip overridable fields without value.
+            // TODO: We need better overridable support, which is not just ignoring required values but also looking if defaults are good.
+            if (!empty($field['overridable']) && !isset($data[$name])) {
                 continue;
             }
 

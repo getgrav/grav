@@ -73,6 +73,9 @@ class Debugger
     protected $requestTime;
     protected $currentTime;
 
+    /** @var array|null */
+    protected $profile;
+
     /**
      * Debugger constructor.
      */
@@ -180,7 +183,6 @@ class Debugger
                 $clockwork->info('System Configuration', $this->config->get('system'));
                 $clockwork->info('Plugins Configuration', $plugins_config);
                 $clockwork->info('Streams', $this->config->get('streams.schemes'));
-
             }
         }
 
@@ -228,7 +230,7 @@ class Debugger
         $debTimeLine = $this->debugbar ? $this->debugbar['time'] : null;
         foreach ($this->timers as $name => $data) {
             $description = $data[0];
-            $startTime = $data[1];
+            $startTime = $data[1] ?? null;
             $endTime = $data[2] ?? $nowTime;
             if ($endTime - $startTime < 0.001) {
                 continue;
@@ -239,7 +241,7 @@ class Debugger
             }
 
             if ($debTimeLine) {
-                $debTimeLine->addMeasure($description, $startTime,  $endTime);
+                $debTimeLine->addMeasure($description ?? $name, $startTime,  $endTime);
             }
         }
         $this->timers = [];
@@ -400,6 +402,40 @@ class Debugger
     }
 
     /**
+     * Hierarchical Profiler support.
+     *
+     * @param string $message
+     * @param callable $callable
+     * @return mixed
+     */
+    public function profile(string $message, callable $callable)
+    {
+        if ($this->enabled && extension_loaded('tideways_xhprof')) {
+            \tideways_xhprof_enable(TIDEWAYS_XHPROF_FLAGS_NO_BUILTINS);
+            $response = $callable();
+            $timings = \tideways_xhprof_disable();
+            $timings = array_filter($timings, function ($value) {
+                return $value['wt'] > 50;
+            });
+            $this->addMessage($message, 'debug', $timings);
+
+            $this->profile = $timings;
+        } else {
+            $response = $callable();
+        }
+
+        return $response;
+    }
+
+    /**
+     * @return array|null
+     */
+    public function getProfileTimings()
+    {
+        return $this->profile;
+    }
+
+    /**
      * Start a timer with an associated name and description
      *
      * @param string      $name
@@ -436,7 +472,7 @@ class Debugger
      *
      * @param mixed  $message
      * @param string $label
-     * @param bool   $isString
+     * @param array|bool $isString
      *
      * @return $this
      */
@@ -444,11 +480,14 @@ class Debugger
     {
         if ($this->enabled) {
             if ($this->debugbar) {
-                $this->debugbar['messages']->addMessage($message, $label, $isString);
+                $this->debugbar['messages']->addMessage($message, $label, is_bool($isString) ? $isString : true);
+                if (is_array($isString)) {
+                    $this->debugbar['messages']->addMessage($isString, $label, false);
+                }
             }
 
             if ($this->clockwork) {
-                $this->clockwork->log($label, $message);
+                $this->clockwork->log($label, $message, is_array($isString) ? $isString : []);
             }
         }
 
