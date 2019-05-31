@@ -279,6 +279,12 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
                 continue;
             }
 
+            // Skip toggleable fields without value.
+            // TODO: We need better toggleable support, which is not just ignoring required values but also looking if defaults are good.
+            if (!empty($field['toggleable']) && !isset($data[$name])) {
+                continue;
+            }
+
             // Check if required.
             if (isset($field['validate']['required'])
                 && $field['validate']['required'] === true) {

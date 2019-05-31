@@ -330,7 +330,7 @@ class FlexForm implements FlexFormInterface
         $this->object = $data['object'];
     }
 
-        /**
+    /**
      * Filter validated data.
      *
      * @param \ArrayAccess $data
