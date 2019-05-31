@@ -225,7 +225,7 @@ class Debugger
         $debTimeLine = $this->debugbar ? $this->debugbar['time'] : null;
         foreach ($this->timers as $name => $data) {
             $description = $data[0];
-            $startTime = $data[1];
+            $startTime = $data[1] ?? null;
             $endTime = $data[2] ?? $nowTime;
             if ($endTime - $startTime < 0.001) {
                 continue;
@@ -412,8 +412,7 @@ class Debugger
             $timings = array_filter($timings, function ($value) {
                 return $value['wt'] > 50;
             });
-            $this->addMessage($message);
-            $this->addMessage($timings);
+            $this->addMessage($message, 'debug', $timings);
 
             $this->profile = $timings;
         } else {
@@ -468,7 +467,7 @@ class Debugger
      *
      * @param mixed  $message
      * @param string $label
-     * @param bool   $isString
+     * @param array|bool $isString
      *
      * @return $this
      */
@@ -476,11 +475,14 @@ class Debugger
     {
         if ($this->enabled) {
             if ($this->debugbar) {
-                $this->debugbar['messages']->addMessage($message, $label, $isString);
+                $this->debugbar['messages']->addMessage($message, $label, is_bool($isString) ? $isString : true);
+                if (is_array($isString)) {
+                    $this->debugbar['messages']->addMessage($isString, $label, false);
+                }
             }
 
             if ($this->clockwork) {
-                $this->clockwork->log($label, $message);
+                $this->clockwork->log($label, $message, is_array($isString) ? $isString : []);
             }
         }
 
