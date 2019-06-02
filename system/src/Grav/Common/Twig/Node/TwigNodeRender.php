@@ -41,7 +41,7 @@ class TwigNodeRender extends Node implements NodeCaptureInterface
     /**
      * Compiles the node to PHP.
      *
-     * @param Compiler $compiler A Twig_Compiler instance
+     * @param Compiler $compiler A Twig Compiler instance
      * @throws \LogicException
      */
     public function compile(Compiler $compiler)

@@ -35,11 +35,17 @@ parameters:
         -
             message: '#Call to deprecated method writeCacheFile\(\) of class Twig\\Environment#'
             path: 'system/src/Grav/Common/Twig/WriteCacheFileTrait.php'
+        -
+            message: '#Call to an undefined static method Twig\\Environment::writeCacheFile#'
+            path: 'system/src/Grav/Common/Twig/WriteCacheFileTrait.php'
 
         # Needed: full coverage (probably with admin plugin...) then redesign constructor
         -
             message: '#Grav\\Common\\GPM\\Remote\\GravCore::__construct\(\) does not call parent constructor from Grav\\Common\\GPM\\Remote\\AbstractPackageCollection#'
             path: 'system/src/Grav/Common/GPM/Remote/GravCore.php'
+
+        # XHprof
+        - '#tideways_xhprof_enable#'
 
         # PSR-16 Exception interfaces do not extend \Throwable
         - '#PHPDoc tag \@throws with type Psr\\SimpleCache\\(CacheException|InvalidArgumentException) is not subtype of Throwable#'

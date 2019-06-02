@@ -30,9 +30,9 @@ class TwigTokenParserTryCatch extends AbstractTokenParser
     /**
      * Parses a token and returns a node.
      *
-     * @param Token $token A Twig_Token instance
+     * @param Token $token A Twig Token instance
      *
-     * @return Node A Twig_Node instance
+     * @return Node A Twig Node instance
      */
     public function parse(Token $token)
     {

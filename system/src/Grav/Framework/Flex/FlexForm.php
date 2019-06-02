@@ -333,9 +333,9 @@ class FlexForm implements FlexFormInterface
     /**
      * Filter validated data.
      *
-     * @param \ArrayAccess $data
+     * @param \ArrayAccess|Data $data
      */
-    protected function filterData(\ArrayAccess $data): void
+    protected function filterData($data): void
     {
         if ($data instanceof Data) {
             $data->filter(true, true);
