@@ -9,7 +9,6 @@ namespace Grav\Framework\Flex\Traits;
  * @license    MIT License; see LICENSE file for details.
  */
 
-use Grav\Common\Cache;
 use Grav\Common\Config\Config;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\Grav;
@@ -19,6 +18,7 @@ use Grav\Common\Page\Medium\AbstractMedia;
 use Grav\Common\Page\Medium\Medium;
 use Grav\Common\Page\Medium\MediumFactory;
 use Grav\Common\Utils;
+use Grav\Framework\Cache\CacheInterface;
 use Grav\Framework\Flex\FlexDirectory;
 use Grav\Framework\Form\FormFlashFile;
 use Psr\Http\Message\UploadedFileInterface;
@@ -313,7 +313,7 @@ trait FlexMediaTrait
     }
 
     /**
-     * @return Cache
+     * @return CacheInterface
      */
     protected function getMediaCache()
     {

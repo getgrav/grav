@@ -45,7 +45,7 @@ trait FormTrait
     private $uniqueid;
     /** @var bool */
     private $submitted;
-    /** @var \ArrayAccess|Data|object|null */
+    /** @var \ArrayAccess|Data|null */
     private $data;
     /** @var array|UploadedFileInterface[] */
     private $files;
@@ -501,7 +501,7 @@ trait FormTrait
      *
      * @param \ArrayAccess|Data $data
      */
-    protected function filterData(\ArrayAccess $data): void
+    protected function filterData($data): void
     {
         if ($data instanceof Data) {
             $data->filter();

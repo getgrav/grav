@@ -5,7 +5,7 @@
     * Added support for [clokcwork](https://underground.works/clockwork) developer tools
     * Added support for [Tideways XHProf](https://github.com/tideways/php-xhprof-extension) PHP Extension for profiling method calls
     * Updated Symfony Components to 4.3
-    * Added support for Twig 2.11
+    * Added support for Twig 2.11 (compatible with Twig 1.40+)
 
 # v1.6.10
 ## mm/dd/2019
