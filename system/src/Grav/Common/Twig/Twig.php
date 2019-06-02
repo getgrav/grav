@@ -18,11 +18,21 @@ use Grav\Common\Page\Pages;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use RocketTheme\Toolbox\Event\Event;
 use Phive\Twig\Extensions\Deferred\DeferredExtension;
+use Twig\Cache\FilesystemCache;
+use Twig\Environment;
+use Twig\Error\LoaderError;
+use Twig\Extension\CoreExtension;
+use Twig\Extension\DebugExtension;
+use Twig\Loader\ArrayLoader;
+use Twig\Loader\ChainLoader;
+use Twig\Loader\FilesystemLoader;
+use Twig\TwigFilter;
+use Twig\TwigFunction;
 
 class Twig
 {
     /**
-     * @var \Twig_Environment
+     * @var Environment
      */
     public $twig;
 
@@ -47,12 +57,12 @@ class Twig
     protected $grav;
 
     /**
-     * @var \Twig_Loader_Filesystem
+     * @var FilesystemLoader
      */
     protected $loader;
 
     /**
-     * @var \Twig_Loader_Array
+     * @var ArrayLoader
      */
     protected $loaderArray;
 
@@ -102,7 +112,7 @@ class Twig
             $core_templates = array_merge($locator->findResources('system://templates'), $locator->findResources('system://templates/testing'));
             $this->twig_paths = array_merge($this->twig_paths, $core_templates);
 
-            $this->loader = new \Twig_Loader_Filesystem($this->twig_paths);
+            $this->loader = new FilesystemLoader($this->twig_paths);
 
             // Register all other prefixes as namespaces in twig
             foreach ($locator->getPaths('theme') as $prefix => $_) {
@@ -128,13 +138,13 @@ class Twig
 
             $this->grav->fireEvent('onTwigLoader');
 
-            $this->loaderArray = new \Twig_Loader_Array([]);
-            $loader_chain = new \Twig_Loader_Chain([$this->loaderArray, $this->loader]);
+            $this->loaderArray = new ArrayLoader([]);
+            $loader_chain = new ChainLoader([$this->loaderArray, $this->loader]);
 
             $params = $config->get('system.twig');
             if (!empty($params['cache'])) {
                 $cachePath = $locator->findResource('cache://twig', true, true);
-                $params['cache'] = new \Twig_Cache_Filesystem($cachePath, \Twig_Cache_Filesystem::FORCE_BYTECODE_INVALIDATION);
+                $params['cache'] = new FilesystemCache($cachePath, FilesystemCache::FORCE_BYTECODE_INVALIDATION);
             }
 
             if (!$config->get('system.strict_mode.twig_compat', true)) {
@@ -153,10 +163,10 @@ class Twig
             if ($config->get('system.twig.undefined_functions')) {
                 $this->twig->registerUndefinedFunctionCallback(function ($name) {
                     if (function_exists($name)) {
-                        return new \Twig_SimpleFunction($name, $name);
+                        return new TwigFunction($name, $name);
                     }
 
-                    return new \Twig_SimpleFunction($name, function () {
+                    return new TwigFunction($name, function () {
                     });
                 });
             }
@@ -164,10 +174,10 @@ class Twig
             if ($config->get('system.twig.undefined_filters')) {
                 $this->twig->registerUndefinedFilterCallback(function ($name) {
                     if (function_exists($name)) {
-                        return new \Twig_SimpleFilter($name, $name);
+                        return new TwigFilter($name, $name);
                     }
 
-                    return new \Twig_SimpleFilter($name, function () {
+                    return new TwigFilter($name, function () {
                     });
                 });
             }
@@ -176,13 +186,13 @@ class Twig
 
             // set default date format if set in config
             if ($config->get('system.pages.dateformat.long')) {
-                /** @var \Twig_Extension_Core $extension */
-                $extension = $this->twig->getExtension('Twig_Extension_Core');
+                /** @var CoreExtension $extension */
+                $extension = $this->twig->getExtension(CoreExtension::class);
                 $extension->setDateFormat($config->get('system.pages.dateformat.long'));
             }
             // enable the debug extension if required
             if ($config->get('system.twig.debug')) {
-                $this->twig->addExtension(new \Twig_Extension_Debug());
+                $this->twig->addExtension(new DebugExtension());
             }
             $this->twig->addExtension(new TwigExtension());
             $this->twig->addExtension(new DeferredExtension());
@@ -219,7 +229,7 @@ class Twig
     }
 
     /**
-     * @return \Twig_Environment
+     * @return Environment
      */
     public function twig()
     {
@@ -227,7 +237,7 @@ class Twig
     }
 
     /**
-     * @return \Twig_Loader_Filesystem
+     * @return FilesystemLoader
      */
     public function loader()
     {
@@ -254,7 +264,6 @@ class Twig
      * @param  string $content Optional content override
      *
      * @return string          The rendered output
-     * @throws \Twig_Error_Loader
      */
     public function processPage(PageInterface $item, $content = null)
     {
@@ -288,7 +297,7 @@ class Twig
                 $output = $local_twig->render($name, $twig_vars);
             }
 
-        } catch (\Twig_Error_Loader $e) {
+        } catch (LoaderError $e) {
             throw new \RuntimeException($e->getRawMessage(), 404, $e);
         }
 
@@ -312,7 +321,7 @@ class Twig
 
         try {
             $output = $this->twig->render($template, $vars);
-        } catch (\Twig_Error_Loader $e) {
+        } catch (LoaderError $e) {
             throw new \RuntimeException($e->getRawMessage(), 404, $e);
         }
 
@@ -341,7 +350,7 @@ class Twig
 
         try {
             $output = $this->twig->render($name, $vars);
-        } catch (\Twig_Error_Loader $e) {
+        } catch (LoaderError $e) {
             throw new \RuntimeException($e->getRawMessage(), 404, $e);
         }
 
@@ -386,14 +395,14 @@ class Twig
 
         try {
             $output = $this->twig->render($template, $vars + $twig_vars);
-        } catch (\Twig_Error_Loader $e) {
+        } catch (LoaderError $e) {
             $error_msg = $e->getMessage();
             // Try html version of this template if initial template was NOT html
             if ($ext !== '.html' . TWIG_EXT) {
                 try {
                     $page->templateFormat('html');
                     $output = $this->twig->render($page->template() . '.html' . TWIG_EXT, $vars + $twig_vars);
-                } catch (\Twig_Error_Loader $e) {
+                } catch (LoaderError $e) {
                     throw new \RuntimeException($error_msg, 400, $e);
                 }
             } else {
@@ -405,9 +414,10 @@ class Twig
     }
 
     /**
-     * Wraps the Twig_Loader_Filesystem addPath method (should be used only in `onTwigLoader()` event
+     * Wraps the FilesystemLoader addPath method (should be used only in `onTwigLoader()` event
      * @param string $template_path
      * @param string $namespace
+     * @throws LoaderError
      */
     public function addPath($template_path, $namespace = '__main__')
     {
@@ -415,9 +425,10 @@ class Twig
     }
 
     /**
-     * Wraps the Twig_Loader_Filesystem prependPath method (should be used only in `onTwigLoader()` event
+     * Wraps the FilesystemLoader prependPath method (should be used only in `onTwigLoader()` event
      * @param string $template_path
      * @param string $namespace
+     * @throws LoaderError
      */
     public function prependPath($template_path, $namespace = '__main__')
     {
