@@ -21,12 +21,20 @@ class Scheduler
     /**
      * The queued jobs.
      *
-     * @var array
+     * @var Job[]
      */
     private $jobs = [];
+
+    /** @var Job[] */
     private $saved_jobs = [];
+
+    /** @var Job[] */
     private $executed_jobs = [];
+
+    /** @var Job[] */
     private $failed_jobs = [];
+
+    /** @var Job[] */
     private $jobs_run = [];
     private $output_schedule = [];
     private $config;
@@ -49,6 +57,8 @@ class Scheduler
 
     /**
      * Load saved jobs from config/scheduler.yaml file
+     *
+     * @return $this
      */
     public function loadSavedJobs()
     {
@@ -65,7 +75,7 @@ class Scheduler
             }
 
             if (isset($j['output'])) {
-                $mode = isset($j['output_mode']) && $j['output_mode'] === 'append' ? true : false;
+                $mode = isset($j['output_mode']) && $j['output_mode'] === 'append';
                 $job->output($j['output'], $mode);
             }
 
@@ -106,7 +116,7 @@ class Scheduler
     /**
      * Get all jobs if they are disabled or not as one array
      *
-     * @return array
+     * @return Job[]
      */
     public function getAllJobs()
     {
@@ -184,6 +194,8 @@ class Scheduler
      * Reset all collected data of last run.
      *
      * Call before run() if you call run() multiple times.
+     *
+     * @return $this
      */
     public function resetRun()
     {
@@ -199,7 +211,7 @@ class Scheduler
      * Get the scheduler verbose output.
      *
      * @param  string  $type  Allowed: text, html, array
-     * @return mixed  The return depends on the requested $type
+     * @return string|array  The return depends on the requested $type
      */
     public function getVerboseOutput($type = 'text')
     {
@@ -217,6 +229,8 @@ class Scheduler
 
     /**
      * Remove all queued Jobs.
+     *
+     * @return $this
      */
     public function clearJobs()
     {
@@ -263,7 +277,7 @@ class Scheduler
     /**
      * Get the Job states file
      *
-     * @return \RocketTheme\Toolbox\File\FileInterface|YamlFile
+     * @return YamlFile
      */
     public function getJobStates()
     {
@@ -296,7 +310,6 @@ class Scheduler
      * Queue a job for execution in the correct queue.
      *
      * @param  Job  $job
-     * @return void
      */
     private function queueJob(Job $job)
     {
@@ -309,7 +322,6 @@ class Scheduler
      * Add an entry to the scheduler verbose output array.
      *
      * @param  string  $string
-     * @return void
      */
     private function addSchedulerVerboseOutput($string)
     {

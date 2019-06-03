@@ -18,7 +18,7 @@ class PluginsProcessor extends ProcessorBase
     public $id = 'plugins';
     public $title = 'Plugins';
 
-    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler) : ResponseInterface
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $this->startTimer();
         // TODO: remove in 2.0.

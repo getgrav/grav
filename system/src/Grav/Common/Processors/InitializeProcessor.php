@@ -9,9 +9,6 @@
 
 namespace Grav\Common\Processors;
 
-use Clockwork\Clockwork;
-use Clockwork\DataSource\PsrMessageDataSource;
-use Clockwork\Helpers\ServerTiming;
 use Grav\Common\Config\Config;
 use Grav\Common\Debugger;
 use Grav\Common\Uri;
@@ -20,7 +17,6 @@ use Grav\Framework\Psr7\Response;
 use Grav\Framework\Session\Exceptions\SessionException;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\SyslogHandler;
-use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
@@ -30,23 +26,16 @@ class InitializeProcessor extends ProcessorBase
     public $id = '_init';
     public $title = 'Initialize';
 
-    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler) : ResponseInterface
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $this->startTimer('_config', 'Configuration');
         $config = $this->initializeConfig();
-        $this->stopTimer('_config');
-
-        $this->startTimer('_logger', 'Logger');
         $this->initializeLogger($config);
-        $this->stopTimer('_logger');
-
-        $this->startTimer('_errors', 'Error Handlers Reset');
         $this->initializeErrors();
-        $this->stopTimer('_errors');
 
         $this->startTimer('_debugger', 'Init Debugger');
         /** @var Debugger $debugger */
         $debugger = $this->container['debugger']->init();
+        // Clockwork integration.
         $clockwork = $debugger->getClockwork();
         if ($clockwork) {
             $server = $request->getServerParams();
@@ -63,104 +52,30 @@ class InitializeProcessor extends ProcessorBase
             // Handle clockwork API calls.
             $uri = $request->getUri();
             if (mb_strpos($uri->getPath(), $baseUri . '/__clockwork/') === 0) {
-                return $this->debuggerRequest($request, $clockwork);
+                return $debugger->debuggerRequest($request);
             }
 
             $this->container['clockwork'] = $clockwork;
         }
         $this->stopTimer('_debugger');
 
-        $this->startTimer('_init', 'Initialize');
         $this->initialize($config);
-        $this->stopTimer('_init');
-
         $this->initializeSession($config);
 
         // Wrap call to next handler so that debugger can profile it.
         /** @var Response $response */
-        $response = $debugger->profile('Profiler Analysis', function () use ($handler, $request) {
+        $response = $debugger->profile(function () use ($handler, $request) {
             return $handler->handle($request);
         });
 
-        $debugger->finalize();
-
-        return $this->logRequest($request, $response, $clockwork);
-    }
-
-    protected function logRequest(ServerRequestInterface $request, ResponseInterface $response, Clockwork $clockwork = null)
-    {
-        if (!$clockwork) {
-            return $response;
-        }
-
-        $clockwork->getTimeline()->finalize($request->getAttribute('request_time'));
-        $clockwork->addDataSource(new PsrMessageDataSource($request, $response));
-
-        $clockwork->resolveRequest();
-        $clockwork->storeRequest();
-
-        $clockworkRequest = $clockwork->getRequest();
-
-        $response = $response
-            ->withHeader('X-Clockwork-Id', $clockworkRequest->id)
-            ->withHeader('X-Clockwork-Version', $clockwork::VERSION);
-
-        $basePath = $request->getAttribute('base_uri');
-        if ($basePath) {
-            $response = $response->withHeader('X-Clockwork-Path', $basePath . '/__clockwork/');
-        }
-
-        return $response->withHeader('Server-Timing', ServerTiming::fromRequest($clockworkRequest)->value());
-    }
-
-    protected function debuggerRequest(RequestInterface $request, Clockwork $clockwork): Response
-    {
-        $headers = [
-            'Content-Type' => 'application/json',
-            'Grav-Internal-SkipShutdown' => 1
-        ];
-
-        $path = $request->getUri()->getPath();
-        $clockworkDataUri = '#/__clockwork(?:/(?<id>[0-9-]+))?(?:/(?<direction>(?:previous|next)))?(?:/(?<count>\d+))?#';
-        if (preg_match($clockworkDataUri, $path, $matches) === false) {
-            $response = ['message' => 'Bad Input'];
-
-            return new Response(400, $headers, json_encode($response));
-        }
-
-        $id = $matches['id'] ?? null;
-        $direction = $matches['direction'] ?? null;
-        $count = $matches['count'] ?? null;
-
-        $storage = $clockwork->getStorage();
-
-        if ($direction === 'previous') {
-            $data = $storage->previous($id, $count);
-        } elseif ($direction === 'next') {
-            $data = $storage->next($id, $count);
-        } elseif ($id === 'latest') {
-            $data = $storage->latest();
-        } else {
-            $data = $storage->find($id);
-        }
-
-        if (preg_match('#(?<id>[0-9-]+|latest)/extended#', $path)) {
-            $clockwork->extendRequest($data);
-        }
-
-        if (!$data) {
-            $response = ['message' => 'Not Found'];
-
-            return new Response(404, $headers, json_encode($response));
-        }
-
-        $data = is_array($data) ? array_map(function ($item) { return $item->toArray(); }, $data) : $data->toArray();
-
-        return new Response(200, $headers, json_encode($data));
+        // Log both request and response and return the response.
+        return $debugger->logRequest($request, $response);
     }
 
     protected function initializeConfig(): Config
     {
+        $this->startTimer('_config', 'Configuration');
+
         // Initialize Configuration
         $grav = $this->container;
         /** @var Config $config */
@@ -168,11 +83,15 @@ class InitializeProcessor extends ProcessorBase
         $config->init();
         $grav['plugins']->setup();
 
+        $this->stopTimer('_config');
+
         return $config;
     }
 
-    protected function initializeLogger(Config $config)
+    protected function initializeLogger(Config $config): void
     {
+        $this->startTimer('_logger', 'Logger');
+
         // Initialize Logging
         $grav = $this->container;
 
@@ -189,16 +108,24 @@ class InitializeProcessor extends ProcessorBase
                 $log->pushHandler($logHandler);
                 break;
         }
+
+        $this->stopTimer('_logger');
     }
 
-    protected function initializeErrors()
+    protected function initializeErrors(): void
     {
+        $this->startTimer('_errors', 'Error Handlers Reset');
+
         // Initialize Error Handlers
         $this->container['errors']->resetHandlers();
+
+        $this->stopTimer('_errors');
     }
 
-    protected function initialize(Config $config)
+    protected function initialize(Config $config): void
     {
+        $this->startTimer('_init', 'Initialize');
+
         // Use output buffering to prevent headers from being sent too early.
         ob_start();
         if ($config->get('system.cache.gzip') && !@ob_start('ob_gzhandler')) {
@@ -227,9 +154,11 @@ class InitializeProcessor extends ProcessorBase
         }
 
         $this->container->setLocale();
+
+        $this->stopTimer('_init');
     }
 
-    protected function initializeSession(Config $config)
+    protected function initializeSession(Config $config): void
     {
         // FIXME: Initialize session should happen later after plugins have been loaded. This is a workaround to fix session issues in AWS.
         if (isset($this->container['session']) && $config->get('system.session.initialize', true)) {

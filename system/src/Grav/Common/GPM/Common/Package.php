@@ -11,6 +11,9 @@ namespace Grav\Common\GPM\Common;
 
 use Grav\Common\Data\Data;
 
+/**
+ * @property string $name
+ */
 class Package
 {
     /**

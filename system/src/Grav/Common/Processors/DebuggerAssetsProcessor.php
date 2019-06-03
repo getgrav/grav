@@ -19,7 +19,7 @@ class DebuggerAssetsProcessor extends ProcessorBase
     public $id = 'debugger_assets';
     public $title = 'Debugger Assets';
 
-    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler) : ResponseInterface
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $this->startTimer();
         $this->container['debugger']->addAssets();

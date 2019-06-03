@@ -20,7 +20,7 @@ class RequestProcessor extends ProcessorBase
     public $id = 'request';
     public $title = 'Request';
 
-    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler) : ResponseInterface
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $this->startTimer();
 

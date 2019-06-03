@@ -64,7 +64,7 @@ interface PageContentInterface
      *
      * @param string|null $var
      *
-     * @return null
+     * @return string
      */
     public function rawMarkdown($var = null);
 
@@ -167,7 +167,7 @@ interface PageContentInterface
      *
      * @param int $var
      *
-     * @return int|bool
+     * @return string|bool
      */
     public function order($var = null);
 

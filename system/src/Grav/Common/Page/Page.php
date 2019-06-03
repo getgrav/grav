@@ -97,7 +97,7 @@ class Page implements PageInterface
     protected $forms;
 
     /**
-     * @var PageInterface Unmodified (original) version of the page. Used for copying and moving the page.
+     * @var PageInterface|null Unmodified (original) version of the page. Used for copying and moving the page.
      */
     private $_original;
 
@@ -784,7 +784,7 @@ class Page implements PageInterface
      *
      * @param string|null $name
      *
-     * @return string
+     * @return string|null
      */
     public function getContentMeta($name = null)
     {
@@ -1374,9 +1374,9 @@ class Page implements PageInterface
      * Allows a page to override the output render format, usually the extension provided
      * in the URL. (e.g. `html`, `json`, `xml`, etc).
      *
-     * @param null $var
+     * @param string|null $var
      *
-     * @return null
+     * @return string
      */
     public function templateFormat($var = null)
     {
@@ -1784,7 +1784,7 @@ class Page implements PageInterface
      *
      * @param int $var
      *
-     * @return int|bool
+     * @return string|bool
      */
     public function order($var = null)
     {

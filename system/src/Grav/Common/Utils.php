@@ -28,7 +28,7 @@ abstract class Utils
     /**
      * Simple helper method to make getting a Grav URL easier
      *
-     * @param string $input
+     * @param string|object $input
      * @param bool $domain
      * @param bool $fail_gracefully
      * @return bool|null|string

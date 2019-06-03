@@ -18,7 +18,7 @@ class BackupsProcessor extends ProcessorBase
     public $id = '_backups';
     public $title = 'Backups';
 
-    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler) : ResponseInterface
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $this->startTimer();
         $backups = $this->container['backups'];

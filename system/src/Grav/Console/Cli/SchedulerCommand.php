@@ -74,7 +74,7 @@ class SchedulerCommand extends ConsoleCommand
             // Show jobs list
 
             $jobs = $scheduler->getAllJobs();
-            $job_states = $scheduler->getJobStates()->content();
+            $job_states = (array)$scheduler->getJobStates()->content();
             $rows = [];
 
             $table = new Table($this->output);
@@ -113,7 +113,7 @@ class SchedulerCommand extends ConsoleCommand
             $io->newLine();
         } elseif ($this->input->getOption('details')) {
             $jobs = $scheduler->getAllJobs();
-            $job_states = $scheduler->getJobStates()->content();
+            $job_states = (array)$scheduler->getJobStates()->content();
 
             $io->title('Job Details');
 

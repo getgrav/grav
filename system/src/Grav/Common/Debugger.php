@@ -12,8 +12,10 @@ namespace Grav\Common;
 use Clockwork\Clockwork;
 use Clockwork\DataSource\MonologDataSource;
 use Clockwork\DataSource\PhpDataSource;
+use Clockwork\DataSource\PsrMessageDataSource;
 use Clockwork\DataSource\XdebugDataSource;
 use Clockwork\Request\Timeline;
+use Clockwork\Helpers\ServerTiming;
 use Clockwork\Request\UserData;
 use Clockwork\Storage\FileStorage;
 use DebugBar\DataCollector\ConfigCollector;
@@ -30,7 +32,11 @@ use DebugBar\StandardDebugBar;
 use Grav\Common\Config\Config;
 use Grav\Common\Processors\ProcessorInterface;
 use Grav\Common\Twig\TwigClockworkDataSource;
+use Grav\Framework\Psr7\Response;
 use Monolog\Logger;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use RocketTheme\Toolbox\Event\Event;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Twig\Template;
@@ -73,8 +79,8 @@ class Debugger
     protected $requestTime;
     protected $currentTime;
 
-    /** @var array|null */
-    protected $profile;
+    /** @var int */
+    protected $profiling = 0;
 
     /**
      * Debugger constructor.
@@ -192,6 +198,7 @@ class Debugger
     public function finalize(): void
     {
         if ($this->clockwork && $this->enabled) {
+            $this->stopProfiling('Profiler Analysis');
             $this->addMeasures();
 
             $deprecations = $this->getDeprecations();
@@ -217,6 +224,85 @@ class Debugger
 
             $userData->table('Your site is using following deprecated features', $deprecations);
         }
+    }
+
+    public function logRequest(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
+    {
+        if (!$this->enabled || !$this->clockwork) {
+            return $response;
+        }
+
+        $clockwork = $this->clockwork;
+
+        $this->finalize();
+
+        $clockwork->getTimeline()->finalize($request->getAttribute('request_time'));
+        $clockwork->addDataSource(new PsrMessageDataSource($request, $response));
+
+        $clockwork->resolveRequest();
+        $clockwork->storeRequest();
+
+        $clockworkRequest = $clockwork->getRequest();
+
+        $response = $response
+            ->withHeader('X-Clockwork-Id', $clockworkRequest->id)
+            ->withHeader('X-Clockwork-Version', $clockwork::VERSION);
+
+        $basePath = $request->getAttribute('base_uri');
+        if ($basePath) {
+            $response = $response->withHeader('X-Clockwork-Path', $basePath . '/__clockwork/');
+        }
+
+        return $response->withHeader('Server-Timing', ServerTiming::fromRequest($clockworkRequest)->value());
+    }
+
+
+    public function debuggerRequest(RequestInterface $request): Response
+    {
+        $clockwork = $this->clockwork;
+
+        $headers = [
+            'Content-Type' => 'application/json',
+            'Grav-Internal-SkipShutdown' => 1
+        ];
+
+        $path = $request->getUri()->getPath();
+        $clockworkDataUri = '#/__clockwork(?:/(?<id>[0-9-]+))?(?:/(?<direction>(?:previous|next)))?(?:/(?<count>\d+))?#';
+        if (preg_match($clockworkDataUri, $path, $matches) === false) {
+            $response = ['message' => 'Bad Input'];
+
+            return new Response(400, $headers, json_encode($response));
+        }
+
+        $id = $matches['id'] ?? null;
+        $direction = $matches['direction'] ?? null;
+        $count = $matches['count'] ?? null;
+
+        $storage = $clockwork->getStorage();
+
+        if ($direction === 'previous') {
+            $data = $storage->previous($id, $count);
+        } elseif ($direction === 'next') {
+            $data = $storage->next($id, $count);
+        } elseif ($id === 'latest') {
+            $data = $storage->latest();
+        } else {
+            $data = $storage->find($id);
+        }
+
+        if (preg_match('#(?<id>[0-9-]+|latest)/extended#', $path)) {
+            $clockwork->extendRequest($data);
+        }
+
+        if (!$data) {
+            $response = ['message' => 'Not Found'];
+
+            return new Response(404, $headers, json_encode($response));
+        }
+
+        $data = is_array($data) ? array_map(function ($item) { return $item->toArray(); }, $data) : $data->toArray();
+
+        return new Response(200, $headers, json_encode($data));
     }
 
     protected function addMeasures()
@@ -404,35 +490,54 @@ class Debugger
     /**
      * Hierarchical Profiler support.
      *
-     * @param string $message
      * @param callable $callable
+     * @param string $message
      * @return mixed
      */
-    public function profile(string $message, callable $callable)
+    public function profile(callable $callable, string $message = null)
     {
-        if ($this->enabled && extension_loaded('tideways_xhprof')) {
-            \tideways_xhprof_enable(TIDEWAYS_XHPROF_FLAGS_NO_BUILTINS);
-            $response = $callable();
-            $timings = \tideways_xhprof_disable();
-            $timings = array_filter($timings, function ($value) {
-                return $value['wt'] > 50;
-            });
-            $this->addMessage($message, 'debug', $timings);
-
-            $this->profile = $timings;
-        } else {
-            $response = $callable();
-        }
+        $this->startProfiling();
+        $response = $callable();
+        $this->stopProfiling($message);
 
         return $response;
     }
 
     /**
+     * Start profiling code.
+     */
+    public function startProfiling(): void
+    {
+        if ($this->enabled && extension_loaded('tideways_xhprof')) {
+            $this->profiling++;
+            if ($this->profiling === 1) {
+                \tideways_xhprof_enable(TIDEWAYS_XHPROF_FLAGS_NO_BUILTINS);
+            }
+        }
+    }
+
+    /**
+     * Stop profiling code. Returns profiling array or null if profiling couldn't be done.
+     *
+     * @param string $message
      * @return array|null
      */
-    public function getProfileTimings()
+    public function stopProfiling(string $message = null): ?array
     {
-        return $this->profile;
+        $timings = null;
+        if ($this->enabled && extension_loaded('tideways_xhprof')) {
+            $profiling = $this->profiling - 1;
+            if ($profiling === 0) {
+                $timings = \tideways_xhprof_disable();
+                $timings = array_filter($timings, function ($value) {
+                    return $value['wt'] > 50;
+                });
+                $this->addMessage($message ?? 'Profiler Analysis', 'debug', $timings);
+            }
+            $this->profiling = max(0, $profiling);
+        }
+
+        return $timings;
     }
 
     /**

@@ -19,7 +19,7 @@ class TasksProcessor extends ProcessorBase
     public $id = 'tasks';
     public $title = 'Tasks';
 
-    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler) : ResponseInterface
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $this->startTimer();
 

@@ -19,7 +19,7 @@ class SchedulerProcessor extends ProcessorBase
     public $id = '_scheduler';
     public $title = 'Scheduler';
 
-    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler) : ResponseInterface
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $this->startTimer();
         $scheduler = $this->container['scheduler'];
