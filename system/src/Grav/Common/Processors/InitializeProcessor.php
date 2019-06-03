@@ -82,9 +82,7 @@ class InitializeProcessor extends ProcessorBase
             return $handler->handle($request);
         });
 
-        $debugger->finalize();
-
-        return $this->logRequest($request, $response, $clockwork);
+        return $debugger->logRequest($request, $response);
     }
 
     protected function logRequest(ServerRequestInterface $request, ResponseInterface $response, Clockwork $clockwork = null)

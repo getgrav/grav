@@ -30,6 +30,7 @@ use Grav\Framework\DI\Container;
 use Grav\Framework\Psr7\Response;
 use Grav\Framework\RequestHandler\RequestHandler;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\Event\EventDispatcher;
 
@@ -275,7 +276,7 @@ class Grav extends Container
             $this['session']->close();
         }
 
-        if ($uri->isExternal($route)) {
+        if ($uri::isExternal($route)) {
             $url = $route;
         } else {
             $url = rtrim($uri->rootUrl(), '/') . '/';
@@ -287,7 +288,15 @@ class Grav extends Container
             }
         }
 
-        header("Location: {$url}", true, $code);
+        /** @var Debugger $debugger */
+        $debugger = $this['debugger'];
+
+        /** @var ServerRequestInterface $request */
+        $request = $this['request'];
+        $response = new Response($code, ['Location' => $url]);
+        $response = $debugger->logRequest($request, $response);
+
+        $this->header($response);
         exit();
     }
 

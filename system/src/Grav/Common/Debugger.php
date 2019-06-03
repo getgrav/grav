@@ -12,7 +12,9 @@ namespace Grav\Common;
 use Clockwork\Clockwork;
 use Clockwork\DataSource\MonologDataSource;
 use Clockwork\DataSource\PhpDataSource;
+use Clockwork\DataSource\PsrMessageDataSource;
 use Clockwork\DataSource\XdebugDataSource;
+use Clockwork\Helpers\ServerTiming;
 use Clockwork\Request\UserData;
 use Clockwork\Storage\FileStorage;
 use DebugBar\DataCollector\ConfigCollector;
@@ -29,6 +31,8 @@ use DebugBar\StandardDebugBar;
 use Grav\Common\Config\Config;
 use Grav\Common\Processors\ProcessorInterface;
 use Monolog\Logger;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use RocketTheme\Toolbox\Event\Event;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Twig\Template;
@@ -213,6 +217,37 @@ class Debugger
             $userData->table('Your site is using following deprecated features', $deprecations);
         }
     }
+
+    public function logRequest(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
+    {
+        if (!$this->enabled || !$this->clockwork) {
+            return $response;
+        }
+
+        $clockwork = $this->clockwork;
+
+        $this->finalize();
+
+        $clockwork->getTimeline()->finalize($request->getAttribute('request_time'));
+        $clockwork->addDataSource(new PsrMessageDataSource($request, $response));
+
+        $clockwork->resolveRequest();
+        $clockwork->storeRequest();
+
+        $clockworkRequest = $clockwork->getRequest();
+
+        $response = $response
+            ->withHeader('X-Clockwork-Id', $clockworkRequest->id)
+            ->withHeader('X-Clockwork-Version', $clockwork::VERSION);
+
+        $basePath = $request->getAttribute('base_uri');
+        if ($basePath) {
+            $response = $response->withHeader('X-Clockwork-Path', $basePath . '/__clockwork/');
+        }
+
+        return $response->withHeader('Server-Timing', ServerTiming::fromRequest($clockworkRequest)->value());
+    }
+
 
     protected function addMeasures()
     {
