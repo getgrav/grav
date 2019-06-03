@@ -64,7 +64,7 @@ class InitializeProcessor extends ProcessorBase
 
         // Wrap call to next handler so that debugger can profile it.
         /** @var Response $response */
-        $response = $debugger->profile('Profiler Analysis', function () use ($handler, $request) {
+        $response = $debugger->profile(function () use ($handler, $request) {
             return $handler->handle($request);
         });
 

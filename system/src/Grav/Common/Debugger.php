@@ -193,6 +193,7 @@ class Debugger
     public function finalize(): void
     {
         if ($this->clockwork && $this->enabled) {
+            $this->stopProfiling('Profiler Analysis');
             $this->addMeasures();
 
             $deprecations = $this->getDeprecations();
@@ -484,11 +485,11 @@ class Debugger
     /**
      * Hierarchical Profiler support.
      *
-     * @param string $message
      * @param callable $callable
+     * @param string $message
      * @return mixed
      */
-    public function profile(string $message, callable $callable)
+    public function profile(callable $callable, string $message = null)
     {
         $this->startProfiling();
         $response = $callable();
@@ -516,7 +517,7 @@ class Debugger
      * @param string $message
      * @return array|null
      */
-    public function stopProfiling(string $message): ?array
+    public function stopProfiling(string $message = null): ?array
     {
         $timings = null;
         if ($this->enabled && extension_loaded('tideways_xhprof')) {
@@ -526,7 +527,7 @@ class Debugger
                 $timings = array_filter($timings, function ($value) {
                     return $value['wt'] > 50;
                 });
-                $this->addMessage($message, 'debug', $timings);
+                $this->addMessage($message ?? 'Profiler Analysis', 'debug', $timings);
             }
             $this->profiling = max(0, $profiling);
         }

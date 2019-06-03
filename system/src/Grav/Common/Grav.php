@@ -294,7 +294,6 @@ class Grav extends Container
 
         /** @var Debugger $debugger */
         $debugger = $this['debugger'];
-        $debugger->stopProfiling('Profiler Analysis');
         $response = $debugger->logRequest($request, $response);
 
         $this->header($response);
