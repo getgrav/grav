@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "86a2b27397dbc70ecdd6a27524b59b08",
+    "content-hash": "5be0830ffaa51ba054d7cfbf439fb383",
     "packages": [
         {
             "name": "antoligy/dom-string-iterators",
@@ -1202,23 +1202,20 @@
         },
         {
             "name": "phive/twig-extensions-deferred",
-            "version": "v2.0.2",
+            "version": "v1.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/rybakit/twig-deferred-extension.git",
-                "reference": "0c2da51bcaeefac09d94d9125d837f8f63b01325"
+                "reference": "5a2426d622afa74034e754ca5ea1d1ff7887627f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rybakit/twig-deferred-extension/zipball/0c2da51bcaeefac09d94d9125d837f8f63b01325",
-                "reference": "0c2da51bcaeefac09d94d9125d837f8f63b01325",
+                "url": "https://api.github.com/repos/rybakit/twig-deferred-extension/zipball/5a2426d622afa74034e754ca5ea1d1ff7887627f",
+                "reference": "5a2426d622afa74034e754ca5ea1d1ff7887627f",
                 "shasum": ""
             },
             "require": {
-                "twig/twig": "^2.8"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "^6.5"
+                "twig/twig": "~1.18"
             },
             "type": "library",
             "autoload": {
@@ -1244,7 +1241,7 @@
                 "lazy",
                 "twig"
             ],
-            "time": "2019-05-24T21:57:45+00:00"
+            "time": "2017-03-17T21:39:21+00:00"
         },
         {
             "name": "php-http/message-factory",
@@ -2526,32 +2523,31 @@
         },
         {
             "name": "twig/twig",
-            "version": "v2.11.0",
+            "version": "v1.42.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/twigphp/Twig.git",
-                "reference": "c344879ae57dc1487b1df3e3d8325936125ba2cc"
+                "reference": "2983fcf2e20a4afe95f07e61d89a7590b3c8df2e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/twigphp/Twig/zipball/c344879ae57dc1487b1df3e3d8325936125ba2cc",
-                "reference": "c344879ae57dc1487b1df3e3d8325936125ba2cc",
+                "url": "https://api.github.com/repos/twigphp/Twig/zipball/2983fcf2e20a4afe95f07e61d89a7590b3c8df2e",
+                "reference": "2983fcf2e20a4afe95f07e61d89a7590b3c8df2e",
                 "shasum": ""
             },
             "require": {
-                "php": "^7.0",
-                "symfony/polyfill-ctype": "^1.8",
-                "symfony/polyfill-mbstring": "^1.3"
+                "php": ">=5.4.0",
+                "symfony/polyfill-ctype": "^1.8"
             },
             "require-dev": {
                 "psr/container": "^1.0",
                 "symfony/debug": "^2.7",
-                "symfony/phpunit-bridge": "^3.4.19|^4.1.8"
+                "symfony/phpunit-bridge": "^3.4.19|^4.1.8|^5.0"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "2.11-dev"
+                    "dev-master": "1.42-dev"
                 }
             },
             "autoload": {
@@ -2589,7 +2585,7 @@
             "keywords": [
                 "templating"
             ],
-            "time": "2019-05-31T06:21:42+00:00"
+            "time": "2019-05-31T06:20:05+00:00"
         },
         {
             "name": "willdurand/negotiation",
