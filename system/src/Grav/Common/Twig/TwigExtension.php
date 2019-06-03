@@ -29,6 +29,7 @@ use Grav\Common\User\Interfaces\UserInterface;
 use Grav\Common\Utils;
 use Grav\Common\Yaml;
 use Grav\Common\Helpers\Base32;
+use Grav\Framework\Psr7\Response;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use Twig\Environment;
 use Twig\Extension\AbstractExtension;
@@ -1110,8 +1111,9 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      */
     public function redirectFunc($url, $statusCode = 303)
     {
-        header('Location: ' . $url, true, $statusCode);
-        exit();
+        $response = new Response($statusCode, ['location' => $url]);
+
+        $this->grav->exit($response);
     }
 
     /**

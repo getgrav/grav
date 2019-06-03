@@ -13,6 +13,7 @@ use Grav\Common\Config\Config;
 use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Data\Blueprints;
 use Grav\Common\Data\Data;
+use Grav\Framework\Psr7\Response;
 use RocketTheme\Toolbox\Event\EventDispatcher;
 use RocketTheme\Toolbox\Event\EventSubscriberInterface;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
@@ -214,7 +215,9 @@ class Themes extends Iterator
                 }
             }
         } elseif (!$locator('theme://') && !defined('GRAV_CLI')) {
-            exit("Theme '$name' does not exist, unable to display page.");
+            $response = new Response(500, [], "Theme '$name' does not exist, unable to display page.");
+
+            $grav->exit($response);
         }
 
         $this->config->set('theme', $config->get('themes.' . $name));
