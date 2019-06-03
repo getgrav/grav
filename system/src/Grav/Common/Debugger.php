@@ -30,7 +30,9 @@ use DebugBar\JavascriptRenderer;
 use DebugBar\StandardDebugBar;
 use Grav\Common\Config\Config;
 use Grav\Common\Processors\ProcessorInterface;
+use Grav\Framework\Psr7\Response;
 use Monolog\Logger;
+use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use RocketTheme\Toolbox\Event\Event;
@@ -248,6 +250,54 @@ class Debugger
         return $response->withHeader('Server-Timing', ServerTiming::fromRequest($clockworkRequest)->value());
     }
 
+
+    public function debuggerRequest(RequestInterface $request): Response
+    {
+        $clockwork = $this->clockwork;
+
+        $headers = [
+            'Content-Type' => 'application/json',
+            'Grav-Internal-SkipShutdown' => 1
+        ];
+
+        $path = $request->getUri()->getPath();
+        $clockworkDataUri = '#/__clockwork(?:/(?<id>[0-9-]+))?(?:/(?<direction>(?:previous|next)))?(?:/(?<count>\d+))?#';
+        if (preg_match($clockworkDataUri, $path, $matches) === false) {
+            $response = ['message' => 'Bad Input'];
+
+            return new Response(400, $headers, json_encode($response));
+        }
+
+        $id = $matches['id'] ?? null;
+        $direction = $matches['direction'] ?? null;
+        $count = $matches['count'] ?? null;
+
+        $storage = $clockwork->getStorage();
+
+        if ($direction === 'previous') {
+            $data = $storage->previous($id, $count);
+        } elseif ($direction === 'next') {
+            $data = $storage->next($id, $count);
+        } elseif ($id === 'latest') {
+            $data = $storage->latest();
+        } else {
+            $data = $storage->find($id);
+        }
+
+        if (preg_match('#(?<id>[0-9-]+|latest)/extended#', $path)) {
+            $clockwork->extendRequest($data);
+        }
+
+        if (!$data) {
+            $response = ['message' => 'Not Found'];
+
+            return new Response(404, $headers, json_encode($response));
+        }
+
+        $data = is_array($data) ? array_map(function ($item) { return $item->toArray(); }, $data) : $data->toArray();
+
+        return new Response(200, $headers, json_encode($data));
+    }
 
     protected function addMeasures()
     {

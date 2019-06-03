@@ -18,7 +18,7 @@ class ThemesProcessor extends ProcessorBase
     public $id = 'themes';
     public $title = 'Themes';
 
-    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler) : ResponseInterface
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $this->startTimer();
         $this->container['themes']->init();

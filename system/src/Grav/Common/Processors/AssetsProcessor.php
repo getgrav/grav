@@ -18,7 +18,7 @@ class AssetsProcessor extends ProcessorBase
     public $id = '_assets';
     public $title = 'Assets';
 
-    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler) : ResponseInterface
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $this->startTimer();
         $this->container['assets']->init();

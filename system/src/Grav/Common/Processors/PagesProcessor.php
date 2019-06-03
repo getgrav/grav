@@ -20,7 +20,7 @@ class PagesProcessor extends ProcessorBase
     public $id = 'pages';
     public $title = 'Pages';
 
-    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler) : ResponseInterface
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $this->startTimer();
 
