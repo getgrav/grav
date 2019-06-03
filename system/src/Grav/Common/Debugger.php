@@ -14,7 +14,6 @@ use Clockwork\DataSource\MonologDataSource;
 use Clockwork\DataSource\PhpDataSource;
 use Clockwork\DataSource\PsrMessageDataSource;
 use Clockwork\DataSource\XdebugDataSource;
-use Clockwork\Request\Timeline;
 use Clockwork\Helpers\ServerTiming;
 use Clockwork\Request\UserData;
 use Clockwork\Storage\FileStorage;
