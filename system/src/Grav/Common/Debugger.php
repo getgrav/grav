@@ -77,8 +77,8 @@ class Debugger
     protected $requestTime;
     protected $currentTime;
 
-    /** @var array|null */
-    protected $profile;
+    /** @var int */
+    protected $profiling = 0;
 
     /**
      * Debugger constructor.
@@ -490,29 +490,48 @@ class Debugger
      */
     public function profile(string $message, callable $callable)
     {
-        if ($this->enabled && extension_loaded('tideways_xhprof')) {
-            \tideways_xhprof_enable(TIDEWAYS_XHPROF_FLAGS_NO_BUILTINS);
-            $response = $callable();
-            $timings = \tideways_xhprof_disable();
-            $timings = array_filter($timings, function ($value) {
-                return $value['wt'] > 50;
-            });
-            $this->addMessage($message, 'debug', $timings);
-
-            $this->profile = $timings;
-        } else {
-            $response = $callable();
-        }
+        $this->startProfiling();
+        $response = $callable();
+        $this->stopProfiling($message);
 
         return $response;
     }
 
     /**
+     * Start profiling code.
+     */
+    public function startProfiling(): void
+    {
+        if ($this->enabled && extension_loaded('tideways_xhprof')) {
+            $this->profiling++;
+            if ($this->profiling === 1) {
+                \tideways_xhprof_enable(TIDEWAYS_XHPROF_FLAGS_NO_BUILTINS);
+            }
+        }
+    }
+
+    /**
+     * Stop profiling code. Returns profiling array or null if profiling couldn't be done.
+     *
+     * @param string $message
      * @return array|null
      */
-    public function getProfileTimings()
+    public function stopProfiling(string $message): ?array
     {
-        return $this->profile;
+        $timings = null;
+        if ($this->enabled && extension_loaded('tideways_xhprof')) {
+            $profiling = $this->profiling - 1;
+            if ($profiling === 0) {
+                $timings = \tideways_xhprof_disable();
+                $timings = array_filter($timings, function ($value) {
+                    return $value['wt'] > 50;
+                });
+                $this->addMessage($message, 'debug', $timings);
+            }
+            $this->profiling = max(0, $profiling);
+        }
+
+        return $timings;
     }
 
     /**

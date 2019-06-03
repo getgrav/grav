@@ -68,6 +68,7 @@ class InitializeProcessor extends ProcessorBase
             return $handler->handle($request);
         });
 
+        // Log both request and response and return the response.
         return $debugger->logRequest($request, $response);
     }
 
