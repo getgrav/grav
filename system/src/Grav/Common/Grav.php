@@ -236,26 +236,46 @@ class Grav extends Container
     }
 
     /**
-     * Set the system locale based on the language and configuration
+     * Terminates Grav request with a response.
+     *
+     * Please use this method instead of calling `die();` or `exit();`. Note that you need to create a response object.
+     *
+     * @param ResponseInterface $response
      */
-    public function setLocale()
+    public function exit(ResponseInterface $response): void
     {
-        // Initialize Locale if set and configured.
-        if ($this['language']->enabled() && $this['config']->get('system.languages.override_locale')) {
-            $language = $this['language']->getLanguage();
-            setlocale(LC_ALL, \strlen($language) < 3 ? ($language . '_' . strtoupper($language)) : $language);
-        } elseif ($this['config']->get('system.default_locale')) {
-            setlocale(LC_ALL, $this['config']->get('system.default_locale'));
+        // Make sure nothing extra gets written to the response.
+        while (ob_get_level()) {
+            ob_end_clean();
         }
+
+        // Close the session.
+        if (isset($this['session'])) {
+            $this['session']->close();
+        }
+
+        /** @var ServerRequestInterface $request */
+        $request = $this['request'];
+
+        /** @var Debugger $debugger */
+        $debugger = $this['debugger'];
+        $response = $debugger->logRequest($request, $response);
+
+        // Send the response and terminate.
+        $this->header($response);
+        echo $response->getBody();
+        exit();
     }
 
     /**
-     * Redirect browser to another location.
+     * Terminates Grav request and redirects browser to another location.
+     *
+     * Please use this method instead of calling `header("Location: {$url}", true, 302); exit();`.
      *
      * @param string $route Internal route.
      * @param int    $code  Redirection code (30x)
      */
-    public function redirect($route, $code = null)
+    public function redirect($route, $code = null): void
     {
         /** @var Uri $uri */
         $uri = $this['uri'];
@@ -272,10 +292,6 @@ class Grav extends Container
             $code = $this['config']->get('system.pages.redirect_default_code', 302);
         }
 
-        if (isset($this['session'])) {
-            $this['session']->close();
-        }
-
         if ($uri::isExternal($route)) {
             $url = $route;
         } else {
@@ -288,16 +304,9 @@ class Grav extends Container
             }
         }
 
-        /** @var ServerRequestInterface $request */
-        $request = $this['request'];
         $response = new Response($code, ['Location' => $url]);
 
-        /** @var Debugger $debugger */
-        $debugger = $this['debugger'];
-        $response = $debugger->logRequest($request, $response);
-
-        $this->header($response);
-        exit();
+        $this->exit($response);
     }
 
     /**
@@ -337,6 +346,20 @@ class Grav extends Container
             foreach ($values as $i => $value) {
                 header($key . ': ' . $value, $i === 0);
             }
+        }
+    }
+
+    /**
+     * Set the system locale based on the language and configuration
+     */
+    public function setLocale()
+    {
+        // Initialize Locale if set and configured.
+        if ($this['language']->enabled() && $this['config']->get('system.languages.override_locale')) {
+            $language = $this['language']->getLanguage();
+            setlocale(LC_ALL, \strlen($language) < 3 ? ($language . '_' . strtoupper($language)) : $language);
+        } elseif ($this['config']->get('system.default_locale')) {
+            setlocale(LC_ALL, $this['config']->get('system.default_locale'));
         }
     }
 
