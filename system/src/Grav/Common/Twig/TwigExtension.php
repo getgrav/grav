@@ -490,7 +490,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      * @param bool $long_strings
      *
      * @param bool $show_tense
-     * @return bool
+     * @return string
      */
     public function nicetimeFunc($date, $long_strings = true, $show_tense = true)
     {
@@ -855,13 +855,12 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
         return $this->evaluateTwigFunc($context, "{{ $string }}");
     }
 
-
     /**
      * Based on Twig\Extension\Debug / twig_var_dump
      * (c) 2011 Fabien Potencier
      *
      * @param Environment $env
-     * @param string $context
+     * @param array $context
      */
     public function dump(Environment $env, $context)
     {

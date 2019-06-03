@@ -128,7 +128,7 @@ class Themes extends Iterator
      *
      * @param  string $name
      *
-     * @return Data
+     * @return Data|null
      * @throws \RuntimeException
      */
     public function get($name)

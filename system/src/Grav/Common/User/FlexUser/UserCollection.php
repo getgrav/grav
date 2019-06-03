@@ -59,6 +59,7 @@ class UserCollection extends FlexCollection implements UserCollectionInterface
      */
     public function find($query, $fields = ['username', 'email']): UserInterface
     {
+        // FIXME: $fields is incompatible to parent class -- add support for finding value from multiple properties.
         foreach ((array)$fields as $field) {
             if ($field === 'key') {
                 $user = $this->get($query);

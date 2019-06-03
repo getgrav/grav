@@ -551,10 +551,9 @@ class InstallCommand extends ConsoleCommand
 
     /**
      * @param Package $package
+     * @param string|null    $license
      *
-     * @param string    $license
-     *
-     * @return string
+     * @return string|null
      */
     private function downloadPackage($package, $license = null)
     {
@@ -586,7 +585,7 @@ class InstallCommand extends ConsoleCommand
             $this->output->writeln('  |- Downloading package...    <red>error</red>                             ');
             $this->output->writeln("  |  '- " . $error);
 
-            return false;
+            return null;
         }
 
         Folder::create($this->tmp);

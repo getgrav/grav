@@ -28,80 +28,53 @@ use Collator;
 
 class Pages
 {
-    /**
-     * @var Grav
-     */
+    /** @var Grav */
     protected $grav;
 
-    /**
-     * @var array|PageInterface[]
-     */
+    /** @var PageInterface[] */
     protected $instances;
 
-    /**
-     * @var array|string[]
-     */
+    /** @var array */
     protected $children;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $base = '';
 
-    /**
-     * @var array|string[]
-     */
+    /** @var string[] */
     protected $baseRoute = [];
 
-    /**
-     * @var array|string[]
-     */
+    /** @var string[] */
     protected $routes = [];
 
-    /**
-     * @var array
-     */
+    /** @var array */
     protected $sort;
 
-    /**
-     * @var Blueprints
-     */
+    /** @var Blueprints */
     protected $blueprints;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     protected $last_modified;
 
-    /**
-     * @var array|string[]
-     */
+    /** @var string[] */
     protected $ignore_files;
 
-    /**
-     * @var array|string[]
-     */
+    /** @var string[] */
     protected $ignore_folders;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     protected $ignore_hidden;
 
     /** @var string */
     protected $check_method;
 
-    /**
-     * @var Types
-     */
+    /** @var string */
+    protected $pages_cache_id;
+
+    /** @var Types */
     static protected $types;
 
-    /**
-     * @var string
-     */
+    /** @var string|null */
     static protected $home_route;
-
-    protected $pages_cache_id;
 
     /**
      * Constructor
@@ -299,14 +272,16 @@ class Pages
      */
     public function addPage(PageInterface $page, $route = null)
     {
-        if (!isset($this->instances[$page->path()])) {
-            $this->instances[$page->path()] = $page;
+        $path = $page->path() ?? '';
+        if (!isset($this->instances[$path])) {
+            $this->instances[$path] = $page;
         }
         $route = $page->route($route);
         if ($page->parent()) {
-            $this->children[$page->parent()->path()][$page->path()] = ['slug' => $page->slug()];
+            $parentPath = $page->parent()->path() ?? '';
+            $this->children[$parentPath][$path] = ['slug' => $page->slug()];
         }
-        $this->routes[$route] = $page->path();
+        $this->routes[$route] = $path;
 
         $this->grav->fireEvent('onPageProcessed', new Event(['page' => $page]));
     }

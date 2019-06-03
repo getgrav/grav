@@ -70,7 +70,7 @@ trait FlexMediaTrait
             $media = $this->getExistingMedia();
 
             // Include uploaded media to the object media.
-            /** @var FormFlashFile $upload */
+            /** @var FormFlashFile|null $upload */
             foreach ($this->getUpdatedMedia() as $filename => $upload) {
                 // Just make sure we do not include removed or moved media.
                 if ($upload && $upload->getError() === \UPLOAD_ERR_OK && !$upload->isMoved()) {
@@ -260,7 +260,7 @@ trait FlexMediaTrait
     {
         $list = [];
         foreach ($files as $field => $group) {
-            if ($field === '' || \strpos($field, '/', true)) {
+            if ($field === '' || \strpos($field, '/')) {
                 continue;
             }
             foreach ($group as $filename => $file) {
@@ -272,7 +272,7 @@ trait FlexMediaTrait
     }
 
     /**
-     * @return array
+     * @return array<UploadedFileInterface,null>
      */
     protected function getUpdatedMedia(): array
     {
@@ -283,7 +283,7 @@ trait FlexMediaTrait
     {
         /**
          * @var string $filename
-         * @var UploadedFileInterface $file
+         * @var UploadedFileInterface|null $file
          */
         foreach ($this->getUpdatedMedia() as $filename => $file) {
             if ($file) {

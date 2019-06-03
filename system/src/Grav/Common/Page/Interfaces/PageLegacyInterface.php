@@ -229,9 +229,9 @@ interface PageLegacyInterface
      * Allows a page to override the output render format, usually the extension provided
      * in the URL. (e.g. `html`, `json`, `xml`, etc).
      *
-     * @param null $var
+     * @param string|null $var
      *
-     * @return null
+     * @return string
      */
     public function templateFormat($var = null);
 
