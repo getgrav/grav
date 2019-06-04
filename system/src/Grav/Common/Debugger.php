@@ -322,7 +322,7 @@ class Debugger
             }
 
             if ($clkTimeLine) {
-                $clkTimeLine->addEvent($name, $description, $startTime, $endTime);
+                $clkTimeLine->addEvent($name, $description ?? $name, $startTime, $endTime);
             }
 
             if ($debTimeLine) {
