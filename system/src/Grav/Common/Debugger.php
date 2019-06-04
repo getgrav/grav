@@ -355,7 +355,8 @@ class Debugger
      */
     public function addAssets()
     {
-        if ($this->enabled && $this->debugbar) {
+        if ($this->enabled) {
+
 
             // Only add assets if Page is HTML
             $page = $this->grav['page'];
@@ -366,23 +367,35 @@ class Debugger
             /** @var Assets $assets */
             $assets = $this->grav['assets'];
 
-            // Add jquery library
-            $assets->add('jquery', 101);
-
-            $this->renderer = $this->debugbar->getJavascriptRenderer();
-            $this->renderer->setIncludeVendors(false);
-
-            // Get the required CSS files
-            list($css_files, $js_files) = $this->renderer->getAssets(null, JavascriptRenderer::RELATIVE_URL);
-            foreach ((array)$css_files as $css) {
-                $assets->addCss($css);
+            // Clockwork specific assets
+            if ($this->clockwork) {
+                $assets->addCss('/system/assets/debugger/clockwork.css', ['loading' => 'inline']);
+                $assets->addJs('/system/assets/debugger/clockwork.js', ['loading' => 'inline']);
             }
 
-            $assets->addCss('/system/assets/debugger.css');
 
-            foreach ((array)$js_files as $js) {
-                $assets->addJs($js);
+            // Debugbar specific assets
+            if ($this->debugbar) {
+
+                // Add jquery library
+                $assets->add('jquery', 101);
+
+                $this->renderer = $this->debugbar->getJavascriptRenderer();
+                $this->renderer->setIncludeVendors(false);
+
+                list($css_files, $js_files) = $this->renderer->getAssets(null, JavascriptRenderer::RELATIVE_URL);
+
+                foreach ((array)$css_files as $css) {
+                    $assets->addCss($css);
+                }
+
+                $assets->addCss('/system/assets/debugger/phpdebugbar.css', ['loading' => 'inline']);
+
+                foreach ((array)$js_files as $js) {
+                    $assets->addJs($js);
+                }
             }
+
         }
 
         return $this;
