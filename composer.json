@@ -24,7 +24,7 @@
         "kodus/psr7-server": "*",
         "nyholm/psr7": "^1.0",
 
-        "twig/twig": "~2.0",
+        "twig/twig": "~1.0",
         "erusev/parsedown": "1.6.4",
         "erusev/parsedown-extra": "~0.7",
         "symfony/yaml": "~4.2",
@@ -49,7 +49,7 @@
         "miljar/php-exif": "^0.6.4",
         "composer/ca-bundle": "^1.0",
         "dragonmantank/cron-expression": "^1.2",
-        "phive/twig-extensions-deferred": "^2.0",
+        "phive/twig-extensions-deferred": "^1.0",
         "willdurand/negotiation": "^2.3",
         "itsgoingd/clockwork": "dev-master"
     },
