@@ -10,11 +10,9 @@
 namespace Grav\Common\Twig;
 
 use Clockwork\DataSource\DataSource;
-use Clockwork\Helpers\Serializer;
 use Clockwork\Request\Request;
 use Clockwork\Request\Timeline;
 use Grav\Common\Grav;
-use Twig\Profiler\Profile;
 
 class TwigClockworkDataSource extends DataSource
 {
@@ -26,37 +24,30 @@ class TwigClockworkDataSource extends DataSource
     protected $root;
 
     /**
-     * Create a new data source, takes Twig instance as an argument
+     * TwigClockworkDataSource constructor.
      */
-    public function __construct($twig)
+    public function __construct()
     {
         $this->views = new Timeline();
     }
 
     /**
-     * Adds twig data to the request
+     * Resolves and adds the Twig profiler data to the request
+     *
+     * @param Request $request
+     * @return Request
      */
     public function resolve(Request $request)
     {
-        $this->processTwigTimings();
+        $profile = Grav::instance()['twig']->profile();
 
-        $request->viewsData    = $this->views->finalize();
+        if ($profile) {
+            $processor = new TwigProfileProcessor();
+
+            $processor->process($profile, $this->views);
+            $request->viewsData    = $this->views->finalize();
+        }
 
         return $request;
     }
-
-    protected function processTwigTimings()
-    {
-
-        $profile = Grav::instance()['twig']->profile();
-
-        $processor = new TwigProfileProcessor();
-
-        $processor->process($profile, $this->views);
-
-
-
-    }
-
-
 }

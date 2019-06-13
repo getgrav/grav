@@ -150,7 +150,7 @@ class Debugger
                     $clockwork->addDataSource(new MonologDataSource($log));
                 }
 
-                $clockwork->addDataSource(new TwigClockworkDataSource($this->grav['twig']));
+                $clockwork->addDataSource(new TwigClockworkDataSource());
 
                 $timeLine = $clockwork->getTimeline();
                 if ($this->requestTime !== GRAV_REQUEST_TIME) {
