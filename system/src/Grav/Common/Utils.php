@@ -1297,7 +1297,7 @@ abstract class Utils
     }
 
     /**
-     * Get's path based on a token
+     * Get path based on a token
      *
      * @param string $path
      * @param PageInterface|null $page

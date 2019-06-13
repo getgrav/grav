@@ -234,7 +234,7 @@ class Language
     }
 
     /**
-     * Get's a URL prefix based on configuration
+     * Get a URL prefix based on configuration
      *
      * @param string|null $lang
      * @return string

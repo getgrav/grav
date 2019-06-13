@@ -455,7 +455,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
     }
 
     /**
-     * Gets a human readable output for cron sytnax
+     * Gets a human readable output for cron syntax
      *
      * @param $at
      * @return string
@@ -1136,7 +1136,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
     }
 
     /**
-     * Get's the Exif data for a file
+     * Get the Exif data for a file
      *
      * @param string $image
      * @param bool $raw
