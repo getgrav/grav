@@ -1136,7 +1136,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
     }
 
     /**
-     * Get's the Exif data for a file
+     * Get the Exif data for a file
      *
      * @param string $image
      * @param bool $raw
