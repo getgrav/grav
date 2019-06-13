@@ -1286,7 +1286,7 @@ class Uri
     }
 
     /**
-     * Get's post from either $_POST or JSON response object
+     * Get post from either $_POST or JSON response object
      * By default returns all data, or can return a single item
      *
      * @param string $element
