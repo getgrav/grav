@@ -455,7 +455,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
     }
 
     /**
-     * Gets a human readable output for cron sytnax
+     * Gets a human readable output for cron syntax
      *
      * @param $at
      * @return string
