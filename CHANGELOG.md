@@ -1,11 +1,12 @@
 # v1.6.10
-## mm/dd/2019
+## 06/14/2019
 
 1. [](#improved)
     * Added **page blueprints** to `YamlLinter` CLI and Admin reports
     * Removed `Gitter` and `Slack` [#2502](https://github.com/getgrav/grav/issues/2502)
     * Optimizations for Plugin/Theme loading
     * Generalized markdown classes so they can be used outside of `Page` scope with a custom `Excerpts` class instance
+    * Change minimal port number to 0 (unix socket) [#2452](https://github.com/getgrav/grav/issues/2452)
 1. [](#bugfix)
     * Force question to install demo content in theme update [#2493](https://github.com/getgrav/grav/issues/2493)
     * Fixed GPM errors from blueprints not being logged [#2505](https://github.com/getgrav/grav/issues/2505)
