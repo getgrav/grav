@@ -577,7 +577,13 @@ class Debugger
             $method = $this->parseProfilerCall(array_pop($parts));
             $context = $this->parseProfilerCall(array_pop($parts));
 
+            // Skip redundant method calls.
             if ($method === $context && $method === 'Grav\Framework\RequestHandler\RequestHandler::handle()') {
+                continue;
+            }
+
+            // Do not profile library calls.
+            if (strpos($context, 'Grav\\') !== 0) {
                 continue;
             }
 
@@ -608,13 +614,16 @@ class Debugger
             return $call;
         }
 
+        // It is also possible to display twig files, but they are being logged in views.
+        /*
         if (strpos($class, '__TwigTemplate_') === 0 && class_exists($class)) {
             $env = new Environment();
-            /** @var Template $template */
+            / ** @var Template $template * /
             $template = new $class($env);
 
             return $template->getTemplateName();
         }
+        */
 
         return "{$class}::{$call}()";
     }
