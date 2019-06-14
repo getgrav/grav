@@ -9,7 +9,7 @@
     * Added `$grav->exit()` method to properly terminate the request with a response
 
 # v1.6.10
-## mm/dd/2019
+## 06/14/2019
 
 1. [](#improved)
     * Added **page blueprints** to `YamlLinter` CLI and Admin reports
@@ -18,6 +18,7 @@
     * Generalized markdown classes so they can be used outside of `Page` scope with a custom `Excerpts` class instance
     * Optimization: Initialize debugbar only after the configuration has been loaded
     * Optimization: Combine some early Grav processors into a single one
+    * Change minimal port number to 0 (unix socket) [#2452](https://github.com/getgrav/grav/issues/2452)
 1. [](#bugfix)
     * Force question to install demo content in theme update [#2493](https://github.com/getgrav/grav/issues/2493)
     * Fixed GPM errors from blueprints not being logged [#2505](https://github.com/getgrav/grav/issues/2505)
