@@ -578,7 +578,7 @@ class Debugger
             $context = $this->parseProfilerCall(array_pop($parts));
 
             // Skip redundant method calls.
-            if ($method === $context && $method === 'Grav\Framework\RequestHandler\RequestHandler::handle()') {
+            if ($context === 'Grav\Framework\RequestHandler\RequestHandler::handle()') {
                 continue;
             }
 
