@@ -29,7 +29,7 @@ interface RenderInterface
      * @example {% render object layout 'custom' with { variable: 'value' } %}
      *
      * @param string|null $layout  Layout to be used.
-     * @param array|null  $context Extra context given to the renderer.
+     * @param array       $context Extra context given to the renderer.
      *
      * @return ContentBlockInterface|HtmlBlock Returns `HtmlBlock` containing the rendered output.
      * @api

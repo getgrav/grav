@@ -13,6 +13,7 @@ use Grav\Common\Helpers\Truncator;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Markdown\Parsedown;
 use Grav\Common\Markdown\ParsedownExtra;
+use Grav\Common\Page\Markdown\Excerpts;
 use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
@@ -29,19 +30,24 @@ abstract class Utils
      *
      * @param string $input
      * @param bool $domain
+     * @param bool $fail_gracefully
      * @return bool|null|string
      */
-    public static function url($input, $domain = false)
+    public static function url($input, $domain = false, $fail_gracefully = false)
     {
-        if (!trim((string)$input)) {
-            $input = '/';
+        if ((!is_string($input) && !method_exists($input, '__toString')) || !trim($input)) {
+            if ($fail_gracefully) {
+                $input = '/';
+            } else {
+                return false;
+            }
         }
 
         if (Grav::instance()['config']->get('system.absolute_urls', false)) {
             $domain = true;
         }
 
-        if (Grav::instance()['uri']->isExternal($input)) {
+        if (Uri::isExternal($input)) {
             return $input;
         }
 
@@ -56,13 +62,20 @@ abstract class Utils
         if (Utils::contains((string)$input, '://')) {
             /** @var UniformResourceLocator $locator */
             $locator = Grav::instance()['locator'];
-
             $parts = Uri::parseUrl($input);
 
             if ($parts) {
-                $resource = $locator->findResource("{$parts['scheme']}://{$parts['host']}{$parts['path']}", false);
+                try {
+                    $resource = $locator->findResource("{$parts['scheme']}://{$parts['host']}{$parts['path']}", false);
+                } catch (\Exception $e) {
+                    if ($fail_gracefully) {
+                        return $input;
+                    } else {
+                        return false;
+                    }
+                }
 
-                if (isset($parts['query'])) {
+                if ($resource && isset($parts['query'])) {
                     $resource = $resource . '?' . $parts['query'];
                 }
             } else {
@@ -70,12 +83,13 @@ abstract class Utils
                 $resource = $locator->findResource($input, false);
             }
 
-
         } else {
             $resource = $input;
         }
 
-
+        if (!$fail_gracefully && $resource === false) {
+            return false;
+        }
 
         return rtrim($uri->rootUrl($domain), '/') . '/' . ($resource ?? '');
     }
@@ -974,20 +988,16 @@ abstract class Utils
      *
      * @param string $string The path
      *
-     * @return bool
+     * @return bool|string Either false or the language
      *
      */
     public static function pathPrefixedByLangCode($string)
     {
-        if (strlen($string) <= 3) {
-            return false;
-        }
-
         $languages_enabled = Grav::instance()['config']->get('system.languages.supported', []);
         $parts = explode('/', trim($string, '/'));
 
         if (count($parts) > 0 && in_array($parts[0], $languages_enabled)) {
-            return true;
+            return $parts[0];
         }
 
         return false;
@@ -1396,7 +1406,7 @@ abstract class Utils
         $pow = min($pow, count($units) - 1);
 
         // Uncomment one of the following alternatives
-         $bytes /= pow(1024, $pow);
+        $bytes /= 1024 ** $pow;
         // $bytes /= (1 << (10 * $pow));
 
         return round($bytes, $precision) . ' ' . $units[$pow];
@@ -1460,14 +1470,21 @@ abstract class Utils
      */
     public static function processMarkdown($string, $block = true)
     {
-        $page     = Grav::instance()['page'] ?? null;
-        $defaults = Grav::instance()['config']->get('system.pages.markdown');
+        $grav = Grav::instance();
+        $page     = $grav['page'] ?? null;
+        $defaults = [
+            'markdown' => $grav['config']->get('system.pages.markdown', []),
+            'images' => $grav['config']->get('system.images', [])
+        ];
+        $extra = $defaults['markdown']['extra'] ?? false;
+
+        $excerpts = new Excerpts($page, $defaults);
 
         // Initialize the preferred variant of Parsedown
-        if ($defaults['extra']) {
-            $parsedown = new ParsedownExtra($page, $defaults);
+        if ($extra) {
+            $parsedown = new ParsedownExtra($excerpts);
         } else {
-            $parsedown = new Parsedown($page, $defaults);
+            $parsedown = new Parsedown($excerpts);
         }
 
         if ($block) {
@@ -1486,12 +1503,11 @@ abstract class Utils
      * @param int $prefix
      *
      * @return string
-     * @throws \InvalidArgumentException if provided an invalid IP
      */
     public static function getSubnet($ip, $prefix = 64)
     {
         if (!filter_var($ip, FILTER_VALIDATE_IP)) {
-            throw new \InvalidArgumentException('Invalid IP: ' . $ip);
+            return $ip;
         }
 
         // Packed representation of IP

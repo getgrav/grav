@@ -19,6 +19,7 @@ use Grav\Common\Markdown\Parsedown;
 use Grav\Common\Markdown\ParsedownExtra;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Media\Traits\MediaTrait;
+use Grav\Common\Page\Markdown\Excerpts;
 use Grav\Common\Taxonomy;
 use Grav\Common\Uri;
 use Grav\Common\Utils;
@@ -27,7 +28,6 @@ use Negotiation\Accept;
 use Negotiation\Negotiator;
 use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\File\MarkdownFile;
-use Symfony\Component\Yaml\Exception\ParseException;
 
 define('PAGE_ORDER_PREFIX_REGEX', '/^[0-9]+\./u');
 
@@ -819,23 +819,31 @@ class Page implements PageInterface
         /** @var Config $config */
         $config = Grav::instance()['config'];
 
-        $defaults = (array)$config->get('system.pages.markdown');
+        $markdownDefaults = (array)$config->get('system.pages.markdown');
         if (isset($this->header()->markdown)) {
-            $defaults = array_merge($defaults, $this->header()->markdown);
+            $markdownDefaults = array_merge($markdownDefaults, $this->header()->markdown);
         }
 
         // pages.markdown_extra is deprecated, but still check it...
-        if (!isset($defaults['extra']) && (isset($this->markdown_extra) || $config->get('system.pages.markdown_extra') !== null)) {
+        if (!isset($markdownDefaults['extra']) && (isset($this->markdown_extra) || $config->get('system.pages.markdown_extra') !== null)) {
             user_error('Configuration option \'system.pages.markdown_extra\' is deprecated since Grav 1.5, use \'system.pages.markdown.extra\' instead', E_USER_DEPRECATED);
 
-            $defaults['extra'] = $this->markdown_extra ?: $config->get('system.pages.markdown_extra');
+            $markdownDefaults['extra'] = $this->markdown_extra ?: $config->get('system.pages.markdown_extra');
         }
 
+        $extra = $markdownDefaults['extra'] ?? false;
+        $defaults = [
+            'markdown' => $markdownDefaults,
+            'images' => $config->get('system.images', [])
+        ];
+
+        $excerpts = new Excerpts($this, $defaults);
+
         // Initialize the preferred variant of Parsedown
-        if ($defaults['extra']) {
-            $parsedown = new ParsedownExtra($this, $defaults);
+        if ($extra) {
+            $parsedown = new ParsedownExtra($excerpts);
         } else {
-            $parsedown = new Parsedown($this, $defaults);
+            $parsedown = new Parsedown($excerpts);
         }
 
         $this->content = $parsedown->text($this->content);
@@ -1397,8 +1405,8 @@ class Page implements PageInterface
             return $this->template_format;
         }
 
-        // Use content negotitation via the `accept:` header
-        $http_accept = $_SERVER['HTTP_ACCEPT'] ?? false;
+        // Use content negotiation via the `accept:` header
+        $http_accept = $_SERVER['HTTP_ACCEPT'] ?? null;
         if (is_string($http_accept)) {
             $negotiator = new Negotiator();
 

@@ -20,6 +20,7 @@ use Grav\Framework\Form\Traits\FormTrait;
 use Grav\Framework\Route\Route;
 use Twig\Error\LoaderError;
 use Twig\Error\SyntaxError;
+use Twig\Template;
 use Twig\TemplateWrapper;
 
 /**
@@ -82,7 +83,7 @@ class FlexForm implements FlexFormInterface
     }
 
     /**
-     * @return Data|FlexObjectInterface
+     * @return Data|FlexObjectInterface|object
      */
     public function getData()
     {
@@ -103,7 +104,7 @@ class FlexForm implements FlexFormInterface
         $value = $this->data ? $this->data[$name] : null;
 
         // Return the form data or fall back to the object property.
-        return $value ?? $this->getObject()->value($name);
+        return $value ?? $this->getObject()->getFormValue($name);
     }
 
     public function getDefaultValue(string $name)
@@ -277,7 +278,7 @@ class FlexForm implements FlexFormInterface
 
     /**
      * @param string $layout
-     * @return TemplateWrapper
+     * @return Template|TemplateWrapper
      * @throws LoaderError
      * @throws SyntaxError
      */

@@ -100,7 +100,19 @@ class Themes extends Iterator
             }
 
             $theme = $directory->getFilename();
-            $result = $this->get($theme);
+
+            try {
+                $result = $this->get($theme);
+            } catch (\Exception $e) {
+                $exception = new \RuntimeException(sprintf('Theme %s: %s', $theme, $e->getMessage()), $e->getCode(), $e);
+
+                /** @var Debugger $debugger */
+                $debugger = $this->grav['debugger'];
+                $debugger->addMessage("Theme {$theme} cannot be loaded, please check Exceptions tab", 'error');
+                $debugger->addException($exception);
+
+                continue;
+            }
 
             if ($result) {
                 $list[$theme] = $result;
@@ -196,8 +208,7 @@ class Themes extends Iterator
 
                 foreach ($themeClassFormat as $themeClass) {
                     if (class_exists($themeClass)) {
-                        $themeClassName = $themeClass;
-                        $class = new $themeClassName($grav, $config, $name);
+                        $class = new $themeClass($grav, $config, $name);
                         break;
                     }
                 }

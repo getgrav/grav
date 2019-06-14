@@ -16,6 +16,7 @@ abstract class AbstractPackageCollection extends BaseCollection
     public function __construct($items)
     {
         parent::__construct();
+
         foreach ($items as $name => $data) {
             $data->set('slug', $name);
             $this->items[$name] = new Package($data, $this->type);

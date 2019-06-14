@@ -10,6 +10,7 @@
 namespace Grav\Common\Page\Medium;
 
 use Grav\Common\Markdown\Parsedown;
+use Grav\Common\Page\Markdown\Excerpts;
 
 trait ParsedownHtmlTrait
 {
@@ -33,7 +34,7 @@ trait ParsedownHtmlTrait
         $element = $this->parsedownElement($title, $alt, $class, $id, $reset);
 
         if (!$this->parsedown) {
-            $this->parsedown = new Parsedown(null, null);
+            $this->parsedown = new Parsedown(new Excerpts());
         }
 
         return $this->parsedown->elementToHtml($element);

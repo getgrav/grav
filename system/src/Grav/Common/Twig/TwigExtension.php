@@ -1154,7 +1154,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
 
             $exif_reader = $this->grav['exif']->getReader();
 
-            if ($image & file_exists($image) && $this->config->get('system.media.auto_metadata_exif') && $exif_reader) {
+            if ($image && file_exists($image) && $this->config->get('system.media.auto_metadata_exif') && $exif_reader) {
 
                 $exif_data = $exif_reader->read($image);
 

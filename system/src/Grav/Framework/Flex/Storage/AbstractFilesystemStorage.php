@@ -128,7 +128,7 @@ abstract class AbstractFilesystemStorage implements FlexStorageInterface
             return $path;
         }
 
-        return (string) $locator->findResource($path) ?: $locator->findResource($path, true, true);
+        return (string)($locator->findResource($path) ?: $locator->findResource($path, true, true));
     }
 
     /**

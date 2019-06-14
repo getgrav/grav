@@ -455,6 +455,8 @@ class FolderStorage extends AbstractFilesystemStorage
     protected function initOptions(array $options): void
     {
         $extension = $this->dataFormatter->getDefaultFileExtension();
+
+        /** @var string $pattern */
         $pattern = !empty($options['pattern']) ? $options['pattern'] : $this->dataPattern;
 
         $this->dataFolder = $options['folder'];

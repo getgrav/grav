@@ -31,6 +31,7 @@ use Psr\SimpleCache\InvalidArgumentException;
 use RocketTheme\Toolbox\Event\Event;
 use Twig\Error\LoaderError;
 use Twig\Error\SyntaxError;
+use Twig\Template;
 use Twig\TemplateWrapper;
 
 /**
@@ -391,7 +392,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
         }
 
         try {
-            $data = $cache ? $cache->get($key) : null;
+            $data = $cache && $key ? $cache->get($key) : null;
 
             $block = $data ? HtmlBlock::fromArray($data) : null;
         } catch (InvalidArgumentException $e) {
@@ -410,7 +411,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
         }
 
         if (!$block) {
-            $block = HtmlBlock::create($key);
+            $block = HtmlBlock::create($key ?: null);
             $block->setChecksum($checksum);
             if ($key === false) {
                 $block->disableCache();
@@ -434,7 +435,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
             $block->setContent($output);
 
             try {
-                $cache && $block->isCached() && $cache->set($key, $block->toArray());
+                $cache && $key && $block->isCached() && $cache->set($key, $block->toArray());
             } catch (InvalidArgumentException $e) {
                 $debugger->addException($e);
             }
@@ -541,7 +542,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
         $result = $this->getFlexDirectory()->getStorage()->replaceRows([$this->getStorageKey() => $this->prepareStorage()]);
 
         $value = reset($result);
-        $storageKey = key($result);
+        $storageKey = (string)key($result);
         if ($value && $storageKey) {
             $this->setStorageKey($storageKey);
             if (!$this->hasKey()) {
@@ -558,7 +559,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
             if (method_exists($this, 'clearMediaCache')) {
                 $this->clearMediaCache();
             }
-        } catch (InvalidArgumentException $e) {
+        } catch (\Exception $e) {
             /** @var Debugger $debugger */
             $debugger = Grav::instance()['debugger'];
             $debugger->addException($e);
@@ -586,7 +587,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
             if (method_exists($this, 'clearMediaCache')) {
                 $this->clearMediaCache();
             }
-        } catch (InvalidArgumentException $e) {
+        } catch (\Exception $e) {
             /** @var Debugger $debugger */
             $debugger = Grav::instance()['debugger'];
             $debugger->addException($e);
@@ -736,7 +737,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
         }
 
         $grav = Grav::instance();
-        /** @var Flex $flex */
+        /** @var Flex|null $flex */
         $flex = $grav['flex_objects'] ?? null;
         $directory = $flex ? $flex->getDirectory($type) : null;
         if (!$directory) {
@@ -807,7 +808,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
 
     /**
      * @param string $layout
-     * @return TemplateWrapper
+     * @return Template|TemplateWrapper
      * @throws LoaderError
      * @throws SyntaxError
      */

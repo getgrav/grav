@@ -770,7 +770,7 @@ class GPM extends Iterator
      * @param array $ignore_packages_list
      *
      * @return bool
-     * @throws \Exception
+     * @throws \RuntimeException
      */
     public function checkNoOtherPackageNeedsThisDependencyInALowerVersion(
         $slug,
@@ -793,8 +793,8 @@ class GPM extends Iterator
                     $compatible = $this->checkNextSignificantReleasesAreCompatible($version,
                         $other_dependency_version);
                     if (!$compatible) {
-                        if (!in_array($dependent_package, $ignore_packages_list)) {
-                            throw new \Exception("Package <cyan>$slug</cyan> is required in an older version by package <cyan>$dependent_package</cyan>. This package needs a newer version, and because of this it cannot be installed. The <cyan>$dependent_package</cyan> package must be updated to use a newer release of <cyan>$slug</cyan>.",
+                        if (!in_array($dependent_package, $ignore_packages_list, true)) {
+                            throw new \RuntimeException("Package <cyan>$slug</cyan> is required in an older version by package <cyan>$dependent_package</cyan>. This package needs a newer version, and because of this it cannot be installed. The <cyan>$dependent_package</cyan> package must be updated to use a newer release of <cyan>$slug</cyan>.",
                                 2);
                         }
                     }
@@ -850,10 +850,10 @@ class GPM extends Iterator
                 ) {
                     //Needs a Grav update first
                     throw new \RuntimeException("<red>One of the packages require PHP {$dependencies['php']}. Please update PHP to resolve this");
-                } else {
-                    unset($dependencies[$dependency_slug]);
-                    continue;
                 }
+
+                unset($dependencies[$dependency_slug]);
+                continue;
             }
 
             //First, check for Grav dependency. If a dependency requires Grav > the current version, abort and tell.
@@ -863,10 +863,10 @@ class GPM extends Iterator
                 ) {
                     //Needs a Grav update first
                     throw new \RuntimeException("<red>One of the packages require Grav {$dependencies['grav']}. Please update Grav to the latest release.");
-                } else {
-                    unset($dependencies[$dependency_slug]);
-                    continue;
                 }
+
+                unset($dependencies[$dependency_slug]);
+                continue;
             }
 
             if ($this->isPluginInstalled($dependency_slug)) {
@@ -1092,6 +1092,7 @@ class GPM extends Iterator
         if ($this->versionFormatIsEqualOrHigher($version)) {
             return trim(substr($version, 2));
         }
+
         return $version;
     }
 
@@ -1104,7 +1105,7 @@ class GPM extends Iterator
      *
      * @return bool
      */
-    public function versionFormatIsNextSignificantRelease($version)
+    public function versionFormatIsNextSignificantRelease($version): bool
     {
         return strpos($version, '~') === 0;
     }
@@ -1118,7 +1119,7 @@ class GPM extends Iterator
      *
      * @return bool
      */
-    public function versionFormatIsEqualOrHigher($version)
+    public function versionFormatIsEqualOrHigher($version): bool
     {
         return strpos($version, '>=') === 0;
     }
@@ -1136,7 +1137,7 @@ class GPM extends Iterator
      *
      * @return bool
      */
-    public function checkNextSignificantReleasesAreCompatible($version1, $version2)
+    public function checkNextSignificantReleasesAreCompatible($version1, $version2): bool
     {
         $version1array = explode('.', $version1);
         $version2array = explode('.', $version2);

@@ -2,6 +2,7 @@
 
 use Codeception\Util\Fixtures;
 use Grav\Common\Grav;
+use Grav\Common\Page\Markdown\Excerpts;
 use Grav\Common\Uri;
 use Grav\Common\Config\Config;
 use Grav\Common\Page\Pages;
@@ -56,14 +57,19 @@ class ParsedownTest extends \Codeception\TestCase\Test
         $this->pages->init();
 
         $defaults = [
-            'extra'            => false,
-            'auto_line_breaks' => false,
-            'auto_url_links'   => false,
-            'escape_markup'    => false,
-            'special_chars'    => ['>' => 'gt', '<' => 'lt'],
+            'markdown' => [
+                'extra'            => false,
+                'auto_line_breaks' => false,
+                'auto_url_links'   => false,
+                'escape_markup'    => false,
+                'special_chars'    => ['>' => 'gt', '<' => 'lt'],
+            ],
+            'images' => $this->config->get('system.images', [])
         ];
         $page = $this->pages->dispatch('/item2/item2-2');
-        $this->parsedown = new Parsedown($page, $defaults);
+
+        $excerpts = new Excerpts($page, $defaults);
+        $this->parsedown = new Parsedown($excerpts);
     }
 
     protected function _after()
@@ -179,14 +185,18 @@ class ParsedownTest extends \Codeception\TestCase\Test
         $this->uri->initializeWithURL('http://testing.dev/')->init();
 
         $defaults = [
-            'extra'            => false,
-            'auto_line_breaks' => false,
-            'auto_url_links'   => false,
-            'escape_markup'    => false,
-            'special_chars'    => ['>' => 'gt', '<' => 'lt'],
+            'markdown' => [
+                'extra'            => false,
+                'auto_line_breaks' => false,
+                'auto_url_links'   => false,
+                'escape_markup'    => false,
+                'special_chars'    => ['>' => 'gt', '<' => 'lt'],
+            ],
+            'images' => $this->config->get('system.images', [])
         ];
         $page = $this->pages->dispatch('/');
-        $this->parsedown = new Parsedown($page, $defaults);
+        $excerpts = new Excerpts($page, $defaults);
+        $this->parsedown = new Parsedown($excerpts);
 
         $this->assertSame('<p><img alt="" src="/tests/fake/nested-site/user/pages/01.item1/home-sample-image.jpg" /></p>',
             $this->parsedown->text('![](home-sample-image.jpg)'));
@@ -230,15 +240,18 @@ class ParsedownTest extends \Codeception\TestCase\Test
         $this->uri->initializeWithURL('http://testing.dev/')->init();
 
         $defaults = [
-            'extra'            => false,
-            'auto_line_breaks' => false,
-            'auto_url_links'   => false,
-            'escape_markup'    => false,
-            'special_chars'    => ['>' => 'gt', '<' => 'lt'],
+            'markdown' => [
+                'extra'            => false,
+                'auto_line_breaks' => false,
+                'auto_url_links'   => false,
+                'escape_markup'    => false,
+                'special_chars'    => ['>' => 'gt', '<' => 'lt'],
+            ],
+            'images' => $this->config->get('system.images', [])
         ];
         $page = $this->pages->dispatch('/');
-        $this->parsedown = new Parsedown($page, $defaults);
-
+        $excerpts = new Excerpts($page, $defaults);
+        $this->parsedown = new Parsedown($excerpts);
 
         $this->assertSame('<p><a href="/item1/item1-3">Down a Level</a></p>',
             $this->parsedown->text('[Down a Level](item1-3)'));

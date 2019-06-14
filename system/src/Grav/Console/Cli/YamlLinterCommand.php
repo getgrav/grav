@@ -61,6 +61,15 @@ class YamlLinterCommand extends ConsoleCommand
             $this->displayErrors($errors, $io);
         }
 
+        $io->section('Page Blueprints');
+        $errors = YamlLinter::lintBlueprints();
+
+        if (empty($errors)) {
+            $io->success('No YAML Linting issues with blueprints');
+        } else {
+            $this->displayErrors($errors, $io);
+        }
+
     }
 
     protected function displayErrors($errors, $io)

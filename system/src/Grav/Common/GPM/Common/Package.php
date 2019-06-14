@@ -11,8 +11,8 @@ namespace Grav\Common\GPM\Common;
 
 use Grav\Common\Data\Data;
 
-class Package {
-
+class Package
+{
     /**
      * @var Data
      */
