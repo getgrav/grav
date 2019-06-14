@@ -38,6 +38,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use RocketTheme\Toolbox\Event\Event;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Twig\Environment;
 use Twig\Template;
 use Twig\TemplateWrapper;
 
@@ -540,15 +541,73 @@ class Debugger
             $profiling = $this->profiling - 1;
             if ($profiling === 0) {
                 $timings = \tideways_xhprof_disable();
-                $timings = array_filter($timings, function ($value) {
-                    return $value['wt'] > 50;
-                });
-                $this->addMessage($message ?? 'Profiler Analysis', 'debug', $timings);
+                $timings = $this->buildProfilerTimings($timings);
+
+                if ($this->clockwork) {
+                    /** @var UserData $userData */
+                    $userData = $this->clockwork->userData('Profiler');
+                    $userData->counters([
+                        'Logged calls' => count($timings)
+                    ]);
+                    $userData->table('Profiler', $timings);
+                } else {
+                    $this->addMessage($message ?? 'Profiler Analysis', 'debug', $timings);
+                }
             }
             $this->profiling = max(0, $profiling);
         }
 
         return $timings;
+    }
+
+    protected function buildProfilerTimings(array $timings): array
+    {
+        // Filter method calls which take almost no time.
+        $timings = array_filter($timings, function ($value) {
+            return $value['wt'] > 50;
+        });
+
+        $table = [];
+        foreach ($timings as $key => $timing) {
+            $parts = explode('==>', $key);
+            $method = array_pop($parts);
+            $context = array_pop($parts);
+            $table[] = [
+                'Context' => $this->parseProfilerCall($context),
+                'Method' => $this->parseProfilerCall($method),
+                'Calls' => $timing['ct'],
+                'Time (ms)' => $timing['wt'] / 1000,
+            ];
+        }
+
+        return $table;
+    }
+
+    protected function parseProfilerCall(?string $call)
+    {
+        if (null === $call) {
+            return '';
+        }
+        if (strpos($call, '@')) {
+            [$call,] = explode('@', $call);
+        }
+        if (strpos($call, '::')) {
+            [$class, $call] = explode('::', $call);
+        }
+
+        if (!isset($class)) {
+            return $call;
+        }
+
+        if (strpos($class, '__TwigTemplate_') === 0 && class_exists($class)) {
+            $env = new Environment();
+            /** @var Template $template */
+            $template = new $class($env);
+
+            return $template->getTemplateName();
+        }
+
+        return "{$class}::{$call}()";
     }
 
     /**
