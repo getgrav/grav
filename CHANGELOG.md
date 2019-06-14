@@ -2,8 +2,9 @@
 ## 06/14/2019
 
 1. [](#new)
-    * Added support for [clockwork](https://underground.works/clockwork) developer tools (now default debugger)
+    * Added support for [Clockwork](https://underground.works/clockwork) developer tools (now default debugger)
     * Added support for [Tideways XHProf](https://github.com/tideways/php-xhprof-extension) PHP Extension for profiling method calls
+    * Added Twig profiling for Clockwork debugger
     * Updated Symfony Components to 4.3
     * Added support for Twig 2.11 (compatible with Twig 1.40+)
     * Added `$grav->exit()` method to properly terminate the request with a response
