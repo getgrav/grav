@@ -547,7 +547,7 @@ class Debugger
                     /** @var UserData $userData */
                     $userData = $this->clockwork->userData('Profiler');
                     $userData->counters([
-                        'Logged calls' => count($timings)
+                        'Calls' => count($timings)
                     ]);
                     $userData->table('Profiler', $timings);
                 } else {
@@ -567,14 +567,23 @@ class Debugger
             return $value['wt'] > 50;
         });
 
+        uasort($timings, function (array $a, array $b) {
+           return $b['wt'] <=> $a['wt'];
+        });
+
         $table = [];
         foreach ($timings as $key => $timing) {
             $parts = explode('==>', $key);
-            $method = array_pop($parts);
-            $context = array_pop($parts);
+            $method = $this->parseProfilerCall(array_pop($parts));
+            $context = $this->parseProfilerCall(array_pop($parts));
+
+            if ($method === $context && $method === 'Grav\Framework\RequestHandler\RequestHandler::handle()') {
+                continue;
+            }
+
             $table[] = [
-                'Context' => $this->parseProfilerCall($context),
-                'Method' => $this->parseProfilerCall($method),
+                'Context' => $context,
+                'Method' => $method,
                 'Calls' => $timing['ct'],
                 'Time (ms)' => $timing['wt'] / 1000,
             ];
