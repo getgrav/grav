@@ -125,7 +125,7 @@ log:
 
 debugger:
   enabled: false                                 # Enable Grav debugger and following settings
-  provider: debugbar                             # Debugger provider
+  provider: debugbar                             # Debugger provider: debugbar | clockwork
   shutdown:
     close_connection: true                       # Close the connection before calling onShutdown(). false for debugging
 

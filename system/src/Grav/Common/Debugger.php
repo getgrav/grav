@@ -217,7 +217,6 @@ class Debugger
                     unset($d['message']);
                     $this->clockwork->log('deprecated', $deprecation['message'], $d);
                 }
-                unset($deprecation['trace']);
             }
             unset($deprecation);
 
