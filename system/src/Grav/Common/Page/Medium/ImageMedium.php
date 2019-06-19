@@ -170,8 +170,7 @@ class ImageMedium extends Medium
     {
         /** @var UniformResourceLocator $locator */
         $locator = Grav::instance()['locator'];
-        $image_path = $locator->findResource('cache://images', true);
-        $image_dir = $locator->findResource('cache://images', false);
+        $image_path = $locator->findResource('cache://images', true) ?: $locator->findResource('cache://images', true, true);
         $saved_image_path = $this->saveImage();
 
         $output = preg_replace('|^' . preg_quote(GRAV_ROOT, '|') . '|', '', $saved_image_path);
@@ -181,6 +180,7 @@ class ImageMedium extends Medium
         }
 
         if (Utils::startsWith($output, $image_path)) {
+            $image_dir = $locator->findResource('cache://images', false);
             $output = '/' . $image_dir . preg_replace('|^' . preg_quote($image_path, '|') . '|', '', $output);
         }
 

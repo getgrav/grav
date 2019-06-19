@@ -66,7 +66,7 @@ class FormFlash implements \JsonSerializable
             } catch (\Exception $e) {
                 $data = [];
             }
-            $this->formName = null !== $formName ? $content['form'] ?? '' : '';
+            $this->formName = $content['form'] ?? $formName;
             $this->url = $data['url'] ?? '';
             $this->user = $data['user'] ?? null;
             $this->data = $data['data'] ?? null;

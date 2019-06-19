@@ -1,3 +1,8 @@
+# v1.7.0-beta.2
+## mm/dd/2019
+
+1. [](#new)
+
 # v1.7.0-beta.1
 ## 06/14/2019
 
@@ -8,6 +13,15 @@
     * Updated Symfony Components to 4.3
     * Added support for Twig 2.11 (compatible with Twig 1.40+)
     * Added `$grav->exit()` method to properly terminate the request with a response
+    * Optimization: Initialize debugbar only after the configuration has been loaded
+    * Optimization: Combine some early Grav processors into a single one
+
+# v1.6.11
+## mm/dd/2019
+
+1. [](#bugfix)
+    * Fixed error in `ImageMedium::url()` if the image cache folder does not exist
+    * Fixed empty form flash name after update
 
 # v1.6.10
 ## 06/14/2019
@@ -17,8 +31,6 @@
     * Removed `Gitter` and `Slack` [#2502](https://github.com/getgrav/grav/issues/2502)
     * Optimizations for Plugin/Theme loading
     * Generalized markdown classes so they can be used outside of `Page` scope with a custom `Excerpts` class instance
-    * Optimization: Initialize debugbar only after the configuration has been loaded
-    * Optimization: Combine some early Grav processors into a single one
     * Change minimal port number to 0 (unix socket) [#2452](https://github.com/getgrav/grav/issues/2452)
 1. [](#bugfix)
     * Force question to install demo content in theme update [#2493](https://github.com/getgrav/grav/issues/2493)
