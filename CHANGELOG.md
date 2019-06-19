@@ -1,6 +1,8 @@
 # v1.6.11
 ## mm/dd/2019
 
+1. [](#new)
+    * Added `FormTrait::getAllFlashes()` method to get all the available form flash objects for the form
 1. [](#bugfix)
     * Fixed error in `ImageMedium::url()` if the image cache folder does not exist
     * Fixed empty form flash name after update
