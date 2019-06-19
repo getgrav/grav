@@ -4,6 +4,7 @@
 1. [](#bugfix)
     * Fixed error in `ImageMedium::url()` if the image cache folder does not exist
     * Fixed empty form flash name after update
+    * Fixed a bug in `Route::withParam()` method
 
 # v1.6.10
 ## 06/14/2019
