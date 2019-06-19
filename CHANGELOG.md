@@ -1,3 +1,9 @@
+# v1.6.11
+## mm/dd/2019
+
+1. [](#bugfix)
+    * Fixed error in `ImageMedium::url()` if the image cache folder does not exist
+
 # v1.6.10
 ## 06/14/2019
 
