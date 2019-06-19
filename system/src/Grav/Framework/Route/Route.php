@@ -313,9 +313,9 @@ class Route
      */
     protected function withParam($type, $param, $value)
     {
-        $oldValue = $this->{$type}[$param] ?? null;
+        $typeValue = $this->{$type}[$param] ?? null;
 
-        if ($oldValue === $value) {
+        if ($typeValue === $value) {
             return $this;
         }
 
@@ -323,7 +323,8 @@ class Route
         if ($value === null) {
             unset($new->{$type}[$param]);
         } else {
-            $new->{$type}[$param] = $value;
+            $typeValue[$param] = $value;
+            $new->{$type} = $typeValue;
         }
 
         return $new;
