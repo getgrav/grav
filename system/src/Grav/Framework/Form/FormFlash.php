@@ -26,6 +26,8 @@ class FormFlash implements \JsonSerializable
     protected $url;
     /** @var array */
     protected $user;
+    /** @var int */
+    protected $timestamp;
     /** @var array */
     protected $data;
     /** @var array */
@@ -69,11 +71,13 @@ class FormFlash implements \JsonSerializable
             $this->formName = $content['form'] ?? $formName;
             $this->url = $data['url'] ?? '';
             $this->user = $data['user'] ?? null;
+            $this->timestamp = $data['timestamp'] ?? time();
             $this->data = $data['data'] ?? null;
             $this->files = $data['files'] ?? [];
         } else {
             $this->formName = $formName;
             $this->url = '';
+            $this->timestamp = time();
             $this->files = [];
         }
     }
@@ -92,6 +96,14 @@ class FormFlash implements \JsonSerializable
     public function getUniqieId(): string
     {
         return $this->uniqueId;
+    }
+
+    /**
+     * @return int
+     */
+    public function getTimestamp(): int
+    {
+        return $this->timestamp;
     }
 
     /**
@@ -341,6 +353,7 @@ class FormFlash implements \JsonSerializable
             'unique_id' => $this->uniqueId,
             'url' => $this->url,
             'user' => $this->user,
+            'timestamp' => time(),
             'data' => $this->data,
             'files' => $this->files
         ];
