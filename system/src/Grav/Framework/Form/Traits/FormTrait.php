@@ -354,6 +354,10 @@ trait FormTrait
     public function getAllFlashes(): array
     {
         $folder = FormFlash::getSessionTmpDir($this->getFlashId());
+        if (!is_dir($folder)) {
+            return [];
+        }
+
         $name = $this->getName();
         $id = $this->getFlashId();
 
