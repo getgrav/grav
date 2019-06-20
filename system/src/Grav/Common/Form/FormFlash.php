@@ -22,6 +22,10 @@ class FormFlash extends \Grav\Framework\Form\FormFlash
      */
     public static function clearSession(string $sessionId): void
     {
+        if (!$sessionId) {
+            return;
+        }
+
         $folder = static::getSessionTmpDir($sessionId);
         if (is_dir($folder)) {
             Folder::delete($folder);
@@ -34,6 +38,10 @@ class FormFlash extends \Grav\Framework\Form\FormFlash
      */
     public static function getSessionTmpDir(string $sessionId): string
     {
+        if (!$sessionId) {
+            return '';
+        }
+
         /** @var UniformResourceLocator $locator */
         $locator = Grav::instance()['locator'];
 
@@ -90,6 +98,9 @@ class FormFlash extends \Grav\Framework\Form\FormFlash
     public function uploadFile(string $field, string $filename, array $upload): bool
     {
         $tmp_dir = $this->getTmpDir();
+        if (!$tmp_dir) {
+            return false;
+        }
 
         Folder::create($tmp_dir);
 
@@ -119,6 +130,9 @@ class FormFlash extends \Grav\Framework\Form\FormFlash
     public function cropFile(string $field, string $filename, array $upload, array $crop): bool
     {
         $tmp_dir = $this->getTmpDir();
+        if (!$tmp_dir) {
+            return false;
+        }
 
         Folder::create($tmp_dir);
 
@@ -151,7 +165,12 @@ class FormFlash extends \Grav\Framework\Form\FormFlash
      */
     protected function removeTmpFile(string $name): void
     {
-        $filename = $this->getTmpDir() . '/' . $name;
+        $tmp_dir = $this->getTmpDir();
+        if (!$tmp_dir) {
+            return;
+        }
+
+        $filename = $tmp_dir . '/' . $name;
         if ($name && is_file($filename)) {
             unlink($filename);
         }
@@ -160,7 +179,7 @@ class FormFlash extends \Grav\Framework\Form\FormFlash
     protected function removeTmpDir(): void
     {
         $tmpDir = $this->getTmpDir();
-        if (file_exists($tmpDir)) {
+        if ($tmpDir && file_exists($tmpDir)) {
             Folder::delete($tmpDir);
         }
     }

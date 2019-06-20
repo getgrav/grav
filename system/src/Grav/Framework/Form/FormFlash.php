@@ -47,6 +47,10 @@ class FormFlash implements \JsonSerializable
      */
     public static function getSessionTmpDir(string $sessionId): string
     {
+        if (!$sessionId) {
+            return '';
+        }
+
         return "tmp://forms/{$sessionId}";
     }
 
@@ -130,6 +134,10 @@ class FormFlash implements \JsonSerializable
      */
     public function save(): self
     {
+        if (!$this->sessionId) {
+            return $this;
+        }
+
         if ($this->data || $this->files) {
             // Only save if there is data or files to be saved.
             $file = $this->getTmpIndex();
@@ -145,9 +153,11 @@ class FormFlash implements \JsonSerializable
 
     public function delete(): self
     {
-        $this->removeTmpDir();
-        $this->files = [];
-        $this->exists = false;
+        if ($this->sessionId) {
+            $this->removeTmpDir();
+            $this->files = [];
+            $this->exists = false;
+        }
 
         return $this;
     }
@@ -384,6 +394,10 @@ class FormFlash implements \JsonSerializable
      */
     public function getTmpDir(): string
     {
+        if (!$this->sessionId) {
+            return '';
+        }
+
         return static::getSessionTmpDir($this->sessionId) . '/' . $this->uniqueId;
     }
 
@@ -401,8 +415,9 @@ class FormFlash implements \JsonSerializable
      */
     protected function removeTmpFile(string $name): void
     {
-        $filename = $this->getTmpDir() . '/' . $name;
-        if ($name && is_file($filename)) {
+        $tmpDir = $this->getTmpDir();
+        $filename =  $tmpDir ? $tmpDir . '/' . $name : '';
+        if ($name && $filename && is_file($filename)) {
             unlink($filename);
         }
     }
@@ -410,7 +425,7 @@ class FormFlash implements \JsonSerializable
     protected function removeTmpDir(): void
     {
         $tmpDir = $this->getTmpDir();
-        if (file_exists($tmpDir)) {
+        if ($tmpDir && file_exists($tmpDir)) {
             Folder::delete($tmpDir);
         }
     }
@@ -423,6 +438,10 @@ class FormFlash implements \JsonSerializable
      */
     protected function addFileInternal(?string $field, string $name, array $data, array $crop = null): void
     {
+        if (!$this->sessionId) {
+            throw new \RuntimeException('Cannot upload files: no session initialized');
+        }
+
         $field = $field ?: 'undefined';
         if (!isset($this->files[$field])) {
             $this->files[$field] = [];
