@@ -339,10 +339,8 @@ trait FormTrait
             $grav = Grav::instance();
             $id = $this->getFlashId();
 
-            if ($id) {
-                $this->flash = new FormFlash($id, $this->getUniqueId(), $this->getName());
-                $this->flash->setUrl($grav['uri']->url)->setUser($grav['user'] ?? null);
-            }
+            $this->flash = new FormFlash($id ?? '', $this->getUniqueId(), $this->getName());
+            $this->flash->setUrl($grav['uri']->url)->setUser($grav['user'] ?? null);
         }
 
         return $this->flash;
@@ -400,13 +398,12 @@ trait FormTrait
     {
         /** @var Grav $grav */
         $grav = Grav::instance();
-        $id = null;
 
         $user = $grav['user'] ?? null;
         if (isset($user)) {
             $rememberState = $this->getBlueprint()->get('form/remember_state');
             if ($rememberState === 'user') {
-                $id = $user->username;
+                return $user->username;
             }
         }
 
@@ -414,12 +411,10 @@ trait FormTrait
         $session = $grav['session'] ?? null;
         if (isset($session)) {
             // By default store flash by the session id.
-            if (null === $id) {
-                $id = $session->getId();
-            }
+            return $session->getId();
         }
 
-        return $id;
+        return null;
     }
 
     protected function unsetFlash(): void

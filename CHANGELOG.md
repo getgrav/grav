@@ -26,6 +26,7 @@
     * Fixed error in `ImageMedium::url()` if the image cache folder does not exist
     * Fixed empty form flash name after file upload or form state update
     * Fixed a bug in `Route::withParam()` method
+    * Fixed issue with `FormFlash` objects when there is no session initialized
 
 # v1.6.10
 ## 06/14/2019
