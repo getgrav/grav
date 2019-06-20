@@ -26,6 +26,10 @@ class FormFlash implements \JsonSerializable
     protected $url;
     /** @var array */
     protected $user;
+    /** @var int */
+    protected $createdTimestamp;
+    /** @var int */
+    protected $updatedTimestamp;
     /** @var array */
     protected $data;
     /** @var array */
@@ -69,11 +73,14 @@ class FormFlash implements \JsonSerializable
             $this->formName = $content['form'] ?? $formName;
             $this->url = $data['url'] ?? '';
             $this->user = $data['user'] ?? null;
+            $this->updatedTimestamp = $data['timestamps']['updated'] ?? time();
+            $this->createdTimestamp = $data['timestamps']['created'] ?? $this->updatedTimestamp;
             $this->data = $data['data'] ?? null;
             $this->files = $data['files'] ?? [];
         } else {
             $this->formName = $formName;
             $this->url = '';
+            $this->createdTimestamp = $this->updatedTimestamp = time();
             $this->files = [];
         }
     }
@@ -95,6 +102,22 @@ class FormFlash implements \JsonSerializable
     }
 
     /**
+     * @return int
+     */
+    public function getCreatedTimestamp(): int
+    {
+        return $this->createdTimestamp;
+    }
+
+    /**
+     * @return int
+     */
+    public function getUpdatedTimestamp(): int
+    {
+        return $this->updatedTimestamp;
+    }
+
+    /**
      * @return bool
      */
     public function exists(): bool
@@ -107,9 +130,15 @@ class FormFlash implements \JsonSerializable
      */
     public function save(): self
     {
-        $file = $this->getTmpIndex();
-        $file->save($this->jsonSerialize());
-        $this->exists = true;
+        if ($this->data || $this->files) {
+            // Only save if there is data or files to be saved.
+            $file = $this->getTmpIndex();
+            $file->save($this->jsonSerialize());
+            $this->exists = true;
+        } elseif ($this->exists) {
+            // Delete empty form flash if it exists (it carries no information).
+            return $this->delete();
+        }
 
         return $this;
     }
@@ -341,6 +370,10 @@ class FormFlash implements \JsonSerializable
             'unique_id' => $this->uniqueId,
             'url' => $this->url,
             'user' => $this->user,
+            'timestamps' => [
+                'created' => $this->createdTimestamp,
+                'updated' => time(),
+            ],
             'data' => $this->data,
             'files' => $this->files
         ];

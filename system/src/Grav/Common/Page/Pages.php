@@ -67,8 +67,10 @@ class Pages
     /** @var string */
     protected $check_method;
 
-    /** @var string */
     protected $pages_cache_id;
+
+    /** @var bool */
+    protected $initialized = false;
 
     /** @var Types */
     static protected $types;
@@ -212,6 +214,10 @@ class Pages
      */
     public function init()
     {
+        if ($this->initialized) {
+            return;
+        }
+
         $config = $this->grav['config'];
         $this->ignore_files = $config->get('system.pages.ignore_files');
         $this->ignore_folders = $config->get('system.pages.ignore_folders');
