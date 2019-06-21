@@ -2,6 +2,7 @@
 ## mm/dd/2019
 
 1. [](#new)
+    * Updated with Grav 1.6.11 fixes
 
 # v1.7.0-beta.1
 ## 06/14/2019
