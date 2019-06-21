@@ -5,7 +5,7 @@
     * Added `FormTrait::getAllFlashes()` method to get all the available form flash objects for the form
     * Added creation and update timestamps to `FormFlash` objects
 1. [](#improved)
-    * Added `FormFlashInterface`
+    * Added `FormFlashInterface`, changed constructor to take `$config` array
 1. [](#bugfix)
     * Fixed error in `ImageMedium::url()` if the image cache folder does not exist
     * Fixed empty form flash name after file upload or form state update

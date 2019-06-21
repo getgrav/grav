@@ -17,6 +17,8 @@ use RocketTheme\Toolbox\File\YamlFile;
 
 class FormFlash implements FormFlashInterface
 {
+    /** @var bool */
+    protected $exists;
     /** @var string */
     protected $sessionId;
     /** @var string */
@@ -39,8 +41,6 @@ class FormFlash implements FormFlashInterface
     protected $uploadedFiles;
     /** @var string[] */
     protected $uploadObjects;
-    /** @var bool */
-    protected $exists;
 
     /**
      * @param string $sessionId
@@ -58,10 +58,22 @@ class FormFlash implements FormFlashInterface
     /**
      * @inheritDoc
      */
-    public function __construct(string $sessionId, string $uniqueId, string $formName = null)
+    public function __construct($config)
     {
-        $this->sessionId = $sessionId;
-        $this->uniqueId = $uniqueId;
+        // Backwards compatibility with Grav 1.6 plugins.
+        if (!is_array($config)) {
+            user_error(__CLASS__ . '::' . __FUNCTION__ . '($sessionId, $uniqueId, $formName) is deprecated since Grav 1.6.11, use $config parameter instead', E_USER_DEPRECATED);
+
+            $args = func_get_args();
+            $config = [
+                'session_id' => $args[0],
+                'unique_id' => $args[1] ?? null,
+                'form_name' => $args[2] ?? null,
+            ];
+        }
+
+        $this->sessionId = $config['session_id'] ?? '';
+        $this->uniqueId = $config['unique_id'] ?? '';
 
         $file = $this->getTmpIndex();
         $this->exists = $file->exists();
@@ -72,7 +84,7 @@ class FormFlash implements FormFlashInterface
             } catch (\Exception $e) {
                 $data = [];
             }
-            $this->formName = $content['form'] ?? $formName;
+            $this->formName = $content['form'] ?? $config['form_name'] ?? '';
             $this->url = $data['url'] ?? '';
             $this->user = $data['user'] ?? null;
             $this->updatedTimestamp = $data['timestamps']['updated'] ?? time();
@@ -80,7 +92,7 @@ class FormFlash implements FormFlashInterface
             $this->data = $data['data'] ?? null;
             $this->files = $data['files'] ?? [];
         } else {
-            $this->formName = $formName;
+            $this->formName = $config['form_name'] ?? '';
             $this->url = '';
             $this->createdTimestamp = $this->updatedTimestamp = time();
             $this->files = [];
@@ -101,6 +113,16 @@ class FormFlash implements FormFlashInterface
     public function getUniqueId(): string
     {
         return $this->uniqueId;
+    }
+
+    /**
+     * @deprecated 1.6.11 Use '->getUniqueId()' method instead.
+     */
+    public function getUniqieId(): string
+    {
+        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6.11, use ->getUniqueId() method instead', E_USER_DEPRECATED);
+
+        return $this->getUniqueId();
     }
 
     /**

@@ -14,11 +14,9 @@ use Psr\Http\Message\UploadedFileInterface;
 interface FormFlashInterface extends \JsonSerializable
 {
     /**
-     * @param string $sessionId
-     * @param string $uniqueId
-     * @param string|null $formName
+     * @param array $config     Available configuration keys: session_id, unique_id, form_name
      */
-    public function __construct(string $sessionId, string $uniqueId, string $formName = null);
+    public function __construct($config);
 
     /**
      * Get session Id associated to this form instance.
