@@ -10,10 +10,13 @@
 namespace Grav\Framework\Form;
 
 use Grav\Common\Filesystem\Folder;
+use Grav\Common\Grav;
+use Grav\Common\User\Interfaces\UserInterface;
 use Grav\Common\Utils;
 use Grav\Framework\Form\Interfaces\FormFlashInterface;
 use Psr\Http\Message\UploadedFileInterface;
 use RocketTheme\Toolbox\File\YamlFile;
+use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 class FormFlash implements FormFlashInterface
 {
@@ -41,19 +44,8 @@ class FormFlash implements FormFlashInterface
     protected $uploadedFiles;
     /** @var string[] */
     protected $uploadObjects;
-
-    /**
-     * @param string $sessionId
-     * @return string
-     */
-    public static function getSessionTmpDir(string $sessionId): string
-    {
-        if (!$sessionId) {
-            return '';
-        }
-
-        return "tmp://forms/{$sessionId}";
-    }
+    /** @var string|null */
+    protected $folder;
 
     /**
      * @inheritDoc
@@ -72,8 +64,15 @@ class FormFlash implements FormFlashInterface
             ];
         }
 
-        $this->sessionId = $config['session_id'] ?? '';
+        $this->sessionId = $config['session_id'] ?? 'no-session';
         $this->uniqueId = $config['unique_id'] ?? '';
+        $this->folder = $config['folder'] ?? 'tmp://forms';
+
+        /** @var UniformResourceLocator $locator */
+        $locator = Grav::instance()['locator'];
+        if ($locator->isStream($this->folder)) {
+            $this->folder = $locator->findResource($this->folder, true, true);
+        }
 
         $file = $this->getTmpIndex();
         $this->exists = $file->exists();
@@ -204,7 +203,7 @@ class FormFlash implements FormFlashInterface
      */
     public function save(): self
     {
-        if (!$this->sessionId) {
+        if (!$this->sessionId && $this->uniqueId) {
             return $this;
         }
 
@@ -226,7 +225,7 @@ class FormFlash implements FormFlashInterface
      */
     public function delete(): self
     {
-        if ($this->sessionId) {
+        if ($this->sessionId && $this->uniqueId) {
             $this->removeTmpDir();
             $this->files = [];
             $this->exists = false;
@@ -391,6 +390,24 @@ class FormFlash implements FormFlashInterface
     }
 
     /**
+     * @param UserInterface|null $user
+     * @return $this
+     */
+    public function setUser(UserInterface $user = null)
+    {
+        if ($user && $user->username) {
+            $this->user = [
+                'username' => $user->username,
+                'email' => $user->email ?? ''
+            ];
+        } else {
+            $this->user = null;
+        }
+
+        return $this;
+    }
+
+    /**
      * @param string|null $username
      * @return $this
      */
@@ -417,11 +434,7 @@ class FormFlash implements FormFlashInterface
      */
     public function getTmpDir(): string
     {
-        if (!$this->sessionId) {
-            return '';
-        }
-
-        return static::getSessionTmpDir($this->sessionId) . '/' . $this->uniqueId;
+        return $this->sessionId && $this->uniqueId ? "{$this->folder}/{$this->sessionId}/{$this->uniqueId}" : '';
     }
 
     /**
@@ -461,8 +474,8 @@ class FormFlash implements FormFlashInterface
      */
     protected function addFileInternal(?string $field, string $name, array $data, array $crop = null): void
     {
-        if (!$this->sessionId) {
-            throw new \RuntimeException('Cannot upload files: no session initialized');
+        if (!$this->sessionId || !$this->uniqueId) {
+            throw new \RuntimeException('Cannot upload files: unique id not defined');
         }
 
         $field = $field ?: 'undefined';

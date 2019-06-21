@@ -296,12 +296,12 @@ trait FormTrait
 
     public function getButtons(): array
     {
-        return $this->getBlueprint()['form']['buttons'] ?? [];
+        return $this->getBlueprint()->get('form/buttons') ?? [];
     }
 
     public function getTasks(): array
     {
-        return $this->getBlueprint()['form']['tasks'] ?? [];
+        return $this->getBlueprint()->get('form/tasks') ?? [];
     }
 
     abstract public function getBlueprint(): Blueprint;
@@ -340,7 +340,8 @@ trait FormTrait
             $config = [
                 'session_id' => $this->getFlashId() ?? '',
                 'unique_id' => $this->getUniqueId(),
-                'form_name' => $this->getName()
+                'form_name' => $this->getName(),
+                'folder' => $this->getBlueprint()->get('form/folder') ?? 'tmp://forms'
             ];
 
 
@@ -358,13 +359,13 @@ trait FormTrait
      */
     public function getAllFlashes(): array
     {
-        $folder = FormFlash::getSessionTmpDir($this->getFlashId());
-        if (!is_dir($folder)) {
+        $id = $this->getFlashId();
+        $folder = ($this->getBlueprint()->get('form/folder') ?? 'tmp://forms') . "/{$id}";
+        if (!$id || !is_dir($folder)) {
             return [];
         }
 
         $name = $this->getName();
-        $id = $this->getFlashId();
 
         $list = [];
         /** @var \SplFileInfo $file */
