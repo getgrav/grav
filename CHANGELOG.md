@@ -1,5 +1,5 @@
 # v1.7.0-beta.2
-## mm/dd/2019
+## 06/21/2019
 
 1. [](#new)
     * Updated with Grav 1.6.11 fixes
