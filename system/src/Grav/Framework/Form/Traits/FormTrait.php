@@ -296,12 +296,12 @@ trait FormTrait
 
     public function getButtons(): array
     {
-        return $this->getBlueprint()['form']['buttons'] ?? [];
+        return $this->getBlueprint()->get('form/buttons') ?? [];
     }
 
     public function getTasks(): array
     {
-        return $this->getBlueprint()['form']['tasks'] ?? [];
+        return $this->getBlueprint()->get('form/tasks') ?? [];
     }
 
     abstract public function getBlueprint(): Blueprint;
@@ -336,33 +336,53 @@ trait FormTrait
     public function getFlash(): FormFlash
     {
         if (null === $this->flash) {
-            /** @var Grav $grav */
             $grav = Grav::instance();
-            $id = null;
-
-            $user = $grav['user'] ?? null;
-            if (isset($user)) {
-                $rememberState = $this->getBlueprint()->get('form/remember_state');
-                if ($rememberState === 'user') {
-                    $id = $user->username;
-                }
-            }
-
-            // Session Required for flash form
-            $session = $grav['session'] ?? null;
-            if (isset($session)) {
-                // By default store flash by the session id.
-                if (null === $id) {
-                    $id = $session->getId();
-                }
+            $config = [
+                'session_id' => $this->getFlashId() ?? '',
+                'unique_id' => $this->getUniqueId(),
+                'form_name' => $this->getName(),
+                'folder' => $this->getBlueprint()->get('form/folder') ?? 'tmp://forms'
+            ];
 
 
-                $this->flash = new FormFlash($id, $this->getUniqueId(), $this->getName());
-                $this->flash->setUrl($grav['uri']->url)->setUser($user);
-            }
+            $this->flash = new FormFlash($config);
+            $this->flash->setUrl($grav['uri']->url)->setUser($grav['user'] ?? null);
         }
 
         return $this->flash;
+    }
+
+    /**
+     * Get all available form flash objects for this form.
+     *
+     * @return FormFlash[]
+     */
+    public function getAllFlashes(): array
+    {
+        $id = $this->getFlashId();
+        $folder = ($this->getBlueprint()->get('form/folder') ?? 'tmp://forms') . "/{$id}";
+        if (!$id || !is_dir($folder)) {
+            return [];
+        }
+
+        $name = $this->getName();
+
+        $list = [];
+        /** @var \SplFileInfo $file */
+        foreach (new \FilesystemIterator($folder) as $file) {
+            $config = [
+                'session_id' => $id,
+                'unique_id' => $file->getFilename(),
+                'form_name' => $name
+            ];
+            $flash = new FormFlash($config);
+            if ($flash->exists() && $flash->getFormName() === $name) {
+                $list[] = $flash;
+            }
+        }
+
+        return $list;
+
     }
 
     /**
@@ -387,6 +407,30 @@ trait FormTrait
         $block->setContent($output);
 
         return $block;
+    }
+
+    protected function getFlashId(): ?string
+    {
+        /** @var Grav $grav */
+        $grav = Grav::instance();
+
+        $rememberState = $this->getBlueprint()->get('form/remember_state');
+
+        if ($rememberState === 'user') {
+            $user = $grav['user'] ?? null;
+            if (isset($user)) {
+                return $user->username;
+            }
+        }
+
+        // Session Required for flash form
+        $session = $grav['session'] ?? null;
+        if (isset($session)) {
+            // By default store flash by the session id.
+            return $session->getId();
+        }
+
+        return null;
     }
 
     protected function unsetFlash(): void

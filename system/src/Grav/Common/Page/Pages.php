@@ -91,6 +91,10 @@ class Pages
     /** @var string */
     protected $check_method;
 
+    protected $pages_cache_id;
+
+    protected $initialized = false;
+
     /**
      * @var Types
      */
@@ -100,8 +104,6 @@ class Pages
      * @var string
      */
     static protected $home_route;
-
-    protected $pages_cache_id;
 
     /**
      * Constructor
@@ -239,6 +241,10 @@ class Pages
      */
     public function init()
     {
+        if ($this->initialized) {
+            return;
+        }
+
         $config = $this->grav['config'];
         $this->ignore_files = $config->get('system.pages.ignore_files');
         $this->ignore_folders = $config->get('system.pages.ignore_folders');
