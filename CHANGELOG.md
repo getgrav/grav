@@ -3,6 +3,8 @@
 
 1. [](#new)
     * Updated with Grav 1.6.11 fixes
+1. [](#improved)
+    * Updated the Clockwork text
 
 # v1.7.0-beta.1
 ## 06/14/2019
