@@ -11,10 +11,11 @@ namespace Grav\Framework\Form;
 
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\Utils;
+use Grav\Framework\Form\Interfaces\FormFlashInterface;
 use Psr\Http\Message\UploadedFileInterface;
 use RocketTheme\Toolbox\File\YamlFile;
 
-class FormFlash implements \JsonSerializable
+class FormFlash implements FormFlashInterface
 {
     /** @var string */
     protected $sessionId;
@@ -55,10 +56,7 @@ class FormFlash implements \JsonSerializable
     }
 
     /**
-     * FormFlashObject constructor.
-     * @param string $sessionId
-     * @param string $uniqueId
-     * @param string|null $formName
+     * @inheritDoc
      */
     public function __construct(string $sessionId, string $uniqueId, string $formName = null)
     {
@@ -90,23 +88,56 @@ class FormFlash implements \JsonSerializable
     }
 
     /**
-     * @return string
+     * @inheritDoc
+     */
+    public function getSessionId(): string
+    {
+        return $this->sessionId;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getUniqueId(): string
+    {
+        return $this->uniqueId;
+    }
+
+    /**
+     * @inheritDoc
      */
     public function getFormName(): string
     {
         return $this->formName;
     }
 
+
     /**
-     * @return string
+     * @inheritDoc
      */
-    public function getUniqieId(): string
+    public function getUrl(): string
     {
-        return $this->uniqueId;
+        return $this->url;
     }
 
     /**
-     * @return int
+     * @inheritDoc
+     */
+    public function getUsername(): string
+    {
+        return $this->user['username'] ?? '';
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getUserEmail(): string
+    {
+        return $this->user['email'] ?? '';
+    }
+
+    /**
+     * @inheritDoc
      */
     public function getCreatedTimestamp(): int
     {
@@ -114,15 +145,32 @@ class FormFlash implements \JsonSerializable
     }
 
     /**
-     * @return int
+     * @inheritDoc
      */
     public function getUpdatedTimestamp(): int
     {
         return $this->updatedTimestamp;
     }
 
+
     /**
-     * @return bool
+     * @inheritDoc
+     */
+    public function getData(): ?array
+    {
+        return $this->data;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setData(?array $data): void
+    {
+        $this->data = $data;
+    }
+
+    /**
+     * @inheritDoc
      */
     public function exists(): bool
     {
@@ -130,7 +178,7 @@ class FormFlash implements \JsonSerializable
     }
 
     /**
-     * @return $this
+     * @inheritDoc
      */
     public function save(): self
     {
@@ -151,6 +199,9 @@ class FormFlash implements \JsonSerializable
         return $this;
     }
 
+    /**
+     * @inheritDoc
+     */
     public function delete(): self
     {
         if ($this->sessionId) {
@@ -163,75 +214,7 @@ class FormFlash implements \JsonSerializable
     }
 
     /**
-     * @return string
-     */
-    public function getUrl(): string
-    {
-        return $this->url;
-    }
-
-    /**
-     * @param string $url
-     * @return $this
-     */
-    public function setUrl(string $url): self
-    {
-        $this->url = $url;
-
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getUsername(): string
-    {
-        return $this->user['username'] ?? '';
-    }
-
-    /**
-     * @return string
-     */
-    public function getUserEmail(): string
-    {
-        return $this->user['email'] ?? '';
-    }
-
-    /**
-     * @param string|null $username
-     * @return $this
-     */
-    public function setUserName(string $username = null): self
-    {
-        $this->user['username'] = $username;
-
-        return $this;
-    }
-
-    /**
-     * @param string|null $email
-     * @return $this
-     */
-    public function setUserEmail(string $email = null): self
-    {
-        $this->user['email'] = $email;
-
-        return $this;
-    }
-
-    public function getData(): ?array
-    {
-        return $this->data;
-    }
-
-    public function setData(?array $data): void
-    {
-        $this->data = $data;
-    }
-
-    /**
-     * @param string $field
-     * @return array
+     * @inheritDoc
      */
     public function getFilesByField(string $field): array
     {
@@ -247,8 +230,7 @@ class FormFlash implements \JsonSerializable
     }
 
     /**
-     * @param bool $includeOriginal
-     * @return array
+     * @inheritDoc
      */
     public function getFilesByFields($includeOriginal = false): array
     {
@@ -264,12 +246,7 @@ class FormFlash implements \JsonSerializable
     }
 
     /**
-     * Add uploaded file to the form flash.
-     *
-     * @param UploadedFileInterface $upload
-     * @param string|null $field
-     * @param array|null $crop
-     * @return string Return name of the file
+     * @inheritDoc
      */
     public function addUploadedFile(UploadedFileInterface $upload, string $field = null, array $crop = null): string
     {
@@ -295,12 +272,7 @@ class FormFlash implements \JsonSerializable
 
 
     /**
-     * Add existing file to the form flash.
-     *
-     * @param string $filename
-     * @param string $field
-     * @param array $crop
-     * @return bool
+     * @inheritDoc
      */
     public function addFile(string $filename, string $field, array $crop = null): bool
     {
@@ -321,11 +293,7 @@ class FormFlash implements \JsonSerializable
     }
 
     /**
-     * Remove any file from form flash.
-     *
-     * @param string $name
-     * @param string $field
-     * @return bool
+     * @inheritDoc
      */
     public function removeFile(string $name, string $field = null): bool
     {
@@ -357,7 +325,7 @@ class FormFlash implements \JsonSerializable
     }
 
     /**
-     * Clear form flash from all uploaded files.
+     * @inheritDoc
      */
     public function clearFiles()
     {
@@ -371,7 +339,7 @@ class FormFlash implements \JsonSerializable
     }
 
     /**
-     * @return array
+     * @inheritDoc
      */
     public function jsonSerialize(): array
     {
@@ -387,6 +355,39 @@ class FormFlash implements \JsonSerializable
             'data' => $this->data,
             'files' => $this->files
         ];
+    }
+
+    /**
+     * @param string $url
+     * @return $this
+     */
+    public function setUrl(string $url): self
+    {
+        $this->url = $url;
+
+        return $this;
+    }
+
+    /**
+     * @param string|null $username
+     * @return $this
+     */
+    public function setUserName(string $username = null): self
+    {
+        $this->user['username'] = $username;
+
+        return $this;
+    }
+
+    /**
+     * @param string|null $email
+     * @return $this
+     */
+    public function setUserEmail(string $email = null): self
+    {
+        $this->user['email'] = $email;
+
+        return $this;
     }
 
     /**

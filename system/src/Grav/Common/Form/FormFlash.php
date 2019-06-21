@@ -12,10 +12,11 @@ namespace Grav\Common\Form;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\Grav;
 use Grav\Common\User\Interfaces\UserInterface;
+use Grav\Framework\Form\FormFlash as FrameworkFormFlash;
 use RocketTheme\Toolbox\File\YamlFile;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
-class FormFlash extends \Grav\Framework\Form\FormFlash
+class FormFlash extends FrameworkFormFlash
 {
     /**
      * @param string $sessionId
