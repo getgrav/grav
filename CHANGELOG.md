@@ -1,5 +1,5 @@
 # v1.6.11
-## mm/dd/2019
+## 06/21/2019
 
 1. [](#new)
     * Added `FormTrait::getAllFlashes()` method to get all the available form flash objects for the form
