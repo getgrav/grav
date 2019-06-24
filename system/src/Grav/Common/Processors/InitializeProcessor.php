@@ -45,9 +45,7 @@ class InitializeProcessor extends ProcessorBase
             }
             $requestTime = $_SERVER['REQUEST_TIME_FLOAT'] ?? GRAV_REQUEST_TIME;
 
-            $request = $request
-                ->withAttribute('base_uri', $baseUri)
-                ->withAttribute('request_time', $requestTime);
+            $request = $request->withAttribute('request_time', $requestTime);
 
             // Handle clockwork API calls.
             $uri = $request->getUri();

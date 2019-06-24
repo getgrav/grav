@@ -247,7 +247,7 @@ class Debugger
             ->withHeader('X-Clockwork-Id', $clockworkRequest->id)
             ->withHeader('X-Clockwork-Version', $clockwork::VERSION);
 
-        $basePath = $request->getAttribute('base_uri');
+        $basePath = Grav::instance()['uri']->rootUrl();
         if ($basePath) {
             $response = $response->withHeader('X-Clockwork-Path', $basePath . '/__clockwork/');
         }
