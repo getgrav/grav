@@ -1,3 +1,9 @@
+# v1.6.12
+## mm/dd/2019
+
+1. [](#new)
+    * Added support for custom `FormFlash` save locations
+
 # v1.6.11
 ## 06/21/2019
 
