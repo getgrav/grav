@@ -1,3 +1,10 @@
+# v1.7.0-beta.3
+## 06/21/2019
+
+1. [](#bugfix)
+    * Fixed parent field issues on Windows machines
+    * Fixed unreliable Clockwork calls in sub-folders
+
 # v1.7.0-beta.2
 ## 06/21/2019
 
@@ -5,7 +12,7 @@
     * Updated with Grav 1.6.11 fixes
 1. [](#improved)
     * Updated the Clockwork text
-
+    
 # v1.7.0-beta.1
 ## 06/14/2019
 
