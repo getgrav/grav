@@ -1,5 +1,5 @@
 # v1.7.0-beta.3
-## 06/21/2019
+## 06/24/2019
 
 1. [](#bugfix)
     * Fixed Clockwork on Windows machines
