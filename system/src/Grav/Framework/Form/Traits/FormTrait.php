@@ -15,9 +15,11 @@ use Grav\Common\Data\ValidationException;
 use Grav\Common\Form\FormFlash;
 use Grav\Common\Grav;
 use Grav\Common\Twig\Twig;
+use Grav\Common\User\Interfaces\UserInterface;
 use Grav\Common\Utils;
 use Grav\Framework\ContentBlock\HtmlBlock;
 use Grav\Framework\Form\Interfaces\FormInterface;
+use Grav\Framework\Session\SessionInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UploadedFileInterface;
 use Twig\Error\LoaderError;
@@ -338,10 +340,10 @@ trait FormTrait
         if (null === $this->flash) {
             $grav = Grav::instance();
             $config = [
-                'session_id' => $this->getFlashId() ?? '',
+                'session_id' => $this->getSessionId(),
                 'unique_id' => $this->getUniqueId(),
                 'form_name' => $this->getName(),
-                'folder' => $this->getBlueprint()->get('form/folder') ?? 'tmp://forms'
+                'folder' => $this->getFlashFolder()
             ];
 
 
@@ -359,9 +361,8 @@ trait FormTrait
      */
     public function getAllFlashes(): array
     {
-        $id = $this->getFlashId();
-        $folder = ($this->getBlueprint()->get('form/folder') ?? 'tmp://forms') . "/{$id}";
-        if (!$id || !is_dir($folder)) {
+        $folder = $this->getFlashFolder();
+        if (!$folder || !is_dir($folder)) {
             return [];
         }
 
@@ -370,10 +371,12 @@ trait FormTrait
         $list = [];
         /** @var \SplFileInfo $file */
         foreach (new \FilesystemIterator($folder) as $file) {
+            $uniqueId = $file->getFilename();
             $config = [
-                'session_id' => $id,
-                'unique_id' => $file->getFilename(),
-                'form_name' => $name
+                'session_id' => $this->getSessionId(),
+                'unique_id' => $uniqueId,
+                'form_name' => $name,
+                'folder' => $this->getFlashFolder()
             ];
             $flash = new FormFlash($config);
             if ($flash->exists() && $flash->getFormName() === $name) {
@@ -409,33 +412,49 @@ trait FormTrait
         return $block;
     }
 
-    protected function getFlashId(): ?string
+    protected function getSessionId(): string
     {
         /** @var Grav $grav */
         $grav = Grav::instance();
 
-        $rememberState = $this->getBlueprint()->get('form/remember_state');
-
-        if ($rememberState === 'user') {
-            $user = $grav['user'] ?? null;
-            if (isset($user)) {
-                return $user->username;
-            }
-        }
-
-        // Session Required for flash form
+        /** @var SessionInterface $session */
         $session = $grav['session'] ?? null;
-        if (isset($session)) {
-            // By default store flash by the session id.
-            return $session->getId();
-        }
 
-        return null;
+        return $session ? ($session->getId() ?? '') : '';
     }
 
     protected function unsetFlash(): void
     {
         $this->flash = null;
+    }
+
+    protected function getFlashFolder(): ?string
+    {
+        $grav = Grav::instance();
+
+        /** @var UserInterface $user */
+        $user = $grav['user'] ?? null;
+        $userExists = $user && $user->exists();
+        $username = $userExists ? $user->username : null;
+        $mediaFolder = $userExists ? $user->getMediaFolder() : null;
+        $session = $grav['session'] ?? null;
+        $sessionId = $session ? $session->getId() : null;
+
+        // Fill template token keys/value pairs.
+        $dataMap = [
+            '[FORM_NAME]' => $this->getName(),
+            '[SESSIONID]' => $sessionId ?? '!!',
+            '[USERNAME]' => $username ?? '!!',
+            '[USERNAME_OR_SESSIONID]' => $username ?? $sessionId ?? '!!',
+            '[ACCOUNT]' => $mediaFolder ?? '!!'
+        ];
+
+        $flashFolder = $this->getBlueprint()->get('form/flash_folder', 'tmp://forms/[SESSIONID]');
+
+        $path = str_replace(array_keys($dataMap), array_values($dataMap), $flashFolder);
+
+        // Make sure we only return valid paths.
+        return strpos($path, '!!') === false ? rtrim($path, '/') : null;
     }
 
     /**
