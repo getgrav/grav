@@ -39,7 +39,7 @@ class InitializeProcessor extends ProcessorBase
         $clockwork = $debugger->getClockwork();
         if ($clockwork) {
             $server = $request->getServerParams();
-            $baseUri =  parse_url(dirname($server['PHP_SELF']), PHP_URL_PATH);
+            $baseUri = str_replace('\\', '/', dirname(parse_url($server['SCRIPT_NAME'], PHP_URL_PATH)));
             if ($baseUri === '/') {
                 $baseUri = '';
             }
@@ -49,7 +49,7 @@ class InitializeProcessor extends ProcessorBase
 
             // Handle clockwork API calls.
             $uri = $request->getUri();
-            if (mb_strpos($uri->getPath(), $baseUri . '/__clockwork/') === 0) {
+            if (Utils::contains($uri->getPath(), '/__clockwork/')) {
                 return $debugger->debuggerRequest($request);
             }
 
