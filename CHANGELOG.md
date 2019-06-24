@@ -2,7 +2,7 @@
 ## 06/21/2019
 
 1. [](#bugfix)
-    * Fixed clockwork on Windows machines
+    * Fixed Clockwork on Windows machines
     * Fixed parent field issues on Windows machines
     * Fixed unreliable Clockwork calls in sub-folders
 
