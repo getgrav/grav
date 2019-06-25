@@ -99,7 +99,7 @@ class User extends Data implements UserInterface
     }
 
     /**
-     * Save user without the username
+     * Save user without the username, unless uppercase
      */
     public function save()
     {
@@ -125,7 +125,10 @@ class User extends Data implements UserInterface
             }
 
             $data = $this->items;
-            unset($data['username'], $data['authenticated'], $data['authorized']);
+            if ($username == mb_strtolower($username)) {
+                unset($data['username']);
+            }
+            unset($data['authenticated'], $data['authorized']);
 
             $file->save($data);
         }

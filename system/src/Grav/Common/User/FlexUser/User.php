@@ -416,7 +416,7 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
     }
 
     /**
-     * Save user without the username
+     * Save user without the username, unless uppercase
      */
     public function save()
     {
