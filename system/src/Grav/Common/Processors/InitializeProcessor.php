@@ -39,11 +39,11 @@ class InitializeProcessor extends ProcessorBase
         $clockwork = $debugger->getClockwork();
         if ($clockwork) {
             $server = $request->getServerParams();
-            $baseUri = str_replace('\\', '/', dirname(parse_url($server['SCRIPT_NAME'], PHP_URL_PATH)));
-            if ($baseUri === '/') {
-                $baseUri = '';
-            }
-            $requestTime = $_SERVER['REQUEST_TIME_FLOAT'] ?? GRAV_REQUEST_TIME;
+//            $baseUri = str_replace('\\', '/', dirname(parse_url($server['SCRIPT_NAME'], PHP_URL_PATH)));
+//            if ($baseUri === '/') {
+//                $baseUri = '';
+//            }
+            $requestTime = $server['REQUEST_TIME_FLOAT'] ?? GRAV_REQUEST_TIME;
 
             $request = $request->withAttribute('request_time', $requestTime);
 
