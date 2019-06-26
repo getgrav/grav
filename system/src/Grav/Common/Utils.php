@@ -28,7 +28,7 @@ abstract class Utils
     /**
      * Simple helper method to make getting a Grav URL easier
      *
-     * @param string $input
+     * @param string|object $input
      * @param bool $domain
      * @param bool $fail_gracefully
      * @return bool|null|string
@@ -68,11 +68,7 @@ abstract class Utils
                 try {
                     $resource = $locator->findResource("{$parts['scheme']}://{$parts['host']}{$parts['path']}", false);
                 } catch (\Exception $e) {
-                    if ($fail_gracefully) {
-                        return $input;
-                    } else {
-                        return false;
-                    }
+                    return $fail_gracefully ? $input : false;
                 }
 
                 if ($resource && isset($parts['query'])) {
