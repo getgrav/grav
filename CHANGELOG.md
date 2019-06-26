@@ -3,6 +3,8 @@
 
 1. [](#new)
     * Added support for custom `FormFlash` save locations
+1. [](#bugfix)
+    * Fixed `.md` page to be assigned to the default language and to be listed in translated/untranslated page list
 
 # v1.6.11
 ## 06/21/2019

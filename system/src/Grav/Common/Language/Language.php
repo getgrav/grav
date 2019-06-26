@@ -25,7 +25,7 @@ class Language
     protected $page_extensions = [];
     protected $fallback_languages = [];
     protected $default;
-    protected $active = null;
+    protected $active;
 
     /** @var Config $config */
     protected $config;
@@ -534,4 +534,11 @@ class Language
         return LanguageCodes::get($code, $type);
     }
 
+    public function __debugInfo()
+    {
+        $vars = get_object_vars($this);
+        unset($vars['grav'], $vars['config']);
+
+        return $vars;
+    }
 }

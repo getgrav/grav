@@ -15,6 +15,7 @@ use Grav\Common\Data\Blueprint;
 use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\Grav;
+use Grav\Common\Language\Language;
 use Grav\Common\Markdown\Parsedown;
 use Grav\Common\Markdown\ParsedownExtra;
 use Grav\Common\Page\Interfaces\PageInterface;
@@ -129,7 +130,10 @@ class Page implements PageInterface
      */
     public function init(\SplFileInfo $file, $extension = null)
     {
-        $config = Grav::instance()['config'];
+        $grav = Grav::instance();
+
+        /** @var Config $config */
+        $config = $grav['config'];
 
         // some extension logic
         if (empty($extension)) {
@@ -139,8 +143,13 @@ class Page implements PageInterface
         }
 
         // extract page language from page extension
-        $language = trim(basename($this->extension(), 'md'), '.') ?: null;
-        $this->language($language);
+        $languageCode = trim(basename($this->extension(), 'md'), '.') ?: null;
+        if (!$languageCode) {
+            /** @var Language $language */
+            $language = $grav['language'];
+            $languageCode = $language->enabled() ? $language->getDefault() : null;
+        }
+        $this->language($languageCode);
 
         $this->hide_home_route = $config->get('system.home.hide_in_urls', false);
         $this->home_route = $this->adjustRouteCase($config->get('system.home.alias'));
@@ -188,16 +197,32 @@ class Page implements PageInterface
      */
     public function translatedLanguages($onlyPublished = false)
     {
-        $filename = substr($this->name, 0, -(strlen($this->extension())));
-        $config = Grav::instance()['config'];
-        $languages = $config->get('system.languages.supported', []);
+        $grav = Grav::instance();
+
+        /** @var Language $language */
+        $language = $grav['language'];
+
+        $languages = $language->getLanguages();
+        $defaultCode = $language->getDefault();
+
+        $name = substr($this->name, 0, -strlen($this->extension()));
         $translatedLanguages = [];
 
-        foreach ($languages as $language) {
-            $path = $this->path . DS . $this->folder . DS . $filename . '.' . $language . '.md';
-            if (file_exists($path)) {
+        foreach ($languages as $languageCode) {
+            $languageExtension = ".{$languageCode}.md";
+            $path = $this->path . DS . $this->folder . DS . $name . $languageExtension;
+            $exists = file_exists($path);
+
+            // Default language may be saved without language file location.
+            if (!$exists && $languageCode === $defaultCode) {
+                $languageExtension = '.md';
+                $path = $this->path . DS . $this->folder . DS . $name . $languageExtension;
+                $exists = file_exists($path);
+            }
+
+            if ($exists) {
                 $aPage = new Page();
-                $aPage->init(new \SplFileInfo($path), $language . '.md');
+                $aPage->init(new \SplFileInfo($path), $languageExtension);
 
                 $route = $aPage->header()->routes['default'] ?? $aPage->rawRoute();
                 if (!$route) {
@@ -208,7 +233,7 @@ class Page implements PageInterface
                     continue;
                 }
 
-                $translatedLanguages[$language] = $route;
+                $translatedLanguages[$languageCode] = $route;
             }
         }
 
@@ -224,22 +249,37 @@ class Page implements PageInterface
      */
     public function untranslatedLanguages($includeUnpublished = false)
     {
-        $filename = substr($this->name, 0, -strlen($this->extension()));
-        $config = Grav::instance()['config'];
-        $languages = $config->get('system.languages.supported', []);
+        $grav = Grav::instance();
+
+        /** @var Language $language */
+        $language = $grav['language'];
+
+        $languages = $language->getLanguages();
+        $defaultCode = $language->getDefault();
+
+        $name = substr($this->name, 0, -strlen($this->extension()));
         $untranslatedLanguages = [];
 
-        foreach ($languages as $language) {
-            $path = $this->path . DS . $this->folder . DS . $filename . '.' . $language . '.md';
-            if (file_exists($path)) {
-                $aPage = new Page();
-                $aPage->init(new \SplFileInfo($path), $language . '.md');
-                if ($includeUnpublished && !$aPage->published()) {
-                    $untranslatedLanguages[] = $language;
-                }
-            } else {
-                $untranslatedLanguages[] = $language;
+        foreach ($languages as $languageCode) {
+            $path = $this->path . DS . $this->folder . DS . $name . '.' . $languageCode . '.md';
+            $exists = file_exists($path);
+
+            // Default language may be saved without language file location.
+            if (!$exists && $languageCode === $defaultCode) {
+                $path = $this->path . DS . $this->folder . DS . $name . '.md';
+                $exists = file_exists($path);
             }
+
+            if ($exists && !$includeUnpublished) {
+                $aPage = new Page();
+                $aPage->init(new \SplFileInfo($path), $languageCode . '.md');
+
+                if (!$aPage->published()) {
+                    continue;
+                }
+            }
+
+            $untranslatedLanguages[] = $languageCode;
         }
 
         return $untranslatedLanguages;
