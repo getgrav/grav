@@ -378,14 +378,12 @@ class Blueprint extends BlueprintForm
         $grav = Grav::instance();
         $actions = (array)$call['params'];
 
-        /** @var UserInterface $user */
-        if (isset($grav['user'])) {
-            $user = Grav::instance()['user'];
-            foreach ($actions as $action) {
-                if (!$user->authorize($action)) {
-                    $this->addPropertyRecursive($field, 'validate', ['ignore' => true]);
-                    return;
-                }
+        /** @var UserInterface|null $user */
+        $user = $grav['user'] ?? null;
+        foreach ($actions as $action) {
+            if (!$user || !$user->authorize($action)) {
+                $this->addPropertyRecursive($field, 'validate', ['ignore' => true]);
+                return;
             }
         }
     }

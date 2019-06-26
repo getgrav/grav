@@ -97,7 +97,7 @@ class YamlFormatter extends AbstractFormatter
             @ini_set('yaml.decode_php', $saved);
 
             if ($decoded !== false) {
-                return $decoded;
+                return (array) $decoded;
             }
         }
 

@@ -232,7 +232,7 @@ class ImageMedium extends Medium
     }
 
     /**
-     * Allows the ability to override the Inmage's Pretty name stored in cache
+     * Allows the ability to override the image's pretty name stored in cache
      *
      * @param string $name
      */

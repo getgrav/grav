@@ -103,7 +103,7 @@ class Licenses
     }
 
     /**
-     * Get's the License File object
+     * Get the License File object
      *
      * @return \RocketTheme\Toolbox\File\FileInterface
      */

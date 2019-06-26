@@ -32,7 +32,11 @@
 
 1. [](#new)
     * Added support for custom `FormFlash` save locations
-
+1. [](#improved)
+    * Use new `Utils::getSupportedPageTypes()` to enforce `html,htm` at the front of the list [#2531](https://github.com/getgrav/grav/issues/2531)  
+1. [](#bugfix)
+    * Fixed some potential issues when `$grav['user']` is not set
+    
 # v1.6.11
 ## 06/21/2019
 

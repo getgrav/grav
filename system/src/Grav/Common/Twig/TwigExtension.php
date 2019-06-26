@@ -1011,10 +1011,10 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      */
     public function authorize($action)
     {
-        /** @var UserInterface $user */
-        $user = $this->grav['user'];
+        /** @var UserInterface|null $user */
+        $user = $this->grav['user'] ?? null;
 
-        if (!$user->authenticated || (isset($user->authorized) && !$user->authorized)) {
+        if (!$user || !$user->authenticated || (isset($user->authorized) && !$user->authorized)) {
             return false;
         }
 
@@ -1144,7 +1144,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
     }
 
     /**
-     * Get's the Exif data for a file
+     * Get the Exif data for a file
      *
      * @param string $image
      * @param bool $raw

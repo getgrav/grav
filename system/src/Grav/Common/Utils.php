@@ -68,11 +68,7 @@ abstract class Utils
                 try {
                     $resource = $locator->findResource("{$parts['scheme']}://{$parts['host']}{$parts['path']}", false);
                 } catch (\Exception $e) {
-                    if ($fail_gracefully) {
-                        return $input;
-                    } else {
-                        return false;
-                    }
+                    return $fail_gracefully ? $input : false;
                 }
 
                 if ($resource && isset($parts['query'])) {
@@ -286,6 +282,24 @@ abstract class Utils
     public static function mergeObjects($obj1, $obj2)
     {
         return (object)array_merge((array)$obj1, (array)$obj2);
+    }
+
+    /**
+     * Simple function to remove item/s in an array by value
+     *
+     * @param $search array
+     * @param $value string|array
+     * @return array
+     */
+    public static function arrayRemoveValue(Array $search, $value)
+    {
+        foreach ((array) $value as $val) {
+            $key = array_search($val, $search);
+            if ($key !== false) {
+                unset($search[$key]);
+            }
+        }
+        return $search;
     }
 
     /**
@@ -1070,12 +1084,9 @@ abstract class Utils
      */
     private static function generateNonceString($action, $previousTick = false)
     {
-        $username = '';
-        if (isset(Grav::instance()['user'])) {
-            $user = Grav::instance()['user'];
-            $username = $user->username;
-        }
+        $grav = Grav::instance();
 
+        $username = isset($grav['user']) ? $grav['user']->username : '';
         $token = session_id();
         $i = self::nonceTick();
 
@@ -1083,7 +1094,7 @@ abstract class Utils
             $i--;
         }
 
-        return ($i . '|' . $action . '|' . $username . '|' . $token . '|' . Grav::instance()['config']->get('security.salt'));
+        return ($i . '|' . $action . '|' . $username . '|' . $token . '|' . $grav['config']->get('security.salt'));
     }
 
     /**
@@ -1297,7 +1308,7 @@ abstract class Utils
     }
 
     /**
-     * Get's path based on a token
+     * Get path based on a token
      *
      * @param string $path
      * @param PageInterface|null $page
@@ -1533,5 +1544,24 @@ abstract class Utils
         $subnet = inet_ntop($ip & $mask);
 
         return $subnet;
+    }
+
+    /**
+     * Wrapper to ensure html, htm in the front of the supported page types
+     *
+     * @param array|null $defaults
+     * @return array|mixed
+     */
+    public static function getSupportPageTypes(array $defaults = null)
+    {
+        $types = Grav::instance()['config']->get('system.pages.types', $defaults);
+
+        // remove html/htm
+        $types = static::arrayRemoveValue($types, ['html', 'htm']);
+
+        // put them back at the front
+        $types = array_merge(['html', 'htm'], $types);
+
+        return $types;
     }
 }
