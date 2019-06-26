@@ -3,7 +3,8 @@
 
 1. [](#new)
     * Added support for custom `FormFlash` save locations
-
+    * Fixed some potential issues when `$grav['user']` is not set
+    
 # v1.6.11
 ## 06/21/2019
 

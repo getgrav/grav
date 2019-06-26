@@ -1004,10 +1004,10 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
      */
     public function authorize($action)
     {
-        /** @var UserInterface $user */
-        $user = $this->grav['user'];
+        /** @var UserInterface|null $user */
+        $user = $this->grav['user'] ?? null;
 
-        if (!$user->authenticated || (isset($user->authorized) && !$user->authorized)) {
+        if (!$user || !$user->authenticated || (isset($user->authorized) && !$user->authorized)) {
             return false;
         }
 

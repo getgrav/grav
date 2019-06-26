@@ -1070,12 +1070,9 @@ abstract class Utils
      */
     private static function generateNonceString($action, $previousTick = false)
     {
-        $username = '';
-        if (isset(Grav::instance()['user'])) {
-            $user = Grav::instance()['user'];
-            $username = $user->username;
-        }
+        $grav = Grav::instance();
 
+        $username = isset($grav['user']) ? $grav['user']->username : '';
         $token = session_id();
         $i = self::nonceTick();
 
@@ -1083,7 +1080,7 @@ abstract class Utils
             $i--;
         }
 
-        return ($i . '|' . $action . '|' . $username . '|' . $token . '|' . Grav::instance()['config']->get('security.salt'));
+        return ($i . '|' . $action . '|' . $username . '|' . $token . '|' . $grav['config']->get('security.salt'));
     }
 
     /**
