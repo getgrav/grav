@@ -270,7 +270,11 @@ class Page implements PageInterface
                 $exists = file_exists($path);
             }
 
-            if ($exists && !$includeUnpublished) {
+            if ($exists) {
+                if ($includeUnpublished) {
+                    continue;
+                }
+
                 $aPage = new Page();
                 $aPage->init(new \SplFileInfo($path), $languageCode . '.md');
 
