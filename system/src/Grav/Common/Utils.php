@@ -285,6 +285,24 @@ abstract class Utils
     }
 
     /**
+     * Simple function to remove item/s in an array by value
+     *
+     * @param $search array
+     * @param $value string|array
+     * @return array
+     */
+    public static function arrayRemoveValue(Array $search, $value)
+    {
+        foreach ((array) $value as $val) {
+            $key = array_search($val, $search);
+            if ($key !== false) {
+                unset($search[$key]);
+            }
+        }
+        return $search;
+    }
+
+    /**
      * Recursive Merge with uniqueness
      *
      * @param array $array1
@@ -1526,5 +1544,24 @@ abstract class Utils
         $subnet = inet_ntop($ip & $mask);
 
         return $subnet;
+    }
+
+    /**
+     * Wrapper to ensure html, htm in the front of the supported page types
+     *
+     * @param array|null $defaults
+     * @return array|mixed
+     */
+    public static function getSupportPageTypes(array $defaults = null)
+    {
+        $types = Grav::instance()['config']->get('system.pages.types', $defaults);
+
+        // remove html/htm
+        $types = static::arrayRemoveValue($types, ['html', 'htm']);
+
+        // put them back at the front
+        $types = array_merge(['html', 'htm'], $types);
+
+        return $types;
     }
 }

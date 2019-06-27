@@ -1345,7 +1345,7 @@ class Uri
      */
     public function isValidExtension($extension)
     {
-        $valid_page_types = implode('|', Grav::instance()['config']->get('system.pages.types'));
+        $valid_page_types = implode('|', Utils::getSupportPageTypes());
 
         // Strip the file extension for valid page types
         if (preg_match('/(' . $valid_page_types . ')/', $extension)) {
