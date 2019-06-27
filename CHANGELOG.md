@@ -5,6 +5,7 @@
     * Added support for custom `FormFlash` save locations
 1. [](#bugfix)
     * Fixed `.md` page to be assigned to the default language and to be listed in translated/untranslated page list
+    * Fixed `Language::getFallbackPageExtensions()` to append `.md` file after the default language extension
 
 # v1.6.11
 ## 06/21/2019
