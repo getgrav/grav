@@ -11,6 +11,7 @@
     * Fixed `.md` page to be assigned to the default language and to be listed in translated/untranslated page list
     * Fixed `Language::getFallbackPageExtensions()` to append `.md` file after the default language extension
     * Fixed `Language::getFallbackPageExtensions()` returning wrong file extensions when passing custom page extension
+    * Fixed error when calling `Media::add($name, null)`
 
 # v1.6.11
 ## 06/21/2019
