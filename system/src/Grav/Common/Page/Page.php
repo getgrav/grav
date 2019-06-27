@@ -966,13 +966,16 @@ class Page implements PageInterface
             return $this->slug();
         }
         if ($name === 'name') {
+            $name = $this->name();
             $language = $this->language() ? '.' . $this->language() : '';
-            $name_val = str_replace($language . '.md', '', $this->name());
+            $pattern = '%(' . preg_quote($language, '%') . ')?\.md$%';
+            $name = preg_replace($pattern, '', $name);
+
             if ($this->modular()) {
-                return 'modular/' . $name_val;
+                return 'modular/' . $name;
             }
 
-            return $name_val;
+            return $name;
         }
         if ($name === 'media') {
             return $this->media()->all();
