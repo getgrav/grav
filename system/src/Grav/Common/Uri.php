@@ -1286,7 +1286,7 @@ class Uri
     }
 
     /**
-     * Get's post from either $_POST or JSON response object
+     * Get post from either $_POST or JSON response object
      * By default returns all data, or can return a single item
      *
      * @param string $element
@@ -1345,7 +1345,7 @@ class Uri
      */
     public function isValidExtension($extension)
     {
-        $valid_page_types = implode('|', Grav::instance()['config']->get('system.pages.types'));
+        $valid_page_types = implode('|', Utils::getSupportPageTypes());
 
         // Strip the file extension for valid page types
         if (preg_match('/(' . $valid_page_types . ')/', $extension)) {
