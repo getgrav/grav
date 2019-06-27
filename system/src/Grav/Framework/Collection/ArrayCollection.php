@@ -84,7 +84,7 @@ class ArrayCollection extends BaseArrayCollection implements CollectionInterface
     }
 
     /**
-     * Implementes JsonSerializable interface.
+     * Implements JsonSerializable interface.
      *
      * @return array
      */

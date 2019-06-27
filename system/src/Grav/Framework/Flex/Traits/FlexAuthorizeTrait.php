@@ -27,10 +27,10 @@ trait FlexAuthorizeTrait
     {
         if (null === $user) {
             /** @var UserInterface $user */
-            $user = Grav::instance()['user'];
+            $user = Grav::instance()['user'] ?? null;
         }
 
-        return $this->isAuthorizedAction($user, $action, $scope) || $this->isAuthorizedSuperAdmin($user);
+        return $user && ($this->isAuthorizedAction($user, $action, $scope) || $this->isAuthorizedSuperAdmin($user));
     }
 
     protected function isAuthorizedSuperAdmin(UserInterface $user): bool
