@@ -5,6 +5,7 @@
     * Added support for custom `FormFlash` save locations
 1. [](#bugfix)
     * Fixed some potential issues when `$grav['user']` is not set
+    * Fixed error when calling `Media::add($name, null)`
     
 # v1.6.11
 ## 06/21/2019
