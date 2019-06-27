@@ -3,11 +3,11 @@
 
 1. [](#new)
     * Added support for custom `FormFlash` save locations
+    * Added new configuration option `system.languages.include_default_lang_file_extension` to keep default language in `.md` files if set to `false`
 1. [](#improved)
     * Use new `Utils::getSupportedPageTypes()` to enforce `html,htm` at the front of the list [#2531](https://github.com/getgrav/grav/issues/2531)  
 1. [](#bugfix)
     * Fixed some potential issues when `$grav['user']` is not set
-    * Added new configuration option `system.languages.include_default_lang_file_extension` to keep default language in `.md` files if set to `false`
     * Fixed `.md` page to be assigned to the default language and to be listed in translated/untranslated page list
     * Fixed `Language::getFallbackPageExtensions()` to append `.md` file after the default language extension
 
