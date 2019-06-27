@@ -58,7 +58,7 @@ class Language
             $this->default = reset($this->languages);
         }
 
-        $this->page_extensions = null;
+        $this->page_extensions = [];
 
         if (empty($this->languages)) {
             $this->enabled = false;
@@ -285,7 +285,9 @@ class Language
      */
     public function getFallbackPageExtensions($file_ext = null)
     {
-        if (empty($this->page_extensions)) {
+        $file_ext = (string)$file_ext;
+
+        if (!isset($this->page_extensions[$file_ext])) {
             if (!$file_ext) {
                 $file_ext = CONTENT_EXT;
             }
@@ -320,13 +322,13 @@ class Language
                     }
                 }
 
-                $this->page_extensions = array_values($valid_lang_extensions);
+                $this->page_extensions[$file_ext] = array_values($valid_lang_extensions);
             } else {
-                $this->page_extensions = (array)$file_ext;
+                $this->page_extensions[$file_ext] = (array)$file_ext;
             }
         }
 
-        return $this->page_extensions;
+        return $this->page_extensions[$file_ext];
     }
 
     /**
@@ -342,7 +344,7 @@ class Language
      */
     public function resetFallbackPageExtensions()
     {
-        $this->page_extensions = null;
+        $this->page_extensions = [];
     }
 
     /**
