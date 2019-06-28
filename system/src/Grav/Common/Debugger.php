@@ -82,6 +82,8 @@ class Debugger
     /** @var int */
     protected $profiling = 0;
 
+    protected $censored = false;
+
     /**
      * Debugger constructor.
      */
@@ -123,6 +125,7 @@ class Debugger
 
         // Enable/disable debugger based on configuration.
         $this->enabled = (bool)$this->config->get('system.debugger.enabled');
+        $this->censored = (bool)$this->config->get('system.debugger.censored', false);
 
         if ($this->enabled) {
             $this->initialized = true;
@@ -142,8 +145,7 @@ class Debugger
 
             if ($clockwork) {
                 $log = $this->grav['log'];
-                $clockwork->setStorage(new FileStorage(GRAV_ROOT . '/cache/clockwork'));
-                $clockwork->addDataSource(new PhpDataSource());
+                $clockwork->setStorage(new FileStorage('cache://clockwork'));
                 if (extension_loaded('xdebug')) {
                     $clockwork->addDataSource(new XdebugDataSource());
                 }
@@ -163,15 +165,22 @@ class Debugger
                 $timeLine->addEvent('setup', 'Site Setup', $this->currentTime, microtime(true));
             }
 
+            if ($this->censored) {
+                $censored = ['CENSORED' => true];
+            }
+
             if ($debugbar) {
                 $debugbar->addCollector(new PhpInfoCollector());
                 $debugbar->addCollector(new MessagesCollector());
-                $debugbar->addCollector(new RequestDataCollector());
+                if (!$this->censored) {
+                    $debugbar->addCollector(new RequestDataCollector());
+                }
                 $debugbar->addCollector(new TimeDataCollector($this->requestTime));
                 $debugbar->addCollector(new MemoryCollector());
                 $debugbar->addCollector(new ExceptionsCollector());
-                $debugbar->addCollector(new ConfigCollector((array)$this->config->get('system'), 'Config'));
-                $debugbar->addCollector(new ConfigCollector($plugins_config, 'Plugins'));
+                $debugbar->addCollector(new ConfigCollector($censored ?? (array)$this->config->get('system'), 'Config'));
+                $debugbar->addCollector(new ConfigCollector($censored ?? $plugins_config, 'Plugins'));
+                $debugbar->addCollector(new ConfigCollector($this->config->get('streams.schemes'), 'Streams'));
 
                 if ($this->requestTime !== GRAV_REQUEST_TIME) {
                     $debugbar['time']->addMeasure('Server', $debugbar['time']->getRequestStartTime(), GRAV_REQUEST_TIME);
@@ -186,8 +195,8 @@ class Debugger
             $this->config->debug();
 
             if ($clockwork) {
-                $clockwork->info('System Configuration', $this->config->get('system'));
-                $clockwork->info('Plugins Configuration', $plugins_config);
+                $clockwork->info('System Configuration', $censored ?? $this->config->get('system'));
+                $clockwork->info('Plugins Configuration', $censored ?? $plugins_config);
                 $clockwork->info('Streams', $this->config->get('streams.schemes'));
             }
         }
@@ -236,6 +245,18 @@ class Debugger
         $this->finalize();
 
         $clockwork->getTimeline()->finalize($request->getAttribute('request_time'));
+
+        if ($this->censored) {
+            $censored = 'CENSORED';
+            $request = $request
+                ->withCookieParams([$censored => ''])
+                ->withUploadedFiles([])
+                ->withHeader('cookie', $censored);
+            if ($request->getBody()) {
+                $request = $request->withParsedBody([$censored => '']);
+            }
+        }
+
         $clockwork->addDataSource(new PsrMessageDataSource($request, $response));
 
         $clockwork->resolveRequest();
@@ -672,6 +693,15 @@ class Debugger
     public function addMessage($message, $label = 'info', $isString = true)
     {
         if ($this->enabled) {
+            if ($this->censored) {
+                if (!is_scalar($message)) {
+                    $message = 'CENSORED';
+                }
+                if (!is_scalar($isString)) {
+                    $isString = ['CENSORED'];
+                }
+            }
+
             if ($this->debugbar) {
                 $this->debugbar['messages']->addMessage($message, $label, is_bool($isString) ? $isString : true);
                 if (is_array($isString)) {

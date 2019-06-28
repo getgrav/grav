@@ -126,6 +126,7 @@ log:
 debugger:
   enabled: false                                 # Enable Grav debugger and following settings
   provider: clockwork                            # Debugger provider: debugbar | clockwork
+  censored: false                                # Censor potentially sensitive information (POST parameters, cookies, files, configuration and most array/object data in log messages)
   shutdown:
     close_connection: true                       # Close the connection before calling onShutdown(). false for debugging
 
