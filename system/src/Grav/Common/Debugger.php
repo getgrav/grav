@@ -705,10 +705,10 @@ class Debugger
     /**
      * Dump exception into the Messages tab of the Debug Bar
      *
-     * @param \Exception $e
+     * @param \Throwable $e
      * @return Debugger
      */
-    public function addException(\Exception $e)
+    public function addException(\Throwable $e)
     {
         if ($this->initialized && $this->enabled) {
             if ($this->debugbar) {
