@@ -43,49 +43,88 @@ abstract class Utils
             }
         }
 
-        if (Grav::instance()['config']->get('system.absolute_urls', false)) {
-            $domain = true;
-        }
+        $input = (string)$input;
 
         if (Uri::isExternal($input)) {
             return $input;
         }
 
+        $grav = Grav::instance();
+
         /** @var Uri $uri */
-        $uri = Grav::instance()['uri'];
+        $uri = $grav['uri'];
 
-        $root = $uri->rootUrl();
-        $input = Utils::replaceFirstOccurrence($root, '', $input);
-
-        $input = ltrim((string)$input, '/');
-
-        if (Utils::contains((string)$input, '://')) {
+        if (static::contains((string)$input, '://')) {
             /** @var UniformResourceLocator $locator */
-            $locator = Grav::instance()['locator'];
+            $locator = $grav['locator'];
+
             $parts = Uri::parseUrl($input);
 
-            if ($parts) {
-                try {
-                    $resource = $locator->findResource("{$parts['scheme']}://{$parts['host']}{$parts['path']}", false);
-                } catch (\Exception $e) {
-                    return $fail_gracefully ? $input : false;
+            if (is_array($parts)) {
+                // Make sure we always have scheme, host, port and path.
+                $scheme = $parts['scheme'] ?? '';
+                $host = $parts['host'] ?? '';
+                $port = $parts['port'] ?? '';
+                $path = $parts['path'] ?? '';
+
+                if ($scheme && !$port) {
+                    // If URL has a scheme, we need to check if it's one of Grav streams.
+                    if (!$locator->schemeExists($scheme)) {
+                        // If scheme does not exists as a stream, assume it's external.
+                        return str_replace(' ', '%20', $input);
+                    }
+
+                    // Attempt to find the resource (because of parse_url() we need to put host back to path).
+                    $resource = $locator->findResource("{$scheme}://{$host}{$path}", false);
+
+                    if ($resource === false) {
+                        if (!$fail_gracefully) {
+                            return false;
+                        }
+
+                        // Return location where the file would be if it was saved.
+                        $resource = $locator->findResource("{$scheme}://{$host}{$path}", false, true);
+                    }
+
+                } elseif ($host || $port) {
+                    // If URL doesn't have scheme but has host or port, it is external.
+                    return str_replace(' ', '%20', $input);
                 }
 
-                if ($resource && isset($parts['query'])) {
-                    $resource = $resource . '?' . $parts['query'];
+                if (!empty($resource)) {
+                    // Add query string back.
+                    if (isset($parts['query'])) {
+                        $resource .= '?' . $parts['query'];
+                    }
+
+                    // Add fragment back.
+                    if (isset($parts['fragment'])) {
+                        $resource .= '#' . $parts['fragment'];
+                    }
                 }
+
             } else {
                 // Not a valid URL (can still be a stream).
                 $resource = $locator->findResource($input, false);
             }
 
         } else {
+            $root = $uri->rootUrl();
+
+            if (static::startsWith($input, $root)) {
+                $input = static::replaceFirstOccurrence($root, '', $input);
+            }
+
+            $input = ltrim($input, '/');
+
             $resource = $input;
         }
 
         if (!$fail_gracefully && $resource === false) {
             return false;
         }
+
+        $domain = $domain ?: $grav['config']->get('system.absolute_urls', false);
 
         return rtrim($uri->rootUrl($domain), '/') . '/' . ($resource ?? '');
     }
