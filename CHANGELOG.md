@@ -37,6 +37,9 @@
 1. [](#bugfix)
     * Fixed some potential issues when `$grav['user']` is not set
     * Fixed error when calling `Media::add($name, null)`
+    * Fixed `url()` returning wrong path if using stream with grav root path in it, eg: `user-data://shop` when Grav is in `/shop`
+    * Fixed `url()` not returning a path to non-existing file (`user-data://shop` => `/user/data/shop`) if it is set to fail gracefully
+    * Fixed `url()` returning false on unknown streams, such as `ftp://domain.com`, they should be treated as external URL
     
 # v1.6.11
 ## 06/21/2019

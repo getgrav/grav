@@ -382,30 +382,60 @@ class UtilsTest extends \Codeception\TestCase\Test
         // Fail hard
         $this->assertSame(false, Utils::url('', true));
         $this->assertSame(false, Utils::url(''));
-        $this->assertSame(false, Utils::url('foo://bar/baz'));
         $this->assertSame(false, Utils::url(new stdClass()));
         $this->assertSame(false, Utils::url(['foo','bar','baz']));
+        $this->assertSame(false, Utils::url('user://does/not/exist'));
 
         // Fail Gracefully
         $this->assertSame('/', Utils::url('/', false, true));
         $this->assertSame('/', Utils::url('', false, true));
-        $this->assertSame('foo://bar/baz', Utils::url('foo://bar/baz', false, true));
         $this->assertSame('/', Utils::url(new stdClass(), false, true));
         $this->assertSame('/', Utils::url(['foo','bar','baz'], false, true));
+        $this->assertSame('/user/does/not/exist', Utils::url('user://does/not/exist', false, true));
 
+        // Simple paths
         $this->assertSame('/', Utils::url('/'));
-        $this->assertSame('http://testing.dev/', Utils::url('/', true));
-        $this->assertSame('http://testing.dev/path1', Utils::url('/path1', true));
         $this->assertSame('/path1', Utils::url('/path1'));
         $this->assertSame('/path1/path2', Utils::url('/path1/path2'));
+        $this->assertSame('/random/path1/path2', Utils::url('/random/path1/path2'));
+        $this->assertSame('/foobar.jpg', Utils::url('/foobar.jpg'));
+        $this->assertSame('/path1/foobar.jpg', Utils::url('/path1/foobar.jpg'));
+        $this->assertSame('/path1/path2/foobar.jpg', Utils::url('/path1/path2/foobar.jpg'));
+        $this->assertSame('/random/path1/path2/foobar.jpg', Utils::url('/random/path1/path2/foobar.jpg'));
+
+        // Simple paths with domain
+        $this->assertSame('http://testing.dev/', Utils::url('/', true));
+        $this->assertSame('http://testing.dev/path1', Utils::url('/path1', true));
+        $this->assertSame('http://testing.dev/path1/path2', Utils::url('/path1/path2', true));
+        $this->assertSame('http://testing.dev/random/path1/path2', Utils::url('/random/path1/path2', true));
+        $this->assertSame('http://testing.dev/foobar.jpg', Utils::url('/foobar.jpg', true));
+        $this->assertSame('http://testing.dev/path1/foobar.jpg', Utils::url('/path1/foobar.jpg', true));
+        $this->assertSame('http://testing.dev/path1/path2/foobar.jpg', Utils::url('/path1/path2/foobar.jpg', true));
+        $this->assertSame('http://testing.dev/random/path1/path2/foobar.jpg', Utils::url('/random/path1/path2/foobar.jpg', true));
+
+        // Relative paths from Grav root.
+        $this->assertSame('/subdir', Utils::url('subdir'));
+        $this->assertSame('/subdir/path1', Utils::url('subdir/path1'));
+        $this->assertSame('/subdir/path1/path2', Utils::url('subdir/path1/path2'));
+        $this->assertSame('/path1', Utils::url('path1'));
+        $this->assertSame('/path1/path2', Utils::url('path1/path2'));
+        $this->assertSame('/foobar.jpg', Utils::url('foobar.jpg'));
+        $this->assertSame('http://testing.dev/foobar.jpg', Utils::url('foobar.jpg', true));
+
+        // Relative paths from Grav root with domain.
         $this->assertSame('http://testing.dev/foobar.jpg', Utils::url('foobar.jpg', true));
         $this->assertSame('http://testing.dev/foobar.jpg', Utils::url('/foobar.jpg', true));
         $this->assertSame('http://testing.dev/path1/foobar.jpg', Utils::url('/path1/foobar.jpg', true));
-        $this->assertSame('/foobar.jpg', Utils::url('/foobar.jpg'));
-        $this->assertSame('/foobar.jpg', Utils::url('foobar.jpg'));
-        $this->assertSame('/path1/foobar.jpg', Utils::url('/path1/foobar.jpg'));
-        $this->assertSame('/path1/path2/foobar.jpg', Utils::url('/path1/path2/foobar.jpg'));
 
+        // All Non-existing streams should be treated as external URI / protocol.
+        $this->assertSame('http://domain.com/path', Utils::url('http://domain.com/path'));
+        $this->assertSame('ftp://domain.com/path', Utils::url('ftp://domain.com/path'));
+        $this->assertSame('sftp://domain.com/path', Utils::url('sftp://domain.com/path'));
+        $this->assertSame('ssh://domain.com', Utils::url('ssh://domain.com'));
+        $this->assertSame('pop://domain.com', Utils::url('pop://domain.com'));
+        $this->assertSame('foo://bar/baz', Utils::url('foo://bar/baz'));
+        $this->assertSame('foo://bar/baz', Utils::url('foo://bar/baz', true));
+        // $this->assertSame('mailto:joe@domain.com', Utils::url('mailto:joe@domain.com', true)); // FIXME <-
     }
 
     public function testUrlWithRoot()
@@ -415,31 +445,69 @@ class UtilsTest extends \Codeception\TestCase\Test
         // Fail hard
         $this->assertSame(false, Utils::url('', true));
         $this->assertSame(false, Utils::url(''));
-        $this->assertSame(false, Utils::url('foo://bar/baz'));
+        $this->assertSame(false, Utils::url(new stdClass()));
+        $this->assertSame(false, Utils::url(['foo','bar','baz']));
+        $this->assertSame(false, Utils::url('user://does/not/exist'));
 
         // Fail Gracefully
         $this->assertSame('/subdir/', Utils::url('/', false, true));
         $this->assertSame('/subdir/', Utils::url('', false, true));
-        $this->assertSame('foo://bar/baz', Utils::url('foo://bar/baz', false, true));
+        $this->assertSame('/subdir/', Utils::url(new stdClass(), false, true));
+        $this->assertSame('/subdir/', Utils::url(['foo','bar','baz'], false, true));
+        $this->assertSame('/subdir/user/does/not/exist', Utils::url('user://does/not/exist', false, true));
 
-        $this->assertSame('http://testing.dev/subdir/', Utils::url('/', true));
-        $this->assertSame('http://testing.dev/subdir/path1', Utils::url('/path1', true));
-        $this->assertSame('http://testing.dev/subdir/path1', Utils::url('/subdir/path1', true));
+        // Simple paths
         $this->assertSame('/subdir/', Utils::url('/'));
         $this->assertSame('/subdir/path1', Utils::url('/path1'));
         $this->assertSame('/subdir/path1/path2', Utils::url('/path1/path2'));
-        $this->assertSame('/subdir/path1/path2', Utils::url('/subdir/path1/path2'));
-
-        $this->assertSame('http://testing.dev/subdir/foobar.jpg', Utils::url('foobar.jpg', true));
-        $this->assertSame('http://testing.dev/subdir/foobar.jpg', Utils::url('/foobar.jpg', true));
-        $this->assertSame('http://testing.dev/subdir/foobar.jpg', Utils::url('/subdir/foobar.jpg', true));
-        $this->assertSame('http://testing.dev/subdir/path1/foobar.jpg', Utils::url('/path1/foobar.jpg', true));
-        $this->assertSame('http://testing.dev/subdir/path1/foobar.jpg', Utils::url('/subdir/path1/foobar.jpg', true));
+        $this->assertSame('/subdir/random/path1/path2', Utils::url('/random/path1/path2'));
         $this->assertSame('/subdir/foobar.jpg', Utils::url('/foobar.jpg'));
-        $this->assertSame('/subdir/foobar.jpg', Utils::url('foobar.jpg'));
-        $this->assertSame('/subdir/foobar.jpg', Utils::url('/subdir/foobar.jpg'));
         $this->assertSame('/subdir/path1/foobar.jpg', Utils::url('/path1/foobar.jpg'));
+        $this->assertSame('/subdir/path1/path2/foobar.jpg', Utils::url('/path1/path2/foobar.jpg'));
+        $this->assertSame('/subdir/random/path1/path2/foobar.jpg', Utils::url('/random/path1/path2/foobar.jpg'));
+
+        // Simple paths with domain
+        $this->assertSame('http://testing.dev/subdir/', Utils::url('/', true));
+        $this->assertSame('http://testing.dev/subdir/path1', Utils::url('/path1', true));
+        $this->assertSame('http://testing.dev/subdir/path1/path2', Utils::url('/path1/path2', true));
+        $this->assertSame('http://testing.dev/subdir/random/path1/path2', Utils::url('/random/path1/path2', true));
+        $this->assertSame('http://testing.dev/subdir/foobar.jpg', Utils::url('/foobar.jpg', true));
+        $this->assertSame('http://testing.dev/subdir/path1/foobar.jpg', Utils::url('/path1/foobar.jpg', true));
+        $this->assertSame('http://testing.dev/subdir/path1/path2/foobar.jpg', Utils::url('/path1/path2/foobar.jpg', true));
+        $this->assertSame('http://testing.dev/subdir/random/path1/path2/foobar.jpg', Utils::url('/random/path1/path2/foobar.jpg', true));
+
+        // Paths including the grav base.
+        $this->assertSame('/subdir/', Utils::url('/subdir'));
+        $this->assertSame('/subdir/path1', Utils::url('/subdir/path1'));
+        $this->assertSame('/subdir/path1/path2', Utils::url('/subdir/path1/path2'));
+        $this->assertSame('/subdir/foobar.jpg', Utils::url('/subdir/foobar.jpg'));
         $this->assertSame('/subdir/path1/foobar.jpg', Utils::url('/subdir/path1/foobar.jpg'));
+
+        // Relative paths from Grav root with domain.
+        $this->assertSame('http://testing.dev/subdir/', Utils::url('/subdir', true));
+        $this->assertSame('http://testing.dev/subdir/path1', Utils::url('/subdir/path1', true));
+        $this->assertSame('http://testing.dev/subdir/path1/path2', Utils::url('/subdir/path1/path2', true));
+        $this->assertSame('http://testing.dev/subdir/foobar.jpg', Utils::url('/subdir/foobar.jpg', true));
+        $this->assertSame('http://testing.dev/subdir/path1/foobar.jpg', Utils::url('/subdir/path1/foobar.jpg', true));
+
+        // Relative paths from Grav root.
+        $this->assertSame('/subdir/subdir', Utils::url('subdir'));
+        $this->assertSame('/subdir/subdir/path1', Utils::url('subdir/path1'));
+        $this->assertSame('/subdir/subdir/path1/path2', Utils::url('subdir/path1/path2'));
+        $this->assertSame('/subdir/path1', Utils::url('path1'));
+        $this->assertSame('/subdir/path1/path2', Utils::url('path1/path2'));
+        $this->assertSame('/subdir/foobar.jpg', Utils::url('foobar.jpg'));
+        $this->assertSame('http://testing.dev/subdir/foobar.jpg', Utils::url('foobar.jpg', true));
+
+        // All Non-existing streams should be treated as external URI / protocol.
+        $this->assertSame('http://domain.com/path', Utils::url('http://domain.com/path'));
+        $this->assertSame('ftp://domain.com/path', Utils::url('ftp://domain.com/path'));
+        $this->assertSame('sftp://domain.com/path', Utils::url('sftp://domain.com/path'));
+        $this->assertSame('ssh://domain.com', Utils::url('ssh://domain.com'));
+        $this->assertSame('pop://domain.com', Utils::url('pop://domain.com'));
+        $this->assertSame('foo://bar/baz', Utils::url('foo://bar/baz'));
+        $this->assertSame('foo://bar/baz', Utils::url('foo://bar/baz', true));
+        // $this->assertSame('mailto:joe@domain.com', Utils::url('mailto:joe@domain.com', true)); // FIXME <-
     }
 
     public function testUrlWithStreams()
