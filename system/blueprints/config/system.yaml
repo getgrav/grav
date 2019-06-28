@@ -340,6 +340,17 @@ form:
               validate:
                 type: bool
 
+              languages.include_default_lang_file_extension:
+                type: toggle
+                label: PLUGIN_ADMIN.INCLUDE_DEFAULT_LANG_FILE_EXTENSION
+                help: PLUGIN_ADMIN.INCLUDE_DEFAULT_LANG_HELP_FILE_EXTENSION
+                highlight: 1
+                options:
+                  1: PLUGIN_ADMIN.YES
+                  0: PLUGIN_ADMIN.NO
+                validate:
+                  type: bool
+
             languages.pages_fallback_only:
               type: toggle
               label: PLUGIN_ADMIN.PAGES_FALLBACK_ONLY

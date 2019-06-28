@@ -25,7 +25,7 @@ class Language
     protected $page_extensions = [];
     protected $fallback_languages = [];
     protected $default;
-    protected $active = null;
+    protected $active;
 
     /** @var Config $config */
     protected $config;
@@ -58,7 +58,7 @@ class Language
             $this->default = reset($this->languages);
         }
 
-        $this->page_extensions = null;
+        $this->page_extensions = [];
 
         if (empty($this->languages)) {
             $this->enabled = false;
@@ -285,38 +285,50 @@ class Language
      */
     public function getFallbackPageExtensions($file_ext = null)
     {
-        if (empty($this->page_extensions)) {
+        $file_ext = (string)$file_ext;
+
+        if (!isset($this->page_extensions[$file_ext])) {
             if (!$file_ext) {
                 $file_ext = CONTENT_EXT;
             }
 
             if ($this->enabled()) {
+                $default = $this->getDefault() ?? 'en';
+                $active = $this->getActive() ?? $default;
+
                 $valid_lang_extensions = [];
-                foreach ($this->languages as $lang) {
-                    $valid_lang_extensions[] = '.' . $lang . $file_ext;
+
+                // First add active language.
+                $valid_lang_extensions[$active] = '.' . $active . $file_ext;
+
+                // If active language is the same as default, count it in, too.
+                if ($active === $default) {
+                    $valid_lang_extensions[''] = $file_ext;
                 }
 
-                if ($this->active) {
-                    $active_extension = '.' . $this->active . $file_ext;
-                    $key = \array_search($active_extension, $valid_lang_extensions, true);
-
-                    // Default behavior is to find any language other than active
-                    if ($this->config->get('system.languages.pages_fallback_only')) {
-                        $slice = \array_slice($valid_lang_extensions, 0, $key+1);
-                        $valid_lang_extensions = array_reverse($slice);
-                    } else {
-                        unset($valid_lang_extensions[$key]);
-                        array_unshift($valid_lang_extensions, $active_extension);
+                if ($this->config->get('system.languages.pages_fallback_only')) {
+                    // Add the extensionless default.
+                    if ($active !== $default) {
+                        $valid_lang_extensions[$default] = '.' . $default . $file_ext;
+                        $valid_lang_extensions[''] = $file_ext;
+                    }
+                } else {
+                    // We want to have full list of languages.
+                    foreach ($this->languages as $lang) {
+                        $valid_lang_extensions[$lang] = '.' . $lang . $file_ext;
+                        if ($active !== $default) {
+                            $valid_lang_extensions[''] = $file_ext;
+                        }
                     }
                 }
-                $valid_lang_extensions[] = $file_ext;
-                $this->page_extensions = $valid_lang_extensions;
+
+                $this->page_extensions[$file_ext] = array_values($valid_lang_extensions);
             } else {
-                $this->page_extensions = (array)$file_ext;
+                $this->page_extensions[$file_ext] = (array)$file_ext;
             }
         }
 
-        return $this->page_extensions;
+        return $this->page_extensions[$file_ext];
     }
 
     /**
@@ -332,7 +344,7 @@ class Language
      */
     public function resetFallbackPageExtensions()
     {
-        $this->page_extensions = null;
+        $this->page_extensions = [];
     }
 
     /**
@@ -534,4 +546,11 @@ class Language
         return LanguageCodes::get($code, $type);
     }
 
+    public function __debugInfo()
+    {
+        $vars = get_object_vars($this);
+        unset($vars['grav'], $vars['config']);
+
+        return $vars;
+    }
 }

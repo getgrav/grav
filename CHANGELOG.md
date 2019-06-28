@@ -2,7 +2,12 @@
 ## mm/dd/2019
 
 1. [](#new)
-    * Added new `system.debugger.censored` configuration option to hide potentially sensitive information
+    * Added new configuration option `system.debugger.censored` to hide potentially sensitive information
+    * Added new configuration option `system.languages.include_default_lang_file_extension` to keep default language in `.md` files if set to `false`
+1. [](#bugfix)
+    * Fixed `.md` page to be assigned to the default language and to be listed in translated/untranslated page list
+    * Fixed `Language::getFallbackPageExtensions()` to append `.md` file after the default language extension
+    * Fixed `Language::getFallbackPageExtensions()` returning wrong file extensions when passing custom page extension
 
 # v1.7.0-beta.3
 ## 06/24/2019
@@ -46,7 +51,7 @@
     * Fixed `url()` returning wrong path if using stream with grav root path in it, eg: `user-data://shop` when Grav is in `/shop`
     * Fixed `url()` not returning a path to non-existing file (`user-data://shop` => `/user/data/shop`) if it is set to fail gracefully
     * Fixed `url()` returning false on unknown streams, such as `ftp://domain.com`, they should be treated as external URL
-    
+
 # v1.6.11
 ## 06/21/2019
 
