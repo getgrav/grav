@@ -1,8 +1,12 @@
-# v1.7.0-beta.3
-## 06/24/2019
+# v1.7.0-beta.4
+## mm/dd/2019
 
 1. [](#new)
     * Added new `system.debugger.censored` configuration option to hide potentially sensitive information
+
+# v1.7.0-beta.3
+## 06/24/2019
+
 1. [](#bugfix)
     * Fixed Clockwork on Windows machines
     * Fixed parent field issues on Windows machines
