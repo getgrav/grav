@@ -295,36 +295,33 @@ class Language
             if ($this->enabled()) {
                 $default = $this->getDefault() ?? 'en';
                 $active = $this->getActive() ?? $default;
-
                 $valid_lang_extensions = [];
 
-                // First add active language.
-                $valid_lang_extensions[$active] = '.' . $active . $file_ext;
-
-                // If active language is the same as default, count it in, too.
-                if ($active === $default) {
-                    $valid_lang_extensions[''] = $file_ext;
-                }
-
-                if ($this->config->get('system.languages.pages_fallback_only')) {
-                    // Add the extensionless default.
-                    if ($active !== $default) {
-                        $valid_lang_extensions[$default] = '.' . $default . $file_ext;
-                        $valid_lang_extensions[''] = $file_ext;
-                    }
-                } else {
-                    // We want to have full list of languages.
+                if ($this->config->get('system.languages.pages_fallback_only', false)) {
+                    // Special fallback list returns itself and all the previous items in reverse order:
+                    // active: 'v2', languages: ['v1', 'v2', 'v3', 'v4'] => ['.v2.md', '.v1.md', '.md]
+                    $valid_lang_extensions[] = $file_ext;
                     foreach ($this->languages as $lang) {
-                        $valid_lang_extensions[$lang] = '.' . $lang . $file_ext;
-                        if ($active !== $default) {
-                            $valid_lang_extensions[''] = $file_ext;
+                        $valid_lang_extensions[] = '.' . $lang . $file_ext;
+                        if ($lang === $active) {
+                            break;
                         }
                     }
+                    $valid_lang_extensions = array_reverse($valid_lang_extensions);
+
+                } else {
+                    // Default fallback list has active language followed by default language and extensionless file:
+                    // active: 'fi', default: 'en', languages: ['sv', 'en', 'de', 'fi'] => ['.fi.md', '.en.md', '.md']
+                    $valid_lang_extensions[$active] = ".{$active}{$file_ext}";
+                    if ($active !== $default) {
+                        $valid_lang_extensions[$default] = ".{$default}{$file_ext}";
+                    }
+                    $valid_lang_extensions[''] = $file_ext;
                 }
 
                 $this->page_extensions[$file_ext] = array_values($valid_lang_extensions);
             } else {
-                $this->page_extensions[$file_ext] = (array)$file_ext;
+                $this->page_extensions[$file_ext] = [$file_ext];
             }
         }
 

@@ -7,7 +7,7 @@
     * Added new configuration option `system.languages.include_default_lang_file_extension` to keep default language in `.md` files if set to `false`
 1. [](#bugfix)
     * Fixed `.md` page to be assigned to the default language and to be listed in translated/untranslated page list
-    * Fixed `Language::getFallbackPageExtensions()` to append `.md` file after the default language extension
+    * Fixed `Language::getFallbackPageExtensions()` to fall back only to default language instead of going through all languages
     * Fixed `Language::getFallbackPageExtensions()` returning wrong file extensions when passing custom page extension
 
 # v1.7.0-beta.3
