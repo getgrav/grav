@@ -307,7 +307,7 @@ class AssetsTest extends \Codeception\TestCase\Test
 
         $this->assets->reset();
         $this->assets->setCssPipeline(true);
-        $this->assets->addCss('/system/assets/debugger.css');
+        $this->assets->addCss('/system/assets/debugger/phpdebugbar.css');
         $css = $this->assets->css('head', ['loading' => 'inline']);
         $this->assertContains('div.phpdebugbar', $css);
 
@@ -519,7 +519,7 @@ class AssetsTest extends \Codeception\TestCase\Test
         $this->assertRegExp('#<link href=\"\/assets\/(.*).css\" type=\"text\/css\" rel=\"stylesheet\">#', $css);
 
         //Add a core Grav CSS file, which is found. Pipeline will now return a file
-        $this->assets->add('/system/assets/debugger.css', null, true);
+        $this->assets->add('/system/assets/debugger/phpdebugbar', null, true);
         $css = $this->assets->css();
         $this->assertRegExp('#<link href=\"\/assets\/(.*).css\" type=\"text\/css\" rel=\"stylesheet\">#', $css);
     }
@@ -548,7 +548,7 @@ class AssetsTest extends \Codeception\TestCase\Test
         $this->assets->reset();
         //Add a core Grav CSS file, which is found. Pipeline will now return its content.
         $this->assets->addCss('https://fonts.googleapis.com/css?family=Roboto', ['loading' => 'inline']);
-        $this->assets->addCss('/system/assets/debugger.css', ['loading' => 'inline']);
+        $this->assets->addCss('/system/assets/debugger/phpdebugbar.css', ['loading' => 'inline']);
         $css = $this->assets->css();
         $this->assertContains('font-family: \'Roboto\';', $css);
         $this->assertContains('div.phpdebugbar-header', $css);
@@ -566,7 +566,7 @@ class AssetsTest extends \Codeception\TestCase\Test
 
         //Add a core Grav CSS file, which is found. Pipeline will now return its content.
         $this->assets->addCss('https://fonts.googleapis.com/css?family=Roboto', null, true);
-        $this->assets->add('/system/assets/debugger.css', null, true);
+        $this->assets->add('/system/assets/debugger/phpdebugbar.css', null, true);
         $css = $this->assets->css('head', ['loading' => 'inline']);
         $this->assertContains('font-family:\'Roboto\';', $css);
         $this->assertContains('div.phpdebugbar', $css);

@@ -5,6 +5,8 @@
     * Grav 1.7: Updated with Grav 1.6.12 fixes
     * Added new configuration option `system.debugger.censored` to hide potentially sensitive information
     * Added new configuration option `system.languages.include_default_lang_file_extension` to keep default language in `.md` files if set to `false`
+1. [](#improved)
+    * Updated Vendor libraries
 1. [](#bugfix)
     * Fixed `.md` page to be assigned to the default language and to be listed in translated/untranslated page list
     * Fixed `Language::getFallbackPageExtensions()` to fall back only to default language instead of going through all languages
