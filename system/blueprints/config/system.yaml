@@ -351,6 +351,27 @@ form:
               validate:
                 type: bool
 
+            languages.content_fallback:
+              type: list
+              label: PLUGIN_ADMIN.CONTENT_LANGUAGE_FALLBACKS
+              help: PLUGIN_ADMIN.CONTENT_LANGUAGE_FALLBACKS_HELP
+              fields:
+                key:
+                  type: key
+                  label: PLUGIN_ADMIN.LANGUAGE
+                  help: PLUGIN_ADMIN.CONTENT_FALLBACK_LANGUAGE_HELP
+                  placeholder: fr-ca
+                value:
+                  type: selectize
+                  size: large
+                  placeholder: "fr, en"
+                  label: PLUGIN_ADMIN.CONTENT_LANGUAGE_FALLBACK
+                  help: PLUGIN_ADMIN.CONTENT_LANGUAGE_FALLBACK_HELP
+                  classes: fancy
+# TODO: does not work.
+#                  validate:
+#                    type: commalist
+
             languages.pages_fallback_only:
               type: toggle
               label: PLUGIN_ADMIN.PAGES_FALLBACK_ONLY

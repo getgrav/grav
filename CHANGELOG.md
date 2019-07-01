@@ -5,6 +5,7 @@
     * Grav 1.7: Updated with Grav 1.6.12 fixes
     * Added new configuration option `system.debugger.censored` to hide potentially sensitive information
     * Added new configuration option `system.languages.include_default_lang_file_extension` to keep default language in `.md` files if set to `false`
+    * Added configuration option to set fallback content languages individually for every language
 1. [](#improved)
     * Updated Vendor libraries
 1. [](#bugfix)
