@@ -1,8 +1,8 @@
 # v1.7.0-beta.4
-## mm/dd/2019
+## 07/01/2019
 
 1. [](#new)
-    * Grav 1.7: Updated with Grav 1.6.12 fixes
+    * Updated with Grav 1.6.12 features, improvements & fixes
     * Added new configuration option `system.debugger.censored` to hide potentially sensitive information
     * Added new configuration option `system.languages.include_default_lang_file_extension` to keep default language in `.md` files if set to `false`
     * Added configuration option to set fallback content languages individually for every language
@@ -17,17 +17,17 @@
 ## 06/24/2019
 
 1. [](#bugfix)
-    * Grav 1.7: Fixed Clockwork on Windows machines
-    * Grav 1.7: Fixed parent field issues on Windows machines
-    * Grav 1.7: Fixed unreliable Clockwork calls in sub-folders
+    * Fixed Clockwork on Windows machines
+    * Fixed parent field issues on Windows machines
+    * Fixed unreliable Clockwork calls in sub-folders
 
 # v1.7.0-beta.2
 ## 06/21/2019
 
 1. [](#new)
-    * Grav 1.7: Updated with Grav 1.6.11 fixes
+    * Updated with Grav 1.6.11 fixes
 1. [](#improved)
-    * Grav 1.7: Updated the Clockwork text
+    * Updated the Clockwork text
     
 # v1.7.0-beta.1
 ## 06/14/2019
