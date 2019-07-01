@@ -55,6 +55,7 @@
     * Fixed `url()` returning wrong path if using stream with grav root path in it, eg: `user-data://shop` when Grav is in `/shop`
     * Fixed `url()` not returning a path to non-existing file (`user-data://shop` => `/user/data/shop`) if it is set to fail gracefully
     * Fixed `url()` returning false on unknown streams, such as `ftp://domain.com`, they should be treated as external URL
+    * Fixed Flex User to have permissions to save and delete his own user
 
 # v1.6.11
 ## 06/21/2019

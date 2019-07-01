@@ -431,6 +431,20 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
         return parent::save();
     }
 
+    public function isAuthorized(string $action, string $scope = null, UserInterface $user = null): bool
+    {
+        if (null === $user) {
+            /** @var UserInterface $user */
+            $user = Grav::instance()['user'] ?? null;
+        }
+
+        if ($user instanceof User && $user->getStorageKey() === $this->getStorageKey()) {
+            return true;
+        }
+
+        return parent::isAuthorized($action, $scope, $user);
+    }
+
     /**
      * @return array
      */
