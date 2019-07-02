@@ -9,6 +9,7 @@
 
 namespace Grav\Common\User\FlexUser;
 
+use Grav\Common\Data\Blueprint;
 use Grav\Common\Grav;
 use Grav\Common\Media\Interfaces\MediaCollectionInterface;
 use Grav\Common\Page\Media;
@@ -379,6 +380,31 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
     public function extra()
     {
         return $this->getBlueprint()->extra($this->toArray());
+    }
+
+    /**
+     * @param string $name
+     * @return Blueprint
+     */
+    public function getBlueprint(string $name = '')
+    {
+        $blueprint = clone parent::getBlueprint($name);
+
+        $blueprint->addDynamicHandler('flex', function (array &$field, $property, array &$call) {
+            $params = (array)$call['params'];
+            $method = array_shift($params);
+
+            if (method_exists($this, $method)) {
+                $value = $this->{$method}(...$params);
+                if (\is_array($value) && isset($field[$property]) && \is_array($field[$property])) {
+                    $field[$property] = array_merge_recursive($field[$property], $value);
+                } else {
+                    $field[$property] = $value;
+                }
+            }
+        });
+
+        return $blueprint->init();
     }
 
     /**

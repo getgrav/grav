@@ -62,7 +62,8 @@
     * Fixed `url()` not returning a path to non-existing file (`user-data://shop` => `/user/data/shop`) if it is set to fail gracefully
     * Fixed `url()` returning false on unknown streams, such as `ftp://domain.com`, they should be treated as external URL
     * Fixed Flex User to have permissions to save and delete his own user
-
+    * Fixed new Flex User creation not being possible because of username could not be given 
+    
 # v1.6.11
 ## 06/21/2019
 
