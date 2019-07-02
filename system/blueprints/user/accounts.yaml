@@ -32,6 +32,8 @@ form:
   fields:
     username:
       flex-disabled@: exists
+      disabled: false
       flex-readonly@: exists
+      readonly: false
       validate:
         required: true
