@@ -1,6 +1,12 @@
 # v1.7.0-beta.4
 ## 07/01/2019
 
+1. [](#improved)
+    * Better support for Symfony local server
+
+# v1.7.0-beta.4
+## 07/01/2019
+
 1. [](#new)
     * Updated with Grav 1.6.12 features, improvements & fixes
     * Added new configuration option `system.debugger.censored` to hide potentially sensitive information
