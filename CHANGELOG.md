@@ -1,8 +1,8 @@
-# v1.7.0-beta.4
-## 07/01/2019
+# v1.7.0-beta.5
+## mm/dd/2019
 
 1. [](#improved)
-    * Better support for Symfony local server
+    * Better support for Symfony local server `symfony server:start`
 
 # v1.7.0-beta.4
 ## 07/01/2019
