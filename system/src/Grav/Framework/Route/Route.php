@@ -187,9 +187,10 @@ class Route
      */
     public function withRoute($route)
     {
-        $this->route = $route;
+        $new = $this->copy();
+        $new->route = $route;
 
-        return $this;
+        return $new;
     }
 
     /**
@@ -200,9 +201,10 @@ class Route
      */
     public function withRoot($root)
     {
-        $this->root = $root;
+        $new = $this->copy();
+        $new->root = $root;
 
-        return $this;
+        return $new;
     }
 
     /**
@@ -211,9 +213,10 @@ class Route
      */
     public function withAddedPath($path)
     {
-        $this->route .= '/' . ltrim($path, '/');
+        $new = $this->copy();
+        $new->route .= '/' . ltrim($path, '/');
 
-        return $this;
+        return $new;
     }
 
     /**
@@ -222,9 +225,10 @@ class Route
      */
     public function withExtension($extension)
     {
-        $this->extension = $extension;
+        $new = $this->copy();
+        $new->extension = $extension;
 
-        return $this;
+        return $new;
     }
 
     /**
@@ -254,16 +258,18 @@ class Route
 
     public function withoutGravParams()
     {
-        $this->gravParams = [];
+        $new = $this->copy();
+        $new->gravParams = [];
 
-        return $this;
+        return $new;
     }
 
     public function withoutQueryParams()
     {
-        $this->queryParams = [];
+        $new = $this->copy();
+        $new->queryParams = [];
 
-        return $this;
+        return $new;
     }
 
     /**

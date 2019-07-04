@@ -3,6 +3,7 @@
 
 1. [](#improved)
     * Better support for Symfony local server `symfony server:start`
+    * Make `Route` objects immutable
 
 # v1.7.0-beta.4
 ## 07/01/2019
