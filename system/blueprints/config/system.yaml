@@ -1037,6 +1037,17 @@ form:
                 debugbar: PLUGIN_ADMIN.DEBUGGER_DEBUGBAR
                 clockwork: PLUGIN_ADMIN.DEBUGGER_CLOCKWORK
 
+            debugger.censored:
+              type: toggle
+              label: PLUGIN_ADMIN.SHOW_SENSITIVE
+              help: PLUGIN_ADMIN.SHOW_SENSITIVE_HELP
+              highlight: 0
+              options:
+                1: PLUGIN_ADMIN.YES
+                0: PLUGIN_ADMIN.NO
+              validate:
+                type: bool
+
             debugger.shutdown.close_connection:
               type: toggle
               label: PLUGIN_ADMIN.SHUTDOWN_CLOSE_CONNECTION
