@@ -63,5 +63,6 @@ $app->addCommands(array(
     new \Grav\Console\Cli\SecurityCommand(),
     new \Grav\Console\Cli\LogViewerCommand(),
     new \Grav\Console\Cli\YamlLinterCommand(),
+    new \Grav\Console\Cli\ServerCommand(),
 ));
 $app->run();
