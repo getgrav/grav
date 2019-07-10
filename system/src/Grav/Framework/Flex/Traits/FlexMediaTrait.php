@@ -49,7 +49,7 @@ trait FlexMediaTrait
      */
     public function getStorageFolder()
     {
-        return $this->getFlexDirectory()->getStorageFolder($this->getStorageKey());
+        return $this->exists() ? $this->getFlexDirectory()->getStorageFolder($this->getStorageKey()) : '';
     }
 
     /**
@@ -57,7 +57,7 @@ trait FlexMediaTrait
      */
     public function getMediaFolder()
     {
-        return $this->getFlexDirectory()->getMediaFolder($this->getStorageKey());
+        return $this->exists() ? $this->getFlexDirectory()->getMediaFolder($this->getStorageKey()) : '';
     }
 
     /**
