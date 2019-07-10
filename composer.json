@@ -51,7 +51,7 @@
         "dragonmantank/cron-expression": "^1.2",
         "phive/twig-extensions-deferred": "^1.0",
         "willdurand/negotiation": "^2.3",
-        "itsgoingd/clockwork": "dev-master"
+        "itsgoingd/clockwork": "~4.0"
     },
     "require-dev": {
         "codeception/codeception": "^2.4",
