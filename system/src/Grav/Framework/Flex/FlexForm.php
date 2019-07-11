@@ -51,7 +51,13 @@ class FlexForm implements FlexFormInterface
         $this->name = $name;
         $this->form = $form;
 
-        $uniqueId = $object->exists() ? $object->getStorageKey() : "{$object->getFlexType()}:new";
+        if ($object->exists()) {
+            $uniqueId = $object->getStorageKey();
+        } elseif ($object->hasKey()) {
+            $uniqueId = "{$object->getKey()}:new";
+        } else {
+            $uniqueId = "{$object->getFlexType()}:new";
+        }
         $this->setObject($object);
         $this->setId($this->getName());
         $this->setUniqueId(md5($uniqueId));
@@ -125,6 +131,32 @@ class FlexForm implements FlexFormInterface
     public function getFlexType(): string
     {
         return $this->object->getFlexType();
+    }
+
+    /**
+     * Get form flash object.
+     *
+     * @return FlexFormFlash
+     */
+    public function getFlash()
+    {
+        if (null === $this->flash) {
+            $grav = Grav::instance();
+            $config = [
+                'session_id' => $this->getSessionId(),
+                'unique_id' => $this->getUniqueId(),
+                'form_name' => $this->getName(),
+                'folder' => $this->getFlashFolder(),
+                'object' => $this->getObject()
+            ];
+
+            $this->flash = new FlexFormFlash($config);
+            $this->flash
+                ->setUrl($grav['uri']->url)
+                ->setUser($grav['user'] ?? null);
+        }
+
+        return $this->flash;
     }
 
     /**
