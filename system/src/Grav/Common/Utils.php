@@ -331,7 +331,7 @@ abstract class Utils
      */
     public static function arrayLower(Array $a)
     {
-        return array_combine(array_map('strtolower', $a), $a);
+        return array_map('mb_strtolower', $a);
     }
 
     /**
