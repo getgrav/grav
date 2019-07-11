@@ -6,6 +6,8 @@
 1. [](#improved)
     * Better support for Symfony local server `symfony server:start`
     * Make `Route` objects immutable
+1. [](#bugfix)
+    * Fixed `Form` not to use deleted flash object until the end of the request fixing issues with reset
 
 # v1.7.0-beta.4
 ## 07/01/2019

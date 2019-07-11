@@ -180,7 +180,6 @@ trait FormTrait
             /** @var Twig $twig */
             $twig = $grav['twig'];
             $twig->twig_vars['form'] = $this;
-
         }
 
         try {
@@ -335,7 +334,7 @@ trait FormTrait
      *
      * @return FormFlash
      */
-    public function getFlash(): FormFlash
+    public function getFlash()
     {
         if (null === $this->flash) {
             $grav = Grav::instance();
@@ -385,7 +384,6 @@ trait FormTrait
         }
 
         return $list;
-
     }
 
     /**

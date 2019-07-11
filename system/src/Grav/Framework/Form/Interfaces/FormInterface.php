@@ -123,6 +123,13 @@ interface FormInterface extends RenderInterface, \Serializable
     public function getValue(string $name);
 
     /**
+     * Get form flash object.
+     *
+     * @return FormFlashInterface
+     */
+    public function getFlash();
+
+    /**
      * @param ServerRequestInterface $request
      * @return $this
      */
