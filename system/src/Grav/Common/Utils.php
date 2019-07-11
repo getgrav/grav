@@ -324,6 +324,17 @@ abstract class Utils
     }
 
     /**
+     * Lowercase an entire array. Useful when combined with `in_array()`
+     *
+     * @param array $a
+     * @return array|false
+     */
+    public static function arrayLower(Array $a)
+    {
+        return array_combine(array_map('strtolower', $a), $a);
+    }
+
+    /**
      * Simple function to remove item/s in an array by value
      *
      * @param $search array

@@ -59,6 +59,7 @@
 
 1. [](#new)
     * Added support for custom `FormFlash` save locations
+    * Added a new `Utils::arrayLower()` method for lowercasing arrays
 1. [](#improved)
     * Use new `Utils::getSupportedPageTypes()` to enforce `html,htm` at the front of the list [#2531](https://github.com/getgrav/grav/issues/2531)  
 1. [](#bugfix)
@@ -70,6 +71,7 @@
     * Fixed Flex User to have permissions to save and delete his own user
     * Fixed new Flex User creation not being possible because of username could not be given
     * Fixed fatal error 'Expiration date must be an integer, a DateInterval or null, "double" given' [#2529](https://github.com/getgrav/grav/issues/2529)
+    * Fixed non-existing Flex object having a bad media folder
     
 # v1.6.11
 ## 06/21/2019
