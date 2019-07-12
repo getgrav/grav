@@ -13,12 +13,11 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\Criteria;
 use Grav\Common\Debugger;
 use Grav\Common\Grav;
+use Grav\Common\Inflector;
 use Grav\Common\Twig\Twig;
 use Grav\Common\User\Interfaces\UserInterface;
 use Grav\Framework\Cache\CacheInterface;
-use Grav\Framework\ContentBlock\ContentBlockInterface;
 use Grav\Framework\ContentBlock\HtmlBlock;
-use Grav\Framework\Flex\Interfaces\FlexIndexInterface;
 use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
 use Grav\Framework\Object\ObjectCollection;
 use Grav\Framework\Flex\Interfaces\FlexCollectionInterface;
@@ -90,6 +89,22 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
         if ($directory) {
             $this->setFlexDirectory($directory)->setKey($directory->getFlexType());
         }
+    }
+
+    /**
+     * {@inheritdoc}
+     * @see FlexCommonInterface::hasFlexFeature()
+     */
+    public function hasFlexFeature($name): bool
+    {
+        $implements = class_implements($this);
+        $list = [];
+        foreach ($implements as $interface) {
+            $key = Inflector::hyphenize(preg_replace('/(.*\\\\)(.*?)Interface$/', '\\2', $interface));
+            $list[$key] = true;
+        }
+
+        return is_array($name) ? array_intersect_key($list, array_flip($name)) : $list[$name] ?? false;
     }
 
     /**

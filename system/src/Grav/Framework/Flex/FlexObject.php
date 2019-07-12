@@ -12,6 +12,7 @@ namespace Grav\Framework\Flex;
 use Grav\Common\Data\Blueprint;
 use Grav\Common\Debugger;
 use Grav\Common\Grav;
+use Grav\Common\Inflector;
 use Grav\Common\Twig\Twig;
 use Grav\Common\Utils;
 use Grav\Framework\Cache\CacheInterface;
@@ -108,6 +109,22 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
         $this->filterElements($elements);
 
         $this->objectConstruct($elements, $key);
+    }
+
+    /**
+     * {@inheritdoc}
+     * @see FlexCommonInterface::hasFlexFeature()
+     */
+    public function hasFlexFeature($name): bool
+    {
+        $implements = class_implements($this);
+        $list = [];
+        foreach ($implements as $interface) {
+            $key = Inflector::hyphenize(preg_replace('/(.*\\\\)(.*?)Interface$/', '\\2', $interface));
+            $list[$key] = true;
+        }
+
+        return is_array($name) ? array_intersect_key($list, array_flip($name)) : $list[$name] ?? false;
     }
 
     /**

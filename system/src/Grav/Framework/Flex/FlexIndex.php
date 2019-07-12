@@ -12,6 +12,7 @@ namespace Grav\Framework\Flex;
 use Grav\Common\Debugger;
 use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Grav;
+use Grav\Common\Inflector;
 use Grav\Common\Session;
 use Grav\Framework\Cache\CacheInterface;
 use Grav\Framework\Collection\CollectionInterface;
@@ -78,6 +79,22 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
 
         $this->_flexDirectory = $directory;
         $this->setKeyField(null);
+    }
+
+    /**
+     * {@inheritdoc}
+     * @see FlexCommonInterface::hasFlexFeature()
+     */
+    public function hasFlexFeature($name): bool
+    {
+        $implements = class_implements($this->getFlexDirectory()->getCollectionClass());
+        $list = [];
+        foreach ($implements as $interface) {
+            $key = Inflector::hyphenize(preg_replace('/(.*\\\\)(.*?)Interface$/', '\\2', $interface));
+            $list[$key] = true;
+        }
+
+        return is_array($name) ? array_intersect_key($list, array_flip($name)) : $list[$name] ?? false;
     }
 
     /**
