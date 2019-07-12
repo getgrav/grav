@@ -39,13 +39,19 @@ interface FlexCommonInterface extends RenderInterface
     public function getFlexDirectory(): FlexDirectory;
 
     /**
-     * Return true if a feature or all listed features have been implemented in the object / collection.
+     * Test whether the feature is implemented in the object / collection.
      *
-     * @param string|string[] $feature
+     * @param string $name
      * @return bool
-     * @since 1.7
      */
-    public function hasFlexFeature($feature): bool;
+    public function hasFlexFeature(string $name): bool;
+
+    /**
+     * Get full list of features the object / collection implements.
+     *
+     * @return array
+     */
+    public function getFlexFeatures(): array;
 
     /**
      * Get last updated timestamp for the object / collection.

@@ -85,16 +85,25 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
      * {@inheritdoc}
      * @see FlexCommonInterface::hasFlexFeature()
      */
-    public function hasFlexFeature($name): bool
+    public function hasFlexFeature(string $name): bool
+    {
+        return in_array($name, $this->getFlexFeatures(), true);
+    }
+
+    /**
+     * {@inheritdoc}
+     * @see FlexCommonInterface::hasFlexFeature()
+     */
+    public function getFlexFeatures(): array
     {
         $implements = class_implements($this->getFlexDirectory()->getCollectionClass());
         $list = [];
         foreach ($implements as $interface) {
-            $key = Inflector::hyphenize(preg_replace('/(.*\\\\)(.*?)Interface$/', '\\2', $interface));
-            $list[$key] = true;
+            $feature = Inflector::hyphenize(preg_replace('/(.*\\\\)(.*?)Interface$/', '\\2', $interface));
+            $list[] = $feature;
         }
 
-        return is_array($name) ? array_intersect_key($list, array_flip($name)) : $list[$name] ?? false;
+        return $list;
     }
 
     /**
