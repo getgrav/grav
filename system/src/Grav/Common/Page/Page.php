@@ -2985,7 +2985,7 @@ class Page implements PageInterface
                         case 'page':
                         case 'self':
                             $results = new Collection();
-                            $results = $results->addPage($page)->nonModular();
+                            $results = $results->addPage($page);
                             break;
 
                         case 'descendants':
