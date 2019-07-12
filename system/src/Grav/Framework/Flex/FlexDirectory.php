@@ -222,7 +222,7 @@ class FlexDirectory implements FlexAuthorizeInterface
     }
 
     /**
-     * Returns an object if it exists.
+     * Returns an object if it exists. If no arguments are passed (or both of them are null), method creates a new empty object.
      *
      * Note: It is not safe to use the object without checking if the user can access it.
      *
@@ -230,8 +230,12 @@ class FlexDirectory implements FlexAuthorizeInterface
      * @param string|null $keyField  Field to be used as the key.
      * @return FlexObjectInterface|null
      */
-    public function getObject($key, string $keyField = null): ?FlexObjectInterface
+    public function getObject($key = null, string $keyField = null): ?FlexObjectInterface
     {
+        if (null === $key && null === $keyField) {
+            return $this->createObject([], '');
+        }
+
         return $this->getIndex(null, $keyField)->get($key);
     }
 

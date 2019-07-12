@@ -7,6 +7,7 @@
 1. [](#improved)
     * Better support for Symfony local server `symfony server:start`
     * Make `Route` objects immutable
+    * `FlexDirectory::getObject()` can now be called without any parameters to create a new object
 1. [](#bugfix)
     * Fixed `Form` not to use deleted flash object until the end of the request fixing issues with reset
     * Fixed `FlexForm` to allow multiple form instances with non-existing objects
