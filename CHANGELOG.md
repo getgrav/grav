@@ -18,6 +18,7 @@
     * Fixed non-existing Flex object having a bad media folder
     * Fixed collections using `page@.self:` should allow modular pages if requested
     * Fixed an error when trying to delete a file from non-existing Flex Object
+    * Fixed `FlexObject::exists()` failing sometimes just after the object has been saved
     
 # v1.6.11
 ## 06/21/2019
