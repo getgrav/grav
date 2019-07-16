@@ -153,6 +153,12 @@ trait FlexMediaTrait
         /** @var UniformResourceLocator $locator */
         $locator = $grav['locator'];
         $path = $media->getPath();
+        if (!$path) {
+            $language = $grav['language'];
+
+            throw new RuntimeException($language->translate('PLUGIN_ADMIN.FAILED_TO_MOVE_UPLOADED_FILE'), 400);
+        }
+
         if ($locator->isStream($path)) {
             $path = $locator->findResource($path, true, true);
             $locator->clearCache($path);
@@ -202,12 +208,16 @@ trait FlexMediaTrait
         }
 
         $media = $this->getMedia();
+        $path = $media->getPath();
+        if (!$path) {
+            return;
+        }
 
         /** @var UniformResourceLocator $locator */
         $locator = $grav['locator'];
 
-        $targetPath = $media->getPath() . '/' . $dirname;
-        $targetFile = $media->getPath() . '/' . $filename;
+        $targetPath = $path . '/' . $dirname;
+        $targetFile = $path . '/' . $filename;
         if ($locator->isStream($targetFile)) {
             $targetPath = $locator->findResource($targetPath, true, true);
             $targetFile = $locator->findResource($targetFile, true, true);
