@@ -301,16 +301,19 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
         $debugger = $grav['debugger'];
         $debugger->startTimer('flex-collection-' . ($debugKey =  uniqid($type, false)), 'Render Collection ' . $type . ' (' . $layout . ')');
 
-        $cache = $key = null;
+        $key = null;
         foreach ($context as $value) {
             if (!\is_scalar($value)) {
                 $key = false;
+                break;
             }
         }
 
         if ($key !== false) {
             $key = md5($this->getCacheKey() . '.' . $layout . json_encode($context));
             $cache = $this->getCache('render');
+        } else {
+            $cache = null;
         }
 
         try {
@@ -331,9 +334,9 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
         }
 
         if (!$block) {
-            $block = HtmlBlock::create($key);
+            $block = HtmlBlock::create($key ?: null);
             $block->setChecksum($checksum);
-            if ($key === false) {
+            if (!$key) {
                 $block->disableCache();
             }
 

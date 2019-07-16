@@ -192,7 +192,7 @@ class SimpleStorage extends AbstractFilesystemStorage
 
         $list = [];
         foreach ($rows as $key => $row) {
-            if (strpos($key, '@@')) {
+            if (strpos($key, '@@') !== false) {
                 $key = $this->getNewKey();
             }
             $this->data[$key] = $list[$key] = $row;
@@ -255,7 +255,7 @@ class SimpleStorage extends AbstractFilesystemStorage
         return sprintf('%s/%s/%s', $this->dataFolder, basename($this->dataPattern, $this->dataFormatter->getDefaultFileExtension()), $key);
     }
 
-    protected function save() : void
+    protected function save(): void
     {
         if (null === $this->data) {
             $this->buildIndex();

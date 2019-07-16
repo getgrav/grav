@@ -179,7 +179,7 @@ class FolderStorage extends AbstractFilesystemStorage
         $list = [];
         foreach ($rows as $key => $row) {
             $key = (string)$key;
-            if (strpos($key, '@@')) {
+            if (strpos($key, '@@') !== false) {
                 $key = $this->getNewKey();
             }
             $path = $this->getPathFromKey($key);

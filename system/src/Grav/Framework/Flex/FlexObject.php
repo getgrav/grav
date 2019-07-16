@@ -171,7 +171,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      */
     public function getCacheKey(): string
     {
-        return $this->getTypePrefix() . $this->getFlexType() . '.' . $this->getStorageKey();
+        return $this->hasKey() ? $this->getTypePrefix() . $this->getFlexType() . '.' . $this->getKey() : '';
     }
 
     /**
@@ -213,7 +213,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      */
     public function getKey()
     {
-        return $this->_key ?: $this->getFlexType() . '@@' . spl_object_hash($this);
+        return (string)$this->_key;
     }
 
     /**
@@ -222,7 +222,13 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      */
     public function getFlexKey(): string
     {
-        return $this->_storage['flex_key'] ?? $this->_flexDirectory->getFlexType() . '.obj:' . $this->getStorageKey();
+        $key = $this->_storage['flex_key'] ?? null;
+
+        if (!$key && $key = $this->getStorageKey()) {
+            $key = $this->_flexDirectory->getFlexType() . '.obj:' . $key;
+        }
+
+        return (string)$key;
     }
 
     /**
@@ -231,7 +237,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      */
     public function getStorageKey(): string
     {
-        return $this->_storage['storage_key'] ?? $this->getTypePrefix() . $this->getFlexType() . '@@' . spl_object_hash($this);
+        return (string)($this->_storage['storage_key'] ?? null);
     }
 
     /**
@@ -373,7 +379,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      */
     public function setStorageKey($key = null)
     {
-        $this->_storage['storage_key'] = $key;
+        $this->_storage['storage_key'] = $key ?? '';
 
         return $this;
     }
@@ -407,20 +413,28 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
         $debugger = $grav['debugger'];
         $debugger->startTimer('flex-object-' . ($debugKey =  uniqid($type, false)), 'Render Object ' . $type . ' (' . $layout . ')');
 
-        $cache = $key = null;
-        foreach ($context as $value) {
-            if (!\is_scalar($value)) {
-                $key = false;
+        $key = $this->getCacheKey();
+
+        // Disable caching if context isn't all scalars.
+        if ($key) {
+            foreach ($context as $value) {
+                if (!\is_scalar($value)) {
+                    $key = '';
+                    break;
+                }
             }
         }
 
-        if ($key !== false) {
-            $key = md5($this->getCacheKey() . '.' . $layout . json_encode($context));
+        if ($key) {
+            // Create a new key which includes layout and context.
+            $key = md5($key . '.' . $layout . json_encode($context));
             $cache = $this->getCache('render');
+        } else {
+            $cache = null;
         }
 
         try {
-            $data = $cache && $key ? $cache->get($key) : null;
+            $data = $cache ? $cache->get($key) : null;
 
             $block = $data ? HtmlBlock::fromArray($data) : null;
         } catch (InvalidArgumentException $e) {
@@ -441,7 +455,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
         if (!$block) {
             $block = HtmlBlock::create($key ?: null);
             $block->setChecksum($checksum);
-            if ($key === false) {
+            if (!$cache) {
                 $block->disableCache();
             }
 
@@ -463,7 +477,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
             $block->setContent($output);
 
             try {
-                $cache && $key && $block->isCached() && $cache->set($key, $block->toArray());
+                $cache && $block->isCached() && $cache->set($key, $block->toArray());
             } catch (InvalidArgumentException $e) {
                 $debugger->addException($e);
             }
@@ -567,7 +581,9 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     {
         $this->triggerEvent('onBeforeSave');
 
-        $result = $this->getFlexDirectory()->getStorage()->replaceRows([$this->getStorageKey() => $this->prepareStorage()]);
+        $result = $this->getFlexDirectory()->getStorage()->replaceRows(
+            [$this->getStorageKey() ?:  '@@' . spl_object_hash($this) => $this->prepareStorage()]
+        );
 
         $value = reset($result);
         $storageKey = (string)key($result);
@@ -615,6 +631,10 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      */
     public function delete()
     {
+        if (!$this->exists()) {
+            return $this;
+        }
+
         $this->triggerEvent('onBeforeDelete');
 
         $this->getFlexDirectory()->getStorage()->deleteRows([$this->getStorageKey() => $this->prepareStorage()]);

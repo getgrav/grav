@@ -149,6 +149,6 @@ abstract class AbstractFilesystemStorage implements FlexStorageInterface
      */
     protected function validateKey(string $key): bool
     {
-        return (bool) preg_match('/^[^\\/\\?\\*:;{}\\\\\\n]+$/u', $key);
+        return $key && (bool) preg_match('/^[^\\/\\?\\*:;{}\\\\\\n]+$/u', $key);
     }
 }

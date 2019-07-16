@@ -37,7 +37,7 @@ class FlexFormFlash extends FormFlash
         if ($object) {
             $serialized['object'] = [
                 'type' => $object->getFlexType(),
-                'key' => $object->hasKey() ? $object->getKey() : null,
+                'key' => $object->getKey() ?: null,
                 'storage_key' => $object->exists() ? $object->getStorageKey() : null,
                 'timestamp' => $object->getTimestamp(),
                 'serialized' => $object->jsonSerialize()
