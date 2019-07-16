@@ -243,9 +243,12 @@ class FlexDirectory implements FlexAuthorizeInterface
      * @param array $data
      * @param string|null $key
      * @return FlexObjectInterface
+     * @deprecated 1.7 Use $object->update()->save() instead.
      */
     public function update(array $data, string $key = null): FlexObjectInterface
     {
+        user_error(__CLASS__ . '::' . __FUNCTION__ . '() should not be used anymore: use $object->update()->save() instead.', E_USER_DEPRECATED);
+
         $object = null !== $key ? $this->getIndex()->get($key): null;
 
         $storage = $this->getStorage();
@@ -289,9 +292,12 @@ class FlexDirectory implements FlexAuthorizeInterface
     /**
      * @param string $key
      * @return FlexObjectInterface|null
+     * @deprecated 1.7 Use $object->delete() instead.
      */
     public function remove(string $key): ?FlexObjectInterface
     {
+        user_error(__CLASS__ . '::' . __FUNCTION__ . '() should not be used anymore: use $object->delete() instead.', E_USER_DEPRECATED);
+
         $object = $this->getIndex()->get($key);
         if (!$object) {
             return null;

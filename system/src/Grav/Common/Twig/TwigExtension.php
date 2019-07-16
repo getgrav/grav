@@ -825,7 +825,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
     public function urlFunc($input, $domain = false)
     {
         return Utils::url($input, $domain);
-        }
+    }
 
     /**
      * This function will evaluate Twig $twig through the $environment, and return its results.
