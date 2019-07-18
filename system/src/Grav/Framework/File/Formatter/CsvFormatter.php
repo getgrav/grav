@@ -100,7 +100,7 @@ class CsvFormatter extends AbstractFormatter
 
     protected function escape(string $value)
     {
-        if (preg_match('/[,"\r\n]/u', $value) !== false) {
+        if (preg_match('/[,"\r\n]/u', $value)) {
             $value = '"' . preg_replace('/"/', '""', $value) . '"';
         }
 
