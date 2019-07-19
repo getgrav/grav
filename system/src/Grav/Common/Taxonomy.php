@@ -69,7 +69,13 @@ class Taxonomy
             foreach ((array)$config->get('site.taxonomies') as $taxonomy) {
                 if (isset($page_taxonomy[$taxonomy])) {
                     foreach ((array)$page_taxonomy[$taxonomy] as $item) {
-                        $this->taxonomy_map[$taxonomy][(string)$item][$page->path()] = ['slug' => $page->slug()];
+                        if (is_iterable($item)) {
+                            foreach ($item as $value) {
+                                $this->taxonomy_map[$taxonomy][(string)$value][$page->path()] = ['slug' => $page->slug()];
+                            }
+                        } elseif (is_string($item)) {
+                            $this->taxonomy_map[$taxonomy][(string)$item][$page->path()] = ['slug' => $page->slug()];
+                        }
                     }
                 }
             }
