@@ -59,7 +59,7 @@ class FlexForm implements FlexFormInterface
         }
         $this->setObject($object);
         $this->setId($this->getName());
-        $this->setUniqueId(md5($name . $uniqueId));
+        $this->setUniqueId(md5($uniqueId));
 
         $this->initialize();
     }
