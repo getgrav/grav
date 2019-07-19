@@ -13,7 +13,6 @@ use Grav\Common\Data\Blueprint;
 use Grav\Common\Data\Data;
 use Grav\Common\Grav;
 use Grav\Common\Twig\Twig;
-use Grav\Common\Utils;
 use Grav\Framework\Flex\Interfaces\FlexFormInterface;
 use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
 use Grav\Framework\Form\Traits\FormTrait;
@@ -60,9 +59,21 @@ class FlexForm implements FlexFormInterface
         }
         $this->setObject($object);
         $this->setId($this->getName());
-        $this->setUniqueId(md5($uniqueId));
+        $this->setUniqueId(md5($name . $uniqueId));
+
+        $this->initialize();
+    }
+
+    /**
+     * @return $this
+     */
+    public function initialize()
+    {
         $this->messages = [];
         $this->submitted = false;
+        $this->data = null;
+        $this->files = [];
+        $this->unsetFlash();
 
         $flash = $this->getFlash();
         if ($flash->exists()) {
@@ -71,10 +82,9 @@ class FlexForm implements FlexFormInterface
 
             $this->data = $data ? new Data($data, $this->getBlueprint()) : null;
             $this->files = $flash->getFilesByFields($includeOriginal);
-        } else {
-            $this->data = null;
-            $this->files = [];
         }
+
+        return $this;
     }
 
     /**
@@ -85,7 +95,7 @@ class FlexForm implements FlexFormInterface
         $object = $this->getObject();
         $name = $this->name ?: 'object';
 
-        return "flex-{$object->getFlexType()}-{$name}";
+        return "flex-{$object->getFlexType()}--{$name}";
     }
 
     /**
@@ -182,7 +192,7 @@ class FlexForm implements FlexFormInterface
     {
         if (null === $this->blueprint) {
             try {
-                $blueprint = $this->getObject()->getBlueprint(Utils::isAdminPlugin() ? '' : $this->name);
+                $blueprint = $this->getObject()->getBlueprint($this->name);
                 if ($this->form) {
                     // We have field overrides available.
                     $blueprint->extend(['form' => $this->form], true);
