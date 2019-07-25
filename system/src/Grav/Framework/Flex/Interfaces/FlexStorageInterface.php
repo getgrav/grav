@@ -30,6 +30,12 @@ interface FlexStorageInterface
     public function getKeyField(): string;
 
     /**
+     * @param string[] $keys
+     * @return array
+     */
+    public function getMetaData(array $keys): array;
+
+    /**
      * Returns associated array of all existing storage keys with a timestamp.
      *
      * @return  array Returns all existing keys as `[key => [storage_key => key, storage_timestamp => timestamp], ...]`.

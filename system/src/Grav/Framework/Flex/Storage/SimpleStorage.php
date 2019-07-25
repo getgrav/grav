@@ -26,6 +26,8 @@ class SimpleStorage extends AbstractFilesystemStorage
     protected $dataPattern;
     /** @var array */
     protected $data;
+    /** @var int */
+    protected $modified;
 
     /**
      * {@inheritdoc}
@@ -54,6 +56,24 @@ class SimpleStorage extends AbstractFilesystemStorage
                 throw new \RuntimeException(sprintf('Flex: %s', $e->getMessage()));
             }
         }
+    }
+
+    /**
+     * @param string[] $keys
+     * @return array
+     */
+    public function getMetaData(array $keys): array
+    {
+        if (null === $this->data) {
+            $this->buildIndex();
+        }
+
+        $list = [];
+        foreach ($keys as $key) {
+            $list[$key] = $this->getObjectMeta($key);
+        }
+
+        return $list;
     }
 
     /**
@@ -289,19 +309,29 @@ class SimpleStorage extends AbstractFilesystemStorage
     protected function buildIndex(): array
     {
         $file = $this->getFile($this->getStoragePath());
-        $modified = $file->modified();
-
+        $this->modified = $file->modified();
         $this->data = (array) $file->content();
 
         $list = [];
         foreach ($this->data as $key => $info) {
-            $list[$key] = [
-                'storage_key' => $key,
-                'storage_timestamp' => $modified
-            ];
+            $list[$key] = $this->getObjectMeta($key);
         }
 
         return $list;
+    }
+
+    /**
+     * @param string $key
+     * @return array
+     */
+    protected function getObjectMeta(string $key): array
+    {
+        $modified = isset($this->data[$key]) ? $this->modified : 0;
+
+        return [
+            'storage_key' => $key,
+            'storage_timestamp' => $modified
+        ];
     }
 
     /**

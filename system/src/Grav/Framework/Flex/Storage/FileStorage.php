@@ -69,10 +69,7 @@ class FileStorage extends FolderStorage
                 continue;
             }
 
-            $list[$key] = [
-                'storage_key' => $key,
-                'storage_timestamp' => $info->getMTime()
-            ];
+            $list[$key] = $this->getObjectMeta($key);
         }
 
         ksort($list, SORT_NATURAL);

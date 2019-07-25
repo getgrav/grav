@@ -6,6 +6,7 @@
     * Added `hasFlexFeature()` method to test if `FlexObject` or `FlexCollection` implements a given feature
     * Added `getFlexFeatures()` method to return all features that `FlexObject` or `FlexCollection` implements
     * Deprecated `FlexDirectory::update()` and `FlexDirectory::remove()`
+    * Added `FlexStorage::getMetaData()` to get updated object meta information for listed keys
 1. [](#improved)
     * Better support for Symfony local server `symfony server:start`
     * Make `Route` objects immutable

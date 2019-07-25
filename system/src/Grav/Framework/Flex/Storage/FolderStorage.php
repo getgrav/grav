@@ -24,10 +24,14 @@ use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
  */
 class FolderStorage extends AbstractFilesystemStorage
 {
-    /** @var string */
+    /** @var string Folder where all the data is stored. */
     protected $dataFolder;
-    /** @var string */
-    protected $dataPattern = '{FOLDER}/{KEY}/item';
+    /** @var string Pattern to access an object. */
+    protected $dataPattern = '{FOLDER}/{KEY}/{FILE}';
+    /** @var string Filename for the object. */
+    protected $dataFile;
+    /** @var string File extension for the object. */
+    protected $dataExt;
     /** @var bool */
     protected $prefixed;
     /** @var bool */
@@ -44,16 +48,20 @@ class FolderStorage extends AbstractFilesystemStorage
 
         $this->initDataFormatter($options['formatter'] ?? []);
         $this->initOptions($options);
+    }
 
-        // Make sure that the data folder exists.
-        $folder = $this->resolvePath($this->dataFolder);
-        if (!file_exists($folder)) {
-            try {
-                Folder::create($folder);
-            } catch (\RuntimeException $e) {
-                throw new \RuntimeException(sprintf('Flex: %s', $e->getMessage()));
-            }
+    /**
+     * @param string[] $keys
+     * @return array
+     */
+    public function getMetaData(array $keys): array
+    {
+        $list = [];
+        foreach ($keys as $key) {
+            $list[$key] = $this->getObjectMeta($key);
         }
+
+        return $list;
     }
 
     /**
@@ -191,6 +199,25 @@ class FolderStorage extends AbstractFilesystemStorage
     }
 
     /**
+     * @param string $src
+     * @param string $dst
+     * @return bool
+     */
+    public function copyRow(string $src, string $dst): bool
+    {
+        if ($this->hasKey($dst)) {
+            throw new \RuntimeException("Cannot copy object: key '{$dst}' is already taken");
+        }
+
+        if (!$this->hasKey($src)) {
+            return false;
+        }
+
+        return $this->copyFolder($this->getMediaPath($src), $this->getMediaPath($dst));
+    }
+
+
+    /**
      * {@inheritdoc}
      * @see FlexStorageInterface::renameRow()
      */
@@ -216,7 +243,14 @@ class FolderStorage extends AbstractFilesystemStorage
         if (null === $key) {
             $path = $this->dataFolder;
         } else {
-            $path = sprintf($this->dataPattern, $this->dataFolder, $key, substr($key, 0, 2));
+            $options = [
+                $this->dataFolder,
+                $key,
+                \mb_substr($key, 0, 2),
+                ''
+            ];
+
+            $path = rtrim(sprintf($this->dataPattern, ...$options), '/');
         }
 
         return $path;
@@ -228,7 +262,7 @@ class FolderStorage extends AbstractFilesystemStorage
      */
     public function getMediaPath(string $key = null): string
     {
-        return null !== $key ? \dirname($this->getStoragePath($key)) : $this->getStoragePath();
+        return $this->getStoragePath($key);
     }
 
     /**
@@ -239,7 +273,25 @@ class FolderStorage extends AbstractFilesystemStorage
      */
     public function getPathFromKey(string $key): string
     {
-        return sprintf($this->dataPattern, $this->dataFolder, $key, substr($key, 0, 2));
+        $options = [
+            $this->dataFolder,
+            $key,
+            \mb_substr($key, 0, 2),
+            $this->dataFile . $this->dataExt
+        ];
+
+        return sprintf($this->dataPattern, ...$options);
+    }
+
+    /**
+     * Get key from the filesystem path.
+     *
+     * @param  string $path
+     * @return string
+     */
+    protected function getKeyFromPath(string $path): string
+    {
+        return basename($path);
     }
 
     /**
@@ -313,6 +365,28 @@ class FolderStorage extends AbstractFilesystemStorage
      * @param string $dst
      * @return bool
      */
+    protected function copyFolder(string $src, string $dst): bool
+    {
+        try {
+            Folder::copy($this->resolvePath($src), $this->resolvePath($dst));
+
+            /** @var UniformResourceLocator $locator */
+            $locator = Grav::instance()['locator'];
+            if ($locator->isStream($src) || $locator->isStream($dst)) {
+                $locator->clearCache();
+            }
+        } catch (\RuntimeException $e) {
+            throw new \RuntimeException(sprintf('Flex copyFolder(%s, %s): %s', $src, $dst, $e->getMessage()));
+        }
+
+        return true;
+    }
+
+    /**
+     * @param string $src
+     * @param string $dst
+     * @return bool
+     */
     protected function moveFolder(string $src, string $dst): bool
     {
         try {
@@ -353,17 +427,6 @@ class FolderStorage extends AbstractFilesystemStorage
     }
 
     /**
-     * Get key from the filesystem path.
-     *
-     * @param  string $path
-     * @return string
-     */
-    protected function getKeyFromPath(string $path): string
-    {
-        return basename($path);
-    }
-
-    /**
      * Returns list of all stored keys in [key => timestamp] pairs.
      *
      * @return array
@@ -386,6 +449,22 @@ class FolderStorage extends AbstractFilesystemStorage
         return $list;
     }
 
+    /**
+     * @param string $key
+     * @return array
+     */
+    protected function getObjectMeta(string $key): array
+    {
+        $filename = $this->getPathFromKey($key);
+        $modified = is_file($filename) ? filemtime($filename) : 0;
+
+        return [
+            'storage_key' => $key,
+            'storage_timestamp' => $modified
+        ];
+    }
+
+
     protected function buildIndexFromFilesystem($path)
     {
         $flags = \FilesystemIterator::KEY_AS_PATHNAME | \FilesystemIterator::CURRENT_AS_FILEINFO | \FilesystemIterator::SKIP_DOTS | \FilesystemIterator::UNIX_PATHS;
@@ -399,16 +478,10 @@ class FolderStorage extends AbstractFilesystemStorage
             }
 
             $key = $this->getKeyFromPath($filename);
-            $filename = $this->getPathFromKey($key);
-            $modified = is_file($filename) ? filemtime($filename) : null;
-            if (null === $modified) {
-                continue;
+            $meta = $this->getObjectMeta($key);
+            if ($meta['storage_timestamp']) {
+                $list[$key] = $meta;
             }
-
-            $list[$key] = [
-                'storage_key' => $key,
-                'storage_timestamp' => $modified
-            ];
         }
 
         return $list;
@@ -460,11 +533,22 @@ class FolderStorage extends AbstractFilesystemStorage
         $pattern = !empty($options['pattern']) ? $options['pattern'] : $this->dataPattern;
 
         $this->dataFolder = $options['folder'];
+        $this->dataFile = $options['file'] ?? 'item';
+        $this->dataExt = $extension;
+        if (\mb_strpos($pattern, '{FILE}') === false) {
+            $this->dataFile = \basename($pattern, $extension);
+            $pattern = \dirname($pattern) . '/{FILE}';
+        }
         $this->prefixed = (bool)($options['prefixed'] ?? strpos($pattern, '/{KEY:2}/'));
         $this->indexed = (bool)($options['indexed'] ?? false);
         $this->keyField = $options['key'] ?? 'storage_key';
 
-        $pattern = preg_replace(['/{FOLDER}/', '/{KEY}/', '/{KEY:2}/'], ['%1$s', '%2$s', '%3$s'], $pattern);
-        $this->dataPattern = \dirname($pattern) . '/' . basename($pattern, $extension) . $extension;
+        $pattern = preg_replace(
+            ['/{FOLDER}/', '/{KEY}/', '/{KEY:2}/', '/{FILE}/'],
+            ['%1$s',       '%2$s',    '%3$s',      '%4$s'],
+            $pattern
+        );
+
+        $this->dataPattern = $pattern;
     }
 }
