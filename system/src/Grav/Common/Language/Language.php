@@ -280,6 +280,16 @@ class Language
         return (bool) $this->lang_in_url;
     }
 
+    public function getPageExtensions($fileExtension = null)
+    {
+        $fileExtension = (string)$fileExtension ?: '.md';
+        $extensions['-'] = $fileExtension;
+        foreach ($this->languages as $code) {
+            $extensions[$code] = '.' . $code . $fileExtension;
+        }
+
+        return $extensions;
+    }
 
     /**
      * Gets an array of valid extensions with active first, then fallback extensions
