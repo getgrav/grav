@@ -686,7 +686,7 @@ class Debugger
      *
      * @param mixed  $message
      * @param string $label
-     * @param array|bool $isString
+     * @param mixed|bool $isString
      *
      * @return $this
      */
@@ -710,7 +710,16 @@ class Debugger
             }
 
             if ($this->clockwork) {
-                $this->clockwork->log($label, $message, is_array($isString) ? $isString : []);
+                if (!is_scalar($message)) {
+                    $isString = $message;
+                    $message = '';
+                } elseif (is_bool($isString)) {
+                    $isString = [];
+                }
+                if (!is_array($isString)) {
+                    $isString = [gettype($isString) => $isString];
+                }
+                $this->clockwork->log($label, $message, $isString);
             }
         }
 

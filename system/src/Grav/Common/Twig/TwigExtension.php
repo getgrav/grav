@@ -886,7 +886,8 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             $this->debugger->addMessage($data, 'debug');
         } else {
             for ($i = 2; $i < $count; $i++) {
-                $this->debugger->addMessage(func_get_arg($i), 'debug');
+                $var = func_get_arg($i);
+                $this->debugger->addMessage('Twig Dump', 'debug', $var);
             }
         }
     }
