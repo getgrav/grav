@@ -511,7 +511,7 @@ class FlexDirectory implements FlexAuthorizeInterface
         $keys = [];
         $rows = [];
         foreach ($entries as $key => $value) {
-            $k = $value['storage_key'];
+            $k = $value['storage_key'] ?? '';
             $keys[$k] = $key;
             $rows[$k] = null;
         }
@@ -559,7 +559,7 @@ class FlexDirectory implements FlexAuthorizeInterface
             $usedKey = $keys[$storageKey];
             $row += [
                 'storage_key' => $storageKey,
-                'storage_timestamp' => $entries[$usedKey]['storage_timestamp'],
+                'storage_timestamp' => $entries[$usedKey]['storage_timestamp'] ?? 0,
             ];
 
             $key = $entries[$usedKey]['key'] ?? $usedKey;
