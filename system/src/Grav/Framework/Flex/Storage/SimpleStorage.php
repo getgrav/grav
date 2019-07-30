@@ -111,7 +111,10 @@ class SimpleStorage extends AbstractFilesystemStorage
         $list = [];
         foreach ($rows as $key => $row) {
             $key = $this->getNewKey();
-            $this->data[$key] = $list[$key] = $row;
+            $this->data[$key] = $row;
+
+            $list[$key] = $row;
+            $list[$key]['__META'] = $this->getObjectMeta($key, true);
         }
 
         if ($list) {
@@ -136,7 +139,12 @@ class SimpleStorage extends AbstractFilesystemStorage
             if (null === $row || (!\is_object($row) && !\is_array($row))) {
                 // Only load rows which haven't been loaded before.
                 $key = (string)$key;
-                $list[$key] = $this->hasKey($key) ? $this->data[$key] : null;
+                if (!$this->hasKey($key)) {
+                    $list[$key] = null;
+                } else {
+                    $list[$key] = $this->data[$key];
+                    $list[$key]['__META'] = $this->getObjectMeta($key);
+                }
                 if (null !== $fetched) {
                     $fetched[$key] = $list[$key];
                 }
@@ -163,7 +171,10 @@ class SimpleStorage extends AbstractFilesystemStorage
         foreach ($rows as $key => $row) {
             $key = (string)$key;
             if ($this->hasKey($key)) {
-                $this->data[$key] = $list[$key] = $row;
+                $this->data[$key] = $row;
+
+                $list[$key] = $row;
+                $list[$key]['__META'] = $this->getObjectMeta($key, true);
             }
         }
 
@@ -189,6 +200,7 @@ class SimpleStorage extends AbstractFilesystemStorage
             $key = (string)$key;
             if ($this->hasKey($key)) {
                 unset($this->data[$key]);
+
                 $list[$key] = $row;
             }
         }
@@ -215,7 +227,10 @@ class SimpleStorage extends AbstractFilesystemStorage
             if (strpos($key, '@@') !== false) {
                 $key = $this->getNewKey();
             }
-            $this->data[$key] = $list[$key] = $row;
+            $this->data[$key] = $row;$list[$key]['__META'] = $this->getObjectMeta($key, true);
+
+            $list[$key] = $row;
+            $list[$key]['__META'] = $this->getObjectMeta($key, true);
         }
 
         if ($list) {
@@ -223,6 +238,26 @@ class SimpleStorage extends AbstractFilesystemStorage
         }
 
         return $list;
+    }
+
+    /**
+     * @param string $src
+     * @param string $dst
+     * @return bool
+     */
+    public function copyRow(string $src, string $dst): bool
+    {
+        if ($this->hasKey($dst)) {
+            throw new \RuntimeException("Cannot copy object: key '{$dst}' is already taken");
+        }
+
+        if (!$this->hasKey($src)) {
+            return false;
+        }
+
+        $this->data[$dst] = $this->data[$src];
+
+        return true;
     }
 
     /**
@@ -322,9 +357,10 @@ class SimpleStorage extends AbstractFilesystemStorage
 
     /**
      * @param string $key
+     * @param bool $reload
      * @return array
      */
-    protected function getObjectMeta(string $key): array
+    protected function getObjectMeta(string $key, bool $reload = false): array
     {
         $modified = isset($this->data[$key]) ? $this->modified : 0;
 

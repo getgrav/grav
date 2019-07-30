@@ -95,6 +95,7 @@ class FolderStorage extends AbstractFilesystemStorage
             $path = $this->getPathFromKey($key);
             $file = $this->getFile($path);
             $list[$key] = $this->saveFile($file, $row);
+            $list[$key]['__META'] = $this->getObjectMeta($key, true);
         }
 
         return $list;
@@ -117,6 +118,7 @@ class FolderStorage extends AbstractFilesystemStorage
                     $path = $this->getPathFromKey($key);
                     $file = $this->getFile($path);
                     $list[$key] = $this->loadFile($file);
+                    $list[$key]['__META'] = $this->getObjectMeta($key);
                 }
                 if (null !== $fetched) {
                     $fetched[$key] = $list[$key];
@@ -145,6 +147,7 @@ class FolderStorage extends AbstractFilesystemStorage
                 $path = $this->getPathFromKey($key);
                 $file = $this->getFile($path);
                 $list[$key] = $this->saveFile($file, $row);
+                $list[$key]['__META'] = $this->getObjectMeta($key, true);
             }
         }
 
@@ -198,6 +201,7 @@ class FolderStorage extends AbstractFilesystemStorage
             $path = $this->getPathFromKey($key);
             $file = $this->getFile($path);
             $list[$key] = $this->saveFile($file, $row);
+            $list[$key]['__META'] = $this->getObjectMeta($key, true);
         }
 
         return $list;
@@ -331,6 +335,7 @@ class FolderStorage extends AbstractFilesystemStorage
     protected function saveFile(File $file, array $data): array
     {
         try {
+            unset($data['__META'], $data['__error']);
             $file->save($data);
 
             /** @var UniformResourceLocator $locator */
@@ -458,9 +463,10 @@ class FolderStorage extends AbstractFilesystemStorage
 
     /**
      * @param string $key
+     * @param bool $reload
      * @return array
      */
-    protected function getObjectMeta(string $key): array
+    protected function getObjectMeta(string $key, bool $reload = false): array
     {
         $filename = $this->getPathFromKey($key);
         $modified = is_file($filename) ? filemtime($filename) : 0;

@@ -100,6 +100,11 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     {
         $this->_flexDirectory = $directory;
 
+        if (isset($elements['__META'])) {
+            $this->setStorage($elements['__META']);
+            unset($elements['__META']);
+        }
+
         if ($validate) {
             $blueprint = $this->getFlexDirectory()->getBlueprint();
 
@@ -813,6 +818,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     {
         $this->_flexDirectory = $directory;
     }
+
     /**
      * @param array $storage
      */
