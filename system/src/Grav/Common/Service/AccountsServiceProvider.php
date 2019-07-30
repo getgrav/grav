@@ -104,7 +104,7 @@ class AccountsServiceProvider implements ServiceProviderInterface
                     'formatter' => ['class' => YamlFormatter::class],
                     'folder' => 'account://',
                     'file' => 'user',
-                    'pattern' => '{FOLDER}/{KEY:2}/{KEY}/{FILE}',
+                    'pattern' => '{FOLDER}/{KEY:2}/{KEY}/{FILE}{EXT}',
                     'key' => 'username',
                     'indexed' => true
                 ],
@@ -116,7 +116,7 @@ class AccountsServiceProvider implements ServiceProviderInterface
             'options' => [
                 'formatter' => ['class' => YamlFormatter::class],
                 'folder' => 'account://',
-                'pattern' => '{FOLDER}/{KEY}.yaml',
+                'pattern' => '{FOLDER}/{KEY}{EXT}',
                 'key' => 'storage_key',
                 'indexed' => true
             ],
