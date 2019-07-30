@@ -114,11 +114,14 @@ class SimpleStorage extends AbstractFilesystemStorage
             $this->data[$key] = $row;
 
             $list[$key] = $row;
-            $list[$key]['__META'] = $this->getObjectMeta($key, true);
         }
 
         if ($list) {
             $this->save();
+
+            foreach ($list as $key => $row) {
+                $list[$key]['__META'] = $this->getObjectMeta($key, true);
+            }
         }
 
         return $list;
@@ -174,12 +177,15 @@ class SimpleStorage extends AbstractFilesystemStorage
                 $this->data[$key] = $row;
 
                 $list[$key] = $row;
-                $list[$key]['__META'] = $this->getObjectMeta($key, true);
             }
         }
 
         if ($list) {
             $this->save();
+
+            foreach ($list as $key => $row) {
+                $list[$key]['__META'] = $this->getObjectMeta($key, true);
+            }
         }
 
         return $list;
@@ -230,11 +236,14 @@ class SimpleStorage extends AbstractFilesystemStorage
             $this->data[$key] = $row;
 
             $list[$key] = $row;
-            $list[$key]['__META'] = $this->getObjectMeta($key, true);
         }
 
         if ($list) {
             $this->save();
+
+            foreach ($list as $key => $row) {
+                $list[$key]['__META'] = $this->getObjectMeta($key, true);
+            }
         }
 
         return $list;
