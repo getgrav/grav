@@ -202,4 +202,13 @@ class LanguageCodes
 
         return false;
     }
+
+    public static function getList($native = true)
+    {
+        $list = [];
+        foreach (static::$codes as $key => $names) {
+            $list[$key] = $native ? $names['nativeName'] : $names['name'];
+        }
+        return $list;
+    }
 }
