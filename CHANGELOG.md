@@ -71,6 +71,7 @@
     * Added a new `Utils::arrayLower()` method for lowercasing arrays
 1. [](#improved)
     * Use new `Utils::getSupportedPageTypes()` to enforce `html,htm` at the front of the list [#2531](https://github.com/getgrav/grav/issues/2531)  
+    * Updated vendor libraries
 1. [](#bugfix)
     * Fixed some potential issues when `$grav['user']` is not set
     * Fixed error when calling `Media::add($name, null)`
