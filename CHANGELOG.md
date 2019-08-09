@@ -21,6 +21,7 @@
     * Fixed an error when trying to delete a file from non-existing Flex Object
     * Fixed `FlexObject::exists()` failing sometimes just after the object has been saved
     * Fixed CSV formatter not encoding strings with `"` and `,` properly
+    * Fixed var order in `Validation.php` [#2610](https://github.com/getgrav/grav/issues/2610)
     
 # v1.6.11
 ## 06/21/2019
