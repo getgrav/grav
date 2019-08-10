@@ -91,7 +91,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             new TwigFilter('fieldName', [$this, 'fieldNameFilter']),
             new TwigFilter('ksort', [$this, 'ksortFilter']),
             new TwigFilter('ltrim', [$this, 'ltrimFilter']),
-            new TwigFilter('markdown', [$this, 'markdownFunction'], ['is_safe' => ['html']]),
+            new TwigFilter('markdown', [$this, 'markdownFunction'], ['needs_context' => true, 'is_safe' => ['html']]),
             new TwigFilter('md5', [$this, 'md5Filter']),
             new TwigFilter('base32_encode', [$this, 'base32EncodeFilter']),
             new TwigFilter('base32_decode', [$this, 'base32DecodeFilter']),
@@ -623,9 +623,10 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      * @param bool $block  Block or Line processing
      * @return mixed|string
      */
-    public function markdownFunction($string, $block = true)
+    public function markdownFunction($context = false, $string, $block = true)
     {
-        return Utils::processMarkdown($string, $block);
+        $page = $context['page'] ?? null;
+        return Utils::processMarkdown($string, $block, $page);
     }
 
     /**

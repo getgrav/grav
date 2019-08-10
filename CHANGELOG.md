@@ -72,6 +72,7 @@
 1. [](#improved)
     * Use new `Utils::getSupportedPageTypes()` to enforce `html,htm` at the front of the list [#2531](https://github.com/getgrav/grav/issues/2531)  
     * Updated vendor libraries
+    * Markdown filter is now page-aware so that it works with modular references [admin#1731](https://github.com/getgrav/grav-plugin-admin/issues/1731)
 1. [](#bugfix)
     * Fixed some potential issues when `$grav['user']` is not set
     * Fixed error when calling `Media::add($name, null)`

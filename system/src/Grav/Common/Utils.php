@@ -1526,13 +1526,15 @@ abstract class Utils
      *
      * @param string $string
      *
-     * @param bool $block  Block or Line processing
+     * @param bool $block Block or Line processing
+     * @param null $page
      * @return string
+     * @throws \Exception
      */
-    public static function processMarkdown($string, $block = true)
+    public static function processMarkdown($string, $block = true, $page = null)
     {
         $grav = Grav::instance();
-        $page     = $grav['page'] ?? null;
+        $page     = $page ?? $grav['page'] ?? null;
         $defaults = [
             'markdown' => $grav['config']->get('system.pages.markdown', []),
             'images' => $grav['config']->get('system.images', [])
