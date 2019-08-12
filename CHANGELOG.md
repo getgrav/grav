@@ -69,6 +69,8 @@
 1. [](#new)
     * Added support for custom `FormFlash` save locations
     * Added a new `Utils::arrayLower()` method for lowercasing arrays
+    * Support new GRAV_BASEDIR environment variable [#2541](https://github.com/getgrav/grav/pull/2541)
+    * Allow users to override plugin handler priorities [#2165](https://github.com/getgrav/grav/pull/2165)
 1. [](#improved)
     * Use new `Utils::getSupportedPageTypes()` to enforce `html,htm` at the front of the list [#2531](https://github.com/getgrav/grav/issues/2531)  
     * Updated vendor libraries

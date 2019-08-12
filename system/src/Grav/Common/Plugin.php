@@ -151,13 +151,30 @@ class Plugin implements EventSubscriberInterface, \ArrayAccess
             if (\is_string($params)) {
                 $dispatcher->addListener($eventName, [$this, $params]);
             } elseif (\is_string($params[0])) {
-                $dispatcher->addListener($eventName, [$this, $params[0]], $params[1] ?? 0);
+                $dispatcher->addListener($eventName, [$this, $params[0]], $this->getPriority($params, $eventName));
             } else {
                 foreach ($params as $listener) {
-                    $dispatcher->addListener($eventName, [$this, $listener[0]], $listener[1] ?? 0);
+                    $dispatcher->addListener($eventName, [$this, $listener[0]], $this->getPriority($listener, $eventName));
                 }
             }
         }
+    }
+
+    /**
+     * @param array  $params
+     * @param string $eventName
+     */
+    private function getPriority($params, $eventName)
+    {
+        $grav = Grav::instance();
+        $override = implode('.', ["priorities", $this->name, $eventName, $params[0]]);
+        if ($grav['config']->get($override) !== null)
+        {
+            return $grav['config']->get($override);
+        } elseif (isset($params[1])) {
+            return $params[1];
+        }
+        return 0;
     }
 
     /**
