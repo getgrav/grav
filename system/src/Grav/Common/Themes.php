@@ -217,7 +217,7 @@ class Themes extends Iterator
         } elseif (!$locator('theme://') && !defined('GRAV_CLI')) {
             $response = new Response(500, [], "Theme '$name' does not exist, unable to display page.");
 
-            $grav->exit($response);
+            $grav->close($response);
         }
 
         $this->config->set('theme', $config->get('themes.' . $name));

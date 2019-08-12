@@ -1115,7 +1115,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
     {
         $response = new Response($statusCode, ['location' => $url]);
 
-        $this->grav->exit($response);
+        $this->grav->close($response);
     }
 
     /**

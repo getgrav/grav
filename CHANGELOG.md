@@ -8,6 +8,7 @@
     * Deprecated `FlexDirectory::update()` and `FlexDirectory::remove()`
     * Added `FlexStorage::getMetaData()` to get updated object meta information for listed keys
     * Added `Language::getPageExtensions()` to get full list of supported page language extensions
+    * Added `$grav->close()` method to properly terminate the request with a response
 1. [](#improved)
     * Better support for Symfony local server `symfony server:start`
     * Make `Route` objects immutable
@@ -59,7 +60,6 @@
     * Added Twig profiling for Clockwork debugger
     * Updated Symfony Components to 4.3
     * Added support for Twig 2.11 (compatible with Twig 1.40+)
-    * Added `$grav->exit()` method to properly terminate the request with a response
     * Optimization: Initialize debugbar only after the configuration has been loaded
     * Optimization: Combine some early Grav processors into a single one
 

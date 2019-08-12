@@ -242,7 +242,7 @@ class Grav extends Container
      *
      * @param ResponseInterface $response
      */
-    public function exit(ResponseInterface $response): void
+    public function close(ResponseInterface $response): void
     {
         // Make sure nothing extra gets written to the response.
         while (ob_get_level()) {
@@ -265,6 +265,15 @@ class Grav extends Container
         $this->header($response);
         echo $response->getBody();
         exit();
+    }
+
+    /**
+     * @param ResponseInterface $response
+     * @deprecated 1.7 Do not use
+     */
+    public function exit(ResponseInterface $response): void
+    {
+        $this->close($response);
     }
 
     /**
@@ -306,7 +315,7 @@ class Grav extends Container
 
         $response = new Response($code, ['Location' => $url]);
 
-        $this->exit($response);
+        $this->close($response);
     }
 
     /**
