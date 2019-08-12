@@ -165,12 +165,12 @@ interface FlexObjectInterface extends FlexCommonInterface, NestedObjectInterface
      * Returns a form instance for the object.
      *
      * @param string $name Name of the form. Can be used to create customized forms for different use cases.
-     * @param array|null $form  Can be used to further customize the form.
+     * @param array|null $options  Options can be used to further customize the form.
      *
      * @return FlexFormInterface Returns a Form.
      * @api
      */
-    public function getForm(string $name = '', array $form = null);
+    public function getForm(string $name = '', array $options = null);
 
     /**
      * Returns default value suitable to be used in a form for the given property.

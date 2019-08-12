@@ -31,9 +31,9 @@ class FlexFormFlash extends FormFlash
 
     public function jsonSerialize(): array
     {
-        $object = $this->getObject();
-
         $serialized = parent::jsonSerialize();
+
+        $object = $this->getObject();
         if ($object) {
             $serialized['object'] = [
                 'type' => $object->getFlexType(),
@@ -51,18 +51,11 @@ class FlexFormFlash extends FormFlash
     {
         parent::init($data, $config);
 
-        $object = $config['object'] ?? null;
-
-        if ($object) {
-            $this->setObject($object);
-            /*
-            $serialized = $data['object'] ?? null;
-            if ($serialized && !$object->exists()) {
-                $fields = $data['object']['serialized'] ?? [];
-
-                $object->update($fields);
-            }
-            */
+        $object = $config['object'];
+        if (isset($data['object']['serialized']) && !$object->exists()) {
+            $object->update($data['object']['serialized']);
         }
+
+        $this->setObject($object);
     }
 }

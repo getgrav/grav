@@ -45,6 +45,8 @@ trait FormTrait
     private $id;
     /** @var string */
     private $uniqueid;
+    /** @var string */
+    private $sessionid;
     /** @var bool */
     private $submitted;
     /** @var \ArrayAccess|Data|null */
@@ -53,6 +55,8 @@ trait FormTrait
     private $files;
     /** @var FormFlash|null */
     private $flash;
+    /** @var string */
+    private $flashFolder;
     /** @var Blueprint */
     private $blueprint;
 
@@ -412,13 +416,22 @@ trait FormTrait
 
     protected function getSessionId(): string
     {
-        /** @var Grav $grav */
-        $grav = Grav::instance();
+        if (null === $this->sessionid) {
+            /** @var Grav $grav */
+            $grav = Grav::instance();
 
-        /** @var SessionInterface $session */
-        $session = $grav['session'] ?? null;
+            /** @var SessionInterface $session */
+            $session = $grav['session'] ?? null;
 
-        return $session ? ($session->getId() ?? '') : '';
+            $this->sessionid = $session ? ($session->getId() ?? '') : '';
+        }
+
+        return $this->sessionid;
+    }
+
+    protected function setSessionId(string $sessionId): void
+    {
+        $this->sessionid = $sessionId;
     }
 
     protected function unsetFlash(): void
@@ -447,12 +460,26 @@ trait FormTrait
             '[ACCOUNT]' => $mediaFolder ?? '!!'
         ];
 
-        $flashFolder = $this->getBlueprint()->get('form/flash_folder', 'tmp://forms/[SESSIONID]');
+        $flashLookupFolder = $this->getFlashLookupFolder();
 
-        $path = str_replace(array_keys($dataMap), array_values($dataMap), $flashFolder);
+        $path = str_replace(array_keys($dataMap), array_values($dataMap), $flashLookupFolder);
 
         // Make sure we only return valid paths.
         return strpos($path, '!!') === false ? rtrim($path, '/') : null;
+    }
+
+    protected function getFlashLookupFolder(): string
+    {
+        if (null === $this->flashFolder) {
+            $this->flashFolder = $this->getBlueprint()->get('form/flash_folder') ?? 'tmp://forms/[SESSIONID]';
+        }
+
+        return $this->flashFolder;
+    }
+
+    protected function setFlashLookupFolder(string $folder): void
+    {
+        $this->flashFolder = $folder;
     }
 
     /**

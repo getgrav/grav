@@ -39,27 +39,74 @@ class FlexForm implements FlexFormInterface
     /** @var FlexObjectInterface */
     private $object;
 
+    /** @var string */
+    private $flexName;
+
+    /**
+     * @param array $options    Options to initialize the form instance:
+     *                          (string) name: Form name, allows you to use custom form.
+     *                          (string) unique_id: Unique id for this form instance.
+     *                          (array) form: Custom form fields.
+     *                          (FlexObjectInterface) object: Object instance.
+     *                          (string) key: Object key, used only if object instance isn't given.
+     *                          (FlexDirectory) directory: Flex Directory, mandatory if object isn't given.
+     *
+     * @return FlexFormInterface
+     */
+    public static function instance(array $options = [])
+    {
+        if (isset($options['object'])) {
+            $object = $options['object'];
+            if (!$object instanceof FlexObjectInterface) {
+                throw new \RuntimeException(__METHOD__ . "(): 'object' should be instance of FlexObjectInterface", 400);
+            }
+        } elseif (isset($options['directory'])) {
+            $directory = $options['directory'];
+            if (!$directory instanceof FlexDirectory) {
+                throw new \RuntimeException(__METHOD__ . "(): 'directory' should be instance of FlexDirectory", 400);
+            }
+            $key = $options['key'] ?? '';
+            $object = $directory->getObject($key) ?? $directory->createObject([], $key);
+        } else {
+            throw new \RuntimeException(__METHOD__ . "(): You need to pass option 'directory' or 'object'", 400);
+        }
+
+        $name = $options['name'] ?? '';
+
+        // There is no reason to pass object and directory.
+        unset($options['object'], $options['directory']);
+
+        return $object->getForm($name, $options);
+    }
+
     /**
      * FlexForm constructor.
      * @param string $name
      * @param FlexObjectInterface $object
-     * @param array|null $form
+     * @param array $options
      */
-    public function __construct(string $name, FlexObjectInterface $object, array $form = null)
+    public function __construct(string $name, FlexObjectInterface $object, array $options = null)
     {
         $this->name = $name;
-        $this->form = $form;
-
-        if ($object->exists()) {
-            $uniqueId = $object->getStorageKey();
-        } elseif ($object->hasKey()) {
-            $uniqueId = "{$object->getKey()}:new";
-        } else {
-            $uniqueId = "{$object->getFlexType()}:new";
-        }
         $this->setObject($object);
+        $this->setName($object->getFlexType(), $name);
         $this->setId($this->getName());
-        $this->setUniqueId(md5($uniqueId));
+
+        $uniqueId = $options['unique_id'] ?? null;
+        if (!$uniqueId) {
+            if ($object->exists()) {
+                $uniqueId = $object->getStorageKey();
+            } elseif ($object->hasKey()) {
+                $uniqueId = "{$object->getKey()}:new";
+            } else {
+                $uniqueId = "{$object->getFlexType()}:new";
+            }
+            $uniqueId = md5($uniqueId);
+        }
+        $this->setUniqueId($uniqueId);
+        $directory = $object->getFlexDirectory();
+        $this->setFlashLookupFolder($directory->getBlueprint()->get('form/flash_folder') ?? 'tmp://forms/[SESSIONID]');
+        $this->form = $options['form'] ?? null;
 
         $this->initialize();
     }
@@ -92,10 +139,13 @@ class FlexForm implements FlexFormInterface
      */
     public function getName(): string
     {
-        $object = $this->getObject();
-        $name = $this->name ?: 'object';
+        return $this->flexName;
+    }
 
-        return "flex-{$object->getFlexType()}--{$name}";
+    protected function setName(string $type, string $name): void
+    {
+        $name = $name ?: 'object';
+        $this->flexName = "flex-{$type}--{$name}";
     }
 
     /**
