@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @package    Grav.Common
+ * @package    Grav\Common
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -34,7 +35,7 @@ class Iterator implements \ArrayAccess, \Iterator, \Countable, \Serializable
      */
     public function __call($key, $args)
     {
-        return (isset($this->items[$key])) ? $this->items[$key] : null;
+        return $this->items[$key] ?? null;
     }
 
     /**
@@ -43,8 +44,8 @@ class Iterator implements \ArrayAccess, \Iterator, \Countable, \Serializable
     public function __clone()
     {
         foreach ($this as $key => $value) {
-            if (is_object($value)) {
-                $this->$key = clone $this->$key;
+            if (\is_object($value)) {
+                $this->{$key} = clone $this->{$key};
             }
         }
     }
@@ -62,7 +63,7 @@ class Iterator implements \ArrayAccess, \Iterator, \Countable, \Serializable
     /**
      * Remove item from the list.
      *
-     * @param $key
+     * @param string $key
      */
     public function remove($key)
     {
@@ -90,7 +91,7 @@ class Iterator implements \ArrayAccess, \Iterator, \Countable, \Serializable
     {
         $items = array_keys($this->items);
 
-        return (isset($items[$key])) ? $this->offsetGet($items[$key]) : false;
+        return isset($items[$key]) ? $this->offsetGet($items[$key]) : false;
     }
 
     /**
@@ -175,7 +176,7 @@ class Iterator implements \ArrayAccess, \Iterator, \Countable, \Serializable
      */
     public function slice($offset, $length = null)
     {
-        $this->items = array_slice($this->items, $offset, $length);
+        $this->items = \array_slice($this->items, $offset, $length);
 
         return $this;
     }
@@ -189,8 +190,9 @@ class Iterator implements \ArrayAccess, \Iterator, \Countable, \Serializable
      */
     public function random($num = 1)
     {
-        if ($num > count($this->items)) {
-            $num = count($this->items);
+        $count = \count($this->items);
+        if ($num > $count) {
+            $num = $count;
         }
 
         $this->items = array_intersect_key($this->items, array_flip((array)array_rand($this->items, $num)));
@@ -227,8 +229,8 @@ class Iterator implements \ArrayAccess, \Iterator, \Countable, \Serializable
     {
         foreach ($this->items as $key => $value) {
             if (
-                ($callback && !call_user_func($callback, $value, $key)) ||
-                (!$callback && !(bool)$value)
+                (!$callback && !(bool)$value) ||
+                ($callback && !$callback($value, $key))
             ) {
                 unset($this->items[$key]);
             }
@@ -251,7 +253,7 @@ class Iterator implements \ArrayAccess, \Iterator, \Countable, \Serializable
      */
     public function sort(callable $callback = null, $desc = false)
     {
-        if (!$callback || !is_callable($callback)) {
+        if (!$callback || !\is_callable($callback)) {
             return $this;
         }
 

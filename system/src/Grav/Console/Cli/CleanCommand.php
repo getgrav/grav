@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @package    Grav.Console
+ * @package    Grav\Console\Cli
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -22,9 +23,7 @@ class CleanCommand extends Command
     /* @var OutputInterface $output */
     protected $output;
 
-    /**
-     * @var array
-     */
+    /** @var array */
     protected $paths_to_remove = [
         'codeception.yml',
         'tests/',
@@ -75,11 +74,15 @@ class CleanCommand extends Command
         'vendor/doctrine/collections/tests',
         'vendor/donatj/phpuseragentparser/.git',
         'vendor/donatj/phpuseragentparser/.gitignore',
+        'vendor/donatj/phpuseragentparser/.editorconfig',
         'vendor/donatj/phpuseragentparser/.travis.yml',
         'vendor/donatj/phpuseragentparser/composer.json',
         'vendor/donatj/phpuseragentparser/phpunit.xml.dist',
         'vendor/donatj/phpuseragentparser/Tests',
         'vendor/donatj/phpuseragentparser/Tools',
+        'vendor/dragonmantank/cron-expression/.editorconfig',
+        'vendor/dragonmantank/cron-expression/composer.json',
+        'vendor/dragonmantank/cron-expression/tests',
         'vendor/erusev/parsedown/composer.json',
         'vendor/erusev/parsedown/phpunit.xml.dist',
         'vendor/erusev/parsedown/.travis.yml',
@@ -101,6 +104,12 @@ class CleanCommand extends Command
         'vendor/filp/whoops/phpunit.xml.dist',
         'vendor/gregwar/image/Gregwar/Image/composer.json',
         'vendor/gregwar/image/Gregwar/Image/phpunit.xml',
+        'vendor/gregwar/image/Gregwar/Image/phpunit.xml.dist',
+        'vendor/gregwar/image/Gregwar/Image/Makefile',
+        'vendor/gregwar/image/Gregwar/Image/.editorconfig',
+        'vendor/gregwar/image/Gregwar/Image/.php_cs',
+        'vendor/gregwar/image/Gregwar/Image/.styleci.yml',
+        'vendor/gregwar/image/Gregwar/Image/.travis.yml',
         'vendor/gregwar/image/Gregwar/Image/.gitignore',
         'vendor/gregwar/image/Gregwar/Image/.git',
         'vendor/gregwar/image/Gregwar/Image/doc',
@@ -108,19 +117,24 @@ class CleanCommand extends Command
         'vendor/gregwar/image/Gregwar/Image/tests',
         'vendor/gregwar/cache/Gregwar/Cache/composer.json',
         'vendor/gregwar/cache/Gregwar/Cache/phpunit.xml',
+        'vendor/gregwar/cache/Gregwar/Cache/.travis.yml',
         'vendor/gregwar/cache/Gregwar/Cache/.gitignore',
         'vendor/gregwar/cache/Gregwar/Cache/.git',
         'vendor/gregwar/cache/Gregwar/Cache/demo',
         'vendor/gregwar/cache/Gregwar/Cache/tests',
+        'vendor/guzzlehttp/psr7/composer.json',
+        'vendor/guzzlehttp/psr7/.editorconfig',
+        'vendor/kodus/psr7-server/composer.json',
         'vendor/ircmaxell/password-compat/composer.json',
         'vendor/ircmaxell/password-compat/phpunit.xml.dist',
         'vendor/ircmaxell/password-compat/version-test.php',
         'vendor/ircmaxell/password-compat/.travis.yml',
         'vendor/ircmaxell/password-compat/test',
         'vendor/league/climate/composer.json',
+        'vendor/league/climate/CODE_OF_CONDUCT.md',
         'vendor/matthiasmullie/minify/bin',
         'vendor/matthiasmullie/minify/composer.json',
-        'vendor/matthiasmullie/minify/docker-composer.yml',
+        'vendor/matthiasmullie/minify/docker-compose.yml',
         'vendor/matthiasmullie/minify/Dockerfile',
         'vendor/matthiasmullie/minify/CONTRIBUTING.md',
         'vendor/matthiasmullie/path-converter/composer.json',
@@ -145,6 +159,15 @@ class CleanCommand extends Command
         'vendor/monolog/monolog/phpunit.xml.dist',
         'vendor/monolog/monolog/.php_cs',
         'vendor/monolog/monolog/tests',
+        'vendor/nyholm/psr7/composer.json',
+        'vendor/nyholm/psr7/phpstan.neon.dist',
+        'vendor/phive/twig-extensions-deferred/.gitignore',
+        'vendor/phive/twig-extensions-deferred/.travis.yml',
+        'vendor/phive/twig-extensions-deferred/composer.json',
+        'vendor/phive/twig-extensions-deferred/phpunit.xml.dist',
+        'vendor/phive/twig-extensions-deferred/tests',
+        'vendor/php-http/message-factory/composer.json',
+        'vendor/php-http/message-factory/puli.json',
         'vendor/pimple/pimple/.gitignore',
         'vendor/pimple/pimple/.travis.yml',
         'vendor/pimple/pimple/composer.json',
@@ -153,9 +176,21 @@ class CleanCommand extends Command
         'vendor/pimple/pimple/src/Pimple/Tests',
         'vendor/psr/container/composer.json',
         'vendor/psr/container/.gitignore',
+        'vendor/psr/http-factory/.gitignore',
+        'vendor/psr/http-factory/.pullapprove.yml',
+        'vendor/psr/http-factory/composer.json',
+        'vendor/psr/http-message/composer.json',
+        'vendor/psr/http-server-handler/composer.json',
+        'vendor/psr/http-server-middleware/composer.json',
+        'vendor/psr/simple-cache/.editorconfig',
         'vendor/psr/simple-cache/composer.json',
         'vendor/psr/log/composer.json',
         'vendor/psr/log/.gitignore',
+        'vendor/ralouphie/getallheaders/.gitignore',
+        'vendor/ralouphie/getallheaders/.travis.yml',
+        'vendor/ralouphie/getallheaders/composer.json',
+        'vendor/ralouphie/getallheaders/phpunit.xml',
+        'vendor/ralouphie/getallheaders/tests/',
         'vendor/rockettheme/toolbox/.git',
         'vendor/rockettheme/toolbox/.gitignore',
         'vendor/rockettheme/toolbox/.scrutinizer.yml',
@@ -181,12 +216,19 @@ class CleanCommand extends Command
         'vendor/symfony/event-dispatcher/composer.json',
         'vendor/symfony/event-dispatcher/phpunit.xml.dist',
         'vendor/symfony/event-dispatcher/Tests',
+        'vendor/symfony/polyfill-ctype/composer.json',
         'vendor/symfony/polyfill-iconv/.git',
         'vendor/symfony/polyfill-iconv/.gitignore',
         'vendor/symfony/polyfill-iconv/composer.json',
         'vendor/symfony/polyfill-mbstring/.git',
         'vendor/symfony/polyfill-mbstring/.gitignore',
         'vendor/symfony/polyfill-mbstring/composer.json',
+        'vendor/symfony/polyfill-php72/composer.json',
+        'vendor/symfony/polyfill-php73/composer.json',
+        'vendor/symfony/process/.gitignore',
+        'vendor/symfony/process/composer.json',
+        'vendor/symfony/process/phpunit.xml.dist',
+        'vendor/symfony/process/Tests',
         'vendor/symfony/var-dumper/.git',
         'vendor/symfony/var-dumper/.gitignore',
         'vendor/symfony/var-dumper/composer.json',
@@ -208,24 +250,27 @@ class CleanCommand extends Command
         'vendor/twig/twig/doc',
         'vendor/twig/twig/ext',
         'vendor/twig/twig/test',
+        'vendor/willdurand/negotiation/.gitignore',
+        'vendor/willdurand/negotiation/.travis.yml',
+        'vendor/willdurand/negotiation/appveyor.yml',
+        'vendor/willdurand/negotiation/composer.json',
+        'vendor/willdurand/negotiation/phpunit.xml.dist',
+        'vendor/willdurand/negotiation/tests',
+        'user/config/security.yaml',
+        'cache/compiled/',
     ];
 
-    /**
-     *
-     */
     protected function configure()
     {
         $this
-            ->setName("clean")
-            ->setDescription("Handles cleaning chores for Grav distribution")
+            ->setName('clean')
+            ->setDescription('Handles cleaning chores for Grav distribution')
             ->setHelp('The <info>clean</info> clean extraneous folders and data');
     }
 
     /**
      * @param InputInterface  $input
      * @param OutputInterface $output
-     *
-     * @return int|null|void
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {

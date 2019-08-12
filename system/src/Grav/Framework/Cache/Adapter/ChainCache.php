@@ -1,8 +1,9 @@
 <?php
+
 /**
  * @package    Grav\Framework\Cache
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -20,7 +21,7 @@ use Grav\Framework\Cache\Exception\InvalidArgumentException;
 class ChainCache extends AbstractCache
 {
     /**
-     * @var array|CacheInterface[]
+     * @var CacheInterface[]
      */
     protected $caches;
 
@@ -33,7 +34,7 @@ class ChainCache extends AbstractCache
      * Chain Cache constructor.
      * @param array $caches
      * @param null|int|\DateInterval $defaultLifetime
-     * @throws \Psr\SimpleCache\InvalidArgumentException
+     * @throws \Psr\SimpleCache\InvalidArgumentException|InvalidArgumentException
      */
     public function __construct(array $caches, $defaultLifetime = null)
     {
@@ -48,7 +49,7 @@ class ChainCache extends AbstractCache
                 throw new InvalidArgumentException(
                     sprintf(
                         "The class '%s' does not implement the '%s' interface",
-                        get_class($cache),
+                        \get_class($cache),
                         CacheInterface::class
                     )
                 );
@@ -56,7 +57,7 @@ class ChainCache extends AbstractCache
         }
 
         $this->caches = array_values($caches);
-        $this->count = count($caches);
+        $this->count = \count($caches);
     }
 
     /**

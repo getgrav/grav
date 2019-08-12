@@ -1,13 +1,15 @@
 <?php
+
 /**
- * @package    Grav.Common.Twig
+ * @package    Grav\Common\Twig
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Common\Twig;
 
+use Grav\Common\Filesystem\Folder;
 use Grav\Common\Grav;
 
 trait WriteCacheFileTrait
@@ -18,8 +20,8 @@ trait WriteCacheFileTrait
      * This exists so template cache files use the same
      * group between apache and cli
      *
-     * @param $file
-     * @param $content
+     * @param string $file
+     * @param string $content
      */
     protected function writeCacheFile($file, $content)
     {
@@ -32,9 +34,10 @@ trait WriteCacheFileTrait
         }
 
         if (self::$umask) {
-            if (!is_dir(dirname($file))) {
+            $dir = dirname($file);
+            if (!is_dir($dir)) {
                 $old = umask(0002);
-                mkdir(dirname($file), 0777, true);
+                Folder::create($dir);
                 umask($old);
             }
             parent::writeCacheFile($file, $content);

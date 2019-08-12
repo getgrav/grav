@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @package    Grav.Common.Service
+ * @package    Grav\Common\Service
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -16,6 +17,8 @@ class AssetsServiceProvider implements ServiceProviderInterface
 {
     public function register(Container $container)
     {
-        $container['assets'] = new Assets();
+        $container['assets'] = function () {
+            return new Assets();
+        };
     }
 }

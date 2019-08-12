@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @package    Grav.Common.Page
+ * @package    Grav\Common\Page
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -33,7 +34,7 @@ class Types implements \ArrayAccess, \Iterator, \Countable
         }
 
         if (!$blueprint && $this->systemBlueprints) {
-            $blueprint = isset($this->systemBlueprints[$type]) ? $this->systemBlueprints[$type] : $this->systemBlueprints['default'];
+            $blueprint = $this->systemBlueprints[$type] ?? $this->systemBlueprints['default'];
         }
 
         if ($blueprint) {
@@ -43,7 +44,7 @@ class Types implements \ArrayAccess, \Iterator, \Countable
 
     public function scanBlueprints($uri)
     {
-        if (!is_string($uri)) {
+        if (!\is_string($uri)) {
             throw new \InvalidArgumentException('First parameter must be URI');
         }
 
@@ -63,7 +64,7 @@ class Types implements \ArrayAccess, \Iterator, \Countable
 
     public function scanTemplates($uri)
     {
-        if (!is_string($uri)) {
+        if (!\is_string($uri)) {
             throw new \InvalidArgumentException('First parameter must be URI');
         }
 
@@ -96,9 +97,10 @@ class Types implements \ArrayAccess, \Iterator, \Countable
             if (strpos($name, '/')) {
                 continue;
             }
-            $list[$name] = ucfirst(strtr($name, '_', ' '));
+            $list[$name] = ucfirst(str_replace('_', ' ', $name));
         }
         ksort($list);
+
         return $list;
     }
 
@@ -109,9 +111,10 @@ class Types implements \ArrayAccess, \Iterator, \Countable
             if (strpos($name, 'modular/') !== 0) {
                 continue;
             }
-            $list[$name] = trim(ucfirst(strtr(basename($name), '_', ' ')));
+            $list[$name] = ucfirst(trim(str_replace('_', ' ', basename($name))));
         }
         ksort($list);
+
         return $list;
     }
 
@@ -133,8 +136,6 @@ class Types implements \ArrayAccess, \Iterator, \Countable
             $options['value'] = 'Url';
         }
 
-        $list = Folder::all($uri, $options);
-
-        return $list;
+        return Folder::all($uri, $options);
     }
 }

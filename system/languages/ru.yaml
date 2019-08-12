@@ -1,81 +1,101 @@
 ---
-FRONTMATTER_ERROR_PAGE: |
-  ---
-  title: %1$s
-  ---
-  
-  # Ошибка: Недопустимое содержимое
-  
-  Path: `%2$s`
-  
-  **%3$s**
-  
-  ```
-  %4$s
-  ```
-INFLECTOR_IRREGULAR:
-  person: люди
-  man: человек
-  child: ребенок
-  sex: пол
-  move: движется
-NICETIME:
-  NO_DATE_PROVIDED: Дата не указана
-  BAD_DATE: Неверная дата
-  AGO: назад
-  FROM_NOW: теперь
-  SECOND: секунда
-  MINUTE: минута
-  HOUR: час
-  DAY: д
-  WEEK: неделя
-  MONTH: месяц
-  YEAR: год
-  DECADE: десятилетие
-  SEC: с
-  MIN: мин
-  HR: ч
-  WK: нед.
-  MO: мес.
-  YR: г.
-  DEC: гг.
-  SECOND_PLURAL: секунды
-  MINUTE_PLURAL: минуты
-  HOUR_PLURAL: часы
-  DAY_PLURAL: д
-  WEEK_PLURAL: недели
-  MONTH_PLURAL: месяцы
-  YEAR_PLURAL: годы
-  DECADE_PLURAL: десятилетия
-  SEC_PLURAL: с
-  MIN_PLURAL: мин
-  HR_PLURAL: ч
-  WK_PLURAL: нед
-  MO_PLURAL: мес
-  YR_PLURAL: г.
-  DEC_PLURAL: гг.
-FORM:
-  VALIDATION_FAIL: '<b>Проверка не удалась:</b>'
-  INVALID_INPUT: Неверный ввод в
-  MISSING_REQUIRED_FIELD: 'Отсутствует необходимое поле:'
-MONTHS_OF_THE_YEAR:
-  - Январь
-  - Февраль
-  - Март
-  - Апрель
-  - Май
-  - Июнь
-  - Июль
-  - Август
-  - Сентябрь
-  - Октябрь
-  - Ноябрь
-  - Декабрь
-DAYS_OF_THE_WEEK:
-  - Понедельник
-  - Вторник
-  - Среда
-  - Четверг
-  - Пятница
-  - Суббота
-  - Воскресенье
+GRAV:
+  FRONTMATTER_ERROR_PAGE: "---\ntitle: %1$s\n---\n\n# Ошибка: недопустимое содержимое Frontmatter\n\nПуть: `%2$s`\n\n**%3$s**\n\n```\n%4$s\n```"
+  INFLECTOR_UNCOUNTABLE:
+    - 'экипировка'
+    - 'информация'
+    - 'рис'
+    - 'деньги'
+    - 'виды'
+    - 'серии'
+    - 'рыба'
+    - 'овца'
+  INFLECTOR_IRREGULAR:
+    'person': 'люди'
+    'man': 'человек'
+    'child': 'ребенок'
+    'sex': 'пол'
+    'move': 'движется'
+  INFLECTOR_ORDINALS:
+    'default': 'й'
+    'first': 'й'
+    'second': 'й'
+    'third': 'й'
+  NICETIME:
+    NO_DATE_PROVIDED: Дата не указана
+    BAD_DATE: Неверная дата
+    AGO: назад
+    FROM_NOW: теперь
+    JUST_NOW: только что
+    SECOND: секунда
+    MINUTE: минута
+    HOUR: час
+    DAY: день
+    WEEK: неделя
+    MONTH: месяц
+    YEAR: год
+    DECADE: десятилетие
+    SEC: сек
+    MIN: мин
+    HR: ч
+    WK: нед
+    MO: мес
+    YR: г
+    DEC: дстлт
+    SECOND_PLURAL: сек
+    MINUTE_PLURAL: мин
+    HOUR_PLURAL: ч
+    DAY_PLURAL: д
+    WEEK_PLURAL: нед
+    MONTH_PLURAL: мес
+    YEAR_PLURAL: г
+    DECADE_PLURAL: дстлт
+    SEC_PLURAL: сек
+    MIN_PLURAL: мин
+    HR_PLURAL: ч
+    WK_PLURAL: нед
+    MO_PLURAL: мес
+    YR_PLURAL: г
+    DEC_PLURAL: дстлт
+  FORM:
+    VALIDATION_FAIL: <b>Проверка не удалась:</b>
+    INVALID_INPUT: Неверный ввод в
+    MISSING_REQUIRED_FIELD: 'Отсутствует необходимое поле:'
+  MONTHS_OF_THE_YEAR:
+    - 'январь'
+    - 'февраль'
+    - 'март'
+    - 'апрель'
+    - 'май'
+    - 'июнь'
+    - 'Июль'
+    - 'Август'
+    - 'Сентябрь'
+    - 'Октябрь'
+    - 'Ноябрь'
+    - 'Декабрь'
+  DAYS_OF_THE_WEEK:
+    - 'понедельник'
+    - 'вторник'
+    - 'среда'
+    - 'четверг'
+    - 'пятница'
+    - 'суббота'
+    - 'воскресенье'
+  CRON:
+    EVERY: раз в
+    EVERY_HOUR: раз в час
+    EVERY_MINUTE: раз в минуту
+    EVERY_DAY_OF_WEEK: каждый день недели
+    EVERY_DAY_OF_MONTH: каждый день недели
+    EVERY_MONTH: раз в месяц
+    TEXT_PERIOD: Каждый <b />
+    TEXT_MINS: ' в <b /> минуте(ах) за час'
+    TEXT_TIME: ' в <b />:<b />'
+    TEXT_DOW: ' на <b />'
+    TEXT_MONTH: ' из <b />'
+    TEXT_DOM: ' на <b />'
+    ERROR1: Тег %s не поддерживается!
+    ERROR2: Неверное количество элементов
+    ERROR3: jquery_element должен быть установлен в настройки jqCron
+    ERROR4: Выражение не распознано

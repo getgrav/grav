@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @package    Grav.Common.Helpers
+ * @package    Grav\Common\Helpers
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -30,7 +31,7 @@ class Truncator {
     /**
      * Safely truncates HTML by a given number of words.
      * @param  string  $html     Input HTML.
-     * @param  integer $limit    Limit to how many words we preserve.
+     * @param  int     $limit    Limit to how many words we preserve.
      * @param  string  $ellipsis String to use as ellipsis (if any).
      * @return string            Safe truncated HTML.
      */
@@ -40,13 +41,12 @@ class Truncator {
             return $html;
         }
 
-        $dom = self::htmlToDomDocument($html);
-
-        // Grab the body of our DOM.
-        $body = $dom->getElementsByTagName("body")->item(0);
+        $doc = self::htmlToDomDocument($html);
+        $container = $doc->getElementsByTagName('div')->item(0);
+        $container = $container->parentNode->removeChild($container);
 
         // Iterate over words.
-        $words = new DOMWordsIterator($body);
+        $words = new DOMWordsIterator($container);
         $truncated = false;
         foreach ($words as $word) {
 
@@ -65,7 +65,7 @@ class Truncator {
                     $words[$offset][1] + strlen($words[$offset][0])
                 );
 
-                self::removeProceedingNodes($curNode, $body);
+                self::removeProceedingNodes($curNode, $container);
 
                 if (!empty($ellipsis)) {
                     self::insertEllipsis($curNode, $ellipsis);
@@ -80,32 +80,31 @@ class Truncator {
 
         // Return original HTML if not truncated.
         if ($truncated) {
-            return self::innerHTML($body);
-        } else {
-            return $html;
+            $html = self::getCleanedHtml($doc, $container);
         }
+
+        return $html;
     }
 
     /**
      * Safely truncates HTML by a given number of letters.
      * @param  string  $html     Input HTML.
-     * @param  integer $limit    Limit to how many letters we preserve.
+     * @param  int     $limit    Limit to how many letters we preserve.
      * @param  string  $ellipsis String to use as ellipsis (if any).
      * @return string            Safe truncated HTML.
      */
-    public static function truncateLetters($html, $limit = 0, $ellipsis = "")
+    public static function truncateLetters($html, $limit = 0, $ellipsis = '')
     {
         if ($limit <= 0) {
             return $html;
         }
 
-        $dom = self::htmlToDomDocument($html);
-
-        // Grab the body of our DOM.
-        $body = $dom->getElementsByTagName('body')->item(0);
+        $doc = self::htmlToDomDocument($html);
+        $container = $doc->getElementsByTagName('div')->item(0);
+        $container = $container->parentNode->removeChild($container);
 
         // Iterate over letters.
-        $letters = new DOMLettersIterator($body);
+        $letters = new DOMLettersIterator($container);
         $truncated = false;
         foreach ($letters as $letter) {
 
@@ -114,7 +113,7 @@ class Truncator {
 
                 $currentText = $letters->currentTextPosition();
                 $currentText[0]->nodeValue = mb_substr($currentText[0]->nodeValue, 0, $currentText[1] + 1);
-                self::removeProceedingNodes($currentText[0], $body);
+                self::removeProceedingNodes($currentText[0], $container);
 
                 if (!empty($ellipsis)) {
                     self::insertEllipsis($currentText[0], $ellipsis);
@@ -128,10 +127,10 @@ class Truncator {
 
         // Return original HTML if not truncated.
         if ($truncated) {
-            return self::innerHTML($body);
-        } else {
-            return $html;
+            $html = self::getCleanedHtml($doc, $container);
         }
+
+        return $html;
     }
 
     /**
@@ -142,7 +141,7 @@ class Truncator {
     public static function htmlToDomDocument($html)
     {
         if (!$html) {
-            $html = '<p></p>';
+            $html = '';
         }
 
         // Transform multibyte entities which otherwise display incorrectly.
@@ -154,7 +153,7 @@ class Truncator {
         // Instantiate new DOMDocument object, and then load in UTF-8 HTML.
         $dom = new DOMDocument();
         $dom->encoding = 'UTF-8';
-        $dom->loadHTML($html);
+        $dom->loadHTML("<div>$html</div>");
 
         return $dom;
     }
@@ -188,6 +187,27 @@ class Truncator {
     }
 
     /**
+     * Clean extra code
+     *
+     * @param DOMDocument $doc
+     * @param $container
+     * @return string
+     */
+    private static function getCleanedHTML(DOMDocument $doc, $container)
+    {
+        while ($doc->firstChild) {
+            $doc->removeChild($doc->firstChild);
+        }
+
+        while ($container->firstChild ) {
+            $doc->appendChild($container->firstChild);
+        }
+
+        $html = trim($doc->saveHTML());
+        return $html;
+    }
+
+    /**
      * Inserts an ellipsis
      * @param  DOMNode|DOMElement $domNode  Element to insert after.
      * @param  string             $ellipsis Text used to suffix our document.
@@ -214,21 +234,102 @@ class Truncator {
     }
 
     /**
-     * Returns the innerHTML of a particular DOMElement
      *
-     * @param $element
-     * @return string
      */
-    private static function innerHTML($element) {
-        $innerHTML = '';
-        $children = $element->childNodes;
-        foreach ($children as $child)
-        {
-            $tmp_dom = new DOMDocument();
-            $tmp_dom->appendChild($tmp_dom->importNode($child, true));
-            $innerHTML.=trim($tmp_dom->saveHTML());
+    public function truncate(
+        $text,
+        $length = 100,
+        $ending = '...',
+        $exact = false,
+        $considerHtml = true
+    ) {
+        if ($considerHtml) {
+            // if the plain text is shorter than the maximum length, return the whole text
+            if (strlen(preg_replace('/<.*?>/', '', $text)) <= $length) {
+                return $text;
+            }
+            // splits all html-tags to scanable lines
+            preg_match_all('/(<.+?>)?([^<>]*)/s', $text, $lines, PREG_SET_ORDER);
+            $total_length = strlen($ending);
+            $open_tags = array();
+            $truncate = '';
+            foreach ($lines as $line_matchings) {
+                // if there is any html-tag in this line, handle it and add it (uncounted) to the output
+                if (!empty($line_matchings[1])) {
+                    // if it's an "empty element" with or without xhtml-conform closing slash
+                    if (preg_match('/^<(\s*.+?\/\s*|\s*(img|br|input|hr|area|base|basefont|col|frame|isindex|link|meta|param)(\s.+?)?)>$/is', $line_matchings[1])) {
+                        // do nothing
+                        // if tag is a closing tag
+                    } else if (preg_match('/^<\s*\/([^\s]+?)\s*>$/s', $line_matchings[1], $tag_matchings)) {
+                        // delete tag from $open_tags list
+                        $pos = array_search($tag_matchings[1], $open_tags);
+                        if ($pos !== false) {
+                            unset($open_tags[$pos]);
+                        }
+                        // if tag is an opening tag
+                    } else if (preg_match('/^<\s*([^\s>!]+).*?>$/s', $line_matchings[1], $tag_matchings)) {
+                        // add tag to the beginning of $open_tags list
+                        array_unshift($open_tags, strtolower($tag_matchings[1]));
+                    }
+                    // add html-tag to $truncate'd text
+                    $truncate .= $line_matchings[1];
+                }
+                // calculate the length of the plain text part of the line; handle entities as one character
+                $content_length = strlen(preg_replace('/&[0-9a-z]{2,8};|&#[0-9]{1,7};|[0-9a-f]{1,6};/i', ' ', $line_matchings[2]));
+                if ($total_length+$content_length> $length) {
+                    // the number of characters which are left
+                    $left = $length - $total_length;
+                    $entities_length = 0;
+                    // search for html entities
+                    if (preg_match_all('/&[0-9a-z]{2,8};|&#[0-9]{1,7};|[0-9a-f]{1,6};/i', $line_matchings[2], $entities, PREG_OFFSET_CAPTURE)) {
+                        // calculate the real length of all entities in the legal range
+                        foreach ($entities[0] as $entity) {
+                            if ($entity[1]+1-$entities_length <= $left) {
+                                $left--;
+                                $entities_length += strlen($entity[0]);
+                            } else {
+                                // no more characters left
+                                break;
+                            }
+                        }
+                    }
+                    $truncate .= substr($line_matchings[2], 0, $left+$entities_length);
+                    // maximum lenght is reached, so get off the loop
+                    break;
+                } else {
+                    $truncate .= $line_matchings[2];
+                    $total_length += $content_length;
+                }
+                // if the maximum length is reached, get off the loop
+                if($total_length>= $length) {
+                    break;
+                }
+            }
+        } else {
+            if (strlen($text) <= $length) {
+                return $text;
+            } else {
+                $truncate = substr($text, 0, $length - strlen($ending));
+            }
         }
-        return $innerHTML;
+        // if the words shouldn't be cut in the middle...
+        if (!$exact) {
+            // ...search the last occurance of a space...
+            $spacepos = strrpos($truncate, ' ');
+            if (isset($spacepos)) {
+                // ...and cut the text in this position
+                $truncate = substr($truncate, 0, $spacepos);
+            }
+        }
+        // add the defined ending to the text
+        $truncate .= $ending;
+        if($considerHtml) {
+            // close all unclosed html-tags
+            foreach ($open_tags as $tag) {
+                $truncate .= '</' . $tag . '>';
+            }
+        }
+        return $truncate;
     }
 
 }

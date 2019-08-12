@@ -1,8 +1,9 @@
 <?php
+
 /**
  * @package    Grav\Framework\Uri
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -23,7 +24,7 @@ class UriPartsFilter
      */
     public static function filterScheme($scheme)
     {
-        if (!is_string($scheme)) {
+        if (!\is_string($scheme)) {
             throw new \InvalidArgumentException('Uri scheme must be a string');
         }
 
@@ -39,7 +40,7 @@ class UriPartsFilter
      */
     public static function filterUserInfo($info)
     {
-        if (!is_string($info)) {
+        if (!\is_string($info)) {
             throw new \InvalidArgumentException('Uri user info must be a string');
         }
 
@@ -49,7 +50,7 @@ class UriPartsFilter
                 return rawurlencode($match[0]);
             },
             $info
-        );
+        ) ?? '';
     }
 
     /**
@@ -59,7 +60,7 @@ class UriPartsFilter
      */
     public static function filterHost($host)
     {
-        if (!is_string($host)) {
+        if (!\is_string($host)) {
             throw new \InvalidArgumentException('Uri host must be a string');
         }
 
@@ -83,11 +84,11 @@ class UriPartsFilter
      */
     public static function filterPort($port = null)
     {
-        if (null === $port || (is_int($port) && ($port >= 1 && $port <= 65535))) {
+        if (null === $port || (\is_int($port) && ($port >= 0 && $port <= 65535))) {
             return $port;
         }
 
-        throw new \InvalidArgumentException('Uri port must be null or an integer between 1 and 65535');
+        throw new \InvalidArgumentException('Uri port must be null or an integer between 0 and 65535');
     }
 
     /**
@@ -103,7 +104,7 @@ class UriPartsFilter
      */
     public static function filterPath($path)
     {
-        if (!is_string($path)) {
+        if (!\is_string($path)) {
             throw new \InvalidArgumentException('Uri path must be a string');
         }
 
@@ -113,7 +114,7 @@ class UriPartsFilter
                 return rawurlencode($match[0]);
             },
             $path
-        );
+        ) ?? '';
     }
 
     /**
@@ -125,7 +126,7 @@ class UriPartsFilter
      */
     public static function filterQueryOrFragment($query)
     {
-        if (!is_string($query)) {
+        if (!\is_string($query)) {
             throw new \InvalidArgumentException('Uri query string and fragment must be a string');
         }
 
@@ -135,6 +136,6 @@ class UriPartsFilter
                 return rawurlencode($match[0]);
             },
             $query
-        );
+        ) ?? '';
     }
 }

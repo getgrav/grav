@@ -1,0 +1,38 @@
+xss_whitelist: [admin.super] # Whitelist of user access that should 'skip' XSS checking
+xss_enabled:
+    on_events: true
+    invalid_protocols: true
+    moz_binding: true
+    html_inline_styles: true
+    dangerous_tags: true
+xss_invalid_protocols:
+    - javascript
+    - livescript
+    - vbscript
+    - mocha
+    - feed
+    - data
+xss_dangerous_tags:
+    - applet
+    - meta
+    - xml
+    - blink
+    - link
+    - style
+    - script
+    - embed
+    - object
+    - iframe
+    - frame
+    - frameset
+    - ilayer
+    - layer
+    - bgsound
+    - title
+    - base
+uploads_dangerous_extensions:
+    - php
+    - html
+    - htm
+    - js
+    - exe

@@ -1,8 +1,9 @@
 <?php
+
 /**
  * @package    Grav\Framework\Uri
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -81,7 +82,7 @@ class Uri extends AbstractUri
     {
         $queryParams = $this->getQueryParams();
 
-        return isset($queryParams[$key]) ? $queryParams[$key] : null;
+        return $queryParams[$key] ?? null;
     }
 
     /**

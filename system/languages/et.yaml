@@ -1,0 +1,85 @@
+---
+GRAV:
+  FRONTMATTER_ERROR_PAGE: "---\npealkiri: %1$s\n---\n\n# Viga: vigane Frontmatter'i\n\nasukoht: `%2$s`\n\n**%3$s**\n\n```\n%4$s\n```"
+  INFLECTOR_UNCOUNTABLE:
+    - 'equipment'
+    - 'informatsioon'
+    - 'rice'
+    - 'money'
+    - 'species'
+    - 'series'
+    - 'kala'
+    - 'lammas'
+  INFLECTOR_IRREGULAR:
+    'person': 'inimesed'
+    'man': 'mees'
+    'child': 'lapsed'
+  INFLECTOR_ORDINALS:
+    'default': '.'
+    'first': '.'
+    'second': '.'
+    'third': '.'
+  NICETIME:
+    NO_DATE_PROVIDED: Kuupäev määramata
+    BAD_DATE: Vigane kuupäev
+    AGO: tagasi
+    FROM_NOW: praegusest
+    JUST_NOW: just nüüd
+    SECOND: sekund
+    MINUTE: minut
+    HOUR: tundi
+    DAY: päev
+    WEEK: nädal
+    MONTH: kuu
+    YEAR: aasta
+    DECADE: 10 aastat
+    SEC: sek
+    HR: t
+    WK: näd
+    MO: k.
+    YR: a.
+    DEC: dekaad
+    SECOND_PLURAL: sekundit
+    MINUTE_PLURAL: minutit
+    HOUR_PLURAL: tundi
+    DAY_PLURAL: päeva
+    WEEK_PLURAL: nädalat
+    MONTH_PLURAL: kuud
+    YEAR_PLURAL: aastat
+    DECADE_PLURAL: dekaadi
+    SEC_PLURAL: sekundit
+    MIN_PLURAL: min
+    HR_PLURAL: t
+    WK_PLURAL: näd
+    MO_PLURAL: kuud
+    YR_PLURAL: aastat
+    DEC_PLURAL: dek.
+  FORM:
+    VALIDATION_FAIL: <b>Kinnitamine nurjus:</b>
+    INVALID_INPUT: 'Vigane sisend:'
+    MISSING_REQUIRED_FIELD: 'Nõutud väli puudub:'
+  MONTHS_OF_THE_YEAR:
+    - 'jaanuar'
+    - 'veebruar'
+    - 'märts'
+    - 'aprill'
+    - 'mai'
+    - 'juuni'
+    - 'juuli'
+    - 'august'
+    - 'september'
+    - 'oktoober'
+    - 'november'
+    - 'detsember'
+  DAYS_OF_THE_WEEK:
+    - 'esmaspäev'
+    - 'teisipäev'
+    - 'kolmapäev'
+    - 'neljapäev'
+    - 'reede'
+    - 'laupäev'
+    - 'pühapäev'
+  CRON:
+    EVERY: iga
+    EVERY_MONTH: iga kuu
+    TEXT_PERIOD: Iga <b />

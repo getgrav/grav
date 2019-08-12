@@ -1,8 +1,9 @@
 <?php
+
 /**
  * @package    Grav\Framework\Object
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -16,11 +17,13 @@ use Grav\Framework\Object\Interfaces\NestedObjectInterface;
 use Grav\Framework\Object\Property\ObjectPropertyTrait;
 
 /**
- * Property Object class.
- *
- * @package Grav\Framework\Object
+ * Property Objects keep their data in protected object properties.
  */
 class PropertyObject implements NestedObjectInterface, \ArrayAccess
 {
-    use ObjectTrait, ObjectPropertyTrait, NestedPropertyTrait, OverloadedPropertyTrait, NestedArrayAccessTrait;
+    use ObjectTrait;
+    use ObjectPropertyTrait;
+    use NestedPropertyTrait;
+    use OverloadedPropertyTrait;
+    use NestedArrayAccessTrait;
 }

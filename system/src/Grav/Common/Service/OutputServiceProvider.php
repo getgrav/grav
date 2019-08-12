@@ -1,14 +1,15 @@
 <?php
+
 /**
- * @package    Grav.Common.Service
+ * @package    Grav\Common\Service
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Common\Service;
 
-use Grav\Common\Page\Page;
+use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Twig\Twig;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
@@ -21,7 +22,7 @@ class OutputServiceProvider implements ServiceProviderInterface
             /** @var Twig $twig */
             $twig = $c['twig'];
 
-            /** @var Page $page */
+            /** @var PageInterface $page */
             $page = $c['page'];
 
             return $twig->processSite($page->templateFormat());

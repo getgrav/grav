@@ -1,13 +1,15 @@
 <?php
+
 /**
- * @package    Grav.Console
+ * @package    Grav\Console\Gpm
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Console\Gpm;
 
+use Grav\Common\Cache;
 use Grav\Common\Grav;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\GPM\GPM;
@@ -20,14 +22,16 @@ use Symfony\Component\Console\Question\ConfirmationQuestion;
 
 class DirectInstallCommand extends ConsoleCommand
 {
+    /** @var string */
+    protected $all_yes;
 
-    /**
-     *
-     */
+    /** @var string */
+    protected $destination;
+
     protected function configure()
     {
         $this
-            ->setName("direct-install")
+            ->setName('direct-install')
             ->setAliases(['directinstall'])
             ->addArgument(
                 'package-file',
@@ -47,7 +51,7 @@ class DirectInstallCommand extends ConsoleCommand
                 'The destination where the package should be installed at. By default this would be where the grav instance has been launched from',
                 GRAV_ROOT
             )
-            ->setDescription("Installs Grav, plugin, or theme directly from a file or a URL")
+            ->setDescription('Installs Grav, plugin, or theme directly from a file or a URL')
             ->setHelp('The <info>direct-install</info> command installs Grav, plugin, or theme directly from a file or a URL');
     }
 
@@ -63,7 +67,7 @@ class DirectInstallCommand extends ConsoleCommand
             !Installer::isGravInstance($this->destination) ||
             !Installer::isValidDestination($this->destination, [Installer::EXISTS, Installer::IS_LINK])
         ) {
-            $this->output->writeln("<red>ERROR</red>: " . Installer::lastErrorMsg());
+            $this->output->writeln('<red>ERROR</red>: ' . Installer::lastErrorMsg());
             exit;
         }
 
@@ -73,12 +77,12 @@ class DirectInstallCommand extends ConsoleCommand
         $package_file = $this->input->getArgument('package-file');
 
         $helper = $this->getHelper('question');
-        $question = new ConfirmationQuestion('Are you sure you want to direct-install <cyan>'.$package_file.'</cyan> [y|N] ', false);
+        $question = new ConfirmationQuestion("Are you sure you want to direct-install <cyan>{$package_file}</cyan> [y|N] ", false);
 
         $answer = $this->all_yes ? true : $helper->ask($this->input, $this->output, $question);
 
         if (!$answer) {
-            $this->output->writeln("exiting...");
+            $this->output->writeln('exiting...');
             $this->output->writeln('');
             exit;
         }
@@ -86,32 +90,32 @@ class DirectInstallCommand extends ConsoleCommand
         $tmp_dir = Grav::instance()['locator']->findResource('tmp://', true, true);
         $tmp_zip = $tmp_dir . '/Grav-' . uniqid();
 
-        $this->output->writeln("");
-        $this->output->writeln("Preparing to install <cyan>" . $package_file . "</cyan>");
+        $this->output->writeln('');
+        $this->output->writeln("Preparing to install <cyan>{$package_file}</cyan>");
 
 
         if (Response::isRemote($package_file)) {
-            $this->output->write("  |- Downloading package...     0%");
+            $this->output->write('  |- Downloading package...     0%');
             try {
                 $zip = GPM::downloadPackage($package_file, $tmp_zip);
             } catch (\RuntimeException $e) {
                 $this->output->writeln('');
-                $this->output->writeln("  `- <red>ERROR: " . $e->getMessage() . "</red>");
+                $this->output->writeln("  `- <red>ERROR: {$e->getMessage()}</red>");
                 $this->output->writeln('');
                 exit;
             }
 
             if ($zip) {
                 $this->output->write("\x0D");
-                $this->output->write("  |- Downloading package...   100%");
+                $this->output->write('  |- Downloading package...   100%');
                 $this->output->writeln('');
             }
         } else {
-            $this->output->write("  |- Copying package...         0%");
+            $this->output->write('  |- Copying package...         0%');
             $zip = GPM::copyPackage($package_file, $tmp_zip);
             if ($zip) {
                 $this->output->write("\x0D");
-                $this->output->write("  |- Copying package...       100%");
+                $this->output->write('  |- Copying package...       100%');
                 $this->output->writeln('');
             }
         }
@@ -119,19 +123,19 @@ class DirectInstallCommand extends ConsoleCommand
         if (file_exists($zip)) {
             $tmp_source = $tmp_dir . '/Grav-' . uniqid();
 
-            $this->output->write("  |- Extracting package...    ");
+            $this->output->write('  |- Extracting package...    ');
             $extracted = Installer::unZip($zip, $tmp_source);
 
             if (!$extracted) {
                 $this->output->write("\x0D");
-                $this->output->writeln("  |- Extracting package...    <red>failed</red>");
+                $this->output->writeln('  |- Extracting package...    <red>failed</red>');
                 Folder::delete($tmp_source);
                 Folder::delete($tmp_zip);
                 exit;
             }
 
             $this->output->write("\x0D");
-            $this->output->writeln("  |- Extracting package...    <green>ok</green>");
+            $this->output->writeln('  |- Extracting package...    <green>ok</green>');
 
 
             $type = GPM::getPackageType($extracted);
@@ -147,26 +151,26 @@ class DirectInstallCommand extends ConsoleCommand
             $blueprint = GPM::getBlueprints($extracted);
             if ($blueprint) {
                 if (isset($blueprint['dependencies'])) {
-                    $depencencies = [];
+                    $dependencies = [];
                     foreach ($blueprint['dependencies'] as $dependency) {
                         if (is_array($dependency)){
                            if (isset($dependency['name'])) {
-                              $depencencies[] = $dependency['name'];
+                              $dependencies[] = $dependency['name'];
                            }
                            if (isset($dependency['github'])) {
-                              $depencencies[] = $dependency['github'];
+                               $dependencies[] = $dependency['github'];
                            }
                         } else {
-                           $depencencies[] = $dependency;
+                            $dependencies[] = $dependency;
                         }
                     }
-                    $this->output->writeln("  |- Dependencies found...    <cyan>[" . implode(',', $depencencies) . "]</cyan>");
+                    $this->output->writeln('  |- Dependencies found...    <cyan>[' . implode(',', $dependencies) . ']</cyan>');
 
                     $question = new ConfirmationQuestion("  |  '- Dependencies will not be satisfied. Continue ? [y|N] ", false);
                     $answer = $this->all_yes ? true : $helper->ask($this->input, $this->output, $question);
 
                     if (!$answer) {
-                        $this->output->writeln("exiting...");
+                        $this->output->writeln('exiting...');
                         $this->output->writeln('');
                         Folder::delete($tmp_source);
                         Folder::delete($tmp_zip);
@@ -175,14 +179,14 @@ class DirectInstallCommand extends ConsoleCommand
                 }
             }
 
-            if ($type == 'grav') {
+            if ($type === 'grav') {
 
-                $this->output->write("  |- Checking destination...  ");
+                $this->output->write('  |- Checking destination...  ');
                 Installer::isValidDestination(GRAV_ROOT . '/system');
                 if (Installer::IS_LINK === Installer::lastErrorCode()) {
                     $this->output->write("\x0D");
-                    $this->output->writeln("  |- Checking destination...  <yellow>symbolic link</yellow>");
-                    $this->output->writeln("  '- <red>ERROR: symlinks found...</red> <yellow>" . GRAV_ROOT."</yellow>");
+                    $this->output->writeln('  |- Checking destination...  <yellow>symbolic link</yellow>');
+                    $this->output->writeln("  '- <red>ERROR: symlinks found...</red> <yellow>" . GRAV_ROOT . '</yellow>');
                     $this->output->writeln('');
                     Folder::delete($tmp_source);
                     Folder::delete($tmp_zip);
@@ -190,15 +194,16 @@ class DirectInstallCommand extends ConsoleCommand
                 }
 
                 $this->output->write("\x0D");
-                $this->output->writeln("  |- Checking destination...  <green>ok</green>");
+                $this->output->writeln('  |- Checking destination...  <green>ok</green>');
 
-                $this->output->write("  |- Installing package...  ");
-                Installer::install($zip, GRAV_ROOT, ['sophisticated' => true, 'overwrite' => true, 'ignore_symlinks' => true], $extracted);
+                $this->output->write('  |- Installing package...  ');
+
+                static::upgradeGrav($zip, $extracted);
             } else {
                 $name = GPM::getPackageName($extracted);
 
                 if (!$name) {
-                    $this->output->writeln("<red>ERROR: Name could not be determined.</red> Please specify with --name|-n");
+                    $this->output->writeln('<red>ERROR: Name could not be determined.</red> Please specify with --name|-n');
                     $this->output->writeln('');
                     Folder::delete($tmp_source);
                     Folder::delete($tmp_zip);
@@ -208,31 +213,31 @@ class DirectInstallCommand extends ConsoleCommand
                 $install_path = GPM::getInstallPath($type, $name);
                 $is_update = file_exists($install_path);
 
-                $this->output->write("  |- Checking destination...  ");
+                $this->output->write('  |- Checking destination...  ');
 
                 Installer::isValidDestination(GRAV_ROOT . DS . $install_path);
                 if (Installer::lastErrorCode() == Installer::IS_LINK) {
                     $this->output->write("\x0D");
-                    $this->output->writeln("  |- Checking destination...  <yellow>symbolic link</yellow>");
+                    $this->output->writeln('  |- Checking destination...  <yellow>symbolic link</yellow>');
                     $this->output->writeln("  '- <red>ERROR: symlink found...</red>  <yellow>" . GRAV_ROOT . DS . $install_path . '</yellow>');
                     $this->output->writeln('');
                     Folder::delete($tmp_source);
                     Folder::delete($tmp_zip);
                     exit;
 
-                } else {
-                    $this->output->write("\x0D");
-                    $this->output->writeln("  |- Checking destination...  <green>ok</green>");
                 }
 
-                $this->output->write("  |- Installing package...  ");
+                $this->output->write("\x0D");
+                $this->output->writeln('  |- Checking destination...  <green>ok</green>');
+
+                $this->output->write('  |- Installing package...  ');
 
                 Installer::install(
                     $zip,
                     $this->destination,
                     $options = [
                         'install_path' => $install_path,
-                        'theme' => (($type == 'theme')),
+                        'theme' => (($type === 'theme')),
                         'is_update' => $is_update
                     ],
                     $extracted
@@ -244,10 +249,10 @@ class DirectInstallCommand extends ConsoleCommand
             $this->output->write("\x0D");
 
             if(Installer::lastErrorCode()) {
-                $this->output->writeln("  '- <red>" . Installer::lastErrorMsg() . "</red>");
+                $this->output->writeln("  '- <red>" . Installer::lastErrorMsg() . '</red>');
                 $this->output->writeln('');
             } else {
-                $this->output->writeln("  |- Installing package...    <green>ok</green>");
+                $this->output->writeln('  |- Installing package...    <green>ok</green>');
                 $this->output->writeln("  '- <green>Success!</green>  ");
                 $this->output->writeln('');
             }
@@ -262,6 +267,43 @@ class DirectInstallCommand extends ConsoleCommand
         $this->clearCache();
 
         return true;
+    }
 
+    private function upgradeGrav($zip, $folder, $keepFolder = false)
+    {
+        static $ignores = [
+            'backup',
+            'cache',
+            'images',
+            'logs',
+            'tmp',
+            'user',
+            '.htaccess',
+            'robots.txt'
+        ];
+
+        if (!is_dir($folder)) {
+            Installer::setError('Invalid source folder');
+        }
+
+        try {
+            $script = $folder . '/system/install.php';
+            /** Install $installer */
+            if ((file_exists($script) && $install = include $script) && is_callable($install)) {
+                $install($zip);
+            } else {
+                Installer::install(
+                    $zip,
+                    GRAV_ROOT,
+                    ['sophisticated' => true, 'overwrite' => true, 'ignore_symlinks' => true, 'ignores' => $ignores],
+                    $folder,
+                    $keepFolder
+                );
+
+                Cache::clearCache();
+            }
+        } catch (\Exception $e) {
+            Installer::setError($e->getMessage());
+        }
     }
 }

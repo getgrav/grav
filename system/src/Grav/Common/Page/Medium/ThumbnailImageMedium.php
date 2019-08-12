@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @package    Grav.Common.Page
+ * @package    Grav\Common\Page
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -16,7 +17,7 @@ class ThumbnailImageMedium extends ImageMedium
     public $parent = null;
 
     /**
-     * @var boolean
+     * @var bool
      */
     public $linked = false;
 
@@ -38,7 +39,7 @@ class ThumbnailImageMedium extends ImageMedium
      * @param  string $alt
      * @param  string $class
      * @param  string $id
-     * @param  boolean $reset
+     * @param  bool $reset
      * @return array
      */
     public function parsedownElement($title = null, $alt = null, $class = null, $id = null, $reset = true)
@@ -83,13 +84,14 @@ class ThumbnailImageMedium extends ImageMedium
     public function thumbnail($type = 'auto')
     {
         $this->bubble('thumbnail', [$type], false);
+
         return $this->bubble('getThumbnail', [], false);
     }
 
     /**
      * Turn the current Medium into a Link
      *
-     * @param  boolean $reset
+     * @param  bool $reset
      * @param  array  $attributes
      * @return Link
      */
@@ -103,7 +105,7 @@ class ThumbnailImageMedium extends ImageMedium
      *
      * @param  int  $width
      * @param  int  $height
-     * @param  boolean $reset
+     * @param  bool $reset
      * @return Link
      */
     public function lightbox($width = null, $height = null, $reset = true)
@@ -116,7 +118,7 @@ class ThumbnailImageMedium extends ImageMedium
      *
      * @param  string  $method
      * @param  array  $arguments
-     * @param  boolean $testLinked
+     * @param  bool $testLinked
      * @return Medium
      */
     protected function bubble($method, array $arguments = [], $testLinked = true)

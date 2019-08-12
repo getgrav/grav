@@ -1,93 +1,77 @@
 ---
-FRONTMATTER_ERROR_PAGE: |
-  ---
-  Tittel: %1$s
-  ---
-  
-  # Feilmelding: Ugyldig Frontmatter
-  
-  Pane: '%2$s'
-  
-  **%3$s **
-  
-  ```
-  %4$s
-  ```
-INFLECTOR_PLURALS:
-  /(quiz)$/i: '\1zes'
-  /^(ox)$/i: '\1en'
-INFLECTOR_UNCOUNTABLE:
-  - utstyr
-  - informasjon
-  - ris
-  - penger
-  - arter
-  - serier
-  - fisk
-  - sau
-INFLECTOR_IRREGULAR:
-  person: folk
-  man: menn
-  child: barn
-  sex: kjønn
-  move: trekk
-NICETIME:
-  NO_DATE_PROVIDED: Ingen dato gitt
-  BAD_DATE: Dårlig dato
-  AGO: siden
-  FROM_NOW: fra nå
-  SECOND: sekund
-  MINUTE: minutt
-  HOUR: time
-  DAY: dag
-  WEEK: uke
-  MONTH: måned
-  YEAR: år
-  DECADE: tiår
-  SEC: sek
-  MIN: min
-  HR: t
-  WK: uke
-  MO: må
-  YR: år
-  DEC: des
-  SECOND_PLURAL: sekunder
-  MINUTE_PLURAL: minutter
-  HOUR_PLURAL: timer
-  DAY_PLURAL: dager
-  WEEK_PLURAL: uker
-  MONTH_PLURAL: måneder
-  YEAR_PLURAL: år
-  DECADE_PLURAL: tiår
-  SEC_PLURAL: sek
-  MIN_PLURAL: min
-  HR_PLURAL: timer
-  WK_PLURAL: uker
-  MO_PLURAL: mdr
-  YR_PLURAL: år
-  DEC_PLURAL: årtier
-FORM:
-  VALIDATION_FAIL: '<b>Validering mislyktes:</b>'
-  INVALID_INPUT: Ugyldig innhold i
-  MISSING_REQUIRED_FIELD: 'Mangler påkrevd felt:'
-MONTHS_OF_THE_YEAR:
-  - januar
-  - februar
-  - mars
-  - april
-  - mai
-  - juni
-  - juli
-  - august
-  - september
-  - oktober
-  - november
-  - desember
-DAYS_OF_THE_WEEK:
-  - mandag
-  - tirsdag
-  - onsdag
-  - torsdag
-  - fredag
-  - lørdag
-  - søndag
+GRAV:
+  FRONTMATTER_ERROR_PAGE: "---\nTittel: %1$s\n---\n\n# Feilmelding: Ugyldig Frontmatter\n\nSti: `%2$s`\n\n**%3$s**\n\n```\n%4$s\n```"
+  INFLECTOR_UNCOUNTABLE:
+    - 'utstyr'
+    - 'informasjon'
+    - 'ris'
+    - 'penger'
+    - 'arter'
+    - 'serier'
+    - 'fisk'
+    - 'sau'
+  INFLECTOR_IRREGULAR:
+    'person': 'folk'
+    'man': 'menn'
+    'child': 'barn'
+    'sex': 'kjønn'
+    'move': 'trekk'
+  NICETIME:
+    NO_DATE_PROVIDED: Ingen dato gitt
+    BAD_DATE: Ugyldig dato
+    AGO: siden
+    FROM_NOW: fra nå
+    SECOND: sekund
+    MINUTE: minutt
+    HOUR: time
+    DAY: dag
+    WEEK: uke
+    MONTH: måned
+    YEAR: år
+    DECADE: tiår
+    SEC: sek
+    HR: t
+    WK: uke
+    MO: må
+    YR: år
+    DEC: tiår
+    SECOND_PLURAL: sekunder
+    MINUTE_PLURAL: minutter
+    HOUR_PLURAL: timer
+    DAY_PLURAL: dager
+    WEEK_PLURAL: uker
+    MONTH_PLURAL: måneder
+    YEAR_PLURAL: år
+    DECADE_PLURAL: tiår
+    SEC_PLURAL: sek
+    MIN_PLURAL: min
+    HR_PLURAL: timer
+    WK_PLURAL: uker
+    MO_PLURAL: md
+    YR_PLURAL: år
+    DEC_PLURAL: årtier
+  FORM:
+    VALIDATION_FAIL: <b>Godkjenning mislyktes:</b>
+    INVALID_INPUT: Ugyldig innhold i
+    MISSING_REQUIRED_FIELD: 'Mangler påkrevd felt:'
+  MONTHS_OF_THE_YEAR:
+    - 'januar'
+    - 'februar'
+    - 'mars'
+    - 'april'
+    - 'mai'
+    - 'juni'
+    - 'juli'
+    - 'august'
+    - 'september'
+    - 'oktober'
+    - 'november'
+    - 'desember'
+  DAYS_OF_THE_WEEK:
+    - 'mandag'
+    - 'tirsdag'
+    - 'onsdag'
+    - 'torsdag'
+    - 'fredag'
+    - 'lørdag'
+    - 'søndag'

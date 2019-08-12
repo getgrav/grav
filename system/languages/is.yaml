@@ -1,0 +1,80 @@
+---
+GRAV:
+  FRONTMATTER_ERROR_PAGE: "---\ntitill: %1$s\n---\n\n# Villa: Ógilt efni á forsíðu\n\nSlóð: `%2$s`\n\n**%3$s**\n\n```\n%4$s\n```"
+  INFLECTOR_UNCOUNTABLE:
+    - 'equipment'
+    - 'upplýsingar'
+    - 'rice'
+    - 'money'
+    - 'species'
+    - 'series'
+    - 'fish'
+    - 'sheep'
+  NICETIME:
+    NO_DATE_PROVIDED: Engin dagsetning gefin
+    BAD_DATE: Röng dagsetning
+    AGO: síðan
+    JUST_NOW: í þessu
+    SECOND: sekúndu
+    MINUTE: mínútu
+    HOUR: klukkustund
+    DAY: degi
+    WEEK: viku
+    MONTH: mánuði
+    YEAR: ári
+    DECADE: áratug
+    SEC: sek
+    MIN: mín
+    HR: klst
+    WK: vk
+    MO: mán
+    YR: ár
+    DEC: árat
+    SECOND_PLURAL: sekúndum
+    MINUTE_PLURAL: mínútum
+    HOUR_PLURAL: klukkustundum
+    DAY_PLURAL: dögum
+    WEEK_PLURAL: vikum
+    MONTH_PLURAL: mánuðum
+    YEAR_PLURAL: árum
+    DECADE_PLURAL: áratugum
+    SEC_PLURAL: sek
+    MIN_PLURAL: mín
+    HR_PLURAL: klst
+    WK_PLURAL: vik
+    MO_PLURAL: mán
+    YR_PLURAL: árum
+    DEC_PLURAL: árat
+  FORM:
+    VALIDATION_FAIL: <b>Sannvottun mistókst:</b>
+    INVALID_INPUT: Ógilt inntak í
+    MISSING_REQUIRED_FIELD: 'Vantar nauðsynlegan reit:'
+  MONTHS_OF_THE_YEAR:
+    - 'janúar'
+    - 'Febrúar'
+    - 'Mars'
+    - 'Apríl'
+    - 'Maí'
+    - 'Júní'
+    - 'Júlí'
+    - 'Ágúst'
+    - 'September'
+    - 'Október'
+    - 'Nóvember'
+    - 'Desember'
+  DAYS_OF_THE_WEEK:
+    - 'Mánudagur'
+    - 'Þriðjudagur'
+    - 'Miðvikudagur'
+    - 'Fimmtudagur'
+    - 'Föstudagur'
+    - 'Laugardagur'
+    - 'Sunnudagur'
+  CRON:
+    TEXT_TIME: ' á <b />:<b />'
+    TEXT_DOW: ' á <b />'
+    TEXT_MONTH: ' af <b />'
+    TEXT_DOM: ' á <b />'
+    ERROR1: Merkið %s er ekki stutt!
+    ERROR3: Það ætti að setja jquery_element inn í stillingar jqCron
+    ERROR4: Óþekkt segð

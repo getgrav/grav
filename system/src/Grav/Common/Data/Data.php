@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @package    Grav.Common.Data
+ * @package    Grav\Common\Data
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -15,28 +16,27 @@ use RocketTheme\Toolbox\ArrayTraits\NestedArrayAccessWithGetters;
 use RocketTheme\Toolbox\File\File;
 use RocketTheme\Toolbox\File\FileInterface;
 
-class Data implements DataInterface, \ArrayAccess, \Countable, ExportInterface
+class Data implements DataInterface, \ArrayAccess, \Countable, \JsonSerializable, ExportInterface
 {
     use NestedArrayAccessWithGetters, Countable, Export;
 
+    /** @var string */
     protected $gettersVariable = 'items';
+
+    /** @var array */
     protected $items;
 
-    /**
-     * @var Blueprints
-     */
+    /** @var Blueprint */
     protected $blueprints;
 
-    /**
-     * @var File
-     */
+    /** @var File */
     protected $storage;
 
     /**
      * @param array $items
      * @param Blueprint|callable $blueprints
      */
-    public function __construct(array $items = array(), $blueprints = null)
+    public function __construct(array $items = [], $blueprints = null)
     {
         $this->items = $items;
         $this->blueprints = $blueprints;
@@ -70,14 +70,16 @@ class Data implements DataInterface, \ArrayAccess, \Countable, ExportInterface
     {
         $old = $this->get($name, null, $separator);
         if ($old !== null) {
-            if (!is_array($old)) {
+            if (!\is_array($old)) {
                 throw new \RuntimeException('Value ' . $old);
             }
-            if (is_object($value)) {
+
+            if (\is_object($value)) {
                 $value = (array) $value;
-            } elseif (!is_array($value)) {
+            } elseif (!\is_array($value)) {
                 throw new \RuntimeException('Value ' . $value);
             }
+
             $value = $this->blueprints()->mergeData($old, $value, $name, $separator);
         }
 
@@ -108,9 +110,10 @@ class Data implements DataInterface, \ArrayAccess, \Countable, ExportInterface
      */
     public function joinDefaults($name, $value, $separator = '.')
     {
-        if (is_object($value)) {
+        if (\is_object($value)) {
             $value = (array) $value;
         }
+
         $old = $this->get($name, null, $separator);
         if ($old !== null) {
             $value = $this->blueprints()->mergeData($value, $old, $name, $separator);
@@ -125,16 +128,16 @@ class Data implements DataInterface, \ArrayAccess, \Countable, ExportInterface
      * Get value from the configuration and join it with given data.
      *
      * @param string  $name       Dot separated path to the requested value.
-     * @param array   $value      Value to be joined.
+     * @param array|object $value      Value to be joined.
      * @param string  $separator  Separator, defaults to '.'
      * @return array
      * @throws \RuntimeException
      */
     public function getJoined($name, $value, $separator = '.')
     {
-        if (is_object($value)) {
+        if (\is_object($value)) {
             $value = (array) $value;
-        } elseif (!is_array($value)) {
+        } elseif (!\is_array($value)) {
             throw new \RuntimeException('Value ' . $value);
         }
 
@@ -145,7 +148,7 @@ class Data implements DataInterface, \ArrayAccess, \Countable, ExportInterface
             return $value;
         }
 
-        if (!is_array($old)) {
+        if (!\is_array($old)) {
             throw new \RuntimeException('Value ' . $old);
         }
 
@@ -195,11 +198,14 @@ class Data implements DataInterface, \ArrayAccess, \Countable, ExportInterface
 
     /**
      * @return $this
-     * Filter all items by using blueprints.
      */
     public function filter()
     {
-        $this->items = $this->blueprints()->filter($this->items);
+        $args = func_get_args();
+        $missingValuesAsNull = (bool)(array_shift($args) ?: false);
+        $keepEmptyValues = (bool)(array_shift($args) ?: false);
+
+        $this->items = $this->blueprints()->filter($this->items, $missingValuesAsNull, $keepEmptyValues);
 
         return $this;
     }
@@ -223,7 +229,7 @@ class Data implements DataInterface, \ArrayAccess, \Countable, ExportInterface
     {
         if (!$this->blueprints){
             $this->blueprints = new Blueprint;
-        } elseif (is_callable($this->blueprints)) {
+        } elseif (\is_callable($this->blueprints)) {
             // Lazy load blueprints.
             $blueprints = $this->blueprints;
             $this->blueprints = $blueprints();
@@ -282,6 +288,12 @@ class Data implements DataInterface, \ArrayAccess, \Countable, ExportInterface
         if ($storage) {
             $this->storage = $storage;
         }
+
         return $this->storage;
+    }
+
+    public function jsonSerialize()
+    {
+        return $this->items;
     }
 }

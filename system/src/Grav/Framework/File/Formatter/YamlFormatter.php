@@ -1,72 +1,80 @@
 <?php
+
+declare(strict_types=1);
+
 /**
  * @package    Grav\Framework\File\Formatter
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Framework\File\Formatter;
 
+use Grav\Framework\File\Interfaces\FileFormatterInterface;
 use Symfony\Component\Yaml\Exception\DumpException;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml as YamlParser;
 use RocketTheme\Toolbox\Compat\Yaml\Yaml as FallbackYamlParser;
 
-class YamlFormatter implements FormatterInterface
+class YamlFormatter extends AbstractFormatter
 {
-    /** @var array */
-    private $config;
-
     public function __construct(array $config = [])
     {
-        $this->config = $config + [
+        $config += [
             'file_extension' => '.yaml',
             'inline' => 5,
             'indent' => 2,
             'native' => true,
             'compat' => true
         ];
+
+        parent::__construct($config);
     }
 
     /**
-     * @deprecated 1.5 Use $formatter->getDefaultFileExtension() instead.
+     * @return int
      */
-    public function getFileExtension()
+    public function getInlineOption(): int
     {
-        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.5, use getDefaultFileExtension() method instead', E_USER_DEPRECATED);
+        return $this->getConfig('inline');
+    }
 
-        return $this->getDefaultFileExtension();
+    /**
+     * @return int
+     */
+    public function getIndentOption(): int
+    {
+        return $this->getConfig('indent');
+    }
+
+    /**
+     * @return bool
+     */
+    public function useNativeDecoder(): bool
+    {
+        return $this->getConfig('native');
+    }
+
+    /**
+     * @return bool
+     */
+    public function useCompatibleDecoder(): bool
+    {
+        return $this->getConfig('compat');
     }
 
     /**
      * {@inheritdoc}
+     * @see FileFormatterInterface::encode()
      */
-    public function getDefaultFileExtension()
-    {
-        $extensions = $this->getSupportedFileExtensions();
-
-        return (string) reset($extensions);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getSupportedFileExtensions()
-    {
-        return (array) $this->config['file_extension'];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function encode($data, $inline = null, $indent = null)
+    public function encode($data, $inline = null, $indent = null): string
     {
         try {
-            return (string) YamlParser::dump(
+            return YamlParser::dump(
                 $data,
-                $inline ? (int) $inline : $this->config['inline'],
-                $indent ? (int) $indent : $this->config['indent'],
+                $inline ? (int) $inline : $this->getInlineOption(),
+                $indent ? (int) $indent : $this->getIndentOption(),
                 YamlParser::DUMP_EXCEPTION_ON_INVALID_TYPE
             );
         } catch (DumpException $e) {
@@ -76,14 +84,15 @@ class YamlFormatter implements FormatterInterface
 
     /**
      * {@inheritdoc}
+     * @see FileFormatterInterface::decode()
      */
-    public function decode($data)
+    public function decode($data): array
     {
         // Try native PECL YAML PHP extension first if available.
-        if ($this->config['native'] && function_exists('yaml_parse')) {
+        if (\function_exists('yaml_parse') && $this->useNativeDecoder()) {
             // Safely decode YAML.
             $saved = @ini_get('yaml.decode_php');
-            @ini_set('yaml.decode_php', 0);
+            @ini_set('yaml.decode_php', '0');
             $decoded = @yaml_parse($data);
             @ini_set('yaml.decode_php', $saved);
 
@@ -95,7 +104,7 @@ class YamlFormatter implements FormatterInterface
         try {
             return (array) YamlParser::parse($data);
         } catch (ParseException $e) {
-            if ($this->config['compat']) {
+            if ($this->useCompatibleDecoder()) {
                 return (array) FallbackYamlParser::parse($data);
             }
 

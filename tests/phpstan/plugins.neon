@@ -1,0 +1,20 @@
+includes:
+    #- '../../vendor/phpstan/phpstan-strict-rules/rules.neon'
+    - '../../vendor/phpstan/phpstan-deprecation-rules/rules.neon'
+parameters:
+    fileExtensions:
+        - php
+    excludes_analyse:
+        - %currentWorkingDirectory%/user/plugins/*/vendor/*
+        - %currentWorkingDirectory%/user/plugins/*/tests/*
+    bootstrap: tests/phpstan/plugins-bootstrap.php
+    reportUnmatchedIgnoredErrors: true
+    universalObjectCratesClasses:
+        - Grav\Common\Config\Config
+        - Grav\Common\Config\Languages
+        - Grav\Common\Config\Setup
+        - Grav\Common\Data\Data
+        - Grav\Common\GPM\Common\Package
+        - Grav\Common\GPM\Local\Package
+        - Grav\Common\GPM\Remote\Package
+        - Grav\Common\Session

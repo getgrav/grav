@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @package    Grav.Console
+ * @package    Grav\Console\Cli
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -15,30 +16,22 @@ use Symfony\Component\Console\Input\InputOption;
 
 class InstallCommand extends ConsoleCommand
 {
-    /**
-     * @var
-     */
+    /** @var array */
     protected $config;
-    /**
-     * @var
-     */
+
+    /** @var array */
     protected $local_config;
-    /**
-     * @var
-     */
+
+    /** @var string */
     protected $destination;
-    /**
-     * @var
-     */
+
+    /** @var string */
     protected $user_path;
 
-    /**
-     *
-     */
     protected function configure()
     {
         $this
-            ->setName("install")
+            ->setName('install')
             ->addOption(
                 'symlink',
                 's',
@@ -50,17 +43,14 @@ class InstallCommand extends ConsoleCommand
                 InputArgument::OPTIONAL,
                 'Where to install the required bits (default to current project)'
             )
-            ->setDescription("Installs the dependencies needed by Grav. Optionally can create symbolic links")
+            ->setDescription('Installs the dependencies needed by Grav. Optionally can create symbolic links')
             ->setHelp('The <info>install</info> command installs the dependencies needed by Grav. Optionally can create symbolic links');
     }
 
-    /**
-     * @return int|null|void
-     */
     protected function serve()
     {
         $dependencies_file = '.dependencies';
-        $this->destination = ($this->input->getArgument('destination')) ? $this->input->getArgument('destination') : ROOT_DIR;
+        $this->destination = $this->input->getArgument('destination') ?: ROOT_DIR;
 
         // fix trailing slash
         $this->destination = rtrim($this->destination, DS) . DS;

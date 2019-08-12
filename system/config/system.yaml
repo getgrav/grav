@@ -13,7 +13,9 @@ intl_enabled: true                               # Special logic for PHP Interna
 
 languages:
   supported: []                                  # List of languages supported. eg: [en, fr, de]
+  default_lang:                                  # Default is the first supported language. Must be one of the supported languages
   include_default_lang: true                     # Include the default lang prefix in all URLs
+  pages_fallback_only: false                     # Only fallback to find page content through supported languages
   translations: true                             # Enable translations by default
   translations_fallback: true                    # Fallback through supported translations if active lang doesn't exist
   session_store_active: false                    # Store active language in session
@@ -52,7 +54,7 @@ pages:
     special_chars:                               # List of special characters to automatically convert to entities
       '>': 'gt'
       '<': 'lt'
-  types: [txt,xml,html,htm,json,rss,atom]        # list of valid page types
+  types: [html,htm,xml,txt,json,rss,atom]        # list of valid page types
   append_url_extension: ''                       # Append page's extension in Page urls (e.g. '.html' results in /path/page.html)
   expires: 604800                                # Page expires time in seconds (604800 seconds = 7 days)
   cache_control:                                 # Can be blank for no setting, or a valid `cache-control` text value
@@ -65,6 +67,7 @@ pages:
   ignore_files: [.DS_Store]                      # Files to ignore in Pages
   ignore_folders: [.git, .idea]                  # Folders to ignore in Pages
   ignore_hidden: true                            # Ignore all Hidden files and folders
+  hide_empty_folders: false                      # If folder has no .md file, should it be hidden
   url_taxonomy_filters: true                     # Enable auto-magic URL-based taxonomy filters for page collections
   frontmatter:
     process_twig: false                          # Should the frontmatter be processed to replace Twig variables?
@@ -74,8 +77,11 @@ cache:
   enabled: true                                  # Set to true to enable caching
   check:
     method: file                                 # Method to check for updates in pages: file|folder|hash|none
-  driver: auto                                   # One of: auto|file|apc|xcache|memcache|wincache
+  driver: auto                                   # One of: auto|file|apcu|memcache|wincache
   prefix: 'g'                                    # Cache prefix string (prevents cache conflicts)
+  purge_at: '0 4 * * *'                          # How often to purge old file cache (using new scheduler)
+  clear_at: '0 3 * * *'                           # How often to clear cache (using new scheduler)
+  clear_job_type: 'standard'                     # Type to clear when processing the scheduled clear job `standard`|`all`
   clear_images_by_default: true                  # By default grav will include processed images in cache clear, this can be disabled
   cli_compatibility: false                       # Ensures only non-volatile drivers are used (file, redis, memcache, etc.)
   lifetime: 604800                               # Lifetime of cached data in seconds (0 = infinite)
@@ -112,6 +118,11 @@ errors:
   display: 0                                     # Display either (1) Full backtrace | (0) Simple Error | (-1) System Error
   log: true                                      # Log errors to /logs folder
 
+log:
+  handler: file                                 # Log handler. Currently supported: file | syslog
+  syslog:
+    facility: local6                            # Syslog facilities output
+
 debugger:
   enabled: false                                 # Enable Grav debugger and following settings
   shutdown:
@@ -123,6 +134,7 @@ images:
   cache_perms: '0755'                            # MUST BE IN QUOTES!! Default cache folder perms. Usually '0755' or '0775'
   debug: false                                   # Show an overlay over images indicating the pixel depth of the image when working with retina for example
   auto_fix_orientation: false                    # Automatically fix the image orientation based on the Exif data
+  seofriendly: false                             # SEO-friendly processed image names
 
 media:
   enable_media_timestamp: false                  # Enable media timestamps
@@ -135,6 +147,7 @@ session:
   initialize: true                               # Initialize session from Grav (if false, plugin needs to start the session)
   timeout: 1800                                  # Timeout in seconds
   name: grav-site                                # Name prefix of the session cookie. Use alphanumeric, dashes or underscores only. Do not use dots in the session name
+  uniqueness: path                               # Should sessions be `path` based or `security.salt` based
   secure: false                                  # Set session secure. If true, indicates that communication for this cookie must be over an encrypted transmission. Enable this only on sites that run exclusively on HTTPS
   httponly: true                                 # Set session HTTP only. If true, indicates that cookies should be used only over HTTP, and JavaScript modification is not allowed.
   split: true                                    # Sessions should be independent between site and plugins (such as admin)
@@ -146,6 +159,10 @@ gpm:
   method: 'auto'                                 # Either 'curl', 'fopen' or 'auto'. 'auto' will try fopen first and if not available cURL
   verify_peer: true                              # Sometimes on some systems (Windows most commonly) GPM is unable to connect because the SSL certificate cannot be verified. Disabling this setting might help.
   official_gpm_only: true                        # By default GPM direct-install will only allow URLs via the official GPM proxy to ensure security
+
+accounts:
+  type: data                                     # Account type: data or flex
+  storage: file                                  # Flex storage type: file or folder
 
 strict_mode:
   yaml_compat: true                              # Grav 1.5+: Enables YAML backwards compatibility

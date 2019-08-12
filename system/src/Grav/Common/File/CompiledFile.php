@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @package    Grav.Common.File
+ * @package    Grav\Common\File
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -81,5 +82,29 @@ trait CompiledFile
         }
 
         return parent::content($var);
+    }
+
+    /**
+     * Serialize file.
+     */
+    public function __sleep()
+    {
+        return [
+            'filename',
+            'extension',
+            'raw',
+            'content',
+            'settings'
+        ];
+    }
+
+    /**
+     * Unserialize file.
+     */
+    public function __wakeup()
+    {
+        if (!isset(static::$instances[$this->filename])) {
+            static::$instances[$this->filename] = $this;
+        }
     }
 }

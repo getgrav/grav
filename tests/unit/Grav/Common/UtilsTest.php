@@ -2,6 +2,7 @@
 
 use Codeception\Util\Fixtures;
 use Grav\Common\Grav;
+use Grav\Common\Uri;
 use Grav\Common\Utils;
 
 /**
@@ -12,10 +13,14 @@ class UtilsTest extends \Codeception\TestCase\Test
     /** @var Grav $grav */
     protected $grav;
 
+    /** @var Uri $uri */
+    protected $uri;
+
     protected function _before()
     {
         $grav = Fixtures::get('grav');
         $this->grav = $grav();
+        $this->uri = $this->grav['uri'];
     }
 
     protected function _after()
@@ -35,6 +40,13 @@ class UtilsTest extends \Codeception\TestCase\Test
         $this->assertFalse(Utils::startsWith('ENGLISH', 'en'));
         $this->assertFalse(Utils::startsWith('ENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISH',
             'e'));
+
+        $this->assertTrue(Utils::startsWith('english', 'En', false));
+        $this->assertTrue(Utils::startsWith('English', 'EN', false));
+        $this->assertTrue(Utils::startsWith('ENGLISH', 'en', false));
+        $this->assertTrue(Utils::startsWith('ENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISH',
+            'e', false));
+
     }
 
     public function testEndsWith()
@@ -50,6 +62,12 @@ class UtilsTest extends \Codeception\TestCase\Test
         $this->assertFalse(Utils::endsWith('ENGLISH', 'Sh'));
         $this->assertFalse(Utils::endsWith('ENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISH',
             'DEUSTCH'));
+
+        $this->assertTrue(Utils::endsWith('english', 'SH', false));
+        $this->assertTrue(Utils::endsWith('EngliSh', 'sH', false));
+        $this->assertTrue(Utils::endsWith('ENGLISH', 'sh', false));
+        $this->assertTrue(Utils::endsWith('ENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISH',
+            'english', false));
     }
 
     public function testContains()
@@ -65,6 +83,12 @@ class UtilsTest extends \Codeception\TestCase\Test
         $this->assertFalse(Utils::contains('ENGLISH', 'SCH'));
         $this->assertFalse(Utils::contains('ENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISH',
             'DEUSTCH'));
+
+        $this->assertTrue(Utils::contains('EngliSh', 'GLI', false));
+        $this->assertTrue(Utils::contains('EngliSh', 'ENGLISH', false));
+        $this->assertTrue(Utils::contains('ENGLISH', 'ish', false));
+        $this->assertTrue(Utils::contains('ENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISH',
+            'english', false));
     }
 
     public function testSubstrToString()
@@ -72,6 +96,10 @@ class UtilsTest extends \Codeception\TestCase\Test
         $this->assertEquals('en', Utils::substrToString('english', 'glish'));
         $this->assertEquals('english', Utils::substrToString('english', 'test'));
         $this->assertNotEquals('en', Utils::substrToString('english', 'lish'));
+
+        $this->assertEquals('en', Utils::substrToString('english', 'GLISH', false));
+        $this->assertEquals('english', Utils::substrToString('english', 'TEST', false));
+        $this->assertNotEquals('en', Utils::substrToString('english', 'LISH', false));
     }
 
     public function testMergeObjects()
@@ -123,6 +151,8 @@ class UtilsTest extends \Codeception\TestCase\Test
 
     public function testTruncateHtml()
     {
+        $this->assertEquals('T...', Utils::truncateHtml('This is a string to truncate', 1));
+        $this->assertEquals('This is...', Utils::truncateHtml('This is a string to truncate', 7));
         $this->assertEquals('<p>T...</p>', Utils::truncateHtml('<p>This is a string to truncate</p>', 1));
         $this->assertEquals('<p>This...</p>', Utils::truncateHtml('<p>This is a string to truncate</p>', 4));
         $this->assertEquals('<p>This is a...</p>', Utils::truncateHtml('<p>This is a string to truncate</p>', 10));
@@ -134,6 +164,8 @@ class UtilsTest extends \Codeception\TestCase\Test
 
     public function testSafeTruncateHtml()
     {
+        $this->assertEquals('This...', Utils::safeTruncateHtml('This is a string to truncate', 1));
+        $this->assertEquals('This is a...', Utils::safeTruncateHtml('This is a string to truncate', 3));
         $this->assertEquals('<p>This...</p>', Utils::safeTruncateHtml('<p>This is a string to truncate</p>', 1));
         $this->assertEquals('<p>This is...</p>', Utils::safeTruncateHtml('<p>This is a string to truncate</p>', 2));
         $this->assertEquals('<p>This is a string to...</p>', Utils::safeTruncateHtml('<p>This is a string to truncate</p>', 5));
@@ -192,7 +224,19 @@ class UtilsTest extends \Codeception\TestCase\Test
         $this->assertEquals('test', Utils::normalizePath('../test'));
         $this->assertEquals('/test', Utils::normalizePath('/../test'));
         $this->assertEquals('/test2', Utils::normalizePath('/test/../test2'));
-        $this->assertEquals('/test/test2', Utils::normalizePath('/test/./test2'));
+        $this->assertEquals('/test3', Utils::normalizePath('/test/../test2/../test3'));
+
+        $this->assertEquals('//cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css', Utils::normalizePath('//cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css'));
+        $this->assertEquals('//use.fontawesome.com/releases/v5.8.1/css/all.css', Utils::normalizePath('//use.fontawesome.com/releases/v5.8.1/css/all.css'));
+        $this->assertEquals('//use.fontawesome.com/releases/v5.8.1/webfonts/fa-brands-400.eot', Utils::normalizePath('//use.fontawesome.com/releases/v5.8.1/css/../webfonts/fa-brands-400.eot'));
+
+        $this->assertEquals('http://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css', Utils::normalizePath('http://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css'));
+        $this->assertEquals('http://use.fontawesome.com/releases/v5.8.1/css/all.css', Utils::normalizePath('http://use.fontawesome.com/releases/v5.8.1/css/all.css'));
+        $this->assertEquals('http://use.fontawesome.com/releases/v5.8.1/webfonts/fa-brands-400.eot', Utils::normalizePath('http://use.fontawesome.com/releases/v5.8.1/css/../webfonts/fa-brands-400.eot'));
+
+        $this->assertEquals('https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css', Utils::normalizePath('https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css'));
+        $this->assertEquals('https://use.fontawesome.com/releases/v5.8.1/css/all.css', Utils::normalizePath('https://use.fontawesome.com/releases/v5.8.1/css/all.css'));
+        $this->assertEquals('https://use.fontawesome.com/releases/v5.8.1/webfonts/fa-brands-400.eot', Utils::normalizePath('https://use.fontawesome.com/releases/v5.8.1/css/../webfonts/fa-brands-400.eot'));
     }
 
     public function testIsFunctionDisabled()
@@ -329,5 +373,154 @@ class UtilsTest extends \Codeception\TestCase\Test
     public function testVerifyNonce()
     {
         $this->assertTrue(Utils::verifyNonce(Utils::getNonce('test-action'), 'test-action'));
+    }
+
+    public function testUrl()
+    {
+        $this->uri->initializeWithUrl('http://testing.dev/path1/path2')->init();
+
+        // Fail hard
+        $this->assertSame(false, Utils::url('', true));
+        $this->assertSame(false, Utils::url(''));
+        $this->assertSame(false, Utils::url(new stdClass()));
+        $this->assertSame(false, Utils::url(['foo','bar','baz']));
+        $this->assertSame(false, Utils::url('user://does/not/exist'));
+
+        // Fail Gracefully
+        $this->assertSame('/', Utils::url('/', false, true));
+        $this->assertSame('/', Utils::url('', false, true));
+        $this->assertSame('/', Utils::url(new stdClass(), false, true));
+        $this->assertSame('/', Utils::url(['foo','bar','baz'], false, true));
+        $this->assertSame('/user/does/not/exist', Utils::url('user://does/not/exist', false, true));
+
+        // Simple paths
+        $this->assertSame('/', Utils::url('/'));
+        $this->assertSame('/path1', Utils::url('/path1'));
+        $this->assertSame('/path1/path2', Utils::url('/path1/path2'));
+        $this->assertSame('/random/path1/path2', Utils::url('/random/path1/path2'));
+        $this->assertSame('/foobar.jpg', Utils::url('/foobar.jpg'));
+        $this->assertSame('/path1/foobar.jpg', Utils::url('/path1/foobar.jpg'));
+        $this->assertSame('/path1/path2/foobar.jpg', Utils::url('/path1/path2/foobar.jpg'));
+        $this->assertSame('/random/path1/path2/foobar.jpg', Utils::url('/random/path1/path2/foobar.jpg'));
+
+        // Simple paths with domain
+        $this->assertSame('http://testing.dev/', Utils::url('/', true));
+        $this->assertSame('http://testing.dev/path1', Utils::url('/path1', true));
+        $this->assertSame('http://testing.dev/path1/path2', Utils::url('/path1/path2', true));
+        $this->assertSame('http://testing.dev/random/path1/path2', Utils::url('/random/path1/path2', true));
+        $this->assertSame('http://testing.dev/foobar.jpg', Utils::url('/foobar.jpg', true));
+        $this->assertSame('http://testing.dev/path1/foobar.jpg', Utils::url('/path1/foobar.jpg', true));
+        $this->assertSame('http://testing.dev/path1/path2/foobar.jpg', Utils::url('/path1/path2/foobar.jpg', true));
+        $this->assertSame('http://testing.dev/random/path1/path2/foobar.jpg', Utils::url('/random/path1/path2/foobar.jpg', true));
+
+        // Relative paths from Grav root.
+        $this->assertSame('/subdir', Utils::url('subdir'));
+        $this->assertSame('/subdir/path1', Utils::url('subdir/path1'));
+        $this->assertSame('/subdir/path1/path2', Utils::url('subdir/path1/path2'));
+        $this->assertSame('/path1', Utils::url('path1'));
+        $this->assertSame('/path1/path2', Utils::url('path1/path2'));
+        $this->assertSame('/foobar.jpg', Utils::url('foobar.jpg'));
+        $this->assertSame('http://testing.dev/foobar.jpg', Utils::url('foobar.jpg', true));
+
+        // Relative paths from Grav root with domain.
+        $this->assertSame('http://testing.dev/foobar.jpg', Utils::url('foobar.jpg', true));
+        $this->assertSame('http://testing.dev/foobar.jpg', Utils::url('/foobar.jpg', true));
+        $this->assertSame('http://testing.dev/path1/foobar.jpg', Utils::url('/path1/foobar.jpg', true));
+
+        // All Non-existing streams should be treated as external URI / protocol.
+        $this->assertSame('http://domain.com/path', Utils::url('http://domain.com/path'));
+        $this->assertSame('ftp://domain.com/path', Utils::url('ftp://domain.com/path'));
+        $this->assertSame('sftp://domain.com/path', Utils::url('sftp://domain.com/path'));
+        $this->assertSame('ssh://domain.com', Utils::url('ssh://domain.com'));
+        $this->assertSame('pop://domain.com', Utils::url('pop://domain.com'));
+        $this->assertSame('foo://bar/baz', Utils::url('foo://bar/baz'));
+        $this->assertSame('foo://bar/baz', Utils::url('foo://bar/baz', true));
+        // $this->assertSame('mailto:joe@domain.com', Utils::url('mailto:joe@domain.com', true)); // FIXME <-
+    }
+
+    public function testUrlWithRoot()
+    {
+        $this->uri->initializeWithUrlAndRootPath('http://testing.dev/subdir/path1/path2', '/subdir')->init();
+
+        // Fail hard
+        $this->assertSame(false, Utils::url('', true));
+        $this->assertSame(false, Utils::url(''));
+        $this->assertSame(false, Utils::url(new stdClass()));
+        $this->assertSame(false, Utils::url(['foo','bar','baz']));
+        $this->assertSame(false, Utils::url('user://does/not/exist'));
+
+        // Fail Gracefully
+        $this->assertSame('/subdir/', Utils::url('/', false, true));
+        $this->assertSame('/subdir/', Utils::url('', false, true));
+        $this->assertSame('/subdir/', Utils::url(new stdClass(), false, true));
+        $this->assertSame('/subdir/', Utils::url(['foo','bar','baz'], false, true));
+        $this->assertSame('/subdir/user/does/not/exist', Utils::url('user://does/not/exist', false, true));
+
+        // Simple paths
+        $this->assertSame('/subdir/', Utils::url('/'));
+        $this->assertSame('/subdir/path1', Utils::url('/path1'));
+        $this->assertSame('/subdir/path1/path2', Utils::url('/path1/path2'));
+        $this->assertSame('/subdir/random/path1/path2', Utils::url('/random/path1/path2'));
+        $this->assertSame('/subdir/foobar.jpg', Utils::url('/foobar.jpg'));
+        $this->assertSame('/subdir/path1/foobar.jpg', Utils::url('/path1/foobar.jpg'));
+        $this->assertSame('/subdir/path1/path2/foobar.jpg', Utils::url('/path1/path2/foobar.jpg'));
+        $this->assertSame('/subdir/random/path1/path2/foobar.jpg', Utils::url('/random/path1/path2/foobar.jpg'));
+
+        // Simple paths with domain
+        $this->assertSame('http://testing.dev/subdir/', Utils::url('/', true));
+        $this->assertSame('http://testing.dev/subdir/path1', Utils::url('/path1', true));
+        $this->assertSame('http://testing.dev/subdir/path1/path2', Utils::url('/path1/path2', true));
+        $this->assertSame('http://testing.dev/subdir/random/path1/path2', Utils::url('/random/path1/path2', true));
+        $this->assertSame('http://testing.dev/subdir/foobar.jpg', Utils::url('/foobar.jpg', true));
+        $this->assertSame('http://testing.dev/subdir/path1/foobar.jpg', Utils::url('/path1/foobar.jpg', true));
+        $this->assertSame('http://testing.dev/subdir/path1/path2/foobar.jpg', Utils::url('/path1/path2/foobar.jpg', true));
+        $this->assertSame('http://testing.dev/subdir/random/path1/path2/foobar.jpg', Utils::url('/random/path1/path2/foobar.jpg', true));
+
+        // Paths including the grav base.
+        $this->assertSame('/subdir/', Utils::url('/subdir'));
+        $this->assertSame('/subdir/path1', Utils::url('/subdir/path1'));
+        $this->assertSame('/subdir/path1/path2', Utils::url('/subdir/path1/path2'));
+        $this->assertSame('/subdir/foobar.jpg', Utils::url('/subdir/foobar.jpg'));
+        $this->assertSame('/subdir/path1/foobar.jpg', Utils::url('/subdir/path1/foobar.jpg'));
+
+        // Relative paths from Grav root with domain.
+        $this->assertSame('http://testing.dev/subdir/', Utils::url('/subdir', true));
+        $this->assertSame('http://testing.dev/subdir/path1', Utils::url('/subdir/path1', true));
+        $this->assertSame('http://testing.dev/subdir/path1/path2', Utils::url('/subdir/path1/path2', true));
+        $this->assertSame('http://testing.dev/subdir/foobar.jpg', Utils::url('/subdir/foobar.jpg', true));
+        $this->assertSame('http://testing.dev/subdir/path1/foobar.jpg', Utils::url('/subdir/path1/foobar.jpg', true));
+
+        // Relative paths from Grav root.
+        $this->assertSame('/subdir/subdir', Utils::url('subdir'));
+        $this->assertSame('/subdir/subdir/path1', Utils::url('subdir/path1'));
+        $this->assertSame('/subdir/subdir/path1/path2', Utils::url('subdir/path1/path2'));
+        $this->assertSame('/subdir/path1', Utils::url('path1'));
+        $this->assertSame('/subdir/path1/path2', Utils::url('path1/path2'));
+        $this->assertSame('/subdir/foobar.jpg', Utils::url('foobar.jpg'));
+        $this->assertSame('http://testing.dev/subdir/foobar.jpg', Utils::url('foobar.jpg', true));
+
+        // All Non-existing streams should be treated as external URI / protocol.
+        $this->assertSame('http://domain.com/path', Utils::url('http://domain.com/path'));
+        $this->assertSame('ftp://domain.com/path', Utils::url('ftp://domain.com/path'));
+        $this->assertSame('sftp://domain.com/path', Utils::url('sftp://domain.com/path'));
+        $this->assertSame('ssh://domain.com', Utils::url('ssh://domain.com'));
+        $this->assertSame('pop://domain.com', Utils::url('pop://domain.com'));
+        $this->assertSame('foo://bar/baz', Utils::url('foo://bar/baz'));
+        $this->assertSame('foo://bar/baz', Utils::url('foo://bar/baz', true));
+        // $this->assertSame('mailto:joe@domain.com', Utils::url('mailto:joe@domain.com', true)); // FIXME <-
+    }
+
+    public function testUrlWithStreams()
+    {
+
+    }
+
+    public function testUrlwithExternals()
+    {
+        $this->uri->initializeWithUrl('http://testing.dev/path1/path2')->init();
+        $this->assertSame('http://foo.com', Utils::url('http://foo.com'));
+        $this->assertSame('https://foo.com', Utils::url('https://foo.com'));
+        $this->assertSame('//foo.com', Utils::url('//foo.com'));
+        $this->assertSame('//foo.com?param=x', Utils::url('//foo.com?param=x'));
     }
 }

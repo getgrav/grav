@@ -1,0 +1,39 @@
+title: User Accounts
+description: User Accounts
+type: flex-objects
+
+extends@: 'user/account'
+
+config:
+  admin:
+    list:
+      fields:
+        username:
+          link: edit
+          search: true
+        email:
+          search: true
+        fullname:
+          search: true
+      options:
+        per_page: 20
+        order:
+          by: username
+          dir: asc
+
+    menu:
+      list:
+        route: '/accounts'
+        title: Accounts
+        icon: fa-users
+        authorize: ['admin.users', 'admin.accounts', 'admin.super']
+
+form:
+  fields:
+    username:
+      flex-disabled@: exists
+      disabled: false
+      flex-readonly@: exists
+      readonly: false
+      validate:
+        required: true

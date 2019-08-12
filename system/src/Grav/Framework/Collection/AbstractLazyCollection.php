@@ -1,8 +1,9 @@
 <?php
+
 /**
  * @package    Grav\Framework\Collection
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -49,6 +50,24 @@ abstract class AbstractLazyCollection extends BaseAbstractLazyCollection impleme
     {
         $this->initialize();
         return $this->collection->chunk($size);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function select(array $keys)
+    {
+        $this->initialize();
+        return $this->collection->select($keys);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function unselect(array $keys)
+    {
+        $this->initialize();
+        return $this->collection->unselect($keys);
     }
 
     /**

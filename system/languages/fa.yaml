@@ -1,0 +1,62 @@
+---
+GRAV:
+  FRONTMATTER_ERROR_PAGE: "---\nعنوان: %1$s\n---\n\n# خطا: Frontmatter غلط\n\nمسیر: %2$s\n\n**%3$s**\n\n```\n%4$s\n```"
+  NICETIME:
+    NO_DATE_PROVIDED: تاریخی ارائه نشده
+    BAD_DATE: تاریخ اشتباه
+    AGO: قبل
+    FROM_NOW: از حالا
+    SECOND: ثانیه
+    MINUTE: دقیقه
+    HOUR: ساعت
+    DAY: روز
+    WEEK: هفته
+    MONTH: ماه
+    YEAR: سال
+    DECADE: دهه
+    SEC: ثانیه
+    MIN: دقیقه
+    HR: ساعت
+    WK: هفته
+    MO: ماه
+    YR: سال
+    DEC: دهه
+    SECOND_PLURAL: ثانیه
+    MINUTE_PLURAL: دقیقه
+    HOUR_PLURAL: ساعت
+    DAY_PLURAL: روز
+    WEEK_PLURAL: هفته
+    MONTH_PLURAL: ماه
+    YEAR_PLURAL: سال
+    DECADE_PLURAL: دهه
+    SEC_PLURAL: ثانیه
+    MIN_PLURAL: دقیقه
+    HR_PLURAL: ساعت
+    WK_PLURAL: هفته
+    YR_PLURAL: سال
+    DEC_PLURAL: دهه
+  FORM:
+    VALIDATION_FAIL: <b>سنجش اعتبار ناموفق بود</b>
+    INVALID_INPUT: ورودی نامعتبر در
+    MISSING_REQUIRED_FIELD: 'قسمت ضروری جا افتاده:'
+  MONTHS_OF_THE_YEAR:
+    - 'ژانویه'
+    - 'فوریه'
+    - 'مارس'
+    - 'آوریل'
+    - 'می'
+    - 'ژوئن'
+    - 'ژوئیه'
+    - 'اوت'
+    - 'سپتامبر'
+    - 'اکتبر'
+    - 'نوامبر'
+    - 'دسامبر'
+  DAYS_OF_THE_WEEK:
+    - 'دوشنبه'
+    - 'سه‌ شنبه'
+    - 'چهارشنبه'
+    - 'پنج شنبه'
+    - 'جمعه'
+    - 'شنبه'
+    - 'یک‌شنبه'

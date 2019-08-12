@@ -1,0 +1,95 @@
+---
+GRAV:
+  FRONTMATTER_ERROR_PAGE: "---\ntitle: %1$s\n---\n\n# Error: Frontmatter tidak valid\n\nLokasi: `%2$s`\n\n**%3$s**\n\n```\n%4$s\n```"
+  INFLECTOR_UNCOUNTABLE:
+    - 'peralatan'
+    - 'informasi'
+    - 'nasi'
+    - 'uang'
+    - 'spesies'
+    - 'rangkaian'
+    - 'ikan'
+    - 'domba'
+  INFLECTOR_IRREGULAR:
+    'person': 'orang-orang'
+    'man': 'laki-laki'
+    'child': 'anak-anak'
+    'sex': 'jenis kelamin'
+    'move': 'pindahkan'
+  NICETIME:
+    NO_DATE_PROVIDED: Tanggal tidak tersedia
+    BAD_DATE: Format tanggal salah
+    AGO: yang lalu
+    FROM_NOW: dari saat ini
+    JUST_NOW: baru saja
+    SECOND: detik
+    MINUTE: menit
+    HOUR: jam
+    DAY: hari
+    WEEK: pekan
+    MONTH: bulan
+    YEAR: tahun
+    DECADE: dekade
+    SEC: dtk
+    MIN: mnt
+    HR: j
+    WK: mng
+    MO: bln
+    YR: thn
+    DEC: desimal
+    SECOND_PLURAL: detik
+    MINUTE_PLURAL: menit
+    HOUR_PLURAL: jam
+    DAY_PLURAL: hari
+    WEEK_PLURAL: pekan
+    MONTH_PLURAL: bulan
+    YEAR_PLURAL: tahun
+    DECADE_PLURAL: dekade
+    SEC_PLURAL: dtk
+    MIN_PLURAL: mnt
+    HR_PLURAL: j
+    WK_PLURAL: mgg
+    MO_PLURAL: bln
+    YR_PLURAL: thn
+    DEC_PLURAL: dekade
+  FORM:
+    VALIDATION_FAIL: <b>Validasi gagal:</b>
+    INVALID_INPUT: Input tidak valid di
+    MISSING_REQUIRED_FIELD: 'Data yang diperlukan belum terisi:'
+  MONTHS_OF_THE_YEAR:
+    - 'Januari'
+    - 'Februari'
+    - 'Maret'
+    - 'April'
+    - 'Mei'
+    - 'Juni'
+    - 'Juli'
+    - 'Agustus'
+    - 'September'
+    - 'Oktober'
+    - 'November'
+    - 'Desember'
+  DAYS_OF_THE_WEEK:
+    - 'Senin'
+    - 'Selasa'
+    - 'Rabu'
+    - 'Kamis'
+    - 'Jumat'
+    - 'Sabtu'
+    - 'Minggu'
+  CRON:
+    EVERY: Setiap
+    EVERY_HOUR: Setiap jam
+    EVERY_MINUTE: Setiap menit
+    EVERY_DAY_OF_WEEK: Setiap hari selama seminggu
+    EVERY_DAY_OF_MONTH: pada tanggal setiap bulannya
+    EVERY_MONTH: setiap bulan
+    TEXT_PERIOD: Setiap <b />
+    TEXT_TIME: ' pada <b />:<b />'
+    TEXT_DOW: ' pada <b />'
+    TEXT_MONTH: ' pada <b />'
+    TEXT_DOM: ' pada <b />'
+    ERROR1: Tag %s tidak didukung!
+    ERROR2: Jumlah elemen tidak valid
+    ERROR3: jquery_element harus ditetapkan ke pengaturan jqCron
+    ERROR4: Ekspresi tidak dikenali

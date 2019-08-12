@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @package    Grav.Common.GPM
+ * @package    Grav\Common\GPM
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -36,9 +37,9 @@ class GravCore extends AbstractPackageCollection
         $this->fetch($refresh, $callback);
 
         $this->data    = json_decode($this->raw, true);
-        $this->version = isset($this->data['version']) ? $this->data['version'] : '-';
-        $this->date    = isset($this->data['date']) ? $this->data['date'] : '-';
-        $this->min_php = isset($this->data['min_php']) ? $this->data['min_php'] : null;
+        $this->version = $this->data['version'] ?? '-';
+        $this->date    = $this->data['date'] ?? '-';
+        $this->min_php = $this->data['min_php'] ?? null;
 
         if (isset($this->data['assets'])) {
             foreach ((array)$this->data['assets'] as $slug => $data) {
@@ -72,7 +73,7 @@ class GravCore extends AbstractPackageCollection
 
         $diffLog = [];
         foreach ((array)$this->data['changelog'] as $version => $changelog) {
-            preg_match("/[\w-\.]+/", $version, $cleanVersion);
+            preg_match("/[\w\-\.]+/", $version, $cleanVersion);
 
             if (!$cleanVersion || version_compare($diff, $cleanVersion[0], '>=')) {
                 continue;
@@ -122,7 +123,7 @@ class GravCore extends AbstractPackageCollection
     public function getMinPHPVersion()
     {
         // If non min set, assume current PHP version
-        if (is_null($this->min_php)) {
+        if (null === $this->min_php) {
             $this->min_php = phpversion();
         }
         return $this->min_php;

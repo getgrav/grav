@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @package    Grav.Common.GPM
+ * @package    Grav\Common\GPM
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -23,7 +24,7 @@ class AbstractPackageCollection extends BaseCollection
 
     /**
      * The lifetime to store the entry in seconds
-     * @var integer
+     * @var int
      */
     private $lifetime = 86400;
 
@@ -40,8 +41,9 @@ class AbstractPackageCollection extends BaseCollection
      */
     public function __construct($repository = null, $refresh = false, $callback = null)
     {
+        parent::__construct();
         if ($repository === null) {
-            throw new \RuntimeException("A repository is required to indicate the origin of the remote collection");
+            throw new \RuntimeException('A repository is required to indicate the origin of the remote collection');
         }
 
         $channel = Grav::instance()['config']->get('system.gpm.releases', 'stable');

@@ -1,14 +1,15 @@
 <?php
+
 /**
  * @package    Grav\Framework\Cache
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Framework\Cache;
 
-use Grav\Framework\Cache\Exception\InvalidArgumentException;
+use Psr\SimpleCache\InvalidArgumentException;
 
 /**
  * Cache trait for PSR-16 compatible "Simple Cache" implementation

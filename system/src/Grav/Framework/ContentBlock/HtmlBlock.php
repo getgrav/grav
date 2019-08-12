@@ -1,8 +1,9 @@
 <?php
+
 /**
  * @package    Grav\Framework\ContentBlock
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -131,7 +132,7 @@ class HtmlBlock extends ContentBlock implements HtmlBlockInterface
      */
     public function addStyle($element, $priority = 0, $location = 'head')
     {
-        if (!is_array($element)) {
+        if (!\is_array($element)) {
             $element = ['href' => (string) $element];
         }
         if (empty($element['href'])) {
@@ -175,7 +176,7 @@ class HtmlBlock extends ContentBlock implements HtmlBlockInterface
      */
     public function addInlineStyle($element, $priority = 0, $location = 'head')
     {
-        if (!is_array($element)) {
+        if (!\is_array($element)) {
             $element = ['content' => (string) $element];
         }
         if (empty($element['content'])) {
@@ -206,7 +207,7 @@ class HtmlBlock extends ContentBlock implements HtmlBlockInterface
      */
     public function addScript($element, $priority = 0, $location = 'head')
     {
-        if (!is_array($element)) {
+        if (!\is_array($element)) {
             $element = ['src' => (string) $element];
         }
         if (empty($element['src'])) {
@@ -243,7 +244,7 @@ class HtmlBlock extends ContentBlock implements HtmlBlockInterface
      */
     public function addInlineScript($element, $priority = 0, $location = 'head')
     {
-        if (!is_array($element)) {
+        if (!\is_array($element)) {
             $element = ['content' => (string) $element];
         }
         if (empty($element['content'])) {
@@ -274,7 +275,7 @@ class HtmlBlock extends ContentBlock implements HtmlBlockInterface
      */
     public function addHtml($html, $priority = 0, $location = 'bottom')
     {
-        if (empty($html) || !is_string($html)) {
+        if (empty($html) || !\is_string($html)) {
             return false;
         }
         if (!isset($this->html[$location])) {
@@ -302,7 +303,7 @@ class HtmlBlock extends ContentBlock implements HtmlBlockInterface
         ];
 
         foreach ($this->blocks as $block) {
-            if ($block instanceof HtmlBlock) {
+            if ($block instanceof self) {
                 $blockAssets = $block->getAssetsFast();
                 $assets['frameworks'] += $blockAssets['frameworks'];
 

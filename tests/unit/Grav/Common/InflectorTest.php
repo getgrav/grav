@@ -13,7 +13,7 @@ class InflectorTest extends \Codeception\TestCase\Test
     /** @var Grav $grav */
     protected $grav;
 
-    /** @var Uri $uri */
+    /** @var Inflector $uri */
     protected $inflector;
 
     protected function _before()

@@ -1,8 +1,9 @@
 <?php
+
 /**
  * @package    Grav\Framework\Object
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -37,8 +38,8 @@ trait NestedPropertyTrait
     public function getNestedProperty($property, $default = null, $separator = null)
     {
         $separator = $separator ?: '.';
-        $path = explode($separator, $property);
-        $offset = array_shift($path);
+        $path = explode($separator, $property) ?: [];
+        $offset = array_shift($path) ?? '';
 
         if (!$this->hasProperty($offset)) {
             return $default;
@@ -57,9 +58,9 @@ trait NestedPropertyTrait
 
             $offset = array_shift($path);
 
-            if ((is_array($current) || is_a($current, 'ArrayAccess')) && isset($current[$offset])) {
+            if ((\is_array($current) || is_a($current, 'ArrayAccess')) && isset($current[$offset])) {
                 $current = $current[$offset];
-            } elseif (is_object($current) && isset($current->{$offset})) {
+            } elseif (\is_object($current) && isset($current->{$offset})) {
                 $current = $current->{$offset};
             } else {
                 return $default;
@@ -80,8 +81,8 @@ trait NestedPropertyTrait
     public function setNestedProperty($property, $value, $separator = null)
     {
         $separator = $separator ?: '.';
-        $path = explode($separator, $property);
-        $offset = array_shift($path);
+        $path = explode($separator, $property) ?: [];
+        $offset = array_shift($path) ?? '';
 
         if (!$path) {
             $this->setProperty($offset, $value);
@@ -97,12 +98,12 @@ trait NestedPropertyTrait
             // Handle arrays and scalars.
             if ($current === null) {
                 $current = [$offset => []];
-            } elseif (is_array($current)) {
+            } elseif (\is_array($current)) {
                 if (!isset($current[$offset])) {
                     $current[$offset] = [];
                 }
             } else {
-                throw new \RuntimeException('Cannot set nested property on non-array value');
+                throw new \RuntimeException("Cannot set nested property {$property} on non-array value");
             }
 
             $current = &$current[$offset];
@@ -122,8 +123,8 @@ trait NestedPropertyTrait
     public function unsetNestedProperty($property, $separator = null)
     {
         $separator = $separator ?: '.';
-        $path = explode($separator, $property);
-        $offset = array_shift($path);
+        $path = explode($separator, $property) ?: [];
+        $offset = array_shift($path) ?? '';
 
         if (!$path) {
             $this->unsetProperty($offset);
@@ -141,12 +142,12 @@ trait NestedPropertyTrait
             if ($current === null) {
                 return $this;
             }
-            if (is_array($current)) {
+            if (\is_array($current)) {
                 if (!isset($current[$offset])) {
                     return $this;
                 }
             } else {
-                throw new \RuntimeException('Cannot set nested property on non-array value');
+                throw new \RuntimeException("Cannot unset nested property {$property} on non-array value");
             }
 
             $current = &$current[$offset];
@@ -159,7 +160,7 @@ trait NestedPropertyTrait
 
     /**
      * @param string $property      Object property to be updated.
-     * @param string $default       Default value.
+     * @param mixed  $default       Default value.
      * @param string $separator     Separator, defaults to '.'
      * @return $this
      * @throws \RuntimeException

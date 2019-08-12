@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @package    Grav.Common.Page
+ * @package    Grav\Common\Page
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -10,6 +11,7 @@ namespace Grav\Common\Page\Medium;
 
 use Grav\Common\Grav;
 use Grav\Common\Data\Blueprint;
+use Grav\Framework\Form\FormFlashFile;
 
 class MediumFactory
 {
@@ -34,15 +36,65 @@ class MediumFactory
 
         $config = Grav::instance()['config'];
 
-        $media_params = $config->get("media.types." . strtolower($ext));
-        if (!$media_params) {
+        $media_params = $config->get('media.types.' . strtolower($ext));
+        if (!\is_array($media_params)) {
             return null;
         }
 
         $params += $media_params;
 
         // Add default settings for undefined variables.
-        $params += $config->get('media.types.defaults');
+        $params += (array)$config->get('media.types.defaults');
+        $params += [
+            'type' => 'file',
+            'thumb' => 'media/thumb.png',
+            'mime' => 'application/octet-stream',
+            'filepath' => $file,
+            'filename' => $filename,
+            'basename' => $basename,
+            'extension' => $ext,
+            'path' => $path,
+            'modified' => filemtime($file),
+            'thumbnails' => []
+        ];
+
+        $locator = Grav::instance()['locator'];
+
+        $file = $locator->findResource("image://{$params['thumb']}");
+        if ($file) {
+            $params['thumbnails']['default'] = $file;
+        }
+
+        return static::fromArray($params);
+    }
+
+    /**
+     * Create Medium from an uploaded file
+     *
+     * @param  FormFlashFile $uploadedFile
+     * @param  array  $params
+     * @return Medium
+     */
+    public static function fromUploadedFile(FormFlashFile $uploadedFile, array $params = [])
+    {
+        $parts = pathinfo($uploadedFile->getClientFilename());
+        $filename = $parts['basename'];
+        $ext = $parts['extension'];
+        $basename = $parts['filename'];
+        $file = $uploadedFile->getTmpFile();
+        $path = dirname($file);
+
+        $config = Grav::instance()['config'];
+
+        $media_params = $config->get('media.types.' . strtolower($ext));
+        if (!\is_array($media_params)) {
+            return null;
+        }
+
+        $params += $media_params;
+
+        // Add default settings for undefined variables.
+        $params += (array)$config->get('media.types.defaults');
         $params += [
             'type' => 'file',
             'thumb' => 'media/thumb.png',
@@ -75,28 +127,22 @@ class MediumFactory
      */
     public static function fromArray(array $items = [], Blueprint $blueprint = null)
     {
-        $type = isset($items['type']) ? $items['type'] : null;
+        $type = $items['type'] ?? null;
 
         switch ($type) {
             case 'image':
                 return new ImageMedium($items, $blueprint);
-                break;
             case 'thumbnail':
                 return new ThumbnailImageMedium($items, $blueprint);
-                break;
             case 'animated':
             case 'vector':
                 return new StaticImageMedium($items, $blueprint);
-                break;
             case 'video':
                 return new VideoMedium($items, $blueprint);
-                break;
             case 'audio':
                 return new AudioMedium($items, $blueprint);
-                break;
             default:
                 return new Medium($items, $blueprint);
-                break;
         }
     }
 

@@ -1,8 +1,9 @@
 <?php
+
 /**
  * @package    Grav\Framework\Collection
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -52,7 +53,38 @@ class ArrayCollection extends BaseArrayCollection implements CollectionInterface
     }
 
     /**
-     * Implementes JsonSerializable interface.
+     * Select items from collection.
+     *
+     * Collection is returned in the order of $keys given to the function.
+     *
+     * @param array $keys
+     * @return static
+     */
+    public function select(array $keys)
+    {
+        $list = [];
+        foreach ($keys as $key) {
+            if ($this->containsKey($key)) {
+                $list[$key] = $this->get($key);
+            }
+        }
+
+        return $this->createFrom($list);
+    }
+
+    /**
+     * Un-select items from collection.
+     *
+     * @param array $keys
+     * @return static
+     */
+    public function unselect(array $keys)
+    {
+        return $this->select(array_diff($this->getKeys(), $keys));
+    }
+
+    /**
+     * Implements JsonSerializable interface.
      *
      * @return array
      */

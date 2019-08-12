@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @package    Grav.Common.Language
+ * @package    Grav\Common\Language
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -179,10 +180,7 @@ class LanguageCodes
 
     public static function isRtl($code)
     {
-        if (static::getOrientation($code) === 'rtl') {
-            return true;
-        }
-        return false;
+        return static::getOrientation($code) === 'rtl';
     }
 
     public static function getNames(array $keys)
@@ -196,7 +194,7 @@ class LanguageCodes
         return $results;
     }
 
-    protected static function get($code, $type)
+    public static function get($code, $type)
     {
         if (isset(static::$codes[$code][$type])) {
             return static::$codes[$code][$type];

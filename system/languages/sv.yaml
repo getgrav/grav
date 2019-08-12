@@ -1,62 +1,72 @@
 ---
-FRONTMATTER_ERROR_PAGE: '--- titel: %1$s --- # Fel: Ogiltig Frontmatter-sökväg: `%2$s` **%3$s** ``` %4$s ```'
-NICETIME:
-  NO_DATE_PROVIDED: Inget datum har angivits
-  BAD_DATE: Ogiltigt datum
-  AGO: sedan
-  FROM_NOW: från nu
-  SECOND: sekund
-  MINUTE: minut
-  HOUR: timme
-  DAY: dag
-  WEEK: vecka
-  MONTH: månad
-  YEAR: år
-  DECADE: årtionde
-  SEC: sek
-  MIN: min
-  HR: t
-  WK: v
-  MO: m
-  YR: år
-  DEC: dec
-  SECOND_PLURAL: sekunder
-  MINUTE_PLURAL: minuter
-  HOUR_PLURAL: timmar
-  DAY_PLURAL: dagar
-  WEEK_PLURAL: veckor
-  MONTH_PLURAL: månader
-  YEAR_PLURAL: år
-  DECADE_PLURAL: årtionden
-  SEC_PLURAL: sek
-  MIN_PLURAL: min
-  HR_PLURAL: t
-  WK_PLURAL: v
-  MO_PLURAL: må
-  YR_PLURAL: år
-  DEC_PLURAL: dec
-FORM:
-  VALIDATION_FAIL: '<b>Kontrollen misslyckades:</b>'
-  INVALID_INPUT: Ogiltig indata i
-  MISSING_REQUIRED_FIELD: 'Obligatoriskt fält måste fyllas i:'
-MONTHS_OF_THE_YEAR:
-  - Januari
-  - Februrari
-  - Mars
-  - April
-  - Maj
-  - Juni
-  - Juli
-  - Augusti
-  - September
-  - Oktober
-  - November
-  - December
-DAYS_OF_THE_WEEK:
-  - Måndag
-  - Tisdag
-  - Onsdag
-  - Torsdag
-  - Fredag
-  - Lördag
-  - Söndag
+GRAV:
+  FRONTMATTER_ERROR_PAGE: "--- titel: %1$s --- # Fel: Ogiltig Frontmatter-sökväg: `%2$s` **%3$s** ``` %4$s ```"
+  INFLECTOR_UNCOUNTABLE:
+    - 'utrustning'
+    - 'information'
+    - 'ris'
+    - 'pengar'
+    - 'arter'
+    - 'serier'
+    - 'fisk'
+    - 'får'
+  INFLECTOR_IRREGULAR:
+    'person': 'personer'
+  NICETIME:
+    NO_DATE_PROVIDED: Inget datum har angivits
+    BAD_DATE: Ogiltigt datum
+    AGO: sedan
+    FROM_NOW: fr.o.m nu
+    SECOND: sekund
+    MINUTE: minut
+    HOUR: timme
+    DAY: dag
+    WEEK: vecka
+    MONTH: månad
+    YEAR: år
+    DECADE: årtionde
+    SEC: sek
+    HR: t
+    WK: v
+    MO: m
+    YR: år
+    SECOND_PLURAL: sekunder
+    MINUTE_PLURAL: minuter
+    HOUR_PLURAL: timmar
+    DAY_PLURAL: dagar
+    WEEK_PLURAL: veckor
+    MONTH_PLURAL: månader
+    YEAR_PLURAL: år
+    DECADE_PLURAL: årtionden
+    SEC_PLURAL: sek
+    MIN_PLURAL: min
+    HR_PLURAL: t
+    WK_PLURAL: v
+    MO_PLURAL: må
+    YR_PLURAL: år
+    DEC_PLURAL: dec
+  FORM:
+    VALIDATION_FAIL: <b>Kontrollen misslyckades:</b>
+    INVALID_INPUT: Ogiltig indata i
+    MISSING_REQUIRED_FIELD: 'Obligatoriskt fält måste fyllas i:'
+  MONTHS_OF_THE_YEAR:
+    - 'Januari'
+    - 'Februari'
+    - 'Mars'
+    - 'April'
+    - 'Maj'
+    - 'Juni'
+    - 'Juli'
+    - 'Augusti'
+    - 'September'
+    - 'Oktober'
+    - 'November'
+    - 'December'
+  DAYS_OF_THE_WEEK:
+    - 'Måndag'
+    - 'Tisdag'
+    - 'Onsdag'
+    - 'Torsdag'
+    - 'Fredag'
+    - 'Lördag'
+    - 'Söndag'

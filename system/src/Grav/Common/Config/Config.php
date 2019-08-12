@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @package    Grav.Common.Config
+ * @package    Grav\Common\Config
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -16,14 +17,24 @@ use Grav\Common\Utils;
 
 class Config extends Data
 {
+    public $environment;
+
+    /** @var string */
+    protected $key;
     /** @var string */
     protected $checksum;
-    protected $modified = false;
+    /** @var int */
     protected $timestamp = 0;
+    /** @var bool */
+    protected $modified = false;
 
     public function key()
     {
-        return $this->checksum();
+        if (null === $this->key) {
+            $this->key = md5($this->checksum . $this->timestamp);
+        }
+
+        return $this->key;
     }
 
     public function checksum($checksum = null)
@@ -90,7 +101,7 @@ class Config extends Data
     {
         $setup = Grav::instance()['setup']->toArray();
         foreach ($setup as $key => $value) {
-            if ($key === 'streams' || !is_array($value)) {
+            if ($key === 'streams' || !\is_array($value)) {
                 // Optimized as streams and simple values are fully defined in setup.
                 $this->items[$key] = $value;
             } else {
@@ -98,14 +109,13 @@ class Config extends Data
             }
         }
 
-        // Override the media.upload_limit based on PHP values
-        $upload_limit = Utils::getUploadLimit();
-        $this->items['system']['media']['upload_limit'] = $upload_limit > 0 ? $upload_limit : 1024*1024*1024;
+        // Legacy value - Override the media.upload_limit based on PHP values
+        $this->items['system']['media']['upload_limit'] = Utils::getUploadLimit();
     }
 
     /**
      * @return mixed
-     * @deprecated
+     * @deprecated 1.5 Use Grav::instance()['languages'] instead.
      */
     public function getLanguages()
     {

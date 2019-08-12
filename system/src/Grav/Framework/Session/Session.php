@@ -1,12 +1,15 @@
 <?php
+
 /**
  * @package    Grav\Framework\Session
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Framework\Session;
+
+use Grav\Framework\Session\Exceptions\SessionException;
 
 /**
  * Class Session
@@ -14,6 +17,8 @@ namespace Grav\Framework\Session;
  */
 class Session implements SessionInterface
 {
+    protected $options;
+
     /**
      * @var bool
      */
@@ -36,9 +41,6 @@ class Session implements SessionInterface
         return self::$instance;
     }
 
-    /**
-     * @inheritdoc
-     */
     public function __construct(array $options = [])
     {
         // Session is a singleton.
@@ -59,13 +61,13 @@ class Session implements SessionInterface
         }
 
         // Set default options.
-        $options += array(
+        $options += [
             'cache_limiter' => 'nocache',
             'use_trans_sid' => 0,
             'use_cookies' => 1,
             'lazy_write' => 1,
             'use_strict_mode' => 1
-        );
+        ];
 
         $this->setOptions($options);
 
@@ -139,35 +141,30 @@ class Session implements SessionInterface
             'cache_limiter' => true,
             'cache_expire' => true,
             'use_trans_sid' => true,
-            'trans_sid_tags' => true,           // PHP 7.1
-            'trans_sid_hosts' => true,          // PHP 7.1
-            'sid_length' => true,               // PHP 7.1
-            'sid_bits_per_character' => true,   // PHP 7.1
+            'trans_sid_tags' => true,
+            'trans_sid_hosts' => true,
+            'sid_length' => true,
+            'sid_bits_per_character' => true,
             'upload_progress.enabled' => true,
             'upload_progress.cleanup' => true,
             'upload_progress.prefix' => true,
             'upload_progress.name' => true,
             'upload_progress.freq' => true,
             'upload_progress.min-freq' => true,
-            'lazy_write' => true,
-            'url_rewriter.tags' => true,        // Not used in PHP 7.1
-            'hash_function' => true,            // Not used in PHP 7.1
-            'hash_bits_per_character' => true,  // Not used in PHP 7.1
-            'entropy_file' => true,             // Not used in PHP 7.1
-            'entropy_length' => true,           // Not used in PHP 7.1
+            'lazy_write' => true
         ];
 
         foreach ($options as $key => $value) {
-            if (is_array($value)) {
+            if (\is_array($value)) {
                 // Allow nested options.
                 foreach ($value as $key2 => $value2) {
                     $ckey = "{$key}.{$key2}";
                     if (isset($value2, $allowedOptions[$ckey])) {
-                        $this->ini_set("session.{$ckey}", $value2);
+                        $this->setOption($ckey, $value2);
                     }
                 }
             } elseif (isset($value, $allowedOptions[$key])) {
-                $this->ini_set("session.{$key}", $value);
+                $this->setOption($key, $value);
             }
         }
     }
@@ -177,18 +174,32 @@ class Session implements SessionInterface
      */
     public function start($readonly = false)
     {
+        if (\PHP_SAPI === 'cli') {
+            return $this;
+        }
+
         // Protection against invalid session cookie names throwing exception: http://php.net/manual/en/function.session-id.php#116836
         if (isset($_COOKIE[session_name()]) && !preg_match('/^[-,a-zA-Z0-9]{1,128}$/', $_COOKIE[session_name()])) {
             unset($_COOKIE[session_name()]);
         }
 
-        $options = $readonly ? ['read_and_close' => '1'] : [];
+        $options = $this->options;
+        if ($readonly) {
+            $options['read_and_close'] = '1';
+        }
 
         $success = @session_start($options);
+        $user = $success ? $this->__get('user') : null;
         if (!$success) {
             $last = error_get_last();
             $error = $last ? $last['message'] : 'Unknown error';
-            throw new \RuntimeException('Failed to start session: ' . $error, 500);
+
+            throw new SessionException('Failed to start session: ' . $error, 500);
+        }
+
+        if ($user && !$user->isValid()) {
+            $this->clear();
+            throw new SessionException('User Invalid', 500);
         }
 
         $params = session_get_cookie_params();
@@ -224,8 +235,10 @@ class Session implements SessionInterface
             $params['httponly']
         );
 
-        session_unset();
-        session_destroy();
+        if ($this->isSessionStarted()) {
+            session_unset();
+            session_destroy();
+        }
 
         $this->started = false;
 
@@ -293,7 +306,7 @@ class Session implements SessionInterface
      */
     public function __get($name)
     {
-        return isset($_SESSION[$name]) ? $_SESSION[$name] : null;
+        return $_SESSION[$name] ?? null;
     }
 
     /**
@@ -326,15 +339,17 @@ class Session implements SessionInterface
      * @param string $key
      * @param mixed $value
      */
-    protected function ini_set($key, $value)
+    protected function setOption($key, $value)
     {
-        if (!is_string($value)) {
-            if (is_bool($value)) {
+        if (!\is_string($value)) {
+            if (\is_bool($value)) {
                 $value = $value ? '1' : '0';
+            } else {
+                $value = (string)$value;
             }
-            $value = (string)$value;
         }
 
-        ini_set($key, $value);
+        $this->options[$key] = $value;
+        ini_set("session.{$key}", $value);
     }
 }

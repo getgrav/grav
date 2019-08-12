@@ -1,0 +1,62 @@
+---
+GRAV:
+  FRONTMATTER_ERROR_PAGE: "---\ntitle: %1$s\n---\n\n# 錯誤： 不正確的 Frontmatter\n\n路徑： `%2$s`\n\n**%3$s**\n\n```\n%4$s\n```"
+  NICETIME:
+    NO_DATE_PROVIDED: 沒有提供日期
+    BAD_DATE: 錯誤日期
+    AGO: 之前
+    FROM_NOW: 之後
+    JUST_NOW: 剛剛
+    SECOND: 秒
+    MINUTE: 分
+    HOUR: 小時
+    DAY: 天
+    WEEK: 週
+    MONTH: 月
+    YEAR: 年
+    DECADE: 十年
+    SEC: 秒
+    MIN: 分
+    HR: 小時
+    WK: 週
+    MO: 月
+    YR: 年
+    DEC: 十年
+    SECOND_PLURAL: 秒
+    MINUTE_PLURAL: 分
+    HOUR_PLURAL: 小時
+    DAY_PLURAL: 天
+    WEEK_PLURAL: 週
+    MONTH_PLURAL: 月
+    YEAR_PLURAL: 年
+    DECADE_PLURAL: 十年
+    SEC_PLURAL: 秒
+    MIN_PLURAL: 分
+    HR_PLURAL: 時
+    WK_PLURAL: 週
+    MO_PLURAL: 月
+    YR_PLURAL: 年
+    DEC_PLURAL: 十年
+  FORM:
+    MISSING_REQUIRED_FIELD: 遺漏必填欄位：
+  MONTHS_OF_THE_YEAR:
+    - '一月'
+    - '二月'
+    - '三月'
+    - '四月'
+    - '五月'
+    - '六月'
+    - '七月'
+    - '八月'
+    - '九月'
+    - '十月'
+    - '十一月'
+    - '十二月'
+  DAYS_OF_THE_WEEK:
+    - '星期一'
+    - '星期二'
+    - '星期三'
+    - '星期四'
+    - '星期五'
+    - '星期六'
+    - '星期日'

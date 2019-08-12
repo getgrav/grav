@@ -1,10 +1,19 @@
 <?php
+
+/**
+ * @package    Grav\Common\Media
+ *
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
 namespace Grav\Common\Media\Traits;
 
 use Grav\Common\Cache;
 use Grav\Common\Grav;
 use Grav\Common\Media\Interfaces\MediaCollectionInterface;
 use Grav\Common\Page\Media;
+use Psr\SimpleCache\CacheInterface;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 trait MediaTrait
@@ -23,7 +32,10 @@ trait MediaTrait
      *
      * @return array Empty array means default ordering.
      */
-    abstract public function getMediaOrder();
+    public function getMediaOrder()
+    {
+        return [];
+    }
 
     /**
      * Get URI ot the associated media. Method will return null if path isn't URI.
@@ -42,7 +54,7 @@ trait MediaTrait
        $locator = Grav::instance()['locator'];
        $user = $locator->findResource('user://');
        if (strpos($folder, $user) === 0) {
-           return 'user://' . substr($folder, strlen($user)+1);
+           return 'user://' . substr($folder, \strlen($user)+1);
        }
 
        return null;
@@ -55,14 +67,14 @@ trait MediaTrait
      */
     public function getMedia()
     {
-        $cache = $this->getMediaCache();
-
         if ($this->media === null) {
+            $cache = $this->getMediaCache();
+
             // Use cached media if possible.
             $cacheKey = md5('media' . $this->getCacheKey());
-            if (!$media = $cache->fetch($cacheKey)) {
+            if (!$media = $cache->get($cacheKey)) {
                 $media = new Media($this->getMediaFolder(), $this->getMediaOrder());
-                $cache->save($cacheKey, $media);
+                $cache->set($cacheKey, $media);
             }
             $this->media = $media;
         }
@@ -80,7 +92,7 @@ trait MediaTrait
     {
         $cache = $this->getMediaCache();
         $cacheKey = md5('media' . $this->getCacheKey());
-        $cache->save($cacheKey, $media);
+        $cache->set($cacheKey, $media);
 
         $this->media = $media;
 
@@ -95,14 +107,19 @@ trait MediaTrait
         $cache = $this->getMediaCache();
         $cacheKey = md5('media' . $this->getCacheKey());
         $cache->delete($cacheKey);
+
+        $this->media = null;
     }
 
     /**
-     * @return Cache
+     * @return CacheInterface
      */
     protected function getMediaCache()
     {
-        return Grav::instance()['cache'];
+        /** @var Cache $cache */
+        $cache = Grav::instance()['cache'];
+
+        return $cache->getSimpleCache();
     }
 
     /**

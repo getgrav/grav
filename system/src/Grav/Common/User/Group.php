@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @package    Grav.Common.User
+ * @package    Grav\Common\User
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -37,7 +38,7 @@ class Group extends Data
         $groups = [];
 
         foreach(static::groups() as $groupname => $group) {
-            $groups[$groupname] = isset($group['readableName']) ? $group['readableName'] : $groupname;
+            $groups[$groupname] = $group['readableName'] ?? $groupname;
         }
 
         return $groups;
@@ -66,10 +67,10 @@ class Group extends Data
     {
         $groups = self::groups();
 
-        $content = isset($groups[$groupname]) ? $groups[$groupname] : [];
+        $content = $groups[$groupname] ?? [];
         $content += ['groupname' => $groupname];
 
-        $blueprints = new Blueprints;
+        $blueprints = new Blueprints();
         $blueprint = $blueprints->get('user/group');
 
         return new Group($content, $blueprint);
@@ -85,17 +86,17 @@ class Group extends Data
         /** @var Config $config */
         $config = $grav['config'];
 
-        $blueprints = new Blueprints;
+        $blueprints = new Blueprints();
         $blueprint = $blueprints->get('user/group');
 
-        $config->set("groups.{$this->groupname}", []);
+        $config->set("groups.{$this->get('groupname')}", []);
 
         $fields = $blueprint->fields();
         foreach ($fields as $field) {
             if ($field['type'] === 'text') {
                 $value = $field['name'];
                 if (isset($this->items['data'][$value])) {
-                    $config->set("groups.{$this->groupname}.{$value}", $this->items['data'][$value]);
+                    $config->set("groups.{$this->get('groupname')}.{$value}", $this->items['data'][$value]);
                 }
             }
             if ($field['type'] === 'array' || $field['type'] === 'permissions') {
@@ -104,14 +105,14 @@ class Group extends Data
 
                 if ($arrayValues) {
                     foreach ($arrayValues as $arrayIndex => $arrayValue) {
-                        $config->set("groups.{$this->groupname}.{$value}.{$arrayIndex}", $arrayValue);
+                        $config->set("groups.{$this->get('groupname')}.{$value}.{$arrayIndex}", $arrayValue);
                     }
                 }
             }
         }
 
         $type = 'groups';
-        $blueprints = $this->blueprints("config/{$type}");
+        $blueprints = $this->blueprints();
 
         $filename = CompiledYamlFile::instance($grav['locator']->findResource("config://{$type}.yaml"));
 
@@ -134,7 +135,7 @@ class Group extends Data
         /** @var Config $config */
         $config = $grav['config'];
 
-        $blueprints = new Blueprints;
+        $blueprints = new Blueprints();
         $blueprint = $blueprints->get('user/group');
 
         $type = 'groups';

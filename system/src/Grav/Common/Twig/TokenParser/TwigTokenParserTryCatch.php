@@ -1,14 +1,18 @@
 <?php
+
 /**
- * @package    Grav.Common.Twig
+ * @package    Grav\Common\Twig
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Common\Twig\TokenParser;
 
 use Grav\Common\Twig\Node\TwigNodeTryCatch;
+use Twig\Node\Node;
+use Twig\Token;
+use Twig\TokenParser\AbstractTokenParser;
 
 /**
  * Handles try/catch in template file.
@@ -21,37 +25,37 @@ use Grav\Common\Twig\Node\TwigNodeTryCatch;
  * {% endcatch %}
  * </pre>
  */
-class TwigTokenParserTryCatch extends \Twig_TokenParser
+class TwigTokenParserTryCatch extends AbstractTokenParser
 {
     /**
      * Parses a token and returns a node.
      *
-     * @param \Twig_Token $token A Twig_Token instance
+     * @param Token $token A Twig_Token instance
      *
-     * @return \Twig_Node A Twig_Node instance
+     * @return Node A Twig_Node instance
      */
-    public function parse(\Twig_Token $token)
+    public function parse(Token $token)
     {
         $lineno = $token->getLine();
         $stream = $this->parser->getStream();
 
-        $stream->expect(\Twig_Token::BLOCK_END_TYPE);
+        $stream->expect(Token::BLOCK_END_TYPE);
         $try = $this->parser->subparse([$this, 'decideCatch']);
         $stream->next();
-        $stream->expect(\Twig_Token::BLOCK_END_TYPE);
+        $stream->expect(Token::BLOCK_END_TYPE);
         $catch = $this->parser->subparse([$this, 'decideEnd']);
         $stream->next();
-        $stream->expect(\Twig_Token::BLOCK_END_TYPE);
+        $stream->expect(Token::BLOCK_END_TYPE);
 
         return new TwigNodeTryCatch($try, $catch, $lineno, $this->getTag());
     }
 
-    public function decideCatch(\Twig_Token $token)
+    public function decideCatch(Token $token)
     {
         return $token->test(array('catch'));
     }
 
-    public function decideEnd(\Twig_Token $token)
+    public function decideEnd(Token $token)
     {
         return $token->test(array('endtry')) || $token->test(array('endcatch'));
     }

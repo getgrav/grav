@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @package    Grav.Console
+ * @package    Grav\Console
  *
- * @copyright  Copyright (C) 2015 - 2018 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -34,7 +35,6 @@ class ConsoleCommand extends Command
      */
     protected function serve()
     {
-
     }
 
     protected function displayGPMRelease()
