@@ -11,10 +11,11 @@ namespace Grav\Common\Page;
 
 use Grav\Common\Grav;
 use Grav\Common\Iterator;
+use Grav\Common\Page\Interfaces\PageCollectionInterface;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Utils;
 
-class Collection extends Iterator
+class Collection extends Iterator implements PageCollectionInterface
 {
     /**
      * @var Pages
@@ -49,6 +50,20 @@ class Collection extends Iterator
     public function params()
     {
         return $this->params;
+    }
+
+    /**
+     * Set parameters to the Collection
+     *
+     * @param array $params
+     *
+     * @return $this
+     */
+    public function setParams(array $params)
+    {
+        $this->params = array_merge($this->params, $params);
+
+        return $this;
     }
 
     /**
@@ -94,10 +109,10 @@ class Collection extends Iterator
      *
      * Merge another collection with the current collection
      *
-     * @param Collection $collection
+     * @param PageCollectionInterface $collection
      * @return $this
      */
-    public function merge(Collection $collection)
+    public function merge(PageCollectionInterface $collection)
     {
         foreach($collection as $page) {
             $this->addPage($page);
@@ -109,10 +124,10 @@ class Collection extends Iterator
     /**
      * Intersect another collection with the current collection
      *
-     * @param Collection $collection
+     * @param PageCollectionInterface $collection
      * @return $this
      */
-    public function intersect(Collection $collection)
+    public function intersect(PageCollectionInterface $collection)
     {
         $array1 = $this->items;
         $array2 = $collection->toArray();
@@ -120,20 +135,6 @@ class Collection extends Iterator
         $this->items = array_uintersect($array1, $array2, function($val1, $val2) {
             return strcmp($val1['slug'], $val2['slug']);
         });
-
-        return $this;
-    }
-
-    /**
-     * Set parameters to the Collection
-     *
-     * @param array $params
-     *
-     * @return $this
-     */
-    public function setParams(array $params)
-    {
-        $this->params = array_merge($this->params, $params);
 
         return $this;
     }
@@ -240,7 +241,7 @@ class Collection extends Iterator
      *
      * @return bool True if item is first.
      */
-    public function isFirst($path)
+    public function isFirst($path): bool
     {
         return $this->items && $path === array_keys($this->items)[0];
     }
@@ -252,7 +253,7 @@ class Collection extends Iterator
      *
      * @return bool True if item is last.
      */
-    public function isLast($path)
+    public function isLast($path): bool
     {
         return $this->items && $path === array_keys($this->items)[\count($this->items) - 1];
     }
@@ -311,7 +312,7 @@ class Collection extends Iterator
      *
      * @return int   the index of the current page.
      */
-    public function currentPosition($path)
+    public function currentPosition($path): int
     {
         return \array_search($path, \array_keys($this->items), true);
     }
