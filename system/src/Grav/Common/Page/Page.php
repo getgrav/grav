@@ -21,6 +21,7 @@ use Grav\Common\Markdown\ParsedownExtra;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Media\Traits\MediaTrait;
 use Grav\Common\Page\Markdown\Excerpts;
+use Grav\Common\Page\Traits\PageFormTrait;
 use Grav\Common\Taxonomy;
 use Grav\Common\Uri;
 use Grav\Common\Utils;
@@ -34,6 +35,7 @@ define('PAGE_ORDER_PREFIX_REGEX', '/^[0-9]+\./u');
 
 class Page implements PageInterface
 {
+    use PageFormTrait;
     use MediaTrait;
 
     /**
@@ -94,8 +96,6 @@ class Page implements PageInterface
     protected $ssl;
     protected $template_format;
     protected $debugger;
-    /** @var array */
-    protected $forms;
 
     /**
      * @var PageInterface|null Unmodified (original) version of the page. Used for copying and moving the page.
@@ -1250,87 +1250,6 @@ class Page implements PageInterface
     protected function getCacheKey()
     {
         return $this->id();
-    }
-
-    /**
-     * Returns normalized list of name => form pairs.
-     *
-     * @return array
-     */
-    public function forms()
-    {
-        if (null === $this->forms) {
-            $header = $this->header();
-
-            // Call event to allow filling the page header form dynamically (e.g. use case: Comments plugin)
-            $grav = Grav::instance();
-            $grav->fireEvent('onFormPageHeaderProcessed', new Event(['page' => $this, 'header' => $header]));
-
-            $rules = $header->rules ?? null;
-            if (!\is_array($rules)) {
-                $rules = [];
-            }
-
-            $forms = [];
-
-            // First grab page.header.form
-            $form = $this->normalizeForm($header->form ?? null, null, $rules);
-            if ($form) {
-                $forms[$form['name']] = $form;
-            }
-
-            // Append page.header.forms (override singular form if it clashes)
-            $headerForms = $header->forms ?? null;
-            if (\is_array($headerForms)) {
-                foreach ($headerForms as $name => $form) {
-                    $form = $this->normalizeForm($form, $name, $rules);
-                    if ($form) {
-                        $forms[$form['name']] = $form;
-                    }
-                }
-            }
-
-            $this->forms = $forms;
-        }
-
-        return $this->forms;
-    }
-
-    /**
-     * @param array $new
-     */
-    public function addForms(array $new)
-    {
-        // Initialize forms.
-        $this->forms();
-
-        foreach ($new as $form) {
-            $form = $this->normalizeForm($form);
-            if ($form) {
-                $this->forms[$form['name']] = $form;
-            }
-        }
-    }
-
-    protected function normalizeForm($form, $name = null, array $rules = [])
-    {
-        if (!\is_array($form)) {
-            return null;
-        }
-
-        // Ignore numeric indexes on name.
-        if (!$name || (string)(int)$name === (string)$name) {
-            $name = null;
-        }
-
-        $name = $name ?? $form['name'] ?? $this->slug();
-
-        $formRules = $form['rules'] ?? null;
-        if (!\is_array($formRules)) {
-            $formRules = [];
-        }
-
-        return ['name' => $name, 'rules' => $rules + $formRules] + $form;
     }
 
     /**
