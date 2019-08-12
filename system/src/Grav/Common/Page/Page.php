@@ -26,8 +26,6 @@ use Grav\Common\Taxonomy;
 use Grav\Common\Uri;
 use Grav\Common\Utils;
 use Grav\Common\Yaml;
-use Negotiation\Accept;
-use Negotiation\Negotiator;
 use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\File\MarkdownFile;
 
@@ -1337,8 +1335,8 @@ class Page implements PageInterface
     }
 
     /**
-     * Allows a page to override the output render format, usually the extension provided
-     * in the URL. (e.g. `html`, `json`, `xml`, etc).
+     * Allows a page to override the output render format, usually the extension provided in the URL.
+     * (e.g. `html`, `json`, `xml`, etc).
      *
      * @param string|null $var
      *
@@ -1346,49 +1344,14 @@ class Page implements PageInterface
      */
     public function templateFormat($var = null)
     {
-        if ($var !== null) {
-            $this->template_format = $var;
-            return $this->template_format;
+        if (null !== $var) {
+            $this->template_format = is_string($var) ? $var : null;
         }
 
-        if (isset($this->template_format)) {
-            return $this->template_format;
+        if (!isset($this->template_format)) {
+            $this->template_format = ltrim($this->header->append_url_extension ?? Utils::getPageFormat(), '.');
         }
 
-        // Set from URL extension set on page
-        $page_extension = trim($this->header->append_url_extension ?? '' , '.');
-        if (!empty($page_extension)) {
-            $this->template_format = $page_extension;
-
-            return $this->template_format;
-        }
-
-        // Set from uri extension
-        $uri_extension = Grav::instance()['uri']->extension();
-        if (is_string($uri_extension)) {
-            $this->template_format = $uri_extension;
-
-            return $this->template_format;
-        }
-
-        // Use content negotiation via the `accept:` header
-        $http_accept = $_SERVER['HTTP_ACCEPT'] ?? null;
-        if (is_string($http_accept)) {
-            $negotiator = new Negotiator();
-
-            $supported_types = Utils::getSupportPageTypes(['html', 'json']);
-            $priorities = Utils::getMimeTypes($supported_types);
-
-            $media_type = $negotiator->getBest($http_accept, $priorities);
-            $mimetype = $media_type instanceof Accept ? $media_type->getValue() : '';
-
-            $this->template_format = Utils::getExtensionByMime($mimetype);
-
-            return $this->template_format;
-        }
-
-        // Last chance set a default type
-        $this->template_format = 'html';
         return $this->template_format;
     }
 

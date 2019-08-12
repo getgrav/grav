@@ -14,6 +14,8 @@ use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Markdown\Parsedown;
 use Grav\Common\Markdown\ParsedownExtra;
 use Grav\Common\Page\Markdown\Excerpts;
+use Negotiation\Accept;
+use Negotiation\Negotiator;
 use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
@@ -661,6 +663,39 @@ abstract class Utils
 
             exit;
         }
+    }
+
+    /**
+     * Returns the output render format, usually the extension provided in the URL. (e.g. `html`, `json`, `xml`, etc).
+     *
+     * @return string
+     */
+    public static function getPageFormat(): string
+    {
+        /** @var Uri $uri */
+        $uri = Grav::instance()['uri'];
+
+        // Set from uri extension
+        $uri_extension = $uri->extension();
+        if (is_string($uri_extension)) {
+            return $uri_extension;
+        }
+
+        // Use content negotiation via the `accept:` header
+        $http_accept = $_SERVER['HTTP_ACCEPT'] ?? null;
+        if (is_string($http_accept)) {
+            $negotiator = new Negotiator();
+
+            $supported_types = Utils::getSupportPageTypes(['html', 'json']);
+            $priorities = Utils::getMimeTypes($supported_types);
+
+            $media_type = $negotiator->getBest($http_accept, $priorities);
+            $mimetype = $media_type instanceof Accept ? $media_type->getValue() : '';
+
+            return Utils::getExtensionByMime($mimetype);
+        }
+
+        return 'html';
     }
 
     /**
