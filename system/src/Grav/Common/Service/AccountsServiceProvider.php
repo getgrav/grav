@@ -46,7 +46,9 @@ class AccountsServiceProvider implements ServiceProviderInterface
 
     protected function dataAccounts(Container $container)
     {
-        define('GRAV_USER_INSTANCE', 'DATA');
+        if (!defined('GRAV_USER_INSTANCE')) {
+            define('GRAV_USER_INSTANCE', 'DATA');
+        }
 
         // Use User class for backwards compatibility.
         return new DataUser\UserCollection(User::class);
@@ -54,7 +56,9 @@ class AccountsServiceProvider implements ServiceProviderInterface
 
     protected function flexAccounts(Container $container)
     {
-        define('GRAV_USER_INSTANCE', 'FLEX');
+        if (!defined('GRAV_USER_INSTANCE')) {
+            define('GRAV_USER_INSTANCE', 'FLEX');
+        }
 
         /** @var Config $config */
         $config = $container['config'];
