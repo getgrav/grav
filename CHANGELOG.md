@@ -1,5 +1,5 @@
 # v1.7.0-beta.5
-## mm/dd/2019
+## 08/11/2019
 
 1. [](#new)
     * Added a new `bin/grav server` CLI command to easily run Symfony or PHP built-in webservers
