@@ -315,7 +315,7 @@ class Pages
             'url_taxonomy_filters' => $config->get('system.pages.url_taxonomy_filters'),
             'taxonomies' => (array)$config->get('site.taxonomies'),
             'pagination_page' => 1,
-            'self' => $this->grav['page'] ?? null,
+            'self' => null,
         ];
 
         // Include taxonomies from the URL if requested.
@@ -339,7 +339,7 @@ class Pages
             $context['pagination_page'] = $uri->currentPage();
         }
 
-        $collection = $this->evaluate($params['items'], $context);
+        $collection = $this->evaluate($params['items'], $context['self']);
         $collection->setParams($params);
 
         // Filter by taxonomies.
@@ -468,11 +468,11 @@ class Pages
     }
 
     /**
-     * @param string|array $value
-     * @param array $context
-     * @return PageCollectionInterface
+     * @param $value
+     * @param PageInterface|null $self
+     * @return Collection
      */
-    protected function evaluate($value, array $context = [])
+    protected function evaluate($value, PageInterface $self = null)
     {
         // Parse command.
         if (is_string($value)) {
@@ -487,9 +487,9 @@ class Pages
             $result = [];
             foreach ((array)$value as $key => $val) {
                 if (is_int($key)) {
-                    $result = $result + $this->evaluate($val, $context)->toArray();
+                    $result = $result + $this->evaluate($val, $self)->toArray();
                 } else {
-                    $result = $result + $this->evaluate([$key => $val], $context)->toArray();
+                    $result = $result + $this->evaluate([$key => $val], $self)->toArray();
                 }
 
             }
@@ -506,7 +506,7 @@ class Pages
         switch ($scope) {
             case 'self@':
             case '@self':
-                $page = $context['self'] ?? null;
+                $page = $self;
                 break;
 
             case 'page@':
