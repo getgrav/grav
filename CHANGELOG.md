@@ -67,7 +67,7 @@
     * Optimization: Combine some early Grav processors into a single one
 
 # v1.6.12
-## mm/dd/2019
+## 08/11/2019
 
 1. [](#new)
     * Added support for custom `FormFlash` save locations
@@ -78,6 +78,7 @@
     * Use new `Utils::getSupportedPageTypes()` to enforce `html,htm` at the front of the list [#2531](https://github.com/getgrav/grav/issues/2531)  
     * Updated vendor libraries
     * Markdown filter is now page-aware so that it works with modular references [admin#1731](https://github.com/getgrav/grav-plugin-admin/issues/1731)
+    * Check of `GRAV_USER_INSTANCE` constant is already defined [#2621](https://github.com/getgrav/grav/pull/2621)
 1. [](#bugfix)
     * Fixed some potential issues when `$grav['user']` is not set
     * Fixed error when calling `Media::add($name, null)`
