@@ -12,6 +12,7 @@ namespace Grav\Framework\Form\Traits;
 use Grav\Common\Data\Blueprint;
 use Grav\Common\Data\Data;
 use Grav\Common\Data\ValidationException;
+use Grav\Common\Debugger;
 use Grav\Common\Form\FormFlash;
 use Grav\Common\Grav;
 use Grav\Common\Twig\Twig;
@@ -191,6 +192,10 @@ trait FormTrait
 
             $this->submit($data, $files);
         } catch (\Exception $e) {
+            /** @var Debugger $debugger */
+            $debugger = $grav['debugger'];
+            $debugger->addException($e);
+
             $this->setError($e->getMessage());
         }
 
@@ -243,6 +248,10 @@ trait FormTrait
         } catch (ValidationException $e) {
             $this->setErrors($e->getMessages());
         }  catch (\Exception $e) {
+            /** @var Debugger $debugger */
+            $debugger = Grav::instance()['debugger'];
+            $debugger->addException($e);
+
             $this->setError($e->getMessage());
         }
 
@@ -274,6 +283,10 @@ trait FormTrait
 
             $this->submitted = true;
         } catch (\Exception $e) {
+            /** @var Debugger $debugger */
+            $debugger = Grav::instance()['debugger'];
+            $debugger->addException($e);
+
             $this->setError($e->getMessage());
         }
 
