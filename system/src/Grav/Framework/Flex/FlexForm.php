@@ -144,8 +144,10 @@ class FlexForm implements FlexFormInterface
 
     protected function setName(string $type, string $name): void
     {
-        $name = $name ?: 'object';
-        $this->flexName = "flex-{$type}--{$name}";
+        // Make sure that both type and name do not have dash (convert dashes to underscores).
+        $type = str_replace('-', '_', $type);
+        $name = str_replace('-', '_', $name);
+        $this->flexName = $name ? "flex-{$type}-{$name}" : "flex-{$type}";
     }
 
     /**
