@@ -27,3 +27,13 @@ config:
         title: Accounts
         icon: fa-users
         authorize: ['admin.users', 'admin.accounts', 'admin.super']
+
+form:
+  fields:
+    username:
+      flex-disabled@: exists
+      disabled: false
+      flex-readonly@: exists
+      readonly: false
+      validate:
+        required: true

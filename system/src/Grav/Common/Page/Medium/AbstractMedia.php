@@ -154,6 +154,9 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
      */
     public function add($name, $file)
     {
+        if (!$file) {
+            return;
+        }
         $this->offsetSet($name, $file);
         switch ($file->type) {
             case 'image':

@@ -437,7 +437,7 @@ abstract class AbstractIndexCollection implements CollectionInterface
     }
 
     /**
-     * Implementes JsonSerializable interface.
+     * Implements JsonSerializable interface.
      *
      * @return array
      */

@@ -84,7 +84,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
             new \Twig_SimpleFilter('fieldName', [$this, 'fieldNameFilter']),
             new \Twig_SimpleFilter('ksort', [$this, 'ksortFilter']),
             new \Twig_SimpleFilter('ltrim', [$this, 'ltrimFilter']),
-            new \Twig_SimpleFilter('markdown', [$this, 'markdownFunction'], ['is_safe' => ['html']]),
+            new \Twig_SimpleFilter('markdown', [$this, 'markdownFunction'], ['needs_context' => true, 'is_safe' => ['html']]),
             new \Twig_SimpleFilter('md5', [$this, 'md5Filter']),
             new \Twig_SimpleFilter('base32_encode', [$this, 'base32EncodeFilter']),
             new \Twig_SimpleFilter('base32_decode', [$this, 'base32DecodeFilter']),
@@ -455,7 +455,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
     }
 
     /**
-     * Gets a human readable output for cron sytnax
+     * Gets a human readable output for cron syntax
      *
      * @param $at
      * @return string
@@ -616,9 +616,10 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
      * @param bool $block  Block or Line processing
      * @return mixed|string
      */
-    public function markdownFunction($string, $block = true)
+    public function markdownFunction($context = false, $string, $block = true)
     {
-        return Utils::processMarkdown($string, $block);
+        $page = $context['page'] ?? null;
+        return Utils::processMarkdown($string, $block, $page);
     }
 
     /**
@@ -1004,10 +1005,10 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
      */
     public function authorize($action)
     {
-        /** @var UserInterface $user */
-        $user = $this->grav['user'];
+        /** @var UserInterface|null $user */
+        $user = $this->grav['user'] ?? null;
 
-        if (!$user->authenticated || (isset($user->authorized) && !$user->authorized)) {
+        if (!$user || !$user->authenticated || (isset($user->authorized) && !$user->authorized)) {
             return false;
         }
 
@@ -1136,7 +1137,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
     }
 
     /**
-     * Get's the Exif data for a file
+     * Get the Exif data for a file
      *
      * @param string $image
      * @param bool $raw

@@ -550,6 +550,15 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
             }
         }
 
+        // FIXME: For some reason locator caching isn't cleared for the file, investigate!
+        $locator = Grav::instance()['locator'];
+        $locator->clearCache();
+
+        // Make sure that the object exists before continuing (just in case).
+        if (!$this->exists()) {
+            throw new \RuntimeException('Saving failed: Object does not exist!');
+        }
+
         if (method_exists($this, 'saveUpdatedMedia')) {
             $this->saveUpdatedMedia();
         }

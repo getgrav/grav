@@ -27,8 +27,9 @@ class Validation
         if (!isset($field['type'])) {
             $field['type'] = 'text';
         }
-        $type = $validate['type'] ?? $field['type'];
+
         $validate = (array)($field['validate'] ?? null);
+        $type = $validate['type'] ?? $field['type'];
         $required = $validate['required'] ?? false;
 
         // If value isn't required, we will stop validation if empty value is given.

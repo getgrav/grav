@@ -1410,7 +1410,7 @@ class Page implements PageInterface
         if (is_string($http_accept)) {
             $negotiator = new Negotiator();
 
-            $supported_types = Grav::instance()['config']->get('system.pages.types', ['html', 'json']);
+            $supported_types = Utils::getSupportPageTypes(['html', 'json']);
             $priorities = Utils::getMimeTypes($supported_types);
 
             $media_type = $negotiator->getBest($http_accept, $priorities);
@@ -2938,7 +2938,7 @@ class Page implements PageInterface
                         case 'page':
                         case 'self':
                             $results = new Collection();
-                            $results = $results->addPage($page)->nonModular();
+                            $results = $results->addPage($page);
                             break;
 
                         case 'descendants':

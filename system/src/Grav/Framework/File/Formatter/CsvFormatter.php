@@ -53,11 +53,11 @@ class CsvFormatter extends AbstractFormatter
         $header = array_keys(reset($data));
 
         // Encode the field names
-        $string = implode($delimiter, $header). "\n";
+        $string = $this->encodeLine($header, $delimiter);
 
         // Encode the data
         foreach ($data as $row) {
-            $string .=  implode($delimiter, $row). "\n";
+            $string .= $this->encodeLine($row, $delimiter);
         }
 
         return $string;
@@ -86,5 +86,24 @@ class CsvFormatter extends AbstractFormatter
         }
 
         return $list;
+    }
+
+    protected function encodeLine(array $line, $delimiter = null): string
+    {
+        foreach ($line as $key => &$value) {
+            $value = $this->escape((string)$value);
+        }
+        unset($value);
+
+        return implode($delimiter, $line). "\n";
+    }
+
+    protected function escape(string $value)
+    {
+        if (preg_match('/[,"\r\n]/u', $value)) {
+            $value = '"' . preg_replace('/"/', '""', $value) . '"';
+        }
+
+        return $value;
     }
 }

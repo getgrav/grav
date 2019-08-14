@@ -27,9 +27,10 @@ class AccountsServiceProvider implements ServiceProviderInterface
     public function register(Container $container)
     {
         $container['accounts'] = function (Container $container) {
-            /** @var Debugger $debugger */
-            $debugger = $container['debugger'];
-            if ($container['config']->get('system.accounts.type') === 'flex') {
+            $type = strtolower(defined('GRAV_USER_INSTANCE') ? GRAV_USER_INSTANCE : $container['config']->get('system.accounts.type', 'data'));
+            if ($type === 'flex') {
+                /** @var Debugger $debugger */
+                $debugger = $container['debugger'];
                 $debugger->addMessage('User Accounts: Flex Directory');
                 return $this->flexAccounts($container);
             }
@@ -46,7 +47,9 @@ class AccountsServiceProvider implements ServiceProviderInterface
 
     protected function dataAccounts(Container $container)
     {
-        define('GRAV_USER_INSTANCE', 'DATA');
+        if (!defined('GRAV_USER_INSTANCE')) {
+            define('GRAV_USER_INSTANCE', 'DATA');
+        }
 
         // Use User class for backwards compatibility.
         return new DataUser\UserCollection(User::class);
@@ -54,7 +57,9 @@ class AccountsServiceProvider implements ServiceProviderInterface
 
     protected function flexAccounts(Container $container)
     {
-        define('GRAV_USER_INSTANCE', 'FLEX');
+        if (!defined('GRAV_USER_INSTANCE')) {
+            define('GRAV_USER_INSTANCE', 'FLEX');
+        }
 
         /** @var Config $config */
         $config = $container['config'];

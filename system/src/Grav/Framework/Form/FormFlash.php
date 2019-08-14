@@ -44,7 +44,7 @@ class FormFlash implements FormFlashInterface
     protected $uploadedFiles;
     /** @var string[] */
     protected $uploadObjects;
-    /** @var string|null */
+    /** @var string */
     protected $folder;
 
     /**
@@ -66,14 +66,13 @@ class FormFlash implements FormFlashInterface
 
         $this->sessionId = $config['session_id'] ?? 'no-session';
         $this->uniqueId = $config['unique_id'] ?? '';
-        $this->folder = $config['folder'] ?? 'tmp://forms';
+
+        $folder = $config['folder'] ?? ($this->sessionId ? 'tmp://forms/' . $this->sessionId : '');
 
         /** @var UniformResourceLocator $locator */
         $locator = Grav::instance()['locator'];
-        if ($locator->isStream($this->folder)) {
-            $this->folder = $locator->findResource($this->folder, true, true);
-        }
 
+        $this->folder = $folder && $locator->isStream($folder) ? $locator->findResource($folder, true, true) : $folder;
         $file = $this->getTmpIndex();
         $this->exists = $file->exists();
 
@@ -203,7 +202,7 @@ class FormFlash implements FormFlashInterface
      */
     public function save(): self
     {
-        if (!$this->sessionId && $this->uniqueId) {
+        if (!($this->folder && $this->uniqueId)) {
             return $this;
         }
 
@@ -225,7 +224,7 @@ class FormFlash implements FormFlashInterface
      */
     public function delete(): self
     {
-        if ($this->sessionId && $this->uniqueId) {
+        if ($this->folder && $this->uniqueId) {
             $this->removeTmpDir();
             $this->files = [];
             $this->exists = false;
@@ -434,7 +433,7 @@ class FormFlash implements FormFlashInterface
      */
     public function getTmpDir(): string
     {
-        return $this->sessionId && $this->uniqueId ? "{$this->folder}/{$this->sessionId}/{$this->uniqueId}" : '';
+        return $this->folder && $this->uniqueId ? "{$this->folder}/{$this->uniqueId}" : '';
     }
 
     /**
@@ -474,8 +473,8 @@ class FormFlash implements FormFlashInterface
      */
     protected function addFileInternal(?string $field, string $name, array $data, array $crop = null): void
     {
-        if (!$this->sessionId || !$this->uniqueId) {
-            throw new \RuntimeException('Cannot upload files: unique id not defined');
+        if (!($this->folder && $this->uniqueId)) {
+            throw new \RuntimeException('Cannot upload files: form flash folder not defined');
         }
 
         $field = $field ?: 'undefined';
