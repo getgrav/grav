@@ -27,9 +27,10 @@ class AccountsServiceProvider implements ServiceProviderInterface
     public function register(Container $container)
     {
         $container['accounts'] = function (Container $container) {
-            /** @var Debugger $debugger */
-            $debugger = $container['debugger'];
-            if ($container['config']->get('system.accounts.type') === 'flex') {
+            $type = strtolower(defined('GRAV_USER_INSTANCE') ? GRAV_USER_INSTANCE : $container['config']->get('system.accounts.type', 'data'));
+            if ($type === 'flex') {
+                /** @var Debugger $debugger */
+                $debugger = $container['debugger'];
                 $debugger->addMessage('User Accounts: Flex Directory');
                 return $this->flexAccounts($container);
             }
