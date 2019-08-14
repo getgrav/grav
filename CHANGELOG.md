@@ -20,6 +20,7 @@
 1. [](#bugfix)
     * Fixed `Form` not to use deleted flash object until the end of the request fixing issues with reset
     * Fixed `FlexForm` to allow multiple form instances with non-existing objects
+    * Fixed `FlexObject` search by using `key`
     * Grav 1.7: Fixed clockwork messages with arrays and objects
 
 # v1.7.0-beta.4

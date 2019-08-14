@@ -288,7 +288,11 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     public function searchNestedProperty(string $property, string $search, array $options = null): float
     {
         $options = $options ?? $this->getFlexDirectory()->getConfig('data.search.options', []);
-        $value = $this->getNestedProperty($property);
+        if ($property === 'key') {
+            $value = $this->getKey();
+        } else {
+            $value = $this->getNestedProperty($property);
+        }
 
         return $this->searchValue($property, $value, $search, $options);
     }
