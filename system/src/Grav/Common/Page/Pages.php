@@ -16,6 +16,7 @@ use Grav\Common\Data\Blueprints;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\Grav;
 use Grav\Common\Language\Language;
+use Grav\Common\Page\Interfaces\PageCollectionInterface;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Taxonomy;
 use Grav\Common\Uri;
@@ -290,6 +291,315 @@ class Pages
         $this->routes[$route] = $path;
 
         $this->grav->fireEvent('onPageProcessed', new Event(['page' => $page]));
+    }
+
+    /**
+     * Get a collection of pages in the given context.
+     *
+     * @param array $params
+     * @param array $context
+     * @return Collection
+     */
+    public function getCollection(array $params = [], array $context = [])
+    {
+        if (!isset($params['items'])) {
+            return new Collection();
+        }
+
+        /** @var Config $config */
+        $config = $this->grav['config'];
+
+        $context += [
+            'event' => true,
+            'pagination' => true,
+            'url_taxonomy_filters' => $config->get('system.pages.url_taxonomy_filters'),
+            'taxonomies' => (array)$config->get('site.taxonomies'),
+            'pagination_page' => 1,
+            'self' => $this->grav['page'] ?? null,
+        ];
+
+        // Include taxonomies from the URL if requested.
+        $process_taxonomy = $params['url_taxonomy_filters'] ?? $context['url_taxonomy_filters'];
+        if ($process_taxonomy) {
+            /** @var Uri $uri */
+            $uri = $this->grav['uri'];
+            foreach ($context['taxonomies'] as $taxonomy) {
+                $param = $uri->param(rawurlencode($taxonomy));
+                $items = $param ? explode(',', $param) : [];
+                foreach ($items as $item) {
+                    $params['taxonomies'][$taxonomy][] = htmlspecialchars_decode(rawurldecode($item), ENT_QUOTES);
+                }
+            }
+        }
+
+        $pagination = $params['pagination'] ?? $context['pagination'];
+        if ($pagination && !isset($params['page'])) {
+            /** @var Uri $uri */
+            $uri = $this->grav['uri'];
+            $context['pagination_page'] = $uri->currentPage();
+        }
+
+        $collection = $this->evaluate($params['items'], $context);
+        $collection->setParams($params);
+
+        // Filter by taxonomies.
+        foreach ($params['taxonomies'] ?? [] as $taxonomy => $items) {
+            foreach ($collection as $page) {
+                // Don't filter modular pages
+                if ($page->modular()) {
+                    continue;
+                }
+
+                $test = $page->taxonomy[$taxonomy] ?? [];
+                foreach ($items as $item) {
+                    if (!$test || !\in_array($item, $test, true)) {
+                        $collection->remove($page->path());
+                    }
+                }
+            }
+        }
+
+        // If  a filter or filters are set, filter the collection...
+        if (isset($params['filter'])) {
+            // Remove any inclusive sets from filter.
+            foreach (['published', 'visible', 'modular', 'routable'] as $type) {
+                $var = "non-{$type}";
+                if (isset($params['filter'][$type], $params['filter'][$var]) && $params['filter'][$type] && $params['filter'][$var]) {
+                    unset($params['filter'][$type], $params['filter'][$var]);
+                }
+            }
+
+            foreach ((array)$params['filter'] as $type => $filter) {
+                switch ($type) {
+                    case 'published':
+                        if ((bool)$filter) {
+                            $collection = $collection->published();
+                        }
+                        break;
+                    case 'non-published':
+                        if ((bool)$filter) {
+                            $collection = $collection->nonPublished();
+                        }
+                        break;
+                    case 'visible':
+                        if ((bool)$filter) {
+                            $collection = $collection->visible();
+                        }
+                        break;
+                    case 'non-visible':
+                        if ((bool)$filter) {
+                            $collection = $collection->nonVisible();
+                        }
+                        break;
+                    case 'modular':
+                        if ((bool)$filter) {
+                            $collection = $collection->modular();
+                        }
+                        break;
+                    case 'non-modular':
+                        if ((bool)$filter) {
+                            $collection = $collection->nonModular();
+                        }
+                        break;
+                    case 'routable':
+                        if ((bool)$filter) {
+                            $collection = $collection->routable();
+                        }
+                        break;
+                    case 'non-routable':
+                        if ((bool)$filter) {
+                            $collection = $collection->nonRoutable();
+                        }
+                        break;
+                    case 'type':
+                        $collection = $collection->ofType($filter);
+                        break;
+                    case 'types':
+                        $collection = $collection->ofOneOfTheseTypes($filter);
+                        break;
+                    case 'access':
+                        $collection = $collection->ofOneOfTheseAccessLevels($filter);
+                        break;
+                }
+            }
+        }
+
+        if (isset($params['dateRange'])) {
+            $start = $params['dateRange']['start'] ?? 0;
+            $end = $params['dateRange']['end'] ?? false;
+            $field = $params['dateRange']['field'] ?? false;
+            $collection = $collection->dateRange($start, $end, $field);
+        }
+
+        if (isset($params['order'])) {
+            $by = $params['order']['by'] ?? 'default';
+            $dir = $params['order']['dir'] ?? 'asc';
+            $custom = $params['order']['custom'] ?? null;
+            $sort_flags = $params['order']['sort_flags'] ?? null;
+
+            if (is_array($sort_flags)) {
+                $sort_flags = array_map('constant', $sort_flags); //transform strings to constant value
+                $sort_flags = array_reduce($sort_flags, function ($a, $b) {
+                    return $a | $b;
+                }, 0); //merge constant values using bit or
+            }
+
+            $collection = $collection->order($by, $dir, $custom, $sort_flags);
+        }
+
+        // New Custom event to handle things like pagination.
+        if ($context['event']) {
+            $this->grav->fireEvent('onCollectionProcessed', new Event(['collection' => $collection]));
+        }
+
+        // Slice and dice the collection if pagination is required
+        if ($pagination) {
+            $params = $collection->params();
+
+            $limit = $params['limit'] ?? 0;
+            $start = !empty($params['pagination']) ? (($params['page'] ?? $context['pagination_page']) - 1) * $limit : 0;
+
+            if ($limit && $collection->count() > $limit) {
+                $collection->slice($start, $limit);
+            }
+        }
+
+        return $collection;
+    }
+
+    /**
+     * @param string|array $value
+     * @param array $context
+     * @return PageCollectionInterface
+     */
+    protected function evaluate($value, array $context = [])
+    {
+        // Parse command.
+        if (is_string($value)) {
+            // Format: @command.param
+            $cmd = $value;
+            $params = [];
+        } elseif (is_array($value) && count($value) === 1 && !is_int(key($value))) {
+            // Format: @command.param: { attr1: value1, attr2: value2 }
+            $cmd = (string)key($value);
+            $params = (array)current($value);
+        } else {
+            $result = [];
+            foreach ((array)$value as $key => $val) {
+                if (is_int($key)) {
+                    $result = $result + $this->evaluate($val, $context)->toArray();
+                } else {
+                    $result = $result + $this->evaluate([$key => $val], $context)->toArray();
+                }
+
+            }
+
+            return new Collection($result);
+        }
+
+        /** @var PageInterface $self */
+        $self = $context['self'] ?? null;
+
+        $parts = explode('.', $cmd);
+        $scope = array_shift($parts);
+        $type = $parts[0] ?? null;
+
+        /** @var Collection $collection */
+        $collection = new Collection();
+
+        switch ($scope) {
+            case 'self@':
+            case '@self':
+                if (!$self) {
+                    return $collection;
+                }
+                if (null === $type) {
+                    $type = 'page';
+                }
+                // @self.modular: false (alternative to @self.children)
+                if ($type === 'modular' && ($params[0] ?? null) === false) {
+                    $type = 'children';
+                }
+
+                switch ($type) {
+                    case 'all':
+                        return $self->children();
+                    case 'modular':
+                        return $self->children()->modular();
+                    case 'children':
+                        return $self->children()->nonModular();
+                    case 'page':
+                    case 'self':
+                        return $collection->addPage($self);
+                    case 'parent':
+                        return $collection->addPage($self->parent());
+                    case 'siblings':
+                        return $self->parent() ? $self->parent()->children()->remove($self->path()) : $collection;
+                    case 'descendants':
+                        return $this->all($self)->remove($self->path())->nonModular();
+                }
+
+                break;
+
+            case 'page@':
+            case '@page':
+                $page = isset($params[0]) ? $this->find($params[0]) : null;
+
+                // Safety check in case page is not found.
+                if (!isset($page)) {
+                    return $collection;
+                }
+
+                // Handle '@page'
+                if (null === $type) {
+                    $type = 'children';
+                }
+
+                switch ($type) {
+                    case 'all':
+                        return $page->children();
+                    case 'modular':
+                        return $page->children()->modular();
+                    case 'children':
+                        return $page->children()->nonModular();
+                    case 'page':
+                    case 'self':
+                        return $collection->addPage($page);
+                    case 'parent':
+                        return $collection->addPage($page->parent());
+                    case 'siblings':
+                        return $page->parent() ? $page->parent()->children()->remove($page->path()) : $collection;
+                    case 'descendants':
+                        return $this->all($page)->remove($page->path())->nonModular();
+                }
+
+                break;
+
+            case 'root@':
+            case '@root':
+                if ($type === 'descendants') {
+                    return $this->all($this->root())->nonModular();
+                }
+                return $this->root()->children()->nonModular();
+
+            case 'taxonomy@':
+            case '@taxonomy':
+                // Gets a collection of pages by using one of the following formats:
+                // @taxonomy.category: blog
+                // @taxonomy.category: [ blog, featured ]
+                // @taxonomy: { category: [ blog, featured ], level: 1 }
+
+                /** @var Taxonomy $taxonomy_map */
+                $taxonomy_map = Grav::instance()['taxonomy'];
+
+                if (!empty($parts)) {
+                    $params = [implode('.', $parts) => $params];
+                }
+
+                return $taxonomy_map->findTaxonomy($params);
+        }
+
+        return $collection;
     }
 
     /**
@@ -688,13 +998,9 @@ class Pages
             } else {
                 $extra  = $showSlug ? '(' . $current->slug() . ') ' : '';
                 $option = str_repeat('&mdash;-', $level). '&rtrif; ' . $extra . $current->title();
-
-
             }
 
             $list[$route] = $option;
-
-
         }
 
         if ($limitLevels === false || ($level+1 < $limitLevels)) {

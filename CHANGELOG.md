@@ -9,12 +9,14 @@
     * Added `FlexStorage::getMetaData()` to get updated object meta information for listed keys
     * Added `Language::getPageExtensions()` to get full list of supported page language extensions
     * Added `$grav->close()` method to properly terminate the request with a response
+    * Added `Pages::getCollection()` method
 1. [](#improved)
     * Better support for Symfony local server `symfony server:start`
     * Make `Route` objects immutable
     * `FlexDirectory::getObject()` can now be called without any parameters to create a new object
     * Flex objects no longer return temporary key if they do not have one; empty key is returned instead
     * Updated vendor libraries
+    * Moved `collection()` and `evaluate()` logic from `Page` class into `Pages` class
 1. [](#bugfix)
     * Fixed `Form` not to use deleted flash object until the end of the request fixing issues with reset
     * Fixed `FlexForm` to allow multiple form instances with non-existing objects
