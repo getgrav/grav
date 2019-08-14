@@ -497,90 +497,27 @@ class Pages
             return new Collection($result);
         }
 
-        /** @var PageInterface $self */
-        $self = $context['self'] ?? null;
-
         $parts = explode('.', $cmd);
         $scope = array_shift($parts);
         $type = $parts[0] ?? null;
 
-        /** @var Collection $collection */
-        $collection = new Collection();
-
+        /** @var PageInterface|null $page */
+        $page = null;
         switch ($scope) {
             case 'self@':
             case '@self':
-                if (!$self) {
-                    return $collection;
-                }
-                if (null === $type) {
-                    $type = 'page';
-                }
-                // @self.modular: false (alternative to @self.children)
-                if ($type === 'modular' && ($params[0] ?? null) === false) {
-                    $type = 'children';
-                }
-
-                switch ($type) {
-                    case 'all':
-                        return $self->children();
-                    case 'modular':
-                        return $self->children()->modular();
-                    case 'children':
-                        return $self->children()->nonModular();
-                    case 'page':
-                    case 'self':
-                        return $collection->addPage($self);
-                    case 'parent':
-                        return $collection->addPage($self->parent());
-                    case 'siblings':
-                        return $self->parent() ? $self->parent()->children()->remove($self->path()) : $collection;
-                    case 'descendants':
-                        return $this->all($self)->remove($self->path())->nonModular();
-                }
-
+                $page = $context['self'] ?? null;
                 break;
 
             case 'page@':
             case '@page':
                 $page = isset($params[0]) ? $this->find($params[0]) : null;
-
-                // Safety check in case page is not found.
-                if (!isset($page)) {
-                    return $collection;
-                }
-
-                // Handle '@page'
-                if (null === $type) {
-                    $type = 'children';
-                }
-
-                switch ($type) {
-                    case 'all':
-                        return $page->children();
-                    case 'modular':
-                        return $page->children()->modular();
-                    case 'children':
-                        return $page->children()->nonModular();
-                    case 'page':
-                    case 'self':
-                        return $collection->addPage($page);
-                    case 'parent':
-                        return $collection->addPage($page->parent());
-                    case 'siblings':
-                        return $page->parent() ? $page->parent()->children()->remove($page->path()) : $collection;
-                    case 'descendants':
-                        return $this->all($page)->remove($page->path())->nonModular();
-                }
-
                 break;
 
             case 'root@':
             case '@root':
-                if ($type === 'descendants') {
-                    return $this->all($this->root())->nonModular();
-                }
-                return $this->root()->children()->nonModular();
+                $page = $this->root();
+                break;
 
             case 'taxonomy@':
             case '@taxonomy':
@@ -599,7 +536,38 @@ class Pages
                 return $taxonomy_map->findTaxonomy($params);
         }
 
-        return $collection;
+        if (!$page) {
+            return new Collection();
+        }
+
+        // Handle '@page', '@page.modular: false', '@self' and '@self.modular: false'.
+        if (null === $type || ($type === 'modular' && ($params[0] ?? null) === false)) {
+            $type = 'children';
+        }
+
+        switch ($type) {
+            case 'all':
+                return $page->children();
+            case 'modular':
+                return $page->children()->modular();
+            case 'children':
+                return $page->children()->nonModular();
+            case 'page':
+            case 'self':
+                return (new Collection())->addPage($page);
+            case 'parent':
+                $parent = $page->parent();
+                $collection = new Collection();
+                return $parent ? $collection->addPage($parent) : $collection;
+            case 'siblings':
+                $parent = $page->parent();
+                return $parent ? $parent->children()->remove($page->path()) : new Collection();
+            case 'descendants':
+                return $this->all($page)->remove($page->path())->nonModular();
+            default:
+                // Unknown type; return empty collection.
+                return new Collection();
+        }
     }
 
     /**
