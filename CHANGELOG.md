@@ -1,3 +1,9 @@
+# v1.7.0-beta.6
+## mm/dd/2019
+
+1. [](#bugfix)
+    * Fixed `$page->summary()` always striping HTML tags if the summary was set by `$page->setSummary()`
+
 # v1.7.0-beta.5
 ## 08/11/2019
 

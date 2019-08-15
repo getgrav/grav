@@ -610,8 +610,7 @@ class Page implements PageInterface
             $content = $textOnly ? strip_tags($this->content()) : $this->content();
             $summary_size = $this->summary_size;
         } else {
-            $content = strip_tags($this->summary);
-            // Use mb_strwidth to deal with the 2 character widths characters
+            $content = $textOnly ? strip_tags($this->summary) : $this->summary;
             $summary_size = mb_strwidth($content, 'utf-8');
         }
 
