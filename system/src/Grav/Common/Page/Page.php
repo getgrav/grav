@@ -18,11 +18,11 @@ use Grav\Common\Grav;
 use Grav\Common\Language\Language;
 use Grav\Common\Markdown\Parsedown;
 use Grav\Common\Markdown\ParsedownExtra;
+use Grav\Common\Media\Interfaces\MediaCollectionInterface;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Media\Traits\MediaTrait;
 use Grav\Common\Page\Markdown\Excerpts;
 use Grav\Common\Page\Traits\PageFormTrait;
-use Grav\Common\Taxonomy;
 use Grav\Common\Uri;
 use Grav\Common\Utils;
 use Grav\Common\Yaml;
@@ -814,7 +814,7 @@ class Page implements PageInterface
      * Add an entry to the page's contentMeta array
      *
      * @param string $name
-     * @param string $value
+     * @param mixed $value
      */
     public function addContentMeta($name, $value)
     {
@@ -826,7 +826,7 @@ class Page implements PageInterface
      *
      * @param string|null $name
      *
-     * @return string|null
+     * @return mixed|null
      */
     public function getContentMeta($name = null)
     {
@@ -1251,7 +1251,7 @@ class Page implements PageInterface
      *
      * @param  Media $var Representation of associated media.
      *
-     * @return Media      Representation of associated media.
+     * @return MediaCollectionInterface|Media      Representation of associated media.
      */
     public function media($var = null)
     {
@@ -1585,7 +1585,7 @@ class Page implements PageInterface
     }
 
     /**
-     * Returns the state of the debugger override etting for this page
+     * Returns the state of the debugger override setting for this page
      *
      * @return mixed
      */
@@ -1614,9 +1614,10 @@ class Page implements PageInterface
 
             $this->metadata = [];
 
-            $metadata = [];
             // Set the Generator tag
-            $metadata['generator'] = 'GravCMS';
+            $metadata = [
+                'generator' => 'GravCMS'
+            ];
 
             // Get initial metadata for the page
             $metadata = array_merge($metadata, Grav::instance()['config']->get('site.metadata'));

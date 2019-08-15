@@ -69,7 +69,7 @@ interface PageLegacyInterface
      * Add an entry to the page's contentMeta array
      *
      * @param string $name
-     * @param string $value
+     * @param mixed $value
      */
     public function addContentMeta($name, $value);
 

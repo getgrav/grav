@@ -298,7 +298,7 @@ class Pages
      *
      * @param array $params
      * @param array $context
-     * @return Collection
+     * @return PageCollectionInterface|Collection
      */
     public function getCollection(array $params = [], array $context = [])
     {
