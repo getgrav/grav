@@ -52,13 +52,6 @@ interface PageLegacyInterface
     public function httpHeaders();
 
     /**
-     * Sets the summary of the page
-     *
-     * @param string $summary Summary
-     */
-    public function setSummary($summary);
-
-    /**
      * Get the contentMeta array and initialize content first if it's not already
      *
      * @return mixed

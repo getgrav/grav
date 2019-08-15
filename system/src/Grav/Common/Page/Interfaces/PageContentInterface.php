@@ -37,6 +37,13 @@ interface PageContentInterface
     public function summary($size = null, $textOnly = false);
 
     /**
+     * Sets the summary of the page
+     *
+     * @param string $summary Summary
+     */
+    public function setSummary($summary);
+
+    /**
      * Gets and Sets the content based on content portion of the .md file
      *
      * @param  string $var Content
