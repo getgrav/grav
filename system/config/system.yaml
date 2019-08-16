@@ -27,6 +27,7 @@ home:
   hide_in_urls: false                            # Hide the home route in URLs
 
 pages:
+  type: page                                     # EXPERIMENTAL: Page type: page or flex
   theme: quark                                   # Default theme (defaults to "quark" theme)
   order:
     by: default                                  # Order pages by "default", "alpha" or "date"
@@ -163,8 +164,8 @@ gpm:
   official_gpm_only: true                        # By default GPM direct-install will only allow URLs via the official GPM proxy to ensure security
 
 accounts:
-  type: data                                     # Account type: data or flex
-  storage: file                                  # Flex storage type: file or folder
+  type: data                                     # EXPERIMENTAL: Account type: data or flex
+  storage: file                                  # EXPERIMENTAL: Flex storage type: file or folder
 
 strict_mode:
   yaml_compat: true                              # Grav 1.5+: Enables YAML backwards compatibility

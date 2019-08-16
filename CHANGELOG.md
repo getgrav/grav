@@ -1,6 +1,8 @@
 # v1.7.0-beta.6
 ## mm/dd/2019
 
+1. [](#new)
+    * Added configuration option for `Flex Page`, enabled experimental options in Admin Plugin
 1. [](#bugfix)
     * Fixed `$page->summary()` always striping HTML tags if the summary was set by `$page->setSummary()`
 

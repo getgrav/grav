@@ -1461,3 +1461,40 @@ form:
                 0: PLUGIN_ADMIN.NO
               validate:
                 type: bool
+
+        experimental:
+          type: tab
+          title: PLUGIN_ADMIN.EXPERIMENTAL
+
+          fields:
+            experimental_section:
+              type: section
+              title: PLUGIN_ADMIN.EXPERIMENTAL
+              underline: true
+
+            pages.type:
+              type: select
+              label: PLUGIN_ADMIN.PAGES_TYPE
+              highlight: stable
+              help: PLUGIN_ADMIN.PAGES_TYPE_HELP
+              options:
+                page: PLUGIN_ADMIN.REGULAR
+                flex: PLUGIN_ADMIN.FLEX
+
+            accounts.type:
+              type: select
+              label: PLUGIN_ADMIN.ACCOUNTS_TYPE
+              highlight: stable
+              help: PLUGIN_ADMIN.ACCOUNTS_TYPE_HELP
+              options:
+                data: PLUGIN_ADMIN.REGULAR
+                flex: PLUGIN_ADMIN.FLEX
+
+            accounts.storage:
+              type: select
+              label: PLUGIN_ADMIN.ACCOUNTS_STORAGE
+              highlight: stable
+              help: PLUGIN_ADMIN.ACCOUNTS_STORAGE_HELP
+              options:
+                data: PLUGIN_ADMIN.FILE
+                flex: PLUGIN_ADMIN.FOLDER
