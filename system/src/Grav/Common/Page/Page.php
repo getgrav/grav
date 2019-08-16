@@ -1353,9 +1353,9 @@ class Page implements PageInterface
     /**
      * Gets and sets the extension field.
      *
-     * @param null $var
+     * @param string|null $var
      *
-     * @return null|string
+     * @return string
      */
     public function extension($var = null)
     {
@@ -1965,7 +1965,7 @@ class Page implements PageInterface
      *
      * @param  string $var redirect url
      *
-     * @return string
+     * @return string|null
      */
     public function redirect($var = null)
     {
@@ -1973,7 +1973,7 @@ class Page implements PageInterface
             $this->redirect = $var;
         }
 
-        return $this->redirect;
+        return $this->redirect ?: null;
     }
 
     /**

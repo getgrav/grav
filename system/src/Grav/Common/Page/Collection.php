@@ -302,7 +302,6 @@ class Collection extends Iterator implements PageCollectionInterface
         }
 
         return $this;
-
     }
 
     /**
@@ -310,11 +309,13 @@ class Collection extends Iterator implements PageCollectionInterface
      *
      * @param  string $path the path the item
      *
-     * @return int   the index of the current page.
+     * @return int|null The index of the current page, null if not found.
      */
-    public function currentPosition($path): int
+    public function currentPosition($path): ?int
     {
-        return \array_search($path, \array_keys($this->items), true);
+        $pos = \array_search($path, \array_keys($this->items), true);
+
+        return $pos !== false ? $pos : null;
     }
 
     /**

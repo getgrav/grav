@@ -21,6 +21,8 @@ use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Taxonomy;
 use Grav\Common\Uri;
 use Grav\Common\Utils;
+use Grav\Framework\Flex\Flex;
+use Grav\Framework\Flex\FlexDirectory;
 use Grav\Plugin\Admin;
 use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
@@ -1194,13 +1196,86 @@ class Pages
      */
     protected function buildPages()
     {
-        $this->sort = [];
-
         /** @var Config $config */
         $config = $this->grav['config'];
 
+        $directory = null;
+        if ($config->get('system.pages.type') === 'flex') {
+            /** @var Flex $flex */
+            $flex = $this->grav['flex_objects'] ?? null;
+            $directory = $flex ? $flex->getDirectory('grav-pages') : null;
+        }
+
+        if ($directory) {
+            $this->buildFlexPages($directory);
+        } else {
+            $this->buildRegularPages();
+        }
+    }
+
+    protected function buildFlexPages(FlexDirectory $directory)
+    {
+        /** @var Config $config */
+        $config = $this->grav['config'];
+
+        // TODO: right now we are just emulating normal pages, it is inefficient and bad... but works!
+        $collection = $directory->getCollection();
+        $cache = $directory->getCache('index');
+
         /** @var Language $language */
         $language = $this->grav['language'];
+
+        $this->pages_cache_id = 'pages-' . md5($collection->getCacheChecksum() . $language->getActive() . $config->checksum());
+
+        $cached = $cache->get($this->pages_cache_id);
+
+        [$this->instances, $this->routes, $this->children, $taxonomy_map, $this->sort] = $cached;
+
+        if ($cached) {
+            /** @var Taxonomy $taxonomy */
+            $taxonomy = $this->grav['taxonomy'];
+            $taxonomy->taxonomy($taxonomy_map);
+
+            return;
+        }
+
+        $this->grav['debugger']->addMessage('Page cache missed, rebuilding pages..');
+
+        $root = $collection->getRoot();
+        $instances = [$root->path() => $root];
+        $children = [];
+        foreach ($collection as $key => $page) {
+            $path = $page->path();
+            $parent = dirname($path);
+
+            $instances[$path] = $page;
+            $children[$parent][$path] = ['slug' => $page->slug()];
+            if (!isset($children[$path])) {
+                $children[$path] = [];
+            }
+        }
+
+        $this->instances = $instances;
+        $this->children = $children;
+        $this->sort = [];
+
+        $this->buildRoutes();
+
+        // cache if needed
+        if (isset($cache)) {
+            /** @var Taxonomy $taxonomy */
+            $taxonomy = $this->grav['taxonomy'];
+            $taxonomy_map = $taxonomy->taxonomy();
+
+            // save pages, routes, taxonomy, and sort to cache
+            $cache->set($this->pages_cache_id, [$this->instances, $this->routes, $this->children, $taxonomy_map, $this->sort]);
+        }
+    }
+
+    protected function buildRegularPages()
+    {
+        /** @var Config $config */
+        $config = $this->grav['config'];
 
         /** @var UniformResourceLocator $locator */
         $locator = $this->grav['locator'];
@@ -1208,10 +1283,8 @@ class Pages
         $pages_dir = $locator->findResource('page://');
 
         if ($config->get('system.cache.enabled')) {
-            /** @var Cache $cache */
-            $cache = $this->grav['cache'];
-            /** @var Taxonomy $taxonomy */
-            $taxonomy = $this->grav['taxonomy'];
+            /** @var Language $language */
+            $language = $this->grav['language'];
 
             // how should we check for last modified? Default is by file
             switch ($this->check_method) {
@@ -1231,22 +1304,26 @@ class Pages
 
             $this->pages_cache_id = md5($pages_dir . $hash . $language->getActive() . $config->checksum());
 
-            list($this->instances, $this->routes, $this->children, $taxonomy_map, $this->sort) = $cache->fetch($this->pages_cache_id);
-            if (!$this->instances) {
-                $this->grav['debugger']->addMessage('Page cache missed, rebuilding pages..');
+            /** @var Cache $cache */
+            $cache = $this->grav['cache'];
+            $cached = $cache->fetch($this->pages_cache_id);
 
-                // recurse pages and cache result
-                $this->resetPages($pages_dir);
+            [$this->instances, $this->routes, $this->children, $taxonomy_map, $this->sort] = $cached;
 
-            } else {
-                // If pages was found in cache, set the taxonomy
-                $this->grav['debugger']->addMessage('Page cache hit.');
+            if ($cached) {
+                /** @var Taxonomy $taxonomy */
+                $taxonomy = $this->grav['taxonomy'];
                 $taxonomy->taxonomy($taxonomy_map);
+
+                return;
             }
+
+            $this->grav['debugger']->addMessage('Page cache missed, rebuilding pages..');
         } else {
-            $this->recurse($pages_dir);
-            $this->buildRoutes();
+            $this->grav['debugger']->addMessage('Page cache disabled, rebuilding pages..');
         }
+
+        $this->resetPages($pages_dir);
     }
 
     /**
@@ -1256,6 +1333,7 @@ class Pages
      */
     public function resetPages($pages_dir)
     {
+        $this->sort = [];
         $this->recurse($pages_dir);
         $this->buildRoutes();
 

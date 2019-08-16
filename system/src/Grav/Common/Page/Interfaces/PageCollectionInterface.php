@@ -151,9 +151,9 @@ interface PageCollectionInterface extends \Traversable, \ArrayAccess, \Countable
      *
      * @param  string $path the path the item
      *
-     * @return int   the index of the current page.
+     * @return int|null The index of the current page, null if not found.
      */
-    public function currentPosition($path): int;
+    public function currentPosition($path): ?int;
 
     /**
      * Returns the items between a set of date ranges of either the page date field (default) or
