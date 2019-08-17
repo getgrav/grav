@@ -47,6 +47,7 @@ class ParsedownTest extends \Codeception\TestCase\Test
         $this->config->set('system.home.alias', '/item1');
         $this->config->set('system.absolute_urls', false);
         $this->config->set('system.languages.supported', []);
+        $this->config->set('system.languages.include_default_lang', true);
 
         unset($this->grav['language']);
         $this->grav['language'] = new Language($this->grav);
