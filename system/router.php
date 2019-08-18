@@ -21,8 +21,7 @@ $grav_index = 'index.php';
 
 /* Check the GRAV_BASEDIR environment variable and use if set */
 $grav_basedir = getenv('GRAV_BASEDIR') ?: '';
-
-if (isset($grav_basedir)) {
+if ($grav_basedir) {
     $grav_index = ltrim($grav_basedir, '/') . DIRECTORY_SEPARATOR . $grav_index;
     $grav_basedir = DIRECTORY_SEPARATOR . trim($grav_basedir, DIRECTORY_SEPARATOR);
     define('GRAV_ROOT', str_replace(DIRECTORY_SEPARATOR, '/', getcwd()) . $grav_basedir);
