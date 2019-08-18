@@ -74,14 +74,20 @@
     * Optimization: Initialize debugbar only after the configuration has been loaded
     * Optimization: Combine some early Grav processors into a single one
 
+# v1.6.14
+## 08/18/2019
+
+1. [](#bugfix)
+    * Actually include fix for `system\router.php` [#2627](https://github.com/getgrav/grav/issues/2627)
+
 # v1.6.13
-## 08/12/2019
+## 08/16/2019
 
 1. [](#bugfix)
     * Regression fix for `system\router.php` [#2627](https://github.com/getgrav/grav/issues/2627)
 
 # v1.6.12
-## 08/11/2019
+## 08/14/2019
 
 1. [](#new)
     * Added support for custom `FormFlash` save locations
