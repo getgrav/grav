@@ -10,3 +10,4 @@ Disallow: /user/
 Allow: /user/pages/
 Allow: /user/themes/
 Allow: /user/images/
+Allow: /
