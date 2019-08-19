@@ -352,7 +352,7 @@ class Pages
                     continue;
                 }
 
-                $test = $page->taxonomy[$taxonomy] ?? [];
+                $test = $page->taxonomy()[$taxonomy] ?? [];
                 foreach ($items as $item) {
                     if (!$test || !\in_array($item, $test, true)) {
                         $collection->remove($page->path());
