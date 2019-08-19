@@ -439,7 +439,7 @@ class Debugger
      */
     public function addCollector($collector)
     {
-        if ($this->debugbar) {
+        if ($this->debugbar && !$this->debugbar->hasCollector($collector->getName())) {
             $this->debugbar->addCollector($collector);
         }
 
@@ -449,15 +449,15 @@ class Debugger
     /**
      * Returns a data collector
      *
-     * @param DataCollectorInterface $collector
+     * @param string $name
      *
      * @return DataCollectorInterface
      * @throws \DebugBar\DebugBarException
      */
-    public function getCollector($collector)
+    public function getCollector($name)
     {
-        if ($this->debugbar) {
-            return $this->debugbar->getCollector($collector);
+        if ($this->debugbar && $this->debugbar->hasCollector($name)) {
+            return $this->debugbar->getCollector($name);
         }
 
         return null;
