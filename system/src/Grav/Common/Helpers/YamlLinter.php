@@ -16,13 +16,15 @@ use Symfony\Component\Yaml\Yaml;
 
 class YamlLinter
 {
-    public static function lint()
+    public static function lint(string $folder = null)
     {
-        $errors = static::lintConfig();
-        $errors = $errors + static::lintPages();
-        $errors = $errors + static::lintBlueprints();
-        
-        return $errors;
+        if (null !== $folder) {
+            $folder = $folder ?: GRAV_ROOT;
+
+            return static::recurseFolder($folder);
+        }
+
+        return array_merge(static::lintConfig(), static::lintPages(), static::lintBlueprints());
     }
 
     public static function lintPages()
@@ -47,7 +49,7 @@ class YamlLinter
         return static::recurseFolder('blueprints://');
     }
 
-    public static function recurseFolder($path, $extensions = 'md|yaml')
+    public static function recurseFolder($path, $extensions = '(md|yaml)')
     {
         $lint_errors = [];
 

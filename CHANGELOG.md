@@ -3,6 +3,8 @@
 
 1. [](#new)
     * Added experimental support for `Flex Pages` (**Flex Objects** plugin required)
+1. [](#improved)
+    * Improved `bin/grav yamllinter` CLI command by adding an option to find YAML Linting issues from the whole site or custom folder
 1. [](#bugfix)
     * Fixed `$page->summary()` always striping HTML tags if the summary was set by `$page->setSummary()`
     * Grav 1.7: Fixed enabling PHP Debug Bar causes fatal error in Gantry [#2634](https://github.com/getgrav/grav/issues/2634)
