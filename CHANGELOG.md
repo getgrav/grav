@@ -1,3 +1,9 @@
+# v1.6.15
+## mm/dd/2019
+
+1. [](#bugfix)
+    *  Fixed broken markdown Twig tag [#2635](https://github.com/getgrav/grav/issues/2635)
+
 # v1.6.14
 ## 08/18/2019
 
