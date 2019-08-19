@@ -1634,7 +1634,10 @@ class Pages
                     $list[$key] = $child->folder();
                     break;
                 case (is_string($header_query[0])):
-                    $child_header = new Header((array)$child->header());
+                    $child_header = $child->header();
+                    if (!$child_header instanceof Header) {
+                        $child_header = new Header((array)$child_header);
+                    }
                     $header_value = $child_header->get($header_query[0]);
                     if (is_array($header_value)) {
                         $list[$key] = implode(',',$header_value);
