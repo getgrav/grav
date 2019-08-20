@@ -79,10 +79,13 @@
     * Optimization: Combine some early Grav processors into a single one
 
 # v1.6.15
-## mm/dd/2019
+## 08/20/2019
 
+1. [](#improved)
+    * Improved robots.txt [#2632](https://github.com/getgrav/grav/issues/2632)
 1. [](#bugfix)
-    *  Fixed broken markdown Twig tag [#2635](https://github.com/getgrav/grav/issues/2635)
+    * Fixed broken markdown Twig tag [#2635](https://github.com/getgrav/grav/issues/2635)
+    * Force Symfony 4.2 in Grav 1.6 to remove a bunch of deprecated messages
 
 # v1.6.14
 ## 08/18/2019
