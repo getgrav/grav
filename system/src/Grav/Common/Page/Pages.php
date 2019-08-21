@@ -55,6 +55,9 @@ class Pages
     /** @var Blueprints */
     protected $blueprints;
 
+    /** @var bool */
+    protected $enable_pages = true;
+
     /** @var int */
     protected $last_modified;
 
@@ -89,6 +92,14 @@ class Pages
     public function __construct(Grav $c)
     {
         $this->grav = $c;
+    }
+
+    /**
+     * Method used in admin to disable pages from being loaded.
+     */
+    public function disablePages(): void
+    {
+        $this->enable_pages = false;
     }
 
     /**
@@ -830,7 +841,7 @@ class Pages
         /** @var UniformResourceLocator $locator */
         $locator = $this->grav['locator'];
 
-        return $this->instances[rtrim($locator->findResource('page://'), DS)];
+        return $this->instances[rtrim($locator->findResource('page://'), '/')];
     }
 
     /**
@@ -1194,8 +1205,15 @@ class Pages
      *
      * @internal
      */
-    protected function buildPages()
+    protected function buildPages(): void
     {
+        if ($this->enable_pages === false) {
+            $page = $this->buildRootPage();
+            $this->instances[$page->path()] = $page;
+
+            return;
+        }
+
         /** @var Config $config */
         $config = $this->grav['config'];
 
@@ -1270,6 +1288,29 @@ class Pages
             // save pages, routes, taxonomy, and sort to cache
             $cache->set($this->pages_cache_id, [$this->instances, $this->routes, $this->children, $taxonomy_map, $this->sort]);
         }
+    }
+
+
+    protected function buildRootPage()
+    {
+        $grav = Grav::instance();
+
+        /** @var UniformResourceLocator $locator */
+        $locator = $grav['locator'];
+
+        /** @var Config $config */
+        $config = $grav['config'];
+
+        $page = new Page();
+        $page->path($locator->findResource('page://'));
+        $page->orderDir($config->get('system.pages.order.dir'));
+        $page->orderBy($config->get('system.pages.order.by'));
+        $page->modified(0);
+        $page->routable(false);
+        $page->template('default');
+        $page->extension('.md');
+
+        return $page;
     }
 
     protected function buildRegularPages()
