@@ -653,7 +653,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
 
         static::onChanges($index, $added, $updated, $removed);
 
-        $indexFile->save(['count' => \count($index), 'index' => $index]);
+        $indexFile->save(['timestamp' => time(), 'count' => \count($index), 'index' => $index]);
         $indexFile->unlock();
 
         return $index;
@@ -663,7 +663,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
     {
     }
 
-    protected static function loadEntriesFromIndex(FlexStorageInterface $storage)
+    protected static function loadIndex(FlexStorageInterface $storage)
     {
         $indexFile = static::getIndexFile($storage);
 
@@ -675,6 +675,13 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
 
             static::onException($e);
         }
+
+        return $data ?: ['timestamp' => 0, 'count' => 0, 'index' => []];
+    }
+
+    protected static function loadEntriesFromIndex(FlexStorageInterface $storage)
+    {
+        $data = static::loadIndex($storage);
 
         return $data['index'] ?? [];
     }
