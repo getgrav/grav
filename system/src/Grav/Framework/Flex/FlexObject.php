@@ -621,7 +621,8 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
         }
 
         try {
-            $this->getFlexDirectory()->getCache('index')->clear();
+            // FIXME: we need to clear some index meta
+            //$this->getFlexDirectory()->getCache('index')->clear();
             if (method_exists($this, 'clearMediaCache')) {
                 $this->clearMediaCache();
             }
