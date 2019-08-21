@@ -55,9 +55,13 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     /** @var FlexFormInterface[] */
     private $_forms = [];
     /** @var array */
-    private $_storage;
+    private $_meta;
     /** @var array */
     protected $_changes;
+    /** @var string */
+    protected $storage_key;
+    /** @var int */
+    protected $storage_timestamp;
 
     /**
      * @return array
@@ -167,7 +171,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      */
     public function getTimestamp(): int
     {
-        return $this->_storage['storage_timestamp'] ?? 0;
+        return $this->_meta['storage_timestamp'] ?? 0;
     }
 
     /**
@@ -227,7 +231,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      */
     public function getFlexKey(): string
     {
-        $key = $this->_storage['flex_key'] ?? null;
+        $key = $this->_meta['flex_key'] ?? null;
 
         if (!$key && $key = $this->getStorageKey()) {
             $key = $this->_flexDirectory->getFlexType() . '.obj:' . $key;
@@ -242,7 +246,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      */
     public function getStorageKey(): string
     {
-        return (string)($this->_storage['storage_key'] ?? null);
+        return (string)($this->storage_key ?? $this->_meta['storage_key'] ?? null);
     }
 
     /**
@@ -388,7 +392,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      */
     public function setStorageKey($key = null)
     {
-        $this->_storage['storage_key'] = $key ?? '';
+        $this->storage_key = $key ?? '';
 
         return $this;
     }
@@ -399,7 +403,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      */
     public function setTimestamp($timestamp = null)
     {
-        $this->_storage['storage_timestamp'] = $timestamp ?? time();
+        $this->storage_timestamp = $timestamp ?? time();
 
         return $this;
     }
@@ -828,7 +832,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      */
     protected function setStorage(array $storage) : void
     {
-        $this->_storage = $storage;
+        $this->_meta = $storage;
     }
 
     /**
@@ -836,7 +840,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      */
     protected function getStorage() : array
     {
-        return $this->_storage ?? [];
+        return $this->_meta ?? [];
     }
 
     /**
@@ -911,14 +915,14 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      */
     protected function filterElements(array &$elements): void
     {
-        if (!empty($elements['storage_key'])) {
-            $this->_storage['storage_key'] = trim($elements['storage_key']);
+        if (isset($elements['storage_key'])) {
+            $elements['storage_key'] = trim($elements['storage_key']);
         }
-        if (!empty($elements['storage_timestamp'])) {
-            $this->_storage['storage_timestamp'] = (int)$elements['storage_timestamp'];
+        if (isset($elements['storage_timestamp'])) {
+            $elements['storage_timestamp'] = (int)$elements['storage_timestamp'];
         }
 
-        unset ($elements['storage_key'], $elements['storage_timestamp'], $elements['_post_entries_save']);
+        unset ($elements['_post_entries_save']);
     }
 
     /**
