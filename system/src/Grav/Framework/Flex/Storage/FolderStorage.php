@@ -36,6 +36,8 @@ class FolderStorage extends AbstractFilesystemStorage
     protected $prefixed;
     /** @var bool */
     protected $indexed;
+    /** @var array */
+    protected $meta = [];
 
     /**
      * {@inheritdoc}
@@ -468,13 +470,21 @@ class FolderStorage extends AbstractFilesystemStorage
      */
     protected function getObjectMeta(string $key, bool $reload = false): array
     {
+        if (!$reload && isset($this->meta[$key])) {
+            return $this->meta[$key];
+        }
+
         $filename = $this->getPathFromKey($key);
         $modified = is_file($filename) ? filemtime($filename) : 0;
 
-        return [
+        $meta = [
             'storage_key' => $key,
             'storage_timestamp' => $modified
         ];
+
+        $this->meta[$key] = $meta;
+
+        return $meta;
     }
 
 
