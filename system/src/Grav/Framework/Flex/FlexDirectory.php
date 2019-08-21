@@ -84,6 +84,17 @@ class FlexDirectory implements FlexAuthorizeInterface
         $this->objects = [];
     }
 
+    public function isListed(): bool
+    {
+        $grav = Grav::instance();
+
+        /** @var Flex|null $flex */
+        $flex = $grav['flex_objects'] ?? null;
+        $directory = $flex ? $flex->getDirectory($this->type) : null;
+
+        return null !== $directory;
+    }
+
     /**
      * @return bool
      */
@@ -522,10 +533,12 @@ class FlexDirectory implements FlexAuthorizeInterface
             }
         }
 
+        $loading = \count($fetch);
+
         // Attempt to fetch missing rows from the cache.
         if ($fetch) {
             try {
-                $debugger->startTimer('flex-objects', sprintf('Flex: Loading %d %s', \count($fetch), $this->type));
+                $debugger->startTimer('flex-objects', sprintf('Flex: Loading %d %s', $loading, $this->type));
 
                 $rows = array_replace($rows, (array)$cache->getMultiple($fetch));
             } catch (InvalidArgumentException $e) {
@@ -538,21 +551,8 @@ class FlexDirectory implements FlexAuthorizeInterface
         $updated = [];
         $rows = $storage->readRows($rows, $updated);
 
-        // Store updated rows to the cache.
-        if ($updated) {
-            try {
-                if (!$cache instanceof MemoryCache) {
-                    $debugger->addMessage(sprintf('Flex: Caching %d %s: %s', \count($updated), $this->type, implode(', ', array_keys($updated))), 'debug');
-                }
-                $cache->setMultiple($updated);
-            } catch (InvalidArgumentException $e) {
-                $debugger->addException($e);
-
-                // TODO: log about the issue.
-            }
-        }
-
         // Create objects from the rows.
+        $isListed = $this->isListed();
         $list = [];
         foreach ($rows as $storageKey => $row) {
             $usedKey = $keys[$storageKey];
@@ -580,12 +580,31 @@ class FlexDirectory implements FlexAuthorizeInterface
                 $key = $entries[$usedKey]['key'] ?? $usedKey;
                 $object = $this->createObject($row, $key, false);
                 $this->objects[$storageKey] = $object;
+                if ($isListed) {
+                    // If unserializing object works, let's serialize the object to speed up the loading.
+                    $updated[$storageKey] = $object;
+                }
             }
 
             $list[$usedKey] = $object;
         }
 
-        $debugger->stopTimer('flex-objects');
+        // Store updated rows to the cache.
+        if ($updated) {
+            if (!$cache instanceof MemoryCache) {
+                /** @var Debugger $debugger */
+                $debugger = Grav::instance()['debugger'];
+                $debugger->addMessage(sprintf('Flex: Caching %d %s', \count($entries), $this->type), 'debug');
+            }
+            try {
+                $cache->setMultiple($updated);
+            } catch (InvalidArgumentException $e) {
+                $debugger->addException($e);
+                // TODO: log about the issue.
+            }
+        }
+
+        $fetch && $debugger->stopTimer('flex-objects');
 
         return $list;
     }
