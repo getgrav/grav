@@ -41,7 +41,7 @@ interface ObjectCollectionInterface extends CollectionInterface, Selectable, Obj
      * @param array  $arguments     List of arguments passed to the function.
      * @return array                Return values.
      */
-    public function call($name, array $arguments);
+    public function call($name, array $arguments = []);
 
     /**
      * Group items in the collection by a field and return them as associated array.

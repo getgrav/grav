@@ -111,7 +111,7 @@ class FolderStorage extends AbstractFilesystemStorage
     {
         $list = [];
         foreach ($rows as $key => $row) {
-            if (null === $row || (!\is_object($row) && !\is_array($row))) {
+            if (null === $row || \is_scalar($row)) {
                 // Only load rows which haven't been loaded before.
                 $key = (string)$key;
                 if (!$this->hasKey($key)) {

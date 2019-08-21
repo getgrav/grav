@@ -59,6 +59,8 @@ class FlexDirectory implements FlexAuthorizeInterface
     protected $storage;
     /** @var CacheInterface */
     protected $cache;
+    /** @var FlexObjectInterface[] */
+    protected $objects;
     /** @var string */
     protected $objectClassName;
     /** @var string */
@@ -79,6 +81,7 @@ class FlexDirectory implements FlexAuthorizeInterface
         $this->blueprint_file = $blueprint_file;
         $this->defaults = $defaults;
         $this->enabled = !empty($defaults['enabled']);
+        $this->objects = [];
     }
 
     /**
@@ -502,28 +505,36 @@ class FlexDirectory implements FlexAuthorizeInterface
     {
         /** @var Debugger $debugger */
         $debugger = Grav::instance()['debugger'];
-        $debugger->startTimer('flex-objects', sprintf('Flex: Initializing %d %s', \count($entries), $this->type));
 
-        $storage = $this->getStorage();
         $cache = $this->getCache('object');
 
         // Get storage keys for the objects.
         $keys = [];
         $rows = [];
+        $fetch = [];
         foreach ($entries as $key => $value) {
             $k = $value['storage_key'] ?? '';
+            $v = $this->objects[$k] ?? null;
             $keys[$k] = $key;
-            $rows[$k] = null;
+            $rows[$k] = $v;
+            if (!$v) {
+                $fetch[] = $k;
+            }
         }
 
-        // Fetch rows from the cache.
-        try {
-            $rows = $cache->getMultiple(array_keys($rows));
-        } catch (InvalidArgumentException $e) {
-            $debugger->addException($e);
+        // Attempt to fetch missing rows from the cache.
+        if ($fetch) {
+            try {
+                $debugger->startTimer('flex-objects', sprintf('Flex: Loading %d %s', \count($fetch), $this->type));
+
+                $rows = array_replace($rows, (array)$cache->getMultiple($fetch));
+            } catch (InvalidArgumentException $e) {
+                $debugger->addException($e);
+            }
         }
 
         // Read missing rows from the storage.
+        $storage = $this->getStorage();
         $updated = [];
         $rows = $storage->readRows($rows, $updated);
 
@@ -544,26 +555,33 @@ class FlexDirectory implements FlexAuthorizeInterface
         // Create objects from the rows.
         $list = [];
         foreach ($rows as $storageKey => $row) {
-            if ($row === null) {
-                $debugger->addMessage(sprintf('Flex: Object %s was not found from %s storage', $storageKey, $this->type), 'debug');
-                continue;
-            }
-
-            if (isset($row['__error'])) {
-                $message = sprintf('Flex: Object %s is broken in %s storage: %s', $storageKey, $this->type, $row['__error']);
-                $debugger->addException(new \RuntimeException($message));
-                $debugger->addMessage($message, 'error');
-                continue;
-            }
-
             $usedKey = $keys[$storageKey];
-            $row += [
-                'storage_key' => $storageKey,
-                'storage_timestamp' => $entries[$usedKey]['storage_timestamp'] ?? 0,
-            ];
 
-            $key = $entries[$usedKey]['key'] ?? $usedKey;
-            $object = $this->createObject($row, $key, false);
+            if ($row instanceof FlexObjectInterface) {
+                $object = $row;
+            } else {
+                if ($row === null) {
+                    $debugger->addMessage(sprintf('Flex: Object %s was not found from %s storage', $storageKey, $this->type), 'debug');
+                    continue;
+                }
+
+                if (isset($row['__error'])) {
+                    $message = sprintf('Flex: Object %s is broken in %s storage: %s', $storageKey, $this->type, $row['__error']);
+                    $debugger->addException(new \RuntimeException($message));
+                    $debugger->addMessage($message, 'error');
+                    continue;
+                }
+
+                $row += [
+                    'storage_key' => $storageKey,
+                    'storage_timestamp' => $entries[$usedKey]['storage_timestamp'] ?? 0,
+                ];
+
+                $key = $entries[$usedKey]['key'] ?? $usedKey;
+                $object = $this->createObject($row, $key, false);
+                $this->objects[$storageKey] = $object;
+            }
+
             $list[$usedKey] = $object;
         }
 

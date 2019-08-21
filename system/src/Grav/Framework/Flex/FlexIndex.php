@@ -712,17 +712,19 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
 
     protected static function onChanges(array $entries, array $added, array $updated, array $removed)
     {
-        $message = sprintf('Index updated, %d objects (%d added, %d updated, %d removed).', \count($entries), \count($added), \count($updated), \count($removed));
+        $addedCount = \count($added);
+        $updatedCount = \count($updated);
+        $removedCount = \count($removed);
 
-        $grav = Grav::instance();
+        if ($addedCount + $updatedCount + $removedCount) {
+            $message = sprintf('Index updated, %d objects (%d added, %d updated, %d removed).', \count($entries), $addedCount, $updatedCount, $removedCount);
 
-        /** @var Logger $logger */
-        $logger = $grav['log'];
-        $logger->addDebug($message);
+            $grav = Grav::instance();
 
-        /** @var Debugger $debugger */
-        $debugger = $grav['debugger'];
-        $debugger->addMessage($message, 'debug');
+            /** @var Debugger $debugger */
+            $debugger = $grav['debugger'];
+            $debugger->addMessage($message, 'debug');
+        }
     }
 
     public function __debugInfo()

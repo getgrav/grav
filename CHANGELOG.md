@@ -6,6 +6,7 @@
 1. [](#improved)
     * Improved `bin/grav yamllinter` CLI command by adding an option to find YAML Linting issues from the whole site or custom folder
     * Added support for not instantiating pages, useful to speed up tasks
+    * Greatly improved speed of loading Flex collections multiple times
 1. [](#bugfix)
     * Fixed `$page->summary()` always striping HTML tags if the summary was set by `$page->setSummary()`
     * Grav 1.7: Fixed enabling PHP Debug Bar causes fatal error in Gantry [#2634](https://github.com/getgrav/grav/issues/2634)
