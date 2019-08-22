@@ -1,10 +1,10 @@
 <?php
 
 use Codeception\Util\Fixtures;
-use Codeception\Util\Stub;
 use Grav\Common\Grav;
 use Grav\Common\Page\Pages;
 use Grav\Common\Page\Page;
+use Grav\Common\Page\Interfaces\PageInterface;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 /**
@@ -55,7 +55,7 @@ class PagesTest extends \Codeception\TestCase\Test
     {
         $this->assertInternalType('array', $this->pages->instances());
         foreach($this->pages->instances() as $instance) {
-            $this->assertInstanceOf('Grav\Common\Page\Page', $instance);
+            $this->assertInstanceOf(PageInterface::class, $instance);
         }
     }
 
@@ -63,35 +63,38 @@ class PagesTest extends \Codeception\TestCase\Test
     {
         /** @var UniformResourceLocator $locator */
         $locator = $this->grav['locator'];
+        $folder = $locator->findResource('tests://');
 
         $this->assertInternalType('array', $this->pages->routes());
-        $this->assertSame($locator->findResource('tests://') . '/fake/simple-site/user/pages/01.home', $this->pages->routes()['/']);
-        $this->assertSame($locator->findResource('tests://') . '/fake/simple-site/user/pages/01.home', $this->pages->routes()['/home']);
-        $this->assertSame($locator->findResource('tests://') . '/fake/simple-site/user/pages/02.blog', $this->pages->routes()['/blog']);
-        $this->assertSame($locator->findResource('tests://') . '/fake/simple-site/user/pages/02.blog/post-one', $this->pages->routes()['/blog/post-one']);
-        $this->assertSame($locator->findResource('tests://') . '/fake/simple-site/user/pages/02.blog/post-two', $this->pages->routes()['/blog/post-two']);
-        $this->assertSame($locator->findResource('tests://') . '/fake/simple-site/user/pages/03.about', $this->pages->routes()['/about']);
+        $this->assertSame($folder . '/fake/simple-site/user/pages/01.home', $this->pages->routes()['/']);
+        $this->assertSame($folder . '/fake/simple-site/user/pages/01.home', $this->pages->routes()['/home']);
+        $this->assertSame($folder . '/fake/simple-site/user/pages/02.blog', $this->pages->routes()['/blog']);
+        $this->assertSame($folder . '/fake/simple-site/user/pages/02.blog/post-one', $this->pages->routes()['/blog/post-one']);
+        $this->assertSame($folder . '/fake/simple-site/user/pages/02.blog/post-two', $this->pages->routes()['/blog/post-two']);
+        $this->assertSame($folder . '/fake/simple-site/user/pages/03.about', $this->pages->routes()['/about']);
     }
 
     public function testAddPage()
     {
         /** @var UniformResourceLocator $locator */
         $locator = $this->grav['locator'];
+        $folder = $locator->findResource('tests://');
 
-        $path = $locator->findResource('tests://') . '/fake/single-pages/01.simple-page/default.md';
+        $path = $folder . '/fake/single-pages/01.simple-page/default.md';
         $aPage = new Page();
         $aPage->init(new \SplFileInfo($path));
 
         $this->pages->addPage($aPage, '/new-page');
 
         $this->assertContains('/new-page', array_keys($this->pages->routes()));
-        $this->assertSame($locator->findResource('tests://') . '/fake/single-pages/01.simple-page', $this->pages->routes()['/new-page']);
+        $this->assertSame($folder . '/fake/single-pages/01.simple-page', $this->pages->routes()['/new-page']);
     }
 
     public function testSort()
     {
         /** @var UniformResourceLocator $locator */
         $locator = $this->grav['locator'];
+        $folder = $locator->findResource('tests://');
 
         $aPage = $this->pages->dispatch('/blog');
         $subPagesSorted = $this->pages->sort($aPage);
@@ -99,34 +102,35 @@ class PagesTest extends \Codeception\TestCase\Test
         $this->assertInternalType('array', $subPagesSorted);
         $this->assertCount(2, $subPagesSorted);
 
-        $this->assertSame($locator->findResource('tests://') . '/fake/simple-site/user/pages/02.blog/post-one', array_keys($subPagesSorted)[0]);
-        $this->assertSame($locator->findResource('tests://') . '/fake/simple-site/user/pages/02.blog/post-two', array_keys($subPagesSorted)[1]);
+        $this->assertSame($folder . '/fake/simple-site/user/pages/02.blog/post-one', array_keys($subPagesSorted)[0]);
+        $this->assertSame($folder . '/fake/simple-site/user/pages/02.blog/post-two', array_keys($subPagesSorted)[1]);
 
-        $this->assertContains($locator->findResource('tests://') . '/fake/simple-site/user/pages/02.blog/post-one', array_keys($subPagesSorted));
-        $this->assertContains($locator->findResource('tests://') . '/fake/simple-site/user/pages/02.blog/post-two', array_keys($subPagesSorted));
+        $this->assertContains($folder . '/fake/simple-site/user/pages/02.blog/post-one', array_keys($subPagesSorted));
+        $this->assertContains($folder . '/fake/simple-site/user/pages/02.blog/post-two', array_keys($subPagesSorted));
 
-        $this->assertSame(["slug" => "post-one"], $subPagesSorted[$locator->findResource('tests://') . '/fake/simple-site/user/pages/02.blog/post-one']);
-        $this->assertSame(["slug" => "post-two"], $subPagesSorted[$locator->findResource('tests://') . '/fake/simple-site/user/pages/02.blog/post-two']);
+        $this->assertSame(['slug' => 'post-one'], $subPagesSorted[$folder . '/fake/simple-site/user/pages/02.blog/post-one']);
+        $this->assertSame(['slug' => 'post-two'], $subPagesSorted[$folder . '/fake/simple-site/user/pages/02.blog/post-two']);
 
         $subPagesSorted = $this->pages->sort($aPage, null, 'desc');
 
         $this->assertInternalType('array', $subPagesSorted);
         $this->assertCount(2, $subPagesSorted);
 
-        $this->assertSame($locator->findResource('tests://') . '/fake/simple-site/user/pages/02.blog/post-two', array_keys($subPagesSorted)[0]);
-        $this->assertSame($locator->findResource('tests://') . '/fake/simple-site/user/pages/02.blog/post-one', array_keys($subPagesSorted)[1]);
+        $this->assertSame($folder . '/fake/simple-site/user/pages/02.blog/post-two', array_keys($subPagesSorted)[0]);
+        $this->assertSame($folder . '/fake/simple-site/user/pages/02.blog/post-one', array_keys($subPagesSorted)[1]);
 
-        $this->assertContains($locator->findResource('tests://') . '/fake/simple-site/user/pages/02.blog/post-one', array_keys($subPagesSorted));
-        $this->assertContains($locator->findResource('tests://') . '/fake/simple-site/user/pages/02.blog/post-two', array_keys($subPagesSorted));
+        $this->assertContains($folder . '/fake/simple-site/user/pages/02.blog/post-one', array_keys($subPagesSorted));
+        $this->assertContains($folder . '/fake/simple-site/user/pages/02.blog/post-two', array_keys($subPagesSorted));
 
-        $this->assertSame(["slug" => "post-one"], $subPagesSorted[$locator->findResource('tests://') . '/fake/simple-site/user/pages/02.blog/post-one']);
-        $this->assertSame(["slug" => "post-two"], $subPagesSorted[$locator->findResource('tests://') . '/fake/simple-site/user/pages/02.blog/post-two']);
+        $this->assertSame(['slug' => 'post-one'], $subPagesSorted[$folder . '/fake/simple-site/user/pages/02.blog/post-one']);
+        $this->assertSame(['slug' => 'post-two'], $subPagesSorted[$folder . '/fake/simple-site/user/pages/02.blog/post-two']);
     }
 
     public function testSortCollection()
     {
         /** @var UniformResourceLocator $locator */
         $locator = $this->grav['locator'];
+        $folder = $locator->findResource('tests://');
 
         $aPage = $this->pages->dispatch('/blog');
         $subPagesSorted = $this->pages->sortCollection($aPage->children(), $aPage->orderBy());
@@ -134,42 +138,43 @@ class PagesTest extends \Codeception\TestCase\Test
         $this->assertInternalType('array', $subPagesSorted);
         $this->assertCount(2, $subPagesSorted);
 
-        $this->assertSame($locator->findResource('tests://') . '/fake/simple-site/user/pages/02.blog/post-one', array_keys($subPagesSorted)[0]);
-        $this->assertSame($locator->findResource('tests://') . '/fake/simple-site/user/pages/02.blog/post-two', array_keys($subPagesSorted)[1]);
+        $this->assertSame($folder . '/fake/simple-site/user/pages/02.blog/post-one', array_keys($subPagesSorted)[0]);
+        $this->assertSame($folder . '/fake/simple-site/user/pages/02.blog/post-two', array_keys($subPagesSorted)[1]);
 
-        $this->assertContains($locator->findResource('tests://') . '/fake/simple-site/user/pages/02.blog/post-one', array_keys($subPagesSorted));
-        $this->assertContains($locator->findResource('tests://') . '/fake/simple-site/user/pages/02.blog/post-two', array_keys($subPagesSorted));
+        $this->assertContains($folder . '/fake/simple-site/user/pages/02.blog/post-one', array_keys($subPagesSorted));
+        $this->assertContains($folder . '/fake/simple-site/user/pages/02.blog/post-two', array_keys($subPagesSorted));
 
-        $this->assertSame(["slug" => "post-one"], $subPagesSorted[$locator->findResource('tests://') . '/fake/simple-site/user/pages/02.blog/post-one']);
-        $this->assertSame(["slug" => "post-two"], $subPagesSorted[$locator->findResource('tests://') . '/fake/simple-site/user/pages/02.blog/post-two']);
+        $this->assertSame(['slug' => 'post-one'], $subPagesSorted[$folder . '/fake/simple-site/user/pages/02.blog/post-one']);
+        $this->assertSame(['slug' => 'post-two'], $subPagesSorted[$folder . '/fake/simple-site/user/pages/02.blog/post-two']);
 
         $subPagesSorted = $this->pages->sortCollection($aPage->children(), $aPage->orderBy(), 'desc');
 
         $this->assertInternalType('array', $subPagesSorted);
         $this->assertCount(2, $subPagesSorted);
 
-        $this->assertSame($locator->findResource('tests://') . '/fake/simple-site/user/pages/02.blog/post-two', array_keys($subPagesSorted)[0]);
-        $this->assertSame($locator->findResource('tests://') . '/fake/simple-site/user/pages/02.blog/post-one', array_keys($subPagesSorted)[1]);
+        $this->assertSame($folder . '/fake/simple-site/user/pages/02.blog/post-two', array_keys($subPagesSorted)[0]);
+        $this->assertSame($folder . '/fake/simple-site/user/pages/02.blog/post-one', array_keys($subPagesSorted)[1]);
 
-        $this->assertContains($locator->findResource('tests://') . '/fake/simple-site/user/pages/02.blog/post-one', array_keys($subPagesSorted));
-        $this->assertContains($locator->findResource('tests://') . '/fake/simple-site/user/pages/02.blog/post-two', array_keys($subPagesSorted));
+        $this->assertContains($folder . '/fake/simple-site/user/pages/02.blog/post-one', array_keys($subPagesSorted));
+        $this->assertContains($folder . '/fake/simple-site/user/pages/02.blog/post-two', array_keys($subPagesSorted));
 
-        $this->assertSame(["slug" => "post-one"], $subPagesSorted[$locator->findResource('tests://') . '/fake/simple-site/user/pages/02.blog/post-one']);
-        $this->assertSame(["slug" => "post-two"], $subPagesSorted[$locator->findResource('tests://') . '/fake/simple-site/user/pages/02.blog/post-two']);
+        $this->assertSame(['slug' => 'post-one'], $subPagesSorted[$folder . '/fake/simple-site/user/pages/02.blog/post-one']);
+        $this->assertSame(['slug' => 'post-two'], $subPagesSorted[$folder . '/fake/simple-site/user/pages/02.blog/post-two']);
     }
 
     public function testGet()
     {
         /** @var UniformResourceLocator $locator */
         $locator = $this->grav['locator'];
+        $folder = $locator->findResource('tests://');
 
         //Page existing
-        $aPage = $this->pages->get($locator->findResource('tests://') . '/fake/simple-site/user/pages/03.about');
+        $aPage = $this->pages->get($folder . '/fake/simple-site/user/pages/03.about');
         $this->assertInternalType('object', $aPage);
-        $this->assertInstanceOf('Grav\Common\Page\Page', $aPage);
+        $this->assertInstanceOf(PageInterface::class, $aPage);
 
         //Page not existing
-        $anotherPage = $this->pages->get($locator->findResource('tests://') . '/fake/simple-site/user/pages/03.non-existing');
+        $anotherPage = $this->pages->get($folder . '/fake/simple-site/user/pages/03.non-existing');
         $this->assertNotInternalType('object', $anotherPage);
         $this->assertNull($anotherPage);
     }
@@ -178,26 +183,27 @@ class PagesTest extends \Codeception\TestCase\Test
     {
         /** @var UniformResourceLocator $locator */
         $locator = $this->grav['locator'];
+        $folder = $locator->findResource('tests://');
 
         //Page existing
-        $children = $this->pages->children($locator->findResource('tests://') . '/fake/simple-site/user/pages/02.blog');
+        $children = $this->pages->children($folder . '/fake/simple-site/user/pages/02.blog');
         $this->assertInstanceOf('Grav\Common\Page\Collection', $children);
 
         //Page not existing
-        $children = $this->pages->children($locator->findResource('tests://') . '/fake/whatever/non-existing');
+        $children = $this->pages->children($folder . '/fake/whatever/non-existing');
         $this->assertSame([], $children->toArray());
     }
 
     public function testDispatch()
     {
         $aPage = $this->pages->dispatch('/blog');
-        $this->assertInstanceOf('Grav\Common\Page\Page', $aPage);
+        $this->assertInstanceOf(PageInterface::class, $aPage);
 
         $aPage = $this->pages->dispatch('/about');
-        $this->assertInstanceOf('Grav\Common\Page\Page', $aPage);
+        $this->assertInstanceOf(PageInterface::class, $aPage);
 
         $aPage = $this->pages->dispatch('/blog/post-one');
-        $this->assertInstanceOf('Grav\Common\Page\Page', $aPage);
+        $this->assertInstanceOf(PageInterface::class, $aPage);
 
         //Page not existing
         $aPage = $this->pages->dispatch('/non-existing');
@@ -207,7 +213,7 @@ class PagesTest extends \Codeception\TestCase\Test
     public function testRoot()
     {
         $root = $this->pages->root();
-        $this->assertInstanceOf('Grav\Common\Page\Page', $root);
+        $this->assertInstanceOf(PageInterface::class, $root);
         $this->assertSame('pages', $root->folder());
     }
 
@@ -221,7 +227,7 @@ class PagesTest extends \Codeception\TestCase\Test
         $this->assertInternalType('object', $this->pages->all());
         $this->assertInternalType('array', $this->pages->all()->toArray());
         foreach($this->pages->all() as $page) {
-            $this->assertInstanceOf('Grav\Common\Page\Page', $page);
+            $this->assertInstanceOf(PageInterface::class, $page);
         }
     }
 
