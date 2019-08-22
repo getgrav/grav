@@ -12,9 +12,11 @@ namespace Grav\Common\Page;
 use RocketTheme\Toolbox\ArrayTraits\Constructor;
 use RocketTheme\Toolbox\ArrayTraits\Export;
 use RocketTheme\Toolbox\ArrayTraits\ExportInterface;
-use RocketTheme\Toolbox\ArrayTraits\NestedArrayAccess;
+use RocketTheme\Toolbox\ArrayTraits\NestedArrayAccessWithGetters;
 
 class Header implements \ArrayAccess, ExportInterface
 {
-    use NestedArrayAccess, Constructor, Export;
+    use NestedArrayAccessWithGetters, Constructor, Export;
+
+    protected $items;
 }

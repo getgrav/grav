@@ -13,6 +13,7 @@ use Grav\Common\Cache;
 use Grav\Common\Config\Config;
 use Grav\Common\Data\Blueprint;
 use Grav\Common\Data\Blueprints;
+use Grav\Common\Debugger;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\Grav;
 use Grav\Common\Language\Language;
@@ -23,6 +24,7 @@ use Grav\Common\Uri;
 use Grav\Common\Utils;
 use Grav\Framework\Flex\Flex;
 use Grav\Framework\Flex\FlexDirectory;
+use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
 use Grav\Plugin\Admin;
 use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
@@ -33,6 +35,9 @@ class Pages
 {
     /** @var Grav */
     protected $grav;
+
+    /** @var Flex */
+    protected $flex;
 
     /** @var array|PageInterface[] */
     protected $instances;
@@ -100,6 +105,18 @@ class Pages
     public function disablePages(): void
     {
         $this->enable_pages = false;
+    }
+
+    /**
+     * Method used in admin to later load frontend pages.
+     */
+    public function enablePages(): void
+    {
+        if (!$this->enable_pages) {
+            $this->enable_pages = true;
+
+            $this->buildPages();
+        }
     }
 
     /**
@@ -236,6 +253,9 @@ class Pages
         $this->ignore_files = $config->get('system.pages.ignore_files');
         $this->ignore_folders = $config->get('system.pages.ignore_folders');
         $this->ignore_hidden = $config->get('system.pages.ignore_hidden');
+        if ($config->get('system.pages.type') === 'flex') {
+            $this->flex = $this->grav['flex_objects'] ?? null;
+        }
 
         $this->instances = [];
         $this->children = [];
@@ -267,11 +287,23 @@ class Pages
     /**
      * Returns a list of all pages.
      *
-     * @return array|PageInterface[]
+     * @return PageInterface[]
      */
     public function instances()
     {
-        return $this->instances;
+        if (!$this->flex) {
+            return $this->instances;
+        }
+
+        $list = [];
+        foreach ($this->instances as $path => $instance) {
+            if (!$instance instanceof PageInterface) {
+                $instance = $this->flex->getObject($instance);
+            }
+            $list[$path] = $instance;
+        }
+
+        return $list;
     }
 
     /**
@@ -663,7 +695,12 @@ class Pages
      */
     public function get($path)
     {
-        return $this->instances[(string)$path] ?? null;
+        $instance = $this->instances[(string)$path] ?? null;
+        if (\is_string($instance)) {
+            $instance = $this->flex ? $this->flex->getObject($instance) : null;
+        }
+
+        return $instance;
     }
 
     /**
@@ -841,7 +878,7 @@ class Pages
         /** @var UniformResourceLocator $locator */
         $locator = $this->grav['locator'];
 
-        return $this->instances[rtrim($locator->findResource('page://'), '/')];
+        return $this->get(rtrim($locator->findResource('page://'), '/'));
     }
 
     /**
@@ -1214,21 +1251,18 @@ class Pages
             return;
         }
 
-        /** @var Config $config */
-        $config = $this->grav['config'];
+        /** @var Debugger $debugger */
+        $debugger = $this->grav['debugger'];
+        $debugger->startTimer('build-pages', 'Init frontend routes');
 
-        $directory = null;
-        if ($config->get('system.pages.type') === 'flex') {
-            /** @var Flex $flex */
-            $flex = $this->grav['flex_objects'] ?? null;
-            $directory = $flex ? $flex->getDirectory('grav-pages') : null;
-        }
+        $directory = $this->flex ? $this->flex->getDirectory('grav-pages') : null;
 
         if ($directory) {
             $this->buildFlexPages($directory);
         } else {
             $this->buildRegularPages();
         }
+        $debugger->stopTimer('build-pages');
     }
 
     protected function buildFlexPages(FlexDirectory $directory)
@@ -1247,9 +1281,9 @@ class Pages
 
         $cached = $cache->get($this->pages_cache_id);
 
-        [$this->instances, $this->routes, $this->children, $taxonomy_map, $this->sort] = $cached;
+        if ($cached && $this->getVersion() === $cached[0]) {
+            [, $this->instances, $this->routes, $this->children, $taxonomy_map, $this->sort] = $cached;
 
-        if ($cached) {
             /** @var Taxonomy $taxonomy */
             $taxonomy = $this->grav['taxonomy'];
             $taxonomy->taxonomy($taxonomy_map);
@@ -1268,6 +1302,10 @@ class Pages
 
 
         $children = [];
+        /**
+         * @var string $key
+         * @var PageInterface|FlexObjectInterface $page
+         */
         foreach ($collection as $key => $page) {
             if ($config->get('system.pages.events.page')) {
                 $this->grav->fireEvent('onPageProcessed', new Event(['page' => $page]));
@@ -1276,7 +1314,7 @@ class Pages
             $path = $page->path();
             $parent = dirname($path);
 
-            $instances[$path] = $page;
+            $instances[$path] = $page->getFlexKey();
             $children[$parent][$path] = ['slug' => $page->slug()];
             if (!isset($children[$path])) {
                 $children[$path] = [];
@@ -1284,7 +1322,7 @@ class Pages
         }
 
         foreach ($children as $path => $list) {
-            $page = $this->instances[$path];
+            $page = $instances[$path];
             if ($config->get('system.pages.events.page')) {
                 $this->grav->fireEvent('onFolderProcessed', new Event(['page' => $page]));
             }
@@ -1303,7 +1341,7 @@ class Pages
             $taxonomy_map = $taxonomy->taxonomy();
 
             // save pages, routes, taxonomy, and sort to cache
-            $cache->set($this->pages_cache_id, [$this->instances, $this->routes, $this->children, $taxonomy_map, $this->sort]);
+            $cache->set($this->pages_cache_id, [$this->getVersion(), $this->instances, $this->routes, $this->children, $taxonomy_map, $this->sort]);
         }
     }
 
@@ -1365,10 +1403,9 @@ class Pages
             /** @var Cache $cache */
             $cache = $this->grav['cache'];
             $cached = $cache->fetch($this->pages_cache_id);
+            if ($cached && $this->getVersion() === $cached[0]) {
+                [, $this->instances, $this->routes, $this->children, $taxonomy_map, $this->sort] = $cached;
 
-            [$this->instances, $this->routes, $this->children, $taxonomy_map, $this->sort] = $cached;
-
-            if ($cached) {
                 /** @var Taxonomy $taxonomy */
                 $taxonomy = $this->grav['taxonomy'];
                 $taxonomy->taxonomy($taxonomy_map);
@@ -1403,7 +1440,7 @@ class Pages
             $taxonomy = $this->grav['taxonomy'];
 
             // save pages, routes, taxonomy, and sort to cache
-            $cache->save($this->pages_cache_id, [$this->instances, $this->routes, $this->children, $taxonomy->taxonomy(), $this->sort]);
+            $cache->save($this->pages_cache_id, [$this->getVersion(), $this->instances, $this->routes, $this->children, $taxonomy->taxonomy(), $this->sort]);
         }
     }
 
@@ -1448,7 +1485,7 @@ class Pages
             if ($parent && $page->path()) {
                 $this->children[$parent->path()][$page->path()] = ['slug' => $page->slug()];
             }
-        } else {
+        } elseif ($parent !== null) {
             throw new \RuntimeException('Fatal error when creating page instances.');
         }
 
@@ -1546,7 +1583,6 @@ class Pages
             }
         }
 
-
         if (!$content_exists) {
             // Set routability to false if no page found
             $page->routable(false);
@@ -1588,44 +1624,49 @@ class Pages
 
         // Get the home route
         $home = self::resetHomeRoute();
-
         // Build routes and taxonomy map.
         /** @var PageInterface $page */
-        foreach ($this->instances as $page) {
-            if (!$page->root()) {
-                // process taxonomy
-                $taxonomy->addTaxonomy($page);
+        foreach ($this->instances as $path => $page) {
+            if (\is_string($page)) {
+                $page = $this->get($path);
+            }
 
-                $route = $page->route();
-                $raw_route = $page->rawRoute();
-                $page_path = $page->path();
+            if (!$page || $page->root()) {
+                continue;
+            }
 
-                // add regular route
-                $this->routes[$route] = $page_path;
+            // process taxonomy
+            $taxonomy->addTaxonomy($page);
 
-                // add raw route
-                if ($raw_route !== $route) {
-                    $this->routes[$raw_route] = $page_path;
-                }
+            $route = $page->route();
+            $raw_route = $page->rawRoute();
+            $page_path = $page->path();
 
-                // add canonical route
-                $route_canonical = $page->routeCanonical();
-                if ($route_canonical && ($route !== $route_canonical)) {
-                    $this->routes[$route_canonical] = $page_path;
-                }
+            // add regular route
+            $this->routes[$route] = $page_path;
 
-                // add aliases to routes list if they are provided
-                $route_aliases = $page->routeAliases();
-                if ($route_aliases) {
-                    foreach ($route_aliases as $alias) {
-                        $this->routes[$alias] = $page_path;
-                    }
+            // add raw route
+            if ($raw_route !== $route) {
+                $this->routes[$raw_route] = $page_path;
+            }
+
+            // add canonical route
+            $route_canonical = $page->routeCanonical();
+            if ($route_canonical && ($route !== $route_canonical)) {
+                $this->routes[$route_canonical] = $page_path;
+            }
+
+            // add aliases to routes list if they are provided
+            $route_aliases = $page->routeAliases();
+            if ($route_aliases) {
+                foreach ($route_aliases as $alias) {
+                    $this->routes[$alias] = $page_path;
                 }
             }
         }
 
         // Alias and set default route to home page.
-        $homeRoute = '/' . $home;
+        $homeRoute = "/{$home}";
         if ($home && isset($this->routes[$homeRoute])) {
             $this->routes['/'] = $this->routes[$homeRoute];
             $this->get($this->routes[$homeRoute])->route('/');
@@ -1657,7 +1698,7 @@ class Pages
         }
 
         foreach ($pages as $key => $info) {
-            $child = $this->instances[$key] ?? null;
+            $child = $this->get($key);
             if (!$child) {
                 throw new \RuntimeException("Page does not exist: {$key}");
             }
@@ -1794,6 +1835,11 @@ class Pages
         }
 
         return $new;
+    }
+
+    protected function getVersion()
+    {
+        return $this->flex ? 'flex' : 'page';
     }
 
     /**

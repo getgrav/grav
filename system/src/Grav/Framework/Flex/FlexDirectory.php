@@ -572,12 +572,14 @@ class FlexDirectory implements FlexAuthorizeInterface
                     continue;
                 }
 
-                $row += [
-                    'storage_key' => $storageKey,
-                    'storage_timestamp' => $entries[$usedKey]['storage_timestamp'] ?? 0,
-                ];
+                if (!isset($row['__META'])) {
+                    $row['__META'] = [
+                        'storage_key' => $storageKey,
+                        'storage_timestamp' => $entries[$usedKey]['storage_timestamp'] ?? 0,
+                    ];
+                }
 
-                $key = $entries[$usedKey]['key'] ?? $usedKey;
+                $key = $row['__META']['key'] ?? $entries[$usedKey]['key'] ?? $usedKey;
                 $object = $this->createObject($row, $key, false);
                 $this->objects[$storageKey] = $object;
                 if ($isListed) {

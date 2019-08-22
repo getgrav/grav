@@ -262,7 +262,7 @@ class Flex implements \Countable
         if (null === $type && null === $keyField) {
             // Special handling for quick Flex key lookups.
             $keyField = 'storage_key';
-            [$type, $key] = $this->resolveKeyAndType($key, $type);
+            [$key, $type] = $this->resolveKeyAndType($key, $type);
         } else {
             $type = $this->resolveType($type);
         }
