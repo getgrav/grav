@@ -622,7 +622,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
         $updated = $added = [];
         foreach ($rows as $key => $row) {
             if (null !== $row) {
-                $entry = ['key' => $key] + $entries[$key];
+                $entry = $entries[$key] + ['key' => $key];
                 if ($keyField !== 'storage_key' && isset($row[$keyField])) {
                     $entry['key'] = $row[$keyField];
                 }
