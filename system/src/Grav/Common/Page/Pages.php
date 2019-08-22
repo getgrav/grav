@@ -34,7 +34,7 @@ class Pages
     /** @var Grav */
     protected $grav;
 
-    /** @var PageInterface[] */
+    /** @var array|PageInterface[] */
     protected $instances;
 
     /** @var array */
@@ -95,7 +95,7 @@ class Pages
     }
 
     /**
-     * Method used in admin to disable pages from being loaded.
+     * Method used in admin to disable frontend pages from being initialized.
      */
     public function disablePages(): void
     {
@@ -1261,8 +1261,18 @@ class Pages
 
         $root = $collection->getRoot();
         $instances = [$root->path() => $root];
+
+        if ($config->get('system.pages.events.page')) {
+            $this->grav->fireEvent('onBuildPagesInitialized');
+        }
+
+
         $children = [];
         foreach ($collection as $key => $page) {
+            if ($config->get('system.pages.events.page')) {
+                $this->grav->fireEvent('onPageProcessed', new Event(['page' => $page]));
+            }
+
             $path = $page->path();
             $parent = dirname($path);
 
@@ -1270,6 +1280,13 @@ class Pages
             $children[$parent][$path] = ['slug' => $page->slug()];
             if (!isset($children[$path])) {
                 $children[$path] = [];
+            }
+        }
+
+        foreach ($children as $path => $list) {
+            $page = $this->instances[$path];
+            if ($config->get('system.pages.events.page')) {
+                $this->grav->fireEvent('onFolderProcessed', new Event(['page' => $page]));
             }
         }
 
