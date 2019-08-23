@@ -579,7 +579,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
      * @param array $entries    Updated index
      * @return array            Compiled list of entries
      */
-    protected static function updateIndexFile(FlexStorageInterface $storage, array $index, array $entries): array
+    protected static function updateIndexFile(FlexStorageInterface $storage, array $index, array $entries, array $options = []): array
     {
         // Calculate removed objects.
         $removed = array_diff_key($index, $entries);
@@ -621,12 +621,12 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
         // Go through all the updated objects and refresh their index data.
         $updated = $added = [];
         foreach ($rows as $key => $row) {
-            if (null !== $row) {
+            if (null !== $row || !empty($options['include_missing'])) {
                 $entry = $entries[$key] + ['key' => $key];
                 if ($keyField !== 'storage_key' && isset($row[$keyField])) {
                     $entry['key'] = $row[$keyField];
                 }
-                static::updateIndexData($entry, $row);
+                static::updateIndexData($entry, $row ?? []);
                 if (isset($row['__error'])) {
                     $entry['__error'] = true;
                     static::onException(new \RuntimeException(sprintf('Object failed to load: %s (%s)', $key, $row['__error'])));

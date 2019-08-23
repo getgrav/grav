@@ -699,6 +699,9 @@ class Pages
         if (\is_string($instance)) {
             $instance = $this->flex ? $this->flex->getObject($instance) : null;
         }
+        if ($instance && !$instance instanceof PageInterface) {
+            throw new \RuntimeException('Routing failed on unknown type', 500);
+        }
 
         return $instance;
     }
@@ -1271,7 +1274,7 @@ class Pages
         $config = $this->grav['config'];
 
         // TODO: right now we are just emulating normal pages, it is inefficient and bad... but works!
-        $collection = $directory->getCollection();
+        $collection = $directory->getIndex();
         $cache = $directory->getCache('index');
 
         /** @var Language $language */
@@ -1293,8 +1296,9 @@ class Pages
 
         $this->grav['debugger']->addMessage('Page cache missed, rebuilding pages..');
 
-        $root = $collection->getRoot();
-        $instances = [$root->path() => $root];
+        $root = $this->buildRootPage();
+        $root_path = $root->path();
+        $instances = [$root_path => $root];
 
         if ($config->get('system.pages.events.page')) {
             $this->grav->fireEvent('onBuildPagesInitialized');
@@ -1312,6 +1316,9 @@ class Pages
             }
 
             $path = $page->path();
+            if ($path === $root_path) {
+                continue;
+            }
             $parent = dirname($path);
 
             $instances[$path] = $page->getFlexKey();
@@ -1322,7 +1329,10 @@ class Pages
         }
 
         foreach ($children as $path => $list) {
-            $page = $instances[$path];
+            $page = $instances[$path] ?? null;
+            if (null === $page) {
+                continue;
+            }
             if ($config->get('system.pages.events.page')) {
                 $this->grav->fireEvent('onFolderProcessed', new Event(['page' => $page]));
             }
