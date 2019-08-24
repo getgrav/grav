@@ -25,6 +25,9 @@ class Blueprint extends BlueprintForm
     /** @var BlueprintSchema */
     protected $blueprintSchema;
 
+    /** @var object */
+    protected $object;
+
     /** @var array */
     protected $defaults;
 
@@ -40,6 +43,11 @@ class Blueprint extends BlueprintForm
     public function setScope($scope)
     {
         $this->scope = $scope;
+    }
+
+    public function setObject($object)
+    {
+        $this->object = $object;
     }
 
     /**
@@ -111,6 +119,7 @@ class Blueprint extends BlueprintForm
             foreach ($data as $property => $call) {
                 $action = $call['action'];
                 $method = 'dynamic' . ucfirst($action);
+                $call['object'] = $this->object;
 
                 if (isset($this->handlers[$action])) {
                     $callable = $this->handlers[$action];
