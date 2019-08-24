@@ -87,10 +87,10 @@ trait ControllerResponseTrait
     }
 
     /**
-     * @param \Exception $e
-     * @return Response
+     * @param \Throwable $e
+     * @return \Throwable
      */
-    protected function createErrorResponse(\Exception $e): ResponseInterface
+    protected function createErrorResponse(\Throwable $e): ResponseInterface
     {
         $validCodes = [
             400, 401, 402, 403, 404, 405, 406, 407, 408, 409, 410, 411, 412, 413, 414, 415, 416, 417, 418,
@@ -113,7 +113,15 @@ trait ControllerResponseTrait
         $response = [
             'code' => $code,
             'status' => 'error',
-            'message' => $message
+            'message' => $message,
+            'error' => [
+                'type' => \get_class($e),
+                'code' => $code,
+                'message' => $message,
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => explode("\n", $e->getTraceAsString()),
+            ]
         ];
 
         $accept = $this->getAccept(['application/json', 'text/html']);
@@ -130,7 +138,7 @@ trait ControllerResponseTrait
             }
 
             // TODO: improve error page
-            return $this->createHtmlResponse($response['message']);
+            return $this->createHtmlResponse($response['message'], $code);
         }
 
         return new Response($code, ['Content-Type' => 'application/json'], json_encode($response), '1.1', $reason);
