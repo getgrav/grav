@@ -1126,20 +1126,23 @@ class Pages
      *
      * @return array
      */
-    public static function pageTypes()
+    public static function pageTypes($type = null)
     {
-        if (isset(Grav::instance()['admin'])) {
+        if (null === $type && isset(Grav::instance()['admin'])) {
             /** @var Admin $admin */
             $admin = Grav::instance()['admin'];
 
             /** @var PageInterface $page */
-            $page = $admin->getPage($admin->route);
+            $page = $admin->page();
 
-            if ($page && $page->modular()) {
+            $type = $page && $page->modular() ? 'modular' : 'standard';
+        }
+
+        switch ($type) {
+            case 'standard':
+                return static::types();
+            case 'modular':
                 return static::modularTypes();
-            }
-
-            return static::types();
         }
 
         return [];
