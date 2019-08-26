@@ -383,31 +383,6 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
     }
 
     /**
-     * @param string $name
-     * @return Blueprint
-     */
-    public function getBlueprint(string $name = '')
-    {
-        $blueprint = clone parent::getBlueprint($name);
-
-        $blueprint->addDynamicHandler('flex', function (array &$field, $property, array &$call) {
-            $params = (array)$call['params'];
-            $method = array_shift($params);
-
-            if (method_exists($this, $method)) {
-                $value = $this->{$method}(...$params);
-                if (\is_array($value) && isset($field[$property]) && \is_array($field[$property])) {
-                    $field[$property] = array_merge_recursive($field[$property], $value);
-                } else {
-                    $field[$property] = $value;
-                }
-            }
-        });
-
-        return $blueprint->init();
-    }
-
-    /**
      * Return unmodified data as raw string.
      *
      * NOTE: This function only returns data which has been saved to the storage.

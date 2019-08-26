@@ -14,6 +14,7 @@ use Grav\Common\Config\Config;
 use Grav\Common\Data\Blueprint;
 use Grav\Common\Debugger;
 use Grav\Common\Grav;
+use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Utils;
 use Grav\Framework\Cache\Adapter\DoctrineCache;
 use Grav\Framework\Cache\Adapter\MemoryCache;
@@ -628,6 +629,13 @@ class FlexDirectory implements FlexAuthorizeInterface
             $view = array_shift($parts) ?: '';
 
             $blueprint = new Blueprint($this->getBlueprintFile($view));
+            $blueprint->addDynamicHandler('data', function (array &$field, $property, array &$call) {
+                $this->dynamicDataField($field, $property, $call);
+            });
+            $blueprint->addDynamicHandler('flex', function (array &$field, $property, array &$call) {
+                $this->dynamicFlexField($field, $property, $call);
+            });
+
             if ($context) {
                 $blueprint->setContext($context);
             }
@@ -642,6 +650,72 @@ class FlexDirectory implements FlexAuthorizeInterface
         }
 
         return $this->blueprints[$type_view];
+    }
+
+    /**
+     * @param array $field
+     * @param string $property
+     * @param array $call
+     */
+    protected function dynamicDataField(array &$field, $property, array &$call)
+    {
+        $params = $call['params'];
+        if (\is_array($params)) {
+            $function = array_shift($params);
+        } else {
+            $function = $params;
+            $params = [];
+        }
+
+        $object = $call['object'];
+        if ($function === '\Grav\Common\Page\Pages::pageTypes') {
+            $params = [$object instanceof PageInterface && $object->modular() ? 'modular' : 'standard'];
+        }
+
+        [$o, $f] = explode('::', $function, 2);
+
+        $data = null;
+        if (!$f) {
+            if (\function_exists($o)) {
+                $data = \call_user_func_array($o, $params);
+            }
+        } else {
+            if (method_exists($o, $f)) {
+                $data = \call_user_func_array([$o, $f], $params);
+            }
+        }
+
+        // If function returns a value,
+        if (null !== $data) {
+            if (\is_array($data) && isset($field[$property]) && \is_array($field[$property])) {
+                // Combine field and @data-field together.
+                $field[$property] += $data;
+            } else {
+                // Or create/replace field with @data-field.
+                $field[$property] = $data;
+            }
+        }
+    }
+
+    /**
+     * @param array $field
+     * @param string $property
+     * @param array $call
+     */
+    protected function dynamicFlexField(array &$field, $property, array &$call)
+    {
+        $params = (array)$call['params'];
+        $object = $call['object'] ?? null;
+        $method = array_shift($params);
+
+        if ($object && method_exists($object, $method)) {
+            $value = $object->{$method}(...$params);
+            if (\is_array($value) && isset($field[$property]) && \is_array($field[$property])) {
+                $field[$property] = array_merge_recursive($field[$property], $value);
+            } else {
+                $field[$property] = $value;
+            }
+        }
     }
 
     /**

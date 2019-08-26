@@ -676,7 +676,10 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      */
     public function getBlueprint(string $name = '')
     {
-        return $this->_flexDirectory->getBlueprint($name ? '.' . $name : $name);
+        $blueprint = clone $this->_flexDirectory->getBlueprint($name ? '.' . $name : $name);
+        $blueprint->setObject($this);
+
+        return $blueprint->init();
     }
 
     /**
