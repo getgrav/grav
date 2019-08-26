@@ -191,7 +191,7 @@ trait ControllerResponseTrait
      * @param string $type
      * @return $this
      */
-    abstract protected function setMessage(string $message, string $type = 'info');
+    abstract protected function setMessage($message, $type = 'info');
 
     /**
      * @return Config
