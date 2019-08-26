@@ -520,10 +520,11 @@ class FlexDirectory implements FlexAuthorizeInterface
 
         $cache = $this->getCache('object');
 
-        // Get storage keys for the objects.
         $keys = [];
         $rows = [];
         $fetch = [];
+
+        // Build lookup arrays with storage keys for the objects.
         foreach ($entries as $key => $value) {
             $k = $value['storage_key'] ?? '';
             $v = $this->objects[$k] ?? null;
@@ -541,7 +542,26 @@ class FlexDirectory implements FlexAuthorizeInterface
             try {
                 $debugger->startTimer('flex-objects', sprintf('Flex: Loading %d %s', $loading, $this->type));
 
-                $rows = array_replace($rows, (array)$cache->getMultiple($fetch));
+                $fetched = (array)$cache->getMultiple($fetch);
+
+                // Make sure cached objects are up to date: compare against index checksum/timestamp.
+                foreach ($fetched as $key => $value) {
+                    if ($value instanceof FlexObjectInterface) {
+                        $objectMeta = $value->getMetaData();
+                    } else {
+                        $objectMeta = $value['__META'] ?? [];
+                    }
+                    $indexMeta = $this->index->getMetaData($key);
+
+                    $indexChecksum = $indexMeta['checksum'] ?? $indexMeta['storage_timestamp'] ?? null;
+                    $objectChecksum = $objectMeta['checksum'] ?? $objectMeta['storage_timestamp'] ?? null;
+                    if ($indexChecksum !== $objectChecksum) {
+                        unset($fetched[$key]);
+                    }
+                }
+
+                // Update cached rows.
+                $rows = array_replace($rows, $fetched);
             } catch (InvalidArgumentException $e) {
                 $debugger->addException($e);
             }
@@ -584,7 +604,7 @@ class FlexDirectory implements FlexAuthorizeInterface
                 $object = $this->createObject($row, $key, false);
                 $this->objects[$storageKey] = $object;
                 if ($isListed) {
-                    // If unserializing object works, let's serialize the object to speed up the loading.
+                    // If unserialize works for the object, serialize the object to speed up the loading.
                     $updated[$storageKey] = $object;
                 }
             }
@@ -610,6 +630,12 @@ class FlexDirectory implements FlexAuthorizeInterface
         $fetch && $debugger->stopTimer('flex-objects');
 
         return $list;
+    }
+
+    public function reloadIndex(): void
+    {
+        $cache = $this->getCache('index');
+        $cache->delete('__keys');
     }
 
     /**

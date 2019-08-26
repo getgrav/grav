@@ -178,7 +178,12 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
      */
     public function getCacheChecksum(): string
     {
-        return sha1($this->getCacheKey() . json_encode($this->getTimestamps()));
+        $list = [];
+        foreach ($this->getEntries() as $key => $value) {
+            $list[$key] = $value['checksum'] ?? $value['storage_timestamp'];
+        }
+
+        return sha1(json_encode($list));
     }
 
     /**
@@ -395,25 +400,27 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
                 $cacheKey = '';
             }
             $key = "{$flexType}.idx." . sha1($name . '.' . $cacheKey . json_encode($arguments) . $this->getCacheKey());
+            $checksum = $this->getCacheChecksum();
 
             $cache = $this->getCache('object');
 
             try {
-                $result = $cache->get($key);
+                $cached = $cache->get($key);
+                $test = $cached[0] ?? null;
+                $result = $test === $checksum ? ($cached[1] ?? null) : null;
 
                 // Make sure the keys aren't changed if the returned type is the same index type.
                 if ($result instanceof self && $flexType === $result->getFlexType()) {
                     $result = $result->withKeyField($this->getKeyField());
                 }
             } catch (InvalidArgumentException $e) {
-                /** @var Debugger $debugger */
-                $debugger = Grav::instance()['debugger'];
                 $debugger->addException($e);
             }
 
             if (!isset($result)) {
                 $collection = $this->loadCollection();
                 $result = $collection->{$name}(...$arguments);
+                $debugger->addMessage("Cache miss: '{$flexType}::{$name}()'", 'debug');
 
                 try {
                     // If flex collection is returned, convert it back to flex index.
@@ -423,7 +430,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
                         $cached = $result;
                     }
 
-                    $cache->set($key, $cached);
+                    $cache->set($key, [$checksum, $cached]);
                 } catch (InvalidArgumentException $e) {
                     $debugger->addException($e);
 
@@ -434,8 +441,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
             $collection = $this->loadCollection();
             $result = $collection->{$name}(...$arguments);
             if (!isset($cachedMethods[$name])) {
-                $class = \get_class($collection);
-                $debugger->addMessage("Call '{$class}:{$name}()' isn't cached", 'debug');
+                $debugger->addMessage("Call '{$flexType}:{$name}()' isn't cached", 'debug');
             }
         }
 
@@ -570,7 +576,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
      */
     protected function getElementMeta($object)
     {
-        return $object->getTimestamp();
+        return $object->getMetaData();
     }
 
     /**

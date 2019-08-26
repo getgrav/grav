@@ -334,7 +334,7 @@ class Cache extends Getters
      * Stores a new cached entry.
      *
      * @param  string       $id       the id of the cached entry
-     * @param  array|object $data     the data for the cached entry to store
+     * @param  array|object|int $data     the data for the cached entry to store
      * @param  int          $lifetime the lifetime to store the entry in seconds
      */
     public function save($id, $data, $lifetime = null)

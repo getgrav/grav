@@ -53,7 +53,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
             'hasFlexFeature' => true,
             'getFlexFeatures' => true,
             'getCacheKey' => true,
-            'getCacheChecksum' => true,
+            'getCacheChecksum' => false,
             'getTimestamp' => true,
             'hasProperty' => true,
             'getProperty' => true,
@@ -210,7 +210,16 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
      */
     public function getCacheChecksum(): string
     {
-        return sha1(json_encode($this->getTimestamps()));
+        /**
+         * @var string $key
+         * @var FlexObjectInterface $object
+         */
+        $list = [];
+        foreach ($this as $key => $object) {
+            $list[$key] = $object->getCacheChecksum();
+        }
+
+        return sha1(json_encode($list));
     }
 
     /**

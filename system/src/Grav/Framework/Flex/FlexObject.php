@@ -76,7 +76,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
             'hasFlexFeature' => true,
             'getFlexFeatures' => true,
             'getCacheKey' => true,
-            'getCacheChecksum' => true,
+            'getCacheChecksum' => false,
             'getTimestamp' => true,
             'value' => true,
             'exists' => true,
@@ -189,7 +189,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      */
     public function getCacheChecksum(): string
     {
-        return (string)$this->getTimestamp();
+        return (string)($this->_meta['checksum'] ?? $this->getTimestamp());
     }
 
     /**
@@ -643,7 +643,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
         }
 
         try {
-            $this->getFlexDirectory()->getCache('index')->clear();
+            $this->getFlexDirectory()->reloadIndex();
             if (method_exists($this, 'clearMediaCache')) {
                 $this->clearMediaCache();
             }
@@ -675,7 +675,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
         $this->getFlexDirectory()->getStorage()->deleteRows([$this->getStorageKey() => $this->prepareStorage()]);
 
         try {
-            $this->getFlexDirectory()->clearCache();
+            $this->getFlexDirectory()->reloadIndex();
             if (method_exists($this, 'clearMediaCache')) {
                 $this->clearMediaCache();
             }
