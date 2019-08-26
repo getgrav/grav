@@ -12,6 +12,8 @@ declare(strict_types=1);
 namespace Grav\Framework\Controller\Traits;
 
 use Grav\Common\Config\Config;
+use Grav\Common\Debugger;
+use Grav\Common\Grav;
 use Grav\Framework\Psr7\Response;
 use Grav\Framework\RequestHandler\Exception\RequestException;
 use Psr\Http\Message\ResponseInterface;
@@ -115,14 +117,21 @@ trait ControllerResponseTrait
             'status' => 'error',
             'message' => $message,
             'error' => [
-                'type' => \get_class($e),
                 'code' => $code,
-                'message' => $message,
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-                'trace' => explode("\n", $e->getTraceAsString()),
+                'message' => $message
             ]
         ];
+
+        /** @var Debugger $debugger */
+        $debugger = Grav::instance()['debugger'];
+        if ($debugger->enabled()) {
+            $response['error'] += [
+                'type' => \get_class($e),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => explode("\n", $e->getTraceAsString())
+            ];
+        }
 
         $accept = $this->getAccept(['application/json', 'text/html']);
 
