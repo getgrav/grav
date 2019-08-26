@@ -224,7 +224,7 @@ class FolderStorage extends AbstractFilesystemStorage
             return false;
         }
 
-        return $this->copyFolder($this->getMediaPath($src), $this->getMediaPath($dst));
+        return $this->copyFolder($this->getStoragePath($src), $this->getStoragePath($dst));
     }
 
 
@@ -242,7 +242,7 @@ class FolderStorage extends AbstractFilesystemStorage
             return false;
         }
 
-        return $this->moveFolder($this->getMediaPath($src), $this->getMediaPath($dst));
+        return $this->moveFolder($this->getStoragePath($src), $this->getStoragePath($dst));
     }
 
     /**

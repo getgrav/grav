@@ -586,6 +586,15 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
         return $this->save();
     }
 
+    public function copy()
+    {
+        $meta = $this->getMetaData();
+        $meta['copy'] = true;
+        $this->_meta = $meta;
+
+        return $this;
+    }
+
     /**
      * {@inheritdoc}
      * @see FlexObjectInterface::save()
@@ -594,9 +603,22 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     {
         $this->triggerEvent('onBeforeSave');
 
-        $result = $this->getFlexDirectory()->getStorage()->replaceRows(
-            [$this->getStorageKey() ?:  '@@' . spl_object_hash($this) => $this->prepareStorage()]
-        );
+        $storage = $this->getFlexDirectory()->getStorage();
+
+        $key = $this->getStorageKey() ?:  '@@' . spl_object_hash($this);
+        $meta = $this->getMetaData();
+
+        /** @var string|null $origKey */
+        $origKey = $meta['storage_key'] ?? null;
+        if (null !== $origKey && $key !== $origKey) {
+            if (!empty($meta['copy'])) {
+                $storage->copyRow($origKey, $key);
+            } else {
+                $storage->renameRow($origKey, $key);
+            }
+        }
+
+        $result = $storage->replaceRows([$key => $this->prepareStorage()]);
 
         $value = reset($result);
         $storageKey = (string)key($result);

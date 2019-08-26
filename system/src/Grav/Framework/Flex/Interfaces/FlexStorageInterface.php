@@ -118,6 +118,14 @@ interface FlexStorageInterface
      *
      * @return bool
      */
+    public function copyRow(string $src, string $dst): bool;
+
+    /**
+     * @param string $src
+     * @param string $dst
+     *
+     * @return bool
+     */
     public function renameRow(string $src, string $dst): bool;
 
     /**
