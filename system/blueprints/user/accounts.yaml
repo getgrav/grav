@@ -27,6 +27,7 @@ config:
         title: Accounts
         icon: fa-users
         authorize: ['admin.users', 'admin.accounts', 'admin.super']
+        priority: 6
 
 form:
   fields:
