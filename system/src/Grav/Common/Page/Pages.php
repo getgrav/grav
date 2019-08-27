@@ -404,68 +404,72 @@ class Pages
             }
         }
 
-        // If  a filter or filters are set, filter the collection...
-        if (isset($params['filter'])) {
-            // Remove any inclusive sets from filter.
-            foreach (['published', 'visible', 'modular', 'routable'] as $type) {
-                $var = "non-{$type}";
-                if (isset($params['filter'][$type], $params['filter'][$var]) && $params['filter'][$type] && $params['filter'][$var]) {
-                    unset($params['filter'][$type], $params['filter'][$var]);
-                }
-            }
+        // Remove any inclusive sets from filter.
+        $filters = $params['filter'] ?? [];
 
-            foreach ((array)$params['filter'] as $type => $filter) {
-                switch ($type) {
-                    case 'published':
-                        if ((bool)$filter) {
-                            $collection = $collection->published();
-                        }
-                        break;
-                    case 'non-published':
-                        if ((bool)$filter) {
-                            $collection = $collection->nonPublished();
-                        }
-                        break;
-                    case 'visible':
-                        if ((bool)$filter) {
-                            $collection = $collection->visible();
-                        }
-                        break;
-                    case 'non-visible':
-                        if ((bool)$filter) {
-                            $collection = $collection->nonVisible();
-                        }
-                        break;
-                    case 'modular':
-                        if ((bool)$filter) {
-                            $collection = $collection->modular();
-                        }
-                        break;
-                    case 'non-modular':
-                        if ((bool)$filter) {
-                            $collection = $collection->nonModular();
-                        }
-                        break;
-                    case 'routable':
-                        if ((bool)$filter) {
-                            $collection = $collection->routable();
-                        }
-                        break;
-                    case 'non-routable':
-                        if ((bool)$filter) {
-                            $collection = $collection->nonRoutable();
-                        }
-                        break;
-                    case 'type':
-                        $collection = $collection->ofType($filter);
-                        break;
-                    case 'types':
-                        $collection = $collection->ofOneOfTheseTypes($filter);
-                        break;
-                    case 'access':
-                        $collection = $collection->ofOneOfTheseAccessLevels($filter);
-                        break;
-                }
+        // Assume published=true if not set.
+        if (!isset($filters['published']) && !isset($filters['non-published'])) {
+            $filters['published'] = true;
+        }
+        foreach (['published', 'visible', 'modular', 'routable'] as $type) {
+            $var = "non-{$type}";
+            if (isset($filters[$type], $filters[$var]) && $filters[$type] && $filters[$var]) {
+                unset($filters[$type], $filters[$var]);
+            }
+        }
+
+        // Filter the collection
+        foreach ($filters as $type => $filter) {
+            switch ($type) {
+                case 'published':
+                    if ((bool)$filter) {
+                        $collection = $collection->published();
+                    }
+                    break;
+                case 'non-published':
+                    if ((bool)$filter) {
+                        $collection = $collection->nonPublished();
+                    }
+                    break;
+                case 'visible':
+                    if ((bool)$filter) {
+                        $collection = $collection->visible();
+                    }
+                    break;
+                case 'non-visible':
+                    if ((bool)$filter) {
+                        $collection = $collection->nonVisible();
+                    }
+                    break;
+                case 'modular':
+                    if ((bool)$filter) {
+                        $collection = $collection->modular();
+                    }
+                    break;
+                case 'non-modular':
+                    if ((bool)$filter) {
+                        $collection = $collection->nonModular();
+                    }
+                    break;
+                case 'routable':
+                    if ((bool)$filter) {
+                        $collection = $collection->routable();
+                    }
+                    break;
+                case 'non-routable':
+                    if ((bool)$filter) {
+                        $collection = $collection->nonRoutable();
+                    }
+                    break;
+                case 'type':
+                    $collection = $collection->ofType($filter);
+                    break;
+                case 'types':
+                    $collection = $collection->ofOneOfTheseTypes($filter);
+                    break;
+                case 'access':
+                    $collection = $collection->ofOneOfTheseAccessLevels($filter);
+                    break;
             }
         }
 

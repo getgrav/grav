@@ -9,9 +9,10 @@
     * Greatly improved speed of loading Flex collections
 1. [](#bugfix)
     * Fixed `$page->summary()` always striping HTML tags if the summary was set by `$page->setSummary()`
+    * Fixed `Flex->getObject()` when using Flex Key
     * Grav 1.7: Fixed enabling PHP Debug Bar causes fatal error in Gantry [#2634](https://github.com/getgrav/grav/issues/2634)
     * Grav 1.7: Fixed broken taxonomies [#2633](https://github.com/getgrav/grav/issues/2633)
-    * Fixed `Flex->getObject()` when using Flex Key
+    * Grav 1.7: Fixed unpublished blog posts being displayed on the front-end [#2650](https://github.com/getgrav/grav/issues/2650)
 
 # v1.7.0-beta.5
 ## 08/11/2019
