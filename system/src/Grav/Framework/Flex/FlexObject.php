@@ -592,11 +592,16 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      */
     public function createCopy(string $key = null)
     {
+        $this->markAsCopy();
+
+        return $this->create($key);
+    }
+
+    protected function markAsCopy()
+    {
         $meta = $this->getMetaData();
         $meta['copy'] = true;
         $this->_meta = $meta;
-
-        return $this->create($key);
     }
 
     /**

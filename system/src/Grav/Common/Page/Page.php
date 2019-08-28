@@ -2819,7 +2819,7 @@ class Page implements PageInterface
     /**
      * Gets the action.
      *
-     * @return string The Action string.
+     * @return string|null The Action string.
      */
     public function getAction()
     {
