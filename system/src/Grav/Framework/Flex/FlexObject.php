@@ -586,13 +586,17 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
         return $this->save();
     }
 
-    public function copy()
+    /**
+     * @param string|null $key
+     * @return FlexObject|FlexObjectInterface
+     */
+    public function createCopy(string $key = null)
     {
         $meta = $this->getMetaData();
         $meta['copy'] = true;
         $this->_meta = $meta;
 
-        return $this;
+        return $this->create($key);
     }
 
     /**

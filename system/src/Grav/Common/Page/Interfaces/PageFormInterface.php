@@ -10,7 +10,7 @@ interface PageFormInterface
      *
      * @return array
      */
-    public function getForms(): array;
+    //public function getForms(): array;
 
     /**
      * Add forms to this page.
@@ -19,12 +19,12 @@ interface PageFormInterface
      * @param bool $override
      * @return $this
      */
-    public function addForms(array $new, $override = true);
+    public function addForms(array $new/*, $override = true*/);
 
     /**
      * Alias of $this->getForms();
      *
      * @return array
      */
-    public function forms(): array;
+    public function forms();//: array;
 }
