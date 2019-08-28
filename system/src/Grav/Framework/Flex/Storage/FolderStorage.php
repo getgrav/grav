@@ -360,7 +360,9 @@ class FolderStorage extends AbstractFilesystemStorage
     {
         try {
             $data = $file->content();
-            $file->delete();
+            if ($file->exists()) {
+                $file->delete();
+            }
 
             /** @var UniformResourceLocator $locator */
             $locator = Grav::instance()['locator'];
