@@ -110,7 +110,7 @@ abstract class AbstractIndexCollection implements CollectionInterface
      */
     public function removeElement($element)
     {
-        $key = $this->isAllowedElement($element) ? $element->getKey() : null;
+        $key = $this->isAllowedElement($element) ? $this->getCurrentKey($element) : null;
 
         if (!$key || !isset($this->entries[$key])) {
             return false;
@@ -178,7 +178,7 @@ abstract class AbstractIndexCollection implements CollectionInterface
      */
     public function contains($element)
     {
-        $key = $this->isAllowedElement($element) ? $element->getKey() : null;
+        $key = $this->isAllowedElement($element) ? $this->getCurrentKey($element) : null;
 
         return $key && isset($this->entries[$key]);
     }
@@ -196,7 +196,7 @@ abstract class AbstractIndexCollection implements CollectionInterface
      */
     public function indexOf($element)
     {
-        $key = $this->isAllowedElement($element) ? $element->getKey() : null;
+        $key = $this->isAllowedElement($element) ? $this->getCurrentKey($element) : null;
 
         return $key && isset($this->entries[$key]) ? $key : null;
     }
@@ -246,10 +246,6 @@ abstract class AbstractIndexCollection implements CollectionInterface
             throw new \InvalidArgumentException('Invalid argument $value');
         }
 
-        if ($key !== $value->getKey()) {
-            $value->setKey($key);
-        }
-
         $this->entries[$key] = $this->getElementMeta($value);
     }
 
@@ -262,7 +258,7 @@ abstract class AbstractIndexCollection implements CollectionInterface
             throw new \InvalidArgumentException('Invalid argument $element');
         }
 
-        $this->entries[$element->getKey()] = $this->getElementMeta($element);
+        $this->entries[$this->getCurrentKey($element)] = $this->getElementMeta($element);
 
         return true;
     }
@@ -475,6 +471,11 @@ abstract class AbstractIndexCollection implements CollectionInterface
     protected function setEntries(array $entries) : void
     {
         $this->entries = $entries;
+    }
+
+    protected function getCurrentKey($element)
+    {
+        return $element->getKey();
     }
 
     /**

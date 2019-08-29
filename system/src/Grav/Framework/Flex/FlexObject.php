@@ -630,12 +630,15 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
         $result = $storage->replaceRows([$key => $this->prepareStorage()]);
 
         $value = reset($result);
-        $storageKey = (string)key($result);
+        $meta = $value['__META'] ?? null;
+        if ($meta) {
+            $this->_meta = $meta;
+        }
+
+        $storageKey = $meta['storage_key'] ?? (string)key($result);
         if ($value && $storageKey) {
             $this->setStorageKey($storageKey);
-            if (!$this->hasKey()) {
-                $this->setKey($storageKey);
-            }
+            $this->setKey($meta['key'] ?? $storageKey);
         }
 
         // FIXME: For some reason locator caching isn't cleared for the file, investigate!
@@ -810,6 +813,8 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     {
         return [
             'type:private' => $this->getFlexType(),
+            'storage_key:protected' => $this->getStorageKey(),
+            'storage_timestamp:protected' => $this->getTimestamp(),
             'key:private' => $this->getKey(),
             'elements:private' => $this->getElements(),
             'storage:private' => $this->getStorage()

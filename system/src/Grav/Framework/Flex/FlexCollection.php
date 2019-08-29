@@ -293,6 +293,11 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
         return $this->getFlexDirectory()->getIndex($this->getKeys(), $this->getKeyField());
     }
 
+    public function getCollection()
+    {
+        return $this;
+    }
+
     /**
      * {@inheritdoc}
      * @see FlexCollectionInterface::render()

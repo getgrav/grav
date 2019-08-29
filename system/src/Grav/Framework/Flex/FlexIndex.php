@@ -258,6 +258,11 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
         return $this;
     }
 
+    public function getCollection()
+    {
+        return $this->loadCollection();
+    }
+
     /**
      * {@inheritdoc}
      * @see FlexCollectionInterface::render()
@@ -359,7 +364,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
             }
 
             // Order by current field.
-            if ($ordering === 'DESC') {
+            if (strtoupper($ordering) === 'DESC') {
                 arsort($search, SORT_NATURAL);
             } else {
                 asort($search, SORT_NATURAL);
@@ -577,6 +582,22 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
     protected function getElementMeta($object)
     {
         return $object->getMetaData();
+    }
+
+    protected function getCurrentKey($element)
+    {
+        $keyField = $this->getKeyField();
+        if ($keyField === 'storage_key') {
+            return $element->getStorageKey();
+        }
+        if ($keyField === 'flex_key') {
+            return $element->getFlexKey();
+        }
+        if ($keyField === 'key') {
+            return $element->getKey();
+        }
+
+        return $element->getKey();
     }
 
     /**
