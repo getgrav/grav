@@ -1496,5 +1496,5 @@ form:
               highlight: stable
               help: PLUGIN_ADMIN.ACCOUNTS_STORAGE_HELP
               options:
-                data: PLUGIN_ADMIN.FILE
-                flex: PLUGIN_ADMIN.FOLDER
+                file: PLUGIN_ADMIN.FILE
+                folder: PLUGIN_ADMIN.FOLDER
