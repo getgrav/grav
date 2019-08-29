@@ -28,6 +28,8 @@ use Psr\SimpleCache\InvalidArgumentException;
 
 class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexIndexInterface
 {
+    const VERSION = 1;
+
     /** @var FlexDirectory */
     private $_flexDirectory;
 
@@ -680,7 +682,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
 
         static::onChanges($index, $added, $updated, $removed);
 
-        $indexFile->save(['timestamp' => time(), 'count' => \count($index), 'index' => $index]);
+        $indexFile->save(['version' => static::VERSION, 'timestamp' => time(), 'count' => \count($index), 'index' => $index]);
         $indexFile->unlock();
 
         return $index;
@@ -697,13 +699,17 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
         $data = [];
         try {
             $data = (array)$indexFile->content();
+            $version = $data['version'] ?? null;
+            if ($version !== static::VERSION) {
+                $data = [];
+            }
         } catch (\Exception $e) {
             $e = new \RuntimeException(sprintf('Index failed to load: %s', $e->getMessage()), $e->getCode(), $e);
 
             static::onException($e);
         }
 
-        return $data ?: ['timestamp' => 0, 'count' => 0, 'index' => []];
+        return $data ?: ['version' => static::VERSION, 'timestamp' => 0, 'count' => 0, 'index' => []];
     }
 
     protected static function loadEntriesFromIndex(FlexStorageInterface $storage)
