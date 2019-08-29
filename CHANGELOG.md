@@ -1,5 +1,5 @@
 # v1.7.0-beta.6
-## mm/dd/2019
+## 08/29/2019
 
 1. [](#new)
     * Added experimental support for `Flex Pages` (**Flex Objects** plugin required)
