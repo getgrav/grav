@@ -3,6 +3,8 @@
 
 1. [](#improved)
     * Improved language support
+1. [](#bugfix)
+    * `FlexForm`: Fixed some compatibility issues with Form plugin
 
 # v1.7.0-beta.6
 ## 08/29/2019

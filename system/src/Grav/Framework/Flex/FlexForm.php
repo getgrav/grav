@@ -17,6 +17,7 @@ use Grav\Framework\Flex\Interfaces\FlexFormInterface;
 use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
 use Grav\Framework\Form\Traits\FormTrait;
 use Grav\Framework\Route\Route;
+use RocketTheme\Toolbox\ArrayTraits\NestedArrayAccessWithGetters;
 use Twig\Error\LoaderError;
 use Twig\Error\SyntaxError;
 use Twig\Template;
@@ -28,6 +29,10 @@ use Twig\TemplateWrapper;
  */
 class FlexForm implements FlexFormInterface
 {
+    use NestedArrayAccessWithGetters {
+        NestedArrayAccessWithGetters::get as private traitGet;
+        NestedArrayAccessWithGetters::set as private traitSet;
+    }
     use FormTrait {
         FormTrait::doSerialize as doTraitSerialize;
         FormTrait::doUnserialize as doTraitUnserialize;
@@ -132,6 +137,52 @@ class FlexForm implements FlexFormInterface
         }
 
         return $this;
+    }
+
+    /**
+     * @param string $name
+     * @param mixed $default
+     * @param string|null $separator
+     * @return mixed
+     */
+    public function get($name, $default = null, $separator = null)
+    {
+        switch (strtolower($name)) {
+            case 'id':
+            case 'uniqueid':
+            case 'name':
+            case 'noncename':
+            case 'nonceaction':
+            case 'action':
+            case 'data':
+            case 'files':
+            case 'errors';
+            case 'fields':
+            case 'blueprint':
+            case 'page':
+                $method = 'get' . $name;
+                return $this->{$method}();
+        }
+
+        return $this->traitGet($name, $default, $separator);
+    }
+
+    /**
+     * @param string $name
+     * @param mixed $value
+     * @param string|null $separator
+     * @return FlexForm
+     */
+    public function set($name, $value, $separator = null)
+    {
+        switch (strtolower($name)) {
+            case 'id':
+            case 'uniqueid':
+                $method = 'set' . $name;
+                return $this->{$method}();
+        }
+
+        return $this->traitSet($name, $value, $separator);
     }
 
     /**
