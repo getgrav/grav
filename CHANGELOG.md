@@ -1,3 +1,9 @@
+# v1.7.0-beta.7
+## mm/dd/2019
+
+1. [](#improved)
+    * Improved language support
+
 # v1.7.0-beta.6
 ## 08/29/2019
 
