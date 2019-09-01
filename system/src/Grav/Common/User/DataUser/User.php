@@ -207,7 +207,7 @@ class User extends Data implements UserInterface
     /**
      * Return media object for the User's avatar.
      *
-     * @return ImageMedium|null
+     * @return Medium|null
      * @deprecated 1.6 Use ->getAvatarImage() method instead.
      */
     public function getAvatarMedia()

@@ -11,6 +11,8 @@ namespace Grav\Common\User\Traits;
 
 use Grav\Common\Grav;
 use Grav\Common\Page\Medium\ImageMedium;
+use Grav\Common\Page\Medium\Medium;
+use Grav\Common\Page\Medium\StaticImageMedium;
 use Grav\Common\User\Authentication;
 use Grav\Common\Utils;
 
@@ -107,9 +109,9 @@ trait UserTrait
      *
      * Note: if there's no local avatar image for the user, you should call getAvatarUrl() to get the external avatar URL.
      *
-     * @return ImageMedium|null
+     * @return Medium|null
      */
-    public function getAvatarImage(): ?ImageMedium
+    public function getAvatarImage(): ?Medium
     {
         $avatars = $this->get('avatar');
         if (\is_array($avatars) && $avatars) {
@@ -119,7 +121,8 @@ trait UserTrait
             $name = $avatar['name'] ?? null;
 
             $image = $name ? $media[$name] : null;
-            if ($image instanceof ImageMedium) {
+            if ($image instanceof ImageMedium ||
+                $image instanceof StaticImageMedium) {
                 return $image;
             }
         }

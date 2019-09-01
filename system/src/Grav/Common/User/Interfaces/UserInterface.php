@@ -13,6 +13,7 @@ use Grav\Common\Data\Blueprint;
 use Grav\Common\Data\DataInterface;
 use Grav\Common\Media\Interfaces\MediaInterface;
 use Grav\Common\Page\Medium\ImageMedium;
+use Grav\Common\Page\Medium\Medium;
 use RocketTheme\Toolbox\ArrayTraits\ExportInterface;
 
 /**
@@ -185,9 +186,9 @@ interface UserInterface extends DataInterface, MediaInterface, \ArrayAccess, \Js
      *
      * Note: if there's no local avatar image for the user, you should call getAvatarUrl() to get the external avatar URL.
      *
-     * @return ImageMedium|null
+     * @return Medium|null
      */
-    public function getAvatarImage(): ?ImageMedium;
+    public function getAvatarImage(): ?Medium;
 
     /**
      * Return the User's avatar URL.
