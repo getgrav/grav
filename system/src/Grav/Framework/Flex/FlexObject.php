@@ -625,8 +625,6 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
         /** @var string|null $origKey */
         $origKey = $meta['storage_key'] ?? null;
         if (null !== $origKey && $key !== $origKey) {
-            print_r($this);
-            die("$key !== $origKey");
             if (!empty($meta['copy'])) {
                 $storage->copyRow($origKey, $key);
             } else {
