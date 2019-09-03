@@ -22,7 +22,7 @@ class Security
      */
     public static function sanitizeSVG($file)
     {
-        if (Grav::instance()['config']->get('security.sanitize_svg')) {
+        if (Grav::instance()['config']->get('security.sanitize_svg') && file_exists($file)) {
             $sanitizer = new Sanitizer();
             $original_svg = file_get_contents($file);
             $clean_svg = $sanitizer->sanitize($original_svg);
