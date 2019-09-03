@@ -9,11 +9,33 @@
 
 namespace Grav\Common;
 
+use enshrined\svgSanitize\Sanitizer;
 use Grav\Common\Page\Pages;
 
 class Security
 {
 
+    /**
+     * Sanitize SVG for XSS code
+     *
+     * @param $file
+     */
+    public static function sanitizeSVG($file)
+    {
+        $sanitizer = new Sanitizer();
+        $original_svg = file_get_contents($file);
+        $clean_svg = $sanitizer->sanitize($original_svg);
+        file_put_contents($file, $clean_svg);
+    }
+
+    /**
+     * Detect XSS code in Grav pages
+     *
+     * @param Pages $pages
+     * @param bool $route
+     * @param callable|null $status
+     * @return array
+     */
     public static function detectXssFromPages(Pages $pages, $route = true, callable $status = null)
     {
         $routes = $pages->routes();
@@ -51,7 +73,6 @@ class Security
                     } else {
                         $list[$page->filePathClean()] = $results;
                     }
-
                 }
 
             } catch (\Exception $e) {
@@ -63,6 +84,8 @@ class Security
     }
 
     /**
+     * Detect XSS in an array or strings such as $_POST or $_GET
+     *
      * @param array $array      Array such as $_POST or $_GET
      * @param string $prefix    Prefix for returned values.
      * @return array            Returns flatten list of potentially dangerous input values, such as 'data.content'.
@@ -89,6 +112,7 @@ class Security
 
     /**
      * Determine if string potentially has a XSS attack. This simple function does not catch all XSS and it is likely to
+     *
      * return false positives because of it tags all potentially dangerous HTML tags and attributes without looking into
      * their content.
      *

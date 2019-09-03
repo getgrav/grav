@@ -1,8 +1,13 @@
 # v1.7.0-beta.8
 ## mm/dd/2019
 
+1. [](#new)
+    * Added new `Security::sanitizeSVG()` function
+1. [](#improved)
+    * Several FlexObject loading improvements 
 1. [](#bugfix)
     * Regression: Fixed language fallback
+    * Regression: Allow SVG avatar images for users
     
 # v1.7.0-beta.7
 ## 08/30/2019
