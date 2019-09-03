@@ -255,11 +255,11 @@ class FolderStorage extends AbstractFilesystemStorage
             $path = $this->dataFolder;
         } else {
             $options = [
-                $this->dataFolder,
-                $key,
-                \mb_substr($key, 0, 2),
-                '***',
-                '***'
+                $this->dataFolder,      // {FOLDER}
+                $key,                   // {KEY}
+                \mb_substr($key, 0, 2), // {KEY:2}
+                '***',                  // {FILE}
+                '***'                   // {EXT}
             ];
 
             $path = rtrim(explode('***', sprintf($this->dataPattern, ...$options))[0], '/');
@@ -286,11 +286,11 @@ class FolderStorage extends AbstractFilesystemStorage
     public function getPathFromKey(string $key): string
     {
         $options = [
-            $this->dataFolder,
-            $key,
-            \mb_substr($key, 0, 2),
-            $this->dataFile,
-            $this->dataExt
+            $this->dataFolder,      // {FOLDER}
+            $key,                   // {KEY}
+            \mb_substr($key, 0, 2), // {KEY:2}
+            $this->dataFile,        // {FILE}
+            $this->dataExt          // {EXT}
         ];
 
         return sprintf($this->dataPattern, ...$options);

@@ -526,7 +526,10 @@ class FlexDirectory implements FlexAuthorizeInterface
 
         // Build lookup arrays with storage keys for the objects.
         foreach ($entries as $key => $value) {
-            $k = $value['storage_key'] ?? '';
+            $k = $value['storage_key'] ?? null;
+            if (null === $k) {
+                continue;
+            }
             $v = $this->objects[$k] ?? null;
             $keys[$k] = $key;
             $rows[$k] = $v;
