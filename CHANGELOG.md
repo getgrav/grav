@@ -1,3 +1,9 @@
+# v1.7.0-beta.8
+## mm/dd/2019
+
+1. [](#bugfix)
+    * Regression: Fixed language fallback
+    
 # v1.7.0-beta.7
 ## 08/30/2019
 

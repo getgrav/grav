@@ -321,8 +321,14 @@ class Language
 
         if (!isset($this->fallback_extensions[$key])) {
             $all = $this->getPageExtensions($fileExtension);
-            $fallback = array_flip($this->getFallbackLanguages($languageCode, true));
-            $list = array_intersect_key($all, $fallback);
+            $list = [];
+            $fallback = $this->getFallbackLanguages($languageCode, true);
+            foreach ($fallback as $code) {
+                $ext = $all[$code] ?? null;
+                if (null !== $ext) {
+                    $list[$code] = $ext;
+                }
+            }
             if (!$assoc) {
                 $list = array_values($list);
             }
