@@ -244,9 +244,14 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      * {@inheritdoc}
      * @see FlexObjectInterface::getStorageKey()
      */
-    public function getStorageKey(): string
+    public function getStorageKey(bool $master = false): string
     {
-        return (string)($this->storage_key ?? $this->_meta['storage_key'] ?? null);
+        $key = (string)($this->storage_key ?? $this->_meta['storage_key'] ?? null);
+        if ($master && ($pos = strpos($key, '|')) !== false) {
+            $key = substr($key, 0, $pos);
+        }
+
+        return $key;
     }
 
     /**
@@ -620,6 +625,8 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
         /** @var string|null $origKey */
         $origKey = $meta['storage_key'] ?? null;
         if (null !== $origKey && $key !== $origKey) {
+            print_r($this);
+            die("$key !== $origKey");
             if (!empty($meta['copy'])) {
                 $storage->copyRow($origKey, $key);
             } else {
