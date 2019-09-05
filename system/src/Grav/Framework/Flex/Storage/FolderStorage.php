@@ -254,10 +254,11 @@ class FolderStorage extends AbstractFilesystemStorage
         if (null === $key || $key === '') {
             $path = $this->dataFolder;
         } else {
+            $parts = $this->parseKey($key, false);
             $options = [
                 $this->dataFolder,      // {FOLDER}
-                $key,                   // {KEY}
-                \mb_substr($key, 0, 2), // {KEY:2}
+                $parts['key'],          // {KEY}
+                $parts['key:2'],        // {KEY:2}
                 '***',                  // {FILE}
                 '***'                   // {EXT}
             ];
@@ -285,15 +286,34 @@ class FolderStorage extends AbstractFilesystemStorage
      */
     public function getPathFromKey(string $key): string
     {
+        $parts = $this->parseKey($key);
         $options = [
             $this->dataFolder,      // {FOLDER}
-            $key,                   // {KEY}
-            \mb_substr($key, 0, 2), // {KEY:2}
-            $this->dataFile,        // {FILE}
+            $parts['key'],          // {KEY}
+            $parts['key:2'],        // {KEY:2}
+            $parts['file'],         // {FILE}
             $this->dataExt          // {EXT}
         ];
 
         return sprintf($this->dataPattern, ...$options);
+    }
+
+    /**
+     * @param string $key
+     * @param bool $variations
+     * @return array
+     */
+    public function parseKey(string $key, bool $variations = true): array
+    {
+        $keys = [
+            'key' => $key,
+            'key:2' => \mb_substr($key, 0, 2),
+        ];
+        if ($variations) {
+            $keys['file'] = $this->dataFile;
+        }
+
+        return $keys;
     }
 
     /**

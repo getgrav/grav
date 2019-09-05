@@ -618,12 +618,24 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
         $this->triggerEvent('onBeforeSave');
 
         $storage = $this->getFlexDirectory()->getStorage();
-
-        $key = $this->getStorageKey() ?:  '@@' . spl_object_hash($this);
         $meta = $this->getMetaData();
 
         /** @var string|null $origKey */
         $origKey = $meta['storage_key'] ?? null;
+        $storageKey = $this->getStorageKey() ?:  '@@' . spl_object_hash($this);
+
+        if (method_exists($storage, 'parseKey')) {
+            if (null !== $origKey) {
+                $origParts =$storage->parseKey($origKey);
+                $origKey = $origParts['key'];
+
+            }
+            $keyParts = $storage->parseKey($storageKey);
+            $key = $keyParts['key'];
+        } else {
+            $key = $storageKey;
+        }
+
         if (null !== $origKey && $key !== $origKey) {
             if (!empty($meta['copy'])) {
                 $storage->copyRow($origKey, $key);
@@ -632,7 +644,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
             }
         }
 
-        $result = $storage->replaceRows([$key => $this->prepareStorage()]);
+        $result = $storage->replaceRows([$storageKey => $this->prepareStorage()]);
 
         $value = reset($result);
         $meta = $value['__META'] ?? null;
@@ -652,7 +664,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
 
         // Make sure that the object exists before continuing (just in case).
         if (!$this->exists()) {
-            throw new \RuntimeException('Saving failed: Object does not exist!');
+            throw new \RuntimeException('Save failed: Object does not exist!');
         }
 
         if (method_exists($this, 'saveUpdatedMedia')) {
