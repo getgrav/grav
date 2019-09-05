@@ -173,14 +173,16 @@ class FolderStorage extends AbstractFilesystemStorage
                 $file = $this->getFile($path);
                 $list[$key] = $this->deleteFile($file);
 
-                $storagePath = $this->getStoragePath($key);
-                $mediaPath = $this->getMediaPath($key);
+                if ($this->canDeleteFolder($key)) {
+                    $storagePath = $this->getStoragePath($key);
+                    $mediaPath = $this->getMediaPath($key);
 
-                if ($storagePath) {
-                    $this->deleteFolder($storagePath, true);
-                }
-                if ($mediaPath && $mediaPath !== $storagePath && $mediaPath !== $baseMediaPath) {
-                    $this->deleteFolder($mediaPath, true);
+                    if ($storagePath) {
+                        $this->deleteFolder($storagePath, true);
+                    }
+                    if ($mediaPath && $mediaPath !== $storagePath && $mediaPath !== $baseMediaPath) {
+                        $this->deleteFolder($mediaPath, true);
+                    }
                 }
             }
         }
@@ -460,6 +462,14 @@ class FolderStorage extends AbstractFilesystemStorage
         } catch (\RuntimeException $e) {
             throw new \RuntimeException(sprintf('Flex deleteFolder(%s): %s', $path, $e->getMessage()));
         }
+    }
+
+    /**
+     * @return bool
+     */
+    protected function canDeleteFolder(string $key): bool
+    {
+        return true;
     }
 
     /**
