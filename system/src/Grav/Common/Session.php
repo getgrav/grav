@@ -125,7 +125,7 @@ class Session extends \Grav\Framework\Session\Session
 
                 /** @var FormFlash $flash */
                 $flash = $form ? $form->getFlash() : null;
-                $object = $flash ? [$sessionField => $flash->getLegacyFiles()] : null;
+                $object = $flash && method_exists($flash, 'getLegacyFiles') ? [$sessionField => $flash->getLegacyFiles()] : null;
             }
         }
 

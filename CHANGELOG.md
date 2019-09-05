@@ -8,6 +8,7 @@
 1. [](#bugfix)
     * Regression: Fixed language fallback
     * Regression: Allow SVG avatar images for users
+    * Fixed error in `Session::getFlashObject()` if Flex Form is being used
     
 # v1.7.0-beta.7
 ## 08/30/2019
