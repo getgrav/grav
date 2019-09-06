@@ -702,6 +702,7 @@ class Pages
         $instance = $this->instances[(string)$path] ?? null;
         if (\is_string($instance)) {
             $instance = $this->flex ? $this->flex->getObject($instance) : null;
+            $instance = $instance->hasTranslation() ? $instance->getTranslation() : $instance;
         }
         if ($instance && !$instance instanceof PageInterface) {
             throw new \RuntimeException('Routing failed on unknown type', 500);
@@ -1323,13 +1324,20 @@ class Pages
             }
 
             $path = $page->path();
-            if ($path === $root_path) {
+
+            // FIXME: We really need to do better than this.
+            if ($page->hasTranslation()) {
+                $translated = $page->getTranslation();
+            }
+
+            if (!$translated || $path === $root_path) {
                 continue;
             }
             $parent = dirname($path);
 
             $instances[$path] = $page->getFlexKey();
-            $children[$parent][$path] = ['slug' => $page->slug()];
+            // FIXME: ... better...
+            $children[$parent][$path] = ['slug' => $translated->slug()];
             if (!isset($children[$path])) {
                 $children[$path] = [];
             }
