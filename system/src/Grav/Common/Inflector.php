@@ -9,6 +9,8 @@
 
 namespace Grav\Common;
 
+use Grav\Common\Language\Language;
+
 /**
 * This file was originally part of the Akelos Framework
 */
@@ -24,6 +26,7 @@ class Inflector
     public static function init()
     {
         if (empty(static::$plural)) {
+            /** @var Language $language */
             $language = Grav::instance()['language'];
             static::$plural = $language->translate('GRAV.INFLECTOR_PLURALS', null, true) ?: [];
             static::$singular = $language->translate('GRAV.INFLECTOR_SINGULAR', null, true) ?: [];

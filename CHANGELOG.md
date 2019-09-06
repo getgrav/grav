@@ -7,6 +7,7 @@
     * Several FlexObject loading improvements 
 1. [](#bugfix)
     * Regression: Fixed language fallback
+    * Regression: Fixed translations when language code is used for non-language purposes
     * Regression: Allow SVG avatar images for users
     * Fixed error in `Session::getFlashObject()` if Flex Form is being used
     

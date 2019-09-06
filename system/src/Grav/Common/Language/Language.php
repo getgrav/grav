@@ -462,17 +462,11 @@ class Language
         }
 
         if ($this->config->get('system.languages.translations', true)) {
-            if ($this->enabled() && $lookup) {
-                if (empty($languages)) {
-                    if ($this->config->get('system.languages.translations_fallback', true)) {
-                        $languages = $this->getFallbackLanguages();
-                    } else {
-                        $languages = (array)$this->getLanguage();
-                    }
-                }
-            } else {
-                $languages = ['en'];
+            if ($this->enabled() && $lookup && empty($languages)) {
+                $languages = $this->getTranslatedLanguages();
             }
+
+            $languages = $languages ?: ['en'];
 
             foreach ((array)$languages as $lang) {
                 $translation = $this->getTranslation($lang, $lookup, $array_support);
@@ -507,17 +501,11 @@ class Language
     public function translateArray($key, $index, $languages = null, $html_out = false)
     {
         if ($this->config->get('system.languages.translations', true)) {
-            if ($this->enabled() && $key) {
-                if (empty($languages)) {
-                    if ($this->config->get('system.languages.translations_fallback', true)) {
-                        $languages = $this->getFallbackLanguages();
-                    } else {
-                        $languages = (array)$this->getDefault();
-                    }
-                }
-            } else {
-                $languages = ['en'];
+            if ($this->enabled() && $key && empty($languages)) {
+                $languages = $this->getTranslatedLanguages();
             }
+
+            $languages = $languages ?: ['en'];
 
             foreach ((array)$languages as $lang) {
                 $translation_array = (array)Grav::instance()['languages']->get($lang . '.' . $key, null);
@@ -608,5 +596,25 @@ class Language
         unset($vars['grav'], $vars['config']);
 
         return $vars;
+    }
+
+    /**
+     * @return array
+     */
+    protected function getTranslatedLanguages(): array
+    {
+        if ($this->config->get('system.languages.translations_fallback', true)) {
+            $languages = $this->getFallbackLanguages();
+        } else {
+            $languages = [$this->getLanguage()];
+        }
+
+        foreach ($languages as $i => $lang) {
+            if (!Grav::instance()['languages']->get($lang)) {
+                unset($languages[$i]);
+            }
+        }
+
+        return array_values($languages);
     }
 }
