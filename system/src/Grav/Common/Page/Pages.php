@@ -1335,19 +1335,24 @@ class Pages
             }
         }
 
-        foreach ($children as $path => $list) {
-            $page = $instances[$path] ?? null;
-            if (null === $page) {
-                continue;
-            }
-            if ($config->get('system.pages.events.page')) {
-                $this->grav->fireEvent('onFolderProcessed', new Event(['page' => $page]));
-            }
-        }
-
         $this->instances = $instances;
         $this->children = $children;
         $this->sort = [];
+
+        foreach ($children as $path => $list) {
+            $page = $this->get($path);
+            if (null === $page) {
+                continue;
+            }
+            // Call onFolderProcessed event.
+            if ($config->get('system.pages.events.page')) {
+                $this->grav->fireEvent('onFolderProcessed', new Event(['page' => $page]));
+            }
+            // Sort the children.
+            $children[$path] = $this->sort($page);
+        }
+
+        $this->children = $children;
 
         $this->buildRoutes();
 
