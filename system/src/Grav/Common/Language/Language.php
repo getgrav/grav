@@ -609,12 +609,8 @@ class Language
             $languages = [$this->getLanguage()];
         }
 
-        foreach ($languages as $i => $lang) {
-            if (!Grav::instance()['languages']->get($lang)) {
-                unset($languages[$i]);
-            }
-        }
+        $languages[] = 'en';
 
-        return array_values($languages);
+        return array_values(array_unique($languages));
     }
 }
