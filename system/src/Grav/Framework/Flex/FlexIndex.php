@@ -656,9 +656,9 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
                     $entry['key'] = $row[$keyField];
                 }
                 static::updateIndexData($entry, $row ?? []);
-                if (isset($row['__error'])) {
-                    $entry['__error'] = true;
-                    static::onException(new \RuntimeException(sprintf('Object failed to load: %s (%s)', $key, $row['__error'])));
+                if (isset($row['__ERROR'])) {
+                    $entry['__ERROR'] = true;
+                    static::onException(new \RuntimeException(sprintf('Object failed to load: %s (%s)', $key, $row['__ERROR'])));
                 }
                 if (isset($index[$key])) {
                     // Update object in the index.

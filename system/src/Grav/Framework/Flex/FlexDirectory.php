@@ -589,8 +589,8 @@ class FlexDirectory implements FlexAuthorizeInterface
                     continue;
                 }
 
-                if (isset($row['__error'])) {
-                    $message = sprintf('Flex: Object %s is broken in %s storage: %s', $storageKey, $this->type, $row['__error']);
+                if (isset($row['__ERROR'])) {
+                    $message = sprintf('Flex: Object %s is broken in %s storage: %s', $storageKey, $this->type, $row['__ERROR']);
                     $debugger->addException(new \RuntimeException($message));
                     $debugger->addMessage($message, 'error');
                     continue;

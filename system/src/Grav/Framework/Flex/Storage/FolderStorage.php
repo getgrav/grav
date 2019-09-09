@@ -81,7 +81,9 @@ class FolderStorage extends AbstractFilesystemStorage
      */
     public function hasKey(string $key): bool
     {
-        return $key && strpos($key, '@@') === false && file_exists($this->getPathFromKey($key));
+        $meta = $this->getObjectMeta($key);
+
+        return array_key_exists('exists', $meta) ? $meta['exists'] : !empty($meta['storage_timestamp']);
     }
 
     /**
@@ -94,10 +96,7 @@ class FolderStorage extends AbstractFilesystemStorage
         foreach ($rows as $key => $row) {
             // Create new file and save it.
             $key = $this->getNewKey();
-            $path = $this->getPathFromKey($key);
-            $file = $this->getFile($path);
-            $list[$key] = $this->saveFile($file, $row);
-            $list[$key]['__META'] = $this->getObjectMeta($key, true);
+            $list[$key] = $this->saveRow($key, $row);
         }
 
         return $list;
@@ -114,14 +113,8 @@ class FolderStorage extends AbstractFilesystemStorage
             if (null === $row || \is_scalar($row)) {
                 // Only load rows which haven't been loaded before.
                 $key = (string)$key;
-                if (!$this->hasKey($key)) {
-                    $list[$key] = null;
-                } else {
-                    $path = $this->getPathFromKey($key);
-                    $file = $this->getFile($path);
-                    $list[$key] = $this->loadFile($file);
-                    $list[$key]['__META'] = $this->getObjectMeta($key);
-                }
+                $list[$key] = $this->loadRow($key);
+
                 if (null !== $fetched) {
                     $fetched[$key] = $list[$key];
                 }
@@ -143,14 +136,7 @@ class FolderStorage extends AbstractFilesystemStorage
         $list = [];
         foreach ($rows as $key => $row) {
             $key = (string)$key;
-            if (!$this->hasKey($key)) {
-                $list[$key] = null;
-            } else {
-                $path = $this->getPathFromKey($key);
-                $file = $this->getFile($path);
-                $list[$key] = $this->saveFile($file, $row);
-                $list[$key]['__META'] = $this->getObjectMeta($key, true);
-            }
+            $list[$key] = $this->hasKey($key) ? $this->saveRow($key, $row) : null;
         }
 
         return $list;
@@ -202,10 +188,7 @@ class FolderStorage extends AbstractFilesystemStorage
             if (strpos($key, '@@') !== false) {
                 $key = $this->getNewKey();
             }
-            $path = $this->getPathFromKey($key);
-            $file = $this->getFile($path);
-            $list[$key] = $this->saveFile($file, $row);
-            $list[$key]['__META'] = $this->getObjectMeta($key, true);
+            $list[$key] = $this->saveRow($key, $row);
         }
 
         return $list;
@@ -330,46 +313,51 @@ class FolderStorage extends AbstractFilesystemStorage
     }
 
     /**
-     * @param File $file
-     * @return array|null
+     * @param string $key
+     * @return array
      */
-    protected function loadFile(File $file): ?array
+    protected function loadRow(string $key): ?array
     {
-        if (!$file->exists()) {
-            return null;
-        }
-
+        $path = $this->getPathFromKey($key);
+        $file = $this->getFile($path);
         try {
-            $content = (array)$file->content();
-            if (isset($content[0])) {
-                throw new \RuntimeException('Broken object file.');
+            $data = (array)$file->content();
+            if (isset($data[0])) {
+                throw new \RuntimeException('Broken object file');
             }
         } catch (\RuntimeException $e) {
-            $content = ['__error' => $e->getMessage()];
+            $data = ['__ERROR' => $e->getMessage()];
         }
 
-        return $content;
+        $data['__META'] = $this->getObjectMeta($key);
+
+        return $data;
     }
 
     /**
-     * @param File $file
+     * @param string $key
      * @param array $data
      * @return array
      */
-    protected function saveFile(File $file, array $data): array
+    protected function saveRow(string $key, array $data): array
     {
         try {
-            unset($data['__META'], $data['__error']);
+            unset($data['__META'], $data['__ERROR']);
+
+            $path = $this->getPathFromKey($key);
+            $file = $this->getFile($path);
             $file->save($data);
 
             /** @var UniformResourceLocator $locator */
             $locator = Grav::instance()['locator'];
             if ($locator->isStream($file->filename())) {
-                $locator->clearCache($file->filename());
+                $locator->clearCache();
             }
         } catch (\RuntimeException $e) {
             throw new \RuntimeException(sprintf('Flex saveFile(%s): %s', $file->filename(), $e->getMessage()));
         }
+
+        $data['__META'] = $this->getObjectMeta($key, true);
 
         return $data;
     }
@@ -506,8 +494,12 @@ class FolderStorage extends AbstractFilesystemStorage
             return $this->meta[$key];
         }
 
-        $filename = $this->getPathFromKey($key);
-        $modified = is_file($filename) ? filemtime($filename) : 0;
+        if ($key && strpos($key, '@@') === false) {
+            $filename = $this->getPathFromKey($key);
+            $modified = is_file($filename) ? filemtime($filename) : 0;
+        } else {
+            $modified = 0;
+        }
 
         $meta = [
             'storage_key' => $key,
@@ -518,7 +510,6 @@ class FolderStorage extends AbstractFilesystemStorage
 
         return $meta;
     }
-
 
     protected function buildIndexFromFilesystem($path)
     {
