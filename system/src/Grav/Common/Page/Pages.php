@@ -1326,9 +1326,7 @@ class Pages
             $path = $page->path();
 
             // FIXME: We really need to do better than this.
-            if ($page->hasTranslation()) {
-                $translated = $page->getTranslation();
-            }
+            $translated = $page->hasTranslation() ? $page->getTranslation() : false;
 
             if (!$translated || $path === $root_path) {
                 continue;
