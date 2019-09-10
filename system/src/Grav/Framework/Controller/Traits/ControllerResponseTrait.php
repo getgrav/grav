@@ -56,7 +56,7 @@ trait ControllerResponseTrait
      */
     protected function createJsonResponse(array $content, int $code = null, array $headers = null): ResponseInterface
     {
-        $code = $code ?? $content['code'];
+        $code = $code ?? $content['code'] ?? 200;
         if (null === $code || $code < 100 || $code > 599) {
             $code = 200;
         }
