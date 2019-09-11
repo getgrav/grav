@@ -207,6 +207,14 @@ class Route
         return $new;
     }
 
+    public function withLanguage($language)
+    {
+        $new = $this->copy();
+        $new->language = $language;
+
+        return $new;
+    }
+
     /**
      * @param string $path
      * @return Route
