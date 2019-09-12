@@ -10,6 +10,7 @@
     * Regression: Fixed translations when language code is used for non-language purposes
     * Regression: Allow SVG avatar images for users
     * Fixed error in `Session::getFlashObject()` if Flex Form is being used
+    * Fixed broken Twig `dump()`
     
 # v1.7.0-beta.7
 ## 08/30/2019
