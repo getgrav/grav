@@ -704,10 +704,13 @@ class Debugger
 
             if ($this->debugbar) {
                 if (is_array($isString)) {
-                    $this->debugbar['messages']->addMessage($isString, $label, false);
-                } else {
-                    $this->debugbar['messages']->addMessage($isString, $label, true);
+                    $message = $isString;
+                    $isString = false;
+                } elseif (is_string($isString)) {
+                    $message = $isString;
+                    $isString = true;
                 }
+                $this->debugbar['messages']->addMessage($message, $label, $isString);
             }
 
             if ($this->clockwork) {
