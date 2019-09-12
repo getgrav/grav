@@ -889,7 +889,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
         } else {
             for ($i = 2; $i < $count; $i++) {
                 $var = func_get_arg($i);
-                $this->debugger->addMessage($var, 'debug');
+                $this->debugger->addMessage('Twig Dump', 'debug', $var);
             }
         }
     }
