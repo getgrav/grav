@@ -824,13 +824,18 @@ class Pages
 
             // fall back and check site based redirects
             if (!$page || ($page && !$page->routable())) {
+                // Redirect to the first child (placeholder page)
+                if ($redirect && $page && count($children = $page->children()->visible()) > 0) {
+                    $this->grav->redirectLangSafe($children->first()->route());
+                }
+
                 /** @var Config $config */
                 $config = $this->grav['config'];
 
                 // See if route matches one in the site configuration
                 $site_route = $config->get("site.routes.{$route}");
                 if ($site_route) {
-                    $page = $this->dispatch($site_route, $all);
+                    $page = $this->dispatch($site_route, $all, $redirect);
                 } else {
 
                     /** @var Uri $uri */
@@ -862,7 +867,7 @@ class Pages
                             try {
                                 $found = preg_replace($pattern, $replace, $source_url);
                                 if ($found !== $source_url) {
-                                    $page = $this->dispatch($found, $all);
+                                    $page = $this->dispatch($found, $all, $redirect);
                                 }
                             } catch (ErrorException $e) {
                                 $this->grav['log']->error('site.routes: ' . $pattern . '-> ' . $e->getMessage());

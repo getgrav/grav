@@ -13,6 +13,7 @@
     * Fixed error in `Session::getFlashObject()` if Flex Form is being used
     * Fixed broken Twig `dump()`
     * Fixed `Page::modular()` and `Page::modularTwig()` returning `null` for folders and other non-initialized pages
+    * Fixed 404 error when you click to non-routable menu item with children: redirect to the first child instead
     
 # v1.7.0-beta.7
 ## 08/30/2019
