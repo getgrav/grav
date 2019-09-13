@@ -2274,7 +2274,7 @@ class Page implements PageInterface
             }
         }
 
-        return $this->modular_twig;
+        return $this->modular_twig ?? false;
     }
 
     /**

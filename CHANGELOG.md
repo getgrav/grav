@@ -12,6 +12,7 @@
     * Regression: Allow SVG avatar images for users
     * Fixed error in `Session::getFlashObject()` if Flex Form is being used
     * Fixed broken Twig `dump()`
+    * Fixed `Page::modular()` and `Page::modularTwig()` returning `null` for folders and other non-initialized pages
     
 # v1.7.0-beta.7
 ## 08/30/2019
