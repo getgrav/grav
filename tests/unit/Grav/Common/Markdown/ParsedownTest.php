@@ -8,6 +8,7 @@ use Grav\Common\Config\Config;
 use Grav\Common\Page\Pages;
 use Grav\Common\Markdown\Parsedown;
 use Grav\Common\Language\Language;
+use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 
 /**
@@ -66,7 +67,7 @@ class ParsedownTest extends \Codeception\TestCase\Test
             ],
             'images' => $this->config->get('system.images', [])
         ];
-        $page = $this->pages->dispatch('/item2/item2-2');
+        $page = $this->pages->find('/item2/item2-2');
 
         $excerpts = new Excerpts($page, $defaults);
         $this->parsedown = new Parsedown($excerpts);
@@ -194,7 +195,7 @@ class ParsedownTest extends \Codeception\TestCase\Test
             ],
             'images' => $this->config->get('system.images', [])
         ];
-        $page = $this->pages->dispatch('/');
+        $page = $this->pages->find('/');
         $excerpts = new Excerpts($page, $defaults);
         $this->parsedown = new Parsedown($excerpts);
 
@@ -249,7 +250,7 @@ class ParsedownTest extends \Codeception\TestCase\Test
             ],
             'images' => $this->config->get('system.images', [])
         ];
-        $page = $this->pages->dispatch('/');
+        $page = $this->pages->find('/');
         $excerpts = new Excerpts($page, $defaults);
         $this->parsedown = new Parsedown($excerpts);
 

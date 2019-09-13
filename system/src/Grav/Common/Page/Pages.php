@@ -736,7 +736,7 @@ class Pages
     public function ancestor($route, $path = null)
     {
         if ($path !== null) {
-            $page = $this->dispatch($route, true);
+            $page = $this->find($route, true);
 
             if ($page && $page->path() === $path) {
                 return $page;
@@ -763,7 +763,7 @@ class Pages
     {
         if ($field !== null) {
 
-            $page = $this->dispatch($route, true);
+            $page = $this->find($route, true);
 
             $parent = $page ? $page->parent() : null;
             if ($parent && $parent->value('header.' . $field) !== null) {

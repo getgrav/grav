@@ -2463,7 +2463,7 @@ class Page implements PageInterface
 
         if (isset($routes[$uri_path])) {
             /** @var PageInterface $child_page */
-            $child_page = $pages->dispatch($uri->route())->parent();
+            $child_page = $pages->find($uri->route())->parent();
             if ($child_page) {
                 while (!$child_page->root()) {
                     if ($this->path() === $child_page->path()) {

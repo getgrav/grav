@@ -96,7 +96,7 @@ class PagesTest extends \Codeception\TestCase\Test
         $locator = $this->grav['locator'];
         $folder = $locator->findResource('tests://');
 
-        $aPage = $this->pages->dispatch('/blog');
+        $aPage = $this->pages->find('/blog');
         $subPagesSorted = $this->pages->sort($aPage);
 
         $this->assertInternalType('array', $subPagesSorted);
@@ -132,7 +132,7 @@ class PagesTest extends \Codeception\TestCase\Test
         $locator = $this->grav['locator'];
         $folder = $locator->findResource('tests://');
 
-        $aPage = $this->pages->dispatch('/blog');
+        $aPage = $this->pages->find('/blog');
         $subPagesSorted = $this->pages->sortCollection($aPage->children(), $aPage->orderBy());
 
         $this->assertInternalType('array', $subPagesSorted);

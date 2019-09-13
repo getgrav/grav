@@ -553,7 +553,7 @@ class Grav extends Container
         $path_parts = pathinfo($path);
 
         /** @var PageInterface $page */
-        $page = $this['pages']->dispatch($path_parts['dirname'], true);
+        $page = $this['pages']->find($path_parts['dirname'], true);
 
         if ($page) {
             $media = $page->media()->all();

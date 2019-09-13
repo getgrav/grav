@@ -185,7 +185,7 @@ class Excerpts
                     $page_route = '/' . ltrim(str_replace($base_url, '', $folder), '/');
 
                     /** @var PageInterface $ext_page */
-                    $ext_page = $grav['pages']->dispatch($page_route, true);
+                    $ext_page = $grav['pages']->find($page_route, true);
                     if ($ext_page) {
                         $media = $ext_page->getMedia();
                     } else {
