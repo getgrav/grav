@@ -14,9 +14,14 @@ use RocketTheme\Toolbox\ArrayTraits\Export;
 use RocketTheme\Toolbox\ArrayTraits\ExportInterface;
 use RocketTheme\Toolbox\ArrayTraits\NestedArrayAccessWithGetters;
 
-class Header implements \ArrayAccess, ExportInterface
+class Header implements \ArrayAccess, ExportInterface, \JsonSerializable
 {
     use NestedArrayAccessWithGetters, Constructor, Export;
 
     protected $items;
+
+    public function jsonSerialize()
+    {
+        return $this->toArray();
+    }
 }
