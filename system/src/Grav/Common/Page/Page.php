@@ -2855,9 +2855,9 @@ class Page implements PageInterface
             $result = [];
             foreach ((array)$value as $key => $val) {
                 if (is_int($key)) {
-                    $result = $result + $this->evaluate($val)->toArray();
+                    $result = $result + $this->evaluate($val, $only_published)->toArray();
                 } else {
-                    $result = $result + $this->evaluate([$key => $val])->toArray();
+                    $result = $result + $this->evaluate([$key => $val], $only_published)->toArray();
                 }
 
             }
