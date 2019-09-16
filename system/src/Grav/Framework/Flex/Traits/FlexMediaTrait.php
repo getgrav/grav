@@ -71,14 +71,18 @@ trait FlexMediaTrait
 
             // Include uploaded media to the object media.
             /** @var FormFlashFile|null $upload */
+            $updated = false;
             foreach ($this->getUpdatedMedia() as $filename => $upload) {
                 // Just make sure we do not include removed or moved media.
                 if ($upload && $upload->getError() === \UPLOAD_ERR_OK && !$upload->isMoved()) {
+                    $updated = true;
                     $media->add($filename, MediumFactory::fromUploadedFile($upload));
                 }
             }
 
-            $media->setTimestamps();
+            if ($updated) {
+                $media->setTimestamps();
+            }
         }
 
         return $this->media;
