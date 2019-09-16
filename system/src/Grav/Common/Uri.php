@@ -669,6 +669,7 @@ class Uri
     public static function getCurrentRoute()
     {
         if (!static::$currentRoute) {
+            /** @var Uri $uri */
             $uri = Grav::instance()['uri'];
             static::$currentRoute = RouteFactory::createFromParts($uri->toArray());
         }

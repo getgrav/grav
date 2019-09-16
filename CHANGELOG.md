@@ -6,6 +6,7 @@
 1. [](#improved)
     * Several FlexObject loading improvements 
     * Added `bin/grav page-system-validator [-r|--record] [-c|--check]` to test Flex Pages
+    * Improved language support for `Route` class
 1. [](#bugfix)
     * Regression: Fixed language fallback
     * Regression: Fixed translations when language code is used for non-language purposes

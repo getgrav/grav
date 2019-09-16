@@ -77,6 +77,14 @@ class Route
     /**
      * @return string
      */
+    public function getLanguage()
+    {
+        return $this->language;
+    }
+
+    /**
+     * @return string
+     */
     public function getLanguagePrefix()
     {
         return $this->language !== '' ? '/' . $this->language : '';

@@ -32,6 +32,10 @@ class RouteFactory
     public static function createFromString($path)
     {
         $path = ltrim($path, '/');
+        if (self::$language && mb_strpos($path, self::$language) === 0) {
+            $path = ltrim(mb_substr($path, mb_strlen(self::$language)), '/');
+        }
+
         $parts = [
             'path' => $path,
             'query' => '',
