@@ -353,16 +353,16 @@ class FolderStorage extends AbstractFilesystemStorage
      */
     protected function saveRow(string $key, array $data): array
     {
-        try {
-            unset($data['__META'], $data['__ERROR']);
+        unset($data['__META'], $data['__ERROR']);
 
+        try {
             $path = $this->getPathFromKey($key);
             $file = $this->getFile($path);
             $file->save($data);
 
             /** @var UniformResourceLocator $locator */
             $locator = Grav::instance()['locator'];
-            if ($locator->isStream($file->filename())) {
+            if ($locator->isStream($path)) {
                 $locator->clearCache();
             }
         } catch (\RuntimeException $e) {
