@@ -1311,14 +1311,14 @@ class Pages
 
         $root = $this->buildRootPage();
         $root_path = $root->path();
-        $instances = [$root_path => $root];
+        $this->instances = [$root_path => $root];
+        $this->children = [];
+        $this->sort = [];
 
         if ($config->get('system.pages.events.page')) {
             $this->grav->fireEvent('onBuildPagesInitialized');
         }
 
-
-        $children = [];
         /**
          * @var string $key
          * @var PageInterface|FlexObjectInterface $page
@@ -1338,19 +1338,15 @@ class Pages
             }
             $parent = dirname($path);
 
-            $instances[$path] = $page->getFlexKey();
+            $this->instances[$path] = $page->getFlexKey();
             // FIXME: ... better...
-            $children[$parent][$path] = ['slug' => $translated->slug()];
-            if (!isset($children[$path])) {
-                $children[$path] = [];
+            $this->children[$parent][$path] = ['slug' => $translated->slug()];
+            if (!isset($this->children[$path])) {
+                $this->children[$path] = [];
             }
         }
 
-        $this->instances = $instances;
-        $this->children = $children;
-        $this->sort = [];
-
-        foreach ($children as $path => $list) {
+        foreach ($this->children as $path => $list) {
             $page = $this->get($path);
             if (null === $page) {
                 continue;
@@ -1360,10 +1356,8 @@ class Pages
                 $this->grav->fireEvent('onFolderProcessed', new Event(['page' => $page]));
             }
             // Sort the children.
-            $children[$path] = $this->sort($page);
+            $this->children[$path] = $this->sort($page);
         }
-
-        $this->children = $children;
 
         $this->buildRoutes();
 

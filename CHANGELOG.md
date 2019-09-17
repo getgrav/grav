@@ -16,7 +16,7 @@
     * Fixed `Page::modular()` and `Page::modularTwig()` returning `null` for folders and other non-initialized pages
     * Fixed 404 error when you click to non-routable menu item with children: redirect to the first child instead
     * Fixed wrong `Pages::dispatch()` calls (with redirect) when we really meant to call `Pages::find()`
-    
+
 # v1.7.0-beta.7
 ## 08/30/2019
 
