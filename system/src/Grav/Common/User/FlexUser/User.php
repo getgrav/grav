@@ -9,12 +9,12 @@
 
 namespace Grav\Common\User\FlexUser;
 
-use Grav\Common\Data\Blueprint;
 use Grav\Common\Grav;
 use Grav\Common\Media\Interfaces\MediaCollectionInterface;
 use Grav\Common\Page\Media;
 use Grav\Common\Page\Medium\ImageMedium;
 use Grav\Common\Page\Medium\Medium;
+use Grav\Common\Page\Medium\MediumFactory;
 use Grav\Common\User\Authentication;
 use Grav\Common\User\Interfaces\UserInterface;
 use Grav\Common\User\Traits\UserTrait;
@@ -50,7 +50,10 @@ use RocketTheme\Toolbox\File\FileInterface;
  */
 class User extends FlexObject implements UserInterface, MediaManipulationInterface, \Countable
 {
-    use FlexMediaTrait;
+    use FlexMediaTrait {
+        getMedia as private getFlexMedia;
+        getMediaFolder as private getFlexMediaFolder;
+    }
     use FlexAuthorizeTrait;
     use UserTrait;
 
@@ -529,6 +532,50 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
         return \count($this->jsonSerialize());
     }
 
+    public function getMedia()
+    {
+        $media = $this->getFlexMedia();
+
+        // Deal with shared avatar folder.
+        $path = $this->getAvatarFile();
+        if ($path && !$media[$path] && is_file($path)) {
+            $medium = MediumFactory::fromFile($path);
+            if ($medium) {
+                $media->add($path, $medium);
+                $name = basename($path);
+                if ($name !== $path) {
+                    $media->add($name, $medium);
+                }
+            }
+        }
+
+        return $media;
+    }
+
+    public function getMediaFolder(): ?string
+    {
+        $folder = $this->getFlexMediaFolder();
+        if (!$folder) {
+            // Shared media!
+            $this->loadMedia = false;
+            $folder = $this->getBlueprint()->fields()['avatar']['destination'] ?? 'user://accounts/avatars';
+        }
+
+        return $folder;
+    }
+
+    protected function getAvatarFile(): ?string
+    {
+        $avatars = $this->getElement('avatar');
+        if (\is_array($avatars) && $avatars) {
+            $avatar = array_shift($avatars);
+
+            return $avatar['path'] ?? null;
+        }
+
+        return null;
+    }
+
     /**
      * Gets the associated media collection (original images).
      *
@@ -536,7 +583,12 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
      */
     protected function getOriginalMedia()
     {
-        return (new Media($this->getMediaFolder() . '/original', $this->getMediaOrder()))->setTimestamps();
+        $folder = $this->getMediaFolder();
+        if ($folder) {
+            $folder .= '/original';
+        }
+
+        return (new Media($folder, $this->getMediaOrder()))->setTimestamps();
     }
 
     /**
@@ -626,7 +678,7 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
             $imageFile = $originalMedia[$filename] ?? $thumbFile;
             if ($thumbFile) {
                 $list[$filename] = [
-                    'name' => $filename,
+                    'name' => $info['name'],
                     'type' => $info['type'],
                     'size' => $info['size'],
                     'image_url' => $imageFile->url(),

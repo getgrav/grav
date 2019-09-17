@@ -392,18 +392,18 @@ class FlexDirectory implements FlexAuthorizeInterface
 
     /**
      * @param string|null $key
-     * @return string
+     * @return string|null
      */
-    public function getStorageFolder(string $key = null): string
+    public function getStorageFolder(string $key = null): ?string
     {
         return $this->getStorage()->getStoragePath($key);
     }
 
     /**
      * @param string|null $key
-     * @return string
+     * @return string|null
      */
-    public function getMediaFolder(string $key = null): string
+    public function getMediaFolder(string $key = null): ?string
     {
         return $this->getStorage()->getMediaPath($key);
     }

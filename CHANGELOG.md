@@ -3,6 +3,7 @@
 
 1. [](#new)
     * Added new `Security::sanitizeSVG()` function
+    * Backwards compatibility break: `FlexStorageInterface::getStoragePath()` and `getMediaPath()` can now return null
 1. [](#improved)
     * Several FlexObject loading improvements 
     * Added `bin/grav page-system-validator [-r|--record] [-c|--check]` to test Flex Pages
@@ -16,6 +17,7 @@
     * Fixed `Page::modular()` and `Page::modularTwig()` returning `null` for folders and other non-initialized pages
     * Fixed 404 error when you click to non-routable menu item with children: redirect to the first child instead
     * Fixed wrong `Pages::dispatch()` calls (with redirect) when we really meant to call `Pages::find()`
+    * Fixed avatars not being displayed with flex users [#2431](https://github.com/getgrav/grav/issues/2431)
 
 # v1.7.0-beta.7
 ## 08/30/2019

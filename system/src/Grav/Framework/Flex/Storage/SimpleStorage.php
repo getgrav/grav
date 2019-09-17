@@ -305,7 +305,7 @@ class SimpleStorage extends AbstractFilesystemStorage
      * {@inheritdoc}
      * @see FlexStorageInterface::getStoragePath()
      */
-    public function getStoragePath(string $key = null): string
+    public function getStoragePath(string $key = null): ?string
     {
         return $this->dataFolder . '/' . $this->dataPattern;
     }
@@ -314,7 +314,7 @@ class SimpleStorage extends AbstractFilesystemStorage
      * {@inheritdoc}
      * @see FlexStorageInterface::getMediaPath()
      */
-    public function getMediaPath(string $key = null): string
+    public function getMediaPath(string $key = null): ?string
     {
         $parts = $this->parseKey($key);
 
@@ -340,7 +340,11 @@ class SimpleStorage extends AbstractFilesystemStorage
         }
 
         try {
-            $file = $this->getFile($this->getStoragePath());
+            $path = $this->getStoragePath();
+            if (!$path) {
+                throw new \RuntimeException('Storage path is not defined');
+            }
+            $file = $this->getFile($path);
             $file->save($this->data);
             $this->modified = $file->modified();
             $file->free();
@@ -367,7 +371,12 @@ class SimpleStorage extends AbstractFilesystemStorage
      */
     protected function buildIndex(): array
     {
-        $file = $this->getFile($this->getStoragePath());
+        $path = $this->getStoragePath();
+        if (!$path) {
+            return [];
+        }
+
+        $file = $this->getFile($path);
         $this->modified = $file->modified();
         $this->data = (array) $file->content();
 

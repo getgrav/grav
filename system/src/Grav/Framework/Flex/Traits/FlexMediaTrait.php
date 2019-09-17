@@ -45,19 +45,19 @@ trait FlexMediaTrait
     }
 
     /**
-     * @return string
+     * @return string|null
      */
     public function getStorageFolder()
     {
-        return $this->exists() ? $this->getFlexDirectory()->getStorageFolder($this->getStorageKey()) : '';
+        return $this->exists() ? $this->getFlexDirectory()->getStorageFolder($this->getStorageKey()) : null;
     }
 
     /**
-     * @return string
+     * @return string|null
      */
     public function getMediaFolder()
     {
-        return $this->exists() ? $this->getFlexDirectory()->getMediaFolder($this->getStorageKey()) : '';
+        return $this->exists() ? $this->getFlexDirectory()->getMediaFolder($this->getStorageKey()) : null;
     }
 
     /**

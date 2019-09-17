@@ -78,21 +78,21 @@ class Media extends AbstractMedia
         /** @var UniformResourceLocator $locator */
         $locator = Grav::instance()['locator'];
         $config = Grav::instance()['config'];
-        $locator = Grav::instance()['locator'];
         $exif_reader = isset(Grav::instance()['exif']) ? Grav::instance()['exif']->getReader() : false;
         $media_types = array_keys(Grav::instance()['config']->get('media.types'));
+        $path = $this->getPath();
 
         // Handle special cases where page doesn't exist in filesystem.
-        if (!is_dir($this->getPath())) {
+        if (!$path || !is_dir($path)) {
             return;
         }
 
-        $iterator = new \FilesystemIterator($this->getPath(), \FilesystemIterator::UNIX_PATHS | \FilesystemIterator::SKIP_DOTS);
+        $iterator = new \FilesystemIterator($path, \FilesystemIterator::UNIX_PATHS | \FilesystemIterator::SKIP_DOTS);
 
         $media = [];
 
         /** @var \DirectoryIterator $info */
-        foreach ($iterator as $path => $info) {
+        foreach ($iterator as $file => $info) {
             // Ignore folders and Markdown files.
             if (!$info->isFile() || $info->getExtension() === 'md' || strpos($info->getFilename(), '.') === 0) {
                 continue;
@@ -106,9 +106,9 @@ class Media extends AbstractMedia
             }
 
             if ($type === 'alternative') {
-                $media["{$basename}.{$ext}"][$type][$extra] = ['file' => $path, 'size' => $info->getSize()];
+                $media["{$basename}.{$ext}"][$type][$extra] = ['file' => $file, 'size' => $info->getSize()];
             } else {
-                $media["{$basename}.{$ext}"][$type] = ['file' => $path, 'size' => $info->getSize()];
+                $media["{$basename}.{$ext}"][$type] = ['file' => $file, 'size' => $info->getSize()];
             }
         }
 
@@ -124,6 +124,7 @@ class Media extends AbstractMedia
                         $alt['file']->set('size', $alt['size']);
                     }
                 }
+                unset($alt);
             }
 
             $file_path = null;

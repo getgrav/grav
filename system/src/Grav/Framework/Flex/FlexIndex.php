@@ -719,12 +719,21 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
         return $data['index'] ?? [];
     }
 
+    /**
+     * @param FlexStorageInterface $storage
+     * @return CompiledYamlFile|null
+     */
     protected static function getIndexFile(FlexStorageInterface $storage)
     {
+        $path = $storage->getStoragePath();
+        if (!$path) {
+            return null;
+        }
+
         // Load saved index file.
         $grav = Grav::instance();
         $locator = $grav['locator'];
-        $filename = $locator->findResource($storage->getStoragePath() . '/index.yaml', true, true);
+        $filename = $locator->findResource("{$path}/index.yaml", true, true);
 
         return CompiledYamlFile::instance($filename);
     }

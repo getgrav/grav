@@ -209,7 +209,13 @@ class FolderStorage extends AbstractFilesystemStorage
             return false;
         }
 
-        return $this->copyFolder($this->getStoragePath($src), $this->getStoragePath($dst));
+        $srcPath = $this->getStoragePath($src);
+        $dstPath = $this->getStoragePath($dst);
+        if (!$srcPath || !$dstPath) {
+            return false;
+        }
+
+        return $this->copyFolder($srcPath, $dstPath);
     }
 
 
@@ -227,14 +233,20 @@ class FolderStorage extends AbstractFilesystemStorage
             return false;
         }
 
-        return $this->moveFolder($this->getStoragePath($src), $this->getStoragePath($dst));
+        $srcPath = $this->getStoragePath($src);
+        $dstPath = $this->getStoragePath($dst);
+        if (!$srcPath || !$dstPath) {
+            return false;
+        }
+
+        return $this->moveFolder($srcPath, $dstPath);
     }
 
     /**
      * {@inheritdoc}
      * @see FlexStorageInterface::getStoragePath()
      */
-    public function getStoragePath(string $key = null): string
+    public function getStoragePath(string $key = null): ?string
     {
         if (null === $key || $key === '') {
             $path = $this->dataFolder;
@@ -258,7 +270,7 @@ class FolderStorage extends AbstractFilesystemStorage
      * {@inheritdoc}
      * @see FlexStorageInterface::getMediaPath()
      */
-    public function getMediaPath(string $key = null): string
+    public function getMediaPath(string $key = null): ?string
     {
         return $this->getStoragePath($key);
     }
@@ -468,7 +480,7 @@ class FolderStorage extends AbstractFilesystemStorage
     protected function buildIndex(): array
     {
         $path = $this->getStoragePath();
-        if (!file_exists($path)) {
+        if (!$path || !file_exists($path)) {
             return [];
         }
 

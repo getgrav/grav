@@ -19,6 +19,7 @@ use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 trait MediaTrait
 {
     protected $media;
+    protected $_loadMedia = true;
 
     /**
      * Get filesystem path to the associated media.
@@ -40,11 +41,14 @@ trait MediaTrait
     /**
      * Get URI ot the associated media. Method will return null if path isn't URI.
      *
-     * @return null|string
+     * @return string|null
      */
     public function getMediaUri()
     {
        $folder = $this->getMediaFolder();
+       if (!$folder) {
+           return null;
+       }
 
        if (strpos($folder, '://')) {
            return $folder;
@@ -73,7 +77,7 @@ trait MediaTrait
             // Use cached media if possible.
             $cacheKey = md5('media' . $this->getCacheKey());
             if (!$media = $cache->get($cacheKey)) {
-                $media = new Media($this->getMediaFolder(), $this->getMediaOrder());
+                $media = new Media($this->getMediaFolder(), $this->getMediaOrder(), $this->_loadMedia);
                 $cache->set($cacheKey, $media);
             }
             $this->media = $media;

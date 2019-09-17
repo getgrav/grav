@@ -38,9 +38,14 @@ class FileStorage extends FolderStorage
      * {@inheritdoc}
      * @see FlexStorageInterface::getMediaPath()
      */
-    public function getMediaPath(string $key = null): string
+    public function getMediaPath(string $key = null): ?string
     {
-        return $key ? \dirname($this->getStoragePath($key)) . '/' . $key : $this->getStoragePath();
+        $path = $this->getStoragePath();
+        if (!$path) {
+            return null;
+        }
+
+        return $key ? "{$path}/{$key}" : $path;
     }
 
     /**
@@ -56,12 +61,13 @@ class FileStorage extends FolderStorage
      */
     protected function buildIndex(): array
     {
-        if (!file_exists($this->getStoragePath())) {
+        $path = $this->getStoragePath();
+        if (!$path || !file_exists($path)) {
             return [];
         }
 
         $flags = \FilesystemIterator::KEY_AS_PATHNAME | \FilesystemIterator::CURRENT_AS_FILEINFO | \FilesystemIterator::SKIP_DOTS | \FilesystemIterator::UNIX_PATHS;
-        $iterator = new \FilesystemIterator($this->getStoragePath(), $flags);
+        $iterator = new \FilesystemIterator($path, $flags);
         $list = [];
         /** @var \SplFileInfo $info */
         foreach ($iterator as $filename => $info) {
