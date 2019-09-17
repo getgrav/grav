@@ -1,3 +1,9 @@
+# v1.6.16
+## mm/dd/2019
+
+1. [](#bugfix)
+    * Fixed Flex user creation if file storage is being used [#2444](https://github.com/getgrav/grav/issues/2444)
+
 # v1.6.15
 ## 08/20/2019
 
