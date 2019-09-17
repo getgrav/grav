@@ -653,9 +653,13 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
         }
 
         $storageKey = $meta['storage_key'] ?? (string)key($result);
-        if ($value && $storageKey) {
-            $this->setStorageKey($storageKey);
-            $this->setKey($meta['key'] ?? $storageKey);
+        if ($value) {
+            if ($storageKey) {
+                $this->setStorageKey($storageKey);
+            }
+
+            $newKey = $meta['key'] ?? ($this->hasKey() ? $this->getKey() : null);
+            $this->setKey($newKey ?? $storageKey);
         }
 
         // FIXME: For some reason locator caching isn't cleared for the file, investigate!
