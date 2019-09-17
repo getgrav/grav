@@ -111,6 +111,13 @@
     * Optimization: Initialize debugbar only after the configuration has been loaded
     * Optimization: Combine some early Grav processors into a single one
 
+# v1.6.16
+## mm/dd/2019
+
+1. [](#bugfix)
+    * Fixed Flex user creation if file storage is being used [#2444](https://github.com/getgrav/grav/issues/2444)
+    * Fixed `Badly encoded JSON data` warning when uploading files [#2663](https://github.com/getgrav/grav/issues/2663)
+
 # v1.6.15
 ## 08/20/2019
 
