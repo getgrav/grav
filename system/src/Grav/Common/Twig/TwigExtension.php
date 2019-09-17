@@ -885,11 +885,11 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
                     $data[$key] = $value;
                 }
             }
-            $this->debugger->addMessage('Twig Dump', 'debug', $data);
+            $this->debugger->addMessage($data, 'debug');
         } else {
             for ($i = 2; $i < $count; $i++) {
                 $var = func_get_arg($i);
-                $this->debugger->addMessage('Twig Dump', 'debug', $var);
+                $this->debugger->addMessage($var, 'debug');
             }
         }
     }
