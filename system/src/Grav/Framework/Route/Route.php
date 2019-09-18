@@ -218,7 +218,7 @@ class Route
     public function withLanguage($language)
     {
         $new = $this->copy();
-        $new->language = $language;
+        $new->language = $language ?? '';
 
         return $new;
     }
