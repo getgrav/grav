@@ -336,8 +336,8 @@ class Language
             $this->fallback_extensions[$key] = $list;
 
             /** @var Debugger $debugger */
-            $debugger = $this->grav['debugger'];
-            $debugger->addMessage("Language fallback extensions for {$languageCode}", 'debug', $list);
+            //$debugger = $this->grav['debugger'];
+            //$debugger->addMessage("Language fallback extensions for {$languageCode}", 'debug', $list);
         }
 
         return $this->fallback_extensions[$key];
@@ -422,8 +422,8 @@ class Language
             $this->fallback_languages[$key] = $fallback_languages;
 
             /** @var Debugger $debugger */
-            $debugger = $this->grav['debugger'];
-            $debugger->addMessage("Language fallback for {$active}", 'debug', $fallback_languages);
+            //$debugger = $this->grav['debugger'];
+            //$debugger->addMessage("Language fallback for {$active}", 'debug', $fallback_languages);
         }
 
         return $this->fallback_languages[$key];
