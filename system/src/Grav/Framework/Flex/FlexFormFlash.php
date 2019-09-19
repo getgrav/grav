@@ -38,9 +38,9 @@ class FlexFormFlash extends FormFlash
             $serialized['object'] = [
                 'type' => $object->getFlexType(),
                 'key' => $object->getKey() ?: null,
-                'storage_key' => $object->exists() ? $object->getStorageKey() : null,
+                'storage_key' => $object->getStorageKey(),
                 'timestamp' => $object->getTimestamp(),
-                'serialized' => $object->jsonSerialize()
+                'serialized' => $object->prepareStorage()
             ];
         }
 
@@ -51,9 +51,11 @@ class FlexFormFlash extends FormFlash
     {
         parent::init($data, $config);
 
+        /** @var FlexObjectInterface $object */
         $object = $config['object'];
         if (isset($data['object']['serialized']) && !$object->exists()) {
-            $object->update($data['object']['serialized']);
+            // TODO: update instead of create new.
+            $object = $object->getFlexDirectory()->createObject($data['object']['serialized'], $data['object']['key']);
         }
 
         $this->setObject($object);

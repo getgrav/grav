@@ -132,6 +132,7 @@ class FlexForm implements FlexFormInterface
             $data = $flash->getData();
             $includeOriginal = (bool)($this->getBlueprint()->form()['images']['original'] ?? null);
 
+            $this->object = $flash->getObject();
             $this->data = $data ? new Data($data, $this->getBlueprint()) : null;
             $this->files = $flash->getFilesByFields($includeOriginal);
         }
