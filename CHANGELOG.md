@@ -1,5 +1,5 @@
 # v1.7.0-beta.8
-## mm/dd/2019
+## 09/19/2019
 
 1. [](#new)
     * Added new `Security::sanitizeSVG()` function
@@ -113,7 +113,7 @@
     * Optimization: Combine some early Grav processors into a single one
 
 # v1.6.16
-## mm/dd/2019
+## 09/19/2019
 
 1. [](#bugfix)
     * Fixed Flex user creation if file storage is being used [#2444](https://github.com/getgrav/grav/issues/2444)
