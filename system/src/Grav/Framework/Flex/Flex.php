@@ -11,6 +11,8 @@ declare(strict_types=1);
 
 namespace Grav\Framework\Flex;
 
+use Grav\Common\Debugger;
+use Grav\Common\Grav;
 use Grav\Framework\Flex\Interfaces\FlexCollectionInterface;
 use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
 use Grav\Framework\Object\ObjectCollection;
@@ -38,6 +40,13 @@ class Flex implements \Countable
         $this->types = [];
 
         foreach ($types as $type => $blueprint) {
+            if (!file_exists($blueprint)) {
+                /** @var Debugger $debugger */
+                $debugger = Grav::instance()['debugger'];
+                $debugger->addMessage(sprintf('Flex: blueprint for flex type %s is missing', $type), 'error');
+
+                continue;
+            }
             $this->addDirectoryType($type, $blueprint);
         }
     }
