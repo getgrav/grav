@@ -22,6 +22,7 @@ use Grav\Framework\File\Formatter\JsonFormatter;
 use Grav\Framework\File\Formatter\YamlFormatter;
 use Grav\Framework\Flex\FlexDirectory;
 use Grav\Framework\Flex\FlexObject;
+use Grav\Framework\Flex\Storage\FileStorage;
 use Grav\Framework\Flex\Traits\FlexAuthorizeTrait;
 use Grav\Framework\Flex\Traits\FlexMediaTrait;
 use Grav\Framework\Form\FormFlashFile;
@@ -446,6 +447,15 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
      */
     public function save()
     {
+        // TODO: We may want to handle this in the storage layer in the future.
+        $key = $this->getStorageKey();
+        if (!$key || strpos($key, '@@')) {
+            $storage = $this->getFlexDirectory()->getStorage();
+            if ($storage instanceof FileStorage) {
+                $this->setStorageKey($this->getKey());
+            }
+        }
+
         $password = $this->getProperty('password');
         if (null !== $password) {
             $this->unsetProperty('password');

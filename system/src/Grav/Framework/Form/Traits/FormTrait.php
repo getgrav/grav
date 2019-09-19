@@ -640,7 +640,7 @@ trait FormTrait
         foreach ($data as $key => &$value) {
             if (\is_array($value)) {
                 $value = $this->jsonDecode($value);
-            } elseif ($value === '') {
+            } elseif (trim($value) === '') {
                 unset($data[$key]);
             } else {
                 $value = json_decode($value, true);
