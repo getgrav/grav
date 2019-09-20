@@ -94,9 +94,7 @@ class FolderStorage extends AbstractFilesystemStorage
     {
         $list = [];
         foreach ($rows as $key => $row) {
-            // Create new file and save it.
-            $key = $this->getNewKey();
-            $list[$key] = $this->saveRow($key, $row);
+            $list[$key] = $this->saveRow('@@', $row);
         }
 
         return $list;
@@ -185,9 +183,6 @@ class FolderStorage extends AbstractFilesystemStorage
         $list = [];
         foreach ($rows as $key => $row) {
             $key = (string)$key;
-            if (strpos($key, '@@') !== false) {
-                $key = $this->getNewKey();
-            }
             $list[$key] = $this->saveRow($key, $row);
         }
 
@@ -325,6 +320,26 @@ class FolderStorage extends AbstractFilesystemStorage
     }
 
     /**
+     * Prepares the row for saving and returns the storage key for the record.
+     *
+     * @param array $row
+     * @param string $key
+     * @return string
+     */
+    protected function prepareRow(array &$row, string $key = '@@'): string
+    {
+        if (isset($row['storage_key'])) {
+            $key = $row['storage_key'];
+            unset($row['storage_key']);
+        }
+        if (strpos($key, '@@') !== false) {
+            $key = $this->getNewKey();
+        }
+
+        return $key;
+    }
+
+    /**
      * @param string $key
      * @return array
      */
@@ -348,17 +363,19 @@ class FolderStorage extends AbstractFilesystemStorage
 
     /**
      * @param string $key
-     * @param array $data
+     * @param array $row
      * @return array
      */
-    protected function saveRow(string $key, array $data): array
+    protected function saveRow(string $key, array $row): array
     {
-        unset($data['__META'], $data['__ERROR']);
-
         try {
-            $path = $this->getPathFromKey($key);
+            $newKey = $this->prepareRow($row, $key);
+            unset($row['__META'], $row['__ERROR']);
+
+            $path = $this->getPathFromKey($newKey);
             $file = $this->getFile($path);
-            $file->save($data);
+
+            $file->save($row);
 
             /** @var UniformResourceLocator $locator */
             $locator = Grav::instance()['locator'];
@@ -369,9 +386,9 @@ class FolderStorage extends AbstractFilesystemStorage
             throw new \RuntimeException(sprintf('Flex saveFile(%s): %s', $file->filename(), $e->getMessage()));
         }
 
-        $data['__META'] = $this->getObjectMeta($key, true);
+        $row['__META'] = $this->getObjectMeta($newKey, true);
 
-        return $data;
+        return $row;
     }
 
     /**

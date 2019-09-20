@@ -1,8 +1,10 @@
 # v1.7.0-beta.9
 ## mm/dd/2019
 
+1. [](#improved)
+    * Improved blueprint initialization in Flex Objects (fixes content aware fields)
+    * Improved Flex FolderStorage class to better hide storage specific logic
 1. [](#bugfix)
-    * Improve blueprint initialization in Flex Objects (fixes content aware fields)
     * Fixed error when activating Flex Accounts in GRAV system configuration (PHP 7.1)
 
 # v1.7.0-beta.8
