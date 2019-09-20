@@ -1307,7 +1307,7 @@ class Pages
             return;
         }
 
-        $this->grav['debugger']->addMessage('Page cache missed, rebuilding pages..');
+        $this->grav['debugger']->addMessage('Page cache missed, rebuilding Flex Pages..');
 
         $root = $this->buildRootPage();
         $root_path = $root->path();

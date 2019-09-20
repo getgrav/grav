@@ -44,8 +44,6 @@ class FlexDirectory implements FlexAuthorizeInterface
     protected $blueprint_file;
     /** @var Blueprint[] */
     protected $blueprints;
-    /** @var bool[] */
-    protected $blueprints_init;
     /** @var FlexIndexInterface|null */
     protected $index;
     /** @var FlexCollectionInterface|null */
@@ -154,25 +152,18 @@ class FlexDirectory implements FlexAuthorizeInterface
     }
 
     /**
+     * Returns a new uninitialized instance of blueprint.
+     *
+     * Always use $object->getBlueprint() or $object->getForm()->getBlueprint() instead.
+     *
      * @param string $type
      * @param string $context
      * @return Blueprint
+     * @internal
      */
     public function getBlueprint(string $type = '', string $context = '')
     {
-        $blueprint = $this->getBlueprintInternal($type, $context);
-
-        if (empty($this->blueprints_init[$type])) {
-            $this->blueprints_init[$type] = true;
-
-            $blueprint->setScope('object');
-            $blueprint->init();
-            if (empty($blueprint->fields())) {
-                throw new RuntimeException(sprintf('Flex: Blueprint for %s is missing', $this->type));
-            }
-        }
-
-        return $blueprint;
+        return clone $this->getBlueprintInternal($type, $context);
     }
 
     /**

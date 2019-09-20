@@ -1,3 +1,9 @@
+# v1.7.0-beta.9
+## mm/dd/2019
+
+1. [](#bugfix)
+    * Improve blueprint initialization in Flex Objects (fixes content aware fields)
+
 # v1.7.0-beta.8
 ## 09/19/2019
 
