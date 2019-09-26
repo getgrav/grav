@@ -43,8 +43,8 @@ class RouteFactory
             'grav' => [
                 'root' => self::$root,
                 'language' => self::$language,
-                'route' => $path,
-                'params' => ''
+                'route' => static::trimParams($path),
+                'params' => static::getParams($path)
             ],
         ];
         return new Route($parts);
@@ -132,6 +132,26 @@ class RouteFactory
         return $params !== '' ? static::parseParams($params) : [];
     }
 
+    public static function trimParams($str)
+    {
+        if ($str === '') {
+            return $str;
+        }
+
+        $delimiter = self::$delimiter;
+
+        /** @var array $params */
+        $params = explode('/', $str);
+        $list = [];
+        foreach ($params as $param) {
+            if (mb_strpos($param, $delimiter) === false) {
+                $list[] = $param;
+            }
+        }
+
+        return implode('/', $list);
+    }
+
     /**
      * @param string $str
      * @return array
@@ -146,16 +166,17 @@ class RouteFactory
 
         /** @var array $params */
         $params = explode('/', $str);
+        $list = [];
         foreach ($params as &$param) {
             /** @var array $parts */
             $parts = explode($delimiter, $param, 2);
             if (isset($parts[1])) {
                 $var = rawurldecode($parts[0]);
                 $val = rawurldecode($parts[1]);
-                $param = [$var => $val];
+                $list[$var] = $val;
             }
         }
 
-        return $params;
+        return $list;
     }
 }
