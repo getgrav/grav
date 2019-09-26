@@ -1,6 +1,8 @@
 # v1.7.0-beta.9
 ## mm/dd/2019
 
+1. [](#new)
+    * Added a new `{% cache %}` Twig tag eliminating need for `twigcache` extension.
 1. [](#improved)
     * Improved blueprint initialization in Flex Objects (fixes content aware fields)
     * Improved Flex FolderStorage class to better hide storage specific logic
