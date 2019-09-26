@@ -9,6 +9,7 @@
     * Exception will output a badly formatted line in `CsvFormatter::decode()`
 1. [](#bugfix)
     * Fixed error when activating Flex Accounts in GRAV system configuration (PHP 7.1)
+    * Fixed Grav parameter handling in `RouteFactory::createFromString()`
 
 # v1.7.0-beta.8
 ## 09/19/2019

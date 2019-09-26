@@ -38,7 +38,7 @@ abstract class AbstractFilesystemStorage implements FlexStorageInterface
 
     /**
      * {@inheritdoc}
-     * @see FlexStorageInterface::hasKey()
+     * @see FlexStorageInterface::hasKeys()
      */
     public function hasKeys(array $keys): array
     {
@@ -56,6 +56,50 @@ abstract class AbstractFilesystemStorage implements FlexStorageInterface
     public function getKeyField(): string
     {
         return $this->keyField;
+    }
+
+    /**
+     * @param array $keys
+     * @param bool $includeParams
+     * @return string
+     */
+    public function buildStorageKey(array $keys, bool $includeParams = true): string
+    {
+        $key = $keys['key'] ?? '';
+        $params = $includeParams ? $this->buildStorageKeyParams($keys) : '';
+
+        return $params ? "{$key}|{$params}" : $key;
+    }
+
+    /**
+     * @param array $keys
+     * @return string
+     */
+    public function buildStorageKeyParams(array $keys): string
+    {
+        return '';
+    }
+
+    /**
+     * @param array $row
+     * @return array
+     */
+    public function extractKeysFromRow(array $row): array
+    {
+        return [
+            'key' => $row[$this->keyField] ?? ''
+        ];
+    }
+
+    /**
+     * @param string $key
+     * @return array
+     */
+    public function extractKeysFromStorageKey(string $key): array
+    {
+        return [
+            'key' => $key
+        ];
     }
 
     protected function initDataFormatter($formatter): void

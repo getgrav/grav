@@ -47,6 +47,7 @@ class SimpleStorage extends AbstractFilesystemStorage
 
         $this->dataPattern = basename($pattern, $extension) . $extension;
         $this->dataFolder = \dirname($options['folder']);
+        $this->keyField = $options['key'] ?? 'storage_key';
 
         // Make sure that the data folder exists.
         if (!file_exists($this->dataFolder)) {
@@ -70,7 +71,7 @@ class SimpleStorage extends AbstractFilesystemStorage
 
         $list = [];
         foreach ($keys as $key) {
-            $list[$key] = $this->getObjectMeta($key);
+            $list[$key] = $this->getObjectMeta((string)$key);
         }
 
         return $list;
@@ -316,7 +317,7 @@ class SimpleStorage extends AbstractFilesystemStorage
      */
     public function getMediaPath(string $key = null): ?string
     {
-        $parts = $this->parseKey($key);
+        $parts = $this->extractKeysFromStorageKey($key);
 
         return sprintf('%s/%s/%s', $this->dataFolder, basename($this->dataPattern, $this->dataFormatter->getDefaultFileExtension()), $parts['key']);
     }
