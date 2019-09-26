@@ -6,6 +6,7 @@
 1. [](#improved)
     * Improved blueprint initialization in Flex Objects (fixes content aware fields)
     * Improved Flex FolderStorage class to better hide storage specific logic
+    * Exception will output a badly formatted line in `CsvFormatter::decode()`
 1. [](#bugfix)
     * Fixed error when activating Flex Accounts in GRAV system configuration (PHP 7.1)
 

@@ -82,7 +82,12 @@ class CsvFormatter extends AbstractFormatter
         // Get the data
         $list = [];
         foreach ($lines as $line) {
-            $list[] = array_combine($header, str_getcsv($line, $delimiter));
+            try {
+                $list[] = array_combine($header, str_getcsv($line, $delimiter));
+            } catch (\Exception $e) {
+                throw new \Exception('Badly formatted CSV line: ' . $line);
+            }
+
         }
 
         return $list;
