@@ -618,31 +618,8 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
         $this->triggerEvent('onBeforeSave');
 
         $storage = $this->getFlexDirectory()->getStorage();
-        $meta = $this->getMetaData();
 
-        /** @var string|null $origKey */
-        $origKey = $meta['storage_key'] ?? null;
         $storageKey = $this->getStorageKey() ?:  '@@' . spl_object_hash($this);
-
-        if (method_exists($storage, 'parseKey')) {
-            if (null !== $origKey) {
-                $origParts =$storage->parseKey($origKey);
-                $origKey = $origParts['key'];
-
-            }
-            $keyParts = $storage->parseKey($storageKey);
-            $key = $keyParts['key'];
-        } else {
-            $key = $storageKey;
-        }
-
-        if (null !== $origKey && $key !== $origKey) {
-            if (!empty($meta['copy'])) {
-                $storage->copyRow($origKey, $key);
-            } else {
-                $storage->renameRow($origKey, $key);
-            }
-        }
 
         $result = $storage->replaceRows([$storageKey => $this->prepareStorage()]);
 
@@ -652,9 +629,9 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
             $this->_meta = $meta;
         }
 
-        $storageKey = $meta['storage_key'] ?? (string)key($result);
         if ($value) {
-            if ($storageKey) {
+            $storageKey = $meta['storage_key'] ?? (string)key($result);
+            if ($storageKey !== '') {
                 $this->setStorageKey($storageKey);
             }
 
