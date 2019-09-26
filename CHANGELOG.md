@@ -1,5 +1,5 @@
 # v1.7.0-beta.9
-## mm/dd/2019
+## 09/26/2019
 
 1. [](#new)
     * Added a new `{% cache %}` Twig tag eliminating need for `twigcache` extension.
