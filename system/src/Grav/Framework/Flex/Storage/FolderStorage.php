@@ -323,20 +323,10 @@ class FolderStorage extends AbstractFilesystemStorage
      * Prepares the row for saving and returns the storage key for the record.
      *
      * @param array $row
-     * @param string $key
-     * @return string
      */
-    protected function prepareRow(array &$row, string $key = '@@'): string
+    protected function prepareRow(array &$row): void
     {
-        if (isset($row['storage_key'])) {
-            $key = $row['storage_key'];
-            unset($row['storage_key']);
-        }
-        if (strpos($key, '@@') !== false) {
-            $key = $this->getNewKey();
-        }
-
-        return $key;
+        unset($row[$this->keyField]);
     }
 
     /**
@@ -369,10 +359,17 @@ class FolderStorage extends AbstractFilesystemStorage
     protected function saveRow(string $key, array $row): array
     {
         try {
-            $newKey = $this->prepareRow($row, $key);
+            if (isset($row[$this->keyField])) {
+                $key = $row[$this->keyField];
+            }
+            if (strpos($key, '@@') !== false) {
+                $key = $this->getNewKey();
+            }
+
+            $this->prepareRow($row);
             unset($row['__META'], $row['__ERROR']);
 
-            $path = $this->getPathFromKey($newKey);
+            $path = $this->getPathFromKey($key);
             $file = $this->getFile($path);
 
             $file->save($row);
@@ -386,7 +383,7 @@ class FolderStorage extends AbstractFilesystemStorage
             throw new \RuntimeException(sprintf('Flex saveFile(%s): %s', $file->filename(), $e->getMessage()));
         }
 
-        $row['__META'] = $this->getObjectMeta($newKey, true);
+        $row['__META'] = $this->getObjectMeta($key, true);
 
         return $row;
     }
