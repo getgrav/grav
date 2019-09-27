@@ -3,7 +3,9 @@
 
 1. [](#new)
 1. [](#improved)
-
+    * Flex: Removed extra exists check when creating object (messes up "non-existing" pages)
+1. [](#bugfix)
+    
 # v1.7.0-beta.9
 ## 09/26/2019
 

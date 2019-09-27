@@ -191,18 +191,15 @@ class PageSystemValidatorCommand extends ConsoleCommand
             $new = $this->record();
             $file = $this->getFile('pages-new');
             $file->save($new);
+            $this->output->writeln('Recorded tests to ' . $file->filename());
 
             $file = $this->getFile('pages-old');
             $old = $file->content();
 
             $results = $this->check($old, $new);
-            if (empty($results)) {
-                $this->output->writeln('<green>Success!</green>');
-            } else {
-                $file = $this->getFile('diff');
-                $file->save($results);
-                $this->output->writeln('Recorded results to ' . $file->filename());
-            }
+            $file = $this->getFile('diff');
+            $file->save($results);
+            $this->output->writeln('Recorded results to ' . $file->filename());
         } else {
             $this->output->writeln('<green>page-system-validator [-r|--record] [-c|--check]</green>');
         }
