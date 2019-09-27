@@ -1,3 +1,9 @@
+# v1.6.17
+## mm/dd/2019
+
+1. [](#improved)
+    * Safer file handling in `CsvFormatter::decode()`
+
 # v1.6.16
 ## 09/19/2019
 
