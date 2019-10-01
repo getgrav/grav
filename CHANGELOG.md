@@ -4,6 +4,7 @@
 1. [](#new)
 1. [](#improved)
     * Flex: Removed extra exists check when creating object (messes up "non-existing" pages)
+    * Support customizable null character replacement in `CSVFormatter::decode()`
 1. [](#bugfix)
     
 # v1.7.0-beta.9
