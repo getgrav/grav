@@ -362,7 +362,7 @@ class Grav extends Container
         /** @var EventDispatcher $events */
         $events = $this['events'];
 
-        return $events->dispatch($eventName, $event);
+        return $events->dispatch($event, $eventName);
     }
 
     /**
