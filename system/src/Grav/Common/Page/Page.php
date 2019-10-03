@@ -2032,7 +2032,7 @@ class Page implements PageInterface
             $this->path = dirname($var, 2);
         }
 
-        return $this->path . '/' . $this->folder . '/' . ($this->name ?: '');
+        return rtrim($this->path . '/' . $this->folder . '/' . ($this->name() ?: ''), '/');
     }
 
     /**
@@ -2602,6 +2602,9 @@ class Page implements PageInterface
             throw new \InvalidArgumentException('Argument should be either header variable name or array of parameters');
         }
 
+        if (!$pagination) {
+            $params['pagination'] = false;
+        }
         $context = [
             'pagination' => $pagination,
             'self' => $this
