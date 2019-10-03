@@ -6,6 +6,7 @@
     * Flex: Removed extra exists check when creating object (messes up "non-existing" pages)
     * Support customizable null character replacement in `CSVFormatter::decode()`
 1. [](#bugfix)
+    * Fixed wrong Grav param separator when using `Route` class
     
 # v1.7.0-beta.9
 ## 09/26/2019
@@ -129,7 +130,6 @@
     * Added support for [Clockwork](https://underground.works/clockwork) developer tools (now default debugger)
     * Added support for [Tideways XHProf](https://github.com/tideways/php-xhprof-extension) PHP Extension for profiling method calls
     * Added Twig profiling for Clockwork debugger
-    * Updated Symfony Components to 4.3
     * Added support for Twig 2.11 (compatible with Twig 1.40+)
     * Optimization: Initialize debugbar only after the configuration has been loaded
     * Optimization: Combine some early Grav processors into a single one

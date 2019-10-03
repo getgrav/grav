@@ -215,6 +215,10 @@ class Route
         return $new;
     }
 
+    /**
+     * @param string $language
+     * @return Route
+     */
     public function withLanguage($language)
     {
         $new = $this->copy();
@@ -267,11 +271,17 @@ class Route
         return $this->withParam('queryParams', $param, $value);
     }
 
+    /**
+     * @return Route
+     */
     public function withoutParams()
     {
         return $this->withoutGravParams()->withoutQueryParams();
     }
 
+    /**
+     * @return Route
+     */
     public function withoutGravParams()
     {
         $new = $this->copy();
@@ -280,6 +290,9 @@ class Route
         return $new;
     }
 
+    /**
+     * @return Route
+     */
     public function withoutQueryParams()
     {
         $new = $this->copy();

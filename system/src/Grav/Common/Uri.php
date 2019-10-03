@@ -207,6 +207,7 @@ class Uri
 
         RouteFactory::setRoot($this->root_path);
         RouteFactory::setLanguage($language->getLanguageURLPrefix());
+        RouteFactory::setParamValueDelimiter($config->get('system.param_sep'));
     }
 
     /**
