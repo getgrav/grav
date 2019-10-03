@@ -137,6 +137,13 @@
     * Optimization: Initialize debugbar only after the configuration has been loaded
     * Optimization: Combine some early Grav processors into a single one
 
+# v1.6.17
+## mm/dd/2019
+
+1. [](#improved)
+    * Safer file handling + customizable null char replacment in `CsvFormatter::decode()`
+
+
 # v1.6.16
 ## 09/19/2019
 
