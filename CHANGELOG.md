@@ -7,6 +7,7 @@
     * Support customizable null character replacement in `CSVFormatter::decode()`
 1. [](#bugfix)
     * Fixed wrong Grav param separator when using `Route` class
+    * Fixed Flex User Avatar not fully backwards compatible with old user
     * Grav 1.7: Fixed prev/next page missing pages if pagination was turned on in page header
     * Grav 1.7: Reverted setting language for every page during initialization
     * Grav 1.7: Fixed numeric language inconsistencies

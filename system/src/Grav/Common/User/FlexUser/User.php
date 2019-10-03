@@ -29,6 +29,7 @@ use Grav\Framework\Form\FormFlashFile;
 use Grav\Framework\Media\Interfaces\MediaManipulationInterface;
 use Psr\Http\Message\UploadedFileInterface;
 use RocketTheme\Toolbox\File\FileInterface;
+use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 /**
  * Flex User
@@ -567,7 +568,7 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
         $folder = $this->getFlexMediaFolder();
         if (!$folder) {
             // Shared media!
-            $this->loadMedia = false;
+            $this->_loadMedia = false;
             $folder = $this->getBlueprint()->fields()['avatar']['destination'] ?? 'user://accounts/avatars';
         }
 
@@ -610,7 +611,30 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
         $list_original = [];
         foreach ($files as $field => $group) {
             foreach ($group as $filename => $file) {
-                if (strpos($field, '/original')) {
+                if ($file) {
+                    $filename = $file->getClientFilename();
+
+                    /** @var FormFlashFile $file */
+                    $data = $file->jsonSerialize();
+                    unset($data['tmp_name'], $data['path']);
+                } else {
+                    $data = null;
+                }
+
+                // For shared media folder we need to keep path for backwards compatibility.
+                $folder = $this->getMediaFolder();
+                if ($this->_loadMedia) {
+                    $filepath = $filename;
+                } else {
+                    /** @var UniformResourceLocator $locator */
+                    $locator = Grav::instance()['locator'];
+                    $filepath = $locator->findResource($folder, false, true) . '/' . $filename;
+                    if ($data) {
+                        $data['path'] = $filepath;
+                    }
+                }
+
+                if ($this->_loadMedia && strpos($field, '/original')) {
                     // Special handling for original images.
                     $list_original[$filename] = $file;
                     continue;
@@ -618,15 +642,10 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
 
                 $list[$filename] = $file;
 
-                if ($file) {
-                    /** @var FormFlashFile $file */
-                    $data = $file->jsonSerialize();
-                    $path = $file->getClientFilename();
-                    unset($data['tmp_name'], $data['path']);
-
-                    $this->setNestedProperty("{$field}\n{$path}", $data, "\n");
+                if ($data) {
+                    $this->setNestedProperty("{$field}\n{$filepath}", $data, "\n");
                 } else {
-                    $this->unsetNestedProperty("{$field}\n{$filename}", "\n");
+                    $this->unsetNestedProperty("{$field}\n{$filepath}", "\n");
                 }
             }
         }
