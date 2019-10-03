@@ -18,6 +18,7 @@ use Grav\Common\Page\Medium\MediumFactory;
 use Grav\Common\User\Authentication;
 use Grav\Common\User\Interfaces\UserInterface;
 use Grav\Common\User\Traits\UserTrait;
+use Grav\Common\Utils;
 use Grav\Framework\File\Formatter\JsonFormatter;
 use Grav\Framework\File\Formatter\YamlFormatter;
 use Grav\Framework\Flex\FlexDirectory;
@@ -619,6 +620,14 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
                     unset($data['tmp_name'], $data['path']);
                 } else {
                     $data = null;
+                }
+
+                $settings = $this->getBlueprint()->schema()->getProperty($field);
+
+                // Generate random name if required
+                if ($settings['random_name'] ?? false) {
+                    $extension = pathinfo($filename, PATHINFO_EXTENSION);
+                    $data['name'] = $filename = Utils::generateRandomString(15) . '.' . $extension;
                 }
 
                 // For shared media folder we need to keep path for backwards compatibility.
