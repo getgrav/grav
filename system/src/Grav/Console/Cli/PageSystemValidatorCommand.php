@@ -76,9 +76,9 @@ class PageSystemValidatorCommand extends ConsoleCommand
         'root' => [[]],
 
         // Translations
-        //'translatedLanguages' => [[], [false], [true]],
-        //'untranslatedLanguages' => [[], [false], [true]],
-        //'language' => [[]],
+        'translatedLanguages' => [[], [false], [true]],
+        'untranslatedLanguages' => [[], [false], [true]],
+        'language' => [[]],
 
         // Legacy
         'raw' => [[]],

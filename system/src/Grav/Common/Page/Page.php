@@ -128,10 +128,7 @@ class Page implements PageInterface
      */
     public function init(\SplFileInfo $file, $extension = null)
     {
-        $grav = Grav::instance();
-
-        /** @var Config $config */
-        $config = $grav['config'];
+        $config = Grav::instance()['config'];
 
         // some extension logic
         if (empty($extension)) {
@@ -141,13 +138,8 @@ class Page implements PageInterface
         }
 
         // extract page language from page extension
-        $languageCode = trim(basename($this->extension(), 'md'), '.') ?: null;
-        if (!$languageCode) {
-            /** @var Language $language */
-            $language = $grav['language'];
-            $languageCode = $language->enabled() ? $language->getDefault() : null;
-        }
-        $this->language($languageCode);
+        $language = trim(basename($this->extension(), 'md'), '.') ?: null;
+        $this->language($language);
 
         $this->hide_home_route = $config->get('system.home.hide_in_urls', false);
         $this->home_route = $this->adjustRouteCase($config->get('system.home.alias'));
@@ -2422,7 +2414,7 @@ class Page implements PageInterface
     /**
      * Returns the item in the current position.
      *
-     * @return int   the index of the current page.
+     * @return int|null   The index of the current page.
      */
     public function currentPosition()
     {

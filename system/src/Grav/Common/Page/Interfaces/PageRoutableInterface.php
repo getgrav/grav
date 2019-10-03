@@ -153,7 +153,7 @@ interface PageRoutableInterface
     /**
      * Returns the item in the current position.
      *
-     * @return int   the index of the current page.
+     * @return int|null The index of the current page.
      */
     public function currentPosition();
 
