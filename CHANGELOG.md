@@ -9,6 +9,7 @@
     * Fixed wrong Grav param separator when using `Route` class
     * Grav 1.7: Fixed prev/next page missing pages if pagination was turned on in page header
     * Grav 1.7: Reverted setting language for every page during initialization
+    * Grav 1.7: Fixed numeric language inconsistencies
     
 # v1.7.0-beta.9
 ## 09/26/2019

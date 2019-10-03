@@ -45,7 +45,12 @@ class Language
     {
         $this->grav = $grav;
         $this->config = $grav['config'];
-        $this->languages = $this->config->get('system.languages.supported', []);
+        $languages = $this->config->get('system.languages.supported', []);
+        foreach ($languages as &$language) {
+            $language = (string)$language;
+        }
+        $this->languages = $languages;
+
         $this->init();
     }
 
@@ -148,6 +153,7 @@ class Language
      */
     public function setDefault($lang)
     {
+        $lang = (string)$lang;
         if ($this->validate($lang)) {
             $this->default = $lang;
 
@@ -176,6 +182,7 @@ class Language
      */
     public function setActive($lang)
     {
+        $lang = (string)$lang;
         if ($this->validate($lang)) {
             /** @var Debugger $debugger */
             $debugger = $this->grav['debugger'];
