@@ -245,38 +245,9 @@ class Page implements PageInterface
         $language = $grav['language'];
 
         $languages = $language->getLanguages();
-        $defaultCode = $language->getDefault();
+        $translated = array_keys($this->translatedLanguages(!$includeUnpublished));
 
-        $name = substr($this->name, 0, -strlen($this->extension()));
-        $untranslatedLanguages = [];
-
-        foreach ($languages as $languageCode) {
-            $path = $this->path . DS . $this->folder . DS . $name . '.' . $languageCode . '.md';
-            $exists = file_exists($path);
-
-            // Default language may be saved without language file location.
-            if (!$exists && $languageCode === $defaultCode) {
-                $path = $this->path . DS . $this->folder . DS . $name . '.md';
-                $exists = file_exists($path);
-            }
-
-            if ($exists) {
-                if ($includeUnpublished) {
-                    continue;
-                }
-
-                $aPage = new Page();
-                $aPage->init(new \SplFileInfo($path), $languageCode . '.md');
-
-                if (!$aPage->published()) {
-                    continue;
-                }
-            }
-
-            $untranslatedLanguages[] = $languageCode;
-        }
-
-        return $untranslatedLanguages;
+        return array_values(array_diff($languages, $translated));
     }
 
     /**
