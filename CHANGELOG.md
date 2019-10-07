@@ -3,6 +3,7 @@
 
 1. [](#bugfix)
     * Fixed `Page::untranslatedLanguages()` not being symmetrical to `Page::translatedLanguages()`
+    * Fixed `Flex Pages` not calling `onPageProcessed` event when cached
 
 # v1.7.0-beta.10
 ## 10/03/2019

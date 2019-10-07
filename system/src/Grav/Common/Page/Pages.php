@@ -702,7 +702,12 @@ class Pages
         $instance = $this->instances[(string)$path] ?? null;
         if (\is_string($instance)) {
             $instance = $this->flex ? $this->flex->getObject($instance) : null;
-            $instance = $instance->hasTranslation() ? $instance->getTranslation() : $instance;
+            if ($instance) {
+                $instance = $instance->hasTranslation() ? $instance->getTranslation() : $instance;
+                if (method_exists($instance, 'initialize') && $this->grav['config']->get('system.pages.events.page')) {
+                    $instance->initialize();
+                }
+            }
         }
         if ($instance && !$instance instanceof PageInterface) {
             throw new \RuntimeException('Routing failed on unknown type', 500);
@@ -1325,7 +1330,12 @@ class Pages
          */
         foreach ($collection as $key => $page) {
             if ($config->get('system.pages.events.page')) {
-                $this->grav->fireEvent('onPageProcessed', new Event(['page' => $page]));
+                if (method_exists($page, 'initialize')) {
+                    $page->initialize();
+                } else {
+                    // TODO: Deprecated, only used in 1.7 betas.
+                    $this->grav->fireEvent('onPageProcessed', new Event(['page' => $page]));
+                }
             }
 
             $path = $page->path();

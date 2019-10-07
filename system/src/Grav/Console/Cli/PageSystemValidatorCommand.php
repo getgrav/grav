@@ -170,6 +170,7 @@ class PageSystemValidatorCommand extends ConsoleCommand
         // Pages
         $grav['pages']->init();
         $grav->fireEvent('onPagesInitialized', new Event(['pages' => $grav['pages']]));
+        $grav->fireEvent('onPageInitialized', new Event(['page' => $grav['page']]));
 
         if ($this->input->getOption('record')) {
             $this->output->writeln('Pages: ' . $config->get('system.pages.type', 'page'));
