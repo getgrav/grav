@@ -16,7 +16,6 @@ interface PageFormInterface
      * Add forms to this page.
      *
      * @param array $new
-     * @param bool $override
      * @return $this
      */
     public function addForms(array $new/*, $override = true*/);

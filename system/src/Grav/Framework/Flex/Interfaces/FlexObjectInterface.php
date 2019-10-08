@@ -56,6 +56,13 @@ interface FlexObjectInterface extends FlexCommonInterface, NestedObjectInterface
     public function search(string $search, $properties = null, array $options = null): float;
 
     /**
+     * Returns true if object has a key.
+     *
+     * @return bool
+     */
+    public function hasKey();
+
+    /**
      * Get a unique key for the object.
      *
      * Flex Keys can be used without knowing the Directory the Object belongs into.

@@ -19,6 +19,7 @@ use Grav\Common\Twig\Twig;
 use Grav\Common\User\Interfaces\UserInterface;
 use Grav\Common\Utils;
 use Grav\Framework\ContentBlock\HtmlBlock;
+use Grav\Framework\Form\Interfaces\FormFlashInterface;
 use Grav\Framework\Form\Interfaces\FormInterface;
 use Grav\Framework\Session\SessionInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -54,7 +55,7 @@ trait FormTrait
     private $data;
     /** @var array|UploadedFileInterface[] */
     private $files;
-    /** @var FormFlash|null */
+    /** @var FormFlashInterface|null */
     private $flash;
     /** @var string */
     private $flashFolder;

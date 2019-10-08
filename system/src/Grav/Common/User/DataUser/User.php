@@ -15,7 +15,7 @@ use Grav\Common\Data\Data;
 use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Grav;
 use Grav\Common\Page\Media;
-use Grav\Common\Page\Medium\ImageMedium;
+use Grav\Common\Page\Medium\Medium;
 use Grav\Common\Page\Medium\MediumFactory;
 use Grav\Common\User\Authentication;
 use Grav\Common\User\Interfaces\UserInterface;

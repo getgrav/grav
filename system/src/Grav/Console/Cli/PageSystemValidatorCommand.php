@@ -121,6 +121,9 @@ class PageSystemValidatorCommand extends ConsoleCommand
         //'getAction' => [[]],
     ];
 
+    /** @var Grav */
+    protected $grav;
+
     protected function configure()
     {
         $this

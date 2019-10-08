@@ -31,6 +31,7 @@ abstract class AbstractLazyCollection extends BaseAbstractLazyCollection impleme
     public function reverse()
     {
         $this->initialize();
+
         return $this->collection->reverse();
     }
 
@@ -40,6 +41,7 @@ abstract class AbstractLazyCollection extends BaseAbstractLazyCollection impleme
     public function shuffle()
     {
         $this->initialize();
+
         return $this->collection->shuffle();
     }
 
@@ -49,6 +51,7 @@ abstract class AbstractLazyCollection extends BaseAbstractLazyCollection impleme
     public function chunk($size)
     {
         $this->initialize();
+
         return $this->collection->chunk($size);
     }
 
@@ -58,6 +61,7 @@ abstract class AbstractLazyCollection extends BaseAbstractLazyCollection impleme
     public function select(array $keys)
     {
         $this->initialize();
+
         return $this->collection->select($keys);
     }
 
@@ -67,6 +71,7 @@ abstract class AbstractLazyCollection extends BaseAbstractLazyCollection impleme
     public function unselect(array $keys)
     {
         $this->initialize();
+
         return $this->collection->unselect($keys);
     }
 
@@ -76,6 +81,7 @@ abstract class AbstractLazyCollection extends BaseAbstractLazyCollection impleme
     public function jsonSerialize()
     {
         $this->initialize();
+
         return $this->collection->jsonSerialize();
     }
 }

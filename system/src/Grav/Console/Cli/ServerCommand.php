@@ -27,7 +27,9 @@ class ServerCommand extends ConsoleCommand
     const SYMFONY_SERVER = 'Symfony Server';
     const PHP_SERVER = 'Built-in PHP Server';
 
+    /** @var string */
     protected $ip;
+    /** @var int */
     protected $port;
     protected $io;
 
@@ -60,16 +62,16 @@ class ServerCommand extends ConsoleCommand
         $php = $executableFinder->find(false);
 
         $this->ip = '127.0.0.1';
-        $this->port = intval($this->input->getOption('port') ?? 8000);
+        $this->port = (int)($this->input->getOption('port') ?? 8000);
 
 
         // Get an open port
         while (!$this->portAvailable($this->ip, $this->port)) {
-            $this->port += 1;
+            $this->port++;
         }
 
         // Setup the commands
-        $symfony_cmd = ['symfony', 'server:start', '--ansi', '--port=' . $this->port ];
+        $symfony_cmd = ['symfony', 'server:start', '--ansi', '--port=' . $this->port];
         $php_cmd = [$php, '-S', $this->ip.':'.$this->port, 'system/router.php'];
 
         $commands = [
@@ -107,7 +109,7 @@ class ServerCommand extends ConsoleCommand
         $process->start();
 
         if ($name === self::PHP_SERVER) {
-            $this->io->success('Built-in PHP web server listening on http://' . $this->ip . ':' . $this->port . ' (PHP v' . phpversion() . ')');
+            $this->io->success('Built-in PHP web server listening on http://' . $this->ip . ':' . $this->port . ' (PHP v' . PHP_VERSION . ')');
         }
 
         $process->wait(function ($type, $buffer) {
@@ -120,18 +122,18 @@ class ServerCommand extends ConsoleCommand
     /**
      * Simple function test the port
      *
-     * @param $ip
-     * @param $port
+     * @param string $ip
+     * @param int $port
      * @return bool
      */
-    protected function portAvailable($ip, $port) {
+    protected function portAvailable($ip, $port)
+    {
         $fp = @fsockopen($ip, $port, $errno, $errstr, 0.1);
         if (!$fp) {
             return true;
-        } else {
-            fclose($fp);
-            return false;
         }
-    }
 
+        fclose($fp);
+        return false;
+    }
 }

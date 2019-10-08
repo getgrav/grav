@@ -254,6 +254,13 @@ interface PageCollectionInterface extends \Traversable, \ArrayAccess, \Countable
     public function ofOneOfTheseAccessLevels($accessLevels);
 
     /**
+     * Converts collection into an array.
+     *
+     * @return array
+     */
+    public function toArray();
+
+    /**
      * Get the extended version of this Collection with each page keyed by route
      *
      * @return array

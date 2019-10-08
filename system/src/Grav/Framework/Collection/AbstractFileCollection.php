@@ -197,7 +197,7 @@ class AbstractFileCollection extends AbstractLazyCollection implements FileColle
     }
 
     /**
-     * @param \RecursiveDirectoryIterator[] $children
+     * @param array $children
      * @return array
      */
     protected function doInitializeChildren(array $children, $nestingLimit)

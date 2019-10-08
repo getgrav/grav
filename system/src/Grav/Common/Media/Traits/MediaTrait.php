@@ -67,7 +67,7 @@ trait MediaTrait
     /**
      * Gets the associated media collection.
      *
-     * @return MediaCollectionInterface  Representation of associated media.
+     * @return MediaCollectionInterface|Media  Representation of associated media.
      */
     public function getMedia()
     {
@@ -89,7 +89,7 @@ trait MediaTrait
     /**
      * Sets the associated media collection.
      *
-     * @param  MediaCollectionInterface  $media Representation of associated media.
+     * @param  MediaCollectionInterface|Media  $media Representation of associated media.
      * @return $this
      */
     protected function setMedia(MediaCollectionInterface $media)

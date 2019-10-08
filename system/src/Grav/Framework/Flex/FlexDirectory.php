@@ -621,7 +621,9 @@ class FlexDirectory implements FlexAuthorizeInterface
             }
         }
 
-        $fetch && $debugger->stopTimer('flex-objects');
+        if ($fetch) {
+            $debugger->stopTimer('flex-objects');
+        }
 
         return $list;
     }

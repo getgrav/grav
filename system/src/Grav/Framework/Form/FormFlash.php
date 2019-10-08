@@ -30,7 +30,7 @@ class FormFlash implements FormFlashInterface
     protected $formName;
     /** @var string */
     protected $url;
-    /** @var array */
+    /** @var array|null */
     protected $user;
     /** @var int */
     protected $createdTimestamp;
@@ -221,7 +221,7 @@ class FormFlash implements FormFlashInterface
     /**
      * @inheritDoc
      */
-    public function save(bool $force = false): self
+    public function save(bool $force = false)
     {
         if (!($this->folder && $this->uniqueId)) {
             return $this;
@@ -243,7 +243,7 @@ class FormFlash implements FormFlashInterface
     /**
      * @inheritDoc
      */
-    public function delete(): self
+    public function delete()
     {
         if ($this->folder && $this->uniqueId) {
             $this->removeTmpDir();

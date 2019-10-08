@@ -380,7 +380,7 @@ class FolderStorage extends AbstractFilesystemStorage
                 $locator->clearCache();
             }
         } catch (\RuntimeException $e) {
-            throw new \RuntimeException(sprintf('Flex saveFile(%s): %s', $file->filename(), $e->getMessage()));
+            throw new \RuntimeException(sprintf('Flex saveFile(%s): %s', $path ?? $key, $e->getMessage()));
         }
 
         $row['__META'] = $this->getObjectMeta($key, true);

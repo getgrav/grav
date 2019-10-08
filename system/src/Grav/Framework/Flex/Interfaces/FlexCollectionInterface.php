@@ -121,4 +121,12 @@ interface FlexCollectionInterface extends FlexCommonInterface, ObjectCollectionI
      * @return FlexIndexInterface   Returns a Flex Index from the current collection.
      */
     public function getIndex();
+
+    /**
+     * Get metadata associated to the object
+     *
+     * @param string $key Key.
+     * @return array
+     */
+    public function getMetaData(string $key): array;
 }

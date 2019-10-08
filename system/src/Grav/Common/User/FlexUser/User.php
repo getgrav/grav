@@ -544,8 +544,12 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
         return \count($this->jsonSerialize());
     }
 
+    /**
+     * @return MediaCollectionInterface
+     */
     public function getMedia()
     {
+        /** @var Media $media */
         $media = $this->getFlexMedia();
 
         // Deal with shared avatar folder.

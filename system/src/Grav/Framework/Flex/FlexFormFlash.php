@@ -34,7 +34,7 @@ class FlexFormFlash extends FormFlash
         $serialized = parent::jsonSerialize();
 
         $object = $this->getObject();
-        if ($object) {
+        if ($object instanceof FlexObjectInterface) {
             $serialized['object'] = [
                 'type' => $object->getFlexType(),
                 'key' => $object->getKey() ?: null,

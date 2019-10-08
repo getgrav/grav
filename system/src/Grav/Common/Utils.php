@@ -56,6 +56,7 @@ abstract class Utils
         /** @var Uri $uri */
         $uri = $grav['uri'];
 
+        $resource = false;
         if (static::contains((string)$input, '://')) {
             /** @var UniformResourceLocator $locator */
             $locator = $grav['locator'];
@@ -331,7 +332,7 @@ abstract class Utils
      * @param array $a
      * @return array|false
      */
-    public static function arrayLower(Array $a)
+    public static function arrayLower(array $a)
     {
         return array_map('mb_strtolower', $a);
     }
@@ -339,11 +340,11 @@ abstract class Utils
     /**
      * Simple function to remove item/s in an array by value
      *
-     * @param $search array
-     * @param $value string|array
+     * @param array $search
+     * @param string|array $value
      * @return array
      */
-    public static function arrayRemoveValue(Array $search, $value)
+    public static function arrayRemoveValue(array $search, $value)
     {
         foreach ((array) $value as $val) {
             $key = array_search($val, $search);

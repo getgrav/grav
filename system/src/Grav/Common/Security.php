@@ -18,7 +18,7 @@ class Security
     /**
      * Sanitize SVG for XSS code
      *
-     * @param $file
+     * @param string $file
      */
     public static function sanitizeSVG($file)
     {

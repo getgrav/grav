@@ -517,7 +517,7 @@ class Pages
     }
 
     /**
-     * @param $value
+     * @param array|string $value
      * @param PageInterface|null $self
      * @return Collection
      */
@@ -702,11 +702,8 @@ class Pages
         $instance = $this->instances[(string)$path] ?? null;
         if (\is_string($instance)) {
             $instance = $this->flex ? $this->flex->getObject($instance) : null;
-            if ($instance) {
-                $instance = $instance->hasTranslation() ? $instance->getTranslation() : $instance;
-                if (method_exists($instance, 'initialize') && $this->grav['config']->get('system.pages.events.page')) {
-                    $instance->initialize();
-                }
+            if (method_exists($instance, 'initialize') && $this->grav['config']->get('system.pages.events.page')) {
+                $instance->initialize();
             }
         }
         if ($instance && !$instance instanceof PageInterface) {
@@ -1329,6 +1326,15 @@ class Pages
          * @var PageInterface|FlexObjectInterface $page
          */
         foreach ($collection as $key => $page) {
+            $path = $page->path();
+
+            // FIXME: We really need to do better than this.
+            $page = $page->hasTranslation() ? $page->getTranslation() : null;
+
+            if (!$page || $path === $root_path) {
+                continue;
+            }
+
             if ($config->get('system.pages.events.page')) {
                 if (method_exists($page, 'initialize')) {
                     $page->initialize();
@@ -1338,19 +1344,11 @@ class Pages
                 }
             }
 
-            $path = $page->path();
-
-            // FIXME: We really need to do better than this.
-            $translated = $page->hasTranslation() ? $page->getTranslation() : false;
-
-            if (!$translated || $path === $root_path) {
-                continue;
-            }
             $parent = dirname($path);
 
             $this->instances[$path] = $page->getFlexKey();
             // FIXME: ... better...
-            $this->children[$parent][$path] = ['slug' => $translated->slug()];
+            $this->children[$parent][$path] = ['slug' => $page->slug()];
             if (!isset($this->children[$path])) {
                 $this->children[$path] = [];
             }
@@ -1372,7 +1370,7 @@ class Pages
         $this->buildRoutes();
 
         // cache if needed
-        if (isset($cache)) {
+        if (null !== $cache) {
             /** @var Taxonomy $taxonomy */
             $taxonomy = $this->grav['taxonomy'];
             $taxonomy_map = $taxonomy->taxonomy();
