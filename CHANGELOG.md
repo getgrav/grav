@@ -1,6 +1,8 @@
 # v1.7.0-rc.1
 ## mm/dd/2019
 
+1. [](#new)
+    * Added Flex Pages classes
 1. [](#bugfix)
     * Fixed `Page::untranslatedLanguages()` not being symmetrical to `Page::translatedLanguages()`
     * Fixed `Flex Pages` not calling `onPageProcessed` event when cached
