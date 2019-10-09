@@ -27,6 +27,7 @@ use Grav\Framework\Flex\FlexDirectory;
 use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
 use Grav\Plugin\Admin;
 use RocketTheme\Toolbox\Event\Event;
+use RocketTheme\Toolbox\Event\EventDispatcher;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use Whoops\Exception\ErrorException;
 use Collator;
@@ -36,8 +37,8 @@ class Pages
     /** @var Grav */
     protected $grav;
 
-    /** @var Flex */
-    protected $flex;
+    /** @var FlexDirectory */
+    private $directory;
 
     /** @var array|PageInterface[] */
     protected $instances;
@@ -92,11 +93,16 @@ class Pages
     /**
      * Constructor
      *
-     * @param Grav $c
+     * @param Grav $grav
      */
-    public function __construct(Grav $c)
+    public function __construct(Grav $grav)
     {
-        $this->grav = $c;
+        $this->grav = $grav;
+
+        $type = $grav['config']->get('system.pages.type');
+        if ($type === 'flex') {
+            $this->initFlexPages();
+        }
     }
 
     /**
@@ -253,9 +259,6 @@ class Pages
         $this->ignore_files = $config->get('system.pages.ignore_files');
         $this->ignore_folders = $config->get('system.pages.ignore_folders');
         $this->ignore_hidden = $config->get('system.pages.ignore_hidden');
-        if ($config->get('system.pages.type') === 'flex') {
-            $this->flex = $this->grav['flex_objects'] ?? null;
-        }
 
         $this->instances = [];
         $this->children = [];
@@ -291,14 +294,14 @@ class Pages
      */
     public function instances()
     {
-        if (!$this->flex) {
+        if (!$this->directory) {
             return $this->instances;
         }
 
         $list = [];
         foreach ($this->instances as $path => $instance) {
             if (!$instance instanceof PageInterface) {
-                $instance = $this->flex->getObject($instance);
+                $instance = $this->directory->getObject($instance, 'flex_key');
             }
             $list[$path] = $instance;
         }
@@ -701,7 +704,7 @@ class Pages
     {
         $instance = $this->instances[(string)$path] ?? null;
         if (\is_string($instance)) {
-            $instance = $this->flex ? $this->flex->getObject($instance) : null;
+            $instance = $this->directory ? $this->directory->getObject($instance, 'flex_key') : null;
             if (method_exists($instance, 'initialize') && $this->grav['config']->get('system.pages.events.page')) {
                 $instance->initialize();
             }
@@ -1169,7 +1172,7 @@ class Pages
     {
         $accessLevels = [];
         foreach ($this->all() as $page) {
-            if (isset($page->header()->access)) {
+            if (isset($page, $page->header()->access)) {
                 if (\is_array($page->header()->access)) {
                     foreach ($page->header()->access as $index => $accessLevel) {
                         if (\is_array($accessLevel)) {
@@ -1200,8 +1203,6 @@ class Pages
 
         return self::getParents($rawRoutes);
     }
-
-
 
     /**
      * Gets the home route
@@ -1255,6 +1256,60 @@ class Pages
         return self::getHomeRoute();
     }
 
+    protected function initFlexPages(): void
+    {
+        /** @var Debugger $debugger */
+        $debugger = $this->grav['debugger'];
+        $debugger->addMessage('Pages: Flex Directory');
+
+        /** @var Config $config */
+        $config = $this->grav['config'];
+
+        $options = [
+                'enabled' => true,
+            ] + ($config->get('plugins.flex-objects.object') ?: []);
+
+        $directory = new FlexDirectory('pages', 'blueprints://flex/pages.yaml', $options);
+
+        /** @var EventDispatcher $dispatcher */
+        $dispatcher = $this->grav['events'];
+        $dispatcher->addListener(
+            'onFlexInit',
+            static function (Event $event) use ($directory)
+            {
+                /** @var Flex $flex */
+                $flex = $event['flex'];
+                $flex->addDirectory($directory);
+            }
+        );
+
+        // Stop /admin/pages from working, display error instead.
+        $dispatcher->addListener(
+            'onAdminPage',
+            static function (Event $event) use ($directory) {
+                $grav = Grav::instance();
+                [,$location,] = $grav['admin']->getRouteDetails();
+                if ($location !== 'pages') {
+                    return;
+                }
+
+                $event->stopPropagation();
+
+                /** @var PageInterface $page */
+                $page = $event['page'];
+                $page->init(new \SplFileInfo('plugin://admin/pages/admin/error.md'));
+                $page->routable(true);
+                $page->content('## Please install **Flex Objects** plugin. It is required to edit **Flex Pages**.');
+
+                $header = $page->header();
+                $menu = $directory->getConfig('admin.menu.list');
+                $header->access = $menu['authorize'] ?? ['admin.pages', 'admin.super'];
+            },
+            100000);
+
+        $this->directory = $directory;
+    }
+
     /**
      * Builds pages.
      *
@@ -1273,20 +1328,20 @@ class Pages
         $debugger = $this->grav['debugger'];
         $debugger->startTimer('build-pages', 'Init frontend routes');
 
-        $directory = $this->flex ? $this->flex->getDirectory('grav-pages') : null;
-
-        if ($directory) {
-            $this->buildFlexPages($directory);
+        if ($this->directory) {
+            $this->buildFlexPages();
         } else {
             $this->buildRegularPages();
         }
         $debugger->stopTimer('build-pages');
     }
 
-    protected function buildFlexPages(FlexDirectory $directory)
+    protected function buildFlexPages()
     {
         /** @var Config $config */
         $config = $this->grav['config'];
+
+        $directory = $this->directory;
 
         // TODO: right now we are just emulating normal pages, it is inefficient and bad... but works!
         $collection = $directory->getIndex();
@@ -1874,7 +1929,7 @@ class Pages
 
     protected function getVersion()
     {
-        return $this->flex ? 'flex' : 'page';
+        return $this->directory ? 'flex' : 'page';
     }
 
     /**

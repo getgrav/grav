@@ -2,7 +2,7 @@
 ## mm/dd/2019
 
 1. [](#new)
-    * Added Flex Pages classes
+    * Added Flex Pages to Grav core and removed Flex Objects plugin dependency
 1. [](#bugfix)
     * Fixed `Page::untranslatedLanguages()` not being symmetrical to `Page::translatedLanguages()`
     * Fixed `Flex Pages` not calling `onPageProcessed` event when cached

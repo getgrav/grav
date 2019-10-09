@@ -1,0 +1,123 @@
+title: Flex Pages
+description: Manage your Grav Pages in Flex.
+type: flex-objects
+
+extends@:
+  type: default
+  context: blueprints://pages
+
+config:
+  admin:
+    menu:
+      list:
+        route: '/pages'
+        title: PLUGIN_ADMIN.PAGES
+        icon: fa-file-text
+        authorize: ['admin.pages', 'admin.super']
+        priority: 5
+
+    template: grav-pages
+
+    list:
+      fields:
+        published:
+          width: 8
+          alias: header.published
+        visible:
+          width: 8
+          field:
+            label: Visible
+            type: toggle
+        menu:
+          link: edit
+          alias: header.menu
+        full_route:
+          field:
+            label: Route
+            type: text
+          link: edit
+          sort:
+            field: key
+        name:
+          width: 8
+          field:
+            label: Type
+            type: text
+        translations:
+          width: 8
+          field:
+            label: Translations
+            type: text
+#        updated_date:
+#          alias: header.update_date
+
+      options:
+        per_page: 20
+        order:
+          by: key
+          dir: asc
+
+      # TODO: not used yet
+      buttons:
+        back:
+          icon: reply
+          title: PLUGIN_ADMIN.BACK
+        add:
+          icon: plus
+          label: PLUGIN_ADMIN.ADD
+
+    edit:
+      # TODO: not used yet
+      buttons:
+        back:
+          icon: reply
+          title: PLUGIN_ADMIN.BACK
+        preview:
+          icon: eye
+          title: PLUGIN_ADMIN.PREVIEW
+        add:
+          icon: plus
+          label: PLUGIN_ADMIN.ADD
+        copy:
+          icon: copy
+          label: PLUGIN_ADMIN.COPY
+        move:
+          icon: arrows
+          label: PLUGIN_ADMIN.MOVE
+        delete:
+          icon: close
+          label: PLUGIN_ADMIN.DELETE
+        save:
+          icon: check
+          label: PLUGIN_ADMIN.SAVE
+
+  site:
+    filter:
+      - withPublished
+
+  data:
+    object: 'Grav\Common\Page\Flex\PageObject'
+    collection: 'Grav\Common\Page\Flex\PageCollection'
+    index: 'Grav\Common\Page\Flex\PageIndex'
+    storage:
+      class: 'Grav\Common\Page\Flex\PageStorage'
+      options:
+        formatter:
+          class: 'Grav\Framework\File\Formatter\MarkdownFormatter'
+        folder: 'page://'
+    ordering:
+      key: ASC
+    search:
+      options:
+        contains: 1
+      fields:
+        - key
+        - menu
+        - title
+        - name
+
+form:
+  fields:
+    lang:
+      type: hidden
+      value: ''
