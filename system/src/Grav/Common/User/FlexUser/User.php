@@ -23,6 +23,7 @@ use Grav\Framework\File\Formatter\JsonFormatter;
 use Grav\Framework\File\Formatter\YamlFormatter;
 use Grav\Framework\Flex\FlexDirectory;
 use Grav\Framework\Flex\FlexObject;
+use Grav\Framework\Flex\Interfaces\FlexCollectionInterface;
 use Grav\Framework\Flex\Storage\FileStorage;
 use Grav\Framework\Flex\Traits\FlexAuthorizeTrait;
 use Grav\Framework\Flex\Traits\FlexMediaTrait;
@@ -739,7 +740,7 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
     protected function doSerialize(): array
     {
         return [
-            'type' => 'accounts',
+            'type' => $this->getFlexType(),
             'key' => $this->getKey(),
             'elements' => $this->jsonSerialize(),
             'storage' => $this->getStorage()
@@ -752,13 +753,19 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
     protected function doUnserialize(array $serialized): void
     {
         $grav = Grav::instance();
+        $flex = $grav['flex_objects'] ?? null;
 
-        /** @var UserCollection $accounts */
-        $accounts = $grav['accounts'];
+        // Use Flex plugin if possible -- fixes issues if admin has flex users admin, but it is not used in the session.
+        if ($flex) {
+            $directory = $flex->getDirectory($serialized['type']);
+        } else {
+            /** @var UserCollection $accounts */
+            $accounts = $grav['accounts'];
+            $directory = $accounts instanceof FlexCollectionInterface ? $accounts->getFlexDirectory() : null;
+        }
 
-        $directory = $accounts->getFlexDirectory();
         if (!$directory) {
-            throw new \InvalidArgumentException('Internal error');
+            throw new \RuntimeException('Internal error, please clear cache');
         }
 
         $this->setFlexDirectory($directory);

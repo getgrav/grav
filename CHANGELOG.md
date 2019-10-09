@@ -2,7 +2,9 @@
 ## mm/dd/2019
 
 1. [](#new)
-    * Added Flex Pages to Grav core and removed Flex Objects plugin dependency
+    * Added `Flex Pages` to Grav core and removed Flex Objects plugin dependency
+1. [](#improved)
+    * Improved `Flex Users`: obey blueprints and allow Flex to be used in admin only
 1. [](#bugfix)
     * Fixed `Page::untranslatedLanguages()` not being symmetrical to `Page::translatedLanguages()`
     * Fixed `Flex Pages` not calling `onPageProcessed` event when cached

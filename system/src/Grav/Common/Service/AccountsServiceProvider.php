@@ -14,7 +14,6 @@ use Grav\Common\Debugger;
 use Grav\Common\User\DataUser;
 use Grav\Common\User\FlexUser;
 use Grav\Common\User\User;
-use Grav\Framework\File\Formatter\YamlFormatter;
 use Grav\Framework\Flex\Flex;
 use Grav\Framework\Flex\FlexDirectory;
 use Pimple\Container;
@@ -67,27 +66,15 @@ class AccountsServiceProvider implements ServiceProviderInterface
         $options = [
             'enabled' => true,
             'data' => [
-                'object' => User::class, // Use User class for backwards compatibility.
-                'collection' => FlexUser\UserCollection::class,
-                'index' => FlexUser\UserIndex::class,
                 'storage' => $this->getFlexStorage($config->get('system.accounts.storage', 'file')),
-                'search' => [
-                    'options' => [
-                        'contains' => 1
-                    ],
-                    'fields' => [
-                        'key',
-                        'email'
-                    ]
-                ]
             ]
         ] + ($config->get('plugins.flex-objects.object') ?: []);
 
-        $directory = new FlexDirectory('accounts', 'blueprints://user/accounts.yaml', $options);
+        $directory = new FlexDirectory('accounts', 'blueprints://flex/accounts.yaml', $options);
 
         /** @var EventDispatcher $dispatcher */
         $dispatcher = $container['events'];
-        $dispatcher->addListener('onFlexInit', function (Event $event) use ($directory) {
+        $dispatcher->addListener('onFlexInit', static function (Event $event) use ($directory) {
             /** @var Flex $flex */
             $flex = $event['flex'];
             $flex->addDirectory($directory);
@@ -106,25 +93,13 @@ class AccountsServiceProvider implements ServiceProviderInterface
             return [
                 'class' => FlexUser\Storage\UserFolderStorage::class,
                 'options' => [
-                    'formatter' => ['class' => YamlFormatter::class],
-                    'folder' => 'account://',
                     'file' => 'user',
                     'pattern' => '{FOLDER}/{KEY:2}/{KEY}/{FILE}{EXT}',
                     'key' => 'username',
-                    'indexed' => true
                 ],
             ];
         }
 
-        return [
-            'class' => FlexUser\Storage\UserFileStorage::class,
-            'options' => [
-                'formatter' => ['class' => YamlFormatter::class],
-                'folder' => 'account://',
-                'pattern' => '{FOLDER}/{KEY}{EXT}',
-                'key' => 'storage_key',
-                'indexed' => true
-            ],
-        ];
+        return [];
     }
 }

@@ -1,0 +1,64 @@
+title: Flex Accounts
+description: Manage your User Accounts in Flex.
+type: flex-objects
+
+extends@:
+  type: account
+  context: blueprints://user
+
+config:
+  admin:
+    menu:
+      list:
+        route: '/accounts'
+        title: PLUGIN_ADMIN.ACCOUNTS
+        icon: fa-users
+        authorize: ['admin.users', 'admin.accounts', 'admin.super']
+        priority: 6
+
+    template: grav-accounts
+
+    list:
+      fields:
+        username:
+          link: edit
+          search: true
+        email:
+          search: true
+        fullname:
+          search: true
+      options:
+        per_page: 20
+        order:
+          by: username
+          dir: asc
+
+  data:
+    object: 'Grav\Common\User\FlexUser\User'
+    collection: 'Grav\Common\User\FlexUser\UserCollection'
+    index: 'Grav\Common\User\FlexUser\UserIndex'
+    storage:
+      class: 'Grav\Common\User\FlexUser\Storage\UserFileStorage'
+      options:
+        formatter:
+          class: 'Grav\Framework\File\Formatter\YamlFormatter'
+        folder: 'account://'
+        pattern: '{FOLDER}/{KEY}{EXT}'
+        key: storage_key
+        indexed: true
+    search:
+      options:
+        contains: 1
+      fields:
+        - key
+        - email
+
+form:
+  fields:
+    username:
+      flex-disabled@: exists
+      disabled: false
+      flex-readonly@: exists
+      readonly: false
+      validate:
+        required: true
