@@ -130,6 +130,10 @@ class ChainCache extends AbstractCache
     public function doGetMultiple($keys, $miss)
     {
         $list = [];
+        /**
+         * @var int $i
+         * @var CacheInterface $cache
+         */
         foreach ($this->caches as $i => $cache) {
             $list[$i] = $cache->doGetMultiple($keys, $miss);
 
@@ -140,8 +144,12 @@ class ChainCache extends AbstractCache
             }
         }
 
-        $values = [];
         // Update all the previous caches with missing values.
+        $values = [];
+        /**
+         * @var int $i
+         * @var CacheInterface $cache
+         */
         foreach (array_reverse($list) as $i => $items) {
             $values += $items;
             if ($i && $values) {

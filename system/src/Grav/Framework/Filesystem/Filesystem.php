@@ -184,11 +184,15 @@ class Filesystem implements FilesystemInterface
      * @param string $path
      * @param int|null $options
      *
-     * @return array
+     * @return array|string
      */
     protected function pathinfoInternal(?string $scheme, string $path, int $options = null)
     {
-        $info = $options ? \pathinfo($path, $options) : \pathinfo($path);
+        if ($options) {
+            return \pathinfo($path, $options);
+        }
+
+        $info = \pathinfo($path);
 
         if (null !== $scheme) {
             $info['scheme'] = $scheme;

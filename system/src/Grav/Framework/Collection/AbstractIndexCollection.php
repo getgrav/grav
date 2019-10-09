@@ -44,7 +44,7 @@ abstract class AbstractIndexCollection implements CollectionInterface
     public function first()
     {
         $value = reset($this->entries);
-        $key = key($this->entries);
+        $key = (string)key($this->entries);
 
         return $this->loadElement($key, $value);
     }
@@ -55,7 +55,7 @@ abstract class AbstractIndexCollection implements CollectionInterface
     public function last()
     {
         $value = end($this->entries);
-        $key = key($this->entries);
+        $key = (string)key($this->entries);
 
         return $this->loadElement($key, $value);
     }
@@ -65,7 +65,7 @@ abstract class AbstractIndexCollection implements CollectionInterface
      */
     public function key()
     {
-        return key($this->entries);
+        return (string)key($this->entries);
     }
 
     /**
@@ -74,7 +74,7 @@ abstract class AbstractIndexCollection implements CollectionInterface
     public function next()
     {
         $value = next($this->entries);
-        $key = key($this->entries);
+        $key = (string)key($this->entries);
 
         return $this->loadElement($key, $value);
     }
@@ -85,7 +85,7 @@ abstract class AbstractIndexCollection implements CollectionInterface
     public function current()
     {
         $value = current($this->entries);
-        $key = key($this->entries);
+        $key = (string)key($this->entries);
 
         return $this->loadElement($key, $value);
     }
@@ -102,7 +102,7 @@ abstract class AbstractIndexCollection implements CollectionInterface
         $value = $this->entries[$key];
         unset($this->entries[$key]);
 
-        return $this->loadElement($key, $value);
+        return $this->loadElement((string)$key, $value);
     }
 
     /**
@@ -210,7 +210,7 @@ abstract class AbstractIndexCollection implements CollectionInterface
             return null;
         }
 
-        return $this->loadElement($key, $this->entries[$key]);
+        return $this->loadElement((string)$key, $this->entries[$key]);
     }
 
     /**

@@ -221,6 +221,7 @@ class FlexDirectory implements FlexAuthorizeInterface
         $index = $index->withKeyField($keyField);
 
         if (null !== $keys) {
+            /** @var FlexCollectionInterface $index */
             $index = $index->select($keys);
         }
 
@@ -694,17 +695,9 @@ class FlexDirectory implements FlexAuthorizeInterface
             $params = [$object instanceof PageInterface && $object->modular() ? 'modular' : 'standard'];
         }
 
-        [$o, $f] = explode('::', $function, 2);
-
         $data = null;
-        if (!$f) {
-            if (\function_exists($o)) {
-                $data = \call_user_func_array($o, $params);
-            }
-        } else {
-            if (method_exists($o, $f)) {
-                $data = \call_user_func_array([$o, $f], $params);
-            }
+        if (\is_callable($function)) {
+            $data = \call_user_func_array($function, $params);
         }
 
         // If function returns a value,

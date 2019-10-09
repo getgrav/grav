@@ -185,7 +185,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
             $list[$key] = $value['checksum'] ?? $value['storage_timestamp'];
         }
 
-        return sha1(json_encode($list));
+        return sha1((string)json_encode($list));
     }
 
     /**

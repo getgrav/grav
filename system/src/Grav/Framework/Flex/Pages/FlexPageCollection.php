@@ -11,7 +11,6 @@ declare(strict_types=1);
 
 namespace Grav\Framework\Flex\Pages;
 
-use Grav\Common\Page\Interfaces\PageCollectionInterface;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Framework\Flex\FlexCollection;
 use Grav\Framework\Flex\Interfaces\FlexCollectionInterface;
@@ -116,7 +115,7 @@ class FlexPageCollection extends FlexCollection
      * @param  string  $path
      * @param  int $direction either -1 or +1
      *
-     * @return PageInterface|PageCollectionInterface|null    The sibling item.
+     * @return PageInterface|null    The sibling item.
      */
     public function adjacentSibling($path, $direction = 1)
     {

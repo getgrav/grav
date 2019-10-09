@@ -25,6 +25,7 @@ use Psr\SimpleCache\InvalidArgumentException;
 use RocketTheme\Toolbox\Event\Event;
 use Twig\Error\LoaderError;
 use Twig\Error\SyntaxError;
+use Twig\Template;
 use Twig\TemplateWrapper;
 
 /**
@@ -201,7 +202,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
      */
     public function getCacheKey(): string
     {
-        return $this->getTypePrefix() . $this->getFlexType() . '.' . sha1(json_encode($this->call('getKey')));
+        return $this->getTypePrefix() . $this->getFlexType() . '.' . sha1((string)json_encode($this->call('getKey')));
     }
 
     /**
@@ -219,7 +220,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
             $list[$key] = $object->getCacheChecksum();
         }
 
-        return sha1(json_encode($list));
+        return sha1((string)json_encode($list));
     }
 
     /**
@@ -331,7 +332,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
         }
 
         try {
-            $data = $cache ? $cache->get($key) : null;
+            $data = $cache && $key ? $cache->get($key) : null;
 
             $block = $data ? HtmlBlock::fromArray($data) : null;
         } catch (InvalidArgumentException $e) {
@@ -371,7 +372,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
             $block->setContent($output);
 
             try {
-                $cache && $block->isCached() && $cache->set($key, $block->toArray());
+                $cache && $key && $block->isCached() && $cache->set($key, $block->toArray());
             } catch (InvalidArgumentException $e) {
                 $debugger->addException($e);
             }
@@ -522,7 +523,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
 
     /**
      * @param string $layout
-     * @return TemplateWrapper
+     * @return Template|TemplateWrapper
      * @throws LoaderError
      * @throws SyntaxError
      */

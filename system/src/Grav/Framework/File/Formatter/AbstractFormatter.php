@@ -57,7 +57,7 @@ abstract class AbstractFormatter implements FileFormatterInterface
         $extensions = $this->getSupportedFileExtensions();
 
         // Call fails on bad configuration.
-        return reset($extensions);
+        return reset($extensions) ?: '';
     }
 
     /**

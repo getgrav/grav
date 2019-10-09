@@ -80,7 +80,7 @@ class JsonFormatter extends AbstractFormatter
             throw new \RuntimeException('Encoding JSON failed: ' . json_last_error_msg());
         }
 
-        return $encoded;
+        return $encoded ?: '';
     }
 
     /**

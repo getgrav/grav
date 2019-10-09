@@ -40,7 +40,11 @@ class DataFile extends AbstractFile
         $raw = parent::load();
 
         try {
-            return $raw !== false ? $this->formatter->decode($raw) : false;
+            if (!is_string($raw)) {
+                throw new RuntimeException('Bad Data');
+            }
+
+            return $this->formatter->decode($raw);
         } catch (RuntimeException $e) {
             throw new RuntimeException(sprintf("Failed to load file '%s': %s", $this->getFilePath(), $e->getMessage()), $e->getCode(), $e);
         }

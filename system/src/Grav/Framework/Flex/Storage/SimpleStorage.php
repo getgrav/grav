@@ -243,7 +243,7 @@ class SimpleStorage extends AbstractFilesystemStorage
             $this->save();
 
             foreach ($list as $key => $row) {
-                $list[$key]['__META'] = $this->getObjectMeta($key, true);
+                $list[$key]['__META'] = $this->getObjectMeta((string)$key, true);
             }
         }
 
@@ -347,7 +347,7 @@ class SimpleStorage extends AbstractFilesystemStorage
             }
             $file = $this->getFile($path);
             $file->save($this->data);
-            $this->modified = $file->modified();
+            $this->modified = (int)$file->modified(); // cast false to 0
             $file->free();
         } catch (\RuntimeException $e) {
             throw new \RuntimeException(sprintf('Flex save(): %s', $e->getMessage()));
@@ -378,7 +378,7 @@ class SimpleStorage extends AbstractFilesystemStorage
         }
 
         $file = $this->getFile($path);
-        $this->modified = $file->modified();
+        $this->modified = (int)$file->modified(); // cast false to 0
         $this->data = (array) $file->content();
 
         $list = [];
