@@ -1289,11 +1289,9 @@ class Pages
             static function (Event $event) use ($directory) {
                 $grav = Grav::instance();
                 [,$location,] = $grav['admin']->getRouteDetails();
-                if ($location !== 'pages') {
+                if ($location !== 'pages' || isset($grav['flex_objects'])) {
                     return;
                 }
-
-                $event->stopPropagation();
 
                 /** @var PageInterface $page */
                 $page = $event['page'];
