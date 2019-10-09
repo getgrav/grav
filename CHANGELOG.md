@@ -7,6 +7,7 @@
     * Fixed `Page::untranslatedLanguages()` not being symmetrical to `Page::translatedLanguages()`
     * Fixed `Flex Pages` not calling `onPageProcessed` event when cached
     * Fixed phpstan issues in Framework up to level 6
+    * Fixed issue with duplicate configuration settings in Flex Directory
 
 # v1.7.0-beta.10
 ## 10/03/2019

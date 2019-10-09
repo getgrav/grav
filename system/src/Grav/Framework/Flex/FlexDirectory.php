@@ -145,7 +145,7 @@ class FlexDirectory implements FlexAuthorizeInterface
     public function getConfig(string $name = null, $default = null)
     {
         if (null === $this->config) {
-            $this->config = new Config(array_merge_recursive($this->getBlueprintInternal()->get('config', []), $this->defaults));
+            $this->config = new Config(array_replace_recursive($this->getBlueprintInternal()->get('config', []), $this->defaults));
         }
 
         return null === $name ? $this->config : $this->config->get($name, $default);
