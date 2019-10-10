@@ -3,6 +3,7 @@
 
 1. [](#new)
     * Added `Flex Pages` to Grav core and removed Flex Objects plugin dependency
+    * Added `Utils::simpleTemplate()` method for very simple variable templating
 1. [](#improved)
     * Improved `Flex Users`: obey blueprints and allow Flex to be used in admin only
 1. [](#bugfix)

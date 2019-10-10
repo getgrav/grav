@@ -233,6 +233,26 @@ abstract class Utils
     }
 
     /**
+     * Render simple template filling up the variables in it. If value is not defined, leave it as it was.
+     *
+     * @param string $template      Template string
+     * @param array $variables      Variables with values
+     * @param array $brackets       Optional array of opening and closing brackets or symbols
+     * @return string               Final string filled with values
+     */
+    public static function simpleTemplate(string $template, array $variables, array $brackets = ['{', '}']): string
+    {
+        $opening = $brackets[0] ?? '{';
+        $closing = $brackets[1] ?? '}';
+        $expression = '/' . preg_quote($opening, '/') . '(.*?)' . preg_quote($closing, '/') . '/';
+        $callback = static function($match) use ($variables) {
+            return $variables[$match[1]] ?? $match[0];
+        };
+
+        return preg_replace_callback($expression, $callback, $template);
+    }
+
+    /**
      * Returns the substring of a string up to a specified needle.  if not found, return the whole haystack
      *
      * @param string $haystack
