@@ -16,6 +16,7 @@ use Grav\Common\Grav;
 use Grav\Common\Inflector;
 use Grav\Common\Twig\Twig;
 use Grav\Common\User\Interfaces\UserInterface;
+use Grav\Common\Utils;
 use Grav\Framework\Cache\CacheInterface;
 use Grav\Framework\ContentBlock\HtmlBlock;
 use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
@@ -305,9 +306,11 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
      */
     public function render(string $layout = null, array $context = [])
     {
-        if (null === $layout) {
-            $layout = 'default';
+        if (!$layout) {
+            $config = $this->getTemplateConfig();
+            $layout = $config['collection']['defaults']['layout'] ?? 'default';
         }
+
         $type = $this->getFlexType();
 
         $grav = Grav::instance();
@@ -361,8 +364,16 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
                 'context' => &$context
             ]));
 
+
             $output = $this->getTemplate($layout)->render(
-                ['grav' => $grav, 'config' => $grav['config'], 'block' => $block, 'collection' => $this, 'layout' => $layout] + $context
+                [
+                    'grav' => $grav,
+                    'config' => $grav['config'],
+                    'block' => $block,
+                    'directory' => $this->getFlexDirectory(),
+                    'collection' => $this,
+                    'layout' => $layout
+                ] + $context
             );
 
             if ($debugger->enabled()) {
@@ -522,6 +533,47 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
     }
 
     /**
+     * @return array
+     */
+    protected function getTemplateConfig(): array
+    {
+        $config = $this->getFlexDirectory()->getConfig('site.templates', []);
+        $defaults = array_replace($config['defaults'] ?? [], $config['collection']['defaults'] ?? []);
+        $config['collection']['defaults'] = $defaults;
+
+        return $config;
+    }
+
+    /**
+     * @param string $layout
+     * @return array
+     */
+    protected function getTemplatePaths(string $layout): array
+    {
+        $config = $this->getTemplateConfig();
+        $type = $this->getFlexType();
+        $defaults = $config['collection']['defaults'] ?? [];
+
+        $ext = $defaults['ext'] ?? '.html.twig';
+        $types = array_unique(array_merge([$type], (array)($defaults['type'] ?? null)));
+        $paths = $config['collection']['paths'] ?? [
+                'flex/{TYPE}/collection/{LAYOUT}{.EXT}',
+                'flex-objects/layouts/{TYPE}/collection/{LAYOUT}{.EXT}'
+            ];
+        $table = ['TYPE' => '%1$s', 'LAYOUT' => '%2$s', 'EXT' => '%3$s', '.EXT' => '%3$s'];
+
+        $lookups = [];
+        foreach ($paths as $path) {
+            $path = Utils::simpleTemplate($path, $table);
+            foreach ($types as $type) {
+                $lookups[] = sprintf($path, $type, $layout, $ext);
+            }
+        }
+
+        return array_unique($lookups);
+    }
+
+    /**
      * @param string $layout
      * @return Template|TemplateWrapper
      * @throws LoaderError
@@ -535,18 +587,13 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
         $twig = $grav['twig'];
 
         try {
-            return $twig->twig()->resolveTemplate(
-                [
-                    "flex-objects/layouts/{$this->getFlexType()}/collection/{$layout}.html.twig",
-                    "flex-objects/layouts/_default/collection/{$layout}.html.twig"
-                ]
-            );
+            return $twig->twig()->resolveTemplate($this->getTemplatePaths($layout));
         } catch (LoaderError $e) {
             /** @var Debugger $debugger */
             $debugger = Grav::instance()['debugger'];
             $debugger->addException($e);
 
-            return $twig->twig()->resolveTemplate(['flex-objects/layouts/404.html.twig']);
+            return $twig->twig()->resolveTemplate(['flex/404.html.twig']);
         }
     }
 
@@ -557,9 +604,9 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
     protected function getRelatedDirectory($type): ?FlexDirectory
     {
         /** @var Flex $flex */
-        $flex = Grav::instance()['flex_objects'];
+        $flex = Grav::instance()['flex_objects'] ?? null;
 
-        return $flex->getDirectory($type);
+        return $flex ? $flex->getDirectory($type) : null;
     }
 
     protected function setKeyField($keyField = null): void

@@ -419,8 +419,9 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      */
     public function render(string $layout = null, array $context = [])
     {
-        if (null === $layout) {
-            $layout = 'default';
+        if (!$layout) {
+            $config = $this->getTemplateConfig();
+            $layout = $config['object']['defaults']['layout'] ?? 'default';
         }
 
         $type = $this->getFlexType();
@@ -484,7 +485,14 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
             ]));
 
             $output = $this->getTemplate($layout)->render(
-                ['grav' => $grav, 'config' => $grav['config'], 'block' => $block, 'object' => $this, 'layout' => $layout] + $context
+                [
+                    'grav' => $grav,
+                    'config' => $grav['config'],
+                    'block' => $block,
+                    'directory' => $this->getFlexDirectory(),
+                    'object' => $this,
+                    'layout' => $layout
+                ] + $context
             );
 
             if ($debugger->enabled()) {
@@ -920,6 +928,47 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     }
 
     /**
+     * @return array
+     */
+    protected function getTemplateConfig()
+    {
+        $config = $this->getFlexDirectory()->getConfig('site.templates', []);
+        $defaults = array_replace($config['defaults'] ?? [], $config['object']['defaults'] ?? []);
+        $config['object']['defaults'] = $defaults;
+
+        return $config;
+    }
+
+    /**
+     * @param string $layout
+     * @return array
+     */
+    protected function getTemplatePaths(string $layout): array
+    {
+        $config = $this->getTemplateConfig();
+        $type = $this->getFlexType();
+        $defaults = $config['object']['defaults'] ?? [];
+
+        $ext = $defaults['ext'] ?? '.html.twig';
+        $types = array_unique(array_merge([$type], (array)($defaults['type'] ?? null)));
+        $paths = $config['object']['paths'] ?? [
+                'flex/{TYPE}/object/{LAYOUT}{.EXT}',
+                'flex-objects/layouts/{TYPE}/object/{LAYOUT}{.EXT}'
+            ];
+        $table = ['TYPE' => '%1$s', 'LAYOUT' => '%2$s', 'EXT' => '%3$s', '.EXT' => '%3$s'];
+
+        $lookups = [];
+        foreach ($paths as $path) {
+            $path = Utils::simpleTemplate($path, $table);
+            foreach ($types as $type) {
+                $lookups[] = sprintf($path, $type, $layout, $ext);
+            }
+        }
+
+        return array_unique($lookups);
+    }
+
+    /**
      * @param string $layout
      * @return Template|TemplateWrapper
      * @throws LoaderError
@@ -933,18 +982,13 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
         $twig = $grav['twig'];
 
         try {
-            return $twig->twig()->resolveTemplate(
-                [
-                    "flex-objects/layouts/{$this->getFlexType()}/object/{$layout}.html.twig",
-                    "flex-objects/layouts/_default/object/{$layout}.html.twig"
-                ]
-            );
+            return $twig->twig()->resolveTemplate($this->getTemplatePaths($layout));
         } catch (LoaderError $e) {
             /** @var Debugger $debugger */
             $debugger = Grav::instance()['debugger'];
             $debugger->addException($e);
 
-            return $twig->twig()->resolveTemplate(['flex-objects/layouts/404.html.twig']);
+            return $twig->twig()->resolveTemplate(['flex/404.html.twig']);
         }
     }
 

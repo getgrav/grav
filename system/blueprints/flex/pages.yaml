@@ -92,6 +92,16 @@ config:
           label: PLUGIN_ADMIN.SAVE
 
   site:
+    templates:
+      collection:
+        paths:
+          - 'flex/{TYPE}/collection/{LAYOUT}{.EXT}'
+      object:
+        paths:
+          - 'flex/{TYPE}/object/{LAYOUT}{.EXT}'
+      defaults:
+        type: pages
+        layout: default
     filter:
       - withPublished
 
