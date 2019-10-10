@@ -537,6 +537,7 @@ class PageStorage extends FolderStorage
         // Update parent timestamps.
         foreach (array_reverse($list) as $storage_key => $meta) {
             if ($storage_key !== '') {
+                $storage_key = (string)$storage_key;
                 $parentKey = dirname($storage_key);
                 if ($parentKey === '.') {
                     $parentKey = '';
