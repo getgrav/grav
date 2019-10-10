@@ -1092,7 +1092,7 @@ trait PageLegacyTrait
      */
     abstract public function getCache(string $namespace = null);
 
-    abstract protected function exists();
+    abstract protected function exists(): bool;
     abstract protected function getStorageFolder();
     abstract protected function loadHeaderProperty(string $property, $var, callable $filter);
 }

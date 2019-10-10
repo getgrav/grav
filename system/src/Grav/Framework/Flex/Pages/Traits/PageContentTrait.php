@@ -94,7 +94,7 @@ trait PageContentTrait
     /**
      * @inheritdoc
      */
-    public function header($var = null): Header
+    public function header($var = null)
     {
         if (null !== $var) {
             $this->setProperty('header', $var);
@@ -294,7 +294,7 @@ trait PageContentTrait
     /**
      * @inheritdoc
      */
-    public function slug($var = null): string
+    public function slug($var = null)
     {
         return $this->loadHeaderProperty(
             'slug',
