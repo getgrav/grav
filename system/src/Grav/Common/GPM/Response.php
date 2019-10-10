@@ -135,7 +135,8 @@ class Response
         if (!$settings['verify_peer']) {
             $overrides = array_replace_recursive([], $overrides, [
                 'curl' => [
-                    CURLOPT_SSL_VERIFYPEER => $settings['verify_peer']
+                    CURLOPT_SSL_VERIFYPEER => $settings['verify_peer'],
+                    CURLOPT_SSL_VERIFYHOST => false
                 ],
                 'fopen' => [
                     'ssl' => [
