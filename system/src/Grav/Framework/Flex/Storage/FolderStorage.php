@@ -625,6 +625,10 @@ class FolderStorage extends AbstractFilesystemStorage
             $pattern
         );
 
+        if (!$pattern) {
+            throw new \RuntimeException('Bad storage folder pattern');
+        }
+
         $this->dataPattern = $pattern;
     }
 }

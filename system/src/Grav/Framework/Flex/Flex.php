@@ -89,7 +89,7 @@ class Flex implements \Countable
     /**
      * @param array|string[] $types
      * @param bool $keepMissing
-     * @return array|FlexDirectory[]
+     * @return array<FlexDirectory|null>
      */
     public function getDirectories(array $types = null, bool $keepMissing = false): array
     {
@@ -228,7 +228,7 @@ class Flex implements \Countable
 
         // Use the original key ordering.
         if (!$guessed) {
-            $list = array_replace(array_fill_keys($keys, null), $list);
+            $list = array_replace(array_fill_keys($keys, null), $list) ?? [];
         } else {
             // We have mixed keys, we need to map flex keys back to storage keys.
             $results = [];
@@ -312,7 +312,7 @@ class Flex implements \Countable
     protected function resolveType(string $type = null): string
     {
         if (null !== $type && strpos($type, '.') !== false) {
-            return preg_replace('|\.obj$|', '', $type);
+            return preg_replace('|\.obj$|', '', $type) ?? $type;
         }
 
         return $type ?? '';

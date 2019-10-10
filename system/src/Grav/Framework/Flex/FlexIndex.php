@@ -30,7 +30,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
 {
     const VERSION = 1;
 
-    /** @var FlexDirectory */
+    /** @var FlexDirectory|null */
     private $_flexDirectory;
 
     /** @var string */
@@ -101,8 +101,10 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
         $implements = class_implements($this->getFlexDirectory()->getCollectionClass());
         $list = [];
         foreach ($implements as $interface) {
-            $feature = Inflector::hyphenize(preg_replace('/(.*\\\\)(.*?)Interface$/', '\\2', $interface));
-            $list[] = $feature;
+            $feature = preg_replace('/(.*\\\\)(.*?)Interface$/', '\\2', $interface);
+            if ($feature) {
+                $list[] = Inflector::hyphenize($feature);
+            }
         }
 
         return $list;
@@ -142,7 +144,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
      */
     public function getFlexType(): string
     {
-        return $this->_flexDirectory->getFlexType();
+        return $this->getFlexDirectory()->getFlexType();
     }
 
     /**
@@ -151,6 +153,10 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
      */
     public function getFlexDirectory(): FlexDirectory
     {
+        if (null === $this->_flexDirectory) {
+            throw new \RuntimeException('Flex Directory not defined, object is not fully defined');
+        }
+
         return $this->_flexDirectory;
     }
 
@@ -214,7 +220,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
     {
         // Get storage keys for the objects.
         $keys = [];
-        $type = $this->_flexDirectory->getFlexType() . '.obj:';
+        $type = $this->getFlexDirectory()->getFlexType() . '.obj:';
 
         foreach ($this->getEntries() as $key => $value) {
             $keys[$key] = $value['flex_key'] ?? $type . $value['storage_key'];
@@ -234,7 +240,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
             return $this;
         }
 
-        $type = $keyField === 'flex_key' ? $this->_flexDirectory->getFlexType() . '.obj:' : '';
+        $type = $keyField === 'flex_key' ? $this->getFlexDirectory()->getFlexType() . '.obj:' : '';
         $entries = [];
         foreach ($this->getEntries() as $key => $value) {
             if (!isset($value['key'])) {
@@ -329,7 +335,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
      */
     public function getCache(string $namespace = null)
     {
-        return $this->_flexDirectory->getCache($namespace);
+        return $this->getFlexDirectory()->getCache($namespace);
     }
 
     /**
@@ -364,6 +370,9 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
             if (null !== $previous) {
                 $search = array_replace($previous, $search);
             }
+            if (null === $search) {
+                throw new \RuntimeException('Error while ordering collection');
+            }
 
             // Order by current field.
             if (strtoupper($ordering) === 'DESC') {
@@ -375,7 +384,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
             $previous = $search;
         }
 
-        return $this->createFrom(array_replace($previous, $this->getEntries()));
+        return $this->createFrom(array_replace($previous ?? [], $this->getEntries()) ?? []);
     }
 
     /**
@@ -392,7 +401,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
         $debugger = Grav::instance()['debugger'];
 
         /** @var FlexCollection $className */
-        $className = $this->_flexDirectory->getCollectionClass();
+        $className = $this->getFlexDirectory()->getCollectionClass();
         $cachedMethods = $className::getCachedMethods();
 
         $flexType = $this->getFlexType();
@@ -481,7 +490,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
      */
     protected function createFrom(array $entries, string $keyField = null)
     {
-        $index = new static($entries, $this->_flexDirectory);
+        $index = new static($entries, $this->getFlexDirectory());
         $index->setKeyField($keyField ?? $this->_keyField);
 
         return $index;
@@ -545,7 +554,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
      */
     protected function loadElement($key, $value): ?ObjectInterface
     {
-        $objects = $this->_flexDirectory->loadObjects([$key => $value]);
+        $objects = $this->getFlexDirectory()->loadObjects([$key => $value]);
 
         return $objects ? reset($objects): null;
     }
@@ -556,7 +565,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
      */
     protected function loadElements(array $entries = null): array
     {
-        return $this->_flexDirectory->loadObjects($entries ?? $this->getEntries());
+        return $this->getFlexDirectory()->loadObjects($entries ?? $this->getEntries());
     }
 
     /**
@@ -565,7 +574,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
      */
     protected function loadCollection(array $entries = null): CollectionInterface
     {
-        return $this->_flexDirectory->loadCollection($entries ?? $this->getEntries(), $this->_keyField);
+        return $this->getFlexDirectory()->loadCollection($entries ?? $this->getEntries(), $this->_keyField);
     }
 
     /**
@@ -639,6 +648,10 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
 
         // Index should be updated, lock the index file for saving.
         $indexFile = static::getIndexFile($storage);
+        if (null === $indexFile) {
+            throw new \RuntimeException('No index file defined');
+        }
+
         $indexFile->lock();
 
         // Read all the data rows into an array.
@@ -695,6 +708,9 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
     protected static function loadIndex(FlexStorageInterface $storage)
     {
         $indexFile = static::getIndexFile($storage);
+        if (null === $indexFile) {
+            throw new \RuntimeException('No index file defined');
+        }
 
         $data = [];
         try {

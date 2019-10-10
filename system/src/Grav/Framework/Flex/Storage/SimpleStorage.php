@@ -317,9 +317,15 @@ class SimpleStorage extends AbstractFilesystemStorage
      */
     public function getMediaPath(string $key = null): ?string
     {
+        $ext = $this->dataFormatter->getDefaultFileExtension();
+
+        if ($key === null) {
+            return sprintf('%s/%s', $this->dataFolder, basename($this->dataPattern, $ext));
+        }
+
         $parts = $this->extractKeysFromStorageKey($key);
 
-        return sprintf('%s/%s/%s', $this->dataFolder, basename($this->dataPattern, $this->dataFormatter->getDefaultFileExtension()), $parts['key']);
+        return sprintf('%s/%s/%s', $this->dataFolder, basename($this->dataPattern, $ext), $parts['key']);
     }
 
     /**

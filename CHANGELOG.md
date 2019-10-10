@@ -10,7 +10,7 @@
 1. [](#bugfix)
     * Fixed `Page::untranslatedLanguages()` not being symmetrical to `Page::translatedLanguages()`
     * Fixed `Flex Pages` not calling `onPageProcessed` event when cached
-    * Fixed phpstan issues in Framework up to level 6
+    * Fixed phpstan issues in Framework up to level 7
     * Fixed issue with duplicate configuration settings in Flex Directory
     * Fixed fatal error if there are numeric folders in `Flex Pages`
     * Fixed error on missing `Flex` templates in if `Flex Objects` plugin isn't installed

@@ -140,8 +140,10 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
         $implements = class_implements($this);
         $list = [];
         foreach ($implements as $interface) {
-            $feature = Inflector::hyphenize(preg_replace('/(.*\\\\)(.*?)Interface$/', '\\2', $interface));
-            $list[] = $feature;
+            $feature = preg_replace('/(.*\\\\)(.*?)Interface$/', '\\2', $interface);
+            if ($feature) {
+                $list[] = Inflector::hyphenize($interface);
+            }
         }
 
         return $list;

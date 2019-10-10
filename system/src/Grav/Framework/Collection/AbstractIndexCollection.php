@@ -11,6 +11,7 @@ namespace Grav\Framework\Collection;
 
 use ArrayIterator;
 use Closure;
+use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
 
 /**
  * Abstract Index Collection.
@@ -369,7 +370,7 @@ abstract class AbstractIndexCollection implements CollectionInterface
         $keys = $this->getKeys();
         shuffle($keys);
 
-        return $this->createFrom(array_replace(array_flip($keys), $this->entries));
+        return $this->createFrom(array_replace(array_flip($keys), $this->entries) ?? []);
     }
 
     /**
@@ -460,7 +461,7 @@ abstract class AbstractIndexCollection implements CollectionInterface
     /**
      * @return array
      */
-    protected function getEntries() : array
+    protected function getEntries(): array
     {
         return $this->entries;
     }
@@ -468,11 +469,15 @@ abstract class AbstractIndexCollection implements CollectionInterface
     /**
      * @param array $entries
      */
-    protected function setEntries(array $entries) : void
+    protected function setEntries(array $entries): void
     {
         $this->entries = $entries;
     }
 
+    /**
+     * @param FlexObjectInterface $element
+     * @return string
+     */
     protected function getCurrentKey($element)
     {
         return $element->getKey();
@@ -489,19 +494,19 @@ abstract class AbstractIndexCollection implements CollectionInterface
      * @param array|null $entries
      * @return array
      */
-    abstract protected function loadElements(array $entries = null) : array;
+    abstract protected function loadElements(array $entries = null): array;
 
     /**
      * @param array|null $entries
      * @return CollectionInterface
      */
-    abstract protected function loadCollection(array $entries = null) : CollectionInterface;
+    abstract protected function loadCollection(array $entries = null): CollectionInterface;
 
     /**
      * @param mixed $value
      * @return bool
      */
-    abstract protected function isAllowedElement($value) : bool;
+    abstract protected function isAllowedElement($value): bool;
 
     /**
      * @param mixed $element

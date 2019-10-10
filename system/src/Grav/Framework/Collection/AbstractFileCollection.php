@@ -101,6 +101,9 @@ class AbstractFileCollection extends AbstractLazyCollection implements FileColle
             foreach (array_reverse($orderings) as $field => $ordering) {
                 $next = ClosureExpressionVisitor::sortByField($field, $ordering === Criteria::DESC ? -1 : 1, $next);
             }
+            if (null === $next) {
+                throw new \RuntimeException('Criteria is missing orderings');
+            }
 
             uasort($filtered, $next);
         } else {

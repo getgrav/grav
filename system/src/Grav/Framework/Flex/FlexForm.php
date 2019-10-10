@@ -15,6 +15,7 @@ use Grav\Common\Grav;
 use Grav\Common\Twig\Twig;
 use Grav\Framework\Flex\Interfaces\FlexFormInterface;
 use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
+use Grav\Framework\Form\Interfaces\FormFlashInterface;
 use Grav\Framework\Form\Traits\FormTrait;
 use Grav\Framework\Route\Route;
 use RocketTheme\Toolbox\ArrayTraits\NestedArrayAccessWithGetters;
@@ -127,6 +128,7 @@ class FlexForm implements FlexFormInterface
         $this->files = [];
         $this->unsetFlash();
 
+        /** @var FlexFormFlash $flash */
         $flash = $this->getFlash();
         if ($flash->exists()) {
             $data = $flash->getData();
@@ -250,7 +252,7 @@ class FlexForm implements FlexFormInterface
     /**
      * Get form flash object.
      *
-     * @return FlexFormFlash
+     * @return FlexFormFlash|FormFlashInterface
      */
     public function getFlash()
     {

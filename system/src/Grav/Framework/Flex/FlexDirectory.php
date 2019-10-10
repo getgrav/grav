@@ -145,7 +145,13 @@ class FlexDirectory implements FlexAuthorizeInterface
     public function getConfig(string $name = null, $default = null)
     {
         if (null === $this->config) {
-            $this->config = new Config(array_replace_recursive($this->getBlueprintInternal()->get('config', []), $this->defaults));
+            $config = $this->getBlueprintInternal()->get('config', []);
+            $config = is_array($config) ? array_replace_recursive($config, $this->defaults) : null;
+            if (!is_array($config)) {
+                throw new \RuntimeException('Bad configuration');
+            }
+
+            $this->config = new Config($config);
         }
 
         return null === $name ? $this->config : $this->config->get($name, $default);
@@ -177,7 +183,7 @@ class FlexDirectory implements FlexAuthorizeInterface
             $file = preg_replace('/\.yaml/', "/{$view}.yaml", $file);
         }
 
-        return $file;
+        return (string)$file;
     }
 
     /**
@@ -239,7 +245,7 @@ class FlexDirectory implements FlexAuthorizeInterface
      */
     public function getObject($key = null, string $keyField = null): ?FlexObjectInterface
     {
-        if (null === $key && null === $keyField) {
+        if (null === $key) {
             return $this->createObject([], '');
         }
 
@@ -261,7 +267,7 @@ class FlexDirectory implements FlexAuthorizeInterface
         $storage = $this->getStorage();
 
         if (null === $object) {
-            $object = $this->createObject($data, $key, true);
+            $object = $this->createObject($data, $key ?? '', true);
             $key = $object->getStorageKey();
 
             if ($key) {
@@ -535,6 +541,8 @@ class FlexDirectory implements FlexAuthorizeInterface
         // Attempt to fetch missing rows from the cache.
         if ($fetch) {
             try {
+                $index = $this->loadIndex();
+
                 $debugger->startTimer('flex-objects', sprintf('Flex: Loading %d %s', $loading, $this->type));
 
                 $fetched = (array)$cache->getMultiple($fetch);
@@ -546,7 +554,7 @@ class FlexDirectory implements FlexAuthorizeInterface
                     } else {
                         $objectMeta = $value['__META'] ?? [];
                     }
-                    $indexMeta = $this->index->getMetaData($key);
+                    $indexMeta = $index->getMetaData($key);
 
                     $indexChecksum = $indexMeta['checksum'] ?? $indexMeta['storage_timestamp'] ?? null;
                     $objectChecksum = $objectMeta['checksum'] ?? $objectMeta['storage_timestamp'] ?? null;
@@ -556,7 +564,7 @@ class FlexDirectory implements FlexAuthorizeInterface
                 }
 
                 // Update cached rows.
-                $rows = array_replace($rows, $fetched);
+                $rows = (array)array_replace($rows, $fetched);
             } catch (InvalidArgumentException $e) {
                 $debugger->addException($e);
             }

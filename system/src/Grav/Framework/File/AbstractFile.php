@@ -101,7 +101,7 @@ class AbstractFile implements FileInterface
             $this->setPathInfo();
         }
 
-        return $this->path;
+        return $this->path ?? '';
     }
 
     /**
@@ -114,7 +114,7 @@ class AbstractFile implements FileInterface
             $this->setPathInfo();
         }
 
-        return $this->filename;
+        return $this->filename ?? '';
     }
 
     /**
@@ -127,7 +127,7 @@ class AbstractFile implements FileInterface
             $this->setPathInfo();
         }
 
-        return $this->basename;
+        return $this->basename ?? '';
     }
 
     /**

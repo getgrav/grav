@@ -71,13 +71,17 @@ class CsvFormatter extends AbstractFormatter
     {
         $delimiter = $delimiter ?? $this->getDelimiter();
         $lines = preg_split('/\r\n|\r|\n/', $data);
-
         if ($lines === false) {
             throw new \RuntimeException('Decoding CSV failed');
         }
 
         // Get the field names
-        $header = str_getcsv(array_shift($lines), $delimiter);
+        $headerStr = array_shift($lines);
+        if (!$headerStr) {
+            throw new \RuntimeException('CSV header missing');
+        }
+
+        $header = str_getcsv($headerStr, $delimiter);
 
         // Allow for replacing a null string with null/empty value
         $null_replace = $this->getConfig('null');

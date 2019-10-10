@@ -43,7 +43,12 @@ class FormFlashFile implements UploadedFileInterface, \JsonSerializable
     {
         $this->validateActive();
 
-        $resource = \fopen($this->getTmpFile(), 'rb');
+        $tmpFile = $this->getTmpFile();
+        if (null === $tmpFile) {
+            throw new \RuntimeException('No temporary file');
+        }
+
+        $resource = \fopen($tmpFile, 'rb');
 
         return Stream::create($resource);
     }
@@ -55,8 +60,12 @@ class FormFlashFile implements UploadedFileInterface, \JsonSerializable
         if (!\is_string($targetPath) || empty($targetPath)) {
             throw new \InvalidArgumentException('Invalid path provided for move operation; must be a non-empty string');
         }
+        $tmpFile = $this->getTmpFile();
+        if (null === $tmpFile) {
+            throw new \RuntimeException('No temporary file');
+        }
 
-        $this->moved = \copy($this->getTmpFile(), $targetPath);
+        $this->moved = \copy($tmpFile, $targetPath);
 
         if (false === $this->moved) {
             throw new \RuntimeException(\sprintf('Uploaded file could not be moved to %s', $targetPath));

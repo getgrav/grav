@@ -36,7 +36,7 @@ class FormFlash implements FormFlashInterface
     protected $createdTimestamp;
     /** @var int */
     protected $updatedTimestamp;
-    /** @var array */
+    /** @var array|null */
     protected $data;
     /** @var array */
     protected $files;
@@ -294,6 +294,9 @@ class FormFlash implements FormFlashInterface
         $tmp_dir = $this->getTmpDir();
         $tmp_name = Utils::generateRandomString(12);
         $name = $upload->getClientFilename();
+        if (!$name) {
+            throw new \RuntimeException('Uploaded file has no filename');
+        }
 
         // Prepare upload data for later save
         $data = [
@@ -310,7 +313,6 @@ class FormFlash implements FormFlashInterface
 
         return $name;
     }
-
 
     /**
      * @inheritDoc
