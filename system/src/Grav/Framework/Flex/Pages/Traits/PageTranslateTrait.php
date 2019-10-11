@@ -58,7 +58,7 @@ trait PageTranslateTrait
     }
 
     /**
-     * @param bool $includeDefault
+     * @param bool $includeDefault If set to true, return separate entries for '' and 'en' (default) language.
      * @return array
      */
     public function getAllLanguages(bool $includeDefault = false): array
@@ -76,7 +76,8 @@ trait PageTranslateTrait
 
         if ($includeDefault) {
             $languages[] = '';
-        } else {
+        } elseif (isset($translated[''])) {
+            $translated[$language->getDefault()] = $translated[''];
             unset($translated['']);
         }
 
@@ -87,17 +88,25 @@ trait PageTranslateTrait
     }
 
     /**
-     * @param bool $includeDefault
+     * Returns all translated languages.
+     *
+     * @param bool $includeDefault If set to true, return separate entries for '' and 'en' (default) language.
      * @return array
      */
     public function getLanguages(bool $includeDefault = false): array
     {
         $languages = $this->getLanguageTemplates();
-        if (!$includeDefault) {
+
+        if (!$includeDefault && isset($languages[''])) {
+            $grav = Grav::instance();
+
+            /** @var Language $language */
+            $language = $grav['language'];
+            $languages[$language->getDefault()] = $languages[''];
             unset($languages['']);
         }
 
-        return array_keys($this->getLanguageTemplates());
+        return array_keys($languages);
     }
 
     public function getLanguage(): string
