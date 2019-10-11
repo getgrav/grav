@@ -95,10 +95,10 @@ config:
     templates:
       collection:
         paths:
-          - 'flex/{TYPE}/collection/{LAYOUT}{.EXT}'
+          - 'flex/{TYPE}/collection/{LAYOUT}{EXT}'
       object:
         paths:
-          - 'flex/{TYPE}/object/{LAYOUT}{.EXT}'
+          - 'flex/{TYPE}/object/{LAYOUT}{EXT}'
       defaults:
         type: pages
         layout: default

@@ -13,6 +13,7 @@ namespace Grav\Framework\Flex\Storage;
 
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\Grav;
+use Grav\Common\Utils;
 use Grav\Framework\Flex\Interfaces\FlexStorageInterface;
 use RocketTheme\Toolbox\File\File;
 use InvalidArgumentException;
@@ -27,7 +28,7 @@ class FolderStorage extends AbstractFilesystemStorage
     /** @var string Folder where all the data is stored. */
     protected $dataFolder;
     /** @var string Pattern to access an object. */
-    protected $dataPattern = '{FOLDER}/{KEY}/{FILE}{.EXT}';
+    protected $dataPattern = '{FOLDER}/{KEY}/{FILE}{EXT}';
     /** @var string Filename for the object. */
     protected $dataFile;
     /** @var string File extension for the object. */
@@ -252,7 +253,7 @@ class FolderStorage extends AbstractFilesystemStorage
                 $parts['key'],          // {KEY}
                 $parts['key:2'],        // {KEY:2}
                 '***',                  // {FILE}
-                '***'                   // {.EXT}
+                '***'                   // {EXT}
             ];
 
             $path = rtrim(explode('***', sprintf($this->dataPattern, ...$options))[0], '/');
@@ -284,7 +285,7 @@ class FolderStorage extends AbstractFilesystemStorage
             $parts['key'],          // {KEY}
             $parts['key:2'],        // {KEY:2}
             $parts['file'],         // {FILE}
-            $this->dataExt          // {.EXT}
+            $this->dataExt          // {EXT}
         ];
 
         return sprintf($this->dataPattern, ...$options);
@@ -607,23 +608,20 @@ class FolderStorage extends AbstractFilesystemStorage
         $this->dataFolder = $options['folder'];
         $this->dataFile = $options['file'] ?? 'item';
         $this->dataExt = $extension;
-        if (\mb_strpos($pattern, '{FILE}') === false && (\mb_strpos($pattern, '{EXT}') === false || \mb_strpos($pattern, '{.EXT}') === false)) {
+        if (\mb_strpos($pattern, '{FILE}') === false && \mb_strpos($pattern, '{EXT}') === false) {
             if (isset($options['file'])) {
-                $pattern .= '/{FILE}{.EXT}';
+                $pattern .= '/{FILE}{EXT}';
             } else {
                 $this->dataFile = \basename($pattern, $extension);
-                $pattern = \dirname($pattern) . '/{FILE}{.EXT}';
+                $pattern = \dirname($pattern) . '/{FILE}{EXT}';
             }
         }
         $this->prefixed = (bool)($options['prefixed'] ?? strpos($pattern, '/{KEY:2}/'));
         $this->indexed = (bool)($options['indexed'] ?? false);
         $this->keyField = $options['key'] ?? 'storage_key';
 
-        $pattern = preg_replace(
-            ['/{FOLDER}/', '/{KEY}/', '/{KEY:2}/', '/{FILE}/', '/{EXT}/', '/{\.EXT}/'],
-            ['%1$s',       '%2$s',    '%3$s',      '%4$s',     '%5$s',    '%5$s'],
-            $pattern
-        );
+        $variables = ['FOLDER' => '%1$s', 'KEY' => '%2$s', 'KEY:2' => '%3$s', 'FILE' => '%4$s', 'EXT' => '%5$s'];
+        $pattern = Utils::simpleTemplate($pattern, $variables);
 
         if (!$pattern) {
             throw new \RuntimeException('Bad storage folder pattern');

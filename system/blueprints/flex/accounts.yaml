@@ -37,10 +37,10 @@ config:
     templates:
       collection:
         paths:
-          - 'flex/{TYPE}/collection/{LAYOUT}{.EXT}'
+          - 'flex/{TYPE}/collection/{LAYOUT}{EXT}'
       object:
         paths:
-          - 'flex/{TYPE}/object/{LAYOUT}{.EXT}'
+          - 'flex/{TYPE}/object/{LAYOUT}{EXT}'
       defaults:
         type: accounts
         layout: default
@@ -55,7 +55,7 @@ config:
         formatter:
           class: 'Grav\Framework\File\Formatter\YamlFormatter'
         folder: 'account://'
-        pattern: '{FOLDER}/{KEY}{.EXT}'
+        pattern: '{FOLDER}/{KEY}{EXT}'
         key: storage_key
         indexed: true
     search:

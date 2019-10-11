@@ -954,10 +954,10 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
         $ext = $defaults['ext'] ?? '.html.twig';
         $types = array_unique(array_merge([$type], (array)($defaults['type'] ?? null)));
         $paths = $config['object']['paths'] ?? [
-                'flex/{TYPE}/object/{LAYOUT}{.EXT}',
-                'flex-objects/layouts/{TYPE}/object/{LAYOUT}{.EXT}'
+                'flex/{TYPE}/object/{LAYOUT}{EXT}',
+                'flex-objects/layouts/{TYPE}/object/{LAYOUT}{EXT}'
             ];
-        $table = ['TYPE' => '%1$s', 'LAYOUT' => '%2$s', 'EXT' => '%3$s', '.EXT' => '%3$s'];
+        $table = ['TYPE' => '%1$s', 'LAYOUT' => '%2$s', 'EXT' => '%3$s'];
 
         $lookups = [];
         foreach ($paths as $path) {

@@ -559,10 +559,10 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
         $ext = $defaults['ext'] ?? '.html.twig';
         $types = array_unique(array_merge([$type], (array)($defaults['type'] ?? null)));
         $paths = $config['collection']['paths'] ?? [
-                'flex/{TYPE}/collection/{LAYOUT}{.EXT}',
-                'flex-objects/layouts/{TYPE}/collection/{LAYOUT}{.EXT}'
+                'flex/{TYPE}/collection/{LAYOUT}{EXT}',
+                'flex-objects/layouts/{TYPE}/collection/{LAYOUT}{EXT}'
             ];
-        $table = ['TYPE' => '%1$s', 'LAYOUT' => '%2$s', 'EXT' => '%3$s', '.EXT' => '%3$s'];
+        $table = ['TYPE' => '%1$s', 'LAYOUT' => '%2$s', 'EXT' => '%3$s'];
 
         $lookups = [];
         foreach ($paths as $path) {

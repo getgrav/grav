@@ -25,7 +25,7 @@ class FileStorage extends FolderStorage
      */
     public function __construct(array $options)
     {
-        $this->dataPattern = '{FOLDER}/{KEY}{.EXT}';
+        $this->dataPattern = '{FOLDER}/{KEY}{EXT}';
 
         if (!isset($options['formatter']) && isset($options['pattern'])) {
             $options['formatter'] = $this->detectDataFormatter($options['pattern']);

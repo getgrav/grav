@@ -94,7 +94,7 @@ class AccountsServiceProvider implements ServiceProviderInterface
                 'class' => FlexUser\Storage\UserFolderStorage::class,
                 'options' => [
                     'file' => 'user',
-                    'pattern' => '{FOLDER}/{KEY:2}/{KEY}/{FILE}{.EXT}',
+                    'pattern' => '{FOLDER}/{KEY:2}/{KEY}/{FILE}{EXT}',
                     'key' => 'username',
                 ],
             ];
