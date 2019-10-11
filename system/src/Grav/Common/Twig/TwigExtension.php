@@ -150,6 +150,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             new TwigFunction('array_key_exists', 'array_key_exists'),
             new TwigFunction('array_unique', 'array_unique'),
             new TwigFunction('array_intersect', [$this, 'arrayIntersectFunc']),
+            new TwigFunction('array_diff', 'array_diff'),
             new TwigFunction('authorize', [$this, 'authorize']),
             new TwigFunction('debug', [$this, 'dump'], ['needs_context' => true, 'needs_environment' => true]),
             new TwigFunction('dump', [$this, 'dump'], ['needs_context' => true, 'needs_environment' => true]),
