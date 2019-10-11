@@ -93,11 +93,7 @@ class Taxonomy
         if (is_iterable($value)) {
             foreach ($value as $identifier => $item) {
                 $identifier = $key . '.' . $identifier;
-                if (is_iterable($item)) {
-                    $this->iterateTaxonomy($page, $taxonomy, $identifier, $item);
-                } else {
-                    $this->iterateTaxonomy($page, $taxonomy, $identifier, $item);
-                }
+				$this->iterateTaxonomy($page, $taxonomy, $identifier, $item);
             }
         } elseif (is_string($value)) {
             if (!empty($key)) {
