@@ -31,8 +31,7 @@ class TwigNodeRender extends Node implements NodeCaptureInterface
         ?AbstractExpression $context,
         $lineno,
         $tag = null
-    )
-    {
+    ) {
         parent::__construct(['object' => $object, 'layout' => $layout, 'context' => $context], [], $lineno, $tag);
     }
     /**

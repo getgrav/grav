@@ -28,8 +28,7 @@ class TwigNodeSwitch extends Node
         Node $default = null,
         $lineno = 0,
         $tag = null
-    )
-    {
+    ) {
         parent::__construct(array('value' => $value, 'cases' => $cases, 'default' => $default), array(), $lineno, $tag);
     }
 

@@ -70,7 +70,6 @@ class Inflector
         }
 
         return false;
-
     }
 
     /**

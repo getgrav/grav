@@ -519,4 +519,3 @@ class Job
         return $this;
     }
 }
-

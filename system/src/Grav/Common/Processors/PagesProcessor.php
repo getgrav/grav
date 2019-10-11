@@ -41,7 +41,7 @@ class PagesProcessor extends ProcessorBase
             $event = $this->container->fireEvent('onPageNotFound', $event);
 
             if (isset($event->page)) {
-                unset ($this->container['page']);
+                unset($this->container['page']);
                 $this->container['page'] = $page = $event->page;
             } else {
                 throw new \RuntimeException('Page Not Found', 404);

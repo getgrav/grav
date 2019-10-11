@@ -358,10 +358,11 @@ class Medium extends Data implements RenderableInterface, MediaObjectInterface
 
         $style = '';
         foreach ($this->styleAttributes as $key => $value) {
-            if (is_numeric($key)) // Special case for inline style attributes, refer to style() method
+            if (is_numeric($key)) { // Special case for inline style attributes, refer to style() method
                 $style .= $value;
-            else
+            } else {
                 $style .= $key . ': ' . $value . ';';
+            }
         }
         if ($style) {
             $attributes['style'] = $style;
@@ -675,5 +676,4 @@ class Medium extends Data implements RenderableInterface, MediaObjectInterface
 
         return $this->_thumbnail;
     }
-
 }

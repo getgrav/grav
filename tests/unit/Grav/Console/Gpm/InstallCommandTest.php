@@ -19,7 +19,6 @@ class InstallCommandTest extends \Codeception\TestCase\Test
     {
         $this->grav = Fixtures::get('grav');
         $this->installCommand = new InstallCommand();
-
     }
 
     protected function _after()

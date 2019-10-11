@@ -98,12 +98,12 @@ class Pages
     /**
      * @var Types
      */
-    static protected $types;
+    protected static $types;
 
     /**
      * @var string
      */
-    static protected $home_route;
+    protected static $home_route;
 
     /**
      * Constructor
@@ -384,7 +384,6 @@ class Pages
         }
 
         return $sort;
-
     }
 
     /**
@@ -451,7 +450,6 @@ class Pages
     public function inherited($route, $field = null)
     {
         if ($field !== null) {
-
             $page = $this->dispatch($route, true);
 
             $parent = $page ? $page->parent() : null;
@@ -505,7 +503,6 @@ class Pages
 
         // If the page cannot be reached, look into site wide redirects, routes + wildcards
         if (!$all && $not_admin) {
-
             // If the page is a simple redirect, just do it.
             if ($redirect && $page && $page->redirect()) {
                 $this->grav->redirectLangSafe($page->redirect());
@@ -669,7 +666,6 @@ class Pages
             if (isset($parents[$page_route])) {
                 unset($parents[$page_route]);
             }
-
         }
 
         return $parents;
@@ -713,13 +709,9 @@ class Pages
             } else {
                 $extra  = $showSlug ? '(' . $current->slug() . ') ' : '';
                 $option = str_repeat('&mdash;-', $level). '&rtrif; ' . $extra . $current->title();
-
-
             }
 
             $list[$route] = $option;
-
-
         }
 
         if ($limitLevels === false || ($level+1 < $limitLevels)) {
@@ -772,7 +764,6 @@ class Pages
                     $scanBlueprintsAndTemplates();
                     $cache->save($types_cache_id, self::$types);
                 }
-
             } else {
                 self::$types = new Types();
                 $scanBlueprintsAndTemplates();
@@ -919,7 +910,6 @@ class Pages
                     } catch (ErrorException $e) {
                         $home = $home_aliases[$default];
                     }
-
                 }
             }
 
@@ -988,7 +978,6 @@ class Pages
 
                 // recurse pages and cache result
                 $this->resetPages($pages_dir);
-
             } else {
                 // If pages was found in cache, set the taxonomy
                 $this->grav['debugger']->addMessage('Page cache hit.');
@@ -1310,7 +1299,7 @@ class Pages
                     $child_header = new Header((array)$child->header());
                     $header_value = $child_header->get($header_query[0]);
                     if (is_array($header_value)) {
-                        $list[$key] = implode(',',$header_value);
+                        $list[$key] = implode(',', $header_value);
                     } elseif ($header_value) {
                         $list[$key] = $header_value;
                     } else {
@@ -1340,7 +1329,7 @@ class Pages
                 $col = Collator::create($locale);
                 if ($col) {
                     if (($sort_flags & SORT_NATURAL) === SORT_NATURAL) {
-                        $list = preg_replace_callback('~([0-9]+)\.~', function($number) {
+                        $list = preg_replace_callback('~([0-9]+)\.~', function ($number) {
                             return sprintf('%032d.', $number[0]);
                         }, $list);
 

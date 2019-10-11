@@ -22,19 +22,23 @@ class BrowserTest extends \Codeception\TestCase\Test
     }
 
     public function testGetBrowser()
-    { /* Already covered by PhpUserAgent tests */
+    {
+ /* Already covered by PhpUserAgent tests */
     }
 
     public function testGetPlatform()
-    { /* Already covered by PhpUserAgent tests */
+    {
+ /* Already covered by PhpUserAgent tests */
     }
 
     public function testGetLongVersion()
-    { /* Already covered by PhpUserAgent tests */
+    {
+ /* Already covered by PhpUserAgent tests */
     }
 
     public function testGetVersion()
-    { /* Already covered by PhpUserAgent tests */
+    {
+ /* Already covered by PhpUserAgent tests */
     }
 
     public function testIsHuman()
@@ -45,4 +49,3 @@ class BrowserTest extends \Codeception\TestCase\Test
         $this->assertFalse($this->grav['browser']->isHuman());
     }
 }
-

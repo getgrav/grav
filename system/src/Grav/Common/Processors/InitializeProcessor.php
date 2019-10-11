@@ -67,7 +67,6 @@ class InitializeProcessor extends ProcessorBase
         if ($path !== '/'
             && $config->get('system.pages.redirect_trailing_slash', false)
             && Utils::endsWith($path, '/')) {
-
             $redirect = (string) $uri::getCurrentRoute()->toString();
             $this->container->redirect($redirect);
         }

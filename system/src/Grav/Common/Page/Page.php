@@ -337,8 +337,10 @@ class Page implements PageInterface
                         $frontmatterFile = CompiledYamlFile::instance($this->path . '/' . $this->folder . '/frontmatter.yaml');
                         if ($frontmatterFile->exists()) {
                             $frontmatter_data = (array)$frontmatterFile->content();
-                            $this->header = (object)array_replace_recursive($frontmatter_data,
-                                (array)$this->header);
+                            $this->header = (object)array_replace_recursive(
+                                $frontmatter_data,
+                                (array)$this->header
+                            );
                             $frontmatterFile->free();
                         }
                         // Process frontmatter with Twig if enabled
@@ -360,8 +362,6 @@ class Page implements PageInterface
                 }
                 $var = true;
             }
-
-
         }
 
         if ($var) {
@@ -673,14 +673,20 @@ class Page implements PageInterface
             $process_markdown = $this->shouldProcess('markdown');
             $process_twig = $this->shouldProcess('twig') || $this->modularTwig();
 
-            $cache_enable = $this->header->cache_enable ?? $config->get('system.cache.enabled',
-                true);
-            $twig_first = $this->header->twig_first ?? $config->get('system.pages.twig_first',
-                true);
+            $cache_enable = $this->header->cache_enable ?? $config->get(
+                'system.cache.enabled',
+                true
+            );
+            $twig_first = $this->header->twig_first ?? $config->get(
+                'system.pages.twig_first',
+                true
+            );
 
             // never cache twig means it's always run after content
-            $never_cache_twig = $this->header->never_cache_twig ?? $config->get('system.pages.never_cache_twig',
-                false);
+            $never_cache_twig = $this->header->never_cache_twig ?? $config->get(
+                'system.pages.never_cache_twig',
+                false
+            );
 
             // if no cached-content run everything
             if ($never_cache_twig) {
@@ -703,7 +709,6 @@ class Page implements PageInterface
                 if ($process_twig) {
                     $this->processTwig();
                 }
-
             } else {
                 if ($this->content === false || $cache_enable === false) {
                     $this->content = $this->raw_content;
@@ -719,7 +724,6 @@ class Page implements PageInterface
 
                         // Content Processed but not cached yet
                         Grav::instance()->fireEvent('onPageContentProcessed', new Event(['page' => $this]));
-
                     } else {
                         if ($process_markdown) {
                             $this->processMarkdown();
@@ -1390,7 +1394,7 @@ class Page implements PageInterface
         }
 
         // Set from URL extension set on page
-        $page_extension = trim($this->header->append_url_extension ?? '' , '.');
+        $page_extension = trim($this->header->append_url_extension ?? '', '.');
         if (!empty($page_extension)) {
             $this->template_format = $page_extension;
 
@@ -2303,11 +2307,11 @@ class Page implements PageInterface
     {
         if ($var !== null) {
             // make sure first level are arrays
-            array_walk($var, function(&$value) {
+            array_walk($var, function (&$value) {
                 $value = (array) $value;
             });
             // make sure all values are strings
-            array_walk_recursive($var, function(&$value) {
+            array_walk_recursive($var, function (&$value) {
                 $value = (string) $value;
             });
             $this->taxonomy = $var;
@@ -2726,13 +2730,12 @@ class Page implements PageInterface
 
         // If  a filter or filters are set, filter the collection...
         if (isset($params['filter'])) {
-
             // remove any inclusive sets from filer:
             $sets = ['published', 'visible', 'modular', 'routable'];
             foreach ($sets as $type) {
                 $var = "non-{$type}";
                 if (isset($params['filter'][$type], $params['filter'][$var]) && $params['filter'][$type] && $params['filter'][$var]) {
-                    unset ($params['filter'][$type], $params['filter'][$var]);
+                    unset($params['filter'][$type], $params['filter'][$var]);
                 }
             }
 
@@ -2859,7 +2862,6 @@ class Page implements PageInterface
                 } else {
                     $result = $result + $this->evaluate([$key => $val], $only_published)->toArray();
                 }
-
             }
 
             return new Collection($result);
@@ -3126,7 +3128,6 @@ class Page implements PageInterface
                 rename($path . '/' . $this->_original->name(), $path . '/' . $this->name());
             }
         }
-
     }
 
     protected function setPublishState()
@@ -3164,7 +3165,7 @@ class Page implements PageInterface
      */
     public function getOriginal()
     {
-      return $this->_original;
+        return $this->_original;
     }
 
     /**
@@ -3174,6 +3175,6 @@ class Page implements PageInterface
      */
     public function getAction()
     {
-      return $this->_action;
+        return $this->_action;
     }
 }

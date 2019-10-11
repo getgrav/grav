@@ -914,7 +914,7 @@ class UriTest extends \Codeception\TestCase\Test
         $this->assertTrue($this->uri->validateHostname('goog.wine'));
         $this->assertTrue($this->uri->validateHostname('goog.localhost'));
 
-        $this->assertFalse($this->uri->validateHostname('localhost:80') );
+        $this->assertFalse($this->uri->validateHostname('localhost:80'));
         $this->assertFalse($this->uri->validateHostname('http://localhost'));
         $this->assertFalse($this->uri->validateHostname('localhost!'));
     }
@@ -1143,7 +1143,6 @@ class UriTest extends \Codeception\TestCase\Test
 
     public function testConvertUrl()
     {
-
     }
 
     public function testAddNonce()

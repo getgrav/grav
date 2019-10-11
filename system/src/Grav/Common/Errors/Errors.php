@@ -56,7 +56,7 @@ class Errors
 
         if (isset($config['log']) && $config['log']) {
             $logger = $grav['log'];
-            $whoops->pushHandler(function($exception, $inspector, $run) use ($logger) {
+            $whoops->pushHandler(function ($exception, $inspector, $run) use ($logger) {
                 try {
                     $logger->addCritical($exception->getMessage() . ' - Trace: ' . $exception->getTraceAsString());
                 } catch (\Exception $e) {

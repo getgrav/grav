@@ -80,6 +80,5 @@ class LogViewerCommand extends ConsoleCommand
         } else {
             $io->error('cannot find the log file: logs/' . $file);
         }
-
     }
 }

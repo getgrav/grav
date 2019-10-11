@@ -35,5 +35,4 @@ class Parsedown extends \Parsedown
 
         $this->init($excerpts, $defaults);
     }
-
 }

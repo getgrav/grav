@@ -32,21 +32,27 @@ class UtilsTest extends \Codeception\TestCase\Test
         $this->assertTrue(Utils::startsWith('english', 'en'));
         $this->assertTrue(Utils::startsWith('English', 'En'));
         $this->assertTrue(Utils::startsWith('ENGLISH', 'EN'));
-        $this->assertTrue(Utils::startsWith('ENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISH',
-            'EN'));
+        $this->assertTrue(Utils::startsWith(
+            'ENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISH',
+            'EN'
+        ));
 
         $this->assertFalse(Utils::startsWith('english', 'En'));
         $this->assertFalse(Utils::startsWith('English', 'EN'));
         $this->assertFalse(Utils::startsWith('ENGLISH', 'en'));
-        $this->assertFalse(Utils::startsWith('ENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISH',
-            'e'));
+        $this->assertFalse(Utils::startsWith(
+            'ENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISH',
+            'e'
+        ));
 
         $this->assertTrue(Utils::startsWith('english', 'En', false));
         $this->assertTrue(Utils::startsWith('English', 'EN', false));
         $this->assertTrue(Utils::startsWith('ENGLISH', 'en', false));
-        $this->assertTrue(Utils::startsWith('ENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISH',
-            'e', false));
-
+        $this->assertTrue(Utils::startsWith(
+            'ENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISH',
+            'e',
+            false
+        ));
     }
 
     public function testEndsWith()
@@ -54,20 +60,27 @@ class UtilsTest extends \Codeception\TestCase\Test
         $this->assertTrue(Utils::endsWith('english', 'sh'));
         $this->assertTrue(Utils::endsWith('EngliSh', 'Sh'));
         $this->assertTrue(Utils::endsWith('ENGLISH', 'SH'));
-        $this->assertTrue(Utils::endsWith('ENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISH',
-            'ENGLISH'));
+        $this->assertTrue(Utils::endsWith(
+            'ENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISH',
+            'ENGLISH'
+        ));
 
         $this->assertFalse(Utils::endsWith('english', 'de'));
         $this->assertFalse(Utils::endsWith('EngliSh', 'sh'));
         $this->assertFalse(Utils::endsWith('ENGLISH', 'Sh'));
-        $this->assertFalse(Utils::endsWith('ENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISH',
-            'DEUSTCH'));
+        $this->assertFalse(Utils::endsWith(
+            'ENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISH',
+            'DEUSTCH'
+        ));
 
         $this->assertTrue(Utils::endsWith('english', 'SH', false));
         $this->assertTrue(Utils::endsWith('EngliSh', 'sH', false));
         $this->assertTrue(Utils::endsWith('ENGLISH', 'sh', false));
-        $this->assertTrue(Utils::endsWith('ENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISH',
-            'english', false));
+        $this->assertTrue(Utils::endsWith(
+            'ENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISH',
+            'english',
+            false
+        ));
     }
 
     public function testContains()
@@ -75,20 +88,27 @@ class UtilsTest extends \Codeception\TestCase\Test
         $this->assertTrue(Utils::contains('english', 'nglis'));
         $this->assertTrue(Utils::contains('EngliSh', 'gliSh'));
         $this->assertTrue(Utils::contains('ENGLISH', 'ENGLI'));
-        $this->assertTrue(Utils::contains('ENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISH',
-            'ENGLISH'));
+        $this->assertTrue(Utils::contains(
+            'ENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISH',
+            'ENGLISH'
+        ));
 
         $this->assertFalse(Utils::contains('EngliSh', 'GLI'));
         $this->assertFalse(Utils::contains('EngliSh', 'English'));
         $this->assertFalse(Utils::contains('ENGLISH', 'SCH'));
-        $this->assertFalse(Utils::contains('ENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISH',
-            'DEUSTCH'));
+        $this->assertFalse(Utils::contains(
+            'ENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISH',
+            'DEUSTCH'
+        ));
 
         $this->assertTrue(Utils::contains('EngliSh', 'GLI', false));
         $this->assertTrue(Utils::contains('EngliSh', 'ENGLISH', false));
         $this->assertTrue(Utils::contains('ENGLISH', 'ish', false));
-        $this->assertTrue(Utils::contains('ENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISH',
-            'english', false));
+        $this->assertTrue(Utils::contains(
+            'ENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISHENGLISH',
+            'english',
+            false
+        ));
     }
 
     public function testSubstrToString()
@@ -139,7 +159,6 @@ class UtilsTest extends \Codeception\TestCase\Test
         $this->assertEquals('This is a string to truncate', Utils::truncate('This is a string to truncate'));
         $this->assertEquals('This' . '&hellip;', Utils::truncate('This is a string to truncate', 3, true));
         $this->assertEquals('<input' . '&hellip;', Utils::truncate('<input type="file" id="file" multiple />', 6, true));
-
     }
 
     public function testSafeTruncate()
@@ -159,7 +178,7 @@ class UtilsTest extends \Codeception\TestCase\Test
         $this->assertEquals('<p>This is a string to truncate</p>', Utils::truncateHtml('<p>This is a string to truncate</p>', 100));
         $this->assertEquals('<input type="file" id="file" multiple />', Utils::truncateHtml('<input type="file" id="file" multiple />', 6));
         $this->assertEquals('<ol><li>item 1 <i>so...</i></li></ol>', Utils::truncateHtml('<ol><li>item 1 <i>something</i></li><li>item 2 <strong>bold</strong></li></ol>', 10));
-		$this->assertEquals("<p>This is a string.</p>\n<p>It splits two lines.</p>", Utils::truncateHtml("<p>This is a string.</p>\n<p>It splits two lines.</p>", 100));
+        $this->assertEquals("<p>This is a string.</p>\n<p>It splits two lines.</p>", Utils::truncateHtml("<p>This is a string.</p>\n<p>It splits two lines.</p>", 100));
     }
 
     public function testSafeTruncateHtml()
@@ -182,7 +201,6 @@ class UtilsTest extends \Codeception\TestCase\Test
 
     public function download()
     {
-
     }
 
     public function testGetMimeByExtension()
@@ -340,7 +358,7 @@ class UtilsTest extends \Codeception\TestCase\Test
             'test1' => 'test1Value'
         ];
 
-        Utils::setDotNotation($array, 'test.test3.test4' , $new);
+        Utils::setDotNotation($array, 'test.test3.test4', $new);
         $this->assertEquals('test1Value', $array['test']['test3']['test4']['test1']);
     }
 
@@ -512,7 +530,6 @@ class UtilsTest extends \Codeception\TestCase\Test
 
     public function testUrlWithStreams()
     {
-
     }
 
     public function testUrlwithExternals()

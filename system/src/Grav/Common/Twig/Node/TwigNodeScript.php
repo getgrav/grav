@@ -36,8 +36,7 @@ class TwigNodeScript extends Node implements NodeCaptureInterface
         AbstractExpression $attributes = null,
         $lineno = 0,
         $tag = null
-    )
-    {
+    ) {
         parent::__construct(['body' => $body, 'file' => $file, 'group' => $group, 'priority' => $priority, 'attributes' => $attributes], [], $lineno, $tag);
     }
     /**
@@ -66,17 +65,17 @@ class TwigNodeScript extends Node implements NodeCaptureInterface
             $compiler->write('$attributes = [];' . "\n");
         }
 
-         if ($this->getNode('group') !== null) {
-             $compiler
-                 ->write("\$attributes['group'] = ")
-                 ->subcompile($this->getNode('group'))
-                 ->raw(";\n")
-                 ->write("if (!is_string(\$attributes['group'])) {\n")
-                 ->indent()
-                 ->write("throw new UnexpectedValueException('{% {$this->tagName} in x %}: x is not a string');\n")
-                 ->outdent()
-                 ->write("}\n");
-         }
+        if ($this->getNode('group') !== null) {
+            $compiler
+                ->write("\$attributes['group'] = ")
+                ->subcompile($this->getNode('group'))
+                ->raw(";\n")
+                ->write("if (!is_string(\$attributes['group'])) {\n")
+                ->indent()
+                ->write("throw new UnexpectedValueException('{% {$this->tagName} in x %}: x is not a string');\n")
+                ->outdent()
+                ->write("}\n");
+        }
 
         if ($this->getNode('priority') !== null) {
             $compiler

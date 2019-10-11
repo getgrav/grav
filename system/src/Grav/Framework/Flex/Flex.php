@@ -288,7 +288,7 @@ class Flex implements \Countable
     {
         $guess = false;
         if (strpos($flexKey, ':') !== false) {
-            [$type, $key] = explode(':',  $flexKey, 2);
+            [$type, $key] = explode(':', $flexKey, 2);
 
             $type = $this->resolveType($type);
         } else {

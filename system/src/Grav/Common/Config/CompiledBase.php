@@ -89,7 +89,9 @@ abstract class CompiledBase
     /**
      * Function gets called when cached configuration is saved.
      */
-    public function modified() {}
+    public function modified()
+    {
+    }
 
     /**
      * Get timestamp of compiled configuration
@@ -197,8 +199,7 @@ abstract class CompiledBase
         }
 
         $cache = include $filename;
-        if (
-            !\is_array($cache)
+        if (!\is_array($cache)
             || !isset($cache['checksum'], $cache['data'], $cache['@class'])
             || $cache['@class'] !== \get_class($this)
         ) {

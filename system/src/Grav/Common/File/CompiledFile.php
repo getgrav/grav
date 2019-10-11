@@ -38,8 +38,7 @@ trait CompiledFile
                 $cache = $file->exists() ? $file->content() : null;
 
                 // Load real file if cache isn't up to date (or is invalid).
-                if (
-                    !isset($cache['@class'])
+                if (!isset($cache['@class'])
                     || $cache['@class'] !== $class
                     || $cache['modified'] !== $modified
                     || $cache['filename'] !== $this->filename
@@ -76,7 +75,6 @@ trait CompiledFile
 
                 $this->content = $cache['data'];
             }
-
         } catch (\Exception $e) {
             throw new \RuntimeException(sprintf('Failed to read %s: %s', basename($this->filename), $e->getMessage()), 500, $e);
         }

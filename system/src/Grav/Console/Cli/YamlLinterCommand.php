@@ -69,7 +69,6 @@ class YamlLinterCommand extends ConsoleCommand
         } else {
             $this->displayErrors($errors, $io);
         }
-
     }
 
     protected function displayErrors($errors, $io)

@@ -33,7 +33,6 @@ class BackupCommand extends ConsoleCommand
                 'id',
                 InputArgument::OPTIONAL,
                 'The ID of the backup profile to perform without prompting'
-
             )
             ->setDescription('Creates a backup of the Grav instance')
             ->setHelp('The <info>backup</info> creates a zipped backup.');
@@ -115,6 +114,4 @@ class BackupCommand extends ConsoleCommand
                 break;
         }
     }
-
 }
-

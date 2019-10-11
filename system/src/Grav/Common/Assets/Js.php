@@ -27,7 +27,7 @@ class Js extends BaseAsset
     public function render()
     {
         if (isset($this->attributes['loading']) && $this->attributes['loading'] === 'inline') {
-            $buffer = $this->gatherLinks( [$this], self::JS_ASSET);
+            $buffer = $this->gatherLinks([$this], self::JS_ASSET);
             return '<script' . $this->renderAttributes() . ">\n" . trim($buffer) . "\n</script>\n";
         }
 

@@ -17,7 +17,7 @@ namespace Grav\Framework\Object\Base;
 trait ObjectTrait
 {
     /** @var string */
-    static protected $type;
+    protected static $type;
 
     /**
      * @var string

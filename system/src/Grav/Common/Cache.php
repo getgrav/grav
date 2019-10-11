@@ -260,8 +260,10 @@ class Cache extends Getters
             case 'memcache':
                 if (extension_loaded('memcache')) {
                     $memcache = new \Memcache();
-                    $memcache->connect($this->config->get('system.cache.memcache.server', 'localhost'),
-                        $this->config->get('system.cache.memcache.port', 11211));
+                    $memcache->connect(
+                        $this->config->get('system.cache.memcache.server', 'localhost'),
+                        $this->config->get('system.cache.memcache.port', 11211)
+                    );
                     $driver = new DoctrineCache\MemcacheCache();
                     $driver->setMemcache($memcache);
                 } else {
@@ -272,8 +274,10 @@ class Cache extends Getters
             case 'memcached':
                 if (extension_loaded('memcached')) {
                     $memcached = new \Memcached();
-                    $memcached->addServer($this->config->get('system.cache.memcached.server', 'localhost'),
-                        $this->config->get('system.cache.memcached.port', 11211));
+                    $memcached->addServer(
+                        $this->config->get('system.cache.memcached.server', 'localhost'),
+                        $this->config->get('system.cache.memcached.port', 11211)
+                    );
                     $driver = new DoctrineCache\MemcachedCache();
                     $driver->setMemcached($memcached);
                 } else {
@@ -290,8 +294,10 @@ class Cache extends Getters
                     if ($socket) {
                         $redis->connect($socket);
                     } else {
-                        $redis->connect($this->config->get('system.cache.redis.server', 'localhost'),
-                            $this->config->get('system.cache.redis.port', 6379));
+                        $redis->connect(
+                            $this->config->get('system.cache.redis.server', 'localhost'),
+                            $this->config->get('system.cache.redis.port', 6379)
+                        );
                     }
 
                     // Authenticate with password if set
@@ -446,7 +452,6 @@ class Cache extends Getters
                 } else {
                     $remove_paths = self::$standard_remove_no_images;
                 }
-
         }
 
         // Delete entries in the doctrine cache if required
@@ -459,11 +464,12 @@ class Cache extends Getters
         Grav::instance()->fireEvent('onBeforeCacheClear', new Event(['remove' => $remove, 'paths' => &$remove_paths]));
 
         foreach ($remove_paths as $stream) {
-
             // Convert stream to a real path
             try {
                 $path = $locator->findResource($stream, true, true);
-                if($path === false) continue;
+                if ($path === false) {
+                    continue;
+                }
 
                 $anything = false;
                 $files = glob($path . '/*');
@@ -528,7 +534,6 @@ class Cache extends Getters
         if (function_exists('opcache_reset')) {
             @opcache_reset();
         }
-
     }
 
     /**
@@ -634,7 +639,7 @@ class Cache extends Getters
         $name = 'cache-purge';
         $logs = 'logs/' . $name . '.out';
 
-        $job = $scheduler->addFunction('Grav\Common\Cache::purgeJob', [], $name );
+        $job = $scheduler->addFunction('Grav\Common\Cache::purgeJob', [], $name);
         $job->at($at);
         $job->output($logs);
         $job->backlink('/config/system#caching');
@@ -645,12 +650,9 @@ class Cache extends Getters
         $name = 'cache-clear';
         $logs = 'logs/' . $name . '.out';
 
-        $job = $scheduler->addFunction('Grav\Common\Cache::clearJob', [$clear_type], $name );
+        $job = $scheduler->addFunction('Grav\Common\Cache::clearJob', [$clear_type], $name);
         $job->at($at);
         $job->output($logs);
         $job->backlink('/config/system#caching');
-
     }
-
-
 }

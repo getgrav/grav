@@ -31,7 +31,7 @@ class Css extends BaseAsset
     public function render()
     {
         if (isset($this->attributes['loading']) && $this->attributes['loading'] === 'inline') {
-            $buffer = $this->gatherLinks( [$this], self::CSS_ASSET);
+            $buffer = $this->gatherLinks([$this], self::CSS_ASSET);
             return "<style>\n" . trim($buffer) . "\n</style>\n";
         }
 

@@ -59,11 +59,9 @@ class SecurityCommand extends ConsoleCommand
         $io->newline(2);
 
         if (!empty($output)) {
-
             $counter = 1;
             foreach ($output as $route => $results) {
-
-                $results_parts = array_map(function($value, $key) {
+                $results_parts = array_map(function ($value, $key) {
                     return $key.': \''.$value . '\'';
                 }, array_values($results), array_keys($results));
 
@@ -71,13 +69,11 @@ class SecurityCommand extends ConsoleCommand
             }
 
             $io->error('Security Scan complete: ' . \count($output) . ' potential XSS issues found...');
-
         } else {
             $io->success('Security Scan complete: No issues found...');
         }
 
         $io->newline(1);
-
     }
 
     /**
@@ -101,6 +97,4 @@ class SecurityCommand extends ConsoleCommand
                 break;
         }
     }
-
 }
-

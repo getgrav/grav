@@ -44,20 +44,20 @@ trait MediaTrait
      */
     public function getMediaUri()
     {
-       $folder = $this->getMediaFolder();
+        $folder = $this->getMediaFolder();
 
-       if (strpos($folder, '://')) {
-           return $folder;
-       }
+        if (strpos($folder, '://')) {
+            return $folder;
+        }
 
        /** @var UniformResourceLocator $locator */
-       $locator = Grav::instance()['locator'];
-       $user = $locator->findResource('user://');
-       if (strpos($folder, $user) === 0) {
-           return 'user://' . substr($folder, \strlen($user)+1);
-       }
+        $locator = Grav::instance()['locator'];
+        $user = $locator->findResource('user://');
+        if (strpos($folder, $user) === 0) {
+            return 'user://' . substr($folder, \strlen($user)+1);
+        }
 
-       return null;
+        return null;
     }
 
     /**

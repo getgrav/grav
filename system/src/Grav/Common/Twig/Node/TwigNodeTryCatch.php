@@ -26,8 +26,7 @@ class TwigNodeTryCatch extends Node
         Node $catch = null,
         $lineno = 0,
         $tag = null
-    )
-    {
+    ) {
         parent::__construct(['try' => $try, 'catch' => $catch], [], $lineno, $tag);
     }
 

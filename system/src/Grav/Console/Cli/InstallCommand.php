@@ -92,8 +92,6 @@ class InstallCommand extends ConsoleCommand
         } else {
             $this->output->writeln('<red>ERROR</red> invalid YAML in ' . $dependencies_file);
         }
-
-
     }
 
     /**
@@ -116,7 +114,6 @@ class InstallCommand extends ConsoleCommand
                     $this->output->writeln('<green>SUCCESS</green> cloned <magenta>' . $data['url'] . '</magenta> -> <cyan>' . $path . '</cyan>');
                 } else {
                     $this->output->writeln('<red>ERROR</red> cloning <magenta>' . $data['url']);
-
                 }
 
                 $this->output->writeln('');
@@ -124,7 +121,6 @@ class InstallCommand extends ConsoleCommand
                 $this->output->writeln('<red>' . $path . ' already exists, skipping...</red>');
                 $this->output->writeln('');
             }
-
         }
     }
 

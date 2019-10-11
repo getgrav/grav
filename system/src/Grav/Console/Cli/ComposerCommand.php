@@ -46,5 +46,4 @@ class ComposerCommand extends ConsoleCommand
         $this->output->writeln("\nInstalling vendor dependencies");
         $this->output->writeln($this->composerUpdate(GRAV_ROOT, $action));
     }
-
 }

@@ -36,8 +36,7 @@ class TwigNodeStyle extends Node implements NodeCaptureInterface
         AbstractExpression $attributes = null,
         $lineno = 0,
         $tag = null
-    )
-    {
+    ) {
         parent::__construct(['body' => $body, 'file' => $file, 'group' => $group, 'priority' => $priority, 'attributes' => $attributes], [], $lineno, $tag);
     }
     /**

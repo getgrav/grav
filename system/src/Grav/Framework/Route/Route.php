@@ -376,7 +376,6 @@ class Route
             $this->extension = $gravParts['extension'] ?? '';
             $this->gravParams = $gravParts['params'] ?: [];
             $this->queryParams = $parts['query_params'] ?: [];
-
         } else {
             $this->root = RouteFactory::getRoot();
             $this->language = RouteFactory::getLanguage();

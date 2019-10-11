@@ -21,7 +21,7 @@ class StreamsServiceProvider implements ServiceProviderInterface
 {
     public function register(Container $container)
     {
-        $container['locator'] = function(Container $container) {
+        $container['locator'] = function (Container $container) {
             $locator = new UniformResourceLocator(GRAV_ROOT);
 
             /** @var Setup $setup */
@@ -31,7 +31,7 @@ class StreamsServiceProvider implements ServiceProviderInterface
             return $locator;
         };
 
-        $container['streams'] = function(Container $container) {
+        $container['streams'] = function (Container $container) {
             /** @var Setup $setup */
             $setup = $container['setup'];
 

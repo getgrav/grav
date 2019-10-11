@@ -54,7 +54,6 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
     {
         try {
             $messages = $this->validateArray($data, $this->nested);
-
         } catch (\RuntimeException $e) {
             throw (new ValidationException($e->getMessage(), $e->getCode(), $e))->setMessages();
         }
@@ -201,7 +200,6 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
             } elseif (\is_array($field) && \is_array($val)) {
                 // Array has been defined in blueprints.
                 $field = $this->filterArray($field, $val, $missingValuesAsNull, $keepEmptyValues);
-
             } elseif (isset($rules['validation']) && $rules['validation'] === 'strict') {
                 // Skip any extra data.
                 continue;
@@ -282,7 +280,6 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
             // Check if required.
             if (isset($field['validate']['required'])
                 && $field['validate']['required'] === true) {
-
                 if (isset($data[$name])) {
                     continue;
                 }

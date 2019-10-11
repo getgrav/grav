@@ -99,7 +99,7 @@ class Collection extends Iterator
      */
     public function merge(Collection $collection)
     {
-        foreach($collection as $page) {
+        foreach ($collection as $page) {
             $this->addPage($page);
         }
 
@@ -117,7 +117,7 @@ class Collection extends Iterator
         $array1 = $this->items;
         $array2 = $collection->toArray();
 
-        $this->items = array_uintersect($array1, $array2, function($val1, $val2) {
+        $this->items = array_uintersect($array1, $array2, function ($val1, $val2) {
             return strcmp($val1['slug'], $val2['slug']);
         });
 
@@ -301,7 +301,6 @@ class Collection extends Iterator
         }
 
         return $this;
-
     }
 
     /**
@@ -600,7 +599,6 @@ class Collection extends Iterator
                         $items[$path] = $slug;
                     }
                 }
-
             }
         }
 

@@ -327,8 +327,10 @@ trait TestingAssetsTrait
      */
     protected function rglob($directory, $pattern, $ltrim = null)
     {
-        $iterator = new \RegexIterator(new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($directory,
-            \FilesystemIterator::SKIP_DOTS)), $pattern);
+        $iterator = new \RegexIterator(new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator(
+            $directory,
+            \FilesystemIterator::SKIP_DOTS
+        )), $pattern);
         $offset = \strlen($ltrim);
         $files = [];
 
@@ -338,6 +340,4 @@ trait TestingAssetsTrait
 
         return $files;
     }
-
-
 }

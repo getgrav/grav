@@ -180,7 +180,6 @@ trait FormTrait
             /** @var Twig $twig */
             $twig = $grav['twig'];
             $twig->twig_vars['form'] = $this;
-
         }
 
         try {
@@ -239,7 +238,7 @@ trait FormTrait
             $this->validateUploads($this->getFiles());
         } catch (ValidationException $e) {
             $this->setErrors($e->getMessages());
-        }  catch (\Exception $e) {
+        } catch (\Exception $e) {
             $this->setError($e->getMessage());
         }
 
@@ -385,7 +384,6 @@ trait FormTrait
         }
 
         return $list;
-
     }
 
     /**

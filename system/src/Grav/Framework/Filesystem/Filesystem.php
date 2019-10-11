@@ -19,13 +19,13 @@ class Filesystem implements FilesystemInterface
     private $normalize;
 
     /** @var static */
-    static protected $default;
+    protected static $default;
 
     /** @var static */
-    static protected $unsafe;
+    protected static $unsafe;
 
     /** @var static */
-    static protected $safe;
+    protected static $safe;
 
     /**
      * @param bool|null $normalize See $this->setNormalization()

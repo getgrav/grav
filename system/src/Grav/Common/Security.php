@@ -30,7 +30,6 @@ class Security
         ]);
 
         foreach ($routes as $path) {
-
             $status && $status([
                 'type' => 'progress',
             ]);
@@ -51,9 +50,7 @@ class Security
                     } else {
                         $list[$page->filePathClean()] = $results;
                     }
-
                 }
-
             } catch (\Exception $e) {
                 continue;
             }
@@ -111,18 +108,18 @@ class Security
         $string = urldecode($string);
 
         // Convert Hexadecimals
-        $string = (string)preg_replace_callback('!(&#|\\\)[xX]([0-9a-fA-F]+);?!u', function($m) {
+        $string = (string)preg_replace_callback('!(&#|\\\)[xX]([0-9a-fA-F]+);?!u', function ($m) {
             return \chr(hexdec($m[2]));
         }, $string);
 
         // Clean up entities
-        $string = preg_replace('!(&#0+[0-9]+)!u','$1;', $string);
+        $string = preg_replace('!(&#0+[0-9]+)!u', '$1;', $string);
 
         // Decode entities
         $string = html_entity_decode($string, ENT_NOQUOTES, 'UTF-8');
 
         // Strip whitespace characters
-        $string = preg_replace('!\s!u','', $string);
+        $string = preg_replace('!\s!u', '', $string);
 
         $config = Grav::instance()['config'];
 
@@ -152,11 +149,9 @@ class Security
         // Iterate over rules and return label if fail
         foreach ((array) $patterns as $name => $regex) {
             if ($enabled_rules[$name] === true) {
-
                 if (preg_match($regex, $string) || preg_match($regex, $orig)) {
                     return $name;
                 }
-
             }
         }
 

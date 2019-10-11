@@ -113,7 +113,7 @@ class Excerpts
 
         // If no query elements left, unset query.
         if (empty($url_parts['query'])) {
-            unset ($url_parts['query']);
+            unset($url_parts['query']);
         }
 
         // Set path to / if not set.
@@ -162,7 +162,6 @@ class Excerpts
             $filename = $url_parts['scheme'] . '://' . ($url_parts['path'] ?? '');
 
             $media = $this->page->getMedia();
-
         } else {
             $grav = Grav::instance();
 
@@ -211,7 +210,6 @@ class Excerpts
             $id = $element_excerpt['id'] ?? '';
 
             $excerpt['element'] = $medium->parsedownElement($title, $alt, $class, $id, true);
-
         } else {
             // Not a current page media file, see if it needs converting to relative.
             $excerpt['element']['attributes']['src'] = Uri::buildUrl($url_parts);

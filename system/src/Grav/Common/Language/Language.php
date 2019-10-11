@@ -105,7 +105,7 @@ class Language
     {
         $languagesArray = $this->languages; //Make local copy
 
-        $languagesArray = array_map(function($value) {
+        $languagesArray = array_map(function ($value) {
             return preg_quote($value);
         }, $languagesArray);
 
@@ -216,7 +216,6 @@ class Language
                 if ($this->active === null &&
                     $this->config->get('system.languages.http_accept_language') &&
                     $accept = $_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? false) {
-
                     $negotiator = new LanguageNegotiator();
                     $best_language = $negotiator->getBest($accept, $this->languages);
 
@@ -225,7 +224,6 @@ class Language
                     } else {
                         $this->active = $this->getDefault();
                     }
-
                 }
             }
         }
@@ -533,5 +531,4 @@ class Language
     {
         return LanguageCodes::get($code, $type);
     }
-
 }

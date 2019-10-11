@@ -121,7 +121,7 @@ class MarkdownFormatter extends AbstractFormatter
 
         // Parse header.
         preg_match($headerRegex, ltrim($data), $matches);
-        if(empty($matches)) {
+        if (empty($matches)) {
             $content[$bodyVar] = $data;
         } else {
             // Normalize frontmatter.
