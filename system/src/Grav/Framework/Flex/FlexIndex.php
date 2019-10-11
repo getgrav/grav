@@ -99,12 +99,14 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
     public function getFlexFeatures(): array
     {
         $implements = class_implements($this->getFlexDirectory()->getCollectionClass());
+
         $list = [];
         foreach ($implements as $interface) {
-            $feature = preg_replace('/(.*\\\\)(.*?)Interface$/', '\\2', $interface);
-            if ($feature) {
-                $list[] = Inflector::hyphenize($feature);
+            if ($pos = strrpos($interface, '\\')) {
+                $interface = substr($interface, $pos+1);
             }
+
+            $list[] = Inflector::hyphenize(str_replace('Interface', '', $interface));
         }
 
         return $list;
