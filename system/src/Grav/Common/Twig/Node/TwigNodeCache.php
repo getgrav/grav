@@ -17,15 +17,15 @@ use Twig\Node\Node;
 class TwigNodeCache extends Node
 {
     /**
-     * @param AbstractExpression $key
-     * @param AbstractExpression $lifetime
+     * @param String $key
+     * @param Int $lifetime
      * @param Node   $body
      * @param integer               $lineno
      * @param string                $tag
      */
-    public function __construct(AbstractExpression $key, AbstractExpression $lifetime, Node $body, $lineno, $tag = null)
+    public function __construct(String $key, int $lifetime, Node $body, $lineno, $tag = null)
     {
-        parent::__construct(array('key' => $key, 'body' => $body, 'lifetime' => $lifetime), array(), $lineno, $tag);
+        parent::__construct(array('body' => $body), array( 'key' => $key, 'lifetime' => $lifetime), $lineno, $tag);
     }
 
     /**
@@ -33,16 +33,12 @@ class TwigNodeCache extends Node
      */
     public function compile(Compiler $compiler)
     {
-
+        $boo = $this->getAttribute('key');
         $compiler
             ->addDebugInfo($this)
             ->write("\$cache = \\Grav\\Common\\Grav::instance()['cache'];\n")
-            ->write("\$key = \"twigcache-\" . ")
-                ->subcompile($this->getNode('key'))
-                ->write(";\n")
-            ->write("\$lifetime = ")
-                ->subcompile($this->getNode('lifetime'))
-                ->write(";\n")
+            ->write("\$key = \"twigcache-\" . \"" . $this->getAttribute('key') . "\";\n")
+            ->write("\$lifetime = " . $this->getAttribute('lifetime') . ";\n")
             ->write("\$cache_body = \$cache->fetch(\$key);\n")
             ->write("if (\$cache_body === false) {\n")
             ->indent()

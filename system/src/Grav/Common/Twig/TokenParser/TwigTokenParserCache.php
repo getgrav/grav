@@ -16,9 +16,11 @@ use Twig\TokenParser\AbstractTokenParser;
 /**
  * Adds ability to cache Twig between tags.
  *
- * {% cache 'unique-key' 600 %}
+ * {% cache 600 %}
  * {{ some_complex_work() }}
  * {% endcache %}
+ *
+ * Where the `600` is an optional lifetime in seconds
  */
 class TwigTokenParserCache extends AbstractTokenParser
 {
@@ -29,8 +31,8 @@ class TwigTokenParserCache extends AbstractTokenParser
     {
         $lineno = $token->getLine();
         $stream = $this->parser->getStream();
-        $key =  $this->parser->getExpressionParser()->parseExpression();
-        $lifetime =$this->parser->getExpressionParser()->parseExpression();
+        $key = $this->parser->getVarName() . $lineno;
+        $lifetime = $this->parser->getExpressionParser()->parseExpression()->getAttribute('value');
 
         $stream->expect(Token::BLOCK_END_TYPE);
         $body = $this->parser->subparse(array($this, 'decideCacheEnd'), true);
