@@ -17,13 +17,13 @@ use Twig\Node\Node;
 class TwigNodeCache extends Node
 {
     /**
-     * @param String $key
-     * @param Int $lifetime
-     * @param Node   $body
-     * @param integer               $lineno
-     * @param string                $tag
+     * @param string    $key       unique name for key
+     * @param int       $lifetime  in seconds
+     * @param Node      $body
+     * @param integer   $lineno
+     * @param string    $tag
      */
-    public function __construct(String $key, int $lifetime, Node $body, $lineno, $tag = null)
+    public function __construct(string $key, int $lifetime, Node $body, $lineno, $tag = null)
     {
         parent::__construct(array('body' => $body), array( 'key' => $key, 'lifetime' => $lifetime), $lineno, $tag);
     }

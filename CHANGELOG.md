@@ -8,6 +8,7 @@
 1. [](#improved)
     * Improved `Flex Users`: obey blueprints and allow Flex to be used in admin only
     * Improved `Flex` to support custom site template paths
+    * Changed Twig `{% cache %}` tag to not need unique key, and `lifetime` is now optional
 1. [](#bugfix)
     * Fixed `Page::untranslatedLanguages()` not being symmetrical to `Page::translatedLanguages()`
     * Fixed `Flex Pages` not calling `onPageProcessed` event when cached

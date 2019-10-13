@@ -9,6 +9,7 @@
 
 namespace Grav\Common\Twig\TokenParser;
 
+use Grav\Common\Grav;
 use Grav\Common\Twig\Node\TwigNodeCache;
 use Twig\Token;
 use Twig\TokenParser\AbstractTokenParser;
@@ -32,7 +33,13 @@ class TwigTokenParserCache extends AbstractTokenParser
         $lineno = $token->getLine();
         $stream = $this->parser->getStream();
         $key = $this->parser->getVarName() . $lineno;
-        $lifetime = $this->parser->getExpressionParser()->parseExpression()->getAttribute('value');
+        $lifetime = Grav::instance()['cache']->getLifetime();
+
+        // Check for optional lifetime override
+        if (!$stream->test(Token::BLOCK_END_TYPE)) {
+            $lifetime_expr = $this->parser->getExpressionParser()->parseExpression();
+            $lifetime = $lifetime_expr->getAttribute('value');
+        }
 
         $stream->expect(Token::BLOCK_END_TYPE);
         $body = $this->parser->subparse(array($this, 'decideCacheEnd'), true);
