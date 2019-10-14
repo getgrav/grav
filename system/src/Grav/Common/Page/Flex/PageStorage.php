@@ -13,6 +13,7 @@ namespace Grav\Common\Page\Flex;
 
 use Grav\Common\Debugger;
 use Grav\Common\Grav;
+use Grav\Common\Language\Language;
 use Grav\Framework\Flex\Storage\FolderStorage;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
@@ -25,6 +26,7 @@ class PageStorage extends FolderStorage
     protected $ignore_files;
     protected $ignore_folders;
     protected $ignore_hidden;
+    protected $include_default_lang_file_extension;
     protected $recurse;
     protected $base_path;
 
@@ -44,6 +46,7 @@ class PageStorage extends FolderStorage
         $this->ignore_hidden = (bool)$config->get('system.pages.ignore_hidden');
         $this->ignore_files = (array)$config->get('system.pages.ignore_files');
         $this->ignore_folders = (array)$config->get('system.pages.ignore_folders');
+        $this->include_default_lang_file_extension = $config->get('system.languages.include_default_lang_file_extension', true);
         $this->recurse = $options['recurse'] ?? true;
         $this->regex = '/(\.([\w\d_-]+))?\.md$/D';
     }
@@ -184,6 +187,17 @@ class PageStorage extends FolderStorage
         $folder = $row['folder'] ?? $meta['folder']  ?? $keyMeta['folder'] ?? '';
         $template = $row['template'] ?? $meta['template'] ?? $keyMeta['template'] ?? '';
         $lang = $row['lang'] ?? $meta['lang'] ?? $keyMeta['lang'] ?? '';
+
+        // Handle default language, if it should be saved without language extension.
+        if ($lang && !$this->include_default_lang_file_extension  && empty($meta['markdown'][$lang])) {
+            $grav = Grav::instance();
+
+            /** @var Language $langauge */
+            $language = $grav['language'];
+            if ($lang === $language->getDefault()) {
+                $lang = '';
+            }
+        }
 
         $keys = [
             'key' => null,

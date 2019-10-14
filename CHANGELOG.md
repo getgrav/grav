@@ -17,9 +17,10 @@
     * Fixed fatal error if there are numeric folders in `Flex Pages`
     * Fixed error on missing `Flex` templates in if `Flex Objects` plugin isn't installed
     * Fixed `PageTranslateTrait::getAllLanguages()` and `getAllLanguages()` to include default language
+    * Fixed multi-language saving issues with default language in `Flex Pages`
     * Grav 1.7: Fixed PHP 7.1 compatibility issues
     * Selfupgrade CLI: Fixed broken selfupgrade assets reference [#2681](https://github.com/getgrav/grav/issues/2681)
-
+    
 # v1.7.0-beta.10
 ## 10/03/2019
 
