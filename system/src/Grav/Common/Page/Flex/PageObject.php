@@ -472,7 +472,7 @@ class PageObject extends FlexPageObject
         // Change storage location if needed.
         if (array_key_exists('route', $elements) && isset($elements['folder'], $elements['name'])) {
             $elements['template'] = $elements['name'];
-            $parentRoute = $elements['route'];
+            $parentRoute = $elements['route'] ?? '';
 
             // Figure out storage path to the new route.
             $parentKey = trim($parentRoute, '/');
