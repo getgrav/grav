@@ -188,7 +188,7 @@ class Debugger
                 if ($this->currentTime !== GRAV_REQUEST_TIME) {
                     $debugbar['time']->addMeasure('Loading', GRAV_REQUEST_TIME, $this->currentTime);
                 }
-                $debugbar['time']->addMeasure('Site Setup', $this->currentTime,  microtime(true));
+                $debugbar['time']->addMeasure('Site Setup', $this->currentTime, microtime(true));
             }
 
             $this->addMessage('Grav v' . GRAV_VERSION . ' - PHP ' . PHP_VERSION);
@@ -320,7 +320,9 @@ class Debugger
             return new Response(404, $headers, json_encode($response));
         }
 
-        $data = is_array($data) ? array_map(function ($item) { return $item->toArray(); }, $data) : $data->toArray();
+        $data = is_array($data) ? array_map(function ($item) {
+            return $item->toArray();
+        }, $data) : $data->toArray();
 
         return new Response(200, $headers, json_encode($data));
     }
@@ -347,7 +349,7 @@ class Debugger
             }
 
             if ($debTimeLine) {
-                $debTimeLine->addMeasure($description ?? $name, $startTime,  $endTime);
+                $debTimeLine->addMeasure($description ?? $name, $startTime, $endTime);
             }
         }
         $this->timers = [];
@@ -377,8 +379,6 @@ class Debugger
     public function addAssets()
     {
         if ($this->enabled) {
-
-
             // Only add assets if Page is HTML
             $page = $this->grav['page'];
             if ($page->templateFormat() !== 'html') {
@@ -397,7 +397,6 @@ class Debugger
 
             // Debugbar specific assets
             if ($this->debugbar) {
-
                 // Add jquery library
                 $assets->add('jquery', 101);
 
@@ -416,7 +415,6 @@ class Debugger
                     $assets->addJs($js);
                 }
             }
-
         }
 
         return $this;
@@ -589,7 +587,7 @@ class Debugger
         });
 
         uasort($timings, function (array $a, array $b) {
-           return $b['wt'] <=> $a['wt'];
+            return $b['wt'] <=> $a['wt'];
         });
 
         $table = [];

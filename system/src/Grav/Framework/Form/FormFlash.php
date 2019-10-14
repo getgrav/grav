@@ -62,7 +62,9 @@ class FormFlash implements FormFlashInterface
                 'unique_id' => $args[1] ?? null,
                 'form_name' => $args[2] ?? null,
             ];
-            $config = array_filter($config, static function ($val) { return $val !== null; });
+            $config = array_filter($config, static function ($val) {
+                return $val !== null;
+            });
         }
 
         $this->sessionId = $config['session_id'] ?? 'no-session';
@@ -112,7 +114,8 @@ class FormFlash implements FormFlashInterface
         if ($exists) {
             try {
                 $data = (array)$file->content();
-            } catch (\Exception $e) {}
+            } catch (\Exception $e) {
+            }
         }
 
         return $data;

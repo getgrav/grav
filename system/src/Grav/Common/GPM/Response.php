@@ -234,7 +234,6 @@ class Response
 
         if ($bytes_transferred > 0) {
             if ($notification_code == STREAM_NOTIFY_PROGRESS | STREAM_NOTIFY_COMPLETED || $isCurlResource) {
-
                 $progress = [
                     'code'        => $notification_code,
                     'filesize'    => $filesize,

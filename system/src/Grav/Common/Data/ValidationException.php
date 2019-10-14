@@ -15,7 +15,8 @@ class ValidationException extends \RuntimeException
 {
     protected $messages = [];
 
-    public function setMessages(array $messages = []) {
+    public function setMessages(array $messages = [])
+    {
         $this->messages = $messages;
 
         $language = Grav::instance()['language'];

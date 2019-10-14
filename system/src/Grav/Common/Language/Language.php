@@ -115,7 +115,7 @@ class Language
     {
         $languagesArray = $this->languages; //Make local copy
 
-        $languagesArray = array_map(function($value) use ($delimiter) {
+        $languagesArray = array_map(function ($value) use ($delimiter) {
             return preg_quote($value, $delimiter);
         }, $languagesArray);
 
@@ -232,7 +232,6 @@ class Language
                 if ($this->active === null &&
                     $this->config->get('system.languages.http_accept_language') &&
                     $accept = $_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? false) {
-
                     $negotiator = new LanguageNegotiator();
                     $best_language = $negotiator->getBest($accept, $this->languages);
 
@@ -241,7 +240,6 @@ class Language
                     } else {
                         $this->setActive($this->getDefault());
                     }
-
                 }
             }
         }
@@ -404,7 +402,6 @@ class Language
                     }
                 }
                 $fallback_languages = array_reverse($fallback_languages);
-
             } else {
                 if (null === $fallback) {
                     $fallback = [$default];

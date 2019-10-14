@@ -274,4 +274,3 @@ class PageSystemValidatorCommand extends ConsoleCommand
         return CompiledYamlFile::instance('cache://tests/' . $name . '.yaml');
     }
 }
-

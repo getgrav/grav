@@ -32,7 +32,7 @@ class Excerpts
         $excerpt = static::processLinkExcerpt($excerpt, $page, 'image');
 
         $excerpt['element']['attributes']['src'] = $excerpt['element']['attributes']['href'];
-        unset ($excerpt['element']['attributes']['href']);
+        unset($excerpt['element']['attributes']['href']);
 
         $excerpt = static::processImageExcerpt($excerpt, $page);
 

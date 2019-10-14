@@ -33,7 +33,7 @@ trait PageRoutableTrait
         return $this->loadHeaderProperty(
             'url_extension',
             null,
-            function($value) {
+            function ($value) {
                 if ($this->home()) {
                     return '';
                 }
@@ -56,7 +56,7 @@ trait PageRoutableTrait
         $value = $this->loadHeaderProperty(
             'routable',
             $var,
-            function($value) {
+            function ($value) {
                 return ($value ?? true) && $this->published() && $this->getLanguages(true);
             }
         );
@@ -243,7 +243,7 @@ trait PageRoutableTrait
         return $this->loadHeaderProperty(
             'redirect',
             $var,
-            static function($value) {
+            static function ($value) {
                 return trim($value) ?: null;
             }
         );
@@ -306,7 +306,7 @@ trait PageRoutableTrait
         return $this->loadProperty(
             'folder',
             $var,
-            function($value) {
+            function ($value) {
                 if (null === $value) {
                     $value = $this->getStorageKey(true) ?: $this->getKey();
                 }
@@ -328,7 +328,7 @@ trait PageRoutableTrait
         return $this->loadProperty(
             'parent_key',
             $var,
-            function($value) {
+            function ($value) {
                 if (null === $value) {
                     $value = $this->getStorageKey(true) ?: $this->getKey();
                     $value = ltrim(dirname("/{$value}"), '/') ?: '';

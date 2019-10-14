@@ -674,7 +674,6 @@ class Validation
         }
 
         return (array) Yaml::parse($value);
-
     }
 
     /**
@@ -794,7 +793,9 @@ class Validation
 
     public static function filterItem_List($value, $params)
     {
-        return array_values(array_filter($value, function($v) { return !empty($v); } ));
+        return array_values(array_filter($value, function ($v) {
+            return !empty($v);
+        }));
     }
 
     public static function validateJson($value, $params)

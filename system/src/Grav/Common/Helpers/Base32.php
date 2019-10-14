@@ -33,7 +33,8 @@ class Base32
      */
     public static function encode($bytes)
     {
-        $i = 0; $index = 0;
+        $i = 0;
+        $index = 0;
         $base32 = '';
         $bytesLen = \strlen($bytes);
 

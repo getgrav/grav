@@ -26,8 +26,7 @@ class TwigNodeTryCatch extends Node
         Node $catch = null,
         $lineno = 0,
         $tag = null
-    )
-    {
+    ) {
         $nodes = ['try' => $try, 'catch' => $catch];
         $nodes = array_filter($nodes);
 

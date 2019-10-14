@@ -46,7 +46,7 @@ trait PageContentTrait
         return $this->loadHeaderProperty(
             'date',
             $var,
-            function($value) {
+            function ($value) {
                 $value = $value ? Utils::date2timestamp($value, $this->getProperty('dateformat')) : false;
 
                 if (!$value) {

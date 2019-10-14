@@ -84,7 +84,6 @@ class PagesServiceProvider implements ServiceProviderInterface
 
             // if page is not found, try some fallback stuff
             if (!$page || !$page->routable()) {
-
                 // Try fallback URL stuff...
                 $page = $grav->fallbackUrl($path);
 

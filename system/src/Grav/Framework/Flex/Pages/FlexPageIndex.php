@@ -28,7 +28,7 @@ class FlexPageIndex extends FlexIndex
      * @return string
      * @internal
      */
-    static public function normalizeRoute(string $route)
+    public static function normalizeRoute(string $route)
     {
         static $case_insensitive;
 

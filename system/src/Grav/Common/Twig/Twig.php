@@ -308,7 +308,6 @@ class Twig
                 $this->setTemplate($name, $content);
                 $output = $local_twig->render($name, $twig_vars);
             }
-
         } catch (LoaderError $e) {
             throw new \RuntimeException($e->getRawMessage(), 404, $e);
         }
@@ -338,7 +337,6 @@ class Twig
         }
 
         return $output;
-
     }
 
 

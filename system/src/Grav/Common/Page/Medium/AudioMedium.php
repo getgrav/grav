@@ -39,7 +39,7 @@ class AudioMedium extends Medium
      */
     public function controls($display = true)
     {
-        if($display) {
+        if ($display) {
             $this->attributes['controls'] = true;
         } else {
             unset($this->attributes['controls']);
@@ -88,7 +88,7 @@ class AudioMedium extends Medium
      */
     public function muted($status = false)
     {
-        if($status) {
+        if ($status) {
             $this->attributes['muted'] = true;
         } else {
             unset($this->attributes['muted']);
@@ -105,7 +105,7 @@ class AudioMedium extends Medium
      */
     public function loop($status = false)
     {
-        if($status) {
+        if ($status) {
             $this->attributes['loop'] = true;
         } else {
             unset($this->attributes['loop']);
@@ -122,7 +122,7 @@ class AudioMedium extends Medium
      */
     public function autoplay($status = false)
     {
-        if($status) {
+        if ($status) {
             $this->attributes['autoplay'] = true;
         } else {
             unset($this->attributes['autoplay']);

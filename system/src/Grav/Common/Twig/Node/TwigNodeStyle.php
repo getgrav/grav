@@ -36,8 +36,7 @@ class TwigNodeStyle extends Node implements NodeCaptureInterface
         ?AbstractExpression $attributes,
         $lineno = 0,
         $tag = null
-    )
-    {
+    ) {
         $nodes = ['body' => $body, 'file' => $file, 'group' => $group, 'priority' => $priority, 'attributes' => $attributes];
         $nodes = array_filter($nodes);
 

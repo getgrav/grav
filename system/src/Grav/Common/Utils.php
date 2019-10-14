@@ -88,7 +88,6 @@ abstract class Utils
                         // Return location where the file would be if it was saved.
                         $resource = $locator->findResource("{$scheme}://{$host}{$path}", false, true);
                     }
-
                 } elseif ($host || $port) {
                     // If URL doesn't have scheme but has host or port, it is external.
                     return str_replace(' ', '%20', $input);
@@ -105,12 +104,10 @@ abstract class Utils
                         $resource .= '#' . $parts['fragment'];
                     }
                 }
-
             } else {
                 // Not a valid URL (can still be a stream).
                 $resource = $locator->findResource($input, false);
             }
-
         } else {
             $root = $uri->rootUrl();
 
@@ -222,7 +219,8 @@ abstract class Utils
      * @param string $haystack
      * @return false|int
      */
-    public static function matchWildcard($wildcard_pattern, $haystack) {
+    public static function matchWildcard($wildcard_pattern, $haystack)
+    {
         $regex = str_replace(
             array("\*", "\?"), // wildcard chars
             array('.*','.'),   // regexp chars
@@ -245,7 +243,7 @@ abstract class Utils
         $opening = $brackets[0] ?? '{';
         $closing = $brackets[1] ?? '}';
         $expression = '/' . preg_quote($opening, '/') . '(.*?)' . preg_quote($closing, '/') . '/';
-        $callback = static function($match) use ($variables) {
+        $callback = static function ($match) use ($variables) {
             return $variables[$match[1]] ?? $match[0];
         };
 
@@ -308,8 +306,7 @@ abstract class Utils
     {
         $pos = strrpos($subject, $search);
 
-        if($pos !== false)
-        {
+        if ($pos !== false) {
             $subject = static::mb_substr_replace($subject, $replace, $pos, mb_strlen($search));
         }
 
@@ -653,8 +650,7 @@ abstract class Utils
 
                     // Return 304 Not Modified if the file is already cached in the browser
                     if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) &&
-                        strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) >= filemtime($file))
-                    {
+                        strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) >= filemtime($file)) {
                         header('HTTP/1.1 304 Not Modified');
                         exit();
                     }
@@ -670,7 +666,7 @@ abstract class Utils
                 if ($range) {
                     fseek($fp, $range);
                 }
-                while (!feof($fp) && (!connection_aborted()) && ($bytes_send < $new_length) ) {
+                while (!feof($fp) && (!connection_aborted()) && ($bytes_send < $new_length)) {
                     $buffer = fread($fp, $chunksize);
                     echo($buffer); //echo($buffer); // is also possible
                     flush();
@@ -893,7 +889,7 @@ abstract class Utils
     public static function checkFilename($filename)
     {
         $dangerous_extensions = Grav::instance()['config']->get('security.uploads_dangerous_extensions', []);
-        array_walk($dangerous_extensions, function(&$val) {
+        array_walk($dangerous_extensions, function (&$val) {
             $val = '.' . $val;
         });
 
@@ -936,7 +932,7 @@ abstract class Utils
         }
 
         // Strip off leading / to ensure explode is accurate
-        if (Utils::startsWith($path,'/')) {
+        if (Utils::startsWith($path, '/')) {
             $root .= '/';
             $path = ltrim($path, '/');
         }
@@ -1330,8 +1326,7 @@ abstract class Utils
         while (count($keys) > 1) {
             $key = array_shift($keys);
 
-            if ( ! isset($array[$key]) || ! is_array($array[$key]))
-            {
+            if (! isset($array[$key]) || ! is_array($array[$key])) {
                 $array[$key] = array();
             }
 
@@ -1364,7 +1359,8 @@ abstract class Utils
      *
      * @return bool
      */
-    public static function isApache() {
+    public static function isApache()
+    {
         return isset($_SERVER['SERVER_SOFTWARE']) && strpos($_SERVER['SERVER_SOFTWARE'], 'Apache') !== false;
     }
 
@@ -1566,11 +1562,11 @@ abstract class Utils
 
         $parts = parse_url($enc_url);
 
-        if($parts === false) {
+        if ($parts === false) {
             throw new \InvalidArgumentException('Malformed URL: ' . $url);
         }
 
-        foreach($parts as $name => $value) {
+        foreach ($parts as $name => $value) {
             $parts[$name] = urldecode($value);
         }
 
@@ -1634,15 +1630,22 @@ abstract class Utils
 
         // Maximum netmask length = same as packed address
         $len = 8*strlen($ip);
-        if ($prefix > $len) $prefix = $len;
+        if ($prefix > $len) {
+            $prefix = $len;
+        }
 
         $mask  = str_repeat('f', $prefix>>2);
 
-        switch($prefix & 3)
-        {
-            case 3: $mask .= 'e'; break;
-            case 2: $mask .= 'c'; break;
-            case 1: $mask .= '8'; break;
+        switch ($prefix & 3) {
+            case 3:
+                $mask .= 'e';
+                break;
+            case 2:
+                $mask .= 'c';
+                break;
+            case 1:
+                $mask .= '8';
+                break;
         }
         $mask = str_pad($mask, $len>>2, '0');
 

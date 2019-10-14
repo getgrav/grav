@@ -84,8 +84,10 @@ class Installer
         $options = array_merge(self::$options, $options);
         $install_path = rtrim($destination . DS . ltrim($options['install_path'], DS), DS);
 
-        if (!self::isGravInstance($destination) || !self::isValidDestination($install_path,
-                $options['exclude_checks'])
+        if (!self::isGravInstance($destination) || !self::isValidDestination(
+            $install_path,
+            $options['exclude_checks']
+        )
         ) {
             return false;
         }
@@ -160,7 +162,6 @@ class Installer
         self::$error = self::OK;
 
         return true;
-
     }
 
     /**
@@ -297,7 +298,6 @@ class Installer
     public static function sophisticatedInstall($source_path, $install_path, $ignores = [], $keep_source = false)
     {
         foreach (new \DirectoryIterator($source_path) as $file) {
-
             if ($file->isLink() || $file->isDot() || \in_array($file->getFilename(), $ignores, true)) {
                 continue;
             }
@@ -410,8 +410,7 @@ class Installer
         self::$error = 0;
         self::$target = $target;
 
-        if (
-            !file_exists($target . DS . 'index.php') ||
+        if (!file_exists($target . DS . 'index.php') ||
             !file_exists($target . DS . 'bin') ||
             !file_exists($target . DS . 'user') ||
             !file_exists($target . DS . 'system' . DS . 'config' . DS . 'system.yaml')
@@ -473,7 +472,7 @@ class Installer
             case self::ZIP_EXTRACT_ERROR:
                 $msg = 'Unable to extract the package. ';
                 if (self::$error_zip) {
-                    switch(self::$error_zip) {
+                    switch (self::$error_zip) {
                         case \ZipArchive::ER_EXISTS:
                             $msg .= 'File already exists.';
                             break;

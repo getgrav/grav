@@ -217,7 +217,6 @@ class SandboxCommand extends ConsoleCommand
             $destination = $this->source . '/user/pages';
             Folder::rcopy($destination, $pages_dir);
             $this->output->writeln('    <cyan>' . $destination . '</cyan> <comment>-></comment> Created');
-
         }
     }
 

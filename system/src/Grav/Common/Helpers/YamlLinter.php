@@ -87,5 +87,4 @@ class YamlLinter
         }
         return $contents;
     }
-
 }

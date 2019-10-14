@@ -13,7 +13,6 @@ use Twig\Compiler;
 use Twig\Node\Expression\AbstractExpression;
 use Twig\Node\Node;
 
-
 class TwigNodeCache extends Node
 {
     /**

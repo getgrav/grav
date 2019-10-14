@@ -39,12 +39,12 @@ trait LegacyAssetsTrait
         }
 
         switch ($type) {
-            case(Assets::JS_TYPE):
+            case (Assets::JS_TYPE):
                 $defaults = ['priority' => null, 'pipeline' => true, 'loading' => null, 'group' => null];
                 $arguments = $this->createArgumentsFromLegacy($args, $defaults);
                 break;
 
-            case(Assets::INLINE_JS_TYPE):
+            case (Assets::INLINE_JS_TYPE):
                 $defaults = ['priority' => null, 'group' => null, 'attributes' => null];
                 $arguments = $this->createArgumentsFromLegacy($args, $defaults);
 
@@ -57,13 +57,13 @@ trait LegacyAssetsTrait
 
                 break;
 
-            case(Assets::INLINE_CSS_TYPE):
+            case (Assets::INLINE_CSS_TYPE):
                 $defaults = ['priority' => null, 'group' => null];
                 $arguments = $this->createArgumentsFromLegacy($args, $defaults);
                 break;
 
             default:
-            case(Assets::CSS_TYPE):
+            case (Assets::CSS_TYPE):
                 $defaults = ['priority' => null, 'pipeline' => true, 'group' => null, 'loading' => null];
                 $arguments = $this->createArgumentsFromLegacy($args, $defaults);
         }
@@ -121,5 +121,4 @@ trait LegacyAssetsTrait
 
         return $this->addJs($asset, $priority, $pipeline, 'defer', $group);
     }
-
 }

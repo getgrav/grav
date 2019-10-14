@@ -37,7 +37,7 @@ class Group extends Data
     {
         $groups = [];
 
-        foreach(static::groups() as $groupname => $group) {
+        foreach (static::groups() as $groupname => $group) {
             $groups[$groupname] = $group['readableName'] ?? $groupname;
         }
 

@@ -60,7 +60,7 @@ class Backups
             $name = $inflector::hyphenize($profile['name']);
             $logs = 'logs/backup-' . $name . '.out';
             /** @var Job $job */
-            $job = $scheduler->addFunction('Grav\Common\Backup\Backups::backup', [$id], $name );
+            $job = $scheduler->addFunction('Grav\Common\Backup\Backups::backup', [$id], $name);
             $job->at($at);
             $job->output($logs);
             $job->backlink('/tools/backups');
@@ -71,8 +71,10 @@ class Backups
     {
         $param_sep = $param_sep = Grav::instance()['config']->get('system.param_sep', ':');
         $download = urlencode(base64_encode($backup));
-        $url      = rtrim(Grav::instance()['uri']->rootUrl(true), '/') . '/' . trim($base_url,
-                '/') . '/task' . $param_sep . 'backup/download' . $param_sep . $download . '/admin-nonce' . $param_sep . Utils::getNonce('admin-form');
+        $url      = rtrim(Grav::instance()['uri']->rootUrl(true), '/') . '/' . trim(
+            $base_url,
+            '/'
+        ) . '/task' . $param_sep . 'backup/download' . $param_sep . $download . '/admin-nonce' . $param_sep . Utils::getNonce('admin-form');
 
         return $url;
     }
@@ -113,7 +115,6 @@ class Backups
              * @var \SplFileInfo $file
              */
             foreach ($backups_itr as $name => $file) {
-
                 if (preg_match(static::BACKUP_FILENAME_REGEXZ, $name, $matches)) {
                     $date = \DateTime::createFromFormat(static::BACKUP_DATE_FORMAT, $matches[2]);
                     $timestamp = $date->getTimestamp();
@@ -220,13 +221,12 @@ class Backups
         $trigger = $purge_config['trigger'];
         $backups = static::getAvailableBackups(true);
 
-        switch ($trigger)
-        {
+        switch ($trigger) {
             case 'number':
                 $backups_count = count($backups);
                 if ($backups_count > $purge_config['max_backups_count']) {
                     $last = end($backups);
-                    unlink ($last->path);
+                    unlink($last->path);
                     static::purge();
                 }
                 break;

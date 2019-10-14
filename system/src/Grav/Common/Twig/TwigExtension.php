@@ -546,11 +546,9 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
         if ($now > $unix_date) {
             $difference = $now - $unix_date;
             $tense      = $this->grav['language']->translate('GRAV.NICETIME.AGO', null, true);
-
         } elseif ($now == $unix_date) {
             $difference = $now - $unix_date;
             $tense      = $this->grav['language']->translate('GRAV.NICETIME.JUST_NOW', null, false);
-
         } else {
             $difference = $unix_date - $now;
             $tense      = $this->grav['language']->translate('GRAV.NICETIME.FROM_NOW', null, true);
@@ -566,8 +564,10 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             $periods[$j] .= '_PLURAL';
         }
 
-        if ($this->grav['language']->getTranslation($this->grav['language']->getLanguage(),
-            $periods[$j] . '_MORE_THAN_TWO')
+        if ($this->grav['language']->getTranslation(
+            $this->grav['language']->getLanguage(),
+            $periods[$j] . '_MORE_THAN_TWO'
+        )
         ) {
             if ($difference > 2) {
                 $periods[$j] .= '_MORE_THAN_TWO';
@@ -599,7 +599,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
         }
 
         $results = Security::detectXssFromArray($data);
-        $results_parts = array_map(function($value, $key) {
+        $results_parts = array_map(function ($value, $key) {
             return $key.': \''.$value . '\'';
         }, array_values($results), array_keys($results));
 
@@ -617,7 +617,6 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
         $string = preg_replace('/((?:href|src) *= *[\'"](?!(http|ftp)))/i', "$1$url", $string);
 
         return $string;
-
     }
 
     /**
@@ -664,7 +663,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
     public function definedDefaultFilter($value, $default = null)
     {
         return $value ?? $default;
-        }
+    }
 
     /**
      * @param string $value
@@ -839,7 +838,8 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      * @param string $twig
      * @return mixed
      */
-    public function evaluateTwigFunc($context, $twig ) {
+    public function evaluateTwigFunc($context, $twig)
+    {
 
         $loader = new FilesystemLoader('.');
         $env = new Environment($loader);
@@ -856,7 +856,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      * @param string $string
      * @return mixed
      */
-    public function evaluateStringFunc($context, $string )
+    public function evaluateStringFunc($context, $string)
     {
         return $this->evaluateTwigFunc($context, "{{ $string }}");
     }
@@ -1169,7 +1169,6 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             $exif_reader = $this->grav['exif']->getReader();
 
             if ($image && file_exists($image) && $this->config->get('system.media.auto_metadata_exif') && $exif_reader) {
-
                 $exif_data = $exif_reader->read($image);
 
                 if ($exif_data) {
@@ -1408,11 +1407,10 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      * @param string|null $className
      * @return bool
      */
-    public function ofTypeFunc($var, $typeTest=null, $className=null)
+    public function ofTypeFunc($var, $typeTest = null, $className = null)
     {
 
-        switch ($typeTest)
-        {
+        switch ($typeTest) {
             default:
                 return false;
                 break;

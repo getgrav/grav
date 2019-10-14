@@ -909,7 +909,9 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
         $list = $this->getNestedProperty($property) ?: [];
 
         /** @var FlexCollection $collection */
-        $collection = $collection->filter(function ($object) use ($list) { return \in_array($object->id, $list, true); });
+        $collection = $collection->filter(function ($object) use ($list) {
+            return \in_array($object->id, $list, true);
+        });
 
         return $collection;
     }
@@ -1012,7 +1014,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
             $elements['storage_timestamp'] = (int)$elements['storage_timestamp'];
         }
 
-        unset ($elements['_post_entries_save']);
+        unset($elements['_post_entries_save']);
     }
 
     /**

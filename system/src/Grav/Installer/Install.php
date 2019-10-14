@@ -144,7 +144,7 @@ class Install
     {
         $results = [];
 
-        $this->checkVersion($results, 'php','php', $this->requires['php'], PHP_VERSION);
+        $this->checkVersion($results, 'php', 'php', $this->requires['php'], PHP_VERSION);
         $this->checkVersion($results, 'grav', 'grav', $this->requires['grav'], GRAV_VERSION);
         $this->checkPlugins($results, $this->requires['plugins']);
 

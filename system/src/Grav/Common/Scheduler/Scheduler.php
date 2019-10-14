@@ -52,7 +52,6 @@ class Scheduler
         if (!file_exists($this->status_path)) {
             Folder::create($this->status_path);
         }
-
     }
 
     /**
@@ -108,7 +107,6 @@ class Scheduler
                     $foreground[] = $job;
                 }
             }
-
         }
         return [$background, $foreground];
     }
@@ -182,7 +180,7 @@ class Scheduler
         }
 
         // Finish handling any background jobs
-        foreach($background as $job) {
+        foreach ($background as $job) {
             $job->finalize();
         }
 

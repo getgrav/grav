@@ -469,7 +469,7 @@ trait PageLegacyTrait
         return $this->loadHeaderProperty(
             'template',
             $var,
-            function($value) {
+            function ($value) {
                 return trim($value ?? (($this->modular() ? 'modular/' : '') . str_replace($this->extension(), '', $this->name())));
             }
         );
@@ -488,7 +488,7 @@ trait PageLegacyTrait
         return $this->loadHeaderProperty(
             'template_format',
             $var,
-            function($value) {
+            function ($value) {
                 return ltrim($value ?? $this->getNestedProperty('header.append_url_extension') ?: Utils::getPageFormat(), '.');
             }
         );
@@ -528,7 +528,7 @@ trait PageLegacyTrait
         return $this->loadHeaderProperty(
             'expires',
             $var,
-            static function($value) {
+            static function ($value) {
                 return (int)($value ?? Grav::instance()['config']->get('system.pages.expires'));
             }
         );
@@ -546,7 +546,7 @@ trait PageLegacyTrait
         return $this->loadHeaderProperty(
             'cache_control',
             $var,
-            static function($value) {
+            static function ($value) {
                 return ((string)($value ?? Grav::instance()['config']->get('system.pages.cache_control'))) ?: null;
             }
         );
@@ -557,7 +557,7 @@ trait PageLegacyTrait
         return $this->loadHeaderProperty(
             'ssl',
             $var,
-            static function($value) {
+            static function ($value) {
                 return $value ? (bool)$value : null;
             }
         );
@@ -669,7 +669,7 @@ trait PageLegacyTrait
         return $this->loadHeaderProperty(
             'etag',
             $var,
-            static function($value) {
+            static function ($value) {
                 return (bool)($value ?? Grav::instance()['config']->get('system.pages.last_modified'));
             }
         );
@@ -730,7 +730,7 @@ trait PageLegacyTrait
         return $this->loadHeaderProperty(
             'order_dir',
             $var,
-            static function($value) {
+            static function ($value) {
                 return strtolower(trim($value) ?: Grav::instance()['config']->get('system.pages.order.dir')) === 'desc' ? 'desc' : 'asc';
             }
         );
@@ -753,7 +753,7 @@ trait PageLegacyTrait
         return $this->loadHeaderProperty(
             'order_by',
             $var,
-            static function($value) {
+            static function ($value) {
                 return trim($value) ?: Grav::instance()['config']->get('system.pages.order.by');
             }
         );
@@ -771,7 +771,7 @@ trait PageLegacyTrait
         return $this->loadHeaderProperty(
             'order_manual',
             $var,
-            static function($value) {
+            static function ($value) {
                 return (array)$value;
             }
         );
@@ -790,7 +790,7 @@ trait PageLegacyTrait
         return $this->loadHeaderProperty(
             'max_count',
             $var,
-            static function($value) {
+            static function ($value) {
                 return (int)($value ?? Grav::instance()['config']->get('system.pages.list.count'));
             }
         );

@@ -28,8 +28,8 @@ class YamlLinterCommand extends ConsoleCommand
                 'The environment to trigger a specific configuration. For example: localhost, mysite.dev, www.mysite.com'
             )
             ->addOption(
-               'all',
-               'a',
+                'all',
+                'a',
                 InputOption::VALUE_NONE,
                 'Go through the whole Grav installation'
             )

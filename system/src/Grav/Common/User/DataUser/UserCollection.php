@@ -54,7 +54,7 @@ class UserCollection implements UserCollectionInterface
         $content = (array)$file->content() + ['username' => $username, 'state' => 'enabled'];
 
         $userClass = $this->className;
-        $callable = function() {
+        $callable = function () {
             $blueprints = new Blueprints;
 
             return $blueprints->get('user/account');

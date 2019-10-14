@@ -421,7 +421,6 @@ class Grav extends Container
                 if ($this['config']->get('system.cache.gzip')) {
                     // Flush gzhandler buffer if gzip setting was enabled.
                     ob_end_flush();
-
                 } else {
                     // Without gzip we have no other choice than to prevent server from compressing the output.
                     // This action turns off mod_deflate which would prevent us from closing the connection.
@@ -430,7 +429,6 @@ class Grav extends Container
                     } else {
                         header('Content-Encoding: none');
                     }
-
                 }
 
 

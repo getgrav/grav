@@ -114,7 +114,7 @@ class Collection extends Iterator implements PageCollectionInterface
      */
     public function merge(PageCollectionInterface $collection)
     {
-        foreach($collection as $page) {
+        foreach ($collection as $page) {
             $this->addPage($page);
         }
 
@@ -132,7 +132,7 @@ class Collection extends Iterator implements PageCollectionInterface
         $array1 = $this->items;
         $array2 = $collection->toArray();
 
-        $this->items = array_uintersect($array1, $array2, function($val1, $val2) {
+        $this->items = array_uintersect($array1, $array2, function ($val1, $val2) {
             return strcmp($val1['slug'], $val2['slug']);
         });
 
@@ -602,7 +602,6 @@ class Collection extends Iterator implements PageCollectionInterface
                         $items[$path] = $slug;
                     }
                 }
-
             }
         }
 

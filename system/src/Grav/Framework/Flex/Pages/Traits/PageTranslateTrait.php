@@ -206,7 +206,7 @@ trait PageTranslateTrait
         return $this->loadHeaderProperty(
             'lang',
             $var,
-            function($value) {
+            function ($value) {
                 $value = $value ?? $this->getMetaData()['lang'] ?? '';
 
                 return trim($value) ?: null;

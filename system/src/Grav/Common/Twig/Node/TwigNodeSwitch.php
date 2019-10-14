@@ -28,8 +28,7 @@ class TwigNodeSwitch extends Node
         Node $default = null,
         $lineno = 0,
         $tag = null
-    )
-    {
+    ) {
         $nodes = ['value' => $value, 'cases' => $cases, 'default' => $default];
         $nodes = array_filter($nodes);
 

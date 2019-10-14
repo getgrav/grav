@@ -121,8 +121,10 @@ class SelfupgradeCommand extends ConsoleCommand
         $this->output->writeln('You are currently using v<cyan>' . GRAV_VERSION . '</cyan>.');
 
         if (!$this->all_yes) {
-            $question = new ConfirmationQuestion('Would you like to read the changelog before proceeding? [y|N] ',
-                false);
+            $question = new ConfirmationQuestion(
+                'Would you like to read the changelog before proceeding? [y|N] ',
+                false
+            );
             $answer = $questionHelper->ask($this->input, $this->output, $question);
 
             if ($answer) {
@@ -239,8 +241,12 @@ class SelfupgradeCommand extends ConsoleCommand
     public function progress($progress)
     {
         $this->output->write("\x0D");
-        $this->output->write("  |- Downloading upgrade [{$this->formatBytes($progress['filesize']) }]... " . str_pad($progress['percent'],
-                5, ' ', STR_PAD_LEFT) . '%');
+        $this->output->write("  |- Downloading upgrade [{$this->formatBytes($progress['filesize']) }]... " . str_pad(
+            $progress['percent'],
+            5,
+            ' ',
+            STR_PAD_LEFT
+        ) . '%');
     }
 
     /**

@@ -248,7 +248,7 @@ trait FormTrait
             $this->validateUploads($this->getFiles());
         } catch (ValidationException $e) {
             $this->setErrors($e->getMessages());
-        }  catch (\Exception $e) {
+        } catch (\Exception $e) {
             /** @var Debugger $debugger */
             $debugger = Grav::instance()['debugger'];
             $debugger->addException($e);

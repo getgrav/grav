@@ -43,5 +43,4 @@ class ConsoleCommand extends Command
         $this->output->writeln('GPM Releases Configuration: <yellow>' . ucfirst(Grav::instance()['config']->get('system.gpm.releases')) . '</yellow>');
         $this->output->writeln('');
     }
-
 }
