@@ -646,10 +646,8 @@ class ImageMedium extends Medium
     {
         if ($this->alternatives) {
             $max = reset($this->alternatives);
-            foreach($this->alternatives as $alternative)
-            {
-                if($alternative->quality() > $max->quality())
-                {
+            foreach ($this->alternatives as $alternative) {
+                if ($alternative->quality() > $max->quality()) {
                     $max = $alternative;
                 }
             }
@@ -659,5 +657,4 @@ class ImageMedium extends Medium
 
         return $this;
     }
-
 }

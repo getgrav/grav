@@ -117,7 +117,6 @@ class IndexCommand extends ConsoleCommand
             $packages = $this->sort($packages);
 
             if (!empty($packages)) {
-
                 $table = [];
                 $index    = 0;
 

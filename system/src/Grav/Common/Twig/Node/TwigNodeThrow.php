@@ -26,8 +26,7 @@ class TwigNodeThrow extends Node
         Node $message,
         $lineno = 0,
         $tag = null
-    )
-    {
+    ) {
         parent::__construct(['message' => $message], ['code' => $code], $lineno, $tag);
     }
 

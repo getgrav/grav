@@ -26,6 +26,5 @@ class DebuggerAssetsProcessor extends ProcessorBase
         $this->stopTimer();
 
         return $handler->handle($request);
-
     }
 }

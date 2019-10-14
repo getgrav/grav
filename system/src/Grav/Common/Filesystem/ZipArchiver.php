@@ -97,7 +97,7 @@ class ZipArchiver extends Archiver
             'message' => 'Adding empty folders...'
         ]);
 
-        foreach($folders as $folder) {
+        foreach ($folders as $folder) {
             $zip->addEmptyDir($folder);
             $status && $status([
                 'type' => 'progress',

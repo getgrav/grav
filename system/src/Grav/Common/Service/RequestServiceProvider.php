@@ -31,7 +31,7 @@ class RequestServiceProvider implements ServiceProviderInterface
             return $creator->fromGlobals();
         };
 
-        $container['route'] = $container->factory(function() {
+        $container['route'] = $container->factory(function () {
             return clone Uri::getCurrentRoute();
         });
     }

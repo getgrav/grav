@@ -17,7 +17,6 @@ class CsvFormatterTest extends \Codeception\TestCase\Test
 
         self::assertCount(3, $lines);
         self::assertEquals('col1,col2,col3', $lines[0]);
-
     }
 
     /**
@@ -43,5 +42,4 @@ class CsvFormatterTest extends \Codeception\TestCase\Test
         $encoded = (new CsvFormatter())->encode([]);
         self::assertEquals('', $encoded);
     }
-
 }

@@ -149,7 +149,6 @@ class SchedulerCommand extends ConsoleCommand
 
             $table->setRows($rows);
             $table->render();
-
         } elseif ($this->input->getOption('install')) {
             $io->title('Install Scheduler');
 

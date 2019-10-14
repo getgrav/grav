@@ -56,6 +56,4 @@ class TwigTokenParserCache extends AbstractTokenParser
     {
         return 'cache';
     }
-
-
 }

@@ -54,7 +54,7 @@ class PagesTest extends \Codeception\TestCase\Test
     public function testInstances()
     {
         $this->assertInternalType('array', $this->pages->instances());
-        foreach($this->pages->instances() as $instance) {
+        foreach ($this->pages->instances() as $instance) {
             $this->assertInstanceOf(PageInterface::class, $instance);
         }
     }
@@ -219,14 +219,13 @@ class PagesTest extends \Codeception\TestCase\Test
 
     public function testBlueprints()
     {
-
     }
 
     public function testAll()
     {
         $this->assertInternalType('object', $this->pages->all());
         $this->assertInternalType('array', $this->pages->all()->toArray());
-        foreach($this->pages->all() as $page) {
+        foreach ($this->pages->all() as $page) {
             $this->assertInstanceOf(PageInterface::class, $page);
         }
     }
@@ -241,47 +240,37 @@ class PagesTest extends \Codeception\TestCase\Test
 
     public function testGetTypes()
     {
-
     }
 
     public function testTypes()
     {
-
     }
 
     public function testModularTypes()
     {
-
     }
 
     public function testPageTypes()
     {
-
     }
 
     public function testAccessLevels()
     {
-
     }
 
     public function testParents()
     {
-
     }
 
     public function testParentsRawRoutes()
     {
-
     }
 
     public function testGetHomeRoute()
     {
-
     }
 
     public function testResetPages()
     {
-
     }
-
 }

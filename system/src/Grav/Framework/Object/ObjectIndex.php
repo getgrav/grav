@@ -24,7 +24,7 @@ use Grav\Framework\Object\Interfaces\ObjectCollectionInterface;
 abstract class ObjectIndex extends AbstractIndexCollection implements ObjectCollectionInterface, NestedObjectInterface
 {
     /** @var string */
-    static protected $type;
+    protected static $type;
 
     /**
      * @var string

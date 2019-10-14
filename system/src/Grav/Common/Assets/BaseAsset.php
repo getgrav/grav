@@ -88,7 +88,6 @@ abstract class BaseAsset extends PropertyObject
 
             // Move this to render?
             if (!$this->remote) {
-
                 $asset_parts = parse_url($asset);
                 if (isset($asset_parts['query'])) {
                     $this->query = $asset_parts['query'];

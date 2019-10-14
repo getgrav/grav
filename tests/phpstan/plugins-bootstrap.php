@@ -30,7 +30,7 @@ $grav['config']->init();
 /** @var UniformResourceLocator $locator */
 $locator = Grav::instance()['locator'];
 $iterator = $locator->getIterator('plugins://');
-foreach($iterator as $directory) {
+foreach ($iterator as $directory) {
     if (!$directory->isDir()) {
         continue;
     }

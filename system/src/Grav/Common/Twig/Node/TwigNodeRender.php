@@ -31,8 +31,7 @@ class TwigNodeRender extends Node implements NodeCaptureInterface
         ?AbstractExpression $context,
         $lineno,
         $tag = null
-    )
-    {
+    ) {
         $nodes = ['object' => $object, 'layout' => $layout, 'context' => $context];
         $nodes = array_filter($nodes);
 

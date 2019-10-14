@@ -141,5 +141,4 @@ class ImageFile extends Image
 
         $this->hash = sha1(serialize($datas));
     }
-
 }

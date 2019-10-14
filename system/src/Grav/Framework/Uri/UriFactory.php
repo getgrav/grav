@@ -122,7 +122,9 @@ class UriFactory
 
         $encodedUrl = preg_replace_callback(
             '%[^:/@?&=#]+%u',
-            function ($matches) { return rawurlencode($matches[0]); },
+            function ($matches) {
+                return rawurlencode($matches[0]);
+            },
             $url
         );
 

@@ -85,10 +85,10 @@ class Pages
     protected $initialized = false;
 
     /** @var Types */
-    static protected $types;
+    protected static $types;
 
     /** @var string|null */
-    static protected $home_route;
+    protected static $home_route;
 
     /**
      * Constructor
@@ -543,7 +543,6 @@ class Pages
                 } else {
                     $result = $result + $this->evaluate([$key => $val], $self)->toArray();
                 }
-
             }
 
             return new Collection($result);
@@ -689,7 +688,6 @@ class Pages
         }
 
         return $sort;
-
     }
 
     /**
@@ -767,7 +765,6 @@ class Pages
     public function inherited($route, $field = null)
     {
         if ($field !== null) {
-
             $page = $this->find($route, true);
 
             $parent = $page ? $page->parent() : null;
@@ -821,7 +818,6 @@ class Pages
 
         // If the page cannot be reached, look into site wide redirects, routes + wildcards
         if (!$all && $not_admin) {
-
             // If the page is a simple redirect, just do it.
             if ($redirect && $page && $page->redirect()) {
                 $this->grav->redirectLangSafe($page->redirect());
@@ -990,7 +986,6 @@ class Pages
             if (isset($parents[$page_route])) {
                 unset($parents[$page_route]);
             }
-
         }
 
         return $parents;
@@ -1089,7 +1084,6 @@ class Pages
                     $scanBlueprintsAndTemplates();
                     $cache->save($types_cache_id, self::$types);
                 }
-
             } else {
                 self::$types = new Types();
                 $scanBlueprintsAndTemplates();
@@ -1237,7 +1231,6 @@ class Pages
                     } catch (ErrorException $e) {
                         $home = $home_aliases[$default];
                     }
-
                 }
             }
 
@@ -1275,8 +1268,7 @@ class Pages
         $dispatcher = $this->grav['events'];
         $dispatcher->addListener(
             'onFlexInit',
-            static function (Event $event) use ($directory)
-            {
+            static function (Event $event) use ($directory) {
                 /** @var Flex $flex */
                 $flex = $event['flex'];
                 $flex->addDirectory($directory);
@@ -1303,7 +1295,8 @@ class Pages
                 $menu = $directory->getConfig('admin.menu.list');
                 $header->access = $menu['authorize'] ?? ['admin.pages', 'admin.super'];
             },
-            100000);
+            100000
+        );
 
         $this->directory = $directory;
     }
@@ -1827,7 +1820,7 @@ class Pages
                     }
                     $header_value = $child_header->get($header_query[0]);
                     if (is_array($header_value)) {
-                        $list[$key] = implode(',',$header_value);
+                        $list[$key] = implode(',', $header_value);
                     } elseif ($header_value) {
                         $list[$key] = $header_value;
                     } else {
@@ -1857,7 +1850,7 @@ class Pages
                 $col = Collator::create($locale);
                 if ($col) {
                     if (($sort_flags & SORT_NATURAL) === SORT_NATURAL) {
-                        $list = preg_replace_callback('~([0-9]+)\.~', function($number) {
+                        $list = preg_replace_callback('~([0-9]+)\.~', function ($number) {
                             return sprintf('%032d.', $number[0]);
                         }, $list);
 

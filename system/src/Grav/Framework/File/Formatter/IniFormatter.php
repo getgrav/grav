@@ -37,10 +37,10 @@ class IniFormatter extends AbstractFormatter
         $string = '';
         foreach ($data as $key => $value) {
             $string .= $key . '="' .  preg_replace(
-                    ['/"/', '/\\\/', "/\t/", "/\n/", "/\r/"],
-                    ['\"',  '\\\\', '\t',   '\n',   '\r'],
-                    $value
-                ) . "\"\n";
+                ['/"/', '/\\\/', "/\t/", "/\n/", "/\r/"],
+                ['\"',  '\\\\', '\t',   '\n',   '\r'],
+                $value
+            ) . "\"\n";
         }
 
         return $string;

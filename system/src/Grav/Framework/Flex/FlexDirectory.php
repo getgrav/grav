@@ -468,7 +468,6 @@ class FlexDirectory implements FlexAuthorizeInterface
         }
 
         return $this->objectClassName;
-
     }
 
     /**
@@ -770,7 +769,8 @@ class FlexDirectory implements FlexAuthorizeInterface
         $index = $this->index;
 
         if (null === $index) {
-            $i++; $j = $i;
+            $i++;
+            $j = $i;
             /** @var Debugger $debugger */
             $debugger = Grav::instance()['debugger'];
             $debugger->startTimer('flex-keys-' . $this->type . $j, "Flex: Loading {$this->type} index");
@@ -790,8 +790,10 @@ class FlexDirectory implements FlexAuthorizeInterface
                 $className = $this->getIndexClass();
                 $keys = $className::loadEntriesFromStorage($storage);
                 if (!$cache instanceof MemoryCache) {
-                    $debugger->addMessage(sprintf('Flex: Caching %s index of %d objects', $this->type, \count($keys)),
-                        'debug');
+                    $debugger->addMessage(
+                        sprintf('Flex: Caching %s index of %d objects', $this->type, \count($keys)),
+                        'debug'
+                    );
                 }
                 try {
                     $cache->set('__keys', $keys);

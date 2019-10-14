@@ -95,8 +95,8 @@ class CsvFormatter extends AbstractFormatter
                     $csv_line = str_getcsv($line, $delimiter);
 
                     if ($null_replace) {
-                        array_walk($csv_line, static function(&$el) use ($null_replace) {
-                           $el = str_replace($null_replace, null, $el);
+                        array_walk($csv_line, static function (&$el) use ($null_replace) {
+                            $el = str_replace($null_replace, null, $el);
                         });
                     }
 

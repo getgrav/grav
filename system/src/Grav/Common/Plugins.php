@@ -30,7 +30,7 @@ class Plugins extends Iterator
         $iterator = $locator->getIterator('plugins://');
 
         $plugins = [];
-        foreach($iterator as $directory) {
+        foreach ($iterator as $directory) {
             if (!$directory->isDir()) {
                 continue;
             }
@@ -224,5 +224,4 @@ class Plugins extends Iterator
 
         return $class;
     }
-
 }

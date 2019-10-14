@@ -108,7 +108,6 @@ class Licenses
      * @return \RocketTheme\Toolbox\File\FileInterface
      */
     public static function getLicenseFile()
-
     {
         if (!isset(self::$file)) {
             $path = Grav::instance()['locator']->findResource('user-data://') . '/licenses.yaml';

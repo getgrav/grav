@@ -439,7 +439,6 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
                         $entries[$key] = $object;
                     }
                 }
-
             }
         }
 

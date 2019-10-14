@@ -376,7 +376,9 @@ class PageObject extends FlexPageObject
                         'tags' => $tags,
                         'actions' => null,
                     ];
-                    $extras = array_filter($extras, static function($v) { return $v !== null; });
+                    $extras = array_filter($extras, static function ($v) {
+                        return $v !== null;
+                    });
                     $payload = [
                         'item-key' => basename($child->rawRoute()),
                         'icon' => $icon,
@@ -389,7 +391,9 @@ class PageObject extends FlexPageObject
                         'child_count' => count($child->children()) ?: null,
                         'extras' => $extras
                     ];
-                    $payload = array_filter($payload, static function($v) { return $v !== null; });
+                    $payload = array_filter($payload, static function ($v) {
+                        return $v !== null;
+                    });
                 }
 
                 // Add children if any

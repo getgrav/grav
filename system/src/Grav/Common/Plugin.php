@@ -168,8 +168,7 @@ class Plugin implements EventSubscriberInterface, \ArrayAccess
     {
         $grav = Grav::instance();
         $override = implode('.', ["priorities", $this->name, $eventName, $params[0]]);
-        if ($grav['config']->get($override) !== null)
-        {
+        if ($grav['config']->get($override) !== null) {
             return $grav['config']->get($override);
         } elseif (isset($params[1])) {
             return $params[1];
@@ -305,7 +304,7 @@ class Plugin implements EventSubscriberInterface, \ArrayAccess
 
             // Create new config object and set it on the page object so it's cached for next time
             $page->modifyHeader($class_name_merged, new Data($header));
-        } else if (isset($page_header->{$class_name_merged})) {
+        } elseif (isset($page_header->{$class_name_merged})) {
             $merged = $page_header->{$class_name_merged};
             $header = $merged->toArray();
         }

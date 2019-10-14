@@ -89,6 +89,8 @@ trait PageTranslateTrait
             $list[$languageCode ?: $defaultCode] = $route ?? '';
         }
 
-        return array_filter($list, static function($var) { return null !== $var; });
+        return array_filter($list, static function ($var) {
+            return null !== $var;
+        });
     }
 }

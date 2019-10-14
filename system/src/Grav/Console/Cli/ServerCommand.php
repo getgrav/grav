@@ -85,7 +85,7 @@ class ServerCommand extends ConsoleCommand
             unset($commands[self::SYMFONY_SERVER]);
         }
 
-        foreach($commands as $name => $command) {
+        foreach ($commands as $name => $command) {
             $process = $this->runProcess($name, $command);
 
             if (!$process) {

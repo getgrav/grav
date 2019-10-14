@@ -27,7 +27,7 @@ use RocketTheme\Toolbox\Event\Event;
  */
 trait PageContentTrait
 {
-    static protected $headerProperties = [
+    protected static $headerProperties = [
         'slug'              => 'slug',
         'routes'            => false,
         'title'             => 'title',
@@ -59,7 +59,7 @@ trait PageContentTrait
         'debugger'          => false,
     ];
 
-    static protected $calculatedProperties = [
+    protected static $calculatedProperties = [
         'name' => 'name',
         'parent' => 'parent',
         'parent_key' => 'parentStorageKey',
@@ -194,7 +194,7 @@ trait PageContentTrait
         return $this->loadHeaderProperty(
             'title',
             $var,
-            function($value) {
+            function ($value) {
                 return trim($value ?? ($this->root() ? '<root>' : ucfirst($this->slug())));
             }
         );
@@ -208,7 +208,7 @@ trait PageContentTrait
         return $this->loadHeaderProperty(
             'menu',
             $var,
-            function($value) {
+            function ($value) {
                 return trim($value ?: $this->title());
             }
         );
@@ -222,7 +222,7 @@ trait PageContentTrait
         $value = $this->loadHeaderProperty(
             'visible',
             $var,
-            function($value) {
+            function ($value) {
                 return ($value ?? $this->order() !== false) && !$this->modular();
             }
         );
@@ -238,7 +238,7 @@ trait PageContentTrait
         return $this->loadHeaderProperty(
             'published',
             $var,
-            static function($value) {
+            static function ($value) {
                 return (bool)($value ?? true);
             }
         );
@@ -252,7 +252,7 @@ trait PageContentTrait
         return $this->loadHeaderProperty(
             'publish_date',
             $var,
-            function($value) {
+            function ($value) {
                 return $value ? Utils::date2timestamp($value, $this->getProperty('dateformat')) : null;
             }
         );
@@ -266,7 +266,7 @@ trait PageContentTrait
         return $this->loadHeaderProperty(
             'unpublish_date',
             $var,
-            function($value) {
+            function ($value) {
                 return $value ? Utils::date2timestamp($value, $this->getProperty('dateformat')) : null;
             }
         );
@@ -280,7 +280,7 @@ trait PageContentTrait
         return $this->loadHeaderProperty(
             'process',
             $var,
-            function($value) {
+            function ($value) {
                 $value = array_replace(Grav::instance()['config']->get('system.pages.process', []), is_array($value) ? $value : []);
                 foreach ($value as $process => $status) {
                     $value[$process] = (bool)$status;
@@ -299,7 +299,7 @@ trait PageContentTrait
         return $this->loadHeaderProperty(
             'slug',
             $var,
-            function($value) {
+            function ($value) {
                 return $value ?: static::normalizeRoute(preg_replace(PAGE_ORDER_PREFIX_REGEX, '', $this->folder()));
             }
         );
@@ -313,7 +313,7 @@ trait PageContentTrait
         $property = $this->loadProperty(
             'order',
             $var,
-            function($value) {
+            function ($value) {
                 if (null === $value) {
                     preg_match(static::PAGE_ORDER_REGEX, $this->folder(), $order);
 
@@ -337,7 +337,7 @@ trait PageContentTrait
         $property = 'id';
         $value = null === $var ? $this->getProperty($property) : null;
         if (null === $value) {
-            $value = $this->language() . ($var ?? ($this->modified() . md5( 'flex-' . $this->getFlexType() . '-' . $this->getKey())));
+            $value = $this->language() . ($var ?? ($this->modified() . md5('flex-' . $this->getFlexType() . '-' . $this->getKey())));
 
             $this->setProperty($property, $value);
             if ($this->doHasProperty($property)) {
@@ -375,7 +375,7 @@ trait PageContentTrait
         return $this->loadHeaderProperty(
             'last_modified',
             $var,
-            static function($value) {
+            static function ($value) {
                 return (bool)($value ?? Grav::instance()['config']->get('system.pages.last_modified'));
             }
         );
@@ -389,7 +389,7 @@ trait PageContentTrait
         return $this->loadHeaderProperty(
             'date',
             $var,
-            function($value) {
+            function ($value) {
                 $value = $value ? Utils::date2timestamp($value, $this->getProperty('dateformat')) : false;
 
                 return $value ?: $this->modified();
@@ -405,7 +405,7 @@ trait PageContentTrait
         return $this->loadHeaderProperty(
             'dateformat',
             $var,
-            static function($value) {
+            static function ($value) {
                 return $value ?? null;
             }
         );
@@ -419,14 +419,14 @@ trait PageContentTrait
         return $this->loadHeaderProperty(
             'taxonomy',
             $var,
-            static function($value) {
+            static function ($value) {
                 if (is_array($value)) {
                     // make sure first level are arrays
-                    array_walk($value, static function(&$val) {
+                    array_walk($value, static function (&$val) {
                         $val = (array) $val;
                     });
                     // make sure all values are strings
-                    array_walk_recursive($value, static function(&$val) {
+                    array_walk_recursive($value, static function (&$val) {
                         $val = (string) $val;
                     });
                 }
@@ -691,7 +691,6 @@ trait PageContentTrait
 
                 // Content Processed but not cached yet
                 $grav->fireEvent('onPageContentProcessed', new Event(['page' => $this]));
-
             } else {
                 if ($process_markdown) {
                     $this->_content = $this->processMarkdown($this->_content, $options);

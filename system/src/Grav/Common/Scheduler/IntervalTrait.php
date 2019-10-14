@@ -396,4 +396,3 @@ trait IntervalTrait
         return $value;
     }
 }
-

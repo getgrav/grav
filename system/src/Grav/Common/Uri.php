@@ -639,7 +639,7 @@ class Uri
             $ip = getenv('HTTP_FORWARDED_FOR');
         } elseif (getenv('HTTP_FORWARDED')) {
             $ip = getenv('HTTP_FORWARDED');
-        } elseif (getenv('REMOTE_ADDR')){
+        } elseif (getenv('REMOTE_ADDR')) {
             $ip = getenv('REMOTE_ADDR');
         } else {
             $ip = 'UNKNOWN';
@@ -774,7 +774,6 @@ class Uri
         } elseif ($url_path === '/' || ($base_url !== '' && Utils::startsWith($url_path, $base_url))) {
             $url_path = $base_url . $url_path;
         } else {
-
             // see if page is relative to this or absolute
             if (Utils::startsWith($url_path, '/')) {
                 $normalized_url = Utils::normalizePath($base_url . $url_path);
@@ -837,7 +836,6 @@ class Uri
 
         // handle absolute URLs
         if (\is_array($url) && !$external && ($absolute === true || $grav['config']->get('system.absolute_urls', false))) {
-
             $url['scheme'] = $uri->scheme(true);
             $url['host'] = $uri->host();
             $url['port'] = $uri->port(true);
@@ -899,7 +897,9 @@ class Uri
 
         $encodedUrl = preg_replace_callback(
             '%[^:/@?&=#]+%usD',
-            function ($matches) { return rawurlencode($matches[0]); },
+            function ($matches) {
+                return rawurlencode($matches[0]);
+            },
             $url
         );
 
@@ -909,7 +909,7 @@ class Uri
             return false;
         }
 
-        foreach($parts as $name => $value) {
+        foreach ($parts as $name => $value) {
             $parts[$name] = rawurldecode($value);
         }
 
@@ -1101,7 +1101,7 @@ class Uri
     {
         $regex = '/(\/)\/+/';
         $path = str_replace(['\\', '/ /'], '/', $path);
-        $path = preg_replace($regex,'$1',$path);
+        $path = preg_replace($regex, '$1', $path);
 
         return $path;
     }
@@ -1158,7 +1158,7 @@ class Uri
         } elseif (isset($env['HTTP_CLOUDFRONT_FORWARDED_PROTO'])) {
             $this->scheme = $env['HTTP_CLOUDFRONT_FORWARDED_PROTO'];
         } elseif (isset($env['REQUEST_SCHEME']) && empty($env['HTTPS'])) {
-           $this->scheme = $env['REQUEST_SCHEME'];
+            $this->scheme = $env['REQUEST_SCHEME'];
         } else {
             $https = $env['HTTPS'] ?? '';
             $this->scheme = (empty($https) || strtolower($https) === 'off') ? 'http' : 'https';
@@ -1182,17 +1182,17 @@ class Uri
 
         // Build port.
         if (isset($env['HTTP_X_FORWARDED_PORT'])) {
-           $this->port = (int)$env['HTTP_X_FORWARDED_PORT'];
+            $this->port = (int)$env['HTTP_X_FORWARDED_PORT'];
         } elseif (isset($env['X-FORWARDED-PORT'])) {
-           $this->port = (int)$env['X-FORWARDED-PORT'];
+            $this->port = (int)$env['X-FORWARDED-PORT'];
         } elseif (isset($env['HTTP_CLOUDFRONT_FORWARDED_PROTO'])) {
            // Since AWS Cloudfront does not provide a forwarded port header,
            // we have to build the port using the scheme.
-           $this->port = $this->port();
+            $this->port = $this->port();
         } elseif (isset($env['SERVER_PORT'])) {
-           $this->port = (int)$env['SERVER_PORT'];
+            $this->port = (int)$env['SERVER_PORT'];
         } else {
-           $this->port = null;
+            $this->port = null;
         }
 
         if ($this->hasStandardPort()) {
@@ -1333,7 +1333,7 @@ class Uri
         if (isset($_SERVER['CONTENT_TYPE'])) {
             $content_type = $_SERVER['CONTENT_TYPE'];
             if ($short) {
-                return Utils::substrToString($content_type,';');
+                return Utils::substrToString($content_type, ';');
             }
             return $content_type;
         }
@@ -1366,7 +1366,9 @@ class Uri
     public function setUriProperties($data)
     {
         foreach (get_object_vars($this) as $property => $default) {
-            if (!array_key_exists($property, $data)) continue;
+            if (!array_key_exists($property, $data)) {
+                continue;
+            }
             $this->{$property} = $data[$property]; // assign value to object
         }
         return $this;

@@ -322,8 +322,6 @@ class AssetsTest extends \Codeception\TestCase\Test
         $this->assets->add('test.css', ['media' => 'only screen and (min-width: 640px)']);
         $css = $this->assets->css();
         $this->assertSame('<link href="/test.css" type="text/css" rel="stylesheet" media="only screen and (min-width: 640px)">' . PHP_EOL, $css);
-
-
     }
 
     public function testAddingAssetPropertiesWithArray()
@@ -334,7 +332,6 @@ class AssetsTest extends \Codeception\TestCase\Test
         $js = $this->assets->js();
         $this->assertSame('<script src="/test.js" async></script>' . PHP_EOL, $js);
         $this->assets->reset();
-
     }
 
     public function testAddingJSAssetPropertiesWithArrayFromCollection()
@@ -444,7 +441,6 @@ class AssetsTest extends \Codeception\TestCase\Test
         $this->assets->addInlineJs('alert("test")', 15, 'bottom', ['id' => 'foo']);
         $js = $this->assets->js('bottom');
         $this->assertSame('<script id="foo">' . PHP_EOL . 'alert("test")' . PHP_EOL . '</script>' . PHP_EOL, $js);
-
     }
 
     public function testAddingCSSAssetPropertiesWithArrayFromCollection()
@@ -773,6 +769,5 @@ class AssetsTest extends \Codeception\TestCase\Test
         $this->assertGreaterThan(0, (array) $this->assets->getCss());
         $this->assertInternalType('array', $this->assets->getJs());
         $this->assertGreaterThan(0, (array) $this->assets->getJs());
-
     }
 }
