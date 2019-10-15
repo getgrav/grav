@@ -137,10 +137,9 @@ trait PageLegacyTrait
         /** @var Pages $pages */
         $pages = Grav::instance()['pages'];
 
-        /** @var Pages $pages */
         $inherited = $pages->inherited($this->getProperty('parent_route'), $field);
         $inheritedParams = $inherited ? (array)$inherited->value('header.' . $field) : [];
-        $currentParams = (array)$this->value('header.' . $field);
+        $currentParams = (array)$this->getFormValue('header.' . $field);
         if ($inheritedParams && is_array($inheritedParams)) {
             $currentParams = array_replace_recursive($inheritedParams, $currentParams);
         }
@@ -185,7 +184,7 @@ trait PageLegacyTrait
 
         if (is_string($params)) {
             // Look into a page header field.
-            $params = (array)$this->value('header.' . $params);
+            $params = (array)$this->getFormValue('header.' . $params);
         } elseif (!is_array($params)) {
             throw new \InvalidArgumentException('Argument should be either header variable name or array of parameters');
         }

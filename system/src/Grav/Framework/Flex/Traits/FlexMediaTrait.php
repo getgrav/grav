@@ -14,7 +14,6 @@ use Grav\Common\Filesystem\Folder;
 use Grav\Common\Grav;
 use Grav\Common\Media\Interfaces\MediaCollectionInterface;
 use Grav\Common\Media\Traits\MediaTrait;
-use Grav\Common\Page\Medium\AbstractMedia;
 use Grav\Common\Page\Medium\Medium;
 use Grav\Common\Page\Medium\MediumFactory;
 use Grav\Common\Utils;
@@ -66,15 +65,13 @@ trait FlexMediaTrait
     public function getMedia()
     {
         if ($this->media === null) {
-            /** @var AbstractMedia $media */
+            $updated = false;
             $media = $this->getExistingMedia();
 
             // Include uploaded media to the object media.
-            /** @var FormFlashFile|null $upload */
-            $updated = false;
             foreach ($this->getUpdatedMedia() as $filename => $upload) {
                 // Just make sure we do not include removed or moved media.
-                if ($upload && $upload->getError() === \UPLOAD_ERR_OK && !$upload->isMoved()) {
+                if (null !== $upload && $upload->getError() === \UPLOAD_ERR_OK && !$upload->isMoved()) {
                     $updated = true;
                     $media->add($filename, MediumFactory::fromUploadedFile($upload));
                 }
@@ -110,7 +107,7 @@ trait FlexMediaTrait
                 throw new RuntimeException($language->translate('PLUGIN_ADMIN.UNKNOWN_ERRORS'), 400);
         }
 
-        $filename = $uploadedFile->getClientFilename();
+        $filename = $uploadedFile->getClientFilename() ?? '';
 
         if (!Utils::checkFilename($filename)) {
             throw new RuntimeException(sprintf($language->translate('PLUGIN_ADMIN.FILEUPLOAD_UNABLE_TO_UPLOAD'), $filename, 'Bad filename'), 400);
@@ -164,7 +161,7 @@ trait FlexMediaTrait
         }
 
         if ($locator->isStream($path)) {
-            $path = $locator->findResource($path, true, true);
+            $path = (string)$locator->findResource($path, true, true);
             $locator->clearCache($path);
         }
 
@@ -180,7 +177,7 @@ trait FlexMediaTrait
                 }
                 if ($uploadedFile->getError() === \UPLOAD_ERR_OK) {
                     $uploadedFile->moveTo($filepath);
-                } elseif (!file_exists($filepath) && $pos = strpos($filename, '/')) {
+                } elseif ($filename && !file_exists($filepath) && $pos = strpos($filename, '/')) {
                     $origpath = sprintf('%s/%s', $path, substr($filename, $pos));
                     if (file_exists($origpath)) {
                         copy($origpath, $filepath);
@@ -223,8 +220,8 @@ trait FlexMediaTrait
         $targetPath = $path . '/' . $dirname;
         $targetFile = $path . '/' . $filename;
         if ($locator->isStream($targetFile)) {
-            $targetPath = $locator->findResource($targetPath, true, true);
-            $targetFile = $locator->findResource($targetFile, true, true);
+            $targetPath = (string)$locator->findResource($targetPath, true, true);
+            $targetFile = (string)$locator->findResource($targetFile, true, true);
             $locator->clearCache($targetPath);
             $locator->clearCache($targetFile);
         }
@@ -243,15 +240,20 @@ trait FlexMediaTrait
         }
 
         // Remove Extra Files
-        foreach (scandir($targetPath, SCANDIR_SORT_NONE) as $file) {
+        $dir = scandir($targetPath, SCANDIR_SORT_NONE);
+        if (false === $dir) {
+            throw new \RuntimeException('Internal error');
+        }
+
+        foreach ($dir as $file) {
             $preg_name = preg_quote($fileParts['filename'], '`');
-            $preg_ext =preg_quote($fileParts['extension'], '`');
+            $preg_ext = preg_quote($fileParts['extension'] ?? '.', '`');
             $preg_filename = preg_quote($basename, '`');
 
             if (preg_match("`({$preg_name}@\d+x\.{$preg_ext}(?:\.meta\.yaml)?$|{$preg_filename}\.meta\.yaml)$`", $file)) {
                 $testPath = $targetPath . '/' . $file;
                 if ($locator->isStream($testPath)) {
-                    $testPath = $locator->findResource($testPath, true, true);
+                    $testPath = (string)$locator->findResource($testPath, true, true);
                     $locator->clearCache($testPath);
                 }
 
@@ -274,11 +276,11 @@ trait FlexMediaTrait
     {
         $list = [];
         foreach ($files as $field => $group) {
-            if ($field === '' || \strpos($field, '/')) {
+            if ($field === '' || \strpos((string)$field, '/')) {
                 continue;
             }
             foreach ($group as $filename => $file) {
-                $list[$filename] = $file;
+                $list[(string)$filename] = $file;
             }
         }
 
@@ -286,7 +288,7 @@ trait FlexMediaTrait
     }
 
     /**
-     * @return array<UploadedFileInterface,null>
+     * @return array<UploadedFileInterface|null>
      */
     protected function getUpdatedMedia(): array
     {
@@ -323,7 +325,7 @@ trait FlexMediaTrait
 
         $file = $uri && $locator->isStream($uri) ? $locator->findResource($uri) : $uri;
 
-        return $file && file_exists($file) ? MediumFactory::fromFile($file) : null;
+        return is_string($file) && file_exists($file) ? MediumFactory::fromFile($file) : null;
     }
 
     /**

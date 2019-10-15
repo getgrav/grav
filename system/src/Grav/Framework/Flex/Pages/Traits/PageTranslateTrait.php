@@ -12,6 +12,7 @@ namespace Grav\Framework\Flex\Pages\Traits;
 use Grav\Common\Grav;
 use Grav\Common\Language\Language;
 use Grav\Common\Page\Interfaces\PageInterface;
+use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
 
 /**
  * Implements PageTranslateInterface
@@ -39,7 +40,7 @@ trait PageTranslateTrait
     /**
      * @param string|null $languageCode
      * @param bool|null $fallback
-     * @return static|null
+     * @return FlexObjectInterface|null
      */
     public function getTranslation(string $languageCode = null, bool $fallback = null)
     {
@@ -84,7 +85,12 @@ trait PageTranslateTrait
         $languages = array_fill_keys($languages, false);
         $translated = array_fill_keys(array_keys($translated), true);
 
-        return array_replace($languages, $translated);
+        $all = array_replace($languages, $translated);
+        if (null === $all) {
+            throw new \RuntimeException('Unexpected result');
+        }
+
+        return $all;
     }
 
     /**
@@ -109,6 +115,9 @@ trait PageTranslateTrait
         return array_keys($languages);
     }
 
+    /**
+     * @return string
+     */
     public function getLanguage(): string
     {
         return $this->language() ?? '';
@@ -116,7 +125,7 @@ trait PageTranslateTrait
 
     /**
      * @param string|null $languageCode
-     * @param array|null $fallback
+     * @param bool|null $fallback
      * @return string|null
      */
     protected function findTranslation(string $languageCode = null, bool $fallback = null): ?string
@@ -146,7 +155,6 @@ trait PageTranslateTrait
      * Return an array with the routes of other translated languages
      *
      * @param bool $onlyPublished only return published translations
-     *
      * @return array the page translated languages
      */
     public function translatedLanguages($onlyPublished = false): array
@@ -178,7 +186,6 @@ trait PageTranslateTrait
      * Return an array listing untranslated languages available
      *
      * @param bool $includeUnpublished also list unpublished translations
-     *
      * @return array the page untranslated languages
      */
     public function untranslatedLanguages($includeUnpublished = false): array
@@ -197,8 +204,7 @@ trait PageTranslateTrait
     /**
      * Get page language
      *
-     * @param $var
-     *
+     * @param string $var
      * @return string|null
      */
     public function language($var = null): ?string

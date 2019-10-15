@@ -54,7 +54,7 @@ trait ObjectCollectionTrait
 
         /** @var ObjectInterface $element */
         foreach ($this->getIterator() as $id => $element) {
-            $list[$id] = $element->hasProperty($property);
+            $list[$id] = (bool)$element->hasProperty($property);
         }
 
         return $list;
@@ -135,8 +135,8 @@ trait ObjectCollectionTrait
          * @var ObjectInterface $element
          */
         foreach ($this->getIterator() as $id => $element) {
-            $callable = method_exists($element, $method) ? [$element, $method] : null;
-            $list[$id] = $callable ? \call_user_func_array($callable, $arguments) : null;
+            $callable = [$element, $method];
+            $list[$id] = is_callable($callable) ? \call_user_func_array($callable, $arguments) : null;
         }
 
         return $list;

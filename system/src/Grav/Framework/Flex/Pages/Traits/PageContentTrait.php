@@ -281,7 +281,7 @@ trait PageContentTrait
             'process',
             $var,
             function ($value) {
-                $value = array_replace(Grav::instance()['config']->get('system.pages.process', []), is_array($value) ? $value : []);
+                $value = array_replace(Grav::instance()['config']->get('system.pages.process', []), is_array($value) ? $value : []) ?? [];
                 foreach ($value as $process => $status) {
                     $value[$process] = (bool)$status;
                 }
@@ -300,7 +300,21 @@ trait PageContentTrait
             'slug',
             $var,
             function ($value) {
-                return $value ?: static::normalizeRoute(preg_replace(PAGE_ORDER_PREFIX_REGEX, '', $this->folder()));
+                if (is_string($value)) {
+                    return $value;
+                }
+
+                $folder = $this->folder();
+                if (null === $folder) {
+                    return null;
+                }
+
+                $folder = preg_replace(PAGE_ORDER_PREFIX_REGEX, '', $folder);
+                if (null === $folder) {
+                    return null;
+                }
+
+                return static::normalizeRoute($folder);
             }
         );
     }
@@ -315,7 +329,10 @@ trait PageContentTrait
             $var,
             function ($value) {
                 if (null === $value) {
-                    preg_match(static::PAGE_ORDER_REGEX, $this->folder(), $order);
+                    $folder = $this->folder();
+                    if (null !== $folder) {
+                        preg_match(static::PAGE_ORDER_REGEX, $folder, $order);
+                    }
 
                     $value = $order[1] ?? false;
                 }
@@ -526,7 +543,9 @@ trait PageContentTrait
             case 'ordering':
                 return (bool)$this->order();
             case 'folder':
-                return preg_replace(PAGE_ORDER_PREFIX_REGEX, '', $this->folder());
+                $folder = $this->folder();
+
+                return null !== $folder ? preg_replace(PAGE_ORDER_PREFIX_REGEX, '', $folder) : '';
             case 'slug':
                 return $this->slug();
             case 'published':
@@ -754,11 +773,13 @@ trait PageContentTrait
      */
     protected function processMarkdown($content, array $options = []): string
     {
-        /** @var PageInterface $this */
-        $excerpts = new Excerpts($this, $options);
+        /** @var PageInterface $self */
+        $self = $this;
+
+        $excerpts = new Excerpts($self, $options);
 
         // Initialize the preferred variant of markdown parser.
-        if (isset($defaults['extra'])) {
+        if (isset($options['extra'])) {
             $parsedown = new ParsedownExtra($excerpts);
         } else {
             $parsedown = new Parsedown($excerpts);

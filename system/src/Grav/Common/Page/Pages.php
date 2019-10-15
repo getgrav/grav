@@ -25,6 +25,7 @@ use Grav\Common\Utils;
 use Grav\Framework\Flex\Flex;
 use Grav\Framework\Flex\FlexDirectory;
 use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
+use Grav\Framework\Flex\Interfaces\FlexTranslateInterface;
 use Grav\Plugin\Admin;
 use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\Event\EventDispatcher;
@@ -1166,7 +1167,7 @@ class Pages
     {
         $accessLevels = [];
         foreach ($this->all() as $page) {
-            if (isset($page, $page->header()->access)) {
+            if ($page && isset($page->header()->access)) {
                 if (\is_array($page->header()->access)) {
                     foreach ($page->header()->access as $index => $accessLevel) {
                         if (\is_array($accessLevel)) {
@@ -1374,8 +1375,9 @@ class Pages
         foreach ($collection as $key => $page) {
             $path = $page->path();
 
-            // FIXME: We really need to do better than this.
-            $page = $page->hasTranslation() ? $page->getTranslation() : null;
+            if ($page instanceof FlexTranslateInterface) {
+                $page = $page && $page->hasTranslation() ? $page->getTranslation() : null;
+            }
 
             if (!$page || $path === $root_path) {
                 continue;

@@ -38,16 +38,20 @@ class FlexPageCollection extends FlexCollection
 
     /**
      * @param bool $bool
-     * @return FlexCollection|FlexPageCollection
+     * @return FlexCollectionInterface|FlexPageCollection
      */
-    public function withPublished(bool $bool = true): FlexCollectionInterface
+    public function withPublished(bool $bool = true)
     {
         $list = array_keys(array_filter($this->call('isPublished', [$bool])));
 
         return $this->select($list);
     }
 
-    public function withVisible(bool $bool = true): FlexCollectionInterface
+    /**
+     * @param bool $bool
+     * @return FlexCollectionInterface|FlexPageCollection
+     */
+    public function withVisible(bool $bool = true)
     {
         $list = array_keys(array_filter($this->call('isVisible', [$bool])));
 

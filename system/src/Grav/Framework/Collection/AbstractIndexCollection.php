@@ -199,7 +199,7 @@ abstract class AbstractIndexCollection implements CollectionInterface
     {
         $key = $this->isAllowedElement($element) ? $this->getCurrentKey($element) : null;
 
-        return $key && isset($this->entries[$key]) ? $key : null;
+        return $key && isset($this->entries[$key]) ? $key : false;
     }
 
     /**

@@ -20,4 +20,25 @@ interface MediaCollectionInterface extends \Grav\Framework\Media\Interfaces\Medi
      * @return string|null
      */
     public function getPath();
+
+    /**
+     * Get a list of all media.
+     *
+     * @return MediaObjectInterface[]
+     */
+    public function all();
+
+    /**
+     * Set file modification timestamps (query params) for all the media files.
+     *
+     * @param string|int|null $timestamp
+     * @return $this
+     */
+    public function setTimestamps($timestamp = null);
+
+    /**
+     * @param string $name
+     * @param MediaObjectInterface $file
+     */
+    public function add($name, $file);
 }

@@ -322,7 +322,7 @@ class PageObject extends FlexPageObject
 
             $children = $page->children();
 
-            /** @var PageInterface|PageObject $child */
+            /** @var PageObject $child */
             foreach ($children as $child) {
                 if ($field) {
                     $payload = [
@@ -487,6 +487,7 @@ class PageObject extends FlexPageObject
                     throw new \RuntimeException(sprintf('Page %s cannot be moved to %s', '/' . $key, $parentRoute));
                 }
 
+                /** @var PageObject $parent */
                 $parent = $this->getFlexDirectory()->getObject($parentKey);
                 if (!$parent) {
                     // Page cannot be moved to non-existing location.

@@ -26,6 +26,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UploadedFileInterface;
 use Twig\Error\LoaderError;
 use Twig\Error\SyntaxError;
+use Twig\Template;
 use Twig\TemplateWrapper;
 
 /**
@@ -434,7 +435,7 @@ trait FormTrait
             /** @var Grav $grav */
             $grav = Grav::instance();
 
-            /** @var SessionInterface $session */
+            /** @var SessionInterface|null $session */
             $session = $grav['session'] ?? null;
 
             $this->sessionid = $session ? ($session->getId() ?? '') : '';
@@ -457,7 +458,7 @@ trait FormTrait
     {
         $grav = Grav::instance();
 
-        /** @var UserInterface $user */
+        /** @var UserInterface|null $user */
         $user = $grav['user'] ?? null;
         $userExists = $user && $user->exists();
         $username = $userExists ? $user->username : null;
@@ -520,7 +521,7 @@ trait FormTrait
 
     /**
      * @param string $layout
-     * @return TemplateWrapper
+     * @return Template|TemplateWrapper
      * @throws LoaderError
      * @throws SyntaxError
      */
@@ -587,11 +588,11 @@ trait FormTrait
     /**
      * Validate data and throw validation exceptions if validation fails.
      *
-     * @param \ArrayAccess|Data $data
+     * @param \ArrayAccess|Data|null $data
      * @throws ValidationException
      * @throws \Exception
      */
-    protected function validateData($data): void
+    protected function validateData($data = null): void
     {
         if ($data instanceof Data) {
             $data->validate();
@@ -601,9 +602,9 @@ trait FormTrait
     /**
      * Filter validated data.
      *
-     * @param \ArrayAccess|Data $data
+     * @param \ArrayAccess|Data|null $data
      */
-    protected function filterData($data): void
+    protected function filterData($data = null): void
     {
         if ($data instanceof Data) {
             $data->filter();
@@ -639,7 +640,7 @@ trait FormTrait
         // Handle bad filenames.
         $filename = $file->getClientFilename();
 
-        if (!Utils::checkFilename($filename)) {
+        if ($filename && !Utils::checkFilename($filename)) {
             $grav = Grav::instance();
             throw new \RuntimeException(
                 sprintf($grav['language']->translate('PLUGIN_FORM.FILEUPLOAD_UNABLE_TO_UPLOAD', null, true), $filename, 'Bad filename')
@@ -662,6 +663,9 @@ trait FormTrait
         // Decode JSON encoded fields and merge them to data.
         if (isset($data['_json'])) {
             $data = array_replace_recursive($data, $this->jsonDecode($data['_json']));
+            if (null === $data) {
+                throw new \RuntimeException(__METHOD__ . '(): Unexpected error');
+            }
             unset($data['_json']);
         }
 

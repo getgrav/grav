@@ -40,7 +40,10 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
      */
     public function getRoot()
     {
-        return $this->getIndex()->getRoot();
+        /** @var PageIndex $index */
+        $index = $this->getIndex();
+
+        return $index->getRoot();
     }
 
     /**
@@ -82,7 +85,7 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
      *
      * @param PageInterface $page
      *
-     * @return self
+     * @return static
      */
     public function addPage(PageInterface $page)
     {
@@ -101,7 +104,7 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
      * Merge another collection with the current collection
      *
      * @param PageCollectionInterface $collection
-     * @return self
+     * @return static
      */
     public function merge(PageCollectionInterface $collection)
     {
@@ -112,7 +115,7 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
      * Intersect another collection with the current collection
      *
      * @param PageCollectionInterface $collection
-     * @return self
+     * @return static
      */
     public function intersect(PageCollectionInterface $collection)
     {
@@ -148,7 +151,7 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
      * Pick one or more random entries.
      *
      * @param int $num Specifies how many entries should be picked.
-     * @return self
+     * @return static
      */
     public function random($num = 1)
     {
@@ -160,7 +163,7 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
      *
      * @param array $items Items to be appended. Existing keys will be overridden with the new values.
      *
-     * @return self
+     * @return static
      */
     public function append($items)
     {
@@ -171,7 +174,7 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
      * Split collection into array of smaller collections.
      *
      * @param int $size
-     * @return self[]
+     * @return static[]
      */
     public function batch($size): array
     {
@@ -186,7 +189,7 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
      * @param array  $manual
      * @param string $sort_flags
      *
-     * @return self
+     * @return static
      */
     public function order($by, $dir = 'asc', $manual = null, $sort_flags = null)
     {
@@ -203,7 +206,7 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
      * @param string|bool $endDate
      * @param string|null $field
      *
-     * @return self
+     * @return static
      * @throws \Exception
      */
     public function dateRange($startDate, $endDate = false, $field = null)
@@ -230,7 +233,7 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
     /**
      * Creates new collection with only visible pages
      *
-     * @return self The collection with only visible pages
+     * @return static The collection with only visible pages
      */
     public function visible()
     {
@@ -247,7 +250,7 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
     /**
      * Creates new collection with only non-visible pages
      *
-     * @return self The collection with only non-visible pages
+     * @return static The collection with only non-visible pages
      */
     public function nonVisible()
     {
@@ -264,7 +267,7 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
     /**
      * Creates new collection with only modular pages
      *
-     * @return self The collection with only modular pages
+     * @return static The collection with only modular pages
      */
     public function modular()
     {
@@ -281,7 +284,7 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
     /**
      * Creates new collection with only non-modular pages
      *
-     * @return self The collection with only non-modular pages
+     * @return static The collection with only non-modular pages
      */
     public function nonModular()
     {
@@ -298,7 +301,7 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
     /**
      * Creates new collection with only published pages
      *
-     * @return self The collection with only published pages
+     * @return static The collection with only published pages
      */
     public function published()
     {
@@ -315,7 +318,7 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
     /**
      * Creates new collection with only non-published pages
      *
-     * @return self The collection with only non-published pages
+     * @return static The collection with only non-published pages
      */
     public function nonPublished()
     {
@@ -332,7 +335,7 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
     /**
      * Creates new collection with only routable pages
      *
-     * @return self The collection with only routable pages
+     * @return static The collection with only routable pages
      */
     public function routable()
     {
@@ -349,7 +352,7 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
     /**
      * Creates new collection with only non-routable pages
      *
-     * @return self The collection with only non-routable pages
+     * @return static The collection with only non-routable pages
      */
     public function nonRoutable()
     {
@@ -368,7 +371,7 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
      *
      * @param string $type
      *
-     * @return self The collection
+     * @return static The collection
      */
     public function ofType($type)
     {
@@ -387,7 +390,7 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
      *
      * @param string[] $types
      *
-     * @return self The collection
+     * @return static The collection
      */
     public function ofOneOfTheseTypes($types)
     {
@@ -406,7 +409,7 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
      *
      * @param array $accessLevels
      *
-     * @return self The collection
+     * @return static The collection
      */
     public function ofOneOfTheseAccessLevels($accessLevels)
     {

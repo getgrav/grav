@@ -20,8 +20,8 @@ use Grav\Common\Yaml;
 use Grav\Framework\Cache\CacheInterface;
 use Grav\Framework\File\Formatter\MarkdownFormatter;
 use Grav\Framework\File\Formatter\YamlFormatter;
-use Grav\Framework\Flex\Interfaces\FlexIndexInterface;
 use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
+use Grav\Framework\Flex\Pages\FlexPageIndex;
 use RocketTheme\Toolbox\File\MarkdownFile;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
@@ -87,7 +87,7 @@ trait PageLegacyTrait
         }
 
         $storage = $this->getFlexDirectory()->getStorage();
-        if (method_exists($storage, 'readRaw')) {
+        if (method_exists($storage, 'readFrontmatter')) {
             return $storage->readFrontmatter($this->getStorageKey());
         }
 
@@ -100,8 +100,8 @@ trait PageLegacyTrait
     /**
      * Modify a header value directly
      *
-     * @param $key
-     * @param $value
+     * @param string $key
+     * @param string|array $value
      */
     public function modifyHeader($key, $value): void
     {
@@ -173,7 +173,7 @@ trait PageLegacyTrait
         // Content meta is generated during the content is being rendered, so make sure we have done it.
         $this->content();
 
-        return $this->getContentMeta();
+        return $this->_content_meta ?? [];
     }
 
     /**
@@ -259,7 +259,8 @@ trait PageLegacyTrait
         if ($this->route() === $parent->route()) {
             throw new \RuntimeException('Failed: Cannot set page parent to self');
         }
-        if (Utils::startsWith($parent->rawRoute(), $this->rawRoute())) {
+        $rawRoute = $this->rawRoute();
+        if ($rawRoute && Utils::startsWith($parent->rawRoute(), $rawRoute)) {
             throw new \RuntimeException('Failed: Cannot set page parent to a child of current page');
         }
 
@@ -280,9 +281,8 @@ trait PageLegacyTrait
     public function copy(PageInterface $parent = null)
     {
         $parentStorageKey = ltrim(dirname("/{$this->getStorageKey(true)}"), '/');
-        $relocate = false;
 
-        /** @var FlexIndexInterface $index */
+        /** @var FlexPageIndex $index */
         $index = $this->getFlexDirectory()->getIndex();
 
         if ($parent) {
@@ -290,7 +290,6 @@ trait PageLegacyTrait
                 $k = $parent->getStorageKey(true);
                 if ($k !== $parentStorageKey) {
                     $parentStorageKey = $k;
-                    $relocate = true;
                 }
             } else {
                 throw new \RuntimeException('Cannot copy page, parent is of unknown type');
@@ -391,7 +390,7 @@ trait PageLegacyTrait
     {
         return [
             'header' => (array)$this->header(),
-            'content' => (string)$this->value('content')
+            'content' => (string)$this->getFormValue('content')
         ];
     }
 
@@ -412,7 +411,12 @@ trait PageLegacyTrait
      */
     public function toJson(): string
     {
-        return json_encode($this->toArray());
+        $json = json_encode($this->toArray());
+        if (!is_string($json)) {
+            throw new \RuntimeException('Internal error');
+        }
+
+        return $json;
     }
 
     /**
@@ -897,7 +901,7 @@ trait PageLegacyTrait
      *
      * @param  int $direction either -1 or +1
      *
-     * @return PageInterface|bool             the sibling page
+     * @return PageInterface|false             the sibling page
      */
     public function adjacentSibling($direction = 1)
     {
@@ -909,7 +913,7 @@ trait PageLegacyTrait
     /**
      * Helper method to return an ancestor page.
      *
-     * @param bool $lookup Name of the parent folder
+     * @param bool|null $lookup Name of the parent folder
      *
      * @return PageInterface|null page you were looking for if it exists
      */
@@ -967,7 +971,7 @@ trait PageLegacyTrait
         /** @var Pages $pages */
         $inherited = $pages->inherited($this->getProperty('parent_route'), $field);
         $inheritedParams = $inherited ? (array)$inherited->value('header.' . $field) : [];
-        $currentParams = (array)$this->value('header.' . $field);
+        $currentParams = (array)$this->getFormValue('header.' . $field);
         if ($inheritedParams && is_array($inheritedParams)) {
             $currentParams = array_replace_recursive($inheritedParams, $currentParams);
         }
@@ -1004,7 +1008,7 @@ trait PageLegacyTrait
     {
         if (is_string($params)) {
             // Look into a page header field.
-            $params = (array)$this->value('header.' . $params);
+            $params = (array)$this->getFormValue('header.' . $params);
         } elseif (!is_array($params)) {
             throw new \InvalidArgumentException('Argument should be either header variable name or array of parameters');
         }
@@ -1091,6 +1095,7 @@ trait PageLegacyTrait
      * @return CacheInterface
      */
     abstract public function getCache(string $namespace = null);
+    abstract public function parent(PageInterface $var = null);
 
     abstract protected function exists(): bool;
     abstract protected function getStorageFolder();

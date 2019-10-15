@@ -13,6 +13,7 @@ namespace Grav\Common\Page\Flex;
 
 use Grav\Common\File\CompiledJsonFile;
 use Grav\Common\Grav;
+use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Framework\Flex\FlexDirectory;
 use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
 use Grav\Framework\Flex\Interfaces\FlexStorageInterface;
@@ -32,6 +33,10 @@ class PageIndex extends FlexPageIndex
     protected $_root;
     protected $_params;
 
+    /**
+     * @param array $entries
+     * @param FlexDirectory|null $directory
+     */
     public function __construct(array $entries = [], FlexDirectory $directory = null)
     {
         // Remove root if it's taken.
@@ -43,6 +48,11 @@ class PageIndex extends FlexPageIndex
         parent::__construct($entries, $directory);
     }
 
+    /**
+     * @param array $entries
+     * @param string|null $keyField
+     * @return $this|FlexPageIndex
+     */
     protected function createFrom(array $entries, string $keyField = null)
     {
         /** @var static $index */
@@ -72,6 +82,10 @@ class PageIndex extends FlexPageIndex
         return static::updateIndexFile($storage, $index['index'], $entries, ['include_missing' => true]);
     }
 
+    /**
+     * @param string $key
+     * @return FlexObjectInterface|PageInterface|null
+     */
     public function get($key)
     {
         if (mb_strpos($key, '|') !== false) {
@@ -86,6 +100,9 @@ class PageIndex extends FlexPageIndex
         return $element;
     }
 
+    /**
+     * @return FlexObjectInterface|PageInterface
+     */
     public function getRoot()
     {
         $root = $this->_root;
@@ -130,6 +147,10 @@ class PageIndex extends FlexPageIndex
         return $this->getParams();
     }
 
+    /**
+     * @param FlexStorageInterface $storage
+     * @return CompiledJsonFile|\Grav\Common\File\CompiledYamlFile|null
+     */
     protected static function getIndexFile(FlexStorageInterface $storage)
     {
         // Load saved index file.

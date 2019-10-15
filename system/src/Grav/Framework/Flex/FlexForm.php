@@ -252,7 +252,7 @@ class FlexForm implements FlexFormInterface
     /**
      * Get form flash object.
      *
-     * @return FlexFormFlash|FormFlashInterface
+     * @return FlexFormFlash
      */
     public function getFlash()
     {
@@ -481,9 +481,9 @@ class FlexForm implements FlexFormInterface
     /**
      * Filter validated data.
      *
-     * @param \ArrayAccess|Data $data
+     * @param \ArrayAccess|Data|null $data
      */
-    protected function filterData($data): void
+    protected function filterData($data = null): void
     {
         if ($data instanceof Data) {
             $data->filter(true, true);

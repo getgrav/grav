@@ -73,7 +73,7 @@ trait NestedPropertyTrait
 
     /**
      * @param string $property      Object property to be updated.
-     * @param string $value         New value.
+     * @param mixed  $value         New value.
      * @param string $separator     Separator, defaults to '.'
      * @return $this
      * @throws \RuntimeException

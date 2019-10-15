@@ -263,8 +263,9 @@ trait PageRoutableTrait
 
         /** @var UniformResourceLocator $locator */
         $locator = Grav::instance()['locator'];
+        $path = $locator->findResource($folder, false);
 
-        return $locator->findResource($folder, false);
+        return is_string($path) ? $path : null;
     }
 
     /**
@@ -288,10 +289,13 @@ trait PageRoutableTrait
             $folder = $this->getStorageFolder();
         }
 
-        /** @var UniformResourceLocator $locator */
-        $locator = Grav::instance()['locator'];
+        if ($folder) {
+            /** @var UniformResourceLocator $locator */
+            $locator = Grav::instance()['locator'];
+            $folder = $locator($folder);
+        }
 
-        return $folder ? $locator($folder) : null;
+        return is_string($folder) ? $folder : null;
     }
 
     /**
@@ -354,8 +358,14 @@ trait PageRoutableTrait
         }
 
         $parentKey = ltrim(dirname("/{$this->getKey()}"), '/');
+        $directory = $this->getFlexDirectory();
+        if ($parentKey) {
+            return $directory->getObject($parentKey);
+        }
 
-        return $parentKey ? $this->getFlexDirectory()->getObject($parentKey) : $this->getFlexDirectory()->getIndex()->getRoot();
+        $index = $directory->getIndex();
+
+        return $index->getRoot();
     }
 
     /**
@@ -386,8 +396,8 @@ trait PageRoutableTrait
     {
         $parent = $this->parent();
         $collection = $parent ? $parent->collection('content', false) : null;
-        if ($collection instanceof PageCollectionInterface) {
-            return $collection->currentPosition($this->path());
+        if ($collection instanceof PageCollectionInterface && $path = $this->path()) {
+            return $collection->currentPosition($path);
         }
 
         return 1;
@@ -422,7 +432,7 @@ trait PageRoutableTrait
         $routes = $pages->routes();
 
         if (isset($routes[$uri_path])) {
-            /** @var PageInterface $child_page */
+            /** @var PageInterface $child_page|null */
             $child_page = $pages->dispatch($uri->route())->parent();
             if ($child_page) {
                 while (!$child_page->root()) {

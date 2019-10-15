@@ -35,9 +35,17 @@ interface FlexTranslateInterface
     public function getTranslation(string $languageCode = null, bool $fallback = null);
 
     /**
+     * Returns all translated languages.
+     *
+     * @param bool $includeDefault If set to true, return separate entries for '' and 'en' (default) language.
+     * @return array
+     */
+    public function getLanguages(bool $includeDefault = false): array;
+
+    /**
      * Get used language.
      *
-     * @return string|null
+     * @return string
      */
-    public function getLanguage(): ?string;
+    public function getLanguage(): string;
 }
