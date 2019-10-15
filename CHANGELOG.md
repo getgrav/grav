@@ -2,7 +2,9 @@
 ## mm/dd/2019
 
 1. [](#improved)
-    * Safer file handling + customizable null char replacment in `CsvFormatter::decode()`
+    * Safer file handling + customizable null char replacement in `CsvFormatter::decode()`
+1. [](#bugfix)
+    * Fixed PHP 7.1 bug in Flex
 
 # v1.6.16
 ## 09/19/2019

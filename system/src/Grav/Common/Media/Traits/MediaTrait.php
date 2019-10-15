@@ -125,5 +125,5 @@ trait MediaTrait
     /**
      * @return string
      */
-    abstract protected function getCacheKey();
+    abstract protected function getCacheKey(): string;
 }
