@@ -48,7 +48,6 @@ trait PageRoutableTrait
      * The page must be *routable* and *published*
      *
      * @param  bool $var true if the page is routable
-     *
      * @return bool      true if the page is routable
      */
     public function routable($var = null): bool
@@ -68,7 +67,6 @@ trait PageRoutableTrait
      * Gets the URL for a page - alias of url().
      *
      * @param bool $include_host
-     *
      * @return string the permalink
      */
     public function link($include_host = false): string
@@ -89,7 +87,6 @@ trait PageRoutableTrait
      * Returns the canonical URL for a page
      *
      * @param bool $include_lang
-     *
      * @return string
      */
     public function canonical($include_lang = true): string
@@ -104,7 +101,6 @@ trait PageRoutableTrait
      * @param bool $canonical true to return the canonical URL
      * @param bool $include_base
      * @param bool $raw_route
-     *
      * @return string The url.
      */
     public function url($include_host = false, $canonical = false, $include_base = true, $raw_route = false): string
@@ -156,7 +152,6 @@ trait PageRoutableTrait
      * the parents route and the current Page's slug.
      *
      * @param  string $var Set new default route.
-     *
      * @return string|null  The route for the Page.
      */
     public function route($var = null): ?string
@@ -183,7 +178,6 @@ trait PageRoutableTrait
      * Gets and Sets the page raw route
      *
      * @param string|null $var
-     *
      * @return string|null
      */
     public function rawRoute($var = null): ?string
@@ -201,7 +195,6 @@ trait PageRoutableTrait
      * Gets the route aliases for the page based on page headers.
      *
      * @param  array $var list of route aliases
-     *
      * @return array  The route aliases for the Page.
      */
     public function routeAliases($var = null): array
@@ -219,7 +212,6 @@ trait PageRoutableTrait
      * that value, else if it's `true` it will use the default route.
      *
      * @param string|null $var
-     *
      * @return string
      */
     public function routeCanonical($var = null): string
@@ -235,7 +227,6 @@ trait PageRoutableTrait
      * Gets the redirect set in the header.
      *
      * @param  string $var redirect url
-     *
      * @return string|null
      */
     public function redirect($var = null): ?string
@@ -273,7 +264,6 @@ trait PageRoutableTrait
      * This is equivalent to the filePath but without the filename.
      *
      * @param  string $var the path
-     *
      * @return string|null      the path
      */
     public function path($var = null): ?string
@@ -302,7 +292,6 @@ trait PageRoutableTrait
      * Get/set the folder.
      *
      * @param string $var Optional path, including numeric prefix.
-     *
      * @return string|null
      */
     public function folder($var = null): ?string
@@ -324,7 +313,6 @@ trait PageRoutableTrait
      * Get/set the folder.
      *
      * @param string $var Optional path, including numeric prefix.
-     *
      * @return string|null
      */
     public function parentStorageKey($var = null): ?string
@@ -347,7 +335,6 @@ trait PageRoutableTrait
      * Gets and Sets the parent object for this page
      *
      * @param  PageInterface $var the parent page object
-     *
      * @return PageInterface|null the parent page object if it exists.
      */
     public function parent(PageInterface $var = null)
@@ -365,7 +352,7 @@ trait PageRoutableTrait
 
         $index = $directory->getIndex();
 
-        return $index->getRoot();
+        return method_exists($index, 'getRoot') ? $index->getRoot() : null;
     }
 
     /**
@@ -434,11 +421,12 @@ trait PageRoutableTrait
         if (isset($routes[$uri_path])) {
             /** @var PageInterface $child_page|null */
             $child_page = $pages->dispatch($uri->route())->parent();
-            if ($child_page) {
+            if (null !== $child_page) {
                 while (!$child_page->root()) {
                     if ($this->path() === $child_page->path()) {
                         return true;
                     }
+                    /** @var PageInterface $child_page|null */
                     $child_page = $child_page->parent();
                 }
             }

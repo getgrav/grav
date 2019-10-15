@@ -252,7 +252,7 @@ class FlexForm implements FlexFormInterface
     /**
      * Get form flash object.
      *
-     * @return FlexFormFlash
+     * @return FormFlashInterface|FlexFormFlash
      */
     public function getFlash()
     {

@@ -351,7 +351,7 @@ trait FormTrait
     /**
      * Get form flash object.
      *
-     * @return FormFlash
+     * @return FormFlashInterface
      */
     public function getFlash()
     {
@@ -375,7 +375,7 @@ trait FormTrait
     /**
      * Get all available form flash objects for this form.
      *
-     * @return FormFlash[]
+     * @return FormFlashInterface[]
      */
     public function getAllFlashes(): array
     {
@@ -460,9 +460,13 @@ trait FormTrait
 
         /** @var UserInterface|null $user */
         $user = $grav['user'] ?? null;
-        $userExists = $user && $user->exists();
-        $username = $userExists ? $user->username : null;
-        $mediaFolder = $userExists ? $user->getMediaFolder() : null;
+        if (null !== $user && $user->exists()) {
+            $username = $user->username;
+            $mediaFolder = $user->getMediaFolder();
+        } else {
+            $username = null;
+            $mediaFolder = null;
+        }
         $session = $grav['session'] ?? null;
         $sessionId = $session ? $session->getId() : null;
 

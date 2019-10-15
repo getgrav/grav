@@ -297,11 +297,12 @@ trait PageLegacyTrait
         } else {
             $parent = $parentStorageKey
                 ? $this->getFlexDirectory()->getObject($parentStorageKey, 'storage_key')
-                : $index->getRoot();
+                : (method_exists($index, 'getRoot') ? $index->getRoot() : null);
         }
 
         // Find non-existing key.
-        $key = trim($parent->getKey() . '/' . basename($this->getKey()), '/');
+        $parentKey = $parent ? $parent->getKey() : '';
+        $key = trim($parentKey . '/' . basename($this->getKey()), '/');
         $key = preg_replace('/-\d+$/', '', $key);
         $i = 1;
         do {
@@ -913,7 +914,7 @@ trait PageLegacyTrait
     /**
      * Helper method to return an ancestor page.
      *
-     * @param bool|null $lookup Name of the parent folder
+     * @param string|null $lookup Name of the parent folder
      *
      * @return PageInterface|null page you were looking for if it exists
      */
