@@ -40,7 +40,7 @@ class Installer
     protected static $target;
 
     /**
-     * @var int Error Code
+     * @var int|string Error code or string
      */
     protected static $error = 0;
 

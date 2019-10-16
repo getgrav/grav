@@ -109,7 +109,7 @@ class ImageFile extends Image
      * Gets the hash.
      * @param string $type
      * @param int $quality
-     * @param [] $extras
+     * @param array $extras
      * @return null
      */
     public function getHash($type = 'guess', $quality = 80, $extras = [])

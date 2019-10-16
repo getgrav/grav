@@ -145,7 +145,7 @@ class Job
      * the job is due. Defaults to job creation time.
      * It also default the execution time if not previously defined.
      *
-     * @param  \DateTime $date
+     * @param  ?\DateTime $date
      * @return bool
      */
     public function isDue(\DateTime $date = null)
@@ -217,7 +217,7 @@ class Job
      * The job id is used as a filename for the lock file.
      *
      * @param  string $tempDir The directory path for the lock files
-     * @param  callable $whenOverlapping A callback to ignore job overlapping
+     * @param  ?callable $whenOverlapping A callback to ignore job overlapping
      * @return self
      */
     public function onlyOne($tempDir = null, callable $whenOverlapping = null)

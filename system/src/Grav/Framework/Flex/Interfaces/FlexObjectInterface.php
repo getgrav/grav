@@ -178,7 +178,7 @@ interface FlexObjectInterface extends FlexCommonInterface, NestedObjectInterface
      * @see FlexObjectInterface::getForm()
      *
      * @param  string $name         Property name.
-     * @param  string $separator    Optional nested property separator.
+     * @param  ?string $separator   Optional nested property separator.
      *
      * @return mixed|null           Returns default value of the field, null if there is no default value.
      */
@@ -200,7 +200,7 @@ interface FlexObjectInterface extends FlexCommonInterface, NestedObjectInterface
      *
      * @param  string $name         Property name.
      * @param  mixed  $default      Default value.
-     * @param  string $separator    Optional nested property separator.
+     * @param  ?string $separator   Optional nested property separator.
      *
      * @return mixed                Returns value of the field.
      */

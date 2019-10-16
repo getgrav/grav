@@ -110,7 +110,7 @@ class GPM extends Iterator
      * Return the instance of a specific Package
      *
      * @param  string $slug The slug of the Package
-     * @return Local\Package The instance of the Package
+     * @return ?Local\Package The instance of the Package
      */
     public function getInstalledPackage($slug)
     {

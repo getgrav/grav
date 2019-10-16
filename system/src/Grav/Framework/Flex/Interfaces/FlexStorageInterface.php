@@ -71,7 +71,7 @@ interface FlexStorageInterface
      * If you pass object or array as value, that value will be used to save I/O.
      *
      * @param  array  $rows  Array of `[key => row, ...]` pairs.
-     * @param  array  $fetched  Optional reference to store only fetched items.
+     * @param  ?array $fetched  Optional reference to store only fetched items.
      *
      * @return array  Returns rows. Note that non-existing rows will have `null` as their value.
      */

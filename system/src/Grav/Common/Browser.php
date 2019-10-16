@@ -108,7 +108,7 @@ class Browser
     /**
      * Get the current major version identifier
      *
-     * @return string the browser major version identifier
+     * @return int the browser major version identifier
      */
     public function getVersion()
     {

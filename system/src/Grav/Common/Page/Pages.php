@@ -608,7 +608,7 @@ class Pages
     /**
      * Get all pages
      *
-     * @param PageInterface $current
+     * @param ?PageInterface $current
      *
      * @return \Grav\Common\Page\Collection
      */
@@ -678,7 +678,7 @@ class Pages
     /**
      * Get list of route/title of all pages.
      *
-     * @param PageInterface $current
+     * @param ?PageInterface $current
      * @param int $level
      * @param bool $rawRoutes
      *

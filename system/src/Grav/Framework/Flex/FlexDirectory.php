@@ -411,7 +411,7 @@ class FlexDirectory implements FlexAuthorizeInterface
 
     /**
      * @param array $entries
-     * @param string $keyField
+     * @param ?string $keyField
      * @return FlexCollectionInterface
      */
     public function createCollection(array $entries, string $keyField = null): FlexCollectionInterface
@@ -424,7 +424,7 @@ class FlexDirectory implements FlexAuthorizeInterface
 
     /**
      * @param array $entries
-     * @param string $keyField
+     * @param ?string $keyField
      * @return FlexIndexInterface
      */
     public function createIndex(array $entries, string $keyField = null): FlexIndexInterface
@@ -475,7 +475,7 @@ class FlexDirectory implements FlexAuthorizeInterface
 
     /**
      * @param array $entries
-     * @param string $keyField
+     * @param ?string $keyField
      * @return FlexCollectionInterface
      */
     public function loadCollection(array $entries, string $keyField = null): FlexCollectionInterface

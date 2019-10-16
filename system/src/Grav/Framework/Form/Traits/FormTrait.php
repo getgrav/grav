@@ -250,7 +250,7 @@ trait FormTrait
 
     /**
      * @param array $data
-     * @param UploadedFileInterface[] $files
+     * @param ?UploadedFileInterface[] $files
      * @return FormInterface|$this
      */
     public function submit(array $data, array $files = null): FormInterface

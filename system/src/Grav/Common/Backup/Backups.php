@@ -158,7 +158,7 @@ class Backups
         $date = date(static::BACKUP_DATE_FORMAT, time());
         $filename = trim($name, '_') . '--' . $date . '.zip';
         $destination = static::$backup_dir . DS . $filename;
-        $max_execution_time = ini_set('max_execution_time', 600);
+        $max_execution_time = ini_set('max_execution_time', '600');
         $backup_root = $backup->root;
 
         if ($locator->isStream($backup_root)) {

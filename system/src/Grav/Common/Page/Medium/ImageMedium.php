@@ -76,7 +76,7 @@ class ImageMedium extends Medium
      * Construct.
      *
      * @param array $items
-     * @param Blueprint $blueprint
+     * @param ?Blueprint $blueprint
      */
     public function __construct($items = [], Blueprint $blueprint = null)
     {

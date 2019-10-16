@@ -78,7 +78,7 @@ class Flex implements \Countable
     }
 
     /**
-     * @param array|string[] $types
+     * @param array|string[]|null $types
      * @param bool $keepMissing
      * @return array|FlexDirectory[]
      */

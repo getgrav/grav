@@ -130,7 +130,7 @@ interface FormInterface extends RenderInterface, \Serializable
 
     /**
      * @param array $data
-     * @param UploadedFileInterface[] $files
+     * @param ?UploadedFileInterface[] $files
      * @return $this
      */
     public function submit(array $data, array $files = null): FormInterface;

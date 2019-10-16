@@ -74,7 +74,7 @@ class Medium extends Data implements RenderableInterface, MediaObjectInterface
      * Construct.
      *
      * @param array $items
-     * @param Blueprint $blueprint
+     * @param ?Blueprint $blueprint
      */
     public function __construct($items = [], Blueprint $blueprint = null)
     {

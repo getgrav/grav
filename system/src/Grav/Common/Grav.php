@@ -51,13 +51,15 @@ class Grav extends Container
     public $output;
 
     /**
-     * @var static The singleton instance
+     * @var ?static The singleton instance
      */
     protected static $instance;
 
     /**
      * @var array Contains all Services and ServicesProviders that are mapped
      *            to the dependency injection container.
+     *
+     * @suppress PhanPluginMixedKeyNoKey
      */
     protected static $diMap = [
         'Grav\Common\Service\AccountsServiceProvider',
@@ -353,7 +355,7 @@ class Grav extends Container
      * Fires an event with optional parameters.
      *
      * @param  string $eventName
-     * @param  Event  $event
+     * @param  ?Event $event
      *
      * @return Event
      */

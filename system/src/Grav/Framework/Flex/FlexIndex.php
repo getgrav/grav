@@ -437,7 +437,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
 
     /**
      * @param array $entries
-     * @param string $keyField
+     * @param ?string $keyField
      * @return static
      */
     protected function createFrom(array $entries, string $keyField = null)

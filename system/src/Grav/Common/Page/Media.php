@@ -25,7 +25,7 @@ class Media extends AbstractMedia
 
     /**
      * @param string $path
-     * @param array  $media_order
+     * @param ?array $media_order
      * @param bool   $load
      */
     public function __construct($path, array $media_order = null, $load = true)

@@ -2367,7 +2367,7 @@ class Page implements PageInterface
     /**
      * Gets and Sets the parent object for this page
      *
-     * @param  PageInterface $var the parent page object
+     * @param  ?PageInterface $var the parent page object
      *
      * @return PageInterface|null the parent page object if it exists.
      */

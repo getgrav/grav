@@ -36,7 +36,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
     /** @var Grav */
     protected $grav;
 
-    /** @var Debugger */
+    /** @var ?Debugger */
     protected $debugger;
 
     /** @var Config */
@@ -443,7 +443,8 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
      * @param string $haystack
      * @param string $needle
      *
-     * @return bool
+     * @return string|bool
+     * @todo returning $haystack here doesn't make much sense
      */
     public function containsFilter($haystack, $needle)
     {
@@ -484,7 +485,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
      * @param bool $long_strings
      *
      * @param bool $show_tense
-     * @return bool
+     * @return string
      */
     public function nicetimeFunc($date, $long_strings = true, $show_tense = true)
     {
@@ -611,9 +612,8 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
     }
 
     /**
-     * @param string $string
-     *
      * @param array $context
+     * @param string $string
      * @param bool $block  Block or Line processing
      * @return mixed|string
      */
@@ -658,22 +658,22 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
 
     /**
      * @param string $value
-     * @param null $chars
+     * @param string $chars
      *
      * @return string
      */
-    public function rtrimFilter($value, $chars = null)
+    public function rtrimFilter($value, $chars = '')
     {
         return rtrim($value, $chars);
     }
 
     /**
      * @param string $value
-     * @param null $chars
+     * @param string $chars
      *
      * @return string
      */
-    public function ltrimFilter($value, $chars = null)
+    public function ltrimFilter($value, $chars = '')
     {
         return ltrim($value, $chars);
     }
@@ -688,7 +688,6 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
     {
         return (string) $input;
     }
-
 
     /**
      * Casts input to int.
@@ -856,7 +855,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
      * (c) 2011 Fabien Potencier
      *
      * @param \Twig_Environment $env
-     * @param string $context
+     * @param array $context
      */
     public function dump(\Twig_Environment $env, $context)
     {
@@ -956,7 +955,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
      *
      * @param array $array1
      * @param array $array2
-     * @return array
+     * @return array|Collection
      */
     public function arrayIntersectFunc($array1, $array2)
     {
@@ -1395,6 +1394,8 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
      * @param string|null $typeTest
      * @param string|null $className
      * @return bool
+     *
+     * @suppress PhanPluginUnreachableCode
      */
     public function ofTypeFunc($var, $typeTest=null, $className=null)
     {
