@@ -123,6 +123,13 @@ interface FlexCollectionInterface extends FlexCommonInterface, ObjectCollectionI
     public function getIndex();
 
     /**
+     * Load all the objects into memory,
+     *
+     * @return FlexCollectionInterface
+     */
+    public function getCollection();
+
+    /**
      * Get metadata associated to the object
      *
      * @param string $key Key.

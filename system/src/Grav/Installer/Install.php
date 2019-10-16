@@ -29,14 +29,15 @@ class Install
                 '7.3' => '7.3.1',
                 '7.2' => '7.2.0',
                 '7.1' => '7.1.3',
-                '' => '7.2.14'
+                '' => '7.3.9'
             ]
         ],
         'grav' => [
             'name' => 'Grav',
             'versions' => [
+                '1.6' => '1.6.0',
                 '1.5' => '1.5.0',
-                '' => '1.5.7'
+                '' => '1.6.16'
             ]
         ],
         'plugins' => [
@@ -44,32 +45,36 @@ class Install
                 'name' => 'Admin',
                 'optional' => true,
                 'versions' => [
+                    '1.9' => '1.9.0',
                     '1.8' => '1.8.0',
-                    '' => '1.8.16'
+                    '' => '1.9.10'
                 ]
             ],
             'email' => [
                 'name' => 'Email',
                 'optional' => true,
                 'versions' => [
+                    '3.0' => '3.0.0',
                     '2.7' => '2.7.0',
-                    '' => '2.7.2'
+                    '' => '3.0.3'
                 ]
             ],
             'form' => [
                 'name' => 'Form',
                 'optional' => true,
                 'versions' => [
+                    '3.0' => '3.0.0',
                     '2.16' => '2.16.0',
-                    '' => '2.16.4'
+                    '' => '3.0.9'
                 ]
             ],
             'login' => [
                 'name' => 'Login',
                 'optional' => true,
                 'versions' => [
+                    '3.0' => '3.0.0',
                     '2.8' => '2.8.0',
-                    '' => '2.8.3'
+                    '' => '3.0.4'
                 ]
             ],
         ]
@@ -157,9 +162,10 @@ class Install
     public function prepare(): void
     {
         // Locate the new Grav update and the target site from the filesystem.
-        $location = dirname(realpath(__DIR__), 4);
-        $target = dirname(realpath(GRAV_ROOT . '/index.php'));
-        if ($location === $target) {
+        $location = realpath(__DIR__);
+        $target = realpath(GRAV_ROOT . '/index.php');
+
+        if ($location && $target && dirname($location, 4) === dirname($target)) {
             // We cannot copy files into themselves, abort!
             throw new \RuntimeException('Grav has already been installed here!', 400);
         }

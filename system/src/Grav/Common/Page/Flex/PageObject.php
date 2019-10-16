@@ -17,7 +17,6 @@ use Grav\Common\Page\Flex\Traits\PageContentTrait;
 use Grav\Common\Page\Flex\Traits\PageLegacyTrait;
 use Grav\Common\Page\Flex\Traits\PageRoutableTrait;
 use Grav\Common\Page\Flex\Traits\PageTranslateTrait;
-use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Page\Pages;
 use Grav\Common\Utils;
 use Grav\Framework\Flex\FlexObject;
@@ -144,6 +143,10 @@ class PageObject extends FlexPageObject
         return $instance;
     }
 
+    /**
+     * @param array $ordering
+     * @return PageCollection
+     */
     protected function reorderSiblings(array $ordering)
     {
         $storageKey = $this->getStorageKey();
@@ -165,7 +168,8 @@ class PageObject extends FlexPageObject
         $parent = $this->parent();
 
         /** @var PageCollection $siblings */
-        $siblings = $parent ? $parent->children()->withVisible()->getCollection() : [];
+        $siblings = $parent ? $parent->children() : null;
+        $siblings = $siblings ? $siblings->withVisible()->getCollection() : null;
         if ($siblings) {
             $ordering = array_flip($ordering);
             if ($storageKey !== null) {
@@ -182,6 +186,8 @@ class PageObject extends FlexPageObject
             }
             $siblings = $siblings->orderBy(['order' => 'ASC']);
             $siblings->removeElement($this);
+        } else {
+            $siblings = $this->getFlexDirectory()->createCollection([]);
         }
 
         return $siblings;
@@ -496,7 +502,13 @@ class PageObject extends FlexPageObject
 
                 // If parent changes and page is visible, move it to be the last item.
                 if ($parent && !empty($elements['order']) && $parent !== $this->parent()) {
-                    $elements['order'] = ((int)$parent->children()->visible()->sort(['order' => 'ASC'])->last()->order()) + 1;
+                    $siblings = $parent->children();
+                    $siblings = $siblings ? $siblings->visible()->sort(['order' => 'ASC']) : null;
+                    if ($siblings && $siblings->count()) {
+                        $elements['order'] = ((int)$siblings->last()->order()) + 1;
+                    } else {
+                        $elements['order'] = 1;
+                    }
                 }
 
                 $parentKey = $parent->getStorageKey();

@@ -24,7 +24,6 @@ use Grav\Common\Uri;
 use Grav\Common\Utils;
 use Grav\Framework\Flex\Flex;
 use Grav\Framework\Flex\FlexDirectory;
-use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
 use Grav\Framework\Flex\Interfaces\FlexTranslateInterface;
 use Grav\Plugin\Admin;
 use RocketTheme\Toolbox\Event\Event;
@@ -38,10 +37,10 @@ class Pages
     /** @var Grav */
     protected $grav;
 
-    /** @var FlexDirectory */
+    /** @var FlexDirectory|null */
     private $directory;
 
-    /** @var array|PageInterface[] */
+    /** @var array<PageInterface|string> */
     protected $instances;
 
     /** @var array */
@@ -85,7 +84,7 @@ class Pages
     /** @var bool */
     protected $initialized = false;
 
-    /** @var Types */
+    /** @var Types|null */
     protected static $types;
 
     /** @var string|null */
@@ -137,7 +136,7 @@ class Pages
     {
         if ($path !== null) {
             $path = trim($path, '/');
-            $this->base = $path ? '/' . $path : null;
+            $this->base = $path ? '/' . $path : '';
             $this->baseRoute = [];
         }
 
@@ -295,16 +294,15 @@ class Pages
      */
     public function instances()
     {
-        if (!$this->directory) {
-            return $this->instances;
-        }
-
         $list = [];
         foreach ($this->instances as $path => $instance) {
-            if (!$instance instanceof PageInterface) {
+            if (is_string($instance) && $this->directory) {
+                /** @var PageInterface $instance */
                 $instance = $this->directory->getObject($instance, 'flex_key');
             }
-            $list[$path] = $instance;
+            if ($instance instanceof PageInterface) {
+                $list[$path] = $instance;
+            }
         }
 
         return $list;
@@ -333,9 +331,9 @@ class Pages
             $this->instances[$path] = $page;
         }
         $route = $page->route($route);
-        if ($page->parent()) {
-            $parentPath = $page->parent()->path() ?? '';
-            $this->children[$parentPath][$path] = ['slug' => $page->slug()];
+        $parent = $page->parent();
+        if ($parent) {
+            $this->children[$parent->path() ?? ''][$path] = ['slug' => $page->slug()];
         }
         $this->routes[$route] = $path;
 
@@ -374,7 +372,7 @@ class Pages
             $uri = $this->grav['uri'];
             foreach ($context['taxonomies'] as $taxonomy) {
                 $param = $uri->param(rawurlencode($taxonomy));
-                $items = $param ? explode(',', $param) : [];
+                $items = is_string($param) ? explode(',', $param) : [];
                 foreach ($items as $item) {
                     $params['taxonomies'][$taxonomy][] = htmlspecialchars_decode(rawurldecode($item), ENT_QUOTES);
                 }
@@ -641,6 +639,10 @@ class Pages
         }
 
         $path = $page->path();
+        if (null === $path) {
+            return [];
+        }
+
         $children = $this->children[$path] ?? [];
 
         if (!$children) {
@@ -662,7 +664,7 @@ class Pages
 
     /**
      * @param Collection $collection
-     * @param string|int $orderBy
+     * @param string     $orderBy
      * @param string     $orderDir
      * @param array|null $orderManual
      * @param int|null   $sort_flags
@@ -696,19 +698,25 @@ class Pages
      *
      * @param  string $path The filesystem full path of the page
      *
-     * @return PageInterface
-     * @throws \Exception
+     * @return PageInterface|null
+     * @throws \RuntimeException
      */
     public function get($path)
     {
         $instance = $this->instances[(string)$path] ?? null;
+
         if (\is_string($instance)) {
             $instance = $this->directory ? $this->directory->getObject($instance, 'flex_key') : null;
-            if (method_exists($instance, 'initialize') && $this->grav['config']->get('system.pages.events.page')) {
+            if ($instance && method_exists($instance, 'initialize') && $this->grav['config']->get('system.pages.events.page')) {
                 $instance->initialize();
             }
         }
-        if ($instance && !$instance instanceof PageInterface) {
+
+        if (null === $instance) {
+            return null;
+        }
+
+        if (!$instance instanceof PageInterface) {
             throw new \RuntimeException('Routing failed on unknown type', 500);
         }
 
@@ -808,10 +816,12 @@ class Pages
         $route = urldecode($route);
 
         // Fetch page if there's a defined route to it.
-        $page = isset($this->routes[$route]) ? $this->get($this->routes[$route]) : null;
+        $path = $this->routes[$route] ?? null;
+        $page = null !== $path ? $this->get($path) : null;
         // Try without trailing slash
         if (!$page && Utils::endsWith($route, '/')) {
-            $page = isset($this->routes[rtrim($route, '/')]) ? $this->get($this->routes[rtrim($route, '/')]) : null;
+            $path = $this->routes[rtrim($route, '/')] ?? null;
+            $page = null !== $path ? $this->get($path) : null;
         }
 
         // Are we in the admin? this is important!
@@ -825,7 +835,7 @@ class Pages
             }
 
             // fall back and check site based redirects
-            if (!$page || ($page && !$page->routable())) {
+            if (!$page || !$page->routable()) {
                 // Redirect to the first child (placeholder page)
                 if ($redirect && $page && count($children = $page->children()->visible()) > 0) {
                     $this->grav->redirectLangSafe($children->first()->route());
@@ -839,7 +849,6 @@ class Pages
                 if ($site_route) {
                     $page = $this->dispatch($site_route, $all, $redirect);
                 } else {
-
                     /** @var Uri $uri */
                     $uri = $this->grav['uri'];
                     /** @var \Grav\Framework\Uri\Uri $source_url */
@@ -849,10 +858,12 @@ class Pages
                     $site_redirects = $config->get('site.redirects');
                     if (is_array($site_redirects)) {
                         foreach ((array)$site_redirects as $pattern => $replace) {
-                            $pattern = '#^' . str_replace('/', '\/', ltrim($pattern, '^')) . '#';
+                            $pattern = ltrim($pattern, '^');
+                            $pattern = '#^' . str_replace('/', '\/', $pattern) . '#';
                             try {
+                                /** @var string $found */
                                 $found = preg_replace($pattern, $replace, $source_url);
-                                if ($found !== $source_url) {
+                                if ($found && $found !== $source_url) {
                                     $this->grav->redirectLangSafe($found);
                                 }
                             } catch (ErrorException $e) {
@@ -867,8 +878,9 @@ class Pages
                         foreach ((array)$site_routes as $pattern => $replace) {
                             $pattern = '#^' . str_replace('/', '\/', ltrim($pattern, '^')) . '#';
                             try {
+                                /** @var string $found */
                                 $found = preg_replace($pattern, $replace, $source_url);
-                                if ($found !== $source_url) {
+                                if ($found && $found !== $source_url) {
                                     $page = $this->dispatch($found, $all, $redirect);
                                 }
                             } catch (ErrorException $e) {
@@ -887,13 +899,20 @@ class Pages
      * Get root page.
      *
      * @return PageInterface
+     * @throws \RuntimeException
      */
     public function root()
     {
         /** @var UniformResourceLocator $locator */
         $locator = $this->grav['locator'];
 
-        return $this->get(rtrim($locator->findResource('page://'), '/'));
+        $path = $locator->findResource('page://');
+        $root = is_string($path) ? $this->get(rtrim($path, '/')) : null;
+        if (null === $root) {
+            throw new \RuntimeException('Internal error');
+        }
+
+        return $root;
     }
 
     /**
@@ -928,7 +947,7 @@ class Pages
      *
      * @param PageInterface $current
      *
-     * @return \Grav\Common\Page\Collection
+     * @return Collection
      */
     public function all(PageInterface $current = null)
     {
@@ -1053,23 +1072,23 @@ class Pages
      */
     public static function getTypes()
     {
-        if (!self::$types) {
+        if (null === self::$types) {
             $grav = Grav::instance();
 
-            $scanBlueprintsAndTemplates = function () use ($grav) {
+            $scanBlueprintsAndTemplates = static function (Types $types) use ($grav) {
                 // Scan blueprints
                 $event = new Event();
-                $event->types = self::$types;
+                $event->types = $types;
                 $grav->fireEvent('onGetPageBlueprints', $event);
 
-                self::$types->scanBlueprints('theme://blueprints/');
+                $types->scanBlueprints('theme://blueprints/');
 
                 // Scan templates
                 $event = new Event();
-                $event->types = self::$types;
+                $event->types = $types;
                 $grav->fireEvent('onGetPageTemplates', $event);
 
-                self::$types->scanTemplates('theme://templates/');
+                $types->scanTemplates('theme://templates/');
             };
 
             if ($grav['config']->get('system.cache.enabled')) {
@@ -1078,21 +1097,21 @@ class Pages
 
                 // Use cached types if possible.
                 $types_cache_id = md5('types');
-                self::$types = $cache->fetch($types_cache_id);
+                $types = $cache->fetch($types_cache_id);
 
-                if (!self::$types) {
-                    self::$types = new Types();
-                    $scanBlueprintsAndTemplates();
-                    $cache->save($types_cache_id, self::$types);
+                if (!$types instanceof Types) {
+                    $types = new Types();
+                    $scanBlueprintsAndTemplates($types);
+                    $cache->save($types_cache_id, $types);
                 }
             } else {
-                self::$types = new Types();
-                $scanBlueprintsAndTemplates();
+                $types = new Types();
+                $scanBlueprintsAndTemplates($types);
             }
 
             // Register custom paths to the locator.
             $locator = $grav['locator'];
-            foreach (self::$types as $type => $paths) {
+            foreach ($types as $type => $paths) {
                 foreach ($paths as $k => $path) {
                     if (strpos($path, 'blueprints://') === 0) {
                         unset($paths[$k]);
@@ -1102,6 +1121,8 @@ class Pages
                     $locator->addPath('blueprints', "pages/$type.yaml", $paths);
                 }
             }
+
+            self::$types = $types;
         }
 
         return self::$types;
@@ -1142,7 +1163,7 @@ class Pages
             /** @var Admin $admin */
             $admin = Grav::instance()['admin'];
 
-            /** @var PageInterface $page */
+            /** @var PageInterface|null $page */
             $page = $admin->page();
 
             $type = $page && $page->modular() ? 'modular' : 'standard';
@@ -1167,7 +1188,7 @@ class Pages
     {
         $accessLevels = [];
         foreach ($this->all() as $page) {
-            if ($page && isset($page->header()->access)) {
+            if ($page instanceof PageInterface && isset($page->header()->access)) {
                 if (\is_array($page->header()->access)) {
                     foreach ($page->header()->access as $index => $accessLevel) {
                         if (\is_array($accessLevel)) {
@@ -1292,6 +1313,7 @@ class Pages
                 $page->routable(true);
                 $page->content('## Please install **Flex Objects** plugin. It is required to edit **Flex Pages**.');
 
+                /** @var Header $header */
                 $header = $page->header();
                 $menu = $directory->getConfig('admin.menu.list');
                 $header->access = $menu['authorize'] ?? ['admin.pages', 'admin.super'];
@@ -1321,19 +1343,17 @@ class Pages
         $debugger->startTimer('build-pages', 'Init frontend routes');
 
         if ($this->directory) {
-            $this->buildFlexPages();
+            $this->buildFlexPages($this->directory);
         } else {
             $this->buildRegularPages();
         }
         $debugger->stopTimer('build-pages');
     }
 
-    protected function buildFlexPages()
+    protected function buildFlexPages(FlexDirectory $directory)
     {
         /** @var Config $config */
         $config = $this->grav['config'];
-
-        $directory = $this->directory;
 
         // TODO: right now we are just emulating normal pages, it is inefficient and bad... but works!
         $collection = $directory->getIndex();
@@ -1370,10 +1390,13 @@ class Pages
 
         /**
          * @var string $key
-         * @var PageInterface|FlexObjectInterface $page
+         * @var PageInterface $page
          */
         foreach ($collection as $key => $page) {
             $path = $page->path();
+            if (null === $path) {
+                throw new \RuntimeException('Internal error');
+            }
 
             if ($page instanceof FlexTranslateInterface) {
                 $page = $page && $page->hasTranslation() ? $page->getTranslation() : null;
@@ -1435,12 +1458,16 @@ class Pages
 
         /** @var UniformResourceLocator $locator */
         $locator = $grav['locator'];
+        $path = $locator->findResource('page://');
+        if (!is_string($path)) {
+            throw new \RuntimeException('Internal Error');
+        }
 
         /** @var Config $config */
         $config = $grav['config'];
 
         $page = new Page();
-        $page->path($locator->findResource('page://'));
+        $page->path($path);
         $page->orderDir($config->get('system.pages.order.dir'));
         $page->orderBy($config->get('system.pages.order.by'));
         $page->modified(0);
@@ -1460,6 +1487,9 @@ class Pages
         $locator = $this->grav['locator'];
 
         $pages_dir = $locator->findResource('page://');
+        if (!is_string($pages_dir)) {
+            throw new \RuntimeException('Internal Error');
+        }
 
         if ($config->get('system.cache.enabled')) {
             /** @var Language $language */
@@ -1689,7 +1719,7 @@ class Pages
 
         // Override the modified and ID so that it takes the latest change into account
         $page->modified($last_modified);
-        $page->id($last_modified . md5($page->filePath()));
+        $page->id($last_modified . md5($page->filePath() ?? ''));
 
         // Sort based on Defaults or Page Overridden sort order
         $this->children[$page->path()] = $this->sort($page);
@@ -1708,7 +1738,7 @@ class Pages
         // Get the home route
         $home = self::resetHomeRoute();
         // Build routes and taxonomy map.
-        /** @var PageInterface $page */
+        /** @var PageInterface|string $page */
         foreach ($this->instances as $path => $page) {
             if (\is_string($page)) {
                 $page = $this->get($path);
@@ -1721,9 +1751,13 @@ class Pages
             // process taxonomy
             $taxonomy->addTaxonomy($page);
 
+            $page_path = $page->path();
+            if (null === $page_path) {
+                throw new \RuntimeException('Internal Error');
+            }
+
             $route = $page->route();
             $raw_route = $page->rawRoute();
-            $page_path = $page->path();
 
             // add regular route
             $this->routes[$route] = $page_path;
@@ -1751,8 +1785,11 @@ class Pages
         // Alias and set default route to home page.
         $homeRoute = "/{$home}";
         if ($home && isset($this->routes[$homeRoute])) {
-            $this->routes['/'] = $this->routes[$homeRoute];
-            $this->get($this->routes[$homeRoute])->route('/');
+            $home = $this->get($this->routes[$homeRoute]);
+            if ($home) {
+                $this->routes['/'] = $this->routes[$homeRoute];
+                $home->route('/');
+            }
         }
     }
 
@@ -1769,15 +1806,14 @@ class Pages
     protected function buildSort($path, array $pages, $order_by = 'default', $manual = null, $sort_flags = null)
     {
         $list = [];
-        $header_default = null;
         $header_query = null;
+        $header_default = null;
 
         // do this header query work only once
         if (strpos($order_by, 'header.') === 0) {
-            $header_query = explode('|', str_replace('header.', '', $order_by));
-            if (isset($header_query[1])) {
-                $header_default = $header_query[1];
-            }
+            $query = explode('|', str_replace('header.', '', $order_by), 2);
+            $header_query = array_shift($query);
+            $header_default = array_shift($query);
         }
 
         foreach ($pages as $key => $info) {
@@ -1815,12 +1851,12 @@ class Pages
                 case 'folder':
                     $list[$key] = $child->folder();
                     break;
-                case (is_string($header_query[0])):
+                case (is_string($header_query)):
                     $child_header = $child->header();
                     if (!$child_header instanceof Header) {
                         $child_header = new Header((array)$child_header);
                     }
-                    $header_value = $child_header->get($header_query[0]);
+                    $header_value = $child_header->get($header_query);
                     if (is_array($header_value)) {
                         $list[$key] = implode(',', $header_value);
                     } elseif ($header_value) {
@@ -1848,13 +1884,16 @@ class Pages
         } else {
             // else just sort the list according to specified key
             if (extension_loaded('intl') && $this->grav['config']->get('system.intl_enabled')) {
-                $locale = setlocale(LC_COLLATE, 0); //`setlocale` with a 0 param returns the current locale set
+                $locale = setlocale(LC_COLLATE, '0'); //`setlocale` with a '0' param returns the current locale set
                 $col = Collator::create($locale);
                 if ($col) {
                     if (($sort_flags & SORT_NATURAL) === SORT_NATURAL) {
-                        $list = preg_replace_callback('~([0-9]+)\.~', function ($number) {
+                        $list = preg_replace_callback('~([0-9]+)\.~', static function ($number) {
                             return sprintf('%032d.', $number[0]);
                         }, $list);
+                        if (!is_array($list)) {
+                            throw new \RuntimeException('Internal Error');
+                        }
 
                         $list_vals = array_values($list);
                         if (is_numeric(array_shift($list_vals))) {
