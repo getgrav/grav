@@ -23,6 +23,7 @@ use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Extension\CoreExtension;
 use Twig\Extension\DebugExtension;
+use Twig\Extension\StringLoaderExtension;
 use Twig\Loader\ArrayLoader;
 use Twig\Loader\ChainLoader;
 use Twig\Loader\FilesystemLoader;
@@ -198,6 +199,7 @@ class Twig
             }
             $this->twig->addExtension(new TwigExtension());
             $this->twig->addExtension(new DeferredExtension());
+            $this->twig->addExtension(new StringLoaderExtension());
 
             $this->profile = new \Twig\Profiler\Profile();
             $this->twig->addExtension(new \Twig\Extension\ProfilerExtension($this->profile));
