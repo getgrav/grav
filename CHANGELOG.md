@@ -165,6 +165,8 @@
 # v1.6.17
 ## mm/dd/2019
 
+1. [](#new)
+    * Added working ETag (304 Not Modified) support based on the final rendered HTML
 1. [](#improved)
     * Safer file handling + customizable null char replacement in `CsvFormatter::decode()`
     * Change of Behavior: `Inflector::hyphenize` will now automatically trim dashes at beginning and end of a string.
