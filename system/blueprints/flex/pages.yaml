@@ -91,6 +91,10 @@ config:
           icon: check
           label: PLUGIN_ADMIN.SAVE
 
+    # Preview View
+    preview:
+      enabled: true
+
   site:
     hidden: true
     templates:
