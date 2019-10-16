@@ -92,6 +92,7 @@ config:
           label: PLUGIN_ADMIN.SAVE
 
   site:
+    hidden: true
     templates:
       collection:
         paths:
