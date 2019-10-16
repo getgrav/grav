@@ -23,7 +23,8 @@ class CsvFormatter extends AbstractFormatter
     {
         $config += [
             'file_extension' => ['.csv', '.tsv'],
-            'delimiter' => ','
+            'delimiter' => ',',
+            'mime' => 'text/x-csv'
         ];
 
         parent::__construct($config);

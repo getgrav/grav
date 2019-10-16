@@ -17,6 +17,7 @@ parameters:
         - Grav\Common\GPM\Common\Package
         - Grav\Common\GPM\Local\Package
         - Grav\Common\GPM\Remote\Package
+        - Grav\Common\Page\Header
         - Grav\Common\Session
     ignoreErrors:
 

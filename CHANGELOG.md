@@ -5,10 +5,12 @@
     * Added `Flex Pages` to Grav core and removed Flex Objects plugin dependency
     * Added `Utils::simpleTemplate()` method for very simple variable templating
     * Added `array_diff()` twig function
+    * Added `template_from_string()` twig function
 1. [](#improved)
     * Improved `Flex Users`: obey blueprints and allow Flex to be used in admin only
     * Improved `Flex` to support custom site template paths
     * Changed Twig `{% cache %}` tag to not need unique key, and `lifetime` is now optional
+    * Added mime support for file formatters
 1. [](#bugfix)
     * Fixed `Page::untranslatedLanguages()` not being symmetrical to `Page::translatedLanguages()`
     * Fixed `Flex Pages` not calling `onPageProcessed` event when cached

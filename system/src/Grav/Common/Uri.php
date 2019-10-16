@@ -301,7 +301,7 @@ class Uri
      * Get URI parameter.
      *
      * @param string $id
-     * @param bool $default
+     * @param string|bool|null $default
      *
      * @return bool|string
      */

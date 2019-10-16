@@ -27,6 +27,12 @@ namespace Grav\Framework\File\Interfaces;
 interface FileFormatterInterface extends \Serializable
 {
     /**
+     * @return string
+     * @since 1.7
+     */
+    public function getMimeType(): string;
+
+    /**
      * Get default file extension from current formatter (with dot).
      *
      * Default file extension is the first defined extension.

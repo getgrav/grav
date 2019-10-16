@@ -14,6 +14,8 @@ namespace Grav\Common\Page\Flex;
 use Grav\Common\Debugger;
 use Grav\Common\Grav;
 use Grav\Common\Language\Language;
+use Grav\Framework\File\MarkdownFile;
+use Grav\Framework\File\YamlFile;
 use Grav\Framework\Flex\Storage\FolderStorage;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
@@ -79,7 +81,11 @@ class PageStorage extends FolderStorage
         $path = $this->getPathFromKey($key);
         $file = $this->getFile($path);
         try {
-            $frontmatter = $file->frontmatter();
+            if ($file instanceof MarkdownFile) {
+                $frontmatter = $file->frontmatter();
+            } else {
+                $frontmatter = $file->raw();
+            }
         } catch (\RuntimeException $e) {
             $frontmatter = 'ERROR: ' . $e->getMessage();
         }

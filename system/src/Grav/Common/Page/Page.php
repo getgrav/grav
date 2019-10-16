@@ -64,6 +64,7 @@ class Page implements PageInterface
     protected $redirect;
     protected $external_url;
     protected $items;
+    /** @var \stdClass */
     protected $header;
     protected $frontmatter;
     protected $language;
