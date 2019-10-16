@@ -193,6 +193,8 @@ class Inflector
         $regex3 = preg_replace('/([0-9])([A-Z])/', '\1-\2', $regex2);
         $regex4 = preg_replace('/[^A-Z^a-z^0-9]+/', '-', $regex3);
 
+        $regex4 = trim($regex4, '-');
+
         return strtolower($regex4);
     }
 

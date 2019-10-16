@@ -3,6 +3,7 @@
 
 1. [](#improved)
     * Safer file handling + customizable null char replacement in `CsvFormatter::decode()`
+    * Change of Behavior: `Inflector::hyphenize` will now automatically trim dashes at beginning and end of a string.
 1. [](#bugfix)
     * Fixed PHP 7.1 bug in Flex
 
