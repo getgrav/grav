@@ -273,9 +273,21 @@ class Grav extends Container
         $debugger = $this['debugger'];
         $response = $debugger->logRequest($request, $response);
 
-        // Send the response and terminate.
+        $body = $response->getBody();
+
+        // Handle ETag and If-None-Match headers.
+        if ($response->getHeaderLine('ETag') === '1') {
+            $etag = md5($body);
+            $response = $response->withHeader('ETag', $etag);
+
+            if ($request->getHeaderLine('If-None-Match') === $etag) {
+                $response = $response->withStatus(304);
+                $body = '';
+            }
+        }
+
         $this->header($response);
-        echo $response->getBody();
+        echo $body;
         exit();
     }
 

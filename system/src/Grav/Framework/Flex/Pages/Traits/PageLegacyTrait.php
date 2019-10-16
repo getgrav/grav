@@ -151,7 +151,7 @@ trait PageLegacyTrait
 
         // Calculate ETag based on the serialized page and modified time.
         if ($this->eTag()) {
-            $headers['ETag'] = '"' . md5(json_encode($this) . $this->modified()).'"';
+            $headers['ETag'] = '1';
         }
 
         // Set Vary: Accept-Encoding header.
@@ -675,7 +675,7 @@ trait PageLegacyTrait
             'etag',
             $var,
             static function ($value) {
-                return (bool)($value ?? Grav::instance()['config']->get('system.pages.last_modified'));
+                return (bool)($value ?? Grav::instance()['config']->get('system.pages.etag'));
             }
         );
     }

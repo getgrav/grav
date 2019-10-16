@@ -1950,7 +1950,7 @@ class Page implements PageInterface
      *
      * @return bool      show etag header
      */
-    public function eTag($var = null)
+    public function eTag($var = null): bool
     {
         if ($var !== null) {
             $this->etag = $var;
@@ -1959,7 +1959,7 @@ class Page implements PageInterface
             $this->etag = (bool)Grav::instance()['config']->get('system.pages.etag');
         }
 
-        return $this->etag;
+        return $this->etag ?? false;
     }
 
     /**

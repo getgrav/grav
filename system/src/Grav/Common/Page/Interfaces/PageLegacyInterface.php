@@ -281,7 +281,7 @@ interface PageLegacyInterface
      *
      * @return bool      show etag header
      */
-    public function eTag($var = null);
+    public function eTag($var = null): bool;
 
     /**
      * Gets and sets the path to the .md file for this Page object.
