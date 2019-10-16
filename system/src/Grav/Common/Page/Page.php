@@ -529,9 +529,9 @@ class Page implements PageInterface
             $headers['Last-Modified'] = $last_modified_date;
         }
 
-        // Calculate ETag based on the raw file
+        // Ask Grav to calculate ETag from the final content.
         if ($this->eTag()) {
-            $headers['ETag'] = '"' . md5($this->raw() . $this->modified()).'"';
+            $headers['ETag'] = '1';
         }
 
         // Set Vary: Accept-Encoding header
