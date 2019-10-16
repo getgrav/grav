@@ -29,7 +29,7 @@ abstract class CompiledBase
     public $checksum;
 
     /**
-     * @var string  Timestamp of compiled configuration
+     * @var int  Timestamp of compiled configuration
      */
     public $timestamp;
 
@@ -159,7 +159,7 @@ abstract class CompiledBase
      * Load single configuration file and append it to the correct position.
      *
      * @param  string  $name  Name of the position.
-     * @param  string  $filename  File to be loaded.
+     * @param  string|string[]  $filename  File(s) to be loaded.
      */
     abstract protected function loadFile($name, $filename);
 

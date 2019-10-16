@@ -29,6 +29,7 @@ class TwigTokenParserThrow extends AbstractTokenParser
      * @param Token $token A Twig Token instance
      *
      * @return Node A Twig Node instance
+     * @suppress PhanAccessMethodInternal - parseExpression() is marked as Twig-internal
      */
     public function parse(Token $token)
     {
@@ -39,7 +40,7 @@ class TwigTokenParserThrow extends AbstractTokenParser
         $message = $this->parser->getExpressionParser()->parseExpression();
         $stream->expect(Token::BLOCK_END_TYPE);
 
-        return new TwigNodeThrow($code, $message, $lineno, $this->getTag());
+        return new TwigNodeThrow((int)$code, $message, $lineno, $this->getTag());
     }
 
     /**

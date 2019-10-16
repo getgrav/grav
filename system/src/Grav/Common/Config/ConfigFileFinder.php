@@ -50,6 +50,7 @@ class ConfigFileFinder
      * @param  string $pattern  Pattern to match the file. Pattern will also be removed from the key.
      * @param  int    $levels   Maximum number of recursive directories.
      * @return array
+     * @suppress PhanTypeMismatchReturn - false positive on the += array trick
      */
     public function getFiles(array $paths, $pattern = '|\.yaml$|', $levels = -1)
     {

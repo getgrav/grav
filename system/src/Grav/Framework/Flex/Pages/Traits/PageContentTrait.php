@@ -24,6 +24,8 @@ use RocketTheme\Toolbox\Event\Event;
 
 /**
  * Implements PageContentInterface.
+ *
+ * @phan-file-suppress PhanUndeclaredMethod,PhanUndeclaredConstant,PhanUndeclaredProperty,PhanTypeMismatchArgument
  */
 trait PageContentTrait
 {

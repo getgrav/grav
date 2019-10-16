@@ -16,6 +16,7 @@ use Grav\Common\Page\Medium\StaticImageMedium;
 use Grav\Common\User\Authentication;
 use Grav\Common\Utils;
 
+/** @phan-file-suppress PhanUndeclaredMethod */
 trait UserTrait
 {
     /**

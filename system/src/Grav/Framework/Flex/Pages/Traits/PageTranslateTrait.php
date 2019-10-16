@@ -16,6 +16,8 @@ use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
 
 /**
  * Implements PageTranslateInterface
+ *
+ * @phan-file-suppress PhanUndeclaredMethod
  */
 trait PageTranslateTrait
 {

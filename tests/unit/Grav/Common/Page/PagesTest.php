@@ -126,6 +126,7 @@ class PagesTest extends \Codeception\TestCase\Test
         $this->assertSame(['slug' => 'post-two'], $subPagesSorted[$folder . '/fake/simple-site/user/pages/02.blog/post-two']);
     }
 
+    /** @suppress PhanAccessMethodInternal - sortCollection() is internal */
     public function testSortCollection()
     {
         /** @var UniformResourceLocator $locator */

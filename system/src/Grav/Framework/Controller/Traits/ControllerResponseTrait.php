@@ -33,8 +33,8 @@ trait ControllerResponseTrait
 
     /**
      * @param string $content
-     * @param int $code
-     * @param array $headers
+     * @param ?int $code
+     * @param ?array $headers
      * @return Response
      */
     protected function createHtmlResponse(string $content, int $code = null, array $headers = null): ResponseInterface
@@ -50,8 +50,8 @@ trait ControllerResponseTrait
 
     /**
      * @param array $content
-     * @param int $code
-     * @param array $headers
+     * @param ?int $code
+     * @param ?array $headers
      * @return Response
      */
     protected function createJsonResponse(array $content, int $code = null, array $headers = null): ResponseInterface
@@ -70,7 +70,7 @@ trait ControllerResponseTrait
 
     /**
      * @param string $url
-     * @param int $code
+     * @param ?int $code
      * @return Response
      */
     protected function createRedirectResponse(string $url, int $code = null): ResponseInterface
@@ -90,7 +90,7 @@ trait ControllerResponseTrait
 
     /**
      * @param \Throwable $e
-     * @return \Throwable
+     * @return ResponseInterface
      */
     protected function createErrorResponse(\Throwable $e): ResponseInterface
     {

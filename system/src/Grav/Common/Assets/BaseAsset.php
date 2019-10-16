@@ -162,7 +162,7 @@ abstract class BaseAsset extends PropertyObject
      *
      * @param  string $asset    the asset string reference
      *
-     * @return string           the final link url to the asset
+     * @return string|false     the final link url to the asset
      */
     protected function buildLocalLink($asset)
     {

@@ -51,6 +51,7 @@ class TwigTokenParserStyle extends AbstractTokenParser
     /**
      * @param Token $token
      * @return array
+     * @suppress PhanAccessMethodInternal - parseExpression() is marked as Twig-internal
      */
     protected function parseArguments(Token $token)
     {

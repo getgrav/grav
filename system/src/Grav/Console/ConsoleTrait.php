@@ -43,7 +43,6 @@ trait ConsoleTrait
     {
         // Initialize cache with CLI compatibility
         Grav::instance()['config']->set('system.cache.cli_compatibility', true);
-        Grav::instance()['cache'];
 
         $this->argv = $_SERVER['argv'][0];
         $this->input  = $input;

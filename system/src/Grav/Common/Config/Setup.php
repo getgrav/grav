@@ -150,6 +150,7 @@ class Setup extends Data
 
     /**
      * @param Container|array $container
+     * @suppress PhanUndeclaredConstant
      */
     public function __construct($container)
     {

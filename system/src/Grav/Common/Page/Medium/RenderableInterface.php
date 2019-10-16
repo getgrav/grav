@@ -14,23 +14,24 @@ interface RenderableInterface
     /**
      * Return HTML markup from the medium.
      *
-     * @param string $title
-     * @param string $alt
-     * @param string $class
+     * @param ?string $title
+     * @param ?string $alt
+     * @param ?string $class
+     * @param ?string $id
      * @param bool $reset
      * @return string
      */
-    public function html($title = null, $alt = null, $class = null, $reset = true);
+    public function html($title = null, $alt = null, $class = null, $id = null, $reset = true);
 
     /**
      * Return Parsedown Element from the medium.
      *
-     * @param string $title
-     * @param string $alt
-     * @param string $class
-     * @param string $id
+     * @param ?string $title
+     * @param ?string $alt
+     * @param ?string $class
+     * @param ?string $id
      * @param bool $reset
-     * @return string
+     * @return array
      */
     public function parsedownElement($title = null, $alt = null, $class = null, $id = null, $reset = true);
 }

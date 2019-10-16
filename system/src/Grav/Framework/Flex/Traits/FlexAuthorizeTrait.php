@@ -18,6 +18,7 @@ use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
 
 /**
  * Implements basic ACL
+ * @phan-file-suppress PhanPossiblyUndeclaredMethod,PhanPluginPrintfVariableFormatString
  */
 trait FlexAuthorizeTrait
 {

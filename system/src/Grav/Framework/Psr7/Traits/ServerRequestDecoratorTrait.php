@@ -7,6 +7,8 @@ declare(strict_types=1);
  *
  * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
+ *
+ * @phan-file-suppress PhanUnanalyzableInheritance
  */
 
 namespace Grav\Framework\Psr7\Traits;

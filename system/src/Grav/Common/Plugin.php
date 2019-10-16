@@ -66,7 +66,7 @@ class Plugin implements EventSubscriberInterface, \ArrayAccess
      *
      * @param string $name
      * @param Grav   $grav
-     * @param Config $config
+     * @param ?Config $config
      */
     public function __construct($name, Grav $grav, Config $config = null)
     {
