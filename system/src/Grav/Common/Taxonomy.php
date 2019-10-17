@@ -69,10 +69,37 @@ class Taxonomy
             foreach ((array)$config->get('site.taxonomies') as $taxonomy) {
                 if (isset($page_taxonomy[$taxonomy])) {
                     foreach ((array)$page_taxonomy[$taxonomy] as $item) {
-                        $this->taxonomy_map[$taxonomy][(string)$item][$page->path()] = ['slug' => $page->slug()];
+                        $this->iterateTaxonomy($page, $taxonomy, '', $item);
                     }
                 }
             }
+        }
+    }
+
+    /**
+     * Iterate through taxonomy fields
+     *
+     * Reduces [taxonomy_type] to dot-notation where necessary
+     *
+     * @param PageInterface   $page     The Page to process
+     * @param string          $taxonomy Taxonomy type to add
+     * @param string          $key      Taxonomy type to concatenate
+     * @param iterable|string $value    Taxonomy value to add or iterate
+     *
+     * @return void
+     */
+    public function iterateTaxonomy(PageInterface $page, string $taxonomy, string $key, $value)
+    {
+        if (is_iterable($value)) {
+            foreach ($value as $identifier => $item) {
+                $identifier = $key . '.' . $identifier;
+				$this->iterateTaxonomy($page, $taxonomy, $identifier, $item);
+            }
+        } elseif (is_string($value)) {
+            if (!empty($key)) {
+                $taxonomy = $taxonomy . $key;
+            }
+            $this->taxonomy_map[$taxonomy][(string) $value][$page->path()] = ['slug' => $page->slug()];
         }
     }
 
