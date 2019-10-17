@@ -110,6 +110,7 @@ class ParsedownTest extends \Codeception\TestCase\Test
 
     public function testImagesSubDir()
     {
+        $this->config->set('system.images.cache_all', false);
         $this->uri->initializeWithUrlAndRootPath('http://testing.dev/subdir/item2/item2-2', '/subdir')->init();
 
         $this->assertRegexp('|<p><img alt="" src="\/subdir\/images\/.*-home-cache-image.jpe?g" \/><\/p>|',
