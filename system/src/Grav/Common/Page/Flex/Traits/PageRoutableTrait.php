@@ -19,8 +19,6 @@ use Grav\Common\Utils;
 
 /**
  * Implements PageRoutableInterface.
- *
- * @phan-file-suppress PhanUndeclaredMethod
  */
 trait PageRoutableTrait
 {
@@ -51,7 +49,7 @@ trait PageRoutableTrait
     /**
      * Gets and Sets the parent object for this page
      *
-     * @param  ?PageInterface $var the parent page object
+     * @param  PageInterface|null $var the parent page object
      *
      * @return PageInterface|null the parent page object if it exists.
      */

@@ -73,7 +73,7 @@ class Debugger
     /** @var array $deprecations */
     protected $deprecations = [];
 
-    /** @var ?callable */
+    /** @var callable|null */
     protected $errorHandler;
 
     protected $requestTime;
@@ -403,7 +403,6 @@ class Debugger
                 $this->renderer = $this->debugbar->getJavascriptRenderer();
                 $this->renderer->setIncludeVendors(false);
 
-                // @phan-suppress-next-line PhanTypeMismatchArgument maximebf/debugbar has an incorrect phpdoc type for $type
                 list($css_files, $js_files) = $this->renderer->getAssets(null, JavascriptRenderer::RELATIVE_URL);
 
                 foreach ((array)$css_files as $css) {
@@ -431,7 +430,7 @@ class Debugger
     /**
      * Adds a data collector
      *
-     * @param string $collector
+     * @param DataCollectorInterface $collector
      *
      * @return $this
      * @throws \DebugBar\DebugBarException
@@ -504,7 +503,7 @@ class Debugger
     /**
      * Returns collected debugger data.
      *
-     * @return ?array
+     * @return array|null
      */
     public function getData()
     {
@@ -782,7 +781,6 @@ class Debugger
      * @param string $errfile
      * @param int $errline
      * @return bool
-     * @suppress PhanAccessMethodInternal,PhanTypeArraySuspicious,PhanTypeArraySuspiciousNull
      */
     public function deprecatedErrorHandler($errno, $errstr, $errfile, $errline)
     {

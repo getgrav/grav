@@ -12,7 +12,6 @@ namespace Grav\Console\Gpm;
 use Grav\Common\Cache;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\GPM\Installer;
-use Grav\Common\GPM\Remote\Package;
 use Grav\Common\GPM\Response;
 use Grav\Common\GPM\Upgrader;
 use Grav\Common\Grav;

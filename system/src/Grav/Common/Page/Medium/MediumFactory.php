@@ -20,7 +20,7 @@ class MediumFactory
      *
      * @param  string $file
      * @param  array  $params
-     * @return ?Medium
+     * @return Medium|null
      */
     public static function fromFile($file, array $params = [])
     {
@@ -73,7 +73,7 @@ class MediumFactory
      *
      * @param  FormFlashFile $uploadedFile
      * @param  array  $params
-     * @return ?Medium
+     * @return Medium|null
      */
     public static function fromUploadedFile(FormFlashFile $uploadedFile, array $params = [])
     {
@@ -82,7 +82,7 @@ class MediumFactory
         $ext = $parts['extension'];
         $basename = $parts['filename'];
         $file = $uploadedFile->getTmpFile();
-        $path = empty($file) ? '' : dirname($file);
+        $path = $file ? dirname($file) : '';
 
         $config = Grav::instance()['config'];
 
@@ -104,7 +104,7 @@ class MediumFactory
             'basename' => $basename,
             'extension' => $ext,
             'path' => $path,
-            'modified' => empty($file) ? 0 : filemtime($file),
+            'modified' => $file ? filemtime($file) : 0,
             'thumbnails' => []
         ];
 
@@ -149,7 +149,7 @@ class MediumFactory
     /**
      * Create a new ImageMedium by scaling another ImageMedium object.
      *
-     * @param  Medium      $medium
+     * @param  ImageMedium|Medium $medium
      * @param  int         $from
      * @param  int         $to
      * @return Medium|array

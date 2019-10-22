@@ -14,7 +14,6 @@ use Grav\Framework\Object\Interfaces\ObjectInterface;
 /**
  * ObjectCollection Trait
  * @package Grav\Framework\Object
- * @phan-file-suppress PhanUndeclaredMethod
  */
 trait ObjectCollectionTrait
 {
@@ -322,10 +321,9 @@ trait ObjectCollectionTrait
      * Group items in the collection by a field and return them as associated array.
      *
      * @param string $property
-     * @param ?string $separator
      * @return array
      */
-    public function group($property, $separator = null)
+    public function group($property)
     {
         $list = [];
 

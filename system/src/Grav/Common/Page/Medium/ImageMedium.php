@@ -76,7 +76,7 @@ class ImageMedium extends Medium
      * Construct.
      *
      * @param array $items
-     * @param ?Blueprint $blueprint
+     * @param Blueprint|null $blueprint
      */
     public function __construct($items = [], Blueprint $blueprint = null)
     {
@@ -625,18 +625,18 @@ class ImageMedium extends Medium
     /**
      * Filter image by using user defined filter parameters.
      *
-     * @param mixed ...$args Filter to be used - varags to be compatible with parent
+     * @param string $filter Filter to be used.
      * @return $this
      */
-    public function filter(...$args)
+    public function filter($filter = 'image.filters.default')
     {
-        $filter = $args[0] ?? 'image.filters.default';
         $filters = (array) $this->get($filter, []);
         foreach ($filters as $params) {
             $params = (array) $params;
             $method = array_shift($params);
             $this->__call($method, $params);
         }
+
         return $this;
     }
 

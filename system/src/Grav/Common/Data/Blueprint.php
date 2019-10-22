@@ -28,7 +28,7 @@ class Blueprint extends BlueprintForm
     /** @var object */
     protected $object;
 
-    /** @var ?array */
+    /** @var array|null */
     protected $defaults;
 
     protected $handlers = [];

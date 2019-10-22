@@ -32,7 +32,7 @@ class Medium extends Data implements RenderableInterface, MediaObjectInterface
     protected $mode = 'source';
 
     /**
-     * @var ?Medium
+     * @var Medium|null
      */
     protected $_thumbnail = null;
 
@@ -74,7 +74,7 @@ class Medium extends Data implements RenderableInterface, MediaObjectInterface
      * Construct.
      *
      * @param array $items
-     * @param ?Blueprint $blueprint
+     * @param Blueprint|null $blueprint
      */
     public function __construct($items = [], Blueprint $blueprint = null)
     {
@@ -281,7 +281,7 @@ class Medium extends Data implements RenderableInterface, MediaObjectInterface
     /**
      * Get/set querystring for the file's url
      *
-     * @param  ?string  $querystring
+     * @param  string|null  $querystring
      * @param  bool $withQuestionmark
      * @return string
      */
@@ -345,10 +345,10 @@ class Medium extends Data implements RenderableInterface, MediaObjectInterface
     /**
      * Get an element (is array) that can be rendered by the Parsedown engine
      *
-     * @param  ?string  $title
-     * @param  ?string  $alt
-     * @param  ?string  $class
-     * @param  ?string  $id
+     * @param  string|null  $title
+     * @param  string|null  $alt
+     * @param  string|null  $class
+     * @param  string|null  $id
      * @param  bool $reset
      * @return array
      */
@@ -479,7 +479,7 @@ class Medium extends Data implements RenderableInterface, MediaObjectInterface
      *
      * @param string $mode
      *
-     * @return ?$this
+     * @return $this|null
      */
     public function display($mode = 'source')
     {

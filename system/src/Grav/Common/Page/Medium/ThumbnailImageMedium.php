@@ -35,11 +35,11 @@ class ThumbnailImageMedium extends ImageMedium
     /**
      * Get an element (is array) that can be rendered by the Parsedown engine
      *
-     * @param  ?string $title
-     * @param  ?string $alt
-     * @param  ?string $class
-     * @param  ?string $id
-     * @param  bool $reset
+     * @param string|null $title
+     * @param string|null $alt
+     * @param string|null $class
+     * @param string|null $id
+     * @param bool $reset
      * @return array
      */
     public function parsedownElement($title = null, $alt = null, $class = null, $id = null, $reset = true)
@@ -50,10 +50,10 @@ class ThumbnailImageMedium extends ImageMedium
     /**
      * Return HTML markup from the medium.
      *
-     * @param ?string $title
-     * @param ?string $alt
-     * @param ?string $class
-     * @param ?string $id
+     * @param string|null $title
+     * @param string|null $alt
+     * @param string|null $class
+     * @param string|null $id
      * @param bool $reset
      * @return string
      */

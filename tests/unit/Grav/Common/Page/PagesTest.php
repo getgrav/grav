@@ -41,7 +41,7 @@ class PagesTest extends \Codeception\TestCase\Test
         $this->pages->base('/test');
         $this->assertSame('/test', $this->pages->base());
         $this->pages->base('');
-        $this->assertNull($this->pages->base());
+        $this->assertSame($this->pages->base(), '');
     }
 
     public function testLastModified()
@@ -126,7 +126,6 @@ class PagesTest extends \Codeception\TestCase\Test
         $this->assertSame(['slug' => 'post-two'], $subPagesSorted[$folder . '/fake/simple-site/user/pages/02.blog/post-two']);
     }
 
-    /** @suppress PhanAccessMethodInternal - sortCollection() is internal */
     public function testSortCollection()
     {
         /** @var UniformResourceLocator $locator */

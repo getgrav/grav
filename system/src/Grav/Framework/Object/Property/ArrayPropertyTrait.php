@@ -50,7 +50,7 @@ trait ArrayPropertyTrait
      * @param bool $doCreate        Set true to create variable.
      * @return mixed                Property value.
      */
-    public function &doGetProperty($property, $default = null, $doCreate = false)
+    protected function &doGetProperty($property, $default = null, $doCreate = false)
     {
         if (!array_key_exists($property, $this->_elements)) {
             if ($doCreate) {

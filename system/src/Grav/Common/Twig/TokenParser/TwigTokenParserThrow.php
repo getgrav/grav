@@ -29,7 +29,6 @@ class TwigTokenParserThrow extends AbstractTokenParser
      * @param Token $token A Twig Token instance
      *
      * @return Node A Twig Node instance
-     * @suppress PhanAccessMethodInternal - parseExpression() is marked as Twig-internal
      */
     public function parse(Token $token)
     {

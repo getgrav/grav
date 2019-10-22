@@ -14,10 +14,10 @@ interface RenderableInterface
     /**
      * Return HTML markup from the medium.
      *
-     * @param ?string $title
-     * @param ?string $alt
-     * @param ?string $class
-     * @param ?string $id
+     * @param string|null $title
+     * @param string|null $alt
+     * @param string|null $class
+     * @param string|null $id
      * @param bool $reset
      * @return string
      */
@@ -26,10 +26,10 @@ interface RenderableInterface
     /**
      * Return Parsedown Element from the medium.
      *
-     * @param ?string $title
-     * @param ?string $alt
-     * @param ?string $class
-     * @param ?string $id
+     * @param string|null $title
+     * @param string|null $alt
+     * @param string|null $class
+     * @param string|null $id
      * @param bool $reset
      * @return array
      */

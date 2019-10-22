@@ -420,7 +420,6 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     /**
      * {@inheritdoc}
      * @see FlexObjectInterface::render()
-     * @suppress PhanAccessMethodInternal - the render() call is marked internal in Twig
      */
     public function render(string $layout = null, array $context = [])
     {

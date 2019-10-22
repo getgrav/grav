@@ -15,8 +15,6 @@ use Grav\Common\Utils;
 
 /**
  * Implements PageContentInterface.
- *
- * @phan-file-suppress PhanUndeclaredMethod
  */
 trait PageContentTrait
 {

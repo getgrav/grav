@@ -50,7 +50,7 @@ class Response implements ResponseInterface
      * response to the client.
      *
      * @param  mixed  $data   The data
-     * @param  ?int   $status The HTTP status code.
+     * @param  int|null $status The HTTP status code.
      * @param  int    $options Json encoding options
      * @param  int    $depth Json encoding max depth
      * @return static

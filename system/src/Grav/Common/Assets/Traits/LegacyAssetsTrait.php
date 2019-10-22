@@ -96,7 +96,6 @@ trait LegacyAssetsTrait
      *
      * @return \Grav\Common\Assets
      * @deprecated Please use dynamic method with ['loading' => 'async'].
-     * @suppress PhanUndeclaredMethod
      */
     public function addAsyncJs($asset, $priority = 10, $pipeline = true, $group = 'head')
     {
@@ -115,7 +114,6 @@ trait LegacyAssetsTrait
      *
      * @return \Grav\Common\Assets
      * @deprecated Please use dynamic method with ['loading' => 'defer'].
-     * @suppress PhanUndeclaredMethod
      */
     public function addDeferJs($asset, $priority = 10, $pipeline = true, $group = 'head')
     {

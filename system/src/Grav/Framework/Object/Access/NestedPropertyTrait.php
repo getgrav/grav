@@ -31,10 +31,9 @@ trait NestedPropertyTrait
 
     /**
      * @param string $property      Object property to be fetched.
-     * @param ?mixed $default       Default value if property has not been set.
-     * @param ?string $separator    Separator, defaults to '.'
+     * @param mixed|null $default    Default value if property has not been set.
+     * @param string|null $separator Separator, defaults to '.'
      * @return mixed                Property value.
-     * @suppress PhanUndeclaredMethod
      */
     public function getNestedProperty($property, $default = null, $separator = null)
     {

@@ -24,7 +24,7 @@ class GravCore extends AbstractPackageCollection
 
     /**
      * @param bool $refresh
-     * @param ?callable $callback
+     * @param callable|null $callback
      * @throws \InvalidArgumentException
      */
     public function __construct($refresh = false, $callback = null)

@@ -44,7 +44,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
     /** @var Grav */
     protected $grav;
 
-    /** @var ?Debugger */
+    /** @var Debugger|null */
     protected $debugger;
 
     /** @var Config */
@@ -667,24 +667,24 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
 
     /**
      * @param string $value
-     * @param string $chars
+     * @param string|null $chars
      *
      * @return string
      */
-    public function rtrimFilter($value, $chars = '')
+    public function rtrimFilter($value, $chars = null)
     {
-        return rtrim($value, $chars);
+        return null !== $chars ? rtrim($value, $chars) : rtrim($value);
     }
 
     /**
      * @param string $value
-     * @param string $chars
+     * @param string|null $chars
      *
      * @return string
      */
-    public function ltrimFilter($value, $chars = '')
+    public function ltrimFilter($value, $chars = null)
     {
-        return ltrim($value, $chars);
+        return  null !== $chars ? ltrim($value, $chars) : ltrim($value);
     }
 
     /**
@@ -966,12 +966,12 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      *
      * @param array $array1
      * @param array $array2
-     * @return array|Collection
+     * @return array
      */
     public function arrayIntersectFunc($array1, $array2)
     {
         if ($array1 instanceof Collection && $array2 instanceof Collection) {
-            return $array1->intersect($array2);
+            return $array1->intersect($array2)->toArray();
         }
 
         return array_intersect($array1, $array2);
@@ -1405,8 +1405,6 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      * @param string|null $typeTest
      * @param string|null $className
      * @return bool
-     *
-     * @suppress PhanPluginUnreachableCode
      */
     public function ofTypeFunc($var, $typeTest = null, $className = null)
     {

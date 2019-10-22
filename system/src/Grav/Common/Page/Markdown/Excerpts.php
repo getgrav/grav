@@ -25,10 +25,9 @@ class Excerpts
     /** @var array */
     protected $config;
 
-    /** @suppress PhanPossiblyNullTypeMismatchProperty - hopefully Grav::instance()['page'] can't be null here */
     public function __construct(PageInterface $page = null, array $config = null)
     {
-        $this->page = $page ?? Grav::instance()['page'];
+        $this->page = $page ?? Grav::instance()['page'] ?? null;
 
         // Add defaults to the configuration.
         if (null === $config || !isset($config['markdown'], $config['images'])) {

@@ -19,7 +19,6 @@ use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 /**
  * Implements PageTranslateInterface
- * @phan-file-suppress PhanUndeclaredMethod
  */
 trait PageTranslateTrait
 {

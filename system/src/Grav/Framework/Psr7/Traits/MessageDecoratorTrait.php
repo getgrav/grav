@@ -16,7 +16,6 @@ use Psr\Http\Message\StreamInterface;
 
 /**
  * @author Márk Sági-Kazár <mark.sagikazar@gmail.com>
- * @phan-file-suppress PhanTypeInvalidTraitReturn,PhanParamSignatureMismatch
  */
 trait MessageDecoratorTrait
 {

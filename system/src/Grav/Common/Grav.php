@@ -47,15 +47,13 @@ class Grav extends Container
     public $output;
 
     /**
-     * @var ?static The singleton instance
+     * @var static|null The singleton instance
      */
     protected static $instance;
 
     /**
      * @var array Contains all Services and ServicesProviders that are mapped
      *            to the dependency injection container.
-     *
-     * @suppress PhanPluginMixedKeyNoKey
      */
     protected static $diMap = [
         'Grav\Common\Service\AccountsServiceProvider',
@@ -123,7 +121,7 @@ class Grav extends Container
      */
     public static function instance(array $values = [])
     {
-        if (empty(self::$instance)) {
+        if (null === self::$instance) {
             self::$instance = static::load($values);
         } elseif ($values) {
             $instance = self::$instance;
@@ -155,6 +153,10 @@ class Grav extends Container
         if ($environment) {
             Setup::$environment = $environment;
         }
+
+        // Initialize setup and streams.
+        $this['setup'];
+        $this['streams'];
 
         return $this;
     }
@@ -399,7 +401,7 @@ class Grav extends Container
      * Fires an event with optional parameters.
      *
      * @param  string $eventName
-     * @param  ?Event $event
+     * @param  Event|null $event
      *
      * @return Event
      */

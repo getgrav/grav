@@ -251,7 +251,7 @@ class Response
     /**
      * Automatically picks the preferred method
      *
-     * @return ?string The response of the request
+     * @return string|null The response of the request
      */
     private static function getAuto()
     {
@@ -270,8 +270,6 @@ class Response
      * Starts a HTTP request via fopen
      *
      * @return string The response of the request
-     *
-     * @suppress PhanTypeInvalidDimOffset,PhanTypeMismatchArgumentInternal
      */
     private static function getFopen()
     {

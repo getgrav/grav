@@ -450,7 +450,7 @@ class Language
      *
      * @param string|array $args      The first argument is the lookup key value
      *                         Other arguments can be passed and replaced in the translation with sprintf syntax
-     * @param ?array $languages
+     * @param array|null $languages
      * @param bool  $array_support
      * @param bool  $html_out
      *

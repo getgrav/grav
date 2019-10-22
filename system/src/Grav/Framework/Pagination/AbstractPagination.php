@@ -220,7 +220,7 @@ class AbstractPagination implements PaginationInterface
     }
 
     /**
-     * @param ?int $start
+     * @param int|null $start
      * @return $this
      */
     protected function setStart(int $start = null)

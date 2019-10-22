@@ -20,8 +20,6 @@ use Grav\Common\Utils;
 
 /**
  * Implements PageLegacyInterface.
- *
- * @phan-file-suppress PhanUndeclaredMethod
  */
 trait PageLegacyTrait
 {
@@ -107,7 +105,7 @@ trait PageLegacyTrait
     /**
      * Helper method to return an ancestor page.
      *
-     * @param ?string $lookup Name of the parent folder
+     * @param string|null $lookup Name of the parent folder
      *
      * @return PageInterface|null page you were looking for if it exists
      */

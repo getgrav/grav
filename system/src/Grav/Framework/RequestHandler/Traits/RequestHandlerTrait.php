@@ -31,7 +31,6 @@ trait RequestHandlerTrait
     /**
      * {@inheritdoc}
      * @throws InvalidArgumentException
-     * @suppress PhanTypeMismatchArgument - $this in a trait can't be statically determined
      */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {

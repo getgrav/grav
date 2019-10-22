@@ -27,8 +27,6 @@ use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 /**
  * Implements PageLegacyInterface
- *
- * @phan-file-suppress PhanUndeclaredMethod,PhanUndeclaredProperty,PhanParamSignatureMismatch
  */
 trait PageLegacyTrait
 {

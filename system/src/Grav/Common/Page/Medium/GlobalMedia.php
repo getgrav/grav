@@ -17,11 +17,11 @@ class GlobalMedia extends AbstractMedia
     /**
      * Return media path.
      *
-     * @return string
+     * @return string|null
      */
     public function getPath()
     {
-        return '';
+        return null;
     }
 
     /**

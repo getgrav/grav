@@ -197,13 +197,13 @@ class Data implements DataInterface, \ArrayAccess, \Countable, \JsonSerializable
     }
 
     /**
-     * @param mixed ...$args
      * @return $this
      */
-    public function filter(...$args)
+    public function filter()
     {
-        $missingValuesAsNull = $args[0] ?? false;
-        $keepEmptyValues = $args[1] ?? false;
+        $args = func_get_args();
+        $missingValuesAsNull = (bool)(array_shift($args) ?: false);
+        $keepEmptyValues = (bool)(array_shift($args) ?: false);
 
         $this->items = $this->blueprints()->filter($this->items, $missingValuesAsNull, $keepEmptyValues);
 
@@ -280,7 +280,7 @@ class Data implements DataInterface, \ArrayAccess, \Countable, \JsonSerializable
     /**
      * Set or get the data storage.
      *
-     * @param ?FileInterface $storage Optionally enter a new storage.
+     * @param FileInterface|null $storage Optionally enter a new storage.
      * @return FileInterface
      */
     public function file(FileInterface $storage = null)
