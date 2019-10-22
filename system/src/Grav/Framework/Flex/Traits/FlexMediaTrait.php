@@ -27,6 +27,8 @@ use RuntimeException;
 
 /**
  * Implements Grav Page content and header manipulation methods.
+ *
+ * @phan-file-suppress PhanUndeclaredMethod,PhanUnanalyzableInheritance
  */
 trait FlexMediaTrait
 {
@@ -61,6 +63,7 @@ trait FlexMediaTrait
 
     /**
      * @return MediaCollectionInterface
+     * @suppress PhanTypeMismatchArgumentNullable - assuming MediumFactory::fromUploadedFile($upload) will not return null here
      */
     public function getMedia()
     {
@@ -89,6 +92,7 @@ trait FlexMediaTrait
         return $this->media;
     }
 
+    /** @suppress PhanPluginPrintfVariableFormatString */
     public function checkUploadedMediaFile(UploadedFileInterface $uploadedFile)
     {
         $grav = Grav::instance();
@@ -171,7 +175,7 @@ trait FlexMediaTrait
 
         try {
             // Upload it
-            $filepath = sprintf('%s/%s', $path, $filename);
+            $filepath = sprintf('%s/%s', $path, $filename ?? '');
             Folder::create(\dirname($filepath));
             if ($uploadedFile instanceof FormFlashFile) {
                 $metadata = $uploadedFile->getMetaData();

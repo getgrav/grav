@@ -15,6 +15,7 @@ use \Doctrine\Common\Cache\FilesystemCache;
 class GravCore extends AbstractPackageCollection
 {
     protected $repository = 'https://getgrav.org/downloads/grav.json';
+    /** @var array */
     private $data;
 
     private $version;
@@ -23,7 +24,7 @@ class GravCore extends AbstractPackageCollection
 
     /**
      * @param bool $refresh
-     * @param null $callback
+     * @param ?callable $callback
      * @throws \InvalidArgumentException
      */
     public function __construct($refresh = false, $callback = null)

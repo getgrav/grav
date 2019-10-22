@@ -17,6 +17,7 @@ trait StaticResizeTrait
      * @param  int $width
      * @param  int $height
      * @return $this
+     * @suppress PhanUndeclaredProperty
      */
     public function resize($width = null, $height = null)
     {

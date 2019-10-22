@@ -25,9 +25,10 @@ class Excerpts
     /** @var array */
     protected $config;
 
+    /** @suppress PhanPossiblyNullTypeMismatchProperty - hopefully Grav::instance()['page'] can't be null here */
     public function __construct(PageInterface $page = null, array $config = null)
     {
-        $this->page = $page ?? Grav::instance()['page'] ?? null;
+        $this->page = $page ?? Grav::instance()['page'];
 
         // Add defaults to the configuration.
         if (null === $config || !isset($config['markdown'], $config['images'])) {
@@ -108,7 +109,7 @@ class Excerpts
                 }
             }
 
-            $url_parts['query'] = http_build_query($actions, null, '&', PHP_QUERY_RFC3986);
+            $url_parts['query'] = http_build_query($actions, '', '&', PHP_QUERY_RFC3986);
         }
 
         // If no query elements left, unset query.

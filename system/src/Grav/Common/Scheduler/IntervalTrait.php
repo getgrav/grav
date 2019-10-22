@@ -11,6 +11,7 @@ namespace Grav\Common\Scheduler;
 
 use Cron\CronExpression;
 
+/** @phan-file-suppress PhanUndeclaredProperty,PhanTypeMismatchArgument */
 trait IntervalTrait
 {
     /**

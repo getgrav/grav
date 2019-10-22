@@ -32,6 +32,7 @@ class TwigTokenParserSwitch extends AbstractTokenParser
 {
     /**
      * {@inheritdoc}
+     * @suppress PhanAccessMethodInternal - parseExpression() is marked as Twig-internal
      */
     public function parse(Token $token)
     {

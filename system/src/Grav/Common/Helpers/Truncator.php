@@ -132,7 +132,7 @@ class Truncator
     /**
      * Builds a DOMDocument object from a string containing HTML.
      * @param string $html HTML to load
-     * @returns DOMDocument Returns a DOMDocument object.
+     * @return DOMDocument Returns a DOMDocument object.
      */
     public static function htmlToDomDocument($html)
     {

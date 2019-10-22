@@ -247,7 +247,6 @@ class Iterator implements \ArrayAccess, \Iterator, \Countable, \Serializable
      * @param bool          $desc
      *
      * @return $this|array
-     * @internal param bool $asc
      *
      */
     public function sort(callable $callback = null, $desc = false)

@@ -25,7 +25,7 @@ class Media extends AbstractMedia
 
     /**
      * @param string $path
-     * @param array  $media_order
+     * @param ?array $media_order
      * @param bool   $load
      */
     public function __construct($path, array $media_order = null, $load = true)
@@ -118,7 +118,7 @@ class Media extends AbstractMedia
                 foreach ($types['alternative'] as $ratio => &$alt) {
                     $alt['file'] = MediumFactory::fromFile($alt['file']);
 
-                    if (!$alt['file']) {
+                    if (empty($alt['file'])) {
                         unset($types['alternative'][$ratio]);
                     } else {
                         $alt['file']->set('size', $alt['size']);
@@ -142,7 +142,7 @@ class Media extends AbstractMedia
             } else {
                 $medium = MediumFactory::fromFile($types['base']['file']);
                 $medium && $medium->set('size', $types['base']['size']);
-                $file_path = $medium->path();
+                $file_path = $medium ? $medium->path() : null;
             }
 
             if (empty($medium)) {

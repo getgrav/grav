@@ -32,6 +32,7 @@ use Twig\TemplateWrapper;
 /**
  * Trait FormTrait
  * @package Grav\Framework\Form
+ * @phan-file-suppress PhanTypeMismatchReturn
  */
 trait FormTrait
 {
@@ -174,7 +175,7 @@ trait FormTrait
 
     /**
      * @param ServerRequestInterface $request
-     * @return FormInterface|$this
+     * @return FormInterface
      */
     public function handleRequest(ServerRequestInterface $request): FormInterface
     {
@@ -206,7 +207,7 @@ trait FormTrait
 
     /**
      * @param ServerRequestInterface $request
-     * @return FormInterface|$this
+     * @return FormInterface
      */
     public function setRequest(ServerRequestInterface $request): FormInterface
     {
@@ -264,8 +265,8 @@ trait FormTrait
 
     /**
      * @param array $data
-     * @param UploadedFileInterface[] $files
-     * @return FormInterface|$this
+     * @param ?UploadedFileInterface[] $files
+     * @return FormInterface
      */
     public function submit(array $data, array $files = null): FormInterface
     {
@@ -408,6 +409,7 @@ trait FormTrait
     /**
      * {@inheritdoc}
      * @see FormInterface::render()
+     * @suppress PhanAccessMethodInternal - Twig render() is marked as internal
      */
     public function render(string $layout = null, array $context = [])
     {
@@ -638,6 +640,7 @@ trait FormTrait
      * Validate uploaded file.
      *
      * @param UploadedFileInterface $file
+     * @suppress PhanPluginPrintfVariableFormatString
      */
     protected function validateUpload(UploadedFileInterface $file): void
     {

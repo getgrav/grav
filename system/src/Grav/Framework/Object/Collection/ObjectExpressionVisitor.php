@@ -94,7 +94,7 @@ class ObjectExpressionVisitor extends ClosureExpressionVisitor
      *
      * @param string   $name
      * @param int      $orientation
-     * @param \Closure $next
+     * @param ?\Closure $next
      *
      * @return \Closure
      */

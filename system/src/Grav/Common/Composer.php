@@ -26,7 +26,7 @@ class Composer
         }
 
         // check for global composer install
-        $path = trim(shell_exec('command -v composer'));
+        $path = trim((string)shell_exec('command -v composer'));
 
         // fall back to grav bundled composer
         if (!$path || !preg_match('/(composer|composer\.phar)$/', $path)) {

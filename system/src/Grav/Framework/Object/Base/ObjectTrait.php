@@ -13,6 +13,7 @@ namespace Grav\Framework\Object\Base;
  * Object trait.
  *
  * @package Grav\Framework\Object
+ * @phan-file-suppress PhanUndeclaredMethod
  */
 trait ObjectTrait
 {

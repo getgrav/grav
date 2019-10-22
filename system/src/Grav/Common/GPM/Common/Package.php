@@ -45,7 +45,7 @@ class Package
 
     public function __set($key, $value)
     {
-        return $this->data->set($key, $value);
+        $this->data->set($key, $value);
     }
 
     public function __isset($key)

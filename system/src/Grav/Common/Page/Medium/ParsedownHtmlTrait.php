@@ -22,12 +22,13 @@ trait ParsedownHtmlTrait
     /**
      * Return HTML markup from the medium.
      *
-     * @param string $title
-     * @param string $alt
-     * @param string $class
-     * @param string $id
+     * @param ?string $title
+     * @param ?string $alt
+     * @param ?string $class
+     * @param ?string $id
      * @param bool $reset
      * @return string
+     * @suppress PhanUndeclaredMethod
      */
     public function html($title = null, $alt = null, $class = null, $id = null, $reset = true)
     {

@@ -75,10 +75,11 @@ interface PageContentInterface
      *
      * @param string $name Variable name.
      * @param mixed|null $default
+     * @param mixed|null $separator
      *
      * @return mixed
      */
-    public function value($name, $default = null);
+    public function value($name, $default = null, $separator = null);
 
     /**
      * Gets and sets the associated media as found in the page folder.
@@ -247,5 +248,5 @@ interface PageContentInterface
      *
      * @return bool
      */
-    public function exists();
+    public function exists():bool;
 }

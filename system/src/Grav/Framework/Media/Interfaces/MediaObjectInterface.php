@@ -14,4 +14,6 @@ namespace Grav\Framework\Media\Interfaces;
  */
 interface MediaObjectInterface
 {
+    /** @var string */
+    public $type;
 }

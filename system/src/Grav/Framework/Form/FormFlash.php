@@ -496,10 +496,10 @@ class FormFlash implements FormFlashInterface
     }
 
     /**
-     * @param string $field
+     * @param ?string $field
      * @param string $name
      * @param array $data
-     * @param array|null $crop
+     * @param ?array $crop
      */
     protected function addFileInternal(?string $field, string $name, array $data, array $crop = null): void
     {

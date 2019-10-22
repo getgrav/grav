@@ -35,10 +35,10 @@ class ThumbnailImageMedium extends ImageMedium
     /**
      * Get an element (is array) that can be rendered by the Parsedown engine
      *
-     * @param  string $title
-     * @param  string $alt
-     * @param  string $class
-     * @param  string $id
+     * @param  ?string $title
+     * @param  ?string $alt
+     * @param  ?string $class
+     * @param  ?string $id
      * @param  bool $reset
      * @return array
      */
@@ -50,10 +50,10 @@ class ThumbnailImageMedium extends ImageMedium
     /**
      * Return HTML markup from the medium.
      *
-     * @param string $title
-     * @param string $alt
-     * @param string $class
-     * @param string $id
+     * @param ?string $title
+     * @param ?string $alt
+     * @param ?string $class
+     * @param ?string $id
      * @param bool $reset
      * @return string
      */
@@ -119,7 +119,7 @@ class ThumbnailImageMedium extends ImageMedium
      * @param  string  $method
      * @param  array  $arguments
      * @param  bool $testLinked
-     * @return Medium
+     * @return Medium|Link|array
      */
     protected function bubble($method, array $arguments = [], $testLinked = true)
     {

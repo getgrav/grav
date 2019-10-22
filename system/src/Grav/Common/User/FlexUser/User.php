@@ -406,7 +406,7 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
     /**
      * Set or get the data storage.
      *
-     * @param FileInterface $storage Optionally enter a new storage.
+     * @param ?FileInterface $storage Optionally enter a new storage.
      * @return FileInterface
      */
     public function file(FileInterface $storage = null)

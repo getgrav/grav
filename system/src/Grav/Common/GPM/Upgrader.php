@@ -109,7 +109,7 @@ class Upgrader
     /**
      * Get minimum PHP version from remote
      *
-     * @return null
+     * @return string
      */
     public function minPHPVersion()
     {

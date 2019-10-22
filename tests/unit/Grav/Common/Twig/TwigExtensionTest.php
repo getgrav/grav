@@ -30,8 +30,8 @@ class TwigExtensionTest extends \Codeception\TestCase\Test
         $this->assertSame('camel_cased', $this->twig_ext->inflectorFilter('underscor', 'CamelCased'));
         $this->assertSame('something-text', $this->twig_ext->inflectorFilter('hyphen', 'Something Text'));
         $this->assertSame('Something text to read', $this->twig_ext->inflectorFilter('human', 'something_text_to_read'));
-        $this->assertSame(5, $this->twig_ext->inflectorFilter('month', 175));
-        $this->assertSame('10th', $this->twig_ext->inflectorFilter('ordinal', 10));
+        $this->assertSame(5, $this->twig_ext->inflectorFilter('month', '175'));
+        $this->assertSame('10th', $this->twig_ext->inflectorFilter('ordinal', '10'));
     }
 
     public function testMd5Filter()
@@ -62,7 +62,7 @@ class TwigExtensionTest extends \Codeception\TestCase\Test
         $threeYears   = time() - (60*60*24*365*3);
         $measures = ['minutes','hours','days','months','years'];
 
-        $this->assertSame('No date provided', $this->twig_ext->nicetimeFunc(null));
+        $this->assertSame('No date provided', $this->twig_ext->nicetimeFunc(''));
 
         for ($i=0; $i<count($measures); $i++) {
             $time = 'three' . ucfirst($measures[$i]);

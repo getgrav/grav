@@ -175,7 +175,7 @@ class SelfupgradeCommand extends ConsoleCommand
         }
 
         // clear cache after successful upgrade
-        $this->clearCache('all');
+        $this->clearCache(['all']);
     }
 
     /**

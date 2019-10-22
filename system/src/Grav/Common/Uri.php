@@ -213,7 +213,7 @@ class Uri
     /**
      * Return URI path.
      *
-     * @param string $id
+     * @param int $id
      *
      * @return string|string[]
      */

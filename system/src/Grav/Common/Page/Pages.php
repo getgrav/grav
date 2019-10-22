@@ -921,6 +921,7 @@ class Pages
      * @param  string $type
      *
      * @return Blueprint
+     * @suppress PhanTypeMismatchArgument
      */
     public function blueprints($type)
     {
@@ -945,7 +946,7 @@ class Pages
     /**
      * Get all pages
      *
-     * @param PageInterface $current
+     * @param ?PageInterface $current
      *
      * @return Collection
      */
@@ -1014,7 +1015,7 @@ class Pages
     /**
      * Get list of route/title of all pages.
      *
-     * @param PageInterface $current
+     * @param ?PageInterface $current
      * @param int $level
      * @param bool $rawRoutes
      *
@@ -1856,7 +1857,7 @@ class Pages
                     if (!$child_header instanceof Header) {
                         $child_header = new Header((array)$child_header);
                     }
-                    $header_value = $child_header->get($header_query);
+                    $header_value = $child_header->get((string)$header_query);
                     if (is_array($header_value)) {
                         $list[$key] = implode(',', $header_value);
                     } elseif ($header_value) {

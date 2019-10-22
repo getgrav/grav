@@ -303,7 +303,7 @@ trait CacheTrait
         }
         if (\strlen($key) > 64) {
             throw new InvalidArgumentException(
-                sprintf('Cache key length must be less than 65 characters, key had %s characters', \strlen($key))
+                sprintf('Cache key length must be less than 65 characters, key had %d characters', \strlen($key))
             );
         }
         if (strpbrk($key, '{}()/\@:') !== false) {

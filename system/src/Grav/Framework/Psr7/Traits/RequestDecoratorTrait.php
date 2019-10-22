@@ -16,6 +16,7 @@ use Psr\Http\Message\UriInterface;
 
 /**
  * @author Márk Sági-Kazár <mark.sagikazar@gmail.com>
+ * @phan-file-suppress PhanTypeInvalidTraitReturn,PhanParamSignatureMismatch
  */
 trait RequestDecoratorTrait
 {

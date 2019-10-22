@@ -31,7 +31,7 @@ trait ObjectPropertyTrait
 
     /**
      * @param array $elements
-     * @param string $key
+     * @param ?string $key
      * @throws \InvalidArgumentException
      */
     public function __construct(array $elements = [], $key = null)
