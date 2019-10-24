@@ -7,6 +7,7 @@
     * Added `array_diff()` twig function
     * Added `template_from_string()` twig function
 1. [](#improved)
+    * Improved `Scheduler` cron command check and more useful CLI information
     * Improved `Flex Users`: obey blueprints and allow Flex to be used in admin only
     * Improved `Flex` to support custom site template paths
     * Changed Twig `{% cache %}` tag to not need unique key, and `lifetime` is now optional
