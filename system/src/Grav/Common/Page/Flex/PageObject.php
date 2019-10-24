@@ -210,6 +210,7 @@ class PageObject extends FlexPageObject
             // Make sure that pages has been initialized.
             Pages::getTypes();
 
+            // TODO: We need to move raw blueprint logic to Grav itself to remove admin dependency here.
             if ($name === 'raw') {
                 // Admin RAW mode.
                 /** @var Admin $admin */

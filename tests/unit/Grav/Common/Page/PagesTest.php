@@ -53,7 +53,7 @@ class PagesTest extends \Codeception\TestCase\Test
 
     public function testInstances()
     {
-        $this->assertInternalType('array', $this->pages->instances());
+        $this->assertIsArray($this->pages->instances());
         foreach ($this->pages->instances() as $instance) {
             $this->assertInstanceOf(PageInterface::class, $instance);
         }
@@ -65,7 +65,7 @@ class PagesTest extends \Codeception\TestCase\Test
         $locator = $this->grav['locator'];
         $folder = $locator->findResource('tests://');
 
-        $this->assertInternalType('array', $this->pages->routes());
+        $this->assertIsArray($this->pages->routes());
         $this->assertSame($folder . '/fake/simple-site/user/pages/01.home', $this->pages->routes()['/']);
         $this->assertSame($folder . '/fake/simple-site/user/pages/01.home', $this->pages->routes()['/home']);
         $this->assertSame($folder . '/fake/simple-site/user/pages/02.blog', $this->pages->routes()['/blog']);
@@ -99,7 +99,7 @@ class PagesTest extends \Codeception\TestCase\Test
         $aPage = $this->pages->find('/blog');
         $subPagesSorted = $this->pages->sort($aPage);
 
-        $this->assertInternalType('array', $subPagesSorted);
+        $this->assertIsArray($subPagesSorted);
         $this->assertCount(2, $subPagesSorted);
 
         $this->assertSame($folder . '/fake/simple-site/user/pages/02.blog/post-one', array_keys($subPagesSorted)[0]);
@@ -113,7 +113,7 @@ class PagesTest extends \Codeception\TestCase\Test
 
         $subPagesSorted = $this->pages->sort($aPage, null, 'desc');
 
-        $this->assertInternalType('array', $subPagesSorted);
+        $this->assertIsArray($subPagesSorted);
         $this->assertCount(2, $subPagesSorted);
 
         $this->assertSame($folder . '/fake/simple-site/user/pages/02.blog/post-two', array_keys($subPagesSorted)[0]);
@@ -135,7 +135,7 @@ class PagesTest extends \Codeception\TestCase\Test
         $aPage = $this->pages->find('/blog');
         $subPagesSorted = $this->pages->sortCollection($aPage->children(), $aPage->orderBy());
 
-        $this->assertInternalType('array', $subPagesSorted);
+        $this->assertIsArray($subPagesSorted);
         $this->assertCount(2, $subPagesSorted);
 
         $this->assertSame($folder . '/fake/simple-site/user/pages/02.blog/post-one', array_keys($subPagesSorted)[0]);
@@ -149,7 +149,7 @@ class PagesTest extends \Codeception\TestCase\Test
 
         $subPagesSorted = $this->pages->sortCollection($aPage->children(), $aPage->orderBy(), 'desc');
 
-        $this->assertInternalType('array', $subPagesSorted);
+        $this->assertIsArray($subPagesSorted);
         $this->assertCount(2, $subPagesSorted);
 
         $this->assertSame($folder . '/fake/simple-site/user/pages/02.blog/post-two', array_keys($subPagesSorted)[0]);
@@ -170,12 +170,10 @@ class PagesTest extends \Codeception\TestCase\Test
 
         //Page existing
         $aPage = $this->pages->get($folder . '/fake/simple-site/user/pages/03.about');
-        $this->assertInternalType('object', $aPage);
         $this->assertInstanceOf(PageInterface::class, $aPage);
 
         //Page not existing
         $anotherPage = $this->pages->get($folder . '/fake/simple-site/user/pages/03.non-existing');
-        $this->assertNotInternalType('object', $anotherPage);
         $this->assertNull($anotherPage);
     }
 
@@ -223,8 +221,8 @@ class PagesTest extends \Codeception\TestCase\Test
 
     public function testAll()
     {
-        $this->assertInternalType('object', $this->pages->all());
-        $this->assertInternalType('array', $this->pages->all()->toArray());
+        $this->assertIsObject($this->pages->all());
+        $this->assertIsArray($this->pages->all()->toArray());
         foreach ($this->pages->all() as $page) {
             $this->assertInstanceOf(PageInterface::class, $page);
         }
@@ -233,7 +231,7 @@ class PagesTest extends \Codeception\TestCase\Test
     public function testGetList()
     {
         $list = $this->pages->getList();
-        $this->assertInternalType('array', $list);
+        $this->assertIsArray($list);
         $this->assertSame('&mdash;-&rtrif; Home', $list['/']);
         $this->assertSame('&mdash;-&rtrif; Blog', $list['/blog']);
     }

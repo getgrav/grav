@@ -230,7 +230,7 @@ trait TestingAssetsTrait
      * Get the timestamp for assets
      *
      * @param  bool  $include_join
-     * @return string
+     * @return string|null
      */
     public function getTimestamp($include_join = true)
     {

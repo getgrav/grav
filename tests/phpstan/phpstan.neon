@@ -70,8 +70,14 @@ parameters:
             message: '#Call to static method sendEmail\(\) on an unknown class Grav\\Plugin\\Email\\Utils#'
             path: 'system/src/Grav/Common/Scheduler/Job.php'
         -
+            message: '#unknown class RedisException#'
+            path: 'system/src/Grav/Common/Cache.php'
+        -
             message: '#on an unknown class Grav\\Plugin\\Admin#'
             path: 'system/src/Grav/Common/Page/Pages.php'
+        -
+            message: '#on an unknown class Grav\\Plugin\\Admin#'
+            path: 'system/src/Grav/Common/Page/Flex/PageObject.php'
         -
             message: '#Call to method getFlash\(\) on an unknown class Grav\\Common\\Grav\\Plugin\\Form\\Forms#'
             path: 'system/src/Grav/Common/Session.php'

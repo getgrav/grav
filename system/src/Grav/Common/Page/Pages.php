@@ -25,6 +25,7 @@ use Grav\Common\Utils;
 use Grav\Framework\Flex\Flex;
 use Grav\Framework\Flex\FlexDirectory;
 use Grav\Framework\Flex\Interfaces\FlexTranslateInterface;
+use Grav\Framework\Flex\Pages\FlexPageObject;
 use Grav\Plugin\Admin;
 use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\Event\EventDispatcher;
@@ -1402,7 +1403,7 @@ class Pages
                 $page = $page && $page->hasTranslation() ? $page->getTranslation() : null;
             }
 
-            if (!$page || $path === $root_path) {
+            if (!$page instanceof FlexPageObject || $path === $root_path) {
                 continue;
             }
 
