@@ -1357,7 +1357,7 @@ class Pages
         $config = $this->grav['config'];
 
         // TODO: right now we are just emulating normal pages, it is inefficient and bad... but works!
-        $collection = $directory->getIndex();
+        $collection = $directory->getIndex(null, 'storage_key');
         $cache = $directory->getCache('index');
 
         /** @var Language $language */
@@ -1381,6 +1381,7 @@ class Pages
 
         $root = $this->buildRootPage();
         $root_path = $root->path();
+        $this->routes = [];
         $this->instances = [$root_path => $root];
         $this->children = [];
         $this->sort = [];
@@ -1389,11 +1390,8 @@ class Pages
             $this->grav->fireEvent('onBuildPagesInitialized');
         }
 
-        /**
-         * @var string $key
-         * @var PageInterface $page
-         */
-        foreach ($collection as $key => $page) {
+        /** @var PageInterface $page */
+        foreach ($collection as $page) {
             $path = $page->path();
             if (null === $path) {
                 throw new \RuntimeException('Internal error');
@@ -1418,6 +1416,20 @@ class Pages
 
             $parent = dirname($path);
 
+            $route = $page->route();
+
+            // Skip duplicated empty folders (git revert does not remove those).
+            // TODO: still not perfect, will only work if the page has been translated.
+            if (isset($this->routes[$route])) {
+                $oldPath = $this->routes[$route];
+                if ($page->isPage()) {
+                    unset($this->instances[$oldPath], $this->children[dirname($oldPath)][$oldPath]);
+                } else {
+                    continue;
+                }
+            }
+
+            $this->routes[$route] = $path;
             $this->instances[$path] = $page->getFlexKey();
             // FIXME: ... better...
             $this->children[$parent][$path] = ['slug' => $page->slug()];
@@ -1439,6 +1451,7 @@ class Pages
             $this->children[$path] = $this->sort($page);
         }
 
+        $this->routes = [];
         $this->buildRoutes();
 
         // cache if needed

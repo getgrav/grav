@@ -355,14 +355,19 @@ class PageObject extends FlexPageObject
                         continue;
                     }
                 } else {
+                    // TODO: all these features are independent from each other, we cannot just have one icon/color to catch all.
+                    // TODO: maybe icon by home/modular/page/folder (or even from blueprints) and color by visibility etc..
                     if ($child->home()) {
                         $icon = 'home';
                     } elseif ($child->modular()) {
                         $icon = 'modular';
                     } elseif ($child->visible()) {
                         $icon = 'visible';
-                    } else {
+                    } elseif ($child->isPage()) {
                         $icon = 'page';
+                    } else {
+                        // TODO: add support
+                        $icon = 'folder';
                     }
                     $tags = [
                         $child->published() ? 'published' : 'non-published',
