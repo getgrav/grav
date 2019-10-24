@@ -236,21 +236,36 @@ class PageObject extends FlexPageObject
 
     public function getLevelListing(array $options): array
     {
-        $default_filters = [
+        $options += [
+            'field' => null,
+            'route' => null,
+            'leaf_route' => null,
+            'sortby' => null,
+            'order' => SORT_ASC,
+            'lang' => null,
+            'filters' => [],
+        ];
+
+        $options['filters'] += [
             'type' => ['root', 'dir'],
             'name' => null,
             'extension' => null,
         ];
 
-        $filters = ($options['filters'] ?? []) + $default_filters;
+        return $this->getLevelListingRecurse($options);
+    }
+
+    protected function getLevelListingRecurse(array $options): array
+    {
+        $filters = $options['filters'];
         $filter_type = (array)$filters['type'];
 
-        $field = $options['field'] ?? null;
-        $route = $options['route'] ?? null;
-        $leaf_route = $options['leaf_route'] ?? null;
-        $sortby = $options['sortby'] ?? null;
-        $order = $options['order'] ?? SORT_ASC;
-        $language = $options['lang'] ?? null;
+        $field = $options['field'];
+        $route = $options['route'];
+        $leaf_route = $options['leaf_route'];
+        $sortby = $options['sortby'];
+        $order = $options['order'];
+        $language = $options['lang'];
 
         $status = 'error';
         $msg = null;
