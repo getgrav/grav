@@ -99,11 +99,6 @@ class Pages
     public function __construct(Grav $grav)
     {
         $this->grav = $grav;
-
-        $type = $grav['config']->get('system.pages.type');
-        if ($type === 'flex') {
-            $this->initFlexPages();
-        }
     }
 
     /**
@@ -122,7 +117,7 @@ class Pages
         if (!$this->enable_pages) {
             $this->enable_pages = true;
 
-            $this->buildPages();
+            $this->init();
         }
     }
 
@@ -247,6 +242,15 @@ class Pages
         $this->check_method = strtolower($method);
     }
 
+    public function register(): void
+    {
+        $config = $this->grav['config'];
+        $type = $config->get('system.pages.type');
+        if ($type === 'flex') {
+            $this->initFlexPages();
+        }
+    }
+
     /**
      * Class initialization. Must be called before using this class.
      */
@@ -255,6 +259,8 @@ class Pages
         if ($this->initialized) {
             return;
         }
+
+        $this->initialized = true;
 
         $config = $this->grav['config'];
         $this->ignore_files = $config->get('system.pages.ignore_files');

@@ -11,6 +11,7 @@ namespace Grav\Common\Processors;
 
 use Grav\Common\Config\Config;
 use Grav\Common\Debugger;
+use Grav\Common\Page\Pages;
 use Grav\Common\Uri;
 use Grav\Common\Utils;
 use Grav\Framework\Psr7\Response;
@@ -136,6 +137,10 @@ class InitializeProcessor extends ProcessorBase
         if ($timezone) {
             date_default_timezone_set($timezone);
         }
+
+        /** @var Pages $pages */
+        $pages = $this->container['pages'];
+        $pages->register();
 
         /** @var Uri $uri */
         $uri = $this->container['uri'];
