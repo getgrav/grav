@@ -260,8 +260,6 @@ class Pages
             return;
         }
 
-        $this->initialized = true;
-
         $config = $this->grav['config'];
         $this->ignore_files = $config->get('system.pages.ignore_files');
         $this->ignore_folders = $config->get('system.pages.ignore_folders');
@@ -275,7 +273,16 @@ class Pages
             $this->setCheckMethod($config->get('system.cache.check.method', 'file'));
         }
 
+        if ($this->enable_pages === false) {
+            $page = $this->buildRootPage();
+            $this->instances[$page->path()] = $page;
+
+            return;
+        }
+
         $this->buildPages();
+
+        $this->initialized = true;
     }
 
     /**
@@ -1338,13 +1345,6 @@ class Pages
      */
     protected function buildPages(): void
     {
-        if ($this->enable_pages === false) {
-            $page = $this->buildRootPage();
-            $this->instances[$page->path()] = $page;
-
-            return;
-        }
-
         /** @var Debugger $debugger */
         $debugger = $this->grav['debugger'];
         $debugger->startTimer('build-pages', 'Init frontend routes');
