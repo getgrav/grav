@@ -244,11 +244,18 @@ class Scheduler
      */
     public function getCronCommand()
     {
-        $phpBinaryFinder = new PhpExecutableFinder();
-        $php = $phpBinaryFinder->find();
-        $command = 'cd ' . str_replace(' ', '\ ', GRAV_ROOT) . ';' . $php . ' bin/grav scheduler';
+        $command = $this->getSchedulerCommand();
 
         return "(crontab -l; echo \"* * * * * {$command} 1>> /dev/null 2>&1\") | crontab -";
+    }
+
+    public function getSchedulerCommand($php = null)
+    {
+        $phpBinaryFinder = new PhpExecutableFinder();
+        $php = $php ?? $phpBinaryFinder->find();
+        $command = 'cd ' . str_replace(' ', '\ ', GRAV_ROOT) . ';' . $php . ' bin/grav scheduler';
+
+        return $command;
     }
 
     /**
@@ -263,8 +270,10 @@ class Scheduler
 
         if ($process->isSuccessful()) {
             $output = $process->getOutput();
+            $command = str_replace('/', '\/', $this->getSchedulerCommand('.*'));
+            $full_command = '/^(?!#).* .* .* .* .* ' . $command . '/m';
 
-            return preg_match('$bin\/grav schedule$', $output) ? 1 : 0;
+            return  preg_match($full_command, $output) ? 1 : 0;
         }
 
         $error = $process->getErrorOutput();
