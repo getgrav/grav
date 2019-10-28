@@ -290,17 +290,15 @@ class Twig
         $twig_vars['page'] = $item;
         $twig_vars['media'] = $item->media();
         $twig_vars['header'] = $item->header();
-
         $local_twig = clone $this->twig;
 
         $output = '';
+
         try {
             // Process Modular Twig
             if ($item->modularTwig()) {
                 $twig_vars['content'] = $content;
-                $extension = $item->templateFormat();
-                $extension = $extension ? ".{$extension}.twig" : TEMPLATE_EXT;
-                $template = $item->template() . $extension;
+                $template = $this->getPageTwigTemplate($item);
                 $output = $content = $local_twig->render($template, $twig_vars);
             }
 
@@ -310,8 +308,9 @@ class Twig
                 $this->setTemplate($name, $content);
                 $output = $local_twig->render($name, $twig_vars);
             }
+
         } catch (LoaderError $e) {
-            throw new \RuntimeException($e->getRawMessage(), 404, $e);
+            throw new \RuntimeException($e->getRawMessage(), 400, $e);
         }
 
         return $output;
@@ -394,7 +393,6 @@ class Twig
         $twig_vars['header'] = $page->header();
         $twig_vars['media'] = $page->media();
         $twig_vars['content'] = $content;
-        $ext = '.' . ($format ?: 'html') . TWIG_EXT;
 
         // determine if params are set, if so disable twig cache
         $params = $this->grav['uri']->params(null, true);
@@ -403,23 +401,13 @@ class Twig
         }
 
         // Get Twig template layout
-        $template = $this->template($page->template() . $ext);
+        $template = $this->getPageTwigTemplate($page, $format);
 
         try {
             $output = $this->twig->render($template, $vars + $twig_vars);
         } catch (LoaderError $e) {
             $error_msg = $e->getMessage();
-            // Try html version of this template if initial template was NOT html
-            if ($ext !== '.html' . TWIG_EXT) {
-                try {
-                    $page->templateFormat('html');
-                    $output = $this->twig->render($page->template() . '.html' . TWIG_EXT, $vars + $twig_vars);
-                } catch (LoaderError $e) {
-                    throw new \RuntimeException($error_msg, 400, $e);
-                }
-            } else {
-                throw new \RuntimeException($error_msg, 400, $e);
-            }
+            throw new \RuntimeException($error_msg, 400, $e);
         }
 
         return $output;
@@ -458,6 +446,22 @@ class Twig
     public function template($template)
     {
         return $this->template ?? $template;
+    }
+
+    public function getPageTwigTemplate($page, $format = null)
+    {
+        $template = $page->template();
+        $extension = $format ?: $page->templateFormat();
+        $twig_extension = $extension ? '.'. $extension .TWIG_EXT : TEMPLATE_EXT;
+        $template_file = $this->template($page->template() . $twig_extension);
+
+        if ($this->twig->getLoader()->exists($template_file)) {
+            return $template_file;
+        } else {
+            // Default to HTML
+            $page->templateFormat('html');
+            return $template . TEMPLATE_EXT;
+        }
     }
 
     /**

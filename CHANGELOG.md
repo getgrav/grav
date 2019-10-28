@@ -15,6 +15,7 @@
     * Updated built-in `composer.phar` to latest `1.9.0`
     * Updated vendor libraries
 1. [](#bugfix)
+    * Fixed exception caused by missing template type based on `Accept:` header [#2705](https://github.com/getgrav/grav/issues/2705)
     * Fixed `Page::untranslatedLanguages()` not being symmetrical to `Page::translatedLanguages()`
     * Fixed `Flex Pages` not calling `onPageProcessed` event when cached
     * Fixed phpstan issues in Framework up to level 7
