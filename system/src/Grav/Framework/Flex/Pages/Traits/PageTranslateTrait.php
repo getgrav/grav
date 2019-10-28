@@ -128,7 +128,7 @@ trait PageTranslateTrait
      * @param bool|null $fallback
      * @return string|null
      */
-    protected function findTranslation(string $languageCode = null, bool $fallback = null): ?string
+    public function findTranslation(string $languageCode = null, bool $fallback = null): ?string
     {
         $translated = $this->getLanguageTemplates();
 
@@ -227,8 +227,8 @@ trait PageTranslateTrait
     {
         if (null === $this->_languages) {
             $template = $this->getProperty('template');
-            $storage = $this->getStorage();
-            $translations = $storage['markdown'] ?? [];
+            $meta = $this->getMetaData();
+            $translations = $meta['markdown'] ?? [];
             $list = [];
             foreach ($translations as $code => $search) {
                 if (isset($search[$template])) {

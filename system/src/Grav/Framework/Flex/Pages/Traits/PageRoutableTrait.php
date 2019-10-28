@@ -55,12 +55,12 @@ trait PageRoutableTrait
         $value = $this->loadHeaderProperty(
             'routable',
             $var,
-            function ($value) {
-                return ($value ?? true) && $this->published() && $this->getLanguages(true);
+            static function ($value) {
+                return $value ?? true;
             }
         );
 
-        return $value && $this->published() && !$this->modular();
+        return $value && $this->published() && !$this->modular() && $this->getLanguages(true);
     }
 
     /**

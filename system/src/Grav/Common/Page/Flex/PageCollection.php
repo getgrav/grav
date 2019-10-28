@@ -464,4 +464,13 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
         }
         return $entries;
     }
+
+    /**
+     * @param array $options
+     * @return array
+     */
+    public function getLevelListing(array $options): array
+    {
+        return $this->getIndex()->getLevelListing($options);
+    }
 }
