@@ -45,7 +45,7 @@
         "donatj/phpuseragentparser": "~0.10",
         "pimple/pimple": "~3.2",
         "rockettheme/toolbox": "~1.4",
-        "maximebf/debugbar": "~1.15",
+        "maximebf/debugbar": "~1.0",
         "league/climate": "^3.4",
         "antoligy/dom-string-iterators": "^1.0",
         "miljar/php-exif": "^0.6.4",
