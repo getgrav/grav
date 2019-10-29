@@ -19,7 +19,7 @@ use Grav\Framework\Flex\FlexDirectory;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 use RocketTheme\Toolbox\Event\Event;
-use RocketTheme\Toolbox\Event\EventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class AccountsServiceProvider implements ServiceProviderInterface
 {

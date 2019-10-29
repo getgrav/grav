@@ -11,6 +11,7 @@ namespace Grav\Common;
 
 use Grav\Common\Config\Config;
 use Grav\Common\Config\Setup;
+use Grav\Common\Helpers\Exif;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Page\Medium\ImageMedium;
 use Grav\Common\Page\Medium\Medium;
@@ -26,13 +27,16 @@ use Grav\Common\Processors\SchedulerProcessor;
 use Grav\Common\Processors\TasksProcessor;
 use Grav\Common\Processors\ThemesProcessor;
 use Grav\Common\Processors\TwigProcessor;
+use Grav\Common\Scheduler\Scheduler;
+use Grav\Common\Twig\Twig;
 use Grav\Framework\DI\Container;
 use Grav\Framework\Psr7\Response;
 use Grav\Framework\RequestHandler\RequestHandler;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use RocketTheme\Toolbox\Event\Event;
-use RocketTheme\Toolbox\Event\EventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Grav container is the heart of Grav.
@@ -70,16 +74,16 @@ class Grav extends Container
         'Grav\Common\Service\SessionServiceProvider',
         'Grav\Common\Service\StreamsServiceProvider',
         'Grav\Common\Service\TaskServiceProvider',
-        'browser'    => 'Grav\Common\Browser',
-        'cache'      => 'Grav\Common\Cache',
-        'events'     => 'RocketTheme\Toolbox\Event\EventDispatcher',
-        'exif'       => 'Grav\Common\Helpers\Exif',
-        'plugins'    => 'Grav\Common\Plugins',
-        'scheduler'  => 'Grav\Common\Scheduler\Scheduler',
-        'taxonomy'   => 'Grav\Common\Taxonomy',
-        'themes'     => 'Grav\Common\Themes',
-        'twig'       => 'Grav\Common\Twig\Twig',
-        'uri'        => 'Grav\Common\Uri',
+        'browser'    => Browser::class,
+        'cache'      => Cache::class,
+        'events'     => EventDispatcher::class,
+        'exif'       => Exif::class,
+        'plugins'    => Plugins::class,
+        'scheduler'  => Scheduler::class,
+        'taxonomy'   => Taxonomy::class,
+        'themes'     => Themes::class,
+        'twig'       => Twig::class,
+        'uri'        => Uri::class,
     ];
 
     /**
@@ -407,14 +411,19 @@ class Grav extends Container
      */
     public function fireEvent($eventName, Event $event = null)
     {
-        /** @var EventDispatcher $events */
+        /** @var EventDispatcherInterface $events */
         $events = $this['events'];
+        if (null === $event) {
+            $event = new Event();
+        }
 
         /** @var Debugger $debugger */
         $debugger = $this['debugger'];
         $debugger->addEvent($eventName, $event, $events);
 
-        return $events->dispatch($eventName, $event);
+        $events->dispatch($event, $eventName);
+
+        return $event;
     }
 
     /**

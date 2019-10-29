@@ -14,9 +14,9 @@ use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Data\Blueprints;
 use Grav\Common\Data\Data;
 use Grav\Framework\Psr7\Response;
-use RocketTheme\Toolbox\Event\EventDispatcher;
 use RocketTheme\Toolbox\Event\EventSubscriberInterface;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class Themes extends Iterator
 {

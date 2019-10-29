@@ -15,7 +15,7 @@ use Grav\Common\Filesystem\Folder;
 use Grav\Common\Scheduler\Scheduler;
 use Psr\SimpleCache\CacheInterface;
 use RocketTheme\Toolbox\Event\Event;
-use RocketTheme\Toolbox\Event\EventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * The GravCache object is used throughout Grav to store and retrieve cached data.

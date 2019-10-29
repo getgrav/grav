@@ -6,6 +6,7 @@
     * Added `Utils::simpleTemplate()` method for very simple variable templating
     * Added `array_diff()` twig function
     * Added `template_from_string()` twig function
+    * Updated Symfony Components to 4.3
 1. [](#improved)
     * Improved `Scheduler` cron command check and more useful CLI information
     * Improved `Flex Users`: obey blueprints and allow Flex to be used in admin only
@@ -14,6 +15,7 @@
     * Added mime support for file formatters
     * Updated built-in `composer.phar` to latest `1.9.0`
     * Updated vendor libraries
+    * Use `Symfony EventDispatcher` directly and not rockettheme/toolbox wrapper
 1. [](#bugfix)
     * Fixed `Page::untranslatedLanguages()` not being symmetrical to `Page::translatedLanguages()`
     * Fixed `Flex Pages` not calling `onPageProcessed` event when cached

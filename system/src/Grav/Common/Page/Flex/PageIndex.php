@@ -16,6 +16,7 @@ use Grav\Common\Grav;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Utils;
 use Grav\Framework\Flex\FlexDirectory;
+use Grav\Framework\Flex\Interfaces\FlexCollectionInterface;
 use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
 use Grav\Framework\Flex\Interfaces\FlexStorageInterface;
 use Grav\Framework\Flex\Pages\FlexPageIndex;

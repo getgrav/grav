@@ -17,9 +17,9 @@ use Grav\Common\Scheduler\Scheduler;
 use Grav\Common\Utils;
 use Grav\Common\Grav;
 use RocketTheme\Toolbox\Event\Event;
-use RocketTheme\Toolbox\Event\EventDispatcher;
 use RocketTheme\Toolbox\File\JsonFile;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class Backups
 {

@@ -28,8 +28,8 @@ use Grav\Framework\Flex\Interfaces\FlexTranslateInterface;
 use Grav\Framework\Flex\Pages\FlexPageObject;
 use Grav\Plugin\Admin;
 use RocketTheme\Toolbox\Event\Event;
-use RocketTheme\Toolbox\Event\EventDispatcher;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Whoops\Exception\ErrorException;
 use Collator;
 

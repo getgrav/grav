@@ -11,7 +11,6 @@ namespace Grav\Common;
 
 use Clockwork\Clockwork;
 use Clockwork\DataSource\MonologDataSource;
-use Clockwork\DataSource\PhpDataSource;
 use Clockwork\DataSource\PsrMessageDataSource;
 use Clockwork\DataSource\XdebugDataSource;
 use Clockwork\Helpers\ServerTiming;
@@ -38,7 +37,6 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use RocketTheme\Toolbox\Event\Event;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Twig\Environment;
 use Twig\Template;
 use Twig\TemplateWrapper;
 
