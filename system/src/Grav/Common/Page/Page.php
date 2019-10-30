@@ -215,6 +215,11 @@ class Page implements PageInterface
                 $aPage = new Page();
                 $aPage->init(new \SplFileInfo($path), $languageExtension);
                 $aPage->parent($grav['page']->parent());
+                if (file_exists($aPage->parent()->path() . DS . $aPage->parent()->template() . $languageExtension)) {
+                    $aPage->parent()->route(
+                        $language->getLanguageURLPrefix($languageCode) . $aPage->parent()->route()
+                    );
+                }
 
                 $route = $aPage->header()->routes['default'] ?? $aPage->rawRoute();
                 if (!$route) {
@@ -225,7 +230,7 @@ class Page implements PageInterface
                     continue;
                 }
 
-                $translatedLanguages[$languageCode] = $route;
+                $translatedLanguages[$languageCode] = $language->getLanguageURLPrefix($languageCode) . $route;
             }
         }
 
