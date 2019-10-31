@@ -303,6 +303,7 @@ class PageIndex extends FlexPageIndex
                         $child->routable() ? 'routable' : 'non-routable'
                     ];
                     $lang = $child->findTranslation($language) ?? 'n/a';
+                    $child = $child->getTranslation($language) ?? $child;
                     $extras = [
                         'template' => $child->template(),
                         'lang' => $lang ?: null,

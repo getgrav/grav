@@ -56,8 +56,8 @@ trait PageLegacyTrait
      */
     public function raw($var = null): string
     {
-        // TODO:
         if (null !== $var) {
+            // TODO:
             throw new \RuntimeException(__METHOD__ . '(string): Not Implemented');
         }
 
@@ -81,8 +81,8 @@ trait PageLegacyTrait
      */
     public function frontmatter($var = null): string
     {
-        // TODO:
         if (null !== $var) {
+            // TODO:
             throw new \RuntimeException(__METHOD__ . '(string): Not Implemented');
         }
 
@@ -689,8 +689,8 @@ trait PageLegacyTrait
      */
     public function filePath($var = null): ?string
     {
-        // TODO:
         if (null !== $var) {
+            // TODO:
             throw new \RuntimeException(__METHOD__ . '(string): Not Implemented');
         }
 

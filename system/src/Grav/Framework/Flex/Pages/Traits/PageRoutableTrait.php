@@ -309,8 +309,8 @@ trait PageRoutableTrait
      */
     public function path($var = null): ?string
     {
-        // TODO:
         if (null !== $var) {
+            // TODO:
             throw new \RuntimeException(__METHOD__ . '(string): Not Implemented');
         }
 
@@ -388,7 +388,13 @@ trait PageRoutableTrait
         $directory = $this->getFlexDirectory();
         $parentKey = ltrim(dirname("/{$this->getKey()}"), '/');
         if ($parentKey) {
-            return $directory->getObject($parentKey);
+            $parent = $directory->getObject($parentKey);
+            $language = $this->getLanguage();
+            if ($language) {
+                $parent = $parent->getTranslation($language) ?? $parent;
+            }
+
+            return $parent;
         }
 
         $index = $directory->getIndex();
