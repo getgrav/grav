@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8cabb03e878bd627bb97852c38fce3dc",
+    "content-hash": "1c39574b3ecb3ce70ef022d5833e156d",
     "packages": [
         {
             "name": "antoligy/dom-string-iterators",
@@ -517,8 +517,8 @@
             "authors": [
                 {
                     "name": "Filipe Dobreira",
-                    "role": "Developer",
-                    "homepage": "https://github.com/filp"
+                    "homepage": "https://github.com/filp",
+                    "role": "Developer"
                 }
             ],
             "description": "php error handling for cool kids",
@@ -855,15 +855,15 @@
             "authors": [
                 {
                     "name": "Craig Duncan",
-                    "role": "Developer",
                     "email": "git@duncanc.co.uk",
-                    "homepage": "https://github.com/duncan3dc"
+                    "homepage": "https://github.com/duncan3dc",
+                    "role": "Developer"
                 },
                 {
                     "name": "Joe Tannenbaum",
-                    "role": "Developer",
                     "email": "hey@joe.codes",
-                    "homepage": "http://joe.codes/"
+                    "homepage": "http://joe.codes/",
+                    "role": "Developer"
                 }
             ],
             "description": "PHP's best friend for the terminal. CLImate allows you to easily output colored text, special formats, and more.",
@@ -920,9 +920,9 @@
             "authors": [
                 {
                     "name": "Matthias Mullie",
-                    "role": "Developer",
                     "email": "minify@mullie.eu",
-                    "homepage": "http://www.mullie.eu"
+                    "homepage": "http://www.mullie.eu",
+                    "role": "Developer"
                 }
             ],
             "description": "CSS & JavaScript minifier, in PHP. Removes whitespace, strips comments, combines files (incl. @import statements and small assets in CSS files), and optimizes/shortens a few common programming patterns.",
@@ -970,9 +970,9 @@
             "authors": [
                 {
                     "name": "Matthias Mullie",
-                    "role": "Developer",
                     "email": "pathconverter@mullie.eu",
-                    "homepage": "http://www.mullie.eu"
+                    "homepage": "http://www.mullie.eu",
+                    "role": "Developer"
                 }
             ],
             "description": "Relative path converter",
@@ -1088,8 +1088,8 @@
             "authors": [
                 {
                     "name": "Tom Van Herreweghe",
-                    "role": "Developer",
-                    "homepage": "http://theanalogguy.be"
+                    "homepage": "http://theanalogguy.be",
+                    "role": "Developer"
                 }
             ],
             "description": "Object-Oriented EXIF parsing",
