@@ -23,30 +23,6 @@ use Grav\Common\Utils;
 trait PageRoutableTrait
 {
     /**
-     * Gets the route for the page based on the route headers if available, else from
-     * the parents route and the current Page's slug.
-     *
-     * @param  string $var Set new default route.
-     *
-     * @return string  The route for the Page.
-     */
-    public function route($var = null): string
-    {
-        if (null !== $var) {
-            if ($var !== '/' && $var !== Grav::instance()['config']->get('system.home.alias')) {
-                throw new \RuntimeException(__METHOD__ . '(\'' . $var . '\'): Not Implemented');
-            }
-        }
-
-        if ($this->home()) {
-            return '/';
-        }
-
-        // TODO: implement rest of the routing:
-        return $this->rawRoute();
-    }
-
-    /**
      * Gets and Sets the parent object for this page
      *
      * @param  PageInterface|null $var the parent page object

@@ -214,7 +214,8 @@ class PageIndex extends FlexPageIndex
         $path = $page ? $page->path() : null;
 
         if ($field) {
-            $settings = $this->getFlexDirectory()->getBlueprint()->schema()->getProperty($field);
+            $blueprint = $page ? $page->getBlueprint() : $this->getFlexDirectory()->getBlueprint();
+            $settings = $blueprint->schema()->getProperty($field);
             $filters = array_merge([], $filters, $settings['filters'] ?? []);
             $filter_type = $filters['type'] ?? $filter_type;
         }
@@ -365,6 +366,21 @@ class PageIndex extends FlexPageIndex
     }
 
     /**
+     * @param FlexStorageInterface $storage
+     * @return CompiledJsonFile|\Grav\Common\File\CompiledYamlFile|null
+     */
+    protected static function getIndexFile(FlexStorageInterface $storage)
+    {
+        // Load saved index file.
+        $grav = Grav::instance();
+        $locator = $grav['locator'];
+
+        $filename = $locator->findResource('user-data://flex/indexes/pages.json', true, true);
+
+        return CompiledJsonFile::instance($filename);
+    }
+
+    /**
      * @param int|null $timestamp
      * @return string|null
      */
@@ -378,20 +394,5 @@ class PageIndex extends FlexPageIndex
         $dateFormat = $config->get('system.pages.dateformat.long');
 
         return date($dateFormat, $timestamp) ?: null;
-    }
-
-    /**
-     * @param FlexStorageInterface $storage
-     * @return CompiledJsonFile|\Grav\Common\File\CompiledYamlFile|null
-     */
-    protected static function getIndexFile(FlexStorageInterface $storage)
-    {
-        // Load saved index file.
-        $grav = Grav::instance();
-        $locator = $grav['locator'];
-
-        $filename = $locator->findResource('user-data://flex/indexes/pages.json', true, true);
-
-        return CompiledJsonFile::instance($filename);
     }
 }

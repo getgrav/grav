@@ -1422,7 +1422,7 @@ class Pages
 
             $parent = dirname($path);
 
-            $route = $page->route();
+            $route = $page->rawRoute();
 
             // Skip duplicated empty folders (git revert does not remove those).
             // TODO: still not perfect, will only work if the page has been translated.
@@ -1780,16 +1780,18 @@ class Pages
             $raw_route = $page->rawRoute();
 
             // add regular route
-            $this->routes[$route] = $page_path;
+            if ($route) {
+                $this->routes[$route] = $page_path;
+            }
 
             // add raw route
-            if ($raw_route !== $route) {
+            if ($raw_route && $raw_route !== $route) {
                 $this->routes[$raw_route] = $page_path;
             }
 
             // add canonical route
             $route_canonical = $page->routeCanonical();
-            if ($route_canonical && ($route !== $route_canonical)) {
+            if ($route_canonical && $route !== $route_canonical) {
                 $this->routes[$route_canonical] = $page_path;
             }
 

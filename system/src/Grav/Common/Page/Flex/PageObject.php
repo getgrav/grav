@@ -268,22 +268,22 @@ class PageObject extends FlexPageObject
                 case 'search':
                     $matches = $this->search((string)$value);
                     break;
-                case 'page_type':
+                case 'page_type': // filename
                     $matches = true;
                     break;
-                case 'extension':
+                case 'extension': // .en.md
                     $matches = Utils::contains((string)$value, $this->extension());
                     break;
-                case 'modular':
-                case 'visible':
+                case 'modular': // _name (filename)
+                case 'visible': // order
                 case 'routable':
                 case 'published':
                     $matches = $this->{$key}() === (bool)$value;
                     break;
-                case 'page':
+                case 'page': // markdown in index
                     $matches = $this->isPage() === (bool)$value;
                     break;
-                case 'translated':
+                case 'translated': // markdown in index
                     $matches = $this->hasTranslation() === (bool)$value;
                     break;
                 default:

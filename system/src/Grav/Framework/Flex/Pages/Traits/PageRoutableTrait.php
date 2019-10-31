@@ -156,13 +156,49 @@ trait PageRoutableTrait
      */
     public function route($var = null): ?string
     {
-        // TODO:
         if (null !== $var) {
-            throw new \RuntimeException(__METHOD__ . '(string): Not Implemented');
+            // TODO: not the best approach, but works...
+            $this->setNestedProperty('header.routes.default', $var);
         }
 
-        // TODO: implement rest of the routing:
-        return $this->rawRoute();
+        // Return default route if given.
+        $default = $this->getNestedProperty('header.routes.default');
+        if (is_string($default)) {
+            return $default;
+        }
+
+        return $this->routeInternal();
+    }
+
+    /**
+     * @return string|null
+     */
+    protected function routeInternal(): ?string
+    {
+        // Root and orphan nodes have no route.
+        $parent = $this->parent();
+        if (!$parent) {
+            return null;
+        }
+
+        if ($parent->home()) {
+            /** @var Config $config */
+            $config = Grav::instance()['config'];
+            $hide = (bool)$config->get('system.home.hide_in_urls', false);
+            $route = '/' . ($hide ? '' : $parent->slug());
+        } else {
+            $route = $parent->route();
+        }
+
+        if ($route !== '' && $route !== '/') {
+            $route .= '/';
+        }
+
+        if (!$this->home()) {
+            $route .= $this->slug();
+        }
+
+        return $route;
     }
 
     /**
@@ -187,7 +223,6 @@ trait PageRoutableTrait
             throw new \RuntimeException(__METHOD__ . '(string): Not Implemented');
         }
 
-        // TODO: missing full implementation
         return '/' . $this->getKey();
     }
 
@@ -203,8 +238,12 @@ trait PageRoutableTrait
             $this->setNestedProperty('header.routes.aliases', (array)$var);
         }
 
-        // FIXME: check route() logic of Page
-        return (array)$this->getNestedProperty('header.routes.aliases');
+        $aliases = (array)$this->getNestedProperty('header.routes.aliases');
+        if ($this->getNestedProperty('header.routes.default')) {
+            $aliases[] = $this->getDefaultRoute();
+        }
+
+        return $aliases;
     }
 
     /**
@@ -220,7 +259,9 @@ trait PageRoutableTrait
             $this->setNestedProperty('header.routes.canonical', (array)$var);
         }
 
-        return $this->getNestedProperty('header.routes.canonical', $this->route());
+        $canonical = $this->getNestedProperty('header.routes.canonical');
+
+        return is_string($canonical) ? $canonical : $this->route();
     }
 
     /**
@@ -339,20 +380,20 @@ trait PageRoutableTrait
      */
     public function parent(PageInterface $var = null)
     {
-        // TODO:
         if (null !== $var) {
+            // TODO:
             throw new \RuntimeException(__METHOD__ . '(PageInterface): Not Implemented');
         }
 
-        $parentKey = ltrim(dirname("/{$this->getKey()}"), '/');
         $directory = $this->getFlexDirectory();
+        $parentKey = ltrim(dirname("/{$this->getKey()}"), '/');
         if ($parentKey) {
             return $directory->getObject($parentKey);
         }
 
         $index = $directory->getIndex();
 
-        return method_exists($index, 'getRoot') ? $index->getRoot() : null;
+        return !$this->root() && method_exists($index, 'getRoot') ? $index->getRoot() : null;
     }
 
     /**
