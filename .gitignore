@@ -35,8 +35,9 @@ Icon?
 Thumbs.db
 *.swp
 
-# phpstorm
+# IDE related
 .idea/*
+.vscode/*
 
 # testing stuff
 tests/_output/*
