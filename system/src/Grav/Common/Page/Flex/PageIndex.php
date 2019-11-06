@@ -74,7 +74,7 @@ class PageIndex extends FlexPageIndex
         $index = static::loadIndex($storage);
 
         $timestamp = $index['timestamp'] ?? 0;
-        if ($timestamp > time() - 2) {
+        if ($timestamp && $timestamp > time() - 2) {
             return $index['index'];
         }
 
@@ -372,6 +372,10 @@ class PageIndex extends FlexPageIndex
      */
     protected static function getIndexFile(FlexStorageInterface $storage)
     {
+        if (!method_exists($storage, 'isIndexed') || !$storage->isIndexed()) {
+            return null;
+        }
+
         // Load saved index file.
         $grav = Grav::instance();
         $locator = $grav['locator'];

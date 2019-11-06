@@ -30,6 +30,7 @@
     * Grav 1.7: Fixed PHP 7.1 compatibility issues
     * Grav 1.7: Fixed fatal error in multi-site setups
     * Grav 1.7: Fixed `Flex Pages` routing if using translated slugs or `system.hide_in_urls` setting
+    * Grav 1.7: Fixed bug where Flex index file couldn't be disabled
 
 # v1.7.0-beta.10
 ## 10/03/2019

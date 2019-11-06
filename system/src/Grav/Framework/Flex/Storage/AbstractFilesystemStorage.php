@@ -35,6 +35,13 @@ abstract class AbstractFilesystemStorage implements FlexStorageInterface
     /** @var string */
     protected $keyField = 'storage_key';
 
+    /**
+     * @return bool
+     */
+    public function isIndexed(): bool
+    {
+        return false;
+    }
 
     /**
      * {@inheritdoc}

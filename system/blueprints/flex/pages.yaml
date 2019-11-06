@@ -120,6 +120,7 @@ config:
         formatter:
           class: 'Grav\Framework\File\Formatter\MarkdownFormatter'
         folder: 'page://'
+        indexed: true
     ordering:
       key: ASC
     search:

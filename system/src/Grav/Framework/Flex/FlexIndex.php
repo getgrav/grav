@@ -617,10 +617,16 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
      * @param FlexStorageInterface $storage
      * @param array $index      Saved index
      * @param array $entries    Updated index
+     * @param array $options
      * @return array            Compiled list of entries
      */
     protected static function updateIndexFile(FlexStorageInterface $storage, array $index, array $entries, array $options = []): array
     {
+        $indexFile = static::getIndexFile($storage);
+        if (null === $indexFile) {
+            return $entries;
+        }
+
         // Calculate removed objects.
         $removed = array_diff_key($index, $entries);
 
@@ -649,11 +655,6 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
         }
 
         // Index should be updated, lock the index file for saving.
-        $indexFile = static::getIndexFile($storage);
-        if (null === $indexFile) {
-            throw new \RuntimeException('No index file defined');
-        }
-
         $indexFile->lock();
 
         // Read all the data rows into an array.
@@ -710,24 +711,27 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
     protected static function loadIndex(FlexStorageInterface $storage)
     {
         $indexFile = static::getIndexFile($storage);
-        if (null === $indexFile) {
-            throw new \RuntimeException('No index file defined');
-        }
 
-        $data = [];
-        try {
-            $data = (array)$indexFile->content();
-            $version = $data['version'] ?? null;
-            if ($version !== static::VERSION) {
-                $data = [];
+        if ($indexFile) {
+            $data = [];
+            try {
+                $data = (array)$indexFile->content();
+                $version = $data['version'] ?? null;
+                if ($version !== static::VERSION) {
+                    $data = [];
+                }
+            } catch (\Exception $e) {
+                $e = new \RuntimeException(sprintf('Index failed to load: %s', $e->getMessage()), $e->getCode(), $e);
+
+                static::onException($e);
             }
-        } catch (\Exception $e) {
-            $e = new \RuntimeException(sprintf('Index failed to load: %s', $e->getMessage()), $e->getCode(), $e);
 
-            static::onException($e);
+            if ($data) {
+                return $data;
+            }
         }
 
-        return $data ?: ['version' => static::VERSION, 'timestamp' => 0, 'count' => 0, 'index' => []];
+        return ['version' => static::VERSION, 'timestamp' => 0, 'count' => 0, 'index' => []];
     }
 
     protected static function loadEntriesFromIndex(FlexStorageInterface $storage)
@@ -743,6 +747,10 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
      */
     protected static function getIndexFile(FlexStorageInterface $storage)
     {
+        if (!method_exists($storage, 'isIndexed') || !$storage->isIndexed()) {
+            return null;
+        }
+
         $path = $storage->getStoragePath();
         if (!$path) {
             return null;

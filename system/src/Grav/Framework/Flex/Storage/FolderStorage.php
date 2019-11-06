@@ -54,6 +54,14 @@ class FolderStorage extends AbstractFilesystemStorage
     }
 
     /**
+     * @return bool
+     */
+    public function isIndexed(): bool
+    {
+        return $this->indexed;
+    }
+
+    /**
      * @param string[] $keys
      * @return array
      */
