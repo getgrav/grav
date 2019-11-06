@@ -8,7 +8,7 @@
 
 // Some standard defines
 define('GRAV', true);
-define('GRAV_VERSION', '1.6.16');
+define('GRAV_VERSION', '1.6.17');
 define('GRAV_TESTING', false);
 define('DS', '/');
 

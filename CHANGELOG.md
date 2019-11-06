@@ -1,13 +1,17 @@
 # v1.6.17
-## mm/dd/2019
+## 10/06/2019
 
 1. [](#new)
     * Added working ETag (304 Not Modified) support based on the final rendered HTML
 1. [](#improved)
     * Safer file handling + customizable null char replacement in `CsvFormatter::decode()`
     * Change of Behavior: `Inflector::hyphenize` will now automatically trim dashes at beginning and end of a string.
+    * Change in Behavior for `Folder::all()` so no longer fails if trying to copy non-existent dot file [#2581](https://github.com/getgrav/grav/pull/2581)
+    * renamed composer `test-plugins` script to `phpstan-plugins` to be more explicit [#2637](https://github.com/getgrav/grav/pull/2637)
 1. [](#bugfix)
-    * Fixed PHP 7.1 bug in Flex
+    * Fixed PHP 7.1 bug in FlexMedia
+    * Fix cache image generation when using cropResize [#2639](https://github.com/getgrav/grav/pull/2639)
+    * Fix `array_merge()` exception with non-array page header metadata [#2701](https://github.com/getgrav/grav/pull/2701)
 
 # v1.6.16
 ## 09/19/2019
