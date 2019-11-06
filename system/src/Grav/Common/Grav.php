@@ -247,9 +247,21 @@ class Grav extends Container
         $collection = new RequestHandler($this->middleware, $default, $container);
 
         $response = $collection->handle($this['request']);
+        $body = $response->getBody();
+
+        // Handle ETag and If-None-Match headers.
+        if ($response->getHeaderLine('ETag') === '1') {
+            $etag = md5($body);
+            $response = $response->withHeader('ETag', $etag);
+
+            if ($this['request']->getHeaderLine('If-None-Match') === $etag) {
+                $response = $response->withStatus(304);
+                $body = '';
+            }
+        }
 
         $this->header($response);
-        echo $response->getBody();
+        echo $body;
 
         $debugger->render();
 

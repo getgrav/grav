@@ -79,10 +79,28 @@ class CsvFormatter extends AbstractFormatter
         // Get the field names
         $header = str_getcsv(array_shift($lines), $delimiter);
 
+        // Allow for replacing a null string with null/empty value
+        $null_replace = $this->getConfig('null');
+
         // Get the data
         $list = [];
-        foreach ($lines as $line) {
-            $list[] = array_combine($header, str_getcsv($line, $delimiter));
+        $line = null;
+        try {
+            foreach ($lines as $line) {
+                if (!empty($line)) {
+                    $csv_line = str_getcsv($line, $delimiter);
+
+                    if ($null_replace) {
+                        array_walk($csv_line, function(&$el) use ($null_replace) {
+                           $el = str_replace($null_replace, null, $el);
+                        });
+                    }
+
+                    $list[] = array_combine($header, $csv_line);
+                }
+            }
+        } catch (\Exception $e) {
+            throw new \Exception('Badly formatted CSV line: ' . $line);
         }
 
         return $list;

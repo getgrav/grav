@@ -235,7 +235,7 @@ abstract class Folder
         /** @var \RecursiveDirectoryIterator $file */
         foreach ($iterator as $file) {
             // Ignore hidden files.
-            if (strpos($file->getFilename(), '.') === 0) {
+            if (strpos($file->getFilename(), '.') === 0 && $file->isFile()) {
                 continue;
             }
             if (!$folders && $file->isDir()) {

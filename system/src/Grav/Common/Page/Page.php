@@ -529,9 +529,9 @@ class Page implements PageInterface
             $headers['Last-Modified'] = $last_modified_date;
         }
 
-        // Calculate ETag based on the raw file
+        // Ask Grav to calculate ETag from the final content.
         if ($this->eTag()) {
-            $headers['ETag'] = '"' . md5($this->raw() . $this->modified()).'"';
+            $headers['ETag'] = '1';
         }
 
         // Set Vary: Accept-Encoding header
@@ -1200,7 +1200,7 @@ class Page implements PageInterface
     /**
      * @return string
      */
-    protected function getCacheKey()
+    protected function getCacheKey(): string
     {
         return $this->id();
     }
@@ -1696,7 +1696,7 @@ class Page implements PageInterface
             // Get initial metadata for the page
             $metadata = array_merge($metadata, Grav::instance()['config']->get('site.metadata'));
 
-            if (isset($this->header->metadata)) {
+            if (isset($this->header->metadata) && is_array($this->header->metadata)) {
                 // Merge any site.metadata settings in with page metadata
                 $metadata = array_merge($metadata, $this->header->metadata);
             }
