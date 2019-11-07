@@ -124,6 +124,23 @@ class Scheduler
     }
 
     /**
+     * Get a specific Job based on id
+     *
+     * @param $jobid
+     * @return Job|null
+     */
+    public function getJob($jobid)
+    {
+        $all = $this->getAllJobs();
+        foreach ($all as $job) {
+            if ($jobid == $job->getId()) {
+                return $job;
+            }
+        }
+        return null;
+    }
+
+    /**
      * Queues a PHP function execution.
      *
      * @param  callable  $fn  The function to execute

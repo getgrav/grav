@@ -1,4 +1,10 @@
 # v1.7.0-rc.1
+## mm/dd/2019
+
+1. [](#new)
+    * Added new `-r <job-id>` option for Schduler CLI command to force-run a job [#2720](https://github.com/getgrav/grav/issues/2720)
+
+# v1.7.0-rc.1
 ## 11/06/2019
 
 1. [](#new)
