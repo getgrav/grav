@@ -267,7 +267,7 @@ class PageIndex extends FlexPageIndex
             foreach ($children as $child) {
                 $selected = $child->path() === $extra;
                 $includeChildren = \is_array($leaf) && !empty($leaf) && $selected;
-                if (!$selected && !$child->filterBy($filters)) {
+                if (!$selected && !$child->filterBy($filters, true)) {
                     continue;
                 }
                 if ($field) {

@@ -256,9 +256,10 @@ class PageObject extends FlexPageObject
      * - translated: bool
      *
      * @param array $filters
+     * @param bool $recursive
      * @return bool
      */
-    public function filterBy(array $filters): bool
+    public function filterBy(array $filters, bool $recursive = false): bool
     {
         foreach ($filters as $key => $value) {
             if ($value === null || $value === '') {
@@ -268,22 +269,23 @@ class PageObject extends FlexPageObject
                 case 'search':
                     $matches = $this->search((string)$value);
                     break;
-                case 'page_type': // filename
-                    $matches = true;
+                case 'page_type':
+                    $types = $value ? explode(',', $value) : [];
+                    $matches = in_array($this->template(), $types, true);
                     break;
-                case 'extension': // .en.md
+                case 'extension':
                     $matches = Utils::contains((string)$value, $this->extension());
                     break;
-                case 'modular': // _name (filename)
-                case 'visible': // order
+                case 'modular':
+                case 'visible':
                 case 'routable':
                 case 'published':
                     $matches = $this->{$key}() === (bool)$value;
                     break;
-                case 'page': // markdown in index
+                case 'page':
                     $matches = $this->isPage() === (bool)$value;
                     break;
-                case 'translated': // markdown in index
+                case 'translated':
                     $matches = $this->hasTranslation() === (bool)$value;
                     break;
                 default:
@@ -291,6 +293,14 @@ class PageObject extends FlexPageObject
                     break;
             }
             if ($matches === false) {
+                if ($recursive) {
+                    foreach ($this->children() as $child) {
+                        if ($child->filterBy($filters, true)) {
+                            return true;
+                        }
+                    }
+                }
+
                 return false;
             }
         }
