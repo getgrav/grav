@@ -1,5 +1,5 @@
 # v1.7.0-rc.1
-## 10/06/2019
+## 11/06/2019
 
 1. [](#new)
     * Added `Flex Pages` to Grav core and removed Flex Objects plugin dependency
@@ -172,7 +172,7 @@
     * Optimization: Combine some early Grav processors into a single one
 
 # v1.6.17
-## 10/06/2019
+## 11/06/2019
 
 1. [](#new)
     * Added working ETag (304 Not Modified) support based on the final rendered HTML
