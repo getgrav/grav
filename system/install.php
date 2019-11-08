@@ -10,8 +10,6 @@ if (!defined('GRAV_ROOT')) {
     die();
 }
 
-use Grav\Installer\Install;
-
 require_once __DIR__ . '/src/Grav/Installer/Install.php';
 
-return Install::instance();
+return Grav\Installer\Install::instance();

@@ -186,7 +186,7 @@ class Install
         // Override Grav\Installer classes by using this version of Grav.
         $loader->addClassMap($this->classMap);
 
-        $this->location = $location;
+        $this->location = dirname($location, 4);
     }
 
     /**
