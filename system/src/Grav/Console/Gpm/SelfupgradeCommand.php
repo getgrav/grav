@@ -177,7 +177,7 @@ class SelfupgradeCommand extends ConsoleCommand
     }
 
     /**
-     * @param Package $package
+     * @param array $package
      *
      * @return string
      */
