@@ -739,6 +739,20 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      */
     public function arrayFilter($input)
     {
+        if (is_array($input)) {
+            return $input;
+        }
+
+        if (is_object($input)) {
+            if (method_exists($input, 'toArray')) {
+                return $input->toArray();
+            }
+
+            if ($input instanceof \Iterator) {
+                return iterator_to_array($input);
+            }
+        }
+
         return (array) $input;
     }
 
