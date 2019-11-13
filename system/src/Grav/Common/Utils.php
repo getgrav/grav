@@ -344,6 +344,15 @@ abstract class Utils
     }
 
     /**
+     * @param array $array
+     * @return bool
+     */
+    public static function isAssoc(array $array)
+    {
+        return (array_values($array) !== $array);
+    }
+
+    /**
      * Lowercase an entire array. Useful when combined with `in_array()`
      *
      * @param array $a
@@ -1163,15 +1172,25 @@ abstract class Utils
     }
 
     /**
-     * Checks if a value is positive
+     * Checks if a value is positive (true)
      *
      * @param string $value
-     *
      * @return boolean
      */
     public static function isPositive($value)
     {
         return in_array($value, [true, 1, '1', 'yes', 'on', 'true'], true);
+    }
+
+    /**
+     * Checks if a value is negative (false)
+     *
+     * @param string $value
+     * @return boolean
+     */
+    public static function isNegative($value)
+    {
+        return in_array($value, [false, 0, '0', 'no', 'off', 'false'], true);
     }
 
     /**
