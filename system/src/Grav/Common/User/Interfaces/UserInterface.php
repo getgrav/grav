@@ -177,9 +177,9 @@ interface UserInterface extends DataInterface, MediaInterface, \ArrayAccess, \Js
      *
      * @param  string $action
      * @param  string|null $scope
-     * @return bool
+     * @return bool|null
      */
-    public function authorize(string $action, string $scope = null): bool;
+    public function authorize(string $action, string $scope = null): ?bool;
 
     /**
      * Return media object for the User's avatar.

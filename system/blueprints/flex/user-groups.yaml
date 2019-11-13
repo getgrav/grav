@@ -1,10 +1,10 @@
-title: Flex Accounts
-description: Manage your User Accounts in Flex.
+title: Flex User Groups
+description: Manage your User Groups in Flex.
 type: flex-objects
 
-# Extends user account
+# Extends user group
 extends@:
-  type: account
+  type: group
   context: blueprints://user
 
 # Flex configuration
@@ -14,37 +14,37 @@ config:
     # Admin menu
     menu:
       list:
-        route: '/accounts'
-        title: PLUGIN_ADMIN.USER_ACCOUNTS
-        icon: fa-user
+        route: '/user-groups'
+        title: PLUGIN_ADMIN.USER_GROUPS
+        icon: fa-users
         authorize: ['admin.users', 'admin.accounts', 'admin.super']
         priority: 6
 
     # Admin template type (folder)
-    template: grav-accounts
+    template: grav-user-groups
 
     # List view
     list:
       # Fields shown in the list view
       fields:
-        username:
+        groupname:
           link: edit
           search: true
-        email:
+        readableName:
           search: true
-        fullname:
+        description:
           search: true
       # Extra options
       options:
         per_page: 20
         order:
-          by: username
+          by: groupname
           dir: asc
 
     # Edit view
     edit:
       title:
-        template: '{{ object.fullname ?? object.username }} &lt;{{ object.email }}&gt;'
+        template: '{{ object.readableName ?? object.groupname }}'
 
   # Site Configuration
   site:
@@ -61,38 +61,26 @@ config:
           - 'flex/{TYPE}/object/{LAYOUT}{EXT}'
       defaults:
         # Default template {TYPE}; overridden by filename of this blueprint if template folder exists
-        type: grav-accounts
+        type: grav-user-groups
         # Default template {LAYOUT}; can be overridden in render calls (usually Twig in templates)
         layout: default
 
   # Data Configuration
   data:
-    object: 'Grav\Common\User\FlexUser\User'
-    collection: 'Grav\Common\User\FlexUser\UserCollection'
-    index: 'Grav\Common\User\FlexUser\UserIndex'
+    object: 'Grav\Common\User\FlexUser\Group'
+    collection: 'Grav\Common\User\FlexUser\GroupCollection'
+    index: 'Grav\Common\User\FlexUser\GroupIndex'
     storage:
-      class: 'Grav\Common\User\FlexUser\Storage\UserFileStorage'
+      class: 'Grav\Framework\Flex\Storage\SimpleStorage'
       options:
         formatter:
           class: 'Grav\Framework\File\Formatter\YamlFormatter'
-        folder: 'account://'
-        pattern: '{FOLDER}/{KEY}{EXT}'
-        key: storage_key
-        indexed: true
+        folder: 'user://config/groups.yaml'
+        key: groupname
     search:
       options:
         contains: 1
       fields:
         - key
-        - email
-
-# Regular form definition
-form:
-  fields:
-    username:
-      flex-disabled@: exists
-      disabled: false
-      flex-readonly@: exists
-      readonly: false
-      validate:
-        required: true
+        - groupname
+        - description

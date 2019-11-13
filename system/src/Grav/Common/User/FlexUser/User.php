@@ -15,6 +15,7 @@ use Grav\Common\Page\Media;
 use Grav\Common\Page\Medium\ImageMedium;
 use Grav\Common\Page\Medium\Medium;
 use Grav\Common\Page\Medium\MediumFactory;
+use Grav\Common\User\Access;
 use Grav\Common\User\Authentication;
 use Grav\Common\User\Interfaces\UserInterface;
 use Grav\Common\User\Traits\UserTrait;
@@ -63,10 +64,17 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
 
     protected $_uploads_original;
 
-    /**
-     * @var FileInterface|null
-     */
+    /** @var FileInterface|null */
     protected $_storage;
+
+    /** @var GroupCollection|GroupIndex|null */
+    protected $_groups;
+
+    /** @var Access|null */
+    protected $_access;
+
+    /** @var array|null */
+    protected $access;
 
     /**
      * @return array
@@ -159,6 +167,55 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
         $this->defNestedProperty($name, $default, $separator);
 
         return $this;
+    }
+
+    /**
+     * Checks user authorization to the action.
+     *
+     * @param  string $action
+     * @param  string|null $scope
+     * @return bool|null
+     */
+    public function authorize(string $action, string $scope = null): ?bool
+    {
+        if ($scope === 'test') {
+            // Special scope to test user permissions.
+            $scope = null;
+        } else {
+            // User needs to be enabled.
+            if ($this->getProperty('state') !== 'enabled') {
+                return false;
+            }
+
+            // User needs to be logged in.
+            if (!$this->getProperty('authenticated')) {
+                return false;
+            }
+
+            if (strpos($action, 'login') === false && !$this->getProperty('authorized')) {
+                // User needs to be authorized (2FA).
+                return false;
+            }
+
+            // Workaround bug in Login::isUserAuthorizedForPage() <= Login v3.0.4
+            if ((string)(int)$action === $action) {
+                return false;
+            }
+        }
+
+        // Check user access.
+        $access = $this->getAccess();
+        $authorized = $access->authorize($action, $scope);
+        if (is_bool($authorized)) {
+            return $authorized;
+        }
+
+        if ($access->authorize('admin.super') === true) {
+            return true;
+        }
+
+        // Check group access.
+        return $this->getGroups()->authorize($action, $scope);
     }
 
     /**
@@ -455,7 +512,7 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
             $user = Grav::instance()['user'] ?? null;
         }
 
-        if ($user instanceof User && $user->getStorageKey() === $this->getStorageKey()) {
+        if ($user instanceof self && $user->getStorageKey() === $this->getStorageKey()) {
             return true;
         }
 
@@ -543,6 +600,63 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
         user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6', E_USER_DEPRECATED);
 
         return \count($this->jsonSerialize());
+    }
+
+    /**
+     * @return GroupIndex|GroupCollection
+     */
+    protected function getGroups()
+    {
+        if (null === $this->_groups) {
+            $this->_groups = $this->getUserGroups()->select((array)$this->getProperty('groups'));
+        }
+
+        return $this->_groups;
+    }
+
+    /**
+     * @return Access
+     */
+    protected function getAccess(): Access
+    {
+        if (null === $this->_access) {
+            $this->getProperty('access');
+        }
+
+        return $this->_access;
+    }
+
+    /**
+     * @param mixed $value
+     * @return array
+     */
+    protected function offsetLoad_access($value): array
+    {
+        if (!$value instanceof Access) {
+            $value = new Access($value);
+        }
+
+        $this->_access = $value;
+
+        return $value->jsonSerialize();
+    }
+
+    /**
+     * @param mixed $value
+     * @return Access
+     */
+    protected function offsetPrepare_access($value): array
+    {
+        return $this->offsetLoad_access($value);
+    }
+
+    /**
+     * @param Access|null $value
+     * @return array|null
+     */
+    protected function offsetSerialize_access(?array $value): ?array
+    {
+        return $value;
     }
 
     /**
@@ -772,5 +886,23 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
         $this->setStorage($serialized['storage']);
         $this->setKey($serialized['key']);
         $this->setElements($serialized['elements']);
+    }
+
+    /**
+     * @return GroupCollection
+     */
+    protected function getUserGroups()
+    {
+        $grav = Grav::instance();
+        $flex = $grav['flex_objects'] ?? null;
+
+        /** @var GroupCollection $groups */
+        $groups = $flex ? $flex->getDirectory('grav-user-groups') : null;
+
+        if ($groups) {
+            return $groups->getIndex();
+        }
+
+        return $grav['user_groups'];
     }
 }

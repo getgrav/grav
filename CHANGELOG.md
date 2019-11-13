@@ -7,6 +7,7 @@
 1. [](#improved)
     * Improved twig `|array` filter to work with iterators and objects with `toArray()` method
     * Updated Flex `SimpleStorage` code to feature match the other storages
+    * Improved user and group ACL to support deny permissions (`Flex Users` only)
 1. [](#bugfix)
     * Regression: Fixed Grav update bug [#2722](https://github.com/getgrav/grav/issues/2722)
 

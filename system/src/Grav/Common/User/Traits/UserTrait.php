@@ -65,15 +65,22 @@ trait UserTrait
      *
      * @param  string $action
      * @param  string|null $scope
-     * @return bool
+     * @return bool|null
      */
-    public function authorize(string $action, string $scope = null): bool
+    public function authorize(string $action, string $scope = null): ?bool
     {
+        // User needs to be enabled.
+        if ($this->get('state', 'enabled') !== 'enabled') {
+            return false;
+        }
+
+        // User needs to be logged in.
         if (!$this->get('authenticated')) {
             return false;
         }
 
-        if ($this->get('state', 'enabled') !== 'enabled') {
+        // User needs to be authorized (2FA).
+        if (strpos($action, 'login') === false && !$this->get('authorized', true)) {
             return false;
         }
 

@@ -22,4 +22,20 @@ class UserFileStorage extends FileStorage
         // There is no media support for file storage (fallback to common location).
         return null;
     }
+
+    /**
+     * Prepares the row for saving and returns the storage key for the record.
+     *
+     * @param array $row
+     */
+    protected function prepareRow(array &$row): void
+    {
+        parent::prepareRow($row);
+
+        $access = $row['access'] ?? [];
+        unset($row['access']);
+        if ($access) {
+            $row['access'] = $access;
+        }
+    }
 }
