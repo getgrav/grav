@@ -20,6 +20,8 @@ use Grav\Common\Yaml;
 use Grav\Framework\Cache\CacheInterface;
 use Grav\Framework\File\Formatter\MarkdownFormatter;
 use Grav\Framework\File\Formatter\YamlFormatter;
+use Grav\Framework\Flex\FlexDirectory;
+use Grav\Framework\Flex\Interfaces\FlexIndexInterface;
 use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
 use Grav\Framework\Flex\Pages\FlexPageIndex;
 use RocketTheme\Toolbox\File\MarkdownFile;
@@ -836,7 +838,7 @@ trait PageLegacyTrait
     /**
      * Returns children of this page.
      *
-     * @return PageCollectionInterface
+     * @return PageCollectionInterface|FlexIndexInterface
      */
     public function children()
     {
@@ -1002,7 +1004,7 @@ trait PageLegacyTrait
      * @param string|array $params
      * @param bool $pagination
      *
-     * @return Collection
+     * @return PageCollectionInterface|Collection
      * @throws \InvalidArgumentException
      */
     public function collection($params = 'content', $pagination = true)
@@ -1031,7 +1033,7 @@ trait PageLegacyTrait
     /**
      * @param string|array $value
      * @param bool $only_published
-     * @return Collection
+     * @return PageCollectionInterface|Collection
      */
     public function evaluate($value, $only_published = true)
     {
@@ -1097,7 +1099,7 @@ trait PageLegacyTrait
      */
     abstract public function getCache(string $namespace = null);
     abstract public function parent(PageInterface $var = null);
-
+    abstract public function getFlexDirectory(): FlexDirectory;
     abstract protected function exists(): bool;
     abstract protected function getStorageFolder();
     abstract protected function loadHeaderProperty(string $property, $var, callable $filter);

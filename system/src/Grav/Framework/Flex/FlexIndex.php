@@ -572,7 +572,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
 
     /**
      * @param array|null $entries
-     * @return ObjectCollectionInterface
+     * @return FlexCollectionInterface
      */
     protected function loadCollection(array $entries = null): CollectionInterface
     {

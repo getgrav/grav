@@ -239,8 +239,9 @@ trait PageRoutableTrait
         }
 
         $aliases = (array)$this->getNestedProperty('header.routes.aliases');
-        if ($this->getNestedProperty('header.routes.default')) {
-            $aliases[] = $this->getDefaultRoute();
+        $default = $this->getNestedProperty('header.routes.default');
+        if ($default) {
+            $aliases[] = $default;
         }
 
         return $aliases;
@@ -251,9 +252,9 @@ trait PageRoutableTrait
      * that value, else if it's `true` it will use the default route.
      *
      * @param string|null $var
-     * @return string
+     * @return string|null
      */
-    public function routeCanonical($var = null): string
+    public function routeCanonical($var = null): ?string
     {
         if (null !== $var) {
             $this->setNestedProperty('header.routes.canonical', (array)$var);
@@ -390,7 +391,7 @@ trait PageRoutableTrait
         if ($parentKey) {
             $parent = $directory->getObject($parentKey);
             $language = $this->getLanguage();
-            if ($language) {
+            if ($language && $parent && method_exists($parent, 'getTranslation')) {
                 $parent = $parent->getTranslation($language) ?? $parent;
             }
 
