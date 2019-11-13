@@ -12,6 +12,7 @@ namespace Grav\Common\Page\Medium;
 use Grav\Common\Grav;
 use Grav\Common\Data\Blueprint;
 use Grav\Framework\Form\FormFlashFile;
+use Psr\Http\Message\UploadedFileInterface;
 
 class MediumFactory
 {
@@ -71,12 +72,17 @@ class MediumFactory
     /**
      * Create Medium from an uploaded file
      *
-     * @param  FormFlashFile $uploadedFile
+     * @param  UploadedFileInterface $uploadedFile
      * @param  array  $params
      * @return Medium|null
      */
-    public static function fromUploadedFile(FormFlashFile $uploadedFile, array $params = [])
+    public static function fromUploadedFile(UploadedFileInterface $uploadedFile, array $params = [])
     {
+        // For now support only FormFlashFiles, which exist over multiple requests. Also ignore errored and moved media.
+        if (!$uploadedFile instanceof FormFlashFile || $uploadedFile->getError() !== \UPLOAD_ERR_OK || $uploadedFile->isMoved()) {
+            return null;
+        }
+
         $parts = pathinfo($uploadedFile->getClientFilename());
         $filename = $parts['basename'];
         $ext = $parts['extension'];
