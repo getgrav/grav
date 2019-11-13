@@ -19,16 +19,18 @@ class Access implements \JsonSerializable, \IteratorAggregate, \Countable
     {
         $list = [];
 
-        // Normalize access control list.
-        foreach (Utils::arrayFlattenDotNotation($acl) as $key => $value) {
-            if (is_bool($value)) {
-                $list[$key] = $value;
-            } elseif($value === null) {
-                continue;
-            } elseif (Utils::isPositive($value)) {
-                $list[$key] = true;
-            } elseif (Utils::isNegative($value)) {
-                $list[$key] = false;
+        if ($acl) {
+            // Normalize access control list.
+            foreach (Utils::arrayFlattenDotNotation($acl) as $key => $value) {
+                if (is_bool($value)) {
+                    $list[$key] = $value;
+                } elseif($value === null) {
+                    continue;
+                } elseif (Utils::isPositive($value)) {
+                    $list[$key] = true;
+                } elseif (Utils::isNegative($value)) {
+                    $list[$key] = false;
+                }
             }
         }
 
