@@ -111,18 +111,11 @@ class SimpleStorage extends AbstractFilesystemStorage
 
         $list = [];
         foreach ($rows as $key => $row) {
-            $key = $this->getNewKey();
-            $this->data[$key] = $row;
-
-            $list[$key] = $row;
+            $list[$key] = $this->saveRow('@@', $rows);
         }
 
         if ($list) {
             $this->save();
-
-            foreach ($list as $key => $row) {
-                $list[$key]['__META'] = $this->getObjectMeta($key, true);
-            }
         }
 
         return $list;
@@ -143,12 +136,7 @@ class SimpleStorage extends AbstractFilesystemStorage
             if (null === $row || \is_scalar($row)) {
                 // Only load rows which haven't been loaded before.
                 $key = (string)$key;
-                if (!$this->hasKey($key)) {
-                    $list[$key] = null;
-                } else {
-                    $list[$key] = $this->data[$key];
-                    $list[$key]['__META'] = $this->getObjectMeta($key);
-                }
+                $list[$key] = $this->hasKey($key) ? $this->loadRow($key) : null;
                 if (null !== $fetched) {
                     $fetched[$key] = $list[$key];
                 }
@@ -171,22 +159,20 @@ class SimpleStorage extends AbstractFilesystemStorage
             $this->buildIndex();
         }
 
+        $save = false;
         $list = [];
         foreach ($rows as $key => $row) {
             $key = (string)$key;
             if ($this->hasKey($key)) {
-                $this->data[$key] = $row;
-
-                $list[$key] = $row;
+                $list[$key] = $this->saveRow($key, $row);
+                $save = true;
+            } else {
+                $list[$key] = null;
             }
         }
 
-        if ($list) {
+        if ($save) {
             $this->save();
-
-            foreach ($list as $key => $row) {
-                $list[$key]['__META'] = $this->getObjectMeta($key, true);
-            }
         }
 
         return $list;
@@ -207,7 +193,6 @@ class SimpleStorage extends AbstractFilesystemStorage
             $key = (string)$key;
             if ($this->hasKey($key)) {
                 unset($this->data[$key]);
-
                 $list[$key] = $row;
             }
         }
@@ -231,20 +216,11 @@ class SimpleStorage extends AbstractFilesystemStorage
 
         $list = [];
         foreach ($rows as $key => $row) {
-            if (strpos($key, '@@') !== false) {
-                $key = $this->getNewKey();
-            }
-            $this->data[$key] = $row;
-
-            $list[$key] = $row;
+            $list[$key] = $this->saveRow($key, $row);
         }
 
         if ($list) {
             $this->save();
-
-            foreach ($list as $key => $row) {
-                $list[$key]['__META'] = $this->getObjectMeta((string)$key, true);
-            }
         }
 
         return $list;
@@ -317,15 +293,60 @@ class SimpleStorage extends AbstractFilesystemStorage
      */
     public function getMediaPath(string $key = null): ?string
     {
-        $ext = $this->dataFormatter->getDefaultFileExtension();
+        return null;
+    }
 
-        if ($key === null) {
-            return sprintf('%s/%s', $this->dataFolder, basename($this->dataPattern, $ext));
+    /**
+     * Prepares the row for saving and returns the storage key for the record.
+     *
+     * @param array $row
+     */
+    protected function prepareRow(array &$row): void
+    {
+        unset($row[$this->keyField]);
+    }
+
+    /**
+     * @param string $key
+     * @return array
+     */
+    protected function loadRow(string $key): ?array
+    {
+        $data = $this->data[$key] ?? [];
+        if ($this->keyField !== 'storage_key') {
+            $data[$this->keyField] = $key;
+        }
+        $data['__META'] = $this->getObjectMeta($key);
+
+        return $data;
+    }
+
+    /**
+     * @param string $key
+     * @param array $row
+     * @return array
+     */
+    protected function saveRow(string $key, array $row): array
+    {
+        try {
+            if (isset($row[$this->keyField])) {
+                $key = $row[$this->keyField];
+            }
+            if (strpos($key, '@@') !== false) {
+                $key = $this->getNewKey();
+            }
+
+            $this->prepareRow($row);
+            unset($row['__META'], $row['__ERROR']);
+
+            $this->data[$key] = $row;
+        } catch (\RuntimeException $e) {
+            throw new \RuntimeException(sprintf('Flex saveRow(%s): %s', $key, $e->getMessage()));
         }
 
-        $parts = $this->extractKeysFromStorageKey($key);
+        $row['__META'] = $this->getObjectMeta($key, true);
 
-        return sprintf('%s/%s/%s', $this->dataFolder, basename($this->dataPattern, $ext), $parts['key']);
+        return $row;
     }
 
     /**

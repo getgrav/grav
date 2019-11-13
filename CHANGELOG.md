@@ -5,6 +5,7 @@
     * Added new `-r <job-id>` option for Schduler CLI command to force-run a job [#2720](https://github.com/getgrav/grav/issues/2720)
 1. [](#improved)
     * Improved twig `|array` filter to work with iterators and objects with `toArray()` method
+    * Updated Flex `SimpleStorage` code to feature match the other storages
 1. [](#bugfix)
     * Regression: Fixed Grav update bug [#2722](https://github.com/getgrav/grav/issues/2722)
 
