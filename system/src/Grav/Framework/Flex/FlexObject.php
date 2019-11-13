@@ -884,7 +884,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     /**
      * @param array $storage
      */
-    protected function setStorage(array $storage) : void
+    protected function setStorage(array $storage): void
     {
         $this->_meta = $storage;
     }
@@ -892,7 +892,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     /**
      * @return array
      */
-    protected function getStorage() : array
+    protected function getStorage(): array
     {
         return $this->_meta ?? [];
     }

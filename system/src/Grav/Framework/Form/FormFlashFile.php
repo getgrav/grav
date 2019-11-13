@@ -94,12 +94,12 @@ class FormFlashFile implements UploadedFileInterface, \JsonSerializable
         return $this->upload['type'] ?? 'application/octet-stream';
     }
 
-    public function isMoved() : bool
+    public function isMoved(): bool
     {
         return $this->moved;
     }
 
-    public function getMetaData() : array
+    public function getMetaData(): array
     {
         if (isset($this->upload['crop'])) {
             return ['crop' => $this->upload['crop']];
@@ -118,7 +118,7 @@ class FormFlashFile implements UploadedFileInterface, \JsonSerializable
         return $this->upload;
     }
 
-    public function getTmpFile() : ?string
+    public function getTmpFile(): ?string
     {
         $tmpName = $this->upload['tmp_name'] ?? null;
 

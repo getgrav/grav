@@ -326,7 +326,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
     /**
      * @return string
      */
-    public function getKeyField() : string
+    public function getKeyField(): string
     {
         return $this->_keyField ?? 'storage_key';
     }

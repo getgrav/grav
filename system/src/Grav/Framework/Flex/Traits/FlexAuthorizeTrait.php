@@ -23,7 +23,7 @@ trait FlexAuthorizeTrait
 {
     private $_authorize = '%s.flex-object.%s';
 
-    public function isAuthorized(string $action, string $scope = null, UserInterface $user = null) : bool
+    public function isAuthorized(string $action, string $scope = null, UserInterface $user = null): bool
     {
         if (null === $user) {
             /** @var UserInterface|null $user */
@@ -38,7 +38,7 @@ trait FlexAuthorizeTrait
         return $user->authorize('admin.super');
     }
 
-    protected function isAuthorizedAction(UserInterface $user, string $action, string $scope = null) : bool
+    protected function isAuthorizedAction(UserInterface $user, string $action, string $scope = null): bool
     {
         $scope = $scope ?? isset(Grav::instance()['admin']) ? 'admin' : 'site';
 
@@ -53,7 +53,7 @@ trait FlexAuthorizeTrait
         return $allowed && $user->authorize(sprintf($this->_authorize, $scope, $action));
     }
 
-    protected function setAuthorizeRule(string $authorize) : void
+    protected function setAuthorizeRule(string $authorize): void
     {
         $this->_authorize = $authorize;
     }

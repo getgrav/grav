@@ -23,7 +23,7 @@ class UserIndex extends FlexIndex
      * @param FlexStorageInterface $storage
      * @return array
      */
-    public static function loadEntriesFromStorage(FlexStorageInterface $storage) : array
+    public static function loadEntriesFromStorage(FlexStorageInterface $storage): array
     {
         // Load saved index.
         $index = static::loadEntriesFromIndex($storage);

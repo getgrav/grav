@@ -23,10 +23,10 @@ interface MediaManipulationInterface extends MediaInterface
     /**
      * @param UploadedFileInterface $uploadedFile
      */
-    public function uploadMediaFile(UploadedFileInterface $uploadedFile) : void;
+    public function uploadMediaFile(UploadedFileInterface $uploadedFile): void;
 
     /**
      * @param string $filename
      */
-    public function deleteMediaFile(string $filename) : void;
+    public function deleteMediaFile(string $filename): void;
 }
