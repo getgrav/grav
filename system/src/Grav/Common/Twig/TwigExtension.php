@@ -30,6 +30,7 @@ use Grav\Common\User\Interfaces\UserInterface;
 use Grav\Common\Utils;
 use Grav\Common\Yaml;
 use Grav\Common\Helpers\Base32;
+use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
 use Grav\Framework\Psr7\Response;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use Twig\Environment;
@@ -1033,18 +1034,33 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
         /** @var UserInterface|null $user */
         $user = $this->grav['user'] ?? null;
 
-        if (!$user || !$user->authenticated || (isset($user->authorized) && !$user->authorized)) {
+        if (!$user) {
             return false;
         }
 
-        $action = (array) $action;
-        foreach ($action as $key => $perms) {
-            $prefix = is_int($key) ? '' : $key . '.';
-            $perms = $prefix ? (array) $perms : [$perms => true];
-            foreach ($perms as $action2 => $authenticated) {
-                if ($user->authorize($prefix . $action2)) {
-                    return $authenticated;
-                }
+        if (is_array($action)) {
+            if (Utils::isAssoc($action)) {
+                // Handle nested access structure.
+                $actions = Utils::arrayFlattenDotNotation($action);
+            } else {
+                // Handle simple access list.
+                $actions = array_combine($action, array_fill(0, count($action), true));
+            }
+        } else {
+            // Handle single action.
+            $actions = [(string)$action => true];
+        }
+
+        $count = count($actions);
+        foreach ($actions as $act => $authenticated) {
+            // Ignore 'admin.super' if it's not the only value to be checked.
+            if ($act === 'admin.super' && $count > 1 && $user instanceof FlexObjectInterface) {
+                continue;
+            }
+
+            $auth = $user->authorize($act);
+            if (is_bool($auth) && $auth === Utils::isPositive($authenticated)) {
+                return true;
             }
         }
 
