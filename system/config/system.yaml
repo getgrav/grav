@@ -15,6 +15,7 @@ languages:
   supported: []                                  # List of languages supported. eg: [en, fr, de]
   default_lang:                                  # Default is the first supported language. Must be one of the supported languages
   include_default_lang: true                     # Include the default lang prefix in all URLs
+  include_default_lang_file_extension: true      # If true, include language code for the default language in file extension: default.en.md
   pages_fallback_only: false                     # Only fallback to find page content through supported languages
   translations: true                             # Enable translations by default
   translations_fallback: true                    # Fallback through supported translations if active lang doesn't exist
