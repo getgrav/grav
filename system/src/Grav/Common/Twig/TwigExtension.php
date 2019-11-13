@@ -1058,7 +1058,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
                 continue;
             }
 
-            $auth = $user->authorize($act);
+            $auth = $user->authorize($act) ?? false;
             if (is_bool($auth) && $auth === Utils::isPositive($authenticated)) {
                 return true;
             }

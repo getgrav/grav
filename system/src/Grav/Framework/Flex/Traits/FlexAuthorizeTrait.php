@@ -35,7 +35,12 @@ trait FlexAuthorizeTrait
 
     protected function isAuthorizedSuperAdmin(UserInterface $user): bool
     {
-        return $user->authorize('admin.super');
+        // Action authorization includes super user authorization if using Flex Users.
+        if ($user instanceof FlexObjectInterface) {
+            return false;
+        }
+
+        return $user->authorize('admin.super') ?? false;
     }
 
     protected function isAuthorizedAction(UserInterface $user, string $action, string $scope = null): bool

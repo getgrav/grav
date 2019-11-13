@@ -586,7 +586,7 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
     {
         user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.5, use ->authorize() method instead', E_USER_DEPRECATED);
 
-        return $this->authorize($action);
+        return $this->authorize($action) ?? false;
     }
 
     /**
