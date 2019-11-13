@@ -1298,7 +1298,7 @@ class Pages
                 'enabled' => true,
             ] + ($config->get('plugins.flex-objects.object') ?: []);
 
-        $directory = new FlexDirectory('pages', 'blueprints://flex/pages.yaml', $options);
+        $directory = new FlexDirectory('grav-pages', 'blueprints://flex/pages.yaml', $options);
 
         /** @var EventDispatcher $dispatcher */
         $dispatcher = $this->grav['events'];

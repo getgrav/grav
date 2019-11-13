@@ -21,9 +21,7 @@ class PluginsProcessor extends ProcessorBase
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $this->startTimer();
-        // TODO: remove in 2.0.
         $this->container['accounts'];
-        // TODO: remove in 2.0.
         $this->container['pages'];
         $this->container['plugins']->init();
         $this->container->fireEvent('onPluginsInitialized');

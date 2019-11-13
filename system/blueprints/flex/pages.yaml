@@ -2,12 +2,16 @@ title: Flex Pages
 description: Manage your Grav Pages in Flex.
 type: flex-objects
 
+# Extends a page (blueprint gets overridden inside the object)
 extends@:
   type: default
   context: blueprints://pages
 
+# Flex configuration
 config:
+  # Administration Configuration (needs Flex-Objects plugin)
   admin:
+    # Admin menu
     menu:
       list:
         route: '/pages'
@@ -16,9 +20,20 @@ config:
         authorize: ['admin.pages', 'admin.super']
         priority: 5
 
+    # Admin template type (folder)
     template: grav-pages
 
+    # Allowed admin actions
+    actions:
+      list: true
+      create: true
+      read: true
+      update: true
+      delete: true
+
+    # List view
     list:
+      # Fields shown in the list view
       fields:
         published:
           width: 8
@@ -51,8 +66,11 @@ config:
 #        updated_date:
 #          alias: header.update_date
 
+      # Extra options
       options:
+        # Default number of records for pagination
         per_page: 20
+        # Default ordering
         order:
           by: key
           dir: asc
@@ -95,21 +113,30 @@ config:
     preview:
       enabled: true
 
+  # Site Configuration
   site:
+    # Hide from flex types
     hidden: true
     templates:
       collection:
+        # Lookup for the template layout files for collections of objects
         paths:
           - 'flex/{TYPE}/collection/{LAYOUT}{EXT}'
       object:
+        # Lookup for the template layout files for objects
         paths:
           - 'flex/{TYPE}/object/{LAYOUT}{EXT}'
       defaults:
+        # Default template {TYPE}; overridden by filename of this blueprint if template folder exists
         type: pages
+        # Default template {LAYOUT}; can be overridden in render calls (usually Twig in templates)
         layout: default
+
+    # Default filters for frontend.
     filter:
       - withPublished
 
+  # Data Configuration
   data:
     object: 'Grav\Common\Page\Flex\PageObject'
     collection: 'Grav\Common\Page\Flex\PageCollection'
@@ -120,18 +147,23 @@ config:
         formatter:
           class: 'Grav\Framework\File\Formatter\MarkdownFormatter'
         folder: 'page://'
+        # Keep index file in filesystem to speed up lookups
         indexed: true
+    # Set default ordering of the pages
     ordering:
       key: ASC
     search:
+       # Search options
       options:
         contains: 1
+      # Fields to be searched
       fields:
         - key
         - menu
         - title
         - name
 
+# Regular form definition
 form:
   fields:
     lang:
