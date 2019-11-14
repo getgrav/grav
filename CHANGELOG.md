@@ -1,3 +1,10 @@
+# v1.6.18
+## mm/dd/2019
+
+1. [](#bugfix)
+    * Fixed fatal error when `$page->id()` is null [#2731](https://github.com/getgrav/grav/pull/2731)
+    * Fixed cache conflicts on pages with no set id
+
 # v1.6.17
 ## 11/06/2019
 
