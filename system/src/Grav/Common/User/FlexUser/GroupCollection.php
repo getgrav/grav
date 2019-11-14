@@ -14,6 +14,16 @@ use Grav\Framework\Flex\FlexCollection;
 class GroupCollection extends FlexCollection
 {
     /**
+     * @return array
+     */
+    public static function getCachedMethods(): array
+    {
+        return [
+            'authorize' => true,
+        ] + parent::getCachedMethods();
+    }
+
+    /**
      * Checks user authorization to the action.
      *
      * @param  string $action
