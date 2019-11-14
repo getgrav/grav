@@ -31,7 +31,7 @@ class PageIndex extends FlexPageIndex
     const ORDER_LIST_REGEX = '/(\/\d+)\.[^\/]+/u';
     const PAGE_ROUTE_REGEX = '/\/\d+\./u';
 
-    /** @var FlexObjectInterface */
+    /** @var FlexObjectInterface|PageInterface|array */
     protected $_root;
     protected $_params;
 
@@ -109,10 +109,11 @@ class PageIndex extends FlexPageIndex
     {
         $root = $this->_root;
         if (is_array($root)) {
-            $this->_root = $this->getFlexDirectory()->createObject(['__META' => $root], '/');
+            $root = $this->getFlexDirectory()->createObject(['__META' => $root], '/');
+            $this->_root = $root;
         }
 
-        return $this->_root;
+        return $root;
     }
 
     /**
@@ -274,7 +275,7 @@ class PageIndex extends FlexPageIndex
                     $payload = [
                         'name' => $child->title(),
                         'value' => $child->rawRoute(),
-                        'item-key' => basename($child->rawRoute()),
+                        'item-key' => basename($child->rawRoute() ?? ''),
                         'filename' => $child->folder(),
                         'extension' => $child->extension(),
                         'type' => 'dir',

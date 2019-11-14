@@ -2377,7 +2377,7 @@ class Page implements PageInterface
      *
      * @param  int $direction either -1 or +1
      *
-     * @return PageInterface|bool             the sibling page
+     * @return PageInterface|false             the sibling page
      */
     public function adjacentSibling($direction = 1)
     {

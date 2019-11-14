@@ -14,9 +14,8 @@ namespace Grav\Common\Page\Flex;
 use Grav\Common\Debugger;
 use Grav\Common\Grav;
 use Grav\Common\Language\Language;
-use Grav\Framework\File\MarkdownFile;
-use Grav\Framework\File\YamlFile;
 use Grav\Framework\Flex\Storage\FolderStorage;
+use RocketTheme\Toolbox\File\MarkdownFile;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 /**
@@ -444,7 +443,8 @@ class PageStorage extends FolderStorage
             /** @var UniformResourceLocator $locator */
             $locator = Grav::instance()['locator'];
             if (mb_strpos($key, '@@') === false) {
-                $path = $locator->findResource($this->getStoragePath($key), true, true);
+                $path = $this->getStoragePath($key);
+                $path = $path ? $locator->findResource($path, true, true) : null;
             } else {
                 $path = null;
             }
@@ -453,7 +453,7 @@ class PageStorage extends FolderStorage
             $markdown = [];
             $children = [];
 
-            if ($path && file_exists($path)) {
+            if (is_string($path) && file_exists($path)) {
                 $modified = filemtime($path);
                 $iterator = new \FilesystemIterator($path, $this->flags);
 
@@ -492,13 +492,13 @@ class PageStorage extends FolderStorage
                 }
             }
 
-            $rawRoute = trim(preg_replace(PageIndex::PAGE_ROUTE_REGEX, '/', "/{$key}"), '/');
+            $rawRoute = trim(preg_replace(PageIndex::PAGE_ROUTE_REGEX, '/', "/{$key}") ?? '', '/');
             $route = PageIndex::normalizeRoute($rawRoute);
 
             ksort($markdown, SORT_NATURAL);
             ksort($children, SORT_NATURAL);
 
-            $file = array_key_first($markdown[''] ?? reset($markdown) ?: []);
+            $file = array_key_first($markdown[''] ?? (reset($markdown) ?: []));
 
             $meta = [
                 'key' => $route,
@@ -512,7 +512,7 @@ class PageStorage extends FolderStorage
             if ($children) {
                 $meta['children'] = $children;
             }
-            $meta['checksum'] = md5(json_encode($meta));
+            $meta['checksum'] = md5(json_encode($meta) ?: '');
 
             // Cache meta as copy.
             $this->meta[$key] = $meta;
@@ -539,6 +539,9 @@ class PageStorage extends FolderStorage
         $list = [];
         do {
             $current = array_pop($queue);
+            if ($current === null) {
+                break;
+            }
             $meta = $this->getObjectMeta($current);
             $storage_key = $meta['storage_key'];
 

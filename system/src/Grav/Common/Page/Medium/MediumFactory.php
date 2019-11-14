@@ -32,12 +32,12 @@ class MediumFactory
         $parts = pathinfo($file);
         $path = $parts['dirname'];
         $filename = $parts['basename'];
-        $ext = $parts['extension'];
+        $ext = $parts['extension'] ?? '';
         $basename = $parts['filename'];
 
         $config = Grav::instance()['config'];
 
-        $media_params = $config->get('media.types.' . strtolower($ext));
+        $media_params = $ext ? $config->get('media.types.' . strtolower($ext)) : null;
         if (!\is_array($media_params)) {
             return null;
         }
@@ -83,16 +83,21 @@ class MediumFactory
             return null;
         }
 
-        $parts = pathinfo($uploadedFile->getClientFilename());
+        $clientName = $uploadedFile->getClientFilename();
+        if (!$clientName) {
+            return null;
+        }
+
+        $parts = pathinfo($clientName);
         $filename = $parts['basename'];
-        $ext = $parts['extension'];
+        $ext = $parts['extension'] ?? '';
         $basename = $parts['filename'];
         $file = $uploadedFile->getTmpFile();
         $path = $file ? dirname($file) : '';
 
         $config = Grav::instance()['config'];
 
-        $media_params = $config->get('media.types.' . strtolower($ext));
+        $media_params = $ext ? $config->get('media.types.' . strtolower($ext)) : null;
         if (!\is_array($media_params)) {
             return null;
         }

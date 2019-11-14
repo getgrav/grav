@@ -81,7 +81,9 @@ trait PageTranslateTrait
                 continue;
             }
 
-            $route = $aPage->header()->routes['default'] ?? $aPage->rawRoute();
+            $header = $aPage->header();
+            $routes = isset($header->routes) ? $header->routes : [];
+            $route = $routes['default'] ?? $aPage->rawRoute();
             if (!$route) {
                 $route = $aPage->route();
             }

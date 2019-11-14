@@ -1404,7 +1404,7 @@ class Pages
             }
 
             if ($page instanceof FlexTranslateInterface) {
-                $page = $page && $page->hasTranslation() ? $page->getTranslation() : null;
+                $page = $page->hasTranslation() ? $page->getTranslation() : null;
             }
 
             if (!$page instanceof FlexPageObject || $path === $root_path) {
@@ -1873,24 +1873,25 @@ class Pages
                 case 'folder':
                     $list[$key] = $child->folder();
                     break;
-                case (is_string($header_query)):
-                    $child_header = $child->header();
-                    if (!$child_header instanceof Header) {
-                        $child_header = new Header((array)$child_header);
-                    }
-                    $header_value = $child_header->get($header_query);
-                    if (is_array($header_value)) {
-                        $list[$key] = implode(',', $header_value);
-                    } elseif ($header_value) {
-                        $list[$key] = $header_value;
-                    } else {
-                        $list[$key] = $header_default ?: $key;
-                    }
-                    $sort_flags = $sort_flags ?: SORT_REGULAR;
-                    break;
                 case 'manual':
                 case 'default':
                 default:
+                    if (is_string($header_query)) {
+                        $child_header = $child->header();
+                        if (!$child_header instanceof Header) {
+                            $child_header = new Header((array)$child_header);
+                        }
+                        $header_value = $child_header->get($header_query);
+                        if (is_array($header_value)) {
+                            $list[$key] = implode(',', $header_value);
+                        } elseif ($header_value) {
+                            $list[$key] = $header_value;
+                        } else {
+                            $list[$key] = $header_default ?: $key;
+                        }
+                        $sort_flags = $sort_flags ?: SORT_REGULAR;
+                        break;
+                    }
                     $list[$key] = $key;
                     $sort_flags = $sort_flags ?: SORT_REGULAR;
             }

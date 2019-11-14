@@ -36,7 +36,7 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
     protected $_params;
 
     /**
-     * @return PageInterface
+     * @return PageInterface|FlexObjectInterface
      */
     public function getRoot()
     {
@@ -130,7 +130,7 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
     public function prev()
     {
         // FIXME: this method does not rewind the internal pointer!
-        $key = $this->key();
+        $key = (string)$this->key();
         $prev = $this->prevSibling($key);
 
         return $prev !== $this->current() ? $prev : false;
@@ -203,7 +203,7 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
      * http://php.net/manual/en/function.strtotime.php
      *
      * @param string $startDate
-     * @param string|bool $endDate
+     * @param string|false $endDate
      * @param string|null $field
      *
      * @return static
@@ -471,6 +471,9 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
      */
     public function getLevelListing(array $options): array
     {
-        return $this->getIndex()->getLevelListing($options);
+        /** @var PageIndex $index */
+        $index = $this->getIndex();
+
+        return method_exists($index, 'getLevelListing') ? $index->getLevelListing($options) : [];
     }
 }

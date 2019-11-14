@@ -167,7 +167,7 @@ class PageObject extends FlexPageObject
 
         $parent = $this->parent();
 
-        /** @var PageCollection $siblings */
+        /** @var PageCollection|null $siblings */
         $siblings = $parent ? $parent->children() : null;
         $siblings = $siblings ? $siblings->withVisible()->getCollection() : null;
         if ($siblings) {
@@ -195,9 +195,9 @@ class PageObject extends FlexPageObject
 
     public function full_order(): string
     {
-        $path = $this->path();
+        $route = $this->path() . '/' . $this->folder();
 
-        return preg_replace(PageIndex::ORDER_LIST_REGEX, '\\1', $path . '/' . $this->folder());
+        return preg_replace(PageIndex::ORDER_LIST_REGEX, '\\1', $route) ?? $route;
     }
 
     /**
@@ -213,7 +213,7 @@ class PageObject extends FlexPageObject
             // TODO: We need to move raw blueprint logic to Grav itself to remove admin dependency here.
             if ($name === 'raw') {
                 // Admin RAW mode.
-                /** @var Admin $admin */
+                /** @var Admin|null $admin */
                 $admin = Grav::instance()['admin'] ?? null;
                 if ($admin) {
                     $template = $this->modular() ? 'modular_raw' : 'raw';
@@ -240,7 +240,9 @@ class PageObject extends FlexPageObject
      */
     public function getLevelListing(array $options): array
     {
-        return $this->getFlexDirectory()->getIndex()->getLevelListing($options);
+        $index = $this->getFlexDirectory()->getIndex();
+
+        return method_exists($index, 'getLevelListing') ? $index->getLevelListing($options) : [];
     }
 
     /**
@@ -361,7 +363,7 @@ class PageObject extends FlexPageObject
                     throw new \RuntimeException(sprintf('Page %s cannot be moved to %s', '/' . $key, $parentRoute));
                 }
 
-                /** @var PageObject $parent */
+                /** @var PageObject|null $parent */
                 $parent = $this->getFlexDirectory()->getObject($parentKey);
                 if (!$parent) {
                     // Page cannot be moved to non-existing location.
@@ -369,9 +371,8 @@ class PageObject extends FlexPageObject
                 }
 
                 // If parent changes and page is visible, move it to be the last item.
-                if ($parent && !empty($elements['order']) && $parent !== $this->parent()) {
-                    $siblings = $parent->children();
-                    $siblings = $siblings ? $siblings->visible()->sort(['order' => 'ASC']) : null;
+                if (!empty($elements['order']) && $parent !== $this->parent()) {
+                    $siblings = $parent->children()->visible()->sort(['order' => 'ASC']);
                     if ($siblings && $siblings->count()) {
                         $elements['order'] = ((int)$siblings->last()->order()) + 1;
                     } else {

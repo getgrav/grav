@@ -94,7 +94,7 @@ class FlexPageCollection extends FlexCollection
      *
      * @param  string $path
      *
-     * @return PageInterface|null  The previous item.
+     * @return PageInterface|false  The previous item.
      */
     public function prevSibling($path)
     {

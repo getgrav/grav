@@ -40,7 +40,7 @@ trait PageTranslateTrait
     /**
      * @param string|null $languageCode
      * @param bool|null $fallback
-     * @return FlexObjectInterface|null
+     * @return FlexObjectInterface|PageInterface|null
      */
     public function getTranslation(string $languageCode = null, bool $fallback = null)
     {

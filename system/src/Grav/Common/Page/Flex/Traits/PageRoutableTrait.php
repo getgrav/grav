@@ -57,10 +57,11 @@ trait PageRoutableTrait
      */
     public function currentPosition(): ?int
     {
+        $path = $this->path();
         $parent = $this->parent();
         $collection = $parent ? $parent->collection('content', false) : null;
-        if ($collection instanceof PageCollectionInterface) {
-            return $collection->currentPosition($this->path()) ?? null;
+        if (null !== $path && $collection instanceof PageCollectionInterface) {
+            return $collection->currentPosition($path);
         }
 
         return 1;
@@ -95,15 +96,14 @@ trait PageRoutableTrait
         $routes = $pages->routes();
 
         if (isset($routes[$uri_path])) {
-            /** @var PageInterface $child_page */
-            $child_page = $pages->dispatch($uri->route(), false, false)->parent();
-            if ($child_page) {
-                while (!$child_page->root()) {
-                    if ($this->path() === $child_page->path()) {
-                        return true;
-                    }
-                    $child_page = $child_page->parent();
+            $page = $pages->dispatch($uri->route(), false, false);
+            /** @var PageInterface|null $child_page */
+            $child_page = $page ? $page->parent() : null;
+            while ($child_page && !$child_page->root()) {
+                if ($this->path() === $child_page->path()) {
+                    return true;
                 }
+                $child_page = $child_page->parent();
             }
         }
 

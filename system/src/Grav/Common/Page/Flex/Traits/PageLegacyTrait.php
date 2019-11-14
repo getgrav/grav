@@ -17,6 +17,7 @@ use Grav\Common\Page\Interfaces\PageCollectionInterface;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Page\Pages;
 use Grav\Common\Utils;
+use Grav\Framework\Flex\Interfaces\FlexIndexInterface;
 
 /**
  * Implements PageLegacyInterface.
@@ -26,7 +27,7 @@ trait PageLegacyTrait
     /**
      * Returns children of this page.
      *
-     * @return PageCollectionInterface|Collection
+     * @return FlexIndexInterface|PageCollectionInterface|Collection
      */
     public function children()
     {
@@ -36,8 +37,9 @@ trait PageLegacyTrait
 
         /** @var Pages $pages */
         $pages = Grav::instance()['pages'];
+        $path = $this->path() ?? '';
 
-        return $pages->children($this->path());
+        return $pages->children($path);
     }
 
     /**
@@ -51,10 +53,11 @@ trait PageLegacyTrait
             return parent::isFirst();
         }
 
+        $path = $this->path();
         $parent = $this->parent();
         $collection = $parent ? $parent->collection('content', false) : null;
-        if ($collection instanceof PageCollectionInterface) {
-            return $collection->isFirst($this->path());
+        if (null !== $path && $collection instanceof PageCollectionInterface) {
+            return $collection->isFirst($path);
         }
 
         return true;
@@ -71,10 +74,11 @@ trait PageLegacyTrait
             return parent::isLast();
         }
 
+        $path = $this->path();
         $parent = $this->parent();
         $collection = $parent ? $parent->collection('content', false) : null;
-        if ($collection instanceof PageCollectionInterface) {
-            return $collection->isLast($this->path());
+        if (null !== $path && $collection instanceof PageCollectionInterface) {
+            return $collection->isLast($path);
         }
 
         return true;
@@ -85,7 +89,7 @@ trait PageLegacyTrait
      *
      * @param  int $direction either -1 or +1
      *
-     * @return PageInterface|bool             the sibling page
+     * @return PageInterface|false             the sibling page
      */
     public function adjacentSibling($direction = 1)
     {
@@ -93,10 +97,11 @@ trait PageLegacyTrait
             return parent::adjacentSibling($direction);
         }
 
+        $path = $this->path();
         $parent = $this->parent();
         $collection = $parent ? $parent->collection('content', false) : null;
-        if ($collection instanceof PageCollectionInterface) {
-            return $collection->adjacentSibling($this->path(), $direction);
+        if (null !== $path && $collection instanceof PageCollectionInterface) {
+            return $collection->adjacentSibling($path, $direction);
         }
 
         return false;
@@ -173,7 +178,7 @@ trait PageLegacyTrait
      * @param string|array $params
      * @param bool $pagination
      *
-     * @return Collection
+     * @return PageCollectionInterface|Collection
      * @throws \InvalidArgumentException
      */
     public function collection($params = 'content', $pagination = true)
@@ -206,7 +211,7 @@ trait PageLegacyTrait
     /**
      * @param string|array $value
      * @param bool $only_published
-     * @return Collection
+     * @return PageCollectionInterface|Collection
      */
     public function evaluate($value, $only_published = true)
     {
