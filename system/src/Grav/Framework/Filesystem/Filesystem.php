@@ -18,13 +18,13 @@ class Filesystem implements FilesystemInterface
     /** @var bool|null */
     private $normalize;
 
-    /** @var static */
+    /** @var static|null */
     protected static $default;
 
-    /** @var static */
+    /** @var static|null */
     protected static $unsafe;
 
-    /** @var static */
+    /** @var static|null */
     protected static $safe;
 
     /**

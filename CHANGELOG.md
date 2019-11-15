@@ -7,6 +7,7 @@
     * Changed `UserInterface::authorize()` to return `null` having the same meaning as `false` if access is denied because of no matching rule
     * Moved all Flex type classes under `Grav\Common\Flex`
     * Deprecated `Grav\Common\User\Group` in favor of `$grav['user_groups']`, which contains Flex UserGroup collection
+    * Fixed phpstan issues in all code up to level 3
 1. [](#improved)
     * Improved twig `|array` filter to work with iterators and objects with `toArray()` method
     * Updated Flex `SimpleStorage` code to feature match the other storages

@@ -1226,7 +1226,10 @@ class Page implements PageInterface
             $this->setMedia($var);
         }
 
-        return $this->getMedia();
+        /** @var Media $media */
+        $media = $this->getMedia();
+
+        return $media;
     }
 
     /**

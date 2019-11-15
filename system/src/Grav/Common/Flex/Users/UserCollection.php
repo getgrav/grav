@@ -55,26 +55,27 @@ class UserCollection extends FlexCollection implements UserCollectionInterface
      * Find a user by username, email, etc
      *
      * @param string $query the query to search for
-     * @param array $fields the fields to search
+     * @param string|string[] $fields the fields to search
      * @return UserObject
      */
     public function find($query, $fields = ['username', 'email']): UserInterface
     {
-        // FIXME: $fields is incompatible to parent class -- add support for finding value from multiple properties.
-        foreach ((array)$fields as $field) {
-            if ($field === 'key') {
-                $user = $this->get($query);
-            } elseif ($field === 'storage_key') {
-                $user = $this->withKeyField('storage_key')->get($query);
-            } elseif ($field === 'flex_key') {
-                $user = $this->withKeyField('flex_key')->get($query);
-            } elseif ($field === 'username') {
-                $user = $this->get(mb_strtolower($query));
-            } else {
-                $user = parent::find($query, $field);
-            }
-            if ($user) {
-                return $user;
+        if (is_string($query) && $query !== '') {
+            foreach ((array)$fields as $field) {
+                if ($field === 'key') {
+                    $user = $this->get($query);
+                } elseif ($field === 'storage_key') {
+                    $user = $this->withKeyField('storage_key')->get($query);
+                } elseif ($field === 'flex_key') {
+                    $user = $this->withKeyField('flex_key')->get($query);
+                } elseif ($field === 'username') {
+                    $user = $this->get(mb_strtolower($query));
+                } else {
+                    $user = parent::find($query, $field);
+                }
+                if ($user) {
+                    return $user;
+                }
             }
         }
 

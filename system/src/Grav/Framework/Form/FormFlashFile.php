@@ -15,11 +15,21 @@ use Psr\Http\Message\UploadedFileInterface;
 
 class FormFlashFile implements UploadedFileInterface, \JsonSerializable
 {
+    /** @var string */
     private $field;
+    /** @var bool */
     private $moved = false;
+    /** @var array */
     private $upload;
+    /** @var FormFlash */
     private $flash;
 
+    /**
+     * FormFlashFile constructor.
+     * @param string $field
+     * @param array $upload
+     * @param FormFlash $flash
+     */
     public function __construct(string $field, array $upload, FormFlash $flash)
     {
         $this->field = $field;
@@ -71,7 +81,10 @@ class FormFlashFile implements UploadedFileInterface, \JsonSerializable
             throw new \RuntimeException(\sprintf('Uploaded file could not be moved to %s', $targetPath));
         }
 
-        $this->flash->removeFile($this->getClientFilename(), $this->field);
+        $filename = $this->getClientFilename();
+        if ($filename) {
+            $this->flash->removeFile($filename, $this->field);
+        }
     }
 
     public function getSize()
