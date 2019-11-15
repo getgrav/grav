@@ -165,7 +165,6 @@ class FlexDirectory implements FlexAuthorizeInterface
      * @param string $type
      * @param string $context
      * @return Blueprint
-     * @internal
      */
     public function getBlueprint(string $type = '', string $context = '')
     {
@@ -699,7 +698,7 @@ class FlexDirectory implements FlexAuthorizeInterface
 
         $object = $call['object'];
         if ($function === '\Grav\Common\Page\Pages::pageTypes') {
-            $params = [$object instanceof PageInterface && $object->modular() ? 'modular' : 'standard'];
+            $params = [$object instanceof PageInterface && $object->isModule() ? 'modular' : 'standard'];
         }
 
         $data = null;

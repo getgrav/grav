@@ -219,7 +219,7 @@ class PageObject extends FlexPageObject
                 /** @var Admin|null $admin */
                 $admin = Grav::instance()['admin'] ?? null;
                 if ($admin) {
-                    $template = $this->modular() ? 'modular_raw' : 'raw';
+                    $template = $this->isModule() ? 'modular_raw' : 'raw';
 
                     return $admin->blueprints("admin/pages/{$template}");
                 }

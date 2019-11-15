@@ -477,7 +477,7 @@ trait PageLegacyTrait
             'template',
             $var,
             function ($value) {
-                return trim($value ?? (($this->modular() ? 'modular/' : '') . str_replace($this->extension(), '', $this->name())));
+                return trim($value ?? (($this->isModule() ? 'modular/' : '') . str_replace($this->extension(), '', $this->name())));
             }
         );
     }
@@ -807,11 +807,13 @@ trait PageLegacyTrait
      * Gets and sets the modular var that helps identify this page is a modular child
      *
      * @param  bool $var true if modular_twig
-     *
      * @return bool      true if modular_twig
+     * @deprecated 1.7 Use ->isModule() or ->modularTwig() method instead.
      */
     public function modular($var = null): bool
     {
+        user_error(__METHOD__ . '() is deprecated since Grav 1.7, use ->isModule() or ->modularTwig() method instead', E_USER_DEPRECATED);
+
         return $this->modularTwig($var);
     }
 

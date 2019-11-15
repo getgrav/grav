@@ -407,7 +407,7 @@ class Pages
         foreach ($params['taxonomies'] ?? [] as $taxonomy => $items) {
             foreach ($collection as $page) {
                 // Don't filter modular pages
-                if ($page->modular()) {
+                if ($page->isModule()) {
                     continue;
                 }
 
@@ -1070,7 +1070,7 @@ class Pages
 
         if ($limitLevels === false || ($level+1 < $limitLevels)) {
             foreach ($current->children() as $next) {
-                if ($showAll || $next->routable() || ($next->modular() && $showModular)) {
+                if ($showAll || $next->routable() || ($next->isModule() && $showModular)) {
                     $list = array_merge($list, $this->getList($next, $level + 1, $rawRoutes, $showAll, $showFullpath, $showSlug, $showModular, $limitLevels));
                 }
             }
@@ -1180,7 +1180,7 @@ class Pages
             /** @var PageInterface|null $page */
             $page = $admin->page();
 
-            $type = $page && $page->modular() ? 'modular' : 'standard';
+            $type = $page && $page->isModule() ? 'modular' : 'standard';
         }
 
         switch ($type) {

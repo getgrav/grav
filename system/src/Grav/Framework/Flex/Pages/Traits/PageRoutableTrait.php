@@ -61,7 +61,7 @@ trait PageRoutableTrait
             }
         );
 
-        return $value && $this->published() && !$this->modular() && $this->getLanguages(true);
+        return $value && $this->published() && !$this->isModule() && $this->getLanguages(true);
     }
 
     /**

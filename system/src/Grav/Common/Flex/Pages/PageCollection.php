@@ -272,8 +272,12 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
     public function modular()
     {
         $entries = [];
+        /**
+         * @var int|string $key
+         * @var PageInterface|null $object
+         */
         foreach ($this as $key => $object) {
-            if ($object && $object->modular()) {
+            if ($object && $object->isModule()) {
                 $entries[$key] = $object;
             }
         }
@@ -289,8 +293,12 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
     public function nonModular()
     {
         $entries = [];
+        /**
+         * @var int|string $key
+         * @var PageInterface|null $object
+         */
         foreach ($this as $key => $object) {
-            if ($object && !$object->modular()) {
+            if ($object && !$object->isModule()) {
                 $entries[$key] = $object;
             }
         }

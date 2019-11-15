@@ -393,7 +393,7 @@ class PageIndex extends FlexPageIndex
                     // TODO: maybe icon by home/modular/page/folder (or even from blueprints) and color by visibility etc..
                     if ($child->home()) {
                         $icon = 'home';
-                    } elseif ($child->modular()) {
+                    } elseif ($child->isModule()) {
                         $icon = 'modular';
                     } elseif ($child->visible()) {
                         $icon = 'visible';

@@ -229,6 +229,13 @@ interface PageContentInterface
     public function shouldProcess($process);
 
     /**
+     * Returns true if page is a module.
+     *
+     * @return bool
+     */
+    public function isModule(): bool;
+
+    /**
      * Returns whether or not this Page object has a .md file associated with it or if its just a directory.
      *
      * @return bool True if its a page with a .md file associated

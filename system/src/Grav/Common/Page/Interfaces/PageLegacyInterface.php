@@ -349,8 +349,8 @@ interface PageLegacyInterface
      * Gets and sets the modular var that helps identify this page is a modular child
      *
      * @param  bool $var true if modular_twig
-     *
      * @return bool      true if modular_twig
+     * @deprecated 1.7 Use ->isModule() or ->modularTwig() method instead.
      */
     public function modular($var = null);
 
@@ -462,7 +462,6 @@ interface PageLegacyInterface
      * @param string|array $value
      * @param bool $only_published
      * @return mixed
-     * @internal
      */
     public function evaluate($value, $only_published = true);
 

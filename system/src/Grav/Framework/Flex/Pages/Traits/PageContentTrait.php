@@ -223,7 +223,7 @@ trait PageContentTrait
             'visible',
             $var,
             function ($value) {
-                return ($value ?? $this->order() !== false) && !$this->modular();
+                return ($value ?? $this->order() !== false) && !$this->isModule();
             }
         );
 
@@ -480,6 +480,14 @@ trait PageContentTrait
     }
 
     /**
+     * @return bool
+     */
+    public function isModule(): bool
+    {
+        return $this->modularTwig();
+    }
+
+    /**
      * @inheritdoc
      */
     abstract public function exists(): bool;
@@ -648,7 +656,7 @@ trait PageContentTrait
         $config = $grav['config'];
 
         $process_markdown = $this->shouldProcess('markdown');
-        $process_twig = $this->shouldProcess('twig') || $this->modularTwig();
+        $process_twig = $this->shouldProcess('twig') || $this->isModule();
         $cache_enable = $this->getNestedProperty('header.cache_enable') ?? $config->get('system.cache.enabled', true);
 
         $twig_first = $this->getNestedProperty('header.twig_first') ?? $config->get('system.pages.twig_first', true);

@@ -404,7 +404,7 @@ class Collection extends Iterator implements PageCollectionInterface
 
         foreach ($this->items as $path => $slug) {
             $page = $this->pages->get($path);
-            if ($page !== null && $page->modular()) {
+            if ($page !== null && $page->isModule()) {
                 $modular[$path] = $slug;
             }
         }
@@ -424,7 +424,7 @@ class Collection extends Iterator implements PageCollectionInterface
 
         foreach ($this->items as $path => $slug) {
             $page = $this->pages->get($path);
-            if ($page !== null && !$page->modular()) {
+            if ($page !== null && !$page->isModule()) {
                 $modular[$path] = $slug;
             }
         }

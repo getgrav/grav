@@ -68,6 +68,6 @@ trait PageContentTrait
     public function isPage(): bool
     {
         // FIXME: needs to be better
-        return !$this->exists() || !empty($this->getLanguages()) || $this->modular();
+        return !$this->exists() || !empty($this->getLanguages()) || $this->isModule();
     }
 }

@@ -6,7 +6,8 @@
     * Added `Utils::isAssoc()` and `Utils::isNegative()` helper methods
     * Changed `UserInterface::authorize()` to return `null` having the same meaning as `false` if access is denied because of no matching rule
     * Moved all Flex type classes under `Grav\Common\Flex`
-    * Deprecated `Grav\Common\User\Group` in favor of `$grav['user_groups']`, which contains Flex UserGroup collection
+    * DEPRECATED `Grav\Common\User\Group` in favor of `$grav['user_groups']`, which contains Flex UserGroup collection
+    * DEPRECATED `$page->modular()` in favor of `$page->isModule()` for better readability
     * Fixed phpstan issues in all code up to level 3
 1. [](#improved)
     * Improved twig `|array` filter to work with iterators and objects with `toArray()` method
@@ -129,7 +130,7 @@
     * Added a new `bin/grav server` CLI command to easily run Symfony or PHP built-in webservers
     * Added `hasFlexFeature()` method to test if `FlexObject` or `FlexCollection` implements a given feature
     * Added `getFlexFeatures()` method to return all features that `FlexObject` or `FlexCollection` implements
-    * Deprecated `FlexDirectory::update()` and `FlexDirectory::remove()`
+    * DEPRECATED `FlexDirectory::update()` and `FlexDirectory::remove()`
     * Added `FlexStorage::getMetaData()` to get updated object meta information for listed keys
     * Added `Language::getPageExtensions()` to get full list of supported page language extensions
     * Added `$grav->close()` method to properly terminate the request with a response

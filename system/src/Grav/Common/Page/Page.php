@@ -933,7 +933,7 @@ class Page implements PageInterface
             $pattern = '%(' . preg_quote($language, '%') . ')?\.md$%';
             $name = preg_replace($pattern, '', $name);
 
-            if ($this->modular()) {
+            if ($this->isModule()) {
                 return 'modular/' . $name;
             }
 
@@ -1294,7 +1294,7 @@ class Page implements PageInterface
             $this->template = $var;
         }
         if (empty($this->template)) {
-            $this->template = ($this->modular() ? 'modular/' : '') . str_replace($this->extension(), '', $this->name());
+            $this->template = ($this->isModule() ? 'modular/' : '') . str_replace($this->extension(), '', $this->name());
         }
 
         return $this->template;
@@ -2220,11 +2220,13 @@ class Page implements PageInterface
      * Gets and sets the modular var that helps identify this page is a modular child
      *
      * @param  bool $var true if modular_twig
-     *
      * @return bool      true if modular_twig
+     * @deprecated 1.7 Use ->isModule() or ->modularTwig() method instead.
      */
     public function modular($var = null)
     {
+        user_error(__METHOD__ . '() is deprecated since Grav 1.7, use ->isModule() or ->modularTwig() method instead', E_USER_DEPRECATED);
+
         return $this->modularTwig($var);
     }
 
@@ -2233,7 +2235,6 @@ class Page implements PageInterface
      * twig processing handled differently from a regular page.
      *
      * @param  bool $var true if modular_twig
-     *
      * @return bool      true if modular_twig
      */
     public function modularTwig($var = null)
@@ -2637,6 +2638,14 @@ class Page implements PageInterface
     public function isDir()
     {
         return !$this->isPage();
+    }
+
+    /**
+     * @return bool
+     */
+    public function isModule(): bool
+    {
+        return $this->modularTwig();
     }
 
     /**
