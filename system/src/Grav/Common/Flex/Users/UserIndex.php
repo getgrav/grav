@@ -80,22 +80,24 @@ class UserIndex extends FlexIndex
      */
     public function find($query, $fields = ['username', 'email']): UserInterface
     {
-        foreach ((array)$fields as $field) {
-            if ($field === 'key') {
-                $user = $this->get($query);
-            } elseif ($field === 'storage_key') {
-                $user = $this->withKeyField('storage_key')->get($query);
-            } elseif ($field === 'flex_key') {
-                $user = $this->withKeyField('flex_key')->get($query);
-            } elseif ($field === 'email') {
-                $user = $this->withKeyField('email')->get($query);
-            } elseif ($field === 'username') {
-                $user = $this->get(mb_strtolower($query));
-            } else {
-                $user = $this->__call('find', [$query, $field]);
-            }
-            if ($user) {
-                return $user;
+        if (is_string($query) && $query !== '') {
+            foreach ((array)$fields as $field) {
+                if ($field === 'key') {
+                    $user = $this->get($query);
+                } elseif ($field === 'storage_key') {
+                    $user = $this->withKeyField('storage_key')->get($query);
+                } elseif ($field === 'flex_key') {
+                    $user = $this->withKeyField('flex_key')->get($query);
+                } elseif ($field === 'email') {
+                    $user = $this->withKeyField('email')->get($query);
+                } elseif ($field === 'username') {
+                    $user = $this->get(mb_strtolower($query));
+                } else {
+                    $user = $this->__call('find', [$query, $field]);
+                }
+                if ($user) {
+                    return $user;
+                }
             }
         }
 
