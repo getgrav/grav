@@ -37,7 +37,7 @@ use RocketTheme\Toolbox\Event\Event;
  * @property string $template
  * @property string $language
  */
-class Page extends FlexPageObject
+class PageObject extends FlexPageObject
 {
     use PageContentTrait;
     use PageLegacyTrait;
@@ -366,7 +366,7 @@ class Page extends FlexPageObject
                     throw new \RuntimeException(sprintf('Page %s cannot be moved to %s', '/' . $key, $parentRoute));
                 }
 
-                /** @var Page|null $parent */
+                /** @var PageObject|null $parent */
                 $parent = $this->getFlexDirectory()->getObject($parentKey);
                 if (!$parent) {
                     // Page cannot be moved to non-existing location.

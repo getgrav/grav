@@ -67,7 +67,7 @@ config:
 
   # Data Configuration
   data:
-    object: 'Grav\Common\Flex\Users\User'
+    object: 'Grav\Common\Flex\Users\UserObject'
     collection: 'Grav\Common\Flex\Users\UserCollection'
     index: 'Grav\Common\Flex\Users\UserIndex'
     storage:

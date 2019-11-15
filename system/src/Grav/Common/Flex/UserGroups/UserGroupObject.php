@@ -24,7 +24,7 @@ use Grav\Framework\Flex\Traits\FlexAuthorizeTrait;
  * @property string $groupname
  * @property Access $access
  */
-class UserGroup extends FlexObject implements UserGroupInterface
+class UserGroupObject extends FlexObject implements UserGroupInterface
 {
     use FlexAuthorizeTrait;
 

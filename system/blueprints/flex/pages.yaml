@@ -138,7 +138,7 @@ config:
 
   # Data Configuration
   data:
-    object: 'Grav\Common\Flex\Pages\Page'
+    object: 'Grav\Common\Flex\Pages\PageObject'
     collection: 'Grav\Common\Flex\Pages\PageCollection'
     index: 'Grav\Common\Flex\Pages\PageIndex'
     storage:

@@ -23,7 +23,7 @@ class UserCollection extends FlexCollection implements UserCollectionInterface
      * Always creates user object. To check if user exists, use $this->exists().
      *
      * @param string $username
-     * @return User
+     * @return UserObject
      */
     public function load($username): UserInterface
     {
@@ -39,7 +39,7 @@ class UserCollection extends FlexCollection implements UserCollectionInterface
 
         $directory = $this->getFlexDirectory();
 
-        /** @var User $object */
+        /** @var UserObject $object */
         $object = $directory->createObject(
             [
                 'username' => $username,
@@ -56,7 +56,7 @@ class UserCollection extends FlexCollection implements UserCollectionInterface
      *
      * @param string $query the query to search for
      * @param array $fields the fields to search
-     * @return User
+     * @return UserObject
      */
     public function find($query, $fields = ['username', 'email']): UserInterface
     {

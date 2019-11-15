@@ -59,7 +59,7 @@ use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
  * @property bool $authenticated
  * @property bool $authorized
  */
-class User extends FlexObject implements UserInterface, MediaManipulationInterface, \Countable
+class UserObject extends FlexObject implements UserInterface, MediaManipulationInterface, \Countable
 {
     use FlexMediaTrait {
         getMedia as private getFlexMedia;

@@ -43,7 +43,7 @@ class UserIndex extends FlexIndex
      *
      * @param string $username
      *
-     * @return User
+     * @return UserObject
      */
     public function load($username): UserInterface
     {
@@ -59,7 +59,7 @@ class UserIndex extends FlexIndex
 
         $directory = $this->getFlexDirectory();
 
-        /** @var User $object */
+        /** @var UserObject $object */
         $object = $directory->createObject(
             [
                 'username' => $username,
@@ -76,7 +76,7 @@ class UserIndex extends FlexIndex
      *
      * @param string $query the query to search for
      * @param array $fields the fields to search
-     * @return User
+     * @return UserObject
      */
     public function find($query, $fields = ['username', 'email']): UserInterface
     {
