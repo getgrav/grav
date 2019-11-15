@@ -135,7 +135,7 @@ class User extends Data implements UserInterface
     {
         if (null === $this->_media) {
             // Media object should only contain avatar, nothing else.
-            $media = new Media($this->getMediaFolder(), $this->getMediaOrder(), false);
+            $media = new Media($this->getMediaFolder() ?? '', $this->getMediaOrder(), false);
 
             $path = $this->getAvatarFile();
             if ($path && is_file($path)) {

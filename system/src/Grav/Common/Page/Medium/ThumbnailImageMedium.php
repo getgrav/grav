@@ -14,7 +14,7 @@ class ThumbnailImageMedium extends ImageMedium
     /**
      * @var Medium|null
      */
-    public $parent = null;
+    public $parent;
 
     /**
      * @var bool

@@ -166,7 +166,11 @@ class Install
         $location = realpath(__DIR__);
         $target = realpath(GRAV_ROOT . '/index.php');
 
-        if ($location && $target && dirname($location, 4) === dirname($target)) {
+        if (!$location) {
+            throw new \RuntimeException('Internal Error', 500);
+        }
+
+        if ($target && dirname($location, 4) === dirname($target)) {
             // We cannot copy files into themselves, abort!
             throw new \RuntimeException('Grav has already been installed here!', 400);
         }

@@ -196,7 +196,7 @@ abstract class Folder
      */
     public static function all($path, array $params = [])
     {
-        if ($path === false) {
+        if (!$path) {
             throw new \RuntimeException("Path doesn't exist.");
         }
 

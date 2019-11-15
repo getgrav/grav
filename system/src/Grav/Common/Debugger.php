@@ -223,11 +223,9 @@ class Debugger
                 'Deprecated' => count($deprecations)
             ]);
             foreach ($deprecations as &$deprecation) {
-                if (0) {
-                    $d = $deprecation;
-                    unset($d['message']);
-                    $this->clockwork->log('deprecated', $deprecation['message'], $d);
-                }
+                $d = $deprecation;
+                unset($d['message']);
+                $this->clockwork->log('deprecated', $deprecation['message'], $d);
             }
             unset($deprecation);
 
@@ -253,9 +251,7 @@ class Debugger
                 ->withCookieParams([$censored => ''])
                 ->withUploadedFiles([])
                 ->withHeader('cookie', $censored);
-            if ($request->getBody()) {
-                $request = $request->withParsedBody([$censored => '']);
-            }
+            $request = $request->withParsedBody([$censored => '']);
         }
 
         $clockwork->addDataSource(new PsrMessageDataSource($request, $response));

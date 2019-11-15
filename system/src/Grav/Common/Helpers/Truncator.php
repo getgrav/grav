@@ -217,7 +217,9 @@ class Truncator
             // Append as text node to parent instead
             $textNode = new DOMText($ellipsis);
 
-            if ($domNode->parentNode->parentNode->nextSibling) {
+            /** @var DOMNode|null $nextSibling */
+            $nextSibling = $domNode->parentNode->parentNode->nextSibling;
+            if ($nextSibling) {
                 $domNode->parentNode->parentNode->insertBefore($textNode, $domNode->parentNode->parentNode->nextSibling);
             } else {
                 $domNode->parentNode->parentNode->appendChild($textNode);

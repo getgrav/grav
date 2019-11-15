@@ -50,11 +50,14 @@ class UserCollection implements UserCollectionInterface
 
         $filename = 'account://' . $username . YAML_EXT;
         $path = $locator->findResource($filename) ?: $locator->findResource($filename, true, true);
+        if (!is_string($path)) {
+            throw new \RuntimeException('Internal Error');
+        }
         $file = CompiledYamlFile::instance($path);
         $content = (array)$file->content() + ['username' => $username, 'state' => 'enabled'];
 
         $userClass = $this->className;
-        $callable = function () {
+        $callable = static function () {
             $blueprints = new Blueprints;
 
             return $blueprints->get('user/account');

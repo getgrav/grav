@@ -722,7 +722,7 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
             $folder .= '/original';
         }
 
-        return (new Media($folder, $this->getMediaOrder()))->setTimestamps();
+        return (new Media($folder ?? '', $this->getMediaOrder()))->setTimestamps();
     }
 
     /**
@@ -730,6 +730,12 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
      */
     protected function setUpdatedMedia(array $files): void
     {
+        // For shared media folder we need to keep path for backwards compatibility.
+        $folder = $this->getMediaFolder();
+        if (!$folder) {
+            throw new \RuntimeException('No media folder support');
+        }
+
         $list = [];
         $list_original = [];
         foreach ($files as $field => $group) {
@@ -752,8 +758,6 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
                     $data['name'] = $filename = Utils::generateRandomString(15) . '.' . $extension;
                 }
 
-                // For shared media folder we need to keep path for backwards compatibility.
-                $folder = $this->getMediaFolder();
                 if ($this->_loadMedia) {
                     $filepath = $filename;
                 } else {
@@ -836,7 +840,7 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
             $thumbFile = $resizedMedia[$filename];
             /** @var Medium|null $imageFile */
             $imageFile = $originalMedia[$filename] ?? $thumbFile;
-            if ($thumbFile) {
+            if ($thumbFile && $imageFile) {
                 $list[$filename] = [
                     'name' => $info['name'],
                     'type' => $info['type'],
@@ -876,8 +880,8 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
         if ($flex) {
             $directory = $flex->getDirectory($serialized['type']);
         } else {
-            /** @var UserCollection $accounts */
-            $accounts = $grav['accounts'];
+            /** @var UserCollectionInterface|null $accounts */
+            $accounts = $grav['accounts'] ?? null;
             $directory = $accounts instanceof FlexCollectionInterface ? $accounts->getFlexDirectory() : null;
         }
 
@@ -903,7 +907,10 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
         $groups = $flex ? $flex->getDirectory('grav-user-groups') : null;
 
         if ($groups) {
-            return $groups->getIndex();
+            /** @var GroupIndex $index */
+            $index = $groups->getIndex();
+
+            return $index;
         }
 
         return $grav['user_groups'];

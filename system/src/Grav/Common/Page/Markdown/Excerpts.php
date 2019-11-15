@@ -165,6 +165,8 @@ class Excerpts
             $media = $this->page->getMedia();
         } else {
             $grav = Grav::instance();
+            /** @var Pages $pages */
+            $pages = $grav['pages'];
 
             // File is also local if scheme is http(s) and host matches.
             $local_file = isset($url_parts['path'])
@@ -181,11 +183,10 @@ class Excerpts
                     $media = $this->page->getMedia();
                 } else {
                     // see if this is an external page to this one
-                    $base_url = rtrim($grav['base_url_relative'] . $grav['pages']->base(), '/');
+                    $base_url = rtrim($grav['base_url_relative'] . $pages->base(), '/');
                     $page_route = '/' . ltrim(str_replace($base_url, '', $folder), '/');
 
-                    /** @var PageInterface $ext_page */
-                    $ext_page = $grav['pages']->find($page_route, true);
+                    $ext_page = $pages->find($page_route, true);
                     if ($ext_page) {
                         $media = $ext_page->getMedia();
                     } else {

@@ -141,8 +141,10 @@ class Media extends AbstractMedia
                 $medium = MediumFactory::scaledFromMedium($medium, $max, 1)['file'];
             } else {
                 $medium = MediumFactory::fromFile($types['base']['file']);
-                $medium && $medium->set('size', $types['base']['size']);
-                $file_path = $medium ? $medium->path() : null;
+                if ($medium) {
+                    $medium->set('size', $types['base']['size']);
+                    $file_path = $medium->path();
+                }
             }
 
             if (empty($medium)) {

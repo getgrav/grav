@@ -34,7 +34,7 @@ class Medium extends Data implements RenderableInterface, MediaObjectInterface
     /**
      * @var Medium|null
      */
-    protected $_thumbnail = null;
+    protected $_thumbnail;
 
     /**
      * @var array
@@ -489,8 +489,13 @@ class Medium extends Data implements RenderableInterface, MediaObjectInterface
 
 
         $this->mode = $mode;
+        if ($mode === 'thumbnail') {
+            $thumbnail = $this->getThumbnail();
 
-        return $mode === 'thumbnail' ? ($this->getThumbnail() ? $this->getThumbnail()->reset() : null) : $this->reset();
+            return $thumbnail ? $thumbnail->reset() : null;
+        }
+
+        return $this->reset();
     }
 
     /**
@@ -652,7 +657,7 @@ class Medium extends Data implements RenderableInterface, MediaObjectInterface
      */
     protected function getThumbnail()
     {
-        if (!$this->_thumbnail) {
+        if (null === $this->_thumbnail) {
             $types = $this->thumbnailTypes;
 
             if ($this->thumbnailType !== 'auto') {

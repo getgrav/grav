@@ -12,7 +12,7 @@ namespace Grav\Common\Page\Medium;
 use Grav\Common\Grav;
 use Grav\Common\Media\Interfaces\MediaCollectionInterface;
 use Grav\Common\Media\Interfaces\MediaObjectInterface;
-use Grav\Common\Page\Page;
+use Grav\Common\Page\Pages;
 use Grav\Common\Utils;
 use RocketTheme\Toolbox\ArrayTraits\ArrayAccess;
 use RocketTheme\Toolbox\ArrayTraits\Countable;
@@ -183,8 +183,9 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
     protected function orderMedia($media)
     {
         if (null === $this->media_order) {
-            /** @var Page $page */
-            $page = Grav::instance()['pages']->get($this->getPath());
+            /** @var Pages $pages */
+            $pages = Grav::instance()['pages'];
+            $page = $pages->get($this->getPath());
 
             if ($page && isset($page->header()->media_order)) {
                 $this->media_order = array_map('trim', explode(',', $page->header()->media_order));

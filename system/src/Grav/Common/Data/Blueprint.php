@@ -275,7 +275,7 @@ class Blueprint extends BlueprintForm
     protected function loadFile($filename)
     {
         $file = CompiledYamlFile::instance($filename);
-        $content = $file->content();
+        $content = (array)$file->content();
         $file->free();
 
         return $content;

@@ -15,6 +15,7 @@ use Grav\Common\Helpers\Exif;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Page\Medium\ImageMedium;
 use Grav\Common\Page\Medium\Medium;
+use Grav\Common\Page\Pages;
 use Grav\Common\Processors\AssetsProcessor;
 use Grav\Common\Processors\BackupsProcessor;
 use Grav\Common\Processors\DebuggerAssetsProcessor;
@@ -584,8 +585,9 @@ class Grav extends Container
 
         $path_parts = pathinfo($path);
 
-        /** @var PageInterface $page */
-        $page = $this['pages']->find($path_parts['dirname'], true);
+        /** @var Pages $pages */
+        $pages = $this['pages'];
+        $page = $pages->find($path_parts['dirname'], true);
 
         if ($page) {
             $media = $page->media()->all();
