@@ -162,6 +162,7 @@ class Truncator
      */
     private static function removeProceedingNodes($domNode, $topNode)
     {
+        /** @var DOMNode|null $nextNode */
         $nextNode = $domNode->nextSibling;
 
         if ($nextNode !== null) {

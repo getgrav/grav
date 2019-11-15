@@ -28,6 +28,7 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
     use Export;
 
     protected $items = [];
+    /** @var string */
     protected $path;
     protected $images = [];
     protected $videos = [];
@@ -150,7 +151,7 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
 
     /**
      * @param string $name
-     * @param MediaObjectInterface $file
+     * @param MediaObjectInterface|null $file
      */
     public function add($name, $file)
     {

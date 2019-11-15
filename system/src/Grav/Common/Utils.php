@@ -1298,7 +1298,7 @@ abstract class Utils
      * Get a portion of an array (passed by reference) with dot-notation key
      *
      * @param array $array
-     * @param string|int $key
+     * @param string|int|null $key
      * @param null $default
      * @return mixed
      */
@@ -1327,10 +1327,10 @@ abstract class Utils
      * Set portion of array (passed by reference) for a dot-notation key
      * and set the value
      *
-     * @param array      $array
-     * @param string|int $key
-     * @param mixed      $value
-     * @param bool       $merge
+     * @param array $array
+     * @param string|int|null $key
+     * @param mixed $value
+     * @param bool $merge
      *
      * @return mixed
      */

@@ -17,7 +17,7 @@ trait CompiledFile
      * Get/set parsed file contents.
      *
      * @param mixed $var
-     * @return string
+     * @return string|array
      */
     public function content($var = null)
     {

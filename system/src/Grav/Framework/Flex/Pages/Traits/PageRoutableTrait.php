@@ -15,6 +15,7 @@ use Grav\Common\Page\Interfaces\PageCollectionInterface;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Page\Pages;
 use Grav\Common\Uri;
+use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 /**
@@ -377,7 +378,7 @@ trait PageRoutableTrait
      * Gets and Sets the parent object for this page
      *
      * @param  PageInterface|null $var the parent page object
-     * @return PageInterface|null the parent page object if it exists.
+     * @return PageInterface|FlexObjectInterface|null the parent page object if it exists.
      */
     public function parent(PageInterface $var = null)
     {

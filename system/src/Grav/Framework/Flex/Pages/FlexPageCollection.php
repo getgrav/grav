@@ -106,7 +106,7 @@ class FlexPageCollection extends FlexCollection
      *
      * @param  string $path
      *
-     * @return PageInterface|null The next item.
+     * @return PageInterface|false The next item.
      */
     public function nextSibling($path)
     {
@@ -119,7 +119,7 @@ class FlexPageCollection extends FlexCollection
      * @param  string  $path
      * @param  int $direction either -1 or +1
      *
-     * @return PageInterface|null    The sibling item.
+     * @return PageInterface|false    The sibling item.
      */
     public function adjacentSibling($path, $direction = 1)
     {

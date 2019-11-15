@@ -26,7 +26,6 @@ use DebugBar\DataCollector\RequestDataCollector;
 use DebugBar\DataCollector\TimeDataCollector;
 use DebugBar\DebugBar;
 use DebugBar\JavascriptRenderer;
-use DebugBar\StandardDebugBar;
 use Grav\Common\Config\Config;
 use Grav\Common\Processors\ProcessorInterface;
 use Grav\Common\Twig\TwigClockworkDataSource;
@@ -45,19 +44,19 @@ class Debugger
     /** @var static */
     protected static $instance;
 
-    /** @var Grav $grav */
+    /** @var Grav|null */
     protected $grav;
 
-    /** @var Config $config */
+    /** @var Config|null */
     protected $config;
 
-    /** @var JavascriptRenderer $renderer */
+    /** @var JavascriptRenderer|null */
     protected $renderer;
 
-    /** @var StandardDebugBar $debugbar */
+    /** @var DebugBar|null */
     protected $debugbar;
 
-    /** @var Clockwork */
+    /** @var Clockwork|null */
     protected $clockwork;
 
     /** @var bool */
@@ -68,18 +67,22 @@ class Debugger
     /** @var array */
     protected $timers = [];
 
-    /** @var array $deprecations */
+    /** @var array */
     protected $deprecations = [];
 
     /** @var callable|null */
     protected $errorHandler;
 
+    /** @var float */
     protected $requestTime;
+
+    /** @var float */
     protected $currentTime;
 
     /** @var int */
     protected $profiling = 0;
 
+    /** @var bool */
     protected $censored = false;
 
     /**
@@ -447,7 +450,7 @@ class Debugger
      *
      * @param string $name
      *
-     * @return DataCollectorInterface
+     * @return DataCollectorInterface|null
      * @throws \DebugBar\DebugBarException
      */
     public function getCollector($name)

@@ -159,7 +159,6 @@ class SchedulerCommand extends ConsoleCommand
         } elseif ($jobid = $this->input->getOption('run')) {
             $io->title('Force Run Job: ' . $jobid);
 
-            /** @var Job $job */
             $job = $scheduler->getJob($jobid);
 
             if ($job) {

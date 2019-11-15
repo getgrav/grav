@@ -126,7 +126,7 @@ class Scheduler
     /**
      * Get a specific Job based on id
      *
-     * @param $jobid
+     * @param string $jobid
      * @return Job|null
      */
     public function getJob($jobid)

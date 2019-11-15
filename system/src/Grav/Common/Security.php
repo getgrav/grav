@@ -116,7 +116,7 @@ class Security
      * return false positives because of it tags all potentially dangerous HTML tags and attributes without looking into
      * their content.
      *
-     * @param string $string The string to run XSS detection logic on
+     * @param string|null $string The string to run XSS detection logic on
      * @return bool|string       Type of XSS vector if the given `$string` may contain XSS, false otherwise.
      *
      * Copies the code from: https://github.com/symphonycms/xssfilter/blob/master/extension.driver.php#L138

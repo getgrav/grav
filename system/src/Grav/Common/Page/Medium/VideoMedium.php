@@ -98,7 +98,7 @@ class VideoMedium extends Medium
     /**
      * Allows ability to set the preload option
      *
-     * @param null $status
+     * @param string|null $status
      * @return $this
      */
     public function preload($status = null)

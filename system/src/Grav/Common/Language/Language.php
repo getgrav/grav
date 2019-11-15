@@ -149,7 +149,7 @@ class Language
      *
      * @param string $lang
      *
-     * @return bool
+     * @return string|bool
      */
     public function setDefault($lang)
     {

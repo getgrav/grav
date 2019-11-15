@@ -12,6 +12,7 @@ namespace Grav\Common\Page\Markdown;
 use Grav\Common\Grav;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Page\Medium\Link;
+use Grav\Common\Page\Pages;
 use Grav\Common\Uri;
 use Grav\Common\Page\Medium\Medium;
 use Grav\Common\Utils;
@@ -20,7 +21,7 @@ use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 class Excerpts
 {
-    /** @var PageInterface */
+    /** @var PageInterface|null */
     protected $page;
     /** @var array */
     protected $config;

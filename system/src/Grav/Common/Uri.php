@@ -22,10 +22,10 @@ class Uri
 {
     const HOSTNAME_REGEX = '/^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/';
 
-    /** @var \Grav\Framework\Uri\Uri */
+    /** @var \Grav\Framework\Uri\Uri|null */
     protected static $currentUri;
 
-    /** @var \Grav\Framework\Route\Route */
+    /** @var \Grav\Framework\Route\Route|null */
     protected static $currentRoute;
 
     public $url;
@@ -953,7 +953,7 @@ class Uri
      * @param PageInterface   $page         the current page to use as reference
      * @param string $markdown_url the URL as it was written in the markdown
      * @param string $type         the type of URL, image | link
-     * @param null   $relative     if null, will use system default, if true will use relative links internally
+     * @param bool|null $relative     if null, will use system default, if true will use relative links internally
      *
      * @return string the more friendly formatted url
      */
@@ -1109,7 +1109,7 @@ class Uri
     /**
      * Filters the user info string.
      *
-     * @param string $info The raw user or password.
+     * @param string|null $info The raw user or password.
      * @return string The percent-encoded user or password string.
      */
     public static function filterUserInfo($info)
@@ -1125,7 +1125,7 @@ class Uri
      * will NOT double-encode characters that are already
      * percent-encoded.
      *
-     * @param  string $path The raw uri path.
+     * @param  string|null $path The raw uri path.
      * @return string       The RFC 3986 percent-encoded uri path.
      * @link   http://www.faqs.org/rfcs/rfc3986.html
      */
@@ -1137,7 +1137,7 @@ class Uri
     /**
      * Filters the query string or fragment of a URI.
      *
-     * @param string $query The raw uri query string.
+     * @param string|null $query The raw uri query string.
      * @return string The percent-encoded query string.
      */
     public static function filterQuery($query)

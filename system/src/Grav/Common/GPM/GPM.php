@@ -128,7 +128,7 @@ class GPM extends Iterator
     /**
      * Return the instance of a specific Plugin
      * @param  string $slug The slug of the Plugin
-     * @return Local\Package The instance of the Plugin
+     * @return Local\Package|null The instance of the Plugin
      */
     public function getInstalledPlugin($slug)
     {
@@ -162,7 +162,7 @@ class GPM extends Iterator
     /**
      * Return the instance of a specific Theme
      * @param  string $slug The slug of the Theme
-     * @return Local\Package The instance of the Theme
+     * @return Local\Package|null The instance of the Theme
      */
     public function getInstalledTheme($slug)
     {

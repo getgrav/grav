@@ -320,7 +320,7 @@ class InstallCommand extends ConsoleCommand
     }
 
     /**
-     * @param Package $package
+     * @param Package|null $package
      * @param bool    $is_update      True if the package is an update
      */
     private function processPackage($package, $is_update = false)
@@ -447,7 +447,7 @@ class InstallCommand extends ConsoleCommand
             } else {
                 $repo_dir = $matches[2];
             }
-            
+
             $paths = (array) $paths;
             foreach ($paths as $repo) {
                 $path = rtrim($repo, '/') . '/' . $repo_dir;

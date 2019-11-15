@@ -15,8 +15,10 @@ use Grav\Common\Page\Media;
 use Grav\Common\Page\Medium\ImageMedium;
 use Grav\Common\Page\Medium\Medium;
 use Grav\Common\Page\Medium\MediumFactory;
+use Grav\Common\Page\Medium\StaticImageMedium;
 use Grav\Common\User\Access;
 use Grav\Common\User\Authentication;
+use Grav\Common\User\Interfaces\UserCollectionInterface;
 use Grav\Common\User\Interfaces\UserInterface;
 use Grav\Common\User\Traits\UserTrait;
 use Grav\Common\Utils;
@@ -465,7 +467,7 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
      * Set or get the data storage.
      *
      * @param FileInterface|null $storage Optionally enter a new storage.
-     * @return FileInterface
+     * @return FileInterface|null
      */
     public function file(FileInterface $storage = null)
     {
@@ -552,7 +554,7 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
     /**
      * Return media object for the User's avatar.
      *
-     * @return ImageMedium|null
+     * @return ImageMedium|StaticImageMedium|null
      * @deprecated 1.6 Use ->getAvatarImage() method instead.
      */
     public function getAvatarMedia()
@@ -644,7 +646,7 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
 
     /**
      * @param mixed $value
-     * @return Access
+     * @return array
      */
     protected function offsetPrepare_access($value): array
     {
@@ -652,7 +654,7 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
     }
 
     /**
-     * @param Access|null $value
+     * @param array|null $value
      * @return array|null
      */
     protected function offsetSerialize_access(?array $value): ?array
@@ -786,7 +788,7 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
     protected function saveUpdatedMedia(): void
     {
         // Upload/delete original sized images.
-        /** @var FormFlashFile $file */
+        /** @var FormFlashFile|null $file */
         foreach ($this->_uploads_original ?? [] as $name => $file) {
             $name = 'original/' . $name;
             if ($file) {
@@ -798,7 +800,7 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
 
         /**
          * @var string $filename
-         * @var UploadedFileInterface $file
+         * @var UploadedFileInterface|null $file
          */
         foreach ($this->getUpdatedMedia() as $filename => $file) {
             if ($file) {
@@ -830,9 +832,9 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
                 continue;
             }
 
-            /** @var Medium $thumbFile */
+            /** @var Medium|null $thumbFile */
             $thumbFile = $resizedMedia[$filename];
-            /** @var Medium $imageFile */
+            /** @var Medium|null $imageFile */
             $imageFile = $originalMedia[$filename] ?? $thumbFile;
             if ($thumbFile) {
                 $list[$filename] = [
@@ -890,14 +892,14 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
     }
 
     /**
-     * @return GroupCollection
+     * @return GroupCollection|GroupIndex
      */
     protected function getUserGroups()
     {
         $grav = Grav::instance();
         $flex = $grav['flex_objects'] ?? null;
 
-        /** @var GroupCollection $groups */
+        /** @var GroupCollection|null $groups */
         $groups = $flex ? $flex->getDirectory('grav-user-groups') : null;
 
         if ($groups) {

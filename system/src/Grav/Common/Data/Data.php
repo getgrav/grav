@@ -13,7 +13,6 @@ use RocketTheme\Toolbox\ArrayTraits\Countable;
 use RocketTheme\Toolbox\ArrayTraits\Export;
 use RocketTheme\Toolbox\ArrayTraits\ExportInterface;
 use RocketTheme\Toolbox\ArrayTraits\NestedArrayAccessWithGetters;
-use RocketTheme\Toolbox\File\File;
 use RocketTheme\Toolbox\File\FileInterface;
 
 class Data implements DataInterface, \ArrayAccess, \Countable, \JsonSerializable, ExportInterface
@@ -26,10 +25,10 @@ class Data implements DataInterface, \ArrayAccess, \Countable, \JsonSerializable
     /** @var array */
     protected $items;
 
-    /** @var Blueprint */
+    /** @var Blueprint|null */
     protected $blueprints;
 
-    /** @var File */
+    /** @var FileInterface|null */
     protected $storage;
 
     /**
@@ -281,7 +280,7 @@ class Data implements DataInterface, \ArrayAccess, \Countable, \JsonSerializable
      * Set or get the data storage.
      *
      * @param FileInterface|null $storage Optionally enter a new storage.
-     * @return FileInterface
+     * @return FileInterface|null
      */
     public function file(FileInterface $storage = null)
     {

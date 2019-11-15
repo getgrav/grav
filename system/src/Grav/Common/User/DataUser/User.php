@@ -103,7 +103,7 @@ class User extends Data implements UserInterface
      */
     public function save()
     {
-        /** @var CompiledYamlFile $file */
+        /** @var CompiledYamlFile|null $file */
         $file = $this->file();
         if (!$file || !$file->filename()) {
             user_error(__CLASS__ . ': calling \$user = new ' . __CLASS__ . "() is deprecated since Grav 1.6, use \$grav['accounts']->load(\$username) or \$grav['accounts']->load('') instead", E_USER_DEPRECATED);

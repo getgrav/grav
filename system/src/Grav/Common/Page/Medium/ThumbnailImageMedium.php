@@ -12,7 +12,7 @@ namespace Grav\Common\Page\Medium;
 class ThumbnailImageMedium extends ImageMedium
 {
     /**
-     * @var Medium
+     * @var Medium|null
      */
     public $parent = null;
 
@@ -67,7 +67,7 @@ class ThumbnailImageMedium extends ImageMedium
      *
      * @param string $mode
      *
-     * @return $this
+     * @return array|Link|Medium
      */
     public function display($mode = 'source')
     {
@@ -79,7 +79,7 @@ class ThumbnailImageMedium extends ImageMedium
      *
      * @param string $type
      *
-     * @return $this
+     * @return array|Link|Medium
      */
     public function thumbnail($type = 'auto')
     {
@@ -119,7 +119,7 @@ class ThumbnailImageMedium extends ImageMedium
      * @param  string  $method
      * @param  array  $arguments
      * @param  bool $testLinked
-     * @return Medium|Link|array
+     * @return array|Link|Medium
      */
     protected function bubble($method, array $arguments = [], $testLinked = true)
     {

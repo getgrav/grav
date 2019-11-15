@@ -41,6 +41,7 @@ class Licenses
     public static function set($slug, $license)
     {
         $licenses = self::getLicenseFile();
+        /** @var array $data */
         $data = (array)$licenses->content();
         $slug = strtolower($slug);
 
@@ -74,6 +75,7 @@ class Licenses
     public static function get($slug = null)
     {
         $licenses = self::getLicenseFile();
+        /** @var array $data */
         $data = (array)$licenses->content();
         $licenses->free();
         $slug = strtolower($slug);

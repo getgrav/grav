@@ -60,7 +60,7 @@ class Pipeline extends PropertyObject
      * The closure will receive as the only parameter a string with the path/URL of the asset and
      * it should return the content of the asset file as a string.
      *
-     * @var \Closure
+     * @var \Closure|null
      */
     protected $fetch_command;
 

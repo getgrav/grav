@@ -19,6 +19,7 @@ use Grav\Common\Language\Language;
 use Grav\Common\Markdown\Parsedown;
 use Grav\Common\Markdown\ParsedownExtra;
 use Grav\Common\Media\Interfaces\MediaCollectionInterface;
+use Grav\Common\Page\Interfaces\PageCollectionInterface;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Media\Traits\MediaTrait;
 use Grav\Common\Page\Markdown\Excerpts;
@@ -64,7 +65,7 @@ class Page implements PageInterface
     protected $redirect;
     protected $external_url;
     protected $items;
-    /** @var \stdClass */
+    /** @var object|null */
     protected $header;
     protected $frontmatter;
     protected $language;
@@ -1216,8 +1217,8 @@ class Page implements PageInterface
     /**
      * Gets and sets the associated media as found in the page folder.
      *
-     * @param  Media $var Representation of associated media.
-     * @return Media      Representation of associated media.
+     * @param  MediaCollectionInterface|Media $var Representation of associated media.
+     * @return MediaCollectionInterface|Media      Representation of associated media.
      */
     public function media($var = null)
     {
@@ -1376,8 +1377,8 @@ class Page implements PageInterface
      * Gets and sets the cache-control property.  If not set it will return the default value (null)
      * https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control for more details on valid options
      *
-     * @param null $var
-     * @return null
+     * @param string|null $var
+     * @return string|null
      */
     public function cacheControl($var = null)
     {
@@ -1829,7 +1830,7 @@ class Page implements PageInterface
     /**
      * Gets and Sets the page raw route
      *
-     * @param null $var
+     * @param string|null $var
      *
      * @return null|string
      */
@@ -1875,7 +1876,7 @@ class Page implements PageInterface
      * Gets the canonical route for this page if its set. If provided it will use
      * that value, else if it's `true` it will use the default route.
      *
-     * @param null $var
+     * @param string|null $var
      *
      * @return bool|string
      */
@@ -2309,7 +2310,7 @@ class Page implements PageInterface
     /**
      * Returns children of this page.
      *
-     * @return Collection
+     * @return PageCollectionInterface|Collection
      */
     public function children()
     {
@@ -2433,7 +2434,7 @@ class Page implements PageInterface
         $routes = Grav::instance()['pages']->routes();
 
         if (isset($routes[$uri_path])) {
-            /** @var PageInterface $child_page */
+            /** @var PageInterface|null $child_page */
             $child_page = $pages->find($uri->route())->parent();
             if ($child_page) {
                 while (!$child_page->root()) {
@@ -2561,7 +2562,7 @@ class Page implements PageInterface
      * @param string|array $params
      * @param bool $pagination
      *
-     * @return Collection
+     * @return PageCollectionInterface|Collection
      * @throws \InvalidArgumentException
      */
     public function collection($params = 'content', $pagination = true)
@@ -2590,7 +2591,7 @@ class Page implements PageInterface
     /**
      * @param string|array $value
      * @param bool $only_published
-     * @return Collection
+     * @return PageCollectionInterface|Collection
      */
     public function evaluate($value, $only_published = true)
     {

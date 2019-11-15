@@ -116,7 +116,7 @@ trait UserTrait
      *
      * Note: if there's no local avatar image for the user, you should call getAvatarUrl() to get the external avatar URL.
      *
-     * @return Medium|null
+     * @return ImageMedium|StaticImageMedium|null
      */
     public function getAvatarImage(): ?Medium
     {

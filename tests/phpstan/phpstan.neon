@@ -115,3 +115,9 @@ parameters:
         -
             message: '#deprecated class#'
             path: 'system/src/Grav/Framework/Uri/Uri.php'
+        -
+            message: '#Method Symfony\\Contracts\\EventDispatcher\\EventDispatcherInterface::dispatch#'
+            path: 'system/src/Grav/Common/Grav.php'
+        - '#Call to deprecated method stopPropagation\(\) of class Symfony\\Component\\EventDispatcher\\Event#'
+        - '#Parameter \#2 \$listener of method Symfony\\Component\\EventDispatcher\\EventDispatcher::addListener\(\)#'
+        - '#Parameter \#2 \$listener of method Symfony\\Component\\EventDispatcher\\EventDispatcher::removeListener\(\)#'

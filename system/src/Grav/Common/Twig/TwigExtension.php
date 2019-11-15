@@ -251,7 +251,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
     /**
      * Returns array in a random order.
      *
-     * @param  array $original
+     * @param  array|\Traversable $original
      * @param  int   $offset Can be used to return only slice of the array.
      *
      * @return array
@@ -421,7 +421,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
     /**
      * Return ksorted collection.
      *
-     * @param  array $array
+     * @param  array|null $array
      *
      * @return array
      */
@@ -979,9 +979,9 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
     /**
      * Wrapper for array_intersect() method
      *
-     * @param array $array1
-     * @param array $array2
-     * @return array
+     * @param array|Collection $array1
+     * @param array|Collection $array2
+     * @return array|Collection
      */
     public function arrayIntersectFunc($array1, $array2)
     {

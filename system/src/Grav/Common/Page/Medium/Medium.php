@@ -479,7 +479,7 @@ class Medium extends Data implements RenderableInterface, MediaObjectInterface
      *
      * @param string $mode
      *
-     * @return $this|null
+     * @return self|null
      */
     public function display($mode = 'source')
     {
@@ -648,7 +648,7 @@ class Medium extends Data implements RenderableInterface, MediaObjectInterface
     /**
      * Get the thumbnail Medium object
      *
-     * @return ThumbnailImageMedium
+     * @return ThumbnailImageMedium|null
      */
     protected function getThumbnail()
     {

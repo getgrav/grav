@@ -97,7 +97,7 @@ class Group extends FlexObject
 
     /**
      * @param mixed $value
-     * @return Access
+     * @return array
      */
     protected function offsetPrepare_access($value): array
     {
@@ -105,7 +105,7 @@ class Group extends FlexObject
     }
 
     /**
-     * @param Access|null $value
+     * @param array|null $value
      * @return array|null
      */
     protected function offsetSerialize_access(?array $value): ?array

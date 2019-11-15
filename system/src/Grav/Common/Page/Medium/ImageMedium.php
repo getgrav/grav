@@ -22,7 +22,7 @@ class ImageMedium extends Medium
     protected $thumbnailTypes = ['page', 'media', 'default'];
 
     /**
-     * @var ImageFile
+     * @var ImageFile|null
      */
     protected $image;
 
@@ -643,7 +643,7 @@ class ImageMedium extends Medium
     /**
      * Return the image higher quality version
      *
-     * @return ImageMedium the alternative version with higher quality
+     * @return Medium|ImageMedium the alternative version with higher quality
      */
     public function higherQualityAlternative()
     {

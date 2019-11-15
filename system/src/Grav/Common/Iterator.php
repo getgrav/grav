@@ -133,7 +133,7 @@ class Iterator implements \ArrayAccess, \Iterator, \Countable, \Serializable
     /**
      * @param mixed $needle Searched value.
      *
-     * @return string|bool  Key if found, otherwise false.
+     * @return string|int|false  Key if found, otherwise false.
      */
     public function indexOf($needle)
     {

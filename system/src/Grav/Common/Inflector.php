@@ -42,7 +42,7 @@ class Inflector
      * @param string $word  English noun to pluralize
      * @param int    $count The count
      *
-     * @return string Plural noun
+     * @return string|false Plural noun
      */
     public static function pluralize($word, $count = 2)
     {

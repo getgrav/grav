@@ -20,7 +20,7 @@ class CompiledJsonFile extends JsonFile
      *
      * @param string $var
      * @param bool $assoc
-     * @return array mixed
+     * @return array
      */
     protected function decode($var, $assoc = true)
     {

@@ -37,6 +37,7 @@ class Job
     private $after;
     private $whenOverlapping;
     private $outputMode;
+    /** @var Process|null $process */
     private $process;
     private $successful = false;
     private $backlink;
@@ -73,7 +74,7 @@ class Job
     /**
      * Get the command
      *
-     * @return string
+     * @return \Closure|string
      */
     public function getCommand()
     {
@@ -322,7 +323,6 @@ class Job
      */
     public function finalize()
     {
-        /** @var Process $process */
         $process = $this->process;
 
         if ($process) {
