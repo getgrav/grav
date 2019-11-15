@@ -10,8 +10,8 @@
 namespace Grav\Common\Service;
 
 use Grav\Common\Config\Config;
+use Grav\Common\Flex\Users\Storage\UserFolderStorage;
 use Grav\Common\User\DataUser;
-use Grav\Common\User\FlexUser;
 use Grav\Common\User\User;
 use Grav\Framework\Flex\Flex;
 use Grav\Framework\Flex\FlexDirectory;
@@ -96,7 +96,7 @@ class AccountsServiceProvider implements ServiceProviderInterface
 
         if ($config === 'folder') {
             return [
-                'class' => FlexUser\Storage\UserFolderStorage::class,
+                'class' => UserFolderStorage::class,
                 'options' => [
                     'file' => 'user',
                     'pattern' => '{FOLDER}/{KEY:2}/{KEY}/{FILE}{EXT}',

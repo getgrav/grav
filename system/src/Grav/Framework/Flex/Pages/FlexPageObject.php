@@ -14,10 +14,12 @@ use Grav\Common\Debugger;
 use Grav\Common\Grav;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Page\Traits\PageFormTrait;
+use Grav\Common\User\Interfaces\UserCollectionInterface;
 use Grav\Framework\File\Formatter\YamlFormatter;
 use Grav\Framework\Flex\FlexObject;
 use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
 use Grav\Framework\Flex\Interfaces\FlexTranslateInterface;
+use Grav\Framework\Flex\Pages\Traits\PageAuthorsTrait;
 use Grav\Framework\Flex\Pages\Traits\PageContentTrait;
 use Grav\Framework\Flex\Pages\Traits\PageLegacyTrait;
 use Grav\Framework\Flex\Pages\Traits\PageRoutableTrait;
@@ -31,11 +33,12 @@ use Grav\Framework\Media\Interfaces\MediaManipulationInterface;
  */
 class FlexPageObject extends FlexObject implements PageInterface, MediaManipulationInterface, FlexTranslateInterface
 {
+    use PageAuthorsTrait;
     use PageContentTrait;
     use PageFormTrait;
     use PageLegacyTrait;
-    use PageTranslateTrait;
     use PageRoutableTrait;
+    use PageTranslateTrait;
     use FlexMediaTrait;
 
     const PAGE_ORDER_REGEX = '/^(\d+)\.(.*)$/u';
@@ -392,5 +395,14 @@ class FlexPageObject extends FlexObject implements PageInterface, MediaManipulat
         }
 
         return $date;
+    }
+
+    /**
+     * @return UserCollectionInterface|null
+     * @internal
+     */
+    protected function loadAccounts(): ?UserCollectionInterface
+    {
+        return Grav::instance()['accounts'] ?? null;
     }
 }

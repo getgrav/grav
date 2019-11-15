@@ -3,20 +3,20 @@
 declare(strict_types=1);
 
 /**
- * @package    Grav\Common\Page
+ * @package    Grav\Common\Flex
  *
  * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
-namespace Grav\Common\Page\Flex;
+namespace Grav\Common\Flex\Pages;
 
 use Grav\Common\Data\Blueprint;
 use Grav\Common\Grav;
-use Grav\Common\Page\Flex\Traits\PageContentTrait;
-use Grav\Common\Page\Flex\Traits\PageLegacyTrait;
-use Grav\Common\Page\Flex\Traits\PageRoutableTrait;
-use Grav\Common\Page\Flex\Traits\PageTranslateTrait;
+use Grav\Common\Flex\Pages\Traits\PageContentTrait;
+use Grav\Common\Flex\Pages\Traits\PageLegacyTrait;
+use Grav\Common\Flex\Pages\Traits\PageRoutableTrait;
+use Grav\Common\Flex\Pages\Traits\PageTranslateTrait;
 use Grav\Common\Page\Pages;
 use Grav\Common\Utils;
 use Grav\Framework\Flex\FlexObject;
@@ -37,7 +37,7 @@ use RocketTheme\Toolbox\Event\Event;
  * @property string $template
  * @property string $language
  */
-class PageObject extends FlexPageObject
+class Page extends FlexPageObject
 {
     use PageContentTrait;
     use PageLegacyTrait;
@@ -169,6 +169,7 @@ class PageObject extends FlexPageObject
 
         /** @var PageCollection|null $siblings */
         $siblings = $parent ? $parent->children() : null;
+        /** @var PageCollection|null $siblings */
         $siblings = $siblings ? $siblings->withVisible()->getCollection() : null;
         if ($siblings) {
             $ordering = array_flip($ordering);
@@ -184,9 +185,11 @@ class PageObject extends FlexPageObject
                 $oldOrder = $sibling->order();
                 $sibling->order(null !== $newOrder ? $newOrder + 1 : $oldOrder + $count);
             }
+            /** @var PageCollection $siblings */
             $siblings = $siblings->orderBy(['order' => 'ASC']);
             $siblings->removeElement($this);
         } else {
+            /** @var PageCollection $siblings */
             $siblings = $this->getFlexDirectory()->createCollection([]);
         }
 
@@ -363,7 +366,7 @@ class PageObject extends FlexPageObject
                     throw new \RuntimeException(sprintf('Page %s cannot be moved to %s', '/' . $key, $parentRoute));
                 }
 
-                /** @var PageObject|null $parent */
+                /** @var Page|null $parent */
                 $parent = $this->getFlexDirectory()->getObject($parentKey);
                 if (!$parent) {
                     // Page cannot be moved to non-existing location.
@@ -372,8 +375,10 @@ class PageObject extends FlexPageObject
 
                 // If parent changes and page is visible, move it to be the last item.
                 if (!empty($elements['order']) && $parent !== $this->parent()) {
-                    $siblings = $parent->children()->visible()->sort(['order' => 'ASC']);
-                    if ($siblings && $siblings->count()) {
+                    /** @var PageCollection $children */
+                    $children = $parent->children();
+                    $siblings = $children->visible()->sort(['order' => 'ASC']);
+                    if ($siblings->count()) {
                         $elements['order'] = ((int)$siblings->last()->order()) + 1;
                     } else {
                         $elements['order'] = 1;

@@ -197,9 +197,13 @@ class Session implements SessionInterface
             throw new SessionException('Failed to start session: ' . $error, 500);
         }
 
-        if ($user && !$user->isValid()) {
+        try {
+            if ($user && !$user->isValid()) {
+                throw new \RuntimeException('Invalid User');
+            }
+        } catch (\TypeError|\RuntimeException $e) {
             $this->clear();
-            throw new SessionException('User Invalid', 500);
+            throw new SessionException('Invalid User Object, restarting session', 500, $e);
         }
 
         $params = session_get_cookie_params();

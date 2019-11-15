@@ -1,13 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 /**
- * @package    Grav\Common\User
+ * @package    Grav\Common\Flex
  *
  * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
-namespace Grav\Common\User\FlexUser;
+namespace Grav\Common\Flex\Users;
 
 use Grav\Common\Debugger;
 use Grav\Common\File\CompiledYamlFile;

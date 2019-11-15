@@ -1101,7 +1101,7 @@ trait PageLegacyTrait
 
     /**
      * @param PageInterface|null $var
-     * @return PageInterface|FlexObjectInterface|null
+     * @return PageInterface|null
      */
     abstract public function parent(PageInterface $var = null);
 

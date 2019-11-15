@@ -1,13 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 /**
- * @package    Grav\Common\User
+ * @package    Grav\Common\Flex
  *
  * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
-namespace Grav\Common\User\FlexUser;
+namespace Grav\Common\Flex\UserGroups;
 
 use Grav\Framework\Flex\FlexIndex;
 
@@ -17,6 +19,6 @@ use Grav\Framework\Flex\FlexIndex;
  *
  * @method bool|null authorize(string $action, string $scope = null)
  */
-class GroupIndex extends FlexIndex
+class UserGroupIndex extends FlexIndex
 {
 }

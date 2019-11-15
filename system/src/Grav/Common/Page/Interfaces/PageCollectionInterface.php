@@ -142,7 +142,7 @@ interface PageCollectionInterface extends \Traversable, \ArrayAccess, \Countable
      * @param  string  $path
      * @param  int $direction either -1 or +1
      *
-     * @return PageInterface|PageCollectionInterface    The sibling item.
+     * @return PageInterface|PageCollectionInterface|false    The sibling item.
      */
     public function adjacentSibling($path, $direction = 1);
 

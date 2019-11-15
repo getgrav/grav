@@ -3,13 +3,13 @@
 declare(strict_types=1);
 
 /**
- * @package    Grav\Common\Page
+ * @package    Grav\Common\Flex
  *
  * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
-namespace Grav\Common\Page\Flex\Traits;
+namespace Grav\Common\Flex\Pages\Traits;
 
 use Grav\Common\Grav;
 use Grav\Common\Page\Interfaces\PageCollectionInterface;

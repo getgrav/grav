@@ -67,9 +67,9 @@ config:
 
   # Data Configuration
   data:
-    object: 'Grav\Common\User\FlexUser\Group'
-    collection: 'Grav\Common\User\FlexUser\GroupCollection'
-    index: 'Grav\Common\User\FlexUser\GroupIndex'
+    object: 'Grav\Common\Flex\UserGroups\UserGroup'
+    collection: 'Grav\Common\Flex\UserGroups\UserGroupCollection'
+    index: 'Grav\Common\Flex\UserGroups\UserGroupIndex'
     storage:
       class: 'Grav\Framework\Flex\Storage\SimpleStorage'
       options:

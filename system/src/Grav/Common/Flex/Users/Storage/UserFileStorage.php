@@ -1,18 +1,30 @@
 <?php
 
+declare(strict_types=1);
+
 /**
- * @package    Grav\Common\User
+ * @package    Grav\Common\Flex
  *
  * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
-namespace Grav\Common\User\FlexUser\Storage;
+namespace Grav\Common\Flex\Users\Storage;
 
-use Grav\Framework\Flex\Storage\FolderStorage;
+use Grav\Framework\Flex\Storage\FileStorage;
 
-class UserFolderStorage extends FolderStorage
+class UserFileStorage extends FileStorage
 {
+    /**
+     * {@inheritdoc}
+     * @see FlexStorageInterface::getMediaPath()
+     */
+    public function getMediaPath(string $key = null): ?string
+    {
+        // There is no media support for file storage (fallback to common location).
+        return null;
+    }
+
     /**
      * Prepares the row for saving and returns the storage key for the record.
      *

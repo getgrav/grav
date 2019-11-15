@@ -1,17 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 /**
- * @package    Grav\Common\User
+ * @package    Grav\Common\Flex
  *
  * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
-namespace Grav\Common\User\FlexUser;
+namespace Grav\Common\Flex\Users;
 
 use Grav\Common\User\Interfaces\UserCollectionInterface;
 use Grav\Common\User\Interfaces\UserInterface;
-use Grav\Common\Utils;
 use Grav\Framework\Flex\FlexCollection;
 
 class UserCollection extends FlexCollection implements UserCollectionInterface

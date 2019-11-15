@@ -1,17 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 /**
- * @package    Grav\Common\User
+ * @package    Grav\Common\Flex
  *
  * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
-namespace Grav\Common\User\FlexUser;
+namespace Grav\Common\Flex\UserGroups;
 
 use Grav\Framework\Flex\FlexCollection;
 
-class GroupCollection extends FlexCollection
+class UserGroupCollection extends FlexCollection
 {
     /**
      * @return array

@@ -1,13 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 /**
- * @package    Grav\Common\User
+ * @package    Grav\Common\Flex
  *
  * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
-namespace Grav\Common\User\FlexUser;
+namespace Grav\Common\Flex\UserGroups;
 
 use Grav\Common\User\Access;
 use Grav\Framework\Flex\FlexObject;
@@ -21,7 +23,7 @@ use Grav\Framework\Flex\Traits\FlexAuthorizeTrait;
  * @property string $groupname
  * @property Access $access
  */
-class Group extends FlexObject
+class UserGroup extends FlexObject
 {
     use FlexAuthorizeTrait;
 

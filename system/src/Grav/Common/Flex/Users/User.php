@@ -1,13 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 /**
- * @package    Grav\Common\User
+ * @package    Grav\Common\Flex
  *
  * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
-namespace Grav\Common\User\FlexUser;
+namespace Grav\Common\Flex\Users;
 
 use Grav\Common\Grav;
 use Grav\Common\Media\Interfaces\MediaCollectionInterface;
@@ -18,6 +20,8 @@ use Grav\Common\Page\Medium\MediumFactory;
 use Grav\Common\Page\Medium\StaticImageMedium;
 use Grav\Common\User\Access;
 use Grav\Common\User\Authentication;
+use Grav\Common\Flex\UserGroups\UserGroupCollection;
+use Grav\Common\Flex\UserGroups\UserGroupIndex;
 use Grav\Common\User\Interfaces\UserCollectionInterface;
 use Grav\Common\User\Interfaces\UserInterface;
 use Grav\Common\User\Traits\UserTrait;
@@ -69,7 +73,7 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
     /** @var FileInterface|null */
     protected $_storage;
 
-    /** @var GroupCollection|GroupIndex|null */
+    /** @var UserGroupCollection|UserGroupIndex|null */
     protected $_groups;
 
     /** @var Access|null */
@@ -606,7 +610,7 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
     }
 
     /**
-     * @return GroupIndex|GroupCollection
+     * @return UserGroupIndex|UserGroupCollection
      */
     protected function getGroups()
     {
@@ -896,18 +900,18 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
     }
 
     /**
-     * @return GroupCollection|GroupIndex
+     * @return UserGroupCollection|UserGroupIndex
      */
     protected function getUserGroups()
     {
         $grav = Grav::instance();
         $flex = $grav['flex_objects'] ?? null;
 
-        /** @var GroupCollection|null $groups */
+        /** @var UserGroupCollection|null $groups */
         $groups = $flex ? $flex->getDirectory('grav-user-groups') : null;
 
         if ($groups) {
-            /** @var GroupIndex $index */
+            /** @var UserGroupIndex $index */
             $index = $groups->getIndex();
 
             return $index;

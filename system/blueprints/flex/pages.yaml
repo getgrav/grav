@@ -138,11 +138,11 @@ config:
 
   # Data Configuration
   data:
-    object: 'Grav\Common\Page\Flex\PageObject'
-    collection: 'Grav\Common\Page\Flex\PageCollection'
-    index: 'Grav\Common\Page\Flex\PageIndex'
+    object: 'Grav\Common\Flex\Pages\Page'
+    collection: 'Grav\Common\Flex\Pages\PageCollection'
+    index: 'Grav\Common\Flex\Pages\PageIndex'
     storage:
-      class: 'Grav\Common\Page\Flex\PageStorage'
+      class: 'Grav\Common\Flex\Pages\PageStorage'
       options:
         formatter:
           class: 'Grav\Framework\File\Formatter\MarkdownFormatter'

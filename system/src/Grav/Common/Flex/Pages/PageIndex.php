@@ -3,21 +3,20 @@
 declare(strict_types=1);
 
 /**
- * @package    Grav\Common\Page
+ * @package    Grav\Common\Flex
  *
  * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
-namespace Grav\Common\Page\Flex;
+namespace Grav\Common\Flex\Pages;
 
 use Grav\Common\File\CompiledJsonFile;
 use Grav\Common\Grav;
-use Grav\Common\Page\Interfaces\PageInterface;
+use Grav\Common\Language\Language;
 use Grav\Common\Utils;
 use Grav\Framework\Flex\FlexDirectory;
 use Grav\Framework\Flex\Interfaces\FlexCollectionInterface;
-use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
 use Grav\Framework\Flex\Interfaces\FlexStorageInterface;
 use Grav\Framework\Flex\Pages\FlexPageIndex;
 
@@ -31,7 +30,7 @@ class PageIndex extends FlexPageIndex
     const ORDER_LIST_REGEX = '/(\/\d+)\.[^\/]+/u';
     const PAGE_ROUTE_REGEX = '/\/\d+\./u';
 
-    /** @var FlexObjectInterface|PageInterface|array */
+    /** @var Page|array */
     protected $_root;
     protected $_params;
 
@@ -86,7 +85,7 @@ class PageIndex extends FlexPageIndex
 
     /**
      * @param string $key
-     * @return FlexObjectInterface|PageInterface|null
+     * @return Page|null
      */
     public function get($key)
     {
@@ -103,12 +102,13 @@ class PageIndex extends FlexPageIndex
     }
 
     /**
-     * @return FlexObjectInterface|PageInterface
+     * @return Page
      */
     public function getRoot()
     {
         $root = $this->_root;
         if (is_array($root)) {
+            /** @var Page $root */
             $root = $this->getFlexDirectory()->createObject(['__META' => $root], '/');
             $this->_root = $root;
         }
@@ -264,7 +264,7 @@ class PageIndex extends FlexPageIndex
 
             $children = $page->children();
 
-            /** @var PageObject $child */
+            /** @var Page $child */
             foreach ($children as $child) {
                 $selected = $child->path() === $extra;
                 $includeChildren = \is_array($leaf) && !empty($leaf) && $selected;
@@ -304,6 +304,7 @@ class PageIndex extends FlexPageIndex
                         $child->routable() ? 'routable' : 'non-routable'
                     ];
                     $lang = $child->findTranslation($language) ?? 'n/a';
+                    /** @var Page $child */
                     $child = $child->getTranslation($language) ?? $child;
                     $extras = [
                         'template' => $child->template(),
@@ -322,7 +323,7 @@ class PageIndex extends FlexPageIndex
                         return $v !== null;
                     });
                     $payload = [
-                        'item-key' => basename($child->rawRoute()),
+                        'item-key' => basename($child->rawRoute() ?? $child->getKey()),
                         'icon' => $icon,
                         'title' => $child->title(),
                         'route' => [
