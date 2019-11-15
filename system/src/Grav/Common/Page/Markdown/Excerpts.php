@@ -43,7 +43,7 @@ class Excerpts
         $this->config = $config;
     }
 
-    public function getPage(): PageInterface
+    public function getPage(): ?PageInterface
     {
         return $this->page;
     }

@@ -133,7 +133,7 @@ class FlexPageCollection extends FlexCollection
             }
         }
 
-        return null;
+        return false;
     }
 
     /**

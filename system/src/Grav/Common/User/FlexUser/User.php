@@ -362,7 +362,7 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
 
         $old = $this->get($name, null, $separator);
         if ($old !== null) {
-            $value = $this->getBlueprint()->mergeData($value, $old, $name, $separator);
+            $value = $this->getBlueprint()->mergeData($value, $old, $name, $separator ?? '.');
         }
 
         $this->setNestedProperty($name, $value, $separator);
@@ -399,7 +399,7 @@ class User extends FlexObject implements UserInterface, MediaManipulationInterfa
         }
 
         // Return joined data.
-        return $this->getBlueprint()->mergeData($old, $value, $name, $separator);
+        return $this->getBlueprint()->mergeData($old, $value, $name, $separator ?? '.');
     }
 
     /**

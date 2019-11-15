@@ -81,8 +81,16 @@ class UserCollection implements UserCollectionInterface
     {
         $fields = (array)$fields;
 
-        $account_dir = Grav::instance()['locator']->findResource('account://');
-        $files = $account_dir ? array_diff(scandir($account_dir), ['.', '..']) : [];
+        $grav = Grav::instance();
+        /** @var UniformResourceLocator $locator */
+        $locator = $grav['locator'];
+
+        $account_dir = $locator->findResource('account://');
+        if (!is_string($account_dir)) {
+            return $this->load('');
+        }
+
+        $files = array_diff(scandir($account_dir) ?: [], ['.', '..']);
 
         // Try with username first, you never know!
         if (in_array('username', $fields, true)) {

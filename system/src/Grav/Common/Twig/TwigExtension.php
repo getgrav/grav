@@ -258,12 +258,12 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      */
     public function randomizeFilter($original, $offset = 0)
     {
-        if (!\is_array($original)) {
-            return $original;
-        }
-
         if ($original instanceof \Traversable) {
             $original = iterator_to_array($original, false);
+        }
+
+        if (!\is_array($original)) {
+            return $original;
         }
 
         $sorted = [];
