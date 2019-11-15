@@ -26,6 +26,7 @@ use Twig\Extension\DebugExtension;
 use Twig\Extension\StringLoaderExtension;
 use Twig\Loader\ArrayLoader;
 use Twig\Loader\ChainLoader;
+use Twig\Loader\ExistsLoaderInterface;
 use Twig\Loader\FilesystemLoader;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
@@ -455,13 +456,14 @@ class Twig
         $twig_extension = $extension ? '.'. $extension .TWIG_EXT : TEMPLATE_EXT;
         $template_file = $this->template($page->template() . $twig_extension);
 
-        if ($this->twig->getLoader()->exists($template_file)) {
+        $loader = $this->twig->getLoader();
+        if ($loader instanceof ExistsLoaderInterface && $loader->exists($template_file)) {
             return $template_file;
-        } else {
-            // Default to HTML
-            $page->templateFormat('html');
-            return $template . TEMPLATE_EXT;
         }
+
+        // Default to HTML
+        $page->templateFormat('html');
+        return $template . TEMPLATE_EXT;
     }
 
     /**

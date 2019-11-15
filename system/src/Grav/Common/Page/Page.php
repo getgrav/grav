@@ -1217,8 +1217,8 @@ class Page implements PageInterface
     /**
      * Gets and sets the associated media as found in the page folder.
      *
-     * @param  MediaCollectionInterface|Media $var Representation of associated media.
-     * @return MediaCollectionInterface|Media      Representation of associated media.
+     * @param  Media $var Representation of associated media.
+     * @return Media      Representation of associated media.
      */
     public function media($var = null)
     {

@@ -71,7 +71,7 @@ parameters:
             path: 'system/src/Grav/Common/Page/Pages.php'
         -
             message: '#on an unknown class Grav\\Plugin\\Admin#'
-            path: 'system/src/Grav/Common/Page/Flex/PageObject.php'
+            path: 'system/src/Grav/Common/Flex/Pages/PageObject.php'
         -
             message: '#Call to method getFlash\(\) on an unknown class Grav\\Common\\Grav\\Plugin\\Form\\Forms#'
             path: 'system/src/Grav/Common/Session.php'
