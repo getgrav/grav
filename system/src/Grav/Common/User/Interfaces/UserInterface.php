@@ -30,7 +30,7 @@ use RocketTheme\Toolbox\ArrayTraits\ExportInterface;
  * @property bool $authenticated
  * @property bool $authorized
  */
-interface UserInterface extends DataInterface, MediaInterface, \ArrayAccess, \JsonSerializable, ExportInterface
+interface UserInterface extends AuthorizeInterface, DataInterface, MediaInterface, \ArrayAccess, \JsonSerializable, ExportInterface
 {
     /**
      * @param array $items
@@ -171,15 +171,6 @@ interface UserInterface extends DataInterface, MediaInterface, \ArrayAccess, \Js
      * @return bool
      */
     public function authenticate(string $password): bool;
-
-    /**
-     * Checks user authorization to the action.
-     *
-     * @param  string $action
-     * @param  string|null $scope
-     * @return bool|null
-     */
-    public function authorize(string $action, string $scope = null): ?bool;
 
     /**
      * Return media object for the User's avatar.
