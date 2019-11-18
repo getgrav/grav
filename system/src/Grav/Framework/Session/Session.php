@@ -17,7 +17,8 @@ use Grav\Framework\Session\Exceptions\SessionException;
  */
 class Session implements SessionInterface
 {
-    protected $options;
+    /** @var array */
+    protected $options = [];
 
     /** @var bool */
     protected $started = false;

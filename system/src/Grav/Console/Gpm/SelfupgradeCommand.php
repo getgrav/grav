@@ -25,10 +25,6 @@ class SelfupgradeCommand extends ConsoleCommand
     /** @var array */
     protected $data;
 
-    protected $extensions;
-
-    protected $updatable;
-
     /** @var string */
     protected $file;
 

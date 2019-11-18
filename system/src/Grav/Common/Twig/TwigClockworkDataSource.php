@@ -19,8 +19,6 @@ class TwigClockworkDataSource extends DataSource
     /** @var Timeline Views data structure */
     protected $views;
 
-    protected $root;
-
     /**
      * TwigClockworkDataSource constructor.
      */

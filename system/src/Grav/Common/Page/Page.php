@@ -83,7 +83,6 @@ class Page implements PageInterface
     protected $redirect;
     /** @var string */
     protected $external_url;
-    protected $items;
     /** @var object|null */
     protected $header;
     /** @var string */
@@ -98,7 +97,7 @@ class Page implements PageInterface
     protected $summry;
     /** @var string */
     protected $raw_content;
-    protected $pagination;
+    /** @var array */
     protected $metadata;
     /** @var string */
     protected $title;
@@ -118,7 +117,7 @@ class Page implements PageInterface
     protected $order_dir;
     /** @var array */
     protected $order_manual;
-    protected $modular;
+    /** @var bool */
     protected $modular_twig;
     /** @var array */
     protected $process;
