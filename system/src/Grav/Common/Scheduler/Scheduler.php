@@ -277,6 +277,9 @@ class Scheduler
 
     /**
      * Helper to determine if cron job is setup
+     * 0 - Crontab Not found
+     * 1 - Crontab Found
+     * 2 - Error
      *
      * @return int
      */
@@ -329,6 +332,26 @@ class Scheduler
         $saved_states = $this->getJobStates();
         $saved_states->save(array_merge($saved_states->content(), $new_states));
     }
+
+    /**
+     * Try to determine who's running the process
+     *
+     * @return false|string
+     */
+    public function whoami()
+    {
+        $process = new Process('whoami');
+        $process->run();
+
+        if ($process->isSuccessful()) {
+            $output = trim($process->getOutput());
+            return $output;
+        }
+
+        $error = $process->getErrorOutput();
+        return $error;
+    }
+
 
     /**
      * Queue a job for execution in the correct queue.

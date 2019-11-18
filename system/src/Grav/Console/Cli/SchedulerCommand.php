@@ -187,7 +187,8 @@ class SchedulerCommand extends ConsoleCommand
                 $io->success('All Ready! You have already set up Grav\'s Scheduler in your crontab. You can validate this by running "crontab -l" to list your current crontab entries.');
                 $verb = 'reinstall';
             } else {
-                $io->error('You still need to set up Grav\'s Scheduler in your crontab');
+                $user = $scheduler->whoami();
+                $io->error('Can\'t find a crontab for ' . $user . '. You need to set up Grav\'s Scheduler in your crontab');
             }
             if (!Utils::isWindows()) {
                 $io->note("To $verb, run the following command from your terminal:");
