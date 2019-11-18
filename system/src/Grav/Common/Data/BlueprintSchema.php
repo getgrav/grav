@@ -18,6 +18,7 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
 {
     use Export;
 
+    /** @var array */
     protected $ignoreFormKeys = [
         'title' => true,
         'help' => true,

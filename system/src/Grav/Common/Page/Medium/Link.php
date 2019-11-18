@@ -13,10 +13,9 @@ class Link implements RenderableInterface
 {
     use ParsedownHtmlTrait;
 
-    /**
-     * @var array
-     */
+    /** @var array */
     protected $attributes = [];
+    /** @var Medium|null */
     protected $source;
 
     /**

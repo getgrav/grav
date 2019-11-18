@@ -14,6 +14,7 @@ use Grav\Common\Data\Blueprints;
 use Grav\Common\Data\Data;
 use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Grav;
+use Grav\Common\Media\Interfaces\MediaCollectionInterface;
 use Grav\Common\Page\Media;
 use Grav\Common\Page\Medium\Medium;
 use Grav\Common\Page\Medium\MediumFactory;
@@ -25,6 +26,7 @@ class User extends Data implements UserInterface
 {
     use UserTrait;
 
+    /** @var MediaCollectionInterface */
     protected $_media;
 
     /**

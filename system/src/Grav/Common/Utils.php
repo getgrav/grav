@@ -21,6 +21,7 @@ use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 abstract class Utils
 {
+    /** @var array  */
     protected static $nonces = [];
 
     protected const ROOTURL_REGEX = '{^((?:http[s]?:\/\/[^\/]+)|(?:\/\/[^\/]+))(.*)}';

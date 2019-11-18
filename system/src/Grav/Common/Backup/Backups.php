@@ -27,9 +27,11 @@ class Backups
 
     protected const BACKUP_DATE_FORMAT = 'YmdHis';
 
+    /** @var string */
     protected static $backup_dir;
 
-    protected static $backups = null;
+    /** @var array|null */
+    protected static $backups;
 
     public function init()
     {

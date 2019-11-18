@@ -62,6 +62,7 @@ class Debugger
     /** @var bool */
     protected $enabled = false;
 
+    /** @var bool */
     protected $initialized = false;
 
     /** @var array */

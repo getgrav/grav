@@ -29,36 +29,34 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
  */
 class Cache extends Getters
 {
-    /**
-     * @var string Cache key.
-     */
+    /** @var string Cache key. */
     protected $key;
 
+    /** @var int */
     protected $lifetime;
+
+    /** @var int */
     protected $now;
 
     /** @var Config $config */
     protected $config;
 
-    /**
-     * @var DoctrineCache\CacheProvider
-     */
+    /** @var DoctrineCache\CacheProvider */
     protected $driver;
 
-    /**
-     * @var CacheInterface
-     */
+    /** @var CacheInterface */
     protected $simpleCache;
 
+    /** @var string */
     protected $driver_name;
 
+    /** @var string */
     protected $driver_setting;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     protected $enabled;
 
+    /** @var string */
     protected $cache_dir;
 
     protected static $standard_remove = [

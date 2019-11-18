@@ -20,9 +20,7 @@ trait ObjectCollectionTrait
     /** @var string */
     protected static $type;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $_key;
 
     /**

@@ -24,14 +24,22 @@ use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
  */
 class PageStorage extends FolderStorage
 {
-    protected $ignore_files;
-    protected $ignore_folders;
+    /** @var bool */
     protected $ignore_hidden;
+    /** @var array */
+    protected $ignore_files;
+    /** @var array */
+    protected $ignore_folders;
+    /** @var bool */
     protected $include_default_lang_file_extension;
+    /** @var bool */
     protected $recurse;
+    /** @var string */
     protected $base_path;
 
+    /** @var int */
     protected $flags;
+    /** @var string */
     protected $regex;
 
     protected function initOptions(array $options): void

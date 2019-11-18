@@ -14,25 +14,13 @@ use Grav\Common\Grav;
 
 class Response
 {
-    /**
-     * The callback for the progress
-     *
-     * @var callable    Either a function or callback in array notation
-     */
+    /** @var callable    The callback for the progress, either a function or callback in array notation */
     public static $callback = null;
 
-    /**
-     * Which method to use for HTTP calls, can be 'curl', 'fopen' or 'auto'. Auto is default and fopen is the preferred method
-     *
-     * @var string
-     */
+    /** @var string Which method to use for HTTP calls, can be 'curl', 'fopen' or 'auto'. Auto is default and fopen is the preferred method */
     private static $method = 'auto';
 
-    /**
-     * Default parameters for `curl` and `fopen`
-     *
-     * @var array
-     */
+    /** @var array Default parameters for `curl` and `fopen` */
     private static $defaults = [
 
         'curl'  => [

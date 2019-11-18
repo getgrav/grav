@@ -14,14 +14,17 @@ use Grav\Common\Page\Interfaces\PageInterface;
 
 trait ParsedownGravTrait
 {
+    /** @var array */
+    public $completable_blocks = [];
+    /** @var array */
+    public $continuable_blocks = [];
+
     /** @var Excerpts */
     protected $excerpts;
-
+    /** @var array */
     protected $special_chars;
+    /** @var string */
     protected $twig_link_regex = '/\!*\[(?:.*)\]\((\{([\{%#])\s*(.*?)\s*(?:\2|\})\})\)/';
-
-    public $completable_blocks = [];
-    public $continuable_blocks = [];
 
     /**
      * Initialization function to setup key variables needed by the MarkdownGravLinkTrait

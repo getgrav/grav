@@ -17,29 +17,51 @@ class Job
 {
     use IntervalTrait;
 
+    /** @var string */
     private $id;
-    private $enabled = true;
+    /** @var bool */
+    private $enabled;
+    /** @var callable|string */
     private $command;
+    /** @var string */
     private $at;
+    /** @var array */
     private $args = [];
+    /** @var bool */
     private $runInBackground = true;
+    /** @var \DateTime */
     private $creationTime;
+    /** @var CronExpression */
     private $executionTime;
+    /** @var string */
     private $tempDir;
+    /** @var string */
     private $lockFile;
+    /** @var bool */
     private $truthTest = true;
+    /** @var string */
     private $output;
+    /** @var int */
     private $returnCode = 0;
+    /** @var array */
     private $outputTo = [];
+    /** @var array */
     private $emailTo = [];
+    /** @var array */
     private $emailConfig = [];
+    /** @var callable|null */
     private $before;
+    /** @var callable|null */
     private $after;
+    /** @var callable */
     private $whenOverlapping;
+    /** @var string */
     private $outputMode;
     /** @var Process|null $process */
     private $process;
+    /** @var bool */
     private $successful = false;
+    /** @var string|null */
     private $backlink;
 
     /**

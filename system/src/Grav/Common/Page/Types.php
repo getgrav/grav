@@ -22,7 +22,9 @@ class Types implements \ArrayAccess, \Iterator, \Countable
 {
     use ArrayAccess, Constructor, Iterator, Countable, Export;
 
+    /** @var array */
     protected $items;
+    /** @var array */
     protected $systemBlueprints;
 
     public function register($type, $blueprint = null)

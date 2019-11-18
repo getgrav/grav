@@ -33,31 +33,19 @@ class Installer
     /** @const Invalid source file */
     public const INVALID_SOURCE = 128;
 
-    /**
-     * Destination folder on which validation checks are applied
-     * @var string
-     */
+    /** @var string Destination folder on which validation checks are applied */
     protected static $target;
 
-    /**
-     * @var int|string Error code or string
-     */
+    /** @var int|string Error code or string */
     protected static $error = 0;
 
-    /**
-     * @var int Zip Error Code
-     */
+    /** @var int Zip Error Code */
     protected static $error_zip = 0;
 
-    /**
-     * @var string Post install message
-     */
+    /** @var string Post install message */
     protected static $message = '';
 
-    /**
-     * Default options for the install
-     * @var array
-     */
+    /** @var array Default options for the install */
     protected static $options = [
         'overwrite'       => true,
         'ignore_symlinks' => true,

@@ -17,7 +17,9 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class PagesProcessor extends ProcessorBase
 {
+    /** @var string */
     public $id = 'pages';
+    /** @var string */
     public $title = 'Pages';
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface

@@ -16,39 +16,25 @@ use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 class ImageMedium extends Medium
 {
-    /**
-     * @var array
-     */
+    /** @var array */
     protected $thumbnailTypes = ['page', 'media', 'default'];
 
-    /**
-     * @var ImageFile|null
-     */
+    /** @var ImageFile|null */
     protected $image;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $format = 'guess';
 
-    /**
-     * @var int
-     */
+    /** @var int */
     protected $quality;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     protected $default_quality;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     protected $debug_watermarked = false;
 
-    /**
-     * @var array
-     */
+    /** @var array */
     public static $magic_actions = [
         'resize', 'forceResize', 'cropResize', 'crop', 'zoomCrop',
         'negate', 'brightness', 'contrast', 'grayscale', 'emboss',
@@ -56,9 +42,7 @@ class ImageMedium extends Medium
         'rotate', 'flip', 'fixOrientation', 'gaussianBlur'
     ];
 
-    /**
-     * @var array
-     */
+    /** @var array */
     public static $magic_resize_actions = [
         'resize' => [0, 1],
         'forceResize' => [0, 1],
@@ -67,9 +51,7 @@ class ImageMedium extends Medium
         'zoomCrop' => [0, 1]
     ];
 
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $sizes = '100vw';
 
     /**

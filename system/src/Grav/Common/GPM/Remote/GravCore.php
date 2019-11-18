@@ -14,12 +14,16 @@ use \Doctrine\Common\Cache\FilesystemCache;
 
 class GravCore extends AbstractPackageCollection
 {
+    /** @var string */
     protected $repository = 'https://getgrav.org/downloads/grav.json';
+
     /** @var array */
     private $data;
-
+    /** @var string */
     private $version;
+    /** @var string */
     private $date;
+    /** @var string|null */
     private $min_php;
 
     /**

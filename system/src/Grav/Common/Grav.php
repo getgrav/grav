@@ -46,14 +46,10 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  */
 class Grav extends Container
 {
-    /**
-     * @var string Processed output for the page.
-     */
+    /** @var string Processed output for the page. */
     public $output;
 
-    /**
-     * @var static|null The singleton instance
-     */
+    /** @var static|null The singleton instance */
     protected static $instance;
 
     /**
@@ -105,6 +101,7 @@ class Grav extends Container
         'renderProcessor',
     ];
 
+    /** @var array */
     protected $initialized = [];
 
     /**

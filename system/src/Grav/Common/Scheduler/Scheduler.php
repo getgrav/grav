@@ -18,11 +18,7 @@ use RocketTheme\Toolbox\File\YamlFile;
 
 class Scheduler
 {
-    /**
-     * The queued jobs.
-     *
-     * @var Job[]
-     */
+    /** @var Job[] The queued jobs. */
     private $jobs = [];
 
     /** @var Job[] */
@@ -36,8 +32,14 @@ class Scheduler
 
     /** @var Job[] */
     private $jobs_run = [];
+
+    /** @var array */
     private $output_schedule = [];
+
+    /** @var array */
     private $config;
+
+    /** @var string */
     private $status_path;
 
     /**

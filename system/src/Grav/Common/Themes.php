@@ -26,6 +26,7 @@ class Themes extends Iterator
     /** @var Config */
     protected $config;
 
+    /** @var bool */
     protected $inited = false;
 
     /**

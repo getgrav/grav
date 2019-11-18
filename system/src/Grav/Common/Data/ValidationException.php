@@ -13,6 +13,7 @@ use Grav\Common\Grav;
 
 class ValidationException extends \RuntimeException
 {
+    /** @var array */
     protected $messages = [];
 
     public function setMessages(array $messages = [])

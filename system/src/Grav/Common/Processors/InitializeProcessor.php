@@ -24,7 +24,9 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class InitializeProcessor extends ProcessorBase
 {
+    /** @var string */
     public $id = '_init';
+    /** @var string */
     public $title = 'Initialize';
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface

@@ -22,7 +22,9 @@ use Grav\Framework\Cache\Exception\InvalidArgumentException;
  */
 class FileCache extends AbstractCache
 {
+    /** @var string */
     private $directory;
+    /** @var string|null */
     private $tmp;
 
     /**

@@ -16,6 +16,7 @@ use Twig\Node\NodeCaptureInterface;
 
 class TwigNodeStyle extends Node implements NodeCaptureInterface
 {
+    /** @var string */
     protected $tagName = 'style';
 
     /**

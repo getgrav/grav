@@ -13,11 +13,13 @@ use Grav\Common\Utils;
 
 abstract class Archiver
 {
+    /** @var array */
     protected $options = [
         'exclude_files' => ['.DS_Store'],
         'exclude_paths' => []
     ];
 
+    /** @var string */
     protected $archive_file;
 
     public static function create($compression)

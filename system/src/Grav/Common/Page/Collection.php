@@ -17,14 +17,10 @@ use Grav\Common\Utils;
 
 class Collection extends Iterator implements PageCollectionInterface
 {
-    /**
-     * @var Pages
-     */
+    /** @var Pages */
     protected $pages;
 
-    /**
-     * @var array
-     */
+    /** @var array */
     protected $params;
 
     /**

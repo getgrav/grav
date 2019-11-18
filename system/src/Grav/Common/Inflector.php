@@ -17,10 +17,15 @@ use Grav\Common\Language\Language;
 
 class Inflector
 {
+    /** @var array */
     protected static $plural;
+    /** @var array */
     protected static $singular;
+    /** @var array */
     protected static $uncountable;
+    /** @var array */
     protected static $irregular;
+    /** @var array */
     protected static $ordinals;
 
     public static function init()

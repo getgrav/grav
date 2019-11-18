@@ -11,6 +11,7 @@ namespace Grav\Common\Errors;
 
 class SystemFacade extends \Whoops\Util\SystemFacade
 {
+    /** @var callable */
     protected $whoopsShutdownHandler;
 
     /**

@@ -19,8 +19,10 @@ use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 class Media extends AbstractMedia
 {
+    /** @var GlobalMedia */
     protected static $global;
 
+    /** @var array */
     protected $standard_exif = ['FileSize', 'MimeType', 'height', 'width'];
 
     /**

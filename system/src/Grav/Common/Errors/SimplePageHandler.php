@@ -15,8 +15,10 @@ use Whoops\Util\TemplateHelper;
 
 class SimplePageHandler extends Handler
 {
-    private $searchPaths = array();
-    private $resourceCache = array();
+    /** @var array */
+    private $searchPaths = [];
+    /** @var array */
+    private $resourceCache = [];
 
     public function __construct()
     {

@@ -22,6 +22,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 trait ConsoleTrait
 {
+    /** @var string */
     protected $argv;
 
     /* @var InputInterface $output */

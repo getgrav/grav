@@ -24,9 +24,7 @@ class Response implements ResponseInterface
 {
     use ResponseDecoratorTrait;
 
-    /**
-     * @var string EOL characters used for HTTP response.
-     */
+    /** @var string EOL characters used for HTTP response. */
     private const EOL = "\r\n";
 
     /**

@@ -11,11 +11,9 @@ namespace Grav\Common\GPM\Remote;
 
 class Themes extends AbstractPackageCollection
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $type = 'themes';
-
+    /** @var string */
     protected $repository = 'https://getgrav.org/downloads/themes.json';
 
     /**

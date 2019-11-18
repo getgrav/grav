@@ -18,6 +18,7 @@ class Header implements \ArrayAccess, ExportInterface, \JsonSerializable
 {
     use NestedArrayAccessWithGetters, Constructor, Export;
 
+    /** @var array */
     protected $items;
 
     public function jsonSerialize()

@@ -15,7 +15,9 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class TwigProcessor extends ProcessorBase
 {
+    /** @var string */
     public $id = 'twig';
+    /** @var string */
     public $title = 'Twig';
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface

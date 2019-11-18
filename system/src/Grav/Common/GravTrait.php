@@ -14,6 +14,7 @@ namespace Grav\Common;
  */
 trait GravTrait
 {
+    /** @var Grav */
     protected static $grav;
 
     /**

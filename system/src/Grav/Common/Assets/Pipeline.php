@@ -35,19 +35,24 @@ class Pipeline extends PropertyObject
 
     protected const FIRST_FORWARDSLASH_REGEX = '{^\/{1}\w}';
 
-    protected $css_minify;
-    protected $css_minify_windows;
-    protected $css_rewrite;
+    /** @var bool */
+    protected $css_minify = false;
+    /** @var bool */
+    protected $css_rewrite = false;
+    /** @var bool */
+    protected $js_minify = false;
 
-    protected $js_minify;
-    protected $js_minify_windows;
-
-    protected $base_url;
+    /** @var string */
     protected $assets_dir;
+    /** @var string */
     protected $assets_url;
+    /** @var string */
     protected $timestamp;
+    /** @var array */
     protected $attributes;
-    protected $query;
+    /** @var string */
+    protected $query = '';
+    /** @var string */
     protected $asset;
 
     /**

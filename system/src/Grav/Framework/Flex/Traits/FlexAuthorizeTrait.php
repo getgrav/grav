@@ -21,6 +21,7 @@ use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
  */
 trait FlexAuthorizeTrait
 {
+    /** @var string */
     private $_authorize = '%s.flex-object.%s';
 
     public function isAuthorized(string $action, string $scope = null, UserInterface $user = null): bool

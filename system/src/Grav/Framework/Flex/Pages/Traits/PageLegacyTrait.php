@@ -32,7 +32,9 @@ use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
  */
 trait PageLegacyTrait
 {
+    /** @var array|null */
     private $_content_meta;
+    /** @var array|null */
     private $_metadata;
 
     /**

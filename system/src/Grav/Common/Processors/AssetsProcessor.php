@@ -15,7 +15,9 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class AssetsProcessor extends ProcessorBase
 {
+    /** @var string */
     public $id = '_assets';
+    /** @var string */
     public $title = 'Assets';
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface

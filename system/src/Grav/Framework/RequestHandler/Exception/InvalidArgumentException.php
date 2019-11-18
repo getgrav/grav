@@ -15,9 +15,7 @@ use Throwable;
 
 class InvalidArgumentException extends \InvalidArgumentException
 {
-    /**
-     * @var mixed|null
-     */
+    /** @var mixed|null */
     private $invalidMiddleware;
 
     /**

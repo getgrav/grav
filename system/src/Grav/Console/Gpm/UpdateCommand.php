@@ -42,6 +42,7 @@ class UpdateCommand extends ConsoleCommand
     /** @var string */
     protected $all_yes;
 
+    /** @var string */
     protected $overwrite;
 
     /** @var Upgrader */

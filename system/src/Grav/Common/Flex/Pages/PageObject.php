@@ -50,6 +50,7 @@ class PageObject extends FlexPageObject
     /** @var string File format, eg. 'md' */
     protected $format;
 
+    /** @var bool */
     private $_initialized = false;
 
     /**

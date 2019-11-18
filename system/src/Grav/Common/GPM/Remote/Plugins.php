@@ -11,11 +11,9 @@ namespace Grav\Common\GPM\Remote;
 
 class Plugins extends AbstractPackageCollection
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $type = 'plugins';
-
+    /** @var string */
     protected $repository = 'https://getgrav.org/downloads/plugins.json';
 
     /**

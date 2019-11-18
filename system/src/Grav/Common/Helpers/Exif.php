@@ -10,9 +10,11 @@
 namespace Grav\Common\Helpers;
 
 use Grav\Common\Grav;
+use PHPExif\Reader\Reader;
 
 class Exif
 {
+    /** @var Reader */
     public $reader;
 
     /**
@@ -30,6 +32,9 @@ class Exif
         }
     }
 
+    /**
+     * @return Reader
+     */
     public function getReader()
     {
         if ($this->reader) {

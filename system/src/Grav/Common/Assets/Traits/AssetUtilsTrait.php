@@ -69,6 +69,7 @@ trait AssetUtilsTrait
                 $link = ROOT_DIR . $relative_path;
             }
 
+            // TODO: looks like this is not being used.
             $file = $this->fetch_command instanceof \Closure ? @$this->fetch_command->__invoke($link) : @file_get_contents($link);
 
             // No file found, skip it...

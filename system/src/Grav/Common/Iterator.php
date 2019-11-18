@@ -20,9 +20,7 @@ class Iterator implements \ArrayAccess, \Iterator, \Countable, \Serializable
 {
     use Constructor, ArrayAccessWithGetters, ArrayIterator, Countable, Serializable, Export;
 
-    /**
-     * @var array
-     */
+    /** @var array */
     protected $items = [];
 
     /**

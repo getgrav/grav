@@ -14,9 +14,7 @@ use Grav\Framework\Form\FormFlash;
 
 class FlexFormFlash extends FormFlash
 {
-    /**
-     * @var FlexObjectInterface
-     */
+    /** @var FlexObjectInterface */
     protected $object;
 
     public function setObject(FlexObjectInterface $object)

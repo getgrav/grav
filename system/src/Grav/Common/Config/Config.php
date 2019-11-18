@@ -17,6 +17,7 @@ use Grav\Common\Utils;
 
 class Config extends Data
 {
+    /** @var string */
     public $environment;
 
     /** @var string */

@@ -22,6 +22,7 @@ use Grav\Common\Plugins;
  */
 class Install
 {
+    /** @var array */
     private $requires = [
         'php' => [
             'name' => 'PHP',
@@ -81,6 +82,7 @@ class Install
         ]
     ];
 
+    /** @var array */
     private $ignores = [
         'backup',
         'cache',
@@ -92,13 +94,18 @@ class Install
         'robots.txt'
     ];
 
+    /** @var array */
     private $classMap = [
         // 'Grav\\Installer\\Test' => __DIR__ . '/Test.php',
     ];
 
+    /** @var string|null */
     private $zip;
+
+    /** @var string|null */
     private $location;
 
+    /** @var static */
     private static $instance;
 
     public static function instance()

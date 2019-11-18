@@ -20,14 +20,10 @@ use Grav\Framework\Cache\Exception\InvalidArgumentException;
  */
 class ChainCache extends AbstractCache
 {
-    /**
-     * @var CacheInterface[]
-     */
+    /** @var CacheInterface[] */
     protected $caches;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     protected $count;
 
     /**

@@ -25,25 +25,29 @@ abstract class BaseAsset extends PropertyObject
     /** @const Regex to match CSS import content */
     protected const CSS_IMPORT_REGEX = '{@import(.*?);}';
 
+    /** @var string */
     protected $asset;
 
-    protected $asset_type;
-    protected $order;
-    protected $group;
+    /** @var string */
     protected $position;
+    /** @var int */
     protected $priority;
+    /** @var array */
     protected $attributes = [];
 
-
+    /** @var string */
     protected $timestamp;
+    /** @var int|false */
     protected $modified;
+    /** @var bool */
     protected $remote;
+    /** @var string */
     protected $query = '';
 
     // Private Bits
-    private $base_url;
-    private $fetch_command;
+    /** @var bool */
     private $css_rewrite = false;
+    /** @var bool */
     private $css_minify = false;
 
     abstract function render();

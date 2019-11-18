@@ -15,6 +15,7 @@ use Clockwork\Request\Timeline;
 
 class TwigProfileProcessor
 {
+    /** @var float */
     private $root;
 
     public function process(Profile $profile, Timeline $views, $counter = 0, $prefix = '', $sibling = false)
