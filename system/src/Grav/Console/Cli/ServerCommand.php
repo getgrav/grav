@@ -31,6 +31,7 @@ class ServerCommand extends ConsoleCommand
     protected $ip;
     /** @var int */
     protected $port;
+    /** @var SymfonyStyle */
     protected $io;
 
     protected function configure()

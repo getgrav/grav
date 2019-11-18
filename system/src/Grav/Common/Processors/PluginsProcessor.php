@@ -15,7 +15,9 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class PluginsProcessor extends ProcessorBase
 {
+    /** @var string */
     public $id = 'plugins';
+    /** @var string */
     public $title = 'Plugins';
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface

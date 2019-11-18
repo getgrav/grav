@@ -13,6 +13,7 @@ use Grav\Common\Iterator;
 
 abstract class AbstractPackageCollection extends Iterator
 {
+    /** @var string */
     protected $type;
 
     public function toJson()

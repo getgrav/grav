@@ -14,6 +14,7 @@ namespace Grav\Common;
  */
 class Browser
 {
+    /** @var string[] */
     protected $useragent = [];
 
     /**
@@ -135,7 +136,7 @@ class Browser
 
         return true;
     }
-    
+
     /**
      * Determine if “Do Not Track” is set by browser
      * @see https://www.w3.org/TR/tracking-dnt/

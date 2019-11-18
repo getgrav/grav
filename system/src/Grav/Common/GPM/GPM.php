@@ -18,29 +18,19 @@ use RocketTheme\Toolbox\File\YamlFile;
 
 class GPM extends Iterator
 {
-    /**
-     * Local installed Packages
-     * @var Local\Packages
-     */
+    /** @var Local\Packages Local installed Packages */
     private $installed;
 
-    /**
-     * Remote available Packages
-     * @var Remote\Packages
-     */
+    /** @var Remote\Packages Remote available Packages */
     private $repository;
 
-    /**
-     * @var Remote\GravCore
-     */
+    /** @var Remote\GravCore */
     public $grav;
 
-    /**
-     * Internal cache
-     * @var array
-     */
+    /** @var array Internal cache */
     protected $cache;
 
+    /** @var array */
     protected $install_paths = [
         'plugins' => 'user/plugins/%name%',
         'themes' => 'user/themes/%name%',

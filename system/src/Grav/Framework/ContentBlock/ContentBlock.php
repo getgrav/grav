@@ -23,12 +23,19 @@ namespace Grav\Framework\ContentBlock;
  */
 class ContentBlock implements ContentBlockInterface
 {
+    /** @var int */
     protected $version = 1;
+    /** @var string */
     protected $id;
+    /** @var string */
     protected $tokenTemplate = '@@BLOCK-%s@@';
+    /** @var string */
     protected $content = '';
+    /** @var array */
     protected $blocks = [];
+    /** @var string */
     protected $checksum;
+    /** @var bool */
     protected $cached = true;
 
     /**

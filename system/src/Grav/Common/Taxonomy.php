@@ -32,7 +32,9 @@ use Grav\Common\Page\Interfaces\PageInterface;
  */
 class Taxonomy
 {
+    /** @var array */
     protected $taxonomy_map;
+    /** @var Grav */
     protected $grav;
 
     /**

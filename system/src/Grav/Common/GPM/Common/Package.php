@@ -16,9 +16,7 @@ use Grav\Common\Data\Data;
  */
 class Package
 {
-    /**
-     * @var Data
-     */
+    /** @var Data */
     protected $data;
 
     public function __construct(Data $package, $type = null)

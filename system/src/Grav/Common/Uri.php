@@ -28,31 +28,51 @@ class Uri
     /** @var \Grav\Framework\Route\Route|null */
     protected static $currentRoute;
 
+    /** @var string */
     public $url;
 
     // Uri parts.
+    /** @var string|null */
     protected $scheme;
+    /** @var string|null */
     protected $user;
+    /** @var string|null */
     protected $password;
+    /** @var string|null */
     protected $host;
+    /** @var int|null */
     protected $port;
+    /** @var string */
     protected $path;
+    /** @var string */
     protected $query;
+    /** @var string|null */
     protected $fragment;
 
     // Internal stuff.
+    /** @var string */
     protected $base;
+    /** @var string|null */
     protected $basename;
+    /** @var string */
     protected $content_path;
+    /** @var string|null */
     protected $extension;
+    /** @var string */
     protected $env;
+    /** @var array */
     protected $paths;
+    /** @var array */
     protected $queries;
+    /** @var array */
     protected $params;
+    /** @var string */
     protected $root;
+    /** @var string */
     protected $root_path;
+    /** @var string */
     protected $uri;
-    protected $content_type;
+    /** @var array */
     protected $post;
 
     /**
@@ -136,6 +156,9 @@ class Uri
 
         if ($custom_base) {
             $custom_parts = parse_url($custom_base);
+            if ($custom_parts === false) {
+                throw new \RuntimeException('Bad configuration: system.custom_base_url');
+            }
             $orig_root_path = $this->root_path;
             $this->root_path = isset($custom_parts['path']) ? rtrim($custom_parts['path'], '/') : '';
             if (isset($custom_parts['scheme'])) {
@@ -350,7 +373,7 @@ class Uri
     /**
      * Return the Path
      *
-     * @return String The path of the URI
+     * @return string The path of the URI
      */
     public function path()
     {
@@ -1398,6 +1421,9 @@ class Uri
         return $rootPath;
     }
 
+    /**
+     * @return string
+     */
     private function buildEnvironment()
     {
         // check for localhost variations

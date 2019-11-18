@@ -15,7 +15,9 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class BackupsProcessor extends ProcessorBase
 {
+    /** @var string */
     public $id = '_backups';
+    /** @var string */
     public $title = 'Backups';
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface

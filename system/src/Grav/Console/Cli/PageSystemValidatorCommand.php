@@ -20,6 +20,7 @@ use Symfony\Component\Console\Input\InputOption;
 
 class PageSystemValidatorCommand extends ConsoleCommand
 {
+    /** @var array */
     protected $tests = [
         // Content
         'header' => [[]],

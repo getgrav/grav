@@ -11,6 +11,7 @@ namespace Grav\Common\Language;
 
 class LanguageCodes
 {
+    /** @var array */
     protected static $codes = [
         'af'         => [ 'name' => 'Afrikaans',                 'nativeName' => 'Afrikaans' ],
         'ak'         => [ 'name' => 'Akan',                      'nativeName' => 'Akan' ], // unverified native name

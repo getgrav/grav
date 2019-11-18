@@ -14,19 +14,13 @@ use Grav\Common\Utils;
 
 class Languages extends Data
 {
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     protected $checksum;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     protected $modified;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     protected $timestamp;
 
 

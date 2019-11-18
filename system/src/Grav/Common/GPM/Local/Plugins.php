@@ -13,9 +13,7 @@ use Grav\Common\Grav;
 
 class Plugins extends AbstractPackageCollection
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $type = 'plugins';
 
     /**

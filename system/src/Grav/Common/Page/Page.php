@@ -37,74 +37,112 @@ class Page implements PageInterface
     use PageFormTrait;
     use MediaTrait;
 
-    /**
-     * @var string Filename. Leave as null if page is folder.
-     */
+    /** @var string|null Filename. Leave as null if page is folder. */
     protected $name;
+    /** @var string */
     protected $folder;
+    /** @var string */
     protected $path;
+    /** @var string */
     protected $extension;
+    /** @var string */
     protected $url_extension;
-
+    /** @var string */
     protected $id;
+    /** @var string */
     protected $parent;
+    /** @var string */
     protected $template;
+    /** @var int */
     protected $expires;
+    /** @var string */
     protected $cache_control;
+    /** @var bool */
     protected $visible;
+    /** @var bool */
     protected $published;
+    /** @var int */
     protected $publish_date;
+    /** @var int|null */
     protected $unpublish_date;
+    /** @var string */
     protected $slug;
+    /** @var string */
     protected $route;
+    /** @var string|null */
     protected $raw_route;
+    /** @var string */
     protected $url;
+    /** @var array */
     protected $routes;
+    /** @var bool */
     protected $routable;
+    /** @var int */
     protected $modified;
+    /** @var string */
     protected $redirect;
+    /** @var string */
     protected $external_url;
-    protected $items;
     /** @var object|null */
     protected $header;
+    /** @var string */
     protected $frontmatter;
+    /** @var string */
     protected $language;
+    /** @var string|null */
     protected $content;
+    /** @var array */
     protected $content_meta;
+    /** @var string|null */
     protected $summary;
+    /** @var string */
     protected $raw_content;
-    protected $pagination;
+    /** @var array|null */
     protected $metadata;
+    /** @var string */
     protected $title;
+    /** @var int */
     protected $max_count;
+    /** @var string */
     protected $menu;
+    /** @var int */
     protected $date;
+    /** @var string */
     protected $dateformat;
+    /** @var array */
     protected $taxonomy;
+    /** @var string */
     protected $order_by;
+    /** @var string */
     protected $order_dir;
+    /** @var array|string|null */
     protected $order_manual;
-    protected $modular;
+    /** @var bool */
     protected $modular_twig;
+    /** @var array */
     protected $process;
+    /** @var int|null */
     protected $summary_size;
+    /** @var bool */
     protected $markdown_extra;
+    /** @var bool */
     protected $etag;
+    /** @var bool */
     protected $last_modified;
+    /** @var string */
     protected $home_route;
+    /** @var bool */
     protected $hide_home_route;
+    /** @var bool */
     protected $ssl;
+    /** @var string */
     protected $template_format;
+    /** @var bool */
     protected $debugger;
 
-    /**
-     * @var PageInterface|null Unmodified (original) version of the page. Used for copying and moving the page.
-     */
+    /** @var PageInterface|null Unmodified (original) version of the page. Used for copying and moving the page. */
     private $_original;
-
-    /**
-     * @var string Action
-     */
+    /** @var string Action */
     private $_action;
 
     /**

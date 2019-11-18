@@ -32,6 +32,7 @@ class Blueprint extends BlueprintForm
     /** @var array|null */
     protected $defaults;
 
+    /** @var array */
     protected $handlers = [];
 
     public function __clone()

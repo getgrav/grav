@@ -18,13 +18,10 @@ use Grav\Common\GPM\Remote\GravCore;
  */
 class Upgrader
 {
-    /**
-     * Remote details about latest Grav version
-     *
-     * @var GravCore
-     */
+    /** @var GravCore Remote details about latest Grav version */
     private $remote;
 
+    /** @var string|null */
     private $min_php;
 
     /**

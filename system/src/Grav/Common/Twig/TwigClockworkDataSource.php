@@ -16,12 +16,8 @@ use Grav\Common\Grav;
 
 class TwigClockworkDataSource extends DataSource
 {
-    /**
-     * Views data structure
-     */
+    /** @var Timeline Views data structure */
     protected $views;
-
-    protected $root;
 
     /**
      * TwigClockworkDataSource constructor.

@@ -19,27 +19,22 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class Plugin implements EventSubscriberInterface, \ArrayAccess
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     public $name;
 
-    /**
-     * @var array
-     */
+    /** @var array */
     public $features = [];
 
-    /**
-     * @var Grav
-     */
+    /** @var Grav */
     protected $grav;
 
-    /**
-     * @var Config
-     */
+    /** @var Config */
     protected $config;
 
+    /** @var bool */
     protected $active = true;
+
+    /** @var Blueprint */
     protected $blueprint;
 
     /**

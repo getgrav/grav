@@ -367,7 +367,7 @@ interface PageLegacyInterface
     /**
      * Returns children of this page.
      *
-     * @return \Grav\Common\Page\Collection
+     * @return Collection
      */
     public function children();
 

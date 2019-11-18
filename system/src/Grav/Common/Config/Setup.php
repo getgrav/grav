@@ -32,6 +32,7 @@ class Setup extends Data
      */
     public static $environment;
 
+    /** @var array */
     protected $streams = [
         'system' => [
             'type' => 'ReadOnlyStream',

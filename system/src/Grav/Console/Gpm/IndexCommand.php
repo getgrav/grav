@@ -28,9 +28,6 @@ class IndexCommand extends ConsoleCommand
     /** @var array */
     protected $options;
 
-    /** @var array */
-    protected $sortKeys = ['name', 'slug', 'author', 'date'];
-
     protected function configure()
     {
         $this

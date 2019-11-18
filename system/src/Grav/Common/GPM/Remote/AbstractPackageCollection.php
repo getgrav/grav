@@ -16,20 +16,16 @@ use \Doctrine\Common\Cache\FilesystemCache;
 
 class AbstractPackageCollection extends BaseCollection
 {
-    /**
-     * The cached data previously fetched
-     * @var string
-     */
+    /** @var string The cached data previously fetched */
     protected $raw;
 
-    /**
-     * The lifetime to store the entry in seconds
-     * @var int
-     */
+    /** @var int The lifetime to store the entry in seconds */
     private $lifetime = 86400;
 
+    /** @var string */
     protected $repository;
 
+    /** @var FilesystemCache */
     protected $cache;
 
     /**

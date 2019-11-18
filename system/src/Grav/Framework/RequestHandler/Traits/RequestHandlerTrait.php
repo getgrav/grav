@@ -19,7 +19,7 @@ use Psr\Http\Server\MiddlewareInterface;
 
 trait RequestHandlerTrait
 {
-    /** @var array<string|MiddlewareInterface> */
+    /** @var array<int,string|MiddlewareInterface> */
     protected $middleware;
 
     /** @var callable */

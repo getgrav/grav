@@ -18,11 +18,7 @@ use Doctrine\Common\Collections\AbstractLazyCollection as BaseAbstractLazyCollec
  */
 abstract class AbstractLazyCollection extends BaseAbstractLazyCollection implements CollectionInterface
 {
-    /**
-     * The backed collection to use
-     *
-     * @var ArrayCollection
-     */
+    /** @var ArrayCollection The backed collection to use */
     protected $collection;
 
     /**

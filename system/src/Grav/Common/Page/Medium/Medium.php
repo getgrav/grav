@@ -26,48 +26,34 @@ class Medium extends Data implements RenderableInterface, MediaObjectInterface
 {
     use ParsedownHtmlTrait;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $mode = 'source';
 
-    /**
-     * @var Medium|null
-     */
+    /** @var Medium|null */
     protected $_thumbnail;
 
-    /**
-     * @var array
-     */
+    /** @var array */
     protected $thumbnailTypes = ['page', 'default'];
 
-    protected $thumbnailType = null;
+    /** @var string|null */
+    protected $thumbnailType;
 
-    /**
-     * @var Medium[]
-     */
+    /** @var Medium[] */
     protected $alternatives = [];
 
-    /**
-     * @var array
-     */
+    /** @var array */
     protected $attributes = [];
 
-    /**
-     * @var array
-     */
+    /** @var array */
     protected $styleAttributes = [];
 
-    /**
-     * @var array
-     */
+    /** @var array */
     protected $metadata = [];
 
-    /**
-     * @var array
-     */
+    /** @var array */
     protected $medium_querystring = [];
 
+    /** @var string */
     protected $timestamp;
 
     /**

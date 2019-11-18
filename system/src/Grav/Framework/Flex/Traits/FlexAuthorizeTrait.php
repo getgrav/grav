@@ -21,13 +21,13 @@ use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
  */
 trait FlexAuthorizeTrait
 {
+    /** @var string */
     private $_authorize = '%s.flex-object.%s';
 
     public function isAuthorized(string $action, string $scope = null, UserInterface $user = null): bool
     {
         if (null === $user) {
-            /** @var UserInterface|null $user */
-            $user = Grav::instance()['user'] ?? null;
+            $user = $this->getCurrentUser();
         }
 
         return $user && ($this->isAuthorizedAction($user, $action, $scope) || $this->isAuthorizedSuperAdmin($user));
@@ -45,7 +45,7 @@ trait FlexAuthorizeTrait
 
     protected function isAuthorizedAction(UserInterface $user, string $action, string $scope = null): bool
     {
-        $scope = $scope ?? isset(Grav::instance()['admin']) ? 'admin' : 'site';
+        $scope = $scope ?? $this->getAuthorizeScope();
 
         if ($action === 'save' && $this instanceof FlexObjectInterface) {
             $action = $this->exists() ? 'update' : 'create';
@@ -61,5 +61,24 @@ trait FlexAuthorizeTrait
     protected function setAuthorizeRule(string $authorize): void
     {
         $this->_authorize = $authorize;
+    }
+
+    /**
+     * @return UserInterface|null
+     */
+    protected function getCurrentUser(): ?UserInterface
+    {
+        /** @var UserInterface|null $user */
+        $user = Grav::instance()['user'] ?? null;
+
+        return $user;
+    }
+
+    /**
+     * @return string
+     */
+    protected function getAuthorizeScope(): string
+    {
+        return isset(Grav::instance()['admin']) ? 'admin' : 'site';
     }
 }

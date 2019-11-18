@@ -16,7 +16,9 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class SchedulerProcessor extends ProcessorBase
 {
+    /** @var string */
     public $id = '_scheduler';
+    /** @var string */
     public $title = 'Scheduler';
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface

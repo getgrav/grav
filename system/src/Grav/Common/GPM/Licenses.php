@@ -11,6 +11,7 @@ namespace Grav\Common\GPM;
 
 use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Grav;
+use RocketTheme\Toolbox\File\FileInterface;
 
 /**
  * Class Licenses
@@ -19,16 +20,10 @@ use Grav\Common\Grav;
  */
 class Licenses
 {
-
-    /**
-     * Regex to validate the format of a License
-     *
-     * @var string
-     */
+    /** @var string Regex to validate the format of a License */
     protected static $regex = '^(?:[A-F0-9]{8}-){3}(?:[A-F0-9]{8}){1}$';
-
+    /** @var FileInterface */
     protected static $file;
-
 
     /**
      * Returns the license for a Premium package
@@ -107,7 +102,7 @@ class Licenses
     /**
      * Get the License File object
      *
-     * @return \RocketTheme\Toolbox\File\FileInterface
+     * @return FileInterface
      */
     public static function getLicenseFile()
     {

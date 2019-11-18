@@ -14,6 +14,7 @@ namespace Grav\Common;
  */
 trait GravTrait
 {
+    /** @var Grav */
     protected static $grav;
 
     /**
@@ -24,7 +25,7 @@ trait GravTrait
     {
         user_error(__TRAIT__ . ' is deprecated since Grav 1.4, use Grav::instance() instead', E_USER_DEPRECATED);
 
-        if (!self::$grav) {
+        if (null === self::$grav) {
             self::$grav = Grav::instance();
         }
 

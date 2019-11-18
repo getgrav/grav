@@ -18,6 +18,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class Plugins extends Iterator
 {
+    /** @var array */
     public $formFieldTypes;
 
     public function __construct()

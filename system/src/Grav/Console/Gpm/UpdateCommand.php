@@ -23,10 +23,6 @@ class UpdateCommand extends ConsoleCommand
     /** @var array */
     protected $data;
 
-    protected $extensions;
-
-    protected $updatable;
-
     /** @var string */
     protected $destination;
 
@@ -42,6 +38,7 @@ class UpdateCommand extends ConsoleCommand
     /** @var string */
     protected $all_yes;
 
+    /** @var string */
     protected $overwrite;
 
     /** @var Upgrader */

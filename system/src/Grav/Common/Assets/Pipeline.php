@@ -35,34 +35,25 @@ class Pipeline extends PropertyObject
 
     protected const FIRST_FORWARDSLASH_REGEX = '{^\/{1}\w}';
 
-    protected $css_minify;
-    protected $css_minify_windows;
-    protected $css_rewrite;
+    /** @var bool */
+    protected $css_minify = false;
+    /** @var bool */
+    protected $css_rewrite = false;
+    /** @var bool */
+    protected $js_minify = false;
 
-    protected $js_minify;
-    protected $js_minify_windows;
-
-    protected $base_url;
+    /** @var string */
     protected $assets_dir;
+    /** @var string */
     protected $assets_url;
+    /** @var string */
     protected $timestamp;
+    /** @var array */
     protected $attributes;
-    protected $query;
+    /** @var string */
+    protected $query = '';
+    /** @var string */
     protected $asset;
-
-    /**
-     * Closure used by the pipeline to fetch assets.
-     *
-     * Useful when file_get_contents() function is not available in your PHP
-     * installation or when you want to apply any kind of preprocessing to
-     * your assets before they get pipelined.
-     *
-     * The closure will receive as the only parameter a string with the path/URL of the asset and
-     * it should return the content of the asset file as a string.
-     *
-     * @var \Closure|null
-     */
-    protected $fetch_command;
 
     public function __construct(array $elements = [], ?string $key = null)
     {
@@ -244,9 +235,7 @@ class Pipeline extends PropertyObject
 
             $new_url = ($local ? $this->base_url: '') . $old_url;
 
-            $fixed = str_replace($matches[2], $new_url, $matches[0]);
-
-            return $fixed;
+            return str_replace($matches[2], $new_url, $matches[0]);
         }, $file);
 
         return $file;

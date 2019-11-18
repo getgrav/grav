@@ -32,6 +32,7 @@ class PageIndex extends FlexPageIndex
 
     /** @var PageObject|array */
     protected $_root;
+    /** @var array|null */
     protected $_params;
 
     /**

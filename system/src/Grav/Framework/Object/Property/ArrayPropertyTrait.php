@@ -18,10 +18,7 @@ namespace Grav\Framework\Object\Property;
  */
 trait ArrayPropertyTrait
 {
-    /**
-     * Properties of the object.
-     * @var array
-     */
+    /** @var array Properties of the object. */
     private $_elements;
 
     /**

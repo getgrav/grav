@@ -28,7 +28,6 @@ use DOMLettersIterator;
 
 class Truncator
 {
-
     /**
      * Safely truncates HTML by a given number of words.
      * @param  string  $html     Input HTML.

@@ -24,9 +24,7 @@ namespace Grav\Framework\Object\Property;
  */
 trait ObjectPropertyTrait
 {
-    /**
-     * @var array
-     */
+    /** @var array */
     private $_definedProperties;
 
     /**

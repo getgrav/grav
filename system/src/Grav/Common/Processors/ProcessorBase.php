@@ -17,7 +17,9 @@ abstract class ProcessorBase implements ProcessorInterface
     /** @var Grav */
     protected $container;
 
+    /** @var string */
     public $id = 'processorbase';
+    /** @var string */
     public $title = 'ProcessorBase';
 
     public function __construct(Grav $container)

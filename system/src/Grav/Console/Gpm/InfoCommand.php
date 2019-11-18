@@ -26,9 +26,6 @@ class InfoCommand extends ConsoleCommand
     /** @var string */
     protected $all_yes;
 
-    /**
-     *
-     */
     protected function configure()
     {
         $this

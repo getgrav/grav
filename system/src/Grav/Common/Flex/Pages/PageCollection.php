@@ -33,6 +33,7 @@ use Grav\Framework\Flex\Pages\FlexPageCollection;
  */
 class PageCollection extends FlexPageCollection implements PageCollectionInterface
 {
+    /** @var array|null */
     protected $_params;
 
     /**

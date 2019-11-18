@@ -20,16 +20,12 @@ class SecurityCommand extends ConsoleCommand
     /** @var ProgressBar $progress */
     protected $progress;
 
-    protected $source;
-
     protected function configure()
     {
         $this
             ->setName('security')
             ->setDescription('Capable of running various Security checks')
             ->setHelp('The <info>security</info> runs various security checks on your Grav site');
-
-        $this->source = getcwd();
     }
 
     protected function serve()

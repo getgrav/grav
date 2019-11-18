@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Grav\Framework\Flex\Pages\Traits;
 
+use Grav\Common\User\Access;
 use Grav\Common\User\Interfaces\UserCollectionInterface;
 use Grav\Common\User\Interfaces\UserInterface;
 use Grav\Framework\Flex\Traits\FlexAuthorizeTrait;
@@ -68,9 +69,23 @@ trait PageAuthorsTrait
      */
     public function isAuthorized(string $action, string $scope = null, UserInterface $user = null): bool
     {
-        $permissions = $this->loadPermissions();
+        $scope = $scope ?? $this->getAuthorizeScope();
+        $groups = $this->loadPermissions($user);
+        $authorized = null;
+        if ($scope === 'admin') {
+            /** @var Access $access */
+            foreach ($groups as $access) {
+                $auth = $access->authorize($action, $scope);
+                if (is_bool($auth)) {
+                    if ($auth === false) {
+                        return false;
+                    }
+                    $authorized = true;
+                }
+            }
+        }
 
-        return $this->isFlexAuthorized($action, $scope, $user);
+        return $authorized ?? $this->isFlexAuthorized($action, $scope, $user);
     }
 
     /**
@@ -95,10 +110,14 @@ trait PageAuthorsTrait
         return $list;
     }
 
-    protected function loadPermissions(): array
+    /**
+     * @return array
+     */
+    protected function loadPermissions(?UserInterface $user): array
     {
+        $user = $user ?? $this->getCurrentUser();
         $permissions = $this->getNestedProperty('header.permissions');
-        if (empty($permissions)) {
+        if (!$user || empty($permissions)) {
             return [];
         }
 
@@ -107,16 +126,52 @@ trait PageAuthorsTrait
             if (is_string($access)) {
                 $access = $this->resolvePermissions($access);
             }
+            if ($group === 'author') {
+                // Special case for authors.
+               if ($this->hasAuthor($user->username)) {
+                    $list[$group] = new Access($permissions);
+                }
+            } else {
+                $groups = (array)$user->groups;
+                if (in_array($groups, $groups, true)) {
+                    $list[$group] = new Access($permissions);
+                }
+            }
             $list[$group] = $access;
         }
 
         return $list;
     }
 
+    /**
+     * @param string $access
+     * @return array
+     */
     protected function resolvePermissions(string $access): array
     {
-        // FIXME:
-        return [];
+        static $rules = [
+            'c' => 'create',
+            'r' => 'read',
+            'u' => 'update',
+            'd' => 'delete',
+            'p' => 'publish'
+        ];
+        static $ops = ['+' => true, '-' => false];
+
+        $len = strlen($access);
+        $op = true;
+        $list = [];
+        for($count=0; $count<$len; $count++) {
+            $letter = $access[$count];
+            if (isset($rules[$letter])) {
+               $list[$rules[$letter]] = $op;
+               $op = true;
+            } elseif (isset($ops[$letter])) {
+                $op = $ops[$letter];
+            }
+        }
+
+        return $list;
     }
 
     abstract public function getNestedProperty($property, $default = null, $separator = null);

@@ -34,6 +34,7 @@ trait FlexMediaTrait
         MediaTrait::getMedia as protected getExistingMedia;
     }
 
+    /** @var array */
     protected $_uploads;
 
     public function __debugInfo()

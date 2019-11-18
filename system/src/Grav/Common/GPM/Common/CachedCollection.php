@@ -13,7 +13,8 @@ use Grav\Common\Iterator;
 
 class CachedCollection extends Iterator
 {
-    protected static $cache;
+    /** @var array */
+    protected static $cache = [];
 
     public function __construct($items)
     {

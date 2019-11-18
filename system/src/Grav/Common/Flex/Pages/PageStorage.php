@@ -24,14 +24,22 @@ use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
  */
 class PageStorage extends FolderStorage
 {
-    protected $ignore_files;
-    protected $ignore_folders;
+    /** @var bool */
     protected $ignore_hidden;
+    /** @var array */
+    protected $ignore_files;
+    /** @var array */
+    protected $ignore_folders;
+    /** @var bool */
     protected $include_default_lang_file_extension;
+    /** @var bool */
     protected $recurse;
+    /** @var string */
     protected $base_path;
 
+    /** @var int */
     protected $flags;
+    /** @var string */
     protected $regex;
 
     protected function initOptions(array $options): void
@@ -47,8 +55,8 @@ class PageStorage extends FolderStorage
         $this->ignore_hidden = (bool)$config->get('system.pages.ignore_hidden');
         $this->ignore_files = (array)$config->get('system.pages.ignore_files');
         $this->ignore_folders = (array)$config->get('system.pages.ignore_folders');
-        $this->include_default_lang_file_extension = $config->get('system.languages.include_default_lang_file_extension', true);
-        $this->recurse = $options['recurse'] ?? true;
+        $this->include_default_lang_file_extension = (bool)$config->get('system.languages.include_default_lang_file_extension', true);
+        $this->recurse = (bool)($options['recurse'] ?? true);
         $this->regex = '/(\.([\w\d_-]+))?\.md$/D';
     }
 

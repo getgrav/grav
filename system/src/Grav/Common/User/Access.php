@@ -13,6 +13,7 @@ use Grav\Common\Utils;
 
 class Access implements \JsonSerializable, \IteratorAggregate, \Countable
 {
+    /** @var array */
     private $acl;
 
     public function __construct(array $acl = null)

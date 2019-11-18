@@ -83,6 +83,12 @@ parameters:
         -
             message: '#on an unknown class Collator#'
             path: 'system/src/Grav/Common/Page/Pages.php'
+        -
+            message: '#Ternary operator condition is always true#'
+            path: 'system/src/Grav/Framework/Cache/AbstractCache.php'
+        -
+            message: '#Call to function is_object\(\) with int will always evaluate to false#'
+            path: 'system/src/Grav/Framework/Cache/AbstractCache.php'
 
         # XHprof
         - '#tideways_xhprof_enable#'

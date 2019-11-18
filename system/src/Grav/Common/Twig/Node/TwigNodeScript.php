@@ -16,6 +16,7 @@ use Twig\Node\NodeCaptureInterface;
 
 class TwigNodeScript extends Node implements NodeCaptureInterface
 {
+    /** @var string */
     protected $tagName = 'script';
 
     /**

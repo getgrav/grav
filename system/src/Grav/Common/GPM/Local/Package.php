@@ -14,6 +14,7 @@ use Grav\Common\GPM\Common\Package as BasePackage;
 
 class Package extends BasePackage
 {
+    /** @var array */
     protected $settings;
 
     public function __construct(Data $package, $package_type = null)
@@ -31,10 +32,10 @@ class Package extends BasePackage
     }
 
     /**
-     * @return mixed
+     * @return bool
      */
     public function isEnabled()
     {
-        return $this->settings['enabled'];
+        return (bool)$this->settings['enabled'];
     }
 }

@@ -37,28 +37,30 @@ class Assets extends PropertyObject
     /** @const Regex to match JavaScript files */
     const JS_REGEX = '/.\.js$/i';
 
+    /** @var string */
     protected $assets_dir;
+    /** @var string */
     protected $assets_url;
 
+    /** @var array */
     protected $assets_css = [];
+    /** @var array */
     protected $assets_js = [];
 
     // Config Options
+    /** @var bool */
     protected $css_pipeline;
-    protected $css_pipeline_include_externals;
-    protected $css_pipeline_before_excludes;
+    /** @var bool */
     protected $js_pipeline;
-    protected $js_pipeline_include_externals;
-    protected $js_pipeline_before_excludes;
+    /** @var array */
     protected $pipeline_options = [];
 
-
-    protected $fetch_command;
-    protected $autoload;
+    /** @var bool */
     protected $enable_asset_timestamp;
+    /** @var array|null */
     protected $collections;
+    /** @var string */
     protected $timestamp;
-
 
     /**
      * Initialization called in the Grav lifecycle to initialize the Assets with appropriate configuration

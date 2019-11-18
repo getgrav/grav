@@ -11,8 +11,11 @@ namespace Grav\Common\Filesystem;
 
 class RecursiveDirectoryFilterIterator extends \RecursiveFilterIterator
 {
+    /** @var string */
     protected static $root;
+    /** @var array */
     protected static $ignore_folders;
+    /** @var array */
     protected static $ignore_files;
 
     /**

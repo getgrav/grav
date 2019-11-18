@@ -22,34 +22,22 @@ use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
  */
 class AbstractFileCollection extends AbstractLazyCollection implements FileCollectionInterface
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $path;
 
-    /**
-     * @var \RecursiveDirectoryIterator|RecursiveUniformResourceIterator
-     */
+    /** @var \RecursiveDirectoryIterator|RecursiveUniformResourceIterator */
     protected $iterator;
 
-    /**
-     * @var callable
-     */
+    /** @var callable */
     protected $createObjectFunction;
 
-    /**
-     * @var callable|null
-     */
+    /** @var callable|null */
     protected $filterFunction;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     protected $flags;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     protected $nestingLimit;
 
     /**

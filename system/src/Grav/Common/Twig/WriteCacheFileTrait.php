@@ -14,6 +14,7 @@ use Grav\Common\Grav;
 
 trait WriteCacheFileTrait
 {
+    /** @var bool */
     protected static $umask;
 
     /**

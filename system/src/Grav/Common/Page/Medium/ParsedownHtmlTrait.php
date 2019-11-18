@@ -14,9 +14,7 @@ use Grav\Common\Page\Markdown\Excerpts;
 
 trait ParsedownHtmlTrait
 {
-    /**
-     * @var \Grav\Common\Markdown\Parsedown|null
-     */
+    /** @var Parsedown|null */
     protected $parsedown;
 
     /**

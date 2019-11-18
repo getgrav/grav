@@ -11,14 +11,10 @@ namespace Grav\Common\Page\Medium;
 
 class ThumbnailImageMedium extends ImageMedium
 {
-    /**
-     * @var Medium|null
-     */
+    /** @var Medium|null */
     public $parent;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     public $linked = false;
 
     /**

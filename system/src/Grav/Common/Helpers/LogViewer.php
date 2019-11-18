@@ -11,6 +11,7 @@ namespace Grav\Common\Helpers;
 
 class LogViewer
 {
+    /** @var string */
     protected $pattern = '/\[(?P<date>.*)\] (?P<logger>\w+).(?P<level>\w+): (?P<message>.*[^ ]+) (?P<context>[^ ]+) (?P<extra>[^ ]+)/';
 
     /**

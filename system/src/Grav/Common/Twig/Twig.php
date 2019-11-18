@@ -23,54 +23,43 @@ use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Extension\CoreExtension;
 use Twig\Extension\DebugExtension;
+use Twig\Extension\ProfilerExtension;
 use Twig\Extension\StringLoaderExtension;
 use Twig\Loader\ArrayLoader;
 use Twig\Loader\ChainLoader;
 use Twig\Loader\ExistsLoaderInterface;
 use Twig\Loader\FilesystemLoader;
+use Twig\Profiler\Profile;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
 
 class Twig
 {
-    /**
-     * @var Environment
-     */
+    /** @var Environment */
     public $twig;
 
-    /**
-     * @var array
-     */
+    /** @var array */
     public $twig_vars = [];
 
-    /**
-     * @var array
-     */
+    /** @var array */
     public $twig_paths;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     public $template;
 
-    /**
-     * @var Grav
-     */
+    /** @var Grav */
     protected $grav;
 
-    /**
-     * @var FilesystemLoader
-     */
+    /** @var FilesystemLoader */
     protected $loader;
 
-    /**
-     * @var ArrayLoader
-     */
+    /** @var ArrayLoader */
     protected $loaderArray;
 
-
+    /** @var bool */
     protected $autoescape;
 
+    /** @var Profile */
     protected $profile;
 
     /**
@@ -202,8 +191,8 @@ class Twig
             $this->twig->addExtension(new DeferredExtension());
             $this->twig->addExtension(new StringLoaderExtension());
 
-            $this->profile = new \Twig\Profiler\Profile();
-            $this->twig->addExtension(new \Twig\Extension\ProfilerExtension($this->profile));
+            $this->profile = new Profile();
+            $this->twig->addExtension(new ProfilerExtension($this->profile));
 
 
             $this->grav->fireEvent('onTwigExtensions');

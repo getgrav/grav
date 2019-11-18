@@ -68,6 +68,7 @@ class UserObject extends FlexObject implements UserInterface, MediaManipulationI
     use FlexAuthorizeTrait;
     use UserTrait;
 
+    /** @var array|null */
     protected $_uploads_original;
 
     /** @var FileInterface|null */

@@ -7,6 +7,7 @@ use RocketTheme\Toolbox\Event\Event;
 
 trait PageFormTrait
 {
+    /** @var array|null */
     private $_forms;
 
     /**

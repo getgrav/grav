@@ -27,6 +27,7 @@ use RocketTheme\Toolbox\Event\Event;
  */
 trait PageContentTrait
 {
+    /** @var array */
     protected static $headerProperties = [
         'slug'              => 'slug',
         'routes'            => false,
@@ -59,6 +60,7 @@ trait PageContentTrait
         'debugger'          => false,
     ];
 
+    /** @var array */
     protected static $calculatedProperties = [
         'name' => 'name',
         'parent' => 'parent',

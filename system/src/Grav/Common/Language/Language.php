@@ -19,21 +19,25 @@ class Language
 {
     /** @var Grav */
     protected $grav;
-
     /** @var Config */
     protected $config;
-
+    /** @var bool */
     protected $enabled = true;
-
     /** @var array */
     protected $languages = [];
+    /** @var array */
     protected $fallback_languages = [];
+    /** @var array */
     protected $fallback_extensions = [];
+    /** @var array */
     protected $page_extesions = [];
+    /** @var string */
     protected $default;
+    /** @var string */
     protected $active;
-
+    /** @var array */
     protected $http_accept_language;
+    /** @var bool */
     protected $lang_in_url = false;
 
     /**
