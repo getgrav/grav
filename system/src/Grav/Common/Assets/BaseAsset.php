@@ -27,7 +27,12 @@ abstract class BaseAsset extends PropertyObject
 
     /** @var string */
     protected $asset;
-
+    /** @var string */
+    protected $asset_type;
+    /** @var int */
+    protected $order;
+    /** @var string */
+    protected $group;
     /** @var string */
     protected $position;
     /** @var int */
