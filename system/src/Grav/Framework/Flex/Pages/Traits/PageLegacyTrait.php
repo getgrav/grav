@@ -21,6 +21,7 @@ use Grav\Framework\Cache\CacheInterface;
 use Grav\Framework\File\Formatter\MarkdownFormatter;
 use Grav\Framework\File\Formatter\YamlFormatter;
 use Grav\Framework\Flex\FlexDirectory;
+use Grav\Framework\Flex\Interfaces\FlexCollectionInterface;
 use Grav\Framework\Flex\Interfaces\FlexIndexInterface;
 use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
 use Grav\Framework\Flex\Pages\FlexPageIndex;
@@ -867,8 +868,12 @@ trait PageLegacyTrait
     public function isFirst(): bool
     {
         $parent = $this->parent();
+        $children = $parent ? $parent->children() : null;
+        if ($children instanceof FlexCollectionInterface) {
+            $children = $children->withKeyField();
+        }
 
-        return $parent ? $parent->children()->withKeyField()->isFirst($this->getKey()) : true;
+        return $children instanceof PageCollectionInterface ? $children->isFirst($this->getKey()) : true;
     }
 
     /**
@@ -879,8 +884,12 @@ trait PageLegacyTrait
     public function isLast(): bool
     {
         $parent = $this->parent();
+        $children = $parent ? $parent->children() : null;
+        if ($children instanceof FlexCollectionInterface) {
+            $children = $children->withKeyField();
+        }
 
-        return $parent ? $parent->children()->withKeyField()->isLast($this->getKey()) : true;
+        return $children instanceof PageCollectionInterface ? $children->isLast($this->getKey()) : true;
     }
 
     /**
@@ -913,8 +922,12 @@ trait PageLegacyTrait
     public function adjacentSibling($direction = 1)
     {
         $parent = $this->parent();
+        $children = $parent ? $parent->children() : null;
+        if ($children instanceof FlexCollectionInterface) {
+            $children = $children->withKeyField();
+        }
 
-        return $parent ? $parent->children()->withKeyField()->adjacentSibling($this->getKey(), $direction) : false;
+        return $children instanceof PageCollectionInterface ? $children->adjacentSibling($this->getKey(), $direction) : false;
     }
 
     /**

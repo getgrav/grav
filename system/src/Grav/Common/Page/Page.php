@@ -69,7 +69,7 @@ class Page implements PageInterface
     protected $slug;
     /** @var string */
     protected $route;
-    /** @var string */
+    /** @var string|null */
     protected $raw_route;
     /** @var string */
     protected $url;
@@ -89,15 +89,15 @@ class Page implements PageInterface
     protected $frontmatter;
     /** @var string */
     protected $language;
-    /** @var string */
+    /** @var string|null */
     protected $content;
     /** @var array */
     protected $content_meta;
-    /** @var string */
-    protected $summry;
+    /** @var string|null */
+    protected $summary;
     /** @var string */
     protected $raw_content;
-    /** @var array */
+    /** @var array|null */
     protected $metadata;
     /** @var string */
     protected $title;
@@ -115,13 +115,13 @@ class Page implements PageInterface
     protected $order_by;
     /** @var string */
     protected $order_dir;
-    /** @var array */
+    /** @var array|string|null */
     protected $order_manual;
     /** @var bool */
     protected $modular_twig;
     /** @var array */
     protected $process;
-    /** @var int */
+    /** @var int|null */
     protected $summary_size;
     /** @var bool */
     protected $markdown_extra;
