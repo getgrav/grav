@@ -55,8 +55,8 @@ class PageStorage extends FolderStorage
         $this->ignore_hidden = (bool)$config->get('system.pages.ignore_hidden');
         $this->ignore_files = (array)$config->get('system.pages.ignore_files');
         $this->ignore_folders = (array)$config->get('system.pages.ignore_folders');
-        $this->include_default_lang_file_extension = $config->get('system.languages.include_default_lang_file_extension', true);
-        $this->recurse = $options['recurse'] ?? true;
+        $this->include_default_lang_file_extension = (bool)$config->get('system.languages.include_default_lang_file_extension', true);
+        $this->recurse = (bool)($options['recurse'] ?? true);
         $this->regex = '/(\.([\w\d_-]+))?\.md$/D';
     }
 

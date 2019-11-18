@@ -156,6 +156,9 @@ class Uri
 
         if ($custom_base) {
             $custom_parts = parse_url($custom_base);
+            if ($custom_parts === false) {
+                throw new \RuntimeException('Bad configuration: system.custom_base_url');
+            }
             $orig_root_path = $this->root_path;
             $this->root_path = isset($custom_parts['path']) ? rtrim($custom_parts['path'], '/') : '';
             if (isset($custom_parts['scheme'])) {

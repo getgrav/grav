@@ -191,8 +191,8 @@ class Twig
             $this->twig->addExtension(new DeferredExtension());
             $this->twig->addExtension(new StringLoaderExtension());
 
-            $this->profile = new \Twig\Profiler\Profile();
-            $this->twig->addExtension(new \Twig\Extension\ProfilerExtension($this->profile));
+            $this->profile = new Profile();
+            $this->twig->addExtension(new ProfilerExtension($this->profile));
 
 
             $this->grav->fireEvent('onTwigExtensions');

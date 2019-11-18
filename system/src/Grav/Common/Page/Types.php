@@ -50,7 +50,7 @@ class Types implements \ArrayAccess, \Iterator, \Countable
             throw new \InvalidArgumentException('First parameter must be URI');
         }
 
-        if (!$this->systemBlueprints) {
+        if (null === $this->systemBlueprints) {
             $this->systemBlueprints = $this->findBlueprints('blueprints://pages');
 
             // Register default by default.

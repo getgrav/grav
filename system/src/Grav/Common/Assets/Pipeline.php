@@ -55,20 +55,6 @@ class Pipeline extends PropertyObject
     /** @var string */
     protected $asset;
 
-    /**
-     * Closure used by the pipeline to fetch assets.
-     *
-     * Useful when file_get_contents() function is not available in your PHP
-     * installation or when you want to apply any kind of preprocessing to
-     * your assets before they get pipelined.
-     *
-     * The closure will receive as the only parameter a string with the path/URL of the asset and
-     * it should return the content of the asset file as a string.
-     *
-     * @var \Closure|null
-     */
-    protected $fetch_command;
-
     public function __construct(array $elements = [], ?string $key = null)
     {
         parent::__construct($elements, $key);
@@ -249,9 +235,7 @@ class Pipeline extends PropertyObject
 
             $new_url = ($local ? $this->base_url: '') . $old_url;
 
-            $fixed = str_replace($matches[2], $new_url, $matches[0]);
-
-            return $fixed;
+            return str_replace($matches[2], $new_url, $matches[0]);
         }, $file);
 
         return $file;

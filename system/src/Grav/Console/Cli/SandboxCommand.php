@@ -78,7 +78,12 @@ class SandboxCommand extends ConsoleCommand
                 'Symlink the base grav system'
             )
             ->setHelp("The <info>sandbox</info> command help create a development environment that can optionally use symbolic links to link the core of grav to the git cloned repository.\nGood for development, playing around or starting fresh");
-        $this->source = getcwd();
+
+        $source = getcwd();
+        if ($source === false) {
+            throw new \RuntimeException('Internal Error');
+        }
+        $this->source = $source;
     }
 
     protected function serve()

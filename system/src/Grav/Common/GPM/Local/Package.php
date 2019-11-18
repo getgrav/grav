@@ -36,6 +36,6 @@ class Package extends BasePackage
      */
     public function isEnabled()
     {
-        return $this->settings['enabled'];
+        return (bool)$this->settings['enabled'];
     }
 }
