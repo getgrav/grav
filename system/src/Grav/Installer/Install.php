@@ -121,7 +121,7 @@ class Install
     {
     }
 
-    public function setZip(string $zip)
+    public function setZip(?string $zip)
     {
         $this->zip = $zip;
 
@@ -211,7 +211,7 @@ class Install
 
         try {
             Installer::install(
-                $this->zip,
+                $this->zip ?? '',
                 GRAV_ROOT,
                 ['sophisticated' => true, 'overwrite' => true, 'ignore_symlinks' => true, 'ignores' => $this->ignores],
                 $this->location,
