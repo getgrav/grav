@@ -35,12 +35,21 @@ class Pipeline extends PropertyObject
 
     protected const FIRST_FORWARDSLASH_REGEX = '{^\/{1}\w}';
 
+    // Following variables come from the configuration:
     /** @var bool */
     protected $css_minify = false;
     /** @var bool */
+    protected $css_minify_windows = false;
+    /** @var bool */
     protected $css_rewrite = false;
     /** @var bool */
+    protected $css_pipeline_include_externals = true;
+    /** @var bool */
     protected $js_minify = false;
+    /** @var bool */
+    protected $js_minify_windows = false;
+    /** @var bool */
+    protected $js_pipeline_include_externals = true;
 
     /** @var string */
     protected $assets_dir;

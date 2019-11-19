@@ -47,14 +47,26 @@ class Assets extends PropertyObject
     /** @var array */
     protected $assets_js = [];
 
-    // Config Options
+    // Following variables come from the configuration:
     /** @var bool */
     protected $css_pipeline;
     /** @var bool */
+    protected $css_pipeline_include_externals;
+    /** @var bool */
+    protected $css_pipeline_before_excludes;
+    /** @var bool */
     protected $js_pipeline;
+    /** @var bool */
+    protected $js_pipeline_include_externals;
+    /** @var bool */
+    protected $js_pipeline_before_excludes;
     /** @var array */
     protected $pipeline_options = [];
 
+    /** @var \Closure|string */
+    protected $fetch_command;
+    /** @var string */
+    protected $autoload;
     /** @var bool */
     protected $enable_asset_timestamp;
     /** @var array|null */
