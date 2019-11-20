@@ -185,14 +185,14 @@ class PageIndex extends FlexPageIndex
                 $activeLanguage = $language->getLanguage();
                 $isDefaultLanguage = $activeLanguage === $language->getDefault();
             } elseif ($key === 'routable') {
-                // Routable checks also "not modular and page".
+                // Routable checks also "not module and page".
                 $bool = (bool)$filters['routable'];
-                $modular = (bool)($filters['modular'] ?? !$bool);
+                $modular = (bool)($filters['module'] ?? !$bool);
                 $page = (bool)($filters['page'] ?? $bool);
                 if ($modular === $bool || $page !== $bool) {
                     return $this->createFrom([]);
                 }
-                $filters['modular'] = $modular;
+                $filters['module'] = $modular;
                 $filters['page'] = $page;
             }
         }
@@ -203,7 +203,7 @@ class PageIndex extends FlexPageIndex
             $path = explode('/', $entry['key']);
             $storagePath = explode('/', $entry['storage_key']);
             $slug = end($path);
-            $isModular = $slug[0] === '_';
+            $isModule = $slug[0] === '_';
             $storageSlug = end($storagePath);
 
             foreach ($filters as $key => $value) {
@@ -217,10 +217,10 @@ class PageIndex extends FlexPageIndex
                         $types = $value ? explode(',', $value) : [];
                         $matches = in_array($type, $types, true);
                         break;
-                    case 'modular':
+                    case 'module':
                         // All modular pages start with underscore in their slug.
                         // Modular can also be in the header...
-                        $matches = $isModular === (bool)$value;
+                        $matches = $isModule === (bool)$value;
                         break;
                     case 'visible':
                         // Visible pages have numeric prefix in their folder name.

@@ -254,7 +254,7 @@ class PageObject extends FlexPageObject
      *
      * - search: string
      * - extension: string
-     * - modular: bool
+     * - module: bool
      * - visible: bool
      * - routable: bool
      * - published: bool
@@ -282,7 +282,7 @@ class PageObject extends FlexPageObject
                 case 'extension':
                     $matches = Utils::contains((string)$value, $this->extension());
                     break;
-                case 'modular':
+                case 'module':
                 case 'visible':
                 case 'routable':
                 case 'published':
