@@ -16,6 +16,7 @@
     * Improved user and group ACL to support deny permissions (`Flex Users` only)
     * Improved twig `authorize()` function to work better with nested rule parameters
     * Output the current username that Scheduler is using if crontab not setup
+    * Translations: rename MODULAR to MODULE everywhere
 1. [](#bugfix)
     * Regression: Fixed Grav update bug [#2722](https://github.com/getgrav/grav/issues/2722)
 
