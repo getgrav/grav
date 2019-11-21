@@ -285,14 +285,14 @@ trait PageLegacyTrait
      */
     public function copy(PageInterface $parent = null)
     {
-        $parentStorageKey = ltrim(dirname("/{$this->getStorageKey(true)}"), '/');
+        $parentStorageKey = ltrim(dirname("/{$this->getMasterKey()}"), '/');
 
         /** @var FlexPageIndex $index */
         $index = $this->getFlexDirectory()->getIndex();
 
         if ($parent) {
             if ($parent instanceof FlexObjectInterface) {
-                $k = $parent->getStorageKey(true);
+                $k = $parent->getMasterKey();
                 if ($k !== $parentStorageKey) {
                     $parentStorageKey = $k;
                 }
@@ -849,7 +849,7 @@ trait PageLegacyTrait
     {
         $storage = $this->getStorage();
         $keys = array_keys($storage['children'] ?? []);
-        $prefix = $this->getStorageKey(true);
+        $prefix = $this->getMasterKey();
         if ($prefix) {
             foreach ($keys as &$key) {
                 $key = $prefix . '/' . $key;

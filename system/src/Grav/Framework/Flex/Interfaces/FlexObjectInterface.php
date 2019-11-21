@@ -83,11 +83,10 @@ interface FlexObjectInterface extends FlexCommonInterface, NestedObjectInterface
      * @see FlexDirectory::getObject()      If you want to get Flex Object from the Flex Directory.
      * @see FlexDirectory::getCollection()  If you want to get Flex Collection with selected keys from the Flex Directory.
      *
-     * @param bool $master If true, return master key.
      * @return string Returns storage key of the Object.
      * @api
      */
-    public function getStorageKey(bool $master = false): string;
+    public function getStorageKey(): string;
 
     /**
      * Get index data associated to the object.

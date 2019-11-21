@@ -248,14 +248,9 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      * {@inheritdoc}
      * @see FlexObjectInterface::getStorageKey()
      */
-    public function getStorageKey(bool $master = false): string
+    public function getStorageKey(): string
     {
-        $key = (string)($this->storage_key ?? $this->_meta['storage_key'] ?? null);
-        if ($master && ($pos = strpos($key, '|')) !== false) {
-            $key = substr($key, 0, $pos);
-        }
-
-        return $key;
+        return (string)($this->storage_key ?? $this->_meta['storage_key'] ?? null);
     }
 
     /**

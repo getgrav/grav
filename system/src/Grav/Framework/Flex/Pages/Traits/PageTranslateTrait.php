@@ -48,7 +48,7 @@ trait PageTranslateTrait
         if (null === $code) {
             $object = null;
         } elseif ('' === $code) {
-            $object = $this->getLanguage() ? $this->getFlexDirectory()->getObject($this->getStorageKey(true), 'storage_key') : $this;
+            $object = $this->getLanguage() ? $this->getFlexDirectory()->getObject($this->getMasterKey(), 'storage_key') : $this;
         } else {
             $key = $this->getStorageKey() . '|.' . $code;
             $meta = ['storage_key' => $key, 'lang' => $code] + $this->getMetaData();

@@ -176,6 +176,20 @@ class FlexPageObject extends FlexObject implements PageInterface, MediaManipulat
     }
 
     /**
+     * Get master storage key.
+     *
+     * @see FlexObjectInterface::getStorageKey()
+     */
+    public function getMasterKey(): string
+    {
+        $key = (string)($this->storage_key ?? $this->getMetaData()['storage_key'] ?? null);
+        if (($pos = strpos($key, '|')) !== false) {
+            $key = substr($key, 0, $pos);
+        }
+
+        return $key;
+    }
+    /**
      * {@inheritdoc}
      * @see FlexObjectInterface::getCacheKey()
      */

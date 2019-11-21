@@ -358,5 +358,5 @@ trait FlexMediaTrait
 
     abstract public function getFlexDirectory(): FlexDirectory;
 
-    abstract public function getStorageKey(bool $master = false): string;
+    abstract public function getStorageKey(): string;
 }

@@ -6,15 +6,9 @@
 
 * Please run `bin/grav yamllinter` to find any YAML parsing errors in your site. You should run this command before and after upgrade. Grav falls back to older YAML parser if it detects an error, but it will slow down your site.
 
-### Templating
-
-* Added a new `{% cache %}` Twig tag eliminating need for `twigcache` extension.
-* Added `array_diff()` twig function
-* Added `template_from_string()` twig function
-
 ### Pages
 
-* **BC BREAK** Fixed 404 error page when you go to non-routable page with routable child pages under it. Now you get redirected to the first routable child page instead. This is probably what you wanted in the first place. If you did not want this behavior, you need to **TODO**
+* **BC BREAK** Fixed 404 error page when you go to non-routable page with routable child pages under it. Now you get redirected to the first routable child page instead. This is probably what you wanted in the first place. If you do not want this new behavior, you need to **TODO**
 
 ### Multi-language
 
@@ -77,6 +71,9 @@
 ### Templating
 
 * Added support for Twig 2.12 (still using Twig 1.42)
+* Added a new `{% cache %}` Twig tag eliminating need for `twigcache` extension.
+* Added `array_diff()` twig function
+* Added `template_from_string()` twig function
 * Improved twig `|array` filter to work with iterators and objects with `toArray()` method
 * Improved twig `authorize()` function to work better with nested rule parameters
 

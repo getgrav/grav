@@ -344,7 +344,7 @@ trait PageRoutableTrait
             $var,
             function ($value) {
                 if (null === $value) {
-                    $value = $this->getStorageKey(true) ?: $this->getKey();
+                    $value = $this->getMasterKey() ?: $this->getKey();
                 }
 
                 return basename($value) ?: null;
@@ -365,7 +365,7 @@ trait PageRoutableTrait
             $var,
             function ($value) {
                 if (null === $value) {
-                    $value = $this->getStorageKey(true) ?: $this->getKey();
+                    $value = $this->getMasterKey() ?: $this->getKey();
                     $value = ltrim(dirname("/{$value}"), '/') ?: '';
                 }
 
