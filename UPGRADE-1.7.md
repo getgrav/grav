@@ -1,6 +1,6 @@
-# UPGRADE FROM 1.6 to 1.7
+# UPGRADE FROM 1.6 TO 1.7
 
-## Administrators
+## ADMINISTRATORS
 
 ### YAML files
 
@@ -44,7 +44,7 @@
 * Added support for [Tideways XHProf](https://github.com/tideways/php-xhprof-extension) PHP Extension for profiling method calls
 * Added Twig profiling for Clockwork debugger
 
-## Developers
+## DEVELOPERS
 
 ### Pages
 
