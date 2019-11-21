@@ -60,7 +60,8 @@ class PageObject extends FlexPageObject
     {
         return [
             'path' => true,
-            'full_order' => true
+            'full_order' => true,
+            'filterBy' => true,
         ] + parent::getCachedMethods();
     }
 
@@ -282,11 +283,17 @@ class PageObject extends FlexPageObject
                 case 'extension':
                     $matches = Utils::contains((string)$value, $this->extension());
                     break;
-                case 'module':
-                case 'visible':
                 case 'routable':
+                    $matches = $this->isRoutable() === (bool)$value;
+                    break;
                 case 'published':
-                    $matches = $this->{$key}() === (bool)$value;
+                    $matches = $this->isPublished() === (bool)$value;
+                    break;
+                case 'visible':
+                    $matches = $this->isVisible() === (bool)$value;
+                    break;
+                case 'module':
+                    $matches = $this->isModule() === (bool)$value;
                     break;
                 case 'page':
                     $matches = $this->isPage() === (bool)$value;

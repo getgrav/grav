@@ -58,7 +58,8 @@ abstract class AbstractFilesystemStorage implements FlexStorageInterface
     }
 
     /**
-     * @return string
+     * {@inheritDoc}
+     * @see FlexStorageInterface::getKeyField()
      */
     public function getKeyField(): string
     {
@@ -149,6 +150,7 @@ abstract class AbstractFilesystemStorage implements FlexStorageInterface
     {
         $filename = $this->resolvePath($filename);
 
+        // TODO: start using the new file classes.
         switch ($this->dataFormatter->getDefaultFileExtension()) {
             case '.json':
                 $file = CompiledJsonFile::instance($filename);

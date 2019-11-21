@@ -82,6 +82,7 @@ class FlexPageObject extends FlexObject implements PageInterface, MediaManipulat
             // Page
             'isPublished' => true,
             'isVisible' => true,
+            'isRoutable' => true,
             'getCreated_Timestamp' => true,
             'getPublish_Timestamp' => true,
             'getUnpublish_Timestamp' => true,
@@ -90,23 +91,34 @@ class FlexPageObject extends FlexObject implements PageInterface, MediaManipulat
     }
 
     /**
+     * @param bool $test
      * @return bool
      */
-    public function isPublished(): bool
+    public function isPublished(bool $test = true): bool
     {
         $time = time();
         $start = $this->getPublish_Timestamp();
         $stop = $this->getUnpublish_Timestamp();
 
-        return $this->published() && $start <= $time && (!$stop || $time <= $stop);
+        return $this->published() && $start <= $time && (!$stop || $time <= $stop) === $test;
     }
 
     /**
+     * @param bool $test
      * @return bool
      */
-    public function isVisible(): bool
+    public function isVisible(bool $test = true): bool
     {
-        return $this->visible();
+        return $this->visible() === $test;
+    }
+
+    /**
+     * @param bool $test
+     * @return bool
+     */
+    public function isRoutable(bool $test = true): bool
+    {
+        return $this->routable() === $test;
     }
 
     /**

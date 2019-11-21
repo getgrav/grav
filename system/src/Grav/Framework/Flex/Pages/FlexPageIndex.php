@@ -18,10 +18,14 @@ use Grav\Framework\Flex\Interfaces\FlexStorageInterface;
 /**
  * Class FlexPageObject
  * @package Grav\Plugin\FlexObjects\Types\FlexPages
+ *
+ * @method FlexPageIndex withRoutable(bool $bool = true)
+ * @method FlexPageIndex withPublished(bool $bool = true)
+ * @method FlexPageIndex withVisible(bool $bool = true)
  */
 class FlexPageIndex extends FlexIndex
 {
-    const ORDER_PREFIX_REGEX = '/^\d+\./u';
+    public const ORDER_PREFIX_REGEX = '/^\d+\./u';
 
     /**
      * @param string $route
@@ -37,42 +41,5 @@ class FlexPageIndex extends FlexIndex
         }
 
         return $case_insensitive ? mb_strtolower($route) : $route;
-    }
-
-    /**
-     * @return FlexPageIndex
-     */
-    public function visible()
-    {
-        return $this->withVisible();
-    }
-
-    /**
-     * @return FlexPageIndex
-     */
-    public function nonVisible()
-    {
-        return $this->withVisible(false);
-    }
-
-    /**
-     * @param bool $bool
-     * @return FlexPageIndex
-     */
-    public function withVisible(bool $bool = true)
-    {
-        $keys = $this->getIndexMap('key');
-        $list = [];
-        foreach ($keys as $key => $test) {
-            $keyBase = basename($key);
-            if ((int)$key > 0) {
-                $testBase = basename($test);
-                if (mb_strlen($keyBase) !== mb_strlen($testBase)) {
-                    $list[] = $key;
-                }
-            }
-        }
-
-        return $this->select($list);
     }
 }

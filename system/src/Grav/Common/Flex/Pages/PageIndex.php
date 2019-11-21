@@ -13,7 +13,6 @@ namespace Grav\Common\Flex\Pages;
 
 use Grav\Common\File\CompiledJsonFile;
 use Grav\Common\Grav;
-use Grav\Common\Language\Language;
 use Grav\Common\Utils;
 use Grav\Framework\Flex\FlexDirectory;
 use Grav\Framework\Flex\Interfaces\FlexCollectionInterface;
@@ -23,6 +22,22 @@ use Grav\Framework\Flex\Pages\FlexPageIndex;
 /**
  * Class GravPageObject
  * @package Grav\Plugin\FlexObjects\Types\GravPages
+ *
+ * @method PageIndex dateRange($startDate, $endDate = false, $field = null)
+ * @method PageIndex visible()
+ * @method PageIndex nonVisible()
+ * @method PageIndex modular()
+ * @method PageIndex nonModular()
+ * @method PageIndex published()
+ * @method PageIndex nonPublished()
+ * @method PageIndex routable()
+ * @method PageIndex nonRoutable()
+ * @method PageIndex ofType(string $type)
+ * @method PageIndex ofOneOfTheseTypes(array $types)
+ * @method PageIndex ofOneOfTheseAccessLevels(array $accessLevels)
+ * @method FlexPageIndex withModules(bool $bool = true)
+ * @method FlexPageIndex withPages(bool $bool = true)
+ * @method FlexPageIndex withTranslation(bool $bool = true, string $languageCode = null, bool $fallback = null)
  */
 class PageIndex extends FlexPageIndex
 {
@@ -48,20 +63,6 @@ class PageIndex extends FlexPageIndex
         }
 
         parent::__construct($entries, $directory);
-    }
-
-    /**
-     * @param array $entries
-     * @param string|null $keyField
-     * @return $this|FlexPageIndex
-     */
-    protected function createFrom(array $entries, string $keyField = null)
-    {
-        /** @var static $index */
-        $index = parent::createFrom($entries, $keyField);
-        $index->_root = $this->getRoot();
-
-        return $index;
     }
 
     /**
@@ -155,7 +156,7 @@ class PageIndex extends FlexPageIndex
      * Filter pages by given filters.
      *
      * - search: string
-     * - page_type: string
+     * - page_type: string|string[]
      * - modular: bool
      * - visible: bool
      * - routable: bool
@@ -166,94 +167,54 @@ class PageIndex extends FlexPageIndex
      * @param array $filters
      * @return FlexCollectionInterface
      */
-    public function filterByNew(array $filters)
+    public function filterBy(array $filters)
     {
-        // TODO
-        // Normalize filters.
-        $isDefaultLanguage = $activeLanguage = '';
-
+        $list = [];
+        $index = $this;
         foreach ($filters as $key => $value) {
+            // Skip empty filters.
             if ($value === null || $value === '') {
-                // Remove empty filters.
-                unset($filters[$key]);
                 continue;
             }
 
-            if ($key === 'translated') {
-                /** @var Language $language */
-                $language = Grav::instance()['language'];
-                $activeLanguage = $language->getLanguage();
-                $isDefaultLanguage = $activeLanguage === $language->getDefault();
-            } elseif ($key === 'routable') {
-                // Routable checks also "not module and page".
-                $bool = (bool)$filters['routable'];
-                $modular = (bool)($filters['module'] ?? !$bool);
-                $page = (bool)($filters['page'] ?? $bool);
-                if ($modular === $bool || $page !== $bool) {
-                    return $this->createFrom([]);
-                }
-                $filters['module'] = $modular;
-                $filters['page'] = $page;
+            switch ($key) {
+                case 'search':
+                    $index = $index->search((string)$value);
+                    break;
+                case 'page_type':
+                    if (!is_array($value)) {
+                        $value = is_string($value) && $value !== '' ? explode(',', $value) : [];
+                    }
+                    $index = $index->ofOneOfTheseTypes($value);
+                    break;
+                case 'routable':
+                    $index = $index->withRoutable((bool)$value);
+                    break;
+                case 'published':
+                    $index = $index->withPublished((bool)$value);
+                    break;
+                case 'visible':
+                    $index = $index->withVisible((bool)$value);
+                    break;
+                case 'module':
+                    $index = $this->withModules((bool)$value);
+                    break;
+                case 'page':
+                    $index = $this->withPages((bool)$value);
+                    break;
+                case 'translated':
+                    $index = $this->withTranslation((bool)$value);
+                    break;
+                default:
+                    $list[$key] = $value;
             }
         }
 
-        $list = [];
-        foreach ($this->getEntries() as $index => $entry) {
-            $type = $entry['template'] ?? 'folder';
-            $path = explode('/', $entry['key']);
-            $storagePath = explode('/', $entry['storage_key']);
-            $slug = end($path);
-            $isModule = $slug[0] === '_';
-            $storageSlug = end($storagePath);
-
-            foreach ($filters as $key => $value) {
-                switch ($key) {
-//                    case 'search':
-//                        // TODO:
-//                        $matches = $this->search((string)$value);
-//                        break;
-                    case 'page_type':
-                        // Filename specifies the page type.
-                        $types = $value ? explode(',', $value) : [];
-                        $matches = in_array($type, $types, true);
-                        break;
-                    case 'module':
-                        // All modular pages start with underscore in their slug.
-                        // Modular can also be in the header...
-                        $matches = $isModule === (bool)$value;
-                        break;
-                    case 'visible':
-                        // Visible pages have numeric prefix in their folder name.
-                        // In header
-                        $matches = ($slug !== $storageSlug) === (bool)$value;
-                        break;
-//                    case 'routable':
-//                        // TODO:
-//                        break;
-//                    case 'published':
-//                        // TODO
-//                        break;
-                    case 'page':
-                        // Pages
-                        $matches = ($type !== 'folder') === (bool)$value;
-                        break;
-                    case 'translated':
-                        $matches = isset($entry['markdown'][$activeLanguage]) === (bool)$value;
-                        if (!$matches && $isDefaultLanguage) {
-                            $matches = isset($entry['markdown']['']) === (bool)$value;
-                        }
-                        break;
-                    default:
-                        throw new \RuntimeException('Not implemented');
-                }
-                if ($matches === false) {
-                    continue 2;
-                }
-                $list[$key] = $value;
-            }
+        if ($list) {
+            return parent::filterBy($list);
         }
 
-        return $this->createFrom($list);
+        return $index;
     }
 
     /**
@@ -277,6 +238,20 @@ class PageIndex extends FlexPageIndex
         ];
 
         return $this->getLevelListingRecurse($options);
+    }
+
+    /**
+     * @param array $entries
+     * @param string|null $keyField
+     * @return $this|FlexPageIndex
+     */
+    protected function createFrom(array $entries, string $keyField = null)
+    {
+        /** @var static $index */
+        $index = parent::createFrom($entries, $keyField);
+        $index->_root = $this->getRoot();
+
+        return $index;
     }
 
     /**

@@ -27,11 +27,20 @@ class FlexPageCollection extends FlexCollection
     public static function getCachedMethods(): array
     {
         return [
+            // Collection filtering
             'withPublished' => true,
             'withVisible' => true,
+            'withRoutable' => true,
+
             'isFirst' => true,
             'isLast' => true,
+
+            // Find objects
+            'prevSibling' => false,
+            'nextSibling' => false,
+            'adjacentSibling' => false,
             'currentPosition' => true,
+
             'getNextOrder' => false,
         ] + parent::getCachedMethods();
     }
@@ -58,6 +67,16 @@ class FlexPageCollection extends FlexCollection
         return $this->select($list);
     }
 
+    /**
+     * @param bool $bool
+     * @return FlexCollectionInterface|FlexPageCollection
+     */
+    public function withRoutable(bool $bool = true)
+    {
+        $list = array_keys(array_filter($this->call('isRoutable', [$bool])));
+
+        return $this->select($list);
+    }
 
     /**
      * Check to see if this item is the first in the collection.

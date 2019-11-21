@@ -14,6 +14,7 @@ namespace Grav\Common\Flex\Pages;
 use Grav\Common\Page\Interfaces\PageCollectionInterface;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Utils;
+use Grav\Framework\Flex\Interfaces\FlexCollectionInterface;
 use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
 use Grav\Framework\Flex\Pages\FlexPageCollection;
 
@@ -35,6 +36,49 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
 {
     /** @var array|null */
     protected $_params;
+
+    /**
+     * @return array
+     */
+    public static function getCachedMethods(): array
+    {
+        return [
+                // Collection specific methods
+                'getRoot' => false,
+                'getParams' => false,
+                'setParams' => false,
+                'params' => false,
+                'addPage' => false,
+                'merge' => false,
+                'intersect' => false,
+                'prev' => false,
+                'nth' => false,
+                'random' => false,
+                'append' => false,
+                'batch' => false,
+                'order' => false,
+
+                // Collection filtering
+                'dateRange' => true,
+                'visible' => true,
+                'nonVisible' => true,
+                'modular' => true,
+                'nonModular' => true,
+                'published' => true,
+                'nonPublished' => true,
+                'routable' => true,
+                'nonRoutable' => true,
+                'ofType' => true,
+                'ofOneOfTheseTypes' => true,
+                'ofOneOfTheseAccessLevels' => true,
+                'withModules' => true,
+                'withPages' => true,
+                'withTranslation' => true,
+
+                'toExtendedArray' => false,
+                'getLevelListing' => false,
+            ] + parent::getCachedMethods();
+    }
 
     /**
      * @return PageInterface|FlexObjectInterface
@@ -455,6 +499,42 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
         }
 
         return $this->createFrom($entries);
+    }
+
+    /**
+     * @param bool $bool
+     * @return FlexCollectionInterface|FlexPageCollection
+     */
+    public function withModules(bool $bool = true)
+    {
+        $list = array_keys(array_filter($this->call('isModule', [$bool])));
+
+        return $this->select($list);
+    }
+
+
+    /**
+     * @param bool $bool
+     * @return FlexCollectionInterface|FlexPageCollection
+     */
+    public function withPages(bool $bool = true)
+    {
+        $list = array_keys(array_filter($this->call('isPage', [$bool])));
+
+        return $this->select($list);
+    }
+
+    /**
+     * @param bool $bool
+     * @param string|null $languageCode
+     * @param bool|null $fallback
+     * @return FlexCollectionInterface|FlexPageCollection
+     */
+    public function withTranslation(bool $bool = true, string $languageCode = null, bool $fallback = null)
+    {
+        $list = array_keys(array_filter($this->call('hasTranslation', [$languageCode, $fallback])));
+
+        return $bool ? $this->select($list) : $this->unselect($list);
     }
 
     /**
