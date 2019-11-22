@@ -520,7 +520,8 @@ class UserObject extends FlexObject implements UserInterface, MediaManipulationI
     protected function isAuthorizedOverride(UserInterface $user, string $action, string $scope): ?bool
     {
         if ($user instanceof self && $user->getStorageKey() === $this->getStorageKey()) {
-            return true;
+            // User cannot delete his own account, otherwise he has full access.
+            return $action !== 'delete';
         }
 
         return parent::isAuthorizedOverride($user, $action, $scope);

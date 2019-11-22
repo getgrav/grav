@@ -23,6 +23,7 @@
 1. [](#bugfix)
     * Regression: Fixed Grav update bug [#2722](https://github.com/getgrav/grav/issues/2722)
     * Grav 1.7: Reverted `$object->getStorageKey()` interface as it was not a good idea, added `getMasterKey()` for pages
+    * Grav 1.7: Fixed logged in user being able to delete his own account from admin account manager
 
 # v1.7.0-rc.1
 ## 11/06/2019
