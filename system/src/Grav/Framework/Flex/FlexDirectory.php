@@ -15,6 +15,7 @@ use Grav\Common\Data\Blueprint;
 use Grav\Common\Debugger;
 use Grav\Common\Grav;
 use Grav\Common\Page\Interfaces\PageInterface;
+use Grav\Common\User\Interfaces\UserInterface;
 use Grav\Common\Utils;
 use Grav\Framework\Cache\Adapter\DoctrineCache;
 use Grav\Framework\Cache\Adapter\MemoryCache;
@@ -812,5 +813,37 @@ class FlexDirectory implements FlexAuthorizeInterface
         }
 
         return $index;
+    }
+
+    /**
+     * @param string $action
+     * @return string
+     */
+    protected function getAuthorizeAction(string $action): string
+    {
+        // Handle special action save, which can mean either update or create.
+        if ($action === 'save') {
+            $action = 'create';
+        }
+
+        return $action;
+    }
+    /**
+     * @return UserInterface|null
+     */
+    protected function getActiveUser(): ?UserInterface
+    {
+        /** @var UserInterface|null $user */
+        $user = Grav::instance()['user'] ?? null;
+
+        return $user;
+    }
+
+    /**
+     * @return string
+     */
+    protected function getAuthorizeScope(): string
+    {
+        return isset(Grav::instance()['admin']) ? 'admin' : 'site';
     }
 }

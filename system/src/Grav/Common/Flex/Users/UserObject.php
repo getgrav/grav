@@ -32,7 +32,6 @@ use Grav\Framework\Flex\FlexDirectory;
 use Grav\Framework\Flex\FlexObject;
 use Grav\Framework\Flex\Interfaces\FlexCollectionInterface;
 use Grav\Framework\Flex\Storage\FileStorage;
-use Grav\Framework\Flex\Traits\FlexAuthorizeTrait;
 use Grav\Framework\Flex\Traits\FlexMediaTrait;
 use Grav\Framework\Form\FormFlashFile;
 use Grav\Framework\Media\Interfaces\MediaManipulationInterface;
@@ -65,7 +64,6 @@ class UserObject extends FlexObject implements UserInterface, MediaManipulationI
         getMedia as private getFlexMedia;
         getMediaFolder as private getFlexMediaFolder;
     }
-    use FlexAuthorizeTrait;
     use UserTrait;
 
     /** @var array|null */
@@ -513,18 +511,19 @@ class UserObject extends FlexObject implements UserInterface, MediaManipulationI
         return parent::save();
     }
 
-    public function isAuthorized(string $action, string $scope = null, UserInterface $user = null): bool
+    /**
+     * @param UserInterface $user
+     * @param string $action
+     * @param string $scope
+     * @return bool|null
+     */
+    protected function isAuthorizedOverride(UserInterface $user, string $action, string $scope): ?bool
     {
-        if (null === $user) {
-            /** @var UserInterface $user */
-            $user = Grav::instance()['user'] ?? null;
-        }
-
         if ($user instanceof self && $user->getStorageKey() === $this->getStorageKey()) {
             return true;
         }
 
-        return parent::isAuthorized($action, $scope, $user);
+        return parent::isAuthorizedOverride($user, $action, $scope);
     }
 
     /**

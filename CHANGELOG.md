@@ -7,6 +7,7 @@
     * Added new `-r <job-id>` option for Scheduler CLI command to force-run a job [#2720](https://github.com/getgrav/grav/issues/2720)
     * Added `Utils::isAssoc()` and `Utils::isNegative()` helper methods
     * Changed `UserInterface::authorize()` to return `null` having the same meaning as `false` if access is denied because of no matching rule
+    * Changed `FlexAuthorizeInterface::isAuthorized()` to return `null` having the same meaning as `false` if access is denied because of no matching rule
     * Moved all Flex type classes under `Grav\Common\Flex`
     * DEPRECATED `Grav\Common\User\Group` in favor of `$grav['user_groups']`, which contains Flex UserGroup collection
     * DEPRECATED `$page->modular()` in favor of `$page->isModule()` for better readability

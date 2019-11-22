@@ -14,7 +14,6 @@ namespace Grav\Framework\Flex\Pages\Traits;
 use Grav\Common\User\Access;
 use Grav\Common\User\Interfaces\UserCollectionInterface;
 use Grav\Common\User\Interfaces\UserInterface;
-use Grav\Framework\Flex\Traits\FlexAuthorizeTrait;
 
 /**
  * Implements PageAuthorsTrait
@@ -22,20 +21,18 @@ use Grav\Framework\Flex\Traits\FlexAuthorizeTrait;
  */
 trait PageAuthorsTrait
 {
-    use FlexAuthorizeTrait {
-        isAuthorized as private isFlexAuthorized;
-    }
-
     /** @var array<int,UserInterface> */
     private $_authors;
 
     /**
+     * Returns true if object has the named author.
+     *
      * @param string $username
      * @return bool
      */
     public function hasAuthor(string $username): bool
     {
-        $authors = $this->getNestedProperty('header.authors');
+        $authors = (array)$this->getNestedProperty('header.authors');
         if (empty($authors)) {
             return false;
         }
@@ -50,42 +47,17 @@ trait PageAuthorsTrait
     }
 
     /**
+     * Get list of all author objects.
+     *
      * @return array<int,UserInterface>
      */
     public function getAuthors(): array
     {
         if (null === $this->_authors) {
-            $this->_authors = $this->loadAuthors($this->getNestedProperty('header.authors'));
+            $this->_authors = (array)$this->loadAuthors($this->getNestedProperty('header.authors'));
         }
 
         return $this->_authors;
-    }
-
-    /**
-     * @param string $action
-     * @param string|null $scope
-     * @param UserInterface|null $user
-     * @return bool
-     */
-    public function isAuthorized(string $action, string $scope = null, UserInterface $user = null): bool
-    {
-        $scope = $scope ?? $this->getAuthorizeScope();
-        $groups = $this->loadPermissions($user);
-        $authorized = null;
-        if ($scope === 'admin') {
-            /** @var Access $access */
-            foreach ($groups as $access) {
-                $auth = $access->authorize($action, $scope);
-                if (is_bool($auth)) {
-                    if ($auth === false) {
-                        return false;
-                    }
-                    $authorized = true;
-                }
-            }
-        }
-
-        return $authorized ?? $this->isFlexAuthorized($action, $scope, $user);
     }
 
     /**
@@ -111,13 +83,58 @@ trait PageAuthorsTrait
     }
 
     /**
+     * @param UserInterface $user
+     * @param string $action
+     * @param string $scope
+     * @return bool|null
+     */
+    protected function isAuthorizedOverride(UserInterface $user, string $action, string $scope): ?bool
+    {
+        $authorized = $this->isAuthorizedByGroup($user, $action, $scope);
+
+        return $authorized ?? parent::isAuthorizedOverride($user, $action, $scope);
+    }
+
+    /**
+     * Group authorization works as follows:
+     *
+     * 1. if any of the groups deny access, return false
+     * 2. else if any of the groups allow access, return true
+     * 3. else return null
+     *
+     * @param UserInterface $user
+     * @param string $action
+     * @param string $scope
+     * @return bool|null
+     */
+    protected function isAuthorizedByGroup(UserInterface $user, string $action, string $scope): ?bool
+    {
+        $authorized = null;
+
+        // In admin we want to check against group permissions.
+        $groups = $this->loadPermissions($user);
+        /** @var Access $access */
+        foreach ($groups as $access) {
+            $auth = $access->authorize($action, $scope);
+            if (is_bool($auth)) {
+                if ($auth === false) {
+                    return false;
+                }
+                $authorized = true;
+            }
+        }
+
+        return $authorized;
+    }
+
+    /**
+     * @param UserInterface $user
      * @return array
      */
-    protected function loadPermissions(?UserInterface $user): array
+    protected function loadPermissions(UserInterface $user): array
     {
-        $user = $user ?? $this->getCurrentUser();
         $permissions = $this->getNestedProperty('header.permissions');
-        if (!$user || empty($permissions)) {
+        if (empty($permissions)) {
             return [];
         }
 

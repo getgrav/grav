@@ -40,6 +40,18 @@
 
 ## DEVELOPERS
 
+### ACL
+
+* **BC BREAK** `user.authorize()` and Flex `object.isAuthorized()` now have two deny states: `false` and `null`. 
+
+    Make sure you do not have strict checks against false: `$user->authorize($action) === false` (PHP)  or `user.authorize(action) is same as(false)` (Twig). 
+
+    For the negative checks you should be using `!user->authorize($action)` (PHP) or `not user.authorize(action)` (Twig).
+
+    The change has been done to allow strong deny rules by chaining the actions if previous ones do not match: `user.authorize(action1) ?? user.authorize(action2) ?? user.authorize(action3)`.
+    
+    Note that Twig function `authorize()` will still **keeps** the old behavior!
+
 ### Pages
 
 * Added experimental support for `Flex Pages` (**Flex-Objects** plugin required)

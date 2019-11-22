@@ -14,7 +14,6 @@ namespace Grav\Common\Flex\UserGroups;
 use Grav\Common\User\Access;
 use Grav\Common\User\Interfaces\UserGroupInterface;
 use Grav\Framework\Flex\FlexObject;
-use Grav\Framework\Flex\Traits\FlexAuthorizeTrait;
 
 /**
  * Flex User Group
@@ -26,8 +25,6 @@ use Grav\Framework\Flex\Traits\FlexAuthorizeTrait;
  */
 class UserGroupObject extends FlexObject implements UserGroupInterface
 {
-    use FlexAuthorizeTrait;
-
     /** @var Access|null */
     protected $_access;
 
