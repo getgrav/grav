@@ -105,7 +105,6 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
      * Set parameters to the Collection
      *
      * @param array $params
-     *
      * @return $this
      */
     public function setParams(array $params)
@@ -129,7 +128,6 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
      * Add a single page to a collection
      *
      * @param PageInterface $page
-     *
      * @return static
      */
     public function addPage(PageInterface $page)
@@ -184,7 +182,6 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
     /**
      * Return nth item.
      * @param int $key
-     *
      * @return PageInterface|bool
      */
     public function nth($key)
@@ -207,7 +204,6 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
      * Append new elements to the list.
      *
      * @param array $items Items to be appended. Existing keys will be overridden with the new values.
-     *
      * @return static
      */
     public function append($items)
@@ -233,7 +229,6 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
      * @param string $dir
      * @param array  $manual
      * @param string $sort_flags
-     *
      * @return static
      */
     public function order($by, $dir = 'asc', $manual = null, $sort_flags = null)
@@ -250,7 +245,6 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
      * @param string $startDate
      * @param string|false $endDate
      * @param string|null $field
-     *
      * @return static
      * @throws \Exception
      */
@@ -423,7 +417,6 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
      * Creates new collection with only pages of the specified type
      *
      * @param string $type
-     *
      * @return static The collection
      */
     public function ofType($type)
@@ -442,7 +435,6 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
      * Creates new collection with only pages of one of the specified types
      *
      * @param string[] $types
-     *
      * @return static The collection
      */
     public function ofOneOfTheseTypes($types)
@@ -461,7 +453,6 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
      * Creates new collection with only pages of one of the specified access levels
      *
      * @param array $accessLevels
-     *
      * @return static The collection
      */
     public function ofOneOfTheseAccessLevels($accessLevels)

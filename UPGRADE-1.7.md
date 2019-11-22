@@ -42,6 +42,8 @@
 
 ### ACL
 
+* `user.authorize()` now requires user to be authorized (passed 2FA check), unless the rule contains `login` in its name.
+
 * **BC BREAK** `user.authorize()` and Flex `object.isAuthorized()` now have two deny states: `false` and `null`. 
 
     Make sure you do not have strict checks against false: `$user->authorize($action) === false` (PHP)  or `user.authorize(action) is same as(false)` (Twig). 

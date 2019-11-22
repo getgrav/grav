@@ -88,7 +88,6 @@ trait PageLegacyTrait
      * Returns the adjacent sibling based on a direction.
      *
      * @param  int $direction either -1 or +1
-     *
      * @return PageInterface|false             the sibling page
      */
     public function adjacentSibling($direction = 1)
@@ -111,7 +110,6 @@ trait PageLegacyTrait
      * Helper method to return an ancestor page.
      *
      * @param string|null $lookup Name of the parent folder
-     *
      * @return PageInterface|null page you were looking for if it exists
      */
     public function ancestor($lookup = null)
@@ -130,7 +128,6 @@ trait PageLegacyTrait
      * Method that contains shared logic for inherited() and inheritedField()
      *
      * @param string $field Name of the parent folder
-     *
      * @return array
      */
     protected function getInheritedParams($field): array
@@ -157,7 +154,6 @@ trait PageLegacyTrait
      *
      * @param string $url the url of the page
      * @param bool $all
-     *
      * @return PageInterface|null page you were looking for if it exists
      */
     public function find($url, $all = false)
@@ -177,7 +173,6 @@ trait PageLegacyTrait
      *
      * @param string|array $params
      * @param bool $pagination
-     *
      * @return PageCollectionInterface|Collection
      * @throws \InvalidArgumentException
      */

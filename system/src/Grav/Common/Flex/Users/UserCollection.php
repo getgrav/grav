@@ -86,7 +86,6 @@ class UserCollection extends FlexCollection implements UserCollectionInterface
      * Delete user account.
      *
      * @param string $username
-     *
      * @return bool True if user account was found and was deleted.
      */
     public function delete($username): bool

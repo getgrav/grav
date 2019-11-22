@@ -42,6 +42,9 @@ class PageStorage extends FolderStorage
     /** @var string */
     protected $regex;
 
+    /**
+     * @param array $options
+     */
     protected function initOptions(array $options): void
     {
         parent::initOptions($options);
@@ -83,6 +86,10 @@ class PageStorage extends FolderStorage
         return $keys;
     }
 
+    /**
+     * @param string $key
+     * @return string
+     */
     public function readFrontmatter(string $key): string
     {
         $path = $this->getPathFromKey($key);
@@ -100,6 +107,10 @@ class PageStorage extends FolderStorage
         return $frontmatter;
     }
 
+    /**
+     * @param string $key
+     * @return string
+     */
     public function readRaw(string $key): string
     {
         $path = $this->getPathFromKey($key);
@@ -402,6 +413,10 @@ class PageStorage extends FolderStorage
         return $row;
     }
 
+    /**
+     * @param string $key
+     * @return bool
+     */
     protected function canDeleteFolder(string $key): bool
     {
         $keys = $this->extractKeysFromStorageKey($key);
@@ -541,6 +556,9 @@ class PageStorage extends FolderStorage
         return $meta;
     }
 
+    /**
+     * @return array
+     */
     protected function getIndexMeta(): array
     {
         $queue = [''];

@@ -26,7 +26,6 @@ trait PageTranslateTrait
      * Return an array with the routes of other translated languages
      *
      * @param bool $onlyPublished only return published translations
-     *
      * @return array the page translated languages
      */
     public function translatedLanguages($onlyPublished = false): array

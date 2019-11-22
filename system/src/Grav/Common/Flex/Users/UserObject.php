@@ -98,6 +98,13 @@ class UserObject extends FlexObject implements UserInterface, MediaManipulationI
         ] + parent::getCachedMethods();
     }
 
+    /**
+     * UserObject constructor.
+     * @param array $elements
+     * @param string $key
+     * @param FlexDirectory $directory
+     * @param bool $validate
+     */
     public function __construct(array $elements, $key, FlexDirectory $directory, bool $validate = false)
     {
         // User can only be authenticated via login.
@@ -283,7 +290,6 @@ class UserObject extends FlexObject implements UserInterface, MediaManipulationI
      *
      * @param  int $inline  The level where you switch to inline YAML.
      * @param  int $indent  The amount of spaces to use for indentation of nested nodes.
-     *
      * @return string A YAML string representing the object.
      */
     public function toYaml($inline = 5, $indent = 2)
@@ -691,6 +697,9 @@ class UserObject extends FlexObject implements UserInterface, MediaManipulationI
         return $media;
     }
 
+    /**
+     * @return string|null
+     */
     public function getMediaFolder(): ?string
     {
         $folder = $this->getFlexMediaFolder();
@@ -703,6 +712,9 @@ class UserObject extends FlexObject implements UserInterface, MediaManipulationI
         return $folder;
     }
 
+    /**
+     * @return string|null
+     */
     protected function getAvatarFile(): ?string
     {
         $avatars = $this->getElement('avatar');

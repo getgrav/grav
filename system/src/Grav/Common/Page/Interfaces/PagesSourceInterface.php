@@ -9,7 +9,7 @@
 
 namespace Grav\Common\Page\Interfaces;
 
-interface PagesSourceInterface extends \Iterator
+interface PagesSourceInterface // extends \Iterator
 {
     /**
      * Get timestamp for the page source.

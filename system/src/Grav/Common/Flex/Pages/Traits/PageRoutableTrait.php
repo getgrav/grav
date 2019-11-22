@@ -26,7 +26,6 @@ trait PageRoutableTrait
      * Gets and Sets the parent object for this page
      *
      * @param  PageInterface|null $var the parent page object
-     *
      * @return PageInterface|null the parent page object if it exists.
      */
 

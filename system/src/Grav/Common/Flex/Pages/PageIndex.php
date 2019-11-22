@@ -132,7 +132,6 @@ class PageIndex extends FlexPageIndex
      * Set parameters to the Collection
      *
      * @param array $params
-     *
      * @return $this
      */
     public function setParams(array $params)

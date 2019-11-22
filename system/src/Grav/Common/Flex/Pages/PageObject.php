@@ -198,6 +198,9 @@ class PageObject extends FlexPageObject
         return $siblings;
     }
 
+    /**
+     * @return string
+     */
     public function full_order(): string
     {
         $route = $this->path() . '/' . $this->folder();

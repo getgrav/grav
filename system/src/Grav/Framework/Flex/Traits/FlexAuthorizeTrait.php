@@ -88,7 +88,7 @@ trait FlexAuthorizeTrait
         }
 
         // Finally authorize the action.
-        return $user->authorize(sprintf($this->_authorize, $scope, $action));
+        return $user->authorize($this->getAuthorizeRule($scope, $action));
     }
 
     /**
@@ -112,5 +112,15 @@ trait FlexAuthorizeTrait
     protected function setAuthorizeRule(string $authorize): void
     {
         $this->_authorize = $authorize;
+    }
+
+    /**
+     * @param string $scope
+     * @param string $action
+     * @return string
+     */
+    protected function getAuthorizeRule(string $scope, string $action): string
+    {
+        return sprintf($this->_authorize, $scope, $action);
     }
 }

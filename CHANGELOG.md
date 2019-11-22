@@ -3,7 +3,7 @@
 
 1. [](#new)
     * Updated Symfony Components to 4.4
-    * Added page specific permissions for `Flex Pages`
+    * Added support for page specific CRUD permissions (`Flex Pages` only)
     * Added new `-r <job-id>` option for Scheduler CLI command to force-run a job [#2720](https://github.com/getgrav/grav/issues/2720)
     * Added `Utils::isAssoc()` and `Utils::isNegative()` helper methods
     * Changed `UserInterface::authorize()` to return `null` having the same meaning as `false` if access is denied because of no matching rule

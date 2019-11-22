@@ -42,7 +42,6 @@ class UserIndex extends FlexIndex
      * Always creates user object. To check if user exists, use $this->exists().
      *
      * @param string $username
-     *
      * @return UserObject
      */
     public function load($username): UserInterface
@@ -104,12 +103,20 @@ class UserIndex extends FlexIndex
         return $this->load('');
     }
 
+    /**
+     * @param array $entry
+     * @param array $data
+     */
     protected static function updateIndexData(array &$entry, array $data)
     {
         $entry['key'] = mb_strtolower($entry['key']);
         $entry['email'] = isset($data['email']) ? mb_strtolower($data['email']) : null;
     }
 
+    /**
+     * @param FlexStorageInterface $storage
+     * @return CompiledYamlFile|null
+     */
     protected static function getIndexFile(FlexStorageInterface $storage)
     {
         // Load saved index file.
@@ -120,6 +127,12 @@ class UserIndex extends FlexIndex
         return CompiledYamlFile::instance($filename);
     }
 
+    /**
+     * @param array $entries
+     * @param array $added
+     * @param array $updated
+     * @param array $removed
+     */
     protected static function onChanges(array $entries, array $added, array $updated, array $removed)
     {
         $message = sprintf('Flex: User index updated, %d objects (%d added, %d updated, %d removed).', \count($entries), \count($added), \count($updated), \count($removed));
