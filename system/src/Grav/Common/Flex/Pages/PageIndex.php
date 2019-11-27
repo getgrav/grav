@@ -410,6 +410,9 @@ class PageIndex extends FlexPageIndex
                     $extras = array_filter($extras, static function ($v) {
                         return $v !== null;
                     });
+                    $tmp = $child->children()->getIndex();
+                    $child_count = $tmp->count();
+                    $count = $filters ? $tmp->filterBy($filters, true)->count() : null;
                     $payload = [
                         'item-key' => basename($child->rawRoute() ?? $child->getKey()),
                         'icon' => $icon,
@@ -419,8 +422,8 @@ class PageIndex extends FlexPageIndex
                             'raw' => $child->rawRoute(),
                         ],
                         'modified' => $this->jsDate($child->modified()),
-                        'child_count' => $child->children()->count() ?: null,
-                        'count' => $child->children()->getIndex()->filterBy($filters, true)->count() ?: null,
+                        'child_count' => $child_count ?: null,
+                        'count' => $count ?: null,
                         'filters_hit' => $child->filterBy($filters, false) ?: null,
                         'extras' => $extras
                     ];
