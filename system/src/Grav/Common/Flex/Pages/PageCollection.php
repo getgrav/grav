@@ -74,6 +74,7 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
                 'withModules' => true,
                 'withPages' => true,
                 'withTranslation' => true,
+                'filterBy' => true,
 
                 'toExtendedArray' => false,
                 'getLevelListing' => false,
@@ -526,6 +527,29 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
         $list = array_keys(array_filter($this->call('hasTranslation', [$languageCode, $fallback])));
 
         return $bool ? $this->select($list) : $this->unselect($list);
+    }
+
+    /**
+     * Filter pages by given filters.
+     *
+     * - search: string
+     * - page_type: string|string[]
+     * - modular: bool
+     * - visible: bool
+     * - routable: bool
+     * - published: bool
+     * - page: bool
+     * - translated: bool
+     *
+     * @param array $filters
+     * @param bool $recursive
+     * @return FlexCollectionInterface
+     */
+    public function filterBy(array $filters, bool $recursive = false)
+    {
+        $list = array_keys(array_filter($this->call('filterBy', [$filters, $recursive])));
+
+        return $this->select($list);
     }
 
     /**

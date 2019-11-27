@@ -35,15 +35,15 @@ use Grav\Framework\Flex\Pages\FlexPageIndex;
  * @method PageIndex ofType(string $type)
  * @method PageIndex ofOneOfTheseTypes(array $types)
  * @method PageIndex ofOneOfTheseAccessLevels(array $accessLevels)
- * @method FlexPageIndex withModules(bool $bool = true)
- * @method FlexPageIndex withPages(bool $bool = true)
- * @method FlexPageIndex withTranslation(bool $bool = true, string $languageCode = null, bool $fallback = null)
+ * @method PageIndex withModules(bool $bool = true)
+ * @method PageIndex withPages(bool $bool = true)
+ * @method PageIndex withTranslation(bool $bool = true, string $languageCode = null, bool $fallback = null)
  */
 class PageIndex extends FlexPageIndex
 {
-    const VERSION = parent::VERSION . '.5';
-    const ORDER_LIST_REGEX = '/(\/\d+)\.[^\/]+/u';
-    const PAGE_ROUTE_REGEX = '/\/\d+\./u';
+    public const VERSION = parent::VERSION . '.5';
+    public const ORDER_LIST_REGEX = '/(\/\d+)\.[^\/]+/u';
+    public const PAGE_ROUTE_REGEX = '/\/\d+\./u';
 
     /** @var PageObject|array */
     protected $_root;
@@ -164,18 +164,24 @@ class PageIndex extends FlexPageIndex
      * - translated: bool
      *
      * @param array $filters
+     * @param bool $recursive
      * @return FlexCollectionInterface
      */
-    public function filterBy(array $filters)
+    public function filterBy(array $filters, bool $recursive = false)
     {
+        // Skip empty filters.
+        $filters = array_filter($filters, static function($val) { return $val !== null && $val !== ''; });
+        if (!$filters) {
+            return $this;
+        }
+
+        if ($recursive) {
+            return $this->__call('filterBy', [$filters, true]);
+        }
+
         $list = [];
         $index = $this;
         foreach ($filters as $key => $value) {
-            // Skip empty filters.
-            if ($value === null || $value === '') {
-                continue;
-            }
-
             switch ($key) {
                 case 'search':
                     $index = $index->search((string)$value);
@@ -196,24 +202,29 @@ class PageIndex extends FlexPageIndex
                     $index = $index->withVisible((bool)$value);
                     break;
                 case 'module':
-                    $index = $this->withModules((bool)$value);
+                    $index = $index->withModules((bool)$value);
                     break;
                 case 'page':
-                    $index = $this->withPages((bool)$value);
+                    $index = $index->withPages((bool)$value);
                     break;
                 case 'translated':
-                    $index = $this->withTranslation((bool)$value);
+                    $index = $index->withTranslation((bool)$value);
                     break;
                 default:
                     $list[$key] = $value;
             }
         }
 
-        if ($list) {
-            return parent::filterBy($list);
-        }
+        return $list ? $index->filterByParent($list) : $index;
+    }
 
-        return $index;
+    /**
+     * @param array $filters
+     * @return FlexCollectionInterface
+     */
+    protected function filterByParent(array $filters)
+    {
+        return parent::filterBy($filters);
     }
 
     /**
@@ -342,15 +353,14 @@ class PageIndex extends FlexPageIndex
             $status = 'success';
             $msg = 'PLUGIN_ADMIN.PAGE_ROUTE_FOUND';
 
-            $children = $page->children();
+            /** @var PageIndex $children */
+            $children = $page->children()->getIndex();
+            $selectedChildren = $children->filterBy($filters, true);
 
             /** @var PageObject $child */
-            foreach ($children as $child) {
+            foreach ($selectedChildren as $child) {
                 $selected = $child->path() === $extra;
                 $includeChildren = \is_array($leaf) && !empty($leaf) && $selected;
-                if (!$selected && !$child->filterBy($filters, true)) {
-                    continue;
-                }
                 if ($field) {
                     $payload = [
                         'name' => $child->title(),

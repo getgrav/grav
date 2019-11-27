@@ -80,6 +80,7 @@ class Pages
     /** @var string */
     protected $check_method;
 
+    /** @var string */
     protected $pages_cache_id;
 
     /** @var bool */
@@ -125,7 +126,6 @@ class Pages
      * Get or set base path for the pages.
      *
      * @param  string $path
-     *
      * @return string
      */
     public function base($path = null)
@@ -144,7 +144,6 @@ class Pages
      * Get base route for Grav pages.
      *
      * @param  string $lang     Optional language code for multilingual routes.
-     *
      * @return string
      */
     public function baseRoute($lang = null)
@@ -170,7 +169,6 @@ class Pages
      *
      * @param  string $route    Optional route to the page.
      * @param  string $lang     Optional language code for multilingual links.
-     *
      * @return string
      */
     public function route($route = '/', $lang = null)
@@ -188,7 +186,6 @@ class Pages
      *
      * @param  string     $lang     Optional language code for multilingual links.
      * @param  bool|null  $absolute If true, return absolute url, if false, return relative url. Otherwise return default.
-     *
      * @return string
      */
     public function baseUrl($lang = null, $absolute = null)
@@ -210,7 +207,6 @@ class Pages
      *
      * @param  string $lang     Optional language code for multilingual links.
      * @param  bool   $absolute If true, return absolute url, if false, return relative url. Otherwise return default.
-     *
      * @return string
      */
     public function homeUrl($lang = null, $absolute = null)
@@ -225,7 +221,6 @@ class Pages
      * @param  string $route    Optional route to the page.
      * @param  string $lang     Optional language code for multilingual links.
      * @param  bool   $absolute If true, return absolute url, if false, return relative url. Otherwise return default.
-     *
      * @return string
      */
     public function url($route = '/', $lang = null, $absolute = null)
@@ -237,7 +232,10 @@ class Pages
         return $this->baseUrl($lang, $absolute) . Uri::filterPath($route);
     }
 
-    public function setCheckMethod($method)
+    /**
+     * @param string $method
+     */
+    public function setCheckMethod($method): void
     {
         $this->check_method = strtolower($method);
     }
@@ -254,7 +252,7 @@ class Pages
     /**
      * Class initialization. Must be called before using this class.
      */
-    public function init()
+    public function init(): void
     {
         if ($this->initialized) {
             return;
@@ -289,7 +287,6 @@ class Pages
      * Get or set last modification time.
      *
      * @param int $modified
-     *
      * @return int|null
      */
     public function lastModified($modified = null)
@@ -338,7 +335,7 @@ class Pages
      * @param PageInterface   $page  Page to be added.
      * @param string $route Optional route (uses route from the object if not set).
      */
-    public function addPage(PageInterface $page, $route = null)
+    public function addPage(PageInterface $page, $route = null): void
     {
         $path = $page->path() ?? '';
         if (!isset($this->instances[$path])) {
@@ -640,7 +637,6 @@ class Pages
      * @param PageInterface   $page
      * @param string $order_by
      * @param string $order_dir
-     *
      * @return array
      */
     public function sort(PageInterface $page, $order_by = null, $order_dir = null, $sort_flags = null)
@@ -682,7 +678,6 @@ class Pages
      * @param string     $orderDir
      * @param array|null $orderManual
      * @param int|null   $sort_flags
-     *
      * @return array
      * @internal
      */
@@ -711,7 +706,6 @@ class Pages
      * Get a page instance.
      *
      * @param  string $path The filesystem full path of the page
-     *
      * @return PageInterface|null
      * @throws \RuntimeException
      */
@@ -741,7 +735,6 @@ class Pages
      * Get children of the path.
      *
      * @param string $path
-     *
      * @return Collection
      */
     public function children($path)
@@ -756,7 +749,6 @@ class Pages
      *
      * @param  string $route The relative URL of the page
      * @param  string $path The relative path of the ancestor folder
-     *
      * @return PageInterface|null
      */
     public function ancestor($route, $path = null)
@@ -782,7 +774,6 @@ class Pages
      *
      * @param  string $route The relative route of the page
      * @param  string $field The field name of the ancestor to query for
-     *
      * @return PageInterface|null
      */
     public function inherited($route, $field = null)
@@ -807,7 +798,6 @@ class Pages
      *
      * @param string $route The relative URL of the page
      * @param bool   $all
-     *
      * @return PageInterface|null
      */
     public function find($route, $all = false)
@@ -820,7 +810,6 @@ class Pages
      *
      * @param string $route The relative URL of the page
      * @param bool $all
-     *
      * @param bool $redirect
      * @return PageInterface|null
      * @throws \Exception
@@ -933,7 +922,6 @@ class Pages
      * Get a blueprint for a page type.
      *
      * @param  string $type
-     *
      * @return Blueprint
      */
     public function blueprints($type)
@@ -960,7 +948,6 @@ class Pages
      * Get all pages
      *
      * @param PageInterface|null $current
-     *
      * @return Collection
      */
     public function all(PageInterface $current = null)
@@ -997,7 +984,6 @@ class Pages
      * Get available parents routes
      *
      * @param bool $rawRoutes get the raw route or the normal route
-     *
      * @return array
      */
     private static function getParents($rawRoutes)
@@ -1031,7 +1017,6 @@ class Pages
      * @param PageInterface|null $current
      * @param int $level
      * @param bool $rawRoutes
-     *
      * @param bool $showAll
      * @param bool $showFullpath
      * @param bool $showSlug
@@ -1357,7 +1342,7 @@ class Pages
         $debugger->stopTimer('build-pages');
     }
 
-    protected function buildFlexPages(FlexDirectory $directory)
+    protected function buildFlexPages(FlexDirectory $directory): void
     {
         /** @var Config $config */
         $config = $this->grav['config'];
@@ -1471,7 +1456,9 @@ class Pages
         }
     }
 
-
+    /**
+     * @return Page
+     */
     protected function buildRootPage()
     {
         $grav = Grav::instance();
@@ -1498,7 +1485,7 @@ class Pages
         return $page;
     }
 
-    protected function buildRegularPages()
+    protected function buildRegularPages(): void
     {
         /** @var Config $config */
         $config = $this->grav['config'];
@@ -1559,7 +1546,7 @@ class Pages
      *
      * @param string $pages_dir
      */
-    public function resetPages($pages_dir)
+    public function resetPages($pages_dir): void
     {
         $this->sort = [];
         $this->recurse($pages_dir);
@@ -1582,7 +1569,6 @@ class Pages
      *
      * @param string    $directory
      * @param PageInterface|null $parent
-     *
      * @return PageInterface
      * @throws \RuntimeException
      * @internal
@@ -1750,7 +1736,7 @@ class Pages
     /**
      * @internal
      */
-    protected function buildRoutes()
+    protected function buildRoutes(): void
     {
         /** @var Taxonomy $taxonomy */
         $taxonomy = $this->grav['taxonomy'];
@@ -1821,11 +1807,10 @@ class Pages
      * @param string $order_by
      * @param array|null  $manual
      * @param int|null    $sort_flags
-     *
      * @throws \RuntimeException
      * @internal
      */
-    protected function buildSort($path, array $pages, $order_by = 'default', $manual = null, $sort_flags = null)
+    protected function buildSort($path, array $pages, $order_by = 'default', $manual = null, $sort_flags = null): void
     {
         $list = [];
         $header_query = null;
@@ -1982,6 +1967,9 @@ class Pages
         return $new;
     }
 
+    /**
+     * @return string
+     */
     protected function getVersion()
     {
         return $this->directory ? 'flex' : 'page';
@@ -1993,7 +1981,7 @@ class Pages
      * this is particularly useful to know if pages have changed and you want
      * to sync another cache with pages cache - works best in `onPagesInitialized()`
      *
-     * @return mixed
+     * @return string
      */
     public function getPagesCacheId()
     {

@@ -271,10 +271,13 @@ class PageObject extends FlexPageObject
      */
     public function filterBy(array $filters, bool $recursive = false): bool
     {
+        // Skip empty filters.
+        $filters = array_filter($filters, static function($val) { return $val !== null && $val !== ''; });
+        if (!$filters) {
+            return true;
+        }
+
         foreach ($filters as $key => $value) {
-            if ($value === null || $value === '') {
-                continue;
-            }
             switch ($key) {
                 case 'search':
                     $matches = $this->search((string)$value);
@@ -308,16 +311,10 @@ class PageObject extends FlexPageObject
                     $matches = true;
                     break;
             }
-            if ($matches === false) {
-                if ($recursive) {
-                    foreach ($this->children() as $child) {
-                        if ($child->filterBy($filters, true)) {
-                            return true;
-                        }
-                    }
-                }
 
-                return false;
+            // If current filter does not match, we still may have match as a parent.
+            if ($matches === false) {
+                return $recursive && $this->children()->getIndex()->filterBy($filters, true)->count() > 0;
             }
         }
 
