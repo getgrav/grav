@@ -254,7 +254,7 @@ class PageObject extends FlexPageObject
     }
 
     /**
-     * Filter page (true/false) by given filters. If filter value is either null or '', it will be skipped.
+     * Filter page (true/false) by given filters.
      *
      * - search: string
      * - extension: string
@@ -271,12 +271,6 @@ class PageObject extends FlexPageObject
      */
     public function filterBy(array $filters, bool $recursive = false): bool
     {
-        // Skip empty filters.
-        $filters = array_filter($filters, static function($val) { return $val !== null && $val !== ''; });
-        if (!$filters) {
-            return true;
-        }
-
         foreach ($filters as $key => $value) {
             switch ($key) {
                 case 'search':

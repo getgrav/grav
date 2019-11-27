@@ -169,8 +169,6 @@ class PageIndex extends FlexPageIndex
      */
     public function filterBy(array $filters, bool $recursive = false)
     {
-        // Skip empty filters.
-        $filters = array_filter($filters, static function($val) { return $val !== null && $val !== ''; });
         if (!$filters) {
             return $this;
         }
@@ -270,7 +268,7 @@ class PageIndex extends FlexPageIndex
      */
     protected function getLevelListingRecurse(array $options): array
     {
-        $filters = $options['filters'];
+        $filters = array_filter($options['filters'] ?? [], static function($val) { return $val !== null && $val !== ''; });
         $filter_type = (array)$filters['type'];
 
         $field = $options['field'];
@@ -421,7 +419,8 @@ class PageIndex extends FlexPageIndex
                             'raw' => $child->rawRoute(),
                         ],
                         'modified' => $this->jsDate($child->modified()),
-                        'child_count' => count($child->children()) ?: null,
+                        'child_count' => $child->children()->count() ?: null,
+                        'count' => $child->children()->getIndex()->filterBy($filters, true)->count() ?: null,
                         'extras' => $extras
                     ];
                     $payload = array_filter($payload, static function ($v) {
