@@ -421,7 +421,7 @@ class PageIndex extends FlexPageIndex
                         'modified' => $this->jsDate($child->modified()),
                         'child_count' => $child->children()->count() ?: null,
                         'count' => $child->children()->getIndex()->filterBy($filters, true)->count() ?: null,
-                        'selected' => $child->filterBy($filters, false) ?: null,
+                        'filters_hit' => $child->filterBy($filters, false) ?: null,
                         'extras' => $extras
                     ];
                     $payload = array_filter($payload, static function ($v) {
