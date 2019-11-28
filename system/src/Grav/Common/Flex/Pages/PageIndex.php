@@ -268,9 +268,7 @@ class PageIndex extends FlexPageIndex
      */
     protected function getLevelListingRecurse(array $options): array
     {
-        $filters = array_filter($options['filters'] ?? [], static function($val) { return $val !== null && $val !== ''; });
-        $filter_type = (array)$filters['type'];
-
+        $filters = $options['filters'] ?? [];
         $field = $options['field'];
         $route = $options['route'];
         $leaf_route = $options['leaf_route'];
@@ -304,14 +302,19 @@ class PageIndex extends FlexPageIndex
         $path = $page ? $page->path() : null;
 
         if ($field) {
+            // Get forced filters from the field.
             $blueprint = $page ? $page->getBlueprint() : $this->getFlexDirectory()->getBlueprint();
             $settings = $blueprint->schema()->getProperty($field);
             $filters = array_merge([], $filters, $settings['filters'] ?? []);
-            $filter_type = $filters['type'] ?? $filter_type;
         }
 
+        // Clean up filter.
+        $filter_type = (array)($filters['type'] ?? []);
+        unset($filters['type']);
+        $filters = array_filter($filters, static function($val) { return $val !== null && $val !== ''; });
+
         if ($page) {
-            if ($page->root() && (!$filters['type'] || in_array('root', $filter_type, true))) {
+            if ($page->root() && (!$filter_type || in_array('root', $filter_type, true))) {
                 if ($field) {
                     $response[] = [
                         'name' => '<root>',
@@ -423,7 +426,7 @@ class PageIndex extends FlexPageIndex
                         ],
                         'modified' => $this->jsDate($child->modified()),
                         'child_count' => $child_count ?: null,
-                        'count' => $count ?: null,
+                        'count' => $count ?? null,
                         'filters_hit' => $child->filterBy($filters, false) ?: null,
                         'extras' => $extras
                     ];
