@@ -1,3 +1,13 @@
+# v1.6.18
+## 12/02/2019
+
+1. [](#bugfix)
+    * PHP 7.4 fix in `Pages::buildSort()`
+    * Updated vendor libraries for PHP 7.4 fixes in Twig and other libraries
+    * Fixed fatal error when `$page->id()` is null [#2731](https://github.com/getgrav/grav/pull/2731)
+    * Fixed cache conflicts on pages with no set id
+    * Fix rewrite rule for for `lighttpd` default config [#721](https://github.com/getgrav/grav/pull/2721)
+
 # v1.6.17
 ## 11/06/2019
 
