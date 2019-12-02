@@ -92,7 +92,7 @@ class CsvFormatter extends AbstractFormatter
 
                     if ($null_replace) {
                         array_walk($csv_line, function(&$el) use ($null_replace) {
-                           $el = str_replace($null_replace, null, $el);
+                           $el = str_replace($null_replace, "\0", $el);
                         });
                     }
 
