@@ -23,8 +23,8 @@ use Grav\Framework\File\Formatter\YamlFormatter;
 use Grav\Framework\Flex\FlexDirectory;
 use Grav\Framework\Flex\Interfaces\FlexCollectionInterface;
 use Grav\Framework\Flex\Interfaces\FlexIndexInterface;
-use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
 use Grav\Framework\Flex\Pages\FlexPageIndex;
+use Grav\Framework\Flex\Pages\FlexPageObject;
 use RocketTheme\Toolbox\File\MarkdownFile;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
@@ -291,7 +291,7 @@ trait PageLegacyTrait
         $index = $this->getFlexDirectory()->getIndex();
 
         if ($parent) {
-            if ($parent instanceof FlexObjectInterface) {
+            if ($parent instanceof FlexPageObject) {
                 $k = $parent->getMasterKey();
                 if ($k !== $parentStorageKey) {
                     $parentStorageKey = $k;
