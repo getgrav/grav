@@ -2,6 +2,7 @@
 ## mm/dd/2019
 
 1. [](#bugfix)
+    * PHP 7.4 fix in `Pages::buildSort()`
     * Fixed fatal error when `$page->id()` is null [#2731](https://github.com/getgrav/grav/pull/2731)
     * Fixed cache conflicts on pages with no set id
 

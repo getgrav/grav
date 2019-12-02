@@ -1306,7 +1306,7 @@ class Pages
                 case 'folder':
                     $list[$key] = $child->folder();
                     break;
-                case (is_string($header_query[0])):
+                case (isset($header_query[0]) && is_string($header_query[0])):
                     $child_header = new Header((array)$child->header());
                     $header_value = $child_header->get($header_query[0]);
                     if (is_array($header_value)) {
