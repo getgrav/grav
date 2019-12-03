@@ -73,19 +73,22 @@ trait MediaTrait
      */
     public function getMedia()
     {
-        if ($this->media === null) {
+        $media = $this->media;
+        if (null === $media) {
             $cache = $this->getMediaCache();
+            $cacheKey = md5('media' . $this->getCacheKey());
 
             // Use cached media if possible.
-            $cacheKey = md5('media' . $this->getCacheKey());
-            if (!$media = $cache->get($cacheKey)) {
+            $media = $cache->get($cacheKey);
+            if (!$media instanceof MediaCollectionInterface) {
                 $media = new Media($this->getMediaFolder(), $this->getMediaOrder(), $this->_loadMedia);
                 $cache->set($cacheKey, $media);
             }
+
             $this->media = $media;
         }
 
-        return $this->media;
+        return $media;
     }
 
     /**
