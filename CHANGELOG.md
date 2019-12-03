@@ -199,6 +199,16 @@
     * Optimization: Initialize debugbar only after the configuration has been loaded
     * Optimization: Combine some early Grav processors into a single one
 
+# v1.6.19
+## mm/dd/2019
+
+1. [](#new)
+    * Catch PHP 7.4 deprecation messages and report them in debugbar instead of throwing fatal error
+1. [](#bugfix)
+    * Fixed fatal error when calling `{{ grav.undefined }}`
+    * Fixed multiple issues when there are no pages in the site
+    *  PHP 7.4 fix for [#2750](https://github.com/getgrav/grav/issues/2750)
+
 # v1.6.18
 ## 12/02/2019
 
