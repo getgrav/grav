@@ -1,6 +1,8 @@
 # v1.6.19
 ## mm/dd/2019
 
+1. [](#new)
+    * Catch PHP 7.4 deprecation messages and report them in debugbar instead of throwing fatal error
 1. [](#bugfix)
     * Fixed fatal error when calling `{{ grav.undefined }}`
     * Fixed multiple issues when there are no pages in the site
