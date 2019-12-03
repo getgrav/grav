@@ -1,3 +1,9 @@
+# v1.6.19
+## mm/dd/2019
+
+1. [](#bugfix)
+    * Fixed fatal error when calling `{{ grav.undefined }}`
+
 # v1.6.18
 ## 12/02/2019
 
@@ -60,7 +66,7 @@
     * Support new GRAV_BASEDIR environment variable [#2541](https://github.com/getgrav/grav/pull/2541)
     * Allow users to override plugin handler priorities [#2165](https://github.com/getgrav/grav/pull/2165)
 1. [](#improved)
-    * Use new `Utils::getSupportedPageTypes()` to enforce `html,htm` at the front of the list [#2531](https://github.com/getgrav/grav/issues/2531)  
+    * Use new `Utils::getSupportedPageTypes()` to enforce `html,htm` at the front of the list [#2531](https://github.com/getgrav/grav/issues/2531)
     * Updated vendor libraries
     * Markdown filter is now page-aware so that it works with modular references [admin#1731](https://github.com/getgrav/grav-plugin-admin/issues/1731)
     * Check of `GRAV_USER_INSTANCE` constant is already defined [#2621](https://github.com/getgrav/grav/pull/2621)
@@ -79,7 +85,7 @@
     * Fixed `FlexObject::exists()` failing sometimes just after the object has been saved
     * Fixed CSV formatter not encoding strings with `"` and `,` properly
     * Fixed var order in `Validation.php` [#2610](https://github.com/getgrav/grav/issues/2610)
-    
+
 # v1.6.11
 ## 06/21/2019
 
@@ -110,7 +116,7 @@
     * Fixed regression with `bin/plugin` not listing the plugins available (1c725c0)
     * Fixed bitwise operator in `TwigExtension::exifFunc()` [#2518](https://github.com/getgrav/grav/issues/2518)
     * Fixed issue with lang prefix incorrectly identifying as admin [#2511](https://github.com/getgrav/grav/issues/2511)
-    * Fixed issue with `U0ils::pathPrefixedBYLanguageCode()` and trailing slash [#2510](https://github.com/getgrav/grav/issues/2511) 
+    * Fixed issue with `U0ils::pathPrefixedBYLanguageCode()` and trailing slash [#2510](https://github.com/getgrav/grav/issues/2511)
     * Fixed regresssion issue of `Utils::Url()` not returning `false` on failure. Added new optional `fail_gracefully` 3rd attribute to return string that caused failure [#2524](https://github.com/getgrav/grav/issues/2524)
 
 # v1.6.9
