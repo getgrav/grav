@@ -3,6 +3,7 @@
 
 1. [](#bugfix)
     * Fixed fatal error when calling `{{ grav.undefined }}`
+    * Fixed multiple issues when there are no pages in the site
 
 # v1.6.18
 ## 12/02/2019

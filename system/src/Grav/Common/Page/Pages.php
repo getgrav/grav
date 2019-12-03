@@ -982,17 +982,19 @@ class Pages
 
             $this->pages_cache_id = md5($pages_dir . $hash . $language->getActive() . $config->checksum());
 
-            list($this->instances, $this->routes, $this->children, $taxonomy_map, $this->sort) = $cache->fetch($this->pages_cache_id);
-            if (!$this->instances) {
+            $cached = $cache->fetch($this->pages_cache_id);
+            if ($cached) {
+                $this->grav['debugger']->addMessage('Page cache hit.');
+
+                list($this->instances, $this->routes, $this->children, $taxonomy_map, $this->sort) = $cached;
+
+                // If pages was found in cache, set the taxonomy
+                $taxonomy->taxonomy($taxonomy_map);
+            } else {
                 $this->grav['debugger']->addMessage('Page cache missed, rebuilding pages..');
 
                 // recurse pages and cache result
                 $this->resetPages($pages_dir);
-
-            } else {
-                // If pages was found in cache, set the taxonomy
-                $this->grav['debugger']->addMessage('Page cache hit.');
-                $taxonomy->taxonomy($taxonomy_map);
             }
         } else {
             $this->recurse($pages_dir);
