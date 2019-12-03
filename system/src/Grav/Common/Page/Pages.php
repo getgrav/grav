@@ -1263,7 +1263,7 @@ class Pages
     {
         $list = [];
         $header_default = null;
-        $header_query = null;
+        $header_query = [];
 
         // do this header query work only once
         if (strpos($order_by, 'header.') === 0) {
