@@ -22,6 +22,7 @@
     * Optimized `Flex Pages` collection filtering
 1. [](#bugfix)
     * Regression: Fixed Grav update bug [#2722](https://github.com/getgrav/grav/issues/2722)
+    * Fixed fatal error when calling `{{ grav.undefined }}`
     * Grav 1.7: Reverted `$object->getStorageKey()` interface as it was not a good idea, added `getMasterKey()` for pages
     * Grav 1.7: Fixed logged in user being able to delete his own account from admin account manager
 
@@ -71,7 +72,7 @@
     * Grav 1.7: Fixed prev/next page missing pages if pagination was turned on in page header
     * Grav 1.7: Reverted setting language for every page during initialization
     * Grav 1.7: Fixed numeric language inconsistencies
-    
+
 # v1.7.0-beta.9
 ## 09/26/2019
 
@@ -92,7 +93,7 @@
     * Added new `Security::sanitizeSVG()` function
     * Backwards compatibility break: `FlexStorageInterface::getStoragePath()` and `getMediaPath()` can now return null
 1. [](#improved)
-    * Several FlexObject loading improvements 
+    * Several FlexObject loading improvements
     * Added `bin/grav page-system-validator [-r|--record] [-c|--check]` to test Flex Pages
     * Improved language support for `Route` class
 1. [](#bugfix)
@@ -186,7 +187,7 @@
     * Updated with Grav 1.6.11 fixes
 1. [](#improved)
     * Updated the Clockwork text
-    
+
 # v1.7.0-beta.1
 ## 06/14/2019
 
@@ -260,7 +261,7 @@
     * Support new GRAV_BASEDIR environment variable [#2541](https://github.com/getgrav/grav/pull/2541)
     * Allow users to override plugin handler priorities [#2165](https://github.com/getgrav/grav/pull/2165)
 1. [](#improved)
-    * Use new `Utils::getSupportedPageTypes()` to enforce `html,htm` at the front of the list [#2531](https://github.com/getgrav/grav/issues/2531)  
+    * Use new `Utils::getSupportedPageTypes()` to enforce `html,htm` at the front of the list [#2531](https://github.com/getgrav/grav/issues/2531)
     * Updated vendor libraries
     * Markdown filter is now page-aware so that it works with modular references [admin#1731](https://github.com/getgrav/grav-plugin-admin/issues/1731)
     * Check of `GRAV_USER_INSTANCE` constant is already defined [#2621](https://github.com/getgrav/grav/pull/2621)
@@ -279,7 +280,7 @@
     * Fixed `FlexObject::exists()` failing sometimes just after the object has been saved
     * Fixed CSV formatter not encoding strings with `"` and `,` properly
     * Fixed var order in `Validation.php` [#2610](https://github.com/getgrav/grav/issues/2610)
-    
+
 # v1.6.11
 ## 06/21/2019
 
@@ -310,7 +311,7 @@
     * Fixed regression with `bin/plugin` not listing the plugins available (1c725c0)
     * Fixed bitwise operator in `TwigExtension::exifFunc()` [#2518](https://github.com/getgrav/grav/issues/2518)
     * Fixed issue with lang prefix incorrectly identifying as admin [#2511](https://github.com/getgrav/grav/issues/2511)
-    * Fixed issue with `U0ils::pathPrefixedBYLanguageCode()` and trailing slash [#2510](https://github.com/getgrav/grav/issues/2511) 
+    * Fixed issue with `U0ils::pathPrefixedBYLanguageCode()` and trailing slash [#2510](https://github.com/getgrav/grav/issues/2511)
     * Fixed regresssion issue of `Utils::Url()` not returning `false` on failure. Added new optional `fail_gracefully` 3rd attribute to return string that caused failure [#2524](https://github.com/getgrav/grav/issues/2524)
 
 # v1.6.9
