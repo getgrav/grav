@@ -223,7 +223,9 @@ class FlexDirectory implements FlexAuthorizeInterface
      */
     public function getIndex(array $keys = null, string $keyField = null): FlexIndexInterface
     {
-        $index = clone $this->loadIndex($keyField ?? '');
+        $keyField = $keyField ?? '';
+        $index = $this->indexes[$keyField] ?? $this->loadIndex($keyField);
+        $index = clone $index;
 
         if (null !== $keys) {
             /** @var FlexCollectionInterface $index */
@@ -248,7 +250,10 @@ class FlexDirectory implements FlexAuthorizeInterface
             return $this->createObject([], '');
         }
 
-        return $this->getIndex(null, $keyField)->get($key);
+        $keyField = $keyField ?? '';
+        $index = $this->indexes[$keyField] ?? $this->loadIndex($keyField);
+
+        return $index->get($key);
     }
 
     /**
@@ -539,7 +544,7 @@ class FlexDirectory implements FlexAuthorizeInterface
         // Attempt to fetch missing rows from the cache.
         if ($fetch) {
             try {
-                $index = $this->loadIndex('');
+                $index = $this->loadIndex('storage_key');
 
                 $debugger->startTimer('flex-objects', sprintf('Flex: Loading %d %s', $loading, $this->type));
 
