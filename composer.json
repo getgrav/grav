@@ -60,7 +60,7 @@
     "require-dev": {
         "codeception/codeception": "^2.4",
         "phpstan/phpstan": "^0.11",
-        "phpstan/phpstan-deprecation-rules": "^0.11.0",
+        "phpstan/phpstan-deprecation-rules": "^0.11",
         "phpunit/php-code-coverage": "~6.0",
         "fzaninotto/faker": "^1.8",
         "victorjonsson/markdowndocs": "dev-master"
@@ -107,7 +107,7 @@
         "post-create-project-cmd": "bin/grav install",
         "phpstan": "vendor/bin/phpstan analyse -l 3 -c ./tests/phpstan/phpstan.neon system/src --memory-limit=300M",
         "phpstan-framework": "vendor/bin/phpstan analyse -l 7 -c ./tests/phpstan/phpstan.neon system/src/Grav/Framework --memory-limit=300M",
-        "test-plugins": "vendor/bin/phpstan analyse -l 0 -c ./tests/phpstan/plugins.neon user/plugins --memory-limit=300M",
+        "phpstan-plugins": "vendor/bin/phpstan analyse -l 0 -c ./tests/phpstan/plugins.neon user/plugins --memory-limit=300M",
         "test": "vendor/bin/codecept run unit",
         "test-windows": "vendor\\bin\\codecept run unit"
     },
