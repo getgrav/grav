@@ -1266,11 +1266,9 @@ class Pages
         $header_query = [];
 
         // do this header query work only once
-        if (strpos($order_by, 'header.') === 0) {
+        if (Utils::startsWith($order_by, 'header.')) {
             $header_query = explode('|', str_replace('header.', '', $order_by));
-            if (isset($header_query[1])) {
-                $header_default = $header_query[1];
-            }
+            $header_default = $header_query[1] ?? null;
         }
 
         foreach ($pages as $key => $info) {
@@ -1308,23 +1306,28 @@ class Pages
                 case 'folder':
                     $list[$key] = $child->folder();
                     break;
-                case (isset($header_query[0]) && is_string($header_query[0])):
-                    $child_header = new Header((array)$child->header());
-                    $header_value = $child_header->get($header_query[0]);
-                    if (is_array($header_value)) {
-                        $list[$key] = implode(',',$header_value);
-                    } elseif ($header_value) {
-                        $list[$key] = $header_value;
-                    } else {
-                        $list[$key] = $header_default ?: $key;
-                    }
-                    $sort_flags = $sort_flags ?: SORT_REGULAR;
-                    break;
+                case 'header':
                 case 'manual':
                 case 'default':
                 default:
-                    $list[$key] = $key;
-                    $sort_flags = $sort_flags ?: SORT_REGULAR;
+                    if (Utils::startsWith($order_by, 'header.')) {
+                        $child_header = new Header((array)$child->header());
+                        if (isset($header_query) && is_array($header_query)) {
+                            $header_value = $child_header->get($header_query[0]);
+                            if (is_array($header_value)) {
+                                $list[$key] = implode(',',$header_value);
+                            } elseif ($header_value) {
+                                $list[$key] = $header_value;
+                            } else {
+                                $list[$key] = $header_default ?: $key;
+                            }
+                        }
+                        $sort_flags = $sort_flags ?: SORT_REGULAR;
+                        break;
+                    } else {
+                        $list[$key] = $key;
+                        $sort_flags = $sort_flags ?: SORT_REGULAR;
+                    }
             }
         }
 
