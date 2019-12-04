@@ -1,5 +1,5 @@
 # v1.7.0-rc.2
-## mm/dd/2019
+## 12/04/2019
 
 1. [](#new)
     * Updated Symfony Components to 4.4
