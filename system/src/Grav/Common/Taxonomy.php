@@ -57,23 +57,25 @@ class Taxonomy
      */
     public function addTaxonomy(PageInterface $page, $page_taxonomy = null)
     {
+        if (!$page->published()) {
+            return;
+        }
+
         if (!$page_taxonomy) {
             $page_taxonomy = $page->taxonomy();
         }
 
-        if (empty($page_taxonomy) || !$page->published()) {
+        if (empty($page_taxonomy)) {
             return;
         }
 
         /** @var Config $config */
         $config = $this->grav['config'];
-        if ($config->get('site.taxonomies')) {
-            foreach ((array)$config->get('site.taxonomies') as $taxonomy) {
-                if (isset($page_taxonomy[$taxonomy])) {
-                    foreach ((array)$page_taxonomy[$taxonomy] as $item) {
-                        $this->iterateTaxonomy($page, $taxonomy, '', $item);
-                    }
-                }
+        $taxonomies = (array)$config->get('site.taxonomies');
+        foreach ($taxonomies as $taxonomy) {
+            $current = $page_taxonomy[$taxonomy] ?? null;
+            foreach ((array)$current as $item) {
+                $this->iterateTaxonomy($page, $taxonomy, '', $item);
             }
         }
     }
@@ -94,8 +96,8 @@ class Taxonomy
     {
         if (is_iterable($value)) {
             foreach ($value as $identifier => $item) {
-                $identifier = $key . '.' . $identifier;
-				$this->iterateTaxonomy($page, $taxonomy, $identifier, $item);
+                $identifier = "{$key}.{$identifier}";
+                $this->iterateTaxonomy($page, $taxonomy, $identifier, $item);
             }
         } elseif (is_string($value)) {
             if (!empty($key)) {

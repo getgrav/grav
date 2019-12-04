@@ -847,8 +847,8 @@ trait PageLegacyTrait
      */
     public function children()
     {
-        $storage = $this->getStorage();
-        $keys = array_keys($storage['children'] ?? []);
+        $meta = $this->getMetaData();
+        $keys = array_keys($meta['children'] ?? []);
         $prefix = $this->getMasterKey();
         if ($prefix) {
             foreach ($keys as &$key) {

@@ -20,6 +20,7 @@
     * Output the current username that Scheduler is using if crontab not setup
     * Translations: rename MODULAR to MODULE everywhere
     * Optimized `Flex Pages` collection filtering
+    * Frontend optimizations for `Flex Pages`
 1. [](#bugfix)
     * Regression: Fixed Grav update bug [#2722](https://github.com/getgrav/grav/issues/2722)
     * Fixed fatal error when calling `{{ grav.undefined }}`

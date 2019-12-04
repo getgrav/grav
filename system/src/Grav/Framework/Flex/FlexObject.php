@@ -261,7 +261,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      */
     public function getMetaData(): array
     {
-        return $this->getStorage();
+        return $this->_meta ?? [];
     }
 
     /**
@@ -830,7 +830,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
             'storage_timestamp:protected' => $this->getTimestamp(),
             'key:private' => $this->getKey(),
             'elements:private' => $this->getElements(),
-            'storage:private' => $this->getStorage()
+            'storage:private' => $this->getMetaData()
         ];
     }
 
@@ -843,7 +843,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
             'type' => $this->getFlexType(),
             'key' => $this->getKey(),
             'elements' => $this->getElements(),
-            'storage' => $this->getStorage()
+            'storage' => $this->getMetaData()
         ];
     }
 
@@ -889,10 +889,11 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
 
     /**
      * @return array
+     * @deprecated 1.7 Use `->getMetaData()` instead.
      */
     protected function getStorage(): array
     {
-        return $this->_meta ?? [];
+        return $this->getMetaData();
     }
 
     /**

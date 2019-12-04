@@ -23,6 +23,11 @@ use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
  */
 trait PageRoutableTrait
 {
+    /** @var string */
+    private $_route;
+    /** @var string */
+    private $_path;
+
     /**
      * Returns the page extension, got from the page `url_extension` config and falls back to the
      * system config `system.pages.append_url_extension`.
@@ -176,6 +181,11 @@ trait PageRoutableTrait
      */
     protected function routeInternal(): ?string
     {
+        $route = $this->_route;
+        if ($route) {
+            return $route;
+        }
+
         // Root and orphan nodes have no route.
         $parent = $this->parent();
         if (!$parent) {
@@ -198,6 +208,8 @@ trait PageRoutableTrait
         if (!$this->home()) {
             $route .= $this->slug();
         }
+
+        $this->_route = $route;
 
         return $route;
     }
@@ -316,6 +328,11 @@ trait PageRoutableTrait
             throw new \RuntimeException(__METHOD__ . '(string): Not Implemented');
         }
 
+        $path = $this->_path;
+        if ($path) {
+            return $path;
+        }
+
         if ($this->root()) {
             $folder = $this->getFlexDirectory()->getStorageFolder();
         } else {
@@ -328,7 +345,7 @@ trait PageRoutableTrait
             $folder = $locator($folder);
         }
 
-        return is_string($folder) ? $folder : null;
+        return $this->_path = is_string($folder) ? $folder : null;
     }
 
     /**

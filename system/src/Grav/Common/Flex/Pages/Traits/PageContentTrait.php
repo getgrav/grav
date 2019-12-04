@@ -68,7 +68,8 @@ trait PageContentTrait
      */
     public function isPage(bool $bool = true): bool
     {
-        // FIXME: needs to be better
-        return !$this->exists() || !empty($this->getLanguages()) || $this->isModule();
+        $meta = $this->getMetaData();
+
+        return !empty($meta['markdown']) !== $bool;
     }
 }

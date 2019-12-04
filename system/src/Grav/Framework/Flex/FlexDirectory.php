@@ -544,25 +544,26 @@ class FlexDirectory implements FlexAuthorizeInterface
         // Attempt to fetch missing rows from the cache.
         if ($fetch) {
             try {
-                $index = $this->loadIndex('storage_key');
-
                 $debugger->startTimer('flex-objects', sprintf('Flex: Loading %d %s', $loading, $this->type));
 
                 $fetched = (array)$cache->getMultiple($fetch);
+                if ($fetched) {
+                    $index = $this->loadIndex('storage_key');
 
-                // Make sure cached objects are up to date: compare against index checksum/timestamp.
-                foreach ($fetched as $key => $value) {
-                    if ($value instanceof FlexObjectInterface) {
-                        $objectMeta = $value->getMetaData();
-                    } else {
-                        $objectMeta = $value['__META'] ?? [];
-                    }
-                    $indexMeta = $index->getMetaData($key);
+                    // Make sure cached objects are up to date: compare against index checksum/timestamp.
+                    foreach ($fetched as $key => $value) {
+                        if ($value instanceof FlexObjectInterface) {
+                            $objectMeta = $value->getMetaData();
+                        } else {
+                            $objectMeta = $value['__META'] ?? [];
+                        }
+                        $indexMeta = $index->getMetaData($key);
 
-                    $indexChecksum = $indexMeta['checksum'] ?? $indexMeta['storage_timestamp'] ?? null;
-                    $objectChecksum = $objectMeta['checksum'] ?? $objectMeta['storage_timestamp'] ?? null;
-                    if ($indexChecksum !== $objectChecksum) {
-                        unset($fetched[$key]);
+                        $indexChecksum = $indexMeta['checksum'] ?? $indexMeta['storage_timestamp'] ?? null;
+                        $objectChecksum = $objectMeta['checksum'] ?? $objectMeta['storage_timestamp'] ?? null;
+                        if ($indexChecksum !== $objectChecksum) {
+                            unset($fetched[$key]);
+                        }
                     }
                 }
 

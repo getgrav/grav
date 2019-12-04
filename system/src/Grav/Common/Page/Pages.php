@@ -45,6 +45,9 @@ class Pages
     protected $instances;
 
     /** @var array */
+    protected $index = [];
+
+    /** @var array */
     protected $children;
 
     /** @var string */
@@ -85,6 +88,9 @@ class Pages
 
     /** @var bool */
     protected $initialized = false;
+
+    /** @var bool */
+    protected $fire_events = false;
 
     /** @var Types|null */
     protected static $types;
@@ -259,11 +265,13 @@ class Pages
         }
 
         $config = $this->grav['config'];
-        $this->ignore_files = $config->get('system.pages.ignore_files');
-        $this->ignore_folders = $config->get('system.pages.ignore_folders');
-        $this->ignore_hidden = $config->get('system.pages.ignore_hidden');
+        $this->ignore_files = (array)$config->get('system.pages.ignore_files');
+        $this->ignore_folders = (array)$config->get('system.pages.ignore_folders');
+        $this->ignore_hidden = (bool)$config->get('system.pages.ignore_hidden');
+        $this->fire_events = (bool)$config->get('system.pages.events.page');
 
         $this->instances = [];
+        $this->index = [];
         $this->children = [];
         $this->routes = [];
 
@@ -305,18 +313,14 @@ class Pages
      */
     public function instances()
     {
-        $list = [];
-        foreach ($this->instances as $path => $instance) {
-            if (is_string($instance) && $this->directory) {
-                /** @var PageInterface $instance */
-                $instance = $this->directory->getObject($instance, 'flex_key');
-            }
-            if ($instance instanceof PageInterface) {
-                $list[$path] = $instance;
+        // Make sure we load all the instances.
+        foreach ($this->index as $path => $instance) {
+            if ($instance && !$instance instanceof PageInterface) {
+                $this->get($path);
             }
         }
 
-        return $list;
+        return $this->instances;
     }
 
     /**
@@ -338,7 +342,8 @@ class Pages
     public function addPage(PageInterface $page, $route = null): void
     {
         $path = $page->path() ?? '';
-        if (!isset($this->instances[$path])) {
+        if (!isset($this->index[$path])) {
+            $this->index[$path] = $page;
             $this->instances[$path] = $page;
         }
         $route = $page->route($route);
@@ -711,22 +716,22 @@ class Pages
      */
     public function get($path)
     {
-        $instance = $this->instances[(string)$path] ?? null;
+        $path = (string)$path;
 
+        // Check for local instances first.
+        if (array_key_exists($path, $this->instances)) {
+            return $this->instances[$path];
+        }
+
+        $instance = $this->index[$path] ?? null;
         if (\is_string($instance)) {
             $instance = $this->directory ? $this->directory->getObject($instance, 'flex_key') : null;
-            if ($instance && method_exists($instance, 'initialize') && $this->grav['config']->get('system.pages.events.page')) {
+            if ($instance && $this->fire_events && method_exists($instance, 'initialize')) {
                 $instance->initialize();
             }
         }
 
-        if (null === $instance) {
-            return null;
-        }
-
-        if (!$instance instanceof PageInterface) {
-            throw new \RuntimeException('Routing failed on unknown type', 500);
-        }
+        $this->instances[$path] = $instance;
 
         return $instance;
     }
@@ -1359,7 +1364,7 @@ class Pages
         $cached = $cache->get($this->pages_cache_id);
 
         if ($cached && $this->getVersion() === $cached[0]) {
-            [, $this->instances, $this->routes, $this->children, $taxonomy_map, $this->sort] = $cached;
+            [, $this->index, $this->routes, $this->children, $taxonomy_map, $this->sort] = $cached;
 
             /** @var Taxonomy $taxonomy */
             $taxonomy = $this->grav['taxonomy'];
@@ -1376,10 +1381,11 @@ class Pages
         $root_path = $root->path();
         $this->routes = [];
         $this->instances = [$root_path => $root];
+        $this->index = [$root_path => $root];
         $this->children = [];
         $this->sort = [];
 
-        if ($config->get('system.pages.events.page')) {
+        if ($this->fire_events) {
             $this->grav->fireEvent('onBuildPagesInitialized');
         }
 
@@ -1398,7 +1404,7 @@ class Pages
                 continue;
             }
 
-            if ($config->get('system.pages.events.page')) {
+            if ($this->fire_events) {
                 if (method_exists($page, 'initialize')) {
                     $page->initialize();
                 } else {
@@ -1416,14 +1422,15 @@ class Pages
             if (isset($this->routes[$route])) {
                 $oldPath = $this->routes[$route];
                 if ($page->isPage()) {
-                    unset($this->instances[$oldPath], $this->children[dirname($oldPath)][$oldPath]);
+                    unset($this->index[$oldPath], $this->children[dirname($oldPath)][$oldPath]);
                 } else {
                     continue;
                 }
             }
 
             $this->routes[$route] = $path;
-            $this->instances[$path] = $page->getFlexKey();
+            $this->instances[$path] = $page;
+            $this->index[$path] = $page->getFlexKey();
             // FIXME: ... better...
             $this->children[$parent][$path] = ['slug' => $page->slug()];
             if (!isset($this->children[$path])) {
@@ -1432,12 +1439,12 @@ class Pages
         }
 
         foreach ($this->children as $path => $list) {
-            $page = $this->get($path);
+            $page = $this->instances[$path] ?? null;
             if (null === $page) {
                 continue;
             }
             // Call onFolderProcessed event.
-            if ($config->get('system.pages.events.page')) {
+            if ($this->fire_events) {
                 $this->grav->fireEvent('onFolderProcessed', new Event(['page' => $page]));
             }
             // Sort the children.
@@ -1454,7 +1461,7 @@ class Pages
             $taxonomy_map = $taxonomy->taxonomy();
 
             // save pages, routes, taxonomy, and sort to cache
-            $cache->set($this->pages_cache_id, [$this->getVersion(), $this->instances, $this->routes, $this->children, $taxonomy_map, $this->sort]);
+            $cache->set($this->pages_cache_id, [$this->getVersion(), $this->index, $this->routes, $this->children, $taxonomy_map, $this->sort]);
         }
     }
 
@@ -1526,7 +1533,7 @@ class Pages
             $cache = $this->grav['cache'];
             $cached = $cache->fetch($this->pages_cache_id);
             if ($cached && $this->getVersion() === $cached[0]) {
-                [, $this->instances, $this->routes, $this->children, $taxonomy_map, $this->sort] = $cached;
+                [, $this->index, $this->routes, $this->children, $taxonomy_map, $this->sort] = $cached;
 
                 /** @var Taxonomy $taxonomy */
                 $taxonomy = $this->grav['taxonomy'];
@@ -1562,7 +1569,7 @@ class Pages
             $taxonomy = $this->grav['taxonomy'];
 
             // save pages, routes, taxonomy, and sort to cache
-            $cache->save($this->pages_cache_id, [$this->getVersion(), $this->instances, $this->routes, $this->children, $taxonomy->taxonomy(), $this->sort]);
+            $cache->save($this->pages_cache_id, [$this->getVersion(), $this->index, $this->routes, $this->children, $taxonomy->taxonomy(), $this->sort]);
         }
     }
 
@@ -1588,7 +1595,7 @@ class Pages
 
         // Stuff to do at root page
         // Fire event for memory and time consuming plugins...
-        if ($parent === null && $config->get('system.pages.events.page')) {
+        if ($parent === null && $this->fire_events) {
             $this->grav->fireEvent('onBuildPagesInitialized');
         }
 
@@ -1601,7 +1608,8 @@ class Pages
         $page->orderBy($config->get('system.pages.order.by'));
 
         // Add into instances
-        if (!isset($this->instances[$page->path()])) {
+        if (!isset($this->index[$page->path()])) {
+            $this->index[$page->path()] = $page;
             $this->instances[$page->path()] = $page;
             if ($parent && $page->path()) {
                 $this->children[$parent->path()][$page->path()] = ['slug' => $page->slug()];
@@ -1671,7 +1679,7 @@ class Pages
 
             $content_exists = true;
 
-            if ($config->get('system.pages.events.page')) {
+            if ($this->fire_events) {
                 $this->grav->fireEvent('onPageProcessed', new Event(['page' => $page]));
             }
         }
@@ -1699,7 +1707,7 @@ class Pages
 
             $this->children[$page->path()][$child->path()] = ['slug' => $child->slug()];
 
-            if ($config->get('system.pages.events.page')) {
+            if ($this->fire_events) {
                 $this->grav->fireEvent('onFolderProcessed', new Event(['page' => $page]));
             }
         }
@@ -1747,7 +1755,7 @@ class Pages
         $home = self::resetHomeRoute();
         // Build routes and taxonomy map.
         /** @var PageInterface|string $page */
-        foreach ($this->instances as $path => $page) {
+        foreach ($this->index as $path => $page) {
             if (\is_string($page)) {
                 $page = $this->get($path);
             }
