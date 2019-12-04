@@ -347,7 +347,7 @@ class Debugger
      */
     public function deprecatedErrorHandler($errno, $errstr, $errfile, $errline)
     {
-        if ($errno !== E_USER_DEPRECATED) {
+        if ($errno !== E_USER_DEPRECATED && $errno !== E_DEPRECATED) {
             if ($this->errorHandler) {
                 return \call_user_func($this->errorHandler, $errno, $errstr, $errfile, $errline);
             }

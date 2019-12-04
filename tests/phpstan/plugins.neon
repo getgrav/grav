@@ -7,6 +7,8 @@ parameters:
     excludes_analyse:
         - %currentWorkingDirectory%/user/plugins/*/vendor/*
         - %currentWorkingDirectory%/user/plugins/*/tests/*
+        - %currentWorkingDirectory%/user/plugins/gantry5/src/platforms
+        - %currentWorkingDirectory%/user/plugins/gantry5/src/classes/Gantry/Framework/Services/ErrorServiceProvider.php
     bootstrap: tests/phpstan/plugins-bootstrap.php
     reportUnmatchedIgnoredErrors: true
     universalObjectCratesClasses:
@@ -18,3 +20,4 @@ parameters:
         - Grav\Common\GPM\Local\Package
         - Grav\Common\GPM\Remote\Package
         - Grav\Common\Session
+        - Gantry\Component\Config\Config

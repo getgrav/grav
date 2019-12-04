@@ -439,11 +439,16 @@ class Grav extends Container
      * Used to call closures.
      *
      * Source: http://stackoverflow.com/questions/419804/closures-as-class-members
+     *
+     * @param string $method
+     * @param array $args
+     * @return
      */
     public function __call($method, $args)
     {
-        $closure = $this->{$method};
-        \call_user_func_array($closure, $args);
+        $closure = $this->{$method} ?? null;
+
+        return is_callable($closure) ? $closure(...$args) : null;
     }
 
     /**
