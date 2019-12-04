@@ -45,8 +45,8 @@ class FlexDirectory implements FlexAuthorizeInterface
     protected $blueprint_file;
     /** @var Blueprint[] */
     protected $blueprints;
-    /** @var FlexIndexInterface|null */
-    protected $index;
+    /** @var FlexIndexInterface[] */
+    protected $indexes = [];
     /** @var FlexCollectionInterface|null */
     protected $collection;
     /** @var bool */
@@ -223,8 +223,7 @@ class FlexDirectory implements FlexAuthorizeInterface
      */
     public function getIndex(array $keys = null, string $keyField = null): FlexIndexInterface
     {
-        $index = clone $this->loadIndex();
-        $index = $index->withKeyField($keyField);
+        $index = clone $this->loadIndex($keyField ?? '');
 
         if (null !== $keys) {
             /** @var FlexCollectionInterface $index */
@@ -383,7 +382,7 @@ class FlexDirectory implements FlexAuthorizeInterface
         $this->getCache('object')->clear();
         $this->getCache('render')->clear();
 
-        $this->index = null;
+        $this->indexes = [];
 
         return $this;
     }
@@ -540,7 +539,7 @@ class FlexDirectory implements FlexAuthorizeInterface
         // Attempt to fetch missing rows from the cache.
         if ($fetch) {
             try {
-                $index = $this->loadIndex();
+                $index = $this->loadIndex('');
 
                 $debugger->startTimer('flex-objects', sprintf('Flex: Loading %d %s', $loading, $this->type));
 
@@ -617,9 +616,9 @@ class FlexDirectory implements FlexAuthorizeInterface
         // Store updated rows to the cache.
         if ($updated) {
             if (!$cache instanceof MemoryCache) {
-                /** @var Debugger $debugger */
-                $debugger = Grav::instance()['debugger'];
-                $debugger->addMessage(sprintf('Flex: Caching %d %s', \count($entries), $this->type), 'debug');
+                ///** @var Debugger $debugger */
+                //$debugger = Grav::instance()['debugger'];
+                //$debugger->addMessage(sprintf('Flex: Caching %d %s', \count($entries), $this->type), 'debug');
             }
             try {
                 $cache->setMultiple($updated);
@@ -760,14 +759,19 @@ class FlexDirectory implements FlexAuthorizeInterface
     }
 
     /**
+     * @param string $keyField
      * @return FlexIndexInterface
      */
-    protected function loadIndex(): FlexIndexInterface
+    protected function loadIndex(string $keyField): FlexIndexInterface
     {
         static $i = 0;
 
-        $index = $this->index;
+        $index = $this->indexes[$keyField] ?? null;
+        if (null !== $index) {
+            return $index;
+        }
 
+        $index = $this->indexes['storage_key'] ?? null;
         if (null === $index) {
             $i++;
             $j = $i;
@@ -803,13 +807,21 @@ class FlexDirectory implements FlexAuthorizeInterface
                 }
             }
 
+            $ordering = $this->getConfig('data.ordering', []);
+
             // We need to do this in two steps as orderBy() calls loadIndex() again and we do not want infinite loop.
-            $this->index = $this->createIndex($keys);
-            /** @var FlexCollectionInterface $collection */
-            $collection = $this->index->orderBy($this->getConfig('data.ordering', []));
-            $this->index = $index = $collection->getIndex();
+            $this->indexes['storage_key'] = $index = $this->createIndex($keys, 'storage_key');
+            if ($ordering) {
+                /** @var FlexCollectionInterface $collection */
+                $collection = $this->indexes['storage_key']->orderBy($ordering);
+                $this->indexes['storage_key'] = $index = $collection->getIndex();
+            }
 
             $debugger->stopTimer('flex-keys-' . $this->type . $j);
+        }
+
+        if ($keyField !== 'storage_key') {
+            $this->indexes[$keyField] = $index = $index->withKeyField($keyField ?: null);
         }
 
         return $index;
