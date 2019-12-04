@@ -487,7 +487,7 @@ class Grav extends Container
      *
      * @param string $method
      * @param array $args
-     * @return
+     * @return mixed|null
      */
     public function __call($method, $args)
     {
@@ -518,7 +518,6 @@ class Grav extends Container
      * Initialize and return a Grav instance
      *
      * @param  array $values
-     *
      * @return static
      */
     protected static function load(array $values)

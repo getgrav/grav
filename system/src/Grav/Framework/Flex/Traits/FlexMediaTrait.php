@@ -65,7 +65,8 @@ trait FlexMediaTrait
      */
     public function getMedia()
     {
-        if ($this->media === null) {
+        $media = $this->media;
+        if (null === $media) {
             $updated = false;
             $media = $this->getExistingMedia();
 
@@ -89,7 +90,7 @@ trait FlexMediaTrait
             }
         }
 
-        return $this->media;
+        return $media;
     }
 
     /**
