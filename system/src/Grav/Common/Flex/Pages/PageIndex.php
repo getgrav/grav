@@ -205,6 +205,9 @@ class PageIndex extends FlexPageIndex
                 case 'page':
                     $index = $index->withPages((bool)$value);
                     break;
+                case 'folder':
+                    $index = $index->withPages(!$value);
+                    break;
                 case 'translated':
                     $index = $index->withTranslation((bool)$value);
                     break;

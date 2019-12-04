@@ -298,6 +298,9 @@ class PageObject extends FlexPageObject
                 case 'page':
                     $matches = $this->isPage() === (bool)$value;
                     break;
+                case 'folder':
+                    $matches = $this->isPage() === !$value;
+                    break;
                 case 'translated':
                     $matches = $this->hasTranslation() === (bool)$value;
                     break;

@@ -64,8 +64,9 @@ trait PageContentTrait
 
     /**
      * @inheritdoc
+     * @param bool $bool
      */
-    public function isPage(): bool
+    public function isPage(bool $bool = true): bool
     {
         // FIXME: needs to be better
         return !$this->exists() || !empty($this->getLanguages()) || $this->isModule();
