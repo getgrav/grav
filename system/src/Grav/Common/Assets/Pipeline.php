@@ -64,6 +64,11 @@ class Pipeline extends PropertyObject
     /** @var string */
     protected $asset;
 
+    /**
+     * Pipeline constructor.
+     * @param array $elements
+     * @param string|null $key
+     */
     public function __construct(array $elements = [], ?string $key = null)
     {
         parent::__construct($elements, $key);
@@ -88,7 +93,6 @@ class Pipeline extends PropertyObject
      * @param array $assets
      * @param string $group
      * @param array $attributes
-     *
      * @return bool|string     URL or generated content if available, else false
      */
     public function renderCss($assets, $group, $attributes = [])
@@ -152,7 +156,6 @@ class Pipeline extends PropertyObject
      * @param array $assets
      * @param string $group
      * @param array $attributes
-     *
      * @return bool|string     URL or generated content if available, else false
      */
     public function renderJs($assets, $group, $attributes = [])
@@ -217,7 +220,6 @@ class Pipeline extends PropertyObject
      * @param string $file the css source file
      * @param string $dir , $local relative path to the css file
      * @param bool $local is this a local or remote asset
-     *
      * @return mixed
      */
     protected function cssRewrite($file, $dir, $local)
@@ -250,8 +252,10 @@ class Pipeline extends PropertyObject
         return $file;
     }
 
-
-
+    /**
+     * @param string $type
+     * @return bool
+     */
     private function shouldMinify($type = 'css')
     {
         $check = $type . '_minify';

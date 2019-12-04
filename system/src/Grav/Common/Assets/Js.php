@@ -13,6 +13,11 @@ use Grav\Common\Utils;
 
 class Js extends BaseAsset
 {
+    /**
+     * Js constructor.
+     * @param array $elements
+     * @param string|null $key
+     */
     public function __construct(array $elements = [], $key = null)
     {
         $base_options = [
@@ -24,6 +29,9 @@ class Js extends BaseAsset
         parent::__construct($merged_attributes, $key);
     }
 
+    /**
+     * @return string
+     */
     public function render()
     {
         if (isset($this->attributes['loading']) && $this->attributes['loading'] === 'inline') {

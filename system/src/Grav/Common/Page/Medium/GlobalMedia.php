@@ -25,8 +25,7 @@ class GlobalMedia extends AbstractMedia
     }
 
     /**
-     * @param mixed $offset
-     *
+     * @param string $offset
      * @return bool
      */
     public function offsetExists($offset)
@@ -35,8 +34,7 @@ class GlobalMedia extends AbstractMedia
     }
 
     /**
-     * @param mixed $offset
-     *
+     * @param string $offset
      * @return mixed
      */
     public function offsetGet($offset)

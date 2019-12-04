@@ -49,6 +49,9 @@ class Backups
         }
     }
 
+    /**
+     * @param Event $event
+     */
     public function onSchedulerInitialized(Event $event)
     {
         /** @var Scheduler $scheduler */
@@ -69,6 +72,11 @@ class Backups
         }
     }
 
+    /**
+     * @param string $backup
+     * @param string $base_url
+     * @return string
+     */
     public function getBackupDownloadUrl($backup, $base_url)
     {
         $param_sep = $param_sep = Grav::instance()['config']->get('system.param_sep', ':');
@@ -81,21 +89,33 @@ class Backups
         return $url;
     }
 
+    /**
+     * @return array
+     */
     public static function getBackupProfiles()
     {
         return Grav::instance()['config']->get('backups.profiles');
     }
 
+    /**
+     * @return array
+     */
     public static function getPurgeConfig()
     {
         return Grav::instance()['config']->get('backups.purge');
     }
 
+    /**
+     * @return array
+     */
     public function getBackupNames()
     {
         return array_column(static::getBackupProfiles(), 'name');
     }
 
+    /**
+     * @return float|int
+     */
     public static function getTotalBackupsSize()
     {
         $backups = static::getAvailableBackups();
@@ -104,6 +124,10 @@ class Backups
         return $size ?? 0;
     }
 
+    /**
+     * @param bool $force
+     * @return array|null
+     */
     public static function getAvailableBackups($force = false)
     {
         if ($force || null === static::$backups) {
@@ -140,10 +164,9 @@ class Backups
     /**
      * Backup
      *
-     * @param int   $id
+     * @param int $id
      * @param callable|null $status
-     *
-     * @return null|string
+     * @return string|null
      */
     public static function backup($id = 0, callable $status = null)
     {
@@ -217,6 +240,9 @@ class Backups
         return $destination;
     }
 
+    /**
+     * @throws \Exception
+     */
     public static function purge()
     {
         $purge_config = static::getPurgeConfig();
@@ -255,6 +281,10 @@ class Backups
         }
     }
 
+    /**
+     * @param string $exclude
+     * @return array
+     */
     protected static function convertExclude($exclude)
     {
         $lines = preg_split("/[\s,]+/", $exclude);

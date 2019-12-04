@@ -43,7 +43,7 @@ class Language
     /**
      * Constructor
      *
-     * @param \Grav\Common\Grav $grav
+     * @param Grav $grav
      */
     public function __construct(Grav $grav)
     {
@@ -152,7 +152,6 @@ class Language
      * Sets default language manually
      *
      * @param string $lang
-     *
      * @return string|bool
      */
     public function setDefault($lang)
@@ -181,7 +180,6 @@ class Language
      * Sets active language manually
      *
      * @param string $lang
-     *
      * @return string|bool
      */
     public function setActive($lang)
@@ -204,7 +202,6 @@ class Language
      * Sets the active language based on the first part of the URL
      *
      * @param string $uri
-     *
      * @return string
      */
     public function setActiveFromUri($uri)
@@ -297,7 +294,7 @@ class Language
      * Get full list of used language page extensions: [''=>'.md', 'en'=>'.en.md', ...]
      *
      * @param string|null $fileExtension
-     * @return mixed
+     * @return array
      */
     public function getPageExtensions($fileExtension = null)
     {
@@ -441,7 +438,6 @@ class Language
      * Ensures the language is valid and supported
      *
      * @param string $lang
-     *
      * @return bool
      */
     public function validate($lang)
@@ -457,7 +453,6 @@ class Language
      * @param array|null $languages
      * @param bool  $array_support
      * @param bool  $html_out
-     *
      * @return string
      */
     public function translate($args, array $languages = null, $array_support = false, $html_out = false)
@@ -503,7 +498,6 @@ class Language
      * @param string $index
      * @param array|null $languages
      * @param bool $html_out
-     *
      * @return string
      */
     public function translateArray($key, $index, $languages = null, $html_out = false)
@@ -536,7 +530,6 @@ class Language
      * @param string $lang lang code
      * @param string $key  key to lookup with
      * @param bool $array_support
-     *
      * @return string
      */
     public function getTranslation($lang, $key, $array_support = false)
@@ -598,6 +591,9 @@ class Language
         return LanguageCodes::get($code, $type);
     }
 
+    /**
+     * @return array
+     */
     public function __debugInfo()
     {
         $vars = get_object_vars($this);

@@ -16,7 +16,6 @@ class SystemFacade extends \Whoops\Util\SystemFacade
 
     /**
      * @param callable $function
-     *
      * @return void
      */
     public function registerShutdownFunction(callable $function)

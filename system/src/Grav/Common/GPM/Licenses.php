@@ -30,7 +30,6 @@ class Licenses
      *
      * @param string $slug
      * @param string $license
-     *
      * @return bool
      */
     public static function set($slug, $license)
@@ -64,7 +63,6 @@ class Licenses
      * Returns the license for a Premium package
      *
      * @param string $slug
-     *
      * @return array|string
      */
     public static function get($slug = null)
@@ -86,8 +84,7 @@ class Licenses
     /**
      * Validates the License format
      *
-     * @param string $license
-     *
+     * @param string|null $license
      * @return bool
      */
     public static function validate($license = null)

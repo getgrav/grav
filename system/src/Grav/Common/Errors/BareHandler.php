@@ -14,7 +14,7 @@ use Whoops\Handler\Handler;
 class BareHandler extends Handler
 {
     /**
-     * @return int|null
+     * @return int
      */
     public function handle()
     {

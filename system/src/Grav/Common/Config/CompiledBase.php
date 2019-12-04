@@ -23,7 +23,7 @@ abstract class CompiledBase
     public $checksum;
 
     /** @var int  Timestamp of compiled configuration */
-    public $timestamp;
+    public $timestamp = 0;
 
     /** @var string Cache folder to be used. */
     protected $cacheFolder;
@@ -52,7 +52,6 @@ abstract class CompiledBase
         $this->path = $path ? rtrim($path, '\\/') . '/' : '';
         $this->cacheFolder = $cacheFolder;
         $this->files = $files;
-        $this->timestamp = 0;
     }
 
     /**
@@ -122,6 +121,9 @@ abstract class CompiledBase
         return $this->checksum;
     }
 
+    /**
+     * @return string
+     */
     protected function createFilename()
     {
         return "{$this->cacheFolder}/{$this->name()->name}.php";
@@ -241,6 +243,9 @@ abstract class CompiledBase
         $this->modified();
     }
 
+    /**
+     * @return array
+     */
     protected function getState()
     {
         return $this->object->toArray();

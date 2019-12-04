@@ -193,7 +193,6 @@ class Installer
      *
      * @param string $installer_file_folder The folder path that contains install.php
      * @param bool $is_install True if install, false if removal
-     *
      * @return null|string
      */
     private static function loadInstaller($installer_file_folder, $is_install)
@@ -244,7 +243,6 @@ class Installer
     /**
      * @param string            $source_path
      * @param string            $install_path
-     *
      * @return bool
      */
     public static function moveInstall($source_path, $install_path)
@@ -261,7 +259,6 @@ class Installer
     /**
      * @param string            $source_path
      * @param string            $install_path
-     *
      * @return bool
      */
     public static function copyInstall($source_path, $install_path)
@@ -280,7 +277,6 @@ class Installer
      * @param string            $install_path
      * @param array             $ignores
      * @param bool              $keep_source
-     *
      * @return bool
      */
     public static function sophisticatedInstall($source_path, $install_path, $ignores = [], $keep_source = false)
@@ -319,7 +315,6 @@ class Installer
      *
      * @param  string $path    The slug of the package(s)
      * @param  array  $options Options to use for uninstalling
-     *
      * @return bool True if everything went fine, False otherwise.
      */
     public static function uninstall($path, $options = [])
@@ -361,7 +356,6 @@ class Installer
      *
      * @param  string $destination The directory to run validations at
      * @param  array  $exclude     An array of constants to exclude from the validation
-     *
      * @return bool True if validation passed. False otherwise
      */
     public static function isValidDestination($destination, $exclude = [])
@@ -390,7 +384,6 @@ class Installer
      * Validates if the given path is a Grav Instance
      *
      * @param  string $target The local path to the Grav Instance
-     *
      * @return bool True if is a Grav Instance. False otherwise
      */
     public static function isGravInstance($target)
@@ -411,6 +404,7 @@ class Installer
 
     /**
      * Returns the last message added by the installer
+     *
      * @return string The message
      */
     public static function getMessage()
@@ -420,6 +414,7 @@ class Installer
 
     /**
      * Returns the last error occurred in a string message format
+     *
      * @return string The message of the last error
      */
     public static function lastErrorMsg()
@@ -510,6 +505,7 @@ class Installer
 
     /**
      * Returns the last error code of the occurred error
+     *
      * @return int|string The code of the last error
      */
     public static function lastErrorCode()
@@ -522,7 +518,6 @@ class Installer
      *
      * @param int|string $error the Error code
      */
-
     public static function setError($error)
     {
         self::$error = $error;

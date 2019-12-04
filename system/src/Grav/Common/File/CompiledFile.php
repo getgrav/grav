@@ -84,6 +84,8 @@ trait CompiledFile
 
     /**
      * Serialize file.
+     *
+     * @return array
      */
     public function __sleep()
     {

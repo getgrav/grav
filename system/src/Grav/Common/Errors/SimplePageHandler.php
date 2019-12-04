@@ -27,7 +27,7 @@ class SimplePageHandler extends Handler
     }
 
     /**
-     * @return int|null
+     * @return int
      */
     public function handle()
     {
@@ -61,7 +61,6 @@ class SimplePageHandler extends Handler
 
     /**
      * @param string $resource
-     *
      * @return string
      * @throws \RuntimeException
      */
@@ -91,6 +90,9 @@ class SimplePageHandler extends Handler
         );
     }
 
+    /**
+     * @param string $path
+     */
     public function addResourcePath($path)
     {
         if (!is_dir($path)) {
@@ -102,6 +104,9 @@ class SimplePageHandler extends Handler
         array_unshift($this->searchPaths, $path);
     }
 
+    /**
+     * @return array
+     */
     public function getResourcePaths()
     {
         return $this->searchPaths;

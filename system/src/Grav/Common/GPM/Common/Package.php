@@ -19,6 +19,11 @@ class Package
     /** @var Data */
     protected $data;
 
+    /**
+     * Package constructor.
+     * @param Data $package
+     * @param string|null $type
+     */
     public function __construct(Data $package, $type = null)
     {
         $this->data = $package;
@@ -36,26 +41,44 @@ class Package
         return $this->data;
     }
 
+    /**
+     * @param string $key
+     * @return mixed
+     */
     public function __get($key)
     {
         return $this->data->get($key);
     }
 
+    /**
+     * @param string $key
+     * @param mixed $value
+     */
     public function __set($key, $value)
     {
         $this->data->set($key, $value);
     }
 
+    /**
+     * @param string $key
+     * @return bool
+     */
     public function __isset($key)
     {
         return isset($this->data->{$key});
     }
 
+    /**
+     * @return string
+     */
     public function __toString()
     {
         return $this->toJson();
     }
 
+    /**
+     * @return string
+     */
     public function toJson()
     {
         return $this->data->toJson();

@@ -25,7 +25,7 @@ abstract class BaseAsset extends PropertyObject
     /** @const Regex to match CSS import content */
     protected const CSS_IMPORT_REGEX = '{@import(.*?);}';
 
-    /** @var string */
+    /** @var string|false */
     protected $asset;
     /** @var string */
     protected $asset_type;
@@ -55,8 +55,16 @@ abstract class BaseAsset extends PropertyObject
     /** @var bool */
     private $css_minify = false;
 
+    /**
+     * @return string
+     */
     abstract function render();
 
+    /**
+     * BaseAsset constructor.
+     * @param array $elements
+     * @param string|null $key
+     */
     public function __construct(array $elements = [], $key = null)
     {
         $base_config = [
@@ -73,6 +81,11 @@ abstract class BaseAsset extends PropertyObject
         parent::__construct($elements, $key);
     }
 
+    /**
+     * @param string|false $asset
+     * @param array $options
+     * @return $this|false
+     */
     public function init($asset, $options)
     {
         $config = Grav::instance()['config'];
@@ -130,19 +143,30 @@ abstract class BaseAsset extends PropertyObject
         return $this;
     }
 
+    /**
+     * @return string|false
+     */
     public function getAsset()
     {
         return $this->asset;
     }
 
+    /**
+     * @return bool
+     */
     public function getRemote()
     {
         return $this->remote;
     }
 
+    /**
+     * @param string $position
+     * @return $this
+     */
     public function setPosition($position)
     {
         $this->position = $position;
+
         return $this;
     }
 

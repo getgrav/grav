@@ -19,6 +19,12 @@ use Grav\Common\Grav;
  */
 class CompiledBlueprints extends CompiledBase
 {
+    /**
+     * CompiledBlueprints constructor.
+     * @param string $cacheFolder
+     * @param array $files
+     * @param string $path
+     */
     public function __construct($cacheFolder, array $files, $path)
     {
         parent::__construct($cacheFolder, $files, $path);
@@ -45,7 +51,7 @@ class CompiledBlueprints extends CompiledBase
     /**
      * Create configuration object.
      *
-     * @param array  $data
+     * @param array $data
      */
     protected function createObject(array $data = [])
     {
@@ -112,6 +118,9 @@ class CompiledBlueprints extends CompiledBase
         return true;
     }
 
+    /**
+     * @return array
+     */
     protected function getState()
     {
         return $this->object->getState();

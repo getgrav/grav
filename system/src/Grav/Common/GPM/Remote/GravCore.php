@@ -67,7 +67,6 @@ class GravCore extends AbstractPackageCollection
      * Returns the changelog list for each version of Grav
      *
      * @param string $diff the version number to start the diff from
-     *
      * @return array changelog list for each version
      */
     public function getChangelog($diff = null)

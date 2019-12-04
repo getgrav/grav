@@ -16,6 +16,10 @@ use Symfony\Component\Yaml\Yaml;
 
 class YamlLinter
 {
+    /**
+     * @param string|null $folder
+     * @return array
+     */
     public static function lint(string $folder = null)
     {
         if (null !== $folder) {
@@ -27,16 +31,25 @@ class YamlLinter
         return array_merge(static::lintConfig(), static::lintPages(), static::lintBlueprints());
     }
 
+    /**
+     * @return array
+     */
     public static function lintPages()
     {
         return static::recurseFolder('page://');
     }
 
+    /**
+     * @return array
+     */
     public static function lintConfig()
     {
         return static::recurseFolder('config://');
     }
 
+    /**
+     * @return array
+     */
     public static function lintBlueprints()
     {
         /** @var UniformResourceLocator $locator */
@@ -49,6 +62,11 @@ class YamlLinter
         return static::recurseFolder('blueprints://');
     }
 
+    /**
+     * @param string $path
+     * @param string $extensions
+     * @return array
+     */
     public static function recurseFolder($path, $extensions = '(md|yaml)')
     {
         $lint_errors = [];
@@ -76,6 +94,10 @@ class YamlLinter
         return $lint_errors;
     }
 
+    /**
+     * @param string $path
+     * @return string
+     */
     protected static function extractYaml($path)
     {
         $extension = pathinfo($path, PATHINFO_EXTENSION);

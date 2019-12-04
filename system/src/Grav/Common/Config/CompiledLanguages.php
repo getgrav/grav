@@ -13,6 +13,12 @@ use Grav\Common\File\CompiledYamlFile;
 
 class CompiledLanguages extends CompiledBase
 {
+    /**
+     * CompiledLanguages constructor.
+     * @param string $cacheFolder
+     * @param array $files
+     * @param string $path
+     */
     public function __construct($cacheFolder, array $files, $path)
     {
         parent::__construct($cacheFolder, $files, $path);

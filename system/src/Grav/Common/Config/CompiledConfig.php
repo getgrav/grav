@@ -17,8 +17,14 @@ class CompiledConfig extends CompiledBase
     protected $callable;
 
     /** @var bool */
-    protected $withDefaults;
+    protected $withDefaults = false;
 
+    /**
+     * CompiledConfig constructor.
+     * @param string $cacheFolder
+     * @param array $files
+     * @param string $path
+     */
     public function __construct($cacheFolder, array $files, $path)
     {
         parent::__construct($cacheFolder, $files, $path);

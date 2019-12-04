@@ -61,7 +61,6 @@ class Response
      * Sets the preferred method to use for making HTTP calls.
      *
      * @param string $method Default is `auto`
-     *
      * @return Response
      */
     public static function setMethod($method = 'auto')
@@ -80,8 +79,7 @@ class Response
      *
      * @param  string   $uri      URL to call
      * @param  array    $options  An array of parameters for both `curl` and `fopen`
-     * @param  callable $callback Either a function or callback in array notation
-     *
+     * @param  callable|null $callback Either a function or callback in array notation
      * @return string The response of the request
      */
     public static function get($uri = '', $options = [], $callback = null)
@@ -350,7 +348,6 @@ class Response
      * @param resource $ch
      * @param array $options
      * @param bool $callback
-     *
      * @return bool|mixed
      */
     private static function curlExecFollow($ch, $options, $callback)

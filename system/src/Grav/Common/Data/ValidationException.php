@@ -16,6 +16,10 @@ class ValidationException extends \RuntimeException
     /** @var array */
     protected $messages = [];
 
+    /**
+     * @param array $messages
+     * @return $this
+     */
     public function setMessages(array $messages = [])
     {
         $this->messages = $messages;
@@ -33,6 +37,9 @@ class ValidationException extends \RuntimeException
         return $this;
     }
 
+    /**
+     * @return array
+     */
     public function getMessages()
     {
         return $this->messages;

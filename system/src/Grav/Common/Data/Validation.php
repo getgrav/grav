@@ -153,6 +153,12 @@ class Validation
         return true;
     }
 
+    /**
+     * @param mixed $value
+     * @param array $params
+     * @param array $field
+     * @return string
+     */
     protected static function filterText($value, array $params, array $field)
     {
         if (!\is_string($value) && !is_numeric($value)) {
@@ -166,26 +172,54 @@ class Validation
         return (string) $value;
     }
 
+    /**
+     * @param mixed $value
+     * @param array $params
+     * @param array $field
+     * @return bool
+     */
     protected static function filterCheckbox($value, array $params, array $field)
     {
         return (bool) $value;
     }
 
+    /**
+     * @param mixed $value
+     * @param array $params
+     * @param array $field
+     * @return array|array[]|false|string[]
+     */
     protected static function filterCommaList($value, array $params, array $field)
     {
         return \is_array($value) ? $value : preg_split('/\s*,\s*/', $value, -1, PREG_SPLIT_NO_EMPTY);
     }
 
+    /**
+     * @param mixed $value
+     * @param array $params
+     * @param array $field
+     * @return bool
+     */
     public static function typeCommaList($value, array $params, array $field)
     {
         return \is_array($value) ? true : self::typeText($value, $params, $field);
     }
 
+    /**
+     * @param mixed $value
+     * @param array $params
+     * @return string
+     */
     protected static function filterLower($value, array $params)
     {
         return strtolower($value);
     }
 
+    /**
+     * @param mixed $value
+     * @param array $params
+     * @return string
+     */
     protected static function filterUpper($value, array $params)
     {
         return strtoupper($value);
@@ -251,6 +285,12 @@ class Validation
         return self::typeArray((array) $value, $params, $field);
     }
 
+    /**
+     * @param mixed $value
+     * @param array $params
+     * @param array $field
+     * @return array|null
+     */
     protected static function filterCheckboxes($value, array $params, array $field)
     {
         return self::filterArray($value, $params, $field);
@@ -315,6 +355,12 @@ class Validation
         return self::typeArray((array)$value, $params, $field);
     }
 
+    /**
+     * @param mixed $value
+     * @param array $params
+     * @param array $field
+     * @return array
+     */
     protected static function filterFile($value, array $params, array $field)
     {
         return (array)$value;
@@ -360,11 +406,23 @@ class Validation
         return !(isset($params['step']) && fmod($value - $min, $params['step']) === 0);
     }
 
+    /**
+     * @param mixed $value
+     * @param array $params
+     * @param array $field
+     * @return float|int
+     */
     protected static function filterNumber($value, array $params, array $field)
     {
         return (string)(int)$value !== (string)(float)$value ? (float) $value : (int) $value;
     }
 
+    /**
+     * @param mixed $value
+     * @param array $params
+     * @param array $field
+     * @return string
+     */
     protected static function filterDateTime($value, array $params, array $field)
     {
         $format = Grav::instance()['config']->get('system.pages.dateformat.default');
@@ -374,7 +432,6 @@ class Validation
         }
         return $value;
     }
-
 
     /**
      * HTML5 input: range
@@ -389,6 +446,12 @@ class Validation
         return self::typeNumber($value, $params, $field);
     }
 
+    /**
+     * @param mixed $value
+     * @param array $params
+     * @param array $field
+     * @return float|int
+     */
     protected static function filterRange($value, array $params, array $field)
     {
         return self::filterNumber($value, $params, $field);
@@ -595,6 +658,12 @@ class Validation
         return !($options && array_diff($value, $options));
     }
 
+    /**
+     * @param mixed $value
+     * @param array $params
+     * @param array $field
+     * @return array|null
+     */
     protected static function filterArray($value, $params, $field)
     {
         $values = (array) $value;
@@ -643,6 +712,12 @@ class Validation
         return $values;
     }
 
+    /**
+     * @param mixed $value
+     * @param array $params
+     * @param array $field
+     * @return bool
+     */
     public static function typeList($value, array $params, array $field)
     {
         if (!\is_array($value)) {
@@ -662,11 +737,22 @@ class Validation
         return true;
     }
 
+    /**
+     * @param mixed $value
+     * @param array $params
+     * @param array $field
+     * @return array
+     */
     protected static function filterList($value, array $params, array $field)
     {
         return (array) $value;
     }
 
+    /**
+     * @param mixed $value
+     * @param array $params
+     * @return array
+     */
     public static function filterYaml($value, $params)
     {
         if (!\is_string($value)) {
@@ -689,6 +775,12 @@ class Validation
         return true;
     }
 
+    /**
+     * @param mixed $value
+     * @param array $params
+     * @param array $field
+     * @return mixed
+     */
     public static function filterIgnore($value, array $params, array $field)
     {
         return $value;
@@ -707,6 +799,12 @@ class Validation
         return true;
     }
 
+    /**
+     * @param mixed $value
+     * @param array $params
+     * @param array $field
+     * @return null
+     */
     public static function filterUnset($value, array $params, array $field)
     {
         return null;
@@ -714,6 +812,11 @@ class Validation
 
     // HTML5 attributes (min, max and range are handled inside the types)
 
+    /**
+     * @param mixed $value
+     * @param bool $params
+     * @return bool
+     */
     public static function validateRequired($value, $params)
     {
         if (is_scalar($value)) {
@@ -723,74 +826,143 @@ class Validation
         return (bool) $params !== true || !empty($value);
     }
 
+    /**
+     * @param mixed $value
+     * @param string $params
+     * @return bool
+     */
     public static function validatePattern($value, $params)
     {
         return (bool) preg_match("`^{$params}$`u", $value);
     }
 
-
     // Internal types
 
+    /**
+     * @param mixed $value
+     * @param mixed $params
+     * @return bool
+     */
     public static function validateAlpha($value, $params)
     {
         return ctype_alpha($value);
     }
 
+    /**
+     * @param mixed $value
+     * @param mixed $params
+     * @return bool
+     */
     public static function validateAlnum($value, $params)
     {
         return ctype_alnum($value);
     }
 
+    /**
+     * @param mixed $value
+     * @param mixed $params
+     * @return bool
+     */
     public static function typeBool($value, $params)
     {
         return \is_bool($value) || $value == 1 || $value == 0;
     }
 
+    /**
+     * @param mixed $value
+     * @param mixed $params
+     * @return bool
+     */
     public static function validateBool($value, $params)
     {
         return \is_bool($value) || $value == 1 || $value == 0;
     }
 
+    /**
+     * @param mixed $value
+     * @param mixed $params
+     * @return bool
+     */
     protected static function filterBool($value, $params)
     {
         return (bool) $value;
     }
 
+    /**
+     * @param mixed $value
+     * @param mixed $params
+     * @return bool
+     */
     public static function validateDigit($value, $params)
     {
         return ctype_digit($value);
     }
 
+    /**
+     * @param mixed $value
+     * @param mixed $params
+     * @return bool
+     */
     public static function validateFloat($value, $params)
     {
         return \is_float(filter_var($value, FILTER_VALIDATE_FLOAT));
     }
 
+    /**
+     * @param mixed $value
+     * @param mixed $params
+     * @return float
+     */
     protected static function filterFloat($value, $params)
     {
         return (float) $value;
     }
 
+    /**
+     * @param mixed $value
+     * @param mixed $params
+     * @return bool
+     */
     public static function validateHex($value, $params)
     {
         return ctype_xdigit($value);
     }
 
+    /**
+     * @param mixed $value
+     * @param mixed $params
+     * @return bool
+     */
     public static function validateInt($value, $params)
     {
         return is_numeric($value) && (int)$value == $value;
     }
 
+    /**
+     * @param mixed $value
+     * @param mixed $params
+     * @return int
+     */
     protected static function filterInt($value, $params)
     {
         return (int)$value;
     }
 
+    /**
+     * @param mixed $value
+     * @param mixed $params
+     * @return bool
+     */
     public static function validateArray($value, $params)
     {
         return \is_array($value) || ($value instanceof \ArrayAccess && $value instanceof \Traversable && $value instanceof \Countable);
     }
 
+    /**
+     * @param mixed $value
+     * @param mixed $params
+     * @return array
+     */
     public static function filterItem_List($value, $params)
     {
         return array_values(array_filter($value, function ($v) {
@@ -798,6 +970,11 @@ class Validation
         }));
     }
 
+    /**
+     * @param mixed $value
+     * @param mixed $params
+     * @return bool
+     */
     public static function validateJson($value, $params)
     {
         return (bool) (@json_decode($value));

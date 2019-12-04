@@ -60,6 +60,9 @@ class RecursiveDirectoryFilterIterator extends \RecursiveFilterIterator
         return false;
     }
 
+    /**
+     * @return RecursiveDirectoryFilterIterator|\RecursiveFilterIterator
+     */
     public function getChildren()
     {
         /** @var RecursiveDirectoryFilterIterator $iterator */

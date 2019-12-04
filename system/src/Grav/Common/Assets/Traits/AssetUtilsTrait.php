@@ -55,7 +55,6 @@ trait AssetUtilsTrait
      *
      * @param  array $assets
      * @param  bool $css
-     *
      * @return string
      */
     protected function gatherLinks(array $assets, $css = true)
@@ -120,7 +119,6 @@ trait AssetUtilsTrait
      * Moves @import statements to the top of the file per the CSS specification
      *
      * @param  string $file the file containing the combined CSS files
-     *
      * @return string       the modified file with any @imports at the top of the file
      */
     protected function moveImports($file)

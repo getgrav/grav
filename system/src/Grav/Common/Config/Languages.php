@@ -17,13 +17,16 @@ class Languages extends Data
     /** @var string|null */
     protected $checksum;
 
-    /** @var string|null */
-    protected $modified;
+    /** @var bool */
+    protected $modified = false;
 
-    /** @var string|null */
-    protected $timestamp;
+    /** @var int */
+    protected $timestamp = 0;
 
-
+    /**
+     * @param string|null $checksum
+     * @return string
+     */
     public function checksum($checksum = null)
     {
         if ($checksum !== null) {
@@ -33,6 +36,10 @@ class Languages extends Data
         return $this->checksum;
     }
 
+    /**
+     * @param bool|null $modified
+     * @return bool
+     */
     public function modified($modified = null)
     {
         if ($modified !== null) {
@@ -42,6 +49,10 @@ class Languages extends Data
         return $this->modified;
     }
 
+    /**
+     * @param int|null $timestamp
+     * @return int
+     */
     public function timestamp($timestamp = null)
     {
         if ($timestamp !== null) {
@@ -59,17 +70,28 @@ class Languages extends Data
         }
     }
 
+    /**
+     * @param array $data
+     */
     public function mergeRecursive(array $data)
     {
         $this->items = Utils::arrayMergeRecursiveUnique($this->items, $data);
     }
 
+    /**
+     * @param string $lang
+     * @return array
+     */
     public function flattenByLang($lang)
     {
         $language = $this->items[$lang];
         return Utils::arrayFlattenDotNotation($language);
     }
 
+    /**
+     * @param array $array
+     * @return array
+     */
     public function unflatten($array)
     {
         return Utils::arrayUnflattenDotNotation($array);

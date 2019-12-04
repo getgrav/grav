@@ -13,7 +13,6 @@ use Grav\Common\Assets;
 
 trait LegacyAssetsTrait
 {
-
     /**
      * @param array $args
      * @param string $type
@@ -71,6 +70,11 @@ trait LegacyAssetsTrait
         return $arguments;
     }
 
+    /**
+     * @param array $args
+     * @param array $defaults
+     * @return array
+     */
     protected function createArgumentsFromLegacy(array $args, array $defaults)
     {
         // Remove arguments with old default values.
@@ -93,8 +97,7 @@ trait LegacyAssetsTrait
      * @param int           $priority
      * @param bool          $pipeline
      * @param string        $group name of the group
-     *
-     * @return \Grav\Common\Assets
+     * @return Assets
      * @deprecated Please use dynamic method with ['loading' => 'async'].
      */
     public function addAsyncJs($asset, $priority = 10, $pipeline = true, $group = 'head')
@@ -111,8 +114,7 @@ trait LegacyAssetsTrait
      * @param int           $priority
      * @param bool          $pipeline
      * @param string        $group name of the group
-     *
-     * @return \Grav\Common\Assets
+     * @return Assets
      * @deprecated Please use dynamic method with ['loading' => 'defer'].
      */
     public function addDeferJs($asset, $priority = 10, $pipeline = true, $group = 'head')

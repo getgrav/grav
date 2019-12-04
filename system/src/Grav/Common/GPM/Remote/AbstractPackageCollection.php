@@ -31,9 +31,9 @@ class AbstractPackageCollection extends BaseCollection
     /**
      * AbstractPackageCollection constructor.
      *
-     * @param null $repository
+     * @param string|null $repository
      * @param bool $refresh
-     * @param null $callback
+     * @param callable|null $callback
      */
     public function __construct($repository = null, $refresh = false, $callback = null)
     {
@@ -60,6 +60,11 @@ class AbstractPackageCollection extends BaseCollection
         }
     }
 
+    /**
+     * @param bool $refresh
+     * @param callable|null $callback
+     * @return string
+     */
     public function fetch($refresh = false, $callback = null)
     {
         if (!$this->raw || $refresh) {

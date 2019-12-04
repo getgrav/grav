@@ -16,6 +16,9 @@ abstract class AbstractPackageCollection extends Iterator
     /** @var string */
     protected $type;
 
+    /**
+     * @return string
+     */
     public function toJson()
     {
         $items = [];
@@ -27,6 +30,9 @@ abstract class AbstractPackageCollection extends Iterator
         return json_encode($items);
     }
 
+    /**
+     * @return array
+     */
     public function toArray()
     {
         $items = [];

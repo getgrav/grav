@@ -30,6 +30,7 @@ class Truncator
 {
     /**
      * Safely truncates HTML by a given number of words.
+     *
      * @param  string  $html     Input HTML.
      * @param  int     $limit    Limit to how many words we preserve.
      * @param  string  $ellipsis String to use as ellipsis (if any).
@@ -85,6 +86,7 @@ class Truncator
 
     /**
      * Safely truncates HTML by a given number of letters.
+     *
      * @param  string  $html     Input HTML.
      * @param  int     $limit    Limit to how many letters we preserve.
      * @param  string  $ellipsis String to use as ellipsis (if any).
@@ -130,6 +132,7 @@ class Truncator
 
     /**
      * Builds a DOMDocument object from a string containing HTML.
+     *
      * @param string $html HTML to load
      * @return DOMDocument Returns a DOMDocument object.
      */
@@ -155,6 +158,7 @@ class Truncator
 
     /**
      * Removes all nodes after the current node.
+     *
      * @param  DOMNode|DOMElement $domNode
      * @param  DOMNode|DOMElement $topNode
      * @return void
@@ -204,6 +208,7 @@ class Truncator
 
     /**
      * Inserts an ellipsis
+     *
      * @param  DOMNode|DOMElement $domNode  Element to insert after.
      * @param  string             $ellipsis Text used to suffix our document.
      * @return void
@@ -230,7 +235,12 @@ class Truncator
     }
 
     /**
-     *
+     * @param string $text
+     * @param int $length
+     * @param string $ending
+     * @param bool $exact
+     * @param bool $considerHtml
+     * @return string
      */
     public function truncate(
         $text,

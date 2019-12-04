@@ -26,6 +26,11 @@ class Excerpts
     /** @var array */
     protected $config;
 
+    /**
+     * Excerpts constructor.
+     * @param PageInterface|null $page
+     * @param array|null $config
+     */
     public function __construct(PageInterface $page = null, array $config = null)
     {
         $this->page = $page ?? Grav::instance()['page'] ?? null;
@@ -43,16 +48,25 @@ class Excerpts
         $this->config = $config;
     }
 
+    /**
+     * @return PageInterface|null
+     */
     public function getPage(): ?PageInterface
     {
         return $this->page;
     }
 
+    /**
+     * @return array
+     */
     public function getConfig(): array
     {
         return $this->config;
     }
 
+    /**
+     * @param object $markdown
+     */
     public function fireInitializedEvent($markdown): void
     {
         $grav = Grav::instance();

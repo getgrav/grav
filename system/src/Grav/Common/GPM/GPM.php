@@ -39,8 +39,9 @@ class GPM extends Iterator
 
     /**
      * Creates a new GPM instance with Local and Remote packages available
+     *
      * @param bool $refresh Applies to Remote Packages only and forces a refetch of data
-     * @param callable $callback Either a function or callback in array notation
+     * @param callable|null $callback Either a function or callback in array notation
      */
     public function __construct($refresh = false, $callback = null)
     {
@@ -87,6 +88,7 @@ class GPM extends Iterator
 
     /**
      * Returns the amount of locally installed packages
+     *
      * @return int Amount of installed packages
      */
     public function countInstalled()
@@ -117,6 +119,7 @@ class GPM extends Iterator
 
     /**
      * Return the instance of a specific Plugin
+     *
      * @param  string $slug The slug of the Plugin
      * @return Local\Package|null The instance of the Plugin
      */
@@ -136,6 +139,7 @@ class GPM extends Iterator
 
     /**
      * Checks if a Plugin is installed
+     *
      * @param  string $slug The slug of the Plugin
      * @return bool True if the Plugin has been installed. False otherwise
      */
@@ -144,6 +148,10 @@ class GPM extends Iterator
         return isset($this->installed['plugins'][$slug]);
     }
 
+    /**
+     * @param string $slug
+     * @return bool
+     */
     public function isPluginInstalledAsSymlink($slug)
     {
         return $this->installed['plugins'][$slug]->symlink;
@@ -151,6 +159,7 @@ class GPM extends Iterator
 
     /**
      * Return the instance of a specific Theme
+     *
      * @param  string $slug The slug of the Theme
      * @return Local\Package|null The instance of the Theme
      */
@@ -161,6 +170,7 @@ class GPM extends Iterator
 
     /**
      * Returns the Locally installed themes
+     *
      * @return Iterator The installed themes
      */
     public function getInstalledThemes()
@@ -170,6 +180,7 @@ class GPM extends Iterator
 
     /**
      * Checks if a Theme is installed
+     *
      * @param  string $slug The slug of the Theme
      * @return bool True if the Theme has been installed. False otherwise
      */
@@ -180,6 +191,7 @@ class GPM extends Iterator
 
     /**
      * Returns the amount of updates available
+     *
      * @return int Amount of available updates
      */
     public function countUpdates()
@@ -195,6 +207,7 @@ class GPM extends Iterator
     /**
      * Returns an array of Plugins and Themes that can be updated.
      * Plugins and Themes are extended with the `available` property that relies to the remote version
+     *
      * @param array $list_type_update specifies what type of package to update
      * @return array Array of updatable Plugins and Themes.
      *               Format: ['total' => int, 'plugins' => array, 'themes' => array]
@@ -218,6 +231,7 @@ class GPM extends Iterator
     /**
      * Returns an array of Plugins that can be updated.
      * The Plugins are extended with the `available` property that relies to the remote version
+     *
      * @return array Array of updatable Plugins
      */
     public function getUpdatablePlugins()
@@ -255,7 +269,6 @@ class GPM extends Iterator
      * Get the latest release of a package from the GPM
      *
      * @param string $package_name
-     *
      * @return string|null
      */
     public function getLatestVersionOfPackage($package_name)
@@ -276,6 +289,7 @@ class GPM extends Iterator
 
     /**
      * Check if a Plugin or Theme is updatable
+     *
      * @param  string $slug The slug of the package
      * @return bool True if updatable. False otherwise or if not found
      */
@@ -286,6 +300,7 @@ class GPM extends Iterator
 
     /**
      * Checks if a Plugin is updatable
+     *
      * @param  string $plugin The slug of the Plugin
      * @return bool True if the Plugin is updatable. False otherwise
      */
@@ -297,6 +312,7 @@ class GPM extends Iterator
     /**
      * Returns an array of Themes that can be updated.
      * The Themes are extended with the `available` property that relies to the remote version
+     *
      * @return array Array of updatable Themes
      */
     public function getUpdatableThemes()
@@ -332,6 +348,7 @@ class GPM extends Iterator
 
     /**
      * Checks if a Theme is Updatable
+     *
      * @param  string $theme The slug of the Theme
      * @return bool True if the Theme is updatable. False otherwise
      */
@@ -344,7 +361,6 @@ class GPM extends Iterator
      * Get the release type of a package (stable / testing)
      *
      * @param string $package_name
-     *
      * @return string|null
      */
     public function getReleaseType($package_name)
@@ -367,7 +383,6 @@ class GPM extends Iterator
      * Returns true if the package latest release is stable
      *
      * @param string $package_name
-     *
      * @return bool
      */
     public function isStableRelease($package_name)
@@ -379,7 +394,6 @@ class GPM extends Iterator
      * Returns true if the package latest release is testing
      *
      * @param string $package_name
-     *
      * @return bool
      */
     public function isTestingRelease($package_name)
@@ -392,6 +406,7 @@ class GPM extends Iterator
 
     /**
      * Returns a Plugin from the repository
+     *
      * @param  string $slug The slug of the Plugin
      * @return mixed  Package if found, NULL if not
      */
@@ -402,6 +417,7 @@ class GPM extends Iterator
 
     /**
      * Returns the list of Plugins available in the repository
+     *
      * @return Iterator The Plugins remotely available
      */
     public function getRepositoryPlugins()
@@ -411,6 +427,7 @@ class GPM extends Iterator
 
     /**
      * Returns a Theme from the repository
+     *
      * @param  string $slug The slug of the Theme
      * @return mixed  Package if found, NULL if not
      */
@@ -421,6 +438,7 @@ class GPM extends Iterator
 
     /**
      * Returns the list of Themes available in the repository
+     *
      * @return Iterator The Themes remotely available
      */
     public function getRepositoryThemes()
@@ -430,6 +448,7 @@ class GPM extends Iterator
 
     /**
      * Returns the list of Plugins and Themes available in the repository
+     *
      * @return Remote\Packages Available Plugins and Themes
      *               Format: ['plugins' => array, 'themes' => array]
      */
@@ -440,6 +459,7 @@ class GPM extends Iterator
 
     /**
      * Searches for a Package in the repository
+     *
      * @param  string $search Can be either the slug or the name
      * @param  bool $ignore_exception True if should not fire an exception (for use in Twig)
      * @return Remote\Package|bool Package if found, FALSE if not
@@ -645,6 +665,7 @@ class GPM extends Iterator
 
     /**
      * Searches for a list of Packages in the repository
+     *
      * @param  array $searches An array of either slugs or names
      * @return array Array of found Packages
      *                        Format: ['total' => int, 'not_found' => array, <found-slugs>]
@@ -701,7 +722,6 @@ class GPM extends Iterator
      * Return the list of packages that have the passed one as dependency
      *
      * @param string $slug The slug name of the package
-     *
      * @return array
      */
     public function getPackagesThatDependOnPackage($slug)
@@ -757,7 +777,6 @@ class GPM extends Iterator
      * @param string $slug
      * @param string $version_with_operator
      * @param array $ignore_packages_list
-     *
      * @return bool
      * @throws \RuntimeException
      */
@@ -804,7 +823,6 @@ class GPM extends Iterator
      * Check the passed packages list can be updated
      *
      * @param array $packages_names_list
-     *
      * @throws \Exception
      */
     public function checkPackagesCanBeInstalled($packages_names_list)
@@ -827,7 +845,6 @@ class GPM extends Iterator
      * `update` means the package is already installed and must be updated as a dependency needs a higher version.
      *
      * @param array $packages
-     *
      * @return mixed
      * @throws \Exception
      */
@@ -956,6 +973,9 @@ class GPM extends Iterator
         return $dependencies;
     }
 
+    /**
+     * @param array $dependencies_slugs
+     */
     public function checkNoOtherPackageNeedsTheseDependenciesInALowerVersion($dependencies_slugs)
     {
         foreach ($dependencies_slugs as $dependency_slug) {
@@ -967,6 +987,11 @@ class GPM extends Iterator
         }
     }
 
+    /**
+     * @param string $firstVersion
+     * @param string $secondVersion
+     * @return bool
+     */
     private function firstVersionIsLower($firstVersion, $secondVersion)
     {
         return version_compare($firstVersion, $secondVersion) === -1;
@@ -976,9 +1001,7 @@ class GPM extends Iterator
      * Calculates and merges the dependencies of a package
      *
      * @param string $packageName The package information
-     *
      * @param array $dependencies The dependencies array
-     *
      * @return array
      * @throws \Exception
      */
@@ -1072,7 +1095,6 @@ class GPM extends Iterator
      * Calculates and merges the dependencies of the passed packages
      *
      * @param array $packages
-     *
      * @return mixed
      * @throws \Exception
      */
@@ -1097,7 +1119,6 @@ class GPM extends Iterator
      *      $versionInformation == '' => returns null
      *
      * @param string $version
-     *
      * @return null|string
      */
     public function calculateVersionNumberFromDependencyVersion($version)
@@ -1124,7 +1145,6 @@ class GPM extends Iterator
      * Example: returns true for $version: '~2.0'
      *
      * @param string $version
-     *
      * @return bool
      */
     public function versionFormatIsNextSignificantRelease($version): bool
@@ -1138,7 +1158,6 @@ class GPM extends Iterator
      * Example: returns true for $version: '>=2.0'
      *
      * @param string $version
-     *
      * @return bool
      */
     public function versionFormatIsEqualOrHigher($version): bool
@@ -1156,7 +1175,6 @@ class GPM extends Iterator
      *
      * @param string $version1 the version string (e.g. '2.0.0' or '1.0')
      * @param string $version2 the version string (e.g. '2.0.0' or '1.0')
-     *
      * @return bool
      */
     public function checkNextSignificantReleasesAreCompatible($version1, $version2): bool

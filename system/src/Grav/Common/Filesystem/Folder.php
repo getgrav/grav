@@ -51,7 +51,6 @@ abstract class Folder
      *
      * @param string  $path
      * @param string  $extensions   which files to search for specifically
-     *
      * @return int
      */
     public static function lastModifiedFile($path, $extensions = 'md|yaml')
@@ -115,9 +114,8 @@ abstract class Folder
     /**
      * Get relative path between target and base path. If path isn't relative, return full path.
      *
-     * @param string       $path
-     * @param mixed|string $base
-     *
+     * @param string $path
+     * @param string $base
      * @return string
      */
     public static function getRelativePath($path, $base = GRAV_ROOT)

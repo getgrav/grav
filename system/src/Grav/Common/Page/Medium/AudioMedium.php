@@ -57,7 +57,7 @@ class AudioMedium extends Medium
     public function preload($preload)
     {
         $validPreloadAttrs = ['auto', 'metadata', 'none'];
-        
+
         if (\in_array($preload, $validPreloadAttrs, true)) {
             $this->attributes['preload'] = $preload;
         }
@@ -130,7 +130,6 @@ class AudioMedium extends Medium
 
         return $this;
     }
-
 
     /**
      * Reset medium.

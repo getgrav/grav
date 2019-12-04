@@ -16,6 +16,11 @@ class CachedCollection extends Iterator
     /** @var array */
     protected static $cache = [];
 
+    /**
+     * CachedCollection constructor.
+     *
+     * @param array $items
+     */
     public function __construct($items)
     {
         parent::__construct();

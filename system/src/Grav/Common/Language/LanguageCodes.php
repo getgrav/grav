@@ -151,11 +151,19 @@ class LanguageCodes
         'zu'         => [ 'name' => 'Zulu',                      'nativeName' => 'isiZulu' ]
     ];
 
+    /**
+     * @param string $code
+     * @return string|false
+     */
     public static function getName($code)
     {
         return static::get($code, 'name');
     }
 
+    /**
+     * @param string $code
+     * @return string|false
+     */
     public static function getNativeName($code)
     {
         if (isset(static::$codes[$code])) {
@@ -169,6 +177,10 @@ class LanguageCodes
         return $code;
     }
 
+    /**
+     * @param string $code
+     * @return string
+     */
     public static function getOrientation($code)
     {
         if (isset(static::$codes[$code])) {
@@ -179,11 +191,19 @@ class LanguageCodes
         return 'ltr';
     }
 
+    /**
+     * @param string $code
+     * @return bool
+     */
     public static function isRtl($code)
     {
         return static::getOrientation($code) === 'rtl';
     }
 
+    /**
+     * @param array $keys
+     * @return array
+     */
     public static function getNames(array $keys)
     {
         $results = [];
@@ -195,6 +215,11 @@ class LanguageCodes
         return $results;
     }
 
+    /**
+     * @param string $code
+     * @param string $type
+     * @return string|false
+     */
     public static function get($code, $type)
     {
         if (isset(static::$codes[$code][$type])) {
@@ -204,6 +229,10 @@ class LanguageCodes
         return false;
     }
 
+    /**
+     * @param bool $native
+     * @return array
+     */
     public static function getList($native = true)
     {
         $list = [];

@@ -13,6 +13,11 @@ use Grav\Common\GPM\Common\AbstractPackageCollection as BaseCollection;
 
 abstract class AbstractPackageCollection extends BaseCollection
 {
+    /**
+     * AbstractPackageCollection constructor.
+     *
+     * @param array $items
+     */
     public function __construct($items)
     {
         parent::__construct();

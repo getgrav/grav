@@ -18,7 +18,7 @@ use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 trait MediaTrait
 {
-    /** @var MediaCollectionInterface */
+    /** @var MediaCollectionInterface|null */
     protected $media;
     /** @var bool */
     protected $_loadMedia = true;
