@@ -274,7 +274,7 @@ class PageObject extends FlexPageObject
         foreach ($filters as $key => $value) {
             switch ($key) {
                 case 'search':
-                    $matches = $this->search((string)$value);
+                    $matches = $this->search((string)$value) > 0.0;
                     break;
                 case 'page_type':
                     $types = $value ? explode(',', $value) : [];

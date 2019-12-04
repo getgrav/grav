@@ -203,8 +203,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      */
     public function search(string $search, $properties = null, array $options = null): float
     {
-        $options = $options ?? $this->getFlexDirectory()->getConfig('data.search.options', []);
-        $properties = $properties ?? $this->getFlexDirectory()->getConfig('data.search.fields', []);
+        $properties = (array)($properties ?? $this->getFlexDirectory()->getConfig('data.search.fields'));
         if (!$properties) {
             foreach ($this->getFlexDirectory()->getConfig('admin.list.fields', []) as $property => $value) {
                 if (!empty($value['link'])) {
@@ -213,8 +212,10 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
             }
         }
 
+        $options = $options ?? (array)$this->getFlexDirectory()->getConfig('data.search.options');
+
         $weight = 0;
-        foreach ((array)$properties as $property) {
+        foreach ($properties as $property) {
             $weight += $this->searchNestedProperty($property, $search, $options);
         }
 
@@ -315,12 +316,13 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      */
     protected function searchValue(string $name, $value, string $search, array $options = null): float
     {
+        // Ignore empty search strings.
         $search = trim($search);
-
         if ($search === '') {
             return 0;
         }
 
+        // Search only non-empty string values.
         if (!\is_string($value) || $value === '') {
             return 0;
         }
