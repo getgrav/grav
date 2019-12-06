@@ -1,3 +1,9 @@
+# v1.7.0-rc.3
+## mm/dd/2019
+
+1. [](#bugfix)
+    * Grav 1.7: Fixed error on page initialization [#2753](https://github.com/getgrav/grav/issues/2753)
+
 # v1.7.0-rc.2
 ## 12/04/2019
 

@@ -42,7 +42,7 @@ class Pages
     private $directory;
 
     /** @var array<PageInterface|string> */
-    protected $instances;
+    protected $instances = [];
 
     /** @var array */
     protected $index = [];
