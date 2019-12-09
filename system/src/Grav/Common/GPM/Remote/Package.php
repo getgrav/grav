@@ -32,4 +32,30 @@ class Package extends BasePackage implements \JsonSerializable
     {
         return $this->data->toArray();
     }
+
+    /**
+     * Returns the changelog list for each version of a package
+     *
+     * @param string $diff the version number to start the diff from
+     * @return array changelog list for each version
+     */
+    public function getChangelog($diff = null)
+    {
+        if (!$diff) {
+            return $this->data['changelog'];
+        }
+
+        $diffLog = [];
+        foreach ((array)$this->data['changelog'] as $version => $changelog) {
+            preg_match("/[\w\-\.]+/", $version, $cleanVersion);
+
+            if (!$cleanVersion || version_compare($diff, $cleanVersion[0], '>=')) {
+                continue;
+            }
+
+            $diffLog[$version] = $changelog;
+        }
+
+        return $diffLog;
+    }
 }
