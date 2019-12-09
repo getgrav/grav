@@ -55,7 +55,7 @@
         "phive/twig-extensions-deferred": "^1.0",
         "willdurand/negotiation": "^2.3",
         "itsgoingd/clockwork": "~4.0",
-        "enshrined/svg-sanitize": "^0.10.0"
+        "enshrined/svg-sanitize": "~0.1"
     },
     "require-dev": {
         "codeception/codeception": "^2.4",
