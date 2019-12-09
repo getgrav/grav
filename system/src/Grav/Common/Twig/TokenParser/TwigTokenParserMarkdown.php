@@ -32,7 +32,7 @@ class TwigTokenParserMarkdown extends AbstractTokenParser
     {
         $lineno = $token->getLine();
         $this->parser->getStream()->expect(Token::BLOCK_END_TYPE);
-        $body = $this->parser->subparse(array($this, 'decideMarkdownEnd'), true);
+        $body = $this->parser->subparse([$this, 'decideMarkdownEnd'], true);
         $this->parser->getStream()->expect(Token::BLOCK_END_TYPE);
         return new TwigNodeMarkdown($body, $lineno, $this->getTag());
     }

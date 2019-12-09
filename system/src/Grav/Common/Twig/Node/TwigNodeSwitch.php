@@ -12,6 +12,9 @@ namespace Grav\Common\Twig\Node;
 use Twig\Compiler;
 use Twig\Node\Node;
 
+/**
+ * Class TwigNodeSwitch
+ */
 class TwigNodeSwitch extends Node
 {
     /**
@@ -49,6 +52,7 @@ class TwigNodeSwitch extends Node
             ->raw(") {\n")
             ->indent();
 
+        /** @var Node $case */
         foreach ($this->getNode('cases') as $case) {
             if (!$case->hasNode('body')) {
                 continue;

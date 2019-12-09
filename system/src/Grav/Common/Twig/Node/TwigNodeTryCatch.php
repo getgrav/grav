@@ -12,6 +12,9 @@ namespace Grav\Common\Twig\Node;
 use Twig\Compiler;
 use Twig\Node\Node;
 
+/**
+ * Class TwigNodeTryCatch
+ */
 class TwigNodeTryCatch extends Node
 {
     /**

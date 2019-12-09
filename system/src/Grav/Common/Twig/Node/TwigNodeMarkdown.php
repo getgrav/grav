@@ -13,6 +13,9 @@ use Twig\Compiler;
 use Twig\Node\Node;
 use Twig\Node\NodeOutputInterface;
 
+/**
+ * Class TwigNodeMarkdown
+ */
 class TwigNodeMarkdown extends Node implements NodeOutputInterface
 {
     /**

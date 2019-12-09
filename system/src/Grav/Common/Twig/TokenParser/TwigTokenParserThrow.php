@@ -10,6 +10,7 @@
 namespace Grav\Common\Twig\TokenParser;
 
 use Grav\Common\Twig\Node\TwigNodeThrow;
+use Twig\Error\SyntaxError;
 use Twig\Node\Node;
 use Twig\Token;
 use Twig\TokenParser\AbstractTokenParser;
@@ -27,8 +28,8 @@ class TwigTokenParserThrow extends AbstractTokenParser
      * Parses a token and returns a node.
      *
      * @param Token $token A Twig Token instance
-     *
      * @return Node A Twig Node instance
+     * @throws SyntaxError
      */
     public function parse(Token $token)
     {

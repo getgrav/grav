@@ -10,6 +10,7 @@
 namespace Grav\Common\Twig\TokenParser;
 
 use Grav\Common\Twig\Node\TwigNodeTryCatch;
+use Twig\Error\SyntaxError;
 use Twig\Node\Node;
 use Twig\Token;
 use Twig\TokenParser\AbstractTokenParser;
@@ -31,8 +32,8 @@ class TwigTokenParserTryCatch extends AbstractTokenParser
      * Parses a token and returns a node.
      *
      * @param Token $token A Twig Token instance
-     *
      * @return Node A Twig Node instance
+     * @throws SyntaxError
      */
     public function parse(Token $token)
     {
@@ -50,14 +51,22 @@ class TwigTokenParserTryCatch extends AbstractTokenParser
         return new TwigNodeTryCatch($try, $catch, $lineno, $this->getTag());
     }
 
+    /**
+     * @param Token $token
+     * @return bool
+     */
     public function decideCatch(Token $token)
     {
-        return $token->test(array('catch'));
+        return $token->test(['catch']);
     }
 
+    /**
+     * @param Token $token
+     * @return bool
+     */
     public function decideEnd(Token $token)
     {
-        return $token->test(array('endtry')) || $token->test(array('endcatch'));
+        return $token->test(['endtry']) || $token->test(['endcatch']);
     }
 
     /**

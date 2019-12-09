@@ -21,6 +21,14 @@ parameters:
         - Grav\Common\GPM\Remote\Package
         - Grav\Common\Session
         - Gantry\Component\Config\Config
+    dynamicConstantNames:
+        - GRAV_CLI
+        - GANTRY_DEBUGGER
+        - GANTRY5_DEBUG
+        - GANTRY5_VERSION
+        - GANTRY5_VERSION_DATE
+        - GANTRY5_PLATFORM
+        - GANTRY5_ROOT
     ignoreErrors:
         # PSR-16 Exception interfaces do not extend \Throwable
         - '#PHPDoc tag \@throws with type (.*|)?Psr\\SimpleCache\\(CacheException|InvalidArgumentException)(|.*)? is not subtype of Throwable#'

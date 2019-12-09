@@ -20,6 +20,8 @@ parameters:
         - Grav\Common\GPM\Remote\Package
         - Grav\Common\Page\Header
         - Grav\Common\Session
+    dynamicConstantNames:
+        - GRAV_CLI
     ignoreErrors:
 
         # FIXME: Bugs that need to be fixed
