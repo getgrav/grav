@@ -1,8 +1,9 @@
 # v1.6.20
-## 12/04/2019
+## mm/dd/2019
 
 1. [](#bugfix)
-    * Incorrect routing caused by `str_replace()` in `Uri::init()` [#2754](https://github.com/getgrav/grav/issues/2754)
+    * Fixed incorrect routing caused by `str_replace()` in `Uri::init()` [#2754](https://github.com/getgrav/grav/issues/2754)
+    * Fixed session cookie is being set twice in the HTTP header [#2745](https://github.com/getgrav/grav/issues/2745)
 
 # v1.6.19
 ## 12/04/2019
