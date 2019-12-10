@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "058fdbe4406f435ef344a08cf96093af",
+    "content-hash": "88fca050efdc69370646750bae8428ad",
     "packages": [
         {
             "name": "antoligy/dom-string-iterators",
@@ -355,16 +355,16 @@
         },
         {
             "name": "enshrined/svg-sanitize",
-            "version": "0.13.0",
+            "version": "0.13.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/darylldoyle/svg-sanitizer.git",
-                "reference": "4cf8d0f61edf9f00b84e162fc229176a362da247"
+                "reference": "19e85021505b29f3055c1f57a620ee4aa5c24113"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/darylldoyle/svg-sanitizer/zipball/4cf8d0f61edf9f00b84e162fc229176a362da247",
-                "reference": "4cf8d0f61edf9f00b84e162fc229176a362da247",
+                "url": "https://api.github.com/repos/darylldoyle/svg-sanitizer/zipball/19e85021505b29f3055c1f57a620ee4aa5c24113",
+                "reference": "19e85021505b29f3055c1f57a620ee4aa5c24113",
                 "shasum": ""
             },
             "require": {
@@ -392,7 +392,7 @@
                 }
             ],
             "description": "An SVG sanitizer for PHP",
-            "time": "2019-11-07T09:16:31+00:00"
+            "time": "2019-12-09T09:24:04+00:00"
         },
         {
             "name": "erusev/parsedown",
@@ -1836,27 +1836,34 @@
         },
         {
             "name": "rockettheme/toolbox",
-            "version": "1.4.6",
+            "version": "dev-develop",
             "source": {
                 "type": "git",
                 "url": "https://github.com/rockettheme/toolbox.git",
-                "reference": "e7010c2a956aff241dfa100ab8aef5b6cf83892a"
+                "reference": "60b91149400deaf4c62a63b723c0c4ca224f93a4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rockettheme/toolbox/zipball/e7010c2a956aff241dfa100ab8aef5b6cf83892a",
-                "reference": "e7010c2a956aff241dfa100ab8aef5b6cf83892a",
+                "url": "https://api.github.com/repos/rockettheme/toolbox/zipball/60b91149400deaf4c62a63b723c0c4ca224f93a4",
+                "reference": "60b91149400deaf4c62a63b723c0c4ca224f93a4",
                 "shasum": ""
+            },
+            "archive": {
+                "exclude": [
+                    "tests"
+                ]
             },
             "require": {
                 "ext-json": "*",
-                "php": ">=5.4.0",
+                "php": ">=5.6.0",
                 "pimple/pimple": "~3.0",
-                "symfony/event-dispatcher": ">2.5",
-                "symfony/yaml": ">2.5"
+                "symfony/event-dispatcher": "^3.4|^4.0",
+                "symfony/yaml": "^3.4|^4.0"
             },
             "require-dev": {
-                "phpunit/phpunit": "~6"
+                "phpstan/phpstan": "^0.12",
+                "phpstan/phpstan-deprecation-rules": "^0.12",
+                "phpunit/phpunit": "~5"
             },
             "type": "library",
             "autoload": {
@@ -1872,7 +1879,17 @@
                     "RocketTheme\\Toolbox\\StreamWrapper\\": "StreamWrapper/src"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
+            "scripts": {
+                "test": [
+                    "vendor/bin/phpunit run unit"
+                ],
+                "test-windows": [
+                    "vendor\\bin\\phpunit run unit"
+                ],
+                "phpstan": [
+                    "vendor/bin/phpstan analyse -l 8 -c ./tests/phpstan/phpstan.neon . --memory-limit=128M"
+                ]
+            },
             "license": [
                 "MIT"
             ],
@@ -1882,7 +1899,11 @@
                 "php",
                 "rockettheme"
             ],
-            "time": "2019-03-20T19:59:17+00:00"
+            "support": {
+                "source": "https://github.com/rockettheme/toolbox/tree/develop",
+                "issues": "https://github.com/rockettheme/toolbox/issues"
+            },
+            "time": "2019-12-10T16:57:36+00:00"
         },
         {
             "name": "seld/cli-prompt",
@@ -5776,6 +5797,7 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
+        "rockettheme/toolbox": 20,
         "victorjonsson/markdowndocs": 20
     },
     "prefer-stable": false,
