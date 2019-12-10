@@ -175,9 +175,13 @@ class Session implements SessionInterface
             return $this;
         }
 
+        $sessionName = session_name();
+        $sessionExists = isset($_COOKIE[$sessionName]);
+
         // Protection against invalid session cookie names throwing exception: http://php.net/manual/en/function.session-id.php#116836
-        if (isset($_COOKIE[session_name()]) && !preg_match('/^[-,a-zA-Z0-9]{1,128}$/', $_COOKIE[session_name()])) {
-            unset($_COOKIE[session_name()]);
+        if ($sessionExists && !preg_match('/^[-,a-zA-Z0-9]{1,128}$/', $_COOKIE[$sessionName])) {
+            unset($_COOKIE[$sessionName]);
+            $sessionExists = false;
         }
 
         $options = $this->options;
@@ -203,17 +207,20 @@ class Session implements SessionInterface
             throw new SessionException('Invalid User Object, restarting session', 500, $e);
         }
 
-        $params = session_get_cookie_params();
+        // Extend the lifetime of the session.
+        if ($sessionExists) {
+            $params = session_get_cookie_params();
 
-        setcookie(
-            session_name(),
-            session_id(),
-            time() + $params['lifetime'],
-            $params['path'],
-            $params['domain'],
-            $params['secure'],
-            $params['httponly']
-        );
+            setcookie(
+                $sessionName,
+                session_id(),
+                time() + $params['lifetime'],
+                $params['path'],
+                $params['domain'],
+                $params['secure'],
+                $params['httponly']
+            );
+        }
 
         $this->started = true;
 
