@@ -551,6 +551,10 @@ class FlexDirectory implements FlexAuthorizeInterface
                     $index = $this->loadIndex('storage_key');
 
                     // Make sure cached objects are up to date: compare against index checksum/timestamp.
+                    /**
+                     * @var string $key
+                     * @var mixed $value
+                     */
                     foreach ($fetched as $key => $value) {
                         if ($value instanceof FlexObjectInterface) {
                             $objectMeta = $value->getMetaData();

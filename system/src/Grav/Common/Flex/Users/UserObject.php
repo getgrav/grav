@@ -881,7 +881,7 @@ class UserObject extends FlexObject implements UserInterface, MediaManipulationI
             'type' => $this->getFlexType(),
             'key' => $this->getKey(),
             'elements' => $this->jsonSerialize(),
-            'storage' => $this->getStorage()
+            'storage' => $this->getMetaData()
         ];
     }
 

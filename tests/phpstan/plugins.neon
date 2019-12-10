@@ -35,3 +35,4 @@ parameters:
 
         - '#Call to deprecated method stopPropagation\(\) of class Symfony\\Component\\EventDispatcher\\Event#'
         - '#Call to an undefined method Grav\\Plugin\\ApartmentData\\Application\\Application::#'
+        - '#Parameter \#1 \$lineNumberStyle of method ScssPhp\\ScssPhp\\Compiler::setLineNumberStyle\(\) expects string, int given#'
