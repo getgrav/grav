@@ -151,7 +151,7 @@ class Uri
 
         $this->url = $this->base . $this->uri;
 
-        $uri = str_replace(static::filterPath($this->root), '', $this->url);
+        $uri = Utils::replaceFirstOccurrence(static::filterPath($this->root), '', $this->url);
 
         // remove the setup.php based base if set:
         $setup_base = $grav['pages']->base();
@@ -195,7 +195,7 @@ class Uri
         // set the new url
         $this->url = $this->root . $path;
         $this->path = static::cleanPath($path);
-        $this->content_path = trim(str_replace($this->base, '', $this->path), '/');
+        $this->content_path = trim(Utils::replaceFirstOccurrence($this->base, '', $this->path), '/');
         if ($this->content_path !== '') {
             $this->paths = explode('/', $this->content_path);
         }
@@ -340,7 +340,7 @@ class Uri
             return $this->url;
         }
 
-        $url = str_replace($this->base, '', rtrim($this->url, '/'));
+        $url = Utils::replaceFirstOccurrence($this->base, '', rtrim($this->url, '/'));
 
         return $url ?: '/';
     }
@@ -489,7 +489,7 @@ class Uri
             return $this->uri;
         }
 
-        return str_replace($this->root_path, '', $this->uri);
+        return Utils::replaceFirstOccurrence($this->root_path, '', $this->uri);
     }
 
     /**
@@ -531,7 +531,7 @@ class Uri
             return $this->root;
         }
 
-        return str_replace($this->base, '', $this->root);
+        return Utils::replaceFirstOccurrence($this->base, '', $this->root);
     }
 
     /**
@@ -783,7 +783,7 @@ class Uri
             }
 
             // special check to see if path checking is required.
-            $just_path = str_replace($normalized_url, '', $normalized_path);
+            $just_path = Utils::replaceFirstOccurrence($normalized_url, '', $normalized_path);
             if ($normalized_url === '/' || $just_path === $page->path()) {
                 $url_path = $normalized_url;
             } else {
@@ -852,7 +852,7 @@ class Uri
             }
 
             // strip base from this path
-            $target_path = str_replace($uri->rootUrl(), '', $target_path);
+            $target_path = Utils::replaceFirstOccurrence($uri->rootUrl(), '', $target_path);
 
             // set to / if root
             if (empty($target_path)) {
@@ -877,7 +877,7 @@ class Uri
 
         // Handle route only
         if ($route_only) {
-            $url_path = str_replace(static::filterPath($base_url), '', $url_path);
+            $url_path = Utils::replaceFirstOccurrence(static::filterPath($base_url), '', $url_path);
         }
 
         // transform back to string/array as needed
@@ -998,7 +998,7 @@ class Uri
         }
 
         // special check to see if path checking is required.
-        $just_path = str_replace($normalized_url, '', $normalized_path);
+        $just_path = Utils::replaceFirstOccurrence($normalized_url, '', $normalized_path);
         if ($just_path === $page->path()) {
             return $normalized_url;
         }
