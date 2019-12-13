@@ -9,6 +9,7 @@
 
 namespace Grav\Framework\Session;
 
+use Grav\Common\User\Interfaces\UserInterface;
 use Grav\Framework\Session\Exceptions\SessionException;
 
 /**
@@ -17,16 +18,13 @@ use Grav\Framework\Session\Exceptions\SessionException;
  */
 class Session implements SessionInterface
 {
-    protected $options;
+    /** @var array */
+    protected $options = [];
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     protected $started = false;
 
-    /**
-     * @var Session
-     */
+    /** @var Session */
     protected static $instance;
 
     /**
@@ -201,9 +199,12 @@ class Session implements SessionInterface
             throw new SessionException('Failed to start session: ' . $error, 500);
         }
 
-        if ($user && !$user->isValid()) {
-            $this->clear();
-            throw new SessionException('User Invalid', 500);
+        $this->started = true;
+
+        if ($user && (!$user instanceof UserInterface || !$user->isValid())) {
+            $this->invalidate();
+
+            throw new SessionException('Invalid User object, session destroyed.', 500);
         }
 
         // Extend the lifetime of the session.
@@ -220,8 +221,6 @@ class Session implements SessionInterface
                 $params['httponly']
             );
         }
-
-        $this->started = true;
 
         return $this;
     }

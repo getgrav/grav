@@ -4,6 +4,7 @@
 1. [](#bugfix)
     * Fixed incorrect routing caused by `str_replace()` in `Uri::init()` [#2754](https://github.com/getgrav/grav/issues/2754)
     * Fixed session cookie is being set twice in the HTTP header [#2745](https://github.com/getgrav/grav/issues/2745)
+    * Fixed session not restarting if user was invalid (downgrading from Grav 1.7)
     * Fixed filesystem iterator calls with non-existing folders
 
 # v1.6.19
