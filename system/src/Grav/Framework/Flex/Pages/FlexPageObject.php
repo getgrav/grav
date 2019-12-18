@@ -17,6 +17,7 @@ use Grav\Common\Page\Traits\PageFormTrait;
 use Grav\Common\User\Interfaces\UserCollectionInterface;
 use Grav\Framework\File\Formatter\YamlFormatter;
 use Grav\Framework\Flex\FlexObject;
+use Grav\Framework\Flex\Interfaces\FlexCollectionInterface;
 use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
 use Grav\Framework\Flex\Interfaces\FlexTranslateInterface;
 use Grav\Framework\Flex\Pages\Traits\PageAuthorsTrait;
@@ -424,10 +425,10 @@ class FlexPageObject extends FlexObject implements PageInterface, MediaManipulat
     }
 
     /**
-     * @return UserCollectionInterface|null
+     * @return UserCollectionInterface|FlexCollectionInterface|null
      * @internal
      */
-    protected function loadAccounts(): ?UserCollectionInterface
+    protected function loadAccounts()
     {
         return Grav::instance()['accounts'] ?? null;
     }

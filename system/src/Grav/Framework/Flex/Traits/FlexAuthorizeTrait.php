@@ -41,13 +41,18 @@ trait FlexAuthorizeTrait
     {
         $action = $this->getAuthorizeAction($action);
         $scope = $scope ?? $this->getAuthorizeScope();
-        $user = $user ?? $this->getActiveUser();
+
+        $isMe = null === $user;
+        if ($isMe) {
+            $user = $this->getActiveUser();
+        }
+
         if (null === $user) {
             return false;
         }
 
         // Finally authorize against given action.
-        return $this->isAuthorizedOverride($user, $action, $scope);
+        return $this->isAuthorizedOverride($user, $action, $scope, $isMe);
     }
 
     /**
@@ -56,11 +61,12 @@ trait FlexAuthorizeTrait
      * @param UserInterface $user
      * @param string $action
      * @param string $scope
+     * @param bool $isMe
      * @return bool|null
      */
-    protected function isAuthorizedOverride(UserInterface $user, string $action, string $scope): ?bool
+    protected function isAuthorizedOverride(UserInterface $user, string $action, string $scope, bool $isMe): ?bool
     {
-        return $this->isAuthorizedAction($user, $action, $scope);
+        return $this->isAuthorizedAction($user, $action, $scope, $isMe);
     }
 
     /**
@@ -69,9 +75,10 @@ trait FlexAuthorizeTrait
      * @param UserInterface $user
      * @param string $action
      * @param string $scope
+     * @param bool $isMe
      * @return bool|null
      */
-    protected function isAuthorizedAction(UserInterface $user, string $action, string $scope): ?bool
+    protected function isAuthorizedAction(UserInterface $user, string $action, string $scope, bool $isMe): ?bool
     {
         // Check if the action has been denied in the flex type configuration.
         $directory = $this instanceof FlexDirectory ? $this : $this->getFlexDirectory();
@@ -88,7 +95,7 @@ trait FlexAuthorizeTrait
         }
 
         // Finally authorize the action.
-        return $user->authorize($this->getAuthorizeRule($scope, $action));
+        return $user->authorize($this->getAuthorizeRule($scope, $action), !$isMe ? 'test' : null);
     }
 
     /**

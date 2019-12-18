@@ -54,10 +54,15 @@ trait PageAuthorsTrait
     public function getAuthors(): array
     {
         if (null === $this->_authors) {
-            $this->_authors = (array)$this->loadAuthors($this->getNestedProperty('header.authors'));
+            $this->_authors = (array)$this->loadAuthors($this->getNestedProperty('header.authors', []));
         }
 
         return $this->_authors;
+    }
+
+    public function getPermissions()
+    {
+        return $this->loadPermissions();
     }
 
     /**
@@ -86,13 +91,14 @@ trait PageAuthorsTrait
      * @param UserInterface $user
      * @param string $action
      * @param string $scope
+     * @param bool $isMe
      * @return bool|null
      */
-    protected function isAuthorizedOverride(UserInterface $user, string $action, string $scope): ?bool
+    protected function isAuthorizedOverride(UserInterface $user, string $action, string $scope, bool $isMe): ?bool
     {
         $authorized = $this->isAuthorizedByGroup($user, $action, $scope);
 
-        return $authorized ?? parent::isAuthorizedOverride($user, $action, $scope);
+        return $authorized ?? parent::isAuthorizedOverride($user, $action, $scope, $isMe);
     }
 
     /**
@@ -110,16 +116,28 @@ trait PageAuthorsTrait
     protected function isAuthorizedByGroup(UserInterface $user, string $action, string $scope): ?bool
     {
         $authorized = null;
+        $username = $user->username;
 
         // In admin we want to check against group permissions.
-        $groups = $this->loadPermissions($user);
+        $pageGroups = $this->loadPermissions();
+        $userGroups = (array)$user->groups;
+
         /** @var Access $access */
-        foreach ($groups as $access) {
+        foreach ($pageGroups as $group => $access) {
+            if ($group === 'authors') {
+                if (!$this->hasAuthor($username)) {
+                    continue;
+                }
+            } elseif (!in_array($group, $userGroups, true)) {
+                continue;
+            }
+
             $auth = $access->authorize($action, $scope);
             if (is_bool($auth)) {
                 if ($auth === false) {
                     return false;
                 }
+
                 $authorized = true;
             }
         }
@@ -128,10 +146,9 @@ trait PageAuthorsTrait
     }
 
     /**
-     * @param UserInterface $user
      * @return array
      */
-    protected function loadPermissions(UserInterface $user): array
+    protected function loadPermissions(): array
     {
         $permissions = $this->getNestedProperty('header.permissions');
         if (empty($permissions)) {
@@ -143,18 +160,8 @@ trait PageAuthorsTrait
             if (is_string($access)) {
                 $access = $this->resolvePermissions($access);
             }
-            if ($group === 'author') {
-                // Special case for authors.
-               if ($this->hasAuthor($user->username)) {
-                    $list[$group] = new Access($permissions);
-                }
-            } else {
-                $groups = (array)$user->groups;
-                if (in_array($groups, $groups, true)) {
-                    $list[$group] = new Access($permissions);
-                }
-            }
-            $list[$group] = $access;
+
+            $list[$group] = new Access($access);
         }
 
         return $list;
@@ -192,6 +199,6 @@ trait PageAuthorsTrait
     }
 
     abstract public function getNestedProperty($property, $default = null, $separator = null);
-    abstract protected function loadAccounts(): ?UserCollectionInterface;
+    abstract protected function loadAccounts();
 
 }

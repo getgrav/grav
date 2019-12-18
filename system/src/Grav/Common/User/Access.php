@@ -48,7 +48,7 @@ class Access implements \JsonSerializable, \IteratorAggregate, \Countable
     public function authorize(string $action, string $scope = null): ?bool
     {
         if (null !== $scope) {
-            $action = "{$scope}.{$action}";
+            $action = $scope !== 'test' ? "{$scope}.{$action}" : $action;
         }
 
         return $this->acl[$action] ?? null;

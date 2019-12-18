@@ -4,7 +4,10 @@
 1. [](#bugfix)
     * Grav 1.7: Fixed error on page initialization [#2753](https://github.com/getgrav/grav/issues/2753)
 1. [](#improved)
-    * Twig filter `|yaml_serialize`: added support for `JsonSerializable` objects
+    * Twig filter `|yaml_serialize`: added support for `JsonSerializable` objects and other array-like objects
+    * Added support for returning Flex Page specific permissions for admin and testing
+1. [](#bugfix)
+    * Fixed checking ACL for another user (who is not currently logged in) in a Flex Object or Directory
 
 # v1.7.0-rc.2
 ## 12/04/2019

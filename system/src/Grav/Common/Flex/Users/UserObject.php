@@ -223,6 +223,7 @@ class UserObject extends FlexObject implements UserInterface, MediaManipulationI
             return $authorized;
         }
 
+        // If specific rule isn't hit, check if user is super user.
         if ($access->authorize('admin.super') === true) {
             return true;
         }
@@ -521,16 +522,17 @@ class UserObject extends FlexObject implements UserInterface, MediaManipulationI
      * @param UserInterface $user
      * @param string $action
      * @param string $scope
+     * @param bool $isMe
      * @return bool|null
      */
-    protected function isAuthorizedOverride(UserInterface $user, string $action, string $scope): ?bool
+    protected function isAuthorizedOverride(UserInterface $user, string $action, string $scope, bool $isMe = false): ?bool
     {
         if ($user instanceof self && $user->getStorageKey() === $this->getStorageKey()) {
             // User cannot delete his own account, otherwise he has full access.
             return $action !== 'delete';
         }
 
-        return parent::isAuthorizedOverride($user, $action, $scope);
+        return parent::isAuthorizedOverride($user, $action, $scope, $isMe);
     }
 
     /**
