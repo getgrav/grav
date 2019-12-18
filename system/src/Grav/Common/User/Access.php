@@ -62,6 +62,11 @@ class Access implements \JsonSerializable, \IteratorAggregate, \Countable
         return Utils::arrayUnflattenDotNotation($this->acl);
     }
 
+    public function get(string $action)
+    {
+        return $this->acl[$action] ?? null;
+    }
+
     /**
      * @return \Traversable
      */
