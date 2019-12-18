@@ -429,6 +429,14 @@ trait FormTrait
         return $block;
     }
 
+    /**
+     * @return array
+     */
+    public function jsonSerialize(): array
+    {
+        return $this->doSerialize();
+    }
+
     protected function getSessionId(): string
     {
         if (null === $this->sessionid) {

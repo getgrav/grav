@@ -28,7 +28,7 @@ use Twig\TemplateWrapper;
  * Class FlexForm
  * @package Grav\Framework\Flex
  */
-class FlexForm implements FlexFormInterface
+class FlexForm implements FlexFormInterface, \JsonSerializable
 {
     use NestedArrayAccessWithGetters {
         NestedArrayAccessWithGetters::get as private traitGet;

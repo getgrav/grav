@@ -3,6 +3,8 @@
 
 1. [](#bugfix)
     * Grav 1.7: Fixed error on page initialization [#2753](https://github.com/getgrav/grav/issues/2753)
+1. [](#improved)
+    * Twig filter `|yaml_serialize`: added support for `JsonSerializable` objects
 
 # v1.7.0-rc.2
 ## 12/04/2019

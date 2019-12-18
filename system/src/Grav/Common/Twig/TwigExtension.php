@@ -1397,12 +1397,20 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
     /**
      * Dump/Encode data into YAML format
      *
-     * @param array $data
+     * @param array|object $data
      * @param int $inline integer number of levels of inline syntax
      * @return string
      */
     public function yamlEncodeFilter($data, $inline = 10)
     {
+        if (!is_array($data) || !$data instanceof \stdClass) {
+            if ($data instanceof \JsonSerializable) {
+                $data = $data->jsonSerialize();
+            } elseif (method_exists($data, 'toArray')) {
+                $data = $data->toArray();
+            }
+        }
+
         return Yaml::dump($data, $inline);
     }
 

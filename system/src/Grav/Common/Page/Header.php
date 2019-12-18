@@ -21,6 +21,9 @@ class Header implements \ArrayAccess, ExportInterface, \JsonSerializable
     /** @var array */
     protected $items;
 
+    /**
+     * @return array
+     */
     public function jsonSerialize()
     {
         return $this->toArray();
