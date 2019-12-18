@@ -1403,11 +1403,13 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      */
     public function yamlEncodeFilter($data, $inline = 10)
     {
-        if (!is_array($data) || !$data instanceof \stdClass) {
+        if (!is_array($data)) {
             if ($data instanceof \JsonSerializable) {
                 $data = $data->jsonSerialize();
             } elseif (method_exists($data, 'toArray')) {
                 $data = $data->toArray();
+            } else {
+                $data = json_decode(json_encode($data), true);
             }
         }
 
