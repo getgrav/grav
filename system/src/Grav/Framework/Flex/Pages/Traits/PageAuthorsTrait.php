@@ -150,29 +150,6 @@ trait PageAuthorsTrait
      */
     protected function loadPermissions(): array
     {
-        $permissions = $this->getNestedProperty('header.permissions');
-        if (empty($permissions)) {
-            return [];
-        }
-
-        $list = [];
-        foreach ($permissions as $group => $access) {
-            if (is_string($access)) {
-                $access = $this->resolvePermissions($access);
-            }
-
-            $list[$group] = new Access($access);
-        }
-
-        return $list;
-    }
-
-    /**
-     * @param string $access
-     * @return array
-     */
-    protected function resolvePermissions(string $access): array
-    {
         static $rules = [
             'c' => 'create',
             'r' => 'read',
@@ -180,19 +157,15 @@ trait PageAuthorsTrait
             'd' => 'delete',
             'p' => 'publish'
         ];
-        static $ops = ['+' => true, '-' => false];
 
-        $len = strlen($access);
-        $op = true;
+        $permissions = $this->getNestedProperty('header.permissions');
+        if (!is_array($permissions)) {
+            return [];
+        }
+
         $list = [];
-        for($count=0; $count<$len; $count++) {
-            $letter = $access[$count];
-            if (isset($rules[$letter])) {
-               $list[$rules[$letter]] = $op;
-               $op = true;
-            } elseif (isset($ops[$letter])) {
-                $op = $ops[$letter];
-            }
+        foreach ($permissions as $group => $access) {
+            $list[$group] = new Access($access, $rules);
         }
 
         return $list;
