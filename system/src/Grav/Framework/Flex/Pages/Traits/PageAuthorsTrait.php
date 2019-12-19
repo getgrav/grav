@@ -89,12 +89,17 @@ trait PageAuthorsTrait
     public function isParentAuthorized(string $action, string $scope = null, UserInterface $user = null, bool $isAuthor = false): ?bool
     {
         $scope = $scope ?? $this->getAuthorizeScope();
-        $user = $user ?? $this->getActiveUser();
+
+        $isMe = null === $user;
+        if ($isMe) {
+            $user = $this->getActiveUser();
+        }
+
         if (null === $user) {
             return false;
         }
 
-        return $this->isAuthorizedByGroup($user, $action, $scope, $isAuthor);
+        return $this->isAuthorizedByGroup($user, $action, $scope, $isMe, $isAuthor);
     }
 
     /**
@@ -106,9 +111,9 @@ trait PageAuthorsTrait
      */
     protected function isAuthorizedOverride(UserInterface $user, string $action, string $scope, bool $isMe): ?bool
     {
-        $isAuthor = $this->hasAuthor($user->username);
+        $isAuthor = !$isMe || $user->authorized ? $this->hasAuthor($user->username) : false;
 
-        return $this->isAuthorizedByGroup($user, $action, $scope, $isAuthor) ?? parent::isAuthorizedOverride($user, $action, $scope, $isMe);
+        return $this->isAuthorizedByGroup($user, $action, $scope, $isMe, $isAuthor) ?? parent::isAuthorizedOverride($user, $action, $scope, $isMe);
     }
 
     /**
@@ -121,21 +126,26 @@ trait PageAuthorsTrait
      * @param UserInterface $user
      * @param string $action
      * @param string $scope
+     * @param bool $isMe
      * @param bool $isAuthor
      * @return bool|null
      */
-    protected function isAuthorizedByGroup(UserInterface $user, string $action, string $scope, bool $isAuthor): ?bool
+    protected function isAuthorizedByGroup(UserInterface $user, string $action, string $scope, bool $isMe, bool $isAuthor): ?bool
     {
         $authorized = null;
 
         // In admin we want to check against group permissions.
         $pageGroups = $this->loadPermissions();
         $userGroups = (array)$user->groups;
-        $userGroups[] = 'defaults';
 
         /** @var Access $access */
         foreach ($pageGroups as $group => $access) {
-            if ($group === 'authors') {
+            if ($group === 'defaults') {
+                // Special defaults permissions group does not apply to guest.
+                if ($isMe && !$user->authorized) {
+                    continue;
+                }
+            } elseif ($group === 'authors') {
                 if (!$isAuthor) {
                     continue;
                 }
