@@ -13,7 +13,6 @@ namespace Grav\Framework\Flex\Pages\Traits;
 
 use Grav\Common\User\Access;
 use Grav\Common\User\Interfaces\UserInterface;
-use Grav\Framework\Flex\Interfaces\FlexAuthorizeInterface;
 
 /**
  * Implements PageAuthorsTrait
@@ -32,7 +31,7 @@ trait PageAuthorsTrait
      */
     public function hasAuthor(string $username): bool
     {
-        $authors = (array)$this->getNestedProperty('header.authors');
+        $authors = (array)$this->getNestedProperty('header.permissions.authors');
         if (empty($authors)) {
             return false;
         }
@@ -54,7 +53,7 @@ trait PageAuthorsTrait
     public function getAuthors(): array
     {
         if (null === $this->_authors) {
-            $this->_authors = (array)$this->loadAuthors($this->getNestedProperty('header.authors', []));
+            $this->_authors = (array)$this->loadAuthors($this->getNestedProperty('header.permissions.authors', []));
         }
 
         return $this->_authors;
@@ -87,6 +86,17 @@ trait PageAuthorsTrait
         return $list;
     }
 
+    public function isParentAuthorized(string $action, string $scope = null, UserInterface $user = null, bool $isAuthor = false): ?bool
+    {
+        $scope = $scope ?? $this->getAuthorizeScope();
+        $user = $user ?? $this->getActiveUser();
+        if (null === $user) {
+            return false;
+        }
+
+        return $this->isAuthorizedByGroup($user, $action, $scope, $isAuthor);
+    }
+
     /**
      * @param UserInterface $user
      * @param string $action
@@ -96,16 +106,9 @@ trait PageAuthorsTrait
      */
     protected function isAuthorizedOverride(UserInterface $user, string $action, string $scope, bool $isMe): ?bool
     {
-        // Authorize against current page.
-        $authorized = $this->isAuthorizedByGroup($user, $action, $scope) ?? parent::isAuthorizedOverride($user, $action, $scope, $isMe);
+        $isAuthor = $this->hasAuthor($user->username);
 
-        if (null === $authorized) {
-            // Authorize against parent page.
-            $parent = $this->parent();
-            $authorized = $parent instanceof FlexAuthorizeInterface ? $parent->isAuthorized($action, $scope, $user) : null;
-        }
-
-        return $authorized;
+        return $this->isAuthorizedByGroup($user, $action, $scope, $isAuthor) ?? parent::isAuthorizedOverride($user, $action, $scope, $isMe);
     }
 
     /**
@@ -118,21 +121,22 @@ trait PageAuthorsTrait
      * @param UserInterface $user
      * @param string $action
      * @param string $scope
+     * @param bool $isAuthor
      * @return bool|null
      */
-    protected function isAuthorizedByGroup(UserInterface $user, string $action, string $scope): ?bool
+    protected function isAuthorizedByGroup(UserInterface $user, string $action, string $scope, bool $isAuthor): ?bool
     {
         $authorized = null;
-        $username = $user->username;
 
         // In admin we want to check against group permissions.
         $pageGroups = $this->loadPermissions();
         $userGroups = (array)$user->groups;
+        $userGroups[] = 'defaults';
 
         /** @var Access $access */
         foreach ($pageGroups as $group => $access) {
             if ($group === 'authors') {
-                if (!$this->hasAuthor($username)) {
+                if (!$isAuthor) {
                     continue;
                 }
             } elseif (!in_array($group, $userGroups, true)) {
@@ -146,6 +150,14 @@ trait PageAuthorsTrait
                 }
 
                 $authorized = true;
+            }
+        }
+
+        if (null === $authorized) {
+            // Authorize against parent page.
+            $parent = $this->parent();
+            if ($parent && method_exists($parent, 'isParentAuthorized')) {
+                $authorized = $parent->isParentAuthorized($action, $scope, $user, $isAuthor);
             }
         }
 
@@ -165,7 +177,7 @@ trait PageAuthorsTrait
             'p' => 'publish'
         ];
 
-        $permissions = $this->getNestedProperty('header.permissions');
+        $permissions = $this->getNestedProperty('header.permissions.groups');
         if (!is_array($permissions)) {
             return [];
         }
