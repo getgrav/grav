@@ -12,8 +12,8 @@ declare(strict_types=1);
 namespace Grav\Framework\Flex\Pages\Traits;
 
 use Grav\Common\User\Access;
-use Grav\Common\User\Interfaces\UserCollectionInterface;
 use Grav\Common\User\Interfaces\UserInterface;
+use Grav\Framework\Flex\Interfaces\FlexAuthorizeInterface;
 
 /**
  * Implements PageAuthorsTrait
@@ -96,9 +96,16 @@ trait PageAuthorsTrait
      */
     protected function isAuthorizedOverride(UserInterface $user, string $action, string $scope, bool $isMe): ?bool
     {
-        $authorized = $this->isAuthorizedByGroup($user, $action, $scope);
+        // Authorize against current page.
+        $authorized = $this->isAuthorizedByGroup($user, $action, $scope) ?? parent::isAuthorizedOverride($user, $action, $scope, $isMe);
 
-        return $authorized ?? parent::isAuthorizedOverride($user, $action, $scope, $isMe);
+        if (null === $authorized) {
+            // Authorize against parent page.
+            $parent = $this->parent();
+            $authorized = $parent instanceof FlexAuthorizeInterface ? $parent->isAuthorized($action, $scope, $user) : null;
+        }
+
+        return $authorized;
     }
 
     /**
