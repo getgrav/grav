@@ -163,7 +163,7 @@ trait PageAuthorsTrait
             }
         }
 
-        if (null === $authorized) {
+        if (null === $authorized && $this->getNestedProperty('header.permissions.inherit', true)) {
             // Authorize against parent page.
             $parent = $this->parent();
             if ($parent && method_exists($parent, 'isParentAuthorized')) {
