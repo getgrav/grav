@@ -167,7 +167,7 @@ trait PageAuthorsTrait
             // Authorize against parent page.
             $parent = $this->parent();
             if ($parent && method_exists($parent, 'isParentAuthorized')) {
-                $authorized = $parent->isParentAuthorized($action, $scope, $user, $isAuthor);
+                $authorized = $parent->isParentAuthorized($action, $scope, !$isMe ? $user : null, $isAuthor);
             }
         }
 
