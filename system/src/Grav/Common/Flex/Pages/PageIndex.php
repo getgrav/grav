@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Grav\Common\Flex\Pages;
 
+use Grav\Common\Debugger;
 use Grav\Common\File\CompiledJsonFile;
 use Grav\Common\Grav;
 use Grav\Common\Utils;
@@ -110,8 +111,41 @@ class PageIndex extends FlexPageIndex
     {
         $root = $this->_root;
         if (is_array($root)) {
+            $directory = $this->getFlexDirectory();
+            $storage = $directory->getStorage();
+
+            $defaults = [
+                'root' => true,
+                'header' => [
+                    'routable' => false,
+                    'permissions' => [
+                        'inherit' => false
+                    ]
+                ]
+            ];
+
+            $row = $storage->readRows(['' => null])[''] ?? null;
+            if (null !== $row) {
+                if (isset($row['__ERROR'])) {
+                    /** @var Debugger $debugger */
+                    $debugger = Grav::instance()['debugger'];
+                    $message = sprintf('Flex Pages: root page is broken in storage: %s', $row['__ERROR']);
+
+                    $debugger->addException(new \RuntimeException($message));
+                    $debugger->addMessage($message, 'error');
+
+                    $row = ['__META' => $root];
+                }
+
+            } else {
+                $row = ['__META' => $root];
+            }
+
+            $row = array_merge_recursive($defaults, $row);
+
             /** @var PageObject $root */
-            $root = $this->getFlexDirectory()->createObject(['__META' => $root], '/');
+            $root = $this->getFlexDirectory()->createObject($row, '/', false);
+
             $this->_root = $root;
         }
 
