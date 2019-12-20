@@ -44,6 +44,10 @@ trait PageTranslateTrait
      */
     public function getTranslation(string $languageCode = null, bool $fallback = null)
     {
+        if ($this->root()) {
+            return $this;
+        }
+
         $code = $this->findTranslation($languageCode, $fallback);
         if (null === $code) {
             $object = null;
