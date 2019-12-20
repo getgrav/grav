@@ -130,7 +130,7 @@ class PageObject extends FlexPageObject
     public function save($reorder = true)
     {
         // Reorder siblings.
-        if ($reorder === true) {
+        if ($reorder === true && !$this->root()) {
             $reorder = $this->_reorder ?: false;
         }
         $siblings = is_array($reorder) ? $this->reorderSiblings($reorder) : [];
@@ -316,6 +316,15 @@ class PageObject extends FlexPageObject
         }
 
         return true;
+    }
+
+    /**
+     * {@inheritdoc}
+     * @see FlexObjectInterface::exists()
+     */
+    public function exists(): bool
+    {
+        return $this->root ?: parent::exists();
     }
 
     /**

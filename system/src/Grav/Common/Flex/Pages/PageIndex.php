@@ -144,6 +144,7 @@ class PageIndex extends FlexPageIndex
 
             /** @var PageObject $root */
             $root = $this->getFlexDirectory()->createObject($row, '/', false);
+            $root->name('root.md');
             $root->root = true;
 
             $this->_root = $root;
@@ -366,23 +367,24 @@ class PageIndex extends FlexPageIndex
                     ];
                 } else {
                     $response[] = [
-                        'item-key' => '',
+                        'item-key' => '-root-',
                         'icon' => 'root',
-                        'title' => '<root>',
-                        'route' => '/',
-                        'raw_route' => null,
+                        'title' => 'Root', // FIXME
+                        'route' => [
+                            'display' => '&lt;root&gt;', // FIXME
+                            'raw' => '_root',
+                        ],
                         'modified' => $page->modified(),
-                        'child_count' => 0,
                         'extras' => [
-                            'template' => null,
+                            'template' => $page->template(),
+                            //'lang' => null,
+                            //'translated' => null,
                             'langs' => [],
                             'published' => false,
-                            'published_date' => null,
-                            'unpublished_date' => null,
                             'visible' => false,
                             'routable' => false,
-                            'tags' => ['non-routable'],
-                            'actions' => [],
+                            'tags' => ['root', 'non-routable'],
+                            'actions' => ['edit'], // FIXME
                         ]
                     ];
                 }

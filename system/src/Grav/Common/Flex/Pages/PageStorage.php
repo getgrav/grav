@@ -194,7 +194,10 @@ class PageStorage extends FolderStorage
      */
     public function buildFilepath(array $keys): string
     {
-        return $this->buildFolder($keys) . '/' . $this->buildFilename($keys);
+        $folder = $this->buildFolder($keys);
+        $filename = $this->buildFilename($keys);
+
+        return rtrim($folder, '/') !== $folder ? $folder . $filename : $folder . '/' . $filename;
     }
 
     /**
@@ -340,9 +343,13 @@ class PageStorage extends FolderStorage
         $newKey = $this->buildStorageKey($newKeys);
         $newFolder = $this->buildFolder($newKeys);
         $newFilename = $this->buildFilename($newKeys);
-        $newFilepath = "{$newFolder}/{$newFilename}";
+        $newFilepath = rtrim($newFolder, '/') !== $newFolder ? $newFolder . $newFilename : $newFolder . '/' . $newFilename;
 
         try {
+            if ($key === '' && empty($row['root'])) {
+                throw new \RuntimeException('No storage key given');
+            }
+
             $grav = Grav::instance();
 
             /** @var Debugger $debugger */
