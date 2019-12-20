@@ -367,3 +367,8 @@ form:
 
                 blueprint:
                   type: blueprint
+
+        permissions:
+          type: tab
+          title: PLUGIN_ADMIN.PERMISSIONS
+          import@: partials/permissions

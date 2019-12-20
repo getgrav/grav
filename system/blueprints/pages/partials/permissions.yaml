@@ -1,0 +1,6 @@
+form:
+  fields:
+    permissions:
+      type: text
+      label: PLUGIN_ADMIN.PERMISSIONS
+      placeholder: Placeholder... Coming soon..

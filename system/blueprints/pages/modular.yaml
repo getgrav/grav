@@ -34,5 +34,3 @@ form:
               help: '"desc" or "asc" are valid values'
               placeholder: desc
               size: small
-
-
