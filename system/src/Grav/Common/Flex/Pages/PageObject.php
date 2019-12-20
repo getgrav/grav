@@ -108,7 +108,7 @@ class PageObject extends FlexPageObject
                 // TODO: this should not be template!
                 return $this->getProperty('template');
             case 'route':
-                $key = dirname($this->hasKey() ? '/' . $this->getKey() : '/');
+                $key = $this->hasKey() ? str_replace('\\', '/', dirname('/' . $this->getKey())) : '/';
                 return $key !== '/' ? $key : null;
             case 'full_route':
                 return $this->hasKey() ? '/' . $this->getKey() : '';
