@@ -1377,7 +1377,7 @@ class Pages
         $debugger = $this->grav['debugger'];
         $debugger->addMessage('Page cache missed, rebuilding Flex Pages..');
 
-        $root = $this->buildRootPage();
+        $root = $collection->getRoot();
         $root_path = $root->path();
         $this->routes = [];
         $this->instances = [$root_path => $root];

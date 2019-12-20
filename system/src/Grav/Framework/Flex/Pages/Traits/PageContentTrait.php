@@ -311,7 +311,7 @@ trait PageContentTrait
                     return null;
                 }
 
-                $folder = preg_replace(PAGE_ORDER_PREFIX_REGEX, '', $folder);
+                $folder = preg_replace(static::PAGE_ORDER_PREFIX_REGEX, '', $folder);
                 if (null === $folder) {
                     return null;
                 }
@@ -555,7 +555,7 @@ trait PageContentTrait
             case 'folder':
                 $folder = $this->folder();
 
-                return null !== $folder ? preg_replace(PAGE_ORDER_PREFIX_REGEX, '', $folder) : '';
+                return null !== $folder ? preg_replace(static::PAGE_ORDER_PREFIX_REGEX, '', $folder) : '';
             case 'slug':
                 return $this->slug();
             case 'published':

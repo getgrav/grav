@@ -308,6 +308,22 @@ class PageStorage extends FolderStorage
     }
 
     /**
+     * @param string $key
+     * @return array
+     */
+    protected function loadRow(string $key): ?array
+    {
+        $data = parent::loadRow($key);
+
+        // Special case for root page.
+        if ($key === '' && null !== $data) {
+            $data['root'] = true;
+        }
+
+        return $data;
+    }
+
+    /**
      * Page storage supports moving and copying the pages and their languages.
      *
      * $row['__META']['copy'] = true       Use this if you want to copy the whole folder, otherwise it will be moved

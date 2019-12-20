@@ -43,6 +43,7 @@ class FlexPageObject extends FlexObject implements PageInterface, MediaManipulat
     use FlexMediaTrait;
 
     const PAGE_ORDER_REGEX = '/^(\d+)\.(.*)$/u';
+    const PAGE_ORDER_PREFIX_REGEX = '/^[0-9]+\./u';
 
     /** @var array|null */
     protected $_reorder;

@@ -340,7 +340,7 @@ class PageObject extends FlexPageObject
         // Deal with ordering=bool and order=page1,page2,page3.
         if (array_key_exists('ordering', $elements) && array_key_exists('order', $elements)) {
             $ordering = (bool)($elements['ordering'] ?? false);
-            $slug = preg_replace(PAGE_ORDER_PREFIX_REGEX, '', $this->getProperty('folder'));
+            $slug = preg_replace(static::PAGE_ORDER_PREFIX_REGEX, '', $this->getProperty('folder'));
             $list = !empty($elements['order']) ? explode(',', $elements['order']) : [];
             if ($ordering) {
                 $order = array_search($slug, $list, true);

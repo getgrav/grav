@@ -115,7 +115,6 @@ class PageIndex extends FlexPageIndex
             $storage = $directory->getStorage();
 
             $defaults = [
-                'root' => true,
                 'header' => [
                     'routable' => false,
                     'permissions' => [
@@ -145,6 +144,7 @@ class PageIndex extends FlexPageIndex
 
             /** @var PageObject $root */
             $root = $this->getFlexDirectory()->createObject($row, '/', false);
+            $root->root = true;
 
             $this->_root = $root;
         }

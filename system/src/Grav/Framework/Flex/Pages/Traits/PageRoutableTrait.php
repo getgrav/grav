@@ -23,6 +23,9 @@ use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
  */
 trait PageRoutableTrait
 {
+    /** @var bool */
+    protected $root = false;
+
     /** @var string */
     private $_route;
     /** @var string */
@@ -184,6 +187,10 @@ trait PageRoutableTrait
         $route = $this->_route;
         if ($route) {
             return $route;
+        }
+
+        if ($this->root()) {
+            return '/';
         }
 
         // Root and orphan nodes have no route.
@@ -404,6 +411,10 @@ trait PageRoutableTrait
             throw new \RuntimeException(__METHOD__ . '(PageInterface): Not Implemented');
         }
 
+        if ($this->root()) {
+            return null;
+        }
+
         $directory = $this->getFlexDirectory();
         $parentKey = ltrim(dirname("/{$this->getKey()}"), '/');
         if ($parentKey) {
@@ -418,7 +429,7 @@ trait PageRoutableTrait
 
         $index = $directory->getIndex();
 
-        return !$this->root() && method_exists($index, 'getRoot') ? $index->getRoot() : null;
+        return method_exists($index, 'getRoot') ? $index->getRoot() : null;
     }
 
     /**
@@ -520,7 +531,7 @@ trait PageRoutableTrait
      */
     public function root(): bool
     {
-        return $this->getKey() === '/';
+        return $this->root === true || $this->getKey() === '/';
     }
 
     abstract protected function loadHeaderProperty(string $property, $var, callable $filter);

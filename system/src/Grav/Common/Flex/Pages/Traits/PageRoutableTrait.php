@@ -39,6 +39,10 @@ trait PageRoutableTrait
             throw new \RuntimeException('Not Implemented');
         }
 
+        if ($this->root()) {
+            return null;
+        }
+
         /** @var Pages $pages */
         $pages = Grav::instance()['pages'];
 
