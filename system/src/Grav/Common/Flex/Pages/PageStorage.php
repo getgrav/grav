@@ -260,8 +260,8 @@ class PageStorage extends FolderStorage
         } else {
             [$order, $folder] = ['', $objectKey];
         }
-        $parentKey = ltrim(dirname('/' . $key), '/');
-
+        $parentKey = ltrim(str_replace('\\', '/', dirname('/' . $key)), '/');
+        
         return [
             'key' => $key,
             'params' => $params,
