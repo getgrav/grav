@@ -1,5 +1,5 @@
 # v1.7.0-rc.3
-## 01/20/2019
+## 01/02/2020
 
 1. [](#new)
     * Added root page support for `Flex Pages`
