@@ -449,7 +449,7 @@ abstract class Utils
             'Y-m-d H:i:s' => 'Y-m-d H:i:s (e.g. '.$now->format('Y-m-d H:i:s').')',
             'm/d/Y h:i:s a' => 'm/d/Y h:i:s a (e.g. '.$now->format('m/d/Y h:i:s a').')',
             'd.m.Y H:i:s' => 'd.m.Y H:i:s (e.g. '.$now->format('d.m.Y H:i:s').')',
-            'j.n.Y H:i:s' => 'j.n.Y H:i:s (e.g. '.$now->format('j.n.Y H:i:s').')',
+            'j.n.Y G:i:s' => 'j.n.Y G:i:s (e.g. '.$now->format('j.n.Y G:i:s').')',
             'H:i:s d-m-Y' => 'H:i:s d-m-Y (e.g. '.$now->format('H:i:s d-m-Y').')',
             'H:i:s Y-m-d' => 'H:i:s Y-m-d (e.g. '.$now->format('H:i:s Y-m-d').')',
             'h:i:s a m/d/Y' => 'h:i:s a m/d/Y (e.g. '.$now->format('h:i:s a m/d/Y').')',
