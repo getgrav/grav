@@ -445,11 +445,14 @@ abstract class Utils
         $now = new \DateTime();
 
         $date_formats = [
-            'd-m-Y H:i' => 'd-m-Y H:i (e.g. '.$now->format('d-m-Y H:i').')',
-            'Y-m-d H:i' => 'Y-m-d H:i (e.g. '.$now->format('Y-m-d H:i').')',
-            'm/d/Y h:i a' => 'm/d/Y h:i a (e.g. '.$now->format('m/d/Y h:i a').')',
-            'H:i d-m-Y' => 'H:i d-m-Y (e.g. '.$now->format('H:i d-m-Y').')',
-            'h:i a m/d/Y' => 'h:i a m/d/Y (e.g. '.$now->format('h:i a m/d/Y').')',
+            'd-m-Y H:i:s' => 'd-m-Y H:i:s (e.g. '.$now->format('d-m-Y H:i:s').')',
+            'Y-m-d H:i:s' => 'Y-m-d H:i:s (e.g. '.$now->format('Y-m-d H:i:s').')',
+            'm/d/Y h:i:s a' => 'm/d/Y h:i:s a (e.g. '.$now->format('m/d/Y h:i:s a').')',
+            'd.m.Y H:i:s' => 'd.m.Y H:i:s (e.g. '.$now->format('d.m.Y H:i:s').')',
+            'j.n.Y H:i:s' => 'j.n.Y H:i:s (e.g. '.$now->format('j.n.Y H:i:s').')',
+            'H:i:s d-m-Y' => 'H:i:s d-m-Y (e.g. '.$now->format('H:i:s d-m-Y').')',
+            'H:i:s Y-m-d' => 'H:i:s Y-m-d (e.g. '.$now->format('H:i:s Y-m-d').')',
+            'h:i:s a m/d/Y' => 'h:i:s a m/d/Y (e.g. '.$now->format('h:i:s a m/d/Y').')',
             ];
         $default_format = Grav::instance()['config']->get('system.pages.dateformat.default');
         if ($default_format) {
