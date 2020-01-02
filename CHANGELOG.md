@@ -1,11 +1,13 @@
 # v1.7.0-rc.3
-## mm/dd/2019
+## 01/20/2019
 
 1. [](#new)
     * Added root page support for `Flex Pages`
 1. [](#improved)
     * Twig filter `|yaml_serialize`: added support for `JsonSerializable` objects and other array-like objects
     * Added support for returning Flex Page specific permissions for admin and testing
+    * Updated copyright dates to `2020`
+    * Various vendor updates
 1. [](#bugfix)
     * Grav 1.7: Fixed error on page initialization [#2753](https://github.com/getgrav/grav/issues/2753)
     * Fixed checking ACL for another user (who is not currently logged in) in a Flex Object or Directory
