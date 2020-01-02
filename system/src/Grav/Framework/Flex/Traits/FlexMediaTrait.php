@@ -18,6 +18,7 @@ use Grav\Common\Page\Medium\Medium;
 use Grav\Common\Page\Medium\MediumFactory;
 use Grav\Common\Utils;
 use Grav\Framework\Cache\CacheInterface;
+use Grav\Framework\Filesystem\Filesystem;
 use Grav\Framework\Flex\FlexDirectory;
 use Grav\Framework\Form\FormFlashFile;
 use Psr\Http\Message\UploadedFileInterface;
@@ -177,9 +178,11 @@ trait FlexMediaTrait
         }
 
         try {
+            $filesystem = Filesystem::getInstance(false);
+
             // Upload it
             $filepath = sprintf('%s/%s', $path, $filename);
-            Folder::create(\dirname($filepath));
+            Folder::create($filesystem->dirname($filepath));
             if ($uploadedFile instanceof FormFlashFile) {
                 $metadata = $uploadedFile->getMetaData();
                 if ($metadata) {
@@ -211,8 +214,10 @@ trait FlexMediaTrait
         $grav = Grav::instance();
         $language = $grav['language'];
 
+        $filesystem = Filesystem::getInstance(false);
+
         $basename = basename($filename);
-        $dirname = dirname($filename);
+        $dirname = $filesystem->dirname($filename);
         $dirname = $dirname === '.' ? '' : '/' . $dirname;
 
         if (!Utils::checkFilename($basename)) {
@@ -237,7 +242,7 @@ trait FlexMediaTrait
             $locator->clearCache($targetFile);
         }
 
-        $fileParts  = pathinfo($basename);
+        $fileParts  = $filesystem->pathinfo($basename);
 
         if (!file_exists($targetPath)) {
             return;

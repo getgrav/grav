@@ -20,6 +20,7 @@ use Grav\Common\Yaml;
 use Grav\Framework\Cache\CacheInterface;
 use Grav\Framework\File\Formatter\MarkdownFormatter;
 use Grav\Framework\File\Formatter\YamlFormatter;
+use Grav\Framework\Filesystem\Filesystem;
 use Grav\Framework\Flex\FlexDirectory;
 use Grav\Framework\Flex\Interfaces\FlexCollectionInterface;
 use Grav\Framework\Flex\Interfaces\FlexIndexInterface;
@@ -285,7 +286,9 @@ trait PageLegacyTrait
      */
     public function copy(PageInterface $parent = null)
     {
-        $parentStorageKey = ltrim(dirname("/{$this->getMasterKey()}"), '/');
+        $filesystem = Filesystem::getInstance(false);
+
+        $parentStorageKey = ltrim($filesystem->dirname("/{$this->getMasterKey()}"), '/');
 
         /** @var FlexPageIndex $index */
         $index = $this->getFlexDirectory()->getIndex();

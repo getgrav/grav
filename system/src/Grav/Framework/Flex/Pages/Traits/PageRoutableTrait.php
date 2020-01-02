@@ -15,7 +15,7 @@ use Grav\Common\Page\Interfaces\PageCollectionInterface;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Page\Pages;
 use Grav\Common\Uri;
-use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
+use Grav\Framework\Filesystem\Filesystem;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 /**
@@ -389,8 +389,9 @@ trait PageRoutableTrait
             $var,
             function ($value) {
                 if (null === $value) {
+                    $filesystem = Filesystem::getInstance(false);
                     $value = $this->getMasterKey() ?: $this->getKey();
-                    $value = ltrim(dirname("/{$value}"), '/') ?: '';
+                    $value = ltrim($filesystem->dirname("/{$value}"), '/') ?: '';
                 }
 
                 return $value;
@@ -415,8 +416,9 @@ trait PageRoutableTrait
             return null;
         }
 
+        $filesystem = Filesystem::getInstance(false);
         $directory = $this->getFlexDirectory();
-        $parentKey = ltrim(dirname("/{$this->getKey()}"), '/');
+        $parentKey = ltrim($filesystem->dirname("/{$this->getKey()}"), '/');
         if ($parentKey) {
             $parent = $directory->getObject($parentKey);
             $language = $this->getLanguage();

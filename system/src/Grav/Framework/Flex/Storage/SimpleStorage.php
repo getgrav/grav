@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace Grav\Framework\Flex\Storage;
 
 use Grav\Common\Filesystem\Folder;
+use Grav\Framework\Filesystem\Filesystem;
 use InvalidArgumentException;
 
 /**
@@ -42,11 +43,13 @@ class SimpleStorage extends AbstractFilesystemStorage
         $formatter = $options['formatter'] ?? $this->detectDataFormatter($options['folder']);
         $this->initDataFormatter($formatter);
 
+        $filesystem = Filesystem::getInstance(true);
+
         $extension = $this->dataFormatter->getDefaultFileExtension();
         $pattern = basename($options['folder']);
 
         $this->dataPattern = basename($pattern, $extension) . $extension;
-        $this->dataFolder = \dirname($options['folder']);
+        $this->dataFolder = $filesystem->dirname($options['folder']);
         $this->keyField = $options['key'] ?? 'storage_key';
 
         // Make sure that the data folder exists.

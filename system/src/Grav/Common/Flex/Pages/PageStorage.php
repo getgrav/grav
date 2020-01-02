@@ -14,6 +14,7 @@ namespace Grav\Common\Flex\Pages;
 use Grav\Common\Debugger;
 use Grav\Common\Grav;
 use Grav\Common\Language\Language;
+use Grav\Framework\Filesystem\Filesystem;
 use Grav\Framework\Flex\Storage\FolderStorage;
 use RocketTheme\Toolbox\File\MarkdownFile;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
@@ -260,7 +261,10 @@ class PageStorage extends FolderStorage
         } else {
             [$order, $folder] = ['', $objectKey];
         }
-        $parentKey = ltrim(dirname('/' . $key), '/');
+
+        $filesystem = Filesystem::getInstance(false);
+
+        $parentKey = ltrim($filesystem->dirname('/' . $key), '/');
 
         return [
             'key' => $key,
@@ -610,8 +614,10 @@ class PageStorage extends FolderStorage
         // Update parent timestamps.
         foreach (array_reverse($list) as $storage_key => $meta) {
             if ($storage_key !== '') {
+                $filesystem = Filesystem::getInstance(false);
+
                 $storage_key = (string)$storage_key;
-                $parentKey = dirname($storage_key);
+                $parentKey = $filesystem->dirname($storage_key);
                 if ($parentKey === '.') {
                     $parentKey = '';
                 }

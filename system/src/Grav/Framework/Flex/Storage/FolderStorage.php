@@ -14,6 +14,7 @@ namespace Grav\Framework\Flex\Storage;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\Grav;
 use Grav\Common\Utils;
+use Grav\Framework\Filesystem\Filesystem;
 use Grav\Framework\Flex\Interfaces\FlexStorageInterface;
 use RocketTheme\Toolbox\File\File;
 use InvalidArgumentException;
@@ -620,8 +621,9 @@ class FolderStorage extends AbstractFilesystemStorage
             if (isset($options['file'])) {
                 $pattern .= '/{FILE}{EXT}';
             } else {
+                $filesystem = Filesystem::getInstance(true);
                 $this->dataFile = \basename($pattern, $extension);
-                $pattern = \dirname($pattern) . '/{FILE}{EXT}';
+                $pattern = $filesystem->dirname($pattern) . '/{FILE}{EXT}';
             }
         }
         $this->prefixed = (bool)($options['prefixed'] ?? strpos($pattern, '/{KEY:2}/'));

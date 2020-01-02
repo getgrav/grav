@@ -16,6 +16,7 @@ use Grav\Common\Page\Interfaces\PageCollectionInterface;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Page\Pages;
 use Grav\Common\Utils;
+use Grav\Framework\Filesystem\Filesystem;
 
 /**
  * Implements PageRoutableInterface.
@@ -46,9 +47,11 @@ trait PageRoutableTrait
         /** @var Pages $pages */
         $pages = Grav::instance()['pages'];
 
+        $filesystem = Filesystem::getInstance(false);
+
         // FIXME: this does not work, needs to use $pages->get() with cached parent id!
         $key = $this->getKey();
-        $parent_route = dirname('/' . $key);
+        $parent_route = $filesystem->dirname('/' . $key);
 
         return $parent_route !== '/' ? $pages->find($parent_route) : $pages->root();
     }
