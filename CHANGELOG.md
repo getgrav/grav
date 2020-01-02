@@ -9,6 +9,7 @@
 1. [](#bugfix)
     * Grav 1.7: Fixed error on page initialization [#2753](https://github.com/getgrav/grav/issues/2753)
     * Fixed checking ACL for another user (who is not currently logged in) in a Flex Object or Directory
+    * Fixed bug in Windows where `Filesystem::dirname()` returns backslashes
 
 # v1.7.0-rc.2
 ## 12/04/2019

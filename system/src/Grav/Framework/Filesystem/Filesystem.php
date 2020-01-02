@@ -176,6 +176,11 @@ class Filesystem implements FilesystemInterface
             return [$scheme, ''];
         }
 
+        // In Windows dirname() may return backslashes, fix that.
+        if (DIRECTORY_SEPARATOR !== '/') {
+            $path = str_replace('\\', '/', $path);
+        }
+
         return [$scheme, $path];
     }
 
@@ -199,6 +204,11 @@ class Filesystem implements FilesystemInterface
             $dirname = isset($info['dirname']) && $info['dirname'] !== '.' ? $info['dirname'] : null;
 
             if (null !== $dirname) {
+                // In Windows dirname may be using backslashes, fix that.
+                if (DIRECTORY_SEPARATOR !== '/') {
+                    $dirname = str_replace('\\', '/', $dirname);
+                }
+
                 $info['dirname'] = $scheme . '://' . $dirname;
             } else {
                 $info = ['dirname' => $scheme . '://'] + $info;
