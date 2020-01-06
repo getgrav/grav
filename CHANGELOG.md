@@ -3,6 +3,7 @@
 
 1. [](#bugfix)
     * Grav 1.7: Fixed blueprint loading issues [#2782](https://github.com/getgrav/grav/issues/2782)
+    * Fixed PHP 7.4 compatibility issue with `Stream`
 
 # v1.7.0-rc.3
 ## 01/02/2020
