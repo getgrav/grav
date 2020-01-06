@@ -1,3 +1,9 @@
+# v1.7.0-rc.4
+## mm/dd/2020
+
+1. [](#bugfix)
+    * Grav 1.7: Fixed blueprint loading issues [#2782](https://github.com/getgrav/grav/issues/2782)
+
 # v1.7.0-rc.3
 ## 01/02/2020
 
