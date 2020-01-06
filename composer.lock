@@ -1840,12 +1840,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/rockettheme/toolbox.git",
-                "reference": "fd9443a19f22a98e82d6889a36b6331fca298507"
+                "reference": "515885cf35dd7be30864216f87e7122c7f03be7d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rockettheme/toolbox/zipball/fd9443a19f22a98e82d6889a36b6331fca298507",
-                "reference": "fd9443a19f22a98e82d6889a36b6331fca298507",
+                "url": "https://api.github.com/repos/rockettheme/toolbox/zipball/515885cf35dd7be30864216f87e7122c7f03be7d",
+                "reference": "515885cf35dd7be30864216f87e7122c7f03be7d",
                 "shasum": ""
             },
             "archive": {
@@ -1903,7 +1903,7 @@
                 "source": "https://github.com/rockettheme/toolbox/tree/develop",
                 "issues": "https://github.com/rockettheme/toolbox/issues"
             },
-            "time": "2020-01-06T13:02:28+00:00"
+            "time": "2020-01-06T15:08:03+00:00"
         },
         {
             "name": "seld/cli-prompt",
