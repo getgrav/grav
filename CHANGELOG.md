@@ -1,6 +1,8 @@
 # v1.7.0-rc.4
 ## mm/dd/2020
 
+1. [](#new)
+    * _POTENTIAL BREAKING CHANGE:_ Upgraded Parsedown to 1.7 for Parsedown-Extra 0.8. Plugins that extend Parsedown may need a fix to render as HTML
 1. [](#bugfix)
     * Grav 1.7: Fixed blueprint loading issues [#2782](https://github.com/getgrav/grav/issues/2782)
     * Fixed PHP 7.4 compatibility issue with `Stream`
