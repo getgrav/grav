@@ -26,7 +26,7 @@ class VideoMedium extends Medium
 
         return [
             'name' => 'video',
-            'text' => '<source src="' . $location . '">Your browser does not support the video tag.',
+            'rawHtml' => '<source src="' . $location . '">Your browser does not support the video tag.',
             'attributes' => $attributes
         ];
     }

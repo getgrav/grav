@@ -26,7 +26,7 @@ class AudioMedium extends Medium
 
         return [
             'name' => 'audio',
-            'text' => '<source src="' . $location . '">Your browser does not support the audio tag.',
+            'rawHtml' => '<source src="' . $location . '">Your browser does not support the audio tag.',
             'attributes' => $attributes
         ];
     }

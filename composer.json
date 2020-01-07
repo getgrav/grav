@@ -28,8 +28,8 @@
         "kodus/psr7-server": "*",
         "nyholm/psr7": "^1.0",
         "twig/twig": "~1.0",
-        "erusev/parsedown": "1.6.4",
-        "erusev/parsedown-extra": "~0.7",
+        "erusev/parsedown": "^1.7",
+        "erusev/parsedown-extra": "~0.8",
         "symfony/contracts": "~1.0",
         "symfony/yaml": "~4.4.0",
         "symfony/console": "~4.4.0",
@@ -78,8 +78,7 @@
             "php": "7.1.3"
         }
     },
-    "repositories": [
-        {
+    "repositories": [{
             "type": "vcs",
             "url": "https://github.com/trilbymedia/PHP-Markdown-Documentation-Generator"
         },
