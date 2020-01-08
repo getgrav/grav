@@ -157,6 +157,8 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
             new \Twig_SimpleFunction('repeat', [$this, 'repeatFunc']),
             new \Twig_SimpleFunction('regex_replace', [$this, 'regexReplace']),
             new \Twig_SimpleFunction('regex_filter', [$this, 'regexFilter']),
+            new \Twig_SimpleFunction('preg_match', [$this, 'pregMatch']),
+            new \Twig_SimpleFunction('preg_split', [$this, 'pregSplit']),
             new \Twig_SimpleFunction('string', [$this, 'stringFunc']),
             new \Twig_SimpleFunction('url', [$this, 'urlFunc']),
             new \Twig_SimpleFunction('json_decode', [$this, 'jsonDecodeFilter']),
@@ -1098,6 +1100,34 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
         return preg_grep($regex, $array, $flags);
     }
 
+    /**
+     * Twig wrapper for PHP's preg_match method
+     *
+     * @param string $pattern the regex pattern to use for match
+     * @param string $subject the content to perform the match on
+     * @param array &$matches if given, the parameter is filled with the match results. The first array elements contains the text which matches the complete search pattern. The second element contains the text which matches the first bracketed subpattern and so on.
+     * @return mixed returns the matches if there is at least one match in the subject for a given pattern or false if not.
+     */
+    public function pregMatch($pattern, $subject, &$matches = [])
+    {
+        preg_match($pattern, $subject, $matches);
+
+        return $matches ?: false;
+    }
+
+    /**
+     * Twig wrapper for PHP's preg_split method
+     *
+     * @param string $pattern the regex pattern to use for split
+     * @param string $subject the content to perform the split on
+     * @param int $limit the maximum possible splits for the given pattern
+     * @return array the resulting array after performing the split operation
+     */
+    public function pregSplit($pattern, $subject, $limit = -1)
+    {
+        return preg_split($pattern, $subject, $limit);
+    }
+    
     /**
      * redirect browser from twig
      *
