@@ -703,9 +703,9 @@ class Validation
                             unset($val[$inner_key]);
                         }
                     }
-                }
 
-                $values[$key] = $val;
+                    $values[$key] = $val;
+                }
             }
         }
 
