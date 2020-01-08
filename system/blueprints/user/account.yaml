@@ -126,3 +126,4 @@ form:
                     ignore_empty: true
                     validate:
                         type: array
+                        value_type: bool

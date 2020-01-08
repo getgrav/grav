@@ -720,7 +720,13 @@ class Validation
                 if ($type && $val !== '' && $val !== null) {
                     switch ($type) {
                         case 'bool':
-                            $val = Utils::isPositive($val);
+                            if (Utils::isPositive($val)) {
+                                $val = true;
+                            } elseif (Utils::isNegative($val)) {
+                                $val = false;
+                            } else {
+                                $val = null;
+                            }
                             break;
                         case 'int':
                             $val = (int)$val;
