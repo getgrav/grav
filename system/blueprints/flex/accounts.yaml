@@ -77,7 +77,7 @@ config:
           class: 'Grav\Framework\File\Formatter\YamlFormatter'
         folder: 'account://'
         pattern: '{FOLDER}/{KEY}{EXT}'
-        key: storage_key
+        key: username
         indexed: true
     search:
       options:

@@ -6,6 +6,7 @@
 1. [](#bugfix)
     * Grav 1.7: Fixed blueprint loading issues [#2782](https://github.com/getgrav/grav/issues/2782)
     * Fixed PHP 7.4 compatibility issue with `Stream`
+    * Fixed new `Flex Users` being stored with wrong filename, login issues [#2785](https://github.com/getgrav/grav/issues/2785)
 
 # v1.7.0-rc.3
 ## 01/02/2020
