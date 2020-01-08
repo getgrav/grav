@@ -693,18 +693,52 @@ class Validation
             }
         }
 
-        if (isset($field['ignore_empty']) && Utils::isPositive($field['ignore_empty'])) {
-            foreach ($values as $key => $val) {
-                if ($val === '') {
-                    unset($values[$key]);
-                } elseif (\is_array($val)) {
-                    foreach ($val as $inner_key => $inner_value) {
-                        if ($inner_value === '') {
-                            unset($val[$inner_key]);
-                        }
-                    }
+        $ignoreEmpty = isset($field['ignore_empty']) && Utils::isPositive($field['ignore_empty']);
+        $valueType = $params['value_type'] ?? null;
+        if ($ignoreEmpty || $valueType) {
+            $values = static::arrayFilterRecurse($values, $valueType, $ignoreEmpty);
+        }
 
-                    $values[$key] = $val;
+        return $values;
+    }
+
+    /**
+     * @param array $values
+     * @param string|null $type
+     * @param bool $ignoreEmpty
+     * @return array
+     */
+    protected static function arrayFilterRecurse(array $values, ?string $type, bool $ignoreEmpty): array
+    {
+        foreach ($values as $key => &$val) {
+            if (\is_array($val)) {
+                $val = static::arrayFilterRecurse($val, $type, $ignoreEmpty);
+                if ($ignoreEmpty && empty($val)) {
+                    unset($values[$key]);
+                }
+            } else {
+                if ($type && $val !== '' && $val !== null) {
+                    switch ($type) {
+                        case 'bool':
+                            $val = Utils::isPositive($val);
+                            break;
+                        case 'int':
+                            $val = (int)$val;
+                            break;
+                        case 'float':
+                            $val = (float)$val;
+                            break;
+                        case 'string':
+                            $val = (string)$val;
+                            break;
+                        case 'trim':
+                            $val = trim($val);
+                            break;
+                    }
+                }
+
+                if ($ignoreEmpty && ($val === '' || $val === null)) {
+                    unset($values[$key]);
                 }
             }
         }
