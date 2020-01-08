@@ -2,7 +2,7 @@ form:
   fields:
     _site:
       type: section
-      title: PLUGIN_ADMIN.SITE
+      title: PLUGIN_ADMIN.PAGE_ACCESS
       underline: true
 
       fields:
@@ -31,7 +31,7 @@ form:
 
     _admin:
       type: section
-      title: PLUGIN_ADMIN.ADMIN
+      title: PLUGIN_ADMIN.PAGE PERMISSIONS
       underline: true
 
       fields:

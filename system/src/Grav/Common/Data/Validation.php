@@ -725,6 +725,7 @@ class Validation
                             } elseif (Utils::isNegative($val)) {
                                 $val = false;
                             } else {
+                                // Ignore invalid bool values.
                                 $val = null;
                             }
                             break;
