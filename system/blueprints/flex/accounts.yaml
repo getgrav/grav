@@ -17,7 +17,7 @@ config:
         route: '/accounts'
         title: PLUGIN_ADMIN.USER_ACCOUNTS
         icon: fa-user
-        authorize: ['admin.users', 'admin.accounts', 'admin.super']
+        authorize: ['admin.users', 'admin.accounts']
         priority: 6
 
     # Admin template type (folder)
