@@ -726,7 +726,13 @@ class Debugger
         return $this;
     }
 
-    public function addEvent(string $name, ?Event $event, EventDispatcherInterface $dispatcher)
+    /**
+     * @param string $name
+     * @param object $event
+     * @param EventDispatcherInterface $dispatcher
+     * @return $this
+     */
+    public function addEvent(string $name, $event, EventDispatcherInterface $dispatcher)
     {
         if ($this->enabled) {
             if ($this->clockwork) {

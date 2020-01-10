@@ -10,13 +10,14 @@
     * Fixed PHP 7.4 compatibility issue with `Stream`
     * Fixed new `Flex Users` being stored with wrong filename, login issues [#2785](https://github.com/getgrav/grav/issues/2785)
     * Fixed `ignore_empty: true` not removing empty values in blueprint filtering
-    * Fixed twig `{{ false|string }}` to return '0' instead of ''
+    * Fixed `{{ false|string }}` twig to return '0' instead of ''
 
 # v1.7.0-rc.3
 ## 01/02/2020
 
 1. [](#new)
     * Added root page support for `Flex Pages`
+    * Added `$grav->dispatchEvent()` method for PSR-14 events
 1. [](#improved)
     * Twig filter `|yaml_serialize`: added support for `JsonSerializable` objects and other array-like objects
     * Added support for returning Flex Page specific permissions for admin and testing

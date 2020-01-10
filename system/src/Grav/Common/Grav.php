@@ -400,6 +400,22 @@ class Grav extends Container
     }
 
     /**
+     * @param object $event
+     * @return object
+     */
+    public function dispatchEvent($event)
+    {
+        /** @var EventDispatcherInterface $events */
+        $events = $this['events'];
+
+        /** @var Debugger $debugger */
+        $debugger = $this['debugger'];
+        $debugger->addEvent(get_class($event), $event, $events);
+
+        return $events->dispatch($event);
+    }
+
+    /**
      * Fires an event with optional parameters.
      *
      * @param  string $eventName
