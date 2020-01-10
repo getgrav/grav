@@ -73,12 +73,12 @@ class Permissions implements \ArrayAccess, \Countable, \IteratorAggregate
     }
 
     /**
-     * @param array $access
+     * @param array|null $access
      * @return Access
      */
-    public function getAccess(array $access): Access
+    public function getAccess(array $access = null): Access
     {
-        return new Access($access);
+        return new Access($access ?? []);
     }
 
     /**
