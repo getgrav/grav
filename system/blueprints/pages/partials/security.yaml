@@ -19,6 +19,16 @@ form:
           validate:
             type: bool
 
+
+        header.page_access:
+          type: page_access
+          label: PLUGIN_ADMIN.PAGE_ACCESS
+          help: PLUGIN_ADMIN.PAGE_ACCESS_HELP
+          ignore_empty: true
+          validate:
+            type: array
+            value_type: bool
+
         header.access:
           type: permissions
           toggleable: true
