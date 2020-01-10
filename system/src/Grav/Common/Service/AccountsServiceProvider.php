@@ -11,8 +11,11 @@ namespace Grav\Common\Service;
 
 use Grav\Common\Config\Config;
 use Grav\Common\Flex\Users\Storage\UserFolderStorage;
+use Grav\Common\Grav;
 use Grav\Common\User\DataUser;
 use Grav\Common\User\User;
+use Grav\Framework\Acl\Events\RegisterPermissionsEvent;
+use Grav\Framework\Acl\Permissions;
 use Grav\Framework\Flex\Flex;
 use Grav\Framework\Flex\FlexDirectory;
 use Pimple\Container;
@@ -24,8 +27,17 @@ class AccountsServiceProvider implements ServiceProviderInterface
 {
     public function register(Container $container)
     {
+        $container['permissions'] = static function (Grav $container) {
+            $permissions = new Permissions();
+            $event = new RegisterPermissionsEvent($permissions);
+            $container->dispatchEvent($event);
+
+            return $permissions;
+        };
+
         $container['accounts'] = function (Container $container) {
             $type = $this->initialize($container);
+
             return $type === 'flex' ? $this->flexAccounts($container) : $this->dataAccounts($container);
         };
 

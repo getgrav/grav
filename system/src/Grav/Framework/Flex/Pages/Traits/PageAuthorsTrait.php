@@ -11,8 +11,8 @@ declare(strict_types=1);
 
 namespace Grav\Framework\Flex\Pages\Traits;
 
-use Grav\Common\User\Access;
 use Grav\Common\User\Interfaces\UserInterface;
+use Grav\Framework\Acl\Access;
 
 /**
  * Implements PageAuthorsTrait

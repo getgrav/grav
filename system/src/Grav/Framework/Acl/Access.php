@@ -1,13 +1,13 @@
 <?php
 
 /**
- * @package    Grav\Common\User
+ * @package    Grav\Framework\Acl
  *
  * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
-namespace Grav\Common\User;
+namespace Grav\Framework\Acl;
 
 use Grav\Common\Utils;
 
@@ -49,7 +49,23 @@ class Access implements \JsonSerializable, \IteratorAggregate, \Countable
             $action = $scope !== 'test' ? "{$scope}.{$action}" : $action;
         }
 
-        return $this->acl[$action] ?? null;
+        return $this->get($action);
+    }
+
+    /**
+     * @return array
+     */
+    public function toArray(): array
+    {
+        return Utils::arrayUnflattenDotNotation($this->acl);
+    }
+
+    /**
+     * @return array
+     */
+    public function getAllActions(): array
+    {
+        return array_filter($this->acl, static function($val) { return $val !== null; });
     }
 
     /**
@@ -57,12 +73,28 @@ class Access implements \JsonSerializable, \IteratorAggregate, \Countable
      */
     public function jsonSerialize(): array
     {
-        return Utils::arrayUnflattenDotNotation($this->acl);
+        return $this->toArray();
     }
 
+    /**
+     * @param string $action
+     * @return bool|null
+     */
     public function get(string $action)
     {
-        return $this->acl[$action] ?? null;
+        // Get access value.
+        if (isset($this->acl[$action])) {
+            return $this->acl[$action];
+        }
+
+        // If no value is defined, check the parent access (all true|false).
+        $pos = strrpos($action, '.');
+        $value = $pos ? $this->get(substr($action, 0, $pos)) : null;
+
+        // Cache result for faster lookup.
+        $this->acl[$action] = $value;
+
+        return $value;
     }
 
     /**
@@ -81,6 +113,10 @@ class Access implements \JsonSerializable, \IteratorAggregate, \Countable
         return count($this->acl);
     }
 
+    /**
+     * @param array $acl
+     * @return array
+     */
     protected function normalizeAcl(array $acl): array
     {
         if (empty($acl)) {
