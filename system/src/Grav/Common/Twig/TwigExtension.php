@@ -167,7 +167,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             new TwigFunction('repeat', [$this, 'repeatFunc']),
             new TwigFunction('regex_replace', [$this, 'regexReplace']),
             new TwigFunction('regex_filter', [$this, 'regexFilter']),
-            new TwigFunction('string', [$this, 'stringFunc']),
+            new TwigFunction('string', [$this, 'stringFilter']),
             new TwigFunction('url', [$this, 'urlFunc']),
             new TwigFunction('json_decode', [$this, 'jsonDecodeFilter']),
             new TwigFunction('get_cookie', [$this, 'getCookie']),
@@ -689,14 +689,25 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
     }
 
     /**
-     * Casts input to string.
+     * Returns a string from a value. If the value is array, return it json encoded
      *
-     * @param mixed $input
+     * @param mixed $value
      * @return string
      */
-    public function stringFilter($input)
+    public function stringFilter($value)
     {
-        return (string) $input;
+        // Format the array as a string
+        if (is_array($value)) {
+            return json_encode($value);
+        }
+
+        // Boolean becomes '1' or '0'
+        if (is_bool($value)) {
+            $value = (int)$value;
+        }
+
+        // Cast the other values to string.
+        return (string)$value;
     }
 
     /**
@@ -990,22 +1001,6 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
         }
 
         return array_intersect($array1, $array2);
-    }
-
-    /**
-     * Returns a string from a value. If the value is array, return it json encoded
-     *
-     * @param array|string $value
-     *
-     * @return string
-     */
-    public function stringFunc($value)
-    {
-        if (is_array($value)) { //format the array as a string
-            return json_encode($value);
-        }
-
-        return $value;
     }
 
     /**

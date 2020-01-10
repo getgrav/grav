@@ -10,6 +10,7 @@
     * Fixed PHP 7.4 compatibility issue with `Stream`
     * Fixed new `Flex Users` being stored with wrong filename, login issues [#2785](https://github.com/getgrav/grav/issues/2785)
     * Fixed `ignore_empty: true` not removing empty values in blueprint filtering
+    * Fixed twig `{{ false|string }}` to return '0' instead of ''
 
 # v1.7.0-rc.3
 ## 01/02/2020
