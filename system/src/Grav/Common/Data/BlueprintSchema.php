@@ -151,7 +151,7 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
                 $messages += Validation::validate($child, $rule);
             } elseif (\is_array($child) && \is_array($val)) {
                 // Array has been defined in blueprints.
-                $messages += $this->validateArray($child, $val, $rule);
+                $messages += $this->validateArray($child, $val, $rule ?? []);
             } elseif (isset($parent['validation']) && $parent['validation'] === 'strict') {
                 // Undefined/extra item.
                 throw new \RuntimeException(sprintf('%s is not defined in blueprints', $key));
