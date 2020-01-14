@@ -13,20 +13,26 @@ use Grav\Common\Utils;
 
 class Access implements \JsonSerializable, \IteratorAggregate, \Countable
 {
+    /** @var string */
+    private $name;
     /** @var array */
     private $rules;
     /** @var array */
     private $ops;
     /** @var array */
     private $acl = [];
+    /** @var array */
+    private $inherited = [];
 
     /**
      * Access constructor.
      * @param string|array|null $acl
      * @param array|null $rules
+     * @param string $name
      */
-    public function __construct($acl = null, array $rules = null)
+    public function __construct($acl = null, array $rules = null, string $name = '')
     {
+        $this->name = $name;
         $this->rules = $rules ?? [];
         $this->ops = ['+' => true, '-' => false];
         if (is_string($acl)) {
@@ -34,6 +40,29 @@ class Access implements \JsonSerializable, \IteratorAggregate, \Countable
         } elseif (is_array($acl)) {
             $this->acl = $this->normalizeAcl($acl);
         }
+    }
+
+    /**
+     * @return string
+     */
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    /**
+     * @param Access $parent
+     * @param string|null $name
+     */
+    public function inherit(Access $parent, string $name = null)
+    {
+        // Remove cached null actions from acl.
+        $acl = $this->getAllActions();
+        // Get only inherited actions.
+        $inherited = array_diff_key($parent->getAllActions(), $acl);
+
+        $this->inherited += $parent->inherited + array_fill_keys(array_keys($inherited), $name ?? $parent->getName());
+        $this->acl = array_replace($acl, $inherited);
     }
 
     /**
@@ -95,6 +124,24 @@ class Access implements \JsonSerializable, \IteratorAggregate, \Countable
         $this->acl[$action] = $value;
 
         return $value;
+    }
+
+    /**
+     * @param string $action
+     * @return bool
+     */
+    public function isInherited(string $action): bool
+    {
+        return isset($this->inherited[$action]);
+    }
+
+    /**
+     * @param string $action
+     * @return string|null
+     */
+    public function getInherited(string $action): ?string
+    {
+        return $this->inherited[$action] ?? null;
     }
 
     /**
