@@ -59,9 +59,21 @@ trait PageAuthorsTrait
         return $this->_authors;
     }
 
-    public function getPermissions()
+    /**
+     * @param bool $inherit
+     * @return array
+     */
+    public function getPermissions(bool $inherit = false)
     {
-        return $this->loadPermissions();
+        $permissions = [];
+        if ($inherit && $this->getNestedProperty('header.permissions.inherit', true)) {
+            $parent = $this->parent();
+            if ($parent && method_exists($parent, 'getPermissions')) {
+                $permissions = $parent->getPermissions($inherit);
+            }
+        }
+
+        return $this->loadPermissions($permissions);
     }
 
     /**
@@ -135,7 +147,7 @@ trait PageAuthorsTrait
         $authorized = null;
 
         // In admin we want to check against group permissions.
-        $pageGroups = $this->loadPermissions();
+        $pageGroups = $this->getPermissions();
         $userGroups = (array)$user->groups;
 
         /** @var Access $access */
@@ -175,26 +187,38 @@ trait PageAuthorsTrait
     }
 
     /**
+     * @param array $parent
      * @return array
      */
-    protected function loadPermissions(): array
+    protected function loadPermissions(array $parent = []): array
     {
         static $rules = [
             'c' => 'create',
             'r' => 'read',
             'u' => 'update',
             'd' => 'delete',
-            'p' => 'publish'
+            'p' => 'publish',
+            'l' => 'list'
         ];
 
         $permissions = $this->getNestedProperty('header.permissions.groups');
-        if (!is_array($permissions)) {
-            return [];
-        }
+        $name = $this->root() ? '<root>' : '/' . $this->getKey();
 
         $list = [];
-        foreach ($permissions as $group => $access) {
-            $list[$group] = new Access($access, $rules);
+        if (is_array($permissions)) {
+            foreach ($permissions as $group => $access) {
+                $list[$group] = new Access($access, $rules, $name);
+            }
+        }
+        foreach ($parent as $group => $access) {
+            if (isset($list[$group])) {
+                $object = $list[$group];
+            } else {
+                $object = new Access([], $rules, $name);
+                $list[$group] = $object;
+            }
+
+            $object->inherit($access);
         }
 
         return $list;
