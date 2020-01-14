@@ -16,7 +16,8 @@
 1. [](#bugfix)
     * Fixed fatal error when calling `{{ grav.undefined }}`
     * Fixed multiple issues when there are no pages in the site
-    *  PHP 7.4 fix for [#2750](https://github.com/getgrav/grav/issues/2750)
+    * PHP 7.4 fix for [#2750](https://github.com/getgrav/grav/issues/2750)
+    * Fixed `validation: strict` not working in blueprints [#1273](https://github.com/getgrav/grav/issues/1273)
 
 # v1.6.18
 ## 12/02/2019

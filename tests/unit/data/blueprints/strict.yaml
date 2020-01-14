@@ -1,0 +1,9 @@
+form:
+  validation: strict
+
+  fields:
+    test:
+      type: text
+      label: Test
+      validate:
+        required: true
