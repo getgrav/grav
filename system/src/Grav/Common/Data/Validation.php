@@ -176,11 +176,14 @@ class Validation
      * @param mixed $value
      * @param array $params
      * @param array $field
-     * @return bool
+     * @return string|null
      */
     protected static function filterCheckbox($value, array $params, array $field)
     {
-        return (bool) $value;
+        $value = (string)$value;
+        $field_value = (string)($field['value'] ?? '1');
+
+        return $value === $field_value ? $value : null;
     }
 
     /**
