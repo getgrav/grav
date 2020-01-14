@@ -23,6 +23,9 @@ config:
     # Admin template type (folder)
     template: grav-pages
 
+    # TODO: Permissions type
+    permissions: crudpl
+
     # Allowed admin actions
     actions:
       list: true
@@ -172,7 +175,9 @@ form:
 
     tabs:
       fields:
-        permissions:
+        security:
           type: tab
           title: PLUGIN_ADMIN.SECURITY
-          import@: partials/security
+          import@:
+            type: partials/security
+            context: blueprints://pages

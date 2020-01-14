@@ -23,6 +23,9 @@ config:
     # Admin template type (folder)
     template: grav-accounts
 
+    # TODO: Permissions type
+    permissions: crudpl
+
     # List view
     list:
       # Fields shown in the list view

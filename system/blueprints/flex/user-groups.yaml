@@ -23,6 +23,9 @@ config:
     # Admin template type (folder)
     template: grav-user-groups
 
+    # TODO: Permissions type
+    permissions: crudl
+
     # List view
     list:
       # Fields shown in the list view
