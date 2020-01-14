@@ -6,6 +6,7 @@
     * Fixed session cookie is being set twice in the HTTP header [#2745](https://github.com/getgrav/grav/issues/2745)
     * Fixed session not restarting if user was invalid (downgrading from Grav 1.7)
     * Fixed filesystem iterator calls with non-existing folders
+    * Fixed `checkbox` field not being saved, requires also Form v4.0.2 [#1225](https://github.com/getgrav/grav/issues/1225)
 
 # v1.6.19
 ## 12/04/2019
