@@ -52,16 +52,16 @@
         },
         {
             "name": "composer/ca-bundle",
-            "version": "1.2.5",
+            "version": "1.2.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/ca-bundle.git",
-                "reference": "62e8fc2dc550e5d6d8c9360c7721662670f58149"
+                "reference": "47fe531de31fca4a1b997f87308e7d7804348f7e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/ca-bundle/zipball/62e8fc2dc550e5d6d8c9360c7721662670f58149",
-                "reference": "62e8fc2dc550e5d6d8c9360c7721662670f58149",
+                "url": "https://api.github.com/repos/composer/ca-bundle/zipball/47fe531de31fca4a1b997f87308e7d7804348f7e",
+                "reference": "47fe531de31fca4a1b997f87308e7d7804348f7e",
                 "shasum": ""
             },
             "require": {
@@ -104,7 +104,7 @@
                 "ssl",
                 "tls"
             ],
-            "time": "2019-12-11T14:44:42+00:00"
+            "time": "2020-01-13T10:02:55+00:00"
         },
         {
             "name": "doctrine/cache",
@@ -716,16 +716,16 @@
         },
         {
             "name": "itsgoingd/clockwork",
-            "version": "v4.0.14",
+            "version": "v4.0.15",
             "source": {
                 "type": "git",
                 "url": "https://github.com/itsgoingd/clockwork.git",
-                "reference": "0803cd5e410f1f4bdb544c346021b87faf76c4c6"
+                "reference": "981a9640e9081e5dc1c2698abe35f984ed7f6b92"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/itsgoingd/clockwork/zipball/0803cd5e410f1f4bdb544c346021b87faf76c4c6",
-                "reference": "0803cd5e410f1f4bdb544c346021b87faf76c4c6",
+                "url": "https://api.github.com/repos/itsgoingd/clockwork/zipball/981a9640e9081e5dc1c2698abe35f984ed7f6b92",
+                "reference": "981a9640e9081e5dc1c2698abe35f984ed7f6b92",
                 "shasum": ""
             },
             "require": {
@@ -770,10 +770,10 @@
                 "slim"
             ],
             "support": {
-                "source": "https://github.com/itsgoingd/clockwork/tree/v4.0.14",
+                "source": "https://github.com/itsgoingd/clockwork/tree/v4.0.15",
                 "issues": "https://github.com/itsgoingd/clockwork/issues"
             },
-            "time": "2019-11-25T21:07:52+00:00"
+            "time": "2020-01-09T11:14:09+00:00"
         },
         {
             "name": "kodus/psr7-server",
@@ -1002,22 +1002,22 @@
         },
         {
             "name": "maximebf/debugbar",
-            "version": "v1.16.0",
+            "version": "v1.16.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/maximebf/php-debugbar.git",
-                "reference": "6ca3502de5e5889dc21311d2461f8cc3b6a094b1"
+                "reference": "58998b818c6567fac01e35b8a4b70c1a64530556"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/maximebf/php-debugbar/zipball/6ca3502de5e5889dc21311d2461f8cc3b6a094b1",
-                "reference": "6ca3502de5e5889dc21311d2461f8cc3b6a094b1",
+                "url": "https://api.github.com/repos/maximebf/php-debugbar/zipball/58998b818c6567fac01e35b8a4b70c1a64530556",
+                "reference": "58998b818c6567fac01e35b8a4b70c1a64530556",
                 "shasum": ""
             },
             "require": {
                 "php": "^7.1",
                 "psr/log": "^1.0",
-                "symfony/var-dumper": "^2.6|^3|^4"
+                "symfony/var-dumper": "^2.6|^3|^4|^5"
             },
             "require-dev": {
                 "phpunit/phpunit": "^5"
@@ -1059,7 +1059,7 @@
                 "debug",
                 "debugbar"
             ],
-            "time": "2019-10-18T14:34:16+00:00"
+            "time": "2019-11-24T09:46:11+00:00"
         },
         {
             "name": "miljar/php-exif",
@@ -1844,12 +1844,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/rockettheme/toolbox.git",
-                "reference": "b6701dec03a5c997af379edc999d1a9d0655d43f"
+                "reference": "03d39885bfa62f4a3fc3d6316b168840845241d1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rockettheme/toolbox/zipball/b6701dec03a5c997af379edc999d1a9d0655d43f",
-                "reference": "b6701dec03a5c997af379edc999d1a9d0655d43f",
+                "url": "https://api.github.com/repos/rockettheme/toolbox/zipball/03d39885bfa62f4a3fc3d6316b168840845241d1",
+                "reference": "03d39885bfa62f4a3fc3d6316b168840845241d1",
                 "shasum": ""
             },
             "archive": {
@@ -1867,7 +1867,7 @@
             "require-dev": {
                 "phpstan/phpstan": "^0.12",
                 "phpstan/phpstan-deprecation-rules": "^0.12",
-                "phpunit/phpunit": "~5"
+                "phpunit/phpunit": "~7.0"
             },
             "type": "library",
             "autoload": {
@@ -1907,7 +1907,7 @@
                 "source": "https://github.com/rockettheme/toolbox/tree/develop",
                 "issues": "https://github.com/rockettheme/toolbox/issues"
             },
-            "time": "2020-01-08T10:16:02+00:00"
+            "time": "2020-01-14T11:55:30+00:00"
         },
         {
             "name": "seld/cli-prompt",
