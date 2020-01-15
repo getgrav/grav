@@ -889,29 +889,19 @@ class UserObject extends FlexObject implements UserInterface, MediaManipulationI
 
     /**
      * @param array $serialized
+     * @param FlexDirectory|null $directory
      */
-    protected function doUnserialize(array $serialized): void
+    protected function doUnserialize(array $serialized, FlexDirectory $directory = null): void
     {
-        $grav = Grav::instance();
-        $flex = $grav['flex_objects'] ?? null;
-
-        // Use Flex plugin if possible -- fixes issues if admin has flex users admin, but it is not used in the session.
-        if ($flex) {
-            $directory = $flex->getDirectory($serialized['type']);
-        } else {
-            /** @var UserCollectionInterface|null $accounts */
-            $accounts = $grav['accounts'] ?? null;
-            $directory = $accounts instanceof FlexCollectionInterface ? $accounts->getFlexDirectory() : null;
+        if (null === $directory) {
+            $grav = Grav::instance();
+            if (!isset($grav['flex_objects'])) {
+                $accounts = $grav['accounts'] ?? null;
+                $directory = $accounts instanceof FlexCollectionInterface ? $accounts->getFlexDirectory() : null;
+            }
         }
 
-        if (!$directory) {
-            throw new \RuntimeException('Internal error, please clear cache');
-        }
-
-        $this->setFlexDirectory($directory);
-        $this->setStorage($serialized['storage']);
-        $this->setKey($serialized['key']);
-        $this->setElements($serialized['elements']);
+        parent::doUnserialize($serialized, $directory);
     }
 
     /**

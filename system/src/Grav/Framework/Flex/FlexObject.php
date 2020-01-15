@@ -849,8 +849,9 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
 
     /**
      * @param array $serialized
+     * @param FlexDirectory|null $directory
      */
-    protected function doUnserialize(array $serialized): void
+    protected function doUnserialize(array $serialized, FlexDirectory $directory = null): void
     {
         $type = $serialized['type'] ?? 'unknown';
 
@@ -858,13 +859,16 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
             throw new \InvalidArgumentException("Cannot unserialize '{$type}': Bad data");
         }
 
-        $grav = Grav::instance();
-        /** @var Flex|null $flex */
-        $flex = $grav['flex_objects'] ?? null;
-        $directory = $flex ? $flex->getDirectory($type) : null;
-        if (!$directory) {
-            throw new \InvalidArgumentException("Cannot unserialize '{$type}': Not found");
+        if (null === $directory) {
+            $grav = Grav::instance();
+            /** @var Flex|null $flex */
+            $flex = $grav['flex_objects'] ?? null;
+            $directory = $flex ? $flex->getDirectory($type) : null;
+            if (!$directory) {
+                throw new \InvalidArgumentException("Cannot unserialize '{$type}': Not found");
+            }
         }
+
         $this->setFlexDirectory($directory);
         $this->setStorage($serialized['storage']);
         $this->setKey($serialized['key']);

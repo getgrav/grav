@@ -109,6 +109,14 @@ class Pages
     }
 
     /**
+     * @return FlexDirectory|null
+     */
+    public function getDirectory(): ?FlexDirectory
+    {
+        return $this->directory;
+    }
+
+    /**
      * Method used in admin to disable frontend pages from being initialized.
      */
     public function disablePages(): void

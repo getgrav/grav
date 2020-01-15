@@ -20,6 +20,7 @@ use Grav\Common\Flex\Pages\Traits\PageTranslateTrait;
 use Grav\Common\Page\Pages;
 use Grav\Common\Utils;
 use Grav\Framework\Filesystem\Filesystem;
+use Grav\Framework\Flex\FlexDirectory;
 use Grav\Framework\Flex\FlexObject;
 use Grav\Framework\Flex\Pages\FlexPageObject;
 use Grav\Framework\Route\Route;
@@ -342,6 +343,23 @@ class PageObject extends FlexPageObject
             '_content_meta:private' => $this->getContentMeta(),
             '_content:private' => $this->getRawContent()
         ];
+    }
+
+    /**
+     * @param array $serialized
+     * @param FlexDirectory|null $directory
+     */
+    protected function doUnserialize(array $serialized, FlexDirectory $directory = null): void
+    {
+        if (null === $directory) {
+            $grav = Grav::instance();
+            if (!isset($grav['flex_objects'])) {
+                $pages = $grav['pages'];
+                $directory = $pages->getDirectory();
+            }
+        }
+
+        parent::doUnserialize($serialized, $directory);
     }
 
     /**
