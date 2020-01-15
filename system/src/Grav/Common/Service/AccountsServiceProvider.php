@@ -87,7 +87,7 @@ class AccountsServiceProvider implements ServiceProviderInterface
                     $page = $event['page'];
                     $page->init(new \SplFileInfo('plugin://admin/pages/admin/error.md'));
                     $page->routable(true);
-                    $page->content("## Please install and enable **[Flex Objects]({$base}/plugins/flex-objects)** plugin. It is required to edit **Flex Accounts**.");
+                    $page->content("## Please install and enable **[Flex Objects]({$base}/plugins/flex-objects)** plugin. It is required to edit **Flex User Accounts**.");
 
                     /** @var Header $header */
                     $header = $page->header();

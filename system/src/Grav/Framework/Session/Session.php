@@ -190,13 +190,17 @@ class Session implements SessionInterface
             $options['read_and_close'] = '1';
         }
 
-        $success = @session_start($options);
-        $user = $success ? $this->__get('user') : null;
-        if (!$success) {
-            $last = error_get_last();
-            $error = $last ? $last['message'] : 'Unknown error';
+        try {
+            $success = @session_start($options);
+            $user = $success ? $this->__get('user') : null;
+            if (!$success) {
+                $last = error_get_last();
+                $error = $last ? $last['message'] : 'Unknown error';
 
-            throw new SessionException('Failed to start session: ' . $error, 500);
+                throw new \RuntimeException($error);
+            }
+        } catch (\Exception $e) {
+            throw new SessionException('Failed to start session: ' . $e->getMessage(), 500);
         }
 
         $this->started = true;

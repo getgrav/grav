@@ -865,7 +865,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
             $flex = $grav['flex_objects'] ?? null;
             $directory = $flex ? $flex->getDirectory($type) : null;
             if (!$directory) {
-                throw new \InvalidArgumentException("Cannot unserialize '{$type}': Not found");
+                throw new \InvalidArgumentException("Cannot unserialize Flex type '{$type}': Directory not found");
             }
         }
 
