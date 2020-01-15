@@ -16,8 +16,9 @@ use Grav\Common\Page\Header;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\User\DataUser;
 use Grav\Common\User\User;
-use Grav\Framework\Acl\Events\RegisterPermissionsEvent;
+use Grav\Events\RegisterPermissionsEvent;
 use Grav\Framework\Acl\Permissions;
+use Grav\Framework\Acl\PermissionsReader;
 use Grav\Framework\Flex\Flex;
 use Grav\Framework\Flex\FlexDirectory;
 use Pimple\Container;
@@ -30,7 +31,18 @@ class AccountsServiceProvider implements ServiceProviderInterface
     public function register(Container $container)
     {
         $container['permissions'] = static function (Grav $container) {
+            /** @var Config $config */
+            $config = $container['config'];
+
             $permissions = new Permissions();
+            $permissions->addTypes($config->get('permissions.types', []));
+
+            $array = $config->get('permissions.actions');
+            if (is_array($array)) {
+                $actions = PermissionsReader::fromArray($array, $permissions->getTypes());
+                $permissions->addActions($actions);
+            }
+
             $event = new RegisterPermissionsEvent($permissions);
             $container->dispatchEvent($event);
 

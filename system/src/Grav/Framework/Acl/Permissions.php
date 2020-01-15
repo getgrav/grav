@@ -15,6 +15,8 @@ class Permissions implements \ArrayAccess, \Countable, \IteratorAggregate
     protected $instances = [];
     /** @var Action[] */
     protected $actions = [];
+    /** @var array */
+    protected $types = [];
 
     /**
      * @return array
@@ -24,6 +26,10 @@ class Permissions implements \ArrayAccess, \Countable, \IteratorAggregate
         return $this->instances;
     }
 
+    /**
+     * @param string $name
+     * @return bool
+     */
     public function hasAction(string $name): bool
     {
         return isset($this->instances[$name]);
@@ -75,6 +81,48 @@ class Permissions implements \ArrayAccess, \Countable, \IteratorAggregate
         foreach ($actions as $action) {
             $this->addAction($action);
         }
+    }
+
+    /**
+     * @param string $name
+     * @return bool
+     */
+    public function hasType(string $name): bool
+    {
+        return isset($this->types[$name]);
+    }
+
+    /**
+     * @param string $name
+     * @return Action|null
+     */
+    public function getType(string $name): ?Action
+    {
+        return $this->types[$name] ?? null;
+    }
+
+    /**
+     * @param array $type
+     */
+    public function addType(string $name, array $type): void
+    {
+        $this->types[$name] = $type;
+    }
+
+    /**
+     * @return array
+     */
+    public function getTypes(): array
+    {
+        return $this->types;
+    }
+
+    /**
+     * @param array $types
+     */
+    public function addTypes(array $types): void
+    {
+        $this->types = array_replace($this->types, $types);
     }
 
     /**

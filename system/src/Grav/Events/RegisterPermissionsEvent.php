@@ -1,13 +1,13 @@
 <?php
 
 /**
- * @package    Grav\Framework\Acl
+ * @package    Grav\Events
  *
  * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
-namespace Grav\Framework\Acl\Events;
+namespace Grav\Events;
 
 use Grav\Framework\Acl\Permissions;
 
