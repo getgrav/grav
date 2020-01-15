@@ -12,6 +12,8 @@ namespace Grav\Common\Service;
 use Grav\Common\Config\Config;
 use Grav\Common\Flex\Users\Storage\UserFolderStorage;
 use Grav\Common\Grav;
+use Grav\Common\Page\Header;
+use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\User\DataUser;
 use Grav\Common\User\User;
 use Grav\Framework\Acl\Events\RegisterPermissionsEvent;
@@ -70,6 +72,31 @@ class AccountsServiceProvider implements ServiceProviderInterface
                 $flex->addDirectory($container['accounts']->getFlexDirectory());
                 $flex->addDirectory($container['user_groups']->getFlexDirectory());
             });
+            // Stop /admin/user from working, display error instead.
+            $dispatcher->addListener(
+                'onAdminPage',
+                static function (Event $event) {
+                    $grav = Grav::instance();
+                    $admin = $grav['admin'];
+                    [$base,$location,] = $admin->getRouteDetails();
+                    if ($location !== 'user' || isset($grav['flex_objects'])) {
+                        return;
+                    }
+
+                    /** @var PageInterface $page */
+                    $page = $event['page'];
+                    $page->init(new \SplFileInfo('plugin://admin/pages/admin/error.md'));
+                    $page->routable(true);
+                    $page->content("## Please install and enable **[Flex Objects]({$base}/plugins/flex-objects)** plugin. It is required to edit **Flex Accounts**.");
+
+                    /** @var Header $header */
+                    $header = $page->header();
+                    $directory = $grav['accounts']->getFlexDirectory();
+                    $menu = $directory->getConfig('admin.menu.list');
+                    $header->access = $menu['authorize'] ?? ['admin.super'];
+                },
+                100000
+            );
         } elseif (!$isDefined) {
             define('GRAV_USER_INSTANCE', 'DATA');
         }

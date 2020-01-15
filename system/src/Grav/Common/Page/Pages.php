@@ -1314,7 +1314,8 @@ class Pages
             'onAdminPage',
             static function (Event $event) use ($directory) {
                 $grav = Grav::instance();
-                [,$location,] = $grav['admin']->getRouteDetails();
+                $admin = $grav['admin'];
+                [$base,$location,] = $admin->getRouteDetails();
                 if ($location !== 'pages' || isset($grav['flex_objects'])) {
                     return;
                 }
@@ -1323,12 +1324,12 @@ class Pages
                 $page = $event['page'];
                 $page->init(new \SplFileInfo('plugin://admin/pages/admin/error.md'));
                 $page->routable(true);
-                $page->content('## Please install **Flex Objects** plugin. It is required to edit **Flex Pages**.');
+                $page->content("## Please install and enable **[Flex Objects]({$base}/plugins/flex-objects)** plugin. It is required to edit **Flex Pages**.");
 
                 /** @var Header $header */
                 $header = $page->header();
                 $menu = $directory->getConfig('admin.menu.list');
-                $header->access = $menu['authorize'] ?? ['admin.pages', 'admin.super'];
+                $header->access = $menu['authorize'] ?? ['admin.super'];
             },
             100000
         );

@@ -12,6 +12,7 @@
     * Fixed `ignore_empty: true` not removing empty values in blueprint filtering
     * Fixed `{{ false|string }}` twig to return '0' instead of ''
     * Grav 1.7: Fixed `Flex Pages` unserialize issues if Flex-Objects Plugin has not been installed
+    * Grav 1.7: Require Flex-Objects Plugin to edit Flex Accounts
 
 # v1.7.0-rc.3
 ## 01/02/2020
