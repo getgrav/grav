@@ -192,7 +192,6 @@ class Session implements SessionInterface
 
         try {
             $success = @session_start($options);
-            $user = $success ? $this->__get('user') : null;
             if (!$success) {
                 $last = error_get_last();
                 $error = $last ? $last['message'] : 'Unknown error';
@@ -205,6 +204,7 @@ class Session implements SessionInterface
 
         $this->started = true;
 
+        $user = $this->__get('user');
         if ($user && (!$user instanceof UserInterface || !$user->isValid())) {
             $this->invalidate();
 

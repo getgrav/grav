@@ -24,6 +24,11 @@ class Permissions implements \ArrayAccess, \Countable, \IteratorAggregate
         return $this->instances;
     }
 
+    public function hasAction(string $name): bool
+    {
+        return isset($this->instances[$name]);
+    }
+
     /**
      * @param string $name
      * @return Action|null
