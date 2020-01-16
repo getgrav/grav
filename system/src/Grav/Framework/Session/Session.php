@@ -203,6 +203,7 @@ class Session implements SessionInterface
         }
 
         $this->started = true;
+        $this->onSessionStart();
 
         $user = $this->__get('user');
         if ($user && (!$user instanceof UserInterface || !$user->isValid())) {
@@ -343,6 +344,10 @@ class Session implements SessionInterface
     protected function isSessionStarted()
     {
         return \PHP_SAPI !== 'cli' ? \PHP_SESSION_ACTIVE === session_status() : false;
+    }
+
+    protected function onSessionStart(): void
+    {
     }
 
     /**

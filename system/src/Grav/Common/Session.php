@@ -10,6 +10,7 @@
 namespace Grav\Common;
 
 use Grav\Common\Form\FormFlash;
+use Grav\Events\SessionStartEvent;
 
 class Session extends \Grav\Framework\Session\Session
 {
@@ -162,5 +163,13 @@ class Session extends \Grav\Framework\Session\Session
         }
 
         return null;
+    }
+
+    protected function onSessionStart(): void
+    {
+        $event = new SessionStartEvent($this);
+
+        $grav = Grav::instance();
+        $grav->dispatchEvent($event);
     }
 }

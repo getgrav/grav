@@ -9,16 +9,16 @@
 
 namespace Grav\Events;
 
-use Grav\Framework\Acl\Permissions;
+use Grav\Framework\Session\Session;
 
-class RegisterPermissionsEvent
+class SessionStartEvent
 {
-    /** @var Permissions */
-    public $permissions;
+    /** @var Session */
+    public $session;
 
-    public function __construct(Permissions $permissions)
+    public function __construct(Session $session)
     {
-        $this->permissions = $permissions;
+        $this->session = $session;
     }
 
     public function __debugInfo(): array
