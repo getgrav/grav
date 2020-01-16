@@ -310,11 +310,8 @@ class Assets extends PropertyObject
 
     protected function sortAssets($assets)
     {
-        uasort($assets, function ($a, $b) {
-            if ($a['priority'] == $b['priority']) {
-                return $a['order'] - $b['order'];
-            }
-            return $b['priority'] - $a['priority'];
+        uasort($assets, static function ($a, $b) {
+            return $b['priority'] <=> $a['priority'] ?: $a['order'] <=> $b['order'];
         });
         return $assets;
     }
