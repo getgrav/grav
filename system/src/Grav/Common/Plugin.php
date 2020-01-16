@@ -248,6 +248,19 @@ class Plugin implements EventSubscriberInterface, \ArrayAccess
     }
 
     /**
+     * @return array
+     */
+    public function __debugInfo(): array
+    {
+        $array = (array)$this;
+
+        unset($array["\0*\0grav"]);
+        $array["\0*\0config"] = $this->config();
+
+        return $array;
+    }
+
+    /**
      * This function will search a string for markdown links in a specific format.  The link value can be
      * optionally compared against via the $internal_regex and operated on by the callback $function
      * provided.

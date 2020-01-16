@@ -128,6 +128,18 @@ class Plugins extends Iterator
     }
 
     /**
+     * @return array
+     */
+    public function __debugInfo(): array
+    {
+        $array = (array)$this;
+
+        unset($array["\0Grav\Common\Iterator\0iteratorUnset"]);
+
+        return $array;
+    }
+
+    /**
      * Return list of all plugin data with their blueprints.
      *
      * @return array
