@@ -14,6 +14,7 @@
     * Fixed new `Flex Users` being stored with wrong filename, login issues [#2785](https://github.com/getgrav/grav/issues/2785)
     * Fixed `ignore_empty: true` not removing empty values in blueprint filtering
     * Fixed `{{ false|string }}` twig to return '0' instead of ''
+    * Fixed `Data::filter()` removing empty fields (such as empty list) by default
     * Grav 1.7: Fixed `Flex Pages` unserialize issues if Flex-Objects Plugin has not been installed
     * Grav 1.7: Require Flex-Objects Plugin to edit Flex Accounts
 

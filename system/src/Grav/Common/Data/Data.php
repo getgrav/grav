@@ -21,15 +21,17 @@ class Data implements DataInterface, \ArrayAccess, \Countable, \JsonSerializable
 
     /** @var string */
     protected $gettersVariable = 'items';
-
     /** @var array */
     protected $items;
-
     /** @var Blueprint|null */
     protected $blueprints;
-
     /** @var FileInterface|null */
     protected $storage;
+
+    /** @var bool */
+    private $missingValuesAsNull = false;
+    /** @var bool */
+    private $keepEmptyValues = true;
 
     /**
      * @param array $items
@@ -39,6 +41,28 @@ class Data implements DataInterface, \ArrayAccess, \Countable, \JsonSerializable
     {
         $this->items = $items;
         $this->blueprints = $blueprints;
+    }
+
+    /**
+     * @param bool $value
+     * @return $this
+     */
+    public function setKeepEmptyValues(bool $value)
+    {
+        $this->keepEmptyValues = $value;
+
+        return $this;
+    }
+
+    /**
+     * @param bool $value
+     * @return $this
+     */
+    public function setMissingValuesAsNull(bool $value)
+    {
+        $this->missingValuesAsNull = $value;
+
+        return $this;
     }
 
     /**
@@ -201,8 +225,8 @@ class Data implements DataInterface, \ArrayAccess, \Countable, \JsonSerializable
     public function filter()
     {
         $args = func_get_args();
-        $missingValuesAsNull = (bool)(array_shift($args) ?: false);
-        $keepEmptyValues = (bool)(array_shift($args) ?: false);
+        $missingValuesAsNull = (bool)(array_shift($args) ?? $this->missingValuesAsNull);
+        $keepEmptyValues = (bool)(array_shift($args) ?? $this->keepEmptyValues);
 
         $this->items = $this->blueprints()->filter($this->items, $missingValuesAsNull, $keepEmptyValues);
 
