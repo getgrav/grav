@@ -17,14 +17,17 @@ config:
         route: '/pages'
         title: PLUGIN_ADMIN.PAGES
         icon: fa-file-text
-        authorize: ['admin.pages', 'admin.super']
+        authorize: ['admin.pages.list', 'admin.super']
         priority: 5
 
     # Admin template type (folder)
     template: grav-pages
 
-    # TODO: Permissions type
-    permissions: crudpl
+    # Permissions
+    permissions:
+      admin.pages:
+        type: crudpl
+        label: Pages
 
     # Allowed admin actions
     actions:

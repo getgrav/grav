@@ -17,14 +17,17 @@ config:
         route: '/accounts'
         title: PLUGIN_ADMIN.USER_ACCOUNTS
         icon: fa-user
-        authorize: ['admin.users', 'admin.accounts', 'admin.super']
+        authorize: ['admin.users.list', 'admin.super']
         priority: 6
 
     # Admin template type (folder)
     template: grav-accounts
 
-    # TODO: Permissions type
-    permissions: crudpl
+    # Permissions
+    permissions:
+      admin.users:
+        type: crudpl
+        label: User Accounts
 
     # List view
     list:

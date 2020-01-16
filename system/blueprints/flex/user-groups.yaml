@@ -17,14 +17,17 @@ config:
         route: '/user-groups'
         title: PLUGIN_ADMIN.USER_GROUPS
         icon: fa-users
-        authorize: ['admin.users', 'admin.accounts', 'admin.super']
+        authorize: ['admin.users.list', 'admin.super']
         priority: 6
 
     # Admin template type (folder)
     template: grav-user-groups
 
-    # TODO: Permissions type
-    permissions: crudl
+    # Permissions
+    permissions:
+      admin.users:
+        type: crudl
+        label: User Groups
 
     # List view
     list:
