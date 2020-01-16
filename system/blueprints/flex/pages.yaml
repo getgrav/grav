@@ -11,6 +11,9 @@ extends@:
 config:
   # Administration Configuration (needs Flex-Objects plugin)
   admin:
+    # Admin route
+    route: '/pages'
+
     # Admin menu
     menu:
       list:

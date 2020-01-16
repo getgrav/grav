@@ -11,11 +11,16 @@ extends@:
 config:
   # Administration Configuration (needs Flex-Objects plugin)
   admin:
+    # Admin route
+    route: '/accounts/groups'
+
     # Admin menu
     menu:
-      list:
-        route: '/user-groups'
-        title: PLUGIN_ADMIN.USER_GROUPS
+      base:
+        location: '/accounts'
+        route: '/accounts/groups'
+        index: 1
+        title: PLUGIN_ADMIN.ACCOUNTS
         icon: fa-users
         authorize: ['admin.users.list', 'admin.super']
         priority: 6
