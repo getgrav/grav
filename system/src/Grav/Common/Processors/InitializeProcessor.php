@@ -12,8 +12,10 @@ namespace Grav\Common\Processors;
 use Grav\Common\Config\Config;
 use Grav\Common\Debugger;
 use Grav\Common\Page\Pages;
+use Grav\Common\Plugins;
 use Grav\Common\Uri;
 use Grav\Common\Utils;
+use Grav\Events\PluginsLoadedEvent;
 use Grav\Framework\Psr7\Response;
 use Grav\Framework\Session\Exceptions\SessionException;
 use Monolog\Formatter\LineFormatter;
@@ -61,11 +63,14 @@ class InitializeProcessor extends ProcessorBase
         $this->stopTimer('_debugger');
 
         $this->initialize($config);
+
+        $this->loadPlugins();
+
         $this->initializeSession($config);
 
         // Wrap call to next handler so that debugger can profile it.
         /** @var Response $response */
-        $response = $debugger->profile(function () use ($handler, $request) {
+        $response = $debugger->profile(static function () use ($handler, $request) {
             return $handler->handle($request);
         });
 
@@ -89,6 +94,9 @@ class InitializeProcessor extends ProcessorBase
         return $config;
     }
 
+    /**
+     * @param Config $config
+     */
     protected function initializeLogger(Config $config): void
     {
         $this->startTimer('_logger', 'Logger');
@@ -123,9 +131,14 @@ class InitializeProcessor extends ProcessorBase
         $this->stopTimer('_errors');
     }
 
+    /**
+     * @param Config $config
+     */
     protected function initialize(Config $config): void
     {
         $this->startTimer('_init', 'Initialize');
+
+        $grav = $this->container;
 
         // Use output buffering to prevent headers from being sent too early.
         ob_start();
@@ -141,11 +154,11 @@ class InitializeProcessor extends ProcessorBase
         }
 
         /** @var Pages $pages */
-        $pages = $this->container['pages'];
+        $pages = $grav['pages'];
         $pages->register();
 
         /** @var Uri $uri */
-        $uri = $this->container['uri'];
+        $uri = $grav['uri'];
         $uri->init();
 
         // Redirect pages with trailing slash if configured to do so.
@@ -154,14 +167,34 @@ class InitializeProcessor extends ProcessorBase
             && $config->get('system.pages.redirect_trailing_slash', false)
             && Utils::endsWith($path, '/')) {
             $redirect = (string) $uri::getCurrentRoute()->toString();
-            $this->container->redirect($redirect);
+            $grav->redirect($redirect);
         }
 
-        $this->container->setLocale();
+        $grav->setLocale();
 
         $this->stopTimer('_init');
     }
 
+    protected function loadPlugins(): void
+    {
+        $this->startTimer('_plugins_load', 'Load Plugins');
+
+        $grav = $this->container;
+
+        /** @var Plugins $plugins */
+        $plugins = $grav['plugins'];
+        $plugins->init();
+
+        // Plugins Loaded Event
+        $event = new PluginsLoadedEvent($grav, $plugins);
+        $grav->dispatchEvent($event);
+
+        $this->stopTimer('_plugins_load');
+    }
+
+    /**
+     * @param Config $config
+     */
     protected function initializeSession(Config $config): void
     {
         // FIXME: Initialize session should happen later after plugins have been loaded. This is a workaround to fix session issues in AWS.

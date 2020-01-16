@@ -18,15 +18,16 @@ class PluginsProcessor extends ProcessorBase
     /** @var string */
     public $id = 'plugins';
     /** @var string */
-    public $title = 'Plugins';
+    public $title = 'Initialize Plugins';
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $this->startTimer();
-        $this->container['accounts'];
-        $this->container['pages'];
-        $this->container['plugins']->init();
-        $this->container->fireEvent('onPluginsInitialized');
+        $grav = $this->container;
+
+        $grav['accounts'];
+
+        $grav->fireEvent('onPluginsInitialized');
         $this->stopTimer();
 
         return $handler->handle($request);
