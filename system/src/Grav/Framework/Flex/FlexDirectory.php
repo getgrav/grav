@@ -159,6 +159,20 @@ class FlexDirectory implements FlexAuthorizeInterface
     }
 
     /**
+     * @param string|null $name
+     * @return Blueprint|null
+     */
+    public function getConfigureBlueprint(string $name = null)
+    {
+        $name = $name ?? 'configure';
+        $path = "blueprints://flex/shared/{$name}.yaml";
+        $blueprint = new Blueprint($path);
+        $blueprint->load()->init();
+
+        return $blueprint->form() ? $blueprint : null;
+    }
+
+    /**
      * Returns a new uninitialized instance of blueprint.
      *
      * Always use $object->getBlueprint() or $object->getForm()->getBlueprint() instead.

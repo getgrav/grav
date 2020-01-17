@@ -40,7 +40,7 @@ form:
 
         access:
             type: permissions
-            check_authorize: true
+            check_authorize: false
             label: PLUGIN_ADMIN.PERMISSIONS
             ignore_empty: true
             validate:
