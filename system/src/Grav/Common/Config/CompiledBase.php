@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Config
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -13,44 +13,28 @@ use RocketTheme\Toolbox\File\PhpFile;
 
 abstract class CompiledBase
 {
-    /**
-     * @var int Version number for the compiled file.
-     */
+    /** @var int Version number for the compiled file. */
     public $version = 1;
 
-    /**
-     * @var string  Filename (base name) of the compiled configuration.
-     */
+    /** @var string  Filename (base name) of the compiled configuration. */
     public $name;
 
-    /**
-     * @var string|bool  Configuration checksum.
-     */
+    /** @var string|bool  Configuration checksum. */
     public $checksum;
 
-    /**
-     * @var string  Timestamp of compiled configuration
-     */
-    public $timestamp;
+    /** @var int  Timestamp of compiled configuration */
+    public $timestamp = 0;
 
-    /**
-     * @var string Cache folder to be used.
-     */
+    /** @var string Cache folder to be used. */
     protected $cacheFolder;
 
-    /**
-     * @var array  List of files to load.
-     */
+    /** @var array  List of files to load. */
     protected $files;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $path;
 
-    /**
-     * @var mixed  Configuration object.
-     */
+    /** @var mixed  Configuration object. */
     protected $object;
 
     /**
@@ -68,7 +52,6 @@ abstract class CompiledBase
         $this->path = $path ? rtrim($path, '\\/') . '/' : '';
         $this->cacheFolder = $cacheFolder;
         $this->files = $files;
-        $this->timestamp = 0;
     }
 
     /**
@@ -89,7 +72,9 @@ abstract class CompiledBase
     /**
      * Function gets called when cached configuration is saved.
      */
-    public function modified() {}
+    public function modified()
+    {
+    }
 
     /**
      * Get timestamp of compiled configuration
@@ -136,6 +121,9 @@ abstract class CompiledBase
         return $this->checksum;
     }
 
+    /**
+     * @return string
+     */
     protected function createFilename()
     {
         return "{$this->cacheFolder}/{$this->name()->name}.php";
@@ -157,7 +145,7 @@ abstract class CompiledBase
      * Load single configuration file and append it to the correct position.
      *
      * @param  string  $name  Name of the position.
-     * @param  string  $filename  File to be loaded.
+     * @param  string|string[]  $filename  File(s) to be loaded.
      */
     abstract protected function loadFile($name, $filename);
 
@@ -197,8 +185,7 @@ abstract class CompiledBase
         }
 
         $cache = include $filename;
-        if (
-            !\is_array($cache)
+        if (!\is_array($cache)
             || !isset($cache['checksum'], $cache['data'], $cache['@class'])
             || $cache['@class'] !== \get_class($this)
         ) {
@@ -256,6 +243,9 @@ abstract class CompiledBase
         $this->modified();
     }
 
+    /**
+     * @return array
+     */
     protected function getState()
     {
         return $this->object->toArray();

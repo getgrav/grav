@@ -16,7 +16,6 @@ class GpmStub extends GPM
         if (isset($this->data[$packageName])) {
             return $this->data[$packageName];
         }
-
     }
 
     public function findPackages($searches = [])

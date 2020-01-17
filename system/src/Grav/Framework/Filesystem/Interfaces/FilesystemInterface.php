@@ -66,7 +66,7 @@ interface FilesystemInterface
      * @see   http://php.net/manual/en/function.pathinfo.php
      *
      * @param string    $path       A filename or path, does not need to exist as a file.
-     * @param int       $options    A PATHINFO_* constant.
+     * @param int|null  $options    A PATHINFO_* constant.
      *
      * @return array|string
      * @api

@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Config
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -32,6 +32,7 @@ class Setup extends Data
      */
     public static $environment;
 
+    /** @var array */
     protected $streams = [
         'system' => [
             'type' => 'ReadOnlyStream',

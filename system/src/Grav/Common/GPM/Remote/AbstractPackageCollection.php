@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\GPM
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -16,28 +16,24 @@ use \Doctrine\Common\Cache\FilesystemCache;
 
 class AbstractPackageCollection extends BaseCollection
 {
-    /**
-     * The cached data previously fetched
-     * @var string
-     */
+    /** @var string The cached data previously fetched */
     protected $raw;
 
-    /**
-     * The lifetime to store the entry in seconds
-     * @var int
-     */
+    /** @var int The lifetime to store the entry in seconds */
     private $lifetime = 86400;
 
+    /** @var string */
     protected $repository;
 
+    /** @var FilesystemCache */
     protected $cache;
 
     /**
      * AbstractPackageCollection constructor.
      *
-     * @param null $repository
+     * @param string|null $repository
      * @param bool $refresh
-     * @param null $callback
+     * @param callable|null $callback
      */
     public function __construct($repository = null, $refresh = false, $callback = null)
     {
@@ -64,6 +60,11 @@ class AbstractPackageCollection extends BaseCollection
         }
     }
 
+    /**
+     * @param bool $refresh
+     * @param callable|null $callback
+     * @return string
+     */
     public function fetch($refresh = false, $callback = null)
     {
         if (!$this->raw || $refresh) {

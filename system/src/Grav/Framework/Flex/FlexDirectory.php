@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Flex
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -14,6 +14,8 @@ use Grav\Common\Config\Config;
 use Grav\Common\Data\Blueprint;
 use Grav\Common\Debugger;
 use Grav\Common\Grav;
+use Grav\Common\Page\Interfaces\PageInterface;
+use Grav\Common\User\Interfaces\UserInterface;
 use Grav\Common\Utils;
 use Grav\Framework\Cache\Adapter\DoctrineCache;
 use Grav\Framework\Cache\Adapter\MemoryCache;
@@ -43,10 +45,8 @@ class FlexDirectory implements FlexAuthorizeInterface
     protected $blueprint_file;
     /** @var Blueprint[] */
     protected $blueprints;
-    /** @var bool[] */
-    protected $blueprints_init;
-    /** @var FlexIndexInterface|null */
-    protected $index;
+    /** @var FlexIndexInterface[] */
+    protected $indexes = [];
     /** @var FlexCollectionInterface|null */
     protected $collection;
     /** @var bool */
@@ -59,6 +59,8 @@ class FlexDirectory implements FlexAuthorizeInterface
     protected $storage;
     /** @var CacheInterface */
     protected $cache;
+    /** @var FlexObjectInterface[] */
+    protected $objects;
     /** @var string */
     protected $objectClassName;
     /** @var string */
@@ -79,6 +81,18 @@ class FlexDirectory implements FlexAuthorizeInterface
         $this->blueprint_file = $blueprint_file;
         $this->defaults = $defaults;
         $this->enabled = !empty($defaults['enabled']);
+        $this->objects = [];
+    }
+
+    public function isListed(): bool
+    {
+        $grav = Grav::instance();
+
+        /** @var Flex|null $flex */
+        $flex = $grav['flex_objects'] ?? null;
+        $directory = $flex ? $flex->getDirectory($this->type) : null;
+
+        return null !== $directory;
     }
 
     /**
@@ -132,32 +146,44 @@ class FlexDirectory implements FlexAuthorizeInterface
     public function getConfig(string $name = null, $default = null)
     {
         if (null === $this->config) {
-            $this->config = new Config(array_merge_recursive($this->getBlueprintInternal()->get('config', []), $this->defaults));
+            $config = $this->getBlueprintInternal()->get('config', []);
+            $config = is_array($config) ? array_replace_recursive($config, $this->defaults) : null;
+            if (!is_array($config)) {
+                throw new \RuntimeException('Bad configuration');
+            }
+
+            $this->config = new Config($config);
         }
 
         return null === $name ? $this->config : $this->config->get($name, $default);
     }
 
     /**
+     * @param string|null $name
+     * @return Blueprint|null
+     */
+    public function getConfigureBlueprint(string $name = null)
+    {
+        $name = $name ?? 'configure';
+        $path = "blueprints://flex/shared/{$name}.yaml";
+        $blueprint = new Blueprint($path);
+        $blueprint->load()->init();
+
+        return $blueprint->form() ? $blueprint : null;
+    }
+
+    /**
+     * Returns a new uninitialized instance of blueprint.
+     *
+     * Always use $object->getBlueprint() or $object->getForm()->getBlueprint() instead.
+     *
      * @param string $type
      * @param string $context
      * @return Blueprint
      */
     public function getBlueprint(string $type = '', string $context = '')
     {
-        $blueprint = $this->getBlueprintInternal($type, $context);
-
-        if (empty($this->blueprints_init[$type])) {
-            $this->blueprints_init[$type] = true;
-
-            $blueprint->setScope('object');
-            $blueprint->init();
-            if (empty($blueprint->fields())) {
-                throw new RuntimeException(sprintf('Flex: Blueprint for %s is missing', $this->type));
-            }
-        }
-
-        return $blueprint;
+        return clone $this->getBlueprintInternal($type, $context);
     }
 
     /**
@@ -171,7 +197,7 @@ class FlexDirectory implements FlexAuthorizeInterface
             $file = preg_replace('/\.yaml/', "/{$view}.yaml", $file);
         }
 
-        return $file;
+        return (string)$file;
     }
 
     /**
@@ -211,10 +237,12 @@ class FlexDirectory implements FlexAuthorizeInterface
      */
     public function getIndex(array $keys = null, string $keyField = null): FlexIndexInterface
     {
-        $index = clone $this->loadIndex();
-        $index = $index->withKeyField($keyField);
+        $keyField = $keyField ?? '';
+        $index = $this->indexes[$keyField] ?? $this->loadIndex($keyField);
+        $index = clone $index;
 
         if (null !== $keys) {
+            /** @var FlexCollectionInterface $index */
             $index = $index->select($keys);
         }
 
@@ -222,7 +250,7 @@ class FlexDirectory implements FlexAuthorizeInterface
     }
 
     /**
-     * Returns an object if it exists.
+     * Returns an object if it exists. If no arguments are passed (or both of them are null), method creates a new empty object.
      *
      * Note: It is not safe to use the object without checking if the user can access it.
      *
@@ -230,24 +258,34 @@ class FlexDirectory implements FlexAuthorizeInterface
      * @param string|null $keyField  Field to be used as the key.
      * @return FlexObjectInterface|null
      */
-    public function getObject($key, string $keyField = null): ?FlexObjectInterface
+    public function getObject($key = null, string $keyField = null): ?FlexObjectInterface
     {
-        return $this->getIndex(null, $keyField)->get($key);
+        if (null === $key) {
+            return $this->createObject([], '');
+        }
+
+        $keyField = $keyField ?? '';
+        $index = $this->indexes[$keyField] ?? $this->loadIndex($keyField);
+
+        return $index->get($key);
     }
 
     /**
      * @param array $data
      * @param string|null $key
      * @return FlexObjectInterface
+     * @deprecated 1.7 Use $object->update()->save() instead.
      */
     public function update(array $data, string $key = null): FlexObjectInterface
     {
+        user_error(__CLASS__ . '::' . __FUNCTION__ . '() should not be used anymore: use $object->update()->save() instead.', E_USER_DEPRECATED);
+
         $object = null !== $key ? $this->getIndex()->get($key): null;
 
         $storage = $this->getStorage();
 
         if (null === $object) {
-            $object = $this->createObject($data, $key, true);
+            $object = $this->createObject($data, $key ?? '', true);
             $key = $object->getStorageKey();
 
             if ($key) {
@@ -285,9 +323,12 @@ class FlexDirectory implements FlexAuthorizeInterface
     /**
      * @param string $key
      * @return FlexObjectInterface|null
+     * @deprecated 1.7 Use $object->delete() instead.
      */
     public function remove(string $key): ?FlexObjectInterface
     {
+        user_error(__CLASS__ . '::' . __FUNCTION__ . '() should not be used anymore: use $object->delete() instead.', E_USER_DEPRECATED);
+
         $object = $this->getIndex()->get($key);
         if (!$object) {
             return null;
@@ -360,25 +401,25 @@ class FlexDirectory implements FlexAuthorizeInterface
         $this->getCache('object')->clear();
         $this->getCache('render')->clear();
 
-        $this->index = null;
+        $this->indexes = [];
 
         return $this;
     }
 
     /**
      * @param string|null $key
-     * @return string
+     * @return string|null
      */
-    public function getStorageFolder(string $key = null): string
+    public function getStorageFolder(string $key = null): ?string
     {
         return $this->getStorage()->getStoragePath($key);
     }
 
     /**
      * @param string|null $key
-     * @return string
+     * @return string|null
      */
-    public function getMediaFolder(string $key = null): string
+    public function getMediaFolder(string $key = null): ?string
     {
         return $this->getStorage()->getMediaPath($key);
     }
@@ -411,7 +452,7 @@ class FlexDirectory implements FlexAuthorizeInterface
 
     /**
      * @param array $entries
-     * @param string $keyField
+     * @param string|null $keyField
      * @return FlexCollectionInterface
      */
     public function createCollection(array $entries, string $keyField = null): FlexCollectionInterface
@@ -424,7 +465,7 @@ class FlexDirectory implements FlexAuthorizeInterface
 
     /**
      * @param array $entries
-     * @param string $keyField
+     * @param string|null $keyField
      * @return FlexIndexInterface
      */
     public function createIndex(array $entries, string $keyField = null): FlexIndexInterface
@@ -445,7 +486,6 @@ class FlexDirectory implements FlexAuthorizeInterface
         }
 
         return $this->objectClassName;
-
     }
 
     /**
@@ -475,7 +515,7 @@ class FlexDirectory implements FlexAuthorizeInterface
 
     /**
      * @param array $entries
-     * @param string $keyField
+     * @param string|null $keyField
      * @return FlexCollectionInterface
      */
     public function loadCollection(array $entries, string $keyField = null): FlexCollectionInterface
@@ -492,74 +532,137 @@ class FlexDirectory implements FlexAuthorizeInterface
     {
         /** @var Debugger $debugger */
         $debugger = Grav::instance()['debugger'];
-        $debugger->startTimer('flex-objects', sprintf('Flex: Initializing %d %s', \count($entries), $this->type));
 
-        $storage = $this->getStorage();
         $cache = $this->getCache('object');
 
-        // Get storage keys for the objects.
         $keys = [];
         $rows = [];
+        $fetch = [];
+
+        // Build lookup arrays with storage keys for the objects.
         foreach ($entries as $key => $value) {
-            $k = $value['storage_key'];
+            $k = $value['storage_key'] ?? '';
+            if ($k === '') {
+                continue;
+            }
+            $v = $this->objects[$k] ?? null;
             $keys[$k] = $key;
-            $rows[$k] = null;
+            $rows[$k] = $v;
+            if (!$v) {
+                $fetch[] = $k;
+            }
         }
 
-        // Fetch rows from the cache.
-        try {
-            $rows = $cache->getMultiple(array_keys($rows));
-        } catch (InvalidArgumentException $e) {
-            $debugger->addException($e);
+        $loading = \count($fetch);
+
+        // Attempt to fetch missing rows from the cache.
+        if ($fetch) {
+            try {
+                $debugger->startTimer('flex-objects', sprintf('Flex: Loading %d %s', $loading, $this->type));
+
+                $fetched = (array)$cache->getMultiple($fetch);
+                if ($fetched) {
+                    $index = $this->loadIndex('storage_key');
+
+                    // Make sure cached objects are up to date: compare against index checksum/timestamp.
+                    /**
+                     * @var string $key
+                     * @var mixed $value
+                     */
+                    foreach ($fetched as $key => $value) {
+                        if ($value instanceof FlexObjectInterface) {
+                            $objectMeta = $value->getMetaData();
+                        } else {
+                            $objectMeta = $value['__META'] ?? [];
+                        }
+                        $indexMeta = $index->getMetaData($key);
+
+                        $indexChecksum = $indexMeta['checksum'] ?? $indexMeta['storage_timestamp'] ?? null;
+                        $objectChecksum = $objectMeta['checksum'] ?? $objectMeta['storage_timestamp'] ?? null;
+                        if ($indexChecksum !== $objectChecksum) {
+                            unset($fetched[$key]);
+                        }
+                    }
+                }
+
+                // Update cached rows.
+                $rows = (array)array_replace($rows, $fetched);
+            } catch (InvalidArgumentException $e) {
+                $debugger->addException($e);
+            }
         }
 
         // Read missing rows from the storage.
+        $storage = $this->getStorage();
         $updated = [];
         $rows = $storage->readRows($rows, $updated);
 
+        // Create objects from the rows.
+        $isListed = $this->isListed();
+        $list = [];
+        foreach ($rows as $storageKey => $row) {
+            $usedKey = $keys[$storageKey];
+
+            if ($row instanceof FlexObjectInterface) {
+                $object = $row;
+            } else {
+                if ($row === null) {
+                    $debugger->addMessage(sprintf('Flex: Object %s was not found from %s storage', $storageKey, $this->type), 'debug');
+                    continue;
+                }
+
+                if (isset($row['__ERROR'])) {
+                    $message = sprintf('Flex: Object %s is broken in %s storage: %s', $storageKey, $this->type, $row['__ERROR']);
+                    $debugger->addException(new \RuntimeException($message));
+                    $debugger->addMessage($message, 'error');
+                    continue;
+                }
+
+                if (!isset($row['__META'])) {
+                    $row['__META'] = [
+                        'storage_key' => $storageKey,
+                        'storage_timestamp' => $entries[$usedKey]['storage_timestamp'] ?? 0,
+                    ];
+                }
+
+                $key = $row['__META']['key'] ?? $entries[$usedKey]['key'] ?? $usedKey;
+                $object = $this->createObject($row, $key, false);
+                $this->objects[$storageKey] = $object;
+                if ($isListed) {
+                    // If unserialize works for the object, serialize the object to speed up the loading.
+                    $updated[$storageKey] = $object;
+                }
+            }
+
+            $list[$usedKey] = $object;
+        }
+
         // Store updated rows to the cache.
         if ($updated) {
+            if (!$cache instanceof MemoryCache) {
+                ///** @var Debugger $debugger */
+                //$debugger = Grav::instance()['debugger'];
+                //$debugger->addMessage(sprintf('Flex: Caching %d %s', \count($entries), $this->type), 'debug');
+            }
             try {
-                if (!$cache instanceof MemoryCache) {
-                    $debugger->addMessage(sprintf('Flex: Caching %d %s: %s', \count($updated), $this->type, implode(', ', array_keys($updated))), 'debug');
-                }
                 $cache->setMultiple($updated);
             } catch (InvalidArgumentException $e) {
                 $debugger->addException($e);
-
                 // TODO: log about the issue.
             }
         }
 
-        // Create objects from the rows.
-        $list = [];
-        foreach ($rows as $storageKey => $row) {
-            if ($row === null) {
-                $debugger->addMessage(sprintf('Flex: Object %s was not found from %s storage', $storageKey, $this->type), 'debug');
-                continue;
-            }
-
-            if (isset($row['__error'])) {
-                $message = sprintf('Flex: Object %s is broken in %s storage: %s', $storageKey, $this->type, $row['__error']);
-                $debugger->addException(new \RuntimeException($message));
-                $debugger->addMessage($message, 'error');
-                continue;
-            }
-
-            $usedKey = $keys[$storageKey];
-            $row += [
-                'storage_key' => $storageKey,
-                'storage_timestamp' => $entries[$usedKey]['storage_timestamp'],
-            ];
-
-            $key = $entries[$usedKey]['key'] ?? $usedKey;
-            $object = $this->createObject($row, $key, false);
-            $list[$usedKey] = $object;
+        if ($fetch) {
+            $debugger->stopTimer('flex-objects');
         }
 
-        $debugger->stopTimer('flex-objects');
-
         return $list;
+    }
+
+    public function reloadIndex(): void
+    {
+        $cache = $this->getCache('index');
+        $cache->delete('__keys');
     }
 
     /**
@@ -579,6 +682,13 @@ class FlexDirectory implements FlexAuthorizeInterface
             $view = array_shift($parts) ?: '';
 
             $blueprint = new Blueprint($this->getBlueprintFile($view));
+            $blueprint->addDynamicHandler('data', function (array &$field, $property, array &$call) {
+                $this->dynamicDataField($field, $property, $call);
+            });
+            $blueprint->addDynamicHandler('flex', function (array &$field, $property, array &$call) {
+                $this->dynamicFlexField($field, $property, $call);
+            });
+
             if ($context) {
                 $blueprint->setContext($context);
             }
@@ -593,6 +703,64 @@ class FlexDirectory implements FlexAuthorizeInterface
         }
 
         return $this->blueprints[$type_view];
+    }
+
+    /**
+     * @param array $field
+     * @param string $property
+     * @param array $call
+     */
+    protected function dynamicDataField(array &$field, $property, array &$call)
+    {
+        $params = $call['params'];
+        if (\is_array($params)) {
+            $function = array_shift($params);
+        } else {
+            $function = $params;
+            $params = [];
+        }
+
+        $object = $call['object'];
+        if ($function === '\Grav\Common\Page\Pages::pageTypes') {
+            $params = [$object instanceof PageInterface && $object->isModule() ? 'modular' : 'standard'];
+        }
+
+        $data = null;
+        if (\is_callable($function)) {
+            $data = \call_user_func_array($function, $params);
+        }
+
+        // If function returns a value,
+        if (null !== $data) {
+            if (\is_array($data) && isset($field[$property]) && \is_array($field[$property])) {
+                // Combine field and @data-field together.
+                $field[$property] += $data;
+            } else {
+                // Or create/replace field with @data-field.
+                $field[$property] = $data;
+            }
+        }
+    }
+
+    /**
+     * @param array $field
+     * @param string $property
+     * @param array $call
+     */
+    protected function dynamicFlexField(array &$field, $property, array &$call)
+    {
+        $params = (array)$call['params'];
+        $object = $call['object'] ?? null;
+        $method = array_shift($params);
+
+        if ($object && method_exists($object, $method)) {
+            $value = $object->{$method}(...$params);
+            if (\is_array($value) && isset($field[$property]) && \is_array($field[$property])) {
+                $field[$property] = array_merge_recursive($field[$property], $value);
+            } else {
+                $field[$property] = $value;
+            }
+        }
     }
 
     /**
@@ -615,16 +783,22 @@ class FlexDirectory implements FlexAuthorizeInterface
     }
 
     /**
+     * @param string $keyField
      * @return FlexIndexInterface
      */
-    protected function loadIndex(): FlexIndexInterface
+    protected function loadIndex(string $keyField): FlexIndexInterface
     {
         static $i = 0;
 
-        $index = $this->index;
+        $index = $this->indexes[$keyField] ?? null;
+        if (null !== $index) {
+            return $index;
+        }
 
+        $index = $this->indexes['storage_key'] ?? null;
         if (null === $index) {
-            $i++; $j = $i;
+            $i++;
+            $j = $i;
             /** @var Debugger $debugger */
             $debugger = Grav::instance()['debugger'];
             $debugger->startTimer('flex-keys-' . $this->type . $j, "Flex: Loading {$this->type} index");
@@ -644,8 +818,10 @@ class FlexDirectory implements FlexAuthorizeInterface
                 $className = $this->getIndexClass();
                 $keys = $className::loadEntriesFromStorage($storage);
                 if (!$cache instanceof MemoryCache) {
-                    $debugger->addMessage(sprintf('Flex: Caching %s index of %d objects', $this->type, \count($keys)),
-                        'debug');
+                    $debugger->addMessage(
+                        sprintf('Flex: Caching %s index of %d objects', $this->type, \count($keys)),
+                        'debug'
+                    );
                 }
                 try {
                     $cache->set('__keys', $keys);
@@ -655,15 +831,55 @@ class FlexDirectory implements FlexAuthorizeInterface
                 }
             }
 
+            $ordering = $this->getConfig('data.ordering', []);
+
             // We need to do this in two steps as orderBy() calls loadIndex() again and we do not want infinite loop.
-            $this->index = $this->createIndex($keys);
-            /** @var FlexCollectionInterface $collection */
-            $collection = $this->index->orderBy($this->getConfig('data.ordering', []));
-            $this->index = $index = $collection->getIndex();
+            $this->indexes['storage_key'] = $index = $this->createIndex($keys, 'storage_key');
+            if ($ordering) {
+                /** @var FlexCollectionInterface $collection */
+                $collection = $this->indexes['storage_key']->orderBy($ordering);
+                $this->indexes['storage_key'] = $index = $collection->getIndex();
+            }
 
             $debugger->stopTimer('flex-keys-' . $this->type . $j);
         }
 
+        if ($keyField !== 'storage_key') {
+            $this->indexes[$keyField] = $index = $index->withKeyField($keyField ?: null);
+        }
+
         return $index;
+    }
+
+    /**
+     * @param string $action
+     * @return string
+     */
+    protected function getAuthorizeAction(string $action): string
+    {
+        // Handle special action save, which can mean either update or create.
+        if ($action === 'save') {
+            $action = 'create';
+        }
+
+        return $action;
+    }
+    /**
+     * @return UserInterface|null
+     */
+    protected function getActiveUser(): ?UserInterface
+    {
+        /** @var UserInterface|null $user */
+        $user = Grav::instance()['user'] ?? null;
+
+        return $user;
+    }
+
+    /**
+     * @return string
+     */
+    protected function getAuthorizeScope(): string
+    {
+        return isset(Grav::instance()['admin']) ? 'admin' : 'site';
     }
 }

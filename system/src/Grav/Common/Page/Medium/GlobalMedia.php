@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Page
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -17,7 +17,7 @@ class GlobalMedia extends AbstractMedia
     /**
      * Return media path.
      *
-     * @return null
+     * @return string|null
      */
     public function getPath()
     {
@@ -25,8 +25,7 @@ class GlobalMedia extends AbstractMedia
     }
 
     /**
-     * @param mixed $offset
-     *
+     * @param string $offset
      * @return bool
      */
     public function offsetExists($offset)
@@ -35,8 +34,7 @@ class GlobalMedia extends AbstractMedia
     }
 
     /**
-     * @param mixed $offset
-     *
+     * @param string $offset
      * @return mixed
      */
     public function offsetGet($offset)

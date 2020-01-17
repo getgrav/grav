@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Filesystem
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -11,8 +11,11 @@ namespace Grav\Common\Filesystem;
 
 class RecursiveDirectoryFilterIterator extends \RecursiveFilterIterator
 {
+    /** @var string */
     protected static $root;
+    /** @var array */
     protected static $ignore_folders;
+    /** @var array */
     protected static $ignore_files;
 
     /**
@@ -57,6 +60,9 @@ class RecursiveDirectoryFilterIterator extends \RecursiveFilterIterator
         return false;
     }
 
+    /**
+     * @return RecursiveDirectoryFilterIterator|\RecursiveFilterIterator
+     */
     public function getChildren()
     {
         /** @var RecursiveDirectoryFilterIterator $iterator */

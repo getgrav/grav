@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\User
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -50,11 +50,14 @@ class UserCollection implements UserCollectionInterface
 
         $filename = 'account://' . $username . YAML_EXT;
         $path = $locator->findResource($filename) ?: $locator->findResource($filename, true, true);
+        if (!is_string($path)) {
+            throw new \RuntimeException('Internal Error');
+        }
         $file = CompiledYamlFile::instance($path);
         $content = (array)$file->content() + ['username' => $username, 'state' => 'enabled'];
 
         $userClass = $this->className;
-        $callable = function() {
+        $callable = static function () {
             $blueprints = new Blueprints;
 
             return $blueprints->get('user/account');
@@ -78,8 +81,16 @@ class UserCollection implements UserCollectionInterface
     {
         $fields = (array)$fields;
 
-        $account_dir = Grav::instance()['locator']->findResource('account://');
-        $files = $account_dir ? array_diff(scandir($account_dir), ['.', '..']) : [];
+        $grav = Grav::instance();
+        /** @var UniformResourceLocator $locator */
+        $locator = $grav['locator'];
+
+        $account_dir = $locator->findResource('account://');
+        if (!is_string($account_dir)) {
+            return $this->load('');
+        }
+
+        $files = array_diff(scandir($account_dir) ?: [], ['.', '..']);
 
         // Try with username first, you never know!
         if (in_array('username', $fields, true)) {
@@ -95,7 +106,7 @@ class UserCollection implements UserCollectionInterface
                 if (Utils::endsWith($file, YAML_EXT)) {
                     $find_user = $this->load(trim(pathinfo($file, PATHINFO_FILENAME)));
                     foreach ($fields as $field) {
-                        if ($find_user[$field] === $query) {
+                        if (isset($find_user[$field]) && $find_user[$field] === $query) {
                             return $find_user;
                         }
                     }

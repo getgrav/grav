@@ -3,21 +3,19 @@ form:
     validation: loose
 
     fields:
-        spacer:
-            type: spacer
-            text: '<br>'
-
         groupname:
             type: text
             size: large
-            label: PLUGIN_ADMIN.NAME
-            disabled: true
-            readonly: true
+            label: PLUGIN_ADMIN.GROUP_NAME
+            flex-disabled@: exists
+            flex-readonly@: exists
+            validate:
+              required: true
 
         readableName:
             type: text
             size: large
-            label: PLUGIN_ADMIN_PRO.READABLE_NAME
+            label: PLUGIN_ADMIN.DISPLAY_NAME
 
         description:
             type: text
@@ -27,11 +25,24 @@ form:
         icon:
             type: text
             size: small
-            label: PLUGIN_ADMIN_PRO.ICON
+            label: PLUGIN_ADMIN.ICON
+
+        enabled:
+            type: toggle
+            label: PLUGIN_ADMIN.ENABLED
+            highlight: 1
+            default: 1
+            options:
+              1: PLUGIN_ADMIN.YES
+              0: PLUGIN_ADMIN.NO
+            validate:
+              type: bool
 
         access:
             type: permissions
+            check_authorize: false
             label: PLUGIN_ADMIN.PERMISSIONS
             ignore_empty: true
             validate:
                 type: array
+                value_type: bool

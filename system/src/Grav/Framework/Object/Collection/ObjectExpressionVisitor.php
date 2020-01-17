@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Object
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -94,14 +94,14 @@ class ObjectExpressionVisitor extends ClosureExpressionVisitor
      *
      * @param string   $name
      * @param int      $orientation
-     * @param \Closure $next
+     * @param \Closure|null $next
      *
      * @return \Closure
      */
     public static function sortByField($name, $orientation = 1, \Closure $next = null)
     {
         if (!$next) {
-            $next = function($a, $b) {
+            $next = function ($a, $b) {
                 return 0;
             };
         }

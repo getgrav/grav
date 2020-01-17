@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -22,37 +22,57 @@ class Uri
 {
     const HOSTNAME_REGEX = '/^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/';
 
-    /** @var \Grav\Framework\Uri\Uri */
+    /** @var \Grav\Framework\Uri\Uri|null */
     protected static $currentUri;
 
-    /** @var \Grav\Framework\Route\Route */
+    /** @var \Grav\Framework\Route\Route|null */
     protected static $currentRoute;
 
+    /** @var string */
     public $url;
 
     // Uri parts.
+    /** @var string|null */
     protected $scheme;
+    /** @var string|null */
     protected $user;
+    /** @var string|null */
     protected $password;
+    /** @var string|null */
     protected $host;
+    /** @var int|null */
     protected $port;
+    /** @var string */
     protected $path;
+    /** @var string */
     protected $query;
+    /** @var string|null */
     protected $fragment;
 
     // Internal stuff.
+    /** @var string */
     protected $base;
+    /** @var string|null */
     protected $basename;
+    /** @var string */
     protected $content_path;
+    /** @var string|null */
     protected $extension;
+    /** @var string */
     protected $env;
+    /** @var array */
     protected $paths;
+    /** @var array */
     protected $queries;
+    /** @var array */
     protected $params;
+    /** @var string */
     protected $root;
+    /** @var string */
     protected $root_path;
+    /** @var string */
     protected $uri;
-    protected $content_type;
+    /** @var array */
     protected $post;
 
     /**
@@ -136,6 +156,9 @@ class Uri
 
         if ($custom_base) {
             $custom_parts = parse_url($custom_base);
+            if ($custom_parts === false) {
+                throw new \RuntimeException('Bad configuration: system.custom_base_url');
+            }
             $orig_root_path = $this->root_path;
             $this->root_path = isset($custom_parts['path']) ? rtrim($custom_parts['path'], '/') : '';
             if (isset($custom_parts['scheme'])) {
@@ -207,12 +230,13 @@ class Uri
 
         RouteFactory::setRoot($this->root_path);
         RouteFactory::setLanguage($language->getLanguageURLPrefix());
+        RouteFactory::setParamValueDelimiter($config->get('system.param_sep'));
     }
 
     /**
      * Return URI path.
      *
-     * @param string $id
+     * @param int $id
      *
      * @return string|string[]
      */
@@ -300,16 +324,17 @@ class Uri
      * Get URI parameter.
      *
      * @param string $id
+     * @param string|bool|null $default
      *
      * @return bool|string
      */
-    public function param($id)
+    public function param($id, $default = false)
     {
         if (isset($this->params[$id])) {
             return html_entity_decode(rawurldecode($this->params[$id]));
         }
 
-        return false;
+        return $default;
     }
 
     /**
@@ -348,7 +373,7 @@ class Uri
     /**
      * Return the Path
      *
-     * @return String The path of the URI
+     * @return string The path of the URI
      */
     public function path()
     {
@@ -637,7 +662,7 @@ class Uri
             $ip = getenv('HTTP_FORWARDED_FOR');
         } elseif (getenv('HTTP_FORWARDED')) {
             $ip = getenv('HTTP_FORWARDED');
-        } elseif (getenv('REMOTE_ADDR')){
+        } elseif (getenv('REMOTE_ADDR')) {
             $ip = getenv('REMOTE_ADDR');
         } else {
             $ip = 'UNKNOWN';
@@ -668,6 +693,7 @@ class Uri
     public static function getCurrentRoute()
     {
         if (!static::$currentRoute) {
+            /** @var Uri $uri */
             $uri = Grav::instance()['uri'];
             static::$currentRoute = RouteFactory::createFromParts($uri->toArray());
         }
@@ -771,7 +797,6 @@ class Uri
         } elseif ($url_path === '/' || ($base_url !== '' && Utils::startsWith($url_path, $base_url))) {
             $url_path = $base_url . $url_path;
         } else {
-
             // see if page is relative to this or absolute
             if (Utils::startsWith($url_path, '/')) {
                 $normalized_url = Utils::normalizePath($base_url . $url_path);
@@ -834,7 +859,6 @@ class Uri
 
         // handle absolute URLs
         if (\is_array($url) && !$external && ($absolute === true || $grav['config']->get('system.absolute_urls', false))) {
-
             $url['scheme'] = $uri->scheme(true);
             $url['host'] = $uri->host();
             $url['port'] = $uri->port(true);
@@ -896,7 +920,9 @@ class Uri
 
         $encodedUrl = preg_replace_callback(
             '%[^:/@?&=#]+%usD',
-            function ($matches) { return rawurlencode($matches[0]); },
+            function ($matches) {
+                return rawurlencode($matches[0]);
+            },
             $url
         );
 
@@ -906,7 +932,7 @@ class Uri
             return false;
         }
 
-        foreach($parts as $name => $value) {
+        foreach ($parts as $name => $value) {
             $parts[$name] = rawurldecode($value);
         }
 
@@ -950,7 +976,7 @@ class Uri
      * @param PageInterface   $page         the current page to use as reference
      * @param string $markdown_url the URL as it was written in the markdown
      * @param string $type         the type of URL, image | link
-     * @param null   $relative     if null, will use system default, if true will use relative links internally
+     * @param bool|null $relative     if null, will use system default, if true will use relative links internally
      *
      * @return string the more friendly formatted url
      */
@@ -1098,7 +1124,7 @@ class Uri
     {
         $regex = '/(\/)\/+/';
         $path = str_replace(['\\', '/ /'], '/', $path);
-        $path = preg_replace($regex,'$1',$path);
+        $path = preg_replace($regex, '$1', $path);
 
         return $path;
     }
@@ -1106,7 +1132,7 @@ class Uri
     /**
      * Filters the user info string.
      *
-     * @param string $info The raw user or password.
+     * @param string|null $info The raw user or password.
      * @return string The percent-encoded user or password string.
      */
     public static function filterUserInfo($info)
@@ -1122,7 +1148,7 @@ class Uri
      * will NOT double-encode characters that are already
      * percent-encoded.
      *
-     * @param  string $path The raw uri path.
+     * @param  string|null $path The raw uri path.
      * @return string       The RFC 3986 percent-encoded uri path.
      * @link   http://www.faqs.org/rfcs/rfc3986.html
      */
@@ -1134,7 +1160,7 @@ class Uri
     /**
      * Filters the query string or fragment of a URI.
      *
-     * @param string $query The raw uri query string.
+     * @param string|null $query The raw uri query string.
      * @return string The percent-encoded query string.
      */
     public static function filterQuery($query)
@@ -1155,7 +1181,7 @@ class Uri
         } elseif (isset($env['HTTP_CLOUDFRONT_FORWARDED_PROTO'])) {
             $this->scheme = $env['HTTP_CLOUDFRONT_FORWARDED_PROTO'];
         } elseif (isset($env['REQUEST_SCHEME']) && empty($env['HTTPS'])) {
-           $this->scheme = $env['REQUEST_SCHEME'];
+            $this->scheme = $env['REQUEST_SCHEME'];
         } else {
             $https = $env['HTTPS'] ?? '';
             $this->scheme = (empty($https) || strtolower($https) === 'off') ? 'http' : 'https';
@@ -1179,17 +1205,17 @@ class Uri
 
         // Build port.
         if (isset($env['HTTP_X_FORWARDED_PORT'])) {
-           $this->port = (int)$env['HTTP_X_FORWARDED_PORT'];
+            $this->port = (int)$env['HTTP_X_FORWARDED_PORT'];
         } elseif (isset($env['X-FORWARDED-PORT'])) {
-           $this->port = (int)$env['X-FORWARDED-PORT'];
+            $this->port = (int)$env['X-FORWARDED-PORT'];
         } elseif (isset($env['HTTP_CLOUDFRONT_FORWARDED_PROTO'])) {
            // Since AWS Cloudfront does not provide a forwarded port header,
            // we have to build the port using the scheme.
-           $this->port = $this->port();
+            $this->port = $this->port();
         } elseif (isset($env['SERVER_PORT'])) {
-           $this->port = (int)$env['SERVER_PORT'];
+            $this->port = (int)$env['SERVER_PORT'];
         } else {
-           $this->port = null;
+            $this->port = null;
         }
 
         if ($this->hasStandardPort()) {
@@ -1330,7 +1356,7 @@ class Uri
         if (isset($_SERVER['CONTENT_TYPE'])) {
             $content_type = $_SERVER['CONTENT_TYPE'];
             if ($short) {
-                return Utils::substrToString($content_type,';');
+                return Utils::substrToString($content_type, ';');
             }
             return $content_type;
         }
@@ -1340,7 +1366,7 @@ class Uri
     /**
      * Check if this is a valid Grav extension
      *
-     * @param $extension
+     * @param string $extension
      * @return bool
      */
     public function isValidExtension($extension)
@@ -1357,13 +1383,15 @@ class Uri
     /**
      * Allow overriding of any element (be careful!)
      *
-     * @param $data
+     * @param array $data
      * @return Uri
      */
     public function setUriProperties($data)
     {
         foreach (get_object_vars($this) as $property => $default) {
-            if (!array_key_exists($property, $data)) continue;
+            if (!array_key_exists($property, $data)) {
+                continue;
+            }
             $this->{$property} = $data[$property]; // assign value to object
         }
         return $this;
@@ -1393,6 +1421,9 @@ class Uri
         return $rootPath;
     }
 
+    /**
+     * @return string
+     */
     private function buildEnvironment()
     {
         // check for localhost variations

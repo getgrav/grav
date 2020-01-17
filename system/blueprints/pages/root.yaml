@@ -1,0 +1,136 @@
+title: PLUGIN_ADMIN.ROOT
+
+rules:
+  slug:
+    pattern: '[a-zA-Zа-яA-Я0-9_\-]+'
+    min: 1
+    max: 200
+
+form:
+  validation: loose
+
+  fields:
+
+    tabs:
+      type: tabs
+      active: 1
+
+      fields:
+        advanced:
+          type: tab
+          title: PLUGIN_ADMIN.ADVANCED
+
+          fields:
+            overrides:
+              type: section
+              title: PLUGIN_ADMIN.OVERRIDES
+              underline: true
+
+              fields:
+
+                header.dateformat:
+                  type: select
+                  size: medium
+                  selectize:
+                    create: true
+                  label: PLUGIN_ADMIN.DEFAULT_DATE_FORMAT
+                  help: PLUGIN_ADMIN.DEFAULT_DATE_FORMAT_HELP
+                  placeholder: PLUGIN_ADMIN.DEFAULT_DATE_FORMAT_PLACEHOLDER
+                  data-options@: '\Grav\Common\Utils::dateFormats'
+                  validate:
+                    type: string
+
+                header.process:
+                  type: checkboxes
+                  label: PLUGIN_ADMIN.PROCESS
+                  config-default@: system.pages.process
+                  default:
+                    markdown: true
+                    twig: false
+                  options:
+                    markdown: Markdown
+                    twig: Twig
+                  use: keys
+
+                header.twig_first:
+                  type: toggle
+                  label: PLUGIN_ADMIN.TWIG_FIRST
+                  help: PLUGIN_ADMIN.TWIG_FIRST_HELP
+                  highlight: 0
+                  default: 0
+                  options:
+                    1: PLUGIN_ADMIN.YES
+                    0: PLUGIN_ADMIN.NO
+                  validate:
+                    type: bool
+
+                header.never_cache_twig:
+                  type: toggle
+                  label: PLUGIN_ADMIN.NEVER_CACHE_TWIG
+                  help: PLUGIN_ADMIN.NEVER_CACHE_TWIG_HELP
+                  highlight: 0
+                  default: 0
+                  options:
+                    1: PLUGIN_ADMIN.YES
+                    0: PLUGIN_ADMIN.NO
+                  validate:
+                    type: bool
+
+                header.child_type:
+                  type: select
+                  label: PLUGIN_ADMIN.DEFAULT_CHILD_TYPE
+                  default: default
+                  placeholder: PLUGIN_ADMIN.USE_GLOBAL
+                  data-options@: '\Grav\Common\Page\Pages::types'
+
+                header.cache_enable:
+                  type: toggle
+                  label: PLUGIN_ADMIN.CACHING
+                  highlight: 1
+                  default: 1
+                  options:
+                    1: PLUGIN_ADMIN.ENABLED
+                    0: PLUGIN_ADMIN.DISABLED
+                  validate:
+                    type: bool
+
+                header.debugger:
+                  type: toggle
+                  label: PLUGIN_ADMIN.DEBUGGER
+                  help: PLUGIN_ADMIN.DEBUGGER_HELP
+                  highlight: 0
+                  default: 0
+                  options:
+                    1: PLUGIN_ADMIN.ENABLED
+                    0: PLUGIN_ADMIN.DISABLED
+                  validate:
+                    type: bool
+
+            admin_only:
+              type: section
+              title: PLUGIN_ADMIN.ADMIN_SPECIFIC_OVERRIDES
+              underline: true
+
+              fields:
+
+                header.admin.children_display_order:
+                  type: select
+                  label: PLUGIN_ADMIN.ADMIN_CHILDREN_DISPLAY_ORDER
+                  help: PLUGIN_ADMIN.ADMIN_CHILDREN_DISPLAY_ORDER_HELP
+                  classes: fancy
+                  default: 'collection'
+                  options:
+                    'default': 'Ordered by Folder name (default)'
+                    'collection': 'Ordered by Collection definition'
+
+
+                header.order_by:
+                  type: hidden
+
+                header.order_manual:
+                  type: hidden
+                  validate:
+                    type: commalist
+
+                blueprint:
+                  type: blueprint

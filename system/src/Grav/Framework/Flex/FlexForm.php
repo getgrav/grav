@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Flex
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -13,11 +13,12 @@ use Grav\Common\Data\Blueprint;
 use Grav\Common\Data\Data;
 use Grav\Common\Grav;
 use Grav\Common\Twig\Twig;
-use Grav\Common\Utils;
 use Grav\Framework\Flex\Interfaces\FlexFormInterface;
 use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
+use Grav\Framework\Form\Interfaces\FormFlashInterface;
 use Grav\Framework\Form\Traits\FormTrait;
 use Grav\Framework\Route\Route;
+use RocketTheme\Toolbox\ArrayTraits\NestedArrayAccessWithGetters;
 use Twig\Error\LoaderError;
 use Twig\Error\SyntaxError;
 use Twig\Template;
@@ -27,8 +28,12 @@ use Twig\TemplateWrapper;
  * Class FlexForm
  * @package Grav\Framework\Flex
  */
-class FlexForm implements FlexFormInterface
+class FlexForm implements FlexFormInterface, \JsonSerializable
 {
+    use NestedArrayAccessWithGetters {
+        NestedArrayAccessWithGetters::get as private traitGet;
+        NestedArrayAccessWithGetters::set as private traitSet;
+    }
     use FormTrait {
         FormTrait::doSerialize as doTraitSerialize;
         FormTrait::doUnserialize as doTraitUnserialize;
@@ -40,35 +45,147 @@ class FlexForm implements FlexFormInterface
     /** @var FlexObjectInterface */
     private $object;
 
+    /** @var string */
+    private $flexName;
+
+    /**
+     * @param array $options    Options to initialize the form instance:
+     *                          (string) name: Form name, allows you to use custom form.
+     *                          (string) unique_id: Unique id for this form instance.
+     *                          (array) form: Custom form fields.
+     *                          (FlexObjectInterface) object: Object instance.
+     *                          (string) key: Object key, used only if object instance isn't given.
+     *                          (FlexDirectory) directory: Flex Directory, mandatory if object isn't given.
+     *
+     * @return FlexFormInterface
+     */
+    public static function instance(array $options = [])
+    {
+        if (isset($options['object'])) {
+            $object = $options['object'];
+            if (!$object instanceof FlexObjectInterface) {
+                throw new \RuntimeException(__METHOD__ . "(): 'object' should be instance of FlexObjectInterface", 400);
+            }
+        } elseif (isset($options['directory'])) {
+            $directory = $options['directory'];
+            if (!$directory instanceof FlexDirectory) {
+                throw new \RuntimeException(__METHOD__ . "(): 'directory' should be instance of FlexDirectory", 400);
+            }
+            $key = $options['key'] ?? '';
+            $object = $directory->getObject($key) ?? $directory->createObject([], $key);
+        } else {
+            throw new \RuntimeException(__METHOD__ . "(): You need to pass option 'directory' or 'object'", 400);
+        }
+
+        $name = $options['name'] ?? '';
+
+        // There is no reason to pass object and directory.
+        unset($options['object'], $options['directory']);
+
+        return $object->getForm($name, $options);
+    }
+
     /**
      * FlexForm constructor.
      * @param string $name
      * @param FlexObjectInterface $object
-     * @param array|null $form
+     * @param array $options
      */
-    public function __construct(string $name, FlexObjectInterface $object, array $form = null)
+    public function __construct(string $name, FlexObjectInterface $object, array $options = null)
     {
         $this->name = $name;
-        $this->form = $form;
-
-        $uniqueId = $object->exists() ? $object->getStorageKey() : "{$object->getFlexType()}:new";
         $this->setObject($object);
+        $this->setName($object->getFlexType(), $name);
         $this->setId($this->getName());
-        $this->setUniqueId(md5($uniqueId));
+
+        $uniqueId = $options['unique_id'] ?? null;
+        if (!$uniqueId) {
+            if ($object->exists()) {
+                $uniqueId = $object->getStorageKey();
+            } elseif ($object->hasKey()) {
+                $uniqueId = "{$object->getKey()}:new";
+            } else {
+                $uniqueId = "{$object->getFlexType()}:new";
+            }
+            $uniqueId = md5($uniqueId);
+        }
+        $this->setUniqueId($uniqueId);
+        $directory = $object->getFlexDirectory();
+        $this->setFlashLookupFolder($directory->getBlueprint()->get('form/flash_folder') ?? 'tmp://forms/[SESSIONID]');
+        $this->form = $options['form'] ?? null;
+
+        $this->initialize();
+    }
+
+    /**
+     * @return $this
+     */
+    public function initialize()
+    {
         $this->messages = [];
         $this->submitted = false;
+        $this->data = null;
+        $this->files = [];
+        $this->unsetFlash();
 
+        /** @var FlexFormFlash $flash */
         $flash = $this->getFlash();
         if ($flash->exists()) {
             $data = $flash->getData();
             $includeOriginal = (bool)($this->getBlueprint()->form()['images']['original'] ?? null);
 
+            $this->object = $flash->getObject();
             $this->data = $data ? new Data($data, $this->getBlueprint()) : null;
             $this->files = $flash->getFilesByFields($includeOriginal);
-        } else {
-            $this->data = null;
-            $this->files = [];
         }
+
+        return $this;
+    }
+
+    /**
+     * @param string $name
+     * @param mixed $default
+     * @param string|null $separator
+     * @return mixed
+     */
+    public function get($name, $default = null, $separator = null)
+    {
+        switch (strtolower($name)) {
+            case 'id':
+            case 'uniqueid':
+            case 'name':
+            case 'noncename':
+            case 'nonceaction':
+            case 'action':
+            case 'data':
+            case 'files':
+            case 'errors';
+            case 'fields':
+            case 'blueprint':
+            case 'page':
+                $method = 'get' . $name;
+                return $this->{$method}();
+        }
+
+        return $this->traitGet($name, $default, $separator);
+    }
+
+    /**
+     * @param string $name
+     * @param mixed $value
+     * @param string|null $separator
+     * @return FlexForm
+     */
+    public function set($name, $value, $separator = null)
+    {
+        switch (strtolower($name)) {
+            case 'id':
+            case 'uniqueid':
+                $method = 'set' . $name;
+                return $this->{$method}();
+        }
+
+        return $this->traitSet($name, $value, $separator);
     }
 
     /**
@@ -76,10 +193,15 @@ class FlexForm implements FlexFormInterface
      */
     public function getName(): string
     {
-        $object = $this->getObject();
-        $name = $this->name ?: 'object';
+        return $this->flexName;
+    }
 
-        return "flex-{$object->getFlexType()}-{$name}";
+    protected function setName(string $type, string $name): void
+    {
+        // Make sure that both type and name do not have dash (convert dashes to underscores).
+        $type = str_replace('-', '_', $type);
+        $name = str_replace('-', '_', $name);
+        $this->flexName = $name ? "flex-{$type}-{$name}" : "flex-{$type}";
     }
 
     /**
@@ -128,6 +250,32 @@ class FlexForm implements FlexFormInterface
     }
 
     /**
+     * Get form flash object.
+     *
+     * @return FormFlashInterface|FlexFormFlash
+     */
+    public function getFlash()
+    {
+        if (null === $this->flash) {
+            $grav = Grav::instance();
+            $config = [
+                'session_id' => $this->getSessionId(),
+                'unique_id' => $this->getUniqueId(),
+                'form_name' => $this->getName(),
+                'folder' => $this->getFlashFolder(),
+                'object' => $this->getObject()
+            ];
+
+            $this->flash = new FlexFormFlash($config);
+            $this->flash
+                ->setUrl($grav['uri']->url)
+                ->setUser($grav['user'] ?? null);
+        }
+
+        return $this->flash;
+    }
+
+    /**
      * @return FlexObjectInterface
      */
     public function getObject(): FlexObjectInterface
@@ -150,7 +298,7 @@ class FlexForm implements FlexFormInterface
     {
         if (null === $this->blueprint) {
             try {
-                $blueprint = $this->getObject()->getBlueprint(Utils::isAdminPlugin() ? '' : $this->name);
+                $blueprint = $this->getObject()->getBlueprint($this->name);
                 if ($this->form) {
                     // We have field overrides available.
                     $blueprint->extend(['form' => $this->form], true);
@@ -330,12 +478,12 @@ class FlexForm implements FlexFormInterface
         $this->object = $data['object'];
     }
 
-        /**
+    /**
      * Filter validated data.
      *
-     * @param \ArrayAccess $data
+     * @param \ArrayAccess|Data|null $data
      */
-    protected function filterData(\ArrayAccess $data): void
+    protected function filterData($data = null): void
     {
         if ($data instanceof Data) {
             $data->filter(true, true);

@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Pagination
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -79,7 +79,7 @@ class AbstractPagination implements PaginationInterface
 
     public function getPageNumber(): int
     {
-        return $this->page;
+        return $this->page ?? 1;
     }
 
     public function getPrevNumber(int $count = 1): ?int
@@ -146,7 +146,7 @@ class AbstractPagination implements PaginationInterface
 
     public function getStart(): int
     {
-        return $this->start;
+        return $this->start ?? 0;
     }
 
     public function getLimit(): int
@@ -220,7 +220,7 @@ class AbstractPagination implements PaginationInterface
     }
 
     /**
-     * @param int $start
+     * @param int|null $start
      * @return $this
      */
     protected function setStart(int $start = null)

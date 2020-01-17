@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Helpers
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -16,25 +16,40 @@ use Symfony\Component\Yaml\Yaml;
 
 class YamlLinter
 {
-    public static function lint()
+    /**
+     * @param string|null $folder
+     * @return array
+     */
+    public static function lint(string $folder = null)
     {
-        $errors = static::lintConfig();
-        $errors = $errors + static::lintPages();
-        $errors = $errors + static::lintBlueprints();
-        
-        return $errors;
+        if (null !== $folder) {
+            $folder = $folder ?: GRAV_ROOT;
+
+            return static::recurseFolder($folder);
+        }
+
+        return array_merge(static::lintConfig(), static::lintPages(), static::lintBlueprints());
     }
 
+    /**
+     * @return array
+     */
     public static function lintPages()
     {
         return static::recurseFolder('page://');
     }
 
+    /**
+     * @return array
+     */
     public static function lintConfig()
     {
         return static::recurseFolder('config://');
     }
 
+    /**
+     * @return array
+     */
     public static function lintBlueprints()
     {
         /** @var UniformResourceLocator $locator */
@@ -47,7 +62,12 @@ class YamlLinter
         return static::recurseFolder('blueprints://');
     }
 
-    public static function recurseFolder($path, $extensions = 'md|yaml')
+    /**
+     * @param string $path
+     * @param string $extensions
+     * @return array
+     */
+    public static function recurseFolder($path, $extensions = '(md|yaml)')
     {
         $lint_errors = [];
 
@@ -74,6 +94,10 @@ class YamlLinter
         return $lint_errors;
     }
 
+    /**
+     * @param string $path
+     * @return string
+     */
     protected static function extractYaml($path)
     {
         $extension = pathinfo($path, PATHINFO_EXTENSION);
@@ -85,5 +109,4 @@ class YamlLinter
         }
         return $contents;
     }
-
 }

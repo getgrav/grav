@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\GPM
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -11,6 +11,7 @@ namespace Grav\Common\GPM;
 
 use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Grav;
+use RocketTheme\Toolbox\File\FileInterface;
 
 /**
  * Class Licenses
@@ -19,28 +20,22 @@ use Grav\Common\Grav;
  */
 class Licenses
 {
-
-    /**
-     * Regex to validate the format of a License
-     *
-     * @var string
-     */
+    /** @var string Regex to validate the format of a License */
     protected static $regex = '^(?:[A-F0-9]{8}-){3}(?:[A-F0-9]{8}){1}$';
-
+    /** @var FileInterface */
     protected static $file;
-
 
     /**
      * Returns the license for a Premium package
      *
      * @param string $slug
      * @param string $license
-     *
      * @return bool
      */
     public static function set($slug, $license)
     {
         $licenses = self::getLicenseFile();
+        /** @var array $data */
         $data = (array)$licenses->content();
         $slug = strtolower($slug);
 
@@ -68,12 +63,12 @@ class Licenses
      * Returns the license for a Premium package
      *
      * @param string $slug
-     *
      * @return array|string
      */
     public static function get($slug = null)
     {
         $licenses = self::getLicenseFile();
+        /** @var array $data */
         $data = (array)$licenses->content();
         $licenses->free();
         $slug = strtolower($slug);
@@ -89,8 +84,7 @@ class Licenses
     /**
      * Validates the License format
      *
-     * @param string $license
-     *
+     * @param string|null $license
      * @return bool
      */
     public static function validate($license = null)
@@ -105,10 +99,9 @@ class Licenses
     /**
      * Get the License File object
      *
-     * @return \RocketTheme\Toolbox\File\FileInterface
+     * @return FileInterface
      */
     public static function getLicenseFile()
-
     {
         if (!isset(self::$file)) {
             $path = Grav::instance()['locator']->findResource('user-data://') . '/licenses.yaml';

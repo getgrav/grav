@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Cache
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -20,14 +20,10 @@ use Grav\Framework\Cache\Exception\InvalidArgumentException;
  */
 class ChainCache extends AbstractCache
 {
-    /**
-     * @var CacheInterface[]
-     */
+    /** @var CacheInterface[] */
     protected $caches;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     protected $count;
 
     /**
@@ -130,6 +126,10 @@ class ChainCache extends AbstractCache
     public function doGetMultiple($keys, $miss)
     {
         $list = [];
+        /**
+         * @var int $i
+         * @var CacheInterface $cache
+         */
         foreach ($this->caches as $i => $cache) {
             $list[$i] = $cache->doGetMultiple($keys, $miss);
 
@@ -140,8 +140,12 @@ class ChainCache extends AbstractCache
             }
         }
 
-        $values = [];
         // Update all the previous caches with missing values.
+        $values = [];
+        /**
+         * @var int $i
+         * @var CacheInterface $cache
+         */
         foreach (array_reverse($list) as $i => $items) {
             $values += $items;
             if ($i && $values) {

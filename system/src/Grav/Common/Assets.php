@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -37,28 +37,42 @@ class Assets extends PropertyObject
     /** @const Regex to match JavaScript files */
     const JS_REGEX = '/.\.js$/i';
 
+    /** @var string */
     protected $assets_dir;
+    /** @var string */
     protected $assets_url;
 
+    /** @var array */
     protected $assets_css = [];
+    /** @var array */
     protected $assets_js = [];
 
-    // Config Options
+    // Following variables come from the configuration:
+    /** @var bool */
     protected $css_pipeline;
+    /** @var bool */
     protected $css_pipeline_include_externals;
+    /** @var bool */
     protected $css_pipeline_before_excludes;
+    /** @var bool */
     protected $js_pipeline;
+    /** @var bool */
     protected $js_pipeline_include_externals;
+    /** @var bool */
     protected $js_pipeline_before_excludes;
+    /** @var array */
     protected $pipeline_options = [];
 
-
+    /** @var \Closure|string */
     protected $fetch_command;
+    /** @var string */
     protected $autoload;
+    /** @var bool */
     protected $enable_asset_timestamp;
+    /** @var array|null */
     protected $collections;
+    /** @var string */
     protected $timestamp;
-
 
     /**
      * Initialization called in the Grav lifecycle to initialize the Assets with appropriate configuration
@@ -202,7 +216,6 @@ class Assets extends PropertyObject
         }
 
         return $this;
-
     }
 
     /**
@@ -212,7 +225,7 @@ class Assets extends PropertyObject
      */
     public function addCss($asset)
     {
-        return $this->addType(Assets::CSS_COLLECTION,Assets::CSS_TYPE, $asset, $this->unifyLegacyArguments(\func_get_args(), Assets::CSS_TYPE));
+        return $this->addType(Assets::CSS_COLLECTION, Assets::CSS_TYPE, $asset, $this->unifyLegacyArguments(\func_get_args(), Assets::CSS_TYPE));
     }
 
     /**
@@ -266,13 +279,12 @@ class Assets extends PropertyObject
 
     protected function filterAssets($assets, $key, $value, $sort = false)
     {
-        $results = array_filter($assets, function($asset) use ($key, $value) {
+        $results = array_filter($assets, function ($asset) use ($key, $value) {
 
             if ($key === 'position' && $value === 'pipeline') {
-
                 $type = $asset->getType();
 
-                if ($asset->getRemote() && $this->{$type . '_pipeline_include_externals'} === false && $asset['position'] === 'pipeline' ) {
+                if ($asset->getRemote() && $this->{$type . '_pipeline_include_externals'} === false && $asset['position'] === 'pipeline') {
                     if ($this->{$type . '_pipeline_before_excludes'}) {
                         $asset->setPosition('after');
                     } else {
@@ -280,10 +292,11 @@ class Assets extends PropertyObject
                     }
                     return false;
                 }
-
             }
 
-            if ($asset[$key] === $value) return true;
+            if ($asset[$key] === $value) {
+                return true;
+            }
             return false;
         });
 
@@ -297,11 +310,8 @@ class Assets extends PropertyObject
 
     protected function sortAssets($assets)
     {
-        uasort ($assets, function($a, $b) {
-            if ($a['priority'] == $b['priority']) {
-                return $a['order'] - $b['order'];
-            }
-            return $b['priority'] - $a['priority'];
+        uasort($assets, static function ($a, $b) {
+            return $b['priority'] <=> $a['priority'] ?: $a['order'] <=> $b['order'];
         });
         return $assets;
     }

@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Console\Cli
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -33,7 +33,6 @@ class BackupCommand extends ConsoleCommand
                 'id',
                 InputArgument::OPTIONAL,
                 'The ID of the backup profile to perform without prompting'
-
             )
             ->setDescription('Creates a backup of the Grav instance')
             ->setHelp('The <info>backup</info> creates a zipped backup.');
@@ -115,6 +114,4 @@ class BackupCommand extends ConsoleCommand
                 break;
         }
     }
-
 }
-

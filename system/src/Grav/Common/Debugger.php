@@ -3,12 +3,19 @@
 /**
  * @package    Grav\Common
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Common;
 
+use Clockwork\Clockwork;
+use Clockwork\DataSource\MonologDataSource;
+use Clockwork\DataSource\PsrMessageDataSource;
+use Clockwork\DataSource\XdebugDataSource;
+use Clockwork\Helpers\ServerTiming;
+use Clockwork\Request\UserData;
+use Clockwork\Storage\FileStorage;
 use DebugBar\DataCollector\ConfigCollector;
 use DebugBar\DataCollector\DataCollectorInterface;
 use DebugBar\DataCollector\ExceptionsCollector;
@@ -19,68 +26,88 @@ use DebugBar\DataCollector\RequestDataCollector;
 use DebugBar\DataCollector\TimeDataCollector;
 use DebugBar\DebugBar;
 use DebugBar\JavascriptRenderer;
-use DebugBar\StandardDebugBar;
 use Grav\Common\Config\Config;
 use Grav\Common\Processors\ProcessorInterface;
+use Grav\Common\Twig\TwigClockworkDataSource;
+use Grav\Framework\Psr7\Response;
+use Monolog\Logger;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use RocketTheme\Toolbox\Event\Event;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Twig\Template;
 use Twig\TemplateWrapper;
 
 class Debugger
 {
-    /** @var Grav $grav */
+    /** @var static */
+    protected static $instance;
+
+    /** @var Grav|null */
     protected $grav;
 
-    /** @var Config $config */
+    /** @var Config|null */
     protected $config;
 
-    /** @var JavascriptRenderer $renderer */
+    /** @var JavascriptRenderer|null */
     protected $renderer;
 
-    /** @var StandardDebugBar $debugbar */
+    /** @var DebugBar|null */
     protected $debugbar;
 
-    /** @var bool */
-    protected $enabled;
+    /** @var Clockwork|null */
+    protected $clockwork;
 
+    /** @var bool */
+    protected $enabled = false;
+
+    /** @var bool */
     protected $initialized = false;
 
     /** @var array */
     protected $timers = [];
 
-    /** @var array $deprecations */
+    /** @var array */
     protected $deprecations = [];
 
-    /** @var callable */
+    /** @var callable|null */
     protected $errorHandler;
+
+    /** @var float */
+    protected $requestTime;
+
+    /** @var float */
+    protected $currentTime;
+
+    /** @var int */
+    protected $profiling = 0;
+
+    /** @var bool */
+    protected $censored = false;
 
     /**
      * Debugger constructor.
      */
     public function __construct()
     {
-        $currentTime = microtime(true);
+        static::$instance = $this;
+
+        $this->currentTime = microtime(true);
 
         if (!\defined('GRAV_REQUEST_TIME')) {
-            \define('GRAV_REQUEST_TIME', $currentTime);
+            \define('GRAV_REQUEST_TIME', $this->currentTime);
         }
 
-        // Enable debugger until $this->init() gets called.
-        $this->enabled = true;
-
-        $debugbar = new DebugBar();
-        $debugbar->addCollector(new PhpInfoCollector());
-        $debugbar->addCollector(new MessagesCollector());
-        $debugbar->addCollector(new RequestDataCollector());
-        $debugbar->addCollector(new TimeDataCollector($_SERVER['REQUEST_TIME_FLOAT'] ?? GRAV_REQUEST_TIME));
-
-        $debugbar['time']->addMeasure('Server', $debugbar['time']->getRequestStartTime(), GRAV_REQUEST_TIME);
-        $debugbar['time']->addMeasure('Loading', GRAV_REQUEST_TIME, $currentTime);
-        $debugbar['time']->addMeasure('Debugger', $currentTime, microtime(true));
-
-        $this->debugbar = $debugbar;
+        $this->requestTime = $_SERVER['REQUEST_TIME_FLOAT'] ?? GRAV_REQUEST_TIME;
 
         // Set deprecation collector.
         $this->setErrorHandler();
+    }
+
+    public function getClockwork(): ?Clockwork
+    {
+        return $this->enabled ? $this->clockwork : null;
     }
 
     /**
@@ -100,23 +127,230 @@ class Debugger
 
         // Enable/disable debugger based on configuration.
         $this->enabled = (bool)$this->config->get('system.debugger.enabled');
+        $this->censored = (bool)$this->config->get('system.debugger.censored', false);
 
-        if ($this->enabled()) {
+        if ($this->enabled) {
             $this->initialized = true;
 
-            $plugins_config = (array)$this->config->get('plugins');
+            $clockwork = $debugbar = null;
 
+            switch ($this->config->get('system.debugger.provider', 'debugbar')) {
+                case 'clockwork':
+                    $this->clockwork = $clockwork = new Clockwork();
+                    break;
+                default:
+                    $this->debugbar = $debugbar = new DebugBar();
+            }
+
+            $plugins_config = (array)$this->config->get('plugins');
             ksort($plugins_config);
 
-            $debugbar = $this->debugbar;
-            $debugbar->addCollector(new MemoryCollector());
-            $debugbar->addCollector(new ExceptionsCollector());
-            $debugbar->addCollector(new ConfigCollector((array)$this->config->get('system'), 'Config'));
-            $debugbar->addCollector(new ConfigCollector($plugins_config, 'Plugins'));
-            $this->addMessage('Grav v' . GRAV_VERSION);
+            if ($clockwork) {
+                $log = $this->grav['log'];
+                $clockwork->setStorage(new FileStorage('cache://clockwork'));
+                if (extension_loaded('xdebug')) {
+                    $clockwork->addDataSource(new XdebugDataSource());
+                }
+                if ($log instanceof Logger) {
+                    $clockwork->addDataSource(new MonologDataSource($log));
+                }
+
+                $clockwork->addDataSource(new TwigClockworkDataSource());
+
+                $timeLine = $clockwork->getTimeline();
+                if ($this->requestTime !== GRAV_REQUEST_TIME) {
+                    $timeLine->addEvent('server', 'Server', $this->requestTime, GRAV_REQUEST_TIME);
+                }
+                if ($this->currentTime !== GRAV_REQUEST_TIME) {
+                    $timeLine->addEvent('loading', 'Loading', GRAV_REQUEST_TIME, $this->currentTime);
+                }
+                $timeLine->addEvent('setup', 'Site Setup', $this->currentTime, microtime(true));
+            }
+
+            if ($this->censored) {
+                $censored = ['CENSORED' => true];
+            }
+
+            if ($debugbar) {
+                $debugbar->addCollector(new PhpInfoCollector());
+                $debugbar->addCollector(new MessagesCollector());
+                if (!$this->censored) {
+                    $debugbar->addCollector(new RequestDataCollector());
+                }
+                $debugbar->addCollector(new TimeDataCollector($this->requestTime));
+                $debugbar->addCollector(new MemoryCollector());
+                $debugbar->addCollector(new ExceptionsCollector());
+                $debugbar->addCollector(new ConfigCollector($censored ?? (array)$this->config->get('system'), 'Config'));
+                $debugbar->addCollector(new ConfigCollector($censored ?? $plugins_config, 'Plugins'));
+                $debugbar->addCollector(new ConfigCollector($this->config->get('streams.schemes'), 'Streams'));
+
+                if ($this->requestTime !== GRAV_REQUEST_TIME) {
+                    $debugbar['time']->addMeasure('Server', $debugbar['time']->getRequestStartTime(), GRAV_REQUEST_TIME);
+                }
+                if ($this->currentTime !== GRAV_REQUEST_TIME) {
+                    $debugbar['time']->addMeasure('Loading', GRAV_REQUEST_TIME, $this->currentTime);
+                }
+                $debugbar['time']->addMeasure('Site Setup', $this->currentTime, microtime(true));
+            }
+
+            $this->addMessage('Grav v' . GRAV_VERSION . ' - PHP ' . PHP_VERSION);
+            $this->config->debug();
+
+            if ($clockwork) {
+                $clockwork->info('System Configuration', $censored ?? $this->config->get('system'));
+                $clockwork->info('Plugins Configuration', $censored ?? $plugins_config);
+                $clockwork->info('Streams', $this->config->get('streams.schemes'));
+            }
         }
 
         return $this;
+    }
+
+    public function finalize(): void
+    {
+        if ($this->clockwork && $this->enabled) {
+            $this->stopProfiling('Profiler Analysis');
+            $this->addMeasures();
+
+            $deprecations = $this->getDeprecations();
+            $count = count($deprecations);
+            if (!$count) {
+                return;
+            }
+
+            /** @var UserData $userData */
+            $userData = $this->clockwork->userData('Deprecated');
+            $userData->counters([
+                'Deprecated' => count($deprecations)
+            ]);
+            foreach ($deprecations as &$deprecation) {
+                $d = $deprecation;
+                unset($d['message']);
+                $this->clockwork->log('deprecated', $deprecation['message'], $d);
+            }
+            unset($deprecation);
+
+            $userData->table('Your site is using following deprecated features', $deprecations);
+        }
+    }
+
+    public function logRequest(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
+    {
+        if (!$this->enabled || !$this->clockwork) {
+            return $response;
+        }
+
+        $clockwork = $this->clockwork;
+
+        $this->finalize();
+
+        $clockwork->getTimeline()->finalize($request->getAttribute('request_time'));
+
+        if ($this->censored) {
+            $censored = 'CENSORED';
+            $request = $request
+                ->withCookieParams([$censored => ''])
+                ->withUploadedFiles([])
+                ->withHeader('cookie', $censored);
+            $request = $request->withParsedBody([$censored => '']);
+        }
+
+        $clockwork->addDataSource(new PsrMessageDataSource($request, $response));
+
+        $clockwork->resolveRequest();
+        $clockwork->storeRequest();
+
+        $clockworkRequest = $clockwork->getRequest();
+
+        $response = $response
+            ->withHeader('X-Clockwork-Id', $clockworkRequest->id)
+            ->withHeader('X-Clockwork-Version', $clockwork::VERSION);
+
+        $basePath = Grav::instance()['uri']->rootUrl();
+        if ($basePath) {
+            $response = $response->withHeader('X-Clockwork-Path', $basePath . '/__clockwork/');
+        }
+
+        return $response->withHeader('Server-Timing', ServerTiming::fromRequest($clockworkRequest)->value());
+    }
+
+
+    public function debuggerRequest(RequestInterface $request): Response
+    {
+        $clockwork = $this->clockwork;
+
+        $headers = [
+            'Content-Type' => 'application/json',
+            'Grav-Internal-SkipShutdown' => 1
+        ];
+
+        $path = $request->getUri()->getPath();
+        $clockworkDataUri = '#/__clockwork(?:/(?<id>[0-9-]+))?(?:/(?<direction>(?:previous|next)))?(?:/(?<count>\d+))?#';
+        if (preg_match($clockworkDataUri, $path, $matches) === false) {
+            $response = ['message' => 'Bad Input'];
+
+            return new Response(400, $headers, json_encode($response));
+        }
+
+        $id = $matches['id'] ?? null;
+        $direction = $matches['direction'] ?? null;
+        $count = $matches['count'] ?? null;
+
+        $storage = $clockwork->getStorage();
+
+        if ($direction === 'previous') {
+            $data = $storage->previous($id, $count);
+        } elseif ($direction === 'next') {
+            $data = $storage->next($id, $count);
+        } elseif ($id === 'latest') {
+            $data = $storage->latest();
+        } else {
+            $data = $storage->find($id);
+        }
+
+        if (preg_match('#(?<id>[0-9-]+|latest)/extended#', $path)) {
+            $clockwork->extendRequest($data);
+        }
+
+        if (!$data) {
+            $response = ['message' => 'Not Found'];
+
+            return new Response(404, $headers, json_encode($response));
+        }
+
+        $data = is_array($data) ? array_map(function ($item) {
+            return $item->toArray();
+        }, $data) : $data->toArray();
+
+        return new Response(200, $headers, json_encode($data));
+    }
+
+    protected function addMeasures()
+    {
+        if (!$this->enabled) {
+            return;
+        }
+
+        $nowTime = microtime(true);
+        $clkTimeLine = $this->clockwork ? $this->clockwork->getTimeline() : null;
+        $debTimeLine = $this->debugbar ? $this->debugbar['time'] : null;
+        foreach ($this->timers as $name => $data) {
+            $description = $data[0];
+            $startTime = $data[1] ?? null;
+            $endTime = $data[2] ?? $nowTime;
+            if ($endTime - $startTime < 0.001) {
+                continue;
+            }
+
+            if ($clkTimeLine) {
+                $clkTimeLine->addEvent($name, $description ?? $name, $startTime, $endTime);
+            }
+
+            if ($debTimeLine) {
+                $debTimeLine->addMeasure($description ?? $name, $startTime, $endTime);
+            }
+        }
+        $this->timers = [];
     }
 
     /**
@@ -142,8 +376,7 @@ class Debugger
      */
     public function addAssets()
     {
-        if ($this->enabled()) {
-
+        if ($this->enabled) {
             // Only add assets if Page is HTML
             $page = $this->grav['page'];
             if ($page->templateFormat() !== 'html') {
@@ -153,22 +386,32 @@ class Debugger
             /** @var Assets $assets */
             $assets = $this->grav['assets'];
 
-            // Add jquery library
-            $assets->add('jquery', 101);
-
-            $this->renderer = $this->debugbar->getJavascriptRenderer();
-            $this->renderer->setIncludeVendors(false);
-
-            // Get the required CSS files
-            list($css_files, $js_files) = $this->renderer->getAssets(null, JavascriptRenderer::RELATIVE_URL);
-            foreach ((array)$css_files as $css) {
-                $assets->addCss($css);
+            // Clockwork specific assets
+            if ($this->clockwork) {
+                $assets->addCss('/system/assets/debugger/clockwork.css', ['loading' => 'inline']);
+                $assets->addJs('/system/assets/debugger/clockwork.js', ['loading' => 'inline']);
             }
 
-            $assets->addCss('/system/assets/debugger.css');
 
-            foreach ((array)$js_files as $js) {
-                $assets->addJs($js);
+            // Debugbar specific assets
+            if ($this->debugbar) {
+                // Add jquery library
+                $assets->add('jquery', 101);
+
+                $this->renderer = $this->debugbar->getJavascriptRenderer();
+                $this->renderer->setIncludeVendors(false);
+
+                list($css_files, $js_files) = $this->renderer->getAssets(null, JavascriptRenderer::RELATIVE_URL);
+
+                foreach ((array)$css_files as $css) {
+                    $assets->addCss($css);
+                }
+
+                $assets->addCss('/system/assets/debugger/phpdebugbar.css', ['loading' => 'inline']);
+
+                foreach ((array)$js_files as $js) {
+                    $assets->addJs($js);
+                }
             }
         }
 
@@ -192,7 +435,9 @@ class Debugger
      */
     public function addCollector($collector)
     {
-        $this->debugbar->addCollector($collector);
+        if ($this->debugbar && !$this->debugbar->hasCollector($collector->getName())) {
+            $this->debugbar->addCollector($collector);
+        }
 
         return $this;
     }
@@ -200,14 +445,18 @@ class Debugger
     /**
      * Returns a data collector
      *
-     * @param DataCollectorInterface $collector
+     * @param string $name
      *
-     * @return DataCollectorInterface
+     * @return DataCollectorInterface|null
      * @throws \DebugBar\DebugBarException
      */
-    public function getCollector($collector)
+    public function getCollector($name)
     {
-        return $this->debugbar->getCollector($collector);
+        if ($this->debugbar && $this->debugbar->hasCollector($name)) {
+            return $this->debugbar->getCollector($name);
+        }
+
+        return null;
     }
 
     /**
@@ -217,13 +466,14 @@ class Debugger
      */
     public function render()
     {
-        if ($this->enabled()) {
+        if ($this->enabled && $this->debugbar) {
             // Only add assets if Page is HTML
             $page = $this->grav['page'];
             if (!$this->renderer || $page->templateFormat() !== 'html') {
                 return $this;
             }
 
+            $this->addMeasures();
             $this->addDeprecations();
 
             echo $this->renderer->render();
@@ -239,7 +489,8 @@ class Debugger
      */
     public function sendDataInHeaders()
     {
-        if ($this->enabled()) {
+        if ($this->enabled && $this->debugbar) {
+            $this->addMeasures();
             $this->addDeprecations();
             $this->debugbar->sendDataInHeaders();
         }
@@ -250,18 +501,148 @@ class Debugger
     /**
      * Returns collected debugger data.
      *
-     * @return array
+     * @return array|null
      */
     public function getData()
     {
-        if (!$this->enabled()) {
+        if (!$this->enabled || !$this->debugbar) {
             return null;
         }
 
+        $this->addMeasures();
         $this->addDeprecations();
         $this->timers = [];
 
         return $this->debugbar->getData();
+    }
+
+    /**
+     * Hierarchical Profiler support.
+     *
+     * @param callable $callable
+     * @param string $message
+     * @return mixed
+     */
+    public function profile(callable $callable, string $message = null)
+    {
+        $this->startProfiling();
+        $response = $callable();
+        $this->stopProfiling($message);
+
+        return $response;
+    }
+
+    /**
+     * Start profiling code.
+     */
+    public function startProfiling(): void
+    {
+        if ($this->enabled && extension_loaded('tideways_xhprof')) {
+            $this->profiling++;
+            if ($this->profiling === 1) {
+                \tideways_xhprof_enable(TIDEWAYS_XHPROF_FLAGS_NO_BUILTINS);
+            }
+        }
+    }
+
+    /**
+     * Stop profiling code. Returns profiling array or null if profiling couldn't be done.
+     *
+     * @param string $message
+     * @return array|null
+     */
+    public function stopProfiling(string $message = null): ?array
+    {
+        $timings = null;
+        if ($this->enabled && extension_loaded('tideways_xhprof')) {
+            $profiling = $this->profiling - 1;
+            if ($profiling === 0) {
+                $timings = \tideways_xhprof_disable();
+                $timings = $this->buildProfilerTimings($timings);
+
+                if ($this->clockwork) {
+                    /** @var UserData $userData */
+                    $userData = $this->clockwork->userData('Profiler');
+                    $userData->counters([
+                        'Calls' => count($timings)
+                    ]);
+                    $userData->table('Profiler', $timings);
+                } else {
+                    $this->addMessage($message ?? 'Profiler Analysis', 'debug', $timings);
+                }
+            }
+            $this->profiling = max(0, $profiling);
+        }
+
+        return $timings;
+    }
+
+    protected function buildProfilerTimings(array $timings): array
+    {
+        // Filter method calls which take almost no time.
+        $timings = array_filter($timings, function ($value) {
+            return $value['wt'] > 50;
+        });
+
+        uasort($timings, function (array $a, array $b) {
+            return $b['wt'] <=> $a['wt'];
+        });
+
+        $table = [];
+        foreach ($timings as $key => $timing) {
+            $parts = explode('==>', $key);
+            $method = $this->parseProfilerCall(array_pop($parts));
+            $context = $this->parseProfilerCall(array_pop($parts));
+
+            // Skip redundant method calls.
+            if ($context === 'Grav\Framework\RequestHandler\RequestHandler::handle()') {
+                continue;
+            }
+
+            // Do not profile library calls.
+            if (strpos($context, 'Grav\\') !== 0) {
+                continue;
+            }
+
+            $table[] = [
+                'Context' => $context,
+                'Method' => $method,
+                'Calls' => $timing['ct'],
+                'Time (ms)' => $timing['wt'] / 1000,
+            ];
+        }
+
+        return $table;
+    }
+
+    protected function parseProfilerCall(?string $call)
+    {
+        if (null === $call) {
+            return '';
+        }
+        if (strpos($call, '@')) {
+            [$call,] = explode('@', $call);
+        }
+        if (strpos($call, '::')) {
+            [$class, $call] = explode('::', $call);
+        }
+
+        if (!isset($class)) {
+            return $call;
+        }
+
+        // It is also possible to display twig files, but they are being logged in views.
+        /*
+        if (strpos($class, '__TwigTemplate_') === 0 && class_exists($class)) {
+            $env = new Environment();
+            / ** @var Template $template * /
+            $template = new $class($env);
+
+            return $template->getTemplateName();
+        }
+        */
+
+        return "{$class}::{$call}()";
     }
 
     /**
@@ -274,10 +655,7 @@ class Debugger
      */
     public function startTimer($name, $description = null)
     {
-        if (strpos($name, '_') === 0 || $this->enabled()) {
-            $this->debugbar['time']->startMeasure($name, $description);
-            $this->timers[] = $name;
-        }
+        $this->timers[$name] = [$description, microtime(true)];
 
         return $this;
     }
@@ -291,8 +669,9 @@ class Debugger
      */
     public function stopTimer($name)
     {
-        if (\in_array($name, $this->timers, true) && (strpos($name, '_') === 0 || $this->enabled())) {
-            $this->debugbar['time']->stopMeasure($name);
+        if (isset($this->timers[$name])) {
+            $endTime = microtime(true);
+            $this->timers[$name][] = $endTime;
         }
 
         return $this;
@@ -303,14 +682,66 @@ class Debugger
      *
      * @param mixed  $message
      * @param string $label
-     * @param bool   $isString
+     * @param mixed|bool $isString
      *
      * @return $this
      */
     public function addMessage($message, $label = 'info', $isString = true)
     {
-        if ($this->enabled()) {
-            $this->debugbar['messages']->addMessage($message, $label, $isString);
+        if ($this->enabled) {
+            if ($this->censored) {
+                if (!is_scalar($message)) {
+                    $message = 'CENSORED';
+                }
+                if (!is_scalar($isString)) {
+                    $isString = ['CENSORED'];
+                }
+            }
+
+            if ($this->debugbar) {
+                if (is_array($isString)) {
+                    $message = $isString;
+                    $isString = false;
+                } elseif (is_string($isString)) {
+                    $message = $isString;
+                    $isString = true;
+                }
+                $this->debugbar['messages']->addMessage($message, $label, $isString);
+            }
+
+            if ($this->clockwork) {
+                if (!is_scalar($message)) {
+                    $isString = $message;
+                    $message = '';
+                } elseif (is_bool($isString)) {
+                    $isString = [];
+                }
+                if (!is_array($isString)) {
+                    $isString = [gettype($isString) => $isString];
+                }
+                $this->clockwork->log($label, $message, $isString);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param string $name
+     * @param object $event
+     * @param EventDispatcherInterface $dispatcher
+     * @return $this
+     */
+    public function addEvent(string $name, $event, EventDispatcherInterface $dispatcher)
+    {
+        if ($this->enabled) {
+            if ($this->clockwork) {
+                $listeners = [];
+                foreach ($dispatcher->getListeners($name) as $listener) {
+                    $listeners[] = $this->resolveCallable($listener);
+                }
+                $this->clockwork->addEvent($name, null, microtime(true), ['listeners' => $listeners]);
+            }
         }
 
         return $this;
@@ -319,13 +750,23 @@ class Debugger
     /**
      * Dump exception into the Messages tab of the Debug Bar
      *
-     * @param \Exception $e
+     * @param \Throwable $e
      * @return Debugger
      */
-    public function addException(\Exception $e)
+    public function addException(\Throwable $e)
     {
-        if ($this->initialized && $this->enabled()) {
-            $this->debugbar['exceptions']->addException($e);
+        if ($this->initialized && $this->enabled) {
+            if ($this->debugbar) {
+                $this->debugbar['exceptions']->addException($e);
+            }
+
+            if ($this->clockwork) {
+                /** @var UserData $exceptions */
+                $exceptions = $this->clockwork->userData('Exceptions');
+                $exceptions->data(['message' => $e->getMessage()]);
+
+                $this->clockwork->alert($e->getMessage(), ['exception' => $e]);
+            }
         }
 
         return $this;
@@ -355,7 +796,7 @@ class Debugger
             return true;
         }
 
-        if (!$this->enabled()) {
+        if (!$this->enabled) {
             return true;
         }
 
@@ -540,6 +981,21 @@ class Debugger
         return true;
     }
 
+    protected function getDeprecations(): array
+    {
+        if (!$this->deprecations) {
+            return [];
+        }
+
+        $list = [];
+        /** @var array $deprecated */
+        foreach ($this->deprecations as $deprecated) {
+            $list[] = $this->getDepracatedMessage($deprecated)[0];
+        }
+
+        return $list;
+    }
+
     protected function addDeprecations()
     {
         if (!$this->deprecations) {
@@ -602,5 +1058,14 @@ class Debugger
         }
 
         return $trace['function'] . '(' . implode(', ', $trace['args'] ?? []) . ')';
+    }
+
+    protected function resolveCallable(callable $callable)
+    {
+        if (is_array($callable)) {
+            return get_class($callable[0]) . '->' . $callable[1] . '()';
+        }
+
+        return 'unknown';
     }
 }

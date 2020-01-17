@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Scheduler
  * @author     Originally based on jqCron by Arnaud Buathier <arnaud@arnapou.net> modified for Grav integration
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -439,8 +439,7 @@ class Cron
     {
         if (is_numeric($date) && (int)$date == $date) {
             $date = new \DateTime('@' . $date);
-        }
-        elseif (is_string($date)) {
+        } elseif (is_string($date)) {
             $date = new \DateTime('@' . strtotime($date));
         }
         if ($date instanceof \DateTime) {
@@ -449,8 +448,7 @@ class Cron
             $day = (int)$date->format('d');
             $month = (int)$date->format('m');
             $weekday = (int)$date->format('w'); // 0-6
-        }
-        else {
+        } else {
             throw new \RuntimeException('Date format not supported');
         }
 
@@ -523,8 +521,7 @@ class Cron
             if ($array[$i] == $c + 1) {
                 $c = $array[$i];
                 $cron[\count($cron) - 1] = $s . '-' . $c;
-            }
-            else {
+            } else {
                 $s = $c = $array[$i];
                 $cron[] = $c;
             }

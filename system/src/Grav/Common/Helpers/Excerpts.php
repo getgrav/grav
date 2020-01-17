@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Helpers
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -32,7 +32,7 @@ class Excerpts
         $excerpt = static::processLinkExcerpt($excerpt, $page, 'image');
 
         $excerpt['element']['attributes']['src'] = $excerpt['element']['attributes']['href'];
-        unset ($excerpt['element']['attributes']['href']);
+        unset($excerpt['element']['attributes']['href']);
 
         $excerpt = static::processImageExcerpt($excerpt, $page);
 

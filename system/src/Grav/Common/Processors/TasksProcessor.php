@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Processors
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -16,10 +16,12 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class TasksProcessor extends ProcessorBase
 {
+    /** @var string */
     public $id = 'tasks';
+    /** @var string */
     public $title = 'Tasks';
 
-    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler) : ResponseInterface
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $this->startTimer();
 
@@ -42,7 +44,6 @@ class TasksProcessor extends ProcessorBase
                     $this->stopTimer();
 
                     return $response;
-
                 } catch (NotFoundException $e) {
                     // Task not found: Let it pass through.
                 }

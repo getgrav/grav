@@ -8,6 +8,7 @@ parameters:
     bootstrap: tests/phpstan/phpstan-bootstrap.php
     excludes_analyse:
         - system/src/Grav/Common/Errors/Resources/layout.html.php
+    inferPrivatePropertyTypeFromConstructor: true
     reportUnmatchedIgnoredErrors: false
     universalObjectCratesClasses:
         - Grav\Common\Config\Config
@@ -17,7 +18,10 @@ parameters:
         - Grav\Common\GPM\Common\Package
         - Grav\Common\GPM\Local\Package
         - Grav\Common\GPM\Remote\Package
+        - Grav\Common\Page\Header
         - Grav\Common\Session
+    dynamicConstantNames:
+        - GRAV_CLI
     ignoreErrors:
 
         # FIXME: Bugs that need to be fixed
@@ -26,7 +30,6 @@ parameters:
         - '#Access to an undefined property RocketTheme\\Toolbox\\Event\\Event::#'
         - '#Access to an undefined property Grav\\Common\\Data\\Blueprint::#'
         - '#Access to an undefined property Grav\\Common\\Media\\Interfaces\\MediaObjectInterface::#'
-        - '#Access to an undefined property Grav\\Common\\Page\\Interfaces\\PageInterface::#'
         -
             message: '#Cannot call method path\(\) on string#'
             path: 'system/src/Grav/Common/Page/Media.php'
@@ -43,7 +46,6 @@ parameters:
 
         # PSR-16 Exception interfaces do not extend \Throwable
         - '#PHPDoc tag \@throws with type Psr\\SimpleCache\\(CacheException|InvalidArgumentException) is not subtype of Throwable#'
-        - '#expects Exception, Psr\\SimpleCache\\InvalidArgumentException&Throwable given#'
 
         # Needed: psr-17 (http-factories) support (through decorator or further investigations)
         -
@@ -53,11 +55,6 @@ parameters:
         # Medium __call() methods
         - '#Call to an undefined method Grav\\Common\\Page\\Medium\\(\w*)Medium::#'
 
-        # Filesystem::getInstance()
-        -
-            message: '#Strict comparison using === between null and static#'
-            path: 'system/src/Grav/Framework/Filesystem/Filesystem.php'
-
         # These errors are about plugins (need to find a better solution)
         -
             message: '#Call to static method sendEmail\(\) on an unknown class Grav\\Plugin\\Email\\Utils#'
@@ -65,6 +62,9 @@ parameters:
         -
             message: '#on an unknown class Grav\\Plugin\\Admin#'
             path: 'system/src/Grav/Common/Page/Pages.php'
+        -
+            message: '#on an unknown class Grav\\Plugin\\Admin#'
+            path: 'system/src/Grav/Common/Flex/Pages/PageObject.php'
         -
             message: '#Call to method getFlash\(\) on an unknown class Grav\\Common\\Grav\\Plugin\\Form\\Forms#'
             path: 'system/src/Grav/Common/Session.php'
@@ -80,11 +80,20 @@ parameters:
             message: '#Instantiated class (Memcache|Memcached|Redis|RedisException) not found#'
             path: 'system/src/Grav/Common/Cache.php'
         -
-            message: '#on an unknown class (Memcache|Memcached|Redis|RedisException)#'
+            message: '#unknown class (Memcache|Memcached|Redis|RedisException)#'
             path: 'system/src/Grav/Common/Cache.php'
         -
             message: '#on an unknown class Collator#'
             path: 'system/src/Grav/Common/Page/Pages.php'
+        -
+            message: '#Ternary operator condition is always true#'
+            path: 'system/src/Grav/Framework/Cache/AbstractCache.php'
+        -
+            message: '#Call to function is_object\(\) with int will always evaluate to false#'
+            path: 'system/src/Grav/Framework/Cache/AbstractCache.php'
+
+        # XHprof
+        - '#tideways_xhprof_enable#'
 
         # Support for deprecated features
         -
@@ -105,3 +114,9 @@ parameters:
         -
             message: '#deprecated class#'
             path: 'system/src/Grav/Framework/Uri/Uri.php'
+        -
+            message: '#Method Symfony\\Contracts\\EventDispatcher\\EventDispatcherInterface::dispatch#'
+            path: 'system/src/Grav/Common/Grav.php'
+        - '#Call to deprecated method stopPropagation\(\) of class Symfony\\Component\\EventDispatcher\\Event#'
+        - '#Parameter \#2 \$listener of method Symfony\\Component\\EventDispatcher\\EventDispatcher::addListener\(\)#'
+        - '#Parameter \#2 \$listener of method Symfony\\Component\\EventDispatcher\\EventDispatcher::removeListener\(\)#'

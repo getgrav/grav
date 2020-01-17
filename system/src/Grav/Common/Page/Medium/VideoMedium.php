@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Page
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -26,7 +26,7 @@ class VideoMedium extends Medium
 
         return [
             'name' => 'video',
-            'text' => '<source src="' . $location . '">Your browser does not support the video tag.',
+            'rawHtml' => '<source src="' . $location . '">Your browser does not support the video tag.',
             'attributes' => $attributes
         ];
     }
@@ -39,7 +39,7 @@ class VideoMedium extends Medium
      */
     public function controls($display = true)
     {
-        if($display) {
+        if ($display) {
             $this->attributes['controls'] = true;
         } else {
             unset($this->attributes['controls']);
@@ -69,7 +69,7 @@ class VideoMedium extends Medium
      */
     public function loop($status = false)
     {
-        if($status) {
+        if ($status) {
             $this->attributes['loop'] = true;
         } else {
             unset($this->attributes['loop']);
@@ -98,7 +98,7 @@ class VideoMedium extends Medium
     /**
      * Allows ability to set the preload option
      *
-     * @param null $status
+     * @param string|null $status
      * @return $this
      */
     public function preload($status = null)
@@ -120,7 +120,7 @@ class VideoMedium extends Medium
      */
     public function playsinline($status = false)
     {
-        if($status) {
+        if ($status) {
             $this->attributes['playsinline'] = true;
         } else {
             unset($this->attributes['playsinline']);
@@ -137,7 +137,7 @@ class VideoMedium extends Medium
      */
     public function muted($status = false)
     {
-        if($status) {
+        if ($status) {
             $this->attributes['muted'] = true;
         } else {
             unset($this->attributes['muted']);

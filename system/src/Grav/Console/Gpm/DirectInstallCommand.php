@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Console\Gpm
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -63,8 +63,7 @@ class DirectInstallCommand extends ConsoleCommand
         // Making sure the destination is usable
         $this->destination = realpath($this->input->getOption('destination'));
 
-        if (
-            !Installer::isGravInstance($this->destination) ||
+        if (!Installer::isGravInstance($this->destination) ||
             !Installer::isValidDestination($this->destination, [Installer::EXISTS, Installer::IS_LINK])
         ) {
             $this->output->writeln('<red>ERROR</red>: ' . Installer::lastErrorMsg());
@@ -153,13 +152,13 @@ class DirectInstallCommand extends ConsoleCommand
                 if (isset($blueprint['dependencies'])) {
                     $dependencies = [];
                     foreach ($blueprint['dependencies'] as $dependency) {
-                        if (is_array($dependency)){
-                           if (isset($dependency['name'])) {
-                              $dependencies[] = $dependency['name'];
-                           }
-                           if (isset($dependency['github'])) {
-                               $dependencies[] = $dependency['github'];
-                           }
+                        if (is_array($dependency)) {
+                            if (isset($dependency['name'])) {
+                                $dependencies[] = $dependency['name'];
+                            }
+                            if (isset($dependency['github'])) {
+                                $dependencies[] = $dependency['github'];
+                            }
                         } else {
                             $dependencies[] = $dependency;
                         }
@@ -180,7 +179,6 @@ class DirectInstallCommand extends ConsoleCommand
             }
 
             if ($type === 'grav') {
-
                 $this->output->write('  |- Checking destination...  ');
                 Installer::isValidDestination(GRAV_ROOT . '/system');
                 if (Installer::IS_LINK === Installer::lastErrorCode()) {
@@ -224,7 +222,6 @@ class DirectInstallCommand extends ConsoleCommand
                     Folder::delete($tmp_source);
                     Folder::delete($tmp_zip);
                     exit;
-
                 }
 
                 $this->output->write("\x0D");
@@ -248,7 +245,7 @@ class DirectInstallCommand extends ConsoleCommand
 
             $this->output->write("\x0D");
 
-            if(Installer::lastErrorCode()) {
+            if (Installer::lastErrorCode()) {
                 $this->output->writeln("  '- <red>" . Installer::lastErrorMsg() . '</red>');
                 $this->output->writeln('');
             } else {
@@ -256,7 +253,6 @@ class DirectInstallCommand extends ConsoleCommand
                 $this->output->writeln("  '- <green>Success!</green>  ");
                 $this->output->writeln('');
             }
-
         } else {
             $this->output->writeln("  '- <red>ERROR: ZIP package could not be found</red>");
         }

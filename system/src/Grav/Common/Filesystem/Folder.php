@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Filesystem
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -55,7 +55,6 @@ abstract class Folder
      *
      * @param string  $path
      * @param string  $extensions   which files to search for specifically
-     *
      * @return int
      */
     public static function lastModifiedFile($path, $extensions = 'md|yaml')
@@ -126,9 +125,8 @@ abstract class Folder
     /**
      * Get relative path between target and base path. If path isn't relative, return full path.
      *
-     * @param string       $path
-     * @param mixed|string $base
-     *
+     * @param string $path
+     * @param string $base
      * @return string
      */
     public static function getRelativePath($path, $base = GRAV_ROOT)
@@ -207,7 +205,7 @@ abstract class Folder
      */
     public static function all($path, array $params = [])
     {
-        if ($path === false) {
+        if (!$path) {
             throw new \RuntimeException("Path doesn't exist.");
         }
         if (!file_exists($path)) {

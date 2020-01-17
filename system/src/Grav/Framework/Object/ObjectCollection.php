@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Object
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -15,13 +15,12 @@ use Grav\Framework\Collection\ArrayCollection;
 use Grav\Framework\Object\Access\NestedPropertyCollectionTrait;
 use Grav\Framework\Object\Base\ObjectCollectionTrait;
 use Grav\Framework\Object\Collection\ObjectExpressionVisitor;
-use Grav\Framework\Object\Interfaces\NestedObjectInterface;
-use Grav\Framework\Object\Interfaces\ObjectCollectionInterface;
+use Grav\Framework\Object\Interfaces\NestedObjectCollectionInterface;
 
 /**
  * Class contains a collection of objects.
  */
-class ObjectCollection extends ArrayCollection implements ObjectCollectionInterface, NestedObjectInterface
+class ObjectCollection extends ArrayCollection implements NestedObjectCollectionInterface
 {
     use ObjectCollectionTrait;
     use NestedPropertyCollectionTrait {

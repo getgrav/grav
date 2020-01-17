@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Page
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -22,7 +22,9 @@ class Types implements \ArrayAccess, \Iterator, \Countable
 {
     use ArrayAccess, Constructor, Iterator, Countable, Export;
 
+    /** @var array */
     protected $items;
+    /** @var array */
     protected $systemBlueprints;
 
     public function register($type, $blueprint = null)
@@ -48,7 +50,7 @@ class Types implements \ArrayAccess, \Iterator, \Countable
             throw new \InvalidArgumentException('First parameter must be URI');
         }
 
-        if (!$this->systemBlueprints) {
+        if (null === $this->systemBlueprints) {
             $this->systemBlueprints = $this->findBlueprints('blueprints://pages');
 
             // Register default by default.

@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Form
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -139,7 +139,7 @@ interface FormFlashInterface extends \JsonSerializable
      *
      * @param string $filename
      * @param string $field
-     * @param array $crop
+     * @param array|null $crop
      * @return bool
      */
     public function addFile(string $filename, string $field, array $crop = null): bool;
@@ -148,7 +148,7 @@ interface FormFlashInterface extends \JsonSerializable
      * Remove any file from form flash.
      *
      * @param string $name
-     * @param string $field
+     * @param string|null $field
      * @return bool
      */
     public function removeFile(string $name, string $field = null): bool;

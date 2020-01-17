@@ -3,13 +3,14 @@
 /**
  * @package    Grav\Common
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Common;
 
 use Grav\Common\Form\FormFlash;
+use Grav\Events\SessionStartEvent;
 
 class Session extends \Grav\Framework\Session\Session
 {
@@ -118,14 +119,14 @@ class Session extends \Grav\Framework\Session\Session
 
                 /** @var Uri $uri */
                 $uri = $grav['uri'];
-                /** @var Grav\Plugin\Form\Forms $form */
+                /** @var Grav\Plugin\Form\Forms|null $form */
                 $form = $grav['forms']->getActiveForm();
 
                 $sessionField = base64_encode($uri->url);
 
-                /** @var FormFlash $flash */
+                /** @var FormFlash|null $flash */
                 $flash = $form ? $form->getFlash() : null;
-                $object = $flash ? [$sessionField => $flash->getLegacyFiles()] : null;
+                $object = $flash && method_exists($flash, 'getLegacyFiles') ? [$sessionField => $flash->getLegacyFiles()] : null;
             }
         }
 
@@ -162,5 +163,13 @@ class Session extends \Grav\Framework\Session\Session
         }
 
         return null;
+    }
+
+    protected function onSessionStart(): void
+    {
+        $event = new SessionStartEvent($this);
+
+        $grav = Grav::instance();
+        $grav->dispatchEvent($event);
     }
 }

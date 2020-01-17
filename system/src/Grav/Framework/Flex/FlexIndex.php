@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Flex
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -12,6 +12,7 @@ namespace Grav\Framework\Flex;
 use Grav\Common\Debugger;
 use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Grav;
+use Grav\Common\Inflector;
 use Grav\Common\Session;
 use Grav\Framework\Cache\CacheInterface;
 use Grav\Framework\Collection\CollectionInterface;
@@ -27,7 +28,9 @@ use Psr\SimpleCache\InvalidArgumentException;
 
 class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexIndexInterface
 {
-    /** @var FlexDirectory */
+    const VERSION = 1;
+
+    /** @var FlexDirectory|null */
     private $_flexDirectory;
 
     /** @var string */
@@ -82,6 +85,35 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
 
     /**
      * {@inheritdoc}
+     * @see FlexCommonInterface::hasFlexFeature()
+     */
+    public function hasFlexFeature(string $name): bool
+    {
+        return in_array($name, $this->getFlexFeatures(), true);
+    }
+
+    /**
+     * {@inheritdoc}
+     * @see FlexCommonInterface::hasFlexFeature()
+     */
+    public function getFlexFeatures(): array
+    {
+        $implements = class_implements($this->getFlexDirectory()->getCollectionClass());
+
+        $list = [];
+        foreach ($implements as $interface) {
+            if ($pos = strrpos($interface, '\\')) {
+                $interface = substr($interface, $pos+1);
+            }
+
+            $list[] = Inflector::hyphenize(str_replace('Interface', '', $interface));
+        }
+
+        return $list;
+    }
+
+    /**
+     * {@inheritdoc}
      * @see FlexCollectionInterface::search()
      */
     public function search(string $search, $properties = null, array $options = null)
@@ -114,7 +146,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
      */
     public function getFlexType(): string
     {
-        return $this->_flexDirectory->getFlexType();
+        return $this->getFlexDirectory()->getFlexType();
     }
 
     /**
@@ -123,6 +155,10 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
      */
     public function getFlexDirectory(): FlexDirectory
     {
+        if (null === $this->_flexDirectory) {
+            throw new \RuntimeException('Flex Directory not defined, object is not fully defined');
+        }
+
         return $this->_flexDirectory;
     }
 
@@ -152,7 +188,12 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
      */
     public function getCacheChecksum(): string
     {
-        return sha1($this->getCacheKey() . json_encode($this->getTimestamps()));
+        $list = [];
+        foreach ($this->getEntries() as $key => $value) {
+            $list[$key] = $value['checksum'] ?? $value['storage_timestamp'];
+        }
+
+        return sha1((string)json_encode($list));
     }
 
     /**
@@ -181,7 +222,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
     {
         // Get storage keys for the objects.
         $keys = [];
-        $type = $this->_flexDirectory->getFlexType() . '.obj:';
+        $type = $this->getFlexDirectory()->getFlexType() . '.obj:';
 
         foreach ($this->getEntries() as $key => $value) {
             $keys[$key] = $value['flex_key'] ?? $type . $value['storage_key'];
@@ -201,7 +242,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
             return $this;
         }
 
-        $type = $keyField === 'flex_key' ? $this->_flexDirectory->getFlexType() . '.obj:' : '';
+        $type = $keyField === 'flex_key' ? $this->getFlexDirectory()->getFlexType() . '.obj:' : '';
         $entries = [];
         foreach ($this->getEntries() as $key => $value) {
             if (!isset($value['key'])) {
@@ -225,6 +266,11 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
     public function getIndex()
     {
         return $this;
+    }
+
+    public function getCollection()
+    {
+        return $this->loadCollection();
     }
 
     /**
@@ -280,7 +326,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
     /**
      * @return string
      */
-    public function getKeyField() : string
+    public function getKeyField(): string
     {
         return $this->_keyField ?? 'storage_key';
     }
@@ -291,7 +337,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
      */
     public function getCache(string $namespace = null)
     {
-        return $this->_flexDirectory->getCache($namespace);
+        return $this->getFlexDirectory()->getCache($namespace);
     }
 
     /**
@@ -326,9 +372,12 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
             if (null !== $previous) {
                 $search = array_replace($previous, $search);
             }
+            if (null === $search) {
+                throw new \RuntimeException('Error while ordering collection');
+            }
 
             // Order by current field.
-            if ($ordering === 'DESC') {
+            if (strtoupper($ordering) === 'DESC') {
                 arsort($search, SORT_NATURAL);
             } else {
                 asort($search, SORT_NATURAL);
@@ -337,7 +386,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
             $previous = $search;
         }
 
-        return $this->createFrom(array_replace($previous, $this->getEntries()));
+        return $this->createFrom(array_replace($previous ?? [], $this->getEntries()) ?? []);
     }
 
     /**
@@ -354,7 +403,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
         $debugger = Grav::instance()['debugger'];
 
         /** @var FlexCollection $className */
-        $className = $this->_flexDirectory->getCollectionClass();
+        $className = $this->getFlexDirectory()->getCollectionClass();
         $cachedMethods = $className::getCachedMethods();
 
         $flexType = $this->getFlexType();
@@ -369,25 +418,27 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
                 $cacheKey = '';
             }
             $key = "{$flexType}.idx." . sha1($name . '.' . $cacheKey . json_encode($arguments) . $this->getCacheKey());
+            $checksum = $this->getCacheChecksum();
 
             $cache = $this->getCache('object');
 
             try {
-                $result = $cache->get($key);
+                $cached = $cache->get($key);
+                $test = $cached[0] ?? null;
+                $result = $test === $checksum ? ($cached[1] ?? null) : null;
 
                 // Make sure the keys aren't changed if the returned type is the same index type.
                 if ($result instanceof self && $flexType === $result->getFlexType()) {
                     $result = $result->withKeyField($this->getKeyField());
                 }
             } catch (InvalidArgumentException $e) {
-                /** @var Debugger $debugger */
-                $debugger = Grav::instance()['debugger'];
                 $debugger->addException($e);
             }
 
             if (!isset($result)) {
                 $collection = $this->loadCollection();
                 $result = $collection->{$name}(...$arguments);
+                $debugger->addMessage("Cache miss: '{$flexType}::{$name}()'", 'debug');
 
                 try {
                     // If flex collection is returned, convert it back to flex index.
@@ -397,7 +448,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
                         $cached = $result;
                     }
 
-                    $cache->set($key, $cached);
+                    $cache->set($key, [$checksum, $cached]);
                 } catch (InvalidArgumentException $e) {
                     $debugger->addException($e);
 
@@ -408,8 +459,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
             $collection = $this->loadCollection();
             $result = $collection->{$name}(...$arguments);
             if (!isset($cachedMethods[$name])) {
-                $class = \get_class($collection);
-                $debugger->addMessage("Call '{$class}:{$name}()' isn't cached", 'debug');
+                $debugger->addMessage("Call '{$flexType}:{$name}()' isn't cached", 'debug');
             }
         }
 
@@ -437,12 +487,12 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
 
     /**
      * @param array $entries
-     * @param string $keyField
+     * @param string|null $keyField
      * @return static
      */
     protected function createFrom(array $entries, string $keyField = null)
     {
-        $index = new static($entries, $this->_flexDirectory);
+        $index = new static($entries, $this->getFlexDirectory());
         $index->setKeyField($keyField ?? $this->_keyField);
 
         return $index;
@@ -506,7 +556,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
      */
     protected function loadElement($key, $value): ?ObjectInterface
     {
-        $objects = $this->_flexDirectory->loadObjects([$key => $value]);
+        $objects = $this->getFlexDirectory()->loadObjects([$key => $value]);
 
         return $objects ? reset($objects): null;
     }
@@ -517,16 +567,16 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
      */
     protected function loadElements(array $entries = null): array
     {
-        return $this->_flexDirectory->loadObjects($entries ?? $this->getEntries());
+        return $this->getFlexDirectory()->loadObjects($entries ?? $this->getEntries());
     }
 
     /**
      * @param array|null $entries
-     * @return ObjectCollectionInterface
+     * @return FlexCollectionInterface
      */
     protected function loadCollection(array $entries = null): CollectionInterface
     {
-        return $this->_flexDirectory->loadCollection($entries ?? $this->getEntries(), $this->_keyField);
+        return $this->getFlexDirectory()->loadCollection($entries ?? $this->getEntries(), $this->_keyField);
     }
 
     /**
@@ -544,17 +594,39 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
      */
     protected function getElementMeta($object)
     {
-        return $object->getTimestamp();
+        return $object->getMetaData();
+    }
+
+    protected function getCurrentKey($element)
+    {
+        $keyField = $this->getKeyField();
+        if ($keyField === 'storage_key') {
+            return $element->getStorageKey();
+        }
+        if ($keyField === 'flex_key') {
+            return $element->getFlexKey();
+        }
+        if ($keyField === 'key') {
+            return $element->getKey();
+        }
+
+        return $element->getKey();
     }
 
     /**
      * @param FlexStorageInterface $storage
      * @param array $index      Saved index
      * @param array $entries    Updated index
+     * @param array $options
      * @return array            Compiled list of entries
      */
-    protected static function updateIndexFile(FlexStorageInterface $storage, array $index, array $entries): array
+    protected static function updateIndexFile(FlexStorageInterface $storage, array $index, array $entries, array $options = []): array
     {
+        $indexFile = static::getIndexFile($storage);
+        if (null === $indexFile) {
+            return $entries;
+        }
+
         // Calculate removed objects.
         $removed = array_diff_key($index, $entries);
 
@@ -583,7 +655,6 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
         }
 
         // Index should be updated, lock the index file for saving.
-        $indexFile = static::getIndexFile($storage);
         $indexFile->lock();
 
         // Read all the data rows into an array.
@@ -595,15 +666,15 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
         // Go through all the updated objects and refresh their index data.
         $updated = $added = [];
         foreach ($rows as $key => $row) {
-            if (null !== $row) {
-                $entry = ['key' => $key] + $entries[$key];
+            if (null !== $row || !empty($options['include_missing'])) {
+                $entry = $entries[$key] + ['key' => $key];
                 if ($keyField !== 'storage_key' && isset($row[$keyField])) {
                     $entry['key'] = $row[$keyField];
                 }
-                static::updateIndexData($entry, $row);
-                if (isset($row['__error'])) {
-                    $entry['__error'] = true;
-                    static::onException(new \RuntimeException(sprintf('Object failed to load: %s (%s)', $key, $row['__error'])));
+                static::updateIndexData($entry, $row ?? []);
+                if (isset($row['__ERROR'])) {
+                    $entry['__ERROR'] = true;
+                    static::onException(new \RuntimeException(sprintf('Object failed to load: %s (%s)', $key, $row['__ERROR'])));
                 }
                 if (isset($index[$key])) {
                     // Update object in the index.
@@ -627,7 +698,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
 
         static::onChanges($index, $added, $updated, $removed);
 
-        $indexFile->save(['count' => \count($index), 'index' => $index]);
+        $indexFile->save(['version' => static::VERSION, 'timestamp' => time(), 'count' => \count($index), 'index' => $index]);
         $indexFile->unlock();
 
         return $index;
@@ -637,28 +708,58 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
     {
     }
 
-    protected static function loadEntriesFromIndex(FlexStorageInterface $storage)
+    protected static function loadIndex(FlexStorageInterface $storage)
     {
         $indexFile = static::getIndexFile($storage);
 
-        $data = [];
-        try {
-            $data = (array)$indexFile->content();
-        } catch (\Exception $e) {
-            $e = new \RuntimeException(sprintf('Index failed to load: %s', $e->getMessage()), $e->getCode(), $e);
+        if ($indexFile) {
+            $data = [];
+            try {
+                $data = (array)$indexFile->content();
+                $version = $data['version'] ?? null;
+                if ($version !== static::VERSION) {
+                    $data = [];
+                }
+            } catch (\Exception $e) {
+                $e = new \RuntimeException(sprintf('Index failed to load: %s', $e->getMessage()), $e->getCode(), $e);
 
-            static::onException($e);
+                static::onException($e);
+            }
+
+            if ($data) {
+                return $data;
+            }
         }
+
+        return ['version' => static::VERSION, 'timestamp' => 0, 'count' => 0, 'index' => []];
+    }
+
+    protected static function loadEntriesFromIndex(FlexStorageInterface $storage)
+    {
+        $data = static::loadIndex($storage);
 
         return $data['index'] ?? [];
     }
 
+    /**
+     * @param FlexStorageInterface $storage
+     * @return CompiledYamlFile|null
+     */
     protected static function getIndexFile(FlexStorageInterface $storage)
     {
+        if (!method_exists($storage, 'isIndexed') || !$storage->isIndexed()) {
+            return null;
+        }
+
+        $path = $storage->getStoragePath();
+        if (!$path) {
+            return null;
+        }
+
         // Load saved index file.
         $grav = Grav::instance();
         $locator = $grav['locator'];
-        $filename = $locator->findResource($storage->getStoragePath() . '/index.yaml', true, true);
+        $filename = $locator->findResource("{$path}/index.yaml", true, true);
 
         return CompiledYamlFile::instance($filename);
     }
@@ -679,17 +780,19 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
 
     protected static function onChanges(array $entries, array $added, array $updated, array $removed)
     {
-        $message = sprintf('Index updated, %d objects (%d added, %d updated, %d removed).', \count($entries), \count($added), \count($updated), \count($removed));
+        $addedCount = \count($added);
+        $updatedCount = \count($updated);
+        $removedCount = \count($removed);
 
-        $grav = Grav::instance();
+        if ($addedCount + $updatedCount + $removedCount) {
+            $message = sprintf('Index updated, %d objects (%d added, %d updated, %d removed).', \count($entries), $addedCount, $updatedCount, $removedCount);
 
-        /** @var Logger $logger */
-        $logger = $grav['log'];
-        $logger->addDebug($message);
+            $grav = Grav::instance();
 
-        /** @var Debugger $debugger */
-        $debugger = $grav['debugger'];
-        $debugger->addMessage($message, 'debug');
+            /** @var Debugger $debugger */
+            $debugger = $grav['debugger'];
+            $debugger->addMessage($message, 'debug');
+        }
     }
 
     public function __debugInfo()

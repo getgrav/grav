@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * @package    Grav\Framework\File\Formatter
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -80,7 +80,7 @@ class JsonFormatter extends AbstractFormatter
             throw new \RuntimeException('Encoding JSON failed: ' . json_last_error_msg());
         }
 
-        return $encoded;
+        return $encoded ?: '';
     }
 
     /**

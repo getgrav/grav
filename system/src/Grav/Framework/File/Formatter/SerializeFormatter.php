@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * @package    Grav\Framework\File\Formatter
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -34,7 +34,7 @@ class SerializeFormatter extends AbstractFormatter
      *
      * By default only allow stdClass class.
      *
-     * @return array|bool
+     * @return array
      */
     public function getOptions()
     {
@@ -56,7 +56,8 @@ class SerializeFormatter extends AbstractFormatter
      */
     public function decode($data)
     {
-        $decoded = @unserialize($data, $this->getOptions());
+        $classes = $this->getOptions()['allowed_classes'] ?? false;
+        $decoded = @unserialize($data, ['allowed_classes' => $classes]);
 
         if ($decoded === false && $data !== serialize(false)) {
             throw new \RuntimeException('Decoding serialized data failed');

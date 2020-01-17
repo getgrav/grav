@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -26,7 +26,7 @@ class Composer
         }
 
         // check for global composer install
-        $path = trim(shell_exec('command -v composer'));
+        $path = trim((string)shell_exec('command -v composer'));
 
         // fall back to grav bundled composer
         if (!$path || !preg_match('/(composer|composer\.phar)$/', $path)) {

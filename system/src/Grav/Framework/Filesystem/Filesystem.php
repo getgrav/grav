@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * @package    Grav\Framework\Filesystem
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -18,14 +18,14 @@ class Filesystem implements FilesystemInterface
     /** @var bool|null */
     private $normalize;
 
-    /** @var static */
-    static protected $default;
+    /** @var static|null */
+    protected static $default;
 
-    /** @var static */
-    static protected $unsafe;
+    /** @var static|null */
+    protected static $unsafe;
 
-    /** @var static */
-    static protected $safe;
+    /** @var static|null */
+    protected static $safe;
 
     /**
      * @param bool|null $normalize See $this->setNormalization()
@@ -176,6 +176,11 @@ class Filesystem implements FilesystemInterface
             return [$scheme, ''];
         }
 
+        // In Windows dirname() may return backslashes, fix that.
+        if (DIRECTORY_SEPARATOR !== '/') {
+            $path = str_replace('\\', '/', $path);
+        }
+
         return [$scheme, $path];
     }
 
@@ -184,17 +189,26 @@ class Filesystem implements FilesystemInterface
      * @param string $path
      * @param int|null $options
      *
-     * @return array
+     * @return array|string
      */
     protected function pathinfoInternal(?string $scheme, string $path, int $options = null)
     {
-        $info = $options ? \pathinfo($path, $options) : \pathinfo($path);
+        if ($options) {
+            return \pathinfo($path, $options);
+        }
+
+        $info = \pathinfo($path);
 
         if (null !== $scheme) {
             $info['scheme'] = $scheme;
             $dirname = isset($info['dirname']) && $info['dirname'] !== '.' ? $info['dirname'] : null;
 
             if (null !== $dirname) {
+                // In Windows dirname may be using backslashes, fix that.
+                if (DIRECTORY_SEPARATOR !== '/') {
+                    $dirname = str_replace('\\', '/', $dirname);
+                }
+
                 $info['dirname'] = $scheme . '://' . $dirname;
             } else {
                 $info = ['dirname' => $scheme . '://'] + $info;

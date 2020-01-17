@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Data
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -63,7 +63,7 @@ interface DataInterface
     /**
      * Set or get the data storage.
      *
-     * @param FileInterface $storage Optionally enter a new storage.
+     * @param FileInterface|null $storage Optionally enter a new storage.
      * @return FileInterface
      */
     public function file(FileInterface $storage = null);

@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Scheduler
  * @author     Originally based on peppeocchi/php-cron-scheduler modified for Grav integration
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -374,7 +374,7 @@ trait IntervalTrait
     /**
      * Validate sequence of cron expression.
      *
-     * @param  int|string  $value
+     * @param  int|string|null  $value
      * @param  int         $min
      * @param  int         $max
      * @return mixed
@@ -396,4 +396,3 @@ trait IntervalTrait
         return $value;
     }
 }
-

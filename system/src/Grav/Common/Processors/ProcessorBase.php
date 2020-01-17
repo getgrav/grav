@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Processors
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -17,7 +17,9 @@ abstract class ProcessorBase implements ProcessorInterface
     /** @var Grav */
     protected $container;
 
+    /** @var string */
     public $id = 'processorbase';
+    /** @var string */
     public $title = 'ProcessorBase';
 
     public function __construct(Grav $container)
@@ -25,21 +27,21 @@ abstract class ProcessorBase implements ProcessorInterface
         $this->container = $container;
     }
 
-    protected function startTimer($id = null, $title = null)
+    protected function startTimer($id = null, $title = null): void
     {
         /** @var Debugger $debugger */
         $debugger = $this->container['debugger'];
         $debugger->startTimer($id ?? $this->id, $title ?? $this->title);
     }
 
-    protected function stopTimer($id = null)
+    protected function stopTimer($id = null): void
     {
         /** @var Debugger $debugger */
         $debugger = $this->container['debugger'];
         $debugger->stopTimer($id ?? $this->id);
     }
 
-    protected function addMessage($message, $label = 'info', $isString = true)
+    protected function addMessage($message, $label = 'info', $isString = true): void
     {
         /** @var Debugger $debugger */
         $debugger = $this->container['debugger'];

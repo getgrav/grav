@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Page
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -19,13 +19,15 @@ use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 class Media extends AbstractMedia
 {
+    /** @var GlobalMedia */
     protected static $global;
 
+    /** @var array */
     protected $standard_exif = ['FileSize', 'MimeType', 'height', 'width'];
 
     /**
      * @param string $path
-     * @param array  $media_order
+     * @param array|null $media_order
      * @param bool   $load
      */
     public function __construct($path, array $media_order = null, $load = true)
@@ -78,21 +80,21 @@ class Media extends AbstractMedia
         /** @var UniformResourceLocator $locator */
         $locator = Grav::instance()['locator'];
         $config = Grav::instance()['config'];
-        $locator = Grav::instance()['locator'];
         $exif_reader = isset(Grav::instance()['exif']) ? Grav::instance()['exif']->getReader() : false;
         $media_types = array_keys(Grav::instance()['config']->get('media.types'));
+        $path = $this->getPath();
 
         // Handle special cases where page doesn't exist in filesystem.
-        if (!is_dir($this->getPath())) {
+        if (!$path || !is_dir($path)) {
             return;
         }
 
-        $iterator = new \FilesystemIterator($this->getPath(), \FilesystemIterator::UNIX_PATHS | \FilesystemIterator::SKIP_DOTS);
+        $iterator = new \FilesystemIterator($path, \FilesystemIterator::UNIX_PATHS | \FilesystemIterator::SKIP_DOTS);
 
         $media = [];
 
         /** @var \DirectoryIterator $info */
-        foreach ($iterator as $path => $info) {
+        foreach ($iterator as $file => $info) {
             // Ignore folders and Markdown files.
             if (!$info->isFile() || $info->getExtension() === 'md' || strpos($info->getFilename(), '.') === 0) {
                 continue;
@@ -106,9 +108,9 @@ class Media extends AbstractMedia
             }
 
             if ($type === 'alternative') {
-                $media["{$basename}.{$ext}"][$type][$extra] = ['file' => $path, 'size' => $info->getSize()];
+                $media["{$basename}.{$ext}"][$type][$extra] = ['file' => $file, 'size' => $info->getSize()];
             } else {
-                $media["{$basename}.{$ext}"][$type] = ['file' => $path, 'size' => $info->getSize()];
+                $media["{$basename}.{$ext}"][$type] = ['file' => $file, 'size' => $info->getSize()];
             }
         }
 
@@ -118,12 +120,13 @@ class Media extends AbstractMedia
                 foreach ($types['alternative'] as $ratio => &$alt) {
                     $alt['file'] = MediumFactory::fromFile($alt['file']);
 
-                    if (!$alt['file']) {
+                    if (empty($alt['file'])) {
                         unset($types['alternative'][$ratio]);
                     } else {
                         $alt['file']->set('size', $alt['size']);
                     }
                 }
+                unset($alt);
             }
 
             $file_path = null;
@@ -140,8 +143,10 @@ class Media extends AbstractMedia
                 $medium = MediumFactory::scaledFromMedium($medium, $max, 1)['file'];
             } else {
                 $medium = MediumFactory::fromFile($types['base']['file']);
-                $medium && $medium->set('size', $types['base']['size']);
-                $file_path = $medium->path();
+                if ($medium) {
+                    $medium->set('size', $types['base']['size']);
+                    $file_path = $medium->path();
+                }
             }
 
             if (empty($medium)) {
@@ -154,7 +159,6 @@ class Media extends AbstractMedia
             if (file_exists($meta_path)) {
                 $types['meta']['file'] = $meta_path;
             } elseif ($file_path && $exif_reader && $medium->get('mime') === 'image/jpeg' && empty($types['meta']) && $config->get('system.media.auto_metadata_exif')) {
-
                 $meta = $exif_reader->read($file_path);
 
                 if ($meta) {

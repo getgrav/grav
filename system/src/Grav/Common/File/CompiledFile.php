@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\File
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -17,7 +17,7 @@ trait CompiledFile
      * Get/set parsed file contents.
      *
      * @param mixed $var
-     * @return string
+     * @return string|array
      */
     public function content($var = null)
     {
@@ -38,8 +38,7 @@ trait CompiledFile
                 $cache = $file->exists() ? $file->content() : null;
 
                 // Load real file if cache isn't up to date (or is invalid).
-                if (
-                    !isset($cache['@class'])
+                if (!isset($cache['@class'])
                     || $cache['@class'] !== $class
                     || $cache['modified'] !== $modified
                     || $cache['filename'] !== $this->filename
@@ -76,7 +75,6 @@ trait CompiledFile
 
                 $this->content = $cache['data'];
             }
-
         } catch (\Exception $e) {
             throw new \RuntimeException(sprintf('Failed to read %s: %s', basename($this->filename), $e->getMessage()), 500, $e);
         }
@@ -86,6 +84,8 @@ trait CompiledFile
 
     /**
      * Serialize file.
+     *
+     * @return array
      */
     public function __sleep()
     {

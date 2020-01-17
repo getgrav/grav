@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * @package    Grav\Framework\Psr7
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -24,9 +24,7 @@ class Response implements ResponseInterface
 {
     use ResponseDecoratorTrait;
 
-    /**
-     * @var string EOL characters used for HTTP response.
-     */
+    /** @var string EOL characters used for HTTP response. */
     private const EOL = "\r\n";
 
     /**
@@ -50,7 +48,7 @@ class Response implements ResponseInterface
      * response to the client.
      *
      * @param  mixed  $data   The data
-     * @param  int    $status The HTTP status code.
+     * @param  int|null $status The HTTP status code.
      * @param  int    $options Json encoding options
      * @param  int    $depth Json encoding max depth
      * @return static

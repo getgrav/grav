@@ -7,7 +7,7 @@ use Grav\Common\Grav;
 
 ini_set('error_log', __DIR__ . '/error.log');
 
-$grav = function() {
+$grav = function () {
     Grav::resetInstance();
     $grav = Grav::instance();
     $grav['config']->init();
@@ -32,4 +32,3 @@ Fixtures::add('grav', $grav);
 
 $fake = Factory::create();
 Fixtures::add('fake', $fake);
-

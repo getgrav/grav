@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Console\Gpm
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -112,8 +112,7 @@ class InstallCommand extends ConsoleCommand
         $this->data = $this->gpm->findPackages($packages);
         $this->loadLocalConfig();
 
-        if (
-            !Installer::isGravInstance($this->destination) ||
+        if (!Installer::isGravInstance($this->destination) ||
             !Installer::isValidDestination($this->destination, [Installer::EXISTS, Installer::IS_LINK])
         ) {
             $this->output->writeln('<red>ERROR</red>: ' . Installer::lastErrorMsg());
@@ -129,8 +128,10 @@ class InstallCommand extends ConsoleCommand
         }
 
         if (\count($this->data['not_found'])) {
-            $this->output->writeln('These packages were not found on Grav: <red>' . implode('</red>, <red>',
-                    array_keys($this->data['not_found'])) . '</red>');
+            $this->output->writeln('These packages were not found on Grav: <red>' . implode(
+                '</red>, <red>',
+                array_keys($this->data['not_found'])
+            ) . '</red>');
         }
 
         unset($this->data['not_found'], $this->data['total']);
@@ -162,8 +163,8 @@ class InstallCommand extends ConsoleCommand
         if ($dependencies) {
             try {
                 $this->installDependencies($dependencies, 'install', 'The following dependencies need to be installed...');
-                $this->installDependencies($dependencies, 'update',  'The following dependencies need to be updated...');
-                $this->installDependencies($dependencies, 'ignore',  "The following dependencies can be updated as there is a newer version, but it's not mandatory...", false);
+                $this->installDependencies($dependencies, 'update', 'The following dependencies need to be updated...');
+                $this->installDependencies($dependencies, 'ignore', "The following dependencies can be updated as there is a newer version, but it's not mandatory...", false);
             } catch (\Exception $e) {
                 $this->output->writeln('<red>Installation aborted</red>');
                 return false;
@@ -185,7 +186,6 @@ class InstallCommand extends ConsoleCommand
                         $this->processPackage($package, false);
                     } else {
                         if (Installer::lastErrorCode() == Installer::EXISTS) {
-
                             try {
                                 $this->askConfirmationIfMajorVersionUpdated($package);
                                 $this->gpm->checkNoOtherPackageNeedsThisDependencyInALowerVersion($package->slug, $package->available, array_keys($data));
@@ -270,7 +270,9 @@ class InstallCommand extends ConsoleCommand
      */
     public function installDependencies($dependencies, $type, $message, $required = true)
     {
-        $packages = array_filter($dependencies, function ($action) use ($type) { return $action === $type; });
+        $packages = array_filter($dependencies, function ($action) use ($type) {
+            return $action === $type;
+        });
         if (\count($packages) > 0) {
             $this->output->writeln($message);
 
@@ -318,7 +320,7 @@ class InstallCommand extends ConsoleCommand
     }
 
     /**
-     * @param Package $package
+     * @param Package|null $package
      * @param bool    $is_update      True if the package is an update
      */
     private function processPackage($package, $is_update = false)
@@ -445,7 +447,7 @@ class InstallCommand extends ConsoleCommand
             } else {
                 $repo_dir = $matches[2];
             }
-            
+
             $paths = (array) $paths;
             foreach ($paths as $repo) {
                 $path = rtrim($repo, '/') . '/' . $repo_dir;
@@ -453,7 +455,6 @@ class InstallCommand extends ConsoleCommand
                     return $path;
                 }
             }
-
         }
 
         return false;
@@ -551,10 +552,9 @@ class InstallCommand extends ConsoleCommand
 
     /**
      * @param Package $package
+     * @param string|null    $license
      *
-     * @param string    $license
-     *
-     * @return string
+     * @return string|null
      */
     private function downloadPackage($package, $license = null)
     {
@@ -586,7 +586,7 @@ class InstallCommand extends ConsoleCommand
             $this->output->writeln('  |- Downloading package...    <red>error</red>                             ');
             $this->output->writeln("  |  '- " . $error);
 
-            return false;
+            return null;
         }
 
         Folder::create($this->tmp);
@@ -621,8 +621,10 @@ class InstallCommand extends ConsoleCommand
                 return false;
             }
 
-            $question = new ConfirmationQuestion("  |  '- Destination has been detected as symlink, delete symbolic link first? [y|N] ",
-                false);
+            $question = new ConfirmationQuestion(
+                "  |  '- Destination has been detected as symlink, delete symbolic link first? [y|N] ",
+                false
+            );
             $answer = $question_helper->ask($this->input, $this->output, $question);
 
             if (!$answer) {
@@ -685,7 +687,11 @@ class InstallCommand extends ConsoleCommand
     public function progress($progress)
     {
         $this->output->write("\x0D");
-        $this->output->write('  |- Downloading package... ' . str_pad($progress['percent'], 5, ' ',
-                STR_PAD_LEFT) . '%');
+        $this->output->write('  |- Downloading package... ' . str_pad(
+            $progress['percent'],
+            5,
+            ' ',
+            STR_PAD_LEFT
+        ) . '%');
     }
 }

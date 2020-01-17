@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Console\Gpm
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -23,10 +23,6 @@ class UpdateCommand extends ConsoleCommand
     /** @var array */
     protected $data;
 
-    protected $extensions;
-
-    protected $updatable;
-
     /** @var string */
     protected $destination;
 
@@ -42,6 +38,7 @@ class UpdateCommand extends ConsoleCommand
     /** @var string */
     protected $all_yes;
 
+    /** @var string */
     protected $overwrite;
 
     /** @var Upgrader */
@@ -174,7 +171,7 @@ class UpdateCommand extends ConsoleCommand
                 }
 
                 $this->output->writeln(
-                // index
+                    // index
                     str_pad($index++ + 1, 2, '0', STR_PAD_LEFT) . '. ' .
                     // name
                     '<cyan>' . str_pad($package->name, 15) . '</cyan> ' .
@@ -251,15 +248,18 @@ class UpdateCommand extends ConsoleCommand
                 }
 
                 $this->output->writeln('');
-                $this->output->writeln('Limiting updates for only <cyan>' . implode('</cyan>, <cyan>',
-                        $list) . '</cyan>');
+                $this->output->writeln('Limiting updates for only <cyan>' . implode(
+                    '</cyan>, <cyan>',
+                    $list
+                ) . '</cyan>');
             }
 
             if (\count($ignore)) {
                 $this->output->writeln('');
-                $this->output->writeln('Packages not found or not requiring updates: <red>' . implode('</red>, <red>',
-                        $ignore) . '</red>');
-
+                $this->output->writeln('Packages not found or not requiring updates: <red>' . implode(
+                    '</red>, <red>',
+                    $ignore
+                ) . '</red>');
             }
         }
 

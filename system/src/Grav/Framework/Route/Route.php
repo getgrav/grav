@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Route
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -72,6 +72,14 @@ class Route
     public function getRootPrefix()
     {
         return $this->root;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLanguage()
+    {
+        return $this->language;
     }
 
     /**
@@ -187,9 +195,10 @@ class Route
      */
     public function withRoute($route)
     {
-        $this->route = $route;
+        $new = $this->copy();
+        $new->route = $route;
 
-        return $this;
+        return $new;
     }
 
     /**
@@ -200,9 +209,22 @@ class Route
      */
     public function withRoot($root)
     {
-        $this->root = $root;
+        $new = $this->copy();
+        $new->root = $root;
 
-        return $this;
+        return $new;
+    }
+
+    /**
+     * @param string $language
+     * @return Route
+     */
+    public function withLanguage($language)
+    {
+        $new = $this->copy();
+        $new->language = $language ?? '';
+
+        return $new;
     }
 
     /**
@@ -211,9 +233,10 @@ class Route
      */
     public function withAddedPath($path)
     {
-        $this->route .= '/' . ltrim($path, '/');
+        $new = $this->copy();
+        $new->route .= '/' . ltrim($path, '/');
 
-        return $this;
+        return $new;
     }
 
     /**
@@ -222,9 +245,10 @@ class Route
      */
     public function withExtension($extension)
     {
-        $this->extension = $extension;
+        $new = $this->copy();
+        $new->extension = $extension;
 
-        return $this;
+        return $new;
     }
 
     /**
@@ -247,23 +271,34 @@ class Route
         return $this->withParam('queryParams', $param, $value);
     }
 
+    /**
+     * @return Route
+     */
     public function withoutParams()
     {
         return $this->withoutGravParams()->withoutQueryParams();
     }
 
+    /**
+     * @return Route
+     */
     public function withoutGravParams()
     {
-        $this->gravParams = [];
+        $new = $this->copy();
+        $new->gravParams = [];
 
-        return $this;
+        return $new;
     }
 
+    /**
+     * @return Route
+     */
     public function withoutQueryParams()
     {
-        $this->queryParams = [];
+        $new = $this->copy();
+        $new->queryParams = [];
 
-        return $this;
+        return $new;
     }
 
     /**
@@ -376,7 +411,6 @@ class Route
             $this->extension = $gravParts['extension'] ?? '';
             $this->gravParams = $gravParts['params'] ?: [];
             $this->queryParams = $parts['query_params'] ?: [];
-
         } else {
             $this->root = RouteFactory::getRoot();
             $this->language = RouteFactory::getLanguage();

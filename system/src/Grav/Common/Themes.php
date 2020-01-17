@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -13,9 +13,10 @@ use Grav\Common\Config\Config;
 use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Data\Blueprints;
 use Grav\Common\Data\Data;
-use RocketTheme\Toolbox\Event\EventDispatcher;
+use Grav\Framework\Psr7\Response;
 use RocketTheme\Toolbox\Event\EventSubscriberInterface;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class Themes extends Iterator
 {
@@ -25,6 +26,7 @@ class Themes extends Iterator
     /** @var Config */
     protected $config;
 
+    /** @var bool */
     protected $inited = false;
 
     /**
@@ -128,7 +130,7 @@ class Themes extends Iterator
      *
      * @param  string $name
      *
-     * @return Data
+     * @return Data|null
      * @throws \RuntimeException
      */
     public function get($name)
@@ -214,7 +216,9 @@ class Themes extends Iterator
                 }
             }
         } elseif (!$locator('theme://') && !defined('GRAV_CLI')) {
-            exit("Theme '$name' does not exist, unable to display page.");
+            $response = new Response(500, [], "Theme '$name' does not exist, unable to display page.");
+
+            $grav->close($response);
         }
 
         $this->config->set('theme', $config->get('themes.' . $name));

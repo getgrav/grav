@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Twig
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -16,6 +16,7 @@ use Twig\Node\NodeCaptureInterface;
 
 class TwigNodeRender extends Node implements NodeCaptureInterface
 {
+    /** @var string */
     protected $tagName = 'render';
 
     /**
@@ -31,14 +32,16 @@ class TwigNodeRender extends Node implements NodeCaptureInterface
         ?AbstractExpression $context,
         $lineno,
         $tag = null
-    )
-    {
-        parent::__construct(['object' => $object, 'layout' => $layout, 'context' => $context], [], $lineno, $tag);
+    ) {
+        $nodes = ['object' => $object, 'layout' => $layout, 'context' => $context];
+        $nodes = array_filter($nodes);
+
+        parent::__construct($nodes, [], $lineno, $tag);
     }
     /**
      * Compiles the node to PHP.
      *
-     * @param Compiler $compiler A Twig_Compiler instance
+     * @param Compiler $compiler A Twig Compiler instance
      * @throws \LogicException
      */
     public function compile(Compiler $compiler)
@@ -46,15 +49,15 @@ class TwigNodeRender extends Node implements NodeCaptureInterface
         $compiler->addDebugInfo($this);
         $compiler->write('$object = ')->subcompile($this->getNode('object'))->raw(';' . PHP_EOL);
 
-        $layout = $this->getNode('layout');
-        if ($layout) {
+        if ($this->hasNode('layout')) {
+            $layout = $this->getNode('layout');
             $compiler->write('$layout = ')->subcompile($layout)->raw(';' . PHP_EOL);
         } else {
             $compiler->write('$layout = null;' . PHP_EOL);
         }
 
-        $context = $this->getNode('context');
-        if ($context) {
+        if ($this->hasNode('context')) {
+            $context = $this->getNode('context');
             $compiler->write('$attributes = ')->subcompile($context)->raw(';' . PHP_EOL);
         } else {
             $compiler->write('$attributes = null;' . PHP_EOL);

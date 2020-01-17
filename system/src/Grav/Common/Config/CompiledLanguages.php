@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Config
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -13,6 +13,12 @@ use Grav\Common\File\CompiledYamlFile;
 
 class CompiledLanguages extends CompiledBase
 {
+    /**
+     * CompiledLanguages constructor.
+     * @param string $cacheFolder
+     * @param array $files
+     * @param string $path
+     */
     public function __construct($cacheFolder, array $files, $path)
     {
         parent::__construct($cacheFolder, $files, $path);

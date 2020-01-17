@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Page
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -12,7 +12,7 @@ namespace Grav\Common\Page\Medium;
 use Grav\Common\Grav;
 use Grav\Common\Media\Interfaces\MediaCollectionInterface;
 use Grav\Common\Media\Interfaces\MediaObjectInterface;
-use Grav\Common\Page\Page;
+use Grav\Common\Page\Pages;
 use Grav\Common\Utils;
 use RocketTheme\Toolbox\ArrayTraits\ArrayAccess;
 use RocketTheme\Toolbox\ArrayTraits\Countable;
@@ -27,12 +27,19 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
     use Iterator;
     use Export;
 
+    /** @var array */
     protected $items = [];
+    /** @var string */
     protected $path;
+    /** @var array */
     protected $images = [];
+    /** @var array */
     protected $videos = [];
+    /** @var array */
     protected $audios = [];
+    /** @var array */
     protected $files = [];
+    /** @var array|null */
     protected $media_order;
 
     /**
@@ -45,6 +52,9 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
         return $this->path;
     }
 
+    /**
+     * @param string|null $path
+     */
     public function setPath(?string $path)
     {
         $this->path = $path;
@@ -150,7 +160,7 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
 
     /**
      * @param string $name
-     * @param MediaObjectInterface $file
+     * @param MediaObjectInterface|null $file
      */
     public function add($name, $file)
     {
@@ -182,8 +192,9 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
     protected function orderMedia($media)
     {
         if (null === $this->media_order) {
-            /** @var Page $page */
-            $page = Grav::instance()['pages']->get($this->getPath());
+            /** @var Pages $pages */
+            $pages = Grav::instance()['pages'];
+            $page = $pages->get($this->getPath());
 
             if ($page && isset($page->header()->media_order)) {
                 $this->media_order = array_map('trim', explode(',', $page->header()->media_order));

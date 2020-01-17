@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Service
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -98,7 +98,7 @@ class ConfigServiceProvider implements ServiceProviderInterface
         $files += (new ConfigFileFinder)->setBase('plugins')->locateInFolders($paths);
 
         $compiled = new CompiledConfig($cache, $files, GRAV_ROOT);
-        $compiled->setBlueprints(function() use ($container) {
+        $compiled->setBlueprints(function () use ($container) {
             return $container['blueprints'];
         });
 
@@ -168,5 +168,4 @@ class ConfigServiceProvider implements ServiceProviderInterface
         }
         return $paths;
     }
-
 }

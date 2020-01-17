@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Console\Gpm
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -19,7 +19,7 @@ use Symfony\Component\Console\Input\InputOption;
 
 class IndexCommand extends ConsoleCommand
 {
-    /** @var array */
+    /** @var Packages */
     protected $data;
 
     /** @var GPM */
@@ -27,9 +27,6 @@ class IndexCommand extends ConsoleCommand
 
     /** @var array */
     protected $options;
-
-    /** @var array */
-    protected $sortKeys = ['name', 'slug', 'author', 'date'];
 
     protected function configure()
     {
@@ -117,7 +114,6 @@ class IndexCommand extends ConsoleCommand
             $packages = $this->sort($packages);
 
             if (!empty($packages)) {
-
                 $table = [];
                 $index    = 0;
 
@@ -188,9 +184,9 @@ class IndexCommand extends ConsoleCommand
     }
 
     /**
-     * @param array $data
+     * @param Packages $data
      *
-     * @return mixed
+     * @return Packages
      */
     public function filter($data)
     {
@@ -245,6 +241,7 @@ class IndexCommand extends ConsoleCommand
 
     /**
      * @param Packages $packages
+     * @return Packages
      */
     public function sort($packages)
     {

@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\RequestHandler
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -19,7 +19,7 @@ use Psr\Http\Server\MiddlewareInterface;
 
 trait RequestHandlerTrait
 {
-    /** @var array<string|MiddlewareInterface> */
+    /** @var array<int,string|MiddlewareInterface> */
     protected $middleware;
 
     /** @var callable */

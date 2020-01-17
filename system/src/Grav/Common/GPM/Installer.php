@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\GPM
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -33,31 +33,19 @@ class Installer
     /** @const Invalid source file */
     public const INVALID_SOURCE = 128;
 
-    /**
-     * Destination folder on which validation checks are applied
-     * @var string
-     */
+    /** @var string Destination folder on which validation checks are applied */
     protected static $target;
 
-    /**
-     * @var int Error Code
-     */
+    /** @var int|string Error code or string */
     protected static $error = 0;
 
-    /**
-     * @var int Zip Error Code
-     */
+    /** @var int Zip Error Code */
     protected static $error_zip = 0;
 
-    /**
-     * @var string Post install message
-     */
+    /** @var string Post install message */
     protected static $message = '';
 
-    /**
-     * Default options for the install
-     * @var array
-     */
+    /** @var array Default options for the install */
     protected static $options = [
         'overwrite'       => true,
         'ignore_symlinks' => true,
@@ -84,8 +72,10 @@ class Installer
         $options = array_merge(self::$options, $options);
         $install_path = rtrim($destination . DS . ltrim($options['install_path'], DS), DS);
 
-        if (!self::isGravInstance($destination) || !self::isValidDestination($install_path,
-                $options['exclude_checks'])
+        if (!self::isGravInstance($destination) || !self::isValidDestination(
+            $install_path,
+            $options['exclude_checks']
+        )
         ) {
             return false;
         }
@@ -160,7 +150,6 @@ class Installer
         self::$error = self::OK;
 
         return true;
-
     }
 
     /**
@@ -204,7 +193,6 @@ class Installer
      *
      * @param string $installer_file_folder The folder path that contains install.php
      * @param bool $is_install True if install, false if removal
-     *
      * @return null|string
      */
     private static function loadInstaller($installer_file_folder, $is_install)
@@ -255,7 +243,6 @@ class Installer
     /**
      * @param string            $source_path
      * @param string            $install_path
-     *
      * @return bool
      */
     public static function moveInstall($source_path, $install_path)
@@ -272,7 +259,6 @@ class Installer
     /**
      * @param string            $source_path
      * @param string            $install_path
-     *
      * @return bool
      */
     public static function copyInstall($source_path, $install_path)
@@ -291,13 +277,11 @@ class Installer
      * @param string            $install_path
      * @param array             $ignores
      * @param bool              $keep_source
-     *
      * @return bool
      */
     public static function sophisticatedInstall($source_path, $install_path, $ignores = [], $keep_source = false)
     {
         foreach (new \DirectoryIterator($source_path) as $file) {
-
             if ($file->isLink() || $file->isDot() || \in_array($file->getFilename(), $ignores, true)) {
                 continue;
             }
@@ -331,7 +315,6 @@ class Installer
      *
      * @param  string $path    The slug of the package(s)
      * @param  array  $options Options to use for uninstalling
-     *
      * @return bool True if everything went fine, False otherwise.
      */
     public static function uninstall($path, $options = [])
@@ -373,7 +356,6 @@ class Installer
      *
      * @param  string $destination The directory to run validations at
      * @param  array  $exclude     An array of constants to exclude from the validation
-     *
      * @return bool True if validation passed. False otherwise
      */
     public static function isValidDestination($destination, $exclude = [])
@@ -402,7 +384,6 @@ class Installer
      * Validates if the given path is a Grav Instance
      *
      * @param  string $target The local path to the Grav Instance
-     *
      * @return bool True if is a Grav Instance. False otherwise
      */
     public static function isGravInstance($target)
@@ -410,8 +391,7 @@ class Installer
         self::$error = 0;
         self::$target = $target;
 
-        if (
-            !file_exists($target . DS . 'index.php') ||
+        if (!file_exists($target . DS . 'index.php') ||
             !file_exists($target . DS . 'bin') ||
             !file_exists($target . DS . 'user') ||
             !file_exists($target . DS . 'system' . DS . 'config' . DS . 'system.yaml')
@@ -424,6 +404,7 @@ class Installer
 
     /**
      * Returns the last message added by the installer
+     *
      * @return string The message
      */
     public static function getMessage()
@@ -433,6 +414,7 @@ class Installer
 
     /**
      * Returns the last error occurred in a string message format
+     *
      * @return string The message of the last error
      */
     public static function lastErrorMsg()
@@ -473,7 +455,7 @@ class Installer
             case self::ZIP_EXTRACT_ERROR:
                 $msg = 'Unable to extract the package. ';
                 if (self::$error_zip) {
-                    switch(self::$error_zip) {
+                    switch (self::$error_zip) {
                         case \ZipArchive::ER_EXISTS:
                             $msg .= 'File already exists.';
                             break;
@@ -523,6 +505,7 @@ class Installer
 
     /**
      * Returns the last error code of the occurred error
+     *
      * @return int|string The code of the last error
      */
     public static function lastErrorCode()
@@ -535,7 +518,6 @@ class Installer
      *
      * @param int|string $error the Error code
      */
-
     public static function setError($error)
     {
         self::$error = $error;

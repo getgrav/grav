@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Console\Cli
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -57,9 +57,8 @@ class SandboxCommand extends ConsoleCommand
     ];
 
     /** @var string */
-    protected $default_file = "---\ntitle: HomePage\n---\n# HomePage\n\nLorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque porttitor eu felis sed ornare. Sed a mauris venenatis, pulvinar velit vel, dictum enim. Phasellus ac rutrum velit. Nunc lorem purus, hendrerit sit amet augue aliquet, iaculis ultricies nisl. Suspendisse tincidunt euismod risus, quis feugiat arcu tincidunt eget. Nulla eros mi, commodo vel ipsum vel, aliquet congue odio. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Pellentesque velit orci, laoreet at adipiscing eu, interdum quis nibh. Nunc a accumsan purus.";
-
     protected $source;
+    /** @var string */
     protected $destination;
 
     protected function configure()
@@ -79,7 +78,12 @@ class SandboxCommand extends ConsoleCommand
                 'Symlink the base grav system'
             )
             ->setHelp("The <info>sandbox</info> command help create a development environment that can optionally use symbolic links to link the core of grav to the git cloned repository.\nGood for development, playing around or starting fresh");
-        $this->source = getcwd();
+
+        $source = getcwd();
+        if ($source === false) {
+            throw new \RuntimeException('Internal Error');
+        }
+        $this->source = $source;
     }
 
     protected function serve()
@@ -217,7 +221,6 @@ class SandboxCommand extends ConsoleCommand
             $destination = $this->source . '/user/pages';
             Folder::rcopy($destination, $pages_dir);
             $this->output->writeln('    <cyan>' . $destination . '</cyan> <comment>-></comment> Created');
-
         }
     }
 

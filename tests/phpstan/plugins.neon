@@ -10,7 +10,7 @@ parameters:
         - %currentWorkingDirectory%/user/plugins/gantry5/src/platforms
         - %currentWorkingDirectory%/user/plugins/gantry5/src/classes/Gantry/Framework/Services/ErrorServiceProvider.php
     bootstrap: tests/phpstan/plugins-bootstrap.php
-    reportUnmatchedIgnoredErrors: true
+    reportUnmatchedIgnoredErrors: false
     universalObjectCratesClasses:
         - Grav\Common\Config\Config
         - Grav\Common\Config\Languages
@@ -21,3 +21,18 @@ parameters:
         - Grav\Common\GPM\Remote\Package
         - Grav\Common\Session
         - Gantry\Component\Config\Config
+    dynamicConstantNames:
+        - GRAV_CLI
+        - GANTRY_DEBUGGER
+        - GANTRY5_DEBUG
+        - GANTRY5_VERSION
+        - GANTRY5_VERSION_DATE
+        - GANTRY5_PLATFORM
+        - GANTRY5_ROOT
+    ignoreErrors:
+        # PSR-16 Exception interfaces do not extend \Throwable
+        - '#PHPDoc tag \@throws with type (.*|)?Psr\\SimpleCache\\(CacheException|InvalidArgumentException)(|.*)? is not subtype of Throwable#'
+
+        - '#Call to deprecated method stopPropagation\(\) of class Symfony\\Component\\EventDispatcher\\Event#'
+        - '#Call to an undefined method Grav\\Plugin\\ApartmentData\\Application\\Application::#'
+        - '#Parameter \#1 \$lineNumberStyle of method ScssPhp\\ScssPhp\\Compiler::setLineNumberStyle\(\) expects string, int given#'

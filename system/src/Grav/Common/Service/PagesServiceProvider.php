@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Service
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -22,21 +22,19 @@ class PagesServiceProvider implements ServiceProviderInterface
 {
     public function register(Container $container)
     {
-        $container['pages'] = function ($c) {
-            return new Pages($c);
+        $container['pages'] = function (Grav $grav) {
+            return new Pages($grav);
         };
 
-        $container['page'] = function ($c) {
-            /** @var Grav $c */
-
+        $container['page'] = static function (Grav $grav) {
             /** @var Pages $pages */
-            $pages = $c['pages'];
+            $pages = $grav['pages'];
 
             /** @var Config $config */
-            $config = $c['config'];
+            $config = $grav['config'];
 
             /** @var Uri $uri */
-            $uri = $c['uri'];
+            $uri = $grav['uri'];
 
             $path = $uri->path() ?: '/'; // Don't trim to support trailing slash default routes
             $page = $pages->dispatch($path);
@@ -45,13 +43,13 @@ class PagesServiceProvider implements ServiceProviderInterface
             if ($page) {
                 // some debugger override logic
                 if ($page->debugger() === false) {
-                    $c['debugger']->enabled(false);
+                    $grav['debugger']->enabled(false);
                 }
 
                 if ($config->get('system.force_ssl')) {
                     if (!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] !== 'on') {
                         $url = 'https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-                        $c->redirect($url);
+                        $grav->redirect($url);
                     }
                 }
 
@@ -72,26 +70,25 @@ class PagesServiceProvider implements ServiceProviderInterface
                 }
 
                 /** @var Language $language */
-                $language = $c['language'];
+                $language = $grav['language'];
 
                 // Language-specific redirection scenarios
                 if ($language->enabled() && ($language->isLanguageInUrl() xor $language->isIncludeDefaultLanguage())) {
-                    $c->redirect($url);
+                    $grav->redirect($url);
                 }
                 // Default route test and redirect
                 if ($config->get('system.pages.redirect_default_route') && $page->route() !== $path) {
-                    $c->redirect($url);
+                    $grav->redirect($url);
                 }
             }
 
             // if page is not found, try some fallback stuff
             if (!$page || !$page->routable()) {
-
                 // Try fallback URL stuff...
-                $page = $c->fallbackUrl($path);
+                $page = $grav->fallbackUrl($path);
 
                 if (!$page) {
-                    $path = $c['locator']->findResource('system://pages/notfound.md');
+                    $path = $grav['locator']->findResource('system://pages/notfound.md');
                     $page = new Page();
                     $page->init(new \SplFileInfo($path));
                     $page->routable(false);

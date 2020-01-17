@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * @package    Grav\Framework\Flex
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -13,6 +13,8 @@ namespace Grav\Framework\Flex\Storage;
 
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\Grav;
+use Grav\Common\Utils;
+use Grav\Framework\Filesystem\Filesystem;
 use Grav\Framework\Flex\Interfaces\FlexStorageInterface;
 use RocketTheme\Toolbox\File\File;
 use InvalidArgumentException;
@@ -24,14 +26,20 @@ use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
  */
 class FolderStorage extends AbstractFilesystemStorage
 {
-    /** @var string */
+    /** @var string Folder where all the data is stored. */
     protected $dataFolder;
-    /** @var string */
-    protected $dataPattern = '{FOLDER}/{KEY}/item';
+    /** @var string Pattern to access an object. */
+    protected $dataPattern = '{FOLDER}/{KEY}/{FILE}{EXT}';
+    /** @var string Filename for the object. */
+    protected $dataFile;
+    /** @var string File extension for the object. */
+    protected $dataExt;
     /** @var bool */
     protected $prefixed;
     /** @var bool */
     protected $indexed;
+    /** @var array */
+    protected $meta = [];
 
     /**
      * {@inheritdoc}
@@ -44,16 +52,28 @@ class FolderStorage extends AbstractFilesystemStorage
 
         $this->initDataFormatter($options['formatter'] ?? []);
         $this->initOptions($options);
+    }
 
-        // Make sure that the data folder exists.
-        $folder = $this->resolvePath($this->dataFolder);
-        if (!file_exists($folder)) {
-            try {
-                Folder::create($folder);
-            } catch (\RuntimeException $e) {
-                throw new \RuntimeException(sprintf('Flex: %s', $e->getMessage()));
-            }
+    /**
+     * @return bool
+     */
+    public function isIndexed(): bool
+    {
+        return $this->indexed;
+    }
+
+    /**
+     * @param string[] $keys
+     * @return array
+     */
+    public function getMetaData(array $keys): array
+    {
+        $list = [];
+        foreach ($keys as $key) {
+            $list[$key] = $this->getObjectMeta($key);
         }
+
+        return $list;
     }
 
     /**
@@ -71,7 +91,9 @@ class FolderStorage extends AbstractFilesystemStorage
      */
     public function hasKey(string $key): bool
     {
-        return $key && strpos($key, '@@') === false && file_exists($this->getPathFromKey($key));
+        $meta = $this->getObjectMeta($key);
+
+        return array_key_exists('exists', $meta) ? $meta['exists'] : !empty($meta['storage_timestamp']);
     }
 
     /**
@@ -82,11 +104,7 @@ class FolderStorage extends AbstractFilesystemStorage
     {
         $list = [];
         foreach ($rows as $key => $row) {
-            // Create new file and save it.
-            $key = $this->getNewKey();
-            $path = $this->getPathFromKey($key);
-            $file = $this->getFile($path);
-            $list[$key] = $this->saveFile($file, $row);
+            $list[$key] = $this->saveRow('@@', $row);
         }
 
         return $list;
@@ -100,16 +118,11 @@ class FolderStorage extends AbstractFilesystemStorage
     {
         $list = [];
         foreach ($rows as $key => $row) {
-            if (null === $row || (!\is_object($row) && !\is_array($row))) {
+            if (null === $row || \is_scalar($row)) {
                 // Only load rows which haven't been loaded before.
                 $key = (string)$key;
-                if (!$this->hasKey($key)) {
-                    $list[$key] = null;
-                } else {
-                    $path = $this->getPathFromKey($key);
-                    $file = $this->getFile($path);
-                    $list[$key] = $this->loadFile($file);
-                }
+                $list[$key] = $this->loadRow($key);
+
                 if (null !== $fetched) {
                     $fetched[$key] = $list[$key];
                 }
@@ -131,13 +144,7 @@ class FolderStorage extends AbstractFilesystemStorage
         $list = [];
         foreach ($rows as $key => $row) {
             $key = (string)$key;
-            if (!$this->hasKey($key)) {
-                $list[$key] = null;
-            } else {
-                $path = $this->getPathFromKey($key);
-                $file = $this->getFile($path);
-                $list[$key] = $this->saveFile($file, $row);
-            }
+            $list[$key] = $this->hasKey($key) ? $this->saveRow($key, $row) : null;
         }
 
         return $list;
@@ -150,6 +157,7 @@ class FolderStorage extends AbstractFilesystemStorage
     public function deleteRows(array $rows): array
     {
         $list = [];
+        $baseMediaPath = $this->getMediaPath();
         foreach ($rows as $key => $row) {
             $key = (string)$key;
             if (!$this->hasKey($key)) {
@@ -159,11 +167,17 @@ class FolderStorage extends AbstractFilesystemStorage
                 $file = $this->getFile($path);
                 $list[$key] = $this->deleteFile($file);
 
-                $storage = $this->getStoragePath($key);
-                $media = $this->getMediaPath($key);
+                if ($this->canDeleteFolder($key)) {
+                    $storagePath = $this->getStoragePath($key);
+                    $mediaPath = $this->getMediaPath($key);
 
-                $this->deleteFolder($storage, true);
-                $media && $this->deleteFolder($media, true);
+                    if ($storagePath) {
+                        $this->deleteFolder($storagePath, true);
+                    }
+                    if ($mediaPath && $mediaPath !== $storagePath && $mediaPath !== $baseMediaPath) {
+                        $this->deleteFolder($mediaPath, true);
+                    }
+                }
             }
         }
 
@@ -179,16 +193,36 @@ class FolderStorage extends AbstractFilesystemStorage
         $list = [];
         foreach ($rows as $key => $row) {
             $key = (string)$key;
-            if (strpos($key, '@@')) {
-                $key = $this->getNewKey();
-            }
-            $path = $this->getPathFromKey($key);
-            $file = $this->getFile($path);
-            $list[$key] = $this->saveFile($file, $row);
+            $list[$key] = $this->saveRow($key, $row);
         }
 
         return $list;
     }
+
+    /**
+     * @param string $src
+     * @param string $dst
+     * @return bool
+     */
+    public function copyRow(string $src, string $dst): bool
+    {
+        if ($this->hasKey($dst)) {
+            throw new \RuntimeException("Cannot copy object: key '{$dst}' is already taken");
+        }
+
+        if (!$this->hasKey($src)) {
+            return false;
+        }
+
+        $srcPath = $this->getStoragePath($src);
+        $dstPath = $this->getStoragePath($dst);
+        if (!$srcPath || !$dstPath) {
+            return false;
+        }
+
+        return $this->copyFolder($srcPath, $dstPath);
+    }
+
 
     /**
      * {@inheritdoc}
@@ -204,19 +238,34 @@ class FolderStorage extends AbstractFilesystemStorage
             return false;
         }
 
-        return $this->moveFolder($this->getMediaPath($src), $this->getMediaPath($dst));
+        $srcPath = $this->getStoragePath($src);
+        $dstPath = $this->getStoragePath($dst);
+        if (!$srcPath || !$dstPath) {
+            return false;
+        }
+
+        return $this->moveFolder($srcPath, $dstPath);
     }
 
     /**
      * {@inheritdoc}
      * @see FlexStorageInterface::getStoragePath()
      */
-    public function getStoragePath(string $key = null): string
+    public function getStoragePath(string $key = null): ?string
     {
-        if (null === $key) {
+        if (null === $key || $key === '') {
             $path = $this->dataFolder;
         } else {
-            $path = sprintf($this->dataPattern, $this->dataFolder, $key, substr($key, 0, 2));
+            $parts = $this->parseKey($key, false);
+            $options = [
+                $this->dataFolder,      // {FOLDER}
+                $parts['key'],          // {KEY}
+                $parts['key:2'],        // {KEY:2}
+                '***',                  // {FILE}
+                '***'                   // {EXT}
+            ];
+
+            $path = rtrim(explode('***', sprintf($this->dataPattern, ...$options))[0], '/');
         }
 
         return $path;
@@ -226,9 +275,9 @@ class FolderStorage extends AbstractFilesystemStorage
      * {@inheritdoc}
      * @see FlexStorageInterface::getMediaPath()
      */
-    public function getMediaPath(string $key = null): string
+    public function getMediaPath(string $key = null): ?string
     {
-        return null !== $key ? \dirname($this->getStoragePath($key)) : $this->getStoragePath();
+        return $this->getStoragePath($key);
     }
 
     /**
@@ -239,51 +288,114 @@ class FolderStorage extends AbstractFilesystemStorage
      */
     public function getPathFromKey(string $key): string
     {
-        return sprintf($this->dataPattern, $this->dataFolder, $key, substr($key, 0, 2));
+        $parts = $this->parseKey($key);
+        $options = [
+            $this->dataFolder,      // {FOLDER}
+            $parts['key'],          // {KEY}
+            $parts['key:2'],        // {KEY:2}
+            $parts['file'],         // {FILE}
+            $this->dataExt          // {EXT}
+        ];
+
+        return sprintf($this->dataPattern, ...$options);
     }
 
     /**
-     * @param File $file
-     * @return array|null
-     */
-    protected function loadFile(File $file): ?array
-    {
-        if (!$file->exists()) {
-            return null;
-        }
-
-        try {
-            $content = (array)$file->content();
-            if (isset($content[0])) {
-                throw new \RuntimeException('Broken object file.');
-            }
-        } catch (\RuntimeException $e) {
-            $content = ['__error' => $e->getMessage()];
-        }
-
-        return $content;
-    }
-
-    /**
-     * @param File $file
-     * @param array $data
+     * @param string $key
+     * @param bool $variations
      * @return array
      */
-    protected function saveFile(File $file, array $data): array
+    public function parseKey(string $key, bool $variations = true): array
+    {
+        $keys = [
+            'key' => $key,
+            'key:2' => \mb_substr($key, 0, 2),
+        ];
+        if ($variations) {
+            $keys['file'] = $this->dataFile;
+        }
+
+        return $keys;
+    }
+
+    /**
+     * Get key from the filesystem path.
+     *
+     * @param  string $path
+     * @return string
+     */
+    protected function getKeyFromPath(string $path): string
+    {
+        return basename($path);
+    }
+
+    /**
+     * Prepares the row for saving and returns the storage key for the record.
+     *
+     * @param array $row
+     */
+    protected function prepareRow(array &$row): void
+    {
+        unset($row[$this->keyField]);
+    }
+
+    /**
+     * @param string $key
+     * @return array
+     */
+    protected function loadRow(string $key): ?array
+    {
+        $path = $this->getPathFromKey($key);
+        $file = $this->getFile($path);
+        try {
+            $data = (array)$file->content();
+            if (isset($data[0])) {
+                throw new \RuntimeException('Broken object file');
+            }
+        } catch (\RuntimeException $e) {
+            $data = ['__ERROR' => $e->getMessage()];
+        }
+
+        $data['__META'] = $this->getObjectMeta($key);
+
+        return $data;
+    }
+
+    /**
+     * @param string $key
+     * @param array $row
+     * @return array
+     */
+    protected function saveRow(string $key, array $row): array
     {
         try {
-            $file->save($data);
+            if (isset($row[$this->keyField])) {
+                $key = $row[$this->keyField];
+            }
+            if (strpos($key, '@@') !== false) {
+                $key = $this->getNewKey();
+            }
+
+            $this->prepareRow($row);
+            unset($row['__META'], $row['__ERROR']);
+
+            $path = $this->getPathFromKey($key);
+            $file = $this->getFile($path);
+
+            $file->save($row);
 
             /** @var UniformResourceLocator $locator */
             $locator = Grav::instance()['locator'];
-            if ($locator->isStream($file->filename())) {
-                $locator->clearCache($file->filename());
+            if ($locator->isStream($path)) {
+                $locator->clearCache();
             }
         } catch (\RuntimeException $e) {
-            throw new \RuntimeException(sprintf('Flex saveFile(%s): %s', $file->filename(), $e->getMessage()));
+            throw new \RuntimeException(sprintf('Flex saveFile(%s): %s', $path ?? $key, $e->getMessage()));
         }
 
-        return $data;
+        $row['__META'] = $this->getObjectMeta($key, true);
+
+        return $row;
     }
 
     /**
@@ -294,7 +406,9 @@ class FolderStorage extends AbstractFilesystemStorage
     {
         try {
             $data = $file->content();
-            $file->delete();
+            if ($file->exists()) {
+                $file->delete();
+            }
 
             /** @var UniformResourceLocator $locator */
             $locator = Grav::instance()['locator'];
@@ -306,6 +420,28 @@ class FolderStorage extends AbstractFilesystemStorage
         }
 
         return $data;
+    }
+
+    /**
+     * @param string $src
+     * @param string $dst
+     * @return bool
+     */
+    protected function copyFolder(string $src, string $dst): bool
+    {
+        try {
+            Folder::copy($this->resolvePath($src), $this->resolvePath($dst));
+
+            /** @var UniformResourceLocator $locator */
+            $locator = Grav::instance()['locator'];
+            if ($locator->isStream($src) || $locator->isStream($dst)) {
+                $locator->clearCache();
+            }
+        } catch (\RuntimeException $e) {
+            throw new \RuntimeException(sprintf('Flex copyFolder(%s, %s): %s', $src, $dst, $e->getMessage()));
+        }
+
+        return true;
     }
 
     /**
@@ -353,14 +489,11 @@ class FolderStorage extends AbstractFilesystemStorage
     }
 
     /**
-     * Get key from the filesystem path.
-     *
-     * @param  string $path
-     * @return string
+     * @return bool
      */
-    protected function getKeyFromPath(string $path): string
+    protected function canDeleteFolder(string $key): bool
     {
-        return basename($path);
+        return true;
     }
 
     /**
@@ -371,7 +504,7 @@ class FolderStorage extends AbstractFilesystemStorage
     protected function buildIndex(): array
     {
         $path = $this->getStoragePath();
-        if (!file_exists($path)) {
+        if (!$path || !file_exists($path)) {
             return [];
         }
 
@@ -386,6 +519,34 @@ class FolderStorage extends AbstractFilesystemStorage
         return $list;
     }
 
+    /**
+     * @param string $key
+     * @param bool $reload
+     * @return array
+     */
+    protected function getObjectMeta(string $key, bool $reload = false): array
+    {
+        if (!$reload && isset($this->meta[$key])) {
+            return $this->meta[$key];
+        }
+
+        if ($key && strpos($key, '@@') === false) {
+            $filename = $this->getPathFromKey($key);
+            $modified = is_file($filename) ? filemtime($filename) : 0;
+        } else {
+            $modified = 0;
+        }
+
+        $meta = [
+            'storage_key' => $key,
+            'storage_timestamp' => $modified
+        ];
+
+        $this->meta[$key] = $meta;
+
+        return $meta;
+    }
+
     protected function buildIndexFromFilesystem($path)
     {
         $flags = \FilesystemIterator::KEY_AS_PATHNAME | \FilesystemIterator::CURRENT_AS_FILEINFO | \FilesystemIterator::SKIP_DOTS | \FilesystemIterator::UNIX_PATHS;
@@ -394,21 +555,15 @@ class FolderStorage extends AbstractFilesystemStorage
         $list = [];
         /** @var \SplFileInfo $info */
         foreach ($iterator as $filename => $info) {
-            if (!$info->isDir()) {
+            if (!$info->isDir() || strpos($info->getFilename(), '.') === 0) {
                 continue;
             }
 
             $key = $this->getKeyFromPath($filename);
-            $filename = $this->getPathFromKey($key);
-            $modified = is_file($filename) ? filemtime($filename) : null;
-            if (null === $modified) {
-                continue;
+            $meta = $this->getObjectMeta($key);
+            if ($meta['storage_timestamp']) {
+                $list[$key] = $meta;
             }
-
-            $list[$key] = [
-                'storage_key' => $key,
-                'storage_timestamp' => $modified
-            ];
         }
 
         return $list;
@@ -460,11 +615,28 @@ class FolderStorage extends AbstractFilesystemStorage
         $pattern = !empty($options['pattern']) ? $options['pattern'] : $this->dataPattern;
 
         $this->dataFolder = $options['folder'];
+        $this->dataFile = $options['file'] ?? 'item';
+        $this->dataExt = $extension;
+        if (\mb_strpos($pattern, '{FILE}') === false && \mb_strpos($pattern, '{EXT}') === false) {
+            if (isset($options['file'])) {
+                $pattern .= '/{FILE}{EXT}';
+            } else {
+                $filesystem = Filesystem::getInstance(true);
+                $this->dataFile = \basename($pattern, $extension);
+                $pattern = $filesystem->dirname($pattern) . '/{FILE}{EXT}';
+            }
+        }
         $this->prefixed = (bool)($options['prefixed'] ?? strpos($pattern, '/{KEY:2}/'));
         $this->indexed = (bool)($options['indexed'] ?? false);
         $this->keyField = $options['key'] ?? 'storage_key';
 
-        $pattern = preg_replace(['/{FOLDER}/', '/{KEY}/', '/{KEY:2}/'], ['%1$s', '%2$s', '%3$s'], $pattern);
-        $this->dataPattern = \dirname($pattern) . '/' . basename($pattern, $extension) . $extension;
+        $variables = ['FOLDER' => '%1$s', 'KEY' => '%2$s', 'KEY:2' => '%3$s', 'FILE' => '%4$s', 'EXT' => '%5$s'];
+        $pattern = Utils::simpleTemplate($pattern, $variables);
+
+        if (!$pattern) {
+            throw new \RuntimeException('Bad storage folder pattern');
+        }
+
+        $this->dataPattern = $pattern;
     }
 }

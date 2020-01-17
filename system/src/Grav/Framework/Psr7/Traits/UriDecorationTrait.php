@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * @package    Grav\Framework\Psr7
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -65,64 +65,64 @@ trait UriDecorationTrait
 
     public function withScheme($scheme): UriInterface
     {
-        /** @var UriInterface|UriDecorationTrait $new */
         $new = clone $this;
         $new->uri = $this->uri->withScheme($scheme);
 
+        /** @var UriInterface $new */
         return $new;
     }
 
     public function withUserInfo($user, $password = null): UriInterface
     {
-        /** @var UriInterface|UriDecorationTrait $new */
         $new = clone $this;
         $new->uri = $this->uri->withUserInfo($user, $password);
 
+        /** @var UriInterface $new */
         return $new;
     }
 
     public function withHost($host): UriInterface
     {
-        /** @var UriInterface|UriDecorationTrait $new */
         $new = clone $this;
         $new->uri = $this->uri->withHost($host);
 
+        /** @var UriInterface $new */
         return $new;
     }
 
     public function withPort($port): UriInterface
     {
-        /** @var UriInterface|UriDecorationTrait $new */
         $new = clone $this;
         $new->uri = $this->uri->withPort($port);
 
+        /** @var UriInterface $new */
         return $new;
     }
 
     public function withPath($path): UriInterface
     {
-        /** @var UriInterface|UriDecorationTrait $new */
         $new = clone $this;
         $new->uri = $this->uri->withPath($path);
 
+        /** @var UriInterface $new */
         return $new;
     }
 
     public function withQuery($query): UriInterface
     {
-        /** @var UriInterface|UriDecorationTrait $new */
         $new = clone $this;
         $new->uri = $this->uri->withQuery($query);
 
+        /** @var UriInterface $new */
         return $new;
     }
 
     public function withFragment($fragment): UriInterface
     {
-        /** @var UriInterface|UriDecorationTrait $new */
         $new = clone $this;
         $new->uri = $this->uri->withFragment($fragment);
 
+        /** @var UriInterface $new */
         return $new;
     }
 }

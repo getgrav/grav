@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Data
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -20,14 +20,19 @@ class Blueprint extends BlueprintForm
     /** @var string */
     protected $context = 'blueprints://';
 
+    /** @var string|null */
     protected $scope;
 
-    /** @var BlueprintSchema */
+    /** @var BlueprintSchema|null */
     protected $blueprintSchema;
 
-    /** @var array */
+    /** @var object|null */
+    protected $object;
+
+    /** @var array|null */
     protected $defaults;
 
+    /** @var array */
     protected $handlers = [];
 
     public function __clone()
@@ -37,9 +42,20 @@ class Blueprint extends BlueprintForm
         }
     }
 
+    /**
+     * @param string $scope
+     */
     public function setScope($scope)
     {
         $this->scope = $scope;
+    }
+
+    /**
+     * @param object $object
+     */
+    public function setObject($object)
+    {
+        $this->object = $object;
     }
 
     /**
@@ -111,6 +127,7 @@ class Blueprint extends BlueprintForm
             foreach ($data as $property => $call) {
                 $action = $call['action'];
                 $method = 'dynamic' . ucfirst($action);
+                $call['object'] = $this->object;
 
                 if (isset($this->handlers[$action])) {
                     $callable = $this->handlers[$action];
@@ -223,6 +240,10 @@ class Blueprint extends BlueprintForm
         return $this->blueprintSchema;
     }
 
+    /**
+     * @param string $name
+     * @param callable $callable
+     */
     public function addDynamicHandler(string $name, callable $callable): void
     {
         $this->handlers[$name] = $callable;
@@ -250,12 +271,12 @@ class Blueprint extends BlueprintForm
 
     /**
      * @param string $filename
-     * @return string
+     * @return array
      */
     protected function loadFile($filename)
     {
         $file = CompiledYamlFile::instance($filename);
-        $content = $file->content();
+        $content = (array)$file->content();
         $file->free();
 
         return $content;
@@ -411,6 +432,11 @@ class Blueprint extends BlueprintForm
         }
     }
 
+    /**
+     * @param array $field
+     * @param string $property
+     * @param mixed $value
+     */
     protected function addPropertyRecursive(array &$field, $property, $value)
     {
         if (\is_array($value) && isset($field[$property]) && \is_array($field[$property])) {

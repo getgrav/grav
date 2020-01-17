@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Twig
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -28,9 +28,9 @@ class TwigTokenParserStyle extends AbstractTokenParser
     /**
      * Parses a token and returns a node.
      *
-     * @param Token $token A Twig_Token instance
+     * @param Token $token A Twig Token instance
      *
-     * @return Node A Twig_Node instance
+     * @return Node A Twig Node instance
      */
     public function parse(Token $token)
     {

@@ -28,5 +28,4 @@ class ComposerTest extends \Codeception\TestCase\Test
         $this->assertNotNull(strstr($composerExecutor, 'php'));
         $this->assertNotNull(strstr($composerExecutor, 'composer'));
     }
-
 }

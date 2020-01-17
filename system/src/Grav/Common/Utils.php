@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -14,11 +14,14 @@ use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Markdown\Parsedown;
 use Grav\Common\Markdown\ParsedownExtra;
 use Grav\Common\Page\Markdown\Excerpts;
+use Negotiation\Accept;
+use Negotiation\Negotiator;
 use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 abstract class Utils
 {
+    /** @var array  */
     protected static $nonces = [];
 
     protected const ROOTURL_REGEX = '{^((?:http[s]?:\/\/[^\/]+)|(?:\/\/[^\/]+))(.*)}';
@@ -54,6 +57,7 @@ abstract class Utils
         /** @var Uri $uri */
         $uri = $grav['uri'];
 
+        $resource = false;
         if (static::contains((string)$input, '://')) {
             /** @var UniformResourceLocator $locator */
             $locator = $grav['locator'];
@@ -85,7 +89,6 @@ abstract class Utils
                         // Return location where the file would be if it was saved.
                         $resource = $locator->findResource("{$scheme}://{$host}{$path}", false, true);
                     }
-
                 } elseif ($host || $port) {
                     // If URL doesn't have scheme but has host or port, it is external.
                     return str_replace(' ', '%20', $input);
@@ -102,12 +105,10 @@ abstract class Utils
                         $resource .= '#' . $parts['fragment'];
                     }
                 }
-
             } else {
                 // Not a valid URL (can still be a stream).
                 $resource = $locator->findResource($input, false);
             }
-
         } else {
             $root = $uri->rootUrl();
 
@@ -219,7 +220,8 @@ abstract class Utils
      * @param string $haystack
      * @return false|int
      */
-    public static function matchWildcard($wildcard_pattern, $haystack) {
+    public static function matchWildcard($wildcard_pattern, $haystack)
+    {
         $regex = str_replace(
             array("\*", "\?"), // wildcard chars
             array('.*','.'),   // regexp chars
@@ -227,6 +229,26 @@ abstract class Utils
         );
 
         return preg_match('/^'.$regex.'$/is', $haystack);
+    }
+
+    /**
+     * Render simple template filling up the variables in it. If value is not defined, leave it as it was.
+     *
+     * @param string $template      Template string
+     * @param array $variables      Variables with values
+     * @param array $brackets       Optional array of opening and closing brackets or symbols
+     * @return string               Final string filled with values
+     */
+    public static function simpleTemplate(string $template, array $variables, array $brackets = ['{', '}']): string
+    {
+        $opening = $brackets[0] ?? '{';
+        $closing = $brackets[1] ?? '}';
+        $expression = '/' . preg_quote($opening, '/') . '(.*?)' . preg_quote($closing, '/') . '/';
+        $callback = static function ($match) use ($variables) {
+            return $variables[$match[1]] ?? $match[0];
+        };
+
+        return preg_replace_callback($expression, $callback, $template);
     }
 
     /**
@@ -285,8 +307,7 @@ abstract class Utils
     {
         $pos = strrpos($subject, $search);
 
-        if($pos !== false)
-        {
+        if ($pos !== false) {
             $subject = static::mb_substr_replace($subject, $replace, $pos, mb_strlen($search));
         }
 
@@ -324,12 +345,21 @@ abstract class Utils
     }
 
     /**
+     * @param array $array
+     * @return bool
+     */
+    public static function isAssoc(array $array)
+    {
+        return (array_values($array) !== $array);
+    }
+
+    /**
      * Lowercase an entire array. Useful when combined with `in_array()`
      *
      * @param array $a
      * @return array|false
      */
-    public static function arrayLower(Array $a)
+    public static function arrayLower(array $a)
     {
         return array_map('mb_strtolower', $a);
     }
@@ -337,11 +367,11 @@ abstract class Utils
     /**
      * Simple function to remove item/s in an array by value
      *
-     * @param $search array
-     * @param $value string|array
+     * @param array $search
+     * @param string|array $value
      * @return array
      */
-    public static function arrayRemoveValue(Array $search, $value)
+    public static function arrayRemoveValue(array $search, $value)
     {
         foreach ((array) $value as $val) {
             $key = array_search($val, $search);
@@ -630,8 +660,7 @@ abstract class Utils
 
                     // Return 304 Not Modified if the file is already cached in the browser
                     if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) &&
-                        strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) >= filemtime($file))
-                    {
+                        strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) >= filemtime($file)) {
                         header('HTTP/1.1 304 Not Modified');
                         exit();
                     }
@@ -647,7 +676,7 @@ abstract class Utils
                 if ($range) {
                     fseek($fp, $range);
                 }
-                while (!feof($fp) && (!connection_aborted()) && ($bytes_send < $new_length) ) {
+                while (!feof($fp) && (!connection_aborted()) && ($bytes_send < $new_length)) {
                     $buffer = fread($fp, $chunksize);
                     echo($buffer); //echo($buffer); // is also possible
                     flush();
@@ -661,6 +690,39 @@ abstract class Utils
 
             exit;
         }
+    }
+
+    /**
+     * Returns the output render format, usually the extension provided in the URL. (e.g. `html`, `json`, `xml`, etc).
+     *
+     * @return string
+     */
+    public static function getPageFormat(): string
+    {
+        /** @var Uri $uri */
+        $uri = Grav::instance()['uri'];
+
+        // Set from uri extension
+        $uri_extension = $uri->extension();
+        if (is_string($uri_extension)) {
+            return $uri_extension;
+        }
+
+        // Use content negotiation via the `accept:` header
+        $http_accept = $_SERVER['HTTP_ACCEPT'] ?? null;
+        if (is_string($http_accept)) {
+            $negotiator = new Negotiator();
+
+            $supported_types = Utils::getSupportPageTypes(['html', 'json']);
+            $priorities = Utils::getMimeTypes($supported_types);
+
+            $media_type = $negotiator->getBest($http_accept, $priorities);
+            $mimetype = $media_type instanceof Accept ? $media_type->getValue() : '';
+
+            return Utils::getExtensionByMime($mimetype);
+        }
+
+        return 'html';
     }
 
     /**
@@ -837,7 +899,7 @@ abstract class Utils
     public static function checkFilename($filename)
     {
         $dangerous_extensions = Grav::instance()['config']->get('security.uploads_dangerous_extensions', []);
-        array_walk($dangerous_extensions, function(&$val) {
+        array_walk($dangerous_extensions, function (&$val) {
             $val = '.' . $val;
         });
 
@@ -880,7 +942,7 @@ abstract class Utils
         }
 
         // Strip off leading / to ensure explode is accurate
-        if (Utils::startsWith($path,'/')) {
+        if (Utils::startsWith($path, '/')) {
             $root .= '/';
             $path = ltrim($path, '/');
         }
@@ -1111,15 +1173,25 @@ abstract class Utils
     }
 
     /**
-     * Checks if a value is positive
+     * Checks if a value is positive (true)
      *
      * @param string $value
-     *
      * @return boolean
      */
     public static function isPositive($value)
     {
         return in_array($value, [true, 1, '1', 'yes', 'on', 'true'], true);
+    }
+
+    /**
+     * Checks if a value is negative (false)
+     *
+     * @param string $value
+     * @return boolean
+     */
+    public static function isNegative($value)
+    {
+        return in_array($value, [false, 0, '0', 'no', 'off', 'false'], true);
     }
 
     /**
@@ -1227,7 +1299,7 @@ abstract class Utils
      * Get a portion of an array (passed by reference) with dot-notation key
      *
      * @param array $array
-     * @param string|int $key
+     * @param string|int|null $key
      * @param null $default
      * @return mixed
      */
@@ -1256,10 +1328,10 @@ abstract class Utils
      * Set portion of array (passed by reference) for a dot-notation key
      * and set the value
      *
-     * @param array      $array
-     * @param string|int $key
-     * @param mixed      $value
-     * @param bool       $merge
+     * @param array $array
+     * @param string|int|null $key
+     * @param mixed $value
+     * @param bool $merge
      *
      * @return mixed
      */
@@ -1274,8 +1346,7 @@ abstract class Utils
         while (count($keys) > 1) {
             $key = array_shift($keys);
 
-            if ( ! isset($array[$key]) || ! is_array($array[$key]))
-            {
+            if (! isset($array[$key]) || ! is_array($array[$key])) {
                 $array[$key] = array();
             }
 
@@ -1308,7 +1379,8 @@ abstract class Utils
      *
      * @return bool
      */
-    public static function isApache() {
+    public static function isApache()
+    {
         return isset($_SERVER['SERVER_SOFTWARE']) && strpos($_SERVER['SERVER_SOFTWARE'], 'Apache') !== false;
     }
 
@@ -1321,7 +1393,7 @@ abstract class Utils
      */
     public static function sortArrayByArray(array $array, array $orderArray)
     {
-        $ordered = array();
+        $ordered = [];
         foreach ($orderArray as $key) {
             if (array_key_exists($key, $array)) {
                 $ordered[$key] = $array[$key];
@@ -1476,16 +1548,16 @@ abstract class Utils
     /**
      * Parse a readable file size and return a value in bytes
      *
-     * @param string|int $size
+     * @param string|int|float $size
      * @return int
      */
     public static function parseSize($size)
     {
         $unit = preg_replace('/[^bkmgtpezy]/i', '', $size);
-        $size = preg_replace('/[^0-9\.]/', '', $size);
+        $size = (float)preg_replace('/[^0-9\.]/', '', $size);
 
         if ($unit) {
-            $size = $size * pow(1024, stripos('bkmgtpezy', $unit[0]));
+            $size *= 1024 ** stripos('bkmgtpezy', $unit[0]);
         }
 
         return (int) abs(round($size));
@@ -1510,11 +1582,11 @@ abstract class Utils
 
         $parts = parse_url($enc_url);
 
-        if($parts === false) {
+        if ($parts === false) {
             throw new \InvalidArgumentException('Malformed URL: ' . $url);
         }
 
-        foreach($parts as $name => $value) {
+        foreach ($parts as $name => $value) {
             $parts[$name] = urldecode($value);
         }
 
@@ -1574,19 +1646,26 @@ abstract class Utils
         }
 
         // Packed representation of IP
-        $ip = inet_pton($ip);
+        $ip = (string)inet_pton($ip);
 
         // Maximum netmask length = same as packed address
         $len = 8*strlen($ip);
-        if ($prefix > $len) $prefix = $len;
+        if ($prefix > $len) {
+            $prefix = $len;
+        }
 
         $mask  = str_repeat('f', $prefix>>2);
 
-        switch($prefix & 3)
-        {
-            case 3: $mask .= 'e'; break;
-            case 2: $mask .= 'c'; break;
-            case 1: $mask .= '8'; break;
+        switch ($prefix & 3) {
+            case 3:
+                $mask .= 'e';
+                break;
+            case 2:
+                $mask .= 'c';
+                break;
+            case 1:
+                $mask .= '8';
+                break;
         }
         $mask = str_pad($mask, $len>>2, '0');
 

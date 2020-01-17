@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * @package    Grav\Framework\Flex
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -25,7 +25,7 @@ class FileStorage extends FolderStorage
      */
     public function __construct(array $options)
     {
-        $this->dataPattern = '{FOLDER}/{KEY}';
+        $this->dataPattern = '{FOLDER}/{KEY}{EXT}';
 
         if (!isset($options['formatter']) && isset($options['pattern'])) {
             $options['formatter'] = $this->detectDataFormatter($options['pattern']);
@@ -38,9 +38,14 @@ class FileStorage extends FolderStorage
      * {@inheritdoc}
      * @see FlexStorageInterface::getMediaPath()
      */
-    public function getMediaPath(string $key = null): string
+    public function getMediaPath(string $key = null): ?string
     {
-        return $key ? \dirname($this->getStoragePath($key)) . '/' . $key : $this->getStoragePath();
+        $path = $this->getStoragePath();
+        if (!$path) {
+            return null;
+        }
+
+        return $key ? "{$path}/{$key}" : $path;
     }
 
     /**
@@ -56,12 +61,13 @@ class FileStorage extends FolderStorage
      */
     protected function buildIndex(): array
     {
-        if (!file_exists($this->getStoragePath())) {
+        $path = $this->getStoragePath();
+        if (!$path || !file_exists($path)) {
             return [];
         }
 
         $flags = \FilesystemIterator::KEY_AS_PATHNAME | \FilesystemIterator::CURRENT_AS_FILEINFO | \FilesystemIterator::SKIP_DOTS | \FilesystemIterator::UNIX_PATHS;
-        $iterator = new \FilesystemIterator($this->getStoragePath(), $flags);
+        $iterator = new \FilesystemIterator($path, $flags);
         $list = [];
         /** @var \SplFileInfo $info */
         foreach ($iterator as $filename => $info) {
@@ -69,10 +75,7 @@ class FileStorage extends FolderStorage
                 continue;
             }
 
-            $list[$key] = [
-                'storage_key' => $key,
-                'storage_timestamp' => $info->getMTime()
-            ];
+            $list[$key] = $this->getObjectMeta($key);
         }
 
         ksort($list, SORT_NATURAL);

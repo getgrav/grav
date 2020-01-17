@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Markdown
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -35,5 +35,4 @@ class Parsedown extends \Parsedown
 
         $this->init($excerpts, $defaults);
     }
-
 }

@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Twig
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -12,6 +12,9 @@ namespace Grav\Common\Twig\Node;
 use Twig\Compiler;
 use Twig\Node\Node;
 
+/**
+ * Class TwigNodeThrow
+ */
 class TwigNodeThrow extends Node
 {
     /**
@@ -26,15 +29,14 @@ class TwigNodeThrow extends Node
         Node $message,
         $lineno = 0,
         $tag = null
-    )
-    {
+    ) {
         parent::__construct(['message' => $message], ['code' => $code], $lineno, $tag);
     }
 
     /**
      * Compiles the node to PHP.
      *
-     * @param Compiler $compiler A Twig_Compiler instance
+     * @param Compiler $compiler A Twig Compiler instance
      * @throws \LogicException
      */
     public function compile(Compiler $compiler)

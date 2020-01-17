@@ -3,7 +3,7 @@
 
 use Grav\Common\Composer;
 use Grav\Common\Grav;
-use League\CLImate\CLImate;
+use Grav\Console\Cli;
 use Symfony\Component\Console\Application;
 
 \define('GRAV_CLI', true);
@@ -52,16 +52,18 @@ if (!file_exists(GRAV_ROOT . '/index.php')) {
 
 $app = new Application('Grav CLI Application', GRAV_VERSION);
 $app->addCommands(array(
-    new \Grav\Console\Cli\InstallCommand(),
-    new \Grav\Console\Cli\ComposerCommand(),
-    new \Grav\Console\Cli\SandboxCommand(),
-    new \Grav\Console\Cli\CleanCommand(),
-    new \Grav\Console\Cli\ClearCacheCommand(),
-    new \Grav\Console\Cli\BackupCommand(),
-    new \Grav\Console\Cli\NewProjectCommand(),
-    new \Grav\Console\Cli\SchedulerCommand(),
-    new \Grav\Console\Cli\SecurityCommand(),
-    new \Grav\Console\Cli\LogViewerCommand(),
-    new \Grav\Console\Cli\YamlLinterCommand(),
+    new Cli\InstallCommand(),
+    new Cli\ComposerCommand(),
+    new Cli\SandboxCommand(),
+    new Cli\CleanCommand(),
+    new Cli\ClearCacheCommand(),
+    new Cli\BackupCommand(),
+    new Cli\NewProjectCommand(),
+    new Cli\SchedulerCommand(),
+    new Cli\SecurityCommand(),
+    new Cli\LogViewerCommand(),
+    new Cli\YamlLinterCommand(),
+    new Cli\ServerCommand(),
+    new Cli\PageSystemValidatorCommand(),
 ));
 $app->run();

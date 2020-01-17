@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * @package    Grav\Framework\File\Formatter
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -23,7 +23,8 @@ class CsvFormatter extends AbstractFormatter
     {
         $config += [
             'file_extension' => ['.csv', '.tsv'],
-            'delimiter' => ','
+            'delimiter' => ',',
+            'mime' => 'text/x-csv'
         ];
 
         parent::__construct($config);
@@ -71,13 +72,17 @@ class CsvFormatter extends AbstractFormatter
     {
         $delimiter = $delimiter ?? $this->getDelimiter();
         $lines = preg_split('/\r\n|\r|\n/', $data);
-
         if ($lines === false) {
             throw new \RuntimeException('Decoding CSV failed');
         }
 
         // Get the field names
-        $header = str_getcsv(array_shift($lines), $delimiter);
+        $headerStr = array_shift($lines);
+        if (!$headerStr) {
+            throw new \RuntimeException('CSV header missing');
+        }
+
+        $header = str_getcsv($headerStr, $delimiter);
 
         // Allow for replacing a null string with null/empty value
         $null_replace = $this->getConfig('null');
@@ -91,8 +96,8 @@ class CsvFormatter extends AbstractFormatter
                     $csv_line = str_getcsv($line, $delimiter);
 
                     if ($null_replace) {
-                        array_walk($csv_line, function(&$el) use ($null_replace) {
-                           $el = str_replace($null_replace, "\0", $el);
+                        array_walk($csv_line, static function (&$el) use ($null_replace) {
+                            $el = str_replace($null_replace, "\0", $el);
                         });
                     }
 
@@ -100,7 +105,7 @@ class CsvFormatter extends AbstractFormatter
                 }
             }
         } catch (\Exception $e) {
-            throw new \Exception('Badly formatted CSV line: ' . $line);
+            throw new \RuntimeException('Badly formatted CSV line: ' . $line);
         }
 
         return $list;

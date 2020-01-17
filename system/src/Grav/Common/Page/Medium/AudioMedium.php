@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Page
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -26,7 +26,7 @@ class AudioMedium extends Medium
 
         return [
             'name' => 'audio',
-            'text' => '<source src="' . $location . '">Your browser does not support the audio tag.',
+            'rawHtml' => '<source src="' . $location . '">Your browser does not support the audio tag.',
             'attributes' => $attributes
         ];
     }
@@ -39,7 +39,7 @@ class AudioMedium extends Medium
      */
     public function controls($display = true)
     {
-        if($display) {
+        if ($display) {
             $this->attributes['controls'] = true;
         } else {
             unset($this->attributes['controls']);
@@ -57,7 +57,7 @@ class AudioMedium extends Medium
     public function preload($preload)
     {
         $validPreloadAttrs = ['auto', 'metadata', 'none'];
-        
+
         if (\in_array($preload, $validPreloadAttrs, true)) {
             $this->attributes['preload'] = $preload;
         }
@@ -88,7 +88,7 @@ class AudioMedium extends Medium
      */
     public function muted($status = false)
     {
-        if($status) {
+        if ($status) {
             $this->attributes['muted'] = true;
         } else {
             unset($this->attributes['muted']);
@@ -105,7 +105,7 @@ class AudioMedium extends Medium
      */
     public function loop($status = false)
     {
-        if($status) {
+        if ($status) {
             $this->attributes['loop'] = true;
         } else {
             unset($this->attributes['loop']);
@@ -122,7 +122,7 @@ class AudioMedium extends Medium
      */
     public function autoplay($status = false)
     {
-        if($status) {
+        if ($status) {
             $this->attributes['autoplay'] = true;
         } else {
             unset($this->attributes['autoplay']);
@@ -130,7 +130,6 @@ class AudioMedium extends Medium
 
         return $this;
     }
-
 
     /**
      * Reset medium.

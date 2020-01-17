@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Processors
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -15,10 +15,12 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class AssetsProcessor extends ProcessorBase
 {
+    /** @var string */
     public $id = '_assets';
+    /** @var string */
     public $title = 'Assets';
 
-    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler) : ResponseInterface
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $this->startTimer();
         $this->container['assets']->init();

@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * @package    Grav\Framework\Flex
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -54,6 +54,13 @@ interface FlexObjectInterface extends FlexCommonInterface, NestedObjectInterface
      * @api
      */
     public function search(string $search, $properties = null, array $options = null): float;
+
+    /**
+     * Returns true if object has a key.
+     *
+     * @return bool
+     */
+    public function hasKey();
 
     /**
      * Get a unique key for the object.
@@ -165,12 +172,12 @@ interface FlexObjectInterface extends FlexCommonInterface, NestedObjectInterface
      * Returns a form instance for the object.
      *
      * @param string $name Name of the form. Can be used to create customized forms for different use cases.
-     * @param array|null $form  Can be used to further customize the form.
+     * @param array|null $options  Options can be used to further customize the form.
      *
      * @return FlexFormInterface Returns a Form.
      * @api
      */
-    public function getForm(string $name = '', array $form = null);
+    public function getForm(string $name = '', array $options = null);
 
     /**
      * Returns default value suitable to be used in a form for the given property.
@@ -178,7 +185,7 @@ interface FlexObjectInterface extends FlexCommonInterface, NestedObjectInterface
      * @see FlexObjectInterface::getForm()
      *
      * @param  string $name         Property name.
-     * @param  string $separator    Optional nested property separator.
+     * @param  string|null $separator   Optional nested property separator.
      *
      * @return mixed|null           Returns default value of the field, null if there is no default value.
      */
@@ -200,7 +207,7 @@ interface FlexObjectInterface extends FlexCommonInterface, NestedObjectInterface
      *
      * @param  string $name         Property name.
      * @param  mixed  $default      Default value.
-     * @param  string $separator    Optional nested property separator.
+     * @param  string|null $separator   Optional nested property separator.
      *
      * @return mixed                Returns value of the field.
      */

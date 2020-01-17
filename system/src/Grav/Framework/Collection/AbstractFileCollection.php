@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Collection
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -22,34 +22,22 @@ use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
  */
 class AbstractFileCollection extends AbstractLazyCollection implements FileCollectionInterface
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $path;
 
-    /**
-     * @var \RecursiveDirectoryIterator|RecursiveUniformResourceIterator
-     */
+    /** @var \RecursiveDirectoryIterator|RecursiveUniformResourceIterator */
     protected $iterator;
 
-    /**
-     * @var callable
-     */
+    /** @var callable */
     protected $createObjectFunction;
 
-    /**
-     * @var callable|null
-     */
+    /** @var callable|null */
     protected $filterFunction;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     protected $flags;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     protected $nestingLimit;
 
     /**
@@ -94,8 +82,15 @@ class AbstractFileCollection extends AbstractLazyCollection implements FileColle
 
         if ($orderings = $criteria->getOrderings()) {
             $next = null;
+            /**
+             * @var string $field
+             * @var string $ordering
+             */
             foreach (array_reverse($orderings) as $field => $ordering) {
                 $next = ClosureExpressionVisitor::sortByField($field, $ordering === Criteria::DESC ? -1 : 1, $next);
+            }
+            if (null === $next) {
+                throw new \RuntimeException('Criteria is missing orderings');
             }
 
             uasort($filtered, $next);
@@ -197,7 +192,7 @@ class AbstractFileCollection extends AbstractLazyCollection implements FileColle
     }
 
     /**
-     * @param \RecursiveDirectoryIterator[] $children
+     * @param array $children
      * @return array
      */
     protected function doInitializeChildren(array $children, $nestingLimit)

@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\ContentBlock
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -23,12 +23,19 @@ namespace Grav\Framework\ContentBlock;
  */
 class ContentBlock implements ContentBlockInterface
 {
+    /** @var int */
     protected $version = 1;
+    /** @var string */
     protected $id;
+    /** @var string */
     protected $tokenTemplate = '@@BLOCK-%s@@';
+    /** @var string */
     protected $content = '';
+    /** @var array */
     protected $blocks = [];
+    /** @var string */
     protected $checksum;
+    /** @var bool */
     protected $cached = true;
 
     /**

@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Object
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -17,11 +17,9 @@ namespace Grav\Framework\Object\Base;
 trait ObjectTrait
 {
     /** @var string */
-    static protected $type;
+    protected static $type;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $_key;
 
     /**
@@ -66,7 +64,7 @@ trait ObjectTrait
 
     /**
      * @param string $property      Object property name.
-     * @return bool|bool[]          True if property has been defined (can be null).
+     * @return bool                 True if property has been defined (can be null).
      */
     public function hasProperty($property)
     {
@@ -76,7 +74,7 @@ trait ObjectTrait
     /**
      * @param string $property      Object property to be fetched.
      * @param mixed $default        Default value if property has not been set.
-     * @return mixed|mixed[]        Property value.
+     * @return mixed                Property value.
      */
     public function getProperty($property, $default = null)
     {

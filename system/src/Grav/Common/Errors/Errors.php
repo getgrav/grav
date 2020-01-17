@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Errors
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -40,23 +40,23 @@ class Errors
                 $error_page->setPageTitle('Crikey! There was an error...');
                 $error_page->addResourcePath(GRAV_ROOT . '/system/assets');
                 $error_page->addCustomCss('whoops.css');
-                $whoops->pushHandler($error_page);
+                $whoops->prependHandler($error_page);
                 break;
             case -1:
-                $whoops->pushHandler(new BareHandler);
+                $whoops->prependHandler(new BareHandler);
                 break;
             default:
-                $whoops->pushHandler(new SimplePageHandler);
+                $whoops->prependHandler(new SimplePageHandler);
                 break;
         }
 
         if (Whoops\Util\Misc::isAjaxRequest() || $jsonRequest) {
-            $whoops->pushHandler(new Whoops\Handler\JsonResponseHandler);
+            $whoops->prependHandler(new Whoops\Handler\JsonResponseHandler);
         }
 
         if (isset($config['log']) && $config['log']) {
             $logger = $grav['log'];
-            $whoops->pushHandler(function($exception, $inspector, $run) use ($logger) {
+            $whoops->prependHandler(function ($exception, $inspector, $run) use ($logger) {
                 try {
                     $logger->addCritical($exception->getMessage() . ' - Trace: ' . $exception->getTraceAsString());
                 } catch (\Exception $e) {

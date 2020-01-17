@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Processors
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -15,10 +15,12 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class ThemesProcessor extends ProcessorBase
 {
+    /** @var string */
     public $id = 'themes';
+    /** @var string */
     public $title = 'Themes';
 
-    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler) : ResponseInterface
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $this->startTimer();
         $this->container['themes']->init();

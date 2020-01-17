@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Installer
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -22,6 +22,7 @@ use Grav\Common\Plugins;
  */
 class Install
 {
+    /** @var array */
     private $requires = [
         'php' => [
             'name' => 'PHP',
@@ -29,14 +30,15 @@ class Install
                 '7.3' => '7.3.1',
                 '7.2' => '7.2.0',
                 '7.1' => '7.1.3',
-                '' => '7.2.14'
+                '' => '7.3.11'
             ]
         ],
         'grav' => [
             'name' => 'Grav',
             'versions' => [
+                '1.6' => '1.6.0',
                 '1.5' => '1.5.0',
-                '' => '1.5.7'
+                '' => '1.6.17'
             ]
         ],
         'plugins' => [
@@ -44,37 +46,43 @@ class Install
                 'name' => 'Admin',
                 'optional' => true,
                 'versions' => [
+                    '1.9' => '1.9.0',
                     '1.8' => '1.8.0',
-                    '' => '1.8.16'
+                    '' => '1.9.11'
                 ]
             ],
             'email' => [
                 'name' => 'Email',
                 'optional' => true,
                 'versions' => [
+                    '3.0' => '3.0.0',
                     '2.7' => '2.7.0',
-                    '' => '2.7.2'
+                    '' => '3.0.3'
                 ]
             ],
             'form' => [
                 'name' => 'Form',
                 'optional' => true,
                 'versions' => [
+                    '4.0' => '4.0.0',
+                    '3.0' => '3.0.0',
                     '2.16' => '2.16.0',
-                    '' => '2.16.4'
+                    '' => '4.0.0'
                 ]
             ],
             'login' => [
                 'name' => 'Login',
                 'optional' => true,
                 'versions' => [
+                    '3.0' => '3.0.0',
                     '2.8' => '2.8.0',
-                    '' => '2.8.3'
+                    '' => '3.0.4'
                 ]
             ],
         ]
     ];
 
+    /** @var array */
     private $ignores = [
         'backup',
         'cache',
@@ -86,13 +94,18 @@ class Install
         'robots.txt'
     ];
 
+    /** @var array */
     private $classMap = [
         // 'Grav\\Installer\\Test' => __DIR__ . '/Test.php',
     ];
 
+    /** @var string|null */
     private $zip;
+
+    /** @var string|null */
     private $location;
 
+    /** @var static */
     private static $instance;
 
     public static function instance()
@@ -108,7 +121,7 @@ class Install
     {
     }
 
-    public function setZip(string $zip)
+    public function setZip(?string $zip)
     {
         $this->zip = $zip;
 
@@ -144,7 +157,7 @@ class Install
     {
         $results = [];
 
-        $this->checkVersion($results, 'php','php', $this->requires['php'], PHP_VERSION);
+        $this->checkVersion($results, 'php', 'php', $this->requires['php'], PHP_VERSION);
         $this->checkVersion($results, 'grav', 'grav', $this->requires['grav'], GRAV_VERSION);
         $this->checkPlugins($results, $this->requires['plugins']);
 
@@ -157,9 +170,14 @@ class Install
     public function prepare(): void
     {
         // Locate the new Grav update and the target site from the filesystem.
-        $location = dirname(realpath(__DIR__), 4);
-        $target = dirname(realpath(GRAV_ROOT . '/index.php'));
-        if ($location === $target) {
+        $location = realpath(__DIR__);
+        $target = realpath(GRAV_ROOT . '/index.php');
+
+        if (!$location) {
+            throw new \RuntimeException('Internal Error', 500);
+        }
+
+        if ($target && dirname($location, 4) === dirname($target)) {
             // We cannot copy files into themselves, abort!
             throw new \RuntimeException('Grav has already been installed here!', 400);
         }
@@ -179,7 +197,7 @@ class Install
         // Override Grav\Installer classes by using this version of Grav.
         $loader->addClassMap($this->classMap);
 
-        $this->location = $location;
+        $this->location = dirname($location, 4);
     }
 
     /**
@@ -193,7 +211,7 @@ class Install
 
         try {
             Installer::install(
-                $this->zip,
+                $this->zip ?? '',
                 GRAV_ROOT,
                 ['sophisticated' => true, 'overwrite' => true, 'ignore_symlinks' => true, 'ignores' => $this->ignores],
                 $this->location,

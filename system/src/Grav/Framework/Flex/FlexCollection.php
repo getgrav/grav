@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Flex
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -13,12 +13,12 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\Criteria;
 use Grav\Common\Debugger;
 use Grav\Common\Grav;
+use Grav\Common\Inflector;
 use Grav\Common\Twig\Twig;
 use Grav\Common\User\Interfaces\UserInterface;
+use Grav\Common\Utils;
 use Grav\Framework\Cache\CacheInterface;
-use Grav\Framework\ContentBlock\ContentBlockInterface;
 use Grav\Framework\ContentBlock\HtmlBlock;
-use Grav\Framework\Flex\Interfaces\FlexIndexInterface;
 use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
 use Grav\Framework\Object\ObjectCollection;
 use Grav\Framework\Flex\Interfaces\FlexCollectionInterface;
@@ -26,6 +26,7 @@ use Psr\SimpleCache\InvalidArgumentException;
 use RocketTheme\Toolbox\Event\Event;
 use Twig\Error\LoaderError;
 use Twig\Error\SyntaxError;
+use Twig\Template;
 use Twig\TemplateWrapper;
 
 /**
@@ -51,8 +52,10 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
             'getTypePrefix' => true,
             'getType' => true,
             'getFlexDirectory' => true,
+            'hasFlexFeature' => true,
+            'getFlexFeatures' => true,
             'getCacheKey' => true,
-            'getCacheChecksum' => true,
+            'getCacheChecksum' => false,
             'getTimestamp' => true,
             'hasProperty' => true,
             'getProperty' => true,
@@ -90,6 +93,36 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
         if ($directory) {
             $this->setFlexDirectory($directory)->setKey($directory->getFlexType());
         }
+    }
+
+    /**
+     * {@inheritdoc}
+     * @see FlexCommonInterface::hasFlexFeature()
+     */
+    public function hasFlexFeature(string $name): bool
+    {
+        return in_array($name, $this->getFlexFeatures(), true);
+    }
+
+    /**
+     * {@inheritdoc}
+     * @see FlexCommonInterface::hasFlexFeature()
+     */
+    public function getFlexFeatures(): array
+    {
+        $implements = class_implements($this);
+
+        $list = [];
+        foreach ($implements as $interface) {
+            if ($pos = strrpos($interface, '\\')) {
+                $interface = substr($interface, $pos+1);
+            }
+
+            $list[] = Inflector::hyphenize(str_replace('Interface', '', $interface));
+        }
+
+        return $list;
+
     }
 
     /**
@@ -175,7 +208,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
      */
     public function getCacheKey(): string
     {
-        return $this->getTypePrefix() . $this->getFlexType() . '.' . sha1(json_encode($this->call('getKey')));
+        return $this->getTypePrefix() . $this->getFlexType() . '.' . sha1((string)json_encode($this->call('getKey')));
     }
 
     /**
@@ -184,7 +217,16 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
      */
     public function getCacheChecksum(): string
     {
-        return sha1(json_encode($this->getTimestamps()));
+        /**
+         * @var string $key
+         * @var FlexObjectInterface $object
+         */
+        $list = [];
+        foreach ($this as $key => $object) {
+            $list[$key] = $object->getCacheChecksum();
+        }
+
+        return sha1((string)json_encode($list));
     }
 
     /**
@@ -259,14 +301,25 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
     }
 
     /**
+     * @inheritdoc}
+     * @see FlexCollectionInterface::getCollection()
+     */
+    public function getCollection()
+    {
+        return $this;
+    }
+
+    /**
      * {@inheritdoc}
      * @see FlexCollectionInterface::render()
      */
     public function render(string $layout = null, array $context = [])
     {
-        if (null === $layout) {
-            $layout = 'default';
+        if (!$layout) {
+            $config = $this->getTemplateConfig();
+            $layout = $config['collection']['defaults']['layout'] ?? 'default';
         }
+
         $type = $this->getFlexType();
 
         $grav = Grav::instance();
@@ -275,20 +328,23 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
         $debugger = $grav['debugger'];
         $debugger->startTimer('flex-collection-' . ($debugKey =  uniqid($type, false)), 'Render Collection ' . $type . ' (' . $layout . ')');
 
-        $cache = $key = null;
+        $key = null;
         foreach ($context as $value) {
             if (!\is_scalar($value)) {
                 $key = false;
+                break;
             }
         }
 
         if ($key !== false) {
             $key = md5($this->getCacheKey() . '.' . $layout . json_encode($context));
             $cache = $this->getCache('render');
+        } else {
+            $cache = null;
         }
 
         try {
-            $data = $cache ? $cache->get($key) : null;
+            $data = $cache && $key ? $cache->get($key) : null;
 
             $block = $data ? HtmlBlock::fromArray($data) : null;
         } catch (InvalidArgumentException $e) {
@@ -305,9 +361,9 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
         }
 
         if (!$block) {
-            $block = HtmlBlock::create($key);
+            $block = HtmlBlock::create($key ?: null);
             $block->setChecksum($checksum);
-            if ($key === false) {
+            if (!$key) {
                 $block->disableCache();
             }
 
@@ -317,8 +373,16 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
                 'context' => &$context
             ]));
 
+
             $output = $this->getTemplate($layout)->render(
-                ['grav' => $grav, 'config' => $grav['config'], 'block' => $block, 'collection' => $this, 'layout' => $layout] + $context
+                [
+                    'grav' => $grav,
+                    'config' => $grav['config'],
+                    'block' => $block,
+                    'directory' => $this->getFlexDirectory(),
+                    'collection' => $this,
+                    'layout' => $layout
+                ] + $context
             );
 
             if ($debugger->enabled()) {
@@ -328,7 +392,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
             $block->setContent($output);
 
             try {
-                $cache && $block->isCached() && $cache->set($key, $block->toArray());
+                $cache && $key && $block->isCached() && $cache->set($key, $block->toArray());
             } catch (InvalidArgumentException $e) {
                 $debugger->addException($e);
             }
@@ -367,7 +431,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
     /**
      * @return array
      */
-    public function getMetaData(string $key) : array
+    public function getMetaData(string $key): array
     {
         $object = $this->get($key);
 
@@ -412,9 +476,11 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
      */
     public function find($value, $field = 'id')
     {
-        if ($value) foreach ($this as $element) {
-            if (mb_strtolower($element->getProperty($field)) === mb_strtolower($value)) {
-                return $element;
+        if ($value) {
+            foreach ($this as $element) {
+                if (mb_strtolower($element->getProperty($field)) === mb_strtolower($value)) {
+                    return $element;
+                }
             }
         }
 
@@ -478,8 +544,49 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
     }
 
     /**
+     * @return array
+     */
+    protected function getTemplateConfig(): array
+    {
+        $config = $this->getFlexDirectory()->getConfig('site.templates', []);
+        $defaults = array_replace($config['defaults'] ?? [], $config['collection']['defaults'] ?? []);
+        $config['collection']['defaults'] = $defaults;
+
+        return $config;
+    }
+
+    /**
      * @param string $layout
-     * @return TemplateWrapper
+     * @return array
+     */
+    protected function getTemplatePaths(string $layout): array
+    {
+        $config = $this->getTemplateConfig();
+        $type = $this->getFlexType();
+        $defaults = $config['collection']['defaults'] ?? [];
+
+        $ext = $defaults['ext'] ?? '.html.twig';
+        $types = array_unique(array_merge([$type], (array)($defaults['type'] ?? null)));
+        $paths = $config['collection']['paths'] ?? [
+                'flex/{TYPE}/collection/{LAYOUT}{EXT}',
+                'flex-objects/layouts/{TYPE}/collection/{LAYOUT}{EXT}'
+            ];
+        $table = ['TYPE' => '%1$s', 'LAYOUT' => '%2$s', 'EXT' => '%3$s'];
+
+        $lookups = [];
+        foreach ($paths as $path) {
+            $path = Utils::simpleTemplate($path, $table);
+            foreach ($types as $type) {
+                $lookups[] = sprintf($path, $type, $layout, $ext);
+            }
+        }
+
+        return array_unique($lookups);
+    }
+
+    /**
+     * @param string $layout
+     * @return Template|TemplateWrapper
      * @throws LoaderError
      * @throws SyntaxError
      */
@@ -491,18 +598,13 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
         $twig = $grav['twig'];
 
         try {
-            return $twig->twig()->resolveTemplate(
-                [
-                    "flex-objects/layouts/{$this->getFlexType()}/collection/{$layout}.html.twig",
-                    "flex-objects/layouts/_default/collection/{$layout}.html.twig"
-                ]
-            );
+            return $twig->twig()->resolveTemplate($this->getTemplatePaths($layout));
         } catch (LoaderError $e) {
             /** @var Debugger $debugger */
             $debugger = Grav::instance()['debugger'];
             $debugger->addException($e);
 
-            return $twig->twig()->resolveTemplate(['flex-objects/layouts/404.html.twig']);
+            return $twig->twig()->resolveTemplate(['flex/404.html.twig']);
         }
     }
 
@@ -512,10 +614,10 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
      */
     protected function getRelatedDirectory($type): ?FlexDirectory
     {
-        /** @var Flex $flex */
-        $flex = Grav::instance()['flex_objects'];
+        /** @var Flex|null $flex */
+        $flex = Grav::instance()['flex_objects'] ?? null;
 
-        return $flex->getDirectory($type);
+        return $flex ? $flex->getDirectory($type) : null;
     }
 
     protected function setKeyField($keyField = null): void

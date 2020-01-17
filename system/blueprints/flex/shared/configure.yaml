@@ -1,0 +1,70 @@
+form:
+  validation: loose
+
+  fields:
+    plugin_tabs:
+      type: tabs
+      fields:
+        cache_tab:
+          type: tab
+          title: Caching
+          fields:
+            object.cache.index.enabled:
+              type: toggle
+              toggleable: true
+              label: Enable Index Caching
+              highlight: 1
+              config-default@: plugins.flex-objects.object.cache.index.enabled
+              options:
+                1: Enabled
+                0: Disabled
+              validate:
+                type: bool
+
+            object.cache.index.timeout:
+              type: text
+              toggleable: true
+              label: Index Cache Timeout (s)
+              config-default@: plugins.flex-objects.object.cache.index.timeout
+              validate:
+                type: int
+
+            object.cache.object.enabled:
+              type: toggle
+              toggleable: true
+              label: Enable Object Caching
+              highlight: 1
+              config-default@: plugins.flex-objects.object.cache.object.enabled
+              options:
+                1: Enabled
+                0: Disabled
+              validate:
+                type: bool
+
+            object.cache.object.timeout:
+              type: text
+              toggleable: true
+              label: Object Cache Timeout (s)
+              config-default@: plugins.flex-objects.object.cache.object.timeout
+              validate:
+                type: int
+
+            object.cache.render.enabled:
+              type: toggle
+              toggleable: true
+              label: Enable Render Caching
+              highlight: 1
+              config-default@: plugins.flex-objects.object.cache.render.enabled
+              options:
+                1: Enabled
+                0: Disabled
+              validate:
+                type: bool
+
+            object.cache.render.timeout:
+              type: text
+              toggleable: true
+              label: Render Cache Timeout (s)
+              config-default@: plugins.flex-objects.object.cache.render.timeout
+              validate:
+                type: int

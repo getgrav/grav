@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Page
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -109,8 +109,8 @@ class ImageFile extends Image
      * Gets the hash.
      * @param string $type
      * @param int $quality
-     * @param [] $extras
-     * @return null
+     * @param array $extras
+     * @return string
      */
     public function getHash($type = 'guess', $quality = 80, $extras = [])
     {
@@ -141,5 +141,4 @@ class ImageFile extends Image
 
         $this->hash = sha1(serialize($datas));
     }
-
 }

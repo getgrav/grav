@@ -2,14 +2,14 @@
 /**
  * @package    Grav\Core
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 // Some standard defines
 define('GRAV', true);
-define('GRAV_VERSION', '1.6.19');
-define('GRAV_TESTING', false);
+define('GRAV_VERSION', '1.7.0-rc.3');
+define('GRAV_TESTING', true);
 define('DS', '/');
 
 if (!defined('GRAV_PHP_MIN')) {

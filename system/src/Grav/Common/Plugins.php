@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -13,11 +13,12 @@ use Grav\Common\Config\Config;
 use Grav\Common\Data\Blueprints;
 use Grav\Common\Data\Data;
 use Grav\Common\File\CompiledYamlFile;
-use RocketTheme\Toolbox\Event\EventDispatcher;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class Plugins extends Iterator
 {
+    /** @var array */
     public $formFieldTypes;
 
     public function __construct()
@@ -30,7 +31,7 @@ class Plugins extends Iterator
         $iterator = $locator->getIterator('plugins://');
 
         $plugins = [];
-        foreach($iterator as $directory) {
+        foreach ($iterator as $directory) {
             if (!$directory->isDir()) {
                 continue;
             }
@@ -124,6 +125,18 @@ class Plugins extends Iterator
         if (is_object($plugin)) {
             $this->items[get_class($plugin)] = $plugin;
         }
+    }
+
+    /**
+     * @return array
+     */
+    public function __debugInfo(): array
+    {
+        $array = (array)$this;
+
+        unset($array["\0Grav\Common\Iterator\0iteratorUnset"]);
+
+        return $array;
     }
 
     /**
@@ -224,5 +237,4 @@ class Plugins extends Iterator
 
         return $class;
     }
-
 }

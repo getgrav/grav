@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\GPM
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -13,8 +13,14 @@ use Grav\Common\Iterator;
 
 class CachedCollection extends Iterator
 {
-    protected static $cache;
+    /** @var array */
+    protected static $cache = [];
 
+    /**
+     * CachedCollection constructor.
+     *
+     * @param array $items
+     */
     public function __construct($items)
     {
         parent::__construct();

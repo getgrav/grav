@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Service
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -31,7 +31,7 @@ class RequestServiceProvider implements ServiceProviderInterface
             return $creator->fromGlobals();
         };
 
-        $container['route'] = $container->factory(function() {
+        $container['route'] = $container->factory(function () {
             return clone Uri::getCurrentRoute();
         });
     }

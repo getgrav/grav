@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Object
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -54,7 +54,7 @@ trait NestedPropertyCollectionTrait
 
     /**
      * @param string $property      Object property to be updated.
-     * @param string $value         New value.
+     * @param mixed  $value         New value.
      * @param string $separator     Separator, defaults to '.'
      * @return $this
      */

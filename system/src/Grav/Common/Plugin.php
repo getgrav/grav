@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -13,33 +13,28 @@ use Grav\Common\Data\Blueprint;
 use Grav\Common\Data\Data;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Config\Config;
-use RocketTheme\Toolbox\Event\EventDispatcher;
 use RocketTheme\Toolbox\Event\EventSubscriberInterface;
 use RocketTheme\Toolbox\File\YamlFile;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class Plugin implements EventSubscriberInterface, \ArrayAccess
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     public $name;
 
-    /**
-     * @var array
-     */
+    /** @var array */
     public $features = [];
 
-    /**
-     * @var Grav
-     */
+    /** @var Grav */
     protected $grav;
 
-    /**
-     * @var Config
-     */
+    /** @var Config */
     protected $config;
 
+    /** @var bool */
     protected $active = true;
+
+    /** @var Blueprint */
     protected $blueprint;
 
     /**
@@ -66,7 +61,7 @@ class Plugin implements EventSubscriberInterface, \ArrayAccess
      *
      * @param string $name
      * @param Grav   $grav
-     * @param Config $config
+     * @param Config|null $config
      */
     public function __construct($name, Grav $grav, Config $config = null)
     {
@@ -168,8 +163,7 @@ class Plugin implements EventSubscriberInterface, \ArrayAccess
     {
         $grav = Grav::instance();
         $override = implode('.', ["priorities", $this->name, $eventName, $params[0]]);
-        if ($grav['config']->get($override) !== null)
-        {
+        if ($grav['config']->get($override) !== null) {
             return $grav['config']->get($override);
         } elseif (isset($params[1])) {
             return $params[1];
@@ -254,6 +248,19 @@ class Plugin implements EventSubscriberInterface, \ArrayAccess
     }
 
     /**
+     * @return array
+     */
+    public function __debugInfo(): array
+    {
+        $array = (array)$this;
+
+        unset($array["\0*\0grav"]);
+        $array["\0*\0config"] = $this->config();
+
+        return $array;
+    }
+
+    /**
      * This function will search a string for markdown links in a specific format.  The link value can be
      * optionally compared against via the $internal_regex and operated on by the callback $function
      * provided.
@@ -305,7 +312,7 @@ class Plugin implements EventSubscriberInterface, \ArrayAccess
 
             // Create new config object and set it on the page object so it's cached for next time
             $page->modifyHeader($class_name_merged, new Data($header));
-        } else if (isset($page_header->{$class_name_merged})) {
+        } elseif (isset($page_header->{$class_name_merged})) {
             $merged = $page_header->{$class_name_merged};
             $header = $merged->toArray();
         }

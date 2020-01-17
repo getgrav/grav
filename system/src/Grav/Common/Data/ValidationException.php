@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Data
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -13,9 +13,15 @@ use Grav\Common\Grav;
 
 class ValidationException extends \RuntimeException
 {
+    /** @var array */
     protected $messages = [];
 
-    public function setMessages(array $messages = []) {
+    /**
+     * @param array $messages
+     * @return $this
+     */
+    public function setMessages(array $messages = [])
+    {
         $this->messages = $messages;
 
         $language = Grav::instance()['language'];
@@ -31,6 +37,9 @@ class ValidationException extends \RuntimeException
         return $this;
     }
 
+    /**
+     * @return array
+     */
     public function getMessages()
     {
         return $this->messages;

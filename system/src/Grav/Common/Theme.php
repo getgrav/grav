@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -30,11 +30,11 @@ class Theme extends Plugin
     /**
      * Get configuration of the plugin.
      *
-     * @return Config
+     * @return array
      */
     public function config()
     {
-        return $this->config["themes.{$this->name}"];
+        return $this->config["themes.{$this->name}"] ?? [];
     }
 
     /**
@@ -42,7 +42,7 @@ class Theme extends Plugin
      *
      * @param string $theme_name The name of the theme whose config it should store.
      *
-     * @return true
+     * @return bool
      */
     public static function saveConfig($theme_name)
     {

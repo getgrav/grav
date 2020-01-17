@@ -119,7 +119,7 @@ interface PageRoutableInterface
      * Gets and sets the path to the folder where the .md for this Page object resides.
      * This is equivalent to the filePath but without the filename.
      *
-     * @param  string $var the path
+     * @param  string|null $var the path
      *
      * @return string|null      the path
      */
@@ -137,7 +137,7 @@ interface PageRoutableInterface
     /**
      * Gets and Sets the parent object for this page
      *
-     * @param  PageInterface $var the parent page object
+     * @param  PageInterface|null $var the parent page object
      *
      * @return PageInterface|null the parent page object if it exists.
      */
@@ -153,7 +153,7 @@ interface PageRoutableInterface
     /**
      * Returns the item in the current position.
      *
-     * @return int   the index of the current page.
+     * @return int|null The index of the current page.
      */
     public function currentPosition();
 

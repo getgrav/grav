@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\GPM
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -13,9 +13,7 @@ use Grav\Common\Grav;
 
 class Themes extends AbstractPackageCollection
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $type = 'themes';
 
     /**

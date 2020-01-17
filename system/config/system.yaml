@@ -15,6 +15,7 @@ languages:
   supported: []                                  # List of languages supported. eg: [en, fr, de]
   default_lang:                                  # Default is the first supported language. Must be one of the supported languages
   include_default_lang: true                     # Include the default lang prefix in all URLs
+  include_default_lang_file_extension: true      # If true, include language code for the default language in file extension: default.en.md
   pages_fallback_only: false                     # Only fallback to find page content through supported languages
   translations: true                             # Enable translations by default
   translations_fallback: true                    # Fallback through supported translations if active lang doesn't exist
@@ -27,6 +28,7 @@ home:
   hide_in_urls: false                            # Hide the home route in URLs
 
 pages:
+  type: page                                     # EXPERIMENTAL: Page type: page or flex
   theme: quark                                   # Default theme (defaults to "quark" theme)
   order:
     by: default                                  # Order pages by "default", "alpha" or "date"
@@ -125,6 +127,8 @@ log:
 
 debugger:
   enabled: false                                 # Enable Grav debugger and following settings
+  provider: clockwork                            # Debugger provider: debugbar | clockwork
+  censored: false                                # Censor potentially sensitive information (POST parameters, cookies, files, configuration and most array/object data in log messages)
   shutdown:
     close_connection: true                       # Close the connection before calling onShutdown(). false for debugging
 
@@ -154,15 +158,15 @@ session:
   path:
 
 gpm:
-  releases: stable                               # Set to either 'stable' or 'testing'
+  releases: testing                              # Set to either 'stable' or 'testing'
   proxy_url:                                     # Configure a manual proxy URL for GPM (eg 127.0.0.1:3128)
   method: 'auto'                                 # Either 'curl', 'fopen' or 'auto'. 'auto' will try fopen first and if not available cURL
   verify_peer: true                              # Sometimes on some systems (Windows most commonly) GPM is unable to connect because the SSL certificate cannot be verified. Disabling this setting might help.
   official_gpm_only: true                        # By default GPM direct-install will only allow URLs via the official GPM proxy to ensure security
 
 accounts:
-  type: data                                     # Account type: data or flex
-  storage: file                                  # Flex storage type: file or folder
+  type: data                                     # EXPERIMENTAL: Account type: data or flex
+  storage: file                                  # EXPERIMENTAL: Flex storage type: file or folder
 
 strict_mode:
   yaml_compat: true                              # Grav 1.5+: Enables YAML backwards compatibility

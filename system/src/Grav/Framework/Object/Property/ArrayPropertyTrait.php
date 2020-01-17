@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Object
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -18,10 +18,7 @@ namespace Grav\Framework\Object\Property;
  */
 trait ArrayPropertyTrait
 {
-    /**
-     * Properties of the object.
-     * @var array
-     */
+    /** @var array Properties of the object. */
     private $_elements;
 
     /**
@@ -95,7 +92,9 @@ trait ArrayPropertyTrait
      */
     protected function getElements()
     {
-        return array_filter($this->_elements, function ($val) { return $val !== null; });
+        return array_filter($this->_elements, function ($val) {
+            return $val !== null;
+        });
     }
 
     /**

@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Twig
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -13,6 +13,9 @@ use Twig\Compiler;
 use Twig\Node\Node;
 use Twig\Node\NodeOutputInterface;
 
+/**
+ * Class TwigNodeMarkdown
+ */
 class TwigNodeMarkdown extends Node implements NodeOutputInterface
 {
     /**
@@ -28,7 +31,7 @@ class TwigNodeMarkdown extends Node implements NodeOutputInterface
     /**
      * Compiles the node to PHP.
      *
-     * @param Compiler $compiler A Twig_Compiler instance
+     * @param Compiler $compiler A Twig Compiler instance
      */
     public function compile(Compiler $compiler)
     {

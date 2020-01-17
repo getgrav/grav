@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\User
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -11,7 +11,7 @@ namespace Grav\Common\User;
 
 use Grav\Common\Grav;
 use Grav\Common\User\DataUser;
-use Grav\Common\User\FlexUser;
+use Grav\Common\Flex;
 use Grav\Common\User\Interfaces\UserCollectionInterface;
 use Grav\Common\User\Interfaces\UserInterface;
 
@@ -23,7 +23,7 @@ if (defined('GRAV_USER_INSTANCE') && GRAV_USER_INSTANCE === 'FLEX') {
     /**
      * @deprecated 1.6 Use $grav['accounts'] instead of static calls. In type hints, please use UserInterface.
      */
-    class User extends FlexUser\User
+    class User extends Flex\Users\UserObject
     {
         /**
          * Load user account.

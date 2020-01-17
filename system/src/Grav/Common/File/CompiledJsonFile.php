@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\File
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -20,7 +20,7 @@ class CompiledJsonFile extends JsonFile
      *
      * @param string $var
      * @param bool $assoc
-     * @return array mixed
+     * @return array
      */
     protected function decode($var, $assoc = true)
     {

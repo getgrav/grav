@@ -121,7 +121,9 @@ form:
                 access:
                     security@: admin.super
                     type: permissions
+                    check_authorize: true
                     label: PLUGIN_ADMIN.PERMISSIONS
                     ignore_empty: true
                     validate:
                         type: array
+                        value_type: bool

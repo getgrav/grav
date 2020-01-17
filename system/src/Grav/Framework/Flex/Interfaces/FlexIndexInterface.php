@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * @package    Grav\Framework\Flex
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -57,7 +57,7 @@ interface FlexIndexInterface extends FlexCollectionInterface
     public function withKeyField(string $keyField = null);
 
     /**
-     * @param string $indexKey
+     * @param string|null $indexKey
      * @return array
      */
     public function getIndexMap(string $indexKey = null);

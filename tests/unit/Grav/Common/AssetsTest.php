@@ -307,7 +307,7 @@ class AssetsTest extends \Codeception\TestCase\Test
 
         $this->assets->reset();
         $this->assets->setCssPipeline(true);
-        $this->assets->addCss('/system/assets/debugger.css');
+        $this->assets->addCss('/system/assets/debugger/phpdebugbar.css');
         $css = $this->assets->css('head', ['loading' => 'inline']);
         $this->assertContains('div.phpdebugbar', $css);
 
@@ -322,8 +322,6 @@ class AssetsTest extends \Codeception\TestCase\Test
         $this->assets->add('test.css', ['media' => 'only screen and (min-width: 640px)']);
         $css = $this->assets->css();
         $this->assertSame('<link href="/test.css" type="text/css" rel="stylesheet" media="only screen and (min-width: 640px)">' . PHP_EOL, $css);
-
-
     }
 
     public function testAddingAssetPropertiesWithArray()
@@ -334,7 +332,6 @@ class AssetsTest extends \Codeception\TestCase\Test
         $js = $this->assets->js();
         $this->assertSame('<script src="/test.js" async></script>' . PHP_EOL, $js);
         $this->assets->reset();
-
     }
 
     public function testAddingJSAssetPropertiesWithArrayFromCollection()
@@ -444,7 +441,6 @@ class AssetsTest extends \Codeception\TestCase\Test
         $this->assets->addInlineJs('alert("test")', 15, 'bottom', ['id' => 'foo']);
         $js = $this->assets->js('bottom');
         $this->assertSame('<script id="foo">' . PHP_EOL . 'alert("test")' . PHP_EOL . '</script>' . PHP_EOL, $js);
-
     }
 
     public function testAddingCSSAssetPropertiesWithArrayFromCollection()
@@ -519,7 +515,7 @@ class AssetsTest extends \Codeception\TestCase\Test
         $this->assertRegExp('#<link href=\"\/assets\/(.*).css\" type=\"text\/css\" rel=\"stylesheet\">#', $css);
 
         //Add a core Grav CSS file, which is found. Pipeline will now return a file
-        $this->assets->add('/system/assets/debugger.css', null, true);
+        $this->assets->add('/system/assets/debugger/phpdebugbar', null, true);
         $css = $this->assets->css();
         $this->assertRegExp('#<link href=\"\/assets\/(.*).css\" type=\"text\/css\" rel=\"stylesheet\">#', $css);
     }
@@ -548,7 +544,7 @@ class AssetsTest extends \Codeception\TestCase\Test
         $this->assets->reset();
         //Add a core Grav CSS file, which is found. Pipeline will now return its content.
         $this->assets->addCss('https://fonts.googleapis.com/css?family=Roboto', ['loading' => 'inline']);
-        $this->assets->addCss('/system/assets/debugger.css', ['loading' => 'inline']);
+        $this->assets->addCss('/system/assets/debugger/phpdebugbar.css', ['loading' => 'inline']);
         $css = $this->assets->css();
         $this->assertContains('font-family: \'Roboto\';', $css);
         $this->assertContains('div.phpdebugbar-header', $css);
@@ -566,7 +562,7 @@ class AssetsTest extends \Codeception\TestCase\Test
 
         //Add a core Grav CSS file, which is found. Pipeline will now return its content.
         $this->assets->addCss('https://fonts.googleapis.com/css?family=Roboto', null, true);
-        $this->assets->add('/system/assets/debugger.css', null, true);
+        $this->assets->add('/system/assets/debugger/phpdebugbar.css', null, true);
         $css = $this->assets->css('head', ['loading' => 'inline']);
         $this->assertContains('font-family:\'Roboto\';', $css);
         $this->assertContains('div.phpdebugbar', $css);
@@ -773,6 +769,5 @@ class AssetsTest extends \Codeception\TestCase\Test
         $this->assertGreaterThan(0, (array) $this->assets->getCss());
         $this->assertInternalType('array', $this->assets->getJs());
         $this->assertGreaterThan(0, (array) $this->assets->getJs());
-
     }
 }

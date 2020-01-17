@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\GPM
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -18,13 +18,10 @@ use Grav\Common\GPM\Remote\GravCore;
  */
 class Upgrader
 {
-    /**
-     * Remote details about latest Grav version
-     *
-     * @var GravCore
-     */
+    /** @var GravCore Remote details about latest Grav version */
     private $remote;
 
+    /** @var string|null */
     private $min_php;
 
     /**
@@ -83,7 +80,6 @@ class Upgrader
      * Returns the changelog list for each version of Grav
      *
      * @param string $diff the version number to start the diff from
-     *
      * @return array return the changelog list for each version
      */
     public function getChangelog($diff = null)
@@ -109,7 +105,7 @@ class Upgrader
     /**
      * Get minimum PHP version from remote
      *
-     * @return null
+     * @return string
      */
     public function minPHPVersion()
     {

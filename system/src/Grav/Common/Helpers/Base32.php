@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Helpers
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -11,7 +11,9 @@ namespace Grav\Common\Helpers;
 
 class Base32
 {
+    /** @var string */
     protected static $base32Chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+    /** @var array */
     protected static $base32Lookup = [
         0xFF,0xFF,0x1A,0x1B,0x1C,0x1D,0x1E,0x1F, // '0', '1', '2', '3', '4', '5', '6', '7'
         0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF, // '8', '9', ':', ';', '<', '=', '>', '?'
@@ -33,7 +35,8 @@ class Base32
      */
     public static function encode($bytes)
     {
-        $i = 0; $index = 0;
+        $i = 0;
+        $index = 0;
         $base32 = '';
         $bytesLen = \strlen($bytes);
 

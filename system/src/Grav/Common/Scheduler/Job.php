@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Scheduler
  * @author     Originally based on peppeocchi/php-cron-scheduler modified for Grav integration
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -17,28 +17,51 @@ class Job
 {
     use IntervalTrait;
 
+    /** @var string */
     private $id;
-    private $enabled = true;
+    /** @var bool */
+    private $enabled;
+    /** @var callable|string */
     private $command;
+    /** @var string */
     private $at;
+    /** @var array */
     private $args = [];
+    /** @var bool */
     private $runInBackground = true;
+    /** @var \DateTime */
     private $creationTime;
+    /** @var CronExpression */
     private $executionTime;
+    /** @var string */
     private $tempDir;
+    /** @var string */
     private $lockFile;
+    /** @var bool */
     private $truthTest = true;
+    /** @var string */
     private $output;
+    /** @var int */
     private $returnCode = 0;
+    /** @var array */
     private $outputTo = [];
+    /** @var array */
     private $emailTo = [];
+    /** @var array */
     private $emailConfig = [];
+    /** @var callable|null */
     private $before;
+    /** @var callable|null */
     private $after;
+    /** @var callable */
     private $whenOverlapping;
+    /** @var string */
     private $outputMode;
+    /** @var Process|null $process */
     private $process;
+    /** @var bool */
     private $successful = false;
+    /** @var string|null */
     private $backlink;
 
     /**
@@ -73,7 +96,7 @@ class Job
     /**
      * Get the command
      *
-     * @return string
+     * @return \Closure|string
      */
     public function getCommand()
     {
@@ -145,7 +168,7 @@ class Job
      * the job is due. Defaults to job creation time.
      * It also default the execution time if not previously defined.
      *
-     * @param  \DateTime $date
+     * @param  \DateTime|null $date
      * @return bool
      */
     public function isDue(\DateTime $date = null)
@@ -217,7 +240,7 @@ class Job
      * The job id is used as a filename for the lock file.
      *
      * @param  string $tempDir The directory path for the lock files
-     * @param  callable $whenOverlapping A callback to ignore job overlapping
+     * @param  callable|null $whenOverlapping A callback to ignore job overlapping
      * @return self
      */
     public function onlyOne($tempDir = null, callable $whenOverlapping = null)
@@ -322,7 +345,6 @@ class Job
      */
     public function finalize()
     {
-        /** @var Process $process */
         $process = $this->process;
 
         if ($process) {
@@ -519,4 +541,3 @@ class Job
         return $this;
     }
 }
-

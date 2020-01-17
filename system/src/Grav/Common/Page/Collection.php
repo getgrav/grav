@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Page
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -11,19 +11,16 @@ namespace Grav\Common\Page;
 
 use Grav\Common\Grav;
 use Grav\Common\Iterator;
+use Grav\Common\Page\Interfaces\PageCollectionInterface;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Utils;
 
-class Collection extends Iterator
+class Collection extends Iterator implements PageCollectionInterface
 {
-    /**
-     * @var Pages
-     */
+    /** @var Pages */
     protected $pages;
 
-    /**
-     * @var array
-     */
+    /** @var array */
     protected $params;
 
     /**
@@ -49,6 +46,20 @@ class Collection extends Iterator
     public function params()
     {
         return $this->params;
+    }
+
+    /**
+     * Set parameters to the Collection
+     *
+     * @param array $params
+     *
+     * @return $this
+     */
+    public function setParams(array $params)
+    {
+        $this->params = array_merge($this->params, $params);
+
+        return $this;
     }
 
     /**
@@ -94,12 +105,12 @@ class Collection extends Iterator
      *
      * Merge another collection with the current collection
      *
-     * @param Collection $collection
+     * @param PageCollectionInterface $collection
      * @return $this
      */
-    public function merge(Collection $collection)
+    public function merge(PageCollectionInterface $collection)
     {
-        foreach($collection as $page) {
+        foreach ($collection as $page) {
             $this->addPage($page);
         }
 
@@ -109,31 +120,17 @@ class Collection extends Iterator
     /**
      * Intersect another collection with the current collection
      *
-     * @param Collection $collection
+     * @param PageCollectionInterface $collection
      * @return $this
      */
-    public function intersect(Collection $collection)
+    public function intersect(PageCollectionInterface $collection)
     {
         $array1 = $this->items;
         $array2 = $collection->toArray();
 
-        $this->items = array_uintersect($array1, $array2, function($val1, $val2) {
+        $this->items = array_uintersect($array1, $array2, function ($val1, $val2) {
             return strcmp($val1['slug'], $val2['slug']);
         });
-
-        return $this;
-    }
-
-    /**
-     * Set parameters to the Collection
-     *
-     * @param array $params
-     *
-     * @return $this
-     */
-    public function setParams(array $params)
-    {
-        $this->params = array_merge($this->params, $params);
 
         return $this;
     }
@@ -240,7 +237,7 @@ class Collection extends Iterator
      *
      * @return bool True if item is first.
      */
-    public function isFirst($path)
+    public function isFirst($path): bool
     {
         return $this->items && $path === array_keys($this->items)[0];
     }
@@ -252,7 +249,7 @@ class Collection extends Iterator
      *
      * @return bool True if item is last.
      */
-    public function isLast($path)
+    public function isLast($path): bool
     {
         return $this->items && $path === array_keys($this->items)[\count($this->items) - 1];
     }
@@ -301,7 +298,6 @@ class Collection extends Iterator
         }
 
         return $this;
-
     }
 
     /**
@@ -309,11 +305,13 @@ class Collection extends Iterator
      *
      * @param  string $path the path the item
      *
-     * @return int   the index of the current page.
+     * @return int|null The index of the current page, null if not found.
      */
-    public function currentPosition($path)
+    public function currentPosition($path): ?int
     {
-        return \array_search($path, \array_keys($this->items), true);
+        $pos = \array_search($path, \array_keys($this->items), true);
+
+        return $pos !== false ? $pos : null;
     }
 
     /**
@@ -402,7 +400,7 @@ class Collection extends Iterator
 
         foreach ($this->items as $path => $slug) {
             $page = $this->pages->get($path);
-            if ($page !== null && $page->modular()) {
+            if ($page !== null && $page->isModule()) {
                 $modular[$path] = $slug;
             }
         }
@@ -422,7 +420,7 @@ class Collection extends Iterator
 
         foreach ($this->items as $path => $slug) {
             $page = $this->pages->get($path);
-            if ($page !== null && !$page->modular()) {
+            if ($page !== null && !$page->isModule()) {
                 $modular[$path] = $slug;
             }
         }
@@ -600,7 +598,6 @@ class Collection extends Iterator
                         $items[$path] = $slug;
                     }
                 }
-
             }
         }
 
