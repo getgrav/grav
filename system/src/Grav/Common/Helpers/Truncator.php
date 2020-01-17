@@ -190,10 +190,10 @@ class Truncator
      * Clean extra code
      *
      * @param DOMDocument $doc
-     * @param DOMDocument $container
+     * @param DOMNode $container
      * @return string
      */
-    private static function getCleanedHTML(DOMDocument $doc, $container)
+    private static function getCleanedHTML(DOMDocument $doc, DOMNode $container)
     {
         while ($doc->firstChild) {
             $doc->removeChild($doc->firstChild);
