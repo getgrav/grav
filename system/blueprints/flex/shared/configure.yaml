@@ -5,66 +5,66 @@ form:
     plugin_tabs:
       type: tabs
       fields:
-        cache_tab:
+        cache:
           type: tab
           title: Caching
           fields:
             object.cache.index.enabled:
               type: toggle
               toggleable: true
-              label: Enable Index Caching
+              label: PLUGIN_ADMIN.FLEX_INDEX_CACHE_ENABLED
               highlight: 1
-              config-default@: plugins.flex-objects.object.cache.index.enabled
+              config-default@: system.flex.cache.index.enabled
               options:
-                1: Enabled
-                0: Disabled
+                1: PLUGIN_ADMIN.ENABLED
+                0: PLUGIN_ADMIN.DISABLED
               validate:
                 type: bool
 
-            object.cache.index.timeout:
+            object.cache.index.lifetime:
               type: text
               toggleable: true
-              label: Index Cache Timeout (s)
-              config-default@: plugins.flex-objects.object.cache.index.timeout
+              label: PLUGIN_ADMIN.FLEX_INDEX_CACHE_LIFETIME
+              config-default@: system.flex.cache.index.lifetime
               validate:
                 type: int
 
             object.cache.object.enabled:
               type: toggle
               toggleable: true
-              label: Enable Object Caching
+              label: PLUGIN_ADMIN.FLEX_OBJECT_CACHE_ENABLED
               highlight: 1
-              config-default@: plugins.flex-objects.object.cache.object.enabled
+              config-default@: system.flex.cache.object.enabled
               options:
-                1: Enabled
-                0: Disabled
+                1: PLUGIN_ADMIN.ENABLED
+                0: PLUGIN_ADMIN.DISABLED
               validate:
                 type: bool
 
-            object.cache.object.timeout:
+            object.cache.object.lifetime:
               type: text
               toggleable: true
-              label: Object Cache Timeout (s)
-              config-default@: plugins.flex-objects.object.cache.object.timeout
+              label: PLUGIN_ADMIN.FLEX_OBJECT_CACHE_LIFETIME
+              config-default@: system.flex.cache.object.lifetime
               validate:
                 type: int
 
             object.cache.render.enabled:
               type: toggle
               toggleable: true
-              label: Enable Render Caching
+              label: PLUGIN_ADMIN.FLEX_RENDER_CACHE_ENABLED
               highlight: 1
-              config-default@: plugins.flex-objects.object.cache.render.enabled
+              config-default@: system.flex.cache.render.enabled
               options:
-                1: Enabled
-                0: Disabled
+                1: PLUGIN_ADMIN.ENABLED
+                0: PLUGIN_ADMIN.DISABLED
               validate:
                 type: bool
 
-            object.cache.render.timeout:
+            object.cache.render.lifetime:
               type: text
               toggleable: true
-              label: Render Cache Timeout (s)
-              config-default@: plugins.flex-objects.object.cache.render.timeout
+              label: PLUGIN_ADMIN.FLEX_RENDER_CACHE_LIFETIME
+              config-default@: system.flex.cache.render.lifetime
               validate:
                 type: int

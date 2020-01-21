@@ -3,9 +3,12 @@
 
 1. [](#new)
     * _POTENTIAL BREAKING CHANGE:_ Upgraded Parsedown to 1.7 for Parsedown-Extra 0.8. Plugins that extend Parsedown may need a fix to render as HTML
+    * Added `$grav['flex']` to access all registered Flex Directories
+    * Added `FlexRegisterEvent` which triggers when `$grav['flex']` is being accessed the first time
+    * Added Flex cache configuration options
     * Added `PluginsLoadedEvent` which triggers after plugins have been loaded but not yet initialized
     * Added `SessionStartEvent` which triggers when session is started
-    * Added `RegisterPermissionsEvent` which triggers when `$grav['permissions']` is being accessed the first time
+    * Added `PermissionsRegisterEvent` which triggers when `$grav['permissions']` is being accessed the first time
 1. [](#improved)
     * Blueprint validation: Added `validate: value_type: bool|int|float|string|trim` to `array` to filter all the values inside the array
 1. [](#bugfix)

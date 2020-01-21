@@ -52,7 +52,7 @@ class AccountsServiceProvider implements ServiceProviderInterface
         $container['accounts'] = function (Container $container) {
             $type = $this->initialize($container);
 
-            return $type === 'flex' ? $this->flexAccounts($container) : $this->dataAccounts($container);
+            return $type === 'flex' ? $this->flexAccounts($container) : $this->regularAccounts($container);
         };
 
         $container['user_groups'] = static function () {
@@ -69,7 +69,7 @@ class AccountsServiceProvider implements ServiceProviderInterface
     protected function initialize(Container $container): string
     {
         $isDefined = defined('GRAV_USER_INSTANCE');
-        $type = strtolower($isDefined ? GRAV_USER_INSTANCE : $container['config']->get('system.accounts.type', 'data'));
+        $type = strtolower($isDefined ? GRAV_USER_INSTANCE : $container['config']->get('system.accounts.type', 'regular'));
 
         if ($type === 'flex') {
             if (!$isDefined) {
@@ -110,13 +110,13 @@ class AccountsServiceProvider implements ServiceProviderInterface
                 100000
             );
         } elseif (!$isDefined) {
-            define('GRAV_USER_INSTANCE', 'DATA');
+            define('GRAV_USER_INSTANCE', 'REGULAR');
         }
 
         return $type;
     }
 
-    protected function dataAccounts(Container $container)
+    protected function regularAccounts(Container $container)
     {
         // Use User class for backwards compatibility.
         return new DataUser\UserCollection(User::class);

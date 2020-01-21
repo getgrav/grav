@@ -1472,14 +1472,22 @@ form:
               title: PLUGIN_ADMIN.EXPERIMENTAL
               underline: true
 
+            flex_pages:
+              type: section
+              title: Flex Pages
+
             pages.type:
               type: select
               label: PLUGIN_ADMIN.PAGES_TYPE
               highlight: stable
               help: PLUGIN_ADMIN.PAGES_TYPE_HELP
               options:
-                page: PLUGIN_ADMIN.REGULAR
+                regular: PLUGIN_ADMIN.REGULAR
                 flex: PLUGIN_ADMIN.FLEX
+
+            flex_accounts:
+              type: section
+              title: Flex Accounts
 
             accounts.type:
               type: select
@@ -1487,7 +1495,7 @@ form:
               highlight: stable
               help: PLUGIN_ADMIN.ACCOUNTS_TYPE_HELP
               options:
-                data: PLUGIN_ADMIN.REGULAR
+                regular: PLUGIN_ADMIN.REGULAR
                 flex: PLUGIN_ADMIN.FLEX
 
             accounts.storage:
@@ -1498,3 +1506,61 @@ form:
               options:
                 file: PLUGIN_ADMIN.FILE
                 folder: PLUGIN_ADMIN.FOLDER
+
+            flex_caching:
+              type: section
+              title: PLUGIN_ADMIN.FLEX_CACHING
+
+            flex.cache.index.enabled:
+              type: toggle
+              label: PLUGIN_ADMIN.FLEX_INDEX_CACHE_ENABLED
+              highlight: 1
+              default: 1
+              options:
+                1: PLUGIN_ADMIN.ENABLED
+                0: PLUGIN_ADMIN.DISABLED
+              validate:
+                type: bool
+
+            flex.cache.index.lifetime:
+              type: text
+              label: PLUGIN_ADMIN.FLEX_INDEX_CACHE_LIFETIME
+              default: 60
+              validate:
+                type: int
+
+            flex.cache.object.enabled:
+              type: toggle
+              label: PLUGIN_ADMIN.FLEX_OBJECT_CACHE_ENABLED
+              highlight: 1
+              default: 1
+              options:
+                1: PLUGIN_ADMIN.ENABLED
+                0: PLUGIN_ADMIN.DISABLED
+              validate:
+                type: bool
+
+            flex.cache.object.lifetime:
+              type: text
+              label: PLUGIN_ADMIN.FLEX_OBJECT_CACHE_LIFETIME
+              default: 600
+              validate:
+                type: int
+
+            flex.cache.render.enabled:
+              type: toggle
+              label: PLUGIN_ADMIN.FLEX_RENDER_CACHE_ENABLED
+              highlight: 1
+              default: 1
+              options:
+                1: PLUGIN_ADMIN.ENABLED
+                0: PLUGIN_ADMIN.DISABLED
+              validate:
+                type: bool
+
+            flex.cache.render.lifetime:
+              type: text
+              label: PLUGIN_ADMIN.FLEX_RENDER_CACHE_LIFETIME
+              default: 600
+              validate:
+                type: int

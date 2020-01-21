@@ -1991,7 +1991,7 @@ class Pages
      */
     protected function getVersion()
     {
-        return $this->directory ? 'flex' : 'page';
+        return $this->directory ? 'flex' : 'regular';
     }
 
     /**
