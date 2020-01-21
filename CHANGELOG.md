@@ -19,6 +19,7 @@
     * Fixed `{{ false|string }}` twig to return '0' instead of ''
     * Fixed `Data::filter()` removing empty fields (such as empty list) by default
     * Fixed twig `url()` failing if stream has extra slash in it (e.g. `user:///data`)
+    * Fixed `Blueprint::filter()` returning null instead of array if there is nothing to return
     * Grav 1.7: Fixed `Flex Pages` unserialize issues if Flex-Objects Plugin has not been installed
     * Grav 1.7: Require Flex-Objects Plugin to edit Flex Accounts
 

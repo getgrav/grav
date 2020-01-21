@@ -84,7 +84,7 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
      */
     public function filter(array $data, $missingValuesAsNull = false, $keepEmptyValues = false)
     {
-        return $this->filterArray($data, $this->nested, $missingValuesAsNull, $keepEmptyValues);
+        return $this->filterArray($data, $this->nested, $missingValuesAsNull, $keepEmptyValues) ?? [];
     }
 
     /**

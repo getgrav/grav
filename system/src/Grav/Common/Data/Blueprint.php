@@ -210,7 +210,7 @@ class Blueprint extends BlueprintForm
     {
         $this->initInternals();
 
-        return $this->blueprintSchema->filter($data, $missingValuesAsNull, $keepEmptyValues);
+        return $this->blueprintSchema->filter($data, $missingValuesAsNull, $keepEmptyValues) ?? [];
     }
 
 
