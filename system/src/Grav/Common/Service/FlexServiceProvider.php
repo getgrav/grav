@@ -14,6 +14,7 @@ use Grav\Common\Flex\Users\Storage\UserFolderStorage;
 use Grav\Common\Grav;
 use Grav\Events\FlexRegisterEvent;
 use Grav\Framework\Flex\Flex;
+use Grav\Framework\Flex\FlexFormFlash;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 
@@ -26,6 +27,7 @@ class FlexServiceProvider implements ServiceProviderInterface
             $config = $container['config'];
 
             $flex = new Flex([], ['object' => $config->get('system.flex', [])]);
+            FlexFormFlash::setFlex($flex);
 
             $accountsEnabled = $config->get('system.accounts.type', 'regular') === 'flex';
             $pagesEnabled = $config->get('system.pages.type', 'regular') === 'flex';

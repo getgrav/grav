@@ -9,24 +9,60 @@
 
 namespace Grav\Framework\Flex;
 
+use Grav\Framework\Flex\Interfaces\FlexInterface;
 use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
 use Grav\Framework\Form\FormFlash;
 
 class FlexFormFlash extends FormFlash
 {
-    /** @var FlexObjectInterface */
+    /** @var FlexDirectory|null */
+    protected $directory;
+    /** @var FlexObjectInterface|null */
     protected $object;
 
-    public function setObject(FlexObjectInterface $object)
+    /** @var Flex */
+    static protected $flex;
+
+    public static function setFlex(FlexInterface $flex): void
+    {
+        static::$flex = $flex;
+    }
+
+    /**
+     * @param FlexObjectInterface $object
+     */
+    public function setObject(FlexObjectInterface $object): void
     {
         $this->object = $object;
     }
 
-    public function getObject(): FlexObjectInterface
+    /**
+     * @return FlexObjectInterface|null
+     */
+    public function getObject(): ?FlexObjectInterface
     {
         return $this->object;
     }
 
+    /**
+     * @param FlexDirectory $directory
+     */
+    public function setDirectory(FlexDirectory $directory): void
+    {
+        $this->directory = $directory;
+    }
+
+    /**
+     * @return FlexDirectory|null
+     */
+    public function getDirectory(): ?FlexDirectory
+    {
+        return $this->directory;
+    }
+
+    /**
+     * @return array
+     */
     public function jsonSerialize(): array
     {
         $serialized = parent::jsonSerialize();
@@ -40,22 +76,47 @@ class FlexFormFlash extends FormFlash
                 'timestamp' => $object->getTimestamp(),
                 'serialized' => $object->prepareStorage()
             ];
+        } else {
+            $directory = $this->getDirectory();
+            if ($directory instanceof FlexDirectory) {
+                $serialized['directory'] = [
+                    'type' => $directory->getFlexType()
+                ];
+            }
         }
 
         return $serialized;
     }
 
+    /**
+     * @param array|null $data
+     * @param array $config
+     */
     protected function init(?array $data, array $config): void
     {
         parent::init($data, $config);
 
-        /** @var FlexObjectInterface $object */
-        $object = $config['object'];
-        if (isset($data['object']['serialized']) && !$object->exists()) {
-            // TODO: update instead of create new.
-            $object = $object->getFlexDirectory()->createObject($data['object']['serialized'], $data['object']['key']);
+        /** @var FlexObjectInterface|null $object */
+        $object = $config['object'] ?? null;
+        if ($object) {
+            $directory = $object->getFlexDirectory();
+            $create = !$object->exists();
+        } else {
+            $flex = $config['flex'] ?? static::$flex;
+            $type = $data['object']['type'] ?? $data['directory']['type'] ?? null;
+            $directory = $flex ? $flex->getDirectory($type) : null;
+            $create = true;
         }
 
-        $this->setObject($object);
+        if ($directory && $create && isset($data['object']['serialized'])) {
+            // TODO: update instead of create new.
+            $object = $directory->createObject($data['object']['serialized'], $data['object']['key']);
+        }
+
+        if ($object) {
+            $this->setObject($object);
+        } elseif ($directory) {
+            $this->setDirectory($directory);
+        }
     }
 }
