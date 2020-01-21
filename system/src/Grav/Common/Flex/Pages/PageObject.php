@@ -346,23 +346,6 @@ class PageObject extends FlexPageObject
     }
 
     /**
-     * @param array $serialized
-     * @param FlexDirectory|null $directory
-     */
-    protected function doUnserialize(array $serialized, FlexDirectory $directory = null): void
-    {
-        if (null === $directory) {
-            $grav = Grav::instance();
-            if (!isset($grav['flex_objects'])) {
-                $pages = $grav['pages'];
-                $directory = $pages->getDirectory();
-            }
-        }
-
-        parent::doUnserialize($serialized, $directory);
-    }
-
-    /**
      * @param array $elements
      * @param bool $extended
      */

@@ -481,7 +481,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
     {
         $data = unserialize($serialized, ['allowed_classes' => false]);
 
-        $this->_flexDirectory = Grav::instance()['flex_objects']->getDirectory($data['type']);
+        $this->_flexDirectory = Grav::instance()['flex']->getDirectory($data['type']);
         $this->setEntries($data['entries']);
     }
 

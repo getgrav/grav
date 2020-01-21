@@ -862,8 +862,8 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
         if (null === $directory) {
             $grav = Grav::instance();
             /** @var Flex|null $flex */
-            $flex = $grav['flex_objects'] ?? null;
-            $directory = $flex ? $flex->getDirectory($type) : null;
+            $flex = $grav['flex'];
+            $directory = $flex->getDirectory($type);
             if (!$directory) {
                 throw new \InvalidArgumentException("Cannot unserialize Flex type '{$type}': Directory not found");
             }
@@ -927,7 +927,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     protected function getRelatedDirectory($type): FlexDirectory
     {
         /** @var Flex $flex */
-        $flex = Grav::instance()['flex_objects'];
+        $flex = Grav::instance()['flex'];
         $directory = $flex->getDirectory($type);
         if (!$directory) {
             throw new \RuntimeException(ucfirst($type). ' directory does not exist!');

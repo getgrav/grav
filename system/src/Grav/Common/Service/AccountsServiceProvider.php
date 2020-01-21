@@ -10,17 +10,16 @@
 namespace Grav\Common\Service;
 
 use Grav\Common\Config\Config;
-use Grav\Common\Flex\Users\Storage\UserFolderStorage;
 use Grav\Common\Grav;
 use Grav\Common\Page\Header;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\User\DataUser;
 use Grav\Common\User\User;
-use Grav\Events\RegisterPermissionsEvent;
+use Grav\Events\PermissionsRegisterEvent;
 use Grav\Framework\Acl\Permissions;
 use Grav\Framework\Acl\PermissionsReader;
 use Grav\Framework\Flex\Flex;
-use Grav\Framework\Flex\FlexDirectory;
+use Grav\Framework\Flex\Interfaces\FlexIndexInterface;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 use RocketTheme\Toolbox\Event\Event;
@@ -43,7 +42,7 @@ class AccountsServiceProvider implements ServiceProviderInterface
                 $permissions->addActions($actions);
             }
 
-            $event = new RegisterPermissionsEvent($permissions);
+            $event = new PermissionsRegisterEvent($permissions);
             $container->dispatchEvent($event);
 
             return $permissions;
@@ -55,8 +54,12 @@ class AccountsServiceProvider implements ServiceProviderInterface
             return $type === 'flex' ? $this->flexAccounts($container) : $this->regularAccounts($container);
         };
 
-        $container['user_groups'] = static function () {
-            return (new FlexDirectory('grav-user-groups', 'blueprints://flex/user-groups.yaml', ['enabled' => true]))->getIndex();
+        $container['user_groups'] = static function (Container $container) {
+            /** @var Flex $flex */
+            $flex = $container['flex'];
+            $directory = $flex->getDirectory('grav-user-groups');
+
+            return $directory ? $directory->getIndex() : null;
         };
 
         $container['users'] = $container->factory(static function (Container $container) {
@@ -78,12 +81,7 @@ class AccountsServiceProvider implements ServiceProviderInterface
 
             /** @var EventDispatcher $dispatcher */
             $dispatcher = $container['events'];
-            $dispatcher->addListener('onFlexInit', static function (Event $event) use ($container) {
-                /** @var Flex $flex */
-                $flex = $event['flex'];
-                $flex->addDirectory($container['accounts']->getFlexDirectory());
-                $flex->addDirectory($container['user_groups']->getFlexDirectory());
-            });
+
             // Stop /admin/user from working, display error instead.
             $dispatcher->addListener(
                 'onAdminPage',
@@ -122,40 +120,16 @@ class AccountsServiceProvider implements ServiceProviderInterface
         return new DataUser\UserCollection(User::class);
     }
 
+    /**
+     * @param Container $container
+     * @return FlexIndexInterface|null
+     */
     protected function flexAccounts(Container $container)
     {
-        /** @var Config $config */
-        $config = $container['config'];
+        /** @var Flex $flex */
+        $flex = $container['flex'];
+        $directory = $flex->getDirectory('grav-accounts');
 
-        $options = [
-            'enabled' => true,
-            'data' => [
-                'storage' => $this->getFlexStorage($config->get('system.accounts.storage', 'file')),
-            ]
-        ] + ($config->get('plugins.flex-objects.object') ?: []);
-
-        $directory = new FlexDirectory('grav-accounts', 'blueprints://flex/accounts.yaml', $options);
-
-        return $directory->getIndex();
-    }
-
-    protected function getFlexStorage($config)
-    {
-        if (\is_array($config)) {
-            return $config;
-        }
-
-        if ($config === 'folder') {
-            return [
-                'class' => UserFolderStorage::class,
-                'options' => [
-                    'file' => 'user',
-                    'pattern' => '{FOLDER}/{KEY:2}/{KEY}/{FILE}{EXT}',
-                    'key' => 'storage_key',
-                ],
-            ];
-        }
-
-        return [];
+        return $directory ? $directory->getIndex() : null;
     }
 }

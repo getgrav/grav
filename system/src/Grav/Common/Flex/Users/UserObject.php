@@ -21,16 +21,15 @@ use Grav\Common\Page\Medium\StaticImageMedium;
 use Grav\Common\User\Authentication;
 use Grav\Common\Flex\UserGroups\UserGroupCollection;
 use Grav\Common\Flex\UserGroups\UserGroupIndex;
-use Grav\Common\User\Interfaces\UserCollectionInterface;
 use Grav\Common\User\Interfaces\UserInterface;
 use Grav\Common\User\Traits\UserTrait;
 use Grav\Common\Utils;
 use Grav\Framework\Acl\Access;
 use Grav\Framework\File\Formatter\JsonFormatter;
 use Grav\Framework\File\Formatter\YamlFormatter;
+use Grav\Framework\Flex\Flex;
 use Grav\Framework\Flex\FlexDirectory;
 use Grav\Framework\Flex\FlexObject;
-use Grav\Framework\Flex\Interfaces\FlexCollectionInterface;
 use Grav\Framework\Flex\Storage\FileStorage;
 use Grav\Framework\Flex\Traits\FlexMediaTrait;
 use Grav\Framework\Form\FormFlashFile;
@@ -888,33 +887,17 @@ class UserObject extends FlexObject implements UserInterface, MediaManipulationI
     }
 
     /**
-     * @param array $serialized
-     * @param FlexDirectory|null $directory
-     */
-    protected function doUnserialize(array $serialized, FlexDirectory $directory = null): void
-    {
-        if (null === $directory) {
-            $grav = Grav::instance();
-            if (!isset($grav['flex_objects'])) {
-                $accounts = $grav['accounts'] ?? null;
-                $directory = $accounts instanceof FlexCollectionInterface ? $accounts->getFlexDirectory() : null;
-            }
-        }
-
-        parent::doUnserialize($serialized, $directory);
-    }
-
-    /**
      * @return UserGroupCollection|UserGroupIndex
      */
     protected function getUserGroups()
     {
         $grav = Grav::instance();
-        $flex = $grav['flex_objects'] ?? null;
+
+        /** @var Flex $flex */
+        $flex = $grav['flex'];
 
         /** @var UserGroupCollection|null $groups */
-        $groups = $flex ? $flex->getDirectory('grav-user-groups') : null;
-
+        $groups = $flex->getDirectory('grav-user-groups');
         if ($groups) {
             /** @var UserGroupIndex $index */
             $index = $groups->getIndex();

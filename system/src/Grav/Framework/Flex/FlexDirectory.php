@@ -88,9 +88,9 @@ class FlexDirectory implements FlexAuthorizeInterface
     {
         $grav = Grav::instance();
 
-        /** @var Flex|null $flex */
-        $flex = $grav['flex_objects'] ?? null;
-        $directory = $flex ? $flex->getDirectory($this->type) : null;
+        /** @var Flex $flex */
+        $flex = $grav['flex'];
+        $directory = $flex->getDirectory($this->type);
 
         return null !== $directory;
     }

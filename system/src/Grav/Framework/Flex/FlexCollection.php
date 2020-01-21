@@ -614,10 +614,10 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
      */
     protected function getRelatedDirectory($type): ?FlexDirectory
     {
-        /** @var Flex|null $flex */
-        $flex = Grav::instance()['flex_objects'] ?? null;
+        /** @var Flex $flex */
+        $flex = Grav::instance()['flex'];
 
-        return $flex ? $flex->getDirectory($type) : null;
+        return $flex->getDirectory($type);
     }
 
     protected function setKeyField($keyField = null): void

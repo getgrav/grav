@@ -1289,25 +1289,12 @@ class Pages
         $debugger = $this->grav['debugger'];
         $debugger->addMessage('Pages: Flex Directory');
 
-        /** @var Config $config */
-        $config = $this->grav['config'];
-
-        $options = [
-                'enabled' => true,
-            ] + ($config->get('plugins.flex-objects.object') ?: []);
-
-        $directory = new FlexDirectory('grav-pages', 'blueprints://flex/pages.yaml', $options);
+        /** @var Flex $flex */
+        $flex = $this->grav['flex'];
+        $directory = $flex->getDirectory('grav-pages');
 
         /** @var EventDispatcher $dispatcher */
         $dispatcher = $this->grav['events'];
-        $dispatcher->addListener(
-            'onFlexInit',
-            static function (Event $event) use ($directory) {
-                /** @var Flex $flex */
-                $flex = $event['flex'];
-                $flex->addDirectory($directory);
-            }
-        );
 
         // Stop /admin/pages from working, display error instead.
         $dispatcher->addListener(
