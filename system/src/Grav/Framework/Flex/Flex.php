@@ -14,6 +14,7 @@ namespace Grav\Framework\Flex;
 use Grav\Common\Debugger;
 use Grav\Common\Grav;
 use Grav\Framework\Flex\Interfaces\FlexCollectionInterface;
+use Grav\Framework\Flex\Interfaces\FlexInterface;
 use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
 use Grav\Framework\Object\ObjectCollection;
 
@@ -21,7 +22,7 @@ use Grav\Framework\Object\ObjectCollection;
  * Class Flex
  * @package Grav\Framework\Flex
  */
-class Flex implements \Countable
+class Flex implements FlexInterface
 {
     /** @var array */
     protected $config;

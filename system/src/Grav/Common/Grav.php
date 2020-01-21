@@ -63,6 +63,7 @@ class Grav extends Container
         'Grav\Common\Service\ConfigServiceProvider',
         'Grav\Common\Service\ErrorServiceProvider',
         'Grav\Common\Service\FilesystemServiceProvider',
+        'Grav\Common\Service\FlexServiceProvider',
         'Grav\Common\Service\InflectorServiceProvider',
         'Grav\Common\Service\LoggerServiceProvider',
         'Grav\Common\Service\OutputServiceProvider',
