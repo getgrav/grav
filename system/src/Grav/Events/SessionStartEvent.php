@@ -9,14 +9,21 @@
 
 namespace Grav\Events;
 
-use Grav\Framework\Session\Session;
+use Grav\Framework\Session\SessionInterface;
 
+/**
+ * Plugins Loaded Event
+ *
+ * This event is called from $grav['session']->start() right after successful session_start() call.
+ *
+ * @property SessionInterface $session Session instance.
+ */
 class SessionStartEvent
 {
-    /** @var Session */
+    /** @var SessionInterface */
     public $session;
 
-    public function __construct(Session $session)
+    public function __construct(SessionInterface $session)
     {
         $this->session = $session;
     }

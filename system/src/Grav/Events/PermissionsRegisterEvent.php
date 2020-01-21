@@ -11,16 +11,32 @@ namespace Grav\Events;
 
 use Grav\Framework\Acl\Permissions;
 
-class RegisterPermissionsEvent
+/**
+ * Permissions Register Event
+ *
+ * This event is called the first time $grav['permissions'] is being called.
+ *
+ * Use this event to register any new permission types you use in your plugins.
+ *
+ * @property Permissions $permissions Permissions instance.
+ */
+class PermissionsRegisterEvent
 {
     /** @var Permissions */
     public $permissions;
 
+    /**
+     * PermissionsRegisterEvent constructor.
+     * @param Permissions $permissions
+     */
     public function __construct(Permissions $permissions)
     {
         $this->permissions = $permissions;
     }
 
+    /**
+     * @return array
+     */
     public function __debugInfo(): array
     {
         return (array)$this;

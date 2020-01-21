@@ -2,6 +2,7 @@
 <?php
 
 use Grav\Common\Composer;
+use Grav\Events\PluginsLoadedEvent;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Output\ConsoleOutput;
@@ -55,7 +56,14 @@ $grav->setup($environment);
 $grav['config']->init();
 $grav['uri']->init();
 $grav['users'];
-$grav['plugins']->init();
+
+$plugins = $grav['plugins'];
+$plugins->init();
+
+// Plugins Loaded Event
+$event = new PluginsLoadedEvent($grav, $plugins);
+$grav->dispatchEvent($event);
+
 $grav['themes']->init();
 
 $app     = new Application('Grav Plugins Commands', GRAV_VERSION);
