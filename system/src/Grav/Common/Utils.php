@@ -34,7 +34,7 @@ abstract class Utils
      * @param string|object $input
      * @param bool $domain
      * @param bool $fail_gracefully
-     * @return bool|null|string
+     * @return string|false
      */
     public static function url($input, $domain = false, $fail_gracefully = false)
     {

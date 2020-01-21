@@ -11,6 +11,7 @@
     * Added `PermissionsRegisterEvent` which triggers when `$grav['permissions']` is being accessed the first time
 1. [](#improved)
     * Blueprint validation: Added `validate: value_type: bool|int|float|string|trim` to `array` to filter all the values inside the array
+    * Twig `url()` takes now third parameter (`true`) to return URL on non-existing file instead of returning false
 1. [](#bugfix)
     * Grav 1.7: Fixed blueprint loading issues [#2782](https://github.com/getgrav/grav/issues/2782)
     * Fixed PHP 7.4 compatibility issue with `Stream`

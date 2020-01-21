@@ -848,12 +848,12 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      *
      * @param  string $input  Resource to be located.
      * @param  bool   $domain True to include domain name.
-     *
-     * @return string|null      Returns url to the resource or null if resource was not found.
+     * @param  bool   $failGracefully If true, return URL even if the file does not exist.
+     * @return string|false      Returns url to the resource or null if resource was not found.
      */
-    public function urlFunc($input, $domain = false)
+    public function urlFunc($input, $domain = false, $failGracefully = false)
     {
-        return Utils::url($input, $domain);
+        return Utils::url($input, $domain, $failGracefully);
     }
 
     /**
