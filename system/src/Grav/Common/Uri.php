@@ -918,9 +918,14 @@ class Uri
     {
         $grav = Grav::instance();
 
+        // Remove extra slash from streams, parse_url() doesn't like it.
+        if ($pos = strpos($url, ':///')) {
+            $url = substr_replace($url, '://', $pos, 4);
+        }
+
         $encodedUrl = preg_replace_callback(
             '%[^:/@?&=#]+%usD',
-            function ($matches) {
+            static function ($matches) {
                 return rawurlencode($matches[0]);
             },
             $url
@@ -940,7 +945,7 @@ class Uri
             $parts['path'] = '';
         }
 
-        list($stripped_path, $params) = static::extractParams($parts['path'], $grav['config']->get('system.param_sep'));
+        [$stripped_path, $params] = static::extractParams($parts['path'], $grav['config']->get('system.param_sep'));
 
         if (!empty($params)) {
             $parts['path'] = $stripped_path;
