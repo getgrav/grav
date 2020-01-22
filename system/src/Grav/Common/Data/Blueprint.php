@@ -74,6 +74,29 @@ class Blueprint extends BlueprintForm
     }
 
     /**
+     * @param string $name
+     * @return array|mixed|null
+     * @since 1.7
+     */
+    public function getDefaultValue(string $name)
+    {
+        $path = explode('.', $name) ?: [];
+        $current = $this->getDefaults();
+
+        foreach ($path as $field) {
+            if (\is_object($current) && isset($current->{$field})) {
+                $current = $current->{$field};
+            } elseif (\is_array($current) && isset($current[$field])) {
+                $current = $current[$field];
+            } else {
+                return null;
+            }
+        }
+
+        return $current;
+    }
+
+    /**
      * Get nested structure containing default values defined in the blueprints.
      *
      * Fields without default value are ignored in the list.
