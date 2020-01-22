@@ -9,6 +9,7 @@
     * Added `PluginsLoadedEvent` which triggers after plugins have been loaded but not yet initialized
     * Added `SessionStartEvent` which triggers when session is started
     * Added `PermissionsRegisterEvent` which triggers when `$grav['permissions']` is being accessed the first time
+    * Added support for Flex Directory specific configuration
 1. [](#improved)
     * Blueprint validation: Added `validate: value_type: bool|int|float|string|trim` to `array` to filter all the values inside the array
     * Twig `url()` takes now third parameter (`true`) to return URL on non-existing file instead of returning false

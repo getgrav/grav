@@ -13,6 +13,8 @@ config:
   admin:
     # Admin route
     route: '/accounts/users'
+    aliases:
+      configure: '/accounts/configure'
     redirect_from:
       - '/user'
       - '/accounts'
@@ -59,6 +61,13 @@ config:
     edit:
       title:
         template: '{{ object.fullname ?? object.username }} &lt;{{ object.email }}&gt;'
+
+    # Configure view
+    configure:
+      hidden: true
+      form: 'accounts'
+      title:
+        template: "{{ 'PLUGIN_ADMIN.ACCOUNTS'|tu }} {{ 'PLUGIN_ADMIN.CONFIGURATION'|tu }}"
 
   # Site Configuration
   site:

@@ -713,11 +713,13 @@ class Debugger
                 if (!is_scalar($message)) {
                     $isString = $message;
                     $message = '';
-                } elseif (is_bool($isString)) {
+                }
+                if (is_bool($isString)) {
                     $isString = [];
                 }
                 if (!is_array($isString)) {
-                    $isString = [gettype($isString) => $isString];
+                    $type = gettype($isString);
+                    $isString = [$type => $isString];
                 }
                 $this->clockwork->log($label, $message, $isString);
             }
@@ -736,11 +738,17 @@ class Debugger
     {
         if ($this->enabled) {
             if ($this->clockwork) {
+                $data = null;
+                if ($event && method_exists($event, '__debugInfo')) {
+                    $data = $event;
+                }
+
                 $listeners = [];
                 foreach ($dispatcher->getListeners($name) as $listener) {
                     $listeners[] = $this->resolveCallable($listener);
                 }
-                $this->clockwork->addEvent($name, null, microtime(true), ['listeners' => $listeners]);
+
+                $this->clockwork->addEvent($name, $data, microtime(true), ['listeners' => $listeners]);
             }
         }
 

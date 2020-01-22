@@ -58,7 +58,7 @@ class FlexDirectoryForm implements FlexDirectoryFormInterface, \JsonSerializable
      *
      * @return FlexFormInterface
      */
-    public static function instance(array $options = [])
+    public static function instance(array $options = []): FlexFormInterface
     {
         if (isset($options['directory'])) {
             $directory = $options['directory'];
@@ -72,13 +72,13 @@ class FlexDirectoryForm implements FlexDirectoryFormInterface, \JsonSerializable
 
         $name = $options['name'] ?? '';
 
-        return $directory->getConfigureForm($name, $options);
+        return $directory->getDirectoryForm($name, $options);
     }
 
     /**
      * FlexForm constructor.
      * @param string $name
-     * @param FlexDirectory $object
+     * @param FlexDirectory $directory
      * @param array $options
      */
     public function __construct(string $name, FlexDirectory $directory, array $options = null)
@@ -90,10 +90,10 @@ class FlexDirectoryForm implements FlexDirectoryFormInterface, \JsonSerializable
 
         $uniqueId = $options['unique_id'] ?? null;
         if (!$uniqueId) {
-            $uniqueId = md5($directory->getFlexType());
+            $uniqueId = md5($directory->getFlexType() . '-directory-' . $this->name);
         }
         $this->setUniqueId($uniqueId);
-        $this->setFlashLookupFolder($directory->getConfigureBlueprint($name)->get('form/flash_folder') ?? 'tmp://forms/[SESSIONID]');
+        $this->setFlashLookupFolder($directory->getDirectoryBlueprint()->get('form/flash_folder') ?? 'tmp://forms/[SESSIONID]');
         $this->form = $options['form'] ?? null;
 
         $this->initialize();
@@ -106,7 +106,7 @@ class FlexDirectoryForm implements FlexDirectoryFormInterface, \JsonSerializable
     {
         $this->messages = [];
         $this->submitted = false;
-        $this->data = null;
+        $this->data =  new Data($this->directory->loadDirectoryConfig($this->name), $this->getBlueprint());
         $this->files = [];
         $this->unsetFlash();
 
@@ -156,7 +156,7 @@ class FlexDirectoryForm implements FlexDirectoryFormInterface, \JsonSerializable
      * @param string $name
      * @param mixed $value
      * @param string|null $separator
-     * @return FlexForm
+     * @return $this
      */
     public function set($name, $value, $separator = null)
     {
@@ -183,16 +183,15 @@ class FlexDirectoryForm implements FlexDirectoryFormInterface, \JsonSerializable
         // Make sure that both type and name do not have dash (convert dashes to underscores).
         $type = str_replace('-', '_', $type);
         $name = str_replace('-', '_', $name);
-        // FIXME:
-        $this->flexName = $name ? "flex-{$type}-{$name}" : "flex-{$type}";
+        $this->flexName = $name ? "flex_conf-{$type}-{$name}" : "flex_conf-{$type}";
     }
 
     /**
-     * @return Data|FlexObjectInterface|object
+     * @return Data|object
      */
     public function getData()
     {
-        return $this->data ?? $this->getObject();
+        return $this->data;
     }
 
     /**
@@ -209,12 +208,16 @@ class FlexDirectoryForm implements FlexDirectoryFormInterface, \JsonSerializable
         $value = $this->data ? $this->data[$name] : null;
 
         // Return the form data or fall back to the object property.
-        return $value ?? $this->getObject()->getFormValue($name);
+        return $value ?? null;
     }
 
+    /**
+     * @param string $name
+     * @return array|mixed|null
+     */
     public function getDefaultValue(string $name)
     {
-        return $this->object->getDefaultValue($name);
+        return $this->getBlueprint()->getDefaultValue($name);
     }
 
     /**
@@ -222,7 +225,7 @@ class FlexDirectoryForm implements FlexDirectoryFormInterface, \JsonSerializable
      */
     public function getDefaultValues(): array
     {
-        return $this->object->getDefaultValues();
+        return $this->getBlueprint()->getDefaults();
     }
     /**
      * @return string
@@ -246,7 +249,7 @@ class FlexDirectoryForm implements FlexDirectoryFormInterface, \JsonSerializable
                 'unique_id' => $this->getUniqueId(),
                 'form_name' => $this->getName(),
                 'folder' => $this->getFlashFolder(),
-                'object' => $this->getObject()
+                'directory' => $this->getDirectory()
             ];
 
             $this->flash = new FlexFormFlash($config);
@@ -266,14 +269,6 @@ class FlexDirectoryForm implements FlexDirectoryFormInterface, \JsonSerializable
         return $this->directory;
     }
 
-    public function updateObject(): FlexObjectInterface
-    {
-        $data = $this->data instanceof Data ? $this->data->toArray() : [];
-        $files = $this->files;
-
-        return $this->getObject()->update($data, $files);
-    }
-
     /**
      * @return Blueprint
      */
@@ -281,7 +276,10 @@ class FlexDirectoryForm implements FlexDirectoryFormInterface, \JsonSerializable
     {
         if (null === $this->blueprint) {
             try {
-                $blueprint = $this->getObject()->getBlueprint($this->name);
+                $blueprint = $this->getDirectory()->getDirectoryBlueprint();
+                if (!$blueprint) {
+                    throw new \RuntimeException('Blueprint not found');
+                }
                 if ($this->form) {
                     // We have field overrides available.
                     $blueprint->extend(['form' => $this->form], true);
@@ -295,7 +293,7 @@ class FlexDirectoryForm implements FlexDirectoryFormInterface, \JsonSerializable
                 // Blueprint is not defined, but we have custom form fields available.
                 $blueprint = new Blueprint(null, ['form' => $this->form]);
                 $blueprint->load();
-                $blueprint->setScope('object');
+                $blueprint->setScope('directory');
                 $blueprint->init();
             }
 
@@ -310,12 +308,7 @@ class FlexDirectoryForm implements FlexDirectoryFormInterface, \JsonSerializable
      */
     public function getFileUploadAjaxRoute(): ?Route
     {
-        $object = $this->getObject();
-        if (!method_exists($object, 'route')) {
-            return null;
-        }
-
-        return $object->route('/edit.json/task:media.upload');
+        return null;
     }
 
     /**
@@ -325,24 +318,16 @@ class FlexDirectoryForm implements FlexDirectoryFormInterface, \JsonSerializable
      */
     public function getFileDeleteAjaxRoute($field, $filename): ?Route
     {
-        $object = $this->getObject();
-        if (!method_exists($object, 'route')) {
-            return null;
-        }
-
-        return $object->route('/edit.json/task:media.delete');
+        return null;
     }
 
-    public function getMediaTaskRoute(array $params = [], $extension = null): string
+    /**
+     * @param array $params
+     * @param string|null $extension
+     * @return string
+     */
+    public function getMediaTaskRoute(array $params = [], string $extension = null): string
     {
-        $grav = Grav::instance();
-        /** @var Flex $flex */
-        $flex = $grav['flex'];
-
-        if (method_exists($flex, 'adminRoute')) {
-            return $flex->adminRoute($this->getObject(), $params, $extension ?? 'json');
-        }
-
         return '';
     }
 
@@ -358,6 +343,10 @@ class FlexDirectoryForm implements FlexDirectoryFormInterface, \JsonSerializable
         $this->doUnserialize($data);
     }
 
+    /**
+     * @param string $name
+     * @return mixed|null
+     */
     public function __get($name)
     {
         $method = "get{$name}";
@@ -370,6 +359,10 @@ class FlexDirectoryForm implements FlexDirectoryFormInterface, \JsonSerializable
         return $form[$name] ?? null;
     }
 
+    /**
+     * @param string $name
+     * @param mixed $value
+     */
     public function __set($name, $value)
     {
         $method = "set{$name}";
@@ -378,6 +371,10 @@ class FlexDirectoryForm implements FlexDirectoryFormInterface, \JsonSerializable
         }
     }
 
+    /**
+     * @param string $name
+     * @return bool
+     */
     public function __isset($name)
     {
         $method = "get{$name}";
@@ -390,6 +387,9 @@ class FlexDirectoryForm implements FlexDirectoryFormInterface, \JsonSerializable
         return isset($form[$name]);
     }
 
+    /**
+     * @param string $name
+     */
     public function __unset($name)
     {
     }
@@ -437,17 +437,14 @@ class FlexDirectoryForm implements FlexDirectoryFormInterface, \JsonSerializable
      */
     protected function doSubmit(array $data, array $files)
     {
-        // FIXME:
-        /** @var FlexObject $object */
-        $object = clone $this->getObject();
+        $this->directory->saveDirectoryConfig($this->name, $data);
 
-        $object->update($data, $files);
-        $object->save();
-
-        $this->setObject($object);
         $this->reset();
     }
 
+    /**
+     * @return array
+     */
     protected function doSerialize(): array
     {
         return $this->doTraitSerialize() + [
@@ -455,6 +452,9 @@ class FlexDirectoryForm implements FlexDirectoryFormInterface, \JsonSerializable
             ];
     }
 
+    /**
+     * @param array $data
+     */
     protected function doUnserialize(array $data): void
     {
         $this->doTraitUnserialize($data);
@@ -470,7 +470,7 @@ class FlexDirectoryForm implements FlexDirectoryFormInterface, \JsonSerializable
     protected function filterData($data = null): void
     {
         if ($data instanceof Data) {
-            $data->filter(true, true);
+            $data->filter(true, false);
         }
     }
 }

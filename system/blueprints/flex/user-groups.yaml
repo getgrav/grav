@@ -13,6 +13,8 @@ config:
   admin:
     # Admin route
     route: '/accounts/groups'
+    aliases:
+      configure: '/accounts/configure'
 
     # Admin menu
     menu:
@@ -56,6 +58,13 @@ config:
     edit:
       title:
         template: '{{ object.readableName ?? object.groupname }}'
+
+    # Configure view
+    configure:
+      hidden: true
+      form: 'accounts'
+      title:
+        template: "{{ 'PLUGIN_ADMIN.ACCOUNTS'|tu }} {{ 'PLUGIN_ADMIN.CONFIGURATION'|tu }}"
 
   # Site Configuration
   site:

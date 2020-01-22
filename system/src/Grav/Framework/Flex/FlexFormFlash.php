@@ -34,6 +34,7 @@ class FlexFormFlash extends FormFlash
     public function setObject(FlexObjectInterface $object): void
     {
         $this->object = $object;
+        $this->directory = $object->getFlexDirectory();
     }
 
     /**
@@ -98,14 +99,14 @@ class FlexFormFlash extends FormFlash
 
         /** @var FlexObjectInterface|null $object */
         $object = $config['object'] ?? null;
+        $create = true;
         if ($object) {
             $directory = $object->getFlexDirectory();
             $create = !$object->exists();
-        } else {
+        } elseif (null === ($directory = $config['directory'] ?? null)) {
             $flex = $config['flex'] ?? static::$flex;
             $type = $data['object']['type'] ?? $data['directory']['type'] ?? null;
-            $directory = $flex ? $flex->getDirectory($type) : null;
-            $create = true;
+            $directory = $flex && $type ? $flex->getDirectory($type) : null;
         }
 
         if ($directory && $create && isset($data['object']['serialized'])) {

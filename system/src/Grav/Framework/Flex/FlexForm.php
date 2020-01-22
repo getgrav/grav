@@ -14,6 +14,7 @@ use Grav\Common\Data\Data;
 use Grav\Common\Grav;
 use Grav\Common\Twig\Twig;
 use Grav\Framework\Flex\Interfaces\FlexFormInterface;
+use Grav\Framework\Flex\Interfaces\FlexObjectFormInterface;
 use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
 use Grav\Framework\Form\Interfaces\FormFlashInterface;
 use Grav\Framework\Form\Traits\FormTrait;
@@ -28,7 +29,7 @@ use Twig\TemplateWrapper;
  * Class FlexForm
  * @package Grav\Framework\Flex
  */
-class FlexForm implements FlexFormInterface, \JsonSerializable
+class FlexForm implements FlexObjectFormInterface, \JsonSerializable
 {
     use NestedArrayAccessWithGetters {
         NestedArrayAccessWithGetters::get as private traitGet;
@@ -196,6 +197,10 @@ class FlexForm implements FlexFormInterface, \JsonSerializable
         return $this->flexName;
     }
 
+    /**
+     * @param string $type
+     * @param string $name
+     */
     protected function setName(string $type, string $name): void
     {
         // Make sure that both type and name do not have dash (convert dashes to underscores).
@@ -229,6 +234,10 @@ class FlexForm implements FlexFormInterface, \JsonSerializable
         return $value ?? $this->getObject()->getFormValue($name);
     }
 
+    /**
+     * @param string $name
+     * @return array|mixed|null
+     */
     public function getDefaultValue(string $name)
     {
         return $this->object->getDefaultValue($name);
@@ -283,6 +292,9 @@ class FlexForm implements FlexFormInterface, \JsonSerializable
         return $this->object;
     }
 
+    /**
+     * @return FlexObjectInterface
+     */
     public function updateObject(): FlexObjectInterface
     {
         $data = $this->data instanceof Data ? $this->data->toArray() : [];
@@ -350,7 +362,12 @@ class FlexForm implements FlexFormInterface, \JsonSerializable
         return $object->route('/edit.json/task:media.delete');
     }
 
-    public function getMediaTaskRoute(array $params = [], $extension = null): string
+    /**
+     * @param array $params
+     * @param string|null $extension
+     * @return string
+     */
+    public function getMediaTaskRoute(array $params = [], string $extension = null): string
     {
         $grav = Grav::instance();
         /** @var Flex $flex */
@@ -375,6 +392,10 @@ class FlexForm implements FlexFormInterface, \JsonSerializable
         $this->doUnserialize($data);
     }
 
+    /**
+     * @param string $name
+     * @return mixed|null
+     */
     public function __get($name)
     {
         $method = "get{$name}";
@@ -387,6 +408,10 @@ class FlexForm implements FlexFormInterface, \JsonSerializable
         return $form[$name] ?? null;
     }
 
+    /**
+     * @param string $name
+     * @param mixed $value
+     */
     public function __set($name, $value)
     {
         $method = "set{$name}";
@@ -395,6 +420,10 @@ class FlexForm implements FlexFormInterface, \JsonSerializable
         }
     }
 
+    /**
+     * @param string $name
+     * @return bool
+     */
     public function __isset($name)
     {
         $method = "get{$name}";
@@ -407,6 +436,9 @@ class FlexForm implements FlexFormInterface, \JsonSerializable
         return isset($form[$name]);
     }
 
+    /**
+     * @param string $name
+     */
     public function __unset($name)
     {
     }
@@ -464,6 +496,9 @@ class FlexForm implements FlexFormInterface, \JsonSerializable
         $this->reset();
     }
 
+    /**
+     * @return array
+     */
     protected function doSerialize(): array
     {
         return $this->doTraitSerialize() + [
@@ -471,6 +506,9 @@ class FlexForm implements FlexFormInterface, \JsonSerializable
             ];
     }
 
+    /**
+     * @param array $data
+     */
     protected function doUnserialize(array $data): void
     {
         $this->doTraitUnserialize($data);

@@ -22,12 +22,14 @@ use Grav\Framework\Cache\Adapter\MemoryCache;
 use Grav\Framework\Cache\CacheInterface;
 use Grav\Framework\Flex\Interfaces\FlexAuthorizeInterface;
 use Grav\Framework\Flex\Interfaces\FlexCollectionInterface;
+use Grav\Framework\Flex\Interfaces\FlexFormInterface;
 use Grav\Framework\Flex\Interfaces\FlexIndexInterface;
 use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
 use Grav\Framework\Flex\Interfaces\FlexStorageInterface;
 use Grav\Framework\Flex\Storage\SimpleStorage;
 use Grav\Framework\Flex\Traits\FlexAuthorizeTrait;
 use Psr\SimpleCache\InvalidArgumentException;
+use RocketTheme\Toolbox\File\YamlFile;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use RuntimeException;
 
@@ -147,7 +149,7 @@ class FlexDirectory implements FlexAuthorizeInterface
     {
         if (null === $this->config) {
             $config = $this->getBlueprintInternal()->get('config', []);
-            $config = is_array($config) ? array_replace_recursive($config, $this->defaults) : null;
+            $config = is_array($config) ? array_replace_recursive($config, $this->defaults, $this->getDirectoryConfig($config['admin']['configure']['form'] ?? null)) : null;
             if (!is_array($config)) {
                 throw new \RuntimeException('Bad configuration');
             }
@@ -160,16 +162,87 @@ class FlexDirectory implements FlexAuthorizeInterface
 
     /**
      * @param string|null $name
-     * @return Blueprint|null
+     * @param array $options
+     * @return FlexFormInterface
+     * @internal
      */
-    public function getConfigureBlueprint(string $name = null)
+    public function getDirectoryForm(string $name = null, array $options = [])
     {
-        $name = $name ?? 'configure';
+        $name = $name ?: $this->getConfig('admin.configure.form', '');
+
+        return new FlexDirectoryForm($name ?? '', $this, $options);
+    }
+
+    /**
+     * @return Blueprint
+     * @internal
+     */
+    public function getDirectoryBlueprint()
+    {
+        $name = 'configure';
         $path = "blueprints://flex/shared/{$name}.yaml";
         $blueprint = new Blueprint($path);
         $blueprint->load()->init();
 
-        return $blueprint->form() ? $blueprint : null;
+        return $blueprint;
+    }
+
+    /**
+     * @param string $name
+     * @param array $data
+     * @throws \Exception
+     * @internal
+     */
+    public function saveDirectoryConfig(string $name, array $data)
+    {
+        $grav = Grav::instance();
+
+        /** @var UniformResourceLocator $locator */
+        $locator = $grav['locator'];
+        $filename = $locator->findResource($this->getDirectoryConfigUri($name), true, true);
+
+        $file = YamlFile::instance($filename);
+        if (!empty($data)) {
+            $file->save($data);
+        } else {
+            $file->delete();
+        }
+    }
+
+    /**
+     * @param string $name
+     * @return array
+     * @internal
+     */
+    public function loadDirectoryConfig(string $name): array
+    {
+        $grav = Grav::instance();
+
+        /** @var UniformResourceLocator $locator */
+        $locator = $grav['locator'];
+        $filename = $locator->findResource($this->getDirectoryConfigUri($name), true);
+
+        $file = YamlFile::instance($filename);
+
+        return $file->content();
+    }
+
+    public function getDirectoryConfigUri(string $name = null): string
+    {
+        $name = $name ?: $this->getFlexType();
+
+        return "config://flex/{$name}.yaml";
+    }
+
+    protected function getDirectoryConfig(string $name = null): array
+    {
+        $grav = Grav::instance();
+
+        /** @var Config $config */
+        $config = $grav['config'];
+        $name = $name ?: $this->getFlexType();
+
+        return $config->get("flex.{$name}", []);
     }
 
     /**
@@ -354,17 +427,17 @@ class FlexDirectory implements FlexAuthorizeInterface
 
                 /** @var Cache $gravCache */
                 $gravCache = $grav['cache'];
-                $config = $this->getConfig('cache.' . $namespace);
+                $config = $this->getConfig('object.cache.' . $namespace);
                 if (empty($config['enabled'])) {
                     $cache = new MemoryCache('flex-objects-' . $this->getFlexType());
                 } else {
-                    $timeout = $config['timeout'] ?? 60;
+                    $lifetime = $config['lifetime'] ?? 60;
 
                     $key = $gravCache->getKey();
                     if (Utils::isAdminPlugin()) {
                         $key = substr($key, 0, -1);
                     }
-                    $cache = new DoctrineCache($gravCache->getCacheDriver(), 'flex-objects-' . $this->getFlexType() . $key, $timeout);
+                    $cache = new DoctrineCache($gravCache->getCacheDriver(), 'flex-objects-' . $this->getFlexType() . $key, $lifetime);
                 }
             } catch (\Exception $e) {
                 /** @var Debugger $debugger */

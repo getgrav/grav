@@ -21,14 +21,6 @@ use Grav\Framework\Route\Route;
 interface FlexFormInterface extends \Serializable, FormInterface
 {
     /**
-     * Get object associated to the form.
-     *
-     * @return FlexObjectInterface  Returns Flex Object associated to the form.
-     * @api
-     */
-    public function getObject();
-
-    /**
      * Get media task route.
      *
      * @return string   Returns admin route for media tasks.
