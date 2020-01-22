@@ -21,10 +21,11 @@ form:
 
 
         header.access:
-          type: page_access
+          type: acl_picker
           label: PLUGIN_ADMIN.PAGE_ACCESS
           help: PLUGIN_ADMIN.PAGE_ACCESS_HELP
           ignore_empty: true
+          data_type: access
           validate:
             type: array
             value_type: bool
@@ -65,3 +66,13 @@ form:
           toggleable: true
           label: PLUGIN_ADMIN.PAGE_GROUPS
           help: PLUGIN_ADMIN.PAGE_GROUPS_HELP
+
+        header.permissions.group2:
+          type: acl_picker
+          label: PLUGIN_ADMIN.PAGE_ACCESS
+          help: PLUGIN_ADMIN.PAGE_ACCESS_HELP
+          ignore_empty: true
+          data_type: permissions
+          validate:
+            type: array
+            value_type: bool
