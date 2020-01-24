@@ -42,6 +42,7 @@
     * Fixed checking ACL for another user (who is not currently logged in) in a Flex Object or Directory
     * Fixed bug in Windows where `Filesystem::dirname()` returns backslashes
     * Fixed Flex object issues in Windows [#2773](https://github.com/getgrav/grav/issues/2773)
+    * Fixed `Cannot use a scalar value as an array` error in `Utils::arrayUnflattenDotNotation()`, ignore nested structure instead
 
 # v1.7.0-rc.2
 ## 12/04/2019

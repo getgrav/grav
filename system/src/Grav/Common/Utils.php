@@ -1045,7 +1045,7 @@ abstract class Utils
      */
     public static function arrayFlatten($array)
     {
-        $flatten = array();
+        $flatten = [];
         foreach ($array as $key => $inner) {
             if (is_array($inner)) {
                 foreach ($inner as $inner_key => $value) {
@@ -1081,7 +1081,17 @@ abstract class Utils
     }
 
     /**
-     * Opposite of flatten, convert flat dot notation array to multi dimensional array
+     * Opposite of flatten, convert flat dot notation array to multi dimensional array.
+     *
+     * If any of the parent has a scalar value, all children get ignored:
+     *
+     * admin.pages=true
+     * admin.pages.read=true
+     *
+     * becomes
+     *
+     * admin:
+     *   pages: true
      *
      * @param array $array
      * @param string $separator
@@ -1098,8 +1108,20 @@ abstract class Utils
                     if ($k === 0) {
                         continue;
                     }
+
+                    // Cannot use a scalar value as an array
+                    if (null !== $last && !is_array($last)) {
+                        continue 2;
+                    }
+
                     $last = &$last[$dot];
                 }
+
+                // Cannot use a scalar value as an array
+                if (null !== $last && !is_array($last)) {
+                    continue;
+                }
+
                 $last = $value;
             } else {
                 $newArray[$key] = $value;
