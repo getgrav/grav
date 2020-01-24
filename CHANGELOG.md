@@ -32,6 +32,7 @@
     * Added root page support for `Flex Pages`
     * Added support for more advanced ACL
     * Added `$grav->dispatchEvent()` method for PSR-14 events
+    * Added `flatten_array` filter to form field validation
 1. [](#improved)
     * Twig filter `|yaml_serialize`: added support for `JsonSerializable` objects and other array-like objects
     * Added support for returning Flex Page specific permissions for admin and testing

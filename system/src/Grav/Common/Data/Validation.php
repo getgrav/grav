@@ -667,6 +667,19 @@ class Validation
      * @param array $field
      * @return array|null
      */
+    protected static function filterFlatten_array($value, $params, $field)
+    {
+        $value = static::filterArray($value, $params, $field);
+
+        return Utils::arrayUnflattenDotNotation($value);
+    }
+
+    /**
+     * @param mixed $value
+     * @param array $params
+     * @param array $field
+     * @return array|null
+     */
     protected static function filterArray($value, $params, $field)
     {
         $values = (array) $value;
