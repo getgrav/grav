@@ -70,6 +70,9 @@ class FlexDirectory implements FlexAuthorizeInterface
     /** @var string */
     protected $indexClassName;
 
+    /** @var string|null */
+    private $_authorize;
+
     /**
      * FlexDirectory constructor.
      * @param string $type
@@ -954,5 +957,24 @@ class FlexDirectory implements FlexAuthorizeInterface
     protected function getAuthorizeScope(): string
     {
         return isset(Grav::instance()['admin']) ? 'admin' : 'site';
+    }
+
+    /**
+     * @param string $scope
+     * @param string $action
+     * @return string
+     */
+    public function getAuthorizeRule(string $scope, string $action): string
+    {
+        if (!$this->_authorize) {
+            $config = $this->getConfig('admin.permissions');
+            if ($config) {
+                $this->_authorize = array_key_first($config) . '.%2$s';
+            } else {
+                $this->_authorize = '%1$s.flex-object.%2$s';
+            }
+        }
+
+        return sprintf($this->_authorize, $scope, $action);
     }
 }

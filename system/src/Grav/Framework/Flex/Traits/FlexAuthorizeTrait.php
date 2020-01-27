@@ -20,9 +20,6 @@ use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
  */
 trait FlexAuthorizeTrait
 {
-    /** @var string */
-    private $_authorize = '%s.flex-object.%s';
-
     /**
      * Check if user is authorized for the action.
      *
@@ -114,20 +111,12 @@ trait FlexAuthorizeTrait
     }
 
     /**
-     * @param string $authorize
-     */
-    protected function setAuthorizeRule(string $authorize): void
-    {
-        $this->_authorize = $authorize;
-    }
-
-    /**
      * @param string $scope
      * @param string $action
      * @return string
      */
     protected function getAuthorizeRule(string $scope, string $action): string
     {
-        return sprintf($this->_authorize, $scope, $action);
+        return $this->getFlexDirectory()->getAuthorizeRule($scope, $action);
     }
 }
