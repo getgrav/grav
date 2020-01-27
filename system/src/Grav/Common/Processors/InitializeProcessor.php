@@ -66,6 +66,8 @@ class InitializeProcessor extends ProcessorBase
 
         $this->loadPlugins();
 
+        $this->initializePages($config);
+
         $this->initializeSession($config);
 
         // Wrap call to next handler so that debugger can profile it.
@@ -153,23 +155,6 @@ class InitializeProcessor extends ProcessorBase
             date_default_timezone_set($timezone);
         }
 
-        /** @var Pages $pages */
-        $pages = $grav['pages'];
-        $pages->register();
-
-        /** @var Uri $uri */
-        $uri = $grav['uri'];
-        $uri->init();
-
-        // Redirect pages with trailing slash if configured to do so.
-        $path = $uri->path() ?: '/';
-        if ($path !== '/'
-            && $config->get('system.pages.redirect_trailing_slash', false)
-            && Utils::endsWith($path, '/')) {
-            $redirect = (string) $uri::getCurrentRoute()->toString();
-            $grav->redirect($redirect);
-        }
-
         $grav->setLocale();
 
         $this->stopTimer('_init');
@@ -190,6 +175,32 @@ class InitializeProcessor extends ProcessorBase
         $grav->dispatchEvent($event);
 
         $this->stopTimer('_plugins_load');
+    }
+
+    protected function initializePages(Config $config): void
+    {
+        $this->startTimer('_pages_register', 'Load Plugins');
+
+        $grav = $this->container;
+
+        /** @var Pages $pages */
+        $pages = $grav['pages'];
+        $pages->register();
+
+        /** @var Uri $uri */
+        $uri = $grav['uri'];
+        $uri->init();
+
+        // Redirect pages with trailing slash if configured to do so.
+        $path = $uri->path() ?: '/';
+        if ($path !== '/'
+            && $config->get('system.pages.redirect_trailing_slash', false)
+            && Utils::endsWith($path, '/')) {
+            $redirect = (string) $uri::getCurrentRoute()->toString();
+            $grav->redirect($redirect);
+        }
+
+        $this->stopTimer('_pages_register');
     }
 
     /**
