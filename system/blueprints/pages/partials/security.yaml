@@ -67,10 +67,10 @@ form:
           label: PLUGIN_ADMIN.PAGE_GROUPS
           help: PLUGIN_ADMIN.PAGE_GROUPS_HELP
 
-        header.permissions.group2:
+        header.permissions.groups_new:
           type: acl_picker
-          label: PLUGIN_ADMIN.PAGE_ACCESS
-          help: PLUGIN_ADMIN.PAGE_ACCESS_HELP
+          label: PLUGIN_ADMIN.PAGE_GROUPS
+          help: PLUGIN_ADMIN.PAGE_GROUPS_HELP
           ignore_empty: true
           data_type: permissions
           validate:
