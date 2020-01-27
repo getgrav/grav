@@ -4,12 +4,15 @@
 1. [](#new)
     * _POTENTIAL BREAKING CHANGE:_ Upgraded Parsedown to 1.7 for Parsedown-Extra 0.8. Plugins that extend Parsedown may need a fix to render as HTML
     * Added `$grav['flex']` to access all registered Flex Directories
+    * Added `$grav->dispatchEvent()` method for PSR-14 events
     * Added `FlexRegisterEvent` which triggers when `$grav['flex']` is being accessed the first time
     * Added Flex cache configuration options
     * Added `PluginsLoadedEvent` which triggers after plugins have been loaded but not yet initialized
     * Added `SessionStartEvent` which triggers when session is started
     * Added `PermissionsRegisterEvent` which triggers when `$grav['permissions']` is being accessed the first time
     * Added support for Flex Directory specific configuration
+    * Added support for more advanced ACL
+    * Added `flatten_array` filter to form field validation
 1. [](#improved)
     * Blueprint validation: Added `validate: value_type: bool|int|float|string|trim` to `array` to filter all the values inside the array
     * Twig `url()` takes now third parameter (`true`) to return URL on non-existing file instead of returning false
@@ -22,6 +25,7 @@
     * Fixed `Data::filter()` removing empty fields (such as empty list) by default
     * Fixed twig `url()` failing if stream has extra slash in it (e.g. `user:///data`)
     * Fixed `Blueprint::filter()` returning null instead of array if there is nothing to return
+    * Fixed `Cannot use a scalar value as an array` error in `Utils::arrayUnflattenDotNotation()`, ignore nested structure instead
     * Grav 1.7: Fixed `Flex Pages` unserialize issues if Flex-Objects Plugin has not been installed
     * Grav 1.7: Require Flex-Objects Plugin to edit Flex Accounts
 
@@ -30,9 +34,6 @@
 
 1. [](#new)
     * Added root page support for `Flex Pages`
-    * Added support for more advanced ACL
-    * Added `$grav->dispatchEvent()` method for PSR-14 events
-    * Added `flatten_array` filter to form field validation
 1. [](#improved)
     * Twig filter `|yaml_serialize`: added support for `JsonSerializable` objects and other array-like objects
     * Added support for returning Flex Page specific permissions for admin and testing
@@ -43,7 +44,6 @@
     * Fixed checking ACL for another user (who is not currently logged in) in a Flex Object or Directory
     * Fixed bug in Windows where `Filesystem::dirname()` returns backslashes
     * Fixed Flex object issues in Windows [#2773](https://github.com/getgrav/grav/issues/2773)
-    * Fixed `Cannot use a scalar value as an array` error in `Utils::arrayUnflattenDotNotation()`, ignore nested structure instead
 
 # v1.7.0-rc.2
 ## 12/04/2019
