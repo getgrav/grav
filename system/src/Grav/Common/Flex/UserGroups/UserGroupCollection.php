@@ -21,7 +21,7 @@ class UserGroupCollection extends FlexCollection
     public static function getCachedMethods(): array
     {
         return [
-            'authorize' => true,
+            'authorize' => 'session',
         ] + parent::getCachedMethods();
     }
 

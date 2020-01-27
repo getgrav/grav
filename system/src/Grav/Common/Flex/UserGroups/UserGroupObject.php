@@ -37,7 +37,7 @@ class UserGroupObject extends FlexObject implements UserGroupInterface
     public static function getCachedMethods(): array
     {
         return [
-            'authorize' => true,
+            'authorize' => 'session',
         ] + parent::getCachedMethods();
     }
 

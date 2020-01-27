@@ -18,6 +18,16 @@ use Grav\Framework\Flex\FlexCollection;
 class UserCollection extends FlexCollection implements UserCollectionInterface
 {
     /**
+     * @return array
+     */
+    public static function getCachedMethods(): array
+    {
+        return [
+                'authorize' => 'session',
+            ] + parent::getCachedMethods();
+    }
+
+    /**
      * Load user account.
      *
      * Always creates user object. To check if user exists, use $this->exists().

@@ -86,7 +86,7 @@ class UserObject extends FlexObject implements UserInterface, MediaManipulationI
     public static function getCachedMethods(): array
     {
         return [
-            'authorize' => true,
+            'authorize' => 'session',
             'load' => false,
             'find' => false,
             'remove' => false,
