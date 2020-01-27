@@ -9,12 +9,26 @@ extends@:
 
 # Flex configuration
 config:
-  # Administration Configuration (needs Flex-Objects plugin)
+  # Administration Configuration (needs Flex Objects plugin)
   admin:
-    # Admin route
-    route: '/accounts/groups'
-    aliases:
-      configure: '/accounts/configure'
+    # Admin router
+    router:
+      path: '/accounts/groups'
+      actions:
+        configure:
+          path: '/accounts/configure'
+      redirects:
+        '/accounts': '/accounts/groups'
+
+    # Permissions
+    permissions:
+      # Primary permissions
+      admin.users:
+        type: crudl
+        label: User Accounts
+      admin.configuration.users:
+        type: default
+        label: Accounts Configuration
 
     # Admin menu
     menu:
@@ -29,12 +43,6 @@ config:
 
     # Admin template type (folder)
     template: grav-user-groups
-
-    # Permissions
-    permissions:
-      admin.users:
-        type: crudl
-        label: User Groups
 
     # List view
     list:
@@ -62,6 +70,7 @@ config:
     # Configure view
     configure:
       hidden: true
+      authorize: 'admin.configuration.users'
       form: 'accounts'
       title:
         template: "{{ 'PLUGIN_ADMIN.ACCOUNTS'|tu }} {{ 'PLUGIN_ADMIN.CONFIGURATION'|tu }}"

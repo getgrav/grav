@@ -9,10 +9,21 @@ extends@:
 
 # Flex configuration
 config:
-  # Administration Configuration (needs Flex-Objects plugin)
+  # Administration Configuration (needs Flex Objects plugin)
   admin:
-    # Admin route
-    route: '/pages'
+    # Admin router
+    router:
+      path: '/pages'
+
+    # Permissions
+    permissions:
+      # Primary permissions
+      admin.pages:
+        type: crudpl
+        label: Pages
+      admin.configuration.pages:
+        type: default
+        label: Pages Configuration
 
     # Admin menu
     menu:
@@ -25,12 +36,6 @@ config:
 
     # Admin template type (folder)
     template: grav-pages
-
-    # Permissions
-    permissions:
-      admin.pages:
-        type: crudpl
-        label: Pages
 
     # Allowed admin actions
     actions:
@@ -121,6 +126,10 @@ config:
     # Preview View
     preview:
       enabled: true
+
+    # Configure view
+    configure:
+      authorize: 'admin.configuration.pages'
 
   # Site Configuration
   site:
