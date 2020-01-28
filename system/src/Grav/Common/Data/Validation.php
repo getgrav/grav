@@ -711,8 +711,9 @@ class Validation
 
         $ignoreEmpty = isset($field['ignore_empty']) && Utils::isPositive($field['ignore_empty']);
         $valueType = $params['value_type'] ?? null;
-        if ($ignoreEmpty || $valueType) {
-            $values = static::arrayFilterRecurse($values, $valueType, $ignoreEmpty);
+        $keyType = $params['key_type'] ?? null;
+        if ($ignoreEmpty || $valueType || $keyType) {
+            $values = static::arrayFilterRecurse($values, ['value_type' => $valueType, 'key_type' => $keyType, 'ignore_empty' => $ignoreEmpty]);
         }
 
         return $values;
@@ -720,21 +721,35 @@ class Validation
 
     /**
      * @param array $values
-     * @param string|null $type
-     * @param bool $ignoreEmpty
+     * @param array $params
      * @return array
      */
-    protected static function arrayFilterRecurse(array $values, ?string $type, bool $ignoreEmpty): array
+    protected static function arrayFilterRecurse(array $values, array $params): array
     {
         foreach ($values as $key => &$val) {
+            if ($params['key_type']) {
+                switch ($params['key_type']) {
+                    case 'int':
+                        $result = is_int($key);
+                        break;
+                    case 'string':
+                        $result = is_string($key);
+                        break;
+                    default:
+                        $result = false;
+                }
+                if (!$result) {
+                    unset($values[$key]);
+                }
+            }
             if (\is_array($val)) {
-                $val = static::arrayFilterRecurse($val, $type, $ignoreEmpty);
-                if ($ignoreEmpty && empty($val)) {
+                $val = static::arrayFilterRecurse($val, $params);
+                if ($params['ignore_empty'] && empty($val)) {
                     unset($values[$key]);
                 }
             } else {
-                if ($type && $val !== '' && $val !== null) {
-                    switch ($type) {
+                if ($params['value_type'] && $val !== '' && $val !== null) {
+                    switch ($params['value_type']) {
                         case 'bool':
                             if (Utils::isPositive($val)) {
                                 $val = true;
@@ -760,7 +775,7 @@ class Validation
                     }
                 }
 
-                if ($ignoreEmpty && ($val === '' || $val === null)) {
+                if ($params['ignore_empty'] && ($val === '' || $val === null)) {
                     unset($values[$key]);
                 }
             }
