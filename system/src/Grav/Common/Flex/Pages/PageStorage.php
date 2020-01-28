@@ -494,7 +494,7 @@ class PageStorage extends FolderStorage
             $locator = Grav::instance()['locator'];
             if (mb_strpos($key, '@@') === false) {
                 $path = $this->getStoragePath($key);
-                $path = $path ? $locator->findResource($path, true, true) : null;
+                $path = $path ? $locator->findResource($path) : null;
             } else {
                 $path = null;
             }
