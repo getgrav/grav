@@ -26,6 +26,7 @@
     * Fixed twig `url()` failing if stream has extra slash in it (e.g. `user:///data`)
     * Fixed `Blueprint::filter()` returning null instead of array if there is nothing to return
     * Fixed `Cannot use a scalar value as an array` error in `Utils::arrayUnflattenDotNotation()`, ignore nested structure instead
+    * Fixed `Route` instance in multi-site setups
     * Grav 1.7: Fixed `Flex Pages` unserialize issues if Flex-Objects Plugin has not been installed
     * Grav 1.7: Require Flex-Objects Plugin to edit Flex Accounts
 

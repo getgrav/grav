@@ -409,8 +409,8 @@ class Route
             $this->language = $gravParts['language'];
             $this->route = $gravParts['route'];
             $this->extension = $gravParts['extension'] ?? '';
-            $this->gravParams = $gravParts['params'] ?: [];
-            $this->queryParams = $parts['query_params'] ?: [];
+            $this->gravParams = $gravParts['params'] ?? [];
+            $this->queryParams = $parts['query_params'] ?? [];
         } else {
             $this->root = RouteFactory::getRoot();
             $this->language = RouteFactory::getLanguage();

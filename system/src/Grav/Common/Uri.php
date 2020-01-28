@@ -69,6 +69,8 @@ class Uri
     /** @var string */
     protected $root;
     /** @var string */
+    protected $setup_base;
+    /** @var string */
     protected $root_path;
     /** @var string */
     protected $uri;
@@ -181,6 +183,7 @@ class Uri
         if ($setup_base) {
             $uri = preg_replace('|^' . preg_quote($setup_base, '|') . '|', '', $uri);
         }
+        $this->setup_base = $setup_base;
 
         // process params
         $uri = $this->processParams($uri, $config->get('system.param_sep'));
@@ -228,7 +231,7 @@ class Uri
         $grav['base_url_relative'] = $this->rootUrl(false);
         $grav['base_url'] = $config->get('system.absolute_urls') ? $grav['base_url_absolute'] : $grav['base_url_relative'];
 
-        RouteFactory::setRoot($this->root_path);
+        RouteFactory::setRoot($this->root_path . $setup_base);
         RouteFactory::setLanguage($language->getLanguageURLPrefix());
         RouteFactory::setParamValueDelimiter($config->get('system.param_sep'));
     }
@@ -695,7 +698,8 @@ class Uri
         if (!static::$currentRoute) {
             /** @var Uri $uri */
             $uri = Grav::instance()['uri'];
-            static::$currentRoute = RouteFactory::createFromParts($uri->toArray());
+
+            static::$currentRoute = RouteFactory::createFromLegacyUri($uri);
         }
 
         return static::$currentRoute;

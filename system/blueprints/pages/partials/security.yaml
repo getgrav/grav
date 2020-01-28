@@ -68,6 +68,7 @@ form:
           help: PLUGIN_ADMIN.PAGE_GROUPS_HELP
 
         header.permissions.groups_new:
+          ignore@: true
           type: acl_picker
           label: PLUGIN_ADMIN.PAGE_GROUPS
           help: PLUGIN_ADMIN.PAGE_GROUPS_HELP
