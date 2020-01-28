@@ -70,6 +70,6 @@ trait PageContentTrait
     {
         $meta = $this->getMetaData();
 
-        return !empty($meta['markdown']) !== $bool;
+        return empty($meta['markdown']) !== $bool;
     }
 }

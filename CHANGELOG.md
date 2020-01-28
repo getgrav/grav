@@ -29,6 +29,7 @@
     * Fixed `Route` instance in multi-site setups
     * Grav 1.7: Fixed `Flex Pages` unserialize issues if Flex-Objects Plugin has not been installed
     * Grav 1.7: Require Flex-Objects Plugin to edit Flex Accounts
+    * Grav 1.7: Fixed bad result on testing `isPage()` when using Flex Pages
 
 # v1.7.0-rc.3
 ## 01/02/2020
