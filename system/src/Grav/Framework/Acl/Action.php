@@ -89,6 +89,28 @@ class Action implements \IteratorAggregate, \Countable
         $this->parent = $parent;
     }
 
+    public function getScope(): string
+    {
+        if (($pos = strpos($this->name, '.')) > 0) {
+            return substr($this->name, 0, $pos);
+        }
+
+        return $this->name;
+    }
+
+    public function getLevels(): int
+    {
+        return substr_count($this->name, '.');
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasChildren(): bool
+    {
+        return !empty($this->children);
+    }
+
     /**
      * @return Action[]
      */

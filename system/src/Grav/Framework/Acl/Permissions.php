@@ -23,7 +23,10 @@ class Permissions implements \ArrayAccess, \Countable, \IteratorAggregate
      */
     public function getInstances(): array
     {
-        return $this->instances;
+        $iterator = new RecursiveActionIterator($this->actions);
+        $recursive = new \RecursiveIteratorIterator($iterator, \RecursiveIteratorIterator::SELF_FIRST);
+
+        return iterator_to_array($recursive);
     }
 
     /**
