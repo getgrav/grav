@@ -569,7 +569,9 @@ class Uri
      */
     public function currentPage()
     {
-        return $this->params['page'] ?? 1;
+        $page = (int)($this->params['page'] ?? 1);
+
+        return max(1, $page);
     }
 
     /**
