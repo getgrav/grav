@@ -537,9 +537,6 @@ class Language
     public function getTranslation($lang, $key, $array_support = false)
     {
         $translation = Grav::instance()['languages']->get($lang . '.' . $key, null);
-        if ($array_support && !is_array($translation)) {
-            return [];
-        }
         if (!$array_support && is_array($translation)) {
             return (string)array_shift($translation);
         }
