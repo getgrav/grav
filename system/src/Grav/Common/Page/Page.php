@@ -2828,7 +2828,7 @@ class Page implements PageInterface
         if ($pagination) {
             $params = $collection->params();
 
-            $limit = $params['limit'] ?? 0;
+            $limit = (int)($params['limit'] ?? 0);
             $start = !empty($params['pagination']) ? ($uri->currentPage() - 1) * $limit : 0;
 
             if ($limit && $collection->count() > $limit) {
