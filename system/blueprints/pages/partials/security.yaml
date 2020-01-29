@@ -68,6 +68,3 @@ form:
           help: PLUGIN_ADMIN.PAGE_GROUPS_HELP
           ignore_empty: true
           data_type: permissions
-          validate:
-            type: array
-            value_type: bool
