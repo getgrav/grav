@@ -1628,7 +1628,7 @@ class Page implements PageInterface
             ];
 
             // Get initial metadata for the page
-            $metadata = array_merge($metadata, Grav::instance()['config']->get('site.metadata'));
+            $metadata = array_merge($metadata, Grav::instance()['config']->get('site.metadata', []));
 
             if (isset($this->header->metadata) && is_array($this->header->metadata)) {
                 // Merge any site.metadata settings in with page metadata
