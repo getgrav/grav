@@ -1311,6 +1311,8 @@ class Pages
                 $page = $event['page'];
                 $page->init(new \SplFileInfo('plugin://admin/pages/admin/error.md'));
                 $page->routable(true);
+                $header = $page->header();
+                $header->title = 'Please install missing plugin';
                 $page->content("## Please install and enable **[Flex Objects]({$base}/plugins/flex-objects)** plugin. It is required to edit **Flex Pages**.");
 
                 /** @var Header $header */
