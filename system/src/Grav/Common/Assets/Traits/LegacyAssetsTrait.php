@@ -51,7 +51,11 @@ trait LegacyAssetsTrait
                 // special case to handle old attributes being passed in
                 if (isset($arguments['attributes'])) {
                     $old_attributes = $arguments['attributes'];
-                    $arguments = array_merge($arguments, $old_attributes);
+                    if (is_array($old_attributes)) {
+                        $arguments = array_merge($arguments, $old_attributes);
+                    } else {
+                        $arguments['type'] = $old_attributes;
+                    }
                 }
                 unset($arguments['attributes']);
 
