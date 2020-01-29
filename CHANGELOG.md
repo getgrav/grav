@@ -259,6 +259,7 @@
     * Fixed filesystem iterator calls with non-existing folders
     * Fixed `checkbox` field not being saved, requires also Form v4.0.2 [#1225](https://github.com/getgrav/grav/issues/1225)
     * Fixed `validation: strict` not working in blueprints [#1273](https://github.com/getgrav/grav/issues/1273)
+    * Fixed `Data::filter()` removing empty fields (such as empty list) by default [#2805](https://github.com/getgrav/grav/issues/2805)
     * Fixed fatal error with non-integer page param value [#2803](https://github.com/getgrav/grav/issues/2803)
 
 # v1.6.19
