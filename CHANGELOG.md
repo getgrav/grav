@@ -22,7 +22,6 @@
     * Fixed new `Flex Users` being stored with wrong filename, login issues [#2785](https://github.com/getgrav/grav/issues/2785)
     * Fixed `ignore_empty: true` not removing empty values in blueprint filtering
     * Fixed `{{ false|string }}` twig to return '0' instead of ''
-    * Fixed `Data::filter()` removing empty fields (such as empty list) by default
     * Fixed twig `url()` failing if stream has extra slash in it (e.g. `user:///data`)
     * Fixed `Blueprint::filter()` returning null instead of array if there is nothing to return
     * Fixed `Cannot use a scalar value as an array` error in `Utils::arrayUnflattenDotNotation()`, ignore nested structure instead
