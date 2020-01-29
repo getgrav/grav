@@ -11,6 +11,7 @@
     * Fixed `Data::filter()` removing empty fields (such as empty list) by default [#2805](https://github.com/getgrav/grav/issues/2805)
     * Fixed fatal error with non-integer page param value [#2803](https://github.com/getgrav/grav/issues/2803)
     * Fixed `Assets::addInlineJs()` parameter type mismatch between v1.5 and v1.6 [#2659](https://github.com/getgrav/grav/issues/2659)
+    * Fixed `site.metadata` saving issues [#2615](https://github.com/getgrav/grav/issues/2615)
 
 # v1.6.19
 ## 12/04/2019
