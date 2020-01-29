@@ -531,7 +531,7 @@ class Pages
         if ($pagination) {
             $params = $collection->params();
 
-            $limit = $params['limit'] ?? 0;
+            $limit = (int)($params['limit'] ?? 0);
             $start = !empty($params['pagination']) ? (($params['page'] ?? $context['pagination_page']) - 1) * $limit : 0;
 
             if ($limit && $collection->count() > $limit) {
