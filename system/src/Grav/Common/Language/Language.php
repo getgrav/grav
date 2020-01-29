@@ -453,7 +453,7 @@ class Language
      * @param array|null $languages
      * @param bool  $array_support
      * @param bool  $html_out
-     * @return string
+     * @return string|string[]
      */
     public function translate($args, array $languages = null, $array_support = false, $html_out = false)
     {
@@ -475,13 +475,15 @@ class Language
                 $translation = $this->getTranslation($lang, $lookup, $array_support);
 
                 if ($translation) {
-                    if (\count($args) >= 1) {
+                    if (is_string($translation) && \count($args) >= 1) {
                         return vsprintf($translation, $args);
                     }
 
                     return $translation;
                 }
             }
+        } elseif ($array_support) {
+            return [];
         }
 
         if ($html_out) {
@@ -530,11 +532,14 @@ class Language
      * @param string $lang lang code
      * @param string $key  key to lookup with
      * @param bool $array_support
-     * @return string
+     * @return string|string[]
      */
     public function getTranslation($lang, $key, $array_support = false)
     {
         $translation = Grav::instance()['languages']->get($lang . '.' . $key, null);
+        if ($array_support && !is_array($translation)) {
+            return [];
+        }
         if (!$array_support && is_array($translation)) {
             return (string)array_shift($translation);
         }

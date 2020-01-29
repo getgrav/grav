@@ -385,8 +385,8 @@ form:
 
             languages.translations:
               type: toggle
-              label: PLUGIN_ADMIN.TRANSLATIONS_ENABLED
-              help: PLUGIN_ADMIN.TRANSLATIONS_ENABLED_HELP
+              label: PLUGIN_ADMIN.LANGUAGE_TRANSLATIONS
+              help: PLUGIN_ADMIN.LANGUAGE_TRANSLATIONS_HELP
               highlight: 1
               options:
                 1: PLUGIN_ADMIN.YES

@@ -13,6 +13,7 @@ use Cron\CronExpression;
 use Grav\Common\Config\Config;
 use Grav\Common\Debugger;
 use Grav\Common\Grav;
+use Grav\Common\Inflector;
 use Grav\Common\Language\Language;
 use Grav\Common\Page\Collection;
 use Grav\Common\Page\Media;
@@ -329,6 +330,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
     {
         $action .= 'ize';
 
+        /** @var Inflector $inflector */
         $inflector = $this->grav['inflector'];
 
         if (\in_array(

@@ -33,11 +33,11 @@ class Inflector
         if (empty(static::$plural)) {
             /** @var Language $language */
             $language = Grav::instance()['language'];
-            static::$plural = $language->translate('GRAV.INFLECTOR_PLURALS', null, true) ?: [];
-            static::$singular = $language->translate('GRAV.INFLECTOR_SINGULAR', null, true) ?: [];
-            static::$uncountable = $language->translate('GRAV.INFLECTOR_UNCOUNTABLE', null, true) ?: [];
-            static::$irregular = $language->translate('GRAV.INFLECTOR_IRREGULAR', null, true) ?: [];
-            static::$ordinals = $language->translate('GRAV.INFLECTOR_ORDINALS', null, true) ?: [];
+            static::$plural = $language->translate('GRAV.INFLECTOR_PLURALS', null, true);
+            static::$singular = $language->translate('GRAV.INFLECTOR_SINGULAR', null, true);
+            static::$uncountable = $language->translate('GRAV.INFLECTOR_UNCOUNTABLE', null, true);
+            static::$irregular = $language->translate('GRAV.INFLECTOR_IRREGULAR', null, true);
+            static::$ordinals = $language->translate('GRAV.INFLECTOR_ORDINALS', null, true);
         }
     }
 

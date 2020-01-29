@@ -17,7 +17,7 @@ languages:
   include_default_lang: true                     # Include the default lang prefix in all URLs
   include_default_lang_file_extension: true      # If true, include language code for the default language in file extension: default.en.md
   pages_fallback_only: false                     # Only fallback to find page content through supported languages
-  translations: true                             # Enable translations by default
+  translations: true                             # If false, translation keys are used instead of translated strings
   translations_fallback: true                    # Fallback through supported translations if active lang doesn't exist
   session_store_active: false                    # Store active language in session
   http_accept_language: false                    # Attempt to set the language based on http_accept_language header in the browser
