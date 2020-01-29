@@ -1039,8 +1039,8 @@ form:
 
             debugger.censored:
               type: toggle
-              label: PLUGIN_ADMIN.SHOW_SENSITIVE
-              help: PLUGIN_ADMIN.SHOW_SENSITIVE_HELP
+              label: PLUGIN_ADMIN.DEBUGGER_CENSORED
+              help: PLUGIN_ADMIN.DEBUGGER_CENSORED_HELP
               highlight: 0
               options:
                 1: PLUGIN_ADMIN.YES
