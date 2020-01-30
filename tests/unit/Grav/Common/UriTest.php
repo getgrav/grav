@@ -188,7 +188,7 @@ class UriTest extends \Codeception\TestCase\Test
             'environment' => 'localhost',
             'basename' => 'it',
             'base' => 'http://localhost:8080',
-            'currentPage' => '',
+            'currentPage' => 1,
             'rootUrl' => 'http://localhost:8080',
             'extension' => null,
             'addNonce' => 'http://localhost:8080/grav/it/ueper:xxx/page:/test:yyy/nonce:{{nonce}}',
@@ -298,7 +298,7 @@ class UriTest extends \Codeception\TestCase\Test
             'environment' => 'api.getgrav.com',
             'basename' => '128',
             'base' => 'https://api.getgrav.com:4040',
-            'currentPage' => 'x',
+            'currentPage' => 1,
             'rootUrl' => 'https://api.getgrav.com:4040',
             'extension' => null,
             'addNonce' => 'https://username:password@api.getgrav.com:4040/v1/post/128/page:x/nonce:{{nonce}}?all=1',
@@ -1073,7 +1073,7 @@ class UriTest extends \Codeception\TestCase\Test
         $this->runTestSet($this->tests, 'currentPage');
 
         $this->uri->initializeWithURL('http://localhost:8080/a-page/page:2')->init();
-        $this->assertSame('2', $this->uri->currentPage());
+        $this->assertSame(2, $this->uri->currentPage());
     }
 
     public function testReferrer()
