@@ -35,7 +35,7 @@ class FlexServiceProvider implements ServiceProviderInterface
             // Add built-in types from Grav.
             if ($pagesEnabled) {
                 $flex->addDirectoryType(
-                    'grav-pages',
+                    'pages',
                     'blueprints://flex/pages.yaml',
                     [
                         'enabled' => $pagesEnabled
@@ -44,8 +44,8 @@ class FlexServiceProvider implements ServiceProviderInterface
             }
             if ($accountsEnabled) {
                 $flex->addDirectoryType(
-                    'grav-accounts',
-                    'blueprints://flex/accounts.yaml',
+                    'user-accounts',
+                    'blueprints://flex/user-accounts.yaml',
                     [
                         'enabled' => $accountsEnabled,
                         'data' => [
@@ -54,7 +54,7 @@ class FlexServiceProvider implements ServiceProviderInterface
                     ]
                 );
                 $flex->addDirectoryType(
-                    'grav-user-groups',
+                    'user-groups',
                     'blueprints://flex/user-groups.yaml',
                     [
                         'enabled' => $accountsEnabled

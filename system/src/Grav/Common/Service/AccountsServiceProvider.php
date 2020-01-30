@@ -57,7 +57,7 @@ class AccountsServiceProvider implements ServiceProviderInterface
         $container['user_groups'] = static function (Container $container) {
             /** @var Flex $flex */
             $flex = $container['flex'];
-            $directory = $flex->getDirectory('grav-user-groups');
+            $directory = $flex->getDirectory('user-groups');
 
             return $directory ? $directory->getIndex() : null;
         };
@@ -130,7 +130,7 @@ class AccountsServiceProvider implements ServiceProviderInterface
     {
         /** @var Flex $flex */
         $flex = $container['flex'];
-        $directory = $flex->getDirectory('grav-accounts');
+        $directory = $flex->getDirectory('user-accounts');
 
         return $directory ? $directory->getIndex() : null;
     }

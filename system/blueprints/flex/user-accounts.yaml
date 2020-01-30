@@ -1,10 +1,10 @@
-title: User Groups
-description: Manage your User Groups in Flex.
+title: User Accounts
+description: Manage your User Accounts in Flex.
 type: flex-objects
 
-# Extends user group
+# Extends user account
 extends@:
-  type: group
+  type: account
   context: blueprints://user
 
 # Flex configuration
@@ -13,18 +13,19 @@ config:
   admin:
     # Admin router
     router:
-      path: '/accounts/groups'
+      path: '/accounts/users'
       actions:
         configure:
           path: '/accounts/configure'
       redirects:
-        '/accounts': '/accounts/groups'
+        '/user': '/accounts/users'
+        '/accounts': '/accounts/users'
 
     # Permissions
     permissions:
       # Primary permissions
       admin.users:
-        type: crudl
+        type: crudpl
         label: User Accounts
       admin.configuration.users:
         type: default
@@ -34,38 +35,38 @@ config:
     menu:
       base:
         location: '/accounts'
-        route: '/accounts/groups'
-        index: 1
+        route: '/accounts/users'
+        index: 0
         title: PLUGIN_ADMIN.ACCOUNTS
         icon: fa-users
         authorize: ['admin.users.list', 'admin.super']
         priority: 6
 
     # Admin template type (folder)
-    template: user-groups
+    template: user-accounts
 
     # List view
     list:
       # Fields shown in the list view
       fields:
-        groupname:
+        username:
           link: edit
           search: true
-        readableName:
+        email:
           search: true
-        description:
+        fullname:
           search: true
       # Extra options
       options:
         per_page: 20
         order:
-          by: groupname
+          by: username
           dir: asc
 
     # Edit view
     edit:
       title:
-        template: '{{ object.readableName ?? object.groupname }}'
+        template: '{{ object.fullname ?? object.username }} &lt;{{ object.email }}&gt;'
 
     # Configure view
     configure:
@@ -90,26 +91,38 @@ config:
           - 'flex/{TYPE}/object/{LAYOUT}{EXT}'
       defaults:
         # Default template {TYPE}; overridden by filename of this blueprint if template folder exists
-        type: user-groups
+        type: user-accounts
         # Default template {LAYOUT}; can be overridden in render calls (usually Twig in templates)
         layout: default
 
   # Data Configuration
   data:
-    object: 'Grav\Common\Flex\UserGroups\UserGroupObject'
-    collection: 'Grav\Common\Flex\UserGroups\UserGroupCollection'
-    index: 'Grav\Common\Flex\UserGroups\UserGroupIndex'
+    object: 'Grav\Common\Flex\Users\UserObject'
+    collection: 'Grav\Common\Flex\Users\UserCollection'
+    index: 'Grav\Common\Flex\Users\UserIndex'
     storage:
-      class: 'Grav\Framework\Flex\Storage\SimpleStorage'
+      class: 'Grav\Common\Flex\Users\Storage\UserFileStorage'
       options:
         formatter:
           class: 'Grav\Framework\File\Formatter\YamlFormatter'
-        folder: 'user://config/groups.yaml'
-        key: groupname
+        folder: 'account://'
+        pattern: '{FOLDER}/{KEY}{EXT}'
+        key: username
+        indexed: true
     search:
       options:
         contains: 1
       fields:
         - key
-        - groupname
-        - description
+        - email
+
+# Regular form definition
+form:
+  fields:
+    username:
+      flex-disabled@: exists
+      disabled: false
+      flex-readonly@: exists
+      readonly: false
+      validate:
+        required: true

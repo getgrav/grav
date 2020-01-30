@@ -1,4 +1,4 @@
-title: Flex Pages
+title: Pages
 description: Manage your Grav Pages in Flex.
 type: flex-objects
 
@@ -35,7 +35,7 @@ config:
         priority: 5
 
     # Admin template type (folder)
-    template: grav-pages
+    template: pages
 
     # Allowed admin actions
     actions:

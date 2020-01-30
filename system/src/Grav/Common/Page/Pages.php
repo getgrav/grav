@@ -1291,7 +1291,7 @@ class Pages
 
         /** @var Flex $flex */
         $flex = $this->grav['flex'];
-        $directory = $flex->getDirectory('grav-pages');
+        $directory = $flex->getDirectory('pages');
 
         /** @var EventDispatcher $dispatcher */
         $dispatcher = $this->grav['events'];

@@ -897,7 +897,7 @@ class UserObject extends FlexObject implements UserInterface, MediaManipulationI
         $flex = $grav['flex'];
 
         /** @var UserGroupCollection|null $groups */
-        $groups = $flex->getDirectory('grav-user-groups');
+        $groups = $flex->getDirectory('user-groups');
         if ($groups) {
             /** @var UserGroupIndex $index */
             $index = $groups->getIndex();
