@@ -31,7 +31,8 @@ form:
             value_type: bool
 
     _admin:
-      security@: admin.configuration.pages
+      security@:
+        or: [admin.super, admin.configuration.pages]
       type: section
       title: PLUGIN_ADMIN.PAGE PERMISSIONS
       underline: true
