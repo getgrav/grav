@@ -13,6 +13,7 @@
     * Added support for Flex Directory specific configuration
     * Added support for more advanced ACL
     * Added `flatten_array` filter to form field validation
+    * Added support for `security@: or: [admin.super, admin.pages]` in blueprints (nested AND/OR mode support)
 1. [](#improved)
     * Blueprint validation: Added `validate: value_type: bool|int|float|string|trim` to `array` to filter all the values inside the array
     * Twig `url()` takes now third parameter (`true`) to return URL on non-existing file instead of returning false

@@ -424,12 +424,31 @@ class Blueprint extends BlueprintForm
 
         /** @var UserInterface|null $user */
         $user = $grav['user'] ?? null;
-        foreach ($actions as $action) {
-            if (!$user || !$user->authorize($action)) {
-                $this->addPropertyRecursive($field, 'validate', ['ignore' => true]);
-                return;
+        $success = null !== $user;
+        if ($success) {
+            $success = $this->resolveActions($user, $actions);
+        }
+        if (!$success) {
+            $this->addPropertyRecursive($field, 'validate', ['ignore' => true]);
+        }
+    }
+
+    protected function resolveActions(UserInterface $user, array $actions, string $op = 'and')
+    {
+        $c = $i = count($actions);
+        foreach ($actions as $key => $action) {
+            if (!is_int($key) && is_array($actions)) {
+                $i -= $this->resolveActions($user, $action, $key);
+            } elseif ($user->authorize($action)) {
+                $i--;
             }
         }
+
+        if ($op === 'and') {
+            return $i === 0;
+        }
+
+        return $c !== $i;
     }
 
     /**
