@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d77c5dad3d8d02afbd948cfe60571bb8",
+    "content-hash": "2153c072ac373551a2141b2bb23c180c",
     "packages": [
         {
             "name": "antoligy/dom-string-iterators",
@@ -716,16 +716,16 @@
         },
         {
             "name": "itsgoingd/clockwork",
-            "version": "v4.0.15",
+            "version": "v4.1-beta3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/itsgoingd/clockwork.git",
-                "reference": "981a9640e9081e5dc1c2698abe35f984ed7f6b92"
+                "reference": "0d56e354c0b957863154ae2c9b0a52c7161c2b52"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/itsgoingd/clockwork/zipball/981a9640e9081e5dc1c2698abe35f984ed7f6b92",
-                "reference": "981a9640e9081e5dc1c2698abe35f984ed7f6b92",
+                "url": "https://api.github.com/repos/itsgoingd/clockwork/zipball/0d56e354c0b957863154ae2c9b0a52c7161c2b52",
+                "reference": "0d56e354c0b957863154ae2c9b0a52c7161c2b52",
                 "shasum": ""
             },
             "require": {
@@ -770,10 +770,10 @@
                 "slim"
             ],
             "support": {
-                "source": "https://github.com/itsgoingd/clockwork/tree/v4.0.15",
+                "source": "https://github.com/itsgoingd/clockwork/tree/v4.1-beta3",
                 "issues": "https://github.com/itsgoingd/clockwork/issues"
             },
-            "time": "2020-01-09T11:14:09+00:00"
+            "time": "2020-01-29T20:41:24+00:00"
         },
         {
             "name": "kodus/psr7-server",
@@ -5808,6 +5808,7 @@
     "minimum-stability": "stable",
     "stability-flags": {
         "rockettheme/toolbox": 20,
+        "itsgoingd/clockwork": 10,
         "victorjonsson/markdowndocs": 20
     },
     "prefer-stable": false,
