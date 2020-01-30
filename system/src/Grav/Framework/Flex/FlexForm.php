@@ -133,10 +133,15 @@ class FlexForm implements FlexObjectFormInterface, \JsonSerializable
         $flash = $this->getFlash();
         if ($flash->exists()) {
             $data = $flash->getData();
+            if (null !== $data) {
+                $data = new Data($data, $this->getBlueprint());
+                $data->setKeepEmptyValues(true);
+                $data->setMissingValuesAsNull(true);
+            }
             $includeOriginal = (bool)($this->getBlueprint()->form()['images']['original'] ?? null);
 
             $this->object = $flash->getObject();
-            $this->data = $data ? new Data($data, $this->getBlueprint()) : null;
+            $this->data = $data;
             $this->files = $flash->getFilesByFields($includeOriginal);
         }
 

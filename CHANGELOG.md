@@ -27,6 +27,7 @@
     * Fixed `Cannot use a scalar value as an array` error in `Utils::arrayUnflattenDotNotation()`, ignore nested structure instead
     * Fixed `Route` instance in multi-site setups
     * Fixed `system.translations: false` breaking `Inflector` methods
+    * Fixed filtering ignored (eg. `security@: admin.super`) fields causing `Flex Objects` to lose data on save
     * Grav 1.7: Fixed `Flex Pages` unserialize issues if Flex-Objects Plugin has not been installed
     * Grav 1.7: Require Flex-Objects Plugin to edit Flex Accounts
     * Grav 1.7: Fixed bad result on testing `isPage()` when using Flex Pages
