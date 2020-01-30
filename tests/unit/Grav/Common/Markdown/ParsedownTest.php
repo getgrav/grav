@@ -446,7 +446,7 @@ class ParsedownTest extends \Codeception\TestCase\Test
             $this->parsedown->text('[google.com](https://www.google.com)')
         );
         $this->assertSame(
-            '<p><a href="https://github.com/getgrav/grav/issues/new?title=%5Badd-resource%5D%20New%20Plugin%2FTheme&body=Hello%20%2A%2AThere%2A%2A">complex url</a></p>',
+            '<p><a href="https://github.com/getgrav/grav/issues/new?title=%5Badd-resource%5D%20New%20Plugin%2FTheme&amp;body=Hello%20%2A%2AThere%2A%2A">complex url</a></p>',
             $this->parsedown->text('[complex url](https://github.com/getgrav/grav/issues/new?title=[add-resource]%20New%20Plugin/Theme&body=Hello%20**There**)')
         );
     }
@@ -1056,7 +1056,7 @@ class ParsedownTest extends \Codeception\TestCase\Test
             $this->parsedown->text('[Relative Rel](../item2-3?rel=nofollow)')
         );
         $this->assertSame(
-            '<p><a href="/item2/item2-3?foo=bar&baz=qux" rel="nofollow" class="button">Relative Mixed</a></p>',
+            '<p><a href="/item2/item2-3?foo=bar&amp;baz=qux" rel="nofollow" class="button">Relative Mixed</a></p>',
             $this->parsedown->text('[Relative Mixed](../item2-3?foo=bar&baz=qux&rel=nofollow&class=button)')
         );
     }
