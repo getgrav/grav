@@ -18,6 +18,7 @@ use Grav\Common\Utils;
 use Grav\Events\PluginsLoadedEvent;
 use Grav\Framework\Psr7\Response;
 use Grav\Framework\Session\Exceptions\SessionException;
+use Grav\Framework\Session\SessionInterface;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\SyslogHandler;
 use Psr\Http\Message\ResponseInterface;
@@ -215,10 +216,13 @@ class InitializeProcessor extends ProcessorBase
             // TODO: remove in 2.0.
             $this->container['accounts'];
 
+            /** @var SessionInterface $session */
+            $session = $this->container['session'];
+
             try {
-                $this->container['session']->init();
+                $session->init();
             } catch (SessionException $e) {
-                $this->container['session']->init();
+                $session->init();
                 $message = 'Session corruption detected, restarting session...';
                 $this->addMessage($message);
                 $this->container['messages']->add($message, 'error');

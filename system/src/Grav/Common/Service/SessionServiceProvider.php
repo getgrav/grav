@@ -23,7 +23,7 @@ class SessionServiceProvider implements ServiceProviderInterface
     public function register(Container $container)
     {
         // Define session service.
-        $container['session'] = function ($c) {
+        $container['session'] = static function ($c) {
             /** @var Config $config */
             $config = $c['config'];
 
