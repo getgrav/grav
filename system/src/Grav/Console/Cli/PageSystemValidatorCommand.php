@@ -149,7 +149,8 @@ class PageSystemValidatorCommand extends ConsoleCommand
         $config->init();
         $grav['plugins']->setup();
         $grav['debugger']->init();
-                // Initialize the timezone.
+
+        // Initialize the timezone.
         $timezone = $config->get('system.timezone');
         if ($timezone) {
             date_default_timezone_set($timezone);

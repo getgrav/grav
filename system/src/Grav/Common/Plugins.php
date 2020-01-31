@@ -13,6 +13,7 @@ use Grav\Common\Config\Config;
 use Grav\Common\Data\Blueprints;
 use Grav\Common\Data\Data;
 use Grav\Common\File\CompiledYamlFile;
+use Grav\Events\PluginsLoadedEvent;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
@@ -111,6 +112,10 @@ class Plugins extends Iterator
                 $events->addSubscriber($instance);
             }
         }
+
+        // Plugins Loaded Event
+        $event = new PluginsLoadedEvent($grav, $this);
+        $grav->dispatchEvent($event);
 
         return $this->items;
     }

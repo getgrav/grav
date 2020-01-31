@@ -15,7 +15,6 @@ use Grav\Common\Page\Pages;
 use Grav\Common\Plugins;
 use Grav\Common\Uri;
 use Grav\Common\Utils;
-use Grav\Events\PluginsLoadedEvent;
 use Grav\Framework\Psr7\Response;
 use Grav\Framework\Session\Exceptions\SessionException;
 use Grav\Framework\Session\SessionInterface;
@@ -170,10 +169,6 @@ class InitializeProcessor extends ProcessorBase
         /** @var Plugins $plugins */
         $plugins = $grav['plugins'];
         $plugins->init();
-
-        // Plugins Loaded Event
-        $event = new PluginsLoadedEvent($grav, $plugins);
-        $grav->dispatchEvent($event);
 
         $this->stopTimer('_plugins_load');
     }
