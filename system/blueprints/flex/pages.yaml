@@ -19,7 +19,7 @@ config:
     permissions:
       # Primary permissions
       admin.pages:
-        type: crudpl
+        type: crudl
         label: Pages
       admin.configuration.pages:
         type: default

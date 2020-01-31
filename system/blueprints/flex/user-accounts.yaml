@@ -25,7 +25,7 @@ config:
     permissions:
       # Primary permissions
       admin.users:
-        type: crudpl
+        type: crudl
         label: User Accounts
       admin.configuration.users:
         type: default
