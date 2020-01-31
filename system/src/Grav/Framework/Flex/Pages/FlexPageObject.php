@@ -172,6 +172,8 @@ class FlexPageObject extends FlexObject implements PageInterface, MediaManipulat
                 return $this->getProperty('template');
             case 'route':
                 return $this->hasKey() ? '/' . $this->getKey() : null;
+            case 'header.permissions.groups':
+                return json_decode(json_encode($this->getPermissions()), true);
         }
 
         return parent::getFormValue($name, $default, $separator);
@@ -297,7 +299,7 @@ class FlexPageObject extends FlexObject implements PageInterface, MediaManipulat
      */
     public function getProperty($property, $default = null)
     {
-        $method = static::$headerProperties[$property] ??static::$calculatedProperties[$property] ??  null;
+        $method = static::$headerProperties[$property] ?? static::$calculatedProperties[$property] ?? null;
         if ($method && method_exists($this, $method)) {
             return $this->{$method}();
         }

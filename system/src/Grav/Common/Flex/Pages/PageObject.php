@@ -20,7 +20,6 @@ use Grav\Common\Flex\Pages\Traits\PageTranslateTrait;
 use Grav\Common\Page\Pages;
 use Grav\Common\Utils;
 use Grav\Framework\Filesystem\Filesystem;
-use Grav\Framework\Flex\FlexDirectory;
 use Grav\Framework\Flex\FlexObject;
 use Grav\Framework\Flex\Pages\FlexPageObject;
 use Grav\Framework\Route\Route;
