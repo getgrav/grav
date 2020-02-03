@@ -1,5 +1,5 @@
 # v1.7.0-rc.4
-## mm/dd/2020
+## 03/02/2020
 
 1. [](#new)
     * _POTENTIAL BREAKING CHANGE:_ Upgraded Parsedown to 1.7 for Parsedown-Extra 0.8. Plugins that extend Parsedown may need a fix to render as HTML
