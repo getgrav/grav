@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2153c072ac373551a2141b2bb23c180c",
+    "content-hash": "c8b230b285ee0b8b86c56f5eac7b6214",
     "packages": [
         {
             "name": "antoligy/dom-string-iterators",
@@ -1840,16 +1840,16 @@
         },
         {
             "name": "rockettheme/toolbox",
-            "version": "dev-develop",
+            "version": "1.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/rockettheme/toolbox.git",
-                "reference": "125d72f87f772806aeafc3ddc136fc42662857a0"
+                "reference": "f8d877b29856a42c8b21b2e12c8bec0012987314"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rockettheme/toolbox/zipball/125d72f87f772806aeafc3ddc136fc42662857a0",
-                "reference": "125d72f87f772806aeafc3ddc136fc42662857a0",
+                "url": "https://api.github.com/repos/rockettheme/toolbox/zipball/f8d877b29856a42c8b21b2e12c8bec0012987314",
+                "reference": "f8d877b29856a42c8b21b2e12c8bec0012987314",
                 "shasum": ""
             },
             "archive": {
@@ -1904,10 +1904,10 @@
                 "rockettheme"
             ],
             "support": {
-                "source": "https://github.com/rockettheme/toolbox/tree/develop",
+                "source": "https://github.com/rockettheme/toolbox/tree/1.5.0",
                 "issues": "https://github.com/rockettheme/toolbox/issues"
             },
-            "time": "2020-02-03T08:53:52+00:00"
+            "time": "2020-02-03T16:49:48+00:00"
         },
         {
             "name": "seld/cli-prompt",
@@ -5807,7 +5807,6 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "rockettheme/toolbox": 20,
         "itsgoingd/clockwork": 10,
         "victorjonsson/markdowndocs": 20
     },
