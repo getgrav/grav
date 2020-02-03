@@ -21,6 +21,7 @@ use Grav\Common\Page\Medium\MediumFactory;
 use Grav\Common\User\Authentication;
 use Grav\Common\User\Interfaces\UserInterface;
 use Grav\Common\User\Traits\UserTrait;
+use Grav\Framework\Flex\Flex;
 
 class User extends Data implements UserInterface
 {
@@ -133,6 +134,13 @@ class User extends Data implements UserInterface
             unset($data['username'], $data['authenticated'], $data['authorized']);
 
             $file->save($data);
+
+            /** @var Flex|null $flex */
+            $flex = Grav::instance()['flex'] ?? null;
+            $users = $flex ? $flex->getDirectory('user-accounts') : null;
+            if ($users) {
+                $users->clearCache();
+            }
         }
     }
 
