@@ -102,7 +102,7 @@ class PermissionsReader
             }
             unset($val);
         }
-        $dependencies = json_decode(json_encode($dependencies, JSON_THROW_ON_ERROR), true);
+        $dependencies = json_decode(json_encode($dependencies), true);
 
         foreach (static::getDependencies($dependencies) as $type) {
             $defaults = $types[$type] ?? null;
