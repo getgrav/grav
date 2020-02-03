@@ -1,5 +1,5 @@
 # v1.7.0-rc.5
-## mm/dd/2020
+## 02/03/2020
 
 1. [](#bugfix)
     * Regression: Flex not working in PHP 7.2 or older
