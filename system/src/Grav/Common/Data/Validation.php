@@ -166,9 +166,18 @@ class Validation
         return (string) $value;
     }
 
+    /**
+     * @param mixed $value
+     * @param array $params
+     * @param array $field
+     * @return string|null
+     */
     protected static function filterCheckbox($value, array $params, array $field)
     {
-        return (bool) $value;
+        $value = (string)$value;
+        $field_value = (string)($field['value'] ?? '1');
+
+        return $value === $field_value ? $value : null;
     }
 
     protected static function filterCommaList($value, array $params, array $field)

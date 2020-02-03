@@ -22,6 +22,10 @@ abstract class Folder
      */
     public static function lastModifiedFolder($path)
     {
+        if (!file_exists($path)) {
+            return 0;
+        }
+
         $last_modified = 0;
 
         /** @var UniformResourceLocator $locator */
@@ -56,6 +60,10 @@ abstract class Folder
      */
     public static function lastModifiedFile($path, $extensions = 'md|yaml')
     {
+        if (!file_exists($path)) {
+            return 0;
+        }
+
         $last_modified = 0;
 
         /** @var UniformResourceLocator $locator */
@@ -92,21 +100,24 @@ abstract class Folder
      */
     public static function hashAllFiles($path)
     {
-        $flags = \RecursiveDirectoryIterator::SKIP_DOTS;
         $files = [];
 
-        /** @var UniformResourceLocator $locator */
-        $locator = Grav::instance()['locator'];
-        if ($locator->isStream($path)) {
-            $directory = $locator->getRecursiveIterator($path, $flags);
-        } else {
-            $directory = new \RecursiveDirectoryIterator($path, $flags);
-        }
+        if (file_exists($path)) {
+            $flags = \RecursiveDirectoryIterator::SKIP_DOTS;
 
-        $iterator = new \RecursiveIteratorIterator($directory, \RecursiveIteratorIterator::SELF_FIRST);
+            /** @var UniformResourceLocator $locator */
+            $locator = Grav::instance()['locator'];
+            if ($locator->isStream($path)) {
+                $directory = $locator->getRecursiveIterator($path, $flags);
+            } else {
+                $directory = new \RecursiveDirectoryIterator($path, $flags);
+            }
 
-        foreach ($iterator as $file) {
-            $files[] = $file->getPathname() . '?'. $file->getMTime();
+            $iterator = new \RecursiveIteratorIterator($directory, \RecursiveIteratorIterator::SELF_FIRST);
+
+            foreach ($iterator as $file) {
+                $files[] = $file->getPathname() . '?'. $file->getMTime();
+            }
         }
 
         return md5(serialize($files));
@@ -198,6 +209,9 @@ abstract class Folder
     {
         if ($path === false) {
             throw new \RuntimeException("Path doesn't exist.");
+        }
+        if (!file_exists($path)) {
+            return [];
         }
 
         $compare = isset($params['compare']) ? 'get' . $params['compare'] : null;

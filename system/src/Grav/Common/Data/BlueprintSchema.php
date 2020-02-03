@@ -53,7 +53,7 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
     public function validate(array $data)
     {
         try {
-            $messages = $this->validateArray($data, $this->nested);
+            $messages = $this->validateArray($data, $this->nested, $this->items['']['form'] ?? []);
 
         } catch (\RuntimeException $e) {
             throw (new ValidationException($e->getMessage(), $e->getCode(), $e))->setMessages();
@@ -129,14 +129,15 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
     /**
      * @param array $data
      * @param array $rules
+     * @param array $parent
      * @return array
      * @throws \RuntimeException
      */
-    protected function validateArray(array $data, array $rules)
+    protected function validateArray(array $data, array $rules, array $parent)
     {
         $messages = $this->checkRequired($data, $rules);
 
-        foreach ($data as $key => $field) {
+        foreach ($data as $key => $child) {
             $val = $rules[$key] ?? $rules['*'] ?? null;
             $rule = \is_string($val) ? $this->items[$val] : null;
 
@@ -147,11 +148,11 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
                     continue;
                 }
 
-                $messages += Validation::validate($field, $rule);
-            } elseif (\is_array($field) && \is_array($val)) {
+                $messages += Validation::validate($child, $rule);
+            } elseif (\is_array($child) && \is_array($val)) {
                 // Array has been defined in blueprints.
-                $messages += $this->validateArray($field, $val);
-            } elseif (isset($rules['validation']) && $rules['validation'] === 'strict') {
+                $messages += $this->validateArray($child, $val, $rule ?? []);
+            } elseif (isset($parent['validation']) && $parent['validation'] === 'strict') {
                 // Undefined/extra item.
                 throw new \RuntimeException(sprintf('%s is not defined in blueprints', $key));
             }
