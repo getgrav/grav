@@ -80,6 +80,9 @@ class User extends Data implements UserInterface
         return $value;
     }
 
+    /**
+     * @return bool
+     */
     public function isValid(): bool
     {
         return $this->items !== null;

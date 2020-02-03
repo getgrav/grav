@@ -206,7 +206,7 @@ class Session implements SessionInterface
         $this->onSessionStart();
 
         $user = $this->__get('user');
-        if ($user && (!$user instanceof UserInterface || !$user->isValid())) {
+        if ($user && (!$user instanceof UserInterface || (method_exists($user, 'isValid') && !$user->isValid()))) {
             $this->invalidate();
 
             throw new SessionException('Invalid User object, session destroyed.', 500);

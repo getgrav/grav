@@ -529,10 +529,15 @@ trait PageRoutableTrait
     /**
      * Returns whether or not this page is the root node of the pages tree.
      *
+     * @param bool|null $var
      * @return bool True if it is the root
      */
-    public function root(): bool
+    public function root($var = null): bool
     {
+        if (null !== $var) {
+            $this->root = (bool)$var;
+        }
+
         return $this->root === true || $this->getKey() === '/';
     }
 

@@ -202,6 +202,7 @@ class FlexDirectory implements FlexAuthorizeInterface
 
         /** @var UniformResourceLocator $locator */
         $locator = $grav['locator'];
+        /** @var string $filename Filename is always string */
         $filename = $locator->findResource($this->getDirectoryConfigUri($name), true, true);
 
         $file = YamlFile::instance($filename);
@@ -224,6 +225,9 @@ class FlexDirectory implements FlexAuthorizeInterface
         /** @var UniformResourceLocator $locator */
         $locator = $grav['locator'];
         $filename = $locator->findResource($this->getDirectoryConfigUri($name), true);
+        if ($filename === false) {
+            return [];
+        }
 
         $file = YamlFile::instance($filename);
 

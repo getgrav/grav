@@ -487,6 +487,9 @@ class UserObject extends FlexObject implements UserInterface, MediaManipulationI
         return $this->_storage;
     }
 
+    /**
+     * @return bool
+     */
     public function isValid(): bool
     {
         return $this->getProperty('state') !== null;

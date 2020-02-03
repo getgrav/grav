@@ -145,7 +145,7 @@ class PageIndex extends FlexPageIndex
             /** @var PageObject $root */
             $root = $this->getFlexDirectory()->createObject($row, '/', false);
             $root->name('root.md');
-            $root->root = true;
+            $root->root(true);
 
             $this->_root = $root;
         }

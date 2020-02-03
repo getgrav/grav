@@ -62,7 +62,12 @@ class Access implements \JsonSerializable, \IteratorAggregate, \Countable
         $inherited = array_diff_key($parent->getAllActions(), $acl);
 
         $this->inherited += $parent->inherited + array_fill_keys(array_keys($inherited), $name ?? $parent->getName());
-        $this->acl = array_replace($acl, $inherited);
+        $acl = array_replace($acl, $inherited);
+        if (null === $acl) {
+            throw new \RuntimeException('Internal error');
+        }
+
+        $this->acl = $acl;
     }
 
     /**

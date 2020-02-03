@@ -61,6 +61,9 @@ class Flex implements FlexInterface
     public function addDirectoryType(string $type, string $blueprint, array $config = [])
     {
         $config = array_replace_recursive(['enabled' => true], $this->config ?? [], $config);
+        if ($config === null) {
+            throw new \RuntimeException('Internal error');
+        }
 
         $this->types[$type] = new FlexDirectory($type, $blueprint, $config);
 

@@ -43,7 +43,7 @@ class FlexDirectoryForm implements FlexDirectoryFormInterface, \JsonSerializable
     /** @var array|null */
     private $form;
 
-    /** @var FlexDirectory|null */
+    /** @var FlexDirectory */
     private $directory;
 
     /** @var string */
@@ -116,7 +116,11 @@ class FlexDirectoryForm implements FlexDirectoryFormInterface, \JsonSerializable
             $data = $flash->getData();
             $includeOriginal = (bool)($this->getBlueprint()->form()['images']['original'] ?? null);
 
-            $this->directory = $flash->getDirectory();
+            $directory = $flash->getDirectory();
+            if (null === $directory) {
+                throw new \RuntimeException('Flash has no directory');
+            }
+            $this->directory = $directory;
             $this->data = $data ? new Data($data, $this->getBlueprint()) : null;
             $this->files = $flash->getFilesByFields($includeOriginal);
         }
@@ -191,6 +195,10 @@ class FlexDirectoryForm implements FlexDirectoryFormInterface, \JsonSerializable
      */
     public function getData()
     {
+        if (null === $this->data) {
+            $this->data = new Data([], $this->getBlueprint());
+        }
+
         return $this->data;
     }
 
@@ -262,7 +270,7 @@ class FlexDirectoryForm implements FlexDirectoryFormInterface, \JsonSerializable
     }
 
     /**
-     * @return FlexObjectInterface
+     * @return FlexDirectory
      */
     public function getDirectory(): FlexDirectory
     {
@@ -277,9 +285,6 @@ class FlexDirectoryForm implements FlexDirectoryFormInterface, \JsonSerializable
         if (null === $this->blueprint) {
             try {
                 $blueprint = $this->getDirectory()->getDirectoryBlueprint();
-                if (!$blueprint) {
-                    throw new \RuntimeException('Blueprint not found');
-                }
                 if ($this->form) {
                     // We have field overrides available.
                     $blueprint->extend(['form' => $this->form], true);

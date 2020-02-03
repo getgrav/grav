@@ -863,7 +863,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
             $grav = Grav::instance();
             /** @var Flex|null $flex */
             $flex = $grav['flex'];
-            $directory = $flex->getDirectory($type);
+            $directory = $flex ? $flex->getDirectory($type) : null;
             if (!$directory) {
                 throw new \InvalidArgumentException("Cannot unserialize Flex type '{$type}': Directory not found");
             }

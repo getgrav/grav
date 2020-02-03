@@ -218,26 +218,41 @@ trait FormTrait
         return $this;
     }
 
+    /**
+     * @return bool
+     */
     public function isValid(): bool
     {
         return $this->status === 'success';
     }
 
+    /**
+     * @return string|null
+     */
     public function getError(): ?string
     {
         return !$this->isValid() ? $this->message : null;
     }
 
+    /**
+     * @return array
+     */
     public function getErrors(): array
     {
         return !$this->isValid() ? $this->messages : [];
     }
 
+    /**
+     * @return bool
+     */
     public function isSubmitted(): bool
     {
         return $this->submitted;
     }
 
+    /**
+     * @return bool
+     */
     public function validate(): bool
     {
         if (!$this->isValid()) {
@@ -309,16 +324,25 @@ trait FormTrait
         $this->flash = null;
     }
 
+    /**
+     * @return array
+     */
     public function getFields(): array
     {
         return $this->getBlueprint()->fields();
     }
 
+    /**
+     * @return array
+     */
     public function getButtons(): array
     {
         return $this->getBlueprint()->get('form/buttons') ?? [];
     }
 
+    /**
+     * @return array
+     */
     public function getTasks(): array
     {
         return $this->getBlueprint()->get('form/tasks') ?? [];

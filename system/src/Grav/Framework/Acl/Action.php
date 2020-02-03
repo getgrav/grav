@@ -91,7 +91,8 @@ class Action implements \IteratorAggregate, \Countable
 
     public function getScope(): string
     {
-        if (($pos = strpos($this->name, '.')) > 0) {
+        $pos = strpos($this->name, '.');
+        if ($pos > 0) {
             return substr($this->name, 0, $pos);
         }
 

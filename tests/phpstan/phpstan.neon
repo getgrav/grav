@@ -28,11 +28,15 @@ parameters:
 
         # TODO: Errors that needs some more thinking (bad design?)
         - '#Access to an undefined property RocketTheme\\Toolbox\\Event\\Event::#'
+        - '#Instantiation of deprecated class RocketTheme\\Toolbox\\Event\\Event#'
+        - '#extends deprecated class RocketTheme\\Toolbox\\Event\\Event#'
+        - '#implements deprecated interface RocketTheme\\Toolbox\\Event\\EventSubscriberInterface#'
         - '#Access to an undefined property Grav\\Common\\Data\\Blueprint::#'
         - '#Access to an undefined property Grav\\Common\\Media\\Interfaces\\MediaObjectInterface::#'
         -
             message: '#Cannot call method path\(\) on string#'
             path: 'system/src/Grav/Common/Page/Media.php'
+        - '"FlexCollectionInterface::filterBy\(\) invoked with 2 parameters"'
 
         # TODO: system.twig.umask_fix will not work with Twig 2 anymore
         -

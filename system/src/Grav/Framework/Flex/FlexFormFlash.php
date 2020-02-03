@@ -20,7 +20,7 @@ class FlexFormFlash extends FormFlash
     /** @var FlexObjectInterface|null */
     protected $object;
 
-    /** @var Flex */
+    /** @var FlexInterface */
     static protected $flex;
 
     public static function setFlex(FlexInterface $flex): void

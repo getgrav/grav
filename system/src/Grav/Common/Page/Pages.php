@@ -15,6 +15,8 @@ use Grav\Common\Data\Blueprint;
 use Grav\Common\Data\Blueprints;
 use Grav\Common\Debugger;
 use Grav\Common\Filesystem\Folder;
+use Grav\Common\Flex\Pages\PageCollection;
+use Grav\Common\Flex\Pages\PageIndex;
 use Grav\Common\Grav;
 use Grav\Common\Language\Language;
 use Grav\Common\Page\Interfaces\PageCollectionInterface;
@@ -1351,6 +1353,7 @@ class Pages
         $config = $this->grav['config'];
 
         // TODO: right now we are just emulating normal pages, it is inefficient and bad... but works!
+        /** @var PageCollection|PageIndex $collection */
         $collection = $directory->getIndex(null, 'storage_key');
         $cache = $directory->getCache('index');
 

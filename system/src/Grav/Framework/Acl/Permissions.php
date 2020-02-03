@@ -16,6 +16,8 @@ class Permissions implements \ArrayAccess, \Countable, \IteratorAggregate
     /** @var Action[] */
     protected $actions = [];
     /** @var array */
+    protected $nested = [];
+    /** @var array */
     protected $types = [];
 
     /**
@@ -125,7 +127,12 @@ class Permissions implements \ArrayAccess, \Countable, \IteratorAggregate
      */
     public function addTypes(array $types): void
     {
-        $this->types = array_replace($this->types, $types);
+        $types = array_replace($this->types, $types);
+        if (null === $types) {
+            throw new \RuntimeException('Internal error');
+        }
+
+        $this->types = $types;
     }
 
     /**

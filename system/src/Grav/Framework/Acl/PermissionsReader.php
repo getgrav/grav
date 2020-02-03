@@ -21,6 +21,7 @@ class PermissionsReader
      */
     public static function fromYaml(string $filename): array
     {
+        /** @var array $content */
         $content = CompiledYamlFile::instance($filename)->content();
         $actions = $content['actions'] ?? [];
         $types = $content['types'] ?? [];
@@ -101,7 +102,7 @@ class PermissionsReader
             }
             unset($val);
         }
-        $dependencies = json_decode(json_encode($dependencies), true);
+        $dependencies = json_decode(json_encode($dependencies, JSON_THROW_ON_ERROR), true);
 
         foreach (static::getDependencies($dependencies) as $type) {
             $defaults = $types[$type] ?? null;
@@ -158,6 +159,9 @@ class PermissionsReader
             $scopes[] = $action;
 
             $action = array_replace_recursive(...$scopes);
+            if (null === $action) {
+                throw new \RuntimeException('Internal error');
+            }
 
             $newType =  $defaults['type'] ?? null;
             if ($newType && $newType !== $type) {

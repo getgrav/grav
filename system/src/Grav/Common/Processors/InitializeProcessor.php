@@ -13,11 +13,11 @@ use Grav\Common\Config\Config;
 use Grav\Common\Debugger;
 use Grav\Common\Page\Pages;
 use Grav\Common\Plugins;
+use Grav\Common\Session;
 use Grav\Common\Uri;
 use Grav\Common\Utils;
 use Grav\Framework\Psr7\Response;
 use Grav\Framework\Session\Exceptions\SessionException;
-use Grav\Framework\Session\SessionInterface;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\SyslogHandler;
 use Psr\Http\Message\ResponseInterface;
@@ -211,7 +211,7 @@ class InitializeProcessor extends ProcessorBase
             // TODO: remove in 2.0.
             $this->container['accounts'];
 
-            /** @var SessionInterface $session */
+            /** @var Session $session */
             $session = $this->container['session'];
 
             try {

@@ -404,6 +404,7 @@ class FolderStorage extends AbstractFilesystemStorage
      */
     protected function deleteFile(File $file)
     {
+        $filename = $file->filename();
         try {
             $data = $file->content();
             if ($file->exists()) {
@@ -412,11 +413,11 @@ class FolderStorage extends AbstractFilesystemStorage
 
             /** @var UniformResourceLocator $locator */
             $locator = Grav::instance()['locator'];
-            if ($locator->isStream($file->filename())) {
-                $locator->clearCache($file->filename());
+            if ($locator->isStream($filename)) {
+                $locator->clearCache($filename);
             }
         } catch (\RuntimeException $e) {
-            throw new \RuntimeException(sprintf('Flex deleteFile(%s): %s', $file->filename(), $e->getMessage()));
+            throw new \RuntimeException(sprintf('Flex deleteFile(%s): %s', $filename, $e->getMessage()));
         }
 
         return $data;

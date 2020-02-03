@@ -90,7 +90,7 @@ class RouteFactory
     }
 
     /**
-     * @param $root
+     * @param string $root
      */
     public static function setRoot($root): void
     {
