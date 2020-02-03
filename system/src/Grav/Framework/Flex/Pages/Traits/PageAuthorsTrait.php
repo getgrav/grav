@@ -123,6 +123,11 @@ trait PageAuthorsTrait
      */
     protected function isAuthorizedOverride(UserInterface $user, string $action, string $scope, bool $isMe): ?bool
     {
+        if ($action === 'delete' && $this->root()) {
+            // Do not allow deleting root.
+            return false;
+        }
+
         $isAuthor = !$isMe || $user->authorized ? $this->hasAuthor($user->username) : false;
 
         return $this->isAuthorizedByGroup($user, $action, $scope, $isMe, $isAuthor) ?? parent::isAuthorizedOverride($user, $action, $scope, $isMe);

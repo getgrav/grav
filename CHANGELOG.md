@@ -4,6 +4,7 @@
 1. [](#bugfix)
     * Regression: Flex not working in PHP 7.2 or older
     * Fixed creating first user from admin not clearing Flex User directory cache
+    * Fixed Flex Pages allowing root page to be deleted
 
 # v1.7.0-rc.4
 ## 02/03/2020
