@@ -252,7 +252,7 @@
     * Optimization: Combine some early Grav processors into a single one
 
 # v1.6.20
-## mm/dd/2019
+## 03/02/2020
 
 1. [](#bugfix)
     * Fixed incorrect routing caused by `str_replace()` in `Uri::init()` [#2754](https://github.com/getgrav/grav/issues/2754)
