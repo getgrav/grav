@@ -11,8 +11,8 @@ declare(strict_types=1);
 
 namespace Grav\Common\Flex\UserGroups;
 
+use Grav\Common\User\Access;
 use Grav\Common\User\Interfaces\UserGroupInterface;
-use Grav\Framework\Acl\Access;
 use Grav\Framework\Flex\FlexObject;
 
 /**
