@@ -1028,8 +1028,14 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      */
     public function authorize($action)
     {
-        /** @var UserInterface|null $user */
-        $user = $this->grav['user'] ?? null;
+        // Admin can use Flex users even if the site does not; make sure we use the right version of the user.
+        $admin = $this->grav['admin'] ?? null;
+        if ($admin) {
+            $user = $admin->user;
+        } else {
+            /** @var UserInterface|null $user */
+            $user = $this->grav['user'] ?? null;
+        }
 
         if (!$user) {
             return false;

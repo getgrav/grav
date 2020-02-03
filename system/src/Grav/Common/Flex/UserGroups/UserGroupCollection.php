@@ -35,6 +35,7 @@ class UserGroupCollection extends FlexCollection
     public function authorize(string $action, string $scope = null): ?bool
     {
         $authorized = null;
+        /** @var UserGroupObject $object */
         foreach ($this as $object) {
             $auth = $object->authorize($action, $scope);
             if ($auth === true) {
