@@ -33,6 +33,11 @@ parameters:
         # PSR-16 Exception interfaces do not extend \Throwable
         - '#PHPDoc tag \@throws with type (.*|)?Psr\\SimpleCache\\(CacheException|InvalidArgumentException)(|.*)? is not subtype of Throwable#'
 
-        - '#Call to deprecated method stopPropagation\(\) of class Symfony\\Component\\EventDispatcher\\Event#'
+        - '#Access to an undefined property RocketTheme\\Toolbox\\Event\\Event::#'
+        - '#Instantiation of deprecated class RocketTheme\\Toolbox\\Event\\Event#'
+        - '#extends deprecated class RocketTheme\\Toolbox\\Event\\Event#'
+        - '#implements deprecated interface RocketTheme\\Toolbox\\Event\\EventSubscriberInterface#'
+        - '#Call to method __construct\(\) of deprecated class RocketTheme\\Toolbox\\Event\\Event#'
+        - '#Call to deprecated method (stopPropagation|isPropagationStopped)\(\) of class Symfony\\Component\\EventDispatcher\\Event#'
         - '#Call to an undefined method Grav\\Plugin\\ApartmentData\\Application\\Application::#'
         - '#Parameter \#1 \$lineNumberStyle of method ScssPhp\\ScssPhp\\Compiler::setLineNumberStyle\(\) expects string, int given#'
