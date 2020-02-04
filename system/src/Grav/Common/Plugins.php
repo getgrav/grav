@@ -108,7 +108,13 @@ class Plugins extends Iterator
         foreach ($this->items as $instance) {
             // Register only enabled plugins.
             if ($config["plugins.{$instance->name}.enabled"] && $instance instanceof Plugin) {
+                // Set plugin configuration.
                 $instance->setConfig($config);
+                // Register autoloader.
+                if (method_exists($instance, 'autoload')) {
+                    $instance->autoload();
+                }
+                // Register event listeners.
                 $events->addSubscriber($instance);
             }
         }
@@ -213,24 +219,28 @@ class Plugins extends Iterator
 
     protected function loadPlugin($name)
     {
+        // NOTE: ALL THE LOCAL VARIABLES ARE USED INSIDE INCLUDED FILE, DO NOT REMOVE THEM!
         $grav = Grav::instance();
         $locator = $grav['locator'];
-
         $file = $locator->findResource('plugins://' . $name . DS . $name . PLUGIN_EXT);
 
         if (is_file($file)) {
-            // Local variables available in the file: $grav, $config, $name, $file
+            // Local variables available in the file: $grav, $name, $file
             $class = include_once $file;
 
-            $pluginClassFormat = [
-                'Grav\\Plugin\\' . ucfirst($name). 'Plugin',
-                'Grav\\Plugin\\' . Inflector::camelize($name) . 'Plugin'
-            ];
+            if (!$class || !is_subclass_of($class, Plugin::class, true)) {
+                $className = Inflector::camelize($name);
+                $pluginClassFormat = [
+                    'Grav\\Plugin\\' . ucfirst($name). 'Plugin',
+                    'Grav\\Plugin\\' . $className . 'Plugin',
+                    'Grav\\Plugin\\' . $className
+                ];
 
-            foreach ($pluginClassFormat as $pluginClass) {
-                if (class_exists($pluginClass)) {
-                    $class = new $pluginClass($name, $grav);
-                    break;
+                foreach ($pluginClassFormat as $pluginClass) {
+                    if (is_subclass_of($pluginClass, Plugin::class, true)) {
+                        $class = new $pluginClass($name, $grav);
+                        break;
+                    }
                 }
             }
         } else {

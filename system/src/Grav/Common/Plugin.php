@@ -44,7 +44,7 @@ class Plugin implements EventSubscriberInterface, \ArrayAccess
      */
     public static function getSubscribedEvents()
     {
-        $methods = get_class_methods(get_called_class());
+        $methods = get_class_methods(static::class);
 
         $list = [];
         foreach ($methods as $method) {
@@ -67,6 +67,7 @@ class Plugin implements EventSubscriberInterface, \ArrayAccess
     {
         $this->name = $name;
         $this->grav = $grav;
+
         if ($config) {
             $this->setConfig($config);
         }
@@ -162,10 +163,11 @@ class Plugin implements EventSubscriberInterface, \ArrayAccess
     private function getPriority($params, $eventName)
     {
         $grav = Grav::instance();
-        $override = implode('.', ["priorities", $this->name, $eventName, $params[0]]);
+        $override = implode('.', ['priorities', $this->name, $eventName, $params[0]]);
         if ($grav['config']->get($override) !== null) {
             return $grav['config']->get($override);
-        } elseif (isset($params[1])) {
+        }
+        if (isset($params[1])) {
             return $params[1];
         }
         return 0;

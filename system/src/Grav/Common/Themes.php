@@ -66,10 +66,15 @@ class Themes extends Iterator
                 throw new \RuntimeException($this->current() . ' theme could not be found');
             }
 
+            // Register autoloader.
+            if (method_exists($instance, 'autoload')) {
+                $instance->autoload();
+            }
+
+            // Register event listeners.
             if ($instance instanceof EventSubscriberInterface) {
                 /** @var EventDispatcher $events */
                 $events = $this->grav['events'];
-
                 $events->addSubscriber($instance);
             }
 
@@ -196,20 +201,19 @@ class Themes extends Iterator
         $locator = $grav['locator'];
         $file = $locator('theme://theme.php') ?: $locator("theme://{$name}.php");
 
-        $inflector = $grav['inflector'];
-
         if ($file) {
             // Local variables available in the file: $grav, $config, $name, $file
             $class = include $file;
 
-            if (!is_object($class)) {
+            if (!$class || !is_subclass_of($class, Plugin::class, true)) {
+                $className = Inflector::camelize($name);
                 $themeClassFormat = [
-                    'Grav\\Theme\\' . ucfirst($name),
-                    'Grav\\Theme\\' . $inflector->camelize($name)
+                    'Grav\\Theme\\' . $className,
+                    'Grav\\Theme\\' . ucfirst($name)
                 ];
 
                 foreach ($themeClassFormat as $themeClass) {
-                    if (class_exists($themeClass)) {
+                    if (is_subclass_of($themeClass, Theme::class, true)) {
                         $class = new $themeClass($grav, $config, $name);
                         break;
                     }
