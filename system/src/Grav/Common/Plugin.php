@@ -13,9 +13,9 @@ use Grav\Common\Data\Blueprint;
 use Grav\Common\Data\Data;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Config\Config;
-use RocketTheme\Toolbox\Event\EventSubscriberInterface;
 use RocketTheme\Toolbox\File\YamlFile;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class Plugin implements EventSubscriberInterface, \ArrayAccess
 {
