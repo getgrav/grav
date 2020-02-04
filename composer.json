@@ -45,7 +45,7 @@
         "gregwar/image": "2.*",
         "donatj/phpuseragentparser": "~0.10",
         "pimple/pimple": "~3.2",
-        "rockettheme/toolbox": "~1.5",
+        "rockettheme/toolbox": "dev-develop",
         "maximebf/debugbar": "~1.0",
         "league/climate": "^3.4",
         "antoligy/dom-string-iterators": "^1.0",
