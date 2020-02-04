@@ -2,7 +2,8 @@
 ## mm/dd/2020
 
 1. [](#bugfix)
-    * Regression: fatal error in blueprints [#2811](https://github.com/getgrav/grav/issues/2811)
+    * Regression: Fixed fatal error in blueprints [#2811](https://github.com/getgrav/grav/issues/2811)
+    * Regression: Fixed bad method call in FlexDirectory::getAuthorizeRule()
 
 # v1.7.0-rc.5
 ## 02/03/2020

@@ -117,6 +117,10 @@ trait FlexAuthorizeTrait
      */
     protected function getAuthorizeRule(string $scope, string $action): string
     {
+        if ($this instanceof FlexDirectory) {
+            return $this->getAuthorizeRule($scope, $action);
+        }
+
         return $this->getFlexDirectory()->getAuthorizeRule($scope, $action);
     }
 }
