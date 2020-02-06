@@ -2,7 +2,7 @@ form:
   validation: loose
 
   fields:
-    plugin_tabs:
+    tabs:
       type: tabs
       fields:
         cache:

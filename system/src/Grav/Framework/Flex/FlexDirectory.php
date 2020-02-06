@@ -183,9 +183,17 @@ class FlexDirectory implements FlexAuthorizeInterface
     public function getDirectoryBlueprint()
     {
         $name = 'configure';
+
+        $type = $this->getBlueprint();
+        $overrides = $type->get("blueprints/{$name}");
+
         $path = "blueprints://flex/shared/{$name}.yaml";
         $blueprint = new Blueprint($path);
-        $blueprint->load()->init();
+        $blueprint->load();
+        if ($overrides) {
+            $blueprint->embed('form/fields/tabs/fields', $overrides['fields']);
+        }
+        $blueprint->init();
 
         return $blueprint;
     }
@@ -237,8 +245,9 @@ class FlexDirectory implements FlexAuthorizeInterface
     public function getDirectoryConfigUri(string $name = null): string
     {
         $name = $name ?: $this->getFlexType();
+        $blueprint = $this->getBlueprint();
 
-        return "config://flex/{$name}.yaml";
+        return $blueprint->get('blueprints/configure/file') ?? "config://flex/{$name}.yaml";
     }
 
     protected function getDirectoryConfig(string $name = null): array

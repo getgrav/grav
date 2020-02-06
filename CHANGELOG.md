@@ -3,6 +3,7 @@
 
 1. [](#new)
     * Plugins & Themes: Call `$plugin->autoload()` and `$theme->autoload()` automatically when object gets initialized
+    * Flex Directory: Implemented customizable configuration
     * Flex Storages: Added support for renaming directory entries
 1. [](#bugfix)
     * Regression: Fixed fatal error in blueprints [#2811](https://github.com/getgrav/grav/issues/2811)
