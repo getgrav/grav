@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Grav\Framework\Flex\Storage;
 
+use Grav\Common\Data\Data;
 use Grav\Common\Filesystem\Folder;
 use Grav\Framework\Filesystem\Filesystem;
 use InvalidArgumentException;
@@ -25,6 +26,8 @@ class SimpleStorage extends AbstractFilesystemStorage
     protected $dataFolder;
     /** @var string */
     protected $dataPattern;
+    /** @var string */
+    protected $prefix;
     /** @var array */
     protected $data;
     /** @var int */
@@ -51,6 +54,7 @@ class SimpleStorage extends AbstractFilesystemStorage
         $this->dataPattern = basename($pattern, $extension) . $extension;
         $this->dataFolder = $filesystem->dirname($options['folder']);
         $this->keyField = $options['key'] ?? 'storage_key';
+        $this->prefix = $options['prefix'] ?? null;
 
         // Make sure that the data folder exists.
         if (!file_exists($this->dataFolder)) {
@@ -376,7 +380,13 @@ class SimpleStorage extends AbstractFilesystemStorage
                 throw new \RuntimeException('Storage path is not defined');
             }
             $file = $this->getFile($path);
-            $file->save($this->data);
+            if ($this->prefix) {
+                $data = new Data($file->content());
+                $content = $data->set($this->prefix, $this->data)->toArray();
+            } else {
+                $content = $this->data;
+            }
+            $file->save($content);
             $this->modified = (int)$file->modified(); // cast false to 0
             $file->free();
         } catch (\RuntimeException $e) {
@@ -409,7 +419,13 @@ class SimpleStorage extends AbstractFilesystemStorage
 
         $file = $this->getFile($path);
         $this->modified = (int)$file->modified(); // cast false to 0
-        $this->data = (array) $file->content();
+
+        $content = (array) $file->content();
+        if ($this->prefix) {
+            $data = new Data($content);
+            $content = $data->get($this->prefix);
+        }
+        $this->data = $content;
 
         $list = [];
         foreach ($this->data as $key => $info) {
