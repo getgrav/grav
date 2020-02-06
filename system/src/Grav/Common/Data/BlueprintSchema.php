@@ -191,6 +191,10 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
         }
 
         foreach ($data as $key => $field) {
+            if (null === $field && !$missingValuesAsNull) {
+                continue;
+            }
+
             $val = $rules[$key] ?? $rules['*'] ?? null;
             $rule = \is_string($val) ? $this->items[$val] : $this->items[$parent . $key] ?? null;
 

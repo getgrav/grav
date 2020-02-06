@@ -8,6 +8,7 @@
     * Regression: Fixed fatal error in blueprints [#2811](https://github.com/getgrav/grav/issues/2811)
     * Regression: Fixed bad method call in FlexDirectory::getAuthorizeRule()
     * Regression: Fixed fatal error in admin if the site has custom permissions in `onAdminRegisterPermissions`
+    * Grav 1.7: Fixed saving Flex configuration with ignored values becoming null
 
 # v1.7.0-rc.5
 ## 02/03/2020

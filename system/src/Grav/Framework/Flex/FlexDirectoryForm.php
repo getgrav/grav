@@ -475,7 +475,7 @@ class FlexDirectoryForm implements FlexDirectoryFormInterface, \JsonSerializable
     protected function filterData($data = null): void
     {
         if ($data instanceof Data) {
-            $data->filter(true, false);
+            $data->filter(false, true);
         }
     }
 }
