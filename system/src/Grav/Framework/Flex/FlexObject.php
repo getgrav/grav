@@ -530,7 +530,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      */
     public function prepareStorage(): array
     {
-        return $this->getElements();
+        return ['__META' => $this->getMetaData()] + $this->getElements();
     }
 
     /**

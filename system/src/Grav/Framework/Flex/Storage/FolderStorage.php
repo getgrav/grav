@@ -376,6 +376,17 @@ class FolderStorage extends AbstractFilesystemStorage
                 $key = $this->getNewKey();
             }
 
+            // Check if the row already exists and if the key has been changed.
+            $oldKey = $row['__META']['storage_key'] ?? null;
+            if (is_string($oldKey) && $oldKey !== $key) {
+                $isCopy = $row['__META']['copy'] ?? false;
+                if ($isCopy) {
+                    $this->copyRow($oldKey, $key);
+                } else {
+                    $this->renameRow($oldKey, $key);
+                }
+            }
+
             $this->prepareRow($row);
             unset($row['__META'], $row['__ERROR']);
 
