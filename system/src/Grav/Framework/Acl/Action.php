@@ -9,6 +9,8 @@
 
 namespace Grav\Framework\Acl;
 
+use Grav\Common\Inflector;
+
 /**
  * Class Action
  * @package Grav\Framework\Acl
@@ -37,10 +39,20 @@ class Action implements \IteratorAggregate, \Countable
      */
     public function __construct(string $name, array $action = [])
     {
+        $label = $action['label'] ?? null;
+        if (!$label) {
+            if ($pos = strrpos($name, '.')) {
+                $label = substr($name, $pos + 1);
+            } else {
+                $label = $name;
+            }
+            $label = Inflector::humanize($label, 'all');
+        }
+
         $this->name = $name;
         $this->type = $action['type'] ?? 'action';
         $this->visible = (bool)($action['visible'] ?? true);
-        $this->label = $action['label'] ?? null;
+        $this->label = $label;
         unset($action['type'], $action['label']);
         $this->params = $action;
 

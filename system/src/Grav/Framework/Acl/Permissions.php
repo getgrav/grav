@@ -212,12 +212,12 @@ class Permissions implements \ArrayAccess, \Countable, \IteratorAggregate
     protected function getParent(string $name): ?Action
     {
         if ($pos = strrpos($name, '.')) {
-            $name = substr($name, 0, $pos);
+            $parentName = substr($name, 0, $pos);
 
-            $parent = $this->getAction($name);
+            $parent = $this->getAction($parentName);
             if (!$parent) {
-                // TODO: create parent action(s) on the fly
-                throw new \RuntimeException(__METHOD__ . '(): Adding child action before parent is not supported');
+                $parent = new Action($parentName);
+                $this->addAction($parent);
             }
 
             return $parent;
