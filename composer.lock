@@ -716,16 +716,16 @@
         },
         {
             "name": "itsgoingd/clockwork",
-            "version": "v4.1-beta3",
+            "version": "v4.1-beta6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/itsgoingd/clockwork.git",
-                "reference": "0d56e354c0b957863154ae2c9b0a52c7161c2b52"
+                "reference": "ab933b7debe3320f4b24f85d3f21bdd339b7439c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/itsgoingd/clockwork/zipball/0d56e354c0b957863154ae2c9b0a52c7161c2b52",
-                "reference": "0d56e354c0b957863154ae2c9b0a52c7161c2b52",
+                "url": "https://api.github.com/repos/itsgoingd/clockwork/zipball/ab933b7debe3320f4b24f85d3f21bdd339b7439c",
+                "reference": "ab933b7debe3320f4b24f85d3f21bdd339b7439c",
                 "shasum": ""
             },
             "require": {
@@ -770,10 +770,10 @@
                 "slim"
             ],
             "support": {
-                "source": "https://github.com/itsgoingd/clockwork/tree/v4.1-beta3",
+                "source": "https://github.com/itsgoingd/clockwork/tree/v4.1-beta6",
                 "issues": "https://github.com/itsgoingd/clockwork/issues"
             },
-            "time": "2020-01-29T20:41:24+00:00"
+            "time": "2020-02-06T22:39:56+00:00"
         },
         {
             "name": "kodus/psr7-server",
