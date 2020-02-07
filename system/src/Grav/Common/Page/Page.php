@@ -613,7 +613,7 @@ class Page implements PageInterface
 
         $summary = Utils::truncateHtml($content, $size);
 
-        return html_entity_decode($summary);
+        return html_entity_decode($summary,ENT_COMPAT | ENT_HTML401, 'utf-8');
     }
 
     /**
