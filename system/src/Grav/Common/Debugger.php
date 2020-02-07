@@ -765,7 +765,7 @@ class Debugger
     {
         if ($this->initialized && $this->enabled) {
             if ($this->debugbar) {
-                $this->debugbar['exceptions']->addException($e);
+                $this->debugbar['exceptions']->addThrowable($e);
             }
 
             if ($this->clockwork) {
