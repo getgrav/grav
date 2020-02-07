@@ -83,7 +83,7 @@ class FlexServiceProvider implements ServiceProviderInterface
                 'options' => [
                     'file' => 'user',
                     'pattern' => '{FOLDER}/{KEY:2}/{KEY}/{FILE}{EXT}',
-                    'key' => 'storage_key',
+                    'key' => 'username',
                 ],
             ];
         }
