@@ -13,5 +13,5 @@ indent_style = space
 indent_size = 4
 
 # 2 space indentation
-[*.{yaml,.yml}]
+[*.{yaml,yml}]
 indent_size = 2
