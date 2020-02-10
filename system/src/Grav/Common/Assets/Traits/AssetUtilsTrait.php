@@ -154,9 +154,9 @@ trait AssetUtilsTrait
             }
 
             if (\in_array($key, $no_key, true)) {
-                $element = htmlentities($value, ENT_QUOTES | ENT_HTML5, 'UTF-8', false);
+                $element = htmlentities($value, ENT_QUOTES, 'UTF-8', false);
             } else {
-                $element = $key . '="' . htmlentities($value, ENT_QUOTES | ENT_HTML5, 'UTF-8', false) . '"';
+                $element = $key . '="' . htmlentities($value, ENT_QUOTES, 'UTF-8', false) . '"';
             }
 
             $html .= ' ' . $element;

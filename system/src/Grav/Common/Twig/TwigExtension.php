@@ -1098,7 +1098,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      */
     public function jsonDecodeFilter($str, $assoc = false, $depth = 512, $options = 0)
     {
-        return json_decode(html_entity_decode($str, ENT_COMPAT | ENT_HTML5, 'UTF-8'), $assoc, $depth, $options);
+        return json_decode(html_entity_decode($str, ENT_COMPAT | ENT_HTML401, 'UTF-8'), $assoc, $depth, $options);
     }
 
     /**
