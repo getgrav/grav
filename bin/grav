@@ -25,6 +25,17 @@ if (version_compare($ver = PHP_VERSION, $req = GRAV_PHP_MIN, '<')) {
     exit(sprintf("You are running PHP %s, but Grav needs at least PHP %s to run.\n", $ver, $req));
 }
 
+if (!ini_get('date.timezone')) {
+    date_default_timezone_set('UTC');
+}
+
+// Set internal encoding.
+if (!\extension_loaded('mbstring')) {
+    die("'mbstring' extension is not loaded.  This is required for Grav to run correctly");
+}
+@ini_set('default_charset', 'UTF-8');
+mb_internal_encoding('UTF-8');
+
 $climate = new League\CLImate\CLImate;
 $climate->arguments->add([
     'environment' => [
@@ -41,10 +52,6 @@ $environment = $climate->arguments->get('environment');
 
 $grav = Grav::instance(array('loader' => $autoload));
 $grav->setup($environment);
-
-if (!ini_get('date.timezone')) {
-    date_default_timezone_set('UTC');
-}
 
 if (!file_exists(GRAV_ROOT . '/index.php')) {
     exit('FATAL: Must be run from ROOT directory of Grav!');

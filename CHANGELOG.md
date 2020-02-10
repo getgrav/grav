@@ -273,8 +273,14 @@
     * Optimization: Initialize debugbar only after the configuration has been loaded
     * Optimization: Combine some early Grav processors into a single one
 
+# v1.6.21
+## mm/dd/2020
+
+1. [](#bugfix)
+    * Fixed encoding problems when PHP INI setting `default_charset` is not `utf-8` [#2154](https://github.com/getgrav/grav/issues/2154)
+
 # v1.6.20
-## 03/02/2020
+## 02/03/2020
 
 1. [](#bugfix)
     * Fixed incorrect routing caused by `str_replace()` in `Uri::init()` [#2754](https://github.com/getgrav/grav/issues/2754)

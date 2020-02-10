@@ -83,7 +83,7 @@ class Excerpts
      */
     public function processLinkExcerpt(array $excerpt, string $type = 'link'): array
     {
-        $url = htmlspecialchars_decode(rawurldecode($excerpt['element']['attributes']['href']));
+        $url = htmlspecialchars_decode(rawurldecode($excerpt['element']['attributes']['href']), ENT_QUOTES | ENT_HTML5);
 
         $url_parts = $this->parseUrl($url);
 
@@ -167,7 +167,7 @@ class Excerpts
      */
     public function processImageExcerpt(array $excerpt): array
     {
-        $url = htmlspecialchars_decode(urldecode($excerpt['element']['attributes']['src']));
+        $url = htmlspecialchars_decode(urldecode($excerpt['element']['attributes']['src']), ENT_QUOTES | ENT_HTML5);
         $url_parts = $this->parseUrl($url);
 
         $media = null;

@@ -334,7 +334,7 @@ class Uri
     public function param($id, $default = false)
     {
         if (isset($this->params[$id])) {
-            return html_entity_decode(rawurldecode($this->params[$id]));
+            return html_entity_decode(rawurldecode($this->params[$id]), ENT_COMPAT | ENT_HTML5, 'UTF-8');
         }
 
         return $default;
