@@ -627,7 +627,7 @@ trait PageLegacyTrait
                         $this->_metadata[$prop_key] = [
                             'name' => $prop_key,
                             'property' => $prop_key,
-                            'content' => htmlspecialchars($prop_value, ENT_QUOTES, 'UTF-8')
+                            'content' => htmlspecialchars($prop_value, ENT_QUOTES | ENT_HTML5, 'UTF-8')
                         ];
                     }
                 } elseif ($value) {
@@ -635,16 +635,16 @@ trait PageLegacyTrait
                     if (\in_array($key, $header_tag_http_equivs, true)) {
                         $this->_metadata[$key] = [
                             'http_equiv' => $key,
-                            'content' => htmlspecialchars($value, ENT_QUOTES, 'UTF-8')
+                            'content' => htmlspecialchars($value, ENT_QUOTES | ENT_HTML5, 'UTF-8')
                         ];
                     } elseif ($key === 'charset') {
-                        $this->_metadata[$key] = ['charset' => htmlspecialchars($value, ENT_QUOTES, 'UTF-8')];
+                        $this->_metadata[$key] = ['charset' => htmlspecialchars($value, ENT_QUOTES | ENT_HTML5, 'UTF-8')];
                     } else {
                         // if it's a social metadata with separator, render as property
                         $separator = strpos($key, ':');
                         $hasSeparator = $separator && $separator < strlen($key) - 1;
                         $entry = [
-                            'content' => htmlspecialchars($value, ENT_QUOTES, 'UTF-8')
+                            'content' => htmlspecialchars($value, ENT_QUOTES | ENT_HTML5, 'UTF-8')
                         ];
 
                         if ($hasSeparator && !Utils::startsWith($key, 'twitter')) {

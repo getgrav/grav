@@ -635,12 +635,12 @@ trait PageContentTrait
 
         // Only return string but not html, wrap whatever html tag you want when using.
         if ($textOnly) {
-            return mb_strimwidth($content, 0, $size, '...', 'utf-8');
+            return mb_strimwidth($content, 0, $size, '...', 'UTF-8');
         }
 
         $summary = Utils::truncateHTML($content, $size);
 
-        return html_entity_decode($summary);
+        return html_entity_decode($summary, ENT_COMPAT | ENT_HTML5, 'UTF-8');
     }
 
     /**
