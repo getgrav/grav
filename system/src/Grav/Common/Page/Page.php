@@ -608,12 +608,12 @@ class Page implements PageInterface
                 return $content;
             }
 
-            return mb_strimwidth($content, 0, $size, '...', 'utf-8');
+            return mb_strimwidth($content, 0, $size, '...', 'UTF-8');
         }
 
         $summary = Utils::truncateHtml($content, $size);
 
-        return html_entity_decode($summary,ENT_COMPAT | ENT_HTML401, 'utf-8');
+        return html_entity_decode($summary, ENT_COMPAT | ENT_HTML5, 'UTF-8');
     }
 
     /**
@@ -1713,7 +1713,7 @@ class Page implements PageInterface
                         $this->metadata[$prop_key] = [
                             'name' => $prop_key,
                             'property' => $prop_key,
-                            'content' => htmlspecialchars($prop_value, ENT_QUOTES, 'UTF-8')
+                            'content' => htmlspecialchars($prop_value, ENT_QUOTES | ENT_HTML5, 'UTF-8')
                         ];
                     }
                 } else {
@@ -1722,16 +1722,16 @@ class Page implements PageInterface
                         if (\in_array($key, $header_tag_http_equivs, true)) {
                             $this->metadata[$key] = [
                                 'http_equiv' => $key,
-                                'content' => htmlspecialchars($value, ENT_QUOTES, 'UTF-8')
+                                'content' => htmlspecialchars($value, ENT_QUOTES | ENT_HTML5, 'UTF-8')
                             ];
                         } elseif ($key === 'charset') {
-                            $this->metadata[$key] = ['charset' => htmlspecialchars($value, ENT_QUOTES, 'UTF-8')];
+                            $this->metadata[$key] = ['charset' => htmlspecialchars($value, ENT_QUOTES | ENT_HTML5, 'UTF-8')];
                         } else {
                             // if it's a social metadata with separator, render as property
                             $separator = strpos($key, ':');
                             $hasSeparator = $separator && $separator < strlen($key) - 1;
                             $entry = [
-                                'content' => htmlspecialchars($value, ENT_QUOTES, 'UTF-8')
+                                'content' => htmlspecialchars($value, ENT_QUOTES | ENT_HTML5, 'UTF-8')
                             ];
 
                             if ($hasSeparator && !Utils::startsWith($key, 'twitter')) {
@@ -2718,7 +2718,7 @@ class Page implements PageInterface
                         }
                         foreach ($items as $item) {
                             $item = rawurldecode($item);
-                            if (empty($page->taxonomy[$taxonomy]) || !\in_array(htmlspecialchars_decode($item, ENT_QUOTES), $page->taxonomy[$taxonomy], true)
+                            if (empty($page->taxonomy[$taxonomy]) || !\in_array(htmlspecialchars_decode($item, ENT_QUOTES | ENT_HTML5), $page->taxonomy[$taxonomy], true)
                             ) {
                                 $collection->remove($page->path());
                             }
