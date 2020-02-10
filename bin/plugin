@@ -61,12 +61,12 @@ $grav->setup($environment);
 
 $grav['config']->init();
 $grav['uri']->init();
-$grav['users'];
 
 /** @var \Grav\Common\Plugins $plugins */
 $plugins = $grav['plugins'];
 $plugins->init();
 
+$grav['users'];
 $grav['themes']->init();
 
 $app     = new Application('Grav Plugins Commands', GRAV_VERSION);
