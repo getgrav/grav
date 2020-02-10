@@ -9,9 +9,10 @@ declare(strict_types=1);
  * @license    MIT License; see LICENSE file for details.
  */
 
-namespace Grav\Common\Flex\Pages;
+namespace Grav\Common\Flex\Types\Pages\Storage;
 
 use Grav\Common\Debugger;
+use Grav\Common\Flex\Types\Pages\PageIndex;
 use Grav\Common\Grav;
 use Grav\Common\Language\Language;
 use Grav\Framework\Filesystem\Filesystem;

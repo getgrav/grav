@@ -97,11 +97,11 @@ config:
 
   # Data Configuration
   data:
-    object: 'Grav\Common\Flex\Users\UserObject'
-    collection: 'Grav\Common\Flex\Users\UserCollection'
-    index: 'Grav\Common\Flex\Users\UserIndex'
+    object: 'Grav\Common\Flex\Types\Users\UserObject'
+    collection: 'Grav\Common\Flex\Types\Users\UserCollection'
+    index: 'Grav\Common\Flex\Types\Users\UserIndex'
     storage:
-      class: 'Grav\Common\Flex\Users\Storage\UserFileStorage'
+      class: 'Grav\Common\Flex\Types\Users\Storage\UserFileStorage'
       options:
         formatter:
           class: 'Grav\Framework\File\Formatter\YamlFormatter'

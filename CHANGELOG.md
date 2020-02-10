@@ -10,6 +10,7 @@
     * Regression: Fixed bad method call in FlexDirectory::getAuthorizeRule()
     * Regression: Fixed fatal error in admin if the site has custom permissions in `onAdminRegisterPermissions`
     * Regression: Fixed flex user index with folder storage
+    * Fixed `FlexObject::triggerEvent()` does not emit events [#2816](https://github.com/getgrav/grav/issues/2816)
     * Grav 1.7: Fixed saving Flex configuration with ignored values becoming null
 
 # v1.7.0-rc.5

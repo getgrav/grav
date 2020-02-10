@@ -9,8 +9,10 @@ declare(strict_types=1);
  * @license    MIT License; see LICENSE file for details.
  */
 
-namespace Grav\Common\Flex\UserGroups;
+namespace Grav\Common\Flex\Types\UserGroups;
 
+use Grav\Common\Flex\Traits\FlexGravTrait;
+use Grav\Common\Flex\Traits\FlexIndexTrait;
 use Grav\Framework\Flex\FlexIndex;
 
 /**
@@ -21,4 +23,6 @@ use Grav\Framework\Flex\FlexIndex;
  */
 class UserGroupIndex extends FlexIndex
 {
+    use FlexGravTrait;
+    use FlexIndexTrait;
 }

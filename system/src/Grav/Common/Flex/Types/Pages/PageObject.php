@@ -9,14 +9,16 @@ declare(strict_types=1);
  * @license    MIT License; see LICENSE file for details.
  */
 
-namespace Grav\Common\Flex\Pages;
+namespace Grav\Common\Flex\Types\Pages;
 
 use Grav\Common\Data\Blueprint;
+use Grav\Common\Flex\Traits\FlexGravTrait;
+use Grav\Common\Flex\Traits\FlexObjectTrait;
 use Grav\Common\Grav;
-use Grav\Common\Flex\Pages\Traits\PageContentTrait;
-use Grav\Common\Flex\Pages\Traits\PageLegacyTrait;
-use Grav\Common\Flex\Pages\Traits\PageRoutableTrait;
-use Grav\Common\Flex\Pages\Traits\PageTranslateTrait;
+use Grav\Common\Flex\Types\Pages\Traits\PageContentTrait;
+use Grav\Common\Flex\Types\Pages\Traits\PageLegacyTrait;
+use Grav\Common\Flex\Types\Pages\Traits\PageRoutableTrait;
+use Grav\Common\Flex\Types\Pages\Traits\PageTranslateTrait;
 use Grav\Common\Page\Pages;
 use Grav\Common\Utils;
 use Grav\Framework\Filesystem\Filesystem;
@@ -40,6 +42,8 @@ use RocketTheme\Toolbox\Event\Event;
  */
 class PageObject extends FlexPageObject
 {
+    use FlexGravTrait;
+    use FlexObjectTrait;
     use PageContentTrait;
     use PageLegacyTrait;
     use PageRoutableTrait;
@@ -225,10 +229,11 @@ class PageObject extends FlexPageObject
             // TODO: We need to move raw blueprint logic to Grav itself to remove admin dependency here.
             if ($name === 'raw') {
                 // Admin RAW mode.
-                /** @var Admin|null $admin */
-                $admin = Grav::instance()['admin'] ?? null;
-                if ($admin) {
-                    $template = $this->isModule() ? 'modular_raw' : (!$this->root() ? 'raw' : 'root_raw');
+                if ($this->isAdminSite()) {
+                    /** @var Admin $admin */
+                    $admin = Grav::instance()['admin'];
+
+                    $template = $this->isModule() ? 'modular_raw' : ($this->root() ? 'root_raw' : 'raw');
 
                     return $admin->blueprints("admin/pages/{$template}");
                 }

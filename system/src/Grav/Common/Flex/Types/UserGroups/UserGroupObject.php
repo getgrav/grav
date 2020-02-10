@@ -9,8 +9,10 @@ declare(strict_types=1);
  * @license    MIT License; see LICENSE file for details.
  */
 
-namespace Grav\Common\Flex\UserGroups;
+namespace Grav\Common\Flex\Types\UserGroups;
 
+use Grav\Common\Flex\Traits\FlexGravTrait;
+use Grav\Common\Flex\Traits\FlexObjectTrait;
 use Grav\Common\User\Access;
 use Grav\Common\User\Interfaces\UserGroupInterface;
 use Grav\Framework\Flex\FlexObject;
@@ -25,6 +27,9 @@ use Grav\Framework\Flex\FlexObject;
  */
 class UserGroupObject extends FlexObject implements UserGroupInterface
 {
+    use FlexGravTrait;
+    use FlexObjectTrait;
+
     /** @var Access|null */
     protected $_access;
 

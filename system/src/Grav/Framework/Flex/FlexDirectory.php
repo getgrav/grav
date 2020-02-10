@@ -110,17 +110,6 @@ class FlexDirectory implements FlexAuthorizeInterface
 
     /**
      * @return string
-     * @deprecated 1.6 Use ->getFlexType() method instead.
-     */
-    public function getType(): string
-    {
-        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6, use ->getFlexType() method instead', E_USER_DEPRECATED);
-
-        return $this->type;
-    }
-
-    /**
-     * @return string
      */
     public function getFlexType(): string
     {
@@ -360,75 +349,6 @@ class FlexDirectory implements FlexAuthorizeInterface
     }
 
     /**
-     * @param array $data
-     * @param string|null $key
-     * @return FlexObjectInterface
-     * @deprecated 1.7 Use $object->update()->save() instead.
-     */
-    public function update(array $data, string $key = null): FlexObjectInterface
-    {
-        user_error(__CLASS__ . '::' . __FUNCTION__ . '() should not be used anymore: use $object->update()->save() instead.', E_USER_DEPRECATED);
-
-        $object = null !== $key ? $this->getIndex()->get($key): null;
-
-        $storage = $this->getStorage();
-
-        if (null === $object) {
-            $object = $this->createObject($data, $key ?? '', true);
-            $key = $object->getStorageKey();
-
-            if ($key) {
-                $rows = $storage->replaceRows([$key => $object->prepareStorage()]);
-            } else {
-                $rows = $storage->createRows([$object->prepareStorage()]);
-            }
-        } else {
-            $oldKey = $object->getStorageKey();
-            $object->update($data);
-            $newKey = $object->getStorageKey();
-
-            if ($oldKey !== $newKey) {
-                $object->triggerEvent('move');
-                $storage->renameRow($oldKey, $newKey);
-                // TODO: media support.
-            }
-
-            $object->save();
-        }
-
-        try {
-            $this->clearCache();
-        } catch (InvalidArgumentException $e) {
-            /** @var Debugger $debugger */
-            $debugger = Grav::instance()['debugger'];
-            $debugger->addException($e);
-
-            // Caching failed, but we can ignore that for now.
-        }
-
-        return $object;
-    }
-
-    /**
-     * @param string $key
-     * @return FlexObjectInterface|null
-     * @deprecated 1.7 Use $object->delete() instead.
-     */
-    public function remove(string $key): ?FlexObjectInterface
-    {
-        user_error(__CLASS__ . '::' . __FUNCTION__ . '() should not be used anymore: use $object->delete() instead.', E_USER_DEPRECATED);
-
-        $object = $this->getIndex()->get($key);
-        if (!$object) {
-            return null;
-        }
-
-        $object->delete();
-
-        return $object;
-    }
-
-    /**
      * @param string|null $namespace
      * @return CacheInterface
      */
@@ -571,7 +491,7 @@ class FlexDirectory implements FlexAuthorizeInterface
     public function getObjectClass(): string
     {
         if (!$this->objectClassName) {
-            $this->objectClassName = $this->getConfig('data.object', 'Grav\\Framework\\Flex\\FlexObject');
+            $this->objectClassName = $this->getConfig('data.object', 'Grav\\Common\\Flex\\Types\\Generic\\GenericObject');
         }
 
         return $this->objectClassName;
@@ -583,7 +503,7 @@ class FlexDirectory implements FlexAuthorizeInterface
     public function getCollectionClass(): string
     {
         if (!$this->collectionClassName) {
-            $this->collectionClassName = $this->getConfig('data.collection', 'Grav\\Framework\\Flex\\FlexCollection');
+            $this->collectionClassName = $this->getConfig('data.collection', 'Grav\\Common\\Flex\\Types\\Generic\\GenericCollection');
         }
 
         return $this->collectionClassName;
@@ -596,7 +516,7 @@ class FlexDirectory implements FlexAuthorizeInterface
     public function getIndexClass(): string
     {
         if (!$this->indexClassName) {
-            $this->indexClassName = $this->getConfig('data.index', 'Grav\\Framework\\Flex\\FlexIndex');
+            $this->indexClassName = $this->getConfig('data.index', 'Grav\\Common\\Flex\\Types\\Generic\\GenericIndex');
         }
 
         return $this->indexClassName;
@@ -752,6 +672,25 @@ class FlexDirectory implements FlexAuthorizeInterface
     {
         $cache = $this->getCache('index');
         $cache->delete('__keys');
+    }
+
+    /**
+     * @param string $scope
+     * @param string $action
+     * @return string
+     */
+    public function getAuthorizeRule(string $scope, string $action): string
+    {
+        if (!$this->_authorize) {
+            $config = $this->getConfig('admin.permissions');
+            if ($config) {
+                $this->_authorize = array_key_first($config) . '.%2$s';
+            } else {
+                $this->_authorize = '%1$s.flex-object.%2$s';
+            }
+        }
+
+        return sprintf($this->_authorize, $scope, $action);
     }
 
     /**
@@ -972,22 +911,85 @@ class FlexDirectory implements FlexAuthorizeInterface
         return isset(Grav::instance()['admin']) ? 'admin' : 'site';
     }
 
+    // DEPRECATED METHODS
+
     /**
-     * @param string $scope
-     * @param string $action
      * @return string
+     * @deprecated 1.6 Use ->getFlexType() method instead.
      */
-    public function getAuthorizeRule(string $scope, string $action): string
+    public function getType(): string
     {
-        if (!$this->_authorize) {
-            $config = $this->getConfig('admin.permissions');
-            if ($config) {
-                $this->_authorize = array_key_first($config) . '.%2$s';
+        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6, use ->getFlexType() method instead', E_USER_DEPRECATED);
+
+        return $this->type;
+    }
+
+    /**
+     * @param array $data
+     * @param string|null $key
+     * @return FlexObjectInterface
+     * @deprecated 1.7 Use $object->update()->save() instead.
+     */
+    public function update(array $data, string $key = null): FlexObjectInterface
+    {
+        user_error(__CLASS__ . '::' . __FUNCTION__ . '() should not be used anymore: use $object->update()->save() instead.', E_USER_DEPRECATED);
+
+        $object = null !== $key ? $this->getIndex()->get($key): null;
+
+        $storage = $this->getStorage();
+
+        if (null === $object) {
+            $object = $this->createObject($data, $key ?? '', true);
+            $key = $object->getStorageKey();
+
+            if ($key) {
+                $rows = $storage->replaceRows([$key => $object->prepareStorage()]);
             } else {
-                $this->_authorize = '%1$s.flex-object.%2$s';
+                $rows = $storage->createRows([$object->prepareStorage()]);
             }
+        } else {
+            $oldKey = $object->getStorageKey();
+            $object->update($data);
+            $newKey = $object->getStorageKey();
+
+            if ($oldKey !== $newKey) {
+                $object->triggerEvent('move');
+                $storage->renameRow($oldKey, $newKey);
+                // TODO: media support.
+            }
+
+            $object->save();
         }
 
-        return sprintf($this->_authorize, $scope, $action);
+        try {
+            $this->clearCache();
+        } catch (InvalidArgumentException $e) {
+            /** @var Debugger $debugger */
+            $debugger = Grav::instance()['debugger'];
+            $debugger->addException($e);
+
+            // Caching failed, but we can ignore that for now.
+        }
+
+        return $object;
+    }
+
+    /**
+     * @param string $key
+     * @return FlexObjectInterface|null
+     * @deprecated 1.7 Use $object->delete() instead.
+     */
+    public function remove(string $key): ?FlexObjectInterface
+    {
+        user_error(__CLASS__ . '::' . __FUNCTION__ . '() should not be used anymore: use $object->delete() instead.', E_USER_DEPRECATED);
+
+        $object = $this->getIndex()->get($key);
+        if (!$object) {
+            return null;
+        }
+
+        $object->delete();
+
+        return $object;
     }
 }

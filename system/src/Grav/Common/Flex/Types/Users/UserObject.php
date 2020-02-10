@@ -9,8 +9,10 @@ declare(strict_types=1);
  * @license    MIT License; see LICENSE file for details.
  */
 
-namespace Grav\Common\Flex\Users;
+namespace Grav\Common\Flex\Types\Users;
 
+use Grav\Common\Flex\Traits\FlexGravTrait;
+use Grav\Common\Flex\Traits\FlexObjectTrait;
 use Grav\Common\Grav;
 use Grav\Common\Media\Interfaces\MediaCollectionInterface;
 use Grav\Common\Page\Media;
@@ -20,8 +22,8 @@ use Grav\Common\Page\Medium\MediumFactory;
 use Grav\Common\Page\Medium\StaticImageMedium;
 use Grav\Common\User\Access;
 use Grav\Common\User\Authentication;
-use Grav\Common\Flex\UserGroups\UserGroupCollection;
-use Grav\Common\Flex\UserGroups\UserGroupIndex;
+use Grav\Common\Flex\Types\UserGroups\UserGroupCollection;
+use Grav\Common\Flex\Types\UserGroups\UserGroupIndex;
 use Grav\Common\User\Interfaces\UserInterface;
 use Grav\Common\User\Traits\UserTrait;
 use Grav\Common\Utils;
@@ -59,6 +61,8 @@ use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
  */
 class UserObject extends FlexObject implements UserInterface, MediaManipulationInterface, \Countable
 {
+    use FlexGravTrait;
+    use FlexObjectTrait;
     use FlexMediaTrait {
         getMedia as private getFlexMedia;
         getMediaFolder as private getFlexMediaFolder;

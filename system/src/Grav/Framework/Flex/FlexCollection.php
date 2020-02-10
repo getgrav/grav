@@ -88,6 +88,10 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
      */
     public function __construct(array $entries = [], FlexDirectory $directory = null)
     {
+        if (get_class($this) === __CLASS__) {
+            user_error('Using ' . __CLASS__ . ' directly is deprecated since Grav 1.7, use \Grav\Common\Flex\Types\Generic\GenericCollection or your own class instead', E_USER_DEPRECATED);
+        }
+
         parent::__construct($entries);
 
         if ($directory) {
@@ -367,12 +371,12 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
                 $block->disableCache();
             }
 
-            $grav->fireEvent('onFlexCollectionRender', new Event([
+            $event = new Event([
                 'collection' => $this,
                 'layout' => &$layout,
                 'context' => &$context
-            ]));
-
+            ]);
+            $grav->fireEvent('onRender', $event);
 
             $output = $this->getTemplate($layout)->render(
                 [
@@ -401,20 +405,6 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
         $debugger->stopTimer('flex-collection-' . $debugKey);
 
         return $block;
-    }
-
-    /**
-     * @param bool $prefix
-     * @return string
-     * @deprecated 1.6 Use `->getFlexType()` instead.
-     */
-    public function getType($prefix = false)
-    {
-        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6, use ->getFlexType() method instead', E_USER_DEPRECATED);
-
-        $type = $prefix ? $this->getTypePrefix() : '';
-
-        return $type . $this->getFlexType();
     }
 
     /**
@@ -623,5 +613,44 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
     protected function setKeyField($keyField = null): void
     {
         $this->_keyField = $keyField ?? 'storage_key';
+    }
+
+    // DEPRECATED METHODS
+
+    /**
+     * @param bool $prefix
+     * @return string
+     * @deprecated 1.6 Use `->getFlexType()` instead.
+     */
+    public function getType($prefix = false)
+    {
+        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6, use ->getFlexType() method instead', E_USER_DEPRECATED);
+
+        $type = $prefix ? $this->getTypePrefix() : '';
+
+        return $type . $this->getFlexType();
+    }
+
+    /**
+     * @param string $name
+     * @param object|null $event
+     * @return $this
+     * @deprecated 1.7, moved to \Grav\Common\Flex\Traits\FlexObjectTrait
+     */
+    public function triggerEvent(string $name, $event = null)
+    {
+        user_error(__METHOD__ . '() is deprecated since Grav 1.7, moved to \Grav\Common\Flex\Traits\FlexObjectTrait', E_USER_DEPRECATED);
+
+        if (null === $event) {
+            $event = new Event(['collection' => $this]);
+        }
+        if (strpos($name, 'onFlexCollection') !== 0 && strpos($name, 'on') === 0) {
+            $name = 'onFlexCollection' . substr($name, 2);
+        }
+
+        $grav = Grav::instance();
+        $grav->fireEvent($name, $event);
+
+        return $this;
     }
 }

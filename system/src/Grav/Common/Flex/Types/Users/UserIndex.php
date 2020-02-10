@@ -9,10 +9,12 @@ declare(strict_types=1);
  * @license    MIT License; see LICENSE file for details.
  */
 
-namespace Grav\Common\Flex\Users;
+namespace Grav\Common\Flex\Types\Users;
 
 use Grav\Common\Debugger;
 use Grav\Common\File\CompiledYamlFile;
+use Grav\Common\Flex\Traits\FlexGravTrait;
+use Grav\Common\Flex\Traits\FlexIndexTrait;
 use Grav\Common\Grav;
 use Grav\Common\User\Interfaces\UserInterface;
 use Grav\Framework\Flex\FlexIndex;
@@ -21,6 +23,9 @@ use Monolog\Logger;
 
 class UserIndex extends FlexIndex
 {
+    use FlexGravTrait;
+    use FlexIndexTrait;
+
     /**
      * @param FlexStorageInterface $storage
      * @return array

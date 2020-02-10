@@ -9,7 +9,7 @@ declare(strict_types=1);
  * @license    MIT License; see LICENSE file for details.
  */
 
-namespace Grav\Common\Flex\Users\Storage;
+namespace Grav\Common\Flex\Types\Users\Storage;
 
 use Grav\Framework\Flex\Storage\FileStorage;
 

@@ -19,9 +19,9 @@ use Grav\Common\Utils;
 use Grav\Framework\Cache\CacheInterface;
 use Grav\Framework\ContentBlock\HtmlBlock;
 use Grav\Framework\Flex\Interfaces\FlexAuthorizeInterface;
-use Grav\Framework\Flex\Interfaces\FlexCollectionInterface;
 use Grav\Framework\Flex\Interfaces\FlexFormInterface;
 use Grav\Framework\Flex\Traits\FlexAuthorizeTrait;
+use Grav\Framework\Flex\Traits\FlexRelatedDirectoryTrait;
 use Grav\Framework\Object\Access\NestedArrayAccessTrait;
 use Grav\Framework\Object\Access\NestedPropertyTrait;
 use Grav\Framework\Object\Access\OverloadedPropertyTrait;
@@ -50,6 +50,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     use OverloadedPropertyTrait;
     use NestedArrayAccessTrait;
     use FlexAuthorizeTrait;
+    use FlexRelatedDirectoryTrait;
 
     /** @var FlexDirectory */
     private $_flexDirectory;
@@ -92,7 +93,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     public static function createFromStorage(array $elements, array $storage, FlexDirectory $directory, bool $validate = false)
     {
         $instance = new static($elements, $storage['key'], $directory, $validate);
-        $instance->setStorage($storage);
+        $instance->setMetaData($storage);
 
         return $instance;
     }
@@ -103,10 +104,14 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      */
     public function __construct(array $elements, $key, FlexDirectory $directory, bool $validate = false)
     {
+        if (get_class($this) === __CLASS__) {
+            user_error('Using ' . __CLASS__ . ' directly is deprecated since Grav 1.7, use \Grav\Common\Flex\Types\Generic\GenericObject or your own class instead', E_USER_DEPRECATED);
+        }
+
         $this->_flexDirectory = $directory;
 
         if (isset($elements['__META'])) {
-            $this->setStorage($elements['__META']);
+            $this->setMetaData($elements['__META']);
             unset($elements['__META']);
         }
 
@@ -360,20 +365,6 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     }
 
     /**
-     * @param bool $prefix
-     * @return string
-     * @deprecated 1.6 Use `->getFlexType()` instead.
-     */
-    public function getType($prefix = false)
-    {
-        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6, use ->getFlexType() method instead', E_USER_DEPRECATED);
-
-        $type = $prefix ? $this->getTypePrefix() : '';
-
-        return $type . $this->getFlexType();
-    }
-
-    /**
      * Alias of getBlueprint()
      *
      * @return Blueprint
@@ -480,11 +471,12 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
                 $block->disableCache();
             }
 
-            $grav->fireEvent('onFlexObjectRender', new Event([
+            $event = new Event([
                 'object' => $this,
                 'layout' => &$layout,
                 'context' => &$context
-            ]));
+            ]);
+            $this->triggerEvent('onRender', $event);
 
             $output = $this->getTemplate($layout)->render(
                 [
@@ -531,15 +523,6 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     public function prepareStorage(): array
     {
         return ['__META' => $this->getMetaData()] + $this->getElements();
-    }
-
-    /**
-     * @param string $name
-     * @return $this
-     */
-    public function triggerEvent($name)
-    {
-        return $this;
     }
 
     /**
@@ -610,13 +593,6 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
         $this->markAsCopy();
 
         return $this->create($key);
-    }
-
-    protected function markAsCopy()
-    {
-        $meta = $this->getMetaData();
-        $meta['copy'] = true;
-        $this->_meta = $meta;
     }
 
     /**
@@ -721,15 +697,6 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     }
 
     /**
-     * @param string $name
-     * @return Blueprint
-     */
-    protected function doGetBlueprint(string $name = ''): Blueprint
-    {
-        return $this->_flexDirectory->getBlueprint($name ? '.' . $name : $name);
-    }
-
-    /**
      * {@inheritdoc}
      * @see FlexObjectInterface::getForm()
      */
@@ -800,16 +767,11 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     }
 
     /**
-     * @param string $name
-     * @param mixed|null $default
-     * @param string|null $separator
-     * @return mixed
-     *
-     * @deprecated 1.6 Use ->getFormValue() method instead.
+     * @param FlexDirectory $directory
      */
-    public function value($name, $default = null, $separator = null)
+    public function setFlexDirectory(FlexDirectory $directory): void
     {
-        return $this->getFormValue($name, $default, $separator);
+        $this->_flexDirectory = $directory;
     }
 
     /**
@@ -822,6 +784,9 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
         return $this->getFlexKey();
     }
 
+    /**
+     * @return array
+     */
     public function __debugInfo()
     {
         return [
@@ -832,6 +797,30 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
             'elements:private' => $this->getElements(),
             'storage:private' => $this->getMetaData()
         ];
+    }
+
+    protected function markAsCopy(): void
+    {
+        $meta = $this->getMetaData();
+        $meta['copy'] = true;
+        $this->_meta = $meta;
+    }
+
+    /**
+     * @param string $name
+     * @return Blueprint
+     */
+    protected function doGetBlueprint(string $name = ''): Blueprint
+    {
+        return $this->_flexDirectory->getBlueprint($name ? '.' . $name : $name);
+    }
+
+    /**
+     * @param array $meta
+     */
+    protected function setMetaData(array $meta): void
+    {
+        $this->_meta = $meta;
     }
 
     /**
@@ -860,80 +849,16 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
         }
 
         if (null === $directory) {
-            $grav = Grav::instance();
-            /** @var Flex|null $flex */
-            $flex = $grav['flex'];
-            $directory = $flex ? $flex->getDirectory($type) : null;
+            $directory = $this->getFlexContainer()->getDirectory($type);
             if (!$directory) {
                 throw new \InvalidArgumentException("Cannot unserialize Flex type '{$type}': Directory not found");
             }
         }
 
         $this->setFlexDirectory($directory);
-        $this->setStorage($serialized['storage']);
+        $this->setMetaData($serialized['storage']);
         $this->setKey($serialized['key']);
         $this->setElements($serialized['elements']);
-    }
-
-    /**
-     * @param FlexDirectory $directory
-     */
-    public function setFlexDirectory(FlexDirectory $directory): void
-    {
-        $this->_flexDirectory = $directory;
-    }
-
-    /**
-     * @param array $storage
-     */
-    protected function setStorage(array $storage): void
-    {
-        $this->_meta = $storage;
-    }
-
-    /**
-     * @return array
-     * @deprecated 1.7 Use `->getMetaData()` instead.
-     */
-    protected function getStorage(): array
-    {
-        return $this->getMetaData();
-    }
-
-    /**
-     * @param string $type
-     * @param string $property
-     * @return FlexCollectionInterface
-     */
-    protected function getCollectionByProperty($type, $property)
-    {
-        $directory = $this->getRelatedDirectory($type);
-        $collection = $directory->getCollection();
-        $list = $this->getNestedProperty($property) ?: [];
-
-        /** @var FlexCollection $collection */
-        $collection = $collection->filter(function ($object) use ($list) {
-            return \in_array($object->id, $list, true);
-        });
-
-        return $collection;
-    }
-
-    /**
-     * @param string $type
-     * @return FlexDirectory
-     * @throws \RuntimeException
-     */
-    protected function getRelatedDirectory($type): FlexDirectory
-    {
-        /** @var Flex $flex */
-        $flex = Grav::instance()['flex'];
-        $directory = $flex->getDirectory($type);
-        if (!$directory) {
-            throw new \RuntimeException(ucfirst($type). ' directory does not exist!');
-        }
-
-        return $directory;
     }
 
     /**
@@ -975,30 +900,6 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
         }
 
         return array_unique($lookups);
-    }
-
-    /**
-     * @param string $layout
-     * @return Template|TemplateWrapper
-     * @throws LoaderError
-     * @throws SyntaxError
-     */
-    protected function getTemplate($layout)
-    {
-        $grav = Grav::instance();
-
-        /** @var Twig $twig */
-        $twig = $grav['twig'];
-
-        try {
-            return $twig->twig()->resolveTemplate($this->getTemplatePaths($layout));
-        } catch (LoaderError $e) {
-            /** @var Debugger $debugger */
-            $debugger = Grav::instance()['debugger'];
-            $debugger->addException($e);
-
-            return $twig->twig()->resolveTemplate(['flex/404.html.twig']);
-        }
     }
 
     /**
@@ -1046,11 +947,131 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
         return $action;
     }
 
+    // DEPRECATED METHODS
+
+    /**
+     * @param bool $prefix
+     * @return string
+     * @deprecated 1.6 Use `->getFlexType()` instead.
+     */
+    public function getType($prefix = false)
+    {
+        user_error(__METHOD__ . '() is deprecated since Grav 1.6, use ->getFlexType() method instead', E_USER_DEPRECATED);
+
+        $type = $prefix ? $this->getTypePrefix() : '';
+
+        return $type . $this->getFlexType();
+    }
+
+    /**
+     * @param string $name
+     * @param mixed|null $default
+     * @param string|null $separator
+     * @return mixed
+     *
+     * @deprecated 1.6 Use ->getFormValue() method instead.
+     */
+    public function value($name, $default = null, $separator = null)
+    {
+        user_error(__METHOD__ . '() is deprecated since Grav 1.6, use ->getFormValue() method instead', E_USER_DEPRECATED);
+
+        return $this->getFormValue($name, $default, $separator);
+    }
+
+    /**
+     * @param string $name
+     * @param object|null $event
+     * @return $this
+     * @deprecated 1.7 Moved to \Grav\Common\Flex\Traits\GravTrait
+     */
+    public function triggerEvent(string $name, $event = null)
+    {
+        user_error(__METHOD__ . '() is deprecated since Grav 1.7, moved to \Grav\Common\Flex\Traits\FlexObjectTrait', E_USER_DEPRECATED);
+
+        if (null === $event) {
+            $event = new Event(['object' => $this]);
+        }
+        if (strpos($name, 'onFlexObject') !== 0 && strpos($name, 'on') === 0) {
+            $name = 'onFlexObject' . substr($name, 2);
+        }
+
+        $grav = Grav::instance();
+        $grav->fireEvent($name, $event);
+
+        return $this;
+    }
+
+    /**
+     * @param array $storage
+     * @deprecated 1.7 Use `->setMetaData()` instead.
+     */
+    protected function setStorage(array $storage): void
+    {
+        user_error(__METHOD__ . '() is deprecated since Grav 1.7, use ->setMetaData() method instead', E_USER_DEPRECATED);
+
+        $this->setMetaData($storage);
+    }
+
+    /**
+     * @return array
+     * @deprecated 1.7 Use `->getMetaData()` instead.
+     */
+    protected function getStorage(): array
+    {
+        user_error(__METHOD__ . '() is deprecated since Grav 1.7, use ->getMetaData() method instead', E_USER_DEPRECATED);
+
+        return $this->getMetaData();
+    }
+
+    /**
+     * @param string $layout
+     * @return Template|TemplateWrapper
+     * @throws LoaderError
+     * @throws SyntaxError
+     * @deprecated 1.7 Moved to \Grav\Common\Flex\Traits\GravTrait
+     */
+    protected function getTemplate($layout)
+    {
+        user_error(__METHOD__ . '() is deprecated since Grav 1.7, moved to \Grav\Common\Flex\Traits\GravTrait', E_USER_DEPRECATED);
+
+        $grav = Grav::instance();
+
+        /** @var Twig $twig */
+        $twig = $grav['twig'];
+
+        try {
+            return $twig->twig()->resolveTemplate($this->getTemplatePaths($layout));
+        } catch (LoaderError $e) {
+            /** @var Debugger $debugger */
+            $debugger = Grav::instance()['debugger'];
+            $debugger->addException($e);
+
+            return $twig->twig()->resolveTemplate(['flex/404.html.twig']);
+        }
+    }
+
+    /**
+     * @return Flex
+     * @deprecated 1.7 Moved to \Grav\Common\Flex\Traits\GravTrait
+     */
+    protected function getFlexContainer(): Flex
+    {
+        user_error(__METHOD__ . '() is deprecated since Grav 1.7, moved to \Grav\Common\Flex\Traits\GravTrait', E_USER_DEPRECATED);
+
+        /** @var Flex $flex */
+        $flex = Grav::instance()['flex'];
+
+        return $flex;
+    }
+
     /**
      * @return UserInterface|null
+     * @deprecated 1.7 Moved to \Grav\Common\Flex\Traits\GravTrait
      */
     protected function getActiveUser(): ?UserInterface
     {
+        user_error(__METHOD__ . '() is deprecated since Grav 1.7, moved to \Grav\Common\Flex\Traits\GravTrait', E_USER_DEPRECATED);
+
         /** @var UserInterface|null $user */
         $user = Grav::instance()['user'] ?? null;
 
@@ -1059,9 +1080,12 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
 
     /**
      * @return string
+     * @deprecated 1.7 Moved to \Grav\Common\Flex\Traits\GravTrait
      */
     protected function getAuthorizeScope(): string
     {
+        user_error(__METHOD__ . '() is deprecated since Grav 1.7, moved to \Grav\Common\Flex\Traits\GravTrait', E_USER_DEPRECATED);
+
         return isset(Grav::instance()['admin']) ? 'admin' : 'site';
     }
 }

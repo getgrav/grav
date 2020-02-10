@@ -9,7 +9,7 @@ declare(strict_types=1);
  * @license    MIT License; see LICENSE file for details.
  */
 
-namespace Grav\Common\Flex\Pages\Traits;
+namespace Grav\Common\Flex\Types\Pages\Traits;
 
 use Grav\Common\Utils;
 

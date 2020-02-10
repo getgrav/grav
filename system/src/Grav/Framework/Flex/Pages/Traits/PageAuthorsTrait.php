@@ -15,8 +15,8 @@ use Grav\Common\User\Interfaces\UserInterface;
 use Grav\Framework\Acl\Access;
 
 /**
- * Implements PageAuthorsTrait
- * @package Grav\Common\Flex\Page\Traits
+ * Trait PageAuthorsTrait
+ * @package Grav\Framework\Flex\Pages\Traits
  */
 trait PageAuthorsTrait
 {

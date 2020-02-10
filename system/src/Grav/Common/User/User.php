@@ -23,7 +23,7 @@ if (defined('GRAV_USER_INSTANCE') && GRAV_USER_INSTANCE === 'FLEX') {
     /**
      * @deprecated 1.6 Use $grav['accounts'] instead of static calls. In type hints, please use UserInterface.
      */
-    class User extends Flex\Users\UserObject
+    class User extends Flex\Types\Users\UserObject
     {
         /**
          * Load user account.

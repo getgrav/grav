@@ -9,14 +9,19 @@ declare(strict_types=1);
  * @license    MIT License; see LICENSE file for details.
  */
 
-namespace Grav\Common\Flex\Users;
+namespace Grav\Common\Flex\Types\Users;
 
+use Grav\Common\Flex\Traits\FlexCollectionTrait;
+use Grav\Common\Flex\Traits\FlexGravTrait;
 use Grav\Common\User\Interfaces\UserCollectionInterface;
 use Grav\Common\User\Interfaces\UserInterface;
 use Grav\Framework\Flex\FlexCollection;
 
 class UserCollection extends FlexCollection implements UserCollectionInterface
 {
+    use FlexGravTrait;
+    use FlexCollectionTrait;
+
     /**
      * @return array
      */

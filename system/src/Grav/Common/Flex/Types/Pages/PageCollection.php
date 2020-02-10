@@ -9,8 +9,10 @@ declare(strict_types=1);
  * @license    MIT License; see LICENSE file for details.
  */
 
-namespace Grav\Common\Flex\Pages;
+namespace Grav\Common\Flex\Types\Pages;
 
+use Grav\Common\Flex\Traits\FlexCollectionTrait;
+use Grav\Common\Flex\Traits\FlexGravTrait;
 use Grav\Common\Page\Interfaces\PageCollectionInterface;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Utils;
@@ -34,6 +36,9 @@ use Grav\Framework\Flex\Pages\FlexPageCollection;
  */
 class PageCollection extends FlexPageCollection implements PageCollectionInterface
 {
+    use FlexGravTrait;
+    use FlexCollectionTrait;
+
     /** @var array|null */
     protected $_params;
 

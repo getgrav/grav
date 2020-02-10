@@ -77,6 +77,10 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
      */
     public function __construct(array $entries = [], FlexDirectory $directory = null)
     {
+        if (get_class($this) === __CLASS__) {
+            user_error('Using ' . __CLASS__ . ' directly is deprecated since Grav 1.7, use \Grav\Common\Flex\Types\Generic\GenericIndex or your own class instead', E_USER_DEPRECATED);
+        }
+
         parent::__construct($entries);
 
         $this->_flexDirectory = $directory;
@@ -283,20 +287,6 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
     }
 
     /**
-     * @param bool $prefix
-     * @return string
-     * @deprecated 1.6 Use `->getFlexType()` instead.
-     */
-    public function getType($prefix = false)
-    {
-        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6, use ->getFlexType() method instead', E_USER_DEPRECATED);
-
-        $type = $prefix ? $this->getTypePrefix() : '';
-
-        return $type . $this->getFlexType();
-    }
-
-    /**
      * {@inheritdoc}
      * @see FlexIndexInterface::getFlexKeys()
      */
@@ -483,6 +473,19 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
 
         $this->_flexDirectory = Grav::instance()['flex']->getDirectory($data['type']);
         $this->setEntries($data['entries']);
+    }
+
+    /**
+     * @return array
+     */
+    public function __debugInfo()
+    {
+        return [
+            'type:private' => $this->getFlexType(),
+            'key:private' => $this->getKey(),
+            'entries_key:private' => $this->getKeyField(),
+            'entries:private' => $this->getEntries()
+        ];
     }
 
     /**
@@ -795,13 +798,19 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
         }
     }
 
-    public function __debugInfo()
+    // DEPRECATED METHODS
+
+    /**
+     * @param bool $prefix
+     * @return string
+     * @deprecated 1.6 Use `->getFlexType()` instead.
+     */
+    public function getType($prefix = false)
     {
-        return [
-            'type:private' => $this->getFlexType(),
-            'key:private' => $this->getKey(),
-            'entries_key:private' => $this->getKeyField(),
-            'entries:private' => $this->getEntries()
-        ];
+        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6, use ->getFlexType() method instead', E_USER_DEPRECATED);
+
+        $type = $prefix ? $this->getTypePrefix() : '';
+
+        return $type . $this->getFlexType();
     }
 }

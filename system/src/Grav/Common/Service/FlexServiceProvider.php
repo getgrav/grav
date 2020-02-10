@@ -10,7 +10,7 @@
 namespace Grav\Common\Service;
 
 use Grav\Common\Config\Config;
-use Grav\Common\Flex\Users\Storage\UserFolderStorage;
+use Grav\Common\Flex\Types\Users\Storage\UserFolderStorage;
 use Grav\Common\Grav;
 use Grav\Events\FlexRegisterEvent;
 use Grav\Framework\Flex\Flex;
