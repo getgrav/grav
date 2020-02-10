@@ -400,7 +400,7 @@ class Pages
                 $param = $uri->param(rawurlencode($taxonomy));
                 $items = is_string($param) ? explode(',', $param) : [];
                 foreach ($items as $item) {
-                    $params['taxonomies'][$taxonomy][] = htmlspecialchars_decode(rawurldecode($item), ENT_QUOTES | ENT_HTML5);
+                    $params['taxonomies'][$taxonomy][] = htmlspecialchars_decode(rawurldecode($item), ENT_QUOTES);
                 }
             }
         }
