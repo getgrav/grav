@@ -9,17 +9,11 @@
 
 namespace Grav\Console\Cli;
 
-use Grav\Common\Grav;
-use Grav\Common\Helpers\LogViewer;
-use Grav\Common\Helpers\YamlLinter;
 use Grav\Common\Utils;
 use Grav\Console\ConsoleCommand;
 use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Output\StreamOutput;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\PhpExecutableFinder;
-use Symfony\Component\Process\PhpProcess;
 use Symfony\Component\Process\Process;
 
 class ServerCommand extends ConsoleCommand
@@ -109,11 +103,16 @@ class ServerCommand extends ConsoleCommand
         $process->setTimeout(0);
         $process->start();
 
+        if ($name == self::SYMFONY_SERVER && Utils::contains($process->getErrorOutput(), 'symfony: not found')) {
+            $this->io->error('The symfony binary could not be found, please install the CLI tools: https://symfony.com/download');
+            $this->io->warning('Falling back to PHP web server...');
+        }
+
         if ($name === self::PHP_SERVER) {
             $this->io->success('Built-in PHP web server listening on http://' . $this->ip . ':' . $this->port . ' (PHP v' . PHP_VERSION . ')');
         }
 
-        $process->wait(function ($type, $buffer) {
+        $process->wait(function ($type, $buffer) use ($name) {
             $this->output->write($buffer);
         });
 
