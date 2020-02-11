@@ -11,7 +11,7 @@
     * Regression: Fixed fatal error in admin if the site has custom permissions in `onAdminRegisterPermissions`
     * Regression: Fixed flex user index with folder storage
     * Regression: Fixed fatal error in `bin/plugin` command
-    * Fixed `FlexObject::triggerEvent()` does not emit events [#2816](https://github.com/getgrav/grav/issues/2816)
+    * Fixed `FlexObject::triggerEvent()` not emitting events [#2816](https://github.com/getgrav/grav/issues/2816)
     * Grav 1.7: Fixed saving Flex configuration with ignored values becoming null
     * Grav 1.7: Fixed `bin/plugin` initialization
 
