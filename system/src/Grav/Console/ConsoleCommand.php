@@ -51,10 +51,11 @@ class ConsoleCommand extends Command
      * Initialize Grav.
      *
      * - Load configuration
+     * - Initialize logger
      * - Disable debugger
      * - Set timezone, locale
-     * - Load plugins
-     * - Set Users type to be used in the site
+     * - Load plugins (call PluginsLoadedEvent)
+     * - Set Pages and Users type to be used in the site
      *
      * Safe to be called multiple times.
      *
