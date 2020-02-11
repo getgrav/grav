@@ -172,12 +172,6 @@ class ConsoleCommand extends Command
             $pages = $grav['pages'];
             $pages->init();
             $grav->fireEvent('onPagesInitialized', new Event(['pages' => $pages]));
-            if (!isset($grav['page'])) {
-                $page = new Page();
-                $page->routable(false);
-                $page->title('404 Not Found');
-                $grav['page'] = $page;
-            }
         }
 
         return $this;
