@@ -47,7 +47,9 @@ class InitializeProcessor extends ProcessorBase
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        // Initialize configuration.
+        $this->startTimer('_init', 'Initialize');
+
+        // Load configuration.
         $config = $this->initializeConfig();
 
         // Initialize logger.
@@ -62,23 +64,38 @@ class InitializeProcessor extends ProcessorBase
         // Debugger can return response right away.
         $response = $this->handleDebuggerRequest($debugger, $request);
         if ($response) {
+            $this->stopTimer('_init');
+
             return $response;
         }
 
         // Initialize output buffering.
         $this->initializeOutputBuffering($config);
 
-        // Initialize timezone, locale.
+        // Set timezone, locale.
         $this->initializeLocale($config);
 
-        // Initialize plugins.
+        // Load plugins.
         $this->initializePlugins();
 
-        // Initialize pages.
+        // Load pages.
         $this->initializePages($config);
+
+        // Initialize URI.
+        $uri = $this->initializeUri($config);
+
+        // Grav may return redirect response right away.
+        $response = $this->handleRedirectRequest($config, $uri);
+        if ($response) {
+            $this->stopTimer('_init');
+
+            return $response;
+        }
 
         // Initialize session.
         $this->initializeSession($config);
+
+        $this->stopTimer('_init');
 
         // Wrap call to next handler so that debugger can profile it.
         /** @var Response $response */
@@ -110,7 +127,11 @@ class InitializeProcessor extends ProcessorBase
         // Load pages.
         $this->initializePages($config);
 
+        // Initialize URI.
+        $this->initializeUri($config);
+
         // Load accounts.
+        // TODO: remove in 2.0.
         $this->container['accounts'];
 
         // Initialize theme.
@@ -122,7 +143,7 @@ class InitializeProcessor extends ProcessorBase
      */
     protected function initializeConfig(): Config
     {
-        $this->startTimer('_config', 'Configuration');
+        $this->startTimer('_init_config', 'Configuration');
 
         // Initialize Configuration
         $grav = $this->container;
@@ -132,7 +153,7 @@ class InitializeProcessor extends ProcessorBase
         $config->init();
         $grav['plugins']->setup();
 
-        $this->stopTimer('_config');
+        $this->stopTimer('_init_config');
 
         return $config;
     }
@@ -143,7 +164,7 @@ class InitializeProcessor extends ProcessorBase
      */
     protected function initializeLogger(Config $config): Logger
     {
-        $this->startTimer('_logger', 'Logger');
+        $this->startTimer('_init_logger', 'Logger');
 
         $grav = $this->container;
 
@@ -162,7 +183,7 @@ class InitializeProcessor extends ProcessorBase
             $log->pushHandler($logHandler);
         }
 
-        $this->stopTimer('_logger');
+        $this->stopTimer('_init_logger');
 
         return $log;
     }
@@ -172,7 +193,7 @@ class InitializeProcessor extends ProcessorBase
      */
     protected function initializeErrors(): Errors
     {
-        $this->startTimer('_errors', 'Error Handlers Reset');
+        $this->startTimer('_init_errors', 'Error Handlers Reset');
 
         $grav = $this->container;
 
@@ -181,7 +202,7 @@ class InitializeProcessor extends ProcessorBase
         $errors = $grav['errors'];
         $errors->resetHandlers();
 
-        $this->stopTimer('_errors');
+        $this->stopTimer('_init_errors');
 
         return $errors;
     }
@@ -191,7 +212,7 @@ class InitializeProcessor extends ProcessorBase
      */
     protected function initializeDebugger(): Debugger
     {
-        $this->startTimer('_debugger', 'Init Debugger');
+        $this->startTimer('_init_debugger', 'Init Debugger');
 
         $grav = $this->container;
 
@@ -199,7 +220,7 @@ class InitializeProcessor extends ProcessorBase
         $debugger = $grav['debugger'];
         $debugger->init();
 
-        $this->stopTimer('_debugger');
+        $this->stopTimer('_init_debugger');
 
         return $debugger;
     }
@@ -257,7 +278,7 @@ class InitializeProcessor extends ProcessorBase
      */
     protected function initializeLocale(Config $config): void
     {
-        $this->startTimer('_init', 'Initialize Locale');
+        $this->startTimer('_init_locale', 'Initialize Locale');
 
         // Initialize the timezone.
         $timezone = $config->get('system.timezone');
@@ -268,12 +289,12 @@ class InitializeProcessor extends ProcessorBase
         $grav = $this->container;
         $grav->setLocale();
 
-        $this->stopTimer('_init');
+        $this->stopTimer('_init_locale');
     }
 
-    protected function initializePlugins(): void
+    protected function initializePlugins(): Plugins
     {
-        $this->startTimer('_plugins_load', 'Load Plugins');
+        $this->startTimer('_init_plugins_load', 'Load Plugins');
 
         $grav = $this->container;
 
@@ -281,12 +302,14 @@ class InitializeProcessor extends ProcessorBase
         $plugins = $grav['plugins'];
         $plugins->init();
 
-        $this->stopTimer('_plugins_load');
+        $this->stopTimer('_init_plugins_load');
+
+        return $plugins;
     }
 
-    protected function initializePages(Config $config): void
+    protected function initializePages(Config $config): Pages
     {
-        $this->startTimer('_pages_register', 'Load Pages');
+        $this->startTimer('_init_pages_register', 'Load Pages');
 
         $grav = $this->container;
 
@@ -294,20 +317,43 @@ class InitializeProcessor extends ProcessorBase
         $pages = $grav['pages'];
         $pages->register();
 
+        $this->stopTimer('_init_pages_register');
+
+        return $pages;
+    }
+
+
+    protected function initializeUri(Config $config): Uri
+    {
+        $this->startTimer('_init_uri', 'Initialize URI');
+
+        $grav = $this->container;
+
         /** @var Uri $uri */
         $uri = $grav['uri'];
         $uri->init();
+
+        $this->stopTimer('_init_uri');
+
+        return $uri;
+    }
+
+    protected function handleRedirectRequest(Config $config, Uri $uri): ?ResponseInterface
+    {
+        $grav = $this->container;
 
         // Redirect pages with trailing slash if configured to do so.
         $path = $uri->path() ?: '/';
         if ($path !== '/'
             && $config->get('system.pages.redirect_trailing_slash', false)
-            && Utils::endsWith($path, '/')) {
+            && Utils::endsWith($path, '/')
+        ) {
             $redirect = (string) $uri::getCurrentRoute()->toString();
-            $grav->redirect($redirect);
+
+            return $grav->getRedirectResponse($redirect);
         }
 
-        $this->stopTimer('_pages_register');
+        return null;
     }
 
     /**
@@ -315,12 +361,12 @@ class InitializeProcessor extends ProcessorBase
      */
     protected function initializeSession(Config $config): void
     {
+        // TODO: remove in 2.0.
+        $this->container['accounts'];
+
         // FIXME: Initialize session should happen later after plugins have been loaded. This is a workaround to fix session issues in AWS.
         if (isset($this->container['session']) && $config->get('system.session.initialize', true)) {
-            $this->startTimer('_session', 'Start Session');
-
-            // TODO: remove in 2.0.
-            $this->container['accounts'];
+            $this->startTimer('_init_session', 'Start Session');
 
             /** @var Session $session */
             $session = $this->container['session'];
@@ -334,7 +380,7 @@ class InitializeProcessor extends ProcessorBase
                 $this->container['messages']->add($message, 'error');
             }
 
-            $this->stopTimer('_session');
+            $this->stopTimer('_init_session');
         }
     }
 }

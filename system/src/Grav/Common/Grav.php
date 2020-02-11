@@ -337,6 +337,20 @@ class Grav extends Container
      */
     public function redirect($route, $code = null): void
     {
+        $response = $this->getRedirectResponse($route, $code);
+
+        $this->close($response);
+    }
+
+    /**
+     * Returns redirect response object from Grav.
+     *
+     * @param string $route Internal route.
+     * @param int    $code  Redirection code (30x)
+     * @return ResponseInterface
+     */
+    public function getRedirectResponse($route, $code = null): ResponseInterface
+    {
         /** @var Uri $uri */
         $uri = $this['uri'];
 
@@ -364,9 +378,7 @@ class Grav extends Container
             }
         }
 
-        $response = new Response($code, ['Location' => $url]);
-
-        $this->close($response);
+        return new Response($code, ['Location' => $url]);
     }
 
     /**

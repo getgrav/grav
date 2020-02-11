@@ -24,9 +24,6 @@ class PluginsProcessor extends ProcessorBase
     {
         $this->startTimer();
         $grav = $this->container;
-
-        $grav['accounts'];
-
         $grav->fireEvent('onPluginsInitialized');
         $this->stopTimer();
 
