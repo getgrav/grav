@@ -139,8 +139,6 @@ class Grav extends Container
     /**
      * Setup Grav instance using specific environment.
      *
-     * Initializes Grav streams by
-     *
      * @param string|null $environment
      * @return $this
      */
@@ -160,6 +158,31 @@ class Grav extends Container
         // Initialize setup and streams.
         $this['setup'];
         $this['streams'];
+
+        return $this;
+    }
+
+    /**
+     * Initialize CLI environment.
+     *
+     * Call after `$grav->setup($environment)`
+     *
+     * - Load configuration
+     * - Initialize logger
+     * - Disable debugger
+     * - Set timezone, locale
+     * - Load plugins (call PluginsLoadedEvent)
+     * - Set Pages and Users type to be used in the site
+     * - Initialize theme (call onThemeInitialized event)
+     *
+     * This method WILL NOT initialize assets, twig or pages.
+     *
+     * @param string|null $environment
+     * @return $this
+     */
+    public function initializeCli()
+    {
+        InitializeProcessor::initializeCli($this);
 
         return $this;
     }

@@ -11,6 +11,8 @@ namespace Grav\Common\Processors;
 
 use Grav\Common\Config\Config;
 use Grav\Common\Debugger;
+use Grav\Common\Errors\Errors;
+use Grav\Common\Grav;
 use Grav\Common\Page\Pages;
 use Grav\Common\Plugins;
 use Grav\Common\Session;
@@ -20,6 +22,7 @@ use Grav\Framework\Psr7\Response;
 use Grav\Framework\Session\Exceptions\SessionException;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\SyslogHandler;
+use Monolog\Logger;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
@@ -31,15 +34,183 @@ class InitializeProcessor extends ProcessorBase
     /** @var string */
     public $title = 'Initialize';
 
+    public static function initializeCli(Grav $grav)
+    {
+        $instance = new static($grav);
+        $instance->processCli();
+    }
+
+    /**
+     * @param ServerRequestInterface $request
+     * @param RequestHandlerInterface $handler
+     * @return ResponseInterface
+     */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
+        // Initialize configuration.
         $config = $this->initializeConfig();
+
+        // Initialize logger.
         $this->initializeLogger($config);
+
+        // Initialize error handlers.
         $this->initializeErrors();
 
+        // Initialize debugger.
+        $debugger = $this->initializeDebugger();
+
+        // Debugger can return response right away.
+        $response = $this->handleDebuggerRequest($debugger, $request);
+        if ($response) {
+            return $response;
+        }
+
+        // Initialize output buffering.
+        $this->initializeOutputBuffering($config);
+
+        // Initialize timezone, locale.
+        $this->initializeLocale($config);
+
+        // Initialize plugins.
+        $this->initializePlugins();
+
+        // Initialize pages.
+        $this->initializePages($config);
+
+        // Initialize session.
+        $this->initializeSession($config);
+
+        // Wrap call to next handler so that debugger can profile it.
+        /** @var Response $response */
+        $response = $debugger->profile(static function () use ($handler, $request) {
+            return $handler->handle($request);
+        });
+
+        // Log both request and response and return the response.
+        return $debugger->logRequest($request, $response);
+    }
+
+    public function processCli(): void
+    {
+        // Load configuration.
+        $config = $this->initializeConfig();
+
+        // Initialize logger.
+        $this->initializeLogger($config);
+
+        // Disable debugger.
+        $this->container['debugger']->enabled(false);
+
+        // Set timezone, locale.
+        $this->initializeLocale($config);
+
+        // Load plugins.
+        $this->initializePlugins();
+
+        // Load pages.
+        $this->initializePages($config);
+
+        // Load accounts.
+        $this->container['accounts'];
+
+        // Initialize theme.
+        $this->container['themes']->init();
+    }
+
+    /**
+     * @return Config
+     */
+    protected function initializeConfig(): Config
+    {
+        $this->startTimer('_config', 'Configuration');
+
+        // Initialize Configuration
+        $grav = $this->container;
+
+        /** @var Config $config */
+        $config = $grav['config'];
+        $config->init();
+        $grav['plugins']->setup();
+
+        $this->stopTimer('_config');
+
+        return $config;
+    }
+
+    /**
+     * @param Config $config
+     * @return Logger
+     */
+    protected function initializeLogger(Config $config): Logger
+    {
+        $this->startTimer('_logger', 'Logger');
+
+        $grav = $this->container;
+
+        // Initialize Logging
+        /** @var Logger $log */
+        $log = $grav['log'];
+
+        if ($config->get('system.log.handler', 'file') === 'syslog') {
+            $log->popHandler();
+
+            $facility = $config->get('system.log.syslog.facility', 'local6');
+            $logHandler = new SyslogHandler('grav', $facility);
+            $formatter = new LineFormatter("%channel%.%level_name%: %message% %extra%");
+            $logHandler->setFormatter($formatter);
+
+            $log->pushHandler($logHandler);
+        }
+
+        $this->stopTimer('_logger');
+
+        return $log;
+    }
+
+    /**
+     * @return Errors
+     */
+    protected function initializeErrors(): Errors
+    {
+        $this->startTimer('_errors', 'Error Handlers Reset');
+
+        $grav = $this->container;
+
+        // Initialize Error Handlers
+        /** @var Errors $errors */
+        $errors = $grav['errors'];
+        $errors->resetHandlers();
+
+        $this->stopTimer('_errors');
+
+        return $errors;
+    }
+
+    /**
+     * @return Debugger
+     */
+    protected function initializeDebugger(): Debugger
+    {
         $this->startTimer('_debugger', 'Init Debugger');
+
+        $grav = $this->container;
+
         /** @var Debugger $debugger */
-        $debugger = $this->container['debugger']->init();
+        $debugger = $grav['debugger'];
+        $debugger->init();
+
+        $this->stopTimer('_debugger');
+
+        return $debugger;
+    }
+
+    /**
+     * @param Debugger $debugger
+     * @param ServerRequestInterface $request
+     * @return ResponseInterface|null
+     */
+    protected function handleDebuggerRequest(Debugger $debugger, ServerRequestInterface $request): ?ResponseInterface
+    {
         // Clockwork integration.
         $clockwork = $debugger->getClockwork();
         if ($clockwork) {
@@ -60,87 +231,16 @@ class InitializeProcessor extends ProcessorBase
 
             $this->container['clockwork'] = $clockwork;
         }
-        $this->stopTimer('_debugger');
 
-        $this->initialize($config);
-
-        $this->loadPlugins();
-
-        $this->initializePages($config);
-
-        $this->initializeSession($config);
-
-        // Wrap call to next handler so that debugger can profile it.
-        /** @var Response $response */
-        $response = $debugger->profile(static function () use ($handler, $request) {
-            return $handler->handle($request);
-        });
-
-        // Log both request and response and return the response.
-        return $debugger->logRequest($request, $response);
-    }
-
-    protected function initializeConfig(): Config
-    {
-        $this->startTimer('_config', 'Configuration');
-
-        // Initialize Configuration
-        $grav = $this->container;
-        /** @var Config $config */
-        $config = $grav['config'];
-        $config->init();
-        $grav['plugins']->setup();
-
-        $this->stopTimer('_config');
-
-        return $config;
+        return null;
     }
 
     /**
      * @param Config $config
      */
-    protected function initializeLogger(Config $config): void
+    protected function initializeOutputBuffering(Config $config): void
     {
-        $this->startTimer('_logger', 'Logger');
-
-        // Initialize Logging
-        $grav = $this->container;
-
-        switch ($config->get('system.log.handler', 'file')) {
-            case 'syslog':
-                $log = $grav['log'];
-                $log->popHandler();
-
-                $facility = $config->get('system.log.syslog.facility', 'local6');
-                $logHandler = new SyslogHandler('grav', $facility);
-                $formatter = new LineFormatter("%channel%.%level_name%: %message% %extra%");
-                $logHandler->setFormatter($formatter);
-
-                $log->pushHandler($logHandler);
-                break;
-        }
-
-        $this->stopTimer('_logger');
-    }
-
-    protected function initializeErrors(): void
-    {
-        $this->startTimer('_errors', 'Error Handlers Reset');
-
-        // Initialize Error Handlers
-        $this->container['errors']->resetHandlers();
-
-        $this->stopTimer('_errors');
-    }
-
-    /**
-     * @param Config $config
-     */
-    protected function initialize(Config $config): void
-    {
-        $this->startTimer('_init', 'Initialize');
-
-        $grav = $this->container;
+        $this->startTimer('_init_ob', 'Initialize Output Buffering');
 
         // Use output buffering to prevent headers from being sent too early.
         ob_start();
@@ -149,18 +249,29 @@ class InitializeProcessor extends ProcessorBase
             ob_start();
         }
 
+        $this->stopTimer('_init_ob');
+    }
+
+    /**
+     * @param Config $config
+     */
+    protected function initializeLocale(Config $config): void
+    {
+        $this->startTimer('_init', 'Initialize Locale');
+
         // Initialize the timezone.
         $timezone = $config->get('system.timezone');
         if ($timezone) {
             date_default_timezone_set($timezone);
         }
 
+        $grav = $this->container;
         $grav->setLocale();
 
         $this->stopTimer('_init');
     }
 
-    protected function loadPlugins(): void
+    protected function initializePlugins(): void
     {
         $this->startTimer('_plugins_load', 'Load Plugins');
 
@@ -175,7 +286,7 @@ class InitializeProcessor extends ProcessorBase
 
     protected function initializePages(Config $config): void
     {
-        $this->startTimer('_pages_register', 'Load Plugins');
+        $this->startTimer('_pages_register', 'Load Pages');
 
         $grav = $this->container;
 

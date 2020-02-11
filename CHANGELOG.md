@@ -3,6 +3,7 @@
 
 1. [](#new)
     * Plugins & Themes: Call `$plugin->autoload()` and `$theme->autoload()` automatically when object gets initialized
+    * CLI: Added `$grav->initializeCli()` method
     * Flex Directory: Implemented customizable configuration
     * Flex Storages: Added support for renaming directory entries
 1. [](#bugfix)
