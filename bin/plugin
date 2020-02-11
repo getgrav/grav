@@ -56,17 +56,27 @@ $climate->arguments->parse();
 
 $environment = $climate->arguments->get('environment');
 
+// Bootstrap Grav container.
 $grav = Grav::instance(array('loader' => $autoload));
 $grav->setup($environment);
 
+// Initialize configuration and setup plugins.
 $grav['config']->init();
-$grav['uri']->init();
-
 /** @var \Grav\Common\Plugins $plugins */
 $plugins = $grav['plugins'];
+$plugins->setup();
 $plugins->init();
 
-$grav['users'];
+// Register pages.
+/** @var \Grav\Common\Page\Pages $pages */
+$pages = $grav['pages'];
+$pages->register();
+$grav['uri']->init();
+
+// Initialize accounts.
+$grav['accounts'];
+
+// Initialize theme.
 $grav['themes']->init();
 
 $app     = new Application('Grav Plugins Commands', GRAV_VERSION);
