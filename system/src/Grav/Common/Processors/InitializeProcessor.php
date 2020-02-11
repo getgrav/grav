@@ -34,10 +34,17 @@ class InitializeProcessor extends ProcessorBase
     /** @var string */
     public $title = 'Initialize';
 
+    /** @var bool */
+    private static $cli_initialized = false;
+
     public static function initializeCli(Grav $grav)
     {
-        $instance = new static($grav);
-        $instance->processCli();
+        if (!static::$cli_initialized) {
+            static::$cli_initialized = true;
+
+            $instance = new static($grav);
+            $instance->processCli();
+        }
     }
 
     /**
@@ -133,9 +140,6 @@ class InitializeProcessor extends ProcessorBase
         // Load accounts.
         // TODO: remove in 2.0.
         $this->container['accounts'];
-
-        // Initialize theme.
-        $this->container['themes']->init();
     }
 
     /**

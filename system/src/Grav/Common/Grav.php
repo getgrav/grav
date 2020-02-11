@@ -173,7 +173,6 @@ class Grav extends Container
      * - Set timezone, locale
      * - Load plugins (call PluginsLoadedEvent)
      * - Set Pages and Users type to be used in the site
-     * - Initialize theme (call onThemeInitialized event)
      *
      * This method WILL NOT initialize assets, twig or pages.
      *

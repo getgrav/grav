@@ -113,19 +113,20 @@ if (!$name) {
     }
 
     exit;
-} else {
-    if (is_null($plugin)) {
-        $output->writeln('');
-        $output->writeln("<red>$name plugin not found</red>");
-        die;
-    }
-
-    if (!$plugin->enabled) {
-        $output->writeln('');
-        $output->writeln("<red>$name not enabled</red>");
-        die;
-    }
 }
+
+if (null === $plugin) {
+    $output->writeln('');
+    $output->writeln("<red>$name plugin not found</red>");
+    die;
+}
+
+if (!$plugin->enabled) {
+    $output->writeln('');
+    $output->writeln("<red>$name not enabled</red>");
+    die;
+}
+
 
 if ($plugin === null) {
     $output->writeln("<red>Grav Plugin <white>'{$name}'</white> is not installed</red>");
