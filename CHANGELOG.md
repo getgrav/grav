@@ -8,7 +8,8 @@
     * Added `ConsoleCommand::initializeThemes()`method to properly set up current theme to be used from CLI
     * Added `ConsoleCommand::initializePages()` method to properly set up pages to be used from CLI
 1. [](#bugfix)
-    * Fixed `bin/plugin` CLI calling `$themes->init()` way too early
+    * Fixed `bin/plugin` CLI calling `$themes->init()` way too early (removed it, use above methods instead)
+    * Fixed call to `$grav['page']` crashing CLI
     * Fixed encoding problems when PHP INI setting `default_charset` is not `utf-8` [#2154](https://github.com/getgrav/grav/issues/2154)
 
 # v1.6.20
