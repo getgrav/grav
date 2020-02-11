@@ -11,6 +11,7 @@ namespace Grav\Console;
 
 use Grav\Common\Grav;
 use Grav\Common\Language\Language;
+use Grav\Common\Page\Page;
 use Grav\Common\Processors\InitializeProcessor;
 use RocketTheme\Toolbox\Event\Event;
 use Symfony\Component\Console\Command\Command;
@@ -28,7 +29,7 @@ class ConsoleCommand extends Command
     /** @var bool */
     private $pages_initialized = false;
 
-        /**
+    /**
      * @param InputInterface  $input
      * @param OutputInterface $output
      *
@@ -171,6 +172,12 @@ class ConsoleCommand extends Command
             $pages = $grav['pages'];
             $pages->init();
             $grav->fireEvent('onPagesInitialized', new Event(['pages' => $pages]));
+            if (!isset($grav['page'])) {
+                $page = new Page();
+                $page->routable(false);
+                $page->title('404 Not Found');
+                $grav['page'] = $page;
+            }
         }
 
         return $this;
