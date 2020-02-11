@@ -14,6 +14,7 @@
     * Fixed `FlexObject::triggerEvent()` not emitting events [#2816](https://github.com/getgrav/grav/issues/2816)
     * Grav 1.7: Fixed saving Flex configuration with ignored values becoming null
     * Grav 1.7: Fixed `bin/plugin` initialization
+    * Grav 1.7: Fixed Flex Page cache key not taking account active language
 
 # v1.7.0-rc.5
 ## 02/03/2020

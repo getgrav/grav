@@ -19,6 +19,7 @@ use Grav\Common\Flex\Types\Pages\Traits\PageContentTrait;
 use Grav\Common\Flex\Types\Pages\Traits\PageLegacyTrait;
 use Grav\Common\Flex\Types\Pages\Traits\PageRoutableTrait;
 use Grav\Common\Flex\Types\Pages\Traits\PageTranslateTrait;
+use Grav\Common\Language\Language;
 use Grav\Common\Page\Pages;
 use Grav\Common\Utils;
 use Grav\Framework\Filesystem\Filesystem;
@@ -127,6 +128,22 @@ class PageObject extends FlexPageObject
         }
 
         return parent::getFormValue($name, $default, $separator);
+    }
+
+    /**
+     * {@inheritdoc}
+     * @see FlexObjectInterface::getCacheKey()
+     */
+    public function getCacheKey(): string
+    {
+        $cacheKey = parent::getCacheKey();
+        if ($cacheKey) {
+            /** @var Language $language */
+            $language = Grav::instance()['language'];
+            $cacheKey .= '_' . $language->getActive();
+        }
+
+        return $cacheKey;
     }
 
     /**
