@@ -171,6 +171,29 @@ class Grav extends Container
     }
 
     /**
+     * Initialize CLI environment.
+     *
+     * Call after `$grav->setup($environment)`
+     *
+     * - Load configuration
+     * - Disable debugger
+     * - Set timezone, locale
+     * - Load plugins
+     * - Set Users type to be used in the site
+     *
+     * This method WILL NOT initialize assets, twig or pages.
+     *
+     * @param string|null $environment
+     * @return $this
+     */
+    public function initializeCli()
+    {
+        InitializeProcessor::initializeCli($this);
+
+        return $this;
+    }
+
+    /**
      * Process a request
      */
     public function process()
