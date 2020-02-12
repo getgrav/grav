@@ -26,7 +26,7 @@ class PagesServiceProvider implements ServiceProviderInterface
             return new Pages($c);
         };
 
-        if (GRAV_CLI) {
+        if (\defined('GRAV_CLI')) {
             $container['page'] = static function ($c) {
                 $path = $c['locator']->findResource('system://pages/notfound.md');
                 $page = new Page();
