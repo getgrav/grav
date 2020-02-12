@@ -1,11 +1,13 @@
 # v1.7.0-rc.6
-## mm/dd/2020
+## 02/11/2020
 
 1. [](#new)
     * Plugins & Themes: Call `$plugin->autoload()` and `$theme->autoload()` automatically when object gets initialized
     * CLI: Added `$grav->initializeCli()` method
     * Flex Directory: Implemented customizable configuration
     * Flex Storages: Added support for renaming directory entries
+1. [](#improved)
+    * Vendor updates
 1. [](#bugfix)
     * Regression: Fixed fatal error in blueprints [#2811](https://github.com/getgrav/grav/issues/2811)
     * Regression: Fixed bad method call in FlexDirectory::getAuthorizeRule()
