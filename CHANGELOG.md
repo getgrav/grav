@@ -7,6 +7,8 @@
     * Added `ConsoleCommand::initializePlugins()`method to properly set up all plugins to be used from CLI
     * Added `ConsoleCommand::initializeThemes()`method to properly set up current theme to be used from CLI
     * Added `ConsoleCommand::initializePages()` method to properly set up pages to be used from CLI
+1. [](#improved)
+    * Vendor updates
 1. [](#bugfix)
     * Fixed `bin/plugin` CLI calling `$themes->init()` way too early (removed it, use above methods instead)
     * Fixed call to `$grav['page']` crashing CLI
