@@ -7,7 +7,7 @@
     * Flex Directory: Implemented customizable configuration
     * Flex Storages: Added support for renaming directory entries
 1. [](#improved)
-    * Vendor updates
+    * Vendor updates to latest
 1. [](#bugfix)
     * Regression: Fixed fatal error in blueprints [#2811](https://github.com/getgrav/grav/issues/2811)
     * Regression: Fixed bad method call in FlexDirectory::getAuthorizeRule()
