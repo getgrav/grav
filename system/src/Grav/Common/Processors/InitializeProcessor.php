@@ -10,6 +10,7 @@
 namespace Grav\Common\Processors;
 
 use Grav\Common\Config\Config;
+use Grav\Common\Grav;
 use Grav\Common\Uri;
 use Grav\Common\Utils;
 use Grav\Framework\Session\Exceptions\SessionException;
@@ -21,6 +22,22 @@ class InitializeProcessor extends ProcessorBase
 {
     public $id = 'init';
     public $title = 'Initialize';
+
+    /** @var bool */
+    private static $cli_initialized = false;
+
+    /**
+     * @param Grav $grav
+     */
+    public static function initializeCli(Grav $grav)
+    {
+        if (!static::$cli_initialized) {
+            static::$cli_initialized = true;
+
+            $instance = new static($grav);
+            $instance->processCli();
+        }
+    }
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler) : ResponseInterface
     {
@@ -76,5 +93,36 @@ class InitializeProcessor extends ProcessorBase
         $this->stopTimer();
 
         return $handler->handle($request);
+    }
+
+    public function processCli(): void
+    {
+        // Load configuration.
+        $this->container['config']->init();
+        $this->container['plugins']->setup();
+
+        // Disable debugger.
+        $this->container['debugger']->enabled(false);
+
+        // Set timezone, locale.
+        /** @var Config $config */
+        $config = $this->container['config'];
+        $timezone = $config->get('system.timezone');
+        if ($timezone) {
+            date_default_timezone_set($timezone);
+        }
+        $this->container->setLocale();
+
+        // Load plugins.
+        $this->container['plugins']->init();
+
+        // Initialize URI.
+        /** @var Uri $uri */
+        $uri = $this->container['uri'];
+        $uri->init();
+
+        // Load accounts.
+        // TODO: remove in 2.0.
+        $this->container['accounts'];
     }
 }

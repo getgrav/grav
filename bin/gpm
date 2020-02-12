@@ -28,6 +28,13 @@ if (!ini_get('date.timezone')) {
     date_default_timezone_set('UTC');
 }
 
+// Set internal encoding.
+if (!\extension_loaded('mbstring')) {
+    die("'mbstring' extension is not loaded.  This is required for Grav to run correctly");
+}
+@ini_set('default_charset', 'UTF-8');
+mb_internal_encoding('UTF-8');
+
 if (!file_exists(GRAV_ROOT . '/index.php')) {
     exit('FATAL: Must be run from ROOT directory of Grav!');
 }
@@ -55,7 +62,7 @@ $grav->setup($environment);
 
 $grav['config']->init();
 $grav['uri']->init();
-$grav['users'];
+$grav['accounts'];
 
 $app = new Application('Grav Package Manager', GRAV_VERSION);
 $app->addCommands(array(

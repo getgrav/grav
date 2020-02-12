@@ -26,6 +26,19 @@ class PagesServiceProvider implements ServiceProviderInterface
             return new Pages($c);
         };
 
+        if (\defined('GRAV_CLI')) {
+            $container['page'] = static function ($c) {
+                $path = $c['locator']->findResource('system://pages/notfound.md');
+                $page = new Page();
+                $page->init(new \SplFileInfo($path));
+                $page->routable(false);
+
+                return $page;
+            };
+
+            return;
+        }
+
         $container['page'] = function ($c) {
             /** @var Grav $c */
 

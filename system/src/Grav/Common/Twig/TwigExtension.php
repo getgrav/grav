@@ -1055,7 +1055,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
      */
     public function jsonDecodeFilter($str, $assoc = false, $depth = 512, $options = 0)
     {
-        return json_decode(html_entity_decode($str), $assoc, $depth, $options);
+        return json_decode(html_entity_decode($str, ENT_COMPAT | ENT_HTML401, 'UTF-8'), $assoc, $depth, $options);
     }
 
     /**

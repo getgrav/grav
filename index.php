@@ -20,6 +20,16 @@ if (PHP_SAPI === 'cli-server' && !isset($_SERVER['PHP_CLI_ROUTER'])) {
     die("PHP webserver requires a router to run Grav, please use: <pre>php -S {$_SERVER['SERVER_NAME']}:{$_SERVER['SERVER_PORT']} system/router.php</pre>");
 }
 
+// Set timezone to default, falls back to system if php.ini not set
+date_default_timezone_set(@date_default_timezone_get());
+
+// Set internal encoding.
+if (!\extension_loaded('mbstring')) {
+    die("'mbstring' extension is not loaded.  This is required for Grav to run correctly");
+}
+@ini_set('default_charset', 'UTF-8');
+mb_internal_encoding('UTF-8');
+
 // Ensure vendor libraries exist
 $autoload = __DIR__ . '/vendor/autoload.php';
 if (!is_file($autoload)) {
@@ -31,15 +41,6 @@ $loader = require $autoload;
 
 use Grav\Common\Grav;
 use RocketTheme\Toolbox\Event\Event;
-
-// Set timezone to default, falls back to system if php.ini not set
-date_default_timezone_set(@date_default_timezone_get());
-
-// Set internal encoding if mbstring loaded
-if (!\extension_loaded('mbstring')) {
-    die("'mbstring' extension is not loaded.  This is required for Grav to run correctly");
-}
-mb_internal_encoding('UTF-8');
 
 // Get the Grav instance
 $grav = Grav::instance(

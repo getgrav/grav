@@ -608,12 +608,12 @@ class Page implements PageInterface
                 return $content;
             }
 
-            return mb_strimwidth($content, 0, $size, '...', 'utf-8');
+            return mb_strimwidth($content, 0, $size, '...', 'UTF-8');
         }
 
         $summary = Utils::truncateHtml($content, $size);
 
-        return html_entity_decode($summary);
+        return html_entity_decode($summary, ENT_COMPAT | ENT_HTML401, 'UTF-8');
     }
 
     /**
