@@ -1,3 +1,11 @@
+# v1.6.22
+## mm/dd/2020
+
+1. [](#new)
+    * Added `Pages::reset()` method
+1. [](#bugfix)
+    * Fixed issue with search plugins not being able to switch between page translations
+
 # v1.6.21
 ## 02/11/2020
 

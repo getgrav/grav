@@ -237,6 +237,16 @@ class Pages
     }
 
     /**
+     * Reset pages (used in search indexing etc).
+     */
+    public function reset()
+    {
+        $this->initialized = false;
+
+        $this->init();
+    }
+
+    /**
      * Class initialization. Must be called before using this class.
      */
     public function init()
