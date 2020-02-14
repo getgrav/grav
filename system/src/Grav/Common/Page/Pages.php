@@ -1515,6 +1515,9 @@ class Pages
         /** @var UniformResourceLocator $locator */
         $locator = $this->grav['locator'];
 
+        /** @var Language $language */
+        $language = $this->grav['language'];
+
         $pages_dir = $locator->findResource('page://');
         if (!is_string($pages_dir)) {
             throw new \RuntimeException('Internal Error');
