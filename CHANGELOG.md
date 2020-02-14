@@ -5,6 +5,7 @@
     * Added `Pages::reset()` method
 1. [](#bugfix)
     * Fixed issue with search plugins not being able to switch between page translations
+    * Fixed issues with `Pages::baseRoute()` not picking up active language reliably
 
 # v1.6.21
 ## 02/11/2020
