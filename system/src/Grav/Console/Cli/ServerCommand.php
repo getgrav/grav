@@ -112,7 +112,7 @@ class ServerCommand extends ConsoleCommand
             $this->io->success('Built-in PHP web server listening on http://' . $this->ip . ':' . $this->port . ' (PHP v' . PHP_VERSION . ')');
         }
 
-        $process->wait(function ($type, $buffer) use ($name) {
+        $process->wait(function ($type, $buffer) {
             $this->output->write($buffer);
         });
 

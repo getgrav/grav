@@ -104,7 +104,7 @@ class Action implements \IteratorAggregate, \Countable
     public function getScope(): string
     {
         $pos = strpos($this->name, '.');
-        if ($pos > 0) {
+        if ($pos) {
             return substr($this->name, 0, $pos);
         }
 

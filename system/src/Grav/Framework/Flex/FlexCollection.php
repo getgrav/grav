@@ -649,7 +649,12 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
         }
 
         $grav = Grav::instance();
-        $grav->fireEvent($name, $event);
+        if ($event instanceof Event) {
+            $grav->fireEvent($name, $event);
+        } else {
+            $grav->dispatchEvent($event);
+        }
+
 
         return $this;
     }

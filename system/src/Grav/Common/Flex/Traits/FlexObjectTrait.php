@@ -36,7 +36,11 @@ trait FlexObjectTrait
         }
 
         $container = $this->getContainer();
-        $container->fireEvent($name, $event);
+        if ($event instanceof Event) {
+            $container->fireEvent($name, $event);
+        } else {
+            $container->dispatchEvent($event);
+        }
 
         return $this;
     }

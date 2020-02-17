@@ -102,7 +102,12 @@ class PermissionsReader
             }
             unset($val);
         }
-        $dependencies = json_decode(json_encode($dependencies), true);
+
+        $encoded = json_encode($dependencies);
+        if ($encoded === false) {
+            throw new \RuntimeException('json_encode(): failed to encode dependencies');
+        }
+        $dependencies = json_decode($encoded, true);
 
         foreach (static::getDependencies($dependencies) as $type) {
             $defaults = $types[$type] ?? null;

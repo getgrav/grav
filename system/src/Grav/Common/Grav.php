@@ -176,7 +176,6 @@ class Grav extends Container
      *
      * This method WILL NOT initialize assets, twig or pages.
      *
-     * @param string|null $environment
      * @return $this
      */
     public function initializeCli()

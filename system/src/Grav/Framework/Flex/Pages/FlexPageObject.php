@@ -173,7 +173,12 @@ class FlexPageObject extends FlexObject implements PageInterface, MediaManipulat
             case 'route':
                 return $this->hasKey() ? '/' . $this->getKey() : null;
             case 'header.permissions.groups':
-                return json_decode(json_encode($this->getPermissions()), true);
+                $encoded = json_encode($this->getPermissions());
+                if ($encoded === false) {
+                    throw new \RuntimeException('json_encode(): failed to encode group permissions');
+                }
+
+                return json_decode($encoded, true);
         }
 
         return parent::getFormValue($name, $default, $separator);
