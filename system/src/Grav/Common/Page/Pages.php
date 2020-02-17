@@ -91,6 +91,8 @@ class Pages
     /** @var bool */
     protected $initialized = false;
 
+    protected $active_lang;
+
     /** @var bool */
     protected $fire_events = false;
 
@@ -164,7 +166,7 @@ class Pages
      */
     public function baseRoute($lang = null)
     {
-        $key = $lang ?: 'default';
+        $key = $lang ?: $this->active_lang ?: 'default';
 
         if (!isset($this->baseRoute[$key])) {
             /** @var Language $language */
@@ -1513,10 +1515,16 @@ class Pages
         /** @var UniformResourceLocator $locator */
         $locator = $this->grav['locator'];
 
+        /** @var Language $language */
+        $language = $this->grav['language'];
+
         $pages_dir = $locator->findResource('page://');
         if (!is_string($pages_dir)) {
             throw new \RuntimeException('Internal Error');
         }
+
+        // Set active language
+        $this->active_lang = $language->getActive();
 
         if ($config->get('system.cache.enabled')) {
             /** @var Language $language */
