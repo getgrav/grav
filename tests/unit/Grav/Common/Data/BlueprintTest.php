@@ -36,7 +36,6 @@ class BlueprintTest extends \Codeception\TestCase\Test
         $blueprint = $this->loadBlueprint('strict');
 
         $blueprint->validate(['test' => 'string', 'wrong' => 'field']);
-        die();
     }
 
     /**
