@@ -6,6 +6,7 @@
 1. [](#bugfix)
     * Fixed issue with search plugins not being able to switch between page translations
     * Fixed issues with `Pages::baseRoute()` not picking up active language reliably
+    * Reverted `validation: strict` fix as it breaks sites, see [#1273](https://github.com/getgrav/grav/issues/1273)
 
 # v1.6.21
 ## 02/11/2020
