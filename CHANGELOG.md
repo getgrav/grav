@@ -2,6 +2,12 @@
 ## 02/11/2020
 
 1. [](#new)
+    * Added `Session::regenerateId()` method to properly prevent session fixation issues
+
+# v1.7.0-rc.6
+## 02/11/2020
+
+1. [](#new)
     * Plugins & Themes: Call `$plugin->autoload()` and `$theme->autoload()` automatically when object gets initialized
     * CLI: Added `$grav->initializeCli()` method
     * Flex Directory: Implemented customizable configuration
