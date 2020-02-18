@@ -6,6 +6,10 @@
 
 * Please run `bin/grav yamllinter` to find any YAML parsing errors in your site. You should run this command before and after upgrade. Grav falls back to older YAML parser if it detects an error, but it will slow down your site.
 
+## Forms
+
+* **BC BREAK** Fixed `validation: strict`. Please search through all your forms if you were using this feature. If you were, either remove the line or test if the form still works.
+
 ### Pages
 
 * **BC BREAK** Fixed 404 error page when you go to non-routable page with routable child pages under it. Now you get redirected to the first routable child page instead. This is probably what you wanted in the first place. If you do not want this new behavior, you need to **TODO**
@@ -22,7 +26,7 @@
 * Improved `Scheduler` cron command check and more useful CLI information
 * Added new `-r <job-id>` option for Scheduler CLI command to force-run a job
 * Improved `bin/grav yamllinter` CLI command by adding an option to find YAML Linting issues from the whole site or custom folder
-    
+
 ### Configuration
 
 * Added new configuration option `system.debugger.provider` to choose between debugbar and clockwork
@@ -44,14 +48,14 @@
 
 * `user.authorize()` now requires user to be authorized (passed 2FA check), unless the rule contains `login` in its name.
 
-* **BC BREAK** `user.authorize()` and Flex `object.isAuthorized()` now have two deny states: `false` and `null`. 
+* **BC BREAK** `user.authorize()` and Flex `object.isAuthorized()` now have two deny states: `false` and `null`.
 
-    Make sure you do not have strict checks against false: `$user->authorize($action) === false` (PHP)  or `user.authorize(action) is same as(false)` (Twig). 
+    Make sure you do not have strict checks against false: `$user->authorize($action) === false` (PHP)  or `user.authorize(action) is same as(false)` (Twig).
 
     For the negative checks you should be using `!user->authorize($action)` (PHP) or `not user.authorize(action)` (Twig).
 
     The change has been done to allow strong deny rules by chaining the actions if previous ones do not match: `user.authorize(action1) ?? user.authorize(action2) ?? user.authorize(action3)`.
-    
+
     Note that Twig function `authorize()` will still **keeps** the old behavior!
 
 ### Pages
@@ -118,8 +122,8 @@
 
 ### Admin
 
-* **BC BREAK** Admin will not initialize frontend pages anymore, this has been done to greatly speed up Admin plugin. 
+* **BC BREAK** Admin will not initialize frontend pages anymore, this has been done to greatly speed up Admin plugin.
 
     Please call `$grav['admin']->enablePages()` or `{% do admin.enablePages() %}` if you need to access frontend pages. This call can be safely made multiple times.
-    
+
     If you're using `Flex Pages`, please use Flex Directory instead, it will make your code so much faster.
