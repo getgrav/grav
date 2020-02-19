@@ -44,6 +44,91 @@
 
 ## DEVELOPERS
 
+### Composer / vendor
+
+* Please add `composer.json` file to your plugin and run `composer update --no-dev` (and remember to keep it updated):
+
+    composer.json
+    ```json
+    {
+        "name": "getgrav/grav-plugin-example",
+        "type": "grav-plugin",
+        "description": "Example plugin for Grav CMS",
+        "keywords": ["example", "plugin"],
+        "homepage": "https://github.com/getgrav/grav-plugin-example",
+        "license": "MIT",
+        "authors": [
+            {
+                "name": "...",
+                "email": "...",
+                "homepage": "...",
+                "role": "Developer"
+            }
+        ],
+        "support": {
+            "issues": "https://github.com/getgrav/grav-plugin-example/issues",
+            "docs": "https://github.com/getgrav/grav-plugin-example/blob/master/README.md"
+        },
+        "require": {
+            "php": ">=7.1.3"
+        },
+        "autoload": {
+            "psr-4": {
+                "Grav\\Plugin\\Example\\": "classes/",
+                "Grav\\Plugin\\Console\\": "cli/"
+            },
+            "classmap":  [
+                "example.php"
+            ]
+        },
+        "config": {
+            "platform": {
+                "php": "7.1.3"
+            }
+        }
+    }
+    ```
+
+* Please use autoloader instead of `require` in the code:
+
+    example.php
+    ```php
+      /**
+       * @return array
+       */
+      public static function getSubscribedEvents()
+      {
+          return [
+              'onPluginsInitialized' => [
+                  // This is only required in Grav 1.6. Grav 1.7 automatically calls $plugin->autolaod() method.
+                  ['autoload', 100000],
+              ]
+          ];
+      }
+
+      /**
+       * Composer autoload.
+       *
+       * @return \Composer\Autoload\ClassLoader
+       */
+      public function autoload()
+      {
+          return require __DIR__ . '/vendor/autoload.php';
+      }
+    ```
+
+* Make sure your code does not use `require` or `include` for loading classes
+
+### Dependencies
+
+* Make sure you update your plugin/theme dependencies. I recommend setting Grav to either 1.6 or 1.7 and update your code/vendor to PHP 7.1
+
+    blueprints.yaml
+    ```yaml
+    dependencies:
+        - { name: grav, version: '>=1.6.0' }
+    ```
+
 ### ACL
 
 * `user.authorize()` now requires user to be authorized (passed 2FA check), unless the rule contains `login` in its name.
@@ -102,9 +187,42 @@
 * Added `Language::getPageExtensions()` to get full list of supported page language extensions
 * **BC BREAK** Fixed `Language::getFallbackPageExtensions()` to fall back only to default language instead of going through all languages
 
+### Blueprints
+
+* If your plugins has blueprints folder, initializing it in the event will be too late. Do this instead:
+
+    ```php
+    class MyPlugin extends Plugin
+    {
+        /** @var array */
+        public $features = [
+            'blueprints' => 0, // Use priority 0
+        ];
+    }
+    ```
+
 ### Events
 
 * Use `Symfony EventDispatcher` directly instead of `rockettheme/toolbox` wrapper.
+* Check `onAdminTwigTemplatePaths` event, it should NOT be:
+
+    ```php
+    public function onAdminTwigTemplatePaths($event)
+    {
+        // This code breaks all the other plugins in admin, including Flex Objects
+        $event['paths'] = [__DIR__ . '/admin/themes/grav/templates'];
+    }
+    ```
+    but:
+    ```php
+    public function onAdminTwigTemplatePaths($event)
+    {
+        // Add plugin template path for admin.
+        $paths = $event['paths'];
+        $paths[] = __DIR__ . '/admin/themes/grav/templates';
+        $event['paths'] = $paths;
+    }
+    ```
 
 ### Misc
 
@@ -114,6 +232,10 @@
 * Added new `Security::sanitizeSVG()` function
 * Added `$grav->close()` method to properly terminate the request with a response
 * **BC BREAK** Make `Route` objects immutable. This means that you need to do: `{% set route = route.withExtension('.html') %}` (for all `withX` methods) to keep the updated version.
+
+### CLI
+
+* It is a good idea to prefix your CLI command classes with your plugin name, otherwise there may be naming conflicts (we already have some!)
 
 ### Composer dependencies
 
