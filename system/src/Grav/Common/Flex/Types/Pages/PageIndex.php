@@ -16,6 +16,8 @@ use Grav\Common\File\CompiledJsonFile;
 use Grav\Common\Flex\Traits\FlexGravTrait;
 use Grav\Common\Flex\Traits\FlexIndexTrait;
 use Grav\Common\Grav;
+use Grav\Common\Page\Interfaces\PageCollectionInterface;
+use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Utils;
 use Grav\Framework\Flex\FlexDirectory;
 use Grav\Framework\Flex\Interfaces\FlexCollectionInterface;
@@ -26,23 +28,11 @@ use Grav\Framework\Flex\Pages\FlexPageIndex;
  * Class GravPageObject
  * @package Grav\Plugin\FlexObjects\Types\GravPages
  *
- * @method PageIndex dateRange($startDate, $endDate = false, $field = null)
- * @method PageIndex visible()
- * @method PageIndex nonVisible()
- * @method PageIndex modular()
- * @method PageIndex nonModular()
- * @method PageIndex published()
- * @method PageIndex nonPublished()
- * @method PageIndex routable()
- * @method PageIndex nonRoutable()
- * @method PageIndex ofType(string $type)
- * @method PageIndex ofOneOfTheseTypes(array $types)
- * @method PageIndex ofOneOfTheseAccessLevels(array $accessLevels)
  * @method PageIndex withModules(bool $bool = true)
  * @method PageIndex withPages(bool $bool = true)
  * @method PageIndex withTranslation(bool $bool = true, string $languageCode = null, bool $fallback = null)
  */
-class PageIndex extends FlexPageIndex
+class PageIndex extends FlexPageIndex implements PageCollectionInterface
 {
     use FlexGravTrait;
     use FlexIndexTrait;
@@ -542,4 +532,378 @@ class PageIndex extends FlexPageIndex
 
         return date($dateFormat, $timestamp) ?: null;
     }
+
+    /**
+     * Add a single page to a collection
+     *
+     * @param PageInterface $page
+     *
+     * @return PageCollection
+     */
+    public function addPage(PageInterface $page)
+    {
+        return $this->getCollection()->addPage($page);
+    }
+
+    /**
+     *
+     * Create a copy of this collection
+     *
+     * @return static
+     */
+    public function copy()
+    {
+        return clone $this;
+    }
+
+    /**
+     *
+     * Merge another collection with the current collection
+     *
+     * @param PageCollectionInterface $collection
+     * @return $this
+     */
+    public function merge(PageCollectionInterface $collection)
+    {
+        return $this->getCollection()->merge($collection);
+    }
+
+
+    /**
+     * Intersect another collection with the current collection
+     *
+     * @param PageCollectionInterface $collection
+     * @return $this
+     */
+    public function intersect(PageCollectionInterface $collection)
+    {
+        return $this->getCollection()->intersect($collection);
+    }
+
+    /**
+     * Split collection into array of smaller collections.
+     *
+     * @param int $size
+     * @return PageCollectionInterface[]
+     */
+    public function batch($size)
+    {
+        return $this->getCollection()->batch($size);
+    }
+
+    /**
+     * Remove item from the list.
+     *
+     * @param PageInterface|string|null $key
+     *
+     * @return $this
+     * @throws \InvalidArgumentException
+     */
+    public function remove($key = null)
+    {
+        return $this->getCollection()->remove($key);
+    }
+
+    /**
+     * Reorder collection.
+     *
+     * @param string $by
+     * @param string $dir
+     * @param array  $manual
+     * @param string $sort_flags
+     *
+     * @return PageCollectionInterface
+     */
+    public function order($by, $dir = 'asc', $manual = null, $sort_flags = null)
+    {
+        /** @var PageCollectionInterface $collection */
+        $collection = $this->__call('order', [$by, $dir, $manual, $sort_flags]);
+
+        return $collection;
+    }
+
+    /**
+     * Check to see if this item is the first in the collection.
+     *
+     * @param  string $path
+     *
+     * @return bool True if item is first.
+     */
+    public function isFirst($path): bool
+    {
+        /** @var bool $result */
+        $result = $this->__call('isFirst', [$path]);
+
+        return $result;
+
+    }
+
+    /**
+     * Check to see if this item is the last in the collection.
+     *
+     * @param  string $path
+     *
+     * @return bool True if item is last.
+     */
+    public function isLast($path): bool
+    {
+        /** @var bool $result */
+        $result = $this->__call('isLast', [$path]);
+
+        return $result;
+    }
+
+    /**
+     * Gets the previous sibling based on current position.
+     *
+     * @param  string $path
+     *
+     * @return PageInterface|null  The previous item.
+     */
+    public function prevSibling($path)
+    {
+        /** @var PageInterface|null $result */
+        $result = $this->__call('prevSibling', [$path]);
+
+        return $result;
+    }
+
+    /**
+     * Gets the next sibling based on current position.
+     *
+     * @param  string $path
+     *
+     * @return PageInterface|null The next item.
+     */
+    public function nextSibling($path)
+    {
+        /** @var PageInterface|null $result */
+        $result = $this->__call('nextSibling', [$path]);
+
+        return $result;
+    }
+
+    /**
+     * Returns the adjacent sibling based on a direction.
+     *
+     * @param  string  $path
+     * @param  int $direction either -1 or +1
+     *
+     * @return PageInterface|PageCollectionInterface|false    The sibling item.
+     */
+    public function adjacentSibling($path, $direction = 1)
+    {
+        /** @var PageInterface|PageCollectionInterface|false $result */
+        $result = $this->__call('adjacentSibling', [$path, $direction]);
+
+        return $result;
+    }
+
+    /**
+     * Returns the item in the current position.
+     *
+     * @param  string $path the path the item
+     *
+     * @return int|null The index of the current page, null if not found.
+     */
+    public function currentPosition($path): ?int
+    {
+        /** @var int|null $result */
+        $result = $this->__call('currentPosition', [$path]);
+
+        return $result;
+    }
+
+    /**
+     * Returns the items between a set of date ranges of either the page date field (default) or
+     * an arbitrary datetime page field where end date is optional
+     * Dates can be passed in as text that strtotime() can process
+     * http://php.net/manual/en/function.strtotime.php
+     *
+     * @param string $startDate
+     * @param bool $endDate
+     * @param string|null $field
+     *
+     * @return PageCollectionInterface
+     * @throws \Exception
+     */
+    public function dateRange($startDate, $endDate = false, $field = null)
+    {
+        /** @var PageCollectionInterface $collection */
+        $collection = $this->__call('dateRange', [$startDate, $endDate, $field]);
+
+        return $collection;
+    }
+
+    /**
+     * Creates new collection with only visible pages
+     *
+     * @return PageCollectionInterface The collection with only visible pages
+     */
+    public function visible()
+    {
+        /** @var PageCollectionInterface $collection */
+        $collection = $this->__call('visible', []);
+
+        return $collection;
+    }
+
+    /**
+     * Creates new collection with only non-visible pages
+     *
+     * @return PageCollectionInterface The collection with only non-visible pages
+     */
+    public function nonVisible()
+    {
+        /** @var PageCollectionInterface $collection */
+        $collection = $this->__call('nonVisible', []);
+
+        return $collection;
+    }
+
+    /**
+     * Creates new collection with only modular pages
+     *
+     * @return PageCollectionInterface The collection with only modular pages
+     */
+    public function modular()
+    {
+        /** @var PageCollectionInterface $collection */
+        $collection = $this->__call('modular', []);
+
+        return $collection;
+    }
+
+    /**
+     * Creates new collection with only non-modular pages
+     *
+     * @return PageCollectionInterface The collection with only non-modular pages
+     */
+    public function nonModular()
+    {
+        /** @var PageCollectionInterface $collection */
+        $collection = $this->__call('nonModular', []);
+
+        return $collection;
+
+    }
+
+    /**
+     * Creates new collection with only published pages
+     *
+     * @return PageCollectionInterface The collection with only published pages
+     */
+    public function published()
+    {
+        /** @var PageCollectionInterface $collection */
+        $collection = $this->__call('published', []);
+
+        return $collection;
+    }
+
+    /**
+     * Creates new collection with only non-published pages
+     *
+     * @return PageCollectionInterface The collection with only non-published pages
+     */
+    public function nonPublished()
+    {
+        /** @var PageCollectionInterface $collection */
+        $collection = $this->__call('nonPublished', []);
+
+        return $collection;
+    }
+
+    /**
+     * Creates new collection with only routable pages
+     *
+     * @return PageCollectionInterface The collection with only routable pages
+     */
+    public function routable()
+    {
+        /** @var PageCollectionInterface $collection */
+        $collection = $this->__call('routable', []);
+
+        return $collection;
+    }
+
+    /**
+     * Creates new collection with only non-routable pages
+     *
+     * @return PageCollectionInterface The collection with only non-routable pages
+     */
+    public function nonRoutable()
+    {
+        /** @var PageCollectionInterface $collection */
+        $collection = $this->__call('nonRoutable', []);
+
+        return $collection;
+    }
+
+    /**
+     * Creates new collection with only pages of the specified type
+     *
+     * @param string $type
+     *
+     * @return PageCollectionInterface The collection
+     */
+    public function ofType($type)
+    {
+        /** @var PageCollectionInterface $collection */
+        $collection = $this->__call('ofType', []);
+
+        return $collection;
+    }
+
+    /**
+     * Creates new collection with only pages of one of the specified types
+     *
+     * @param string[] $types
+     *
+     * @return PageCollectionInterface The collection
+     */
+    public function ofOneOfTheseTypes($types)
+    {
+        /** @var PageCollectionInterface $collection */
+        $collection = $this->__call('ofOneOfTheseTypes', []);
+
+        return $collection;
+    }
+
+    /**
+     * Creates new collection with only pages of one of the specified access levels
+     *
+     * @param array $accessLevels
+     *
+     * @return PageCollectionInterface The collection
+     */
+    public function ofOneOfTheseAccessLevels($accessLevels)
+    {
+        /** @var PageCollectionInterface $collection */
+        $collection = $this->__call('ofOneOfTheseAccessLevels', []);
+
+        return $collection;
+    }
+
+    /**
+     * Converts collection into an array.
+     *
+     * @return array
+     */
+    public function toArray()
+    {
+        return $this->getCollection()->toArray();
+    }
+
+    /**
+     * Get the extended version of this Collection with each page keyed by route
+     *
+     * @return array
+     * @throws \Exception
+     */
+    public function toExtendedArray()
+    {
+        return $this->getCollection()->toExtendedArray();
+    }
+
 }

@@ -58,7 +58,7 @@ interface PageCollectionInterface extends \Traversable, \ArrayAccess, \Countable
      * Merge another collection with the current collection
      *
      * @param PageCollectionInterface $collection
-     * @return $this
+     * @return PageCollectionInterface
      */
     public function merge(PageCollectionInterface $collection);
 
@@ -66,7 +66,7 @@ interface PageCollectionInterface extends \Traversable, \ArrayAccess, \Countable
      * Intersect another collection with the current collection
      *
      * @param PageCollectionInterface $collection
-     * @return $this
+     * @return PageCollectionInterface
      */
     public function intersect(PageCollectionInterface $collection);
 
@@ -83,7 +83,7 @@ interface PageCollectionInterface extends \Traversable, \ArrayAccess, \Countable
      *
      * @param PageInterface|string|null $key
      *
-     * @return $this
+     * @return PageCollectionInterface
      * @throws \InvalidArgumentException
      */
     //public function remove($key = null);
@@ -96,7 +96,7 @@ interface PageCollectionInterface extends \Traversable, \ArrayAccess, \Countable
      * @param array  $manual
      * @param string $sort_flags
      *
-     * @return $this
+     * @return PageCollectionInterface
      */
     public function order($by, $dir = 'asc', $manual = null, $sort_flags = null);
 
@@ -165,7 +165,7 @@ interface PageCollectionInterface extends \Traversable, \ArrayAccess, \Countable
      * @param bool $endDate
      * @param string|null $field
      *
-     * @return $this
+     * @return PageCollectionInterface
      * @throws \Exception
      */
     public function dateRange($startDate, $endDate = false, $field = null);

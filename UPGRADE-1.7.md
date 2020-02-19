@@ -44,7 +44,7 @@
 
 ## DEVELOPERS
 
-### Composer / vendor
+### Use composer autoloader
 
 * Please add `composer.json` file to your plugin and run `composer update --no-dev` (and remember to keep it updated):
 
@@ -88,6 +88,8 @@
         }
     }
     ```
+
+  See [Composer schema](https://getcomposer.org/doc/04-schema.md)
 
 * Please use autoloader instead of `require` in the code:
 
@@ -145,13 +147,14 @@
 
 ### Pages
 
-* Added experimental support for `Flex Pages` (**Flex-Objects** plugin required)
+* Added experimental support for `Flex Pages`
 * Added page specific permissions support for `Flex Pages`
 * Fixed wrong `Pages::dispatch()` calls (with redirect) when we really meant to call `Pages::find()`
 * Added `Pages::getCollection()` method
 * Moved `collection()` and `evaluate()` logic from `Page` class into `Pages` class
 * **DEPRECATED** `$page->modular()` in favor of `$page->isModule()`
 * **BC BREAK** Fixed `Page::modular()` and `Page::modularTwig()` returning `null` for folders and other non-initialized pages. Should not affect your code unless you were checking against `false` or `null`.
+* If you're using Flex Pages in admin, collection will behave in slightly different way
 
 ### Users
 
@@ -249,3 +252,7 @@
     Please call `$grav['admin']->enablePages()` or `{% do admin.enablePages() %}` if you need to access frontend pages. This call can be safely made multiple times.
 
     If you're using `Flex Pages`, please use Flex Directory instead, it will make your code so much faster.
+
+* Admin now uses Flex for editing `Accounts` and `Pages`. If your plugin hooks into either of those, please make sure they still work.
+
+* Admin cache is enabled by default, make sure your plugin clears cache when needed. Please avoid clearing all cache!
