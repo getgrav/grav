@@ -29,7 +29,11 @@ trait FlexCollectionTrait
     public function triggerEvent(string $name, $event = null)
     {
         if (null === $event) {
-            $event = new Event(['collection' => $this]);
+            $event = new Event([
+                'type' => 'flex',
+                'directory' => $this->getFlexDirectory(),
+                'collection' => $this
+            ]);
         }
         if (strpos($name, 'onFlexCollection') !== 0 && strpos($name, 'on') === 0) {
             $name = 'onFlexCollection' . substr($name, 2);

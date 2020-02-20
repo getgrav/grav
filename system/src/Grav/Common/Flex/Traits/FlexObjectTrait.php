@@ -29,7 +29,11 @@ trait FlexObjectTrait
     public function triggerEvent(string $name, $event = null)
     {
         if (null === $event) {
-            $event = new Event(['object' => $this]);
+            $event = new Event([
+                'type' => 'flex',
+                'directory' => $this->getFlexDirectory(),
+                'object' => $this
+            ]);
         }
         if (strpos($name, 'onFlexObject') !== 0 && strpos($name, 'on') === 0) {
             $name = 'onFlexObject' . substr($name, 2);

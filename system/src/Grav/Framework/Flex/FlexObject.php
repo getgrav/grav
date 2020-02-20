@@ -472,6 +472,8 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
             }
 
             $event = new Event([
+                'type' => 'flex',
+                'directory' => $this->getFlexDirectory(),
                 'object' => $this,
                 'layout' => &$layout,
                 'context' => &$context
@@ -982,14 +984,18 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      * @param string $name
      * @param object|null $event
      * @return $this
-     * @deprecated 1.7 Moved to \Grav\Common\Flex\Traits\GravTrait
+     * @deprecated 1.7 Moved to \Grav\Common\Flex\Traits\FlexObjectTrait
      */
     public function triggerEvent(string $name, $event = null)
     {
         user_error(__METHOD__ . '() is deprecated since Grav 1.7, moved to \Grav\Common\Flex\Traits\FlexObjectTrait', E_USER_DEPRECATED);
 
         if (null === $event) {
-            $event = new Event(['object' => $this]);
+            $event = new Event([
+                'type' => 'flex',
+                'directory' => $this->getFlexDirectory(),
+                'object' => $this
+            ]);
         }
         if (strpos($name, 'onFlexObject') !== 0 && strpos($name, 'on') === 0) {
             $name = 'onFlexObject' . substr($name, 2);

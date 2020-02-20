@@ -7,6 +7,10 @@ extends@:
   type: account
   context: blueprints://user
 
+#
+# HIGHLY SPECIALIZED FLEX TYPE, AVOID USING USER ACCOUNTS AS BASE FOR YOUR OWN TYPE.
+#
+
 # Flex configuration
 config:
   # Administration Configuration (needs Flex Objects plugin)

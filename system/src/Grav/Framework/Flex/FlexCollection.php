@@ -372,11 +372,13 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
             }
 
             $event = new Event([
+                'type' => 'flex',
+                'directory' => $this->getFlexDirectory(),
                 'collection' => $this,
                 'layout' => &$layout,
                 'context' => &$context
             ]);
-            $grav->fireEvent('onRender', $event);
+            $this->triggerEvent('onRender', $event);
 
             $output = $this->getTemplate($layout)->render(
                 [
@@ -642,7 +644,11 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
         user_error(__METHOD__ . '() is deprecated since Grav 1.7, moved to \Grav\Common\Flex\Traits\FlexObjectTrait', E_USER_DEPRECATED);
 
         if (null === $event) {
-            $event = new Event(['collection' => $this]);
+            $event = new Event([
+                'type' => 'flex',
+                'directory' => $this->getFlexDirectory(),
+                'collection' => $this
+            ]);
         }
         if (strpos($name, 'onFlexCollection') !== 0 && strpos($name, 'on') === 0) {
             $name = 'onFlexCollection' . substr($name, 2);

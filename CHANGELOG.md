@@ -1,8 +1,10 @@
-# v1.7.0-rc.6
-## 02/11/2020
+# v1.7.0-rc.7
+## mm/dd/2020
 
 1. [](#new)
     * Added `Session::regenerateId()` method to properly prevent session fixation issues
+1. [](#improved)
+    * Improved Flex events
 1. [](#bugfix)
     * Fixed `validation: strict` not working in blueprints [#1273](https://github.com/getgrav/grav/issues/1273)
     * Fixed Flex Pages having broken `isFirst()`, `isLast()`, `prevSibling()`, `nextSibling()` and `adjacentSibling()`

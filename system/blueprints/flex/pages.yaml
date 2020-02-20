@@ -7,6 +7,10 @@ extends@:
   type: default
   context: blueprints://pages
 
+#
+# HIGHLY SPECIALIZED FLEX TYPE, AVOID USING PAGES AS BASE FOR YOUR OWN TYPE.
+#
+
 # Flex configuration
 config:
   # Administration Configuration (needs Flex Objects plugin)
