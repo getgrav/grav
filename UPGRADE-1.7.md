@@ -154,14 +154,16 @@
 * Moved `collection()` and `evaluate()` logic from `Page` class into `Pages` class
 * **DEPRECATED** `$page->modular()` in favor of `$page->isModule()`
 * **BC BREAK** Fixed `Page::modular()` and `Page::modularTwig()` returning `null` for folders and other non-initialized pages. Should not affect your code unless you were checking against `false` or `null`.
-* If you're using Flex Pages in admin, collection will behave in slightly different way
+* **BC BREAK** Always use `\Grav\Common\Page\Interfaces\PageInterface` instead of `\Grav\Common\Page\Page` in method signatures
+* Admin now uses `Flex Pages` by default, collection will behave in slightly different way
 
 ### Users
 
 * Improved `Flex Users`: obey blueprints and allow Flex to be used in admin only
 * Improved `Flex Users`: user and group ACL now supports deny permissions
 * Changed `UserInterface::authorize()` to return `null` having the same meaning as `false` if access is denied because of no matching rule
-* **DEPRECATED** `Grav\Common\User\Group` in favor of `$grav['user_groups']`, which contains Flex UserGroup collection
+* **DEPRECATED** `\Grav\Common\User\Group` in favor of `$grav['user_groups']`, which contains Flex UserGroup collection
+* **BC BREAK** Always use `\Grav\Common\User\Interfaces\UserInterface` instead of `\Grav\Common\User\User` in method signatures
 
 ### Flex
 
