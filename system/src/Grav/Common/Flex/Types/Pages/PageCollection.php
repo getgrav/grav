@@ -76,6 +76,7 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
                 'ofType' => true,
                 'ofOneOfTheseTypes' => true,
                 'ofOneOfTheseAccessLevels' => true,
+                'withOrdered' => true,
                 'withModules' => true,
                 'withPages' => true,
                 'withTranslation' => true,
@@ -502,13 +503,23 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
      * @param bool $bool
      * @return FlexCollectionInterface|FlexPageCollection
      */
+    public function withOrdered(bool $bool = true)
+    {
+        $list = array_keys(array_filter($this->call('isOrdered', [$bool])));
+
+        return $this->select($list);
+    }
+
+    /**
+     * @param bool $bool
+     * @return FlexCollectionInterface|FlexPageCollection
+     */
     public function withModules(bool $bool = true)
     {
         $list = array_keys(array_filter($this->call('isModule', [$bool])));
 
         return $this->select($list);
     }
-
 
     /**
      * @param bool $bool

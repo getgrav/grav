@@ -147,23 +147,93 @@ class PageObject extends FlexPageObject
     }
 
     /**
+     * @param array $variables
+     * @return array
+     */
+    protected function onBeforeSave(array $variables)
+    {
+        $reorder = $variables[0] ?? true;
+
+        // Figure out storage path to the new route.
+        $parentKey = $this->getProperty('parent_key');
+        if ($parentKey !== '') {
+            $parentRoute = $this->getProperty('route');
+
+            // Root page cannot be moved.
+            if ($this->root()) {
+                throw new \RuntimeException(sprintf('Root page cannot be moved to %s', $parentRoute));
+            }
+
+            // Make sure page isn't being moved under itself.
+            $key = $this->getKey();
+            if ($key === $parentKey || strpos($parentKey, $key . '/') === 0) {
+                throw new \RuntimeException(sprintf('Page /%s cannot be moved to %s', $key, $parentRoute));
+            }
+
+            /** @var PageObject|null $parent */
+            $parent = $parentKey !== false ? $this->getFlexDirectory()->getObject($parentKey, 'storage_key') : null;
+            if (!$parent) {
+                // Page cannot be moved to non-existing location.
+                throw new \RuntimeException(sprintf('Page /%s cannot be moved to non-existing path %s', $key, $parentRoute));
+            }
+
+            // TODO: make sure that the page doesn't exist yet if moved/copied.
+        }
+
+        // Reorder siblings.
+        if ($reorder === true && !$this->root()) {
+            $reorder = $this->_reorder;
+        }
+
+        $siblings = is_array($reorder) ? $this->reorderSiblings($reorder) : [];
+
+        $data = $this->prepareStorage();
+        unset($data['header']);
+
+        foreach ($siblings as $sibling) {
+            $data = $sibling->prepareStorage();
+            unset($data['header']);
+        }
+
+        return ['reorder' => $reorder, 'siblings' => $siblings];
+    }
+
+    /**
+     * @param array $variables
+     * @return array
+     */
+    protected function onSave(array $variables): array
+    {
+        /** @var PageCollection $siblings */
+        $siblings = $variables['siblings'];
+        foreach ($siblings as $sibling) {
+            $sibling->save(false);
+        }
+
+        return $variables;
+    }
+
+    /**
+     * @param array $variables
+     * @return array
+     */
+    protected function onAfterSave(array $variables): void
+    {
+    }
+
+    /**
      * @param array|bool $reorder
      * @return FlexObject|\Grav\Framework\Flex\Interfaces\FlexObjectInterface
      */
     public function save($reorder = true)
     {
-        // Reorder siblings.
-        if ($reorder === true && !$this->root()) {
-            $reorder = $this->_reorder ?: false;
-        }
-        $siblings = is_array($reorder) ? $this->reorderSiblings($reorder) : [];
+        $variables = $this->onBeforeSave(func_get_args());
 
         /** @var static $instance */
         $instance = parent::save();
+        $variables = $this->onSave($variables);
 
-        foreach ($siblings as $sibling) {
-            $sibling->save(false);
-        }
+        $this->onAfterSave($variables);
 
         return $instance;
     }
@@ -174,50 +244,66 @@ class PageObject extends FlexPageObject
      */
     protected function reorderSiblings(array $ordering)
     {
-        $filesystem = Filesystem::getInstance(false);
+        $parent = $this->parent();
+        if (!$parent) {
+            throw new \RuntimeException('Cannot reorder page which has no parent');
+        }
 
+        /** @var PageCollection|null $siblings */
+        $siblings = $parent->children();
+
+        /** @var PageCollection|null $siblings */
+        $siblings = $siblings->getCollection()->withOrdered()->orderBy(['order' => 'ASC']);
+
+        // Remove old copy of the current page from the siblings list.
         $storageKey = $this->getStorageKey();
+        if ($storageKey !== null) {
+            $siblings->remove($storageKey);
+        }
+
+        $filesystem = Filesystem::getInstance(false);
         $oldParentKey = ltrim($filesystem->dirname("/$storageKey"), '/');
         $newParentKey = $this->getProperty('parent_key');
+        $isMoved =  $oldParentKey !== $newParentKey;
+        $order = !$isMoved ? $this->order() : false;
 
-        $slug = basename($this->getKey());
-        $order = $oldParentKey === $newParentKey ? $this->order() : false;
-        $k = $slug !== '' ? array_search($slug, $ordering, true) : false;
-        if ($order === false) {
-            if ($k !== false) {
-                unset($ordering[$k]);
+        foreach ($siblings as $sibling) {
+            $basename = basename($sibling->getKey());
+            if (!in_array($basename, $ordering, true)) {
+                $ordering[] = $basename;
             }
-        } elseif ($k === false) {
-            $ordering[999999] = $slug;
         }
-        $ordering = array_values($ordering);
 
-        $parent = $this->parent();
+        // Add current page back to the list if it's ordered.
+        if ($order !== false) {
+            $siblings->set($storageKey, $this);
+            $basename = basename($this->getKey());
+            if (!in_array($basename, $ordering, true)) {
+                $ordering[] = $basename;
+            }
+        }
 
-        /** @var PageCollection|null $siblings */
-        $siblings = $parent ? $parent->children() : null;
-        /** @var PageCollection|null $siblings */
-        $siblings = $siblings ? $siblings->withVisible()->getCollection() : null;
-        if ($siblings) {
-            $ordering = array_flip($ordering);
-            if ($storageKey !== null) {
-                $siblings->remove($storageKey);
-                if (isset($ordering[$slug])) {
-                    $siblings->set($storageKey, $this);
-                }
+        $ordering = array_flip(array_values($ordering));
+        $count = count($ordering);
+        foreach ($siblings as $sibling) {
+            $newOrder = $ordering[basename($sibling->getKey())] ?? null;
+            $newOrder = null !== $newOrder ? $newOrder + 1 : (int)$sibling->order() + $count;
+            $sibling->order($newOrder);
+        }
+        /** @var PageCollection $siblings */
+        $siblings = $siblings->orderBy(['order' => 'ASC']);
+        $siblings->removeElement($this);
+
+        // If menu item was moved, just make it to be the last in order.
+        if ($isMoved) {
+            $parentKey = $this->getProperty('parent_key');
+            $newParent = $this->getFlexDirectory()->getObject($parentKey, 'storage_key');
+            $newSiblings = $newParent->children()->getCollection()->withOrdered();
+            $order = 0;
+            foreach ($newSiblings as $sibling) {
+                $order = max($order, (int)$sibling->order());
             }
-            $count = count($ordering);
-            foreach ($siblings as $sibling) {
-                $newOrder = $ordering[basename($sibling->getKey())] ?? null;
-                $oldOrder = $sibling->order();
-                $sibling->order(null !== $newOrder ? $newOrder + 1 : $oldOrder + $count);
-            }
-            /** @var PageCollection $siblings */
-            $siblings = $siblings->orderBy(['order' => 'ASC']);
-            $siblings->removeElement($this);
-        } else {
-            /** @var PageCollection $siblings */
-            $siblings = $this->getFlexDirectory()->createCollection([]);
+            $this->order($order + 1);
         }
 
         return $siblings;
@@ -372,64 +458,38 @@ class PageObject extends FlexPageObject
      */
     protected function filterElements(array &$elements, bool $extended = false): void
     {
-        // Deal with ordering=bool and order=page1,page2,page3.
-        if (array_key_exists('ordering', $elements) && array_key_exists('order', $elements)) {
-            $ordering = (bool)($elements['ordering'] ?? false);
-            $slug = preg_replace(static::PAGE_ORDER_PREFIX_REGEX, '', $this->getProperty('folder'));
-            $list = !empty($elements['order']) ? explode(',', $elements['order']) : [];
-            if ($ordering) {
-                $order = array_search($slug, $list, true);
-                if ($order !== false) {
-                    $order++;
-                } else {
-                    $order = $this->getProperty('order') ?: 1;
-                }
-            } else {
-                $order = false;
-            }
-
-            $this->_reorder = $list;
-            $elements['order'] = $order;
-        }
-
-        // Change storage location if needed.
+        // Change parent page if needed.
         if (array_key_exists('route', $elements) && isset($elements['folder'], $elements['name'])) {
             $elements['template'] = $elements['name'];
-            $parentRoute = $elements['route'] ?? '';
 
             // Figure out storage path to the new route.
-            $parentKey = trim($parentRoute, '/');
+            $parentKey = trim($elements['route'] ?? '', '/');
             if ($parentKey !== '') {
-                // Make sure page isn't being moved under itself.
-                $key = $this->getKey();
-                if ($key === $parentKey || strpos($parentKey, $key . '/') === 0) {
-                    throw new \RuntimeException(sprintf('Page %s cannot be moved to %s', '/' . $key, $parentRoute));
-                }
-
                 /** @var PageObject|null $parent */
                 $parent = $this->getFlexDirectory()->getObject($parentKey);
-                if (!$parent) {
-                    // Page cannot be moved to non-existing location.
-                    throw new \RuntimeException(sprintf('Page %s cannot be moved to non-existing path %s', '/' . $key, $parentRoute));
-                }
-
-                // If parent changes and page is visible, move it to be the last item.
-                if (!empty($elements['order']) && $parent !== $this->parent()) {
-                    /** @var PageCollection $children */
-                    $children = $parent->children();
-                    $siblings = $children->visible()->sort(['order' => 'ASC']);
-                    if ($siblings->count()) {
-                        $elements['order'] = ((int)$siblings->last()->order()) + 1;
-                    } else {
-                        $elements['order'] = 1;
-                    }
-                }
-
-                $parentKey = $parent->getStorageKey();
+                $parentKey = $parent ? $parent->getStorageKey() : $parentKey;
             }
 
             $elements['parent_key'] = $parentKey;
         }
+
+        // Deal with ordering=bool and order=page1,page2,page3.
+        if ($this->root()) {
+            // Root page doesn't have ordering.
+            unset($elements['ordering'], $elements['order']);
+        } elseif (array_key_exists('ordering', $elements) && array_key_exists('order', $elements)) {
+            // Store ordering.
+            $this->_reorder = !empty($elements['order']) ? explode(',', $elements['order']) : [];
+
+            $order = false;
+            if ((bool)($elements['ordering'] ?? false)) {
+                $order = 999999;
+            }
+
+            $this->order();
+            $elements['order'] = $order;
+        }
+
         parent::filterElements($elements, true);
     }
 

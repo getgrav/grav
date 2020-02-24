@@ -83,6 +83,7 @@ class FlexPageObject extends FlexObject implements PageInterface, MediaManipulat
 
             // Page
             'isPublished' => true,
+            'isOrdered' => true,
             'isVisible' => true,
             'isRoutable' => true,
             'getCreated_Timestamp' => true,
@@ -103,6 +104,15 @@ class FlexPageObject extends FlexObject implements PageInterface, MediaManipulat
         $stop = $this->getUnpublish_Timestamp();
 
         return $this->published() && $start <= $time && (!$stop || $time <= $stop) === $test;
+    }
+
+    /**
+     * @param bool $test
+     * @return bool
+     */
+    public function isOrdered(bool $test = true): bool
+    {
+        return ($this->order() !== false) === $test;
     }
 
     /**
