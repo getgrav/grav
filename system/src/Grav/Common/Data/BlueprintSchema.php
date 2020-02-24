@@ -9,6 +9,7 @@
 
 namespace Grav\Common\Data;
 
+use Grav\Common\Config\Config;
 use Grav\Common\Grav;
 use RocketTheme\Toolbox\ArrayTraits\Export;
 use RocketTheme\Toolbox\ArrayTraits\ExportInterface;
@@ -157,7 +158,13 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
                 $messages += $this->validateArray($child, $val, $strict);
             } elseif ($strict) {
                 // Undefined/extra item.
-                throw new \RuntimeException(sprintf('%s is not defined in blueprints', $key));
+                /** @var Config $config */
+                $config = Grav::instance()['config'];
+                if (!$config->get('system.strict_mode.blueprint_strict_compat', true)) {
+                    throw new \RuntimeException(sprintf('%s is not defined in blueprints', $key));
+                }
+
+                user_error(sprintf('Having extra key %s in your data is deprecated with blueprint having \'validation: strict\'', $key), E_USER_DEPRECATED);
             }
         }
 

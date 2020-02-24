@@ -3,13 +3,14 @@
 
 1. [](#new)
     * Added `Session::regenerateId()` method to properly prevent session fixation issues
+    * Added configuration option `system.strict_mode.blueprint_compat` to maintain old `validation: strict` behavior [#1273](https://github.com/getgrav/grav/issues/1273)
 1. [](#improved)
     * Improved Flex events
 1. [](#bugfix)
-    * Fixed `validation: strict` not working in blueprints [#1273](https://github.com/getgrav/grav/issues/1273)
     * Fixed Flex Pages having broken `isFirst()`, `isLast()`, `prevSibling()`, `nextSibling()` and `adjacentSibling()`
-    * Fixed broken ordering sometimes when saving/moving visible `Flex Page`
+    * Fixed broken ordering sometimes when saving/moving visible `Flex Page` [#2837](https://github.com/getgrav/grav/issues/2837)
     * Fixed ordering being lost when saving modular `Flex Page`
+    * Fixed `validation: strict` not working in blueprints (see `system.strict_mode.blueprint_compat` setting) [#1273](https://github.com/getgrav/grav/issues/1273)
 
 # v1.7.0-rc.6
 ## 02/11/2020

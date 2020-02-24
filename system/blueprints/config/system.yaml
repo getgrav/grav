@@ -1438,6 +1438,18 @@ form:
             accounts.storage:
               type: hidden
 
+            strict_mode.blueprint_compat:
+              type: toggle
+              label: PLUGIN_ADMIN.STRICT_BLUEPRINT_COMPAT
+              highlight: 1
+              default: 1
+              help: PLUGIN_ADMIN.STRICT_BLUEPRINT_COMPAT_HELP
+              options:
+                1: PLUGIN_ADMIN.YES
+                0: PLUGIN_ADMIN.NO
+              validate:
+                type: bool
+
             strict_mode.yaml_compat:
               type: toggle
               label: PLUGIN_ADMIN.STRICT_YAML_COMPAT
