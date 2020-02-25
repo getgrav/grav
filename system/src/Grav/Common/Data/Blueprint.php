@@ -165,6 +165,38 @@ class Blueprint extends BlueprintForm
     }
 
     /**
+     * Extend blueprint with another blueprint.
+     *
+     * @param BlueprintForm|array $extends
+     * @param bool $append
+     * @return $this
+     */
+    public function extend($extends, $append = false)
+    {
+        parent::extend($extends, $append);
+
+        $this->deepInit($this->items);
+
+        return $this;
+    }
+
+    /**
+     * @param string $name
+     * @param mixed $value
+     * @param string $separator
+     * @param bool $append
+     * @return $this
+     */
+    public function embed($name, $value, $separator = '/', $append = false)
+    {
+        parent::embed($name, $value, $separator, $append);
+
+        $this->deepInit($this->items);
+
+        return $this;
+    }
+
+    /**
      * Merge two arrays by using blueprints.
      *
      * @param  array $data1

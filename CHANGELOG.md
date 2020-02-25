@@ -11,6 +11,7 @@
     * Fixed broken ordering sometimes when saving/moving visible `Flex Page` [#2837](https://github.com/getgrav/grav/issues/2837)
     * Fixed ordering being lost when saving modular `Flex Page`
     * Fixed `validation: strict` not working in blueprints (see `system.strict_mode.blueprint_compat` setting) [#1273](https://github.com/getgrav/grav/issues/1273)
+    * Fixed `Blueprint::extend()` and `Blueprint::embed()` not initializing dynamic properties
 
 # v1.7.0-rc.6
 ## 02/11/2020
