@@ -179,7 +179,7 @@ class FlexDirectory implements FlexAuthorizeInterface
         $path = "blueprints://flex/shared/{$name}.yaml";
         $blueprint = new Blueprint($path);
         $blueprint->load();
-        if ($overrides) {
+        if (isset($overrides['fields'])) {
             $blueprint->embed('form/fields/tabs/fields', $overrides['fields']);
         }
         $blueprint->init();
