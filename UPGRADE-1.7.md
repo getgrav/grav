@@ -240,6 +240,15 @@
 
 ### CLI
 
+* **BC BREAK** Many plugins initialize Grav in a wrong way, it is not safe to initialize plugins and theme by yourself
+    * Following calls require Grav 1.6.21 or later, so it is recommended to set Grav dependency to that version
+    * Inside `serve()` method:
+    * Call `$this->setLanguage($langCode);` before doing anything else if you want to set the language (or use default)
+    * Call one of following:
+        * `$this->initializeGrav();` Already called if you're in `bin/plugin`, otherwise you may need to call this one
+        * `$this->initializePlugins();` This initializes grav, plugins (up to `onPluginsInitialized`)
+        * `$this->initializeThemes();` This initializes grav, plugins and theme
+        * `$this->initializePages();` This initializes grav, plugins, theme and everything needed by pages
 * It is a good idea to prefix your CLI command classes with your plugin name, otherwise there may be naming conflicts (we already have some!)
 
 ### Composer dependencies
