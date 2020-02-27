@@ -11,7 +11,6 @@ namespace Grav\Console\Cli;
 
 use Cron\CronExpression;
 use Grav\Common\Grav;
-use Grav\Common\Scheduler\Job;
 use Grav\Common\Utils;
 use Grav\Common\Scheduler\Scheduler;
 use Grav\Console\ConsoleCommand;
@@ -56,18 +55,11 @@ class SchedulerCommand extends ConsoleCommand
 
     protected function serve()
     {
+        $this->initializePlugins();
+
 //        error_reporting(1);
         $grav = Grav::instance();
-        $grav->setup();
-
-        $grav['uri']->init();
-        $grav['config']->init();
-        $grav['plugins']->init();
-        $grav['themes']->init();
         $grav['backups']->init();
-
-        // Initialize Plugins
-        $grav->fireEvent('onPluginsInitialized');
 
         /** @var Scheduler $scheduler */
         $scheduler = $grav['scheduler'];

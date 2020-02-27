@@ -9,7 +9,6 @@
 
 namespace Grav\Console\Cli;
 
-use Grav\Common\Grav;
 use Grav\Common\Helpers\YamlLinter;
 use Grav\Console\ConsoleCommand;
 use Symfony\Component\Console\Input\InputOption;
@@ -45,9 +44,6 @@ class YamlLinterCommand extends ConsoleCommand
 
     protected function serve()
     {
-        $grav = Grav::instance();
-        $grav->setup();
-
         $io = new SymfonyStyle($this->input, $this->output);
 
         $io->title('Yaml Linter');

@@ -13,7 +13,6 @@ use Grav\Common\Config\Config;
 use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Grav;
 use Grav\Common\Page\Interfaces\PageInterface;
-use Grav\Common\Uri;
 use Grav\Console\ConsoleCommand;
 use RocketTheme\Toolbox\Event\Event;
 use Symfony\Component\Console\Input\InputOption;
@@ -137,45 +136,17 @@ class PageSystemValidatorCommand extends ConsoleCommand
 
     protected function serve()
     {
+        $this->setLanguage('en');
+        $this->initializePages();
+
         $this->output->writeln('');
 
         $this->grav = $grav = Grav::instance();
-        $grav->setup();
 
-        // Initialize
-        $grav['uri']->init();
+        $grav->fireEvent('onPageInitialized', new Event(['page' => $grav['page']]));
+
         /** @var Config $config */
         $config = $grav['config'];
-        $config->init();
-        $grav['plugins']->setup();
-        $grav['debugger']->init();
-
-        // Initialize the timezone.
-        $timezone = $config->get('system.timezone');
-        if ($timezone) {
-            date_default_timezone_set($timezone);
-        }
-        /** @var Uri $uri */
-        $uri = $grav['uri'];
-        $uri->init();
-        $grav->setLocale();
-        $grav['language']->setActive('en');
-
-        // Plugins
-        $grav['accounts'];
-        $grav['plugins']->init();
-        $grav->fireEvent('onPluginsInitialized');
-
-        // Themes
-        $grav['themes']->init();
-
-        // Twig
-        $grav['twig']->init();
-
-        // Pages
-        $grav['pages']->init();
-        $grav->fireEvent('onPagesInitialized', new Event(['pages' => $grav['pages']]));
-        $grav->fireEvent('onPageInitialized', new Event(['page' => $grav['page']]));
 
         if ($this->input->getOption('record')) {
             $this->output->writeln('Pages: ' . $config->get('system.pages.type', 'page'));

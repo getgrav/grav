@@ -30,19 +30,10 @@ class SecurityCommand extends ConsoleCommand
 
     protected function serve()
     {
+        $this->initializePages();
+
         /** @var Grav $grav */
         $grav = Grav::instance();
-        $grav->setup();
-
-        $grav['uri']->init();
-        $grav['config']->init();
-        $grav['debugger']->enabled(false);
-        $grav['plugins']->init();
-        $grav['themes']->init();
-
-        $grav['twig']->init();
-        $grav['pages']->init();
-
         $this->progress = new ProgressBar($this->output, \count($grav['pages']->routes()) - 1);
         $this->progress->setFormat('Scanning <cyan>%current%</cyan> pages [<green>%bar%</green>] <white>%percent:3s%%</white> %elapsed:6s%');
         $this->progress->setBarWidth(100);

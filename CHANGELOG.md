@@ -6,6 +6,7 @@
     * Added configuration option `system.strict_mode.blueprint_compat` to maintain old `validation: strict` behavior [#1273](https://github.com/getgrav/grav/issues/1273)
 1. [](#improved)
     * Improved Flex events
+    * Updated CLI commands to use the new methods to initialize Grav
 1. [](#bugfix)
     * Fixed Flex Pages having broken `isFirst()`, `isLast()`, `prevSibling()`, `nextSibling()` and `adjacentSibling()`
     * Fixed broken ordering sometimes when saving/moving visible `Flex Page` [#2837](https://github.com/getgrav/grav/issues/2837)

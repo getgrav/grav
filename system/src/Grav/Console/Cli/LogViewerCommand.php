@@ -11,7 +11,6 @@ namespace Grav\Console\Cli;
 
 use Grav\Common\Grav;
 use Grav\Common\Helpers\LogViewer;
-use Grav\Common\Utils;
 use Grav\Console\ConsoleCommand;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Style\SymfonyStyle;
@@ -40,9 +39,6 @@ class LogViewerCommand extends ConsoleCommand
 
     protected function serve()
     {
-        $grav = Grav::instance();
-        $grav->setup();
-
         $file = $this->input->getOption('file') ?? 'grav.log';
         $lines = $this->input->getOption('lines') ?? 20;
         $verbose = $this->input->getOption('verbose', false);
@@ -56,7 +52,8 @@ class LogViewerCommand extends ConsoleCommand
 
         $viewer = new LogViewer();
 
-        $logfile = $grav['locator']->findResource("log://" . $file);
+        $grav = Grav::instance();
+        $logfile = $grav['locator']->findResource('log://' . $file);
 
         if ($logfile) {
             $rows = $viewer->objectTail($logfile, $lines, true);
