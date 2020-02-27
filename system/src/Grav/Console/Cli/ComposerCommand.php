@@ -17,7 +17,7 @@ class ComposerCommand extends ConsoleCommand
     protected function configure()
     {
         $this
-            ->setName("composer")
+            ->setName('composer')
             ->addOption(
                 'install',
                 'i',
@@ -30,7 +30,7 @@ class ComposerCommand extends ConsoleCommand
                 InputOption::VALUE_NONE,
                 'update the dependencies'
             )
-            ->setDescription("Updates the composer vendor dependencies needed by Grav.")
+            ->setDescription('Updates the composer vendor dependencies needed by Grav.')
             ->setHelp('The <info>composer</info> command updates the composer vendor dependencies needed by Grav');
     }
 

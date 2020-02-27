@@ -189,7 +189,11 @@ class PageSystemValidatorCommand extends ConsoleCommand
         $all = $pages->all();
 
         $results = [];
-        foreach ($all as $page) {
+        foreach ($all as $path => $page) {
+            if (null === $page) {
+                $this->output->writeln('<red>Error on page ' . $path . '</red>');
+                continue;
+            }
             foreach ($this->tests as $method => $params) {
                 $params = $params ?: [[]];
                 foreach ($params as $p) {
