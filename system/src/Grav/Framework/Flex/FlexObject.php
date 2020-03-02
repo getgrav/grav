@@ -120,7 +120,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
 
             $blueprint->validate($elements);
 
-            $elements = $blueprint->filter($elements);
+            $elements = $blueprint->filter($elements, true, true);
         }
 
         $this->filterElements($elements);
@@ -547,7 +547,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
 
             // Validate and filter elements and throw an error if any issues were found.
             $blueprint->validate($test + ['storage_key' => $this->getStorageKey(), 'timestamp' => $this->getTimestamp()]);
-            $data = $blueprint->filter($data, false, true);
+            $data = $blueprint->filter($data, true, true);
 
             // Finally update the object.
             foreach ($blueprint->flattenData($data) as $key => $value) {

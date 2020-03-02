@@ -183,32 +183,22 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
     {
         $results = [];
 
-        if ($missingValuesAsNull) {
-            // First pass is to fill up all the fields with null.
-            foreach ($rules as $key => $val) {
-                if ($key && $key !== '*') {
-                    $rule = $this->items[$parent . $key] ?? null;
-
-                    if (!$rule || !empty($rule['disabled']) || !empty($rule['validate']['ignore'])) {
-                        continue;
-                    }
-
-                    $results[$key] = null;
-                }
-            }
-        }
-
         foreach ($data as $key => $field) {
-            if (null === $field && !$missingValuesAsNull) {
-                continue;
-            }
-
             $val = $rules[$key] ?? $rules['*'] ?? null;
             $rule = \is_string($val) ? $this->items[$val] : $this->items[$parent . $key] ?? null;
 
             if (!empty($rule['disabled']) || !empty($rule['validate']['ignore'])) {
                 // Skip any data in the ignored field.
                 unset($results[$key]);
+                continue;
+            }
+
+            if (null === $field) {
+                if ($missingValuesAsNull) {
+                    $results[$key] = null;
+                } else {
+                    unset($results[$key]);
+                }
                 continue;
             }
 
