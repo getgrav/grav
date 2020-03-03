@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Grav\Common\Flex\Types\Users;
 
+use Grav\Common\Config\Config;
 use Grav\Common\Flex\Traits\FlexGravTrait;
 use Grav\Common\Flex\Traits\FlexObjectTrait;
 use Grav\Common\Grav;
@@ -118,6 +119,20 @@ class UserObject extends FlexObject implements UserInterface, MediaManipulationI
         // Define username and state if they aren't set.
         $this->defProperty('username', $key);
         $this->defProperty('state', 'enabled');
+    }
+
+    public function onPrepareRegistration()
+    {
+        if (!$this->getProperty('access')) {
+            /** @var Config $config */
+            $config = Grav::instance()['config'];
+
+            $groups = $config->get('plugins.login.user_registration.groups', '');
+            $access = $config->get('plugins.login.user_registration.access', ['site' => ['login' => true]]);
+
+            $this->setProperty('groups', $groups);
+            $this->setProperty('access', $access);
+        }
     }
 
     /**

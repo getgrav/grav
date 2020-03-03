@@ -256,6 +256,8 @@
 * Updated Symfony Components to 4.4, please update any deprecated features in your code
 * **BC BREAK** Please run `bin/grav yamllinter -f user://` to find any YAML parsing errors in your site (including your plugins and themes).
 
+## PLUGINS
+
 ### Admin
 
 * **BC BREAK** Admin will not initialize frontend pages anymore, this has been done to greatly speed up Admin plugin.
@@ -267,3 +269,7 @@
 * Admin now uses Flex for editing `Accounts` and `Pages`. If your plugin hooks into either of those, please make sure they still work.
 
 * Admin cache is enabled by default, make sure your plugin clears cache when needed. Please avoid clearing all cache!
+
+### Shortcode Core
+
+* **DEPRECATED** Every shortcode needs to have `init()` method, classes without it will stop working in the future.
