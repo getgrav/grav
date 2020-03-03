@@ -57,10 +57,8 @@ class UserGroupObject extends FlexObject implements UserGroupInterface
     {
         if ($scope === 'test') {
             $scope = null;
-        } else {
-            if (!$this->getProperty('enabled', true)) {
-                return null;
-            }
+        } elseif (!$this->getProperty('enabled', true)) {
+            return null;
         }
 
         $access = $this->getAccess();

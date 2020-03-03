@@ -111,7 +111,7 @@ class FlexFormFlash extends FormFlash
 
         if ($directory && $create && isset($data['object']['serialized'])) {
             // TODO: update instead of create new.
-            $object = $directory->createObject($data['object']['serialized'], $data['object']['key']);
+            $object = $directory->createObject($data['object']['serialized'], $data['object']['key'] ?? '');
         }
 
         if ($object) {
