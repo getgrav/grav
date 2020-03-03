@@ -152,6 +152,10 @@ trait PageTranslateTrait
             }
         }
 
+        if ($language === '') {
+
+        }
+
         return $language;
     }
 

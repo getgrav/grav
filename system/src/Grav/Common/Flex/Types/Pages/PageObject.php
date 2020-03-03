@@ -255,29 +255,25 @@ class PageObject extends FlexPageObject
         /** @var PageCollection|null $siblings */
         $siblings = $siblings->getCollection()->withOrdered()->orderBy(['order' => 'ASC']);
 
-        // Remove old copy of the current page from the siblings list.
         $storageKey = $this->getStorageKey();
-        if ($storageKey !== null) {
-            $siblings->remove($storageKey);
-        }
-
         $filesystem = Filesystem::getInstance(false);
         $oldParentKey = ltrim($filesystem->dirname("/$storageKey"), '/');
         $newParentKey = $this->getProperty('parent_key');
         $isMoved =  $oldParentKey !== $newParentKey;
         $order = !$isMoved ? $this->order() : false;
 
-        foreach ($siblings as $sibling) {
-            $basename = basename($sibling->getKey());
-            if (!in_array($basename, $ordering, true)) {
-                $ordering[] = $basename;
+        if ($storageKey !== null) {
+            if ($order) {
+                // Add current page back to the list if it's ordered.
+                $siblings->set($storageKey, $this);
+            } else {
+                // Remove old copy of the current page from the siblings list.
+                $siblings->remove($storageKey);
             }
         }
 
-        // Add current page back to the list if it's ordered.
-        if ($order !== false) {
-            $siblings->set($storageKey, $this);
-            $basename = basename($this->getKey());
+        foreach ($siblings as $sibling) {
+            $basename = basename($sibling->getKey());
             if (!in_array($basename, $ordering, true)) {
                 $ordering[] = $basename;
             }
