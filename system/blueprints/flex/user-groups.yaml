@@ -65,7 +65,7 @@ config:
     # Edit view
     edit:
       title:
-        template: '{{ object.readableName ?? object.groupname }}'
+        template: "{{ form.value('readableName') ?? form.value('groupname') }}"
 
     # Configure view
     configure:

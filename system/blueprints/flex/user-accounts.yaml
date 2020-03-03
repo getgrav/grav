@@ -70,7 +70,7 @@ config:
     # Edit view
     edit:
       title:
-        template: '{{ object.fullname ?? object.username }} &lt;{{ object.email }}&gt;'
+        template: "{{ form.value('fullname') ?? form.value('username') }} &lt;{{ form.value('email') }}&gt;"
 
     # Configure view
     configure:
