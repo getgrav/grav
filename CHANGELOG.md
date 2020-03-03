@@ -15,7 +15,7 @@
     * Fixed `Blueprint::extend()` and `Blueprint::embed()` not initializing dynamic properties
     * Fixed fatal error on storing flex flash using new object without a key
     * Regression: Fixed unchecking toggleable having no effect in Flex forms
-    * Fixed changing page template in Flex Pages
+    * Fixed changing page template in Flex Pages [#2828](https://github.com/getgrav/grav/issues/2828)
 
 # v1.7.0-rc.6
 ## 02/11/2020
