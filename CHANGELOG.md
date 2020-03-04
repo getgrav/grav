@@ -3,6 +3,8 @@
 
 1. [](#new)
     * Added `Pages::reset()` method
+1. [](#improved)
+    * Updated Negotiation library to address issues [#2513](https://github.com/getgrav/grav/issues/2513)
 1. [](#bugfix)
     * Fixed issue with search plugins not being able to switch between page translations
     * Fixed issues with `Pages::baseRoute()` not picking up active language reliably
