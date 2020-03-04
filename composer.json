@@ -53,7 +53,7 @@
         "composer/ca-bundle": "^1.0",
         "dragonmantank/cron-expression": "^1.2",
         "phive/twig-extensions-deferred": "^1.0",
-        "willdurand/negotiation": "^2.3",
+        "willdurand/negotiation": "2.x-dev",
         "itsgoingd/clockwork": "@beta",
         "enshrined/svg-sanitize": "~0.1"
     },
