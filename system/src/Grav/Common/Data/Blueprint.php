@@ -431,12 +431,29 @@ class Blueprint extends BlueprintForm
      */
     protected function dynamicConfig(array &$field, $property, array &$call)
     {
-        $value = $call['params'];
+        $params = $call['params'];
+        if (\is_array($params)) {
+            $value = array_shift($params);
+            $params = array_shift($params);
+        } else {
+            $value = $params;
+            $params = [];
+        }
+
         $default = $field[$property] ?? null;
         $config = Grav::instance()['config']->get($value, $default);
+        if (!empty($field['value_only'])) {
+            $config = array_combine($config, $config);
+        }
 
         if (null !== $config) {
-            $field[$property] = $config;
+            if (!empty($params['append']) && \is_array($config) && isset($field[$property]) && \is_array($field[$property])) {
+                // Combine field and @config-field together.
+                $field[$property] += $config;
+            } else {
+                // Or create/replace field with @config-field.
+                $field[$property] = $config;
+            }
         }
     }
 
