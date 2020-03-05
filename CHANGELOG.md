@@ -1,5 +1,5 @@
 # v1.6.22
-## mm/dd/2020
+## 03/05/2020
 
 1. [](#new)
     * Added `Pages::reset()` method
