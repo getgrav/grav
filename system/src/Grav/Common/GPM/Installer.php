@@ -203,11 +203,11 @@ class Installer
 
         $install_file = $installer_file_folder . DS . 'install.php';
 
-        if (file_exists($install_file)) {
-            require_once $install_file;
-        } else {
+        if (!file_exists($install_file)) {
             return null;
         }
+
+        require_once $install_file;
 
         if ($is_install) {
             $slug = '';
