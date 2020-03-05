@@ -300,10 +300,12 @@
     * Optimization: Combine some early Grav processors into a single one
 
 # v1.6.22
-## mm/dd/2020
+## 03/05/2020
 
 1. [](#new)
     * Added `Pages::reset()` method
+1. [](#improved)
+    * Updated Negotiation library to address issues [#2513](https://github.com/getgrav/grav/issues/2513)
 1. [](#bugfix)
     * Fixed issue with search plugins not being able to switch between page translations
     * Fixed issues with `Pages::baseRoute()` not picking up active language reliably
