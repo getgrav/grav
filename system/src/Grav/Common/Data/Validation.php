@@ -211,6 +211,17 @@ class Validation
     /**
      * @param mixed $value
      * @param array $params
+     * @param array $field
+     * @return array|array[]|false|string[]
+     */
+    protected static function filterLines($value, array $params, array $field)
+    {
+        return \is_array($value) ? $value : preg_split('/\s*[\r\n]+\s*/', $value, -1, PREG_SPLIT_NO_EMPTY);
+    }
+
+    /**
+     * @param mixed $value
+     * @param array $params
      * @return string
      */
     protected static function filterLower($value, array $params)
