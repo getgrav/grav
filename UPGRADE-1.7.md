@@ -9,6 +9,8 @@
 ## Forms
 
 * **BC BREAK** Fixed `validation: strict`. Please search through all your forms if you were using this feature. If you were, either remove the line or test if the form still works.
+* Added configuration option `system.strict_mode.blueprint_compat` to maintain old `validation: strict` behavior
+  * If you disable compatibiity, form validation will be much more strict (recommended, but may break existing forms)
 
 ### Pages
 
@@ -18,6 +20,15 @@
 
 * Improved language support
 * **BC BREAK** Please check that your fallback languages are correct. Old implementation had a fallback to any other language, now only default language is being used unless you use `system.languages.content_fallback` configuration option to override the default behavior.
+
+### Admin
+
+* If you upgrade from older 1.7 RC, you need to go to Flex Objects plugin settings and turn on `Pages`, `User Accounts` and `User Groups` directories (upgrading 1.6 automatically turns them on)
+* Disabling `User Accounts` and `User Groups` directories in Flex Objects plugin should be kept enabled; fine tuned ACL may not work without
+
+### Sessions
+
+* Session ID now changes on login to prevent session fixation issues
 
 ### CLI
 
@@ -119,6 +130,7 @@
       }
     ```
 
+* Plugins & Themes: Call `$plugin->autoload()` and `$theme->autoload()` automatically when object gets initialized
 * Make sure your code does not use `require` or `include` for loading classes
 
 ### Dependencies
@@ -134,6 +146,7 @@
 ### ACL
 
 * `user.authorize()` now requires user to be authorized (passed 2FA check), unless the rule contains `login` in its name.
+* Added support for more advanced ACL (CRUD)
 
 * **BC BREAK** `user.authorize()` and Flex `object.isAuthorized()` now have two deny states: `false` and `null`.
 
@@ -149,6 +162,7 @@
 
 * Added experimental support for `Flex Pages`
 * Added page specific permissions support for `Flex Pages`
+* Added root page support for `Flex Pages`
 * Fixed wrong `Pages::dispatch()` calls (with redirect) when we really meant to call `Pages::find()`
 * Added `Pages::getCollection()` method
 * Moved `collection()` and `evaluate()` logic from `Page` class into `Pages` class
@@ -156,6 +170,10 @@
 * **BC BREAK** Fixed `Page::modular()` and `Page::modularTwig()` returning `null` for folders and other non-initialized pages. Should not affect your code unless you were checking against `false` or `null`.
 * **BC BREAK** Always use `\Grav\Common\Page\Interfaces\PageInterface` instead of `\Grav\Common\Page\Page` in method signatures
 * Admin now uses `Flex Pages` by default, collection will behave in slightly different way
+
+### Markdown
+
+* **BC BREAK** Upgraded Parsedown to 1.7 for Parsedown-Extra 0.8. Plugins that extend Parsedown may need a fix to render as HTML
 
 ### Users
 
@@ -167,6 +185,8 @@
 
 ### Flex
 
+* Added `$grav['flex']` to access all registered Flex Directories
+  * Added `FlexRegisterEvent` which triggers when `$grav['flex']` is being accessed the first time
 * Added `hasFlexFeature()` method to test if `FlexObject` or `FlexCollection` implements a given feature
 * Added `getFlexFeatures()` method to return all features that `FlexObject` or `FlexCollection` implements
 * Added `FlexStorage::getMetaData()` to get updated object meta information for listed keys
@@ -182,8 +202,10 @@
 * Added a new `{% cache %}` Twig tag eliminating need for `twigcache` extension.
 * Added `array_diff()` twig function
 * Added `template_from_string()` twig function
-* Improved twig `|array` filter to work with iterators and objects with `toArray()` method
-* Improved twig `authorize()` function to work better with nested rule parameters
+* Improved `url()` twig function to take third parameter (`true`) to return URL on non-existing file instead of returning false
+* Improved `|array` twig filter to work with iterators and objects with `toArray()` method
+* Improved `authorize()` twig function to work better with nested rule parameters
+* Improved `|yaml_serialize` twig filter: added support for `JsonSerializable` objects and other array-like objects
 
 ### Multi-language
 
@@ -194,6 +216,9 @@
 
 ### Blueprints
 
+* Added `flatten_array` filter to form field validation
+* Added support for `security@: or: [admin.super, admin.pages]` in blueprints (nested AND/OR mode support)
+* Blueprint validation: Added `validate: value_type: bool|int|float|string|trim` to `array` to filter all the values inside the array
 * If your plugins has blueprints folder, initializing it in the event will be too late. Do this instead:
 
     ```php
@@ -209,6 +234,11 @@
 ### Events
 
 * Use `Symfony EventDispatcher` directly instead of `rockettheme/toolbox` wrapper.
+* Added `$grav->dispatchEvent()` method for PSR-14 events
+* Added `PluginsLoadedEvent` which triggers after plugins have been loaded but not yet initialized
+* Added `SessionStartEvent` which triggers when session is started
+* Added `FlexRegisterEvent` which triggers when `$grav['flex']` is being accessed the first time
+* Added `PermissionsRegisterEvent` which triggers when `$grav['permissions']` is being accessed the first time
 * Check `onAdminTwigTemplatePaths` event, it should NOT be:
 
     ```php
