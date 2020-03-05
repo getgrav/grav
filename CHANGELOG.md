@@ -1,5 +1,5 @@
 # v1.7.0-rc.7
-## mm/dd/2020
+## 03/05/2020
 
 1. [](#new)
     * Added `Session::regenerateId()` method to properly prevent session fixation issues
