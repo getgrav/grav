@@ -53,7 +53,7 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
     public function validate(array $data)
     {
         try {
-            $messages = $this->validateArray($data, $this->nested, $this->items['']['form'] ?? []);
+            $messages = $this->validateArray($data, $this->nested);
 
         } catch (\RuntimeException $e) {
             throw (new ValidationException($e->getMessage(), $e->getCode(), $e))->setMessages();
@@ -129,11 +129,10 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
     /**
      * @param array $data
      * @param array $rules
-     * @param array $parent
      * @return array
      * @throws \RuntimeException
      */
-    protected function validateArray(array $data, array $rules, array $parent)
+    protected function validateArray(array $data, array $rules)
     {
         $messages = $this->checkRequired($data, $rules);
 
@@ -151,8 +150,8 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
                 $messages += Validation::validate($child, $rule);
             } elseif (\is_array($child) && \is_array($val)) {
                 // Array has been defined in blueprints.
-                $messages += $this->validateArray($child, $val, $rule ?? []);
-            } elseif (isset($parent['validation']) && $parent['validation'] === 'strict') {
+                $messages += $this->validateArray($child, $val);
+            } elseif (isset($rules['validation']) && $rules['validation'] === 'strict') {
                 // Undefined/extra item.
                 throw new \RuntimeException(sprintf('%s is not defined in blueprints', $key));
             }

@@ -1,3 +1,15 @@
+# v1.6.22
+## 03/05/2020
+
+1. [](#new)
+    * Added `Pages::reset()` method
+1. [](#improved)
+    * Updated Negotiation library to address issues [#2513](https://github.com/getgrav/grav/issues/2513)
+1. [](#bugfix)
+    * Fixed issue with search plugins not being able to switch between page translations
+    * Fixed issues with `Pages::baseRoute()` not picking up active language reliably
+    * Reverted `validation: strict` fix as it breaks sites, see [#1273](https://github.com/getgrav/grav/issues/1273)
+
 # v1.6.21
 ## 02/11/2020
 

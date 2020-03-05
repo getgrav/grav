@@ -1200,7 +1200,7 @@ class Page implements PageInterface
     /**
      * @return string
      */
-    protected function getCacheKey(): string
+    public function getCacheKey(): string
     {
         return $this->id();
     }

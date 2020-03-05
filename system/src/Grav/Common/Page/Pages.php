@@ -95,6 +95,8 @@ class Pages
 
     protected $initialized = false;
 
+    protected $active_lang;
+
     /**
      * @var Types
      */
@@ -143,7 +145,7 @@ class Pages
      */
     public function baseRoute($lang = null)
     {
-        $key = $lang ?: 'default';
+        $key = $lang ?: $this->active_lang ?: 'default';
 
         if (!isset($this->baseRoute[$key])) {
             /** @var Language $language */
@@ -234,6 +236,16 @@ class Pages
     public function setCheckMethod($method)
     {
         $this->check_method = strtolower($method);
+    }
+
+    /**
+     * Reset pages (used in search indexing etc).
+     */
+    public function reset()
+    {
+        $this->initialized = false;
+
+        $this->init();
     }
 
     /**
@@ -957,6 +969,9 @@ class Pages
         $locator = $this->grav['locator'];
 
         $pages_dir = $locator->findResource('page://');
+
+        // Set active language
+        $this->active_lang = $language->getActive();
 
         if ($config->get('system.cache.enabled')) {
             /** @var Cache $cache */
