@@ -54,6 +54,7 @@ class SimpleStorage extends AbstractFilesystemStorage
         $this->dataPattern = basename($pattern, $extension) . $extension;
         $this->dataFolder = $filesystem->dirname($options['folder']);
         $this->keyField = $options['key'] ?? 'storage_key';
+        $this->keyLen = (int)($options['key_len'] ?? 32);
         $this->prefix = $options['prefix'] ?? null;
 
         // Make sure that the data folder exists.
