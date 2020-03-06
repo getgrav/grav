@@ -34,6 +34,8 @@ abstract class AbstractFilesystemStorage implements FlexStorageInterface
     protected $dataFormatter;
     /** @var string */
     protected $keyField = 'storage_key';
+    /** @var string */
+    protected $keyLen = '32';
 
     /**
      * @return bool
@@ -191,7 +193,7 @@ abstract class AbstractFilesystemStorage implements FlexStorageInterface
      */
     protected function generateKey(): string
     {
-        return substr(hash('sha256', random_bytes(32)), 0, 32);
+        return substr(hash('sha256', random_bytes($this->keyLen)), 0, $this->keyLen);
     }
 
     /**

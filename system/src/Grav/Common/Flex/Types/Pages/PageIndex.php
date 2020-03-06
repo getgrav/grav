@@ -70,15 +70,17 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
         // Load saved index.
         $index = static::loadIndex($storage);
 
+        $version = $index['version'] ?? 0;
         $timestamp = $index['timestamp'] ?? 0;
-        if ($timestamp && $timestamp > time() - 2) {
+        $force = static::VERSION !== $version;
+        if (!$force && $timestamp && $timestamp > time() - 2) {
             return $index['index'];
         }
 
         // Load up to date index.
         $entries = parent::loadEntriesFromStorage($storage);
 
-        return static::updateIndexFile($storage, $index['index'], $entries, ['include_missing' => true]);
+        return static::updateIndexFile($storage, $index['index'], $entries, ['include_missing' => true, 'force_update' => $force]);
     }
 
     /**

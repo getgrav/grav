@@ -23,6 +23,8 @@ use Monolog\Logger;
 
 class UserIndex extends FlexIndex
 {
+    public const VERSION = parent::VERSION . '.1';
+
     use FlexGravTrait;
     use FlexIndexTrait;
 
@@ -33,12 +35,19 @@ class UserIndex extends FlexIndex
     public static function loadEntriesFromStorage(FlexStorageInterface $storage): array
     {
         // Load saved index.
-        $index = static::loadEntriesFromIndex($storage);
+        $index = static::loadIndex($storage);
+
+        $version = $index['version'] ?? 0;
+        $timestamp = $index['timestamp'] ?? 0;
+        $force = static::VERSION !== $version;
+        if (!$force && $timestamp && $timestamp > time() - 2) {
+            return $index['index'];
+        }
 
         // Load up to date index.
         $entries = parent::loadEntriesFromStorage($storage);
 
-        return static::updateIndexFile($storage, $index, $entries);
+        return static::updateIndexFile($storage, $index['index'], $entries, ['force_update' => $force]);
     }
 
     /**
@@ -114,7 +123,7 @@ class UserIndex extends FlexIndex
      */
     protected static function updateIndexData(array &$entry, array $data)
     {
-        $entry['key'] = mb_strtolower($entry['key']);
+        $entry['key'] = mb_strtolower($data['username'] ?? $entry['key']);
         $entry['email'] = isset($data['email']) ? mb_strtolower($data['email']) : null;
     }
 

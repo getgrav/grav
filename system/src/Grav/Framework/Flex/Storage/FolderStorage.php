@@ -349,6 +349,7 @@ class FolderStorage extends AbstractFilesystemStorage
         $file = $this->getFile($path);
         try {
             $data = (array)$file->content();
+            $file->free();
             if (isset($data[0])) {
                 throw new \RuntimeException('Broken object file');
             }
@@ -641,6 +642,7 @@ class FolderStorage extends AbstractFilesystemStorage
         $this->prefixed = (bool)($options['prefixed'] ?? strpos($pattern, '/{KEY:2}/'));
         $this->indexed = (bool)($options['indexed'] ?? false);
         $this->keyField = $options['key'] ?? 'storage_key';
+        $this->keyLen = (int)($options['key_len'] ?? 32);
 
         $variables = ['FOLDER' => '%1$s', 'KEY' => '%2$s', 'KEY:2' => '%3$s', 'FILE' => '%4$s', 'EXT' => '%5$s'];
         $pattern = Utils::simpleTemplate($pattern, $variables);
