@@ -108,6 +108,11 @@ trait MediaTrait
         return $this;
     }
 
+    protected function freeMedia()
+    {
+        $this->media = null;
+    }
+
     /**
      * Clear media cache.
      */
@@ -117,7 +122,7 @@ trait MediaTrait
         $cacheKey = md5('media' . $this->getCacheKey());
         $cache->delete($cacheKey);
 
-        $this->media = null;
+        $this->freeMedia();
     }
 
     /**

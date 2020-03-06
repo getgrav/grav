@@ -1,3 +1,9 @@
+# v1.7.0-rc.8
+## mm/dd/2020
+
+1. [](#bugfix)
+    * Added `MediaTrait::freeMedia()` method to free media (and memory)
+
 # v1.7.0-rc.7
 ## 03/05/2020
 
