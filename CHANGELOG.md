@@ -3,6 +3,7 @@
 
 1. [](#new)
     * Added `MediaTrait::freeMedia()` method to free media (and memory)
+    * Added `Folder::hasChildren()` method to determine if a folder has child folders
 1. [](#improved)
     * Save memory when updating large flex indexes
 1. [](#bugfix)
