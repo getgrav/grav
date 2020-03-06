@@ -1,9 +1,12 @@
 # v1.7.0-rc.8
 ## mm/dd/2020
 
-1. [](#bugfix)
+1. [](#new)
     * Added `MediaTrait::freeMedia()` method to free media (and memory)
+1. [](#improved)
     * Save memory when updating large flex indexes
+1. [](#bugfix)
+    * Fixed creating new `Flex User` when folder storage has been selected
 
 # v1.7.0-rc.7
 ## 03/05/2020

@@ -663,13 +663,13 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
         // Read all the data rows into an array using chunks of 100.
         $keys = array_fill_keys(array_keys($entries), null);
         $chunks = array_chunk($keys, 100, true);
+        $updated = $added = [];
         foreach ($chunks as $keys) {
             $rows = $storage->readRows($keys);
 
             $keyField = $storage->getKeyField();
 
             // Go through all the updated objects and refresh their index data.
-            $updated = $added = [];
             foreach ($rows as $key => $row) {
                 if (null !== $row || !empty($options['include_missing'])) {
                     $entry = $entries[$key] + ['key' => $key];
