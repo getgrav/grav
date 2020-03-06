@@ -485,6 +485,21 @@ abstract class Folder
     }
 
     /**
+     * Does a directory contain children
+     *
+     * @param $dir
+     * @return bool
+     */
+    public static function hasChildren($directory) {
+        if (!is_dir($directory)) {
+            return false;
+        }
+        $directories = glob($directory . '/*', GLOB_ONLYDIR);
+
+        return !empty($directories);
+    }
+
+    /**
      * @param  string $folder
      * @param  bool   $include_target
      * @return bool
