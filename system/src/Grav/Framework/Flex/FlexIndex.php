@@ -638,7 +638,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
             $index = array_diff_key($index, $removed);
         }
 
-        if ($entries) {
+        if ($entries && empty($options['force_update'])) {
             // Calculate difference between saved index and current data.
             foreach ($index as $key => $entry) {
                 $storage_key = $entry['storage_key'] ?? null;
@@ -660,40 +660,45 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
         // Index should be updated, lock the index file for saving.
         $indexFile->lock();
 
-        // Read all the data rows into an array.
+        // Read all the data rows into an array using chunks of 100.
         $keys = array_fill_keys(array_keys($entries), null);
-        $rows = $storage->readRows($keys);
+        $chunks = array_chunk($keys, 100, true);
+        foreach ($chunks as $keys) {
+            $rows = $storage->readRows($keys);
 
-        $keyField = $storage->getKeyField();
+            $keyField = $storage->getKeyField();
 
-        // Go through all the updated objects and refresh their index data.
-        $updated = $added = [];
-        foreach ($rows as $key => $row) {
-            if (null !== $row || !empty($options['include_missing'])) {
-                $entry = $entries[$key] + ['key' => $key];
-                if ($keyField !== 'storage_key' && isset($row[$keyField])) {
-                    $entry['key'] = $row[$keyField];
-                }
-                static::updateIndexData($entry, $row ?? []);
-                if (isset($row['__ERROR'])) {
-                    $entry['__ERROR'] = true;
-                    static::onException(new \RuntimeException(sprintf('Object failed to load: %s (%s)', $key, $row['__ERROR'])));
-                }
-                if (isset($index[$key])) {
-                    // Update object in the index.
-                    $updated[$key] = $entry;
-                } else {
-                    // Add object into the index.
-                    $added[$key] = $entry;
-                }
+            // Go through all the updated objects and refresh their index data.
+            $updated = $added = [];
+            foreach ($rows as $key => $row) {
+                if (null !== $row || !empty($options['include_missing'])) {
+                    $entry = $entries[$key] + ['key' => $key];
+                    if ($keyField !== 'storage_key' && isset($row[$keyField])) {
+                        $entry['key'] = $row[$keyField];
+                    }
+                    static::updateIndexData($entry, $row ?? []);
+                    if (isset($row['__ERROR'])) {
+                        $entry['__ERROR'] = true;
+                        static::onException(new \RuntimeException(sprintf('Object failed to load: %s (%s)', $key,
+                            $row['__ERROR'])));
+                    }
+                    if (isset($index[$key])) {
+                        // Update object in the index.
+                        $updated[$key] = $entry;
+                    } else {
+                        // Add object into the index.
+                        $added[$key] = $entry;
+                    }
 
-                // Either way, update the entry.
-                $index[$key] = $entry;
-            } elseif (isset($index[$key])) {
-                // Remove object from the index.
-                $removed[$key] = $index[$key];
-                unset($index[$key]);
+                    // Either way, update the entry.
+                    $index[$key] = $entry;
+                } elseif (isset($index[$key])) {
+                    // Remove object from the index.
+                    $removed[$key] = $index[$key];
+                    unset($index[$key]);
+                }
             }
+            unset($rows);
         }
 
         // Sort the index before saving it.

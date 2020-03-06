@@ -349,6 +349,7 @@ class FolderStorage extends AbstractFilesystemStorage
         $file = $this->getFile($path);
         try {
             $data = (array)$file->content();
+            $file->free();
             if (isset($data[0])) {
                 throw new \RuntimeException('Broken object file');
             }

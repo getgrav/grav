@@ -3,6 +3,7 @@
 
 1. [](#bugfix)
     * Added `MediaTrait::freeMedia()` method to free media (and memory)
+    * Save memory when updating large flex indexes
 
 # v1.7.0-rc.7
 ## 03/05/2020
