@@ -69,7 +69,7 @@ trait PageRoutableTrait
             }
         );
 
-        return $value && $this->published() && !$this->isModule() && $this->getLanguages(true);
+        return $value && $this->published() && !$this->isModule() && !$this->root() && $this->getLanguages(true);
     }
 
     /**
@@ -185,12 +185,12 @@ trait PageRoutableTrait
     protected function routeInternal(): ?string
     {
         $route = $this->_route;
-        if ($route) {
+        if (null !== $route) {
             return $route;
         }
 
         if ($this->root()) {
-            return '/';
+            return null;
         }
 
         // Root and orphan nodes have no route.
@@ -241,6 +241,10 @@ trait PageRoutableTrait
         if (null !== $var) {
             // TODO:
             throw new \RuntimeException(__METHOD__ . '(string): Not Implemented');
+        }
+
+        if ($this->root()) {
+            return null;
         }
 
         return '/' . $this->getKey();

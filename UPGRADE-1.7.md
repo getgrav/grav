@@ -24,7 +24,7 @@
 ### Admin
 
 * If you upgrade from older 1.7 RC, you need to go to Flex Objects plugin settings and turn on `Pages`, `User Accounts` and `User Groups` directories (upgrading 1.6 automatically turns them on)
-* Disabling `User Accounts` and `User Groups` directories in Flex Objects plugin should be kept enabled; fine tuned ACL may not work without
+* Disabling `User Accounts` and `User Groups` directories in Flex Objects plugin should be kept enabled; fine tuned **ACL** may not work without
 
 ### Sessions
 

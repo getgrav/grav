@@ -8,6 +8,7 @@
     * Save memory when updating large flex indexes
 1. [](#bugfix)
     * Fixed creating new `Flex User` when folder storage has been selected
+    * Fixed some bugs in Flex root page methods
 
 # v1.7.0-rc.7
 ## 03/05/2020

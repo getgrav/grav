@@ -13,6 +13,7 @@ use Grav\Common\Config\Config;
 use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Grav;
 use Grav\Common\Page\Interfaces\PageInterface;
+use Grav\Common\Page\Pages;
 use Grav\Console\ConsoleCommand;
 use RocketTheme\Toolbox\Event\Event;
 use Symfony\Component\Console\Input\InputOption;
@@ -185,43 +186,61 @@ class PageSystemValidatorCommand extends ConsoleCommand
 
     private function record()
     {
+        /** @var Pages $pages */
         $pages = $this->grav['pages'];
         $all = $pages->all();
 
         $results = [];
+        $results[''] = $this->recordRow($pages->root());
         foreach ($all as $path => $page) {
             if (null === $page) {
                 $this->output->writeln('<red>Error on page ' . $path . '</red>');
                 continue;
             }
-            foreach ($this->tests as $method => $params) {
-                $params = $params ?: [[]];
-                foreach ($params as $p) {
-                    $result = $page->$method(...$p);
-                    if (in_array($method, ['summary', 'content', 'getRawContent'], true)) {
-                        $result = preg_replace('/name="(form-nonce|__unique_form_id__)" value="[^"]+"/', 'name="\\1" value="DYNAMIC"', $result);
-                        $result = preg_replace('`src=("|\'|&quot;)/images/./././././[^"]+\\1`', 'src="\\1images/GENERATED\\1', $result);
-                        $result = preg_replace('/\?\d{10}/', '?1234567890', $result);
-                    } elseif ($method === 'httpHeaders' && isset($result['Expires'])) {
-                        $result['Expires'] = 'Thu, 19 Sep 2019 13:10:24 GMT (REPLACED AS DYNAMIC)';
-                    } elseif ($result instanceof PageInterface) {
-                        $result = $result->rawRoute();
-                    } elseif (is_object($result)) {
-                        $result = json_decode(json_encode($result), true);
-                    }
 
-                    $ps = [];
-                    foreach ($p as $val) {
-                        $ps[] = (string)var_export($val, true);
-                    }
-                    $pstr = implode(', ', $ps);
-                    $call = "->{$method}({$pstr})";
-                    $results[$page->rawRoute()][$call] = $result;
-                }
-            }
+            $results[$page->rawRoute()] = $this->recordRow($page);
         }
 
         return json_decode(json_encode($results), true);
+    }
+
+    /**
+     * @param PageInterface $page
+     * @return array
+     */
+    private function recordRow(PageInterface $page)
+    {
+        $results = [];
+
+        foreach ($this->tests as $method => $params) {
+            $params = $params ?: [[]];
+            foreach ($params as $p) {
+                $result = $page->$method(...$p);
+                if (in_array($method, ['summary', 'content', 'getRawContent'], true)) {
+                    $result = preg_replace('/name="(form-nonce|__unique_form_id__)" value="[^"]+"/',
+                        'name="\\1" value="DYNAMIC"', $result);
+                    $result = preg_replace('`src=("|\'|&quot;)/images/./././././[^"]+\\1`',
+                        'src="\\1images/GENERATED\\1', $result);
+                    $result = preg_replace('/\?\d{10}/', '?1234567890', $result);
+                } elseif ($method === 'httpHeaders' && isset($result['Expires'])) {
+                    $result['Expires'] = 'Thu, 19 Sep 2019 13:10:24 GMT (REPLACED AS DYNAMIC)';
+                } elseif ($result instanceof PageInterface) {
+                    $result = $result->rawRoute();
+                } elseif (is_object($result)) {
+                    $result = json_decode(json_encode($result), true);
+                }
+
+                $ps = [];
+                foreach ($p as $val) {
+                    $ps[] = (string)var_export($val, true);
+                }
+                $pstr = implode(', ', $ps);
+                $call = "->{$method}({$pstr})";
+                $results[$call] = $result;
+            }
+        }
+
+        return $results;
     }
 
     private function check(array $old, array $new)
