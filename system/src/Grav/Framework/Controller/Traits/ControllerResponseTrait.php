@@ -76,7 +76,7 @@ trait ControllerResponseTrait
     protected function createRedirectResponse(string $url, int $code = null): ResponseInterface
     {
         if (null === $code || $code < 301 || $code > 307) {
-            $code = $this->getConfig()->get('system.pages.redirect_default_code', 302);
+            $code = (int)$this->getConfig()->get('system.pages.redirect_default_code', 302);
         }
 
         $accept = $this->getAccept(['application/json', 'text/html']);
