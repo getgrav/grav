@@ -360,7 +360,8 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
                         'type' => 'root',
                         'modified' => $page->modified(),
                         'size' => 0,
-                        'symlink' => false
+                        'symlink' => false,
+                        'has-children' => false
                     ];
                 } else {
                     $response[] = [
@@ -399,6 +400,7 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
                 $selected = $child->path() === $extra;
                 $includeChildren = \is_array($leaf) && !empty($leaf) && $selected;
                 if ($field) {
+                    $child_count = count($child->children());
                     $payload = [
                         'name' => $child->title(),
                         'value' => $child->rawRoute(),
@@ -407,8 +409,9 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
                         'extension' => $child->extension(),
                         'type' => 'dir',
                         'modified' => $child->modified(),
-                        'size' => count($child->children()),
-                        'symlink' => false
+                        'size' => $child_count,
+                        'symlink' => false,
+                        'has-children' => $child_count > 0
                     ];
                 } else {
                     // TODO: all these features are independent from each other, we cannot just have one icon/color to catch all.
