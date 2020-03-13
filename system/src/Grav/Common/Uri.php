@@ -403,8 +403,8 @@ class Uri
     {
         $method = isset($_SERVER['REQUEST_METHOD']) ? strtoupper($_SERVER['REQUEST_METHOD']) : 'GET';
 
-        if ($method === 'POST' && isset($_SERVER['X-HTTP-METHOD-OVERRIDE'])) {
-            $method = strtoupper($_SERVER['X-HTTP-METHOD-OVERRIDE']);
+        if ($method === 'POST' && isset($_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'])) {
+            $method = strtoupper($_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE']);
         }
 
         return $method;
