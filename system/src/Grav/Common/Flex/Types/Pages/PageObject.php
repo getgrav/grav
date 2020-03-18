@@ -20,10 +20,12 @@ use Grav\Common\Flex\Types\Pages\Traits\PageLegacyTrait;
 use Grav\Common\Flex\Types\Pages\Traits\PageRoutableTrait;
 use Grav\Common\Flex\Types\Pages\Traits\PageTranslateTrait;
 use Grav\Common\Language\Language;
+use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Page\Pages;
 use Grav\Common\Utils;
 use Grav\Framework\Filesystem\Filesystem;
 use Grav\Framework\Flex\FlexObject;
+use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
 use Grav\Framework\Flex\Pages\FlexPageObject;
 use Grav\Framework\Route\Route;
 use Grav\Framework\Route\RouteFactory;
@@ -236,6 +238,27 @@ class PageObject extends FlexPageObject
         $this->onAfterSave($variables);
 
         return $instance;
+    }
+
+    /**
+     * Prepare move page to new location. Moves also everything that's under the current page.
+     *
+     * You need to call $this->save() in order to perform the move.
+     *
+     * @param PageInterface $parent New parent page.
+     *
+     * @return $this
+     */
+    public function move(PageInterface $parent)
+    {
+        if (!$parent instanceof FlexObjectInterface) {
+            throw new \RuntimeException('Failed: Parent is not Flex Object');
+        }
+
+        $this->_reorder = [];
+        $this->setProperty('parent_key', $parent->getStorageKey());
+
+        return $this;
     }
 
     /**
