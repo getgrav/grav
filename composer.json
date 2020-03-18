@@ -28,8 +28,6 @@
         "kodus/psr7-server": "*",
         "nyholm/psr7": "^1.0",
         "twig/twig": "~1.40",
-        "erusev/parsedown": "1.6.4",
-        "erusev/parsedown-extra": "~0.7",
         "symfony/yaml": "~4.2.0",
         "symfony/console": "~4.2.0",
         "symfony/event-dispatcher": "~4.2.0",

@@ -11,8 +11,9 @@ namespace Grav\Common\Markdown;
 
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Page\Markdown\Excerpts;
+use Grav\Framework\Parsedown\ParsedownExtra as ParsedownExtraLib;
 
-class ParsedownExtra extends \ParsedownExtra
+class ParsedownExtra extends ParsedownExtraLib
 {
     use ParsedownGravTrait;
 
