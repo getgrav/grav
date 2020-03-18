@@ -123,7 +123,9 @@ class UserIndex extends FlexIndex
      */
     protected static function updateIndexData(array &$entry, array $data)
     {
-        $entry['key'] = mb_strtolower($data['username'] ?? $entry['key']);
+        // Username can also be number and stored as such.
+        $key = (string)($data['username'] ?? $entry['key']);
+        $entry['key'] = mb_strtolower($key);
         $entry['email'] = isset($data['email']) ? mb_strtolower($data['email']) : null;
     }
 

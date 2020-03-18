@@ -11,6 +11,7 @@
     * Fixed some bugs in Flex root page methods
     * Fixed bad default redirect code in `ControllerResponseTrait::createRedirectResponse()`
     * Fixed issue with PHP `HTTP_X_HTTP_METHOD_OVERRIDE` [#2847](https://github.com/getgrav/grav/issues/2847)
+    * Fixed numeric usernames not working in `Flex Users`
 
 # v1.7.0-rc.7
 ## 03/05/2020
