@@ -1,5 +1,5 @@
 # v1.7.0-rc.8
-## mm/dd/2020
+## 03/19/2020
 
 1. [](#new)
     * Added `MediaTrait::freeMedia()` method to free media (and memory)
