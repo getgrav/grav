@@ -92,8 +92,7 @@
             "Grav\\": "system/src/Grav"
         },
         "files": [
-            "system/defines.php",
-            "system/aliases.php"
+            "system/defines.php"
         ]
     },
     "archive": {

@@ -11,7 +11,6 @@ namespace Grav\Common\GPM\Local;
 
 use Grav\Common\Data\Data;
 use Grav\Common\GPM\Common\Package as BasePackage;
-use Grav\Framework\Parsedown\Parsedown;
 
 class Package extends BasePackage
 {
@@ -30,7 +29,7 @@ class Package extends BasePackage
 
         $this->settings = $package->toArray();
 
-        $html_description = Parsedown::instance()->line($this->__get('description'));
+        $html_description = \Parsedown::instance()->line($this->__get('description'));
         $this->data->set('slug', $package->__get('slug'));
         $this->data->set('description_html', $html_description);
         $this->data->set('description_plain', strip_tags($html_description));
