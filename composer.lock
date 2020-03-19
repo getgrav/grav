@@ -1645,16 +1645,16 @@
         },
         {
             "name": "rockettheme/toolbox",
-            "version": "1.4.6",
+            "version": "1.4.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/rockettheme/toolbox.git",
-                "reference": "e7010c2a956aff241dfa100ab8aef5b6cf83892a"
+                "reference": "6a86bc0607884d2194260b6b72d67333e0141585"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rockettheme/toolbox/zipball/e7010c2a956aff241dfa100ab8aef5b6cf83892a",
-                "reference": "e7010c2a956aff241dfa100ab8aef5b6cf83892a",
+                "url": "https://api.github.com/repos/rockettheme/toolbox/zipball/6a86bc0607884d2194260b6b72d67333e0141585",
+                "reference": "6a86bc0607884d2194260b6b72d67333e0141585",
                 "shasum": ""
             },
             "require": {
@@ -1691,7 +1691,7 @@
                 "php",
                 "rockettheme"
             ],
-            "time": "2019-03-20T19:59:17+00:00"
+            "time": "2020-03-19T18:24:40+00:00"
         },
         {
             "name": "seld/cli-prompt",
