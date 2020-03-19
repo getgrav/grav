@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f3c6877197705e6b9c0437ca2448b089",
+    "content-hash": "1fe7faf2a0c3746a2970416597c6615d",
     "packages": [
         {
             "name": "antoligy/dom-string-iterators",
@@ -1840,22 +1840,17 @@
         },
         {
             "name": "rockettheme/toolbox",
-            "version": "dev-develop",
+            "version": "1.5.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/rockettheme/toolbox.git",
-                "reference": "61dd04de40a90b7f398cca2cc8807ea297e78dae"
+                "reference": "3c1f72c2196b8d8af3f50dba41b1610c98f5ba38"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rockettheme/toolbox/zipball/61dd04de40a90b7f398cca2cc8807ea297e78dae",
-                "reference": "61dd04de40a90b7f398cca2cc8807ea297e78dae",
+                "url": "https://api.github.com/repos/rockettheme/toolbox/zipball/3c1f72c2196b8d8af3f50dba41b1610c98f5ba38",
+                "reference": "3c1f72c2196b8d8af3f50dba41b1610c98f5ba38",
                 "shasum": ""
-            },
-            "archive": {
-                "exclude": [
-                    "tests"
-                ]
             },
             "require": {
                 "ext-json": "*",
@@ -1883,17 +1878,7 @@
                     "RocketTheme\\Toolbox\\StreamWrapper\\": "StreamWrapper/src"
                 }
             },
-            "scripts": {
-                "test": [
-                    "vendor/bin/phpunit run unit"
-                ],
-                "test-windows": [
-                    "vendor\\bin\\phpunit run unit"
-                ],
-                "phpstan": [
-                    "vendor/bin/phpstan analyse -l 8 -c ./tests/phpstan/phpstan.neon . --memory-limit=128M"
-                ]
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -1903,11 +1888,7 @@
                 "php",
                 "rockettheme"
             ],
-            "support": {
-                "source": "https://github.com/rockettheme/toolbox/tree/develop",
-                "issues": "https://github.com/rockettheme/toolbox/issues"
-            },
-            "time": "2020-02-04T08:43:37+00:00"
+            "time": "2020-03-19T18:26:22+00:00"
         },
         {
             "name": "seld/cli-prompt",
@@ -2773,16 +2754,16 @@
     "packages-dev": [
         {
             "name": "behat/gherkin",
-            "version": "v4.6.1",
+            "version": "v4.6.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Behat/Gherkin.git",
-                "reference": "25bdcaf37898b4a939fa3031d5d753ced97e4759"
+                "reference": "51ac4500c4dc30cbaaabcd2f25694299df666a31"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Behat/Gherkin/zipball/25bdcaf37898b4a939fa3031d5d753ced97e4759",
-                "reference": "25bdcaf37898b4a939fa3031d5d753ced97e4759",
+                "url": "https://api.github.com/repos/Behat/Gherkin/zipball/51ac4500c4dc30cbaaabcd2f25694299df666a31",
+                "reference": "51ac4500c4dc30cbaaabcd2f25694299df666a31",
                 "shasum": ""
             },
             "require": {
@@ -2828,7 +2809,7 @@
                 "gherkin",
                 "parser"
             ],
-            "time": "2020-02-27T11:29:57+00:00"
+            "time": "2020-03-17T14:03:26+00:00"
         },
         {
             "name": "codeception/codeception",
@@ -3100,12 +3081,12 @@
             "version": "1.7.1",
             "source": {
                 "type": "git",
-                "url": "https://github.com/facebook/php-webdriver.git",
+                "url": "https://github.com/php-webdriver/php-webdriver-archive.git",
                 "reference": "e43de70f3c7166169d0f14a374505392734160e5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/facebook/php-webdriver/zipball/e43de70f3c7166169d0f14a374505392734160e5",
+                "url": "https://api.github.com/repos/php-webdriver/php-webdriver-archive/zipball/e43de70f3c7166169d0f14a374505392734160e5",
                 "reference": "e43de70f3c7166169d0f14a374505392734160e5",
                 "shasum": ""
             },
@@ -3757,16 +3738,16 @@
         },
         {
             "name": "nette/robot-loader",
-            "version": "v3.2.2",
+            "version": "v3.2.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nette/robot-loader.git",
-                "reference": "38e8a270567a4ad9fe716b40fcda5a6580afa3c0"
+                "reference": "726c462e73e739e965ec654a667407074cfe83c0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nette/robot-loader/zipball/38e8a270567a4ad9fe716b40fcda5a6580afa3c0",
-                "reference": "38e8a270567a4ad9fe716b40fcda5a6580afa3c0",
+                "url": "https://api.github.com/repos/nette/robot-loader/zipball/726c462e73e739e965ec654a667407074cfe83c0",
+                "reference": "726c462e73e739e965ec654a667407074cfe83c0",
                 "shasum": ""
             },
             "require": {
@@ -3816,7 +3797,7 @@
                 "nette",
                 "trait"
             ],
-            "time": "2020-02-20T22:17:50+00:00"
+            "time": "2020-02-28T13:10:07+00:00"
         },
         {
             "name": "nette/schema",
@@ -5805,7 +5786,6 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "rockettheme/toolbox": 20,
         "willdurand/negotiation": 20,
         "itsgoingd/clockwork": 10,
         "victorjonsson/markdowndocs": 20
