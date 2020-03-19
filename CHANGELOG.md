@@ -6,6 +6,7 @@
     * Added `Folder::hasChildren()` method to determine if a folder has child folders
 1. [](#improved)
     * Save memory when updating large flex indexes
+    * Better `Content-Encoding` handling in Apache when content compression is disabled [#2619](https://github.com/getgrav/grav/issues/2619)
 1. [](#bugfix)
     * Fixed creating new `Flex User` when folder storage has been selected
     * Fixed some bugs in Flex root page methods

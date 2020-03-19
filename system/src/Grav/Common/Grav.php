@@ -493,29 +493,32 @@ class Grav extends Container
             $this['session']->close();
         }
 
-        if ($this['config']->get('system.debugger.shutdown.close_connection', true)) {
+        /** @var Config $config */
+        $config = $this['config'];
+        if ($config->get('system.debugger.shutdown.close_connection', true)) {
             // Flush the response and close the connection to allow time consuming tasks to be performed without leaving
             // the connection to the client open. This will make page loads to feel much faster.
 
             // FastCGI allows us to flush all response data to the client and finish the request.
             $success = \function_exists('fastcgi_finish_request') ? @fastcgi_finish_request() : false;
-
             if (!$success) {
                 // Unfortunately without FastCGI there is no way to force close the connection.
                 // We need to ask browser to close the connection for us.
-                if ($this['config']->get('system.cache.gzip')) {
-                    // Flush gzhandler buffer if gzip setting was enabled.
+
+                if ($config->get('system.cache.gzip')) {
+                    // Flush gzhandler buffer if gzip setting was enabled to get the size of the compressed output.
                     ob_end_flush();
-                } else {
+                } elseif ($config->get('system.cache.allow_webserver_gzip')) {
+                    // Let web server to do the hard work.
+                    header('Content-Encoding: identity');
+                } elseif (function_exists('apache_setenv')) {
                     // Without gzip we have no other choice than to prevent server from compressing the output.
                     // This action turns off mod_deflate which would prevent us from closing the connection.
-                    if ($this['config']->get('system.cache.allow_webserver_gzip')) {
-                        header('Content-Encoding: identity');
-                    } else {
-                        header('Content-Encoding: none');
-                    }
+                    @apache_setenv('no-gzip', '1');
+                } else {
+                    // Fall back to unknown content encoding, it prevents most servers from deflating the content.
+                    header('Content-Encoding: none');
                 }
-
 
                 // Get length and close the connection.
                 header('Content-Length: ' . ob_get_length());
