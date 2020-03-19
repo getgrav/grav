@@ -316,7 +316,10 @@ class Grav extends Container
         /** @var Uri $uri */
         $uri = $this['uri'];
 
-        //Check for code in route
+        // Clean route for redirect
+        $route = preg_replace("#^\/[\\\/]+\/#", '/', $route);
+
+         // Check for code in route
         $regex = '/.*(\[(30[1-7])\])$/';
         preg_match($regex, $route, $matches);
         if ($matches) {
