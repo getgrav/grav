@@ -57,7 +57,7 @@ before_install:
         fi;
     fi
 before_script:
-    - if [ $TRAVIS_PHP_VERSION != 'hhvm' ]; then phpenv config-rm xdebug.ini; fi
+  - phpenv config-rm xdebug.ini
 script:
   - if [ $TRAVIS_BRANCH == 'develop' ] || [ $TRAVIS_PULL_REQUEST != 'false' ]; then
         vendor/bin/codecept run;
