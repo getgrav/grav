@@ -3,6 +3,8 @@
 
 1. [](#new)
     * Moved `Parsedown` 1.6 and `ParsedownExtra` 0.7 into `Grav\Framework\Parsedown` to allow fixes
+1. [](#improved)
+    * Upgraded `jQuery` to latest 3.4.1 version [#2859](https://github.com/getgrav/grav/issues/2859)
 1. [](#bugfix)
     * Fixed PHP 7.4 issue in ParsedownExtra [#2832](https://github.com/getgrav/grav/issues/2832)
     * Fix for [user reported](https://twitter.com/OriginalSicksec) CVE path-based open redirect
