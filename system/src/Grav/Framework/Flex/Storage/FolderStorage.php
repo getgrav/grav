@@ -70,7 +70,7 @@ class FolderStorage extends AbstractFilesystemStorage
     {
         $list = [];
         foreach ($keys as $key) {
-            $list[$key] = $this->getObjectMeta($key);
+            $list[$key] = $this->getObjectMeta((string)$key);
         }
 
         return $list;

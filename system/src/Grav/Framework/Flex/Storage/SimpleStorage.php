@@ -224,7 +224,7 @@ class SimpleStorage extends AbstractFilesystemStorage
 
         $list = [];
         foreach ($rows as $key => $row) {
-            $list[$key] = $this->saveRow($key, $row);
+            $list[$key] = $this->saveRow((string)$key, $row);
         }
 
         if ($list) {
@@ -441,7 +441,7 @@ class SimpleStorage extends AbstractFilesystemStorage
 
         $list = [];
         foreach ($this->data as $key => $info) {
-            $list[$key] = $this->getObjectMeta($key);
+            $list[$key] = $this->getObjectMeta((string)$key);
         }
 
         return $list;

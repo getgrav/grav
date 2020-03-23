@@ -1,3 +1,9 @@
+# v1.7.0-rc.9
+## mm/dd/2020
+
+1. [](#bugfix)
+    * Fixed flex objects with integer keys not working [#2863](https://github.com/getgrav/grav/issues/2863)
+
 # v1.7.0-rc.8
 ## 03/19/2020
 
