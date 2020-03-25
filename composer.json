@@ -101,6 +101,7 @@
         ]
     },
     "scripts": {
+        "api-17": "vendor/bin/phpdoc-md generate system/src > user/pages/14.api/default.17.md",
         "api-16": "vendor/bin/phpdoc-md generate system/src > user/pages/14.api/default.16.md",
         "api-15": "vendor/bin/phpdoc-md generate system/src > user/pages/14.api/default.md",
         "post-create-project-cmd": "bin/grav install",

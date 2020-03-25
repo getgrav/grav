@@ -16,6 +16,7 @@ use Grav\Common\Debugger;
 use Grav\Common\Grav;
 use Grav\Framework\Psr7\Response;
 use Grav\Framework\RequestHandler\Exception\RequestException;
+use Grav\Framework\Route\Route;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -135,8 +136,14 @@ trait ControllerResponseTrait
 
         $accept = $this->getAccept(['application/json', 'text/html']);
 
-        if ($accept === 'text/html') {
-            $request = $this->getRequest();
+        $request = $this->getRequest();
+        $context = $request->getAttributes();
+
+        /** @var Route $route */
+        $route = $context['route'] ?? null;
+
+        $ext = $route ? $route->getExtension() : null;
+        if ($ext !== 'json' && $accept === 'text/html') {
             $method = $request->getMethod();
 
             // On POST etc, redirect back to the previous page.
