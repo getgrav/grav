@@ -402,7 +402,7 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
                 if ($field) {
                     $child_count = count($child->children());
                     $payload = [
-                        'name' => $child->title(),
+                        'name' => $child->menu(),
                         'value' => $child->rawRoute(),
                         'item-key' => basename($child->rawRoute() ?? ''),
                         'filename' => $child->folder(),
@@ -458,7 +458,7 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
                     $payload = [
                         'item-key' => basename($child->rawRoute() ?? $child->getKey()),
                         'icon' => $icon,
-                        'title' => $child->title(),
+                        'title' => $child->menu(),
                         'route' => [
                             'display' => $child->getRoute()->toString(false) ?: '/',
                             'raw' => $child->rawRoute(),
