@@ -3,6 +3,7 @@
 
 1. [](#bugfix)
     * Fixed flex objects with integer keys not working [#2863](https://github.com/getgrav/grav/issues/2863)
+    * Fixed user avatar creation for new `Flex Users` when using folder storage
 
 # v1.7.0-rc.8
 ## 03/19/2020

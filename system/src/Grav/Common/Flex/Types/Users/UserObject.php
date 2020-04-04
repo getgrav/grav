@@ -726,8 +726,9 @@ class UserObject extends FlexObject implements UserInterface, MediaManipulationI
     public function getMediaFolder(): ?string
     {
         $folder = $this->getFlexMediaFolder();
-        if (!$folder) {
-            // Shared media!
+
+        // Check for shared media
+        if (!$folder && !$this->getFlexDirectory()->getMediaFolder()) {
             $this->_loadMedia = false;
             $folder = $this->getBlueprint()->fields()['avatar']['destination'] ?? 'user://accounts/avatars';
         }
@@ -772,9 +773,6 @@ class UserObject extends FlexObject implements UserInterface, MediaManipulationI
     {
         // For shared media folder we need to keep path for backwards compatibility.
         $folder = $this->getMediaFolder();
-        if (!$folder) {
-            throw new \RuntimeException('No media folder support');
-        }
 
         $list = [];
         $list_original = [];
@@ -801,6 +799,10 @@ class UserObject extends FlexObject implements UserInterface, MediaManipulationI
                 if ($this->_loadMedia) {
                     $filepath = $filename;
                 } else {
+                    if (!$folder) {
+                        throw new \RuntimeException('No media folder support');
+                    }
+
                     /** @var UniformResourceLocator $locator */
                     $locator = Grav::instance()['locator'];
                     $filepath = $locator->findResource($folder, false, true) . '/' . $filename;
@@ -809,9 +811,11 @@ class UserObject extends FlexObject implements UserInterface, MediaManipulationI
                     }
                 }
 
-                if ($this->_loadMedia && strpos($field, '/original')) {
-                    // Special handling for original images.
-                    $list_original[$filename] = $file;
+                // Special handling for original images.
+                if (strpos($field, '/original')) {
+                    if ($this->_loadMedia) {
+                        $list_original[$filename] = $file;
+                    }
                     continue;
                 }
 
