@@ -91,6 +91,25 @@ class Route
     }
 
     /**
+     * @param string|null $language
+     * @return string
+     */
+    public function getBase(string $language = null): string
+    {
+        $parts = [$this->root];
+
+        if (null === $language) {
+            $language = $this->language;
+        }
+
+        if ($language !== '') {
+            $parts[] = $language;
+        }
+
+        return implode('/', $parts);
+    }
+
+    /**
      * @param int $offset
      * @param int|null $length
      * @return string
