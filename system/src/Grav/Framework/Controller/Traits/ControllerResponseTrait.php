@@ -95,45 +95,10 @@ trait ControllerResponseTrait
      */
     protected function createErrorResponse(\Throwable $e): ResponseInterface
     {
-        $validCodes = [
-            400, 401, 402, 403, 404, 405, 406, 407, 408, 409, 410, 411, 412, 413, 414, 415, 416, 417, 418,
-            422, 423, 424, 425, 426, 428, 429, 431, 451, 500, 501, 502, 503, 504, 505, 506, 507, 508, 511
-        ];
-
-        if ($e instanceof RequestException) {
-            $code = $e->getHttpCode();
-            $reason = $e->getHttpReason();
-        } else {
-            $code = $e->getCode();
-            $reason = null;
-        }
-
-        if (!in_array($code, $validCodes, true)) {
-            $code = 500;
-        }
-
-        $message = $e->getMessage();
-        $response = [
-            'code' => $code,
-            'status' => 'error',
-            'message' => $message,
-            'error' => [
-                'code' => $code,
-                'message' => $message
-            ]
-        ];
-
-        /** @var Debugger $debugger */
-        $debugger = Grav::instance()['debugger'];
-        if ($debugger->enabled()) {
-            $response['error'] += [
-                'type' => \get_class($e),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-                'trace' => explode("\n", $e->getTraceAsString())
-            ];
-        }
-
+        $response = $this->getErrorJson($e);
+        $message = $response['message'];
+        $code = $response['code'];
+        $reason = $e instanceof RequestException ? $e->getHttpReason() : null;
         $accept = $this->getAccept(['application/json', 'text/html']);
 
         $request = $this->getRequest();
@@ -160,6 +125,72 @@ trait ControllerResponseTrait
         return new Response($code, ['Content-Type' => 'application/json'], json_encode($response), '1.1', $reason);
     }
 
+    /**
+     * @param \Throwable $e
+     * @return ResponseInterface
+     */
+    protected function createJsonErrorResponse(\Throwable $e): ResponseInterface
+    {
+        $response = $this->getErrorJson($e);
+        $reason = $e instanceof RequestException ? $e->getHttpReason() : null;
+
+        return new Response($response['code'], ['Content-Type' => 'application/json'], json_encode($response), '1.1', $reason);
+    }
+
+    /**
+     * @param \Throwable $e
+     * @return array
+     */
+    protected function getErrorJson(\Throwable $e): array
+    {
+        $code = $this->getErrorCode($e instanceof RequestException ? $e->getHttpCode() : $e->getCode());
+        $message = $e->getMessage();
+        $response = [
+            'code' => $code,
+            'status' => 'error',
+            'message' => $message,
+            'error' => [
+                'code' => $code,
+                'message' => $message
+            ]
+        ];
+
+        /** @var Debugger $debugger */
+        $debugger = Grav::instance()['debugger'];
+        if ($debugger->enabled()) {
+            $response['error'] += [
+                'type' => \get_class($e),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => explode("\n", $e->getTraceAsString())
+            ];
+        }
+
+        return $response;
+    }
+
+    /**
+     * @param int $code
+     * @return int
+     */
+    protected function getErrorCode(int $code): int
+    {
+        static $errorCodes = [
+            400, 401, 402, 403, 404, 405, 406, 407, 408, 409, 410, 411, 412, 413, 414, 415, 416, 417, 418,
+            422, 423, 424, 425, 426, 428, 429, 431, 451, 500, 501, 502, 503, 504, 505, 506, 507, 508, 511
+        ];
+
+        if (!in_array($code, $errorCodes, true)) {
+            $code = 500;
+        }
+
+        return $code;
+    }
+
+    /**
+     * @param array $compare
+     * @return mixed
+     */
     protected function getAccept(array $compare)
     {
         $accepted = [];
