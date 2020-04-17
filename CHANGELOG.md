@@ -3,6 +3,8 @@
 
 1. [](#new)
     * Added `Route::getBase()` method
+1. [](#improved)
+    * Support symlinks when saving `File`
 1. [](#bugfix)
     * Fixed flex objects with integer keys not working [#2863](https://github.com/getgrav/grav/issues/2863)
     * Fixed user avatar creation for new `Flex Users` when using folder storage

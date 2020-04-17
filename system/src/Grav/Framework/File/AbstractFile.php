@@ -279,11 +279,14 @@ class AbstractFile implements FileInterface
                     $tmp = false;
                 }
             } else {
+                // Support for symlinks.
+                $realpath = is_link($filepath) ? realpath($filepath) : $filepath;
+
                 // Create file with a temporary name and rename it to make the save action atomic.
-                $tmp = $this->tempname($filepath);
+                $tmp = $this->tempname($realpath);
                 if (@file_put_contents($tmp, $data) === false) {
                     $tmp = false;
-                } elseif (@rename($tmp, $filepath) === false) {
+                } elseif (@rename($tmp, $realpath) === false) {
                     @unlink($tmp);
                     $tmp = false;
                 }
