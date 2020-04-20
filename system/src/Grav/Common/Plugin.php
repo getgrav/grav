@@ -91,7 +91,10 @@ class Plugin implements EventSubscriberInterface, \ArrayAccess
      */
     public function config()
     {
-        return $this->config["plugins.{$this->name}"];
+        if (is_array($this->config)) {
+            return $this->config["plugins.{$this->name}"];
+        }
+
     }
 
     /**
