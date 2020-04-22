@@ -590,6 +590,8 @@ class ImageMedium extends Medium
             return $this->result;
         }
 
+        $this->format($this->get('extension'));
+
         if (!$this->debug_watermarked && $this->get('debug')) {
             $ratio = $this->get('ratio');
             if (!$ratio) {
