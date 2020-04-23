@@ -16,6 +16,7 @@ use Grav\Common\File\CompiledJsonFile;
 use Grav\Common\Flex\Traits\FlexGravTrait;
 use Grav\Common\Flex\Traits\FlexIndexTrait;
 use Grav\Common\Grav;
+use Grav\Common\Page\Header;
 use Grav\Common\Page\Interfaces\PageCollectionInterface;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Utils;
@@ -266,12 +267,20 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
      */
     public function getLevelListing(array $options): array
     {
+        // Undocumented B/C
+        $order = $options['order'] ?? 'asc';
+        if ($order === SORT_ASC) {
+            $options['order'] = 'asc';
+        } elseif ($order === SORT_DESC) {
+            $options['order'] = 'desc';
+        }
+
         $options += [
             'field' => null,
             'route' => null,
             'leaf_route' => null,
             'sortby' => null,
-            'order' => SORT_ASC,
+            'order' => 'asc',
             'lang' => null,
             'filters' => [],
         ];
@@ -395,6 +404,21 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
             $children = $page->children()->getIndex();
             $selectedChildren = $children->filterBy($filters, true);
 
+            /** @var Header $header */
+            $header = $page->header();
+
+            if ($header->get('admin.children_display_order') === 'collection' && ($orderby = $header->get('content.order.by'))) {
+                // Use custom sorting by page header.
+                $sortby = $orderby;
+                $order = $header->get('content.order.dir', $order);
+                $custom = $header->get('content.order.custom');
+            }
+
+            if ($sortby) {
+                // Sort children.
+                $selectedChildren = $selectedChildren->order($sortby, $order, $custom ?? null);
+            }
+
             /** @var PageObject $child */
             foreach ($selectedChildren as $child) {
                 $selected = $child->path() === $extra;
@@ -483,11 +507,6 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
             }
         } else {
             $msg = 'PLUGIN_ADMIN.PAGE_ROUTE_NOT_FOUND';
-        }
-
-        // Sorting
-        if ($sortby) {
-            $response = Utils::sortArrayByKey($response, $sortby, $order);
         }
 
         if ($field) {
