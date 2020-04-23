@@ -13,6 +13,7 @@ namespace Grav\Common\Flex\Types\Pages;
 
 use Grav\Common\Flex\Traits\FlexCollectionTrait;
 use Grav\Common\Flex\Traits\FlexGravTrait;
+use Grav\Common\Page\Header;
 use Grav\Common\Page\Interfaces\PageCollectionInterface;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Utils;
@@ -226,7 +227,14 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
      */
     public function batch($size): array
     {
-        throw new \RuntimeException(__METHOD__ . '(): Not Implemented');
+        $chunks = $this->chunk($size);
+
+        $list = [];
+        foreach ($chunks as $chunk) {
+            $list[] = $this->createFrom($chunk);
+        }
+
+        return $list;
     }
 
     /**
@@ -240,7 +248,147 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
      */
     public function order($by, $dir = 'asc', $manual = null, $sort_flags = null)
     {
-        throw new \RuntimeException(__METHOD__ . '(): Not Implemented');
+        if (!$this->count()) {
+            return $this;
+        }
+
+        if ($by === 'random') {
+            return $this->shuffle();
+        }
+
+        $keys = $this->buildSort($by, $dir, $manual, $sort_flags);
+
+        return $this->createFrom(array_replace(array_flip($keys), $this->toArray()) ?? []);
+    }
+
+    /**
+     * @param string $order_by
+     * @param string $order_dir
+     * @param array|null  $manual
+     * @param int|null    $sort_flags
+     * @return array
+     */
+    protected function buildSort($order_by = 'default', $order_dir = 'asc', $manual = null, $sort_flags = null): array
+    {
+        // do this header query work only once
+        $header_query = null;
+        $header_default = null;
+        if (strpos($order_by, 'header.') === 0) {
+            $query = explode('|', str_replace('header.', '', $order_by), 2);
+            $header_query = array_shift($query) ?? '';
+            $header_default = array_shift($query);
+        }
+
+        $list = [];
+        foreach ($this as $key => $child) {
+            switch ($order_by) {
+                case 'title':
+                    $list[$key] = $child->title();
+                    break;
+                case 'date':
+                    $list[$key] = $child->date();
+                    $sort_flags = SORT_REGULAR;
+                    break;
+                case 'modified':
+                    $list[$key] = $child->modified();
+                    $sort_flags = SORT_REGULAR;
+                    break;
+                case 'publish_date':
+                    $list[$key] = $child->publishDate();
+                    $sort_flags = SORT_REGULAR;
+                    break;
+                case 'unpublish_date':
+                    $list[$key] = $child->unpublishDate();
+                    $sort_flags = SORT_REGULAR;
+                    break;
+                case 'slug':
+                    $list[$key] = $child->slug();
+                    break;
+                case 'basename':
+                    $list[$key] = basename($key);
+                    break;
+                case 'folder':
+                    $list[$key] = $child->folder();
+                    break;
+                case 'manual':
+                case 'default':
+                default:
+                    if (is_string($header_query)) {
+                        /** @var Header $child_header */
+                        $child_header = $child->header();
+                        $header_value = $child_header->get($header_query);
+                        if (is_array($header_value)) {
+                            $list[$key] = implode(',', $header_value);
+                        } elseif ($header_value) {
+                            $list[$key] = $header_value;
+                        } else {
+                            $list[$key] = $header_default ?: $key;
+                        }
+                        $sort_flags = $sort_flags ?: SORT_REGULAR;
+                        break;
+                    }
+                    $list[$key] = $key;
+                    $sort_flags = $sort_flags ?: SORT_REGULAR;
+            }
+        }
+
+        if (null === $sort_flags) {
+            $sort_flags = SORT_NATURAL | SORT_FLAG_CASE;
+        }
+
+        // else just sort the list according to specified key
+        if (extension_loaded('intl') && $this->grav['config']->get('system.intl_enabled')) {
+            $locale = setlocale(LC_COLLATE, '0'); //`setlocale` with a '0' param returns the current locale set
+            $col = Collator::create($locale);
+            if ($col) {
+                if (($sort_flags & SORT_NATURAL) === SORT_NATURAL) {
+                    $list = preg_replace_callback('~([0-9]+)\.~', static function ($number) {
+                        return sprintf('%032d.', $number[0]);
+                    }, $list);
+                    if (!is_array($list)) {
+                        throw new \RuntimeException('Internal Error');
+                    }
+
+                    $list_vals = array_values($list);
+                    if (is_numeric(array_shift($list_vals))) {
+                        $sort_flags = Collator::SORT_REGULAR;
+                    } else {
+                        $sort_flags = Collator::SORT_STRING;
+                    }
+                }
+
+                $col->asort($list, $sort_flags);
+            } else {
+                asort($list, $sort_flags);
+            }
+        } else {
+            asort($list, $sort_flags);
+        }
+
+        // Move manually ordered items into the beginning of the list. Order of the unlisted items does not change.
+        if (is_array($manual) && !empty($manual)) {
+            $i = count($manual);
+            $new_list = [];
+            foreach ($list as $key => $dummy) {
+                $child = $this[$key];
+                $order = \array_search($child->slug, $manual, true);
+                if ($order === false) {
+                    $order = $i++;
+                }
+                $new_list[$key] = (int)$order;
+            }
+
+            $list = $new_list;
+
+            // Apply manual ordering to the list.
+            asort($list);
+        }
+
+        if ($order_dir !== 'asc') {
+            $list = array_reverse($list);
+        }
+
+        return array_keys($list);
     }
 
     /**

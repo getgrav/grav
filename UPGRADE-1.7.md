@@ -109,7 +109,7 @@
       /**
        * @return array
        */
-      public static function getSubscribedEvents()
+      public static function getSubscribedEvents(): array
       {
           return [
               'onPluginsInitialized' => [
@@ -124,7 +124,7 @@
        *
        * @return \Composer\Autoload\ClassLoader
        */
-      public function autoload()
+      public function autoload(): \Composer\Autoload\ClassLoader
       {
           return require __DIR__ . '/vendor/autoload.php';
       }
