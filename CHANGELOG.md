@@ -7,6 +7,7 @@
     * Support symlinks when saving `File`
 1. [](#bugfix)
     * Fixed flex objects with integer keys not working [#2863](https://github.com/getgrav/grav/issues/2863)
+    * Fixed `Pages::instances()` returning null values when using `Flex Pages` [#2889](https://github.com/getgrav/grav/issues/2889)
     * Fixed user avatar creation for new `Flex Users` when using folder storage
     * Fixed `Trying to access array offset on value of type null` PHP 7.4 error in `Plugin.php`
     * Fixed Gregwar Image library using `.jpeg` for cached images, rather use `.jpg`

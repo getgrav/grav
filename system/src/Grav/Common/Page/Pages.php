@@ -748,12 +748,20 @@ class Pages
         $instance = $this->index[$path] ?? null;
         if (\is_string($instance)) {
             $instance = $this->directory ? $this->directory->getObject($instance, 'flex_key') : null;
-            if ($instance && $this->fire_events && method_exists($instance, 'initialize')) {
-                $instance->initialize();
+            if ($instance) {
+                if ($this->fire_events && method_exists($instance, 'initialize')) {
+                    $instance->initialize();
+                }
+            } else {
+                /** @var Debugger $debugger */
+                $debugger = $this->grav['debugger'];
+                $debugger->addMessage(sprintf('Flex page %s is missing or broken!', $instance), 'debug');
             }
         }
 
-        $this->instances[$path] = $instance;
+        if ($instance) {
+            $this->instances[$path] = $instance;
+        }
 
         return $instance;
     }
