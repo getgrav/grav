@@ -2,6 +2,7 @@
 ## mm/dd/2020
 
 1. [](#new)
+    * Support for `webp` image format in Page Media #1168
     * Added `Route::getBase()` method
 1. [](#improved)
     * Support symlinks when saving `File`
