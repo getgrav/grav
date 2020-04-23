@@ -133,11 +133,14 @@
 * Plugins & Themes: Call `$plugin->autoload()` and `$theme->autoload()` automatically when object gets initialized
 * Make sure your code does not use `require` or `include` for loading classes
 
-### Dependencies
+### Plugin/Theme Blueprints (`blueprints.yaml`)
 
-* Make sure you update your plugin/theme dependencies. I recommend setting Grav to either 1.6 or 1.7 and update your code/vendor to PHP 7.1
-
-    blueprints.yaml
+* Please add:
+    ```yaml
+    slug: folder-name
+    type: plugin|theme
+    ```
+* Make sure you update your dependencies. I recommend setting Grav to either 1.6 or 1.7 and update your code/vendor to PHP 7.1
     ```yaml
     dependencies:
         - { name: grav, version: '>=1.6.0' }
