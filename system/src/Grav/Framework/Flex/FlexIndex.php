@@ -70,6 +70,15 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
     }
 
     /**
+     * @param array $meta
+     * @param array $data
+     */
+    public static function updateObjectMeta(array &$meta, array $data)
+    {
+        static::updateIndexData($meta, $data);
+    }
+
+    /**
      * Initializes a new FlexIndex.
      *
      * @param array $entries
@@ -676,7 +685,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
                     if ($keyField !== 'storage_key' && isset($row[$keyField])) {
                         $entry['key'] = $row[$keyField];
                     }
-                    static::updateIndexData($entry, $row ?? []);
+                    static::updateObjectMeta($entry, $row ?? []);
                     if (isset($row['__ERROR'])) {
                         $entry['__ERROR'] = true;
                         static::onException(new \RuntimeException(sprintf('Object failed to load: %s (%s)', $key,
@@ -712,6 +721,11 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
         return $index;
     }
 
+    /**
+     * @param array $entry
+     * @param array $data
+     * @deprecated 1.7 Use static ::updateObjectMeta() method instead.
+     */
     protected static function updateIndexData(array &$entry, array $data)
     {
     }
