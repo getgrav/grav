@@ -112,6 +112,7 @@ config:
         folder: 'account://'
         pattern: '{FOLDER}/{KEY}{EXT}'
         indexed: true
+        key: username
     search:
       options:
         contains: 1

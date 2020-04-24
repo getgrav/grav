@@ -10,6 +10,7 @@
 namespace Grav\Common\Service;
 
 use Grav\Common\Config\Config;
+use Grav\Common\Flex\Types\Users\Storage\UserFileStorage;
 use Grav\Common\Flex\Types\Users\Storage\UserFolderStorage;
 use Grav\Common\Grav;
 use Grav\Events\FlexRegisterEvent;
@@ -84,6 +85,16 @@ class FlexServiceProvider implements ServiceProviderInterface
                     'file' => 'user',
                     'pattern' => '{FOLDER}/{KEY:2}/{KEY}/{FILE}{EXT}',
                     'key' => 'storage_key'
+                ],
+            ];
+        }
+
+        if ($value === 'file') {
+            return [
+                'class' => UserFileStorage::class,
+                'options' => [
+                    'pattern' => '{FOLDER}/{KEY}{EXT}',
+                    'key' => 'username'
                 ],
             ];
         }
