@@ -78,6 +78,7 @@ class RouteFactory
                 'params' => static::getParams($path)
             ],
         ];
+
         return new Route($parts);
     }
 

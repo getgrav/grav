@@ -13,6 +13,7 @@
     * Fixed user avatar creation for new `Flex Users` when using folder storage
     * Fixed `Trying to access array offset on value of type null` PHP 7.4 error in `Plugin.php`
     * Fixed Gregwar Image library using `.jpeg` for cached images, rather use `.jpg`
+    * Fixed `Flex Pages` with `00.home` page not having ordering set
 
 # v1.7.0-rc.8
 ## 03/19/2020

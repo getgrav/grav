@@ -139,9 +139,9 @@ class PageStorage extends FolderStorage
             if ($key !== '') {
                 $key .= '/';
             }
-            $order = $keys['order'] ?? 0;
+            $order = $keys['order'] ?? null;
             $folder = $keys['folder'] ?? 'undefined';
-            $key .= $order ? sprintf('%02d.%s', $order, $folder) : $folder;
+            $key .= is_numeric($order) ? sprintf('%02d.%s', $order, $folder) : $folder;
         }
 
         $params = $includeParams ? $this->buildStorageKeyParams($keys) : '';
@@ -212,7 +212,7 @@ class PageStorage extends FolderStorage
         $storageKey = $row['storage_key'] ?? $meta['storage_key']  ?? '';
         $keyMeta = $storageKey !== '' ? $this->extractKeysFromStorageKey($storageKey) : null;
         $parentKey = $row['parent_key'] ?? $meta['parent_key'] ?? $keyMeta['parent_key'] ?? '';
-        $order = $row['order'] ?? $meta['order']  ?? $keyMeta['order'] ?? '';
+        $order = $row['order'] ?? $meta['order'] ?? $keyMeta['order'] ?? null;
         $folder = $row['folder'] ?? $meta['folder']  ?? $keyMeta['folder'] ?? '';
         $template = $row['template'] ?? $meta['template'] ?? $keyMeta['template'] ?? '';
         $lang = $row['lang'] ?? $meta['lang'] ?? $keyMeta['lang'] ?? '';
@@ -232,7 +232,7 @@ class PageStorage extends FolderStorage
             'key' => null,
             'params' => null,
             'parent_key' => $parentKey,
-            'order' => (int)$order,
+            'order' => is_numeric($order) ? (int)$order : null,
             'folder' => $folder,
             'template' => $template,
             'lang' => $lang
@@ -271,7 +271,7 @@ class PageStorage extends FolderStorage
             'key' => $key,
             'params' => $params,
             'parent_key' => $parentKey,
-            'order' => (int)$order,
+            'order' => is_numeric($order) ? (int)$order : null,
             'folder' => $folder,
             'template' => $template,
             'lang' => $language

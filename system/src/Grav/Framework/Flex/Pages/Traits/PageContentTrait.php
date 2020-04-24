@@ -339,13 +339,15 @@ trait PageContentTrait
                     $value = $order[1] ?? false;
                 }
 
-                $value = (int)$value;
+                if ($value !== false) {
+                    $value = (int)$value;
+                }
 
-                return $value ?: false;
+                return $value;
             }
         );
 
-        return $property ? sprintf('%02d.', $property) : false;
+        return $property !== false ? sprintf('%02d.', $property) : false;
     }
 
     /**
@@ -547,11 +549,11 @@ trait PageContentTrait
             case 'content':
                 return $this->getProperty('markdown');
             case 'order':
-                return ((int)$this->order()) ?: '';
+                return (string)$this->order();
             case 'menu':
                 return $this->menu();
             case 'ordering':
-                return (bool)$this->order();
+                return $this->order() !== false ? '1' : '0';
             case 'folder':
                 $folder = $this->folder();
 
