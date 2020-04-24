@@ -1169,7 +1169,9 @@ class Uri
 
         // Build host.
         $hostname = 'localhost';
-        if (isset($env['HTTP_HOST'])) {
+        if (isset($env['HTTP_X_FORWARDED_HOST'])) {
+            $hostname = $env['HTTP_X_FORWARDED_HOST'];
+        } else if (isset($env['HTTP_HOST'])) {
             $hostname = $env['HTTP_HOST'];
         } elseif (isset($env['SERVER_NAME'])) {
             $hostname = $env['SERVER_NAME'];
