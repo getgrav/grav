@@ -374,7 +374,7 @@ class FlexPageObject extends FlexObject implements PageInterface, MediaManipulat
     protected function filterElements(array &$elements, bool $extended = false): void
     {
         // Markdown storage conversion to page structure.
-        if (isset($elements['content'])) {
+        if (array_key_exists('content', $elements)) {
             $elements['markdown'] = $elements['content'];
             unset($elements['content']);
         }

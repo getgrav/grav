@@ -15,6 +15,7 @@
     * Fixed `Trying to access array offset on value of type null` PHP 7.4 error in `Plugin.php`
     * Fixed Gregwar Image library using `.jpeg` for cached images, rather use `.jpg`
     * Fixed `Flex Pages` with `00.home` page not having ordering set
+    * Fixed `Flex Pages` not updating empty content on save [#2890](https://github.com/getgrav/grav/issues/2890)
 
 # v1.7.0-rc.8
 ## 03/19/2020
