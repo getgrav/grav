@@ -51,6 +51,18 @@ class UserIndex extends FlexIndex
     }
 
     /**
+     * @param array $meta
+     * @param array $data
+     */
+    public static function updateObjectMeta(array &$meta, array $data)
+    {
+        // Username can also be number and stored as such.
+        $key = (string)($data['username'] ?? $meta['key']);
+        $meta['key'] = mb_strtolower($key);
+        $meta['email'] = isset($data['email']) ? mb_strtolower($data['email']) : null;
+    }
+
+    /**
      * Load user account.
      *
      * Always creates user object. To check if user exists, use $this->exists().
@@ -115,18 +127,6 @@ class UserIndex extends FlexIndex
         }
 
         return $this->load('');
-    }
-
-    /**
-     * @param array $meta
-     * @param array $data
-     */
-    public static function updateObjectMeta(array &$meta, array $data)
-    {
-        // Username can also be number and stored as such.
-        $key = (string)($data['username'] ?? $meta['key']);
-        $meta['key'] = mb_strtolower($key);
-        $meta['email'] = isset($data['email']) ? mb_strtolower($data['email']) : null;
     }
 
     /**
