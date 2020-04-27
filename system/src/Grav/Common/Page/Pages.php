@@ -1086,7 +1086,7 @@ class Pages
 
         // Build regular expression for all the allowed page extensions.
         $page_extensions = $language->getFallbackPageExtensions();
-        $regex = '/^[^\.]*(' . implode('|', array_map(
+        $regex = '/^[^\._]*(' . implode('|', array_map(
             function ($str) {
                 return preg_quote($str, '/');
             },
