@@ -70,11 +70,17 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
     }
 
     /**
+     * You can define indexes for fast lookup.
+     *
+     * Primary key: $meta['key']
+     * Secondary keys:  $meta['my_field']
+     *
      * @param array $meta
      * @param array $data
      */
     public static function updateObjectMeta(array &$meta, array $data)
     {
+        // For backwards compatibility, no need to call this method when you override this method.
         static::updateIndexData($meta, $data);
     }
 

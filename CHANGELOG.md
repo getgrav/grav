@@ -18,6 +18,7 @@
     * Fixed `Flex Pages` not updating empty content on save [#2890](https://github.com/getgrav/grav/issues/2890)
     * Fixed creating new Flex User with file storage
     * Fixed saving new `Flex Object` with custom key
+    * Fixed broken `Plugin::config()` method
 
 # v1.7.0-rc.8
 ## 03/19/2020
