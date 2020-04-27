@@ -1,5 +1,5 @@
 # v1.7.0-rc.9
-## mm/dd/2020
+## 04/27/2020
 
 1. [](#new)
     * Support for `webp` image format in Page Media [#1168](https://github.com/getgrav/grav/issues/1168)
