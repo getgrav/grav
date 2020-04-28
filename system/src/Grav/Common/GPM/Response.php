@@ -220,11 +220,12 @@ class Response
 
         if ($bytes_transferred > 0) {
             if ($notification_code == STREAM_NOTIFY_PROGRESS | STREAM_NOTIFY_COMPLETED || $isCurlResource) {
+                $percent = $filesize <= 0 ? 0 : round(($bytes_transferred * 100) / $filesize, 1);
                 $progress = [
                     'code'        => $notification_code,
                     'filesize'    => $filesize,
                     'transferred' => $bytes_transferred,
-                    'percent'     => $filesize <= 0 ? '-' : round(($bytes_transferred * 100) / $filesize, 1)
+                    'percent'     => $percent < 100 ? $percent : 100
                 ];
 
                 if (self::$callback !== null) {
