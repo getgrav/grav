@@ -21,6 +21,7 @@ use Grav\Common\Utils;
 use Grav\Framework\Flex\Interfaces\FlexCollectionInterface;
 use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
 use Grav\Framework\Flex\Pages\FlexPageCollection;
+use Collator;
 
 /**
  * Class GravPageCollection
