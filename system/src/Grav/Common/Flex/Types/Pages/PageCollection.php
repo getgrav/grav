@@ -13,6 +13,7 @@ namespace Grav\Common\Flex\Types\Pages;
 
 use Grav\Common\Flex\Traits\FlexCollectionTrait;
 use Grav\Common\Flex\Traits\FlexGravTrait;
+use Grav\Common\Grav;
 use Grav\Common\Page\Header;
 use Grav\Common\Page\Interfaces\PageCollectionInterface;
 use Grav\Common\Page\Interfaces\PageInterface;
@@ -337,7 +338,7 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
         }
 
         // else just sort the list according to specified key
-        if (extension_loaded('intl') && $this->grav['config']->get('system.intl_enabled')) {
+        if (extension_loaded('intl') && Grav::instance()['config']->get('system.intl_enabled')) {
             $locale = setlocale(LC_COLLATE, '0'); //`setlocale` with a '0' param returns the current locale set
             $col = Collator::create($locale);
             if ($col) {

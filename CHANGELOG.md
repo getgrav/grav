@@ -1,3 +1,9 @@
+# v1.7.0-rc.10
+## mm/dd/2020
+
+1. [](#bugfix)
+    * Fixed `Grav Pages` admin with PHP `intl` extension enabled when using custom page order
+
 # v1.7.0-rc.9
 ## 04/27/2020
 
