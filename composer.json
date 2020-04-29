@@ -55,7 +55,8 @@
         "phive/twig-extensions-deferred": "^1.0",
         "willdurand/negotiation": "2.x-dev",
         "itsgoingd/clockwork": "@beta",
-        "enshrined/svg-sanitize": "~0.1"
+        "enshrined/svg-sanitize": "~0.1",
+        "symfony/http-client": "^4.4"
     },
     "require-dev": {
         "codeception/codeception": "^2.4",
