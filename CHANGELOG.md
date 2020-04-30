@@ -2,6 +2,7 @@
 ## 04/30/2020
 
 1. [](#new)
+    * Changed `Response::get()` used by **GPM/Admin** to use [Symfony HttpClient v4.4](https://symfony.com/doc/current/components/http_client.html) (`composer install --nodev` required for Git installations)
     * Added new `Excerpts::processLinkHtml()` method
 1. [](#bugfix)
     * Fixed `Flex Pages` admin with PHP `intl` extension enabled when using custom page order
