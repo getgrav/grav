@@ -339,6 +339,9 @@ trait PageContentTrait
                     $value = $order[1] ?? false;
                 }
 
+                if ($value === '') {
+                    $value = false;
+                }
                 if ($value !== false) {
                     $value = (int)$value;
                 }
