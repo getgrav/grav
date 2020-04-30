@@ -1,6 +1,8 @@
 # v1.7.0-rc.10
 ## mm/dd/2020
 
+1. [](#new)
+    * Added new `Excerpts::processLinkHtml()` method
 1. [](#bugfix)
     * Fixed `Flex Pages` admin with PHP `intl` extension enabled when using custom page order
     * Fixed saving non-numeric-prefix `Flex Page` changing to numeric-prefix [flex-objects#56](https://github.com/trilbymedia/grav-plugin-flex-objects/issues/56)
