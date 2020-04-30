@@ -44,6 +44,26 @@ class Excerpts
     }
 
     /**
+     * Process Grav page link URL from HTML tag
+     *
+     * @param string $html              HTML tag e.g. `<a href="../foo">Page Link</a>`
+     * @param PageInterface|null $page  Page, defaults to the current page object
+     * @return string                   Returns final HTML string
+     */
+    public static function processLinkHtml($html, PageInterface $page = null)
+    {
+        $excerpt = static::getExcerptFromHtml($html, 'a');
+
+        $original_href = $excerpt['element']['attributes']['href'];
+        $excerpt = static::processLinkExcerpt($excerpt, $page, 'link');
+        $excerpt['element']['attributes']['data-href'] = $original_href;
+
+        $html = static::getHtmlFromExcerpt($excerpt);
+
+        return $html;
+    }
+
+    /**
      * Get an Excerpt array from a chunk of HTML
      *
      * @param string $html         Chunk of HTML
@@ -54,20 +74,24 @@ class Excerpts
     {
         $doc = new \DOMDocument();
         $doc->loadHTML($html);
-        $images = $doc->getElementsByTagName($tag);
+        $elements = $doc->getElementsByTagName($tag);
         $excerpt = null;
 
-        foreach ($images as $image) {
+        foreach ($elements as $element) {
             $attributes = [];
-            foreach ($image->attributes as $name => $value) {
+            foreach ($element->attributes as $name => $value) {
                 $attributes[$name] = $value->value;
             }
             $excerpt = [
                 'element' => [
-                    'name'       => $image->tagName,
+                    'name'       => $element->tagName,
                     'attributes' => $attributes
                 ]
             ];
+
+            if (isset($element->textContent)) {
+                $excerpt = array_merge_recursive($excerpt, ['element' => ['text' => $element->textContent]]);
+            }
         }
 
         return $excerpt;
