@@ -156,6 +156,11 @@ class PageObject extends FlexPageObject
     {
         $reorder = $variables[0] ?? true;
 
+        $meta = $this->getMetaData();
+        if (($meta['copy'] ?? false) === true) {
+            $this->folder = $this->getKey();
+        }
+
         // Figure out storage path to the new route.
         $parentKey = $this->getProperty('parent_key');
         if ($parentKey !== '') {
