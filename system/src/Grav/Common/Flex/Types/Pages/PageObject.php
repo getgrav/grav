@@ -286,7 +286,7 @@ class PageObject extends FlexPageObject
         $order = !$isMoved ? $this->order() : false;
 
         if ($storageKey !== null) {
-            if ($order) {
+            if ($order !== false) {
                 // Add current page back to the list if it's ordered.
                 $siblings->set($storageKey, $this);
             } else {
@@ -314,7 +314,7 @@ class PageObject extends FlexPageObject
         $siblings->removeElement($this);
 
         // If menu item was moved, just make it to be the last in order.
-        if ($isMoved) {
+        if ($isMoved && $order !== false) {
             $parentKey = $this->getProperty('parent_key');
             $newParent = $this->getFlexDirectory()->getObject($parentKey, 'storage_key');
             $newSiblings = $newParent->children()->getCollection()->withOrdered();

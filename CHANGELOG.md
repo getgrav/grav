@@ -2,7 +2,8 @@
 ## mm/dd/2020
 
 1. [](#bugfix)
-    * Fixed `Grav Pages` admin with PHP `intl` extension enabled when using custom page order
+    * Fixed `Flex Pages` admin with PHP `intl` extension enabled when using custom page order
+    * Fixed saving non-numeric-prefix `Flex Page` changing to numeric-prefix [flex-objects#56](https://github.com/trilbymedia/grav-plugin-flex-objects/issues/56)
 
 # v1.7.0-rc.9
 ## 04/27/2020
