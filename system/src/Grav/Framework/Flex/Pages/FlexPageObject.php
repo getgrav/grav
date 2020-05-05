@@ -444,7 +444,7 @@ class FlexPageObject extends FlexObject implements PageInterface, MediaManipulat
     }
 
     /**
-     * @return UserCollectionInterface|FlexCollectionInterface|null
+     * @return UserCollectionInterface|null
      * @internal
      */
     protected function loadAccounts()

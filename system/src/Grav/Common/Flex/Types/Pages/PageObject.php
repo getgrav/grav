@@ -222,7 +222,6 @@ class PageObject extends FlexPageObject
 
     /**
      * @param array $variables
-     * @return array
      */
     protected function onAfterSave(array $variables): void
     {

@@ -28,7 +28,7 @@ trait PageRoutableTrait
 
     /** @var string */
     private $_route;
-    /** @var string */
+    /** @var string|null */
     private $_path;
 
     /**

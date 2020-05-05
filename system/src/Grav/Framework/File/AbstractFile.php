@@ -281,6 +281,9 @@ class AbstractFile implements FileInterface
             } else {
                 // Support for symlinks.
                 $realpath = is_link($filepath) ? realpath($filepath) : $filepath;
+                if ($realpath === false) {
+                    throw new \RuntimeException('Failed to save file ' . $filepath);
+                }
 
                 // Create file with a temporary name and rename it to make the save action atomic.
                 $tmp = $this->tempname($realpath);

@@ -230,6 +230,6 @@ trait PageAuthorsTrait
     }
 
     abstract public function getNestedProperty($property, $default = null, $separator = null);
-    abstract protected function loadAccounts();
 
+    abstract protected function loadAccounts();
 }

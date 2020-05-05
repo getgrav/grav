@@ -242,7 +242,7 @@ trait FlexMediaTrait
             $locator->clearCache($targetFile);
         }
 
-        $fileParts  = $filesystem->pathinfo($basename);
+        $fileParts = (array)$filesystem->pathinfo($basename);
 
         if (!file_exists($targetPath)) {
             return;

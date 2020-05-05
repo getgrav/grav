@@ -25,6 +25,10 @@ parameters:
     ignoreErrors:
 
         # FIXME: Bugs that need to be fixed
+        # FIXME: PHP 7.3 bug workaround
+        -
+            message: '#If condition is always false.#'
+            path: 'system/src/Grav/Framework/Session/Session.php'
 
         # TODO: Errors that needs some more thinking (bad design?)
         - '#Access to an undefined property RocketTheme\\Toolbox\\Event\\Event::#'
@@ -90,8 +94,11 @@ parameters:
             message: '#unknown class (Memcache|Memcached|Redis|RedisException)#'
             path: 'system/src/Grav/Common/Cache.php'
         -
-            message: '#on an unknown class Collator#'
+            message: '#unknown class Collator#'
             path: 'system/src/Grav/Common/Page/Pages.php'
+        -
+            message: '#unknown class Collator#'
+            path: 'system/src/Grav/Common/Flex/Types/Pages/PageCollection.php'
         -
             message: '#Ternary operator condition is always true#'
             path: 'system/src/Grav/Framework/Cache/AbstractCache.php'
@@ -121,6 +128,15 @@ parameters:
         -
             message: '#Call to deprecated method \w+\(\) of class Grav\\Framework\\Flex\\FlexObject#'
             path: 'system/src/Grav/Framework/Flex/FlexObject.php'
+        -
+            message: '#Call to deprecated method \w+\(\) of class Grav\\Framework\\Flex\\FlexIndex#'
+            path: 'system/src/Grav/Framework/Flex/FlexIndex.php'
+        -
+            message: '#Call to deprecated method \w+\(\) of class Grav\\Framework\\Flex\\FlexCollection#'
+            path: 'system/src/Grav/Framework/Flex/FlexCollection.php'
+        -
+            message: '#Call to deprecated method (getAuthorizeScope|getActiveUser)\(\) of class Grav\\Framework\\Flex\\FlexObject#'
+            path: 'system/src/Grav/Framework/Flex/Pages/Traits/PageAuthorsTrait.php'
         -
             message: '#deprecated class#'
             path: 'system/src/Grav/Framework/Uri/Uri.php'

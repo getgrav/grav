@@ -487,7 +487,7 @@ abstract class Folder
     /**
      * Does a directory contain children
      *
-     * @param $dir
+     * @param string $directory
      * @return bool
      */
     public static function hasChildren($directory) {

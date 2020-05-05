@@ -34,8 +34,8 @@ abstract class AbstractFilesystemStorage implements FlexStorageInterface
     protected $dataFormatter;
     /** @var string */
     protected $keyField = 'storage_key';
-    /** @var string */
-    protected $keyLen = '32';
+    /** @var int */
+    protected $keyLen = 32;
 
     /**
      * @return bool
