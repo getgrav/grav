@@ -9,6 +9,8 @@
 
 namespace Grav\Common;
 
+use function donatj\UserAgent\parse_user_agent;
+
 /**
  * Internally uses the PhpUserAgent package https://github.com/donatj/PhpUserAgent
  */
