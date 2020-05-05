@@ -54,7 +54,7 @@
         "dragonmantank/cron-expression": "^1.2",
         "phive/twig-extensions-deferred": "^1.0",
         "willdurand/negotiation": "2.x-dev",
-        "itsgoingd/clockwork": "@beta",
+        "itsgoingd/clockwork": "^4.1",
         "enshrined/svg-sanitize": "~0.1",
         "symfony/http-client": "^4.4"
     },
@@ -79,13 +79,10 @@
             "php": "7.1.3"
         }
     },
-    "repositories": [{
-            "type": "vcs",
-            "url": "https://github.com/trilbymedia/PHP-Markdown-Documentation-Generator"
-        },
+    "repositories": [
         {
             "type": "vcs",
-            "url": "https://github.com/itsgoingd/clockwork"
+            "url": "https://github.com/trilbymedia/PHP-Markdown-Documentation-Generator"
         }
     ],
     "autoload": {
