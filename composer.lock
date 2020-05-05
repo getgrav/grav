@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8cf8d58f86543809e5b922b12962484d",
+    "content-hash": "40dbb242443086c99aa47ea8ca366d67",
     "packages": [
         {
             "name": "antoligy/dom-string-iterators",
@@ -260,23 +260,23 @@
         },
         {
             "name": "donatj/phpuseragentparser",
-            "version": "v0.15.0",
+            "version": "v1.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/donatj/PhpUserAgent.git",
-                "reference": "283e5812d3a3f2deb62377c14b0d24191aba1595"
+                "reference": "1431382850017ac017d194f2a6f6cacb35212888"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/donatj/PhpUserAgent/zipball/283e5812d3a3f2deb62377c14b0d24191aba1595",
-                "reference": "283e5812d3a3f2deb62377c14b0d24191aba1595",
+                "url": "https://api.github.com/repos/donatj/PhpUserAgent/zipball/1431382850017ac017d194f2a6f6cacb35212888",
+                "reference": "1431382850017ac017d194f2a6f6cacb35212888",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.3.0"
             },
             "require-dev": {
-                "camspiers/json-pretty": "0.1.*",
+                "camspiers/json-pretty": "~1.0",
                 "donatj/drop": "*",
                 "phpunit/phpunit": "~4.8"
             },
@@ -284,7 +284,10 @@
             "autoload": {
                 "files": [
                     "src/UserAgentParser.php"
-                ]
+                ],
+                "psr-4": {
+                    "donatj\\UserAgent\\": "src/UserAgent"
+                }
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
@@ -294,7 +297,7 @@
                 {
                     "name": "Jesse G. Donat",
                     "email": "donatj@gmail.com",
-                    "homepage": "http://donatstudios.com",
+                    "homepage": "https://donatstudios.com",
                     "role": "Developer"
                 }
             ],
@@ -307,7 +310,17 @@
                 "user agent",
                 "useragent"
             ],
-            "time": "2020-01-21T17:51:39+00:00"
+            "funding": [
+                {
+                    "url": "https://www.paypal.me/donatj/15",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/donatj",
+                    "type": "github"
+                }
+            ],
+            "time": "2020-04-24T18:07:07+00:00"
         },
         {
             "name": "dragonmantank/cron-expression",
