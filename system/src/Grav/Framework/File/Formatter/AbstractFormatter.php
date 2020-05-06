@@ -42,6 +42,7 @@ abstract class AbstractFormatter implements FileFormatterInterface
 
     /**
      * @param string $serialized
+     * @return void
      */
     public function unserialize($serialized): void
     {

@@ -353,6 +353,7 @@ abstract class AbstractUri implements UriInterface
 
     /**
      * @param array $parts
+     * @return void
      * @throws \InvalidArgumentException
      */
     protected function initParts(array $parts)
@@ -371,6 +372,7 @@ abstract class AbstractUri implements UriInterface
     }
 
     /**
+     * @return void
      * @throws \InvalidArgumentException
      */
     private function validate()
@@ -391,6 +393,9 @@ abstract class AbstractUri implements UriInterface
         }
     }
 
+    /**
+     * @return bool
+     */
     protected function isDefaultPort()
     {
         $scheme = $this->scheme;
@@ -400,6 +405,9 @@ abstract class AbstractUri implements UriInterface
             || (isset(static::$defaultPorts[$scheme]) && $port === static::$defaultPorts[$scheme]);
     }
 
+    /**
+     * @return void
+     */
     private function unsetDefaultPort()
     {
         if ($this->isDefaultPort()) {

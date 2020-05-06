@@ -63,61 +63,99 @@ trait FormTrait
     /** @var Blueprint */
     private $blueprint;
 
+    /**
+     * @return string
+     */
     public function getId(): string
     {
         return $this->id;
     }
 
+    /**
+     * @param string $id
+     */
     public function setId(string $id): void
     {
         $this->id = $id;
     }
 
+    /**
+     * @return string
+     */
     public function getUniqueId(): string
     {
         return $this->uniqueid;
     }
 
+    /**
+     * @param string $uniqueId
+     * @return void
+     */
     public function setUniqueId(string $uniqueId): void
     {
         $this->uniqueid = $uniqueId;
     }
 
+    /**
+     * @return string
+     */
     public function getName(): string
     {
         return $this->name;
     }
 
+    /**
+     * @return string
+     */
     public function getFormName(): string
     {
         return $this->name;
     }
 
+    /**
+     * @return string
+     */
     public function getNonceName(): string
     {
         return 'form-nonce';
     }
 
+    /**
+     * @return string
+     */
     public function getNonceAction(): string
     {
         return 'form';
     }
 
+    /**
+     * @return string
+     */
     public function getNonce(): string
     {
         return Utils::getNonce($this->getNonceAction());
     }
 
+    /**
+     * @return string
+     */
     public function getAction(): string
     {
         return '';
     }
 
+    /**
+     * @return string
+     */
     public function getTask(): string
     {
         return $this->getBlueprint()->get('form/task') ?? '';
     }
 
+    /**
+     * @param string|null $name
+     * @return mixed
+     */
     public function getData(string $name = null)
     {
         return null !== $name ? $this->data[$name] : $this->data;
@@ -131,11 +169,19 @@ trait FormTrait
         return $this->files ?? [];
     }
 
+    /**
+     * @param string $name
+     * @return mixed|null
+     */
     public function getValue(string $name)
     {
         return $this->data[$name] ?? null;
     }
 
+    /**
+     * @param string $name
+     * @return mixed|null
+     */
     public function getDefaultValue(string $name)
     {
         $path = explode('.', $name) ?: [];
@@ -310,6 +356,9 @@ trait FormTrait
         return $this;
     }
 
+    /**
+     * @return void
+     */
     public function reset(): void
     {
         // Make sure that the flash object gets deleted.
@@ -348,6 +397,9 @@ trait FormTrait
         return $this->getBlueprint()->get('form/tasks') ?? [];
     }
 
+    /**
+     * @return Blueprint
+     */
     abstract public function getBlueprint(): Blueprint;
 
     /**
@@ -364,6 +416,7 @@ trait FormTrait
      * Implements \Serializable::unserialize().
      *
      * @param string $serialized
+     * @return void
      */
     public function unserialize($serialized): void
     {
@@ -476,16 +529,26 @@ trait FormTrait
         return $this->sessionid;
     }
 
+    /**
+     * @param string $sessionId
+     * @return void
+     */
     protected function setSessionId(string $sessionId): void
     {
         $this->sessionid = $sessionId;
     }
 
+    /**
+     * @return void
+     */
     protected function unsetFlash(): void
     {
         $this->flash = null;
     }
 
+    /**
+     * @return string|null
+     */
     protected function getFlashFolder(): ?string
     {
         $grav = Grav::instance();
@@ -519,6 +582,9 @@ trait FormTrait
         return strpos($path, '!!') === false ? rtrim($path, '/') : null;
     }
 
+    /**
+     * @return string
+     */
     protected function getFlashLookupFolder(): string
     {
         if (null === $this->flashFolder) {
@@ -528,6 +594,10 @@ trait FormTrait
         return $this->flashFolder;
     }
 
+    /**
+     * @param string $folder
+     * @return void
+     */
     protected function setFlashLookupFolder(string $folder): void
     {
         $this->flashFolder = $folder;
@@ -537,6 +607,7 @@ trait FormTrait
      * Set a single error.
      *
      * @param string $error
+     * @return void
      */
     protected function setError(string $error): void
     {
@@ -548,6 +619,7 @@ trait FormTrait
      * Set all errors.
      *
      * @param array $errors
+     * @return void
      */
     protected function setErrors(array $errors): void
     {
@@ -625,6 +697,7 @@ trait FormTrait
      * Validate data and throw validation exceptions if validation fails.
      *
      * @param \ArrayAccess|Data|null $data
+     * @return void
      * @throws ValidationException
      * @throws \Exception
      */
@@ -639,6 +712,7 @@ trait FormTrait
      * Filter validated data.
      *
      * @param \ArrayAccess|Data|null $data
+     * @return void
      */
     protected function filterData($data = null): void
     {
@@ -651,6 +725,7 @@ trait FormTrait
      * Validate all uploaded files.
      *
      * @param array $files
+     * @return void
      */
     protected function validateUploads(array $files): void
     {
@@ -670,6 +745,7 @@ trait FormTrait
      * Validate uploaded file.
      *
      * @param UploadedFileInterface $file
+     * @return void
      */
     protected function validateUpload(UploadedFileInterface $file): void
     {
@@ -755,6 +831,7 @@ trait FormTrait
 
     /**
      * @param array $data
+     * @return void
      */
     protected function doUnserialize(array $data): void
     {

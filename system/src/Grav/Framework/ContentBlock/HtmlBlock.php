@@ -103,6 +103,7 @@ class HtmlBlock extends ContentBlock implements HtmlBlockInterface
 
     /**
      * @param array $serialized
+     * @return void
      * @throws \RuntimeException
      */
     public function build(array $serialized)
@@ -362,6 +363,7 @@ class HtmlBlock extends ContentBlock implements HtmlBlockInterface
 
     /**
      * @param array $items
+     * @return void
      */
     protected function sortAssetsInLocation(array &$items)
     {
@@ -381,6 +383,7 @@ class HtmlBlock extends ContentBlock implements HtmlBlockInterface
 
     /**
      * @param array $array
+     * @return void
      */
     protected function sortAssets(array &$array)
     {

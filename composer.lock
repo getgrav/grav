@@ -1003,16 +1003,16 @@
         },
         {
             "name": "maximebf/debugbar",
-            "version": "v1.16.2",
+            "version": "v1.16.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/maximebf/php-debugbar.git",
-                "reference": "40f375504a4dd8e59f779c3f3cac524777ddcde5"
+                "reference": "1a1605b8e9bacb34cc0c6278206d699772e1d372"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/maximebf/php-debugbar/zipball/40f375504a4dd8e59f779c3f3cac524777ddcde5",
-                "reference": "40f375504a4dd8e59f779c3f3cac524777ddcde5",
+                "url": "https://api.github.com/repos/maximebf/php-debugbar/zipball/1a1605b8e9bacb34cc0c6278206d699772e1d372",
+                "reference": "1a1605b8e9bacb34cc0c6278206d699772e1d372",
                 "shasum": ""
             },
             "require": {
@@ -1060,7 +1060,7 @@
                 "debug",
                 "debugbar"
             ],
-            "time": "2020-04-16T09:05:52+00:00"
+            "time": "2020-05-06T07:06:27+00:00"
         },
         {
             "name": "miljar/php-exif",

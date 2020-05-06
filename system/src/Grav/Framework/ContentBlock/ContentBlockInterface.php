@@ -59,6 +59,7 @@ interface ContentBlockInterface extends \Serializable
 
     /**
      * @param array $serialized
+     * @return void
      */
     public function build(array $serialized);
 

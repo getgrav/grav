@@ -80,6 +80,10 @@ class FormFlash implements FormFlashInterface
         $this->init($this->loadStoredForm(), $config);
     }
 
+    /**
+     * @param array|null $data
+     * @param array $config
+     */
     protected function init(?array $data, array $config): void
     {
         if (null === $data) {
@@ -103,7 +107,7 @@ class FormFlash implements FormFlashInterface
     /**
      * Load raw flex flash data from the filesystem.
      *
-     * @return array
+     * @return array|null
      */
     protected function loadStoredForm(): ?array
     {
@@ -138,6 +142,7 @@ class FormFlash implements FormFlashInterface
     }
 
     /**
+     * @return string
      * @deprecated 1.6.11 Use '->getUniqueId()' method instead.
      */
     public function getUniqieId(): string
@@ -483,6 +488,9 @@ class FormFlash implements FormFlashInterface
         }
     }
 
+    /**
+     * @return void
+     */
     protected function removeTmpDir(): void
     {
         // Make sure that index file cache gets always cleared.
@@ -500,6 +508,7 @@ class FormFlash implements FormFlashInterface
      * @param string $name
      * @param array $data
      * @param array|null $crop
+     * @return void
      */
     protected function addFileInternal(?string $field, string $name, array $data, array $crop = null): void
     {

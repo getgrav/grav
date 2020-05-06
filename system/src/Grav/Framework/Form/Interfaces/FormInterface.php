@@ -164,6 +164,8 @@ interface FormInterface extends RenderInterface, \Serializable
 
     /**
      * Reset form.
+     *
+     * @return void
      */
     public function reset(): void;
 

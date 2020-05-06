@@ -57,31 +57,50 @@ class AbstractPagination implements PaginationInterface
     /** @var array */
     private $items;
 
+    /**
+     * @return bool
+     */
     public function isEnabled(): bool
     {
         return $this->count() > 1;
     }
 
+    /**
+     * @return array
+     */
     public function getOptions(): array
     {
         return $this->options;
     }
 
+    /**
+     * @return Route|null
+     */
     public function getRoute(): ?Route
     {
         return $this->route;
     }
 
+    /**
+     * @return int
+     */
     public function getTotalPages(): int
     {
         return $this->pages;
     }
 
+    /**
+     * @return int
+     */
     public function getPageNumber(): int
     {
         return $this->page ?? 1;
     }
 
+    /**
+     * @param int $count
+     * @return int|null
+     */
     public function getPrevNumber(int $count = 1): ?int
     {
         $page = $this->page - $count;
@@ -89,6 +108,10 @@ class AbstractPagination implements PaginationInterface
         return $page >= 1 ? $page : null;
     }
 
+    /**
+     * @param int $count
+     * @return int|null
+     */
     public function getNextNumber(int $count = 1): ?int
     {
         $page = $this->page + $count;
@@ -96,6 +119,11 @@ class AbstractPagination implements PaginationInterface
         return $page <= $this->pages ? $page : null;
     }
 
+    /**
+     * @param int $page
+     * @param string|null $label
+     * @return PaginationPage|null
+     */
     public function getPage(int $page, string $label = null): ?PaginationPage
     {
         if ($page < 1 || $page > $this->pages) {
@@ -124,41 +152,73 @@ class AbstractPagination implements PaginationInterface
         );
     }
 
+    /**
+     * @param string|null $label
+     * @param int $count
+     * @return PaginationPage|null
+     */
     public function getFirstPage(string $label = null, int $count = 0): ?PaginationPage
     {
         return $this->getPage(1 + $count, $label ?? $this->getOptions()['label_first'] ?? null);
     }
 
+    /**
+     * @param string|null $label
+     * @param int $count
+     * @return PaginationPage|null
+     */
     public function getPrevPage(string $label = null, int $count = 1): ?PaginationPage
     {
         return $this->getPage($this->page - $count, $label ?? $this->getOptions()['label_prev'] ?? null);
     }
 
+    /**
+     * @param string|null $label
+     * @param int $count
+     * @return PaginationPage|null
+     */
     public function getNextPage(string $label = null, int $count = 1): ?PaginationPage
     {
         return $this->getPage($this->page + $count, $label ?? $this->getOptions()['label_next'] ?? null);
     }
 
+    /**
+     * @param string|null $label
+     * @param int $count
+     * @return PaginationPage|null
+     */
     public function getLastPage(string $label = null, int $count = 0): ?PaginationPage
     {
         return $this->getPage($this->pages - $count, $label ?? $this->getOptions()['label_last'] ?? null);
     }
 
+    /**
+     * @return int
+     */
     public function getStart(): int
     {
         return $this->start ?? 0;
     }
 
+    /**
+     * @return int
+     */
     public function getLimit(): int
     {
         return $this->limit;
     }
 
+    /**
+     * @return int
+     */
     public function getTotal(): int
     {
         return $this->total;
     }
 
+    /**
+     * @return int
+     */
     public function count(): int
     {
         $this->loadItems();
@@ -166,6 +226,9 @@ class AbstractPagination implements PaginationInterface
         return \count($this->items);
     }
 
+    /**
+     * @return \ArrayIterator
+     */
     public function getIterator()
     {
         $this->loadItems();
@@ -173,6 +236,9 @@ class AbstractPagination implements PaginationInterface
         return new \ArrayIterator($this->items);
     }
 
+    /**
+     * @return array
+     */
     public function getPages(): array
     {
         $this->loadItems();
@@ -180,6 +246,9 @@ class AbstractPagination implements PaginationInterface
         return $this->items;
     }
 
+    /**
+     * @return void
+     */
     protected function loadItems()
     {
         $this->calculateRange();
@@ -197,6 +266,10 @@ class AbstractPagination implements PaginationInterface
         }
     }
 
+    /**
+     * @param Route $route
+     * @return $this
+     */
     protected function setRoute(Route $route)
     {
         $this->route = $route;
@@ -204,6 +277,10 @@ class AbstractPagination implements PaginationInterface
         return $this;
     }
 
+    /**
+     * @param array|null $options
+     * @return $this
+     */
     protected function setOptions(array $options = null)
     {
         $this->options = $options ? array_merge($this->defaultOptions, $options) : $this->defaultOptions;
@@ -211,6 +288,10 @@ class AbstractPagination implements PaginationInterface
         return $this;
     }
 
+    /**
+     * @param int|null $page
+     * @return $this
+     */
     protected function setPage(int $page = null)
     {
         $this->page = (int)max($page, 1);
@@ -256,6 +337,14 @@ class AbstractPagination implements PaginationInterface
         return $this;
     }
 
+    /**
+     * @param Route $route
+     * @param int $total
+     * @param int|null $pos
+     * @param int|null $limit
+     * @param array|null $options
+     * @return void
+     */
     protected function initialize(Route $route, int $total, int $pos = null, int $limit = null, array $options = null)
     {
         $this->setRoute($route);
@@ -270,6 +359,9 @@ class AbstractPagination implements PaginationInterface
         $this->calculateLimits();
     }
 
+    /**
+     * @return void
+     */
     protected function calculateLimits()
     {
         $limit = $this->limit;
@@ -300,6 +392,9 @@ class AbstractPagination implements PaginationInterface
         $this->pages = (int)ceil($total / $limit);
     }
 
+    /**
+     * @return void
+     */
     protected function calculateRange()
     {
         $options = $this->getOptions();

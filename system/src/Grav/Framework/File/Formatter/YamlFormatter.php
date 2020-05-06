@@ -65,7 +65,10 @@ class YamlFormatter extends AbstractFormatter
     }
 
     /**
-     * {@inheritdoc}
+     * @param array $data
+     * @param int|null $inline
+     * @param int|null $indent
+     * @return string
      * @see FileFormatterInterface::encode()
      */
     public function encode($data, $inline = null, $indent = null): string

@@ -42,7 +42,9 @@ class CsvFormatter extends AbstractFormatter
     }
 
     /**
-     * {@inheritdoc}
+     * @param array $data
+     * @param string|null $delimiter
+     * @return string
      * @see FileFormatterInterface::encode()
      */
     public function encode($data, $delimiter = null): string
@@ -65,7 +67,9 @@ class CsvFormatter extends AbstractFormatter
     }
 
     /**
-     * {@inheritdoc}
+     * @param string $data
+     * @param string|null $delimiter
+     * @return array
      * @see FileFormatterInterface::decode()
      */
     public function decode($data, $delimiter = null): array
@@ -111,7 +115,12 @@ class CsvFormatter extends AbstractFormatter
         return $list;
     }
 
-    protected function encodeLine(array $line, $delimiter = null): string
+    /**
+     * @param array $line
+     * @param string $delimiter
+     * @return string
+     */
+    protected function encodeLine(array $line, string $delimiter): string
     {
         foreach ($line as $key => &$value) {
             $value = $this->escape((string)$value);
@@ -121,6 +130,10 @@ class CsvFormatter extends AbstractFormatter
         return implode($delimiter, $line). "\n";
     }
 
+    /**
+     * @param string $value
+     * @return string
+     */
     protected function escape(string $value)
     {
         if (preg_match('/[,"\r\n]/u', $value)) {

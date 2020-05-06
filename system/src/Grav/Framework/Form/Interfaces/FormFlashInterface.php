@@ -86,6 +86,7 @@ interface FormFlashInterface extends \JsonSerializable
      * Set raw form data.
      *
      * @param array|null $data
+     * @return void
      */
     public function setData(?array $data): void;
 
@@ -105,6 +106,8 @@ interface FormFlashInterface extends \JsonSerializable
 
     /**
      * Delete this form flash.
+     *
+     * @return $this
      */
     public function delete();
 
@@ -155,6 +158,8 @@ interface FormFlashInterface extends \JsonSerializable
 
     /**
      * Clear form flash from all uploaded files.
+     *
+     * @return void
      */
     public function clearFiles();
 

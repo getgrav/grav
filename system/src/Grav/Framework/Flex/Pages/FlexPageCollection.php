@@ -82,7 +82,6 @@ class FlexPageCollection extends FlexCollection
      * Check to see if this item is the first in the collection.
      *
      * @param  string $path
-     *
      * @return bool True if item is first.
      */
     public function isFirst($path): bool
@@ -97,7 +96,6 @@ class FlexPageCollection extends FlexCollection
      * Check to see if this item is the last in the collection.
      *
      * @param  string $path
-     *
      * @return bool True if item is last.
      */
     public function isLast($path): bool
@@ -112,7 +110,6 @@ class FlexPageCollection extends FlexCollection
      * Gets the previous sibling based on current position.
      *
      * @param  string $path
-     *
      * @return PageInterface|false  The previous item.
      */
     public function prevSibling($path)
@@ -124,7 +121,6 @@ class FlexPageCollection extends FlexCollection
      * Gets the next sibling based on current position.
      *
      * @param  string $path
-     *
      * @return PageInterface|false The next item.
      */
     public function nextSibling($path)
@@ -137,7 +133,6 @@ class FlexPageCollection extends FlexCollection
      *
      * @param  string  $path
      * @param  int $direction either -1 or +1
-     *
      * @return PageInterface|false    The sibling item.
      */
     public function adjacentSibling($path, $direction = 1)
@@ -159,7 +154,6 @@ class FlexPageCollection extends FlexCollection
      * Returns the item in the current position.
      *
      * @param  string $path the path the item
-     *
      * @return int|null The index of the current page, null if not found.
      */
     public function currentPosition($path): ?int
@@ -176,11 +170,11 @@ class FlexPageCollection extends FlexCollection
     {
         $directory = $this->getFlexDirectory();
 
-        /** @var FlexPageObject $last */
         $collection = $directory->getIndex();
         $keys = $collection->getStorageKeys();
 
         // Assign next free order.
+        /** @var FlexPageObject|null $last */
         $last = null;
         $order = 0;
         foreach ($keys as $folder => $key) {

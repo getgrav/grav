@@ -34,7 +34,6 @@ interface SessionInterface extends \IteratorAggregate
      * Set session ID
      *
      * @param string $id Session ID
-     *
      * @return $this
      */
     public function setId($id);
@@ -50,7 +49,6 @@ interface SessionInterface extends \IteratorAggregate
      * Set session name
      *
      * @param string $name
-     *
      * @return $this
      */
     public function setName($name);
@@ -59,7 +57,7 @@ interface SessionInterface extends \IteratorAggregate
      * Sets session.* ini variables.
      *
      * @param array $options
-     *
+     * @return void
      * @see http://php.net/session.configuration
      */
     public function setOptions(array $options);
@@ -136,6 +134,7 @@ interface SessionInterface extends \IteratorAggregate
      *
      * @param string $name
      * @param mixed  $value
+     * @return void
      */
     public function __set($name, $value);
 
@@ -143,6 +142,7 @@ interface SessionInterface extends \IteratorAggregate
      * Removes session variable.
      *
      * @param string $name
+     * @return void
      */
     public function __unset($name);
 }

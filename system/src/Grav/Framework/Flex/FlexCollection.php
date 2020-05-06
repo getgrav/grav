@@ -221,11 +221,11 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
      */
     public function getCacheChecksum(): string
     {
+        $list = [];
         /**
          * @var string $key
          * @var FlexObjectInterface $object
          */
-        $list = [];
         foreach ($this as $key => $object) {
             $list[$key] = $object->getCacheChecksum();
         }
@@ -497,6 +497,9 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
         return $elements;
     }
 
+    /**
+     * @return array
+     */
     public function __debugInfo()
     {
         return [
@@ -515,7 +518,6 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
      *
      * @param array $elements Elements.
      * @param string|null $keyField
-     *
      * @return static
      * @throws \InvalidArgumentException
      */
@@ -612,6 +614,10 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
         return $flex->getDirectory($type);
     }
 
+    /**
+     * @param string|null $keyField
+     * @return void
+     */
     protected function setKeyField($keyField = null): void
     {
         $this->_keyField = $keyField ?? 'storage_key';

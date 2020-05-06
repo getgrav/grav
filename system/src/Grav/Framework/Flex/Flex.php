@@ -297,6 +297,11 @@ class Flex implements FlexInterface
         return \count($this->types);
     }
 
+    /**
+     * @param string $flexKey
+     * @param string|null $type
+     * @return array
+     */
     protected function resolveKeyAndType(string $flexKey, string $type = null): array
     {
         $guess = false;
@@ -313,6 +318,10 @@ class Flex implements FlexInterface
         return [$key, $type, $guess];
     }
 
+    /**
+     * @param string|null $type
+     * @return string
+     */
     protected function resolveType(string $type = null): string
     {
         if (null !== $type && strpos($type, '.') !== false) {

@@ -157,6 +157,7 @@ abstract class ObjectIndex extends AbstractIndexCollection implements NestedObje
 
     /**
      * @param string  $property     Object property to be unset.
+     * @param string  $separator    Separator, defaults to '.'
      * @return ObjectCollectionInterface
      */
     public function unsetNestedProperty($property, $separator = null)
@@ -197,7 +198,9 @@ abstract class ObjectIndex extends AbstractIndexCollection implements NestedObje
     }
 
     /**
-     * {@inheritDoc}
+     * @param string $method
+     * @param array $arguments
+     * @return array|mixed
      */
     public function call($method, array $arguments = [])
     {
@@ -237,6 +240,11 @@ abstract class ObjectIndex extends AbstractIndexCollection implements NestedObje
         return $collection->matching($criteria);
     }
 
+    /**
+     * @param string $name
+     * @param array $arguments
+     * @return mixed
+     */
     abstract public function __call($name, $arguments);
 
     /**

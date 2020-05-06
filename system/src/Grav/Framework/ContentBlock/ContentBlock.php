@@ -104,10 +104,7 @@ class ContentBlock implements ContentBlockInterface
     public function toArray()
     {
         $blocks = [];
-        /**
-         * @var string $id
-         * @var ContentBlockInterface $block
-         */
+        /** @var ContentBlockInterface $block */
         foreach ($this->blocks as $block) {
             $blocks[$block->getId()] = $block->toArray();
         }
@@ -167,6 +164,7 @@ class ContentBlock implements ContentBlockInterface
 
     /**
      * @param array $serialized
+     * @return void
      * @throws \RuntimeException
      */
     public function build(array $serialized)
@@ -266,6 +264,7 @@ class ContentBlock implements ContentBlockInterface
 
     /**
      * @param string $serialized
+     * @return void
      */
     public function unserialize($serialized)
     {
@@ -283,6 +282,7 @@ class ContentBlock implements ContentBlockInterface
 
     /**
      * @param array $serialized
+     * @return void
      * @throws \RuntimeException
      */
     protected function checkVersion(array $serialized)

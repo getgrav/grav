@@ -39,6 +39,11 @@ class Session implements SessionInterface
         return self::$instance;
     }
 
+    /**
+     * Session constructor.
+     *
+     * @param array $options
+     */
     public function __construct(array $options = [])
     {
         // Session is a singleton.
@@ -421,6 +426,7 @@ class Session implements SessionInterface
     /**
      * @param string $key
      * @param mixed $value
+     * @return void
      */
     protected function setOption($key, $value)
     {
