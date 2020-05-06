@@ -9,7 +9,10 @@
 
 namespace Grav\Common\Page\Medium;
 
-class StaticImageMedium extends Medium
+use Grav\Common\Media\Interfaces\ImageMediaInterface;
+use Grav\Common\Media\Traits\StaticResizeTrait;
+
+class StaticImageMedium extends Medium implements ImageMediaInterface
 {
     use StaticResizeTrait;
 
@@ -22,7 +25,9 @@ class StaticImageMedium extends Medium
      */
     protected function sourceParsedownElement(array $attributes, $reset = true)
     {
-        empty($attributes['src']) && $attributes['src'] = $this->url($reset);
+        if (empty($attributes['src'])) {
+            $attributes['src'] = $this->url($reset);
+        }
 
         return ['name' => 'img', 'attributes' => $attributes];
     }

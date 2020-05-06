@@ -29,7 +29,7 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
 
     /** @var array */
     protected $items = [];
-    /** @var string */
+    /** @var string|null */
     protected $path;
     /** @var array */
     protected $images = [];
@@ -45,7 +45,7 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
     /**
      * Return media path.
      *
-     * @return string
+     * @return string|null
      */
     public function getPath()
     {
@@ -192,12 +192,14 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
     protected function orderMedia($media)
     {
         if (null === $this->media_order) {
-            /** @var Pages $pages */
-            $pages = Grav::instance()['pages'];
-            $page = $pages->get($this->getPath());
-
-            if ($page && isset($page->header()->media_order)) {
-                $this->media_order = array_map('trim', explode(',', $page->header()->media_order));
+            $path = $this->getPath();
+            if (null !== $path) {
+                /** @var Pages $pages */
+                $pages = Grav::instance()['pages'];
+                $page = $pages->get($path);
+                if ($page && isset($page->header()->media_order)) {
+                    $this->media_order = array_map('trim', explode(',', $page->header()->media_order));
+                }
             }
         }
 

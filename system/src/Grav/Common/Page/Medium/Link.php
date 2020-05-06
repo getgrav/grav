@@ -9,25 +9,37 @@
 
 namespace Grav\Common\Page\Medium;
 
-class Link implements RenderableInterface
+use Grav\Common\Media\Interfaces\MediaLinkInterface;
+use Grav\Common\Media\Interfaces\MediaObjectInterface;
+
+class Link implements RenderableInterface, MediaLinkInterface
 {
     use ParsedownHtmlTrait;
 
     /** @var array */
     protected $attributes = [];
-    /** @var Medium|null */
+    /** @var MediaObjectInterface */
     protected $source;
 
     /**
      * Construct.
      * @param array  $attributes
-     * @param Medium $medium
+     * @param MediaObjectInterface $medium
      */
-    public function __construct(array $attributes, Medium $medium)
+    public function __construct(array $attributes, MediaObjectInterface $medium)
     {
         $this->attributes = $attributes;
-        $this->source = $medium->reset()->thumbnail('auto')->display('thumbnail');
-        $this->source->linked = true;
+
+        $source = $medium->reset()->thumbnail('auto')->display('thumbnail');
+
+        // FIXME: Thumbnail can be null, maybe we should not allow that?
+        if (null === $source) {
+            throw new \RuntimeException('Media has no thumbnail set');
+        }
+
+        $source->set('linked', true);
+
+        $this->source = $source;
     }
 
     /**
@@ -47,7 +59,7 @@ class Link implements RenderableInterface
         return [
             'name' => 'a',
             'attributes' => $this->attributes,
-            'handler' => is_string($innerElement) ? 'line' : 'element',
+            'handler' => is_array($innerElement) ? 'element' : 'line',
             'text' => $innerElement
         ];
     }
@@ -61,10 +73,16 @@ class Link implements RenderableInterface
      */
     public function __call($method, $args)
     {
-        $this->source = call_user_func_array(array($this->source, $method), $args);
+        $object = $this->source;
+        $callable = [$object, $method];
+        if (!is_callable($callable)) {
+            throw new \BadMethodCallException(get_class($object) . '::' . $method . '() not found.');
+        }
+
+        $this->source = call_user_func_array($callable, $args);
 
         // Don't start nesting links, if user has multiple link calls in his
         // actions, we will drop the previous links.
-        return $this->source instanceof Link ? $this->source : $this;
+        return $this->source instanceof MediaLinkInterface ? $this->source : $this;
     }
 }

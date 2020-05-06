@@ -1,21 +1,14 @@
 <?php
 
 /**
- * @package    Grav\Common\Page
+ * @package    Grav\Common\Media
  *
  * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
-namespace Grav\Common\Page\Medium;
+namespace Grav\Common\Media\Traits;
 
-user_error('Grav\Common\Page\Medium\StaticResizeTrait is deprecated since Grav 1.7, use Grav\Common\Media\Traits\StaticResizeTrait instead', E_USER_DEPRECATED);
-
-/**
- * Trait StaticResizeTrait
- * @package Grav\Common\Page\Medium
- * @deprecated 1.7 Use `Grav\Common\Media\Traits\StaticResizeTrait` instead
- */
 trait StaticResizeTrait
 {
     /**
