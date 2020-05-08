@@ -397,7 +397,7 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
      * Mimicks Pages class.
      *
      * @return $this
-     * @deprecated 1.7 Not needed anymore in Flex Pages.
+     * @deprecated 1.7 Not needed anymore in Flex Pages (does nothing).
      */
     public function all()
     {
