@@ -760,6 +760,17 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
     }
 
     /**
+     * Mimicks Pages class.
+     *
+     * @return $this
+     * @deprecated 1.7 Not needed anymore in Flex Pages.
+     */
+    public function all()
+    {
+        return $this;
+    }
+
+    /**
      * Creates new collection with only visible pages
      *
      * @return PageCollectionInterface The collection with only visible pages
