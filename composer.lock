@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f1b19bd30c2a650efac9eca78af1630a",
+    "content-hash": "db60f72565a888f6d2d0aee966bbb66f",
     "packages": [
         {
             "name": "antoligy/dom-string-iterators",
@@ -260,23 +260,23 @@
         },
         {
             "name": "donatj/phpuseragentparser",
-            "version": "v0.16.0",
+            "version": "v1.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/donatj/PhpUserAgent.git",
-                "reference": "b3551112ed84524aef6542a8778a3f812c8098ce"
+                "reference": "1431382850017ac017d194f2a6f6cacb35212888"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/donatj/PhpUserAgent/zipball/b3551112ed84524aef6542a8778a3f812c8098ce",
-                "reference": "b3551112ed84524aef6542a8778a3f812c8098ce",
+                "url": "https://api.github.com/repos/donatj/PhpUserAgent/zipball/1431382850017ac017d194f2a6f6cacb35212888",
+                "reference": "1431382850017ac017d194f2a6f6cacb35212888",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.3.0"
             },
             "require-dev": {
-                "camspiers/json-pretty": "0.1.*",
+                "camspiers/json-pretty": "~1.0",
                 "donatj/drop": "*",
                 "phpunit/phpunit": "~4.8"
             },
@@ -284,7 +284,10 @@
             "autoload": {
                 "files": [
                     "src/UserAgentParser.php"
-                ]
+                ],
+                "psr-4": {
+                    "donatj\\UserAgent\\": "src/UserAgent"
+                }
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
@@ -307,7 +310,7 @@
                 "user agent",
                 "useragent"
             ],
-            "time": "2020-04-07T15:47:30+00:00"
+            "time": "2020-04-24T18:07:07+00:00"
         },
         {
             "name": "dragonmantank/cron-expression",
