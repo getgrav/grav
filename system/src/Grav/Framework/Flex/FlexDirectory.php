@@ -89,6 +89,9 @@ class FlexDirectory implements FlexAuthorizeInterface
         $this->objects = [];
     }
 
+    /**
+     * @return bool
+     */
     public function isListed(): bool
     {
         $grav = Grav::instance();
@@ -668,6 +671,10 @@ class FlexDirectory implements FlexAuthorizeInterface
         return $list;
     }
 
+    /**
+     * @return void
+     * @throws InvalidArgumentException
+     */
     public function reloadIndex(): void
     {
         $cache = $this->getCache('index');
@@ -737,6 +744,7 @@ class FlexDirectory implements FlexAuthorizeInterface
      * @param array $field
      * @param string $property
      * @param array $call
+     * @return void
      */
     protected function dynamicDataField(array &$field, $property, array &$call)
     {
@@ -774,6 +782,7 @@ class FlexDirectory implements FlexAuthorizeInterface
      * @param array $field
      * @param string $property
      * @param array $call
+     * @return void
      */
     protected function dynamicFlexField(array &$field, $property, array &$call)
     {

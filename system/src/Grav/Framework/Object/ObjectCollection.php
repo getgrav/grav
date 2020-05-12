@@ -99,11 +99,18 @@ class ObjectCollection extends ArrayCollection implements NestedObjectCollection
         return $this->createFrom($filtered);
     }
 
+    /**
+     * @return array
+     */
     protected function getElements()
     {
         return $this->toArray();
     }
 
+    /**
+     * @param array $elements
+     * @return array
+     */
     protected function setElements(array $elements)
     {
         return $elements;

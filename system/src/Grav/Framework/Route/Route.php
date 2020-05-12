@@ -210,7 +210,7 @@ class Route
      * Allow the ability to set the route to something else
      *
      * @param string $route
-     * @return $this
+     * @return Route
      */
     public function withRoute($route)
     {
@@ -224,7 +224,7 @@ class Route
      * Allow the ability to set the root to something else
      *
      * @param string $root
-     * @return $this
+     * @return Route
      */
     public function withRoot($root)
     {
@@ -358,7 +358,7 @@ class Route
      * @param string $type
      * @param string $param
      * @param mixed $value
-     * @return static
+     * @return Route
      */
     protected function withParam($type, $param, $value)
     {
@@ -381,6 +381,9 @@ class Route
         return $new;
     }
 
+    /**
+     * @return Route
+     */
     protected function copy()
     {
         return clone $this;
@@ -419,6 +422,7 @@ class Route
 
     /**
      * @param array $parts
+     * @return void
      */
     protected function initParts(array $parts)
     {

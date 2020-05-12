@@ -30,6 +30,7 @@ class FlexFormFlash extends FormFlash
 
     /**
      * @param FlexObjectInterface $object
+     * @return void
      */
     public function setObject(FlexObjectInterface $object): void
     {
@@ -92,6 +93,7 @@ class FlexFormFlash extends FormFlash
     /**
      * @param array|null $data
      * @param array $config
+     * @return void
      */
     protected function init(?array $data, array $config): void
     {

@@ -90,6 +90,13 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
         ];
     }
 
+    /**
+     * @param array $elements
+     * @param array $storage
+     * @param FlexDirectory $directory
+     * @param bool $validate
+     * @return static
+     */
     public static function createFromStorage(array $elements, array $storage, FlexDirectory $directory, bool $validate = false)
     {
         $instance = new static($elements, $storage['key'], $directory, $validate);

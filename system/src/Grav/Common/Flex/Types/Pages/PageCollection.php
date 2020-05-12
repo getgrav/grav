@@ -394,6 +394,17 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
     }
 
     /**
+     * Mimicks Pages class.
+     *
+     * @return $this
+     * @deprecated 1.7 Not needed anymore in Flex Pages (does nothing).
+     */
+    public function all()
+    {
+        return $this;
+    }
+
+    /**
      * Returns the items between a set of date ranges of either the page date field (default) or
      * an arbitrary datetime page field where end date is optional
      * Dates can be passed in as text that strtotime() can process

@@ -18,6 +18,11 @@ class Stream implements StreamInterface
 {
     use StreamDecoratorTrait;
 
+    /**
+     * Stream constructor.
+     *
+     * @param string $body
+     */
     public function __construct($body = '')
     {
         $this->stream = \Nyholm\Psr7\Stream::create($body);

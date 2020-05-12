@@ -96,6 +96,7 @@ trait FlexMediaTrait
 
     /**
      * @param UploadedFileInterface $uploadedFile
+     * @return void
      */
     public function checkUploadedMediaFile(UploadedFileInterface $uploadedFile)
     {
@@ -133,6 +134,10 @@ trait FlexMediaTrait
         $this->checkMediaFilename($filename);
     }
 
+    /**
+     * @param string $filename
+     * @return void
+     */
     public function checkMediaFilename(string $filename)
     {
         // Check the file extension.
@@ -150,6 +155,11 @@ trait FlexMediaTrait
         }
     }
 
+    /**
+     * @param UploadedFileInterface $uploadedFile
+     * @param string|null $filename
+     * @return void
+     */
     public function uploadMediaFile(UploadedFileInterface $uploadedFile, string $filename = null): void
     {
         $this->checkUploadedMediaFile($uploadedFile);
@@ -209,6 +219,10 @@ trait FlexMediaTrait
         $this->clearMediaCache();
     }
 
+    /**
+     * @param string $filename
+     * @return void
+     */
     public function deleteMediaFile(string $filename): void
     {
         $grav = Grav::instance();
@@ -287,6 +301,7 @@ trait FlexMediaTrait
 
     /**
      * @param array $files
+     * @return void
      */
     protected function setUpdatedMedia(array $files): void
     {
@@ -311,6 +326,9 @@ trait FlexMediaTrait
         return $this->_uploads ?? [];
     }
 
+    /**
+     * @return void
+     */
     protected function saveUpdatedMedia(): void
     {
         /**
@@ -352,17 +370,29 @@ trait FlexMediaTrait
         return $this->getCache('object');
     }
 
+    /**
+     * @return MediaCollectionInterface
+     */
     protected function offsetLoad_media()
     {
         return $this->getMedia();
     }
 
+    /**
+     * @return null
+     */
     protected function offsetSerialize_media()
     {
         return null;
     }
 
+    /**
+     * @return FlexDirectory
+     */
     abstract public function getFlexDirectory(): FlexDirectory;
 
+    /**
+     * @return string
+     */
     abstract public function getStorageKey(): string;
 }

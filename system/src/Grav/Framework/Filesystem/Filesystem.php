@@ -29,7 +29,6 @@ class Filesystem implements FilesystemInterface
 
     /**
      * @param bool|null $normalize See $this->setNormalization()
-     *
      * @return Filesystem
      */
     public static function getInstance(bool $normalize = null): Filesystem
@@ -67,7 +66,6 @@ class Filesystem implements FilesystemInterface
      * not normalized.
      *
      * @param bool|null $normalize
-     *
      * @return Filesystem
      */
     public function setNormalization(bool $normalize = null): self
@@ -78,7 +76,7 @@ class Filesystem implements FilesystemInterface
     /**
      * Force all paths to be normalized.
      *
-     * @return static
+     * @return self
      */
     public function unsafe(): self
     {
@@ -88,7 +86,7 @@ class Filesystem implements FilesystemInterface
     /**
      * Force all paths not to be normalized (speeds up the calls if given paths are known to be normalized).
      *
-     * @return static
+     * @return self
      */
     public function safe(): self
     {
@@ -165,7 +163,6 @@ class Filesystem implements FilesystemInterface
      * @param string|null $scheme
      * @param string $path
      * @param int $levels
-     *
      * @return array
      */
     protected function dirnameInternal(?string $scheme, string $path, int $levels = 1): array
@@ -188,7 +185,6 @@ class Filesystem implements FilesystemInterface
      * @param string|null $scheme
      * @param string $path
      * @param int|null $options
-     *
      * @return array|string
      */
     protected function pathinfoInternal(?string $scheme, string $path, int $options = null)
@@ -222,7 +218,6 @@ class Filesystem implements FilesystemInterface
      * Gets a 2-tuple of scheme (may be null) and hierarchical part of a filename (e.g. file:///tmp -> array(file, tmp)).
      *
      * @param string $filename
-     *
      * @return array
      */
     protected function getSchemeAndHierarchy(string $filename): array
@@ -235,7 +230,6 @@ class Filesystem implements FilesystemInterface
     /**
      * @param string|null $scheme
      * @param string $path
-     *
      * @return string
      */
     protected function toString(?string $scheme, string $path): string
@@ -249,7 +243,6 @@ class Filesystem implements FilesystemInterface
 
     /**
      * @param string $path
-     *
      * @return string
      * @throws \RuntimeException
      */

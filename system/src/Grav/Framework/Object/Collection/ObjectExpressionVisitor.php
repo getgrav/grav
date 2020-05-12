@@ -19,7 +19,6 @@ class ObjectExpressionVisitor extends ClosureExpressionVisitor
      *
      * @param object $object
      * @param string $field
-     *
      * @return mixed
      */
     public static function getObjectFieldValue($object, $field)
@@ -59,31 +58,55 @@ class ObjectExpressionVisitor extends ClosureExpressionVisitor
         return $value;
     }
 
+    /**
+     * @param string $str
+     * @return string
+     */
     public static function filterLower($str)
     {
         return mb_strtolower($str);
     }
 
+    /**
+     * @param string $str
+     * @return string
+     */
     public static function filterUpper($str)
     {
         return mb_strtoupper($str);
     }
 
+    /**
+     * @param string $str
+     * @return int
+     */
     public static function filterLength($str)
     {
         return mb_strlen($str);
     }
 
+    /**
+     * @param string $str
+     * @return string
+     */
     public static function filterLtrim($str)
     {
         return ltrim($str);
     }
 
+    /**
+     * @param string $str
+     * @return string
+     */
     public static function filterRtrim($str)
     {
         return rtrim($str);
     }
 
+    /**
+     * @param string $str
+     * @return string
+     */
     public static function filterTrim($str)
     {
         return trim($str);

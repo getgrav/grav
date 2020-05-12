@@ -420,6 +420,7 @@ class FlexForm implements FlexObjectFormInterface, \JsonSerializable
     /**
      * @param string $name
      * @param mixed $value
+     * @return void
      */
     public function __set($name, $value)
     {
@@ -447,6 +448,7 @@ class FlexForm implements FlexObjectFormInterface, \JsonSerializable
 
     /**
      * @param string $name
+     * @return void
      */
     public function __unset($name)
     {
@@ -491,6 +493,7 @@ class FlexForm implements FlexObjectFormInterface, \JsonSerializable
     /**
      * @param array $data
      * @param array $files
+     * @return void
      * @throws \Exception
      */
     protected function doSubmit(array $data, array $files)
@@ -517,6 +520,7 @@ class FlexForm implements FlexObjectFormInterface, \JsonSerializable
 
     /**
      * @param array $data
+     * @return void
      */
     protected function doUnserialize(array $data): void
     {
@@ -529,6 +533,7 @@ class FlexForm implements FlexObjectFormInterface, \JsonSerializable
      * Filter validated data.
      *
      * @param \ArrayAccess|Data|null $data
+     * @return void
      */
     protected function filterData($data = null): void
     {

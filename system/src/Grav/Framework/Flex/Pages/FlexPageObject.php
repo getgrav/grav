@@ -197,6 +197,7 @@ class FlexPageObject extends FlexObject implements PageInterface, MediaManipulat
     /**
      * Get master storage key.
      *
+     * @return string
      * @see FlexObjectInterface::getStorageKey()
      */
     public function getMasterKey(): string
@@ -326,6 +327,7 @@ class FlexPageObject extends FlexObject implements PageInterface, MediaManipulat
     /*
      * @param string $property
      * @param mixed $default
+     * @return void
      */
     public function setProperty($property, $value)
     {
@@ -341,6 +343,12 @@ class FlexPageObject extends FlexObject implements PageInterface, MediaManipulat
         return $this;
     }
 
+    /**
+     * @param string $property
+     * @param mixed $value
+     * @param string|null $separator
+     * @return $this
+     */
     public function setNestedProperty($property, $value, $separator = null)
     {
         if (strpos($property, 'header.') === 0) {
@@ -354,6 +362,11 @@ class FlexPageObject extends FlexObject implements PageInterface, MediaManipulat
         return $this;
     }
 
+    /**
+     * @param string $property
+     * @param string|null $separator
+     * @return $this
+     */
     public function unsetNestedProperty($property, $separator = null)
     {
         if (strpos($property, 'header.') === 0) {
@@ -370,6 +383,7 @@ class FlexPageObject extends FlexObject implements PageInterface, MediaManipulat
     /**
      * @param array $elements
      * @param bool $extended
+     * @return void
      */
     protected function filterElements(array &$elements, bool $extended = false): void
     {

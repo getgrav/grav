@@ -333,6 +333,7 @@ class FolderStorage extends AbstractFilesystemStorage
      * Prepares the row for saving and returns the storage key for the record.
      *
      * @param array $row
+     * @return void
      */
     protected function prepareRow(array &$row): void
     {
@@ -560,6 +561,10 @@ class FolderStorage extends AbstractFilesystemStorage
         return $meta;
     }
 
+    /**
+     * @param string $path
+     * @return array
+     */
     protected function buildIndexFromFilesystem($path)
     {
         $flags = \FilesystemIterator::KEY_AS_PATHNAME | \FilesystemIterator::CURRENT_AS_FILEINFO | \FilesystemIterator::SKIP_DOTS | \FilesystemIterator::UNIX_PATHS;
@@ -582,6 +587,10 @@ class FolderStorage extends AbstractFilesystemStorage
         return $list;
     }
 
+    /**
+     * @param string $path
+     * @return array
+     */
     protected function buildPrefixedIndexFromFilesystem($path)
     {
         $flags = \FilesystemIterator::KEY_AS_PATHNAME | \FilesystemIterator::CURRENT_AS_FILEINFO | \FilesystemIterator::SKIP_DOTS | \FilesystemIterator::UNIX_PATHS;
@@ -619,6 +628,7 @@ class FolderStorage extends AbstractFilesystemStorage
 
     /**
      * @param array $options
+     * @return void
      */
     protected function initOptions(array $options): void
     {

@@ -72,7 +72,7 @@ abstract class AbstractLazyCollection extends BaseAbstractLazyCollection impleme
     }
 
     /**
-     * {@inheritDoc}
+     * @return array
      */
     public function jsonSerialize()
     {

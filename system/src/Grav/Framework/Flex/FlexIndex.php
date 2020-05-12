@@ -287,6 +287,9 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
         return $this;
     }
 
+    /**
+     * @return CollectionInterface|FlexCollectionInterface
+     */
     public function getCollection()
     {
         return $this->loadCollection();
@@ -402,6 +405,11 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
         return $this->__call('call', [$method, $arguments]);
     }
 
+    /**
+     * @param string $name
+     * @param array $arguments
+     * @return mixed
+     */
     public function __call($name, $arguments)
     {
         /** @var Debugger $debugger */
@@ -481,6 +489,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
 
     /**
      * @param string $serialized
+     * @return void
      */
     public function unserialize($serialized)
     {
@@ -518,12 +527,16 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
 
     /**
      * @param string|null $keyField
+     * @return void
      */
     protected function setKeyField(string $keyField = null)
     {
         $this->_keyField = $keyField ?? 'storage_key';
     }
 
+    /**
+     * @return array
+     */
     protected function getIndexKeys()
     {
         if (null === $this->_indexKeys) {
@@ -544,6 +557,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
 
     /**
      * @param array $indexKeys
+     * @return void
      */
     protected function setIndexKeys(array $indexKeys)
     {
@@ -615,6 +629,10 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
         return $object->getMetaData();
     }
 
+    /**
+     * @param FlexObjectInterface $element
+     * @return string
+     */
     protected function getCurrentKey($element)
     {
         $keyField = $this->getKeyField();
@@ -736,6 +754,10 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
     {
     }
 
+    /**
+     * @param FlexStorageInterface $storage
+     * @return array
+     */
     protected static function loadIndex(FlexStorageInterface $storage)
     {
         $indexFile = static::getIndexFile($storage);
@@ -762,6 +784,10 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
         return ['version' => static::VERSION, 'timestamp' => 0, 'count' => 0, 'index' => []];
     }
 
+    /**
+     * @param FlexStorageInterface $storage
+     * @return array
+     */
     protected static function loadEntriesFromIndex(FlexStorageInterface $storage)
     {
         $data = static::loadIndex($storage);
@@ -792,6 +818,10 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
         return CompiledYamlFile::instance($filename);
     }
 
+    /**
+     * @param \Exception $e
+     * @return void
+     */
     protected static function onException(\Exception $e)
     {
         $grav = Grav::instance();
@@ -806,6 +836,13 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
         $debugger->addMessage($e, 'error');
     }
 
+    /**
+     * @param array $entries
+     * @param array $added
+     * @param array $updated
+     * @param array $removed
+     * @return void
+     */
     protected static function onChanges(array $entries, array $added, array $updated, array $removed)
     {
         $addedCount = \count($added);

@@ -27,6 +27,7 @@ class Uri extends AbstractUri
      * You can use `UriFactory` functions to create new `Uri` objects.
      *
      * @param array $parts
+     * @return void
      * @throws \InvalidArgumentException
      */
     public function __construct(array $parts = [])

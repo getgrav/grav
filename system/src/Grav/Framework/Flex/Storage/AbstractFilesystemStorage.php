@@ -112,6 +112,10 @@ abstract class AbstractFilesystemStorage implements FlexStorageInterface
         ];
     }
 
+    /**
+     * @param string|array $formatter
+     * @return void
+     */
     protected function initDataFormatter($formatter): void
     {
         // Initialize formatter.
@@ -126,7 +130,7 @@ abstract class AbstractFilesystemStorage implements FlexStorageInterface
 
     /**
      * @param string $filename
-     * @return null|string
+     * @return string|null
      */
     protected function detectDataFormatter(string $filename): ?string
     {
