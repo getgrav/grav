@@ -363,7 +363,8 @@ trait ImageMediaTrait
             return $this->result;
         }
 
-        $this->format($this->get('extension'));
+        $extension = strtolower($this->get('extension'));
+        $this->format($extension);
 
         if (!$this->debug_watermarked && $this->get('debug')) {
             $ratio = $this->get('ratio');
