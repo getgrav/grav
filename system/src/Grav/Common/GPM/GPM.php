@@ -575,10 +575,10 @@ class GPM extends Iterator
 
         // either theme or plugin
         $name = basename($source);
-        if (Utils::contains($name, 'theme')) {
+        if (Utils::contains($name, 'theme-')) {
             return 'theme';
         }
-        if (Utils::contains($name, 'plugin')) {
+        if (Utils::contains($name, 'plugin-')) {
             return 'plugin';
         }
         foreach (glob($source . '*.php') as $filename) {
