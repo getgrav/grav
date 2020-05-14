@@ -3,6 +3,14 @@
 
 1. [](#new)
     * Added support for native `loading=lazy` attributes on images.  Can be set in `system.images.defaults` or per md image with `?loading=lazy` [#2910](https://github.com/getgrav/grav/issues/2910)
+1. [](#improved)
+    * Added `PageCollection::all()` to mimic Pages class
+    * Improved docblocks
+    * Fixed some phpstan issues
+    * Tighten vendor requirements
+1. [](#bugfix)
+    * Fix for uppercase image extensions
+    * Fix for `&` errors in HTML when passed to `Excerpts.php`
 
 # v1.7.0-rc.10
 ## 04/30/2020
