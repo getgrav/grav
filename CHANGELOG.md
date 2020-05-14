@@ -1,5 +1,5 @@
 # v1.7.0-rc.11
-## mm/dd/2020
+## 05/14/2020
 
 1. [](#new)
     * Added support for native `loading=lazy` attributes on images.  Can be set in `system.images.defaults` or per md image with `?loading=lazy` [#2910](https://github.com/getgrav/grav/issues/2910)
