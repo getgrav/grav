@@ -5,6 +5,8 @@
     * Added support for native `loading=lazy` attributes on images.  Can be set in `system.images.defaults` or per md image with `?loading=lazy` [#2910](https://github.com/getgrav/grav/issues/2910)
 1. [](#improved)
     * Added `PageCollection::all()` to mimic Pages class
+    * Added system configuration support for `HTTP_X_Forwarded` headers (host disabled by default)
+    * Updated `PHPUserAgentParser` to 1.0.0
     * Improved docblocks
     * Fixed some phpstan issues
     * Tighten vendor requirements
