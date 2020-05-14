@@ -1121,6 +1121,17 @@ form:
               validate:
                 type: bool
 
+            images.defaults.loading:
+              type: select
+              size: small
+              label: PLUGIN_ADMIN.IMAGES_LOADING
+              help: PLUGIN_ADMIN.IMAGES_LOADING_HELP
+              highlight: auto
+              options:
+                auto: Auto
+                lazy: Lazy
+                eager: Eager
+
             images.seofriendly:
               type: toggle
               label: PLUGIN_ADMIN.IMAGES_SEOFRIENDLY

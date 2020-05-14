@@ -498,6 +498,18 @@ class ImageMedium extends Medium
         return $this;
     }
 
+    public function loading($value = null)
+    {
+        if (is_null($value)) {
+            $value = Grav::instance()['config']->get('images.defaults.loading', 'auto');
+        }
+        if ($value && $value !== 'auto') {
+            $this->attributes['loading'] = $value;
+        }
+
+        return $this;
+    }
+
     /**
      * Forward the call to the image processing method.
      *

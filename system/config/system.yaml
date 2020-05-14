@@ -139,6 +139,8 @@ images:
   debug: false                                   # Show an overlay over images indicating the pixel depth of the image when working with retina for example
   auto_fix_orientation: false                    # Automatically fix the image orientation based on the Exif data
   seofriendly: false                             # SEO-friendly processed image names
+  defaults:
+    loading: auto                                # Let browser pick [auto|lazy|eager]
 
 media:
   enable_media_timestamp: false                  # Enable media timestamps
