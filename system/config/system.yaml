@@ -16,7 +16,6 @@ http_x_forwarded:                                # Configuration options for the
   port: true
   ip: true
 
-
 languages:
   supported: []                                  # List of languages supported. eg: [en, fr, de]
   default_lang:                                  # Default is the first supported language. Must be one of the supported languages
