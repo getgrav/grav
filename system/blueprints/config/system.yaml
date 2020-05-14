@@ -1379,6 +1379,51 @@ form:
                             label: PLUGIN_ADMIN.CUSTOM_BASE_URL
                             help: PLUGIN_ADMIN.CUSTOM_BASE_URL_HELP
 
+                        http_x_forwarded.protocol:
+                          type: toggle
+                          label: HTTP_X_FORWARDED_PROTO Enabled
+                          highlight: 1
+                          default: 1
+                          options:
+                            1: PLUGIN_ADMIN.YES
+                            0: PLUGIN_ADMIN.NO
+                          validate:
+                            type: bool
+
+                        http_x_forwarded.host:
+                          type: toggle
+                          label: HTTP_X_FORWARDED_HOST Enabled
+                          highlight: 0
+                          default: 0
+                          options:
+                            1: PLUGIN_ADMIN.YES
+                            0: PLUGIN_ADMIN.NO
+                          validate:
+                            type: bool
+
+                        http_x_forwarded.port:
+                          type: toggle
+                          label: HTTP_X_FORWARDED_PORT Enabled
+                          highlight: 1
+                          default: 1
+                          options:
+                            1: PLUGIN_ADMIN.YES
+                            0: PLUGIN_ADMIN.NO
+                          validate:
+                            type: bool
+
+                        http_x_forwarded.ip:
+                          type: toggle
+                          label: HTTP_X_FORWARDED IP Enabled
+                          highlight: 1
+                          default: 1
+                          options:
+                            1: PLUGIN_ADMIN.YES
+                            0: PLUGIN_ADMIN.NO
+                          validate:
+                            type: bool
+
+
                         accounts.type:
                             type: hidden
 

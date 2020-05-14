@@ -1,3 +1,11 @@
+# v1.6.25
+## 05/14/2020
+
+1. [](#improved)
+    * Added system configuration support for `HTTP_X_Forwarded` headers (host disabled by default)
+    * Updated `PHPUserAgentParser` to 1.0.0
+    * Bump `Go` to version 1.13 in `travis.yaml`
+
 # v1.6.24
 ## 04/27/2020
 
