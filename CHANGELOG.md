@@ -1,5 +1,5 @@
 # v1.6.25
-## mm/dd/2020
+## 05/14/2020
 
 1. [](#improved)
     * Added system configuration support for `HTTP_X_Forwarded` headers (host disabled by default)
