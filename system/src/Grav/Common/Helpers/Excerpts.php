@@ -122,7 +122,7 @@ class Excerpts
 
         if (isset($element['text'])) {
             $html .= '>';
-            $html .= $element['text'];
+            $html .= is_array($element['text']) ? static::getHtmlFromExcerpt(['element' => $element['text']]) : $element['text'];
             $html .= '</'.$element['name'].'>';
         } else {
             $html .= ' />';
