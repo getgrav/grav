@@ -1,3 +1,9 @@
+# v1.7.0-rc.12
+## mm/dd/2020
+
+1. [](#improved)
+    * Changed `Folder::hasChildren` to `Folder::countChildren`
+
 # v1.7.0-rc.11
 ## 05/14/2020
 
