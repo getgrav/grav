@@ -3,6 +3,8 @@
 
 1. [](#improved)
     * Changed `Folder::hasChildren` to `Folder::countChildren`
+1. [](#bugfix)
+    * Fixed new `Flex Page` not having correct form fields for the page type
 
 # v1.7.0-rc.11
 ## 05/14/2020
