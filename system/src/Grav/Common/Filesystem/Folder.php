@@ -496,7 +496,7 @@ abstract class Folder
         }
         $directories = glob($directory . '/*', GLOB_ONLYDIR);
 
-        return !empty($directories);
+        return count($directories);
     }
 
     /**
