@@ -202,11 +202,14 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
                 continue;
             }
 
-            if ($rule && $rule['type'] !== '_parent') {
+            $isParent = isset($val['*']);
+
+            if (!$isParent && $rule && $rule['type'] !== '_parent') {
                 $field = Validation::filter($field, $rule);
             } elseif (\is_array($field) && \is_array($val)) {
                 // Array has been defined in blueprints.
-                $field = $this->filterArray($field, $val, $parent . $key . '.', $missingValuesAsNull, $keepEmptyValues);
+                $k = $isParent ? '*' : $key;
+                $field = $this->filterArray($field, $val, $parent . $k . '.', $missingValuesAsNull, $keepEmptyValues);
 
                 if (null === $field) {
                     // Nested parent has no values.
