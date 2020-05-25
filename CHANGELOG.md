@@ -5,6 +5,7 @@
     * Changed `Folder::hasChildren` to `Folder::countChildren`
 1. [](#bugfix)
     * Fixed new `Flex Page` not having correct form fields for the page type
+    * Fixed new `Flex User` erroring out on save (thanks @mikebi42)
     * Fixed blueprint value filtering in lists [#2923](https://github.com/getgrav/grav/issues/2923)
 
 # v1.7.0-rc.11
