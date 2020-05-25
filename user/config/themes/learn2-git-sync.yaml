@@ -1,0 +1,19 @@
+enabled: true
+root_page: null
+top_level_version: false
+google_analytics_code: null
+home_url: null
+github:
+  position: 'off'
+  icon: null
+  tree: null
+default_taxonomy_category: docs
+style: default
+streams:
+  schemes:
+    theme:
+      type: ReadOnlyStream
+      prefixes:
+        '': ['themes://learn2-git-sync', 'themes://learn2']
+enable_doc_versioning: false
+hide_site_title: false

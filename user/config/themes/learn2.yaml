@@ -1,0 +1,10 @@
+enabled: true
+root_page: null
+top_level_version: false
+show_all_pages: false
+google_analytics_code: null
+home_url: null
+github:
+  position: top
+  tree: 'https://github.com/getgrav/grav-skeleton-rtfm-site/blob/develop/'
+  commits: 'https://github.com/getgrav/grav-skeleton-rtfm-site/commits/develop/'
