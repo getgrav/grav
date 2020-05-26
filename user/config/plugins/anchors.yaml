@@ -1,0 +1,8 @@
+enabled: true
+active: true
+selectors: 'h2,h3,h4'
+placement: right
+visible: hover
+icon: null
+class: null
+truncate: 64
