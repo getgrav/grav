@@ -1,3 +1,9 @@
+# v1.6.26
+## mm/dd/2020
+
+1. [](#bugfix)
+    * Fixed blueprint for `system.pages.hide_empty_folders` [#1925](https://github.com/getgrav/grav/issues/2925)
+
 # v1.6.25
 ## 05/14/2020
 
