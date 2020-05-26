@@ -49,7 +49,7 @@ This is probably the toughest concept to deal with because the word "interpretat
 
 Test any statements you are making in the results as follows:
 
-See [Results](/lab-report-structure/results#toc3) for more information.
+See [Results](/lab-report-structure/results#analysis-vs-interpretation) for more information.
 
 ### Mistake #6: Presenting raw data in the results and/or not using visuals in the results.
 
@@ -57,13 +57,13 @@ Rarely is raw data useful for drawing scientific conclusions. Instead, data must
 
 Each visual needs to be used in the results; that is, you need to make a statement that addresses each visual. Additionally, each visual included needs to directly address your purpose (i.e. avoid putting in visuals just because they look "pretty").
 
-See [Verbalizing the Results](/lab-report-structure/results#toc9).
+See [Verbalizing the Results](/lab-report-structure/results#verbalizing-the-results).
 
 ### Mistake #7: Not putting statements in the results.
 
 While visuals will be an important aspect of the results section, you must actually tell the reader, in words, what the key results are. You conducted your study with a particular purpose in mind. In the results you need to clearly address the purpose with actual statements.
 
-See [Verbalizing the Results](/lab-report-structure/results#toc9).
+See [Verbalizing the Results](/lab-report-structure/results#verbalizing-the-results).
 
 ### Mistake #8: Presenting the same result in two or more ways.
 

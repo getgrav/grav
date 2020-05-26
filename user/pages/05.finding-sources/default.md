@@ -5,13 +5,9 @@ menu: Finding Sources
 
 ## Primary Source
 
-<a name="toc1"></a>
-
 ### What is a primary source?
 
 In science, when we talk about primary sources we mean research articles written by the person(s) who did the research. Generally, primary sources are considered reliable only if they are peer-reviewed.
-
-<a name="toc2"></a>
 
 ### What is a secondary source?
 

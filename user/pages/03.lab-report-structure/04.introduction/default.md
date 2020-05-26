@@ -29,7 +29,7 @@ The background information must include a clear rationale for addressing the sta
 
 Usually, background information will come from primary literature and will need to be appropriately cited. **When citing other scientist's work, make sure you are citing the [primary source](/finding-sources).** If you found the information in another article's introduction, that article is NOT the primary source; you must read and cite the original work.
 
-Note that at times it can be difficult to hunt down the original source; in this case, especially in the introduction, it is okay to cite a secondary source, but you must clarify for the reader that you did not read the original source. See [Citing secondary sources](/lab-report-structure/references#toc9).
+Note that at times it can be difficult to hunt down the original source; in this case, especially in the introduction, it is okay to cite a secondary source, but you must clarify for the reader that you did not read the original source. See [Citing secondary sources](/lab-report-structure/references#citing-secondary-sources-such-as-textbooks-and-review-articles).
 
 ### 3. Brief study outline
 

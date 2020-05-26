@@ -9,7 +9,7 @@ menu: Avoiding Plagiarism
 
 The first step in avoiding using someone else's words as your own is to **take good notes**.
 
-* Develop a [system](#toc6) for tracking all sources as you take your notes.
+* Develop a [system](#paraphrasing-examples) for tracking all sources as you take your notes.
 
     * Record all bibliographic data and then write a paraphrase (or better yet, a [summary](http://writing.mit.edu/wcc/avoidingplagiarism)) of the information you plan on using from the source.
     * If you are recording the exact words, indicate this by using quotation marks and the page number(s).
@@ -46,7 +46,7 @@ While it is possible to over-cite your sources, it is preferable to under-citing
 
 Your goal is to make sure the reader knows which thoughts are yours, and which are someone else's.
 
-If you think something is [common knowledge](http://urbiolabreports.wikidot.com/plagiarism-biology#toc7) but you are not sure, cite!
+If you think something is [common knowledge](/academic-integrity/dept-guidelines#common-knowledge-statements) but you are not sure, cite!
 
 ## Quoting
 
@@ -65,8 +65,6 @@ The solution to #2 is to remind yourself that in science simple writing is bette
 The solution to #3 is to describe your thoughts, hypotheses, or interpretations of the work you are citing rather than just presenting the original author's ideas.  
 
 One strategy that might help you with all these problems is to first explain, out loud, to someone unfamiliar with what you are writing what the passage you are using means. Then, explain how this information fits with your study. Once you can explain it out loud, you should find it easier to write it out. If you don't have a willing audience, try recording yourself!
-
-<a name="toc6"></a>
 
 ## Paraphrasing examples
 

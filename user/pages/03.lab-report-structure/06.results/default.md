@@ -17,8 +17,6 @@ Many students make the mistake of not spending enough time on data analysis befo
 
 The approach you will take to analyzing your results will vary depending on the field you are working in and the type of study/experiment you did. However, you will generally need to manipulate your data in some manner. For example, if you conducted an experiment where you did replicate trials of several treatments, you will likely need to calculate means and measure the variability around the mean (e.g. standard deviation or standard error). Usually your instructor will have some tips on how to analyze the data you have collected.
 
-<a name="toc3"></a>
-
 ## Analysis vs Interpretation
 
 Students frequently get confused as to what belongs in the results and what belongs in the discussion. Part of the confusion stems from the use of the word "interpret" to mean different things in different contexts.
@@ -71,8 +69,6 @@ Do not include visuals you will not use (i.e. if the visual does not support a s
 * showing precise values
 * comparing groups using several unrelated variables that could not be easily graphed (e.g. comparing several morphological aspects of 3 frog species)
 
-<a name="toc9"></a>
-
 ### Verbalizing the results
 
 It is not enough to simply put some tables and figures into the results section. You need to use SENTENCES to tell the story of your results. In the results section, your goal is to clearly highlight the **important** trends. For example, don't simply _describe_ the visual in words, instead use the visual to back up a statement.
@@ -83,7 +79,7 @@ The important trends will include those that directly relate to the study's purp
 
 Important trends will also include any unexpected results or results that differ from previously published results. You will need to point these out because you will want to address them in the discussion.
 
-[Example trend descriptions.](#toc22)
+[Example trend descriptions.](#verbalizing-important-trends)
 
 ## Strategy
 
@@ -97,7 +93,7 @@ Important trends will also include any unexpected results or results that differ
 
 * Figures and tables can take a fair amount of time to put together, so make sure you are only preparing figures and tables that you really need.
 * Keep figures and tables as simple as possible. If a visual is getting complicated, you may need to split it into two visuals.
-* Figures and tables must be **self-contained**; that is the reader should be able to interpret the figure without reading any other part of the paper. This means that if a reader looks only at a figure/table and its associated legend/heading, they should be able to fully understand the key results summarized in the figure, how the data was generated and why the result is important. [Example of a self-contained figure](#toc20).
+* Figures and tables must be **self-contained**; that is the reader should be able to interpret the figure without reading any other part of the paper. This means that if a reader looks only at a figure/table and its associated legend/heading, they should be able to fully understand the key results summarized in the figure, how the data was generated and why the result is important. [Example of a self-contained figure](#figure-after-being-fixed).
 * Some instructors require figures and tables to be included inline with your text. Others will ask that you put them all at the end of the report (after the citations but before any appendices). Others won't care either way. **Make sure you know what is required for your particular course.**
 * If you are including your visuals in the results section, make sure they are introduced before they appear. It doesn't make sense so show a table to the reader before you have told them to look at it.
 
@@ -125,7 +121,7 @@ Figures are any visuals that are not tables. All figures are labeled sequentiall
 * Connect points in a series if needed to emphasize a trend or to make it easier to differentiate between multiple series. Be careful when applying smooth curves as this is a type of modeling that may not be appropriate for your results.
 * If your data points are means, you may need to include error bars above and below the points.
 
-See [figure examples](#toc17) below.
+See [figure examples](#figure-examples) below.
 
 #### Table How To
 
@@ -151,8 +147,6 @@ See [figure examples](#toc17) below.
 
 ## Examples
 
-<a name="toc17"></a>
-
 ### Figure examples
 
 #### Default Excel chart
@@ -170,8 +164,6 @@ _There are many problems with this chart, keep scrolling to see what needs to be
 * For this example, Excel did an okay job of picking most symbols, setting the axes tick marks and setting the min/max values for the axes but frequently you will need to manually change these.
 * This is not a self-contained figure. A figure legend must be added.
 * NOTE: **DO NOT** add a title to this chart because the title will be part of the figure legend.
-
-<a name="toc20"></a>
 
 #### Figure after being fixed
 <figure>
@@ -191,8 +183,6 @@ Adding more substrate results in the reaction taking more time to reach equilibr
 
 3. How was the result obtained?  
 Different amount of isocitrate were added (Spelled out in the figure legend.) and the time needed to reach equilibrium was measured by tracking the accumulation of NADPH _(in figure legend)_ over time using a spectrophotometer set to 340 nm. _(Figure legend and axis labels.)_
-
-<a name="toc22"></a>
 
 ### Verbalizing important trends
 

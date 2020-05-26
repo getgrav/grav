@@ -47,8 +47,6 @@ Verbosity is very common in scientific writing, but that doesn't mean it's the s
 
 Using non-standard language causes your reader confusion, which in turn weakens your argument. See the List of [Common Errors](/common-errors).
 
-<a name="toc3"></a>
-
 ## Quoting
 
 You may be tempted to quote passages from your source. If you enclose these passages in quotation marks and include a citation, then you will **not** be guilty of plagiarism. However, science writers generally don't quote because they are expected to use other scientist's results and ideas, not the original author's words. It is the ideas and results that are important, and we use these to lend credence to our ideas or to compare and contrast with our results. When we rely on quotes, we are not adding any knowledge to the scientific community.  

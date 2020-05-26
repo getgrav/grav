@@ -7,7 +7,7 @@ menu: References
 
 The purpose of clearly and completely documenting all sources that you use is twofold. Firstly, you need to give credit for all ideas that are not your own to the people or organizations who originally created them. All new scientific discoveries build on the work and ideas of others and citations are the accepted way of respecting those whose work was crucial for your own work to succeed. Secondly, complete citations give credence to your work because a reader can find and check the original source for themselves. Without citations, any claims you make that you can't back up with your own data are questionable.
 
-It is always best to read and cite [primary sources](/finding-sources#toc1) rather than [secondary sources](/finding-sources#toc2) because this is the only way to make sure you know what the original authors said. However, at times it can be difficult to track down original sources, or, especially when writing lab reports, tight timelines can simply make it too time-consuming to hunt down all the primary articles. If you need to cite a secondary source, make sure you clearly indicate to your audience that you did not read the primary source. You can do this by including "as reviewed in&hellip;" if you are citing a review article. If you are citing a study via another primary source include the original studies authors and then "as cited in&hellip;". See examples [below](#toc9).
+It is always best to read and cite [primary sources](/finding-sources#what-is-a-primary-source) rather than [secondary sources](/finding-sources#what-is-a-secondary-source) because this is the only way to make sure you know what the original authors said. However, at times it can be difficult to track down original sources, or, especially when writing lab reports, tight timelines can simply make it too time-consuming to hunt down all the primary articles. If you need to cite a secondary source, make sure you clearly indicate to your audience that you did not read the primary source. You can do this by including "as reviewed in&hellip;" if you are citing a review article. If you are citing a study via another primary source include the original studies authors and then "as cited in&hellip;". See examples [below](#citing-secondary-sources-such-as-textbooks-and-review-articles).
 
 !!! Make sure to check with your instructor before using secondary sources as in some courses, particularly at the upper levels, your instructor may expect you to use primary sources only.
 
@@ -22,7 +22,7 @@ Include full citations for all resources that are cited in your report. There is
 
 As recommended by the Council of Science Editors (CSE), biological publications generally follow the National Library of Medicine (NLM) method of referencing. The complete book, _Citing Medicine, 2nd edition: The NLM Style Guide for Authors, Editors, and Publishers_ is available online at the [NCBI bookshelf](http://www.ncbi.nlm.nih.gov/books/NBK7256/). We will give you some basic guidelines here, but there is no way we can summarize a 26 chapter book. It is your responsibility to find out how to properly cite the sources you have used.
 
-! **A note on quoting** Using direct quotes in science is generally not acceptable. Please see [quoting](/effective-communication/#toc3) for more information.
+! **A note on quoting** Using direct quotes in science is generally not acceptable. Please see [quoting](/effective-communication/#quoting) for more information.
 
 ### In-text citations
 
@@ -69,8 +69,6 @@ Example:
 #### Situations where the author, year system is not specific enough
 
 If you have more than one article published in the same year by the same author, more than one author with the same last name, or when organizations (such as a university) as authors, please see the NML guidelines.
-
-<a name="toc9"></a>
 
 #### Citing secondary sources such as textbooks and review articles
 
