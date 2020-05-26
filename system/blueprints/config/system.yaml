@@ -243,7 +243,7 @@ form:
             pages.hide_empty_folders:
               type: toggle
               label: PLUGIN_ADMIN.HIDE_EMPTY_FOLDERS
-                help: PLUGIN_ADMIN.HIDE_EMPTY_FOLDERS_HELP
+              help: PLUGIN_ADMIN.HIDE_EMPTY_FOLDERS_HELP
               highlight: 0
               options:
                 1: PLUGIN_ADMIN.YES
