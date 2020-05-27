@@ -10,6 +10,7 @@
 namespace Grav\Events;
 
 use Grav\Framework\Session\SessionInterface;
+use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * Plugins Loaded Event
@@ -18,7 +19,7 @@ use Grav\Framework\Session\SessionInterface;
  *
  * @property SessionInterface $session Session instance.
  */
-class SessionStartEvent
+class SessionStartEvent extends Event
 {
     /** @var SessionInterface */
     public $session;

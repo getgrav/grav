@@ -99,6 +99,10 @@ class InitializeProcessor extends ProcessorBase
             return $response;
         }
 
+        // Load accounts (decides class to be used).
+        // TODO: remove in 2.0.
+        $this->container['accounts'];
+
         // Initialize session.
         $this->initializeSession($config);
 
@@ -137,7 +141,7 @@ class InitializeProcessor extends ProcessorBase
         // Initialize URI.
         $this->initializeUri($config);
 
-        // Load accounts.
+        // Load accounts (decides class to be used).
         // TODO: remove in 2.0.
         $this->container['accounts'];
     }
@@ -365,9 +369,6 @@ class InitializeProcessor extends ProcessorBase
      */
     protected function initializeSession(Config $config): void
     {
-        // TODO: remove in 2.0.
-        $this->container['accounts'];
-
         // FIXME: Initialize session should happen later after plugins have been loaded. This is a workaround to fix session issues in AWS.
         if (isset($this->container['session']) && $config->get('system.session.initialize', true)) {
             $this->startTimer('_init_session', 'Start Session');

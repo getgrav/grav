@@ -10,6 +10,7 @@
 namespace Grav\Events;
 
 use Grav\Framework\Flex\Flex;
+use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * Flex Register Event
@@ -20,7 +21,7 @@ use Grav\Framework\Flex\Flex;
  *
  * @property Flex $flex Flex instance.
  */
-class FlexRegisterEvent
+class FlexRegisterEvent extends Event
 {
     /** @var Flex */
     public $flex;
