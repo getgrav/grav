@@ -55,3 +55,6 @@
 [submodule "user/plugins/langswitcher"]
 	path = user/plugins/langswitcher
 	url = git@github.com:getgrav/grav-plugin-langswitcher.git
+[submodule "user/plugins/presentation"]
+	path = user/plugins/presentation
+	url = git@github.com:OleVik/grav-plugin-presentation.git
