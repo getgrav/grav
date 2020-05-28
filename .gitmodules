@@ -67,3 +67,6 @@
 [submodule "user/plugins/tntsearch"]
 	path = user/plugins/tntsearch
 	url = git@github.com:trilbymedia/grav-plugin-tntsearch.git
+[submodule "user/plugins/youtube"]
+	path = user/plugins/youtube
+	url = git@github.com:getgrav/grav-plugin-youtube.git
