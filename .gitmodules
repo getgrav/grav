@@ -61,3 +61,6 @@
 [submodule "user/plugins/presentation-deckset"]
 	path = user/plugins/presentation-deckset
 	url = git@github.com:OleVik/grav-plugin-presentation-deckset.git
+[submodule "user/plugins/simplesearch"]
+	path = user/plugins/simplesearch
+	url = git@github.com:getgrav/grav-plugin-simplesearch.git
