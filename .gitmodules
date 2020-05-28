@@ -37,3 +37,6 @@
 [submodule "user/plugins/auto-date"]
 	path = user/plugins/auto-date
 	url = git@github.com:getgrav/grav-plugin-auto-date.git
+[submodule "user/plugins/breadcrumbs"]
+	path = user/plugins/breadcrumbs
+	url = git@github.com:getgrav/grav-plugin-breadcrumbs.git
