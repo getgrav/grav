@@ -64,3 +64,6 @@
 [submodule "user/plugins/simplesearch"]
 	path = user/plugins/simplesearch
 	url = git@github.com:getgrav/grav-plugin-simplesearch.git
+[submodule "user/plugins/tntsearch"]
+	path = user/plugins/tntsearch
+	url = git@github.com:trilbymedia/grav-plugin-tntsearch.git
