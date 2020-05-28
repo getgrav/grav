@@ -40,3 +40,6 @@
 [submodule "user/plugins/breadcrumbs"]
 	path = user/plugins/breadcrumbs
 	url = git@github.com:getgrav/grav-plugin-breadcrumbs.git
+[submodule "user/plugins/external_links"]
+	path = user/plugins/external_links
+	url = git@github.com:uofr/grav-plugin-external-links.git
