@@ -43,3 +43,6 @@
 [submodule "user/plugins/external_links"]
 	path = user/plugins/external_links
 	url = git@github.com:uofr/grav-plugin-external-links.git
+[submodule "user/plugins/feed"]
+	path = user/plugins/feed
+	url = git@github.com:getgrav/grav-plugin-feed.git
