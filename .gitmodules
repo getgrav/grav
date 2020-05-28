@@ -13,3 +13,6 @@
 [submodule "user/plugins/admin"]
 	path = user/plugins/admin
 	url = git@github.com:getgrav/grav-plugin-admin.git
+[submodule "user/plugins/anchors"]
+	path = user/plugins/anchors
+	url = git@github.com:getgrav/grav-plugin-anchors.git
