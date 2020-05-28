@@ -34,3 +34,6 @@
 [submodule "user/plugins/email"]
 	path = user/plugins/email
 	url = git@github.com:getgrav/grav-plugin-email.git
+[submodule "user/plugins/auto-date"]
+	path = user/plugins/auto-date
+	url = git@github.com:getgrav/grav-plugin-auto-date.git
