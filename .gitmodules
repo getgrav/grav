@@ -1,3 +1,6 @@
 [submodule "user/themes/learn2-git-sync"]
 	path = user/themes/learn2-git-sync
 	url = git@github.com:uofr/grav-theme-learn2-git-sync.git
+[submodule "user/themes/learn2"]
+	path = user/themes/learn2
+	url = git@github.com:uofr/grav-theme-learn2.git
