@@ -281,6 +281,24 @@ trait ImageMediaTrait
     }
 
     /**
+     * Allows to set the loading attribute from Markdown or Twig
+     *
+     * @param string|null $value
+     * @return $this
+     */
+    public function loading($value = null)
+    {
+        if (is_null($value)) {
+            $value = Grav::instance()['config']->get('images.defaults.loading', 'auto');
+        }
+        if ($value && $value !== 'auto') {
+            $this->attributes['loading'] = $value;
+        }
+
+        return $this;
+    }
+
+    /**
      * Filter image by using user defined filter parameters.
      *
      * @param string $filter Filter to be used.
