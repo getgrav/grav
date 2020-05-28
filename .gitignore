@@ -23,6 +23,8 @@ user/data/*
 !user/data/.*
 user/plugins/*
 !user/plugins/.*
+!user/plugins/shortcode-core/*
+!user/plugins/shortcode-ui/*
 user/themes/*
 !user/themes/.*
 !user/themes/learn2/*

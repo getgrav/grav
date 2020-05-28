@@ -4,3 +4,9 @@
 [submodule "user/themes/learn2"]
 	path = user/themes/learn2
 	url = git@github.com:uofr/grav-theme-learn2.git
+[submodule "user/plugins/shortcode-core"]
+	path = user/plugins/shortcode-core
+	url = git@github.com:getgrav/grav-plugin-shortcode-core.git
+[submodule "user/plugins/shortcode-ui"]
+	path = user/plugins/shortcode-ui
+	url = git@github.com:getgrav/grav-plugin-shortcode-ui.git
