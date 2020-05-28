@@ -49,3 +49,6 @@
 [submodule "user/plugins/git-sync"]
 	path = user/plugins/git-sync
 	url = git@github.com:trilbymedia/grav-plugin-git-sync.git
+[submodule "user/plugins/highlight"]
+	path = user/plugins/highlight
+	url = git@github.com:getgrav/grav-plugin-highlight.git
