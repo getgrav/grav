@@ -52,3 +52,6 @@
 [submodule "user/plugins/highlight"]
 	path = user/plugins/highlight
 	url = git@github.com:getgrav/grav-plugin-highlight.git
+[submodule "user/plugins/langswitcher"]
+	path = user/plugins/langswitcher
+	url = git@github.com:getgrav/grav-plugin-langswitcher.git
