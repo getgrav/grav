@@ -25,3 +25,12 @@
 [submodule "user/plugins/problems"]
 	path = user/plugins/problems
 	url = git@github.com:getgrav/grav-plugin-problems.git
+[submodule "user/plugins/login"]
+	path = user/plugins/login
+	url = git@github.com:getgrav/grav-plugin-login.git
+[submodule "user/plugins/form"]
+	path = user/plugins/form
+	url = git@github.com:getgrav/grav-plugin-form.git
+[submodule "user/plugins/email"]
+	path = user/plugins/email
+	url = git@github.com:getgrav/grav-plugin-email.git
