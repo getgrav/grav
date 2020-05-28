@@ -25,6 +25,7 @@ user/plugins/*
 !user/plugins/.*
 user/themes/*
 !user/themes/.*
+!user/themes/learn2git-sync/*
 user/localhost/config/security.yaml
 user/config/security.yaml
 
