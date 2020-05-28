@@ -16,3 +16,12 @@
 [submodule "user/plugins/anchors"]
 	path = user/plugins/anchors
 	url = git@github.com:getgrav/grav-plugin-anchors.git
+[submodule "user/plugins/error"]
+	path = user/plugins/error
+	url = git@github.com:getgrav/grav-plugin-error.git
+[submodule "user/plugins/markdown-notices"]
+	path = user/plugins/markdown-notices
+	url = git@github.com:getgrav/grav-plugin-markdown-notices.git
+[submodule "user/plugins/problems"]
+	path = user/plugins/problems
+	url = git@github.com:getgrav/grav-plugin-problems.git
