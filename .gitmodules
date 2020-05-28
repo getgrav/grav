@@ -46,3 +46,6 @@
 [submodule "user/plugins/feed"]
 	path = user/plugins/feed
 	url = git@github.com:getgrav/grav-plugin-feed.git
+[submodule "user/plugins/git-sync"]
+	path = user/plugins/git-sync
+	url = git@github.com:trilbymedia/grav-plugin-git-sync.git
