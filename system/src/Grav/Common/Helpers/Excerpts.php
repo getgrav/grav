@@ -72,8 +72,11 @@ class Excerpts
      */
     public static function getExcerptFromHtml($html, $tag)
     {
-        $doc = new \DOMDocument();
+        $doc = new \DOMDocument('1.0', 'UTF-8');
+        $internalErrors = libxml_use_internal_errors(true);
         $doc->loadHTML($html);
+        libxml_use_internal_errors($internalErrors);
+
         $elements = $doc->getElementsByTagName($tag);
         $excerpt = null;
 
@@ -119,7 +122,7 @@ class Excerpts
 
         if (isset($element['text'])) {
             $html .= '>';
-            $html .= $element['text'];
+            $html .= is_array($element['text']) ? static::getHtmlFromExcerpt(['element' => $element['text']]) : $element['text'];
             $html .= '</'.$element['name'].'>';
         } else {
             $html .= ' />';

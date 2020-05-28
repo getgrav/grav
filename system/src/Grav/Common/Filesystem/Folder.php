@@ -488,15 +488,15 @@ abstract class Folder
      * Does a directory contain children
      *
      * @param string $directory
-     * @return bool
+     * @return int
      */
-    public static function hasChildren($directory) {
+    public static function countChildren($directory) {
         if (!is_dir($directory)) {
             return false;
         }
         $directories = glob($directory . '/*', GLOB_ONLYDIR);
 
-        return !empty($directories);
+        return count($directories);
     }
 
     /**

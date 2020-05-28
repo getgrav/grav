@@ -10,6 +10,11 @@ custom_base_url: ''                              # Set the base_url manually, e.
 username_regex: '^[a-z0-9_-]{3,16}$'             # Only lowercase chars, digits, dashes, underscores. 3 - 16 chars
 pwd_regex: '(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}' # At least one number, one uppercase and lowercase letter, and be at least 8+ chars
 intl_enabled: true                               # Special logic for PHP International Extension (mod_intl)
+http_x_forwarded:                                # Configuration options for the various HTTP_X_FORWARD headers
+  protocol: true
+  host: false
+  port: true
+  ip: true
 
 languages:
   supported: []                                  # List of languages supported. eg: [en, fr, de]
@@ -139,6 +144,8 @@ images:
   debug: false                                   # Show an overlay over images indicating the pixel depth of the image when working with retina for example
   auto_fix_orientation: false                    # Automatically fix the image orientation based on the Exif data
   seofriendly: false                             # SEO-friendly processed image names
+  defaults:
+    loading: auto                                # Let browser pick [auto|lazy|eager]
 
 media:
   enable_media_timestamp: false                  # Enable media timestamps

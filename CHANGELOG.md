@@ -1,3 +1,31 @@
+# v1.7.0-rc.12
+## mm/dd/2020
+
+1. [](#improved)
+    * Changed `Folder::hasChildren` to `Folder::countChildren`
+    * Added `Content Editor` option to user account blueprint
+1. [](#bugfix)
+    * Fixed new `Flex Page` not having correct form fields for the page type
+    * Fixed new `Flex User` erroring out on save (thanks @mikebi42)
+    * Fixed blueprint value filtering in lists [#2923](https://github.com/getgrav/grav/issues/2923)
+    * Fixed blueprint for `system.pages.hide_empty_folders` [#1925](https://github.com/getgrav/grav/issues/2925)
+
+# v1.7.0-rc.11
+## 05/14/2020
+
+1. [](#new)
+    * Added support for native `loading=lazy` attributes on images.  Can be set in `system.images.defaults` or per md image with `?loading=lazy` [#2910](https://github.com/getgrav/grav/issues/2910)
+1. [](#improved)
+    * Added `PageCollection::all()` to mimic Pages class
+    * Added system configuration support for `HTTP_X_Forwarded` headers (host disabled by default)
+    * Updated `PHPUserAgentParser` to 1.0.0
+    * Improved docblocks
+    * Fixed some phpstan issues
+    * Tighten vendor requirements
+1. [](#bugfix)
+    * Fix for uppercase image extensions
+    * Fix for `&` errors in HTML when passed to `Excerpts.php`
+
 # v1.7.0-rc.10
 ## 04/30/2020
 
@@ -349,6 +377,14 @@
     * Added support for Twig 2.11 (compatible with Twig 1.40+)
     * Optimization: Initialize debugbar only after the configuration has been loaded
     * Optimization: Combine some early Grav processors into a single one
+
+# v1.6.25
+## 05/14/2020
+
+1. [](#improved)
+    * Added system configuration support for `HTTP_X_Forwarded` headers (host disabled by default)
+    * Updated `PHPUserAgentParser` to 1.0.0
+    * Bump `Go` to version 1.13 in `travis.yaml`
 
 # v1.6.24
 ## 04/27/2020

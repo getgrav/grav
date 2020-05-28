@@ -19,6 +19,7 @@
         "ext-curl": "*",
         "ext-zip": "*",
         "ext-dom": "*",
+        "ext-libxml": "*",
         "symfony/polyfill-iconv": "^1.15",
         "symfony/polyfill-php72": "^1.15",
         "symfony/polyfill-php73": "^1.15",

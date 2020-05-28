@@ -136,6 +136,16 @@ class UserObject extends FlexObject implements UserInterface, MediaManipulationI
     }
 
     /**
+     * Helper to get content editor will fall back if not set
+     *
+     * @return String
+     */
+    public function getContentEditor(): string
+    {
+        return $this->getProperty('content_editor', 'default');
+    }
+
+    /**
      * Get value by using dot notation for nested arrays/objects.
      *
      * @example $value = $this->get('this.is.my.nested.variable');

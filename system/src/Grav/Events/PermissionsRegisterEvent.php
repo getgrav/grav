@@ -10,6 +10,7 @@
 namespace Grav\Events;
 
 use Grav\Framework\Acl\Permissions;
+use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * Permissions Register Event
@@ -20,7 +21,7 @@ use Grav\Framework\Acl\Permissions;
  *
  * @property Permissions $permissions Permissions instance.
  */
-class PermissionsRegisterEvent
+class PermissionsRegisterEvent extends Event
 {
     /** @var Permissions */
     public $permissions;

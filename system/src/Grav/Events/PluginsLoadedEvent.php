@@ -11,6 +11,7 @@ namespace Grav\Events;
 
 use Grav\Common\Grav;
 use Grav\Common\Plugins;
+use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * Plugins Loaded Event
@@ -22,7 +23,7 @@ use Grav\Common\Plugins;
  * @property Grav $grav Grav container.
  * @property Plugins $plugins Plugins instance.
  */
-class PluginsLoadedEvent
+class PluginsLoadedEvent extends Event
 {
     /** @var Grav */
     public $grav;

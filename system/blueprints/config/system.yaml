@@ -241,13 +241,15 @@ form:
                 type: commalist
 
             pages.hide_empty_folders:
-              type: selectize
-              size: large
+              type: toggle
               label: PLUGIN_ADMIN.HIDE_EMPTY_FOLDERS
               help: PLUGIN_ADMIN.HIDE_EMPTY_FOLDERS_HELP
-              classes: fancy
+              highlight: 0
+              options:
+                1: PLUGIN_ADMIN.YES
+                0: PLUGIN_ADMIN.NO
               validate:
-                type: commalist
+                type: bool
 
             pages.url_taxonomy_filters:
               type: toggle
@@ -1121,6 +1123,17 @@ form:
               validate:
                 type: bool
 
+            images.defaults.loading:
+              type: select
+              size: small
+              label: PLUGIN_ADMIN.IMAGES_LOADING
+              help: PLUGIN_ADMIN.IMAGES_LOADING_HELP
+              highlight: auto
+              options:
+                auto: Auto
+                lazy: Lazy
+                eager: Eager
+
             images.seofriendly:
               type: toggle
               label: PLUGIN_ADMIN.IMAGES_SEOFRIENDLY
@@ -1468,6 +1481,50 @@ form:
               highlight: 1
               default: 1
               help: PLUGIN_ADMIN.STRICT_TWIG_COMPAT_HELP
+              options:
+                1: PLUGIN_ADMIN.YES
+                0: PLUGIN_ADMIN.NO
+              validate:
+                type: bool
+
+            http_x_forwarded.protocol:
+              type: toggle
+              label: HTTP_X_FORWARDED_PROTO Enabled
+              highlight: 1
+              default: 1
+              options:
+                1: PLUGIN_ADMIN.YES
+                0: PLUGIN_ADMIN.NO
+              validate:
+                type: bool
+
+            http_x_forwarded.host:
+              type: toggle
+              label: HTTP_X_FORWARDED_HOST Enabled
+              highlight: 0
+              default: 0
+              options:
+                1: PLUGIN_ADMIN.YES
+                0: PLUGIN_ADMIN.NO
+              validate:
+                type: bool
+
+            http_x_forwarded.port:
+              type: toggle
+              label: HTTP_X_FORWARDED_PORT Enabled
+              highlight: 1
+              default: 1
+              options:
+                1: PLUGIN_ADMIN.YES
+                0: PLUGIN_ADMIN.NO
+              validate:
+                type: bool
+
+            http_x_forwarded.ip:
+              type: toggle
+              label: HTTP_X_FORWARDED IP Enabled
+              highlight: 1
+              default: 1
               options:
                 1: PLUGIN_ADMIN.YES
                 0: PLUGIN_ADMIN.NO

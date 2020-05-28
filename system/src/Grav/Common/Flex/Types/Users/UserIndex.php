@@ -57,7 +57,7 @@ class UserIndex extends FlexIndex
     public static function updateObjectMeta(array &$meta, array $data)
     {
         // Username can also be number and stored as such.
-        $key = (string)($data['username'] ?? $meta['key']);
+        $key = (string)($data['username'] ?? $meta['key'] ?? $meta['storage_key']);
         $meta['key'] = mb_strtolower($key);
         $meta['email'] = isset($data['email']) ? mb_strtolower($data['email']) : null;
     }
