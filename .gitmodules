@@ -10,3 +10,6 @@
 [submodule "user/plugins/shortcode-ui"]
 	path = user/plugins/shortcode-ui
 	url = git@github.com:getgrav/grav-plugin-shortcode-ui.git
+[submodule "user/plugins/admin"]
+	path = user/plugins/admin
+	url = git@github.com:getgrav/grav-plugin-admin.git
