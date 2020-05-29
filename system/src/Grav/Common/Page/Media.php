@@ -9,7 +9,10 @@
 
 namespace Grav\Common\Page;
 
+use Grav\Common\Config\Config;
 use Grav\Common\Grav;
+use Grav\Common\Language\Language;
+use Grav\Common\Media\Traits\MediaUploadTrait;
 use Grav\Common\Yaml;
 use Grav\Common\Page\Medium\AbstractMedia;
 use Grav\Common\Page\Medium\GlobalMedia;
@@ -19,6 +22,8 @@ use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 class Media extends AbstractMedia
 {
+    use MediaUploadTrait;
+
     /** @var GlobalMedia */
     protected static $global;
 
@@ -216,11 +221,31 @@ class Media extends AbstractMedia
     }
 
     /**
-     * @return string
+     * @return string|null
      * @deprecated 1.6 Use $this->getPath() instead.
      */
-    public function path()
+    public function path(): ?string
     {
         return $this->getPath();
+    }
+
+    protected function getGrav(): Grav
+    {
+        return Grav::instance();
+    }
+
+    protected function getConfig(): Config
+    {
+        return $this->getGrav()['config'];
+    }
+
+    protected function getLanguage(): Language
+    {
+        return $this->getGrav()['language'];
+    }
+
+    protected function clearCache(): void
+    {
+        // TODO: Implement clearCache() method.
     }
 }

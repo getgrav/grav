@@ -19,7 +19,7 @@ class GlobalMedia extends AbstractMedia
      *
      * @return string|null
      */
-    public function getPath()
+    public function getPath(): ?string
     {
         return null;
     }

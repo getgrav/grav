@@ -47,7 +47,7 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
      *
      * @return string|null
      */
-    public function getPath()
+    public function getPath(): ?string
     {
         return $this->path;
     }
@@ -55,7 +55,7 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
     /**
      * @param string|null $path
      */
-    public function setPath(?string $path)
+    public function setPath(?string $path): void
     {
         $this->path = $path;
     }

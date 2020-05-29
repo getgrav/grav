@@ -242,7 +242,7 @@ trait MediaUploadTrait
         return $this->getLanguage()->translate($string);
     }
 
-    abstract protected function getPath(): string;
+    abstract protected function getPath(): ?string;
 
     abstract protected function getGrav(): Grav;
 
