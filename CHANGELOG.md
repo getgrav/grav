@@ -7,6 +7,7 @@
 1. [](#bugfix)
     * Fixed new `Flex Page` not having correct form fields for the page type
     * Fixed new `Flex User` erroring out on save (thanks @mikebi42)
+    * Fixed `Flex Object` request cache clear when saving object
     * Fixed blueprint value filtering in lists [#2923](https://github.com/getgrav/grav/issues/2923)
     * Fixed blueprint for `system.pages.hide_empty_folders` [#1925](https://github.com/getgrav/grav/issues/2925)
 

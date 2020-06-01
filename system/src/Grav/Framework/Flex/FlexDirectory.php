@@ -414,6 +414,7 @@ class FlexDirectory implements FlexAuthorizeInterface
         $this->getCache('render')->clear();
 
         $this->indexes = [];
+        $this->objects = [];
 
         return $this;
     }
@@ -679,6 +680,9 @@ class FlexDirectory implements FlexAuthorizeInterface
     {
         $cache = $this->getCache('index');
         $cache->delete('__keys');
+
+        $this->indexes = [];
+        $this->objects = [];
     }
 
     /**
