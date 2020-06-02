@@ -1,9 +1,9 @@
 ---
 title: Overview
 taxonomy:
-    category: docs
+    category:
+        - docs
 ---
-
 
 Let's face it: Writing content for the Web is tiresome. WYSIWYG editors help alleviate this task, but they generally result in horrible code, or worse yet, ugly web pages.
 
@@ -28,7 +28,7 @@ Grav ships with built-in support for [Markdown](http://daringfireball.net/projec
 
 Without further delay, let us go over the main elements of Markdown and what the resulting HTML looks like:
 
->>> <i class="fa fa-bookmark"></i> Bookmark this page for easy future reference!
+>>>> <i class="fa fa-bookmark"></i> Bookmark this page for easy future reference!
 
 ## Headings
 

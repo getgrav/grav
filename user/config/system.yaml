@@ -29,7 +29,7 @@ home:
   alias: /home-and-faq
   hide_in_urls: false
 pages:
-  theme: learn2-git-sync
+  theme: uofrbiol
   order:
     by: default
     dir: asc

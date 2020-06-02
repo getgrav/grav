@@ -1,15 +1,18 @@
 ---
-title: Effective Communication
-menu: Effective Communication
+title: 'Who is Your Audience'
+taxonomy:
+    tag:
+        - biol100
+published: true
+process:
+    markdown: true
+    twig: true
+child_type: default
+routable: true
+cache_enable: true
+visible: true
+label: 'Who is Your Audience'
 ---
-
-> Have something to say, and say it as clearly as you can.  
-That is the only secret of style.  
-— [Matthew Arnold](https://en.wikipedia.org/wiki/Matthew_Arnold)
-
-## Why is clear and concise writing important?
-
-Understanding what you are presenting requires some effort for the reader. If an assignment is well written the reader can focus completely on understanding the content. If an assignment is poorly written, the reader must use energy just to decipher what you are saying, and may have no energy left to understand the actual scientific discoveries you are presenting. In the case of research reports and other university-level writing, this can have implications for the grade you earn.
 
 ## Who is your audience?
 
@@ -67,7 +70,3 @@ One strategy that might help you with all these problems is to first explain, ou
 ## "There is no good writing, only good revision"
 
 Getting the words on the page is only the first step. Although it is important to get the words down before you forget all the important points you want to make, revising your writing ensures that you are making those points clearly and effectively. The essential component to good revision is time. Let your lab report "sit" for at least a day before revising it. Remember that revision is much more than simply correcting grammatical errors (for more information on how to revise your lab report, see: [How do I review my own writing?](/review-and-revision)).
-
-## More information
-
-This paper gives tips on how to communicate effectively. **[Optimizing scholarly communications: 30 tips for writing clearly](http://www.ncbi.nlm.nih.gov/pmc/articles/PMC1318505/)**. 1996. Kenneth L. Knight and Christopher D. Ingersoll. Journal of Athletic Training 210: 209-213.
