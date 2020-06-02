@@ -53,12 +53,13 @@ class UserIndex extends FlexIndex
     /**
      * @param array $meta
      * @param array $data
+     * @param FlexStorageInterface $storage
      */
-    public static function updateObjectMeta(array &$meta, array $data)
+    public static function updateObjectMeta(array &$meta, array $data, FlexStorageInterface $storage)
     {
         // Username can also be number and stored as such.
         $key = (string)($data['username'] ?? $meta['key'] ?? $meta['storage_key']);
-        $meta['key'] = mb_strtolower($key);
+        $meta['key'] = static::filterUsername($key, $storage);
         $meta['email'] = isset($data['email']) ? mb_strtolower($data['email']) : null;
     }
 
@@ -73,7 +74,7 @@ class UserIndex extends FlexIndex
     public function load($username): UserInterface
     {
         if ($username !== '') {
-            $key = mb_strtolower($username);
+            $key = static::filterUsername($username, $this->getFlexDirectory()->getStorage());
             $user = $this->get($key);
             if ($user) {
                 return $user;
@@ -116,7 +117,7 @@ class UserIndex extends FlexIndex
                 } elseif ($field === 'email') {
                     $user = $this->withKeyField('email')->get($query);
                 } elseif ($field === 'username') {
-                    $user = $this->get(mb_strtolower($query));
+                    $user = $this->get(static::filterUsername($query, $this->getFlexDirectory()->getStorage()));
                 } else {
                     $user = $this->__call('find', [$query, $field]);
                 }
@@ -127,6 +128,20 @@ class UserIndex extends FlexIndex
         }
 
         return $this->load('');
+    }
+
+    /**
+     * @param string $key
+     * @param FlexStorageInterface $storage
+     * @return string
+     */
+    protected static function filterUsername(string $key, FlexStorageInterface $storage): string
+    {
+        if ($storage && \method_exists($storage, 'normalizeKey')) {
+            return $storage->normalizeKey($key);
+        }
+
+        return mb_strtolower($key);
     }
 
     /**

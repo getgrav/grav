@@ -20,7 +20,6 @@ use Grav\Framework\Flex\Interfaces\FlexCollectionInterface;
 use Grav\Framework\Flex\Interfaces\FlexIndexInterface;
 use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
 use Grav\Framework\Flex\Interfaces\FlexStorageInterface;
-use Grav\Framework\Object\Interfaces\ObjectCollectionInterface;
 use Grav\Framework\Object\Interfaces\ObjectInterface;
 use Grav\Framework\Object\ObjectIndex;
 use Monolog\Logger;
@@ -77,8 +76,9 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
      *
      * @param array $meta
      * @param array $data
+     * @param FlexStorageInterface $storage
      */
-    public static function updateObjectMeta(array &$meta, array $data)
+    public static function updateObjectMeta(array &$meta, array $data, FlexStorageInterface $storage)
     {
         // For backwards compatibility, no need to call this method when you override this method.
         static::updateIndexData($meta, $data);
@@ -709,7 +709,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
                     if ($keyField !== 'storage_key' && isset($row[$keyField])) {
                         $entry['key'] = $row[$keyField];
                     }
-                    static::updateObjectMeta($entry, $row ?? []);
+                    static::updateObjectMeta($entry, $row ?? [], $storage);
                     if (isset($row['__ERROR'])) {
                         $entry['__ERROR'] = true;
                         static::onException(new \RuntimeException(sprintf('Object failed to load: %s (%s)', $key,

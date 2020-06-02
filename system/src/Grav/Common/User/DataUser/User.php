@@ -116,11 +116,11 @@ class User extends Data implements UserInterface
         }
 
         if ($file) {
-            $username = $this->get('username');
+            $username = $this->filterUsername($this->get('username'));
 
             if (!$file->filename()) {
                 $locator = Grav::instance()['locator'];
-                $file->filename($locator->findResource('account://' . mb_strtolower($username) . YAML_EXT, true, true));
+                $file->filename($locator->findResource('account://' . $username . YAML_EXT, true, true));
             }
 
             // if plain text password, hash it and remove plain text
@@ -176,6 +176,8 @@ class User extends Data implements UserInterface
 
     /**
      * Serialize user.
+     *
+     * @return array
      */
     public function __sleep()
     {
@@ -272,6 +274,18 @@ class User extends Data implements UserInterface
         return parent::count();
     }
 
+    /**
+     * @param string $username
+     * @return string
+     */
+    protected function filterUsername(string $username): string
+    {
+        return mb_strtolower($username);
+    }
+
+    /**
+     * @return string|null
+     */
     protected function getAvatarFile(): ?string
     {
         $avatars = $this->get('avatar');
