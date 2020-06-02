@@ -25,6 +25,7 @@ user/themes/*
 !user/themes/.*
 !user/themes/learn2/*
 !user/themes/learn2git-sync/*
+!user/themes/uofrbiol/*
 user/localhost/config/security.yaml
 user/config/security.yaml
 
