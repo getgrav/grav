@@ -15,6 +15,21 @@ use Grav\Framework\Flex\Storage\FileStorage;
 
 class UserFileStorage extends FileStorage
 {
+    public $caseSensitive;
+
+    /**
+     * @param string $key
+     * @return string
+     */
+    public function normalizeKey(string $key): string
+    {
+        if ($this->caseSensitive === true) {
+            return $key;
+        }
+
+        return mb_strtolower($key);
+    }
+
     /**
      * {@inheritdoc}
      * @see FlexStorageInterface::getMediaPath()
@@ -39,5 +54,16 @@ class UserFileStorage extends FileStorage
         if ($access) {
             $row['access'] = $access;
         }
+    }
+
+    /**
+     * @param array $options
+     * @return void
+     */
+    protected function initOptions(array $options): void
+    {
+        parent::initOptions($options);
+
+        $this->caseSensitive = $options['case_sensitive'] ?? false;
     }
 }

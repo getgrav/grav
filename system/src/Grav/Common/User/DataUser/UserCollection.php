@@ -45,8 +45,8 @@ class UserCollection implements UserCollectionInterface
         /** @var UniformResourceLocator $locator */
         $locator = $grav['locator'];
 
-        // force lowercase of username
-        $username = mb_strtolower($username);
+        // Filter username.
+        $username = $this->filterUsername($username);
 
         $filename = 'account://' . $username . YAML_EXT;
         $path = $locator->findResource($filename) ?: $locator->findResource($filename, true, true);
@@ -138,4 +138,14 @@ class UserCollection implements UserCollectionInterface
 
         return count($accounts);
     }
+
+    /**
+     * @param string $username
+     * @return string
+     */
+    protected function filterUsername(string $username): string
+    {
+        return mb_strtolower($username);
+    }
+
 }

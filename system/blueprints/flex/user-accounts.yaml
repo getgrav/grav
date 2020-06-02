@@ -113,6 +113,7 @@ config:
         pattern: '{FOLDER}/{KEY}{EXT}'
         indexed: true
         key: username
+        case_sensitive: false
     search:
       options:
         contains: 1

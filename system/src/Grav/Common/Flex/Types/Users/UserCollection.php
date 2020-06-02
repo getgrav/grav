@@ -43,7 +43,7 @@ class UserCollection extends FlexCollection implements UserCollectionInterface
     public function load($username): UserInterface
     {
         if ($username !== '') {
-            $key = mb_strtolower($username);
+            $key = $this->filterUsername($username);
             $user = $this->get($key);
             if ($user) {
                 return $user;
@@ -84,7 +84,7 @@ class UserCollection extends FlexCollection implements UserCollectionInterface
                 } elseif ($field === 'flex_key') {
                     $user = $this->withKeyField('flex_key')->get($query);
                 } elseif ($field === 'username') {
-                    $user = $this->get(mb_strtolower($query));
+                    $user = $this->get($this->filterUsername($query));
                 } else {
                     $user = parent::find($query, $field);
                 }
@@ -113,5 +113,19 @@ class UserCollection extends FlexCollection implements UserCollectionInterface
         }
 
         return $exists;
+    }
+
+    /**
+     * @param string $key
+     * @return bool|false|string|string[]|null
+     */
+    protected function filterUsername(string $key)
+    {
+        $storage = $this->getFlexDirectory()->getStorage();
+        if (method_exists($storage, 'normalizeKey')) {
+            return $storage->normalizeKey($key);
+        }
+
+        return mb_strtolower($key);
     }
 }

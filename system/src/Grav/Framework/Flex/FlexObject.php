@@ -623,7 +623,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
         if ($meta) {
             /** @var FlexIndex $indexClass */
             $indexClass = $this->getFlexDirectory()->getIndexClass();
-            $indexClass::updateObjectMeta($meta, $value);
+            $indexClass::updateObjectMeta($meta, $value, $storage);
             $this->_meta = $meta;
         }
 
