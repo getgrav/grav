@@ -13,6 +13,7 @@ use Grav\Common\Config\Config;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\Grav;
 use Grav\Common\Media\Interfaces\MediaCollectionInterface;
+use Grav\Common\Media\Interfaces\MediaUploadInterface;
 use Grav\Common\Media\Traits\MediaTrait;
 use Grav\Common\Page\Medium\Medium;
 use Grav\Common\Page\Medium\MediumFactory;
@@ -38,13 +39,6 @@ trait FlexMediaTrait
     /** @var array */
     protected $_uploads;
 
-    public function __debugInfo()
-    {
-        return parent::__debugInfo() + [
-            'uploads:private' => $this->getUpdatedMedia()
-        ];
-    }
-
     /**
      * @return string|null
      */
@@ -68,27 +62,10 @@ trait FlexMediaTrait
     {
         $media = $this->media;
         if (null === $media) {
-            $updated = false;
             $media = $this->getExistingMedia();
 
             // Include uploaded media to the object media.
-            /**
-             * @var string $filename
-             * @var UploadedFileInterface|null $upload
-             */
-            foreach ($this->getUpdatedMedia() as $filename => $upload) {
-                if ($upload) {
-                    $medium = MediumFactory::fromUploadedFile($upload);
-                    if ($medium) {
-                        $updated = true;
-                        $media->add($filename, $medium);
-                    }
-                }
-            }
-
-            if ($updated) {
-                $media->setTimestamps();
-            }
+            $this->addUpdatedMedia($media);
         }
 
         return $media;
@@ -100,6 +77,15 @@ trait FlexMediaTrait
      */
     public function checkUploadedMediaFile(UploadedFileInterface $uploadedFile)
     {
+        $media = $this->getMedia();
+        if ($media instanceof MediaUploadInterface) {
+            $media->checkUploadedFile($uploadedFile);
+
+            return;
+        }
+
+        user_error(__METHOD__ . '() with the old Media classes is deprecated since Grav 1.7, Use Media class that implements MediaUploadInterface instead', E_USER_DEPRECATED);
+
         $grav = Grav::instance();
         $language = $grav['language'];
 
@@ -135,33 +121,31 @@ trait FlexMediaTrait
     }
 
     /**
-     * @param string $filename
-     * @return void
-     */
-    public function checkMediaFilename(string $filename)
-    {
-        // Check the file extension.
-        $extension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
-
-        $grav = Grav::instance();
-
-        /** @var Config $config */
-        $config = $grav['config'];
-
-        // If not a supported type, return
-        if (!$extension || !$config->get("media.types.{$extension}")) {
-            $language = $grav['language'];
-            throw new RuntimeException($language->translate('PLUGIN_ADMIN.UNSUPPORTED_FILE_TYPE') . ': ' . $extension, 400);
-        }
-    }
-
-    /**
      * @param UploadedFileInterface $uploadedFile
      * @param string|null $filename
      * @return void
      */
     public function uploadMediaFile(UploadedFileInterface $uploadedFile, string $filename = null): void
     {
+        $media = $this->getMedia();
+        if ($media instanceof MediaUploadInterface) {
+            $media->uploadFile($uploadedFile, $filename);
+            $this->clearMediaCache();
+
+            return;
+        }
+
+        user_error(__METHOD__ . '() with the old Media classes is deprecated since Grav 1.7, Use Media class that implements MediaUploadInterface instead', E_USER_DEPRECATED);
+
+        $grav = Grav::instance();
+
+        $path = $media->getPath();
+        if (!$path) {
+            $language = $grav['language'];
+
+            throw new RuntimeException($language->translate('PLUGIN_ADMIN.FAILED_TO_MOVE_UPLOADED_FILE'), 400);
+        }
+
         $this->checkUploadedMediaFile($uploadedFile);
 
         if ($filename) {
@@ -170,18 +154,8 @@ trait FlexMediaTrait
             $filename = $uploadedFile->getClientFilename();
         }
 
-        $media = $this->getMedia();
-        $grav = Grav::instance();
-
         /** @var UniformResourceLocator $locator */
         $locator = $grav['locator'];
-        $path = $media->getPath();
-        if (!$path) {
-            $language = $grav['language'];
-
-            throw new RuntimeException($language->translate('PLUGIN_ADMIN.FAILED_TO_MOVE_UPLOADED_FILE'), 400);
-        }
-
         if ($locator->isStream($path)) {
             $path = (string)$locator->findResource($path, true, true);
             $locator->clearCache($path);
@@ -225,6 +199,21 @@ trait FlexMediaTrait
      */
     public function deleteMediaFile(string $filename): void
     {
+        $media = $this->getMedia();
+        if ($media instanceof MediaUploadInterface) {
+            $media->deleteFile($filename);
+            $this->clearMediaCache();
+
+            return;
+        }
+
+        user_error(__METHOD__ . '() with the old Media classes is deprecated since Grav 1.7, Use Media class that implements MediaUploadInterface instead', E_USER_DEPRECATED);
+
+        $path = $media->getPath();
+        if (!$path) {
+            return;
+        }
+
         $grav = Grav::instance();
         $language = $grav['language'];
 
@@ -236,12 +225,6 @@ trait FlexMediaTrait
 
         if (!Utils::checkFilename($basename)) {
             throw new RuntimeException($language->translate('PLUGIN_ADMIN.FILE_COULD_NOT_BE_DELETED') . ': Bad filename: ' . $filename, 400);
-        }
-
-        $media = $this->getMedia();
-        $path = $media->getPath();
-        if (!$path) {
-            return;
         }
 
         /** @var UniformResourceLocator $locator */
@@ -299,6 +282,13 @@ trait FlexMediaTrait
         $this->clearMediaCache();
     }
 
+    public function __debugInfo()
+    {
+        return parent::__debugInfo() + [
+                'uploads:private' => $this->getUpdatedMedia()
+            ];
+    }
+
     /**
      * @param array $files
      * @return void
@@ -319,7 +309,28 @@ trait FlexMediaTrait
     }
 
     /**
-     * @return array<UploadedFileInterface|null>
+     * @param MediaCollectionInterface $media
+     */
+    protected function addUpdatedMedia(MediaCollectionInterface $media): void
+    {
+        $updated = false;
+        foreach ($this->getUpdatedMedia() as $filename => $upload) {
+            if ($upload) {
+                $medium = MediumFactory::fromUploadedFile($upload);
+                if ($medium) {
+                    $updated = true;
+                    $media->add($filename, $medium);
+                }
+            }
+        }
+
+        if ($updated) {
+            $media->setTimestamps();
+        }
+    }
+
+    /**
+     * @return array<string, UploadedFileInterface|null>
      */
     protected function getUpdatedMedia(): array
     {
@@ -395,4 +406,28 @@ trait FlexMediaTrait
      * @return string
      */
     abstract public function getStorageKey(): string;
+
+    /**
+     * @param string $filename
+     * @return void
+     * @deprecated 1.7 Use Media class that implements MediaUploadInterface instead.
+     */
+    public function checkMediaFilename(string $filename)
+    {
+        user_error(__METHOD__ . '() is deprecated since Grav 1.7, Use Media class that implements MediaUploadInterface instead', E_USER_DEPRECATED);
+
+        // Check the file extension.
+        $extension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+
+        $grav = Grav::instance();
+
+        /** @var Config $config */
+        $config = $grav['config'];
+
+        // If not a supported type, return
+        if (!$extension || !$config->get("media.types.{$extension}")) {
+            $language = $grav['language'];
+            throw new RuntimeException($language->translate('PLUGIN_ADMIN.UNSUPPORTED_FILE_TYPE') . ': ' . $extension, 400);
+        }
+    }
 }

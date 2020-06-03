@@ -488,7 +488,7 @@ abstract class Folder
      * Does a directory contain children
      *
      * @param string $directory
-     * @return int
+     * @return int|false
      */
     public static function countChildren($directory) {
         if (!is_dir($directory)) {

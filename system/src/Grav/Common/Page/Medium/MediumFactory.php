@@ -11,6 +11,8 @@ namespace Grav\Common\Page\Medium;
 
 use Grav\Common\Grav;
 use Grav\Common\Data\Blueprint;
+use Grav\Common\Media\Interfaces\ImageMediaInterface;
+use Grav\Common\Media\Interfaces\MediaObjectInterface;
 use Grav\Framework\Form\FormFlashFile;
 use Psr\Http\Message\UploadedFileInterface;
 
@@ -160,14 +162,14 @@ class MediumFactory
     /**
      * Create a new ImageMedium by scaling another ImageMedium object.
      *
-     * @param  ImageMedium|Medium $medium
+     * @param  ImageMediaInterface|MediaObjectInterface $medium
      * @param  int         $from
      * @param  int         $to
-     * @return Medium|array
+     * @return ImageMediaInterface|MediaObjectInterface|array
      */
     public static function scaledFromMedium($medium, $from, $to)
     {
-        if (! $medium instanceof ImageMedium) {
+        if (!$medium instanceof ImageMedium) {
             return $medium;
         }
 

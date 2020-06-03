@@ -177,7 +177,7 @@ class User extends Data implements UserInterface
     /**
      * Serialize user.
      *
-     * @return array
+     * @return string[]
      */
     public function __sleep()
     {

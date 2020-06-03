@@ -13,6 +13,8 @@ use Grav\Common\Data\Data;
 
 /**
  * Class implements media object interface.
+ *
+ * @property string $type
  */
 interface MediaObjectInterface extends \Grav\Framework\Media\Interfaces\MediaObjectInterface
 {

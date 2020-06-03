@@ -11,7 +11,6 @@ namespace Grav\Common\Media\Traits;
 
 use Grav\Common\Grav;
 use Grav\Common\Media\Interfaces\ImageMediaInterface;
-use Grav\Common\Media\Interfaces\MediaObjectInterface;
 use Grav\Common\Page\Medium\ImageFile;
 use Grav\Common\Page\Medium\ImageMedium;
 use Grav\Common\Page\Medium\MediumFactory;
@@ -319,7 +318,7 @@ trait ImageMediaTrait
     /**
      * Return the image higher quality version
      *
-     * @return ImageMediaInterface the alternative version with higher quality
+     * @return ImageMediaInterface|$this the alternative version with higher quality
      */
     public function higherQualityAlternative()
     {

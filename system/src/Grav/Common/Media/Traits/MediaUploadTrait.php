@@ -29,7 +29,6 @@ trait MediaUploadTrait
     /**
      * @param UploadedFileInterface $uploadedFile
      * @param string|null $filename
-     * @return string $filename
      * @throws RuntimeException
      */
     public function checkUploadedFile(UploadedFileInterface $uploadedFile, string $filename = null): string
@@ -83,7 +82,7 @@ trait MediaUploadTrait
      * @return void
      * @throws RuntimeException
      */
-    public function uploadMediaFile(UploadedFileInterface $uploadedFile, string $filename = null): void
+    public function uploadFile(UploadedFileInterface $uploadedFile, string $filename = null): void
     {
         // First check if the file is a valid upload (throws error if not).
         $filename = $this->checkUploadedFile($uploadedFile, $filename);
@@ -94,7 +93,12 @@ trait MediaUploadTrait
         }
 
         try {
-            $this->clearMediaCache();
+            /** @var UniformResourceLocator $locator */
+            $locator = $this->getGrav()['locator'];
+            if ($locator->isStream($path)) {
+                $path = (string)$locator->findResource($path, true, true);
+                $locator->clearCache($path);
+            }
 
             $filepath = sprintf('%s/%s', $path, $filename);
 
@@ -134,8 +138,9 @@ trait MediaUploadTrait
     /**
      * @param string $filename
      * @return void
+     * @throws RuntimeException
      */
-    public function deleteMediaFile(string $filename): void
+    public function deleteFile(string $filename): void
     {
         // First check for allowed filename.
         $basename = basename($filename);
@@ -214,6 +219,7 @@ trait MediaUploadTrait
      *
      * @param string $filename
      * @return void
+     * @throws RuntimeException
      */
     protected function checkFileExtension(string $filename)
     {
@@ -231,13 +237,17 @@ trait MediaUploadTrait
 
         /** @var UniformResourceLocator $locator */
         $locator = $grav['locator'];
-        if ($locator->isStream($path)) {
+        if ($path && $locator->isStream($path)) {
             $path = (string)$locator->findResource($path, true, true);
             $locator->clearCache($path);
         }
     }
 
-    protected function translate($string): string
+    /**
+     * @param string $string
+     * @return string
+     */
+    protected function translate(string $string): string
     {
         return $this->getLanguage()->translate($string);
     }

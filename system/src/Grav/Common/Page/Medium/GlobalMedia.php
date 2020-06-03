@@ -50,8 +50,11 @@ class GlobalMedia extends AbstractMedia
     {
         /** @var UniformResourceLocator $locator */
         $locator = Grav::instance()['locator'];
+        if (!$locator->isStream($filename)) {
+            return null;
+        }
 
-        return $locator->isStream($filename) ? ($locator->findResource($filename) ?: null) : null;
+        return $locator->findResource($filename) ?: null;
     }
 
     /**
@@ -66,10 +69,10 @@ class GlobalMedia extends AbstractMedia
         }
 
         $path = dirname($filename);
-        list($basename, $ext,, $extra) = $this->getFileParts(basename($filename));
+        [$basename, $ext,, $extra] = $this->getFileParts(basename($filename));
         $medium = MediumFactory::fromFile($filename);
 
-        if (empty($medium)) {
+        if (null === $medium) {
             return null;
         }
 

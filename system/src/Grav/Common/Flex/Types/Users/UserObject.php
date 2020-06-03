@@ -14,8 +14,10 @@ namespace Grav\Common\Flex\Types\Users;
 use Grav\Common\Config\Config;
 use Grav\Common\Flex\Traits\FlexGravTrait;
 use Grav\Common\Flex\Traits\FlexObjectTrait;
+use Grav\Common\Flex\Types\Users\Traits\UserObjectLegacyTrait;
 use Grav\Common\Grav;
 use Grav\Common\Media\Interfaces\MediaCollectionInterface;
+use Grav\Common\Media\Interfaces\MediaUploadInterface;
 use Grav\Common\Page\Media;
 use Grav\Common\Page\Medium\ImageMedium;
 use Grav\Common\Page\Medium\Medium;
@@ -69,6 +71,7 @@ class UserObject extends FlexObject implements UserInterface, MediaManipulationI
         getMediaFolder as private getFlexMediaFolder;
     }
     use UserTrait;
+    use UserObjectLegacyTrait;
 
     /** @var array|null */
     protected $_uploads_original;
@@ -121,7 +124,10 @@ class UserObject extends FlexObject implements UserInterface, MediaManipulationI
         $this->defProperty('state', 'enabled');
     }
 
-    public function onPrepareRegistration()
+    /**
+     * @return void
+     */
+    public function onPrepareRegistration(): void
     {
         if (!$this->getProperty('access')) {
             /** @var Config $config */
@@ -138,7 +144,7 @@ class UserObject extends FlexObject implements UserInterface, MediaManipulationI
     /**
      * Helper to get content editor will fall back if not set
      *
-     * @return String
+     * @return string
      */
     public function getContentEditor(): string
     {
@@ -412,7 +418,7 @@ class UserObject extends FlexObject implements UserInterface, MediaManipulationI
      * Get value from the configuration and join it with given data.
      *
      * @param string  $name       Dot separated path to the requested value.
-     * @param array|object $value      Value to be joined.
+     * @param array|object $value Value to be joined.
      * @param string  $separator  Separator, defaults to '.'
      * @return array
      * @throws \RuntimeException
@@ -526,6 +532,8 @@ class UserObject extends FlexObject implements UserInterface, MediaManipulationI
 
     /**
      * Save user without the username
+     *
+     * @return $this
      */
     public function save()
     {
@@ -550,23 +558,6 @@ class UserObject extends FlexObject implements UserInterface, MediaManipulationI
     }
 
     /**
-     * @param UserInterface $user
-     * @param string $action
-     * @param string $scope
-     * @param bool $isMe
-     * @return bool|null
-     */
-    protected function isAuthorizedOverride(UserInterface $user, string $action, string $scope, bool $isMe = false): ?bool
-    {
-        if ($user instanceof self && $user->getStorageKey() === $this->getStorageKey()) {
-            // User cannot delete his own account, otherwise he has full access.
-            return $action !== 'delete';
-        }
-
-        return parent::isAuthorizedOverride($user, $action, $scope, $isMe);
-    }
-
-    /**
      * @return array
      */
     public function prepareStorage(): array
@@ -577,133 +568,6 @@ class UserObject extends FlexObject implements UserInterface, MediaManipulationI
         unset($elements['authenticated'], $elements['authorized']);
 
         return $elements;
-    }
-
-    /**
-     * Merge two configurations together.
-     *
-     * @param array $data
-     * @return $this
-     * @deprecated 1.6 Use `->update($data)` instead (same but with data validation & filtering, file upload support).
-     */
-    public function merge(array $data)
-    {
-        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6, use ->update($data) method instead', E_USER_DEPRECATED);
-
-        $this->setElements($this->getBlueprint()->mergeData($this->toArray(), $data));
-
-        return $this;
-    }
-
-    /**
-     * Return media object for the User's avatar.
-     *
-     * @return ImageMedium|StaticImageMedium|null
-     * @deprecated 1.6 Use ->getAvatarImage() method instead.
-     */
-    public function getAvatarMedia()
-    {
-        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6, use ->getAvatarImage() method instead', E_USER_DEPRECATED);
-
-        return $this->getAvatarImage();
-    }
-
-    /**
-     * Return the User's avatar URL
-     *
-     * @return string
-     * @deprecated 1.6 Use ->getAvatarUrl() method instead.
-     */
-    public function avatarUrl()
-    {
-        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6, use ->getAvatarUrl() method instead', E_USER_DEPRECATED);
-
-        return $this->getAvatarUrl();
-    }
-
-    /**
-     * Checks user authorization to the action.
-     * Ensures backwards compatibility
-     *
-     * @param string $action
-     * @return bool
-     * @deprecated 1.5 Use ->authorize() method instead.
-     */
-    public function authorise($action)
-    {
-        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.5, use ->authorize() method instead', E_USER_DEPRECATED);
-
-        return $this->authorize($action) ?? false;
-    }
-
-    /**
-     * Implements Countable interface.
-     *
-     * @return int
-     * @deprecated 1.6 Method makes no sense for user account.
-     */
-    public function count()
-    {
-        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6', E_USER_DEPRECATED);
-
-        return \count($this->jsonSerialize());
-    }
-
-    /**
-     * @return UserGroupIndex|UserGroupCollection
-     */
-    protected function getGroups()
-    {
-        if (null === $this->_groups) {
-            $this->_groups = $this->getUserGroups()->select((array)$this->getProperty('groups'));
-        }
-
-        return $this->_groups;
-    }
-
-    /**
-     * @return Access
-     */
-    protected function getAccess(): Access
-    {
-        if (null === $this->_access) {
-            $this->getProperty('access');
-        }
-
-        return $this->_access;
-    }
-
-    /**
-     * @param mixed $value
-     * @return array
-     */
-    protected function offsetLoad_access($value): array
-    {
-        if (!$value instanceof Access) {
-            $value = new Access($value);
-        }
-
-        $this->_access = $value;
-
-        return $value->jsonSerialize();
-    }
-
-    /**
-     * @param mixed $value
-     * @return array
-     */
-    protected function offsetPrepare_access($value): array
-    {
-        return $this->offsetLoad_access($value);
-    }
-
-    /**
-     * @param array|null $value
-     * @return array|null
-     */
-    protected function offsetSerialize_access(?array $value): ?array
-    {
-        return $value;
     }
 
     /**
@@ -744,6 +608,23 @@ class UserObject extends FlexObject implements UserInterface, MediaManipulationI
         }
 
         return $folder;
+    }
+
+    /**
+     * @param UserInterface $user
+     * @param string $action
+     * @param string $scope
+     * @param bool $isMe
+     * @return bool|null
+     */
+    protected function isAuthorizedOverride(UserInterface $user, string $action, string $scope, bool $isMe = false): ?bool
+    {
+        if ($user instanceof self && $user->getStorageKey() === $this->getStorageKey()) {
+            // User cannot delete his own account, otherwise he has full access.
+            return $action !== 'delete';
+        }
+
+        return parent::isAuthorizedOverride($user, $action, $scope, $isMe);
     }
 
     /**
@@ -845,14 +726,19 @@ class UserObject extends FlexObject implements UserInterface, MediaManipulationI
 
     protected function saveUpdatedMedia(): void
     {
+        $media = $this->getFlexMedia();
+        if (!$media instanceof MediaUploadInterface) {
+            throw new \RuntimeException('Internal error M101');
+        }
+
         // Upload/delete original sized images.
         /** @var FormFlashFile|null $file */
         foreach ($this->_uploads_original ?? [] as $name => $file) {
             $name = 'original/' . $name;
             if ($file) {
-                $this->uploadMediaFile($file, $name);
+                $media->uploadFile($file, $name);
             } else {
-                $this->deleteMediaFile($name);
+                $media->deleteFile($name);
             }
         }
 
@@ -862,9 +748,9 @@ class UserObject extends FlexObject implements UserInterface, MediaManipulationI
          */
         foreach ($this->getUpdatedMedia() as $filename => $file) {
             if ($file) {
-                $this->uploadMediaFile($file, $filename);
+                $media->uploadFile($file, $filename);
             } else {
-                $this->deleteMediaFile($filename);
+                $media->deleteFile($filename);
             }
         }
 
@@ -942,5 +828,62 @@ class UserObject extends FlexObject implements UserInterface, MediaManipulationI
         }
 
         return $grav['user_groups'];
+    }
+
+    /**
+     * @return UserGroupIndex|UserGroupCollection
+     */
+    protected function getGroups()
+    {
+        if (null === $this->_groups) {
+            $this->_groups = $this->getUserGroups()->select((array)$this->getProperty('groups'));
+        }
+
+        return $this->_groups;
+    }
+
+    /**
+     * @return Access
+     */
+    protected function getAccess(): Access
+    {
+        if (null === $this->_access) {
+            $this->getProperty('access');
+        }
+
+        return $this->_access;
+    }
+
+    /**
+     * @param mixed $value
+     * @return array
+     */
+    protected function offsetLoad_access($value): array
+    {
+        if (!$value instanceof Access) {
+            $value = new Access($value);
+        }
+
+        $this->_access = $value;
+
+        return $value->jsonSerialize();
+    }
+
+    /**
+     * @param mixed $value
+     * @return array
+     */
+    protected function offsetPrepare_access($value): array
+    {
+        return $this->offsetLoad_access($value);
+    }
+
+    /**
+     * @param array|null $value
+     * @return array|null
+     */
+    protected function offsetSerialize_access(?array $value): ?array
+    {
+        return $value;
     }
 }

@@ -12,6 +12,7 @@ namespace Grav\Common\Page;
 use Grav\Common\Config\Config;
 use Grav\Common\Grav;
 use Grav\Common\Language\Language;
+use Grav\Common\Media\Interfaces\MediaUploadInterface;
 use Grav\Common\Media\Traits\MediaUploadTrait;
 use Grav\Common\Yaml;
 use Grav\Common\Page\Medium\AbstractMedia;
@@ -20,7 +21,7 @@ use Grav\Common\Page\Medium\MediumFactory;
 use RocketTheme\Toolbox\File\File;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
-class Media extends AbstractMedia
+class Media extends AbstractMedia implements MediaUploadInterface
 {
     use MediaUploadTrait;
 
@@ -122,6 +123,10 @@ class Media extends AbstractMedia
         foreach ($media as $name => $types) {
             // First prepare the alternatives in case there is no base medium
             if (!empty($types['alternative'])) {
+                /**
+                 * @var string|int $ratio
+                 * @var array $alt
+                 */
                 foreach ($types['alternative'] as $ratio => &$alt) {
                     $alt['file'] = MediumFactory::fromFile($alt['file']);
 

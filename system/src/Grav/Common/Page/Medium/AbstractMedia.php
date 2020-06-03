@@ -164,10 +164,12 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
      */
     public function add($name, $file)
     {
-        if (!$file) {
+        if (null === $file) {
             return;
         }
+
         $this->offsetSet($name, $file);
+
         switch ($file->type) {
             case 'image':
                 $this->images[$name] = $file;
@@ -252,6 +254,6 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
             }
         }
 
-        return array($name, $extension, $type, $extra);
+        return [$name, $extension, $type, $extra];
     }
 }
