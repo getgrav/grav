@@ -12,6 +12,8 @@ namespace Grav\Common\Page\Medium;
 use Grav\Common\Grav;
 use Grav\Common\Media\Interfaces\MediaCollectionInterface;
 use Grav\Common\Media\Interfaces\MediaObjectInterface;
+use Grav\Common\Media\Interfaces\MediaUploadInterface;
+use Grav\Common\Media\Traits\MediaUploadTrait;
 use Grav\Common\Page\Pages;
 use Grav\Common\Utils;
 use RocketTheme\Toolbox\ArrayTraits\ArrayAccess;
@@ -20,12 +22,13 @@ use RocketTheme\Toolbox\ArrayTraits\Export;
 use RocketTheme\Toolbox\ArrayTraits\ExportInterface;
 use RocketTheme\Toolbox\ArrayTraits\Iterator;
 
-abstract class AbstractMedia implements ExportInterface, MediaCollectionInterface
+abstract class AbstractMedia implements ExportInterface, MediaCollectionInterface, MediaUploadInterface
 {
     use ArrayAccess;
     use Countable;
     use Iterator;
     use Export;
+    use MediaUploadTrait;
 
     /** @var array */
     protected $items = [];

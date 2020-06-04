@@ -670,39 +670,39 @@ class UserObject extends FlexObject implements UserInterface, MediaManipulationI
         $list = [];
         $list_original = [];
         foreach ($files as $field => $group) {
+            if ($field === '') {
+                continue;
+            }
+
+            // Load settings for the field.
+            $settings = $this->getMediaFieldSettings($field);
+
             foreach ($group as $filename => $file) {
                 if ($file) {
+                    // File upload.
                     $filename = $file->getClientFilename();
 
                     /** @var FormFlashFile $file */
                     $data = $file->jsonSerialize();
                     unset($data['tmp_name'], $data['path']);
                 } else {
+                    // File delete.
                     $data = null;
                 }
 
-                // Load configuration for the field.
-                $schema = $this->getBlueprint()->schema();
-                $settings = $schema ? (array)$schema->getProperty($field) : [];
-
-                // Set destination folder.
-                $self = false;
-                if (empty($settings['destination']) || in_array($settings['destination'], ['@self', 'self@', '@self@'], true)) {
-                    $settings['destination'] = $this->getMediaFolder();
-                    $self = true;
+                if ($file) {
+                    // Check file upload against media limits.
+                    $filename = $media->checkUploadedFile($file, $filename, $settings);
                 }
-                $folder = $settings['destination'];
 
-                // Check file upload against media limits.
-                $filename = $media->checkUploadedFile($file, $filename, $settings);
-
+                $self = $settings['self'];
                 if ($this->_loadMedia && $self) {
                     $filepath = $filename;
                 } else {
-                    $filepath = "{$folder}/{$filename}";
+                    $filepath = "{$settings['destination']}/{$filename}";
 
                     // For backwards compatibility we are always using relative path from the installation root.
-                    if ($locator->isStream($folder)) {
+                    if ($locator->isStream($filepath)) {
                         $filepath = $locator->findResource($filepath, false, true);
                     }
                 }
@@ -710,12 +710,12 @@ class UserObject extends FlexObject implements UserInterface, MediaManipulationI
                 // Special handling for original images.
                 if (strpos($field, '/original')) {
                     if ($this->_loadMedia && $self) {
-                        $list_original[$filename] = $file;
+                        $list_original[$filename] = [$file, $settings];
                     }
                     continue;
                 }
 
-                $list[$filename] = $file;
+                $list[$filename] = [$file, $settings];
 
                 if (null !== $data) {
                     $data['name'] = $filename;
@@ -736,33 +736,48 @@ class UserObject extends FlexObject implements UserInterface, MediaManipulationI
     {
         $media = $this->getFlexMedia();
         if (!$media instanceof MediaUploadInterface) {
-            throw new \RuntimeException('Internal error M101');
+            throw new \RuntimeException('Internal error UO101');
         }
 
         // Upload/delete original sized images.
-        /** @var FormFlashFile|null $file */
-        foreach ($this->_uploads_original ?? [] as $name => $file) {
-            $name = 'original/' . $name;
-            if ($file) {
-                $media->copyUploadedFile($file, $name);
+        /**
+         * @var string $filename
+         * @var UploadedFileInterface|array|null $file
+         */
+        foreach ($this->_uploads_original ?? [] as $filename => $file) {
+            $filename = 'original/' . $filename;
+            if (is_array($file)) {
+                [$file, $settings] = $file;
             } else {
-                $media->deleteFile($name);
+                $settings = null;
+            }
+            if ($file instanceof UploadedFileInterface) {
+                $media->copyUploadedFile($file, $filename, $settings);
+            } else {
+                $media->deleteFile($filename, $settings);
             }
         }
 
+        // Upload/delete altered files.
         /**
          * @var string $filename
-         * @var UploadedFileInterface|null $file
+         * @var UploadedFileInterface|array|null $file
          */
         foreach ($this->getUpdatedMedia() as $filename => $file) {
-            if ($file) {
-                $media->copyUploadedFile($file, $filename);
+            if (is_array($file)) {
+                [$file, $settings] = $file;
             } else {
-                $media->deleteFile($filename);
+                $settings = null;
+            }
+            if ($file instanceof UploadedFileInterface) {
+                $media->copyUploadedFile($file, $filename, $settings);
+            } else {
+                $media->deleteFile($filename, $settings);
             }
         }
 
         $this->setUpdatedMedia([]);
+        $this->clearMediaCache();
     }
 
     /**
@@ -793,6 +808,7 @@ class UserObject extends FlexObject implements UserInterface, MediaManipulationI
                     'name' => $info['name'],
                     'type' => $info['type'],
                     'size' => $info['size'],
+                    'path' => $info['path'],
                     'image_url' => $imageFile->url(),
                     'thumb_url' =>  $thumbFile->url(),
                     'cropData' => (object)($imageFile->metadata()['upload']['crop'] ?? [])

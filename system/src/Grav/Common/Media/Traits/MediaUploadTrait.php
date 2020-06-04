@@ -29,6 +29,7 @@ trait MediaUploadTrait
 {
     /** @var array */
     private $_upload_defaults = [
+        'self'              => true,        // Whether path is in the media collection path itself.
         'avoid_overwriting' => false,       // Do not override existing files (adds datetime postfix if conflict).
         'random_name'       => false,       // True if name needs to be randomized.
         'accept'            => ['image/*'], // Accepted mime types or file extensions.
@@ -190,12 +191,20 @@ trait MediaUploadTrait
      *
      * @param UploadedFileInterface $uploadedFile
      * @param string $filename
+     * @param array|null $settings
      * @return void
      * @throws RuntimeException
      */
-    public function copyUploadedFile(UploadedFileInterface $uploadedFile, string $filename): void
+    public function copyUploadedFile(UploadedFileInterface $uploadedFile, string $filename, array $settings = null): void
     {
-        $path = $this->getPath();
+        // Add the defaults to the settings.
+        if (!$settings) {
+            $settings = $this->_upload_defaults;
+        } else {
+            $settings += $this->_upload_defaults;
+        }
+
+        $path = $settings['destination'] ?? $this->getPath();
         if (!$path) {
             throw new RuntimeException($this->translate('PLUGIN_ADMIN.FAILED_TO_MOVE_UPLOADED_FILE'), 400);
         }
@@ -256,18 +265,26 @@ trait MediaUploadTrait
      * Delete real file from the media collection.
      *
      * @param string $filename
+     * @param array|null $settings
      * @return void
      * @throws RuntimeException
      */
-    public function deleteFile(string $filename): void
+    public function deleteFile(string $filename, array $settings = null): void
     {
+        // Add the defaults to the settings.
+        if (!$settings) {
+            $settings = $this->_upload_defaults;
+        } else {
+            $settings += $this->_upload_defaults;
+        }
+
         // First check for allowed filename.
         $basename = basename($filename);
         if (!Utils::checkFilename($basename)) {
             throw new RuntimeException($this->translate('PLUGIN_ADMIN.FILE_COULD_NOT_BE_DELETED') . ": {$this->translate('PLUGIN_ADMIN.BAD_FILENAME')}: " . $filename, 400);
         }
 
-        $path = $this->getPath();
+        $path = $settings['destination'] ?? $this->getPath();
         if (!$path) {
             // Nothing to do.
             return;
@@ -276,8 +293,8 @@ trait MediaUploadTrait
         $filesystem = Filesystem::getInstance(false);
         $dirname = $filesystem->dirname($filename);
         $dirname = $dirname === '.' ? '' : '/' . $dirname;
-        $targetPath = "{$path}/{$dirname}";
-        $targetFile = "{$path}/{$filename}";
+        $targetPath = sprintf('%s/%s', $path, $dirname);
+        $targetFile = sprintf('%s/%s', $path, $filename);
 
         $grav = $this->getGrav();
 

@@ -12,8 +12,6 @@ namespace Grav\Common\Page;
 use Grav\Common\Config\Config;
 use Grav\Common\Grav;
 use Grav\Common\Language\Language;
-use Grav\Common\Media\Interfaces\MediaUploadInterface;
-use Grav\Common\Media\Traits\MediaUploadTrait;
 use Grav\Common\Yaml;
 use Grav\Common\Page\Medium\AbstractMedia;
 use Grav\Common\Page\Medium\GlobalMedia;
@@ -21,10 +19,8 @@ use Grav\Common\Page\Medium\MediumFactory;
 use RocketTheme\Toolbox\File\File;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
-class Media extends AbstractMedia implements MediaUploadInterface
+class Media extends AbstractMedia
 {
-    use MediaUploadTrait;
-
     /** @var GlobalMedia */
     protected static $global;
 

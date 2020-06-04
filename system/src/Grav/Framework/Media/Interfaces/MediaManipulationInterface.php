@@ -17,6 +17,7 @@ use Psr\Http\Message\UploadedFileInterface;
 /**
  * Interface MediaManipulationInterface
  * @package Grav\Framework\Media\Interfaces
+ * @deprecated 1.7 Not used currently
  */
 interface MediaManipulationInterface extends MediaInterface
 {

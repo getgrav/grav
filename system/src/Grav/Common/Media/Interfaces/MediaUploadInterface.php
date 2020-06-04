@@ -47,16 +47,18 @@ interface MediaUploadInterface
      *
      * @param UploadedFileInterface $uploadedFile
      * @param string $filename
+     * @param array|null $settings
      * @return void
      * @throws RuntimeException
      */
-    public function copyUploadedFile(UploadedFileInterface $uploadedFile, string $filename): void;
+    public function copyUploadedFile(UploadedFileInterface $uploadedFile, string $filename, array $settings = null): void;
 
     /**
      * Delete real file from the media collection.
      *
      * @param string $filename
+     * @param array|null $settings
      * @return void
      */
-    public function deleteFile(string $filename): void;
+    public function deleteFile(string $filename, array $settings = null): void;
 }
