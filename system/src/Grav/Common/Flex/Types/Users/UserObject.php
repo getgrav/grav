@@ -734,7 +734,7 @@ class UserObject extends FlexObject implements UserInterface, MediaManipulationI
 
     protected function saveUpdatedMedia(): void
     {
-        $media = $this->getFlexMedia();
+        $media = $this->getMedia();
         if (!$media instanceof MediaUploadInterface) {
             throw new \RuntimeException('Internal error UO101');
         }

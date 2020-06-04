@@ -14,6 +14,7 @@ namespace Grav\Common\Flex\Types\Generic;
 use Grav\Common\Flex\Traits\FlexGravTrait;
 use Grav\Common\Flex\Traits\FlexObjectTrait;
 use Grav\Framework\Flex\FlexObject;
+use Grav\Framework\Flex\Traits\FlexMediaTrait;
 
 /**
  * Class GenericObject
@@ -23,4 +24,5 @@ class GenericObject extends FlexObject
 {
     use FlexGravTrait;
     use FlexObjectTrait;
+    use FlexMediaTrait;
 }
