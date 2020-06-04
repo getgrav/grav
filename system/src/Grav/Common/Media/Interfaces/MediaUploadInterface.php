@@ -18,23 +18,43 @@ use RuntimeException;
 interface MediaUploadInterface
 {
     /**
+     * Checks that uploaded file meets the requirements. Returns new filename.
+     *
+     * @example
+     *   $filename = null;  // Override filename if needed (ignored if randomizing filenames).
+     *   $settings = ['destination' => 'user://pages/media']; // Settings from the form field.
+     *   $filename = $media->checkUploadedFile($uploadedFile, $filename, $settings);
+     *   $media->copyUploadedFile($uploadedFile, $filename);
+
      * @param UploadedFileInterface $uploadedFile
      * @param string|null $filename
+     * @param array|null $settings
+     * @return string
      * @throws RuntimeException
      */
-    public function checkUploadedFile(UploadedFileInterface $uploadedFile, string $filename = null): string;
+    public function checkUploadedFile(UploadedFileInterface $uploadedFile, string $filename = null, array $settings = null): string;
 
     /**
-     * Upload file to the media collection.
+     * Copy uploaded file to the media collection.
+     *
+     * WARNING: Always check uploaded file before copying it!
+     *
+     * @example
+     *   $filename = null;  // Override filename if needed (ignored if randomizing filenames).
+     *   $settings = ['destination' => 'user://pages/media']; // Settings from the form field.
+     *   $filename = $media->checkUploadedFile($uploadedFile, $filename, $settings);
+     *   $media->copyUploadedFile($uploadedFile, $filename);
      *
      * @param UploadedFileInterface $uploadedFile
-     * @param string|null $filename
+     * @param string $filename
      * @return void
      * @throws RuntimeException
      */
-    public function uploadFile(UploadedFileInterface $uploadedFile, string $filename = null): void;
+    public function copyUploadedFile(UploadedFileInterface $uploadedFile, string $filename): void;
 
     /**
+     * Delete real file from the media collection.
+     *
      * @param string $filename
      * @return void
      */

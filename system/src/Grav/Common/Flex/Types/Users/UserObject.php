@@ -662,8 +662,10 @@ class UserObject extends FlexObject implements UserInterface, MediaManipulationI
      */
     protected function setUpdatedMedia(array $files): void
     {
-        // For shared media folder we need to keep path for backwards compatibility.
-        $folder = $this->getMediaFolder();
+        /** @var UniformResourceLocator $locator */
+        $locator = Grav::instance()['locator'];
+
+        $media = $this->getMedia();
 
         $list = [];
         $list_original = [];
@@ -679,32 +681,35 @@ class UserObject extends FlexObject implements UserInterface, MediaManipulationI
                     $data = null;
                 }
 
-                $settings = $this->getBlueprint()->schema()->getProperty($field);
+                // Load configuration for the field.
+                $schema = $this->getBlueprint()->schema();
+                $settings = $schema ? (array)$schema->getProperty($field) : [];
 
-                // Generate random name if required
-                if ($settings['random_name'] ?? false) {
-                    $extension = pathinfo($filename, PATHINFO_EXTENSION);
-                    $data['name'] = $filename = Utils::generateRandomString(15) . '.' . $extension;
+                // Set destination folder.
+                $self = false;
+                if (empty($settings['destination']) || in_array($settings['destination'], ['@self', 'self@', '@self@'], true)) {
+                    $settings['destination'] = $this->getMediaFolder();
+                    $self = true;
                 }
+                $folder = $settings['destination'];
 
-                if ($this->_loadMedia) {
+                // Check file upload against media limits.
+                $filename = $media->checkUploadedFile($file, $filename, $settings);
+
+                if ($this->_loadMedia && $self) {
                     $filepath = $filename;
                 } else {
-                    if (!$folder) {
-                        throw new \RuntimeException('No media folder support');
-                    }
+                    $filepath = "{$folder}/{$filename}";
 
-                    /** @var UniformResourceLocator $locator */
-                    $locator = Grav::instance()['locator'];
-                    $filepath = $locator->findResource($folder, false, true) . '/' . $filename;
-                    if ($data) {
-                        $data['path'] = $filepath;
+                    // For backwards compatibility we are always using relative path from the installation root.
+                    if ($locator->isStream($folder)) {
+                        $filepath = $locator->findResource($filepath, false, true);
                     }
                 }
 
                 // Special handling for original images.
                 if (strpos($field, '/original')) {
-                    if ($this->_loadMedia) {
+                    if ($this->_loadMedia && $self) {
                         $list_original[$filename] = $file;
                     }
                     continue;
@@ -712,7 +717,10 @@ class UserObject extends FlexObject implements UserInterface, MediaManipulationI
 
                 $list[$filename] = $file;
 
-                if ($data) {
+                if (null !== $data) {
+                    $data['name'] = $filename;
+                    $data['path'] = $filepath;
+
                     $this->setNestedProperty("{$field}\n{$filepath}", $data, "\n");
                 } else {
                     $this->unsetNestedProperty("{$field}\n{$filepath}", "\n");
@@ -736,7 +744,7 @@ class UserObject extends FlexObject implements UserInterface, MediaManipulationI
         foreach ($this->_uploads_original ?? [] as $name => $file) {
             $name = 'original/' . $name;
             if ($file) {
-                $media->uploadFile($file, $name);
+                $media->copyUploadedFile($file, $name);
             } else {
                 $media->deleteFile($name);
             }
@@ -748,7 +756,7 @@ class UserObject extends FlexObject implements UserInterface, MediaManipulationI
          */
         foreach ($this->getUpdatedMedia() as $filename => $file) {
             if ($file) {
-                $media->uploadFile($file, $filename);
+                $media->copyUploadedFile($file, $filename);
             } else {
                 $media->deleteFile($filename);
             }
