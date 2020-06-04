@@ -511,6 +511,15 @@ class ImageMedium extends Medium
     }
 
     /**
+     * Handle this commonly used variant
+     */
+    public function cropZoom()
+    {
+        $this->__call('zoomCrop', func_get_args());
+        return $this;
+    }
+
+    /**
      * Forward the call to the image processing method.
      *
      * @param string $method
@@ -519,10 +528,6 @@ class ImageMedium extends Medium
      */
     public function __call($method, $args)
     {
-        if ($method === 'cropZoom') {
-            $method = 'zoomCrop';
-        }
-
         if (!\in_array($method, self::$magic_actions, true)) {
             return parent::__call($method, $args);
         }

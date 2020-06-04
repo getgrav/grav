@@ -379,6 +379,15 @@
     * Optimization: Initialize debugbar only after the configuration has been loaded
     * Optimization: Combine some early Grav processors into a single one
 
+# v1.6.26
+## mm/dd/2020
+
+1. [](#improved)
+    * Added new configuration option to control the supported attributes in markdown links [#2882](https://github.com/getgrav/grav/issues/2882)
+1. [](#bugfix)
+    * Fixed blueprint for `system.pages.hide_empty_folders` [#1925](https://github.com/getgrav/grav/issues/2925)
+
+
 # v1.6.25
 ## 05/14/2020
 
