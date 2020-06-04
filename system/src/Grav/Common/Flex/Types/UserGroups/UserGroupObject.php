@@ -16,6 +16,7 @@ use Grav\Common\Flex\Traits\FlexObjectTrait;
 use Grav\Common\User\Access;
 use Grav\Common\User\Interfaces\UserGroupInterface;
 use Grav\Framework\Flex\FlexObject;
+use Grav\Framework\Flex\Traits\FlexMediaTrait;
 
 /**
  * Flex User Group
@@ -29,6 +30,7 @@ class UserGroupObject extends FlexObject implements UserGroupInterface
 {
     use FlexGravTrait;
     use FlexObjectTrait;
+    use FlexMediaTrait;
 
     /** @var Access|null */
     protected $_access;
