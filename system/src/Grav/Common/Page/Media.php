@@ -221,15 +221,6 @@ class Media extends AbstractMedia
         }
     }
 
-    /**
-     * @return string|null
-     * @deprecated 1.6 Use $this->getPath() instead.
-     */
-    public function path(): ?string
-    {
-        return $this->getPath();
-    }
-
     protected function getGrav(): Grav
     {
         return Grav::instance();
@@ -248,5 +239,14 @@ class Media extends AbstractMedia
     protected function clearCache(): void
     {
         // TODO: Implement clearCache() method.
+    }
+
+    /**
+     * @return string|null
+     * @deprecated 1.6 Use $this->getPath() instead.
+     */
+    public function path(): ?string
+    {
+        return $this->getPath();
     }
 }

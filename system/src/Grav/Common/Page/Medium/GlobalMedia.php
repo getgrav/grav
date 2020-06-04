@@ -9,7 +9,9 @@
 
 namespace Grav\Common\Page\Medium;
 
+use Grav\Common\Config\Config;
 use Grav\Common\Grav;
+use Grav\Common\Language\Language;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 class GlobalMedia extends AbstractMedia
@@ -125,5 +127,25 @@ class GlobalMedia extends AbstractMedia
         $this->add($stream, $medium);
 
         return $medium;
+    }
+
+    protected function getGrav(): Grav
+    {
+        return Grav::instance();
+    }
+
+    protected function getConfig(): Config
+    {
+        return $this->getGrav()['config'];
+    }
+
+    protected function getLanguage(): Language
+    {
+        return $this->getGrav()['language'];
+    }
+
+    protected function clearCache(): void
+    {
+        // TODO: Implement clearCache() method.
     }
 }
