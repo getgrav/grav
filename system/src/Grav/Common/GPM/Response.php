@@ -409,7 +409,7 @@ class Response
             } else {
                 $code = (int)curl_getinfo($rch, CURLINFO_HTTP_CODE);
                 if ($code === 301 || $code === 302 || $code === 303) {
-                    preg_match('/Location:(.*?)\n/', $header, $matches);
+                    preg_match('/(?:^|\n)Location:(.*?)\n/i', $header, $matches);
                     $uri = trim(array_pop($matches));
                 } else {
                     $code = 0;
