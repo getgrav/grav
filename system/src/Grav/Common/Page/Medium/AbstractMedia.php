@@ -9,7 +9,9 @@
 
 namespace Grav\Common\Page\Medium;
 
+use Grav\Common\Config\Config;
 use Grav\Common\Grav;
+use Grav\Common\Language\Language;
 use Grav\Common\Media\Interfaces\MediaCollectionInterface;
 use Grav\Common\Media\Interfaces\MediaObjectInterface;
 use Grav\Common\Media\Interfaces\MediaUploadInterface;
@@ -258,5 +260,25 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
         }
 
         return [$name, $extension, $type, $extra];
+    }
+
+    protected function getGrav(): Grav
+    {
+        return Grav::instance();
+    }
+
+    protected function getConfig(): Config
+    {
+        return $this->getGrav()['config'];
+    }
+
+    protected function getLanguage(): Language
+    {
+        return $this->getGrav()['language'];
+    }
+
+    protected function clearCache(): void
+    {
+        // TODO: Implement clearCache() method.
     }
 }
