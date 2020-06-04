@@ -19,17 +19,14 @@ use Grav\Common\Grav;
 use Grav\Common\Media\Interfaces\MediaCollectionInterface;
 use Grav\Common\Media\Interfaces\MediaUploadInterface;
 use Grav\Common\Page\Media;
-use Grav\Common\Page\Medium\ImageMedium;
 use Grav\Common\Page\Medium\Medium;
 use Grav\Common\Page\Medium\MediumFactory;
-use Grav\Common\Page\Medium\StaticImageMedium;
 use Grav\Common\User\Access;
 use Grav\Common\User\Authentication;
 use Grav\Common\Flex\Types\UserGroups\UserGroupCollection;
 use Grav\Common\Flex\Types\UserGroups\UserGroupIndex;
 use Grav\Common\User\Interfaces\UserInterface;
 use Grav\Common\User\Traits\UserTrait;
-use Grav\Common\Utils;
 use Grav\Framework\File\Formatter\JsonFormatter;
 use Grav\Framework\File\Formatter\YamlFormatter;
 use Grav\Framework\Flex\Flex;
@@ -38,7 +35,6 @@ use Grav\Framework\Flex\FlexObject;
 use Grav\Framework\Flex\Storage\FileStorage;
 use Grav\Framework\Flex\Traits\FlexMediaTrait;
 use Grav\Framework\Form\FormFlashFile;
-use Grav\Framework\Media\Interfaces\MediaManipulationInterface;
 use Psr\Http\Message\UploadedFileInterface;
 use RocketTheme\Toolbox\File\FileInterface;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
@@ -62,7 +58,7 @@ use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
  * @property bool $authenticated
  * @property bool $authorized
  */
-class UserObject extends FlexObject implements UserInterface, MediaManipulationInterface, \Countable
+class UserObject extends FlexObject implements UserInterface, \Countable
 {
     use FlexGravTrait;
     use FlexObjectTrait;

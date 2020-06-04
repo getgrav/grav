@@ -17,7 +17,6 @@ use Grav\Common\Page\Traits\PageFormTrait;
 use Grav\Common\User\Interfaces\UserCollectionInterface;
 use Grav\Framework\File\Formatter\YamlFormatter;
 use Grav\Framework\Flex\FlexObject;
-use Grav\Framework\Flex\Interfaces\FlexCollectionInterface;
 use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
 use Grav\Framework\Flex\Interfaces\FlexTranslateInterface;
 use Grav\Framework\Flex\Pages\Traits\PageAuthorsTrait;
@@ -26,13 +25,12 @@ use Grav\Framework\Flex\Pages\Traits\PageLegacyTrait;
 use Grav\Framework\Flex\Pages\Traits\PageRoutableTrait;
 use Grav\Framework\Flex\Pages\Traits\PageTranslateTrait;
 use Grav\Framework\Flex\Traits\FlexMediaTrait;
-use Grav\Framework\Media\Interfaces\MediaManipulationInterface;
 
 /**
  * Class FlexPageObject
  * @package Grav\Plugin\FlexObjects\Types\FlexPages
  */
-class FlexPageObject extends FlexObject implements PageInterface, MediaManipulationInterface, FlexTranslateInterface
+class FlexPageObject extends FlexObject implements PageInterface, FlexTranslateInterface
 {
     use PageAuthorsTrait;
     use PageContentTrait;
@@ -352,7 +350,7 @@ class FlexPageObject extends FlexObject implements PageInterface, MediaManipulat
     public function setNestedProperty($property, $value, $separator = null)
     {
         if (strpos($property, 'header.') === 0) {
-            $this->getProperty('header')->set(str_replace('header.', '', $property), $value);
+            $this->getProperty('header')->set(str_replace('header.', '', $property), $value, $separator);
 
             return $this;
         }
@@ -370,7 +368,7 @@ class FlexPageObject extends FlexObject implements PageInterface, MediaManipulat
     public function unsetNestedProperty($property, $separator = null)
     {
         if (strpos($property, 'header.') === 0) {
-            $this->getProperty('header')->undef(str_replace('header.', '', $property));
+            $this->getProperty('header')->undef(str_replace('header.', '', $property), $separator);
 
             return $this;
         }

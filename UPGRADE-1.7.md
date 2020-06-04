@@ -188,6 +188,7 @@
 
 ### Flex
 
+* Do not use `Framework` Flex classes directly, it's better to use or extend classes under `Grav\Common\Flex\Types\Generic` namespace
 * Added `$grav['flex']` to access all registered Flex Directories
   * Added `FlexRegisterEvent` which triggers when `$grav['flex']` is being accessed the first time
 * Added `hasFlexFeature()` method to test if `FlexObject` or `FlexCollection` implements a given feature
