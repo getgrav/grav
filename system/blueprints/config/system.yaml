@@ -515,6 +515,16 @@ form:
                             validate:
                                 type: bool
 
+                        pages.markdown.valid_link_attributes:
+                          type: selectize
+                          size: large
+                          label: PLUGIN_ADMIN.VALID_LINK_ATTRIBUTES
+                          help: PLUGIN_ADMIN.VALID_LINK_ATTRIBUTES_HELP
+                          placeholder: "rel, target, id, class, classes"
+                          classes: fancy
+                          validate:
+                            type: commalist
+
                 caching:
                     type: tab
                     title: PLUGIN_ADMIN.CACHING
