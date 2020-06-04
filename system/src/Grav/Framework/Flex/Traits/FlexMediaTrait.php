@@ -192,7 +192,7 @@ trait FlexMediaTrait
      */
     protected function saveUpdatedMedia(): void
     {
-        $media = $this->getFlexMedia();
+        $media = $this->getExistingMedia();
 
         // Upload/delete altered files.
         /**
