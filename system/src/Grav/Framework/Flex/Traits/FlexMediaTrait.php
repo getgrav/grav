@@ -116,7 +116,6 @@ trait FlexMediaTrait
 
             // Load settings for the field.
             $settings = $this->getMediaFieldSettings($field);
-
             foreach ($group as $filename => $file) {
                 if ($file) {
                     // File upload.
@@ -144,13 +143,14 @@ trait FlexMediaTrait
 
                 $list[$filename] = [$file, $settings];
 
+                $path = str_replace('.', "\n", $field);
                 if (null !== $data) {
                     $data['name'] = $filename;
                     $data['path'] = $filepath;
 
-                    $this->setNestedProperty("{$field}\n{$filepath}", $data, "\n");
+                    $this->setNestedProperty("{$path}\n{$filepath}", $data, "\n");
                 } else {
-                    $this->unsetNestedProperty("{$field}\n{$filepath}", "\n");
+                    $this->unsetNestedProperty("{$path}\n{$filepath}", "\n");
                 }
             }
         }
