@@ -401,9 +401,8 @@ class Route
             $parts[] = $this->language;
         }
 
-        if ($this->route !== '') {
-            $parts[] = $this->extension ? $this->route . '.' . $this->extension : $this->route;
-        }
+        $parts[] = $this->extension ? $this->route . '.' . $this->extension : $this->route;
+
 
         if ($this->gravParams) {
             $parts[] = RouteFactory::buildParams($this->gravParams);
