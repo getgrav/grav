@@ -383,13 +383,14 @@
     * Optimization: Combine some early Grav processors into a single one
 
 # v1.6.26
-## mm/dd/2020
+## 06/08/2020
 
 1. [](#improved)
     * Added new configuration option to control the supported attributes in markdown links [#2882](https://github.com/getgrav/grav/issues/2882)
 1. [](#bugfix)
     * Fixed blueprint for `system.pages.hide_empty_folders` [#1925](https://github.com/getgrav/grav/issues/2925)
-    * JSON Route of homepage with no ‘route’ set is valid [form#425](https://github.com/getgrav/grav-plugin-form/issues/425)
+    * JSON Route of homepage with no ‘route’ set is valid
+    * Fix case-insensitive search of location header [form#425](https://github.com/getgrav/grav-plugin-form/issues/425)
 
 
 # v1.6.25
