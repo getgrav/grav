@@ -305,7 +305,7 @@ class Plugin implements EventSubscriberInterface, \ArrayAccess
 
             // Create new config object and set it on the page object so it's cached for next time
             $page->modifyHeader($class_name_merged, new Data($header));
-        } else if (isset($page_header->{$class_name_merged})) {
+        } elseif (isset($page_header->{$class_name_merged})) {
             $merged = $page_header->{$class_name_merged};
             $header = $merged->toArray();
         }

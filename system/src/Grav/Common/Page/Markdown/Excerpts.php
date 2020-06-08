@@ -87,7 +87,7 @@ class Excerpts
             );
 
             // Valid attributes supported.
-            $valid_attributes = ['rel', 'target', 'id', 'class', 'classes'];
+            $valid_attributes = Grav::instance()['config']->get('system.pages.markdown.valid_link_attributes');
 
             // Unless told to not process, go through actions.
             if (array_key_exists('noprocess', $actions)) {
@@ -231,6 +231,7 @@ class Excerpts
     {
         $url_parts = is_string($url) ? $this->parseUrl($url) : $url;
         $actions = [];
+
 
         // if there is a query, then parse it and build action calls
         if (isset($url_parts['query'])) {

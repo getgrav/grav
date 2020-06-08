@@ -241,13 +241,15 @@ form:
                                 type: commalist
 
                         pages.hide_empty_folders:
-                            type: selectize
-                            size: large
-                            label: PLUGIN_ADMIN.HIDE_EMPTY_FOLDERS
-                            help: PLUGIN_ADMIN.HIDE_EMPTY_FOLDERS_HELP
-                            classes: fancy
-                            validate:
-                                type: commalist
+                          type: toggle
+                          label: PLUGIN_ADMIN.HIDE_EMPTY_FOLDERS
+                          help: PLUGIN_ADMIN.HIDE_EMPTY_FOLDERS_HELP
+                          highlight: 0
+                          options:
+                            1: PLUGIN_ADMIN.YES
+                            0: PLUGIN_ADMIN.NO
+                          validate:
+                            type: bool
 
                         pages.url_taxonomy_filters:
                             type: toggle
@@ -512,6 +514,16 @@ form:
                                 0: PLUGIN_ADMIN.NO
                             validate:
                                 type: bool
+
+                        pages.markdown.valid_link_attributes:
+                          type: selectize
+                          size: large
+                          label: PLUGIN_ADMIN.VALID_LINK_ATTRIBUTES
+                          help: PLUGIN_ADMIN.VALID_LINK_ATTRIBUTES_HELP
+                          placeholder: "rel, target, id, class, classes"
+                          classes: fancy
+                          validate:
+                            type: commalist
 
                 caching:
                     type: tab
