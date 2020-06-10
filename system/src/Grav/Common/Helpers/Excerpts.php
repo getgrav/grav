@@ -79,7 +79,9 @@ class Excerpts
 
         $elements = $doc->getElementsByTagName($tag);
         $excerpt = null;
+        $inner = [];
 
+        /** @var \DOMElement $element */
         foreach ($elements as $element) {
             $attributes = [];
             foreach ($element->attributes as $name => $value) {
@@ -92,9 +94,13 @@ class Excerpts
                 ]
             ];
 
-            if (isset($element->textContent)) {
-                $excerpt = array_merge_recursive($excerpt, ['element' => ['text' => $element->textContent]]);
+            foreach ($element->childNodes as $node) {
+                    $inner[] = $doc->saveHTML($node);
             }
+
+            $excerpt = array_merge_recursive($excerpt, ['element' => ['text' => implode('', $inner)]]);
+
+
         }
 
         return $excerpt;
