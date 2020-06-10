@@ -10,11 +10,13 @@
 namespace Grav\Common\Page\Medium;
 
 use Grav\Common\Media\Interfaces\ImageMediaInterface;
+use Grav\Common\Media\Traits\ImageLoadingTrait;
 use Grav\Common\Media\Traits\StaticResizeTrait;
 
 class StaticImageMedium extends Medium implements ImageMediaInterface
 {
     use StaticResizeTrait;
+    use ImageLoadingTrait;
 
     /**
      * Parsedown element for source display mode

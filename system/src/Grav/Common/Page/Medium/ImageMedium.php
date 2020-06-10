@@ -14,6 +14,7 @@ use Grav\Common\Grav;
 use Grav\Common\Media\Interfaces\ImageManipulateInterface;
 use Grav\Common\Media\Interfaces\ImageMediaInterface;
 use Grav\Common\Media\Interfaces\MediaLinkInterface;
+use Grav\Common\Media\Traits\ImageLoadingTrait;
 use Grav\Common\Media\Traits\ImageMediaTrait;
 use Grav\Common\Utils;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
@@ -21,6 +22,7 @@ use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulateInterface
 {
     use ImageMediaTrait;
+    use ImageLoadingTrait;
 
     /**
      * Construct.
