@@ -23,10 +23,10 @@ class Assets extends PropertyObject
 
     const CSS_COLLECTION = 'assets_css';
     const JS_COLLECTION = 'assets_js';
-    const CSS_TYPE = 'Css';
-    const JS_TYPE = 'Js';
-    const INLINE_CSS_TYPE = 'InlineCss';
-    const INLINE_JS_TYPE = 'InlineJs';
+    const CSS_TYPE = Assets\Css::Class;
+    const JS_TYPE = Assets\Js::Class;
+    const INLINE_CSS_TYPE = Assets\InlineCss::Class;
+    const INLINE_JS_TYPE = Assets\InlineJs::Class;
 
     /** @const Regex to match CSS and JavaScript files */
     const DEFAULT_REGEX = '/.\.(css|js)$/i';
@@ -207,8 +207,7 @@ class Assets extends PropertyObject
         $options['order'] = \count($this->$collection);
 
         // Create asset of correct type
-        $asset_class = "\\Grav\\Common\\Assets\\{$type}";
-        $asset_object = new $asset_class();
+        $asset_object = new $type();
 
         // If exists
         if ($asset_object->init($asset, $options)) {
@@ -225,7 +224,7 @@ class Assets extends PropertyObject
      */
     public function addCss($asset)
     {
-        return $this->addType(Assets::CSS_COLLECTION, Assets::CSS_TYPE, $asset, $this->unifyLegacyArguments(\func_get_args(), Assets::CSS_TYPE));
+        return $this->addType($this::CSS_COLLECTION, $this::CSS_TYPE, $asset, $this->unifyLegacyArguments(\func_get_args(), $this::CSS_TYPE));
     }
 
     /**
@@ -235,7 +234,7 @@ class Assets extends PropertyObject
      */
     public function addInlineCss($asset)
     {
-        return $this->addType(Assets::CSS_COLLECTION, Assets::INLINE_CSS_TYPE, $asset, $this->unifyLegacyArguments(\func_get_args(), Assets::INLINE_CSS_TYPE));
+        return $this->addType($this::CSS_COLLECTION, $this::INLINE_CSS_TYPE, $asset, $this->unifyLegacyArguments(\func_get_args(), $this::INLINE_CSS_TYPE));
     }
 
     /**
@@ -245,7 +244,7 @@ class Assets extends PropertyObject
      */
     public function addJs($asset)
     {
-        return $this->addType(Assets::JS_COLLECTION, Assets::JS_TYPE, $asset, $this->unifyLegacyArguments(\func_get_args(), Assets::JS_TYPE));
+        return $this->addType($this::JS_COLLECTION, $this::JS_TYPE, $asset, $this->unifyLegacyArguments(\func_get_args(), $this::JS_TYPE));
     }
 
     /**
@@ -255,7 +254,7 @@ class Assets extends PropertyObject
      */
     public function addInlineJs($asset)
     {
-        return $this->addType(Assets::JS_COLLECTION, Assets::INLINE_JS_TYPE, $asset, $this->unifyLegacyArguments(\func_get_args(), Assets::INLINE_JS_TYPE));
+        return $this->addType($this::JS_COLLECTION, $this::INLINE_JS_TYPE, $asset, $this->unifyLegacyArguments(\func_get_args(), $this::INLINE_JS_TYPE));
     }
 
 
