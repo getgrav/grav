@@ -34,6 +34,7 @@ class ClearCacheCommand extends ConsoleCommand
 
     protected function serve()
     {
+        $this->initializePlugins();
         $this->cleanPaths();
     }
 
