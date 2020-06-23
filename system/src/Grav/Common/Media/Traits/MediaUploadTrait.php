@@ -13,6 +13,7 @@ use Grav\Common\Config\Config;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\Grav;
 use Grav\Common\Language\Language;
+use Grav\Common\Page\Medium\MediumFactory;
 use Grav\Common\Security;
 use Grav\Common\Utils;
 use Grav\Framework\Filesystem\Filesystem;
@@ -255,6 +256,10 @@ trait MediaUploadTrait
         } catch (\Exception $e) {
             throw new RuntimeException($this->translate('PLUGIN_ADMIN.FAILED_TO_MOVE_UPLOADED_FILE'), 400);
         }
+
+        // Add the new file into the media.
+        $medium = MediumFactory::fromFile($filepath);
+        $this->add($filename, $medium);
 
         // Finally clear media cache.
         $locator->clearCache();
