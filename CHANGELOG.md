@@ -13,6 +13,7 @@
     * Fixed file field in `Flex Objects` (use `Grav\Common\Flex\Types\GenericObject` instead of `FlexObject`) [flex-objects#37](https://github.com/trilbymedia/grav-plugin-flex-objects/issues/37)
     * Fixed saving nested file fields in `Flex Objects` [flex-objects#34](https://github.com/trilbymedia/grav-plugin-flex-objects/issues/34)
     * JSON Route of homepage with no ‘route’ set is valid [form#425](https://github.com/getgrav/grav-plugin-form/issues/425)
+    * Fixed `MediaUploadTrait::copyUploadedFile()` not adding uploaded media to the collection
 
 # v1.7.0-rc.11
 ## 05/14/2020

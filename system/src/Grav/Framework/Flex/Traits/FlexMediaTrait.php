@@ -10,20 +10,16 @@ namespace Grav\Framework\Flex\Traits;
  */
 
 use Grav\Common\Config\Config;
-use Grav\Common\Filesystem\Folder;
 use Grav\Common\Grav;
 use Grav\Common\Media\Interfaces\MediaCollectionInterface;
 use Grav\Common\Media\Interfaces\MediaUploadInterface;
 use Grav\Common\Media\Traits\MediaTrait;
 use Grav\Common\Page\Medium\Medium;
 use Grav\Common\Page\Medium\MediumFactory;
-use Grav\Common\Utils;
 use Grav\Framework\Cache\CacheInterface;
-use Grav\Framework\Filesystem\Filesystem;
 use Grav\Framework\Flex\FlexDirectory;
 use Grav\Framework\Form\FormFlashFile;
 use Psr\Http\Message\UploadedFileInterface;
-use RocketTheme\Toolbox\File\YamlFile;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use RuntimeException;
 
@@ -71,16 +67,10 @@ trait FlexMediaTrait
         return $media;
     }
 
-    public function __debugInfo()
-    {
-        return parent::__debugInfo() + [
-                'uploads:private' => $this->getUpdatedMedia()
-            ];
-    }
-
     /**
      * @param string $field
      * @return array
+     * @internal
      */
     protected function getMediaFieldSettings(string $field): array
     {
@@ -97,6 +87,57 @@ trait FlexMediaTrait
         }
 
         return $settings;
+    }
+
+    /**
+     * @param UploadedFileInterface $uploadedFile
+     * @param string|null $filename
+     * @param string|null $field
+     * @return void
+     * @internal
+     */
+    public function checkUploadedMediaFile(UploadedFileInterface $uploadedFile, string $filename = null, string $field = null)
+    {
+        $media = $this->getMedia();
+        $media->checkUploadedFile($uploadedFile, $filename, $this->getMediaFieldSettings($field ?? ''));
+    }
+
+    /**
+     * @param UploadedFileInterface $uploadedFile
+     * @param string|null $filename
+     * @param string|null $field
+     * @return void
+     * @internal
+     */
+    public function uploadMediaFile(UploadedFileInterface $uploadedFile, string $filename = null, string $field = null): void
+    {
+        $media = $this->getMedia();
+        $settings = $this->getMediaFieldSettings($field ?? '');
+        $media->checkUploadedFile($uploadedFile, $filename, $settings);
+        $media->copyUploadedFile($uploadedFile, $filename, $settings);
+        $this->clearMediaCache();
+    }
+
+    /**
+     * @param string $filename
+     * @return void
+     * @internal
+     */
+    public function deleteMediaFile(string $filename): void
+    {
+        $media = $this->getMedia();
+        $media->deleteFile($filename);
+        $this->clearMediaCache();
+    }
+
+    /**
+     * @return array
+     */
+    public function __debugInfo()
+    {
+        return parent::__debugInfo() + [
+                'uploads:private' => $this->getUpdatedMedia()
+            ];
     }
 
     /**
@@ -288,47 +329,5 @@ trait FlexMediaTrait
             $language = $grav['language'];
             throw new RuntimeException($language->translate('PLUGIN_ADMIN.UNSUPPORTED_FILE_TYPE') . ': ' . $extension, 400);
         }
-    }
-
-    /**
-     * @param UploadedFileInterface $uploadedFile
-     * @return void
-     * @deprecated 1.7 Use Media class that implements MediaUploadInterface instead.
-     */
-    public function checkUploadedMediaFile(UploadedFileInterface $uploadedFile)
-    {
-        user_error(__METHOD__ . '() is deprecated since Grav 1.7, use Media class that implements MediaUploadInterface instead', E_USER_DEPRECATED);
-
-        $media = $this->getMedia();
-        $media->checkUploadedFile($uploadedFile);
-    }
-
-    /**
-     * @param UploadedFileInterface $uploadedFile
-     * @param string|null $filename
-     * @return void
-     * @deprecated 1.7 Use Media class that implements MediaUploadInterface instead.
-     */
-    public function uploadMediaFile(UploadedFileInterface $uploadedFile, string $filename = null): void
-    {
-        user_error(__METHOD__ . '() is deprecated since Grav 1.7, use Media class that implements MediaUploadInterface instead', E_USER_DEPRECATED);
-
-        $media = $this->getMedia();
-        $media->copyUploadedFile($uploadedFile, $filename);
-        $this->clearMediaCache();
-    }
-
-    /**
-     * @param string $filename
-     * @return void
-     * @deprecated 1.7 Use Media class that implements MediaUploadInterface instead.
-     */
-    public function deleteMediaFile(string $filename): void
-    {
-        user_error(__METHOD__ . '() is deprecated since Grav 1.7, use Media class that implements MediaUploadInterface instead', E_USER_DEPRECATED);
-
-        $media = $this->getMedia();
-        $media->deleteFile($filename);
-        $this->clearMediaCache();
     }
 }
