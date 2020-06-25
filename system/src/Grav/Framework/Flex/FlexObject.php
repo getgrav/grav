@@ -618,6 +618,10 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
 
         $result = $storage->replaceRows([$storageKey => $this->prepareStorage()]);
 
+        if (method_exists($this, 'clearMediaCache')) {
+            $this->clearMediaCache();
+        }
+
         $value = reset($result);
         $meta = $value['__META'] ?? null;
         if ($meta) {

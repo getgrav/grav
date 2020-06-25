@@ -206,6 +206,10 @@ trait FlexMediaTrait
     {
         $updated = false;
         foreach ($this->getUpdatedMedia() as $filename => $upload) {
+            if (is_array($upload)) {
+                // Uses new format with [UploadedFileInterface, array].
+                $upload = $upload[0];
+            }
             if ($upload) {
                 $medium = MediumFactory::fromUploadedFile($upload);
                 if ($medium) {
