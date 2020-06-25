@@ -64,7 +64,8 @@ trait MediaUploadTrait
         }
 
         // Destination is always needed (but it can be set in defaults).
-        if (!isset($settings['destination'])) {
+        $self = $settings['self'] ?? false;
+        if (!isset($settings['destination']) && $self === false) {
             throw new RuntimeException($this->translate('PLUGIN_ADMIN.DESTINATION_NOT_SPECIFIED'), 400);
         }
 
@@ -102,7 +103,7 @@ trait MediaUploadTrait
         // Handle conflicting filename if needed.
         if ($settings['avoid_overwriting']) {
             $destination = $settings['destination'];
-            if (file_exists("{$destination}/{$filename}")) {
+            if ($destination && file_exists("{$destination}/{$filename}")) {
                 $filename = date('YmdHis') . '-' . $filename;
             }
         }
