@@ -4,6 +4,7 @@
 1. [](#bugfix)
     * Fixed `MediaUploadTrait::copyUploadedFile()` not adding uploaded media to the collection
     * Fixed regression in saving media to a new Flex Object
+    * Fixed `Trying to get property 'username' of non-object` error in Flex [flex-objects#62](https://github.com/trilbymedia/grav-plugin-flex-objects/issues/62)
 
 # v1.7.0-rc.12
 ## 06/08/2020
