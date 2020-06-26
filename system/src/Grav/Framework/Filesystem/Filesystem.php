@@ -145,6 +145,20 @@ class Filesystem implements FilesystemInterface
     }
 
     /**
+     * Gets full path with trailing slash.
+     *
+     * @param string $path
+     * @param int $levels
+     * @return string
+     */
+    public function pathname(string $path, int $levels = 1): string
+    {
+        $path = $this->dirname($path, $levels);
+
+        return $path !== '.' ? $path . '/' : '';
+    }
+
+    /**
      * {@inheritdoc}
      * @see FilesystemInterface::pathinfo()
      */

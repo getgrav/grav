@@ -227,6 +227,9 @@ trait MediaUploadTrait
             $filesystem = Filesystem::getInstance(false);
             Folder::create($filesystem->dirname($filepath));
 
+            // Calculate path without the retina scaling factor.
+            $realpath = $filesystem->pathname($filepath) . str_replace(['@3x', '@2x'], '', basename($filepath));
+
             // Upload file.
             if ($uploadedFile instanceof FormFlashFile) {
                 if ($uploadedFile->getError() === \UPLOAD_ERR_OK) {
@@ -242,7 +245,7 @@ trait MediaUploadTrait
                 // FormFlashFile may also contain metadata.
                 $metadata = $uploadedFile->getMetaData();
                 if ($metadata) {
-                    $file = YamlFile::instance($filepath . '.meta.yaml');
+                    $file = YamlFile::instance($realpath . '.meta.yaml');
                     $file->save(['upload' => $metadata]);
                 }
             } else {
@@ -260,7 +263,7 @@ trait MediaUploadTrait
 
         // Add the new file into the media.
         $medium = MediumFactory::fromFile($filepath);
-        $this->add($filename, $medium);
+        $this->add($realpath, $medium);
 
         // Finally clear media cache.
         $locator->clearCache();

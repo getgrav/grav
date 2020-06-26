@@ -17,6 +17,7 @@ use Grav\Common\Media\Traits\MediaTrait;
 use Grav\Common\Page\Medium\Medium;
 use Grav\Common\Page\Medium\MediumFactory;
 use Grav\Framework\Cache\CacheInterface;
+use Grav\Framework\Filesystem\Filesystem;
 use Grav\Framework\Flex\FlexDirectory;
 use Grav\Framework\Form\FormFlashFile;
 use Psr\Http\Message\UploadedFileInterface;
@@ -147,6 +148,7 @@ trait FlexMediaTrait
     protected function setUpdatedMedia(array $files): void
     {
         $media = $this->getMedia();
+        $filesystem = Filesystem::getInstance(false);
 
         $list = [];
         foreach ($files as $field => $group) {
@@ -182,6 +184,9 @@ trait FlexMediaTrait
                     $filepath = "{$settings['destination']}/{$filename}";
                 }
 
+                // Calculate path without the retina scaling factor.
+                $realpath = $filesystem->pathname($filepath) . str_replace(['@3x', '@2x'], '', basename($filepath));
+
                 $list[$filename] = [$file, $settings];
 
                 $path = str_replace('.', "\n", $field);
@@ -189,9 +194,9 @@ trait FlexMediaTrait
                     $data['name'] = $filename;
                     $data['path'] = $filepath;
 
-                    $this->setNestedProperty("{$path}\n{$filepath}", $data, "\n");
+                    $this->setNestedProperty("{$path}\n{$realpath}", $data, "\n");
                 } else {
-                    $this->unsetNestedProperty("{$path}\n{$filepath}", "\n");
+                    $this->unsetNestedProperty("{$path}\n{$realpath}", "\n");
                 }
             }
         }
