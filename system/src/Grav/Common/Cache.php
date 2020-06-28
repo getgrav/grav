@@ -514,6 +514,8 @@ class Cache extends Getters
             @opcache_reset();
         }
 
+        Grav::instance()->fireEvent('onAfterCacheClear', new Event(['remove' => $remove, 'output' => &$output]));
+
         return $output;
     }
 
