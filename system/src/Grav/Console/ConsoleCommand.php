@@ -109,6 +109,7 @@ class ConsoleCommand extends Command
 
             // Initialize plugins.
             $grav = Grav::instance();
+            $grav['plugins']->init();
             $grav->fireEvent('onPluginsInitialized');
         }
 
