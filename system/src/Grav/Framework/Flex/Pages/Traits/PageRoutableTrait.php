@@ -439,13 +439,13 @@ trait PageRoutableTrait
     }
 
     /**
-     * Gets the top parent object for this page
+     * Gets the top parent object for this page (can be page itself).
      *
      * @return PageInterface|null the top parent page object if it exists.
      */
     public function topParent()
     {
-        $topParent = $this->parent();
+        $topParent = $this;
         while ($topParent) {
             $parent = $topParent->parent();
             if (!$parent || !$parent->parent()) {

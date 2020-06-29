@@ -2325,7 +2325,7 @@ class Page implements PageInterface
     }
 
     /**
-     * Gets the top parent object for this page
+     * Gets the top parent object for this page (can be page itself).
      *
      * @return PageInterface|null the top parent page object if it exists.
      */
