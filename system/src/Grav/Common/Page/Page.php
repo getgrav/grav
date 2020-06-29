@@ -2331,11 +2331,7 @@ class Page implements PageInterface
      */
     public function topParent()
     {
-        $topParent = $this->parent();
-
-        if (!$topParent) {
-            return null;
-        }
+        $topParent = $this;
 
         while (true) {
             $theParent = $topParent->parent();

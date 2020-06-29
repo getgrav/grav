@@ -9,6 +9,7 @@
     * Fixed `Trying to get property 'username' of non-object` error in Flex [flex-objects#62](https://github.com/trilbymedia/grav-plugin-flex-objects/issues/62)
     * Fixed retina images not working in Flex [flex-objects#64](https://github.com/trilbymedia/grav-plugin-flex-objects/issues/64)
     * Fixed plugin initialization in CLI
+    * Fixed broken logic in `Page::topParent()` when dealing with first-level pages
 
 # v1.7.0-rc.12
 ## 06/08/2020
