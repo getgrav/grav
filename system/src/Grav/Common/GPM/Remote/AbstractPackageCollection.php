@@ -50,13 +50,15 @@ class AbstractPackageCollection extends BaseCollection
         $this->raw        = $this->cache->fetch(md5($this->repository));
 
         $this->fetch($refresh, $callback);
-        foreach (json_decode($this->raw, true) as $slug => $data) {
-            // Temporarily fix for using multisites
-            if (isset($data['install_path'])) {
-                $path = preg_replace('~^user/~i', 'user://', $data['install_path']);
-                $data['install_path'] = Grav::instance()['locator']->findResource($path, false, true);
+        if ($this->raw) {
+            foreach (json_decode($this->raw, true) as $slug => $data) {
+                // Temporarily fix for using multisites
+                if (isset($data['install_path'])) {
+                    $path = preg_replace('~^user/~i', 'user://', $data['install_path']);
+                    $data['install_path'] = Grav::instance()['locator']->findResource($path, false, true);
+                }
+                $this->items[$slug] = new Package($data, $this->type);
             }
-            $this->items[$slug] = new Package($data, $this->type);
         }
     }
 
@@ -67,12 +69,17 @@ class AbstractPackageCollection extends BaseCollection
      */
     public function fetch($refresh = false, $callback = null)
     {
-        if (!$this->raw || $refresh) {
-            $response  = Response::get($this->repository, [], $callback);
+        if ((!$this->raw && $this->autoUpdatesCheckEnabled()) || $refresh) {
+            $response = Response::get($this->repository, [], $callback);
             $this->raw = $response;
             $this->cache->save(md5($this->repository), $this->raw, $this->lifetime);
         }
 
         return $this->raw;
+    }
+
+    private function autoUpdatesCheckEnabled()
+    {
+        return Grav::instance()['config']->get('plugins.admin.enable_auto_updates_check', true);
     }
 }
