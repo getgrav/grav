@@ -16,6 +16,11 @@
 
 * **BC BREAK** Fixed 404 error page when you go to non-routable page with routable child pages under it. Now you get redirected to the first routable child page instead. This is probably what you wanted in the first place. If you do not want this new behavior, you need to **TODO**
 
+### Media
+
+* Support for `webp` image format
+* Markdown: Added support for native `loading=lazy` attributes on images.  Can be set in `system.images.defaults` or per md image with `?loading=lazy`
+
 ### Multi-language
 
 * Improved language support
@@ -46,6 +51,8 @@
 * Added new configuration option `system.languages.include_default_lang_file_extension` to keep default language in `.md` files if set to `false`
 * Added new configuration option `system.languages.content_fallback` to set fallback content languages individually for every language
 * Added new configuration option `security.sanitize_svg` to remove potentially dangerous code from SVG files
+* Added system configuration support for `HTTP_X_Forwarded` headers (host disabled by default)
+* Added new configuration option `system.strict_mode.blueprint_compat` to maintain old `validation: strict` behavior
 
 ### Debugging
 
@@ -146,6 +153,10 @@
         - { name: grav, version: '>=1.6.0' }
     ```
 
+### Sessions
+
+* Added `Session::regenerateId()` method to properly prevent session fixation issues
+
 ### ACL
 
 * `user.authorize()` now requires user to be authorized (passed 2FA check), unless the rule contains `login` in its name.
@@ -174,9 +185,15 @@
 * **BC BREAK** Always use `\Grav\Common\Page\Interfaces\PageInterface` instead of `\Grav\Common\Page\Page` in method signatures
 * Admin now uses `Flex Pages` by default, collection will behave in slightly different way
 
+### Media
+
+* Added `MediaTrait::freeMedia()` method to free media (and memory)
+* Added support for uploading and deleting images directly in `Media` by using PSR-7
+
 ### Markdown
 
 * **BC BREAK** Upgraded Parsedown to 1.7 for Parsedown-Extra 0.8. Plugins that extend Parsedown may need a fix to render as HTML
+* Added new `Excerpts::processLinkHtml()` method
 
 ### Users
 
@@ -243,6 +260,7 @@
 * Added `SessionStartEvent` which triggers when session is started
 * Added `FlexRegisterEvent` which triggers when `$grav['flex']` is being accessed the first time
 * Added `PermissionsRegisterEvent` which triggers when `$grav['permissions']` is being accessed the first time
+* Added `onAfterCacheClear` event
 * Check `onAdminTwigTemplatePaths` event, it should NOT be:
 
     ```php
@@ -270,7 +288,11 @@
 * Support customizable null character replacement in `CSVFormatter::decode()`
 * Added new `Security::sanitizeSVG()` function
 * Added `$grav->close()` method to properly terminate the request with a response
+* Added `Folder::hasChildren()` method to determine if a folder has child folders
+* Support symlinks when saving `File`
+* Added `Route::getBase()` method
 * **BC BREAK** Make `Route` objects immutable. This means that you need to do: `{% set route = route.withExtension('.html') %}` (for all `withX` methods) to keep the updated version.
+* Better `Content-Encoding` handling in Apache when content compression is disabled
 
 ### CLI
 
