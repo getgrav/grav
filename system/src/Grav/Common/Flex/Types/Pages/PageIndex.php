@@ -471,7 +471,7 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
                         'visible' => $child->visible(),
                         'routable' => $child->routable(),
                         'tags' => $tags,
-                        'actions' => null,
+                        'actions' => $this->getListingActions($child),
                     ];
                     $extras = array_filter($extras, static function ($v) {
                         return $v !== null;
@@ -520,6 +520,24 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
         }
 
         return [$status, $msg ?? 'PLUGIN_ADMIN.NO_ROUTE_PROVIDED', $response, $path];
+    }
+
+    protected function getListingActions(PageObject $object): array
+    {
+        $actions = [];
+        if ($object->isAuthorized('read')) {
+            $actions[] = 'preview';
+            $actions[] = 'edit';
+        }
+        if ($object->isAuthorized('update')) {
+            $actions[] = 'copy';
+            $actions[] = 'move';
+        }
+        if ($object->isAuthorized('delete')) {
+            $actions[] = 'delete';
+        }
+
+        return $actions;
     }
 
     /**
