@@ -170,7 +170,7 @@ trait PageAuthorsTrait
                 continue;
             }
 
-            $auth = $access->authorize($action, $scope);
+            $auth = $access->authorize($action);
             if (is_bool($auth)) {
                 if ($auth === false) {
                     return false;

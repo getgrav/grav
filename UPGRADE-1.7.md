@@ -217,6 +217,7 @@
 * **BC BREAK** Moved all Flex type classes under `Grav\Common\Flex`
 * **BC BREAK** `FlexStorageInterface::getStoragePath()` and `getMediaPath()` can now return null
 * **BC BREAK** Flex objects no longer return temporary key if they do not have one; empty key is returned instead
+* You can add `edit_list.html.twig` file to a form field in order to customize look in the listing view
 
 ### Templating
 
