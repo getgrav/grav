@@ -184,6 +184,7 @@
 * **BC BREAK** Fixed `Page::modular()` and `Page::modularTwig()` returning `null` for folders and other non-initialized pages. Should not affect your code unless you were checking against `false` or `null`.
 * **BC BREAK** Always use `\Grav\Common\Page\Interfaces\PageInterface` instead of `\Grav\Common\Page\Page` in method signatures
 * Admin now uses `Flex Pages` by default, collection will behave in slightly different way
+* **BC BREAK** `$page->topParent()` may return page itself instead of null
 
 ### Media
 
