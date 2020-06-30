@@ -801,10 +801,10 @@ class UserObject extends FlexObject implements UserInterface, \Countable
             $imageFile = $originalMedia[$filename] ?? $thumbFile;
             if ($thumbFile && $imageFile) {
                 $list[$filename] = [
-                    'name' => $info['name'],
-                    'type' => $info['type'],
-                    'size' => $info['size'],
-                    'path' => $info['path'],
+                    'name' => $info['name'] ?? null,
+                    'type' => $info['type'] ?? null,
+                    'size' => $info['size'] ?? null,
+                    'path' => $info['path'] ?? null,
                     'image_url' => $imageFile->url(),
                     'thumb_url' =>  $thumbFile->url(),
                     'cropData' => (object)($imageFile->metadata()['upload']['crop'] ?? [])
