@@ -3,6 +3,8 @@
 
 1. [](#new)
     * Added new `onAfterCacheClear` event
+1. [](#improved)
+    * Improved `CvsFormatter` to attempt to encode non-scalar variables into JSON before giving up
 1. [](#bugfix)
     * Fixed `MediaUploadTrait::copyUploadedFile()` not adding uploaded media to the collection
     * Fixed regression in saving media to a new Flex Object [admin#1867](https://github.com/getgrav/grav-plugin-admin/issues/1867)

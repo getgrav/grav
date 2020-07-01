@@ -123,6 +123,19 @@ class CsvFormatter extends AbstractFormatter
     protected function encodeLine(array $line, string $delimiter): string
     {
         foreach ($line as $key => &$value) {
+            // Oops, we need to convert the line to a string.
+            if (!\is_scalar($value)) {
+                if (is_array($value) || $value instanceof \JsonSerializable || $value instanceof \stdClass) {
+                    $value = json_encode($value);
+                } elseif (is_object($value)) {
+                    if (method_exists($value, 'toJson')) {
+                        $value = $value->toJson();
+                    } elseif (method_exists($value, 'toArray')) {
+                        $value = json_encode($value->toArray());
+                    }
+                }
+            }
+
             $value = $this->escape((string)$value);
         }
         unset($value);
