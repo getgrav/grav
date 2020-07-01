@@ -56,6 +56,8 @@ config:
         username:
           link: edit
           search: true
+          field:
+            label: PLUGIN_ADMIN.USERNAME
         email:
           search: true
         fullname:
