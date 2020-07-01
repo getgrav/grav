@@ -1,10 +1,15 @@
 # v1.7.0-rc.13
-## mm/dd/2020
+## 07/01/2020
 
 1. [](#new)
+    * Added support for uploading and deleting images directly in `Media`
     * Added new `onAfterCacheClear` event
 1. [](#improved)
     * Improved `CvsFormatter` to attempt to encode non-scalar variables into JSON before giving up
+    * Moved image loading into its own trait to be used by images+static images
+    * Adjusted asset types to enable extension of assets in class [#2937](https://github.com/getgrav/grav/pull/2937)
+    * Composer update for vendor library updates
+    * Updated bundled `composer.phar` to `2.0.0-dev`
 1. [](#bugfix)
     * Fixed `MediaUploadTrait::copyUploadedFile()` not adding uploaded media to the collection
     * Fixed regression in saving media to a new Flex Object [admin#1867](https://github.com/getgrav/grav-plugin-admin/issues/1867)
@@ -16,12 +21,12 @@
     * Fixed missing `onAdminSave` and `onAdminAfterSave` events when using `Flex Pages` and `Flex Users` [flex-objects#58](https://github.com/trilbymedia/grav-plugin-flex-objects/issues/58)
     * Fixed new `User Group` allowing bad group name to be saved [admin#1917](https://github.com/getgrav/grav-plugin-admin/issues/1917)
     * Fixed `Language::getDefault()` returning false and not null
+    * Fixed non-text links in `Excerpts::getExcerptFromHtml`
+    * Fixed CLI commands not properly intializing Plugins so events can fire
 
 # v1.7.0-rc.12
 ## 06/08/2020
 
-1. [](#new)
-    * Added support for uploading and deleting images directly in `Media`
 1. [](#improved)
     * Changed `Folder::hasChildren` to `Folder::countChildren`
     * Added `Content Editor` option to user account blueprint
