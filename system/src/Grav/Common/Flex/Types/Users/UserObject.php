@@ -36,6 +36,7 @@ use Grav\Framework\Flex\Storage\FileStorage;
 use Grav\Framework\Flex\Traits\FlexMediaTrait;
 use Grav\Framework\Form\FormFlashFile;
 use Psr\Http\Message\UploadedFileInterface;
+use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\File\FileInterface;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
@@ -550,7 +551,25 @@ class UserObject extends FlexObject implements UserInterface, \Countable
             $this->setProperty('hashed_password', Authentication::create($password));
         }
 
-        return parent::save();
+        // Backwards compatibility with older plugins.
+        $fireEvents = $this->isAdminSite() && $this->getFlexDirectory()->getConfig('object.compat.events', true);
+        if ($fireEvents) {
+            $grav = $this->getContainer();
+            $self = $this;
+            $grav->fireEvent('onAdminSave', new Event(['type' => 'flex', 'directory' => $this->getFlexDirectory(), 'object' => &$self]));
+            if ($self !== $this) {
+                throw new \RuntimeException('Switching Flex User object during onAdminSave event is not supported! Please update plugin.');
+            }
+        }
+
+        $instance = parent::save();
+
+        // Backwards compatibility with older plugins.
+        if ($fireEvents) {
+            $grav->fireEvent('onAdminAfterSave', new Event(['type' => 'flex', 'directory' => $this->getFlexDirectory(), 'object' => $this]));
+        }
+
+        return $instance;
     }
 
     /**

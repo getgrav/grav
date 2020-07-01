@@ -113,3 +113,10 @@ config:
         - key
         - groupname
         - description
+
+blueprints:
+  configure:
+    fields:
+      import@:
+        type: configure/compat
+        context: blueprints://flex

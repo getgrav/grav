@@ -28,6 +28,14 @@ trait FlexObjectTrait
      */
     public function triggerEvent(string $name, $event = null)
     {
+        $events = [
+            'onRender' => 'onFlexObjectRender',
+            'onBeforeSave' => 'onFlexObjectBeforeSave',
+            'onAfterSave' => 'onFlexObjectAfterSave',
+            'onBeforeDelete' => 'onFlexObjectBeforeDelete',
+            'onAfterDelete' => 'onFlexObjectAfterDelete'
+        ];
+
         if (null === $event) {
             $event = new Event([
                 'type' => 'flex',
@@ -35,7 +43,10 @@ trait FlexObjectTrait
                 'object' => $this
             ]);
         }
-        if (strpos($name, 'onFlexObject') !== 0 && strpos($name, 'on') === 0) {
+
+        if (isset($events['name'])) {
+            $name = $events['name'];
+        } elseif (strpos($name, 'onFlexObject') !== 0 && strpos($name, 'on') === 0) {
             $name = 'onFlexObject' . substr($name, 2);
         }
 

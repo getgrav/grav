@@ -235,11 +235,27 @@ class PageObject extends FlexPageObject
     {
         $variables = $this->onBeforeSave(func_get_args());
 
+        // Backwards compatibility with older plugins.
+        $fireEvents = $reorder && $this->isAdminSite() && $this->getFlexDirectory()->getConfig('object.compat.events', true);
+        if ($fireEvents) {
+            $grav = $this->getContainer();
+            $self = $this;
+            $grav->fireEvent('onAdminSave', new Event(['type' => 'flex', 'directory' => $this->getFlexDirectory(), 'page' => &$self]));
+            if ($self !== $this) {
+                throw new \RuntimeException('Switching Flex Page object during onAdminSave event is not supported! Please update plugin.');
+            }
+        }
+
         /** @var static $instance */
         $instance = parent::save();
         $variables = $this->onSave($variables);
 
         $this->onAfterSave($variables);
+
+        // Backwards compatibility with older plugins.
+        if ($fireEvents) {
+            $grav->fireEvent('onAdminAfterSave', new Event(['type' => 'flex', 'directory' => $this->getFlexDirectory(), 'page' => $this]));
+        }
 
         return $instance;
     }

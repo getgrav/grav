@@ -121,6 +121,13 @@ config:
         - key
         - email
 
+blueprints:
+  configure:
+    fields:
+      import@:
+        type: configure/compat
+        context: blueprints://flex
+
 # Regular form definition
 form:
   fields:
