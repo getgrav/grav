@@ -31,9 +31,9 @@ class Language
     protected $fallback_extensions = [];
     /** @var array */
     protected $page_extesions = [];
-    /** @var string */
+    /** @var string|null */
     protected $default;
-    /** @var string */
+    /** @var string|null */
     protected $active;
     /** @var array */
     protected $http_accept_language;
