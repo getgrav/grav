@@ -131,7 +131,7 @@ class Language
     /**
      * Gets language, active if set, else default
      *
-     * @return string
+     * @return string|null
      */
     public function getLanguage()
     {
@@ -141,7 +141,7 @@ class Language
     /**
      * Gets current default language
      *
-     * @return mixed
+     * @return string|null
      */
     public function getDefault()
     {
