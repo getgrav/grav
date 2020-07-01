@@ -67,7 +67,7 @@ class Language
         if (isset($default) && $this->validate($default)) {
             $this->default = $default;
         } else {
-            $this->default = reset($this->languages);
+            $this->default = !empty($this->languages) ? reset($this->languages) : null;
         }
 
         $this->resetFallbackPageExtensions();

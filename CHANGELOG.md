@@ -15,6 +15,7 @@
     * Fixed broken `Flex Page` authorization for groups
     * Fixed missing `onAdminSave` and `onAdminAfterSave` events when using `Flex Pages` and `Flex Users` [flex-objects#58](https://github.com/trilbymedia/grav-plugin-flex-objects/issues/58)
     * Fixed new `User Group` allowing bad group name to be saved [admin#1917](https://github.com/getgrav/grav-plugin-admin/issues/1917)
+    * Fixed `Language::getDefault()` returning false and not null
 
 # v1.7.0-rc.12
 ## 06/08/2020
