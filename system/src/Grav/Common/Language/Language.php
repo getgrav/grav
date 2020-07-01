@@ -64,7 +64,7 @@ class Language
     public function init()
     {
         $default = $this->config->get('system.languages.default_lang');
-        if (isset($default) && $this->validate($default)) {
+        if (isset($default)) {
             $this->default = $default;
         } else {
             $this->default = !empty($this->languages) ? reset($this->languages) : 'en';
