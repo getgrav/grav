@@ -31,9 +31,9 @@ class Language
     protected $fallback_extensions = [];
     /** @var array */
     protected $page_extesions = [];
-    /** @var string */
+    /** @var string|false */
     protected $default;
-    /** @var string */
+    /** @var string|false */
     protected $active;
     /** @var array */
     protected $http_accept_language;
@@ -71,7 +71,8 @@ class Language
             $default = (string)$default;
         }
 
-        $this->default = $default ?? (!empty($this->languages) ? reset($this->languages) : 'en');
+        // Note that reset returns false on empty languages.
+        $this->default = $default ?? reset($this->languages);
 
         $this->resetFallbackPageExtensions();
 
@@ -138,7 +139,7 @@ class Language
     /**
      * Gets language, active if set, else default
      *
-     * @return string
+     * @return string|false
      */
     public function getLanguage()
     {
@@ -148,7 +149,7 @@ class Language
     /**
      * Gets current default language
      *
-     * @return string
+     * @return string|false
      */
     public function getDefault()
     {

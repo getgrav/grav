@@ -2,7 +2,8 @@
 ## mm/dd/2020
 
 1. [](#bugfix)
-    * Regression: Default language fix broke `Language::getLanguageURLPrefix()` and `Language::isIncludeDefaultLanguage()` methods
+    * Regression: Default language fix broke `Language::getLanguageURLPrefix()` and `Language::isIncludeDefaultLanguage()` methods when not using multi-language
+    * Reverted `Language::getDefault()` returning false again as plugins use it (updated docblocks)
 
 # v1.7.0-rc.13
 ## 07/01/2020
