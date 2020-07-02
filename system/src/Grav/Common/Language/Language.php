@@ -31,9 +31,9 @@ class Language
     protected $fallback_extensions = [];
     /** @var array */
     protected $page_extesions = [];
-    /** @var string|null */
+    /** @var string */
     protected $default;
-    /** @var string|null */
+    /** @var string */
     protected $active;
     /** @var array */
     protected $http_accept_language;
@@ -49,10 +49,13 @@ class Language
     {
         $this->grav = $grav;
         $this->config = $grav['config'];
+
         $languages = $this->config->get('system.languages.supported', []);
         foreach ($languages as &$language) {
             $language = (string)$language;
         }
+        unset($language);
+
         $this->languages = $languages;
 
         $this->init();
@@ -64,16 +67,20 @@ class Language
     public function init()
     {
         $default = $this->config->get('system.languages.default_lang');
-        if (isset($default)) {
-            $this->default = $default;
-        } else {
-            $this->default = !empty($this->languages) ? reset($this->languages) : 'en';
+        if (null !== $default) {
+            $default = (string)$default;
         }
+
+        $this->default = $default ?? (!empty($this->languages) ? reset($this->languages) : 'en');
 
         $this->resetFallbackPageExtensions();
 
         if (empty($this->languages)) {
+            // If no languages are set, turn of multi-language support.
             $this->enabled = false;
+        } elseif ($default && !in_array($default, $this->languages, true)) {
+            // If default language isn't in the language list, we need to add it.
+            array_unshift($this->languages, $default);
         }
     }
 
@@ -119,7 +126,7 @@ class Language
     {
         $languagesArray = $this->languages; //Make local copy
 
-        $languagesArray = array_map(function ($value) use ($delimiter) {
+        $languagesArray = array_map(static function ($value) use ($delimiter) {
             return preg_quote($value, $delimiter);
         }, $languagesArray);
 
@@ -131,7 +138,7 @@ class Language
     /**
      * Gets language, active if set, else default
      *
-     * @return string|null
+     * @return string
      */
     public function getLanguage()
     {
@@ -141,7 +148,7 @@ class Language
     /**
      * Gets current default language
      *
-     * @return string|null
+     * @return string
      */
     public function getDefault()
     {
@@ -256,6 +263,10 @@ class Language
      */
     public function getLanguageURLPrefix($lang = null)
     {
+        if (!$this->enabled()) {
+            return '';
+        }
+
         // if active lang is not passed in, use current active
         if (!$lang) {
             $lang = $this->getLanguage();
@@ -272,6 +283,10 @@ class Language
      */
     public function isIncludeDefaultLanguage($lang = null)
     {
+        if (!$this->enabled()) {
+            return false;
+        }
+
         // if active lang is not passed in, use current active
         if (!$lang) {
             $lang = $this->getLanguage();
@@ -340,10 +355,6 @@ class Language
             }
 
             $this->fallback_extensions[$key] = $list;
-
-            /** @var Debugger $debugger */
-            //$debugger = $this->grav['debugger'];
-            //$debugger->addMessage("Language fallback extensions for {$languageCode}", 'debug', $list);
         }
 
         return $this->fallback_extensions[$key];
