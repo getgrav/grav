@@ -74,7 +74,7 @@ class Excerpts
     {
         $doc = new \DOMDocument('1.0', 'UTF-8');
         $internalErrors = libxml_use_internal_errors(true);
-        $doc->loadHTML('<?xml encoding="utf-8" ?>' . $html);
+        $doc->loadHTML(mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'));
         libxml_use_internal_errors($internalErrors);
 
         $elements = $doc->getElementsByTagName($tag);
