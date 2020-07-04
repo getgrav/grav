@@ -4,6 +4,7 @@
 1. [](#bugfix)
     * Regression: Default language fix broke `Language::getLanguageURLPrefix()` and `Language::isIncludeDefaultLanguage()` methods when not using multi-language
     * Reverted `Language::getDefault()` and `Language::getLanguage()` to return false again because of plugin compatibility (updated docblocks)
+    * Fixed UTF-8 issue in `Excerpts::getExcerptsFromHtml`
 
 # v1.7.0-rc.13
 ## 07/01/2020
