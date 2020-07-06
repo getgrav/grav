@@ -104,18 +104,16 @@ class Excerpts
             // Valid attributes supported.
             $valid_attributes = Grav::instance()['config']->get('system.pages.markdown.valid_link_attributes');
 
-            $noprocess = [];
+            $skip = [];
             // Unless told to not process, go through actions.
             if (array_key_exists('noprocess', $actions)) {
-                if (!is_bool($actions['noprocess'])) {
-                    $noprocess = explode(',', $actions['noprocess']);
-                }
+                $skip = is_bool($actions['noprocess']) ? $actions : explode(',', $actions['noprocess']);
                 unset($actions['noprocess']);
             }
 
             // Loop through actions for the image and call them.
             foreach ($actions as $attrib => $value) {
-                if (!empty($noprocess) && !in_array($attrib, $noprocess)) {
+                if (!in_array($attrib, $skip)) {
                     $key = $attrib;
 
                     if (in_array($attrib, $valid_attributes, true)) {
