@@ -87,4 +87,28 @@ class ExcerptsTest extends \Codeception\TestCase\Test
             Excerpts::processImageHtml('<img src="sample-image.jpg?classes=foo" alt="Sample Image" />', $this->page)
         );
     }
+
+    public function testNoProcess()
+    {
+        $this->assertStringStartsWith(
+            '<a href="https://play.google.com/store/apps/details?id=org.jitsi.meet&hl=de&target=_blank',
+            Excerpts::processLinkHtml('<a href="https://play.google.com/store/apps/details?id=org.jitsi.meet&hl=de&target=_blank&noprocess">noprocess</a>')
+        );
+        $this->assertStringStartsWith(
+            '<a href="https://play.google.com/store/apps/details?id=org.jitsi.meet&hl=de',
+            Excerpts::processLinkHtml('<a href="https://play.google.com/store/apps/details?id=org.jitsi.meet&hl=de&target=_blank&noprocess=id">noprocess=id</a>')
+        );
+    }
+
+    public function testTarget()
+    {
+        $this->assertStringStartsWith(
+            '<a href="https://play.google.com/store/apps/details" target="_blank"',
+            Excerpts::processLinkHtml('<a href="https://play.google.com/store/apps/details?target=_blank">only target</a>')
+        );
+        $this->assertStringStartsWith(
+            '<a href="https://meet.weikamp.biz/Support" rel="nofollow" target="_blank"',
+            Excerpts::processLinkHtml('<a href="https://meet.weikamp.biz/Support?rel=nofollow&target=_blank">target and rel</a>')
+        );
+    }
 }
