@@ -168,7 +168,7 @@ class Setup extends Data
         }
 
         // Resolve server aliases to the proper environment.
-        $environment = $this->environments[static::$environment] ?? static::$environment;
+        $environment = static::$environments[static::$environment] ?? static::$environment;
 
         // Pre-load setup.php which contains our initial configuration.
         // Configuration may contain dynamic parts, which is why we need to always load it.
