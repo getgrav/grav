@@ -21,6 +21,8 @@ class Assets extends PropertyObject
     use TestingAssetsTrait;
     use LegacyAssetsTrait;
 
+    const CSS = 'css';
+    const JS = 'js';
     const CSS_COLLECTION = 'assets_css';
     const JS_COLLECTION = 'assets_js';
     const CSS_TYPE = Assets\Css::Class;
@@ -55,11 +57,19 @@ class Assets extends PropertyObject
     /** @var bool */
     protected $css_pipeline_before_excludes;
     /** @var bool */
+    protected $inlinecss_pipeline_include_externals;
+    /** @var bool */
+    protected $inlinecss_pipeline_before_excludes;
+    /** @var bool */
     protected $js_pipeline;
     /** @var bool */
     protected $js_pipeline_include_externals;
     /** @var bool */
     protected $js_pipeline_before_excludes;
+    /** @var bool */
+    protected $inlinejs_pipeline_include_externals;
+    /** @var bool */
+    protected $inlinejs_pipeline_before_excludes;
     /** @var array */
     protected $pipeline_options = [];
 
@@ -186,7 +196,7 @@ class Assets extends PropertyObject
         // If pipeline disabled, set to position if provided, else after
         if (isset($options['pipeline'])) {
             if ($options['pipeline'] === false) {
-                $exclude_type = ($type === $this::JS_TYPE || $type === $this::INLINE_JS_TYPE) ? $this::JS_TYPE : $this::CSS_TYPE;
+                $exclude_type = ($type === $this::JS_TYPE || $type === $this::INLINE_JS_TYPE) ? $this::JS : $this::CSS;
                 $excludes = strtolower($exclude_type . '_pipeline_before_excludes');
                 if ($this->{$excludes}) {
                     $default = 'after';
@@ -283,8 +293,8 @@ class Assets extends PropertyObject
             if ($key === 'position' && $value === 'pipeline') {
                 $type = $asset->getType();
 
-                if ($asset->getRemote() && $this->{$type . '_pipeline_include_externals'} === false && $asset['position'] === 'pipeline') {
-                    if ($this->{$type . '_pipeline_before_excludes'}) {
+                if ($asset->getRemote() && $this->{strtolower($type) . '_pipeline_include_externals'} === false && $asset['position'] === 'pipeline') {
+                    if ($this->{strtolower($type) . '_pipeline_before_excludes'}) {
                         $asset->setPosition('after');
                     } else {
                         $asset->setPosition('before');
