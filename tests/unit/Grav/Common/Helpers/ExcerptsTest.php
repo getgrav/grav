@@ -91,11 +91,17 @@ class ExcerptsTest extends \Codeception\TestCase\Test
     public function testNoProcess()
     {
         $this->assertStringStartsWith(
-            '<a href="https://play.google.com/store/apps/details?id=org.jitsi.meet&hl=de&target=_blank',
+            '<a href="https://play.google.com/store/apps/details?hl=de" id="org.jitsi.meet" target="_blank"',
+            Excerpts::processLinkHtml('<a href="https://play.google.com/store/apps/details?id=org.jitsi.meet&hl=de&target=_blank">regular process</a>')
+        );
+
+        $this->assertStringStartsWith(
+            '<a href="https://play.google.com/store/apps/details?id=org.jitsi.meet&hl=de&target=_blank"',
             Excerpts::processLinkHtml('<a href="https://play.google.com/store/apps/details?id=org.jitsi.meet&hl=de&target=_blank&noprocess">noprocess</a>')
         );
+
         $this->assertStringStartsWith(
-            '<a href="https://play.google.com/store/apps/details?id=org.jitsi.meet&hl=de',
+            '<a href="https://play.google.com/store/apps/details?id=org.jitsi.meet&hl=de" target="_blank"',
             Excerpts::processLinkHtml('<a href="https://play.google.com/store/apps/details?id=org.jitsi.meet&hl=de&target=_blank&noprocess=id">noprocess=id</a>')
         );
     }
