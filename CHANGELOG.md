@@ -5,6 +5,9 @@
     * Regression: Default language fix broke `Language::getLanguageURLPrefix()` and `Language::isIncludeDefaultLanguage()` methods when not using multi-language
     * Reverted `Language::getDefault()` and `Language::getLanguage()` to return false again because of plugin compatibility (updated docblocks)
     * Fixed UTF-8 issue in `Excerpts::getExcerptsFromHtml`
+    * Fixed some compatibility issues with recent Changes to `Assets` handling
+1. [](#improved)
+    * Added ability to `noprocess` specific items only in Link/Image Excerpts, e.g. `http://foo.com/page?id=foo&target=_blank&noprocess=id` [#2954](https://github.com/getgrav/grav/pull/2954)
 
 # v1.7.0-rc.13
 ## 07/01/2020
