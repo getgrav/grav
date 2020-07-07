@@ -689,7 +689,7 @@ class Parsedown
             return;
         }
 
-        if (preg_match('/^<(\w*)(?:[ ]*'.$this->regexHtmlAttribute.')*[ ]*(\/)?>/', $Line['text'], $matches))
+        if (preg_match('/^<([\w|-]*)(?:[ ]*'.$this->regexHtmlAttribute.')*[ ]*(\/)?>/', $Line['text'], $matches))
         {
             $element = strtolower($matches[1]);
 
