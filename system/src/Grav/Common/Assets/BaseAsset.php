@@ -22,6 +22,9 @@ abstract class BaseAsset extends PropertyObject
     protected const CSS_ASSET = true;
     protected const JS_ASSET = false;
 
+    /** @const Regex to match CSS import content */
+    protected const CSS_IMPORT_REGEX = '{@import.*?["\']([^"\']+)["\'].*?;}';
+
     /** @var string|false */
     protected $asset;
     /** @var string */

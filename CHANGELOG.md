@@ -10,6 +10,7 @@
     * Fixed some compatibility issues with recent Changes to `Assets` handling
     * Fixed issue with `CSS_IMPORTS_REGEX` breaking with complex URLs [#2958](https://github.com/getgrav/grav/issues/2958)
     * Fixed page media only accepting images [#2943](https://github.com/getgrav/grav/issues/2943)
+    * Fixed missing const CSS_IMPORT_REGEX in BaseAsset
 
 # v1.7.0-rc.13
 ## 07/01/2020
