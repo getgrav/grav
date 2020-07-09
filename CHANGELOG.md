@@ -1,5 +1,5 @@
 # v1.7.0-rc.14
-## mm/dd/2020
+## 07/20/2020
 
 1. [](#improved)
     * Added ability to `noprocess` specific items only in Link/Image Excerpts, e.g. `http://foo.com/page?id=foo&target=_blank&noprocess=id` [#2954](https://github.com/getgrav/grav/pull/2954)
@@ -9,8 +9,8 @@
     * Fixed UTF-8 issue in `Excerpts::getExcerptsFromHtml`
     * Fixed some compatibility issues with recent Changes to `Assets` handling
     * Fixed issue with `CSS_IMPORTS_REGEX` breaking with complex URLs [#2958](https://github.com/getgrav/grav/issues/2958)
+    * Moved duplicated `CSS_IMPORT_REGEX` to local variable in `AssetUtilsTrait::moveImports()`
     * Fixed page media only accepting images [#2943](https://github.com/getgrav/grav/issues/2943)
-    * Moved duplicated CSS_IMPORT_REGEX to local variable in `AssetUtilsTrait::moveImports()`
 
 # v1.7.0-rc.13
 ## 07/01/2020
