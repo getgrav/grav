@@ -30,9 +30,6 @@ class Pipeline extends PropertyObject
     /** @const Regex to match CSS sourcemap comments */
     protected const CSS_SOURCEMAP_REGEX = '{\/\*# (.*?) \*\/}';
 
-    /** @const Regex to match CSS import content */
-    protected const CSS_IMPORT_REGEX = '{@import.*?["\']([^"\']+)["\'].*?;}';
-
     protected const FIRST_FORWARDSLASH_REGEX = '{^\/{1}\w}';
 
     // Following variables come from the configuration:

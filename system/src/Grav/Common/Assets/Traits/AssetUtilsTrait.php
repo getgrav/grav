@@ -123,9 +123,11 @@ trait AssetUtilsTrait
      */
     protected function moveImports($file)
     {
+        $regex = '{@import.*?["\']([^"\']+)["\'].*?;}';
+
         $imports = [];
 
-        $file = (string)preg_replace_callback(self::CSS_IMPORT_REGEX, function ($matches) use (&$imports) {
+        $file = (string)preg_replace_callback($regex, function ($matches) use (&$imports) {
             $imports[] = $matches[0];
 
             return '';
