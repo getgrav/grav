@@ -174,7 +174,8 @@
 
 ### Pages
 
-* Added experimental support for `Flex Pages`
+* Added experimental support for `Flex Pages` in the frontend (not recommended to use yet)
+* Admin uses `Flex Pages` by default (can be disabled from `Flex-Objects` plugin)
 * Added page specific permissions support for `Flex Pages`
 * Added root page support for `Flex Pages`
 * Fixed wrong `Pages::dispatch()` calls (with redirect) when we really meant to call `Pages::find()`
@@ -198,6 +199,8 @@
 
 ### Users
 
+* Added experimental support for `Flex Users` in the frontend (not recommended to use yet)
+* Admin uses `Flex Users` by default (can be disabled from `Flex-Objects` plugin)
 * Improved `Flex Users`: obey blueprints and allow Flex to be used in admin only
 * Improved `Flex Users`: user and group ACL now supports deny permissions
 * Changed `UserInterface::authorize()` to return `null` having the same meaning as `false` if access is denied because of no matching rule

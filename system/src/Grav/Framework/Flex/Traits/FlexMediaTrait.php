@@ -77,7 +77,14 @@ trait FlexMediaTrait
     {
         // Load settings for the field.
         $schema = $this->getBlueprint()->schema();
-        $settings = $schema ? (array)$schema->getProperty($field) : [];
+        if ($field && $schema) {
+            $settings = (array)$schema->getProperty($field);
+        } else {
+            $settings = [
+                'accept' => '*',
+                'limit' => 1000
+            ];
+        }
 
         // Set destination folder.
         if (empty($settings['destination']) || in_array($settings['destination'], ['@self', 'self@', '@self@'], true)) {

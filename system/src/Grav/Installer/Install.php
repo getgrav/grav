@@ -22,8 +22,11 @@ use Grav\Common\Plugins;
  */
 class Install
 {
+    /** @var int Installer version. */
+    public $version = 1;
+
     /** @var array */
-    private $requires = [
+    public $requires = [
         'php' => [
             'name' => 'PHP',
             'versions' => [
@@ -85,7 +88,7 @@ class Install
     ];
 
     /** @var array */
-    private $ignores = [
+    public $ignores = [
         'backup',
         'cache',
         'images',

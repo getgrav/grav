@@ -1,14 +1,15 @@
 # v1.7.0-rc.14
 ## mm/dd/2020
 
+1. [](#improved)
+    * Added ability to `noprocess` specific items only in Link/Image Excerpts, e.g. `http://foo.com/page?id=foo&target=_blank&noprocess=id` [#2954](https://github.com/getgrav/grav/pull/2954)
 1. [](#bugfix)
     * Regression: Default language fix broke `Language::getLanguageURLPrefix()` and `Language::isIncludeDefaultLanguage()` methods when not using multi-language
     * Reverted `Language::getDefault()` and `Language::getLanguage()` to return false again because of plugin compatibility (updated docblocks)
     * Fixed UTF-8 issue in `Excerpts::getExcerptsFromHtml`
     * Fixed some compatibility issues with recent Changes to `Assets` handling
     * Fixed issue with `CSS_IMPORTS_REGEX` breaking with complex URLs [#2958](https://github.com/getgrav/grav/issues/2958)
-1. [](#improved)
-    * Added ability to `noprocess` specific items only in Link/Image Excerpts, e.g. `http://foo.com/page?id=foo&target=_blank&noprocess=id` [#2954](https://github.com/getgrav/grav/pull/2954)
+    * Fixed page media only accepting images [#2943](https://github.com/getgrav/grav/issues/2943)
 
 # v1.7.0-rc.13
 ## 07/01/2020
