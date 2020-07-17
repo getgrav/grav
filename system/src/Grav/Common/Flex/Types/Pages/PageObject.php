@@ -225,6 +225,7 @@ class PageObject extends FlexPageObject
      */
     protected function onAfterSave(array $variables): void
     {
+        $this->getFlexDirectory()->reloadIndex();
     }
 
     /**

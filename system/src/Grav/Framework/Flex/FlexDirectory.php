@@ -678,8 +678,7 @@ class FlexDirectory implements FlexAuthorizeInterface
      */
     public function reloadIndex(): void
     {
-        $cache = $this->getCache('index');
-        $cache->delete('__keys');
+        $this->getCache('index')->clear();
 
         $this->indexes = [];
         $this->objects = [];
