@@ -44,6 +44,11 @@ class MediumFactory
             return null;
         }
 
+        // Remove empty 'image' attribute
+        if (isset($media_params['image']) && empty($media_params['image'])) {
+            unset($media_params['image']);
+        }
+
         $params += $media_params;
 
         // Add default settings for undefined variables.
