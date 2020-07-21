@@ -1125,7 +1125,7 @@ form:
               type: toggle
               label: PLUGIN_ADMIN.IMAGES_AUTO_FIX_ORIENTATION
               help: PLUGIN_ADMIN.IMAGES_AUTO_FIX_ORIENTATION_HELP
-              highlight: 0
+              highlight: 1
               options:
                 1: PLUGIN_ADMIN.YES
                 0: PLUGIN_ADMIN.NO
