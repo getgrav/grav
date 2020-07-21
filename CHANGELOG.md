@@ -3,6 +3,7 @@
 
 1. [](#bugfix)
     * Fixed Flex index file caching [#2962](https://github.com/getgrav/grav/issues/2962)
+    * Fixed various issues with Exif data reading and images being incorrectly rotated [#1923](https://github.com/getgrav/grav-plugin-admin/issues/1923)
 
 # v1.7.0-rc.14
 ## 07/20/2020
