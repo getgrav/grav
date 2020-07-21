@@ -24,8 +24,6 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
     use ImageMediaTrait;
     use ImageLoadingTrait;
 
-    protected static $orientationFixed;
-
     /**
      * Construct.
      *
@@ -91,7 +89,6 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
             $this->medium_querystring = [];
             $this->filter();
             $this->clearAlternatives();
-            static::$orientationFixed = null;
         }
 
         $this->format = 'guess';
@@ -277,16 +274,6 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
         // Always initialize image.
         if (!$this->image) {
             $this->image();
-        }
-
-        // Fix orientation if enabled
-        if (!isset(static::$orientationFixed)) {
-            if (Grav::instance()['config']->get('system.images.auto_fix_orientation', false)) {
-                $this->image->fixOrientation();
-                static::$orientationFixed = true;
-            } else {
-                static::$orientationFixed = false;
-            }
         }
 
         try {

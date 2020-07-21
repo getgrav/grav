@@ -342,6 +342,12 @@ trait ImageMediaTrait
             ->setActualCacheDir($cacheDir)
             ->setPrettyName($this->getImagePrettyName());
 
+        // Fix orientation if enabled
+        if (Grav::instance()['config']->get('system.images.auto_fix_orientation', false)) {
+            $this->image->fixOrientation();
+        }
+
+
         return $this;
     }
 
