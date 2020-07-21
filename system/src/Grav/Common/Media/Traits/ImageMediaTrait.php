@@ -343,10 +343,10 @@ trait ImageMediaTrait
             ->setPrettyName($this->getImagePrettyName());
 
         // Fix orientation if enabled
-        if (Grav::instance()['config']->get('system.images.auto_fix_orientation', false)) {
+        if (Grav::instance()['config']->get('system.images.auto_fix_orientation', false) &&
+            extension_loaded('exif') && function_exists('exif_read_data')) {
             $this->image->fixOrientation();
         }
-
 
         return $this;
     }
