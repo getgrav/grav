@@ -14,6 +14,7 @@ use Gregwar\Image\Exceptions\GenerationError;
 use Gregwar\Image\Image;
 use Gregwar\Image\Source;
 use RocketTheme\Toolbox\Event\Event;
+use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 class ImageFile extends Image
 {
@@ -160,7 +161,17 @@ class ImageFile extends Image
         }
 
         // resolve any streams
-        $filepath = Grav::instance()['locator']->findResource($this->source->getInfos());
+        /** @var UniformResourceLocator $locator */
+        $locator = Grav::instance()['locator'];
+        $filepath = $this->source->getInfos();
+        if ($locator->isStream($filepath)) {
+            $filepath = $locator->findResource($this->source->getInfos(), true, true);
+        }
+
+        // Make sure file exists
+        if (!file_exists($filepath)) {
+            return $this;
+        }
 
         try {
             $exif = exif_read_data($filepath);
