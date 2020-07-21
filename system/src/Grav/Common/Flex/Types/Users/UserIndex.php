@@ -38,11 +38,13 @@ class UserIndex extends FlexIndex
         $index = static::loadIndex($storage);
 
         $version = $index['version'] ?? 0;
-        $timestamp = $index['timestamp'] ?? 0;
         $force = static::VERSION !== $version;
-        if (!$force && $timestamp && $timestamp > time() - 2) {
-            return $index['index'];
-        }
+
+        // TODO: Following check flex index to be out of sync after some saves, disabled until better solution is found.
+        //$timestamp = $index['timestamp'] ?? 0;
+        //if (!$force && $timestamp && $timestamp > time() - 1) {
+        //    return $index['index'];
+        //}
 
         // Load up to date index.
         $entries = parent::loadEntriesFromStorage($storage);
