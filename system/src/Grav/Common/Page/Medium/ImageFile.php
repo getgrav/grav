@@ -141,4 +141,38 @@ class ImageFile extends Image
 
         $this->hash = sha1(serialize($datas));
     }
+
+    /**
+     * Read exif rotation from file and apply it.
+     */
+    public function fixOrientation()
+    {
+        if (!in_array(exif_imagetype($this->source->getInfos()), array(
+            IMAGETYPE_JPEG,
+            IMAGETYPE_TIFF_II,
+            IMAGETYPE_TIFF_MM,
+        ))) {
+            return $this;
+        }
+
+        if (!extension_loaded('exif')) {
+            throw new \RuntimeException('You need to EXIF PHP Extension to use this function');
+        }
+
+        // resolve any streams
+        $filepath = Grav::instance()['locator']->findResource($this->source->getInfos());
+
+        try {
+            $exif = exif_read_data($filepath);
+        } catch (\Exception $e) {
+            Grav::instance()['log']->error($filepath . " - " . $e->getMessage());
+            return $this;
+        }
+
+        if ($exif === false || !array_key_exists('Orientation', $exif)) {
+            return $this;
+        }
+
+        return $this->applyExifOrientation($exif['Orientation']);
+    }
 }
