@@ -266,11 +266,6 @@ class Excerpts
             );
         }
 
-        $config = $this->getConfig();
-        if (!empty($config['images']['auto_fix_orientation'])) {
-            $actions[] = ['method' => 'fixOrientation', 'params' => ''];
-        }
-
         $defaults = $config['images']['defaults'] ?? [];
         if (count($defaults)) {
             foreach ($defaults as $method => $params) {
