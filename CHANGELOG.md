@@ -1,3 +1,9 @@
+# v1.7.0-rc.15
+## mm/dd/2020
+
+1. [](#bugfix)
+    * Fixed Flex index file caching [#2962](https://github.com/getgrav/grav/issues/2962)
+
 # v1.7.0-rc.14
 ## 07/20/2020
 
