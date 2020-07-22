@@ -1,12 +1,12 @@
 # v1.7.0-rc.15
-## mm/dd/2020
+## 07/22/2020
 
 1. [](#bugfix)
     * Fixed Flex index file caching [#2962](https://github.com/getgrav/grav/issues/2962)
     * Fixed various issues with Exif data reading and images being incorrectly rotated [#1923](https://github.com/getgrav/grav-plugin-admin/issues/1923)
 
 # v1.7.0-rc.14
-## 07/20/2020
+## 07/09/2020
 
 1. [](#improved)
     * Added ability to `noprocess` specific items only in Link/Image Excerpts, e.g. `http://foo.com/page?id=foo&target=_blank&noprocess=id` [#2954](https://github.com/getgrav/grav/pull/2954)
