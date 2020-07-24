@@ -191,6 +191,15 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
     }
 
     /**
+     * @param MediaObjectInterface $mediaObject
+     * @return ImageFile
+     */
+    public function getImageFileObject(MediaObjectInterface $mediaObject): ImageFile
+    {
+        return ImageFile::open($mediaObject->get('filepath'));
+    }
+
+    /**
      * Order the media based on the page's media_order
      *
      * @param array $media

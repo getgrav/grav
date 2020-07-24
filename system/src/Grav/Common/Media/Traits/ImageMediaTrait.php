@@ -11,6 +11,7 @@ namespace Grav\Common\Media\Traits;
 
 use Grav\Common\Grav;
 use Grav\Common\Media\Interfaces\ImageMediaInterface;
+use Grav\Common\Media\Interfaces\MediaCollectionInterface;
 use Grav\Common\Page\Medium\ImageFile;
 use Grav\Common\Page\Medium\ImageMedium;
 use Grav\Common\Page\Medium\MediumFactory;
@@ -329,15 +330,21 @@ trait ImageMediaTrait
     {
         $locator = Grav::instance()['locator'];
 
-        $file = $this->get('filepath');
-
         // Use existing cache folder or if it doesn't exist, create it.
         $cacheDir = $locator->findResource('cache://images', true) ?: $locator->findResource('cache://images', true, true);
 
         // Make sure we free previous image.
         unset($this->image);
 
-        $this->image = ImageFile::open($file)
+        /** @var MediaCollectionInterface $media */
+        $media = $this->get('media');
+        if ($media && method_exists($media, 'getImageFileObject')) {
+            $this->image = $media->getImageFileObject($this);
+        } else {
+            $this->image = ImageFile::open($this->get('filepath'));
+        }
+
+        $this->image
             ->setCacheDir($cacheDir)
             ->setActualCacheDir($cacheDir)
             ->setPrettyName($this->getImagePrettyName());

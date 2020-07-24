@@ -124,18 +124,19 @@ trait MediaUploadTrait
         }
 
         // Calculate maximum file size (from MB).
-        if ($settings['filesize']) {
-            $max_filesize = $settings['filesize'] * 1048576;
+        $filesize = $settings['filesize'];
+        if ($filesize) {
+            $max_filesize = $filesize * 1048576;
             if ($uploadedFile->getSize() > $max_filesize) {
                 // TODO: use own language string
                 throw new RuntimeException($this->translate('PLUGIN_ADMIN.EXCEEDED_GRAV_FILESIZE_LIMIT'), 400);
             }
-        }
-
-        // Check size against the Grav upload limit.
-        $grav_limit = Utils::getUploadLimit();
-        if ($grav_limit > 0 && $uploadedFile->getSize() > $grav_limit) {
-            throw new RuntimeException($this->translate('PLUGIN_ADMIN.EXCEEDED_GRAV_FILESIZE_LIMIT'), 400);
+        } elseif (null === $filesize) {
+            // Check size against the Grav upload limit.
+            $grav_limit = Utils::getUploadLimit();
+            if ($grav_limit > 0 && $uploadedFile->getSize() > $grav_limit) {
+                throw new RuntimeException($this->translate('PLUGIN_ADMIN.EXCEEDED_GRAV_FILESIZE_LIMIT'), 400);
+            }
         }
 
         // Handle Accepted file types. Accept can only be mime types (image/png | image/*) or file extensions (.pdf | .jpg)
