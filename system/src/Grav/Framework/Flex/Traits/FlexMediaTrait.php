@@ -180,8 +180,8 @@ trait FlexMediaTrait
                 }
 
                 if ($file) {
-                    // Check file upload against media limits.
-                    $filename = $media->checkUploadedFile($file, $filename, $settings);
+                    // Check file upload against media limits (except for max size).
+                    $filename = $media->checkUploadedFile($file, $filename, ['filesize' => 0] + $settings);
                 }
 
                 $self = $settings['self'];
