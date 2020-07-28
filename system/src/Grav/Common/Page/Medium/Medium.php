@@ -45,6 +45,12 @@ class Medium extends Data implements RenderableInterface, MediaFileInterface
         }
 
         $this->def('mime', 'application/octet-stream');
+
+        if (!$this->offsetExists('size')) {
+            $path = $this->get('filepath');
+            $this->def('size', filesize($path));
+        }
+
         $this->reset();
     }
 
@@ -62,6 +68,18 @@ class Medium extends Data implements RenderableInterface, MediaFileInterface
     {
         $this->metadata = (array)CompiledYamlFile::instance($filepath)->content();
         $this->merge($this->metadata);
+    }
+
+    /**
+     * @return array
+     */
+    public function getMeta(): array
+    {
+        return [
+            'mime' => $this->mime,
+            'size' => $this->size,
+            'modified' => $this->modified,
+        ];
     }
 
     /**

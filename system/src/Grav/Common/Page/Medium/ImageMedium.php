@@ -34,31 +34,43 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
     {
         parent::__construct($items, $blueprint);
 
+        $config = $this->getGrav()['config'];
+
         $this->thumbnailTypes = ['page', 'media', 'default'];
+        $this->default_quality = $config->get('system.images.default_image_quality', 85);
+        $this->def('debug', $config->get('system.images.debug'));
 
         $path = $this->get('filepath');
         if (!$path || !file_exists($path) || !filesize($path)) {
             return;
         }
 
-        $config = $this->getGrav()['config'];
+        $this->set('thumbnails.media', $path);
 
-        $image_info = getimagesize($path);
+        if (!($this->offsetExists('width') && $this->offsetExists('height') && $this->offsetExists('mime'))) {
+            $image_info = getimagesize($path);
 
-        $this->def('width', $image_info[0]);
-        $this->def('height', $image_info[1]);
-        $this->def('mime', $image_info['mime']);
-        $this->def('debug', $config->get('system.images.debug'));
-
-        $this->set('thumbnails.media', $this->get('filepath'));
-
-        $this->default_quality = $config->get('system.images.default_image_quality', 85);
+            $this->def('width', $image_info[0]);
+            $this->def('height', $image_info[1]);
+            $this->def('mime', $image_info['mime']);
+        }
 
         $this->reset();
 
         if ($config->get('system.images.cache_all', false)) {
             $this->cache();
         }
+    }
+
+    /**
+     * @return array
+     */
+    public function getMeta(): array
+    {
+        return [
+            'width' => $this->width,
+            'height' => $this->height,
+        ] + parent::getMeta();
     }
 
     public function __destruct()
