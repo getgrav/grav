@@ -35,16 +35,20 @@ class Backups
 
     public function init()
     {
+        $grav = Grav::instance();
+
         /** @var EventDispatcher $dispatcher */
-        $dispatcher = Grav::instance()['events'];
+        $dispatcher = $grav['events'];
         $dispatcher->addListener('onSchedulerInitialized', [$this, 'onSchedulerInitialized']);
-        Grav::instance()->fireEvent('onBackupsInitialized', new Event(['backups' => $this]));
+
+        $grav->fireEvent('onBackupsInitialized', new Event(['backups' => $this]));
     }
 
     public function setup()
     {
         if (null === static::$backup_dir) {
-            static::$backup_dir = Grav::instance()['locator']->findResource('backup://', true, true);
+            $grav = Grav::instance();
+            static::$backup_dir = $grav['locator']->findResource('backup://', true, true);
             Folder::create(static::$backup_dir);
         }
     }
@@ -54,11 +58,13 @@ class Backups
      */
     public function onSchedulerInitialized(Event $event)
     {
+        $grav = Grav::instance();
+
         /** @var Scheduler $scheduler */
         $scheduler = $event['scheduler'];
 
         /** @var Inflector $inflector */
-        $inflector = Grav::instance()['inflector'];
+        $inflector = $grav['inflector'];
 
         foreach (static::getBackupProfiles() as $id => $profile) {
             $at = $profile['schedule_at'];
@@ -132,8 +138,10 @@ class Backups
     {
         if ($force || null === static::$backups) {
             static::$backups = [];
+
+            $grav = Grav::instance();
             $backups_itr = new \GlobIterator(static::$backup_dir . '/*.zip', \FilesystemIterator::KEY_AS_FILENAME);
-            $inflector = Grav::instance()['inflector'];
+            $inflector = $grav['inflector'];
             $long_date_format = DATE_RFC2822;
 
             /**
@@ -170,9 +178,11 @@ class Backups
      */
     public static function backup($id = 0, callable $status = null)
     {
+        $grav = Grav::instance();
+
         $profiles = static::getBackupProfiles();
         /** @var UniformResourceLocator $locator */
-        $locator = Grav::instance()['locator'];
+        $locator = $grav['locator'];
 
         if (isset($profiles[$id])) {
             $backup = (object) $profiles[$id];
@@ -180,7 +190,7 @@ class Backups
             throw new \RuntimeException('No backups defined...');
         }
 
-        $name = Grav::instance()['inflector']->underscorize($backup->name);
+        $name = $grav['inflector']->underscorize($backup->name);
         $date = date(static::BACKUP_DATE_FORMAT, time());
         $filename = trim($name, '_') . '--' . $date . '.zip';
         $destination = static::$backup_dir . DS . $filename;
@@ -202,7 +212,6 @@ class Backups
             'exclude_paths' => static::convertExclude($backup->exclude_paths ?? ''),
         ];
 
-        /** @var Archiver $archiver */
         $archiver = Archiver::create('zip');
         $archiver->setArchive($destination)->setOptions($options)->compress($backup_root, $status)->addEmptyFolders($options['exclude_paths'], $status);
 
@@ -221,16 +230,16 @@ class Backups
         }
 
         // Log the backup
-        Grav::instance()['log']->notice('Backup Created: ' . $destination);
+        $grav['log']->notice('Backup Created: ' . $destination);
 
         // Fire Finished event
-        Grav::instance()->fireEvent('onBackupFinished', new Event(['backup' => $destination]));
+        $grav->fireEvent('onBackupFinished', new Event(['backup' => $destination]));
 
         // Purge anything required
         static::purge();
 
         // Log
-        $log = JsonFile::instance(Grav::instance()['locator']->findResource("log://backup.log", true, true));
+        $log = JsonFile::instance($locator->findResource("log://backup.log", true, true));
         $log->content([
             'time'     => time(),
             'location' => $destination
@@ -288,6 +297,7 @@ class Backups
     protected static function convertExclude($exclude)
     {
         $lines = preg_split("/[\s,]+/", $exclude);
+
         return array_map('trim', $lines, array_fill(0, \count($lines), '/'));
     }
 }

@@ -29,6 +29,7 @@ class ZipArchiver extends Archiver
             }
 
             $zip->close();
+
             return $this;
         }
 
