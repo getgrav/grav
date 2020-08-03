@@ -61,4 +61,13 @@ interface MediaUploadInterface
      * @return void
      */
     public function deleteFile(string $filename, array $settings = null): void;
+
+    /**
+     * Rename file inside the media collection.
+     *
+     * @param string $from
+     * @param string $to
+     * @param array|null $settings
+     */
+    public function renameFile(string $from, string $to, array $settings = null): void;
 }

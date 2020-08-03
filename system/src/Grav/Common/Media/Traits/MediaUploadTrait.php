@@ -363,6 +363,61 @@ trait MediaUploadTrait
     }
 
     /**
+     * Rename file inside the media collection.
+     *
+     * @param string $from
+     * @param string $to
+     * @param array|null $settings
+     */
+    public function renameFile(string $from, string $to, array $settings = null): void
+    {
+        // Add the defaults to the settings.
+        if (!$settings) {
+            $settings = $this->_upload_defaults;
+        } else {
+            $settings += $this->_upload_defaults;
+        }
+
+        $path = $settings['destination'] ?? $this->getPath();
+        if (!$path) {
+            // TODO: translate error message
+            throw new RuntimeException('Failed to rename file: Bad destination', 400);
+        }
+
+        /** @var UniformResourceLocator $locator */
+        $locator = $this->getGrav()['locator'];
+
+        $fromPath = $path . '/' . $from;
+
+        if ($locator->isStream($fromPath)) {
+            $fromPath = $locator->findResource($fromPath, true, true);
+        }
+
+        if (!is_file($fromPath)) {
+            return;
+        }
+
+        $mediaPath = dirname($fromPath);
+        $toPath = $mediaPath . '/' . $to;
+
+        $result = rename($fromPath, $toPath);
+        if (!$result) {
+            // TODO: translate error message
+            throw new RuntimeException('File could not be renamed: ' . $from, 500);
+        }
+
+        if (is_file($fromPath . '.meta.yaml')) {
+            $result = rename($fromPath . '.meta.yaml', $toPath . '.meta.yaml');
+            if (!$result) {
+                // TODO: translate error message
+                throw new RuntimeException('Meta file could not be renamed: ' . $from, 500);
+            }
+        }
+
+        $this->clearCache();
+    }
+
+    /**
      * @param string $string
      * @return string
      */
