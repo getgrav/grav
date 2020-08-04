@@ -1370,11 +1370,12 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      * Look for a page header variable in an array of pages working its way through until a value is found
      *
      * @param $context
-     * @param string $var
-     * @param string|string[]|null $pages
+     * @param string $var the variable to look for in the page header
+     * @param string|string[]|null $pages array of pages to check (current page upwards if not null)
+     * @param bool $exists if true, return the page where the var is found, not the value
      * @return mixed
      */
-    public function pageHeaderVarFunc($context, $var, $pages = null)
+    public function pageHeaderVarFunc($context, $var, $pages = null, $exists = false)
     {
         if ($pages === null) {
             $page = $context['page'];
@@ -1398,7 +1399,12 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             if ($page) {
                 $header = $page->header();
                 if (isset($header->{$var})) {
-                    return $header->{$var};
+                    if ($exists) {
+                        return $page;
+                    } else {
+                        return $header->{$var};
+                    }
+
                 }
             }
         }
