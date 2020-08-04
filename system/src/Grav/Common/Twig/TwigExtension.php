@@ -11,6 +11,7 @@ namespace Grav\Common\Twig;
 
 use Cron\CronExpression;
 use Grav\Common\Config\Config;
+use Grav\Common\Data\Data;
 use Grav\Common\Debugger;
 use Grav\Common\Grav;
 use Grav\Common\Inflector;
@@ -177,9 +178,9 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             new TwigFunction('isajaxrequest', [$this, 'isAjaxFunc']),
             new TwigFunction('exif', [$this, 'exifFunc']),
             new TwigFunction('media_directory', [$this, 'mediaDirFunc']),
-            new TwigFunction('body_class', [$this, 'bodyClassFunc']),
-            new TwigFunction('theme_var', [$this, 'themeVarFunc']),
-            new TwigFunction('header_var', [$this, 'pageHeaderVarFunc']),
+            new TwigFunction('body_class', [$this, 'bodyClassFunc'], ['needs_context' => true]),
+            new TwigFunction('theme_var', [$this, 'themeVarFunc'], ['needs_context' => true]),
+            new TwigFunction('header_var', [$this, 'pageHeaderVarFunc'], ['needs_context' => true]),
             new TwigFunction('read_file', [$this, 'readFileFunc']),
             new TwigFunction('nicenumber', [$this, 'niceNumberFunc']),
             new TwigFunction('nicefilesize', [$this, 'niceFilesizeFunc']),
@@ -1325,14 +1326,16 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
     /**
      * Get a theme variable
      *
+     * @param $context
      * @param string $var
-     * @param bool $default
+     * @param null $default
      * @return string
      */
-    public function themeVarFunc($var, $default = null)
+    public function themeVarFunc($context, $var, $default = null)
     {
-        $header = $this->grav['page']->header();
-        $header_classes = $header->{$var} ?? null;
+        $header = new Data((array) $context['page']->header());
+
+        $header_classes = $header->get($var) ?? null;
 
         return $header_classes ?: $this->config->get('theme.' . $var, $default);
     }
@@ -1341,13 +1344,14 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      * takes an array of classes, and if they are not set on body_classes
      * look to see if they are set in theme config
      *
+     * @param $context
      * @param string|string[] $classes
      * @return string
      */
-    public function bodyClassFunc($classes)
+    public function bodyClassFunc($context, $classes)
     {
 
-        $header = $this->grav['page']->header();
+        $header = $context['page']->header();
         $body_classes = $header->body_classes ?? '';
 
         foreach ((array)$classes as $class) {
@@ -1365,14 +1369,14 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
     /**
      * Look for a page header variable in an array of pages working its way through until a value is found
      *
+     * @param $context
      * @param string $var
      * @param string|string[]|null $pages
      * @return mixed
      */
-    public function pageHeaderVarFunc($var, $pages = null)
+    public function pageHeaderVarFunc($context, $var, $pages = null)
     {
         if ($pages === null) {
-            $pages = $this->grav['page'];
         }
 
         // Make sure pages are an array
