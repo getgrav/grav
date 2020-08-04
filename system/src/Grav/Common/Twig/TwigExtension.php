@@ -1377,6 +1377,11 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
     public function pageHeaderVarFunc($context, $var, $pages = null)
     {
         if ($pages === null) {
+            $page = $context['page'];
+            while (!$page->root()) {
+                $pages[] = $page;
+                $page = $page->parent();
+            }
         }
 
         // Make sure pages are an array
