@@ -17,6 +17,7 @@ use Grav\Common\Grav;
 use Grav\Common\Inflector;
 use Grav\Common\Language\Language;
 use Grav\Common\Page\Collection;
+use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Page\Media;
 use Grav\Common\Scheduler\Cron;
 use Grav\Common\Security;
@@ -1325,19 +1326,64 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
 
     /**
      * Get a theme variable
+     * Will try to get the variable for the current page, if not found, it tries it's parent page on up to root.
+     * If still not found, will use the theme's configuration value,
+     * If still not found, will use the $default value passed in
      *
-     * @param $context
-     * @param string $var
-     * @param null $default
+     * @param $context      Twig Context
+     * @param string $var variable to be found (using dot notation)
+     * @param null $default the default value to be used as last resort
+     * @param null $page an optional page to use for the current page
+     * @param bool $exists toggle to simply return the page where the variable is set, else null
      * @return string
      */
-    public function themeVarFunc($context, $var, $default = null)
+    public function themeVarFunc($context, $var, $default = null, $page = null, $exists = false)
     {
-        $header = new Data((array) $context['page']->header());
+        $page = $page ?? $context['page'] ?? Grav::instance()['page'] ?? null;
 
-        $header_classes = $header->get($var) ?? null;
+        // Try to find var in the page headers
+        if ($page instanceof PageInterface && $page->exists()) {
+            // Loop over pages and look for header vars
+            while (!$page->root()) {
+                $header = new Data((array)$page->header());
+                $value = $header->get($var);
+                if (isset($value)) {
+                    if ($exists) {
+                        return $page;
+                    } else {
+                        return $value;
+                    }
 
-        return $header_classes ?: $this->config->get('theme.' . $var, $default);
+                }
+                $page = $page->parent();
+            }
+        }
+
+        if ($exists) {
+            return false;
+        } else {
+            return $this->config->get('theme.' . $var, $default);
+        }
+    }
+
+    /**
+     * Look for a page header variable in an array of pages working its way through until a value is found
+     *
+     * @param $context
+     * @param string $var the variable to look for in the page header
+     * @param string|string[]|null $pages array of pages to check (current page upwards if not null)
+     * @param bool $exists if true, return the page where the var is found, not the value
+     * @return mixed
+     * @deprecated 1.7 Use themeVarFunc() instead
+     */
+    public function pageHeaderVarFunc($context, $var, $pages = null)
+    {
+        if (is_array($pages)) {
+            $page = array_shift($pages);
+        } else {
+            $page = null;
+        }
+        return $this->themeVarFunc($context, $var, null, $page);
     }
 
     /**
@@ -1366,51 +1412,6 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
         return $body_classes;
     }
 
-    /**
-     * Look for a page header variable in an array of pages working its way through until a value is found
-     *
-     * @param $context
-     * @param string $var the variable to look for in the page header
-     * @param string|string[]|null $pages array of pages to check (current page upwards if not null)
-     * @param bool $exists if true, return the page where the var is found, not the value
-     * @return mixed
-     */
-    public function pageHeaderVarFunc($context, $var, $pages = null, $exists = false)
-    {
-        if ($pages === null) {
-            $page = $context['page'];
-            while (!$page->root()) {
-                $pages[] = $page;
-                $page = $page->parent();
-            }
-        }
-
-        // Make sure pages are an array
-        if (!\is_array($pages)) {
-            $pages = [$pages];
-        }
-
-        // Loop over pages and look for header vars
-        foreach ($pages as $page) {
-            if (\is_string($page)) {
-                $page = $this->grav['pages']->find($page);
-            }
-
-            if ($page) {
-                $header = $page->header();
-                if (isset($header->{$var})) {
-                    if ($exists) {
-                        return $page;
-                    } else {
-                        return $header->{$var};
-                    }
-
-                }
-            }
-        }
-
-        return null;
-    }
 
     /**
      * Dump/Encode data into YAML format
