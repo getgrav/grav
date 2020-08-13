@@ -1344,7 +1344,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
         // Try to find var in the page headers
         if ($page instanceof PageInterface && $page->exists()) {
             // Loop over pages and look for header vars
-            while (!$page->root()) {
+            while ($page && !$page->root()) {
                 $header = new Data((array)$page->header());
                 $value = $header->get($var);
                 if (isset($value)) {
