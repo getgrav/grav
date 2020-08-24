@@ -56,6 +56,14 @@ $ composer create-project getgrav/grav ~/webroot/grav
 
 Check out the [install procedures](https://learn.getgrav.org/basics/installation) for more information.
 
+### With Docker
+1. Clone the Grav repository from [https://github.com/getgrav/grav]():
+   ```
+   git clone https://github.com/getgrav/grav.git
+   ```
+2. Build a Docker image with your selection of plugins: `docker build --build-args NSTALL_PLUGINS="admin g5_helium map-marker-leaflet highlight" -t grav`
+3. Run the image `docker run -p 8080:80 grav` and visit the website at [`http://localhost:8080`]()
+
 # Adding Functionality
 
 You can download [plugins](https://getgrav.org/downloads/plugins) or [themes](https://getgrav.org/downloads/themes) manually from the appropriate tab on the [Downloads page on https://getgrav.org](https://getgrav.org/downloads), but the preferred solution is to use the [Grav Package Manager](https://learn.getgrav.org/advanced/grav-gpm) or `GPM`:
