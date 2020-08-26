@@ -1420,9 +1420,11 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      * @param $classes
      * @return string|string[]|null
      */
-    public static function svgImageFunction($path, $classes)
+    public static function svgImageFunction($path, $classes = null)
     {
         $path = Utils::fullPath($path);
+
+        $classes = $classes ?: '';
 
         if (file_exists($path)) {
             $svg = file_get_contents($path);
