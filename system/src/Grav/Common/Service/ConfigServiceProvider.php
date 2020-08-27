@@ -71,6 +71,8 @@ class ConfigServiceProvider implements ServiceProviderInterface
         $files += (new ConfigFileFinder)->locateFiles($paths);
         $paths = $locator->findResources('plugins://');
         $files += (new ConfigFileFinder)->setBase('plugins')->locateInFolders($paths, 'blueprints');
+        $paths = $locator->findResources('themes://');
+        $files += (new ConfigFileFinder)->setBase('themes')->locateInFolders($paths, 'blueprints');
 
         $blueprints = new CompiledBlueprints($cache, $files, GRAV_ROOT);
 
@@ -96,6 +98,8 @@ class ConfigServiceProvider implements ServiceProviderInterface
         $files += (new ConfigFileFinder)->locateFiles($paths);
         $paths = $locator->findResources('plugins://');
         $files += (new ConfigFileFinder)->setBase('plugins')->locateInFolders($paths);
+        $paths = $locator->findResources('themes://');
+        $files += (new ConfigFileFinder)->setBase('themes')->locateInFolders($paths);
 
         $compiled = new CompiledConfig($cache, $files, GRAV_ROOT);
         $compiled->setBlueprints(function () use ($container) {

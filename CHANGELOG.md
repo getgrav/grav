@@ -4,7 +4,9 @@
 1. [](#new)
     * Added a new `svg_image()` twig function to make it easier to 'include' SVG source in Twig
     * Added a helper `Utils::fullPath()` to get the full path to a file be it stream, relative, etc.
-
+1. [](#improved)
+    * Added `themes` to cached blueprints and configuration
+    
 # v1.7.0-rc.15
 ## 07/22/2020
 
