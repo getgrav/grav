@@ -1363,7 +1363,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
         if ($exists) {
             return false;
         } else {
-            return $this->config->get('theme.' . $var, $default);
+            return Grav::instance()['config']->get('theme.' . $var, $default);
         }
     }
 
