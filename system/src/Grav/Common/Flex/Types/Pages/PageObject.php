@@ -88,6 +88,16 @@ class PageObject extends FlexPageObject
     public function getRoute($query = []): Route
     {
         $route = RouteFactory::createFromString($this->route());
+        if ($lang = $route->getLanguage()) {
+            $grav = Grav::instance();
+            if (!$grav['config']->get('system.languages.include_default_lang')) {
+                /** @var Language $language */
+                $language = $grav['language'];
+                if ($lang === $language->getDefault()) {
+                    $route = $route->withLanguage('');
+                }
+            }
+        }
         if (\is_array($query)) {
             foreach ($query as $key => $value) {
                 $route = $route->withQueryParam($key, $value);
