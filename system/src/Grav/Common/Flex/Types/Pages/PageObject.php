@@ -197,11 +197,16 @@ class PageObject extends FlexPageObject
             // TODO: make sure that the page doesn't exist yet if moved/copied.
         }
 
-        // Reorder siblings.
         if ($reorder === true && !$this->root()) {
             $reorder = $this->_reorder;
         }
 
+        // Force automatic reorder if item is supposed to be added to the last.
+        if (!is_array($reorder) && (int)$this->order() >= 999999) {
+            $reorder = [];
+        }
+
+        // Reorder siblings.
         $siblings = is_array($reorder) ? $this->reorderSiblings($reorder) : [];
 
         $data = $this->prepareStorage();
@@ -309,9 +314,9 @@ class PageObject extends FlexPageObject
         /** @var PageCollection|null $siblings */
         $siblings = $siblings->getCollection()->withOrdered()->orderBy(['order' => 'ASC']);
 
-        $storageKey = $this->getStorageKey();
+        $storageKey = $this->getMasterKey();
         $filesystem = Filesystem::getInstance(false);
-        $oldParentKey = ltrim($filesystem->dirname("/$storageKey"), '/');
+        $oldParentKey = ltrim($filesystem->dirname("/{$storageKey}"), '/');
         $newParentKey = $this->getProperty('parent_key');
         $isMoved =  $oldParentKey !== $newParentKey;
         $order = !$isMoved ? $this->order() : false;
@@ -326,17 +331,20 @@ class PageObject extends FlexPageObject
             }
         }
 
+        // Add missing siblings into the end of the list, keeping the previous ordering between them.
         foreach ($siblings as $sibling) {
-            $basename = basename($sibling->getKey());
+            $basename = preg_replace('|^\d+\.|', '', $sibling->getProperty('folder'));
             if (!in_array($basename, $ordering, true)) {
                 $ordering[] = $basename;
             }
         }
 
+        // Reorder.
         $ordering = array_flip(array_values($ordering));
         $count = count($ordering);
         foreach ($siblings as $sibling) {
-            $newOrder = $ordering[basename($sibling->getKey())] ?? null;
+            $basename = preg_replace('|^\d+\.|', '', $sibling->getProperty('folder'));
+            $newOrder = $ordering[$basename] ?? null;
             $newOrder = null !== $newOrder ? $newOrder + 1 : (int)$sibling->order() + $count;
             $sibling->order($newOrder);
         }

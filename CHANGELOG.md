@@ -11,6 +11,8 @@
     * Fixed `Flex Pages` bug where reordering pages causes page content to disappear if default language uses wrong extension (`.md` vs `.en.md`)
     * Fixed `Flex Pages` bug where `onAdminSave` passes page as `$event['page']` instead of `$event['object']` [#2995](https://github.com/getgrav/grav/issues/2995)
     * Fixed `Flex Pages` bug where changing a modular page template added duplicate file [admin#1899](https://github.com/getgrav/grav-plugin-admin/issues/1899)
+    * Fixed `Flex Pages` bug where renaming slug causes bad ordering range after save [#2997](https://github.com/getgrav/grav/issues/2997)
+#2997
 
 # v1.7.0-rc.15
 ## 07/22/2020
