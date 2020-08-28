@@ -9,6 +9,7 @@
 1. [](#bugfix)
     * Fixed `Flex Pages` issue with `getRoute()` returning path with language prefix for default language if set not to do that
     * Fixed `Flex Pages` bug where reordering pages causes page content to disappear if default language uses wrong extension (`.md` vs `.en.md`)
+    * Fixed `Flex Pages` bug where `onAdminSave` passes page as `$event['page']` instead of `$event['object']` [#2995](https://github.com/getgrav/grav/issues/2995)
 
 # v1.7.0-rc.15
 ## 07/22/2020
