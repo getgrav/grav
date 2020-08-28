@@ -550,7 +550,7 @@ class PageObject extends FlexPageObject
     {
         $meta = $this->getMetaData();
         $oldLang = $meta['lang'] ?? '';
-        $newLang = $this->getProperty('lang', '');
+        $newLang = $this->getProperty('lang') ?? '';
 
         // Always clone the page to the new language.
         if ($oldLang !== $newLang) {
