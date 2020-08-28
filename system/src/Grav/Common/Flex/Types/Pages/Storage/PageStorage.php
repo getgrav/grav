@@ -204,9 +204,10 @@ class PageStorage extends FolderStorage
 
     /**
      * @param array $row
+     * @param bool $setDefaultLang
      * @return array
      */
-    public function extractKeysFromRow(array $row): array
+    public function extractKeysFromRow(array $row, bool $setDefaultLang = true): array
     {
         $meta = $row['__META'] ?? null;
         $storageKey = $row['storage_key'] ?? $meta['storage_key']  ?? '';
@@ -218,13 +219,21 @@ class PageStorage extends FolderStorage
         $lang = $row['lang'] ?? $meta['lang'] ?? $keyMeta['lang'] ?? '';
 
         // Handle default language, if it should be saved without language extension.
-        if ($lang && !$this->include_default_lang_file_extension  && empty($meta['markdown'][$lang])) {
+        if ($setDefaultLang && empty($meta['markdown'][$lang])) {
             $grav = Grav::instance();
 
             /** @var Language $langauge */
             $language = $grav['language'];
-            if ($lang === $language->getDefault()) {
-                $lang = '';
+            $default = $language->getDefault();
+            // Make sure that the default language file doesn't exist before overriding it.
+            if (empty($meta['markdown'][$default])) {
+                if ($this->include_default_lang_file_extension) {
+                    if ($lang === '') {
+                        $lang = $language->getDefault();
+                    }
+                } elseif ($lang === $language->getDefault()) {
+                    $lang = '';
+                }
             }
         }
 
@@ -365,7 +374,7 @@ class PageStorage extends FolderStorage
             $oldKey = $row['__META']['storage_key'] ?? null;
             if (is_string($oldKey)) {
                 // Initialize all old key-related variables.
-                $oldKeys = $this->extractKeysFromRow(['__META' => $row['__META']]);
+                $oldKeys = $this->extractKeysFromRow(['__META' => $row['__META']], false);
                 $oldFolder = $this->buildFolder($oldKeys);
                 $oldFilename = $this->buildFilename($oldKeys);
 

@@ -6,7 +6,10 @@
     * Added a helper `Utils::fullPath()` to get the full path to a file be it stream, relative, etc.
 1. [](#improved)
     * Added `themes` to cached blueprints and configuration
-    
+1. [](#bugfix)
+    * Fixed `Flex Pages` issue with `getRoute()` returning path with language prefix for default language if set not to do that
+    * Fixed `Flex Pages` bug where reordering pages causes page content to disappear if default language uses wrong extension (`.md` vs `.en.md`)
+
 # v1.7.0-rc.15
 ## 07/22/2020
 
