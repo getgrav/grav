@@ -103,6 +103,9 @@ config:
           label: PLUGIN_ADMIN.ADD
 
     edit:
+      title:
+        template: "{% if object.root %}Root <small>( &lt;root&gt; ){% else %}{{ (form.value('header.title') ?? form.value('folder'))|e }} <small>( {{ (object.getRoute().toString(false) ?: '/')|e }} )</small>{% endif %}"
+
       # TODO: not used yet
       buttons:
         back:
