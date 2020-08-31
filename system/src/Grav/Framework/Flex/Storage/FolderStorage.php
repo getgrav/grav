@@ -230,10 +230,6 @@ class FolderStorage extends AbstractFilesystemStorage
      */
     public function renameRow(string $src, string $dst): bool
     {
-        if ($this->hasKey($dst)) {
-            throw new \RuntimeException("Cannot rename object: key '{$dst}' is already taken");
-        }
-
         if (!$this->hasKey($src)) {
             return false;
         }
@@ -241,7 +237,15 @@ class FolderStorage extends AbstractFilesystemStorage
         $srcPath = $this->getStoragePath($src);
         $dstPath = $this->getStoragePath($dst);
         if (!$srcPath || !$dstPath) {
-            return false;
+            throw new \RuntimeException("Destination path '{$dst}' is empty");
+        }
+
+        if ($srcPath === $dstPath) {
+            return true;
+        }
+
+        if ($this->hasKey($dst)) {
+            throw new \RuntimeException("Cannot rename object '{$src}': key '{$dst}' is already taken $srcPath $dstPath");
         }
 
         return $this->moveFolder($srcPath, $dstPath);
