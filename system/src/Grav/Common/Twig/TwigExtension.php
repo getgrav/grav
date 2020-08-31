@@ -1420,7 +1420,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      * @param $classes
      * @return string|string[]|null
      */
-    public static function svgImageFunction($path, $classes = null)
+    public static function svgImageFunction($path, $classes = null, $strip_style = false)
     {
         $path = Utils::fullPath($path);
 
@@ -1430,6 +1430,14 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             $svg = file_get_contents($path);
             $classes = " inline-block $classes";
             $matched = false;
+
+            //Remove xml tag if it exists
+            $svg = preg_replace('/^<\?xml.*\?>/','', $svg);
+
+            //Strip style if needed
+            if ($strip_style) {
+                $svg = preg_replace('/<style.*<\/style>/s', '', $svg);
+            }
 
             //Look for existing class
             $svg = preg_replace_callback('/^<svg.*?(class=\"(.*?)").*>/', function($matches) use ($classes, &$matched) {
