@@ -608,7 +608,7 @@ class Page implements PageInterface
                 return $content;
             }
 
-            return mb_strimwidth($content, 0, $size, '...', 'UTF-8');
+            return mb_strimwidth($content, 0, $size, '…', 'UTF-8');
         }
 
         $summary = Utils::truncateHtml($content, $size);

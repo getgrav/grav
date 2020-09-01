@@ -286,7 +286,7 @@ class Route
             $url .= '?' . $this->getUriQuery();
         }
 
-        return $url;
+        return rtrim($url,'/');
     }
 
     /**
