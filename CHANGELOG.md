@@ -1,3 +1,11 @@
+# v1.6.27
+## 09/01/2020
+
+1. [](#improved)
+    * Right trim route for safety
+    * Use the proper ellipsis for summary [#2939](https://github.com/getgrav/grav/pull/2939)
+    * Left pad schedule times with zeros [#2921](https://github.com/getgrav/grav/pull/2921)
+
 # v1.6.26
 ## 06/08/2020
 
