@@ -176,7 +176,7 @@
 
 * Added experimental support for `Flex Pages` in the frontend (not recommended to use yet)
 * Admin uses `Flex Pages` by default (can be disabled from `Flex-Objects` plugin)
-* Added page specific permissions support for `Flex Pages`
+* Added page specific admin permissions support for `Flex Pages`
 * Added root page support for `Flex Pages`
 * Fixed wrong `Pages::dispatch()` calls (with redirect) when we really meant to call `Pages::find()`
 * Added `Pages::getCollection()` method
@@ -191,6 +191,7 @@
 
 * Added `MediaTrait::freeMedia()` method to free media (and memory)
 * Added support for uploading and deleting images directly in `Media` by using PSR-7
+* **BC BREAK** Media no longer extends `Getters`, accessing `$media->$filename` no longer works, use `$media[$filename]` instead!
 
 ### Markdown
 
