@@ -1,5 +1,5 @@
 # v1.7.0-rc.16
-## mm/dd/2020
+## 09/01/2020
 
 1. [](#new)
     * Added a new `svg_image()` twig function to make it easier to 'include' SVG source in Twig
@@ -443,6 +443,15 @@
     * Added support for Twig 2.11 (compatible with Twig 1.40+)
     * Optimization: Initialize debugbar only after the configuration has been loaded
     * Optimization: Combine some early Grav processors into a single one
+
+
+# v1.6.27
+## 09/01/2020
+
+1. [](#improved)
+    * Right trim route for safety
+    * Use the proper ellipsis for summary [#2939](https://github.com/getgrav/grav/pull/2939)
+    * Left pad schedule times with zeros [#2921](https://github.com/getgrav/grav/pull/2921)
 
 # v1.6.26
 ## 06/08/2020
