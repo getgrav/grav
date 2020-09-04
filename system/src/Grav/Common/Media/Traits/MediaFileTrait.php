@@ -72,7 +72,7 @@ trait MediaFileTrait
             $this->reset();
         }
 
-        return $this->get('filepath');
+        return $this->get('url') ?? $this->get('filepath');
     }
 
     /**
@@ -107,6 +107,11 @@ trait MediaFileTrait
      */
     public function url($reset = true)
     {
+        $url = $this->get('url');
+        if ($url) {
+            return $url;
+        }
+
         $path = $this->relativePath($reset);
 
         return trim($this->getGrav()['base_url'] . '/' . $this->urlQuerystring($path), '\\');
