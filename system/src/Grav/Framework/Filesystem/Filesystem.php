@@ -52,6 +52,7 @@ class Filesystem implements FilesystemInterface
      * Always use Filesystem::getInstance() instead.
      *
      * @param bool|null $normalize
+     * @internal
      */
     protected function __construct(bool $normalize = null)
     {
@@ -129,6 +130,15 @@ class Filesystem implements FilesystemInterface
 
     /**
      * {@inheritdoc}
+     * @see FilesystemInterface::basename()
+     */
+    public function basename(string $path, ?string $suffix = null): string
+    {
+        return basename($path, $suffix);
+    }
+
+    /**
+     * {@inheritdoc}
      * @see FilesystemInterface::dirname()
      */
     public function dirname(string $path, int $levels = 1): string
@@ -162,7 +172,7 @@ class Filesystem implements FilesystemInterface
      * {@inheritdoc}
      * @see FilesystemInterface::pathinfo()
      */
-    public function pathinfo(string $path, int $options = null)
+    public function pathinfo(string $path, ?int $options = null)
     {
         [$scheme, $path] = $this->getSchemeAndHierarchy($path);
 
@@ -201,7 +211,7 @@ class Filesystem implements FilesystemInterface
      * @param int|null $options
      * @return array|string
      */
-    protected function pathinfoInternal(?string $scheme, string $path, int $options = null)
+    protected function pathinfoInternal(?string $scheme, string $path, ?int $options = null)
     {
         if ($options) {
             return \pathinfo($path, $options);
