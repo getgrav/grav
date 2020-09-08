@@ -1,3 +1,9 @@
+# v1.7.0-rc.17
+## mm/dd/2020
+
+1. [](#bugfix)
+    * Fixed `Security::sanitizeSVG()` creating an empty file if SVG file cannot be parsed
+
 # v1.7.0-rc.16
 ## 09/01/2020
 

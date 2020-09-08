@@ -16,17 +16,41 @@ class Security
 {
 
     /**
+     * Sanitize SVG string for XSS code
+     *
+     * @param string $svg
+     * @return string
+     */
+    public static function sanitizeSvgString(string $svg): string
+    {
+        if (Grav::instance()['config']->get('security.sanitize_svg')) {
+            $sanitizer = new Sanitizer();
+            $sanitized = $sanitizer->sanitize($svg);
+            if (is_string($sanitized)) {
+                $svg = $sanitized;
+            }
+        }
+
+        return $svg;
+    }
+
+    /**
      * Sanitize SVG for XSS code
      *
      * @param string $file
+     * @return void
      */
-    public static function sanitizeSVG($file)
+    public static function sanitizeSVG(string $file): void
     {
-        if (Grav::instance()['config']->get('security.sanitize_svg') && file_exists($file)) {
+        if (file_exists($file) && Grav::instance()['config']->get('security.sanitize_svg')) {
             $sanitizer = new Sanitizer();
             $original_svg = file_get_contents($file);
             $clean_svg = $sanitizer->sanitize($original_svg);
-            file_put_contents($file, $clean_svg);
+
+            // TODO: what to do with bad SVG files which return false?
+            if ($clean_svg !== false && $clean_svg !== $original_svg) {
+                file_put_contents($file, $clean_svg);
+            }
         }
     }
 
