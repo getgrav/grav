@@ -349,7 +349,11 @@ class Blueprint extends BlueprintForm
 
         if (\is_string($path) && !$locator->isStream($path)) {
             // Find path overrides.
-            $paths = (array) ($this->overrides[$path] ?? null);
+            if (null === $context) {
+                $paths = (array) ($this->overrides[$path] ?? null);
+            } else {
+                $paths = [];
+            }
 
             // Add path pointing to default context.
             if ($context === null) {
