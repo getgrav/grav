@@ -25,6 +25,7 @@ use Grav\Common\Twig\TokenParser\TwigTokenParserSwitch;
 use Grav\Common\Twig\TokenParser\TwigTokenParserThrow;
 use Grav\Common\Twig\TokenParser\TwigTokenParserTryCatch;
 use Grav\Common\Twig\TokenParser\TwigTokenParserMarkdown;
+use Grav\Common\Twig\TokenParser\TwigTokenParserCache;
 use Grav\Common\User\Interfaces\UserInterface;
 use Grav\Common\Utils;
 use Grav\Common\Yaml;
@@ -202,6 +203,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
             new TwigTokenParserStyle(),
             new TwigTokenParserMarkdown(),
             new TwigTokenParserSwitch(),
+            new TwigTokenParserCache(),
         ];
     }
 
