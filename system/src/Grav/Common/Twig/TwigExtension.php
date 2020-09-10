@@ -174,6 +174,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
             new \Twig_SimpleFunction('nicefilesize', [$this, 'niceFilesizeFunc']),
             new \Twig_SimpleFunction('nicetime', [$this, 'nicetimeFunc']),
             new \Twig_SimpleFunction('cron', [$this, 'cronFunc']),
+            new \Twig_SimpleFunction('svg_image', [$this, 'svgImageFunction']),
             new \Twig_SimpleFunction('xss', [$this, 'xssFunc']),
 
 
@@ -1442,4 +1443,41 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
                 break;
         }
     }
+
+    /**
+     * Returns the content of an SVG image and adds extra classes as needed
+     *
+     * @param $path
+     * @param $classes
+     * @return string|string[]|null
+     */
+    public static function svgImageFunction($path, $classes)
+    {
+        $path = Utils::fullPath($path);
+
+        if (file_exists($path)) {
+            $svg = file_get_contents($path);
+            $classes = " inline-block $classes";
+            $matched = false;
+
+            //Look for existing class
+            $svg = preg_replace_callback('/^<svg.*?(class=\"(.*?)").*>/', function($matches) use ($classes, &$matched) {
+                if (isset($matches[2])) {
+                    $new_classes = $matches[2] . $classes;
+                    $matched = true;
+                    return str_replace($matches[1], "class=\"$new_classes\"", $matches[0]);
+                }
+            }, $svg
+            );
+
+            // no matches found just add the class
+            if (!$matched) {
+                $classes = trim($classes);
+                $svg = str_replace('<svg ', "<svg class=\"$classes\" ", $svg);
+            }
+
+            return $svg;
+        }
+    }
+
 }
