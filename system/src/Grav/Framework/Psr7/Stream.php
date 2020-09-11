@@ -19,6 +19,15 @@ class Stream implements StreamInterface
     use StreamDecoratorTrait;
 
     /**
+     * @param string $body
+     * @return static
+     */
+    public static function create($body = '')
+    {
+        return new static($body);
+    }
+
+    /**
      * Stream constructor.
      *
      * @param string $body

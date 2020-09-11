@@ -4,6 +4,7 @@
 1. [](#bugfix)
     * Fixed `Security::sanitizeSVG()` creating an empty file if SVG file cannot be parsed
     * Fixed infinite loop in blueprints with `extend@` to a parent stream
+    * Added missing `Stream::create()` method
 
 # v1.7.0-rc.16
 ## 09/01/2020
