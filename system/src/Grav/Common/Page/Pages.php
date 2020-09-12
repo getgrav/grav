@@ -533,20 +533,14 @@ class Pages
                 if ($site_route) {
                     $page = $this->dispatch($site_route, $all);
                 } else {
-
-                    /** @var Uri $uri */
-                    $uri = $this->grav['uri'];
-                    /** @var \Grav\Framework\Uri\Uri $source_url */
-                    $source_url = $uri->uri(false);
-
                     // Try Regex style redirects
                     $site_redirects = $config->get('site.redirects');
                     if (is_array($site_redirects)) {
                         foreach ((array)$site_redirects as $pattern => $replace) {
                             $pattern = '#^' . str_replace('/', '\/', ltrim($pattern, '^')) . '#';
                             try {
-                                $found = preg_replace($pattern, $replace, $source_url);
-                                if ($found !== $source_url) {
+                                $found = preg_replace($pattern, $replace, $route);
+                                if ($found !== $route) {
                                     $this->grav->redirectLangSafe($found);
                                 }
                             } catch (ErrorException $e) {
@@ -561,8 +555,8 @@ class Pages
                         foreach ((array)$site_routes as $pattern => $replace) {
                             $pattern = '#^' . str_replace('/', '\/', ltrim($pattern, '^')) . '#';
                             try {
-                                $found = preg_replace($pattern, $replace, $source_url);
-                                if ($found !== $source_url) {
+                                $found = preg_replace($pattern, $replace, $route);
+                                if ($found !== $route) {
                                     $page = $this->dispatch($found, $all);
                                 }
                             } catch (ErrorException $e) {
