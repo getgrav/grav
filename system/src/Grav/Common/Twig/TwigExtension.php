@@ -1426,7 +1426,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
 
         $classes = $classes ?: '';
 
-        if (file_exists($path)) {
+        if (file_exists($path) && !is_dir($path)) {
             $svg = file_get_contents($path);
             $classes = " inline-block $classes";
             $matched = false;
