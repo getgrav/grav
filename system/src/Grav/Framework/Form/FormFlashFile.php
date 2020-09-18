@@ -59,6 +59,9 @@ class FormFlashFile implements UploadedFileInterface, \JsonSerializable
         }
 
         $resource = \fopen($tmpFile, 'rb');
+        if (false === $resource) {
+            throw new \RuntimeException('No temporary file');
+        }
 
         return Stream::create($resource);
     }

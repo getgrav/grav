@@ -1331,12 +1331,12 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      * If still not found, will use the theme's configuration value,
      * If still not found, will use the $default value passed in
      *
-     * @param $context      Twig Context
+     * @param array $context      Twig Context
      * @param string $var variable to be found (using dot notation)
      * @param null $default the default value to be used as last resort
      * @param null $page an optional page to use for the current page
      * @param bool $exists toggle to simply return the page where the variable is set, else null
-     * @return string
+     * @return mixed
      */
     public function themeVarFunc($context, $var, $default = null, $page = null, $exists = false)
     {
@@ -1370,10 +1370,9 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
     /**
      * Look for a page header variable in an array of pages working its way through until a value is found
      *
-     * @param $context
+     * @param array $context
      * @param string $var the variable to look for in the page header
      * @param string|string[]|null $pages array of pages to check (current page upwards if not null)
-     * @param bool $exists if true, return the page where the var is found, not the value
      * @return mixed
      * @deprecated 1.7 Use themeVarFunc() instead
      */
@@ -1391,7 +1390,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      * takes an array of classes, and if they are not set on body_classes
      * look to see if they are set in theme config
      *
-     * @param $context
+     * @param array $context
      * @param string|string[] $classes
      * @return string
      */
@@ -1416,8 +1415,8 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
     /**
      * Returns the content of an SVG image and adds extra classes as needed
      *
-     * @param $path
-     * @param $classes
+     * @param string $path
+     * @param string|null $classes
      * @return string|string[]|null
      */
     public static function svgImageFunction($path, $classes = null, $strip_style = false)

@@ -159,8 +159,9 @@ trait FlexMediaTrait
 
         $list = [];
         foreach ($files as $field => $group) {
+            $field = (string)$field;
             // Ignore files without a field and resized images.
-            if ($field === '' || \strpos((string)$field, '/')) {
+            if ($field === '' || \strpos($field, '/')) {
                 continue;
             }
 

@@ -46,9 +46,9 @@ class Media extends AbstractMedia
      */
     public function __wakeup()
     {
-        if (!isset(static::$global)) {
+        if (null === static::$global) {
             // Add fallback to global media.
-            static::$global = new GlobalMedia();
+            static::$global = GlobalMedia::getInstance();
         }
     }
 
@@ -122,7 +122,7 @@ class Media extends AbstractMedia
                  * @var array $alt
                  */
                 foreach ($types['alternative'] as $ratio => &$alt) {
-                    $alt['file'] = MediumFactory::fromFile($alt['file']);
+                    $alt['file'] = $this->createFromFile($alt['file']);
 
                     if (empty($alt['file'])) {
                         unset($types['alternative'][$ratio]);
@@ -146,7 +146,7 @@ class Media extends AbstractMedia
                 $file_path = $medium->path();
                 $medium = MediumFactory::scaledFromMedium($medium, $max, 1)['file'];
             } else {
-                $medium = MediumFactory::fromFile($types['base']['file']);
+                $medium = $this->createFromFile($types['base']['file']);
                 if ($medium) {
                     $medium->set('size', $types['base']['size']);
                     $file_path = $medium->path();

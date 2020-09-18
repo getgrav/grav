@@ -13,6 +13,7 @@ use Grav\Common\Config\Config;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\Grav;
 use Grav\Common\Language\Language;
+use Grav\Common\Page\Medium\Medium;
 use Grav\Common\Page\Medium\MediumFactory;
 use Grav\Common\Security;
 use Grav\Common\Utils;
@@ -38,6 +39,18 @@ trait MediaUploadTrait
         'filesize'          => null,        // Maximum filesize in MB.
         'destination'       => null         // Destination path, if empty, exception is thrown.
     ];
+
+    /**
+     * Create Medium from an uploaded file.
+     *
+     * @param  UploadedFileInterface $uploadedFile
+     * @param  array  $params
+     * @return Medium|null
+     */
+    public function createFromUploadedFile(UploadedFileInterface $uploadedFile, array $params = [])
+    {
+        return MediumFactory::fromUploadedFile($uploadedFile, $params);
+    }
 
     /**
      * Checks that uploaded file meets the requirements. Returns new filename.
@@ -187,10 +200,9 @@ trait MediaUploadTrait
      * WARNING: Always check uploaded file before copying it!
      *
      * @example
-     *   $filename = null;  // Override filename if needed (ignored if randomizing filenames).
      *   $settings = ['destination' => 'user://pages/media']; // Settings from the form field.
      *   $filename = $media->checkUploadedFile($uploadedFile, $filename, $settings);
-     *   $media->copyUploadedFile($uploadedFile, $filename);
+     *   $media->copyUploadedFile($uploadedFile, $filename, $settings);
      *
      * @param UploadedFileInterface $uploadedFile
      * @param string $filename
@@ -208,7 +220,7 @@ trait MediaUploadTrait
         }
 
         $path = $settings['destination'] ?? $this->getPath();
-        if (!$path) {
+        if (!$path || !$filename) {
             throw new RuntimeException($this->translate('PLUGIN_ADMIN.FAILED_TO_MOVE_UPLOADED_FILE'), 400);
         }
 
@@ -406,6 +418,7 @@ trait MediaUploadTrait
             throw new RuntimeException('File could not be renamed: ' . $from, 500);
         }
 
+        // TODO: Add missing logic to handle retina files.
         if (is_file($fromPath . '.meta.yaml')) {
             $result = rename($fromPath . '.meta.yaml', $toPath . '.meta.yaml');
             if (!$result) {
