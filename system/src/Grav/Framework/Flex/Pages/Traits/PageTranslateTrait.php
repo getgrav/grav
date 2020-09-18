@@ -270,7 +270,7 @@ trait PageTranslateTrait
 
         /** @var Language $language */
         $language = $grav['language'];
-        $languageCode = $languageCode ?? $language->getLanguage();
+        $languageCode = $languageCode ?? ($language->getLanguage() ?: '');
         if ($languageCode === '' && $fallback) {
             return $language->getFallbackLanguages(null, true);
         }

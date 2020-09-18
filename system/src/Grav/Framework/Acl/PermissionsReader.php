@@ -95,7 +95,7 @@ class PermissionsReader
 
         // Build dependency tree.
         foreach ($dependencies as $type => $dep) {
-            foreach ($dep as $k => &$val) {
+            foreach (get_object_vars($dep) as $k => &$val) {
                 if (null === $val) {
                     $val = $dependencies[$k] ?? new \stdClass();
                 }

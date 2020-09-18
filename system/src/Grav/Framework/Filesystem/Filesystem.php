@@ -134,7 +134,7 @@ class Filesystem implements FilesystemInterface
      */
     public function basename(string $path, ?string $suffix = null): string
     {
-        return basename($path, $suffix);
+        return $suffix ? basename($path, $suffix) : basename($path);
     }
 
     /**

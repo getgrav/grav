@@ -134,7 +134,7 @@ abstract class Utils
      * Helper method to find the full path to a file, be it a stream, a relative path, or
      * already a full path
      *
-     * @param $path
+     * @param string $path
      * @return string
      */
     public static function fullPath($path)

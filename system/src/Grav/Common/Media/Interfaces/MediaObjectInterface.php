@@ -16,7 +16,7 @@ use Grav\Common\Data\Data;
  *
  * @property string $type
  */
-interface MediaObjectInterface extends \Grav\Framework\Media\Interfaces\MediaObjectInterface
+interface MediaObjectInterface extends \Grav\Framework\Media\Interfaces\MediaObjectInterface, \ArrayAccess
 {
     /**
      * Create a copy of this media object

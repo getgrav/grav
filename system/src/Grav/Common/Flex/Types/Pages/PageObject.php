@@ -253,8 +253,8 @@ class PageObject extends FlexPageObject
 
         // Backwards compatibility with older plugins.
         $fireEvents = $reorder && $this->isAdminSite() && $this->getFlexDirectory()->getConfig('object.compat.events', true);
+        $grav = $this->getContainer();
         if ($fireEvents) {
-            $grav = $this->getContainer();
             $self = $this;
             $grav->fireEvent('onAdminSave', new Event(['type' => 'flex', 'directory' => $this->getFlexDirectory(), 'object' => &$self]));
             if ($self !== $this) {
