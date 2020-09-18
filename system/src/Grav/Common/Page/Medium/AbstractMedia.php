@@ -10,6 +10,7 @@
 namespace Grav\Common\Page\Medium;
 
 use Grav\Common\Config\Config;
+use Grav\Common\Data\Blueprint;
 use Grav\Common\Grav;
 use Grav\Common\Language\Language;
 use Grav\Common\Media\Interfaces\MediaCollectionInterface;
@@ -23,6 +24,7 @@ use RocketTheme\Toolbox\ArrayTraits\Countable;
 use RocketTheme\Toolbox\ArrayTraits\Export;
 use RocketTheme\Toolbox\ArrayTraits\ExportInterface;
 use RocketTheme\Toolbox\ArrayTraits\Iterator;
+use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 abstract class AbstractMedia implements ExportInterface, MediaCollectionInterface, MediaUploadInterface
 {
@@ -59,6 +61,7 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
 
     /**
      * @param string|null $path
+     * @return void
      */
     public function setPath(?string $path): void
     {
@@ -166,6 +169,7 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
     /**
      * @param string $name
      * @param MediaObjectInterface|null $file
+     * @return void
      */
     public function add($name, $file)
     {
@@ -188,6 +192,30 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
             default:
                 $this->files[$name] = $file;
         }
+    }
+
+    /**
+     * Create Medium from a file.
+     *
+     * @param  string $file
+     * @param  array  $params
+     * @return Medium|null
+     */
+    public function createFromFile($file, array $params = [])
+    {
+        return MediumFactory::fromFile($file, $params);
+    }
+
+        /**
+     * Create Medium from array of parameters
+     *
+     * @param  array          $items
+     * @param  Blueprint|null $blueprint
+     * @return Medium|null
+     */
+    public function createFromArray(array $items = [], Blueprint $blueprint = null)
+    {
+        return MediumFactory::fromArray($items, $blueprint);
     }
 
     /**
@@ -226,6 +254,11 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
         }
 
         return $media;
+    }
+
+    protected function fileExists(string $filename, string $destination): bool
+    {
+        return file_exists("{$destination}/{$filename}");
     }
 
     /**
@@ -288,6 +321,8 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
 
     protected function clearCache(): void
     {
-        // TODO: Implement clearCache() method.
+        /** @var UniformResourceLocator $locator */
+        $locator = $this->getGrav()['locator'];
+        $locator->clearCache();
     }
 }
