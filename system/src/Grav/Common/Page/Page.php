@@ -1734,7 +1734,7 @@ class Page implements PageInterface
                                 'content' => htmlspecialchars($value, ENT_QUOTES, 'UTF-8')
                             ];
 
-                            if ($hasSeparator && !Utils::startsWith($key, 'twitter')) {
+                            if ($hasSeparator && !Utils::startsWith($key, ['twitter', 'flattr'])) {
                                 $entry['property'] = $key;
                             } else {
                                 $entry['name'] = $key;
