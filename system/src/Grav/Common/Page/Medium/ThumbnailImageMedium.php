@@ -11,6 +11,10 @@ namespace Grav\Common\Page\Medium;
 
 use Grav\Common\Media\Traits\ThumbnailMediaTrait;
 
+/**
+ * Class ThumbnailImageMedium
+ * @package Grav\Common\Page\Medium
+ */
 class ThumbnailImageMedium extends ImageMedium
 {
     use ThumbnailMediaTrait;

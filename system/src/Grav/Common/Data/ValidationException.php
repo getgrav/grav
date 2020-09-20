@@ -11,6 +11,10 @@ namespace Grav\Common\Data;
 
 use Grav\Common\Grav;
 
+/**
+ * Class ValidationException
+ * @package Grav\Common\Data
+ */
 class ValidationException extends \RuntimeException
 {
     /** @var array */

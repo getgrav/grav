@@ -1,6 +1,10 @@
 <?php
 namespace Grav\Common\Page\Interfaces;
 
+/**
+ * Interface PageFormInterface
+ * @package Grav\Common\Page\Interfaces
+ */
 interface PageFormInterface
 {
     /**

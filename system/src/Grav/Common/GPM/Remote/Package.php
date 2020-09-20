@@ -12,6 +12,10 @@ namespace Grav\Common\GPM\Remote;
 use Grav\Common\Data\Data;
 use Grav\Common\GPM\Common\Package as BasePackage;
 
+/**
+ * Class Package
+ * @package Grav\Common\GPM\Remote
+ */
 class Package extends BasePackage implements \JsonSerializable
 {
     /**
@@ -36,7 +40,7 @@ class Package extends BasePackage implements \JsonSerializable
     /**
      * Returns the changelog list for each version of a package
      *
-     * @param string $diff the version number to start the diff from
+     * @param string|null $diff the version number to start the diff from
      * @return array changelog list for each version
      */
     public function getChangelog($diff = null)

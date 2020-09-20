@@ -11,6 +11,10 @@ namespace Grav\Common\Media\Traits;
 
 use Grav\Common\Grav;
 
+/**
+ * Trait ImageLoadingTrait
+ * @package Grav\Common\Media\Traits
+ */
 trait ImageLoadingTrait
 {
     /**
@@ -21,7 +25,7 @@ trait ImageLoadingTrait
      */
     public function loading($value = null)
     {
-        if (is_null($value)) {
+        if (null === $value) {
             $value = Grav::instance()['config']->get('images.defaults.loading', 'auto');
         }
         if ($value && $value !== 'auto') {

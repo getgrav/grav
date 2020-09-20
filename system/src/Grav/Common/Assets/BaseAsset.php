@@ -14,7 +14,12 @@ use Grav\Common\Grav;
 use Grav\Common\Uri;
 use Grav\Common\Utils;
 use Grav\Framework\Object\PropertyObject;
+use SplFileInfo;
 
+/**
+ * Class BaseAsset
+ * @package Grav\Common\Assets
+ */
 abstract class BaseAsset extends PropertyObject
 {
     use AssetUtilsTrait;
@@ -127,7 +132,7 @@ abstract class BaseAsset extends PropertyObject
                     return false;
                 }
 
-                $file = new \SplFileInfo($path);
+                $file = new SplFileInfo($path);
 
                 $asset = $this->buildLocalLink($file->getPathname());
 

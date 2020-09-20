@@ -9,13 +9,20 @@
 
 namespace Grav\Common\Assets\Traits;
 
+use Closure;
 use Grav\Common\Grav;
 use Grav\Common\Utils;
+use function in_array;
+use function is_array;
 
+/**
+ * Trait AssetUtilsTrait
+ * @package Grav\Common\Assets\Traits
+ */
 trait AssetUtilsTrait
 {
     /**
-     * @var \Closure|null
+     * @var Closure|null
      *
      * Closure used by the pipeline to fetch assets.
      *
@@ -86,7 +93,7 @@ trait AssetUtilsTrait
             }
 
             // TODO: looks like this is not being used.
-            $file = $this->fetch_command instanceof \Closure ? @$this->fetch_command->__invoke($link) : @file_get_contents($link);
+            $file = $this->fetch_command instanceof Closure ? @$this->fetch_command->__invoke($link) : @file_get_contents($link);
 
             // No file found, skip it...
             if ($file === false) {
@@ -151,11 +158,11 @@ trait AssetUtilsTrait
             if (is_numeric($key)) {
                 $key = $value;
             }
-            if (\is_array($value)) {
+            if (is_array($value)) {
                 $value = implode(' ', $value);
             }
 
-            if (\in_array($key, $no_key, true)) {
+            if (in_array($key, $no_key, true)) {
                 $element = htmlentities($value, ENT_QUOTES, 'UTF-8', false);
             } else {
                 $element = $key . '="' . htmlentities($value, ENT_QUOTES, 'UTF-8', false) . '"';
@@ -170,7 +177,7 @@ trait AssetUtilsTrait
     /**
      * Render Querystring
      *
-     * @param string $asset
+     * @param string|null $asset
      * @return string
      */
     protected function renderQueryString($asset = null)

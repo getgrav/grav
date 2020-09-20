@@ -13,8 +13,16 @@ use Grav\Common\Errors\Errors;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 
+/**
+ * Class ErrorServiceProvider
+ * @package Grav\Common\Service
+ */
 class ErrorServiceProvider implements ServiceProviderInterface
 {
+    /**
+     * @param Container $container
+     * @return void
+     */
     public function register(Container $container)
     {
         $container['errors'] = new Errors;

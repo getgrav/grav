@@ -12,6 +12,10 @@ namespace Grav\Common\Config;
 use Grav\Common\Data\Data;
 use Grav\Common\Utils;
 
+/**
+ * Class Languages
+ * @package Grav\Common\Config
+ */
 class Languages extends Data
 {
     /** @var string|null */
@@ -62,6 +66,9 @@ class Languages extends Data
         return $this->timestamp;
     }
 
+    /**
+     * @return void
+     */
     public function reformat()
     {
         if (isset($this->items['plugins'])) {
@@ -72,6 +79,7 @@ class Languages extends Data
 
     /**
      * @param array $data
+     * @return void
      */
     public function mergeRecursive(array $data)
     {

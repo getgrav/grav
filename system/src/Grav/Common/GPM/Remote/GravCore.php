@@ -11,7 +11,12 @@ namespace Grav\Common\GPM\Remote;
 
 use Grav\Common\Grav;
 use \Doctrine\Common\Cache\FilesystemCache;
+use InvalidArgumentException;
 
+/**
+ * Class GravCore
+ * @package Grav\Common\GPM\Remote
+ */
 class GravCore extends AbstractPackageCollection
 {
     /** @var string */
@@ -29,7 +34,7 @@ class GravCore extends AbstractPackageCollection
     /**
      * @param bool $refresh
      * @param callable|null $callback
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function __construct($refresh = false, $callback = null)
     {
@@ -66,7 +71,7 @@ class GravCore extends AbstractPackageCollection
     /**
      * Returns the changelog list for each version of Grav
      *
-     * @param string $diff the version number to start the diff from
+     * @param string|null $diff the version number to start the diff from
      * @return array changelog list for each version
      */
     public function getChangelog($diff = null)

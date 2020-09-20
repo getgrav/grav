@@ -12,6 +12,10 @@ namespace Grav\Common\Processors;
 use Grav\Common\Debugger;
 use Grav\Common\Grav;
 
+/**
+ * Class ProcessorBase
+ * @package Grav\Common\Processors
+ */
 abstract class ProcessorBase implements ProcessorInterface
 {
     /** @var Grav */
@@ -22,11 +26,19 @@ abstract class ProcessorBase implements ProcessorInterface
     /** @var string */
     public $title = 'ProcessorBase';
 
+    /**
+     * ProcessorBase constructor.
+     * @param Grav $container
+     */
     public function __construct(Grav $container)
     {
         $this->container = $container;
     }
 
+    /**
+     * @param string|null $id
+     * @param string|null $title
+     */
     protected function startTimer($id = null, $title = null): void
     {
         /** @var Debugger $debugger */
@@ -34,6 +46,9 @@ abstract class ProcessorBase implements ProcessorInterface
         $debugger->startTimer($id ?? $this->id, $title ?? $this->title);
     }
 
+    /**
+     * @param string|null $id
+     */
     protected function stopTimer($id = null): void
     {
         /** @var Debugger $debugger */
@@ -41,6 +56,11 @@ abstract class ProcessorBase implements ProcessorInterface
         $debugger->stopTimer($id ?? $this->id);
     }
 
+    /**
+     * @param string $message
+     * @param string $label
+     * @param bool $isString
+     */
     protected function addMessage($message, $label = 'info', $isString = true): void
     {
         /** @var Debugger $debugger */

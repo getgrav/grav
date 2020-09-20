@@ -11,6 +11,10 @@ namespace Grav\Common\Assets;
 
 use Grav\Common\Utils;
 
+/**
+ * Class InlineJs
+ * @package Grav\Common\Assets
+ */
 class InlineJs extends BaseAsset
 {
     /**

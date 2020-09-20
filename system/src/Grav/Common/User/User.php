@@ -31,7 +31,6 @@ if (defined('GRAV_USER_INSTANCE') && GRAV_USER_INSTANCE === 'FLEX') {
          * Always creates user object. To check if user exists, use $this->exists().
          *
          * @param string $username
-         *
          * @return UserInterface
          * @deprecated 1.6 Use $grav['accounts']->load(...) instead.
          */
@@ -93,7 +92,6 @@ if (defined('GRAV_USER_INSTANCE') && GRAV_USER_INSTANCE === 'FLEX') {
          * Always creates user object. To check if user exists, use $this->exists().
          *
          * @param string $username
-         *
          * @return UserInterface
          * @deprecated 1.6 Use $grav['accounts']->load(...) instead.
          */

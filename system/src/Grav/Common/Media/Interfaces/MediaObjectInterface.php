@@ -89,7 +89,7 @@ interface MediaObjectInterface extends \Grav\Framework\Media\Interfaces\MediaObj
     /**
      * Get/set hash for the file's url
      *
-     * @param  string  $hash
+     * @param  string|null $hash
      * @param  bool $withHash
      * @return string
      */
@@ -118,7 +118,6 @@ interface MediaObjectInterface extends \Grav\Framework\Media\Interfaces\MediaObj
      * Switch display mode.
      *
      * @param string $mode
-     *
      * @return MediaObjectInterface|null
      */
     public function display($mode = 'source');
@@ -127,7 +126,6 @@ interface MediaObjectInterface extends \Grav\Framework\Media\Interfaces\MediaObj
      * Helper method to determine if this media item has a thumbnail or not
      *
      * @param string $type;
-     *
      * @return bool
      */
     public function thumbnailExists($type = 'page');
@@ -136,7 +134,6 @@ interface MediaObjectInterface extends \Grav\Framework\Media\Interfaces\MediaObj
      * Switch thumbnail.
      *
      * @param string $type
-     *
      * @return $this
      */
     public function thumbnail($type = 'auto');
@@ -210,7 +207,7 @@ interface MediaObjectInterface extends \Grav\Framework\Media\Interfaces\MediaObj
      *
      * @param string $name Dot separated path to the requested value.
      * @param mixed $default Default value (or null).
-     * @param string $separator Separator, defaults to '.'
+     * @param string|null $separator Separator, defaults to '.'
      * @return mixed Value.
      */
     public function get($name, $default = null, $separator = null);
@@ -222,7 +219,7 @@ interface MediaObjectInterface extends \Grav\Framework\Media\Interfaces\MediaObj
      *
      * @param string $name Dot separated path to the requested value.
      * @param mixed $value New value.
-     * @param string $separator Separator, defaults to '.'
+     * @param string|null $separator Separator, defaults to '.'
      * @return $this
      */
     public function set($name, $value, $separator = null);

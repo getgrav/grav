@@ -18,9 +18,18 @@ use Grav\Framework\Flex\Flex;
 use Grav\Framework\Flex\FlexFormFlash;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
+use function is_array;
 
+/**
+ * Class FlexServiceProvider
+ * @package Grav\Common\Service
+ */
 class FlexServiceProvider implements ServiceProviderInterface
 {
+    /**
+     * @param Container $container
+     * @return void
+     */
     public function register(Container $container)
     {
         $container['flex'] = function (Grav $container) {
@@ -71,10 +80,14 @@ class FlexServiceProvider implements ServiceProviderInterface
         };
     }
 
-    private function getFlexAccountsStorage(Config $config)
+    /**
+     * @param Config $config
+     * @return array
+     */
+    private function getFlexAccountsStorage(Config $config): array
     {
         $value = $config->get('system.accounts.storage', 'file');
-        if (\is_array($value)) {
+        if (is_array($value)) {
             return $value;
         }
 

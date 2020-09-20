@@ -23,10 +23,22 @@ use Grav\Framework\Flex\Interfaces\FlexIndexInterface;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 use RocketTheme\Toolbox\Event\Event;
+use SplFileInfo;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use function define;
+use function defined;
+use function is_array;
 
+/**
+ * Class AccountsServiceProvider
+ * @package Grav\Common\Service
+ */
 class AccountsServiceProvider implements ServiceProviderInterface
 {
+    /**
+     * @param Container $container
+     * @return void
+     */
     public function register(Container $container)
     {
         $container['permissions'] = static function (Grav $container) {
@@ -69,6 +81,10 @@ class AccountsServiceProvider implements ServiceProviderInterface
         });
     }
 
+    /**
+     * @param Container $container
+     * @return string
+     */
     protected function initialize(Container $container): string
     {
         $isDefined = defined('GRAV_USER_INSTANCE');
@@ -95,7 +111,7 @@ class AccountsServiceProvider implements ServiceProviderInterface
 
                     /** @var PageInterface $page */
                     $page = $event['page'];
-                    $page->init(new \SplFileInfo('plugin://admin/pages/admin/error.md'));
+                    $page->init(new SplFileInfo('plugin://admin/pages/admin/error.md'));
                     $page->routable(true);
                     $header = $page->header();
                     $header->title = 'Please install missing plugin';
@@ -116,6 +132,10 @@ class AccountsServiceProvider implements ServiceProviderInterface
         return $type;
     }
 
+    /**
+     * @param Container $container
+     * @return DataUser\UserCollection
+     */
     protected function regularAccounts(Container $container)
     {
         // Use User class for backwards compatibility.

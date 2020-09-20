@@ -10,8 +10,14 @@
 namespace Grav\Common\Page\Medium;
 
 use Grav\Common\Grav;
+use Grav\Common\Media\Interfaces\MediaObjectInterface;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
+use function dirname;
 
+/**
+ * Class GlobalMedia
+ * @package Grav\Common\Page\Medium
+ */
 class GlobalMedia extends AbstractMedia
 {
     /** @var self */
@@ -47,7 +53,7 @@ class GlobalMedia extends AbstractMedia
 
     /**
      * @param string $offset
-     * @return mixed
+     * @return MediaObjectInterface|null
      */
     public function offsetGet($offset)
     {
@@ -71,7 +77,7 @@ class GlobalMedia extends AbstractMedia
 
     /**
      * @param string $stream
-     * @return Medium|null
+     * @return MediaObjectInterface|null
      */
     protected function addMedium($stream)
     {

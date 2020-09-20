@@ -9,6 +9,10 @@
 
 namespace Grav\Common\GPM\Remote;
 
+/**
+ * Class Themes
+ * @package Grav\Common\GPM\Remote
+ */
 class Themes extends AbstractPackageCollection
 {
     /** @var string */

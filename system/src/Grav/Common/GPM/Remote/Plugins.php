@@ -9,6 +9,10 @@
 
 namespace Grav\Common\GPM\Remote;
 
+/**
+ * Class Plugins
+ * @package Grav\Common\GPM\Remote
+ */
 class Plugins extends AbstractPackageCollection
 {
     /** @var string */

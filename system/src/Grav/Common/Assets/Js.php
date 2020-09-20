@@ -11,6 +11,10 @@ namespace Grav\Common\Assets;
 
 use Grav\Common\Utils;
 
+/**
+ * Class Js
+ * @package Grav\Common\Assets
+ */
 class Js extends BaseAsset
 {
     /**

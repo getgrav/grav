@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Grav\Common\Flex\Types\Pages\Storage;
 
+use FilesystemIterator;
 use Grav\Common\Debugger;
 use Grav\Common\Flex\Types\Pages\PageIndex;
 use Grav\Common\Grav;
@@ -19,6 +20,11 @@ use Grav\Framework\Filesystem\Filesystem;
 use Grav\Framework\Flex\Storage\FolderStorage;
 use RocketTheme\Toolbox\File\MarkdownFile;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
+use RuntimeException;
+use SplFileInfo;
+use function assert;
+use function in_array;
+use function is_string;
 
 /**
  * Class GravPageStorage
@@ -51,8 +57,8 @@ class PageStorage extends FolderStorage
     {
         parent::initOptions($options);
 
-        $this->flags = \FilesystemIterator::KEY_AS_FILENAME | \FilesystemIterator::CURRENT_AS_FILEINFO
-            | \FilesystemIterator::SKIP_DOTS | \FilesystemIterator::UNIX_PATHS;
+        $this->flags = FilesystemIterator::KEY_AS_FILENAME | FilesystemIterator::CURRENT_AS_FILEINFO
+            | FilesystemIterator::SKIP_DOTS | FilesystemIterator::UNIX_PATHS;
 
         $grav = Grav::instance();
 
@@ -102,7 +108,7 @@ class PageStorage extends FolderStorage
             } else {
                 $frontmatter = $file->raw();
             }
-        } catch (\RuntimeException $e) {
+        } catch (RuntimeException $e) {
             $frontmatter = 'ERROR: ' . $e->getMessage();
         }
 
@@ -119,7 +125,7 @@ class PageStorage extends FolderStorage
         $file = $this->getFile($path);
         try {
             $raw = $file->raw();
-        } catch (\RuntimeException $e) {
+        } catch (RuntimeException $e) {
             $raw = 'ERROR: ' . $e->getMessage();
         }
 
@@ -222,7 +228,7 @@ class PageStorage extends FolderStorage
         if ($setDefaultLang && empty($meta['markdown'][$lang])) {
             $grav = Grav::instance();
 
-            /** @var Language $langauge */
+            /** @var Language $language */
             $language = $grav['language'];
             $default = $language->getDefault();
             // Make sure that the default language file doesn't exist before overriding it.
@@ -361,7 +367,7 @@ class PageStorage extends FolderStorage
 
         try {
             if ($key === '' && empty($row['root'])) {
-                throw new \RuntimeException('No storage key given');
+                throw new RuntimeException('No storage key given');
             }
 
             $grav = Grav::instance();
@@ -404,7 +410,7 @@ class PageStorage extends FolderStorage
                         $toPath = $locator->isStream($newFilepath) ? $locator->findResource($newFilepath, true, true) : $newFilepath;
                         $success = $file->rename($toPath);
                         if (!$success) {
-                            throw new \RuntimeException("Changing page template failed: {$oldFilepath} => {$newFilepath}");
+                            throw new RuntimeException("Changing page template failed: {$oldFilepath} => {$newFilepath}");
                         }
                         $debugger->addMessage("Page template changed: {$oldFilename} => {$newFilename}", 'debug');
                     } else {
@@ -439,10 +445,10 @@ class PageStorage extends FolderStorage
             if ($locator->isStream($newFolder)) {
                 $locator->clearCache();
             }
-        } catch (\RuntimeException $e) {
+        } catch (RuntimeException $e) {
             $name = isset($file) ? $file->filename() : $newKey;
 
-            throw new \RuntimeException(sprintf('Flex saveRow(%s): %s', $name, $e->getMessage()));
+            throw new RuntimeException(sprintf('Flex saveRow(%s): %s', $name, $e->getMessage()));
         }
 
         $row['__META'] = $this->getObjectMeta($newKey, true);
@@ -515,9 +521,9 @@ class PageStorage extends FolderStorage
 
             if (is_string($path) && file_exists($path)) {
                 $modified = filemtime($path);
-                $iterator = new \FilesystemIterator($path, $this->flags);
+                $iterator = new FilesystemIterator($path, $this->flags);
 
-                /** @var \SplFileInfo $info */
+                /** @var SplFileInfo $info */
                 foreach ($iterator as $k => $info) {
                     // Ignore all hidden files if set.
                     if ($k === '' || ($this->ignore_hidden && $k[0] === '.')) {
@@ -526,14 +532,14 @@ class PageStorage extends FolderStorage
 
                     if ($info->isDir()) {
                         // Ignore all folders in ignore list.
-                        if ($this->ignore_folders && \in_array($k, $this->ignore_folders, true)) {
+                        if ($this->ignore_folders && in_array($k, $this->ignore_folders, true)) {
                             continue;
                         }
 
                         $children[$k] = false;
                     } else {
                         // Ignore all files in ignore list.
-                        if ($this->ignore_files && \in_array($k, $this->ignore_files, true)) {
+                        if ($this->ignore_files && in_array($k, $this->ignore_files, true)) {
                             continue;
                         }
 
@@ -605,6 +611,7 @@ class PageStorage extends FolderStorage
             if ($current === null) {
                 break;
             }
+
             $meta = $this->getObjectMeta($current);
             $storage_key = $meta['storage_key'];
 
@@ -653,6 +660,6 @@ class PageStorage extends FolderStorage
      */
     protected function getNewKey(): string
     {
-        throw new \RuntimeException('Generating random key is disabled for pages');
+        throw new RuntimeException('Generating random key is disabled for pages');
     }
 }

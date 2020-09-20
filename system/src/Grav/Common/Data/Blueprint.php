@@ -14,7 +14,20 @@ use Grav\Common\Grav;
 use Grav\Common\User\Interfaces\UserInterface;
 use RocketTheme\Toolbox\Blueprints\BlueprintForm;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
+use RuntimeException;
+use function call_user_func_array;
+use function count;
+use function function_exists;
+use function in_array;
+use function is_array;
+use function is_int;
+use function is_object;
+use function is_string;
 
+/**
+ * Class Blueprint
+ * @package Grav\Common\Data
+ */
 class Blueprint extends BlueprintForm
 {
     /** @var string */
@@ -35,6 +48,9 @@ class Blueprint extends BlueprintForm
     /** @var array */
     protected $handlers = [];
 
+    /**
+     * Clone blueprint.
+     */
     public function __clone()
     {
         if ($this->blueprintSchema) {
@@ -84,9 +100,9 @@ class Blueprint extends BlueprintForm
         $current = $this->getDefaults();
 
         foreach ($path as $field) {
-            if (\is_object($current) && isset($current->{$field})) {
+            if (is_object($current) && isset($current->{$field})) {
                 $current = $current->{$field};
-            } elseif (\is_array($current) && isset($current[$field])) {
+            } elseif (is_array($current) && isset($current[$field])) {
                 $current = $current[$field];
             } else {
                 return null;
@@ -127,7 +143,7 @@ class Blueprint extends BlueprintForm
             $current = &$this->items;
 
             foreach ($path as $field) {
-                if (\is_object($current)) {
+                if (is_object($current)) {
                     // Handle objects.
                     if (!isset($current->{$field})) {
                         $current->{$field} = [];
@@ -136,7 +152,7 @@ class Blueprint extends BlueprintForm
                     $current = &$current->{$field};
                 } else {
                     // Handle arrays and scalars.
-                    if (!\is_array($current)) {
+                    if (!is_array($current)) {
                         $current = [$field => []];
                     } elseif (!isset($current[$field])) {
                         $current[$field] = [];
@@ -201,7 +217,7 @@ class Blueprint extends BlueprintForm
      *
      * @param  array $data1
      * @param  array $data2
-     * @param  string $name         Optional
+     * @param  string|null $name         Optional
      * @param  string $separator    Optional
      * @return array
      */
@@ -244,7 +260,8 @@ class Blueprint extends BlueprintForm
      * Validate data against blueprints.
      *
      * @param  array $data
-     * @throws \RuntimeException
+     * @return void
+     * @throws RuntimeException
      */
     public function validate(array $data)
     {
@@ -298,6 +315,7 @@ class Blueprint extends BlueprintForm
     /**
      * @param string $name
      * @param callable $callable
+     * @return void
      */
     public function addDynamicHandler(string $name, callable $callable): void
     {
@@ -306,6 +324,8 @@ class Blueprint extends BlueprintForm
 
     /**
      * Initialize validator.
+     *
+     * @return void
      */
     protected function initInternals()
     {
@@ -339,7 +359,7 @@ class Blueprint extends BlueprintForm
 
     /**
      * @param string|array $path
-     * @param string $context
+     * @param string|null $context
      * @return array
      */
     protected function getFiles($path, $context = null)
@@ -347,7 +367,7 @@ class Blueprint extends BlueprintForm
         /** @var UniformResourceLocator $locator */
         $locator = Grav::instance()['locator'];
 
-        if (\is_string($path) && !$locator->isStream($path)) {
+        if (is_string($path) && !$locator->isStream($path)) {
             // Find path overrides.
             if (null === $context) {
                 $paths = (array) ($this->overrides[$path] ?? null);
@@ -377,7 +397,7 @@ class Blueprint extends BlueprintForm
 
         $files = [];
         foreach ($paths as $lookup) {
-            if (\is_string($lookup) && strpos($lookup, '://')) {
+            if (is_string($lookup) && strpos($lookup, '://')) {
                 $files = array_merge($files, $locator->findResources($lookup));
             } else {
                 $files[] = $lookup;
@@ -391,12 +411,13 @@ class Blueprint extends BlueprintForm
      * @param array $field
      * @param string $property
      * @param array $call
+     * @return void
      */
     protected function dynamicData(array &$field, $property, array &$call)
     {
         $params = $call['params'];
 
-        if (\is_array($params)) {
+        if (is_array($params)) {
             $function = array_shift($params);
         } else {
             $function = $params;
@@ -407,18 +428,18 @@ class Blueprint extends BlueprintForm
 
         $data = null;
         if (!$f) {
-            if (\function_exists($o)) {
-                $data = \call_user_func_array($o, $params);
+            if (function_exists($o)) {
+                $data = call_user_func_array($o, $params);
             }
         } else {
             if (method_exists($o, $f)) {
-                $data = \call_user_func_array([$o, $f], $params);
+                $data = call_user_func_array([$o, $f], $params);
             }
         }
 
         // If function returns a value,
         if (null !== $data) {
-            if (\is_array($data) && isset($field[$property]) && \is_array($field[$property])) {
+            if (is_array($data) && isset($field[$property]) && is_array($field[$property])) {
                 // Combine field and @data-field together.
                 $field[$property] += $data;
             } else {
@@ -432,11 +453,12 @@ class Blueprint extends BlueprintForm
      * @param array $field
      * @param string $property
      * @param array $call
+     * @return void
      */
     protected function dynamicConfig(array &$field, $property, array &$call)
     {
         $params = $call['params'];
-        if (\is_array($params)) {
+        if (is_array($params)) {
             $value = array_shift($params);
             $params = array_shift($params);
         } else {
@@ -451,7 +473,7 @@ class Blueprint extends BlueprintForm
         }
 
         if (null !== $config) {
-            if (!empty($params['append']) && \is_array($config) && isset($field[$property]) && \is_array($field[$property])) {
+            if (!empty($params['append']) && is_array($config) && isset($field[$property]) && is_array($field[$property])) {
                 // Combine field and @config-field together.
                 $field[$property] += $config;
             } else {
@@ -465,6 +487,7 @@ class Blueprint extends BlueprintForm
      * @param array $field
      * @param string $property
      * @param array $call
+     * @return void
      */
     protected function dynamicSecurity(array &$field, $property, array &$call)
     {
@@ -486,6 +509,12 @@ class Blueprint extends BlueprintForm
         }
     }
 
+    /**
+     * @param UserInterface $user
+     * @param array $actions
+     * @param string $op
+     * @return bool
+     */
     protected function resolveActions(UserInterface $user, array $actions, string $op = 'and')
     {
         $c = $i = count($actions);
@@ -508,6 +537,7 @@ class Blueprint extends BlueprintForm
      * @param array $field
      * @param string $property
      * @param array $call
+     * @return void
      */
     protected function dynamicScope(array &$field, $property, array &$call)
     {
@@ -516,7 +546,7 @@ class Blueprint extends BlueprintForm
         }
 
         $scopes = (array)$call['params'];
-        $matches = \in_array($this->scope, $scopes, true);
+        $matches = in_array($this->scope, $scopes, true);
         if ($this->scope && $property !== 'ignore') {
             $matches = !$matches;
         }
@@ -534,7 +564,7 @@ class Blueprint extends BlueprintForm
      */
     protected function addPropertyRecursive(array &$field, $property, $value)
     {
-        if (\is_array($value) && isset($field[$property]) && \is_array($field[$property])) {
+        if (is_array($value) && isset($field[$property]) && is_array($field[$property])) {
             $field[$property] = array_merge_recursive($field[$property], $value);
         } else {
             $field[$property] = $value;

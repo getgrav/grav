@@ -12,6 +12,10 @@ namespace Grav\Common\Page\Medium;
 use Grav\Common\Markdown\Parsedown;
 use Grav\Common\Page\Markdown\Excerpts;
 
+/**
+ * Trait ParsedownHtmlTrait
+ * @package Grav\Common\Page\Medium
+ */
 trait ParsedownHtmlTrait
 {
     /** @var Parsedown|null */

@@ -9,6 +9,10 @@
 
 namespace Grav\Common\Backup;
 
+use DateTime;
+use Exception;
+use FilesystemIterator;
+use GlobIterator;
 use Grav\Common\Filesystem\Archiver;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\Inflector;
@@ -19,8 +23,16 @@ use Grav\Common\Grav;
 use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\File\JsonFile;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
+use RuntimeException;
+use SplFileInfo;
+use stdClass;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use function count;
 
+/**
+ * Class Backups
+ * @package Grav\Common\Backup
+ */
 class Backups
 {
     protected const BACKUP_FILENAME_REGEXZ = "#(.*)--(\d*).zip#";
@@ -33,6 +45,9 @@ class Backups
     /** @var array|null */
     protected static $backups;
 
+    /**
+     * @return void
+     */
     public function init()
     {
         $grav = Grav::instance();
@@ -44,6 +59,9 @@ class Backups
         $grav->fireEvent('onBackupsInitialized', new Event(['backups' => $this]));
     }
 
+    /**
+     * @return void
+     */
     public function setup()
     {
         if (null === static::$backup_dir) {
@@ -55,6 +73,7 @@ class Backups
 
     /**
      * @param Event $event
+     * @return void
      */
     public function onSchedulerInitialized(Event $event)
     {
@@ -140,19 +159,19 @@ class Backups
             static::$backups = [];
 
             $grav = Grav::instance();
-            $backups_itr = new \GlobIterator(static::$backup_dir . '/*.zip', \FilesystemIterator::KEY_AS_FILENAME);
+            $backups_itr = new GlobIterator(static::$backup_dir . '/*.zip', FilesystemIterator::KEY_AS_FILENAME);
             $inflector = $grav['inflector'];
             $long_date_format = DATE_RFC2822;
 
             /**
              * @var string $name
-             * @var \SplFileInfo $file
+             * @var SplFileInfo $file
              */
             foreach ($backups_itr as $name => $file) {
                 if (preg_match(static::BACKUP_FILENAME_REGEXZ, $name, $matches)) {
-                    $date = \DateTime::createFromFormat(static::BACKUP_DATE_FORMAT, $matches[2]);
+                    $date = DateTime::createFromFormat(static::BACKUP_DATE_FORMAT, $matches[2]);
                     $timestamp = $date->getTimestamp();
-                    $backup = new \stdClass();
+                    $backup = new stdClass();
                     $backup->title = $inflector->titleize($matches[1]);
                     $backup->time = $date;
                     $backup->date = $date->format($long_date_format);
@@ -187,7 +206,7 @@ class Backups
         if (isset($profiles[$id])) {
             $backup = (object) $profiles[$id];
         } else {
-            throw new \RuntimeException('No backups defined...');
+            throw new RuntimeException('No backups defined...');
         }
 
         $name = $grav['inflector']->underscorize($backup->name);
@@ -204,7 +223,7 @@ class Backups
         }
 
         if (!file_exists($backup_root)) {
-            throw new \RuntimeException("Backup location: {$backup_root} does not exist...");
+            throw new RuntimeException("Backup location: {$backup_root} does not exist...");
         }
 
         $options = [
@@ -250,7 +269,8 @@ class Backups
     }
 
     /**
-     * @throws \Exception
+     * @return void
+     * @throws Exception
      */
     public static function purge()
     {
@@ -270,7 +290,7 @@ class Backups
 
             case 'time':
                 $last = end($backups);
-                $now = new \DateTime();
+                $now = new DateTime();
                 $interval = $now->diff($last->time);
                 if ($interval->days > $purge_config['max_backups_time']) {
                     unlink($last->path);
@@ -298,6 +318,6 @@ class Backups
     {
         $lines = preg_split("/[\s,]+/", $exclude);
 
-        return array_map('trim', $lines, array_fill(0, \count($lines), '/'));
+        return array_map('trim', $lines, array_fill(0, count($lines), '/'));
     }
 }

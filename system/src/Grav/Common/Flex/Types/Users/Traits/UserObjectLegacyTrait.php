@@ -14,6 +14,10 @@ namespace Grav\Common\Flex\Types\Users\Traits;
 use Grav\Common\Page\Medium\ImageMedium;
 use Grav\Common\Page\Medium\StaticImageMedium;
 
+/**
+ * Trait UserObjectLegacyTrait
+ * @package Grav\Common\Flex\Types\Users\Traits
+ */
 trait UserObjectLegacyTrait
 {
     /**

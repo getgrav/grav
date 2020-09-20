@@ -9,11 +9,13 @@
 
 namespace Grav\Common\Twig\Node;
 
+use LogicException;
 use Twig\Compiler;
 use Twig\Node\Node;
 
 /**
  * Class TwigNodeTryCatch
+ * @package Grav\Common\Twig\Node
  */
 class TwigNodeTryCatch extends Node
 {
@@ -24,12 +26,8 @@ class TwigNodeTryCatch extends Node
      * @param int $lineno
      * @param string|null $tag
      */
-    public function __construct(
-        Node $try,
-        Node $catch = null,
-        $lineno = 0,
-        $tag = null
-    ) {
+    public function __construct(Node $try, Node $catch = null, $lineno = 0, $tag = null)
+    {
         $nodes = ['try' => $try, 'catch' => $catch];
         $nodes = array_filter($nodes);
 
@@ -40,20 +38,18 @@ class TwigNodeTryCatch extends Node
      * Compiles the node to PHP.
      *
      * @param Compiler $compiler A Twig Compiler instance
-     * @throws \LogicException
+     * @return void
+     * @throws LogicException
      */
     public function compile(Compiler $compiler)
     {
         $compiler->addDebugInfo($this);
 
-        $compiler
-            ->write('try {')
-        ;
+        $compiler->write('try {');
 
         $compiler
             ->indent()
-            ->subcompile($this->getNode('try'))
-        ;
+            ->subcompile($this->getNode('try'));
 
         if ($this->hasNode('catch')) {
             $compiler
@@ -62,8 +58,7 @@ class TwigNodeTryCatch extends Node
                 ->indent()
                 ->write('if (isset($context[\'grav\'][\'debugger\'])) $context[\'grav\'][\'debugger\']->addException($e);' . "\n")
                 ->write('$context[\'e\'] = $e;' . "\n")
-                ->subcompile($this->getNode('catch'))
-            ;
+                ->subcompile($this->getNode('catch'));
         }
 
         $compiler

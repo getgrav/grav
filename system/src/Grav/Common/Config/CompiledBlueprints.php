@@ -70,6 +70,8 @@ class CompiledBlueprints extends CompiledBase
 
     /**
      * Finalize configuration object.
+     *
+     * @return void
      */
     protected function finalizeObject()
     {
@@ -80,6 +82,7 @@ class CompiledBlueprints extends CompiledBase
      *
      * @param  string  $name  Name of the position.
      * @param  array   $files  Files to be loaded.
+     * @return void
      */
     protected function loadFile($name, $files)
     {

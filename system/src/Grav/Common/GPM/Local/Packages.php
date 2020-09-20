@@ -11,6 +11,10 @@ namespace Grav\Common\GPM\Local;
 
 use Grav\Common\GPM\Common\CachedCollection;
 
+/**
+ * Class Packages
+ * @package Grav\Common\GPM\Local
+ */
 class Packages extends CachedCollection
 {
     public function __construct()

@@ -9,6 +9,15 @@
 
 namespace Grav\Common\Helpers;
 
+use DateTime;
+use function array_slice;
+use function is_array;
+use function is_string;
+
+/**
+ * Class LogViewer
+ * @package Grav\Common\Helpers
+ */
 class LogViewer
 {
     /** @var string */
@@ -40,7 +49,7 @@ class LogViewer
      *
      * @param string $filepath
      * @param int $lines
-     * @return bool|string
+     * @return string|false
      */
     public function tail($filepath, $lines = 1)
     {
@@ -89,7 +98,7 @@ class LogViewer
      * Helper class to get level color
      *
      * @param string $level
-     * @return mixed|string
+     * @return string
      */
     public static function levelColor($level)
     {
@@ -117,6 +126,7 @@ class LogViewer
         if (!is_string($line) || strlen($line) === 0) {
             return array();
         }
+
         preg_match($this->pattern, $line, $data);
         if (!isset($data['date'])) {
             return array();
@@ -149,6 +159,7 @@ class LogViewer
     public static function parseTrace($trace, $rows = 10)
     {
         $lines = array_filter(preg_split('/#\d*/m', $trace));
+
         return array_slice($lines, 0, $rows);
     }
 }

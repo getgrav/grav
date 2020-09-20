@@ -15,6 +15,10 @@ use Grav\Common\Data\Data;
 use Grav\Common\Service\ConfigServiceProvider;
 use Grav\Common\Utils;
 
+/**
+ * Class Config
+ * @package Grav\Common\Config
+ */
 class Config extends Data
 {
     /** @var string */
@@ -55,7 +59,7 @@ class Config extends Data
     }
 
     /**
-     * @param null $modified
+     * @param bool|null $modified
      * @return bool
      */
     public function modified($modified = null)
@@ -68,7 +72,7 @@ class Config extends Data
     }
 
     /**
-     * @param null $timestamp
+     * @param int|null $timestamp
      * @return int
      */
     public function timestamp($timestamp = null)
@@ -105,6 +109,9 @@ class Config extends Data
         return $this;
     }
 
+    /**
+     * @return void
+     */
     public function debug()
     {
         /** @var Debugger $debugger */
@@ -116,6 +123,9 @@ class Config extends Data
         }
     }
 
+    /**
+     * @return void
+     */
     public function init()
     {
         $setup = Grav::instance()['setup']->toArray();

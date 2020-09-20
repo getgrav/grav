@@ -11,6 +11,10 @@ namespace Grav\Common\File;
 
 use RocketTheme\Toolbox\File\YamlFile;
 
+/**
+ * Class CompiledYamlFile
+ * @package Grav\Common\File
+ */
 class CompiledYamlFile extends YamlFile
 {
     use CompiledFile;

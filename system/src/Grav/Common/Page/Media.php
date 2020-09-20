@@ -9,14 +9,21 @@
 
 namespace Grav\Common\Page;
 
+use FilesystemIterator;
 use Grav\Common\Grav;
+use Grav\Common\Media\Interfaces\MediaObjectInterface;
 use Grav\Common\Yaml;
 use Grav\Common\Page\Medium\AbstractMedia;
 use Grav\Common\Page\Medium\GlobalMedia;
 use Grav\Common\Page\Medium\MediumFactory;
 use RocketTheme\Toolbox\File\File;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
+use function in_array;
 
+/**
+ * Class Media
+ * @package Grav\Common\Page
+ */
 class Media extends AbstractMedia
 {
     /** @var GlobalMedia */
@@ -53,8 +60,7 @@ class Media extends AbstractMedia
     }
 
     /**
-     * @param mixed $offset
-     *
+     * @param string $offset
      * @return bool
      */
     public function offsetExists($offset)
@@ -63,9 +69,8 @@ class Media extends AbstractMedia
     }
 
     /**
-     * @param mixed $offset
-     *
-     * @return mixed
+     * @param string $offset
+     * @return MediaObjectInterface|null
      */
     public function offsetGet($offset)
     {
@@ -74,6 +79,8 @@ class Media extends AbstractMedia
 
     /**
      * Initialize class.
+     *
+     * @return void
      */
     protected function init()
     {
@@ -89,11 +96,10 @@ class Media extends AbstractMedia
             return;
         }
 
-        $iterator = new \FilesystemIterator($path, \FilesystemIterator::UNIX_PATHS | \FilesystemIterator::SKIP_DOTS);
+        $iterator = new FilesystemIterator($path, FilesystemIterator::UNIX_PATHS | FilesystemIterator::SKIP_DOTS);
 
         $media = [];
 
-        /** @var \DirectoryIterator $info */
         foreach ($iterator as $file => $info) {
             // Ignore folders and Markdown files.
             if (!$info->isFile() || $info->getExtension() === 'md' || strpos($info->getFilename(), '.') === 0) {
@@ -101,9 +107,9 @@ class Media extends AbstractMedia
             }
 
             // Find out what type we're dealing with
-            list($basename, $ext, $type, $extra) = $this->getFileParts($info->getFilename());
+            [$basename, $ext, $type, $extra] = $this->getFileParts($info->getFilename());
 
-            if (!\in_array(strtolower($ext), $media_types, true)) {
+            if (!in_array(strtolower($ext), $media_types, true)) {
                 continue;
             }
 

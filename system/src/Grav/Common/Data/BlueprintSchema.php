@@ -14,7 +14,14 @@ use Grav\Common\Grav;
 use RocketTheme\Toolbox\ArrayTraits\Export;
 use RocketTheme\Toolbox\ArrayTraits\ExportInterface;
 use RocketTheme\Toolbox\Blueprints\BlueprintSchema as BlueprintSchemaBase;
+use RuntimeException;
+use function is_array;
+use function is_string;
 
+/**
+ * Class BlueprintSchema
+ * @package Grav\Common\Data
+ */
 class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
 {
     use Export;
@@ -50,14 +57,14 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
      * Validate data against blueprints.
      *
      * @param  array $data
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
     public function validate(array $data)
     {
         try {
             $validation = $this->items['']['form']['validation'] ?? 'loose';
             $messages = $this->validateArray($data, $this->nested, $validation === 'strict');
-        } catch (\RuntimeException $e) {
+        } catch (RuntimeException $e) {
             throw (new ValidationException($e->getMessage(), $e->getCode(), $e))->setMessages();
         }
 
@@ -135,7 +142,7 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
      * @param array $rules
      * @param bool $strict
      * @return array
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
     protected function validateArray(array $data, array $rules, bool $strict)
     {
@@ -143,7 +150,7 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
 
         foreach ($data as $key => $child) {
             $val = $rules[$key] ?? $rules['*'] ?? null;
-            $rule = \is_string($val) ? $this->items[$val] : null;
+            $rule = is_string($val) ? $this->items[$val] : null;
 
             if ($rule) {
                 // Item has been defined in blueprints.
@@ -153,7 +160,7 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
                 }
 
                 $messages += Validation::validate($child, $rule);
-            } elseif (\is_array($child) && \is_array($val)) {
+            } elseif (is_array($child) && is_array($val)) {
                 // Array has been defined in blueprints.
                 $messages += $this->validateArray($child, $val, $strict);
             } elseif ($strict) {
@@ -161,7 +168,7 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
                 /** @var Config $config */
                 $config = Grav::instance()['config'];
                 if (!$config->get('system.strict_mode.blueprint_strict_compat', true)) {
-                    throw new \RuntimeException(sprintf('%s is not defined in blueprints', $key));
+                    throw new RuntimeException(sprintf('%s is not defined in blueprints', $key));
                 }
 
                 user_error(sprintf('Having extra key %s in your data is deprecated with blueprint having \'validation: strict\'', $key), E_USER_DEPRECATED);
@@ -185,7 +192,7 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
 
         foreach ($data as $key => $field) {
             $val = $rules[$key] ?? $rules['*'] ?? null;
-            $rule = \is_string($val) ? $this->items[$val] : $this->items[$parent . $key] ?? null;
+            $rule = is_string($val) ? $this->items[$val] : $this->items[$parent . $key] ?? null;
 
             if (!empty($rule['disabled']) || !empty($rule['validate']['ignore'])) {
                 // Skip any data in the ignored field.
@@ -206,7 +213,7 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
 
             if (!$isParent && $rule && $rule['type'] !== '_parent') {
                 $field = Validation::filter($field, $rule);
-            } elseif (\is_array($field) && \is_array($val)) {
+            } elseif (is_array($field) && is_array($val)) {
                 // Array has been defined in blueprints.
                 $k = $isParent ? '*' : $key;
                 $field = $this->filterArray($field, $val, $parent . $k . '.', $missingValuesAsNull, $keepEmptyValues);
@@ -221,7 +228,7 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
                 continue;
             }
 
-            if ($keepEmptyValues || (null !== $field && (!\is_array($field) || !empty($field)))) {
+            if ($keepEmptyValues || (null !== $field && (!is_array($field) || !empty($field)))) {
                 $results[$key] = $field;
             }
         }
@@ -229,6 +236,11 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
         return $results ?: null;
     }
 
+    /**
+     * @param array $nested
+     * @param string $parent
+     * @return void
+     */
     protected function buildIgnoreNested(array $nested, $parent = '')
     {
         $ignore = true;
@@ -300,7 +312,7 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
         $messages = [];
 
         foreach ($fields as $name => $field) {
-            if (!\is_string($field)) {
+            if (!is_string($field)) {
                 continue;
             }
 
@@ -341,6 +353,7 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
      * @param array $field
      * @param string $property
      * @param array $call
+     * @return void
      */
     protected function dynamicConfig(array &$field, $property, array &$call)
     {

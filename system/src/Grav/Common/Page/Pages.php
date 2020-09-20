@@ -9,6 +9,8 @@
 
 namespace Grav\Common\Page;
 
+use Exception;
+use FilesystemIterator;
 use Grav\Common\Cache;
 use Grav\Common\Config\Config;
 use Grav\Common\Data\Blueprint;
@@ -31,74 +33,69 @@ use Grav\Framework\Flex\Pages\FlexPageObject;
 use Grav\Plugin\Admin;
 use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
+use RuntimeException;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Whoops\Exception\ErrorException;
 use Collator;
+use function array_key_exists;
+use function array_search;
+use function count;
+use function dirname;
+use function extension_loaded;
+use function in_array;
+use function is_array;
+use function is_int;
+use function is_string;
 
+/**
+ * Class Pages
+ * @package Grav\Common\Page
+ */
 class Pages
 {
-    /** @var Grav */
-    protected $grav;
-
     /** @var FlexDirectory|null */
     private $directory;
 
+    /** @var Grav */
+    protected $grav;
     /** @var array<PageInterface|string> */
     protected $instances = [];
-
     /** @var array */
     protected $index = [];
-
     /** @var array */
     protected $children;
-
     /** @var string */
     protected $base = '';
-
     /** @var string[] */
     protected $baseRoute = [];
-
     /** @var string[] */
     protected $routes = [];
-
     /** @var array */
     protected $sort;
-
     /** @var Blueprints */
     protected $blueprints;
-
     /** @var bool */
     protected $enable_pages = true;
-
     /** @var int */
     protected $last_modified;
-
     /** @var string[] */
     protected $ignore_files;
-
     /** @var string[] */
     protected $ignore_folders;
-
     /** @var bool */
     protected $ignore_hidden;
-
     /** @var string */
     protected $check_method;
-
     /** @var string */
     protected $pages_cache_id;
-
     /** @var bool */
     protected $initialized = false;
-
+    /** @var string */
     protected $active_lang;
-
     /** @var bool */
     protected $fire_events = false;
-
     /** @var Types|null */
     protected static $types;
-
     /** @var string|null */
     protected static $home_route;
 
@@ -143,7 +140,7 @@ class Pages
     /**
      * Get or set base path for the pages.
      *
-     * @param  string $path
+     * @param  string|null $path
      * @return string
      */
     public function base($path = null)
@@ -161,7 +158,7 @@ class Pages
      *
      * Get base route for Grav pages.
      *
-     * @param  string $lang     Optional language code for multilingual routes.
+     * @param  string|null $lang     Optional language code for multilingual routes.
      * @return string
      */
     public function baseRoute($lang = null)
@@ -186,7 +183,7 @@ class Pages
      * Get route for Grav site.
      *
      * @param  string $route    Optional route to the page.
-     * @param  string $lang     Optional language code for multilingual links.
+     * @param  string|null $lang     Optional language code for multilingual links.
      * @return string
      */
     public function route($route = '/', $lang = null)
@@ -202,7 +199,7 @@ class Pages
      *
      * Get base URL for Grav pages.
      *
-     * @param  string     $lang     Optional language code for multilingual links.
+     * @param  string|null $lang     Optional language code for multilingual links.
      * @param  bool|null  $absolute If true, return absolute url, if false, return relative url. Otherwise return default.
      * @return string
      */
@@ -223,8 +220,8 @@ class Pages
      *
      * Get home URL for Grav site.
      *
-     * @param  string $lang     Optional language code for multilingual links.
-     * @param  bool   $absolute If true, return absolute url, if false, return relative url. Otherwise return default.
+     * @param  string|null $lang     Optional language code for multilingual links.
+     * @param  bool|null   $absolute If true, return absolute url, if false, return relative url. Otherwise return default.
      * @return string
      */
     public function homeUrl($lang = null, $absolute = null)
@@ -237,8 +234,8 @@ class Pages
      * Get URL for Grav site.
      *
      * @param  string $route    Optional route to the page.
-     * @param  string $lang     Optional language code for multilingual links.
-     * @param  bool   $absolute If true, return absolute url, if false, return relative url. Otherwise return default.
+     * @param  string|null $lang     Optional language code for multilingual links.
+     * @param  bool|null   $absolute If true, return absolute url, if false, return relative url. Otherwise return default.
      * @return string
      */
     public function url($route = '/', $lang = null, $absolute = null)
@@ -269,6 +266,8 @@ class Pages
 
     /**
      * Reset pages (used in search indexing etc).
+     *
+     * @return void
      */
     public function reset()
     {
@@ -316,7 +315,7 @@ class Pages
     /**
      * Get or set last modification time.
      *
-     * @param int $modified
+     * @param int|null $modified
      * @return int|null
      */
     public function lastModified($modified = null)
@@ -359,7 +358,7 @@ class Pages
      * Adds a page and assigns a route to it.
      *
      * @param PageInterface   $page  Page to be added.
-     * @param string $route Optional route (uses route from the object if not set).
+     * @param string|null $route Optional route (uses route from the object if not set).
      */
     public function addPage(PageInterface $page, $route = null): void
     {
@@ -437,7 +436,7 @@ class Pages
 
                 $test = $page->taxonomy()[$taxonomy] ?? [];
                 foreach ($items as $item) {
-                    if (!$test || !\in_array($item, $test, true)) {
+                    if (!$test || !in_array($item, $test, true)) {
                         $collection->remove($page->path());
                     }
                 }
@@ -662,8 +661,8 @@ class Pages
      * Sort sub-pages in a page.
      *
      * @param PageInterface   $page
-     * @param string $order_by
-     * @param string $order_dir
+     * @param string|null $order_by
+     * @param string|null $order_dir
      * @return array
      */
     public function sort(PageInterface $page, $order_by = null, $order_dir = null, $sort_flags = null)
@@ -734,7 +733,7 @@ class Pages
      *
      * @param  string $path The filesystem full path of the page
      * @return PageInterface|null
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
     public function get($path)
     {
@@ -746,7 +745,7 @@ class Pages
         }
 
         $instance = $this->index[$path] ?? null;
-        if (\is_string($instance)) {
+        if (is_string($instance)) {
             $instance = $this->directory ? $this->directory->getObject($instance, 'flex_key') : null;
             if ($instance) {
                 if ($this->fire_events && method_exists($instance, 'initialize')) {
@@ -783,7 +782,7 @@ class Pages
      * Get a page ancestor.
      *
      * @param  string $route The relative URL of the page
-     * @param  string $path The relative path of the ancestor folder
+     * @param  string|null $path The relative path of the ancestor folder
      * @return PageInterface|null
      */
     public function ancestor($route, $path = null)
@@ -808,7 +807,7 @@ class Pages
      * Get a page ancestor trait.
      *
      * @param  string $route The relative route of the page
-     * @param  string $field The field name of the ancestor to query for
+     * @param  string|null $field The field name of the ancestor to query for
      * @return PageInterface|null
      */
     public function inherited($route, $field = null)
@@ -847,7 +846,7 @@ class Pages
      * @param bool $all
      * @param bool $redirect
      * @return PageInterface|null
-     * @throws \Exception
+     * @throws Exception
      */
     public function dispatch($route, $all = false, $redirect = true)
     {
@@ -937,7 +936,7 @@ class Pages
      * Get root page.
      *
      * @return PageInterface
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
     public function root()
     {
@@ -947,7 +946,7 @@ class Pages
         $path = $locator->findResource('page://');
         $root = is_string($path) ? $this->get(rtrim($path, '/')) : null;
         if (null === $root) {
-            throw new \RuntimeException('Internal error');
+            throw new RuntimeException('Internal error');
         }
 
         return $root;
@@ -967,7 +966,7 @@ class Pages
 
         try {
             $blueprint = $this->blueprints->get($type);
-        } catch (\RuntimeException $e) {
+        } catch (RuntimeException $e) {
             $blueprint = $this->blueprints->get('default');
         }
 
@@ -1063,7 +1062,7 @@ class Pages
     {
         if (!$current) {
             if ($level) {
-                throw new \RuntimeException('Internal error');
+                throw new RuntimeException('Internal error');
             }
 
             $current = $this->root();
@@ -1189,6 +1188,7 @@ class Pages
     /**
      * Get template types based on page type (standard or modular)
      *
+     * @param string|null $type
      * @return array
      */
     public static function pageTypes($type = null)
@@ -1223,9 +1223,9 @@ class Pages
         $accessLevels = [];
         foreach ($this->all() as $page) {
             if ($page instanceof PageInterface && isset($page->header()->access)) {
-                if (\is_array($page->header()->access)) {
+                if (is_array($page->header()->access)) {
                     foreach ($page->header()->access as $index => $accessLevel) {
-                        if (\is_array($accessLevel)) {
+                        if (is_array($accessLevel)) {
                             foreach ($accessLevel as $innerIndex => $innerAccessLevel) {
                                 $accessLevels[] = $innerIndex;
                             }
@@ -1298,10 +1298,13 @@ class Pages
 
     /**
      * Needed for testing where we change the home route via config
+     *
+     * @return string|null
      */
     public static function resetHomeRoute()
     {
         self::$home_route = null;
+
         return self::getHomeRoute();
     }
 
@@ -1414,7 +1417,7 @@ class Pages
         foreach ($collection as $page) {
             $path = $page->path();
             if (null === $path) {
-                throw new \RuntimeException('Internal error');
+                throw new RuntimeException('Internal error');
             }
 
             if ($page instanceof FlexTranslateInterface) {
@@ -1497,7 +1500,7 @@ class Pages
         $locator = $grav['locator'];
         $path = $locator->findResource('page://');
         if (!is_string($path)) {
-            throw new \RuntimeException('Internal Error');
+            throw new RuntimeException('Internal Error');
         }
 
         /** @var Config $config */
@@ -1528,7 +1531,7 @@ class Pages
 
         $pages_dir = $locator->findResource('page://');
         if (!is_string($pages_dir)) {
-            throw new \RuntimeException('Internal Error');
+            throw new RuntimeException('Internal Error');
         }
 
         // Set active language
@@ -1606,7 +1609,7 @@ class Pages
      * @param string    $directory
      * @param PageInterface|null $parent
      * @return PageInterface
-     * @throws \RuntimeException
+     * @throws RuntimeException
      * @internal
      */
     protected function recurse($directory, PageInterface $parent = null)
@@ -1642,7 +1645,7 @@ class Pages
                 $this->children[$parent->path()][$page->path()] = ['slug' => $page->slug()];
             }
         } elseif ($parent !== null) {
-            throw new \RuntimeException('Fatal error when creating page instances.');
+            throw new RuntimeException('Fatal error when creating page instances.');
         }
 
         // Build regular expression for all the allowed page extensions.
@@ -1659,8 +1662,7 @@ class Pages
         $page_extension = '.md';
         $last_modified = 0;
 
-        $iterator = new \FilesystemIterator($directory);
-        /** @var \FilesystemIterator $file */
+        $iterator = new FilesystemIterator($directory);
         foreach ($iterator as $file) {
             $filename = $file->getFilename();
 
@@ -1672,14 +1674,14 @@ class Pages
             // Handle folders later.
             if ($file->isDir()) {
                 // But ignore all folders in ignore list.
-                if (!\in_array($filename, $this->ignore_folders, true)) {
+                if (!in_array($filename, $this->ignore_folders, true)) {
                     $folders[] = $file;
                 }
                 continue;
             }
 
             // Ignore all files in ignore list.
-            if (\in_array($filename, $this->ignore_files, true)) {
+            if (in_array($filename, $this->ignore_files, true)) {
                 continue;
             }
 
@@ -1712,7 +1714,7 @@ class Pages
         }
 
         // Now handle all the folders under the page.
-        /** @var \FilesystemIterator $file */
+        /** @var FilesystemIterator $file */
         foreach ($folders as $file) {
             $filename = $file->getFilename();
 
@@ -1740,7 +1742,7 @@ class Pages
         }
 
         if (!$content_exists) {
-            // Set routability to false if no page found
+            // Set routable to false if no page found
             $page->routable(false);
 
             // Hide empty folders if option set
@@ -1783,7 +1785,7 @@ class Pages
         // Build routes and taxonomy map.
         /** @var PageInterface|string $page */
         foreach ($this->index as $path => $page) {
-            if (\is_string($page)) {
+            if (is_string($page)) {
                 $page = $this->get($path);
             }
 
@@ -1796,7 +1798,7 @@ class Pages
 
             $page_path = $page->path();
             if (null === $page_path) {
-                throw new \RuntimeException('Internal Error');
+                throw new RuntimeException('Internal Error');
             }
 
             $route = $page->route();
@@ -1844,7 +1846,7 @@ class Pages
      * @param string $order_by
      * @param array|null  $manual
      * @param int|null    $sort_flags
-     * @throws \RuntimeException
+     * @throws RuntimeException
      * @internal
      */
     protected function buildSort($path, array $pages, $order_by = 'default', $manual = null, $sort_flags = null): void
@@ -1863,7 +1865,7 @@ class Pages
         foreach ($pages as $key => $info) {
             $child = $this->get($key);
             if (!$child) {
-                throw new \RuntimeException("Page does not exist: {$key}");
+                throw new RuntimeException("Page does not exist: {$key}");
             }
 
             switch ($order_by) {
@@ -1937,7 +1939,7 @@ class Pages
                             return sprintf('%032d.', $number[0]);
                         }, $list);
                         if (!is_array($list)) {
-                            throw new \RuntimeException('Internal Error');
+                            throw new RuntimeException('Internal Error');
                         }
 
                         $list_vals = array_values($list);
@@ -1965,7 +1967,7 @@ class Pages
 
             foreach ($list as $key => $dummy) {
                 $info = $pages[$key];
-                $order = \array_search($info['slug'], $manual, true);
+                $order = array_search($info['slug'], $manual, true);
                 if ($order === false) {
                     $order = $i++;
                 }
@@ -1988,7 +1990,6 @@ class Pages
      * Shuffles an associative array
      *
      * @param array $list
-     *
      * @return array
      */
     protected function arrayShuffle($list)

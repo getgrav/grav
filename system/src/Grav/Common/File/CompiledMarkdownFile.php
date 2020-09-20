@@ -11,6 +11,10 @@ namespace Grav\Common\File;
 
 use RocketTheme\Toolbox\File\MarkdownFile;
 
+/**
+ * Class CompiledMarkdownFile
+ * @package Grav\Common\File
+ */
 class CompiledMarkdownFile extends MarkdownFile
 {
     use CompiledFile;

@@ -9,10 +9,15 @@
 
 namespace Grav\Common\Errors;
 
+use RuntimeException;
 use Whoops\Handler\Handler;
 use Whoops\Util\Misc;
 use Whoops\Util\TemplateHelper;
 
+/**
+ * Class SimplePageHandler
+ * @package Grav\Common\Errors
+ */
 class SimplePageHandler extends Handler
 {
     /** @var array */
@@ -62,7 +67,7 @@ class SimplePageHandler extends Handler
     /**
      * @param string $resource
      * @return string
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
     protected function getResource($resource)
     {
@@ -85,7 +90,7 @@ class SimplePageHandler extends Handler
         }
 
         // If we got this far, nothing was found.
-        throw new \RuntimeException(
+        throw new RuntimeException(
             "Could not find resource '{$resource}' in any resource paths (searched: " . implode(', ', $this->searchPaths). ')'
         );
     }

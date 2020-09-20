@@ -23,6 +23,10 @@ use Grav\Common\User\Interfaces\UserInterface;
 use Grav\Common\User\Traits\UserTrait;
 use Grav\Framework\Flex\Flex;
 
+/**
+ * Class User
+ * @package Grav\Common\User\DataUser
+ */
 class User extends Data implements UserInterface
 {
     use UserTrait;
@@ -33,7 +37,7 @@ class User extends Data implements UserInterface
     /**
      * User constructor.
      * @param array $items
-     * @param Blueprint $blueprints
+     * @param Blueprint|null $blueprints
      */
     public function __construct(array $items = [], $blueprints = null)
     {
@@ -144,6 +148,9 @@ class User extends Data implements UserInterface
         }
     }
 
+    /**
+     * @return MediaCollectionInterface|Media
+     */
     public function getMedia()
     {
         if (null === $this->_media) {
@@ -164,11 +171,17 @@ class User extends Data implements UserInterface
         return $this->_media;
     }
 
+    /**
+     * @return string
+     */
     public function getMediaFolder()
     {
         return $this->blueprints()->fields()['avatar']['destination'] ?? 'user://accounts/avatars';
     }
 
+    /**
+     * @return array
+     */
     public function getMediaOrder()
     {
         return [];
@@ -250,7 +263,6 @@ class User extends Data implements UserInterface
      * Ensures backwards compatibility
      *
      * @param  string $action
-     *
      * @return bool
      * @deprecated 1.5 Use ->authorize() method instead.
      */

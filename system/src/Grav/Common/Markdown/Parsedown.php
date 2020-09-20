@@ -12,6 +12,10 @@ namespace Grav\Common\Markdown;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Page\Markdown\Excerpts;
 
+/**
+ * Class Parsedown
+ * @package Grav\Common\Markdown
+ */
 class Parsedown extends \Parsedown
 {
     use ParsedownGravTrait;

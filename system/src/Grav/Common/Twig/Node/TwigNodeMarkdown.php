@@ -15,6 +15,7 @@ use Twig\Node\NodeOutputInterface;
 
 /**
  * Class TwigNodeMarkdown
+ * @package Grav\Common\Twig\Node
  */
 class TwigNodeMarkdown extends Node implements NodeOutputInterface
 {
@@ -28,10 +29,12 @@ class TwigNodeMarkdown extends Node implements NodeOutputInterface
     {
         parent::__construct(['body' => $body], [], $lineno, $tag);
     }
+
     /**
      * Compiles the node to PHP.
      *
      * @param Compiler $compiler A Twig Compiler instance
+     * @return void
      */
     public function compile(Compiler $compiler)
     {

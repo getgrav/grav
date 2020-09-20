@@ -11,6 +11,10 @@ namespace Grav\Common\GPM\Local;
 
 use Grav\Common\Grav;
 
+/**
+ * Class Themes
+ * @package Grav\Common\GPM\Local
+ */
 class Themes extends AbstractPackageCollection
 {
     /** @var string */
@@ -21,6 +25,9 @@ class Themes extends AbstractPackageCollection
      */
     public function __construct()
     {
-        parent::__construct(Grav::instance()['themes']->all());
+        /** @var \Grav\Common\Themes $themes */
+        $themes = Grav::instance()['themes'];
+
+        parent::__construct($themes->all());
     }
 }

@@ -9,12 +9,22 @@
 
 namespace Grav\Common\Data;
 
+use Exception;
 use RocketTheme\Toolbox\ArrayTraits\Countable;
 use RocketTheme\Toolbox\ArrayTraits\Export;
 use RocketTheme\Toolbox\ArrayTraits\ExportInterface;
 use RocketTheme\Toolbox\ArrayTraits\NestedArrayAccessWithGetters;
 use RocketTheme\Toolbox\File\FileInterface;
+use RuntimeException;
+use function func_get_args;
+use function is_array;
+use function is_callable;
+use function is_object;
 
+/**
+ * Class Data
+ * @package Grav\Common\Data
+ */
 class Data implements DataInterface, \ArrayAccess, \Countable, \JsonSerializable, ExportInterface
 {
     use NestedArrayAccessWithGetters, Countable, Export;
@@ -23,7 +33,7 @@ class Data implements DataInterface, \ArrayAccess, \Countable, \JsonSerializable
     protected $gettersVariable = 'items';
     /** @var array */
     protected $items;
-    /** @var Blueprint|null */
+    /** @var Blueprint */
     protected $blueprints;
     /** @var FileInterface|null */
     protected $storage;
@@ -40,7 +50,9 @@ class Data implements DataInterface, \ArrayAccess, \Countable, \JsonSerializable
     public function __construct(array $items = [], $blueprints = null)
     {
         $this->items = $items;
-        $this->blueprints = $blueprints;
+        if (null !== $blueprints) {
+            $this->blueprints = $blueprints;
+        }
     }
 
     /**
@@ -87,20 +99,20 @@ class Data implements DataInterface, \ArrayAccess, \Countable, \JsonSerializable
      * @param mixed   $value      Value to be joined.
      * @param string  $separator  Separator, defaults to '.'
      * @return $this
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
     public function join($name, $value, $separator = '.')
     {
         $old = $this->get($name, null, $separator);
         if ($old !== null) {
-            if (!\is_array($old)) {
-                throw new \RuntimeException('Value ' . $old);
+            if (!is_array($old)) {
+                throw new RuntimeException('Value ' . $old);
             }
 
-            if (\is_object($value)) {
+            if (is_object($value)) {
                 $value = (array) $value;
-            } elseif (!\is_array($value)) {
-                throw new \RuntimeException('Value ' . $value);
+            } elseif (!is_array($value)) {
+                throw new RuntimeException('Value ' . $value);
             }
 
             $value = $this->blueprints()->mergeData($old, $value, $name, $separator);
@@ -133,7 +145,7 @@ class Data implements DataInterface, \ArrayAccess, \Countable, \JsonSerializable
      */
     public function joinDefaults($name, $value, $separator = '.')
     {
-        if (\is_object($value)) {
+        if (is_object($value)) {
             $value = (array) $value;
         }
 
@@ -154,14 +166,14 @@ class Data implements DataInterface, \ArrayAccess, \Countable, \JsonSerializable
      * @param array|object $value      Value to be joined.
      * @param string  $separator  Separator, defaults to '.'
      * @return array
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
     public function getJoined($name, $value, $separator = '.')
     {
-        if (\is_object($value)) {
+        if (is_object($value)) {
             $value = (array) $value;
-        } elseif (!\is_array($value)) {
-            throw new \RuntimeException('Value ' . $value);
+        } elseif (!is_array($value)) {
+            throw new RuntimeException('Value ' . $value);
         }
 
         $old = $this->get($name, null, $separator);
@@ -171,8 +183,8 @@ class Data implements DataInterface, \ArrayAccess, \Countable, \JsonSerializable
             return $value;
         }
 
-        if (!\is_array($old)) {
-            throw new \RuntimeException('Value ' . $old);
+        if (!is_array($old)) {
+            throw new RuntimeException('Value ' . $old);
         }
 
         // Return joined data.
@@ -210,7 +222,7 @@ class Data implements DataInterface, \ArrayAccess, \Countable, \JsonSerializable
      * Validate by blueprints.
      *
      * @return $this
-     * @throws \Exception
+     * @throws Exception
      */
     public function validate()
     {
@@ -251,18 +263,19 @@ class Data implements DataInterface, \ArrayAccess, \Countable, \JsonSerializable
     public function blueprints()
     {
         if (!$this->blueprints) {
-            $this->blueprints = new Blueprint;
-        } elseif (\is_callable($this->blueprints)) {
+            $this->blueprints = new Blueprint();
+        } elseif (is_callable($this->blueprints)) {
             // Lazy load blueprints.
             $blueprints = $this->blueprints;
             $this->blueprints = $blueprints();
         }
+
         return $this->blueprints;
     }
 
     /**
      * Save data if storage has been defined.
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
     public function save()
     {
@@ -315,6 +328,9 @@ class Data implements DataInterface, \ArrayAccess, \Countable, \JsonSerializable
         return $this->storage;
     }
 
+    /**
+     * @return array
+     */
     public function jsonSerialize()
     {
         return $this->items;

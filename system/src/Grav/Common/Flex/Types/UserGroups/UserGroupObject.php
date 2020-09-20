@@ -17,6 +17,7 @@ use Grav\Common\User\Access;
 use Grav\Common\User\Interfaces\UserGroupInterface;
 use Grav\Framework\Flex\FlexObject;
 use Grav\Framework\Flex\Traits\FlexMediaTrait;
+use function is_bool;
 
 /**
  * Flex User Group
@@ -32,9 +33,8 @@ class UserGroupObject extends FlexObject implements UserGroupInterface
     use FlexObjectTrait;
     use FlexMediaTrait;
 
-    /** @var Access|null */
+    /** @var Access */
     protected $_access;
-
     /** @var array|null */
     protected $access;
 

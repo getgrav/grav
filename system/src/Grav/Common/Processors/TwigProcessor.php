@@ -13,6 +13,10 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
+/**
+ * Class TwigProcessor
+ * @package Grav\Common\Processors
+ */
 class TwigProcessor extends ProcessorBase
 {
     /** @var string */
@@ -20,6 +24,11 @@ class TwigProcessor extends ProcessorBase
     /** @var string */
     public $title = 'Twig';
 
+    /**
+     * @param ServerRequestInterface $request
+     * @param RequestHandlerInterface $handler
+     * @return ResponseInterface
+     */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $this->startTimer();

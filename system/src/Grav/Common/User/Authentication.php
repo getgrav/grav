@@ -9,6 +9,12 @@
 
 namespace Grav\Common\User;
 
+use RuntimeException;
+
+/**
+ * Class Authentication
+ * @package Grav\Common\User
+ */
 abstract class Authentication
 {
     /**
@@ -16,19 +22,19 @@ abstract class Authentication
      *
      * @param string $password Plaintext password.
      *
-     * @throws \RuntimeException
+     * @throws RuntimeException
      * @return string
      */
     public static function create($password): string
     {
         if (!$password) {
-            throw new \RuntimeException('Password hashing failed: no password provided.');
+            throw new RuntimeException('Password hashing failed: no password provided.');
         }
 
         $hash = password_hash($password, PASSWORD_DEFAULT);
 
         if (!$hash) {
-            throw new \RuntimeException('Password hashing failed: internal error.');
+            throw new RuntimeException('Password hashing failed: internal error.');
         }
 
         return $hash;

@@ -9,11 +9,20 @@
 
 namespace Grav\Common\Errors;
 
+use Exception;
 use Grav\Common\Grav;
 use Whoops;
+use function is_int;
 
+/**
+ * Class Errors
+ * @package Grav\Common\Errors
+ */
 class Errors
 {
+    /**
+     * @return void
+     */
     public function resetHandlers()
     {
         $grav = Grav::instance();
@@ -59,7 +68,7 @@ class Errors
             $whoops->prependHandler(function ($exception, $inspector, $run) use ($logger) {
                 try {
                     $logger->addCritical($exception->getMessage() . ' - Trace: ' . $exception->getTraceAsString());
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     echo $e;
                 }
             });

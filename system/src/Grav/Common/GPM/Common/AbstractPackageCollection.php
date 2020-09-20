@@ -11,6 +11,10 @@ namespace Grav\Common\GPM\Common;
 
 use Grav\Common\Iterator;
 
+/**
+ * Class AbstractPackageCollection
+ * @package Grav\Common\GPM\Common
+ */
 abstract class AbstractPackageCollection extends Iterator
 {
     /** @var string */

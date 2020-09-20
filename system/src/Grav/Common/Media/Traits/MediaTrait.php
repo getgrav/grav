@@ -15,7 +15,12 @@ use Grav\Common\Media\Interfaces\MediaCollectionInterface;
 use Grav\Common\Page\Media;
 use Psr\SimpleCache\CacheInterface;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
+use function strlen;
 
+/**
+ * Trait MediaTrait
+ * @package Grav\Common\Media\Traits
+ */
 trait MediaTrait
 {
     /** @var MediaCollectionInterface|null */
@@ -60,7 +65,7 @@ trait MediaTrait
         $locator = Grav::instance()['locator'];
         $user = $locator->findResource('user://');
         if (strpos($folder, $user) === 0) {
-            return 'user://' . substr($folder, \strlen($user)+1);
+            return 'user://' . substr($folder, strlen($user)+1);
         }
 
         return null;
@@ -108,6 +113,9 @@ trait MediaTrait
         return $this;
     }
 
+    /**
+     * @return void
+     */
     protected function freeMedia()
     {
         $this->media = null;
@@ -115,6 +123,8 @@ trait MediaTrait
 
     /**
      * Clear media cache.
+     *
+     * @return void
      */
     protected function clearMediaCache()
     {

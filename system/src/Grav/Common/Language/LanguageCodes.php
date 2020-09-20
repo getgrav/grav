@@ -9,6 +9,10 @@
 
 namespace Grav\Common\Language;
 
+/**
+ * Class LanguageCodes
+ * @package Grav\Common\Language
+ */
 class LanguageCodes
 {
     /** @var array */
@@ -239,6 +243,7 @@ class LanguageCodes
         foreach (static::$codes as $key => $names) {
             $list[$key] = $native ? $names['nativeName'] : $names['name'];
         }
+
         return $list;
     }
 }

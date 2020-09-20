@@ -12,6 +12,7 @@ namespace Grav\Common;
 use Grav\Common\Config\Config;
 use Grav\Common\Page\Collection;
 use Grav\Common\Page\Interfaces\PageInterface;
+use function is_string;
 
 /**
  * The Taxonomy object is a singleton that holds a reference to a 'taxonomy map'. This map is
@@ -53,7 +54,7 @@ class Taxonomy
      * then adds those taxonomies to the map
      *
      * @param PageInterface  $page the page to process
-     * @param array $page_taxonomy
+     * @param array|null $page_taxonomy
      */
     public function addTaxonomy(PageInterface $page, $page_taxonomy = null)
     {
@@ -89,7 +90,6 @@ class Taxonomy
      * @param string          $taxonomy Taxonomy type to add
      * @param string          $key      Taxonomy type to concatenate
      * @param iterable|string $value    Taxonomy value to add or iterate
-     *
      * @return void
      */
     public function iterateTaxonomy(PageInterface $page, string $taxonomy, string $key, $value)
@@ -113,7 +113,6 @@ class Taxonomy
      *
      * @param  array  $taxonomies taxonomies to search, eg ['tag'=>['animal','cat']]
      * @param  string $operator   can be 'or' or 'and' (defaults to 'and')
-     *
      * @return Collection       Collection object set to contain matches found in the taxonomy map
      */
     public function findTaxonomy($taxonomies, $operator = 'and')
@@ -148,8 +147,7 @@ class Taxonomy
     /**
      * Gets and Sets the taxonomy map
      *
-     * @param  array $var the taxonomy map
-     *
+     * @param  array|null $var the taxonomy map
      * @return array      the taxonomy map
      */
     public function taxonomy($var = null)
@@ -165,7 +163,6 @@ class Taxonomy
      * Gets item keys per taxonomy
      *
      * @param  string $taxonomy       taxonomy name
-     *
      * @return array                  keys of this taxonomy
      */
     public function getTaxonomyItemKeys($taxonomy)

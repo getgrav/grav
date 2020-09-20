@@ -39,6 +39,11 @@ use Psr\Http\Message\UploadedFileInterface;
 use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\File\FileInterface;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
+use RuntimeException;
+use function assert;
+use function is_array;
+use function is_bool;
+use function is_object;
 
 /**
  * Flex User
@@ -76,10 +81,10 @@ class UserObject extends FlexObject implements UserInterface, \Countable
     /** @var FileInterface|null */
     protected $_storage;
 
-    /** @var UserGroupCollection|UserGroupIndex|null */
+    /** @var UserGroupIndex */
     protected $_groups;
 
-    /** @var Access|null */
+    /** @var Access */
     protected $_access;
 
     /** @var array|null */
@@ -155,7 +160,7 @@ class UserObject extends FlexObject implements UserInterface, \Countable
      *
      * @param string  $name       Dot separated path to the requested value.
      * @param mixed   $default    Default value (or null).
-     * @param string  $separator  Separator, defaults to '.'
+     * @param string|null  $separator  Separator, defaults to '.'
      * @return mixed  Value.
      */
     public function get($name, $default = null, $separator = null)
@@ -170,7 +175,7 @@ class UserObject extends FlexObject implements UserInterface, \Countable
      *
      * @param string  $name       Dot separated path to the requested value.
      * @param mixed   $value      New value.
-     * @param string  $separator  Separator, defaults to '.'
+     * @param string|null  $separator  Separator, defaults to '.'
      * @return $this
      */
     public function set($name, $value, $separator = null)
@@ -186,7 +191,7 @@ class UserObject extends FlexObject implements UserInterface, \Countable
      * @example $data->undef('this.is.my.nested.variable');
      *
      * @param string  $name       Dot separated path to the requested value.
-     * @param string  $separator  Separator, defaults to '.'
+     * @param string|null  $separator  Separator, defaults to '.'
      * @return $this
      */
     public function undef($name, $separator = null)
@@ -203,7 +208,7 @@ class UserObject extends FlexObject implements UserInterface, \Countable
      *
      * @param string  $name       Dot separated path to the requested value.
      * @param mixed   $default    Default value (or null).
-     * @param string  $separator  Separator, defaults to '.'
+     * @param string|null  $separator  Separator, defaults to '.'
      * @return $this
      */
     public function def($name, $default = null, $separator = null)
@@ -324,7 +329,7 @@ class UserObject extends FlexObject implements UserInterface, \Countable
      * @param  int $indent  The amount of spaces to use for indentation of nested nodes.
      * @return string A YAML string representing the object.
      */
-    public function toYaml($inline = 5, $indent = 2)
+    public function toYaml($inline = 5, $indent = 2): string
     {
         $yaml = new YamlFormatter(['inline' => $inline, 'indent' => $indent]);
 
@@ -348,23 +353,23 @@ class UserObject extends FlexObject implements UserInterface, \Countable
      *
      * @param string  $name       Dot separated path to the requested value.
      * @param mixed   $value      Value to be joined.
-     * @param string  $separator  Separator, defaults to '.'
+     * @param string|null  $separator  Separator, defaults to '.'
      * @return $this
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
     public function join($name, $value, $separator = null)
     {
         $separator = $separator ?? '.';
         $old = $this->get($name, null, $separator);
         if ($old !== null) {
-            if (!\is_array($old)) {
-                throw new \RuntimeException('Value ' . $old);
+            if (!is_array($old)) {
+                throw new RuntimeException('Value ' . $old);
             }
 
-            if (\is_object($value)) {
+            if (is_object($value)) {
                 $value = (array) $value;
-            } elseif (!\is_array($value)) {
-                throw new \RuntimeException('Value ' . $value);
+            } elseif (!is_array($value)) {
+                throw new RuntimeException('Value ' . $value);
             }
 
             $value = $this->getBlueprint()->mergeData($old, $value, $name, $separator);
@@ -392,12 +397,12 @@ class UserObject extends FlexObject implements UserInterface, \Countable
      *
      * @param string  $name       Dot separated path to the requested value.
      * @param mixed   $value      Value to be joined.
-     * @param string  $separator  Separator, defaults to '.'
+     * @param string|null  $separator  Separator, defaults to '.'
      * @return $this
      */
     public function joinDefaults($name, $value, $separator = null)
     {
-        if (\is_object($value)) {
+        if (is_object($value)) {
             $value = (array) $value;
         }
 
@@ -418,14 +423,14 @@ class UserObject extends FlexObject implements UserInterface, \Countable
      * @param array|object $value Value to be joined.
      * @param string  $separator  Separator, defaults to '.'
      * @return array
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
     public function getJoined($name, $value, $separator = null)
     {
-        if (\is_object($value)) {
+        if (is_object($value)) {
             $value = (array) $value;
-        } elseif (!\is_array($value)) {
-            throw new \RuntimeException('Value ' . $value);
+        } elseif (!is_array($value)) {
+            throw new RuntimeException('Value ' . $value);
         }
 
         $old = $this->get($name, null, $separator);
@@ -435,8 +440,8 @@ class UserObject extends FlexObject implements UserInterface, \Countable
             return $value;
         }
 
-        if (!\is_array($old)) {
-            throw new \RuntimeException('Value ' . $old);
+        if (!is_array($old)) {
+            throw new RuntimeException('Value ' . $old);
         }
 
         // Return joined data.
@@ -530,7 +535,7 @@ class UserObject extends FlexObject implements UserInterface, \Countable
     /**
      * Save user without the username
      *
-     * @return $this
+     * @return static
      */
     public function save()
     {
@@ -558,7 +563,7 @@ class UserObject extends FlexObject implements UserInterface, \Countable
             $self = $this;
             $grav->fireEvent('onAdminSave', new Event(['type' => 'flex', 'directory' => $this->getFlexDirectory(), 'object' => &$self]));
             if ($self !== $this) {
-                throw new \RuntimeException('Switching Flex User object during onAdminSave event is not supported! Please update plugin.');
+                throw new RuntimeException('Switching Flex User object during onAdminSave event is not supported! Please update plugin.');
             }
         }
 
@@ -648,7 +653,7 @@ class UserObject extends FlexObject implements UserInterface, \Countable
     protected function getAvatarFile(): ?string
     {
         $avatars = $this->getElement('avatar');
-        if (\is_array($avatars) && $avatars) {
+        if (is_array($avatars) && $avatars) {
             $avatar = array_shift($avatars);
 
             return $avatar['path'] ?? null;
@@ -688,6 +693,7 @@ class UserObject extends FlexObject implements UserInterface, \Countable
             if ($field === '') {
                 continue;
             }
+            $field = (string)$field;
 
             // Load settings for the field.
             $settings = $this->getMediaFieldSettings($field);
@@ -751,7 +757,7 @@ class UserObject extends FlexObject implements UserInterface, \Countable
     {
         $media = $this->getMedia();
         if (!$media instanceof MediaUploadInterface) {
-            throw new \RuntimeException('Internal error UO101');
+            throw new RuntimeException('Internal error UO101');
         }
 
         // Upload/delete original sized images.
@@ -796,12 +802,12 @@ class UserObject extends FlexObject implements UserInterface, \Countable
     }
 
     /**
-     * @param array $value
-     * @return array
+     * @param array|mixed $value
+     * @return array|mixed
      */
     protected function parseFileProperty($value)
     {
-        if (!\is_array($value)) {
+        if (!is_array($value)) {
             return $value;
         }
 
@@ -810,7 +816,7 @@ class UserObject extends FlexObject implements UserInterface, \Countable
 
         $list = [];
         foreach ($value as $filename => $info) {
-            if (!\is_array($info)) {
+            if (!is_array($info)) {
                 continue;
             }
 
@@ -848,7 +854,7 @@ class UserObject extends FlexObject implements UserInterface, \Countable
     }
 
     /**
-     * @return UserGroupCollection|UserGroupIndex
+     * @return UserGroupIndex
      */
     protected function getUserGroups()
     {
@@ -870,7 +876,7 @@ class UserObject extends FlexObject implements UserInterface, \Countable
     }
 
     /**
-     * @return UserGroupIndex|UserGroupCollection
+     * @return UserGroupIndex
      */
     protected function getGroups()
     {

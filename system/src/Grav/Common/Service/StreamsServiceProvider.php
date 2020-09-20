@@ -17,8 +17,16 @@ use RocketTheme\Toolbox\StreamWrapper\ReadOnlyStream;
 use RocketTheme\Toolbox\StreamWrapper\Stream;
 use RocketTheme\Toolbox\StreamWrapper\StreamBuilder;
 
+/**
+ * Class StreamsServiceProvider
+ * @package Grav\Common\Service
+ */
 class StreamsServiceProvider implements ServiceProviderInterface
 {
+    /**
+     * @param Container $container
+     * @return void
+     */
     public function register(Container $container)
     {
         $container['locator'] = function (Container $container) {

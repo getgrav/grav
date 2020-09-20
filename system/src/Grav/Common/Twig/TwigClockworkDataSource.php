@@ -14,6 +14,10 @@ use Clockwork\Request\Request;
 use Clockwork\Request\Timeline;
 use Grav\Common\Grav;
 
+/**
+ * Class TwigClockworkDataSource
+ * @package Grav\Common\Twig
+ */
 class TwigClockworkDataSource extends DataSource
 {
     /** @var Timeline Views data structure */

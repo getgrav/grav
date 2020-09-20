@@ -15,7 +15,13 @@ use Grav\Common\Page\Medium\Medium;
 use Grav\Common\Page\Medium\StaticImageMedium;
 use Grav\Common\User\Authentication;
 use Grav\Common\Utils;
+use function is_array;
+use function is_string;
 
+/**
+ * Trait UserTrait
+ * @package Grav\Common\User\Traits
+ */
 trait UserTrait
 {
     /**
@@ -121,7 +127,7 @@ trait UserTrait
     public function getAvatarImage(): ?Medium
     {
         $avatars = $this->get('avatar');
-        if (\is_array($avatars) && $avatars) {
+        if (is_array($avatars) && $avatars) {
             $avatar = array_shift($avatars);
 
             $media = $this->getMedia();
@@ -152,18 +158,18 @@ trait UserTrait
 
         // Try if avatar is a sting (URL).
         $avatar = $this->get('avatar');
-        if (\is_string($avatar)) {
+        if (is_string($avatar)) {
             return $avatar;
         }
 
         // Try looking for provider.
         $provider = $this->get('provider');
         $provider_options = $this->get($provider);
-        if (\is_array($provider_options)) {
-            if (isset($provider_options['avatar_url']) && \is_string($provider_options['avatar_url'])) {
+        if (is_array($provider_options)) {
+            if (isset($provider_options['avatar_url']) && is_string($provider_options['avatar_url'])) {
                 return $provider_options['avatar_url'];
             }
-            if (isset($provider_options['avatar']) && \is_string($provider_options['avatar'])) {
+            if (isset($provider_options['avatar']) && is_string($provider_options['avatar'])) {
                 return $provider_options['avatar'];
             }
         }

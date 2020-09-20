@@ -25,18 +25,28 @@ use Grav\Common\Page\Pages;
 use Grav\Common\Utils;
 use Grav\Framework\Filesystem\Filesystem;
 use Grav\Framework\Flex\FlexObject;
+use Grav\Framework\Flex\Interfaces\FlexCollectionInterface;
 use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
 use Grav\Framework\Flex\Pages\FlexPageObject;
 use Grav\Framework\Route\Route;
 use Grav\Framework\Route\RouteFactory;
 use Grav\Plugin\Admin\Admin;
 use RocketTheme\Toolbox\Event\Event;
+use RuntimeException;
+use stdClass;
+use function array_key_exists;
+use function assert;
+use function count;
+use function func_get_args;
+use function in_array;
+use function is_array;
 
 /**
  * Class GravPageObject
  * @package Grav\Plugin\FlexObjects\Types\GravPages
  *
  * @property string $name
+ * @property string $slug
  * @property string $route
  * @property string $folder
  * @property int|false $order
@@ -73,6 +83,9 @@ class PageObject extends FlexPageObject
         ] + parent::getCachedMethods();
     }
 
+    /**
+     * @return void
+     */
     public function initialize(): void
     {
         if (!$this->_initialized) {
@@ -98,7 +111,7 @@ class PageObject extends FlexPageObject
                 }
             }
         }
-        if (\is_array($query)) {
+        if (is_array($query)) {
             foreach ($query as $key => $value) {
                 $route = $route->withQueryParam($key, $value);
             }
@@ -114,7 +127,7 @@ class PageObject extends FlexPageObject
      */
     public function getFormValue(string $name, $default = null, string $separator = null)
     {
-        $test = new \stdClass();
+        $test = new stdClass();
 
         $value = $this->pageContentValue($name, $test);
         if ($value !== $test) {
@@ -178,20 +191,20 @@ class PageObject extends FlexPageObject
 
             // Root page cannot be moved.
             if ($this->root()) {
-                throw new \RuntimeException(sprintf('Root page cannot be moved to %s', $parentRoute));
+                throw new RuntimeException(sprintf('Root page cannot be moved to %s', $parentRoute));
             }
 
             // Make sure page isn't being moved under itself.
             $key = $this->getKey();
             if ($key === $parentKey || strpos($parentKey, $key . '/') === 0) {
-                throw new \RuntimeException(sprintf('Page /%s cannot be moved to %s', $key, $parentRoute));
+                throw new RuntimeException(sprintf('Page /%s cannot be moved to %s', $key, $parentRoute));
             }
 
             /** @var PageObject|null $parent */
             $parent = $parentKey !== false ? $this->getFlexDirectory()->getObject($parentKey, 'storage_key') : null;
             if (!$parent) {
                 // Page cannot be moved to non-existing location.
-                throw new \RuntimeException(sprintf('Page /%s cannot be moved to non-existing path %s', $key, $parentRoute));
+                throw new RuntimeException(sprintf('Page /%s cannot be moved to non-existing path %s', $key, $parentRoute));
             }
 
             // TODO: make sure that the page doesn't exist yet if moved/copied.
@@ -245,7 +258,7 @@ class PageObject extends FlexPageObject
 
     /**
      * @param array|bool $reorder
-     * @return FlexObject|\Grav\Framework\Flex\Interfaces\FlexObjectInterface
+     * @return FlexObject|FlexObjectInterface
      */
     public function save($reorder = true)
     {
@@ -258,7 +271,7 @@ class PageObject extends FlexPageObject
             $self = $this;
             $grav->fireEvent('onAdminSave', new Event(['type' => 'flex', 'directory' => $this->getFlexDirectory(), 'object' => &$self]));
             if ($self !== $this) {
-                throw new \RuntimeException('Switching Flex Page object during onAdminSave event is not supported! Please update plugin.');
+                throw new RuntimeException('Switching Flex Page object during onAdminSave event is not supported! Please update plugin.');
             }
         }
 
@@ -288,7 +301,7 @@ class PageObject extends FlexPageObject
     public function move(PageInterface $parent)
     {
         if (!$parent instanceof FlexObjectInterface) {
-            throw new \RuntimeException('Failed: Parent is not Flex Object');
+            throw new RuntimeException('Failed: Parent is not Flex Object');
         }
 
         $this->_reorder = [];
@@ -305,7 +318,7 @@ class PageObject extends FlexPageObject
     {
         $parent = $this->parent();
         if (!$parent) {
-            throw new \RuntimeException('Cannot reorder page which has no parent');
+            throw new RuntimeException('Cannot reorder a page which has no parent');
         }
 
         /** @var PageCollection|null $siblings */
@@ -348,7 +361,7 @@ class PageObject extends FlexPageObject
             $newOrder = null !== $newOrder ? $newOrder + 1 : (int)$sibling->order() + $count;
             $sibling->order($newOrder);
         }
-        /** @var PageCollection $siblings */
+
         $siblings = $siblings->orderBy(['order' => 'ASC']);
         $siblings->removeElement($this);
 
@@ -403,7 +416,7 @@ class PageObject extends FlexPageObject
             $template = $this->getProperty('template') . ($name ? '.' . $name : '');
 
             $blueprint = $this->getFlexDirectory()->getBlueprint($template, 'blueprints://pages');
-        } catch (\RuntimeException $e) {
+        } catch (RuntimeException $e) {
             $template = 'default' . ($name ? '.' . $name : '');
 
             $blueprint = $this->getFlexDirectory()->getBlueprint($template, 'blueprints://pages');

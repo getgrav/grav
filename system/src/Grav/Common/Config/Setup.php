@@ -9,13 +9,22 @@
 
 namespace Grav\Common\Config;
 
+use BadMethodCallException;
 use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Data\Data;
 use Grav\Common\Utils;
+use InvalidArgumentException;
 use Pimple\Container;
 use Psr\Http\Message\ServerRequestInterface;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
+use RuntimeException;
+use function defined;
+use function is_array;
 
+/**
+ * Class Setup
+ * @package Grav\Common\Config
+ */
 class Setup extends Data
 {
     /**
@@ -156,7 +165,7 @@ class Setup extends Data
     {
         // If no environment is set, make sure we get one (CLI or hostname).
         if (!static::$environment) {
-            if (\defined('GRAV_CLI')) {
+            if (defined('GRAV_CLI')) {
                 static::$environment = 'cli';
             } else {
                 /** @var ServerRequestInterface $request */
@@ -173,7 +182,7 @@ class Setup extends Data
         // Pre-load setup.php which contains our initial configuration.
         // Configuration may contain dynamic parts, which is why we need to always load it.
         // If "GRAV_SETUP_PATH" has been defined, use it, otherwise use defaults.
-        $file = \defined('GRAV_SETUP_PATH') ? GRAV_SETUP_PATH :  GRAV_ROOT . '/setup.php';
+        $file = defined('GRAV_SETUP_PATH') ? GRAV_SETUP_PATH :  GRAV_ROOT . '/setup.php';
         $setup = is_file($file) ? (array) include $file : [];
 
         // Add default streams defined in beginning of the class.
@@ -192,8 +201,8 @@ class Setup extends Data
 
     /**
      * @return $this
-     * @throws \RuntimeException
-     * @throws \InvalidArgumentException
+     * @throws RuntimeException
+     * @throws InvalidArgumentException
      */
     public function init()
     {
@@ -221,7 +230,7 @@ class Setup extends Data
         } while (--$guard);
 
         if (!$guard) {
-            throw new \RuntimeException('Setup: Configuration reload loop detected!');
+            throw new RuntimeException('Setup: Configuration reload loop detected!');
         }
 
         // Make sure we have valid setup.
@@ -234,7 +243,8 @@ class Setup extends Data
      * Initialize resource locator by using the configuration.
      *
      * @param UniformResourceLocator $locator
-     * @throws \BadMethodCallException
+     * @return void
+     * @throws BadMethodCallException
      */
     public function initializeLocator(UniformResourceLocator $locator)
     {
@@ -280,19 +290,19 @@ class Setup extends Data
 
     /**
      * @param UniformResourceLocator $locator
-     * @throws \InvalidArgumentException
-     * @throws \BadMethodCallException
-     * @throws \RuntimeException
+     * @throws InvalidArgumentException
+     * @throws BadMethodCallException
+     * @throws RuntimeException
      */
     protected function check(UniformResourceLocator $locator)
     {
         $streams = $this->items['streams']['schemes'] ?? null;
-        if (!\is_array($streams)) {
-            throw new \InvalidArgumentException('Configuration is missing streams.schemes!');
+        if (!is_array($streams)) {
+            throw new InvalidArgumentException('Configuration is missing streams.schemes!');
         }
         $diff = array_keys(array_diff_key($this->streams, $streams));
         if ($diff) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 sprintf('Configuration is missing keys %s from streams.schemes!', implode(', ', $diff))
             );
         }
@@ -315,8 +325,8 @@ class Setup extends Data
                 $security_file->save();
                 $security_file->free();
             }
-        } catch (\RuntimeException $e) {
-            throw new \RuntimeException(sprintf('Grav failed to initialize: %s', $e->getMessage()), 500, $e);
+        } catch (RuntimeException $e) {
+            throw new RuntimeException(sprintf('Grav failed to initialize: %s', $e->getMessage()), 500, $e);
         }
     }
 }

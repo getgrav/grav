@@ -11,6 +11,10 @@ namespace Grav\Common\Errors;
 
 use Whoops\Handler\Handler;
 
+/**
+ * Class BareHandler
+ * @package Grav\Common\Errors
+ */
 class BareHandler extends Handler
 {
     /**

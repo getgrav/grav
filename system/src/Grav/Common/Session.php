@@ -11,7 +11,12 @@ namespace Grav\Common;
 
 use Grav\Common\Form\FormFlash;
 use Grav\Events\SessionStartEvent;
+use function is_string;
 
+/**
+ * Class Session
+ * @package Grav\Common
+ */
 class Session extends \Grav\Framework\Session\Session
 {
     /** @var bool */
@@ -32,6 +37,8 @@ class Session extends \Grav\Framework\Session\Session
      * Initialize session.
      *
      * Code in this function has been moved into SessionServiceProvider class.
+     *
+     * @return void
      */
     public function init()
     {
@@ -69,7 +76,7 @@ class Session extends \Grav\Framework\Session\Session
     /**
      * Checks if the session was started.
      *
-     * @return Boolean
+     * @return bool
      * @deprecated 1.5 Use ->isStarted() method instead.
      */
     public function started()
@@ -103,7 +110,7 @@ class Session extends \Grav\Framework\Session\Session
     {
         $serialized = $this->__get($name);
 
-        $object = \is_string($serialized) ? unserialize($serialized, ['allowed_classes' => true]) : $serialized;
+        $object = is_string($serialized) ? unserialize($serialized, ['allowed_classes' => true]) : $serialized;
 
         $this->__unset($name);
 
@@ -157,7 +164,7 @@ class Session extends \Grav\Framework\Session\Session
     public function getFlashCookieObject($name)
     {
         if (isset($_COOKIE[$name])) {
-            $object = json_decode($_COOKIE[$name]);
+            $object = json_decode($_COOKIE[$name], false);
             setcookie($name, '', time() - 3600, '/');
             return $object;
         }
@@ -165,6 +172,9 @@ class Session extends \Grav\Framework\Session\Session
         return null;
     }
 
+    /**
+     * @return void
+     */
     protected function onSessionStart(): void
     {
         $event = new SessionStartEvent($this);

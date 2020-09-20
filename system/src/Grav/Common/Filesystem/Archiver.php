@@ -9,8 +9,16 @@
 
 namespace Grav\Common\Filesystem;
 
+use FilesystemIterator;
 use Grav\Common\Utils;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+use function function_exists;
 
+/**
+ * Class Archiver
+ * @package Grav\Common\Filesystem
+ */
 abstract class Archiver
 {
     /** @var array */
@@ -85,15 +93,15 @@ abstract class Archiver
 
     /**
      * @param string $rootPath
-     * @return \RecursiveIteratorIterator
+     * @return RecursiveIteratorIterator
      */
     protected function getArchiveFiles($rootPath)
     {
         $exclude_paths = $this->options['exclude_paths'];
         $exclude_files = $this->options['exclude_files'];
-        $dirItr    = new \RecursiveDirectoryIterator($rootPath, \RecursiveDirectoryIterator::SKIP_DOTS | \FilesystemIterator::FOLLOW_SYMLINKS | \FilesystemIterator::UNIX_PATHS);
+        $dirItr    = new RecursiveDirectoryIterator($rootPath, RecursiveDirectoryIterator::SKIP_DOTS | FilesystemIterator::FOLLOW_SYMLINKS | FilesystemIterator::UNIX_PATHS);
         $filterItr = new RecursiveDirectoryFilterIterator($dirItr, $rootPath, $exclude_paths, $exclude_files);
-        $files     = new \RecursiveIteratorIterator($filterItr, \RecursiveIteratorIterator::SELF_FIRST);
+        $files     = new RecursiveIteratorIterator($filterItr, RecursiveIteratorIterator::SELF_FIRST);
 
         return $files;
     }

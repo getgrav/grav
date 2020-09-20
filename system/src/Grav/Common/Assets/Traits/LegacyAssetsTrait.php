@@ -10,7 +10,14 @@
 namespace Grav\Common\Assets\Traits;
 
 use Grav\Common\Assets;
+use function count;
+use function is_array;
+use function is_int;
 
+/**
+ * Trait LegacyAssetsTrait
+ * @package Grav\Common\Assets\Traits
+ */
 trait LegacyAssetsTrait
 {
     /**

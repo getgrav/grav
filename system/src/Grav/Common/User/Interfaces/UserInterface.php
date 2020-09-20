@@ -12,9 +12,9 @@ namespace Grav\Common\User\Interfaces;
 use Grav\Common\Data\Blueprint;
 use Grav\Common\Data\DataInterface;
 use Grav\Common\Media\Interfaces\MediaInterface;
-use Grav\Common\Page\Medium\ImageMedium;
 use Grav\Common\Page\Medium\Medium;
 use RocketTheme\Toolbox\ArrayTraits\ExportInterface;
+use RuntimeException;
 
 /**
  * Interface UserInterface
@@ -45,7 +45,7 @@ interface UserInterface extends AuthorizeInterface, DataInterface, MediaInterfac
      *
      * @param string  $name       Dot separated path to the requested value.
      * @param mixed   $default    Default value (or null).
-     * @param string  $separator  Separator, defaults to '.'
+     * @param string|null  $separator  Separator, defaults to '.'
      * @return mixed  Value.
      */
     public function get($name, $default = null, $separator = null);
@@ -57,7 +57,7 @@ interface UserInterface extends AuthorizeInterface, DataInterface, MediaInterfac
      *
      * @param string  $name       Dot separated path to the requested value.
      * @param mixed   $value      New value.
-     * @param string  $separator  Separator, defaults to '.'
+     * @param string|null  $separator  Separator, defaults to '.'
      * @return $this
      */
     public function set($name, $value, $separator = null);
@@ -68,7 +68,7 @@ interface UserInterface extends AuthorizeInterface, DataInterface, MediaInterfac
      * @example $data->undef('this.is.my.nested.variable');
      *
      * @param string  $name       Dot separated path to the requested value.
-     * @param string  $separator  Separator, defaults to '.'
+     * @param string|null  $separator  Separator, defaults to '.'
      * @return $this
      */
     public function undef($name, $separator = null);
@@ -80,7 +80,7 @@ interface UserInterface extends AuthorizeInterface, DataInterface, MediaInterfac
      *
      * @param string  $name       Dot separated path to the requested value.
      * @param mixed   $default    Default value (or null).
-     * @param string  $separator  Separator, defaults to '.'
+     * @param string|null  $separator  Separator, defaults to '.'
      * @return $this
      */
     public function def($name, $default = null, $separator = null);
@@ -92,7 +92,7 @@ interface UserInterface extends AuthorizeInterface, DataInterface, MediaInterfac
      * @param mixed   $value      Value to be joined.
      * @param string  $separator  Separator, defaults to '.'
      * @return $this
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
     public function join($name, $value, $separator = '.');
 
@@ -122,7 +122,7 @@ interface UserInterface extends AuthorizeInterface, DataInterface, MediaInterfac
      * @param array|object $value      Value to be joined.
      * @param string  $separator  Separator, defaults to '.'
      * @return array
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
     public function getJoined($name, $value, $separator = '.');
 
@@ -167,7 +167,6 @@ interface UserInterface extends AuthorizeInterface, DataInterface, MediaInterfac
      * If user password needs to be updated, new information will be saved.
      *
      * @param string $password Plaintext password.
-     *
      * @return bool
      */
     public function authenticate(string $password): bool;

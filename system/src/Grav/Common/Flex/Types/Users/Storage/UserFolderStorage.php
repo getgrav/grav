@@ -13,8 +13,13 @@ namespace Grav\Common\Flex\Types\Users\Storage;
 
 use Grav\Framework\Flex\Storage\FolderStorage;
 
+/**
+ * Class UserFolderStorage
+ * @package Grav\Common\Flex\Types\Users\Storage
+ */
 class UserFolderStorage extends FolderStorage
 {
+    /** @var bool */
     public $caseSensitive;
 
     /**

@@ -25,6 +25,7 @@ use DebugBar\DataCollector\PhpInfoCollector;
 use DebugBar\DataCollector\RequestDataCollector;
 use DebugBar\DataCollector\TimeDataCollector;
 use DebugBar\DebugBar;
+use DebugBar\DebugBarException;
 use DebugBar\JavascriptRenderer;
 use Grav\Common\Config\Config;
 use Grav\Common\Processors\ProcessorInterface;
@@ -34,55 +35,58 @@ use Monolog\Logger;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use RocketTheme\Toolbox\Event\Event;
+use ReflectionObject;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Throwable;
 use Twig\Template;
 use Twig\TemplateWrapper;
+use function array_slice;
+use function count;
+use function define;
+use function defined;
+use function extension_loaded;
+use function get_class;
+use function gettype;
+use function is_array;
+use function is_bool;
+use function is_object;
+use function is_scalar;
+use function is_string;
 
+/**
+ * Class Debugger
+ * @package Grav\Common
+ */
 class Debugger
 {
     /** @var static */
     protected static $instance;
-
     /** @var Grav|null */
     protected $grav;
-
     /** @var Config|null */
     protected $config;
-
     /** @var JavascriptRenderer|null */
     protected $renderer;
-
     /** @var DebugBar|null */
     protected $debugbar;
-
     /** @var Clockwork|null */
     protected $clockwork;
-
     /** @var bool */
     protected $enabled = false;
-
     /** @var bool */
     protected $initialized = false;
-
     /** @var array */
     protected $timers = [];
-
     /** @var array */
     protected $deprecations = [];
-
     /** @var callable|null */
     protected $errorHandler;
-
     /** @var float */
     protected $requestTime;
-
     /** @var float */
     protected $currentTime;
-
     /** @var int */
     protected $profiling = 0;
-
     /** @var bool */
     protected $censored = false;
 
@@ -95,8 +99,8 @@ class Debugger
 
         $this->currentTime = microtime(true);
 
-        if (!\defined('GRAV_REQUEST_TIME')) {
-            \define('GRAV_REQUEST_TIME', $this->currentTime);
+        if (!defined('GRAV_REQUEST_TIME')) {
+            define('GRAV_REQUEST_TIME', $this->currentTime);
         }
 
         $this->requestTime = $_SERVER['REQUEST_TIME_FLOAT'] ?? GRAV_REQUEST_TIME;
@@ -105,6 +109,9 @@ class Debugger
         $this->setErrorHandler();
     }
 
+    /**
+     * @return Clockwork|null
+     */
     public function getClockwork(): ?Clockwork
     {
         return $this->enabled ? $this->clockwork : null;
@@ -114,7 +121,7 @@ class Debugger
      * Initialize the debugger
      *
      * @return $this
-     * @throws \DebugBar\DebugBarException
+     * @throws DebugBarException
      */
     public function init()
     {
@@ -325,7 +332,10 @@ class Debugger
         return new Response(200, $headers, json_encode($data));
     }
 
-    protected function addMeasures()
+    /**
+     * @return void
+     */
+    protected function addMeasures(): void
     {
         if (!$this->enabled) {
             return;
@@ -356,8 +366,7 @@ class Debugger
     /**
      * Set/get the enabled state of the debugger
      *
-     * @param bool $state If null, the method returns the enabled value. If set, the method sets the enabled state
-     *
+     * @param bool|null $state If null, the method returns the enabled value. If set, the method sets the enabled state
      * @return bool
      */
     public function enabled($state = null)
@@ -418,6 +427,10 @@ class Debugger
         return $this;
     }
 
+    /**
+     * @param int $limit
+     * @return array
+     */
     public function getCaller($limit = 2)
     {
         $trace = debug_backtrace(false, $limit);
@@ -429,9 +442,8 @@ class Debugger
      * Adds a data collector
      *
      * @param DataCollectorInterface $collector
-     *
      * @return $this
-     * @throws \DebugBar\DebugBarException
+     * @throws DebugBarException
      */
     public function addCollector($collector)
     {
@@ -446,9 +458,8 @@ class Debugger
      * Returns a data collector
      *
      * @param string $name
-     *
      * @return DataCollectorInterface|null
-     * @throws \DebugBar\DebugBarException
+     * @throws DebugBarException
      */
     public function getCollector($name)
     {
@@ -520,7 +531,7 @@ class Debugger
      * Hierarchical Profiler support.
      *
      * @param callable $callable
-     * @param string $message
+     * @param string|null $message
      * @return mixed
      */
     public function profile(callable $callable, string $message = null)
@@ -534,6 +545,8 @@ class Debugger
 
     /**
      * Start profiling code.
+     *
+     * @return void
      */
     public function startProfiling(): void
     {
@@ -548,7 +561,7 @@ class Debugger
     /**
      * Stop profiling code. Returns profiling array or null if profiling couldn't be done.
      *
-     * @param string $message
+     * @param string|null $message
      * @return array|null
      */
     public function stopProfiling(string $message = null): ?array
@@ -577,6 +590,10 @@ class Debugger
         return $timings;
     }
 
+    /**
+     * @param array $timings
+     * @return array
+     */
     protected function buildProfilerTimings(array $timings): array
     {
         // Filter method calls which take almost no time.
@@ -615,6 +632,10 @@ class Debugger
         return $table;
     }
 
+    /**
+     * @param string|null $call
+     * @return mixed|string|null
+     */
     protected function parseProfilerCall(?string $call)
     {
         if (null === $call) {
@@ -650,7 +671,6 @@ class Debugger
      *
      * @param string      $name
      * @param string|null $description
-     *
      * @return $this
      */
     public function startTimer($name, $description = null)
@@ -664,7 +684,6 @@ class Debugger
      * Stop the named timer
      *
      * @param string $name
-     *
      * @return $this
      */
     public function stopTimer($name)
@@ -683,7 +702,6 @@ class Debugger
      * @param mixed  $message
      * @param string $label
      * @param mixed|bool $isString
-     *
      * @return $this
      */
     public function addMessage($message, $label = 'info', $isString = true)
@@ -758,10 +776,10 @@ class Debugger
     /**
      * Dump exception into the Messages tab of the Debug Bar
      *
-     * @param \Throwable $e
+     * @param Throwable $e
      * @return Debugger
      */
-    public function addException(\Throwable $e)
+    public function addException(Throwable $e)
     {
         if ($this->initialized && $this->enabled) {
             if ($this->debugbar) {
@@ -780,6 +798,9 @@ class Debugger
         return $this;
     }
 
+    /**
+     * @return void
+     */
     public function setErrorHandler()
     {
         $this->errorHandler = set_error_handler(
@@ -834,7 +855,7 @@ class Debugger
                         if ($arg instanceof \SplFileInfo) {
                             $arg = $arg->getPathname();
                         }
-                        if (\is_string($arg) && preg_match('/.+\.(yaml|md)$/i', $arg)) {
+                        if (is_string($arg) && preg_match('/.+\.(yaml|md)$/i', $arg)) {
                             $errfile = $arg;
                             $errline = 0;
 
@@ -852,18 +873,18 @@ class Debugger
             if (isset($current['args'])) {
                 $args = [];
                 foreach ($current['args'] as $arg) {
-                    if (\is_string($arg)) {
+                    if (is_string($arg)) {
                         $arg = "'" . $arg . "'";
                         if (mb_strlen($arg) > 100) {
                             $arg = 'string';
                         }
-                    } elseif (\is_bool($arg)) {
+                    } elseif (is_bool($arg)) {
                         $arg = $arg ? 'true' : 'false';
-                    } elseif (\is_scalar($arg)) {
+                    } elseif (is_scalar($arg)) {
                         $arg = $arg;
-                    } elseif (\is_object($arg)) {
+                    } elseif (is_object($arg)) {
                         $arg = get_class($arg) . ' $object';
-                    } elseif (\is_array($arg)) {
+                    } elseif (is_array($arg)) {
                         $arg = '$array';
                     } else {
                         $arg = '$object';
@@ -879,7 +900,7 @@ class Debugger
 
             $reflection = null;
             if ($object instanceof TemplateWrapper) {
-                $reflection = new \ReflectionObject($object);
+                $reflection = new ReflectionObject($object);
                 $property = $reflection->getProperty('template');
                 $property->setAccessible(true);
                 $object = $property->getValue($object);
@@ -989,6 +1010,9 @@ class Debugger
         return true;
     }
 
+    /**
+     * @return array
+     */
     protected function getDeprecations(): array
     {
         if (!$this->deprecations) {
@@ -1004,6 +1028,10 @@ class Debugger
         return $list;
     }
 
+    /**
+     * @return void
+     * @throws DebugBarException
+     */
     protected function addDeprecations()
     {
         if (!$this->deprecations) {
@@ -1022,6 +1050,10 @@ class Debugger
         }
     }
 
+    /**
+     * @param array $deprecated
+     * @return array
+     */
     protected function getDepracatedMessage($deprecated)
     {
         $scope = $deprecated['scope'];
@@ -1059,6 +1091,10 @@ class Debugger
         ];
     }
 
+    /**
+     * @param array $trace
+     * @return string
+     */
     protected function getFunction($trace)
     {
         if (!isset($trace['function'])) {
@@ -1068,6 +1104,10 @@ class Debugger
         return $trace['function'] . '(' . implode(', ', $trace['args'] ?? []) . ')';
     }
 
+    /**
+     * @param callable $callable
+     * @return string
+     */
     protected function resolveCallable(callable $callable)
     {
         if (is_array($callable)) {

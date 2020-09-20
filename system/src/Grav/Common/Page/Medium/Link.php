@@ -9,9 +9,19 @@
 
 namespace Grav\Common\Page\Medium;
 
+use BadMethodCallException;
 use Grav\Common\Media\Interfaces\MediaLinkInterface;
 use Grav\Common\Media\Interfaces\MediaObjectInterface;
+use RuntimeException;
+use function call_user_func_array;
+use function get_class;
+use function is_array;
+use function is_callable;
 
+/**
+ * Class Link
+ * @package Grav\Common\Page\Medium
+ */
 class Link implements RenderableInterface, MediaLinkInterface
 {
     use ParsedownHtmlTrait;
@@ -34,7 +44,7 @@ class Link implements RenderableInterface, MediaLinkInterface
 
         // FIXME: Thumbnail can be null, maybe we should not allow that?
         if (null === $source) {
-            throw new \RuntimeException('Media has no thumbnail set');
+            throw new RuntimeException('Media has no thumbnail set');
         }
 
         $source->set('linked', true);
@@ -76,7 +86,7 @@ class Link implements RenderableInterface, MediaLinkInterface
         $object = $this->source;
         $callable = [$object, $method];
         if (!is_callable($callable)) {
-            throw new \BadMethodCallException(get_class($object) . '::' . $method . '() not found.');
+            throw new BadMethodCallException(get_class($object) . '::' . $method . '() not found.');
         }
 
         $this->source = call_user_func_array($callable, $args);

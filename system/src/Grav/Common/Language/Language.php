@@ -14,7 +14,16 @@ use Grav\Common\Grav;
 use Grav\Common\Config\Config;
 use Negotiation\AcceptLanguage;
 use Negotiation\LanguageNegotiator;
+use function array_key_exists;
+use function count;
+use function in_array;
+use function is_array;
+use function is_string;
 
+/**
+ * Class Language
+ * @package Grav\Common\Language
+ */
 class Language
 {
     /** @var Grav */
@@ -63,6 +72,8 @@ class Language
 
     /**
      * Initialize the default and enabled languages
+     *
+     * @return void
      */
     public function init()
     {
@@ -437,10 +448,6 @@ class Language
             $fallback_languages = array_values($fallback_languages);
 
             $this->fallback_languages[$key] = $fallback_languages;
-
-            /** @var Debugger $debugger */
-            //$debugger = $this->grav['debugger'];
-            //$debugger->addMessage("Language fallback for {$active}", 'debug', $fallback_languages);
         }
 
         return $this->fallback_languages[$key];
@@ -454,7 +461,7 @@ class Language
      */
     public function validate($lang)
     {
-        return \in_array($lang, $this->languages, true);
+        return in_array($lang, $this->languages, true);
     }
 
     /**
@@ -469,7 +476,7 @@ class Language
      */
     public function translate($args, array $languages = null, $array_support = false, $html_out = false)
     {
-        if (\is_array($args)) {
+        if (is_array($args)) {
             $lookup = array_shift($args);
         } else {
             $lookup = $args;
@@ -477,7 +484,7 @@ class Language
         }
 
         if ($this->config->get('system.languages.translations', true)) {
-            if ($this->enabled() && $lookup && empty($languages)) {
+            if ($lookup && $this->enabled() && empty($languages)) {
                 $languages = $this->getTranslatedLanguages();
             }
 
@@ -487,7 +494,7 @@ class Language
                 $translation = $this->getTranslation($lang, $lookup, $array_support);
 
                 if ($translation) {
-                    if (is_string($translation) && \count($args) >= 1) {
+                    if (is_string($translation) && count($args) >= 1) {
                         return vsprintf($translation, $args);
                     }
 

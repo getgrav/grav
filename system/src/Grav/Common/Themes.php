@@ -9,15 +9,26 @@
 
 namespace Grav\Common;
 
+use DirectoryIterator;
+use Exception;
 use Grav\Common\Config\Config;
 use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Data\Blueprints;
 use Grav\Common\Data\Data;
 use Grav\Framework\Psr7\Response;
+use InvalidArgumentException;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
+use RuntimeException;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use function defined;
+use function in_array;
+use function strlen;
 
+/**
+ * Class Themes
+ * @package Grav\Common
+ */
 class Themes extends Iterator
 {
     /** @var Grav */
@@ -45,6 +56,9 @@ class Themes extends Iterator
         spl_autoload_register([$this, 'autoloadTheme']);
     }
 
+    /**
+     * @return void
+     */
     public function init()
     {
         /** @var Themes $themes */
@@ -54,6 +68,9 @@ class Themes extends Iterator
         $this->initTheme();
     }
 
+    /**
+     * @return void
+     */
     public function initTheme()
     {
         if ($this->inited === false) {
@@ -62,8 +79,8 @@ class Themes extends Iterator
 
             try {
                 $instance = $themes->load();
-            } catch (\InvalidArgumentException $e) {
-                throw new \RuntimeException($this->current() . ' theme could not be found');
+            } catch (InvalidArgumentException $e) {
+                throw new RuntimeException($this->current() . ' theme could not be found');
             }
 
             // Register autoloader.
@@ -100,7 +117,7 @@ class Themes extends Iterator
 
         $iterator = $locator->getIterator('themes://');
 
-        /** @var \DirectoryIterator $directory */
+        /** @var DirectoryIterator $directory */
         foreach ($iterator as $directory) {
             if (!$directory->isDir() || $directory->isDot()) {
                 continue;
@@ -110,8 +127,8 @@ class Themes extends Iterator
 
             try {
                 $result = $this->get($theme);
-            } catch (\Exception $e) {
-                $exception = new \RuntimeException(sprintf('Theme %s: %s', $theme, $e->getMessage()), $e->getCode(), $e);
+            } catch (Exception $e) {
+                $exception = new RuntimeException(sprintf('Theme %s: %s', $theme, $e->getMessage()), $e->getCode(), $e);
 
                 /** @var Debugger $debugger */
                 $debugger = $this->grav['debugger'];
@@ -134,14 +151,13 @@ class Themes extends Iterator
      * Get theme configuration or throw exception if it cannot be found.
      *
      * @param  string $name
-     *
      * @return Data|null
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
     public function get($name)
     {
         if (!$name) {
-            throw new \RuntimeException('Theme name not provided.');
+            throw new RuntimeException('Theme name not provided.');
         }
 
         $blueprints = new Blueprints('themes://');
@@ -237,7 +253,8 @@ class Themes extends Iterator
     /**
      * Configure and prepare streams for current template.
      *
-     * @throws \InvalidArgumentException
+     * @return void
+     * @throws InvalidArgumentException
      */
     public function configure()
     {
@@ -269,7 +286,7 @@ class Themes extends Iterator
                 }
             }
 
-            if (\in_array($scheme, $registered, true)) {
+            if (in_array($scheme, $registered, true)) {
                 stream_wrapper_unregister($scheme);
             }
             $type = !empty($config['type']) ? $config['type'] : 'ReadOnlyStream';
@@ -278,7 +295,7 @@ class Themes extends Iterator
             }
 
             if (!stream_wrapper_register($scheme, $type)) {
-                throw new \InvalidArgumentException("Stream '{$type}' could not be initialized.");
+                throw new InvalidArgumentException("Stream '{$type}' could not be initialized.");
             }
         }
 
@@ -291,6 +308,7 @@ class Themes extends Iterator
      *
      * @param string $name   Theme name
      * @param Config $config Configuration class
+     * @return void
      */
     protected function loadConfiguration($name, Config $config)
     {
@@ -302,6 +320,7 @@ class Themes extends Iterator
      * Load theme languages.
      *
      * @param Config $config Configuration class
+     * @return void
      */
     protected function loadLanguages(Config $config)
     {
@@ -317,9 +336,7 @@ class Themes extends Iterator
             $languages_folder = $locator->findResource('theme://languages');
             if (file_exists($languages_folder)) {
                 $languages = [];
-                $iterator = new \DirectoryIterator($languages_folder);
-
-                /** @var \DirectoryIterator $directory */
+                $iterator = new DirectoryIterator($languages_folder);
                 foreach ($iterator as $file) {
                     if ($file->getExtension() !== 'yaml') {
                         continue;
@@ -335,8 +352,7 @@ class Themes extends Iterator
      * Autoload theme classes for inheritance
      *
      * @param  string $class Class name
-     *
-     * @return mixed  false  FALSE if unable to load $class; Class name if
+     * @return mixed|false   FALSE if unable to load $class; Class name if
      *                       $class is successfully loaded
      */
     protected function autoloadTheme($class)

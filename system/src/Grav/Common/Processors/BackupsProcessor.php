@@ -13,6 +13,10 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
+/**
+ * Class BackupsProcessor
+ * @package Grav\Common\Processors
+ */
 class BackupsProcessor extends ProcessorBase
 {
     /** @var string */
@@ -20,6 +24,11 @@ class BackupsProcessor extends ProcessorBase
     /** @var string */
     public $title = 'Backups';
 
+    /**
+     * @param ServerRequestInterface $request
+     * @param RequestHandlerInterface $handler
+     * @return ResponseInterface
+     */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $this->startTimer();

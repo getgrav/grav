@@ -11,7 +11,14 @@ namespace Grav\Common\Markdown;
 
 use Grav\Common\Page\Markdown\Excerpts;
 use Grav\Common\Page\Interfaces\PageInterface;
+use function call_user_func_array;
+use function in_array;
+use function strlen;
 
+/**
+ * Trait ParsedownGravTrait
+ * @package Grav\Common\Markdown
+ */
 trait ParsedownGravTrait
 {
     /** @var array */
@@ -135,7 +142,7 @@ trait ParsedownGravTrait
      */
     protected function isBlockContinuable($Type)
     {
-        $continuable = \in_array($Type, $this->continuable_blocks, true)
+        $continuable = in_array($Type, $this->continuable_blocks, true)
             || method_exists($this, 'block' . $Type . 'Continue');
 
         return $continuable;
@@ -149,7 +156,7 @@ trait ParsedownGravTrait
      */
     protected function isBlockCompletable($Type)
     {
-        $completable = \in_array($Type, $this->completable_blocks, true)
+        $completable = in_array($Type, $this->completable_blocks, true)
             || method_exists($this, 'block' . $Type . 'Complete');
 
         return $completable;
@@ -284,7 +291,7 @@ trait ParsedownGravTrait
         if (isset($this->{$method}) === true) {
             $func = $this->{$method};
 
-            return \call_user_func_array($func, $args);
+            return call_user_func_array($func, $args);
         }
 
         return null;

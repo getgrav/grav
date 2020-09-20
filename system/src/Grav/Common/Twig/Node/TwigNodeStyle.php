@@ -9,11 +9,16 @@
 
 namespace Grav\Common\Twig\Node;
 
+use LogicException;
 use Twig\Compiler;
 use Twig\Node\Expression\AbstractExpression;
 use Twig\Node\Node;
 use Twig\Node\NodeCaptureInterface;
 
+/**
+ * Class TwigNodeStyle
+ * @package Grav\Common\Twig\Node
+ */
 class TwigNodeStyle extends Node implements NodeCaptureInterface
 {
     /** @var string */
@@ -29,15 +34,8 @@ class TwigNodeStyle extends Node implements NodeCaptureInterface
      * @param int $lineno
      * @param string|null $tag
      */
-    public function __construct(
-        ?Node $body,
-        ?AbstractExpression $file,
-        ?AbstractExpression $group,
-        ?AbstractExpression $priority,
-        ?AbstractExpression $attributes,
-        $lineno = 0,
-        $tag = null
-    ) {
+    public function __construct(?Node $body, ?AbstractExpression $file, ?AbstractExpression $group, ?AbstractExpression $priority, ?AbstractExpression $attributes, $lineno = 0, $tag = null)
+    {
         $nodes = ['body' => $body, 'file' => $file, 'group' => $group, 'priority' => $priority, 'attributes' => $attributes];
         $nodes = array_filter($nodes);
 
@@ -47,7 +45,8 @@ class TwigNodeStyle extends Node implements NodeCaptureInterface
      * Compiles the node to PHP.
      *
      * @param Compiler $compiler A Twig Compiler instance
-     * @throws \LogicException
+     * @return void
+     * @throws LogicException
      */
     public function compile(Compiler $compiler)
     {

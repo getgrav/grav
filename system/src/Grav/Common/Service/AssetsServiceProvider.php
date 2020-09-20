@@ -13,8 +13,16 @@ use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 use Grav\Common\Assets;
 
+/**
+ * Class AssetsServiceProvider
+ * @package Grav\Common\Service
+ */
 class AssetsServiceProvider implements ServiceProviderInterface
 {
+    /**
+     * @param Container $container
+     * @return void
+     */
     public function register(Container $container)
     {
         $container['assets'] = function () {

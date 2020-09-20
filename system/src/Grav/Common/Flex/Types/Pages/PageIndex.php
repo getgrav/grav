@@ -11,8 +11,10 @@ declare(strict_types=1);
 
 namespace Grav\Common\Flex\Types\Pages;
 
+use Exception;
 use Grav\Common\Debugger;
 use Grav\Common\File\CompiledJsonFile;
+use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Flex\Traits\FlexGravTrait;
 use Grav\Common\Flex\Traits\FlexIndexTrait;
 use Grav\Common\Grav;
@@ -24,6 +26,9 @@ use Grav\Framework\Flex\FlexDirectory;
 use Grav\Framework\Flex\Interfaces\FlexCollectionInterface;
 use Grav\Framework\Flex\Interfaces\FlexStorageInterface;
 use Grav\Framework\Flex\Pages\FlexPageIndex;
+use RuntimeException;
+use function is_array;
+use function is_string;
 
 /**
  * Class GravPageObject
@@ -130,7 +135,7 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
                     $debugger = Grav::instance()['debugger'];
                     $message = sprintf('Flex Pages: root page is broken in storage: %s', $row['__ERROR']);
 
-                    $debugger->addException(new \RuntimeException($message));
+                    $debugger->addException(new RuntimeException($message));
                     $debugger->addMessage($message, 'error');
 
                     $row = ['__META' => $root];
@@ -424,7 +429,7 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
             /** @var PageObject $child */
             foreach ($selectedChildren as $child) {
                 $selected = $child->path() === $extra;
-                $includeChildren = \is_array($leaf) && !empty($leaf) && $selected;
+                $includeChildren = is_array($leaf) && !empty($leaf) && $selected;
                 if ($field) {
                     $child_count = count($child->children());
                     $payload = [
@@ -524,6 +529,10 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
         return [$status, $msg ?? 'PLUGIN_ADMIN.NO_ROUTE_PROVIDED', $response, $path];
     }
 
+    /**
+     * @param PageObject $object
+     * @return array
+     */
     protected function getListingActions(PageObject $object): array
     {
         $actions = [];
@@ -544,7 +553,7 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
 
     /**
      * @param FlexStorageInterface $storage
-     * @return CompiledJsonFile|\Grav\Common\File\CompiledYamlFile|null
+     * @return CompiledJsonFile|CompiledYamlFile|null
      */
     protected static function getIndexFile(FlexStorageInterface $storage)
     {
@@ -954,7 +963,7 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
      * Get the extended version of this Collection with each page keyed by route
      *
      * @return array
-     * @throws \Exception
+     * @throws Exception
      */
     public function toExtendedArray()
     {

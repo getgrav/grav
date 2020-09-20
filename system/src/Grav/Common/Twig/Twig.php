@@ -18,6 +18,7 @@ use Grav\Common\Page\Pages;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use RocketTheme\Toolbox\Event\Event;
 use Phive\Twig\Extensions\Deferred\DeferredExtension;
+use RuntimeException;
 use Twig\Cache\FilesystemCache;
 use Twig\Environment;
 use Twig\Error\LoaderError;
@@ -32,33 +33,31 @@ use Twig\Loader\FilesystemLoader;
 use Twig\Profiler\Profile;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
+use function function_exists;
 
+/**
+ * Class Twig
+ * @package Grav\Common\Twig
+ */
 class Twig
 {
     /** @var Environment */
     public $twig;
-
     /** @var array */
     public $twig_vars = [];
-
     /** @var array */
     public $twig_paths;
-
     /** @var string */
     public $template;
 
     /** @var Grav */
     protected $grav;
-
     /** @var FilesystemLoader */
     protected $loader;
-
     /** @var ArrayLoader */
     protected $loaderArray;
-
     /** @var bool */
     protected $autoescape;
-
     /** @var Profile */
     protected $profile;
 
@@ -76,6 +75,8 @@ class Twig
     /**
      * Twig initialization that sets the twig loader chain, then the environment, then extensions
      * and also the base set of twig vars
+     *
+     * @return $this
      */
     public function init()
     {
@@ -194,7 +195,6 @@ class Twig
             $this->profile = new Profile();
             $this->twig->addExtension(new ProfilerExtension($this->profile));
 
-
             $this->grav->fireEvent('onTwigExtensions');
 
             /** @var Pages $pages */
@@ -242,6 +242,9 @@ class Twig
         return $this->loader;
     }
 
+    /**
+     * @return Profile
+     */
     public function profile()
     {
         return $this->profile;
@@ -265,7 +268,7 @@ class Twig
      * 2) Renders individual page items for twig processing before the site rendering
      *
      * @param  PageInterface   $item    The page item to render
-     * @param  string $content Optional content override
+     * @param  string|null $content Optional content override
      *
      * @return string          The rendered output
      */
@@ -300,7 +303,7 @@ class Twig
             }
 
         } catch (LoaderError $e) {
-            throw new \RuntimeException($e->getRawMessage(), 400, $e);
+            throw new RuntimeException($e->getRawMessage(), 400, $e);
         }
 
         return $output;
@@ -324,7 +327,7 @@ class Twig
         try {
             $output = $this->twig->render($template, $vars);
         } catch (LoaderError $e) {
-            throw new \RuntimeException($e->getRawMessage(), 404, $e);
+            throw new RuntimeException($e->getRawMessage(), 404, $e);
         }
 
         return $output;
@@ -352,7 +355,7 @@ class Twig
         try {
             $output = $this->twig->render($name, $vars);
         } catch (LoaderError $e) {
-            throw new \RuntimeException($e->getRawMessage(), 404, $e);
+            throw new RuntimeException($e->getRawMessage(), 404, $e);
         }
 
         return $output;
@@ -362,10 +365,10 @@ class Twig
      * Twig process that renders the site layout. This is the main twig process that renders the overall
      * page and handles all the layout for the site display.
      *
-     * @param string $format Output format (defaults to HTML).
-     *
+     * @param string|null $format Output format (defaults to HTML).
+     * @param array $vars
      * @return string the rendered output
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
     public function processSite($format = null, array $vars = [])
     {
@@ -397,7 +400,7 @@ class Twig
             $output = $this->twig->render($template, $vars + $twig_vars);
         } catch (LoaderError $e) {
             $error_msg = $e->getMessage();
-            throw new \RuntimeException($error_msg, 400, $e);
+            throw new RuntimeException($error_msg, 400, $e);
         }
 
         return $output;
@@ -430,7 +433,6 @@ class Twig
      * the one being passed in
      *
      * @param  string $template the template name
-     *
      * @return string           the template name
      */
     public function template($template)
@@ -438,6 +440,11 @@ class Twig
         return $this->template ?? $template;
     }
 
+    /**
+     * @param PageInterface $page
+     * @param string|null $format
+     * @return string
+     */
     public function getPageTwigTemplate($page, $format = null)
     {
         $template = $page->template();
@@ -452,6 +459,7 @@ class Twig
 
         // Default to HTML
         $page->templateFormat('html');
+
         return $template . TEMPLATE_EXT;
     }
 
@@ -459,6 +467,7 @@ class Twig
      * Overrides the autoescape setting
      *
      * @param bool $state
+     * @return void
      * @deprecated 1.5 Auto-escape should always be turned on to protect against XSS issues (can be disabled per template file).
      */
     public function setAutoescape($state)

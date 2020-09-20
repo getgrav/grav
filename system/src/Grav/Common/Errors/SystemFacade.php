@@ -9,6 +9,10 @@
 
 namespace Grav\Common\Errors;
 
+/**
+ * Class SystemFacade
+ * @package Grav\Common\Errors
+ */
 class SystemFacade extends \Whoops\Util\SystemFacade
 {
     /** @var callable */
@@ -26,6 +30,8 @@ class SystemFacade extends \Whoops\Util\SystemFacade
 
     /**
      * Special case to deal with Fatal errors and the like.
+     *
+     * @return void
      */
     public function handleShutdown()
     {

@@ -9,6 +9,7 @@
 
 namespace Grav\Common\Media\Traits;
 
+use Exception;
 use Grav\Common\Config\Config;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\Grav;
@@ -23,6 +24,7 @@ use Psr\Http\Message\UploadedFileInterface;
 use RocketTheme\Toolbox\File\YamlFile;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use RuntimeException;
+use function dirname;
 
 /**
  * Implements media upload and delete functionality.
@@ -270,7 +272,7 @@ trait MediaUploadTrait
             if (Utils::contains($mime, 'svg', false)) {
                 Security::sanitizeSVG($filepath);
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             throw new RuntimeException($this->translate('PLUGIN_ADMIN.FAILED_TO_MOVE_UPLOADED_FILE'), 400);
         }
 

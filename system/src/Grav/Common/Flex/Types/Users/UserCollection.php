@@ -16,6 +16,7 @@ use Grav\Common\Flex\Traits\FlexGravTrait;
 use Grav\Common\User\Interfaces\UserCollectionInterface;
 use Grav\Common\User\Interfaces\UserInterface;
 use Grav\Framework\Flex\FlexCollection;
+use function is_string;
 
 class UserCollection extends FlexCollection implements UserCollectionInterface
 {
@@ -117,7 +118,7 @@ class UserCollection extends FlexCollection implements UserCollectionInterface
 
     /**
      * @param string $key
-     * @return bool|false|string|string[]|null
+     * @return string
      */
     protected function filterUsername(string $key)
     {

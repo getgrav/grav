@@ -13,8 +13,16 @@ use Grav\Common\Scheduler\Scheduler;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 
+/**
+ * Class SchedulerServiceProvider
+ * @package Grav\Common\Service
+ */
 class SchedulerServiceProvider implements ServiceProviderInterface
 {
+    /**
+     * @param Container $container
+     * @return void
+     */
     public function register(Container $container)
     {
         $container['scheduler'] = function () {

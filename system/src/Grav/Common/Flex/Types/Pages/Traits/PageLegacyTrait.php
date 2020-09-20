@@ -18,6 +18,9 @@ use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Page\Pages;
 use Grav\Common\Utils;
 use Grav\Framework\Flex\Interfaces\FlexIndexInterface;
+use InvalidArgumentException;
+use function is_array;
+use function is_string;
 
 /**
  * Implements PageLegacyInterface.
@@ -174,7 +177,7 @@ trait PageLegacyTrait
      * @param string|array $params
      * @param bool $pagination
      * @return PageCollectionInterface|Collection
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function collection($params = 'content', $pagination = true)
     {
@@ -186,7 +189,7 @@ trait PageLegacyTrait
             // Look into a page header field.
             $params = (array)$this->getFormValue('header.' . $params);
         } elseif (!is_array($params)) {
-            throw new \InvalidArgumentException('Argument should be either header variable name or array of parameters');
+            throw new InvalidArgumentException('Argument should be either header variable name or array of parameters');
         }
 
         if (!$pagination) {

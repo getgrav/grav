@@ -27,6 +27,10 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
+/**
+ * Class InitializeProcessor
+ * @package Grav\Common\Processors
+ */
 class InitializeProcessor extends ProcessorBase
 {
     /** @var string */
@@ -37,6 +41,10 @@ class InitializeProcessor extends ProcessorBase
     /** @var bool */
     private static $cli_initialized = false;
 
+    /**
+     * @param Grav $grav
+     * @return void
+     */
     public static function initializeCli(Grav $grav)
     {
         if (!static::$cli_initialized) {
@@ -356,7 +364,7 @@ class InitializeProcessor extends ProcessorBase
             && $config->get('system.pages.redirect_trailing_slash', false)
             && Utils::endsWith($path, '/')
         ) {
-            $redirect = (string) $uri::getCurrentRoute()->toString();
+            $redirect = $uri::getCurrentRoute()->toString();
 
             return $grav->getRedirectResponse($redirect);
         }

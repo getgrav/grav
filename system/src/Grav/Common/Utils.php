@@ -9,16 +9,33 @@
 
 namespace Grav\Common;
 
+use DateTime;
+use DateTimeZone;
+use Exception;
 use Grav\Common\Helpers\Truncator;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Markdown\Parsedown;
 use Grav\Common\Markdown\ParsedownExtra;
 use Grav\Common\Page\Markdown\Excerpts;
+use InvalidArgumentException;
 use Negotiation\Accept;
 use Negotiation\Negotiator;
 use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
+use RuntimeException;
+use function array_key_exists;
+use function array_slice;
+use function count;
+use function extension_loaded;
+use function in_array;
+use function is_array;
+use function is_string;
+use function strlen;
 
+/**
+ * Class Utils
+ * @package Grav\Common
+ */
 abstract class Utils
 {
     /** @var array  */
@@ -158,7 +175,6 @@ abstract class Utils
      * @param  string $haystack
      * @param  string|string[] $needle
      * @param bool $case_sensitive
-     *
      * @return bool
      */
     public static function startsWith($haystack, $needle, $case_sensitive = true)
@@ -183,7 +199,6 @@ abstract class Utils
      * @param  string $haystack
      * @param  string|string[] $needle
      * @param bool $case_sensitive
-     *
      * @return bool
      */
     public static function endsWith($haystack, $needle, $case_sensitive = true)
@@ -209,7 +224,6 @@ abstract class Utils
      * @param  string $haystack
      * @param  string|string[] $needle
      * @param  bool $case_sensitive
-     *
      * @return bool
      */
     public static function contains($haystack, $needle, $case_sensitive = true)
@@ -347,8 +361,8 @@ abstract class Utils
      */
     public static function mb_substr_replace($original, $replacement, $position, $length)
     {
-        $startString = mb_substr($original, 0, $position, "UTF-8");
-        $endString = mb_substr($original, $position + $length, mb_strlen($original), "UTF-8");
+        $startString = mb_substr($original, 0, $position, 'UTF-8');
+        $endString = mb_substr($original, $position + $length, mb_strlen($original), 'UTF-8');
 
         return $startString . $replacement . $endString;
     }
@@ -494,7 +508,7 @@ abstract class Utils
      */
     public static function dateFormats()
     {
-        $now = new \DateTime();
+        $now = new DateTime();
 
         $date_formats = [
             'd-m-Y H:i' => 'd-m-Y H:i (e.g. '.$now->format('d-m-Y H:i').')',
@@ -516,13 +530,13 @@ abstract class Utils
      *
      * @param string|null $default_format
      * @return string
-     * @throws \Exception
+     * @throws Exception
      */
     public static function dateNow($default_format = null)
     {
-        $now = new \DateTime();
+        $now = new DateTime();
 
-        if (is_null($default_format)) {
+        if (null === $default_format) {
             $default_format = Grav::instance()['config']->get('system.pages.dateformat.default');
         }
 
@@ -537,7 +551,6 @@ abstract class Utils
      * @param  bool   $up_to_break truncate up to breakpoint after char count
      * @param  string $break       Break point.
      * @param  string $pad         Appended padding to the end of the string.
-     *
      * @return string
      */
     public static function truncate($string, $limit = 150, $up_to_break = false, $break = ' ', $pad = '&hellip;')
@@ -564,7 +577,6 @@ abstract class Utils
      *
      * @param string $string
      * @param int    $limit
-     *
      * @return string
      */
     public static function safeTruncate($string, $limit = 150)
@@ -579,7 +591,6 @@ abstract class Utils
      * @param  string $text
      * @param  int $length in characters
      * @param  string $ellipsis
-     *
      * @return string
      */
     public static function truncateHtml($text, $length = 100, $ellipsis = '...')
@@ -593,7 +604,6 @@ abstract class Utils
      * @param  string $text
      * @param  int    $length in words
      * @param  string $ellipsis
-     *
      * @return string
      */
     public static function safeTruncateHtml($text, $length = 25, $ellipsis = '...')
@@ -605,7 +615,6 @@ abstract class Utils
      * Generate a random string of a given length
      *
      * @param int $length
-     *
      * @return string
      */
     public static function generateRandomString($length = 5)
@@ -620,7 +629,7 @@ abstract class Utils
      * @param bool $force_download as opposed to letting browser choose if to download or render
      * @param int $sec      Throttling, try 0.1 for some speed throttling of downloads
      * @param int $bytes    Size of chunks to send in bytes. Default is 1024
-     * @throws \Exception
+     * @throws Exception
      */
     public static function download($file, $force_download = true, $sec = 0, $bytes = 1024)
     {
@@ -652,9 +661,9 @@ abstract class Utils
 
             // multipart-download and download resuming support
             if (isset($_SERVER['HTTP_RANGE'])) {
-                list($a, $range) = explode('=', $_SERVER['HTTP_RANGE'], 2);
-                list($range) = explode(',', $range, 2);
-                list($range, $range_end) = explode('-', $range);
+                [$a, $range] = explode('=', $_SERVER['HTTP_RANGE'], 2);
+                [$range] = explode(',', $range, 2);
+                [$range, $range_end] = explode('-', $range);
                 $range = (int)$range;
                 if (!$range_end) {
                     $range_end = $size - 1;
@@ -707,7 +716,7 @@ abstract class Utils
                 }
                 fclose($fp);
             } else {
-                throw new \RuntimeException('Error - can not open file.');
+                throw new RuntimeException('Error - can not open file.');
             }
 
             exit;
@@ -752,7 +761,6 @@ abstract class Utils
      *
      * @param string $extension Extension of file (eg "txt")
      * @param string $default
-     *
      * @return string
      */
     public static function getMimeByExtension($extension, $default = 'application/octet-stream')
@@ -810,7 +818,6 @@ abstract class Utils
      *
      * @param string $mime mime type (eg "text/html")
      * @param string $default default value
-     *
      * @return string
      */
     public static function getExtensionByMime($mime, $default = 'html')
@@ -858,7 +865,7 @@ abstract class Utils
         $extensions = [];
         foreach ($mimetypes as $mimetype) {
             $extension = static::getExtensionByMime($mimetype, false);
-            if ($extension && !\in_array($extension, $extensions, true)) {
+            if ($extension && !in_array($extension, $extensions, true)) {
                 $extensions[] = $extension;
             }
         }
@@ -871,7 +878,6 @@ abstract class Utils
      *
      * @param string $filename Filename or path to file
      * @param string $default default value
-     *
      * @return string
      */
     public static function getMimeByFilename($filename, $default = 'application/octet-stream')
@@ -883,7 +889,7 @@ abstract class Utils
      * Return the mimetype based on existing local file
      *
      * @param string $filename Path to the file
-     *
+     * @param string $default
      * @return string|bool
      */
     public static function getMimeByLocalFile($filename, $default = 'application/octet-stream')
@@ -896,7 +902,7 @@ abstract class Utils
         }
 
         // Prefer using finfo if it exists.
-        if (\extension_loaded('fileinfo')) {
+        if (extension_loaded('fileinfo')) {
             $finfo = finfo_open(FILEINFO_SYMLINK | FILEINFO_MIME_TYPE);
             $type = finfo_file($finfo, $filename);
             finfo_close($finfo);
@@ -943,7 +949,6 @@ abstract class Utils
      * Normalize path by processing relative `.` and `..` syntax and merging path
      *
      * @param string $path
-     *
      * @return string
      */
     public static function normalizePath($path)
@@ -964,13 +969,13 @@ abstract class Utils
         }
 
         // Strip off leading / to ensure explode is accurate
-        if (Utils::startsWith($path, '/')) {
+        if (static::startsWith($path, '/')) {
             $root .= '/';
             $path = ltrim($path, '/');
         }
 
         // If there are any relative paths (..) handle those
-        if (Utils::contains($path, '..')) {
+        if (static::contains($path, '..')) {
             $segments = explode('/', trim($path, '/'));
             $ret = [];
             foreach ($segments as $segment) {
@@ -988,6 +993,7 @@ abstract class Utils
 
         // Stick everything back together
         $normalized = $root . $path;
+
         return $normalized;
     }
 
@@ -995,12 +1001,11 @@ abstract class Utils
      * Check whether a function is disabled in the PHP settings
      *
      * @param string $function the name of the function to check
-     *
      * @return bool
      */
     public static function isFunctionDisabled($function)
     {
-        return \in_array($function, explode(',', ini_get('disable_functions')), true);
+        return in_array($function, explode(',', ini_get('disable_functions')), true);
     }
 
     /**
@@ -1010,12 +1015,12 @@ abstract class Utils
      */
     public static function timezones()
     {
-        $timezones = \DateTimeZone::listIdentifiers(\DateTimeZone::ALL);
+        $timezones = DateTimeZone::listIdentifiers(DateTimeZone::ALL);
         $offsets = [];
-        $testDate = new \DateTime();
+        $testDate = new DateTime();
 
         foreach ($timezones as $zone) {
-            $tz = new \DateTimeZone($zone);
+            $tz = new DateTimeZone($zone);
             $offsets[$zone] = $tz->getOffset($testDate);
         }
 
@@ -1039,7 +1044,6 @@ abstract class Utils
      *
      * @param array    $source the Array to filter
      * @param callable $fn     the function to pass through each array item
-     *
      * @return array
      */
     public static function arrayFilterRecursive(Array $source, $fn)
@@ -1124,7 +1128,7 @@ abstract class Utils
         $newArray = [];
         foreach ($array as $key => $value) {
             $dots = explode($separator, $key);
-            if (\count($dots) > 1) {
+            if (count($dots) > 1) {
                 $last = &$newArray[$dots[0]];
                 foreach ($dots as $k => $dot) {
                     if ($k === 0) {
@@ -1178,7 +1182,7 @@ abstract class Utils
      *
      * @param string $date a String expressed in the system.pages.dateformat.default format, with fallback to a
      *                     strtotime argument
-     * @param string $format a date format to use if possible
+     * @param string|null $format a date format to use if possible
      * @return int the timestamp
      */
     public static function date2timestamp($date, $format = null)
@@ -1188,9 +1192,9 @@ abstract class Utils
 
         // try to use DateTime and default format
         if ($dateformat) {
-            $datetime = \DateTime::createFromFormat($dateformat, $date);
+            $datetime = DateTime::createFromFormat($dateformat, $date);
         } else {
-            $datetime = new \DateTime($date);
+            $datetime = new DateTime($date);
         }
 
         // fallback to strtotime() if DateTime approach failed
@@ -1220,7 +1224,7 @@ abstract class Utils
      * Checks if a value is positive (true)
      *
      * @param string $value
-     * @return boolean
+     * @return bool
      */
     public static function isPositive($value)
     {
@@ -1231,7 +1235,7 @@ abstract class Utils
      * Checks if a value is negative (false)
      *
      * @param string $value
-     * @return boolean
+     * @return bool
      */
     public static function isNegative($value)
     {
@@ -1245,7 +1249,6 @@ abstract class Utils
      *
      * @param string $action
      * @param bool   $previousTick if true, generates the token for the previous tick (the previous 12 hours)
-     *
      * @return string the nonce string
      */
     private static function generateNonceString($action, $previousTick = false)
@@ -1284,7 +1287,6 @@ abstract class Utils
      *
      * @param string $action      the action the nonce is tied to (e.g. save-user-admin or move-page-homepage)
      * @param bool   $previousTick if true, generates the token for the previous tick (the previous 12 hours)
-     *
      * @return string the nonce
      */
     public static function getNonce($action, $previousTick = false)
@@ -1304,7 +1306,6 @@ abstract class Utils
      *
      * @param string|string[] $nonce  the nonce to verify
      * @param string $action the action to verify the nonce to
-     *
      * @return boolean verified or not
      */
     public static function verifyNonce($nonce, $action)
@@ -1479,7 +1480,7 @@ abstract class Utils
      * @param string $path
      * @param PageInterface|null $page
      * @return string
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
     public static function getPagePathFromToken($path, PageInterface $page = null)
     {
@@ -1498,7 +1499,7 @@ abstract class Utils
         if ($matches) {
             if ($matches[1]) {
                 if (null === $page) {
-                    throw new \RuntimeException('Page not available for this self@ reference');
+                    throw new RuntimeException('Page not available for this self@ reference');
                 }
             } elseif ($matches[2]) {
                 // page@
@@ -1509,7 +1510,7 @@ abstract class Utils
                 // theme@
                 $parts = explode(':', $path);
                 $route = $parts[1];
-                $theme = str_replace(ROOT_DIR, '', $grav['locator']->findResource("theme://"));
+                $theme = str_replace(ROOT_DIR, '', $grav['locator']->findResource('theme://'));
 
                 return $theme . $route . $basename;
             }
@@ -1518,7 +1519,7 @@ abstract class Utils
         }
 
         if (!$page) {
-            throw new \RuntimeException('Page route not found: ' . $path);
+            throw new RuntimeException('Page route not found: ' . $path);
         }
 
         $path = str_replace($matches[0], rtrim($page->relativePagePath(), '/'), $path);
@@ -1526,6 +1527,9 @@ abstract class Utils
         return $path . $basename;
     }
 
+    /**
+     * @return int
+     */
     public static function getUploadLimit()
     {
         static $max_size = -1;
@@ -1553,7 +1557,6 @@ abstract class Utils
      * @param int $bytes The filesize in Bytes.
      * @param string $to The unit type to convert to. Accepts K, M, or G for Kilobytes, Megabytes, or Gigabytes, respectively.
      * @param int $decimal_places The number of decimal places to return.
-     *
      * @return int Returns only the number of units, not the type letter. Returns 0 if the $to unit type is out of scope.
      *
      */
@@ -1612,7 +1615,7 @@ abstract class Utils
      *
      * @param string $url
      * @return array
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public static function multibyteParseUrl($url)
     {
@@ -1627,7 +1630,7 @@ abstract class Utils
         $parts = parse_url($enc_url);
 
         if ($parts === false) {
-            throw new \InvalidArgumentException('Malformed URL: ' . $url);
+            throw new InvalidArgumentException('Malformed URL: ' . $url);
         }
 
         foreach ($parts as $name => $value) {
@@ -1641,11 +1644,10 @@ abstract class Utils
      * Process a string as markdown
      *
      * @param string $string
-     *
      * @param bool $block Block or Line processing
      * @param null $page
      * @return string
-     * @throws \Exception
+     * @throws Exception
      */
     public static function processMarkdown($string, $block = true, $page = null)
     {
@@ -1680,7 +1682,6 @@ abstract class Utils
      *
      * @param string $ip
      * @param int $prefix
-     *
      * @return string
      */
     public static function getSubnet($ip, $prefix = 64)

@@ -10,11 +10,19 @@
 namespace Grav\Common;
 
 use enshrined\svgSanitize\Sanitizer;
+use Exception;
 use Grav\Common\Page\Pages;
+use function chr;
+use function count;
+use function is_array;
+use function is_string;
 
+/**
+ * Class Security
+ * @package Grav\Common
+ */
 class Security
 {
-
     /**
      * Sanitize SVG string for XSS code
      *
@@ -99,7 +107,7 @@ class Security
                         $list[$page->filePathClean()] = $results;
                     }
                 }
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 continue;
             }
         }
@@ -119,7 +127,7 @@ class Security
         $list = [];
 
         foreach ($array as $key => $value) {
-            if (\is_array($value)) {
+            if (is_array($value)) {
                 $list[] = static::detectXssFromArray($value, $prefix . $key . '.');
             }
             if ($result = static::detectXss($value)) {
@@ -148,7 +156,7 @@ class Security
     public static function detectXss($string)
     {
         // Skip any null or non string values
-        if (null === $string || !\is_string($string) || empty($string)) {
+        if (null === $string || !is_string($string) || empty($string)) {
             return false;
         }
 

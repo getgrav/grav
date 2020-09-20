@@ -9,15 +9,22 @@
 
 namespace Grav\Common\Page;
 
+use Grav\Common\Data\Blueprint;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\Grav;
+use InvalidArgumentException;
 use RocketTheme\Toolbox\ArrayTraits\ArrayAccess;
 use RocketTheme\Toolbox\ArrayTraits\Constructor;
 use RocketTheme\Toolbox\ArrayTraits\Countable;
 use RocketTheme\Toolbox\ArrayTraits\Export;
 use RocketTheme\Toolbox\ArrayTraits\Iterator;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
+use function is_string;
 
+/**
+ * Class Types
+ * @package Grav\Common\Page
+ */
 class Types implements \ArrayAccess, \Iterator, \Countable
 {
     use ArrayAccess, Constructor, Iterator, Countable, Export;
@@ -27,6 +34,10 @@ class Types implements \ArrayAccess, \Iterator, \Countable
     /** @var array */
     protected $systemBlueprints;
 
+    /**
+     * @param string $type
+     * @param Blueprint|null $blueprint
+     */
     public function register($type, $blueprint = null)
     {
         if (!isset($this->items[$type])) {
@@ -44,10 +55,13 @@ class Types implements \ArrayAccess, \Iterator, \Countable
         }
     }
 
+    /**
+     * @param string $uri
+     */
     public function scanBlueprints($uri)
     {
-        if (!\is_string($uri)) {
-            throw new \InvalidArgumentException('First parameter must be URI');
+        if (!is_string($uri)) {
+            throw new InvalidArgumentException('First parameter must be URI');
         }
 
         if (null === $this->systemBlueprints) {
@@ -64,10 +78,13 @@ class Types implements \ArrayAccess, \Iterator, \Countable
         }
     }
 
+    /**
+     * @param string $uri
+     */
     public function scanTemplates($uri)
     {
-        if (!\is_string($uri)) {
-            throw new \InvalidArgumentException('First parameter must be URI');
+        if (!is_string($uri)) {
+            throw new InvalidArgumentException('First parameter must be URI');
         }
 
         $options = [
@@ -92,6 +109,9 @@ class Types implements \ArrayAccess, \Iterator, \Countable
         }
     }
 
+    /**
+     * @return array
+     */
     public function pageSelect()
     {
         $list = [];
@@ -106,6 +126,9 @@ class Types implements \ArrayAccess, \Iterator, \Countable
         return $list;
     }
 
+    /**
+     * @return array
+     */
     public function modularSelect()
     {
         $list = [];
@@ -120,6 +143,10 @@ class Types implements \ArrayAccess, \Iterator, \Countable
         return $list;
     }
 
+    /**
+     * @param string $uri
+     * @return array
+     */
     private function findBlueprints($uri)
     {
         $options = [

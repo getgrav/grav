@@ -11,6 +11,10 @@ namespace Grav\Common\Assets;
 
 use Grav\Common\Utils;
 
+/**
+ * Class InlineCss
+ * @package Grav\Common\Assets
+ */
 class InlineCss extends BaseAsset
 {
     /**

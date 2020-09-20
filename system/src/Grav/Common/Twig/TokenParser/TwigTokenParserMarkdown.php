@@ -10,6 +10,7 @@
 namespace Grav\Common\Twig\TokenParser;
 
 use Grav\Common\Twig\Node\TwigNodeMarkdown;
+use Twig\Error\SyntaxError;
 use Twig\Token;
 use Twig\TokenParser\AbstractTokenParser;
 
@@ -26,7 +27,9 @@ use Twig\TokenParser\AbstractTokenParser;
 class TwigTokenParserMarkdown extends AbstractTokenParser
 {
     /**
-     * {@inheritdoc}
+     * @param Token $token
+     * @return TwigNodeMarkdown
+     * @throws SyntaxError
      */
     public function parse(Token $token)
     {

@@ -11,6 +11,10 @@ namespace Grav\Common\File;
 
 use RocketTheme\Toolbox\File\JsonFile;
 
+/**
+ * Class CompiledJsonFile
+ * @package Grav\Common\File
+ */
 class CompiledJsonFile extends JsonFile
 {
     use CompiledFile;

@@ -25,7 +25,12 @@ use RocketTheme\Toolbox\ArrayTraits\Export;
 use RocketTheme\Toolbox\ArrayTraits\ExportInterface;
 use RocketTheme\Toolbox\ArrayTraits\Iterator;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
+use function is_array;
 
+/**
+ * Class AbstractMedia
+ * @package Grav\Common\Page\Medium
+ */
 abstract class AbstractMedia implements ExportInterface, MediaCollectionInterface, MediaUploadInterface
 {
     use ArrayAccess;
@@ -72,7 +77,7 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
      * Get medium by filename.
      *
      * @param string $filename
-     * @return Medium|null
+     * @return MediaObjectInterface|null
      */
     public function get($filename)
     {
@@ -98,7 +103,6 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
      */
     public function setTimestamps($timestamp = null)
     {
-        /** @var Medium $instance */
         foreach ($this->items as $instance) {
             $instance->setTimestamp($timestamp);
         }

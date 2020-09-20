@@ -16,7 +16,14 @@ use Grav\Common\User\Interfaces\UserCollectionInterface;
 use Grav\Common\User\Interfaces\UserInterface;
 use Grav\Common\Utils;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
+use RuntimeException;
+use function in_array;
+use function is_string;
 
+/**
+ * Class UserCollection
+ * @package Grav\Common\User\DataUser
+ */
 class UserCollection implements UserCollectionInterface
 {
     /** @var string */
@@ -51,7 +58,7 @@ class UserCollection implements UserCollectionInterface
         $filename = 'account://' . $username . YAML_EXT;
         $path = $locator->findResource($filename) ?: $locator->findResource($filename, true, true);
         if (!is_string($path)) {
-            throw new \RuntimeException('Internal Error');
+            throw new RuntimeException('Internal Error');
         }
         $file = CompiledYamlFile::instance($path);
         $content = (array)$file->content() + ['username' => $username, 'state' => 'enabled'];
@@ -120,7 +127,6 @@ class UserCollection implements UserCollectionInterface
      * Remove user account.
      *
      * @param string $username
-     *
      * @return bool True if the action was performed
      */
     public function delete($username): bool
@@ -130,6 +136,9 @@ class UserCollection implements UserCollectionInterface
         return $file_path && unlink($file_path);
     }
 
+    /**
+     * @return int
+     */
     public function count(): int
     {
         // check for existence of a user account
@@ -147,5 +156,4 @@ class UserCollection implements UserCollectionInterface
     {
         return mb_strtolower($username);
     }
-
 }

@@ -9,9 +9,18 @@
 
 namespace Grav\Common\GPM;
 
+use DirectoryIterator;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\Grav;
+use ZipArchive;
+use function count;
+use function in_array;
+use function is_string;
 
+/**
+ * Class Installer
+ * @package Grav\Common\GPM
+ */
 class Installer
 {
     /** @const No error */
@@ -62,7 +71,7 @@ class Installer
      * @param  string $zip the local path to ZIP package
      * @param  string $destination The local path to the Grav Instance
      * @param  array $options Options to use for installing. ie, ['install_path' => 'user/themes/antimatter']
-     * @param  string $extracted The local path to the extacted ZIP package
+     * @param  string|null $extracted The local path to the extacted ZIP package
      * @param  bool $keepExtracted True if you want to keep the original files
      * @return bool True if everything went fine, False otherwise.
      */
@@ -157,11 +166,11 @@ class Installer
      *
      * @param string $zip_file
      * @param string $destination
-     * @return bool|string
+     * @return string|false
      */
     public static function unZip($zip_file, $destination)
     {
-        $zip = new \ZipArchive();
+        $zip = new ZipArchive();
         $archive = $zip->open($zip_file);
 
         if ($archive === true) {
@@ -185,6 +194,7 @@ class Installer
 
         self::$error = self::ZIP_EXTRACT_ERROR;
         self::$error_zip = $archive;
+
         return false;
     }
 
@@ -193,7 +203,7 @@ class Installer
      *
      * @param string $installer_file_folder The folder path that contains install.php
      * @param bool $is_install True if install, false if removal
-     * @return null|string
+     * @return string|null
      */
     private static function loadInstaller($installer_file_folder, $is_install)
     {
@@ -281,8 +291,8 @@ class Installer
      */
     public static function sophisticatedInstall($source_path, $install_path, $ignores = [], $keep_source = false)
     {
-        foreach (new \DirectoryIterator($source_path) as $file) {
-            if ($file->isLink() || $file->isDot() || \in_array($file->getFilename(), $ignores, true)) {
+        foreach (new DirectoryIterator($source_path) as $file) {
+            if ($file->isLink() || $file->isDot() || in_array($file->getFilename(), $ignores, true)) {
                 continue;
             }
 
@@ -373,7 +383,7 @@ class Installer
             self::$error = self::NOT_DIRECTORY;
         }
 
-        if (\count($exclude) && \in_array(self::$error, $exclude, true)) {
+        if (count($exclude) && in_array(self::$error, $exclude, true)) {
             return true;
         }
 
@@ -456,35 +466,35 @@ class Installer
                 $msg = 'Unable to extract the package. ';
                 if (self::$error_zip) {
                     switch (self::$error_zip) {
-                        case \ZipArchive::ER_EXISTS:
+                        case ZipArchive::ER_EXISTS:
                             $msg .= 'File already exists.';
                             break;
 
-                        case \ZipArchive::ER_INCONS:
+                        case ZipArchive::ER_INCONS:
                             $msg .= 'Zip archive inconsistent.';
                             break;
 
-                        case \ZipArchive::ER_MEMORY:
+                        case ZipArchive::ER_MEMORY:
                             $msg .= 'Memory allocation failure.';
                             break;
 
-                        case \ZipArchive::ER_NOENT:
+                        case ZipArchive::ER_NOENT:
                             $msg .= 'No such file.';
                             break;
 
-                        case \ZipArchive::ER_NOZIP:
+                        case ZipArchive::ER_NOZIP:
                             $msg .= 'Not a zip archive.';
                             break;
 
-                        case \ZipArchive::ER_OPEN:
+                        case ZipArchive::ER_OPEN:
                             $msg .= "Can't open file.";
                             break;
 
-                        case \ZipArchive::ER_READ:
+                        case ZipArchive::ER_READ:
                             $msg .= 'Read error.';
                             break;
 
-                        case \ZipArchive::ER_SEEK:
+                        case ZipArchive::ER_SEEK:
                             $msg .= 'Seek error.';
                             break;
                     }

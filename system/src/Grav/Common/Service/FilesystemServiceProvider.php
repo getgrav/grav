@@ -13,8 +13,16 @@ use Grav\Framework\Filesystem\Filesystem;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 
+/**
+ * Class FilesystemServiceProvider
+ * @package Grav\Common\Service
+ */
 class FilesystemServiceProvider implements ServiceProviderInterface
 {
+    /**
+     * @param Container $container
+     * @return void
+     */
     public function register(Container $container)
     {
         $container['filesystem'] = function () {

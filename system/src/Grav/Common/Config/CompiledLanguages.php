@@ -11,6 +11,10 @@ namespace Grav\Common\Config;
 
 use Grav\Common\File\CompiledYamlFile;
 
+/**
+ * Class CompiledLanguages
+ * @package Grav\Common\Config
+ */
 class CompiledLanguages extends CompiledBase
 {
     /**
@@ -30,6 +34,7 @@ class CompiledLanguages extends CompiledBase
      * Create configuration object.
      *
      * @param  array  $data
+     * @return void
      */
     protected function createObject(array $data = [])
     {
@@ -38,6 +43,8 @@ class CompiledLanguages extends CompiledBase
 
     /**
      * Finalize configuration object.
+     *
+     * @return void
      */
     protected function finalizeObject()
     {
@@ -48,6 +55,8 @@ class CompiledLanguages extends CompiledBase
 
     /**
      * Function gets called when cached configuration is saved.
+     *
+     * @return void
      */
     public function modified()
     {
@@ -59,6 +68,7 @@ class CompiledLanguages extends CompiledBase
      *
      * @param  string  $name  Name of the position.
      * @param  string  $filename  File to be loaded.
+     * @return void
      */
     protected function loadFile($name, $filename)
     {

@@ -9,7 +9,15 @@
 
 namespace Grav\Common;
 
-abstract class Getters implements \ArrayAccess, \Countable
+use ArrayAccess;
+use Countable;
+use function count;
+
+/**
+ * Class Getters
+ * @package Grav\Common
+ */
+abstract class Getters implements ArrayAccess, Countable
 {
     /** @var string Define variable used in getters. */
     protected $gettersVariable = null;
@@ -17,7 +25,7 @@ abstract class Getters implements \ArrayAccess, \Countable
     /**
      * Magic setter method
      *
-     * @param mixed $offset Medium name value
+     * @param int|string $offset Medium name value
      * @param mixed $value  Medium value
      */
     public function __set($offset, $value)
@@ -28,8 +36,7 @@ abstract class Getters implements \ArrayAccess, \Countable
     /**
      * Magic getter method
      *
-     * @param  mixed $offset Medium name value
-     *
+     * @param  int|string $offset Medium name value
      * @return mixed         Medium value
      */
     public function __get($offset)
@@ -40,8 +47,7 @@ abstract class Getters implements \ArrayAccess, \Countable
     /**
      * Magic method to determine if the attribute is set
      *
-     * @param  mixed $offset Medium name value
-     *
+     * @param  int|string $offset Medium name value
      * @return boolean         True if the value is set
      */
     public function __isset($offset)
@@ -52,7 +58,7 @@ abstract class Getters implements \ArrayAccess, \Countable
     /**
      * Magic method to unset the attribute
      *
-     * @param mixed $offset The name value to unset
+     * @param int|string $offset The name value to unset
      */
     public function __unset($offset)
     {
@@ -60,8 +66,7 @@ abstract class Getters implements \ArrayAccess, \Countable
     }
 
     /**
-     * @param mixed $offset
-     *
+     * @param int|string $offset
      * @return bool
      */
     public function offsetExists($offset)
@@ -76,8 +81,7 @@ abstract class Getters implements \ArrayAccess, \Countable
     }
 
     /**
-     * @param mixed $offset
-     *
+     * @param int|string $offset
      * @return mixed
      */
     public function offsetGet($offset)
@@ -92,7 +96,7 @@ abstract class Getters implements \ArrayAccess, \Countable
     }
 
     /**
-     * @param mixed $offset
+     * @param int|string $offset
      * @param mixed $value
      */
     public function offsetSet($offset, $value)
@@ -106,7 +110,7 @@ abstract class Getters implements \ArrayAccess, \Countable
     }
 
     /**
-     * @param mixed $offset
+     * @param int|string $offset
      */
     public function offsetUnset($offset)
     {
@@ -125,10 +129,10 @@ abstract class Getters implements \ArrayAccess, \Countable
     {
         if ($this->gettersVariable) {
             $var = $this->gettersVariable;
-            return \count($this->{$var});
+            return count($this->{$var});
         }
 
-        return \count($this->toArray());
+        return count($this->toArray());
     }
 
     /**

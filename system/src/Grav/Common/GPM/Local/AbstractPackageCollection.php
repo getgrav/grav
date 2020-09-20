@@ -11,6 +11,10 @@ namespace Grav\Common\GPM\Local;
 
 use Grav\Common\GPM\Common\AbstractPackageCollection as BaseCollection;
 
+/**
+ * Class AbstractPackageCollection
+ * @package Grav\Common\GPM\Local
+ */
 abstract class AbstractPackageCollection extends BaseCollection
 {
     /**

@@ -15,7 +15,15 @@ use Grav\Common\Assets\Traits\TestingAssetsTrait;
 use Grav\Common\Config\Config;
 use Grav\Framework\Object\PropertyObject;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
+use function call_user_func_array;
+use function count;
+use function func_get_args;
+use function is_array;
 
+/**
+ * Class Assets
+ * @package Grav\Common
+ */
 class Assets extends PropertyObject
 {
     use TestingAssetsTrait;
@@ -86,6 +94,8 @@ class Assets extends PropertyObject
 
     /**
      * Initialization called in the Grav lifecycle to initialize the Assets with appropriate configuration
+     *
+     * @return void
      */
     public function init()
     {
@@ -116,7 +126,6 @@ class Assets extends PropertyObject
      * assets and/or collections that will be automatically added on startup.
      *
      * @param  array $config Configurable options.
-     *
      * @return $this
      */
     public function config(array $config)
@@ -143,24 +152,24 @@ class Assets extends PropertyObject
      * It automatically detects the asset type (JavaScript, CSS or collection).
      * You may add more than one asset passing an array as argument.
      *
-     * @param array|string $asset
+     * @param string|string[] $asset
      * @return $this
      */
     public function add($asset)
     {
-        $args = \func_get_args();
+        $args = func_get_args();
 
         // More than one asset
-        if (\is_array($asset)) {
+        if (is_array($asset)) {
             foreach ($asset as $a) {
                 array_shift($args);
                 $args = array_merge([$a], $args);
-                \call_user_func_array([$this, 'add'], $args);
+                call_user_func_array([$this, 'add'], $args);
             }
         } elseif (isset($this->collections[$asset])) {
             array_shift($args);
             $args = array_merge([$this->collections[$asset]], $args);
-            \call_user_func_array([$this, 'add'], $args);
+            call_user_func_array([$this, 'add'], $args);
         } else {
             // Get extension
             $extension = pathinfo(parse_url($asset, PHP_URL_PATH), PATHINFO_EXTENSION);
@@ -169,9 +178,9 @@ class Assets extends PropertyObject
             if (\strlen($extension) > 0) {
                 $extension = strtolower($extension);
                 if ($extension === 'css') {
-                    \call_user_func_array([$this, 'addCss'], $args);
+                    call_user_func_array([$this, 'addCss'], $args);
                 } elseif ($extension === 'js') {
-                    \call_user_func_array([$this, 'addJs'], $args);
+                    call_user_func_array([$this, 'addJs'], $args);
                 }
             }
         }
@@ -179,12 +188,20 @@ class Assets extends PropertyObject
         return $this;
     }
 
+    /**
+     * @param string $collection
+     * @param string $type
+     * @param string|string[] $asset
+     * @param array $options
+     * @return $this
+     */
     protected function addType($collection, $type, $asset, $options)
     {
-        if (\is_array($asset)) {
+        if (is_array($asset)) {
             foreach ($asset as $a) {
                 $this->addType($collection, $type, $a, $options);
             }
+
             return $this;
         }
 
@@ -214,7 +231,7 @@ class Assets extends PropertyObject
         $options['timestamp'] = $this->timestamp;
 
         // Set order
-        $options['order'] = \count($this->$collection);
+        $options['order'] = count($this->$collection);
 
         // Create asset of correct type
         $asset_object = new $type();
@@ -234,7 +251,7 @@ class Assets extends PropertyObject
      */
     public function addCss($asset)
     {
-        return $this->addType($this::CSS_COLLECTION, $this::CSS_TYPE, $asset, $this->unifyLegacyArguments(\func_get_args(), $this::CSS_TYPE));
+        return $this->addType($this::CSS_COLLECTION, $this::CSS_TYPE, $asset, $this->unifyLegacyArguments(func_get_args(), $this::CSS_TYPE));
     }
 
     /**
@@ -244,7 +261,7 @@ class Assets extends PropertyObject
      */
     public function addInlineCss($asset)
     {
-        return $this->addType($this::CSS_COLLECTION, $this::INLINE_CSS_TYPE, $asset, $this->unifyLegacyArguments(\func_get_args(), $this::INLINE_CSS_TYPE));
+        return $this->addType($this::CSS_COLLECTION, $this::INLINE_CSS_TYPE, $asset, $this->unifyLegacyArguments(func_get_args(), $this::INLINE_CSS_TYPE));
     }
 
     /**
@@ -254,7 +271,7 @@ class Assets extends PropertyObject
      */
     public function addJs($asset)
     {
-        return $this->addType($this::JS_COLLECTION, $this::JS_TYPE, $asset, $this->unifyLegacyArguments(\func_get_args(), $this::JS_TYPE));
+        return $this->addType($this::JS_COLLECTION, $this::JS_TYPE, $asset, $this->unifyLegacyArguments(func_get_args(), $this::JS_TYPE));
     }
 
     /**
@@ -264,17 +281,16 @@ class Assets extends PropertyObject
      */
     public function addInlineJs($asset)
     {
-        return $this->addType($this::JS_COLLECTION, $this::INLINE_JS_TYPE, $asset, $this->unifyLegacyArguments(\func_get_args(), $this::INLINE_JS_TYPE));
+        return $this->addType($this::JS_COLLECTION, $this::INLINE_JS_TYPE, $asset, $this->unifyLegacyArguments(func_get_args(), $this::INLINE_JS_TYPE));
     }
 
 
     /**
      * Add/replace collection.
      *
-     * @param  string $collectionName
-     * @param  array  $assets
+     * @param string $collectionName
+     * @param array  $assets
      * @param bool    $overwrite
-     *
      * @return $this
      */
     public function registerCollection($collectionName, Array $assets, $overwrite = false)
@@ -286,6 +302,13 @@ class Assets extends PropertyObject
         return $this;
     }
 
+    /**
+     * @param array $assets
+     * @param string $key
+     * @param string $value
+     * @param bool $sort
+     * @return array|false
+     */
     protected function filterAssets($assets, $key, $value, $sort = false)
     {
         $results = array_filter($assets, function ($asset) use ($key, $value) {
@@ -317,14 +340,25 @@ class Assets extends PropertyObject
         return $results;
     }
 
+    /**
+     * @param array $assets
+     * @return array
+     */
     protected function sortAssets($assets)
     {
         uasort($assets, static function ($a, $b) {
             return $b['priority'] <=> $a['priority'] ?: $a['order'] <=> $b['order'];
         });
+
         return $assets;
     }
 
+    /**
+     * @param string $type
+     * @param string $group
+     * @param array $attributes
+     * @return string
+     */
     public function render($type, $group = 'head', $attributes = [])
     {
         $before_output = '';
@@ -371,7 +405,6 @@ class Assets extends PropertyObject
      *
      * @param  string $group name of the group
      * @param  array  $attributes
-     *
      * @return string
      */
     public function css($group = 'head', $attributes = [])
@@ -384,7 +417,6 @@ class Assets extends PropertyObject
      *
      * @param  string $group name of the group
      * @param  array  $attributes
-     *
      * @return string
      */
     public function js($group = 'head', $attributes = [])

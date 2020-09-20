@@ -10,7 +10,13 @@
 namespace Grav\Common\Scheduler;
 
 use Cron\CronExpression;
+use InvalidArgumentException;
+use function is_string;
 
+/**
+ * Trait IntervalTrait
+ * @package Grav\Common\Scheduler
+ */
 trait IntervalTrait
 {
     /**
@@ -59,7 +65,7 @@ trait IntervalTrait
      */
     public function daily($hour = 0, $minute = 0)
     {
-        if (\is_string($hour)) {
+        if (is_string($hour)) {
             $parts = explode(':', $hour);
             $hour = $parts[0];
             $minute = $parts[1] ?? '0';
@@ -79,7 +85,7 @@ trait IntervalTrait
      */
     public function weekly($weekday = 0, $hour = 0, $minute = 0)
     {
-        if (\is_string($hour)) {
+        if (is_string($hour)) {
             $parts = explode(':', $hour);
             $hour = $parts[0];
             $minute = $parts[1] ?? '0';
@@ -100,7 +106,7 @@ trait IntervalTrait
      */
     public function monthly($month = '*', $day = 1, $hour = 0, $minute = 0)
     {
-        if (\is_string($hour)) {
+        if (is_string($hour)) {
             $parts = explode(':', $hour);
             $hour = $parts[0];
             $minute = $parts[1] ?? '0';
@@ -353,11 +359,11 @@ trait IntervalTrait
     /**
      * Validate sequence of cron expression.
      *
-     * @param  int|string  $minute
-     * @param  int|string  $hour
-     * @param  int|string  $day
-     * @param  int|string  $month
-     * @param  int|string  $weekday
+     * @param  int|string|null  $minute
+     * @param  int|string|null  $hour
+     * @param  int|string|null  $day
+     * @param  int|string|null  $month
+     * @param  int|string|null  $weekday
      * @return array
      */
     private function validateCronSequence($minute = null, $hour = null, $day = null, $month = null, $weekday = null)
@@ -388,7 +394,7 @@ trait IntervalTrait
         if (! is_numeric($value) ||
             ! ($value >= $min && $value <= $max)
         ) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 "Invalid value: it should be '*' or between {$min} and {$max}."
             );
         }

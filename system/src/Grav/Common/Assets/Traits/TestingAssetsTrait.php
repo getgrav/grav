@@ -9,8 +9,17 @@
 
 namespace Grav\Common\Assets\Traits;
 
+use FilesystemIterator;
 use Grav\Common\Grav;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+use RegexIterator;
+use function strlen;
 
+/**
+ * Trait TestingAssetsTrait
+ * @package Grav\Common\Assets\Traits
+ */
 trait TestingAssetsTrait
 {
     /**
@@ -310,16 +319,16 @@ trait TestingAssetsTrait
      *
      * @param  string $directory
      * @param  string $pattern (regex)
-     * @param  string $ltrim   Will be trimmed from the left of the file path
+     * @param  string|null $ltrim   Will be trimmed from the left of the file path
      * @return array
      */
     protected function rglob($directory, $pattern, $ltrim = null)
     {
-        $iterator = new \RegexIterator(new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator(
+        $iterator = new RegexIterator(new RecursiveIteratorIterator(new RecursiveDirectoryIterator(
             $directory,
-            \FilesystemIterator::SKIP_DOTS
+            FilesystemIterator::SKIP_DOTS
         )), $pattern);
-        $offset = \strlen($ltrim);
+        $offset = strlen($ltrim);
         $files = [];
 
         foreach ($iterator as $file) {

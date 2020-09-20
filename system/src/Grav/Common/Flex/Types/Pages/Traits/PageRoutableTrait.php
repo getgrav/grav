@@ -17,6 +17,7 @@ use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Page\Pages;
 use Grav\Common\Utils;
 use Grav\Framework\Filesystem\Filesystem;
+use RuntimeException;
 
 /**
  * Implements PageRoutableInterface.
@@ -37,7 +38,7 @@ trait PageRoutableTrait
         }
 
         if (null !== $var) {
-            throw new \RuntimeException('Not Implemented');
+            throw new RuntimeException('Not Implemented');
         }
 
         if ($this->root()) {

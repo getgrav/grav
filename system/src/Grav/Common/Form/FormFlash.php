@@ -11,7 +11,12 @@ namespace Grav\Common\Form;
 
 use Grav\Common\Filesystem\Folder;
 use Grav\Framework\Form\FormFlash as FrameworkFormFlash;
+use function is_array;
 
+/**
+ * Class FormFlash
+ * @package Grav\Common\Form
+ */
 class FormFlash extends FrameworkFormFlash
 {
     /**
@@ -26,7 +31,7 @@ class FormFlash extends FrameworkFormFlash
                 continue;
             }
             foreach ($files as $file) {
-                if (\is_array($file)) {
+                if (is_array($file)) {
                     $file['tmp_name'] = $this->getTmpDir() . '/' . $file['tmp_name'];
                     $fields[$field][$file['path'] ?? $file['name']] = $file;
                 }

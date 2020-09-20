@@ -9,6 +9,8 @@
 
 namespace Grav\Common\Media\Traits;
 
+use function in_array;
+
 /**
  * Class implements audio object interface.
  */
@@ -94,7 +96,7 @@ trait MediaPlayerTrait
 
         if (null === $preload) {
             unset($this->attributes['preload']);
-        } elseif (\in_array($preload, $validPreloadAttrs, true)) {
+        } elseif (in_array($preload, $validPreloadAttrs, true)) {
             $this->attributes['preload'] = $preload;
         }
 

@@ -17,20 +17,30 @@ use Grav\Common\Page\Pages;
 use Grav\Common\Uri;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
+use SplFileInfo;
+use function defined;
 
+/**
+ * Class PagesServiceProvider
+ * @package Grav\Common\Service
+ */
 class PagesServiceProvider implements ServiceProviderInterface
 {
+    /**
+     * @param Container $container
+     * @return void
+     */
     public function register(Container $container)
     {
         $container['pages'] = function (Grav $grav) {
             return new Pages($grav);
         };
 
-        if (\defined('GRAV_CLI')) {
+        if (defined('GRAV_CLI')) {
             $container['page'] = static function (Grav $grav) {
                 $path = $grav['locator']->findResource('system://pages/notfound.md');
                 $page = new Page();
-                $page->init(new \SplFileInfo($path));
+                $page->init(new SplFileInfo($path));
                 $page->routable(false);
 
                 return $page;
@@ -103,7 +113,7 @@ class PagesServiceProvider implements ServiceProviderInterface
                 if (!$page) {
                     $path = $grav['locator']->findResource('system://pages/notfound.md');
                     $page = new Page();
-                    $page->init(new \SplFileInfo($path));
+                    $page->init(new SplFileInfo($path));
                     $page->routable(false);
                 }
             }

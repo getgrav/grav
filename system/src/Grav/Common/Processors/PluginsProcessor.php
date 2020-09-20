@@ -13,6 +13,10 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
+/**
+ * Class PluginsProcessor
+ * @package Grav\Common\Processors
+ */
 class PluginsProcessor extends ProcessorBase
 {
     /** @var string */
@@ -20,6 +24,11 @@ class PluginsProcessor extends ProcessorBase
     /** @var string */
     public $title = 'Initialize Plugins';
 
+    /**
+     * @param ServerRequestInterface $request
+     * @param RequestHandlerInterface $handler
+     * @return ResponseInterface
+     */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $this->startTimer();

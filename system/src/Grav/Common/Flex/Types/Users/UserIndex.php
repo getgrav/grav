@@ -20,6 +20,9 @@ use Grav\Common\User\Interfaces\UserInterface;
 use Grav\Framework\Flex\FlexIndex;
 use Grav\Framework\Flex\Interfaces\FlexStorageInterface;
 use Monolog\Logger;
+use function count;
+use function is_string;
+use function method_exists;
 
 class UserIndex extends FlexIndex
 {
@@ -56,6 +59,7 @@ class UserIndex extends FlexIndex
      * @param array $meta
      * @param array $data
      * @param FlexStorageInterface $storage
+     * @return void
      */
     public static function updateObjectMeta(array &$meta, array $data, FlexStorageInterface $storage)
     {
@@ -139,7 +143,7 @@ class UserIndex extends FlexIndex
      */
     protected static function filterUsername(string $key, FlexStorageInterface $storage): string
     {
-        if ($storage && \method_exists($storage, 'normalizeKey')) {
+        if (method_exists($storage, 'normalizeKey')) {
             return $storage->normalizeKey($key);
         }
 
@@ -168,7 +172,7 @@ class UserIndex extends FlexIndex
      */
     protected static function onChanges(array $entries, array $added, array $updated, array $removed)
     {
-        $message = sprintf('Flex: User index updated, %d objects (%d added, %d updated, %d removed).', \count($entries), \count($added), \count($updated), \count($removed));
+        $message = sprintf('Flex: User index updated, %d objects (%d added, %d updated, %d removed).', count($entries), count($added), count($updated), count($removed));
 
         $grav = Grav::instance();
 

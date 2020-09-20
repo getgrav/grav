@@ -9,6 +9,10 @@
 
 namespace Grav\Common\Page\Medium;
 
+/**
+ * Interface RenderableInterface
+ * @package Grav\Common\Page\Medium
+ */
 interface RenderableInterface
 {
     /**

@@ -9,18 +9,28 @@
 
 namespace Grav\Common\GPM;
 
+use Exception;
 use Grav\Common\Grav;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\Inflector;
 use Grav\Common\Iterator;
 use Grav\Common\Utils;
 use RocketTheme\Toolbox\File\YamlFile;
+use RuntimeException;
+use function array_key_exists;
+use function count;
+use function in_array;
+use function is_array;
+use function is_object;
 
+/**
+ * Class GPM
+ * @package Grav\Common\GPM
+ */
 class GPM extends Iterator
 {
     /** @var Local\Packages Local installed Packages */
     private $installed;
-
     /** @var Remote\Packages Remote available Packages */
     private $repository;
 
@@ -29,7 +39,6 @@ class GPM extends Iterator
 
     /** @var array Internal cache */
     protected $cache;
-
     /** @var array */
     protected $install_paths = [
         'plugins' => 'user/plugins/%name%',
@@ -51,7 +60,7 @@ class GPM extends Iterator
         try {
             $this->repository = new Remote\Packages($refresh, $callback);
             $this->grav = new Remote\GravCore($refresh, $callback);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
         }
     }
 
@@ -214,7 +223,6 @@ class GPM extends Iterator
      */
     public function getUpdatable($list_type_update = ['plugins' => true, 'themes' => true])
     {
-
         $items = ['total' => 0];
         foreach ($list_type_update as $type => $type_updatable) {
             if ($type_updatable === false) {
@@ -225,6 +233,7 @@ class GPM extends Iterator
             $items[$type] = $to_update;
             $items['total'] += count($to_update);
         }
+
         return $items;
     }
 
@@ -483,14 +492,14 @@ class GPM extends Iterator
 
         if (!$themes && !$plugins) {
             if (!is_writable(ROOT_DIR . '/cache/gpm')) {
-                throw new \RuntimeException("The cache/gpm folder is not writable. Please check the folder permissions.");
+                throw new RuntimeException("The cache/gpm folder is not writable. Please check the folder permissions.");
             }
 
             if ($ignore_exception) {
                 return false;
             }
 
-            throw new \RuntimeException("GPM not reachable. Please check your internet connection or check the Grav site is reachable");
+            throw new RuntimeException("GPM not reachable. Please check your internet connection or check the Grav site is reachable");
         }
 
         if ($themes) {
@@ -517,7 +526,7 @@ class GPM extends Iterator
      *
      * @param string $package_file
      * @param string $tmp
-     * @return null|string
+     * @return string|null
      */
     public static function downloadPackage($package_file, $tmp)
     {
@@ -525,7 +534,7 @@ class GPM extends Iterator
         $filename = basename($package['path']);
 
         if (Grav::instance()['config']->get('system.gpm.official_gpm_only') && $package['host'] !== 'getgrav.org') {
-            throw new \RuntimeException("Only official GPM URLs are allowed. You can modify this behavior in the System configuration.");
+            throw new RuntimeException('Only official GPM URLs are allowed. You can modify this behavior in the System configuration.');
         }
 
         $output = Response::get($package_file, []);
@@ -544,7 +553,7 @@ class GPM extends Iterator
      *
      * @param string $package_file
      * @param string $tmp
-     * @return null|string
+     * @return string|null
      */
     public static function copyPackage($package_file, $tmp)
     {
@@ -564,7 +573,7 @@ class GPM extends Iterator
      * Try to guess the package type from the source files
      *
      * @param string $source
-     * @return bool|string
+     * @return string|false
      */
     public static function getPackageType($source)
     {
@@ -608,7 +617,7 @@ class GPM extends Iterator
      * Try to guess the package name from the source files
      *
      * @param string $source
-     * @return bool|string
+     * @return string|false
      */
     public static function getPackageName($source)
     {
@@ -628,7 +637,7 @@ class GPM extends Iterator
      * Find/Parse the blueprint file
      *
      * @param string $source
-     * @return array|bool
+     * @return array|false
      */
     public static function getBlueprints($source)
     {
@@ -755,8 +764,7 @@ class GPM extends Iterator
      *
      * @param string $package_slug
      * @param string $dependency_slug
-     *
-     * @return mixed
+     * @return mixed|null
      */
     public function getVersionOfDependencyRequiredByPackage($package_slug, $dependency_slug)
     {
@@ -778,7 +786,7 @@ class GPM extends Iterator
      * @param string $version_with_operator
      * @param array $ignore_packages_list
      * @return bool
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
     public function checkNoOtherPackageNeedsThisDependencyInALowerVersion(
         $slug,
@@ -806,7 +814,7 @@ class GPM extends Iterator
                     );
                     if (!$compatible) {
                         if (!in_array($dependent_package, $ignore_packages_list, true)) {
-                            throw new \RuntimeException(
+                            throw new RuntimeException(
                                 "Package <cyan>$slug</cyan> is required in an older version by package <cyan>$dependent_package</cyan>. This package needs a newer version, and because of this it cannot be installed. The <cyan>$dependent_package</cyan> package must be updated to use a newer release of <cyan>$slug</cyan>.",
                                 2
                             );
@@ -823,7 +831,8 @@ class GPM extends Iterator
      * Check the passed packages list can be updated
      *
      * @param array $packages_names_list
-     * @throws \Exception
+     * @return void
+     * @throws Exception
      */
     public function checkPackagesCanBeInstalled($packages_names_list)
     {
@@ -845,14 +854,14 @@ class GPM extends Iterator
      * `update` means the package is already installed and must be updated as a dependency needs a higher version.
      *
      * @param array $packages
-     * @return mixed
-     * @throws \Exception
+     * @return array
+     * @throws RuntimeException
      */
     public function getDependencies($packages)
     {
         $dependencies = $this->calculateMergedDependenciesOfPackages($packages);
         foreach ($dependencies as $dependency_slug => $dependencyVersionWithOperator) {
-            if (\in_array($dependency_slug, $packages, true)) {
+            if (in_array($dependency_slug, $packages, true)) {
                 unset($dependencies[$dependency_slug]);
                 continue;
             }
@@ -866,7 +875,7 @@ class GPM extends Iterator
                 ) === 1
                 ) {
                     //Needs a Grav update first
-                    throw new \RuntimeException("<red>One of the packages require PHP {$dependencies['php']}. Please update PHP to resolve this");
+                    throw new RuntimeException("<red>One of the packages require PHP {$dependencies['php']}. Please update PHP to resolve this");
                 }
 
                 unset($dependencies[$dependency_slug]);
@@ -881,7 +890,7 @@ class GPM extends Iterator
                 ) === 1
                 ) {
                     //Needs a Grav update first
-                    throw new \RuntimeException("<red>One of the packages require Grav {$dependencies['grav']}. Please update Grav to the latest release.");
+                    throw new RuntimeException("<red>One of the packages require Grav {$dependencies['grav']}. Please update Grav to the latest release.");
                 }
 
                 unset($dependencies[$dependency_slug]);
@@ -913,7 +922,7 @@ class GPM extends Iterator
                         );
 
                         if (!$compatible) {
-                            throw new \RuntimeException(
+                            throw new RuntimeException(
                                 'Dependency <cyan>' . $dependency_slug . '</cyan> is required in an older version than the one installed. This package must be updated. Please get in touch with its developer.',
                                 2
                             );
@@ -926,7 +935,7 @@ class GPM extends Iterator
 
                 if ($this->firstVersionIsLower($latestRelease, $dependencyVersion)) {
                     //throw an exception if a required version cannot be found in the GPM yet
-                    throw new \RuntimeException(
+                    throw new RuntimeException(
                         'Dependency <cyan>' . $package_yaml['name'] . '</cyan> is required in version <cyan>' . $dependencyVersion . '</cyan> which is higher than the latest release, <cyan>' . $latestRelease . '</cyan>. Try running `bin/gpm -f index` to force a refresh of the GPM cache',
                         1
                     );
@@ -955,7 +964,7 @@ class GPM extends Iterator
                         );
 
                         if (!$compatible) {
-                            throw new \Exception(
+                            throw new RuntimeException(
                                 'Dependency <cyan>' . $dependency_slug . '</cyan> is required in an older version than the latest release available, and it cannot be installed. This package must be updated. Please get in touch with its developer.',
                                 2
                             );
@@ -975,6 +984,7 @@ class GPM extends Iterator
 
     /**
      * @param array $dependencies_slugs
+     * @return void
      */
     public function checkNoOtherPackageNeedsTheseDependenciesInALowerVersion($dependencies_slugs)
     {
@@ -1003,7 +1013,7 @@ class GPM extends Iterator
      * @param string $packageName The package information
      * @param array $dependencies The dependencies array
      * @return array
-     * @throws \Exception
+     * @throws Exception
      */
     private function calculateMergedDependenciesOfPackage($packageName, $dependencies)
     {
@@ -1046,7 +1056,7 @@ class GPM extends Iterator
 
                         $current_package_version_number = $this->calculateVersionNumberFromDependencyVersion($current_package_version_information);
                         if (!$current_package_version_number) {
-                            throw new \RuntimeException(
+                            throw new RuntimeException(
                                 'Bad format for version of dependency ' . $current_package_name . ' for package ' . $packageName,
                                 1
                             );
@@ -1076,7 +1086,7 @@ class GPM extends Iterator
                                     $current_package_version_number
                                 );
                                 if (!$compatible) {
-                                    throw new \RuntimeException(
+                                    throw new RuntimeException(
                                         'Dependency ' . $current_package_name . ' is required in two incompatible versions',
                                         2
                                     );
@@ -1095,8 +1105,7 @@ class GPM extends Iterator
      * Calculates and merges the dependencies of the passed packages
      *
      * @param array $packages
-     * @return mixed
-     * @throws \Exception
+     * @return array
      */
     public function calculateMergedDependenciesOfPackages($packages)
     {
@@ -1119,7 +1128,7 @@ class GPM extends Iterator
      *      $versionInformation == '' => returns null
      *
      * @param string $version
-     * @return null|string
+     * @return string|null
      */
     public function calculateVersionNumberFromDependencyVersion($version)
     {
@@ -1182,12 +1191,12 @@ class GPM extends Iterator
         $version1array = explode('.', $version1);
         $version2array = explode('.', $version2);
 
-        if (\count($version1array) > \count($version2array)) {
-            list($version1array, $version2array) = [$version2array, $version1array];
+        if (count($version1array) > count($version2array)) {
+            [$version1array, $version2array] = [$version2array, $version1array];
         }
 
         $i = 0;
-        while ($i < \count($version1array) - 1) {
+        while ($i < count($version1array) - 1) {
             if ($version1array[$i] != $version2array[$i]) {
                 return false;
             }

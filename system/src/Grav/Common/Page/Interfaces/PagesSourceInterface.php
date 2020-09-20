@@ -9,6 +9,10 @@
 
 namespace Grav\Common\Page\Interfaces;
 
+/**
+ * Interface PagesSourceInterface
+ * @package Grav\Common\Page\Interfaces
+ */
 interface PagesSourceInterface // extends \Iterator
 {
     /**

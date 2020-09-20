@@ -11,7 +11,13 @@ namespace Grav\Common\Helpers;
 
 use Grav\Common\Grav;
 use PHPExif\Reader\Reader;
+use RuntimeException;
+use function function_exists;
 
+/**
+ * Class Exif
+ * @package Grav\Common\Helpers
+ */
 class Exif
 {
     /** @var Reader */
@@ -19,7 +25,7 @@ class Exif
 
     /**
      * Exif constructor.
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
     public function __construct()
     {
@@ -27,7 +33,7 @@ class Exif
             if (function_exists('exif_read_data') && class_exists(Reader::class)) {
                 $this->reader = Reader::factory(Reader::TYPE_NATIVE);
             } else {
-                throw new \RuntimeException('Please enable the Exif extension for PHP or disable Exif support in Grav system configuration');
+                throw new RuntimeException('Please enable the Exif extension for PHP or disable Exif support in Grav system configuration');
             }
         }
     }

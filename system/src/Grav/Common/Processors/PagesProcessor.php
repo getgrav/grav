@@ -15,6 +15,10 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
+/**
+ * Class PagesProcessor
+ * @package Grav\Common\Processors
+ */
 class PagesProcessor extends ProcessorBase
 {
     /** @var string */
@@ -22,6 +26,11 @@ class PagesProcessor extends ProcessorBase
     /** @var string */
     public $title = 'Pages';
 
+    /**
+     * @param ServerRequestInterface $request
+     * @param RequestHandlerInterface $handler
+     * @return ResponseInterface
+     */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $this->startTimer();

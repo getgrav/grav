@@ -15,7 +15,13 @@ use Grav\Common\Media\Interfaces\ImageMediaInterface;
 use Grav\Common\Media\Interfaces\MediaObjectInterface;
 use Grav\Framework\Form\FormFlashFile;
 use Psr\Http\Message\UploadedFileInterface;
+use function dirname;
+use function is_array;
 
+/**
+ * Class MediumFactory
+ * @package Grav\Common\Page\Medium
+ */
 class MediumFactory
 {
     /**
@@ -40,7 +46,7 @@ class MediumFactory
         $config = Grav::instance()['config'];
 
         $media_params = $ext ? $config->get('media.types.' . strtolower($ext)) : null;
-        if (!\is_array($media_params)) {
+        if (!is_array($media_params)) {
             return null;
         }
 
@@ -105,7 +111,7 @@ class MediumFactory
         $config = Grav::instance()['config'];
 
         $media_params = $ext ? $config->get('media.types.' . strtolower($ext)) : null;
-        if (!\is_array($media_params)) {
+        if (!is_array($media_params)) {
             return null;
         }
 

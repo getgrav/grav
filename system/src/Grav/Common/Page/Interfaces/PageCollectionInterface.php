@@ -9,7 +9,17 @@
 
 namespace Grav\Common\Page\Interfaces;
 
-interface PageCollectionInterface extends \Traversable, \ArrayAccess, \Countable, \Serializable
+use ArrayAccess;
+use Countable;
+use Exception;
+use Serializable;
+use Traversable;
+
+/**
+ * Interface PageCollectionInterface
+ * @package Grav\Common\Page\Interfaces
+ */
+interface PageCollectionInterface extends Traversable, ArrayAccess, Countable, Serializable
 {
     /**
      * Get the collection params
@@ -22,7 +32,6 @@ interface PageCollectionInterface extends \Traversable, \ArrayAccess, \Countable
      * Set parameters to the Collection
      *
      * @param array $params
-     *
      * @return $this
      */
     public function setParams(array $params);
@@ -31,7 +40,6 @@ interface PageCollectionInterface extends \Traversable, \ArrayAccess, \Countable
      * Add a single page to a collection
      *
      * @param PageInterface $page
-     *
      * @return $this
      */
     public function addPage(PageInterface $page);
@@ -82,7 +90,6 @@ interface PageCollectionInterface extends \Traversable, \ArrayAccess, \Countable
      * Remove item from the list.
      *
      * @param PageInterface|string|null $key
-     *
      * @return PageCollectionInterface
      * @throws \InvalidArgumentException
      */
@@ -93,9 +100,8 @@ interface PageCollectionInterface extends \Traversable, \ArrayAccess, \Countable
      *
      * @param string $by
      * @param string $dir
-     * @param array  $manual
-     * @param string $sort_flags
-     *
+     * @param array|null  $manual
+     * @param string|null $sort_flags
      * @return PageCollectionInterface
      */
     public function order($by, $dir = 'asc', $manual = null, $sort_flags = null);
@@ -104,7 +110,6 @@ interface PageCollectionInterface extends \Traversable, \ArrayAccess, \Countable
      * Check to see if this item is the first in the collection.
      *
      * @param  string $path
-     *
      * @return bool True if item is first.
      */
     public function isFirst($path): bool;
@@ -113,7 +118,6 @@ interface PageCollectionInterface extends \Traversable, \ArrayAccess, \Countable
      * Check to see if this item is the last in the collection.
      *
      * @param  string $path
-     *
      * @return bool True if item is last.
      */
     public function isLast($path): bool;
@@ -122,7 +126,6 @@ interface PageCollectionInterface extends \Traversable, \ArrayAccess, \Countable
      * Gets the previous sibling based on current position.
      *
      * @param  string $path
-     *
      * @return PageInterface  The previous item.
      */
     public function prevSibling($path);
@@ -131,7 +134,6 @@ interface PageCollectionInterface extends \Traversable, \ArrayAccess, \Countable
      * Gets the next sibling based on current position.
      *
      * @param  string $path
-     *
      * @return PageInterface The next item.
      */
     public function nextSibling($path);
@@ -141,7 +143,6 @@ interface PageCollectionInterface extends \Traversable, \ArrayAccess, \Countable
      *
      * @param  string  $path
      * @param  int $direction either -1 or +1
-     *
      * @return PageInterface|PageCollectionInterface|false    The sibling item.
      */
     public function adjacentSibling($path, $direction = 1);
@@ -150,7 +151,6 @@ interface PageCollectionInterface extends \Traversable, \ArrayAccess, \Countable
      * Returns the item in the current position.
      *
      * @param  string $path the path the item
-     *
      * @return int|null The index of the current page, null if not found.
      */
     public function currentPosition($path): ?int;
@@ -164,9 +164,8 @@ interface PageCollectionInterface extends \Traversable, \ArrayAccess, \Countable
      * @param string $startDate
      * @param bool $endDate
      * @param string|null $field
-     *
      * @return PageCollectionInterface
-     * @throws \Exception
+     * @throws Exception
      */
     public function dateRange($startDate, $endDate = false, $field = null);
 
@@ -230,7 +229,6 @@ interface PageCollectionInterface extends \Traversable, \ArrayAccess, \Countable
      * Creates new collection with only pages of the specified type
      *
      * @param string $type
-     *
      * @return PageCollectionInterface The collection
      */
     public function ofType($type);
@@ -239,7 +237,6 @@ interface PageCollectionInterface extends \Traversable, \ArrayAccess, \Countable
      * Creates new collection with only pages of one of the specified types
      *
      * @param string[] $types
-     *
      * @return PageCollectionInterface The collection
      */
     public function ofOneOfTheseTypes($types);
@@ -248,7 +245,6 @@ interface PageCollectionInterface extends \Traversable, \ArrayAccess, \Countable
      * Creates new collection with only pages of one of the specified access levels
      *
      * @param array $accessLevels
-     *
      * @return PageCollectionInterface The collection
      */
     public function ofOneOfTheseAccessLevels($accessLevels);
@@ -264,7 +260,7 @@ interface PageCollectionInterface extends \Traversable, \ArrayAccess, \Countable
      * Get the extended version of this Collection with each page keyed by route
      *
      * @return array
-     * @throws \Exception
+     * @throws Exception
      */
     public function toExtendedArray();
 }

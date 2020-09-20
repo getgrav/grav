@@ -13,8 +13,16 @@ use Grav\Common\Backup\Backups;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 
+/**
+ * Class BackupsServiceProvider
+ * @package Grav\Common\Service
+ */
 class BackupsServiceProvider implements ServiceProviderInterface
 {
+    /**
+     * @param Container $container
+     * @return void
+     */
     public function register(Container $container)
     {
         $container['backups'] = function () {

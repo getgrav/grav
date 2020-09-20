@@ -18,10 +18,17 @@ use Grav\Common\Page\Header;
 use Grav\Common\Page\Interfaces\PageCollectionInterface;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Utils;
-use Grav\Framework\Flex\Interfaces\FlexCollectionInterface;
 use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
 use Grav\Framework\Flex\Pages\FlexPageCollection;
 use Collator;
+use InvalidArgumentException;
+use RuntimeException;
+use function array_search;
+use function count;
+use function extension_loaded;
+use function in_array;
+use function is_array;
+use function is_string;
 
 /**
  * Class GravPageCollection
@@ -95,7 +102,6 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
      */
     public function getRoot()
     {
-        /** @var PageIndex $index */
         $index = $this->getIndex();
 
         return $index->getRoot();
@@ -143,7 +149,7 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
     public function addPage(PageInterface $page)
     {
         if (!$page instanceof FlexObjectInterface) {
-            throw new \InvalidArgumentException('$page is not a flex page.');
+            throw new InvalidArgumentException('$page is not a flex page.');
         }
 
         // FIXME: support other keys.
@@ -161,7 +167,7 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
      */
     public function merge(PageCollectionInterface $collection)
     {
-        throw new \RuntimeException(__METHOD__ . '(): Not Implemented');
+        throw new RuntimeException(__METHOD__ . '(): Not Implemented');
     }
 
     /**
@@ -172,7 +178,7 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
      */
     public function intersect(PageCollectionInterface $collection)
     {
-        throw new \RuntimeException(__METHOD__ . '(): Not Implemented');
+        throw new RuntimeException(__METHOD__ . '(): Not Implemented');
     }
 
     /**
@@ -218,7 +224,7 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
      */
     public function append($items)
     {
-        throw new \RuntimeException(__METHOD__ . '(): Not Implemented');
+        throw new RuntimeException(__METHOD__ . '(): Not Implemented');
     }
 
     /**
@@ -244,8 +250,8 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
      *
      * @param string $by
      * @param string $dir
-     * @param array  $manual
-     * @param string $sort_flags
+     * @param array|null  $manual
+     * @param string|null $sort_flags
      * @return static
      */
     public function order($by, $dir = 'asc', $manual = null, $sort_flags = null)
@@ -348,7 +354,7 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
                         return sprintf('%032d.', $number[0]);
                     }, $list);
                     if (!is_array($list)) {
-                        throw new \RuntimeException('Internal Error');
+                        throw new RuntimeException('Internal Error');
                     }
 
                     $list_vals = array_values($list);
@@ -373,7 +379,7 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
             $new_list = [];
             foreach ($list as $key => $dummy) {
                 $child = $this[$key];
-                $order = \array_search($child->slug, $manual, true);
+                $order = array_search($child->slug, $manual, true);
                 if ($order === false) {
                     $order = $i++;
                 }
@@ -609,7 +615,7 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
     {
         $entries = [];
         foreach ($this as $key => $object) {
-            if ($object && \in_array($object->template(), $types, true)) {
+            if ($object && in_array($object->template(), $types, true)) {
                 $entries[$key] = $object;
             }
         }
@@ -628,19 +634,19 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
         $entries = [];
         foreach ($this as $key => $object) {
             if ($object && isset($object->header()->access)) {
-                if (\is_array($object->header()->access)) {
+                if (is_array($object->header()->access)) {
                     //Multiple values for access
                     $valid = false;
 
                     foreach ($object->header()->access as $index => $accessLevel) {
-                        if (\is_array($accessLevel)) {
+                        if (is_array($accessLevel)) {
                             foreach ($accessLevel as $innerIndex => $innerAccessLevel) {
-                                if (\in_array($innerAccessLevel, $accessLevels)) {
+                                if (in_array($innerAccessLevel, $accessLevels)) {
                                     $valid = true;
                                 }
                             }
                         } else {
-                            if (\in_array($index, $accessLevels)) {
+                            if (in_array($index, $accessLevels)) {
                                 $valid = true;
                             }
                         }
@@ -650,7 +656,7 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
                     }
                 } else {
                     //Single value for access
-                    if (\in_array($object->header()->access, $accessLevels)) {
+                    if (in_array($object->header()->access, $accessLevels)) {
                         $entries[$key] = $object;
                     }
                 }

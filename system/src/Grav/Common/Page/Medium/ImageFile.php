@@ -9,15 +9,30 @@
 
 namespace Grav\Common\Page\Medium;
 
+use Exception;
 use Grav\Common\Grav;
 use Gregwar\Image\Exceptions\GenerationError;
 use Gregwar\Image\Image;
 use Gregwar\Image\Source;
 use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
+use RuntimeException;
+use function array_key_exists;
+use function count;
+use function extension_loaded;
+use function in_array;
 
+/**
+ * Class ImageFile
+ * @package Grav\Common\Page\Medium
+ *
+ * @method Image applyExifOrientation($exif_orienation)
+ */
 class ImageFile extends Image
 {
+    /**
+     * Destruct also image object.
+     */
     public function __destruct()
     {
         $this->getAdapter()->deinit();
@@ -25,6 +40,8 @@ class ImageFile extends Image
 
     /**
      * Clear previously applied operations
+     *
+     * @return void
      */
     public function clearOperations()
     {
@@ -38,7 +55,6 @@ class ImageFile extends Image
      * @param int $quality the quality (for JPEG)
      * @param bool $actual
      * @param array $extras
-     *
      * @return string
      */
     public function cacheFile($type = 'jpg', $quality = 80, $actual = false, $extras = [])
@@ -132,13 +148,13 @@ class ImageFile extends Image
     {
         $inputInfos = $this->source->getInfos();
 
-        $datas = array(
+        $datas = [
             $inputInfos,
             $this->serializeOperations(),
             $type,
             $quality,
             $extras
-        );
+        ];
 
         $this->hash = sha1(serialize($datas));
     }
@@ -175,8 +191,8 @@ class ImageFile extends Image
 
         try {
             $exif = exif_read_data($filepath);
-        } catch (\Exception $e) {
-            Grav::instance()['log']->error($filepath . " - " . $e->getMessage());
+        } catch (Exception $e) {
+            Grav::instance()['log']->error($filepath . ' - ' . $e->getMessage());
             return $this;
         }
 

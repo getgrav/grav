@@ -11,6 +11,10 @@ namespace Grav\Common\GPM\Remote;
 
 use Grav\Common\GPM\Common\CachedCollection;
 
+/**
+ * Class Packages
+ * @package Grav\Common\GPM\Remote
+ */
 class Packages extends CachedCollection
 {
     /**

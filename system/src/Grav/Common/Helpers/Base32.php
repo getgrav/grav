@@ -9,6 +9,15 @@
 
 namespace Grav\Common\Helpers;
 
+use function chr;
+use function count;
+use function ord;
+use function strlen;
+
+/**
+ * Class Base32
+ * @package Grav\Common\Helpers
+ */
 class Base32
 {
     /** @var string */
@@ -38,15 +47,15 @@ class Base32
         $i = 0;
         $index = 0;
         $base32 = '';
-        $bytesLen = \strlen($bytes);
+        $bytesLen = strlen($bytes);
 
         while ($i < $bytesLen) {
-            $currByte = \ord($bytes[$i]);
+            $currByte = ord($bytes[$i]);
 
             /* Is the current digit going to span a byte boundary? */
             if ($index > 3) {
                 if (($i + 1) < $bytesLen) {
-                    $nextByte = \ord($bytes[$i+1]);
+                    $nextByte = ord($bytes[$i+1]);
                 } else {
                     $nextByte = 0;
                 }
@@ -78,15 +87,15 @@ class Base32
     public static function decode($base32)
     {
         $bytes = [];
-        $base32Len = \strlen($base32);
-        $base32LookupLen = \count(self::$base32Lookup);
+        $base32Len = strlen($base32);
+        $base32LookupLen = count(self::$base32Lookup);
 
         for ($i = $base32Len * 5 / 8 - 1; $i >= 0; --$i) {
             $bytes[] = 0;
         }
 
         for ($i = 0, $index = 0, $offset = 0; $i < $base32Len; $i++) {
-            $lookup = \ord($base32[$i]) - \ord('0');
+            $lookup = ord($base32[$i]) - ord('0');
 
             /* Skip chars outside the lookup table */
             if ($lookup < 0 || $lookup >= $base32LookupLen) {
@@ -105,7 +114,7 @@ class Base32
                 if ($index === 0) {
                     $bytes[$offset] |= $digit;
                     $offset++;
-                    if ($offset >= \count($bytes)) {
+                    if ($offset >= count($bytes)) {
                         break;
                     }
                 } else {
@@ -115,7 +124,7 @@ class Base32
                 $index = ($index + 5) % 8;
                 $bytes[$offset] |= ($digit >> $index);
                 $offset++;
-                if ($offset >= \count($bytes)) {
+                if ($offset >= count($bytes)) {
                     break;
                 }
                 $bytes[$offset] |= $digit << (8 - $index);
@@ -124,7 +133,7 @@ class Base32
 
         $bites = '';
         foreach ($bytes as $byte) {
-            $bites .= \chr($byte);
+            $bites .= chr($byte);
         }
 
         return $bites;

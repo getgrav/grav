@@ -35,22 +35,44 @@ use Grav\Common\Yaml;
 use Grav\Common\Helpers\Base32;
 use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
 use Grav\Framework\Psr7\Response;
+use Iterator;
+use JsonSerializable;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
+use Traversable;
 use Twig\Environment;
 use Twig\Extension\AbstractExtension;
 use Twig\Extension\GlobalsInterface;
 use Twig\Loader\FilesystemLoader;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
+use function array_slice;
+use function count;
+use function func_get_args;
+use function func_num_args;
+use function get_class;
+use function gettype;
+use function in_array;
+use function is_array;
+use function is_bool;
+use function is_float;
+use function is_int;
+use function is_numeric;
+use function is_object;
+use function is_scalar;
+use function is_string;
+use function ord;
+use function strlen;
 
+/**
+ * Class TwigExtension
+ * @package Grav\Common\Twig
+ */
 class TwigExtension extends AbstractExtension implements GlobalsInterface
 {
     /** @var Grav */
     protected $grav;
-
     /** @var Debugger|null */
     protected $debugger;
-
     /** @var Config */
     protected $config;
 
@@ -223,7 +245,6 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      * Filters field name by changing dot notation into array notation.
      *
      * @param  string $str
-     *
      * @return string
      */
     public function fieldNameFilter($str)
@@ -237,7 +258,6 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      * Protects email address.
      *
      * @param  string $str
-     *
      * @return string
      */
     public function safeEmailFilter($str)
@@ -255,18 +275,17 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
     /**
      * Returns array in a random order.
      *
-     * @param  array|\Traversable $original
+     * @param  array|Traversable $original
      * @param  int   $offset Can be used to return only slice of the array.
-     *
      * @return array
      */
     public function randomizeFilter($original, $offset = 0)
     {
-        if ($original instanceof \Traversable) {
+        if ($original instanceof Traversable) {
             $original = iterator_to_array($original, false);
         }
 
-        if (!\is_array($original)) {
+        if (!is_array($original)) {
             return $original;
         }
 
@@ -274,7 +293,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
         $random = array_slice($original, $offset);
         shuffle($random);
 
-        $sizeOf = \count($original);
+        $sizeOf = count($original);
         for ($x = 0; $x < $sizeOf; $x++) {
             if ($x < $offset) {
                 $sorted[] = $original[$x];
@@ -291,19 +310,18 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      *
      * @param  string|int   $number
      * @param  int          $divider
-     * @param  array        $items array of items to select from to return
-     *
+     * @param  array|null   $items array of items to select from to return
      * @return int
      */
     public function modulusFilter($number, $divider, $items = null)
     {
-        if (\is_string($number)) {
+        if (is_string($number)) {
             $number = strlen($number);
         }
 
         $remainder = $number % $divider;
 
-        if (\is_array($items)) {
+        if (is_array($items)) {
             return $items[$remainder] ?? $items[0];
         }
 
@@ -325,8 +343,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      *
      * @param string $action
      * @param string $data
-     * @param int    $count
-     *
+     * @param int|null $count
      * @return string
      */
     public function inflectorFilter($action, $data, $count = null)
@@ -336,7 +353,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
         /** @var Inflector $inflector */
         $inflector = $this->grav['inflector'];
 
-        if (\in_array(
+        if (in_array(
             $action,
             ['titleize', 'camelize', 'underscorize', 'hyphenize', 'humanize', 'ordinalize', 'monthize'],
             true
@@ -344,7 +361,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             return $inflector->{$action}($data);
         }
 
-        if (\in_array($action, ['pluralize', 'singularize'], true)) {
+        if (in_array($action, ['pluralize', 'singularize'], true)) {
             return $count ? $inflector->{$action}($data, $count) : $inflector->{$action}($data);
         }
 
@@ -355,7 +372,6 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      * Return MD5 hash from the input.
      *
      * @param  string $str
-     *
      * @return string
      */
     public function md5Filter($str)
@@ -378,7 +394,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      * Return Base32 decoded string
      *
      * @param string $str
-     * @return bool|string
+     * @return string
      */
     public function base32DecodeFilter($str)
     {
@@ -400,13 +416,12 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      * Return Base64 decoded string
      *
      * @param string $str
-     * @return bool|string
+     * @return string|false
      */
     public function base64DecodeFilter($str)
     {
         return base64_decode($str);
     }
-
 
     /**
      * Sorts a collection by key
@@ -415,7 +430,6 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      * @param  string   $filter
      * @param  int      $direction
      * @param  int      $sort_flags
-     *
      * @return array
      */
     public function sortByKeyFilter($input, $filter, $direction = SORT_ASC, $sort_flags = SORT_REGULAR)
@@ -427,7 +441,6 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      * Return ksorted collection.
      *
      * @param  array|null $array
-     *
      * @return array
      */
     public function ksortFilter($array)
@@ -458,7 +471,6 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      *
      * @param string $haystack
      * @param string $needle
-     *
      * @return string|bool
      * @todo returning $haystack here doesn't make much sense
      */
@@ -499,7 +511,6 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      *
      * @param string $date
      * @param bool $long_strings
-     *
      * @param bool $show_tense
      * @return string
      */
@@ -601,7 +612,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      */
     public function xssFunc($data)
     {
-        if (!\is_array($data)) {
+        if (!is_array($data)) {
             return Security::detectXss($data);
         }
 
@@ -615,8 +626,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
 
     /**
      * @param string $string
-     *
-     * @return mixed
+     * @return string
      */
     public function absoluteUrlFilter($string)
     {
@@ -630,7 +640,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      * @param array $context
      * @param string $string
      * @param bool $block  Block or Line processing
-     * @return mixed|string
+     * @return string
      */
     public function markdownFunction($context, $string, $block = true)
     {
@@ -641,7 +651,6 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
     /**
      * @param string $haystack
      * @param string $needle
-     *
      * @return bool
      */
     public function startsWithFilter($haystack, $needle)
@@ -652,7 +661,6 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
     /**
      * @param string $haystack
      * @param string $needle
-     *
      * @return bool
      */
     public function endsWithFilter($haystack, $needle)
@@ -663,8 +671,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
     /**
      * @param mixed $value
      * @param null $default
-     *
-     * @return null
+     * @return mixed|null
      */
     public function definedDefaultFilter($value, $default = null)
     {
@@ -674,7 +681,6 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
     /**
      * @param string $value
      * @param string|null $chars
-     *
      * @return string
      */
     public function rtrimFilter($value, $chars = null)
@@ -685,7 +691,6 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
     /**
      * @param string $value
      * @param string|null $chars
-     *
      * @return string
      */
     public function ltrimFilter($value, $chars = null)
@@ -765,12 +770,12 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
                 return $input->toArray();
             }
 
-            if ($input instanceof \Iterator) {
+            if ($input instanceof Iterator) {
                 return iterator_to_array($input);
             }
         }
 
-        return (array) $input;
+        return (array)$input;
     }
 
     /**
@@ -912,7 +917,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
                     if (method_exists($value, 'toArray')) {
                         $data[$key] = $value->toArray();
                     } else {
-                        $data[$key] = "Object (" . get_class($value) . ")";
+                        $data[$key] = 'Object (' . get_class($value) . ')';
                     }
                 } else {
                     $data[$key] = $value;
@@ -931,8 +936,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      * Output a Gist
      *
      * @param  string $id
-     * @param  string|bool $file
-     *
+     * @param  string|false $file
      * @return string
      */
     public function gistFunc($id, $file = false)
@@ -948,7 +952,6 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      * Generate a random string
      *
      * @param int $count
-     *
      * @return string
      */
     public function randomStringFunc($count = 5)
@@ -963,7 +966,6 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      * @param int    $pad_length
      * @param string $pad_string
      * @param int    $pad_type
-     *
      * @return string
      */
     public static function padFilter($input, $pad_length, $pad_string = ' ', $pad_type = STR_PAD_RIGHT)
@@ -977,8 +979,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      *
      * @param string $key           key of item
      * @param string $val           value of item
-     * @param array  $current_array optional array to add to
-     *
+     * @param array|null $current_array optional array to add to
      * @return array
      */
     public function arrayKeyValueFunc($key, $val, $current_array = null)
@@ -1080,7 +1081,6 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      *
      * @param string $action         the action
      * @param string $nonceParamName a custom nonce param name
-     *
      * @return string the nonce input field
      */
     public function nonceFieldFunc($action, $nonceParamName = 'nonce')
@@ -1108,8 +1108,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      * Used to retrieve a cookie value
      *
      * @param string $key     The cookie name to retrieve
-     *
-     * @return mixed
+     * @return string
      */
     public function getCookie($key)
     {
@@ -1119,11 +1118,10 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
     /**
      * Twig wrapper for PHP's preg_replace method
      *
-     * @param mixed $subject the content to perform the replacement on
-     * @param mixed $pattern the regex pattern to use for matches
-     * @param mixed $replace the replacement value either as a string or an array of replacements
+     * @param string|string[] $subject the content to perform the replacement on
+     * @param string|string[] $pattern the regex pattern to use for matches
+     * @param string|string[] $replace the replacement value either as a string or an array of replacements
      * @param int   $limit   the maximum possible replacements for each pattern in each subject
-     *
      * @return string|string[]|null the resulting content
      */
     public function regexReplace($subject, $pattern, $replace, $limit = -1)
@@ -1149,6 +1147,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      *
      * @param string $url          the url to redirect to
      * @param int $statusCode      statusCode, default 303
+     * @return void
      */
     public function redirectFunc($url, $statusCode = 303)
     {
@@ -1163,7 +1162,6 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      * @param int $start      Minimum number, default 0
      * @param int $end        Maximum number, default `getrandmax()`
      * @param int $step       Increment between elements in the sequence, default 1
-     *
      * @return array
      */
     public function rangeFunc($start = 0, $end = 100, $step = 1)
@@ -1267,6 +1265,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      * Dump a variable to the browser
      *
      * @param mixed $var
+     * @return void
      */
     public function vardumpFunc($var)
     {
@@ -1292,8 +1291,8 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      */
     public function niceNumberFunc($n)
     {
-        if (!\is_float($n) && !\is_int($n)) {
-            if (!\is_string($n) || $n === '') {
+        if (!is_float($n) && !is_int($n)) {
+            if (!is_string($n) || $n === '') {
                 return false;
             }
 
@@ -1301,7 +1300,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             $list = array_filter(preg_split("/\D+/", str_replace(',', '', $n)));
             $n = reset($list);
 
-            if (!\is_numeric($n)) {
+            if (!is_numeric($n)) {
                 return false;
             }
 
@@ -1469,7 +1468,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
     public function yamlEncodeFilter($data, $inline = 10)
     {
         if (!is_array($data)) {
-            if ($data instanceof \JsonSerializable) {
+            if ($data instanceof JsonSerializable) {
                 $data = $data->jsonSerialize();
             } elseif (method_exists($data, 'toArray')) {
                 $data = $data->toArray();
@@ -1517,43 +1516,33 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
         switch ($typeTest) {
             default:
                 return false;
-                break;
 
             case 'array':
                 return is_array($var);
-                break;
 
             case 'bool':
                 return is_bool($var);
-                break;
 
             case 'class':
                 return is_object($var) === true && get_class($var) === $className;
-                break;
 
             case 'float':
                 return is_float($var);
-                break;
 
             case 'int':
                 return is_int($var);
-                break;
 
             case 'numeric':
                 return is_numeric($var);
-                break;
 
             case 'object':
                 return is_object($var);
-                break;
 
             case 'scalar':
                 return is_scalar($var);
-                break;
 
             case 'string':
                 return is_string($var);
-                break;
         }
     }
 }

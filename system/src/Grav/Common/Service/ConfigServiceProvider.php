@@ -21,8 +21,16 @@ use Pimple\ServiceProviderInterface;
 use RocketTheme\Toolbox\File\YamlFile;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
+/**
+ * Class ConfigServiceProvider
+ * @package Grav\Common\Service
+ */
 class ConfigServiceProvider implements ServiceProviderInterface
 {
+    /**
+     * @param Container $container
+     * @return void
+     */
     public function register(Container $container)
     {
         $container['setup'] = function ($c) {
@@ -56,6 +64,10 @@ class ConfigServiceProvider implements ServiceProviderInterface
         };
     }
 
+    /**
+     * @param Container $container
+     * @return mixed
+     */
     public static function blueprints(Container $container)
     {
         /** Setup $setup */
@@ -112,6 +124,10 @@ class ConfigServiceProvider implements ServiceProviderInterface
         return $config;
     }
 
+    /**
+     * @param Container $container
+     * @return mixed
+     */
     public static function languages(Container $container)
     {
         /** @var Setup $setup */

@@ -9,11 +9,13 @@
 
 namespace Grav\Common\Twig\Node;
 
+use LogicException;
 use Twig\Compiler;
 use Twig\Node\Node;
 
 /**
  * Class TwigNodeThrow
+ * @package Grav\Common\Twig\Node
  */
 class TwigNodeThrow extends Node
 {
@@ -24,12 +26,8 @@ class TwigNodeThrow extends Node
      * @param int $lineno
      * @param string|null $tag
      */
-    public function __construct(
-        $code,
-        Node $message,
-        $lineno = 0,
-        $tag = null
-    ) {
+    public function __construct($code, Node $message, $lineno = 0, $tag = null)
+    {
         parent::__construct(['message' => $message], ['code' => $code], $lineno, $tag);
     }
 
@@ -37,7 +35,8 @@ class TwigNodeThrow extends Node
      * Compiles the node to PHP.
      *
      * @param Compiler $compiler A Twig Compiler instance
-     * @throws \LogicException
+     * @return void
+     * @throws LogicException
      */
     public function compile(Compiler $compiler)
     {

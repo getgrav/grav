@@ -13,27 +13,31 @@ use Grav\Common\Data\Blueprint;
 use Grav\Common\Data\Data;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Config\Config;
+use LogicException;
 use RocketTheme\Toolbox\File\YamlFile;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use function defined;
+use function is_bool;
+use function is_string;
 
+/**
+ * Class Plugin
+ * @package Grav\Common
+ */
 class Plugin implements EventSubscriberInterface, \ArrayAccess
 {
     /** @var string */
     public $name;
-
     /** @var array */
     public $features = [];
 
     /** @var Grav */
     protected $grav;
-
     /** @var Config */
     protected $config;
-
     /** @var bool */
     protected $active = true;
-
     /** @var Blueprint */
     protected $blueprint;
 
@@ -111,7 +115,7 @@ class Plugin implements EventSubscriberInterface, \ArrayAccess
      */
     public function isCli()
     {
-        return \defined('GRAV_CLI');
+        return defined('GRAV_CLI');
     }
 
     /**
@@ -144,9 +148,9 @@ class Plugin implements EventSubscriberInterface, \ArrayAccess
         $dispatcher = $this->grav['events'];
 
         foreach ($events as $eventName => $params) {
-            if (\is_string($params)) {
+            if (is_string($params)) {
                 $dispatcher->addListener($eventName, [$this, $params]);
-            } elseif (\is_string($params[0])) {
+            } elseif (is_string($params[0])) {
                 $dispatcher->addListener($eventName, [$this, $params[0]], $this->getPriority($params, $eventName));
             } else {
                 foreach ($params as $listener) {
@@ -182,9 +186,9 @@ class Plugin implements EventSubscriberInterface, \ArrayAccess
         $dispatcher = $this->grav['events'];
 
         foreach ($events as $eventName => $params) {
-            if (\is_string($params)) {
+            if (is_string($params)) {
                 $dispatcher->removeListener($eventName, [$this, $params]);
-            } elseif (\is_string($params[0])) {
+            } elseif (is_string($params[0])) {
                 $dispatcher->removeListener($eventName, [$this, $params[0]]);
             } else {
                 foreach ($params as $listener) {
@@ -231,22 +235,22 @@ class Plugin implements EventSubscriberInterface, \ArrayAccess
      *
      * @param string $offset  The offset to assign the value to.
      * @param mixed $value   The value to set.
-     * @throws \LogicException
+     * @throws LogicException
      */
     public function offsetSet($offset, $value)
     {
-        throw new \LogicException(__CLASS__ . ' blueprints cannot be modified.');
+        throw new LogicException(__CLASS__ . ' blueprints cannot be modified.');
     }
 
     /**
      * Unsets an offset.
      *
      * @param string $offset  The offset to unset.
-     * @throws \LogicException
+     * @throws LogicException
      */
     public function offsetUnset($offset)
     {
-        throw new \LogicException(__CLASS__ . ' blueprints cannot be modified.');
+        throw new LogicException(__CLASS__ . ' blueprints cannot be modified.');
     }
 
     /**
@@ -272,7 +276,6 @@ class Plugin implements EventSubscriberInterface, \ArrayAccess
      * @param string   $content        The string to perform operations upon
      * @param callable $function       The anonymous callback function
      * @param string   $internal_regex Optional internal regex to extra data from
-     *
      * @return string
      */
     protected function parseLinks($content, $function, $internal_regex = '(.*)')
@@ -291,7 +294,6 @@ class Plugin implements EventSubscriberInterface, \ArrayAccess
      * @param array $params Array of additional configuration options to
      *                       merge with the plugin settings.
      * @param string $type Is this 'plugins' or 'themes'
-     *
      * @return Data
      */
     protected function mergeConfig(PageInterface $page, $deep = false, $params = [], $type = 'plugins')
@@ -305,7 +307,7 @@ class Plugin implements EventSubscriberInterface, \ArrayAccess
         if (!isset($page_header->{$class_name_merged}) && isset($page_header->{$class_name})) {
             // Get default plugin configurations and retrieve page header configuration
             $config = $page_header->{$class_name};
-            if (\is_bool($config)) {
+            if (is_bool($config)) {
                 // Overwrite enabled option with boolean value in page header
                 $config = ['enabled' => $config];
             }

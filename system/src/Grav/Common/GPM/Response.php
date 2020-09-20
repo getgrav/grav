@@ -9,6 +9,7 @@
 
 namespace Grav\Common\GPM;
 
+use Exception;
 use Grav\Common\Utils;
 use Grav\Common\Grav;
 use Symfony\Component\HttpClient\CurlHttpClient;
@@ -16,7 +17,13 @@ use Symfony\Component\HttpClient\Exception\TransportException;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\HttpClient\HttpOptions;
 use Symfony\Component\HttpClient\NativeHttpClient;
+use function call_user_func;
+use function function_exists;
 
+/**
+ * Class Response
+ * @package Grav\Common\GPM
+ */
 class Response
 {
     /** @var callable    The callback for the progress, either a function or callback in array notation */
@@ -47,7 +54,7 @@ class Response
             if (function_exists('set_time_limit') && !Utils::isFunctionDisabled('set_time_limit')) {
                 set_time_limit(0);
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
         }
 
         $config = Grav::instance()['config'];
@@ -110,12 +117,14 @@ class Response
     /**
      * Progress normalized for cURL and Fopen
      * Accepts a variable length of arguments passed in by stream method
+     *
+     * @return void
      */
     public static function progress(int $bytes_transferred, int $filesize, array $info)
     {
 
         if ($bytes_transferred > 0) {
-            $percent = $filesize <= 0 ? 0 : intval(($bytes_transferred * 100) / $filesize);
+            $percent = $filesize <= 0 ? 0 : (int)(($bytes_transferred * 100) / $filesize);
 
             $progress = [
                 'code'        => $info['http_code'],
@@ -129,5 +138,4 @@ class Response
             }
         }
     }
-
 }

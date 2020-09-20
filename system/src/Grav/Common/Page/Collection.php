@@ -9,17 +9,29 @@
 
 namespace Grav\Common\Page;
 
+use Exception;
 use Grav\Common\Grav;
 use Grav\Common\Iterator;
 use Grav\Common\Page\Interfaces\PageCollectionInterface;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Utils;
+use InvalidArgumentException;
+use function array_key_exists;
+use function array_keys;
+use function array_search;
+use function count;
+use function in_array;
+use function is_array;
+use function is_string;
 
+/**
+ * Class Collection
+ * @package Grav\Common\Page
+ */
 class Collection extends Iterator implements PageCollectionInterface
 {
     /** @var Pages */
     protected $pages;
-
     /** @var array */
     protected $params;
 
@@ -52,7 +64,6 @@ class Collection extends Iterator implements PageCollectionInterface
      * Set parameters to the Collection
      *
      * @param array $params
-     *
      * @return $this
      */
     public function setParams(array $params)
@@ -66,7 +77,6 @@ class Collection extends Iterator implements PageCollectionInterface
      * Add a single page to a collection
      *
      * @param PageInterface $page
-     *
      * @return $this
      */
     public function addPage(PageInterface $page)
@@ -162,9 +172,8 @@ class Collection extends Iterator implements PageCollectionInterface
     /**
      * Returns the value at specified offset.
      *
-     * @param mixed $offset The offset to retrieve.
-     *
-     * @return mixed         Can return all value types.
+     * @param string $offset
+     * @return PageInterface|null
      */
     public function offsetGet($offset)
     {
@@ -175,7 +184,7 @@ class Collection extends Iterator implements PageCollectionInterface
      * Split collection into array of smaller collections.
      *
      * @param int $size
-     * @return array|Collection[]
+     * @return Collection[]
      */
     public function batch($size)
     {
@@ -193,9 +202,8 @@ class Collection extends Iterator implements PageCollectionInterface
      * Remove item from the list.
      *
      * @param PageInterface|string|null $key
-     *
      * @return $this
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function remove($key = null)
     {
@@ -204,8 +212,8 @@ class Collection extends Iterator implements PageCollectionInterface
         } elseif (null === $key) {
             $key = (string)key($this->items);
         }
-        if (!\is_string($key)) {
-            throw new \InvalidArgumentException('Invalid argument $key.');
+        if (!is_string($key)) {
+            throw new InvalidArgumentException('Invalid argument $key.');
         }
 
         parent::remove($key);
@@ -218,9 +226,8 @@ class Collection extends Iterator implements PageCollectionInterface
      *
      * @param string $by
      * @param string $dir
-     * @param array  $manual
-     * @param string $sort_flags
-     *
+     * @param array|null  $manual
+     * @param string|null $sort_flags
      * @return $this
      */
     public function order($by, $dir = 'asc', $manual = null, $sort_flags = null)
@@ -234,7 +241,6 @@ class Collection extends Iterator implements PageCollectionInterface
      * Check to see if this item is the first in the collection.
      *
      * @param  string $path
-     *
      * @return bool True if item is first.
      */
     public function isFirst($path): bool
@@ -246,12 +252,11 @@ class Collection extends Iterator implements PageCollectionInterface
      * Check to see if this item is the last in the collection.
      *
      * @param  string $path
-     *
      * @return bool True if item is last.
      */
     public function isLast($path): bool
     {
-        return $this->items && $path === array_keys($this->items)[\count($this->items) - 1];
+        return $this->items && $path === array_keys($this->items)[count($this->items) - 1];
     }
 
     /**
@@ -283,7 +288,6 @@ class Collection extends Iterator implements PageCollectionInterface
      *
      * @param  string  $path
      * @param  int $direction either -1 or +1
-     *
      * @return PageInterface|Collection    The sibling item.
      */
     public function adjacentSibling($path, $direction = 1)
@@ -304,12 +308,11 @@ class Collection extends Iterator implements PageCollectionInterface
      * Returns the item in the current position.
      *
      * @param  string $path the path the item
-     *
      * @return int|null The index of the current page, null if not found.
      */
     public function currentPosition($path): ?int
     {
-        $pos = \array_search($path, \array_keys($this->items), true);
+        $pos = array_search($path, array_keys($this->items), true);
 
         return $pos !== false ? $pos : null;
     }
@@ -323,9 +326,8 @@ class Collection extends Iterator implements PageCollectionInterface
      * @param string $startDate
      * @param bool $endDate
      * @param string|null $field
-     *
      * @return $this
-     * @throws \Exception
+     * @throws Exception
      */
     public function dateRange($startDate, $endDate = false, $field = null)
     {
@@ -515,7 +517,6 @@ class Collection extends Iterator implements PageCollectionInterface
      * Creates new collection with only pages of the specified type
      *
      * @param string $type
-     *
      * @return Collection The collection
      */
     public function ofType($type)
@@ -538,7 +539,6 @@ class Collection extends Iterator implements PageCollectionInterface
      * Creates new collection with only pages of one of the specified types
      *
      * @param string[] $types
-     *
      * @return Collection The collection
      */
     public function ofOneOfTheseTypes($types)
@@ -547,7 +547,7 @@ class Collection extends Iterator implements PageCollectionInterface
 
         foreach ($this->items as $path => $slug) {
             $page = $this->pages->get($path);
-            if ($page !== null && \in_array($page->template(), $types, true)) {
+            if ($page !== null && in_array($page->template(), $types, true)) {
                 $items[$path] = $slug;
             }
         }
@@ -561,7 +561,6 @@ class Collection extends Iterator implements PageCollectionInterface
      * Creates new collection with only pages of one of the specified access levels
      *
      * @param array $accessLevels
-     *
      * @return Collection The collection
      */
     public function ofOneOfTheseAccessLevels($accessLevels)
@@ -572,19 +571,19 @@ class Collection extends Iterator implements PageCollectionInterface
             $page = $this->pages->get($path);
 
             if ($page !== null && isset($page->header()->access)) {
-                if (\is_array($page->header()->access)) {
+                if (is_array($page->header()->access)) {
                     //Multiple values for access
                     $valid = false;
 
                     foreach ($page->header()->access as $index => $accessLevel) {
-                        if (\is_array($accessLevel)) {
+                        if (is_array($accessLevel)) {
                             foreach ($accessLevel as $innerIndex => $innerAccessLevel) {
-                                if (\in_array($innerAccessLevel, $accessLevels)) {
+                                if (in_array($innerAccessLevel, $accessLevels, false)) {
                                     $valid = true;
                                 }
                             }
                         } else {
-                            if (\in_array($index, $accessLevels)) {
+                            if (in_array($index, $accessLevels, false)) {
                                 $valid = true;
                             }
                         }
@@ -594,7 +593,7 @@ class Collection extends Iterator implements PageCollectionInterface
                     }
                 } else {
                     //Single value for access
-                    if (\in_array($page->header()->access, $accessLevels)) {
+                    if (in_array($page->header()->access, $accessLevels, false)) {
                         $items[$path] = $slug;
                     }
                 }
@@ -610,7 +609,7 @@ class Collection extends Iterator implements PageCollectionInterface
      * Get the extended version of this Collection with each page keyed by route
      *
      * @return array
-     * @throws \Exception
+     * @throws Exception
      */
     public function toExtendedArray()
     {

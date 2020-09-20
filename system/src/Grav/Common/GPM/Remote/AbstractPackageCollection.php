@@ -13,20 +13,23 @@ use Grav\Common\Grav;
 use Grav\Common\GPM\Common\AbstractPackageCollection as BaseCollection;
 use Grav\Common\GPM\Response;
 use \Doctrine\Common\Cache\FilesystemCache;
+use RuntimeException;
 
+/**
+ * Class AbstractPackageCollection
+ * @package Grav\Common\GPM\Remote
+ */
 class AbstractPackageCollection extends BaseCollection
 {
     /** @var string The cached data previously fetched */
     protected $raw;
+    /** @var string */
+    protected $repository;
+    /** @var FilesystemCache */
+    protected $cache;
 
     /** @var int The lifetime to store the entry in seconds */
     private $lifetime = 86400;
-
-    /** @var string */
-    protected $repository;
-
-    /** @var FilesystemCache */
-    protected $cache;
 
     /**
      * AbstractPackageCollection constructor.
@@ -39,7 +42,7 @@ class AbstractPackageCollection extends BaseCollection
     {
         parent::__construct();
         if ($repository === null) {
-            throw new \RuntimeException('A repository is required to indicate the origin of the remote collection');
+            throw new RuntimeException('A repository is required to indicate the origin of the remote collection');
         }
 
         $channel = Grav::instance()['config']->get('system.gpm.releases', 'stable');
@@ -51,7 +54,7 @@ class AbstractPackageCollection extends BaseCollection
 
         $this->fetch($refresh, $callback);
         foreach (json_decode($this->raw, true) as $slug => $data) {
-            // Temporarily fix for using multisites
+            // Temporarily fix for using multi-sites
             if (isset($data['install_path'])) {
                 $path = preg_replace('~^user/~i', 'user://', $data['install_path']);
                 $data['install_path'] = Grav::instance()['locator']->findResource($path, false, true);

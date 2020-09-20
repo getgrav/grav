@@ -4,7 +4,12 @@ namespace Grav\Common\Page\Traits;
 
 use Grav\Common\Grav;
 use RocketTheme\Toolbox\Event\Event;
+use function is_array;
 
+/**
+ * Trait PageFormTrait
+ * @package Grav\Common\Page\Traits
+ */
 trait PageFormTrait
 {
     /** @var array|null */
@@ -27,7 +32,7 @@ trait PageFormTrait
             $grav->fireEvent('onFormPageHeaderProcessed', new Event(['page' => $this, 'header' => $header]));
 
             $rules = $header->rules ?? null;
-            if (!\is_array($rules)) {
+            if (!is_array($rules)) {
                 $rules = [];
             }
 
@@ -41,7 +46,7 @@ trait PageFormTrait
 
             // Append page.header.forms (override singular form if it clashes)
             $headerForms = $header->forms ?? null;
-            if (\is_array($headerForms)) {
+            if (is_array($headerForms)) {
                 foreach ($headerForms as $name => $form) {
                     $form = $this->normalizeForm($form, $name, $rules);
                     if ($form) {
@@ -97,7 +102,7 @@ trait PageFormTrait
      */
     protected function normalizeForm($form, $name = null, array $rules = []): ?array
     {
-        if (!\is_array($form)) {
+        if (!is_array($form)) {
             return null;
         }
 
@@ -109,7 +114,7 @@ trait PageFormTrait
         $name = $name ?? $form['name'] ?? $this->slug();
 
         $formRules = $form['rules'] ?? null;
-        if (!\is_array($formRules)) {
+        if (!is_array($formRules)) {
             $formRules = [];
         }
 

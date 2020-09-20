@@ -18,8 +18,16 @@ use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 use RocketTheme\Toolbox\Session\Message;
 
+/**
+ * Class SessionServiceProvider
+ * @package Grav\Common\Service
+ */
 class SessionServiceProvider implements ServiceProviderInterface
 {
+    /**
+     * @param Container $container
+     * @return void
+     */
     public function register(Container $container)
     {
         // Define session service.

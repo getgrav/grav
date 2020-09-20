@@ -14,6 +14,7 @@ use Twig\Node\Node;
 
 /**
  * Class TwigNodeSwitch
+ * @package Grav\Common\Twig\Node
  */
 class TwigNodeSwitch extends Node
 {
@@ -25,13 +26,8 @@ class TwigNodeSwitch extends Node
      * @param int $lineno
      * @param string|null $tag
      */
-    public function __construct(
-        Node $value,
-        Node $cases,
-        Node $default = null,
-        $lineno = 0,
-        $tag = null
-    ) {
+    public function __construct(Node $value, Node $cases, Node $default = null, $lineno = 0, $tag = null)
+    {
         $nodes = ['value' => $value, 'cases' => $cases, 'default' => $default];
         $nodes = array_filter($nodes);
 
@@ -42,6 +38,7 @@ class TwigNodeSwitch extends Node
      * Compiles the node to PHP.
      *
      * @param Compiler $compiler A Twig Compiler instance
+     * @return void
      */
     public function compile(Compiler $compiler)
     {

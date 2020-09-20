@@ -11,7 +11,12 @@ namespace Grav\Common\Twig;
 
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\Grav;
+use function dirname;
 
+/**
+ * Trait WriteCacheFileTrait
+ * @package Grav\Common\Twig
+ */
 trait WriteCacheFileTrait
 {
     /** @var bool */
@@ -23,6 +28,7 @@ trait WriteCacheFileTrait
      *
      * @param string $file
      * @param string $content
+     * @return void
      */
     protected function writeCacheFile($file, $content)
     {

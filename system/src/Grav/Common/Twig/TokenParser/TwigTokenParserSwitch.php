@@ -31,7 +31,9 @@ use Twig\TokenParser\AbstractTokenParser;
 class TwigTokenParserSwitch extends AbstractTokenParser
 {
     /**
-     * {@inheritdoc}
+     * @param Token $token
+     * @return TwigNodeSwitch
+     * @throws SyntaxError
      */
     public function parse(Token $token)
     {

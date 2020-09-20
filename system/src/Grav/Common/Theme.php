@@ -13,6 +13,10 @@ use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Config\Config;
 use RocketTheme\Toolbox\File\YamlFile;
 
+/**
+ * Class Theme
+ * @package Grav\Common
+ */
 class Theme extends Plugin
 {
     /**
@@ -41,7 +45,6 @@ class Theme extends Plugin
      * Persists to disk the theme parameters currently stored in the Grav Config object
      *
      * @param string $theme_name The name of the theme whose config it should store.
-     *
      * @return bool
      */
     public static function saveConfig($theme_name)
@@ -63,6 +66,12 @@ class Theme extends Plugin
 
     /**
      * Override the mergeConfig method to work for themes
+     *
+     * @param PageInterface $page
+     * @param string $deep
+     * @param array $params
+     * @param string $type
+     * @return Data\Data
      */
     protected function mergeConfig(PageInterface $page, $deep = 'merge', $params = [], $type = 'themes')
     {
@@ -84,6 +93,8 @@ class Theme extends Plugin
 
     /**
      * Load blueprints.
+     *
+     * @return void
      */
     protected function loadBlueprint()
     {

@@ -15,8 +15,16 @@ use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
+/**
+ * Class LoggerServiceProvider
+ * @package Grav\Common\Service
+ */
 class LoggerServiceProvider implements ServiceProviderInterface
 {
+    /**
+     * @param Container $container
+     * @return void
+     */
     public function register(Container $container)
     {
         $container['log'] = function ($c) {

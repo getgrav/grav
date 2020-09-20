@@ -9,6 +9,10 @@
 
 namespace Grav\Common\Media\Traits;
 
+/**
+ * Trait VideoMediaTrait
+ * @package Grav\Common\Media\Traits
+ */
 trait VideoMediaTrait
 {
     use StaticResizeTrait;

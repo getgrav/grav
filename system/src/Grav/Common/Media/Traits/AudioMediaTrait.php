@@ -9,6 +9,10 @@
 
 namespace Grav\Common\Media\Traits;
 
+/**
+ * Trait AudioMediaTrait
+ * @package Grav\Common\Media\Traits
+ */
 trait AudioMediaTrait
 {
     use StaticResizeTrait;

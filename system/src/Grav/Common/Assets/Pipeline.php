@@ -16,7 +16,12 @@ use Grav\Common\Uri;
 use Grav\Common\Utils;
 use Grav\Framework\Object\PropertyObject;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
+use function array_key_exists;
 
+/**
+ * Class Pipeline
+ * @package Grav\Common\Assets
+ */
 class Pipeline extends PropertyObject
 {
     use AssetUtilsTrait;

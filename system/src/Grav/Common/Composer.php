@@ -9,6 +9,12 @@
 
 namespace Grav\Common;
 
+use function function_exists;
+
+/**
+ * Class Composer
+ * @package Grav\Common
+ */
 class Composer
 {
     /** @const Default composer location */
@@ -21,7 +27,7 @@ class Composer
      */
     public static function getComposerLocation()
     {
-        if (!\function_exists('shell_exec') || stripos(PHP_OS, 'win') === 0) {
+        if (!function_exists('shell_exec') || stripos(PHP_OS, 'win') === 0) {
             return self::DEFAULT_PATH;
         }
 

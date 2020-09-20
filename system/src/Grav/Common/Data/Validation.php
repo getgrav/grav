@@ -9,10 +9,24 @@
 
 namespace Grav\Common\Data;
 
+use ArrayAccess;
+use Countable;
+use DateTime;
 use Grav\Common\Grav;
 use Grav\Common\Utils;
 use Grav\Common\Yaml;
+use Traversable;
+use function count;
+use function is_array;
+use function is_bool;
+use function is_float;
+use function is_int;
+use function is_string;
 
+/**
+ * Class Validation
+ * @package Grav\Common\Data
+ */
 class Validation
 {
     /**
@@ -123,7 +137,7 @@ class Validation
      */
     public static function typeText($value, array $params, array $field)
     {
-        if (!\is_string($value) && !is_numeric($value)) {
+        if (!is_string($value) && !is_numeric($value)) {
             return false;
         }
 
@@ -161,7 +175,7 @@ class Validation
      */
     protected static function filterText($value, array $params, array $field)
     {
-        if (!\is_string($value) && !is_numeric($value)) {
+        if (!is_string($value) && !is_numeric($value)) {
             return '';
         }
 
@@ -194,7 +208,7 @@ class Validation
      */
     protected static function filterCommaList($value, array $params, array $field)
     {
-        return \is_array($value) ? $value : preg_split('/\s*,\s*/', $value, -1, PREG_SPLIT_NO_EMPTY);
+        return is_array($value) ? $value : preg_split('/\s*,\s*/', $value, -1, PREG_SPLIT_NO_EMPTY);
     }
 
     /**
@@ -205,7 +219,7 @@ class Validation
      */
     public static function typeCommaList($value, array $params, array $field)
     {
-        return \is_array($value) ? true : self::typeText($value, $params, $field);
+        return is_array($value) ? true : self::typeText($value, $params, $field);
     }
 
     /**
@@ -216,7 +230,7 @@ class Validation
      */
     protected static function filterLines($value, array $params, array $field)
     {
-        return \is_array($value) ? $value : preg_split('/\s*[\r\n]+\s*/', $value, -1, PREG_SPLIT_NO_EMPTY);
+        return is_array($value) ? $value : preg_split('/\s*[\r\n]+\s*/', $value, -1, PREG_SPLIT_NO_EMPTY);
     }
 
     /**
@@ -349,7 +363,7 @@ class Validation
      */
     public static function typeToggle($value, array $params, array $field)
     {
-        if (\is_bool($value)) {
+        if (is_bool($value)) {
             $value = (int)$value;
         }
 
@@ -441,7 +455,7 @@ class Validation
     {
         $format = Grav::instance()['config']->get('system.pages.dateformat.default');
         if ($format) {
-            $converted = new \DateTime($value);
+            $converted = new DateTime($value);
             return $converted->format($format);
         }
         return $value;
@@ -494,7 +508,7 @@ class Validation
      */
     public static function typeEmail($value, array $params, array $field)
     {
-        $values = !\is_array($value) ? explode(',', preg_replace('/\s+/', '', $value)) : $value;
+        $values = !is_array($value) ? explode(',', preg_replace('/\s+/', '', $value)) : $value;
 
         foreach ($values as $val) {
             if (!(self::typeText($val, $params, $field) && filter_var($val, FILTER_VALIDATE_EMAIL))) {
@@ -529,17 +543,17 @@ class Validation
      */
     public static function typeDatetime($value, array $params, array $field)
     {
-        if ($value instanceof \DateTime) {
+        if ($value instanceof DateTime) {
             return true;
         }
-        if (!\is_string($value)) {
+        if (!is_string($value)) {
             return false;
         }
         if (!isset($params['format'])) {
             return false !== strtotime($value);
         }
 
-        $dateFromFormat = \DateTime::createFromFormat($params['format'], $value);
+        $dateFromFormat = DateTime::createFromFormat($params['format'], $value);
 
         return $dateFromFormat && $value === date($params['format'], $dateFromFormat->getTimestamp());
     }
@@ -635,21 +649,21 @@ class Validation
      */
     public static function typeArray($value, array $params, array $field)
     {
-        if (!\is_array($value)) {
+        if (!is_array($value)) {
             return false;
         }
 
         if (isset($field['multiple'])) {
-            if (isset($params['min']) && \count($value) < $params['min']) {
+            if (isset($params['min']) && count($value) < $params['min']) {
                 return false;
             }
 
-            if (isset($params['max']) && \count($value) > $params['max']) {
+            if (isset($params['max']) && count($value) > $params['max']) {
                 return false;
             }
 
             $min = $params['min'] ?? 0;
-            if (isset($params['step']) && (\count($value) - $min) % $params['step'] === 0) {
+            if (isset($params['step']) && (count($value) - $min) % $params['step'] === 0) {
                 return false;
             }
         }
@@ -697,7 +711,7 @@ class Validation
         $options = isset($field['options']) ? array_keys($field['options']) : [];
         $multi = $field['multiple'] ?? false;
 
-        if (\count($values) === 1 && isset($values[0]) && $values[0] === '') {
+        if (count($values) === 1 && isset($values[0]) && $values[0] === '') {
             return null;
         }
 
@@ -711,7 +725,7 @@ class Validation
 
         if ($multi) {
             foreach ($values as $key => $val) {
-                if (\is_array($val)) {
+                if (is_array($val)) {
                     $val = implode(',', $val);
                     $values[$key] =  array_map('trim', explode(',', $val));
                 } else {
@@ -753,7 +767,7 @@ class Validation
                     unset($values[$key]);
                 }
             }
-            if (\is_array($val)) {
+            if (is_array($val)) {
                 $val = static::arrayFilterRecurse($val, $params);
                 if ($params['ignore_empty'] && empty($val)) {
                     unset($values[$key]);
@@ -803,7 +817,7 @@ class Validation
      */
     public static function typeList($value, array $params, array $field)
     {
-        if (!\is_array($value)) {
+        if (!is_array($value)) {
             return false;
         }
 
@@ -838,7 +852,7 @@ class Validation
      */
     public static function filterYaml($value, $params)
     {
-        if (!\is_string($value)) {
+        if (!is_string($value)) {
             return $value;
         }
 
@@ -948,7 +962,7 @@ class Validation
      */
     public static function typeBool($value, $params)
     {
-        return \is_bool($value) || $value == 1 || $value == 0;
+        return is_bool($value) || $value == 1 || $value == 0;
     }
 
     /**
@@ -958,7 +972,7 @@ class Validation
      */
     public static function validateBool($value, $params)
     {
-        return \is_bool($value) || $value == 1 || $value == 0;
+        return is_bool($value) || $value == 1 || $value == 0;
     }
 
     /**
@@ -988,7 +1002,7 @@ class Validation
      */
     public static function validateFloat($value, $params)
     {
-        return \is_float(filter_var($value, FILTER_VALIDATE_FLOAT));
+        return is_float(filter_var($value, FILTER_VALIDATE_FLOAT));
     }
 
     /**
@@ -1038,7 +1052,7 @@ class Validation
      */
     public static function validateArray($value, $params)
     {
-        return \is_array($value) || ($value instanceof \ArrayAccess && $value instanceof \Traversable && $value instanceof \Countable);
+        return is_array($value) || ($value instanceof ArrayAccess && $value instanceof Traversable && $value instanceof Countable);
     }
 
     /**

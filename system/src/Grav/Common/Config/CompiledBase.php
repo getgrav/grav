@@ -9,8 +9,17 @@
 
 namespace Grav\Common\Config;
 
+use BadMethodCallException;
+use Exception;
 use RocketTheme\Toolbox\File\PhpFile;
+use RuntimeException;
+use function get_class;
+use function is_array;
 
+/**
+ * Class CompiledBase
+ * @package Grav\Common\Config
+ */
 abstract class CompiledBase
 {
     /** @var int Version number for the compiled file. */
@@ -41,12 +50,12 @@ abstract class CompiledBase
      * @param  string $cacheFolder  Cache folder to be used.
      * @param  array  $files  List of files as returned from ConfigFileFinder class.
      * @param string $path  Base path for the file list.
-     * @throws \BadMethodCallException
+     * @throws BadMethodCallException
      */
     public function __construct($cacheFolder, array $files, $path)
     {
         if (!$cacheFolder) {
-            throw new \BadMethodCallException('Cache folder not defined.');
+            throw new BadMethodCallException('Cache folder not defined.');
         }
 
         $this->path = $path ? rtrim($path, '\\/') . '/' : '';
@@ -57,7 +66,7 @@ abstract class CompiledBase
     /**
      * Get filename for the compiled PHP file.
      *
-     * @param string $name
+     * @param string|null $name
      * @return $this
      */
     public function name($name = null)
@@ -71,6 +80,8 @@ abstract class CompiledBase
 
     /**
      * Function gets called when cached configuration is saved.
+     *
+     * @return void
      */
     public function modified()
     {
@@ -133,11 +144,14 @@ abstract class CompiledBase
      * Create configuration object.
      *
      * @param  array  $data
+     * @return void
      */
     abstract protected function createObject(array $data = []);
 
     /**
      * Finalize configuration object.
+     *
+     * @return void
      */
     abstract protected function finalizeObject();
 
@@ -185,9 +199,9 @@ abstract class CompiledBase
         }
 
         $cache = include $filename;
-        if (!\is_array($cache)
+        if (!is_array($cache)
             || !isset($cache['checksum'], $cache['data'], $cache['@class'])
-            || $cache['@class'] !== \get_class($this)
+            || $cache['@class'] !== get_class($this)
         ) {
             return false;
         }
@@ -209,7 +223,7 @@ abstract class CompiledBase
      * Save compiled file.
      *
      * @param  string  $filename
-     * @throws \RuntimeException
+     * @throws RuntimeException
      * @internal
      */
     protected function saveCompiledFile($filename)
@@ -219,7 +233,7 @@ abstract class CompiledBase
         // Attempt to lock the file for writing.
         try {
             $file->lock(false);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // Another process has locked the file; we will check this in a bit.
         }
 
@@ -229,7 +243,7 @@ abstract class CompiledBase
         }
 
         $cache = [
-            '@class' => \get_class($this),
+            '@class' => get_class($this),
             'timestamp' => time(),
             'checksum' => $this->checksum(),
             'files' => $this->files,

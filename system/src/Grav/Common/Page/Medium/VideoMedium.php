@@ -12,6 +12,10 @@ namespace Grav\Common\Page\Medium;
 use Grav\Common\Media\Interfaces\VideoMediaInterface;
 use Grav\Common\Media\Traits\VideoMediaTrait;
 
+/**
+ * Class VideoMedium
+ * @package Grav\Common\Page\Medium
+ */
 class VideoMedium extends Medium implements VideoMediaInterface
 {
     use VideoMediaTrait;

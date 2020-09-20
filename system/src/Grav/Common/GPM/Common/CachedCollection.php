@@ -11,6 +11,10 @@ namespace Grav\Common\GPM\Common;
 
 use Grav\Common\Iterator;
 
+/**
+ * Class CachedCollection
+ * @package Grav\Common\GPM\Common
+ */
 class CachedCollection extends Iterator
 {
     /** @var array */

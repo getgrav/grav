@@ -10,7 +10,14 @@
 namespace Grav\Common\Filesystem;
 
 use Grav\Common\Grav;
+use RecursiveIterator;
+use SplFileInfo;
+use function in_array;
 
+/**
+ * Class RecursiveFolderFilterIterator
+ * @package Grav\Common\Filesystem
+ */
 class RecursiveFolderFilterIterator extends \RecursiveFilterIterator
 {
     /** @var array */
@@ -19,10 +26,10 @@ class RecursiveFolderFilterIterator extends \RecursiveFilterIterator
     /**
      * Create a RecursiveFilterIterator from a RecursiveIterator
      *
-     * @param \RecursiveIterator $iterator
+     * @param RecursiveIterator $iterator
      * @param array $ignore_folders
      */
-    public function __construct(\RecursiveIterator $iterator, $ignore_folders = [])
+    public function __construct(RecursiveIterator $iterator, $ignore_folders = [])
     {
         parent::__construct($iterator);
 
@@ -40,7 +47,7 @@ class RecursiveFolderFilterIterator extends \RecursiveFilterIterator
      */
     public function accept()
     {
-        /** @var \SplFileInfo $current */
+        /** @var SplFileInfo $current */
         $current = $this->current();
 
         return $current->isDir() && !in_array($current->getFilename(), $this::$ignore_folders, true);

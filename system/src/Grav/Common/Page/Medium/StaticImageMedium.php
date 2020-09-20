@@ -13,6 +13,10 @@ use Grav\Common\Media\Interfaces\ImageMediaInterface;
 use Grav\Common\Media\Traits\ImageLoadingTrait;
 use Grav\Common\Media\Traits\StaticResizeTrait;
 
+/**
+ * Class StaticImageMedium
+ * @package Grav\Common\Page\Medium
+ */
 class StaticImageMedium extends Medium implements ImageMediaInterface
 {
     use StaticResizeTrait;

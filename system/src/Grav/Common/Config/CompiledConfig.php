@@ -11,6 +11,10 @@ namespace Grav\Common\Config;
 
 use Grav\Common\File\CompiledYamlFile;
 
+/**
+ * Class CompiledConfig
+ * @package Grav\Common\Config
+ */
 class CompiledConfig extends CompiledBase
 {
     /** @var callable  Blueprints loader. */
@@ -60,6 +64,7 @@ class CompiledConfig extends CompiledBase
      * Create configuration object.
      *
      * @param  array  $data
+     * @return void
      */
     protected function createObject(array $data = [])
     {
@@ -73,6 +78,8 @@ class CompiledConfig extends CompiledBase
 
     /**
      * Finalize configuration object.
+     *
+     * @return void
      */
     protected function finalizeObject()
     {
@@ -82,6 +89,8 @@ class CompiledConfig extends CompiledBase
 
     /**
      * Function gets called when cached configuration is saved.
+     *
+     * @return void
      */
     public function modified()
     {
@@ -93,6 +102,7 @@ class CompiledConfig extends CompiledBase
      *
      * @param  string  $name  Name of the position.
      * @param  string  $filename  File to be loaded.
+     * @return void
      */
     protected function loadFile($name, $filename)
     {

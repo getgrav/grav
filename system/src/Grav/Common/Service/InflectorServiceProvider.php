@@ -13,8 +13,16 @@ use Grav\Common\Inflector;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 
+/**
+ * Class InflectorServiceProvider
+ * @package Grav\Common\Service
+ */
 class InflectorServiceProvider implements ServiceProviderInterface
 {
+    /**
+     * @param Container $container
+     * @return void
+     */
     public function register(Container $container)
     {
         $container['inflector'] = function () {

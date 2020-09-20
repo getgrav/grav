@@ -16,6 +16,10 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use RocketTheme\Toolbox\Event\Event;
 
+/**
+ * Class RequestHandlerEvent
+ * @package Grav\Common\Processors\Events
+ */
 class RequestHandlerEvent extends Event
 {
     /**

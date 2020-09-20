@@ -9,6 +9,12 @@
 
 namespace Grav\Common\User;
 
+use function is_bool;
+
+/**
+ * Class Access
+ * @package Grav\Common\User
+ */
 class Access extends \Grav\Framework\Acl\Access
 {
     private $aliases = [

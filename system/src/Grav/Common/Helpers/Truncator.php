@@ -15,6 +15,8 @@ use DOMElement;
 use DOMNode;
 use DOMWordsIterator;
 use DOMLettersIterator;
+use function in_array;
+use function strlen;
 
 /**
  * This file is part of https://github.com/Bluetel-Solutions/twig-truncate-extension
@@ -25,7 +27,6 @@ use DOMLettersIterator;
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 class Truncator
 {
     /**
@@ -337,6 +338,7 @@ class Truncator
                 $truncate .= '</' . $tag . '>';
             }
         }
+
         return $truncate;
     }
 }

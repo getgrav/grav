@@ -9,15 +9,23 @@
 
 namespace Grav\Common\File;
 
+use Exception;
 use RocketTheme\Toolbox\File\PhpFile;
+use RuntimeException;
+use function function_exists;
+use function get_class;
 
+/**
+ * Trait CompiledFile
+ * @package Grav\Common\File
+ */
 trait CompiledFile
 {
     /**
      * Get/set parsed file contents.
      *
      * @param mixed $var
-     * @return string|array
+     * @return array
      */
     public function content($var = null)
     {
@@ -46,7 +54,7 @@ trait CompiledFile
                     // Attempt to lock the file for writing.
                     try {
                         $file->lock(false);
-                    } catch (\Exception $e) {
+                    } catch (Exception $e) {
                         // Another process has locked the file; we will check this in a bit.
                     }
 
@@ -75,8 +83,8 @@ trait CompiledFile
 
                 $this->content = $cache['data'];
             }
-        } catch (\Exception $e) {
-            throw new \RuntimeException(sprintf('Failed to read %s: %s', basename($this->filename), $e->getMessage()), 500, $e);
+        } catch (Exception $e) {
+            throw new RuntimeException(sprintf('Failed to read %s: %s', basename($this->filename), $e->getMessage()), 500, $e);
         }
 
         return parent::content($var);

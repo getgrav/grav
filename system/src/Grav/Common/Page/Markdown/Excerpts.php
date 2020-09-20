@@ -18,7 +18,18 @@ use Grav\Common\Page\Medium\Medium;
 use Grav\Common\Utils;
 use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
+use function array_key_exists;
+use function call_user_func_array;
+use function count;
+use function dirname;
+use function in_array;
+use function is_bool;
+use function is_string;
 
+/**
+ * Class Excerpts
+ * @package Grav\Common\Page\Markdown
+ */
 class Excerpts
 {
     /** @var PageInterface|null */
@@ -66,6 +77,7 @@ class Excerpts
 
     /**
      * @param object $markdown
+     * @return void
      */
     public function fireInitializedEvent($markdown): void
     {
@@ -302,7 +314,7 @@ class Excerpts
      * Variation of parse_url() which works also with local streams.
      *
      * @param string $url
-     * @return array|bool
+     * @return array
      */
     protected function parseUrl(string $url)
     {
@@ -329,7 +341,7 @@ class Excerpts
 
     /**
      * @param string $url
-     * @return bool|string
+     * @return string
      */
     protected function resolveStream(string $url)
     {

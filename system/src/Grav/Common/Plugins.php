@@ -9,19 +9,30 @@
 
 namespace Grav\Common;
 
+use Exception;
 use Grav\Common\Config\Config;
 use Grav\Common\Data\Blueprints;
 use Grav\Common\Data\Data;
 use Grav\Common\File\CompiledYamlFile;
 use Grav\Events\PluginsLoadedEvent;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
+use RuntimeException;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use function get_class;
+use function is_object;
 
+/**
+ * Class Plugins
+ * @package Grav\Common
+ */
 class Plugins extends Iterator
 {
     /** @var array */
     public $formFieldTypes;
 
+    /**
+     * Plugins constructor.
+     */
     public function __construct()
     {
         parent::__construct();
@@ -93,7 +104,7 @@ class Plugins extends Iterator
      * Registers all plugins.
      *
      * @return Plugin[] array of Plugin objects
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
     public function init()
     {
@@ -166,8 +177,8 @@ class Plugins extends Iterator
 
             try {
                 $result = self::get($name);
-            } catch (\Exception $e) {
-                $exception = new \RuntimeException(sprintf('Plugin %s: %s', $name, $e->getMessage()), $e->getCode(), $e);
+            } catch (Exception $e) {
+                $exception = new RuntimeException(sprintf('Plugin %s: %s', $name, $e->getMessage()), $e->getCode(), $e);
 
                 /** @var Debugger $debugger */
                 $debugger = $grav['debugger'];
@@ -189,7 +200,6 @@ class Plugins extends Iterator
      * Get a plugin by name
      *
      * @param string $name
-     *
      * @return Data|null
      */
     public static function get($name)
@@ -217,6 +227,10 @@ class Plugins extends Iterator
         return $obj;
     }
 
+    /**
+     * @param string $name
+     * @return Plugin|null
+     */
     protected function loadPlugin($name)
     {
         // NOTE: ALL THE LOCAL VARIABLES ARE USED INSIDE INCLUDED FILE, DO NOT REMOVE THEM!

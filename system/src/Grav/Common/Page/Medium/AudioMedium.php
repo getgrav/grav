@@ -12,6 +12,10 @@ namespace Grav\Common\Page\Medium;
 use Grav\Common\Media\Interfaces\AudioMediaInterface;
 use Grav\Common\Media\Traits\AudioMediaTrait;
 
+/**
+ * Class AudioMedium
+ * @package Grav\Common\Page\Medium
+ */
 class AudioMedium extends Medium implements AudioMediaInterface
 {
     use AudioMediaTrait;

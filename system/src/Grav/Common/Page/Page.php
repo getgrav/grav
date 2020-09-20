@@ -9,6 +9,7 @@
 
 namespace Grav\Common\Page;
 
+use Exception;
 use Grav\Common\Cache;
 use Grav\Common\Config\Config;
 use Grav\Common\Data\Blueprint;
@@ -18,7 +19,6 @@ use Grav\Common\Grav;
 use Grav\Common\Language\Language;
 use Grav\Common\Markdown\Parsedown;
 use Grav\Common\Markdown\ParsedownExtra;
-use Grav\Common\Media\Interfaces\MediaCollectionInterface;
 use Grav\Common\Page\Interfaces\PageCollectionInterface;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Media\Traits\MediaTrait;
@@ -27,11 +27,23 @@ use Grav\Common\Page\Traits\PageFormTrait;
 use Grav\Common\Uri;
 use Grav\Common\Utils;
 use Grav\Common\Yaml;
+use InvalidArgumentException;
 use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\File\MarkdownFile;
+use SplFileInfo;
+use function dirname;
+use function in_array;
+use function is_array;
+use function is_object;
+use function is_string;
+use function strlen;
 
 define('PAGE_ORDER_PREFIX_REGEX', '/^[0-9]+\./u');
 
+/**
+ * Class Page
+ * @package Grav\Common\Page
+ */
 class Page implements PageInterface
 {
     use PageFormTrait;
@@ -161,12 +173,11 @@ class Page implements PageInterface
     /**
      * Initializes the page instance variables based on a file
      *
-     * @param  \SplFileInfo $file The file information for the .md file that the page represents
-     * @param  string $extension
-     *
+     * @param  SplFileInfo $file The file information for the .md file that the page represents
+     * @param  string|null $extension
      * @return $this
      */
-    public function init(\SplFileInfo $file, $extension = null)
+    public function init(SplFileInfo $file, $extension = null)
     {
         $config = Grav::instance()['config'];
 
@@ -197,10 +208,12 @@ class Page implements PageInterface
         $this->published();
         $this->urlExtension();
 
-
         return $this;
     }
 
+    /**
+     * @return void
+     */
     protected function processFrontmatter()
     {
         // Quick check for twig output tags in frontmatter if enabled
@@ -222,7 +235,6 @@ class Page implements PageInterface
      * Return an array with the routes of other translated languages
      *
      * @param bool $onlyPublished only return published translations
-     *
      * @return array the page translated languages
      */
     public function translatedLanguages($onlyPublished = false)
@@ -252,7 +264,7 @@ class Page implements PageInterface
 
             if ($exists) {
                 $aPage = new Page();
-                $aPage->init(new \SplFileInfo($path), $languageExtension);
+                $aPage->init(new SplFileInfo($path), $languageExtension);
 
                 $route = $aPage->header()->routes['default'] ?? $aPage->rawRoute();
                 if (!$route) {
@@ -274,7 +286,6 @@ class Page implements PageInterface
      * Return an array listing untranslated languages available
      *
      * @param bool $includeUnpublished also list unpublished translations
-     *
      * @return array the page untranslated languages
      */
     public function untranslatedLanguages($includeUnpublished = false)
@@ -293,8 +304,7 @@ class Page implements PageInterface
     /**
      * Gets and Sets the raw data
      *
-     * @param  string $var Raw content string
-     *
+     * @param  string|null $var Raw content string
      * @return string      Raw content string
      */
     public function raw($var = null)
@@ -327,7 +337,6 @@ class Page implements PageInterface
      */
     public function frontmatter($var = null)
     {
-
         if ($var) {
             $this->frontmatter = (string)$var;
 
@@ -350,8 +359,7 @@ class Page implements PageInterface
     /**
      * Gets and Sets the header based on the YAML configuration at the top of the .md file
      *
-     * @param  object|array $var a YAML object representing the configuration for the file
-     *
+     * @param  object|array|null $var a YAML object representing the configuration for the file
      * @return object      the current YAML configuration
      */
     public function header($var = null)
@@ -393,7 +401,7 @@ class Page implements PageInterface
                             $this->processFrontmatter();
                         }
                     }
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     $file->raw(Grav::instance()['language']->translate([
                         'GRAV.FRONTMATTER_ERROR_PAGE',
                         $this->slug(),
@@ -510,8 +518,7 @@ class Page implements PageInterface
     /**
      * Get page language
      *
-     * @param string $var
-     *
+     * @param string|null $var
      * @return mixed
      */
     public function language($var = null)
@@ -542,6 +549,9 @@ class Page implements PageInterface
         return (int)($this->header()->http_response_code ?? 200);
     }
 
+    /**
+     * @return array
+     */
     public function httpHeaders()
     {
         $headers = [];
@@ -590,10 +600,8 @@ class Page implements PageInterface
     /**
      * Get the summary.
      *
-     * @param  int $size Max summary size.
-     *
+     * @param int|null $size Max summary size.
      * @param bool $textOnly Only count text size.
-     *
      * @return string
      */
     public function summary($size = null, $textOnly = false)
@@ -624,7 +632,7 @@ class Page implements PageInterface
             return $content;
         }
         if (($format === 'short') && isset($summary_size)) {
-            // Use mb_strimwidth to slice the string
+            // Slice the string
             if (mb_strwidth($content, 'utf8') > $summary_size) {
                 return mb_substr($content, 0, $summary_size);
             }
@@ -673,8 +681,7 @@ class Page implements PageInterface
     /**
      * Gets and Sets the content based on content portion of the .md file
      *
-     * @param  string $var Content
-     *
+     * @param  string|null $var Content
      * @return string      Content
      */
     public function content($var = null)
@@ -857,6 +864,8 @@ class Page implements PageInterface
 
     /**
      * Process the Markdown content.  Uses Parsedown or Parsedown Extra depending on configuration
+     *
+     * @return void
      */
     protected function processMarkdown()
     {
@@ -896,6 +905,8 @@ class Page implements PageInterface
 
     /**
      * Process the Twig page content.
+     *
+     * @return void
      */
     private function processTwig()
     {
@@ -905,6 +916,8 @@ class Page implements PageInterface
 
     /**
      * Fires the onPageContentProcessed event, and caches the page content using a unique ID for the page
+     *
+     * @return void
      */
     public function cachePageContent()
     {
@@ -927,6 +940,7 @@ class Page implements PageInterface
      * Needed by the onPageContentProcessed event to set the raw page content
      *
      * @param string $content
+     * @return void
      */
     public function setRawContent($content)
     {
@@ -938,7 +952,6 @@ class Page implements PageInterface
      *
      * @param string $name Variable name.
      * @param mixed $default
-     *
      * @return mixed
      */
     public function value($name, $default = null)
@@ -1022,7 +1035,6 @@ class Page implements PageInterface
      * Gets and Sets the Page raw content
      *
      * @param string|null $var
-     *
      * @return string
      */
     public function rawMarkdown($var = null)
@@ -1051,7 +1063,7 @@ class Page implements PageInterface
     /**
      * Save page if there's a file assigned to it.
      *
-     * @param bool|mixed $reorder Internal use.
+     * @param bool|array $reorder Internal use.
      */
     public function save($reorder = true)
     {
@@ -1080,7 +1092,6 @@ class Page implements PageInterface
      * You need to call $this->save() in order to perform the move.
      *
      * @param PageInterface $parent New parent page.
-     *
      * @return $this
      */
     public function move(PageInterface $parent)
@@ -1124,7 +1135,6 @@ class Page implements PageInterface
      * You need to call $this->save() in order to perform the move.
      *
      * @param PageInterface $parent New parent page.
-     *
      * @return $this
      */
     public function copy(PageInterface $parent)
@@ -1179,7 +1189,8 @@ class Page implements PageInterface
     /**
      * Validate page header.
      *
-     * @throws \Exception
+     * @return void
+     * @throws Exception
      */
     public function validate()
     {
@@ -1189,6 +1200,8 @@ class Page implements PageInterface
 
     /**
      * Filter page header from illegal contents.
+     *
+     * @return void
      */
     public function filter()
     {
@@ -1255,7 +1268,7 @@ class Page implements PageInterface
     /**
      * Gets and sets the associated media as found in the page folder.
      *
-     * @param  Media $var Representation of associated media.
+     * @param  Media|null $var Representation of associated media.
      * @return Media      Representation of associated media.
      */
     public function media($var = null)
@@ -1295,8 +1308,7 @@ class Page implements PageInterface
     /**
      * Gets and sets the name field.  If no name field is set, it will return 'default.md'.
      *
-     * @param  string $var The name of this page.
-     *
+     * @param  string|null $var The name of this page.
      * @return string      The name of this page.
      */
     public function name($var = null)
@@ -1322,8 +1334,7 @@ class Page implements PageInterface
      * Gets and sets the template field. This is used to find the correct Twig template file to render.
      * If no field is set, it will return the name without the .md extension
      *
-     * @param  string $var the template name
-     *
+     * @param  string|null $var the template name
      * @return string      the template name
      */
     public function template($var = null)
@@ -1343,7 +1354,6 @@ class Page implements PageInterface
      * (e.g. `html`, `json`, `xml`, etc).
      *
      * @param string|null $var
-     *
      * @return string
      */
     public function templateFormat($var = null)
@@ -1363,7 +1373,6 @@ class Page implements PageInterface
      * Gets and sets the extension field.
      *
      * @param string|null $var
-     *
      * @return string
      */
     public function extension($var = null)
@@ -1401,8 +1410,7 @@ class Page implements PageInterface
     /**
      * Gets and sets the expires field. If not set will return the default
      *
-     * @param  int $var The new expires value.
-     *
+     * @param  int|null $var The new expires value.
      * @return int      The expires value
      */
     public function expires($var = null)
@@ -1433,8 +1441,7 @@ class Page implements PageInterface
     /**
      * Gets and sets the title for this Page.  If no title is set, it will use the slug() to get a name
      *
-     * @param  string $var the title of the Page
-     *
+     * @param  string|null $var the title of the Page
      * @return string      the title of the Page
      */
     public function title($var = null)
@@ -1453,8 +1460,7 @@ class Page implements PageInterface
      * Gets and sets the menu name for this Page.  This is the text that can be used specifically for navigation.
      * If no menu field is set, it will use the title()
      *
-     * @param  string $var the menu field for the page
-     *
+     * @param  string|null $var the menu field for the page
      * @return string      the menu field for the page
      */
     public function menu($var = null)
@@ -1472,8 +1478,7 @@ class Page implements PageInterface
     /**
      * Gets and Sets whether or not this Page is visible for navigation
      *
-     * @param  bool $var true if the page is visible
-     *
+     * @param  bool|null $var true if the page is visible
      * @return bool      true if the page is visible
      */
     public function visible($var = null)
@@ -1498,8 +1503,7 @@ class Page implements PageInterface
     /**
      * Gets and Sets whether or not this Page is considered published
      *
-     * @param  bool $var true if the page is published
-     *
+     * @param  bool|null $var true if the page is published
      * @return bool      true if the page is published
      */
     public function published($var = null)
@@ -1519,8 +1523,7 @@ class Page implements PageInterface
     /**
      * Gets and Sets the Page publish date
      *
-     * @param  string $var string representation of a date
-     *
+     * @param  string|null $var string representation of a date
      * @return int         unix timestamp representation of the date
      */
     public function publishDate($var = null)
@@ -1535,8 +1538,7 @@ class Page implements PageInterface
     /**
      * Gets and Sets the Page unpublish date
      *
-     * @param  string $var string representation of a date
-     *
+     * @param  string|null $var string representation of a date
      * @return int|null         unix timestamp representation of the date
      */
     public function unpublishDate($var = null)
@@ -1553,8 +1555,7 @@ class Page implements PageInterface
      * via a URL.
      * The page must be *routable* and *published*
      *
-     * @param  bool $var true if the page is routable
-     *
+     * @param  bool|null $var true if the page is routable
      * @return bool      true if the page is routable
      */
     public function routable($var = null)
@@ -1566,6 +1567,10 @@ class Page implements PageInterface
         return $this->routable && $this->published();
     }
 
+    /**
+     * @param bool|null $var
+     * @return bool
+     */
     public function ssl($var = null)
     {
         if ($var !== null) {
@@ -1579,8 +1584,7 @@ class Page implements PageInterface
      * Gets and Sets the process setup for this Page. This is multi-dimensional array that consists of
      * a simple array of arrays with the form array("markdown"=>true) for example
      *
-     * @param  array $var an Array of name value pairs where the name is the process and value is true or false
-     *
+     * @param  array|null $var an Array of name value pairs where the name is the process and value is true or false
      * @return array      an Array of name value pairs where the name is the process and value is true or false
      */
     public function process($var = null)
@@ -1595,7 +1599,7 @@ class Page implements PageInterface
     /**
      * Returns the state of the debugger override setting for this page
      *
-     * @return mixed
+     * @return bool
      */
     public function debugger()
     {
@@ -1606,8 +1610,7 @@ class Page implements PageInterface
      * Function to merge page metadata tags and build an array of Metadata objects
      * that can then be rendered in the page.
      *
-     * @param  array $var an Array of metadata values to set
-     *
+     * @param  array|null $var an Array of metadata values to set
      * @return array      an Array of metadata values for the page
      */
     public function metadata($var = null)
@@ -1653,7 +1656,7 @@ class Page implements PageInterface
                 } else {
                     // If it this is a standard meta data type
                     if ($value) {
-                        if (\in_array($key, $header_tag_http_equivs, true)) {
+                        if (in_array($key, $header_tag_http_equivs, true)) {
                             $this->metadata[$key] = [
                                 'http_equiv' => $key,
                                 'content' => htmlspecialchars($value, ENT_QUOTES, 'UTF-8')
@@ -1696,8 +1699,7 @@ class Page implements PageInterface
      * Gets and Sets the slug for the Page. The slug is used in the URL routing. If not set it uses
      * the parent folder from the path
      *
-     * @param  string $var the slug, e.g. 'my-blog'
-     *
+     * @param  string|null $var the slug, e.g. 'my-blog'
      * @return string      the slug
      */
     public function slug($var = null)
@@ -1716,8 +1718,7 @@ class Page implements PageInterface
     /**
      * Get/set order number of this page.
      *
-     * @param int $var
-     *
+     * @param int|null $var
      * @return string|bool
      */
     public function order($var = null)
@@ -1738,7 +1739,6 @@ class Page implements PageInterface
      * Gets the URL for a page - alias of url().
      *
      * @param bool $include_host
-     *
      * @return string the permalink
      */
     public function link($include_host = false)
@@ -1759,7 +1759,6 @@ class Page implements PageInterface
      * Returns the canonical URL for a page
      *
      * @param bool $include_lang
-     *
      * @return string
      */
     public function canonical($include_lang = true)
@@ -1774,7 +1773,6 @@ class Page implements PageInterface
      * @param bool $canonical    True to return the canonical URL
      * @param bool $include_base Include base url on multisite as well as language code
      * @param bool $raw_route
-     *
      * @return string The url.
      */
     public function url($include_host = false, $canonical = false, $include_base = true, $raw_route = false)
@@ -1824,8 +1822,7 @@ class Page implements PageInterface
      * Gets the route for the page based on the route headers if available, else from
      * the parents route and the current Page's slug.
      *
-     * @param  string $var Set new default route.
-     *
+     * @param  string|null $var Set new default route.
      * @return string  The route for the Page.
      */
     public function route($var = null)
@@ -1872,7 +1869,6 @@ class Page implements PageInterface
      * Gets and Sets the page raw route
      *
      * @param string|null $var
-     *
      * @return null|string
      */
     public function rawRoute($var = null)
@@ -1896,8 +1892,7 @@ class Page implements PageInterface
     /**
      * Gets the route aliases for the page based on page headers.
      *
-     * @param  array $var list of route aliases
-     *
+     * @param  array|null $var list of route aliases
      * @return array  The route aliases for the Page.
      */
     public function routeAliases($var = null)
@@ -1918,7 +1913,6 @@ class Page implements PageInterface
      * that value, else if it's `true` it will use the default route.
      *
      * @param string|null $var
-     *
      * @return bool|string
      */
     public function routeCanonical($var = null)
@@ -1937,8 +1931,7 @@ class Page implements PageInterface
     /**
      * Gets and sets the identifier for this Page object.
      *
-     * @param  string $var the identifier
-     *
+     * @param  string|null $var the identifier
      * @return string      the identifier
      */
     public function id($var = null)
@@ -1960,8 +1953,7 @@ class Page implements PageInterface
     /**
      * Gets and sets the modified timestamp.
      *
-     * @param  int $var modified unix timestamp
-     *
+     * @param  int|null $var modified unix timestamp
      * @return int      modified unix timestamp
      */
     public function modified($var = null)
@@ -1976,8 +1968,7 @@ class Page implements PageInterface
     /**
      * Gets the redirect set in the header.
      *
-     * @param  string $var redirect url
-     *
+     * @param  string|null $var redirect url
      * @return string|null
      */
     public function redirect($var = null)
@@ -1992,8 +1983,7 @@ class Page implements PageInterface
     /**
      * Gets and sets the option to show the etag header for the page.
      *
-     * @param  bool $var show etag header
-     *
+     * @param  bool|null $var show etag header
      * @return bool      show etag header
      */
     public function eTag($var = null): bool
@@ -2011,8 +2001,7 @@ class Page implements PageInterface
     /**
      * Gets and sets the option to show the last_modified header for the page.
      *
-     * @param  bool $var show last_modified header
-     *
+     * @param  bool|null $var show last_modified header
      * @return bool      show last_modified header
      */
     public function lastModified($var = null)
@@ -2030,8 +2019,7 @@ class Page implements PageInterface
     /**
      * Gets and sets the path to the .md file for this Page object.
      *
-     * @param  string $var the file path
-     *
+     * @param  string|null $var the file path
      * @return string|null      the file path
      */
     public function filePath($var = null)
@@ -2060,6 +2048,8 @@ class Page implements PageInterface
 
     /**
      * Returns the clean path to the page file
+     *
+     * @return string
      */
     public function relativePagePath()
     {
@@ -2070,8 +2060,7 @@ class Page implements PageInterface
      * Gets and sets the path to the folder where the .md for this Page object resides.
      * This is equivalent to the filePath but without the filename.
      *
-     * @param  string $var the path
-     *
+     * @param  string|null $var the path
      * @return string|null      the path
      */
     public function path($var = null)
@@ -2089,8 +2078,7 @@ class Page implements PageInterface
     /**
      * Get/set the folder.
      *
-     * @param string $var Optional path
-     *
+     * @param string|null $var Optional path
      * @return string|null
      */
     public function folder($var = null)
@@ -2105,8 +2093,7 @@ class Page implements PageInterface
     /**
      * Gets and sets the date for this Page object. This is typically passed in via the page headers
      *
-     * @param  string $var string representation of a date
-     *
+     * @param  string|null $var string representation of a date
      * @return int         unix timestamp representation of the date
      */
     public function date($var = null)
@@ -2126,8 +2113,7 @@ class Page implements PageInterface
      * Gets and sets the date format for this Page object. This is typically passed in via the page headers
      * using typical PHP date string structure - http://php.net/manual/en/function.date.php
      *
-     * @param  string $var string representation of a date format
-     *
+     * @param  string|null $var string representation of a date format
      * @return string      string representation of a date format
      */
     public function dateformat($var = null)
@@ -2142,8 +2128,7 @@ class Page implements PageInterface
     /**
      * Gets and sets the order by which any sub-pages should be sorted.
      *
-     * @param  string $var the order, either "asc" or "desc"
-     *
+     * @param  string|null $var the order, either "asc" or "desc"
      * @return string      the order, either "asc" or "desc"
      * @deprecated 1.6
      */
@@ -2170,8 +2155,7 @@ class Page implements PageInterface
      * date - is the order based on the date set in the pages
      * folder - is the order based on the name of the folder with any numerics omitted
      *
-     * @param  string $var supported options include "default", "title", "date", and "folder"
-     *
+     * @param  string|null $var supported options include "default", "title", "date", and "folder"
      * @return string      supported options include "default", "title", "date", and "folder"
      * @deprecated 1.6
      */
@@ -2189,8 +2173,7 @@ class Page implements PageInterface
     /**
      * Gets the manual order set in the header.
      *
-     * @param  string $var supported options include "default", "title", "date", and "folder"
-     *
+     * @param  string|null $var supported options include "default", "title", "date", and "folder"
      * @return array
      * @deprecated 1.6
      */
@@ -2209,8 +2192,7 @@ class Page implements PageInterface
      * Gets and sets the maxCount field which describes how many sub-pages should be displayed if the
      * sub_pages header property is set for this page object.
      *
-     * @param  int $var the maximum number of sub-pages
-     *
+     * @param  int|null $var the maximum number of sub-pages
      * @return int      the maximum number of sub-pages
      * @deprecated 1.6
      */
@@ -2233,8 +2215,7 @@ class Page implements PageInterface
     /**
      * Gets and sets the taxonomy array which defines which taxonomies this page identifies itself with.
      *
-     * @param  array $var an array of taxonomies
-     *
+     * @param  array|null $var an array of taxonomies
      * @return array      an array of taxonomies
      */
     public function taxonomy($var = null)
@@ -2257,7 +2238,7 @@ class Page implements PageInterface
     /**
      * Gets and sets the modular var that helps identify this page is a modular child
      *
-     * @param  bool $var true if modular_twig
+     * @param  bool|null $var true if modular_twig
      * @return bool      true if modular_twig
      * @deprecated 1.7 Use ->isModule() or ->modularTwig() method instead.
      */
@@ -2272,7 +2253,7 @@ class Page implements PageInterface
      * Gets and sets the modular_twig var that helps identify this page as a modular child page that will need
      * twig processing handled differently from a regular page.
      *
-     * @param  bool $var true if modular_twig
+     * @param  bool|null $var true if modular_twig
      * @return bool      true if modular_twig
      */
     public function modularTwig($var = null)
@@ -2295,7 +2276,6 @@ class Page implements PageInterface
      * Gets the configured state of the processing method.
      *
      * @param  string $process the process, eg "twig" or "markdown"
-     *
      * @return bool            whether or not the processing method is enabled for this Page
      */
     public function shouldProcess($process)
@@ -2307,7 +2287,6 @@ class Page implements PageInterface
      * Gets and Sets the parent object for this page
      *
      * @param  PageInterface|null $var the parent page object
-     *
      * @return PageInterface|null the parent page object if it exists.
      */
     public function parent(PageInterface $var = null)
@@ -2415,7 +2394,6 @@ class Page implements PageInterface
      * Returns the adjacent sibling based on a direction.
      *
      * @param  int $direction either -1 or +1
-     *
      * @return PageInterface|false             the sibling page
      */
     public function adjacentSibling($direction = 1)
@@ -2512,8 +2490,7 @@ class Page implements PageInterface
     /**
      * Helper method to return an ancestor page.
      *
-     * @param bool $lookup Name of the parent folder
-     *
+     * @param bool|null $lookup Name of the parent folder
      * @return PageInterface page you were looking for if it exists
      */
     public function ancestor($lookup = null)
@@ -2529,12 +2506,11 @@ class Page implements PageInterface
      * page object is returned.
      *
      * @param string $field Name of the parent folder
-     *
      * @return PageInterface
      */
     public function inherited($field)
     {
-        list($inherited, $currentParams) = $this->getInheritedParams($field);
+        [$inherited, $currentParams] = $this->getInheritedParams($field);
 
         $this->modifyHeader($field, $currentParams);
 
@@ -2551,7 +2527,7 @@ class Page implements PageInterface
      */
     public function inheritedField($field)
     {
-        list($inherited, $currentParams) = $this->getInheritedParams($field);
+        [$inherited, $currentParams] = $this->getInheritedParams($field);
 
         return $currentParams;
     }
@@ -2560,7 +2536,6 @@ class Page implements PageInterface
      * Method that contains shared logic for inherited() and inheritedField()
      *
      * @param string $field Name of the parent folder
-     *
      * @return array
      */
     protected function getInheritedParams($field)
@@ -2601,7 +2576,7 @@ class Page implements PageInterface
      * @param bool $pagination
      *
      * @return PageCollectionInterface|Collection
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function collection($params = 'content', $pagination = true)
     {
@@ -2609,7 +2584,7 @@ class Page implements PageInterface
             // Look into a page header field.
             $params = (array)$this->value('header.' . $params);
         } elseif (!is_array($params)) {
-            throw new \InvalidArgumentException('Argument should be either header variable name or array of parameters');
+            throw new InvalidArgumentException('Argument should be either header variable name or array of parameters');
         }
 
         if (!$pagination) {
@@ -2708,7 +2683,6 @@ class Page implements PageInterface
      * Cleans the path.
      *
      * @param  string $path the path
-     *
      * @return string       the path
      */
     protected function cleanPath($path)
@@ -2773,8 +2747,8 @@ class Page implements PageInterface
      * Moves or copies the page in filesystem.
      *
      * @internal
-     *
-     * @throws \Exception
+     * @return void
+     * @throws Exception
      */
     protected function doRelocation()
     {
@@ -2798,6 +2772,9 @@ class Page implements PageInterface
         }
     }
 
+    /**
+     * @return void
+     */
     protected function setPublishState()
     {
         // Handle publishing dates if no explicit published option set
@@ -2819,6 +2796,10 @@ class Page implements PageInterface
         }
     }
 
+    /**
+     * @param string $route
+     * @return string
+     */
     protected function adjustRouteCase($route)
     {
         $case_insensitive = Grav::instance()['config']->get('system.force_lowercase_urls');

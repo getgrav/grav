@@ -11,6 +11,10 @@ namespace Grav\Common\Processors;
 
 use Psr\Http\Server\MiddlewareInterface;
 
+/**
+ * Interface ProcessorInterface
+ * @package Grav\Common\Processors
+ */
 interface ProcessorInterface extends MiddlewareInterface
 {
 }

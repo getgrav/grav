@@ -11,6 +11,10 @@ namespace Grav\Common\Twig;
 
 use Twig\Environment;
 
+/**
+ * Class TwigEnvironment
+ * @package Grav\Common\Twig
+ */
 class TwigEnvironment extends Environment
 {
     use WriteCacheFileTrait;

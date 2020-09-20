@@ -38,6 +38,13 @@ use Psr\Http\Message\ServerRequestInterface;
 use RocketTheme\Toolbox\Event\Event;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use function array_key_exists;
+use function call_user_func_array;
+use function get_class;
+use function in_array;
+use function is_callable;
+use function is_int;
+use function strlen;
 
 /**
  * Grav container is the heart of Grav.
@@ -49,7 +56,7 @@ class Grav extends Container
     /** @var string Processed output for the page. */
     public $output;
 
-    /** @var static|null The singleton instance */
+    /** @var static The singleton instance */
     protected static $instance;
 
     /**
@@ -107,6 +114,8 @@ class Grav extends Container
 
     /**
      * Reset the Grav instance.
+     *
+     * @return void
      */
     public static function resetInstance()
     {
@@ -119,7 +128,6 @@ class Grav extends Container
      * Return the Grav instance. Create it if it's not already instanced
      *
      * @param array $values
-     *
      * @return Grav
      */
     public static function instance(array $values = [])
@@ -187,6 +195,8 @@ class Grav extends Container
 
     /**
      * Process a request
+     *
+     * @return void
      */
     public function process()
     {
@@ -278,6 +288,7 @@ class Grav extends Container
      * Please use this method instead of calling `die();` or `exit();`. Note that you need to create a response object.
      *
      * @param ResponseInterface $response
+     * @return void
      */
     public function close(ResponseInterface $response): void
     {
@@ -318,6 +329,7 @@ class Grav extends Container
 
     /**
      * @param ResponseInterface $response
+     * @return void
      * @deprecated 1.7 Do not use
      */
     public function exit(ResponseInterface $response): void
@@ -331,7 +343,8 @@ class Grav extends Container
      * Please use this method instead of calling `header("Location: {$url}", true, 302); exit();`.
      *
      * @param string $route Internal route.
-     * @param int    $code  Redirection code (30x)
+     * @param int|null $code  Redirection code (30x)
+     * @return void
      */
     public function redirect($route, $code = null): void
     {
@@ -344,7 +357,7 @@ class Grav extends Container
      * Returns redirect response object from Grav.
      *
      * @param string $route Internal route.
-     * @param int    $code  Redirection code (30x)
+     * @param int|null $code  Redirection code (30x)
      * @return ResponseInterface
      */
     public function getRedirectResponse($route, $code = null): ResponseInterface
@@ -387,6 +400,7 @@ class Grav extends Container
      *
      * @param string $route Internal route.
      * @param int    $code  Redirection code (30x)
+     * @return void
      */
     public function redirectLangSafe($route, $code = null)
     {
@@ -401,6 +415,7 @@ class Grav extends Container
      * Set response header.
      *
      * @param ResponseInterface|null $response
+     * @return void
      */
     public function header(ResponseInterface $response = null)
     {
@@ -424,13 +439,15 @@ class Grav extends Container
 
     /**
      * Set the system locale based on the language and configuration
+     *
+     * @return void
      */
     public function setLocale()
     {
         // Initialize Locale if set and configured.
         if ($this['language']->enabled() && $this['config']->get('system.languages.override_locale')) {
             $language = $this['language']->getLanguage();
-            setlocale(LC_ALL, \strlen($language) < 3 ? ($language . '_' . strtoupper($language)) : $language);
+            setlocale(LC_ALL, strlen($language) < 3 ? ($language . '_' . strtoupper($language)) : $language);
         } elseif ($this['config']->get('system.default_locale')) {
             setlocale(LC_ALL, $this['config']->get('system.default_locale'));
         }
@@ -457,7 +474,6 @@ class Grav extends Container
      *
      * @param  string $eventName
      * @param  Event|null $event
-     *
      * @return Event
      */
     public function fireEvent($eventName, Event $event = null)
@@ -480,6 +496,7 @@ class Grav extends Container
     /**
      * Set the final content length for the page and flush the buffer
      *
+     * @return void
      */
     public function shutdown()
     {
@@ -603,7 +620,7 @@ class Grav extends Container
     protected function registerServices()
     {
         foreach (self::$diMap as $serviceKey => $serviceClass) {
-            if (\is_int($serviceKey)) {
+            if (is_int($serviceKey)) {
                 $this->register(new $serviceClass);
             } else {
                 $this[$serviceKey] = function ($c) use ($serviceClass) {
@@ -617,6 +634,7 @@ class Grav extends Container
      * This attempts to find media, other files, and download them
      *
      * @param string $path
+     * @return PageInterface|false
      */
     public function fallbackUrl($path)
     {
@@ -633,7 +651,7 @@ class Grav extends Container
         $supported_types = $config->get('media.types');
 
         // Check whitelist first, then ensure extension is a valid media type
-        if (!empty($fallback_types) && !\in_array($uri_extension, $fallback_types, true)) {
+        if (!empty($fallback_types) && !in_array($uri_extension, $fallback_types, true)) {
             return false;
         }
         if (!array_key_exists($uri_extension, $supported_types)) {
@@ -656,8 +674,8 @@ class Grav extends Container
                 /** @var Medium $medium */
                 $medium = $media[$media_file];
                 foreach ($uri->query(null, true) as $action => $params) {
-                    if (\in_array($action, ImageMedium::$magic_actions, true)) {
-                        \call_user_func_array([&$medium, $action], explode(',', $params));
+                    if (in_array($action, ImageMedium::$magic_actions, true)) {
+                        call_user_func_array([&$medium, $action], explode(',', $params));
                     }
                 }
                 Utils::download($medium->path(), false);
@@ -676,7 +694,7 @@ class Grav extends Container
 
             if ($extension) {
                 $download = true;
-                if (\in_array(ltrim($extension, '.'), $config->get('system.media.unsupported_inline_types', []), true)) {
+                if (in_array(ltrim($extension, '.'), $config->get('system.media.unsupported_inline_types', []), true)) {
                     $download = false;
                 }
                 Utils::download($page->path() . DIRECTORY_SEPARATOR . $uri->basename(), $download);

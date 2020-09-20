@@ -53,7 +53,7 @@ interface ImageManipulateInterface
     /**
      * Sets or gets the quality of the image
      *
-     * @param int $quality 0-100 quality
+     * @param int|null $quality 0-100 quality
      * @return int|$this
      */
     public function quality($quality = null);
@@ -69,7 +69,7 @@ interface ImageManipulateInterface
     /**
      * Set or get sizes parameter for srcset media action
      *
-     * @param string $sizes
+     * @param string|null $sizes
      * @return string
      */
     public function sizes($sizes = null);
@@ -83,7 +83,7 @@ interface ImageManipulateInterface
      *           {{ page.media['myimg.png'].width().height().html }}
      *           {{ page.media['myimg.png'].resize(100,200).width(100).height(200).html }}
      *
-     * @param mixed $value A value or 'auto' or empty to use the width of the image
+     * @param string|int $value A value or 'auto' or empty to use the width of the image
      * @return $this
      */
     public function width($value = 'auto');
@@ -97,7 +97,7 @@ interface ImageManipulateInterface
      *           {{ page.media['myimg.png'].width().height().html }}
      *           {{ page.media['myimg.png'].resize(100,200).width(100).height(200).html }}
      *
-     * @param mixed $value A value or 'auto' or empty to use the height of the image
+     * @param string|int $value A value or 'auto' or empty to use the height of the image
      * @return $this
      */
     public function height($value = 'auto');

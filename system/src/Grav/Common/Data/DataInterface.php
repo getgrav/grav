@@ -9,8 +9,13 @@
 
 namespace Grav\Common\Data;
 
+use Exception;
 use RocketTheme\Toolbox\File\FileInterface;
 
+/**
+ * Interface DataInterface
+ * @package Grav\Common\Data
+ */
 interface DataInterface
 {
     /**
@@ -41,7 +46,7 @@ interface DataInterface
     /**
      * Validate by blueprints.
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function validate();
 

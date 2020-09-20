@@ -9,9 +9,14 @@
 
 namespace Grav\Common\Markdown;
 
+use Exception;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Page\Markdown\Excerpts;
 
+/**
+ * Class ParsedownExtra
+ * @package Grav\Common\Markdown
+ */
 class ParsedownExtra extends \ParsedownExtra
 {
     use ParsedownGravTrait;
@@ -21,7 +26,7 @@ class ParsedownExtra extends \ParsedownExtra
      *
      * @param Excerpts|null $excerpts
      * @param array|null $defaults
-     * @throws \Exception
+     * @throws Exception
      */
     public function __construct($excerpts = null, $defaults = null)
     {

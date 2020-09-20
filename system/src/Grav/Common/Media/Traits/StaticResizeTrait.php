@@ -9,13 +9,17 @@
 
 namespace Grav\Common\Media\Traits;
 
+/**
+ * Trait StaticResizeTrait
+ * @package Grav\Common\Media\Traits
+ */
 trait StaticResizeTrait
 {
     /**
      * Resize media by setting attributes
      *
-     * @param  int $width
-     * @param  int $height
+     * @param  int|null $width
+     * @param  int|null $height
      * @return $this
      */
     public function resize($width = null, $height = null)

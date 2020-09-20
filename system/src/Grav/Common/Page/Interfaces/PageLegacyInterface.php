@@ -4,25 +4,29 @@ namespace Grav\Common\Page\Interfaces;
 use Exception;
 use Grav\Common\Data\Blueprint;
 use Grav\Common\Page\Collection;
+use InvalidArgumentException;
 use RocketTheme\Toolbox\File\MarkdownFile;
+use SplFileInfo;
 
+/**
+ * Interface PageLegacyInterface
+ * @package Grav\Common\Page\Interfaces
+ */
 interface PageLegacyInterface
 {
     /**
      * Initializes the page instance variables based on a file
      *
-     * @param  \SplFileInfo $file The file information for the .md file that the page represents
-     * @param  string $extension
-     *
+     * @param  SplFileInfo $file The file information for the .md file that the page represents
+     * @param  string|null $extension
      * @return $this
      */
-    public function init(\SplFileInfo $file, $extension = null);
+    public function init(SplFileInfo $file, $extension = null);
 
     /**
      * Gets and Sets the raw data
      *
-     * @param  string $var Raw content string
-     *
+     * @param  string|null $var Raw content string
      * @return string      Raw content string
      */
     public function raw($var = null);
@@ -31,7 +35,6 @@ interface PageLegacyInterface
      * Gets and Sets the page frontmatter
      *
      * @param string|null $var
-     *
      * @return string
      */
     public function frontmatter($var = null);
@@ -49,6 +52,9 @@ interface PageLegacyInterface
      */
     public function httpResponseCode();
 
+    /**
+     * @return array
+     */
     public function httpHeaders();
 
     /**
@@ -70,7 +76,6 @@ interface PageLegacyInterface
      * Return the whole contentMeta array as it currently stands
      *
      * @param string|null $name
-     *
      * @return mixed
      */
     public function getContentMeta($name = null);
@@ -79,7 +84,6 @@ interface PageLegacyInterface
      * Sets the whole content meta array in one shot
      *
      * @param array $content_meta
-     *
      * @return array
      */
     public function setContentMeta($content_meta);
@@ -109,7 +113,6 @@ interface PageLegacyInterface
      * You need to call $this->save() in order to perform the move.
      *
      * @param PageInterface $parent New parent page.
-     *
      * @return $this
      */
     public function move(PageInterface $parent);
@@ -121,7 +124,6 @@ interface PageLegacyInterface
      * You need to call $this->save() in order to perform the move.
      *
      * @param PageInterface $parent New parent page.
-     *
      * @return $this
      */
     public function copy(PageInterface $parent);
@@ -195,8 +197,7 @@ interface PageLegacyInterface
     /**
      * Gets and sets the name field.  If no name field is set, it will return 'default.md'.
      *
-     * @param  string $var The name of this page.
-     *
+     * @param  string|null $var The name of this page.
      * @return string      The name of this page.
      */
     public function name($var = null);
@@ -212,8 +213,7 @@ interface PageLegacyInterface
      * Gets and sets the template field. This is used to find the correct Twig template file to render.
      * If no field is set, it will return the name without the .md extension
      *
-     * @param  string $var the template name
-     *
+     * @param  string|null $var the template name
      * @return string      the template name
      */
     public function template($var = null);
@@ -223,7 +223,6 @@ interface PageLegacyInterface
      * in the URL. (e.g. `html`, `json`, `xml`, etc).
      *
      * @param string|null $var
-     *
      * @return string
      */
     public function templateFormat($var = null);
@@ -231,17 +230,15 @@ interface PageLegacyInterface
     /**
      * Gets and sets the extension field.
      *
-     * @param null $var
-     *
-     * @return null|string
+     * @param string|null $var
+     * @return string|null
      */
     public function extension($var = null);
 
     /**
      * Gets and sets the expires field. If not set will return the default
      *
-     * @param  int $var The new expires value.
-     *
+     * @param  int|null $var The new expires value.
      * @return int      The expires value
      */
     public function expires($var = null);
@@ -250,17 +247,21 @@ interface PageLegacyInterface
      * Gets and sets the cache-control property.  If not set it will return the default value (null)
      * https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control for more details on valid options
      *
-     * @param null $var
-     * @return null
+     * @param string|null $var
+     * @return string|null
      */
     public function cacheControl($var = null);
 
+    /**
+     * @param bool|null $var
+     * @return bool
+     */
     public function ssl($var = null);
 
     /**
      * Returns the state of the debugger override etting for this page
      *
-     * @return mixed
+     * @return bool
      */
     public function debugger();
 
@@ -268,8 +269,7 @@ interface PageLegacyInterface
      * Function to merge page metadata tags and build an array of Metadata objects
      * that can then be rendered in the page.
      *
-     * @param  array $var an Array of metadata values to set
-     *
+     * @param  array|null $var an Array of metadata values to set
      * @return array      an Array of metadata values for the page
      */
     public function metadata($var = null);
@@ -277,8 +277,7 @@ interface PageLegacyInterface
     /**
      * Gets and sets the option to show the etag header for the page.
      *
-     * @param  bool $var show etag header
-     *
+     * @param  bool|null $var show etag header
      * @return bool      show etag header
      */
     public function eTag($var = null): bool;
@@ -286,8 +285,7 @@ interface PageLegacyInterface
     /**
      * Gets and sets the path to the .md file for this Page object.
      *
-     * @param  string $var the file path
-     *
+     * @param  string|null $var the file path
      * @return string|null      the file path
      */
     public function filePath($var = null);
@@ -302,8 +300,7 @@ interface PageLegacyInterface
     /**
      * Gets and sets the order by which any sub-pages should be sorted.
      *
-     * @param  string $var the order, either "asc" or "desc"
-     *
+     * @param  string|null $var the order, either "asc" or "desc"
      * @return string      the order, either "asc" or "desc"
      * @deprecated 1.6
      */
@@ -317,8 +314,7 @@ interface PageLegacyInterface
      * date - is the order based on the date set in the pages
      * folder - is the order based on the name of the folder with any numerics omitted
      *
-     * @param  string $var supported options include "default", "title", "date", and "folder"
-     *
+     * @param  string|null $var supported options include "default", "title", "date", and "folder"
      * @return string      supported options include "default", "title", "date", and "folder"
      * @deprecated 1.6
      */
@@ -327,8 +323,7 @@ interface PageLegacyInterface
     /**
      * Gets the manual order set in the header.
      *
-     * @param  string $var supported options include "default", "title", "date", and "folder"
-     *
+     * @param  string|null $var supported options include "default", "title", "date", and "folder"
      * @return array
      * @deprecated 1.6
      */
@@ -338,8 +333,7 @@ interface PageLegacyInterface
      * Gets and sets the maxCount field which describes how many sub-pages should be displayed if the
      * sub_pages header property is set for this page object.
      *
-     * @param  int $var the maximum number of sub-pages
-     *
+     * @param  int|null $var the maximum number of sub-pages
      * @return int      the maximum number of sub-pages
      * @deprecated 1.6
      */
@@ -348,7 +342,7 @@ interface PageLegacyInterface
     /**
      * Gets and sets the modular var that helps identify this page is a modular child
      *
-     * @param  bool $var true if modular_twig
+     * @param  bool|null $var true if modular_twig
      * @return bool      true if modular_twig
      * @deprecated 1.7 Use ->isModule() or ->modularTwig() method instead.
      */
@@ -358,8 +352,7 @@ interface PageLegacyInterface
      * Gets and sets the modular_twig var that helps identify this page as a modular child page that will need
      * twig processing handled differently from a regular page.
      *
-     * @param  bool $var true if modular_twig
-     *
+     * @param  bool|null $var true if modular_twig
      * @return bool      true if modular_twig
      */
     public function modularTwig($var = null);
@@ -367,7 +360,7 @@ interface PageLegacyInterface
     /**
      * Returns children of this page.
      *
-     * @return Collection
+     * @return PageCollectionInterface|Collection
      */
     public function children();
 
@@ -403,7 +396,6 @@ interface PageLegacyInterface
      * Returns the adjacent sibling based on a direction.
      *
      * @param  int $direction either -1 or +1
-     *
      * @return PageInterface|false             the sibling page
      */
     public function adjacentSibling($direction = 1);
@@ -411,8 +403,7 @@ interface PageLegacyInterface
     /**
      * Helper method to return an ancestor page.
      *
-     * @param bool $lookup Name of the parent folder
-     *
+     * @param bool|null $lookup Name of the parent folder
      * @return PageInterface page you were looking for if it exists
      */
     public function ancestor($lookup = null);
@@ -422,7 +413,6 @@ interface PageLegacyInterface
      * page object is returned.
      *
      * @param string $field Name of the parent folder
-     *
      * @return PageInterface
      */
     public function inherited($field);
@@ -432,7 +422,6 @@ interface PageLegacyInterface
      * first occurrence of an ancestor field will be returned if at all.
      *
      * @param string $field Name of the parent folder
-     *
      * @return array
      */
     public function inheritedField($field);
@@ -442,7 +431,6 @@ interface PageLegacyInterface
      *
      * @param string $url the url of the page
      * @param bool $all
-     *
      * @return PageInterface page you were looking for if it exists
      */
     public function find($url, $all = false);
@@ -452,16 +440,15 @@ interface PageLegacyInterface
      *
      * @param string|array $params
      * @param bool $pagination
-     *
      * @return Collection
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function collection($params = 'content', $pagination = true);
 
     /**
      * @param string|array $value
      * @param bool $only_published
-     * @return mixed
+     * @return PageCollectionInterface|Collection
      */
     public function evaluate($value, $only_published = true);
 

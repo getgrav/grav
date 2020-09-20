@@ -14,8 +14,16 @@ use Grav\Common\Twig\Twig;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 
+/**
+ * Class OutputServiceProvider
+ * @package Grav\Common\Service
+ */
 class OutputServiceProvider implements ServiceProviderInterface
 {
+    /**
+     * @param Container $container
+     * @return void
+     */
     public function register(Container $container)
     {
         $container['output'] = function ($c) {

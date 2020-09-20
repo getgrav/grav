@@ -15,6 +15,11 @@ use Grav\Common\Media\Interfaces\MediaLinkInterface;
 use Grav\Common\Media\Interfaces\MediaObjectInterface;
 use Grav\Common\Page\Medium\ThumbnailImageMedium;
 use Grav\Common\Utils;
+use function count;
+use function func_get_args;
+use function in_array;
+use function is_array;
+use function is_string;
 
 /**
  * Class Medium
@@ -184,7 +189,7 @@ trait MediaObjectTrait
     /**
      * Get/set hash for the file's url
      *
-     * @param  string  $hash
+     * @param  string|null  $hash
      * @param  bool $withHash
      * @return string
      */
@@ -325,7 +330,6 @@ trait MediaObjectTrait
      * Helper method to determine if this media item has a thumbnail or not
      *
      * @param string $type;
-     *
      * @return bool
      */
     public function thumbnailExists($type = 'page')
@@ -339,12 +343,11 @@ trait MediaObjectTrait
      * Switch thumbnail.
      *
      * @param string $type
-     *
      * @return $this
      */
     public function thumbnail($type = 'auto')
     {
-        if ($type !== 'auto' && !\in_array($type, $this->thumbnailTypes, true)) {
+        if ($type !== 'auto' && !in_array($type, $this->thumbnailTypes, true)) {
             return $this;
         }
 
@@ -390,8 +393,8 @@ trait MediaObjectTrait
     /**
      * Turn the current Medium into a Link with lightbox enabled
      *
-     * @param  int  $width
-     * @param  int  $height
+     * @param  int|null  $width
+     * @param  int|null  $height
      * @param  bool $reset
      * @return MediaLinkInterface
      */
@@ -457,12 +460,12 @@ trait MediaObjectTrait
      * Allow any action to be called on this medium from twig or markdown
      *
      * @param string $method
-     * @param mixed $args
+     * @param array $args
      * @return $this
      */
     public function __call($method, $args)
     {
-        $count = \count($args);
+        $count = count($args);
         if ($count > 1 || ($count === 1 && !empty($args[0]))) {
             $method .= '=' . implode(',', array_map(static function ($a) {
                 if (is_array($a)) {
@@ -556,7 +559,7 @@ trait MediaObjectTrait
      *
      * @param string $name Dot separated path to the requested value.
      * @param mixed $default Default value (or null).
-     * @param string $separator Separator, defaults to '.'
+     * @param string|null $separator Separator, defaults to '.'
      * @return mixed Value.
      */
     abstract public function get($name, $default = null, $separator = null);
@@ -568,7 +571,7 @@ trait MediaObjectTrait
      *
      * @param string $name Dot separated path to the requested value.
      * @param mixed $value New value.
-     * @param string $separator Separator, defaults to '.'
+     * @param string|null $separator Separator, defaults to '.'
      * @return $this
      */
     abstract public function set($name, $value, $separator = null);

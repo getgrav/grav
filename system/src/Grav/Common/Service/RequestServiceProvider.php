@@ -15,8 +15,16 @@ use Nyholm\Psr7Server\ServerRequestCreator;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 
+/**
+ * Class RequestServiceProvider
+ * @package Grav\Common\Service
+ */
 class RequestServiceProvider implements ServiceProviderInterface
 {
+    /**
+     * @param Container $container
+     * @return void
+     */
     public function register(Container $container)
     {
         $container['request'] = function () {

@@ -9,9 +9,16 @@
 
 namespace Grav\Common\Media\Traits;
 
+use BadMethodCallException;
 use Grav\Common\Media\Interfaces\MediaLinkInterface;
 use Grav\Common\Media\Interfaces\MediaObjectInterface;
+use function get_class;
+use function is_callable;
 
+/**
+ * Trait ThumbnailMediaTrait
+ * @package Grav\Common\Media\Traits
+ */
 trait ThumbnailMediaTrait
 {
     /** @var MediaObjectInterface|null */
@@ -102,8 +109,8 @@ trait ThumbnailMediaTrait
     /**
      * Turn the current Medium into a Link with lightbox enabled
      *
-     * @param  int  $width
-     * @param  int  $height
+     * @param  int|null  $width
+     * @param  int|null  $height
      * @param  bool $reset
      * @return MediaLinkInterface
      */
@@ -131,7 +138,7 @@ trait ThumbnailMediaTrait
             $closure = [$parent, $method];
 
             if (!is_callable($closure)) {
-                throw new \BadMethodCallException(get_class($parent) . '::' . $method . '() not found.');
+                throw new BadMethodCallException(get_class($parent) . '::' . $method . '() not found.');
             }
 
             return $closure(...$arguments);

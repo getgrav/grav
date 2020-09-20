@@ -11,6 +11,10 @@ namespace Grav\Common\GPM\Local;
 
 use Grav\Common\Grav;
 
+/**
+ * Class Plugins
+ * @package Grav\Common\GPM\Local
+ */
 class Plugins extends AbstractPackageCollection
 {
     /** @var string */

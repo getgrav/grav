@@ -13,11 +13,23 @@ use Grav\Common\Utils;
 use Twig\Profiler\Profile;
 use Clockwork\Request\Timeline;
 
+/**
+ * Class TwigProfileProcessor
+ * @package Grav\Common\Twig
+ */
 class TwigProfileProcessor
 {
     /** @var float */
     private $root;
 
+    /**
+     * @param Profile $profile
+     * @param Timeline $views
+     * @param int $counter
+     * @param string $prefix
+     * @param false $sibling
+     * @return void
+     */
     public function process(Profile $profile, Timeline $views, $counter = 0, $prefix = '', $sibling = false)
     {
         if ($profile->isRoot()) {
@@ -58,16 +70,31 @@ class TwigProfileProcessor
         }
     }
 
+    /**
+     * @param Profile $profile
+     * @param string $prefix
+     * @return string
+     */
     protected function formatTemplate(Profile $profile, $prefix)
     {
         return sprintf('%s⤍ %s', $prefix, $profile->getTemplate());
     }
 
+    /**
+     * @param Profile $profile
+     * @param string $prefix
+     * @return string
+     */
     protected function formatNonTemplate(Profile $profile, $prefix)
     {
         return sprintf('%s⤍ %s::%s(%s)', $prefix, $profile->getTemplate(), $profile->getType(), $profile->getName());
     }
 
+    /**
+     * @param Profile $profile
+     * @param float $percent
+     * @return string
+     */
     protected function formatTime(Profile $profile, $percent)
     {
         return sprintf('%.2fms/%.0f%%', $profile->getDuration() * 1000, $percent);

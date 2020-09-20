@@ -9,8 +9,8 @@
 
 namespace Grav\Common\Page\Medium;
 
+use BadFunctionCallException;
 use Grav\Common\Data\Blueprint;
-use Grav\Common\Grav;
 use Grav\Common\Media\Interfaces\ImageManipulateInterface;
 use Grav\Common\Media\Interfaces\ImageMediaInterface;
 use Grav\Common\Media\Interfaces\MediaLinkInterface;
@@ -18,7 +18,13 @@ use Grav\Common\Media\Traits\ImageLoadingTrait;
 use Grav\Common\Media\Traits\ImageMediaTrait;
 use Grav\Common\Utils;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
+use function func_get_args;
+use function in_array;
 
+/**
+ * Class ImageMedium
+ * @package Grav\Common\Page\Medium
+ */
 class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulateInterface
 {
     use ImageMediaTrait;
@@ -73,11 +79,17 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
         ] + parent::getMeta();
     }
 
+    /**
+     * Also unset the image on destruct.
+     */
     public function __destruct()
     {
         unset($this->image);
     }
 
+    /**
+     * Also clone image.
+     */
     public function __clone()
     {
         if ($this->image) {
@@ -263,10 +275,13 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
 
     /**
      * Handle this commonly used variant
+     *
+     * @return $this
      */
     public function cropZoom()
     {
         $this->__call('zoomCrop', func_get_args());
+
         return $this;
     }
 
@@ -279,7 +294,7 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
      */
     public function __call($method, $args)
     {
-        if (!\in_array($method, static::$magic_actions, true)) {
+        if (!in_array($method, static::$magic_actions, true)) {
             return parent::__call($method, $args);
         }
 
@@ -308,7 +323,7 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
                 // Do the same call for alternative media.
                 $medium->__call($method, $args_copy);
             }
-        } catch (\BadFunctionCallException $e) {
+        } catch (BadFunctionCallException $e) {
         }
 
         return $this;

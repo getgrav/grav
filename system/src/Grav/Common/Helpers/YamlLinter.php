@@ -10,10 +10,17 @@
 namespace Grav\Common\Helpers;
 
 use Grav\Common\Grav;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+use RegexIterator;
 use RocketTheme\Toolbox\File\MarkdownFile;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use Symfony\Component\Yaml\Yaml;
 
+/**
+ * Class YamlLinter
+ * @package Grav\Common\Helpers
+ */
 class YamlLinter
 {
     /**
@@ -73,16 +80,16 @@ class YamlLinter
 
         /** @var UniformResourceLocator $locator */
         $locator = Grav::instance()['locator'];
-        $flags = \RecursiveDirectoryIterator::SKIP_DOTS;
+        $flags = RecursiveDirectoryIterator::SKIP_DOTS;
         if ($locator->isStream($path)) {
             $directory = $locator->getRecursiveIterator($path, $flags);
         } else {
-            $directory = new \RecursiveDirectoryIterator($path, $flags);
+            $directory = new RecursiveDirectoryIterator($path, $flags);
         }
-        $recursive = new \RecursiveIteratorIterator($directory, \RecursiveIteratorIterator::SELF_FIRST);
-        $iterator = new \RegexIterator($recursive, '/^.+\.'.$extensions.'$/i');
+        $recursive = new RecursiveIteratorIterator($directory, RecursiveIteratorIterator::SELF_FIRST);
+        $iterator = new RegexIterator($recursive, '/^.+\.'.$extensions.'$/i');
 
-        /** @var \RecursiveDirectoryIterator $file */
+        /** @var RecursiveDirectoryIterator $file */
         foreach ($iterator as $filepath => $file) {
             try {
                 Yaml::parse(static::extractYaml($filepath));
