@@ -10,6 +10,7 @@
     * Fixed infinite loop in blueprints with `extend@` to a parent stream
     * Added missing `Stream::create()` method
     * Added missing `onBlueprintCreated` event for Flex Pages
+    * Fixed `onBlueprintCreated` firing multiple times recursively
 
 # v1.7.0-rc.16
 ## 09/01/2020

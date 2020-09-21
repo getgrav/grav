@@ -422,11 +422,11 @@ class PageObject extends FlexPageObject
             $blueprint = $this->getFlexDirectory()->getBlueprint($template, 'blueprints://pages');
         }
 
-        $isNew = !$blueprint->get('initialized', false);
+        $isNew = $blueprint->get('initialized', false) === false;
         if ($isNew === true && $name === '') {
             // Support onBlueprintCreated event just like in Pages::blueprints($template)
-            Grav::instance()->fireEvent('onBlueprintCreated', new Event(['blueprint' => $blueprint, 'type' => $template]));
             $blueprint->set('initialized', true);
+            Grav::instance()->fireEvent('onBlueprintCreated', new Event(['blueprint' => $blueprint, 'type' => $template]));
         }
 
         return $blueprint;
