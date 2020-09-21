@@ -329,7 +329,7 @@ class UserObject extends FlexObject implements UserInterface, \Countable
      * @param  int $indent  The amount of spaces to use for indentation of nested nodes.
      * @return string A YAML string representing the object.
      */
-    public function toYaml($inline = 5, $indent = 2): string
+    public function toYaml($inline = 5, $indent = 2)
     {
         $yaml = new YamlFormatter(['inline' => $inline, 'indent' => $indent]);
 
