@@ -452,15 +452,31 @@ class Twig
         $twig_extension = $extension ? '.'. $extension .TWIG_EXT : TEMPLATE_EXT;
         $template_file = $this->template($page->template() . $twig_extension);
 
+        $page_template = null;
+
         $loader = $this->twig->getLoader();
-        if ($loader instanceof ExistsLoaderInterface && $loader->exists($template_file)) {
-            return $template_file;
+        if ($loader instanceof ExistsLoaderInterface ) {
+
+            if ($loader->exists($template_file)) {
+                $page_template = $template_file;
+            } else {
+                // Try with template + html.twig
+                if ($twig_extension !== TEMPLATE_EXT && $loader->exists($template . TEMPLATE_EXT)) {
+                    $page_template = $template . TEMPLATE_EXT;
+                // Try with default and original extension
+                } elseif ($loader->exists('default' . $twig_extension)) {
+                    $page_template = 'default' . $twig_extension;
+                // Else try default + default extension
+                } elseif (!$page->modular() && $loader->exists('default' . TEMPLATE_EXT)) {
+                    $page_template = 'default' . TEMPLATE_EXT;
+                } else {
+                    $page_template = 'modular/default' . TEMPLATE_EXT;
+                }
+            }
         }
 
-        // Default to HTML
-        $page->templateFormat('html');
+        return $page_template;
 
-        return $template . TEMPLATE_EXT;
     }
 
     /**
