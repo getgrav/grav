@@ -7,7 +7,8 @@
     * Back-ported `{{ svg_image() }}` Twig function from Grav .17
 1. [](#improved)
     * Use new `{{ theme_var() }}` enhanced logic from Grav 1.7
-    
+    * Ensure `onBlueprintCreated()` is initialized first
+
 # v1.6.27
 ## 09/01/2020
 
