@@ -72,11 +72,7 @@ trait MediaUploadTrait
     public function checkUploadedFile(UploadedFileInterface $uploadedFile, string $filename = null, array $settings = null): string
     {
         // Add the defaults to the settings.
-        if (!$settings) {
-            $settings = $this->_upload_defaults;
-        } else {
-            $settings += $this->_upload_defaults;
-        }
+        $settings = $this->getUploadSettings($settings);
 
         // Destination is always needed (but it can be set in defaults).
         $self = $settings['self'] ?? false;
@@ -118,7 +114,7 @@ trait MediaUploadTrait
         // Handle conflicting filename if needed.
         if ($settings['avoid_overwriting']) {
             $destination = $settings['destination'];
-            if ($destination && file_exists("{$destination}/{$filename}")) {
+            if ($destination && $this->fileExists($filename, $destination)) {
                 $filename = date('YmdHis') . '-' . $filename;
             }
         }
@@ -215,11 +211,7 @@ trait MediaUploadTrait
     public function copyUploadedFile(UploadedFileInterface $uploadedFile, string $filename, array $settings = null): void
     {
         // Add the defaults to the settings.
-        if (!$settings) {
-            $settings = $this->_upload_defaults;
-        } else {
-            $settings += $this->_upload_defaults;
-        }
+        $settings = $this->getUploadSettings($settings);
 
         $path = $settings['destination'] ?? $this->getPath();
         if (!$path || !$filename) {
@@ -230,11 +222,9 @@ trait MediaUploadTrait
         $locator = $this->getGrav()['locator'];
 
         try {
-            // Do not use streams internally.
-            if ($locator->isStream($path)) {
-                $path = (string)$locator->findResource($path, true, true);
-                $locator->clearCache();
-            }
+            // Clear locator cache to make sure we have up to date information from the filesystem.
+            $locator->clearCache();
+            $this->clearCache();
 
             $filepath = sprintf('%s/%s', $path, $filename);
 
@@ -267,10 +257,10 @@ trait MediaUploadTrait
                 $uploadedFile->moveTo($filepath);
             }
 
-            // Special content sanitization for SVG.
+            // Post-processing: Special content sanitization for SVG.
             $mime = Utils::getMimeByFilename($filename);
             if (Utils::contains($mime, 'svg', false)) {
-                Security::sanitizeSVG($filepath);
+                $this->doSanitizeSvg($filename, $path);
             }
         } catch (Exception $e) {
             throw new RuntimeException($this->translate('PLUGIN_ADMIN.FAILED_TO_MOVE_UPLOADED_FILE'), 400);
@@ -296,21 +286,17 @@ trait MediaUploadTrait
     public function deleteFile(string $filename, array $settings = null): void
     {
         // Add the defaults to the settings.
-        if (!$settings) {
-            $settings = $this->_upload_defaults;
-        } else {
-            $settings += $this->_upload_defaults;
-        }
+        $settings = $this->getUploadSettings($settings);
+        $filesystem = Filesystem::getInstance(false);
 
         // First check for allowed filename.
-        $basename = basename($filename);
+        $basename = $filesystem->basename($filename);
         if (!Utils::checkFilename($basename)) {
             throw new RuntimeException($this->translate('PLUGIN_ADMIN.FILE_COULD_NOT_BE_DELETED') . ": {$this->translate('PLUGIN_ADMIN.BAD_FILENAME')}: " . $filename, 400);
         }
 
         $path = $settings['destination'] ?? $this->getPath();
         if (!$path) {
-            // Nothing to do.
             return;
         }
 
@@ -324,12 +310,7 @@ trait MediaUploadTrait
 
         /** @var UniformResourceLocator $locator */
         $locator = $grav['locator'];
-
-        if ($locator->isStream($targetFile)) {
-            $targetPath = (string)$locator->findResource($targetPath, true, true);
-            $targetFile = (string)$locator->findResource($targetFile, true, true);
-            $locator->clearCache();
-        }
+        $locator->clearCache();
 
         $fileParts = (array)$filesystem->pathinfo($basename);
 
@@ -373,6 +354,7 @@ trait MediaUploadTrait
         }
 
         // Finally clear media cache.
+        $locator->clearCache();
         $this->clearCache();
     }
 
@@ -386,11 +368,7 @@ trait MediaUploadTrait
     public function renameFile(string $from, string $to, array $settings = null): void
     {
         // Add the defaults to the settings.
-        if (!$settings) {
-            $settings = $this->_upload_defaults;
-        } else {
-            $settings += $this->_upload_defaults;
-        }
+        $settings = $this->getUploadSettings($settings);
 
         $path = $settings['destination'] ?? $this->getPath();
         if (!$path) {
@@ -430,6 +408,36 @@ trait MediaUploadTrait
         }
 
         $this->clearCache();
+    }
+
+    /**
+     * Get upload settings.
+     *
+     * @param array|null $settings Form field specific settings (override).
+     * @return array
+     */
+    protected function getUploadSettings(?array $settings = null): array
+    {
+        return null !== $settings ? $settings + $this->_upload_defaults : $this->_upload_defaults;
+    }
+
+    /**
+     * @param string $filename
+     * @param string $path
+     */
+    protected function doSanitizeSvg(string $filename, string $path): void
+    {
+        $filepath = sprintf('%s/%s', $path, $filename);
+
+        /** @var UniformResourceLocator $locator */
+        $locator = $this->getGrav()['locator'];
+
+        // Do not use streams internally.
+        if ($locator->isStream($filepath)) {
+            $filepath = (string)$locator->findResource($filepath, true, true);
+        }
+
+        Security::sanitizeSVG($filepath);
     }
 
     /**
