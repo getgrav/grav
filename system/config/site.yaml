@@ -27,7 +27,7 @@ routes:
 blog:
   route: '/blog'                            # Custom value added (accessible via system.blog.route)
 
-#menu:                                      # Menu Example
+#men:                                      # Menu Example
 #    - text: Source
 #      icon: github
 #      url: https://github.com/getgrav/grav
