@@ -145,7 +145,7 @@ trait ObjectPropertyTrait
         }
 
         $this->_definedProperties[$property] = false;
-        unset($this->{$property});
+        $this->{$property} = null;
     }
 
     protected function initObjectProperties()
