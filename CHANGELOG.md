@@ -11,6 +11,7 @@
     * Added missing `Stream::create()` method
     * Added missing `onBlueprintCreated` event for Flex Pages
     * Fixed `onBlueprintCreated` firing multiple times recursively
+    * Fixed media upload failing with custom folders
 
 # v1.7.0-rc.16
 ## 09/01/2020

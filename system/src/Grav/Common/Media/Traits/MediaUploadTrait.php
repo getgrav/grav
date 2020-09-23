@@ -101,14 +101,21 @@ trait MediaUploadTrait
                 throw new RuntimeException($this->translate('PLUGIN_ADMIN.UNKNOWN_ERRORS'), 400);
         }
 
+        if (null === $filename) {
+            // If no filename is given, use the filename from the uploaded file (path is not allowed).
+            $folder = '';
+            $filename = $uploadedFile->getClientFilename() ?? '';
+        } else {
+            // If caller sets the filename, we will accept any custom path.
+            $folder = dirname($filename);
+            $filename = basename($filename);
+        }
+        $extension = pathinfo($filename, PATHINFO_EXTENSION);
+
         // Decide which filename to use.
         if ($settings['random_name']) {
             // Generate random filename if asked for.
-            $extension = pathinfo($filename, PATHINFO_EXTENSION);
             $filename = Utils::generateRandomString(15) . '.' . $extension;
-        } elseif (null === $filename) {
-            // If no filename is given, use the filename from the uploaded file.
-            $filename = $uploadedFile->getClientFilename() ?? '';
         }
 
         // Handle conflicting filename if needed.
@@ -118,17 +125,17 @@ trait MediaUploadTrait
                 $filename = date('YmdHis') . '-' . $filename;
             }
         }
+        $filepath = $folder !== '' ? $folder . $filename : $filename;
 
         // Check if the filename is allowed.
         if (!Utils::checkFilename($filename)) {
             throw new RuntimeException(
-                sprintf($this->translate('PLUGIN_ADMIN.FILEUPLOAD_UNABLE_TO_UPLOAD'), $filename, $this->translate('PLUGIN_ADMIN.BAD_FILENAME')),
-                400
+                sprintf($this->translate('PLUGIN_ADMIN.FILEUPLOAD_UNABLE_TO_UPLOAD'), $filepath, $this->translate('PLUGIN_ADMIN.BAD_FILENAME'))
             );
         }
 
         // Check if the file extension is allowed.
-        $extension = mb_strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+        $extension = mb_strtolower($extension);
         if (!$extension || !$this->getConfig()->get("media.types.{$extension}")) {
             // Not a supported type.
             throw new RuntimeException($this->translate('PLUGIN_ADMIN.UNSUPPORTED_FILE_TYPE') . ': ' . $extension, 400);
@@ -169,7 +176,7 @@ trait MediaUploadTrait
                 $match = preg_match('#' . $find . '$#', $mime);
                 if (!$match) {
                     // TODO: translate
-                    $errors[] = 'The MIME type "' . $mime . '" for the file "' . $filename . '" is not an accepted.';
+                    $errors[] = 'The MIME type "' . $mime . '" for the file "' . $filepath . '" is not an accepted.';
                 } else {
                     $accepted = true;
                     break;
@@ -178,7 +185,7 @@ trait MediaUploadTrait
                 $match = preg_match('#' . $find . '$#', $filename);
                 if (!$match) {
                     // TODO: translate
-                    $errors[] = 'The File Extension for the file "' . $filename . '" is not an accepted.';
+                    $errors[] = 'The File Extension for the file "' . $filepath . '" is not an accepted.';
                 } else {
                     $accepted = true;
                     break;
@@ -189,7 +196,7 @@ trait MediaUploadTrait
             throw new RuntimeException(implode('<br />', $errors), 400);
         }
 
-        return $filename;
+        return $filepath;
     }
 
     /**
