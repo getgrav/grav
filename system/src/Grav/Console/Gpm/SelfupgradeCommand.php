@@ -77,7 +77,7 @@ class SelfupgradeCommand extends ConsoleCommand
                 't',
                 InputOption::VALUE_OPTIONAL,
                 'Option to set the timeout in seconds when downloading the update (0 for no timeout)',
-                15
+                30
             )
             ->setDescription('Detects and performs an update of Grav itself when available')
             ->setHelp('The <info>update</info> command updates Grav itself when a new version is available');
