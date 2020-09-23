@@ -13,6 +13,7 @@
     * Fixed `onBlueprintCreated` firing multiple times recursively
     * Fixed media upload failing with custom folders
     * Fixed `unset()` in `ObjectProperty` class
+    * Fixed `FlexObject::freeMedia()` method causing media to become null
 
 # v1.7.0-rc.16
 ## 09/01/2020

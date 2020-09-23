@@ -275,6 +275,14 @@ trait FlexMediaTrait
     }
 
     /**
+     * @return void
+     */
+    protected function freeMedia(): void
+    {
+        $this->unsetObjectProperty('media');
+    }
+
+    /**
      * @param string $uri
      * @return Medium|null
      */
