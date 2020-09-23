@@ -230,12 +230,14 @@ class Debugger
             $userData->counters([
                 'Deprecated' => count($deprecations)
             ]);
+            /*
             foreach ($deprecations as &$deprecation) {
                 $d = $deprecation;
                 unset($d['message']);
                 $this->clockwork->log('deprecated', $deprecation['message'], $d);
             }
             unset($deprecation);
+             */
 
             $userData->table('Your site is using following deprecated features', $deprecations);
         }
