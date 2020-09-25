@@ -281,7 +281,8 @@ class UserObject extends FlexObject implements UserInterface, \Countable
     {
         $value = parent::getFormValue($name, null, $separator);
 
-        if ($name === 'avatar') {
+        $settings = $this->getFieldSettings($name);
+        if ($settings['media_field'] ?? false === true) {
             return $this->parseFileProperty($value);
         }
 

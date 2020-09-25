@@ -15,7 +15,7 @@
     * Fixed `unset()` in `ObjectProperty` class
     * Fixed `FlexObject::freeMedia()` method causing media to become null
     * Fixed bug in `Flex Form` making it impossible to set nested values
-    * Fixed `Flex User` avatar when using folder storage
+    * Fixed `Flex User` avatar when using folder storage, also allow multiple images
 
 # v1.7.0-rc.16
 ## 09/01/2020

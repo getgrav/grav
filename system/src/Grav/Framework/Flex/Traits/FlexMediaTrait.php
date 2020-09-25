@@ -68,6 +68,30 @@ trait FlexMediaTrait
         return $media;
     }
 
+    protected function getFieldSettings(string $field): ?array
+    {
+        if ($field === '') {
+            return null;
+        }
+
+        // Load settings for the field.
+        $schema = $this->getBlueprint()->schema();
+        $settings = $schema ? $schema->getProperty($field) : null;
+
+        if (isset($settings['type']) && \in_array($settings['type'], ['avatar', 'file', 'pagemedia'])) {
+            // Set destination folder.
+            $settings['media_field'] = true;
+            if (empty($settings['destination']) || \in_array($settings['destination'], ['@self', 'self@', '@self@'], true)) {
+                $settings['destination'] = $this->getMediaFolder();
+                $settings['self'] = true;
+            } else {
+                $settings['self'] = false;
+            }
+        }
+
+        return $settings;
+    }
+
     /**
      * @param string $field
      * @return array
@@ -75,26 +99,7 @@ trait FlexMediaTrait
      */
     protected function getMediaFieldSettings(string $field): array
     {
-        // Load settings for the field.
-        $schema = $this->getBlueprint()->schema();
-        if ($field && $schema) {
-            $settings = (array)$schema->getProperty($field);
-        } else {
-            $settings = [
-                'accept' => '*',
-                'limit' => 1000
-            ];
-        }
-
-        // Set destination folder.
-        if (empty($settings['destination']) || in_array($settings['destination'], ['@self', 'self@', '@self@'], true)) {
-            $settings['destination'] = $this->getMediaFolder();
-            $settings['self'] = true;
-        } else {
-            $settings['self'] = false;
-        }
-
-        return $settings;
+        return $this->getFieldSettings($field) ?? ['accept' => '*', 'limit' => 1000];
     }
 
     /**
