@@ -108,6 +108,9 @@ trait MediaUploadTrait
         } else {
             // If caller sets the filename, we will accept any custom path.
             $folder = dirname($filename);
+            if ($folder === '.') {
+                $folder = '';
+            }
             $filename = basename($filename);
         }
         $extension = pathinfo($filename, PATHINFO_EXTENSION);
@@ -115,7 +118,7 @@ trait MediaUploadTrait
         // Decide which filename to use.
         if ($settings['random_name']) {
             // Generate random filename if asked for.
-            $filename = Utils::generateRandomString(15) . '.' . $extension;
+            $filename = mb_strtolower(Utils::generateRandomString(15) . '.' . $extension);
         }
 
         // Handle conflicting filename if needed.
@@ -387,7 +390,6 @@ trait MediaUploadTrait
         $locator = $this->getGrav()['locator'];
 
         $fromPath = $path . '/' . $from;
-
         if ($locator->isStream($fromPath)) {
             $fromPath = $locator->findResource($fromPath, true, true);
         }

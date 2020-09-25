@@ -1176,7 +1176,6 @@ form:
               validate:
                 type: bool
 
-
             media.allowed_fallback_types:
               type: selectize
               size: large
