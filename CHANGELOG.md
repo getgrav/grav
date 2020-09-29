@@ -8,6 +8,8 @@
 1. [](#improved)
     * Use new `{{ theme_var() }}` enhanced logic from Grav 1.7
     * Ensure `onBlueprintCreated()` is initialized first
+1. [](#bugfix)
+    * Fixed Referer reference during GPM calls.
 
 # v1.6.27
 ## 09/01/2020
