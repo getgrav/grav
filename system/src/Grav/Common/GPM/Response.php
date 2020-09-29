@@ -30,7 +30,6 @@ class Response
     public static $callback = null;
 
     private static $headers = [
-        'Referer' => 'Grav CMS',
         'User-Agent' => 'Grav CMS'
     ];
 
@@ -58,10 +57,11 @@ class Response
         }
 
         $config = Grav::instance()['config'];
+        $referer = Grav::instance()['uri']->rootUrl(true);
         $options = new HttpOptions();
 
         // Set default Headers
-        $options->setHeaders(self::$headers);
+        $options->setHeaders(array_merge([ 'Referer' => $referer ], self::$headers));
 
         // Disable verify Peer if required
         $verify_peer = $config->get('system.gpm.verify_peer', true);

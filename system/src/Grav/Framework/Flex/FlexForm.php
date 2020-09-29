@@ -40,6 +40,9 @@ class FlexForm implements FlexObjectFormInterface, \JsonSerializable
         FormTrait::doUnserialize as doTraitUnserialize;
     }
 
+    /** @var array */
+    private $items = [];
+
     /** @var array|null */
     private $form;
 

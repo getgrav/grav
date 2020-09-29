@@ -108,6 +108,9 @@ trait MediaUploadTrait
         } else {
             // If caller sets the filename, we will accept any custom path.
             $folder = dirname($filename);
+            if ($folder === '.') {
+                $folder = '';
+            }
             $filename = basename($filename);
         }
         $extension = pathinfo($filename, PATHINFO_EXTENSION);
@@ -115,7 +118,7 @@ trait MediaUploadTrait
         // Decide which filename to use.
         if ($settings['random_name']) {
             // Generate random filename if asked for.
-            $filename = Utils::generateRandomString(15) . '.' . $extension;
+            $filename = mb_strtolower(Utils::generateRandomString(15) . '.' . $extension);
         }
 
         // Handle conflicting filename if needed.
@@ -233,35 +236,36 @@ trait MediaUploadTrait
             $locator->clearCache();
             $this->clearCache();
 
-            $filepath = sprintf('%s/%s', $path, $filename);
-
-            // Create folder.
             $filesystem = Filesystem::getInstance(false);
-            Folder::create($filesystem->dirname($filepath));
 
             // Calculate path without the retina scaling factor.
-            $realpath = $filesystem->pathname($filepath) . str_replace(['@3x', '@2x'], '', basename($filepath));
+            $basename = $filesystem->basename($filename);
+            $pathname = $filesystem->pathname($filename);
+
+            // Get name for the uploaded file.
+            [$base, $ext,,] = $this->getFileParts($basename);
+            $name = "{$pathname}{$base}.{$ext}";
 
             // Upload file.
             if ($uploadedFile instanceof FormFlashFile) {
+                // FormFlashFile needs some additional logic.
                 if ($uploadedFile->getError() === \UPLOAD_ERR_OK) {
-                    $uploadedFile->moveTo($filepath);
-                } elseif ($filename && !file_exists($filepath) && $pos = strpos($filename, '/')) {
-                    // Handle original image if it's the same as the uploaded image.
-                    $origpath = sprintf('%s/%s', $path, substr($filename, $pos));
-                    if (file_exists($origpath)) {
-                        copy($origpath, $filepath);
-                    }
+                    // Move uploaded file.
+                    $this->doMoveUploadedFile($uploadedFile, $filename, $path);
+                } elseif (strpos($filename, 'original/') === 0 && !$this->fileExists($filename, $path) && $this->fileExists($basename, $path)) {
+                    // Original image support: override original image if it's the same as the uploaded image.
+                    $this->doCopy($basename, $filename, $path);
                 }
 
                 // FormFlashFile may also contain metadata.
                 $metadata = $uploadedFile->getMetaData();
                 if ($metadata) {
-                    $file = YamlFile::instance($realpath . '.meta.yaml');
-                    $file->save(['upload' => $metadata]);
+                    // TODO: This overrides metadata if used with multiple retina image sizes.
+                    $this->doSaveMetadata(['upload' => $metadata], $name, $path);
                 }
             } else {
-                $uploadedFile->moveTo($filepath);
+                // Not a FormFlashFile.
+                $this->doMoveUploadedFile($uploadedFile, $filename, $path);
             }
 
             // Post-processing: Special content sanitization for SVG.
@@ -269,17 +273,18 @@ trait MediaUploadTrait
             if (Utils::contains($mime, 'svg', false)) {
                 $this->doSanitizeSvg($filename, $path);
             }
+
+            // Add the new file into the media.
+            // TODO: This overrides existing media sizes if used with multiple retina image sizes.
+            $this->doAddUploadedMedium($name, $filename, $path);
+
         } catch (Exception $e) {
-            throw new RuntimeException($this->translate('PLUGIN_ADMIN.FAILED_TO_MOVE_UPLOADED_FILE'), 400);
+            throw new RuntimeException($this->translate('PLUGIN_ADMIN.FAILED_TO_MOVE_UPLOADED_FILE') . $e->getMessage(), 400);
+        } finally {
+            // Finally clear media cache.
+            $locator->clearCache();
+            $this->clearCache();
         }
-
-        // Add the new file into the media.
-        $medium = MediumFactory::fromFile($filepath);
-        $this->add($realpath, $medium);
-
-        // Finally clear media cache.
-        $locator->clearCache();
-        $this->clearCache();
     }
 
     /**
@@ -307,38 +312,201 @@ trait MediaUploadTrait
             return;
         }
 
-        $filesystem = Filesystem::getInstance(false);
-        $dirname = $filesystem->dirname($filename);
-        $dirname = $dirname === '.' ? '' : '/' . $dirname;
-        $targetPath = sprintf('%s/%s', $path, $dirname);
-        $targetFile = sprintf('%s/%s', $path, $filename);
-
-        $grav = $this->getGrav();
-
         /** @var UniformResourceLocator $locator */
-        $locator = $grav['locator'];
+        $locator = $this->getGrav()['locator'];
         $locator->clearCache();
 
-        $fileParts = (array)$filesystem->pathinfo($basename);
+        $pathname = $filesystem->pathname($filename);
 
-        // If path doesn't exist, there's nothing to do.
-        if (!file_exists($targetPath)) {
+        // Get base name of the file.
+        [$base, $ext,,] = $this->getFileParts($basename);
+        $name = "{$pathname}{$base}.{$ext}";
+
+        // Remove file and all all the associated metadata.
+        $this->doRemove($name, $path);
+
+        // Finally clear media cache.
+        $locator->clearCache();
+        $this->clearCache();
+    }
+
+    /**
+     * Rename file inside the media collection.
+     *
+     * @param string $from
+     * @param string $to
+     * @param array|null $settings
+     */
+    public function renameFile(string $from, string $to, array $settings = null): void
+    {
+        // Add the defaults to the settings.
+        $settings = $this->getUploadSettings($settings);
+        $filesystem = Filesystem::getInstance(false);
+
+        $path = $settings['destination'] ?? $this->getPath();
+        if (!$path) {
+            // TODO: translate error message
+            throw new RuntimeException('Failed to rename file: Bad destination', 400);
+        }
+
+        /** @var UniformResourceLocator $locator */
+        $locator = $this->getGrav()['locator'];
+        $locator->clearCache();
+
+        // Get base name of the file.
+        $pathname = $filesystem->pathname($from);
+
+        // Remove @2x, @3x and .meta.yaml
+        [$base, $ext,,] = $this->getFileParts($filesystem->basename($from));
+        $from = "{$pathname}{$base}.{$ext}";
+
+        [$base, $ext,,] = $this->getFileParts($filesystem->basename($to));
+        $to = "{$pathname}{$base}.{$ext}";
+
+        $this->doRename($from, $to, $path);
+
+        // Finally clear media cache.
+        $locator->clearCache();
+        $this->clearCache();
+    }
+
+    /**
+     * Internal logic to move uploaded file.
+     *
+     * @param UploadedFileInterface $uploadedFile
+     * @param string $filename
+     * @param string $path
+     */
+    protected function doMoveUploadedFile(UploadedFileInterface $uploadedFile, string $filename, string $path): void
+    {
+        $filepath = sprintf('%s/%s', $path, $filename);
+
+        /** @var UniformResourceLocator $locator */
+        $locator = $this->getGrav()['locator'];
+
+        // Do not use streams internally.
+        if ($locator->isStream($filepath)) {
+            $filepath = (string)$locator->findResource($filepath, true, true);
+        }
+
+        Folder::create(dirname($filepath));
+
+        $uploadedFile->moveTo($filepath);
+    }
+
+    /**
+     * Internal logic to copy file.
+     *
+     * @param string $src
+     * @param string $dst
+     * @param string $path
+     */
+    protected function doCopy(string $src, string $dst, string $path): void
+    {
+        $src = sprintf('%s/%s', $path, $src);
+        $dst = sprintf('%s/%s', $path, $dst);
+
+        /** @var UniformResourceLocator $locator */
+        $locator = $this->getGrav()['locator'];
+
+        // Do not use streams internally.
+        if ($locator->isStream($dst)) {
+            $dst = (string)$locator->findResource($dst, true, true);
+        }
+
+        Folder::create(dirname($dst));
+
+        copy($src, $dst);
+    }
+
+    /**
+     * Internal logic to rename file.
+     *
+     * @param string $from
+     * @param string $to
+     * @param string $path
+     */
+    protected function doRename(string $from, string $to, string $path): void
+    {
+        /** @var UniformResourceLocator $locator */
+        $locator = $this->getGrav()['locator'];
+
+        $fromPath = $path . '/' . $from;
+        if ($locator->isStream($fromPath)) {
+            $fromPath = $locator->findResource($fromPath, true, true);
+        }
+
+        if (!is_file($fromPath)) {
             return;
         }
 
-        // Remove media file.
-        if (file_exists($targetFile)) {
-            $result = unlink($targetFile);
+        $mediaPath = dirname($fromPath);
+        $toPath = $mediaPath . '/' . $to;
+        if ($locator->isStream($toPath)) {
+            $toPath = $locator->findResource($toPath, true, true);
+        }
+
+        $result = rename($fromPath, $toPath);
+        if (!$result) {
+            // TODO: translate error message
+            throw new RuntimeException('File could not be renamed: ' . $from, 500);
+        }
+
+        // TODO: Add missing logic to handle retina files.
+        if (is_file($fromPath . '.meta.yaml')) {
+            $result = rename($fromPath . '.meta.yaml', $toPath . '.meta.yaml');
+            if (!$result) {
+                // TODO: translate error message
+                throw new RuntimeException('Meta file could not be renamed: ' . $from, 500);
+            }
+        }
+    }
+
+    /**
+     * Internal logic to remove file.
+     *
+     * @param string $filename
+     * @param string $path
+     */
+    protected function doRemove(string $filename, string $path): void
+    {
+        $filesystem = Filesystem::getInstance(false);
+
+        /** @var UniformResourceLocator $locator */
+        $locator = $this->getGrav()['locator'];
+
+        // If path doesn't exist, there's nothing to do.
+        $pathname = $filesystem->pathname($filename);
+        if (!$this->fileExists($pathname, $path)) {
+            return;
+        }
+
+        $folder = $locator->isStream($path) ? (string)$locator->findResource($path, true, true) : $path;
+
+        // Remove requested media file.
+        if ($this->fileExists($filename, $path)) {
+            $result = unlink("{$folder}/{$filename}");
             if (!$result) {
                 throw new RuntimeException($this->translate('PLUGIN_ADMIN.FILE_COULD_NOT_BE_DELETED') . ': ' . $filename, 500);
             }
         }
 
-        // Remove associated .meta.yaml files.
+        // Remove associated metadata.
+        $this->doRemoveMetadata($filename, $path);
+
+        // Remove associated 2x, 3x and their .meta.yaml files.
+        $targetPath = rtrim(sprintf('%s/%s', $folder, $pathname), '/');
         $dir = scandir($targetPath, SCANDIR_SORT_NONE);
         if (false === $dir) {
-            throw new RuntimeException('Internal error (M102)');
+            throw new RuntimeException($this->translate('PLUGIN_ADMIN.FILE_COULD_NOT_BE_DELETED') . ': ' . $filename, 500);
         }
+
+        /** @var UniformResourceLocator $locator */
+        $locator = $this->getGrav()['locator'];
+
+        $basename = $filesystem->basename($filename);
+        $fileParts = (array)$filesystem->pathinfo($filename);
+
         foreach ($dir as $file) {
             $preg_name = preg_quote($fileParts['filename'], '`');
             $preg_ext = preg_quote($fileParts['extension'] ?? '.', '`');
@@ -359,62 +527,52 @@ trait MediaUploadTrait
                 }
             }
         }
-
-        // Finally clear media cache.
-        $locator->clearCache();
-        $this->clearCache();
     }
 
     /**
-     * Rename file inside the media collection.
-     *
-     * @param string $from
-     * @param string $to
-     * @param array|null $settings
+     * @param array $metadata
+     * @param string $filename
+     * @param string $path
      */
-    public function renameFile(string $from, string $to, array $settings = null): void
+    protected function doSaveMetadata(array $metadata, string $filename, string $path): void
     {
-        // Add the defaults to the settings.
-        $settings = $this->getUploadSettings($settings);
-
-        $path = $settings['destination'] ?? $this->getPath();
-        if (!$path) {
-            // TODO: translate error message
-            throw new RuntimeException('Failed to rename file: Bad destination', 400);
-        }
+        $filepath = sprintf('%s/%s', $path, $filename);
 
         /** @var UniformResourceLocator $locator */
         $locator = $this->getGrav()['locator'];
 
-        $fromPath = $path . '/' . $from;
-
-        if ($locator->isStream($fromPath)) {
-            $fromPath = $locator->findResource($fromPath, true, true);
+        // Do not use streams internally.
+        if ($locator->isStream($filepath)) {
+            $filepath = (string)$locator->findResource($filepath, true, true);
         }
 
-        if (!is_file($fromPath)) {
-            return;
-        }
+        $file = YamlFile::instance($filepath . '.meta.yaml');
+        $file->save($metadata);
+    }
 
-        $mediaPath = dirname($fromPath);
-        $toPath = $mediaPath . '/' . $to;
+    /**
+     * @param string $filename
+     * @param string $path
+     */
+    protected function doRemoveMetadata(string $filename, string $path): void
+    {
+        $filepath = sprintf('%s/%s', $path, $filename);
 
-        $result = rename($fromPath, $toPath);
-        if (!$result) {
-            // TODO: translate error message
-            throw new RuntimeException('File could not be renamed: ' . $from, 500);
-        }
+        /** @var UniformResourceLocator $locator */
+        $locator = $this->getGrav()['locator'];
 
-        // TODO: Add missing logic to handle retina files.
-        if (is_file($fromPath . '.meta.yaml')) {
-            $result = rename($fromPath . '.meta.yaml', $toPath . '.meta.yaml');
-            if (!$result) {
-                // TODO: translate error message
-                throw new RuntimeException('Meta file could not be renamed: ' . $from, 500);
+        // Do not use streams internally.
+        if ($locator->isStream($filepath)) {
+            $filepath = (string)$locator->findResource($filepath, true);
+            if (!$filepath) {
+                return;
             }
         }
 
-        $this->clearCache();
+        $file = YamlFile::instance($filepath . '.meta.yaml');
+        if ($file->exists()) {
+            $file->delete();
+        }
     }
 
     /**
@@ -445,6 +603,19 @@ trait MediaUploadTrait
         }
 
         Security::sanitizeSVG($filepath);
+    }
+
+    /**
+     * @param string $name
+     * @param string $filename
+     * @param string $path
+     */
+    protected function doAddUploadedMedium(string $name, string $filename, string $path): void
+    {
+        $filepath = sprintf('%s/%s', $path, $filename);
+        $medium = $this->createFromFile($filepath);
+        $realpath = $path . '/' . $name;
+        $this->add($realpath, $medium);
     }
 
     /**

@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace Grav\Common\Flex\Types\Users;
 
 use Grav\Common\Config\Config;
+use Grav\Common\Data\Blueprint;
 use Grav\Common\Flex\Traits\FlexGravTrait;
 use Grav\Common\Flex\Traits\FlexObjectTrait;
 use Grav\Common\Flex\Types\Users\Traits\UserObjectLegacyTrait;
@@ -280,7 +281,8 @@ class UserObject extends FlexObject implements UserInterface, \Countable
     {
         $value = parent::getFormValue($name, null, $separator);
 
-        if ($name === 'avatar') {
+        $settings = $this->getFieldSettings($name);
+        if ($settings['media_field'] ?? false === true) {
             return $this->parseFileProperty($value);
         }
 
@@ -628,6 +630,26 @@ class UserObject extends FlexObject implements UserInterface, \Countable
         }
 
         return $folder;
+    }
+
+    /**
+     * @param string $name
+     * @return Blueprint
+     */
+    protected function doGetBlueprint(string $name = ''): Blueprint
+    {
+        $blueprint = $this->getFlexDirectory()->getBlueprint($name ? '.' . $name : $name);
+
+        // HACK: With folder storage we need to ignore the avatar destination.
+        if ($this->getFlexDirectory()->getMediaFolder()) {
+            $field = $blueprint->get('form/fields/avatar');
+            if ($field) {
+                unset($field['destination']);
+                $blueprint->set('form/fields/avatar', $field);
+            }
+        }
+
+        return $blueprint;
     }
 
     /**
