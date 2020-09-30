@@ -1,6 +1,8 @@
 # v1.7.0-rc.17
 ## mm/dd/2020
 
+1. [](#new)
+    * Added a `getAllHeaders()` compatibility function
 1. [](#improved)
     * Fall back through various templates scenarios if they don't exist in theme to avoid unhelpful error.
     * Added default templates for `external.html.twig`, `default.html.twig`, and `modular.html.twig`
@@ -16,6 +18,7 @@
     * Fixed `FlexObject::freeMedia()` method causing media to become null
     * Fixed bug in `Flex Form` making it impossible to set nested values
     * Fixed `Flex User` avatar when using folder storage, also allow multiple images
+    * Fixed Referer reference during GPM calls.
     * Fixed fatal error with toggled lists
 
 # v1.7.0-rc.16
