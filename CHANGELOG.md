@@ -467,6 +467,19 @@
     * Optimization: Initialize debugbar only after the configuration has been loaded
     * Optimization: Combine some early Grav processors into a single one
 
+# v1.6.28
+## mm/dd/2020
+
+1. [](#new)
+    * Back-ported twig `{% cache %}` tag from Grav 1.7
+    * Back-ported `Utils::fullPath()` helper function from Grav 1.7
+    * Back-ported `{{ svg_image() }}` Twig function from Grav .17
+1. [](#improved)
+    * Use new `{{ theme_var() }}` enhanced logic from Grav 1.7
+    * Ensure `onBlueprintCreated()` is initialized first
+1. [](#bugfix)
+    * Fixed Referer reference during GPM calls.
+    * Fixed fatal error with toggled lists
 
 # v1.6.27
 ## 09/01/2020
