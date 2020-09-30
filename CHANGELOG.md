@@ -10,6 +10,7 @@
     * Ensure `onBlueprintCreated()` is initialized first
 1. [](#bugfix)
     * Fixed Referer reference during GPM calls.
+    * Fixed fatal error with toggled lists
 
 # v1.6.27
 ## 09/01/2020
