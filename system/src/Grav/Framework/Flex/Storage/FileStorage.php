@@ -63,6 +63,8 @@ class FileStorage extends FolderStorage
      */
     protected function buildIndex(): array
     {
+        $this->clearCache();
+
         $path = $this->getStoragePath();
         if (!$path || !file_exists($path)) {
             return [];

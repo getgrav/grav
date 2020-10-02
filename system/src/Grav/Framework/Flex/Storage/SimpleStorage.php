@@ -71,6 +71,15 @@ class SimpleStorage extends AbstractFilesystemStorage
     }
 
     /**
+     * @return void
+     */
+    public function clearCache(): void
+    {
+        $this->data = null;
+        $this->modified = null;
+    }
+
+    /**
      * @param string[] $keys
      * @param bool $reload
      * @return array

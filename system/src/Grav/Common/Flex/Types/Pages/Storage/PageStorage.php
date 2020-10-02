@@ -492,6 +492,8 @@ class PageStorage extends FolderStorage
      */
     protected function buildIndex(): array
     {
+        $this->clearCache();
+
         return $this->getIndexMeta();
     }
 

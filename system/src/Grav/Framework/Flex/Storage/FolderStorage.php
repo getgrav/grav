@@ -72,6 +72,14 @@ class FolderStorage extends AbstractFilesystemStorage
     }
 
     /**
+     * @return void
+     */
+    public function clearCache(): void
+    {
+        $this->meta = [];
+    }
+
+    /**
      * @param string[] $keys
      * @param bool $reload
      * @return array
@@ -532,6 +540,8 @@ class FolderStorage extends AbstractFilesystemStorage
      */
     protected function buildIndex(): array
     {
+        $this->clearCache();
+
         $path = $this->getStoragePath();
         if (!$path || !file_exists($path)) {
             return [];
