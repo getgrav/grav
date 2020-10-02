@@ -467,7 +467,7 @@ class Twig
                 } elseif ($loader->exists('default' . $twig_extension)) {
                     $page_template = 'default' . $twig_extension;
                 // Else try default + default extension
-                } elseif (!$page->modular() && $loader->exists('default' . TEMPLATE_EXT)) {
+                } elseif (!$page->isModule() && $loader->exists('default' . TEMPLATE_EXT)) {
                     $page_template = 'default' . TEMPLATE_EXT;
                 } else {
                     $page_template = 'modular/default' . TEMPLATE_EXT;

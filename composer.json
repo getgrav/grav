@@ -104,9 +104,9 @@
         "api-16": "vendor/bin/phpdoc-md generate system/src > user/pages/14.api/default.16.md",
         "api-15": "vendor/bin/phpdoc-md generate system/src > user/pages/14.api/default.md",
         "post-create-project-cmd": "bin/grav install",
-        "phpstan": "vendor/bin/phpstan analyse -l 3 -c ./tests/phpstan/phpstan.neon --memory-limit=340M system/src",
-        "phpstan-framework": "vendor/bin/phpstan analyse -l 7 -c ./tests/phpstan/phpstan.neon --memory-limit=128M system/src/Grav/Framework",
-        "phpstan-plugins": "vendor/bin/phpstan analyse -l 1 -c ./tests/phpstan/plugins.neon --memory-limit=300M user/plugins",
+        "phpstan": "vendor/bin/phpstan analyse -l 3 -c ./tests/phpstan/phpstan.neon --memory-limit=400M system/src",
+        "phpstan-framework": "vendor/bin/phpstan analyse -l 7 -c ./tests/phpstan/phpstan.neon --memory-limit=256M system/src/Grav/Framework",
+        "phpstan-plugins": "vendor/bin/phpstan analyse -l 1 -c ./tests/phpstan/plugins.neon --memory-limit=400M user/plugins",
         "test": "vendor/bin/codecept run unit",
         "test-windows": "vendor\\bin\\codecept run unit"
     },

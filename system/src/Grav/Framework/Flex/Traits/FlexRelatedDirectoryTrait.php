@@ -58,5 +58,4 @@ trait FlexRelatedDirectoryTrait
     }
 
     abstract public function getNestedProperty($property, $default = null, $separator = null);
-    abstract protected function getFlexContainer(): Flex;
 }
