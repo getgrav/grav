@@ -9,6 +9,8 @@
 
 namespace Grav\Framework\Flex;
 
+use ArrayAccess;
+use Exception;
 use Grav\Common\Data\Blueprint;
 use Grav\Common\Debugger;
 use Grav\Common\Grav;
@@ -31,10 +33,17 @@ use Grav\Framework\Object\Interfaces\ObjectInterface;
 use Grav\Framework\Object\Property\LazyPropertyTrait;
 use Psr\SimpleCache\InvalidArgumentException;
 use RocketTheme\Toolbox\Event\Event;
+use RuntimeException;
 use Twig\Error\LoaderError;
 use Twig\Error\SyntaxError;
 use Twig\Template;
 use Twig\TemplateWrapper;
+use function get_class;
+use function in_array;
+use function is_array;
+use function is_object;
+use function is_scalar;
+use function is_string;
 
 /**
  * Class FlexObject
@@ -328,6 +337,8 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      */
     protected function searchValue(string $name, $value, string $search, array $options = null): float
     {
+        $options = $options ?? [];
+
         // Ignore empty search strings.
         $search = trim($search);
         if ($search === '') {
@@ -335,7 +346,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
         }
 
         // Search only non-empty string values.
-        if (!\is_string($value) || $value === '') {
+        if (!is_string($value) || $value === '') {
             return 0;
         }
 
@@ -437,7 +448,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
         // Disable caching if context isn't all scalars.
         if ($key) {
             foreach ($context as $value) {
-                if (!\is_scalar($value)) {
+                if (!is_scalar($value)) {
                     $key = '';
                     break;
                 }
@@ -587,7 +598,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
         }
 
         if ($this->exists()) {
-            throw new \RuntimeException('Cannot create new object (Already exists)');
+            throw new RuntimeException('Cannot create new object (Already exists)');
         }
 
         return $this->save();
@@ -654,7 +665,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
             if (method_exists($this, 'clearMediaCache')) {
                 $this->clearMediaCache();
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             /** @var Debugger $debugger */
             $debugger = Grav::instance()['debugger'];
             $debugger->addException($e);
@@ -686,7 +697,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
             if (method_exists($this, 'clearMediaCache')) {
                 $this->clearMediaCache();
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             /** @var Debugger $debugger */
             $debugger = Grav::instance()['debugger'];
             $debugger->addException($e);
@@ -746,9 +757,9 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
         while ($path) {
             $offset = array_shift($path);
 
-            if ((\is_array($current) || $current instanceof \ArrayAccess) && isset($current[$offset])) {
+            if ((is_array($current) || $current instanceof ArrayAccess) && isset($current[$offset])) {
                 $current = $current[$offset];
-            } elseif (\is_object($current) && isset($current->{$offset})) {
+            } elseif (is_object($current) && isset($current->{$offset})) {
                 $current = $current->{$offset};
             } else {
                 return null;
@@ -855,6 +866,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     /**
      * @param array $serialized
      * @param FlexDirectory|null $directory
+     * @return void
      */
     protected function doUnserialize(array $serialized, FlexDirectory $directory = null): void
     {
@@ -941,7 +953,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      * This methods allows you to override form objects in child classes.
      *
      * @param string $name Form name
-     * @param array $options Form optiosn
+     * @param array|null $options Form optiosn
      * @return FlexFormInterface
      */
     protected function createFormObject(string $name, array $options = null)

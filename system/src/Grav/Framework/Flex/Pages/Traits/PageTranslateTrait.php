@@ -13,6 +13,7 @@ use Grav\Common\Grav;
 use Grav\Common\Language\Language;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
+use function is_bool;
 
 /**
  * Implements PageTranslateInterface
@@ -82,19 +83,18 @@ trait PageTranslateTrait
         if ($includeDefault) {
             $languages[] = '';
         } elseif (isset($translated[''])) {
-            $translated[$language->getDefault()] = $translated[''];
+            $default = $language->getDefault();
+            if (is_bool($default)) {
+                $default = '';
+            }
+            $translated[$default] = $translated[''];
             unset($translated['']);
         }
 
         $languages = array_fill_keys($languages, false);
         $translated = array_fill_keys(array_keys($translated), true);
 
-        $all = array_replace($languages, $translated);
-        if (null === $all) {
-            throw new \RuntimeException('Unexpected result');
-        }
-
-        return $all;
+        return array_replace($languages, $translated);
     }
 
     /**
@@ -112,7 +112,11 @@ trait PageTranslateTrait
 
             /** @var Language $language */
             $language = $grav['language'];
-            $languages[$language->getDefault()] = $languages[''];
+            $default = $language->getDefault();
+            if (is_bool($default)) {
+                $default = '';
+            }
+            $languages[$default] = $languages[''];
             unset($languages['']);
         }
 
@@ -150,10 +154,6 @@ trait PageTranslateTrait
                 $language = $code;
                 break;
             }
-        }
-
-        if ($language === '') {
-
         }
 
         return $language;
@@ -212,7 +212,7 @@ trait PageTranslateTrait
     /**
      * Get page language
      *
-     * @param string $var
+     * @param string|null $var
      * @return string|null
      */
     public function language($var = null): ?string

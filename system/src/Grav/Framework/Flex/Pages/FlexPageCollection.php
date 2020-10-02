@@ -13,7 +13,9 @@ namespace Grav\Framework\Flex\Pages;
 
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Framework\Flex\FlexCollection;
-use Grav\Framework\Flex\Interfaces\FlexCollectionInterface;
+use function array_search;
+use function assert;
+use function is_int;
 
 /**
  * Class FlexPageCollection
@@ -138,7 +140,7 @@ class FlexPageCollection extends FlexCollection
     public function adjacentSibling($path, $direction = 1)
     {
         $keys = $this->getKeys();
-        $pos = \array_search($path, $keys, true);
+        $pos = array_search($path, $keys, true);
 
         if ($pos !== false) {
             $pos += $direction;

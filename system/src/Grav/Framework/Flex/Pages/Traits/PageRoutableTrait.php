@@ -17,6 +17,7 @@ use Grav\Common\Page\Pages;
 use Grav\Common\Uri;
 use Grav\Framework\Filesystem\Filesystem;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
+use function is_string;
 
 /**
  * Implements PageRoutableInterface
@@ -26,7 +27,7 @@ trait PageRoutableTrait
     /** @var bool */
     protected $root = false;
 
-    /** @var string */
+    /** @var string|null */
     private $_route;
     /** @var string|null */
     private $_path;
@@ -56,7 +57,7 @@ trait PageRoutableTrait
      * Gets and Sets whether or not this Page is routable, ie you can reach it via a URL.
      * The page must be *routable* and *published*
      *
-     * @param  bool $var true if the page is routable
+     * @param  bool|null $var true if the page is routable
      * @return bool      true if the page is routable
      */
     public function routable($var = null): bool
@@ -253,7 +254,7 @@ trait PageRoutableTrait
     /**
      * Gets the route aliases for the page based on page headers.
      *
-     * @param  array $var list of route aliases
+     * @param  array|null $var list of route aliases
      * @return array  The route aliases for the Page.
      */
     public function routeAliases($var = null): array
@@ -292,7 +293,7 @@ trait PageRoutableTrait
     /**
      * Gets the redirect set in the header.
      *
-     * @param  string $var redirect url
+     * @param  string|null $var redirect url
      * @return string|null
      */
     public function redirect($var = null): ?string
@@ -362,7 +363,7 @@ trait PageRoutableTrait
     /**
      * Get/set the folder.
      *
-     * @param string $var Optional path, including numeric prefix.
+     * @param string|null $var Optional path, including numeric prefix.
      * @return string|null
      */
     public function folder($var = null): ?string
@@ -383,7 +384,7 @@ trait PageRoutableTrait
     /**
      * Get/set the folder.
      *
-     * @param string $var Optional path, including numeric prefix.
+     * @param string|null $var Optional path, including numeric prefix.
      * @return string|null
      */
     public function parentStorageKey($var = null): ?string

@@ -11,13 +11,14 @@ declare(strict_types=1);
 
 namespace Grav\Framework\Flex\Interfaces;
 
+use Countable;
 use Grav\Framework\Flex\FlexDirectory;
 
 /**
  * Interface FlexInterface
  * @package Grav\Framework\Flex\Interfaces
  */
-interface FlexInterface extends \Countable
+interface FlexInterface extends Countable
 {
     /**
      * @param string $type

@@ -20,6 +20,7 @@ use Grav\Framework\Form\Interfaces\FormFlashInterface;
 use Grav\Framework\Form\Traits\FormTrait;
 use Grav\Framework\Route\Route;
 use RocketTheme\Toolbox\ArrayTraits\NestedArrayAccessWithGetters;
+use RuntimeException;
 use Twig\Error\LoaderError;
 use Twig\Error\SyntaxError;
 use Twig\Template;
@@ -45,10 +46,8 @@ class FlexForm implements FlexObjectFormInterface, \JsonSerializable
 
     /** @var array|null */
     private $form;
-
     /** @var FlexObjectInterface */
     private $object;
-
     /** @var string */
     private $flexName;
 
@@ -68,17 +67,17 @@ class FlexForm implements FlexObjectFormInterface, \JsonSerializable
         if (isset($options['object'])) {
             $object = $options['object'];
             if (!$object instanceof FlexObjectInterface) {
-                throw new \RuntimeException(__METHOD__ . "(): 'object' should be instance of FlexObjectInterface", 400);
+                throw new RuntimeException(__METHOD__ . "(): 'object' should be instance of FlexObjectInterface", 400);
             }
         } elseif (isset($options['directory'])) {
             $directory = $options['directory'];
             if (!$directory instanceof FlexDirectory) {
-                throw new \RuntimeException(__METHOD__ . "(): 'directory' should be instance of FlexDirectory", 400);
+                throw new RuntimeException(__METHOD__ . "(): 'directory' should be instance of FlexDirectory", 400);
             }
             $key = $options['key'] ?? '';
             $object = $directory->getObject($key) ?? $directory->createObject([], $key);
         } else {
-            throw new \RuntimeException(__METHOD__ . "(): You need to pass option 'directory' or 'object'", 400);
+            throw new RuntimeException(__METHOD__ . "(): You need to pass option 'directory' or 'object'", 400);
         }
 
         $name = $options['name'] ?? '';
@@ -93,7 +92,7 @@ class FlexForm implements FlexObjectFormInterface, \JsonSerializable
      * FlexForm constructor.
      * @param string $name
      * @param FlexObjectInterface $object
-     * @param array $options
+     * @param array|null $options
      */
     public function __construct(string $name, FlexObjectInterface $object, array $options = null)
     {
@@ -144,7 +143,7 @@ class FlexForm implements FlexObjectFormInterface, \JsonSerializable
 
             $object = $flash->getObject();
             if (null === $object) {
-                throw new \RuntimeException('Flash has no object');
+                throw new RuntimeException('Flash has no object');
             }
 
             $this->object = $object;
@@ -330,7 +329,7 @@ class FlexForm implements FlexObjectFormInterface, \JsonSerializable
                     $blueprint->extend(['form' => $this->form], true);
                     $blueprint->init();
                 }
-            } catch (\RuntimeException $e) {
+            } catch (RuntimeException $e) {
                 if (!isset($this->form['fields'])) {
                     throw $e;
                 }

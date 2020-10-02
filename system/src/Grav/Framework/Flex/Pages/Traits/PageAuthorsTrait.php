@@ -13,6 +13,11 @@ namespace Grav\Framework\Flex\Pages\Traits;
 
 use Grav\Common\User\Interfaces\UserInterface;
 use Grav\Framework\Acl\Access;
+use InvalidArgumentException;
+use function in_array;
+use function is_array;
+use function is_bool;
+use function is_string;
 
 /**
  * Trait PageAuthorsTrait
@@ -53,7 +58,7 @@ trait PageAuthorsTrait
     public function getAuthors(): array
     {
         if (null === $this->_authors) {
-            $this->_authors = (array)$this->loadAuthors($this->getNestedProperty('header.permissions.authors', []));
+            $this->_authors = $this->loadAuthors($this->getNestedProperty('header.permissions.authors', []));
         }
 
         return $this->_authors;
@@ -90,7 +95,7 @@ trait PageAuthorsTrait
         $list = [];
         foreach ($authors as $username) {
             if (!is_string($username)) {
-                throw new \InvalidArgumentException('Iterable should return username (string).', 500);
+                throw new InvalidArgumentException('Iterable should return username (string).', 500);
             }
             $list[] = $accounts->load($username);
         }
@@ -98,6 +103,13 @@ trait PageAuthorsTrait
         return $list;
     }
 
+    /**
+     * @param string $action
+     * @param string|null $scope
+     * @param UserInterface|null $user
+     * @param bool $isAuthor
+     * @return bool|null
+     */
     public function isParentAuthorized(string $action, string $scope = null, UserInterface $user = null, bool $isAuthor = false): ?bool
     {
         $scope = $scope ?? $this->getAuthorizeScope();

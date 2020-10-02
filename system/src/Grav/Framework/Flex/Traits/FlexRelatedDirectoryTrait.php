@@ -11,10 +11,11 @@ declare(strict_types=1);
 
 namespace Grav\Framework\Flex\Traits;
 
-use Grav\Framework\Flex\Flex;
 use Grav\Framework\Flex\FlexCollection;
 use Grav\Framework\Flex\FlexDirectory;
 use Grav\Framework\Flex\Interfaces\FlexCollectionInterface;
+use RuntimeException;
+use function in_array;
 
 /**
  * Trait GravTrait
@@ -35,7 +36,7 @@ trait FlexRelatedDirectoryTrait
 
         /** @var FlexCollection $collection */
         $collection = $collection->filter(static function ($object) use ($list) {
-            return \in_array($object->id, $list, true);
+            return in_array($object->id, $list, true);
         });
 
         return $collection;
@@ -44,13 +45,13 @@ trait FlexRelatedDirectoryTrait
     /**
      * @param string $type
      * @return FlexDirectory
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
     protected function getRelatedDirectory($type): FlexDirectory
     {
         $directory = $this->getFlexContainer()->getDirectory($type);
         if (!$directory) {
-            throw new \RuntimeException(ucfirst($type). ' directory does not exist!');
+            throw new RuntimeException(ucfirst($type). ' directory does not exist!');
         }
 
         return $directory;

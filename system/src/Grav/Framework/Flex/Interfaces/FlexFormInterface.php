@@ -39,7 +39,6 @@ interface FlexFormInterface extends \Serializable, FormInterface
      *
      * @param string $field     Field where the file is associated into.
      * @param string $filename  Filename for the file.
-     *
      * @return Route|null       Returns Route object or null if file uploads are not enabled.
      */
     public function getFileDeleteAjaxRoute($field, $filename);

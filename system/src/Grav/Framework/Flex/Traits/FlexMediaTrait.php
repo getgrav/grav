@@ -23,6 +23,9 @@ use Grav\Framework\Form\FormFlashFile;
 use Psr\Http\Message\UploadedFileInterface;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use RuntimeException;
+use function is_array;
+use function is_object;
+use function is_string;
 
 /**
  * Implements Grav Page content and header manipulation methods.
@@ -53,7 +56,7 @@ trait FlexMediaTrait
     }
 
     /**
-     * @return MediaCollectionInterface|MediaUploadInterface
+     * @return MediaCollectionInterface
      */
     public function getMedia()
     {
@@ -76,7 +79,7 @@ trait FlexMediaTrait
 
         // Load settings for the field.
         $schema = $this->getBlueprint()->schema();
-        $settings = $schema ? $schema->getProperty($field) : null;
+        $settings = $field && is_object($schema) ? (array)$schema->getProperty($field) : null;
 
         if (isset($settings['type']) && \in_array($settings['type'], ['avatar', 'file', 'pagemedia'])) {
             // Set destination folder.

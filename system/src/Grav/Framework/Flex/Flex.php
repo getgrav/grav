@@ -17,6 +17,8 @@ use Grav\Framework\Flex\Interfaces\FlexCollectionInterface;
 use Grav\Framework\Flex\Interfaces\FlexInterface;
 use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
 use Grav\Framework\Object\ObjectCollection;
+use RuntimeException;
+use function is_array;
 
 /**
  * Class Flex
@@ -26,7 +28,6 @@ class Flex implements FlexInterface
 {
     /** @var array */
     protected $config;
-
     /** @var FlexDirectory[] */
     protected $types;
 
@@ -61,9 +62,6 @@ class Flex implements FlexInterface
     public function addDirectoryType(string $type, string $blueprint, array $config = [])
     {
         $config = array_replace_recursive(['enabled' => true], $this->config ?? [], $config);
-        if ($config === null) {
-            throw new \RuntimeException('Internal error');
-        }
 
         $this->types[$type] = new FlexDirectory($type, $blueprint, $config);
 
@@ -137,13 +135,13 @@ class Flex implements FlexInterface
      * @param array $options            In addition to the options in getObjects(), following options can be passed:
      *                                  collection_class:   Class to be used to create the collection. Defaults to ObjectCollection.
      * @return FlexCollectionInterface
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
     public function getMixedCollection(array $keys, array $options = []): FlexCollectionInterface
     {
         $collectionClass = $options['collection_class'] ?? ObjectCollection::class;
         if (!class_exists($collectionClass)) {
-            throw new \RuntimeException(sprintf('Cannot create collection: Class %s does not exist', $collectionClass));
+            throw new RuntimeException(sprintf('Cannot create collection: Class %s does not exist', $collectionClass));
         }
 
         $objects = $this->getObjects($keys, $options);
@@ -238,7 +236,7 @@ class Flex implements FlexInterface
             $results = [];
             foreach ($keys as $key) {
                 $flexKey = $guessed[$key] ?? $key;
-                if (\is_array($flexKey)) {
+                if (is_array($flexKey)) {
                     $result = null;
                     foreach ($flexKey as $tryKey) {
                         if ($result = $list[$tryKey] ?? null) {

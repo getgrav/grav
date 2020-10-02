@@ -15,7 +15,9 @@ use Grav\Common\Data\Blueprint;
 use Grav\Framework\Flex\Flex;
 use Grav\Framework\Object\Interfaces\NestedObjectInterface;
 use Grav\Framework\Flex\FlexDirectory;
+use InvalidArgumentException;
 use Psr\Http\Message\UploadedFileInterface;
+use RuntimeException;
 
 /**
  * Defines Flex Objects.
@@ -34,8 +36,7 @@ interface FlexObjectInterface extends FlexCommonInterface, NestedObjectInterface
      * @param string $key Identifier key for the new object.
      * @param FlexDirectory $directory Flex Directory the object belongs into.
      * @param bool $validate True if the object should be validated against blueprint.
-     *
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function __construct(array $elements, $key, FlexDirectory $directory, bool $validate = false);
 
@@ -49,7 +50,6 @@ interface FlexObjectInterface extends FlexCommonInterface, NestedObjectInterface
      * @param string                $search     Search string.
      * @param string|string[]|null  $properties Properties to search for, defaults to configured properties.
      * @param array|null            $options    Search options, defaults to configured options.
-     *
      * @return float                Returns a weight between 0 and 1.
      * @api
      */
@@ -117,9 +117,8 @@ interface FlexObjectInterface extends FlexCommonInterface, NestedObjectInterface
      *
      * @param array $data   Data containing updated properties with their values. To unset a value, use `null`.
      * @param array|UploadedFileInterface[] $files List of uploaded files to be saved within the object.
-     *
-     * @return FlexObjectInterface
-     * @throws \RuntimeException
+     * @return static
+     * @throws RuntimeException
      * @api
      */
     public function update(array $data, array $files = []);
@@ -131,9 +130,8 @@ interface FlexObjectInterface extends FlexCommonInterface, NestedObjectInterface
      * @see FlexObjectInterface::update() If you want to update properties of the object.
      *
      * @param string|null $key Optional new key. If key isn't given, random key will be associated to the object.
-     *
-     * @return FlexObjectInterface
-     * @throws \RuntimeException if object already exists.
+     * @return static
+     * @throws RuntimeException if object already exists.
      * @api
      */
     public function create(string $key = null);
@@ -143,7 +141,7 @@ interface FlexObjectInterface extends FlexCommonInterface, NestedObjectInterface
      *
      * @see FlexObjectInterface::update() If you want to update properties of the object.
      *
-     * @return FlexObjectInterface
+     * @return static
      * @api
      */
     public function save();
@@ -151,7 +149,7 @@ interface FlexObjectInterface extends FlexCommonInterface, NestedObjectInterface
     /**
      * Delete object from the storage.
      *
-     * @return FlexObjectInterface
+     * @return static
      * @api
      */
     public function delete();
@@ -163,7 +161,6 @@ interface FlexObjectInterface extends FlexCommonInterface, NestedObjectInterface
      * @used-by FlexForm::getBlueprint()
      *
      * @param string $name Name of the Blueprint form. Used to create customized forms for different use cases.
-     *
      * @return Blueprint Returns a Blueprint.
      */
     public function getBlueprint(string $name = '');
@@ -173,7 +170,6 @@ interface FlexObjectInterface extends FlexCommonInterface, NestedObjectInterface
      *
      * @param string $name Name of the form. Can be used to create customized forms for different use cases.
      * @param array|null $options  Options can be used to further customize the form.
-     *
      * @return FlexFormInterface Returns a Form.
      * @api
      */
@@ -186,7 +182,6 @@ interface FlexObjectInterface extends FlexCommonInterface, NestedObjectInterface
      *
      * @param  string $name         Property name.
      * @param  string|null $separator   Optional nested property separator.
-     *
      * @return mixed|null           Returns default value of the field, null if there is no default value.
      */
     public function getDefaultValue(string $name, string $separator = null);
@@ -208,7 +203,6 @@ interface FlexObjectInterface extends FlexCommonInterface, NestedObjectInterface
      * @param  string $name         Property name.
      * @param  mixed  $default      Default value.
      * @param  string|null $separator   Optional nested property separator.
-     *
      * @return mixed                Returns value of the field.
      */
     public function getFormValue(string $name, $default = null, string $separator = null);

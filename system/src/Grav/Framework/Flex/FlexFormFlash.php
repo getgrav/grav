@@ -13,6 +13,10 @@ use Grav\Framework\Flex\Interfaces\FlexInterface;
 use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
 use Grav\Framework\Form\FormFlash;
 
+/**
+ * Class FlexFormFlash
+ * @package Grav\Framework\Flex
+ */
 class FlexFormFlash extends FormFlash
 {
     /** @var FlexDirectory|null */
@@ -99,6 +103,7 @@ class FlexFormFlash extends FormFlash
     {
         parent::init($data, $config);
 
+        $data = $data ?? [];
         /** @var FlexObjectInterface|null $object */
         $object = $config['object'] ?? null;
         $create = true;

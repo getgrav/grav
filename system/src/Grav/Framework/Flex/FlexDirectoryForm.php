@@ -9,17 +9,18 @@
 
 namespace Grav\Framework\Flex;
 
+use ArrayAccess;
 use Grav\Common\Data\Blueprint;
 use Grav\Common\Data\Data;
 use Grav\Common\Grav;
 use Grav\Common\Twig\Twig;
 use Grav\Framework\Flex\Interfaces\FlexDirectoryFormInterface;
 use Grav\Framework\Flex\Interfaces\FlexFormInterface;
-use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
 use Grav\Framework\Form\Interfaces\FormFlashInterface;
 use Grav\Framework\Form\Traits\FormTrait;
 use Grav\Framework\Route\Route;
 use RocketTheme\Toolbox\ArrayTraits\NestedArrayAccessWithGetters;
+use RuntimeException;
 use Twig\Error\LoaderError;
 use Twig\Error\SyntaxError;
 use Twig\Template;
@@ -42,10 +43,8 @@ class FlexDirectoryForm implements FlexDirectoryFormInterface, \JsonSerializable
 
     /** @var array|null */
     private $form;
-
     /** @var FlexDirectory */
     private $directory;
-
     /** @var string */
     private $flexName;
 
@@ -63,11 +62,11 @@ class FlexDirectoryForm implements FlexDirectoryFormInterface, \JsonSerializable
         if (isset($options['directory'])) {
             $directory = $options['directory'];
             if (!$directory instanceof FlexDirectory) {
-                throw new \RuntimeException(__METHOD__ . "(): 'directory' should be instance of FlexDirectory", 400);
+                throw new RuntimeException(__METHOD__ . "(): 'directory' should be instance of FlexDirectory", 400);
             }
             unset($options['directory']);
         } else {
-            throw new \RuntimeException(__METHOD__ . "(): You need to pass option 'directory'", 400);
+            throw new RuntimeException(__METHOD__ . "(): You need to pass option 'directory'", 400);
         }
 
         $name = $options['name'] ?? '';
@@ -79,7 +78,7 @@ class FlexDirectoryForm implements FlexDirectoryFormInterface, \JsonSerializable
      * FlexForm constructor.
      * @param string $name
      * @param FlexDirectory $directory
-     * @param array $options
+     * @param array|null $options
      */
     public function __construct(string $name, FlexDirectory $directory, array $options = null)
     {
@@ -118,7 +117,7 @@ class FlexDirectoryForm implements FlexDirectoryFormInterface, \JsonSerializable
 
             $directory = $flash->getDirectory();
             if (null === $directory) {
-                throw new \RuntimeException('Flash has no directory');
+                throw new RuntimeException('Flash has no directory');
             }
             $this->directory = $directory;
             $this->data = $data ? new Data($data, $this->getBlueprint()) : null;
@@ -290,7 +289,7 @@ class FlexDirectoryForm implements FlexDirectoryFormInterface, \JsonSerializable
                     $blueprint->extend(['form' => $this->form], true);
                     $blueprint->init();
                 }
-            } catch (\RuntimeException $e) {
+            } catch (RuntimeException $e) {
                 if (!isset($this->form['fields'])) {
                     throw $e;
                 }
@@ -367,6 +366,7 @@ class FlexDirectoryForm implements FlexDirectoryFormInterface, \JsonSerializable
     /**
      * @param string $name
      * @param mixed $value
+     * @return void
      */
     public function __set($name, $value)
     {
@@ -394,6 +394,7 @@ class FlexDirectoryForm implements FlexDirectoryFormInterface, \JsonSerializable
 
     /**
      * @param string $name
+     * @return void
      */
     public function __unset($name)
     {
@@ -438,6 +439,7 @@ class FlexDirectoryForm implements FlexDirectoryFormInterface, \JsonSerializable
     /**
      * @param array $data
      * @param array $files
+     * @return void
      * @throws \Exception
      */
     protected function doSubmit(array $data, array $files)
@@ -459,6 +461,7 @@ class FlexDirectoryForm implements FlexDirectoryFormInterface, \JsonSerializable
 
     /**
      * @param array $data
+     * @return void
      */
     protected function doUnserialize(array $data): void
     {
@@ -470,7 +473,7 @@ class FlexDirectoryForm implements FlexDirectoryFormInterface, \JsonSerializable
     /**
      * Filter validated data.
      *
-     * @param \ArrayAccess|Data|null $data
+     * @param ArrayAccess|Data|null $data
      */
     protected function filterData($data = null): void
     {

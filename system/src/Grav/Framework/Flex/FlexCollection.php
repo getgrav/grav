@@ -28,6 +28,10 @@ use Twig\Error\LoaderError;
 use Twig\Error\SyntaxError;
 use Twig\Template;
 use Twig\TemplateWrapper;
+use function array_filter;
+use function get_class;
+use function in_array;
+use function is_array;
 
 /**
  * Class FlexCollection
@@ -88,6 +92,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
      */
     public function __construct(array $entries = [], FlexDirectory $directory = null)
     {
+        // @phpstan-ignore-next-line
         if (get_class($this) === __CLASS__) {
             user_error('Using ' . __CLASS__ . ' directly is deprecated since Grav 1.7, use \Grav\Common\Flex\Types\Generic\GenericCollection or your own class instead', E_USER_DEPRECATED);
         }
@@ -139,7 +144,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
         $matching = array_filter($matching);
 
         if ($matching) {
-            uksort($matching, function ($a, $b) {
+            uksort($matching, static function ($a, $b) {
                 return -($a <=> $b);
             });
         }
@@ -421,6 +426,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
     }
 
     /**
+     * @param string $key
      * @return array
      */
     public function getMetaData(string $key): array
@@ -456,7 +462,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
     public function isAuthorized(string $action, string $scope = null, UserInterface $user = null)
     {
         $list = $this->call('isAuthorized', [$action, $scope, $user]);
-        $list = \array_filter($list);
+        $list = array_filter($list);
 
         return $this->select(array_keys($list));
     }
@@ -491,7 +497,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
          * @var array|FlexObject $object
          */
         foreach ($this->getElements() as $key => $object) {
-            $elements[$key] = \is_array($object) ? $object : $object->jsonSerialize();
+            $elements[$key] = is_array($object) ? $object : $object->jsonSerialize();
         }
 
         return $elements;

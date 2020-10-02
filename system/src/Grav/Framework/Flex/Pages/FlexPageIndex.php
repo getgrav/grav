@@ -13,7 +13,6 @@ namespace Grav\Framework\Flex\Pages;
 
 use Grav\Common\Grav;
 use Grav\Framework\Flex\FlexIndex;
-use Grav\Framework\Flex\Interfaces\FlexStorageInterface;
 
 /**
  * Class FlexPageObject

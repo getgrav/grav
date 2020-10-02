@@ -9,6 +9,7 @@
 
 namespace Grav\Framework\Flex;
 
+use Exception;
 use Grav\Common\Cache;
 use Grav\Common\Config\Config;
 use Grav\Common\Data\Blueprint;
@@ -32,6 +33,12 @@ use Psr\SimpleCache\InvalidArgumentException;
 use RocketTheme\Toolbox\File\YamlFile;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use RuntimeException;
+use function call_user_func_array;
+use function is_array;
+use Grav\Common\Flex\Types\Generic\GenericObject;
+use Grav\Common\Flex\Types\Generic\GenericCollection;
+use Grav\Common\Flex\Types\Generic\GenericIndex;
+use function is_callable;
 
 /**
  * Class FlexDirectory
@@ -59,7 +66,7 @@ class FlexDirectory implements FlexAuthorizeInterface
     protected $config;
     /** @var FlexStorageInterface */
     protected $storage;
-    /** @var CacheInterface */
+    /** @var CacheInterface[] */
     protected $cache;
     /** @var FlexObjectInterface[] */
     protected $objects;
@@ -146,7 +153,7 @@ class FlexDirectory implements FlexAuthorizeInterface
             $config = $this->getBlueprintInternal()->get('config', []);
             $config = is_array($config) ? array_replace_recursive($config, $this->defaults, $this->getDirectoryConfig($config['admin']['configure']['form'] ?? null)) : null;
             if (!is_array($config)) {
-                throw new \RuntimeException('Bad configuration');
+                throw new RuntimeException('Bad configuration');
             }
 
             $this->config = new Config($config);
@@ -193,7 +200,8 @@ class FlexDirectory implements FlexAuthorizeInterface
     /**
      * @param string $name
      * @param array $data
-     * @throws \Exception
+     * @return void
+     * @throws Exception
      * @internal
      */
     public function saveDirectoryConfig(string $name, array $data)
@@ -234,6 +242,10 @@ class FlexDirectory implements FlexAuthorizeInterface
         return $file->content();
     }
 
+    /**
+     * @param string|null $name
+     * @return string
+     */
     public function getDirectoryConfigUri(string $name = null): string
     {
         $name = $name ?: $this->getFlexType();
@@ -242,6 +254,10 @@ class FlexDirectory implements FlexAuthorizeInterface
         return $blueprint->get('blueprints/configure/file') ?? "config://flex/{$name}.yaml";
     }
 
+    /**
+     * @param string|null $name
+     * @return array
+     */
     protected function getDirectoryConfig(string $name = null): array
     {
         $grav = Grav::instance();
@@ -323,7 +339,7 @@ class FlexDirectory implements FlexAuthorizeInterface
         $index = clone $index;
 
         if (null !== $keys) {
-            /** @var FlexCollectionInterface $index */
+            /** @var FlexIndexInterface $index */
             $index = $index->select($keys);
         }
 
@@ -335,7 +351,7 @@ class FlexDirectory implements FlexAuthorizeInterface
      *
      * Note: It is not safe to use the object without checking if the user can access it.
      *
-     * @param string $key
+     * @param string|null $key
      * @param string|null $keyField  Field to be used as the key.
      * @return FlexObjectInterface|null
      */
@@ -378,7 +394,7 @@ class FlexDirectory implements FlexAuthorizeInterface
                     }
                     $cache = new DoctrineCache($gravCache->getCacheDriver(), 'flex-objects-' . $this->getFlexType() . $key, $lifetime);
                 }
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 /** @var Debugger $debugger */
                 $debugger = Grav::instance()['debugger'];
                 $debugger->addException($e);
@@ -495,7 +511,7 @@ class FlexDirectory implements FlexAuthorizeInterface
     public function getObjectClass(): string
     {
         if (!$this->objectClassName) {
-            $this->objectClassName = $this->getConfig('data.object', 'Grav\\Common\\Flex\\Types\\Generic\\GenericObject');
+            $this->objectClassName = $this->getConfig('data.object', GenericObject::class);
         }
 
         return $this->objectClassName;
@@ -507,7 +523,7 @@ class FlexDirectory implements FlexAuthorizeInterface
     public function getCollectionClass(): string
     {
         if (!$this->collectionClassName) {
-            $this->collectionClassName = $this->getConfig('data.collection', 'Grav\\Common\\Flex\\Types\\Generic\\GenericCollection');
+            $this->collectionClassName = $this->getConfig('data.collection', GenericCollection::class);
         }
 
         return $this->collectionClassName;
@@ -520,7 +536,7 @@ class FlexDirectory implements FlexAuthorizeInterface
     public function getIndexClass(): string
     {
         if (!$this->indexClassName) {
-            $this->indexClassName = $this->getConfig('data.index', 'Grav\\Common\\Flex\\Types\\Generic\\GenericIndex');
+            $this->indexClassName = $this->getConfig('data.index', GenericIndex::class);
         }
 
         return $this->indexClassName;
@@ -626,7 +642,7 @@ class FlexDirectory implements FlexAuthorizeInterface
 
                 if (isset($row['__ERROR'])) {
                     $message = sprintf('Flex: Object %s is broken in %s storage: %s', $storageKey, $this->type, $row['__ERROR']);
-                    $debugger->addException(new \RuntimeException($message));
+                    $debugger->addException(new RuntimeException($message));
                     $debugger->addMessage($message, 'error');
                     continue;
                 }
@@ -674,7 +690,6 @@ class FlexDirectory implements FlexAuthorizeInterface
 
     /**
      * @return void
-     * @throws InvalidArgumentException
      */
     public function reloadIndex(): void
     {
@@ -749,10 +764,10 @@ class FlexDirectory implements FlexAuthorizeInterface
      * @param array $call
      * @return void
      */
-    protected function dynamicDataField(array &$field, $property, array &$call)
+    protected function dynamicDataField(array &$field, $property, array $call)
     {
         $params = $call['params'];
-        if (\is_array($params)) {
+        if (is_array($params)) {
             $function = array_shift($params);
         } else {
             $function = $params;
@@ -765,13 +780,13 @@ class FlexDirectory implements FlexAuthorizeInterface
         }
 
         $data = null;
-        if (\is_callable($function)) {
-            $data = \call_user_func_array($function, $params);
+        if (is_callable($function)) {
+            $data = call_user_func_array($function, $params);
         }
 
         // If function returns a value,
         if (null !== $data) {
-            if (\is_array($data) && isset($field[$property]) && \is_array($field[$property])) {
+            if (is_array($data) && isset($field[$property]) && is_array($field[$property])) {
                 // Combine field and @data-field together.
                 $field[$property] += $data;
             } else {
@@ -787,7 +802,7 @@ class FlexDirectory implements FlexAuthorizeInterface
      * @param array $call
      * @return void
      */
-    protected function dynamicFlexField(array &$field, $property, array &$call)
+    protected function dynamicFlexField(array &$field, $property, array $call)
     {
         $params = (array)$call['params'];
         $object = $call['object'] ?? null;
@@ -795,7 +810,7 @@ class FlexDirectory implements FlexAuthorizeInterface
 
         if ($object && method_exists($object, $method)) {
             $value = $object->{$method}(...$params);
-            if (\is_array($value) && isset($field[$property]) && \is_array($field[$property])) {
+            if (is_array($value) && isset($field[$property]) && is_array($field[$property])) {
                 $field[$property] = array_merge_recursive($field[$property], $value);
             } else {
                 $field[$property] = $value;
@@ -812,7 +827,7 @@ class FlexDirectory implements FlexAuthorizeInterface
 
         $storage = $this->getConfig('data.storage');
 
-        if (!\is_array($storage)) {
+        if (!is_array($storage)) {
             $storage = ['options' => ['folder' => $storage]];
         }
 
@@ -955,9 +970,9 @@ class FlexDirectory implements FlexAuthorizeInterface
             $key = $object->getStorageKey();
 
             if ($key) {
-                $rows = $storage->replaceRows([$key => $object->prepareStorage()]);
+                $storage->replaceRows([$key => $object->prepareStorage()]);
             } else {
-                $rows = $storage->createRows([$object->prepareStorage()]);
+                $storage->createRows([$object->prepareStorage()]);
             }
         } else {
             $oldKey = $object->getStorageKey();

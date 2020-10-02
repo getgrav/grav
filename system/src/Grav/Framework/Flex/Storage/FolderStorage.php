@@ -27,6 +27,7 @@ use function count;
 use function is_scalar;
 use function is_string;
 use function mb_strpos;
+use function mb_substr;
 
 /**
  * Class FolderStorage
@@ -322,7 +323,7 @@ class FolderStorage extends AbstractFilesystemStorage
     {
         $keys = [
             'key' => $key,
-            'key:2' => \mb_substr($key, 0, 2),
+            'key:2' => mb_substr($key, 0, 2),
         ];
         if ($variations) {
             $keys['file'] = $this->dataFile;

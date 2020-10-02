@@ -10,6 +10,7 @@
 namespace Grav\Framework\Flex\Pages;
 
 use DateTime;
+use Exception;
 use Grav\Common\Debugger;
 use Grav\Common\Grav;
 use Grav\Common\Page\Interfaces\PageInterface;
@@ -25,6 +26,9 @@ use Grav\Framework\Flex\Pages\Traits\PageLegacyTrait;
 use Grav\Framework\Flex\Pages\Traits\PageRoutableTrait;
 use Grav\Framework\Flex\Pages\Traits\PageTranslateTrait;
 use Grav\Framework\Flex\Traits\FlexMediaTrait;
+use RuntimeException;
+use stdClass;
+use function is_array;
 
 /**
  * Class FlexPageObject
@@ -40,8 +44,8 @@ class FlexPageObject extends FlexObject implements PageInterface, FlexTranslateI
     use PageTranslateTrait;
     use FlexMediaTrait;
 
-    const PAGE_ORDER_REGEX = '/^(\d+)\.(.*)$/u';
-    const PAGE_ORDER_PREFIX_REGEX = '/^[0-9]+\./u';
+    public const PAGE_ORDER_REGEX = '/^(\d+)\.(.*)$/u';
+    public const PAGE_ORDER_PREFIX_REGEX = '/^[0-9]+\./u';
 
     /** @var array|null */
     protected $_reorder;
@@ -168,7 +172,7 @@ class FlexPageObject extends FlexObject implements PageInterface, FlexTranslateI
      */
     public function getFormValue(string $name, $default = null, string $separator = null)
     {
-        $test = new \stdClass();
+        $test = new stdClass();
 
         $value = $this->pageContentValue($name, $test);
         if ($value !== $test) {
@@ -183,7 +187,7 @@ class FlexPageObject extends FlexObject implements PageInterface, FlexTranslateI
             case 'header.permissions.groups':
                 $encoded = json_encode($this->getPermissions());
                 if ($encoded === false) {
-                    throw new \RuntimeException('json_encode(): failed to encode group permissions');
+                    throw new RuntimeException('json_encode(): failed to encode group permissions');
                 }
 
                 return json_decode($encoded, true);
@@ -230,7 +234,7 @@ class FlexPageObject extends FlexObject implements PageInterface, FlexTranslateI
 
     /**
      * @param array|bool $reorder
-     * @return FlexObject|\Grav\Framework\Flex\Interfaces\FlexObjectInterface
+     * @return FlexObject|FlexObjectInterface
      */
     public function save($reorder = true)
     {
@@ -322,10 +326,10 @@ class FlexPageObject extends FlexObject implements PageInterface, FlexTranslateI
         return parent::getProperty($property, $default);
     }
 
-    /*
+    /**
      * @param string $property
-     * @param mixed $default
-     * @return void
+     * @param mixed $value
+     * @return $this
      */
     public function setProperty($property, $value)
     {
@@ -401,8 +405,8 @@ class FlexPageObject extends FlexObject implements PageInterface, FlexTranslateI
                 if ($media_order) {
                     $elements['header']['media_order'] = $media_order;
                 }
-            } catch (\RuntimeException $e) {
-                throw new \RuntimeException('Badly formatted markdown');
+            } catch (RuntimeException $e) {
+                throw new RuntimeException('Badly formatted markdown');
             }
 
             unset($elements['frontmatter']);
@@ -444,7 +448,7 @@ class FlexPageObject extends FlexObject implements PageInterface, FlexTranslateI
                 $value = '@' . $value;
             }
             $date = $value ? new DateTime($value) : null;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             /** @var Debugger $debugger */
             $debugger = Grav::instance()['debugger'];
             $debugger->addException($e);

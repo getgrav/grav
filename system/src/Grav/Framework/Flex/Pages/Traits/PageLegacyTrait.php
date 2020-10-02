@@ -17,17 +17,22 @@ use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Page\Pages;
 use Grav\Common\Utils;
 use Grav\Common\Yaml;
-use Grav\Framework\Cache\CacheInterface;
 use Grav\Framework\File\Formatter\MarkdownFormatter;
 use Grav\Framework\File\Formatter\YamlFormatter;
 use Grav\Framework\Filesystem\Filesystem;
-use Grav\Framework\Flex\FlexDirectory;
 use Grav\Framework\Flex\Interfaces\FlexCollectionInterface;
 use Grav\Framework\Flex\Interfaces\FlexIndexInterface;
 use Grav\Framework\Flex\Pages\FlexPageIndex;
 use Grav\Framework\Flex\Pages\FlexPageObject;
+use InvalidArgumentException;
 use RocketTheme\Toolbox\File\MarkdownFile;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
+use RuntimeException;
+use SplFileInfo;
+use function in_array;
+use function is_array;
+use function is_string;
+use function strlen;
 
 /**
  * Implements PageLegacyInterface
@@ -42,29 +47,27 @@ trait PageLegacyTrait
     /**
      * Initializes the page instance variables based on a file
      *
-     * @param  \SplFileInfo $file The file information for the .md file that the page represents
-     * @param  string $extension
-     *
+     * @param  SplFileInfo $file The file information for the .md file that the page represents
+     * @param  string|null $extension
      * @return $this
      */
-    public function init(\SplFileInfo $file, $extension = null)
+    public function init(SplFileInfo $file, $extension = null)
     {
         // TODO:
-        throw new \RuntimeException(__METHOD__ . '(): Not Implemented');
+        throw new RuntimeException(__METHOD__ . '(): Not Implemented');
     }
 
     /**
      * Gets and Sets the raw data
      *
-     * @param  string $var Raw content string
-     *
+     * @param  string|null $var Raw content string
      * @return string      Raw content string
      */
     public function raw($var = null): string
     {
         if (null !== $var) {
             // TODO:
-            throw new \RuntimeException(__METHOD__ . '(string): Not Implemented');
+            throw new RuntimeException(__METHOD__ . '(string): Not Implemented');
         }
 
         $storage = $this->getFlexDirectory()->getStorage();
@@ -82,14 +85,13 @@ trait PageLegacyTrait
      * Gets and Sets the page frontmatter
      *
      * @param string|null $var
-     *
      * @return string
      */
     public function frontmatter($var = null): string
     {
         if (null !== $var) {
             // TODO:
-            throw new \RuntimeException(__METHOD__ . '(string): Not Implemented');
+            throw new RuntimeException(__METHOD__ . '(string): Not Implemented');
         }
 
         $storage = $this->getFlexDirectory()->getStorage();
@@ -108,6 +110,7 @@ trait PageLegacyTrait
      *
      * @param string $key
      * @param string|array $value
+     * @return void
      */
     public function modifyHeader($key, $value): void
     {
@@ -124,6 +127,9 @@ trait PageLegacyTrait
         return $code ?: 200;
     }
 
+    /**
+     * @return array
+     */
     public function httpHeaders(): array
     {
         $headers = [];
@@ -187,6 +193,7 @@ trait PageLegacyTrait
      *
      * @param string $name
      * @param string $value
+     * @return void
      */
     public function addContentMeta($name, $value): void
     {
@@ -197,7 +204,6 @@ trait PageLegacyTrait
      * Return the whole contentMeta array as it currently stands
      *
      * @param string|null $name
-     *
      * @return string|array|null
      */
     public function getContentMeta($name = null)
@@ -213,7 +219,6 @@ trait PageLegacyTrait
      * Sets the whole content meta array in one shot
      *
      * @param array $content_meta
-     *
      * @return array
      */
     public function setContentMeta($content_meta): array
@@ -246,10 +251,8 @@ trait PageLegacyTrait
     public function file(): ?MarkdownFile
     {
         // TODO:
-        throw new \RuntimeException(__METHOD__ . '(): Not Implemented');
+        throw new RuntimeException(__METHOD__ . '(): Not Implemented');
     }
-
-    abstract public function save($reorder = true);
 
     /**
      * Prepare move page to new location. Moves also everything that's under the current page.
@@ -257,21 +260,20 @@ trait PageLegacyTrait
      * You need to call $this->save() in order to perform the move.
      *
      * @param PageInterface $parent New parent page.
-     *
      * @return $this
      */
     public function move(PageInterface $parent)
     {
         if ($this->route() === $parent->route()) {
-            throw new \RuntimeException('Failed: Cannot set page parent to self');
+            throw new RuntimeException('Failed: Cannot set page parent to self');
         }
         $rawRoute = $this->rawRoute();
         if ($rawRoute && Utils::startsWith($parent->rawRoute(), $rawRoute)) {
-            throw new \RuntimeException('Failed: Cannot set page parent to a child of current page');
+            throw new RuntimeException('Failed: Cannot set page parent to a child of current page');
         }
 
         // TODO:
-        throw new \RuntimeException(__METHOD__ . '(): Not Implemented');
+        throw new RuntimeException(__METHOD__ . '(): Not Implemented');
     }
 
     /**
@@ -281,7 +283,6 @@ trait PageLegacyTrait
      * You need to call $this->save() in order to perform the move.
      *
      * @param PageInterface|null $parent New parent page.
-     *
      * @return $this
      */
     public function copy(PageInterface $parent = null)
@@ -300,7 +301,7 @@ trait PageLegacyTrait
                     $parentStorageKey = $k;
                 }
             } else {
-                throw new \RuntimeException('Cannot copy page, parent is of unknown type');
+                throw new RuntimeException('Cannot copy page, parent is of unknown type');
             }
         } else {
             $parent = $parentStorageKey
@@ -341,8 +342,6 @@ trait PageLegacyTrait
         return $this;
     }
 
-    abstract public function blueprints();
-
     /**
      * Get the blueprint name for this page.  Use the blueprint form field if set
      *
@@ -358,6 +357,7 @@ trait PageLegacyTrait
     /**
      * Validate page header.
      *
+     * @return void
      * @throws Exception
      */
     public function validate(): void
@@ -368,6 +368,8 @@ trait PageLegacyTrait
 
     /**
      * Filter page header from illegal contents.
+     *
+     * @return void
      */
     public function filter(): void
     {
@@ -422,7 +424,7 @@ trait PageLegacyTrait
     {
         $json = json_encode($this->toArray());
         if (!is_string($json)) {
-            throw new \RuntimeException('Internal error');
+            throw new RuntimeException('Internal error');
         }
 
         return $json;
@@ -431,8 +433,7 @@ trait PageLegacyTrait
     /**
      * Gets and sets the name field.  If no name field is set, it will return 'default.md'.
      *
-     * @param  string $var The name of this page.
-     *
+     * @param  string|null $var The name of this page.
      * @return string      The name of this page.
      */
     public function name($var = null): string
@@ -473,8 +474,7 @@ trait PageLegacyTrait
      * Gets and sets the template field. This is used to find the correct Twig template file to render.
      * If no field is set, it will return the name without the .md extension
      *
-     * @param  string $var the template name
-     *
+     * @param  string|null $var the template name
      * @return string      the template name
      */
     public function template($var = null): string
@@ -493,7 +493,6 @@ trait PageLegacyTrait
      * (e.g. `html`, `json`, `xml`, etc).
      *
      * @param string|null $var
-     *
      * @return string
      */
     public function templateFormat($var = null): string
@@ -511,7 +510,6 @@ trait PageLegacyTrait
      * Gets and sets the extension field.
      *
      * @param string|null $var
-     *
      * @return string
      */
     public function extension($var = null): string
@@ -532,8 +530,7 @@ trait PageLegacyTrait
     /**
      * Gets and sets the expires field. If not set will return the default
      *
-     * @param  int $var The new expires value.
-     *
+     * @param  int|null $var The new expires value.
      * @return int      The expires value
      */
     public function expires($var = null): int
@@ -565,6 +562,10 @@ trait PageLegacyTrait
         );
     }
 
+    /**
+     * @param bool|null $var
+     * @return bool|null
+     */
     public function ssl($var = null): ?bool
     {
         return $this->loadHeaderProperty(
@@ -590,8 +591,7 @@ trait PageLegacyTrait
      * Function to merge page metadata tags and build an array of Metadata objects
      * that can then be rendered in the page.
      *
-     * @param  array $var an Array of metadata values to set
-     *
+     * @param  array|null $var an Array of metadata values to set
      * @return array      an Array of metadata values for the page
      */
     public function metadata($var = null): array
@@ -632,7 +632,7 @@ trait PageLegacyTrait
                     }
                 } elseif ($value) {
                     // If it this is a standard meta data type
-                    if (\in_array($key, $header_tag_http_equivs, true)) {
+                    if (in_array($key, $header_tag_http_equivs, true)) {
                         $this->_metadata[$key] = [
                             'http_equiv' => $key,
                             'content' => htmlspecialchars($value, ENT_QUOTES | ENT_HTML5, 'UTF-8')
@@ -673,8 +673,7 @@ trait PageLegacyTrait
     /**
      * Gets and sets the option to show the etag header for the page.
      *
-     * @param  bool $var show etag header
-     *
+     * @param  bool|null $var show etag header
      * @return bool      show etag header
      */
     public function eTag($var = null): bool
@@ -691,15 +690,14 @@ trait PageLegacyTrait
     /**
      * Gets and sets the path to the .md file for this Page object.
      *
-     * @param  string $var the file path
-     *
+     * @param  string|null $var the file path
      * @return string|null      the file path
      */
     public function filePath($var = null): ?string
     {
         if (null !== $var) {
             // TODO:
-            throw new \RuntimeException(__METHOD__ . '(string): Not Implemented');
+            throw new RuntimeException(__METHOD__ . '(string): Not Implemented');
         }
 
         $folder = $this->getStorageFolder();
@@ -734,8 +732,7 @@ trait PageLegacyTrait
     /**
      * Gets and sets the order by which any sub-pages should be sorted.
      *
-     * @param  string $var the order, either "asc" or "desc"
-     *
+     * @param  string|null $var the order, either "asc" or "desc"
      * @return string      the order, either "asc" or "desc"
      */
     public function orderDir($var = null): string
@@ -757,8 +754,7 @@ trait PageLegacyTrait
      * date - is the order based on the date set in the pages
      * folder - is the order based on the name of the folder with any numerics omitted
      *
-     * @param  string $var supported options include "default", "title", "date", and "folder"
-     *
+     * @param  string|null $var supported options include "default", "title", "date", and "folder"
      * @return string      supported options include "default", "title", "date", and "folder"
      */
     public function orderBy($var = null): string
@@ -775,8 +771,7 @@ trait PageLegacyTrait
     /**
      * Gets the manual order set in the header.
      *
-     * @param  string $var supported options include "default", "title", "date", and "folder"
-     *
+     * @param  string|null $var supported options include "default", "title", "date", and "folder"
      * @return array
      */
     public function orderManual($var = null): array
@@ -794,8 +789,7 @@ trait PageLegacyTrait
      * Gets and sets the maxCount field which describes how many sub-pages should be displayed if the
      * sub_pages header property is set for this page object.
      *
-     * @param  int $var the maximum number of sub-pages
-     *
+     * @param  int|null $var the maximum number of sub-pages
      * @return int      the maximum number of sub-pages
      */
     public function maxCount($var = null): int
@@ -812,7 +806,7 @@ trait PageLegacyTrait
     /**
      * Gets and sets the modular var that helps identify this page is a modular child
      *
-     * @param  bool $var true if modular_twig
+     * @param  bool|null $var true if modular_twig
      * @return bool      true if modular_twig
      * @deprecated 1.7 Use ->isModule() or ->modularTwig() method instead.
      */
@@ -827,8 +821,7 @@ trait PageLegacyTrait
      * Gets and sets the modular_twig var that helps identify this page as a modular child page that will need
      * twig processing handled differently from a regular page.
      *
-     * @param  bool $var true if modular_twig
-     *
+     * @param  bool|null $var true if modular_twig
      * @return bool      true if modular_twig
      */
     public function modularTwig($var = null): bool
@@ -919,8 +912,7 @@ trait PageLegacyTrait
      * Returns the adjacent sibling based on a direction.
      *
      * @param  int $direction either -1 or +1
-     *
-     * @return PageInterface|false             the sibling page
+     * @return PageInterface|false the sibling page
      */
     public function adjacentSibling($direction = 1)
     {
@@ -930,14 +922,20 @@ trait PageLegacyTrait
             $children = $children->withKeyField();
         }
 
-        return $children instanceof PageCollectionInterface ? $children->adjacentSibling($this->getKey(), $direction) : false;
+        if ($children instanceof PageCollectionInterface) {
+            $child = $children->adjacentSibling($this->getKey(), $direction);
+            if ($child instanceof PageInterface) {
+                return $child;
+            }
+        }
+
+        return false;
     }
 
     /**
      * Helper method to return an ancestor page.
      *
      * @param string|null $lookup Name of the parent folder
-     *
      * @return PageInterface|null page you were looking for if it exists
      */
     public function ancestor($lookup = null)
@@ -953,7 +951,6 @@ trait PageLegacyTrait
      * page object is returned.
      *
      * @param string $field Name of the parent folder
-     *
      * @return PageInterface|null
      */
     public function inherited($field)
@@ -970,12 +967,11 @@ trait PageLegacyTrait
      * first occurrence of an ancestor field will be returned if at all.
      *
      * @param string $field Name of the parent folder
-     *
      * @return array
      */
     public function inheritedField($field): array
     {
-        [$inherited, $currentParams] = $this->getInheritedParams($field);
+        [, $currentParams] = $this->getInheritedParams($field);
 
         return $currentParams;
     }
@@ -984,14 +980,13 @@ trait PageLegacyTrait
      * Method that contains shared logic for inherited() and inheritedField()
      *
      * @param string $field Name of the parent folder
-     *
      * @return array
      */
     protected function getInheritedParams($field): array
     {
+        /** @var Pages $pages */
         $pages = Grav::instance()['pages'];
 
-        /** @var Pages $pages */
         $inherited = $pages->inherited($this->getProperty('parent_route'), $field);
         $inheritedParams = $inherited ? (array)$inherited->value('header.' . $field) : [];
         $currentParams = (array)$this->getFormValue('header.' . $field);
@@ -1007,7 +1002,6 @@ trait PageLegacyTrait
      *
      * @param string $url the url of the page
      * @param bool $all
-     *
      * @return PageInterface|null page you were looking for if it exists
      */
     public function find($url, $all = false)
@@ -1023,9 +1017,8 @@ trait PageLegacyTrait
      *
      * @param string|array $params
      * @param bool $pagination
-     *
      * @return PageCollectionInterface|Collection
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function collection($params = 'content', $pagination = true)
     {
@@ -1033,7 +1026,7 @@ trait PageLegacyTrait
             // Look into a page header field.
             $params = (array)$this->getFormValue('header.' . $params);
         } elseif (!is_array($params)) {
-            throw new \InvalidArgumentException('Argument should be either header variable name or array of parameters');
+            throw new InvalidArgumentException('Argument should be either header variable name or array of parameters');
         }
 
         if (!$pagination) {
@@ -1092,7 +1085,7 @@ trait PageLegacyTrait
     public function getOriginal()
     {
         // TODO:
-        throw new \RuntimeException(__METHOD__ . '(): Not Implemented');
+        throw new RuntimeException(__METHOD__ . '(): Not Implemented');
     }
 
     /**

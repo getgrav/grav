@@ -9,6 +9,7 @@
 
 namespace Grav\Framework\Flex\Pages\Traits;
 
+use Exception;
 use Grav\Common\Config\Config;
 use Grav\Common\Grav;
 use Grav\Common\Markdown\Parsedown;
@@ -21,6 +22,10 @@ use Grav\Common\Twig\Twig;
 use Grav\Common\Utils;
 use Grav\Framework\File\Formatter\YamlFormatter;
 use RocketTheme\Toolbox\Event\Event;
+use stdClass;
+use function in_array;
+use function is_array;
+use function is_string;
 
 /**
  * Implements PageContentInterface.
@@ -123,7 +128,7 @@ trait PageContentTrait
 
     /**
      * @inheritdoc
-     * @throws \Exception
+     * @throws Exception
      */
     public function content($var = null): string
     {
@@ -430,7 +435,7 @@ trait PageContentTrait
             'dateformat',
             $var,
             static function ($value) {
-                return $value ?? null;
+                return $value;
             }
         );
     }
@@ -512,18 +517,26 @@ trait PageContentTrait
 
         if (null === $value) {
             $value = [];
-        } elseif ($value instanceof \stdClass) {
+        } elseif ($value instanceof stdClass) {
             $value = (array)$value;
         }
 
         return new Header($value);
     }
 
+    /**
+     * @param Header|stdClass|array|null $value
+     * @return Header
+     */
     protected function offsetPrepare_header($value)
     {
         return $this->offsetLoad_header($value);
     }
 
+    /**
+     * @param Header|null $value
+     * @return array
+     */
     protected function offsetSerialize_header(?Header $value)
     {
         return $value ? $value->toArray() : [];
@@ -531,7 +544,7 @@ trait PageContentTrait
 
     /**
      * @param string $name
-     * @param mixed $default
+     * @param mixed|null $default
      * @return mixed
      */
     protected function pageContentValue($name, $default = null)
@@ -653,7 +666,7 @@ trait PageContentTrait
      *
      * @param  string $content
      * @return string
-     * @throws \Exception
+     * @throws Exception
      */
     protected function processContent($content): string
     {
@@ -784,7 +797,7 @@ trait PageContentTrait
      * @param string $content
      * @param array  $options
      * @return string
-     * @throws \Exception
+     * @throws Exception
      */
     protected function processMarkdown($content, array $options = []): string
     {

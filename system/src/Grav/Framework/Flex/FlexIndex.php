@@ -9,6 +9,7 @@
 
 namespace Grav\Framework\Flex;
 
+use Exception;
 use Grav\Common\Debugger;
 use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Grav;
@@ -24,6 +25,10 @@ use Grav\Framework\Object\Interfaces\ObjectInterface;
 use Grav\Framework\Object\ObjectIndex;
 use Monolog\Logger;
 use Psr\SimpleCache\InvalidArgumentException;
+use RuntimeException;
+use function count;
+use function get_class;
+use function in_array;
 
 class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexIndexInterface
 {
@@ -31,10 +36,8 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
 
     /** @var FlexDirectory|null */
     private $_flexDirectory;
-
     /** @var string */
     private $_keyField;
-
     /** @var array */
     private $_indexKeys;
 
@@ -77,6 +80,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
      * @param array $meta
      * @param array $data
      * @param FlexStorageInterface $storage
+     * @return void
      */
     public static function updateObjectMeta(array &$meta, array $data, FlexStorageInterface $storage)
     {
@@ -92,6 +96,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
      */
     public function __construct(array $entries = [], FlexDirectory $directory = null)
     {
+        // @phpstan-ignore-next-line
         if (get_class($this) === __CLASS__) {
             user_error('Using ' . __CLASS__ . ' directly is deprecated since Grav 1.7, use \Grav\Common\Flex\Types\Generic\GenericIndex or your own class instead', E_USER_DEPRECATED);
         }
@@ -175,7 +180,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
     public function getFlexDirectory(): FlexDirectory
     {
         if (null === $this->_flexDirectory) {
-            throw new \RuntimeException('Flex Directory not defined, object is not fully defined');
+            throw new RuntimeException('Flex Directory not defined, object is not fully defined');
         }
 
         return $this->_flexDirectory;
@@ -324,6 +329,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
     }
 
     /**
+     * @param string $key
      * @return array
      */
     public function getMetaData(string $key): array
@@ -379,9 +385,6 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
             // Update current search to match the previous ordering.
             if (null !== $previous) {
                 $search = array_replace($previous, $search);
-            }
-            if (null === $search) {
-                throw new \RuntimeException('Error while ordering collection');
             }
 
             // Order by current field.
@@ -712,7 +715,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
                     static::updateObjectMeta($entry, $row ?? [], $storage);
                     if (isset($row['__ERROR'])) {
                         $entry['__ERROR'] = true;
-                        static::onException(new \RuntimeException(sprintf('Object failed to load: %s (%s)', $key,
+                        static::onException(new RuntimeException(sprintf('Object failed to load: %s (%s)', $key,
                             $row['__ERROR'])));
                     }
                     if (isset($index[$key])) {
@@ -739,7 +742,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
 
         static::onChanges($index, $added, $updated, $removed);
 
-        $indexFile->save(['version' => static::VERSION, 'timestamp' => time(), 'count' => \count($index), 'index' => $index]);
+        $indexFile->save(['version' => static::VERSION, 'timestamp' => time(), 'count' => count($index), 'index' => $index]);
         $indexFile->unlock();
 
         return $index;
@@ -748,6 +751,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
     /**
      * @param array $entry
      * @param array $data
+     * @return void
      * @deprecated 1.7 Use static ::updateObjectMeta() method instead.
      */
     protected static function updateIndexData(array &$entry, array $data)
@@ -770,8 +774,8 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
                 if ($version !== static::VERSION) {
                     $data = [];
                 }
-            } catch (\Exception $e) {
-                $e = new \RuntimeException(sprintf('Index failed to load: %s', $e->getMessage()), $e->getCode(), $e);
+            } catch (Exception $e) {
+                $e = new RuntimeException(sprintf('Index failed to load: %s', $e->getMessage()), $e->getCode(), $e);
 
                 static::onException($e);
             }
@@ -819,10 +823,10 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
     }
 
     /**
-     * @param \Exception $e
+     * @param Exception $e
      * @return void
      */
-    protected static function onException(\Exception $e)
+    protected static function onException(Exception $e)
     {
         $grav = Grav::instance();
 
@@ -845,12 +849,12 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
      */
     protected static function onChanges(array $entries, array $added, array $updated, array $removed)
     {
-        $addedCount = \count($added);
-        $updatedCount = \count($updated);
-        $removedCount = \count($removed);
+        $addedCount = count($added);
+        $updatedCount = count($updated);
+        $removedCount = count($removed);
 
         if ($addedCount + $updatedCount + $removedCount) {
-            $message = sprintf('Index updated, %d objects (%d added, %d updated, %d removed).', \count($entries), $addedCount, $updatedCount, $removedCount);
+            $message = sprintf('Index updated, %d objects (%d added, %d updated, %d removed).', count($entries), $addedCount, $updatedCount, $removedCount);
 
             $grav = Grav::instance();
 
