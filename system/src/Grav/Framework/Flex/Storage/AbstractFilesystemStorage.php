@@ -23,6 +23,7 @@ use Grav\Framework\Flex\Interfaces\FlexStorageInterface;
 use RocketTheme\Toolbox\File\File;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use RuntimeException;
+use function is_array;
 
 /**
  * Class AbstractFilesystemStorage
@@ -119,7 +120,7 @@ abstract class AbstractFilesystemStorage implements FlexStorageInterface
     protected function initDataFormatter($formatter): void
     {
         // Initialize formatter.
-        if (!\is_array($formatter)) {
+        if (!is_array($formatter)) {
             $formatter = ['class' => $formatter];
         }
         $formatterClassName = $formatter['class'] ?? JsonFormatter::class;
@@ -208,6 +209,6 @@ abstract class AbstractFilesystemStorage implements FlexStorageInterface
      */
     protected function validateKey(string $key): bool
     {
-        return $key && (bool) preg_match('/^[^\\/\\?\\*:;{}\\\\\\n]+$/u', $key);
+        return $key && (bool) preg_match('/^[^\\/?*:;{}\\\\\\n]+$/u', $key);
     }
 }

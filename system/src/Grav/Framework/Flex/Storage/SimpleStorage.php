@@ -15,6 +15,9 @@ use Grav\Common\Data\Data;
 use Grav\Common\Filesystem\Folder;
 use Grav\Framework\Filesystem\Filesystem;
 use InvalidArgumentException;
+use LogicException;
+use RuntimeException;
+use function is_string;
 
 /**
  * Class SimpleStorage
@@ -61,19 +64,20 @@ class SimpleStorage extends AbstractFilesystemStorage
         if (!file_exists($this->dataFolder)) {
             try {
                 Folder::create($this->dataFolder);
-            } catch (\RuntimeException $e) {
-                throw new \RuntimeException(sprintf('Flex: %s', $e->getMessage()));
+            } catch (RuntimeException $e) {
+                throw new RuntimeException(sprintf('Flex: %s', $e->getMessage()));
             }
         }
     }
 
     /**
      * @param string[] $keys
+     * @param bool $reload
      * @return array
      */
-    public function getMetaData(array $keys): array
+    public function getMetaData(array $keys, bool $reload = false): array
     {
-        if (null === $this->data) {
+        if (null === $this->data || $reload) {
             $this->buildIndex();
         }
 
@@ -242,7 +246,7 @@ class SimpleStorage extends AbstractFilesystemStorage
     public function copyRow(string $src, string $dst): bool
     {
         if ($this->hasKey($dst)) {
-            throw new \RuntimeException("Cannot copy object: key '{$dst}' is already taken");
+            throw new RuntimeException("Cannot copy object: key '{$dst}' is already taken");
         }
 
         if (!$this->hasKey($src)) {
@@ -265,7 +269,7 @@ class SimpleStorage extends AbstractFilesystemStorage
         }
 
         if ($this->hasKey($dst)) {
-            throw new \RuntimeException("Cannot rename object: key '{$dst}' is already taken");
+            throw new RuntimeException("Cannot rename object: key '{$dst}' is already taken");
         }
 
         if (!$this->hasKey($src)) {
@@ -278,7 +282,7 @@ class SimpleStorage extends AbstractFilesystemStorage
 
         $data = array_combine($keys, $this->data);
         if (false === $data) {
-            throw new \LogicException('Bad data');
+            throw new LogicException('Bad data');
         }
 
         $this->data = $data;
@@ -359,8 +363,8 @@ class SimpleStorage extends AbstractFilesystemStorage
             unset($row['__META'], $row['__ERROR']);
 
             $this->data[$key] = $row;
-        } catch (\RuntimeException $e) {
-            throw new \RuntimeException(sprintf('Flex saveRow(%s): %s', $key, $e->getMessage()));
+        } catch (RuntimeException $e) {
+            throw new RuntimeException(sprintf('Flex saveRow(%s): %s', $key, $e->getMessage()));
         }
 
         $row['__META'] = $this->getObjectMeta($key, true);
@@ -389,7 +393,7 @@ class SimpleStorage extends AbstractFilesystemStorage
         try {
             $path = $this->getStoragePath();
             if (!$path) {
-                throw new \RuntimeException('Storage path is not defined');
+                throw new RuntimeException('Storage path is not defined');
             }
             $file = $this->getFile($path);
             if ($this->prefix) {
@@ -401,8 +405,8 @@ class SimpleStorage extends AbstractFilesystemStorage
             $file->save($content);
             $this->modified = (int)$file->modified(); // cast false to 0
             $file->free();
-        } catch (\RuntimeException $e) {
-            throw new \RuntimeException(sprintf('Flex save(): %s', $e->getMessage()));
+        } catch (RuntimeException $e) {
+            throw new RuntimeException(sprintf('Flex save(): %s', $e->getMessage()));
         }
     }
 
@@ -426,6 +430,8 @@ class SimpleStorage extends AbstractFilesystemStorage
     {
         $path = $this->getStoragePath();
         if (!$path) {
+            $this->data = [];
+
             return [];
         }
 

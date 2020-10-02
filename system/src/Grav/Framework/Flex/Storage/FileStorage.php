@@ -11,7 +11,9 @@ declare(strict_types=1);
 
 namespace Grav\Framework\Flex\Storage;
 
+use FilesystemIterator;
 use Grav\Framework\Flex\Interfaces\FlexStorageInterface;
+use SplFileInfo;
 
 /**
  * Class FileStorage
@@ -66,10 +68,10 @@ class FileStorage extends FolderStorage
             return [];
         }
 
-        $flags = \FilesystemIterator::KEY_AS_PATHNAME | \FilesystemIterator::CURRENT_AS_FILEINFO | \FilesystemIterator::SKIP_DOTS | \FilesystemIterator::UNIX_PATHS;
-        $iterator = new \FilesystemIterator($path, $flags);
+        $flags = FilesystemIterator::KEY_AS_PATHNAME | FilesystemIterator::CURRENT_AS_FILEINFO | FilesystemIterator::SKIP_DOTS | FilesystemIterator::UNIX_PATHS;
+        $iterator = new FilesystemIterator($path, $flags);
         $list = [];
-        /** @var \SplFileInfo $info */
+        /** @var SplFileInfo $info */
         foreach ($iterator as $filename => $info) {
             if (!$info->isFile() || !($key = $this->getKeyFromPath($filename)) || strpos($info->getFilename(), '.') === 0) {
                 continue;

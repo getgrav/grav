@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Grav\Framework\Flex\Storage;
 
+use FilesystemIterator;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\Grav;
 use Grav\Common\Utils;
@@ -19,6 +20,13 @@ use Grav\Framework\Flex\Interfaces\FlexStorageInterface;
 use RocketTheme\Toolbox\File\File;
 use InvalidArgumentException;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
+use RuntimeException;
+use SplFileInfo;
+use function array_key_exists;
+use function count;
+use function is_scalar;
+use function is_string;
+use function mb_strpos;
 
 /**
  * Class FolderStorage
@@ -64,13 +72,14 @@ class FolderStorage extends AbstractFilesystemStorage
 
     /**
      * @param string[] $keys
+     * @param bool $reload
      * @return array
      */
-    public function getMetaData(array $keys): array
+    public function getMetaData(array $keys, bool $reload = false): array
     {
         $list = [];
         foreach ($keys as $key) {
-            $list[$key] = $this->getObjectMeta((string)$key);
+            $list[$key] = $this->getObjectMeta((string)$key, $reload);
         }
 
         return $list;
@@ -118,7 +127,7 @@ class FolderStorage extends AbstractFilesystemStorage
     {
         $list = [];
         foreach ($rows as $key => $row) {
-            if (null === $row || \is_scalar($row)) {
+            if (null === $row || is_scalar($row)) {
                 // Only load rows which haven't been loaded before.
                 $key = (string)$key;
                 $list[$key] = $this->loadRow($key);
@@ -207,7 +216,7 @@ class FolderStorage extends AbstractFilesystemStorage
     public function copyRow(string $src, string $dst): bool
     {
         if ($this->hasKey($dst)) {
-            throw new \RuntimeException("Cannot copy object: key '{$dst}' is already taken");
+            throw new RuntimeException("Cannot copy object: key '{$dst}' is already taken");
         }
 
         if (!$this->hasKey($src)) {
@@ -237,7 +246,7 @@ class FolderStorage extends AbstractFilesystemStorage
         $srcPath = $this->getStoragePath($src);
         $dstPath = $this->getStoragePath($dst);
         if (!$srcPath || !$dstPath) {
-            throw new \RuntimeException("Destination path '{$dst}' is empty");
+            throw new RuntimeException("Destination path '{$dst}' is empty");
         }
 
         if ($srcPath === $dstPath) {
@@ -245,7 +254,7 @@ class FolderStorage extends AbstractFilesystemStorage
         }
 
         if ($this->hasKey($dst)) {
-            throw new \RuntimeException("Cannot rename object '{$src}': key '{$dst}' is already taken $srcPath $dstPath");
+            throw new RuntimeException("Cannot rename object '{$src}': key '{$dst}' is already taken $srcPath $dstPath");
         }
 
         return $this->moveFolder($srcPath, $dstPath);
@@ -356,9 +365,9 @@ class FolderStorage extends AbstractFilesystemStorage
             $data = (array)$file->content();
             $file->free();
             if (isset($data[0])) {
-                throw new \RuntimeException('Broken object file');
+                throw new RuntimeException('Broken object file');
             }
-        } catch (\RuntimeException $e) {
+        } catch (RuntimeException $e) {
             $data = ['__ERROR' => $e->getMessage()];
         }
 
@@ -406,8 +415,8 @@ class FolderStorage extends AbstractFilesystemStorage
             if ($locator->isStream($path)) {
                 $locator->clearCache();
             }
-        } catch (\RuntimeException $e) {
-            throw new \RuntimeException(sprintf('Flex saveFile(%s): %s', $path ?? $key, $e->getMessage()));
+        } catch (RuntimeException $e) {
+            throw new RuntimeException(sprintf('Flex saveFile(%s): %s', $path ?? $key, $e->getMessage()));
         }
 
         $row['__META'] = $this->getObjectMeta($key, true);
@@ -433,8 +442,8 @@ class FolderStorage extends AbstractFilesystemStorage
             if ($locator->isStream($filename)) {
                 $locator->clearCache($filename);
             }
-        } catch (\RuntimeException $e) {
-            throw new \RuntimeException(sprintf('Flex deleteFile(%s): %s', $filename, $e->getMessage()));
+        } catch (RuntimeException $e) {
+            throw new RuntimeException(sprintf('Flex deleteFile(%s): %s', $filename, $e->getMessage()));
         }
 
         return $data;
@@ -455,8 +464,8 @@ class FolderStorage extends AbstractFilesystemStorage
             if ($locator->isStream($src) || $locator->isStream($dst)) {
                 $locator->clearCache();
             }
-        } catch (\RuntimeException $e) {
-            throw new \RuntimeException(sprintf('Flex copyFolder(%s, %s): %s', $src, $dst, $e->getMessage()));
+        } catch (RuntimeException $e) {
+            throw new RuntimeException(sprintf('Flex copyFolder(%s, %s): %s', $src, $dst, $e->getMessage()));
         }
 
         return true;
@@ -477,8 +486,8 @@ class FolderStorage extends AbstractFilesystemStorage
             if ($locator->isStream($src) || $locator->isStream($dst)) {
                 $locator->clearCache();
             }
-        } catch (\RuntimeException $e) {
-            throw new \RuntimeException(sprintf('Flex moveFolder(%s, %s): %s', $src, $dst, $e->getMessage()));
+        } catch (RuntimeException $e) {
+            throw new RuntimeException(sprintf('Flex moveFolder(%s, %s): %s', $src, $dst, $e->getMessage()));
         }
 
         return true;
@@ -501,12 +510,13 @@ class FolderStorage extends AbstractFilesystemStorage
             }
 
             return $success;
-        } catch (\RuntimeException $e) {
-            throw new \RuntimeException(sprintf('Flex deleteFolder(%s): %s', $path, $e->getMessage()));
+        } catch (RuntimeException $e) {
+            throw new RuntimeException(sprintf('Flex deleteFolder(%s): %s', $path, $e->getMessage()));
         }
     }
 
     /**
+     * @param string $key
      * @return bool
      */
     protected function canDeleteFolder(string $key): bool
@@ -571,11 +581,11 @@ class FolderStorage extends AbstractFilesystemStorage
      */
     protected function buildIndexFromFilesystem($path)
     {
-        $flags = \FilesystemIterator::KEY_AS_PATHNAME | \FilesystemIterator::CURRENT_AS_FILEINFO | \FilesystemIterator::SKIP_DOTS | \FilesystemIterator::UNIX_PATHS;
+        $flags = FilesystemIterator::KEY_AS_PATHNAME | FilesystemIterator::CURRENT_AS_FILEINFO | FilesystemIterator::SKIP_DOTS | FilesystemIterator::UNIX_PATHS;
 
-        $iterator = new \FilesystemIterator($path, $flags);
+        $iterator = new FilesystemIterator($path, $flags);
         $list = [];
-        /** @var \SplFileInfo $info */
+        /** @var SplFileInfo $info */
         foreach ($iterator as $filename => $info) {
             if (!$info->isDir() || strpos($info->getFilename(), '.') === 0) {
                 continue;
@@ -597,11 +607,11 @@ class FolderStorage extends AbstractFilesystemStorage
      */
     protected function buildPrefixedIndexFromFilesystem($path)
     {
-        $flags = \FilesystemIterator::KEY_AS_PATHNAME | \FilesystemIterator::CURRENT_AS_FILEINFO | \FilesystemIterator::SKIP_DOTS | \FilesystemIterator::UNIX_PATHS;
+        $flags = FilesystemIterator::KEY_AS_PATHNAME | FilesystemIterator::CURRENT_AS_FILEINFO | FilesystemIterator::SKIP_DOTS | FilesystemIterator::UNIX_PATHS;
 
-        $iterator = new \FilesystemIterator($path, $flags);
+        $iterator = new FilesystemIterator($path, $flags);
         $list = [];
-        /** @var \SplFileInfo $info */
+        /** @var SplFileInfo $info */
         foreach ($iterator as $filename => $info) {
             if (!$info->isDir() || strpos($info->getFilename(), '.') === 0) {
                 continue;
@@ -614,7 +624,7 @@ class FolderStorage extends AbstractFilesystemStorage
             return [];
         }
 
-        return \count($list) > 1 ? array_merge(...$list) : $list[0];
+        return count($list) > 1 ? array_merge(...$list) : $list[0];
     }
 
     /**
@@ -644,7 +654,7 @@ class FolderStorage extends AbstractFilesystemStorage
         $this->dataFolder = $options['folder'];
         $this->dataFile = $options['file'] ?? 'item';
         $this->dataExt = $extension;
-        if (\mb_strpos($pattern, '{FILE}') === false && \mb_strpos($pattern, '{EXT}') === false) {
+        if (mb_strpos($pattern, '{FILE}') === false && mb_strpos($pattern, '{EXT}') === false) {
             if (isset($options['file'])) {
                 $pattern .= '/{FILE}{EXT}';
             } else {
@@ -662,7 +672,7 @@ class FolderStorage extends AbstractFilesystemStorage
         $pattern = Utils::simpleTemplate($pattern, $variables);
 
         if (!$pattern) {
-            throw new \RuntimeException('Bad storage folder pattern');
+            throw new RuntimeException('Bad storage folder pattern');
         }
 
         $this->dataPattern = $pattern;

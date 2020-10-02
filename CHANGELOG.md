@@ -7,6 +7,7 @@
     * Fall back through various templates scenarios if they don't exist in theme to avoid unhelpful error.
     * Added default templates for `external.html.twig`, `default.html.twig`, and `modular.html.twig`
     * Improve Media classes
+    * _POTENTIAL BREAKING CHANGE:_ Added reload argument to `FlexStorageIngerface::getMetaData()`
 1. [](#bugfix)
     * Fixed `Security::sanitizeSVG()` creating an empty file if SVG file cannot be parsed
     * Fixed infinite loop in blueprints with `extend@` to a parent stream

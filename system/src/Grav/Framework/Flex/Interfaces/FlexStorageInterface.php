@@ -31,9 +31,10 @@ interface FlexStorageInterface
 
     /**
      * @param string[] $keys
+     * @param bool $reload
      * @return array
      */
-    public function getMetaData(array $keys): array;
+    public function getMetaData(array $keys, bool $reload = false): array;
 
     /**
      * Returns associated array of all existing storage keys with a timestamp.
@@ -46,7 +47,6 @@ interface FlexStorageInterface
      * Check if the key exists in the storage.
      *
      * @param string $key Storage key of an object.
-     *
      * @return bool Returns `true` if the key exists in the storage, `false` otherwise.
      */
     public function hasKey(string $key): bool;
@@ -55,7 +55,6 @@ interface FlexStorageInterface
      * Check if the key exists in the storage.
      *
      * @param string[] $keys Storage key of an object.
-     *
      * @return bool[] Returns keys with `true` if the key exists in the storage, `false` otherwise.
      */
     public function hasKeys(array $keys): array;
@@ -66,7 +65,6 @@ interface FlexStorageInterface
      * New keys will be assigned when the objects are created.
      *
      * @param  array  $rows  List of rows as `[row, ...]`.
-     *
      * @return array  Returns created rows as `[key => row, ...] pairs.
      */
     public function createRows(array $rows): array;
@@ -78,7 +76,6 @@ interface FlexStorageInterface
      *
      * @param  array  $rows  Array of `[key => row, ...]` pairs.
      * @param  array|null $fetched  Optional reference to store only fetched items.
-     *
      * @return array  Returns rows. Note that non-existing rows will have `null` as their value.
      */
     public function readRows(array $rows, array &$fetched = null): array;
@@ -87,7 +84,6 @@ interface FlexStorageInterface
      * Update existing rows in the storage.
      *
      * @param  array  $rows  Array of `[key => row, ...]` pairs.
-     *
      * @return array  Returns updated rows. Note that non-existing rows will not be saved and have `null` as their value.
      */
     public function updateRows(array $rows): array;
@@ -96,7 +92,6 @@ interface FlexStorageInterface
      * Delete rows from the storage.
      *
      * @param  array  $rows  Array of `[key => row, ...]` pairs.
-     *
      * @return array  Returns deleted rows. Note that non-existing rows have `null` as their value.
      */
     public function deleteRows(array $rows): array;
@@ -107,7 +102,6 @@ interface FlexStorageInterface
      * All rows should have a specified key for replace to work properly.
      *
      * @param  array $rows  Array of `[key => row, ...]` pairs.
-     *
      * @return array  Returns both created and updated rows.
      */
     public function replaceRows(array $rows): array;
@@ -115,7 +109,6 @@ interface FlexStorageInterface
     /**
      * @param string $src
      * @param string $dst
-     *
      * @return bool
      */
     public function copyRow(string $src, string $dst): bool;
@@ -123,7 +116,6 @@ interface FlexStorageInterface
     /**
      * @param string $src
      * @param string $dst
-     *
      * @return bool
      */
     public function renameRow(string $src, string $dst): bool;
@@ -132,7 +124,6 @@ interface FlexStorageInterface
      * Get filesystem path for the collection or object storage.
      *
      * @param  string|null $key Optional storage key.
-     *
      * @return string|null Path in the filesystem. Can be URI or null if storage is not filesystem based.
      */
     public function getStoragePath(string $key = null): ?string;
@@ -141,7 +132,6 @@ interface FlexStorageInterface
      * Get filesystem path for the collection or object media.
      *
      * @param  string|null $key Optional storage key.
-     *
      * @return string|null Path in the filesystem. Can be URI or null if media isn't supported.
      */
     public function getMediaPath(string $key = null): ?string;
