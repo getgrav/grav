@@ -1,5 +1,9 @@
 # To use this file simply install caddy and run the command below from the root of your Grav site
+# Once running it will redirect http://localhost to https://localhost (new default for Caddy2)
+# More infromation here: https://caddyserver.com/docs/
+#
 # $ caddy run --config webserver-configs/Caddyfile
+
 localhost
 encode gzip
 root * .
