@@ -508,4 +508,19 @@ abstract class Folder
 
         return $include_target ? @rmdir($folder) : true;
     }
+
+    /**
+     * Does a directory contain children
+     *
+     * @param string $directory
+     * @return int|false
+     */
+    public static function countChildren($directory) {
+        if (!is_dir($directory)) {
+            return false;
+        }
+        $directories = glob($directory . '/*', GLOB_ONLYDIR);
+
+        return count($directories);
+    }
 }
