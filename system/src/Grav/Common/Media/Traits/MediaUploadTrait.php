@@ -446,10 +446,15 @@ trait MediaUploadTrait
             $toPath = $locator->findResource($toPath, true, true);
         }
 
+        if (is_file($toPath)) {
+            // TODO: translate error message
+            throw new RuntimeException(sprintf('File could not be renamed: %s already exists (%s)', $to, $mediaPath), 500);
+        }
+
         $result = rename($fromPath, $toPath);
         if (!$result) {
             // TODO: translate error message
-            throw new RuntimeException('File could not be renamed: ' . $from, 500);
+            throw new RuntimeException(sprintf('File could not be renamed: %s -> %s (%s)', $from, $to, $mediaPath), 500);
         }
 
         // TODO: Add missing logic to handle retina files.
@@ -457,7 +462,7 @@ trait MediaUploadTrait
             $result = rename($fromPath . '.meta.yaml', $toPath . '.meta.yaml');
             if (!$result) {
                 // TODO: translate error message
-                throw new RuntimeException('Meta file could not be renamed: ' . $from, 500);
+                throw new RuntimeException(sprintf('Meta could not be renamed: %s -> %s (%s)', $from, $to, $mediaPath), 500);
             }
         }
     }
