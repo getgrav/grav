@@ -261,7 +261,7 @@ class Grav extends Container
         );
 
         $default = function (ServerRequestInterface $request) {
-            return new Response(404);
+            return new Response(404, ['Expires' => 0, 'Cache-Control' => 'no-cache, no-store, must-revalidate'], 'Not Found');
         };
 
         /** @var Debugger $debugger */

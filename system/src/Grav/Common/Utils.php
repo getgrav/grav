@@ -130,6 +130,28 @@ abstract class Utils
     }
 
     /**
+     * Helper method to find the full path to a file, be it a stream, a relative path, or
+     * already a full path
+     *
+     * @param $path
+     * @return string
+     */
+    public static function fullPath($path)
+    {
+        $locator = Grav::instance()['locator'];
+
+        if ($locator->isStream($path)) {
+            $path = $locator->findResource($path, true);
+        } elseif (!Utils::startsWith($path, GRAV_ROOT)) {
+            $base_url = Grav::instance()['base_url'];
+            $path = GRAV_ROOT . '/' . ltrim(Utils::replaceFirstOccurrence($base_url, '', $path), '/');
+        }
+
+        return $path;
+    }
+
+
+    /**
      * Check if the $haystack string starts with the substring $needle
      *
      * @param  string $haystack

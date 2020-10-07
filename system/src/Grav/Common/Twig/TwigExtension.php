@@ -11,10 +11,12 @@ namespace Grav\Common\Twig;
 
 use Cron\CronExpression;
 use Grav\Common\Config\Config;
+use Grav\Common\Data\Data;
 use Grav\Common\Debugger;
 use Grav\Common\Grav;
 use Grav\Common\Language\Language;
 use Grav\Common\Page\Collection;
+use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Page\Media;
 use Grav\Common\Scheduler\Cron;
 use Grav\Common\Security;
@@ -25,6 +27,7 @@ use Grav\Common\Twig\TokenParser\TwigTokenParserSwitch;
 use Grav\Common\Twig\TokenParser\TwigTokenParserThrow;
 use Grav\Common\Twig\TokenParser\TwigTokenParserTryCatch;
 use Grav\Common\Twig\TokenParser\TwigTokenParserMarkdown;
+use Grav\Common\Twig\TokenParser\TwigTokenParserCache;
 use Grav\Common\User\Interfaces\UserInterface;
 use Grav\Common\Utils;
 use Grav\Common\Yaml;
@@ -167,13 +170,14 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
             new \Twig_SimpleFunction('exif', [$this, 'exifFunc']),
             new \Twig_SimpleFunction('media_directory', [$this, 'mediaDirFunc']),
             new \Twig_SimpleFunction('body_class', [$this, 'bodyClassFunc']),
-            new \Twig_SimpleFunction('theme_var', [$this, 'themeVarFunc']),
-            new \Twig_SimpleFunction('header_var', [$this, 'pageHeaderVarFunc']),
+            new \Twig_SimpleFunction('theme_var', [$this, 'themeVarFunc'], ['needs_context' => true]),
+            new \Twig_SimpleFunction('header_var', [$this, 'pageHeaderVarFunc'], ['needs_context' => true]),
             new \Twig_SimpleFunction('read_file', [$this, 'readFileFunc']),
             new \Twig_SimpleFunction('nicenumber', [$this, 'niceNumberFunc']),
             new \Twig_SimpleFunction('nicefilesize', [$this, 'niceFilesizeFunc']),
             new \Twig_SimpleFunction('nicetime', [$this, 'nicetimeFunc']),
             new \Twig_SimpleFunction('cron', [$this, 'cronFunc']),
+            new \Twig_SimpleFunction('svg_image', [$this, 'svgImageFunction']),
             new \Twig_SimpleFunction('xss', [$this, 'xssFunc']),
 
 
@@ -201,6 +205,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
             new TwigTokenParserStyle(),
             new TwigTokenParserMarkdown(),
             new TwigTokenParserSwitch(),
+            new TwigTokenParserCache(),
         ];
     }
 
@@ -1281,17 +1286,64 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
 
     /**
      * Get a theme variable
+     * Will try to get the variable for the current page, if not found, it tries it's parent page on up to root.
+     * If still not found, will use the theme's configuration value,
+     * If still not found, will use the $default value passed in
      *
-     * @param string $var
-     * @param bool $default
+     * @param $context      Twig Context
+     * @param string $var variable to be found (using dot notation)
+     * @param null $default the default value to be used as last resort
+     * @param null $page an optional page to use for the current page
+     * @param bool $exists toggle to simply return the page where the variable is set, else null
      * @return string
      */
-    public function themeVarFunc($var, $default = null)
+    public function themeVarFunc($context, $var, $default = null, $page = null, $exists = false)
     {
-        $header = $this->grav['page']->header();
-        $header_classes = $header->{$var} ?? null;
+        $page = $page ?? $context['page'] ?? Grav::instance()['page'] ?? null;
 
-        return $header_classes ?: $this->config->get('theme.' . $var, $default);
+        // Try to find var in the page headers
+        if ($page instanceof PageInterface && $page->exists()) {
+            // Loop over pages and look for header vars
+            while ($page && !$page->root()) {
+                $header = new Data((array)$page->header());
+                $value = $header->get($var);
+                if (isset($value)) {
+                    if ($exists) {
+                        return $page;
+                    } else {
+                        return $value;
+                    }
+
+                }
+                $page = $page->parent();
+            }
+        }
+
+        if ($exists) {
+            return false;
+        } else {
+            return Grav::instance()['config']->get('theme.' . $var, $default);
+        }
+    }
+
+    /**
+     * Look for a page header variable in an array of pages working its way through until a value is found
+     *
+     * @param $context
+     * @param string $var the variable to look for in the page header
+     * @param string|string[]|null $pages array of pages to check (current page upwards if not null)
+     * @param bool $exists if true, return the page where the var is found, not the value
+     * @return mixed
+     * @deprecated 1.7 Use themeVarFunc() instead
+     */
+    public function pageHeaderVarFunc($context, $var, $pages = null)
+    {
+        if (is_array($pages)) {
+            $page = array_shift($pages);
+        } else {
+            $page = null;
+        }
+        return $this->themeVarFunc($context, $var, null, $page);
     }
 
     /**
@@ -1317,41 +1369,6 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
         }
 
         return $body_classes;
-    }
-
-    /**
-     * Look for a page header variable in an array of pages working its way through until a value is found
-     *
-     * @param string $var
-     * @param string|string[]|null $pages
-     * @return mixed
-     */
-    public function pageHeaderVarFunc($var, $pages = null)
-    {
-        if ($pages === null) {
-            $pages = $this->grav['page'];
-        }
-
-        // Make sure pages are an array
-        if (!\is_array($pages)) {
-            $pages = [$pages];
-        }
-
-        // Loop over pages and look for header vars
-        foreach ($pages as $page) {
-            if (\is_string($page)) {
-                $page = $this->grav['pages']->find($page);
-            }
-
-            if ($page) {
-                $header = $page->header();
-                if (isset($header->{$var})) {
-                    return $header->{$var};
-                }
-            }
-        }
-
-        return null;
     }
 
     /**
@@ -1442,4 +1459,41 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
                 break;
         }
     }
+
+    /**
+     * Returns the content of an SVG image and adds extra classes as needed
+     *
+     * @param $path
+     * @param $classes
+     * @return string|string[]|null
+     */
+    public static function svgImageFunction($path, $classes)
+    {
+        $path = Utils::fullPath($path);
+
+        if (file_exists($path)) {
+            $svg = file_get_contents($path);
+            $classes = " inline-block $classes";
+            $matched = false;
+
+            //Look for existing class
+            $svg = preg_replace_callback('/^<svg.*?(class=\"(.*?)").*>/', function($matches) use ($classes, &$matched) {
+                if (isset($matches[2])) {
+                    $new_classes = $matches[2] . $classes;
+                    $matched = true;
+                    return str_replace($matches[1], "class=\"$new_classes\"", $matches[0]);
+                }
+            }, $svg
+            );
+
+            // no matches found just add the class
+            if (!$matched) {
+                $classes = trim($classes);
+                $svg = str_replace('<svg ', "<svg class=\"$classes\" ", $svg);
+            }
+
+            return $svg;
+        }
+    }
+
 }
