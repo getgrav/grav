@@ -1,5 +1,5 @@
 # v1.7.0-rc.17
-## mm/dd/2020
+## 10/07/2020
 
 1. [](#new)
     * Added a `getAllHeaders()` compatibility function
