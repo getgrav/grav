@@ -469,15 +469,20 @@
     * Optimization: Combine some early Grav processors into a single one
 
 # v1.6.28
-## mm/dd/2020
+## 10/07/2020
 
 1. [](#new)
     * Back-ported twig `{% cache %}` tag from Grav 1.7
     * Back-ported `Utils::fullPath()` helper function from Grav 1.7
-    * Back-ported `{{ svg_image() }}` Twig function from Grav .17
+    * Back-ported `{{ svg_image() }}` Twig function from Grav 1.7
+    * Back-ported `Folder::countChildren()` function from Grav 1.7
 1. [](#improved)
     * Use new `{{ theme_var() }}` enhanced logic from Grav 1.7
+    * Improved `Excerpts` class with fixes and functionality from Grav 1.7
     * Ensure `onBlueprintCreated()` is initialized first
+    * Do not cache default `404` error page
+    * Composer update of vendor libraries
+    * Switched `Caddyfile` to use new Caddy2 syntax + improved usability
 1. [](#bugfix)
     * Fixed Referer reference during GPM calls.
     * Fixed fatal error with toggled lists
