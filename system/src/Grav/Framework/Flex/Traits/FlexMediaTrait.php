@@ -81,7 +81,7 @@ trait FlexMediaTrait
         $schema = $this->getBlueprint()->schema();
         $settings = $field && is_object($schema) ? (array)$schema->getProperty($field) : null;
 
-        if (isset($settings['type']) && \in_array($settings['type'], ['avatar', 'file', 'pagemedia'])) {
+        if (isset($settings['type']) && (\in_array($settings['type'], ['avatar', 'file', 'pagemedia']) || !empty($settings['destination']))) {
             // Set destination folder.
             $settings['media_field'] = true;
             if (empty($settings['destination']) || \in_array($settings['destination'], ['@self', 'self@', '@self@'], true)) {
@@ -102,7 +102,9 @@ trait FlexMediaTrait
      */
     protected function getMediaFieldSettings(string $field): array
     {
-        return $this->getFieldSettings($field) ?? ['accept' => '*', 'limit' => 1000];
+        $settings = $this->getFieldSettings($field) ?? [];
+
+        return $settings + ['accept' => '*', 'limit' => 1000, 'self' => true];
     }
 
     /**
