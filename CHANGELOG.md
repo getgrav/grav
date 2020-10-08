@@ -3,6 +3,7 @@
 
 1. [](#bugfix)
     * Accessing page with unsupported file extension (jpg, pdf, xsl) will use wrong mime type [#3031](https://github.com/getgrav/grav/issues/3031)
+    * Fixed media crashing on a bad image
 
 # v1.7.0-rc.17
 ## 10/07/2020

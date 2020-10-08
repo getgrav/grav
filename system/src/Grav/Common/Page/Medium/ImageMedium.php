@@ -55,10 +55,11 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
 
         if (!($this->offsetExists('width') && $this->offsetExists('height') && $this->offsetExists('mime'))) {
             $image_info = getimagesize($path);
-
-            $this->def('width', $image_info[0]);
-            $this->def('height', $image_info[1]);
-            $this->def('mime', $image_info['mime']);
+            if ($image_info) {
+                $this->def('width', $image_info[0]);
+                $this->def('height', $image_info[1]);
+                $this->def('mime', $image_info['mime']);
+            }
         }
 
         $this->reset();
