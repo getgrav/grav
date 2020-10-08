@@ -374,7 +374,9 @@ class Twig
     {
         // set the page now its been processed
         $this->grav->fireEvent('onTwigSiteVariables');
+        /** @var Pages $pages */
         $pages = $this->grav['pages'];
+        /** @var PageInterface $page */
         $page = $this->grav['page'];
         $content = $page->content();
 
@@ -395,6 +397,7 @@ class Twig
 
         // Get Twig template layout
         $template = $this->getPageTwigTemplate($page, $format);
+        $page->templateFormat($format);
 
         try {
             $output = $this->twig->render($template, $vars + $twig_vars);
@@ -445,7 +448,7 @@ class Twig
      * @param string|null $format
      * @return string
      */
-    public function getPageTwigTemplate($page, $format = null)
+    public function getPageTwigTemplate($page, &$format = null)
     {
         $template = $page->template();
         $extension = $format ?: $page->templateFormat();
@@ -463,14 +466,17 @@ class Twig
                 // Try with template + html.twig
                 if ($twig_extension !== TEMPLATE_EXT && $loader->exists($template . TEMPLATE_EXT)) {
                     $page_template = $template . TEMPLATE_EXT;
+                    $format = 'html';
                 // Try with default and original extension
                 } elseif ($loader->exists('default' . $twig_extension)) {
                     $page_template = 'default' . $twig_extension;
                 // Else try default + default extension
                 } elseif (!$page->isModule() && $loader->exists('default' . TEMPLATE_EXT)) {
                     $page_template = 'default' . TEMPLATE_EXT;
+                    $format = 'html';
                 } else {
                     $page_template = 'modular/default' . TEMPLATE_EXT;
+                    $format = 'html';
                 }
             }
         }

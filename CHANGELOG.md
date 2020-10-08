@@ -1,3 +1,9 @@
+# v1.7.0-rc.18
+## mm/dd/2020
+
+1. [](#bugfix)
+    * Accessing page with unsupported file extension (jpg, pdf, xsl) will use wrong mime type [#3031](https://github.com/getgrav/grav/issues/3031)
+
 # v1.7.0-rc.17
 ## 10/07/2020
 
