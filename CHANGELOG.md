@@ -2,6 +2,7 @@
 ## mm/dd/2020
 
 1. [](#bugfix)
+    * *Menu Visibility Requires Access* Security option setting wrong frontmatter [login#265](https://github.com/getgrav/grav-plugin-login/issues/265)
     * Accessing page with unsupported file extension (jpg, pdf, xsl) will use wrong mime type [#3031](https://github.com/getgrav/grav/issues/3031)
     * Fixed media crashing on a bad image
 

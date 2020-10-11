@@ -7,7 +7,7 @@ form:
 
       fields:
 
-        header.visibility_requires_access:
+        header.login.visibility_requires_access:
           type: toggle
           toggleable: true
           label: PLUGIN_ADMIN.PAGE_VISIBILITY_REQUIRES_ACCESS
