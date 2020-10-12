@@ -1,4 +1,4 @@
-# UPGRADE FROM 1.6 TO 1.7
+# UPGRADE FROM 1.6 TO 1.7.RC17
 
 ## ADMINISTRATORS
 
@@ -20,6 +20,7 @@
 
 * Support for `webp` image format
 * Markdown: Added support for native `loading=lazy` attributes on images.  Can be set in `system.images.defaults` or per md image with `?loading=lazy`
+* Added ability to `noprocess` specific items only in Link/Image Excerpts, e.g. `http://foo.com/page?id=foo&target=_blank&noprocess=id`
 
 ### Multi-language
 
@@ -191,6 +192,7 @@
 
 * Added `MediaTrait::freeMedia()` method to free media (and memory)
 * Added support for uploading and deleting images directly in `Media` by using PSR-7
+* Adjusted asset types to enable extension of assets in class
 * **BC BREAK** Media no longer extends `Getters`, accessing `$media->$filename` no longer works, use `$media[$filename]` instead!
 
 ### Markdown
@@ -217,10 +219,12 @@
 * Added `getFlexFeatures()` method to return all features that `FlexObject` or `FlexCollection` implements
 * Added `FlexStorage::getMetaData()` to get updated object meta information for listed keys
 * `FlexDirectory::getObject()` can now be called without any parameters to create a new object
+* Flex Directory: Implemented customizable configuration per flex type
 * **DEPRECATED** `FlexDirectory::update()` and `FlexDirectory::remove()`
 * **BC BREAK** Moved all Flex type classes under `Grav\Common\Flex`
 * **BC BREAK** `FlexStorageInterface::getStoragePath()` and `getMediaPath()` can now return null
 * **BC BREAK** Flex objects no longer return temporary key if they do not have one; empty key is returned instead
+* **BC BREAK** Added reload argument to `FlexStorageInterface::getMetaData()`
 * You can add `edit_list.html.twig` file to a form field in order to customize look in the listing view
 
 ### Templating
@@ -229,10 +233,13 @@
 * Added a new `{% cache %}` Twig tag eliminating need for `twigcache` extension.
 * Added `array_diff()` twig function
 * Added `template_from_string()` twig function
+* Added a new `svg_image()` twig function to make it easier to 'include' SVG source in Twig
 * Improved `url()` twig function to take third parameter (`true`) to return URL on non-existing file instead of returning false
 * Improved `|array` twig filter to work with iterators and objects with `toArray()` method
 * Improved `authorize()` twig function to work better with nested rule parameters
 * Improved `|yaml_serialize` twig filter: added support for `JsonSerializable` objects and other array-like objects
+* Added `themes` to cached blueprints and configuration
+* Added default templates for `external.html.twig`, `default.html.twig`, and `modular.html.twig`
 
 ### Multi-language
 
@@ -291,14 +298,16 @@
 
 * Added `Utils::isAssoc()` and `Utils::isNegative()` helper methods
 * Added `Utils::simpleTemplate()` method for very simple variable templating
+* Added `Utils::fullPath()` to get the full path to a file be it stream, relative, etc.
 * Support customizable null character replacement in `CSVFormatter::decode()`
 * Added new `Security::sanitizeSVG()` function
 * Added `$grav->close()` method to properly terminate the request with a response
-* Added `Folder::hasChildren()` method to determine if a folder has child folders
+* Added `Folder::countChildren()` method to determine if a folder has child folders
 * Support symlinks when saving `File`
 * Added `Route::getBase()` method
 * **BC BREAK** Make `Route` objects immutable. This means that you need to do: `{% set route = route.withExtension('.html') %}` (for all `withX` methods) to keep the updated version.
 * Better `Content-Encoding` handling in Apache when content compression is disabled
+* Added a `Uri::getAllHeaders()` compatibility function
 
 ### CLI
 
@@ -321,6 +330,8 @@
 ## PLUGINS
 
 ### Admin
+
+* Added `Content Editor` option to user account blueprint
 
 * **BC BREAK** Admin will not initialize frontend pages anymore, this has been done to greatly speed up Admin plugin.
 
