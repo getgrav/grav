@@ -631,17 +631,19 @@ class Pages
         }
 
         // Handle '@page', '@page.modular: false', '@self' and '@self.modular: false'.
-        if (null === $type || ($type === 'modular' && ($params[0] ?? null) === false)) {
+        if (null === $type || (in_array($type, ['modular', 'modules']) && ($params[0] ?? null) === false)) {
             $type = 'children';
         }
 
         switch ($type) {
             case 'all':
                 return $page->children();
+            case 'modules':
             case 'modular':
-                return $page->children()->modular();
+                return $page->children()->modules();
+            case 'pages':
             case 'children':
-                return $page->children()->nonModular();
+                return $page->children()->pages();
             case 'page':
             case 'self':
                 return (new Collection())->addPage($page);
@@ -653,7 +655,7 @@ class Pages
                 $parent = $page->parent();
                 return $parent ? $parent->children()->remove($page->path()) : new Collection();
             case 'descendants':
-                return $this->all($page)->remove($page->path())->nonModular();
+                return $this->all($page)->remove($page->path())->pages();
             default:
                 // Unknown type; return empty collection.
                 return new Collection();
