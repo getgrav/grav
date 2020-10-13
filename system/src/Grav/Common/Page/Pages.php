@@ -450,7 +450,7 @@ class Pages
         if (!isset($filters['published']) && !isset($filters['non-published'])) {
             $filters['published'] = true;
         }
-        foreach (['published', 'visible', 'modular', 'modules', 'routable'] as $type) {
+        foreach (['published', 'visible', 'modular', 'page', 'module', 'routable'] as $type) {
             $var = "non-{$type}";
             if (isset($filters[$type], $filters[$var]) && $filters[$type] && $filters[$var]) {
                 unset($filters[$type], $filters[$var]);
@@ -480,14 +480,15 @@ class Pages
                         $collection = $collection->nonVisible();
                     }
                     break;
-                case 'pages':
-                case 'non-modules':
+                case 'page':
+                case 'non-module':
                 case 'non-modular':
                     if ((bool)$filter) {
                         $collection = $collection->pages();
                     }
                     break;
-                case 'modules':
+                case 'non-page':
+                case 'module':
                 case 'modular':
                     if ((bool)$filter) {
                         $collection = $collection->modules();
@@ -646,7 +647,7 @@ class Pages
                 return $page->children()->pages();
             case 'page':
             case 'self':
-                return (new Collection())->addPage($page);
+                return !$page->root() ? (new Collection())->addPage($page) : new Collection();
             case 'parent':
                 $parent = $page->parent();
                 $collection = new Collection();
