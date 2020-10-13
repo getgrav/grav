@@ -77,6 +77,8 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
                 'dateRange' => true,
                 'visible' => true,
                 'nonVisible' => true,
+                'pages' => true,
+                'modules' => true,
                 'modular' => true,
                 'nonModular' => true,
                 'published' => true,
@@ -478,11 +480,32 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
     }
 
     /**
-     * Creates new collection with only modular pages
+     * Creates new collection with only pages
      *
-     * @return static The collection with only modular pages
+     * @return static The collection with only pages
      */
-    public function modular()
+    public function pages()
+    {
+        $entries = [];
+        /**
+         * @var int|string $key
+         * @var PageInterface|null $object
+         */
+        foreach ($this as $key => $object) {
+            if ($object && !$object->isModule()) {
+                $entries[$key] = $object;
+            }
+        }
+
+        return $this->createFrom($entries);
+    }
+
+    /**
+     * Creates new collection with only modules
+     *
+     * @return static The collection with only modules
+     */
+    public function modules()
     {
         $entries = [];
         /**
@@ -499,24 +522,23 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
     }
 
     /**
-     * Creates new collection with only non-modular pages
+     * Alias of modules()
      *
-     * @return static The collection with only non-modular pages
+     * @return static
+     */
+    public function modular()
+    {
+        return $this->modules();
+    }
+
+    /**
+     * Alias of pages()
+     *
+     * @return static
      */
     public function nonModular()
     {
-        $entries = [];
-        /**
-         * @var int|string $key
-         * @var PageInterface|null $object
-         */
-        foreach ($this as $key => $object) {
-            if ($object && !$object->isModule()) {
-                $entries[$key] = $object;
-            }
-        }
-
-        return $this->createFrom($entries);
+        return $this->pages();
     }
 
     /**

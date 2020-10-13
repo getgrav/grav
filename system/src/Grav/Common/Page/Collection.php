@@ -392,11 +392,31 @@ class Collection extends Iterator implements PageCollectionInterface
     }
 
     /**
-     * Creates new collection with only modular pages
+     * Creates new collection with only pages
      *
-     * @return Collection The collection with only modular pages
+     * @return Collection The collection with only pages
      */
-    public function modular()
+    public function pages()
+    {
+        $modular = [];
+
+        foreach ($this->items as $path => $slug) {
+            $page = $this->pages->get($path);
+            if ($page !== null && !$page->isModule()) {
+                $modular[$path] = $slug;
+            }
+        }
+        $this->items = $modular;
+
+        return $this;
+    }
+
+    /**
+     * Creates new collection with only modules
+     *
+     * @return Collection The collection with only modules
+     */
+    public function modules()
     {
         $modular = [];
 
@@ -412,21 +432,25 @@ class Collection extends Iterator implements PageCollectionInterface
     }
 
     /**
-     * Creates new collection with only non-modular pages
+     * Alias of pages()
      *
-     * @return Collection The collection with only non-modular pages
+     * @return Collection The collection with only non-module pages
      */
     public function nonModular()
     {
-        $modular = [];
+        $this->pages();
 
-        foreach ($this->items as $path => $slug) {
-            $page = $this->pages->get($path);
-            if ($page !== null && !$page->isModule()) {
-                $modular[$path] = $slug;
-            }
-        }
-        $this->items = $modular;
+        return $this;
+    }
+
+    /**
+     * Alias of modules()
+     *
+     * @return Collection The collection with only modules
+     */
+    public function modular()
+    {
+        $this->modules();
 
         return $this;
     }

@@ -184,16 +184,32 @@ interface PageCollectionInterface extends Traversable, ArrayAccess, Countable, S
     public function nonVisible();
 
     /**
-     * Creates new collection with only modular pages
+     * Creates new collection with only pages
      *
-     * @return PageCollectionInterface The collection with only modular pages
+     * @return PageCollectionInterface The collection with only pages
+     */
+    public function pages();
+
+    /**
+     * Creates new collection with only modules
+     *
+     * @return PageCollectionInterface The collection with only modules
+     */
+    public function modules();
+
+    /**
+     * Creates new collection with only modules
+     *
+     * @return PageCollectionInterface The collection with only modules
+     * @deprecated 1.7 Use $this->modules() instead
      */
     public function modular();
 
     /**
-     * Creates new collection with only non-modular pages
+     * Creates new collection with only non-module pages
      *
-     * @return PageCollectionInterface The collection with only non-modular pages
+     * @return PageCollectionInterface The collection with only non-module pages
+     * @deprecated 1.7 Use $this->pages() instead
      */
     public function nonModular();
 

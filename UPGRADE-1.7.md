@@ -183,6 +183,9 @@
 * Added `Pages::getCollection()` method
 * Moved `collection()` and `evaluate()` logic from `Page` class into `Pages` class
 * **DEPRECATED** `$page->modular()` in favor of `$page->isModule()`
+* **DEPRECATED** `PageCollectionInterface::nonModular()` in favor of `PageCollectionInterface::pages()`
+* **DEPRECATED** `PageCollectionInterface::modular()` in favor of `PageCollectionInterface::modules()`
+
 * **BC BREAK** Fixed `Page::modular()` and `Page::modularTwig()` returning `null` for folders and other non-initialized pages. Should not affect your code unless you were checking against `false` or `null`.
 * **BC BREAK** Always use `\Grav\Common\Page\Interfaces\PageInterface` instead of `\Grav\Common\Page\Page` in method signatures
 * Admin now uses `Flex Pages` by default, collection will behave in slightly different way

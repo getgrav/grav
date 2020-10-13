@@ -429,7 +429,7 @@ class Pages
         // Filter by taxonomies.
         foreach ($params['taxonomies'] ?? [] as $taxonomy => $items) {
             foreach ($collection as $page) {
-                // Don't filter modular pages
+                // Don't include modules
                 if ($page->isModule()) {
                     continue;
                 }
@@ -450,7 +450,7 @@ class Pages
         if (!isset($filters['published']) && !isset($filters['non-published'])) {
             $filters['published'] = true;
         }
-        foreach (['published', 'visible', 'modular', 'routable'] as $type) {
+        foreach (['published', 'visible', 'modular', 'modules', 'routable'] as $type) {
             $var = "non-{$type}";
             if (isset($filters[$type], $filters[$var]) && $filters[$type] && $filters[$var]) {
                 unset($filters[$type], $filters[$var]);
@@ -480,14 +480,17 @@ class Pages
                         $collection = $collection->nonVisible();
                     }
                     break;
-                case 'modular':
-                    if ((bool)$filter) {
-                        $collection = $collection->modular();
-                    }
-                    break;
+                case 'pages':
+                case 'non-modules':
                 case 'non-modular':
                     if ((bool)$filter) {
-                        $collection = $collection->nonModular();
+                        $collection = $collection->pages();
+                    }
+                    break;
+                case 'modules':
+                case 'modular':
+                    if ((bool)$filter) {
+                        $collection = $collection->modules();
                     }
                     break;
                 case 'routable':
