@@ -450,57 +450,49 @@ class Pages
         if (!isset($filters['published']) && !isset($filters['non-published'])) {
             $filters['published'] = true;
         }
-        foreach (['published', 'visible', 'modular', 'page', 'module', 'routable'] as $type) {
-            $var = "non-{$type}";
-            if (isset($filters[$type], $filters[$var]) && $filters[$type] && $filters[$var]) {
-                unset($filters[$type], $filters[$var]);
-            }
-        }
 
         // Filter the collection
         foreach ($filters as $type => $filter) {
+            // Convert non-type to type.
+            if (str_starts_with($type, 'non-')) {
+                $type = substr($type, 4);
+                $filter = !$filter;
+            }
+
             switch ($type) {
                 case 'published':
-                    if ((bool)$filter) {
+                    if ($filter) {
                         $collection = $collection->published();
-                    }
-                    break;
-                case 'non-published':
-                    if ((bool)$filter) {
+                    } else {
                         $collection = $collection->nonPublished();
                     }
                     break;
                 case 'visible':
-                    if ((bool)$filter) {
+                    if ($filter) {
                         $collection = $collection->visible();
-                    }
-                    break;
-                case 'non-visible':
-                    if ((bool)$filter) {
+                    } else {
                         $collection = $collection->nonVisible();
                     }
                     break;
                 case 'page':
-                case 'non-module':
-                case 'non-modular':
-                    if ((bool)$filter) {
+                    if ($filter) {
                         $collection = $collection->pages();
-                    }
-                    break;
-                case 'non-page':
-                case 'module':
-                case 'modular':
-                    if ((bool)$filter) {
+                    } else {
                         $collection = $collection->modules();
                     }
                     break;
-                case 'routable':
-                    if ((bool)$filter) {
-                        $collection = $collection->routable();
+                case 'module':
+                case 'modular':
+                    if ($filter) {
+                        $collection = $collection->modules();
+                    } else {
+                        $collection = $collection->pages();
                     }
                     break;
-                case 'non-routable':
-                    if ((bool)$filter) {
+                case 'routable':
+                    if ($filter) {
+                        $collection = $collection->routable();
+                    } else {
                         $collection = $collection->nonRoutable();
                     }
                     break;
