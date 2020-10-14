@@ -1,3 +1,9 @@
+# v1.6.27
+## mm/dd/2020
+
+1. [](#bugfix)
+    * Fixed hardcoded system folder in blueprints, config and language streams
+
 # v1.6.28
 ## 10/07/2020
 
