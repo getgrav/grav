@@ -9,7 +9,6 @@
     * Accessing page with unsupported file extension (jpg, pdf, xsl) will use wrong mime type [#3031](https://github.com/getgrav/grav/issues/3031)
     * Fixed media crashing on a bad image
     * Fixed bug in collections where filter `type: false` did not work
-    * Fixed hardcoded system folder in blueprints, config and language streams
 
 # v1.7.0-rc.17
 ## 10/07/2020
@@ -481,6 +480,12 @@
     * Optimization: Initialize debugbar only after the configuration has been loaded
     * Optimization: Combine some early Grav processors into a single one
 
+# v1.6.27
+## mm/dd/2020
+
+1. [](#bugfix)
+    * Fixed hardcoded system folder in blueprints, config and language streams
+
 # v1.6.28
 ## 10/07/2020
 
@@ -517,7 +522,6 @@
     * Fixed blueprint for `system.pages.hide_empty_folders` [#1925](https://github.com/getgrav/grav/issues/2925)
     * JSON Route of homepage with no ‘route’ set is valid
     * Fix case-insensitive search of location header [form#425](https://github.com/getgrav/grav-plugin-form/issues/425)
-
 
 # v1.6.25
 ## 05/14/2020
