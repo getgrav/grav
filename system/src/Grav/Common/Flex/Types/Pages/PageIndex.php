@@ -826,16 +826,39 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
     }
 
     /**
+     * Creates new collection with only non-modular pages
+     *
+     * @return PageCollectionInterface The collection with only non-modular pages
+     */
+    public function pages()
+    {
+        /** @var PageCollectionInterface $collection */
+        $collection = $this->__call('pages', []);
+
+        return $collection;
+    }
+
+    /**
+     * Creates new collection with only modular pages
+     *
+     * @return PageCollectionInterface The collection with only modular pages
+     */
+    public function modules()
+    {
+        /** @var PageCollectionInterface $collection */
+        $collection = $this->__call('modules', []);
+
+        return $collection;
+    }
+
+    /**
      * Creates new collection with only modular pages
      *
      * @return PageCollectionInterface The collection with only modular pages
      */
     public function modular()
     {
-        /** @var PageCollectionInterface $collection */
-        $collection = $this->__call('modular', []);
-
-        return $collection;
+        return $this->modules();
     }
 
     /**
@@ -845,11 +868,7 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
      */
     public function nonModular()
     {
-        /** @var PageCollectionInterface $collection */
-        $collection = $this->__call('nonModular', []);
-
-        return $collection;
-
+        return $this->pages();
     }
 
     /**
