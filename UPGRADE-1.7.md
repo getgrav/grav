@@ -232,7 +232,7 @@
 
 ### Templating
 
-* Added support for Twig 2.12 (still using Twig 1.42)
+* Added support for Twig 2.12 (using Twig 1.43)
 * Added a new `{% cache %}` Twig tag eliminating need for `twigcache` extension.
 * Added `array_diff()` twig function
 * Added `template_from_string()` twig function
