@@ -140,7 +140,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             new TwigFilter('array_unique', 'array_unique'),
             new TwigFilter('basename', 'basename'),
             new TwigFilter('dirname', 'dirname'),
-            new TwigFilter('print_r', 'print_r'),
+            new TwigFilter('print_r', [$this, 'print_r']),
             new TwigFilter('yaml_encode', [$this, 'yamlEncodeFilter']),
             new TwigFilter('yaml_decode', [$this, 'yamlDecodeFilter']),
             new TwigFilter('nicecron', [$this, 'niceCronFilter']),
@@ -181,7 +181,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             new TwigFunction('debug', [$this, 'dump'], ['needs_context' => true, 'needs_environment' => true]),
             new TwigFunction('dump', [$this, 'dump'], ['needs_context' => true, 'needs_environment' => true]),
             new TwigFunction('vardump', [$this, 'vardumpFunc']),
-            new TwigFunction('print_r', 'print_r'),
+            new TwigFunction('print_r', [$this, 'print_r']),
             new TwigFunction('http_response_code', 'http_response_code'),
             new TwigFunction('evaluate', [$this, 'evaluateStringFunc'], ['needs_context' => true]),
             new TwigFunction('evaluate_twig', [$this, 'evaluateTwigFunc'], ['needs_context' => true]),
@@ -239,6 +239,11 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             new TwigTokenParserSwitch(),
             new TwigTokenParserCache(),
         ];
+    }
+
+    public function print_r($var)
+    {
+        return print_r($var, true);
     }
 
     /**
