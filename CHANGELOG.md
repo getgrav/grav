@@ -1,3 +1,9 @@
+# v1.6.29
+## mm/dd/2020
+
+1. [](#improved)
+    * Updated bundled JQuery to latest version `3.5.1`
+
 # v1.6.28
 ## 10/07/2020
 
