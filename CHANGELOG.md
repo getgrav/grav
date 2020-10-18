@@ -3,6 +3,9 @@
 
 1. [](#improved)
     * Updated bundled JQuery to latest version `3.5.1`
+1. [](#bugfix)
+    * Fixed hardcoded system folder in blueprints, config and language streams
+
 
 # v1.6.28
 ## 10/07/2020

@@ -59,13 +59,13 @@ class Setup extends Data
         'blueprints' => [
             'type' => 'ReadOnlyStream',
             'prefixes' => [
-                '' => ['environment://blueprints', 'user://blueprints', 'system/blueprints'],
+                '' => ['environment://blueprints', 'user://blueprints', 'system://blueprints'],
             ]
         ],
         'config' => [
             'type' => 'ReadOnlyStream',
             'prefixes' => [
-                '' => ['environment://config', 'user://config', 'system/config'],
+                '' => ['environment://config', 'user://config', 'system://config'],
             ]
         ],
         'plugins' => [
@@ -89,7 +89,7 @@ class Setup extends Data
         'languages' => [
             'type' => 'ReadOnlyStream',
             'prefixes' => [
-                '' => ['environment://languages', 'user://languages', 'system/languages'],
+                '' => ['environment://languages', 'user://languages', 'system://languages'],
             ]
         ],
         'cache' => [
