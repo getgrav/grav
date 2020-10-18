@@ -414,6 +414,8 @@ class Language
             $fallback_languages = [];
 
             if (null === $fallback && $this->config->get('system.languages.pages_fallback_only', false)) {
+                user_error('Configuration option `system.languages.pages_fallback_only` is deprecated since Grav 1.7, use `system.languages.content_fallback` instead', E_USER_DEPRECATED);
+
                 // Special fallback list returns itself and all the previous items in reverse order:
                 // active: 'v2', languages: ['v1', 'v2', 'v3', 'v4'] => ['v2', 'v1', '']
                 if ($includeDefault) {
