@@ -5,6 +5,8 @@
     * Added `FlexDirectoryInterface` interface
     * Renamed `PageCollectionInterface::nonModular()` into `PageCollectionInterface::pages()` and deprecated the old method
     * Renamed `PageCollectionInterface::modular()` into `PageCollectionInterface::modules()` and deprecated the old method
+1. [](#improved)
+    * Updated bundled JQuery to latest version `3.5.1`
 1. [](#bugfix)
     * *Menu Visibility Requires Access* Security option setting wrong frontmatter [login#265](https://github.com/getgrav/grav-plugin-login/issues/265)
     * Accessing page with unsupported file extension (jpg, pdf, xsl) will use wrong mime type [#3031](https://github.com/getgrav/grav/issues/3031)
