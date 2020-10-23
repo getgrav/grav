@@ -298,8 +298,8 @@ class Job
         if (is_callable($this->command)) {
             $this->output = $this->exec();
         } else {
-            $args = \is_string($this->args) ? $this->args : implode(' ', $this->args);
-            $command = $this->command . ' ' . $args;
+            $args = \is_string($this->args) ? explode(' ', $this->args) : $this->args;
+            $command = array_merge([$this->command], $args);
             $process = new Process($command);
 
             $this->process = $process;
