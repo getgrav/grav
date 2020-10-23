@@ -12,6 +12,8 @@
 * Added configuration option `system.strict_mode.blueprint_compat` to maintain old `validation: strict` behavior
   * If you disable compatibiity, form validation will be much more strict (recommended, but may break existing forms)
 
+* DOCUMENT NEW FORM FLASH!
+
 ### Pages
 
 * **BC BREAK** Fixed 404 error page when you go to non-routable page with routable child pages under it. Now you get redirected to the first routable child page instead. This is probably what you wanted in the first place. If you do not want this new behavior, you need to **TODO**

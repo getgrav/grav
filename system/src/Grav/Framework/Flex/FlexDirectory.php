@@ -23,6 +23,7 @@ use Grav\Framework\Cache\Adapter\MemoryCache;
 use Grav\Framework\Cache\CacheInterface;
 use Grav\Framework\Flex\Interfaces\FlexAuthorizeInterface;
 use Grav\Framework\Flex\Interfaces\FlexCollectionInterface;
+use Grav\Framework\Flex\Interfaces\FlexDirectoryInterface;
 use Grav\Framework\Flex\Interfaces\FlexFormInterface;
 use Grav\Framework\Flex\Interfaces\FlexIndexInterface;
 use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
@@ -44,7 +45,7 @@ use function is_callable;
  * Class FlexDirectory
  * @package Grav\Framework\Flex
  */
-class FlexDirectory implements FlexAuthorizeInterface
+class FlexDirectory implements FlexDirectoryInterface, FlexAuthorizeInterface
 {
     use FlexAuthorizeTrait;
 

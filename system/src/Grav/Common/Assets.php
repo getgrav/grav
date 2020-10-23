@@ -293,7 +293,7 @@ class Assets extends PropertyObject
      * @param bool    $overwrite
      * @return $this
      */
-    public function registerCollection($collectionName, Array $assets, $overwrite = false)
+    public function registerCollection($collectionName, array $assets, $overwrite = false)
     {
         if ($overwrite || !isset($this->collections[$collectionName])) {
             $this->collections[$collectionName] = $assets;
