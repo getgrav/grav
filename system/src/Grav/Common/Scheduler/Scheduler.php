@@ -246,7 +246,7 @@ class Scheduler
      */
     public function isCrontabSetup()
     {
-        $process = new Process('crontab -l');
+        $process = new Process(['crontab', '-l']);
         $process->run();
 
         if ($process->isSuccessful()) {
