@@ -4,7 +4,8 @@
 1. [](#new)
     * Added `FlexDirectoryInterface` interface
     * Renamed `PageCollectionInterface::nonModular()` into `PageCollectionInterface::pages()` and deprecated the old method
-    * Renamed `PageCollectionInterface::modular()` into `PageCollectionInterface::modules()` and deprecated the old method
+    * Renamed `PageCollectionInterface::modular()` into `PageCollectionInterface::modules()` and deprecated the old method'
+    * Upgraded `bin/composer.phar` to `2.0.2` which is all new and much faster
 1. [](#improved)
     * Updated bundled JQuery to latest version `3.5.1`
 1. [](#bugfix)
