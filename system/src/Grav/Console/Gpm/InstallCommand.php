@@ -570,7 +570,8 @@ class InstallCommand extends ConsoleCommand
                 [
                     'slug' => $package->slug,
                     'filename' => $package->premium['filename'],
-                    'license_key' => $license
+                    'license_key' => $license,
+                    'sid' => md5(GRAV_ROOT)
                 ]
             ));
 
