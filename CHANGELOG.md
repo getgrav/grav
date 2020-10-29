@@ -3,6 +3,7 @@
 
 1. [](#bugfix)
     * Fixed hardcoded system folder in blueprints, config and language streams
+    * Added `.htaccess` rule to block attempts to use Twig in the request URL
 
 # v1.6.28
 ## 10/07/2020
