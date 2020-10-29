@@ -485,11 +485,15 @@
     * Optimization: Initialize debugbar only after the configuration has been loaded
     * Optimization: Combine some early Grav processors into a single one
 
-# v1.6.27
+# v1.6.29
 ## mm/dd/2020
 
+1. [](#improved)
+    * Updated bundled JQuery to latest version `3.5.1`
 1. [](#bugfix)
     * Fixed hardcoded system folder in blueprints, config and language streams
+    * Added `.htaccess` rule to block attempts to use Twig in the request URL
+
 
 # v1.6.28
 ## 10/07/2020
