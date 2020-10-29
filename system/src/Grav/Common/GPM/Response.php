@@ -57,7 +57,7 @@ class Response
         }
 
         $config = Grav::instance()['config'];
-        $referer = Grav::instance()['uri']->rootUrl(true);
+        $referer = \defined('GRAV_CLI') ? 'grav_cli' : Grav::instance()['uri']->rootUrl(true);
         $options = new HttpOptions();
 
         // Set default Headers
