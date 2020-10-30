@@ -2,6 +2,7 @@
 ## mm/dd/2020
 
 1. [](#new)
+    * Set minimum requirements to **PHP 7.2.5**
     * Added `FlexDirectoryInterface` interface
     * Renamed `PageCollectionInterface::nonModular()` into `PageCollectionInterface::pages()` and deprecated the old method
     * Renamed `PageCollectionInterface::modular()` into `PageCollectionInterface::modules()` and deprecated the old method'
