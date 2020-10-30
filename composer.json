@@ -14,14 +14,13 @@
     "require": {
         "php": "^7.2.5 || ^8.0",
         "ext-json": "*",
-        "ext-mbstring": "*",
         "ext-openssl": "*",
         "ext-curl": "*",
         "ext-zip": "*",
         "ext-dom": "*",
         "ext-libxml": "*",
+        "symfony/polyfill-mbstring": "~1.15",
         "symfony/polyfill-iconv": "^1.15",
-        "symfony/polyfill-php72": "^1.15",
         "symfony/polyfill-php73": "^1.15",
         "symfony/polyfill-php74": "^1.15",
         "symfony/polyfill-php80": "^1.15",
@@ -70,6 +69,8 @@
         "victorjonsson/markdowndocs": "dev-master"
     },
     "suggest": {
+        "ext-mbstring": "Recommended for better performance",
+        "ext-iconv": "Recommended for better performance",
         "ext-zend-opcache": "Recommended for better performance",
         "ext-intl": "Recommended for multi-language sites",
         "ext-memcache": "Needed to support Memcache servers",
