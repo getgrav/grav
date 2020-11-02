@@ -741,6 +741,64 @@ form:
               size: small
               label: PLUGIN_ADMIN.REDIS_PASSWORD
 
+            flex_caching:
+              type: section
+              title: PLUGIN_ADMIN.FLEX_CACHING
+
+            flex.cache.index.enabled:
+              type: toggle
+              label: PLUGIN_ADMIN.FLEX_INDEX_CACHE_ENABLED
+              highlight: 1
+              default: 1
+              options:
+                1: PLUGIN_ADMIN.ENABLED
+                0: PLUGIN_ADMIN.DISABLED
+              validate:
+                type: bool
+
+            flex.cache.index.lifetime:
+              type: text
+              label: PLUGIN_ADMIN.FLEX_INDEX_CACHE_LIFETIME
+              default: 60
+              validate:
+                type: int
+
+            flex.cache.object.enabled:
+              type: toggle
+              label: PLUGIN_ADMIN.FLEX_OBJECT_CACHE_ENABLED
+              highlight: 1
+              default: 1
+              options:
+                1: PLUGIN_ADMIN.ENABLED
+                0: PLUGIN_ADMIN.DISABLED
+              validate:
+                type: bool
+
+            flex.cache.object.lifetime:
+              type: text
+              label: PLUGIN_ADMIN.FLEX_OBJECT_CACHE_LIFETIME
+              default: 600
+              validate:
+                type: int
+
+            flex.cache.render.enabled:
+              type: toggle
+              label: PLUGIN_ADMIN.FLEX_RENDER_CACHE_ENABLED
+              highlight: 1
+              default: 1
+              options:
+                1: PLUGIN_ADMIN.ENABLED
+                0: PLUGIN_ADMIN.DISABLED
+              validate:
+                type: bool
+
+            flex.cache.render.lifetime:
+              type: text
+              label: PLUGIN_ADMIN.FLEX_RENDER_CACHE_LIFETIME
+              default: 600
+              validate:
+                type: int
+
         twig:
           type: tab
           title: PLUGIN_ADMIN.TWIG_TEMPLATING
@@ -1453,48 +1511,6 @@ form:
               label: PLUGIN_ADMIN.CUSTOM_BASE_URL
               help: PLUGIN_ADMIN.CUSTOM_BASE_URL_HELP
 
-            accounts.type:
-              type: hidden
-
-            accounts.storage:
-              type: hidden
-
-            strict_mode.blueprint_compat:
-              type: toggle
-              label: PLUGIN_ADMIN.STRICT_BLUEPRINT_COMPAT
-              highlight: 1
-              default: 1
-              help: PLUGIN_ADMIN.STRICT_BLUEPRINT_COMPAT_HELP
-              options:
-                1: PLUGIN_ADMIN.YES
-                0: PLUGIN_ADMIN.NO
-              validate:
-                type: bool
-
-            strict_mode.yaml_compat:
-              type: toggle
-              label: PLUGIN_ADMIN.STRICT_YAML_COMPAT
-              highlight: 1
-              default: 1
-              help: PLUGIN_ADMIN.STRICT_YAML_COMPAT_HELP
-              options:
-                1: PLUGIN_ADMIN.YES
-                0: PLUGIN_ADMIN.NO
-              validate:
-                type: bool
-
-            strict_mode.twig_compat:
-              type: toggle
-              label: PLUGIN_ADMIN.STRICT_TWIG_COMPAT
-              highlight: 1
-              default: 1
-              help: PLUGIN_ADMIN.STRICT_TWIG_COMPAT_HELP
-              options:
-                1: PLUGIN_ADMIN.YES
-                0: PLUGIN_ADMIN.NO
-              validate:
-                type: bool
-
             http_x_forwarded.protocol:
               type: toggle
               label: HTTP_X_FORWARDED_PROTO Enabled
@@ -1539,6 +1555,43 @@ form:
               validate:
                 type: bool
 
+
+            strict_mode.blueprint_compat:
+              type: toggle
+              label: PLUGIN_ADMIN.STRICT_BLUEPRINT_COMPAT
+              highlight: 1
+              default: 1
+              help: PLUGIN_ADMIN.STRICT_BLUEPRINT_COMPAT_HELP
+              options:
+                1: PLUGIN_ADMIN.YES
+                0: PLUGIN_ADMIN.NO
+              validate:
+                type: bool
+
+            strict_mode.yaml_compat:
+              type: toggle
+              label: PLUGIN_ADMIN.STRICT_YAML_COMPAT
+              highlight: 1
+              default: 1
+              help: PLUGIN_ADMIN.STRICT_YAML_COMPAT_HELP
+              options:
+                1: PLUGIN_ADMIN.YES
+                0: PLUGIN_ADMIN.NO
+              validate:
+                type: bool
+
+            strict_mode.twig_compat:
+              type: toggle
+              label: PLUGIN_ADMIN.STRICT_TWIG_COMPAT
+              highlight: 1
+              default: 1
+              help: PLUGIN_ADMIN.STRICT_TWIG_COMPAT_HELP
+              options:
+                1: PLUGIN_ADMIN.YES
+                0: PLUGIN_ADMIN.NO
+              validate:
+                type: bool
+
         experimental:
           type: tab
           title: PLUGIN_ADMIN.EXPERIMENTAL
@@ -1549,18 +1602,21 @@ form:
               title: PLUGIN_ADMIN.EXPERIMENTAL
               underline: true
 
-            flex_pages:
-              type: section
-              title: Flex Pages
+#            flex_pages:
+#              type: section
+#              title: Flex Pages
+#
+#            pages.type:
+#              type: select
+#              label: PLUGIN_ADMIN.PAGES_TYPE
+#              highlight: regular
+#              help: PLUGIN_ADMIN.PAGES_TYPE_HELP
+#              options:
+#                regular: PLUGIN_ADMIN.REGULAR
+#                flex: PLUGIN_ADMIN.FLEX
 
             pages.type:
-              type: select
-              label: PLUGIN_ADMIN.PAGES_TYPE
-              highlight: stable
-              help: PLUGIN_ADMIN.PAGES_TYPE_HELP
-              options:
-                regular: PLUGIN_ADMIN.REGULAR
-                flex: PLUGIN_ADMIN.FLEX
+              type: hidden
 
             flex_accounts:
               type: section
@@ -1583,61 +1639,3 @@ form:
               options:
                 file: PLUGIN_ADMIN.FILE
                 folder: PLUGIN_ADMIN.FOLDER
-
-            flex_caching:
-              type: section
-              title: PLUGIN_ADMIN.FLEX_CACHING
-
-            flex.cache.index.enabled:
-              type: toggle
-              label: PLUGIN_ADMIN.FLEX_INDEX_CACHE_ENABLED
-              highlight: 1
-              default: 1
-              options:
-                1: PLUGIN_ADMIN.ENABLED
-                0: PLUGIN_ADMIN.DISABLED
-              validate:
-                type: bool
-
-            flex.cache.index.lifetime:
-              type: text
-              label: PLUGIN_ADMIN.FLEX_INDEX_CACHE_LIFETIME
-              default: 60
-              validate:
-                type: int
-
-            flex.cache.object.enabled:
-              type: toggle
-              label: PLUGIN_ADMIN.FLEX_OBJECT_CACHE_ENABLED
-              highlight: 1
-              default: 1
-              options:
-                1: PLUGIN_ADMIN.ENABLED
-                0: PLUGIN_ADMIN.DISABLED
-              validate:
-                type: bool
-
-            flex.cache.object.lifetime:
-              type: text
-              label: PLUGIN_ADMIN.FLEX_OBJECT_CACHE_LIFETIME
-              default: 600
-              validate:
-                type: int
-
-            flex.cache.render.enabled:
-              type: toggle
-              label: PLUGIN_ADMIN.FLEX_RENDER_CACHE_ENABLED
-              highlight: 1
-              default: 1
-              options:
-                1: PLUGIN_ADMIN.ENABLED
-                0: PLUGIN_ADMIN.DISABLED
-              validate:
-                type: bool
-
-            flex.cache.render.lifetime:
-              type: text
-              label: PLUGIN_ADMIN.FLEX_RENDER_CACHE_LIFETIME
-              default: 600
-              validate:
-                type: int
