@@ -12,9 +12,37 @@ declare(strict_types=1);
 namespace Grav\Framework\File\Formatter;
 
 use Grav\Framework\File\Interfaces\FileFormatterInterface;
+use function is_int;
+use function is_string;
 
 class JsonFormatter extends AbstractFormatter
 {
+    protected $encodeOptions = [
+        'JSON_FORCE_OBJECT' => JSON_FORCE_OBJECT,
+        'JSON_HEX_QUOT' => JSON_HEX_QUOT,
+        'JSON_HEX_TAG' => JSON_HEX_TAG,
+        'JSON_HEX_AMP' => JSON_HEX_AMP,
+        'JSON_HEX_APOS' => JSON_HEX_APOS,
+        'JSON_INVALID_UTF8_IGNORE' => JSON_INVALID_UTF8_IGNORE,
+        'JSON_INVALID_UTF8_SUBSTITUTE' => JSON_INVALID_UTF8_SUBSTITUTE,
+        'JSON_NUMERIC_CHECK' => JSON_NUMERIC_CHECK,
+        'JSON_PARTIAL_OUTPUT_ON_ERROR' => JSON_PARTIAL_OUTPUT_ON_ERROR,
+        'JSON_PRESERVE_ZERO_FRACTION' => JSON_PRESERVE_ZERO_FRACTION,
+        'JSON_PRETTY_PRINT' => JSON_PRETTY_PRINT,
+        'JSON_UNESCAPED_LINE_TERMINATORS' => JSON_UNESCAPED_LINE_TERMINATORS,
+        'JSON_UNESCAPED_SLASHES' => JSON_UNESCAPED_SLASHES,
+        'JSON_UNESCAPED_UNICODE' => JSON_UNESCAPED_UNICODE,
+        //'JSON_THROW_ON_ERROR' => JSON_THROW_ON_ERROR // PHP 7.3
+    ];
+
+    protected $decodeOptions = [
+        'JSON_BIGINT_AS_STRING' => JSON_BIGINT_AS_STRING,
+        'JSON_INVALID_UTF8_IGNORE' => JSON_INVALID_UTF8_IGNORE,
+        'JSON_INVALID_UTF8_SUBSTITUTE' => JSON_INVALID_UTF8_SUBSTITUTE,
+        'JSON_OBJECT_AS_ARRAY' => JSON_OBJECT_AS_ARRAY,
+        //'JSON_THROW_ON_ERROR' => JSON_THROW_ON_ERROR // PHP 7.3
+    ];
+
     public function __construct(array $config = [])
     {
         $config += [
@@ -35,7 +63,22 @@ class JsonFormatter extends AbstractFormatter
      */
     public function getEncodeOptions(): int
     {
-        return $this->getConfig('encode_options');
+        $options = $this->getConfig('encode_options');
+        if (!is_int($options)) {
+            if (is_string($options)) {
+                $list = preg_split('/[\s,|]+/', $options);
+                $options = 0;
+                foreach ($list as $option) {
+                    if (isset($this->encodeOptions[$option])) {
+                        $options += $this->encodeOptions[$option];
+                    }
+                }
+            } else {
+                $options = 0;
+            }
+        }
+
+        return $options;
     }
 
     /**
@@ -45,7 +88,22 @@ class JsonFormatter extends AbstractFormatter
      */
     public function getDecodeOptions(): int
     {
-        return $this->getConfig('decode_options');
+        $options = $this->getConfig('decode_options');
+        if (!is_int($options)) {
+            if (is_string($options)) {
+                $list = preg_split('/[\s,|]+/', $options);
+                $options = 0;
+                foreach ($list as $option) {
+                    if (isset($this->decodeOptions[$option])) {
+                        $options += $this->decodeOptions[$option];
+                    }
+                }
+            } else {
+                $options = 0;
+            }
+        }
+
+        return $options;
     }
 
     /**
