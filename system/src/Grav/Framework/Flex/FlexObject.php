@@ -350,14 +350,25 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
             return 0;
         }
 
+        $caseSensitive = $options['case_sensitive'] ?? false;
+
         $tested = false;
-        if (($tested |= !empty($options['starts_with'])) && Utils::startsWith($value, $search, $options['case_sensitive'] ?? false)) {
+        if (($tested |= !empty($options['same_as']))) {
+            if ($caseSensitive) {
+                if ($value === $search) {
+                    return (float)$options['same_as'];
+                }
+            } elseif (mb_strtolower($value) === mb_strtolower($search)) {
+                return (float)$options['same_as'];
+            }
+        }
+        if (($tested |= !empty($options['starts_with'])) && Utils::startsWith($value, $search, $caseSensitive)) {
             return (float)$options['starts_with'];
         }
-        if (($tested |= !empty($options['ends_with'])) && Utils::endsWith($value, $search, $options['case_sensitive'] ?? false)) {
+        if (($tested |= !empty($options['ends_with'])) && Utils::endsWith($value, $search, $caseSensitive)) {
             return (float)$options['ends_with'];
         }
-        if ((!$tested || !empty($options['contains'])) && Utils::contains($value, $search, $options['case_sensitive'] ?? false)) {
+        if ((!$tested || !empty($options['contains'])) && Utils::contains($value, $search, $caseSensitive)) {
             return (float)($options['contains'] ?? 1);
         }
 

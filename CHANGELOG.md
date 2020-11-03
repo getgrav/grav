@@ -7,6 +7,7 @@
     * Renamed `PageCollectionInterface::nonModular()` into `PageCollectionInterface::pages()` and deprecated the old method
     * Renamed `PageCollectionInterface::modular()` into `PageCollectionInterface::modules()` and deprecated the old method'
     * Upgraded `bin/composer.phar` to `2.0.2` which is all new and much faster
+    * Added search option `same_as` to Flex Objects
 1. [](#improved)
     * Updated bundled JQuery to latest version `3.5.1`
     * Forward a `sid` to GPM when downloading a premium package via CLI
