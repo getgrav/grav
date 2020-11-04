@@ -13,6 +13,7 @@
     * Forward a `sid` to GPM when downloading a premium package via CLI
     * Allow `JsonFormatter` options to be passed as a string
     * Hide Flex Pages frontend configuration (not ready for production use)
+    * Improve Flex configuration: gather views together in blueprint
 1. [](#bugfix)
     * *Menu Visibility Requires Access* Security option setting wrong frontmatter [login#265](https://github.com/getgrav/grav-plugin-login/issues/265)
     * Accessing page with unsupported file extension (jpg, pdf, xsl) will use wrong mime type [#3031](https://github.com/getgrav/grav/issues/3031)

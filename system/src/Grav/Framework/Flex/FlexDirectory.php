@@ -152,7 +152,7 @@ class FlexDirectory implements FlexDirectoryInterface, FlexAuthorizeInterface
     {
         if (null === $this->config) {
             $config = $this->getBlueprintInternal()->get('config', []);
-            $config = is_array($config) ? array_replace_recursive($config, $this->defaults, $this->getDirectoryConfig($config['admin']['configure']['form'] ?? null)) : null;
+            $config = is_array($config) ? array_replace_recursive($config, $this->defaults, $this->getDirectoryConfig($config['admin']['views']['configure']['form'] ?? $config['admin']['configure']['form'] ?? null)) : null;
             if (!is_array($config)) {
                 throw new RuntimeException('Bad configuration');
             }
@@ -171,7 +171,7 @@ class FlexDirectory implements FlexDirectoryInterface, FlexAuthorizeInterface
      */
     public function getDirectoryForm(string $name = null, array $options = [])
     {
-        $name = $name ?: $this->getConfig('admin.configure.form', '');
+        $name = $name ?: $this->getConfig('admin.views.configure.form', '') ?: $this->getConfig('admin.configure.form', '');
 
         return new FlexDirectoryForm($name ?? '', $this, $options);
     }
@@ -252,7 +252,7 @@ class FlexDirectory implements FlexDirectoryInterface, FlexAuthorizeInterface
         $name = $name ?: $this->getFlexType();
         $blueprint = $this->getBlueprint();
 
-        return $blueprint->get('blueprints/configure/file') ?? "config://flex/{$name}.yaml";
+        return $blueprint->get('blueprints/views/configure/file') ?? $blueprint->get('blueprints/configure/file') ?? "config://flex/{$name}.yaml";
     }
 
     /**

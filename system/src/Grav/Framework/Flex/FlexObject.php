@@ -226,7 +226,8 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     {
         $properties = (array)($properties ?? $this->getFlexDirectory()->getConfig('data.search.fields'));
         if (!$properties) {
-            foreach ($this->getFlexDirectory()->getConfig('admin.list.fields', []) as $property => $value) {
+            $fields = $this->getFlexDirectory()->getConfig('admin.views.list.fields') ?? $this->getFlexDirectory()->getConfig('admin.list.fields', []);
+            foreach ($fields as $property => $value) {
                 if (!empty($value['link'])) {
                     $properties[] = $property;
                 }
