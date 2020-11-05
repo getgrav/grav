@@ -19,7 +19,7 @@
         "ext-zip": "*",
         "ext-dom": "*",
         "ext-libxml": "*",
-§        "symfony/polyfill-mbstring": "~1.20",
+        "symfony/polyfill-mbstring": "~1.20",
         "symfony/polyfill-iconv": "^1.20",
         "symfony/polyfill-php73": "^1.20",
         "symfony/polyfill-php74": "^1.20",
