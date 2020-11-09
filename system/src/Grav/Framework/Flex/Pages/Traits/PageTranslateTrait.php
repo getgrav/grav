@@ -55,8 +55,11 @@ trait PageTranslateTrait
         } elseif ('' === $code) {
             $object = $this->getLanguage() ? $this->getFlexDirectory()->getObject($this->getMasterKey(), 'storage_key') : $this;
         } else {
-            $key = $this->getStorageKey() . '|.' . $code;
-            $meta = ['storage_key' => $key, 'lang' => $code] + $this->getMetaData();
+            $meta = $this->getMetaData();
+            $meta['template'] = $this->getLanguageTemplates()[$code] ?? $meta['template'];
+            $key = $this->getStorageKey() . '|' . $meta['template'] . '.' . $code;
+            $meta['storage_key'] = $key;
+            $meta['lang'] = $code;
             $object = $this->getFlexDirectory()->loadObjects([$key => $meta])[$key] ?? null;
         }
 
