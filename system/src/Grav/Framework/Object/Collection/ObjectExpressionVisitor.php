@@ -11,6 +11,7 @@ namespace Grav\Framework\Object\Collection;
 
 use Doctrine\Common\Collections\Expr\ClosureExpressionVisitor;
 use Doctrine\Common\Collections\Expr\Comparison;
+use function is_callable;
 
 class ObjectExpressionVisitor extends ClosureExpressionVisitor
 {
@@ -27,7 +28,7 @@ class ObjectExpressionVisitor extends ClosureExpressionVisitor
 
         $pos = strpos($field, '(');
         if (false !== $pos) {
-            list ($op, $field) = explode('(', $field, 2);
+            [$op, $field] = explode('(', $field, 2);
             $field = rtrim($field, ')');
         }
 
@@ -39,7 +40,7 @@ class ObjectExpressionVisitor extends ClosureExpressionVisitor
             foreach ($accessors as $accessor) {
                 $accessor .= $field;
 
-                if (!method_exists($object, $accessor)) {
+                if (!is_callable([$object, $accessor])) {
                     continue;
                 }
 

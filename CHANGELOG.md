@@ -20,6 +20,7 @@
     * Fixed media crashing on a bad image
     * Fixed bug in collections where filter `type: false` did not work
     * Fixed `print_r()` in twig
+    * Fixed sorting by groups in `Flex Users`
 
 # v1.7.0-rc.17
 ## 10/07/2020
@@ -499,7 +500,6 @@
 1. [](#bugfix)
     * Fixed hardcoded system folder in blueprints, config and language streams
     * Added `.htaccess` rule to block attempts to use Twig in the request URL
-
 
 # v1.6.28
 ## 10/07/2020
