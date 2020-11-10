@@ -23,12 +23,62 @@ class VideoMedium extends Medium
     protected function sourceParsedownElement(array $attributes, $reset = true)
     {
         $location = $this->url($reset);
+        $path = parse_url($location, PHP_URL_PATH);
+        $extension = pathinfo($path, PATHINFO_EXTENSION);
+        $mimeType = \Grav\Common\Utils::getMimeByExtension($extension);
+
+        if (!isset($attributes['poster'])) {
+            $poster = $this->findPoster($location);
+            if ($poster) {
+                $attributes['poster'] = $poster;
+            }
+        }
 
         return [
             'name' => 'video',
-            'text' => '<source src="' . $location . '">Your browser does not support the video tag.',
+            'text' => '<source src="' . $location . '" type="' . $mimeType . '">Your browser does not support the video tag.',
             'attributes' => $attributes
         ];
+    }
+
+    /**
+     * Try to find a poster image for the video.
+     *
+     * Looks at the same location as the video file is:
+     * - $filename.jpg
+     * - $filename.png
+     * - $filename.$ext.thumb.jpg
+     * - $filename.$ext.thumb.png
+     *
+     * @param string $location Video location
+     *
+     * @return string Poster URL or false
+     */
+    protected function findPoster($location)
+    {
+        $noQuery = preg_replace('#\\?.*$#', '', $location);
+        $fullPath = GRAV_ROOT . $noQuery;
+
+        if (!file_exists($fullPath)) {
+            return false;
+        }
+
+        $parts = pathinfo($fullPath);
+        $noExt = $parts['dirname'] . DIRECTORY_SEPARATOR . $parts['filename'];
+
+        $possibilities = [
+            $noExt . '.jpg',
+            $noExt . '.png',
+            $fullPath . '.thumb.jpg',
+            $fullPath . '.thumb.png',
+        ];
+
+        foreach ($possibilities as $thumbLocation) {
+            if (file_exists($thumbLocation)) {
+                $relative = substr($thumbLocation, strlen(GRAV_ROOT));
+                return $relative;
+            }
+        }
     }
 
     /**
