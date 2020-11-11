@@ -872,8 +872,8 @@ abstract class Utils
             || strtr($filename, "\t\v\n\r\0\\/", '_______') !== $filename
             // Filename should not start or end with dot or space.
             || trim($filename, '. ') !== $filename
-            // Filename should not contain .php in it.
-            || static::contains($extension, $dangerous_extensions)
+            // File extension should not be part of configured dangerous extensions
+            || in_array($extension, $dangerous_extensions)
         );
     }
 
