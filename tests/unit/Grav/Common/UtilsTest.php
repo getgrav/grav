@@ -523,4 +523,20 @@ class UtilsTest extends \Codeception\TestCase\Test
         $this->assertSame('//foo.com', Utils::url('//foo.com'));
         $this->assertSame('//foo.com?param=x', Utils::url('//foo.com?param=x'));
     }
+
+    public function testCheckFilename()
+    {
+        // configure extension for consistent results
+        /** @var \Grav\Common\Config\Config $config */
+        $config = $this->grav['config'];
+        $config->set('security.uploads_dangerous_extensions', ['php', 'html', 'htm', 'exe', 'js']);
+
+        $this->assertFalse(Utils::checkFilename('foo.php'));
+        $this->assertFalse(Utils::checkFilename('bar.js'));
+
+        $this->assertTrue(Utils::checkFilename('foo.json'));
+        $this->assertTrue(Utils::checkFilename('foo.xml'));
+        $this->assertTrue(Utils::checkFilename('foo.yaml'));
+        $this->assertTrue(Utils::checkFilename('foo.yml'));
+    }
 }
