@@ -22,6 +22,7 @@
     * Fixed `print_r()` in twig
     * Fixed sorting by groups in `Flex Users`
     * Changing `Flex Page` template causes the other language versions of that page to lose their content [admin#1958](https://github.com/getgrav/grav-plugin-admin/issues/1958)
+    * Fixed plugins getting intialized multiple times (by CLI commands for example)
 
 # v1.7.0-rc.17
 ## 10/07/2020

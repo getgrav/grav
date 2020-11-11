@@ -30,6 +30,8 @@ class Plugins extends Iterator
     /** @var array */
     public $formFieldTypes;
 
+    private $plugins_initialized = false;
+
     /**
      * Plugins constructor.
      */
@@ -108,6 +110,10 @@ class Plugins extends Iterator
      */
     public function init()
     {
+        if ($this->plugins_initialized)  {
+            return $this->items;
+        }
+
         $grav = Grav::instance();
 
         /** @var Config $config */
@@ -133,6 +139,8 @@ class Plugins extends Iterator
         // Plugins Loaded Event
         $event = new PluginsLoadedEvent($grav, $this);
         $grav->dispatchEvent($event);
+
+        $this->plugins_initialized = true;
 
         return $this->items;
     }
