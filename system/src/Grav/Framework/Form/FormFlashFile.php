@@ -95,6 +95,14 @@ class FormFlashFile implements UploadedFileInterface, \JsonSerializable
     }
 
     /**
+     * @return string
+     */
+    public function getField(): string
+    {
+        return $this->field;
+    }
+
+    /**
      * @return int
      */
     public function getSize()
