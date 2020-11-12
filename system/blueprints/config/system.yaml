@@ -1223,6 +1223,12 @@ form:
                             label: PLUGIN_ADMIN.SESSION_PATH
                             help: PLUGIN_ADMIN.SESSION_PATH_HELP
 
+                        session.samesite:
+                            type: text
+                            size: small
+                            label: PLUGIN_ADMIN.SESSION_SAMESITE
+                            help: PLUGIN_ADMIN.SESSION_SAMESITE_HELP
+                            
                         session.split:
                             type: toggle
                             label: PLUGIN_ADMIN.SESSION_SPLIT
