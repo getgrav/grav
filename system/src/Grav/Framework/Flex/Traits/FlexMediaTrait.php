@@ -219,6 +219,8 @@ trait FlexMediaTrait
             }
         }
 
+        $this->clearMediaCache();
+
         $this->_uploads = $list;
     }
 

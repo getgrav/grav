@@ -28,6 +28,7 @@
     * Fixed `Utils::isFunctionDisabled()` method if there are spaces in `disable_functions` [#3023](https://github.com/getgrav/grav/issues/3023)
     * Fixed potential fatal error when creating flex index using cache [#3062](https://github.com/getgrav/grav/issues/3062)
     * Fixed fatal error in `CompiledFile` if the cached version is broken
+    * Fixed updated media missing from media when editing Flex Object after page reload
 
 # v1.7.0-rc.17
 ## 10/07/2020
