@@ -869,7 +869,7 @@ class FlexDirectory implements FlexDirectoryInterface, FlexAuthorizeInterface
                 $keys = null;
             }
 
-            if (null === $keys) {
+            if (!is_array($keys)) {
                 /** @var string|FlexIndexInterface $className */
                 $className = $this->getIndexClass();
                 $keys = $className::loadEntriesFromStorage($storage);

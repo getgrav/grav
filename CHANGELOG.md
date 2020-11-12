@@ -8,7 +8,7 @@
     * Renamed `PageCollectionInterface::modular()` into `PageCollectionInterface::modules()` and deprecated the old method'
     * Upgraded `bin/composer.phar` to `2.0.2` which is all new and much faster
     * Added search option `same_as` to Flex Objects
-    * Added PHP 8 compatible `method_exists()`: `Utils::methodExists()`
+    * Added PHP 8 compatible `function_exists()`: `Utils::functionExists()`
 1. [](#improved)
     * Updated bundled JQuery to latest version `3.5.1`
     * Forward a `sid` to GPM when downloading a premium package via CLI
@@ -26,6 +26,7 @@
     * Fixed plugins getting initialized multiple times (by CLI commands for example)
     * Fixed `header.admin.children_display_order` in Flex Pages to work just like with regular pages
     * Fixed `Utils::isFunctionDisabled()` method if there are spaces in `disable_functions` [#3023](https://github.com/getgrav/grav/issues/3023)
+    * Fixed potential fatal error when creating flex index using cache [#3062](https://github.com/getgrav/grav/issues/3062)
 
 # v1.7.0-rc.17
 ## 10/07/2020
