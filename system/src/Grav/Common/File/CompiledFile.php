@@ -12,6 +12,7 @@ namespace Grav\Common\File;
 use Exception;
 use RocketTheme\Toolbox\File\PhpFile;
 use RuntimeException;
+use Throwable;
 use function function_exists;
 use function get_class;
 
@@ -36,9 +37,12 @@ trait CompiledFile
                 $file = PhpFile::instance(CACHE_DIR . "compiled/files/{$key}{$this->extension}.php");
 
                 $modified = $this->modified();
-
                 if (!$modified) {
-                    return $this->decode($this->raw());
+                    try {
+                        return $this->decode($this->raw());
+                    } catch (Throwable $e) {
+                        // If the compiled file is broken, we can safely ignore the error and continue.
+                    }
                 }
 
                 $class = get_class($this);
