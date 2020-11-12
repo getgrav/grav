@@ -50,7 +50,7 @@ class Response
 
         // check if this function is available, if so use it to stop any timeouts
         try {
-            if (function_exists('set_time_limit') && !Utils::isFunctionDisabled('set_time_limit')) {
+            if (Utils::functionExists('set_time_limit')) {
                 set_time_limit(0);
             }
         } catch (Exception $e) {

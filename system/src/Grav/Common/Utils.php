@@ -27,6 +27,7 @@ use function array_key_exists;
 use function array_slice;
 use function count;
 use function extension_loaded;
+use function function_exists;
 use function in_array;
 use function is_array;
 use function is_string;
@@ -998,14 +999,39 @@ abstract class Utils
     }
 
     /**
+     * Check whether a function exists.
+     *
+     * Disabled functions count as non-existing functions, just like in PHP 8+.
+     *
+     * @param string $function the name of the function to check
+     * @return bool
+     */
+    public static function functionExists($function): bool
+    {
+        if (!function_exists($function)) {
+            return false;
+        }
+
+        // In PHP 7 we need to also exclude disabled methods.
+        return !static::isFunctionDisabled($function);
+    }
+
+    /**
      * Check whether a function is disabled in the PHP settings
      *
      * @param string $function the name of the function to check
      * @return bool
      */
-    public static function isFunctionDisabled($function)
+    public static function isFunctionDisabled($function): bool
     {
-        return in_array($function, explode(',', ini_get('disable_functions')), true);
+        static $list;
+
+        if (null === $list) {
+            $str = trim(ini_get('disable_functions') . ',' . ini_get('suhosin.executor.func.blacklist'), ',');
+            $list = $str ? array_flip(preg_split('/\s*,\s*/', $str)) : [];
+        }
+
+        return array_key_exists($function, $list);
     }
 
     /**
