@@ -22,7 +22,8 @@
     * Fixed `print_r()` in twig
     * Fixed sorting by groups in `Flex Users`
     * Changing `Flex Page` template causes the other language versions of that page to lose their content [admin#1958](https://github.com/getgrav/grav-plugin-admin/issues/1958)
-    * Fixed plugins getting intialized multiple times (by CLI commands for example)
+    * Fixed plugins getting initialized multiple times (by CLI commands for example)
+    * Fixed `header.admin.children_display_order` in Flex Pages to work just like with regular pages
 
 # v1.7.0-rc.17
 ## 10/07/2020
