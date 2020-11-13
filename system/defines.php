@@ -13,7 +13,7 @@ define('GRAV_TESTING', true);
 define('DS', '/');
 
 if (!defined('GRAV_PHP_MIN')) {
-    define('GRAV_PHP_MIN', '7.2.5');
+    define('GRAV_PHP_MIN', '7.3.6');
 }
 
 // Directories and Paths

@@ -10,7 +10,7 @@
 namespace Grav;
 
 \define('GRAV_REQUEST_TIME', microtime(true));
-\define('GRAV_PHP_MIN', '7.2.5');
+\define('GRAV_PHP_MIN', '7.3.6');
 
 if (version_compare($ver = PHP_VERSION, $req = GRAV_PHP_MIN, '<')) {
     die(sprintf('You are running PHP %s, but Grav needs at least <strong>PHP %s</strong> to run.', $ver, $req));

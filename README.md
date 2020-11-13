@@ -21,7 +21,7 @@ The underlying architecture of Grav is designed to use well-established and _bes
 
 # Requirements
 
-- PHP 7.2.5 or higher. Check the [required modules list](https://learn.getgrav.org/basics/requirements#php-requirements)
+- PHP 7.3.6 or higher. Check the [required modules list](https://learn.getgrav.org/basics/requirements#php-requirements)
 - Check the [Apache](https://learn.getgrav.org/basics/requirements#apache-requirements) or [IIS](https://learn.getgrav.org/basics/requirements#iis-requirements) requirements
 
 # QuickStart
