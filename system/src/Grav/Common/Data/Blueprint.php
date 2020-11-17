@@ -260,14 +260,15 @@ class Blueprint extends BlueprintForm
      * Validate data against blueprints.
      *
      * @param  array $data
+     * @param  array $options
      * @return void
      * @throws RuntimeException
      */
-    public function validate(array $data)
+    public function validate(array $data, array $options = [])
     {
         $this->initInternals();
 
-        $this->blueprintSchema->validate($data);
+        $this->blueprintSchema->validate($data, $options);
     }
 
     /**

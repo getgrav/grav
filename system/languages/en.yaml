@@ -94,9 +94,10 @@ GRAV:
         YR_PLURAL: yrs
         DEC_PLURAL: decs
     FORM:
-        VALIDATION_FAIL: <b>Validation failed:</b>
-        INVALID_INPUT: Invalid input in
-        MISSING_REQUIRED_FIELD: Missing required field:
+        VALIDATION_FAIL: '<b>Validation failed:</b>'
+        INVALID_INPUT: 'Invalid input in'
+        MISSING_REQUIRED_FIELD: 'Missing required field:'
+        XSS_ISSUES: "Potential XSS issues detected in '%s' field"
     MONTHS_OF_THE_YEAR: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
     DAYS_OF_THE_WEEK: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
     YES: "Yes"

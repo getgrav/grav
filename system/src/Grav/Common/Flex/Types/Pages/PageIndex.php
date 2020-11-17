@@ -489,7 +489,7 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
                     $payload = [
                         'item-key' => basename($child->rawRoute() ?? $child->getKey()),
                         'icon' => $icon,
-                        'title' => $child->menu(),
+                        'title' => htmlspecialchars($child->menu()),
                         'route' => [
                             'display' => $child->getRoute()->toString(false) ?: '/',
                             'raw' => $child->rawRoute(),

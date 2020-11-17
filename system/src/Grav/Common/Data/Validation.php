@@ -13,8 +13,12 @@ use ArrayAccess;
 use Countable;
 use DateTime;
 use Grav\Common\Grav;
+use Grav\Common\Language\Language;
+use Grav\Common\Security;
+use Grav\Common\User\Interfaces\UserInterface;
 use Grav\Common\Utils;
 use Grav\Common\Yaml;
+use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
 use Traversable;
 use function count;
 use function is_array;
@@ -90,6 +94,72 @@ class Validation
         }
 
         return $messages;
+    }
+
+    /**
+     * @param mixed $value
+     * @param array $field
+     */
+    public static function checkSafety($value, array $field)
+    {
+        $messages = [];
+
+        $type = $field['validate']['type'] ?? $field['type'] ?? 'text';
+        if ($type === 'unset' || !($field['check_xss'] ?? true)) {
+            return $messages;
+        }
+        $name = ucfirst($field['label'] ?? $field['name'] ?? 'UNKNOWN');
+
+        $user = Grav::instance()['user'] ?? null;
+        $xss_whitelist = Grav::instance()['config']->get('security.xss_whitelist', 'admin.super');
+
+        // Get language class.
+        /** @var Language $language */
+        $language = Grav::instance()['language'];
+
+        if (!static::authorize($xss_whitelist, $user)) {
+            if (is_string($value)) {
+                $violation = Security::detectXss($value);
+                if ($violation) {
+                    $messages[$name][] = $language->translate(['GRAV.FORM.XSS_ISSUES', $language->translate($name)], null, true);
+                }
+            } elseif (is_array($value)) {
+                $violations = Security::detectXssFromArray($value, $name);
+                if ($violations) {
+                    $messages[$name][] = $language->translate(['GRAV.FORM.XSS_ISSUES', $language->translate($name)], null, true);
+                }
+            }
+        }
+
+        return $messages;
+    }
+
+    /**
+     * Checks user authorisation to the action.
+     *
+     * @param  string|string[] $action
+     * @param  UserInterface|null $user
+     * @return bool
+     */
+    public static function authorize($action, UserInterface $user = null)
+    {
+        if (!$user) {
+            return false;
+        }
+
+        $action = (array)$action;
+        foreach ($action as $a) {
+            // Ignore 'admin.super' if it's not the only value to be checked.
+            if ($a === 'admin.super' && count($action) > 1 && $user instanceof FlexObjectInterface) {
+                continue;
+            }
+
+            if ($user->authorize($a)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

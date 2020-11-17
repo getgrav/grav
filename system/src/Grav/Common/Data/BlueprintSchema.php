@@ -27,6 +27,9 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
     use Export;
 
     /** @var array */
+    protected $filter = ['validation' => true, 'check_xss' => true];
+
+    /** @var array */
     protected $ignoreFormKeys = [
         'title' => true,
         'help' => true,
@@ -57,13 +60,14 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
      * Validate data against blueprints.
      *
      * @param  array $data
+     * @param  array $options
      * @throws RuntimeException
      */
-    public function validate(array $data)
+    public function validate(array $data, array $options = [])
     {
         try {
             $validation = $this->items['']['form']['validation'] ?? 'loose';
-            $messages = $this->validateArray($data, $this->nested, $validation === 'strict');
+            $messages = $this->validateArray($data, $this->nested, $validation === 'strict', $options['check_xss'] ?? true);
         } catch (RuntimeException $e) {
             throw (new ValidationException($e->getMessage(), $e->getCode(), $e))->setMessages();
         }
@@ -141,16 +145,18 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
      * @param array $data
      * @param array $rules
      * @param bool $strict
+     * @param bool $xss
      * @return array
      * @throws RuntimeException
      */
-    protected function validateArray(array $data, array $rules, bool $strict)
+    protected function validateArray(array $data, array $rules, bool $strict, bool $xss = true)
     {
         $messages = $this->checkRequired($data, $rules);
 
         foreach ($data as $key => $child) {
             $val = $rules[$key] ?? $rules['*'] ?? null;
             $rule = is_string($val) ? $this->items[$val] : null;
+            $checkXss = $xss;
 
             if ($rule) {
                 // Item has been defined in blueprints.
@@ -160,11 +166,14 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
                 }
 
                 $messages += Validation::validate($child, $rule);
+
             } elseif (is_array($child) && is_array($val)) {
                 // Array has been defined in blueprints.
                 $messages += $this->validateArray($child, $val, $strict);
+                $checkXss = false;
+
             } elseif ($strict) {
-                // Undefined/extra item.
+                // Undefined/extra item in strict mode.
                 /** @var Config $config */
                 $config = Grav::instance()['config'];
                 if (!$config->get('system.strict_mode.blueprint_strict_compat', true)) {
@@ -172,6 +181,10 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
                 }
 
                 user_error(sprintf('Having extra key %s in your data is deprecated with blueprint having \'validation: strict\'', $key), E_USER_DEPRECATED);
+            }
+
+            if ($checkXss) {
+                $messages += Validation::checkSafety($child, $rule ?: ['name' => $key]);
             }
         }
 

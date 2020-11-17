@@ -15,6 +15,7 @@
     * Allow `JsonFormatter` options to be passed as a string
     * Hide Flex Pages frontend configuration (not ready for production use)
     * Improve Flex configuration: gather views together in blueprint
+    * Added XSS detection to all forms (use `check_xss: false` to disable it per field)
 1. [](#bugfix)
     * *Menu Visibility Requires Access* Security option setting wrong frontmatter [login#265](https://github.com/getgrav/grav-plugin-login/issues/265)
     * Accessing page with unsupported file extension (jpg, pdf, xsl) will use wrong mime type [#3031](https://github.com/getgrav/grav/issues/3031)
@@ -30,6 +31,7 @@
     * Fixed fatal error in `CompiledFile` if the cached version is broken
     * Fixed updated media missing from media when editing Flex Object after page reload
     * Fixed issue with `config-default@` breaking on set [#1972](https://github.com/getgrav/grav-plugin-admin/issues/1971)
+    * Escape titles in Flex pages list [flex-objects#84](https://github.com/trilbymedia/grav-plugin-flex-objects/issues/84)
 
 # v1.7.0-rc.17
 ## 10/07/2020

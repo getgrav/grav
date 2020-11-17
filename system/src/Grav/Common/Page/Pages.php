@@ -1079,7 +1079,7 @@ class Pages
                 $option = $current->route();
             } else {
                 $extra  = $showSlug ? '(' . $current->slug() . ') ' : '';
-                $option = str_repeat('&mdash;-', $level). '&rtrif; ' . $extra . $current->title();
+                $option = str_repeat('&mdash;-', $level). '&rtrif; ' . $extra . htmlspecialchars($current->title());
             }
 
             $list[$route] = $option;
