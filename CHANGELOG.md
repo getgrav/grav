@@ -508,6 +508,7 @@
 
 1. [](#improved)
     * Updated bundled JQuery to latest version `3.5.1`
+    * Forward a `sid` to GPM when downloading a premium package via CLI
 1. [](#bugfix)
     * Fixed hardcoded system folder in blueprints, config and language streams
     * Added `.htaccess` rule to block attempts to use Twig in the request URL
