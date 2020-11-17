@@ -97,8 +97,13 @@ class SessionServiceProvider implements ServiceProviderInterface
                 'cookie_domain' => $cookie_domain,
                 'cookie_secure' => $cookie_secure,
                 'cookie_httponly' => $cookie_httponly,
-                'cookie_samesite' => $cookie_samesite                
-            ] + (array) $config->get('system.session.options');
+            ];
+
+            if ($cookie_samesite) {
+                $options['cookie_samesite'] = $cookie_samesite;
+            }
+
+            $options += (array) $config->get('system.session.options');
 
             $session = new Session($options);
             $session->setAutoStart($enabled);
