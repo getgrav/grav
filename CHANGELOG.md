@@ -29,6 +29,7 @@
     * Fixed potential fatal error when creating flex index using cache [#3062](https://github.com/getgrav/grav/issues/3062)
     * Fixed fatal error in `CompiledFile` if the cached version is broken
     * Fixed updated media missing from media when editing Flex Object after page reload
+    * Fixed issue with `config-default@` breaking on set [#1972](https://github.com/getgrav/grav-plugin-admin/issues/1971)
 
 # v1.7.0-rc.17
 ## 10/07/2020

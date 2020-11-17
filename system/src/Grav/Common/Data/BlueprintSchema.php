@@ -210,8 +210,9 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
             }
 
             $isParent = isset($val['*']);
+            $type = $rule['type'] ?? null;
 
-            if (!$isParent && $rule && $rule['type'] !== '_parent') {
+            if (!$isParent && $type && $type !== '_parent') {
                 $field = Validation::filter($field, $rule);
             } elseif (is_array($field) && is_array($val)) {
                 // Array has been defined in blueprints.
