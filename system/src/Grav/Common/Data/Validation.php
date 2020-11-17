@@ -104,7 +104,8 @@ class Validation
     {
         $messages = [];
 
-        if (!($field['check_xss'] ?? true)) {
+        $type = $field['validate']['type'] ?? $field['type'] ?? 'text';
+        if ($type === 'unset' || !($field['check_xss'] ?? true)) {
             return $messages;
         }
         $name = ucfirst($field['label'] ?? $field['name'] ?? 'UNKNOWN');
