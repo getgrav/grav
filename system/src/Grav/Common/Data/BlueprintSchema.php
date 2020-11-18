@@ -27,7 +27,7 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
     use Export;
 
     /** @var array */
-    protected $filter = ['validation' => true, 'check_xss' => true];
+    protected $filter = ['validation' => true, 'xss_check' => true];
 
     /** @var array */
     protected $ignoreFormKeys = [
@@ -67,7 +67,7 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
     {
         try {
             $validation = $this->items['']['form']['validation'] ?? 'loose';
-            $messages = $this->validateArray($data, $this->nested, $validation === 'strict', $options['check_xss'] ?? true);
+            $messages = $this->validateArray($data, $this->nested, $validation === 'strict', $options['xss_check'] ?? true);
         } catch (RuntimeException $e) {
             throw (new ValidationException($e->getMessage(), $e->getCode(), $e))->setMessages();
         }

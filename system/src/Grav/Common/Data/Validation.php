@@ -12,6 +12,7 @@ namespace Grav\Common\Data;
 use ArrayAccess;
 use Countable;
 use DateTime;
+use Grav\Common\Config\Config;
 use Grav\Common\Grav;
 use Grav\Common\Language\Language;
 use Grav\Common\Security;
@@ -105,26 +106,45 @@ class Validation
         $messages = [];
 
         $type = $field['validate']['type'] ?? $field['type'] ?? 'text';
-        if ($type === 'unset' || !($field['check_xss'] ?? true)) {
+        $options = $field['xss_check'] ?? [];
+        if ($options === false || $type === 'unset') {
             return $messages;
         }
+        if (!is_array($options)) {
+            $options = [];
+        }
+
         $name = ucfirst($field['label'] ?? $field['name'] ?? 'UNKNOWN');
 
+        /** @var UserInterface $user */
         $user = Grav::instance()['user'] ?? null;
-        $xss_whitelist = Grav::instance()['config']->get('security.xss_whitelist', 'admin.super');
+        /** @var Config $config */
+        $config = Grav::instance()['config'];
+
+        $xss_whitelist = $config->get('security.xss_whitelist', 'admin.super');
 
         // Get language class.
         /** @var Language $language */
         $language = Grav::instance()['language'];
 
         if (!static::authorize($xss_whitelist, $user)) {
+            $defaults = Security::getXssDefaults();
+            $options += $defaults;
+            $options['enabled_rules'] += $defaults['enabled_rules'];
+            if (!empty($options['safe_protocols'])) {
+                $options['invalid_protocols'] = array_diff($options['invalid_protocols'], $options['safe_protocols']);
+            }
+            if (!empty($options['safe_tags'])) {
+                $options['dangerous_tags'] = array_diff($options['dangerous_tags'], $options['safe_tags']);
+            }
+
             if (is_string($value)) {
-                $violation = Security::detectXss($value);
+                $violation = Security::detectXss($value, $options);
                 if ($violation) {
                     $messages[$name][] = $language->translate(['GRAV.FORM.XSS_ISSUES', $language->translate($name)], null, true);
                 }
             } elseif (is_array($value)) {
-                $violations = Security::detectXssFromArray($value, $name);
+                $violations = Security::detectXssFromArray($value, "{$name}.", $options);
                 if ($violations) {
                     $messages[$name][] = $language->translate(['GRAV.FORM.XSS_ISSUES', $language->translate($name)], null, true);
                 }

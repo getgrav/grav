@@ -11,6 +11,7 @@ namespace Grav\Common;
 
 use enshrined\svgSanitize\Sanitizer;
 use Exception;
+use Grav\Common\Config\Config;
 use Grav\Common\Page\Pages;
 use function chr;
 use function count;
@@ -119,18 +120,22 @@ class Security
      * Detect XSS in an array or strings such as $_POST or $_GET
      *
      * @param array $array      Array such as $_POST or $_GET
+     * @param array|null $options Extra options to be passed.
      * @param string $prefix    Prefix for returned values.
      * @return array            Returns flatten list of potentially dangerous input values, such as 'data.content'.
      */
-    public static function detectXssFromArray(array $array, $prefix = '')
+    public static function detectXssFromArray(array $array, string $prefix = '', array $options = null)
     {
-        $list = [];
+        if (null === $options) {
+            $options = static::getXssDefaults();
+        }
 
+        $list = [];
         foreach ($array as $key => $value) {
             if (is_array($value)) {
-                $list[] = static::detectXssFromArray($value, $prefix . $key . '.');
+                $list[] = static::detectXssFromArray($value, $prefix . $key . '.', $options);
             }
-            if ($result = static::detectXss($value)) {
+            if ($result = static::detectXss($value, $options)) {
                 $list[] = [$prefix . $key => $result];
             }
         }
@@ -149,15 +154,34 @@ class Security
      * their content.
      *
      * @param string|null $string The string to run XSS detection logic on
-     * @return bool|string       Type of XSS vector if the given `$string` may contain XSS, false otherwise.
+     * @param array|null $options
+     * @return string|null       Type of XSS vector if the given `$string` may contain XSS, false otherwise.
      *
      * Copies the code from: https://github.com/symphonycms/xssfilter/blob/master/extension.driver.php#L138
      */
-    public static function detectXss($string)
+    public static function detectXss($string, array $options = null): ?string
     {
         // Skip any null or non string values
         if (null === $string || !is_string($string) || empty($string)) {
-            return false;
+            return null;
+        }
+
+        if (null === $options) {
+            $options = static::getXssDefaults();
+        }
+
+        $enabled_rules = (array)($options['enabled_rules'] ?? null);
+        $dangerous_tags = (array)($options['dangerous_tags'] ?? null);
+        if (!$dangerous_tags) {
+            $enabled_rules['dangerous_tags'] = false;
+        }
+        $invalid_protocols = (array)($options['invalid_protocols'] ?? null);
+        if (!$invalid_protocols) {
+            $enabled_rules['invalid_protocols'] = false;
+        }
+        $enabled_rules = array_filter($enabled_rules, static function ($val) { return !empty($val); });
+        if (!$enabled_rules) {
+            return null;
         }
 
         // Keep a copy of the original string before cleaning up
@@ -168,7 +192,7 @@ class Security
 
         // Convert Hexadecimals
         $string = (string)preg_replace_callback('!(&#|\\\)[xX]([0-9a-fA-F]+);?!u', function ($m) {
-            return \chr(hexdec($m[2]));
+            return chr(hexdec($m[2]));
         }, $string);
 
         // Clean up entities
@@ -180,19 +204,13 @@ class Security
         // Strip whitespace characters
         $string = preg_replace('!\s!u', '', $string);
 
-        $config = Grav::instance()['config'];
-
-        $dangerous_tags = array_map('preg_quote', array_map("trim", $config->get('security.xss_dangerous_tags')));
-        $invalid_protocols =  array_map('preg_quote', array_map("trim", $config->get('security.xss_invalid_protocols')));
-        $enabled_rules = $config->get('security.xss_enabled');
-
         // Set the patterns we'll test against
         $patterns = [
             // Match any attribute starting with "on" or xmlns
             'on_events' => '#(<[^>]+[[a-z\x00-\x20\"\'\/])(\son|\sxmlns)[a-z].*=>?#iUu',
 
             // Match javascript:, livescript:, vbscript:, mocha:, feed: and data: protocols
-            'invalid_protocols' => '#(' . implode('|', $invalid_protocols) . '):.*?#iUu',
+            'invalid_protocols' => '#(' . implode('|', array_map('preg_quote', $invalid_protocols, ['#'])) . '):.*?#iUu',
 
             // Match -moz-bindings
             'moz_binding' => '#-moz-binding[a-z\x00-\x20]*:#u',
@@ -201,13 +219,12 @@ class Security
             'html_inline_styles' => '#(<[^>]+[a-z\x00-\x20\"\'\/])(style=[^>]*(url\:|x\:expression).*)>?#iUu',
 
             // Match potentially dangerous tags
-            'dangerous_tags' => '#</*(' . implode('|', $dangerous_tags) . ')[^>]*>?#ui'
+            'dangerous_tags' => '#</*(' . implode('|', array_map('preg_quote', $dangerous_tags, ['#'])) . ')[^>]*>?#ui'
         ];
 
-
         // Iterate over rules and return label if fail
-        foreach ((array) $patterns as $name => $regex) {
-            if ($enabled_rules[$name] === true) {
+        foreach ($patterns as $name => $regex) {
+            if (!empty($enabled_rules[$name])) {
                 if (preg_match($regex, $string) || preg_match($regex, $orig)) {
                     return $name;
                 }
@@ -215,5 +232,17 @@ class Security
         }
 
         return false;
+    }
+
+    public static function getXssDefaults(): array
+    {
+        /** @var Config $config */
+        $config = Grav::instance()['config'];
+
+        return [
+            'enabled_rules' => $config->get('security.xss_enabled'),
+            'dangerous_tags' => array_map('trim', $config->get('security.xss_dangerous_tags')),
+            'invalid_protocols' => array_map('trim', $config->get('security.xss_invalid_protocols')),
+        ];
     }
 }

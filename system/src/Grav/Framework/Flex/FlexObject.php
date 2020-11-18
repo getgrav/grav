@@ -134,7 +134,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
         if ($validate) {
             $blueprint = $this->getFlexDirectory()->getBlueprint();
 
-            $blueprint->validate($elements, ['check_xss' => false]);
+            $blueprint->validate($elements, ['xss_check' => false]);
 
             $elements = $blueprint->filter($elements, true, true);
         }
@@ -576,7 +576,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
             $test = $blueprint->mergeData($elements, $data);
 
             // Validate and filter elements and throw an error if any issues were found.
-            $blueprint->validate($test + ['storage_key' => $this->getStorageKey(), 'timestamp' => $this->getTimestamp()], ['check_xss' => false]);
+            $blueprint->validate($test + ['storage_key' => $this->getStorageKey(), 'timestamp' => $this->getTimestamp()], ['xss_check' => false]);
             $data = $blueprint->filter($data, true, true);
 
             // Finally update the object.
