@@ -103,7 +103,7 @@ types:
   docx:
     type: file
     thumb: media/thumb-docx.png
-    mime: application/msword
+    mime: application/vnd.openxmlformats-officedocument.wordprocessingml.document
   xls:
     type: file
     thumb: media/thumb-xls.png
@@ -111,7 +111,7 @@ types:
   xlsx:
     type: file
     thumb: media/thumb-xlsx.png
-    mime: application/vnd.ms-excel
+    mime: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
   ppt:
     type: file
     thumb: media/thumb-ppt.png
@@ -119,7 +119,7 @@ types:
   pptx:
     type: file
     thumb: media/thumb-pptx.png
-    mime: application/vnd.ms-powerpoint
+    mime: application/vnd.openxmlformats-officedocument.presentationml.presentation
   pps:
     type: file
     thumb: media/thumb-pps.png
