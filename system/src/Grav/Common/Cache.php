@@ -621,15 +621,22 @@ class Cache extends Getters
     /**
      * Static function to call as a scheduled Job to purge old Doctrine files
      *
-     * @return void
+     * @param bool $echo
+     *
+     * @return string|void
      */
-    public static function purgeJob()
+    public static function purgeJob($echo = false)
     {
         /** @var Cache $cache */
         $cache = Grav::instance()['cache'];
         $deleted_folders = $cache->purgeOldCache();
+        $msg = 'Purged ' . $deleted_folders . ' old cache folders...';
 
-        echo 'Purged ' . $deleted_folders . ' old cache folders...';
+        if ($echo) {
+            echo $msg;
+        } else {
+            return $msg;
+        }
     }
 
     /**
@@ -661,7 +668,7 @@ class Cache extends Getters
         $name = 'cache-purge';
         $logs = 'logs/' . $name . '.out';
 
-        $job = $scheduler->addFunction('Grav\Common\Cache::purgeJob', [], $name);
+        $job = $scheduler->addFunction('Grav\Common\Cache::purgeJob', [true], $name);
         $job->at($at);
         $job->output($logs);
         $job->backlink('/config/system#caching');
