@@ -16,6 +16,7 @@
     * Hide Flex Pages frontend configuration (not ready for production use)
     * Improve Flex configuration: gather views together in blueprint
     * Added XSS detection to all forms. See [documentation](http://learn.grav.local/17/forms/forms/form-options#xss-checks)
+    * Better handling of missing repository index [grav-plugin-admin#1916](https://github.com/getgrav/grav-plugin-admin/issues/1916)
 1. [](#bugfix)
     * *Menu Visibility Requires Access* Security option setting wrong frontmatter [login#265](https://github.com/getgrav/grav-plugin-login/issues/265)
     * Accessing page with unsupported file extension (jpg, pdf, xsl) will use wrong mime type [#3031](https://github.com/getgrav/grav/issues/3031)
