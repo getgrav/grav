@@ -512,6 +512,8 @@
 # v1.6.29
 ## mm/dd/2020
 
+1. [](#new)
+    * Added basic support for `user/config/versions.yaml`
 1. [](#improved)
     * Updated bundled JQuery to latest version `3.5.1`
     * Forward a `sid` to GPM when downloading a premium package via CLI
