@@ -240,6 +240,9 @@ ERR;
         }
 
         try {
+            // Update user/config/version.yaml before copying the files to avoid frontend from setting the version schema.
+            $this->updater->install();
+
             Installer::install(
                 $this->zip ?? '',
                 GRAV_ROOT,
@@ -258,8 +261,6 @@ ERR;
         if (!$success) {
             throw new \RuntimeException(Installer::lastErrorMsg());
         }
-
-        $this->updater->install();
     }
 
     /**
