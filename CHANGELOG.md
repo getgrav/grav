@@ -9,6 +9,7 @@
     * Upgraded `bin/composer.phar` to `2.0.2` which is all new and much faster
     * Added search option `same_as` to Flex Objects
     * Added PHP 8 compatible `function_exists()`: `Utils::functionExists()`
+    * New sites have `compatibility` features turned off by default, upgrading from older versions will keep the settings on
 1. [](#improved)
     * Updated bundled JQuery to latest version `3.5.1`
     * Forward a `sid` to GPM when downloading a premium package via CLI

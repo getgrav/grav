@@ -108,7 +108,7 @@ twig:
   cache: true                                    # Set to true to enable Twig caching
   debug: true                                    # Enable Twig debug
   auto_reload: true                              # Refresh cache on changes
-  autoescape: false                              # Autoescape Twig vars (DEPRECATED, always enabled in strict mode)
+  autoescape: true                               # Autoescape Twig vars (DEPRECATED, always enabled in strict mode)
   undefined_functions: true                      # Allow undefined functions
   undefined_filters: true                        # Allow undefined filters
   umask_fix: false                               # By default Twig creates cached files as 755, fix switches this to 775
@@ -196,6 +196,6 @@ flex:
       lifetime: 600                             # Lifetime of cached HTML in seconds (0 = infinite)
 
 strict_mode:
-  yaml_compat: true                              # Grav 1.5+: Enables YAML backwards compatibility
-  twig_compat: true                              # Grav 1.5+: Enables deprecated Twig autoescape setting (autoescape: false)
-  blueprint_compat: true                         # Grav 1.7+: Enables backward compatible strict support for blueprints
+  yaml_compat: false                            # Set to true to enable YAML backwards compatibility
+  twig_compat: false                            # Set to true to enable deprecated Twig settings (autoescape: false)
+  blueprint_compat: false                       # Set to true to enable backward compatible strict support for blueprints

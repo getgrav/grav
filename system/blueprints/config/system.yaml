@@ -846,7 +846,8 @@ form:
               type: toggle
               label: PLUGIN_ADMIN.AUTOESCAPE_VARIABLES
               help: PLUGIN_ADMIN.AUTOESCAPE_VARIABLES_HELP
-              highlight: 0
+              highlight: 1
+              default: 1
               options:
                 1: PLUGIN_ADMIN.YES
                 0: PLUGIN_ADMIN.NO
@@ -1565,8 +1566,8 @@ form:
             strict_mode.blueprint_compat:
               type: toggle
               label: PLUGIN_ADMIN.STRICT_BLUEPRINT_COMPAT
-              highlight: 1
-              default: 1
+              highlight: 0
+              default: 0
               help: PLUGIN_ADMIN.STRICT_BLUEPRINT_COMPAT_HELP
               options:
                 1: PLUGIN_ADMIN.YES
@@ -1577,8 +1578,8 @@ form:
             strict_mode.yaml_compat:
               type: toggle
               label: PLUGIN_ADMIN.STRICT_YAML_COMPAT
-              highlight: 1
-              default: 1
+              highlight: 0
+              default: 0
               help: PLUGIN_ADMIN.STRICT_YAML_COMPAT_HELP
               options:
                 1: PLUGIN_ADMIN.YES
@@ -1589,8 +1590,8 @@ form:
             strict_mode.twig_compat:
               type: toggle
               label: PLUGIN_ADMIN.STRICT_TWIG_COMPAT
-              highlight: 1
-              default: 1
+              highlight: 0
+              default: 0
               help: PLUGIN_ADMIN.STRICT_TWIG_COMPAT_HELP
               options:
                 1: PLUGIN_ADMIN.YES

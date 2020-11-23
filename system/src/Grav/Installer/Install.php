@@ -14,13 +14,14 @@ use Grav\Common\Cache;
 use Grav\Common\GPM\Installer;
 use Grav\Common\Grav;
 use Grav\Common\Plugins;
+use function dirname;
 
 /**
  * Grav installer.
  *
  * NOTE: This class can be initialized during upgrade from an older version of Grav. Make sure it runs there!
  */
-class Install
+final class Install
 {
     /** @var int Installer version. */
     public $version = 1;
@@ -39,8 +40,7 @@ class Install
             'name' => 'Grav',
             'versions' => [
                 '1.6' => '1.6.0',
-                '1.5' => '1.5.0',
-                '' => '1.6.22'
+                '' => '1.6.28'
             ]
         ],
         'plugins' => [
@@ -49,7 +49,6 @@ class Install
                 'optional' => true,
                 'versions' => [
                     '1.9' => '1.9.0',
-                    '1.8' => '1.8.0',
                     '' => '1.9.13'
                 ]
             ],
@@ -58,28 +57,26 @@ class Install
                 'optional' => true,
                 'versions' => [
                     '3.0' => '3.0.0',
-                    '2.7' => '2.7.0',
-                    '' => '3.0.7'
+                    '' => '3.0.10'
                 ]
             ],
             'form' => [
                 'name' => 'Form',
                 'optional' => true,
                 'versions' => [
+                    '4.1' => '4.1.0',
                     '4.0' => '4.0.0',
                     '3.0' => '3.0.0',
-                    '2.16' => '2.16.0',
-                    '' => '4.0.5'
+                    '' => '4.1.2'
                 ]
             ],
             'login' => [
                 'name' => 'Login',
                 'optional' => true,
                 'versions' => [
-                    '3.1' => '3.1.0',
+                    '3.3' => '3.3.0',
                     '3.0' => '3.0.0',
-                    '2.8' => '2.8.0',
-                    '' => '3.1.0'
+                    '' => '3.3.6'
                 ]
             ],
         ]
@@ -99,7 +96,11 @@ class Install
 
     /** @var array */
     private $classMap = [
-        // 'Grav\\Installer\\Test' => __DIR__ . '/Test.php',
+        InstallException::class => __DIR__ . '/InstallException.php',
+        Versions::class => __DIR__ . '/Versions.php',
+        VersionUpdate::class => __DIR__ . '/VersionUpdate.php',
+        VersionUpdater::class => __DIR__ . '/VersionUpdater.php',
+        YamlUpdater::class => __DIR__ . '/YamlUpdater.php',
     ];
 
     /** @var string|null */
@@ -108,9 +109,15 @@ class Install
     /** @var string|null */
     private $location;
 
+    /** @var VersionUpdater */
+    private $updater;
+
     /** @var static */
     private static $instance;
 
+    /**
+     * @return static
+     */
     public static function instance()
     {
         if (null === self::$instance) {
@@ -143,7 +150,19 @@ class Install
                 $error[] = "{$req['title']} >= <strong>v{$req['minimum']}</strong> required, you have <strong>v{$req['installed']}</strong>";
             }
 
-            throw new \RuntimeException(implode("<br />\n", $error));
+            $errors = implode("<br />\n", $error);
+            if (\defined('GRAV_CLI') && GRAV_CLI) {
+                $errors = "\n\n" . strip_tags($errors) . "\n\n";
+                $errors .= <<<ERR
+Please install Grav 1.6.28 first by running following commands:
+
+wget -q https://getgrav.org/download/core/grav-update/1.6.28 -O grav-update.zip
+bin/gpm direct-install -y grav-update.zip
+rm grav-update.zip
+ERR;
+            }
+
+            throw new \RuntimeException($errors);
         }
 
         $this->prepare();
@@ -200,7 +219,14 @@ class Install
         // Override Grav\Installer classes by using this version of Grav.
         $loader->addClassMap($this->classMap);
 
+        $this->legacySupport();
+
         $this->location = dirname($location, 4);
+
+        $versions = Versions::instance(GRAV_ROOT . '/user/config/versions.yaml');
+        $this->updater = new VersionUpdater('core/grav', __DIR__ . '/updates', $versions);
+
+        $this->updater->preflight();
     }
 
     /**
@@ -238,6 +264,8 @@ class Install
      */
     public function finalize(): void
     {
+        $this->updater->postflight();
+
         Cache::clearCache();
 
         clearstatcache();
@@ -304,5 +332,11 @@ class Install
             $check['name'] = ($blueprint->get('name') ?? $check['name'] ?? $name) . ' Plugin';
             $this->checkVersion($results, 'plugin', $name, $check, $version);
         }
+    }
+
+    protected function legacySupport(): void
+    {
+        // Support install for Grav 1.6.0 - 1.6.20 by loading the original class from the older version of Grav.
+        class_exists(\Grav\Console\Cli\CacheCommand::class, true);
     }
 }

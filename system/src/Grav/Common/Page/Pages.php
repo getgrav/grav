@@ -1106,6 +1106,14 @@ class Pages
         if (null === self::$types) {
             $grav = Grav::instance();
 
+            /** @var UniformResourceLocator $locator */
+            $locator = $grav['locator'];
+
+            // Prevent calls made before theme:// has been initialized (happens when upgrading old version of Admin plugin).
+            if (!$locator->isStream('theme://')) {
+                return new Types();
+            }
+
             $scanBlueprintsAndTemplates = static function (Types $types) use ($grav) {
                 // Scan blueprints
                 $event = new Event();
