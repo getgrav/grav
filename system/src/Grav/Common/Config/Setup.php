@@ -196,7 +196,10 @@ class Setup extends Data
 
         // Set up environment.
         $this->def('environment', $environment);
-        $this->def('streams.schemes.environment.prefixes', ['' => ["user://{$this->get('environment')}"]]);
+        $this->def(
+            'streams.schemes.environment.prefixes',
+            ['' => ["user://env/{$this->get('environment')}", "user://{$this->get('environment')}"]]
+        );
     }
 
     /**
