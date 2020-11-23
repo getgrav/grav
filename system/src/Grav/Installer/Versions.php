@@ -54,7 +54,7 @@ final class Versions
             return false;
         }
 
-        file_put_contents($this->filename, Yaml::dump($this->items, 5, 2));
+        file_put_contents($this->filename, Yaml::dump($this->items, 4, 2));
 
         $this->updated = false;
 
