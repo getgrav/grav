@@ -331,7 +331,10 @@ class InitializeProcessor extends ProcessorBase
 
         /** @var Pages $pages */
         $pages = $grav['pages'];
-        $pages->register();
+        // Upgrading from older Grav versions won't work without checking if the method exists.
+        if (method_exists($pages, 'register')) {
+            $pages->register();
+        }
 
         $this->stopTimer('_init_pages_register');
 
