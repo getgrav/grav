@@ -23,19 +23,21 @@ final class VersionUpdater
      * VersionUpdater constructor.
      * @param string $name
      * @param string $path
+     * @param string $version
      * @param Versions $versions
      */
-    public function __construct(string $name, string $path, Versions $versions)
+    public function __construct(string $name, string $path, string $version, Versions $versions)
     {
         $this->name = $name;
         $this->path = $path;
+        $this->version = $version;
         $this->versions = $versions;
 
         $this->loadUpdates();
     }
 
     /**
-     * Pre-installation methods.
+     * Pre-installation method.
      */
     public function preflight(): void
     {
@@ -45,7 +47,17 @@ final class VersionUpdater
     }
 
     /**
-     * Post-installation methods.
+     * Install method.
+     */
+    public function install(): void
+    {
+        $versions = $this->getVersions();
+        $versions->updateVersion($this->name, $this->version);
+        $versions->save();
+    }
+
+    /**
+     * Post-installation method.
      */
     public function postflight(): void
     {

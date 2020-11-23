@@ -15,6 +15,7 @@ use Grav\Common\GPM\Installer;
 use Grav\Common\Grav;
 use Grav\Common\Plugins;
 use function dirname;
+use function is_string;
 
 /**
  * Grav installer.
@@ -224,7 +225,7 @@ ERR;
         $this->location = dirname($location, 4);
 
         $versions = Versions::instance(GRAV_ROOT . '/user/config/versions.yaml');
-        $this->updater = new VersionUpdater('core/grav', __DIR__ . '/updates', $versions);
+        $this->updater = new VersionUpdater('core/grav', __DIR__ . '/updates', $this->getVersion(), $versions);
 
         $this->updater->preflight();
     }
@@ -257,6 +258,8 @@ ERR;
         if (!$success) {
             throw new \RuntimeException(Installer::lastErrorMsg());
         }
+
+        $this->updater->install();
     }
 
     /**
@@ -274,6 +277,13 @@ ERR;
         }
     }
 
+    /**
+     * @param array $results
+     * @param string $type
+     * @param string $name
+     * @param array $check
+     * @param string|null $version
+     */
     protected function checkVersion(array &$results, $type, $name, array $check, $version): void
     {
         if (null === $version && !empty($check['optional'])) {
@@ -314,6 +324,10 @@ ERR;
         ];
     }
 
+    /**
+     * @param array $results
+     * @param array $plugins
+     */
     protected function checkPlugins(array &$results, array $plugins): void
     {
         if (!\class_exists('Plugins')) {
@@ -332,6 +346,18 @@ ERR;
             $check['name'] = ($blueprint->get('name') ?? $check['name'] ?? $name) . ' Plugin';
             $this->checkVersion($results, 'plugin', $name, $check, $version);
         }
+    }
+
+    /**
+     * @return string
+     */
+    protected function getVersion(): string
+    {
+        $definesFile = "{$this->location}/system/defines.php";
+        $content = file_get_contents($definesFile);
+        preg_match("/define\('GRAV_VERSION', '([^']+)'\);/mu", $content, $matches);
+
+        return $matches[1] ?? '';
     }
 
     protected function legacySupport(): void
