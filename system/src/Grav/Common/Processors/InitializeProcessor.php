@@ -18,6 +18,8 @@ use Grav\Common\Plugins;
 use Grav\Common\Session;
 use Grav\Common\Uri;
 use Grav\Common\Utils;
+use Grav\Framework\File\Formatter\YamlFormatter;
+use Grav\Framework\File\YamlFile;
 use Grav\Framework\Psr7\Response;
 use Grav\Framework\Session\Exceptions\SessionException;
 use Monolog\Formatter\LineFormatter;
@@ -26,6 +28,7 @@ use Monolog\Logger;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use function defined;
 
 /**
  * Class InitializeProcessor
@@ -168,6 +171,24 @@ class InitializeProcessor extends ProcessorBase
         $config = $grav['config'];
         $config->init();
         $grav['plugins']->setup();
+
+        if (defined('GRAV_SCHEMA') && $config->get('versions') === null) {
+            $filename = GRAV_ROOT . '/user/config/versions.yaml';
+            if (!is_file($filename)) {
+                $versions = [
+                    'core' => [
+                        'grav' => [
+                            'version' => GRAV_VERSION,
+                            'schema' => GRAV_SCHEMA
+                        ]
+                    ]
+                ];
+                $config->set('versions', $versions);
+
+                $file = new YamlFile($filename, new YamlFormatter(['inline' => 4]));
+                $file->save($versions);
+            }
+        }
 
         $this->stopTimer('_init_config');
 
