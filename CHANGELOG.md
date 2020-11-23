@@ -34,6 +34,7 @@
     * Fixed issue with `config-default@` breaking on set [#1972](https://github.com/getgrav/grav-plugin-admin/issues/1971)
     * Escape titles in Flex pages list [flex-objects#84](https://github.com/trilbymedia/grav-plugin-flex-objects/issues/84)
     * Fixed Purge successful message only working in Scheduler but broken in CLI and Admin [#1935](https://github.com/getgrav/grav-plugin-admin/issues/1935)
+    * Fixed `system://` stream is causing issues in Admin, making Media tab to disappear and possibly causing other issues [#3072](https://github.com/getgrav/grav/issues/3072)
 
 # v1.7.0-rc.17
 ## 10/07/2020

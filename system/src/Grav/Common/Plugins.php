@@ -83,7 +83,7 @@ class Plugins extends Iterator
 
             /** @var UniformResourceLocator $locator */
             $locator = Grav::instance()['locator'];
-            $locator->addPath('blueprints', '', array_keys($blueprints), 'system/blueprints');
+            $locator->addPath('blueprints', '', array_keys($blueprints), ['system', 'blueprints']);
         }
 
         if ($formFields) {
