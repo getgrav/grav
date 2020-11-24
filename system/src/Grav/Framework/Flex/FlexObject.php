@@ -191,6 +191,40 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
         return $this->_flexDirectory;
     }
 
+    public function refresh(): void
+    {
+        $key = $this->getStorageKey();
+        if ('' === $key) {
+            return;
+        }
+
+        $storage = $this->getFlexDirectory()->getStorage();
+        $meta = $storage->getMetaData([$key])[$key] ?? null;
+
+        $newChecksum = $meta['checksum'] ?? $meta['storage_timestamp'] ?? null;
+        $curChecksum = $this->_meta['checksum'] ?? $this->_meta['storage_timestamp'] ?? null;
+
+        // Check if object is up to date with the storage.
+        if (null === $newChecksum || $newChecksum === $curChecksum) {
+            return;
+        }
+
+        $elements = $storage->readRows([$key => null])[$key] ?? null;
+        if (null !== $elements || isset($elements['__ERROR'])) {
+            $meta = $elements['_META'] ?? $meta;
+            $this->filterElements($elements);
+            $newKey = $meta['key'] ?? $this->getKey();
+            if ($meta) {
+                $this->setMetaData($meta);
+            }
+            $this->objectConstruct($elements, $newKey);
+        }
+
+        /** @var Debugger $debugger */
+        $debugger = Grav::instance()['debugger'];
+        $debugger->addMessage("Refreshed {$this->getFlexType()} object {$this->getKey()}", 'debug');
+    }
+
     /**
      * {@inheritdoc}
      * @see FlexObjectInterface::getTimestamp()

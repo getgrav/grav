@@ -35,6 +35,7 @@ use RocketTheme\Toolbox\File\YamlFile;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use RuntimeException;
 use function call_user_func_array;
+use function count;
 use function is_array;
 use Grav\Common\Flex\Types\Generic\GenericObject;
 use Grav\Common\Flex\Types\Generic\GenericCollection;
@@ -563,8 +564,6 @@ class FlexDirectory implements FlexDirectoryInterface, FlexAuthorizeInterface
         /** @var Debugger $debugger */
         $debugger = Grav::instance()['debugger'];
 
-        $cache = $this->getCache('object');
-
         $keys = [];
         $rows = [];
         $fetch = [];
@@ -583,48 +582,14 @@ class FlexDirectory implements FlexDirectoryInterface, FlexAuthorizeInterface
             }
         }
 
-        $loading = \count($fetch);
-
         // Attempt to fetch missing rows from the cache.
         if ($fetch) {
-            try {
-                $debugger->startTimer('flex-objects', sprintf('Flex: Loading %d %s', $loading, $this->type));
-
-                $fetched = (array)$cache->getMultiple($fetch);
-                if ($fetched) {
-                    $index = $this->loadIndex('storage_key');
-
-                    // Make sure cached objects are up to date: compare against index checksum/timestamp.
-                    /**
-                     * @var string $key
-                     * @var mixed $value
-                     */
-                    foreach ($fetched as $key => $value) {
-                        if ($value instanceof FlexObjectInterface) {
-                            $objectMeta = $value->getMetaData();
-                        } else {
-                            $objectMeta = $value['__META'] ?? [];
-                        }
-                        $indexMeta = $index->getMetaData($key);
-
-                        $indexChecksum = $indexMeta['checksum'] ?? $indexMeta['storage_timestamp'] ?? null;
-                        $objectChecksum = $objectMeta['checksum'] ?? $objectMeta['storage_timestamp'] ?? null;
-                        if ($indexChecksum !== $objectChecksum) {
-                            unset($fetched[$key]);
-                        }
-                    }
-                }
-
-                // Update cached rows.
-                $rows = (array)array_replace($rows, $fetched);
-            } catch (InvalidArgumentException $e) {
-                $debugger->addException($e);
-            }
+             $rows = (array)array_replace($rows, $this->loadCachedObjects($fetch));
         }
 
         // Read missing rows from the storage.
-        $storage = $this->getStorage();
         $updated = [];
+        $storage = $this->getStorage();
         $rows = $storage->readRows($rows, $updated);
 
         // Create objects from the rows.
@@ -669,6 +634,7 @@ class FlexDirectory implements FlexDirectoryInterface, FlexAuthorizeInterface
 
         // Store updated rows to the cache.
         if ($updated) {
+            $cache = $this->getCache('object');
             if (!$cache instanceof MemoryCache) {
                 ///** @var Debugger $debugger */
                 //$debugger = Grav::instance()['debugger'];
@@ -687,6 +653,56 @@ class FlexDirectory implements FlexDirectoryInterface, FlexAuthorizeInterface
         }
 
         return $list;
+    }
+
+    protected function loadCachedObjects(array $fetch): array
+    {
+        if (!$fetch) {
+            return [];
+        }
+
+        /** @var Debugger $debugger */
+        $debugger = Grav::instance()['debugger'];
+
+        $cache = $this->getCache('object');
+
+        // Attempt to fetch missing rows from the cache.
+        $fetched = [];
+        try {
+            $loading = count($fetch);
+
+            $debugger->startTimer('flex-objects', sprintf('Flex: Loading %d %s', $loading, $this->type));
+
+            $fetched = (array)$cache->getMultiple($fetch);
+            if ($fetched) {
+                $index = $this->loadIndex('storage_key');
+
+                // Make sure cached objects are up to date: compare against index checksum/timestamp.
+                /**
+                 * @var string $key
+                 * @var mixed $value
+                 */
+                foreach ($fetched as $key => $value) {
+                    if ($value instanceof FlexObjectInterface) {
+                        $objectMeta = $value->getMetaData();
+                    } else {
+                        $objectMeta = $value['__META'] ?? [];
+                    }
+                    $indexMeta = $index->getMetaData($key);
+
+                    $indexChecksum = $indexMeta['checksum'] ?? $indexMeta['storage_timestamp'] ?? null;
+                    $objectChecksum = $objectMeta['checksum'] ?? $objectMeta['storage_timestamp'] ?? null;
+                    if ($indexChecksum !== $objectChecksum) {
+                        unset($fetched[$key]);
+                    }
+                }
+            }
+
+        } catch (InvalidArgumentException $e) {
+            $debugger->addException($e);
+        }
+
+        return $fetched;
     }
 
     /**
@@ -875,7 +891,7 @@ class FlexDirectory implements FlexDirectoryInterface, FlexAuthorizeInterface
                 $keys = $className::loadEntriesFromStorage($storage);
                 if (!$cache instanceof MemoryCache) {
                     $debugger->addMessage(
-                        sprintf('Flex: Caching %s index of %d objects', $this->type, \count($keys)),
+                        sprintf('Flex: Caching %s index of %d objects', $this->type, count($keys)),
                         'debug'
                     );
                 }

@@ -3,6 +3,7 @@
 
 1. [](#new)
     * Set minimum requirements to **PHP 7.3.6**
+    * Updated Clockwork to v5.0
     * Added `FlexDirectoryInterface` interface
     * Renamed `PageCollectionInterface::nonModular()` into `PageCollectionInterface::pages()` and deprecated the old method
     * Renamed `PageCollectionInterface::modular()` into `PageCollectionInterface::modules()` and deprecated the old method'
@@ -10,7 +11,6 @@
     * Added search option `same_as` to Flex Objects
     * Added PHP 8 compatible `function_exists()`: `Utils::functionExists()`
     * New sites have `compatibility` features turned off by default, upgrading from older versions will keep the settings on
-    * Updated Clockwork to v5.0
 1. [](#improved)
     * Updated bundled JQuery to latest version `3.5.1`
     * Forward a `sid` to GPM when downloading a premium package via CLI
@@ -20,6 +20,7 @@
     * Added XSS detection to all forms. See [documentation](http://learn.grav.local/17/forms/forms/form-options#xss-checks)
     * Better handling of missing repository index [grav-plugin-admin#1916](https://github.com/getgrav/grav-plugin-admin/issues/1916)
     * Added support for having all sites / environments under `user/env` folder [#3072](https://github.com/getgrav/grav/issues/3072)
+    * Added `FlexObject::refresh()` method to make sure object is up to date
 1. [](#bugfix)
     * *Menu Visibility Requires Access* Security option setting wrong frontmatter [login#265](https://github.com/getgrav/grav-plugin-login/issues/265)
     * Accessing page with unsupported file extension (jpg, pdf, xsl) will use wrong mime type [#3031](https://github.com/getgrav/grav/issues/3031)
