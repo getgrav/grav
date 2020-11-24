@@ -1,3 +1,9 @@
+# v1.6.32
+## mm/dd/2021
+
+1. [](#bugfix)
+    * Fixed `|safe_email` filter to return safe and escaped UTF-8 HTML [#3072](https://github.com/getgrav/grav/issues/3072)
+
 # v1.6.31
 ## 12/14/2020
 
