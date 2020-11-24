@@ -80,14 +80,14 @@ class YamlLinter
 
         /** @var UniformResourceLocator $locator */
         $locator = Grav::instance()['locator'];
-        $flags = RecursiveDirectoryIterator::SKIP_DOTS;
+        $flags = RecursiveDirectoryIterator::SKIP_DOTS | RecursiveDirectoryIterator::FOLLOW_SYMLINKS;
         if ($locator->isStream($path)) {
             $directory = $locator->getRecursiveIterator($path, $flags);
         } else {
             $directory = new RecursiveDirectoryIterator($path, $flags);
         }
         $recursive = new RecursiveIteratorIterator($directory, RecursiveIteratorIterator::SELF_FIRST);
-        $iterator = new RegexIterator($recursive, '/^.+\.'.$extensions.'$/i');
+        $iterator = new RegexIterator($recursive, '/^.+\.'.$extensions.'$/ui');
 
         /** @var RecursiveDirectoryIterator $file */
         foreach ($iterator as $filepath => $file) {
@@ -111,6 +111,7 @@ class YamlLinter
         if ($extension === 'md') {
             $file = MarkdownFile::instance($path);
             $contents = $file->frontmatter();
+            $file->free();
         } else {
             $contents = file_get_contents($path);
         }
