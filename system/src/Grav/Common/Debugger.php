@@ -38,6 +38,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use ReflectionObject;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Throwable;
+use Twig\Environment;
 use Twig\Template;
 use Twig\TemplateWrapper;
 use function array_slice;
@@ -162,16 +163,17 @@ class Debugger
                     $clockwork->addDataSource(new MonologDataSource($log));
                 }
 
-                $clockwork->addDataSource(new TwigClockworkDataSource());
-
-                $timeLine = $clockwork->getTimeline();
+                $timeline = $clockwork->timeline();
                 if ($this->requestTime !== GRAV_REQUEST_TIME) {
-                    $timeLine->addEvent('server', 'Server', $this->requestTime, GRAV_REQUEST_TIME);
+                    $event = $timeline->event('Server');
+                    $event->finalize($this->requestTime, GRAV_REQUEST_TIME);
                 }
                 if ($this->currentTime !== GRAV_REQUEST_TIME) {
-                    $timeLine->addEvent('loading', 'Loading', GRAV_REQUEST_TIME, $this->currentTime);
+                    $event = $timeline->event('Loading');
+                    $event->finalize(GRAV_REQUEST_TIME, $this->currentTime);
                 }
-                $timeLine->addEvent('setup', 'Site Setup', $this->currentTime, microtime(true));
+                $event = $timeline->event('Site Setup');
+                $event->finalize($this->currentTime, microtime(true));
             }
 
             if ($this->censored) {
@@ -253,7 +255,7 @@ class Debugger
 
         $this->finalize();
 
-        $clockwork->getTimeline()->finalize($request->getAttribute('request_time'));
+        $clockwork->timeline()->finalize($request->getAttribute('request_time'));
 
         if ($this->censored) {
             $censored = 'CENSORED';
@@ -344,21 +346,20 @@ class Debugger
         }
 
         $nowTime = microtime(true);
-        $clkTimeLine = $this->clockwork ? $this->clockwork->getTimeline() : null;
+        $clkTimeLine = $this->clockwork ? $this->clockwork->timeline() : null;
         $debTimeLine = $this->debugbar ? $this->debugbar['time'] : null;
         foreach ($this->timers as $name => $data) {
             $description = $data[0];
             $startTime = $data[1] ?? null;
             $endTime = $data[2] ?? $nowTime;
-            if ($endTime - $startTime < 0.001) {
-                continue;
-            }
-
             if ($clkTimeLine) {
-                $clkTimeLine->addEvent($name, $description ?? $name, $startTime, $endTime);
-            }
+                $event = $clkTimeLine->event($description);
+                $event->finalize($startTime, $endTime);
+            } elseif ($debTimeLine) {
+                if ($endTime - $startTime < 0.001) {
+                    continue;
+                }
 
-            if ($debTimeLine) {
                 $debTimeLine->addMeasure($description ?? $name, $startTime, $endTime);
             }
         }
@@ -412,7 +413,7 @@ class Debugger
                 $this->renderer = $this->debugbar->getJavascriptRenderer();
                 $this->renderer->setIncludeVendors(false);
 
-                list($css_files, $js_files) = $this->renderer->getAssets(null, JavascriptRenderer::RELATIVE_URL);
+                [$css_files, $js_files] = $this->renderer->getAssets(null, JavascriptRenderer::RELATIVE_URL);
 
                 foreach ((array)$css_files as $css) {
                     $assets->addCss($css);
@@ -543,6 +544,16 @@ class Debugger
         $this->stopProfiling($message);
 
         return $response;
+    }
+
+    public function addTwigProfiler(Environment $twig): void
+    {
+        $clockwork = $this->getClockwork();
+        if ($clockwork) {
+            $source = new TwigClockworkDataSource($twig);
+            $source->listenToEvents();
+            $clockwork->addDataSource($source);
+        }
     }
 
     /**
@@ -756,20 +767,18 @@ class Debugger
      */
     public function addEvent(string $name, $event, EventDispatcherInterface $dispatcher)
     {
-        if ($this->enabled) {
-            if ($this->clockwork) {
-                $data = null;
-                if ($event && method_exists($event, '__debugInfo')) {
-                    $data = $event;
-                }
-
-                $listeners = [];
-                foreach ($dispatcher->getListeners($name) as $listener) {
-                    $listeners[] = $this->resolveCallable($listener);
-                }
-
-                $this->clockwork->addEvent($name, $data, microtime(true), ['listeners' => $listeners]);
+        if ($this->enabled && $this->clockwork) {
+            $data = null;
+            if ($event && method_exists($event, '__debugInfo')) {
+                $data = $event;
             }
+
+            $listeners = [];
+            foreach ($dispatcher->getListeners($name) as $listener) {
+                $listeners[] = $this->resolveCallable($listener);
+            }
+
+            $this->clockwork->addEvent($name, $data, microtime(true), ['listeners' => $listeners]);
         }
 
         return $this;

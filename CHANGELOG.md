@@ -10,6 +10,7 @@
     * Added search option `same_as` to Flex Objects
     * Added PHP 8 compatible `function_exists()`: `Utils::functionExists()`
     * New sites have `compatibility` features turned off by default, upgrading from older versions will keep the settings on
+    * Updated Clockwork to v5.0
 1. [](#improved)
     * Updated bundled JQuery to latest version `3.5.1`
     * Forward a `sid` to GPM when downloading a premium package via CLI

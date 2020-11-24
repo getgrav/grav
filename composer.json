@@ -55,7 +55,7 @@
         "dragonmantank/cron-expression": "^1.2",
         "phive/twig-extensions-deferred": "^1.0",
         "willdurand/negotiation": "2.x-dev",
-        "itsgoingd/clockwork": "^4.1",
+        "itsgoingd/clockwork": "^5.0",
         "enshrined/svg-sanitize": "~0.13",
         "symfony/http-client": "^4.4"
     },

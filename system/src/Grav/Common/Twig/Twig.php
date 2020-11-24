@@ -9,6 +9,7 @@
 
 namespace Grav\Common\Twig;
 
+use Grav\Common\Debugger;
 use Grav\Common\Grav;
 use Grav\Common\Config\Config;
 use Grav\Common\Language\Language;
@@ -24,7 +25,6 @@ use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Extension\CoreExtension;
 use Twig\Extension\DebugExtension;
-use Twig\Extension\ProfilerExtension;
 use Twig\Extension\StringLoaderExtension;
 use Twig\Loader\ArrayLoader;
 use Twig\Loader\ChainLoader;
@@ -192,8 +192,9 @@ class Twig
             $this->twig->addExtension(new DeferredExtension());
             $this->twig->addExtension(new StringLoaderExtension());
 
-            $this->profile = new Profile();
-            $this->twig->addExtension(new ProfilerExtension($this->profile));
+            /** @var Debugger $debugger */
+            $debugger = $this->grav['debugger'];
+            $debugger->addTwigProfiler($this->twig);
 
             $this->grav->fireEvent('onTwigExtensions');
 

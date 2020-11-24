@@ -461,10 +461,11 @@ class Grav extends Container
     {
         /** @var EventDispatcherInterface $events */
         $events = $this['events'];
+        $eventName = get_class($event);
 
         /** @var Debugger $debugger */
         $debugger = $this['debugger'];
-        $debugger->addEvent(get_class($event), $event, $events);
+        $debugger->addEvent($eventName, $event, $events);
 
         return $events->dispatch($event);
     }

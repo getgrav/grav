@@ -11,8 +11,9 @@ namespace Grav\Common\Twig;
 
 use Clockwork\DataSource\DataSource;
 use Clockwork\Request\Request;
-use Clockwork\Request\Timeline;
-use Grav\Common\Grav;
+use Twig\Environment;
+use Twig\Extension\ProfilerExtension;
+use Twig\Profiler\Profile;
 
 /**
  * Class TwigClockworkDataSource
@@ -20,33 +21,37 @@ use Grav\Common\Grav;
  */
 class TwigClockworkDataSource extends DataSource
 {
-    /** @var Timeline Views data structure */
-    protected $views;
+    /** @var Environment */
+    protected $twig;
 
-    /**
-     * TwigClockworkDataSource constructor.
-     */
-    public function __construct()
+    /** @var Profile */
+    protected $profile;
+
+    // Create a new data source, takes Twig instance as an argument
+    public function __construct(Environment $twig)
     {
-        $this->views = new Timeline();
+        $this->twig = $twig;
     }
 
     /**
-     * Resolves and adds the Twig profiler data to the request
+     * Register the Twig profiler extension
+     */
+    public function listenToEvents(): void
+    {
+        $this->twig->addExtension(new ProfilerExtension($this->profile = new Profile()));
+    }
+
+    /**
+     * Adds rendered views to the request
      *
      * @param Request $request
      * @return Request
      */
     public function resolve(Request $request)
     {
-        $profile = Grav::instance()['twig']->profile();
+        $timeline = (new TwigClockworkDumper())->dump($this->profile);
 
-        if ($profile) {
-            $processor = new TwigProfileProcessor();
-
-            $processor->process($profile, $this->views);
-            $request->viewsData    = $this->views->finalize();
-        }
+        $request->viewsData = array_merge($request->viewsData, $timeline->finalize());
 
         return $request;
     }
