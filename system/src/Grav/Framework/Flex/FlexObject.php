@@ -191,11 +191,16 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
         return $this->_flexDirectory;
     }
 
-    public function refresh(): void
+    /**
+     * Refresh object from the storage.
+     *
+     * @return bool True if the object was refreshed
+     */
+    public function refresh(): bool
     {
         $key = $this->getStorageKey();
         if ('' === $key) {
-            return;
+            return false;
         }
 
         $storage = $this->getFlexDirectory()->getStorage();
@@ -206,7 +211,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
 
         // Check if object is up to date with the storage.
         if (null === $newChecksum || $newChecksum === $curChecksum) {
-            return;
+            return false;
         }
 
         $elements = $storage->readRows([$key => null])[$key] ?? null;
@@ -223,6 +228,8 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
         /** @var Debugger $debugger */
         $debugger = Grav::instance()['debugger'];
         $debugger->addMessage("Refreshed {$this->getFlexType()} object {$this->getKey()}", 'debug');
+
+        return true;
     }
 
     /**
