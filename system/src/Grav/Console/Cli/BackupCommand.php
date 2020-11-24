@@ -51,6 +51,11 @@ class BackupCommand extends ConsoleCommand
         $io = new SymfonyStyle($this->input, $this->output);
         $io->title('Grav Backup');
 
+        if (!class_exists(\ZipArchive::class)) {
+            $io->error('php-zip extension needs to be enabled!');
+            exit;
+        }
+
         /** @var Backups $backups */
         $backups = Grav::instance()['backups'];
         $backups_list = $backups->getBackupProfiles();

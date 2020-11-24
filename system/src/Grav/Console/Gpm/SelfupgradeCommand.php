@@ -19,6 +19,7 @@ use Grav\Console\ConsoleCommand;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 class SelfupgradeCommand extends ConsoleCommand
 {
@@ -82,6 +83,13 @@ class SelfupgradeCommand extends ConsoleCommand
 
     protected function serve()
     {
+        if (!class_exists(\ZipArchive::class)) {
+            $io = new SymfonyStyle($this->input, $this->output);
+            $io->title('GPM Self Upgrade');
+            $io->error('php-zip extension needs to be enabled!');
+            exit;
+        }
+
         $this->upgrader = new Upgrader($this->input->getOption('force'));
         $this->all_yes = $this->input->getOption('all-yes');
         $this->overwrite = $this->input->getOption('overwrite');

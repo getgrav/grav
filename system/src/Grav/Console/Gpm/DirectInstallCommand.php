@@ -19,6 +19,7 @@ use Grav\Console\ConsoleCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 class DirectInstallCommand extends ConsoleCommand
 {
@@ -60,6 +61,13 @@ class DirectInstallCommand extends ConsoleCommand
      */
     protected function serve()
     {
+        if (!class_exists(\ZipArchive::class)) {
+            $io = new SymfonyStyle($this->input, $this->output);
+            $io->title('Direct Install');
+            $io->error('php-zip extension needs to be enabled!');
+            exit;
+        }
+
         // Making sure the destination is usable
         $this->destination = realpath($this->input->getOption('destination'));
 

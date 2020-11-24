@@ -42,6 +42,7 @@
     * Fixed CLI self-upgrade from Grav 1.6 [#3079](https://github.com/getgrav/grav/issues/3079)
     * Fixed `bin/grav yamllinter -a` and `-f` not following symlinks [#3080](https://github.com/getgrav/grav/issues/3080)
     * Fixed `|safe_email` filter to return safe and escaped UTF-8 HTML [#3072](https://github.com/getgrav/grav/issues/3072)
+    * Fixed exception in CLI GPM and backup commands when `php-zip` is not enabled [#3075](https://github.com/getgrav/grav/issues/3075)
 
 # v1.7.0-rc.17
 ## 10/07/2020
