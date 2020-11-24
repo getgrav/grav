@@ -41,6 +41,7 @@
     * Fixed `system://` stream is causing issues in Admin, making Media tab to disappear and possibly causing other issues [#3072](https://github.com/getgrav/grav/issues/3072)
     * Fixed CLI self-upgrade from Grav 1.6 [#3079](https://github.com/getgrav/grav/issues/3079)
     * Fixed `bin/grav yamllinter -a` and `-f` not following symlinks [#3080](https://github.com/getgrav/grav/issues/3080)
+    * Fixed `|safe_email` filter to return safe and escaped UTF-8 HTML [#3072](https://github.com/getgrav/grav/issues/3072)
 
 # v1.7.0-rc.17
 ## 10/07/2020

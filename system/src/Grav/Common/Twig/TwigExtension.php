@@ -129,7 +129,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             new TwigFilter('rtrim', [$this, 'rtrimFilter']),
             new TwigFilter('pad', [$this, 'padFilter']),
             new TwigFilter('regex_replace', [$this, 'regexReplace']),
-            new TwigFilter('safe_email', [$this, 'safeEmailFilter']),
+            new TwigFilter('safe_email', [$this, 'safeEmailFilter'], ['is_safe' => ['html']]),
             new TwigFilter('safe_truncate', ['\Grav\Common\Utils', 'safeTruncate']),
             new TwigFilter('safe_truncate_html', ['\Grav\Common\Utils', 'safeTruncateHTML']),
             new TwigFilter('sort_by_key', [$this, 'sortByKeyFilter']),
@@ -267,14 +267,23 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
      */
     public function safeEmailFilter($str)
     {
-        $email   = '';
-        for ($i = 0, $len = strlen($str); $i < $len; $i++) {
-            $j = random_int(0, 1);
+        static $list = [
+            '"' => '&#34;',
+            "'" => '&#39;',
+            '&' => '&amp;',
+            '<' => '&lt;',
+            '>' => '&gt;',
+            '@' => '&#64;'
+        ];
 
-            $email .= $j === 0 ? '&#' . ord($str[$i]) . ';' : $str[$i];
+        $characters = mb_str_split($str, 1, 'UTF-8');
+
+        $encoded = '';
+        foreach ($characters as $chr) {
+            $encoded .= $list[$chr] ?? (random_int(0, 1) ? '&#' . mb_ord($chr) . ';' : $chr);
         }
 
-        return str_replace('@', '&#64;', $email);
+        return $encoded;
     }
 
     /**
