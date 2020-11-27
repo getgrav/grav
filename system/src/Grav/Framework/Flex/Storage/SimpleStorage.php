@@ -31,10 +31,10 @@ class SimpleStorage extends AbstractFilesystemStorage
     protected $dataPattern;
     /** @var string */
     protected $prefix;
-    /** @var array */
+    /** @var array|null */
     protected $data;
     /** @var int */
-    protected $modified;
+    protected $modified = 0;
 
     /**
      * {@inheritdoc}
@@ -76,7 +76,7 @@ class SimpleStorage extends AbstractFilesystemStorage
     public function clearCache(): void
     {
         $this->data = null;
-        $this->modified = null;
+        $this->modified = 0;
     }
 
     /**

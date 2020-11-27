@@ -240,8 +240,4 @@ trait PageAuthorsTrait
 
         return $list;
     }
-
-    abstract public function getNestedProperty($property, $default = null, $separator = null);
-
-    abstract protected function loadAccounts();
 }

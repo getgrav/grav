@@ -332,7 +332,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
      * @param string $key
      * @return array
      */
-    public function getMetaData(string $key): array
+    public function getMetaData($key): array
     {
         return $this->getEntries()[$key] ?? [];
     }

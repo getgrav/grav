@@ -56,6 +56,4 @@ trait FlexRelatedDirectoryTrait
 
         return $directory;
     }
-
-    abstract public function getNestedProperty($property, $default = null, $separator = null);
 }

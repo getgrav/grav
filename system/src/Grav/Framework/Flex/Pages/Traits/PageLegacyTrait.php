@@ -1107,33 +1107,4 @@ trait PageLegacyTrait
 
         return null;
     }
-
-    /**
-     * @param string|null $namespace
-     * @return CacheInterface
-     */
-    abstract public function getCache(string $namespace = null);
-
-    /**
-     * @param PageInterface|null $var
-     * @return PageInterface|null
-     */
-    abstract public function parent(PageInterface $var = null);
-
-    abstract public function getFlexDirectory(): FlexDirectory;
-
-    abstract protected function exists(): bool;
-
-    /**
-     * @return string|null
-     */
-    abstract protected function getStorageFolder();
-
-    /**
-     * @param string $property
-     * @param mixed $var
-     * @param callable $filter
-     * @return mixed|null
-     */
-    abstract protected function loadHeaderProperty(string $property, $var, callable $filter);
 }

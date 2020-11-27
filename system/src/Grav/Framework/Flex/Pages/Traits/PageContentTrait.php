@@ -500,15 +500,9 @@ trait PageContentTrait
     }
 
     /**
-     * @inheritdoc
+     * @param Header|stdClass|array|null $value
+     * @return Header
      */
-    abstract public function exists(): bool;
-
-    abstract public function getProperty($property, $default = null);
-    abstract public function setProperty($property, $value);
-    abstract public function &getArrayProperty($property, $default = null, $doCreate = false);
-
-
     protected function offsetLoad_header($value)
     {
         if ($value instanceof Header) {

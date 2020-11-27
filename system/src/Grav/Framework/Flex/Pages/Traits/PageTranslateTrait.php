@@ -280,6 +280,4 @@ trait PageTranslateTrait
 
         return $fallback ? $language->getFallbackLanguages($languageCode, true) : [$languageCode];
     }
-
-    abstract protected function loadHeaderProperty(string $property, $var, callable $filter);
 }

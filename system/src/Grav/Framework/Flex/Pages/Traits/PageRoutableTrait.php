@@ -545,6 +545,4 @@ trait PageRoutableTrait
 
         return $this->root === true || $this->getKey() === '/';
     }
-
-    abstract protected function loadHeaderProperty(string $property, $var, callable $filter);
 }

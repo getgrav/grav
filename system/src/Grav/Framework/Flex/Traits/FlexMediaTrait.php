@@ -117,6 +117,10 @@ trait FlexMediaTrait
     public function checkUploadedMediaFile(UploadedFileInterface $uploadedFile, string $filename = null, string $field = null)
     {
         $media = $this->getMedia();
+        if (!$media instanceof MediaUploadInterface) {
+            throw new RuntimeException("Media for {$this->getFlexDirectory()->getFlexType()} doesn't support file uploads.");
+        }
+
         $media->checkUploadedFile($uploadedFile, $filename, $this->getMediaFieldSettings($field ?? ''));
     }
 
@@ -130,8 +134,12 @@ trait FlexMediaTrait
     public function uploadMediaFile(UploadedFileInterface $uploadedFile, string $filename = null, string $field = null): void
     {
         $media = $this->getMedia();
+        if (!$media instanceof MediaUploadInterface) {
+            throw new RuntimeException("Media for {$this->getFlexDirectory()->getFlexType()} doesn't support file uploads.");
+        }
+
         $settings = $this->getMediaFieldSettings($field ?? '');
-        $media->checkUploadedFile($uploadedFile, $filename, $settings);
+        $filename = $media->checkUploadedFile($uploadedFile, $filename, $settings);
         $media->copyUploadedFile($uploadedFile, $filename, $settings);
         $this->clearMediaCache();
     }
@@ -144,6 +152,10 @@ trait FlexMediaTrait
     public function deleteMediaFile(string $filename): void
     {
         $media = $this->getMedia();
+        if (!$media instanceof MediaUploadInterface) {
+            throw new RuntimeException("Media for {$this->getFlexDirectory()->getFlexType()} doesn't support file uploads.");
+        }
+
         $media->deleteFile($filename);
         $this->clearMediaCache();
     }
@@ -165,6 +177,10 @@ trait FlexMediaTrait
     protected function setUpdatedMedia(array $files): void
     {
         $media = $this->getMedia();
+        if (!$media instanceof MediaUploadInterface) {
+            return;
+        }
+
         $filesystem = Filesystem::getInstance(false);
 
         $list = [];
@@ -263,6 +279,10 @@ trait FlexMediaTrait
     protected function saveUpdatedMedia(): void
     {
         $media = $this->getMedia();
+        if (!$media instanceof MediaUploadInterface) {
+            return;
+        }
+
 
         // Upload/delete altered files.
         /**
