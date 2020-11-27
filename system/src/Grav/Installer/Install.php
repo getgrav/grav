@@ -10,11 +10,15 @@
 namespace Grav\Installer;
 
 use Composer\Autoload\ClassLoader;
+use Exception;
 use Grav\Common\Cache;
 use Grav\Common\GPM\Installer;
 use Grav\Common\Grav;
 use Grav\Common\Plugins;
+use RuntimeException;
+use function class_exists;
 use function dirname;
+use function function_exists;
 use function is_string;
 
 /**
@@ -132,6 +136,10 @@ final class Install
     {
     }
 
+    /**
+     * @param string|null $zip
+     * @return $this
+     */
     public function setZip(?string $zip)
     {
         $this->zip = $zip;
@@ -139,6 +147,10 @@ final class Install
         return $this;
     }
 
+    /**
+     * @param string|null $zip
+     * @return void
+     */
     public function __invoke(?string $zip)
     {
         $this->zip = $zip;
@@ -163,7 +175,7 @@ rm grav-update.zip
 ERR;
             }
 
-            throw new \RuntimeException($errors);
+            throw new RuntimeException($errors);
         }
 
         $this->prepare();
@@ -188,7 +200,8 @@ ERR;
     }
 
     /**
-     * @throws \RuntimeException
+     * @return void
+     * @throws RuntimeException
      */
     public function prepare(): void
     {
@@ -197,18 +210,18 @@ ERR;
         $target = realpath(GRAV_ROOT . '/index.php');
 
         if (!$location) {
-            throw new \RuntimeException('Internal Error', 500);
+            throw new RuntimeException('Internal Error', 500);
         }
 
         if ($target && dirname($location, 4) === dirname($target)) {
             // We cannot copy files into themselves, abort!
-            throw new \RuntimeException('Grav has already been installed here!', 400);
+            throw new RuntimeException('Grav has already been installed here!', 400);
         }
 
         // Make sure that none of the Grav\Installer classes have been loaded, otherwise installation may fail!
         foreach ($this->classMap as $class_name => $path) {
-            if (\class_exists($class_name, false)) {
-                throw new \RuntimeException(sprintf('Cannot update Grav, class %s has already been loaded!', $class_name), 500);
+            if (class_exists($class_name, false)) {
+                throw new RuntimeException(sprintf('Cannot update Grav, class %s has already been loaded!', $class_name), 500);
             }
         }
 
@@ -231,12 +244,13 @@ ERR;
     }
 
     /**
-     * @throws \RuntimeException
+     * @return void
+     * @throws RuntimeException
      */
     public function install(): void
     {
         if (!$this->location) {
-            throw new \RuntimeException('Oops, installer was run without prepare()!', 500);
+            throw new RuntimeException('Oops, installer was run without prepare()!', 500);
         }
 
         try {
@@ -250,7 +264,7 @@ ERR;
                 $this->location,
                 !($this->zip && is_file($this->zip))
             );
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Installer::setError($e->getMessage());
         }
 
@@ -259,12 +273,13 @@ ERR;
         $success = !(is_string($errorCode) || ($errorCode & (Installer::ZIP_OPEN_ERROR | Installer::ZIP_EXTRACT_ERROR)));
 
         if (!$success) {
-            throw new \RuntimeException(Installer::lastErrorMsg());
+            throw new RuntimeException(Installer::lastErrorMsg());
         }
     }
 
     /**
-     * @throws \RuntimeException
+     * @return void
+     * @throws RuntimeException
      */
     public function finalize(): void
     {
@@ -284,6 +299,7 @@ ERR;
      * @param string $name
      * @param array $check
      * @param string|null $version
+     * @return void
      */
     protected function checkVersion(array &$results, $type, $name, array $check, $version): void
     {
@@ -328,10 +344,11 @@ ERR;
     /**
      * @param array $results
      * @param array $plugins
+     * @return void
      */
     protected function checkPlugins(array &$results, array $plugins): void
     {
-        if (!\class_exists('Plugins')) {
+        if (!class_exists('Plugins')) {
             return;
         }
 

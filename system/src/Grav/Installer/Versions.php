@@ -32,7 +32,7 @@ final class Versions
 
     /**
      * @param string|null $filename
-     * @return static
+     * @return self
      */
     public static function instance(string $filename = null): self
     {
@@ -215,7 +215,7 @@ final class Versions
     /**
      * Clears extension history. Useful when creating skeletons.
      *
-     * @param string|null $extension
+     * @param string $extension
      */
     public function removeHistory(string $extension): void
     {

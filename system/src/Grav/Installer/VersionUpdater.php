@@ -5,8 +5,8 @@ namespace Grav\Installer;
 use DirectoryIterator;
 
 /**
- * Class Update_1_7_0_20201120_1
- * @package Grav\Installer\updates
+ * Class VersionUpdater
+ * @package Grav\Installer
  */
 final class VersionUpdater
 {
@@ -14,6 +14,8 @@ final class VersionUpdater
     private $name;
     /** @var string */
     private $path;
+    /** @var string */
+    private $version;
     /** @var Versions */
     private $versions;
     /** @var VersionUpdate[] */
