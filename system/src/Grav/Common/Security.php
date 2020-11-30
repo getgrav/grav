@@ -133,7 +133,7 @@ class Security
         // Set the patterns we'll test against
         $patterns = [
             // Match any attribute starting with "on" or xmlns
-            'on_events' => '#(<[^>]+[[a-z\x00-\x20\"\'\/])(\son|\sxmlns)[a-z].*=>?#iUu',
+            'on_events' => '#(<[^>]+[[a-z\x00-\x20\"\'\/])([\s\/]on|\sxmlns)[a-z].*=>?#iUu',
 
             // Match javascript:, livescript:, vbscript:, mocha:, feed: and data: protocols
             'invalid_protocols' => '#(' . implode('|', $invalid_protocols) . '):.*?#iUu',
