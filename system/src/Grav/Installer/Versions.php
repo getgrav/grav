@@ -231,7 +231,7 @@ final class Versions
      */
     private function get(string $name, $default = null)
     {
-        $path = explode('/', $name) ?: [];
+        $path = explode('/', $name);
         $current = $this->items;
 
         foreach ($path as $field) {
@@ -253,7 +253,7 @@ final class Versions
      */
     private function set(string $name, $value): void
     {
-        $path = explode('/', $name) ?: [];
+        $path = explode('/', $name);
         $current = &$this->items;
 
         foreach ($path as $field) {

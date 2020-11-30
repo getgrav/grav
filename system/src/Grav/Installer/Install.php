@@ -310,11 +310,11 @@ ERR;
         $major = $minor = 0;
         $versions = $check['versions'] ?? [];
         foreach ($versions as $major => $minor) {
-            if (!$major || version_compare($version, $major, '<')) {
+            if (!$major || version_compare($version ?? '0', $major, '<')) {
                 continue;
             }
 
-            if (version_compare($version, $minor, '>=')) {
+            if (version_compare($version ?? '0', $minor, '>=')) {
                 return;
             }
 
@@ -373,6 +373,10 @@ ERR;
     {
         $definesFile = "{$this->location}/system/defines.php";
         $content = file_get_contents($definesFile);
+        if (false === $content) {
+            return '';
+        }
+
         preg_match("/define\('GRAV_VERSION', '([^']+)'\);/mu", $content, $matches);
 
         return $matches[1] ?? '';

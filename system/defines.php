@@ -11,7 +11,9 @@ define('GRAV', true);
 define('GRAV_VERSION', '1.7.0-rc.17');
 define('GRAV_SCHEMA', '1.7.0_2020-11-20_1');
 define('GRAV_TESTING', true);
-define('DS', '/');
+if (!defined('DS')) {
+    define('DS', '/');
+}
 
 if (!defined('GRAV_PHP_MIN')) {
     define('GRAV_PHP_MIN', '7.3.6');

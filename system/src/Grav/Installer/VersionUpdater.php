@@ -119,7 +119,10 @@ final class VersionUpdater
 
             $revision = $item->getBasename('.php');
             if (!$schema || version_compare($revision, $schema, '>')) {
-                $this->updates[$revision] = new VersionUpdate($item->getRealPath(), $this);
+                $realPath = $item->getRealPath();
+                if ($realPath) {
+                    $this->updates[$revision] = new VersionUpdate($realPath, $this);
+                }
             }
         }
 

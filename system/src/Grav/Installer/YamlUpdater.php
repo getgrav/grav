@@ -10,6 +10,7 @@
 namespace Grav\Installer;
 
 use Symfony\Component\Yaml\Yaml;
+use function assert;
 use function count;
 use function is_array;
 use function strlen;
@@ -103,7 +104,7 @@ final class YamlUpdater
      * @param string $variable
      * @param mixed $value
      */
-    public function define(string $variable, $value)
+    public function define(string $variable, $value): void
     {
         // If variable has already value, we're good.
         if ($this->get($variable) !== null) {
@@ -131,8 +132,8 @@ final class YamlUpdater
         $parentLine = array_pop($lineNos);
 
         if ($parentLine !== null) {
-            $c = $this->getLineIndentation($this->lines[$parentLine] ?? 0);
-            $n = $this->getLineIndentation($this->lines[$parentLine+1] ?? $this->lines[$parentLine] ?? 0);
+            $c = $this->getLineIndentation($this->lines[$parentLine] ?? '');
+            $n = $this->getLineIndentation($this->lines[$parentLine+1] ?? $this->lines[$parentLine] ?? '');
             $indent = $n > $c ? $n : $c + 2;
         } else {
             $indent = 0;
@@ -149,7 +150,7 @@ final class YamlUpdater
 
     private function __construct(string $filename)
     {
-        $content = is_file($filename) ? file_get_contents($filename) : '';
+        $content = is_file($filename) ? (string)file_get_contents($filename) : '';
         $content = rtrim(str_replace(["\r\n", "\r"], "\n", $content));
 
         $this->filename = $filename;
@@ -163,7 +164,7 @@ final class YamlUpdater
      *
      * @param array $lines
      * @param array $parts
-     * @return array
+     * @return int[]
      */
     private function findPath(array $lines, array $parts)
     {
@@ -282,7 +283,9 @@ final class YamlUpdater
         while ($part .= array_shift($parts)) {
             // Remove quoted values.
             $part = preg_replace('/(([\'"])[^\2]*\2)/', '', $part);
+            assert(null !== $part);
             $part = preg_split('/[\'"]/', $part, 2);
+            assert(false !== $part);
             if (!isset($part[1])) {
                 $part = $part[0];
                 array_unshift($parts, str_repeat(' ', strlen($part) - strlen(trim($part, ' '))));
@@ -315,7 +318,7 @@ final class YamlUpdater
      */
     private function get(string $name, $default = null)
     {
-        $path = explode('.', $name) ?: [];
+        $path = explode('.', $name);
         $current = $this->items;
 
         foreach ($path as $field) {
@@ -337,7 +340,7 @@ final class YamlUpdater
      */
     private function set(string $name, $value): void
     {
-        $path = explode('.', $name) ?: [];
+        $path = explode('.', $name);
         $current = &$this->items;
 
         foreach ($path as $field) {
@@ -388,7 +391,7 @@ final class YamlUpdater
      */
     private function canDefine(string $name): bool
     {
-        $path = explode('.', $name) ?: [];
+        $path = explode('.', $name);
         $current = $this->items;
 
         foreach ($path as $field) {
