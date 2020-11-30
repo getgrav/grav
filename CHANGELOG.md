@@ -10,6 +10,7 @@
 1. [](#bugfix)
     * Fixed hardcoded system folder in blueprints, config and language streams
     * Added `.htaccess` rule to block attempts to use Twig in the request URL
+    * Fix for XSS advisory [GHSA-cvmr-6428-87w9](https://github.com/getgrav/grav/security/advisories/GHSA-cvmr-6428-87w9)
 
 # v1.6.28
 ## 10/07/2020
