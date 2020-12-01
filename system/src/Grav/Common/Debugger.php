@@ -763,11 +763,15 @@ class Debugger
      * @param string $name
      * @param object $event
      * @param EventDispatcherInterface $dispatcher
+     * @param float|null $time
      * @return $this
      */
-    public function addEvent(string $name, $event, EventDispatcherInterface $dispatcher)
+    public function addEvent(string $name, $event, EventDispatcherInterface $dispatcher, float $time = null)
     {
         if ($this->enabled && $this->clockwork) {
+            $time = $time ?? microtime(true);
+            $duration = (microtime(true) - $time) * 1000;
+
             $data = null;
             if ($event && method_exists($event, '__debugInfo')) {
                 $data = $event;
@@ -778,7 +782,7 @@ class Debugger
                 $listeners[] = $this->resolveCallable($listener);
             }
 
-            $this->clockwork->addEvent($name, $data, microtime(true), ['listeners' => $listeners]);
+            $this->clockwork->addEvent($name, $data, $time, ['listeners' => $listeners, 'duration' => $duration]);
         }
 
         return $this;

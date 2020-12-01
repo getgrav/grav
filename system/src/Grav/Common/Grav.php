@@ -463,11 +463,14 @@ class Grav extends Container
         $events = $this['events'];
         $eventName = get_class($event);
 
+        $timestamp = microtime(true);
+        $event = $events->dispatch($event);
+
         /** @var Debugger $debugger */
         $debugger = $this['debugger'];
-        $debugger->addEvent($eventName, $event, $events);
+        $debugger->addEvent($eventName, $event, $events, $timestamp);
 
-        return $events->dispatch($event);
+        return $event;
     }
 
     /**
@@ -485,11 +488,12 @@ class Grav extends Container
             $event = new Event();
         }
 
+        $timestamp = microtime(true);
+        $events->dispatch($event, $eventName);
+
         /** @var Debugger $debugger */
         $debugger = $this['debugger'];
-        $debugger->addEvent($eventName, $event, $events);
-
-        $events->dispatch($event, $eventName);
+        $debugger->addEvent($eventName, $event, $events, $timestamp);
 
         return $event;
     }
