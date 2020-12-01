@@ -105,7 +105,7 @@ class Backups
     public function getBackupDownloadUrl($backup, $base_url)
     {
         $param_sep = $param_sep = Grav::instance()['config']->get('system.param_sep', ':');
-        $download = urlencode(base64_encode($backup));
+        $download = urlencode(base64_encode(basename($backup)));
         $url      = rtrim(Grav::instance()['uri']->rootUrl(true), '/') . '/' . trim(
             $base_url,
             '/'
