@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "13d9162e932f8b9c46210416d34d6e1a",
+    "content-hash": "dadec2effe0343572941c64244888281",
     "packages": [
         {
             "name": "antoligy/dom-string-iterators",
@@ -2768,16 +2768,16 @@
         },
         {
             "name": "symfony/yaml",
-            "version": "v4.4.17",
+            "version": "v4.4.16",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/yaml.git",
-                "reference": "7531361cf38e4816821b4a12a42542b3c6143ad1"
+                "reference": "543cb4dbd45ed803f08a9a65f27fb149b5dd20c2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/yaml/zipball/7531361cf38e4816821b4a12a42542b3c6143ad1",
-                "reference": "7531361cf38e4816821b4a12a42542b3c6143ad1",
+                "url": "https://api.github.com/repos/symfony/yaml/zipball/543cb4dbd45ed803f08a9a65f27fb149b5dd20c2",
+                "reference": "543cb4dbd45ed803f08a9a65f27fb149b5dd20c2",
                 "shasum": ""
             },
             "require": {
@@ -2818,7 +2818,7 @@
             ],
             "description": "Symfony Yaml Component",
             "homepage": "https://symfony.com",
-            "time": "2020-11-24T12:28:30+00:00"
+            "time": "2020-10-24T11:50:19+00:00"
         },
         {
             "name": "twig/twig",

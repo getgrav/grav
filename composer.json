@@ -32,7 +32,7 @@
         "erusev/parsedown": "^1.7",
         "erusev/parsedown-extra": "~0.8",
         "symfony/contracts": "~1.1",
-        "symfony/yaml": "~4.4",
+        "symfony/yaml": "4.4.16",
         "symfony/console": "~4.4",
         "symfony/event-dispatcher": "~4.4",
         "symfony/var-dumper": "~4.4",
