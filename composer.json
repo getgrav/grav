@@ -43,7 +43,8 @@
         "filp/whoops": "~2.9",
         "matthiasmullie/minify": "^1.3",
         "monolog/monolog": "~1.25",
-        "gregwar/image": "~2.0",
+        "gregwar/image": "dev-php8",
+        "gregwar/cache": "dev-php8",
         "donatj/phpuseragentparser": "~1.1",
         "pimple/pimple": "~3.3",
         "rockettheme/toolbox": "~1.5",
@@ -86,6 +87,14 @@
         {
             "type": "vcs",
             "url": "https://github.com/trilbymedia/PHP-Markdown-Documentation-Generator"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/getgrav/Cache"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/getgrav/Image"
         }
     ],
     "autoload": {

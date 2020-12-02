@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "dadec2effe0343572941c64244888281",
+    "content-hash": "1b86979a23bacae9aff782bb77cb276b",
     "packages": [
         {
             "name": "antoligy/dom-string-iterators",
@@ -548,17 +548,17 @@
         },
         {
             "name": "gregwar/cache",
-            "version": "v1.0.12",
+            "version": "dev-php8",
             "target-dir": "Gregwar/Cache",
             "source": {
                 "type": "git",
-                "url": "https://github.com/Gregwar/Cache.git",
-                "reference": "305d0f5a12c0beecbbd7e1de236f59f39e0c0ac3"
+                "url": "https://github.com/getgrav/Cache.git",
+                "reference": "49ccdf9ae760b009a192bc3c7b417980c8a8cc2e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Gregwar/Cache/zipball/305d0f5a12c0beecbbd7e1de236f59f39e0c0ac3",
-                "reference": "305d0f5a12c0beecbbd7e1de236f59f39e0c0ac3",
+                "url": "https://api.github.com/repos/getgrav/Cache/zipball/49ccdf9ae760b009a192bc3c7b417980c8a8cc2e",
+                "reference": "49ccdf9ae760b009a192bc3c7b417980c8a8cc2e",
                 "shasum": ""
             },
             "require": {
@@ -570,7 +570,6 @@
                     "Gregwar\\Cache": ""
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -587,27 +586,30 @@
                 "file-system",
                 "system"
             ],
-            "time": "2016-09-23T08:16:04+00:00"
+            "support": {
+                "source": "https://github.com/getgrav/Cache/tree/php8"
+            },
+            "time": "2020-12-02T10:54:35+00:00"
         },
         {
             "name": "gregwar/image",
-            "version": "v2.0.28",
+            "version": "dev-php8",
             "target-dir": "Gregwar/Image",
             "source": {
                 "type": "git",
-                "url": "https://github.com/Gregwar/Image.git",
-                "reference": "68b4eddc45dacb3532e0fa16e5cb7d3937424a0c"
+                "url": "https://github.com/getgrav/Image.git",
+                "reference": "70afaa75ea19856813124142c51f5fb2e9f1a285"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Gregwar/Image/zipball/68b4eddc45dacb3532e0fa16e5cb7d3937424a0c",
-                "reference": "68b4eddc45dacb3532e0fa16e5cb7d3937424a0c",
+                "url": "https://api.github.com/repos/getgrav/Image/zipball/70afaa75ea19856813124142c51f5fb2e9f1a285",
+                "reference": "70afaa75ea19856813124142c51f5fb2e9f1a285",
                 "shasum": ""
             },
             "require": {
                 "ext-gd": "*",
-                "gregwar/cache": "^1.0.6",
-                "php": "^5.3 || ^7.0"
+                "gregwar/cache": "dev-php8",
+                "php": "^5.3 || ^7.0 || ^8.0"
             },
             "require-dev": {
                 "sllh/php-cs-fixer-styleci-bridge": "~1.0",
@@ -622,7 +624,6 @@
                     "Gregwar\\Image": ""
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -639,7 +640,10 @@
                 "gd",
                 "image"
             ],
-            "time": "2020-03-31T17:33:39+00:00"
+            "support": {
+                "source": "https://github.com/getgrav/Image/tree/php8"
+            },
+            "time": "2020-12-02T14:04:28+00:00"
         },
         {
             "name": "guzzlehttp/psr7",
@@ -714,16 +718,16 @@
         },
         {
             "name": "itsgoingd/clockwork",
-            "version": "v5.0.3",
+            "version": "v5.0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/itsgoingd/clockwork.git",
-                "reference": "40e19d3db96c84b7ca68ac72baaee09b8c493ae8"
+                "reference": "543de6b1c17021183be5fd2dd6c7ffa153d9ab2d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/itsgoingd/clockwork/zipball/40e19d3db96c84b7ca68ac72baaee09b8c493ae8",
-                "reference": "40e19d3db96c84b7ca68ac72baaee09b8c493ae8",
+                "url": "https://api.github.com/repos/itsgoingd/clockwork/zipball/543de6b1c17021183be5fd2dd6c7ffa153d9ab2d",
+                "reference": "543de6b1c17021183be5fd2dd6c7ffa153d9ab2d",
                 "shasum": ""
             },
             "require": {
@@ -769,7 +773,7 @@
                 "profiling",
                 "slim"
             ],
-            "time": "2020-11-30T22:50:06+00:00"
+            "time": "2020-12-01T22:36:41+00:00"
         },
         {
             "name": "kodus/psr7-server",
@@ -1836,16 +1840,16 @@
         },
         {
             "name": "rockettheme/toolbox",
-            "version": "1.5.4",
+            "version": "1.5.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/rockettheme/toolbox.git",
-                "reference": "273c5d94ceece2a0e2b0a084ab33a9719e65b412"
+                "reference": "99eeea52ae43fb6d89d70aa79a701bd96eecdd84"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rockettheme/toolbox/zipball/273c5d94ceece2a0e2b0a084ab33a9719e65b412",
-                "reference": "273c5d94ceece2a0e2b0a084ab33a9719e65b412",
+                "url": "https://api.github.com/repos/rockettheme/toolbox/zipball/99eeea52ae43fb6d89d70aa79a701bd96eecdd84",
+                "reference": "99eeea52ae43fb6d89d70aa79a701bd96eecdd84",
                 "shasum": ""
             },
             "require": {
@@ -1884,7 +1888,7 @@
                 "php",
                 "rockettheme"
             ],
-            "time": "2020-11-27T20:49:43+00:00"
+            "time": "2020-12-01T22:43:34+00:00"
         },
         {
             "name": "seld/cli-prompt",
@@ -6097,6 +6101,8 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
+        "gregwar/image": 20,
+        "gregwar/cache": 20,
         "victorjonsson/markdowndocs": 20
     },
     "prefer-stable": false,
