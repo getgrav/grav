@@ -116,6 +116,8 @@ class ObjectExpressionVisitor extends ClosureExpressionVisitor
     /**
      * Helper for sorting arrays of objects based on multiple fields + orientations.
      *
+     * Comparison between two strings is natural and case insensitive.
+     *
      * @param string   $name
      * @param int      $orientation
      * @param \Closure|null $next
@@ -136,6 +138,11 @@ class ObjectExpressionVisitor extends ClosureExpressionVisitor
 
             if ($aValue === $bValue) {
                 return $next($a, $b);
+            }
+
+            // For strings we use natural case insensitive sorting.
+            if (\is_string($aValue) && \is_string($bValue)) {
+                return strnatcasecmp($aValue, $bValue);
             }
 
             return (($aValue > $bValue) ? 1 : -1) * $orientation;
