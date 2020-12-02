@@ -45,6 +45,7 @@
     * Fixed exception in CLI GPM and backup commands when `php-zip` is not enabled [#3075](https://github.com/getgrav/grav/issues/3075)
     * Fix for XSS advisory [GHSA-cvmr-6428-87w9](https://github.com/getgrav/grav/security/advisories/GHSA-cvmr-6428-87w9)
     * Fixed Flex and Page ordering to be natural and case insensitive [flex-objects#87](https://github.com/trilbymedia/grav-plugin-flex-objects/issues/87)
+    * Fixed plugin/theme priority ordering to be numeric
 
 # v1.7.0-rc.17
 ## 10/07/2020

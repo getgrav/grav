@@ -142,7 +142,7 @@ class Themes extends Iterator
                 $list[$theme] = $result;
             }
         }
-        ksort($list);
+        ksort($list, SORT_NATURAL | SORT_FLAG_CASE);
 
         return $list;
     }

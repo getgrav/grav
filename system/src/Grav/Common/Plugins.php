@@ -52,7 +52,7 @@ class Plugins extends Iterator
             $plugins[] = $directory->getFilename();
         }
 
-        natsort($plugins);
+        sort($plugins, SORT_NATURAL | SORT_FLAG_CASE);
 
         foreach ($plugins as $plugin) {
             $this->add($this->loadPlugin($plugin));
@@ -79,7 +79,7 @@ class Plugins extends Iterator
 
         if ($blueprints) {
             // Order by priority.
-            arsort($blueprints);
+            arsort($blueprints, SORT_NUMERIC);
 
             /** @var UniformResourceLocator $locator */
             $locator = Grav::instance()['locator'];
@@ -88,7 +88,7 @@ class Plugins extends Iterator
 
         if ($formFields) {
             // Order by priority.
-            arsort($formFields);
+            arsort($formFields, SORT_NUMERIC);
 
             $list = [];
             foreach ($formFields as $className => $priority) {
