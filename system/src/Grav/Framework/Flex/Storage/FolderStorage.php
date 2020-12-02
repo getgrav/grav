@@ -553,7 +553,7 @@ class FolderStorage extends AbstractFilesystemStorage
             $list = $this->buildIndexFromFilesystem($path);
         }
 
-        ksort($list, SORT_NATURAL);
+        ksort($list, SORT_NATURAL | SORT_FLAG_CASE);
 
         return $list;
     }

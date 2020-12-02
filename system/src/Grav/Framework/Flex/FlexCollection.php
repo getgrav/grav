@@ -144,9 +144,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
         $matching = array_filter($matching);
 
         if ($matching) {
-            uksort($matching, static function ($a, $b) {
-                return -($a <=> $b);
-            });
+            arsort($matching, SORT_NUMERIC);
         }
 
         return $this->select(array_keys($matching));

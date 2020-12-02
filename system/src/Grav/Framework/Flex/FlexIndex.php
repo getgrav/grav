@@ -389,9 +389,9 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
 
             // Order by current field.
             if (strtoupper($ordering) === 'DESC') {
-                arsort($search, SORT_NATURAL);
+                arsort($search, SORT_NATURAL | SORT_FLAG_CASE);
             } else {
-                asort($search, SORT_NATURAL);
+                asort($search, SORT_NATURAL | SORT_FLAG_CASE);
             }
 
             $previous = $search;
@@ -738,7 +738,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
         }
 
         // Sort the index before saving it.
-        ksort($index, SORT_NATURAL);
+        ksort($index, SORT_NATURAL | SORT_FLAG_CASE);
 
         static::onChanges($index, $added, $updated, $removed);
 

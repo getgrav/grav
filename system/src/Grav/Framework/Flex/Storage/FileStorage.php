@@ -82,7 +82,7 @@ class FileStorage extends FolderStorage
             $list[$key] = $this->getObjectMeta($key);
         }
 
-        ksort($list, SORT_NATURAL);
+        ksort($list, SORT_NATURAL | SORT_FLAG_CASE);
 
         return $list;
     }
