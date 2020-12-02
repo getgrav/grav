@@ -563,8 +563,8 @@ class PageStorage extends FolderStorage
             $rawRoute = trim(preg_replace(PageIndex::PAGE_ROUTE_REGEX, '/', "/{$key}") ?? '', '/');
             $route = PageIndex::normalizeRoute($rawRoute);
 
-            ksort($markdown, SORT_NATURAL);
-            ksort($children, SORT_NATURAL);
+            ksort($markdown, SORT_NATURAL | SORT_FLAG_CASE);
+            ksort($children, SORT_NATURAL | SORT_FLAG_CASE);
 
             $file = array_key_first($markdown[''] ?? (reset($markdown) ?: []));
 
@@ -628,7 +628,7 @@ class PageStorage extends FolderStorage
             $list[$storage_key] = $meta;
         } while ($queue);
 
-        ksort($list, SORT_NATURAL);
+        ksort($list, SORT_NATURAL | SORT_FLAG_CASE);
 
         // Update parent timestamps.
         foreach (array_reverse($list) as $storage_key => $meta) {

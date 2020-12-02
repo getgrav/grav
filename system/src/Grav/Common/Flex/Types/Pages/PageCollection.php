@@ -391,7 +391,7 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
             $list = $new_list;
 
             // Apply manual ordering to the list.
-            asort($list);
+            asort($list, SORT_NUMERIC);
         }
 
         if ($order_dir !== 'asc') {

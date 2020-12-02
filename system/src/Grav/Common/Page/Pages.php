@@ -1983,7 +1983,7 @@ class Pages
             $list = $new_list;
 
             // Apply manual ordering to the list.
-            asort($list);
+            asort($list, SORT_NUMERIC);
         }
 
         foreach ($list as $key => $sort) {
