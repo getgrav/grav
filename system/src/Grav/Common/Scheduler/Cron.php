@@ -569,7 +569,7 @@ class Cron
                 return [];
             }
         }
-        sort($array);
+        sort($array, SORT_NUMERIC);
 
         return $array;
     }
