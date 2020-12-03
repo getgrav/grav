@@ -284,7 +284,8 @@ class Response
             $options['fopen']['notification'] = ['self', 'progress'];
         }
 
-        $options['fopen']['header'] = 'Referer: ' . Grav::instance()['uri']->rootUrl(true);
+        $referer = \defined('GRAV_CLI') ? 'grav_cli' : Grav::instance()['uri']->rootUrl(true);
+        $options['fopen']['header'] = 'Referer: ' . $referer;
         if (isset($options['fopen']['ssl'])) {
             $ssl = $options['fopen']['ssl'];
             unset($options['fopen']['ssl']);
@@ -367,7 +368,8 @@ class Response
      */
     private static function curlExecFollow($ch, $options, $callback)
     {
-        curl_setopt_array($ch, [ CURLOPT_REFERER => Grav::instance()['uri']->rootUrl(true) ]);
+        $referer = \defined('GRAV_CLI') ? 'grav_cli' : Grav::instance()['uri']->rootUrl(true);
+        curl_setopt_array($ch, [ CURLOPT_REFERER => $referer ]);
 
         if ($callback) {
             curl_setopt_array(

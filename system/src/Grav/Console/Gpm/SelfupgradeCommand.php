@@ -46,6 +46,9 @@ class SelfupgradeCommand extends ConsoleCommand
 
     protected $overwrite;
 
+    /** @var int */
+    protected $timeout;
+
     protected function configure()
     {
         $this
@@ -69,6 +72,13 @@ class SelfupgradeCommand extends ConsoleCommand
                 InputOption::VALUE_NONE,
                 'Option to overwrite packages if they already exist'
             )
+            ->addOption(
+                'timeout',
+                't',
+                InputOption::VALUE_OPTIONAL,
+                'Option to set the timeout in seconds when downloading the update (0 for no timeout)',
+                30
+            )
             ->setDescription('Detects and performs an update of Grav itself when available')
             ->setHelp('The <info>update</info> command updates Grav itself when a new version is available');
     }
@@ -78,6 +88,7 @@ class SelfupgradeCommand extends ConsoleCommand
         $this->upgrader = new Upgrader($this->input->getOption('force'));
         $this->all_yes = $this->input->getOption('all-yes');
         $this->overwrite = $this->input->getOption('overwrite');
+        $this->timeout = (int) $this->input->getOption('timeout');
 
         $this->displayGPMRelease();
 
@@ -115,7 +126,6 @@ class SelfupgradeCommand extends ConsoleCommand
         new ArrayInput([]);
 
         $questionHelper = $this->getHelper('question');
-
 
         $this->output->writeln("Grav v<cyan>{$remote}</cyan> is now available [release date: {$release}].");
         $this->output->writeln('You are currently using v<cyan>' . GRAV_VERSION . '</cyan>.');
@@ -185,7 +195,16 @@ class SelfupgradeCommand extends ConsoleCommand
     {
         $tmp_dir = Grav::instance()['locator']->findResource('tmp://', true, true);
         $this->tmp = $tmp_dir . '/Grav-' . uniqid('', false);
-        $output = Response::get($package['download'], [], [$this, 'progress']);
+        $options = [
+            'curl' => [
+                CURLOPT_TIMEOUT => $this->timeout,
+            ],
+            'fopen' => [
+                'timeout' => $this->timeout,
+            ],
+        ];
+
+        $output = Response::get($package['download'], $options, [$this, 'progress']);
 
         Folder::create($this->tmp);
 

@@ -445,7 +445,7 @@ class InstallCommand extends ConsoleCommand
             } else {
                 $repo_dir = $matches[2];
             }
-            
+
             $paths = (array) $paths;
             foreach ($paths as $repo) {
                 $path = rtrim($repo, '/') . '/' . $repo_dir;
@@ -570,7 +570,8 @@ class InstallCommand extends ConsoleCommand
                 [
                     'slug' => $package->slug,
                     'filename' => $package->premium['filename'],
-                    'license_key' => $license
+                    'license_key' => $license,
+                    'sid' => md5(GRAV_ROOT)
                 ]
             ));
 

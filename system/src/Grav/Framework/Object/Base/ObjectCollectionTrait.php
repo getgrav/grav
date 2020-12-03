@@ -63,9 +63,10 @@ trait ObjectCollectionTrait
     /**
      * @param string $property      Object property to be fetched.
      * @param mixed $default        Default value if not set.
+     * @param bool $doCreate        Not being used.
      * @return mixed[]              Key/Value pairs of the properties.
      */
-    public function doGetProperty($property, $default = null)
+    public function &doGetProperty($property, $default = null, $doCreate = false)
     {
         $list = [];
 

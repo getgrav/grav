@@ -859,11 +859,7 @@ abstract class Utils
     public static function checkFilename($filename)
     {
         $dangerous_extensions = Grav::instance()['config']->get('security.uploads_dangerous_extensions', []);
-        array_walk($dangerous_extensions, function(&$val) {
-            $val = '.' . $val;
-        });
-
-        $extension = '.' . pathinfo($filename, PATHINFO_EXTENSION);
+        $extension = pathinfo($filename, PATHINFO_EXTENSION);
 
         return !(
             // Empty filenames are not allowed.
@@ -872,8 +868,8 @@ abstract class Utils
             || strtr($filename, "\t\v\n\r\0\\/", '_______') !== $filename
             // Filename should not start or end with dot or space.
             || trim($filename, '. ') !== $filename
-            // Filename should not contain .php in it.
-            || static::contains($extension, $dangerous_extensions)
+            // File extension should not be part of configured dangerous extensions
+            || in_array($extension, $dangerous_extensions)
         );
     }
 

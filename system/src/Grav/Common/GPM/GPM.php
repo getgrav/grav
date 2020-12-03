@@ -233,6 +233,11 @@ class GPM extends Iterator
     public function getUpdatablePlugins()
     {
         $items = [];
+
+        if (!$this->repository) {
+            return $items;
+        }
+
         $repository = $this->repository['plugins'];
 
         // local cache to speed things up
@@ -312,6 +317,11 @@ class GPM extends Iterator
     public function getUpdatableThemes()
     {
         $items = [];
+
+        if (!$this->repository) {
+            return $items;
+        }
+
         $repository = $this->repository['themes'];
 
         // local cache to speed things up
@@ -359,6 +369,10 @@ class GPM extends Iterator
      */
     public function getReleaseType($package_name)
     {
+        if (!$this->repository) {
+            return null;
+        }
+
         $repository = $this->repository['plugins'];
         if (isset($repository[$package_name])) {
             return $repository[$package_name]->release_type;
@@ -407,7 +421,7 @@ class GPM extends Iterator
      */
     public function getRepositoryPlugin($slug)
     {
-        return @$this->repository['plugins'][$slug];
+        return $this->repository['plugins'][$slug] ?? null;
     }
 
     /**
@@ -416,7 +430,7 @@ class GPM extends Iterator
      */
     public function getRepositoryPlugins()
     {
-        return $this->repository['plugins'];
+        return $this->repository['plugins'] ?? null;
     }
 
     /**
@@ -426,7 +440,7 @@ class GPM extends Iterator
      */
     public function getRepositoryTheme($slug)
     {
-        return @$this->repository['themes'][$slug];
+        return $this->repository['themes'][$slug] ?? null;
     }
 
     /**
@@ -435,7 +449,7 @@ class GPM extends Iterator
      */
     public function getRepositoryThemes()
     {
-        return $this->repository['themes'];
+        return $this->repository['themes'] ?? null;
     }
 
     /**
