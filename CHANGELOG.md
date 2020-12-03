@@ -1,5 +1,5 @@
 # v1.7.0-rc.18
-## mm/dd/2020
+## 12/02/2020
 
 1. [](#new)
     * Set minimum requirements to **PHP 7.3.6**
