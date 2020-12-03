@@ -518,7 +518,7 @@
     * Optimization: Combine some early Grav processors into a single one
 
 # v1.6.29
-## mm/dd/2020
+## 12/02/2020
 
 1. [](#new)
     * Added basic support for `user/config/versions.yaml`
@@ -526,10 +526,19 @@
     * Updated bundled JQuery to latest version `3.5.1`
     * Forward a `sid` to GPM when downloading a premium package via CLI
     * Better handling of missing repository index [grav-plugin-admin#1916](https://github.com/getgrav/grav-plugin-admin/issues/1916)
+    * Set `grav_cli` as referrer when using `Response` from CLI
+    * Add option for timeout in `self-upgrade` command [#3013](https://github.com/getgrav/grav/pull/3013)
+    * Allow to set SameSite from system.yaml [#3063](https://github.com/getgrav/grav/pull/3063)
+    * Update media.yaml with some MS Office mimetypes [#3070](https://github.com/getgrav/grav/pull/3070)
 1. [](#bugfix)
     * Fixed hardcoded system folder in blueprints, config and language streams
     * Added `.htaccess` rule to block attempts to use Twig in the request URL
+    * Fix compatibility with Symfony 4.2 and up. [#3048](https://github.com/getgrav/grav/pull/3048)
+    * Fix failing example custom shceduled job. [#3050](https://github.com/getgrav/grav/pull/3050)
     * Fix for XSS advisory [GHSA-cvmr-6428-87w9](https://github.com/getgrav/grav/security/advisories/GHSA-cvmr-6428-87w9)
+    * Fix uploads_dangerous_extensions checking [#3060](https://github.com/getgrav/grav/pull/3060)
+    * Remove redundant prefixing of `.` to extension [#3060](https://github.com/getgrav/grav/pull/3060)
+    * Check exact extension in checkFilename utility [#3061](https://github.com/getgrav/grav/pull/3061)
 
 # v1.6.28
 ## 10/07/2020
