@@ -1,3 +1,9 @@
+# v1.7.0-rc.19
+## 12/02/2020
+
+1. [](#bugfix)
+    * Updated composer libraries with latest Toolbox v1.5.6 that contains critical fixes
+
 # v1.7.0-rc.18
 ## 12/02/2020
 
