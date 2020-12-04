@@ -3,6 +3,7 @@
 
 1. [](#bugfix)
     * Rollback `samesite` cookie logic as it causes issues with PHP < 7.3 [#309](https://github.com/getgrav/grav/issues/3089)
+    * Fixed issue with `.travis.yml` due to GitHub API deprecated functionality
 
 # v1.6.29
 ## 12/02/2020
