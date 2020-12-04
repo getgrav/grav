@@ -19,39 +19,39 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      # - name: Setup PHP
-      #   uses: shivammathur/setup-php@v2
-      #   with:
-      #     php-version: ${{ matrix.php }}
-      #     extensions: opcache, gd
-      #     coverage: none      
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: opcache, gd
+          coverage: none      
 
-      # - name: Validate composer.json and composer.lock
-      #   run: composer validate
+      - name: Validate composer.json and composer.lock
+        run: composer validate
 
-      # - name: Get composer cache directory
-      #   id: composer-cache
-      #   run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+      - name: Get composer cache directory
+        id: composer-cache
+        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
 
-      # - name: Cache dependencies
-      #   uses: actions/cache@v2
-      #   with:
-      #     path: ${{ steps.composer-cache.outputs.dir }}
-      #     key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-      #     restore-keys: ${{ runner.os }}-composer-  
+      - name: Cache dependencies
+        uses: actions/cache@v2
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-  
 
-      # - name: Install dependencies
-      #   run: composer install --dev --prefer-dist --no-progress --no-suggest
+      - name: Install dependencies
+        run: composer install --dev --prefer-dist --no-progress --no-suggest
 
-      # - name: Run test suite
-      #   run: vendor/bin/codecept run
+      - name: Run test suite
+        run: vendor/bin/codecept run
 
       - name: Slack Notification
-        uses: Ilshidur/action-slack@2.0.2
+        uses: 8398a7/action-slack@v3
         with:
-          args: 'A new commit has been pushed.'
+          status: ${{ job.status }}
+          fields: repo,message,commit,author,action,eventName,ref,workflow,job,took # selectable (default: repo,message)
         env:
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-          SLACK_AVATAR: repository # Optional. can be (repository, sender, an URL) (defaults to webhook app avatar)
-        
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }} # required
+        if: always() # Pick up events even if the job fails or is canceled.
         
