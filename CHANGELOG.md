@@ -1,8 +1,9 @@
-# v1.7.0-rc.20
+# v1.7.0
 ## mm/dd/2020
 
 1. [](#bugfix)
     * Fixed potential error when upgrading Grav
+    * Updated unit tests to use codeception 4.1
 
 # v1.7.0-rc.19
 ## 12/02/2020
