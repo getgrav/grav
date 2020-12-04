@@ -1,3 +1,9 @@
+# v1.6.30
+## 12/03/2020
+
+1. [](#bugfix)
+    * Rollback `samesite` cookie logic as it causes issues with PHP < 7.3 [#309](https://github.com/getgrav/grav/issues/3089)
+
 # v1.6.29
 ## 12/02/2020
 
