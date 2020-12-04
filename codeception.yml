@@ -1,4 +1,5 @@
 actor: Tester
+bootstrap: _bootstrap.php
 paths:
     tests: tests
     log: tests/_output
@@ -6,7 +7,6 @@ paths:
     support: tests/_support
     envs: tests/_envs
 settings:
-    bootstrap: _bootstrap.php
     colors: true
     memory_limit: 1024M
 extensions:

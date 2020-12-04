@@ -40,16 +40,16 @@ class AssetsTest extends \Codeception\TestCase\Test
         $item = reset($array);
         $actual = json_encode($item);
         $expected = '
-        {  
+        {
            "type":"css",
-           "elements":{  
+           "elements":{
               "asset":"\/test.css",
               "asset_type":"css",
               "order":0,
               "group":"head",
               "position":"pipeline",
               "priority":10,
-              "attributes":{  
+              "attributes":{
                  "type":"text\/css",
                  "rel":"stylesheet"
               },
@@ -69,17 +69,17 @@ class AssetsTest extends \Codeception\TestCase\Test
         $item = reset($array);
         $actual = json_encode($item);
         $expected = '
-        {  
+        {
            "type":"js",
-           "elements":{  
+           "elements":{
               "asset":"\/test.js",
               "asset_type":"js",
               "order":0,
               "group":"head",
               "position":"pipeline",
               "priority":10,
-              "attributes":[  
-        
+              "attributes":[
+
               ],
               "modified":false,
               "query":""
@@ -98,16 +98,16 @@ class AssetsTest extends \Codeception\TestCase\Test
         $item = reset($array);
         $actual = json_encode($item);
         $expected = '
-        {  
+        {
            "type":"css",
-           "elements":{  
+           "elements":{
               "asset":"\/test.css",
               "asset_type":"css",
               "order":0,
               "group":"head",
               "position":"pipeline",
               "priority":10,
-              "attributes":{  
+              "attributes":{
                  "type":"text\/css",
                  "rel":"stylesheet"
               },
@@ -128,16 +128,16 @@ class AssetsTest extends \Codeception\TestCase\Test
         $item = reset($array);
         $actual = json_encode($item);
         $expected = '
-        {  
+        {
            "type":"css",
-           "elements":{  
+           "elements":{
               "asset":"http:\/\/www.somesite.com\/test.css",
               "asset_type":"css",
               "order":0,
               "group":"head",
               "position":"pipeline",
               "priority":10,
-              "attributes":{  
+              "attributes":{
                  "type":"text\/css",
                  "rel":"stylesheet"
               },
@@ -163,9 +163,9 @@ class AssetsTest extends \Codeception\TestCase\Test
         $item = reset($array);
         $actual = json_encode($item);
         $expected = '
-        {  
+        {
            "type":"js",
-           "elements":{  
+           "elements":{
               "asset":"\/test.js",
               "asset_type":"js",
               "order":0,
@@ -303,19 +303,19 @@ class AssetsTest extends \Codeception\TestCase\Test
         $this->assets->setJsPipeline(true);
         $this->assets->addJs('/system/assets/jquery/jquery-3.x.min.js');
         $js = $this->assets->js('head', ['loading' => 'inline']);
-        $this->assertContains('"jquery",[],function()', $js);
+        $this->assertStringContainsString('"jquery",[],function()', $js);
 
         $this->assets->reset();
         $this->assets->setCssPipeline(true);
         $this->assets->addCss('/system/assets/debugger/phpdebugbar.css');
         $css = $this->assets->css('head', ['loading' => 'inline']);
-        $this->assertContains('div.phpdebugbar', $css);
+        $this->assertStringContainsString('div.phpdebugbar', $css);
 
         $this->assets->reset();
         $this->assets->setCssPipeline(true);
         $this->assets->addCss('https://fonts.googleapis.com/css?family=Roboto');
         $css = $this->assets->css('head', ['loading' => 'inline']);
-        $this->assertContains('font-family:\'Roboto\';', $css);
+        $this->assertStringContainsString('font-family:\'Roboto\';', $css);
 
         //Test adding media queries
         $this->assets->reset();
@@ -383,16 +383,16 @@ class AssetsTest extends \Codeception\TestCase\Test
         $item = reset($array);
         $actual = json_encode($item);
         $expected = '
-        {  
+        {
            "type":"css",
-           "elements":{  
+           "elements":{
               "asset":"\/test.css",
               "asset_type":"css",
               "order":0,
               "group":"bottom",
               "position":"pipeline",
               "priority":15,
-              "attributes":{  
+              "attributes":{
                  "type":"text\/css",
                  "rel":"stylesheet",
                  "loading":"async"
@@ -546,8 +546,8 @@ class AssetsTest extends \Codeception\TestCase\Test
         $this->assets->addCss('https://fonts.googleapis.com/css?family=Roboto', ['loading' => 'inline']);
         $this->assets->addCss('/system/assets/debugger/phpdebugbar.css', ['loading' => 'inline']);
         $css = $this->assets->css();
-        $this->assertContains('font-family: \'Roboto\';', $css);
-        $this->assertContains('div.phpdebugbar-header', $css);
+        $this->assertStringContainsString('font-family: \'Roboto\';', $css);
+        $this->assertStringContainsString('div.phpdebugbar-header', $css);
     }
 
     public function testInlinePipeline()
@@ -564,8 +564,8 @@ class AssetsTest extends \Codeception\TestCase\Test
         $this->assets->addCss('https://fonts.googleapis.com/css?family=Roboto', null, true);
         $this->assets->add('/system/assets/debugger/phpdebugbar.css', null, true);
         $css = $this->assets->css('head', ['loading' => 'inline']);
-        $this->assertContains('font-family:\'Roboto\';', $css);
-        $this->assertContains('div.phpdebugbar', $css);
+        $this->assertStringContainsString('font-family:\'Roboto\';', $css);
+        $this->assertStringContainsString('div.phpdebugbar', $css);
     }
 
     public function testAddAsyncJs()
@@ -661,7 +661,7 @@ class AssetsTest extends \Codeception\TestCase\Test
 
     public function testGetCollections()
     {
-        $this->assertInternalType('array', $this->assets->getCollections());
+        $this->assertIsArray($this->assets->getCollections());
         $this->assertContains('jquery', array_keys($this->assets->getCollections()));
         $this->assertContains('system://assets/jquery/jquery-2.x.min.js', $this->assets->getCollections());
     }
@@ -724,50 +724,50 @@ class AssetsTest extends \Codeception\TestCase\Test
     {
         $this->assets->addDirCss('/system');
 
-        $this->assertInternalType('array', $this->assets->getCss());
+        $this->assertIsArray($this->assets->getCss());
         $this->assertGreaterThan(0, (array) $this->assets->getCss());
-        $this->assertInternalType('array', $this->assets->getJs());
+        $this->assertIsArray($this->assets->getJs());
         $this->assertCount(0, (array) $this->assets->getJs());
 
         $this->assets->reset();
         $this->assets->addDirCss('/system/assets');
 
-        $this->assertInternalType('array', $this->assets->getCss());
+        $this->assertIsArray($this->assets->getCss());
         $this->assertGreaterThan(0, (array) $this->assets->getCss());
-        $this->assertInternalType('array', $this->assets->getJs());
+        $this->assertIsArray($this->assets->getJs());
         $this->assertCount(0, (array) $this->assets->getJs());
 
         $this->assets->reset();
         $this->assets->addDirJs('/system');
 
-        $this->assertInternalType('array', $this->assets->getCss());
+        $this->assertIsArray($this->assets->getCss());
         $this->assertCount(0, (array) $this->assets->getCss());
-        $this->assertInternalType('array', $this->assets->getJs());
+        $this->assertIsArray($this->assets->getJs());
         $this->assertGreaterThan(0, (array) $this->assets->getJs());
 
         $this->assets->reset();
         $this->assets->addDirJs('/system/assets');
 
-        $this->assertInternalType('array', $this->assets->getCss());
+        $this->assertIsArray($this->assets->getCss());
         $this->assertCount(0, (array) $this->assets->getCss());
-        $this->assertInternalType('array', $this->assets->getJs());
+        $this->assertIsArray($this->assets->getJs());
         $this->assertGreaterThan(0, (array) $this->assets->getJs());
 
         $this->assets->reset();
         $this->assets->addDir('/system/assets');
 
-        $this->assertInternalType('array', $this->assets->getCss());
+        $this->assertIsArray($this->assets->getCss());
         $this->assertGreaterThan(0, (array) $this->assets->getCss());
-        $this->assertInternalType('array', $this->assets->getJs());
+        $this->assertIsArray($this->assets->getJs());
         $this->assertGreaterThan(0, (array) $this->assets->getJs());
 
         //Use streams
         $this->assets->reset();
         $this->assets->addDir('system://assets');
 
-        $this->assertInternalType('array', $this->assets->getCss());
+        $this->assertIsArray($this->assets->getCss());
         $this->assertGreaterThan(0, (array) $this->assets->getCss());
-        $this->assertInternalType('array', $this->assets->getJs());
+        $this->assertIsArray($this->assets->getJs());
         $this->assertGreaterThan(0, (array) $this->assets->getJs());
     }
 }

@@ -20,12 +20,12 @@ class BlueprintTest extends \Codeception\TestCase\Test
 
     /**
      * @depends testValidateStrict
-     * @expectedException Grav\Common\Data\ValidationException
      */
     public function testValidateStrictRequired()
     {
         $blueprint = $this->loadBlueprint('strict');
 
+        $this->expectException(\Grav\Common\Data\ValidationException::class);
         $blueprint->validate([]);
     }
 
@@ -41,7 +41,6 @@ class BlueprintTest extends \Codeception\TestCase\Test
 
     /**
      * @depends testValidateStrict
-     * @expectedException Grav\Common\Data\ValidationException
      */
     public function testValidateStrictExtraException()
     {
@@ -52,6 +51,7 @@ class BlueprintTest extends \Codeception\TestCase\Test
         $var = 'system.strict_mode.blueprint_strict_compat';
         $config->set($var, false);
 
+        $this->expectException(\Grav\Common\Data\ValidationException::class);
         $blueprint->validate(['test' => 'string', 'wrong' => 'field']);
 
         $config->set($var, true);

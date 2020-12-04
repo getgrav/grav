@@ -138,7 +138,7 @@ class UtilsTest extends \Codeception\TestCase\Test
     public function testDateFormats()
     {
         $dateFormats = Utils::dateFormats();
-        $this->assertInternalType('array', $dateFormats);
+        $this->assertIsArray($dateFormats);
         $this->assertContainsOnly('string', $dateFormats);
 
         $default_format = $this->grav['config']->get('system.pages.dateformat.default');
@@ -270,7 +270,7 @@ class UtilsTest extends \Codeception\TestCase\Test
     {
         $timezones = Utils::timezones();
 
-        $this->assertInternalType('array', $timezones);
+        $this->assertIsArray($timezones);
         $this->assertContainsOnly('string', $timezones);
     }
 
@@ -382,8 +382,8 @@ class UtilsTest extends \Codeception\TestCase\Test
 
     public function testGetNonce()
     {
-        $this->assertInternalType('string', Utils::getNonce('test-action'));
-        $this->assertInternalType('string', Utils::getNonce('test-action', true));
+        $this->assertIsString(Utils::getNonce('test-action'));
+        $this->assertIsString(Utils::getNonce('test-action', true));
         $this->assertSame(Utils::getNonce('test-action'), Utils::getNonce('test-action'));
         $this->assertNotSame(Utils::getNonce('test-action'), Utils::getNonce('test-action2'));
     }
