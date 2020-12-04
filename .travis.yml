@@ -6,7 +6,6 @@ php:
   - '7.4'
 branches:
   only:
-    - develop
     - master
     - build_test
 notifications:
