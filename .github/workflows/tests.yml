@@ -1,0 +1,35 @@
+name: PHP Tests
+
+on:
+  push:
+    branches: [ develop ]
+  pull_request:
+    branches: [ develop ]
+
+jobs:
+  test:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        php: [ 7.4, 7.3, 7.2 ]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: opcache, gd
+          coverage: none      
+
+      - name: Validate composer.json and composer.lock
+        run: composer validate
+
+      - name: Install dependencies
+        run: composer install --dev --prefer-dist --no-progress --no-suggest
+
+      - name: Run test suite
+        run: vendor/bin/codecept run
