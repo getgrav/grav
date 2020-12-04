@@ -110,6 +110,8 @@ final class VersionUpdater
 
     protected function loadUpdates(): void
     {
+        $this->updates = [];
+
         $schema = $this->getExtensionSchema();
         $iterator = new DirectoryIterator($this->path);
         foreach ($iterator as $item) {

@@ -1,3 +1,9 @@
+# v1.7.0-rc.20
+## mm/dd/2020
+
+1. [](#bugfix)
+    * Fixed potential error when upgrading Grav
+
 # v1.7.0-rc.19
 ## 12/02/2020
 
