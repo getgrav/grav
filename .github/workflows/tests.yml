@@ -41,7 +41,7 @@ jobs:
           restore-keys: ${{ runner.os }}-composer-  
 
       - name: Install dependencies
-        run: composer install --dev --prefer-dist --no-progress --no-suggest
+        run: composer install --prefer-dist --no-progress
 
       - name: Run test suite
         run: vendor/bin/codecept run
