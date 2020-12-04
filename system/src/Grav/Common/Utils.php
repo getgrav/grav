@@ -56,7 +56,7 @@ abstract class Utils
      */
     public static function url($input, $domain = false, $fail_gracefully = false)
     {
-        if ((!is_string($input) && !method_exists($input, '__toString')) || !trim($input)) {
+        if ((!is_string($input) && !is_callable([$input, '__toString'])) || !trim($input)) {
             if ($fail_gracefully) {
                 $input = '/';
             } else {
