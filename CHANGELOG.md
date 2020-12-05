@@ -4,6 +4,7 @@
 1. [](#bugfix)
     * Fixed potential error when upgrading Grav
     * Updated unit tests to use codeception 4.1
+    * Auto-Escape enabled by default.  Manually enable **Twig Compatibility** to
 
 # v1.7.0-rc.19
 ## 12/02/2020
