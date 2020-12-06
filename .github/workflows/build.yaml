@@ -1,0 +1,45 @@
+name: Release Builds
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 7.1
+          extensions: opcache, gd
+          coverage: none
+
+      - name: Install Dependencies
+        run: |
+          sudo apt-get -y update -qq  < /dev/null > /dev/null
+          sudo apt-get -y install -qq git zip < /dev/null > /dev/null
+
+      - name: Retrieval of Builder Scripts
+        run: |
+          # Real Grav URL
+          curl --silent -H "Authorization: token ${{ secrets.GLOBAL_TOKEN }}" -H "Accept: application/vnd.github.v3.raw" ${{ secrets.BUILD_SCRIPT_URL }} --output build-grav.sh
+
+          # Development Local URL
+          # curl ${{ secrets.BUILD_SCRIPT_URL }} --output build-grav.sh
+
+      - name: Grav Builder
+        run: |
+          bash ./build-grav.sh
+
+      - name: Upload Grav Release Assets
+        id: upload-release-asset
+        uses: alexellis/upload-assets@0.2.2
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          asset_paths: '["./grav-dist/*.zip"]'
