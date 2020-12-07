@@ -43,3 +43,22 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           asset_paths: '["./grav-dist/*.zip"]'
+
+  slack:
+    name: Slack
+    needs: build
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - uses: technote-space/workflow-conclusion-action@v2
+      - uses: 8398a7/action-slack@v3
+        with:
+          status: failure
+          fields: repo,message,author,action
+          icon_emoji: ':octocat:'
+          author_name: 'Github Action Build'
+          text: '🚚 Automated Build Failure'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        if: env.WORKFLOW_CONCLUSION == 'failure'
