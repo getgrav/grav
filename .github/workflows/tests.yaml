@@ -7,7 +7,8 @@ on:
     branches: [ develop ]
 
 jobs:
-  test:
+
+  unit-tests:
 
     runs-on: ${{ matrix.os }}
 
@@ -24,7 +25,7 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
           extensions: opcache, gd
-          coverage: none      
+          coverage: none
 
       - name: Validate composer.json and composer.lock
         run: composer validate
@@ -38,7 +39,7 @@ jobs:
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-          restore-keys: ${{ runner.os }}-composer-  
+          restore-keys: ${{ runner.os }}-composer-
 
       - name: Install dependencies
         run: composer install --prefer-dist --no-progress
@@ -46,21 +47,21 @@ jobs:
       - name: Run test suite
         run: vendor/bin/codecept run
 
-      - name: Slack Notification
-        uses: 8398a7/action-slack@v3
-        with:
-          status: custom
-          fields: workflow,job,commit,repo,ref,author,took
-          custom_payload: |
-            {
-              username: 'action-slack',
-              icon_emoji: ':octocat:',
-              attachments: [{
-                color: '${{ job.status }}' === 'success' ? 'good' : '${{ job.status }}' === 'failure' ? 'danger' : 'warning',
-                text: `${process.env.AS_WORKFLOW}\n${process.env.AS_JOB} (${process.env.AS_COMMIT}) of ${process.env.AS_REPO}@${process.env.AS_REF} by ${process.env.AS_AUTHOR} succeeded in ${process.env.AS_TOOK}`,
-              }]
-            }
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }} # required
-        if: always() # Pick up events even if the job fails or is canceled.
-        
+  slack:
+      name: Slack
+      needs: unit-tests
+      runs-on: ubuntu-latest
+      if: always() 
+      steps:
+        - uses: technote-space/workflow-conclusion-action@v2
+        - uses: 8398a7/action-slack@v3
+          with:
+             status: failure
+             fields: repo,message,author,action
+             icon_emoji: ':octocat:'
+             author_name: 'Github Action Tests'
+             text: '💥 Automated Test Failure'
+          env:
+            GITHUB_TOKEN: ${{ github.token }}
+            SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          if: env.WORKFLOW_CONCLUSION == 'failure'
