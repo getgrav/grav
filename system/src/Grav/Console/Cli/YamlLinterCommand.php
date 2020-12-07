@@ -14,9 +14,16 @@ use Grav\Console\ConsoleCommand;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+/**
+ * Class YamlLinterCommand
+ * @package Grav\Console\Cli
+ */
 class YamlLinterCommand extends ConsoleCommand
 {
-    protected function configure()
+    /**
+     * @return void
+     */
+    protected function configure(): void
     {
         $this
             ->setName('yamllinter')
@@ -39,15 +46,19 @@ class YamlLinterCommand extends ConsoleCommand
                 'Go through specific folder'
             )
             ->setDescription('Checks various files for YAML errors')
-            ->setHelp("Checks various files for YAML errors");
+            ->setHelp('Checks various files for YAML errors');
     }
 
-    protected function serve()
+    /**
+     * @return int
+     */
+    protected function serve(): int
     {
         $io = new SymfonyStyle($this->input, $this->output);
 
         $io->title('Yaml Linter');
 
+        $error = 0;
         if ($this->input->getOption('all')) {
             $io->section('All');
             $errors = YamlLinter::lint('');
@@ -55,6 +66,7 @@ class YamlLinterCommand extends ConsoleCommand
             if (empty($errors)) {
                 $io->success('No YAML Linting issues found');
             } else {
+                $error = 1;
                 $this->displayErrors($errors, $io);
             }
         } elseif ($folder = $this->input->getOption('folder')) {
@@ -64,6 +76,7 @@ class YamlLinterCommand extends ConsoleCommand
             if (empty($errors)) {
                 $io->success('No YAML Linting issues found');
             } else {
+                $error = 1;
                 $this->displayErrors($errors, $io);
             }
         } else {
@@ -73,6 +86,7 @@ class YamlLinterCommand extends ConsoleCommand
             if (empty($errors)) {
                 $io->success('No YAML Linting issues with configuration');
             } else {
+                $error = 1;
                 $this->displayErrors($errors, $io);
             }
 
@@ -82,6 +96,7 @@ class YamlLinterCommand extends ConsoleCommand
             if (empty($errors)) {
                 $io->success('No YAML Linting issues with pages');
             } else {
+                $error = 1;
                 $this->displayErrors($errors, $io);
             }
 
@@ -91,12 +106,20 @@ class YamlLinterCommand extends ConsoleCommand
             if (empty($errors)) {
                 $io->success('No YAML Linting issues with blueprints');
             } else {
+                $error = 1;
                 $this->displayErrors($errors, $io);
             }
         }
+
+        return $error;
     }
 
-    protected function displayErrors($errors, SymfonyStyle $io)
+    /**
+     * @param array $errors
+     * @param SymfonyStyle $io
+     * @return void
+     */
+    protected function displayErrors($errors, SymfonyStyle $io): void
     {
         $io->error('YAML Linting issues found...');
         foreach ($errors as $path => $error) {

@@ -17,7 +17,13 @@ use Grav\Common\Page\Pages;
 use Grav\Console\ConsoleCommand;
 use RocketTheme\Toolbox\Event\Event;
 use Symfony\Component\Console\Input\InputOption;
+use function in_array;
+use function is_object;
 
+/**
+ * Class PageSystemValidatorCommand
+ * @package Grav\Console\Cli
+ */
 class PageSystemValidatorCommand extends ConsoleCommand
 {
     /** @var array */
@@ -125,7 +131,10 @@ class PageSystemValidatorCommand extends ConsoleCommand
     /** @var Grav */
     protected $grav;
 
-    protected function configure()
+    /**
+     * @return void
+     */
+    protected function configure(): void
     {
         $this
             ->setName('page-system-validator')
@@ -135,7 +144,10 @@ class PageSystemValidatorCommand extends ConsoleCommand
             ->setHelp('The <info>page-system-validator</info> command can be used to test the pages before and after upgrade');
     }
 
-    protected function serve()
+    /**
+     * @return int
+     */
+    protected function serve(): int
     {
         $this->setLanguage('en');
         $this->initializePages();
@@ -182,8 +194,13 @@ class PageSystemValidatorCommand extends ConsoleCommand
             $this->output->writeln('<green>page-system-validator [-r|--record] [-c|--check]</green>');
         }
         $this->output->writeln('');
+
+        return 0;
     }
 
+    /**
+     * @return array
+     */
     private function record()
     {
         /** @var Pages $pages */
@@ -243,7 +260,12 @@ class PageSystemValidatorCommand extends ConsoleCommand
         return $results;
     }
 
-    private function check(array $old, array $new)
+    /**
+     * @param array $old
+     * @param array $new
+     * @return array
+     */
+    private function check(array $old, array $new): array
     {
         $errors = [];
         foreach ($old as $path => $page) {

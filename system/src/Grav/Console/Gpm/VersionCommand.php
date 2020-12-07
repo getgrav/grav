@@ -11,17 +11,26 @@ namespace Grav\Console\Gpm;
 
 use Grav\Common\GPM\GPM;
 use Grav\Common\GPM\Upgrader;
+use Grav\Common\Grav;
 use Grav\Console\ConsoleCommand;
 use RocketTheme\Toolbox\File\YamlFile;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
+use function count;
 
+/**
+ * Class VersionCommand
+ * @package Grav\Console\Gpm
+ */
 class VersionCommand extends ConsoleCommand
 {
     /** @var GPM */
     protected $gpm;
 
-    protected function configure()
+    /**
+     * @return void
+     */
+    protected function configure(): void
     {
         $this
             ->setName('version')
@@ -41,9 +50,9 @@ class VersionCommand extends ConsoleCommand
     }
 
     /**
-     * @return int|null|void
+     * @return int
      */
-    protected function serve()
+    protected function serve(): int
     {
         $this->gpm = new GPM($this->input->getOption('force'));
         $packages = $this->input->getArgument('package');
@@ -70,7 +79,7 @@ class VersionCommand extends ConsoleCommand
                 }
             } else {
                 // get currently installed version
-                $locator = \Grav\Common\Grav::instance()['locator'];
+                $locator = Grav::instance()['locator'];
                 $blueprints_path = $locator->findResource('plugins://' . $package . DS . 'blueprints.yaml');
                 if (!file_exists($blueprints_path)) { // theme?
                     $blueprints_path = $locator->findResource('themes://' . $package . DS . 'blueprints.yaml');
@@ -107,5 +116,7 @@ class VersionCommand extends ConsoleCommand
                 $this->output->writeln("Package <red>{$package}</red> not found");
             }
         }
+
+        return 0;
     }
 }

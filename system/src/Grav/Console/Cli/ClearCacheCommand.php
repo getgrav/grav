@@ -13,9 +13,16 @@ use Grav\Common\Cache;
 use Grav\Console\ConsoleCommand;
 use Symfony\Component\Console\Input\InputOption;
 
+/**
+ * Class ClearCacheCommand
+ * @package Grav\Console\Cli
+ */
 class ClearCacheCommand extends ConsoleCommand
 {
-    protected function configure()
+    /**
+     * @return void
+     */
+    protected function configure(): void
     {
         $this
             ->setName('cache')
@@ -32,16 +39,23 @@ class ClearCacheCommand extends ConsoleCommand
             ->setHelp('The <info>cache</info> command allows you to interact with Grav cache');
     }
 
-    protected function serve()
+    /**
+     * @return int
+     */
+    protected function serve(): int
     {
         $this->initializePlugins();
         $this->cleanPaths();
+
+        return 0;
     }
 
     /**
      * loops over the array of paths and deletes the files/folders
+     *
+     * @return void
      */
-    private function cleanPaths()
+    private function cleanPaths(): void
     {
         $this->output->writeln('');
 

@@ -18,7 +18,13 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use function array_key_exists;
+use function count;
 
+/**
+ * Class UpdateCommand
+ * @package Grav\Console\Gpm
+ */
 class UpdateCommand extends ConsoleCommand
 {
     /** @var array */
@@ -45,7 +51,10 @@ class UpdateCommand extends ConsoleCommand
     /** @var Upgrader */
     protected $upgrader;
 
-    protected function configure()
+    /**
+     * @return void
+     */
+    protected function configure(): void
     {
         $this
             ->setName('update')
@@ -95,13 +104,17 @@ class UpdateCommand extends ConsoleCommand
             ->setHelp('The <info>update</info> command updates plugins and themes when a new version is available');
     }
 
-    protected function serve()
+    /**
+     * @return int
+     */
+    protected function serve(): int
     {
         if (!class_exists(\ZipArchive::class)) {
             $io = new SymfonyStyle($this->input, $this->output);
             $io->title('GPM Update');
             $io->error('php-zip extension needs to be enabled!');
-            exit;
+
+            return 1;
         }
 
         $this->upgrader = new Upgrader($this->input->getOption('force'));
@@ -116,7 +129,8 @@ class UpdateCommand extends ConsoleCommand
 
             if (!$answer) {
                 $this->output->writeln('<red>Update aborted. Exiting...</red>');
-                exit;
+
+                return 1;
             }
         }
 
@@ -152,7 +166,8 @@ class UpdateCommand extends ConsoleCommand
 
         if (!$this->overwrite && !$this->data['total']) {
             $this->output->writeln('Nothing to update.');
-            exit;
+
+            return 0;
         }
 
         $this->output->write("Found <green>{$this->gpm->countInstalled()}</green> packages installed of which <magenta>{$this->data['total']}</magenta>{$description}");
@@ -170,7 +185,7 @@ class UpdateCommand extends ConsoleCommand
         $index = 0;
         foreach ($this->data as $packages) {
             foreach ($packages as $slug => $package) {
-                if (!array_key_exists($slug, $limit_to) && \count($only_packages)) {
+                if (!array_key_exists($slug, $limit_to) && count($only_packages)) {
                     continue;
                 }
 
@@ -199,7 +214,8 @@ class UpdateCommand extends ConsoleCommand
 
             if (!$answer) {
                 $this->output->writeln('<red>Update aborted. Exiting...</red>');
-                exit;
+
+                return 1;
             }
         }
 
@@ -217,13 +233,15 @@ class UpdateCommand extends ConsoleCommand
 
         if ($command_exec != 0) {
             $this->output->writeln('<red>Error:</red> An error occurred while trying to install the packages');
-            exit;
+
+            return 1;
         }
+
+        return 0;
     }
 
     /**
      * @param array $only_packages
-     *
      * @return array
      */
     private function userInputPackages($only_packages)
@@ -231,7 +249,7 @@ class UpdateCommand extends ConsoleCommand
         $found = ['total' => 0];
         $ignore = [];
 
-        if (!\count($only_packages)) {
+        if (!count($only_packages)) {
             $this->output->writeln('');
         } else {
             foreach ($only_packages as $only_package) {
@@ -262,7 +280,7 @@ class UpdateCommand extends ConsoleCommand
                 ) . '</cyan>');
             }
 
-            if (\count($ignore)) {
+            if (count($ignore)) {
                 $this->output->writeln('');
                 $this->output->writeln('Packages not found or not requiring updates: <red>' . implode(
                     '</red>, <red>',

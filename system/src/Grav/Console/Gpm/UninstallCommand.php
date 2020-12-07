@@ -17,7 +17,14 @@ use Grav\Console\ConsoleCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
+use function count;
+use function in_array;
+use function is_array;
 
+/**
+ * Class UninstallCommand
+ * @package Grav\Console\Gpm
+ */
 class UninstallCommand extends ConsoleCommand
 {
     /** @var array */
@@ -41,7 +48,10 @@ class UninstallCommand extends ConsoleCommand
     /** @var string */
     protected $all_yes;
 
-    protected function configure()
+    /**
+     * @return void
+     */
+    protected function configure(): void
     {
         $this
             ->setName('uninstall')
@@ -60,7 +70,10 @@ class UninstallCommand extends ConsoleCommand
             ->setHelp('The <info>uninstall</info> command allows to uninstall plugins and themes');
     }
 
-    protected function serve()
+    /**
+     * @return int
+     */
+    protected function serve(): int
     {
         $this->gpm = new GPM();
 
@@ -87,7 +100,8 @@ class UninstallCommand extends ConsoleCommand
         if (!$this->data['total']) {
             $this->output->writeln('Nothing to uninstall.');
             $this->output->writeln('');
-            exit;
+
+            return 0;
         }
 
         if (count($this->data['not_found'])) {
@@ -99,6 +113,7 @@ class UninstallCommand extends ConsoleCommand
 
         unset($this->data['not_found'], $this->data['total']);
 
+        $error = 0;
         foreach ($this->data as $slug => $package) {
             $this->output->writeln("Preparing to uninstall <cyan>{$package->name}</cyan> [v{$package->version}]");
 
@@ -108,11 +123,13 @@ class UninstallCommand extends ConsoleCommand
             if (!$checks) {
                 $this->output->writeln("  '- <red>Installation failed or aborted.</red>");
                 $this->output->writeln('');
+                $error = 1;
             } else {
                 $uninstall = $this->uninstallPackage($slug, $package);
 
                 if (!$uninstall) {
                     $this->output->writeln("  '- <red>Uninstallation failed or aborted.</red>");
+                    $error = 1;
                 } else {
                     $this->output->writeln("  '- <green>Success!</green>  ");
                 }
@@ -121,13 +138,13 @@ class UninstallCommand extends ConsoleCommand
 
         // clear cache after successful upgrade
         $this->clearCache();
-    }
 
+        return $error;
+    }
 
     /**
      * @param string $slug
      * @param Package $package
-     *
      * @return bool
      */
     private function uninstallPackage($slug, $package, $is_dependency = false)
@@ -143,7 +160,7 @@ class UninstallCommand extends ConsoleCommand
             $this->output->writeln('');
             $this->output->writeln('<red>Uninstallation failed.</red>');
             $this->output->writeln('');
-            if (\count($dependent_packages) > ($is_dependency ? 2 : 1)) {
+            if (count($dependent_packages) > ($is_dependency ? 2 : 1)) {
                 $this->output->writeln('The installed packages <cyan>' . implode('</cyan>, <cyan>', $dependent_packages) . '</cyan> depends on this package. Please remove those first.');
             } else {
                 $this->output->writeln('The installed package <cyan>' . implode('</cyan>, <cyan>', $dependent_packages) . '</cyan> depends on this package. Please remove it first.');
@@ -158,15 +175,13 @@ class UninstallCommand extends ConsoleCommand
 
             if ($is_dependency) {
                 foreach ($dependencies as $key => $dependency) {
-                    if (\in_array($dependency['name'], $this->dependencies, true)) {
+                    if (in_array($dependency['name'], $this->dependencies, true)) {
                         unset($dependencies[$key]);
                     }
                 }
-            } else {
-                if (\count($dependencies) > 0) {
-                    $this->output->writeln('  `- Dependencies found...');
-                    $this->output->writeln('');
-                }
+            } elseif (count($dependencies) > 0) {
+                $this->output->writeln('  `- Dependencies found...');
+                $this->output->writeln('');
             }
 
             $questionHelper = $this->getHelper('question');
@@ -174,7 +189,7 @@ class UninstallCommand extends ConsoleCommand
             foreach ($dependencies as $dependency) {
                 $this->dependencies[] = $dependency['name'];
 
-                if (\is_array($dependency)) {
+                if (is_array($dependency)) {
                     $dependency = $dependency['name'];
                 }
                 if ($dependency === 'grav' || $dependency === 'php') {
@@ -239,10 +254,8 @@ class UninstallCommand extends ConsoleCommand
     /**
      * @param string $slug
      * @param Package $package
-     *
      * @return bool
      */
-
     private function checkDestination($slug, $package)
     {
         $questionHelper = $this->getHelper('question');
@@ -289,6 +302,7 @@ class UninstallCommand extends ConsoleCommand
     {
         $path = Grav::instance()['locator']->findResource($package->package_type . '://' . $slug);
         Installer::isValidDestination($path);
+
         return Installer::lastErrorCode();
     }
 }

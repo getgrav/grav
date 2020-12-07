@@ -16,7 +16,12 @@ use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use function count;
 
+/**
+ * Class BackupCommand
+ * @package Grav\Console\Cli
+ */
 class BackupCommand extends ConsoleCommand
 {
     /** @var string $source */
@@ -25,7 +30,10 @@ class BackupCommand extends ConsoleCommand
     /** @var ProgressBar $progress */
     protected $progress;
 
-    protected function configure()
+    /**
+     * @return void
+     */
+    protected function configure(): void
     {
         $this
             ->setName('backup')
@@ -40,7 +48,10 @@ class BackupCommand extends ConsoleCommand
         $this->source = getcwd();
     }
 
-    protected function serve()
+    /**
+     * @return int
+     */
+    protected function serve(): int
     {
         $this->initializeGrav();
 
@@ -53,7 +64,7 @@ class BackupCommand extends ConsoleCommand
 
         if (!class_exists(\ZipArchive::class)) {
             $io->error('php-zip extension needs to be enabled!');
-            exit;
+            return 1;
         }
 
         /** @var Backups $backups */
@@ -69,7 +80,7 @@ class BackupCommand extends ConsoleCommand
         }
 
         if (null === $id) {
-            if (\count($backups_list) > 1) {
+            if (count($backups_list) > 1) {
                 $helper = $this->getHelper('question');
                 $question = new ChoiceQuestion(
                     'Choose a backup?',
@@ -91,12 +102,15 @@ class BackupCommand extends ConsoleCommand
 
         $io->newline(2);
         $io->success('Backup Successfully Created: ' . $backup);
+
+        return 0;
     }
 
     /**
      * @param array $args
+     * @return void
      */
-    public function outputProgress($args)
+    public function outputProgress($args): void
     {
         switch ($args['type']) {
             case 'count':

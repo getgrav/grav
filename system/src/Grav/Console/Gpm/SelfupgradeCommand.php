@@ -9,6 +9,7 @@
 
 namespace Grav\Console\Gpm;
 
+use Exception;
 use Grav\Common\Cache;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\GPM\Installer;
@@ -20,7 +21,13 @@ use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use function is_callable;
+use function strlen;
 
+/**
+ * Class SelfupgradeCommand
+ * @package Grav\Console\Gpm
+ */
 class SelfupgradeCommand extends ConsoleCommand
 {
     /** @var array */
@@ -47,7 +54,10 @@ class SelfupgradeCommand extends ConsoleCommand
     /** @var int */
     protected $timeout;
 
-    protected function configure()
+    /**
+     * @return void
+     */
+    protected function configure(): void
     {
         $this
             ->setName('self-upgrade')
@@ -81,13 +91,17 @@ class SelfupgradeCommand extends ConsoleCommand
             ->setHelp('The <info>update</info> command updates Grav itself when a new version is available');
     }
 
-    protected function serve()
+    /**
+     * @return int
+     */
+    protected function serve(): int
     {
         if (!class_exists(\ZipArchive::class)) {
             $io = new SymfonyStyle($this->input, $this->output);
             $io->title('GPM Self Upgrade');
             $io->error('php-zip extension needs to be enabled!');
-            exit;
+
+            return 1;
         }
 
         $this->upgrader = new Upgrader($this->input->getOption('force'));
@@ -111,12 +125,14 @@ class SelfupgradeCommand extends ConsoleCommand
             $this->output->writeln('');
             $this->output->writeln('Selfupgrade aborted.');
             $this->output->writeln('');
-            exit;
+
+            return 1;
         }
 
         if (!$this->overwrite && !$this->upgrader->isUpgradable()) {
             $this->output->writeln("You are already running the latest version of Grav (v{$local}) released on {$release}");
-            exit;
+
+            return 0;
         }
 
         Installer::isValidDestination(GRAV_ROOT . '/system');
@@ -124,7 +140,8 @@ class SelfupgradeCommand extends ConsoleCommand
             $this->output->writeln('<red>ATTENTION:</red> Grav is symlinked, cannot upgrade, aborting...');
             $this->output->writeln('');
             $this->output->writeln("You are currently running a symbolically linked Grav v{$local}. Latest available is v{$remote}.");
-            exit;
+
+            return 1;
         }
 
         // not used but preloaded just in case!
@@ -148,12 +165,12 @@ class SelfupgradeCommand extends ConsoleCommand
                 $this->output->writeln('');
                 foreach ($changelog as $version => $log) {
                     $title = $version . ' [' . $log['date'] . ']';
-                    $content = preg_replace_callback('/\d\.\s\[\]\(#(.*)\)/', function ($match) {
+                    $content = preg_replace_callback('/\d\.\s\[\]\(#(.*)\)/', static function ($match) {
                         return "\n" . ucfirst($match[1]) . ':';
                     }, $log['content']);
 
                     $this->output->writeln($title);
-                    $this->output->writeln(str_repeat('-', \strlen($title)));
+                    $this->output->writeln(str_repeat('-', strlen($title)));
                     $this->output->writeln($content);
                     $this->output->writeln('');
                 }
@@ -168,7 +185,7 @@ class SelfupgradeCommand extends ConsoleCommand
             if (!$answer) {
                 $this->output->writeln('Aborting...');
 
-                exit;
+                return 1;
             }
         }
 
@@ -181,9 +198,11 @@ class SelfupgradeCommand extends ConsoleCommand
         $this->output->write('  |- Installing upgrade...  ');
         $installation = $this->upgrade();
 
+        $error = 0;
         if (!$installation) {
             $this->output->writeln("  '- <red>Installation failed or aborted.</red>");
             $this->output->writeln('');
+            $error = 1;
         } else {
             $this->output->writeln("  '- <green>Success!</green>  ");
             $this->output->writeln('');
@@ -191,11 +210,12 @@ class SelfupgradeCommand extends ConsoleCommand
 
         // clear cache after successful upgrade
         $this->clearCache(['all']);
+
+        return $error;
     }
 
     /**
      * @param array $package
-     *
      * @return string
      */
     private function download($package)
@@ -235,7 +255,7 @@ class SelfupgradeCommand extends ConsoleCommand
             $folder = false;
         }
 
-        static::upgradeGrav($this->file, $folder);
+        $this->upgradeGrav($this->file, $folder);
 
         $errorCode = Installer::lastErrorCode();
 
@@ -261,8 +281,9 @@ class SelfupgradeCommand extends ConsoleCommand
 
     /**
      * @param array $progress
+     * @return void
      */
-    public function progress($progress)
+    public function progress($progress): void
     {
         $this->output->write("\x0D");
         $this->output->write("  |- Downloading upgrade [{$this->formatBytes($progress['filesize']) }]... " . str_pad(
@@ -276,7 +297,6 @@ class SelfupgradeCommand extends ConsoleCommand
     /**
      * @param int|float $size
      * @param int $precision
-     *
      * @return string
      */
     public function formatBytes($size, $precision = 2)
@@ -287,6 +307,11 @@ class SelfupgradeCommand extends ConsoleCommand
         return round(1024 ** ($base - floor($base)), $precision) . $suffixes[(int)floor($base)];
     }
 
+    /**
+     * @param string $zip
+     * @param string $folder
+     * @param false $keepFolder
+     */
     private function upgradeGrav($zip, $folder, $keepFolder = false)
     {
         static $ignores = [
@@ -320,7 +345,7 @@ class SelfupgradeCommand extends ConsoleCommand
 
                 Cache::clearCache();
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Installer::setError($e->getMessage());
         }
     }

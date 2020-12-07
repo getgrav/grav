@@ -16,6 +16,10 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Process\PhpExecutableFinder;
 use Symfony\Component\Process\Process;
 
+/**
+ * Class ServerCommand
+ * @package Grav\Console\Cli
+ */
 class ServerCommand extends ConsoleCommand
 {
     const SYMFONY_SERVER = 'Symfony Server';
@@ -28,7 +32,10 @@ class ServerCommand extends ConsoleCommand
     /** @var SymfonyStyle */
     protected $io;
 
-    protected function configure()
+    /**
+     * @return void
+     */
+    protected function configure(): void
     {
         $this
             ->setName('server')
@@ -39,7 +46,10 @@ class ServerCommand extends ConsoleCommand
             ->setHelp("Runs built-in web-server, Symfony first, then tries PHP's");
     }
 
-    protected function serve()
+    /**
+     * @return int
+     */
+    protected function serve(): int
     {
         $io = $this->io = new SymfonyStyle($this->input, $this->output);
 
@@ -58,7 +68,6 @@ class ServerCommand extends ConsoleCommand
 
         $this->ip = '127.0.0.1';
         $this->port = (int)($this->input->getOption('port') ?? 8000);
-
 
         // Get an open port
         while (!$this->portAvailable($this->ip, $this->port)) {
@@ -80,6 +89,7 @@ class ServerCommand extends ConsoleCommand
             unset($commands[self::SYMFONY_SERVER]);
         }
 
+        $error = 0;
         foreach ($commands as $name => $command) {
             $process = $this->runProcess($name, $command);
 
@@ -92,18 +102,26 @@ class ServerCommand extends ConsoleCommand
                 ($name === self::SYMFONY_SERVER && $force_symfony) ||
                 ($name === self::PHP_SERVER)
                 )) {
+                $error = 1;
                 $io->error('Could not start ' . $name);
             }
         }
+
+        return $error;
     }
 
+    /**
+     * @param string $name
+     * @param string $cmd
+     * @return Process
+     */
     protected function runProcess($name, $cmd)
     {
-        $process = new Process($cmd);
+        $process = new Process([$cmd]);
         $process->setTimeout(0);
         $process->start();
 
-        if ($name == self::SYMFONY_SERVER && Utils::contains($process->getErrorOutput(), 'symfony: not found')) {
+        if ($name === self::SYMFONY_SERVER && Utils::contains($process->getErrorOutput(), 'symfony: not found')) {
             $this->io->error('The symfony binary could not be found, please install the CLI tools: https://symfony.com/download');
             $this->io->warning('Falling back to PHP web server...');
         }
@@ -126,7 +144,7 @@ class ServerCommand extends ConsoleCommand
      * @param int $port
      * @return bool
      */
-    protected function portAvailable($ip, $port)
+    protected function portAvailable($ip, $port): bool
     {
         $fp = @fsockopen($ip, $port, $errno, $errstr, 0.1);
         if (!$fp) {
@@ -134,6 +152,7 @@ class ServerCommand extends ConsoleCommand
         }
 
         fclose($fp);
+
         return false;
     }
 }

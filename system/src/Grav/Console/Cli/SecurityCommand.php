@@ -14,13 +14,21 @@ use Grav\Common\Security;
 use Grav\Console\ConsoleCommand;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use function count;
 
+/**
+ * Class SecurityCommand
+ * @package Grav\Console\Cli
+ */
 class SecurityCommand extends ConsoleCommand
 {
     /** @var ProgressBar $progress */
     protected $progress;
 
-    protected function configure()
+    /**
+     * @return void
+     */
+    protected function configure(): void
     {
         $this
             ->setName('security')
@@ -28,13 +36,16 @@ class SecurityCommand extends ConsoleCommand
             ->setHelp('The <info>security</info> runs various security checks on your Grav site');
     }
 
-    protected function serve()
+    /**
+     * @return int
+     */
+    protected function serve(): int
     {
         $this->initializePages();
 
         /** @var Grav $grav */
         $grav = Grav::instance();
-        $this->progress = new ProgressBar($this->output, \count($grav['pages']->routes()) - 1);
+        $this->progress = new ProgressBar($this->output, count($grav['pages']->routes()) - 1);
         $this->progress->setFormat('Scanning <cyan>%current%</cyan> pages [<green>%bar%</green>] <white>%percent:3s%%</white> %elapsed:6s%');
         $this->progress->setBarWidth(100);
 
@@ -45,28 +56,33 @@ class SecurityCommand extends ConsoleCommand
 
         $io->newline(2);
 
+        $error = 0;
         if (!empty($output)) {
             $counter = 1;
             foreach ($output as $route => $results) {
-                $results_parts = array_map(function ($value, $key) {
+                $results_parts = array_map(static function ($value, $key) {
                     return $key.': \''.$value . '\'';
                 }, array_values($results), array_keys($results));
 
                 $io->writeln($counter++ .' - <cyan>' . $route . '</cyan> → <red>' . implode(', ', $results_parts) . '</red>');
             }
 
-            $io->error('Security Scan complete: ' . \count($output) . ' potential XSS issues found...');
+            $error = 1;
+            $io->error('Security Scan complete: ' . count($output) . ' potential XSS issues found...');
         } else {
             $io->success('Security Scan complete: No issues found...');
         }
 
         $io->newline(1);
+
+        return $error;
     }
 
     /**
      * @param array $args
+     * @return void
      */
-    public function outputProgress($args)
+    public function outputProgress($args): void
     {
         switch ($args['type']) {
             case 'count':

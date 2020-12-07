@@ -9,6 +9,7 @@
 
 namespace Grav\Console\Gpm;
 
+use Exception;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\GPM\GPM;
 use Grav\Common\GPM\Installer;
@@ -22,9 +23,15 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use function array_key_exists;
+use function count;
 
 \define('GIT_REGEX', '/http[s]?:\/\/(?:.*@)?(github|bitbucket)(?:.org|.com)\/.*\/(.*)/');
 
+/**
+ * Class InstallCommand
+ * @package Grav\Console\Gpm
+ */
 class InstallCommand extends ConsoleCommand
 {
     /** @var array */
@@ -54,7 +61,10 @@ class InstallCommand extends ConsoleCommand
     /** @var string */
     protected $all_yes;
 
-    protected function configure()
+    /**
+     * @return void
+     */
+    protected function configure(): void
     {
         $this
             ->setName('install')
@@ -97,15 +107,16 @@ class InstallCommand extends ConsoleCommand
     }
 
     /**
-     * @return bool
+     * @return int
      */
-    protected function serve()
+    protected function serve(): int
     {
         if (!class_exists(\ZipArchive::class)) {
             $io = new SymfonyStyle($this->input, $this->output);
             $io->title('GPM Install');
             $io->error('php-zip extension needs to be enabled!');
-            exit;
+
+            return 1;
         }
 
         $this->gpm = new GPM($this->input->getOption('force'));
@@ -124,7 +135,8 @@ class InstallCommand extends ConsoleCommand
             !Installer::isValidDestination($this->destination, [Installer::EXISTS, Installer::IS_LINK])
         ) {
             $this->output->writeln('<red>ERROR</red>: ' . Installer::lastErrorMsg());
-            exit;
+
+            return 1;
         }
 
         $this->output->writeln('');
@@ -132,10 +144,11 @@ class InstallCommand extends ConsoleCommand
         if (!$this->data['total']) {
             $this->output->writeln('Nothing to install.');
             $this->output->writeln('');
-            exit;
+
+            return 0;
         }
 
-        if (\count($this->data['not_found'])) {
+        if (count($this->data['not_found'])) {
             $this->output->writeln('These packages were not found on Grav: <red>' . implode(
                 '</red>, <red>',
                 array_keys($this->data['not_found'])
@@ -161,11 +174,12 @@ class InstallCommand extends ConsoleCommand
 
         try {
             $dependencies = $this->gpm->getDependencies($packages);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             //Error out if there are incompatible packages requirements and tell which ones, and what to do
             //Error out if there is any error in parsing the dependencies and their versions, and tell which one is broken
             $this->output->writeln("<red>{$e->getMessage()}</red>");
-            return false;
+
+            return 1;
         }
 
         if ($dependencies) {
@@ -173,9 +187,10 @@ class InstallCommand extends ConsoleCommand
                 $this->installDependencies($dependencies, 'install', 'The following dependencies need to be installed...');
                 $this->installDependencies($dependencies, 'update', 'The following dependencies need to be updated...');
                 $this->installDependencies($dependencies, 'ignore', "The following dependencies can be updated as there is a newer version, but it's not mandatory...", false);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->output->writeln('<red>Installation aborted</red>');
-                return false;
+
+                return 1;
             }
 
             $this->output->writeln('<green>Dependencies are OK</green>');
@@ -197,9 +212,10 @@ class InstallCommand extends ConsoleCommand
                             try {
                                 $this->askConfirmationIfMajorVersionUpdated($package);
                                 $this->gpm->checkNoOtherPackageNeedsThisDependencyInALowerVersion($package->slug, $package->available, array_keys($data));
-                            } catch (\Exception $e) {
+                            } catch (Exception $e) {
                                 $this->output->writeln("<red>{$e->getMessage()}</red>");
-                                return false;
+
+                                return 1;
                             }
 
                             $helper = $this->getHelper('question');
@@ -223,7 +239,7 @@ class InstallCommand extends ConsoleCommand
             }
         }
 
-        if (\count($this->demo_processing) > 0) {
+        if (count($this->demo_processing) > 0) {
             foreach ($this->demo_processing as $package) {
                 $this->installDemoContent($package);
             }
@@ -232,15 +248,16 @@ class InstallCommand extends ConsoleCommand
         // clear cache after successful upgrade
         $this->clearCache();
 
-        return true;
+        return 0;
     }
 
     /**
      * If the package is updated from an older major release, show warning and ask confirmation
      *
      * @param Package $package
+     * @return void
      */
-    public function askConfirmationIfMajorVersionUpdated($package)
+    public function askConfirmationIfMajorVersionUpdated($package): void
     {
         $helper = $this->getHelper('question');
         $package_name = $package->name;
@@ -273,15 +290,15 @@ class InstallCommand extends ConsoleCommand
      * @param string $type         The type of dependency to show: install, update, ignore
      * @param string $message      A message to be shown prior to listing the dependencies
      * @param bool   $required     A flag that determines if the installation is required or optional
-     *
-     * @throws \Exception
+     * @return void
+     * @throws Exception
      */
-    public function installDependencies($dependencies, $type, $message, $required = true)
+    public function installDependencies($dependencies, $type, $message, $required = true): void
     {
-        $packages = array_filter($dependencies, function ($action) use ($type) {
+        $packages = array_filter($dependencies, static function ($action) use ($type) {
             return $action === $type;
         });
-        if (\count($packages) > 0) {
+        if (count($packages) > 0) {
             $this->output->writeln($message);
 
             foreach ($packages as $dependencyName => $dependencyVersion) {
@@ -298,13 +315,13 @@ class InstallCommand extends ConsoleCommand
                 $questionAction = 'Update';
             }
 
-            if (\count($packages) === 1) {
+            if (count($packages) === 1) {
                 $questionArticle = 'this';
             } else {
                 $questionArticle = 'these';
             }
 
-            if (\count($packages) === 1) {
+            if (count($packages) === 1) {
                 $questionNoun = 'package';
             } else {
                 $questionNoun = 'packages';
@@ -319,10 +336,8 @@ class InstallCommand extends ConsoleCommand
                     $this->processPackage($package, $type === 'update');
                 }
                 $this->output->writeln('');
-            } else {
-                if ($required) {
-                    throw new \Exception();
-                }
+            } elseif ($required) {
+                throw new Exception();
             }
         }
     }
@@ -330,8 +345,9 @@ class InstallCommand extends ConsoleCommand
     /**
      * @param Package|null $package
      * @param bool    $is_update      True if the package is an update
+     * @return void
      */
-    private function processPackage($package, $is_update = false)
+    private function processPackage($package, $is_update = false): void
     {
         if (!$package) {
             $this->output->writeln('<red>Package not found on the GPM!</red>');
@@ -355,8 +371,9 @@ class InstallCommand extends ConsoleCommand
      * Add package to the queue to process the demo content, if demo content exists
      *
      * @param Package $package
+     * @return void
      */
-    private function processDemo($package)
+    private function processDemo($package): void
     {
         $demo_dir = $this->destination . DS . $package->install_path . DS . '_demo';
         if (file_exists($demo_dir)) {
@@ -368,8 +385,9 @@ class InstallCommand extends ConsoleCommand
      * Prompt to install the demo content of a package
      *
      * @param Package $package
+     * @return void
      */
-    private function installDemoContent($package)
+    private function installDemoContent($package): void
     {
         $demo_dir = $this->destination . DS . $package->install_path . DS . '_demo';
 
@@ -424,8 +442,7 @@ class InstallCommand extends ConsoleCommand
 
     /**
      * @param Package $package
-     *
-     * @return array|bool
+     * @return array|false
      */
     private function getGitRegexMatches($package)
     {
@@ -442,8 +459,7 @@ class InstallCommand extends ConsoleCommand
 
     /**
      * @param Package $package
-     *
-     * @return bool|string
+     * @return string|false
      */
     private function getSymlinkSource($package)
     {
@@ -470,10 +486,10 @@ class InstallCommand extends ConsoleCommand
 
     /**
      * @param  Package    $package
+     * @return void
      */
-    private function processSymlink($package)
+    private function processSymlink($package): void
     {
-
         exec('cd ' . $this->destination);
 
         $to = $this->destination . DS . $package->install_path;
@@ -491,18 +507,16 @@ class InstallCommand extends ConsoleCommand
             if (!$checks) {
                 $this->output->writeln("  '- <red>Installation failed or aborted.</red>");
                 $this->output->writeln('');
+            } elseif (file_exists($to)) {
+                $this->output->writeln("  '- <red>Symlink cannot overwrite an existing package, please remove first</red>");
+                $this->output->writeln('');
             } else {
-                if (file_exists($to)) {
-                    $this->output->writeln("  '- <red>Symlink cannot overwrite an existing package, please remove first</red>");
-                    $this->output->writeln('');
-                } else {
-                    symlink($from, $to);
+                symlink($from, $to);
 
-                    // extra white spaces to clear out the buffer properly
-                    $this->output->writeln('  |- Symlinking package...    <green>ok</green>                             ');
-                    $this->output->writeln("  '- <green>Success!</green>  ");
-                    $this->output->writeln('');
-                }
+                // extra white spaces to clear out the buffer properly
+                $this->output->writeln('  |- Symlinking package...    <green>ok</green>                             ');
+                $this->output->writeln("  '- <green>Success!</green>  ");
+                $this->output->writeln('');
             }
 
             return;
@@ -515,12 +529,11 @@ class InstallCommand extends ConsoleCommand
     /**
      * @param Package   $package
      * @param bool      $is_update
-     *
      * @return bool
      */
     private function processGpm($package, $is_update = false)
     {
-        $version = isset($package->available) ? $package->available : $package->version;
+        $version = $package->available ?? $package->version;
         $license = Licenses::get($package->slug);
 
         $this->output->writeln("Preparing to install <cyan>{$package->name}</cyan> [v{$version}]");
@@ -561,7 +574,6 @@ class InstallCommand extends ConsoleCommand
     /**
      * @param Package $package
      * @param string|null    $license
-     *
      * @return string|null
      */
     private function downloadPackage($package, $license = null)
@@ -573,7 +585,7 @@ class InstallCommand extends ConsoleCommand
         $query = '';
 
         if (!empty($package->premium)) {
-            $query = \json_encode(array_merge(
+            $query = json_encode(array_merge(
                 $package->premium,
                 [
                     'slug' => $package->slug,
@@ -588,7 +600,7 @@ class InstallCommand extends ConsoleCommand
 
         try {
             $output = Response::get($package->zipball_url . $query, [], [$this, 'progress']);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $error = str_replace("\n", "\n  |  '- ", $e->getMessage());
             $this->output->write("\x0D");
             // extra white spaces to clear out the buffer properly
@@ -611,16 +623,15 @@ class InstallCommand extends ConsoleCommand
 
     /**
      * @param Package     $package
-     *
      * @return bool
      */
-    private function checkDestination($package)
+    private function checkDestination($package): bool
     {
         $question_helper = $this->getHelper('question');
 
         Installer::isValidDestination($this->destination . DS . $package->install_path);
 
-        if (Installer::lastErrorCode() == Installer::IS_LINK) {
+        if (Installer::lastErrorCode() === Installer::IS_LINK) {
             $this->output->write("\x0D");
             $this->output->writeln('  |- Checking destination...  <yellow>symbolic link</yellow>');
 
@@ -656,7 +667,6 @@ class InstallCommand extends ConsoleCommand
      *
      * @param Package $package
      * @param bool    $is_update True if it's an update. False if it's an install
-     *
      * @return bool
      */
     private function installPackage($package, $is_update = false)
@@ -692,8 +702,9 @@ class InstallCommand extends ConsoleCommand
 
     /**
      * @param array $progress
+     * @return void
      */
-    public function progress($progress)
+    public function progress($progress): void
     {
         $this->output->write("\x0D");
         $this->output->write('  |- Downloading package... ' . str_pad(

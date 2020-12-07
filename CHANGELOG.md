@@ -1,10 +1,13 @@
 # v1.7.0
 ## mm/dd/2020
 
+1. [](#new)
+    * Auto-Escape enabled by default. Manually enable **Twig Compatibility** and disable **Auto-Escape** to use the old setting.
+    * Updated unit tests to use codeception 4.1
 1. [](#bugfix)
     * Fixed potential error when upgrading Grav
-    * Updated unit tests to use codeception 4.1
-    * Auto-Escape enabled by default.  Manually enable **Twig Compatibility** to
+    * Fixed broken list in `bin/gpm index` [#3092](https://github.com/getgrav/grav/issues/3092)
+    * Fixed CLI/GPM command failures returning 0 (success) value [#3017](https://github.com/getgrav/grav/issues/3017)
 
 # v1.7.0-rc.19
 ## 12/02/2020

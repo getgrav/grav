@@ -15,6 +15,10 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 
+/**
+ * Class InfoCommand
+ * @package Grav\Console\Gpm
+ */
 class InfoCommand extends ConsoleCommand
 {
     /** @var array */
@@ -26,7 +30,10 @@ class InfoCommand extends ConsoleCommand
     /** @var string */
     protected $all_yes;
 
-    protected function configure()
+    /**
+     * @return void
+     */
+    protected function configure(): void
     {
         $this
             ->setName('info')
@@ -48,13 +55,13 @@ class InfoCommand extends ConsoleCommand
                 'The package of which more informations are desired. Use the "index" command for a list of packages'
             )
             ->setDescription('Shows more informations about a package')
-            ->setHelp('The <info>info</info> shows more informations about a package');
+            ->setHelp('The <info>info</info> shows more information about a package');
     }
 
     /**
-     * @return int|null|void
+     * @return int
      */
-    protected function serve()
+    protected function serve(): int
     {
         $this->gpm = new GPM($this->input->getOption('force'));
 
@@ -70,7 +77,8 @@ class InfoCommand extends ConsoleCommand
             $this->output->writeln('You can list all the available packages by typing:');
             $this->output->writeln("    <green>{$this->argv} index</green>");
             $this->output->writeln('');
-            exit;
+
+            return 1;
         }
 
         $this->output->writeln("Found package <cyan>'{$this->input->getArgument('package')}'</cyan> under the '<green>" . ucfirst($foundPackage->package_type) . "</green>' section");
@@ -147,7 +155,7 @@ class InfoCommand extends ConsoleCommand
             $this->output->writeln('');
             foreach ($changelog as $version => $log) {
                 $title = $version . ' [' . $log['date'] . ']';
-                $content = preg_replace_callback('/\d\.\s\[\]\(#(.*)\)/', function ($match) {
+                $content = preg_replace_callback('/\d\.\s\[\]\(#(.*)\)/', static function ($match) {
                     return "\n" . ucfirst($match[1]) . ':';
                 }, $log['content']);
 
@@ -176,5 +184,7 @@ class InfoCommand extends ConsoleCommand
         }
 
         $this->output->writeln('');
+
+        return 0;
     }
 }

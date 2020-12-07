@@ -9,6 +9,7 @@
 
 namespace Grav\Console\Gpm;
 
+use Exception;
 use Grav\Common\Cache;
 use Grav\Common\Grav;
 use Grav\Common\Filesystem\Folder;
@@ -16,11 +17,18 @@ use Grav\Common\GPM\GPM;
 use Grav\Common\GPM\Installer;
 use Grav\Common\GPM\Response;
 use Grav\Console\ConsoleCommand;
+use RuntimeException;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use function is_array;
+use function is_callable;
 
+/**
+ * Class DirectInstallCommand
+ * @package Grav\Console\Gpm
+ */
 class DirectInstallCommand extends ConsoleCommand
 {
     /** @var string */
@@ -29,7 +37,10 @@ class DirectInstallCommand extends ConsoleCommand
     /** @var string */
     protected $destination;
 
-    protected function configure()
+    /**
+     * @return void
+     */
+    protected function configure(): void
     {
         $this
             ->setName('direct-install')
@@ -57,15 +68,16 @@ class DirectInstallCommand extends ConsoleCommand
     }
 
     /**
-     * @return bool
+     * @return int
      */
-    protected function serve()
+    protected function serve(): int
     {
         if (!class_exists(\ZipArchive::class)) {
             $io = new SymfonyStyle($this->input, $this->output);
             $io->title('Direct Install');
             $io->error('php-zip extension needs to be enabled!');
-            exit;
+
+            return 1;
         }
 
         // Making sure the destination is usable
@@ -75,9 +87,9 @@ class DirectInstallCommand extends ConsoleCommand
             !Installer::isValidDestination($this->destination, [Installer::EXISTS, Installer::IS_LINK])
         ) {
             $this->output->writeln('<red>ERROR</red>: ' . Installer::lastErrorMsg());
-            exit;
-        }
 
+            return 1;
+        }
 
         $this->all_yes = $this->input->getOption('all-yes');
 
@@ -91,7 +103,8 @@ class DirectInstallCommand extends ConsoleCommand
         if (!$answer) {
             $this->output->writeln('exiting...');
             $this->output->writeln('');
-            exit;
+
+            return 1;
         }
 
         $tmp_dir = Grav::instance()['locator']->findResource('tmp://', true, true);
@@ -105,11 +118,12 @@ class DirectInstallCommand extends ConsoleCommand
             $this->output->write('  |- Downloading package...     0%');
             try {
                 $zip = GPM::downloadPackage($package_file, $tmp_zip);
-            } catch (\RuntimeException $e) {
+            } catch (RuntimeException $e) {
                 $this->output->writeln('');
                 $this->output->writeln("  `- <red>ERROR: {$e->getMessage()}</red>");
                 $this->output->writeln('');
-                exit;
+
+                return 1;
             }
 
             if ($zip) {
@@ -138,7 +152,8 @@ class DirectInstallCommand extends ConsoleCommand
                 $this->output->writeln('  |- Extracting package...    <red>failed</red>');
                 Folder::delete($tmp_source);
                 Folder::delete($tmp_zip);
-                exit;
+
+                return 1;
             }
 
             $this->output->write("\x0D");
@@ -152,7 +167,8 @@ class DirectInstallCommand extends ConsoleCommand
                 $this->output->writeln('');
                 Folder::delete($tmp_source);
                 Folder::delete($tmp_zip);
-                exit;
+
+                return 1;
             }
 
             $blueprint = GPM::getBlueprints($extracted);
@@ -181,7 +197,8 @@ class DirectInstallCommand extends ConsoleCommand
                         $this->output->writeln('');
                         Folder::delete($tmp_source);
                         Folder::delete($tmp_zip);
-                        exit;
+
+                        return 1;
                     }
                 }
             }
@@ -196,7 +213,8 @@ class DirectInstallCommand extends ConsoleCommand
                     $this->output->writeln('');
                     Folder::delete($tmp_source);
                     Folder::delete($tmp_zip);
-                    exit;
+
+                    return 1;
                 }
 
                 $this->output->write("\x0D");
@@ -204,7 +222,7 @@ class DirectInstallCommand extends ConsoleCommand
 
                 $this->output->write('  |- Installing package...  ');
 
-                static::upgradeGrav($zip, $extracted);
+                $this->upgradeGrav($zip, $extracted);
             } else {
                 $name = GPM::getPackageName($extracted);
 
@@ -213,7 +231,8 @@ class DirectInstallCommand extends ConsoleCommand
                     $this->output->writeln('');
                     Folder::delete($tmp_source);
                     Folder::delete($tmp_zip);
-                    exit;
+
+                    return 1;
                 }
 
                 $install_path = GPM::getInstallPath($type, $name);
@@ -222,14 +241,15 @@ class DirectInstallCommand extends ConsoleCommand
                 $this->output->write('  |- Checking destination...  ');
 
                 Installer::isValidDestination(GRAV_ROOT . DS . $install_path);
-                if (Installer::lastErrorCode() == Installer::IS_LINK) {
+                if (Installer::lastErrorCode() === Installer::IS_LINK) {
                     $this->output->write("\x0D");
                     $this->output->writeln('  |- Checking destination...  <yellow>symbolic link</yellow>');
                     $this->output->writeln("  '- <red>ERROR: symlink found...</red>  <yellow>" . GRAV_ROOT . DS . $install_path . '</yellow>');
                     $this->output->writeln('');
                     Folder::delete($tmp_source);
                     Folder::delete($tmp_zip);
-                    exit;
+
+                    return 1;
                 }
 
                 $this->output->write("\x0D");
@@ -263,6 +283,9 @@ class DirectInstallCommand extends ConsoleCommand
             }
         } else {
             $this->output->writeln("  '- <red>ERROR: ZIP package could not be found</red>");
+            Folder::delete($tmp_zip);
+
+            return 1;
         }
 
         Folder::delete($tmp_zip);
@@ -270,9 +293,14 @@ class DirectInstallCommand extends ConsoleCommand
         // clear cache after successful upgrade
         $this->clearCache();
 
-        return true;
+        return 0;
     }
 
+    /**
+     * @param string $zip
+     * @param string $folder
+     * @param false $keepFolder
+     */
     private function upgradeGrav($zip, $folder, $keepFolder = false)
     {
         static $ignores = [
@@ -306,7 +334,7 @@ class DirectInstallCommand extends ConsoleCommand
 
                 Cache::clearCache();
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Installer::setError($e->getMessage());
         }
     }

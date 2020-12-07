@@ -14,6 +14,10 @@ use RocketTheme\Toolbox\File\YamlFile;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 
+/**
+ * Class InstallCommand
+ * @package Grav\Console\Cli
+ */
 class InstallCommand extends ConsoleCommand
 {
     /** @var array */
@@ -28,7 +32,10 @@ class InstallCommand extends ConsoleCommand
     /** @var string */
     protected $user_path;
 
-    protected function configure()
+    /**
+     * @return void
+     */
+    protected function configure(): void
     {
         $this
             ->setName('install')
@@ -47,7 +54,10 @@ class InstallCommand extends ConsoleCommand
             ->setHelp('The <info>install</info> command installs the dependencies needed by Grav. Optionally can create symbolic links');
     }
 
-    protected function serve()
+    /**
+     * @return int
+     */
+    protected function serve(): int
     {
         $dependencies_file = '.dependencies';
         $this->destination = $this->input->getArgument('destination') ?: ROOT_DIR;
@@ -72,38 +82,46 @@ class InstallCommand extends ConsoleCommand
                 $this->output->writeln('<yellow>HINT</yellow> <info>Are you trying to install Grav? Grav is already installed. You need to run this command only if you download a skeleton from GitHub directly.');
             }
 
-            return;
+            return 1;
         }
 
         $this->config = $file->content();
         $file->free();
 
-        // If yaml config, process
-        if ($this->config) {
-            if (!$this->input->getOption('symlink')) {
-                // Updates composer first
-                $this->output->writeln("\nInstalling vendor dependencies");
-                $this->output->writeln($this->composerUpdate(GRAV_ROOT, 'install'));
-
-                $this->gitclone();
-            } else {
-                $this->symlink();
-            }
-        } else {
+        // If no config, fail.
+        if (!$this->config) {
             $this->output->writeln('<red>ERROR</red> invalid YAML in ' . $dependencies_file);
+
+            return 1;
         }
+
+        $error = 0;
+        if (!$this->input->getOption('symlink')) {
+            // Updates composer first
+            $this->output->writeln("\nInstalling vendor dependencies");
+            $this->output->writeln($this->composerUpdate(GRAV_ROOT, 'install'));
+
+            $error = $this->gitclone();
+        } else {
+            $error = $this->symlink();
+        }
+
+        return $error;
     }
 
     /**
      * Clones from Git
+     *
+     * @return int
      */
-    private function gitclone()
+    private function gitclone(): int
     {
         $this->output->writeln('');
         $this->output->writeln('<green>Cloning Bits</green>');
         $this->output->writeln('============');
         $this->output->writeln('');
 
+        $error = 0;
         foreach ($this->config['git'] as $repo => $data) {
             $this->destination = rtrim($this->destination, DS);
             $path = $this->destination . DS . $data['path'];
@@ -114,6 +132,7 @@ class InstallCommand extends ConsoleCommand
                     $this->output->writeln('<green>SUCCESS</green> cloned <magenta>' . $data['url'] . '</magenta> -> <cyan>' . $path . '</cyan>');
                 } else {
                     $this->output->writeln('<red>ERROR</red> cloning <magenta>' . $data['url']);
+                    $error = 1;
                 }
 
                 $this->output->writeln('');
@@ -122,12 +141,16 @@ class InstallCommand extends ConsoleCommand
                 $this->output->writeln('');
             }
         }
+
+        return $error;
     }
 
     /**
      * Symlinks
+     *
+     * @return int
      */
-    private function symlink()
+    private function symlink(): int
     {
         $this->output->writeln('');
         $this->output->writeln('<green>Symlinking Bits</green>');
@@ -137,9 +160,11 @@ class InstallCommand extends ConsoleCommand
         if (!$this->local_config) {
             $this->output->writeln('<red>No local configuration available, aborting...</red>');
             $this->output->writeln('');
-            return;
+
+            return 1;
         }
 
+        $error = 0;
         exec('cd ' . $this->destination);
         foreach ($this->config['links'] as $repo => $data) {
             $repos = (array) $this->local_config[$data['scm'] . '_repos'];
@@ -157,16 +182,17 @@ class InstallCommand extends ConsoleCommand
             if (!$from) {
                 $this->output->writeln('<red>source for ' . $data['src'] . ' does not exists, skipping...</red>');
                 $this->output->writeln('');
+                $error = 1;
+            } elseif (!file_exists($to)) {
+                symlink($from, $to);
+                $this->output->writeln('<green>SUCCESS</green> symlinked <magenta>' . $data['src'] . '</magenta> -> <cyan>' . $data['path'] . '</cyan>');
+                $this->output->writeln('');
             } else {
-                if (!file_exists($to)) {
-                    symlink($from, $to);
-                    $this->output->writeln('<green>SUCCESS</green> symlinked <magenta>' . $data['src'] . '</magenta> -> <cyan>' . $data['path'] . '</cyan>');
-                    $this->output->writeln('');
-                } else {
-                    $this->output->writeln('<red>destination: ' . $to . ' already exists, skipping...</red>');
-                    $this->output->writeln('');
-                }
+                $this->output->writeln('<red>destination: ' . $to . ' already exists, skipping...</red>');
+                $this->output->writeln('');
             }
         }
+
+        return $error;
     }
 }

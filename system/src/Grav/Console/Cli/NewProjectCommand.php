@@ -14,9 +14,16 @@ use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 
+/**
+ * Class NewProjectCommand
+ * @package Grav\Console\Cli
+ */
 class NewProjectCommand extends ConsoleCommand
 {
-    protected function configure()
+    /**
+     * @return void
+     */
+    protected function configure(): void
     {
         $this
             ->setName('new-project')
@@ -36,7 +43,10 @@ class NewProjectCommand extends ConsoleCommand
             ->setHelp("The <info>new-project</info> command is a combination of the `setup` and `install` commands.\nCreates a new Grav instance and performs the installation of all the required dependencies.");
     }
 
-    protected function serve()
+    /**
+     * @return int
+     */
+    protected function serve(): int
     {
         $sandboxCommand = $this->getApplication()->find('sandbox');
         $installCommand = $this->getApplication()->find('install');
@@ -53,7 +63,11 @@ class NewProjectCommand extends ConsoleCommand
             '-s'          => $this->input->getOption('symlink')
         ]);
 
-        $sandboxCommand->run($sandboxArguments, $this->output);
-        $installCommand->run($installArguments, $this->output);
+        $error = $sandboxCommand->run($sandboxArguments, $this->output);
+        if ($error === 0) {
+            $error = $installCommand->run($installArguments, $this->output);
+        }
+
+        return $error;
     }
 }

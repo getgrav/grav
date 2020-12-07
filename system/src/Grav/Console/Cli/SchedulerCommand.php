@@ -18,10 +18,18 @@ use RocketTheme\Toolbox\Event\Event;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use function is_null;
 
+/**
+ * Class SchedulerCommand
+ * @package Grav\Console\Cli
+ */
 class SchedulerCommand extends ConsoleCommand
 {
-    protected function configure()
+    /**
+     * @return void
+     */
+    protected function configure(): void
     {
         $this
             ->setName('scheduler')
@@ -53,11 +61,13 @@ class SchedulerCommand extends ConsoleCommand
             ->setHelp("Running without any options will force the Scheduler to run through it's jobs and process them");
     }
 
-    protected function serve()
+    /**
+     * @return int
+     */
+    protected function serve(): int
     {
         $this->initializePlugins();
 
-//        error_reporting(1);
         $grav = Grav::instance();
         $grav['backups']->init();
 
@@ -68,6 +78,7 @@ class SchedulerCommand extends ConsoleCommand
         $this->setHelp('foo');
 
         $io = new SymfonyStyle($this->input, $this->output);
+        $error = 0;
 
         if ($this->input->getOption('jobs')) {
             // Show jobs list
@@ -159,6 +170,7 @@ class SchedulerCommand extends ConsoleCommand
                 if ($job->isSuccessful()) {
                     $io->success('Job ran successfully...');
                 } else {
+                    $error = 1;
                     $io->error('Job failed to run successfully...');
                 }
 
@@ -168,6 +180,7 @@ class SchedulerCommand extends ConsoleCommand
                     $this->output->write($output);
                 }
             } else {
+                $error = 1;
                 $io->error('Could not find a job with id: ' . $jobid);
             }
         } elseif ($this->input->getOption('install')) {
@@ -180,6 +193,7 @@ class SchedulerCommand extends ConsoleCommand
                 $verb = 'reinstall';
             } else {
                 $user = $scheduler->whoami();
+                $error = 1;
                 $io->error('Can\'t find a crontab for ' . $user . '. You need to set up Grav\'s Scheduler in your crontab');
             }
             if (!Utils::isWindows()) {
@@ -199,5 +213,7 @@ class SchedulerCommand extends ConsoleCommand
                 $io->text($scheduler->getVerboseOutput());
             }
         }
+
+        return $error;
     }
 }

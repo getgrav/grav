@@ -9,10 +9,10 @@
 
 namespace Grav\Console;
 
+use Exception;
 use Grav\Common\Cache;
 use Grav\Common\Grav;
 use Grav\Common\Composer;
-use Grav\Common\GravTrait;
 use Grav\Console\Cli\ClearCacheCommand;
 use RocketTheme\Toolbox\File\YamlFile;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
@@ -20,6 +20,10 @@ use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * Trait ConsoleTrait
+ * @package Grav\Console
+ */
 trait ConsoleTrait
 {
     /** @var string */
@@ -39,6 +43,7 @@ trait ConsoleTrait
      *
      * @param InputInterface  $input
      * @param OutputInterface $output
+     * @return void
      */
     public function setupConsole(InputInterface $input, OutputInterface $output)
     {
@@ -61,6 +66,7 @@ trait ConsoleTrait
 
     /**
      * @param string $path
+     * @return void
      */
     public function isGravInstance($path)
     {
@@ -89,6 +95,11 @@ trait ConsoleTrait
         }
     }
 
+    /**
+     * @param string $path
+     * @param string $action
+     * @return string|false
+     */
     public function composerUpdate($path, $action = 'install')
     {
         $composer = Composer::getComposerExecutor();
@@ -100,7 +111,7 @@ trait ConsoleTrait
      * @param array $all
      *
      * @return int
-     * @throws \Exception
+     * @throws Exception
      */
     public function clearCache($all = [])
     {
@@ -113,6 +124,9 @@ trait ConsoleTrait
         return $command->run($input, $this->output);
     }
 
+    /**
+     * @return void
+     */
     public function invalidateCache()
     {
         Cache::invalidateCache();
@@ -121,7 +135,7 @@ trait ConsoleTrait
     /**
      * Load the local config file
      *
-     * @return mixed string the local config file name. false if local config does not exist
+     * @return string|false The local config file name. false if local config does not exist
      */
     public function loadLocalConfig()
     {

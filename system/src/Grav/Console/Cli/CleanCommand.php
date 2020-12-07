@@ -15,6 +15,10 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 
+/**
+ * Class CleanCommand
+ * @package Grav\Console\Cli
+ */
 class CleanCommand extends Command
 {
     /* @var InputInterface $output */
@@ -260,7 +264,10 @@ class CleanCommand extends Command
         'cache/compiled/',
     ];
 
-    protected function configure()
+    /**
+     * @return void
+     */
+    protected function configure(): void
     {
         $this
             ->setName('clean')
@@ -271,15 +278,21 @@ class CleanCommand extends Command
     /**
      * @param InputInterface  $input
      * @param OutputInterface $output
+     * @return int
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->setupConsole($input, $output);
 
         $this->cleanPaths();
+
+        return 0;
     }
 
-    private function cleanPaths()
+    /**
+     * @return void
+     */
+    private function cleanPaths(): void
     {
         $this->output->writeln('');
         $this->output->writeln('<red>DELETING</red>');
@@ -305,8 +318,9 @@ class CleanCommand extends Command
      *
      * @param InputInterface  $input
      * @param OutputInterface $output
+     * @return void
      */
-    public function setupConsole(InputInterface $input, OutputInterface $output)
+    public function setupConsole(InputInterface $input, OutputInterface $output): void
     {
         $this->input = $input;
         $this->output = $output;

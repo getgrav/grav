@@ -11,13 +11,16 @@ namespace Grav\Console;
 
 use Grav\Common\Grav;
 use Grav\Common\Language\Language;
-use Grav\Common\Page\Page;
 use Grav\Common\Processors\InitializeProcessor;
 use RocketTheme\Toolbox\Event\Event;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * Class ConsoleCommand
+ * @package Grav\Console
+ */
 class ConsoleCommand extends Command
 {
     use ConsoleTrait;
@@ -38,14 +41,19 @@ class ConsoleCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->setupConsole($input, $output);
-        $this->serve();
+
+        return $this->serve();
     }
 
     /**
      * Override with your implementation.
+     *
+     * @return int
      */
     protected function serve()
     {
+        // Return error.
+        return 1;
     }
 
     /**
@@ -73,6 +81,7 @@ class ConsoleCommand extends Command
      * Set language to be used in CLI.
      *
      * @param string|null $code
+     * @return $this
      */
     final protected function setLanguage(string $code = null)
     {
@@ -88,6 +97,8 @@ class ConsoleCommand extends Command
                 $language->setActive($language->getDefault());
             }
         }
+
+        return $this;
     }
 
     /**
@@ -178,6 +189,9 @@ class ConsoleCommand extends Command
         return $this;
     }
 
+    /**
+     * @return void
+     */
     protected function displayGPMRelease()
     {
         $this->output->writeln('');

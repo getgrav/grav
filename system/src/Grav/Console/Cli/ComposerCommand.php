@@ -12,9 +12,16 @@ namespace Grav\Console\Cli;
 use Grav\Console\ConsoleCommand;
 use Symfony\Component\Console\Input\InputOption;
 
+/**
+ * Class ComposerCommand
+ * @package Grav\Console\Cli
+ */
 class ComposerCommand extends ConsoleCommand
 {
-    protected function configure()
+    /**
+     * @return void
+     */
+    protected function configure(): void
     {
         $this
             ->setName('composer')
@@ -34,7 +41,10 @@ class ComposerCommand extends ConsoleCommand
             ->setHelp('The <info>composer</info> command updates the composer vendor dependencies needed by Grav');
     }
 
-    protected function serve()
+    /**
+     * @return int
+     */
+    protected function serve(): int
     {
         $action = $this->input->getOption('install') ? 'install' : ($this->input->getOption('update') ? 'update' : 'install');
 
@@ -45,5 +55,7 @@ class ComposerCommand extends ConsoleCommand
         // Updates composer first
         $this->output->writeln("\nInstalling vendor dependencies");
         $this->output->writeln($this->composerUpdate(GRAV_ROOT, $action));
+
+        return 0;
     }
 }

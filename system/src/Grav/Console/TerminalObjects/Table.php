@@ -9,8 +9,15 @@
 
 namespace Grav\Console\TerminalObjects;
 
+/**
+ * Class Table
+ * @package Grav\Console\TerminalObjects
+ */
 class Table extends \League\CLImate\TerminalObject\Basic\Table
 {
+    /**
+     * @return array
+     */
     public function result()
     {
         $this->column_widths = $this->getColumnWidths();

@@ -14,9 +14,15 @@ use Grav\Common\GPM\GPM;
 use Grav\Common\GPM\Remote\Packages;
 use Grav\Common\Utils;
 use Grav\Console\ConsoleCommand;
-use League\CLImate\CLImate;
+use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Style\SymfonyStyle;
+use function count;
 
+/**
+ * Class IndexCommand
+ * @package Grav\Console\Gpm
+ */
 class IndexCommand extends ConsoleCommand
 {
     /** @var Packages */
@@ -28,7 +34,10 @@ class IndexCommand extends ConsoleCommand
     /** @var array */
     protected $options;
 
-    protected function configure()
+    /**
+     * @return void
+     */
+    protected function configure(): void
     {
         $this
             ->setName('index')
@@ -86,7 +95,10 @@ class IndexCommand extends ConsoleCommand
         ;
     }
 
-    protected function serve()
+    /**
+     * @return int
+     */
+    protected function serve(): int
     {
         $this->options = $this->input->getOptions();
         $this->gpm = new GPM($this->options['force']);
@@ -95,28 +107,30 @@ class IndexCommand extends ConsoleCommand
 
         $data = $this->filter($this->data);
 
-        $climate = new CLImate;
-        $climate->extend('Grav\Console\TerminalObjects\Table');
+        $io = new SymfonyStyle($this->input, $this->output);
 
-        if (!$data) {
-            $this->output->writeln('No data was found in the GPM repository stored locally.');
-            $this->output->writeln('Please try clearing cache and running the <green>bin/gpm index -f</green> command again');
-            $this->output->writeln('If this doesn\'t work try tweaking your GPM system settings.');
-            $this->output->writeln('');
-            $this->output->writeln('For more help go to:');
-            $this->output->writeln(' -> <yellow>https://learn.getgrav.org/troubleshooting/common-problems#cannot-connect-to-the-gpm</yellow>');
+        if (count($data) === 0) {
+            $io->writeln('No data was found in the GPM repository stored locally.');
+            $io->writeln('Please try clearing cache and running the <green>bin/gpm index -f</green> command again');
+            $io->writeln('If this doesn\'t work try tweaking your GPM system settings.');
+            $io->writeln('');
+            $io->writeln('For more help go to:');
+            $io->writeln(' -> <yellow>https://learn.getgrav.org/troubleshooting/common-problems#cannot-connect-to-the-gpm</yellow>');
 
-            die;
+            return 1;
         }
 
         foreach ($data as $type => $packages) {
-            $this->output->writeln('<green>' . strtoupper($type) . '</green> [ ' . \count($packages) . ' ]');
+            $io->writeln('<green>' . strtoupper($type) . '</green> [ ' . count($packages) . ' ]');
+
             $packages = $this->sort($packages);
 
             if (!empty($packages)) {
-                $table = [];
-                $index    = 0;
+                $section = $this->output->section('Packages table');
+                $table = new Table($section);
+                $table->setHeaders(['Count', 'Name', 'Slug', 'Version', 'Installed']);
 
+                $index = 0;
                 foreach ($packages as $slug => $package) {
                     $row = [
                         'Count' => $index++ + 1,
@@ -125,21 +139,24 @@ class IndexCommand extends ConsoleCommand
                         'Version'=> $this->version($package),
                         'Installed' => $this->installed($package)
                     ];
-                    $table[] = $row;
+
+                    $table->addRow($row);
                 }
 
-                $climate->table($table);
+                $table->render();
             }
 
-            $this->output->writeln('');
+            $io->writeln('');
         }
 
-        $this->output->writeln('You can either get more informations about a package by typing:');
-        $this->output->writeln("    <green>{$this->argv} info <cyan><package></cyan></green>");
-        $this->output->writeln('');
-        $this->output->writeln('Or you can install a package by typing:');
-        $this->output->writeln("    <green>{$this->argv} install <cyan><package></cyan></green>");
-        $this->output->writeln('');
+        $io->writeln('You can either get more informations about a package by typing:');
+        $io->writeln("    <green>{$this->argv} info <cyan><package></cyan></green>");
+        $io->writeln('');
+        $io->writeln('Or you can install a package by typing:');
+        $io->writeln("    <green>{$this->argv} install <cyan><package></cyan></green>");
+        $io->writeln('');
+
+        return 0;
     }
 
     /**
@@ -205,7 +222,7 @@ class IndexCommand extends ConsoleCommand
             $this->options['desc']
         ];
 
-        if (\count(array_filter($filter))) {
+        if (count(array_filter($filter))) {
             foreach ($data as $type => $packages) {
                 foreach ($packages as $slug => $package) {
                     $filter = true;
