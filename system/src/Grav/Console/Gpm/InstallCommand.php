@@ -49,9 +49,6 @@ class InstallCommand extends ConsoleCommand
     /** @var string */
     protected $tmp;
 
-    /** @var array */
-    protected $local_config;
-
     /** @var bool */
     protected $use_symlinks;
 

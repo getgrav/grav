@@ -23,9 +23,6 @@ class InstallCommand extends ConsoleCommand
     /** @var array */
     protected $config;
 
-    /** @var array */
-    protected $local_config;
-
     /** @var string */
     protected $destination;
 

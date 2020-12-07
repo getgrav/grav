@@ -146,6 +146,7 @@ trait ConsoleTrait
             $file = YamlFile::instance($local_config_file);
             $this->local_config = $file->content();
             $file->free();
+
             return $local_config_file;
         }
 
