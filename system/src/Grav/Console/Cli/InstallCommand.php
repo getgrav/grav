@@ -119,8 +119,8 @@ class InstallCommand extends ConsoleCommand
         $this->output->writeln('');
 
         $error = 0;
+        $this->destination = rtrim($this->destination, DS);
         foreach ($this->config['git'] as $repo => $data) {
-            $this->destination = rtrim($this->destination, DS);
             $path = $this->destination . DS . $data['path'];
             if (!file_exists($path)) {
                 exec('cd "' . $this->destination . '" && git clone -b ' . $data['branch'] . ' --depth 1 ' . $data['url'] . ' ' . $data['path'], $output, $return);
@@ -134,7 +134,7 @@ class InstallCommand extends ConsoleCommand
 
                 $this->output->writeln('');
             } else {
-                $this->output->writeln('<red>' . $path . ' already exists, skipping...</red>');
+                $this->output->writeln('<yellow>' . $path . ' already exists, skipping...</yellow>');
                 $this->output->writeln('');
             }
         }
@@ -162,30 +162,45 @@ class InstallCommand extends ConsoleCommand
         }
 
         $error = 0;
-        exec('cd ' . $this->destination);
-        foreach ($this->config['links'] as $repo => $data) {
-            $repos = (array) $this->local_config[$data['scm'] . '_repos'];
-            $from = false;
-            $to = $this->destination . $data['path'];
+        $this->destination = rtrim($this->destination, DS);
+        foreach ($this->config['links'] as $name => $data) {
+            $scm = $data['scm'] ?? null;
+            $src = $data['src'] ?? null;
+            $path = $data['path'] ?? null;
+            if (!isset($scm, $src, $path)) {
+                $this->output->writeln("<red>Dependency '$name' has broken configuration, skipping...</red>");
+                $this->output->writeln('');
+                $error = 1;
 
-            foreach ($repos as $repo) {
-                $path = $repo . $data['src'];
-                if (file_exists($path)) {
-                    $from = $path;
+                continue;
+            }
+
+            $locations = (array) $this->local_config["{$scm}_repos"];
+            $to = $this->destination . DS . $path;
+
+            $from = null;
+            foreach ($locations as $location) {
+                $test = rtrim($location, '\\/') . DS . $src;
+                if (file_exists($test)) {
+                    $from = $test;
                     continue;
                 }
             }
 
-            if (!$from) {
-                $this->output->writeln('<red>source for ' . $data['src'] . ' does not exists, skipping...</red>');
+            if (is_link($to) && !is_file("{$to}/{$name}.yaml")) {
+                $this->output->writeln('<yellow>Removed broken symlink '. $path .'</yellow>');
+                unlink($to);
+            }
+            if (null === $from) {
+                $this->output->writeln('<red>source for ' . $src . ' does not exists, skipping...</red>');
                 $this->output->writeln('');
                 $error = 1;
             } elseif (!file_exists($to)) {
                 symlink($from, $to);
-                $this->output->writeln('<green>SUCCESS</green> symlinked <magenta>' . $data['src'] . '</magenta> -> <cyan>' . $data['path'] . '</cyan>');
+                $this->output->writeln('<green>SUCCESS</green> symlinked <magenta>' . $src . '</magenta> -> <cyan>' . $path . '</cyan>');
                 $this->output->writeln('');
             } else {
-                $this->output->writeln('<red>destination: ' . $to . ' already exists, skipping...</red>');
+                $this->output->writeln('<yellow>destination: ' . $path . ' already exists, skipping...</yellow>');
                 $this->output->writeln('');
             }
         }
