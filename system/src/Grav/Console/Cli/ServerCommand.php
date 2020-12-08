@@ -117,7 +117,8 @@ class ServerCommand extends ConsoleCommand
      */
     protected function runProcess($name, $cmd)
     {
-        $process = new Process([$cmd]);
+        // TODO: Fix when Symfony fixes the bug in the argument handling.
+        $process = new Process($cmd);
         $process->setTimeout(0);
         $process->start();
 
