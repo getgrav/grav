@@ -182,7 +182,10 @@ class Setup extends Data
         // Pre-load setup.php which contains our initial configuration.
         // Configuration may contain dynamic parts, which is why we need to always load it.
         // If "GRAV_SETUP_PATH" has been defined, use it, otherwise use defaults.
-        $file = defined('GRAV_SETUP_PATH') ? GRAV_SETUP_PATH :  GRAV_ROOT . '/setup.php';
+        $file = getenv('GRAV_SETUP_PATH') ?: (defined('GRAV_SETUP_PATH') ? GRAV_SETUP_PATH : 'setup.php');
+        if (!str_starts_with($file, '/')) {
+            $file = GRAV_ROOT . '/' . $file;
+        }
         $setup = is_file($file) ? (array) include $file : [];
 
         // Add default streams defined in beginning of the class.

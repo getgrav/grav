@@ -6,6 +6,7 @@
     * Updated unit tests to use codeception 4.1
 1. [](#improved)
     * Improved `bin/grav install` command
+    * Added support for setting `GRAV_SETUP_PATH` by using environment variable
 1. [](#bugfix)
     * Fixed potential error when upgrading Grav
     * Fixed broken list in `bin/gpm index` [#3092](https://github.com/getgrav/grav/issues/3092)
