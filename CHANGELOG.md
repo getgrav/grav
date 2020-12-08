@@ -4,9 +4,10 @@
 1. [](#new)
     * Auto-Escape enabled by default. Manually enable **Twig Compatibility** and disable **Auto-Escape** to use the old setting.
     * Updated unit tests to use codeception 4.1
+    * Added support for setting `GRAV_ENVIRONMENT` by using environment variable or a constant
+    * Added support for setting `GRAV_SETUP_PATH` by using environment variable (constant already worked)
 1. [](#improved)
     * Improved `bin/grav install` command
-    * Added support for setting `GRAV_SETUP_PATH` by using environment variable
 1. [](#bugfix)
     * Fixed potential error when upgrading Grav
     * Fixed broken list in `bin/gpm index` [#3092](https://github.com/getgrav/grav/issues/3092)

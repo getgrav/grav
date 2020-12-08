@@ -163,6 +163,10 @@ class Setup extends Data
      */
     public function __construct($container)
     {
+        // If environment is not set, look for the environment variable and then the constant.
+        static::$environment = static::$environment ??
+            (getenv('GRAV_ENVIRONMENT') ?: (defined('GRAV_ENVIRONMENT') ? GRAV_ENVIRONMENT : null));
+
         // If no environment is set, make sure we get one (CLI or hostname).
         if (!static::$environment) {
             if (defined('GRAV_CLI')) {
@@ -182,7 +186,8 @@ class Setup extends Data
         // Pre-load setup.php which contains our initial configuration.
         // Configuration may contain dynamic parts, which is why we need to always load it.
         // If "GRAV_SETUP_PATH" has been defined, use it, otherwise use defaults.
-        $file = getenv('GRAV_SETUP_PATH') ?: (defined('GRAV_SETUP_PATH') ? GRAV_SETUP_PATH : 'setup.php');
+        $file = getenv('GRAV_SETUP_PATH')
+            ?: (defined('GRAV_SETUP_PATH') ? GRAV_SETUP_PATH : 'setup.php');
         if (!str_starts_with($file, '/')) {
             $file = GRAV_ROOT . '/' . $file;
         }
