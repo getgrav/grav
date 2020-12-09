@@ -1082,12 +1082,13 @@ trait PageLegacyTrait
     /**
      * Gets the Page Unmodified (original) version of the page.
      *
+     * Assumes that object has been cloned before modifying it.
+     *
      * @return PageInterface The original version of the page.
      */
     public function getOriginal()
     {
-        // TODO:
-        throw new RuntimeException(__METHOD__ . '(): Not Implemented');
+        return $this->getFlexDirectory()->getObject($this->getKey());
     }
 
     /**
