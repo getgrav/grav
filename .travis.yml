@@ -6,8 +6,6 @@ php:
   - '7.4'
 branches:
   only:
-    - develop
-    - master
     - build_test
 notifications:
   email:
@@ -46,8 +44,9 @@ before_install:
   - if [ $TRAVIS_BRANCH == 'develop' ] || [ $TRAVIS_PULL_REQUEST != 'false' ]; then
         composer install --dev --prefer-dist;
     fi
-  - if [ $TRAVIS_BRANCH != 'develop' ] && [ $TRAVIS_PHP_VERSION == "7.1" ] && [ $TRAVIS_PULL_REQUEST == "false" ]; then
-        export TRAVIS_TAG=$(curl --fail --user "${GH_API_USER}" -s https://api.github.com/repos/getgrav/grav/releases/latest | grep tag_name | head -n 1 | cut -d '"' -f 4);
+  - |
+    if [ $TRAVIS_BRANCH != 'develop' ] && [ $TRAVIS_PHP_VERSION == "7.1" ] && [ $TRAVIS_PULL_REQUEST == "false" ]; then
+        export TRAVIS_TAG=$(curl -H "Authorization: token ${GH_TOKEN}" --fail -s https://api.github.com/repos/getgrav/grav/releases/latest | grep tag_name | head -n 1 | cut -d '"' -f 4);
         eval "$(curl -sL https://raw.githubusercontent.com/travis-ci/gimme/master/gimme | GIMME_GO_VERSION=1.13 bash)";
         go get github.com/github-release/github-release;
         git clone --quiet --depth=50 --branch=master https://${BB_TOKEN}bitbucket.org/rockettheme/grav-devtools.git $RT_DEVTOOLS  &>/dev/null;

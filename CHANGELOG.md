@@ -539,6 +539,19 @@
     * Optimization: Initialize debugbar only after the configuration has been loaded
     * Optimization: Combine some early Grav processors into a single one
 
+# v1.6.31
+## mm/dd/2020
+
+1. [](#bugfix)
+    * Fixed `pages` field escaping issues, needs admin update, too [admin#1990](https://github.com/getgrav/grav-plugin-admin/issues/1990)
+
+# v1.6.30
+## 12/03/2020
+
+1. [](#bugfix)
+    * Rollback `samesite` cookie logic as it causes issues with PHP < 7.3 [#309](https://github.com/getgrav/grav/issues/3089)
+    * Fixed issue with `.travis.yml` due to GitHub API deprecated functionality
+
 # v1.6.29
 ## 12/02/2020
 

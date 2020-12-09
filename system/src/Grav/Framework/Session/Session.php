@@ -140,7 +140,6 @@ class Session implements SessionInterface
             'use_strict_mode' => true,
             'use_cookies' => true,
             'use_only_cookies' => true,
-            'cookie_samesite' => true,
             'referer_check' => true,
             'cache_limiter' => true,
             'cache_expire' => true,
@@ -244,19 +243,14 @@ class Session implements SessionInterface
         if ($sessionExists) {
             $params = session_get_cookie_params();
 
-            $cookie_options = array (
-                'expires'  => time() + $params['lifetime'],
-                'path'     => $params['path'],
-                'domain'   => $params['domain'],
-                'secure'   => $params['secure'],
-                'httponly' => $params['httponly'],
-                'samesite' => $params['samesite']
-            );
-
             setcookie(
                 $sessionName,
                 session_id(),
-                $cookie_options
+                time() + $params['lifetime'],
+                $params['path'],
+                $params['domain'],
+                $params['secure'],
+                $params['httponly']
             );
         }
 
@@ -315,20 +309,14 @@ class Session implements SessionInterface
     public function invalidate()
     {
         $params = session_get_cookie_params();
-
-        $cookie_options = array (
-            'expires'  => time() - 42000,
-            'path'     => $params['path'],
-            'domain'   => $params['domain'],
-            'secure'   => $params['secure'],
-            'httponly' => $params['httponly'],
-            'samesite' => $params['samesite']
-        );
-
         setcookie(
             session_name(),
             '',
-            $cookie_options
+            time() - 42000,
+            $params['path'],
+            $params['domain'],
+            $params['secure'],
+            $params['httponly']
         );
 
         if ($this->isSessionStarted()) {
