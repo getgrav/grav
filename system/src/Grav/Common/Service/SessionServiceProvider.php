@@ -44,6 +44,7 @@ class SessionServiceProvider implements ServiceProviderInterface
             $cookie_httponly = (bool)$config->get('system.session.httponly', true);
             $cookie_lifetime = (int)$config->get('system.session.timeout', 1800);
             $cookie_path = $config->get('system.session.path');
+            $cookie_samesite = $config->get('system.session.samesite', 'Lax');
             if (null === $cookie_path) {
                 $cookie_path = '/' . trim(Uri::filterPath($uri->rootUrl(false)), '/');
             }
@@ -95,7 +96,8 @@ class SessionServiceProvider implements ServiceProviderInterface
                 'cookie_path' => $cookie_path,
                 'cookie_domain' => $cookie_domain,
                 'cookie_secure' => $cookie_secure,
-                'cookie_httponly' => $cookie_httponly
+                'cookie_httponly' => $cookie_httponly,
+                'cookie_samesite' => $cookie_samesite
             ] + (array) $config->get('system.session.options');
 
             $session = new Session($options);
