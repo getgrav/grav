@@ -688,7 +688,7 @@ class Pages
     }
 
     /**
-     * Get list of route/title of all pages.
+     * Get list of route/title of all pages. Title is in HTML.
      *
      * @param PageInterface $current
      * @param int $level
@@ -721,10 +721,10 @@ class Pages
             }
 
             if ($showFullpath) {
-                $option = $current->route();
+                $option = htmlspecialchars($current->route());
             } else {
                 $extra  = $showSlug ? '(' . $current->slug() . ') ' : '';
-                $option = str_repeat('&mdash;-', $level). '&rtrif; ' . $extra . $current->title();
+                $option = str_repeat('&mdash;-', $level). '&rtrif; ' . $extra . htmlspecialchars($current->title());
 
 
             }

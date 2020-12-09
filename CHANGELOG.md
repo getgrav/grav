@@ -1,3 +1,9 @@
+# v1.6.31
+## mm/dd/2020
+
+1. [](#bugfix)
+    * Fixed `pages` field escaping issues, needs admin update, too [admin#1990](https://github.com/getgrav/grav-plugin-admin/issues/1990)
+
 # v1.6.30
 ## 12/03/2020
 
