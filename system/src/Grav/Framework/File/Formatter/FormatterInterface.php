@@ -9,4 +9,4 @@ use Grav\Framework\File\Interfaces\FileFormatterInterface;
  */
 interface FormatterInterface extends FileFormatterInterface
 {
-};
+}

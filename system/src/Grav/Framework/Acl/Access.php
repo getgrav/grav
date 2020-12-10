@@ -11,6 +11,10 @@ namespace Grav\Framework\Acl;
 
 use Grav\Common\Utils;
 
+/**
+ * Class Access
+ * @package Grav\Framework\Acl
+ */
 class Access implements \JsonSerializable, \IteratorAggregate, \Countable
 {
     /** @var string */
@@ -53,6 +57,7 @@ class Access implements \JsonSerializable, \IteratorAggregate, \Countable
     /**
      * @param Access $parent
      * @param string|null $name
+     * @return void
      */
     public function inherit(Access $parent, string $name = null)
     {

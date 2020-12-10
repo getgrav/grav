@@ -690,7 +690,7 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
 
     /**
      * @param bool $bool
-     * @return FlexCollectionInterface|FlexPageCollection
+     * @return static
      */
     public function withOrdered(bool $bool = true)
     {
@@ -701,7 +701,7 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
 
     /**
      * @param bool $bool
-     * @return FlexCollectionInterface|FlexPageCollection
+     * @return static
      */
     public function withModules(bool $bool = true)
     {
@@ -712,7 +712,7 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
 
     /**
      * @param bool $bool
-     * @return FlexCollectionInterface|FlexPageCollection
+     * @return static
      */
     public function withPages(bool $bool = true)
     {
@@ -725,7 +725,7 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
      * @param bool $bool
      * @param string|null $languageCode
      * @param bool|null $fallback
-     * @return FlexCollectionInterface|FlexPageCollection
+     * @return static
      */
     public function withTranslation(bool $bool = true, string $languageCode = null, bool $fallback = null)
     {
@@ -748,7 +748,7 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
      *
      * @param array $filters
      * @param bool $recursive
-     * @return FlexCollectionInterface
+     * @return static
      */
     public function filterBy(array $filters, bool $recursive = false)
     {

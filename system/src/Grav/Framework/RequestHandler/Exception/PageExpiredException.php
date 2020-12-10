@@ -13,6 +13,10 @@ namespace Grav\Framework\RequestHandler\Exception;
 
 use Psr\Http\Message\ServerRequestInterface;
 
+/**
+ * Class PageExpiredException
+ * @package Grav\Framework\RequestHandler\Exception
+ */
 class PageExpiredException extends RequestException
 {
     /**

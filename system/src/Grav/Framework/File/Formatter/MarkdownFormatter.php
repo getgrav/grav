@@ -13,6 +13,10 @@ namespace Grav\Framework\File\Formatter;
 
 use Grav\Framework\File\Interfaces\FileFormatterInterface;
 
+/**
+ * Class MarkdownFormatter
+ * @package Grav\Framework\File\Formatter
+ */
 class MarkdownFormatter extends AbstractFormatter
 {
     /** @var FileFormatterInterface */

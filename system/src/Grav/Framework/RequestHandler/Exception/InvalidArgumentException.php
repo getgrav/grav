@@ -13,6 +13,10 @@ namespace Grav\Framework\RequestHandler\Exception;
 
 use Throwable;
 
+/**
+ * Class InvalidArgumentException
+ * @package Grav\Framework\RequestHandler\Exception
+ */
 class InvalidArgumentException extends \InvalidArgumentException
 {
     /** @var mixed|null */

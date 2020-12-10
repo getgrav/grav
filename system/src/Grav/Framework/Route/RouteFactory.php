@@ -19,10 +19,8 @@ class RouteFactory
 {
     /** @var string */
     private static $root = '';
-
     /** @var string */
     private static $language = '';
-
     /** @var string */
     private static $delimiter = ':';
 

@@ -61,6 +61,7 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
      *
      * @param  array $data
      * @param  array $options
+     * @return void
      * @throws RuntimeException
      */
     public function validate(array $data, array $options = [])
@@ -197,7 +198,7 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
      * @param string $parent
      * @param bool  $missingValuesAsNull
      * @param bool $keepEmptyValues
-     * @return array
+     * @return array|null
      */
     protected function filterArray(array $data, array $rules, string $parent, bool $missingValuesAsNull, bool $keepEmptyValues)
     {

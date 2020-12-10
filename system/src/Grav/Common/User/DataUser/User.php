@@ -110,6 +110,8 @@ class User extends Data implements UserInterface
 
     /**
      * Save user without the username
+     *
+     * @return void
      */
     public function save()
     {

@@ -12,38 +12,32 @@ namespace Grav\Framework\Pagination;
 use Grav\Framework\Pagination\Interfaces\PaginationInterface;
 use Grav\Framework\Route\Route;
 
+/**
+ * Class AbstractPagination
+ * @package Grav\Framework\Pagination
+ */
 class AbstractPagination implements PaginationInterface
 {
     /** @var Route Base rouse used for the pagination. */
     protected $route;
-
     /** @var int|null  Current page. */
     protected $page;
-
     /** @var int|null  The record number to start displaying from. */
     protected $start;
-
     /** @var int  Number of records to display per page. */
     protected $limit;
-
     /** @var int  Total number of records. */
     protected $total;
-
     /** @var array Pagination options */
     protected $options;
-
     /** @var bool View all flag. */
     protected $viewAll;
-
     /** @var int  Total number of pages. */
     protected $pages;
-
     /** @var int  Value pagination object begins at. */
     protected $pagesStart;
-
     /** @var int  Value pagination object ends at .*/
     protected $pagesStop;
-
     /** @var array */
     protected $defaultOptions = [
         'type' => 'page',
@@ -53,7 +47,6 @@ class AbstractPagination implements PaginationInterface
         'ending' => 0,
         'url' => null
     ];
-
     /** @var array */
     private $items;
 

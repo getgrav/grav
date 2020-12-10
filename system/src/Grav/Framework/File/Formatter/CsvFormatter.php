@@ -13,6 +13,10 @@ namespace Grav\Framework\File\Formatter;
 
 use Grav\Framework\File\Interfaces\FileFormatterInterface;
 
+/**
+ * Class CsvFormatter
+ * @package Grav\Framework\File\Formatter
+ */
 class CsvFormatter extends AbstractFormatter
 {
     /**

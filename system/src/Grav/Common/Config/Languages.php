@@ -29,7 +29,7 @@ class Languages extends Data
 
     /**
      * @param string|null $checksum
-     * @return string
+     * @return string|null
      */
     public function checksum($checksum = null)
     {

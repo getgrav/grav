@@ -11,6 +11,10 @@ namespace Grav\Framework\Form\Interfaces;
 
 use Psr\Http\Message\UploadedFileInterface;
 
+/**
+ * Interface FormFlashInterface
+ * @package Grav\Framework\Form\Interfaces
+ */
 interface FormFlashInterface extends \JsonSerializable
 {
     /**

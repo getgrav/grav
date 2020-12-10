@@ -16,6 +16,10 @@ use Psr\Container\ContainerInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
+/**
+ * Class RequestHandler
+ * @package Grav\Framework\RequestHandler
+ */
 class RequestHandler implements RequestHandlerInterface
 {
     use RequestHandlerTrait;

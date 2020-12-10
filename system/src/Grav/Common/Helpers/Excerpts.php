@@ -13,6 +13,7 @@ use DOMDocument;
 use DOMElement;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Page\Markdown\Excerpts as ExcerptsObject;
+use Grav\Common\Page\Medium\Link;
 use Grav\Common\Page\Medium\Medium;
 use function is_array;
 
@@ -179,7 +180,7 @@ class Excerpts
      * @param Medium $medium
      * @param string|array $url
      * @param PageInterface|null $page  Page, defaults to the current page object
-     * @return Medium
+     * @return Medium|Link
      */
     public static function processMediaActions($medium, $url, PageInterface $page = null)
     {

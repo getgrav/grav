@@ -42,6 +42,7 @@ trait NestedArrayAccessTrait
      *
      * @param mixed $offset  The offset to assign the value to.
      * @param mixed $value   The value to set.
+     * @return void
      */
     public function offsetSet($offset, $value)
     {
@@ -52,14 +53,10 @@ trait NestedArrayAccessTrait
      * Unsets an offset.
      *
      * @param mixed $offset  The offset to unset.
+     * @return void
      */
     public function offsetUnset($offset)
     {
         $this->unsetNestedProperty($offset);
     }
-
-    abstract public function hasNestedProperty($property, $separator = null);
-    abstract public function getNestedProperty($property, $default = null, $separator = null);
-    abstract public function setNestedProperty($property, $value, $separator = null);
-    abstract public function unsetNestedProperty($property, $separator = null);
 }

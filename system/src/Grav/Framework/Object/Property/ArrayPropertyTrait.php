@@ -23,7 +23,7 @@ trait ArrayPropertyTrait
 
     /**
      * @param array $elements
-     * @param string $key
+     * @param string|null $key
      * @throws \InvalidArgumentException
      */
     public function __construct(array $elements = [], $key = null)
@@ -63,6 +63,7 @@ trait ArrayPropertyTrait
     /**
      * @param string $property      Object property to be updated.
      * @param mixed  $value         New value.
+     * @return void
      */
     protected function doSetProperty($property, $value)
     {
@@ -71,6 +72,7 @@ trait ArrayPropertyTrait
 
     /**
      * @param string  $property     Object property to be unset.
+     * @return void
      */
     protected function doUnsetProperty($property)
     {
@@ -99,6 +101,7 @@ trait ArrayPropertyTrait
 
     /**
      * @param array $elements
+     * @return void
      */
     protected function setElements(array $elements)
     {

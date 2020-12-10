@@ -933,7 +933,7 @@ class Uri
     }
 
     /**
-     * @param $url
+     * @param string $url
      * @return array|false
      */
     public static function parseUrl($url)

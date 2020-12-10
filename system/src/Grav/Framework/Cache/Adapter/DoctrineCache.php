@@ -97,7 +97,6 @@ class DoctrineCache extends AbstractCache
 
     /**
      * @inheritdoc
-     * @throws \Psr\SimpleCache\InvalidArgumentException|InvalidArgumentException
      */
     public function doDeleteMultiple($keys)
     {

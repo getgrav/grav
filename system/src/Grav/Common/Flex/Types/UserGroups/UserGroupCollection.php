@@ -15,6 +15,10 @@ use Grav\Common\Flex\Traits\FlexCollectionTrait;
 use Grav\Common\Flex\Traits\FlexGravTrait;
 use Grav\Framework\Flex\FlexCollection;
 
+/**
+ * Class UserGroupCollection
+ * @package Grav\Common\Flex\Types\UserGroups
+ */
 class UserGroupCollection extends FlexCollection
 {
     use FlexGravTrait;

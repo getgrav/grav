@@ -117,6 +117,7 @@ class ChainCache extends AbstractCache
         while ($i--) {
             $success = $this->caches[$i]->doClear() && $success;
         }
+
         return $success;
     }
 
@@ -144,7 +145,7 @@ class ChainCache extends AbstractCache
         $values = [];
         /**
          * @var int $i
-         * @var CacheInterface $cache
+         * @var CacheInterface $items
          */
         foreach (array_reverse($list) as $i => $items) {
             $values += $items;

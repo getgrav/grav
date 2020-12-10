@@ -23,6 +23,11 @@ class MemoryCache extends AbstractCache
     /** @var array */
     protected $cache = [];
 
+    /**
+     * @param string $key
+     * @param mixed $miss
+     * @return mixed
+     */
     public function doGet($key, $miss)
     {
         if (!array_key_exists($key, $this->cache)) {
@@ -32,6 +37,12 @@ class MemoryCache extends AbstractCache
         return $this->cache[$key];
     }
 
+    /**
+     * @param string $key
+     * @param mixed $value
+     * @param int $ttl
+     * @return bool
+     */
     public function doSet($key, $value, $ttl)
     {
         $this->cache[$key] = $value;
@@ -39,6 +50,10 @@ class MemoryCache extends AbstractCache
         return true;
     }
 
+    /**
+     * @param string $key
+     * @return bool
+     */
     public function doDelete($key)
     {
         unset($this->cache[$key]);
@@ -46,6 +61,9 @@ class MemoryCache extends AbstractCache
         return true;
     }
 
+    /**
+     * @return bool
+     */
     public function doClear()
     {
         $this->cache = [];
@@ -53,6 +71,10 @@ class MemoryCache extends AbstractCache
         return true;
     }
 
+    /**
+     * @param string $key
+     * @return bool
+     */
     public function doHas($key)
     {
         return array_key_exists($key, $this->cache);

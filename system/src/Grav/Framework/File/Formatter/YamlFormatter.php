@@ -17,8 +17,16 @@ use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml as YamlParser;
 use RocketTheme\Toolbox\Compat\Yaml\Yaml as FallbackYamlParser;
 
+/**
+ * Class YamlFormatter
+ * @package Grav\Framework\File\Formatter
+ */
 class YamlFormatter extends AbstractFormatter
 {
+    /**
+     * YamlFormatter constructor.
+     * @param array $config
+     */
     public function __construct(array $config = [])
     {
         $config += [

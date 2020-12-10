@@ -13,6 +13,10 @@ namespace Grav\Framework\Psr7\Traits;
 
 use Psr\Http\Message\StreamInterface;
 
+/**
+ * Trait StreamDecoratorTrait
+ * @package Grav\Framework\Psr7\Traits
+ */
 trait StreamDecoratorTrait
 {
     /** @var StreamInterface */
@@ -26,6 +30,9 @@ trait StreamDecoratorTrait
         return $this->stream->__toString();
     }
 
+    /**
+     * @return void
+     */
     public function __destruct()
     {
         $this->stream->close();

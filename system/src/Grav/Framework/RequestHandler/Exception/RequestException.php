@@ -13,6 +13,10 @@ namespace Grav\Framework\RequestHandler\Exception;
 
 use Psr\Http\Message\ServerRequestInterface;
 
+/**
+ * Class RequestException
+ * @package Grav\Framework\RequestHandler\Exception
+ */
 class RequestException extends \RuntimeException
 {
     /** @var array Map of standard HTTP status code/reason phrases */

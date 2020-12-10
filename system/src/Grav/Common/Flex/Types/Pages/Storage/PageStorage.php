@@ -641,6 +641,7 @@ class PageStorage extends FolderStorage
                     $parentKey = '';
                 }
 
+                /** @phpstan-var array{'storage_key': string, 'storage_timestamp': int, 'children': array<string, mixed>} $parent */
                 $parent = &$list[$parentKey];
                 $basename = basename($storage_key);
 

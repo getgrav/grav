@@ -24,6 +24,10 @@ use function count;
 use function is_string;
 use function method_exists;
 
+/**
+ * Class UserIndex
+ * @package Grav\Common\Flex\Types\Users
+ */
 class UserIndex extends FlexIndex
 {
     public const VERSION = parent::VERSION . '.1';

@@ -38,6 +38,7 @@ trait ParsedownGravTrait
      *
      * @param PageInterface|Excerpts|null $excerpts
      * @param array|null $defaults
+     * @return void
      */
     protected function init($excerpts = null, $defaults = null)
     {
@@ -89,6 +90,7 @@ trait ParsedownGravTrait
      * @param bool $continuable
      * @param bool $completable
      * @param int|null $index
+     * @return void
      */
     public function addBlockType($type, $tag, $continuable = false, $completable = false, $index = null)
     {
@@ -120,6 +122,7 @@ trait ParsedownGravTrait
      * @param string $type
      * @param string $tag
      * @param int|null $index
+     * @return void
      */
     public function addInlineType($type, $tag, $index = null)
     {

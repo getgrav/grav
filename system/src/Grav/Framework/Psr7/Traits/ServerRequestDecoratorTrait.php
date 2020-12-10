@@ -13,6 +13,10 @@ namespace Grav\Framework\Psr7\Traits;
 
 use Psr\Http\Message\ServerRequestInterface;
 
+/**
+ * Trait ServerRequestDecoratorTrait
+ * @package Grav\Framework\Psr7\Traits
+ */
 trait ServerRequestDecoratorTrait
 {
     use RequestDecoratorTrait;
@@ -101,6 +105,10 @@ trait ServerRequestDecoratorTrait
         return $new;
     }
 
+    /**
+     * @param array $attributes
+     * @return ServerRequestInterface
+     */
     public function withAttributes(array $attributes)
     {
         $new = clone $this;

@@ -97,6 +97,7 @@ class SimplePageHandler extends Handler
 
     /**
      * @param string $path
+     * @return void
      */
     public function addResourcePath($path)
     {

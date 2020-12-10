@@ -222,7 +222,7 @@ class Pipeline extends PropertyObject
      * @param string $file the css source file
      * @param string $dir , $local relative path to the css file
      * @param bool $local is this a local or remote asset
-     * @return mixed
+     * @return string
      */
     protected function cssRewrite($file, $dir, $local)
     {

@@ -224,6 +224,7 @@ abstract class BaseAsset extends PropertyObject
      * @param string $file
      * @param string $dir
      * @param bool $local
+     * @return string
      */
     protected function cssRewrite($file, $dir, $local)
     {

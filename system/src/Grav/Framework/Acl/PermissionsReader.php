@@ -11,8 +11,13 @@ namespace Grav\Framework\Acl;
 
 use Grav\Common\File\CompiledYamlFile;
 
+/**
+ * Class PermissionsReader
+ * @package Grav\Framework\Acl
+ */
 class PermissionsReader
 {
+    /** @var array */
     private static $types;
 
     /**
@@ -21,7 +26,6 @@ class PermissionsReader
      */
     public static function fromYaml(string $filename): array
     {
-        /** @var array $content */
         $content = CompiledYamlFile::instance($filename)->content();
         $actions = $content['actions'] ?? [];
         $types = $content['types'] ?? [];
@@ -77,6 +81,7 @@ class PermissionsReader
 
     /**
      * @param array $types
+     * @return void
      */
     protected static function initTypes(array $types)
     {

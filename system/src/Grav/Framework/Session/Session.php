@@ -20,10 +20,8 @@ class Session implements SessionInterface
 {
     /** @var array */
     protected $options = [];
-
     /** @var bool */
     protected $started = false;
-
     /** @var Session */
     protected static $instance;
 

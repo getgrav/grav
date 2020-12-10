@@ -22,6 +22,10 @@ use function count;
 use function dirname;
 use function is_callable;
 
+/**
+ * Class Folder
+ * @package Grav\Common\Filesystem
+ */
 abstract class Folder
 {
     /**

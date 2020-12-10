@@ -159,7 +159,7 @@ class ServerRequest implements ServerRequestInterface
      * Note: This method is not part of the PSR-7 standard.
      *
      * @param  string $key The parameter key.
-     * @param  string $default The default value.
+     * @param  string|null $default The default value.
      *
      * @return mixed The parameter value.
      */

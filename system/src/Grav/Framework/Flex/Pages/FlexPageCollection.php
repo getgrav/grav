@@ -49,7 +49,7 @@ class FlexPageCollection extends FlexCollection
 
     /**
      * @param bool $bool
-     * @return FlexCollectionInterface|FlexPageCollection
+     * @return static
      */
     public function withPublished(bool $bool = true)
     {
@@ -60,7 +60,7 @@ class FlexPageCollection extends FlexCollection
 
     /**
      * @param bool $bool
-     * @return FlexCollectionInterface|FlexPageCollection
+     * @return static
      */
     public function withVisible(bool $bool = true)
     {
@@ -71,7 +71,7 @@ class FlexPageCollection extends FlexCollection
 
     /**
      * @param bool $bool
-     * @return FlexCollectionInterface|FlexPageCollection
+     * @return static
      */
     public function withRoutable(bool $bool = true)
     {

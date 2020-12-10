@@ -42,6 +42,7 @@ trait OverloadedPropertyTrait
      *
      * @param mixed $offset  The offset to assign the value to.
      * @param mixed $value   The value to set.
+     * @return void
      */
     public function __set($offset, $value)
     {
@@ -52,14 +53,10 @@ trait OverloadedPropertyTrait
      * Magic method to unset the attribute
      *
      * @param mixed $offset The name value to unset
+     * @return void
      */
     public function __unset($offset)
     {
         $this->unsetProperty($offset);
     }
-
-    abstract public function hasProperty($property);
-    abstract public function getProperty($property, $default = null);
-    abstract public function setProperty($property, $value);
-    abstract public function unsetProperty($property);
 }

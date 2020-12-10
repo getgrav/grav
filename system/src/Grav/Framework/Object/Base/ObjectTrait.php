@@ -151,6 +151,7 @@ trait ObjectTrait
 
     /**
      * @param array $serialized
+     * @return void
      */
     protected function doUnserialize(array $serialized)
     {
@@ -192,11 +193,4 @@ trait ObjectTrait
 
         return $this;
     }
-
-    abstract protected function doHasProperty($property);
-    abstract protected function &doGetProperty($property, $default = null, $doCreate = false);
-    abstract protected function doSetProperty($property, $value);
-    abstract protected function doUnsetProperty($property);
-    abstract protected function getElements();
-    abstract protected function setElements(array $elements);
 }

@@ -120,6 +120,7 @@ class Grav extends Container
     public static function resetInstance()
     {
         if (self::$instance) {
+            // @phpstan-ignore-next-line
             self::$instance = null;
         }
     }

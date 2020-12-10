@@ -95,12 +95,16 @@ class Action implements \IteratorAggregate, \Countable
 
     /**
      * @param Action|null $parent
+     * @return void
      */
     public function setParent(?Action $parent): void
     {
         $this->parent = $parent;
     }
 
+    /**
+     * @return string
+     */
     public function getScope(): string
     {
         $pos = strpos($this->name, '.');
@@ -111,6 +115,9 @@ class Action implements \IteratorAggregate, \Countable
         return $this->name;
     }
 
+    /**
+     * @return int
+     */
     public function getLevels(): int
     {
         return substr_count($this->name, '.');
@@ -143,6 +150,7 @@ class Action implements \IteratorAggregate, \Countable
 
     /**
      * @param Action $child
+     * @return void
      */
     public function addChild(Action $child): void
     {

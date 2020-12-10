@@ -39,7 +39,7 @@ class ContentBlock implements ContentBlockInterface
     protected $cached = true;
 
     /**
-     * @param string $id
+     * @param string|null $id
      * @return static
      */
     public static function create($id = null)
@@ -75,7 +75,7 @@ class ContentBlock implements ContentBlockInterface
     /**
      * Block constructor.
      *
-     * @param string $id
+     * @param string|null $id
      */
     public function __construct($id = null)
     {

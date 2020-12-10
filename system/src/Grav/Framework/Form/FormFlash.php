@@ -18,6 +18,10 @@ use Psr\Http\Message\UploadedFileInterface;
 use RocketTheme\Toolbox\File\YamlFile;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
+/**
+ * Class FormFlash
+ * @package Grav\Framework\Form
+ */
 class FormFlash implements FormFlashInterface
 {
     /** @var bool */

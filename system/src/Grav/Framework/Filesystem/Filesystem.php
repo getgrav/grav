@@ -13,6 +13,10 @@ namespace Grav\Framework\Filesystem;
 
 use Grav\Framework\Filesystem\Interfaces\FilesystemInterface;
 
+/**
+ * Class Filesystem
+ * @package Grav\Framework\Filesystem
+ */
 class Filesystem implements FilesystemInterface
 {
     /** @var bool|null */

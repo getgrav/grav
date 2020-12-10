@@ -57,7 +57,7 @@ class ArrayCollection extends BaseArrayCollection implements CollectionInterface
      *
      * Collection is returned in the order of $keys given to the function.
      *
-     * @param array $keys
+     * @param array<int|string> $keys
      * @return static
      */
     public function select(array $keys)
@@ -75,7 +75,7 @@ class ArrayCollection extends BaseArrayCollection implements CollectionInterface
     /**
      * Un-select items from collection.
      *
-     * @param array $keys
+     * @param array<int|string> $keys
      * @return static
      */
     public function unselect(array $keys)

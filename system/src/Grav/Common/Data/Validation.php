@@ -100,6 +100,7 @@ class Validation
     /**
      * @param mixed $value
      * @param array $field
+     * @return array
      */
     public static function checkSafety($value, array $field)
     {
@@ -617,7 +618,6 @@ class Validation
      * @param  array  $field   Blueprint for the field.
      * @return bool   True if validation succeeded.
      */
-
     public static function typeUrl($value, array $params, array $field)
     {
         return self::typeText($value, $params, $field) && filter_var($value, FILTER_VALIDATE_URL);

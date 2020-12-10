@@ -36,7 +36,7 @@ class Blueprint extends BlueprintForm
     /** @var string|null */
     protected $scope;
 
-    /** @var BlueprintSchema|null */
+    /** @var BlueprintSchema */
     protected $blueprintSchema;
 
     /** @var object|null */
@@ -60,6 +60,7 @@ class Blueprint extends BlueprintForm
 
     /**
      * @param string $scope
+     * @return void
      */
     public function setScope($scope)
     {
@@ -68,6 +69,7 @@ class Blueprint extends BlueprintForm
 
     /**
      * @param object $object
+     * @return void
      */
     public function setObject($object)
     {
@@ -511,7 +513,7 @@ class Blueprint extends BlueprintForm
     }
 
     /**
-     * @param UserInterface $user
+     * @param UserInterface|null $user
      * @param array $actions
      * @param string $op
      * @return bool
@@ -562,6 +564,7 @@ class Blueprint extends BlueprintForm
      * @param array $field
      * @param string $property
      * @param mixed $value
+     * @return void
      */
     protected function addPropertyRecursive(array &$field, $property, $value)
     {

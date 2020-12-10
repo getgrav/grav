@@ -122,6 +122,7 @@ abstract class AbstractFormatter implements FileFormatterInterface
      * Note: if overridden, make sure you call parent::doUnserialize()
      *
      * @param array $serialized
+     * @return void
      */
     protected function doUnserialize(array $serialized): void
     {

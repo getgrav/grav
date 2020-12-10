@@ -91,6 +91,8 @@ class Group extends Data
 
     /**
      * Save a group
+     *
+     * @return void
      */
     public function save()
     {

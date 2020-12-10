@@ -15,6 +15,10 @@ use Grav\Framework\Psr7\Traits\UploadedFileDecoratorTrait;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UploadedFileInterface;
 
+/**
+ * Class UploadedFile
+ * @package Grav\Framework\Psr7
+ */
 class UploadedFile implements UploadedFileInterface
 {
     use UploadedFileDecoratorTrait;

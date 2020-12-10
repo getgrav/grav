@@ -19,7 +19,7 @@ trait NestedPropertyTrait
 {
     /**
      * @param string $property      Object property name.
-     * @param string $separator     Separator, defaults to '.'
+     * @param string|null $separator     Separator, defaults to '.'
      * @return bool                 True if property has been defined (can be null).
      */
     public function hasNestedProperty($property, $separator = null)
@@ -74,7 +74,7 @@ trait NestedPropertyTrait
     /**
      * @param string $property      Object property to be updated.
      * @param mixed  $value         New value.
-     * @param string $separator     Separator, defaults to '.'
+     * @param string|null $separator     Separator, defaults to '.'
      * @return $this
      * @throws \RuntimeException
      */
@@ -116,7 +116,7 @@ trait NestedPropertyTrait
 
     /**
      * @param string $property      Object property to be updated.
-     * @param string $separator     Separator, defaults to '.'
+     * @param string|null $separator     Separator, defaults to '.'
      * @return $this
      * @throws \RuntimeException
      */
@@ -161,7 +161,7 @@ trait NestedPropertyTrait
     /**
      * @param string $property      Object property to be updated.
      * @param mixed  $default       Default value.
-     * @param string $separator     Separator, defaults to '.'
+     * @param string|null $separator     Separator, defaults to '.'
      * @return $this
      * @throws \RuntimeException
      */
@@ -173,11 +173,4 @@ trait NestedPropertyTrait
 
         return $this;
     }
-
-
-    abstract public function hasProperty($property);
-    abstract public function getProperty($property, $default = null);
-    abstract public function setProperty($property, $value);
-    abstract public function unsetProperty($property);
-    abstract protected function &doGetProperty($property, $default = null, $doCreate = false);
 }

@@ -30,6 +30,10 @@ use function count;
 use function get_class;
 use function in_array;
 
+/**
+ * Class FlexIndex
+ * @package Grav\Framework\Flex
+ */
 class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexIndexInterface
 {
     const VERSION = 1;

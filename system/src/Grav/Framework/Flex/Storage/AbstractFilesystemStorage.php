@@ -151,7 +151,7 @@ abstract class AbstractFilesystemStorage implements FlexStorageInterface
 
     /**
      * @param string $filename
-     * @return File
+     * @return CompiledJsonFile|CompiledYamlFile|CompiledMarkdownFile
      */
     protected function getFile(string $filename)
     {

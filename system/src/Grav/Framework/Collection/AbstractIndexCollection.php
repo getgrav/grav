@@ -18,7 +18,9 @@ use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
  */
 abstract class AbstractIndexCollection implements CollectionInterface
 {
-    /** @var array */
+    /**
+     * @var array
+     */
     private $entries;
 
     /**
@@ -417,6 +419,7 @@ abstract class AbstractIndexCollection implements CollectionInterface
 
     /**
      * @return string
+     * @return string
      */
     public function serialize()
     {
@@ -425,6 +428,7 @@ abstract class AbstractIndexCollection implements CollectionInterface
 
     /**
      * @param string $serialized
+     * @return void
      */
     public function unserialize($serialized)
     {
@@ -450,7 +454,6 @@ abstract class AbstractIndexCollection implements CollectionInterface
      * instance should be created when constructor semantics have changed.
      *
      * @param array $entries Elements.
-     *
      * @return static
      */
     protected function createFrom(array $entries)
@@ -468,6 +471,7 @@ abstract class AbstractIndexCollection implements CollectionInterface
 
     /**
      * @param array $entries
+     * @return void
      */
     protected function setEntries(array $entries): void
     {

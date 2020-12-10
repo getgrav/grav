@@ -302,7 +302,7 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
     /**
      * @param array $entries
      * @param string|null $keyField
-     * @return $this|FlexPageIndex
+     * @return static
      */
     protected function createFrom(array $entries, string $keyField = null)
     {
@@ -742,11 +742,11 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
      * @param  string  $path
      * @param  int $direction either -1 or +1
      *
-     * @return PageInterface|PageCollectionInterface|false    The sibling item.
+     * @return PageInterface|false    The sibling item.
      */
     public function adjacentSibling($path, $direction = 1)
     {
-        /** @var PageInterface|PageCollectionInterface|false $result */
+        /** @var PageInterface|false $result */
         $result = $this->__call('adjacentSibling', [$path, $direction]);
 
         return $result;

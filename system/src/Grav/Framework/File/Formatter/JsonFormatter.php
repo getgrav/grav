@@ -15,8 +15,13 @@ use Grav\Framework\File\Interfaces\FileFormatterInterface;
 use function is_int;
 use function is_string;
 
+/**
+ * Class JsonFormatter
+ * @package Grav\Framework\File\Formatter
+ */
 class JsonFormatter extends AbstractFormatter
 {
+    /** @var array */
     protected $encodeOptions = [
         'JSON_FORCE_OBJECT' => JSON_FORCE_OBJECT,
         'JSON_HEX_QUOT' => JSON_HEX_QUOT,
@@ -35,6 +40,7 @@ class JsonFormatter extends AbstractFormatter
         //'JSON_THROW_ON_ERROR' => JSON_THROW_ON_ERROR // PHP 7.3
     ];
 
+    /** @var array */
     protected $decodeOptions = [
         'JSON_BIGINT_AS_STRING' => JSON_BIGINT_AS_STRING,
         'JSON_INVALID_UTF8_IGNORE' => JSON_INVALID_UTF8_IGNORE,

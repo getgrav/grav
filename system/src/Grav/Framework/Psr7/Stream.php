@@ -14,6 +14,10 @@ namespace Grav\Framework\Psr7;
 use Grav\Framework\Psr7\Traits\StreamDecoratorTrait;
 use Psr\Http\Message\StreamInterface;
 
+/**
+ * Class Stream
+ * @package Grav\Framework\Psr7
+ */
 class Stream implements StreamInterface
 {
     use StreamDecoratorTrait;

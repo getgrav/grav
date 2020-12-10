@@ -151,7 +151,7 @@ class Backups
 
     /**
      * @param bool $force
-     * @return array|null
+     * @return array
      */
     public static function getAvailableBackups($force = false)
     {

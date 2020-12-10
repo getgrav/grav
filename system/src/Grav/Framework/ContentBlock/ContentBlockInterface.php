@@ -16,7 +16,7 @@ namespace Grav\Framework\ContentBlock;
 interface ContentBlockInterface extends \Serializable
 {
     /**
-     * @param string $id
+     * @param string|null $id
      * @return static
      */
     public static function create($id = null);
@@ -28,7 +28,7 @@ interface ContentBlockInterface extends \Serializable
     public static function fromArray(array $serialized);
 
     /**
-     * @param string $id
+     * @param string|null $id
      */
     public function __construct($id = null);
 

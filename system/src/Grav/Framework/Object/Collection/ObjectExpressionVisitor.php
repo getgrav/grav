@@ -13,6 +13,10 @@ use Doctrine\Common\Collections\Expr\ClosureExpressionVisitor;
 use Doctrine\Common\Collections\Expr\Comparison;
 use function is_callable;
 
+/**
+ * Class ObjectExpressionVisitor
+ * @package Grav\Framework\Object\Collection
+ */
 class ObjectExpressionVisitor extends ClosureExpressionVisitor
 {
     /**
@@ -221,7 +225,6 @@ class ObjectExpressionVisitor extends ClosureExpressionVisitor
                 return function ($object) use ($field, $value) {
                     return $value === substr(static::getObjectFieldValue($object, $field), -strlen($value));
                 };
-
 
             default:
                 throw new \RuntimeException("Unknown comparison operator: " . $comparison->getOperator());

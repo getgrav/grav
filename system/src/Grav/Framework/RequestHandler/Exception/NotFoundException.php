@@ -13,6 +13,10 @@ namespace Grav\Framework\RequestHandler\Exception;
 
 use Psr\Http\Message\ServerRequestInterface;
 
+/**
+ * Class NotFoundException
+ * @package Grav\Framework\RequestHandler\Exception
+ */
 class NotFoundException extends RequestException
 {
     /** @var ServerRequestInterface */

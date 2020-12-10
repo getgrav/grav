@@ -15,11 +15,19 @@ use Psr\Container\ContainerInterface;
 
 class Container extends \Pimple\Container implements ContainerInterface
 {
+    /**
+     * @param string $id
+     * @return mixed
+     */
     public function get($id)
     {
         return $this->offsetGet($id);
     }
 
+    /**
+     * @param string $id
+     * @return bool
+     */
     public function has($id): bool
     {
         return $this->offsetExists($id);

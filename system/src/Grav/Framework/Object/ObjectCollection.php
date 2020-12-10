@@ -29,7 +29,7 @@ class ObjectCollection extends ArrayCollection implements NestedObjectCollection
 
     /**
      * @param array $elements
-     * @param string $key
+     * @param string|null $key
      * @throws \InvalidArgumentException
      */
     public function __construct(array $elements = [], $key = null)
@@ -41,7 +41,7 @@ class ObjectCollection extends ArrayCollection implements NestedObjectCollection
 
     /**
      * @param array $ordering
-     * @return Collection|static
+     * @return static
      */
     public function orderBy(array $ordering)
     {
@@ -61,7 +61,8 @@ class ObjectCollection extends ArrayCollection implements NestedObjectCollection
     }
 
     /**
-     * {@inheritDoc}
+     * @param Criteria $criteria
+     * @return static
      */
     public function matching(Criteria $criteria)
     {

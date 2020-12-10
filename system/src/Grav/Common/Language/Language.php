@@ -120,6 +120,7 @@ class Language
      * Sets the current supported languages manually
      *
      * @param array $langs
+     * @return void
      */
     public function setLanguages($langs)
     {
@@ -188,7 +189,7 @@ class Language
     /**
      * Gets current active language
      *
-     * @return string
+     * @return string|false
      */
     public function getActive()
     {
@@ -198,8 +199,8 @@ class Language
     /**
      * Sets active language manually
      *
-     * @param string $lang
-     * @return string|bool
+     * @param string|false $lang
+     * @return string|false
      */
     public function setActive($lang)
     {
@@ -382,6 +383,8 @@ class Language
      * $this->grav['language']->resetFallbackPageExtensions();
      * $this->grav['pages']->init();
      * ```
+     *
+     * @return void
      */
     public function resetFallbackPageExtensions()
     {
@@ -607,7 +610,7 @@ class Language
      *
      * @param string $code
      * @param string $type
-     * @return bool
+     * @return string|false
      */
     public function getLanguageCode($code, $type = 'name')
     {

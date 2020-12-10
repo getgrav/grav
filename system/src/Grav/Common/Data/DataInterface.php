@@ -40,28 +40,37 @@ interface DataInterface
 
     /**
      * Return blueprints.
+     *
+     * @return Blueprint
      */
     public function blueprints();
 
     /**
      * Validate by blueprints.
      *
+     * @return $this
      * @throws Exception
      */
     public function validate();
 
     /**
      * Filter all items by using blueprints.
+     *
+     * @return $this
      */
     public function filter();
 
     /**
      * Get extra items which haven't been defined in blueprints.
+     *
+     * @return array
      */
     public function extra();
 
     /**
      * Save data into the file.
+     *
+     * @return void
      */
     public function save();
 

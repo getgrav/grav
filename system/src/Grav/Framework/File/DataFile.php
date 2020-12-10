@@ -14,6 +14,10 @@ namespace Grav\Framework\File;
 use Grav\Framework\File\Interfaces\FileFormatterInterface;
 use RuntimeException;
 
+/**
+ * Class DataFile
+ * @package Grav\Framework\File
+ */
 class DataFile extends AbstractFile
 {
     /** @var FileFormatterInterface */

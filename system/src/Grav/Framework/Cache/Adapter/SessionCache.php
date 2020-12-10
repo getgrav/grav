@@ -21,6 +21,11 @@ class SessionCache extends AbstractCache
     public const VALUE = 0;
     public const LIFETIME = 1;
 
+    /**
+     * @param string $key
+     * @param mixed $miss
+     * @return mixed
+     */
     public function doGet($key, $miss)
     {
         $stored = $this->doGetStored($key);
@@ -28,6 +33,12 @@ class SessionCache extends AbstractCache
         return $stored ? $stored[self::VALUE] : $miss;
     }
 
+    /**
+     * @param string $key
+     * @param mixed $value
+     * @param int $ttl
+     * @return bool
+     */
     public function doSet($key, $value, $ttl)
     {
         $stored = [self::VALUE => $value];
@@ -40,6 +51,10 @@ class SessionCache extends AbstractCache
         return true;
     }
 
+    /**
+     * @param string $key
+     * @return bool
+     */
     public function doDelete($key)
     {
         unset($_SESSION[$this->getNamespace()][$key]);
@@ -47,6 +62,9 @@ class SessionCache extends AbstractCache
         return true;
     }
 
+    /**
+     * @return bool
+     */
     public function doClear()
     {
         unset($_SESSION[$this->getNamespace()]);
@@ -54,16 +72,27 @@ class SessionCache extends AbstractCache
         return true;
     }
 
+    /**
+     * @param string $key
+     * @return bool
+     */
     public function doHas($key)
     {
         return $this->doGetStored($key) !== null;
     }
 
+    /**
+     * @return string
+     */
     public function getNamespace()
     {
         return 'cache-' . parent::getNamespace();
     }
 
+    /**
+     * @param string $key
+     * @return mixed|null
+     */
     protected function doGetStored($key)
     {
         $stored = $_SESSION[$this->getNamespace()][$key] ?? null;

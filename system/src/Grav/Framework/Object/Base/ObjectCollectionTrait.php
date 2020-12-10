@@ -131,6 +131,7 @@ trait ObjectCollectionTrait
 
     /**
      * @param string $serialized
+     * @return void
      */
     public function unserialize($serialized)
     {
@@ -152,6 +153,7 @@ trait ObjectCollectionTrait
 
     /**
      * @param array $serialized
+     * @return void
      */
     protected function doUnserialize(array $serialized)
     {
@@ -210,7 +212,7 @@ trait ObjectCollectionTrait
     }
 
     /**
-     * @return array
+     * @return string[]
      */
     public function getObjectKeys()
     {
@@ -344,6 +346,7 @@ trait ObjectCollectionTrait
     {
         $collections = [];
         foreach ($this->group($property) as $id => $elements) {
+            /** @var static $collection */
             $collection = $this->createFrom($elements);
 
             $collections[$id] = $collection;
@@ -351,12 +354,4 @@ trait ObjectCollectionTrait
 
         return $collections;
     }
-
-    /**
-     * @return \Traversable
-     */
-    abstract public function getIterator();
-
-    abstract protected function getElements();
-    abstract protected function setElements(array $elements);
 }

@@ -13,6 +13,10 @@ use Grav\Framework\Psr7\Stream;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UploadedFileInterface;
 
+/**
+ * Class FormFlashFile
+ * @package Grav\Framework\Form
+ */
 class FormFlashFile implements UploadedFileInterface, \JsonSerializable
 {
     /** @var string */

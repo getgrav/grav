@@ -20,6 +20,10 @@ use Grav\Framework\Route\Route;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
+/**
+ * Trait ControllerResponseTrait
+ * @package Grav\Framework\Controller\Traits
+ */
 trait ControllerResponseTrait
 {
     /**

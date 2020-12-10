@@ -24,19 +24,14 @@ class AbstractFileCollection extends AbstractLazyCollection implements FileColle
 {
     /** @var string */
     protected $path;
-
     /** @var \RecursiveDirectoryIterator|RecursiveUniformResourceIterator */
     protected $iterator;
-
     /** @var callable */
     protected $createObjectFunction;
-
     /** @var callable|null */
     protected $filterFunction;
-
     /** @var int */
     protected $flags;
-
     /** @var int */
     protected $nestingLimit;
 
@@ -108,6 +103,9 @@ class AbstractFileCollection extends AbstractLazyCollection implements FileColle
         return new ArrayCollection($filtered);
     }
 
+    /**
+     * @return void
+     */
     protected function setIterator()
     {
         $iteratorFlags = \RecursiveDirectoryIterator::SKIP_DOTS + \FilesystemIterator::UNIX_PATHS
@@ -151,6 +149,11 @@ class AbstractFileCollection extends AbstractLazyCollection implements FileColle
         $this->collection = new ArrayCollection($filtered);
     }
 
+    /**
+     * @param \SeekableIterator $iterator
+     * @param int $nestingLimit
+     * @return array
+     */
     protected function doInitializeByIterator(\SeekableIterator $iterator, $nestingLimit)
     {
         $children = [];
@@ -193,6 +196,7 @@ class AbstractFileCollection extends AbstractLazyCollection implements FileColle
 
     /**
      * @param array $children
+     * @param int $nestingLimit
      * @return array
      */
     protected function doInitializeChildren(array $children, $nestingLimit)

@@ -18,6 +18,10 @@ use Grav\Common\User\Interfaces\UserInterface;
 use Grav\Framework\Flex\FlexCollection;
 use function is_string;
 
+/**
+ * Class UserCollection
+ * @package Grav\Common\Flex\Types\Users
+ */
 class UserCollection extends FlexCollection implements UserCollectionInterface
 {
     use FlexGravTrait;

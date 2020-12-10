@@ -54,7 +54,6 @@ interface FileFormatterInterface extends \Serializable
      * Encode data into a string.
      *
      * @param mixed $data Data to be encoded.
-     *
      * @return string Returns encoded data as a string.
      * @api
      */
@@ -64,7 +63,6 @@ interface FileFormatterInterface extends \Serializable
      * Decode a string into data.
      *
      * @param string $data String to be decoded.
-     *
      * @return mixed Returns decoded data.
      * @api
      */

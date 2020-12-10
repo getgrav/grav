@@ -28,25 +28,18 @@ abstract class AbstractUri implements UriInterface
 
     /** @var string Uri scheme. */
     private $scheme = '';
-
     /** @var string Uri user. */
     private $user = '';
-
     /** @var string Uri password. */
     private $password = '';
-
     /** @var string Uri host. */
     private $host = '';
-
     /** @var int|null Uri port. */
     private $port;
-
     /** @var string Uri path. */
     private $path = '';
-
     /** @var string Uri query string (without ?). */
     private $query = '';
-
     /** @var string Uri fragment (without #). */
     private $fragment = '';
 

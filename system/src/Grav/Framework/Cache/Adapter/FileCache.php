@@ -28,7 +28,11 @@ class FileCache extends AbstractCache
     private $tmp;
 
     /**
-     * @inheritdoc
+     * FileCache constructor.
+     * @param string $namespace
+     * @param int|null $defaultLifetime
+     * @param string|null $folder
+     * @throws InvalidArgumentException
      */
     public function __construct($namespace = '', $defaultLifetime = null, $folder = null)
     {
@@ -67,7 +71,7 @@ class FileCache extends AbstractCache
 
     /**
      * @inheritdoc
-     * @throws \Psr\SimpleCache\CacheException|InvalidArgumentException
+     * @throws CacheException
      */
     public function doSet($key, $value, $ttl)
     {
@@ -141,7 +145,8 @@ class FileCache extends AbstractCache
     /**
      * @param string $namespace
      * @param string $directory
-     * @throws \Psr\SimpleCache\InvalidArgumentException|InvalidArgumentException
+     * @return void
+     * @throws InvalidArgumentException
      */
     protected function initFileCache($namespace, $directory)
     {
@@ -197,6 +202,7 @@ class FileCache extends AbstractCache
 
     /**
      * @param  string  $dir
+     * @return void
      * @throws \RuntimeException
      */
     private function mkdir($dir)
@@ -218,6 +224,11 @@ class FileCache extends AbstractCache
     }
 
     /**
+     * @param int $type
+     * @param string $message
+     * @param string $file
+     * @param int $line
+     * @return bool
      * @internal
      * @throws \ErrorException
      */

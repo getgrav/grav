@@ -13,6 +13,10 @@ namespace Grav\Framework\File\Formatter;
 
 use Grav\Framework\File\Interfaces\FileFormatterInterface;
 
+/**
+ * Class SerializeFormatter
+ * @package Grav\Framework\File\Formatter
+ */
 class SerializeFormatter extends AbstractFormatter
 {
     /**

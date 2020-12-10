@@ -20,19 +20,14 @@ class Route
 {
     /** @var string */
     private $root = '';
-
     /** @var string */
     private $language = '';
-
     /** @var string */
     private $route = '';
-
     /** @var string */
     private $extension = '';
-
     /** @var array */
     private $gravParams = [];
-
     /** @var array */
     private $queryParams = [];
 
@@ -235,7 +230,7 @@ class Route
     }
 
     /**
-     * @param string $language
+     * @param string|null $language
      * @return Route
      */
     public function withLanguage($language)

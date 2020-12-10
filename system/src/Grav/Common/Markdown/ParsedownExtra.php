@@ -24,7 +24,7 @@ class ParsedownExtra extends \ParsedownExtra
     /**
      * ParsedownExtra constructor.
      *
-     * @param Excerpts|null $excerpts
+     * @param Excerpts|PageInterface|null $excerpts
      * @param array|null $defaults
      * @throws Exception
      */

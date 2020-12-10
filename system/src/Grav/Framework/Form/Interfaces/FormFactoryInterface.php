@@ -14,6 +14,10 @@ namespace Grav\Framework\Form\Interfaces;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Page\Page;
 
+/**
+ * Interface FormFactoryInterface
+ * @package Grav\Framework\Form\Interfaces
+ */
 interface FormFactoryInterface
 {
     /**

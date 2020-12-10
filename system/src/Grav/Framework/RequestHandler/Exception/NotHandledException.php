@@ -11,6 +11,10 @@ declare(strict_types=1);
 
 namespace Grav\Framework\RequestHandler\Exception;
 
+/**
+ * Class NotHandledException
+ * @package Grav\Framework\RequestHandler\Exception
+ */
 class NotHandledException extends NotFoundException
 {
 }

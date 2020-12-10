@@ -16,6 +16,10 @@ use Grav\Framework\Uri\UriFactory;
 use GuzzleHttp\Psr7\Uri as GuzzleUri;
 use Psr\Http\Message\UriInterface;
 
+/**
+ * Class Uri
+ * @package Grav\Framework\Psr7
+ */
 class Uri implements UriInterface
 {
     use UriDecorationTrait;

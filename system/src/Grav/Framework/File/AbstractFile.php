@@ -14,29 +14,26 @@ namespace Grav\Framework\File;
 use Grav\Framework\File\Interfaces\FileInterface;
 use Grav\Framework\Filesystem\Filesystem;
 
+/**
+ * Class AbstractFile
+ * @package Grav\Framework\File
+ */
 class AbstractFile implements FileInterface
 {
     /** @var Filesystem */
     private $filesystem;
-
     /** @var string */
     private $filepath;
-
     /** @var string|null */
     private $filename;
-
     /** @var string|null */
     private $path;
-
     /** @var string|null */
     private $basename;
-
     /** @var string|null */
     private $extension;
-
     /** @var resource|null */
     private $handle;
-
     /** @var bool */
     private $locked = false;
 
@@ -60,6 +57,9 @@ class AbstractFile implements FileInterface
         }
     }
 
+    /**
+     * @return void
+     */
     public function __clone()
     {
         $this->handle = null;
@@ -76,6 +76,7 @@ class AbstractFile implements FileInterface
 
     /**
      * @param string $serialized
+     * @return void
      */
     public function unserialize($serialized): void
     {
@@ -368,6 +369,7 @@ class AbstractFile implements FileInterface
 
     /**
      * @param array $serialized
+     * @return void
      */
     protected function doUnserialize(array $serialized): void
     {

@@ -160,6 +160,7 @@ abstract class CompiledBase
      *
      * @param  string  $name  Name of the position.
      * @param  string|string[]  $filename  File(s) to be loaded.
+     * @return void
      */
     abstract protected function loadFile($name, $filename);
 
@@ -223,6 +224,7 @@ abstract class CompiledBase
      * Save compiled file.
      *
      * @param  string  $filename
+     * @return void
      * @throws RuntimeException
      * @internal
      */

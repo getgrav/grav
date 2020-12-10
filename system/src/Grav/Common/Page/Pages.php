@@ -249,12 +249,16 @@ class Pages
 
     /**
      * @param string $method
+     * @return void
      */
     public function setCheckMethod($method): void
     {
         $this->check_method = strtolower($method);
     }
 
+    /**
+     * @return void
+     */
     public function register(): void
     {
         $config = $this->grav['config'];

@@ -9,6 +9,10 @@
 
 namespace Grav\Framework\Acl;
 
+/**
+ * Class Permissions
+ * @package Grav\Framework\Acl
+ */
 class Permissions implements \ArrayAccess, \Countable, \IteratorAggregate
 {
     /** @var Action[] */
@@ -51,6 +55,7 @@ class Permissions implements \ArrayAccess, \Countable, \IteratorAggregate
 
     /**
      * @param Action $action
+     * @return void
      */
     public function addAction(Action $action): void
     {
@@ -80,6 +85,7 @@ class Permissions implements \ArrayAccess, \Countable, \IteratorAggregate
 
     /**
      * @param Action[] $actions
+     * @return void
      */
     public function addActions(array $actions): void
     {
@@ -107,7 +113,9 @@ class Permissions implements \ArrayAccess, \Countable, \IteratorAggregate
     }
 
     /**
+     * @param string $name
      * @param array $type
+     * @return void
      */
     public function addType(string $name, array $type): void
     {
@@ -124,6 +132,7 @@ class Permissions implements \ArrayAccess, \Countable, \IteratorAggregate
 
     /**
      * @param array $types
+     * @return void
      */
     public function addTypes(array $types): void
     {
@@ -165,6 +174,7 @@ class Permissions implements \ArrayAccess, \Countable, \IteratorAggregate
     /**
      * @param int|string $offset
      * @param mixed $value
+     * @return void
      */
     public function offsetSet($offset, $value): void
     {
@@ -173,6 +183,7 @@ class Permissions implements \ArrayAccess, \Countable, \IteratorAggregate
 
     /**
      * @param int|string $offset
+     * @return void
      */
     public function offsetUnset($offset): void
     {

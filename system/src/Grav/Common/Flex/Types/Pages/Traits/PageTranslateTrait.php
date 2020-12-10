@@ -81,6 +81,7 @@ trait PageTranslateTrait
             }
 
             $header = $aPage->header();
+            // @phpstan-ignore-next-line
             $routes = $header->routes ?? [];
             $route = $routes['default'] ?? $aPage->rawRoute();
             if (!$route) {

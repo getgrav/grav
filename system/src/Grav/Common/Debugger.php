@@ -566,6 +566,7 @@ class Debugger
         if ($this->enabled && extension_loaded('tideways_xhprof')) {
             $this->profiling++;
             if ($this->profiling === 1) {
+                // @phpstan-ignore-next-line
                 \tideways_xhprof_enable(TIDEWAYS_XHPROF_FLAGS_NO_BUILTINS);
             }
         }
@@ -583,6 +584,7 @@ class Debugger
         if ($this->enabled && extension_loaded('tideways_xhprof')) {
             $profiling = $this->profiling - 1;
             if ($profiling === 0) {
+                // @phpstan-ignore-next-line
                 $timings = \tideways_xhprof_disable();
                 $timings = $this->buildProfilerTimings($timings);
 

@@ -23,7 +23,7 @@ class Parsedown extends \Parsedown
     /**
      * Parsedown constructor.
      *
-     * @param Excerpts|null $excerpts
+     * @param Excerpts|PageInterface|null $excerpts
      * @param array|null $defaults
      */
     public function __construct($excerpts = null, $defaults = null)

@@ -9,8 +9,16 @@
 
 namespace Grav\Framework\Pagination;
 
+/**
+ * Class PaginationPage
+ * @package Grav\Framework\Pagination
+ */
 class PaginationPage extends AbstractPaginationPage
 {
+    /**
+     * PaginationPage constructor.
+     * @param array $options
+     */
     public function __construct(array $options = [])
     {
         $this->setOptions($options);

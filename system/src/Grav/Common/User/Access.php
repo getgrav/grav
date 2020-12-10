@@ -17,6 +17,7 @@ use function is_bool;
  */
 class Access extends \Grav\Framework\Acl\Access
 {
+    /** @var array[] */
     private $aliases = [
         'admin.configuration.system' => ['admin.configuration_system'],
         'admin.configuration.site' => ['admin.configuration_site', 'admin.settings'],

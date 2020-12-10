@@ -79,7 +79,7 @@ class HtmlBlock extends ContentBlock implements HtmlBlockInterface
     }
 
     /**
-     * @return array[]
+     * @return array
      */
     public function toArray()
     {

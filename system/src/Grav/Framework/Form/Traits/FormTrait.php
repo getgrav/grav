@@ -685,15 +685,6 @@ trait FormTrait
     }
 
     /**
-     * Form submit logic goes here.
-     *
-     * @param array $data
-     * @param array $files
-     * @return mixed
-     */
-    abstract protected function doSubmit(array $data, array $files);
-
-    /**
      * Validate data and throw validation exceptions if validation fails.
      *
      * @param \ArrayAccess|Data|null $data

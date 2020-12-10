@@ -33,7 +33,7 @@ class Data implements DataInterface, \ArrayAccess, \Countable, \JsonSerializable
     protected $gettersVariable = 'items';
     /** @var array */
     protected $items;
-    /** @var Blueprint */
+    /** @var Blueprint|callable|null */
     protected $blueprints;
     /** @var FileInterface|null */
     protected $storage;
@@ -275,6 +275,8 @@ class Data implements DataInterface, \ArrayAccess, \Countable, \JsonSerializable
 
     /**
      * Save data if storage has been defined.
+     *
+     * @return void
      * @throws RuntimeException
      */
     public function save()

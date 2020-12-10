@@ -11,6 +11,10 @@ declare(strict_types=1);
 
 namespace Grav\Framework\File;
 
+/**
+ * Class File
+ * @package Grav\Framework\File
+ */
 class File extends AbstractFile
 {
     /**

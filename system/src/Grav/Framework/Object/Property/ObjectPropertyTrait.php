@@ -123,6 +123,7 @@ trait ObjectPropertyTrait
     /**
      * @param string $property      Object property to be updated.
      * @param mixed  $value         New value.
+     * @return void
      * @throws \InvalidArgumentException
      */
     protected function doSetProperty($property, $value)
@@ -137,6 +138,7 @@ trait ObjectPropertyTrait
 
     /**
      * @param string  $property     Object property to be unset.
+     * @return void
      */
     protected function doUnsetProperty($property)
     {
@@ -148,6 +150,9 @@ trait ObjectPropertyTrait
         $this->{$property} = null;
     }
 
+    /**
+     * @return void
+     */
     protected function initObjectProperties()
     {
         $this->_definedProperties = [];
@@ -192,6 +197,7 @@ trait ObjectPropertyTrait
 
     /**
      * @param array $elements
+     * @return void
      */
     protected function setElements(array $elements)
     {
@@ -199,7 +205,4 @@ trait ObjectPropertyTrait
             $this->setProperty($property, $value);
         }
     }
-
-    abstract public function setProperty($property, $value);
-    abstract protected function setKey($key);
 }

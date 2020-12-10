@@ -301,6 +301,7 @@ class Setup extends Data
 
     /**
      * @param UniformResourceLocator $locator
+     * @return void
      * @throws InvalidArgumentException
      * @throws BadMethodCallException
      * @throws RuntimeException
