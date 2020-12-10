@@ -1477,12 +1477,13 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
             $matched = false;
 
             //Look for existing class
-            $svg = preg_replace_callback('/^<svg.*?(class=\"(.*?)").*>/', function($matches) use ($classes, &$matched) {
+            $svg = preg_replace_callback('/^<svg[^>]*(class=\")([^"]*)(\")[^>]*>/', function($matches) use ($classes, &$matched) {
                 if (isset($matches[2])) {
                     $new_classes = $matches[2] . $classes;
                     $matched = true;
                     return str_replace($matches[1], "class=\"$new_classes\"", $matches[0]);
                 }
+                return $matches[0];
             }, $svg
             );
 
