@@ -2,6 +2,7 @@
 ## mm/dd/2020
 
 1. [](#new)
+    * Update phpstan to version 0.12
     * Auto-Escape enabled by default. Manually enable **Twig Compatibility** and disable **Auto-Escape** to use the old setting.
     * Updated unit tests to use codeception 4.1
     * Added support for setting `GRAV_ENVIRONMENT` by using environment variable or a constant

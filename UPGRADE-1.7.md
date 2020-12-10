@@ -230,6 +230,7 @@ Grav 1.7 REQUIRES PHP 7.3.6
 * **DEPRECATED** `FlexDirectory::update()` and `FlexDirectory::remove()`
 * **BC BREAK** Moved all Flex type classes under `Grav\Common\Flex`
 * **BC BREAK** `FlexStorageInterface::getStoragePath()` and `getMediaPath()` can now return null
+* **BC BREAK** `FlexStorageIngerface::getMetaData()` now has second optional argument
 * **BC BREAK** Flex objects no longer return temporary key if they do not have one; empty key is returned instead
 * **BC BREAK** Added reload argument to `FlexStorageInterface::getMetaData()`
 * You can add `edit_list.html.twig` file to a form field in order to customize look in the listing view

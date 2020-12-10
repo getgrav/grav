@@ -62,8 +62,8 @@
     },
     "require-dev": {
         "codeception/codeception": "^4.1",
-        "phpstan/phpstan": "^0.11",
-        "phpstan/phpstan-deprecation-rules": "^0.11",
+        "phpstan/phpstan": "^0.12",
+        "phpstan/phpstan-deprecation-rules": "^0.12",
         "phpunit/php-code-coverage": "~9.2",
         "fzaninotto/faker": "^1.9",
         "victorjonsson/markdowndocs": "dev-master",
@@ -113,11 +113,9 @@
     },
     "scripts": {
         "api-17": "vendor/bin/phpdoc-md generate system/src > user/pages/14.api/default.17.md",
-        "api-16": "vendor/bin/phpdoc-md generate system/src > user/pages/14.api/default.16.md",
-        "api-15": "vendor/bin/phpdoc-md generate system/src > user/pages/14.api/default.md",
         "post-create-project-cmd": "bin/grav install",
-        "phpstan": "vendor/bin/phpstan analyse -l 3 -c ./tests/phpstan/phpstan.neon --memory-limit=400M system/src",
-        "phpstan-framework": "vendor/bin/phpstan analyse -l 7 -c ./tests/phpstan/phpstan.neon --memory-limit=256M system/src/Grav/Framework",
+        "phpstan": "vendor/bin/phpstan analyse -l 3 -c ./tests/phpstan/phpstan.neon --memory-limit=480M system/src",
+        "phpstan-framework": "vendor/bin/phpstan analyse -l 8 -c ./tests/phpstan/phpstan.neon --memory-limit=480M system/src/Grav/Framework system/src/Grav/Events system/src/Grav/Installer system/src/Grav/Common/Assets system/src/Grav/Common/Backup system/src/Grav/Common/Config system/src/Grav/Common/Data system/src/Grav/Common/Errors system/src/Grav/Common/File system/src/Grav/Common/Helpers system/src/Grav/Common/Language system/src/Grav/Common/Markdown system/src/Grav/Common/Form system/src/Grav/Common/User",
         "phpstan-plugins": "vendor/bin/phpstan analyse -l 1 -c ./tests/phpstan/plugins.neon --memory-limit=400M user/plugins",
         "test": "vendor/bin/codecept run unit",
         "test-windows": "vendor\\bin\\codecept run unit"

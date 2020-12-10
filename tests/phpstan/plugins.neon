@@ -9,8 +9,13 @@ parameters:
         - %currentWorkingDirectory%/user/plugins/*/tests/*
         - %currentWorkingDirectory%/user/plugins/gantry5/src/platforms
         - %currentWorkingDirectory%/user/plugins/gantry5/src/classes/Gantry/Framework/Services/ErrorServiceProvider.php
-    bootstrap: tests/phpstan/plugins-bootstrap.php
+    bootstrapFiles:
+        - plugins-bootstrap.php
     reportUnmatchedIgnoredErrors: false
+    # These checks are new in phpstan 0.12, ignore them for now.
+    checkMissingIterableValueType: false
+    checkGenericClassInNonGenericObjectType: false
+
     universalObjectCratesClasses:
         - Grav\Common\Config\Config
         - Grav\Common\Config\Languages
@@ -41,3 +46,6 @@ parameters:
         - '#Call to deprecated method (stopPropagation|isPropagationStopped)\(\) of class Symfony\\Component\\EventDispatcher\\Event#'
         - '#Call to an undefined method Grav\\Plugin\\ApartmentData\\Application\\Application::#'
         - '#Parameter \#1 \$lineNumberStyle of method ScssPhp\\ScssPhp\\Compiler::setLineNumberStyle\(\) expects string, int given#'
+
+        # Deprecated event class
+        - '#has typehint with deprecated class RocketTheme\\Toolbox\\Event\\Event#'
