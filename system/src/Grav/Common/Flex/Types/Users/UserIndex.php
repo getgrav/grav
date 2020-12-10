@@ -79,6 +79,8 @@ class UserIndex extends FlexIndex
      */
     public function load($username): UserInterface
     {
+        $username = (string)$username;
+
         if ($username !== '') {
             $key = static::filterUsername($username, $this->getFlexDirectory()->getStorage());
             $user = $this->get($key);

@@ -48,6 +48,8 @@ class UserCollection implements UserCollectionInterface
      */
     public function load($username): UserInterface
     {
+        $username = (string)$username;
+
         $grav = Grav::instance();
         /** @var UniformResourceLocator $locator */
         $locator = $grav['locator'];

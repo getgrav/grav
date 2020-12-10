@@ -43,6 +43,8 @@ class UserCollection extends FlexCollection implements UserCollectionInterface
      */
     public function load($username): UserInterface
     {
+        $username = (string)$username;
+
         if ($username !== '') {
             $key = $this->filterUsername($username);
             $user = $this->get($key);

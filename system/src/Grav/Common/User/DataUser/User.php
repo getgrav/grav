@@ -120,7 +120,7 @@ class User extends Data implements UserInterface
         }
 
         if ($file) {
-            $username = $this->filterUsername($this->get('username'));
+            $username = $this->filterUsername((string)$this->get('username'));
 
             if (!$file->filename()) {
                 $locator = Grav::instance()['locator'];
