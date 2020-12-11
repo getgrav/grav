@@ -10,6 +10,7 @@
 namespace Grav\Common\Page\Medium;
 
 use Exception;
+use Grav\Common\Config\Config;
 use Grav\Common\Grav;
 use Gregwar\Image\Exceptions\GenerationError;
 use Gregwar\Image\Image;
@@ -35,7 +36,10 @@ class ImageFile extends Image
      */
     public function __destruct()
     {
-        $this->getAdapter()->deinit();
+        $adapter = $this->adapter;
+        if ($adapter) {
+            $adapter->deinit();
+        }
     }
 
     /**
@@ -70,8 +74,11 @@ class ImageFile extends Image
         // Computes the hash
         $this->hash = $this->getHash($type, $quality, $extras);
 
+        /** @var Config $config */
+        $config = Grav::instance()['config'];
+
         // Seo friendly image names
-        $seofriendly = Grav::instance()['config']->get('system.images.seofriendly', false);
+        $seofriendly = $config->get('system.images.seofriendly', false);
 
         if ($seofriendly) {
             $mini_hash = substr($this->hash, 0, 4) . substr($this->hash, -4);
@@ -104,7 +111,7 @@ class ImageFile extends Image
 
         // Asking the cache for the cacheFile
         try {
-            $perms = Grav::instance()['config']->get('system.images.cache_perms', '0755');
+            $perms = $config->get('system.images.cache_perms', '0755');
             $perms = octdec($perms);
             $file = $this->getCacheSystem()->setDirectoryMode($perms)->getOrCreateFile($cacheFile, $conditions, $generate, $actual);
         } catch (GenerationError $e) {
@@ -112,8 +119,9 @@ class ImageFile extends Image
         }
 
         // Nulling the resource
-        $this->getAdapter()->setSource(new Source\File($file));
-        $this->getAdapter()->deinit();
+        $adapter = $this->getAdapter();
+        $adapter->setSource(new Source\File($file));
+        $adapter->deinit();
 
         if ($actual) {
             return $file;
@@ -124,6 +132,7 @@ class ImageFile extends Image
 
     /**
      * Gets the hash.
+     *
      * @param string $type
      * @param int $quality
      * @param array $extras
@@ -140,6 +149,7 @@ class ImageFile extends Image
 
     /**
      * Generates the hash.
+     *
      * @param string $type
      * @param int $quality
      * @param array $extras
@@ -148,7 +158,7 @@ class ImageFile extends Image
     {
         $inputInfos = $this->source->getInfos();
 
-        $datas = [
+        $data = [
             $inputInfos,
             $this->serializeOperations(),
             $type,
@@ -156,7 +166,7 @@ class ImageFile extends Image
             $extras
         ];
 
-        $this->hash = sha1(serialize($datas));
+        $this->hash = sha1(serialize($data));
     }
 
     /**
@@ -164,16 +174,12 @@ class ImageFile extends Image
      */
     public function fixOrientation()
     {
-        if (!in_array(exif_imagetype($this->source->getInfos()), array(
-            IMAGETYPE_JPEG,
-            IMAGETYPE_TIFF_II,
-            IMAGETYPE_TIFF_MM,
-        ))) {
-            return $this;
+        if (!extension_loaded('exif')) {
+            throw new RuntimeException('You need to EXIF PHP Extension to use this function');
         }
 
-        if (!extension_loaded('exif')) {
-            throw new \RuntimeException('You need to EXIF PHP Extension to use this function');
+        if (!in_array(exif_imagetype($this->source->getInfos()), [IMAGETYPE_JPEG, IMAGETYPE_TIFF_II, IMAGETYPE_TIFF_MM], true)) {
+            return $this;
         }
 
         // resolve any streams

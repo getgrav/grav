@@ -15,6 +15,7 @@
     * Fixed CLI/GPM command failures returning 0 (success) value [#3017](https://github.com/getgrav/grav/issues/3017)
     * Fixed unimplemented `PageObject::getOriginal()` call [#3098](https://github.com/getgrav/grav/issues/3098)
     * Fixed `Argument 1 passed to Grav\Common\User\DataUser\User::filterUsername() must be of the type string` [#3101](https://github.com/getgrav/grav/issues/3101)
+    * Fixed broken check if php exif module is enabled in `ImageFile::fixOrientation()`
 
 # v1.7.0-rc.19
 ## 12/02/2020
