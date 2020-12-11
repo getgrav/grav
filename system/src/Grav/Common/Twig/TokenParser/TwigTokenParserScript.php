@@ -17,9 +17,9 @@ use Twig\TokenParser\AbstractTokenParser;
 /**
  * Adds a script to head/bottom/custom location in the document.
  *
- * {% script 'theme://js/something.js' in 'bottom' priority: 20 with { defer: true, async: true } %}
+ * {% script 'theme://js/something.js' at 'bottom' priority: 20 with { defer: true, async: true } %}
  *
- * {% script in 'bottom' priority: 20 %}
+ * {% script at 'bottom' priority: 20 %}
  *     alert('Warning!');
  * {% endscript %}
 
@@ -57,13 +57,29 @@ class TwigTokenParserScript extends AbstractTokenParser
     {
         $stream = $this->parser->getStream();
 
+        // Look for deprecated {% script ... in ... %}
+        if (!$stream->test(Token::BLOCK_END_TYPE) && !$stream->test(Token::OPERATOR_TYPE, 'in')) {
+            $i = 0;
+            do {
+                $token = $stream->look(++$i);
+                if ($token->test(Token::BLOCK_END_TYPE)) {
+                    break;
+                }
+                if ($token->test(Token::OPERATOR_TYPE, 'in') && $stream->look($i+1)->test(Token::STRING_TYPE)) {
+                    user_error("Twig: Using {% script ... in ... %} is deprecated, use {% script ...  at ... %} instead", E_USER_DEPRECATED);
+
+                    break;
+                }
+            } while (true);
+        }
+
         $file = null;
-        if (!$stream->test(Token::NAME_TYPE) && !$stream->test(Token::OPERATOR_TYPE) && !$stream->test(Token::BLOCK_END_TYPE)) {
+        if (!$stream->test(Token::NAME_TYPE) && !$stream->test(Token::OPERATOR_TYPE, 'in') && !$stream->test(Token::BLOCK_END_TYPE)) {
             $file = $this->parser->getExpressionParser()->parseExpression();
         }
 
         $group = null;
-        if ($stream->nextIf(Token::OPERATOR_TYPE, 'in')) {
+        if ($stream->nextIf(Token::NAME_TYPE, 'at') || $stream->nextIf(Token::OPERATOR_TYPE, 'in')) {
             $group = $this->parser->getExpressionParser()->parseExpression();
         }
 

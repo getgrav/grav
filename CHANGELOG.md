@@ -17,6 +17,7 @@
     * Fixed `Argument 1 passed to Grav\Common\User\DataUser\User::filterUsername() must be of the type string` [#3101](https://github.com/getgrav/grav/issues/3101)
     * Fixed broken check if php exif module is enabled in `ImageFile::fixOrientation()`
     * Fixed `StaticResizeTrait::resize()` bad image height/width attributes if `null` values are passed to the method
+    * Fixed twig script/style tag `{% script 'file.js' at 'bottom' %}`, replaces broken `in` operator [#3084](https://github.com/getgrav/grav/issues/3084)
 
 # v1.7.0-rc.19
 ## 12/02/2020
