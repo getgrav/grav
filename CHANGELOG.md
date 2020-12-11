@@ -16,6 +16,7 @@
     * Fixed unimplemented `PageObject::getOriginal()` call [#3098](https://github.com/getgrav/grav/issues/3098)
     * Fixed `Argument 1 passed to Grav\Common\User\DataUser\User::filterUsername() must be of the type string` [#3101](https://github.com/getgrav/grav/issues/3101)
     * Fixed broken check if php exif module is enabled in `ImageFile::fixOrientation()`
+    * Fixed `StaticResizeTrait::resize()` bad image height/width attributes if `null` values are passed to the method
 
 # v1.7.0-rc.19
 ## 12/02/2020

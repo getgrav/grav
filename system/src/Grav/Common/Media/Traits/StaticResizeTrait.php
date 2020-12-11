@@ -24,8 +24,16 @@ trait StaticResizeTrait
      */
     public function resize($width = null, $height = null)
     {
-        $this->styleAttributes['width'] = $width . 'px';
-        $this->styleAttributes['height'] = $height . 'px';
+        if ($width) {
+            $this->styleAttributes['width'] = $width . 'px';
+        } else {
+            unset($this->styleAttributes['width']);
+        }
+        if ($height) {
+            $this->styleAttributes['height'] = $height . 'px';
+        } else {
+            unset($this->styleAttributes['height']);
+        }
 
         return $this;
     }

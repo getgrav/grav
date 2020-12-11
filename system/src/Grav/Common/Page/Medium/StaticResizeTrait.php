@@ -9,6 +9,8 @@
 
 namespace Grav\Common\Page\Medium;
 
+use Grav\Common\Media\Traits\StaticResizeTrait as NewResizeTrait;
+
 user_error('Grav\Common\Page\Medium\StaticResizeTrait is deprecated since Grav 1.7, use Grav\Common\Media\Traits\StaticResizeTrait instead', E_USER_DEPRECATED);
 
 /**
@@ -18,18 +20,5 @@ user_error('Grav\Common\Page\Medium\StaticResizeTrait is deprecated since Grav 1
  */
 trait StaticResizeTrait
 {
-    /**
-     * Resize media by setting attributes
-     *
-     * @param  int|null $width
-     * @param  int|null $height
-     * @return $this
-     */
-    public function resize($width = null, $height = null)
-    {
-        $this->styleAttributes['width'] = $width . 'px';
-        $this->styleAttributes['height'] = $height . 'px';
-
-        return $this;
-    }
+    use NewResizeTrait;
 }
