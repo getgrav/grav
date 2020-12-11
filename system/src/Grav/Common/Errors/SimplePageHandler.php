@@ -9,6 +9,7 @@
 
 namespace Grav\Common\Errors;
 
+use InvalidArgumentException;
 use RuntimeException;
 use Whoops\Handler\Handler;
 use Whoops\Util\Misc;
@@ -102,7 +103,7 @@ class SimplePageHandler extends Handler
     public function addResourcePath($path)
     {
         if (!is_dir($path)) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 "'{$path}' is not a valid directory"
             );
         }

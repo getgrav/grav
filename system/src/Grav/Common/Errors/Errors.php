@@ -11,7 +11,10 @@ namespace Grav\Common\Errors;
 
 use Exception;
 use Grav\Common\Grav;
-use Whoops;
+use Whoops\Handler\JsonResponseHandler;
+use Whoops\Handler\PrettyPageHandler;
+use Whoops\Run;
+use Whoops\Util\Misc;
 use function is_int;
 
 /**
@@ -31,7 +34,7 @@ class Errors
 
         // Setup Whoops-based error handler
         $system = new SystemFacade;
-        $whoops = new Whoops\Run($system);
+        $whoops = new Run($system);
 
         $verbosity = 1;
 
@@ -45,7 +48,7 @@ class Errors
 
         switch ($verbosity) {
             case 1:
-                $error_page = new Whoops\Handler\PrettyPageHandler;
+                $error_page = new PrettyPageHandler();
                 $error_page->setPageTitle('Crikey! There was an error...');
                 $error_page->addResourcePath(GRAV_ROOT . '/system/assets');
                 $error_page->addCustomCss('whoops.css');
@@ -59,13 +62,13 @@ class Errors
                 break;
         }
 
-        if (Whoops\Util\Misc::isAjaxRequest() || $jsonRequest) {
-            $whoops->prependHandler(new Whoops\Handler\JsonResponseHandler);
+        if ($jsonRequest || Misc::isAjaxRequest()) {
+            $whoops->prependHandler(new JsonResponseHandler());
         }
 
         if (isset($config['log']) && $config['log']) {
             $logger = $grav['log'];
-            $whoops->prependHandler(function ($exception, $inspector, $run) use ($logger) {
+            $whoops->pushHandler(function ($exception, $inspector, $run) use ($logger) {
                 try {
                     $logger->addCritical($exception->getMessage() . ' - Trace: ' . $exception->getTraceAsString());
                 } catch (Exception $e) {
