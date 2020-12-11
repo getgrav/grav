@@ -25,6 +25,7 @@ use Grav\Framework\Session\Exceptions\SessionException;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\SyslogHandler;
 use Monolog\Logger;
+use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
@@ -100,14 +101,16 @@ class InitializeProcessor extends ProcessorBase
         $this->initializePages($config);
 
         // Initialize URI.
-        $uri = $this->initializeUri($config);
+        $this->initializeUri($config);
 
         // Grav may return redirect response right away.
-        $response = $this->handleRedirectRequest($config, $uri);
-        if ($response) {
-            $this->stopTimer('_init');
+        if ($config->get('system.pages.redirect_trailing_slash', false)) {
+            $response = $this->handleRedirectRequest($request);
+            if ($response) {
+                $this->stopTimer('_init');
 
-            return $response;
+                return $response;
+            }
         }
 
         // Load accounts (decides class to be used).
@@ -363,7 +366,7 @@ class InitializeProcessor extends ProcessorBase
     }
 
 
-    protected function initializeUri(Config $config): Uri
+    protected function initializeUri(Config $config): void
     {
         $this->startTimer('_init_uri', 'Initialize URI');
 
@@ -374,23 +377,17 @@ class InitializeProcessor extends ProcessorBase
         $uri->init();
 
         $this->stopTimer('_init_uri');
-
-        return $uri;
     }
 
-    protected function handleRedirectRequest(Config $config, Uri $uri): ?ResponseInterface
+    protected function handleRedirectRequest(RequestInterface $request): ?ResponseInterface
     {
-        $grav = $this->container;
-
         // Redirect pages with trailing slash if configured to do so.
-        $path = $uri->path() ?: '/';
-        if ($path !== '/'
-            && $config->get('system.pages.redirect_trailing_slash', false)
-            && Utils::endsWith($path, '/')
-        ) {
-            $redirect = $uri::getCurrentRoute()->toString();
+        $uri = $request->getUri();
+        $path = $request->getUri()->getPath() ?: '/';
 
-            return $grav->getRedirectResponse($redirect);
+        if ($path !== '/' && Utils::endsWith($path, '/')
+        ) {
+            return $this->container->getRedirectResponse((string)$uri->withPath(rtrim($path, '/')));
         }
 
         return null;
