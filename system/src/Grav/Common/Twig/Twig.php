@@ -92,7 +92,7 @@ class Twig
 
             // handle language templates if available
             if ($language->enabled()) {
-                $lang_templates = $locator->findResource('theme://templates/' . ($active_language ? $active_language : $language->getDefault()));
+                $lang_templates = $locator->findResource('theme://templates/' . ($active_language ?: $language->getDefault()));
                 if ($lang_templates) {
                     $this->twig_paths[] = $lang_templates;
                 }
@@ -118,7 +118,7 @@ class Twig
 
                 // handle language templates if available
                 if ($language->enabled()) {
-                    $lang_templates = $locator->findResource('theme://'.$prefix.'templates/' . ($active_language ? $active_language : $language->getDefault()));
+                    $lang_templates = $locator->findResource('theme://'.$prefix.'templates/' . ($active_language ?: $language->getDefault()));
                     if ($lang_templates) {
                         $twig_paths[] = $lang_templates;
                     }
@@ -160,7 +160,7 @@ class Twig
                         return new TwigFunction($name, $name);
                     }
 
-                    return new TwigFunction($name, function () {
+                    return new TwigFunction($name, static function () {
                     });
                 });
             }
@@ -171,7 +171,7 @@ class Twig
                         return new TwigFilter($name, $name);
                     }
 
-                    return new TwigFilter($name, function () {
+                    return new TwigFilter($name, static function () {
                     });
                 });
             }

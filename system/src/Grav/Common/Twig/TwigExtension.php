@@ -631,7 +631,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
         }
 
         $results = Security::detectXssFromArray($data);
-        $results_parts = array_map(function ($value, $key) {
+        $results_parts = array_map(static function ($value, $key) {
             return $key.': \''.$value . '\'';
         }, array_values($results), array_keys($results));
 
@@ -1364,10 +1364,9 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
                 if (isset($value)) {
                     if ($exists) {
                         return $page;
-                    } else {
-                        return $value;
                     }
 
+                    return $value;
                 }
                 $page = $page->parent();
             }
@@ -1375,9 +1374,9 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
 
         if ($exists) {
             return false;
-        } else {
-            return Grav::instance()['config']->get('theme.' . $var, $default);
         }
+
+        return Grav::instance()['config']->get('theme.' . $var, $default);
     }
 
     /**
@@ -1470,6 +1469,8 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
 
             return $svg;
         }
+
+        return null;
     }
 
 
