@@ -46,7 +46,7 @@ class TwigNodeRender extends Node implements NodeCaptureInterface
      * @return void
      * @throws LogicException
      */
-    public function compile(Compiler $compiler)
+    public function compile(Compiler $compiler): void
     {
         $compiler->addDebugInfo($this);
         $compiler->write('$object = ')->subcompile($this->getNode('object'))->raw(';' . PHP_EOL);

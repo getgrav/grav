@@ -53,7 +53,7 @@ class TwigTokenParserScript extends AbstractTokenParser
      * @param Token $token
      * @return array
      */
-    protected function parseArguments(Token $token)
+    protected function parseArguments(Token $token): array
     {
         $stream = $this->parser->getStream();
 
@@ -87,7 +87,7 @@ class TwigTokenParserScript extends AbstractTokenParser
      * @param Token $token
      * @return bool
      */
-    public function decideBlockEnd(Token $token)
+    public function decideBlockEnd(Token $token): bool
     {
         return $token->test('endscript');
     }
@@ -97,7 +97,7 @@ class TwigTokenParserScript extends AbstractTokenParser
      *
      * @return string The tag name
      */
-    public function getTag()
+    public function getTag(): string
     {
         return 'script';
     }

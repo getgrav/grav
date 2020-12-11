@@ -41,7 +41,7 @@ class TwigNodeTryCatch extends Node
      * @return void
      * @throws LogicException
      */
-    public function compile(Compiler $compiler)
+    public function compile(Compiler $compiler): void
     {
         $compiler->addDebugInfo($this);
 

@@ -106,7 +106,7 @@ class TwigTokenParserSwitch extends AbstractTokenParser
      * @param Token $token
      * @return bool
      */
-    public function decideIfFork(Token $token)
+    public function decideIfFork(Token $token): bool
     {
         return $token->test(['case', 'default', 'endswitch']);
     }
@@ -117,7 +117,7 @@ class TwigTokenParserSwitch extends AbstractTokenParser
      * @param Token $token
      * @return bool
      */
-    public function decideIfEnd(Token $token)
+    public function decideIfEnd(Token $token): bool
     {
         return $token->test(['endswitch']);
     }
@@ -125,7 +125,7 @@ class TwigTokenParserSwitch extends AbstractTokenParser
     /**
      * {@inheritdoc}
      */
-    public function getTag()
+    public function getTag(): string
     {
         return 'switch';
     }

@@ -57,14 +57,14 @@ class TwigTokenParserCache extends AbstractTokenParser
      * @param Token $token
      * @return bool
      */
-    public function decideCacheEnd(Token $token)
+    public function decideCacheEnd(Token $token): bool
     {
         return $token->test('endcache');
     }
     /**
      * {@inheritDoc}
      */
-    public function getTag()
+    public function getTag(): string
     {
         return 'cache';
     }

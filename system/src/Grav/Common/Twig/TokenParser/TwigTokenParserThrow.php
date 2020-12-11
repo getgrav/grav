@@ -48,7 +48,7 @@ class TwigTokenParserThrow extends AbstractTokenParser
      *
      * @return string The tag name
      */
-    public function getTag()
+    public function getTag(): string
     {
         return 'throw';
     }

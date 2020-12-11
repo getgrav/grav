@@ -55,7 +55,7 @@ class TwigTokenParserTryCatch extends AbstractTokenParser
      * @param Token $token
      * @return bool
      */
-    public function decideCatch(Token $token)
+    public function decideCatch(Token $token): bool
     {
         return $token->test(['catch']);
     }
@@ -64,7 +64,7 @@ class TwigTokenParserTryCatch extends AbstractTokenParser
      * @param Token $token
      * @return bool
      */
-    public function decideEnd(Token $token)
+    public function decideEnd(Token $token): bool
     {
         return $token->test(['endtry']) || $token->test(['endcatch']);
     }
@@ -74,7 +74,7 @@ class TwigTokenParserTryCatch extends AbstractTokenParser
      *
      * @return string The tag name
      */
-    public function getTag()
+    public function getTag(): string
     {
         return 'try';
     }

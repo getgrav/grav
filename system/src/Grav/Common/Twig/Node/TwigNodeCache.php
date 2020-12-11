@@ -33,7 +33,7 @@ class TwigNodeCache extends Node
     /**
      * {@inheritDoc}
      */
-    public function compile(Compiler $compiler)
+    public function compile(Compiler $compiler): void
     {
         $boo = $this->getAttribute('key');
         $compiler

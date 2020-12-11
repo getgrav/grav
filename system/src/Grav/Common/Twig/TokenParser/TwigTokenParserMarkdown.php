@@ -45,14 +45,14 @@ class TwigTokenParserMarkdown extends AbstractTokenParser
      * @param Token $token
      * @return bool
      */
-    public function decideMarkdownEnd(Token $token)
+    public function decideMarkdownEnd(Token $token): bool
     {
         return $token->test('endmarkdown');
     }
     /**
      * {@inheritdoc}
      */
-    public function getTag()
+    public function getTag(): string
     {
         return 'markdown';
     }

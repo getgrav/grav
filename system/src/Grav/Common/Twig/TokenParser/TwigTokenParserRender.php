@@ -40,7 +40,7 @@ class TwigTokenParserRender extends AbstractTokenParser
      * @param Token $token
      * @return array
      */
-    protected function parseArguments(Token $token)
+    protected function parseArguments(Token $token): array
     {
         $stream = $this->parser->getStream();
 
@@ -67,7 +67,7 @@ class TwigTokenParserRender extends AbstractTokenParser
      *
      * @return string The tag name
      */
-    public function getTag()
+    public function getTag(): string
     {
         return 'render';
     }
