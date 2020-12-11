@@ -33,10 +33,10 @@ class Assets extends PropertyObject
     const JS = 'js';
     const CSS_COLLECTION = 'assets_css';
     const JS_COLLECTION = 'assets_js';
-    const CSS_TYPE = Assets\Css::Class;
-    const JS_TYPE = Assets\Js::Class;
-    const INLINE_CSS_TYPE = Assets\InlineCss::Class;
-    const INLINE_JS_TYPE = Assets\InlineJs::Class;
+    const CSS_TYPE = Assets\Css::class;
+    const JS_TYPE = Assets\Js::class;
+    const INLINE_CSS_TYPE = Assets\InlineCss::class;
+    const INLINE_JS_TYPE = Assets\InlineJs::class;
 
     /** @const Regex to match CSS and JavaScript files */
     const DEFAULT_REGEX = '/.\.(css|js)$/i';
@@ -175,7 +175,7 @@ class Assets extends PropertyObject
             $extension = pathinfo(parse_url($asset, PHP_URL_PATH), PATHINFO_EXTENSION);
 
             // JavaScript or CSS
-            if (\strlen($extension) > 0) {
+            if ($extension !== '') {
                 $extension = strtolower($extension);
                 if ($extension === 'css') {
                     call_user_func_array([$this, 'addCss'], $args);
