@@ -383,10 +383,10 @@ class InitializeProcessor extends ProcessorBase
     {
         // Redirect pages with trailing slash if configured to do so.
         $uri = $request->getUri();
-        $path = $request->getUri()->getPath() ?: '/';
+        $path = $uri->getPath() ?: '/';
+        $root = $this->container['uri']->rootUrl();
 
-        if ($path !== '/' && Utils::endsWith($path, '/')
-        ) {
+        if ($path !== $root && $path !== $root . '/' && Utils::endsWith($path, '/')) {
             return $this->container->getRedirectResponse((string)$uri->withPath(rtrim($path, '/')));
         }
 
