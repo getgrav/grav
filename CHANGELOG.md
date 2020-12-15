@@ -1,5 +1,5 @@
-# v1.7.0
-## mm/dd/2020
+# v1.7.0-rc.20
+## 12/15/2020
 
 1. [](#new)
     * Update phpstan to version 0.12
