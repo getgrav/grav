@@ -223,6 +223,8 @@ class Setup extends Data
         // Initialize class.
         parent::__construct($setup);
 
+        $this->def('environment', static::$environment);
+
         // Figure out path for the current environment.
         $envPath = defined('GRAV_ENVIRONMENT_PATH') ? GRAV_ENVIRONMENT_PATH : (getenv('GRAV_ENVIRONMENT_PATH') ?: null);
         if (null === $envPath) {
