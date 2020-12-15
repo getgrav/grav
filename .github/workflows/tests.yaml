@@ -14,7 +14,7 @@ jobs:
 
     strategy:
       matrix:
-        php: [ 8.0, 7.4, 7.3]
+        php: [ 7.4, 7.3]
         os: [ubuntu-latest]
 
     steps:
@@ -54,7 +54,7 @@ jobs:
       name: Slack
       needs: unit-tests
       runs-on: ubuntu-latest
-      if: always() 
+      if: always()
       steps:
         - uses: technote-space/workflow-conclusion-action@v2
         - uses: 8398a7/action-slack@v3
