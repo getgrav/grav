@@ -11,22 +11,49 @@ define('GRAV', true);
 define('GRAV_VERSION', '1.7.0-rc.19');
 define('GRAV_SCHEMA', '1.7.0_2020-11-20_1');
 define('GRAV_TESTING', true);
-if (!defined('DS')) {
-    define('DS', '/');
-}
 
+// PHP minimum requirement
 if (!defined('GRAV_PHP_MIN')) {
     define('GRAV_PHP_MIN', '7.3.6');
 }
 
+// Directory separator
+if (!defined('DS')) {
+    define('DS', '/');
+}
+
 // Directories and Paths
 if (!defined('GRAV_ROOT')) {
-    define('GRAV_ROOT', str_replace(DIRECTORY_SEPARATOR, DS, getcwd()));
+    $path = rtrim(str_replace(DIRECTORY_SEPARATOR, DS, getenv('GRAV_ROOT') ?: getcwd()), DS);
+    define('GRAV_ROOT', $path);
 }
-define('ROOT_DIR', GRAV_ROOT . '/');
-define('USER_PATH', 'user/');
+if (!defined('GRAV_USER_PATH')) {
+    $path = rtrim(getenv('GRAV_USER_PATH') ?: 'user', DS);
+    define('GRAV_USER_PATH', $path);
+}
+if (!defined('GRAV_CACHE_PATH')) {
+    $path = rtrim(getenv('GRAV_CACHE_PATH') ?: 'cache', DS);
+    define('GRAV_CACHE_PATH', $path);
+}
+if (!defined('GRAV_LOG_PATH')) {
+    $path = rtrim(getenv('GRAV_LOG_PATH') ?: 'logs', DS);
+    define('GRAV_LOG_PATH', $path);
+}
+if (!defined('GRAV_TMP_PATH')) {
+    $path = rtrim(getenv('GRAV_TMP_PATH') ?: 'tmp', DS);
+    define('GRAV_TMP_PATH', $path);
+}
+if (!defined('GRAV_BACKUP_PATH')) {
+    $path = rtrim(getenv('GRAV_BACKUP_PATH') ?: 'backup', DS);
+    define('GRAV_BACKUP_PATH', $path);
+}
+unset($path);
+
+define('USER_PATH', GRAV_USER_PATH . DS);
+define('CACHE_PATH', GRAV_CACHE_PATH . DS);
+define('ROOT_DIR', GRAV_ROOT . DS);
 define('USER_DIR', ROOT_DIR . USER_PATH);
-define('CACHE_DIR', ROOT_DIR . 'cache/');
+define('CACHE_DIR', ROOT_DIR . CACHE_PATH);
 
 // DEPRECATED: Do not use!
 define('ASSETS_DIR', ROOT_DIR . 'assets/');
@@ -39,7 +66,7 @@ define('LIB_DIR', SYSTEM_DIR .'src/');
 define('PLUGINS_DIR', USER_DIR .'plugins/');
 define('THEMES_DIR', USER_DIR .'themes/');
 define('VENDOR_DIR', ROOT_DIR .'vendor/');
-define('LOG_DIR', ROOT_DIR .'logs/');
+define('LOG_DIR', ROOT_DIR . GRAV_LOG_PATH . DS);
 // END DEPRECATED
 
 // Some extensions

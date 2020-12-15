@@ -7,6 +7,8 @@
     * Updated unit tests to use codeception 4.1
     * Added support for setting `GRAV_ENVIRONMENT` by using environment variable or a constant
     * Added support for setting `GRAV_SETUP_PATH` by using environment variable (constant already worked)
+    * Added support for setting `GRAV_ENVIRONMENTS_PATH` by using environment variable or a constant
+    * Added support for setting `GRAV_ENVIRONMENT_PATH` by using environment variable or a constant
 1. [](#improved)
     * Improved `bin/grav install` command
 1. [](#bugfix)

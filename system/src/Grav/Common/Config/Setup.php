@@ -43,22 +43,51 @@ class Setup extends Data
 
     /** @var array */
     protected $streams = [
-        'system' => [
-            'type' => 'ReadOnlyStream',
-            'prefixes' => [
-                '' => ['system'],
-            ]
-        ],
         'user' => [
             'type' => 'ReadOnlyStream',
             'force' => true,
             'prefixes' => [
-                '' => ['user'],
+                '' => [] // Set in constructor
+            ]
+        ],
+        'cache' => [
+            'type' => 'Stream',
+            'force' => true,
+            'prefixes' => [
+                '' => [], // Set in constructor
+                'images' => ['images']
+            ]
+        ],
+        'log' => [
+            'type' => 'Stream',
+            'force' => true,
+            'prefixes' => [
+                '' => [] // Set in constructor
+            ]
+        ],
+        'tmp' => [
+            'type' => 'Stream',
+            'force' => true,
+            'prefixes' => [
+                '' => [] // Set in constructor
+            ]
+        ],
+        'backup' => [
+            'type' => 'Stream',
+            'force' => true,
+            'prefixes' => [
+                '' => [] // Set in constructor
             ]
         ],
         'environment' => [
             'type' => 'ReadOnlyStream'
             // If not defined, environment will be set up in the constructor.
+        ],
+        'system' => [
+            'type' => 'ReadOnlyStream',
+            'prefixes' => [
+                '' => ['system'],
+            ]
         ],
         'asset' => [
             'type' => 'Stream',
@@ -102,35 +131,6 @@ class Setup extends Data
                 '' => ['environment://languages', 'user://languages', 'system://languages'],
             ]
         ],
-        'cache' => [
-            'type' => 'Stream',
-            'force' => true,
-            'prefixes' => [
-                '' => ['cache'],
-                'images' => ['images']
-            ]
-        ],
-        'log' => [
-            'type' => 'Stream',
-            'force' => true,
-            'prefixes' => [
-                '' => ['logs']
-            ]
-        ],
-        'backup' => [
-            'type' => 'Stream',
-            'force' => true,
-            'prefixes' => [
-                '' => ['backup']
-            ]
-        ],
-        'tmp' => [
-            'type' => 'Stream',
-            'force' => true,
-            'prefixes' => [
-                '' => ['tmp']
-            ]
-        ],
         'image' => [
             'type' => 'Stream',
             'prefixes' => [
@@ -163,35 +163,56 @@ class Setup extends Data
      */
     public function __construct($container)
     {
+        // Configure main streams.
+        $this->streams['user']['prefixes'][''] = [GRAV_USER_PATH];
+        $this->streams['cache']['prefixes'][''] = [GRAV_CACHE_PATH];
+        $this->streams['log']['prefixes'][''] = [GRAV_LOG_PATH];
+        $this->streams['tmp']['prefixes'][''] = [GRAV_TMP_PATH];
+        $this->streams['backup']['prefixes'][''] = [GRAV_BACKUP_PATH];
+
         // If environment is not set, look for the environment variable and then the constant.
-        static::$environment = static::$environment ??
-            (getenv('GRAV_ENVIRONMENT') ?: (defined('GRAV_ENVIRONMENT') ? GRAV_ENVIRONMENT : null));
+        $environment = static::$environment ??
+            defined('GRAV_ENVIRONMENT') ? GRAV_ENVIRONMENT : (getenv('GRAV_ENVIRONMENT') ?: null);
 
         // If no environment is set, make sure we get one (CLI or hostname).
-        if (!static::$environment) {
+        if (null === $environment) {
             if (defined('GRAV_CLI')) {
-                static::$environment = 'cli';
+                $environment = 'cli';
             } else {
                 /** @var ServerRequestInterface $request */
                 $request = $container['request'];
                 $host = $request->getUri()->getHost();
 
-                static::$environment = Utils::substrToString($host, ':');
+                $environment = Utils::substrToString($host, ':');
             }
         }
 
         // Resolve server aliases to the proper environment.
-        $environment = static::$environments[static::$environment] ?? static::$environment;
+        static::$environment = static::$environments[$environment] ?? $environment;
 
         // Pre-load setup.php which contains our initial configuration.
         // Configuration may contain dynamic parts, which is why we need to always load it.
-        // If "GRAV_SETUP_PATH" has been defined, use it, otherwise use defaults.
-        $file = getenv('GRAV_SETUP_PATH')
-            ?: (defined('GRAV_SETUP_PATH') ? GRAV_SETUP_PATH : 'setup.php');
-        if (!str_starts_with($file, '/')) {
-            $file = GRAV_ROOT . '/' . $file;
+        // If GRAV_SETUP_PATH has been defined, use it, otherwise use defaults.
+        $setupFile = defined('GRAV_SETUP_PATH') ? GRAV_SETUP_PATH : (getenv('GRAV_SETUP_PATH') ?: null);
+        if (null !== $setupFile) {
+            // Make sure that the custom setup file exists. Terminates the script if not.
+            if (!str_starts_with($setupFile, '/')) {
+                $setupFile = GRAV_ROOT . '/' . $setupFile;
+            }
+            if (!is_file($setupFile)) {
+                echo 'GRAV_SETUP_PATH is defined but does not point to existing setup file.';
+                exit(1);
+            }
+        } else {
+            $setupFile = GRAV_ROOT . '/setup.php';
+            if (!is_file($setupFile)) {
+                $setupFile = GRAV_ROOT . '/' . GRAV_USER_PATH . '/setup.php';
+            }
+            if (!is_file($setupFile)) {
+                $setupFile = null;
+            }
         }
-        $setup = is_file($file) ? (array) include $file : [];
+        $setup = $setupFile ? (array) include $setupFile : [];
 
         // Add default streams defined in beginning of the class.
         if (!isset($setup['streams']['schemes'])) {
@@ -202,12 +223,29 @@ class Setup extends Data
         // Initialize class.
         parent::__construct($setup);
 
+        // Figure out path for the current environment.
+        $envPath = defined('GRAV_ENVIRONMENT_PATH') ? GRAV_ENVIRONMENT_PATH : (getenv('GRAV_ENVIRONMENT_PATH') ?: null);
+        if (null === $envPath) {
+            // Find common path for all environments and append current environment into it.
+            $envPath = defined('GRAV_ENVIRONMENTS_PATH') ? GRAV_ENVIRONMENTS_PATH : (getenv('GRAV_ENVIRONMENTS_PATH') ?: null);
+            if (null !== $envPath) {
+                $envPath .= '/';
+            } else {
+                // Use default location. Start with Grav 1.7 default.
+                $envPath = GRAV_ROOT. '/' . GRAV_USER_PATH . '/env';
+                if (is_dir($envPath)) {
+                    $envPath = 'user://env/';
+                } else {
+                    // Fallback to Grav 1.6 default.
+                    $envPath = 'user://';
+                }
+            }
+            $envPath .= $this->get('environment');
+        }
+
         // Set up environment.
-        $this->def('environment', $environment);
-        $this->def(
-            'streams.schemes.environment.prefixes',
-            ['' => ["user://env/{$this->get('environment')}", "user://{$this->get('environment')}"]]
-        );
+        $this->def('environment', static::$environment);
+        $this->def('streams.schemes.environment.prefixes', ['' => [$envPath]]);
     }
 
     /**
