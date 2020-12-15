@@ -29,6 +29,8 @@ jobs:
 
       - name: Update composer
         run: composer update
+        env:
+          COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Validate composer.json and composer.lock
         run: composer validate
