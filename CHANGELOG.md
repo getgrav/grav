@@ -1,3 +1,12 @@
+# v1.6.31
+## 12/14/2020
+
+1. [](#improved)
+    * Allow all CSS and JS via `robots.txt` [#2006](https://github.com/getgrav/grav/issues/2006) [#3067](https://github.com/getgrav/grav/issues/3067)
+1. [](#bugfix)
+    * Fixed `pages` field escaping issues, needs admin update, too [admin#1990](https://github.com/getgrav/grav-plugin-admin/issues/1990)
+    * Fix `svg-image` issue with classes applied to all elements [#3068](https://github.com/getgrav/grav/issues/3068)
+
 # v1.6.30
 ## 12/03/2020
 
