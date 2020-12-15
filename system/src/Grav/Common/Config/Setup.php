@@ -172,7 +172,7 @@ class Setup extends Data
 
         // If environment is not set, look for the environment variable and then the constant.
         $environment = static::$environment ??
-            defined('GRAV_ENVIRONMENT') ? GRAV_ENVIRONMENT : (getenv('GRAV_ENVIRONMENT') ?: null);
+            (defined('GRAV_ENVIRONMENT') ? GRAV_ENVIRONMENT : (getenv('GRAV_ENVIRONMENT') ?: null));
 
         // If no environment is set, make sure we get one (CLI or hostname).
         if (null === $environment) {
