@@ -1,3 +1,9 @@
+# v1.7.0
+## mm/dd/2020
+
+1. [](#new)
+    * Added support for overriding configuration by using environment variables
+
 # v1.7.0-rc.20
 ## 12/15/2020
 

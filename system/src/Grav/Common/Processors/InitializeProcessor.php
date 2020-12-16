@@ -193,6 +193,39 @@ class InitializeProcessor extends ProcessorBase
             }
         }
 
+        // Override configuration using the environment.
+        $prefix = 'GRAV_CONFIG';
+        $env = getenv($prefix);
+        if ($env) {
+            $cPrefix = $prefix . '__';
+            $aPrefix = $prefix . '_ALIAS__';
+            $cLen = strlen($cPrefix);
+            $aLen = strlen($aPrefix);
+
+            $keys = $aliases = [];
+            $env = $_ENV + $_SERVER;
+            foreach ($env as $key => $value) {
+                if (!str_starts_with($key, $prefix)) {
+                    continue;
+                }
+                if (str_starts_with($key, $cPrefix)) {
+                    $key = str_replace('__', '.', substr($key, $cLen));
+                    $keys[$key] = $value;
+                } elseif (str_starts_with($key, $aPrefix)) {
+                    $key = substr($key, $aLen);
+                    $aliases[$key] = $value;
+                }
+            }
+            $list = [];
+            foreach ($keys as $key => $value) {
+                foreach ($aliases as $alias => $real) {
+                    $key = str_replace($alias, $real, $key);
+                }
+                $list[$key] = $value;
+                $config->set($key, $value);
+            }
+        }
+
         $this->stopTimer('_init_config');
 
         return $config;
