@@ -3,6 +3,8 @@
 
 1. [](#new)
     * Added support for overriding configuration by using environment variables
+1. [](#bugfix)
+    * Fixed port issue with `system.custom_base_url`
 
 # v1.7.0-rc.20
 ## 12/15/2020
