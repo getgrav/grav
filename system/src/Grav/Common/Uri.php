@@ -158,6 +158,11 @@ class Uri
         /** @var Language $language */
         $language = $grav['language'];
 
+        // add the port to the base for non-standard ports
+        if ($this->port !== null && $config->get('system.reverse_proxy_setup') === false) {
+            $this->base .= ':' . (string)$this->port;
+        }
+
         // Handle custom base
         $custom_base = rtrim($grav['config']->get('system.custom_base_url'), '/');
         if ($custom_base) {
@@ -170,6 +175,9 @@ class Uri
             if (isset($custom_parts['scheme'])) {
                 $this->base = $custom_parts['scheme'] . '://' . $custom_parts['host'];
                 $this->port = $custom_parts['port'] ?? null;
+                if ($this->port !== null && $config->get('system.reverse_proxy_setup') === false) {
+                    $this->base .= ':' . (string)$this->port;
+                }
                 $this->root = $custom_base;
             } else {
                 $this->root = $this->base . $this->root_path;
@@ -177,11 +185,6 @@ class Uri
             $this->uri = Utils::replaceFirstOccurrence($orig_root_path, $this->root_path, $this->uri);
         } else {
             $this->root = $this->base . $this->root_path;
-        }
-
-        // add the port to the base for non-standard ports
-        if ($this->port !== null && $config->get('system.reverse_proxy_setup') === false) {
-            $this->base .= ':' . (string)$this->port;
         }
 
         $this->url = $this->base . $this->uri;
