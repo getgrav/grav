@@ -196,7 +196,7 @@ class ImageFile extends Image
         }
 
         try {
-            $exif = exif_read_data($filepath);
+            $exif = @exif_read_data($filepath);
         } catch (Exception $e) {
             Grav::instance()['log']->error($filepath . ' - ' . $e->getMessage());
             return $this;
