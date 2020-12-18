@@ -7,6 +7,7 @@
     * Make it possible to use an absolute path when loading a blueprint
 1. [](#bugfix)
     * Fixed port issue with `system.custom_base_url`
+    * Hide errors with `exif_read_data` in `ImageFile`
 
 # v1.7.0-rc.20
 ## 12/15/2020
