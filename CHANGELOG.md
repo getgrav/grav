@@ -3,6 +3,8 @@
 
 1. [](#new)
     * Added support for overriding configuration by using environment variables
+1. [](#improved)
+    * Make it possible to use an absolute path when loading a blueprint
 1. [](#bugfix)
     * Fixed port issue with `system.custom_base_url`
 

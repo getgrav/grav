@@ -371,6 +371,10 @@ class Blueprint extends BlueprintForm
         $locator = Grav::instance()['locator'];
 
         if (is_string($path) && !$locator->isStream($path)) {
+            if (is_file($path)) {
+                return [$path];
+            }
+
             // Find path overrides.
             if (null === $context) {
                 $paths = (array) ($this->overrides[$path] ?? null);

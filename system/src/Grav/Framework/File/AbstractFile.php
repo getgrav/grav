@@ -208,7 +208,7 @@ class AbstractFile implements FileInterface
         }
 
         if ($this->locked) {
-            flock($this->handle, LOCK_UN);
+            flock($this->handle, LOCK_UN | LOCK_NB);
             $this->locked = false;
         }
 
