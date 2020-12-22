@@ -273,9 +273,10 @@ class Grav extends Container
         // Handle ETag and If-None-Match headers.
         if ($response->getHeaderLine('ETag') === '1') {
             $etag = md5($body);
-            $response = $response->withHeader('ETag', $etag);
+            $response = $response->withHeader('ETag', '"' . $etag . '"');
 
-            if ($noCache === false && $this['request']->getHeaderLine('If-None-Match') === $etag) {
+            $search = trim($this['request']->getHeaderLine('If-None-Match'), '"');
+            if ($noCache === false && $search === $etag) {
                 $response = $response->withStatus(304);
                 $body = '';
             }
@@ -335,9 +336,10 @@ class Grav extends Container
         // Handle ETag and If-None-Match headers.
         if ($response->getHeaderLine('ETag') === '1') {
             $etag = md5($body);
-            $response = $response->withHeader('ETag', $etag);
+            $response = $response->withHeader('ETag', '"' . $etag . '"');
 
-            if ($noCache === false && $request->getHeaderLine('If-None-Match') === $etag) {
+            $search = trim($this['request']->getHeaderLine('If-None-Match'), '"');
+            if ($noCache === false && $search === $etag) {
                 $response = $response->withStatus(304);
                 $body = '';
             }

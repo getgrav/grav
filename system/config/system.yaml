@@ -73,7 +73,7 @@ pages:
   expires: 604800                                # Page expires time in seconds (604800 seconds = 7 days)
   cache_control:                                 # Can be blank for no setting, or a valid `cache-control` text value
   last_modified: false                           # Set the last modified date header based on file modification timestamp
-  etag: false                                    # Set the etag header tag
+  etag: true                                     # Set the etag header tag
   vary_accept_encoding: false                    # Add `Vary: Accept-Encoding` header
   redirect_default_route: false                  # Automatically redirect to a page's default route
   redirect_default_code: 302                     # Default code to use for redirects
