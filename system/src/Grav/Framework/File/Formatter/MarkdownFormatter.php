@@ -34,7 +34,7 @@ class MarkdownFormatter extends AbstractFormatter
 
         parent::__construct($config);
 
-        $this->headerFormatter = $headerFormatter ?: new YamlFormatter($config['yaml']);
+        $this->headerFormatter = $headerFormatter ?? new YamlFormatter($config['yaml']);
     }
 
     /**
@@ -144,5 +144,17 @@ class MarkdownFormatter extends AbstractFormatter
         }
 
         return $content;
+    }
+
+    public function __serialize(): array
+    {
+        return parent::__serialize() + ['headerFormatter' => $this->headerFormatter];
+    }
+
+    public function __unserialize(array $data): void
+    {
+        parent::__unserialize($data);
+
+        $this->headerFormatter = $data['headerFormatter'] ?? new YamlFormatter(['inline' => 20]);
     }
 }

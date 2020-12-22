@@ -8,6 +8,7 @@
 1. [](#bugfix)
     * Fixed port issue with `system.custom_base_url`
     * Hide errors with `exif_read_data` in `ImageFile`
+    * Fixed unserialize in `MarkdownFormatter` class
 
 # v1.7.0-rc.20
 ## 12/15/2020

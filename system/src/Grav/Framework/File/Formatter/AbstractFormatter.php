@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Grav\Framework\File\Formatter;
 
+use Grav\Framework\Compat\Serializable;
 use Grav\Framework\File\Interfaces\FileFormatterInterface;
 
 /**
@@ -20,6 +21,8 @@ use Grav\Framework\File\Interfaces\FileFormatterInterface;
  */
 abstract class AbstractFormatter implements FileFormatterInterface
 {
+    use Serializable;
+
     /** @var array */
     private $config;
 
@@ -30,23 +33,6 @@ abstract class AbstractFormatter implements FileFormatterInterface
     public function __construct(array $config = [])
     {
         $this->config = $config;
-    }
-
-    /**
-     * @return string
-     */
-    public function serialize(): string
-    {
-        return serialize($this->doSerialize());
-    }
-
-    /**
-     * @param string $serialized
-     * @return void
-     */
-    public function unserialize($serialized): void
-    {
-        $this->doUnserialize(unserialize($serialized, ['allowed_classes' => false]));
     }
 
     /**
@@ -95,6 +81,24 @@ abstract class AbstractFormatter implements FileFormatterInterface
      */
     abstract public function decode($data);
 
+
+    /**
+     * @return array
+     */
+    public function __serialize(): array
+    {
+        return ['config' => $this->config];
+    }
+
+    /**
+     * @param array $data
+     * @return void
+     */
+    public function __unserialize(array $data): void
+    {
+        $this->config = $data['config'];
+    }
+
     /**
      * Get either full configuration or a single option.
      *
@@ -108,24 +112,5 @@ abstract class AbstractFormatter implements FileFormatterInterface
         }
 
         return $this->config;
-    }
-
-    /**
-     * @return array
-     */
-    protected function doSerialize(): array
-    {
-        return ['config' => $this->config];
-    }
-
-    /**
-     * Note: if overridden, make sure you call parent::doUnserialize()
-     *
-     * @param array $serialized
-     * @return void
-     */
-    protected function doUnserialize(array $serialized): void
-    {
-        $this->config = $serialized['config'];
     }
 }
