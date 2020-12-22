@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Grav\Framework\File;
 
+use Grav\Framework\Compat\Serializable;
 use Grav\Framework\File\Interfaces\FileInterface;
 use Grav\Framework\Filesystem\Filesystem;
 
@@ -20,6 +21,8 @@ use Grav\Framework\Filesystem\Filesystem;
  */
 class AbstractFile implements FileInterface
 {
+    use Serializable;
+
     /** @var Filesystem */
     private $filesystem;
     /** @var string */
@@ -67,20 +70,22 @@ class AbstractFile implements FileInterface
     }
 
     /**
-     * @return string
+     * @return array
      */
-    public function serialize(): string
+    final public function __serialize(): array
     {
-        return serialize($this->doSerialize());
+        return ['filesystem_normalize' => $this->filesystem->getNormalization()] + $this->doSerialize();
     }
 
     /**
-     * @param string $serialized
+     * @param array $data
      * @return void
      */
-    public function unserialize($serialized): void
+    final public function __unserialize(array $data): void
     {
-        $this->doUnserialize(unserialize($serialized, ['allowed_classes' => false]));
+        $this->filesystem = Filesystem::getInstance($data['filesystem_normalize'] ?? null);
+
+        $this->doUnserialize($data);
     }
 
     /**

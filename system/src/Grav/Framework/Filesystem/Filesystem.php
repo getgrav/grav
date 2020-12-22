@@ -79,6 +79,14 @@ class Filesystem implements FilesystemInterface
     }
 
     /**
+     * @return bool|null
+     */
+    public function getNormalization(): ?bool
+    {
+        return $this->normalize;
+    }
+
+    /**
      * Force all paths to be normalized.
      *
      * @return self
