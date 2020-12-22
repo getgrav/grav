@@ -11,6 +11,7 @@ namespace Grav\Framework\Collection;
 
 use ArrayIterator;
 use Closure;
+use Grav\Framework\Compat\Serializable;
 use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
 
 /**
@@ -18,6 +19,8 @@ use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
  */
 abstract class AbstractIndexCollection implements CollectionInterface
 {
+    use Serializable;
+
     /**
      * @var array
      */
@@ -418,22 +421,21 @@ abstract class AbstractIndexCollection implements CollectionInterface
     }
 
     /**
-     * @return string
-     * @return string
+     * @return array
      */
-    public function serialize()
+    public function __serialize(): array
     {
-        return serialize(['entries' => $this->entries]);
+        return [
+            'entries' => $this->entries
+        ];
     }
 
     /**
-     * @param string $serialized
+     * @param array $data
      * @return void
      */
-    public function unserialize($serialized)
+    public function __unserialize(array $data): void
     {
-        $data = unserialize($serialized, ['allowed_classes' => false]);
-
         $this->entries = $data['entries'];
     }
 

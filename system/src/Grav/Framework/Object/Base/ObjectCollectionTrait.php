@@ -9,6 +9,7 @@
 
 namespace Grav\Framework\Object\Base;
 
+use Grav\Framework\Compat\Serializable;
 use Grav\Framework\Object\Interfaces\ObjectInterface;
 
 /**
@@ -17,6 +18,8 @@ use Grav\Framework\Object\Interfaces\ObjectInterface;
  */
 trait ObjectCollectionTrait
 {
+    use Serializable;
+
     /** @var string */
     protected static $type;
 
@@ -120,49 +123,51 @@ trait ObjectCollectionTrait
     }
 
     /**
-     * Implements Serializable interface.
-     *
-     * @return string
+     * @return array
      */
-    public function serialize()
+    final public function __serialize(): array
     {
-        return serialize($this->doSerialize());
+        return $this->doSerialize();
     }
 
     /**
-     * @param string $serialized
+     * @param array $data
      * @return void
      */
-    public function unserialize($serialized)
+    final public function __unserialize(array $data): void
     {
-        $data = unserialize($serialized);
-
         if (method_exists($this, 'initObjectProperties')) {
             $this->initObjectProperties();
         }
+
         $this->doUnserialize($data);
     }
+
 
     /**
      * @return array
      */
     protected function doSerialize()
     {
-        return ['key' => $this->getKey(), 'type' => $this->getType(), 'elements' => $this->getElements()];
+        return [
+            'key' => $this->getKey(),
+            'type' => $this->getType(),
+            'elements' => $this->getElements()
+        ];
     }
 
     /**
-     * @param array $serialized
+     * @param array $data
      * @return void
      */
-    protected function doUnserialize(array $serialized)
+    protected function doUnserialize(array $data)
     {
-        if (!isset($serialized['key'], $serialized['type'], $serialized['elements']) || $serialized['type'] !== $this->getType()) {
+        if (!isset($data['key'], $data['type'], $data['elements']) || $data['type'] !== $this->getType()) {
             throw new \InvalidArgumentException("Cannot unserialize '{$this->getType()}': Bad data");
         }
 
-        $this->setKey($serialized['key']);
-        $this->setElements($serialized['elements']);
+        $this->setKey($data['key']);
+        $this->setElements($data['elements']);
     }
 
     /**

@@ -336,18 +336,6 @@ class FlexDirectoryForm implements FlexDirectoryFormInterface, \JsonSerializable
     }
 
     /**
-     * Implements \Serializable::unserialize().
-     *
-     * @param string $data
-     */
-    public function unserialize($data): void
-    {
-        $data = unserialize($data, ['allowed_classes' => [FlexObject::class]]);
-
-        $this->doUnserialize($data);
-    }
-
-    /**
      * @param string $name
      * @return mixed|null
      */
@@ -398,6 +386,14 @@ class FlexDirectoryForm implements FlexDirectoryFormInterface, \JsonSerializable
      */
     public function __unset($name)
     {
+    }
+
+    /**
+     * @return array|bool
+     */
+    protected function getUnserializeAllowedClasses()
+    {
+        return [FlexObject::class];
     }
 
     /**

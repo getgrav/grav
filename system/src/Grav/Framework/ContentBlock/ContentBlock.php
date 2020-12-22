@@ -9,6 +9,8 @@
 
 namespace Grav\Framework\ContentBlock;
 
+use Grav\Framework\Compat\Serializable;
+
 /**
  * Class to create nested blocks of content.
  *
@@ -23,6 +25,8 @@ namespace Grav\Framework\ContentBlock;
  */
 class ContentBlock implements ContentBlockInterface
 {
+    use Serializable;
+
     /** @var int */
     protected $version = 1;
     /** @var string */
@@ -255,21 +259,20 @@ class ContentBlock implements ContentBlockInterface
     }
 
     /**
-     * @return string
+     * @return array
      */
-    public function serialize()
+    final public function __serialize(): array
     {
-        return serialize($this->toArray());
+        return $this->toArray();
     }
 
     /**
-     * @param string $serialized
+     * @param array $data
      * @return void
      */
-    public function unserialize($serialized)
+    final public function __unserialize(array $data): void
     {
-        $array = unserialize($serialized);
-        $this->build($array);
+        $this->build($data);
     }
 
     /**

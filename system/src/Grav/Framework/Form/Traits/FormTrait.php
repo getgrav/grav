@@ -18,6 +18,7 @@ use Grav\Common\Grav;
 use Grav\Common\Twig\Twig;
 use Grav\Common\User\Interfaces\UserInterface;
 use Grav\Common\Utils;
+use Grav\Framework\Compat\Serializable;
 use Grav\Framework\ContentBlock\HtmlBlock;
 use Grav\Framework\Form\Interfaces\FormFlashInterface;
 use Grav\Framework\Form\Interfaces\FormInterface;
@@ -35,6 +36,8 @@ use Twig\TemplateWrapper;
  */
 trait FormTrait
 {
+    use Serializable;
+
     /** @var string */
     public $status = 'success';
     /** @var string|null */
@@ -403,29 +406,6 @@ trait FormTrait
     abstract public function getBlueprint(): Blueprint;
 
     /**
-     * Implements \Serializable::serialize().
-     *
-     * @return string
-     */
-    public function serialize(): string
-    {
-        return serialize($this->doSerialize());
-    }
-
-    /**
-     * Implements \Serializable::unserialize().
-     *
-     * @param string $serialized
-     * @return void
-     */
-    public function unserialize($serialized): void
-    {
-        $data = unserialize($serialized, ['allowed_classes' => false]);
-
-        $this->doUnserialize($data);
-    }
-
-    /**
      * Get form flash object.
      *
      * @return FormFlashInterface
@@ -512,6 +492,23 @@ trait FormTrait
     public function jsonSerialize(): array
     {
         return $this->doSerialize();
+    }
+
+    /**
+     * @return array
+     */
+    final public function __serialize(): array
+    {
+        return $this->doSerialize();
+    }
+
+    /**
+     * @param array $data
+     * @return void
+     */
+    final public function __unserialize(array $data): void
+    {
+        $this->doUnserialize($data);
     }
 
     protected function getSessionId(): string

@@ -21,9 +21,9 @@ namespace Grav\Framework\Compat;
 trait Serializable
 {
     /**
-     * @return string|null
+     * @return string
      */
-    public function serialize(): ?string
+    final public function serialize(): string
     {
         return serialize($this->__serialize());
     }
@@ -32,8 +32,16 @@ trait Serializable
      * @param string $serialized
      * @return void
      */
-    public function unserialize($serialized): void
+    final public function unserialize($serialized): void
     {
-        $this->__unserialize(unserialize($serialized, ['allowed_classes' => false]));
+        $this->__unserialize(unserialize($serialized, ['allowed_classes' => $this->getUnserializeAllowedClasses()]));
+    }
+
+    /**
+     * @return array|bool
+     */
+    protected function getUnserializeAllowedClasses()
+    {
+        return false;
     }
 }

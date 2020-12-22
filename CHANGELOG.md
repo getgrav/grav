@@ -3,8 +3,10 @@
 
 1. [](#new)
     * Added support for overriding configuration by using environment variables
+    * Use PHP 7.4 serialization (the old `Serializable` methods are now final and cannot be overridden)
 1. [](#improved)
     * Make it possible to use an absolute path when loading a blueprint
+    * Make serialize methods final in `ContentBlock`, `AbstractFile`, `FormTrait`, `ObjectCollectionTrait` and `ObjectTrait`
 1. [](#bugfix)
     * Fixed port issue with `system.custom_base_url`
     * Hide errors with `exif_read_data` in `ImageFile`
