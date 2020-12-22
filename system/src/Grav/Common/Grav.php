@@ -33,6 +33,7 @@ use Grav\Common\Twig\Twig;
 use Grav\Framework\DI\Container;
 use Grav\Framework\Psr7\Response;
 use Grav\Framework\RequestHandler\RequestHandler;
+use Grav\Framework\Session\Messages;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use RocketTheme\Toolbox\Event\Event;
@@ -252,7 +253,7 @@ class Grav extends Container
         );
 
         $default = static function () {
-            return new Response(404, ['Expires' => 0, 'Cache-Control' => 'no-cache, no-store, must-revalidate'], 'Not Found');
+            return new Response(404, ['Expires' => 0, 'Cache-Control' => 'no-store, max-age=0'], 'Not Found');
         };
 
         $collection = new RequestHandler($this->middleware, $default, $container);
@@ -260,17 +261,27 @@ class Grav extends Container
         $response = $collection->handle($this['request']);
         $body = $response->getBody();
 
+        /** @var Messages $messages */
+        $messages = $this['messages'];
+
+        // Prevent caching if session messages were displayed in the page.
+        $noCache = $messages->isCleared();
+        if ($noCache) {
+            $response = $response->withHeader('Cache-Control', 'no-store, max-age=0');
+        }
+
         // Handle ETag and If-None-Match headers.
         if ($response->getHeaderLine('ETag') === '1') {
             $etag = md5($body);
             $response = $response->withHeader('ETag', $etag);
 
-            if ($this['request']->getHeaderLine('If-None-Match') === $etag) {
+            if ($noCache === false && $this['request']->getHeaderLine('If-None-Match') === $etag) {
                 $response = $response->withStatus(304);
                 $body = '';
             }
         }
 
+        // Echo page content.
         $this->header($response);
         echo $body;
 
@@ -312,17 +323,27 @@ class Grav extends Container
 
         $body = $response->getBody();
 
+        /** @var Messages $messages */
+        $messages = $this['messages'];
+
+        // Prevent caching if session messages were displayed in the page.
+        $noCache = $messages->isCleared();
+        if ($noCache) {
+            $response = $response->withHeader('Cache-Control', 'no-store, max-age=0');
+        }
+
         // Handle ETag and If-None-Match headers.
         if ($response->getHeaderLine('ETag') === '1') {
             $etag = md5($body);
             $response = $response->withHeader('ETag', $etag);
 
-            if ($request->getHeaderLine('If-None-Match') === $etag) {
+            if ($noCache === false && $request->getHeaderLine('If-None-Match') === $etag) {
                 $response = $response->withStatus(304);
                 $body = '';
             }
         }
 
+        // Echo page content.
         $this->header($response);
         echo $body;
         exit();

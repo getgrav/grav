@@ -14,9 +14,9 @@ use Grav\Common\Debugger;
 use Grav\Common\Session;
 use Grav\Common\Uri;
 use Grav\Common\Utils;
+use Grav\Framework\Session\Messages;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
-use RocketTheme\Toolbox\Session\Message;
 
 /**
  * Class SessionServiceProvider
@@ -113,14 +113,14 @@ class SessionServiceProvider implements ServiceProviderInterface
                 $debugger = $c['debugger'];
                 $debugger->addMessage('Inactive session: session messages may disappear', 'warming');
 
-                return new Message;
+                return new Messages();
             }
 
             /** @var Session $session */
             $session = $c['session'];
 
-            if (!isset($session->messages)) {
-                $session->messages = new Message;
+            if (!$session->messages instanceof Messages) {
+                $session->messages = new Messages();
             }
 
             return $session->messages;

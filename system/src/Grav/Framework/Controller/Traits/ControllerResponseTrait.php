@@ -67,7 +67,7 @@ trait ControllerResponseTrait
         }
         $headers = ($headers ?? []) + [
             'Content-Type' => 'application/json',
-            'Cache-Control' => 'no-cache, no-store, must-revalidate'
+            'Cache-Control' => 'no-store, max-age=0'
         ];
 
         return new Response($code, $headers, json_encode($content));
