@@ -5,6 +5,7 @@
     * Added support for overriding configuration by using environment variables
     * Use PHP 7.4 serialization (the old `Serializable` methods are now final and cannot be overridden)
     * Enabled `ETag` setting by default for 304 responses
+    * Added `FlexCollection::getDistinctValues()` to get all the assigned values from the field
 1. [](#improved)
     * Make it possible to use an absolute path when loading a blueprint
     * Make serialize methods final in `ContentBlock`, `AbstractFile`, `FormTrait`, `ObjectCollectionTrait` and `ObjectTrait`

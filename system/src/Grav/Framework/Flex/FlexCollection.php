@@ -71,6 +71,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
             'isAuthorized' => 'session',
             'search' => true,
             'sort' => true,
+            'getDistinctValues' => true
         ];
     }
 
@@ -270,6 +271,33 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
         $keys = $this->call('getFlexKey');
 
         return $keys;
+    }
+
+    /**
+     * Get all the values in property.
+     *
+     * Supports either single scalar values or array of scalar values.
+     *
+     * @param string $property      Object property to be used to make groups.
+     * @param string|null $separator     Separator, defaults to '.'
+     * @return array
+     */
+    public function getDistinctValues(string $property, string $separator = null): array
+    {
+        $list = [];
+
+        /** @var FlexObjectInterface $element */
+        foreach ($this->getIterator() as $element) {
+            $value = (array)$element->getNestedProperty($property, null, $separator);
+            foreach ($value as $v) {
+                if (is_scalar($v)) {
+                    $t = gettype($v) . (string)$v;
+                    $list[$t] = $v;
+                }
+            }
+        }
+
+        return array_values($list);
     }
 
     /**
