@@ -743,18 +743,19 @@ class Debugger
             }
 
             if ($this->clockwork) {
+                $context = $isString;
                 if (!is_scalar($message)) {
-                    $isString = $message;
-                    $message = '';
+                    $context = $message;
+                    $message = gettype($context);
                 }
-                if (is_bool($isString)) {
-                    $isString = [];
+                if (is_bool($context)) {
+                    $context = [];
+                } elseif (!is_array($context)) {
+                    $type = gettype($context);
+                    $context = [$type => $context];
                 }
-                if (!is_array($isString)) {
-                    $type = gettype($isString);
-                    $isString = [$type => $isString];
-                }
-                $this->clockwork->log($label, $message, $isString);
+
+                $this->clockwork->log($label, $message, $context);
             }
         }
 
