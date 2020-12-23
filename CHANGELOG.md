@@ -17,6 +17,7 @@
     * Fixed `Filesystem::normalize()` with dot-dot paths
     * Fixed Flex sorting issues [grav-plugin-flex-objects#92](https://github.com/trilbymedia/grav-plugin-flex-objects/issues/92)
     * Fixed Clockwork missing dumped arrays and objects
+    * Fixed fatal error in PHP 8 when trying to access root page
 
 # v1.7.0-rc.20
 ## 12/15/2020

@@ -609,8 +609,8 @@ class PageObject extends FlexPageObject
             'storage_key' => $this->getStorageKey(),
             'parent_key' => $this->getProperty('parent_key'),
             'order' => $this->getProperty('order'),
-            'folder' => preg_replace('|^\d+\.|', '', $this->getProperty('folder')),
-            'template' => preg_replace('|modular/|', '', $this->getProperty('template')),
+            'folder' => preg_replace('|^\d+\.|', '', $this->getProperty('folder') ?? ''),
+            'template' => preg_replace('|modular/|', '', $this->getProperty('template') ?? ''),
             'lang' => $newLang
         ] + parent::prepareStorage();
 
