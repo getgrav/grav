@@ -439,8 +439,26 @@ class PageObject extends FlexPageObject
     public function getLevelListing(array $options): array
     {
         $index = $this->getFlexDirectory()->getIndex();
+        if (!is_callable([$index, 'getLevelListing'])) {
+            return [];
+        }
 
-        return method_exists($index, 'getLevelListing') ? $index->getLevelListing($options) : [];
+        // Deal with relative paths.
+        $initial = $options['initial'] ?? null;
+        $var = $initial ? 'leaf_route' : 'route';
+        $route = $options[$var] ?? '';
+        if ($route !== '' && !str_starts_with($route, '/')) {
+            $filesystem = Filesystem::getInstance();
+
+            $route = "/{$this->getKey()}/{$route}";
+            $route = $filesystem->normalize($route);
+
+            $options[$var] = $route;
+        }
+
+        [$status, $message, $response,] = $index->getLevelListing($options);
+
+        return [$status, $message, $response, $options[$var] ?? null];
     }
 
     /**
