@@ -82,7 +82,7 @@ class Session implements SessionInterface
      */
     public function getId()
     {
-        return session_id();
+        return session_id() ?: null;
     }
 
     /**
@@ -100,7 +100,7 @@ class Session implements SessionInterface
      */
     public function getName()
     {
-        return session_name();
+        return session_name() ?: null;
     }
 
     /**
@@ -312,22 +312,25 @@ class Session implements SessionInterface
      */
     public function invalidate()
     {
-        $params = session_get_cookie_params();
+        $name = $this->getName();
+        if (null !== $name) {
+            $params = session_get_cookie_params();
 
-        $cookie_options = array (
-            'expires'  => time() - 42000,
-            'path'     => $params['path'],
-            'domain'   => $params['domain'],
-            'secure'   => $params['secure'],
-            'httponly' => $params['httponly'],
-            'samesite' => $params['samesite']
-        );
+            $cookie_options = array (
+                'expires'  => time() - 42000,
+                'path'     => $params['path'],
+                'domain'   => $params['domain'],
+                'secure'   => $params['secure'],
+                'httponly' => $params['httponly'],
+                'samesite' => $params['samesite']
+            );
 
-        setcookie(
-            session_name(),
-            '',
-            $cookie_options
-        );
+            setcookie(
+                session_name(),
+                '',
+                $cookie_options
+            );
+        }
 
         if ($this->isSessionStarted()) {
             session_unset();
