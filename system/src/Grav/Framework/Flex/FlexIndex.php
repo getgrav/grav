@@ -368,6 +368,13 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
             return $this;
         }
 
+        // Handle primary key alias.
+        $keyField = $this->getFlexDirectory()->getStorage()->getKeyField();
+        if (isset($orderings[$keyField])) {
+            $orderings['key'] = $orderings[$keyField];
+            unset($orderings[$keyField]);
+        }
+
         // Check if ordering needs to load the objects.
         if (array_diff_key($orderings, $this->getIndexKeys())) {
             return $this->__call('orderBy', [$orderings]);

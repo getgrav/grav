@@ -146,7 +146,7 @@ class ObjectExpressionVisitor extends ClosureExpressionVisitor
 
             // For strings we use natural case insensitive sorting.
             if (\is_string($aValue) && \is_string($bValue)) {
-                return strnatcasecmp($aValue, $bValue);
+                return strnatcasecmp($aValue, $bValue) * $orientation;
             }
 
             return (($aValue > $bValue) ? 1 : -1) * $orientation;
