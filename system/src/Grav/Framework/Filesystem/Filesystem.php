@@ -320,14 +320,14 @@ class Filesystem implements FilesystemInterface
 
             // Resolve /../ by removing path part.
             if ($part === '..') {
-                $test = array_shift($list);
+                $test = array_pop($list);
                 if ($test === null) {
                     // Oops, user tried to access something outside of our root folder.
                     throw new \RuntimeException("Bad path {$path}");
                 }
+            } else {
+                $list[] = $part;
             }
-
-            $list[] = $part;
         }
 
         // Build path back together.

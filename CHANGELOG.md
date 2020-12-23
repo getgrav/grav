@@ -13,6 +13,7 @@
     * Hide errors with `exif_read_data` in `ImageFile`
     * Fixed unserialize in `MarkdownFormatter` and `Framework\File` classes
     * Fixed pages with session messages should never be cached [#3108](https://github.com/getgrav/grav/issues/3108)
+    * Fixed `Filesystem::normalize()` with dot-dot paths
 
 # v1.7.0-rc.20
 ## 12/15/2020
