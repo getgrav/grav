@@ -69,7 +69,7 @@
     * Allow `JsonFormatter` options to be passed as a string
     * Hide Flex Pages frontend configuration (not ready for production use)
     * Improve Flex configuration: gather views together in blueprint
-    * Added XSS detection to all forms. See [documentation](https://learn.getgrav.org/17/basics/grav-configuration#security)
+    * Added XSS detection to all forms. See [documentation](https://learn.getgrav.org/17/forms/forms/form-options#xss-checks)
     * Better handling of missing repository index [grav-plugin-admin#1916](https://github.com/getgrav/grav-plugin-admin/issues/1916)
     * Added support for having all sites / environments under `user/env` folder [#3072](https://github.com/getgrav/grav/issues/3072)
     * Added `FlexObject::refresh()` method to make sure object is up to date
