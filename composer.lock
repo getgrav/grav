@@ -781,16 +781,16 @@
         },
         {
             "name": "matthiasmullie/minify",
-            "version": "1.3.64",
+            "version": "1.3.65",
             "source": {
                 "type": "git",
                 "url": "https://github.com/matthiasmullie/minify.git",
-                "reference": "38f9d58c739687e269f46c6dff4647de9e2eb855"
+                "reference": "227f19062451c55a797e0cc667ef983834e6580c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/matthiasmullie/minify/zipball/38f9d58c739687e269f46c6dff4647de9e2eb855",
-                "reference": "38f9d58c739687e269f46c6dff4647de9e2eb855",
+                "url": "https://api.github.com/repos/matthiasmullie/minify/zipball/227f19062451c55a797e0cc667ef983834e6580c",
+                "reference": "227f19062451c55a797e0cc667ef983834e6580c",
                 "shasum": ""
             },
             "require": {
@@ -839,9 +839,23 @@
             ],
             "support": {
                 "issues": "https://github.com/matthiasmullie/minify/issues",
-                "source": "https://github.com/matthiasmullie/minify/tree/1.3.64"
+                "source": "https://github.com/matthiasmullie/minify/tree/1.3.65"
             },
-            "time": "2020-12-23T13:37:53+00:00"
+            "funding": [
+                {
+                    "url": "https://github.com/[user1",
+                    "type": "github"
+                },
+                {
+                    "url": "https://github.com/matthiasmullie] # Replace with up to 4 GitHub Sponsors-enabled usernames e.g.",
+                    "type": "github"
+                },
+                {
+                    "url": "https://github.com/user2",
+                    "type": "github"
+                }
+            ],
+            "time": "2020-12-27T21:43:29+00:00"
         },
         {
             "name": "matthiasmullie/path-converter",
@@ -3043,16 +3057,16 @@
         },
         {
             "name": "codeception/phpunit-wrapper",
-            "version": "7.8.1",
+            "version": "7.8.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Codeception/phpunit-wrapper.git",
-                "reference": "bc6f37d770ec00c4c7c78a1cac2b8ac0f9c9eec5"
+                "reference": "cafed18048826790c527843f9b85e8cc79b866f1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Codeception/phpunit-wrapper/zipball/bc6f37d770ec00c4c7c78a1cac2b8ac0f9c9eec5",
-                "reference": "bc6f37d770ec00c4c7c78a1cac2b8ac0f9c9eec5",
+                "url": "https://api.github.com/repos/Codeception/phpunit-wrapper/zipball/cafed18048826790c527843f9b85e8cc79b866f1",
+                "reference": "cafed18048826790c527843f9b85e8cc79b866f1",
                 "shasum": ""
             },
             "require": {
@@ -3084,9 +3098,9 @@
             "description": "PHPUnit classes used by Codeception",
             "support": {
                 "issues": "https://github.com/Codeception/phpunit-wrapper/issues",
-                "source": "https://github.com/Codeception/phpunit-wrapper/tree/7.8.1"
+                "source": "https://github.com/Codeception/phpunit-wrapper/tree/7.8.2"
             },
-            "time": "2020-10-11T18:23:48+00:00"
+            "time": "2020-12-28T14:00:26+00:00"
         },
         {
             "name": "codeception/stub",
