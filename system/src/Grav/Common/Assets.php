@@ -59,6 +59,8 @@ class Assets extends PropertyObject
     protected $collections;
     protected $timestamp;
 
+    /** @var array to contain next 'order' value per asset 'type', 'group' and 'position' combination */
+    protected $order = [];
 
     /**
      * Initialization called in the Grav lifecycle to initialize the Assets with appropriate configuration
@@ -190,7 +192,14 @@ class Assets extends PropertyObject
         $options['timestamp'] = $this->timestamp;
 
         // Set order
-        $options['order'] = \count($this->$collection);
+        $group = $options['group'] ?? 'head';
+        $position = $options['position'] ?? 'pipeline';
+
+        if (!isset($this->order[$type][$group][$position])) {
+           $this->order[$type][$group][$position] = 0;
+        }
+
+        $options['order'] = $this->order[$type][$group][$position]++;
 
         // Create asset of correct type
         $asset_class = "\\Grav\\Common\\Assets\\{$type}";
