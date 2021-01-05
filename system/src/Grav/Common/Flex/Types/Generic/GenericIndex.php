@@ -18,6 +18,9 @@ use Grav\Framework\Flex\FlexIndex;
 /**
  * Class GenericIndex
  * @package Grav\Common\Flex\Generic
+ *
+ * @extends FLexIndex<string,GenericObject,GenericCollection>
+ * @mixin GenericCollection
  */
 class GenericIndex extends FlexIndex
 {

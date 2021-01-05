@@ -19,6 +19,11 @@ use Grav\Framework\Object\Interfaces\NestedObjectCollectionInterface;
 
 /**
  * Class contains a collection of objects.
+ *
+ * @template TKey
+ * @template T
+ * @extends ArrayCollection<TKey,T>
+ * @implements NestedObjectCollectionInterface<TKey,T>
  */
 class ObjectCollection extends ArrayCollection implements NestedObjectCollectionInterface
 {
@@ -42,6 +47,7 @@ class ObjectCollection extends ArrayCollection implements NestedObjectCollection
     /**
      * @param array $ordering
      * @return static
+     * @phpstan-return static<TKey,T>
      */
     public function orderBy(array $ordering)
     {
@@ -54,6 +60,7 @@ class ObjectCollection extends ArrayCollection implements NestedObjectCollection
      * @param int $start
      * @param int|null $limit
      * @return static
+     * @phpstan-return static<TKey,T>
      */
     public function limit($start, $limit = null)
     {
@@ -63,6 +70,7 @@ class ObjectCollection extends ArrayCollection implements NestedObjectCollection
     /**
      * @param Criteria $criteria
      * @return static
+     * @phpstan-return static<TKey,T>
      */
     public function matching(Criteria $criteria)
     {

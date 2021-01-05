@@ -21,6 +21,11 @@ use Grav\Framework\Flex\FlexIndex;
  * @method FlexPageIndex withRoutable(bool $bool = true)
  * @method FlexPageIndex withPublished(bool $bool = true)
  * @method FlexPageIndex withVisible(bool $bool = true)
+ *
+ * @template TKey
+ * @template T of FlexPageObject
+ * @template C of FlexPageCollection
+ * @extends FlexIndex<TKey,T,C>
  */
 class FlexPageIndex extends FlexIndex
 {

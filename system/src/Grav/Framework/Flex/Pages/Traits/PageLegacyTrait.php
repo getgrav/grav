@@ -1084,7 +1084,7 @@ trait PageLegacyTrait
      *
      * Assumes that object has been cloned before modifying it.
      *
-     * @return PageInterface The original version of the page.
+     * @return PageInterface|null The original version of the page.
      */
     public function getOriginal()
     {

@@ -21,6 +21,8 @@ use function is_string;
 /**
  * Class UserCollection
  * @package Grav\Common\Flex\Types\Users
+ *
+ * @extends FlexCollection<string,UserObject>
  */
 class UserCollection extends FlexCollection implements UserCollectionInterface
 {

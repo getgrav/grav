@@ -19,6 +19,10 @@ use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
  * Collection of objects stored into a filesystem.
  *
  * @package Grav\Framework\Collection
+ * @template TKey
+ * @template T
+ * @extends AbstractLazyCollection<TKey,T>
+ * @mplements FileCollectionInterface<TKey,T>
  */
 class AbstractFileCollection extends AbstractLazyCollection implements FileCollectionInterface
 {

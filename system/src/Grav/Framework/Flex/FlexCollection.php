@@ -36,6 +36,10 @@ use function is_array;
 /**
  * Class FlexCollection
  * @package Grav\Framework\Flex
+ * @template TKey
+ * @template T of FlexObjectInterface
+ * @extends ObjectCollection<TKey,T>
+ * @implements FlexCollectionInterface<TKey,T>
  */
 class FlexCollection extends ObjectCollection implements FlexCollectionInterface
 {
@@ -338,6 +342,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
     /**
      * @inheritdoc}
      * @see FlexCollectionInterface::getCollection()
+     * @return $this
      */
     public function getCollection()
     {
@@ -454,6 +459,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
     /**
      * @param string $key
      * @return array
+     * @phpstan-param TKey $key
      */
     public function getMetaData(string $key): array
     {
@@ -484,6 +490,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
      * @param string|null $scope
      * @param UserInterface|null $user
      * @return static
+     * @phpstan-return static<TKey,T>
      */
     public function isAuthorized(string $action, string $scope = null, UserInterface $user = null)
     {
@@ -496,7 +503,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
     /**
      * @param string $value
      * @param string $field
-     * @return FlexObject|null
+     * @return T|null
      */
     public function find($value, $field = 'id')
     {
@@ -551,6 +558,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
      * @param array $elements Elements.
      * @param string|null $keyField
      * @return static
+     * @phpstan-return static<TKey,T>
      * @throws \InvalidArgumentException
      */
     protected function createFrom(array $elements, $keyField = null)

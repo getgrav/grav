@@ -34,6 +34,8 @@ use function is_string;
  * Class GravPageCollection
  * @package Grav\Plugin\FlexObjects\Types\GravPages
  *
+ * @extends FlexPageCollection<string,PageObject>
+ *
  * Incompatibilities with Grav\Common\Page\Collection:
  *     $page = $collection->key()       will not work at all
  *     $clone = clone $collection       does not clone objects inside the collection, does it matter?
@@ -43,6 +45,12 @@ use function is_string;
  *     $collection->filter()            incompatible method signature (takes closure instead of callable)
  *     $collection->prev()              does not rewind the internal pointer
  * AND most methods are immutable; they do not update the current collection, but return updated one
+ *
+ * @method static shuffle()
+ * @method static select(array $keys)
+ * @method static unselect(array $keys)
+ * @method static createFrom(array $elements, string $keyField = null)
+ * @method PageIndex getIndex()
  */
 class PageCollection extends FlexPageCollection implements PageCollectionInterface
 {
@@ -100,7 +108,7 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
     }
 
     /**
-     * @return PageInterface|FlexObjectInterface
+     * @return PageObject
      */
     public function getRoot()
     {
@@ -187,6 +195,7 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
      * Return previous item.
      *
      * @return PageInterface|false
+     * @phpstan-return PageObject|false
      */
     public function prev()
     {
@@ -201,6 +210,7 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
      * Return nth item.
      * @param int $key
      * @return PageInterface|bool
+     * @phpstan-return PageObject|false
      */
     public function nth($key)
     {
@@ -253,7 +263,7 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
      * @param string $by
      * @param string $dir
      * @param array|null  $manual
-     * @param string|null $sort_flags
+     * @param int|null $sort_flags
      * @return static
      */
     public function order($by, $dir = 'asc', $manual = null, $sort_flags = null)
@@ -771,6 +781,7 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
                 $entries[$object->route()] = $object->toArray();
             }
         }
+
         return $entries;
     }
 

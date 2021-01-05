@@ -37,7 +37,7 @@ class Setup extends Data
     ];
 
     /**
-     * @var string Current environment normalized to lower case.
+     * @var string|null Current environment normalized to lower case.
      */
     public static $environment;
 

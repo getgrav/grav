@@ -15,6 +15,10 @@ use Doctrine\Common\Collections\Selectable;
  * Collection of objects stored into a filesystem.
  *
  * @package Grav\Framework\Collection
+ * @template TKey
+ * @template T
+ * @extends CollectionInterface<TKey,T>
+ * @extends Selectable<TKey,T>
  */
 interface FileCollectionInterface extends CollectionInterface, Selectable
 {

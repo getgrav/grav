@@ -295,7 +295,6 @@ class PageObject extends FlexPageObject
      * You need to call $this->save() in order to perform the move.
      *
      * @param PageInterface $parent New parent page.
-     *
      * @return $this
      */
     public function move(PageInterface $parent)

@@ -34,6 +34,9 @@ use function is_string;
  * Class GravPageObject
  * @package Grav\Plugin\FlexObjects\Types\GravPages
  *
+ * @extends FlexPageIndex<string,PageObject,PageCollection>
+ * @mixin PageCollection
+ *
  * @method PageIndex withModules(bool $bool = true)
  * @method PageIndex withPages(bool $bool = true)
  * @method PageIndex withTranslation(bool $bool = true, string $languageCode = null, bool $fallback = null)
@@ -205,7 +208,7 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
      *
      * @param array $filters
      * @param bool $recursive
-     * @return FlexCollectionInterface
+     * @return static
      */
     public function filterBy(array $filters, bool $recursive = false)
     {
@@ -261,7 +264,7 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
 
     /**
      * @param array $filters
-     * @return FlexCollectionInterface
+     * @return static
      */
     protected function filterByParent(array $filters)
     {
@@ -590,7 +593,6 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
      * Add a single page to a collection
      *
      * @param PageInterface $page
-     *
      * @return PageCollection
      */
     public function addPage(PageInterface $page)
@@ -614,7 +616,7 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
      * Merge another collection with the current collection
      *
      * @param PageCollectionInterface $collection
-     * @return $this
+     * @return PageCollection
      */
     public function merge(PageCollectionInterface $collection)
     {
@@ -626,7 +628,7 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
      * Intersect another collection with the current collection
      *
      * @param PageCollectionInterface $collection
-     * @return $this
+     * @return PageCollection
      */
     public function intersect(PageCollectionInterface $collection)
     {
@@ -637,7 +639,7 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
      * Split collection into array of smaller collections.
      *
      * @param int $size
-     * @return PageCollectionInterface[]
+     * @return PageCollection[]
      */
     public function batch($size)
     {
@@ -664,8 +666,7 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
      * @param string $dir
      * @param array  $manual
      * @param string $sort_flags
-     *
-     * @return PageCollectionInterface
+     * @return static
      */
     public function order($by, $dir = 'asc', $manual = null, $sort_flags = null)
     {
@@ -679,7 +680,6 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
      * Check to see if this item is the first in the collection.
      *
      * @param  string $path
-     *
      * @return bool True if item is first.
      */
     public function isFirst($path): bool
@@ -695,7 +695,6 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
      * Check to see if this item is the last in the collection.
      *
      * @param  string $path
-     *
      * @return bool True if item is last.
      */
     public function isLast($path): bool
@@ -710,12 +709,11 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
      * Gets the previous sibling based on current position.
      *
      * @param  string $path
-     *
-     * @return PageInterface|null  The previous item.
+     * @return PageObject|null  The previous item.
      */
     public function prevSibling($path)
     {
-        /** @var PageInterface|null $result */
+        /** @var PageObject|null $result */
         $result = $this->__call('prevSibling', [$path]);
 
         return $result;
@@ -725,12 +723,11 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
      * Gets the next sibling based on current position.
      *
      * @param  string $path
-     *
-     * @return PageInterface|null The next item.
+     * @return PageObject|null The next item.
      */
     public function nextSibling($path)
     {
-        /** @var PageInterface|null $result */
+        /** @var PageObject|null $result */
         $result = $this->__call('nextSibling', [$path]);
 
         return $result;
@@ -741,12 +738,11 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
      *
      * @param  string  $path
      * @param  int $direction either -1 or +1
-     *
-     * @return PageInterface|false    The sibling item.
+     * @return PageObject|false    The sibling item.
      */
     public function adjacentSibling($path, $direction = 1)
     {
-        /** @var PageInterface|false $result */
+        /** @var PageObject|false $result */
         $result = $this->__call('adjacentSibling', [$path, $direction]);
 
         return $result;
@@ -756,7 +752,6 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
      * Returns the item in the current position.
      *
      * @param  string $path the path the item
-     *
      * @return int|null The index of the current page, null if not found.
      */
     public function currentPosition($path): ?int
@@ -776,13 +771,11 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
      * @param string $startDate
      * @param bool $endDate
      * @param string|null $field
-     *
-     * @return PageCollectionInterface
-     * @throws \Exception
+     * @return static
+     * @throws Exception
      */
     public function dateRange($startDate, $endDate = false, $field = null)
     {
-        /** @var PageCollectionInterface $collection */
         $collection = $this->__call('dateRange', [$startDate, $endDate, $field]);
 
         return $collection;
@@ -802,11 +795,10 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
     /**
      * Creates new collection with only visible pages
      *
-     * @return PageCollectionInterface The collection with only visible pages
+     * @return static The collection with only visible pages
      */
     public function visible()
     {
-        /** @var PageCollectionInterface $collection */
         $collection = $this->__call('visible', []);
 
         return $collection;
@@ -815,11 +807,10 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
     /**
      * Creates new collection with only non-visible pages
      *
-     * @return PageCollectionInterface The collection with only non-visible pages
+     * @return static The collection with only non-visible pages
      */
     public function nonVisible()
     {
-        /** @var PageCollectionInterface $collection */
         $collection = $this->__call('nonVisible', []);
 
         return $collection;
@@ -828,11 +819,10 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
     /**
      * Creates new collection with only non-modular pages
      *
-     * @return PageCollectionInterface The collection with only non-modular pages
+     * @return static The collection with only non-modular pages
      */
     public function pages()
     {
-        /** @var PageCollectionInterface $collection */
         $collection = $this->__call('pages', []);
 
         return $collection;
@@ -841,11 +831,10 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
     /**
      * Creates new collection with only modular pages
      *
-     * @return PageCollectionInterface The collection with only modular pages
+     * @return static The collection with only modular pages
      */
     public function modules()
     {
-        /** @var PageCollectionInterface $collection */
         $collection = $this->__call('modules', []);
 
         return $collection;
@@ -854,7 +843,7 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
     /**
      * Creates new collection with only modular pages
      *
-     * @return PageCollectionInterface The collection with only modular pages
+     * @return static The collection with only modular pages
      */
     public function modular()
     {
@@ -864,7 +853,7 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
     /**
      * Creates new collection with only non-modular pages
      *
-     * @return PageCollectionInterface The collection with only non-modular pages
+     * @return static The collection with only non-modular pages
      */
     public function nonModular()
     {
@@ -874,11 +863,10 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
     /**
      * Creates new collection with only published pages
      *
-     * @return PageCollectionInterface The collection with only published pages
+     * @return static The collection with only published pages
      */
     public function published()
     {
-        /** @var PageCollectionInterface $collection */
         $collection = $this->__call('published', []);
 
         return $collection;
@@ -887,11 +875,10 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
     /**
      * Creates new collection with only non-published pages
      *
-     * @return PageCollectionInterface The collection with only non-published pages
+     * @return static The collection with only non-published pages
      */
     public function nonPublished()
     {
-        /** @var PageCollectionInterface $collection */
         $collection = $this->__call('nonPublished', []);
 
         return $collection;
@@ -900,11 +887,10 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
     /**
      * Creates new collection with only routable pages
      *
-     * @return PageCollectionInterface The collection with only routable pages
+     * @return static The collection with only routable pages
      */
     public function routable()
     {
-        /** @var PageCollectionInterface $collection */
         $collection = $this->__call('routable', []);
 
         return $collection;
@@ -913,11 +899,10 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
     /**
      * Creates new collection with only non-routable pages
      *
-     * @return PageCollectionInterface The collection with only non-routable pages
+     * @return static The collection with only non-routable pages
      */
     public function nonRoutable()
     {
-        /** @var PageCollectionInterface $collection */
         $collection = $this->__call('nonRoutable', []);
 
         return $collection;
@@ -927,12 +912,10 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
      * Creates new collection with only pages of the specified type
      *
      * @param string $type
-     *
-     * @return PageCollectionInterface The collection
+     * @return static The collection
      */
     public function ofType($type)
     {
-        /** @var PageCollectionInterface $collection */
         $collection = $this->__call('ofType', []);
 
         return $collection;
@@ -942,12 +925,10 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
      * Creates new collection with only pages of one of the specified types
      *
      * @param string[] $types
-     *
-     * @return PageCollectionInterface The collection
+     * @return static The collection
      */
     public function ofOneOfTheseTypes($types)
     {
-        /** @var PageCollectionInterface $collection */
         $collection = $this->__call('ofOneOfTheseTypes', []);
 
         return $collection;
@@ -957,12 +938,10 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
      * Creates new collection with only pages of one of the specified access levels
      *
      * @param array $accessLevels
-     *
-     * @return PageCollectionInterface The collection
+     * @return static The collection
      */
     public function ofOneOfTheseAccessLevels($accessLevels)
     {
-        /** @var PageCollectionInterface $collection */
         $collection = $this->__call('ofOneOfTheseAccessLevels', []);
 
         return $collection;

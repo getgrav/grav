@@ -10,18 +10,23 @@
 namespace Grav\Framework\Collection;
 
 use Doctrine\Common\Collections\Collection;
+use JsonSerializable;
 
 /**
  * Collection Interface.
  *
  * @package Grav\Framework\Collection
+ * @template TKey
+ * @template T
+ * @extends Collection<TKey,T>
  */
-interface CollectionInterface extends Collection, \JsonSerializable
+interface CollectionInterface extends Collection, JsonSerializable
 {
     /**
      * Reverse the order of the items.
      *
      * @return CollectionInterface
+     * @phpstan-return CollectionInterface<TKey,T>
      */
     public function reverse();
 
@@ -29,6 +34,7 @@ interface CollectionInterface extends Collection, \JsonSerializable
      * Shuffle items.
      *
      * @return CollectionInterface
+     * @phpstan-return CollectionInterface<TKey,T>
      */
     public function shuffle();
 
@@ -47,6 +53,7 @@ interface CollectionInterface extends Collection, \JsonSerializable
      *
      * @param array<int|string> $keys
      * @return CollectionInterface
+     * @phpstan-return CollectionInterface<TKey,T>
      */
     public function select(array $keys);
 
@@ -55,6 +62,7 @@ interface CollectionInterface extends Collection, \JsonSerializable
      *
      * @param array<int|string> $keys
      * @return CollectionInterface
+     * @phpstan-return CollectionInterface<TKey,T>
      */
     public function unselect(array $keys);
 }

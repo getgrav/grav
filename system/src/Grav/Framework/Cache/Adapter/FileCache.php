@@ -237,6 +237,9 @@ class FileCache extends AbstractCache
         throw new \ErrorException($message, 0, $type, $file, $line);
     }
 
+    /**
+     * @return void
+     */
     public function __destruct()
     {
         if ($this->tmp !== null && file_exists($this->tmp)) {

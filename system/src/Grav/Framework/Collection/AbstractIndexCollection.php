@@ -16,6 +16,9 @@ use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
 
 /**
  * Abstract Index Collection.
+ * @template TKey
+ * @template T
+ * @implements CollectionInterface<TKey,T>
  */
 abstract class AbstractIndexCollection implements CollectionInterface
 {
@@ -23,6 +26,7 @@ abstract class AbstractIndexCollection implements CollectionInterface
 
     /**
      * @var array
+     * @phpstan-var array<TKey,T>
      */
     private $entries;
 
@@ -30,6 +34,7 @@ abstract class AbstractIndexCollection implements CollectionInterface
      * Initializes a new IndexCollection.
      *
      * @param array $entries
+     * @phpstan-param array<TKey,T> $entries
      */
     public function __construct(array $entries = [])
     {
@@ -71,7 +76,10 @@ abstract class AbstractIndexCollection implements CollectionInterface
      */
     public function key()
     {
-        return (string)key($this->entries);
+        /** @phpstan-var TKey $key */
+        $key = (string)key($this->entries);
+
+        return $key;
     }
 
     /**
@@ -474,6 +482,7 @@ abstract class AbstractIndexCollection implements CollectionInterface
     /**
      * @param array $entries
      * @return void
+     * @phpstan-param array<TKey,T> $entries
      */
     protected function setEntries(array $entries): void
     {
@@ -483,6 +492,8 @@ abstract class AbstractIndexCollection implements CollectionInterface
     /**
      * @param FlexObjectInterface $element
      * @return string
+     * @phpstan-param T $element
+     * @phpstan-return TKey
      */
     protected function getCurrentKey($element)
     {
@@ -499,6 +510,7 @@ abstract class AbstractIndexCollection implements CollectionInterface
     /**
      * @param array|null $entries
      * @return array
+     * @phpstan-return array<TKey,T>
      */
     abstract protected function loadElements(array $entries = null): array;
 

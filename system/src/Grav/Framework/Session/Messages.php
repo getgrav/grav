@@ -20,6 +20,7 @@ class Messages implements \Serializable
 
     /** @var array */
     protected $messages = [];
+    /** @var bool */
     protected $isCleared = false;
 
     /**

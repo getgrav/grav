@@ -15,6 +15,10 @@ use Grav\Framework\Collection\CollectionInterface;
 /**
  * ObjectCollection Interface
  * @package Grav\Framework\Collection
+ * @template TKey
+ * @template T
+ * @extends CollectionInterface<TKey,T>
+ * @extends Selectable<TKey,T>
  */
 interface ObjectCollectionInterface extends CollectionInterface, Selectable, \Serializable
 {
@@ -99,12 +103,14 @@ interface ObjectCollectionInterface extends CollectionInterface, Selectable, \Se
      *
      * @param string $property
      * @return static[]
+     * @phpstan-return array<static<TKey,T>>
      */
     public function collectionGroup($property);
 
     /**
      * @param array $ordering
      * @return ObjectCollectionInterface
+     * @phpstan-return static<TKey,T>
      */
     public function orderBy(array $ordering);
 
@@ -112,6 +118,7 @@ interface ObjectCollectionInterface extends CollectionInterface, Selectable, \Se
      * @param int $start
      * @param int|null $limit
      * @return ObjectCollectionInterface
+     * @phpstan-return static<TKey,T>
      */
     public function limit($start, $limit = null);
 }

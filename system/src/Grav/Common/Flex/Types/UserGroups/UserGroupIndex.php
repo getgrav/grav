@@ -19,7 +19,8 @@ use Grav\Framework\Flex\FlexIndex;
  * Class GroupIndex
  * @package Grav\Common\User\FlexUser
  *
- * @method bool|null authorize(string $action, string $scope = null)
+ * @extends FlexIndex<string,UserGroupObject,UserGroupCollection>
+ * @mixin UserGroupCollection
  */
 class UserGroupIndex extends FlexIndex
 {

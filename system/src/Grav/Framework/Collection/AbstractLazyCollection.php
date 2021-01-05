@@ -15,6 +15,10 @@ use Doctrine\Common\Collections\AbstractLazyCollection as BaseAbstractLazyCollec
  * General JSON serializable collection.
  *
  * @package Grav\Framework\Collection
+ * @template TKey
+ * @template T
+ * @extends BaseAbstractLazyCollection<TKey,T>
+ * @implements CollectionInterface<TKey,T>
  */
 abstract class AbstractLazyCollection extends BaseAbstractLazyCollection implements CollectionInterface
 {

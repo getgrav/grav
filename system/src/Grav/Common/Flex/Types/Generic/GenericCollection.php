@@ -18,6 +18,8 @@ use Grav\Framework\Flex\FlexCollection;
 /**
  * Class GenericCollection
  * @package Grav\Common\Flex\Generic
+ *
+ * @extends FLexCollection<string,GenericObject>
  */
 class GenericCollection extends FlexCollection
 {

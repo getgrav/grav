@@ -22,6 +22,9 @@ use InvalidArgumentException;
  *
  * @used-by \Grav\Framework\Flex\FlexCollection
  * @since 1.6
+ * @template TKey
+ * @template T
+ * @extends ObjectCollectionInterface<TKey,T>
  */
 interface FlexCollectionInterface extends FlexCommonInterface, ObjectCollectionInterface, NestedObjectInterface
 {
@@ -55,6 +58,7 @@ interface FlexCollectionInterface extends FlexCommonInterface, ObjectCollectionI
      * @param string|string[]|null  $properties Properties to search for, defaults to configured properties.
      * @param array|null            $options    Search options, defaults to configured options.
      * @return FlexCollectionInterface          Returns a Flex Collection with only matching objects.
+     * @phpstan-return static<TKey,T>
      * @api
      */
     public function search(string $search, $properties = null, array $options = null);
@@ -65,6 +69,7 @@ interface FlexCollectionInterface extends FlexCommonInterface, ObjectCollectionI
      * @param array $orderings Pair of [property => 'ASC'|'DESC', ...].
      *
      * @return FlexCollectionInterface Returns a sorted version from the collection.
+     * @phpstan-return static<TKey,T>
      */
     public function sort(array $orderings);
 
@@ -73,6 +78,7 @@ interface FlexCollectionInterface extends FlexCommonInterface, ObjectCollectionI
      *
      * @param array $filters
      * @return FlexCollectionInterface
+     * @phpstan-return static<TKey,T>
      */
     public function filterBy(array $filters);
 
@@ -108,6 +114,7 @@ interface FlexCollectionInterface extends FlexCommonInterface, ObjectCollectionI
      *
      * @param string|null $keyField Switch key field of the collection.
      * @return FlexCollectionInterface  Returns a new Flex Collection with new key field.
+     * @phpstan-return static<TKey,T>
      * @api
      */
     public function withKeyField(string $keyField = null);
@@ -116,6 +123,7 @@ interface FlexCollectionInterface extends FlexCommonInterface, ObjectCollectionI
      * Get Flex Index from the Flex Collection.
      *
      * @return FlexIndexInterface   Returns a Flex Index from the current collection.
+     * @phpstan-return FlexIndexInterface<TKey,T>
      */
     public function getIndex();
 
@@ -123,6 +131,7 @@ interface FlexCollectionInterface extends FlexCommonInterface, ObjectCollectionI
      * Load all the objects into memory,
      *
      * @return FlexCollectionInterface
+     * @phpstan-return static<TKey,T>
      */
     public function getCollection();
 
@@ -131,6 +140,7 @@ interface FlexCollectionInterface extends FlexCommonInterface, ObjectCollectionI
      *
      * @param string $key Key.
      * @return array
+     * @phpstan-param TKey $key
      */
     public function getMetaData(string $key): array;
 }

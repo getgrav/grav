@@ -18,6 +18,8 @@ use Grav\Framework\Flex\FlexCollection;
 /**
  * Class UserGroupCollection
  * @package Grav\Common\Flex\Types\UserGroups
+ *
+ * @extends FlexCollection<string,UserGroupObject>
  */
 class UserGroupCollection extends FlexCollection
 {

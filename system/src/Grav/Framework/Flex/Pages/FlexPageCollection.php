@@ -20,6 +20,9 @@ use function is_int;
 /**
  * Class FlexPageCollection
  * @package Grav\Plugin\FlexObjects\Types\FlexPages
+ * @template TKey
+ * @template T of \Grav\Framework\Flex\Interfaces\FlexObjectInterface
+ * @extends FlexCollection<TKey,T>
  */
 class FlexPageCollection extends FlexCollection
 {
@@ -50,6 +53,7 @@ class FlexPageCollection extends FlexCollection
     /**
      * @param bool $bool
      * @return static
+     * @phpstan-return static<TKey,T>
      */
     public function withPublished(bool $bool = true)
     {
@@ -61,6 +65,7 @@ class FlexPageCollection extends FlexCollection
     /**
      * @param bool $bool
      * @return static
+     * @phpstan-return static<TKey,T>
      */
     public function withVisible(bool $bool = true)
     {
@@ -72,6 +77,7 @@ class FlexPageCollection extends FlexCollection
     /**
      * @param bool $bool
      * @return static
+     * @phpstan-return static<TKey,T>
      */
     public function withRoutable(bool $bool = true)
     {
@@ -113,6 +119,7 @@ class FlexPageCollection extends FlexCollection
      *
      * @param  string $path
      * @return PageInterface|false  The previous item.
+     * @phpstan-return T|false
      */
     public function prevSibling($path)
     {
@@ -124,6 +131,7 @@ class FlexPageCollection extends FlexCollection
      *
      * @param  string $path
      * @return PageInterface|false The next item.
+     * @phpstan-return T|false
      */
     public function nextSibling($path)
     {
@@ -136,6 +144,7 @@ class FlexPageCollection extends FlexCollection
      * @param  string  $path
      * @param  int $direction either -1 or +1
      * @return PageInterface|false    The sibling item.
+     * @phpstan-return T|false
      */
     public function adjacentSibling($path, $direction = 1)
     {

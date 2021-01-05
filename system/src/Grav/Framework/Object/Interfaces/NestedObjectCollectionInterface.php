@@ -12,6 +12,10 @@ namespace Grav\Framework\Object\Interfaces;
 /**
  * Common Interface for both Objects and Collections
  * @package Grav\Framework\Object
+ *
+ * @template TKey
+ * @template T
+ * @extends ObjectCollectionInterface<TKey,T>
  */
 interface NestedObjectCollectionInterface extends ObjectCollectionInterface
 {

@@ -27,6 +27,9 @@ use function method_exists;
 /**
  * Class UserIndex
  * @package Grav\Common\Flex\Types\Users
+ *
+ * @extends FlexIndex<string,UserObject,UserCollection>
+ * @mixin UserCollection
  */
 class UserIndex extends FlexIndex
 {

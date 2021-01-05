@@ -15,6 +15,10 @@ use Doctrine\Common\Collections\ArrayCollection as BaseArrayCollection;
  * General JSON serializable collection.
  *
  * @package Grav\Framework\Collection
+ * @template TKey
+ * @template T
+ * @extends BaseArrayCollection<TKey,T>
+ * @implements CollectionInterface<TKey,T>
  */
 class ArrayCollection extends BaseArrayCollection implements CollectionInterface
 {
@@ -22,6 +26,7 @@ class ArrayCollection extends BaseArrayCollection implements CollectionInterface
      * Reverse the order of the items.
      *
      * @return static
+     * @phpstan-return static<TKey,T>
      */
     public function reverse()
     {
@@ -32,6 +37,7 @@ class ArrayCollection extends BaseArrayCollection implements CollectionInterface
      * Shuffle items.
      *
      * @return static
+     * @phpstan-return static<TKey,T>
      */
     public function shuffle()
     {
@@ -59,6 +65,8 @@ class ArrayCollection extends BaseArrayCollection implements CollectionInterface
      *
      * @param array<int|string> $keys
      * @return static
+     * @phpstan-param array<TKey> $keys
+     * @phpstan-return static<TKey,T>
      */
     public function select(array $keys)
     {
@@ -77,6 +85,7 @@ class ArrayCollection extends BaseArrayCollection implements CollectionInterface
      *
      * @param array<int|string> $keys
      * @return static
+     * @phpstan-return static<TKey,T>
      */
     public function unselect(array $keys)
     {

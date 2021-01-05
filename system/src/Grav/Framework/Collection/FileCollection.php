@@ -13,6 +13,9 @@ namespace Grav\Framework\Collection;
  * Collection of objects stored into a filesystem.
  *
  * @package Grav\Framework\Collection
+ * @template TKey
+ * @template T
+ * @extends AbstractFileCollection<TKey,T>
  */
 class FileCollection extends AbstractFileCollection
 {
