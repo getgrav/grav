@@ -13,3 +13,4 @@ Allow: /user/images/
 Allow: /
 Allow: *.css$
 Allow: *.js$
+Allow: /system/*.js$
