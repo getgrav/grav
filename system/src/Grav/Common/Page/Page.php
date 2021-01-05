@@ -30,6 +30,7 @@ use Grav\Common\Yaml;
 use InvalidArgumentException;
 use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\File\MarkdownFile;
+use RuntimeException;
 use SplFileInfo;
 use function dirname;
 use function in_array;
@@ -1104,10 +1105,10 @@ class Page implements PageInterface
         $this->_action = 'move';
 
         if ($this->route() === $parent->route()) {
-            throw new \RuntimeException('Failed: Cannot set page parent to self');
+            throw new RuntimeException('Failed: Cannot set page parent to self');
         }
         if (Utils::startsWith($parent->rawRoute(), $this->rawRoute())) {
-            throw new \RuntimeException('Failed: Cannot set page parent to a child of current page');
+            throw new RuntimeException('Failed: Cannot set page parent to a child of current page');
         }
 
         $this->parent($parent);

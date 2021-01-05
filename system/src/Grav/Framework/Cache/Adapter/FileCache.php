@@ -9,9 +9,15 @@
 
 namespace Grav\Framework\Cache\Adapter;
 
+use ErrorException;
+use FilesystemIterator;
 use Grav\Framework\Cache\AbstractCache;
 use Grav\Framework\Cache\Exception\CacheException;
 use Grav\Framework\Cache\Exception\InvalidArgumentException;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+use RuntimeException;
+use function strlen;
 
 /**
  * Cache class for PSR-16 compatible "Simple Cache" implementation using file backend.
@@ -32,7 +38,7 @@ class FileCache extends AbstractCache
      * @param string $namespace
      * @param int|null $defaultLifetime
      * @param string|null $folder
-     * @throws InvalidArgumentException
+     * @throws \Psr\SimpleCache\InvalidArgumentException|InvalidArgumentException
      */
     public function __construct($namespace = '', $defaultLifetime = null, $folder = null)
     {
@@ -106,7 +112,7 @@ class FileCache extends AbstractCache
     public function doClear()
     {
         $result = true;
-        $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($this->directory, \FilesystemIterator::SKIP_DOTS));
+        $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($this->directory, FilesystemIterator::SKIP_DOTS));
 
         foreach ($iterator as $file) {
             $result = ($file->isDir() || @unlink($file) || !file_exists($file)) && $result;
@@ -203,7 +209,7 @@ class FileCache extends AbstractCache
     /**
      * @param  string  $dir
      * @return void
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
     private function mkdir($dir)
     {
@@ -218,7 +224,7 @@ class FileCache extends AbstractCache
             // Take yet another look, make sure that the folder doesn't exist.
             clearstatcache(true, $dir);
             if (!@is_dir($dir)) {
-                throw new \RuntimeException(sprintf('Unable to create directory: %s', $dir));
+                throw new RuntimeException(sprintf('Unable to create directory: %s', $dir));
             }
         }
     }
@@ -230,11 +236,11 @@ class FileCache extends AbstractCache
      * @param int $line
      * @return bool
      * @internal
-     * @throws \ErrorException
+     * @throws ErrorException
      */
     public static function throwError($type, $message, $file, $line)
     {
-        throw new \ErrorException($message, 0, $type, $file, $line);
+        throw new ErrorException($message, 0, $type, $file, $line);
     }
 
     /**

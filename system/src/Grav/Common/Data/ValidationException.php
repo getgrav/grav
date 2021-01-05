@@ -10,12 +10,13 @@
 namespace Grav\Common\Data;
 
 use Grav\Common\Grav;
+use RuntimeException;
 
 /**
  * Class ValidationException
  * @package Grav\Common\Data
  */
-class ValidationException extends \RuntimeException
+class ValidationException extends RuntimeException
 {
     /** @var array */
     protected $messages = [];

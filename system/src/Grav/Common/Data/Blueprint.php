@@ -23,6 +23,7 @@ use function is_array;
 use function is_int;
 use function is_object;
 use function is_string;
+use function strlen;
 
 /**
  * Class Blueprint
@@ -387,7 +388,7 @@ class Blueprint extends BlueprintForm
                 $context = $this->context;
             }
 
-            if ($context && $context[\strlen($context)-1] !== '/') {
+            if ($context && $context[strlen($context)-1] !== '/') {
                 $context .= '/';
             }
 

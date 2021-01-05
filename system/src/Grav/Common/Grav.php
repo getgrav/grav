@@ -29,6 +29,21 @@ use Grav\Common\Processors\TasksProcessor;
 use Grav\Common\Processors\ThemesProcessor;
 use Grav\Common\Processors\TwigProcessor;
 use Grav\Common\Scheduler\Scheduler;
+use Grav\Common\Service\AccountsServiceProvider;
+use Grav\Common\Service\AssetsServiceProvider;
+use Grav\Common\Service\BackupsServiceProvider;
+use Grav\Common\Service\ConfigServiceProvider;
+use Grav\Common\Service\ErrorServiceProvider;
+use Grav\Common\Service\FilesystemServiceProvider;
+use Grav\Common\Service\FlexServiceProvider;
+use Grav\Common\Service\InflectorServiceProvider;
+use Grav\Common\Service\LoggerServiceProvider;
+use Grav\Common\Service\OutputServiceProvider;
+use Grav\Common\Service\PagesServiceProvider;
+use Grav\Common\Service\RequestServiceProvider;
+use Grav\Common\Service\SessionServiceProvider;
+use Grav\Common\Service\StreamsServiceProvider;
+use Grav\Common\Service\TaskServiceProvider;
 use Grav\Common\Twig\Twig;
 use Grav\Framework\DI\Container;
 use Grav\Framework\Psr7\Response;
@@ -41,6 +56,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use function array_key_exists;
 use function call_user_func_array;
+use function function_exists;
 use function get_class;
 use function in_array;
 use function is_callable;
@@ -65,21 +81,21 @@ class Grav extends Container
      *            to the dependency injection container.
      */
     protected static $diMap = [
-        'Grav\Common\Service\AccountsServiceProvider',
-        'Grav\Common\Service\AssetsServiceProvider',
-        'Grav\Common\Service\BackupsServiceProvider',
-        'Grav\Common\Service\ConfigServiceProvider',
-        'Grav\Common\Service\ErrorServiceProvider',
-        'Grav\Common\Service\FilesystemServiceProvider',
-        'Grav\Common\Service\FlexServiceProvider',
-        'Grav\Common\Service\InflectorServiceProvider',
-        'Grav\Common\Service\LoggerServiceProvider',
-        'Grav\Common\Service\OutputServiceProvider',
-        'Grav\Common\Service\PagesServiceProvider',
-        'Grav\Common\Service\RequestServiceProvider',
-        'Grav\Common\Service\SessionServiceProvider',
-        'Grav\Common\Service\StreamsServiceProvider',
-        'Grav\Common\Service\TaskServiceProvider',
+        AccountsServiceProvider::class,
+        AssetsServiceProvider::class,
+        BackupsServiceProvider::class,
+        ConfigServiceProvider::class,
+        ErrorServiceProvider::class,
+        FilesystemServiceProvider::class,
+        FlexServiceProvider::class,
+        InflectorServiceProvider::class,
+        LoggerServiceProvider::class,
+        OutputServiceProvider::class,
+        PagesServiceProvider::class,
+        RequestServiceProvider::class,
+        SessionServiceProvider::class,
+        StreamsServiceProvider::class,
+        TaskServiceProvider::class,
         'browser'    => Browser::class,
         'cache'      => Cache::class,
         'events'     => EventDispatcher::class,
@@ -530,7 +546,7 @@ class Grav extends Container
     public function shutdown()
     {
         // Prevent user abort allowing onShutdown event to run without interruptions.
-        if (\function_exists('ignore_user_abort')) {
+        if (function_exists('ignore_user_abort')) {
             @ignore_user_abort(true);
         }
 
@@ -546,7 +562,7 @@ class Grav extends Container
             // the connection to the client open. This will make page loads to feel much faster.
 
             // FastCGI allows us to flush all response data to the client and finish the request.
-            $success = \function_exists('fastcgi_finish_request') ? @fastcgi_finish_request() : false;
+            $success = function_exists('fastcgi_finish_request') ? @fastcgi_finish_request() : false;
             if (!$success) {
                 // Unfortunately without FastCGI there is no way to force close the connection.
                 // We need to ask browser to close the connection for us.

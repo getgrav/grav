@@ -23,9 +23,11 @@ use Grav\Framework\Form\FormFlashFile;
 use Psr\Http\Message\UploadedFileInterface;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use RuntimeException;
+use function in_array;
 use function is_array;
 use function is_object;
 use function is_string;
+use function strpos;
 
 /**
  * Implements Grav Page content and header manipulation methods.
@@ -81,10 +83,10 @@ trait FlexMediaTrait
         $schema = $this->getBlueprint()->schema();
         $settings = $field && is_object($schema) ? (array)$schema->getProperty($field) : null;
 
-        if (isset($settings['type']) && (\in_array($settings['type'], ['avatar', 'file', 'pagemedia']) || !empty($settings['destination']))) {
+        if (isset($settings['type']) && (in_array($settings['type'], ['avatar', 'file', 'pagemedia']) || !empty($settings['destination']))) {
             // Set destination folder.
             $settings['media_field'] = true;
-            if (empty($settings['destination']) || \in_array($settings['destination'], ['@self', 'self@', '@self@'], true)) {
+            if (empty($settings['destination']) || in_array($settings['destination'], ['@self', 'self@', '@self@'], true)) {
                 $settings['destination'] = $this->getMediaFolder();
                 $settings['self'] = true;
             } else {
@@ -187,7 +189,7 @@ trait FlexMediaTrait
         foreach ($files as $field => $group) {
             $field = (string)$field;
             // Ignore files without a field and resized images.
-            if ($field === '' || \strpos($field, '/')) {
+            if ($field === '' || strpos($field, '/')) {
                 continue;
             }
 

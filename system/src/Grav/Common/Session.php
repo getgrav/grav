@@ -11,6 +11,7 @@ namespace Grav\Common;
 
 use Grav\Common\Form\FormFlash;
 use Grav\Events\SessionStartEvent;
+use Grav\Plugin\Form\Forms;
 use function is_string;
 
 /**
@@ -126,7 +127,7 @@ class Session extends \Grav\Framework\Session\Session
 
                 /** @var Uri $uri */
                 $uri = $grav['uri'];
-                /** @var Grav\Plugin\Form\Forms|null $form */
+                /** @var Forms|null $form */
                 $form = $grav['forms']->getActiveForm();
 
                 $sessionField = base64_encode($uri->url);

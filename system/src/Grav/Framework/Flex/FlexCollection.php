@@ -32,6 +32,7 @@ use function array_filter;
 use function get_class;
 use function in_array;
 use function is_array;
+use function is_scalar;
 
 /**
  * Class FlexCollection
@@ -370,7 +371,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
 
         $key = null;
         foreach ($context as $value) {
-            if (!\is_scalar($value)) {
+            if (!is_scalar($value)) {
                 $key = false;
                 break;
             }

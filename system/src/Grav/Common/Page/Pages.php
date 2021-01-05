@@ -34,6 +34,7 @@ use Grav\Plugin\Admin;
 use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use RuntimeException;
+use SplFileInfo;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Whoops\Exception\ErrorException;
 use Collator;
@@ -1344,7 +1345,7 @@ class Pages
 
                 /** @var PageInterface $page */
                 $page = $event['page'];
-                $page->init(new \SplFileInfo('plugin://admin/pages/admin/error.md'));
+                $page->init(new SplFileInfo('plugin://admin/pages/admin/error.md'));
                 $page->routable(true);
                 $header = $page->header();
                 $header->title = 'Please install missing plugin';

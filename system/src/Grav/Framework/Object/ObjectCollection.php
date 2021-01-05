@@ -16,6 +16,8 @@ use Grav\Framework\Object\Access\NestedPropertyCollectionTrait;
 use Grav\Framework\Object\Base\ObjectCollectionTrait;
 use Grav\Framework\Object\Collection\ObjectExpressionVisitor;
 use Grav\Framework\Object\Interfaces\NestedObjectCollectionInterface;
+use InvalidArgumentException;
+use function array_slice;
 
 /**
  * Class contains a collection of objects.
@@ -35,7 +37,7 @@ class ObjectCollection extends ArrayCollection implements NestedObjectCollection
     /**
      * @param array $elements
      * @param string|null $key
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function __construct(array $elements = [], $key = null)
     {
@@ -102,7 +104,7 @@ class ObjectCollection extends ArrayCollection implements NestedObjectCollection
         $length = $criteria->getMaxResults();
 
         if ($offset || $length) {
-            $filtered = \array_slice($filtered, (int)$offset, $length);
+            $filtered = array_slice($filtered, (int)$offset, $length);
         }
 
         return $this->createFrom($filtered);

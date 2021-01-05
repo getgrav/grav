@@ -9,6 +9,7 @@
 
 namespace Grav\Common\Service;
 
+use DirectoryIterator;
 use Grav\Common\Config\CompiledBlueprints;
 use Grav\Common\Config\CompiledConfig;
 use Grav\Common\Config\CompiledLanguages;
@@ -169,9 +170,9 @@ class ConfigServiceProvider implements ServiceProviderInterface
         $paths = [];
 
         foreach ($plugins as $path) {
-            $iterator = new \DirectoryIterator($path);
+            $iterator = new DirectoryIterator($path);
 
-            /** @var \DirectoryIterator $directory */
+            /** @var DirectoryIterator $directory */
             foreach ($iterator as $directory) {
                 if (!$directory->isDir() || $directory->isDot()) {
                     continue;

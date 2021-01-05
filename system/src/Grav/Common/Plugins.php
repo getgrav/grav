@@ -30,6 +30,7 @@ class Plugins extends Iterator
     /** @var array */
     public $formFieldTypes;
 
+    /** @var bool */
     private $plugins_initialized = false;
 
     /**

@@ -9,11 +9,14 @@
 
 namespace Grav\Framework\Object\Interfaces;
 
+use JsonSerializable;
+use Serializable;
+
 /**
  * Object Interface
  * @package Grav\Framework\Object
  */
-interface ObjectInterface extends \Serializable, \JsonSerializable
+interface ObjectInterface extends Serializable, JsonSerializable
 {
     /**
      * @return string

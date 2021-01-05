@@ -14,6 +14,7 @@ use Grav\Console\ConsoleCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
+use function strlen;
 
 /**
  * Class InfoCommand
@@ -84,7 +85,7 @@ class InfoCommand extends ConsoleCommand
         $this->output->writeln("Found package <cyan>'{$this->input->getArgument('package')}'</cyan> under the '<green>" . ucfirst($foundPackage->package_type) . "</green>' section");
         $this->output->writeln('');
         $this->output->writeln("<cyan>{$foundPackage->name}</cyan> [{$foundPackage->slug}]");
-        $this->output->writeln(str_repeat('-', \strlen($foundPackage->name) + \strlen($foundPackage->slug) + 3));
+        $this->output->writeln(str_repeat('-', strlen($foundPackage->name) + strlen($foundPackage->slug) + 3));
         $this->output->writeln('<white>' . strip_tags($foundPackage->description_plain) . '</white>');
         $this->output->writeln('');
 
@@ -160,7 +161,7 @@ class InfoCommand extends ConsoleCommand
                 }, $log['content']);
 
                 $this->output->writeln("<cyan>{$title}</cyan>");
-                $this->output->writeln(str_repeat('-', \strlen($title)));
+                $this->output->writeln(str_repeat('-', strlen($title)));
                 $this->output->writeln($content);
                 $this->output->writeln('');
 

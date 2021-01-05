@@ -139,7 +139,7 @@ class LogViewer
         }
 
         return array(
-            'date' => \DateTime::createFromFormat('Y-m-d H:i:s', $data['date']),
+            'date' => DateTime::createFromFormat('Y-m-d H:i:s', $data['date']),
             'logger' => $data['logger'],
             'level' => $data['level'],
             'message' => $data['message'],

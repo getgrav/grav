@@ -16,6 +16,7 @@ use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
+use function call_user_func;
 
 /**
  * Trait RequestHandlerTrait
@@ -42,7 +43,7 @@ trait RequestHandlerTrait
 
         // Use default callable if there is no middleware.
         if ($middleware === null) {
-            return \call_user_func($this->handler, $request);
+            return call_user_func($this->handler, $request);
         }
 
         if ($middleware instanceof MiddlewareInterface) {

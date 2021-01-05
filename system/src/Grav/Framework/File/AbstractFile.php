@@ -11,9 +11,11 @@ declare(strict_types=1);
 
 namespace Grav\Framework\File;
 
+use Exception;
 use Grav\Framework\Compat\Serializable;
 use Grav\Framework\File\Interfaces\FileInterface;
 use Grav\Framework\Filesystem\Filesystem;
+use RuntimeException;
 
 /**
  * Class AbstractFile
@@ -184,13 +186,13 @@ class AbstractFile implements FileInterface
     {
         if (!$this->handle) {
             if (!$this->mkdir($this->getPath())) {
-                throw new \RuntimeException('Creating directory failed for ' . $this->filepath);
+                throw new RuntimeException('Creating directory failed for ' . $this->filepath);
             }
             $this->handle = @fopen($this->filepath, 'cb+') ?: null;
             if (!$this->handle) {
                 $error = error_get_last();
 
-                throw new \RuntimeException("Opening file for writing failed on error {$error['message']}");
+                throw new RuntimeException("Opening file for writing failed on error {$error['message']}");
             }
         }
 
@@ -273,7 +275,7 @@ class AbstractFile implements FileInterface
         $dir = $this->getPath();
 
         if (!$this->mkdir($dir)) {
-            throw new \RuntimeException('Creating directory failed for ' . $filepath);
+            throw new RuntimeException('Creating directory failed for ' . $filepath);
         }
 
         try {
@@ -288,7 +290,7 @@ class AbstractFile implements FileInterface
                 // Support for symlinks.
                 $realpath = is_link($filepath) ? realpath($filepath) : $filepath;
                 if ($realpath === false) {
-                    throw new \RuntimeException('Failed to save file ' . $filepath);
+                    throw new RuntimeException('Failed to save file ' . $filepath);
                 }
 
                 // Create file with a temporary name and rename it to make the save action atomic.
@@ -300,12 +302,12 @@ class AbstractFile implements FileInterface
                     $tmp = false;
                 }
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $tmp = false;
         }
 
         if ($tmp === false) {
-            throw new \RuntimeException('Failed to save file ' . $filepath);
+            throw new RuntimeException('Failed to save file ' . $filepath);
         }
 
         // Touch the directory as well, thus marking it modified.
@@ -339,7 +341,7 @@ class AbstractFile implements FileInterface
     /**
      * @param  string  $dir
      * @return bool
-     * @throws \RuntimeException
+     * @throws RuntimeException
      * @internal
      */
     protected function mkdir(string $dir): bool

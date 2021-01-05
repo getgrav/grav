@@ -15,6 +15,8 @@ use Grav\Framework\Psr7\Traits\ServerRequestDecoratorTrait;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
+use function is_array;
+use function is_object;
 
 /**
  * Class ServerRequest

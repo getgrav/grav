@@ -9,6 +9,7 @@
 
 namespace Grav\Common\Helpers;
 
+use Exception;
 use Grav\Common\Grav;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
@@ -93,7 +94,7 @@ class YamlLinter
         foreach ($iterator as $filepath => $file) {
             try {
                 Yaml::parse(static::extractYaml($filepath));
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $lint_errors[str_replace(GRAV_ROOT, '', $filepath)] = $e->getMessage();
             }
         }

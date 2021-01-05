@@ -9,6 +9,10 @@
 
 namespace Grav\Framework\Pagination\Interfaces;
 
+/**
+ * Interface PaginationPageInterface
+ * @package Grav\Framework\Pagination\Interfaces
+ */
 interface PaginationPageInterface
 {
     /**

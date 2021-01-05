@@ -11,6 +11,7 @@ namespace Grav\Framework\Uri;
 
 use Grav\Framework\Psr7\AbstractUri;
 use GuzzleHttp\Psr7\Uri as GuzzleUri;
+use InvalidArgumentException;
 use Psr\Http\Message\UriInterface;
 
 /**
@@ -28,7 +29,7 @@ class Uri extends AbstractUri
      *
      * @param array $parts
      * @return void
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function __construct(array $parts = [])
     {

@@ -26,6 +26,7 @@ use Grav\Framework\Flex\FlexDirectory;
 use Grav\Framework\Flex\Interfaces\FlexCollectionInterface;
 use Grav\Framework\Flex\Interfaces\FlexStorageInterface;
 use Grav\Framework\Flex\Pages\FlexPageIndex;
+use InvalidArgumentException;
 use RuntimeException;
 use function is_array;
 use function is_string;
@@ -652,7 +653,7 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
      * @param PageInterface|string|null $key
      *
      * @return $this
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function remove($key = null)
     {

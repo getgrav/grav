@@ -12,6 +12,7 @@ namespace Grav\Common\GPM;
 use DirectoryIterator;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\Grav;
+use RuntimeException;
 use ZipArchive;
 use function count;
 use function in_array;
@@ -274,7 +275,7 @@ class Installer
     public static function copyInstall($source_path, $install_path)
     {
         if (empty($source_path)) {
-            throw new \RuntimeException("Directory $source_path is missing");
+            throw new RuntimeException("Directory $source_path is missing");
         }
 
         Folder::rcopy($source_path, $install_path);

@@ -13,6 +13,7 @@ namespace Grav\Framework\File;
 
 use Grav\Framework\File\Interfaces\FileFormatterInterface;
 use RuntimeException;
+use function is_string;
 
 /**
  * Class DataFile
@@ -60,7 +61,7 @@ class DataFile extends AbstractFile
      */
     public function save($data): void
     {
-        if (\is_string($data)) {
+        if (is_string($data)) {
             // Make sure that the string is valid data.
             try {
                 $this->formatter->decode($data);

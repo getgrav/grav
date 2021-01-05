@@ -30,6 +30,7 @@ use function extension_loaded;
 use function function_exists;
 use function in_array;
 use function is_array;
+use function is_callable;
 use function is_string;
 use function strlen;
 

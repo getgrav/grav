@@ -17,7 +17,9 @@ use Symfony\Component\HttpClient\Exception\TransportException;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\HttpClient\HttpOptions;
 use Symfony\Component\HttpClient\NativeHttpClient;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use function call_user_func;
+use function defined;
 use function function_exists;
 
 /**
@@ -40,7 +42,7 @@ class Response
      * @param array $overrides An array of parameters for both `curl` and `fopen`
      * @param callable|null $callback Either a function or callback in array notation
      * @return string The response of the request
-     * @throws \Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface
+     * @throws TransportExceptionInterface
      */
     public static function get($uri = '', $overrides = [], $callback = null)
     {
@@ -57,7 +59,7 @@ class Response
         }
 
         $config = Grav::instance()['config'];
-        $referer = \defined('GRAV_CLI') ? 'grav_cli' : Grav::instance()['uri']->rootUrl(true);
+        $referer = defined('GRAV_CLI') ? 'grav_cli' : Grav::instance()['uri']->rootUrl(true);
         $options = new HttpOptions();
 
         // Set default Headers

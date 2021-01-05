@@ -11,6 +11,10 @@ namespace Grav\Framework\Object\Base;
 
 use Grav\Framework\Compat\Serializable;
 use Grav\Framework\Object\Interfaces\ObjectInterface;
+use function call_user_func_array;
+use function get_class;
+use function is_callable;
+use function is_object;
 
 /**
  * ObjectCollection Trait
@@ -46,7 +50,7 @@ trait ObjectCollectionTrait
             return $type . static::$type;
         }
 
-        $class = \get_class($this);
+        $class = get_class($this);
         return $type . strtolower(substr($class, strrpos($class, '\\') + 1));
     }
 
@@ -210,7 +214,7 @@ trait ObjectCollectionTrait
     {
         $list = [];
         foreach ($this->getIterator() as $key => $value) {
-            $list[$key] = \is_object($value) ? clone $value : $value;
+            $list[$key] = is_object($value) ? clone $value : $value;
         }
 
         return $this->createFrom($list);
@@ -317,7 +321,7 @@ trait ObjectCollectionTrait
          */
         foreach ($this->getIterator() as $id => $element) {
             $callable = [$element, $method];
-            $list[$id] = is_callable($callable) ? \call_user_func_array($callable, $arguments) : null;
+            $list[$id] = is_callable($callable) ? call_user_func_array($callable, $arguments) : null;
         }
 
         return $list;

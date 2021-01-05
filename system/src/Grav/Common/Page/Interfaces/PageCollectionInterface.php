@@ -12,6 +12,7 @@ namespace Grav\Common\Page\Interfaces;
 use ArrayAccess;
 use Countable;
 use Exception;
+use InvalidArgumentException;
 use Serializable;
 use Traversable;
 
@@ -91,7 +92,7 @@ interface PageCollectionInterface extends Traversable, ArrayAccess, Countable, S
      *
      * @param PageInterface|string|null $key
      * @return PageCollectionInterface
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     //public function remove($key = null);
 

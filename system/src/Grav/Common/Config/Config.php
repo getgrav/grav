@@ -14,6 +14,7 @@ use Grav\Common\Grav;
 use Grav\Common\Data\Data;
 use Grav\Common\Service\ConfigServiceProvider;
 use Grav\Common\Utils;
+use function is_array;
 
 /**
  * Class Config
@@ -130,7 +131,7 @@ class Config extends Data
     {
         $setup = Grav::instance()['setup']->toArray();
         foreach ($setup as $key => $value) {
-            if ($key === 'streams' || !\is_array($value)) {
+            if ($key === 'streams' || !is_array($value)) {
                 // Optimized as streams and simple values are fully defined in setup.
                 $this->items[$key] = $value;
             } else {

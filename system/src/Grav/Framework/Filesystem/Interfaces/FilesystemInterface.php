@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace Grav\Framework\Filesystem\Interfaces;
 
 use Grav\Framework\Filesystem\Filesystem;
+use RuntimeException;
 
 /**
  * Defines several stream-save filesystem actions.
@@ -29,7 +30,7 @@ interface FilesystemInterface
      * @param string    $path       A filename or path, does not need to exist as a file.
      * @param int       $levels     The number of parent directories to go up (>= 1).
      * @return string               Returns parent path.
-     * @throws \RuntimeException
+     * @throws RuntimeException
      * @api
      */
     public function parent(string $path, int $levels = 1): string;
@@ -39,7 +40,7 @@ interface FilesystemInterface
      *
      * @param string    $path       A filename or path, does not need to exist as a file.
      * @return string               Returns normalized path.
-     * @throws \RuntimeException
+     * @throws RuntimeException
      * @api
      */
     public function normalize(string $path): string;
@@ -62,7 +63,7 @@ interface FilesystemInterface
      * @param string    $path       A filename or path, does not need to exist as a file.
      * @param int       $levels     The number of parent directories to go up (>= 1).
      * @return string               Returns path to the directory.
-     * @throws \RuntimeException
+     * @throws RuntimeException
      * @api
      */
     public function dirname(string $path, int $levels = 1): string;

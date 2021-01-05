@@ -9,6 +9,7 @@
 
 namespace Grav\Common\Errors;
 
+use ErrorException;
 use InvalidArgumentException;
 use RuntimeException;
 use Whoops\Handler\Handler;
@@ -49,7 +50,7 @@ class SimplePageHandler extends Handler
         }
         $message = $inspector->getException()->getMessage();
 
-        if ($inspector->getException() instanceof \ErrorException) {
+        if ($inspector->getException() instanceof ErrorException) {
             $code = Misc::translateErrorCode($code);
         }
 

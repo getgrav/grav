@@ -12,10 +12,12 @@ declare(strict_types=1);
 namespace Grav\Framework\File\Formatter;
 
 use Grav\Framework\File\Interfaces\FileFormatterInterface;
+use RuntimeException;
 use Symfony\Component\Yaml\Exception\DumpException;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml as YamlParser;
 use RocketTheme\Toolbox\Compat\Yaml\Yaml as FallbackYamlParser;
+use function function_exists;
 
 /**
  * Class YamlFormatter
@@ -89,7 +91,7 @@ class YamlFormatter extends AbstractFormatter
                 YamlParser::DUMP_EXCEPTION_ON_INVALID_TYPE
             );
         } catch (DumpException $e) {
-            throw new \RuntimeException('Encoding YAML failed: ' . $e->getMessage(), 0, $e);
+            throw new RuntimeException('Encoding YAML failed: ' . $e->getMessage(), 0, $e);
         }
     }
 
@@ -100,7 +102,7 @@ class YamlFormatter extends AbstractFormatter
     public function decode($data): array
     {
         // Try native PECL YAML PHP extension first if available.
-        if (\function_exists('yaml_parse') && $this->useNativeDecoder()) {
+        if (function_exists('yaml_parse') && $this->useNativeDecoder()) {
             // Safely decode YAML.
             $saved = @ini_get('yaml.decode_php');
             @ini_set('yaml.decode_php', '0');
@@ -119,7 +121,7 @@ class YamlFormatter extends AbstractFormatter
                 return (array) FallbackYamlParser::parse($data);
             }
 
-            throw new \RuntimeException('Decoding YAML failed: ' . $e->getMessage(), 0, $e);
+            throw new RuntimeException('Decoding YAML failed: ' . $e->getMessage(), 0, $e);
         }
     }
 }

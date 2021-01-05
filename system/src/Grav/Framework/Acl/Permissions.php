@@ -9,6 +9,11 @@
 
 namespace Grav\Framework\Acl;
 
+use ArrayIterator;
+use RecursiveIteratorIterator;
+use RuntimeException;
+use Traversable;
+
 /**
  * Class Permissions
  * @package Grav\Framework\Acl
@@ -30,7 +35,7 @@ class Permissions implements \ArrayAccess, \Countable, \IteratorAggregate
     public function getInstances(): array
     {
         $iterator = new RecursiveActionIterator($this->actions);
-        $recursive = new \RecursiveIteratorIterator($iterator, \RecursiveIteratorIterator::SELF_FIRST);
+        $recursive = new RecursiveIteratorIterator($iterator, RecursiveIteratorIterator::SELF_FIRST);
 
         return iterator_to_array($recursive);
     }
@@ -138,7 +143,7 @@ class Permissions implements \ArrayAccess, \Countable, \IteratorAggregate
     {
         $types = array_replace($this->types, $types);
         if (null === $types) {
-            throw new \RuntimeException('Internal error');
+            throw new RuntimeException('Internal error');
         }
 
         $this->types = $types;
@@ -178,7 +183,7 @@ class Permissions implements \ArrayAccess, \Countable, \IteratorAggregate
      */
     public function offsetSet($offset, $value): void
     {
-        throw new \RuntimeException(__METHOD__ . '(): Not Supported');
+        throw new RuntimeException(__METHOD__ . '(): Not Supported');
     }
 
     /**
@@ -187,7 +192,7 @@ class Permissions implements \ArrayAccess, \Countable, \IteratorAggregate
      */
     public function offsetUnset($offset): void
     {
-        throw new \RuntimeException(__METHOD__ . '(): Not Supported');
+        throw new RuntimeException(__METHOD__ . '(): Not Supported');
     }
 
     /**
@@ -199,11 +204,11 @@ class Permissions implements \ArrayAccess, \Countable, \IteratorAggregate
     }
 
     /**
-     * @return \ArrayIterator|\Traversable
+     * @return ArrayIterator|Traversable
      */
     public function getIterator()
     {
-        return new \ArrayIterator($this->actions);
+        return new ArrayIterator($this->actions);
     }
 
     /**

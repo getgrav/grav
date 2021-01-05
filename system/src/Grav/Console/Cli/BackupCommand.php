@@ -16,6 +16,7 @@ use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use ZipArchive;
 use function count;
 
 /**
@@ -62,7 +63,7 @@ class BackupCommand extends ConsoleCommand
         $io = new SymfonyStyle($this->input, $this->output);
         $io->title('Grav Backup');
 
-        if (!class_exists(\ZipArchive::class)) {
+        if (!class_exists(ZipArchive::class)) {
             $io->error('php-zip extension needs to be enabled!');
             return 1;
         }

@@ -23,6 +23,7 @@ use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use RuntimeException;
 use SplFileInfo;
 use function array_key_exists;
+use function basename;
 use function count;
 use function is_scalar;
 use function is_string;
@@ -670,7 +671,7 @@ class FolderStorage extends AbstractFilesystemStorage
                 $pattern .= '/{FILE}{EXT}';
             } else {
                 $filesystem = Filesystem::getInstance(true);
-                $this->dataFile = \basename($pattern, $extension);
+                $this->dataFile = basename($pattern, $extension);
                 $pattern = $filesystem->dirname($pattern) . '/{FILE}{EXT}';
             }
         }

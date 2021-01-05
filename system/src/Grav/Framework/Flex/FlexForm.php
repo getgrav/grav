@@ -9,6 +9,8 @@
 
 namespace Grav\Framework\Flex;
 
+use ArrayAccess;
+use Exception;
 use Grav\Common\Data\Blueprint;
 use Grav\Common\Data\Data;
 use Grav\Common\Grav;
@@ -19,6 +21,7 @@ use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
 use Grav\Framework\Form\Interfaces\FormFlashInterface;
 use Grav\Framework\Form\Traits\FormTrait;
 use Grav\Framework\Route\Route;
+use JsonSerializable;
 use RocketTheme\Toolbox\ArrayTraits\NestedArrayAccessWithGetters;
 use RuntimeException;
 use Twig\Error\LoaderError;
@@ -30,7 +33,7 @@ use Twig\TemplateWrapper;
  * Class FlexForm
  * @package Grav\Framework\Flex
  */
-class FlexForm implements FlexObjectFormInterface, \JsonSerializable
+class FlexForm implements FlexObjectFormInterface, JsonSerializable
 {
     use NestedArrayAccessWithGetters {
         NestedArrayAccessWithGetters::get as private traitGet;
@@ -494,7 +497,7 @@ class FlexForm implements FlexObjectFormInterface, \JsonSerializable
      * @param array $data
      * @param array $files
      * @return void
-     * @throws \Exception
+     * @throws Exception
      */
     protected function doSubmit(array $data, array $files)
     {
@@ -532,7 +535,7 @@ class FlexForm implements FlexObjectFormInterface, \JsonSerializable
     /**
      * Filter validated data.
      *
-     * @param \ArrayAccess|Data|null $data
+     * @param ArrayAccess|Data|null $data
      * @return void
      */
     protected function filterData($data = null): void

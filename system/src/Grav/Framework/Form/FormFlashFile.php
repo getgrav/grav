@@ -10,8 +10,14 @@
 namespace Grav\Framework\Form;
 
 use Grav\Framework\Psr7\Stream;
+use InvalidArgumentException;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UploadedFileInterface;
+use RuntimeException;
+use function copy;
+use function fopen;
+use function is_string;
+use function sprintf;
 
 /**
  * Class FormFlashFile
@@ -59,12 +65,12 @@ class FormFlashFile implements UploadedFileInterface, \JsonSerializable
 
         $tmpFile = $this->getTmpFile();
         if (null === $tmpFile) {
-            throw new \RuntimeException('No temporary file');
+            throw new RuntimeException('No temporary file');
         }
 
-        $resource = \fopen($tmpFile, 'rb');
+        $resource = fopen($tmpFile, 'rb');
         if (false === $resource) {
-            throw new \RuntimeException('No temporary file');
+            throw new RuntimeException('No temporary file');
         }
 
         return Stream::create($resource);
@@ -78,18 +84,18 @@ class FormFlashFile implements UploadedFileInterface, \JsonSerializable
     {
         $this->validateActive();
 
-        if (!\is_string($targetPath) || empty($targetPath)) {
-            throw new \InvalidArgumentException('Invalid path provided for move operation; must be a non-empty string');
+        if (!is_string($targetPath) || empty($targetPath)) {
+            throw new InvalidArgumentException('Invalid path provided for move operation; must be a non-empty string');
         }
         $tmpFile = $this->getTmpFile();
         if (null === $tmpFile) {
-            throw new \RuntimeException('No temporary file');
+            throw new RuntimeException('No temporary file');
         }
 
-        $this->moved = \copy($tmpFile, $targetPath);
+        $this->moved = copy($tmpFile, $targetPath);
 
         if (false === $this->moved) {
-            throw new \RuntimeException(\sprintf('Uploaded file could not be moved to %s', $targetPath));
+            throw new RuntimeException(sprintf('Uploaded file could not be moved to %s', $targetPath));
         }
 
         $filename = $this->getClientFilename();
@@ -204,20 +210,20 @@ class FormFlashFile implements UploadedFileInterface, \JsonSerializable
 
     /**
      * @return void
-     * @throws \RuntimeException if is moved or not ok
+     * @throws RuntimeException if is moved or not ok
      */
     private function validateActive(): void
     {
         if (!$this->isOk()) {
-            throw new \RuntimeException('Cannot retrieve stream due to upload error');
+            throw new RuntimeException('Cannot retrieve stream due to upload error');
         }
 
         if ($this->moved) {
-            throw new \RuntimeException('Cannot retrieve stream after it has already been moved');
+            throw new RuntimeException('Cannot retrieve stream after it has already been moved');
         }
 
         if (!$this->getTmpFile()) {
-            throw new \RuntimeException('Cannot retrieve stream as the file is missing');
+            throw new RuntimeException('Cannot retrieve stream as the file is missing');
         }
     }
 

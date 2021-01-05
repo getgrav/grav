@@ -10,6 +10,8 @@
 namespace Grav\Framework\Route;
 
 use Grav\Framework\Uri\UriFactory;
+use InvalidArgumentException;
+use function array_slice;
 
 /**
  * Implements Grav Route.
@@ -35,7 +37,7 @@ class Route
      * You can use `RouteFactory` functions to create new `Route` objects.
      *
      * @param array $parts
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function __construct(array $parts = [])
     {
@@ -136,7 +138,7 @@ class Route
         $parts = explode('/', $this->route);
 
         if ($offset !== 0 || $length !== null) {
-            $parts = \array_slice($parts, $offset, $length);
+            $parts = array_slice($parts, $offset, $length);
         }
 
         return $parts;

@@ -19,6 +19,9 @@ use Grav\Framework\RequestHandler\Exception\RequestException;
 use Grav\Framework\Route\Route;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Throwable;
+use function get_class;
+use function in_array;
 
 /**
  * Trait ControllerResponseTrait
@@ -94,10 +97,10 @@ trait ControllerResponseTrait
     }
 
     /**
-     * @param \Throwable $e
+     * @param Throwable $e
      * @return ResponseInterface
      */
-    protected function createErrorResponse(\Throwable $e): ResponseInterface
+    protected function createErrorResponse(Throwable $e): ResponseInterface
     {
         $response = $this->getErrorJson($e);
         $message = $response['message'];
@@ -130,10 +133,10 @@ trait ControllerResponseTrait
     }
 
     /**
-     * @param \Throwable $e
+     * @param Throwable $e
      * @return ResponseInterface
      */
-    protected function createJsonErrorResponse(\Throwable $e): ResponseInterface
+    protected function createJsonErrorResponse(Throwable $e): ResponseInterface
     {
         $response = $this->getErrorJson($e);
         $reason = $e instanceof RequestException ? $e->getHttpReason() : null;
@@ -142,10 +145,10 @@ trait ControllerResponseTrait
     }
 
     /**
-     * @param \Throwable $e
+     * @param Throwable $e
      * @return array
      */
-    protected function getErrorJson(\Throwable $e): array
+    protected function getErrorJson(Throwable $e): array
     {
         $code = $this->getErrorCode($e instanceof RequestException ? $e->getHttpCode() : $e->getCode());
         $message = $e->getMessage();
@@ -163,7 +166,7 @@ trait ControllerResponseTrait
         $debugger = Grav::instance()['debugger'];
         if ($debugger->enabled()) {
             $response['error'] += [
-                'type' => \get_class($e),
+                'type' => get_class($e),
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
                 'trace' => explode("\n", $e->getTraceAsString())

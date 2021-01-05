@@ -9,6 +9,9 @@
 
 namespace Grav\Framework\Form\Traits;
 
+use ArrayAccess;
+use Exception;
+use FilesystemIterator;
 use Grav\Common\Data\Blueprint;
 use Grav\Common\Data\Data;
 use Grav\Common\Data\ValidationException;
@@ -25,10 +28,15 @@ use Grav\Framework\Form\Interfaces\FormInterface;
 use Grav\Framework\Session\SessionInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UploadedFileInterface;
+use RuntimeException;
+use SplFileInfo;
 use Twig\Error\LoaderError;
 use Twig\Error\SyntaxError;
 use Twig\Template;
 use Twig\TemplateWrapper;
+use function in_array;
+use function is_array;
+use function is_object;
 
 /**
  * Trait FormTrait
@@ -55,7 +63,7 @@ trait FormTrait
     private $sessionid;
     /** @var bool */
     private $submitted;
-    /** @var \ArrayAccess|Data|null */
+    /** @var ArrayAccess|Data|null */
     private $data;
     /** @var array|UploadedFileInterface[] */
     private $files;
@@ -201,9 +209,9 @@ trait FormTrait
         while ($path) {
             $offset = array_shift($path);
 
-            if ((\is_array($current) || $current instanceof \ArrayAccess) && isset($current[$offset])) {
+            if ((is_array($current) || $current instanceof ArrayAccess) && isset($current[$offset])) {
                 $current = $current[$offset];
-            } elseif (\is_object($current) && isset($current->{$offset})) {
+            } elseif (is_object($current) && isset($current->{$offset})) {
                 $current = $current->{$offset};
             } else {
                 return null;
@@ -242,7 +250,7 @@ trait FormTrait
             [$data, $files] = $this->parseRequest($request);
 
             $this->submit($data, $files);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             /** @var Debugger $debugger */
             $debugger = $grav['debugger'];
             $debugger->addException($e);
@@ -313,7 +321,7 @@ trait FormTrait
             $this->validateUploads($this->getFiles());
         } catch (ValidationException $e) {
             $this->setErrors($e->getMessages());
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             /** @var Debugger $debugger */
             $debugger = Grav::instance()['debugger'];
             $debugger->addException($e);
@@ -335,7 +343,7 @@ trait FormTrait
     {
         try {
             if ($this->isSubmitted()) {
-                throw new \RuntimeException('Form has already been submitted');
+                throw new RuntimeException('Form has already been submitted');
             }
 
             $this->data = new Data($data, $this->getBlueprint());
@@ -348,7 +356,7 @@ trait FormTrait
             $this->doSubmit($this->data->toArray(), $this->files);
 
             $this->submitted = true;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             /** @var Debugger $debugger */
             $debugger = Grav::instance()['debugger'];
             $debugger->addException($e);
@@ -444,8 +452,8 @@ trait FormTrait
         $name = $this->getName();
 
         $list = [];
-        /** @var \SplFileInfo $file */
-        foreach (new \FilesystemIterator($folder) as $file) {
+        /** @var SplFileInfo $file */
+        foreach (new FilesystemIterator($folder) as $file) {
             $uniqueId = $file->getFilename();
             $config = [
                 'session_id' => $this->getSessionId(),
@@ -654,8 +662,8 @@ trait FormTrait
     protected function parseRequest(ServerRequestInterface $request): array
     {
         $method = $request->getMethod();
-        if (!\in_array($method, ['PUT', 'POST', 'PATCH'])) {
-            throw new \RuntimeException(sprintf('FlexForm: Bad HTTP method %s', $method));
+        if (!in_array($method, ['PUT', 'POST', 'PATCH'])) {
+            throw new RuntimeException(sprintf('FlexForm: Bad HTTP method %s', $method));
         }
 
         $body = $request->getParsedBody();
@@ -684,10 +692,10 @@ trait FormTrait
     /**
      * Validate data and throw validation exceptions if validation fails.
      *
-     * @param \ArrayAccess|Data|null $data
+     * @param ArrayAccess|Data|null $data
      * @return void
      * @throws ValidationException
-     * @throws \Exception
+     * @throws Exception
      */
     protected function validateData($data = null): void
     {
@@ -699,7 +707,7 @@ trait FormTrait
     /**
      * Filter validated data.
      *
-     * @param \ArrayAccess|Data|null $data
+     * @param ArrayAccess|Data|null $data
      * @return void
      */
     protected function filterData($data = null): void
@@ -742,7 +750,7 @@ trait FormTrait
 
         if ($filename && !Utils::checkFilename($filename)) {
             $grav = Grav::instance();
-            throw new \RuntimeException(
+            throw new RuntimeException(
                 sprintf($grav['language']->translate('PLUGIN_FORM.FILEUPLOAD_UNABLE_TO_UPLOAD', null, true), $filename, 'Bad filename')
             );
         }
@@ -756,7 +764,7 @@ trait FormTrait
      */
     protected function decodeData($data): array
     {
-        if (!\is_array($data)) {
+        if (!is_array($data)) {
             return [];
         }
 
@@ -764,7 +772,7 @@ trait FormTrait
         if (isset($data['_json'])) {
             $data = array_replace_recursive($data, $this->jsonDecode($data['_json']));
             if (null === $data) {
-                throw new \RuntimeException(__METHOD__ . '(): Unexpected error');
+                throw new RuntimeException(__METHOD__ . '(): Unexpected error');
             }
             unset($data['_json']);
         }
@@ -781,7 +789,7 @@ trait FormTrait
     protected function jsonDecode(array $data): array
     {
         foreach ($data as $key => &$value) {
-            if (\is_array($value)) {
+            if (is_array($value)) {
                 $value = $this->jsonDecode($value);
             } elseif (trim($value) === '') {
                 unset($data[$key]);

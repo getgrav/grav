@@ -17,6 +17,7 @@ use Grav\Common\Iterator;
 use Grav\Common\Utils;
 use RocketTheme\Toolbox\File\YamlFile;
 use RuntimeException;
+use stdClass;
 use function array_key_exists;
 use function count;
 use function in_array;
@@ -728,7 +729,7 @@ class GPM extends Iterator
                     $type = 'plugins';
                 }
 
-                $not_found = new \stdClass();
+                $not_found = new stdClass();
                 $not_found->name = $inflector::camelize($search);
                 $not_found->slug = $search;
                 $not_found->package_type = $type;

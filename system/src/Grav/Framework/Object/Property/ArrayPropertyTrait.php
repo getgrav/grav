@@ -9,6 +9,9 @@
 
 namespace Grav\Framework\Object\Property;
 
+use InvalidArgumentException;
+use function array_key_exists;
+
 /**
  * Array Property Trait
  *
@@ -24,7 +27,7 @@ trait ArrayPropertyTrait
     /**
      * @param array $elements
      * @param string|null $key
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function __construct(array $elements = [], $key = null)
     {

@@ -13,6 +13,7 @@ namespace Grav\Common\Flex\Types\Users\Traits;
 
 use Grav\Common\Page\Medium\ImageMedium;
 use Grav\Common\Page\Medium\StaticImageMedium;
+use function count;
 
 /**
  * Trait UserObjectLegacyTrait
@@ -87,6 +88,6 @@ trait UserObjectLegacyTrait
     {
         user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6', E_USER_DEPRECATED);
 
-        return \count($this->jsonSerialize());
+        return count($this->jsonSerialize());
     }
 }

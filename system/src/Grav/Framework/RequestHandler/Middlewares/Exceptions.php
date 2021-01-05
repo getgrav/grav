@@ -18,6 +18,8 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use Throwable;
+use function get_class;
 
 /**
  * Class Exceptions
@@ -29,7 +31,7 @@ class Exceptions implements MiddlewareInterface
     {
         try {
             return $handler->handle($request);
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             $response = [
                 'error' => [
                     'code' => $exception->getCode(),
@@ -41,7 +43,7 @@ class Exceptions implements MiddlewareInterface
             $debugger = Grav::instance()['debugger'];
             if ($debugger->enabled()) {
                 $response['error'] += [
-                    'type' => \get_class($exception),
+                    'type' => get_class($exception),
                     'file' => $exception->getFile(),
                     'line' => $exception->getLine(),
                     'trace' => explode("\n", $exception->getTraceAsString()),

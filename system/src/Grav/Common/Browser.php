@@ -9,6 +9,7 @@
 
 namespace Grav\Common;
 
+use InvalidArgumentException;
 use function donatj\UserAgent\parse_user_agent;
 
 /**
@@ -26,7 +27,7 @@ class Browser
     {
         try {
             $this->useragent = parse_user_agent();
-        } catch (\InvalidArgumentException $e) {
+        } catch (InvalidArgumentException $e) {
             $this->useragent = parse_user_agent("Mozilla/5.0 (compatible; Unknown;)");
         }
     }

@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace Grav\Framework\RequestHandler\Exception;
 
 use Psr\Http\Message\ServerRequestInterface;
+use Throwable;
 
 /**
  * Class RequestException
@@ -70,9 +71,9 @@ class RequestException extends \RuntimeException
      * @param ServerRequestInterface $request
      * @param string $message
      * @param int $code
-     * @param \Throwable|null $previous
+     * @param Throwable|null $previous
      */
-    public function __construct(ServerRequestInterface $request, string $message, int $code = 500, \Throwable $previous = null)
+    public function __construct(ServerRequestInterface $request, string $message, int $code = 500, Throwable $previous = null)
     {
         $this->request = $request;
 

@@ -9,12 +9,13 @@
 
 namespace Grav\Framework\Cache\Exception;
 
+use Exception;
 use Psr\SimpleCache\CacheException as SimpleCacheException;
 
 /**
  * CacheException class for PSR-16 compatible "Simple Cache" implementation.
  * @package Grav\Framework\Cache\Exception
  */
-class CacheException extends \Exception implements SimpleCacheException
+class CacheException extends Exception implements SimpleCacheException
 {
 }

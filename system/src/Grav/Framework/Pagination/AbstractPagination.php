@@ -9,8 +9,10 @@
 
 namespace Grav\Framework\Pagination;
 
+use ArrayIterator;
 use Grav\Framework\Pagination\Interfaces\PaginationInterface;
 use Grav\Framework\Route\Route;
+use function count;
 
 /**
  * Class AbstractPagination
@@ -216,17 +218,17 @@ class AbstractPagination implements PaginationInterface
     {
         $this->loadItems();
 
-        return \count($this->items);
+        return count($this->items);
     }
 
     /**
-     * @return \ArrayIterator
+     * @return ArrayIterator
      */
     public function getIterator()
     {
         $this->loadItems();
 
-        return new \ArrayIterator($this->items);
+        return new ArrayIterator($this->items);
     }
 
     /**

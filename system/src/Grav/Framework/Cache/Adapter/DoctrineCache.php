@@ -9,6 +9,7 @@
 
 namespace Grav\Framework\Cache\Adapter;
 
+use DateInterval;
 use Doctrine\Common\Cache\CacheProvider;
 use Grav\Framework\Cache\AbstractCache;
 use Grav\Framework\Cache\Exception\InvalidArgumentException;
@@ -27,7 +28,7 @@ class DoctrineCache extends AbstractCache
      *
      * @param CacheProvider $doctrineCache
      * @param string $namespace
-     * @param null|int|\DateInterval $defaultLifetime
+     * @param null|int|DateInterval $defaultLifetime
      * @throws \Psr\SimpleCache\InvalidArgumentException|InvalidArgumentException
      */
     public function __construct(CacheProvider $doctrineCache, $namespace = '', $defaultLifetime = null)

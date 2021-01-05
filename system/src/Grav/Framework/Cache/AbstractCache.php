@@ -9,6 +9,7 @@
 
 namespace Grav\Framework\Cache;
 
+use DateInterval;
 use Psr\SimpleCache\InvalidArgumentException;
 
 /**
@@ -21,7 +22,7 @@ abstract class AbstractCache implements CacheInterface
 
     /**
      * @param string $namespace
-     * @param null|int|\DateInterval $defaultLifetime
+     * @param null|int|DateInterval $defaultLifetime
      * @throws InvalidArgumentException
      */
     public function __construct($namespace = '', $defaultLifetime = null)

@@ -10,6 +10,7 @@
 namespace Grav\Framework\Cache\Adapter;
 
 use Grav\Framework\Cache\AbstractCache;
+use function array_key_exists;
 
 /**
  * Cache class for PSR-16 compatible "Simple Cache" implementation using in memory backend.

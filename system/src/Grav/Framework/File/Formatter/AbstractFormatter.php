@@ -13,6 +13,7 @@ namespace Grav\Framework\File\Formatter;
 
 use Grav\Framework\Compat\Serializable;
 use Grav\Framework\File\Interfaces\FileFormatterInterface;
+use function is_string;
 
 /**
  * Abstract file formatter.
@@ -42,7 +43,7 @@ abstract class AbstractFormatter implements FileFormatterInterface
     {
         $mime = $this->getConfig('mime');
 
-        return \is_string($mime) ? $mime : 'application/octet-stream';
+        return is_string($mime) ? $mime : 'application/octet-stream';
     }
 
     /**
@@ -66,7 +67,7 @@ abstract class AbstractFormatter implements FileFormatterInterface
         $extensions = $this->getConfig('file_extension');
 
         // Call fails on bad configuration.
-        return \is_string($extensions) ? [$extensions] : $extensions;
+        return is_string($extensions) ? [$extensions] : $extensions;
     }
 
     /**

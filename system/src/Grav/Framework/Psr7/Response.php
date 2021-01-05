@@ -15,6 +15,7 @@ use Grav\Framework\Psr7\Traits\ResponseDecoratorTrait;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 use RuntimeException;
+use function in_array;
 
 /**
  * Class Response
@@ -110,7 +111,7 @@ class Response implements ResponseInterface
      */
     public function isEmpty(): bool
     {
-        return \in_array($this->getResponse()->getStatusCode(), [204, 205, 304], true);
+        return in_array($this->getResponse()->getStatusCode(), [204, 205, 304], true);
     }
 
 
@@ -135,7 +136,7 @@ class Response implements ResponseInterface
      */
     public function isRedirect(): bool
     {
-        return \in_array($this->getResponse()->getStatusCode(), [301, 302, 303, 307, 308], true);
+        return in_array($this->getResponse()->getStatusCode(), [301, 302, 303, 307, 308], true);
     }
 
     /**

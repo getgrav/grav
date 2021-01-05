@@ -46,6 +46,7 @@ namespace Grav\Common\Scheduler;
  * //  bool(true)
  */
 
+use DateInterval;
 use DateTime;
 use RuntimeException;
 use function count;
@@ -473,9 +474,9 @@ class Cron
         }
 
         $date = $this->parseDate($date, $min, $hour, $day, $month, $weekday);
-        $interval = new \DateInterval('PT1M'); // 1 min
+        $interval = new DateInterval('PT1M'); // 1 min
         if ($minuteBefore !== 0) {
-            $date->sub(new \DateInterval('PT' . abs($minuteBefore) . 'M'));
+            $date->sub(new DateInterval('PT' . abs($minuteBefore) . 'M'));
         }
         $n = $minuteAfter - $minuteBefore + 1;
         for ($i = 0; $i < $n; $i++) {

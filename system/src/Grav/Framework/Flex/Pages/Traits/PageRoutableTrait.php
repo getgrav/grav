@@ -17,6 +17,7 @@ use Grav\Common\Page\Pages;
 use Grav\Common\Uri;
 use Grav\Framework\Filesystem\Filesystem;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
+use RuntimeException;
 use function is_string;
 
 /**
@@ -228,7 +229,7 @@ trait PageRoutableTrait
     public function unsetRouteSlug(): void
     {
         // TODO:
-        throw new \RuntimeException(__METHOD__ . '(): Not Implemented');
+        throw new RuntimeException(__METHOD__ . '(): Not Implemented');
     }
 
     /**
@@ -241,7 +242,7 @@ trait PageRoutableTrait
     {
         if (null !== $var) {
             // TODO:
-            throw new \RuntimeException(__METHOD__ . '(string): Not Implemented');
+            throw new RuntimeException(__METHOD__ . '(string): Not Implemented');
         }
 
         if ($this->root()) {
@@ -337,7 +338,7 @@ trait PageRoutableTrait
     {
         if (null !== $var) {
             // TODO:
-            throw new \RuntimeException(__METHOD__ . '(string): Not Implemented');
+            throw new RuntimeException(__METHOD__ . '(string): Not Implemented');
         }
 
         $path = $this->_path;
@@ -414,7 +415,7 @@ trait PageRoutableTrait
     {
         if (null !== $var) {
             // TODO:
-            throw new \RuntimeException(__METHOD__ . '(PageInterface): Not Implemented');
+            throw new RuntimeException(__METHOD__ . '(PageInterface): Not Implemented');
         }
 
         if ($this->root()) {

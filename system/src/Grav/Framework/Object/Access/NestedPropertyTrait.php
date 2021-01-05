@@ -10,6 +10,10 @@
 namespace Grav\Framework\Object\Access;
 
 use Grav\Framework\Object\Interfaces\ObjectInterface;
+use RuntimeException;
+use stdClass;
+use function is_array;
+use function is_object;
 
 /**
  * Nested Property Object Trait
@@ -24,7 +28,7 @@ trait NestedPropertyTrait
      */
     public function hasNestedProperty($property, $separator = null)
     {
-        $test = new \stdClass;
+        $test = new stdClass;
 
         return $this->getNestedProperty($property, $test, $separator) !== $test;
     }
@@ -58,9 +62,9 @@ trait NestedPropertyTrait
 
             $offset = array_shift($path);
 
-            if ((\is_array($current) || is_a($current, 'ArrayAccess')) && isset($current[$offset])) {
+            if ((is_array($current) || is_a($current, 'ArrayAccess')) && isset($current[$offset])) {
                 $current = $current[$offset];
-            } elseif (\is_object($current) && isset($current->{$offset})) {
+            } elseif (is_object($current) && isset($current->{$offset})) {
                 $current = $current->{$offset};
             } else {
                 return $default;
@@ -76,7 +80,7 @@ trait NestedPropertyTrait
      * @param mixed  $value         New value.
      * @param string|null $separator     Separator, defaults to '.'
      * @return $this
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
     public function setNestedProperty($property, $value, $separator = null)
     {
@@ -98,12 +102,12 @@ trait NestedPropertyTrait
             // Handle arrays and scalars.
             if ($current === null) {
                 $current = [$offset => []];
-            } elseif (\is_array($current)) {
+            } elseif (is_array($current)) {
                 if (!isset($current[$offset])) {
                     $current[$offset] = [];
                 }
             } else {
-                throw new \RuntimeException("Cannot set nested property {$property} on non-array value");
+                throw new RuntimeException("Cannot set nested property {$property} on non-array value");
             }
 
             $current = &$current[$offset];
@@ -118,7 +122,7 @@ trait NestedPropertyTrait
      * @param string $property      Object property to be updated.
      * @param string|null $separator     Separator, defaults to '.'
      * @return $this
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
     public function unsetNestedProperty($property, $separator = null)
     {
@@ -142,12 +146,12 @@ trait NestedPropertyTrait
             if ($current === null) {
                 return $this;
             }
-            if (\is_array($current)) {
+            if (is_array($current)) {
                 if (!isset($current[$offset])) {
                     return $this;
                 }
             } else {
-                throw new \RuntimeException("Cannot unset nested property {$property} on non-array value");
+                throw new RuntimeException("Cannot unset nested property {$property} on non-array value");
             }
 
             $current = &$current[$offset];
@@ -163,7 +167,7 @@ trait NestedPropertyTrait
      * @param mixed  $default       Default value.
      * @param string|null $separator     Separator, defaults to '.'
      * @return $this
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
     public function defNestedProperty($property, $default, $separator = null)
     {

@@ -9,7 +9,11 @@
 
 namespace Grav\Framework\ContentBlock;
 
+use Exception;
 use Grav\Framework\Compat\Serializable;
+use InvalidArgumentException;
+use RuntimeException;
+use function get_class;
 
 /**
  * Class to create nested blocks of content.
@@ -54,7 +58,7 @@ class ContentBlock implements ContentBlockInterface
     /**
      * @param array $serialized
      * @return ContentBlockInterface
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public static function fromArray(array $serialized)
     {
@@ -63,14 +67,14 @@ class ContentBlock implements ContentBlockInterface
             $id = $serialized['id'] ?? null;
 
             if (!$type || !$id || !is_a($type, ContentBlockInterface::class, true)) {
-                throw new \InvalidArgumentException('Bad data');
+                throw new InvalidArgumentException('Bad data');
             }
 
             /** @var ContentBlockInterface $instance */
             $instance = new $type($id);
             $instance->build($serialized);
-        } catch (\Exception $e) {
-            throw new \InvalidArgumentException(sprintf('Cannot unserialize Block: %s', $e->getMessage()), $e->getCode(), $e);
+        } catch (Exception $e) {
+            throw new InvalidArgumentException(sprintf('Cannot unserialize Block: %s', $e->getMessage()), $e->getCode(), $e);
         }
 
         return $instance;
@@ -114,7 +118,7 @@ class ContentBlock implements ContentBlockInterface
         }
 
         $array = [
-            '_type' => \get_class($this),
+            '_type' => get_class($this),
             '_version' => $this->version,
             'id' => $this->id,
             'cached' => $this->cached
@@ -161,7 +165,7 @@ class ContentBlock implements ContentBlockInterface
     {
         try {
             return $this->toString();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return sprintf('Error while rendering block: %s', $e->getMessage());
         }
     }
@@ -169,7 +173,7 @@ class ContentBlock implements ContentBlockInterface
     /**
      * @param array $serialized
      * @return void
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
     public function build(array $serialized)
     {
@@ -286,13 +290,13 @@ class ContentBlock implements ContentBlockInterface
     /**
      * @param array $serialized
      * @return void
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
     protected function checkVersion(array $serialized)
     {
         $version = isset($serialized['_version']) ? (int) $serialized['_version'] : 1;
         if ($version !== $this->version) {
-            throw new \RuntimeException(sprintf('Unsupported version %s', $version));
+            throw new RuntimeException(sprintf('Unsupported version %s', $version));
         }
     }
 }

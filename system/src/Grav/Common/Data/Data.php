@@ -9,7 +9,9 @@
 
 namespace Grav\Common\Data;
 
+use ArrayAccess;
 use Exception;
+use JsonSerializable;
 use RocketTheme\Toolbox\ArrayTraits\Countable;
 use RocketTheme\Toolbox\ArrayTraits\Export;
 use RocketTheme\Toolbox\ArrayTraits\ExportInterface;
@@ -25,7 +27,7 @@ use function is_object;
  * Class Data
  * @package Grav\Common\Data
  */
-class Data implements DataInterface, \ArrayAccess, \Countable, \JsonSerializable, ExportInterface
+class Data implements DataInterface, ArrayAccess, \Countable, JsonSerializable, ExportInterface
 {
     use NestedArrayAccessWithGetters, Countable, Export;
 

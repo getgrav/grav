@@ -9,9 +9,15 @@
 
 namespace Grav\Framework\Object\Collection;
 
+use Closure;
 use Doctrine\Common\Collections\Expr\ClosureExpressionVisitor;
 use Doctrine\Common\Collections\Expr\Comparison;
+use RuntimeException;
+use function in_array;
+use function is_array;
 use function is_callable;
+use function is_string;
+use function strlen;
 
 /**
  * Class ObjectExpressionVisitor
@@ -124,11 +130,11 @@ class ObjectExpressionVisitor extends ClosureExpressionVisitor
      *
      * @param string   $name
      * @param int      $orientation
-     * @param \Closure|null $next
+     * @param Closure|null $next
      *
-     * @return \Closure
+     * @return Closure
      */
-    public static function sortByField($name, $orientation = 1, \Closure $next = null)
+    public static function sortByField($name, $orientation = 1, Closure $next = null)
     {
         if (!$next) {
             $next = function ($a, $b) {
@@ -145,7 +151,7 @@ class ObjectExpressionVisitor extends ClosureExpressionVisitor
             }
 
             // For strings we use natural case insensitive sorting.
-            if (\is_string($aValue) && \is_string($bValue)) {
+            if (is_string($aValue) && is_string($bValue)) {
                 return strnatcasecmp($aValue, $bValue) * $orientation;
             }
 
@@ -194,12 +200,12 @@ class ObjectExpressionVisitor extends ClosureExpressionVisitor
 
             case Comparison::IN:
                 return function ($object) use ($field, $value) {
-                    return \in_array(static::getObjectFieldValue($object, $field), $value, true);
+                    return in_array(static::getObjectFieldValue($object, $field), $value, true);
                 };
 
             case Comparison::NIN:
                 return function ($object) use ($field, $value) {
-                    return !\in_array(static::getObjectFieldValue($object, $field), $value, true);
+                    return !in_array(static::getObjectFieldValue($object, $field), $value, true);
                 };
 
             case Comparison::CONTAINS:
@@ -210,10 +216,10 @@ class ObjectExpressionVisitor extends ClosureExpressionVisitor
             case Comparison::MEMBER_OF:
                 return function ($object) use ($field, $value) {
                     $fieldValues = static::getObjectFieldValue($object, $field);
-                    if (!\is_array($fieldValues)) {
+                    if (!is_array($fieldValues)) {
                         $fieldValues = iterator_to_array($fieldValues);
                     }
-                    return \in_array($value, $fieldValues, true);
+                    return in_array($value, $fieldValues, true);
                 };
 
             case Comparison::STARTS_WITH:
@@ -227,7 +233,7 @@ class ObjectExpressionVisitor extends ClosureExpressionVisitor
                 };
 
             default:
-                throw new \RuntimeException("Unknown comparison operator: " . $comparison->getOperator());
+                throw new RuntimeException("Unknown comparison operator: " . $comparison->getOperator());
         }
     }
 }

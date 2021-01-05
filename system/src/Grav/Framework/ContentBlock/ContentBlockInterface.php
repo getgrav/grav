@@ -9,11 +9,13 @@
 
 namespace Grav\Framework\ContentBlock;
 
+use Serializable;
+
 /**
  * ContentBlock Interface
  * @package Grav\Framework\ContentBlock
  */
-interface ContentBlockInterface extends \Serializable
+interface ContentBlockInterface extends Serializable
 {
     /**
      * @param string|null $id

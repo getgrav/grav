@@ -13,6 +13,7 @@ use DateTime;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\Grav;
 use Grav\Common\Utils;
+use InvalidArgumentException;
 use Symfony\Component\Process\PhpExecutableFinder;
 use Symfony\Component\Process\Process;
 use RocketTheme\Toolbox\File\YamlFile;
@@ -247,7 +248,7 @@ class Scheduler
             case 'array':
                 return $this->output_schedule;
             default:
-                throw new \InvalidArgumentException('Invalid output type');
+                throw new InvalidArgumentException('Invalid output type');
         }
     }
 

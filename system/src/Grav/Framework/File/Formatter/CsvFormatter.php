@@ -11,7 +11,14 @@ declare(strict_types=1);
 
 namespace Grav\Framework\File\Formatter;
 
+use Exception;
 use Grav\Framework\File\Interfaces\FileFormatterInterface;
+use JsonSerializable;
+use RuntimeException;
+use stdClass;
+use function is_array;
+use function is_object;
+use function is_scalar;
 
 /**
  * Class CsvFormatter
@@ -81,13 +88,13 @@ class CsvFormatter extends AbstractFormatter
         $delimiter = $delimiter ?? $this->getDelimiter();
         $lines = preg_split('/\r\n|\r|\n/', $data);
         if ($lines === false) {
-            throw new \RuntimeException('Decoding CSV failed');
+            throw new RuntimeException('Decoding CSV failed');
         }
 
         // Get the field names
         $headerStr = array_shift($lines);
         if (!$headerStr) {
-            throw new \RuntimeException('CSV header missing');
+            throw new RuntimeException('CSV header missing');
         }
 
         $header = str_getcsv($headerStr, $delimiter);
@@ -112,8 +119,8 @@ class CsvFormatter extends AbstractFormatter
                     $list[] = array_combine($header, $csv_line);
                 }
             }
-        } catch (\Exception $e) {
-            throw new \RuntimeException('Badly formatted CSV line: ' . $line);
+        } catch (Exception $e) {
+            throw new RuntimeException('Badly formatted CSV line: ' . $line);
         }
 
         return $list;
@@ -128,8 +135,8 @@ class CsvFormatter extends AbstractFormatter
     {
         foreach ($line as $key => &$value) {
             // Oops, we need to convert the line to a string.
-            if (!\is_scalar($value)) {
-                if (is_array($value) || $value instanceof \JsonSerializable || $value instanceof \stdClass) {
+            if (!is_scalar($value)) {
+                if (is_array($value) || $value instanceof JsonSerializable || $value instanceof stdClass) {
                     $value = json_encode($value);
                 } elseif (is_object($value)) {
                     if (method_exists($value, 'toJson')) {

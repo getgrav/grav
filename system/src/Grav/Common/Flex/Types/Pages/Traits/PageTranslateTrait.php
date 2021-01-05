@@ -16,6 +16,7 @@ use Grav\Common\Language\Language;
 use Grav\Common\Page\Page;
 use Grav\Common\Utils;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
+use SplFileInfo;
 
 /**
  * Implements PageTranslateInterface
@@ -75,7 +76,7 @@ trait PageTranslateTrait
 
             // FIXME: use flex, also rawRoute() does not fully work?
             $aPage = new Page();
-            $aPage->init(new \SplFileInfo($path), $languageExtension);
+            $aPage->init(new SplFileInfo($path), $languageExtension);
             if ($onlyPublished && !$aPage->published()) {
                 continue;
             }

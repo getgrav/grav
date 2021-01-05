@@ -9,6 +9,7 @@
 
 namespace Grav\Common;
 
+use Closure;
 use Grav\Common\Assets\Pipeline;
 use Grav\Common\Assets\Traits\LegacyAssetsTrait;
 use Grav\Common\Assets\Traits\TestingAssetsTrait;
@@ -81,7 +82,7 @@ class Assets extends PropertyObject
     /** @var array */
     protected $pipeline_options = [];
 
-    /** @var \Closure|string */
+    /** @var Closure|string */
     protected $fetch_command;
     /** @var string */
     protected $autoload;

@@ -11,6 +11,8 @@ declare(strict_types=1);
 
 namespace Grav\Framework\File\Interfaces;
 
+use Serializable;
+
 /**
  * Defines common interface for all file formatters.
  *
@@ -24,7 +26,7 @@ namespace Grav\Framework\File\Interfaces;
  *
  * @since 1.6
  */
-interface FileFormatterInterface extends \Serializable
+interface FileFormatterInterface extends Serializable
 {
     /**
      * @return string

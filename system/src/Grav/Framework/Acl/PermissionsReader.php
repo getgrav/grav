@@ -10,6 +10,9 @@
 namespace Grav\Framework\Acl;
 
 use Grav\Common\File\CompiledYamlFile;
+use RuntimeException;
+use stdClass;
+use function is_array;
 
 /**
  * Class PermissionsReader
@@ -102,7 +105,7 @@ class PermissionsReader
         foreach ($dependencies as $type => $dep) {
             foreach (get_object_vars($dep) as $k => &$val) {
                 if (null === $val) {
-                    $val = $dependencies[$k] ?? new \stdClass();
+                    $val = $dependencies[$k] ?? new stdClass();
                 }
             }
             unset($val);
@@ -110,7 +113,7 @@ class PermissionsReader
 
         $encoded = json_encode($dependencies);
         if ($encoded === false) {
-            throw new \RuntimeException('json_encode(): failed to encode dependencies');
+            throw new RuntimeException('json_encode(): failed to encode dependencies');
         }
         $dependencies = json_decode($encoded, true);
 
@@ -170,7 +173,7 @@ class PermissionsReader
 
             $action = array_replace_recursive(...$scopes);
             if (null === $action) {
-                throw new \RuntimeException('Internal error');
+                throw new RuntimeException('Internal error');
             }
 
             $newType =  $defaults['type'] ?? null;

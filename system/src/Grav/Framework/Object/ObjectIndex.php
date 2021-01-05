@@ -13,6 +13,8 @@ use Doctrine\Common\Collections\Criteria;
 use Grav\Framework\Collection\AbstractIndexCollection;
 use Grav\Framework\Object\Interfaces\NestedObjectCollectionInterface;
 use Grav\Framework\Object\Interfaces\ObjectCollectionInterface;
+use function get_class;
+use function is_object;
 
 /**
  * Keeps index of objects instead of collection of objects. This class allows you to keep a list of objects and load
@@ -46,7 +48,7 @@ abstract class ObjectIndex extends AbstractIndexCollection implements NestedObje
             return $type . static::$type;
         }
 
-        $class = \get_class($this);
+        $class = get_class($this);
         return $type . strtolower(substr($class, strrpos($class, '\\') + 1));
     }
 
@@ -179,7 +181,7 @@ abstract class ObjectIndex extends AbstractIndexCollection implements NestedObje
     {
         $list = [];
         foreach ($this->getIterator() as $key => $value) {
-            $list[$key] = \is_object($value) ? clone $value : $value;
+            $list[$key] = is_object($value) ? clone $value : $value;
         }
 
         return $this->createFrom($list);

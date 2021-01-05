@@ -10,6 +10,7 @@
 namespace Grav\Framework\Session;
 
 use Grav\Framework\Compat\Serializable;
+use function array_key_exists;
 
 /**
  * Implements session messages.

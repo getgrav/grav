@@ -11,6 +11,7 @@ namespace Grav\Framework\Object\Interfaces;
 
 use Doctrine\Common\Collections\Selectable;
 use Grav\Framework\Collection\CollectionInterface;
+use Serializable;
 
 /**
  * ObjectCollection Interface
@@ -20,7 +21,7 @@ use Grav\Framework\Collection\CollectionInterface;
  * @extends CollectionInterface<TKey,T>
  * @extends Selectable<TKey,T>
  */
-interface ObjectCollectionInterface extends CollectionInterface, Selectable, \Serializable
+interface ObjectCollectionInterface extends CollectionInterface, Selectable, Serializable
 {
     /**
      * @return string

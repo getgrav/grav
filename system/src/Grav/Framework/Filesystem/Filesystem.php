@@ -12,6 +12,10 @@ declare(strict_types=1);
 namespace Grav\Framework\Filesystem;
 
 use Grav\Framework\Filesystem\Interfaces\FilesystemInterface;
+use RuntimeException;
+use function count;
+use function dirname;
+use function pathinfo;
 
 /**
  * Class Filesystem
@@ -203,7 +207,7 @@ class Filesystem implements FilesystemInterface
      */
     protected function dirnameInternal(?string $scheme, string $path, int $levels = 1): array
     {
-        $path = \dirname($path, $levels);
+        $path = dirname($path, $levels);
 
         if (null !== $scheme && $path === '.') {
             return [$scheme, ''];
@@ -226,10 +230,10 @@ class Filesystem implements FilesystemInterface
     protected function pathinfoInternal(?string $scheme, string $path, ?int $options = null)
     {
         if ($options) {
-            return \pathinfo($path, $options);
+            return pathinfo($path, $options);
         }
 
-        $info = \pathinfo($path);
+        $info = pathinfo($path);
 
         if (null !== $scheme) {
             $info['scheme'] = $scheme;
@@ -260,7 +264,7 @@ class Filesystem implements FilesystemInterface
     {
         $components = explode('://', $filename, 2);
 
-        return 2 === \count($components) ? $components : [null, $components[0]];
+        return 2 === count($components) ? $components : [null, $components[0]];
     }
 
     /**
@@ -280,7 +284,7 @@ class Filesystem implements FilesystemInterface
     /**
      * @param string $path
      * @return string
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
     protected function normalizePathPart(string $path): string
     {
@@ -323,7 +327,7 @@ class Filesystem implements FilesystemInterface
                 $test = array_pop($list);
                 if ($test === null) {
                     // Oops, user tried to access something outside of our root folder.
-                    throw new \RuntimeException("Bad path {$path}");
+                    throw new RuntimeException("Bad path {$path}");
                 }
             } else {
                 $list[] = $part;

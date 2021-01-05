@@ -21,6 +21,7 @@ use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use ZipArchive;
 use function is_callable;
 use function strlen;
 
@@ -96,7 +97,7 @@ class SelfupgradeCommand extends ConsoleCommand
      */
     protected function serve(): int
     {
-        if (!class_exists(\ZipArchive::class)) {
+        if (!class_exists(ZipArchive::class)) {
             $io = new SymfonyStyle($this->input, $this->output);
             $io->title('GPM Self Upgrade');
             $io->error('php-zip extension needs to be enabled!');

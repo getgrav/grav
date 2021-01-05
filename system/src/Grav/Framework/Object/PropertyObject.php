@@ -9,6 +9,7 @@
 
 namespace Grav\Framework\Object;
 
+use ArrayAccess;
 use Grav\Framework\Object\Access\NestedArrayAccessTrait;
 use Grav\Framework\Object\Access\NestedPropertyTrait;
 use Grav\Framework\Object\Access\OverloadedPropertyTrait;
@@ -19,7 +20,7 @@ use Grav\Framework\Object\Property\ObjectPropertyTrait;
 /**
  * Property Objects keep their data in protected object properties.
  */
-class PropertyObject implements NestedObjectInterface, \ArrayAccess
+class PropertyObject implements NestedObjectInterface, ArrayAccess
 {
     use ObjectTrait;
     use ObjectPropertyTrait;

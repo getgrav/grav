@@ -9,9 +9,15 @@
 
 namespace Grav\Framework\Pagination\Interfaces;
 
+use Countable;
 use Grav\Framework\Pagination\PaginationPage;
+use IteratorAggregate;
 
-interface PaginationInterface extends \Countable, \IteratorAggregate
+/**
+ * Interface PaginationInterface
+ * @package Grav\Framework\Pagination\Interfaces
+ */
+interface PaginationInterface extends Countable, IteratorAggregate
 {
     /**
      * @return int

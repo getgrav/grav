@@ -13,6 +13,10 @@ use ArrayIterator;
 use Closure;
 use Grav\Framework\Compat\Serializable;
 use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
+use InvalidArgumentException;
+use function array_key_exists;
+use function array_slice;
+use function count;
 
 /**
  * Abstract Index Collection.
@@ -248,7 +252,7 @@ abstract class AbstractIndexCollection implements CollectionInterface
      */
     public function count()
     {
-        return \count($this->entries);
+        return count($this->entries);
     }
 
     /**
@@ -257,7 +261,7 @@ abstract class AbstractIndexCollection implements CollectionInterface
     public function set($key, $value)
     {
         if (!$this->isAllowedElement($value)) {
-            throw new \InvalidArgumentException('Invalid argument $value');
+            throw new InvalidArgumentException('Invalid argument $value');
         }
 
         $this->entries[$key] = $this->getElementMeta($value);
@@ -269,7 +273,7 @@ abstract class AbstractIndexCollection implements CollectionInterface
     public function add($element)
     {
         if (!$this->isAllowedElement($element)) {
-            throw new \InvalidArgumentException('Invalid argument $element');
+            throw new InvalidArgumentException('Invalid argument $element');
         }
 
         $this->entries[$this->getCurrentKey($element)] = $this->getElementMeta($element);
@@ -350,7 +354,7 @@ abstract class AbstractIndexCollection implements CollectionInterface
      */
     public function slice($offset, $length = null)
     {
-        return $this->loadElements(\array_slice($this->entries, $offset, $length, true));
+        return $this->loadElements(array_slice($this->entries, $offset, $length, true));
     }
 
     /**
@@ -360,7 +364,7 @@ abstract class AbstractIndexCollection implements CollectionInterface
      */
     public function limit($start, $limit = null)
     {
-        return $this->createFrom(\array_slice($this->entries, $start, $limit, true));
+        return $this->createFrom(array_slice($this->entries, $start, $limit, true));
     }
 
     /**

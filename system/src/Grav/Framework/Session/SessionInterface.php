@@ -9,17 +9,21 @@
 
 namespace Grav\Framework\Session;
 
+use ArrayIterator;
+use IteratorAggregate;
+use RuntimeException;
+
 /**
  * Class Session
  * @package Grav\Framework\Session
  */
-interface SessionInterface extends \IteratorAggregate
+interface SessionInterface extends IteratorAggregate
 {
     /**
      * Get current session instance.
      *
      * @return Session
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
     public static function getInstance();
 
@@ -67,7 +71,7 @@ interface SessionInterface extends \IteratorAggregate
      *
      * @param bool $readonly
      * @return $this
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
     public function start($readonly = false);
 
@@ -102,7 +106,7 @@ interface SessionInterface extends \IteratorAggregate
     /**
      * Retrieve an external iterator
      *
-     * @return \ArrayIterator Return an ArrayIterator of $_SESSION
+     * @return ArrayIterator Return an ArrayIterator of $_SESSION
      */
     public function getIterator();
 

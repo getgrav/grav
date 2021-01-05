@@ -28,6 +28,7 @@ use Grav\Framework\Flex\Pages\Traits\PageTranslateTrait;
 use Grav\Framework\Flex\Traits\FlexMediaTrait;
 use RuntimeException;
 use stdClass;
+use function array_key_exists;
 use function is_array;
 
 /**

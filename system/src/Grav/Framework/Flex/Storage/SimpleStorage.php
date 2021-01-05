@@ -17,6 +17,7 @@ use Grav\Framework\Filesystem\Filesystem;
 use InvalidArgumentException;
 use LogicException;
 use RuntimeException;
+use function is_scalar;
 use function is_string;
 
 /**
@@ -154,7 +155,7 @@ class SimpleStorage extends AbstractFilesystemStorage
 
         $list = [];
         foreach ($rows as $key => $row) {
-            if (null === $row || \is_scalar($row)) {
+            if (null === $row || is_scalar($row)) {
                 // Only load rows which haven't been loaded before.
                 $key = (string)$key;
                 $list[$key] = $this->hasKey($key) ? $this->loadRow($key) : null;

@@ -13,6 +13,7 @@ namespace Grav\Framework\Flex\Interfaces;
 
 use Countable;
 use Grav\Framework\Flex\FlexDirectory;
+use RuntimeException;
 
 /**
  * Interface FlexInterface
@@ -66,7 +67,7 @@ interface FlexInterface extends Countable
      * @param array $options            In addition to the options in getObjects(), following options can be passed:
      *                                  collection_class:   Class to be used to create the collection. Defaults to ObjectCollection.
      * @return FlexCollectionInterface
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
     public function getMixedCollection(array $keys, array $options = []): FlexCollectionInterface;
 

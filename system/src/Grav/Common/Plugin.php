@@ -9,6 +9,7 @@
 
 namespace Grav\Common;
 
+use ArrayAccess;
 use Grav\Common\Data\Blueprint;
 use Grav\Common\Data\Data;
 use Grav\Common\Page\Interfaces\PageInterface;
@@ -25,7 +26,7 @@ use function is_string;
  * Class Plugin
  * @package Grav\Common
  */
-class Plugin implements EventSubscriberInterface, \ArrayAccess
+class Plugin implements EventSubscriberInterface, ArrayAccess
 {
     /** @var string */
     public $name;

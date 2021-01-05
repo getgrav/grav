@@ -10,6 +10,8 @@
 namespace Grav\Framework\Route;
 
 use Grav\Common\Uri;
+use function dirname;
+use function strlen;
 
 /**
  * Class RouteFactory
@@ -161,7 +163,7 @@ class RouteFactory
             return $path;
         }
 
-        $path = \dirname(substr($path, 0, $pos));
+        $path = dirname(substr($path, 0, $pos));
         if ($path === '.') {
             return '';
         }
@@ -175,7 +177,7 @@ class RouteFactory
      */
     public static function getParams(string $path): array
     {
-        $params = ltrim(substr($path, \strlen(static::stripParams($path))), '/');
+        $params = ltrim(substr($path, strlen(static::stripParams($path))), '/');
 
         return $params !== '' ? static::parseParams($params) : [];
     }

@@ -22,6 +22,7 @@ use Grav\Common\User\Authentication;
 use Grav\Common\User\Interfaces\UserInterface;
 use Grav\Common\User\Traits\UserTrait;
 use Grav\Framework\Flex\Flex;
+use function is_array;
 
 /**
  * Class User
@@ -303,7 +304,7 @@ class User extends Data implements UserInterface
     protected function getAvatarFile(): ?string
     {
         $avatars = $this->get('avatar');
-        if (\is_array($avatars) && $avatars) {
+        if (is_array($avatars) && $avatars) {
             $avatar = array_shift($avatars);
             return $avatar['path'] ?? null;
         }

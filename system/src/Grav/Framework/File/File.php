@@ -11,6 +11,9 @@ declare(strict_types=1);
 
 namespace Grav\Framework\File;
 
+use RuntimeException;
+use function is_string;
+
 /**
  * Class File
  * @package Grav\Framework\File
@@ -32,8 +35,8 @@ class File extends AbstractFile
      */
     public function save($data): void
     {
-        if (!\is_string($data)) {
-            throw new \RuntimeException('Cannot save data, string required');
+        if (!is_string($data)) {
+            throw new RuntimeException('Cannot save data, string required');
         }
 
         parent::save($data);

@@ -9,6 +9,7 @@
 
 namespace Grav\Framework\Form;
 
+use Exception;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\Grav;
 use Grav\Common\User\Interfaces\UserInterface;
@@ -17,6 +18,9 @@ use Grav\Framework\Form\Interfaces\FormFlashInterface;
 use Psr\Http\Message\UploadedFileInterface;
 use RocketTheme\Toolbox\File\YamlFile;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
+use RuntimeException;
+use function func_get_args;
+use function is_array;
 
 /**
  * Class FormFlash
@@ -122,7 +126,7 @@ class FormFlash implements FormFlashInterface
         if ($exists) {
             try {
                 $data = (array)$file->content();
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
             }
         }
 
@@ -307,7 +311,7 @@ class FormFlash implements FormFlashInterface
         $tmp_name = Utils::generateRandomString(12);
         $name = $upload->getClientFilename();
         if (!$name) {
-            throw new \RuntimeException('Uploaded file has no filename');
+            throw new RuntimeException('Uploaded file has no filename');
         }
 
         // Prepare upload data for later save
@@ -332,7 +336,7 @@ class FormFlash implements FormFlashInterface
     public function addFile(string $filename, string $field, array $crop = null): bool
     {
         if (!file_exists($filename)) {
-            throw new \RuntimeException("File not found: {$filename}");
+            throw new RuntimeException("File not found: {$filename}");
         }
 
         // Prepare upload data for later save
@@ -517,7 +521,7 @@ class FormFlash implements FormFlashInterface
     protected function addFileInternal(?string $field, string $name, array $data, array $crop = null): void
     {
         if (!($this->folder && $this->uniqueId)) {
-            throw new \RuntimeException('Cannot upload files: form flash folder not defined');
+            throw new RuntimeException('Cannot upload files: form flash folder not defined');
         }
 
         $field = $field ?: 'undefined';

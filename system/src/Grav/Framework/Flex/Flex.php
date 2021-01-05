@@ -18,6 +18,7 @@ use Grav\Framework\Flex\Interfaces\FlexInterface;
 use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
 use Grav\Framework\Object\ObjectCollection;
 use RuntimeException;
+use function count;
 use function is_array;
 
 /**
@@ -292,7 +293,7 @@ class Flex implements FlexInterface
      */
     public function count(): int
     {
-        return \count($this->types);
+        return count($this->types);
     }
 
     /**

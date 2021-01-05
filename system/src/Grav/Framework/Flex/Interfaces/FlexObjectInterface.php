@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Grav\Framework\Flex\Interfaces;
 
+use ArrayAccess;
 use Grav\Common\Data\Blueprint;
 use Grav\Framework\Flex\Flex;
 use Grav\Framework\Object\Interfaces\NestedObjectInterface;
@@ -25,7 +26,7 @@ use RuntimeException;
  * @used-by \Grav\Framework\Flex\FlexObject
  * @since 1.6
  */
-interface FlexObjectInterface extends FlexCommonInterface, NestedObjectInterface, \ArrayAccess
+interface FlexObjectInterface extends FlexCommonInterface, NestedObjectInterface, ArrayAccess
 {
     /**
      * Construct a new Flex Object instance.

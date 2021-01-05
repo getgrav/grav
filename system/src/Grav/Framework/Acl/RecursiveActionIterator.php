@@ -9,6 +9,7 @@
 
 namespace Grav\Framework\Acl;
 
+use RecursiveIterator;
 use RocketTheme\Toolbox\ArrayTraits\Constructor;
 use RocketTheme\Toolbox\ArrayTraits\Countable;
 use RocketTheme\Toolbox\ArrayTraits\Iterator;
@@ -17,7 +18,7 @@ use RocketTheme\Toolbox\ArrayTraits\Iterator;
  * Class Action
  * @package Grav\Framework\Acl
  */
-class RecursiveActionIterator implements \RecursiveIterator, \Countable
+class RecursiveActionIterator implements RecursiveIterator, \Countable
 {
     use Constructor, Iterator, Countable;
 

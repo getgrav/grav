@@ -9,8 +9,14 @@
 
 namespace Grav\Framework\Session;
 
+use ArrayIterator;
+use Exception;
 use Grav\Common\User\Interfaces\UserInterface;
 use Grav\Framework\Session\Exceptions\SessionException;
+use RuntimeException;
+use function is_array;
+use function is_bool;
+use function is_string;
 
 /**
  * Class Session
@@ -31,7 +37,7 @@ class Session implements SessionInterface
     public static function getInstance()
     {
         if (null === self::$instance) {
-            throw new \RuntimeException("Session hasn't been initialized.", 500);
+            throw new RuntimeException("Session hasn't been initialized.", 500);
         }
 
         return self::$instance;
@@ -52,7 +58,7 @@ class Session implements SessionInterface
         }
 
         if (null !== self::$instance) {
-            throw new \RuntimeException('Session has already been initialized.', 500);
+            throw new RuntimeException('Session has already been initialized.', 500);
         }
 
         // Destroy any existing sessions started with session.auto_start
@@ -157,7 +163,7 @@ class Session implements SessionInterface
         ];
 
         foreach ($options as $key => $value) {
-            if (\is_array($value)) {
+            if (is_array($value)) {
                 // Allow nested options.
                 foreach ($value as $key2 => $value2) {
                     $ckey = "{$key}.{$key2}";
@@ -200,7 +206,7 @@ class Session implements SessionInterface
                 $last = error_get_last();
                 $error = $last ? $last['message'] : 'Unknown error';
 
-                throw new \RuntimeException($error);
+                throw new RuntimeException($error);
             }
 
             // Handle changing session id.
@@ -210,7 +216,7 @@ class Session implements SessionInterface
                     // Should not happen usually. This could be attack or due to unstable network. Destroy this session.
                     $this->invalidate();
 
-                    throw new \RuntimeException('Your session was destroyed.', 500);
+                    throw new RuntimeException('Your session was destroyed.', 500);
                 }
 
                 // Not fully expired yet. Could be lost cookie by unstable network. Start session with new session id.
@@ -221,10 +227,10 @@ class Session implements SessionInterface
                     $last = error_get_last();
                     $error = $last ? $last['message'] : 'Unknown error';
 
-                    throw new \RuntimeException($error);
+                    throw new RuntimeException($error);
                 }
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             throw new SessionException('Failed to start session: ' . $e->getMessage(), 500);
         }
 
@@ -379,7 +385,7 @@ class Session implements SessionInterface
      */
     public function getIterator()
     {
-        return new \ArrayIterator($_SESSION);
+        return new ArrayIterator($_SESSION);
     }
 
     /**
@@ -443,8 +449,8 @@ class Session implements SessionInterface
      */
     protected function setOption($key, $value)
     {
-        if (!\is_string($value)) {
-            if (\is_bool($value)) {
+        if (!is_string($value)) {
+            if (is_bool($value)) {
                 $value = $value ? '1' : '0';
             } else {
                 $value = (string)$value;

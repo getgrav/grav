@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Grav\Common\Flex\Types\Pages;
 
+use Exception;
 use Grav\Common\Flex\Traits\FlexCollectionTrait;
 use Grav\Common\Flex\Traits\FlexGravTrait;
 use Grav\Common\Grav;
@@ -432,7 +433,7 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
      * @param string|false $endDate
      * @param string|null $field
      * @return static
-     * @throws \Exception
+     * @throws Exception
      */
     public function dateRange($startDate, $endDate = false, $field = null)
     {
@@ -771,7 +772,7 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
      * Get the extended version of this Collection with each page keyed by route
      *
      * @return array
-     * @throws \Exception
+     * @throws Exception
      */
     public function toExtendedArray(): array
     {

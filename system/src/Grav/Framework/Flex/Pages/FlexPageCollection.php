@@ -169,7 +169,7 @@ class FlexPageCollection extends FlexCollection
      */
     public function currentPosition($path): ?int
     {
-        $pos = \array_search($path, $this->getKeys(), true);
+        $pos = array_search($path, $this->getKeys(), true);
 
         return $pos !== false ? $pos : null;
     }

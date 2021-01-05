@@ -36,12 +36,14 @@ use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use ReflectionObject;
+use SplFileInfo;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Throwable;
 use Twig\Environment;
 use Twig\Template;
 use Twig\TemplateWrapper;
 use function array_slice;
+use function call_user_func;
 use function count;
 use function define;
 use function defined;
@@ -837,7 +839,7 @@ class Debugger
     {
         if ($errno !== E_USER_DEPRECATED && $errno !== E_DEPRECATED) {
             if ($this->errorHandler) {
-                return \call_user_func($this->errorHandler, $errno, $errstr, $errfile, $errline);
+                return call_user_func($this->errorHandler, $errno, $errstr, $errfile, $errline);
             }
 
             return true;
@@ -870,7 +872,7 @@ class Debugger
             foreach ($backtrace as $current) {
                 if (isset($current['args'])) {
                     foreach ($current['args'] as $arg) {
-                        if ($arg instanceof \SplFileInfo) {
+                        if ($arg instanceof SplFileInfo) {
                             $arg = $arg->getPathname();
                         }
                         if (is_string($arg) && preg_match('/.+\.(yaml|md)$/i', $arg)) {

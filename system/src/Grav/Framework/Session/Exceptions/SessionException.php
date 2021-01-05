@@ -9,10 +9,12 @@
 
 namespace Grav\Framework\Session\Exceptions;
 
+use RuntimeException;
+
 /**
  * Class SessionException
  * @package Grav\Framework\Session\Exceptions
  */
-class SessionException extends \RuntimeException
+class SessionException extends RuntimeException
 {
 }

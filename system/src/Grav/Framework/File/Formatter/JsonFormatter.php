@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace Grav\Framework\File\Formatter;
 
 use Grav\Framework\File\Interfaces\FileFormatterInterface;
+use RuntimeException;
 use function is_int;
 use function is_string;
 
@@ -141,7 +142,7 @@ class JsonFormatter extends AbstractFormatter
         $encoded = @json_encode($data, $this->getEncodeOptions());
 
         if ($encoded === false && json_last_error() !== JSON_ERROR_NONE) {
-            throw new \RuntimeException('Encoding JSON failed: ' . json_last_error_msg());
+            throw new RuntimeException('Encoding JSON failed: ' . json_last_error_msg());
         }
 
         return $encoded ?: '';
@@ -156,7 +157,7 @@ class JsonFormatter extends AbstractFormatter
         $decoded = @json_decode($data, $this->getDecodeAssoc(), $this->getDecodeDepth(), $this->getDecodeOptions());
 
         if (null === $decoded && json_last_error() !== JSON_ERROR_NONE) {
-            throw new \RuntimeException('Decoding JSON failed: ' . json_last_error_msg());
+            throw new RuntimeException('Decoding JSON failed: ' . json_last_error_msg());
         }
 
         return $decoded;

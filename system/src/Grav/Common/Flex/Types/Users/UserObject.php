@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Grav\Common\Flex\Types\Users;
 
+use Countable;
 use Grav\Common\Config\Config;
 use Grav\Common\Data\Blueprint;
 use Grav\Common\Flex\Traits\FlexGravTrait;
@@ -65,7 +66,7 @@ use function is_object;
  * @property bool $authenticated
  * @property bool $authorized
  */
-class UserObject extends FlexObject implements UserInterface, \Countable
+class UserObject extends FlexObject implements UserInterface, Countable
 {
     use FlexGravTrait;
     use FlexObjectTrait;

@@ -10,6 +10,8 @@
 namespace Grav\Framework\Object\Base;
 
 use Grav\Framework\Compat\Serializable;
+use InvalidArgumentException;
+use function get_class;
 
 /**
  * Object trait.
@@ -46,7 +48,7 @@ trait ObjectTrait
             return $type . static::$type;
         }
 
-        $class = \get_class($this);
+        $class = get_class($this);
         return $type . strtolower(substr($class, strrpos($class, '\\') + 1));
     }
 
@@ -158,7 +160,7 @@ trait ObjectTrait
     protected function doUnserialize(array $serialized)
     {
         if (!isset($serialized['key'], $serialized['type'], $serialized['elements']) || $serialized['type'] !== $this->getType()) {
-            throw new \InvalidArgumentException("Cannot unserialize '{$this->getType()}': Bad data");
+            throw new InvalidArgumentException("Cannot unserialize '{$this->getType()}': Bad data");
         }
 
         $this->setKey($serialized['key']);

@@ -27,6 +27,7 @@ use function is_bool;
 use function is_float;
 use function is_int;
 use function is_string;
+use function strlen;
 
 /**
  * Class Validation
@@ -238,16 +239,16 @@ class Validation
             $value = trim($value);
         }
 
-        if (isset($params['min']) && \strlen($value) < $params['min']) {
+        if (isset($params['min']) && strlen($value) < $params['min']) {
             return false;
         }
 
-        if (isset($params['max']) && \strlen($value) > $params['max']) {
+        if (isset($params['max']) && strlen($value) > $params['max']) {
             return false;
         }
 
         $min = $params['min'] ?? 0;
-        if (isset($params['step']) && (\strlen($value) - $min) % $params['step'] === 0) {
+        if (isset($params['step']) && (strlen($value) - $min) % $params['step'] === 0) {
             return false;
         }
 

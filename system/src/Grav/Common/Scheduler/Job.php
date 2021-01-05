@@ -9,6 +9,7 @@
 
 namespace Grav\Common\Scheduler;
 
+use Closure;
 use Cron\CronExpression;
 use DateTime;
 use Grav\Common\Grav;
@@ -109,7 +110,7 @@ class Job
     /**
      * Get the command
      *
-     * @return \Closure|string
+     * @return Closure|string
      */
     public function getCommand()
     {
@@ -336,7 +337,7 @@ class Job
         if (is_callable($this->command)) {
             $this->output = $this->exec();
         } else {
-            $args = \is_string($this->args) ? explode(' ', $this->args) : $this->args;
+            $args = is_string($this->args) ? explode(' ', $this->args) : $this->args;
             $command = array_merge([$this->command], $args);
             $process = new Process($command);
 

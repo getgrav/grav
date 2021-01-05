@@ -11,6 +11,7 @@ namespace Grav\Framework\Flex\Interfaces;
 
 use Grav\Framework\Form\Interfaces\FormInterface;
 use Grav\Framework\Route\Route;
+use Serializable;
 
 /**
  * Defines Forms for Flex Objects.
@@ -18,7 +19,7 @@ use Grav\Framework\Route\Route;
  * @used-by \Grav\Framework\Flex\FlexForm
  * @since 1.6
  */
-interface FlexFormInterface extends \Serializable, FormInterface
+interface FlexFormInterface extends Serializable, FormInterface
 {
     /**
      * Get media task route.

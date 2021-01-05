@@ -12,6 +12,7 @@ namespace Grav\Common\Assets\Traits;
 use Closure;
 use Grav\Common\Grav;
 use Grav\Common\Utils;
+use function dirname;
 use function in_array;
 use function is_array;
 
@@ -80,7 +81,7 @@ trait AssetUtilsTrait
                 if (0 === strpos($link, '//')) {
                     $link = 'http:' . $link;
                 }
-                $relative_dir = \dirname($relative_path);
+                $relative_dir = dirname($relative_path);
             } else {
                 // Fix to remove relative dir if grav is in one
                 if (($this->base_url !== '/') && Utils::startsWith($relative_path, $this->base_url)) {
@@ -88,7 +89,7 @@ trait AssetUtilsTrait
                     $relative_path = ltrim(preg_replace($base_url, '/', $link, 1), '/');
                 }
 
-                $relative_dir = \dirname($relative_path);
+                $relative_dir = dirname($relative_path);
                 $link = ROOT_DIR . $relative_path;
             }
 

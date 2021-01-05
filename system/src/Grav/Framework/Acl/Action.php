@@ -9,13 +9,20 @@
 
 namespace Grav\Framework\Acl;
 
+use ArrayIterator;
+use Countable;
 use Grav\Common\Inflector;
+use IteratorAggregate;
+use RuntimeException;
+use Traversable;
+use function count;
+use function strlen;
 
 /**
  * Class Action
  * @package Grav\Framework\Acl
  */
-class Action implements \IteratorAggregate, \Countable
+class Action implements IteratorAggregate, Countable
 {
     /** @var string */
     public $name;
@@ -155,7 +162,7 @@ class Action implements \IteratorAggregate, \Countable
     public function addChild(Action $child): void
     {
         if (strpos($child->name, "{$this->name}.") !== 0) {
-            throw new \RuntimeException('Bad child');
+            throw new RuntimeException('Bad child');
         }
 
         $child->setParent($this);
@@ -165,11 +172,11 @@ class Action implements \IteratorAggregate, \Countable
     }
 
     /**
-     * @return \Traversable
+     * @return Traversable
      */
-    public function getIterator(): \Traversable
+    public function getIterator(): Traversable
     {
-        return new \ArrayIterator($this->children);
+        return new ArrayIterator($this->children);
     }
 
     /**
