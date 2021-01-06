@@ -19,11 +19,9 @@ use Grav\Console\Cli\ClearCacheCommand;
 use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\File\YamlFile;
 use Symfony\Component\Console\Exception\InvalidArgumentException;
-use Symfony\Component\Console\Exception\LogicException;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -70,6 +68,28 @@ trait ConsoleTrait
         $this->output->getFormatter()->setStyle('white', new OutputFormatterStyle('white', null, ['bold']));
 
         $this->setupGrav();
+    }
+
+    /**
+     * Adds an option.
+     *
+     * @param string                        $name        The option name
+     * @param string|array|null             $shortcut    The shortcuts, can be null, a string of shortcuts delimited by | or an array of shortcuts
+     * @param int|null                      $mode        The option mode: One of the InputOption::VALUE_* constants
+     * @param string                        $description A description text
+     * @param string|string[]|int|bool|null $default     The default value (must be null for InputOption::VALUE_NONE)
+     *
+     * @throws InvalidArgumentException If option mode is invalid or incompatible
+     *
+     * @return $this
+     */
+    public function addOption($name, $shortcut = null, $mode = null, $description = '', $default = null)
+    {
+        if ($name !== 'env' && $name !== 'lang') {
+            parent::addOption($name, $shortcut, $mode, $description, $default);
+        }
+
+        return $this;
     }
 
     final protected function setupGrav(): void
