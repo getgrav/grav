@@ -10,7 +10,7 @@
 namespace Grav\Console\Cli;
 
 use Grav\Common\Helpers\YamlLinter;
-use Grav\Console\ConsoleCommand;
+use Grav\Console\GravCommand;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
@@ -18,7 +18,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  * Class YamlLinterCommand
  * @package Grav\Console\Cli
  */
-class YamlLinterCommand extends ConsoleCommand
+class YamlLinterCommand extends GravCommand
 {
     /**
      * @return void

@@ -18,7 +18,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  * Class ConsoleCommand
  * @package Grav\Console
  */
-class ConsoleCommand extends Command
+class GravCommand extends Command
 {
     use ConsoleTrait;
 
@@ -44,6 +44,8 @@ class ConsoleCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->setupConsole($input, $output);
+
+        $this->initializeGrav();
 
         return $this->serve();
     }

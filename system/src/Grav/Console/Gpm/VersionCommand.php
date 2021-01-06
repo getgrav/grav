@@ -12,7 +12,7 @@ namespace Grav\Console\Gpm;
 use Grav\Common\GPM\GPM;
 use Grav\Common\GPM\Upgrader;
 use Grav\Common\Grav;
-use Grav\Console\ConsoleCommand;
+use Grav\Console\GpmCommand;
 use RocketTheme\Toolbox\File\YamlFile;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
@@ -22,7 +22,7 @@ use function count;
  * Class VersionCommand
  * @package Grav\Console\Gpm
  */
-class VersionCommand extends ConsoleCommand
+class VersionCommand extends GpmCommand
 {
     /** @var GPM */
     protected $gpm;

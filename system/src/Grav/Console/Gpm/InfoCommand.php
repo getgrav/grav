@@ -10,7 +10,7 @@
 namespace Grav\Console\Gpm;
 
 use Grav\Common\GPM\GPM;
-use Grav\Console\ConsoleCommand;
+use Grav\Console\GpmCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
@@ -20,7 +20,7 @@ use function strlen;
  * Class InfoCommand
  * @package Grav\Console\Gpm
  */
-class InfoCommand extends ConsoleCommand
+class InfoCommand extends GpmCommand
 {
     /** @var array */
     protected $data;

@@ -14,7 +14,7 @@ use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Grav;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Page\Pages;
-use Grav\Console\ConsoleCommand;
+use Grav\Console\GravCommand;
 use RocketTheme\Toolbox\Event\Event;
 use Symfony\Component\Console\Input\InputOption;
 use function in_array;
@@ -24,7 +24,7 @@ use function is_object;
  * Class PageSystemValidatorCommand
  * @package Grav\Console\Cli
  */
-class PageSystemValidatorCommand extends ConsoleCommand
+class PageSystemValidatorCommand extends GravCommand
 {
     /** @var array */
     protected $tests = [

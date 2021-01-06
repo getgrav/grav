@@ -9,14 +9,14 @@
 
 namespace Grav\Console\Cli;
 
-use Grav\Console\ConsoleCommand;
+use Grav\Console\GravCommand;
 use Symfony\Component\Console\Input\InputOption;
 
 /**
  * Class ComposerCommand
  * @package Grav\Console\Cli
  */
-class ComposerCommand extends ConsoleCommand
+class ComposerCommand extends GravCommand
 {
     /**
      * @return void

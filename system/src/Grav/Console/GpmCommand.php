@@ -9,6 +9,8 @@
 
 namespace Grav\Console;
 
+use Grav\Common\Config\Config;
+use Grav\Common\Grav;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Exception\LogicException;
 use Symfony\Component\Console\Input\InputInterface;
@@ -18,7 +20,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  * Class ConsoleCommand
  * @package Grav\Console
  */
-class ConsoleCommand extends Command
+class GpmCommand extends Command
 {
     use ConsoleTrait;
 
@@ -45,6 +47,11 @@ class ConsoleCommand extends Command
     {
         $this->setupConsole($input, $output);
 
+        $grav = Grav::instance();
+        $grav['config']->init();
+        $grav['uri']->init();
+        $grav['accounts'];
+
         return $this->serve();
     }
 
@@ -57,5 +64,18 @@ class ConsoleCommand extends Command
     {
         // Return error.
         return 1;
+    }
+
+    /**
+     * @return void
+     */
+    protected function displayGPMRelease()
+    {
+        /** @var Config $config */
+        $config = Grav::instance()['config'];
+
+        $this->output->writeln('');
+        $this->output->writeln('GPM Releases Configuration: <yellow>' . ucfirst($config->get('system.gpm.releases')) . '</yellow>');
+        $this->output->writeln('');
     }
 }

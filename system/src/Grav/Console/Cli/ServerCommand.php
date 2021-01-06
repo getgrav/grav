@@ -10,7 +10,7 @@
 namespace Grav\Console\Cli;
 
 use Grav\Common\Utils;
-use Grav\Console\ConsoleCommand;
+use Grav\Console\GravCommand;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Process\PhpExecutableFinder;
@@ -20,7 +20,7 @@ use Symfony\Component\Process\Process;
  * Class ServerCommand
  * @package Grav\Console\Cli
  */
-class ServerCommand extends ConsoleCommand
+class ServerCommand extends GravCommand
 {
     const SYMFONY_SERVER = 'Symfony Server';
     const PHP_SERVER = 'Built-in PHP Server';

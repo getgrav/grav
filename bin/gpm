@@ -43,26 +43,7 @@ if (!function_exists('curl_version')) {
     exit('FATAL: GPM requires PHP Curl module to be installed');
 }
 
-$climate = new League\CLImate\CLImate;
-$climate->arguments->add([
-    'environment' => [
-        'prefix'        => 'e',
-        'longPrefix'    => 'env',
-        'description'   => 'Configuration Environment',
-        'defaultValue'  => 'localhost'
-    ]
-]);
-$climate->arguments->parse();
-
-// Set up environment based on params.
-$environment = $climate->arguments->get('environment');
-
 $grav = Grav::instance(array('loader' => $autoload));
-$grav->setup($environment);
-
-$grav['config']->init();
-$grav['uri']->init();
-$grav['accounts'];
 
 $app = new Application('Grav Package Manager', GRAV_VERSION);
 $app->addCommands(array(

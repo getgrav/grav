@@ -36,22 +36,7 @@ if (!\extension_loaded('mbstring')) {
 @ini_set('default_charset', 'UTF-8');
 mb_internal_encoding('UTF-8');
 
-$climate = new League\CLImate\CLImate;
-$climate->arguments->add([
-    'environment' => [
-        'prefix'        => 'e',
-        'longPrefix'    => 'env',
-        'description'   => 'Configuration Environment',
-        'defaultValue'  => 'localhost'
-    ]
-]);
-$climate->arguments->parse();
-
-// Set up environment based on params.
-$environment = $climate->arguments->get('environment');
-
 $grav = Grav::instance(array('loader' => $autoload));
-$grav->setup($environment);
 
 if (!file_exists(GRAV_ROOT . '/index.php')) {
     exit('FATAL: Must be run from ROOT directory of Grav!');

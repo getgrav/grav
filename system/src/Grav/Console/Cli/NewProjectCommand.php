@@ -9,7 +9,7 @@
 
 namespace Grav\Console\Cli;
 
-use Grav\Console\ConsoleCommand;
+use Grav\Console\GravCommand;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
@@ -18,7 +18,7 @@ use Symfony\Component\Console\Input\InputOption;
  * Class NewProjectCommand
  * @package Grav\Console\Cli
  */
-class NewProjectCommand extends ConsoleCommand
+class NewProjectCommand extends GravCommand
 {
     /**
      * @return void

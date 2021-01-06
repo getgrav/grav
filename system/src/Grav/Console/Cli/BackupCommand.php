@@ -11,7 +11,7 @@ namespace Grav\Console\Cli;
 
 use Grav\Common\Backup\Backups;
 use Grav\Common\Grav;
-use Grav\Console\ConsoleCommand;
+use Grav\Console\GravCommand;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Question\ChoiceQuestion;
@@ -23,7 +23,7 @@ use function count;
  * Class BackupCommand
  * @package Grav\Console\Cli
  */
-class BackupCommand extends ConsoleCommand
+class BackupCommand extends GravCommand
 {
     /** @var string $source */
     protected $source;

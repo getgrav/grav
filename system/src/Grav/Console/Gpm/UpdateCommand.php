@@ -11,8 +11,8 @@ namespace Grav\Console\Gpm;
 
 use Grav\Common\GPM\GPM;
 use Grav\Common\GPM\Installer;
-use Grav\Console\ConsoleCommand;
 use Grav\Common\GPM\Upgrader;
+use Grav\Console\GpmCommand;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
@@ -26,7 +26,7 @@ use function count;
  * Class UpdateCommand
  * @package Grav\Console\Gpm
  */
-class UpdateCommand extends ConsoleCommand
+class UpdateCommand extends GpmCommand
 {
     /** @var array */
     protected $data;

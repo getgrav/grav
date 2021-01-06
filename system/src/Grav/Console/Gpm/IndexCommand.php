@@ -13,7 +13,7 @@ use Grav\Common\GPM\Remote\Package;
 use Grav\Common\GPM\GPM;
 use Grav\Common\GPM\Remote\Packages;
 use Grav\Common\Utils;
-use Grav\Console\ConsoleCommand;
+use Grav\Console\GpmCommand;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Style\SymfonyStyle;
@@ -23,7 +23,7 @@ use function count;
  * Class IndexCommand
  * @package Grav\Console\Gpm
  */
-class IndexCommand extends ConsoleCommand
+class IndexCommand extends GpmCommand
 {
     /** @var Packages */
     protected $data;

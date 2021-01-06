@@ -12,7 +12,7 @@ namespace Grav\Console\Cli;
 use DateTime;
 use Grav\Common\Grav;
 use Grav\Common\Helpers\LogViewer;
-use Grav\Console\ConsoleCommand;
+use Grav\Console\GravCommand;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
@@ -20,7 +20,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  * Class LogViewerCommand
  * @package Grav\Console\Cli
  */
-class LogViewerCommand extends ConsoleCommand
+class LogViewerCommand extends GravCommand
 {
     /**
      * @return void

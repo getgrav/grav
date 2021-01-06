@@ -13,7 +13,7 @@ use Cron\CronExpression;
 use Grav\Common\Grav;
 use Grav\Common\Utils;
 use Grav\Common\Scheduler\Scheduler;
-use Grav\Console\ConsoleCommand;
+use Grav\Console\GravCommand;
 use RocketTheme\Toolbox\Event\Event;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputOption;
@@ -24,7 +24,7 @@ use function is_null;
  * Class SchedulerCommand
  * @package Grav\Console\Cli
  */
-class SchedulerCommand extends ConsoleCommand
+class SchedulerCommand extends GravCommand
 {
     /**
      * @return void

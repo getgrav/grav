@@ -9,7 +9,7 @@
 
 namespace Grav\Console\Cli;
 
-use Grav\Console\ConsoleCommand;
+use Grav\Console\GravCommand;
 use RocketTheme\Toolbox\File\YamlFile;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
@@ -18,7 +18,7 @@ use Symfony\Component\Console\Input\InputOption;
  * Class InstallCommand
  * @package Grav\Console\Cli
  */
-class InstallCommand extends ConsoleCommand
+class InstallCommand extends GravCommand
 {
     /** @var array */
     protected $config;

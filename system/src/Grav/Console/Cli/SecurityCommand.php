@@ -11,7 +11,7 @@ namespace Grav\Console\Cli;
 
 use Grav\Common\Grav;
 use Grav\Common\Security;
-use Grav\Console\ConsoleCommand;
+use Grav\Console\GravCommand;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use function count;
@@ -20,7 +20,7 @@ use function count;
  * Class SecurityCommand
  * @package Grav\Console\Cli
  */
-class SecurityCommand extends ConsoleCommand
+class SecurityCommand extends GravCommand
 {
     /** @var ProgressBar $progress */
     protected $progress;

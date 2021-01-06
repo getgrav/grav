@@ -9,8 +9,8 @@
 
 namespace Grav\Console\Cli;
 
-use Grav\Console\ConsoleCommand;
 use Grav\Common\Filesystem\Folder;
+use Grav\Console\GravCommand;
 use RuntimeException;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
@@ -20,7 +20,7 @@ use function count;
  * Class SandboxCommand
  * @package Grav\Console\Cli
  */
-class SandboxCommand extends ConsoleCommand
+class SandboxCommand extends GravCommand
 {
     /** @var array */
     protected $directories = [

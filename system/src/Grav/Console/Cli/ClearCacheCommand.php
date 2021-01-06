@@ -10,14 +10,14 @@
 namespace Grav\Console\Cli;
 
 use Grav\Common\Cache;
-use Grav\Console\ConsoleCommand;
+use Grav\Console\GravCommand;
 use Symfony\Component\Console\Input\InputOption;
 
 /**
  * Class ClearCacheCommand
  * @package Grav\Console\Cli
  */
-class ClearCacheCommand extends ConsoleCommand
+class ClearCacheCommand extends GravCommand
 {
     /**
      * @return void

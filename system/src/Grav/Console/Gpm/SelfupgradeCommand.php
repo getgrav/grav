@@ -16,7 +16,7 @@ use Grav\Common\GPM\Installer;
 use Grav\Common\GPM\Response;
 use Grav\Common\GPM\Upgrader;
 use Grav\Common\Grav;
-use Grav\Console\ConsoleCommand;
+use Grav\Console\GpmCommand;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
@@ -29,7 +29,7 @@ use function strlen;
  * Class SelfupgradeCommand
  * @package Grav\Console\Gpm
  */
-class SelfupgradeCommand extends ConsoleCommand
+class SelfupgradeCommand extends GpmCommand
 {
     /** @var array */
     protected $data;

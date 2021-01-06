@@ -162,6 +162,11 @@ class Grav extends Container
         return self::$instance;
     }
 
+    public function isSetup(): bool
+    {
+        return isset($this->initialized['setup']);
+    }
+
     /**
      * Setup Grav instance using specific environment.
      *

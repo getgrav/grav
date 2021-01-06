@@ -16,7 +16,7 @@ use Grav\Common\Filesystem\Folder;
 use Grav\Common\GPM\GPM;
 use Grav\Common\GPM\Installer;
 use Grav\Common\GPM\Response;
-use Grav\Console\ConsoleCommand;
+use Grav\Console\GpmCommand;
 use RuntimeException;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
@@ -30,7 +30,7 @@ use function is_callable;
  * Class DirectInstallCommand
  * @package Grav\Console\Gpm
  */
-class DirectInstallCommand extends ConsoleCommand
+class DirectInstallCommand extends GpmCommand
 {
     /** @var string */
     protected $all_yes;

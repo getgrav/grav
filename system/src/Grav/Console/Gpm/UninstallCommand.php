@@ -13,7 +13,7 @@ use Grav\Common\GPM\GPM;
 use Grav\Common\GPM\Installer;
 use Grav\Common\GPM\Remote\Package;
 use Grav\Common\Grav;
-use Grav\Console\ConsoleCommand;
+use Grav\Console\GpmCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
@@ -25,7 +25,7 @@ use function is_array;
  * Class UninstallCommand
  * @package Grav\Console\Gpm
  */
-class UninstallCommand extends ConsoleCommand
+class UninstallCommand extends GpmCommand
 {
     /** @var array */
     protected $data;

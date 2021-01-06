@@ -18,7 +18,7 @@ use Grav\Common\GPM\Response;
 use Grav\Common\GPM\Remote\Package;
 use Grav\Common\Grav;
 use Grav\Common\Utils;
-use Grav\Console\ConsoleCommand;
+use Grav\Console\GpmCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
@@ -33,7 +33,7 @@ use function count;
  * Class InstallCommand
  * @package Grav\Console\Gpm
  */
-class InstallCommand extends ConsoleCommand
+class InstallCommand extends GpmCommand
 {
     /** @var array */
     protected $data;
