@@ -187,11 +187,6 @@ class Uri
             $this->extension = $parts['extension'];
         }
 
-        // Strip the file extension for valid page types
-        if ($this->isValidExtension($this->extension)) {
-            $path = Utils::replaceLastOccurrence(".{$this->extension}", '', $path);
-        }
-
         // set the new url
         $this->url = $this->root . $path;
         $this->path = static::cleanPath($path);
@@ -593,8 +588,7 @@ class Uri
     {
         if ($full === true) {
             $root_path = $this->root_path ?? '';
-            $extension = isset($this->extension) && $this->isValidExtension($this->extension) ? '.' . $this->extension : '';
-            $path = $root_path . $this->path . $extension;
+            $path = $root_path . $this->path;
         } else {
             $path = $this->path;
         }
