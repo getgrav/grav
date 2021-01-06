@@ -1353,7 +1353,7 @@ class Uri
         $valid_page_types = implode('|', Utils::getSupportPageTypes());
 
         // Strip the file extension for valid page types
-        if (preg_match('/(' . $valid_page_types . ')/', $extension)) {
+        if (preg_match('/^(' . $valid_page_types . ')$/', $extension)) {
             return true;
         }
         return false;
