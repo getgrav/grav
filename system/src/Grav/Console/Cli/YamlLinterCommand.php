@@ -28,12 +28,6 @@ class YamlLinterCommand extends GravCommand
         $this
             ->setName('yamllinter')
             ->addOption(
-                'env',
-                'e',
-                InputOption::VALUE_OPTIONAL,
-                'The environment to trigger a specific configuration. For example: localhost, mysite.dev, www.mysite.com'
-            )
-            ->addOption(
                 'all',
                 'a',
                 InputOption::VALUE_NONE,
