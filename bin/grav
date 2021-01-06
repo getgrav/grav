@@ -3,8 +3,7 @@
 
 use Grav\Common\Composer;
 use Grav\Common\Grav;
-use Grav\Console\Cli;
-use Symfony\Component\Console\Application;
+use Grav\Console\Application\GravApplication;
 
 \define('GRAV_CLI', true);
 \define('GRAV_REQUEST_TIME', microtime(true));
@@ -42,20 +41,5 @@ if (!file_exists(GRAV_ROOT . '/index.php')) {
     exit('FATAL: Must be run from ROOT directory of Grav!');
 }
 
-$app = new Application('Grav CLI Application', GRAV_VERSION);
-$app->addCommands(array(
-    new Cli\InstallCommand(),
-    new Cli\ComposerCommand(),
-    new Cli\SandboxCommand(),
-    new Cli\CleanCommand(),
-    new Cli\ClearCacheCommand(),
-    new Cli\BackupCommand(),
-    new Cli\NewProjectCommand(),
-    new Cli\SchedulerCommand(),
-    new Cli\SecurityCommand(),
-    new Cli\LogViewerCommand(),
-    new Cli\YamlLinterCommand(),
-    new Cli\ServerCommand(),
-    new Cli\PageSystemValidatorCommand(),
-));
+$app = new GravApplication('Grav CLI Application', GRAV_VERSION);
 $app->run();

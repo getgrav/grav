@@ -19,6 +19,7 @@ use Grav\Console\Cli\ClearCacheCommand;
 use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\File\YamlFile;
 use Symfony\Component\Console\Exception\InvalidArgumentException;
+use Symfony\Component\Console\Exception\LogicException;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
@@ -76,12 +77,16 @@ trait ConsoleTrait
      */
     final protected function addEnvOption()
     {
-        return $this->addOption(
-            'env',
-            'e',
-            InputOption::VALUE_OPTIONAL,
-            'Optional environment to trigger a specific configuration.'
-        );
+        try {
+            return $this->addOption(
+                'env',
+                'e',
+                InputOption::VALUE_OPTIONAL,
+                'Optional environment to trigger a specific configuration.'
+            );
+        } catch (LogicException $e) {
+            return $this;
+        }
     }
 
     /**
@@ -89,12 +94,16 @@ trait ConsoleTrait
      */
     final protected function addLanguageOption()
     {
-        return $this->addOption(
-            'language',
-            'l',
-            InputOption::VALUE_OPTIONAL,
-            'Optional language to be used (multi-language sites only).'
-        );
+        try {
+            return $this->addOption(
+                'language',
+                'l',
+                InputOption::VALUE_OPTIONAL,
+                'Optional language to be used (multi-language sites only).'
+            );
+        } catch (LogicException $e) {
+            return $this;
+        }
     }
 
     final protected function setupGrav(): void
