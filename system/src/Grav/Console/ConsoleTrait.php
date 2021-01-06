@@ -72,71 +72,20 @@ trait ConsoleTrait
         $this->setupGrav();
     }
 
-    /**
-     * @return $this
-     */
-    final protected function addEnvOption()
-    {
-        try {
-            return $this->addOption(
-                'env',
-                'e',
-                InputOption::VALUE_OPTIONAL,
-                'Optional environment to trigger a specific configuration.'
-            );
-        } catch (LogicException $e) {
-            return $this;
-        }
-    }
-
-    /**
-     * @return $this
-     */
-    final protected function addLanguageOption()
-    {
-        try {
-            return $this->addOption(
-                'language',
-                'l',
-                InputOption::VALUE_OPTIONAL,
-                'Optional language to be used (multi-language sites only).'
-            );
-        } catch (LogicException $e) {
-            return $this;
-        }
-    }
-
     final protected function setupGrav(): void
     {
         try {
-            $environment = $this->input->getOption('env');
-        } catch (InvalidArgumentException $e) {
-            $environment = null;
-        }
-        try {
-            $language = $this->input->getOption('language');
-        } catch (InvalidArgumentException $e) {
-            $language = null;
-        }
-
-        $grav = Grav::instance();
-        if (!$grav->isSetup()) {
-            // Set environment.
-            $grav->setup($environment);
-        } else {
-            $this->output->writeln('');
-            $this->output->writeln('<red>WARNING</red>: Grav environment already set, please update logic in your CLI command');
-        }
-
-        if ($language) {
-            // Set used language.
-            $this->setLanguage($language);
-        }
+            $language = $this->input->getOption('lang');
+            if ($language) {
+                // Set used language.
+                $this->setLanguage($language);
+            }
+        } catch (InvalidArgumentException $e) {}
 
         // Initialize cache with CLI compatibility
+        $grav = Grav::instance();
         $grav['config']->set('system.cache.cli_compatibility', true);
     }
-
 
     /**
      * Initialize Grav.

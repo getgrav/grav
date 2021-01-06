@@ -11,7 +11,7 @@
     * Make it possible to use an absolute path when loading a blueprint
     * Make serialize methods final in `ContentBlock`, `AbstractFile`, `FormTrait`, `ObjectCollectionTrait` and `ObjectTrait`
     * Added support for relative paths in `PageObject::getLevelListing()` [#3110](https://github.com/getgrav/grav/issues/3110)
-    * Better `--env` support for `bin/grav` and `bin/gpm` console commands
+    * Better `--env` and `--lang` support for `bin/grav`, `bin/gpm` and `bin/plugin` console commands
 1. [](#bugfix)
     * Fixed port issue with `system.custom_base_url`
     * Hide errors with `exif_read_data` in `ImageFile`

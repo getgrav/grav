@@ -12,7 +12,6 @@ namespace Grav\Console;
 use Grav\Common\Config\Config;
 use Grav\Common\Grav;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Exception\LogicException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -23,19 +22,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 class GpmCommand extends Command
 {
     use ConsoleTrait;
-
-    /**
-     * @param string|null $name The name of the command; passing null means it must be set in configure()
-     *
-     * @throws LogicException When the command name is empty
-     */
-    public function __construct(string $name = null)
-    {
-        parent::__construct($name);
-
-        // Add --env option.
-        $this->addEnvOption();
-    }
 
     /**
      * @param InputInterface  $input

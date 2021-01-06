@@ -9,7 +9,6 @@
 
 namespace Grav\Console\Application;
 
-use Codeception\Application;
 use Grav\Console\Cli\BackupCommand;
 use Grav\Console\Cli\CleanCommand;
 use Grav\Console\Cli\ClearCacheCommand;

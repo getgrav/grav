@@ -173,7 +173,7 @@ class Plugins extends Iterator
     /**
      * Return list of all plugin data with their blueprints.
      *
-     * @return array
+     * @return array<string,Data>
      */
     public static function all()
     {

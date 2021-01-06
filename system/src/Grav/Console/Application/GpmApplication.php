@@ -9,7 +9,6 @@
 
 namespace Grav\Console\Application;
 
-use Codeception\Application;
 use Grav\Console\Gpm\DirectInstallCommand;
 use Grav\Console\Gpm\IndexCommand;
 use Grav\Console\Gpm\InfoCommand;
