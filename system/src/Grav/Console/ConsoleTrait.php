@@ -19,10 +19,10 @@ use Grav\Console\Cli\ClearCacheCommand;
 use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\File\YamlFile;
 use Symfony\Component\Console\Exception\InvalidArgumentException;
-use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * Trait ConsoleTrait
@@ -32,9 +32,9 @@ trait ConsoleTrait
 {
     /** @var string */
     protected $argv;
-    /* @var InputInterface $output */
+    /** @var InputInterface */
     protected $input;
-    /* @var OutputInterface $output */
+    /** @var SymfonyStyle */
     protected $output;
     /** @var array */
     protected $local_config;
@@ -57,17 +57,22 @@ trait ConsoleTrait
     {
         $this->argv = $_SERVER['argv'][0];
         $this->input = $input;
-        $this->output = $output;
-
-        $this->output->getFormatter()->setStyle('normal', new OutputFormatterStyle('white'));
-        $this->output->getFormatter()->setStyle('yellow', new OutputFormatterStyle('yellow', null, ['bold']));
-        $this->output->getFormatter()->setStyle('red', new OutputFormatterStyle('red', null, ['bold']));
-        $this->output->getFormatter()->setStyle('cyan', new OutputFormatterStyle('cyan', null, ['bold']));
-        $this->output->getFormatter()->setStyle('green', new OutputFormatterStyle('green', null, ['bold']));
-        $this->output->getFormatter()->setStyle('magenta', new OutputFormatterStyle('magenta', null, ['bold']));
-        $this->output->getFormatter()->setStyle('white', new OutputFormatterStyle('white', null, ['bold']));
+        $this->output = new SymfonyStyle($input, $output);
 
         $this->setupGrav();
+    }
+
+    public function getInput(): InputInterface
+    {
+        return $this->input;
+    }
+
+    /**
+     * @return SymfonyStyle
+     */
+    public function getIO(): SymfonyStyle
+    {
+        return $this->output;
     }
 
     /**
@@ -78,10 +83,8 @@ trait ConsoleTrait
      * @param int|null                      $mode        The option mode: One of the InputOption::VALUE_* constants
      * @param string                        $description A description text
      * @param string|string[]|int|bool|null $default     The default value (must be null for InputOption::VALUE_NONE)
-     *
-     * @throws InvalidArgumentException If option mode is invalid or incompatible
-     *
      * @return $this
+     * @throws InvalidArgumentException If option mode is invalid or incompatible
      */
     public function addOption($name, $shortcut = null, $mode = null, $description = '', $default = null)
     {
@@ -92,6 +95,9 @@ trait ConsoleTrait
         return $this;
     }
 
+    /**
+     * @return void
+     */
     final protected function setupGrav(): void
     {
         try {
@@ -246,27 +252,29 @@ trait ConsoleTrait
      */
     public function isGravInstance($path)
     {
+        $io = $this->getIO();
+
         if (!file_exists($path)) {
-            $this->output->writeln('');
-            $this->output->writeln("<red>ERROR</red>: Destination doesn't exist:");
-            $this->output->writeln("       <white>$path</white>");
-            $this->output->writeln('');
+            $io->writeln('');
+            $io->writeln("<red>ERROR</red>: Destination doesn't exist:");
+            $io->writeln("       <white>$path</white>");
+            $io->writeln('');
             exit;
         }
 
         if (!is_dir($path)) {
-            $this->output->writeln('');
-            $this->output->writeln("<red>ERROR</red>: Destination chosen to install is not a directory:");
-            $this->output->writeln("       <white>$path</white>");
-            $this->output->writeln('');
+            $io->writeln('');
+            $io->writeln("<red>ERROR</red>: Destination chosen to install is not a directory:");
+            $io->writeln("       <white>$path</white>");
+            $io->writeln('');
             exit;
         }
 
         if (!file_exists($path . DS . 'index.php') || !file_exists($path . DS . '.dependencies') || !file_exists($path . DS . 'system' . DS . 'config' . DS . 'system.yaml')) {
-            $this->output->writeln('');
-            $this->output->writeln('<red>ERROR</red>: Destination chosen to install does not appear to be a Grav instance:');
-            $this->output->writeln("       <white>$path</white>");
-            $this->output->writeln('');
+            $io->writeln('');
+            $io->writeln('<red>ERROR</red>: Destination chosen to install does not appear to be a Grav instance:');
+            $io->writeln("       <white>$path</white>");
+            $io->writeln('');
             exit;
         }
     }

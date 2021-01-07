@@ -100,7 +100,9 @@ class SandboxCommand extends GravCommand
      */
     protected function serve(): int
     {
-        $this->destination = $this->input->getArgument('destination');
+        $input = $this->getInput();
+
+        $this->destination = $input->getArgument('destination');
 
         // Create Some core stuff if it doesn't exist
         $error = $this->createDirectories();
@@ -109,7 +111,7 @@ class SandboxCommand extends GravCommand
         }
 
         // Copy files or create symlinks
-        $error = $this->input->getOption('symlink') ? $this->symlink() : $this->copy();
+        $error = $input->getOption('symlink') ? $this->symlink() : $this->copy();
         if ($error) {
             return $error;
         }
@@ -137,8 +139,10 @@ class SandboxCommand extends GravCommand
      */
     private function createDirectories(): int
     {
-        $this->output->writeln('');
-        $this->output->writeln('<comment>Creating Directories</comment>');
+        $io = $this->getIO();
+
+        $io->newLine();
+        $io->writeln('<comment>Creating Directories</comment>');
         $dirs_created = false;
 
         if (!file_exists($this->destination)) {
@@ -148,13 +152,13 @@ class SandboxCommand extends GravCommand
         foreach ($this->directories as $dir) {
             if (!file_exists($this->destination . $dir)) {
                 $dirs_created = true;
-                $this->output->writeln('    <cyan>' . $dir . '</cyan>');
+                $io->writeln('    <cyan>' . $dir . '</cyan>');
                 Folder::create($this->destination . $dir);
             }
         }
 
         if (!$dirs_created) {
-            $this->output->writeln('    <red>Directories already exist</red>');
+            $io->writeln('    <red>Directories already exist</red>');
         }
 
         return 0;
@@ -165,8 +169,10 @@ class SandboxCommand extends GravCommand
      */
     private function copy(): int
     {
-        $this->output->writeln('');
-        $this->output->writeln('<comment>Copying Files</comment>');
+        $io = $this->getIO();
+
+        $io->newLine();
+        $io->writeln('<comment>Copying Files</comment>');
 
 
         foreach ($this->mappings as $source => $target) {
@@ -177,7 +183,7 @@ class SandboxCommand extends GravCommand
             $from = $this->source . $source;
             $to = $this->destination . $target;
 
-            $this->output->writeln('    <cyan>' . $source . '</cyan> <comment>-></comment> ' . $to);
+            $io->writeln('    <cyan>' . $source . '</cyan> <comment>-></comment> ' . $to);
             @Folder::rcopy($from, $to);
         }
 
@@ -189,8 +195,10 @@ class SandboxCommand extends GravCommand
      */
     private function symlink(): int
     {
-        $this->output->writeln('');
-        $this->output->writeln('<comment>Resetting Symbolic Links</comment>');
+        $io = $this->getIO();
+
+        $io->newLine();
+        $io->writeln('<comment>Resetting Symbolic Links</comment>');
 
 
         foreach ($this->mappings as $source => $target) {
@@ -201,7 +209,7 @@ class SandboxCommand extends GravCommand
             $from = $this->source . $source;
             $to = $this->destination . $target;
 
-            $this->output->writeln('    <cyan>' . $source . '</cyan> <comment>-></comment> ' . $to);
+            $io->writeln('    <cyan>' . $source . '</cyan> <comment>-></comment> ' . $to);
 
             if (is_dir($to)) {
                 @Folder::delete($to);
@@ -219,8 +227,10 @@ class SandboxCommand extends GravCommand
      */
     private function pages(): int
     {
-        $this->output->writeln('');
-        $this->output->writeln('<comment>Pages Initializing</comment>');
+        $io = $this->getIO();
+
+        $io->newLine();
+        $io->writeln('<comment>Pages Initializing</comment>');
 
         // get pages files and initialize if no pages exist
         $pages_dir = $this->destination . '/user/pages';
@@ -229,7 +239,7 @@ class SandboxCommand extends GravCommand
         if (count($pages_files) === 0) {
             $destination = $this->source . '/user/pages';
             Folder::rcopy($destination, $pages_dir);
-            $this->output->writeln('    <cyan>' . $destination . '</cyan> <comment>-></comment> Created');
+            $io->writeln('    <cyan>' . $destination . '</cyan> <comment>-></comment> Created');
         }
 
         return 0;
@@ -244,8 +254,9 @@ class SandboxCommand extends GravCommand
             return 1;
         }
 
-        $this->output->writeln('');
-        $this->output->writeln('<comment>File Initializing</comment>');
+        $io = $this->getIO();
+        $io->newLine();
+        $io->writeln('<comment>File Initializing</comment>');
         $files_init = false;
 
         // Copy files if they do not exist
@@ -260,12 +271,12 @@ class SandboxCommand extends GravCommand
             if (!file_exists($to)) {
                 $files_init = true;
                 copy($from, $to);
-                $this->output->writeln('    <cyan>' . $target . '</cyan> <comment>-></comment> Created');
+                $io->writeln('    <cyan>' . $target . '</cyan> <comment>-></comment> Created');
             }
         }
 
         if (!$files_init) {
-            $this->output->writeln('    <red>Files already exist</red>');
+            $io->writeln('    <red>Files already exist</red>');
         }
 
         return 0;
@@ -276,8 +287,9 @@ class SandboxCommand extends GravCommand
      */
     private function perms(): int
     {
-        $this->output->writeln('');
-        $this->output->writeln('<comment>Permissions Initializing</comment>');
+        $io = $this->getIO();
+        $io->newLine();
+        $io->writeln('<comment>Permissions Initializing</comment>');
 
         $dir_perms = 0755;
 
@@ -285,10 +297,10 @@ class SandboxCommand extends GravCommand
 
         foreach ($binaries as $bin) {
             chmod($bin, $dir_perms);
-            $this->output->writeln('    <cyan>bin/' . basename($bin) . '</cyan> permissions reset to ' . decoct($dir_perms));
+            $io->writeln('    <cyan>bin/' . basename($bin) . '</cyan> permissions reset to ' . decoct($dir_perms));
         }
 
-        $this->output->writeln("");
+        $io->newLine();
 
         return 0;
     }
@@ -299,29 +311,30 @@ class SandboxCommand extends GravCommand
     private function check(): bool
     {
         $success = true;
+        $io = $this->getIO();
 
         if (!file_exists($this->destination)) {
-            $this->output->writeln('    file: <red>' . $this->destination . '</red> does not exist!');
+            $io->writeln('    file: <red>' . $this->destination . '</red> does not exist!');
             $success = false;
         }
 
         foreach ($this->directories as $dir) {
             if (!file_exists($this->destination . $dir)) {
-                $this->output->writeln('    directory: <red>' . $dir . '</red> does not exist!');
+                $io->writeln('    directory: <red>' . $dir . '</red> does not exist!');
                 $success = false;
             }
         }
 
         foreach ($this->mappings as $target => $link) {
             if (!file_exists($this->destination . $target)) {
-                $this->output->writeln('    mappings: <red>' . $target . '</red> does not exist!');
+                $io->writeln('    mappings: <red>' . $target . '</red> does not exist!');
                 $success = false;
             }
         }
 
         if (!$success) {
-            $this->output->writeln('');
-            $this->output->writeln('<comment>install should be run with --symlink|--s to symlink first</comment>');
+            $io->newLine();
+            $io->writeln('<comment>install should be run with --symlink|--s to symlink first</comment>');
         }
 
         return $success;

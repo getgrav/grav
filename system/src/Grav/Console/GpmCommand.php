@@ -26,8 +26,7 @@ class GpmCommand extends Command
     /**
      * @param InputInterface  $input
      * @param OutputInterface $output
-     *
-     * @return int|null|void
+     * @return int
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
@@ -36,6 +35,7 @@ class GpmCommand extends Command
         $grav = Grav::instance();
         $grav['config']->init();
         $grav['uri']->init();
+        // @phpstan-ignore-next-line
         $grav['accounts'];
 
         return $this->serve();
@@ -60,8 +60,9 @@ class GpmCommand extends Command
         /** @var Config $config */
         $config = Grav::instance()['config'];
 
-        $this->output->writeln('');
-        $this->output->writeln('GPM Releases Configuration: <yellow>' . ucfirst($config->get('system.gpm.releases')) . '</yellow>');
-        $this->output->writeln('');
+        $io = $this->getIO();
+        $io->newLine();
+        $io->writeln('GPM Releases Configuration: <yellow>' . ucfirst($config->get('system.gpm.releases')) . '</yellow>');
+        $io->newLine();
     }
 }

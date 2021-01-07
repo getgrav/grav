@@ -14,7 +14,6 @@ use Grav\Common\Grav;
 use Grav\Common\Helpers\LogViewer;
 use Grav\Console\GravCommand;
 use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * Class LogViewerCommand
@@ -50,11 +49,12 @@ class LogViewerCommand extends GravCommand
      */
     protected function serve(): int
     {
-        $file = $this->input->getOption('file') ?? 'grav.log';
-        $lines = $this->input->getOption('lines') ?? 20;
-        $verbose = $this->input->getOption('verbose') ?? false;
+        $input = $this->getInput();
+        $io = $this->getIO();
 
-        $io = new SymfonyStyle($this->input, $this->output);
+        $file = $input->getOption('file') ?? 'grav.log';
+        $lines = $input->getOption('lines') ?? 20;
+        $verbose = $input->getOption('verbose') ?? false;
 
         $io->title('Log Viewer');
 

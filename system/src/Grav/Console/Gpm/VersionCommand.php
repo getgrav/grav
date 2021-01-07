@@ -54,8 +54,11 @@ class VersionCommand extends GpmCommand
      */
     protected function serve(): int
     {
-        $this->gpm = new GPM($this->input->getOption('force'));
-        $packages = $this->input->getArgument('package');
+        $input = $this->getInput();
+        $io = $this->getIO();
+
+        $this->gpm = new GPM($input->getOption('force'));
+        $packages = $input->getArgument('package');
 
         $installed = false;
 
@@ -111,9 +114,9 @@ class VersionCommand extends GpmCommand
             $updatable = $updatable ?: '';
 
             if ($installed || $package === 'grav') {
-                $this->output->writeln("You are running <white>{$name}</white> v<cyan>{$version}</cyan>{$updatable}");
+                $io->writeln("You are running <white>{$name}</white> v<cyan>{$version}</cyan>{$updatable}");
             } else {
-                $this->output->writeln("Package <red>{$package}</red> not found");
+                $io->writeln("Package <red>{$package}</red> not found");
             }
         }
 

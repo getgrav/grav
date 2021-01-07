@@ -149,10 +149,13 @@ class PageSystemValidatorCommand extends GravCommand
      */
     protected function serve(): int
     {
+        $input = $this->getInput();
+        $io = $this->getIO();
+
         $this->setLanguage('en');
         $this->initializePages();
 
-        $this->output->writeln('');
+        $io->newLine();
 
         $this->grav = $grav = Grav::instance();
 
@@ -161,27 +164,27 @@ class PageSystemValidatorCommand extends GravCommand
         /** @var Config $config */
         $config = $grav['config'];
 
-        if ($this->input->getOption('record')) {
-            $this->output->writeln('Pages: ' . $config->get('system.pages.type', 'page'));
+        if ($input->getOption('record')) {
+            $io->writeln('Pages: ' . $config->get('system.pages.type', 'page'));
 
-            $this->output->writeln('<magenta>Record tests</magenta>');
-            $this->output->writeln('');
+            $io->writeln('<magenta>Record tests</magenta>');
+            $io->newLine();
 
             $results = $this->record();
             $file = $this->getFile('pages-old');
             $file->save($results);
 
-            $this->output->writeln('Recorded tests to ' . $file->filename());
-        } elseif ($this->input->getOption('check')) {
-            $this->output->writeln('Pages: ' . $config->get('system.pages.type', 'page'));
+            $io->writeln('Recorded tests to ' . $file->filename());
+        } elseif ($input->getOption('check')) {
+            $io->writeln('Pages: ' . $config->get('system.pages.type', 'page'));
 
-            $this->output->writeln('<magenta>Run tests</magenta>');
-            $this->output->writeln('');
+            $io->writeln('<magenta>Run tests</magenta>');
+            $io->newLine();
 
             $new = $this->record();
             $file = $this->getFile('pages-new');
             $file->save($new);
-            $this->output->writeln('Recorded tests to ' . $file->filename());
+            $io->writeln('Recorded tests to ' . $file->filename());
 
             $file = $this->getFile('pages-old');
             $old = $file->content();
@@ -189,11 +192,11 @@ class PageSystemValidatorCommand extends GravCommand
             $results = $this->check($old, $new);
             $file = $this->getFile('diff');
             $file->save($results);
-            $this->output->writeln('Recorded results to ' . $file->filename());
+            $io->writeln('Recorded results to ' . $file->filename());
         } else {
-            $this->output->writeln('<green>page-system-validator [-r|--record] [-c|--check]</green>');
+            $io->writeln('<green>page-system-validator [-r|--record] [-c|--check]</green>');
         }
-        $this->output->writeln('');
+        $io->newLine();
 
         return 0;
     }
@@ -201,8 +204,10 @@ class PageSystemValidatorCommand extends GravCommand
     /**
      * @return array
      */
-    private function record()
+    private function record(): array
     {
+        $io = $this->getIO();
+
         /** @var Pages $pages */
         $pages = $this->grav['pages'];
         $all = $pages->all();
@@ -211,7 +216,7 @@ class PageSystemValidatorCommand extends GravCommand
         $results[''] = $this->recordRow($pages->root());
         foreach ($all as $path => $page) {
             if (null === $page) {
-                $this->output->writeln('<red>Error on page ' . $path . '</red>');
+                $io->writeln('<red>Error on page ' . $path . '</red>');
                 continue;
             }
 
@@ -225,7 +230,7 @@ class PageSystemValidatorCommand extends GravCommand
      * @param PageInterface $page
      * @return array
      */
-    private function recordRow(PageInterface $page)
+    private function recordRow(PageInterface $page): array
     {
         $results = [];
 
@@ -287,7 +292,7 @@ class PageSystemValidatorCommand extends GravCommand
      * @param string $name
      * @return CompiledYamlFile
      */
-    private function getFile(string $name)
+    private function getFile(string $name): CompiledYamlFile
     {
         return CompiledYamlFile::instance('cache://tests/' . $name . '.yaml');
     }

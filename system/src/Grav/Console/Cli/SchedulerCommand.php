@@ -17,7 +17,6 @@ use Grav\Console\GravCommand;
 use RocketTheme\Toolbox\Event\Event;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Style\SymfonyStyle;
 use function is_null;
 
 /**
@@ -77,17 +76,18 @@ class SchedulerCommand extends GravCommand
 
         $this->setHelp('foo');
 
-        $io = new SymfonyStyle($this->input, $this->output);
+        $input = $this->getInput();
+        $io = $this->getIO();
         $error = 0;
 
-        if ($this->input->getOption('jobs')) {
+        if ($input->getOption('jobs')) {
             // Show jobs list
 
             $jobs = $scheduler->getAllJobs();
             $job_states = (array)$scheduler->getJobStates()->content();
             $rows = [];
 
-            $table = new Table($this->output);
+            $table = new Table($io);
             $table->setStyle('box');
             $headers = ['Job ID', 'Command', 'Run At', 'Status', 'Last Run', 'State'];
 
@@ -121,13 +121,13 @@ class SchedulerCommand extends GravCommand
             $io->newLine();
             $io->note('For error details run "bin/grav scheduler -d"');
             $io->newLine();
-        } elseif ($this->input->getOption('details')) {
+        } elseif ($input->getOption('details')) {
             $jobs = $scheduler->getAllJobs();
             $job_states = (array)$scheduler->getJobStates()->content();
 
             $io->title('Job Details');
 
-            $table = new Table($this->output);
+            $table = new Table($io);
             $table->setStyle('box');
             $table->setHeaders(['Job ID', 'Last Run', 'Next Run', 'Errors']);
             $rows = [];
@@ -159,7 +159,7 @@ class SchedulerCommand extends GravCommand
 
             $table->setRows($rows);
             $table->render();
-        } elseif ($jobid = $this->input->getOption('run')) {
+        } elseif ($jobid = $input->getOption('run')) {
             $io->title('Force Run Job: ' . $jobid);
 
             $job = $scheduler->getJob($jobid);
@@ -177,13 +177,13 @@ class SchedulerCommand extends GravCommand
                 $output = $job->getOutput();
 
                 if ($output) {
-                    $this->output->write($output);
+                    $io->write($output);
                 }
             } else {
                 $error = 1;
                 $io->error('Could not find a job with id: ' . $jobid);
             }
-        } elseif ($this->input->getOption('install')) {
+        } elseif ($input->getOption('install')) {
             $io->title('Install Scheduler');
 
             $verb = 'install';
@@ -208,7 +208,7 @@ class SchedulerCommand extends GravCommand
             // Run scheduler
             $scheduler->run();
 
-            if ($this->input->getOption('verbose')) {
+            if ($input->getOption('verbose')) {
                 $io->title('Running Scheduled Jobs');
                 $io->text($scheduler->getVerboseOutput());
             }

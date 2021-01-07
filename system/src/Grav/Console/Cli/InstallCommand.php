@@ -22,10 +22,8 @@ class InstallCommand extends GravCommand
 {
     /** @var array */
     protected $config;
-
     /** @var string */
     protected $destination;
-
     /** @var string */
     protected $user_path;
 
@@ -56,14 +54,17 @@ class InstallCommand extends GravCommand
      */
     protected function serve(): int
     {
+        $input = $this->getInput();
+        $io = $this->getIO();
+
         $dependencies_file = '.dependencies';
-        $this->destination = $this->input->getArgument('destination') ?: ROOT_DIR;
+        $this->destination = $input->getArgument('destination') ?: ROOT_DIR;
 
         // fix trailing slash
         $this->destination = rtrim($this->destination, DS) . DS;
         $this->user_path = $this->destination . USER_PATH;
         if ($local_config_file = $this->loadLocalConfig()) {
-            $this->output->writeln('Read local config from <cyan>' . $local_config_file . '</cyan>');
+            $io->writeln('Read local config from <cyan>' . $local_config_file . '</cyan>');
         }
 
         // Look for dependencies file in ROOT and USER dir
@@ -72,11 +73,11 @@ class InstallCommand extends GravCommand
         } elseif (file_exists($this->destination . $dependencies_file)) {
             $file = YamlFile::instance($this->destination . $dependencies_file);
         } else {
-            $this->output->writeln('<red>ERROR</red> Missing .dependencies file in <cyan>user/</cyan> folder');
-            if ($this->input->getArgument('destination')) {
-                $this->output->writeln('<yellow>HINT</yellow> <info>Are you trying to install a plugin or a theme? Make sure you use <cyan>bin/gpm install <something></cyan>, not <cyan>bin/grav install</cyan>. This command is only used to install Grav skeletons.');
+            $io->writeln('<red>ERROR</red> Missing .dependencies file in <cyan>user/</cyan> folder');
+            if ($input->getArgument('destination')) {
+                $io->writeln('<yellow>HINT</yellow> <info>Are you trying to install a plugin or a theme? Make sure you use <cyan>bin/gpm install <something></cyan>, not <cyan>bin/grav install</cyan>. This command is only used to install Grav skeletons.');
             } else {
-                $this->output->writeln('<yellow>HINT</yellow> <info>Are you trying to install Grav? Grav is already installed. You need to run this command only if you download a skeleton from GitHub directly.');
+                $io->writeln('<yellow>HINT</yellow> <info>Are you trying to install Grav? Grav is already installed. You need to run this command only if you download a skeleton from GitHub directly.');
             }
 
             return 1;
@@ -87,16 +88,15 @@ class InstallCommand extends GravCommand
 
         // If no config, fail.
         if (!$this->config) {
-            $this->output->writeln('<red>ERROR</red> invalid YAML in ' . $dependencies_file);
+            $io->writeln('<red>ERROR</red> invalid YAML in ' . $dependencies_file);
 
             return 1;
         }
 
-        $error = 0;
-        if (!$this->input->getOption('symlink')) {
+        if (!$input->getOption('symlink')) {
             // Updates composer first
-            $this->output->writeln("\nInstalling vendor dependencies");
-            $this->output->writeln($this->composerUpdate(GRAV_ROOT, 'install'));
+            $io->writeln("\nInstalling vendor dependencies");
+            $io->writeln($this->composerUpdate(GRAV_ROOT, 'install'));
 
             $error = $this->gitclone();
         } else {
@@ -113,10 +113,12 @@ class InstallCommand extends GravCommand
      */
     private function gitclone(): int
     {
-        $this->output->writeln('');
-        $this->output->writeln('<green>Cloning Bits</green>');
-        $this->output->writeln('============');
-        $this->output->writeln('');
+        $io = $this->getIO();
+
+        $io->newLine();
+        $io->writeln('<green>Cloning Bits</green>');
+        $io->writeln('============');
+        $io->newLine();
 
         $error = 0;
         $this->destination = rtrim($this->destination, DS);
@@ -126,16 +128,16 @@ class InstallCommand extends GravCommand
                 exec('cd "' . $this->destination . '" && git clone -b ' . $data['branch'] . ' --depth 1 ' . $data['url'] . ' ' . $data['path'], $output, $return);
 
                 if (!$return) {
-                    $this->output->writeln('<green>SUCCESS</green> cloned <magenta>' . $data['url'] . '</magenta> -> <cyan>' . $path . '</cyan>');
+                    $io->writeln('<green>SUCCESS</green> cloned <magenta>' . $data['url'] . '</magenta> -> <cyan>' . $path . '</cyan>');
                 } else {
-                    $this->output->writeln('<red>ERROR</red> cloning <magenta>' . $data['url']);
+                    $io->writeln('<red>ERROR</red> cloning <magenta>' . $data['url']);
                     $error = 1;
                 }
 
-                $this->output->writeln('');
+                $io->newLine();
             } else {
-                $this->output->writeln('<yellow>' . $path . ' already exists, skipping...</yellow>');
-                $this->output->writeln('');
+                $io->writeln('<yellow>' . $path . ' already exists, skipping...</yellow>');
+                $io->newLine();
             }
         }
 
@@ -149,14 +151,16 @@ class InstallCommand extends GravCommand
      */
     private function symlink(): int
     {
-        $this->output->writeln('');
-        $this->output->writeln('<green>Symlinking Bits</green>');
-        $this->output->writeln('===============');
-        $this->output->writeln('');
+        $io = $this->getIO();
+
+        $io->newLine();
+        $io->writeln('<green>Symlinking Bits</green>');
+        $io->writeln('===============');
+        $io->newLine();
 
         if (!$this->local_config) {
-            $this->output->writeln('<red>No local configuration available, aborting...</red>');
-            $this->output->writeln('');
+            $io->writeln('<red>No local configuration available, aborting...</red>');
+            $io->newLine();
 
             return 1;
         }
@@ -168,8 +172,8 @@ class InstallCommand extends GravCommand
             $src = $data['src'] ?? null;
             $path = $data['path'] ?? null;
             if (!isset($scm, $src, $path)) {
-                $this->output->writeln("<red>Dependency '$name' has broken configuration, skipping...</red>");
-                $this->output->writeln('');
+                $io->writeln("<red>Dependency '$name' has broken configuration, skipping...</red>");
+                $io->newLine();
                 $error = 1;
 
                 continue;
@@ -188,20 +192,20 @@ class InstallCommand extends GravCommand
             }
 
             if (is_link($to) && !is_file("{$to}/{$name}.yaml")) {
-                $this->output->writeln('<yellow>Removed broken symlink '. $path .'</yellow>');
+                $io->writeln('<yellow>Removed broken symlink '. $path .'</yellow>');
                 unlink($to);
             }
             if (null === $from) {
-                $this->output->writeln('<red>source for ' . $src . ' does not exists, skipping...</red>');
-                $this->output->writeln('');
+                $io->writeln('<red>source for ' . $src . ' does not exists, skipping...</red>');
+                $io->newLine();
                 $error = 1;
             } elseif (!file_exists($to)) {
                 symlink($from, $to);
-                $this->output->writeln('<green>SUCCESS</green> symlinked <magenta>' . $src . '</magenta> -> <cyan>' . $path . '</cyan>');
-                $this->output->writeln('');
+                $io->writeln('<green>SUCCESS</green> symlinked <magenta>' . $src . '</magenta> -> <cyan>' . $path . '</cyan>');
+                $io->newLine();
             } else {
-                $this->output->writeln('<yellow>destination: ' . $path . ' already exists, skipping...</yellow>');
-                $this->output->writeln('');
+                $io->writeln('<yellow>destination: ' . $path . ' already exists, skipping...</yellow>');
+                $io->newLine();
             }
         }
 

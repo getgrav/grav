@@ -12,7 +12,6 @@ namespace Grav\Console\Cli;
 use Grav\Common\Utils;
 use Grav\Console\GravCommand;
 use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Process\PhpExecutableFinder;
 use Symfony\Component\Process\Process;
 
@@ -29,8 +28,6 @@ class ServerCommand extends GravCommand
     protected $ip;
     /** @var int */
     protected $port;
-    /** @var SymfonyStyle */
-    protected $io;
 
     /**
      * @return void
@@ -51,7 +48,8 @@ class ServerCommand extends GravCommand
      */
     protected function serve(): int
     {
-        $io = $this->io = new SymfonyStyle($this->input, $this->output);
+        $input = $this->getInput();
+        $io = $this->getIO();
 
         $io->title('Grav Web Server');
 
@@ -59,15 +57,15 @@ class ServerCommand extends GravCommand
         ini_set('cli_server.color', 'on');
 
         // Options
-        $force_symfony = $this->input->getOption('symfony');
-        $force_php = $this->input->getOption('php');
+        $force_symfony = $input->getOption('symfony');
+        $force_php = $input->getOption('php');
 
         // Find PHP
         $executableFinder = new PhpExecutableFinder();
         $php = $executableFinder->find(false);
 
         $this->ip = '127.0.0.1';
-        $this->port = (int)($this->input->getOption('port') ?? 8000);
+        $this->port = (int)($input->getOption('port') ?? 8000);
 
         // Get an open port
         while (!$this->portAvailable($this->ip, $this->port)) {
@@ -92,16 +90,12 @@ class ServerCommand extends GravCommand
         $error = 0;
         foreach ($commands as $name => $command) {
             $process = $this->runProcess($name, $command);
-
             if (!$process) {
                 $io->note('Starting ' . $name . '...');
             }
 
             // Should only get here if there's an error running
-            if (!$process->isRunning() && (
-                ($name === self::SYMFONY_SERVER && $force_symfony) ||
-                ($name === self::PHP_SERVER)
-                )) {
+            if (!$process->isRunning() && (($name === self::SYMFONY_SERVER && $force_symfony) || ($name === self::PHP_SERVER))) {
                 $error = 1;
                 $io->error('Could not start ' . $name);
             }
@@ -115,23 +109,25 @@ class ServerCommand extends GravCommand
      * @param array $cmd
      * @return Process
      */
-    protected function runProcess($name, $cmd)
+    protected function runProcess(string $name, array $cmd): Process
     {
+        $io = $this->getIO();
+
         $process = new Process($cmd);
         $process->setTimeout(0);
         $process->start();
 
         if ($name === self::SYMFONY_SERVER && Utils::contains($process->getErrorOutput(), 'symfony: not found')) {
-            $this->io->error('The symfony binary could not be found, please install the CLI tools: https://symfony.com/download');
-            $this->io->warning('Falling back to PHP web server...');
+            $io->error('The symfony binary could not be found, please install the CLI tools: https://symfony.com/download');
+            $io->warning('Falling back to PHP web server...');
         }
 
         if ($name === self::PHP_SERVER) {
-            $this->io->success('Built-in PHP web server listening on http://' . $this->ip . ':' . $this->port . ' (PHP v' . PHP_VERSION . ')');
+            $io->success('Built-in PHP web server listening on http://' . $this->ip . ':' . $this->port . ' (PHP v' . PHP_VERSION . ')');
         }
 
         $process->wait(function ($type, $buffer) {
-            $this->output->write($buffer);
+            $this->getIO()->write($buffer);
         });
 
         return $process;
@@ -144,7 +140,7 @@ class ServerCommand extends GravCommand
      * @param int $port
      * @return bool
      */
-    protected function portAvailable($ip, $port): bool
+    protected function portAvailable(string $ip, int $port): bool
     {
         $fp = @fsockopen($ip, $port, $errno, $errstr, 0.1);
         if (!$fp) {

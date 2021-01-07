@@ -10,9 +10,11 @@
 namespace Grav\Console\Application;
 
 use Grav\Common\Grav;
+use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Class GpmApplication
@@ -40,6 +42,9 @@ class Application extends \Symfony\Component\Console\Application
         return parent::getCommandName($input);
     }
 
+    /**
+     * @return void
+     */
     protected function init(): void
     {
         if ($this->initialized) {
@@ -78,5 +83,24 @@ class Application extends \Symfony\Component\Console\Application
         );
 
         return $inputDefinition;
+    }
+
+    /**
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     * @return void
+     */
+    protected function configureIO(InputInterface $input, OutputInterface $output)
+    {
+        $formatter = $output->getFormatter();
+        $formatter->setStyle('normal', new OutputFormatterStyle('white'));
+        $formatter->setStyle('yellow', new OutputFormatterStyle('yellow', null, ['bold']));
+        $formatter->setStyle('red', new OutputFormatterStyle('red', null, ['bold']));
+        $formatter->setStyle('cyan', new OutputFormatterStyle('cyan', null, ['bold']));
+        $formatter->setStyle('green', new OutputFormatterStyle('green', null, ['bold']));
+        $formatter->setStyle('magenta', new OutputFormatterStyle('magenta', null, ['bold']));
+        $formatter->setStyle('white', new OutputFormatterStyle('white', null, ['bold']));
+
+        parent::configureIO($input, $output);
     }
 }

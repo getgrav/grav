@@ -48,6 +48,8 @@ class NewProjectCommand extends GravCommand
      */
     protected function serve(): int
     {
+        $io = $this->getIO();
+
         $sandboxCommand = $this->getApplication()->find('sandbox');
         $installCommand = $this->getApplication()->find('install');
 
@@ -63,9 +65,9 @@ class NewProjectCommand extends GravCommand
             '-s'          => $this->input->getOption('symlink')
         ]);
 
-        $error = $sandboxCommand->run($sandboxArguments, $this->output);
+        $error = $sandboxCommand->run($sandboxArguments, $io);
         if ($error === 0) {
-            $error = $installCommand->run($installArguments, $this->output);
+            $error = $installCommand->run($installArguments, $io);
         }
 
         return $error;

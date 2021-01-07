@@ -9,8 +9,8 @@
 
 namespace Grav\Console\Application;
 
-use Grav\Common\Data\Data;
 use Grav\Common\Grav;
+use Grav\Common\Plugins;
 use Grav\Console\Application\CommandLoader\PluginCommandLoader;
 use Grav\Console\Plugin\PluginListCommand;
 use Symfony\Component\Console\Exception\NamespaceNotFoundException;
@@ -28,6 +28,11 @@ class PluginApplication extends Application
     /** @var string|null */
     protected $pluginName;
 
+    /**
+     * PluginApplication constructor.
+     * @param string $name
+     * @param string $version
+     */
     public function __construct(string $name = 'UNKNOWN', string $version = 'UNKNOWN')
     {
         parent::__construct($name, $version);
@@ -37,11 +42,18 @@ class PluginApplication extends Application
         ]);
     }
 
+    /**
+     * @param string $pluginName
+     * @return void
+     */
     public function setPluginName(string $pluginName): void
     {
         $this->pluginName = $pluginName;
     }
 
+    /**
+     * @return string
+     */
     public function getPluginName(): string
     {
         return $this->pluginName;
@@ -68,6 +80,9 @@ class PluginApplication extends Application
         return parent::run($input, $output);
     }
 
+    /**
+     * @return void
+     */
     protected function init(): void
     {
         if ($this->initialized) {
@@ -85,8 +100,10 @@ class PluginApplication extends Application
         $grav = Grav::instance();
         $grav->initializeCli();
 
-        /** @var Data $plugin */
-        $plugin = $this->pluginName ? $grav['plugins']->get($this->pluginName) : null;
+        /** @var Plugins $plugins */
+        $plugins = $grav['plugins'];
+
+        $plugin = $this->pluginName ? $plugins::get($this->pluginName) : null;
         if (null === $plugin) {
             throw new NamespaceNotFoundException("Plugin \"{$this->pluginName}\" is not installed.");
         }

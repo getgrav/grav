@@ -34,22 +34,21 @@ class PluginListCommand extends ConsoleCommand
      */
     protected function serve(): int
     {
-        $bin = 'bin/plugin';
+        $bin = $this->argv;
         $pattern = '([A-Z]\w+Command\.php)';
 
-        $output = $this->output;
-        $output->writeln('');
-        $output->writeln('<red>Usage:</red>');
-        $output->writeln("  {$bin} [slug] [command] [arguments]");
-        $output->writeln('');
-        $output->writeln('<red>Example:</red>');
-        $output->writeln("  {$bin} error log -l 1 --trace");
-
-        $output->writeln('');
-        $output->writeln('<red>Plugins with CLI available:</red>');
+        $io = $this->getIO();
+        $io->newLine();
+        $io->writeln('<red>Usage:</red>');
+        $io->writeln("  {$bin} [slug] [command] [arguments]");
+        $io->newLine();
+        $io->writeln('<red>Example:</red>');
+        $io->writeln("  {$bin} error log -l 1 --trace");
+        $io->newLine();
+        $io->writeln('<red>Plugins with CLI available:</red>');
 
         $plugins = Plugins::all();
-        $total = 0;
+        $index = 0;
         foreach ($plugins as $name => $plugin) {
             if (!$plugin->enabled) {
                 continue;
@@ -60,9 +59,9 @@ class PluginListCommand extends ConsoleCommand
                 continue;
             }
 
-            $total++;
-            $index = str_pad($total, 2, '0', STR_PAD_LEFT);
-            $output->writeln('  ' . $index . '. <red>' . str_pad($name, 15) . "</red> <white>{$bin} {$name} list</white>");
+            $index++;
+            $num = str_pad((string)$index, 2, '0', STR_PAD_LEFT);
+            $io->writeln('  ' . $num . '. <red>' . str_pad($name, 15) . "</red> <white>{$bin} {$name} list</white>");
         }
 
         return 0;

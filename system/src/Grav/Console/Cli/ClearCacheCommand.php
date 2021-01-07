@@ -57,37 +57,39 @@ class ClearCacheCommand extends GravCommand
      */
     private function cleanPaths(): void
     {
-        $this->output->writeln('');
+        $input = $this->getInput();
+        $io = $this->getIO();
 
+        $io->newLine();
 
-        if ($this->input->getOption('purge')) {
-            $this->output->writeln('<magenta>Purging old cache</magenta>');
-            $this->output->writeln('');
+        if ($input->getOption('purge')) {
+            $io->writeln('<magenta>Purging old cache</magenta>');
+            $io->newLine();
 
             $msg = Cache::purgeJob();
-            $this->output->writeln($msg);
+            $io->writeln($msg);
         } else {
-            $this->output->writeln('<magenta>Clearing cache</magenta>');
-            $this->output->writeln('');
+            $io->writeln('<magenta>Clearing cache</magenta>');
+            $io->newLine();
 
-            if ($this->input->getOption('all')) {
+            if ($input->getOption('all')) {
                 $remove = 'all';
-            } elseif ($this->input->getOption('assets-only')) {
+            } elseif ($input->getOption('assets-only')) {
                 $remove = 'assets-only';
-            } elseif ($this->input->getOption('images-only')) {
+            } elseif ($input->getOption('images-only')) {
                 $remove = 'images-only';
-            } elseif ($this->input->getOption('cache-only')) {
+            } elseif ($input->getOption('cache-only')) {
                 $remove = 'cache-only';
-            } elseif ($this->input->getOption('tmp-only')) {
+            } elseif ($input->getOption('tmp-only')) {
                 $remove = 'tmp-only';
-            } elseif ($this->input->getOption('invalidate')) {
+            } elseif ($input->getOption('invalidate')) {
                 $remove = 'invalidate';
             } else {
                 $remove = 'standard';
             }
 
             foreach (Cache::clearCache($remove) as $result) {
-                $this->output->writeln($result);
+                $io->writeln($result);
             }
         }
     }

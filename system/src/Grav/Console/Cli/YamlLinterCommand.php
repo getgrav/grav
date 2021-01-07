@@ -48,12 +48,13 @@ class YamlLinterCommand extends GravCommand
      */
     protected function serve(): int
     {
-        $io = new SymfonyStyle($this->input, $this->output);
+        $input = $this->getInput();
+        $io = $this->getIO();
 
         $io->title('Yaml Linter');
 
         $error = 0;
-        if ($this->input->getOption('all')) {
+        if ($input->getOption('all')) {
             $io->section('All');
             $errors = YamlLinter::lint('');
 
@@ -63,7 +64,7 @@ class YamlLinterCommand extends GravCommand
                 $error = 1;
                 $this->displayErrors($errors, $io);
             }
-        } elseif ($folder = $this->input->getOption('folder')) {
+        } elseif ($folder = $input->getOption('folder')) {
             $io->section($folder);
             $errors = YamlLinter::lint($folder);
 
@@ -113,7 +114,7 @@ class YamlLinterCommand extends GravCommand
      * @param SymfonyStyle $io
      * @return void
      */
-    protected function displayErrors($errors, SymfonyStyle $io): void
+    protected function displayErrors(array $errors, SymfonyStyle $io): void
     {
         $io->error('YAML Linting issues found...');
         foreach ($errors as $path => $error) {

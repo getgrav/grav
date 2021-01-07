@@ -13,7 +13,6 @@ use Grav\Common\Grav;
 use Grav\Common\Security;
 use Grav\Console\GravCommand;
 use Symfony\Component\Console\Helper\ProgressBar;
-use Symfony\Component\Console\Style\SymfonyStyle;
 use function count;
 
 /**
@@ -43,18 +42,18 @@ class SecurityCommand extends GravCommand
     {
         $this->initializePages();
 
+        $io = $this->getIO();
+
         /** @var Grav $grav */
         $grav = Grav::instance();
-        $this->progress = new ProgressBar($this->output, count($grav['pages']->routes()) - 1);
+        $this->progress = $io->createProgressBar(count($grav['pages']->routes()) - 1);
         $this->progress->setFormat('Scanning <cyan>%current%</cyan> pages [<green>%bar%</green>] <white>%percent:3s%%</white> %elapsed:6s%');
         $this->progress->setBarWidth(100);
 
-        $io = new SymfonyStyle($this->input, $this->output);
         $io->title('Grav Security Check');
+        $io->newline(2);
 
         $output = Security::detectXssFromPages($grav['pages'], false, [$this, 'outputProgress']);
-
-        $io->newline(2);
 
         $error = 0;
         if (!empty($output)) {
@@ -82,7 +81,7 @@ class SecurityCommand extends GravCommand
      * @param array $args
      * @return void
      */
-    public function outputProgress($args): void
+    public function outputProgress(array $args): void
     {
         switch ($args['type']) {
             case 'count':

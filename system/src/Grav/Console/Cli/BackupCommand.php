@@ -15,7 +15,6 @@ use Grav\Console\GravCommand;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Question\ChoiceQuestion;
-use Symfony\Component\Console\Style\SymfonyStyle;
 use ZipArchive;
 use function count;
 
@@ -27,7 +26,6 @@ class BackupCommand extends GravCommand
 {
     /** @var string $source */
     protected $source;
-
     /** @var ProgressBar $progress */
     protected $progress;
 
@@ -56,11 +54,9 @@ class BackupCommand extends GravCommand
     {
         $this->initializeGrav();
 
-        $this->progress = new ProgressBar($this->output);
-        $this->progress->setFormat('Archiving <cyan>%current%</cyan> files [<green>%bar%</green>] <white>%percent:3s%%</white> %elapsed:6s% <yellow>%message%</yellow>');
-        $this->progress->setBarWidth(100);
+        $input = $this->getInput();
+        $io = $this->getIO();
 
-        $io = new SymfonyStyle($this->input, $this->output);
         $io->title('Grav Backup');
 
         if (!class_exists(ZipArchive::class)) {
@@ -68,28 +64,33 @@ class BackupCommand extends GravCommand
             return 1;
         }
 
+        ProgressBar::setFormatDefinition('zip', 'Archiving <cyan>%current%</cyan> files [<green>%bar%</green>] <white>%percent:3s%%</white> %elapsed:6s% <yellow>%message%</yellow>');
+
+        $this->progress = $io->createProgressBar();
+        $this->progress->setFormat('zip');
+        $this->progress->setBarWidth(100);
+
         /** @var Backups $backups */
         $backups = Grav::instance()['backups'];
-        $backups_list = $backups->getBackupProfiles();
+        $backups_list = $backups::getBackupProfiles();
         $backups_names = $backups->getBackupNames();
 
         $id = null;
 
-        $inline_id = $this->input->getArgument('id');
+        $inline_id = $input->getArgument('id');
         if (null !== $inline_id && is_numeric($inline_id)) {
             $id = $inline_id;
         }
 
         if (null === $id) {
             if (count($backups_list) > 1) {
-                $helper = $this->getHelper('question');
                 $question = new ChoiceQuestion(
                     'Choose a backup?',
                     $backups_names,
                     0
                 );
                 $question->setErrorMessage('Option %s is invalid.');
-                $backup_name = $helper->ask($this->input, $this->output, $question);
+                $backup_name = $io->askQuestion($question);
                 $id = array_search($backup_name, $backups_names, true);
 
                 $io->newLine();
@@ -99,7 +100,7 @@ class BackupCommand extends GravCommand
             }
         }
 
-        $backup = $backups->backup($id, [$this, 'outputProgress']);
+        $backup = $backups::backup($id, function($args) { $this->outputProgress($args); });
 
         $io->newline(2);
         $io->success('Backup Successfully Created: ' . $backup);
@@ -111,7 +112,7 @@ class BackupCommand extends GravCommand
      * @param array $args
      * @return void
      */
-    public function outputProgress($args): void
+    public function outputProgress(array $args): void
     {
         switch ($args['type']) {
             case 'count':

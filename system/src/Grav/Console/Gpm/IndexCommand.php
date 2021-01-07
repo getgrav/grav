@@ -27,10 +27,8 @@ class IndexCommand extends GpmCommand
 {
     /** @var Packages */
     protected $data;
-
     /** @var GPM */
     protected $gpm;
-
     /** @var array */
     protected $options;
 
@@ -100,20 +98,21 @@ class IndexCommand extends GpmCommand
      */
     protected function serve(): int
     {
-        $this->options = $this->input->getOptions();
+        $input = $this->getInput();
+        $this->options = $input->getOptions();
         $this->gpm = new GPM($this->options['force']);
         $this->displayGPMRelease();
         $this->data = $this->gpm->getRepository();
 
         $data = $this->filter($this->data);
 
-        $io = new SymfonyStyle($this->input, $this->output);
+        $io = $this->getIO();
 
         if (count($data) === 0) {
             $io->writeln('No data was found in the GPM repository stored locally.');
             $io->writeln('Please try clearing cache and running the <green>bin/gpm index -f</green> command again');
             $io->writeln('If this doesn\'t work try tweaking your GPM system settings.');
-            $io->writeln('');
+            $io->newLine();
             $io->writeln('For more help go to:');
             $io->writeln(' -> <yellow>https://learn.getgrav.org/troubleshooting/common-problems#cannot-connect-to-the-gpm</yellow>');
 
@@ -126,8 +125,8 @@ class IndexCommand extends GpmCommand
             $packages = $this->sort($packages);
 
             if (!empty($packages)) {
-                $section = $this->output->section('Packages table');
-                $table = new Table($section);
+                $io->section('Packages table');
+                $table = new Table($io);
                 $table->setHeaders(['Count', 'Name', 'Slug', 'Version', 'Installed']);
 
                 $index = 0;
@@ -146,25 +145,24 @@ class IndexCommand extends GpmCommand
                 $table->render();
             }
 
-            $io->writeln('');
+            $io->newLine();
         }
 
         $io->writeln('You can either get more informations about a package by typing:');
         $io->writeln("    <green>{$this->argv} info <cyan><package></cyan></green>");
-        $io->writeln('');
+        $io->newLine();
         $io->writeln('Or you can install a package by typing:');
         $io->writeln("    <green>{$this->argv} install <cyan><package></cyan></green>");
-        $io->writeln('');
+        $io->newLine();
 
         return 0;
     }
 
     /**
      * @param Package $package
-     *
      * @return string
      */
-    private function version($package)
+    private function version(Package $package): string
     {
         $list      = $this->gpm->{'getUpdatable' . ucfirst($package->package_type)}();
         $package   = $list[$package->slug] ?? $package;
@@ -178,19 +176,14 @@ class IndexCommand extends GpmCommand
             return "v<green>{$version}</green>";
         }
 
-        if ($updatable) {
-            return "v<red>{$package->version}</red> <cyan>-></cyan> v<green>{$package->available}</green>";
-        }
-
-        return '';
+        return "v<red>{$package->version}</red> <cyan>-></cyan> v<green>{$package->available}</green>";
     }
 
     /**
      * @param Package $package
-     *
      * @return string
      */
-    private function installed($package)
+    private function installed(Package $package): string
     {
         $package   = $list[$package->slug] ?? $package;
         $type      = ucfirst(preg_replace('/s$/', '', $package->package_type));
@@ -202,10 +195,9 @@ class IndexCommand extends GpmCommand
 
     /**
      * @param Packages $data
-     *
      * @return Packages
      */
-    public function filter($data)
+    public function filter(Packages $data): Packages
     {
         // filtering and sorting
         if ($this->options['plugins-only']) {
@@ -260,14 +252,13 @@ class IndexCommand extends GpmCommand
      * @param Packages $packages
      * @return Packages
      */
-    public function sort($packages)
+    public function sort(Packages $packages): Packages
     {
         foreach ($this->options['sort'] as $key) {
             $packages = $packages->sort(function ($a, $b) use ($key) {
                 switch ($key) {
                     case 'author':
                         return strcmp($a->{$key}['name'], $b->{$key}['name']);
-                        break;
                     default:
                         return strcmp($a->$key, $b->$key);
                 }

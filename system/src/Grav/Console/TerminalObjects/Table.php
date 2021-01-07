@@ -12,6 +12,7 @@ namespace Grav\Console\TerminalObjects;
 /**
  * Class Table
  * @package Grav\Console\TerminalObjects
+ * @deprecated 1.7 Use Symfony Console Table
  */
 class Table extends \League\CLImate\TerminalObject\Basic\Table
 {

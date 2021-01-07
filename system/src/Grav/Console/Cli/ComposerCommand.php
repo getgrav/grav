@@ -46,15 +46,18 @@ class ComposerCommand extends GravCommand
      */
     protected function serve(): int
     {
-        $action = $this->input->getOption('install') ? 'install' : ($this->input->getOption('update') ? 'update' : 'install');
+        $input = $this->getInput();
+        $io = $this->getIO();
 
-        if ($this->input->getOption('install')) {
+        $action = $input->getOption('install') ? 'install' : ($input->getOption('update') ? 'update' : 'install');
+
+        if ($input->getOption('install')) {
             $action = 'install';
         }
 
         // Updates composer first
-        $this->output->writeln("\nInstalling vendor dependencies");
-        $this->output->writeln($this->composerUpdate(GRAV_ROOT, $action));
+        $io->writeln("\nInstalling vendor dependencies");
+        $io->writeln($this->composerUpdate(GRAV_ROOT, $action));
 
         return 0;
     }
