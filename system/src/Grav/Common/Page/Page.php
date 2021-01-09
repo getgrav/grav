@@ -676,7 +676,7 @@ class Page implements PageInterface
             $cache_enable = $this->header->cache_enable ?? $config->get('system.cache.enabled',
                 true);
             $twig_first = $this->header->twig_first ?? $config->get('system.pages.twig_first',
-                true);
+                false);
 
             // never cache twig means it's always run after content
             $never_cache_twig = $this->header->never_cache_twig ?? $config->get('system.pages.never_cache_twig',
