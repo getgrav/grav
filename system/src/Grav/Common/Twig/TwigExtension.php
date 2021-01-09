@@ -837,6 +837,7 @@ class TwigExtension extends \Twig_Extension implements \Twig_Extension_GlobalsIn
 
         $loader = new \Twig_Loader_Filesystem('.');
         $env = new \Twig_Environment($loader);
+        $env->addExtension($this);
 
         $template = $env->createTemplate($twig);
 
