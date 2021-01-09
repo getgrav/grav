@@ -11,7 +11,9 @@ parameters:
         - %currentWorkingDirectory%/user/plugins/gantry5/src/classes/Gantry/Framework/Services/ErrorServiceProvider.php
     bootstrapFiles:
         - plugins-bootstrap.php
+    inferPrivatePropertyTypeFromConstructor: true
     reportUnmatchedIgnoredErrors: false
+
     # These checks are new in phpstan 0.12, ignore them for now.
     checkMissingIterableValueType: false
     checkGenericClassInNonGenericObjectType: false
@@ -35,6 +37,10 @@ parameters:
         - GANTRY5_PLATFORM
         - GANTRY5_ROOT
     ignoreErrors:
+        # New in phpstan 0.12, ignore them for now.
+        - '#Unsafe usage of new static\(\)#'
+        - '#Cannot instantiate interface Grav\\Framework\\#'
+
         # PSR-16 Exception interfaces do not extend \Throwable
         - '#PHPDoc tag \@throws with type (.*|)?Psr\\SimpleCache\\(CacheException|InvalidArgumentException)(|.*)? is not subtype of Throwable#'
 

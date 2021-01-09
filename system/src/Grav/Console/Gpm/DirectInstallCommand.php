@@ -107,7 +107,7 @@ class DirectInstallCommand extends GpmCommand
         }
 
         $tmp_dir = Grav::instance()['locator']->findResource('tmp://', true, true);
-        $tmp_zip = $tmp_dir . '/Grav-' . uniqid();
+        $tmp_zip = $tmp_dir . uniqid('/Grav-', false);
 
         $io->newLine();
         $io->writeln("Preparing to install <cyan>{$package_file}</cyan>");
@@ -141,7 +141,7 @@ class DirectInstallCommand extends GpmCommand
         }
 
         if (file_exists($zip)) {
-            $tmp_source = $tmp_dir . '/Grav-' . uniqid();
+            $tmp_source = $tmp_dir . uniqid('/Grav-', false);
 
             $io->write('  |- Extracting package...    ');
             $extracted = Installer::unZip($zip, $tmp_source);

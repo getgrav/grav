@@ -486,7 +486,7 @@ class GPM extends Iterator
      *
      * @param  string $search Can be either the slug or the name
      * @param  bool $ignore_exception True if should not fire an exception (for use in Twig)
-     * @return Remote\Package|bool Package if found, FALSE if not
+     * @return Remote\Package|false Package if found, FALSE if not
      */
     public function findPackage($search, $ignore_exception = false)
     {
