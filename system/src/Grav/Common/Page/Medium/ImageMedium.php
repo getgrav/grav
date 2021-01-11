@@ -53,7 +53,7 @@ class ImageMedium extends Medium
         'resize', 'forceResize', 'cropResize', 'crop', 'zoomCrop',
         'negate', 'brightness', 'contrast', 'grayscale', 'emboss',
         'smooth', 'sharp', 'edge', 'colorize', 'sepia', 'enableProgressive',
-        'rotate', 'flip', 'fixOrientation', 'gaussianBlur'
+        'rotate', 'flip', 'fixOrientation', 'gaussianBlur', 'format'
     ];
 
     /**
