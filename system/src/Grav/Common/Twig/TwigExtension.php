@@ -531,7 +531,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
     public function nicetimeFunc($date, $long_strings = true, $show_tense = true)
     {
         if (empty($date)) {
-            return $this->grav['language']->translate('GRAV.NICETIME.NO_DATE_PROVIDED', null, true);
+            return $this->grav['language']->translate('GRAV.NICETIME.NO_DATE_PROVIDED');
         }
 
         if ($long_strings) {
@@ -571,19 +571,19 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
 
         // check validity of date
         if (empty($unix_date)) {
-            return $this->grav['language']->translate('GRAV.NICETIME.BAD_DATE', null, true);
+            return $this->grav['language']->translate('GRAV.NICETIME.BAD_DATE');
         }
 
         // is it future date or past date
         if ($now > $unix_date) {
             $difference = $now - $unix_date;
-            $tense      = $this->grav['language']->translate('GRAV.NICETIME.AGO', null, true);
+            $tense      = $this->grav['language']->translate('GRAV.NICETIME.AGO');
         } elseif ($now == $unix_date) {
             $difference = $now - $unix_date;
-            $tense      = $this->grav['language']->translate('GRAV.NICETIME.JUST_NOW', null, false);
+            $tense      = $this->grav['language']->translate('GRAV.NICETIME.JUST_NOW');
         } else {
             $difference = $unix_date - $now;
-            $tense      = $this->grav['language']->translate('GRAV.NICETIME.FROM_NOW', null, true);
+            $tense      = $this->grav['language']->translate('GRAV.NICETIME.FROM_NOW');
         }
 
         for ($j = 0; $difference >= $lengths[$j] && $j < count($lengths) - 1; $j++) {
