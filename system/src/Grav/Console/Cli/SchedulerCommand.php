@@ -70,6 +70,8 @@ class SchedulerCommand extends GravCommand
 
         $grav = Grav::instance();
         $grav['backups']->init();
+        $this->initializePages();
+        $this->initializeThemes();
 
         /** @var Scheduler $scheduler */
         $scheduler = $grav['scheduler'];
