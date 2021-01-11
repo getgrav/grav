@@ -13,6 +13,7 @@ use DateInterval;
 use DateTime;
 use Grav\Common\Language\Language;
 use function in_array;
+use function is_array;
 use function strlen;
 
 /**
@@ -64,21 +65,27 @@ class Inflector
 
         $lowercased_word = strtolower($word);
 
-        foreach (static::$uncountable as $_uncountable) {
-            if (substr($lowercased_word, -1 * strlen($_uncountable)) === $_uncountable) {
-                return $word;
+        if (is_array(static::$uncountable)) {
+            foreach (static::$uncountable as $_uncountable) {
+                if (substr($lowercased_word, -1 * strlen($_uncountable)) === $_uncountable) {
+                    return $word;
+                }
             }
         }
 
-        foreach (static::$irregular as $_plural => $_singular) {
-            if (preg_match('/(' . $_plural . ')$/i', $word, $arr)) {
-                return preg_replace('/(' . $_plural . ')$/i', substr($arr[0], 0, 1) . substr($_singular, 1), $word);
+        if (is_array(static::$irregular)) {
+            foreach (static::$irregular as $_plural => $_singular) {
+                if (preg_match('/(' . $_plural . ')$/i', $word, $arr)) {
+                    return preg_replace('/(' . $_plural . ')$/i', substr($arr[0], 0, 1) . substr($_singular, 1), $word);
+                }
             }
         }
 
-        foreach (static::$plural as $rule => $replacement) {
-            if (preg_match($rule, $word)) {
-                return preg_replace($rule, $replacement, $word);
+        if (is_array(static::$plural)) {
+            foreach (static::$plural as $rule => $replacement) {
+                if (preg_match($rule, $word)) {
+                    return preg_replace($rule, $replacement, $word);
+                }
             }
         }
 
@@ -102,21 +109,28 @@ class Inflector
         }
 
         $lowercased_word = strtolower($word);
-        foreach (static::$uncountable as $_uncountable) {
-            if (substr($lowercased_word, -1 * strlen($_uncountable)) === $_uncountable) {
-                return $word;
+
+        if (is_array(static::$uncountable)) {
+            foreach (static::$uncountable as $_uncountable) {
+                if (substr($lowercased_word, -1 * strlen($_uncountable)) === $_uncountable) {
+                    return $word;
+                }
             }
         }
 
-        foreach (static::$irregular as $_plural => $_singular) {
-            if (preg_match('/(' . $_singular . ')$/i', $word, $arr)) {
-                return preg_replace('/(' . $_singular . ')$/i', substr($arr[0], 0, 1) . substr($_plural, 1), $word);
+        if (is_array(static::$irregular)) {
+            foreach (static::$irregular as $_plural => $_singular) {
+                if (preg_match('/(' . $_singular . ')$/i', $word, $arr)) {
+                    return preg_replace('/(' . $_singular . ')$/i', substr($arr[0], 0, 1) . substr($_plural, 1), $word);
+                }
             }
         }
 
-        foreach (static::$singular as $rule => $replacement) {
-            if (preg_match($rule, $word)) {
-                return preg_replace($rule, $replacement, $word);
+        if (is_array(static::$singular)) {
+            foreach (static::$singular as $rule => $replacement) {
+                if (preg_match($rule, $word)) {
+                    return preg_replace($rule, $replacement, $word);
+                }
             }
         }
 
@@ -291,6 +305,10 @@ class Inflector
      */
     public static function ordinalize($number)
     {
+        if (!is_array(static::$ordinals)) {
+            return (string)$number;
+        }
+
         static::init();
 
         if (in_array($number % 100, range(11, 13), true)) {

@@ -23,6 +23,7 @@
     * Fixed Clockwork missing dumped arrays and objects
     * Fixed fatal error in PHP 8 when trying to access root page
     * Fixed Array->String conversion error when `languages:translations: false` [admin#1896](https://github.com/getgrav/grav-plugin-admin/issues/1896)
+    * Fixed `Inflector` methods when translation is missing `GRAV.INFLECTOR_*` translations
 
 # v1.7.0-rc.20
 ## 12/15/2020
