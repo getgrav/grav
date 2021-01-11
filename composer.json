@@ -32,7 +32,7 @@
         "erusev/parsedown": "^1.7",
         "erusev/parsedown-extra": "~0.8",
         "symfony/contracts": "~1.1",
-        "symfony/yaml": "4.4.16",
+        "symfony/yaml": "~4.4",
         "symfony/console": "~4.4",
         "symfony/event-dispatcher": "~4.4",
         "symfony/var-dumper": "~4.4",
@@ -69,6 +69,10 @@
         "victorjonsson/markdowndocs": "dev-master",
         "codeception/module-asserts": "^1.3",
         "codeception/module-phpbrowser": "^1.0"
+    },
+    "provide": {
+        "symfony/polyfill-php72": "*",
+        "symfony/polyfill-php73": "*"
     },
     "suggest": {
         "ext-mbstring": "Recommended for better performance",
