@@ -447,6 +447,7 @@ class Job
             $return_data = call_user_func_array($this->command, $this->args);
             $this->successful = true;
         } catch (RuntimeException $e) {
+            $return_data = $e->getMessage();
             $this->successful = false;
         }
         $this->output = ob_get_clean() . (is_string($return_data) ? $return_data : '');

@@ -53,8 +53,9 @@ class SchedulerCommand extends GravCommand
             ->addOption(
                 'run',
                 'r',
-                InputOption::VALUE_REQUIRED,
-                'Force run a job with a specific Job ID'
+                InputOption::VALUE_OPTIONAL,
+                'Force run all jobs or a specific job if you specify a specific Job ID',
+                false
             )
             ->setDescription('Run the Grav Scheduler.  Best when integrated with system cron')
             ->setHelp("Running without any options will force the Scheduler to run through it's jobs and process them");
@@ -79,6 +80,8 @@ class SchedulerCommand extends GravCommand
         $input = $this->getInput();
         $io = $this->getIO();
         $error = 0;
+
+        $run = $input->getOption('run');
 
         if ($input->getOption('jobs')) {
             // Show jobs list
@@ -159,10 +162,10 @@ class SchedulerCommand extends GravCommand
 
             $table->setRows($rows);
             $table->render();
-        } elseif ($jobid = $input->getOption('run')) {
-            $io->title('Force Run Job: ' . $jobid);
+        } elseif ($run !== false && $run !== null) {
+            $io->title('Force Run Job: ' . $run);
 
-            $job = $scheduler->getJob($jobid);
+            $job = $scheduler->getJob($run);
 
             if ($job) {
                 $job->inForeground()->run();
@@ -181,7 +184,7 @@ class SchedulerCommand extends GravCommand
                 }
             } else {
                 $error = 1;
-                $io->error('Could not find a job with id: ' . $jobid);
+                $io->error('Could not find a job with id: ' . $run);
             }
         } elseif ($input->getOption('install')) {
             $io->title('Install Scheduler');
@@ -206,7 +209,8 @@ class SchedulerCommand extends GravCommand
             }
         } else {
             // Run scheduler
-            $scheduler->run();
+            $force = $run === null;
+            $scheduler->run(null, $force);
 
             if ($input->getOption('verbose')) {
                 $io->title('Running Scheduled Jobs');

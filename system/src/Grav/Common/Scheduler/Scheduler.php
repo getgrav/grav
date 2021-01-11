@@ -185,9 +185,10 @@ class Scheduler
     /**
      * Run the scheduler.
      *
-     * @param  DateTime|null  $runTime  Optional, run at specific moment
+     * @param DateTime|null $runTime Optional, run at specific moment
+     * @param bool $force force run even if not due
      */
-    public function run(DateTime $runTime = null)
+    public function run(DateTime $runTime = null, $force = false)
     {
         $this->loadSavedJobs();
 
@@ -200,7 +201,7 @@ class Scheduler
 
         // Star processing jobs
         foreach ($alljobs as $job) {
-            if ($job->isDue($runTime)) {
+            if ($job->isDue($runTime) || $force) {
                 $job->run();
                 $this->jobs_run[] = $job;
             }
