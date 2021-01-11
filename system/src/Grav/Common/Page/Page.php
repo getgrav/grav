@@ -737,7 +737,7 @@ class Page implements PageInterface
             // never cache twig means it's always run after content
             $never_cache_twig = $this->header->never_cache_twig ?? $config->get(
                 'system.pages.never_cache_twig',
-                false
+                true
             );
 
             // if no cached-content run everything

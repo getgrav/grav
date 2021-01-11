@@ -892,6 +892,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
 
         $loader = new FilesystemLoader('.');
         $env = new Environment($loader);
+        $env->addExtension($this);
 
         $template = $env->createTemplate($twig);
 

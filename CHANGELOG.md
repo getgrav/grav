@@ -575,7 +575,7 @@
     * Optimization: Combine some early Grav processors into a single one
 
 # v1.6.31
-## mm/dd/2020
+## 12/14/2020
 
 1. [](#improved)
     * Allow all CSS and JS via `robots.txt` [#2006](https://github.com/getgrav/grav/issues/2006) [#3067](https://github.com/getgrav/grav/issues/3067)

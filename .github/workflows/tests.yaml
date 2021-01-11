@@ -27,6 +27,9 @@ jobs:
           extensions: opcache, gd
           coverage: none
 
+      - name: Update composer
+        run: composer update
+
       - name: Validate composer.json and composer.lock
         run: composer validate
 
