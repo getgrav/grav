@@ -507,7 +507,7 @@ class Language
                 }
             }
         } elseif ($array_support) {
-            return [];
+            return [$lookup];
         }
 
         if ($html_out) {

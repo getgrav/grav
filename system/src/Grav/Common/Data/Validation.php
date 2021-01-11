@@ -64,7 +64,7 @@ class Validation
         $name = ucfirst($field['label'] ?? $field['name']);
         $message = (string) isset($field['validate']['message'])
             ? $language->translate($field['validate']['message'])
-            : $language->translate('GRAV.FORM.INVALID_INPUT', null, true) . ' "' . $language->translate($name) . '"';
+            : $language->translate('GRAV.FORM.INVALID_INPUT') . ' "' . $language->translate($name) . '"';
 
 
         // Validate type with fallback type text.
