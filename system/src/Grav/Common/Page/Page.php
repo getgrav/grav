@@ -731,7 +731,7 @@ class Page implements PageInterface
             );
             $twig_first = $this->header->twig_first ?? $config->get(
                 'system.pages.twig_first',
-                true
+                false
             );
 
             // never cache twig means it's always run after content
