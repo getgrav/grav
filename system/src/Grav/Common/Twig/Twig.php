@@ -68,6 +68,7 @@ class Twig
     {
         $this->grav = $grav;
         $this->twig_paths = [];
+        $this->twig_vars['GRAV_VERSION'] = GRAV_VERSION;
     }
 
     /**
