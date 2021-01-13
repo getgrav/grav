@@ -125,6 +125,8 @@ GRAV:
     - 'Freitag'
     - 'Samstag'
     - 'Sonntag'
+  YES: 'Ja'
+  NO: 'Nein'
   CRON:
     EVERY: jede
     EVERY_HOUR: jede Stunde
