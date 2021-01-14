@@ -196,8 +196,14 @@ final class Versions
     public function getHistory(string $extension): array
     {
         $name = "{$extension}/history";
+        $history = $this->get($name, []);
 
-        return $this->get($name, []);
+        // Fix for broken Grav 1.6 history
+        if ($extension === 'grav') {
+            $history = $this->fixHistory($history);
+        }
+
+        return $history;
     }
 
     /**
@@ -207,7 +213,7 @@ final class Versions
     public function updateHistory(string $extension, ?string $version): void
     {
         $name = "{$extension}/history";
-        $history = $this->get($name, []);
+        $history = $this->getHistory($extension);
         $history[] = ['version' => $version, 'date' => gmdate('Y-m-d H:i:s')];
         $this->set($name, $history);
     }
@@ -220,6 +226,21 @@ final class Versions
     public function removeHistory(string $extension): void
     {
         $this->undef("{$extension}/history");
+    }
+
+    /**
+     * @param array $history
+     * @return array
+     */
+    private function fixHistory(array $history): array
+    {
+        if (isset($history['version'], $history['date'])) {
+            $fix = [['version' => $history['version'], 'date' => $history['date']]];
+            unset($history['version'], $history['date']);
+            $history = array_merge($fix, $history);
+        }
+
+        return $history;
     }
 
     /**

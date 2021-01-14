@@ -167,11 +167,11 @@ final class Install
             if (\defined('GRAV_CLI') && GRAV_CLI) {
                 $errors = "\n\n" . strip_tags($errors) . "\n\n";
                 $errors .= <<<ERR
-Please install Grav 1.6.28 first by running following commands:
+Please install Grav 1.6.31 first by running following commands:
 
-wget -q https://getgrav.org/download/core/grav-update/1.6.28 -O grav-update.zip
-bin/gpm direct-install -y grav-update.zip
-rm grav-update.zip
+wget -q https://getgrav.org/download/core/grav-update/1.6.31 -O tmp/grav-update-v1.6.31.zip
+bin/gpm direct-install -y tmp/grav-update-v1.6.31.zip
+rm tmp/grav-update.zip
 ERR;
             }
 
