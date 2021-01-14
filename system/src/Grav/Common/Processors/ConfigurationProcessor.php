@@ -34,7 +34,9 @@ class ConfigurationProcessor extends ProcessorBase
                     'core' => [
                         'grav' => [
                             'version' => GRAV_VERSION,
-                            'history' => ['version' => GRAV_VERSION, 'date' => gmdate('Y-m-d H:i:s')]
+                            'history' => [
+                                ['version' => GRAV_VERSION, 'date' => gmdate('Y-m-d H:i:s')]
+                            ]
                         ]
                     ]
                 ];
