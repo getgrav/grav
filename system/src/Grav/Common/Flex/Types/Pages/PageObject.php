@@ -96,11 +96,16 @@ class PageObject extends FlexPageObject
 
     /**
      * @param string|array $query
-     * @return Route
+     * @return Route|null
      */
-    public function getRoute($query = []): Route
+    public function getRoute($query = []): ?Route
     {
-        $route = RouteFactory::createFromString($this->route());
+        $route = $this->route();
+        if (null === $route) {
+            return null;
+        }
+
+        $route = RouteFactory::createFromString($route);
         if ($lang = $route->getLanguage()) {
             $grav = Grav::instance();
             if (!$grav['config']->get('system.languages.include_default_lang')) {

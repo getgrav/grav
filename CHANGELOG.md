@@ -2,6 +2,7 @@
 ## mm/dd/2020
 
 1. [](#new)
+    * Please read [Grav 1.7 Upgrade Guide](https://learn.getgrav.org/17/advanced/grav-development/grav-17-upgrade-guide) before upgrading!
     * Added support for overriding configuration by using environment variables
     * Use PHP 7.4 serialization (the old `Serializable` methods are now final and cannot be overridden)
     * Enabled `ETag` setting by default for 304 responses
@@ -24,6 +25,7 @@
     * Fixed fatal error in PHP 8 when trying to access root page
     * Fixed Array->String conversion error when `languages:translations: false` [admin#1896](https://github.com/getgrav/grav-plugin-admin/issues/1896)
     * Fixed `Inflector` methods when translation is missing `GRAV.INFLECTOR_*` translations
+    * Fixed `PageObject::getRoute()` with pages which have no route
 
 # v1.7.0-rc.20
 ## 12/15/2020
