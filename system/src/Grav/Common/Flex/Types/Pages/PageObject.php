@@ -320,6 +320,13 @@ class PageObject extends FlexPageObject
      */
     protected function reorderSiblings(array $ordering)
     {
+        $storageKey = $this->getMasterKey();
+        $filesystem = Filesystem::getInstance(false);
+        $oldParentKey = ltrim($filesystem->dirname("/{$storageKey}"), '/');
+        $newParentKey = $this->getProperty('parent_key');
+        $isMoved = $oldParentKey !== $newParentKey;
+        $order = !$isMoved ? $this->order() : false;
+
         $parent = $this->parent();
         if (!$parent) {
             throw new RuntimeException('Cannot reorder a page which has no parent');
@@ -330,13 +337,6 @@ class PageObject extends FlexPageObject
 
         /** @var PageCollection|null $siblings */
         $siblings = $siblings->getCollection()->withOrdered()->orderBy(['order' => 'ASC']);
-
-        $storageKey = $this->getMasterKey();
-        $filesystem = Filesystem::getInstance(false);
-        $oldParentKey = ltrim($filesystem->dirname("/{$storageKey}"), '/');
-        $newParentKey = $this->getProperty('parent_key');
-        $isMoved =  $oldParentKey !== $newParentKey;
-        $order = !$isMoved ? $this->order() : false;
 
         if ($storageKey !== null) {
             if ($order !== false) {
@@ -370,7 +370,7 @@ class PageObject extends FlexPageObject
         $siblings->removeElement($this);
 
         // If menu item was moved, just make it to be the last in order.
-        if ($isMoved && $order !== false) {
+        if ($isMoved && $this->order() !== false) {
             $parentKey = $this->getProperty('parent_key');
             $newParent = $this->getFlexDirectory()->getObject($parentKey, 'storage_key');
             $newSiblings = $newParent->children()->getCollection()->withOrdered();
