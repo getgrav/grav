@@ -26,7 +26,7 @@
     * Fixed Array->String conversion error when `languages:translations: false` [admin#1896](https://github.com/getgrav/grav-plugin-admin/issues/1896)
     * Fixed `Inflector` methods when translation is missing `GRAV.INFLECTOR_*` translations
     * Fixed exception when changing parent of new page [grav-plugin-admin#2018](https://github.com/getgrav/grav-plugin-admin/issues/2018)
-    * Fixed ordering when changing parent of new page [grav-plugin-admin#2018](https://github.com/getgrav/grav-plugin-admin/issues/2018)
+    * Fixed ordering issue with moving pages [grav-plugin-admin#2015](https://github.com/getgrav/grav-plugin-admin/issues/2015)
 
 # v1.7.0-rc.20
 ## 12/15/2020
