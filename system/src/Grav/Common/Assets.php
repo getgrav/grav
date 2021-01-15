@@ -59,7 +59,7 @@ class Assets extends PropertyObject
     protected $collections;
     protected $timestamp;
 
-    /** @var array to contain next 'order' value per asset 'type', 'group' and 'position' combination */
+    /** @var array Array to contain next 'order' value per asset 'type', 'group' and 'position' combination */
     protected $order = [];
 
     /**
