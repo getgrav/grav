@@ -27,6 +27,7 @@ use Grav\Common\Page\Traits\PageFormTrait;
 use Grav\Common\Uri;
 use Grav\Common\Utils;
 use Grav\Common\Yaml;
+use Grav\Framework\Flex\Flex;
 use InvalidArgumentException;
 use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\File\MarkdownFile;
@@ -1082,6 +1083,14 @@ class Page implements PageInterface
         // Perform reorder if required
         if ($reorder && is_array($reorder)) {
             $this->doReorder($reorder);
+        }
+
+        // We need to signal Flex Pages about the change.
+        /** @var Flex|null $flex */
+        $flex = Grav::instance()['flex'] ?? null;
+        $directory = $flex ? $flex->getDirectory('pages') : null;
+        if (null !== $directory) {
+            $directory->clearCache();
         }
 
         $this->_original = null;

@@ -142,10 +142,11 @@ class User extends Data implements UserInterface
 
             $file->save($data);
 
+            // We need to signal Flex Users about the change.
             /** @var Flex|null $flex */
             $flex = Grav::instance()['flex'] ?? null;
             $users = $flex ? $flex->getDirectory('user-accounts') : null;
-            if ($users) {
+            if (null !== $users) {
                 $users->clearCache();
             }
         }
