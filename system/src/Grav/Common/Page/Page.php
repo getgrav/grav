@@ -53,6 +53,8 @@ class Page implements PageInterface
 
     /** @var string|null Filename. Leave as null if page is folder. */
     protected $name;
+    /** @var bool */
+    protected $initialized = false;
     /** @var string */
     protected $folder;
     /** @var string */
@@ -182,6 +184,8 @@ class Page implements PageInterface
     public function init(SplFileInfo $file, $extension = null)
     {
         $config = Grav::instance()['config'];
+
+        $this->initialized = true;
 
         // some extension logic
         if (empty($extension)) {
@@ -1046,6 +1050,15 @@ class Page implements PageInterface
         }
 
         return $this->raw_content;
+    }
+
+    /**
+     * @return bool
+     * @internal
+     */
+    public function translated(): bool
+    {
+        return $this->initialized;
     }
 
     /**
@@ -2597,6 +2610,7 @@ class Page implements PageInterface
             throw new InvalidArgumentException('Argument should be either header variable name or array of parameters');
         }
 
+        $params['filter'] = ($params['filter'] ?? []) + ['translated' => true];
         if (!$pagination) {
             $params['pagination'] = false;
         }

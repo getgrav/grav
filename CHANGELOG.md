@@ -29,6 +29,7 @@
     * Fixed ordering issue with moving pages [grav-plugin-admin#2015](https://github.com/getgrav/grav-plugin-admin/issues/2015)
     * Fixed Flex Pages cache not invalidating if saving an old `Page` object [#3152](https://github.com/getgrav/grav/issues/3152)
     * Fixed multiple issues with `system.language.translations: false`
+    * Fixed page collections containing dummy items for untranslated default language [#2985](https://github.com/getgrav/grav/issues/2985)
 
 # v1.7.0-rc.20
 ## 12/15/2020

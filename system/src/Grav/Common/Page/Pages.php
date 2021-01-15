@@ -465,6 +465,13 @@ class Pages
             }
 
             switch ($type) {
+                case 'translated':
+                    if ($filter) {
+                        $collection = $collection->translated();
+                    } else {
+                        $collection = $collection->nonTranslated();
+                    }
+                    break;
                 case 'published':
                     if ($filter) {
                         $collection = $collection->published();

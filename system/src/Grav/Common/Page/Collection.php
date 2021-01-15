@@ -456,6 +456,48 @@ class Collection extends Iterator implements PageCollectionInterface
     }
 
     /**
+     * Creates new collection with only translated pages
+     *
+     * @return Collection The collection with only published pages
+     * @internal
+     */
+    public function translated()
+    {
+        $published = [];
+
+        foreach ($this->items as $path => $slug) {
+            $page = $this->pages->get($path);
+            if ($page !== null && $page->translated()) {
+                $published[$path] = $slug;
+            }
+        }
+        $this->items = $published;
+
+        return $this;
+    }
+
+    /**
+     * Creates new collection with only untranslated pages
+     *
+     * @return Collection The collection with only non-published pages
+     * @internal
+     */
+    public function nonTranslated()
+    {
+        $published = [];
+
+        foreach ($this->items as $path => $slug) {
+            $page = $this->pages->get($path);
+            if ($page !== null && !$page->translated()) {
+                $published[$path] = $slug;
+            }
+        }
+        $this->items = $published;
+
+        return $this;
+    }
+
+    /**
      * Creates new collection with only published pages
      *
      * @return Collection The collection with only published pages
