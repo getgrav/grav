@@ -107,6 +107,16 @@ class Language
     }
 
     /**
+     * Returns true if language debugging is turned on.
+     *
+     * @return bool
+     */
+    public function isDebug(): bool
+    {
+        return !$this->config->get('system.languages.translations', true);
+    }
+
+    /**
      * Gets the array of supported languages
      *
      * @return array
@@ -488,7 +498,7 @@ class Language
             $args = [];
         }
 
-        if ($this->config->get('system.languages.translations', true)) {
+        if (!$this->isDebug()) {
             if ($lookup && $this->enabled() && empty($languages)) {
                 $languages = $this->getTranslatedLanguages();
             }
@@ -528,18 +538,20 @@ class Language
      */
     public function translateArray($key, $index, $languages = null, $html_out = false)
     {
-        if ($this->config->get('system.languages.translations', true)) {
-            if ($this->enabled() && $key && empty($languages)) {
-                $languages = $this->getTranslatedLanguages();
-            }
+        if ($this->isDebug()) {
+            return $key . '[' . $index . ']';
+        }
 
-            $languages = $languages ?: ['en'];
+        if ($key && empty($languages) && $this->enabled()) {
+            $languages = $this->getTranslatedLanguages();
+        }
 
-            foreach ((array)$languages as $lang) {
-                $translation_array = (array)Grav::instance()['languages']->get($lang . '.' . $key, null);
-                if ($translation_array && array_key_exists($index, $translation_array)) {
-                    return $translation_array[$index];
-                }
+        $languages = $languages ?: ['en'];
+
+        foreach ((array)$languages as $lang) {
+            $translation_array = (array)Grav::instance()['languages']->get($lang . '.' . $key, null);
+            if ($translation_array && array_key_exists($index, $translation_array)) {
+                return $translation_array[$index];
             }
         }
 
@@ -560,6 +572,10 @@ class Language
      */
     public function getTranslation($lang, $key, $array_support = false)
     {
+        if ($this->isDebug()) {
+            return $key;
+        }
+
         $translation = Grav::instance()['languages']->get($lang . '.' . $key, null);
         if (!$array_support && is_array($translation)) {
             return (string)array_shift($translation);

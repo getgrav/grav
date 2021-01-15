@@ -21,15 +21,17 @@ use function strlen;
 */
 class Inflector
 {
-    /** @var array */
+    /** @var bool */
+    protected static $initialized = false;
+    /** @var array|null */
     protected static $plural;
-    /** @var array */
+    /** @var array|null */
     protected static $singular;
-    /** @var array */
+    /** @var array|null */
     protected static $uncountable;
-    /** @var array */
+    /** @var array|null */
     protected static $irregular;
-    /** @var array */
+    /** @var array|null */
     protected static $ordinals;
 
     /**
@@ -37,14 +39,17 @@ class Inflector
      */
     public static function init()
     {
-        if (empty(static::$plural)) {
+        if (!static::$initialized) {
+            static::$initialized = true;
             /** @var Language $language */
             $language = Grav::instance()['language'];
-            static::$plural = $language->translate('GRAV.INFLECTOR_PLURALS', null, true);
-            static::$singular = $language->translate('GRAV.INFLECTOR_SINGULAR', null, true);
-            static::$uncountable = $language->translate('GRAV.INFLECTOR_UNCOUNTABLE', null, true);
-            static::$irregular = $language->translate('GRAV.INFLECTOR_IRREGULAR', null, true);
-            static::$ordinals = $language->translate('GRAV.INFLECTOR_ORDINALS', null, true);
+            if (!$language->isDebug()) {
+                static::$plural = $language->translate('GRAV.INFLECTOR_PLURALS', null, true);
+                static::$singular = $language->translate('GRAV.INFLECTOR_SINGULAR', null, true);
+                static::$uncountable = $language->translate('GRAV.INFLECTOR_UNCOUNTABLE', null, true);
+                static::$irregular = $language->translate('GRAV.INFLECTOR_IRREGULAR', null, true);
+                static::$ordinals = $language->translate('GRAV.INFLECTOR_ORDINALS', null, true);
+            }
         }
     }
 

@@ -289,6 +289,8 @@ class Plugin implements EventSubscriberInterface, ArrayAccess
     /**
      * Merge global and page configurations.
      *
+     * WARNING: This method modifies page header!
+     *
      * @param PageInterface $page The page to merge the configurations with the
      *                       plugin settings.
      * @param mixed $deep false = shallow|true = recursive|merge = recursive+unique
