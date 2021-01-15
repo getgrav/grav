@@ -14,6 +14,7 @@ use RocketTheme\Toolbox\Event\Event;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use Grav\Common\Utils;
 
 class PagesProcessor extends ProcessorBase
 {
@@ -35,6 +36,23 @@ class PagesProcessor extends ProcessorBase
         $page = $this->container['page'];
 
         if (!$page->routable()) {
+            /** @var Config $config */
+            $config = $this->container['config'];
+
+            /** @var Uri $uri */
+            $uri = $this->container['uri'];
+            $path = $uri->path() ?: '/';
+
+            // Redirect page.html to page
+            $extension = $uri->extension();
+            if ($extension && $config->get('system.pages.redirect_file_extensions', true)) {
+                // Strip the file extension for valid page types
+                if ($uri->isValidExtension($extension)) {
+                    $redirect = (string) Utils::replaceLastOccurrence(".{$extension}", '', $path);
+                    $this->container->redirect($redirect, 301);
+                }
+            }
+
             // If no page found, fire event
             $event = new Event(['page' => $page]);
             $event->page = null;
