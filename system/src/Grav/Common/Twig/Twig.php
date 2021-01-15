@@ -103,6 +103,9 @@ class Twig
             $this->twig_paths = array_merge($this->twig_paths, $core_templates);
 
             $this->loader = new \Twig_Loader_Filesystem($this->twig_paths);
+            
+            // Add all template path as schema for locator
+            $locator->addPath('templates', '', $this->twig_paths);
 
             // Register all other prefixes as namespaces in twig
             foreach ($locator->getPaths('theme') as $prefix => $_) {
