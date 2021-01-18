@@ -30,6 +30,7 @@
     * Fixed Flex Pages cache not invalidating if saving an old `Page` object [#3152](https://github.com/getgrav/grav/issues/3152)
     * Fixed multiple issues with `system.language.translations: false`
     * Fixed page collections containing dummy items for untranslated default language [#2985](https://github.com/getgrav/grav/issues/2985)
+    * Fixed streams in `setup.php` being overridden by `system/streams.yaml` [#2450](https://github.com/getgrav/grav/issues/2450)
 
 # v1.7.0-rc.20
 ## 12/15/2020
