@@ -14,6 +14,7 @@
     * Added support for relative paths in `PageObject::getLevelListing()` [#3110](https://github.com/getgrav/grav/issues/3110)
     * Better `--env` and `--lang` support for `bin/grav`, `bin/gpm` and `bin/plugin` console commands
       * **BC BREAK** Shorthand for `--env`: `-e` will not work anymore as it conflicts with some plugins
+    * Added support for locking the `start` and `limit` in a Page Collection
 1. [](#bugfix)
     * Fixed port issue with `system.custom_base_url`
     * Hide errors with `exif_read_data` in `ImageFile`
@@ -30,6 +31,9 @@
     * Fixed Flex Pages cache not invalidating if saving an old `Page` object [#3152](https://github.com/getgrav/grav/issues/3152)
     * Fixed multiple issues with `system.language.translations: false`
     * Fixed page collections containing dummy items for untranslated default language [#2985](https://github.com/getgrav/grav/issues/2985)
+    * Fixed streams in `setup.php` being overridden by `system/streams.yaml` [#2450](https://github.com/getgrav/grav/issues/2450)
+    * Fixed `ERR_TOO_MANY_REDIRECTS` with HTTPS = 'On' [#3155](https://github.com/getgrav/grav/issues/3155)
+    * Fixed page collection pagination not behaving as it did in Grav 1.6
 
 # v1.7.0-rc.20
 ## 12/15/2020

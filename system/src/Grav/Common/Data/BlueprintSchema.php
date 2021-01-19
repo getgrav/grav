@@ -85,7 +85,7 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
      */
     public function processForm(array $data, array $toggles = [])
     {
-        return $this->processFormRecursive($data, $toggles, $this->nested);
+        return $this->processFormRecursive($data, $toggles, $this->nested) ?? [];
     }
 
     /**
@@ -254,7 +254,7 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
     /**
      * @param array $nested
      * @param string $parent
-     * @return void
+     * @return bool
      */
     protected function buildIgnoreNested(array $nested, $parent = '')
     {
@@ -272,6 +272,8 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
             $key = trim($parent, '.');
             $this->items[$key]['validate']['ignore'] = true;
         }
+
+        return $ignore;
     }
 
     /**

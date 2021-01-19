@@ -2611,9 +2611,6 @@ class Page implements PageInterface
         }
 
         $params['filter'] = ($params['filter'] ?? []) + ['translated' => true];
-        if (!$pagination) {
-            $params['pagination'] = false;
-        }
         $context = [
             'pagination' => $pagination,
             'self' => $this

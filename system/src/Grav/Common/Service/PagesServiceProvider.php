@@ -70,7 +70,8 @@ class PagesServiceProvider implements ServiceProviderInterface
                 }
 
                 if ($config->get('system.force_ssl')) {
-                    if (!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] !== 'on') {
+                    $scheme = $uri->scheme(true);
+                    if ($scheme !== 'https') {
                         $url = 'https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
                         $grav->redirect($url);
                     }
