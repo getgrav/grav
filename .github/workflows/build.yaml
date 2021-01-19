@@ -40,7 +40,7 @@ jobs:
 
       - name: Upload Grav Release Assets
         id: upload-release-asset
-        uses: alexellis/upload-assets@0.2.2
+        uses: alexellis/upload-assets@0.2.3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
