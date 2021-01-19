@@ -3,6 +3,7 @@
 
 1. [](#bugfix)
     * Fixed fatal error when `site.taxonomies` contains a bad value
+    * Sanitize valid Page extensions from `Page::template_format()`
 
 # v1.7.0
 ## 01/19/2021
