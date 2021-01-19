@@ -422,10 +422,10 @@ class Pages
         }
 
         $pagination = $params['pagination'] ?? $context['pagination'];
-        if ($pagination && !isset($params['page'])) {
+        if ($pagination && !isset($params['page'], $params['start'])) {
             /** @var Uri $uri */
             $uri = $this->grav['uri'];
-            $context['pagination_page'] = $uri->currentPage();
+            $context['current_page'] = $uri->currentPage();
         }
 
         $collection = $this->evaluate($params['items'], $context['self']);
@@ -545,18 +545,20 @@ class Pages
 
         // New Custom event to handle things like pagination.
         if ($context['event']) {
-            $this->grav->fireEvent('onCollectionProcessed', new Event(['collection' => $collection]));
+            $this->grav->fireEvent('onCollectionProcessed', new Event(['collection' => $collection, 'context' => $context]));
         }
 
-        // Slice and dice the collection if pagination is required
-        if ($pagination) {
+        if ($context['pagination']) {
+            // Slice and dice the collection if pagination is required
             $params = $collection->params();
 
             $limit = (int)($params['limit'] ?? 0);
-            $start = !empty($params['pagination']) ? (($params['page'] ?? $context['pagination_page']) - 1) * $limit : 0;
+            $page = (int)($params['page'] ?? $context['current_page'] ?? 0);
+            $start = (int)($params['start'] ?? 0);
+            $start = $limit > 0 && $page > 0 ? ($page - 1) * $limit : max(0, $start);
 
-            if ($limit && $collection->count() > $limit) {
-                $collection->slice($start, $limit);
+            if ($start || ($limit && $collection->count() > $limit)) {
+                $collection->slice($start, $limit ?: null);
             }
         }
 
