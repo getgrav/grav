@@ -27,7 +27,7 @@ jobs:
           extensions: opcache, gd
           coverage: none
         env:
-          COMPOSER_TOKEN: ${{ github.token }}
+          COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Update composer
         run: composer update
