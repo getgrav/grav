@@ -3,12 +3,18 @@
 /**
  * @package    Grav\Common
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Common;
 
+use function function_exists;
+
+/**
+ * Class Composer
+ * @package Grav\Common
+ */
 class Composer
 {
     /** @const Default composer location */
@@ -21,12 +27,12 @@ class Composer
      */
     public static function getComposerLocation()
     {
-        if (!\function_exists('shell_exec') || stripos(PHP_OS, 'win') === 0) {
+        if (!function_exists('shell_exec') || stripos(PHP_OS, 'win') === 0) {
             return self::DEFAULT_PATH;
         }
 
         // check for global composer install
-        $path = trim(shell_exec('command -v composer'));
+        $path = trim((string)shell_exec('command -v composer'));
 
         // fall back to grav bundled composer
         if (!$path || !preg_match('/(composer|composer\.phar)$/', $path)) {

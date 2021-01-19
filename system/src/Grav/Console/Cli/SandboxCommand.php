@@ -3,18 +3,24 @@
 /**
  * @package    Grav\Console\Cli
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Console\Cli;
 
-use Grav\Console\ConsoleCommand;
 use Grav\Common\Filesystem\Folder;
+use Grav\Console\GravCommand;
+use RuntimeException;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
+use function count;
 
-class SandboxCommand extends ConsoleCommand
+/**
+ * Class SandboxCommand
+ * @package Grav\Console\Cli
+ */
+class SandboxCommand extends GravCommand
 {
     /** @var array */
     protected $directories = [
@@ -57,12 +63,14 @@ class SandboxCommand extends ConsoleCommand
     ];
 
     /** @var string */
-    protected $default_file = "---\ntitle: HomePage\n---\n# HomePage\n\nLorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque porttitor eu felis sed ornare. Sed a mauris venenatis, pulvinar velit vel, dictum enim. Phasellus ac rutrum velit. Nunc lorem purus, hendrerit sit amet augue aliquet, iaculis ultricies nisl. Suspendisse tincidunt euismod risus, quis feugiat arcu tincidunt eget. Nulla eros mi, commodo vel ipsum vel, aliquet congue odio. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Pellentesque velit orci, laoreet at adipiscing eu, interdum quis nibh. Nunc a accumsan purus.";
-
     protected $source;
+    /** @var string */
     protected $destination;
 
-    protected function configure()
+    /**
+     * @return void
+     */
+    protected function configure(): void
     {
         $this
             ->setName('sandbox')
@@ -79,39 +87,62 @@ class SandboxCommand extends ConsoleCommand
                 'Symlink the base grav system'
             )
             ->setHelp("The <info>sandbox</info> command help create a development environment that can optionally use symbolic links to link the core of grav to the git cloned repository.\nGood for development, playing around or starting fresh");
-        $this->source = getcwd();
+
+        $source = getcwd();
+        if ($source === false) {
+            throw new RuntimeException('Internal Error');
+        }
+        $this->source = $source;
     }
 
-    protected function serve()
+    /**
+     * @return int
+     */
+    protected function serve(): int
     {
-        $this->destination = $this->input->getArgument('destination');
+        $input = $this->getInput();
 
-        // Symlink the Core Stuff
-        if ($this->input->getOption('symlink')) {
-            // Create Some core stuff if it doesn't exist
-            $this->createDirectories();
+        $this->destination = $input->getArgument('destination');
 
-            // Loop through the symlink mappings and create the symlinks
-            $this->symlink();
-
-            // Copy the Core STuff
-        } else {
-            // Create Some core stuff if it doesn't exist
-            $this->createDirectories();
-
-            // Loop through the symlink mappings and copy what otherwise would be symlinks
-            $this->copy();
+        // Create Some core stuff if it doesn't exist
+        $error = $this->createDirectories();
+        if ($error) {
+            return $error;
         }
 
-        $this->pages();
-        $this->initFiles();
-        $this->perms();
+        // Copy files or create symlinks
+        $error = $input->getOption('symlink') ? $this->symlink() : $this->copy();
+        if ($error) {
+            return $error;
+        }
+
+        $error = $this->pages();
+        if ($error) {
+            return $error;
+        }
+
+        $error = $this->initFiles();
+        if ($error) {
+            return $error;
+        }
+
+        $error = $this->perms();
+        if ($error) {
+            return $error;
+        }
+
+        return 0;
     }
 
-    private function createDirectories()
+    /**
+     * @return int
+     */
+    private function createDirectories(): int
     {
-        $this->output->writeln('');
-        $this->output->writeln('<comment>Creating Directories</comment>');
+        $io = $this->getIO();
+
+        $io->newLine();
+        $io->writeln('<comment>Creating Directories</comment>');
         $dirs_created = false;
 
         if (!file_exists($this->destination)) {
@@ -121,20 +152,27 @@ class SandboxCommand extends ConsoleCommand
         foreach ($this->directories as $dir) {
             if (!file_exists($this->destination . $dir)) {
                 $dirs_created = true;
-                $this->output->writeln('    <cyan>' . $dir . '</cyan>');
+                $io->writeln('    <cyan>' . $dir . '</cyan>');
                 Folder::create($this->destination . $dir);
             }
         }
 
         if (!$dirs_created) {
-            $this->output->writeln('    <red>Directories already exist</red>');
+            $io->writeln('    <red>Directories already exist</red>');
         }
+
+        return 0;
     }
 
-    private function copy()
+    /**
+     * @return int
+     */
+    private function copy(): int
     {
-        $this->output->writeln('');
-        $this->output->writeln('<comment>Copying Files</comment>');
+        $io = $this->getIO();
+
+        $io->newLine();
+        $io->writeln('<comment>Copying Files</comment>');
 
 
         foreach ($this->mappings as $source => $target) {
@@ -145,15 +183,22 @@ class SandboxCommand extends ConsoleCommand
             $from = $this->source . $source;
             $to = $this->destination . $target;
 
-            $this->output->writeln('    <cyan>' . $source . '</cyan> <comment>-></comment> ' . $to);
+            $io->writeln('    <cyan>' . $source . '</cyan> <comment>-></comment> ' . $to);
             @Folder::rcopy($from, $to);
         }
+
+        return 0;
     }
 
-    private function symlink()
+    /**
+     * @return int
+     */
+    private function symlink(): int
     {
-        $this->output->writeln('');
-        $this->output->writeln('<comment>Resetting Symbolic Links</comment>');
+        $io = $this->getIO();
+
+        $io->newLine();
+        $io->writeln('<comment>Resetting Symbolic Links</comment>');
 
 
         foreach ($this->mappings as $source => $target) {
@@ -164,7 +209,7 @@ class SandboxCommand extends ConsoleCommand
             $from = $this->source . $source;
             $to = $this->destination . $target;
 
-            $this->output->writeln('    <cyan>' . $source . '</cyan> <comment>-></comment> ' . $to);
+            $io->writeln('    <cyan>' . $source . '</cyan> <comment>-></comment> ' . $to);
 
             if (is_dir($to)) {
                 @Folder::delete($to);
@@ -173,14 +218,45 @@ class SandboxCommand extends ConsoleCommand
             }
             symlink($from, $to);
         }
+
+        return 0;
     }
 
-    private function initFiles()
+    /**
+     * @return int
+     */
+    private function pages(): int
     {
-        $this->check();
+        $io = $this->getIO();
 
-        $this->output->writeln('');
-        $this->output->writeln('<comment>File Initializing</comment>');
+        $io->newLine();
+        $io->writeln('<comment>Pages Initializing</comment>');
+
+        // get pages files and initialize if no pages exist
+        $pages_dir = $this->destination . '/user/pages';
+        $pages_files = array_diff(scandir($pages_dir), ['..', '.']);
+
+        if (count($pages_files) === 0) {
+            $destination = $this->source . '/user/pages';
+            Folder::rcopy($destination, $pages_dir);
+            $io->writeln('    <cyan>' . $destination . '</cyan> <comment>-></comment> Created');
+        }
+
+        return 0;
+    }
+
+    /**
+     * @return int
+     */
+    private function initFiles(): int
+    {
+        if (!$this->check()) {
+            return 1;
+        }
+
+        $io = $this->getIO();
+        $io->newLine();
+        $io->writeln('<comment>File Initializing</comment>');
         $files_init = false;
 
         // Copy files if they do not exist
@@ -195,36 +271,25 @@ class SandboxCommand extends ConsoleCommand
             if (!file_exists($to)) {
                 $files_init = true;
                 copy($from, $to);
-                $this->output->writeln('    <cyan>' . $target . '</cyan> <comment>-></comment> Created');
+                $io->writeln('    <cyan>' . $target . '</cyan> <comment>-></comment> Created');
             }
         }
 
         if (!$files_init) {
-            $this->output->writeln('    <red>Files already exist</red>');
+            $io->writeln('    <red>Files already exist</red>');
         }
+
+        return 0;
     }
 
-    private function pages()
+    /**
+     * @return int
+     */
+    private function perms(): int
     {
-        $this->output->writeln('');
-        $this->output->writeln('<comment>Pages Initializing</comment>');
-
-        // get pages files and initialize if no pages exist
-        $pages_dir = $this->destination . '/user/pages';
-        $pages_files = array_diff(scandir($pages_dir), ['..', '.']);
-
-        if (\count($pages_files) === 0) {
-            $destination = $this->source . '/user/pages';
-            Folder::rcopy($destination, $pages_dir);
-            $this->output->writeln('    <cyan>' . $destination . '</cyan> <comment>-></comment> Created');
-
-        }
-    }
-
-    private function perms()
-    {
-        $this->output->writeln('');
-        $this->output->writeln('<comment>Permissions Initializing</comment>');
+        $io = $this->getIO();
+        $io->newLine();
+        $io->writeln('<comment>Permissions Initializing</comment>');
 
         $dir_perms = 0755;
 
@@ -232,39 +297,46 @@ class SandboxCommand extends ConsoleCommand
 
         foreach ($binaries as $bin) {
             chmod($bin, $dir_perms);
-            $this->output->writeln('    <cyan>bin/' . basename($bin) . '</cyan> permissions reset to ' . decoct($dir_perms));
+            $io->writeln('    <cyan>bin/' . basename($bin) . '</cyan> permissions reset to ' . decoct($dir_perms));
         }
 
-        $this->output->writeln("");
+        $io->newLine();
+
+        return 0;
     }
 
-    private function check()
+    /**
+     * @return bool
+     */
+    private function check(): bool
     {
         $success = true;
+        $io = $this->getIO();
 
         if (!file_exists($this->destination)) {
-            $this->output->writeln('    file: <red>$this->destination</red> does not exist!');
+            $io->writeln('    file: <red>' . $this->destination . '</red> does not exist!');
             $success = false;
         }
 
         foreach ($this->directories as $dir) {
             if (!file_exists($this->destination . $dir)) {
-                $this->output->writeln('    directory: <red>' . $dir . '</red> does not exist!');
+                $io->writeln('    directory: <red>' . $dir . '</red> does not exist!');
                 $success = false;
             }
         }
 
         foreach ($this->mappings as $target => $link) {
             if (!file_exists($this->destination . $target)) {
-                $this->output->writeln('    mappings: <red>' . $target . '</red> does not exist!');
+                $io->writeln('    mappings: <red>' . $target . '</red> does not exist!');
                 $success = false;
             }
         }
 
         if (!$success) {
-            $this->output->writeln('');
-            $this->output->writeln('<comment>install should be run with --symlink|--s to symlink first</comment>');
-            exit;
+            $io->newLine();
+            $io->writeln('<comment>install should be run with --symlink|--s to symlink first</comment>');
         }
+
+        return $success;
     }
 }

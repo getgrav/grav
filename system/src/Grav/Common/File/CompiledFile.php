@@ -3,21 +3,30 @@
 /**
  * @package    Grav\Common\File
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Common\File;
 
+use Exception;
 use RocketTheme\Toolbox\File\PhpFile;
+use RuntimeException;
+use Throwable;
+use function function_exists;
+use function get_class;
 
+/**
+ * Trait CompiledFile
+ * @package Grav\Common\File
+ */
 trait CompiledFile
 {
     /**
      * Get/set parsed file contents.
      *
      * @param mixed $var
-     * @return string
+     * @return array
      */
     public function content($var = null)
     {
@@ -28,9 +37,12 @@ trait CompiledFile
                 $file = PhpFile::instance(CACHE_DIR . "compiled/files/{$key}{$this->extension}.php");
 
                 $modified = $this->modified();
-
                 if (!$modified) {
-                    return $this->decode($this->raw());
+                    try {
+                        return $this->decode($this->raw());
+                    } catch (Throwable $e) {
+                        // If the compiled file is broken, we can safely ignore the error and continue.
+                    }
                 }
 
                 $class = get_class($this);
@@ -38,8 +50,7 @@ trait CompiledFile
                 $cache = $file->exists() ? $file->content() : null;
 
                 // Load real file if cache isn't up to date (or is invalid).
-                if (
-                    !isset($cache['@class'])
+                if (!isset($cache['@class'])
                     || $cache['@class'] !== $class
                     || $cache['modified'] !== $modified
                     || $cache['filename'] !== $this->filename
@@ -47,7 +58,7 @@ trait CompiledFile
                     // Attempt to lock the file for writing.
                     try {
                         $file->lock(false);
-                    } catch (\Exception $e) {
+                    } catch (Exception $e) {
                         // Another process has locked the file; we will check this in a bit.
                     }
 
@@ -76,9 +87,8 @@ trait CompiledFile
 
                 $this->content = $cache['data'];
             }
-
-        } catch (\Exception $e) {
-            throw new \RuntimeException(sprintf('Failed to read %s: %s', basename($this->filename), $e->getMessage()), 500, $e);
+        } catch (Exception $e) {
+            throw new RuntimeException(sprintf('Failed to read %s: %s', basename($this->filename), $e->getMessage()), 500, $e);
         }
 
         return parent::content($var);
@@ -86,6 +96,8 @@ trait CompiledFile
 
     /**
      * Serialize file.
+     *
+     * @return array
      */
     public function __sleep()
     {

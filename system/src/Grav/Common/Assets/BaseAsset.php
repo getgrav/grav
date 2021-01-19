@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Assets
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -14,7 +14,12 @@ use Grav\Common\Grav;
 use Grav\Common\Uri;
 use Grav\Common\Utils;
 use Grav\Framework\Object\PropertyObject;
+use SplFileInfo;
 
+/**
+ * Class BaseAsset
+ * @package Grav\Common\Assets
+ */
 abstract class BaseAsset extends PropertyObject
 {
     use AssetUtilsTrait;
@@ -22,32 +27,46 @@ abstract class BaseAsset extends PropertyObject
     protected const CSS_ASSET = true;
     protected const JS_ASSET = false;
 
-    /** @const Regex to match CSS import content */
-    protected const CSS_IMPORT_REGEX = '{@import(.*?);}';
-
+    /** @var string|false */
     protected $asset;
-
+    /** @var string */
     protected $asset_type;
+    /** @var int */
     protected $order;
+    /** @var string */
     protected $group;
+    /** @var string */
     protected $position;
+    /** @var int */
     protected $priority;
+    /** @var array */
     protected $attributes = [];
 
-
+    /** @var string */
     protected $timestamp;
+    /** @var int|false */
     protected $modified;
+    /** @var bool */
     protected $remote;
+    /** @var string */
     protected $query = '';
 
     // Private Bits
-    private $base_url;
-    private $fetch_command;
+    /** @var bool */
     private $css_rewrite = false;
+    /** @var bool */
     private $css_minify = false;
 
+    /**
+     * @return string
+     */
     abstract function render();
 
+    /**
+     * BaseAsset constructor.
+     * @param array $elements
+     * @param string|null $key
+     */
     public function __construct(array $elements = [], $key = null)
     {
         $base_config = [
@@ -64,6 +83,11 @@ abstract class BaseAsset extends PropertyObject
         parent::__construct($elements, $key);
     }
 
+    /**
+     * @param string|false $asset
+     * @param array $options
+     * @return $this|false
+     */
     public function init($asset, $options)
     {
         $config = Grav::instance()['config'];
@@ -88,7 +112,6 @@ abstract class BaseAsset extends PropertyObject
 
             // Move this to render?
             if (!$this->remote) {
-
                 $asset_parts = parse_url($asset);
                 if (isset($asset_parts['query'])) {
                     $this->query = $asset_parts['query'];
@@ -109,7 +132,7 @@ abstract class BaseAsset extends PropertyObject
                     return false;
                 }
 
-                $file = new \SplFileInfo($path);
+                $file = new SplFileInfo($path);
 
                 $asset = $this->buildLocalLink($file->getPathname());
 
@@ -122,19 +145,30 @@ abstract class BaseAsset extends PropertyObject
         return $this;
     }
 
+    /**
+     * @return string|false
+     */
     public function getAsset()
     {
         return $this->asset;
     }
 
+    /**
+     * @return bool
+     */
     public function getRemote()
     {
         return $this->remote;
     }
 
+    /**
+     * @param string $position
+     * @return $this
+     */
     public function setPosition($position)
     {
         $this->position = $position;
+
         return $this;
     }
 
@@ -163,7 +197,7 @@ abstract class BaseAsset extends PropertyObject
      *
      * @param  string $asset    the asset string reference
      *
-     * @return string           the final link url to the asset
+     * @return string|false     the final link url to the asset
      */
     protected function buildLocalLink($asset)
     {
@@ -190,6 +224,7 @@ abstract class BaseAsset extends PropertyObject
      * @param string $file
      * @param string $dir
      * @param bool $local
+     * @return string
      */
     protected function cssRewrite($file, $dir, $local)
     {

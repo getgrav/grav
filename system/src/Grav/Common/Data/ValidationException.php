@@ -3,19 +3,30 @@
 /**
  * @package    Grav\Common\Data
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Common\Data;
 
 use Grav\Common\Grav;
+use RuntimeException;
 
-class ValidationException extends \RuntimeException
+/**
+ * Class ValidationException
+ * @package Grav\Common\Data
+ */
+class ValidationException extends RuntimeException
 {
+    /** @var array */
     protected $messages = [];
 
-    public function setMessages(array $messages = []) {
+    /**
+     * @param array $messages
+     * @return $this
+     */
+    public function setMessages(array $messages = [])
+    {
         $this->messages = $messages;
 
         $language = Grav::instance()['language'];
@@ -31,6 +42,9 @@ class ValidationException extends \RuntimeException
         return $this;
     }
 
+    /**
+     * @return array
+     */
     public function getMessages()
     {
         return $this->messages;

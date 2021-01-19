@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Twig
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -12,6 +12,10 @@ namespace Grav\Common\Twig\Node;
 use Twig\Compiler;
 use Twig\Node\Node;
 
+/**
+ * Class TwigNodeSwitch
+ * @package Grav\Common\Twig\Node
+ */
 class TwigNodeSwitch extends Node
 {
     /**
@@ -22,23 +26,21 @@ class TwigNodeSwitch extends Node
      * @param int $lineno
      * @param string|null $tag
      */
-    public function __construct(
-        Node $value,
-        Node $cases,
-        Node $default = null,
-        $lineno = 0,
-        $tag = null
-    )
+    public function __construct(Node $value, Node $cases, Node $default = null, $lineno = 0, $tag = null)
     {
-        parent::__construct(array('value' => $value, 'cases' => $cases, 'default' => $default), array(), $lineno, $tag);
+        $nodes = ['value' => $value, 'cases' => $cases, 'default' => $default];
+        $nodes = array_filter($nodes);
+
+        parent::__construct($nodes, [], $lineno, $tag);
     }
 
     /**
      * Compiles the node to PHP.
      *
-     * @param Compiler $compiler A Twig_Compiler instance
+     * @param Compiler $compiler A Twig Compiler instance
+     * @return void
      */
-    public function compile(Compiler $compiler)
+    public function compile(Compiler $compiler): void
     {
         $compiler
             ->addDebugInfo($this)
@@ -47,6 +49,7 @@ class TwigNodeSwitch extends Node
             ->raw(") {\n")
             ->indent();
 
+        /** @var Node $case */
         foreach ($this->getNode('cases') as $case) {
             if (!$case->hasNode('body')) {
                 continue;
@@ -68,7 +71,7 @@ class TwigNodeSwitch extends Node
                 ->write("}\n");
         }
 
-        if ($this->hasNode('default') && $this->getNode('default') !== null) {
+        if ($this->hasNode('default')) {
             $compiler
                 ->write("default:\n")
                 ->write("{\n")

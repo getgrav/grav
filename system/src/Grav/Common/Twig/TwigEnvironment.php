@@ -3,13 +3,19 @@
 /**
  * @package    Grav\Common\Twig
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Common\Twig;
 
-class TwigEnvironment extends \Twig_Environment
+use Twig\Environment;
+
+/**
+ * Class TwigEnvironment
+ * @package Grav\Common\Twig
+ */
+class TwigEnvironment extends Environment
 {
     use WriteCacheFileTrait;
 }

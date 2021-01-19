@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\GPM
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -11,12 +11,22 @@ namespace Grav\Common\GPM\Local;
 
 use Grav\Common\Data\Data;
 use Grav\Common\GPM\Common\Package as BasePackage;
-use Grav\Framework\Parsedown\Parsedown;
+use Parsedown;
 
+/**
+ * Class Package
+ * @package Grav\Common\GPM\Local
+ */
 class Package extends BasePackage
 {
+    /** @var array */
     protected $settings;
 
+    /**
+     * Package constructor.
+     * @param Data $package
+     * @param string|null $package_type
+     */
     public function __construct(Data $package, $package_type = null)
     {
         $data = new Data($package->blueprints()->toArray());
@@ -32,10 +42,10 @@ class Package extends BasePackage
     }
 
     /**
-     * @return mixed
+     * @return bool
      */
     public function isEnabled()
     {
-        return $this->settings['enabled'];
+        return (bool)$this->settings['enabled'];
     }
 }

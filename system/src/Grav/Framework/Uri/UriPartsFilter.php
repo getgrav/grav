@@ -3,11 +3,15 @@
 /**
  * @package    Grav\Framework\Uri
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Framework\Uri;
+
+use InvalidArgumentException;
+use function is_int;
+use function is_string;
 
 /**
  * Class Uri
@@ -20,12 +24,12 @@ class UriPartsFilter
     /**
      * @param string $scheme
      * @return string
-     * @throws \InvalidArgumentException If the scheme is invalid.
+     * @throws InvalidArgumentException If the scheme is invalid.
      */
     public static function filterScheme($scheme)
     {
-        if (!\is_string($scheme)) {
-            throw new \InvalidArgumentException('Uri scheme must be a string');
+        if (!is_string($scheme)) {
+            throw new InvalidArgumentException('Uri scheme must be a string');
         }
 
         return strtolower($scheme);
@@ -36,12 +40,12 @@ class UriPartsFilter
      *
      * @param string $info The raw user or password.
      * @return string The percent-encoded user or password string.
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public static function filterUserInfo($info)
     {
-        if (!\is_string($info)) {
-            throw new \InvalidArgumentException('Uri user info must be a string');
+        if (!is_string($info)) {
+            throw new InvalidArgumentException('Uri user info must be a string');
         }
 
         return preg_replace_callback(
@@ -56,18 +60,18 @@ class UriPartsFilter
     /**
      * @param string $host
      * @return string
-     * @throws \InvalidArgumentException If the host is invalid.
+     * @throws InvalidArgumentException If the host is invalid.
      */
     public static function filterHost($host)
     {
-        if (!\is_string($host)) {
-            throw new \InvalidArgumentException('Uri host must be a string');
+        if (!is_string($host)) {
+            throw new InvalidArgumentException('Uri host must be a string');
         }
 
         if (filter_var($host, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
             $host = '[' . $host . ']';
         } elseif ($host && preg_match(static::HOSTNAME_REGEX, $host) !== 1) {
-            throw new \InvalidArgumentException('Uri host name validation failed');
+            throw new InvalidArgumentException('Uri host name validation failed');
         }
 
         return strtolower($host);
@@ -80,15 +84,15 @@ class UriPartsFilter
      *
      * @param int|null $port
      * @return int|null
-     * @throws \InvalidArgumentException If the port is invalid.
+     * @throws InvalidArgumentException If the port is invalid.
      */
     public static function filterPort($port = null)
     {
-        if (null === $port || (\is_int($port) && ($port >= 0 && $port <= 65535))) {
+        if (null === $port || (is_int($port) && ($port >= 0 && $port <= 65535))) {
             return $port;
         }
 
-        throw new \InvalidArgumentException('Uri port must be null or an integer between 0 and 65535');
+        throw new InvalidArgumentException('Uri port must be null or an integer between 0 and 65535');
     }
 
     /**
@@ -99,13 +103,13 @@ class UriPartsFilter
      *
      * @param  string $path The raw uri path.
      * @return string       The RFC 3986 percent-encoded uri path.
-     * @throws \InvalidArgumentException If the path is invalid.
+     * @throws InvalidArgumentException If the path is invalid.
      * @link   http://www.faqs.org/rfcs/rfc3986.html
      */
     public static function filterPath($path)
     {
-        if (!\is_string($path)) {
-            throw new \InvalidArgumentException('Uri path must be a string');
+        if (!is_string($path)) {
+            throw new InvalidArgumentException('Uri path must be a string');
         }
 
         return preg_replace_callback(
@@ -122,12 +126,12 @@ class UriPartsFilter
      *
      * @param string $query The raw uri query string.
      * @return string The percent-encoded query string.
-     * @throws \InvalidArgumentException If the query is invalid.
+     * @throws InvalidArgumentException If the query is invalid.
      */
     public static function filterQueryOrFragment($query)
     {
-        if (!\is_string($query)) {
-            throw new \InvalidArgumentException('Uri query string and fragment must be a string');
+        if (!is_string($query)) {
+            throw new InvalidArgumentException('Uri query string and fragment must be a string');
         }
 
         return preg_replace_callback(

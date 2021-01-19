@@ -5,25 +5,30 @@ declare(strict_types=1);
 /**
  * @package    Grav\Framework\Flex
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Framework\Flex;
 
+use Grav\Common\Debugger;
+use Grav\Common\Grav;
 use Grav\Framework\Flex\Interfaces\FlexCollectionInterface;
+use Grav\Framework\Flex\Interfaces\FlexInterface;
 use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
 use Grav\Framework\Object\ObjectCollection;
+use RuntimeException;
+use function count;
+use function is_array;
 
 /**
  * Class Flex
  * @package Grav\Framework\Flex
  */
-class Flex implements \Countable
+class Flex implements FlexInterface
 {
     /** @var array */
     protected $config;
-
     /** @var FlexDirectory[] */
     protected $types;
 
@@ -38,6 +43,13 @@ class Flex implements \Countable
         $this->types = [];
 
         foreach ($types as $type => $blueprint) {
+            if (!file_exists($blueprint)) {
+                /** @var Debugger $debugger */
+                $debugger = Grav::instance()['debugger'];
+                $debugger->addMessage(sprintf('Flex: blueprint for flex type %s is missing', $type), 'error');
+
+                continue;
+            }
             $this->addDirectoryType($type, $blueprint);
         }
     }
@@ -50,7 +62,7 @@ class Flex implements \Countable
      */
     public function addDirectoryType(string $type, string $blueprint, array $config = [])
     {
-        $config = array_merge_recursive(['enabled' => true], $this->config['object'] ?? [], $config);
+        $config = array_replace_recursive(['enabled' => true], $this->config ?? [], $config);
 
         $this->types[$type] = new FlexDirectory($type, $blueprint, $config);
 
@@ -78,9 +90,9 @@ class Flex implements \Countable
     }
 
     /**
-     * @param array|string[] $types
+     * @param array|string[]|null $types
      * @param bool $keepMissing
-     * @return array|FlexDirectory[]
+     * @return array<FlexDirectory|null>
      */
     public function getDirectories(array $types = null, bool $keepMissing = false): array
     {
@@ -124,13 +136,13 @@ class Flex implements \Countable
      * @param array $options            In addition to the options in getObjects(), following options can be passed:
      *                                  collection_class:   Class to be used to create the collection. Defaults to ObjectCollection.
      * @return FlexCollectionInterface
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
     public function getMixedCollection(array $keys, array $options = []): FlexCollectionInterface
     {
         $collectionClass = $options['collection_class'] ?? ObjectCollection::class;
         if (!class_exists($collectionClass)) {
-            throw new \RuntimeException(sprintf('Cannot create collection: Class %s does not exist', $collectionClass));
+            throw new RuntimeException(sprintf('Cannot create collection: Class %s does not exist', $collectionClass));
         }
 
         $objects = $this->getObjects($keys, $options);
@@ -219,13 +231,13 @@ class Flex implements \Countable
 
         // Use the original key ordering.
         if (!$guessed) {
-            $list = array_replace(array_fill_keys($keys, null), $list);
+            $list = array_replace(array_fill_keys($keys, null), $list) ?? [];
         } else {
             // We have mixed keys, we need to map flex keys back to storage keys.
             $results = [];
             foreach ($keys as $key) {
                 $flexKey = $guessed[$key] ?? $key;
-                if (\is_array($flexKey)) {
+                if (is_array($flexKey)) {
                     $result = null;
                     foreach ($flexKey as $tryKey) {
                         if ($result = $list[$tryKey] ?? null) {
@@ -262,7 +274,7 @@ class Flex implements \Countable
         if (null === $type && null === $keyField) {
             // Special handling for quick Flex key lookups.
             $keyField = 'storage_key';
-            [$type, $key] = $this->resolveKeyAndType($key, $type);
+            [$key, $type] = $this->resolveKeyAndType($key, $type);
         } else {
             $type = $this->resolveType($type);
         }
@@ -281,14 +293,19 @@ class Flex implements \Countable
      */
     public function count(): int
     {
-        return \count($this->types);
+        return count($this->types);
     }
 
+    /**
+     * @param string $flexKey
+     * @param string|null $type
+     * @return array
+     */
     protected function resolveKeyAndType(string $flexKey, string $type = null): array
     {
         $guess = false;
         if (strpos($flexKey, ':') !== false) {
-            [$type, $key] = explode(':',  $flexKey, 2);
+            [$type, $key] = explode(':', $flexKey, 2);
 
             $type = $this->resolveType($type);
         } else {
@@ -300,10 +317,14 @@ class Flex implements \Countable
         return [$key, $type, $guess];
     }
 
+    /**
+     * @param string|null $type
+     * @return string
+     */
     protected function resolveType(string $type = null): string
     {
         if (null !== $type && strpos($type, '.') !== false) {
-            return preg_replace('|\.obj$|', '', $type);
+            return preg_replace('|\.obj$|', '', $type) ?? $type;
         }
 
         return $type ?? '';

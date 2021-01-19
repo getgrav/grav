@@ -3,33 +3,51 @@
 /**
  * @package    Grav\Common\Scheduler
  * @author     Originally based on peppeocchi/php-cron-scheduler modified for Grav integration
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Common\Scheduler;
 
+use DateTime;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\Grav;
 use Grav\Common\Utils;
+use InvalidArgumentException;
 use Symfony\Component\Process\PhpExecutableFinder;
 use Symfony\Component\Process\Process;
 use RocketTheme\Toolbox\File\YamlFile;
+use function is_callable;
+use function is_string;
 
+/**
+ * Class Scheduler
+ * @package Grav\Common\Scheduler
+ */
 class Scheduler
 {
-    /**
-     * The queued jobs.
-     *
-     * @var array
-     */
+    /** @var Job[] The queued jobs. */
     private $jobs = [];
+
+    /** @var Job[] */
     private $saved_jobs = [];
+
+    /** @var Job[] */
     private $executed_jobs = [];
+
+    /** @var Job[] */
     private $failed_jobs = [];
+
+    /** @var Job[] */
     private $jobs_run = [];
+
+    /** @var array */
     private $output_schedule = [];
+
+    /** @var array */
     private $config;
+
+    /** @var string */
     private $status_path;
 
     /**
@@ -44,11 +62,12 @@ class Scheduler
         if (!file_exists($this->status_path)) {
             Folder::create($this->status_path);
         }
-
     }
 
     /**
      * Load saved jobs from config/scheduler.yaml file
+     *
+     * @return $this
      */
     public function loadSavedJobs()
     {
@@ -65,7 +84,7 @@ class Scheduler
             }
 
             if (isset($j['output'])) {
-                $mode = isset($j['output_mode']) && $j['output_mode'] === 'append' ? true : false;
+                $mode = isset($j['output_mode']) && $j['output_mode'] === 'append';
                 $job->output($j['output'], $mode);
             }
 
@@ -98,7 +117,6 @@ class Scheduler
                     $foreground[] = $job;
                 }
             }
-
         }
         return [$background, $foreground];
     }
@@ -106,13 +124,30 @@ class Scheduler
     /**
      * Get all jobs if they are disabled or not as one array
      *
-     * @return array
+     * @return Job[]
      */
     public function getAllJobs()
     {
-        list($background, $foreground) = $this->loadSavedJobs()->getQueuedJobs(true);
+        [$background, $foreground] = $this->loadSavedJobs()->getQueuedJobs(true);
 
         return array_merge($background, $foreground);
+    }
+
+    /**
+     * Get a specific Job based on id
+     *
+     * @param string $jobid
+     * @return Job|null
+     */
+    public function getJob($jobid)
+    {
+        $all = $this->getAllJobs();
+        foreach ($all as $job) {
+            if ($jobid == $job->getId()) {
+                return $job;
+            }
+        }
+        return null;
     }
 
     /**
@@ -120,7 +155,7 @@ class Scheduler
      *
      * @param  callable  $fn  The function to execute
      * @param  array  $args  Optional arguments to pass to the php script
-     * @param  string  $id   Optional custom identifier
+     * @param  string|null  $id   Optional custom identifier
      * @return Job
      */
     public function addFunction(callable $fn, $args = [], $id = null)
@@ -136,7 +171,7 @@ class Scheduler
      *
      * @param  string  $command  The command to execute
      * @param  array  $args      Optional arguments to pass to the command
-     * @param  string  $id       Optional custom identifier
+     * @param  string|null  $id       Optional custom identifier
      * @return Job
      */
     public function addCommand($command, $args = [], $id = null)
@@ -150,29 +185,30 @@ class Scheduler
     /**
      * Run the scheduler.
      *
-     * @param  \DateTime|null  $runTime  Optional, run at specific moment
+     * @param DateTime|null $runTime Optional, run at specific moment
+     * @param bool $force force run even if not due
      */
-    public function run(\DateTime $runTime = null)
+    public function run(DateTime $runTime = null, $force = false)
     {
         $this->loadSavedJobs();
 
-        list($background, $foreground) = $this->getQueuedJobs(false);
+        [$background, $foreground] = $this->getQueuedJobs(false);
         $alljobs = array_merge($background, $foreground);
 
         if (null === $runTime) {
-            $runTime = new \DateTime('now');
+            $runTime = new DateTime('now');
         }
 
         // Star processing jobs
         foreach ($alljobs as $job) {
-            if ($job->isDue($runTime)) {
+            if ($job->isDue($runTime) || $force) {
                 $job->run();
                 $this->jobs_run[] = $job;
             }
         }
 
         // Finish handling any background jobs
-        foreach($background as $job) {
+        foreach ($background as $job) {
             $job->finalize();
         }
 
@@ -184,6 +220,8 @@ class Scheduler
      * Reset all collected data of last run.
      *
      * Call before run() if you call run() multiple times.
+     *
+     * @return $this
      */
     public function resetRun()
     {
@@ -199,7 +237,7 @@ class Scheduler
      * Get the scheduler verbose output.
      *
      * @param  string  $type  Allowed: text, html, array
-     * @return mixed  The return depends on the requested $type
+     * @return string|array  The return depends on the requested $type
      */
     public function getVerboseOutput($type = 'text')
     {
@@ -211,12 +249,14 @@ class Scheduler
             case 'array':
                 return $this->output_schedule;
             default:
-                throw new \InvalidArgumentException('Invalid output type');
+                throw new InvalidArgumentException('Invalid output type');
         }
     }
 
     /**
      * Remove all queued Jobs.
+     *
+     * @return $this
      */
     public function clearJobs()
     {
@@ -232,15 +272,29 @@ class Scheduler
      */
     public function getCronCommand()
     {
-        $phpBinaryFinder = new PhpExecutableFinder();
-        $php = $phpBinaryFinder->find();
-        $command = 'cd ' . str_replace(' ', '\ ', GRAV_ROOT) . ';' . $php . ' bin/grav scheduler';
+        $command = $this->getSchedulerCommand();
 
         return "(crontab -l; echo \"* * * * * {$command} 1>> /dev/null 2>&1\") | crontab -";
     }
 
     /**
+     * @param string|null $php
+     * @return string
+     */
+    public function getSchedulerCommand($php = null)
+    {
+        $phpBinaryFinder = new PhpExecutableFinder();
+        $php = $php ?? $phpBinaryFinder->find();
+        $command = 'cd ' . str_replace(' ', '\ ', GRAV_ROOT) . ';' . $php . ' bin/grav scheduler';
+
+        return $command;
+    }
+
+    /**
      * Helper to determine if cron job is setup
+     * 0 - Crontab Not found
+     * 1 - Crontab Found
+     * 2 - Error
      *
      * @return int
      */
@@ -251,8 +305,10 @@ class Scheduler
 
         if ($process->isSuccessful()) {
             $output = $process->getOutput();
+            $command = str_replace('/', '\/', $this->getSchedulerCommand('.*'));
+            $full_command = '/^(?!#).* .* .* .* .* ' . $command . '/m';
 
-            return preg_match('$bin\/grav schedule$', $output) ? 1 : 0;
+            return  preg_match($full_command, $output) ? 1 : 0;
         }
 
         $error = $process->getErrorOutput();
@@ -263,7 +319,7 @@ class Scheduler
     /**
      * Get the Job states file
      *
-     * @return \RocketTheme\Toolbox\File\FileInterface|YamlFile
+     * @return YamlFile
      */
     public function getJobStates()
     {
@@ -272,6 +328,8 @@ class Scheduler
 
     /**
      * Save job states to statys file
+     *
+     * @return void
      */
     private function saveJobStates()
     {
@@ -291,6 +349,24 @@ class Scheduler
         $saved_states = $this->getJobStates();
         $saved_states->save(array_merge($saved_states->content(), $new_states));
     }
+
+    /**
+     * Try to determine who's running the process
+     *
+     * @return false|string
+     */
+    public function whoami()
+    {
+        $process = new Process('whoami');
+        $process->run();
+
+        if ($process->isSuccessful()) {
+            return trim($process->getOutput());
+        }
+
+        return $process->getErrorOutput();
+    }
+
 
     /**
      * Queue a job for execution in the correct queue.
@@ -313,7 +389,7 @@ class Scheduler
      */
     private function addSchedulerVerboseOutput($string)
     {
-        $now = '[' . (new \DateTime('now'))->format('c') . '] ';
+        $now = '[' . (new DateTime('now'))->format('c') . '] ';
         $this->output_schedule[] = $now . $string;
         // Print to stdoutput in light gray
         // echo "\033[37m{$string}\033[0m\n";
@@ -332,7 +408,7 @@ class Scheduler
         $args = $job->getArguments();
         // If callable, log the string Closure
         if (is_callable($command)) {
-            $command = \is_string($command) ? $command : 'Closure';
+            $command = is_string($command) ? $command : 'Closure';
         }
         $this->addSchedulerVerboseOutput("<green>Success</green>: <white>{$command} {$args}</white>");
 
@@ -351,7 +427,7 @@ class Scheduler
         $command = $job->getCommand();
         // If callable, log the string Closure
         if (is_callable($command)) {
-            $command = \is_string($command) ? $command : 'Closure';
+            $command = is_string($command) ? $command : 'Closure';
         }
         $output = trim($job->getOutput());
         $this->addSchedulerVerboseOutput("<red>Error</red>:   <white>{$command}</white> → <normal>{$output}</normal>");

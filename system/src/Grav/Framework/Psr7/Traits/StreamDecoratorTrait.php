@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * @package    Grav\Framework\Psr7
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -13,6 +13,10 @@ namespace Grav\Framework\Psr7\Traits;
 
 use Psr\Http\Message\StreamInterface;
 
+/**
+ * Trait StreamDecoratorTrait
+ * @package Grav\Framework\Psr7\Traits
+ */
 trait StreamDecoratorTrait
 {
     /** @var StreamInterface */
@@ -26,6 +30,9 @@ trait StreamDecoratorTrait
         return $this->stream->__toString();
     }
 
+    /**
+     * @return void
+     */
     public function __destruct()
     {
         $this->stream->close();

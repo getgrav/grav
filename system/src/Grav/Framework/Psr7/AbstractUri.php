@@ -3,13 +3,14 @@
 /**
  * @package    Grav\Framework\Psr7
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Framework\Psr7;
 
 use Grav\Framework\Uri\UriPartsFilter;
+use InvalidArgumentException;
 use Psr\Http\Message\UriInterface;
 
 /**
@@ -20,6 +21,7 @@ use Psr\Http\Message\UriInterface;
  */
 abstract class AbstractUri implements UriInterface
 {
+    /** @var array */
     protected static $defaultPorts = [
         'http'  => 80,
         'https' => 443
@@ -27,25 +29,18 @@ abstract class AbstractUri implements UriInterface
 
     /** @var string Uri scheme. */
     private $scheme = '';
-
     /** @var string Uri user. */
     private $user = '';
-
     /** @var string Uri password. */
     private $password = '';
-
     /** @var string Uri host. */
     private $host = '';
-
     /** @var int|null Uri port. */
     private $port;
-
     /** @var string Uri path. */
     private $path = '';
-
     /** @var string Uri query string (without ?). */
     private $query = '';
-
     /** @var string Uri fragment (without #). */
     private $fragment = '';
 
@@ -156,7 +151,7 @@ abstract class AbstractUri implements UriInterface
 
     /**
      * @inheritdoc
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function withUserInfo($user, $password = null)
     {
@@ -249,7 +244,7 @@ abstract class AbstractUri implements UriInterface
 
     /**
      * @inheritdoc
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function withFragment($fragment)
     {
@@ -352,7 +347,8 @@ abstract class AbstractUri implements UriInterface
 
     /**
      * @param array $parts
-     * @throws \InvalidArgumentException
+     * @return void
+     * @throws InvalidArgumentException
      */
     protected function initParts(array $parts)
     {
@@ -370,26 +366,30 @@ abstract class AbstractUri implements UriInterface
     }
 
     /**
-     * @throws \InvalidArgumentException
+     * @return void
+     * @throws InvalidArgumentException
      */
     private function validate()
     {
         if ($this->host === '' && ($this->scheme === 'http' || $this->scheme === 'https')) {
-            throw new \InvalidArgumentException('Uri with a scheme must have a host');
+            throw new InvalidArgumentException('Uri with a scheme must have a host');
         }
 
         if ($this->getAuthority() === '') {
             if (0 === strpos($this->path, '//')) {
-                throw new \InvalidArgumentException('The path of a URI without an authority must not start with two slashes \'//\'');
+                throw new InvalidArgumentException('The path of a URI without an authority must not start with two slashes \'//\'');
             }
             if ($this->scheme === '' && false !== strpos(explode('/', $this->path, 2)[0], ':')) {
-                throw new \InvalidArgumentException('A relative URI must not have a path beginning with a segment containing a colon');
+                throw new InvalidArgumentException('A relative URI must not have a path beginning with a segment containing a colon');
             }
         } elseif (isset($this->path[0]) && $this->path[0] !== '/') {
-            throw new \InvalidArgumentException('The path of a URI with an authority must start with a slash \'/\' or be empty');
+            throw new InvalidArgumentException('The path of a URI with an authority must start with a slash \'/\' or be empty');
         }
     }
 
+    /**
+     * @return bool
+     */
     protected function isDefaultPort()
     {
         $scheme = $this->scheme;
@@ -399,6 +399,9 @@ abstract class AbstractUri implements UriInterface
             || (isset(static::$defaultPorts[$scheme]) && $port === static::$defaultPorts[$scheme]);
     }
 
+    /**
+     * @return void
+     */
     private function unsetDefaultPort()
     {
         if ($this->isDefaultPort()) {

@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Data
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -14,22 +14,44 @@ use Grav\Common\Grav;
 use Grav\Common\User\Interfaces\UserInterface;
 use RocketTheme\Toolbox\Blueprints\BlueprintForm;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
+use RuntimeException;
+use function call_user_func_array;
+use function count;
+use function function_exists;
+use function in_array;
+use function is_array;
+use function is_int;
+use function is_object;
+use function is_string;
+use function strlen;
 
+/**
+ * Class Blueprint
+ * @package Grav\Common\Data
+ */
 class Blueprint extends BlueprintForm
 {
     /** @var string */
     protected $context = 'blueprints://';
 
+    /** @var string|null */
     protected $scope;
 
     /** @var BlueprintSchema */
     protected $blueprintSchema;
 
-    /** @var array */
+    /** @var object|null */
+    protected $object;
+
+    /** @var array|null */
     protected $defaults;
 
+    /** @var array */
     protected $handlers = [];
 
+    /**
+     * Clone blueprint.
+     */
     public function __clone()
     {
         if ($this->blueprintSchema) {
@@ -37,9 +59,22 @@ class Blueprint extends BlueprintForm
         }
     }
 
+    /**
+     * @param string $scope
+     * @return void
+     */
     public function setScope($scope)
     {
         $this->scope = $scope;
+    }
+
+    /**
+     * @param object $object
+     * @return void
+     */
+    public function setObject($object)
+    {
+        $this->object = $object;
     }
 
     /**
@@ -55,6 +90,29 @@ class Blueprint extends BlueprintForm
         $this->blueprintSchema->setTypes($types);
 
         return $this;
+    }
+
+    /**
+     * @param string $name
+     * @return array|mixed|null
+     * @since 1.7
+     */
+    public function getDefaultValue(string $name)
+    {
+        $path = explode('.', $name) ?: [];
+        $current = $this->getDefaults();
+
+        foreach ($path as $field) {
+            if (is_object($current) && isset($current->{$field})) {
+                $current = $current->{$field};
+            } elseif (is_array($current) && isset($current[$field])) {
+                $current = $current[$field];
+            } else {
+                return null;
+            }
+        }
+
+        return $current;
     }
 
     /**
@@ -88,7 +146,7 @@ class Blueprint extends BlueprintForm
             $current = &$this->items;
 
             foreach ($path as $field) {
-                if (\is_object($current)) {
+                if (is_object($current)) {
                     // Handle objects.
                     if (!isset($current->{$field})) {
                         $current->{$field} = [];
@@ -97,7 +155,7 @@ class Blueprint extends BlueprintForm
                     $current = &$current->{$field};
                 } else {
                     // Handle arrays and scalars.
-                    if (!\is_array($current)) {
+                    if (!is_array($current)) {
                         $current = [$field => []];
                     } elseif (!isset($current[$field])) {
                         $current[$field] = [];
@@ -111,6 +169,7 @@ class Blueprint extends BlueprintForm
             foreach ($data as $property => $call) {
                 $action = $call['action'];
                 $method = 'dynamic' . ucfirst($action);
+                $call['object'] = $this->object;
 
                 if (isset($this->handlers[$action])) {
                     $callable = $this->handlers[$action];
@@ -125,11 +184,43 @@ class Blueprint extends BlueprintForm
     }
 
     /**
+     * Extend blueprint with another blueprint.
+     *
+     * @param BlueprintForm|array $extends
+     * @param bool $append
+     * @return $this
+     */
+    public function extend($extends, $append = false)
+    {
+        parent::extend($extends, $append);
+
+        $this->deepInit($this->items);
+
+        return $this;
+    }
+
+    /**
+     * @param string $name
+     * @param mixed $value
+     * @param string $separator
+     * @param bool $append
+     * @return $this
+     */
+    public function embed($name, $value, $separator = '/', $append = false)
+    {
+        parent::embed($name, $value, $separator, $append);
+
+        $this->deepInit($this->items);
+
+        return $this;
+    }
+
+    /**
      * Merge two arrays by using blueprints.
      *
      * @param  array $data1
      * @param  array $data2
-     * @param  string $name         Optional
+     * @param  string|null $name         Optional
      * @param  string $separator    Optional
      * @return array
      */
@@ -172,13 +263,15 @@ class Blueprint extends BlueprintForm
      * Validate data against blueprints.
      *
      * @param  array $data
-     * @throws \RuntimeException
+     * @param  array $options
+     * @return void
+     * @throws RuntimeException
      */
-    public function validate(array $data)
+    public function validate(array $data, array $options = [])
     {
         $this->initInternals();
 
-        $this->blueprintSchema->validate($data);
+        $this->blueprintSchema->validate($data, $options);
     }
 
     /**
@@ -193,7 +286,7 @@ class Blueprint extends BlueprintForm
     {
         $this->initInternals();
 
-        return $this->blueprintSchema->filter($data, $missingValuesAsNull, $keepEmptyValues);
+        return $this->blueprintSchema->filter($data, $missingValuesAsNull, $keepEmptyValues) ?? [];
     }
 
 
@@ -223,6 +316,11 @@ class Blueprint extends BlueprintForm
         return $this->blueprintSchema;
     }
 
+    /**
+     * @param string $name
+     * @param callable $callable
+     * @return void
+     */
     public function addDynamicHandler(string $name, callable $callable): void
     {
         $this->handlers[$name] = $callable;
@@ -230,6 +328,8 @@ class Blueprint extends BlueprintForm
 
     /**
      * Initialize validator.
+     *
+     * @return void
      */
     protected function initInternals()
     {
@@ -250,12 +350,12 @@ class Blueprint extends BlueprintForm
 
     /**
      * @param string $filename
-     * @return string
+     * @return array
      */
     protected function loadFile($filename)
     {
         $file = CompiledYamlFile::instance($filename);
-        $content = $file->content();
+        $content = (array)$file->content();
         $file->free();
 
         return $content;
@@ -263,7 +363,7 @@ class Blueprint extends BlueprintForm
 
     /**
      * @param string|array $path
-     * @param string $context
+     * @param string|null $context
      * @return array
      */
     protected function getFiles($path, $context = null)
@@ -271,16 +371,24 @@ class Blueprint extends BlueprintForm
         /** @var UniformResourceLocator $locator */
         $locator = Grav::instance()['locator'];
 
-        if (\is_string($path) && !$locator->isStream($path)) {
+        if (is_string($path) && !$locator->isStream($path)) {
+            if (is_file($path)) {
+                return [$path];
+            }
+
             // Find path overrides.
-            $paths = (array) ($this->overrides[$path] ?? null);
+            if (null === $context) {
+                $paths = (array) ($this->overrides[$path] ?? null);
+            } else {
+                $paths = [];
+            }
 
             // Add path pointing to default context.
             if ($context === null) {
                 $context = $this->context;
             }
 
-            if ($context && $context[\strlen($context)-1] !== '/') {
+            if ($context && $context[strlen($context)-1] !== '/') {
                 $context .= '/';
             }
 
@@ -297,7 +405,7 @@ class Blueprint extends BlueprintForm
 
         $files = [];
         foreach ($paths as $lookup) {
-            if (\is_string($lookup) && strpos($lookup, '://')) {
+            if (is_string($lookup) && strpos($lookup, '://')) {
                 $files = array_merge($files, $locator->findResources($lookup));
             } else {
                 $files[] = $lookup;
@@ -311,12 +419,13 @@ class Blueprint extends BlueprintForm
      * @param array $field
      * @param string $property
      * @param array $call
+     * @return void
      */
     protected function dynamicData(array &$field, $property, array &$call)
     {
         $params = $call['params'];
 
-        if (\is_array($params)) {
+        if (is_array($params)) {
             $function = array_shift($params);
         } else {
             $function = $params;
@@ -327,18 +436,18 @@ class Blueprint extends BlueprintForm
 
         $data = null;
         if (!$f) {
-            if (\function_exists($o)) {
-                $data = \call_user_func_array($o, $params);
+            if (function_exists($o)) {
+                $data = call_user_func_array($o, $params);
             }
         } else {
             if (method_exists($o, $f)) {
-                $data = \call_user_func_array([$o, $f], $params);
+                $data = call_user_func_array([$o, $f], $params);
             }
         }
 
         // If function returns a value,
         if (null !== $data) {
-            if (\is_array($data) && isset($field[$property]) && \is_array($field[$property])) {
+            if (is_array($data) && isset($field[$property]) && is_array($field[$property])) {
                 // Combine field and @data-field together.
                 $field[$property] += $data;
             } else {
@@ -352,15 +461,33 @@ class Blueprint extends BlueprintForm
      * @param array $field
      * @param string $property
      * @param array $call
+     * @return void
      */
     protected function dynamicConfig(array &$field, $property, array &$call)
     {
-        $value = $call['params'];
+        $params = $call['params'];
+        if (is_array($params)) {
+            $value = array_shift($params);
+            $params = array_shift($params);
+        } else {
+            $value = $params;
+            $params = [];
+        }
+
         $default = $field[$property] ?? null;
         $config = Grav::instance()['config']->get($value, $default);
+        if (!empty($field['value_only'])) {
+            $config = array_combine($config, $config);
+        }
 
         if (null !== $config) {
-            $field[$property] = $config;
+            if (!empty($params['append']) && is_array($config) && isset($field[$property]) && is_array($field[$property])) {
+                // Combine field and @config-field together.
+                $field[$property] += $config;
+            } else {
+                // Or create/replace field with @config-field.
+                $field[$property] = $config;
+            }
         }
     }
 
@@ -368,6 +495,7 @@ class Blueprint extends BlueprintForm
      * @param array $field
      * @param string $property
      * @param array $call
+     * @return void
      */
     protected function dynamicSecurity(array &$field, $property, array &$call)
     {
@@ -380,18 +508,44 @@ class Blueprint extends BlueprintForm
 
         /** @var UserInterface|null $user */
         $user = $grav['user'] ?? null;
-        foreach ($actions as $action) {
-            if (!$user || !$user->authorize($action)) {
-                $this->addPropertyRecursive($field, 'validate', ['ignore' => true]);
-                return;
+        $success = null !== $user;
+        if ($success) {
+            $success = $this->resolveActions($user, $actions);
+        }
+        if (!$success) {
+            $this->addPropertyRecursive($field, 'validate', ['ignore' => true]);
+        }
+    }
+
+    /**
+     * @param UserInterface|null $user
+     * @param array $actions
+     * @param string $op
+     * @return bool
+     */
+    protected function resolveActions(UserInterface $user, array $actions, string $op = 'and')
+    {
+        $c = $i = count($actions);
+        foreach ($actions as $key => $action) {
+            if (!is_int($key) && is_array($actions)) {
+                $i -= $this->resolveActions($user, $action, $key);
+            } elseif ($user->authorize($action)) {
+                $i--;
             }
         }
+
+        if ($op === 'and') {
+            return $i === 0;
+        }
+
+        return $c !== $i;
     }
 
     /**
      * @param array $field
      * @param string $property
      * @param array $call
+     * @return void
      */
     protected function dynamicScope(array &$field, $property, array &$call)
     {
@@ -400,7 +554,7 @@ class Blueprint extends BlueprintForm
         }
 
         $scopes = (array)$call['params'];
-        $matches = \in_array($this->scope, $scopes, true);
+        $matches = in_array($this->scope, $scopes, true);
         if ($this->scope && $property !== 'ignore') {
             $matches = !$matches;
         }
@@ -411,9 +565,15 @@ class Blueprint extends BlueprintForm
         }
     }
 
+    /**
+     * @param array $field
+     * @param string $property
+     * @param mixed $value
+     * @return void
+     */
     protected function addPropertyRecursive(array &$field, $property, $value)
     {
-        if (\is_array($value) && isset($field[$property]) && \is_array($field[$property])) {
+        if (is_array($value) && isset($field[$property]) && is_array($field[$property])) {
             $field[$property] = array_merge_recursive($field[$property], $value);
         } else {
             $field[$property] = $value;

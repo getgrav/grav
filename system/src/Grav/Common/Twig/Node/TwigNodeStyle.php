@@ -3,19 +3,25 @@
 /**
  * @package    Grav\Common\Twig
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Common\Twig\Node;
 
+use LogicException;
 use Twig\Compiler;
 use Twig\Node\Expression\AbstractExpression;
 use Twig\Node\Node;
 use Twig\Node\NodeCaptureInterface;
 
+/**
+ * Class TwigNodeStyle
+ * @package Grav\Common\Twig\Node
+ */
 class TwigNodeStyle extends Node implements NodeCaptureInterface
 {
+    /** @var string */
     protected $tagName = 'style';
 
     /**
@@ -28,31 +34,27 @@ class TwigNodeStyle extends Node implements NodeCaptureInterface
      * @param int $lineno
      * @param string|null $tag
      */
-    public function __construct(
-        Node $body = null,
-        AbstractExpression $file = null,
-        AbstractExpression $group = null,
-        AbstractExpression $priority = null,
-        AbstractExpression $attributes = null,
-        $lineno = 0,
-        $tag = null
-    )
+    public function __construct(?Node $body, ?AbstractExpression $file, ?AbstractExpression $group, ?AbstractExpression $priority, ?AbstractExpression $attributes, $lineno = 0, $tag = null)
     {
-        parent::__construct(['body' => $body, 'file' => $file, 'group' => $group, 'priority' => $priority, 'attributes' => $attributes], [], $lineno, $tag);
+        $nodes = ['body' => $body, 'file' => $file, 'group' => $group, 'priority' => $priority, 'attributes' => $attributes];
+        $nodes = array_filter($nodes);
+
+        parent::__construct($nodes, [], $lineno, $tag);
     }
     /**
      * Compiles the node to PHP.
      *
-     * @param Compiler $compiler A Twig_Compiler instance
-     * @throws \LogicException
+     * @param Compiler $compiler A Twig Compiler instance
+     * @return void
+     * @throws LogicException
      */
-    public function compile(Compiler $compiler)
+    public function compile(Compiler $compiler): void
     {
         $compiler->addDebugInfo($this);
 
         $compiler->write("\$assets = \\Grav\\Common\\Grav::instance()['assets'];\n");
 
-        if ($this->getNode('attributes') !== null) {
+        if ($this->hasNode('attributes')) {
             $compiler
                 ->write('$attributes = ')
                 ->subcompile($this->getNode('attributes'))
@@ -66,7 +68,7 @@ class TwigNodeStyle extends Node implements NodeCaptureInterface
             $compiler->write('$attributes = [];' . "\n");
         }
 
-        if ($this->getNode('group') !== null) {
+        if ($this->hasNode('group')) {
             $compiler
                 ->write("\$attributes['group'] = ")
                 ->subcompile($this->getNode('group'))
@@ -78,14 +80,14 @@ class TwigNodeStyle extends Node implements NodeCaptureInterface
                 ->write("}\n");
         }
 
-        if ($this->getNode('priority') !== null) {
+        if ($this->hasNode('priority')) {
             $compiler
                 ->write("\$attributes['priority'] = (int)(")
                 ->subcompile($this->getNode('priority'))
                 ->raw(");\n");
         }
 
-        if ($this->getNode('file') !== null) {
+        if ($this->hasNode('file')) {
             $compiler
                 ->write('$assets->addCss(')
                 ->subcompile($this->getNode('file'))

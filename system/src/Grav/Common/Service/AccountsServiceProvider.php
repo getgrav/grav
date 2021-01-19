@@ -3,127 +3,155 @@
 /**
  * @package    Grav\Common\Service
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Common\Service;
 
 use Grav\Common\Config\Config;
-use Grav\Common\Debugger;
+use Grav\Common\Grav;
+use Grav\Common\Page\Header;
+use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\User\DataUser;
-use Grav\Common\User\FlexUser;
 use Grav\Common\User\User;
-use Grav\Framework\File\Formatter\YamlFormatter;
+use Grav\Events\PermissionsRegisterEvent;
+use Grav\Framework\Acl\Permissions;
+use Grav\Framework\Acl\PermissionsReader;
 use Grav\Framework\Flex\Flex;
-use Grav\Framework\Flex\FlexDirectory;
+use Grav\Framework\Flex\Interfaces\FlexIndexInterface;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 use RocketTheme\Toolbox\Event\Event;
-use RocketTheme\Toolbox\Event\EventDispatcher;
+use SplFileInfo;
+use Symfony\Component\EventDispatcher\EventDispatcher;
+use function define;
+use function defined;
+use function is_array;
 
+/**
+ * Class AccountsServiceProvider
+ * @package Grav\Common\Service
+ */
 class AccountsServiceProvider implements ServiceProviderInterface
 {
+    /**
+     * @param Container $container
+     * @return void
+     */
     public function register(Container $container)
     {
-        $container['accounts'] = function (Container $container) {
-            $type = strtolower(defined('GRAV_USER_INSTANCE') ? GRAV_USER_INSTANCE : $container['config']->get('system.accounts.type', 'data'));
-            if ($type === 'flex') {
-                /** @var Debugger $debugger */
-                $debugger = $container['debugger'];
-                $debugger->addMessage('User Accounts: Flex Directory');
-                return $this->flexAccounts($container);
+        $container['permissions'] = static function (Grav $container) {
+            /** @var Config $config */
+            $config = $container['config'];
+
+            $permissions = new Permissions();
+            $permissions->addTypes($config->get('permissions.types', []));
+
+            $array = $config->get('permissions.actions');
+            if (is_array($array)) {
+                $actions = PermissionsReader::fromArray($array, $permissions->getTypes());
+                $permissions->addActions($actions);
             }
 
-            return $this->dataAccounts($container);
+            $event = new PermissionsRegisterEvent($permissions);
+            $container->dispatchEvent($event);
+
+            return $permissions;
         };
 
-        $container['users'] = $container->factory(function (Container $container) {
+        $container['accounts'] = function (Container $container) {
+            $type = $this->initialize($container);
+
+            return $type === 'flex' ? $this->flexAccounts($container) : $this->regularAccounts($container);
+        };
+
+        $container['user_groups'] = static function (Container $container) {
+            /** @var Flex $flex */
+            $flex = $container['flex'];
+            $directory = $flex->getDirectory('user-groups');
+
+            return $directory ? $directory->getIndex() : null;
+        };
+
+        $container['users'] = $container->factory(static function (Container $container) {
             user_error('Grav::instance()[\'users\'] is deprecated since Grav 1.6, use Grav::instance()[\'accounts\'] instead', E_USER_DEPRECATED);
 
             return $container['accounts'];
         });
     }
 
-    protected function dataAccounts(Container $container)
+    /**
+     * @param Container $container
+     * @return string
+     */
+    protected function initialize(Container $container): string
     {
-        if (!defined('GRAV_USER_INSTANCE')) {
-            define('GRAV_USER_INSTANCE', 'DATA');
+        $isDefined = defined('GRAV_USER_INSTANCE');
+        $type = strtolower($isDefined ? GRAV_USER_INSTANCE : $container['config']->get('system.accounts.type', 'regular'));
+
+        if ($type === 'flex') {
+            if (!$isDefined) {
+                define('GRAV_USER_INSTANCE', 'FLEX');
+            }
+
+            /** @var EventDispatcher $dispatcher */
+            $dispatcher = $container['events'];
+
+            // Stop /admin/user from working, display error instead.
+            $dispatcher->addListener(
+                'onAdminPage',
+                static function (Event $event) {
+                    $grav = Grav::instance();
+                    $admin = $grav['admin'];
+                    [$base,$location,] = $admin->getRouteDetails();
+                    if ($location !== 'user' || isset($grav['flex_objects'])) {
+                        return;
+                    }
+
+                    /** @var PageInterface $page */
+                    $page = $event['page'];
+                    $page->init(new SplFileInfo('plugin://admin/pages/admin/error.md'));
+                    $page->routable(true);
+                    $header = $page->header();
+                    $header->title = 'Please install missing plugin';
+                    $page->content("## Please install and enable **[Flex Objects]({$base}/plugins/flex-objects)** plugin. It is required to edit **Flex User Accounts**.");
+
+                    /** @var Header $header */
+                    $header = $page->header();
+                    $directory = $grav['accounts']->getFlexDirectory();
+                    $menu = $directory->getConfig('admin.menu.list');
+                    $header->access = $menu['authorize'] ?? ['admin.super'];
+                },
+                100000
+            );
+        } elseif (!$isDefined) {
+            define('GRAV_USER_INSTANCE', 'REGULAR');
         }
 
+        return $type;
+    }
+
+    /**
+     * @param Container $container
+     * @return DataUser\UserCollection
+     */
+    protected function regularAccounts(Container $container)
+    {
         // Use User class for backwards compatibility.
         return new DataUser\UserCollection(User::class);
     }
 
+    /**
+     * @param Container $container
+     * @return FlexIndexInterface|null
+     */
     protected function flexAccounts(Container $container)
     {
-        if (!defined('GRAV_USER_INSTANCE')) {
-            define('GRAV_USER_INSTANCE', 'FLEX');
-        }
+        /** @var Flex $flex */
+        $flex = $container['flex'];
+        $directory = $flex->getDirectory('user-accounts');
 
-        /** @var Config $config */
-        $config = $container['config'];
-
-        $options = [
-            'enabled' => true,
-            'data' => [
-                'object' => User::class, // Use User class for backwards compatibility.
-                'collection' => FlexUser\UserCollection::class,
-                'index' => FlexUser\UserIndex::class,
-                'storage' => $this->getFlexStorage($config->get('system.accounts.storage', 'file')),
-                'search' => [
-                    'options' => [
-                        'contains' => 1
-                    ],
-                    'fields' => [
-                        'key',
-                        'email'
-                    ]
-                ]
-            ]
-        ] + ($config->get('plugins.flex-objects.object') ?: []);
-
-        $directory = new FlexDirectory('accounts', 'blueprints://user/accounts.yaml', $options);
-
-        /** @var EventDispatcher $dispatcher */
-        $dispatcher = $container['events'];
-        $dispatcher->addListener('onFlexInit', function (Event $event) use ($directory) {
-            /** @var Flex $flex */
-            $flex = $event['flex'];
-            $flex->addDirectory($directory);
-        });
-
-        return $directory->getIndex();
-    }
-
-    protected function getFlexStorage($config)
-    {
-        if (\is_array($config)) {
-            return $config;
-        }
-
-        if ($config === 'folder') {
-            return [
-                'class' => FlexUser\Storage\UserFolderStorage::class,
-                'options' => [
-                    'formatter' => ['class' => YamlFormatter::class],
-                    'folder' => 'account://',
-                    'pattern' => '{FOLDER}/{KEY:2}/{KEY}/user.yaml',
-                    'key' => 'username',
-                    'indexed' => true
-                ],
-            ];
-        }
-
-        return [
-            'class' => FlexUser\Storage\UserFileStorage::class,
-            'options' => [
-                'formatter' => ['class' => YamlFormatter::class],
-                'folder' => 'account://',
-                'pattern' => '{FOLDER}/{KEY}.yaml',
-                'key' => 'storage_key',
-                'indexed' => true
-            ],
-        ];
+        return $directory ? $directory->getIndex() : null;
     }
 }

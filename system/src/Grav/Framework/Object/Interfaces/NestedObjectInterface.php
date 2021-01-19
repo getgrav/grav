@@ -3,11 +3,13 @@
 /**
  * @package    Grav\Framework\Object
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Framework\Object\Interfaces;
+
+use RuntimeException;
 
 /**
  * Common Interface for both Objects and Collections
@@ -35,7 +37,7 @@ interface NestedObjectInterface extends ObjectInterface
      * @param  mixed        $value       New value.
      * @param  string|null  $separator   Separator, defaults to '.'
      * @return $this
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
     public function setNestedProperty($property, $value, $separator = null);
 
@@ -44,7 +46,7 @@ interface NestedObjectInterface extends ObjectInterface
      * @param  mixed  $default          Default value.
      * @param  string|null $separator   Separator, defaults to '.'
      * @return $this
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
     public function defNestedProperty($property, $default, $separator = null);
 
@@ -52,7 +54,7 @@ interface NestedObjectInterface extends ObjectInterface
      * @param  string       $property   Object property to be unset.
      * @param  string|null  $separator  Separator, defaults to '.'
      * @return $this
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
     public function unsetNestedProperty($property, $separator = null);
 }

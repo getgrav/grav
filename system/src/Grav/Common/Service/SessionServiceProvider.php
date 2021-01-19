@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Service
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -14,16 +14,24 @@ use Grav\Common\Debugger;
 use Grav\Common\Session;
 use Grav\Common\Uri;
 use Grav\Common\Utils;
+use Grav\Framework\Session\Messages;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
-use RocketTheme\Toolbox\Session\Message;
 
+/**
+ * Class SessionServiceProvider
+ * @package Grav\Common\Service
+ */
 class SessionServiceProvider implements ServiceProviderInterface
 {
+    /**
+     * @param Container $container
+     * @return void
+     */
     public function register(Container $container)
     {
         // Define session service.
-        $container['session'] = function ($c) {
+        $container['session'] = static function ($c) {
             /** @var Config $config */
             $config = $c['config'];
 
@@ -36,6 +44,7 @@ class SessionServiceProvider implements ServiceProviderInterface
             $cookie_httponly = (bool)$config->get('system.session.httponly', true);
             $cookie_lifetime = (int)$config->get('system.session.timeout', 1800);
             $cookie_path = $config->get('system.session.path');
+            $cookie_samesite = $config->get('system.session.samesite', 'Lax');
             if (null === $cookie_path) {
                 $cookie_path = '/' . trim(Uri::filterPath($uri->rootUrl(false)), '/');
             }
@@ -87,7 +96,8 @@ class SessionServiceProvider implements ServiceProviderInterface
                 'cookie_path' => $cookie_path,
                 'cookie_domain' => $cookie_domain,
                 'cookie_secure' => $cookie_secure,
-                'cookie_httponly' => $cookie_httponly
+                'cookie_httponly' => $cookie_httponly,
+                'cookie_samesite' => $cookie_samesite
             ] + (array) $config->get('system.session.options');
 
             $session = new Session($options);
@@ -103,14 +113,14 @@ class SessionServiceProvider implements ServiceProviderInterface
                 $debugger = $c['debugger'];
                 $debugger->addMessage('Inactive session: session messages may disappear', 'warming');
 
-                return new Message;
+                return new Messages();
             }
 
             /** @var Session $session */
             $session = $c['session'];
 
-            if (!isset($session->messages)) {
-                $session->messages = new Message;
+            if (!$session->messages instanceof Messages) {
+                $session->messages = new Messages();
             }
 
             return $session->messages;

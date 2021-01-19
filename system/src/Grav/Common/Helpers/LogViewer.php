@@ -3,14 +3,24 @@
 /**
  * @package    Grav\Common\Helpers
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Common\Helpers;
 
+use DateTime;
+use function array_slice;
+use function is_array;
+use function is_string;
+
+/**
+ * Class LogViewer
+ * @package Grav\Common\Helpers
+ */
 class LogViewer
 {
+    /** @var string */
     protected $pattern = '/\[(?P<date>.*)\] (?P<logger>\w+).(?P<level>\w+): (?P<message>.*[^ ]+) (?P<context>[^ ]+) (?P<extra>[^ ]+)/';
 
     /**
@@ -39,17 +49,22 @@ class LogViewer
      *
      * @param string $filepath
      * @param int $lines
-     * @return bool|string
+     * @return string|false
      */
-    public function tail($filepath, $lines = 1) {
+    public function tail($filepath, $lines = 1)
+    {
 
         $f = @fopen($filepath, "rb");
-        if ($f === false) return false;
-
-        else $buffer = ($lines < 2 ? 64 : ($lines < 10 ? 512 : 4096));
+        if ($f === false) {
+            return false;
+        } else {
+            $buffer = ($lines < 2 ? 64 : ($lines < 10 ? 512 : 4096));
+        }
 
         fseek($f, -1, SEEK_END);
-        if (fread($f, 1) != "\n") $lines -= 1;
+        if (fread($f, 1) != "\n") {
+            $lines -= 1;
+        }
 
         // Start reading
         $output = '';
@@ -83,7 +98,7 @@ class LogViewer
      * Helper class to get level color
      *
      * @param string $level
-     * @return mixed|string
+     * @return string
      */
     public static function levelColor($level)
     {
@@ -108,9 +123,10 @@ class LogViewer
      */
     public function parse($line)
     {
-        if( !is_string($line) || strlen($line) === 0) {
+        if (!is_string($line) || strlen($line) === 0) {
             return array();
         }
+
         preg_match($this->pattern, $line, $data);
         if (!isset($data['date'])) {
             return array();
@@ -123,7 +139,7 @@ class LogViewer
         }
 
         return array(
-            'date' => \DateTime::createFromFormat('Y-m-d H:i:s', $data['date']),
+            'date' => DateTime::createFromFormat('Y-m-d H:i:s', $data['date']),
             'logger' => $data['logger'],
             'level' => $data['level'],
             'message' => $data['message'],
@@ -143,7 +159,7 @@ class LogViewer
     public static function parseTrace($trace, $rows = 10)
     {
         $lines = array_filter(preg_split('/#\d*/m', $trace));
+
         return array_slice($lines, 0, $rows);
     }
-
 }

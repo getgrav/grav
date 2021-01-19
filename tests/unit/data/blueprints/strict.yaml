@@ -1,0 +1,15 @@
+form:
+  validation: strict
+
+  fields:
+    tabs:
+      type: tabs
+      fields:
+        tab:
+          type: tab
+          fields:
+            test:
+              type: text
+              label: Test
+              validate:
+                required: true

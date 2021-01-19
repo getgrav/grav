@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -13,58 +13,91 @@ use Grav\Common\Config\Config;
 use Grav\Common\Language\Language;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Page\Pages;
+use Grav\Framework\Route\Route;
 use Grav\Framework\Route\RouteFactory;
 use Grav\Framework\Uri\UriFactory;
 use Grav\Framework\Uri\UriPartsFilter;
 use RocketTheme\Toolbox\Event\Event;
+use RuntimeException;
+use function array_key_exists;
+use function count;
+use function is_array;
+use function is_string;
+use function strlen;
 
+/**
+ * Class Uri
+ * @package Grav\Common
+ */
 class Uri
 {
     const HOSTNAME_REGEX = '/^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/';
 
-    /** @var \Grav\Framework\Uri\Uri */
+    /** @var \Grav\Framework\Uri\Uri|null */
     protected static $currentUri;
 
-    /** @var \Grav\Framework\Route\Route */
+    /** @var Route|null */
     protected static $currentRoute;
 
+    /** @var string */
     public $url;
 
     // Uri parts.
+    /** @var string|null */
     protected $scheme;
+    /** @var string|null */
     protected $user;
+    /** @var string|null */
     protected $password;
+    /** @var string|null */
     protected $host;
+    /** @var int|null */
     protected $port;
+    /** @var string */
     protected $path;
+    /** @var string */
     protected $query;
+    /** @var string|null */
     protected $fragment;
 
     // Internal stuff.
+    /** @var string */
     protected $base;
+    /** @var string|null */
     protected $basename;
+    /** @var string */
     protected $content_path;
+    /** @var string|null */
     protected $extension;
+    /** @var string */
     protected $env;
+    /** @var array */
     protected $paths;
+    /** @var array */
     protected $queries;
+    /** @var array */
     protected $params;
+    /** @var string */
     protected $root;
+    /** @var string */
+    protected $setup_base;
+    /** @var string */
     protected $root_path;
+    /** @var string */
     protected $uri;
-    protected $content_type;
+    /** @var array */
     protected $post;
 
     /**
      * Uri constructor.
-     * @param string|array $env
+     * @param string|array|null $env
      */
     public function __construct($env = null)
     {
         if (is_string($env)) {
             $this->createFromString($env);
         } else {
-            $this->createFromEnvironment(\is_array($env) ? $env : $_SERVER);
+            $this->createFromEnvironment(is_array($env) ? $env : $_SERVER);
         }
     }
 
@@ -73,7 +106,6 @@ class Uri
      * Used for testing purposes.
      *
      * @param string $url the URL to use in the class
-     *
      * @return $this
      */
     public function initializeWithUrl($url = '')
@@ -90,7 +122,6 @@ class Uri
      *
      * @param string $url
      * @param string $root_path
-     *
      * @return $this
      */
     public function initializeWithUrlAndRootPath($url, $root_path)
@@ -105,8 +136,7 @@ class Uri
      * Validate a hostname
      *
      * @param string $hostname The hostname
-     *
-     * @return boolean
+     * @return bool
      */
     public function validateHostname($hostname)
     {
@@ -115,6 +145,8 @@ class Uri
 
     /**
      * Initializes the URI object based on the url set on the object
+     *
+     * @return void
      */
     public function init()
     {
@@ -133,13 +165,19 @@ class Uri
 
         // Handle custom base
         $custom_base = rtrim($grav['config']->get('system.custom_base_url'), '/');
-
         if ($custom_base) {
             $custom_parts = parse_url($custom_base);
+            if ($custom_parts === false) {
+                throw new RuntimeException('Bad configuration: system.custom_base_url');
+            }
             $orig_root_path = $this->root_path;
             $this->root_path = isset($custom_parts['path']) ? rtrim($custom_parts['path'], '/') : '';
             if (isset($custom_parts['scheme'])) {
                 $this->base = $custom_parts['scheme'] . '://' . $custom_parts['host'];
+                $this->port = $custom_parts['port'] ?? null;
+                if ($this->port !== null && $config->get('system.reverse_proxy_setup') === false) {
+                    $this->base .= ':' . (string)$this->port;
+                }
                 $this->root = $custom_base;
             } else {
                 $this->root = $this->base . $this->root_path;
@@ -158,6 +196,7 @@ class Uri
         if ($setup_base) {
             $uri = preg_replace('|^' . preg_quote($setup_base, '|') . '|', '', $uri);
         }
+        $this->setup_base = $setup_base;
 
         // process params
         $uri = $this->processParams($uri, $config->get('system.param_sep'));
@@ -205,15 +244,15 @@ class Uri
         $grav['base_url_relative'] = $this->rootUrl(false);
         $grav['base_url'] = $config->get('system.absolute_urls') ? $grav['base_url_absolute'] : $grav['base_url_relative'];
 
-        RouteFactory::setRoot($this->root_path);
+        RouteFactory::setRoot($this->root_path . $setup_base);
         RouteFactory::setLanguage($language->getLanguageURLPrefix());
+        RouteFactory::setParamValueDelimiter($config->get('system.param_sep'));
     }
 
     /**
      * Return URI path.
      *
-     * @param string $id
-     *
+     * @param int|null $id
      * @return string|string[]
      */
     public function paths($id = null)
@@ -230,7 +269,6 @@ class Uri
      *
      * @param bool $absolute True to include full path.
      * @param bool $domain True to include domain. Works only if first parameter is also true.
-     *
      * @return string
      */
     public function route($absolute = false, $domain = false)
@@ -241,7 +279,7 @@ class Uri
     /**
      * Return full query string or a single query attribute.
      *
-     * @param string $id Optional attribute. Get a single query attribute if set
+     * @param string|null $id Optional attribute. Get a single query attribute if set
      * @param bool $raw If true and $id is not set, return the full query array. Otherwise return the query string
      *
      * @return string|array Returns an array if $id = null and $raw = true
@@ -266,9 +304,8 @@ class Uri
     /**
      * Return all or a single query parameter as a URI compatible string.
      *
-     * @param string $id Optional parameter name.
+     * @param string|null $id Optional parameter name.
      * @param boolean $array return the array format or not
-     *
      * @return null|string|array
      */
     public function params($id = null, $array = false)
@@ -299,24 +336,23 @@ class Uri
     /**
      * Get URI parameter.
      *
-     * @param string $id
-     *
+     * @param string|null $id
+     * @param string|bool|null $default
      * @return bool|string
      */
-    public function param($id)
+    public function param($id, $default = false)
     {
         if (isset($this->params[$id])) {
             return html_entity_decode(rawurldecode($this->params[$id]), ENT_COMPAT | ENT_HTML401, 'UTF-8');
         }
 
-        return false;
+        return $default;
     }
 
     /**
      * Gets the Fragment portion of a URI (eg #target)
      *
-     * @param string $fragment
-     *
+     * @param string|null $fragment
      * @return string|null
      */
     public function fragment($fragment = null)
@@ -331,7 +367,6 @@ class Uri
      * Return URL.
      *
      * @param bool $include_host Include hostname.
-     *
      * @return string
      */
     public function url($include_host = false)
@@ -348,7 +383,7 @@ class Uri
     /**
      * Return the Path
      *
-     * @return String The path of the URI
+     * @return string The path of the URI
      */
     public function path()
     {
@@ -359,7 +394,6 @@ class Uri
      * Return the Extension of the URI
      *
      * @param string|null $default
-     *
      * @return string The extension of the URI
      */
     public function extension($default = null)
@@ -371,12 +405,15 @@ class Uri
         return $this->extension;
     }
 
+    /**
+     * @return string
+     */
     public function method()
     {
         $method = isset($_SERVER['REQUEST_METHOD']) ? strtoupper($_SERVER['REQUEST_METHOD']) : 'GET';
 
-        if ($method === 'POST' && isset($_SERVER['X-HTTP-METHOD-OVERRIDE'])) {
-            $method = strtoupper($_SERVER['X-HTTP-METHOD-OVERRIDE']);
+        if ($method === 'POST' && isset($_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'])) {
+            $method = strtoupper($_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE']);
         }
 
         return $method;
@@ -385,7 +422,7 @@ class Uri
     /**
      * Return the scheme of the URI
      *
-     * @param bool $raw
+     * @param bool|null $raw
      * @return string The scheme of the URI
      */
     public function scheme($raw = false)
@@ -459,7 +496,7 @@ class Uri
     /**
      * Gets the environment name
      *
-     * @return String
+     * @return string
      */
     public function environment()
     {
@@ -470,7 +507,7 @@ class Uri
     /**
      * Return the basename of the URI
      *
-     * @return String The basename of the URI
+     * @return string The basename of the URI
      */
     public function basename()
     {
@@ -495,7 +532,7 @@ class Uri
     /**
      * Return the base of the URI
      *
-     * @return String The base of the URI
+     * @return string The base of the URI
      */
     public function base()
     {
@@ -506,7 +543,7 @@ class Uri
      * Return the base relative URL including the language prefix
      * or the base relative url if multi-language is not enabled
      *
-     * @return String The base of the URI
+     * @return string The base of the URI
      */
     public function baseIncludingLanguage()
     {
@@ -522,8 +559,7 @@ class Uri
      * Return root URL to the site.
      *
      * @param bool $include_host Include hostname.
-     *
-     * @return mixed
+     * @return string
      */
     public function rootUrl($include_host = false)
     {
@@ -549,9 +585,8 @@ class Uri
     /**
      * Return relative path to the referrer defaulting to current or given page.
      *
-     * @param string $default
-     * @param string $attributes
-     *
+     * @param string|null $default
+     * @param string|null $attributes
      * @return string
      */
     public function referrer($default = null, $attributes = null)
@@ -579,16 +614,26 @@ class Uri
         return substr($referrer, strlen($root));
     }
 
+    /**
+     * @return string
+     */
     public function __toString()
     {
         return static::buildUrl($this->toArray());
     }
 
+    /**
+     * @return string
+     */
     public function toOriginalString()
     {
         return static::buildUrl($this->toArray(true));
     }
 
+    /**
+     * @param bool $full
+     * @return array
+     */
     public function toArray($full = false)
     {
         if ($full === true) {
@@ -639,7 +684,7 @@ class Uri
             $ip = getenv('HTTP_FORWARDED_FOR');
         } elseif (getenv('HTTP_FORWARDED')) {
             $ip = getenv('HTTP_FORWARDED');
-        } elseif (getenv('REMOTE_ADDR')){
+        } elseif (getenv('REMOTE_ADDR')) {
             $ip = getenv('REMOTE_ADDR');
         } else {
             $ip = 'UNKNOWN';
@@ -665,13 +710,15 @@ class Uri
     /**
      * Returns current route.
      *
-     * @return \Grav\Framework\Route\Route
+     * @return Route
      */
     public static function getCurrentRoute()
     {
         if (!static::$currentRoute) {
+            /** @var Uri $uri */
             $uri = Grav::instance()['uri'];
-            static::$currentRoute = RouteFactory::createFromParts($uri->toArray());
+
+            static::$currentRoute = RouteFactory::createFromLegacyUri($uri);
         }
 
         return static::$currentRoute;
@@ -681,8 +728,7 @@ class Uri
      * Is this an external URL? if it starts with `http` then yes, else false
      *
      * @param  string $url the URL in question
-     *
-     * @return boolean      is eternal state
+     * @return bool      is eternal state
      */
     public static function isExternal($url)
     {
@@ -693,7 +739,6 @@ class Uri
      * The opposite of built-in PHP method parse_url()
      *
      * @param array $parsed_url
-     *
      * @return string
      */
     public static function buildUrl($parsed_url)
@@ -773,7 +818,6 @@ class Uri
         } elseif ($url_path === '/' || ($base_url !== '' && Utils::startsWith($url_path, $base_url))) {
             $url_path = $base_url . $url_path;
         } else {
-
             // see if page is relative to this or absolute
             if (Utils::startsWith($url_path, '/')) {
                 $normalized_url = Utils::normalizePath($base_url . $url_path);
@@ -835,8 +879,7 @@ class Uri
         }
 
         // handle absolute URLs
-        if (\is_array($url) && !$external && ($absolute === true || $grav['config']->get('system.absolute_urls', false))) {
-
+        if (is_array($url) && !$external && ($absolute === true || $grav['config']->get('system.absolute_urls', false))) {
             $url['scheme'] = $uri->scheme(true);
             $url['host'] = $uri->host();
             $url['port'] = $uri->port(true);
@@ -892,13 +935,24 @@ class Uri
         return $url;
     }
 
+    /**
+     * @param string $url
+     * @return array|false
+     */
     public static function parseUrl($url)
     {
         $grav = Grav::instance();
 
+        // Remove extra slash from streams, parse_url() doesn't like it.
+        if ($pos = strpos($url, ':///')) {
+            $url = substr_replace($url, '://', $pos, 4);
+        }
+
         $encodedUrl = preg_replace_callback(
             '%[^:/@?&=#]+%usD',
-            function ($matches) { return rawurlencode($matches[0]); },
+            static function ($matches) {
+                return rawurlencode($matches[0]);
+            },
             $url
         );
 
@@ -908,7 +962,7 @@ class Uri
             return false;
         }
 
-        foreach($parts as $name => $value) {
+        foreach ($parts as $name => $value) {
             $parts[$name] = rawurldecode($value);
         }
 
@@ -916,7 +970,7 @@ class Uri
             $parts['path'] = '';
         }
 
-        list($stripped_path, $params) = static::extractParams($parts['path'], $grav['config']->get('system.param_sep'));
+        [$stripped_path, $params] = static::extractParams($parts['path'], $grav['config']->get('system.param_sep'));
 
         if (!empty($params)) {
             $parts['path'] = $stripped_path;
@@ -926,6 +980,11 @@ class Uri
         return $parts;
     }
 
+    /**
+     * @param string $uri
+     * @param string $delimiter
+     * @return array
+     */
     public static function extractParams($uri, $delimiter)
     {
         $params = [];
@@ -935,7 +994,7 @@ class Uri
 
             foreach ($matches as $match) {
                 $param = explode($delimiter, $match[1]);
-                if (\count($param) === 2) {
+                if (count($param) === 2) {
                     $plain_var = filter_var(rawurldecode($param[1]), FILTER_SANITIZE_STRING);
                     $params[$param[0]] = $plain_var;
                     $uri = str_replace($match[0], '', $uri);
@@ -952,7 +1011,7 @@ class Uri
      * @param PageInterface   $page         the current page to use as reference
      * @param string $markdown_url the URL as it was written in the markdown
      * @param string $type         the type of URL, image | link
-     * @param null   $relative     if null, will use system default, if true will use relative links internally
+     * @param bool|null $relative     if null, will use system default, if true will use relative links internally
      *
      * @return string the more friendly formatted url
      */
@@ -1094,13 +1153,13 @@ class Uri
      * Removes extra double slashes and fixes back-slashes
      *
      * @param string $path
-     * @return mixed|string
+     * @return string
      */
     public static function cleanPath($path)
     {
         $regex = '/(\/)\/+/';
         $path = str_replace(['\\', '/ /'], '/', $path);
-        $path = preg_replace($regex,'$1',$path);
+        $path = preg_replace($regex, '$1', $path);
 
         return $path;
     }
@@ -1108,7 +1167,7 @@ class Uri
     /**
      * Filters the user info string.
      *
-     * @param string $info The raw user or password.
+     * @param string|null $info The raw user or password.
      * @return string The percent-encoded user or password string.
      */
     public static function filterUserInfo($info)
@@ -1124,7 +1183,7 @@ class Uri
      * will NOT double-encode characters that are already
      * percent-encoded.
      *
-     * @param  string $path The raw uri path.
+     * @param  string|null $path The raw uri path.
      * @return string       The RFC 3986 percent-encoded uri path.
      * @link   http://www.faqs.org/rfcs/rfc3986.html
      */
@@ -1136,7 +1195,7 @@ class Uri
     /**
      * Filters the query string or fragment of a URI.
      *
-     * @param string $query The raw uri query string.
+     * @param string|null $query The raw uri query string.
      * @return string The percent-encoded query string.
      */
     public static function filterQuery($query)
@@ -1146,6 +1205,7 @@ class Uri
 
     /**
      * @param array $env
+     * @return void
      */
     protected function createFromEnvironment(array $env)
     {
@@ -1157,7 +1217,7 @@ class Uri
         } elseif (isset($env['HTTP_CLOUDFRONT_FORWARDED_PROTO'])) {
             $this->scheme = $env['HTTP_CLOUDFRONT_FORWARDED_PROTO'];
         } elseif (isset($env['REQUEST_SCHEME']) && empty($env['HTTPS'])) {
-           $this->scheme = $env['REQUEST_SCHEME'];
+            $this->scheme = $env['REQUEST_SCHEME'];
         } else {
             $https = $env['HTTPS'] ?? '';
             $this->scheme = (empty($https) || strtolower($https) === 'off') ? 'http' : 'https';
@@ -1184,17 +1244,17 @@ class Uri
 
         // Build port.
         if (isset($env['HTTP_X_FORWARDED_PORT']) && Grav::instance()['config']->get('system.http_x_forwarded.port')) {
-           $this->port = (int)$env['HTTP_X_FORWARDED_PORT'];
+            $this->port = (int)$env['HTTP_X_FORWARDED_PORT'];
         } elseif (isset($env['X-FORWARDED-PORT'])) {
-           $this->port = (int)$env['X-FORWARDED-PORT'];
+            $this->port = (int)$env['X-FORWARDED-PORT'];
         } elseif (isset($env['HTTP_CLOUDFRONT_FORWARDED_PROTO'])) {
            // Since AWS Cloudfront does not provide a forwarded port header,
            // we have to build the port using the scheme.
-           $this->port = $this->port();
+            $this->port = $this->port();
         } elseif (isset($env['SERVER_PORT'])) {
-           $this->port = (int)$env['SERVER_PORT'];
+            $this->port = (int)$env['SERVER_PORT'];
         } else {
-           $this->port = null;
+            $this->port = null;
         }
 
         if ($this->hasStandardPort()) {
@@ -1248,7 +1308,7 @@ class Uri
         // Set Uri parts.
         $parts = parse_url($url);
         if ($parts === false) {
-            throw new \RuntimeException('Malformed URL: ' . $url);
+            throw new RuntimeException('Malformed URL: ' . $url);
         }
         $this->scheme = $parts['scheme'] ?? null;
         $this->user = $parts['user'] ?? null;
@@ -1273,6 +1333,9 @@ class Uri
         $this->reset();
     }
 
+    /**
+     * @return void
+     */
     protected function reset()
     {
         // resets
@@ -1294,9 +1357,9 @@ class Uri
      * Get post from either $_POST or JSON response object
      * By default returns all data, or can return a single item
      *
-     * @param string $element
-     * @param string $filter_type
-     * @return array|mixed|null
+     * @param string|null $element
+     * @param string|null $filter_type
+     * @return array|null
      */
     public function post($element = null, $filter_type = null)
     {
@@ -1335,7 +1398,7 @@ class Uri
         if (isset($_SERVER['CONTENT_TYPE'])) {
             $content_type = $_SERVER['CONTENT_TYPE'];
             if ($short) {
-                return Utils::substrToString($content_type,';');
+                return Utils::substrToString($content_type, ';');
             }
             return $content_type;
         }
@@ -1345,7 +1408,7 @@ class Uri
     /**
      * Check if this is a valid Grav extension
      *
-     * @param $extension
+     * @param string $extension
      * @return bool
      */
     public function isValidExtension($extension)
@@ -1362,16 +1425,36 @@ class Uri
     /**
      * Allow overriding of any element (be careful!)
      *
-     * @param $data
+     * @param array $data
      * @return Uri
      */
     public function setUriProperties($data)
     {
         foreach (get_object_vars($this) as $property => $default) {
-            if (!array_key_exists($property, $data)) continue;
+            if (!array_key_exists($property, $data)) {
+                continue;
+            }
             $this->{$property} = $data[$property]; // assign value to object
         }
         return $this;
+    }
+
+
+    /**
+     * Compatibility in case getallheaders() is not available on platform
+     */
+    public static function getAllHeaders()
+    {
+        if (!function_exists('getallheaders')) {
+            $headers = [];
+            foreach ($_SERVER as $name => $value) {
+                if (substr($name, 0, 5) == 'HTTP_') {
+                    $headers[str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))))] = $value;
+                }
+            }
+            return $headers;
+        }
+        return getallheaders();
     }
 
     /**
@@ -1398,6 +1481,9 @@ class Uri
         return $rootPath;
     }
 
+    /**
+     * @return string
+     */
     private function buildEnvironment()
     {
         // check for localhost variations
@@ -1413,7 +1499,6 @@ class Uri
      *
      * @param string $uri
      * @param string $delimiter
-     *
      * @return string
      */
     private function processParams($uri, $delimiter = ':')

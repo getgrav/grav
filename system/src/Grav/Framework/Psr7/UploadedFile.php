@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * @package    Grav\Framework\Psr7
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -15,6 +15,10 @@ use Grav\Framework\Psr7\Traits\UploadedFileDecoratorTrait;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UploadedFileInterface;
 
+/**
+ * Class UploadedFile
+ * @package Grav\Framework\Psr7
+ */
 class UploadedFile implements UploadedFileInterface
 {
     use UploadedFileDecoratorTrait;

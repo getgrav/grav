@@ -3,12 +3,13 @@
 /**
  * @package    Grav\Framework\Cache
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Framework\Cache\Adapter;
 
+use DateInterval;
 use Doctrine\Common\Cache\CacheProvider;
 use Grav\Framework\Cache\AbstractCache;
 use Grav\Framework\Cache\Exception\InvalidArgumentException;
@@ -19,9 +20,7 @@ use Grav\Framework\Cache\Exception\InvalidArgumentException;
  */
 class DoctrineCache extends AbstractCache
 {
-    /**
-     * @var CacheProvider
-     */
+    /** @var CacheProvider */
     protected $driver;
 
     /**
@@ -29,7 +28,7 @@ class DoctrineCache extends AbstractCache
      *
      * @param CacheProvider $doctrineCache
      * @param string $namespace
-     * @param null|int|\DateInterval $defaultLifetime
+     * @param null|int|DateInterval $defaultLifetime
      * @throws \Psr\SimpleCache\InvalidArgumentException|InvalidArgumentException
      */
     public function __construct(CacheProvider $doctrineCache, $namespace = '', $defaultLifetime = null)
@@ -99,7 +98,6 @@ class DoctrineCache extends AbstractCache
 
     /**
      * @inheritdoc
-     * @throws \Psr\SimpleCache\InvalidArgumentException|InvalidArgumentException
      */
     public function doDeleteMultiple($keys)
     {

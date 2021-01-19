@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Service
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -13,8 +13,16 @@ use Grav\Common\Grav;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 
+/**
+ * Class TaskServiceProvider
+ * @package Grav\Common\Service
+ */
 class TaskServiceProvider implements ServiceProviderInterface
 {
+    /**
+     * @param Container $container
+     * @return void
+     */
     public function register(Container $container)
     {
         $container['task'] = function (Grav $c) {

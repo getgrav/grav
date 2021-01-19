@@ -3,49 +3,72 @@
 /**
  * @package    Grav\Common\Page
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Common\Page\Medium;
 
+use Grav\Common\Config\Config;
+use Grav\Common\Data\Blueprint;
 use Grav\Common\Grav;
+use Grav\Common\Language\Language;
 use Grav\Common\Media\Interfaces\MediaCollectionInterface;
 use Grav\Common\Media\Interfaces\MediaObjectInterface;
-use Grav\Common\Page\Page;
+use Grav\Common\Media\Interfaces\MediaUploadInterface;
+use Grav\Common\Media\Traits\MediaUploadTrait;
+use Grav\Common\Page\Pages;
 use Grav\Common\Utils;
 use RocketTheme\Toolbox\ArrayTraits\ArrayAccess;
 use RocketTheme\Toolbox\ArrayTraits\Countable;
 use RocketTheme\Toolbox\ArrayTraits\Export;
 use RocketTheme\Toolbox\ArrayTraits\ExportInterface;
 use RocketTheme\Toolbox\ArrayTraits\Iterator;
+use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
+use function is_array;
 
-abstract class AbstractMedia implements ExportInterface, MediaCollectionInterface
+/**
+ * Class AbstractMedia
+ * @package Grav\Common\Page\Medium
+ */
+abstract class AbstractMedia implements ExportInterface, MediaCollectionInterface, MediaUploadInterface
 {
     use ArrayAccess;
     use Countable;
     use Iterator;
     use Export;
+    use MediaUploadTrait;
 
+    /** @var array */
     protected $items = [];
+    /** @var string|null */
     protected $path;
+    /** @var array */
     protected $images = [];
+    /** @var array */
     protected $videos = [];
+    /** @var array */
     protected $audios = [];
+    /** @var array */
     protected $files = [];
+    /** @var array|null */
     protected $media_order;
 
     /**
      * Return media path.
      *
-     * @return string
+     * @return string|null
      */
-    public function getPath()
+    public function getPath(): ?string
     {
         return $this->path;
     }
 
-    public function setPath(?string $path)
+    /**
+     * @param string|null $path
+     * @return void
+     */
+    public function setPath(?string $path): void
     {
         $this->path = $path;
     }
@@ -54,7 +77,7 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
      * Get medium by filename.
      *
      * @param string $filename
-     * @return Medium|null
+     * @return MediaObjectInterface|null
      */
     public function get($filename)
     {
@@ -80,7 +103,6 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
      */
     public function setTimestamps($timestamp = null)
     {
-        /** @var Medium $instance */
         foreach ($this->items as $instance) {
             $instance->setTimestamp($timestamp);
         }
@@ -150,14 +172,17 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
 
     /**
      * @param string $name
-     * @param MediaObjectInterface $file
+     * @param MediaObjectInterface|null $file
+     * @return void
      */
     public function add($name, $file)
     {
-        if (!$file) {
+        if (null === $file) {
             return;
         }
+
         $this->offsetSet($name, $file);
+
         switch ($file->type) {
             case 'image':
                 $this->images[$name] = $file;
@@ -174,6 +199,39 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
     }
 
     /**
+     * Create Medium from a file.
+     *
+     * @param  string $file
+     * @param  array  $params
+     * @return Medium|null
+     */
+    public function createFromFile($file, array $params = [])
+    {
+        return MediumFactory::fromFile($file, $params);
+    }
+
+        /**
+     * Create Medium from array of parameters
+     *
+     * @param  array          $items
+     * @param  Blueprint|null $blueprint
+     * @return Medium|null
+     */
+    public function createFromArray(array $items = [], Blueprint $blueprint = null)
+    {
+        return MediumFactory::fromArray($items, $blueprint);
+    }
+
+    /**
+     * @param MediaObjectInterface $mediaObject
+     * @return ImageFile
+     */
+    public function getImageFileObject(MediaObjectInterface $mediaObject): ImageFile
+    {
+        return ImageFile::open($mediaObject->get('filepath'));
+    }
+
+    /**
      * Order the media based on the page's media_order
      *
      * @param array $media
@@ -182,11 +240,14 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
     protected function orderMedia($media)
     {
         if (null === $this->media_order) {
-            /** @var Page $page */
-            $page = Grav::instance()['pages']->get($this->getPath());
-
-            if ($page && isset($page->header()->media_order)) {
-                $this->media_order = array_map('trim', explode(',', $page->header()->media_order));
+            $path = $this->getPath();
+            if (null !== $path) {
+                /** @var Pages $pages */
+                $pages = Grav::instance()['pages'];
+                $page = $pages->get($path);
+                if ($page && isset($page->header()->media_order)) {
+                    $this->media_order = array_map('trim', explode(',', $page->header()->media_order));
+                }
             }
         }
 
@@ -197,6 +258,11 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
         }
 
         return $media;
+    }
+
+    protected function fileExists(string $filename, string $destination): bool
+    {
+        return file_exists("{$destination}/{$filename}");
     }
 
     /**
@@ -239,6 +305,28 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
             }
         }
 
-        return array($name, $extension, $type, $extra);
+        return [$name, $extension, $type, $extra];
+    }
+
+    protected function getGrav(): Grav
+    {
+        return Grav::instance();
+    }
+
+    protected function getConfig(): Config
+    {
+        return $this->getGrav()['config'];
+    }
+
+    protected function getLanguage(): Language
+    {
+        return $this->getGrav()['language'];
+    }
+
+    protected function clearCache(): void
+    {
+        /** @var UniformResourceLocator $locator */
+        $locator = $this->getGrav()['locator'];
+        $locator->clearCache();
     }
 }

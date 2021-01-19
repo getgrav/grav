@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Object
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -42,6 +42,7 @@ trait ArrayAccessTrait
      *
      * @param mixed $offset  The offset to assign the value to.
      * @param mixed $value   The value to set.
+     * @return void
      */
     public function offsetSet($offset, $value)
     {
@@ -52,14 +53,10 @@ trait ArrayAccessTrait
      * Unsets an offset.
      *
      * @param mixed $offset  The offset to unset.
+     * @return void
      */
     public function offsetUnset($offset)
     {
         $this->unsetProperty($offset);
     }
-
-    abstract public function hasProperty($property);
-    abstract public function getProperty($property, $default = null);
-    abstract public function setProperty($property, $value);
-    abstract public function unsetProperty($property);
 }

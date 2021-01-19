@@ -5,11 +5,13 @@ declare(strict_types=1);
 /**
  * @package    Grav\Framework\File
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Framework\File\Interfaces;
+
+use Serializable;
 
 /**
  * Defines common interface for all file formatters.
@@ -24,8 +26,14 @@ namespace Grav\Framework\File\Interfaces;
  *
  * @since 1.6
  */
-interface FileFormatterInterface extends \Serializable
+interface FileFormatterInterface extends Serializable
 {
+    /**
+     * @return string
+     * @since 1.7
+     */
+    public function getMimeType(): string;
+
     /**
      * Get default file extension from current formatter (with dot).
      *
@@ -48,7 +56,6 @@ interface FileFormatterInterface extends \Serializable
      * Encode data into a string.
      *
      * @param mixed $data Data to be encoded.
-     *
      * @return string Returns encoded data as a string.
      * @api
      */
@@ -58,7 +65,6 @@ interface FileFormatterInterface extends \Serializable
      * Decode a string into data.
      *
      * @param string $data String to be decoded.
-     *
      * @return mixed Returns decoded data.
      * @api
      */

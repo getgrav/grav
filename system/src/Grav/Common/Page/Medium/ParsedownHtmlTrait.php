@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Page
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -12,20 +12,22 @@ namespace Grav\Common\Page\Medium;
 use Grav\Common\Markdown\Parsedown;
 use Grav\Common\Page\Markdown\Excerpts;
 
+/**
+ * Trait ParsedownHtmlTrait
+ * @package Grav\Common\Page\Medium
+ */
 trait ParsedownHtmlTrait
 {
-    /**
-     * @var \Grav\Common\Markdown\Parsedown
-     */
+    /** @var Parsedown|null */
     protected $parsedown;
 
     /**
      * Return HTML markup from the medium.
      *
-     * @param string $title
-     * @param string $alt
-     * @param string $class
-     * @param string $id
+     * @param string|null $title
+     * @param string|null $alt
+     * @param string|null $class
+     * @param string|null $id
      * @param bool $reset
      * @return string
      */

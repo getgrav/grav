@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -12,6 +12,7 @@ namespace Grav\Common;
 use Grav\Common\Config\Config;
 use Grav\Common\Page\Collection;
 use Grav\Common\Page\Interfaces\PageInterface;
+use function is_string;
 
 /**
  * The Taxonomy object is a singleton that holds a reference to a 'taxonomy map'. This map is
@@ -32,7 +33,9 @@ use Grav\Common\Page\Interfaces\PageInterface;
  */
 class Taxonomy
 {
+    /** @var array */
     protected $taxonomy_map;
+    /** @var Grav */
     protected $grav;
 
     /**
@@ -51,28 +54,56 @@ class Taxonomy
      * then adds those taxonomies to the map
      *
      * @param PageInterface  $page the page to process
-     * @param array $page_taxonomy
+     * @param array|null $page_taxonomy
      */
     public function addTaxonomy(PageInterface $page, $page_taxonomy = null)
     {
+        if (!$page->published()) {
+            return;
+        }
+
         if (!$page_taxonomy) {
             $page_taxonomy = $page->taxonomy();
         }
 
-        if (empty($page_taxonomy) || !$page->published()) {
+        if (empty($page_taxonomy)) {
             return;
         }
 
         /** @var Config $config */
         $config = $this->grav['config'];
-        if ($config->get('site.taxonomies')) {
-            foreach ((array)$config->get('site.taxonomies') as $taxonomy) {
-                if (isset($page_taxonomy[$taxonomy])) {
-                    foreach ((array)$page_taxonomy[$taxonomy] as $item) {
-                        $this->taxonomy_map[$taxonomy][(string)$item][$page->path()] = ['slug' => $page->slug()];
-                    }
-                }
+        $taxonomies = (array)$config->get('site.taxonomies');
+        foreach ($taxonomies as $taxonomy) {
+            $current = $page_taxonomy[$taxonomy] ?? null;
+            foreach ((array)$current as $item) {
+                $this->iterateTaxonomy($page, $taxonomy, '', $item);
             }
+        }
+    }
+
+    /**
+     * Iterate through taxonomy fields
+     *
+     * Reduces [taxonomy_type] to dot-notation where necessary
+     *
+     * @param PageInterface   $page     The Page to process
+     * @param string          $taxonomy Taxonomy type to add
+     * @param string          $key      Taxonomy type to concatenate
+     * @param iterable|string $value    Taxonomy value to add or iterate
+     * @return void
+     */
+    public function iterateTaxonomy(PageInterface $page, string $taxonomy, string $key, $value)
+    {
+        if (is_iterable($value)) {
+            foreach ($value as $identifier => $item) {
+                $identifier = "{$key}.{$identifier}";
+                $this->iterateTaxonomy($page, $taxonomy, $identifier, $item);
+            }
+        } elseif (is_string($value)) {
+            if (!empty($key)) {
+                $taxonomy = $taxonomy . $key;
+            }
+            $this->taxonomy_map[$taxonomy][(string) $value][$page->path()] = ['slug' => $page->slug()];
         }
     }
 
@@ -82,7 +113,6 @@ class Taxonomy
      *
      * @param  array  $taxonomies taxonomies to search, eg ['tag'=>['animal','cat']]
      * @param  string $operator   can be 'or' or 'and' (defaults to 'and')
-     *
      * @return Collection       Collection object set to contain matches found in the taxonomy map
      */
     public function findTaxonomy($taxonomies, $operator = 'and')
@@ -117,8 +147,7 @@ class Taxonomy
     /**
      * Gets and Sets the taxonomy map
      *
-     * @param  array $var the taxonomy map
-     *
+     * @param  array|null $var the taxonomy map
      * @return array      the taxonomy map
      */
     public function taxonomy($var = null)
@@ -134,7 +163,6 @@ class Taxonomy
      * Gets item keys per taxonomy
      *
      * @param  string $taxonomy       taxonomy name
-     *
      * @return array                  keys of this taxonomy
      */
     public function getTaxonomyItemKeys($taxonomy)

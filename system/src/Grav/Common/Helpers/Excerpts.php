@@ -9,10 +9,18 @@
 
 namespace Grav\Common\Helpers;
 
+use DOMDocument;
+use DOMElement;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Page\Markdown\Excerpts as ExcerptsObject;
+use Grav\Common\Page\Medium\Link;
 use Grav\Common\Page\Medium\Medium;
+use function is_array;
 
+/**
+ * Class Excerpts
+ * @package Grav\Common\Helpers
+ */
 class Excerpts
 {
     /**
@@ -72,7 +80,7 @@ class Excerpts
      */
     public static function getExcerptFromHtml($html, $tag)
     {
-        $doc = new \DOMDocument('1.0', 'UTF-8');
+        $doc = new DOMDocument('1.0', 'UTF-8');
         $internalErrors = libxml_use_internal_errors(true);
         $doc->loadHTML(mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'));
         libxml_use_internal_errors($internalErrors);
@@ -81,7 +89,7 @@ class Excerpts
         $excerpt = null;
         $inner = [];
 
-        /** @var \DOMElement $element */
+        /** @var DOMElement $element */
         foreach ($elements as $element) {
             $attributes = [];
             foreach ($element->attributes as $name => $value) {
@@ -95,7 +103,7 @@ class Excerpts
             ];
 
             foreach ($element->childNodes as $node) {
-                $inner[] = $doc->saveHTML($node);
+                    $inner[] = $doc->saveHTML($node);
             }
 
             $excerpt = array_merge_recursive($excerpt, ['element' => ['text' => implode('', $inner)]]);
@@ -172,7 +180,7 @@ class Excerpts
      * @param Medium $medium
      * @param string|array $url
      * @param PageInterface|null $page  Page, defaults to the current page object
-     * @return Medium
+     * @return Medium|Link
      */
     public static function processMediaActions($medium, $url, PageInterface $page = null)
     {

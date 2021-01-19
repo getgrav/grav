@@ -3,40 +3,49 @@
 /**
  * @package    Grav\Installer
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Installer;
 
 use Composer\Autoload\ClassLoader;
+use Exception;
 use Grav\Common\Cache;
 use Grav\Common\GPM\Installer;
 use Grav\Common\Grav;
 use Grav\Common\Plugins;
+use RuntimeException;
+use function class_exists;
+use function dirname;
+use function function_exists;
+use function is_string;
 
 /**
  * Grav installer.
  *
  * NOTE: This class can be initialized during upgrade from an older version of Grav. Make sure it runs there!
  */
-class Install
+final class Install
 {
-    private $requires = [
+    /** @var int Installer version. */
+    public $version = 1;
+
+    /** @var array */
+    public $requires = [
         'php' => [
             'name' => 'PHP',
             'versions' => [
-                '7.3' => '7.3.1',
-                '7.2' => '7.2.0',
-                '7.1' => '7.1.3',
-                '' => '7.2.14'
+                '7.4' => '7.4.0',
+                '7.3' => '7.3.6',
+                '' => '7.4.12'
             ]
         ],
         'grav' => [
             'name' => 'Grav',
             'versions' => [
-                '1.5' => '1.5.0',
-                '' => '1.5.7'
+                '1.6' => '1.6.0',
+                '' => '1.6.28'
             ]
         ],
         'plugins' => [
@@ -44,38 +53,42 @@ class Install
                 'name' => 'Admin',
                 'optional' => true,
                 'versions' => [
-                    '1.8' => '1.8.0',
-                    '' => '1.8.16'
+                    '1.9' => '1.9.0',
+                    '' => '1.9.13'
                 ]
             ],
             'email' => [
                 'name' => 'Email',
                 'optional' => true,
                 'versions' => [
-                    '2.7' => '2.7.0',
-                    '' => '2.7.2'
+                    '3.0' => '3.0.0',
+                    '' => '3.0.10'
                 ]
             ],
             'form' => [
                 'name' => 'Form',
                 'optional' => true,
                 'versions' => [
-                    '2.16' => '2.16.0',
-                    '' => '2.16.4'
+                    '4.1' => '4.1.0',
+                    '4.0' => '4.0.0',
+                    '3.0' => '3.0.0',
+                    '' => '4.1.2'
                 ]
             ],
             'login' => [
                 'name' => 'Login',
                 'optional' => true,
                 'versions' => [
-                    '2.8' => '2.8.0',
-                    '' => '2.8.3'
+                    '3.3' => '3.3.0',
+                    '3.0' => '3.0.0',
+                    '' => '3.3.6'
                 ]
             ],
         ]
     ];
 
-    private $ignores = [
+    /** @var array */
+    public $ignores = [
         'backup',
         'cache',
         'images',
@@ -86,15 +99,30 @@ class Install
         'robots.txt'
     ];
 
+    /** @var array */
     private $classMap = [
-        // 'Grav\\Installer\\Test' => __DIR__ . '/Test.php',
+        InstallException::class => __DIR__ . '/InstallException.php',
+        Versions::class => __DIR__ . '/Versions.php',
+        VersionUpdate::class => __DIR__ . '/VersionUpdate.php',
+        VersionUpdater::class => __DIR__ . '/VersionUpdater.php',
+        YamlUpdater::class => __DIR__ . '/YamlUpdater.php',
     ];
 
+    /** @var string|null */
     private $zip;
+
+    /** @var string|null */
     private $location;
 
+    /** @var VersionUpdater */
+    private $updater;
+
+    /** @var static */
     private static $instance;
 
+    /**
+     * @return static
+     */
     public static function instance()
     {
         if (null === self::$instance) {
@@ -108,13 +136,21 @@ class Install
     {
     }
 
-    public function setZip(string $zip)
+    /**
+     * @param string|null $zip
+     * @return $this
+     */
+    public function setZip(?string $zip)
     {
         $this->zip = $zip;
 
         return $this;
     }
 
+    /**
+     * @param string|null $zip
+     * @return void
+     */
     public function __invoke(?string $zip)
     {
         $this->zip = $zip;
@@ -127,7 +163,19 @@ class Install
                 $error[] = "{$req['title']} >= <strong>v{$req['minimum']}</strong> required, you have <strong>v{$req['installed']}</strong>";
             }
 
-            throw new \RuntimeException(implode("<br />\n", $error));
+            $errors = implode("<br />\n", $error);
+            if (\defined('GRAV_CLI') && GRAV_CLI) {
+                $errors = "\n\n" . strip_tags($errors) . "\n\n";
+                $errors .= <<<ERR
+Please install Grav 1.6.31 first by running following commands:
+
+wget -q https://getgrav.org/download/core/grav-update/1.6.31 -O tmp/grav-update-v1.6.31.zip
+bin/gpm direct-install -y tmp/grav-update-v1.6.31.zip
+rm tmp/grav-update.zip
+ERR;
+            }
+
+            throw new RuntimeException($errors);
         }
 
         $this->prepare();
@@ -144,7 +192,7 @@ class Install
     {
         $results = [];
 
-        $this->checkVersion($results, 'php','php', $this->requires['php'], PHP_VERSION);
+        $this->checkVersion($results, 'php', 'php', $this->requires['php'], PHP_VERSION);
         $this->checkVersion($results, 'grav', 'grav', $this->requires['grav'], GRAV_VERSION);
         $this->checkPlugins($results, $this->requires['plugins']);
 
@@ -152,22 +200,28 @@ class Install
     }
 
     /**
-     * @throws \RuntimeException
+     * @return void
+     * @throws RuntimeException
      */
     public function prepare(): void
     {
         // Locate the new Grav update and the target site from the filesystem.
-        $location = dirname(realpath(__DIR__), 4);
-        $target = dirname(realpath(GRAV_ROOT . '/index.php'));
-        if ($location === $target) {
+        $location = realpath(__DIR__);
+        $target = realpath(GRAV_ROOT . '/index.php');
+
+        if (!$location) {
+            throw new RuntimeException('Internal Error', 500);
+        }
+
+        if ($target && dirname($location, 4) === dirname($target)) {
             // We cannot copy files into themselves, abort!
-            throw new \RuntimeException('Grav has already been installed here!', 400);
+            throw new RuntimeException('Grav has already been installed here!', 400);
         }
 
         // Make sure that none of the Grav\Installer classes have been loaded, otherwise installation may fail!
         foreach ($this->classMap as $class_name => $path) {
-            if (\class_exists($class_name, false)) {
-                throw new \RuntimeException(sprintf('Cannot update Grav, class %s has already been loaded!', $class_name), 500);
+            if (class_exists($class_name, false)) {
+                throw new RuntimeException(sprintf('Cannot update Grav, class %s has already been loaded!', $class_name), 500);
             }
         }
 
@@ -179,27 +233,38 @@ class Install
         // Override Grav\Installer classes by using this version of Grav.
         $loader->addClassMap($this->classMap);
 
-        $this->location = $location;
+        $this->legacySupport();
+
+        $this->location = dirname($location, 4);
+
+        $versions = Versions::instance(GRAV_ROOT . '/user/config/versions.yaml');
+        $this->updater = new VersionUpdater('core/grav', __DIR__ . '/updates', $this->getVersion(), $versions);
+
+        $this->updater->preflight();
     }
 
     /**
-     * @throws \RuntimeException
+     * @return void
+     * @throws RuntimeException
      */
     public function install(): void
     {
         if (!$this->location) {
-            throw new \RuntimeException('Oops, installer was run without prepare()!', 500);
+            throw new RuntimeException('Oops, installer was run without prepare()!', 500);
         }
 
         try {
+            // Update user/config/version.yaml before copying the files to avoid frontend from setting the version schema.
+            $this->updater->install();
+
             Installer::install(
-                $this->zip,
+                $this->zip ?? '',
                 GRAV_ROOT,
                 ['sophisticated' => true, 'overwrite' => true, 'ignore_symlinks' => true, 'ignores' => $this->ignores],
                 $this->location,
                 !($this->zip && is_file($this->zip))
             );
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Installer::setError($e->getMessage());
         }
 
@@ -208,15 +273,18 @@ class Install
         $success = !(is_string($errorCode) || ($errorCode & (Installer::ZIP_OPEN_ERROR | Installer::ZIP_EXTRACT_ERROR)));
 
         if (!$success) {
-            throw new \RuntimeException(Installer::lastErrorMsg());
+            throw new RuntimeException(Installer::lastErrorMsg());
         }
     }
 
     /**
-     * @throws \RuntimeException
+     * @return void
+     * @throws RuntimeException
      */
     public function finalize(): void
     {
+        $this->updater->postflight();
+
         Cache::clearCache();
 
         clearstatcache();
@@ -225,6 +293,14 @@ class Install
         }
     }
 
+    /**
+     * @param array $results
+     * @param string $type
+     * @param string $name
+     * @param array $check
+     * @param string|null $version
+     * @return void
+     */
     protected function checkVersion(array &$results, $type, $name, array $check, $version): void
     {
         if (null === $version && !empty($check['optional'])) {
@@ -234,11 +310,11 @@ class Install
         $major = $minor = 0;
         $versions = $check['versions'] ?? [];
         foreach ($versions as $major => $minor) {
-            if (!$major || version_compare($version, $major, '<')) {
+            if (!$major || version_compare($version ?? '0', $major, '<')) {
                 continue;
             }
 
-            if (version_compare($version, $minor, '>=')) {
+            if (version_compare($version ?? '0', $minor, '>=')) {
                 return;
             }
 
@@ -265,9 +341,14 @@ class Install
         ];
     }
 
+    /**
+     * @param array $results
+     * @param array $plugins
+     * @return void
+     */
     protected function checkPlugins(array &$results, array $plugins): void
     {
-        if (!\class_exists('Plugins')) {
+        if (!class_exists('Plugins')) {
             return;
         }
 
@@ -283,5 +364,27 @@ class Install
             $check['name'] = ($blueprint->get('name') ?? $check['name'] ?? $name) . ' Plugin';
             $this->checkVersion($results, 'plugin', $name, $check, $version);
         }
+    }
+
+    /**
+     * @return string
+     */
+    protected function getVersion(): string
+    {
+        $definesFile = "{$this->location}/system/defines.php";
+        $content = file_get_contents($definesFile);
+        if (false === $content) {
+            return '';
+        }
+
+        preg_match("/define\('GRAV_VERSION', '([^']+)'\);/mu", $content, $matches);
+
+        return $matches[1] ?? '';
+    }
+
+    protected function legacySupport(): void
+    {
+        // Support install for Grav 1.6.0 - 1.6.20 by loading the original class from the older version of Grav.
+        class_exists(\Grav\Console\Cli\CacheCommand::class, true);
     }
 }

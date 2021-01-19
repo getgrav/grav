@@ -36,7 +36,6 @@ class FilesystemTest extends \Codeception\TestCase\Test
                 'basename' => '.',
                 'extension' => '',
                 'filename' => '',
-
             ]
         ],
         '././.' => [
@@ -97,6 +96,16 @@ class FilesystemTest extends \Codeception\TestCase\Test
             'dirname' => '/very/long/absolute',
             'pathinfo' => [
                 'dirname' => '/very/long/absolute',
+                'basename' => 'path',
+                'filename' => 'path',
+            ]
+        ],
+        '/very/long/absolute/../path' => [
+            'parent' => '/very/long',
+            'normalize' => '/very/long/path',
+            'dirname' => '/very/long/absolute/..',
+            'pathinfo' => [
+                'dirname' => '/very/long/absolute/..',
                 'basename' => 'path',
                 'filename' => 'path',
             ]

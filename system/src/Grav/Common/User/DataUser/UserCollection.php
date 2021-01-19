@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\User
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -16,7 +16,15 @@ use Grav\Common\User\Interfaces\UserCollectionInterface;
 use Grav\Common\User\Interfaces\UserInterface;
 use Grav\Common\Utils;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
+use RuntimeException;
+use function count;
+use function in_array;
+use function is_string;
 
+/**
+ * Class UserCollection
+ * @package Grav\Common\User\DataUser
+ */
 class UserCollection implements UserCollectionInterface
 {
     /** @var string */
@@ -41,20 +49,25 @@ class UserCollection implements UserCollectionInterface
      */
     public function load($username): UserInterface
     {
+        $username = (string)$username;
+
         $grav = Grav::instance();
         /** @var UniformResourceLocator $locator */
         $locator = $grav['locator'];
 
-        // force lowercase of username
-        $username = mb_strtolower($username);
+        // Filter username.
+        $username = $this->filterUsername($username);
 
         $filename = 'account://' . $username . YAML_EXT;
         $path = $locator->findResource($filename) ?: $locator->findResource($filename, true, true);
+        if (!is_string($path)) {
+            throw new RuntimeException('Internal Error');
+        }
         $file = CompiledYamlFile::instance($path);
         $content = (array)$file->content() + ['username' => $username, 'state' => 'enabled'];
 
         $userClass = $this->className;
-        $callable = function() {
+        $callable = static function () {
             $blueprints = new Blueprints;
 
             return $blueprints->get('user/account');
@@ -78,8 +91,16 @@ class UserCollection implements UserCollectionInterface
     {
         $fields = (array)$fields;
 
-        $account_dir = Grav::instance()['locator']->findResource('account://');
-        $files = $account_dir ? array_diff(scandir($account_dir), ['.', '..']) : [];
+        $grav = Grav::instance();
+        /** @var UniformResourceLocator $locator */
+        $locator = $grav['locator'];
+
+        $account_dir = $locator->findResource('account://');
+        if (!is_string($account_dir)) {
+            return $this->load('');
+        }
+
+        $files = array_diff(scandir($account_dir) ?: [], ['.', '..']);
 
         // Try with username first, you never know!
         if (in_array('username', $fields, true)) {
@@ -95,7 +116,7 @@ class UserCollection implements UserCollectionInterface
                 if (Utils::endsWith($file, YAML_EXT)) {
                     $find_user = $this->load(trim(pathinfo($file, PATHINFO_FILENAME)));
                     foreach ($fields as $field) {
-                        if ($find_user[$field] === $query) {
+                        if (isset($find_user[$field]) && $find_user[$field] === $query) {
                             return $find_user;
                         }
                     }
@@ -109,7 +130,6 @@ class UserCollection implements UserCollectionInterface
      * Remove user account.
      *
      * @param string $username
-     *
      * @return bool True if the action was performed
      */
     public function delete($username): bool
@@ -119,6 +139,9 @@ class UserCollection implements UserCollectionInterface
         return $file_path && unlink($file_path);
     }
 
+    /**
+     * @return int
+     */
     public function count(): int
     {
         // check for existence of a user account
@@ -126,5 +149,14 @@ class UserCollection implements UserCollectionInterface
         $accounts = glob($account_dir . '/*.yaml') ?: [];
 
         return count($accounts);
+    }
+
+    /**
+     * @param string $username
+     * @return string
+     */
+    protected function filterUsername(string $username): string
+    {
+        return mb_strtolower($username);
     }
 }

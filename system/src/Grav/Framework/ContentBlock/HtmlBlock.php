@@ -3,11 +3,15 @@
 /**
  * @package    Grav\Framework\ContentBlock
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Framework\ContentBlock;
+
+use RuntimeException;
+use function is_array;
+use function is_string;
 
 /**
  * HtmlBlock
@@ -16,10 +20,15 @@ namespace Grav\Framework\ContentBlock;
  */
 class HtmlBlock extends ContentBlock implements HtmlBlockInterface
 {
+    /** @var int */
     protected $version = 1;
+    /** @var array */
     protected $frameworks = [];
+    /** @var array */
     protected $styles = [];
+    /** @var array */
     protected $scripts = [];
+    /** @var array */
     protected $html = [];
 
     /**
@@ -74,7 +83,7 @@ class HtmlBlock extends ContentBlock implements HtmlBlockInterface
     }
 
     /**
-     * @return array[]
+     * @return array
      */
     public function toArray()
     {
@@ -98,7 +107,8 @@ class HtmlBlock extends ContentBlock implements HtmlBlockInterface
 
     /**
      * @param array $serialized
-     * @throws \RuntimeException
+     * @return void
+     * @throws RuntimeException
      */
     public function build(array $serialized)
     {
@@ -132,7 +142,7 @@ class HtmlBlock extends ContentBlock implements HtmlBlockInterface
      */
     public function addStyle($element, $priority = 0, $location = 'head')
     {
-        if (!\is_array($element)) {
+        if (!is_array($element)) {
             $element = ['href' => (string) $element];
         }
         if (empty($element['href'])) {
@@ -176,7 +186,7 @@ class HtmlBlock extends ContentBlock implements HtmlBlockInterface
      */
     public function addInlineStyle($element, $priority = 0, $location = 'head')
     {
-        if (!\is_array($element)) {
+        if (!is_array($element)) {
             $element = ['content' => (string) $element];
         }
         if (empty($element['content'])) {
@@ -207,7 +217,7 @@ class HtmlBlock extends ContentBlock implements HtmlBlockInterface
      */
     public function addScript($element, $priority = 0, $location = 'head')
     {
-        if (!\is_array($element)) {
+        if (!is_array($element)) {
             $element = ['src' => (string) $element];
         }
         if (empty($element['src'])) {
@@ -219,8 +229,8 @@ class HtmlBlock extends ContentBlock implements HtmlBlockInterface
 
         $src = $element['src'];
         $type = !empty($element['type']) ? (string) $element['type'] : 'text/javascript';
-        $defer = isset($element['defer']) ? true : false;
-        $async = isset($element['async']) ? true : false;
+        $defer = isset($element['defer']);
+        $async = isset($element['async']);
         $handle = !empty($element['handle']) ? (string) $element['handle'] : '';
 
         $this->scripts[$location][md5($src) . sha1($src)] = [
@@ -244,7 +254,7 @@ class HtmlBlock extends ContentBlock implements HtmlBlockInterface
      */
     public function addInlineScript($element, $priority = 0, $location = 'head')
     {
-        if (!\is_array($element)) {
+        if (!is_array($element)) {
             $element = ['content' => (string) $element];
         }
         if (empty($element['content'])) {
@@ -275,7 +285,7 @@ class HtmlBlock extends ContentBlock implements HtmlBlockInterface
      */
     public function addHtml($html, $priority = 0, $location = 'bottom')
     {
-        if (empty($html) || !\is_string($html)) {
+        if (empty($html) || !is_string($html)) {
             return false;
         }
         if (!isset($this->html[$location])) {
@@ -357,6 +367,7 @@ class HtmlBlock extends ContentBlock implements HtmlBlockInterface
 
     /**
      * @param array $items
+     * @return void
      */
     protected function sortAssetsInLocation(array &$items)
     {
@@ -368,15 +379,15 @@ class HtmlBlock extends ContentBlock implements HtmlBlockInterface
 
         uasort(
             $items,
-            function ($a, $b) {
-                return ($a[':priority'] === $b[':priority'])
-                    ? $a[':order'] - $b[':order'] : $a[':priority'] - $b[':priority'];
+            static function ($a, $b) {
+                return $a[':priority'] <=> $b[':priority'] ?: $a[':order'] <=> $b[':order'];
             }
         );
     }
 
     /**
      * @param array $array
+     * @return void
      */
     protected function sortAssets(array &$array)
     {

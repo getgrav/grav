@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\GPM
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -11,10 +11,18 @@ namespace Grav\Common\GPM\Common;
 
 use Grav\Common\Iterator;
 
+/**
+ * Class AbstractPackageCollection
+ * @package Grav\Common\GPM\Common
+ */
 abstract class AbstractPackageCollection extends Iterator
 {
+    /** @var string */
     protected $type;
 
+    /**
+     * @return string
+     */
     public function toJson()
     {
         $items = [];
@@ -26,6 +34,9 @@ abstract class AbstractPackageCollection extends Iterator
         return json_encode($items);
     }
 
+    /**
+     * @return array
+     */
     public function toArray()
     {
         $items = [];

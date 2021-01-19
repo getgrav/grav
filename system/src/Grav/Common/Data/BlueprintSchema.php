@@ -3,21 +3,33 @@
 /**
  * @package    Grav\Common\Data
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Common\Data;
 
+use Grav\Common\Config\Config;
 use Grav\Common\Grav;
 use RocketTheme\Toolbox\ArrayTraits\Export;
 use RocketTheme\Toolbox\ArrayTraits\ExportInterface;
 use RocketTheme\Toolbox\Blueprints\BlueprintSchema as BlueprintSchemaBase;
+use RuntimeException;
+use function is_array;
+use function is_string;
 
+/**
+ * Class BlueprintSchema
+ * @package Grav\Common\Data
+ */
 class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
 {
     use Export;
 
+    /** @var array */
+    protected $filter = ['validation' => true, 'xss_check' => true];
+
+    /** @var array */
     protected $ignoreFormKeys = [
         'title' => true,
         'help' => true,
@@ -48,14 +60,16 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
      * Validate data against blueprints.
      *
      * @param  array $data
-     * @throws \RuntimeException
+     * @param  array $options
+     * @return void
+     * @throws RuntimeException
      */
-    public function validate(array $data)
+    public function validate(array $data, array $options = [])
     {
         try {
-            $messages = $this->validateArray($data, $this->nested);
-
-        } catch (\RuntimeException $e) {
+            $validation = $this->items['']['form']['validation'] ?? 'loose';
+            $messages = $this->validateArray($data, $this->nested, $validation === 'strict', $options['xss_check'] ?? true);
+        } catch (RuntimeException $e) {
             throw (new ValidationException($e->getMessage(), $e->getCode(), $e))->setMessages();
         }
 
@@ -71,7 +85,7 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
      */
     public function processForm(array $data, array $toggles = [])
     {
-        return $this->processFormRecursive($data, $toggles, $this->nested);
+        return $this->processFormRecursive($data, $toggles, $this->nested) ?? [];
     }
 
     /**
@@ -84,7 +98,9 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
      */
     public function filter(array $data, $missingValuesAsNull = false, $keepEmptyValues = false)
     {
-        return $this->filterArray($data, $this->nested, $missingValuesAsNull, $keepEmptyValues);
+        $this->buildIgnoreNested($this->nested);
+
+        return $this->filterArray($data, $this->nested, '', $missingValuesAsNull, $keepEmptyValues) ?? [];
     }
 
     /**
@@ -129,16 +145,19 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
     /**
      * @param array $data
      * @param array $rules
+     * @param bool $strict
+     * @param bool $xss
      * @return array
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
-    protected function validateArray(array $data, array $rules)
+    protected function validateArray(array $data, array $rules, bool $strict, bool $xss = true)
     {
         $messages = $this->checkRequired($data, $rules);
 
         foreach ($data as $key => $child) {
             $val = $rules[$key] ?? $rules['*'] ?? null;
-            $rule = \is_string($val) ? $this->items[$val] : null;
+            $rule = is_string($val) ? $this->items[$val] : null;
+            $checkXss = $xss;
 
             if ($rule) {
                 // Item has been defined in blueprints.
@@ -148,12 +167,25 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
                 }
 
                 $messages += Validation::validate($child, $rule);
-            } elseif (\is_array($child) && \is_array($val)) {
+
+            } elseif (is_array($child) && is_array($val)) {
                 // Array has been defined in blueprints.
-                $messages += $this->validateArray($child, $val);
-            } elseif (isset($rules['validation']) && $rules['validation'] === 'strict') {
-                // Undefined/extra item.
-                throw new \RuntimeException(sprintf('%s is not defined in blueprints', $key));
+                $messages += $this->validateArray($child, $val, $strict);
+                $checkXss = false;
+
+            } elseif ($strict) {
+                // Undefined/extra item in strict mode.
+                /** @var Config $config */
+                $config = Grav::instance()['config'];
+                if (!$config->get('system.strict_mode.blueprint_strict_compat', true)) {
+                    throw new RuntimeException(sprintf('%s is not defined in blueprints', $key));
+                }
+
+                user_error(sprintf('Having extra key %s in your data is deprecated with blueprint having \'validation: strict\'', $key), E_USER_DEPRECATED);
+            }
+
+            if ($checkXss) {
+                $messages += Validation::checkSafety($child, $rule ?: ['name' => $key]);
             }
         }
 
@@ -163,56 +195,85 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
     /**
      * @param array $data
      * @param array $rules
+     * @param string $parent
      * @param bool  $missingValuesAsNull
      * @param bool $keepEmptyValues
-     * @return array
+     * @return array|null
      */
-    protected function filterArray(array $data, array $rules, $missingValuesAsNull, $keepEmptyValues)
+    protected function filterArray(array $data, array $rules, string $parent, bool $missingValuesAsNull, bool $keepEmptyValues)
     {
         $results = [];
 
-        if ($missingValuesAsNull) {
-            // First pass is to fill up all the fields with null. This is done to lock the ordering of the fields.
-            foreach ($rules as $key => $rule) {
-                if ($key && !isset($results[$key])) {
-                    $val = $rules[$key] ?? $rules['*'] ?? null;
-                    $rule = \is_string($val) ? $this->items[$val] : null;
-
-                    if (empty($rule['disabled']) && empty($rule['validate']['ignore'])) {
-                        continue;
-                    }
-                }
-            }
-        }
-
         foreach ($data as $key => $field) {
             $val = $rules[$key] ?? $rules['*'] ?? null;
-            $rule = \is_string($val) ? $this->items[$val] : null;
+            $rule = is_string($val) ? $this->items[$val] : $this->items[$parent . $key] ?? null;
 
-            if ($rule) {
-                // Item has been defined in blueprints.
-                if (!empty($rule['disabled']) || !empty($rule['validate']['ignore'])) {
-                    // Skip any data in the ignored field.
+            if (!empty($rule['disabled']) || !empty($rule['validate']['ignore'])) {
+                // Skip any data in the ignored field.
+                unset($results[$key]);
+                continue;
+            }
+
+            if (null === $field) {
+                if ($missingValuesAsNull) {
+                    $results[$key] = null;
+                } else {
+                    unset($results[$key]);
+                }
+                continue;
+            }
+
+            $isParent = isset($val['*']);
+            $type = $rule['type'] ?? null;
+
+            if (!$isParent && $type && $type !== '_parent') {
+                $field = Validation::filter($field, $rule);
+            } elseif (is_array($field) && is_array($val)) {
+                // Array has been defined in blueprints.
+                $k = $isParent ? '*' : $key;
+                $field = $this->filterArray($field, $val, $parent . $k . '.', $missingValuesAsNull, $keepEmptyValues);
+
+                if (null === $field) {
+                    // Nested parent has no values.
                     unset($results[$key]);
                     continue;
                 }
-
-                $field = Validation::filter($field, $rule);
-            } elseif (\is_array($field) && \is_array($val)) {
-                // Array has been defined in blueprints.
-                $field = $this->filterArray($field, $val, $missingValuesAsNull, $keepEmptyValues);
-
             } elseif (isset($rules['validation']) && $rules['validation'] === 'strict') {
                 // Skip any extra data.
                 continue;
             }
 
-            if ($keepEmptyValues || (null !== $field && (!\is_array($field) || !empty($field)))) {
+            if ($keepEmptyValues || (null !== $field && (!is_array($field) || !empty($field)))) {
                 $results[$key] = $field;
             }
         }
 
         return $results ?: null;
+    }
+
+    /**
+     * @param array $nested
+     * @param string $parent
+     * @return bool
+     */
+    protected function buildIgnoreNested(array $nested, $parent = '')
+    {
+        $ignore = true;
+        foreach ($nested as $key => $val) {
+            $key = $parent . $key;
+            if (is_array($val)) {
+                $ignore = $this->buildIgnoreNested($val, $key . '.') && $ignore; // Keep the order!
+            } else {
+                $child = $this->items[$key] ?? null;
+                $ignore = $ignore && (!$child || !empty($child['disabled']) || !empty($child['validate']['ignore']));
+            }
+        }
+        if ($ignore) {
+            $key = trim($parent, '.');
+            $this->items[$key]['validate']['ignore'] = true;
+        }
+
+        return $ignore;
     }
 
     /**
@@ -255,8 +316,8 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
                     || !empty($field['disabled'])
                     // Field validation is set to be ignored
                     || !empty($field['validate']['ignore'])
-                    // Field is toggleable and the toggle is turned off
-                    || (!empty($field['toggleable']) && empty($toggles[$key]))
+                    // Field is overridable and the toggle is turned off
+                    || (!empty($field['overridable']) && empty($toggles[$key]))
                 ) {
                     continue;
                 }
@@ -279,7 +340,7 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
         $messages = [];
 
         foreach ($fields as $name => $field) {
-            if (!\is_string($field)) {
+            if (!is_string($field)) {
                 continue;
             }
 
@@ -290,10 +351,15 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
                 continue;
             }
 
+            // Skip overridable fields without value.
+            // TODO: We need better overridable support, which is not just ignoring required values but also looking if defaults are good.
+            if (!empty($field['overridable']) && !isset($data[$name])) {
+                continue;
+            }
+
             // Check if required.
             if (isset($field['validate']['required'])
                 && $field['validate']['required'] === true) {
-
                 if (isset($data[$name])) {
                     continue;
                 }
@@ -315,6 +381,7 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
      * @param array $field
      * @param string $property
      * @param array $call
+     * @return void
      */
     protected function dynamicConfig(array &$field, $property, array &$call)
     {

@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\RequestHandler
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -12,7 +12,13 @@ declare(strict_types=1);
 namespace Grav\Framework\RequestHandler\Exception;
 
 use Psr\Http\Message\ServerRequestInterface;
+use Throwable;
+use function in_array;
 
+/**
+ * Class NotFoundException
+ * @package Grav\Framework\RequestHandler\Exception
+ */
 class NotFoundException extends RequestException
 {
     /** @var ServerRequestInterface */
@@ -21,11 +27,11 @@ class NotFoundException extends RequestException
     /**
      * NotFoundException constructor.
      * @param ServerRequestInterface $request
-     * @param \Throwable|null $previous
+     * @param Throwable|null $previous
      */
-    public function __construct(ServerRequestInterface $request, \Throwable $previous = null)
+    public function __construct(ServerRequestInterface $request, Throwable $previous = null)
     {
-        if (\in_array(strtoupper($request->getMethod()), ['PUT', 'PATCH', 'DELETE'])) {
+        if (in_array(strtoupper($request->getMethod()), ['PUT', 'PATCH', 'DELETE'])) {
             parent::__construct($request, 'Method Not Allowed', 405, $previous);
         } else {
             parent::__construct($request, 'Not Found', 404, $previous);

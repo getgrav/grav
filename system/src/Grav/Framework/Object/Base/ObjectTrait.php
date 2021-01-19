@@ -3,11 +3,15 @@
 /**
  * @package    Grav\Framework\Object
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Framework\Object\Base;
+
+use Grav\Framework\Compat\Serializable;
+use InvalidArgumentException;
+use function get_class;
 
 /**
  * Object trait.
@@ -16,12 +20,12 @@ namespace Grav\Framework\Object\Base;
  */
 trait ObjectTrait
 {
-    /** @var string */
-    static protected $type;
+    use Serializable;
 
-    /**
-     * @var string
-     */
+    /** @var string */
+    protected static $type;
+
+    /** @var string */
     private $_key;
 
     /**
@@ -44,7 +48,7 @@ trait ObjectTrait
             return $type . static::$type;
         }
 
-        $class = \get_class($this);
+        $class = get_class($this);
         return $type . strtolower(substr($class, strrpos($class, '\\') + 1));
     }
 
@@ -66,7 +70,7 @@ trait ObjectTrait
 
     /**
      * @param string $property      Object property name.
-     * @return bool|bool[]          True if property has been defined (can be null).
+     * @return bool                 True if property has been defined (can be null).
      */
     public function hasProperty($property)
     {
@@ -76,7 +80,7 @@ trait ObjectTrait
     /**
      * @param string $property      Object property to be fetched.
      * @param mixed $default        Default value if property has not been set.
-     * @return mixed|mixed[]        Property value.
+     * @return mixed                Property value.
      */
     public function getProperty($property, $default = null)
     {
@@ -121,25 +125,23 @@ trait ObjectTrait
     }
 
     /**
-     * Implements Serializable interface.
-     *
-     * @return string
+     * @return array
      */
-    public function serialize()
+    final public function __serialize(): array
     {
-        return serialize($this->doSerialize());
+        return $this->doSerialize();
     }
 
     /**
-     * @param string $serialized
+     * @param array $data
+     * @return void
      */
-    public function unserialize($serialized)
+    final public function __unserialize(array $data): void
     {
-        $data = unserialize($serialized);
-
         if (method_exists($this, 'initObjectProperties')) {
             $this->initObjectProperties();
         }
+
         $this->doUnserialize($data);
     }
 
@@ -153,11 +155,12 @@ trait ObjectTrait
 
     /**
      * @param array $serialized
+     * @return void
      */
     protected function doUnserialize(array $serialized)
     {
         if (!isset($serialized['key'], $serialized['type'], $serialized['elements']) || $serialized['type'] !== $this->getType()) {
-            throw new \InvalidArgumentException("Cannot unserialize '{$this->getType()}': Bad data");
+            throw new InvalidArgumentException("Cannot unserialize '{$this->getType()}': Bad data");
         }
 
         $this->setKey($serialized['key']);
@@ -194,11 +197,4 @@ trait ObjectTrait
 
         return $this;
     }
-
-    abstract protected function doHasProperty($property);
-    abstract protected function &doGetProperty($property, $default = null, $doCreate = false);
-    abstract protected function doSetProperty($property, $value);
-    abstract protected function doUnsetProperty($property);
-    abstract protected function getElements();
-    abstract protected function setElements(array $elements);
 }

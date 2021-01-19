@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Service
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -13,8 +13,16 @@ use Grav\Common\Backup\Backups;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 
+/**
+ * Class BackupsServiceProvider
+ * @package Grav\Common\Service
+ */
 class BackupsServiceProvider implements ServiceProviderInterface
 {
+    /**
+     * @param Container $container
+     * @return void
+     */
     public function register(Container $container)
     {
         $container['backups'] = function () {

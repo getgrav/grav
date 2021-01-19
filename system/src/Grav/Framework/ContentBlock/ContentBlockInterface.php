@@ -3,20 +3,22 @@
 /**
  * @package    Grav\Framework\ContentBlock
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Framework\ContentBlock;
 
+use Serializable;
+
 /**
  * ContentBlock Interface
  * @package Grav\Framework\ContentBlock
  */
-interface ContentBlockInterface extends \Serializable
+interface ContentBlockInterface extends Serializable
 {
     /**
-     * @param string $id
+     * @param string|null $id
      * @return static
      */
     public static function create($id = null);
@@ -28,7 +30,7 @@ interface ContentBlockInterface extends \Serializable
     public static function fromArray(array $serialized);
 
     /**
-     * @param string $id
+     * @param string|null $id
      */
     public function __construct($id = null);
 
@@ -59,6 +61,7 @@ interface ContentBlockInterface extends \Serializable
 
     /**
      * @param array $serialized
+     * @return void
      */
     public function build(array $serialized);
 

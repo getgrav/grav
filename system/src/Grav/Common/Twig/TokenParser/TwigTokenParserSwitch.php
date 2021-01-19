@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Twig
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  * @origin     https://gist.github.com/maxgalbu/9409182
  */
@@ -31,7 +31,9 @@ use Twig\TokenParser\AbstractTokenParser;
 class TwigTokenParserSwitch extends AbstractTokenParser
 {
     /**
-     * {@inheritdoc}
+     * @param Token $token
+     * @return TwigNodeSwitch
+     * @throws SyntaxError
      */
     public function parse(Token $token)
     {
@@ -72,7 +74,7 @@ class TwigTokenParserSwitch extends AbstractTokenParser
                     }
 
                     $stream->expect(Token::BLOCK_END_TYPE);
-                    $body = $this->parser->subparse(array($this, 'decideIfFork'));
+                    $body = $this->parser->subparse([$this, 'decideIfFork']);
                     $cases[] = new Node([
                         'values' => new Node($values),
                         'body' => $body
@@ -81,7 +83,7 @@ class TwigTokenParserSwitch extends AbstractTokenParser
 
                 case 'default':
                     $stream->expect(Token::BLOCK_END_TYPE);
-                    $default = $this->parser->subparse(array($this, 'decideIfEnd'));
+                    $default = $this->parser->subparse([$this, 'decideIfEnd']);
                     break;
 
                 case 'endswitch':
@@ -104,9 +106,9 @@ class TwigTokenParserSwitch extends AbstractTokenParser
      * @param Token $token
      * @return bool
      */
-    public function decideIfFork(Token $token)
+    public function decideIfFork(Token $token): bool
     {
-        return $token->test(array('case', 'default', 'endswitch'));
+        return $token->test(['case', 'default', 'endswitch']);
     }
 
     /**
@@ -115,15 +117,15 @@ class TwigTokenParserSwitch extends AbstractTokenParser
      * @param Token $token
      * @return bool
      */
-    public function decideIfEnd(Token $token)
+    public function decideIfEnd(Token $token): bool
     {
-        return $token->test(array('endswitch'));
+        return $token->test(['endswitch']);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getTag()
+    public function getTag(): string
     {
         return 'switch';
     }

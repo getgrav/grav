@@ -2,6 +2,7 @@
 namespace Helper;
 
 use Codeception;
+
 // here you can define custom actions
 // all public methods declared in helper class will be available in $I
 
@@ -14,13 +15,15 @@ class Unit extends Codeception\Module
     /**
      * HOOK: used after configuration is loaded
      */
-    public function _initialize() {
+    public function _initialize()
+    {
     }
 
     /**
      * HOOK: on every Actor class initialization
      */
-    public function _cleanup() {
+    public function _cleanup()
+    {
     }
 
     /**
@@ -28,13 +31,15 @@ class Unit extends Codeception\Module
      *
      * @param array $settings
      */
-    public function _beforeSuite($settings = []) {
+    public function _beforeSuite($settings = [])
+    {
     }
 
     /**
      * HOOK: after suite
      **/
-    public function _afterSuite() {
+    public function _afterSuite()
+    {
     }
 
     /**
@@ -42,7 +47,8 @@ class Unit extends Codeception\Module
      *
      * @param Codeception\Step $step*
      */
-    public function _beforeStep(Codeception\Step $step) {
+    public function _beforeStep(Codeception\Step $step)
+    {
     }
 
     /**
@@ -50,7 +56,8 @@ class Unit extends Codeception\Module
      *
      * @param Codeception\Step $step
      */
-    public function _afterStep(Codeception\Step $step) {
+    public function _afterStep(Codeception\Step $step)
+    {
     }
 
     /**
@@ -58,7 +65,8 @@ class Unit extends Codeception\Module
      *
      * @param Codeception\TestCase $test
      */
-    public function _before(Codeception\TestCase $test) {
+    public function _before(Codeception\TestCase $test)
+    {
     }
 
     /**
@@ -66,7 +74,8 @@ class Unit extends Codeception\Module
      *
      * @param Codeception\TestCase $test
      */
-    public function _after(Codeception\TestCase $test) {
+    public function _after(Codeception\TestCase $test)
+    {
     }
 
     /**
@@ -75,6 +84,7 @@ class Unit extends Codeception\Module
      * @param Codeception\TestCase $test
      * @param $fail
      */
-    public function _failed(Codeception\TestCase $test, $fail) {
+    public function _failed(Codeception\TestCase $test, $fail)
+    {
     }
 }

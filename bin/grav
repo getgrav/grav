@@ -3,8 +3,7 @@
 
 use Grav\Common\Composer;
 use Grav\Common\Grav;
-use League\CLImate\CLImate;
-use Symfony\Component\Console\Application;
+use Grav\Console\Application\GravApplication;
 
 \define('GRAV_CLI', true);
 \define('GRAV_REQUEST_TIME', microtime(true));
@@ -36,39 +35,11 @@ if (!\extension_loaded('mbstring')) {
 @ini_set('default_charset', 'UTF-8');
 mb_internal_encoding('UTF-8');
 
-$climate = new League\CLImate\CLImate;
-$climate->arguments->add([
-    'environment' => [
-        'prefix'        => 'e',
-        'longPrefix'    => 'env',
-        'description'   => 'Configuration Environment',
-        'defaultValue'  => 'localhost'
-    ]
-]);
-$climate->arguments->parse();
-
-// Set up environment based on params.
-$environment = $climate->arguments->get('environment');
-
 $grav = Grav::instance(array('loader' => $autoload));
-$grav->setup($environment);
 
 if (!file_exists(GRAV_ROOT . '/index.php')) {
     exit('FATAL: Must be run from ROOT directory of Grav!');
 }
 
-$app = new Application('Grav CLI Application', GRAV_VERSION);
-$app->addCommands(array(
-    new \Grav\Console\Cli\InstallCommand(),
-    new \Grav\Console\Cli\ComposerCommand(),
-    new \Grav\Console\Cli\SandboxCommand(),
-    new \Grav\Console\Cli\CleanCommand(),
-    new \Grav\Console\Cli\ClearCacheCommand(),
-    new \Grav\Console\Cli\BackupCommand(),
-    new \Grav\Console\Cli\NewProjectCommand(),
-    new \Grav\Console\Cli\SchedulerCommand(),
-    new \Grav\Console\Cli\SecurityCommand(),
-    new \Grav\Console\Cli\LogViewerCommand(),
-    new \Grav\Console\Cli\YamlLinterCommand(),
-));
+$app = new GravApplication('Grav CLI Application', GRAV_VERSION);
 $app->run();

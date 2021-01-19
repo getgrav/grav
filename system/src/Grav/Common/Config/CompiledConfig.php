@@ -3,26 +3,33 @@
 /**
  * @package    Grav\Common\Config
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Common\Config;
 
 use Grav\Common\File\CompiledYamlFile;
+use function is_callable;
 
+/**
+ * Class CompiledConfig
+ * @package Grav\Common\Config
+ */
 class CompiledConfig extends CompiledBase
 {
-    /**
-     * @var callable  Blueprints loader.
-     */
+    /** @var callable  Blueprints loader. */
     protected $callable;
 
-    /**
-     * @var bool
-     */
-    protected $withDefaults;
+    /** @var bool */
+    protected $withDefaults = false;
 
+    /**
+     * CompiledConfig constructor.
+     * @param string $cacheFolder
+     * @param array $files
+     * @param string $path
+     */
     public function __construct($cacheFolder, array $files, $path)
     {
         parent::__construct($cacheFolder, $files, $path);
@@ -58,10 +65,11 @@ class CompiledConfig extends CompiledBase
      * Create configuration object.
      *
      * @param  array  $data
+     * @return void
      */
     protected function createObject(array $data = [])
     {
-        if ($this->withDefaults && empty($data) && \is_callable($this->callable)) {
+        if ($this->withDefaults && empty($data) && is_callable($this->callable)) {
             $blueprints = $this->callable;
             $data = $blueprints()->getDefaults();
         }
@@ -71,6 +79,8 @@ class CompiledConfig extends CompiledBase
 
     /**
      * Finalize configuration object.
+     *
+     * @return void
      */
     protected function finalizeObject()
     {
@@ -80,6 +90,8 @@ class CompiledConfig extends CompiledBase
 
     /**
      * Function gets called when cached configuration is saved.
+     *
+     * @return void
      */
     public function modified()
     {
@@ -91,6 +103,7 @@ class CompiledConfig extends CompiledBase
      *
      * @param  string  $name  Name of the position.
      * @param  string  $filename  File to be loaded.
+     * @return void
      */
     protected function loadFile($name, $filename)
     {

@@ -3,14 +3,20 @@
 /**
  * @package    Grav\Framework\Session
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Framework\Session;
 
+use ArrayIterator;
+use Exception;
 use Grav\Common\User\Interfaces\UserInterface;
 use Grav\Framework\Session\Exceptions\SessionException;
+use RuntimeException;
+use function is_array;
+use function is_bool;
+use function is_string;
 
 /**
  * Class Session
@@ -20,10 +26,8 @@ class Session implements SessionInterface
 {
     /** @var array */
     protected $options = [];
-
     /** @var bool */
     protected $started = false;
-
     /** @var Session */
     protected static $instance;
 
@@ -33,12 +37,17 @@ class Session implements SessionInterface
     public static function getInstance()
     {
         if (null === self::$instance) {
-            throw new \RuntimeException("Session hasn't been initialized.", 500);
+            throw new RuntimeException("Session hasn't been initialized.", 500);
         }
 
         return self::$instance;
     }
 
+    /**
+     * Session constructor.
+     *
+     * @param array $options
+     */
     public function __construct(array $options = [])
     {
         // Session is a singleton.
@@ -49,7 +58,7 @@ class Session implements SessionInterface
         }
 
         if (null !== self::$instance) {
-            throw new \RuntimeException('Session has already been initialized.', 500);
+            throw new RuntimeException('Session has already been initialized.', 500);
         }
 
         // Destroy any existing sessions started with session.auto_start
@@ -79,7 +88,7 @@ class Session implements SessionInterface
      */
     public function getId()
     {
-        return session_id();
+        return session_id() ?: null;
     }
 
     /**
@@ -97,7 +106,7 @@ class Session implements SessionInterface
      */
     public function getName()
     {
-        return session_name();
+        return session_name() ?: null;
     }
 
     /**
@@ -135,6 +144,7 @@ class Session implements SessionInterface
             'use_strict_mode' => true,
             'use_cookies' => true,
             'use_only_cookies' => true,
+            'cookie_samesite' => true,
             'referer_check' => true,
             'cache_limiter' => true,
             'cache_expire' => true,
@@ -153,7 +163,7 @@ class Session implements SessionInterface
         ];
 
         foreach ($options as $key => $value) {
-            if (\is_array($value)) {
+            if (is_array($value)) {
                 // Allow nested options.
                 foreach ($value as $key2 => $value2) {
                     $ckey = "{$key}.{$key2}";
@@ -190,18 +200,45 @@ class Session implements SessionInterface
             $options['read_and_close'] = '1';
         }
 
-        $success = @session_start($options);
-        $user = $success ? $this->__get('user') : null;
-        if (!$success) {
-            $last = error_get_last();
-            $error = $last ? $last['message'] : 'Unknown error';
+        try {
+            $success = @session_start($options);
+            if (!$success) {
+                $last = error_get_last();
+                $error = $last ? $last['message'] : 'Unknown error';
 
-            throw new SessionException('Failed to start session: ' . $error, 500);
+                throw new RuntimeException($error);
+            }
+
+            // Handle changing session id.
+            if ($this->__isset('session_destroyed')) {
+                $newId = $this->__get('session_new_id');
+                if (!$newId || $this->__get('session_destroyed') < time() - 300) {
+                    // Should not happen usually. This could be attack or due to unstable network. Destroy this session.
+                    $this->invalidate();
+
+                    throw new RuntimeException('Your session was destroyed.', 500);
+                }
+
+                // Not fully expired yet. Could be lost cookie by unstable network. Start session with new session id.
+                session_write_close();
+                session_id($newId);
+                $success = @session_start($options);
+                if (!$success) {
+                    $last = error_get_last();
+                    $error = $last ? $last['message'] : 'Unknown error';
+
+                    throw new RuntimeException($error);
+                }
+            }
+        } catch (Exception $e) {
+            throw new SessionException('Failed to start session: ' . $e->getMessage(), 500);
         }
 
         $this->started = true;
+        $this->onSessionStart();
 
-        if ($user && (!$user instanceof UserInterface || !$user->isValid())) {
+        $user = $this->__get('user');
+        if ($user && (!$user instanceof UserInterface || (method_exists($user, 'isValid') && !$user->isValid()))) {
             $this->invalidate();
 
             throw new SessionException('Invalid User object, session destroyed.', 500);
@@ -211,16 +248,67 @@ class Session implements SessionInterface
         if ($sessionExists) {
             $params = session_get_cookie_params();
 
+            $cookie_options = array (
+                'expires'  => time() + $params['lifetime'],
+                'path'     => $params['path'],
+                'domain'   => $params['domain'],
+                'secure'   => $params['secure'],
+                'httponly' => $params['httponly'],
+                'samesite' => $params['samesite']
+            );
+
             setcookie(
                 $sessionName,
                 session_id(),
-                time() + $params['lifetime'],
-                $params['path'],
-                $params['domain'],
-                $params['secure'],
-                $params['httponly']
+                $cookie_options
             );
         }
+
+        return $this;
+    }
+
+    /**
+     * Regenerate session id but keep the current session information.
+     *
+     * Session id must be regenerated on login, logout or after long time has been passed.
+     *
+     * @return $this
+     * @since 1.7
+     */
+    public function regenerateId()
+    {
+        if (!$this->isSessionStarted()) {
+            return $this;
+        }
+
+        // TODO: session_create_id() segfaults in PHP 7.3 (PHP bug #73461), remove phpstan rule when fixing this one.
+        $newId = 0; // session_create_id();
+
+        // Set destroyed timestamp for the old session as well as pointer to the new id.
+        $this->__set('session_destroyed', time());
+        $this->__set('session_new_id', $newId);
+
+        // Keep the old session alive to avoid lost sessions by unstable network.
+        // TODO: remove session_regenerate_id() and use session_create_id() from above when not in PHP 7.3 (PHP bug #73461).
+        session_regenerate_id(false);
+        session_write_close();
+
+        // Start session with new session id.
+        if ($newId) {
+            $useStrictMode = $this->options['use_strict_mode'] ?? 0;
+            if ($useStrictMode) {
+                ini_set('session.use_strict_mode', '0');
+            }
+            session_id($newId);
+            if ($useStrictMode) {
+                ini_set('session.use_strict_mode', '1');
+            }
+        }
+        session_start();
+
+        // New session does not have these.
+        $this->__unset('session_destroyed');
+        $this->__unset('session_new_id');
 
         return $this;
     }
@@ -230,16 +318,25 @@ class Session implements SessionInterface
      */
     public function invalidate()
     {
-        $params = session_get_cookie_params();
-        setcookie(
-            session_name(),
-            '',
-            time() - 42000,
-            $params['path'],
-            $params['domain'],
-            $params['secure'],
-            $params['httponly']
-        );
+        $name = $this->getName();
+        if (null !== $name) {
+            $params = session_get_cookie_params();
+
+            $cookie_options = array (
+                'expires'  => time() - 42000,
+                'path'     => $params['path'],
+                'domain'   => $params['domain'],
+                'secure'   => $params['secure'],
+                'httponly' => $params['httponly'],
+                'samesite' => $params['samesite']
+            );
+
+            setcookie(
+                session_name(),
+                '',
+                $cookie_options
+            );
+        }
 
         if ($this->isSessionStarted()) {
             session_unset();
@@ -288,7 +385,7 @@ class Session implements SessionInterface
      */
     public function getIterator()
     {
-        return new \ArrayIterator($_SESSION);
+        return new ArrayIterator($_SESSION);
     }
 
     /**
@@ -341,14 +438,19 @@ class Session implements SessionInterface
         return \PHP_SAPI !== 'cli' ? \PHP_SESSION_ACTIVE === session_status() : false;
     }
 
+    protected function onSessionStart(): void
+    {
+    }
+
     /**
      * @param string $key
      * @param mixed $value
+     * @return void
      */
     protected function setOption($key, $value)
     {
-        if (!\is_string($value)) {
-            if (\is_bool($value)) {
+        if (!is_string($value)) {
+            if (is_bool($value)) {
                 $value = $value ? '1' : '0';
             } else {
                 $value = (string)$value;

@@ -3,15 +3,26 @@
 /**
  * @package    Grav\Common\Helpers
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Common\Helpers;
 
+use function chr;
+use function count;
+use function ord;
+use function strlen;
+
+/**
+ * Class Base32
+ * @package Grav\Common\Helpers
+ */
 class Base32
 {
+    /** @var string */
     protected static $base32Chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+    /** @var array */
     protected static $base32Lookup = [
         0xFF,0xFF,0x1A,0x1B,0x1C,0x1D,0x1E,0x1F, // '0', '1', '2', '3', '4', '5', '6', '7'
         0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF, // '8', '9', ':', ';', '<', '=', '>', '?'
@@ -33,17 +44,18 @@ class Base32
      */
     public static function encode($bytes)
     {
-        $i = 0; $index = 0;
+        $i = 0;
+        $index = 0;
         $base32 = '';
-        $bytesLen = \strlen($bytes);
+        $bytesLen = strlen($bytes);
 
         while ($i < $bytesLen) {
-            $currByte = \ord($bytes[$i]);
+            $currByte = ord($bytes[$i]);
 
             /* Is the current digit going to span a byte boundary? */
             if ($index > 3) {
                 if (($i + 1) < $bytesLen) {
-                    $nextByte = \ord($bytes[$i+1]);
+                    $nextByte = ord($bytes[$i+1]);
                 } else {
                     $nextByte = 0;
                 }
@@ -75,15 +87,15 @@ class Base32
     public static function decode($base32)
     {
         $bytes = [];
-        $base32Len = \strlen($base32);
-        $base32LookupLen = \count(self::$base32Lookup);
+        $base32Len = strlen($base32);
+        $base32LookupLen = count(self::$base32Lookup);
 
         for ($i = $base32Len * 5 / 8 - 1; $i >= 0; --$i) {
             $bytes[] = 0;
         }
 
         for ($i = 0, $index = 0, $offset = 0; $i < $base32Len; $i++) {
-            $lookup = \ord($base32[$i]) - \ord('0');
+            $lookup = ord($base32[$i]) - ord('0');
 
             /* Skip chars outside the lookup table */
             if ($lookup < 0 || $lookup >= $base32LookupLen) {
@@ -102,7 +114,7 @@ class Base32
                 if ($index === 0) {
                     $bytes[$offset] |= $digit;
                     $offset++;
-                    if ($offset >= \count($bytes)) {
+                    if ($offset >= count($bytes)) {
                         break;
                     }
                 } else {
@@ -112,7 +124,7 @@ class Base32
                 $index = ($index + 5) % 8;
                 $bytes[$offset] |= ($digit >> $index);
                 $offset++;
-                if ($offset >= \count($bytes)) {
+                if ($offset >= count($bytes)) {
                     break;
                 }
                 $bytes[$offset] |= $digit << (8 - $index);
@@ -121,7 +133,7 @@ class Base32
 
         $bites = '';
         foreach ($bytes as $byte) {
-            $bites .= \chr($byte);
+            $bites .= chr($byte);
         }
 
         return $bites;

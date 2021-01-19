@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\User
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -14,23 +14,31 @@ use Grav\Common\Data\Blueprints;
 use Grav\Common\Data\Data;
 use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Grav;
+use Grav\Common\Media\Interfaces\MediaCollectionInterface;
 use Grav\Common\Page\Media;
-use Grav\Common\Page\Medium\ImageMedium;
+use Grav\Common\Page\Medium\Medium;
 use Grav\Common\Page\Medium\MediumFactory;
 use Grav\Common\User\Authentication;
 use Grav\Common\User\Interfaces\UserInterface;
 use Grav\Common\User\Traits\UserTrait;
+use Grav\Framework\Flex\Flex;
+use function is_array;
 
+/**
+ * Class User
+ * @package Grav\Common\User\DataUser
+ */
 class User extends Data implements UserInterface
 {
     use UserTrait;
 
+    /** @var MediaCollectionInterface */
     protected $_media;
 
     /**
      * User constructor.
      * @param array $items
-     * @param Blueprint $blueprints
+     * @param Blueprint|null $blueprints
      */
     public function __construct(array $items = [], $blueprints = null)
     {
@@ -78,6 +86,9 @@ class User extends Data implements UserInterface
         return $value;
     }
 
+    /**
+     * @return bool
+     */
     public function isValid(): bool
     {
         return $this->items !== null;
@@ -100,21 +111,23 @@ class User extends Data implements UserInterface
 
     /**
      * Save user without the username
+     *
+     * @return void
      */
     public function save()
     {
-        /** @var CompiledYamlFile $file */
+        /** @var CompiledYamlFile|null $file */
         $file = $this->file();
         if (!$file || !$file->filename()) {
             user_error(__CLASS__ . ': calling \$user = new ' . __CLASS__ . "() is deprecated since Grav 1.6, use \$grav['accounts']->load(\$username) or \$grav['accounts']->load('') instead", E_USER_DEPRECATED);
         }
 
         if ($file) {
-            $username = $this->get('username');
+            $username = $this->filterUsername((string)$this->get('username'));
 
             if (!$file->filename()) {
                 $locator = Grav::instance()['locator'];
-                $file->filename($locator->findResource('account://' . mb_strtolower($username) . YAML_EXT, true, true));
+                $file->filename($locator->findResource('account://' . $username . YAML_EXT, true, true));
             }
 
             // if plain text password, hash it and remove plain text
@@ -128,14 +141,25 @@ class User extends Data implements UserInterface
             unset($data['username'], $data['authenticated'], $data['authorized']);
 
             $file->save($data);
+
+            // We need to signal Flex Users about the change.
+            /** @var Flex|null $flex */
+            $flex = Grav::instance()['flex'] ?? null;
+            $users = $flex ? $flex->getDirectory('user-accounts') : null;
+            if (null !== $users) {
+                $users->clearCache();
+            }
         }
     }
 
+    /**
+     * @return MediaCollectionInterface|Media
+     */
     public function getMedia()
     {
         if (null === $this->_media) {
             // Media object should only contain avatar, nothing else.
-            $media = new Media($this->getMediaFolder(), $this->getMediaOrder(), false);
+            $media = new Media($this->getMediaFolder() ?? '', $this->getMediaOrder(), false);
 
             $path = $this->getAvatarFile();
             if ($path && is_file($path)) {
@@ -151,11 +175,17 @@ class User extends Data implements UserInterface
         return $this->_media;
     }
 
+    /**
+     * @return string
+     */
     public function getMediaFolder()
     {
         return $this->blueprints()->fields()['avatar']['destination'] ?? 'user://accounts/avatars';
     }
 
+    /**
+     * @return array
+     */
     public function getMediaOrder()
     {
         return [];
@@ -163,6 +193,8 @@ class User extends Data implements UserInterface
 
     /**
      * Serialize user.
+     *
+     * @return string[]
      */
     public function __sleep()
     {
@@ -207,7 +239,7 @@ class User extends Data implements UserInterface
     /**
      * Return media object for the User's avatar.
      *
-     * @return ImageMedium|null
+     * @return Medium|null
      * @deprecated 1.6 Use ->getAvatarImage() method instead.
      */
     public function getAvatarMedia()
@@ -235,7 +267,6 @@ class User extends Data implements UserInterface
      * Ensures backwards compatibility
      *
      * @param  string $action
-     *
      * @return bool
      * @deprecated 1.5 Use ->authorize() method instead.
      */
@@ -243,7 +274,7 @@ class User extends Data implements UserInterface
     {
         user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.5, use authorize() method instead', E_USER_DEPRECATED);
 
-        return $this->authorize($action);
+        return $this->authorize($action) ?? false;
     }
 
     /**
@@ -259,10 +290,22 @@ class User extends Data implements UserInterface
         return parent::count();
     }
 
+    /**
+     * @param string $username
+     * @return string
+     */
+    protected function filterUsername(string $username): string
+    {
+        return mb_strtolower($username);
+    }
+
+    /**
+     * @return string|null
+     */
     protected function getAvatarFile(): ?string
     {
         $avatars = $this->get('avatar');
-        if (\is_array($avatars) && $avatars) {
+        if (is_array($avatars) && $avatars) {
             $avatar = array_shift($avatars);
             return $avatar['path'] ?? null;
         }

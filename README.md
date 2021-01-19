@@ -21,8 +21,12 @@ The underlying architecture of Grav is designed to use well-established and _bes
 
 # Requirements
 
-- PHP 7.1.3 or higher. Check the [required modules list](https://learn.getgrav.org/basics/requirements#php-requirements)
+- PHP 7.3.6 or higher. Check the [required modules list](https://learn.getgrav.org/basics/requirements#php-requirements)
 - Check the [Apache](https://learn.getgrav.org/basics/requirements#apache-requirements) or [IIS](https://learn.getgrav.org/basics/requirements#iis-requirements) requirements
+
+# Documentation
+
+The full documentation can be found from [learn.getgrav.org](https://learn.getgrav.org).
 
 # QuickStart
 
@@ -84,6 +88,11 @@ To update plugins and themes:
 $ bin/gpm update
 ```
 
+## Upgrading from older version
+
+* [Upgrading to Grav 1.7](https://learn.getgrav.org/16/advanced/grav-development/grav-17-upgrade-guide)
+* [Upgrading to Grav 1.6](https://learn.getgrav.org/16/advanced/grav-development/grav-16-upgrade-guide)
+* [Upgrading from Grav <1.6](https://learn.getgrav.org/16/advanced/grav-development/grav-15-upgrade-guide)
 
 # Contributing
 We appreciate any contribution to Grav, whether it is related to bugs, grammar, or simply a suggestion or improvement! Please refer to the [Contributing guide](CONTRIBUTING.md) for more guidance on this topic.
@@ -128,7 +137,14 @@ See [LICENSE](LICENSE.txt)
 
 # Running Tests
 
-First install the dev dependencies by running `composer update` from the Grav root.
+First install the dev dependencies by running `composer install` from the Grav root.
+
 Then `composer test` will run the Unit Tests, which should be always executed successfully on any site.
 Windows users should use the `composer test-windows` command.
 You can also run a single unit test file, e.g. `composer test tests/unit/Grav/Common/AssetsTest.php`
+
+To run phpstan tests, you should run:
+
+* `composer phpstan` for global tests
+* `composer phpstan-framework` for more strict tests
+* `composer phpstan-plugins` to test all installed plugins

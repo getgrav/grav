@@ -5,38 +5,40 @@ declare(strict_types=1);
 /**
  * @package    Grav\Framework\File
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Framework\File;
 
+use Exception;
+use Grav\Framework\Compat\Serializable;
 use Grav\Framework\File\Interfaces\FileInterface;
 use Grav\Framework\Filesystem\Filesystem;
+use RuntimeException;
 
+/**
+ * Class AbstractFile
+ * @package Grav\Framework\File
+ */
 class AbstractFile implements FileInterface
 {
+    use Serializable;
+
     /** @var Filesystem */
     private $filesystem;
-
     /** @var string */
     private $filepath;
-
     /** @var string|null */
     private $filename;
-
     /** @var string|null */
     private $path;
-
     /** @var string|null */
     private $basename;
-
     /** @var string|null */
     private $extension;
-
     /** @var resource|null */
     private $handle;
-
     /** @var bool */
     private $locked = false;
 
@@ -60,6 +62,9 @@ class AbstractFile implements FileInterface
         }
     }
 
+    /**
+     * @return void
+     */
     public function __clone()
     {
         $this->handle = null;
@@ -67,19 +72,22 @@ class AbstractFile implements FileInterface
     }
 
     /**
-     * @return string
+     * @return array
      */
-    public function serialize(): string
+    final public function __serialize(): array
     {
-        return serialize($this->doSerialize());
+        return ['filesystem_normalize' => $this->filesystem->getNormalization()] + $this->doSerialize();
     }
 
     /**
-     * @param string $serialized
+     * @param array $data
+     * @return void
      */
-    public function unserialize($serialized): void
+    final public function __unserialize(array $data): void
     {
-        $this->doUnserialize(unserialize($serialized, ['allowed_classes' => false]));
+        $this->filesystem = Filesystem::getInstance($data['filesystem_normalize'] ?? null);
+
+        $this->doUnserialize($data);
     }
 
     /**
@@ -101,7 +109,7 @@ class AbstractFile implements FileInterface
             $this->setPathInfo();
         }
 
-        return $this->path;
+        return $this->path ?? '';
     }
 
     /**
@@ -114,7 +122,7 @@ class AbstractFile implements FileInterface
             $this->setPathInfo();
         }
 
-        return $this->filename;
+        return $this->filename ?? '';
     }
 
     /**
@@ -127,7 +135,7 @@ class AbstractFile implements FileInterface
             $this->setPathInfo();
         }
 
-        return $this->basename;
+        return $this->basename ?? '';
     }
 
     /**
@@ -158,7 +166,7 @@ class AbstractFile implements FileInterface
      */
     public function getCreationTime(): int
     {
-        return is_file($this->filepath) ? filectime($this->filepath) : time();
+        return is_file($this->filepath) ? (int)filectime($this->filepath) : time();
     }
 
     /**
@@ -167,7 +175,7 @@ class AbstractFile implements FileInterface
      */
     public function getModificationTime(): int
     {
-        return is_file($this->filepath) ? filemtime($this->filepath) : time();
+        return is_file($this->filepath) ? (int)filemtime($this->filepath) : time();
     }
 
     /**
@@ -178,13 +186,13 @@ class AbstractFile implements FileInterface
     {
         if (!$this->handle) {
             if (!$this->mkdir($this->getPath())) {
-                throw new \RuntimeException('Creating directory failed for ' . $this->filepath);
+                throw new RuntimeException('Creating directory failed for ' . $this->filepath);
             }
-            $this->handle = @fopen($this->filepath, 'cb+');
+            $this->handle = @fopen($this->filepath, 'cb+') ?: null;
             if (!$this->handle) {
                 $error = error_get_last();
 
-                throw new \RuntimeException("Opening file for writing failed on error {$error['message']}");
+                throw new RuntimeException("Opening file for writing failed on error {$error['message']}");
             }
         }
 
@@ -207,7 +215,7 @@ class AbstractFile implements FileInterface
         }
 
         if ($this->locked) {
-            flock($this->handle, LOCK_UN);
+            flock($this->handle, LOCK_UN | LOCK_NB);
             $this->locked = false;
         }
 
@@ -267,7 +275,7 @@ class AbstractFile implements FileInterface
         $dir = $this->getPath();
 
         if (!$this->mkdir($dir)) {
-            throw new \RuntimeException('Creating directory failed for ' . $filepath);
+            throw new RuntimeException('Creating directory failed for ' . $filepath);
         }
 
         try {
@@ -279,21 +287,27 @@ class AbstractFile implements FileInterface
                     $tmp = false;
                 }
             } else {
+                // Support for symlinks.
+                $realpath = is_link($filepath) ? realpath($filepath) : $filepath;
+                if ($realpath === false) {
+                    throw new RuntimeException('Failed to save file ' . $filepath);
+                }
+
                 // Create file with a temporary name and rename it to make the save action atomic.
-                $tmp = $this->tempname($filepath);
+                $tmp = $this->tempname($realpath);
                 if (@file_put_contents($tmp, $data) === false) {
                     $tmp = false;
-                } elseif (@rename($tmp, $filepath) === false) {
+                } elseif (@rename($tmp, $realpath) === false) {
                     @unlink($tmp);
                     $tmp = false;
                 }
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $tmp = false;
         }
 
         if ($tmp === false) {
-            throw new \RuntimeException('Failed to save file ' . $filepath);
+            throw new RuntimeException('Failed to save file ' . $filepath);
         }
 
         // Touch the directory as well, thus marking it modified.
@@ -327,7 +341,7 @@ class AbstractFile implements FileInterface
     /**
      * @param  string  $dir
      * @return bool
-     * @throws \RuntimeException
+     * @throws RuntimeException
      * @internal
      */
     protected function mkdir(string $dir): bool
@@ -362,6 +376,7 @@ class AbstractFile implements FileInterface
 
     /**
      * @param array $serialized
+     * @return void
      */
     protected function doUnserialize(array $serialized): void
     {
@@ -382,6 +397,7 @@ class AbstractFile implements FileInterface
 
     protected function setPathInfo(): void
     {
+        /** @var array $pathInfo */
         $pathInfo = $this->filesystem->pathinfo($this->filepath);
 
         $this->filename = $pathInfo['filename'] ?? null;

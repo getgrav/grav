@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Markdown
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -11,23 +11,34 @@ namespace Grav\Common\Markdown;
 
 use Grav\Common\Page\Markdown\Excerpts;
 use Grav\Common\Page\Interfaces\PageInterface;
+use function call_user_func_array;
+use function in_array;
+use function strlen;
 
+/**
+ * Trait ParsedownGravTrait
+ * @package Grav\Common\Markdown
+ */
 trait ParsedownGravTrait
 {
+    /** @var array */
+    public $completable_blocks = [];
+    /** @var array */
+    public $continuable_blocks = [];
+
     /** @var Excerpts */
     protected $excerpts;
-
+    /** @var array */
     protected $special_chars;
+    /** @var string */
     protected $twig_link_regex = '/\!*\[(?:.*)\]\((\{([\{%#])\s*(.*?)\s*(?:\2|\})\})\)/';
-
-    public $completable_blocks = [];
-    public $continuable_blocks = [];
 
     /**
      * Initialization function to setup key variables needed by the MarkdownGravLinkTrait
      *
      * @param PageInterface|Excerpts|null $excerpts
      * @param array|null $defaults
+     * @return void
      */
     protected function init($excerpts = null, $defaults = null)
     {
@@ -79,6 +90,7 @@ trait ParsedownGravTrait
      * @param bool $continuable
      * @param bool $completable
      * @param int|null $index
+     * @return void
      */
     public function addBlockType($type, $tag, $continuable = false, $completable = false, $index = null)
     {
@@ -110,6 +122,7 @@ trait ParsedownGravTrait
      * @param string $type
      * @param string $tag
      * @param int|null $index
+     * @return void
      */
     public function addInlineType($type, $tag, $index = null)
     {
@@ -128,12 +141,11 @@ trait ParsedownGravTrait
      * Overrides the default behavior to allow for plugin-provided blocks to be continuable
      *
      * @param string $Type
-     *
      * @return bool
      */
     protected function isBlockContinuable($Type)
     {
-        $continuable = \in_array($Type, $this->continuable_blocks, true)
+        $continuable = in_array($Type, $this->continuable_blocks, true)
             || method_exists($this, 'block' . $Type . 'Continue');
 
         return $continuable;
@@ -143,12 +155,11 @@ trait ParsedownGravTrait
      *  Overrides the default behavior to allow for plugin-provided blocks to be completable
      *
      * @param string $Type
-     *
      * @return bool
      */
     protected function isBlockCompletable($Type)
     {
-        $completable = \in_array($Type, $this->completable_blocks, true)
+        $completable = in_array($Type, $this->completable_blocks, true)
             || method_exists($this, 'block' . $Type . 'Complete');
 
         return $completable;
@@ -159,7 +170,6 @@ trait ParsedownGravTrait
      * Make the element function publicly accessible, Medium uses this to render from Twig
      *
      * @param  array $Element
-     *
      * @return string markup
      */
     public function elementToHtml(array $Element)
@@ -171,7 +181,6 @@ trait ParsedownGravTrait
      * Setter for special chars
      *
      * @param array $special_chars
-     *
      * @return $this
      */
     public function setSpecialChars($special_chars)
@@ -196,6 +205,10 @@ trait ParsedownGravTrait
         return null;
     }
 
+    /**
+     * @param array $excerpt
+     * @return array|null
+     */
     protected function inlineSpecialCharacter($excerpt)
     {
         if ($excerpt['text'][0] === '&' && !preg_match('/^&#?\w+;/', $excerpt['text'])) {
@@ -215,6 +228,10 @@ trait ParsedownGravTrait
         return null;
     }
 
+    /**
+     * @param array $excerpt
+     * @return array
+     */
     protected function inlineImage($excerpt)
     {
         if (preg_match($this->twig_link_regex, $excerpt['text'], $matches)) {
@@ -237,6 +254,10 @@ trait ParsedownGravTrait
         return $excerpt;
     }
 
+    /**
+     * @param array $excerpt
+     * @return array
+     */
     protected function inlineLink($excerpt)
     {
         $type = $excerpt['type'] ?? 'link';
@@ -263,13 +284,17 @@ trait ParsedownGravTrait
 
     /**
      * For extending this class via plugins
+     *
+     * @param string $method
+     * @param array $args
+     * @return mixed|null
      */
     public function __call($method, $args)
     {
         if (isset($this->{$method}) === true) {
             $func = $this->{$method};
 
-            return  \call_user_func_array($func, $args);
+            return call_user_func_array($func, $args);
         }
 
         return null;

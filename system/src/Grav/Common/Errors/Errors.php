@@ -3,17 +3,29 @@
 /**
  * @package    Grav\Common\Errors
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Common\Errors;
 
+use Exception;
 use Grav\Common\Grav;
-use Whoops;
+use Whoops\Handler\JsonResponseHandler;
+use Whoops\Handler\PrettyPageHandler;
+use Whoops\Run;
+use Whoops\Util\Misc;
+use function is_int;
 
+/**
+ * Class Errors
+ * @package Grav\Common\Errors
+ */
 class Errors
 {
+    /**
+     * @return void
+     */
     public function resetHandlers()
     {
         $grav = Grav::instance();
@@ -22,7 +34,7 @@ class Errors
 
         // Setup Whoops-based error handler
         $system = new SystemFacade;
-        $whoops = new Whoops\Run($system);
+        $whoops = new Run($system);
 
         $verbosity = 1;
 
@@ -36,30 +48,30 @@ class Errors
 
         switch ($verbosity) {
             case 1:
-                $error_page = new Whoops\Handler\PrettyPageHandler;
+                $error_page = new PrettyPageHandler();
                 $error_page->setPageTitle('Crikey! There was an error...');
                 $error_page->addResourcePath(GRAV_ROOT . '/system/assets');
                 $error_page->addCustomCss('whoops.css');
-                $whoops->pushHandler($error_page);
+                $whoops->prependHandler($error_page);
                 break;
             case -1:
-                $whoops->pushHandler(new BareHandler);
+                $whoops->prependHandler(new BareHandler);
                 break;
             default:
-                $whoops->pushHandler(new SimplePageHandler);
+                $whoops->prependHandler(new SimplePageHandler);
                 break;
         }
 
-        if (Whoops\Util\Misc::isAjaxRequest() || $jsonRequest) {
-            $whoops->pushHandler(new Whoops\Handler\JsonResponseHandler);
+        if ($jsonRequest || Misc::isAjaxRequest()) {
+            $whoops->prependHandler(new JsonResponseHandler());
         }
 
         if (isset($config['log']) && $config['log']) {
             $logger = $grav['log'];
-            $whoops->pushHandler(function($exception, $inspector, $run) use ($logger) {
+            $whoops->pushHandler(function ($exception, $inspector, $run) use ($logger) {
                 try {
                     $logger->addCritical($exception->getMessage() . ' - Trace: ' . $exception->getTraceAsString());
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     echo $e;
                 }
             });

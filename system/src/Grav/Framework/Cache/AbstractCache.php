@@ -3,12 +3,13 @@
 /**
  * @package    Grav\Framework\Cache
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Framework\Cache;
 
+use DateInterval;
 use Psr\SimpleCache\InvalidArgumentException;
 
 /**
@@ -21,7 +22,7 @@ abstract class AbstractCache implements CacheInterface
 
     /**
      * @param string $namespace
-     * @param null|int|\DateInterval $defaultLifetime
+     * @param null|int|DateInterval $defaultLifetime
      * @throws InvalidArgumentException
      */
     public function __construct($namespace = '', $defaultLifetime = null)

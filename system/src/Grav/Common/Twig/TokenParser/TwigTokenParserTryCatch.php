@@ -3,13 +3,14 @@
 /**
  * @package    Grav\Common\Twig
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Common\Twig\TokenParser;
 
 use Grav\Common\Twig\Node\TwigNodeTryCatch;
+use Twig\Error\SyntaxError;
 use Twig\Node\Node;
 use Twig\Token;
 use Twig\TokenParser\AbstractTokenParser;
@@ -30,9 +31,9 @@ class TwigTokenParserTryCatch extends AbstractTokenParser
     /**
      * Parses a token and returns a node.
      *
-     * @param Token $token A Twig_Token instance
-     *
-     * @return Node A Twig_Node instance
+     * @param Token $token
+     * @return TwigNodeTryCatch
+     * @throws SyntaxError
      */
     public function parse(Token $token)
     {
@@ -50,14 +51,22 @@ class TwigTokenParserTryCatch extends AbstractTokenParser
         return new TwigNodeTryCatch($try, $catch, $lineno, $this->getTag());
     }
 
-    public function decideCatch(Token $token)
+    /**
+     * @param Token $token
+     * @return bool
+     */
+    public function decideCatch(Token $token): bool
     {
-        return $token->test(array('catch'));
+        return $token->test(['catch']);
     }
 
-    public function decideEnd(Token $token)
+    /**
+     * @param Token $token
+     * @return bool
+     */
+    public function decideEnd(Token $token): bool
     {
-        return $token->test(array('endtry')) || $token->test(array('endcatch'));
+        return $token->test(['endtry']) || $token->test(['endcatch']);
     }
 
     /**
@@ -65,7 +74,7 @@ class TwigTokenParserTryCatch extends AbstractTokenParser
      *
      * @return string The tag name
      */
-    public function getTag()
+    public function getTag(): string
     {
         return 'try';
     }

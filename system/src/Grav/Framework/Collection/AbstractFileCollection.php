@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Collection
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -11,45 +11,37 @@ namespace Grav\Framework\Collection;
 
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\Common\Collections\Expr\ClosureExpressionVisitor;
+use FilesystemIterator;
 use Grav\Common\Grav;
+use RecursiveDirectoryIterator;
 use RocketTheme\Toolbox\ResourceLocator\RecursiveUniformResourceIterator;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
+use RuntimeException;
+use SeekableIterator;
+use function array_slice;
 
 /**
  * Collection of objects stored into a filesystem.
  *
  * @package Grav\Framework\Collection
+ * @template TKey
+ * @template T
+ * @extends AbstractLazyCollection<TKey,T>
+ * @mplements FileCollectionInterface<TKey,T>
  */
 class AbstractFileCollection extends AbstractLazyCollection implements FileCollectionInterface
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $path;
-
-    /**
-     * @var \RecursiveDirectoryIterator|RecursiveUniformResourceIterator
-     */
+    /** @var RecursiveDirectoryIterator|RecursiveUniformResourceIterator */
     protected $iterator;
-
-    /**
-     * @var callable
-     */
+    /** @var callable */
     protected $createObjectFunction;
-
-    /**
-     * @var callable|null
-     */
+    /** @var callable|null */
     protected $filterFunction;
-
-    /**
-     * @var int
-     */
+    /** @var int */
     protected $flags;
-
-    /**
-     * @var int
-     */
+    /** @var int */
     protected $nestingLimit;
 
     /**
@@ -94,8 +86,15 @@ class AbstractFileCollection extends AbstractLazyCollection implements FileColle
 
         if ($orderings = $criteria->getOrderings()) {
             $next = null;
+            /**
+             * @var string $field
+             * @var string $ordering
+             */
             foreach (array_reverse($orderings) as $field => $ordering) {
                 $next = ClosureExpressionVisitor::sortByField($field, $ordering === Criteria::DESC ? -1 : 1, $next);
+            }
+            if (null === $next) {
+                throw new RuntimeException('Criteria is missing orderings');
             }
 
             uasort($filtered, $next);
@@ -107,23 +106,26 @@ class AbstractFileCollection extends AbstractLazyCollection implements FileColle
         $length = $criteria->getMaxResults();
 
         if ($offset || $length) {
-            $filtered = \array_slice($filtered, (int)$offset, $length);
+            $filtered = array_slice($filtered, (int)$offset, $length);
         }
 
         return new ArrayCollection($filtered);
     }
 
+    /**
+     * @return void
+     */
     protected function setIterator()
     {
-        $iteratorFlags = \RecursiveDirectoryIterator::SKIP_DOTS + \FilesystemIterator::UNIX_PATHS
-            + \FilesystemIterator::CURRENT_AS_SELF + \FilesystemIterator::FOLLOW_SYMLINKS;
+        $iteratorFlags = RecursiveDirectoryIterator::SKIP_DOTS + FilesystemIterator::UNIX_PATHS
+            + FilesystemIterator::CURRENT_AS_SELF + FilesystemIterator::FOLLOW_SYMLINKS;
 
         if (strpos($this->path, '://')) {
             /** @var UniformResourceLocator $locator */
             $locator = Grav::instance()['locator'];
             $this->iterator = $locator->getRecursiveIterator($this->path, $iteratorFlags);
         } else {
-            $this->iterator = new \RecursiveDirectoryIterator($this->path, $iteratorFlags);
+            $this->iterator = new RecursiveDirectoryIterator($this->path, $iteratorFlags);
         }
     }
 
@@ -156,14 +158,19 @@ class AbstractFileCollection extends AbstractLazyCollection implements FileColle
         $this->collection = new ArrayCollection($filtered);
     }
 
-    protected function doInitializeByIterator(\SeekableIterator $iterator, $nestingLimit)
+    /**
+     * @param SeekableIterator $iterator
+     * @param int $nestingLimit
+     * @return array
+     */
+    protected function doInitializeByIterator(SeekableIterator $iterator, $nestingLimit)
     {
         $children = [];
         $objects = [];
         $filter = $this->filterFunction;
         $objectFunction = $this->createObjectFunction;
 
-        /** @var \RecursiveDirectoryIterator $file */
+        /** @var RecursiveDirectoryIterator $file */
         foreach ($iterator as $file) {
             // Skip files if they shouldn't be included.
             if (!($this->flags & static::INCLUDE_FILES) && $file->isFile()) {
@@ -197,7 +204,8 @@ class AbstractFileCollection extends AbstractLazyCollection implements FileColle
     }
 
     /**
-     * @param \RecursiveDirectoryIterator[] $children
+     * @param array $children
+     * @param int $nestingLimit
      * @return array
      */
     protected function doInitializeChildren(array $children, $nestingLimit)
@@ -212,7 +220,7 @@ class AbstractFileCollection extends AbstractLazyCollection implements FileColle
     }
 
     /**
-     * @param \RecursiveDirectoryIterator $file
+     * @param RecursiveDirectoryIterator $file
      * @return object
      */
     protected function createObject($file)

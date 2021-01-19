@@ -5,13 +5,15 @@ declare(strict_types=1);
 /**
  * @package    Grav\Framework\File\Formatter
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Framework\File\Formatter;
 
+use Grav\Framework\Compat\Serializable;
 use Grav\Framework\File\Interfaces\FileFormatterInterface;
+use function is_string;
 
 /**
  * Abstract file formatter.
@@ -20,6 +22,8 @@ use Grav\Framework\File\Interfaces\FileFormatterInterface;
  */
 abstract class AbstractFormatter implements FileFormatterInterface
 {
+    use Serializable;
+
     /** @var array */
     private $config;
 
@@ -35,17 +39,11 @@ abstract class AbstractFormatter implements FileFormatterInterface
     /**
      * @return string
      */
-    public function serialize(): string
+    public function getMimeType(): string
     {
-        return serialize($this->doSerialize());
-    }
+        $mime = $this->getConfig('mime');
 
-    /**
-     * @param string $serialized
-     */
-    public function unserialize($serialized): void
-    {
-        $this->doUnserialize(unserialize($serialized, ['allowed_classes' => false]));
+        return is_string($mime) ? $mime : 'application/octet-stream';
     }
 
     /**
@@ -57,7 +55,7 @@ abstract class AbstractFormatter implements FileFormatterInterface
         $extensions = $this->getSupportedFileExtensions();
 
         // Call fails on bad configuration.
-        return reset($extensions);
+        return reset($extensions) ?: '';
     }
 
     /**
@@ -69,7 +67,7 @@ abstract class AbstractFormatter implements FileFormatterInterface
         $extensions = $this->getConfig('file_extension');
 
         // Call fails on bad configuration.
-        return \is_string($extensions) ? [$extensions] : $extensions;
+        return is_string($extensions) ? [$extensions] : $extensions;
     }
 
     /**
@@ -84,6 +82,24 @@ abstract class AbstractFormatter implements FileFormatterInterface
      */
     abstract public function decode($data);
 
+
+    /**
+     * @return array
+     */
+    public function __serialize(): array
+    {
+        return ['config' => $this->config];
+    }
+
+    /**
+     * @param array $data
+     * @return void
+     */
+    public function __unserialize(array $data): void
+    {
+        $this->config = $data['config'];
+    }
+
     /**
      * Get either full configuration or a single option.
      *
@@ -97,23 +113,5 @@ abstract class AbstractFormatter implements FileFormatterInterface
         }
 
         return $this->config;
-    }
-
-    /**
-     * @return array
-     */
-    protected function doSerialize(): array
-    {
-        return ['config' => $this->config];
-    }
-
-    /**
-     * Note: if overridden, make sure you call parent::doUnserialize()
-     *
-     * @param array $serialized
-     */
-    protected function doUnserialize(array $serialized): void
-    {
-        $this->config = $serialized['config'];
     }
 }

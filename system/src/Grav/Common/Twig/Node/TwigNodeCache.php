@@ -10,9 +10,12 @@
 namespace Grav\Common\Twig\Node;
 
 use Twig\Compiler;
-use Twig\Node\Expression\AbstractExpression;
 use Twig\Node\Node;
 
+/**
+ * Class TwigNodeCache
+ * @package Grav\Common\Twig\Node
+ */
 class TwigNodeCache extends Node
 {
     /**
@@ -20,7 +23,7 @@ class TwigNodeCache extends Node
      * @param int       $lifetime  in seconds
      * @param Node      $body
      * @param integer   $lineno
-     * @param string    $tag
+     * @param string|null $tag
      */
     public function __construct(string $key, int $lifetime, Node $body, $lineno, $tag = null)
     {
@@ -30,7 +33,7 @@ class TwigNodeCache extends Node
     /**
      * {@inheritDoc}
      */
-    public function compile(Compiler $compiler)
+    public function compile(Compiler $compiler): void
     {
         $boo = $this->getAttribute('key');
         $compiler
@@ -50,7 +53,6 @@ class TwigNodeCache extends Node
                 ->write("\$cache->save(\$key, \$cache_body, \$lifetime);\n")
             ->outdent()
             ->write("}\n")
-            ->write("echo \$cache_body;\n")
-        ;
+            ->write("echo \$cache_body;\n");
     }
 }

@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\RequestHandler
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -12,7 +12,12 @@ declare(strict_types=1);
 namespace Grav\Framework\RequestHandler\Exception;
 
 use Psr\Http\Message\ServerRequestInterface;
+use Throwable;
 
+/**
+ * Class RequestException
+ * @package Grav\Framework\RequestHandler\Exception
+ */
 class RequestException extends \RuntimeException
 {
     /** @var array Map of standard HTTP status code/reason phrases */
@@ -66,9 +71,9 @@ class RequestException extends \RuntimeException
      * @param ServerRequestInterface $request
      * @param string $message
      * @param int $code
-     * @param \Throwable|null $previous
+     * @param Throwable|null $previous
      */
-    public function __construct(ServerRequestInterface $request, string $message, int $code = 500, \Throwable $previous = null)
+    public function __construct(ServerRequestInterface $request, string $message, int $code = 500, Throwable $previous = null)
     {
         $this->request = $request;
 
@@ -78,19 +83,19 @@ class RequestException extends \RuntimeException
     /**
      * @return ServerRequestInterface
      */
-    public function getRequest() : ServerRequestInterface
+    public function getRequest(): ServerRequestInterface
     {
         return $this->request;
     }
 
-    public function getHttpCode() : int
+    public function getHttpCode(): int
     {
         $code = $this->getCode();
 
         return isset(self::$phrases[$code]) ? $code : 500;
     }
 
-    public function getHttpReason() : ?string
+    public function getHttpReason(): ?string
     {
         return self::$phrases[$this->getCode()] ?? self::$phrases[500];
     }

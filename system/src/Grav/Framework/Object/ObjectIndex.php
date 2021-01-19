@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Object
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -11,8 +11,10 @@ namespace Grav\Framework\Object;
 
 use Doctrine\Common\Collections\Criteria;
 use Grav\Framework\Collection\AbstractIndexCollection;
-use Grav\Framework\Object\Interfaces\NestedObjectInterface;
+use Grav\Framework\Object\Interfaces\NestedObjectCollectionInterface;
 use Grav\Framework\Object\Interfaces\ObjectCollectionInterface;
+use function get_class;
+use function is_object;
 
 /**
  * Keeps index of objects instead of collection of objects. This class allows you to keep a list of objects and load
@@ -20,15 +22,18 @@ use Grav\Framework\Object\Interfaces\ObjectCollectionInterface;
  *
  * This is an abstract class and has some protected abstract methods to load objects which you need to implement in
  * order to use the class.
+ *
+ * @template TKey
+ * @template T
+ * @extends AbstractIndexCollection<TKey,T>
+ * @implements NestedObjectCollectionInterface<TKey,T>
  */
-abstract class ObjectIndex extends AbstractIndexCollection implements ObjectCollectionInterface, NestedObjectInterface
+abstract class ObjectIndex extends AbstractIndexCollection implements NestedObjectCollectionInterface
 {
     /** @var string */
-    static protected $type;
+    protected static $type;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $_key;
 
     /**
@@ -43,7 +48,7 @@ abstract class ObjectIndex extends AbstractIndexCollection implements ObjectColl
             return $type . static::$type;
         }
 
-        $class = \get_class($this);
+        $class = get_class($this);
         return $type . strtolower(substr($class, strrpos($class, '\\') + 1));
     }
 
@@ -68,7 +73,7 @@ abstract class ObjectIndex extends AbstractIndexCollection implements ObjectColl
 
     /**
      * @param string $property      Object property name.
-     * @return array                True if property has been defined (can be null).
+     * @return bool[]               True if property has been defined (can be null).
      */
     public function hasProperty($property)
     {
@@ -78,7 +83,7 @@ abstract class ObjectIndex extends AbstractIndexCollection implements ObjectColl
     /**
      * @param string $property      Object property to be fetched.
      * @param mixed $default        Default value if property has not been set.
-     * @return array                Property values.
+     * @return mixed[]             Property values.
      */
     public function getProperty($property, $default = null)
     {
@@ -116,8 +121,8 @@ abstract class ObjectIndex extends AbstractIndexCollection implements ObjectColl
 
     /**
      * @param string $property      Object property name.
-     * @param string $separator     Separator, defaults to '.'
-     * @return bool                 True if property has been defined (can be null).
+     * @param string|null $separator     Separator, defaults to '.'
+     * @return bool[]               True if property has been defined (can be null).
      */
     public function hasNestedProperty($property, $separator = null)
     {
@@ -127,8 +132,8 @@ abstract class ObjectIndex extends AbstractIndexCollection implements ObjectColl
     /**
      * @param string $property      Object property to be fetched.
      * @param mixed  $default       Default value if property has not been set.
-     * @param string $separator     Separator, defaults to '.'
-     * @return mixed                Property value.
+     * @param string|null $separator     Separator, defaults to '.'
+     * @return mixed[]              Property values.
      */
     public function getNestedProperty($property, $default = null, $separator = null)
     {
@@ -137,8 +142,8 @@ abstract class ObjectIndex extends AbstractIndexCollection implements ObjectColl
 
     /**
      * @param string $property      Object property to be updated.
-     * @param string $value         New value.
-     * @param string $separator     Separator, defaults to '.'
+     * @param mixed  $value         New value.
+     * @param string|null $separator     Separator, defaults to '.'
      * @return ObjectCollectionInterface
      */
     public function setNestedProperty($property, $value, $separator = null)
@@ -149,7 +154,7 @@ abstract class ObjectIndex extends AbstractIndexCollection implements ObjectColl
     /**
      * @param string  $property     Object property to be defined.
      * @param mixed   $default      Default value.
-     * @param string  $separator    Separator, defaults to '.'
+     * @param string|null  $separator    Separator, defaults to '.'
      * @return ObjectCollectionInterface
      */
     public function defNestedProperty($property, $default, $separator = null)
@@ -159,6 +164,7 @@ abstract class ObjectIndex extends AbstractIndexCollection implements ObjectColl
 
     /**
      * @param string  $property     Object property to be unset.
+     * @param string|null  $separator    Separator, defaults to '.'
      * @return ObjectCollectionInterface
      */
     public function unsetNestedProperty($property, $separator = null)
@@ -175,7 +181,7 @@ abstract class ObjectIndex extends AbstractIndexCollection implements ObjectColl
     {
         $list = [];
         foreach ($this->getIterator() as $key => $value) {
-            $list[$key] = \is_object($value) ? clone $value : $value;
+            $list[$key] = is_object($value) ? clone $value : $value;
         }
 
         return $this->createFrom($list);
@@ -199,7 +205,9 @@ abstract class ObjectIndex extends AbstractIndexCollection implements ObjectColl
     }
 
     /**
-     * {@inheritDoc}
+     * @param string $method
+     * @param array $arguments
+     * @return array|mixed
      */
     public function call($method, array $arguments = [])
     {
@@ -239,6 +247,11 @@ abstract class ObjectIndex extends AbstractIndexCollection implements ObjectColl
         return $collection->matching($criteria);
     }
 
+    /**
+     * @param string $name
+     * @param array $arguments
+     * @return mixed
+     */
     abstract public function __call($name, $arguments);
 
     /**

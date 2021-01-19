@@ -3,12 +3,13 @@
 /**
  * @package    Grav\Framework\Form
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Framework\Form;
 
+use Exception;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\Grav;
 use Grav\Common\User\Interfaces\UserInterface;
@@ -17,7 +18,14 @@ use Grav\Framework\Form\Interfaces\FormFlashInterface;
 use Psr\Http\Message\UploadedFileInterface;
 use RocketTheme\Toolbox\File\YamlFile;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
+use RuntimeException;
+use function func_get_args;
+use function is_array;
 
+/**
+ * Class FormFlash
+ * @package Grav\Framework\Form
+ */
 class FormFlash implements FormFlashInterface
 {
     /** @var bool */
@@ -30,13 +38,13 @@ class FormFlash implements FormFlashInterface
     protected $formName;
     /** @var string */
     protected $url;
-    /** @var array */
+    /** @var array|null */
     protected $user;
     /** @var int */
     protected $createdTimestamp;
     /** @var int */
     protected $updatedTimestamp;
-    /** @var array */
+    /** @var array|null */
     protected $data;
     /** @var array */
     protected $files;
@@ -62,6 +70,9 @@ class FormFlash implements FormFlashInterface
                 'unique_id' => $args[1] ?? null,
                 'form_name' => $args[2] ?? null,
             ];
+            $config = array_filter($config, static function ($val) {
+                return $val !== null;
+            });
         }
 
         $this->sessionId = $config['session_id'] ?? 'no-session';
@@ -73,28 +84,53 @@ class FormFlash implements FormFlashInterface
         $locator = Grav::instance()['locator'];
 
         $this->folder = $folder && $locator->isStream($folder) ? $locator->findResource($folder, true, true) : $folder;
-        $file = $this->getTmpIndex();
-        $this->exists = $file->exists();
 
-        if ($this->exists) {
-            try {
-                $data = (array)$file->content();
-            } catch (\Exception $e) {
-                $data = [];
-            }
-            $this->formName = $content['form'] ?? $config['form_name'] ?? '';
+        $this->init($this->loadStoredForm(), $config);
+    }
+
+    /**
+     * @param array|null $data
+     * @param array $config
+     */
+    protected function init(?array $data, array $config): void
+    {
+        if (null === $data) {
+            $this->exists = false;
+            $this->formName = $config['form_name'] ?? '';
+            $this->url = '';
+            $this->createdTimestamp = $this->updatedTimestamp = time();
+            $this->files = [];
+        } else {
+            $this->exists = true;
+            $this->formName = $data['form'] ?? $config['form_name'] ?? '';
             $this->url = $data['url'] ?? '';
             $this->user = $data['user'] ?? null;
             $this->updatedTimestamp = $data['timestamps']['updated'] ?? time();
             $this->createdTimestamp = $data['timestamps']['created'] ?? $this->updatedTimestamp;
             $this->data = $data['data'] ?? null;
             $this->files = $data['files'] ?? [];
-        } else {
-            $this->formName = $config['form_name'] ?? '';
-            $this->url = '';
-            $this->createdTimestamp = $this->updatedTimestamp = time();
-            $this->files = [];
         }
+    }
+
+    /**
+     * Load raw flex flash data from the filesystem.
+     *
+     * @return array|null
+     */
+    protected function loadStoredForm(): ?array
+    {
+        $file = $this->getTmpIndex();
+        $exists = $file->exists();
+
+        $data = null;
+        if ($exists) {
+            try {
+                $data = (array)$file->content();
+            } catch (Exception $e) {
+            }
+        }
+
+        return $data;
     }
 
     /**
@@ -114,6 +150,7 @@ class FormFlash implements FormFlashInterface
     }
 
     /**
+     * @return string
      * @deprecated 1.6.11 Use '->getUniqueId()' method instead.
      */
     public function getUniqieId(): string
@@ -200,13 +237,13 @@ class FormFlash implements FormFlashInterface
     /**
      * @inheritDoc
      */
-    public function save(): self
+    public function save(bool $force = false)
     {
         if (!($this->folder && $this->uniqueId)) {
             return $this;
         }
 
-        if ($this->data || $this->files) {
+        if ($force || $this->data || $this->files) {
             // Only save if there is data or files to be saved.
             $file = $this->getTmpIndex();
             $file->save($this->jsonSerialize());
@@ -222,7 +259,7 @@ class FormFlash implements FormFlashInterface
     /**
      * @inheritDoc
      */
-    public function delete(): self
+    public function delete()
     {
         if ($this->folder && $this->uniqueId) {
             $this->removeTmpDir();
@@ -273,6 +310,9 @@ class FormFlash implements FormFlashInterface
         $tmp_dir = $this->getTmpDir();
         $tmp_name = Utils::generateRandomString(12);
         $name = $upload->getClientFilename();
+        if (!$name) {
+            throw new RuntimeException('Uploaded file has no filename');
+        }
 
         // Prepare upload data for later save
         $data = [
@@ -290,14 +330,13 @@ class FormFlash implements FormFlashInterface
         return $name;
     }
 
-
     /**
      * @inheritDoc
      */
     public function addFile(string $filename, string $field, array $crop = null): bool
     {
         if (!file_exists($filename)) {
-            throw new \RuntimeException("File not found: {$filename}");
+            throw new RuntimeException("File not found: {$filename}");
         }
 
         // Prepare upload data for later save
@@ -457,8 +496,15 @@ class FormFlash implements FormFlashInterface
         }
     }
 
+    /**
+     * @return void
+     */
     protected function removeTmpDir(): void
     {
+        // Make sure that index file cache gets always cleared.
+        $file = $this->getTmpIndex();
+        $file->free();
+
         $tmpDir = $this->getTmpDir();
         if ($tmpDir && file_exists($tmpDir)) {
             Folder::delete($tmpDir);
@@ -466,15 +512,16 @@ class FormFlash implements FormFlashInterface
     }
 
     /**
-     * @param string $field
+     * @param string|null $field
      * @param string $name
      * @param array $data
      * @param array|null $crop
+     * @return void
      */
     protected function addFileInternal(?string $field, string $name, array $data, array $crop = null): void
     {
         if (!($this->folder && $this->uniqueId)) {
-            throw new \RuntimeException('Cannot upload files: form flash folder not defined');
+            throw new RuntimeException('Cannot upload files: form flash folder not defined');
         }
 
         $field = $field ?: 'undefined';
