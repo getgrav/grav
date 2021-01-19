@@ -606,7 +606,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             }
         }
 
-        $periods[$j] = $this->grav['language']->translate('GRAV.'.$periods[$j], null, true);
+        $periods[$j] = $this->grav['language']->translate('GRAV.'.$periods[$j]);
 
         if ($now == $unix_date) {
             return $tense;
