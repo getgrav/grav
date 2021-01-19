@@ -14,6 +14,7 @@
     * Added support for relative paths in `PageObject::getLevelListing()` [#3110](https://github.com/getgrav/grav/issues/3110)
     * Better `--env` and `--lang` support for `bin/grav`, `bin/gpm` and `bin/plugin` console commands
       * **BC BREAK** Shorthand for `--env`: `-e` will not work anymore as it conflicts with some plugins
+    * Added support for locking the `start` and `limit` in a Page Collection
 1. [](#bugfix)
     * Fixed port issue with `system.custom_base_url`
     * Hide errors with `exif_read_data` in `ImageFile`
