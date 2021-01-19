@@ -1,7 +1,10 @@
 # v1.7.0
-## mm/dd/2020
+## 01/19/2021
 
 1. [](#new)
+    * Requires **PHP 7.3.6**
+    * Read about this release in the [Grav 1.7 Released](https://getgrav.org/blog/grav-1.7-released) blog post
+    * Read the full list of changes in the [Changelog on GitHub](https://github.com/getgrav/grav/blob/1.7.0/CHANGELOG.md)
     * Please read [Grav 1.7 Upgrade Guide](https://learn.getgrav.org/17/advanced/grav-development/grav-17-upgrade-guide) before upgrading!
     * Added support for overriding configuration by using environment variables
     * Use PHP 7.4 serialization (the old `Serializable` methods are now final and cannot be overridden)

@@ -2,9 +2,9 @@ name: PHP Tests
 
 on:
   push:
-    branches: [ 1.7 ]
+    branches: [ develop ]
   pull_request:
-    branches: [ 1.7 ]
+    branches: [ develop ]
 
 jobs:
 
@@ -64,7 +64,7 @@ jobs:
              status: failure
              fields: repo,message,author,action
              icon_emoji: ':octocat:'
-             author_name: 'Github Action Tests (1.7)'
+             author_name: 'Github Action Tests'
              text: '💥 Automated Test Failure'
           env:
             GITHUB_TOKEN: ${{ github.token }}
