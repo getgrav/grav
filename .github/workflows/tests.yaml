@@ -26,6 +26,8 @@ jobs:
           php-version: ${{ matrix.php }}
           extensions: opcache, gd
           coverage: none
+        env:
+          COMPOSER_TOKEN: ${{ github.token }}
 
       - name: Update composer
         run: composer update
