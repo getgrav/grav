@@ -1,5 +1,5 @@
 # v1.7.1
-## mm/dd/2021
+## 01/20/2021
 
 1. [](#bugfix)
     * Fixed fatal error when `site.taxonomies` contains a bad value
