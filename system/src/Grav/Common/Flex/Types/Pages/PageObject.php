@@ -372,7 +372,14 @@ class PageObject extends FlexPageObject
         // If menu item was moved, just make it to be the last in order.
         if ($isMoved && $this->order() !== false) {
             $parentKey = $this->getProperty('parent_key');
-            $newParent = $this->getFlexDirectory()->getObject($parentKey, 'storage_key');
+            if ($parentKey === '') {
+                $newParent = $this->getFlexDirectory()->getIndex()->getRoot();
+            } else {
+                $newParent = $this->getFlexDirectory()->getObject($parentKey, 'storage_key');
+                if (!$newParent instanceof PageInterface) {
+                    throw new RuntimeException("New parent page '{$parentKey}' not found.");
+                }
+            }
             $newSiblings = $newParent->children()->getCollection()->withOrdered();
             $order = 0;
             foreach ($newSiblings as $sibling) {

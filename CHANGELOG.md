@@ -6,6 +6,7 @@
     * Sanitize valid Page extensions from `Page::template_format()`
     * Fixed `bin/gpm index` erroring out [#3158](https://github.com/getgrav/grav/issues/3158)
     * Fixed `bin/gpm selfupgrade` failing to report failed Grav update [#3116](https://github.com/getgrav/grav/issues/3116)
+    * Flex Pages: Fixed fatal error when trying to move a page to Root (/) [#3161](https://github.com/getgrav/grav/issues/3161)
 
 # v1.7.0
 ## 01/19/2021
