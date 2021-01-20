@@ -1674,8 +1674,12 @@ class Page implements PageInterface
                 'generator' => 'GravCMS'
             ];
 
+            $config = Grav::instance()['config'];
+
+            $escape = !$config->get('system.strict_mode.twig_compat', false) || $config->get('system.twig.autoescape', true);
+
             // Get initial metadata for the page
-            $metadata = array_merge($metadata, Grav::instance()['config']->get('site.metadata', []));
+            $metadata = array_merge($metadata, $config->get('site.metadata', []));
 
             if (isset($this->header->metadata) && is_array($this->header->metadata)) {
                 // Merge any site.metadata settings in with page metadata
@@ -1694,7 +1698,7 @@ class Page implements PageInterface
                         $this->metadata[$prop_key] = [
                             'name' => $prop_key,
                             'property' => $prop_key,
-                            'content' => htmlspecialchars($prop_value, ENT_QUOTES, 'UTF-8')
+                            'content' => $escape ? htmlspecialchars($prop_value, ENT_QUOTES, 'UTF-8') : $prop_value
                         ];
                     }
                 } else {
@@ -1703,16 +1707,16 @@ class Page implements PageInterface
                         if (in_array($key, $header_tag_http_equivs, true)) {
                             $this->metadata[$key] = [
                                 'http_equiv' => $key,
-                                'content' => htmlspecialchars($value, ENT_QUOTES, 'UTF-8')
+                                'content' => $escape ? htmlspecialchars($value, ENT_QUOTES, 'UTF-8') : $value
                             ];
                         } elseif ($key === 'charset') {
-                            $this->metadata[$key] = ['charset' => htmlspecialchars($value, ENT_QUOTES, 'UTF-8')];
+                            $this->metadata[$key] = ['charset' => $escape ? htmlspecialchars($value, ENT_QUOTES, 'UTF-8') : $value];
                         } else {
                             // if it's a social metadata with separator, render as property
                             $separator = strpos($key, ':');
                             $hasSeparator = $separator && $separator < strlen($key) - 1;
                             $entry = [
-                                'content' => htmlspecialchars($value, ENT_QUOTES, 'UTF-8')
+                                'content' => $escape ? htmlspecialchars($value, ENT_QUOTES, 'UTF-8') : $value
                             ];
 
                             if ($hasSeparator && !Utils::startsWith($key, 'twitter')) {
