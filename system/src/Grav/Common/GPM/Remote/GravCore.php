@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\GPM
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -11,20 +11,30 @@ namespace Grav\Common\GPM\Remote;
 
 use Grav\Common\Grav;
 use \Doctrine\Common\Cache\FilesystemCache;
+use InvalidArgumentException;
 
+/**
+ * Class GravCore
+ * @package Grav\Common\GPM\Remote
+ */
 class GravCore extends AbstractPackageCollection
 {
+    /** @var string */
     protected $repository = 'https://getgrav.org/downloads/grav.json';
-    private $data;
 
+    /** @var array */
+    private $data;
+    /** @var string */
     private $version;
+    /** @var string */
     private $date;
+    /** @var string|null */
     private $min_php;
 
     /**
      * @param bool $refresh
-     * @param null $callback
-     * @throws \InvalidArgumentException
+     * @param callable|null $callback
+     * @throws InvalidArgumentException
      */
     public function __construct($refresh = false, $callback = null)
     {
@@ -61,8 +71,7 @@ class GravCore extends AbstractPackageCollection
     /**
      * Returns the changelog list for each version of Grav
      *
-     * @param string $diff the version number to start the diff from
-     *
+     * @param string|null $diff the version number to start the diff from
      * @return array changelog list for each version
      */
     public function getChangelog($diff = null)

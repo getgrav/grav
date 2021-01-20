@@ -5,31 +5,38 @@ declare(strict_types=1);
 /**
  * @package    Grav\Framework\Filesystem
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Framework\Filesystem;
 
 use Grav\Framework\Filesystem\Interfaces\FilesystemInterface;
+use RuntimeException;
+use function count;
+use function dirname;
+use function pathinfo;
 
+/**
+ * Class Filesystem
+ * @package Grav\Framework\Filesystem
+ */
 class Filesystem implements FilesystemInterface
 {
     /** @var bool|null */
     private $normalize;
 
-    /** @var static */
-    static protected $default;
+    /** @var static|null */
+    protected static $default;
 
-    /** @var static */
-    static protected $unsafe;
+    /** @var static|null */
+    protected static $unsafe;
 
-    /** @var static */
-    static protected $safe;
+    /** @var static|null */
+    protected static $safe;
 
     /**
      * @param bool|null $normalize See $this->setNormalization()
-     *
      * @return Filesystem
      */
     public static function getInstance(bool $normalize = null): Filesystem
@@ -53,6 +60,7 @@ class Filesystem implements FilesystemInterface
      * Always use Filesystem::getInstance() instead.
      *
      * @param bool|null $normalize
+     * @internal
      */
     protected function __construct(bool $normalize = null)
     {
@@ -67,7 +75,6 @@ class Filesystem implements FilesystemInterface
      * not normalized.
      *
      * @param bool|null $normalize
-     *
      * @return Filesystem
      */
     public function setNormalization(bool $normalize = null): self
@@ -76,9 +83,17 @@ class Filesystem implements FilesystemInterface
     }
 
     /**
+     * @return bool|null
+     */
+    public function getNormalization(): ?bool
+    {
+        return $this->normalize;
+    }
+
+    /**
      * Force all paths to be normalized.
      *
-     * @return static
+     * @return self
      */
     public function unsafe(): self
     {
@@ -88,7 +103,7 @@ class Filesystem implements FilesystemInterface
     /**
      * Force all paths not to be normalized (speeds up the calls if given paths are known to be normalized).
      *
-     * @return static
+     * @return self
      */
     public function safe(): self
     {
@@ -131,6 +146,15 @@ class Filesystem implements FilesystemInterface
 
     /**
      * {@inheritdoc}
+     * @see FilesystemInterface::basename()
+     */
+    public function basename(string $path, ?string $suffix = null): string
+    {
+        return $suffix ? basename($path, $suffix) : basename($path);
+    }
+
+    /**
+     * {@inheritdoc}
      * @see FilesystemInterface::dirname()
      */
     public function dirname(string $path, int $levels = 1): string
@@ -147,10 +171,24 @@ class Filesystem implements FilesystemInterface
     }
 
     /**
+     * Gets full path with trailing slash.
+     *
+     * @param string $path
+     * @param int $levels
+     * @return string
+     */
+    public function pathname(string $path, int $levels = 1): string
+    {
+        $path = $this->dirname($path, $levels);
+
+        return $path !== '.' ? $path . '/' : '';
+    }
+
+    /**
      * {@inheritdoc}
      * @see FilesystemInterface::pathinfo()
      */
-    public function pathinfo(string $path, int $options = null)
+    public function pathinfo(string $path, ?int $options = null)
     {
         [$scheme, $path] = $this->getSchemeAndHierarchy($path);
 
@@ -165,15 +203,19 @@ class Filesystem implements FilesystemInterface
      * @param string|null $scheme
      * @param string $path
      * @param int $levels
-     *
      * @return array
      */
     protected function dirnameInternal(?string $scheme, string $path, int $levels = 1): array
     {
-        $path = \dirname($path, $levels);
+        $path = dirname($path, $levels);
 
         if (null !== $scheme && $path === '.') {
             return [$scheme, ''];
+        }
+
+        // In Windows dirname() may return backslashes, fix that.
+        if (DIRECTORY_SEPARATOR !== '/') {
+            $path = str_replace('\\', '/', $path);
         }
 
         return [$scheme, $path];
@@ -183,18 +225,26 @@ class Filesystem implements FilesystemInterface
      * @param string|null $scheme
      * @param string $path
      * @param int|null $options
-     *
-     * @return array
+     * @return array|string
      */
-    protected function pathinfoInternal(?string $scheme, string $path, int $options = null)
+    protected function pathinfoInternal(?string $scheme, string $path, ?int $options = null)
     {
-        $info = $options ? \pathinfo($path, $options) : \pathinfo($path);
+        if ($options) {
+            return pathinfo($path, $options);
+        }
+
+        $info = pathinfo($path);
 
         if (null !== $scheme) {
             $info['scheme'] = $scheme;
             $dirname = isset($info['dirname']) && $info['dirname'] !== '.' ? $info['dirname'] : null;
 
             if (null !== $dirname) {
+                // In Windows dirname may be using backslashes, fix that.
+                if (DIRECTORY_SEPARATOR !== '/') {
+                    $dirname = str_replace('\\', '/', $dirname);
+                }
+
                 $info['dirname'] = $scheme . '://' . $dirname;
             } else {
                 $info = ['dirname' => $scheme . '://'] + $info;
@@ -208,20 +258,18 @@ class Filesystem implements FilesystemInterface
      * Gets a 2-tuple of scheme (may be null) and hierarchical part of a filename (e.g. file:///tmp -> array(file, tmp)).
      *
      * @param string $filename
-     *
      * @return array
      */
     protected function getSchemeAndHierarchy(string $filename): array
     {
         $components = explode('://', $filename, 2);
 
-        return 2 === \count($components) ? $components : [null, $components[0]];
+        return 2 === count($components) ? $components : [null, $components[0]];
     }
 
     /**
      * @param string|null $scheme
      * @param string $path
-     *
      * @return string
      */
     protected function toString(?string $scheme, string $path): string
@@ -235,9 +283,8 @@ class Filesystem implements FilesystemInterface
 
     /**
      * @param string $path
-     *
      * @return string
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
     protected function normalizePathPart(string $path): string
     {
@@ -277,14 +324,14 @@ class Filesystem implements FilesystemInterface
 
             // Resolve /../ by removing path part.
             if ($part === '..') {
-                $test = array_shift($list);
+                $test = array_pop($list);
                 if ($test === null) {
                     // Oops, user tried to access something outside of our root folder.
-                    throw new \RuntimeException("Bad path {$path}");
+                    throw new RuntimeException("Bad path {$path}");
                 }
+            } else {
+                $list[] = $part;
             }
-
-            $list[] = $part;
         }
 
         // Build path back together.

@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * @package    Grav\Framework\Flex
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -23,6 +23,7 @@ use Grav\Framework\Flex\Interfaces\FlexStorageInterface;
 use RocketTheme\Toolbox\File\File;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use RuntimeException;
+use function is_array;
 
 /**
  * Class AbstractFilesystemStorage
@@ -34,11 +35,20 @@ abstract class AbstractFilesystemStorage implements FlexStorageInterface
     protected $dataFormatter;
     /** @var string */
     protected $keyField = 'storage_key';
+    /** @var int */
+    protected $keyLen = 32;
 
+    /**
+     * @return bool
+     */
+    public function isIndexed(): bool
+    {
+        return false;
+    }
 
     /**
      * {@inheritdoc}
-     * @see FlexStorageInterface::hasKey()
+     * @see FlexStorageInterface::hasKeys()
      */
     public function hasKeys(array $keys): array
     {
@@ -51,17 +61,66 @@ abstract class AbstractFilesystemStorage implements FlexStorageInterface
     }
 
     /**
-     * @return string
+     * {@inheritDoc}
+     * @see FlexStorageInterface::getKeyField()
      */
     public function getKeyField(): string
     {
         return $this->keyField;
     }
 
+    /**
+     * @param array $keys
+     * @param bool $includeParams
+     * @return string
+     */
+    public function buildStorageKey(array $keys, bool $includeParams = true): string
+    {
+        $key = $keys['key'] ?? '';
+        $params = $includeParams ? $this->buildStorageKeyParams($keys) : '';
+
+        return $params ? "{$key}|{$params}" : $key;
+    }
+
+    /**
+     * @param array $keys
+     * @return string
+     */
+    public function buildStorageKeyParams(array $keys): string
+    {
+        return '';
+    }
+
+    /**
+     * @param array $row
+     * @return array
+     */
+    public function extractKeysFromRow(array $row): array
+    {
+        return [
+            'key' => $row[$this->keyField] ?? ''
+        ];
+    }
+
+    /**
+     * @param string $key
+     * @return array
+     */
+    public function extractKeysFromStorageKey(string $key): array
+    {
+        return [
+            'key' => $key
+        ];
+    }
+
+    /**
+     * @param string|array $formatter
+     * @return void
+     */
     protected function initDataFormatter($formatter): void
     {
         // Initialize formatter.
-        if (!\is_array($formatter)) {
+        if (!is_array($formatter)) {
             $formatter = ['class' => $formatter];
         }
         $formatterClassName = $formatter['class'] ?? JsonFormatter::class;
@@ -72,7 +131,7 @@ abstract class AbstractFilesystemStorage implements FlexStorageInterface
 
     /**
      * @param string $filename
-     * @return null|string
+     * @return string|null
      */
     protected function detectDataFormatter(string $filename): ?string
     {
@@ -92,12 +151,13 @@ abstract class AbstractFilesystemStorage implements FlexStorageInterface
 
     /**
      * @param string $filename
-     * @return File
+     * @return CompiledJsonFile|CompiledYamlFile|CompiledMarkdownFile
      */
     protected function getFile(string $filename)
     {
         $filename = $this->resolvePath($filename);
 
+        // TODO: start using the new file classes.
         switch ($this->dataFormatter->getDefaultFileExtension()) {
             case '.json':
                 $file = CompiledJsonFile::instance($filename);
@@ -138,7 +198,7 @@ abstract class AbstractFilesystemStorage implements FlexStorageInterface
      */
     protected function generateKey(): string
     {
-        return substr(hash('sha256', random_bytes(32)), 0, 32);
+        return substr(hash('sha256', random_bytes($this->keyLen)), 0, $this->keyLen);
     }
 
     /**
@@ -149,6 +209,6 @@ abstract class AbstractFilesystemStorage implements FlexStorageInterface
      */
     protected function validateKey(string $key): bool
     {
-        return (bool) preg_match('/^[^\\/\\?\\*:;{}\\\\\\n]+$/u', $key);
+        return $key && (bool) preg_match('/^[^\\/?*:;{}\\\\\\n]+$/u', $key);
     }
 }

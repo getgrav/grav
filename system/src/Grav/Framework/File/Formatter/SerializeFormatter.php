@@ -5,14 +5,22 @@ declare(strict_types=1);
 /**
  * @package    Grav\Framework\File\Formatter
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Framework\File\Formatter;
 
 use Grav\Framework\File\Interfaces\FileFormatterInterface;
+use RuntimeException;
+use stdClass;
+use function is_array;
+use function is_string;
 
+/**
+ * Class SerializeFormatter
+ * @package Grav\Framework\File\Formatter
+ */
 class SerializeFormatter extends AbstractFormatter
 {
     /**
@@ -23,7 +31,7 @@ class SerializeFormatter extends AbstractFormatter
     {
         $config += [
             'file_extension' => '.ser',
-            'decode_options' => ['allowed_classes' => [\stdClass::class]]
+            'decode_options' => ['allowed_classes' => [stdClass::class]]
         ];
 
         parent::__construct($config);
@@ -34,7 +42,7 @@ class SerializeFormatter extends AbstractFormatter
      *
      * By default only allow stdClass class.
      *
-     * @return array|bool
+     * @return array
      */
     public function getOptions()
     {
@@ -56,10 +64,11 @@ class SerializeFormatter extends AbstractFormatter
      */
     public function decode($data)
     {
-        $decoded = @unserialize($data, $this->getOptions());
+        $classes = $this->getOptions()['allowed_classes'] ?? false;
+        $decoded = @unserialize($data, ['allowed_classes' => $classes]);
 
         if ($decoded === false && $data !== serialize(false)) {
-            throw new \RuntimeException('Decoding serialized data failed');
+            throw new RuntimeException('Decoding serialized data failed');
         }
 
         return $this->preserveLines($decoded, ['\\n', '\\r'], ["\n", "\r"]);
@@ -75,9 +84,9 @@ class SerializeFormatter extends AbstractFormatter
      */
     protected function preserveLines($data, array $search, array $replace)
     {
-        if (\is_string($data)) {
+        if (is_string($data)) {
             $data = str_replace($search, $replace, $data);
-        } elseif (\is_array($data)) {
+        } elseif (is_array($data)) {
             foreach ($data as &$value) {
                 $value = $this->preserveLines($value, $search, $replace);
             }

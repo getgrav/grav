@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Uri
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -11,6 +11,7 @@ namespace Grav\Framework\Uri;
 
 use Grav\Framework\Psr7\AbstractUri;
 use GuzzleHttp\Psr7\Uri as GuzzleUri;
+use InvalidArgumentException;
 use Psr\Http\Message\UriInterface;
 
 /**
@@ -27,7 +28,8 @@ class Uri extends AbstractUri
      * You can use `UriFactory` functions to create new `Uri` objects.
      *
      * @param array $parts
-     * @throws \InvalidArgumentException
+     * @return void
+     * @throws InvalidArgumentException
      */
     public function __construct(array $parts = [])
     {

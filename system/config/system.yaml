@@ -20,18 +20,21 @@ languages:
   supported: []                                  # List of languages supported. eg: [en, fr, de]
   default_lang:                                  # Default is the first supported language. Must be one of the supported languages
   include_default_lang: true                     # Include the default lang prefix in all URLs
-  pages_fallback_only: false                     # Only fallback to find page content through supported languages
-  translations: true                             # Enable translations by default
+  include_default_lang_file_extension: true      # If true, include language code for the default language in file extension: default.en.md
+  translations: true                             # If false, translation keys are used instead of translated strings
   translations_fallback: true                    # Fallback through supported translations if active lang doesn't exist
   session_store_active: false                    # Store active language in session
   http_accept_language: false                    # Attempt to set the language based on http_accept_language header in the browser
   override_locale: false                         # Override the default or system locale with language specific one
+  content_fallback: {}                           # Custom language fallbacks. eg: {fr: ['fr', 'en']}
+  pages_fallback_only: false                     # DEPRECATED: Use `content_fallback` instead
 
 home:
   alias: '/home'                                 # Default path for home, ie /
   hide_in_urls: false                            # Hide the home route in URLs
 
 pages:
+  type: regular                                  # EXPERIMENTAL: Page type: regular or flex
   theme: quark                                   # Default theme (defaults to "quark" theme)
   order:
     by: default                                  # Order pages by "default", "alpha" or "date"
@@ -70,7 +73,7 @@ pages:
   expires: 604800                                # Page expires time in seconds (604800 seconds = 7 days)
   cache_control:                                 # Can be blank for no setting, or a valid `cache-control` text value
   last_modified: false                           # Set the last modified date header based on file modification timestamp
-  etag: false                                    # Set the etag header tag
+  etag: true                                     # Set the etag header tag
   vary_accept_encoding: false                    # Add `Vary: Accept-Encoding` header
   redirect_default_route: false                  # Automatically redirect to a page's default route
   redirect_default_code: 302                     # Default code to use for redirects
@@ -105,7 +108,7 @@ twig:
   cache: true                                    # Set to true to enable Twig caching
   debug: true                                    # Enable Twig debug
   auto_reload: true                              # Refresh cache on changes
-  autoescape: false                              # Autoescape Twig vars (DEPRECATED, always enabled in strict mode)
+  autoescape: true                               # Autoescape Twig vars (DEPRECATED, always enabled in strict mode)
   undefined_functions: true                      # Allow undefined functions
   undefined_filters: true                        # Allow undefined filters
   umask_fix: false                               # By default Twig creates cached files as 755, fix switches this to 775
@@ -136,6 +139,8 @@ log:
 
 debugger:
   enabled: false                                 # Enable Grav debugger and following settings
+  provider: clockwork                            # Debugger provider: debugbar | clockwork
+  censored: false                                # Censor potentially sensitive information (POST parameters, cookies, files, configuration and most array/object data in log messages)
   shutdown:
     close_connection: true                       # Close the connection before calling onShutdown(). false for debugging
 
@@ -144,8 +149,10 @@ images:
   cache_all: false                               # Cache all image by default
   cache_perms: '0755'                            # MUST BE IN QUOTES!! Default cache folder perms. Usually '0755' or '0775'
   debug: false                                   # Show an overlay over images indicating the pixel depth of the image when working with retina for example
-  auto_fix_orientation: false                    # Automatically fix the image orientation based on the Exif data
+  auto_fix_orientation: true                     # Automatically fix the image orientation based on the Exif data
   seofriendly: false                             # SEO-friendly processed image names
+  defaults:
+    loading: auto                                # Let browser pick [auto|lazy|eager]
 
 media:
   enable_media_timestamp: false                  # Enable media timestamps
@@ -161,20 +168,34 @@ session:
   uniqueness: path                               # Should sessions be `path` based or `security.salt` based
   secure: false                                  # Set session secure. If true, indicates that communication for this cookie must be over an encrypted transmission. Enable this only on sites that run exclusively on HTTPS
   httponly: true                                 # Set session HTTP only. If true, indicates that cookies should be used only over HTTP, and JavaScript modification is not allowed.
+  samesite: Lax                                  # Set session SameSite. Possible values are Lax, Strict and None. See https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie/SameSite
   split: true                                    # Sessions should be independent between site and plugins (such as admin)
   path:
 
 gpm:
-  releases: stable                               # Set to either 'stable' or 'testing'
+  releases: testing                              # Set to either 'stable' or 'testing'
   proxy_url:                                     # Configure a manual proxy URL for GPM (eg 127.0.0.1:3128)
   method: 'auto'                                 # Either 'curl', 'fopen' or 'auto'. 'auto' will try fopen first and if not available cURL
   verify_peer: true                              # Sometimes on some systems (Windows most commonly) GPM is unable to connect because the SSL certificate cannot be verified. Disabling this setting might help.
   official_gpm_only: true                        # By default GPM direct-install will only allow URLs via the official GPM proxy to ensure security
 
 accounts:
-  type: data                                     # Account type: data or flex
-  storage: file                                  # Flex storage type: file or folder
+  type: regular                                  # EXPERIMENTAL: Account type: regular or flex
+  storage: file                                  # EXPERIMENTAL: Flex storage type: file or folder
+
+flex:
+  cache:
+    index:
+      enabled: true                             # Set to true to enable Flex index caching. Is used to cache timestamps in files
+      lifetime: 60                              # Lifetime of cached index in seconds (0 = infinite)
+    object:
+      enabled: true                             # Set to true to enable Flex object caching. Is used to cache object data
+      lifetime: 600                             # Lifetime of cached objects in seconds (0 = infinite)
+    render:
+      enabled: true                             # Set to true to enable Flex render caching. Is used to cache rendered output
+      lifetime: 600                             # Lifetime of cached HTML in seconds (0 = infinite)
 
 strict_mode:
-  yaml_compat: true                              # Grav 1.5+: Enables YAML backwards compatibility
-  twig_compat: true                              # Grav 1.5+: Enables deprecated Twig autoescape setting (autoescape: false)
+  yaml_compat: false                            # Set to true to enable YAML backwards compatibility
+  twig_compat: false                            # Set to true to enable deprecated Twig settings (autoescape: false)
+  blueprint_compat: false                       # Set to true to enable backward compatible strict support for blueprints

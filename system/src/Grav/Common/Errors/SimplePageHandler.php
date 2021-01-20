@@ -3,20 +3,29 @@
 /**
  * @package    Grav\Common\Errors
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Common\Errors;
 
+use ErrorException;
+use InvalidArgumentException;
+use RuntimeException;
 use Whoops\Handler\Handler;
 use Whoops\Util\Misc;
 use Whoops\Util\TemplateHelper;
 
+/**
+ * Class SimplePageHandler
+ * @package Grav\Common\Errors
+ */
 class SimplePageHandler extends Handler
 {
-    private $searchPaths = array();
-    private $resourceCache = array();
+    /** @var array */
+    private $searchPaths = [];
+    /** @var array */
+    private $resourceCache = [];
 
     public function __construct()
     {
@@ -25,7 +34,7 @@ class SimplePageHandler extends Handler
     }
 
     /**
-     * @return int|null
+     * @return int
      */
     public function handle()
     {
@@ -36,13 +45,12 @@ class SimplePageHandler extends Handler
         $cssFile      = $this->getResource('error.css');
 
         $code = $inspector->getException()->getCode();
-        if ( ($code >= 400) && ($code < 600) )
-        {
-            $this->getRun()->sendHttpCode($code);    
+        if (($code >= 400) && ($code < 600)) {
+            $this->getRun()->sendHttpCode($code);
         }
         $message = $inspector->getException()->getMessage();
 
-        if ($inspector->getException() instanceof \ErrorException) {
+        if ($inspector->getException() instanceof ErrorException) {
             $code = Misc::translateErrorCode($code);
         }
 
@@ -60,9 +68,8 @@ class SimplePageHandler extends Handler
 
     /**
      * @param string $resource
-     *
      * @return string
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
     protected function getResource($resource)
     {
@@ -85,15 +92,19 @@ class SimplePageHandler extends Handler
         }
 
         // If we got this far, nothing was found.
-        throw new \RuntimeException(
+        throw new RuntimeException(
             "Could not find resource '{$resource}' in any resource paths (searched: " . implode(', ', $this->searchPaths). ')'
         );
     }
 
+    /**
+     * @param string $path
+     * @return void
+     */
     public function addResourcePath($path)
     {
         if (!is_dir($path)) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 "'{$path}' is not a valid directory"
             );
         }
@@ -101,6 +112,9 @@ class SimplePageHandler extends Handler
         array_unshift($this->searchPaths, $path);
     }
 
+    /**
+     * @return array
+     */
     public function getResourcePaths()
     {
         return $this->searchPaths;

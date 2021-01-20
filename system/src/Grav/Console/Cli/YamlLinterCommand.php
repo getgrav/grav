@@ -3,80 +3,122 @@
 /**
  * @package    Grav\Console\Cli
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Console\Cli;
 
-use Grav\Common\Grav;
-use Grav\Common\Helpers\LogViewer;
 use Grav\Common\Helpers\YamlLinter;
-use Grav\Common\Utils;
-use Grav\Console\ConsoleCommand;
+use Grav\Console\GravCommand;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-class YamlLinterCommand extends ConsoleCommand
+/**
+ * Class YamlLinterCommand
+ * @package Grav\Console\Cli
+ */
+class YamlLinterCommand extends GravCommand
 {
-    protected function configure()
+    /**
+     * @return void
+     */
+    protected function configure(): void
     {
         $this
             ->setName('yamllinter')
             ->addOption(
-                'env',
-                'e',
+                'all',
+                'a',
+                InputOption::VALUE_NONE,
+                'Go through the whole Grav installation'
+            )
+            ->addOption(
+                'folder',
+                'f',
                 InputOption::VALUE_OPTIONAL,
-                'The environment to trigger a specific configuration. For example: localhost, mysite.dev, www.mysite.com'
+                'Go through specific folder'
             )
             ->setDescription('Checks various files for YAML errors')
-            ->setHelp("Checks various files for YAML errors");
+            ->setHelp('Checks various files for YAML errors');
     }
 
-    protected function serve()
+    /**
+     * @return int
+     */
+    protected function serve(): int
     {
-        $grav = Grav::instance();
-        $grav->setup();
-
-        $io = new SymfonyStyle($this->input, $this->output);
+        $input = $this->getInput();
+        $io = $this->getIO();
 
         $io->title('Yaml Linter');
 
-        $io->section('User Configuration');
-        $errors = YamlLinter::lintConfig();
+        $error = 0;
+        if ($input->getOption('all')) {
+            $io->section('All');
+            $errors = YamlLinter::lint('');
 
-        if (empty($errors)) {
-            $io->success('No YAML Linting issues with configuration');
+            if (empty($errors)) {
+                $io->success('No YAML Linting issues found');
+            } else {
+                $error = 1;
+                $this->displayErrors($errors, $io);
+            }
+        } elseif ($folder = $input->getOption('folder')) {
+            $io->section($folder);
+            $errors = YamlLinter::lint($folder);
+
+            if (empty($errors)) {
+                $io->success('No YAML Linting issues found');
+            } else {
+                $error = 1;
+                $this->displayErrors($errors, $io);
+            }
         } else {
-            $this->displayErrors($errors, $io);
+            $io->section('User Configuration');
+            $errors = YamlLinter::lintConfig();
+
+            if (empty($errors)) {
+                $io->success('No YAML Linting issues with configuration');
+            } else {
+                $error = 1;
+                $this->displayErrors($errors, $io);
+            }
+
+            $io->section('Pages Frontmatter');
+            $errors = YamlLinter::lintPages();
+
+            if (empty($errors)) {
+                $io->success('No YAML Linting issues with pages');
+            } else {
+                $error = 1;
+                $this->displayErrors($errors, $io);
+            }
+
+            $io->section('Page Blueprints');
+            $errors = YamlLinter::lintBlueprints();
+
+            if (empty($errors)) {
+                $io->success('No YAML Linting issues with blueprints');
+            } else {
+                $error = 1;
+                $this->displayErrors($errors, $io);
+            }
         }
 
-
-        $io->section('Pages Frontmatter');
-        $errors = YamlLinter::lintPages();
-
-        if (empty($errors)) {
-            $io->success('No YAML Linting issues with pages');
-        } else {
-            $this->displayErrors($errors, $io);
-        }
-
-        $io->section('Page Blueprints');
-        $errors = YamlLinter::lintBlueprints();
-
-        if (empty($errors)) {
-            $io->success('No YAML Linting issues with blueprints');
-        } else {
-            $this->displayErrors($errors, $io);
-        }
-
+        return $error;
     }
 
-    protected function displayErrors($errors, $io)
+    /**
+     * @param array $errors
+     * @param SymfonyStyle $io
+     * @return void
+     */
+    protected function displayErrors(array $errors, SymfonyStyle $io): void
     {
-        $io->error("YAML Linting issues found...");
+        $io->error('YAML Linting issues found...');
         foreach ($errors as $path => $error) {
-            $io->writeln("<yellow>$path</yellow> - $error");
+            $io->writeln("<yellow>{$path}</yellow> - {$error}");
         }
     }
 }

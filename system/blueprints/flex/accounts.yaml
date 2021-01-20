@@ -1,0 +1,8 @@
+title: Flex User Accounts
+description: Manage your User Accounts in Flex.
+type: flex-objects
+
+# Deprecated in Grav 1.7.0-rc.4: file was renamed to user-accounts.yaml
+extends@:
+  type: user-accounts
+  context: blueprints://flex

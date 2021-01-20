@@ -1,37 +1,55 @@
 title: Group
+rules:
+  slug:
+    pattern: '[a-zA-Zа-яA-Я0-9_\-]+'
+    min: 1
+    max: 200
+
 form:
-    validation: loose
+  validation: loose
 
-    fields:
-        spacer:
-            type: spacer
-            text: '<br>'
+  fields:
+    groupname:
+      type: text
+      size: large
+      label: PLUGIN_ADMIN.GROUP_NAME
+      flex-disabled@: exists
+      flex-readonly@: exists
+      validate:
+        required: true
+        rule: slug
 
-        groupname:
-            type: text
-            size: large
-            label: PLUGIN_ADMIN.NAME
-            disabled: true
-            readonly: true
+    readableName:
+      type: text
+      size: large
+      label: PLUGIN_ADMIN.DISPLAY_NAME
 
-        readableName:
-            type: text
-            size: large
-            label: PLUGIN_ADMIN_PRO.READABLE_NAME
+    description:
+      type: text
+      size: large
+      label: PLUGIN_ADMIN.DESCRIPTION
 
-        description:
-            type: text
-            size: large
-            label: PLUGIN_ADMIN.DESCRIPTION
+    icon:
+      type: text
+      size: small
+      label: PLUGIN_ADMIN.ICON
 
-        icon:
-            type: text
-            size: small
-            label: PLUGIN_ADMIN_PRO.ICON
+    enabled:
+      type: toggle
+      label: PLUGIN_ADMIN.ENABLED
+      highlight: 1
+      default: 1
+      options:
+        1: PLUGIN_ADMIN.YES
+        0: PLUGIN_ADMIN.NO
+      validate:
+        type: bool
 
-        access:
-            type: permissions
-            label: PLUGIN_ADMIN.PERMISSIONS
-            ignore_empty: true
-            validate:
-                type: array
+    access:
+      type: permissions
+      check_authorize: false
+      label: PLUGIN_ADMIN.PERMISSIONS
+      ignore_empty: true
+      validate:
+        type: array
+        value_type: bool

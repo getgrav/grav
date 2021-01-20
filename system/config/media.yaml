@@ -24,6 +24,10 @@ types:
     type: image
     thumb: media/thumb-png.png
     mime: image/png
+  webp:
+    type: image
+    thumb: media/thumb-webp.png
+    mime: image/webp
   gif:
     type: animated
     thumb: media/thumb-gif.png

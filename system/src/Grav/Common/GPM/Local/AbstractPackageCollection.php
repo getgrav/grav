@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\GPM
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -11,8 +11,17 @@ namespace Grav\Common\GPM\Local;
 
 use Grav\Common\GPM\Common\AbstractPackageCollection as BaseCollection;
 
+/**
+ * Class AbstractPackageCollection
+ * @package Grav\Common\GPM\Local
+ */
 abstract class AbstractPackageCollection extends BaseCollection
 {
+    /**
+     * AbstractPackageCollection constructor.
+     *
+     * @param array $items
+     */
     public function __construct($items)
     {
         parent::__construct();

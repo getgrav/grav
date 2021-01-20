@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * @package    Grav\Framework\File
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -13,7 +13,12 @@ namespace Grav\Framework\File;
 
 use Grav\Framework\File\Interfaces\FileFormatterInterface;
 use RuntimeException;
+use function is_string;
 
+/**
+ * Class DataFile
+ * @package Grav\Framework\File
+ */
 class DataFile extends AbstractFile
 {
     /** @var FileFormatterInterface */
@@ -40,7 +45,11 @@ class DataFile extends AbstractFile
         $raw = parent::load();
 
         try {
-            return $raw !== false ? $this->formatter->decode($raw) : false;
+            if (!is_string($raw)) {
+                throw new RuntimeException('Bad Data');
+            }
+
+            return $this->formatter->decode($raw);
         } catch (RuntimeException $e) {
             throw new RuntimeException(sprintf("Failed to load file '%s': %s", $this->getFilePath(), $e->getMessage()), $e->getCode(), $e);
         }
@@ -52,7 +61,7 @@ class DataFile extends AbstractFile
      */
     public function save($data): void
     {
-        if (\is_string($data)) {
+        if (is_string($data)) {
             // Make sure that the string is valid data.
             try {
                 $this->formatter->decode($data);

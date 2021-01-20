@@ -3,14 +3,19 @@
 /**
  * @package    Grav\Common\Language
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Common\Language;
 
+/**
+ * Class LanguageCodes
+ * @package Grav\Common\Language
+ */
 class LanguageCodes
 {
+    /** @var array */
     protected static $codes = [
         'af'         => [ 'name' => 'Afrikaans',                 'nativeName' => 'Afrikaans' ],
         'ak'         => [ 'name' => 'Akan',                      'nativeName' => 'Akan' ], // unverified native name
@@ -150,11 +155,19 @@ class LanguageCodes
         'zu'         => [ 'name' => 'Zulu',                      'nativeName' => 'isiZulu' ]
     ];
 
+    /**
+     * @param string $code
+     * @return string|false
+     */
     public static function getName($code)
     {
         return static::get($code, 'name');
     }
 
+    /**
+     * @param string $code
+     * @return string|false
+     */
     public static function getNativeName($code)
     {
         if (isset(static::$codes[$code])) {
@@ -168,6 +181,10 @@ class LanguageCodes
         return $code;
     }
 
+    /**
+     * @param string $code
+     * @return string
+     */
     public static function getOrientation($code)
     {
         if (isset(static::$codes[$code])) {
@@ -178,11 +195,19 @@ class LanguageCodes
         return 'ltr';
     }
 
+    /**
+     * @param string $code
+     * @return bool
+     */
     public static function isRtl($code)
     {
         return static::getOrientation($code) === 'rtl';
     }
 
+    /**
+     * @param array $keys
+     * @return array
+     */
     public static function getNames(array $keys)
     {
         $results = [];
@@ -194,6 +219,11 @@ class LanguageCodes
         return $results;
     }
 
+    /**
+     * @param string $code
+     * @param string $type
+     * @return string|false
+     */
     public static function get($code, $type)
     {
         if (isset(static::$codes[$code][$type])) {
@@ -201,5 +231,19 @@ class LanguageCodes
         }
 
         return false;
+    }
+
+    /**
+     * @param bool $native
+     * @return array
+     */
+    public static function getList($native = true)
+    {
+        $list = [];
+        foreach (static::$codes as $key => $names) {
+            $list[$key] = $native ? $names['nativeName'] : $names['name'];
+        }
+
+        return $list;
     }
 }

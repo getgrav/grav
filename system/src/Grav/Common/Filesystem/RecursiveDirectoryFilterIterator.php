@@ -3,27 +3,39 @@
 /**
  * @package    Grav\Common\Filesystem
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Common\Filesystem;
 
-class RecursiveDirectoryFilterIterator extends \RecursiveFilterIterator
+use RecursiveFilterIterator;
+use RecursiveIterator;
+use SplFileInfo;
+use function in_array;
+
+/**
+ * Class RecursiveDirectoryFilterIterator
+ * @package Grav\Common\Filesystem
+ */
+class RecursiveDirectoryFilterIterator extends RecursiveFilterIterator
 {
+    /** @var string */
     protected static $root;
+    /** @var array */
     protected static $ignore_folders;
+    /** @var array */
     protected static $ignore_files;
 
     /**
      * Create a RecursiveFilterIterator from a RecursiveIterator
      *
-     * @param \RecursiveIterator $iterator
+     * @param RecursiveIterator $iterator
      * @param string $root
      * @param array $ignore_folders
      * @param array $ignore_files
      */
-    public function __construct(\RecursiveIterator $iterator, $root, $ignore_folders, $ignore_files)
+    public function __construct(RecursiveIterator $iterator, $root, $ignore_folders, $ignore_files)
     {
         parent::__construct($iterator);
 
@@ -39,7 +51,7 @@ class RecursiveDirectoryFilterIterator extends \RecursiveFilterIterator
      */
     public function accept()
     {
-        /** @var \SplFileInfo $file */
+        /** @var SplFileInfo $file */
         $file = $this->current();
         $filename = $file->getFilename();
         $relative_filename = str_replace($this::$root . '/', '', $file->getPathname());
@@ -57,6 +69,9 @@ class RecursiveDirectoryFilterIterator extends \RecursiveFilterIterator
         return false;
     }
 
+    /**
+     * @return RecursiveDirectoryFilterIterator|RecursiveFilterIterator
+     */
     public function getChildren()
     {
         /** @var RecursiveDirectoryFilterIterator $iterator */

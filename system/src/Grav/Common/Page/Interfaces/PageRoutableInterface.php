@@ -1,6 +1,10 @@
 <?php
 namespace Grav\Common\Page\Interfaces;
 
+/**
+ * Interface PageRoutableInterface
+ * @package Grav\Common\Page\Interfaces
+ */
 interface PageRoutableInterface
 {
     /**
@@ -16,8 +20,7 @@ interface PageRoutableInterface
      * via a URL.
      * The page must be *routable* and *published*
      *
-     * @param  bool $var true if the page is routable
-     *
+     * @param  bool|null $var true if the page is routable
      * @return bool      true if the page is routable
      */
     public function routable($var = null);
@@ -25,8 +28,7 @@ interface PageRoutableInterface
     /**
      * Gets the URL for a page - alias of url().
      *
-     * @param bool $include_host
-     *
+     * @param bool|null $include_host
      * @return string the permalink
      */
     public function link($include_host = false);
@@ -41,7 +43,6 @@ interface PageRoutableInterface
      * Returns the canonical URL for a page
      *
      * @param bool $include_lang
-     *
      * @return string
      */
     public function canonical($include_lang = true);
@@ -53,7 +54,6 @@ interface PageRoutableInterface
      * @param bool $canonical true to return the canonical URL
      * @param bool $include_lang
      * @param bool $raw_route
-     *
      * @return string The url.
      */
     public function url($include_host = false, $canonical = false, $include_lang = true, $raw_route = false);
@@ -62,8 +62,7 @@ interface PageRoutableInterface
      * Gets the route for the page based on the route headers if available, else from
      * the parents route and the current Page's slug.
      *
-     * @param  string $var Set new default route.
-     *
+     * @param  string|null $var Set new default route.
      * @return string  The route for the Page.
      */
     public function route($var = null);
@@ -77,7 +76,6 @@ interface PageRoutableInterface
      * Gets and Sets the page raw route
      *
      * @param string|null $var
-     *
      * @return string
      */
     public function rawRoute($var = null);
@@ -85,8 +83,7 @@ interface PageRoutableInterface
     /**
      * Gets the route aliases for the page based on page headers.
      *
-     * @param  array $var list of route aliases
-     *
+     * @param  array|null $var list of route aliases
      * @return array  The route aliases for the Page.
      */
     public function routeAliases($var = null);
@@ -96,7 +93,6 @@ interface PageRoutableInterface
      * that value, else if it's `true` it will use the default route.
      *
      * @param string|null $var
-     *
      * @return bool|string
      */
     public function routeCanonical($var = null);
@@ -104,8 +100,7 @@ interface PageRoutableInterface
     /**
      * Gets the redirect set in the header.
      *
-     * @param  string $var redirect url
-     *
+     * @param  string|null $var redirect url
      * @return string
      */
     public function redirect($var = null);
@@ -119,8 +114,7 @@ interface PageRoutableInterface
      * Gets and sets the path to the folder where the .md for this Page object resides.
      * This is equivalent to the filePath but without the filename.
      *
-     * @param  string $var the path
-     *
+     * @param  string|null $var the path
      * @return string|null      the path
      */
     public function path($var = null);
@@ -128,8 +122,7 @@ interface PageRoutableInterface
     /**
      * Get/set the folder.
      *
-     * @param string $var Optional path
-     *
+     * @param string|null $var Optional path
      * @return string|null
      */
     public function folder($var = null);
@@ -137,23 +130,22 @@ interface PageRoutableInterface
     /**
      * Gets and Sets the parent object for this page
      *
-     * @param  PageInterface $var the parent page object
-     *
+     * @param  PageInterface|null $var the parent page object
      * @return PageInterface|null the parent page object if it exists.
      */
     public function parent(PageInterface $var = null);
 
     /**
-     * Gets the top parent object for this page
+     * Gets the top parent object for this page. Can return page itself.
      *
-     * @return PageInterface|null the top parent page object if it exists.
+     * @return PageInterface The top parent page object.
      */
     public function topParent();
 
     /**
      * Returns the item in the current position.
      *
-     * @return int   the index of the current page.
+     * @return int|null The index of the current page.
      */
     public function currentPosition();
 

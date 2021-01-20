@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\User
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -16,15 +16,21 @@ use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Grav;
 use Grav\Common\Utils;
 
+/**
+ * @deprecated 1.7 Use $grav['user_groups'] instead of this class. In type hints, please use UserGroupInterface.
+ */
 class Group extends Data
 {
     /**
      * Get the groups list
      *
      * @return array
+     * @deprecated 1.7, use $grav['user_groups'] Flex UserGroupCollection instead
      */
     private static function groups()
     {
+        user_error(__METHOD__ . '() is deprecated since Grav 1.7, use $grav[\'user_groups\'] Flex UserGroupCollection instead', E_USER_DEPRECATED);
+
         return Grav::instance()['config']->get('groups', []);
     }
 
@@ -32,12 +38,15 @@ class Group extends Data
      * Get the groups list
      *
      * @return array
+     * @deprecated 1.7, use $grav['user_groups'] Flex UserGroupCollection instead
      */
     public static function groupNames()
     {
+        user_error(__METHOD__ . '() is deprecated since Grav 1.7, use $grav[\'user_groups\'] Flex UserGroupCollection instead', E_USER_DEPRECATED);
+
         $groups = [];
 
-        foreach(static::groups() as $groupname => $group) {
+        foreach (static::groups() as $groupname => $group) {
             $groups[$groupname] = $group['readableName'] ?? $groupname;
         }
 
@@ -48,11 +57,13 @@ class Group extends Data
      * Checks if a group exists
      *
      * @param string $groupname
-     *
      * @return bool
+     * @deprecated 1.7, use $grav['user_groups'] Flex UserGroupCollection instead
      */
     public static function groupExists($groupname)
     {
+        user_error(__METHOD__ . '() is deprecated since Grav 1.7, use $grav[\'user_groups\'] Flex UserGroupCollection instead', E_USER_DEPRECATED);
+
         return isset(self::groups()[$groupname]);
     }
 
@@ -60,11 +71,13 @@ class Group extends Data
      * Get a group by name
      *
      * @param string $groupname
-     *
      * @return object
+     * @deprecated 1.7, use $grav['user_groups'] Flex UserGroupCollection instead
      */
     public static function load($groupname)
     {
+        user_error(__METHOD__ . '() is deprecated since Grav 1.7, use $grav[\'user_groups\'] Flex UserGroupCollection instead', E_USER_DEPRECATED);
+
         $groups = self::groups();
 
         $content = $groups[$groupname] ?? [];
@@ -78,6 +91,8 @@ class Group extends Data
 
     /**
      * Save a group
+     *
+     * @return void
      */
     public function save()
     {
@@ -125,11 +140,13 @@ class Group extends Data
      * Remove a group
      *
      * @param string $groupname
-     *
      * @return bool True if the action was performed
+     * @deprecated 1.7, use $grav['user_groups'] Flex UserGroupCollection instead
      */
     public static function remove($groupname)
     {
+        user_error(__METHOD__ . '() is deprecated since Grav 1.7, use $grav[\'user_groups\'] Flex UserGroupCollection instead', E_USER_DEPRECATED);
+
         $grav = Grav::instance();
 
         /** @var Config $config */

@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Object
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -54,6 +54,7 @@ trait MixedPropertyTrait
     /**
      * @param string $property      Object property to be fetched.
      * @param mixed $default        Default value if property has not been set.
+     * @param bool $doCreate
      * @return mixed                Property value.
      */
     protected function &doGetProperty($property, $default = null, $doCreate = false)
@@ -68,26 +69,22 @@ trait MixedPropertyTrait
     /**
      * @param string $property      Object property to be updated.
      * @param mixed  $value         New value.
-     * @return $this
+     * @return void
      */
     protected function doSetProperty($property, $value)
     {
         $this->hasObjectProperty($property)
             ? $this->setObjectProperty($property, $value) : $this->setArrayProperty($property, $value);
-
-        return $this;
     }
 
     /**
      * @param string  $property     Object property to be unset.
-     * @return $this
+     * @return void
      */
     protected function doUnsetProperty($property)
     {
         $this->hasObjectProperty($property) ?
             $this->unsetObjectProperty($property) : $this->unsetArrayProperty($property);
-
-        return $this;
     }
 
     /**
@@ -114,6 +111,7 @@ trait MixedPropertyTrait
 
     /**
      * @param array $elements
+     * @return void
      */
     protected function setElements(array $elements)
     {

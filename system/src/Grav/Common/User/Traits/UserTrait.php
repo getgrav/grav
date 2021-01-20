@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\User
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -11,9 +11,17 @@ namespace Grav\Common\User\Traits;
 
 use Grav\Common\Grav;
 use Grav\Common\Page\Medium\ImageMedium;
+use Grav\Common\Page\Medium\Medium;
+use Grav\Common\Page\Medium\StaticImageMedium;
 use Grav\Common\User\Authentication;
 use Grav\Common\Utils;
+use function is_array;
+use function is_string;
 
+/**
+ * Trait UserTrait
+ * @package Grav\Common\User\Traits
+ */
 trait UserTrait
 {
     /**
@@ -63,15 +71,22 @@ trait UserTrait
      *
      * @param  string $action
      * @param  string|null $scope
-     * @return bool
+     * @return bool|null
      */
-    public function authorize(string $action, string $scope = null): bool
+    public function authorize(string $action, string $scope = null): ?bool
     {
+        // User needs to be enabled.
+        if ($this->get('state', 'enabled') !== 'enabled') {
+            return false;
+        }
+
+        // User needs to be logged in.
         if (!$this->get('authenticated')) {
             return false;
         }
 
-        if ($this->get('state', 'enabled') !== 'enabled') {
+        // User needs to be authorized (2FA).
+        if (strpos($action, 'login') === false && !$this->get('authorized', true)) {
             return false;
         }
 
@@ -107,19 +122,20 @@ trait UserTrait
      *
      * Note: if there's no local avatar image for the user, you should call getAvatarUrl() to get the external avatar URL.
      *
-     * @return ImageMedium|null
+     * @return ImageMedium|StaticImageMedium|null
      */
-    public function getAvatarImage(): ?ImageMedium
+    public function getAvatarImage(): ?Medium
     {
         $avatars = $this->get('avatar');
-        if (\is_array($avatars) && $avatars) {
+        if (is_array($avatars) && $avatars) {
             $avatar = array_shift($avatars);
 
             $media = $this->getMedia();
             $name = $avatar['name'] ?? null;
 
             $image = $name ? $media[$name] : null;
-            if ($image instanceof ImageMedium) {
+            if ($image instanceof ImageMedium ||
+                $image instanceof StaticImageMedium) {
                 return $image;
             }
         }
@@ -142,18 +158,18 @@ trait UserTrait
 
         // Try if avatar is a sting (URL).
         $avatar = $this->get('avatar');
-        if (\is_string($avatar)) {
+        if (is_string($avatar)) {
             return $avatar;
         }
 
         // Try looking for provider.
         $provider = $this->get('provider');
         $provider_options = $this->get($provider);
-        if (\is_array($provider_options)) {
-            if (isset($provider_options['avatar_url']) && \is_string($provider_options['avatar_url'])) {
+        if (is_array($provider_options)) {
+            if (isset($provider_options['avatar_url']) && is_string($provider_options['avatar_url'])) {
                 return $provider_options['avatar_url'];
             }
-            if (isset($provider_options['avatar']) && \is_string($provider_options['avatar'])) {
+            if (isset($provider_options['avatar']) && is_string($provider_options['avatar'])) {
                 return $provider_options['avatar'];
             }
         }

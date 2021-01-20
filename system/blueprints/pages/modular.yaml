@@ -1,4 +1,4 @@
-title: PLUGIN_ADMIN.MODULAR
+title: PLUGIN_ADMIN.MODULE
 extends@: default
 
 form:
@@ -13,7 +13,7 @@ form:
 
             modular_title:
               type: spacer
-              title: PLUGIN_ADMIN.MODULAR_SETUP
+              title: PLUGIN_ADMIN.MODULE_SETUP
 
             header.content.items:
               type: text
@@ -34,5 +34,3 @@ form:
               help: '"desc" or "asc" are valid values'
               placeholder: desc
               size: small
-
-

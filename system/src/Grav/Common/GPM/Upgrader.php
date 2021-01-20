@@ -3,13 +3,14 @@
 /**
  * @package    Grav\Common\GPM
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Common\GPM;
 
 use Grav\Common\GPM\Remote\GravCore;
+use InvalidArgumentException;
 
 /**
  * Class Upgrader
@@ -18,21 +19,18 @@ use Grav\Common\GPM\Remote\GravCore;
  */
 class Upgrader
 {
-    /**
-     * Remote details about latest Grav version
-     *
-     * @var GravCore
-     */
+    /** @var GravCore Remote details about latest Grav version */
     private $remote;
 
+    /** @var string|null */
     private $min_php;
 
     /**
      * Creates a new GPM instance with Local and Remote packages available
      *
      * @param boolean  $refresh  Applies to Remote Packages only and forces a refetch of data
-     * @param callable $callback Either a function or callback in array notation
-     * @throws \InvalidArgumentException
+     * @param callable|null $callback Either a function or callback in array notation
+     * @throws InvalidArgumentException
      */
     public function __construct($refresh = false, $callback = null)
     {
@@ -82,8 +80,7 @@ class Upgrader
     /**
      * Returns the changelog list for each version of Grav
      *
-     * @param string $diff the version number to start the diff from
-     *
+     * @param string|null $diff the version number to start the diff from
      * @return array return the changelog list for each version
      */
     public function getChangelog($diff = null)
@@ -109,7 +106,7 @@ class Upgrader
     /**
      * Get minimum PHP version from remote
      *
-     * @return null
+     * @return string
      */
     public function minPHPVersion()
     {
@@ -122,7 +119,7 @@ class Upgrader
     /**
      * Checks if the currently installed Grav is upgradable to a newer version
      *
-     * @return boolean True if it's upgradable, False otherwise.
+     * @return bool True if it's upgradable, False otherwise.
      */
     public function isUpgradable()
     {
@@ -132,7 +129,7 @@ class Upgrader
     /**
      * Checks if Grav is currently symbolically linked
      *
-     * @return boolean True if Grav is symlinked, False otherwise.
+     * @return bool True if Grav is symlinked, False otherwise.
      */
 
     public function isSymlink()

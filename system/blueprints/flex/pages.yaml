@@ -1,0 +1,212 @@
+title: Pages
+description: Manage your Grav Pages in Flex.
+type: flex-objects
+
+# Extends a page (blueprint gets overridden inside the object)
+extends@:
+  type: default
+  context: blueprints://pages
+
+#
+# HIGHLY SPECIALIZED FLEX TYPE, AVOID USING PAGES AS BASE FOR YOUR OWN TYPE.
+#
+
+# Flex configuration
+config:
+  # Administration Configuration (needs Flex Objects plugin)
+  admin:
+    # Admin router
+    router:
+      path: '/pages'
+
+    # Permissions
+    permissions:
+      # Primary permissions
+      admin.pages:
+        type: crudl
+        label: Pages
+      admin.configuration.pages:
+        type: default
+        label: Pages Configuration
+
+    # Admin menu
+    menu:
+      list:
+        route: '/pages'
+        title: PLUGIN_ADMIN.PAGES
+        icon: fa-file-text
+        authorize: ['admin.pages.list', 'admin.super']
+        priority: 5
+
+    # Admin template type (folder)
+    template: pages
+
+    # Allowed admin actions
+    actions:
+      list: true
+      create: true
+      read: true
+      update: true
+      delete: true
+
+    # List view
+    list:
+      # Fields shown in the list view
+      fields:
+        published:
+          width: 8
+          alias: header.published
+        visible:
+          width: 8
+          field:
+            label: Visible
+            type: toggle
+        menu:
+          link: edit
+          alias: header.menu
+        full_route:
+          field:
+            label: Route
+            type: text
+          link: edit
+          sort:
+            field: key
+        name:
+          width: 8
+          field:
+            label: Type
+            type: text
+        translations:
+          width: 8
+          field:
+            label: Translations
+            type: text
+#        updated_date:
+#          alias: header.update_date
+
+      # Extra options
+      options:
+        # Default number of records for pagination
+        per_page: 20
+        # Default ordering
+        order:
+          by: key
+          dir: asc
+
+      # TODO: not used yet
+      buttons:
+        back:
+          icon: reply
+          title: PLUGIN_ADMIN.BACK
+        add:
+          icon: plus
+          label: PLUGIN_ADMIN.ADD
+
+    edit:
+      title:
+        template: "{% if object.root %}Root <small>( &lt;root&gt; ){% else %}{{ (form.value('header.title') ?? form.value('folder'))|e }} <small>( {{ (object.getRoute().toString(false) ?: '/')|e }} )</small>{% endif %}"
+
+      # TODO: not used yet
+      buttons:
+        back:
+          icon: reply
+          title: PLUGIN_ADMIN.BACK
+        preview:
+          icon: eye
+          title: PLUGIN_ADMIN.PREVIEW
+        add:
+          icon: plus
+          label: PLUGIN_ADMIN.ADD
+        copy:
+          icon: copy
+          label: PLUGIN_ADMIN.COPY
+        move:
+          icon: arrows
+          label: PLUGIN_ADMIN.MOVE
+        delete:
+          icon: close
+          label: PLUGIN_ADMIN.DELETE
+        save:
+          icon: check
+          label: PLUGIN_ADMIN.SAVE
+
+    # Preview View
+    preview:
+      enabled: true
+
+    # Configure view
+    configure:
+      authorize: 'admin.configuration.pages'
+
+  # Site Configuration
+  site:
+    # Hide from flex types
+    hidden: true
+    templates:
+      collection:
+        # Lookup for the template layout files for collections of objects
+        paths:
+          - 'flex/{TYPE}/collection/{LAYOUT}{EXT}'
+      object:
+        # Lookup for the template layout files for objects
+        paths:
+          - 'flex/{TYPE}/object/{LAYOUT}{EXT}'
+      defaults:
+        # Default template {TYPE}; overridden by filename of this blueprint if template folder exists
+        type: pages
+        # Default template {LAYOUT}; can be overridden in render calls (usually Twig in templates)
+        layout: default
+
+    # Default filters for frontend.
+    filter:
+      - withPublished
+
+  # Data Configuration
+  data:
+    object: 'Grav\Common\Flex\Types\Pages\PageObject'
+    collection: 'Grav\Common\Flex\Types\Pages\PageCollection'
+    index: 'Grav\Common\Flex\Types\Pages\PageIndex'
+    storage:
+      class: 'Grav\Common\Flex\Types\Pages\Storage\PageStorage'
+      options:
+        formatter:
+          class: 'Grav\Framework\File\Formatter\MarkdownFormatter'
+        folder: 'page://'
+        # Keep index file in filesystem to speed up lookups
+        indexed: true
+    # Set default ordering of the pages
+    ordering:
+      key: ASC
+    search:
+       # Search options
+      options:
+        contains: 1
+      # Fields to be searched
+      fields:
+        - key
+        - menu
+        - title
+        - name
+
+blueprints:
+  configure:
+    fields:
+      import@:
+        type: configure/compat
+        context: blueprints://flex
+
+# Regular form definition
+form:
+  fields:
+    lang:
+      type: hidden
+      value: ''
+
+    tabs:
+      fields:
+        security:
+          type: tab
+          title: PLUGIN_ADMIN.SECURITY
+          import@:
+            type: partials/security
+            context: blueprints://pages

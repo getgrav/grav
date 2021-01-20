@@ -3,13 +3,25 @@
 /**
  * @package    Grav\Framework\Cache
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Framework\Cache;
 
+use DateInterval;
+use DateTime;
 use Grav\Framework\Cache\Exception\InvalidArgumentException;
+use stdClass;
+use Traversable;
+use function array_key_exists;
+use function get_class;
+use function gettype;
+use function is_array;
+use function is_int;
+use function is_object;
+use function is_string;
+use function strlen;
 
 /**
  * Cache trait for PSR-16 compatible "Simple Cache" implementation
@@ -19,13 +31,10 @@ trait CacheTrait
 {
     /** @var string */
     private $namespace = '';
-
     /** @var int|null */
     private $defaultLifetime = null;
-
-    /** @var \stdClass */
+    /** @var stdClass */
     private $miss;
-
     /** @var bool */
     private $validation = true;
 
@@ -33,18 +42,20 @@ trait CacheTrait
      * Always call from constructor.
      *
      * @param string $namespace
-     * @param null|int|\DateInterval $defaultLifetime
-     * @throws \Psr\SimpleCache\InvalidArgumentException|InvalidArgumentException
+     * @param null|int|DateInterval $defaultLifetime
+     * @return void
+     * @throws InvalidArgumentException
      */
     protected function init($namespace = '', $defaultLifetime = null)
     {
         $this->namespace = (string) $namespace;
         $this->defaultLifetime = $this->convertTtl($defaultLifetime);
-        $this->miss = new \stdClass;
+        $this->miss = new stdClass;
     }
 
     /**
      * @param bool $validation
+     * @return void
      */
     public function setValidation($validation)
     {
@@ -68,8 +79,10 @@ trait CacheTrait
     }
 
     /**
-     * @inheritdoc
-     * @throws \Psr\SimpleCache\InvalidArgumentException|InvalidArgumentException
+     * @param string $key
+     * @param mixed|null $default
+     * @return mixed|null
+     * @throws InvalidArgumentException
      */
     public function get($key, $default = null)
     {
@@ -81,8 +94,11 @@ trait CacheTrait
     }
 
     /**
-     * @inheritdoc
-     * @throws \Psr\SimpleCache\InvalidArgumentException|InvalidArgumentException
+     * @param string $key
+     * @param mixed $value
+     * @param null|int|DateInterval $ttl
+     * @return bool
+     * @throws InvalidArgumentException
      */
     public function set($key, $value, $ttl = null)
     {
@@ -95,8 +111,9 @@ trait CacheTrait
     }
 
     /**
-     * @inheritdoc
-     * @throws \Psr\SimpleCache\InvalidArgumentException|InvalidArgumentException
+     * @param string $key
+     * @return bool
+     * @throws InvalidArgumentException
      */
     public function delete($key)
     {
@@ -106,7 +123,7 @@ trait CacheTrait
     }
 
     /**
-     * @inheritdoc
+     * @return bool
      */
     public function clear()
     {
@@ -114,18 +131,21 @@ trait CacheTrait
     }
 
     /**
-     * @inheritdoc
-     * @throws \Psr\SimpleCache\InvalidArgumentException|InvalidArgumentException
+     * @param iterable $keys
+     * @param mixed|null $default
+     * @return iterable
+     * @throws InvalidArgumentException
      */
     public function getMultiple($keys, $default = null)
     {
-        if ($keys instanceof \Traversable) {
+        if ($keys instanceof Traversable) {
             $keys = iterator_to_array($keys, false);
-        } elseif (!\is_array($keys)) {
+        } elseif (!is_array($keys)) {
+            $isObject = is_object($keys);
             throw new InvalidArgumentException(
                 sprintf(
                     'Cache keys must be array or Traversable, "%s" given',
-                    \is_object($keys) ? \get_class($keys) : \gettype($keys)
+                     $isObject ? get_class($keys) : gettype($keys)
                 )
             );
         }
@@ -137,6 +157,9 @@ trait CacheTrait
         $this->validateKeys($keys);
         $keys = array_unique($keys);
         $keys = array_combine($keys, $keys);
+        if (empty($keys)) {
+            return [];
+        }
 
         $list = $this->doGetMultiple($keys, $this->miss);
 
@@ -154,18 +177,21 @@ trait CacheTrait
     }
 
     /**
-     * @inheritdoc
-     * @throws \Psr\SimpleCache\InvalidArgumentException|InvalidArgumentException
+     * @param iterable $values
+     * @param null|int|DateInterval $ttl
+     * @return bool
+     * @throws InvalidArgumentException
      */
     public function setMultiple($values, $ttl = null)
     {
-        if ($values instanceof \Traversable) {
+        if ($values instanceof Traversable) {
             $values = iterator_to_array($values, true);
         } elseif (!is_array($values)) {
+            $isObject = is_object($values);
             throw new InvalidArgumentException(
                 sprintf(
                     'Cache values must be array or Traversable, "%s" given',
-                    \is_object($values) ? \get_class($values) : \gettype($values)
+                    $isObject ? get_class($values) : gettype($values)
                 )
             );
         }
@@ -185,18 +211,20 @@ trait CacheTrait
     }
 
     /**
-     * @inheritdoc
-     * @throws \Psr\SimpleCache\InvalidArgumentException|InvalidArgumentException
+     * @param iterable $keys
+     * @return bool
+     * @throws InvalidArgumentException
      */
     public function deleteMultiple($keys)
     {
-        if ($keys instanceof \Traversable) {
+        if ($keys instanceof Traversable) {
             $keys = iterator_to_array($keys, false);
         } elseif (!is_array($keys)) {
+            $isObject = is_object($keys);
             throw new InvalidArgumentException(
                 sprintf(
                     'Cache keys must be array or Traversable, "%s" given',
-                    \is_object($keys) ? \get_class($keys) : \gettype($keys)
+                    $isObject ? get_class($keys) : gettype($keys)
                 )
             );
         }
@@ -211,8 +239,9 @@ trait CacheTrait
     }
 
     /**
-     * @inheritdoc
-     * @throws \Psr\SimpleCache\InvalidArgumentException|InvalidArgumentException
+     * @param string $key
+     * @return bool
+     * @throws InvalidArgumentException
      */
     public function has($key)
     {
@@ -220,11 +249,6 @@ trait CacheTrait
 
         return $this->doHas($key);
     }
-
-    abstract public function doGet($key, $miss);
-    abstract public function doSet($key, $value, $ttl);
-    abstract public function doDelete($key);
-    abstract public function doClear();
 
     /**
      * @param array $keys
@@ -247,7 +271,7 @@ trait CacheTrait
 
     /**
      * @param array $values
-     * @param int $ttl
+     * @param int|null $ttl
      * @return bool
      */
     public function doSetMultiple($values, $ttl)
@@ -276,28 +300,27 @@ trait CacheTrait
         return $success;
     }
 
-    abstract public function doHas($key);
-
     /**
      * @param string|mixed $key
-     * @throws \Psr\SimpleCache\InvalidArgumentException|InvalidArgumentException
+     * @return void
+     * @throws InvalidArgumentException
      */
     protected function validateKey($key)
     {
-        if (!\is_string($key)) {
+        if (!is_string($key)) {
             throw new InvalidArgumentException(
                 sprintf(
                     'Cache key must be string, "%s" given',
-                    \is_object($key) ? \get_class($key) : \gettype($key)
+                    is_object($key) ? get_class($key) : gettype($key)
                 )
             );
         }
         if (!isset($key[0])) {
             throw new InvalidArgumentException('Cache key length must be greater than zero');
         }
-        if (\strlen($key) > 64) {
+        if (strlen($key) > 64) {
             throw new InvalidArgumentException(
-                sprintf('Cache key length must be less than 65 characters, key had %s characters', \strlen($key))
+                sprintf('Cache key length must be less than 65 characters, key had %d characters', strlen($key))
             );
         }
         if (strpbrk($key, '{}()/\@:') !== false) {
@@ -309,7 +332,8 @@ trait CacheTrait
 
     /**
      * @param array $keys
-     * @throws \Psr\SimpleCache\InvalidArgumentException|InvalidArgumentException
+     * @return void
+     * @throws InvalidArgumentException
      */
     protected function validateKeys($keys)
     {
@@ -323,9 +347,9 @@ trait CacheTrait
     }
 
     /**
-     * @param null|int|\DateInterval|mixed    $ttl
+     * @param null|int|DateInterval    $ttl
      * @return int|null
-     * @throws \Psr\SimpleCache\InvalidArgumentException|InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     protected function convertTtl($ttl)
     {
@@ -333,18 +357,19 @@ trait CacheTrait
             return $this->getDefaultLifetime();
         }
 
-        if (\is_int($ttl)) {
+        if (is_int($ttl)) {
             return $ttl;
         }
 
-        if ($ttl instanceof \DateInterval) {
-            $ttl = (int) \DateTime::createFromFormat('U', '0')->add($ttl)->format('U');
+        if ($ttl instanceof DateInterval) {
+            $date = DateTime::createFromFormat('U', '0');
+            $ttl = $date ? (int)$date->add($ttl)->format('U') : 0;
         }
 
         throw new InvalidArgumentException(
             sprintf(
                 'Expiration date must be an integer, a DateInterval or null, "%s" given',
-                \is_object($ttl) ? \get_class($ttl) : \gettype($ttl)
+                is_object($ttl) ? get_class($ttl) : gettype($ttl)
             )
         );
     }

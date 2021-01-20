@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Config
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -19,6 +19,12 @@ use Grav\Common\Grav;
  */
 class CompiledBlueprints extends CompiledBase
 {
+    /**
+     * CompiledBlueprints constructor.
+     * @param string $cacheFolder
+     * @param array $files
+     * @param string $path
+     */
     public function __construct($cacheFolder, array $files, $path)
     {
         parent::__construct($cacheFolder, $files, $path);
@@ -45,7 +51,7 @@ class CompiledBlueprints extends CompiledBase
     /**
      * Create configuration object.
      *
-     * @param array  $data
+     * @param array $data
      */
     protected function createObject(array $data = [])
     {
@@ -64,6 +70,8 @@ class CompiledBlueprints extends CompiledBase
 
     /**
      * Finalize configuration object.
+     *
+     * @return void
      */
     protected function finalizeObject()
     {
@@ -74,6 +82,7 @@ class CompiledBlueprints extends CompiledBase
      *
      * @param  string  $name  Name of the position.
      * @param  array   $files  Files to be loaded.
+     * @return void
      */
     protected function loadFile($name, $files)
     {
@@ -112,6 +121,9 @@ class CompiledBlueprints extends CompiledBase
         return true;
     }
 
+    /**
+     * @return array
+     */
     protected function getState()
     {
         return $this->object->getState();

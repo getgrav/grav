@@ -3,28 +3,40 @@
 /**
  * @package    Grav\Framework\Form
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Framework\Form\Traits;
 
+use ArrayAccess;
+use Exception;
+use FilesystemIterator;
 use Grav\Common\Data\Blueprint;
 use Grav\Common\Data\Data;
 use Grav\Common\Data\ValidationException;
+use Grav\Common\Debugger;
 use Grav\Common\Form\FormFlash;
 use Grav\Common\Grav;
 use Grav\Common\Twig\Twig;
 use Grav\Common\User\Interfaces\UserInterface;
 use Grav\Common\Utils;
+use Grav\Framework\Compat\Serializable;
 use Grav\Framework\ContentBlock\HtmlBlock;
+use Grav\Framework\Form\Interfaces\FormFlashInterface;
 use Grav\Framework\Form\Interfaces\FormInterface;
 use Grav\Framework\Session\SessionInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UploadedFileInterface;
+use RuntimeException;
+use SplFileInfo;
 use Twig\Error\LoaderError;
 use Twig\Error\SyntaxError;
+use Twig\Template;
 use Twig\TemplateWrapper;
+use function in_array;
+use function is_array;
+use function is_object;
 
 /**
  * Trait FormTrait
@@ -32,9 +44,11 @@ use Twig\TemplateWrapper;
  */
 trait FormTrait
 {
+    use Serializable;
+
     /** @var string */
     public $status = 'success';
-    /** @var string */
+    /** @var string|null */
     public $message;
     /** @var string[] */
     public $messages = [];
@@ -45,72 +59,114 @@ trait FormTrait
     private $id;
     /** @var string */
     private $uniqueid;
+    /** @var string */
+    private $sessionid;
     /** @var bool */
     private $submitted;
-    /** @var Data|object|null */
+    /** @var ArrayAccess|Data|null */
     private $data;
     /** @var array|UploadedFileInterface[] */
     private $files;
-    /** @var FormFlash|null */
+    /** @var FormFlashInterface|null */
     private $flash;
+    /** @var string */
+    private $flashFolder;
     /** @var Blueprint */
     private $blueprint;
 
+    /**
+     * @return string
+     */
     public function getId(): string
     {
         return $this->id;
     }
 
+    /**
+     * @param string $id
+     */
     public function setId(string $id): void
     {
         $this->id = $id;
     }
 
+    /**
+     * @return string
+     */
     public function getUniqueId(): string
     {
         return $this->uniqueid;
     }
 
+    /**
+     * @param string $uniqueId
+     * @return void
+     */
     public function setUniqueId(string $uniqueId): void
     {
         $this->uniqueid = $uniqueId;
     }
 
+    /**
+     * @return string
+     */
     public function getName(): string
     {
         return $this->name;
     }
 
+    /**
+     * @return string
+     */
     public function getFormName(): string
     {
         return $this->name;
     }
 
+    /**
+     * @return string
+     */
     public function getNonceName(): string
     {
         return 'form-nonce';
     }
 
+    /**
+     * @return string
+     */
     public function getNonceAction(): string
     {
         return 'form';
     }
 
+    /**
+     * @return string
+     */
     public function getNonce(): string
     {
         return Utils::getNonce($this->getNonceAction());
     }
 
+    /**
+     * @return string
+     */
     public function getAction(): string
     {
         return '';
     }
 
+    /**
+     * @return string
+     */
     public function getTask(): string
     {
         return $this->getBlueprint()->get('form/task') ?? '';
     }
 
+    /**
+     * @param string|null $name
+     * @return mixed
+     */
     public function getData(string $name = null)
     {
         return null !== $name ? $this->data[$name] : $this->data;
@@ -124,11 +180,19 @@ trait FormTrait
         return $this->files ?? [];
     }
 
+    /**
+     * @param string $name
+     * @return mixed|null
+     */
     public function getValue(string $name)
     {
         return $this->data[$name] ?? null;
     }
 
+    /**
+     * @param string $name
+     * @return mixed|null
+     */
     public function getDefaultValue(string $name)
     {
         $path = explode('.', $name) ?: [];
@@ -145,9 +209,9 @@ trait FormTrait
         while ($path) {
             $offset = array_shift($path);
 
-            if ((\is_array($current) || $current instanceof \ArrayAccess) && isset($current[$offset])) {
+            if ((is_array($current) || $current instanceof ArrayAccess) && isset($current[$offset])) {
                 $current = $current[$offset];
-            } elseif (\is_object($current) && isset($current->{$offset})) {
+            } elseif (is_object($current) && isset($current->{$offset})) {
                 $current = $current->{$offset};
             } else {
                 return null;
@@ -180,14 +244,17 @@ trait FormTrait
             /** @var Twig $twig */
             $twig = $grav['twig'];
             $twig->twig_vars['form'] = $this;
-
         }
 
         try {
             [$data, $files] = $this->parseRequest($request);
 
             $this->submit($data, $files);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
+            /** @var Debugger $debugger */
+            $debugger = $grav['debugger'];
+            $debugger->addException($e);
+
             $this->setError($e->getMessage());
         }
 
@@ -208,26 +275,41 @@ trait FormTrait
         return $this;
     }
 
+    /**
+     * @return bool
+     */
     public function isValid(): bool
     {
         return $this->status === 'success';
     }
 
+    /**
+     * @return string|null
+     */
     public function getError(): ?string
     {
         return !$this->isValid() ? $this->message : null;
     }
 
+    /**
+     * @return array
+     */
     public function getErrors(): array
     {
         return !$this->isValid() ? $this->messages : [];
     }
 
+    /**
+     * @return bool
+     */
     public function isSubmitted(): bool
     {
         return $this->submitted;
     }
 
+    /**
+     * @return bool
+     */
     public function validate(): bool
     {
         if (!$this->isValid()) {
@@ -239,7 +321,11 @@ trait FormTrait
             $this->validateUploads($this->getFiles());
         } catch (ValidationException $e) {
             $this->setErrors($e->getMessages());
-        }  catch (\Exception $e) {
+        } catch (Exception $e) {
+            /** @var Debugger $debugger */
+            $debugger = Grav::instance()['debugger'];
+            $debugger->addException($e);
+
             $this->setError($e->getMessage());
         }
 
@@ -250,14 +336,14 @@ trait FormTrait
 
     /**
      * @param array $data
-     * @param UploadedFileInterface[] $files
+     * @param UploadedFileInterface[]|null $files
      * @return FormInterface|$this
      */
     public function submit(array $data, array $files = null): FormInterface
     {
         try {
             if ($this->isSubmitted()) {
-                throw new \RuntimeException('Form has already been submitted');
+                throw new RuntimeException('Form has already been submitted');
             }
 
             $this->data = new Data($data, $this->getBlueprint());
@@ -270,13 +356,20 @@ trait FormTrait
             $this->doSubmit($this->data->toArray(), $this->files);
 
             $this->submitted = true;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
+            /** @var Debugger $debugger */
+            $debugger = Grav::instance()['debugger'];
+            $debugger->addException($e);
+
             $this->setError($e->getMessage());
         }
 
         return $this;
     }
 
+    /**
+     * @return void
+     */
     public function reset(): void
     {
         // Make sure that the flash object gets deleted.
@@ -291,51 +384,41 @@ trait FormTrait
         $this->flash = null;
     }
 
+    /**
+     * @return array
+     */
     public function getFields(): array
     {
         return $this->getBlueprint()->fields();
     }
 
+    /**
+     * @return array
+     */
     public function getButtons(): array
     {
         return $this->getBlueprint()->get('form/buttons') ?? [];
     }
 
+    /**
+     * @return array
+     */
     public function getTasks(): array
     {
         return $this->getBlueprint()->get('form/tasks') ?? [];
     }
 
+    /**
+     * @return Blueprint
+     */
     abstract public function getBlueprint(): Blueprint;
-
-    /**
-     * Implements \Serializable::serialize().
-     *
-     * @return string
-     */
-    public function serialize(): string
-    {
-        return serialize($this->doSerialize());
-    }
-
-    /**
-     * Implements \Serializable::unserialize().
-     *
-     * @param string $serialized
-     */
-    public function unserialize($serialized): void
-    {
-        $data = unserialize($serialized, ['allowed_classes' => false]);
-
-        $this->doUnserialize($data);
-    }
 
     /**
      * Get form flash object.
      *
-     * @return FormFlash
+     * @return FormFlashInterface
      */
-    public function getFlash(): FormFlash
+    public function getFlash()
     {
         if (null === $this->flash) {
             $grav = Grav::instance();
@@ -357,7 +440,7 @@ trait FormTrait
     /**
      * Get all available form flash objects for this form.
      *
-     * @return FormFlash[]
+     * @return FormFlashInterface[]
      */
     public function getAllFlashes(): array
     {
@@ -369,8 +452,8 @@ trait FormTrait
         $name = $this->getName();
 
         $list = [];
-        /** @var \SplFileInfo $file */
-        foreach (new \FilesystemIterator($folder) as $file) {
+        /** @var SplFileInfo $file */
+        foreach (new FilesystemIterator($folder) as $file) {
             $uniqueId = $file->getFilename();
             $config = [
                 'session_id' => $this->getSessionId(),
@@ -385,7 +468,6 @@ trait FormTrait
         }
 
         return $list;
-
     }
 
     /**
@@ -412,31 +494,79 @@ trait FormTrait
         return $block;
     }
 
-    protected function getSessionId(): string
+    /**
+     * @return array
+     */
+    public function jsonSerialize(): array
     {
-        /** @var Grav $grav */
-        $grav = Grav::instance();
-
-        /** @var SessionInterface $session */
-        $session = $grav['session'] ?? null;
-
-        return $session ? ($session->getId() ?? '') : '';
+        return $this->doSerialize();
     }
 
+    /**
+     * @return array
+     */
+    final public function __serialize(): array
+    {
+        return $this->doSerialize();
+    }
+
+    /**
+     * @param array $data
+     * @return void
+     */
+    final public function __unserialize(array $data): void
+    {
+        $this->doUnserialize($data);
+    }
+
+    protected function getSessionId(): string
+    {
+        if (null === $this->sessionid) {
+            /** @var Grav $grav */
+            $grav = Grav::instance();
+
+            /** @var SessionInterface|null $session */
+            $session = $grav['session'] ?? null;
+
+            $this->sessionid = $session ? ($session->getId() ?? '') : '';
+        }
+
+        return $this->sessionid;
+    }
+
+    /**
+     * @param string $sessionId
+     * @return void
+     */
+    protected function setSessionId(string $sessionId): void
+    {
+        $this->sessionid = $sessionId;
+    }
+
+    /**
+     * @return void
+     */
     protected function unsetFlash(): void
     {
         $this->flash = null;
     }
 
+    /**
+     * @return string|null
+     */
     protected function getFlashFolder(): ?string
     {
         $grav = Grav::instance();
 
-        /** @var UserInterface $user */
+        /** @var UserInterface|null $user */
         $user = $grav['user'] ?? null;
-        $userExists = $user && $user->exists();
-        $username = $userExists ? $user->username : null;
-        $mediaFolder = $userExists ? $user->getMediaFolder() : null;
+        if (null !== $user && $user->exists()) {
+            $username = $user->username;
+            $mediaFolder = $user->getMediaFolder();
+        } else {
+            $username = null;
+            $mediaFolder = null;
+        }
         $session = $grav['session'] ?? null;
         $sessionId = $session ? $session->getId() : null;
 
@@ -449,18 +579,40 @@ trait FormTrait
             '[ACCOUNT]' => $mediaFolder ?? '!!'
         ];
 
-        $flashFolder = $this->getBlueprint()->get('form/flash_folder', 'tmp://forms/[SESSIONID]');
+        $flashLookupFolder = $this->getFlashLookupFolder();
 
-        $path = str_replace(array_keys($dataMap), array_values($dataMap), $flashFolder);
+        $path = str_replace(array_keys($dataMap), array_values($dataMap), $flashLookupFolder);
 
         // Make sure we only return valid paths.
         return strpos($path, '!!') === false ? rtrim($path, '/') : null;
     }
 
     /**
+     * @return string
+     */
+    protected function getFlashLookupFolder(): string
+    {
+        if (null === $this->flashFolder) {
+            $this->flashFolder = $this->getBlueprint()->get('form/flash_folder') ?? 'tmp://forms/[SESSIONID]';
+        }
+
+        return $this->flashFolder;
+    }
+
+    /**
+     * @param string $folder
+     * @return void
+     */
+    protected function setFlashLookupFolder(string $folder): void
+    {
+        $this->flashFolder = $folder;
+    }
+
+    /**
      * Set a single error.
      *
      * @param string $error
+     * @return void
      */
     protected function setError(string $error): void
     {
@@ -472,6 +624,7 @@ trait FormTrait
      * Set all errors.
      *
      * @param array $errors
+     * @return void
      */
     protected function setErrors(array $errors): void
     {
@@ -481,7 +634,7 @@ trait FormTrait
 
     /**
      * @param string $layout
-     * @return TemplateWrapper
+     * @return Template|TemplateWrapper
      * @throws LoaderError
      * @throws SyntaxError
      */
@@ -509,8 +662,8 @@ trait FormTrait
     protected function parseRequest(ServerRequestInterface $request): array
     {
         $method = $request->getMethod();
-        if (!\in_array($method, ['PUT', 'POST', 'PATCH'])) {
-            throw new \RuntimeException(sprintf('FlexForm: Bad HTTP method %s', $method));
+        if (!in_array($method, ['PUT', 'POST', 'PATCH'])) {
+            throw new RuntimeException(sprintf('FlexForm: Bad HTTP method %s', $method));
         }
 
         $body = $request->getParsedBody();
@@ -537,22 +690,14 @@ trait FormTrait
     }
 
     /**
-     * Form submit logic goes here.
-     *
-     * @param array $data
-     * @param array $files
-     * @return mixed
-     */
-    abstract protected function doSubmit(array $data, array $files);
-
-    /**
      * Validate data and throw validation exceptions if validation fails.
      *
-     * @param \ArrayAccess $data
+     * @param ArrayAccess|Data|null $data
+     * @return void
      * @throws ValidationException
-     * @throws \Exception
+     * @throws Exception
      */
-    protected function validateData(\ArrayAccess $data): void
+    protected function validateData($data = null): void
     {
         if ($data instanceof Data) {
             $data->validate();
@@ -562,9 +707,10 @@ trait FormTrait
     /**
      * Filter validated data.
      *
-     * @param \ArrayAccess $data
+     * @param ArrayAccess|Data|null $data
+     * @return void
      */
-    protected function filterData(\ArrayAccess $data): void
+    protected function filterData($data = null): void
     {
         if ($data instanceof Data) {
             $data->filter();
@@ -575,6 +721,7 @@ trait FormTrait
      * Validate all uploaded files.
      *
      * @param array $files
+     * @return void
      */
     protected function validateUploads(array $files): void
     {
@@ -594,15 +741,16 @@ trait FormTrait
      * Validate uploaded file.
      *
      * @param UploadedFileInterface $file
+     * @return void
      */
     protected function validateUpload(UploadedFileInterface $file): void
     {
         // Handle bad filenames.
         $filename = $file->getClientFilename();
 
-        if (!Utils::checkFilename($filename)) {
+        if ($filename && !Utils::checkFilename($filename)) {
             $grav = Grav::instance();
-            throw new \RuntimeException(
+            throw new RuntimeException(
                 sprintf($grav['language']->translate('PLUGIN_FORM.FILEUPLOAD_UNABLE_TO_UPLOAD', null, true), $filename, 'Bad filename')
             );
         }
@@ -616,13 +764,16 @@ trait FormTrait
      */
     protected function decodeData($data): array
     {
-        if (!\is_array($data)) {
+        if (!is_array($data)) {
             return [];
         }
 
         // Decode JSON encoded fields and merge them to data.
         if (isset($data['_json'])) {
             $data = array_replace_recursive($data, $this->jsonDecode($data['_json']));
+            if (null === $data) {
+                throw new RuntimeException(__METHOD__ . '(): Unexpected error');
+            }
             unset($data['_json']);
         }
 
@@ -638,7 +789,7 @@ trait FormTrait
     protected function jsonDecode(array $data): array
     {
         foreach ($data as $key => &$value) {
-            if (\is_array($value)) {
+            if (is_array($value)) {
                 $value = $this->jsonDecode($value);
             } elseif (trim($value) === '') {
                 unset($data[$key]);
@@ -676,6 +827,7 @@ trait FormTrait
 
     /**
      * @param array $data
+     * @return void
      */
     protected function doUnserialize(array $data): void
     {

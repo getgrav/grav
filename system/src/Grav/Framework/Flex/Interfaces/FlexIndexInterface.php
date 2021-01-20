@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * @package    Grav\Framework\Flex
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -21,6 +21,9 @@ use Grav\Framework\Flex\FlexDirectory;
  *
  * @used-by \Grav\Framework\Flex\FlexIndex
  * @since 1.6
+ * @template TKey
+ * @template T
+ * @extends FlexCollectionInterface<TKey,T>
  */
 interface FlexIndexInterface extends FlexCollectionInterface
 {
@@ -30,7 +33,6 @@ interface FlexIndexInterface extends FlexCollectionInterface
      * @used-by FlexDirectory::getIndex()   Official method to get Index from a Flex Directory.
      *
      * @param FlexDirectory $directory Flex directory.
-     *
      * @return static Returns a new Flex Index.
      */
     public static function createFromStorage(FlexDirectory $directory);
@@ -41,7 +43,6 @@ interface FlexIndexInterface extends FlexCollectionInterface
      * @used-by FlexDirectory::getIndex()   Official method to get Index from a Flex Directory.
      *
      * @param FlexStorageInterface $storage Flex Storage associated to the directory.
-     *
      * @return array Returns a list of existing objects [storage_key => [storage_key => xxx, storage_timestamp => 123456, ...]]
      */
     public static function loadEntriesFromStorage(FlexStorageInterface $storage): array;
@@ -50,14 +51,13 @@ interface FlexIndexInterface extends FlexCollectionInterface
      * Return new collection with a different key.
      *
      * @param string|null $keyField Switch key field of the collection.
-     *
-     * @return FlexIndexInterface  Returns a new Flex Collection with new key field.
+     * @return static  Returns a new Flex Collection with new key field.
      * @api
      */
     public function withKeyField(string $keyField = null);
 
     /**
-     * @param string $indexKey
+     * @param string|null $indexKey
      * @return array
      */
     public function getIndexMap(string $indexKey = null);

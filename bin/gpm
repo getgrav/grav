@@ -2,8 +2,8 @@
 <?php
 
 use Grav\Common\Composer;
-use Symfony\Component\Console\Application;
 use Grav\Common\Grav;
+use Grav\Console\Application\GpmApplication;
 
 \define('GRAV_CLI', true);
 \define('GRAV_REQUEST_TIME', microtime(true));
@@ -43,37 +43,7 @@ if (!function_exists('curl_version')) {
     exit('FATAL: GPM requires PHP Curl module to be installed');
 }
 
-$climate = new League\CLImate\CLImate;
-$climate->arguments->add([
-    'environment' => [
-        'prefix'        => 'e',
-        'longPrefix'    => 'env',
-        'description'   => 'Configuration Environment',
-        'defaultValue'  => 'localhost'
-    ]
-]);
-$climate->arguments->parse();
-
-// Set up environment based on params.
-$environment = $climate->arguments->get('environment');
-
 $grav = Grav::instance(array('loader' => $autoload));
-$grav->setup($environment);
 
-$grav['config']->init();
-$grav['uri']->init();
-$grav['accounts'];
-
-$app = new Application('Grav Package Manager', GRAV_VERSION);
-$app->addCommands(array(
-    new \Grav\Console\Gpm\IndexCommand(),
-    new \Grav\Console\Gpm\VersionCommand(),
-    new \Grav\Console\Gpm\InfoCommand(),
-    new \Grav\Console\Gpm\InstallCommand(),
-    new \Grav\Console\Gpm\UninstallCommand(),
-    new \Grav\Console\Gpm\UpdateCommand(),
-    new \Grav\Console\Gpm\SelfupgradeCommand(),
-    new \Grav\Console\Gpm\DirectInstallCommand(),
-));
-
+$app = new GpmApplication('Grav Package Manager', GRAV_VERSION);
 $app->run();

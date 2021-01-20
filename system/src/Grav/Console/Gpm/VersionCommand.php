@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Console\Gpm
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -11,17 +11,26 @@ namespace Grav\Console\Gpm;
 
 use Grav\Common\GPM\GPM;
 use Grav\Common\GPM\Upgrader;
-use Grav\Console\ConsoleCommand;
+use Grav\Common\Grav;
+use Grav\Console\GpmCommand;
 use RocketTheme\Toolbox\File\YamlFile;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
+use function count;
 
-class VersionCommand extends ConsoleCommand
+/**
+ * Class VersionCommand
+ * @package Grav\Console\Gpm
+ */
+class VersionCommand extends GpmCommand
 {
     /** @var GPM */
     protected $gpm;
 
-    protected function configure()
+    /**
+     * @return void
+     */
+    protected function configure(): void
     {
         $this
             ->setName('version')
@@ -41,12 +50,15 @@ class VersionCommand extends ConsoleCommand
     }
 
     /**
-     * @return int|null|void
+     * @return int
      */
-    protected function serve()
+    protected function serve(): int
     {
-        $this->gpm = new GPM($this->input->getOption('force'));
-        $packages = $this->input->getArgument('package');
+        $input = $this->getInput();
+        $io = $this->getIO();
+
+        $this->gpm = new GPM($input->getOption('force'));
+        $packages = $input->getArgument('package');
 
         $installed = false;
 
@@ -68,10 +80,9 @@ class VersionCommand extends ConsoleCommand
                 if ($upgrader->isUpgradable()) {
                     $updatable = " [upgradable: v<green>{$upgrader->getRemoteVersion()}</green>]";
                 }
-
             } else {
                 // get currently installed version
-                $locator = \Grav\Common\Grav::instance()['locator'];
+                $locator = Grav::instance()['locator'];
                 $blueprints_path = $locator->findResource('plugins://' . $package . DS . 'blueprints.yaml');
                 if (!file_exists($blueprints_path)) { // theme?
                     $blueprints_path = $locator->findResource('themes://' . $package . DS . 'blueprints.yaml');
@@ -103,10 +114,12 @@ class VersionCommand extends ConsoleCommand
             $updatable = $updatable ?: '';
 
             if ($installed || $package === 'grav') {
-                $this->output->writeln("You are running <white>{$name}</white> v<cyan>{$version}</cyan>{$updatable}");
+                $io->writeln("You are running <white>{$name}</white> v<cyan>{$version}</cyan>{$updatable}");
             } else {
-                $this->output->writeln("Package <red>{$package}</red> not found");
+                $io->writeln("Package <red>{$package}</red> not found");
             }
         }
+
+        return 0;
     }
 }

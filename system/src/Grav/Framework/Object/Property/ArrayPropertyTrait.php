@@ -3,11 +3,14 @@
 /**
  * @package    Grav\Framework\Object
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Framework\Object\Property;
+
+use InvalidArgumentException;
+use function array_key_exists;
 
 /**
  * Array Property Trait
@@ -18,16 +21,13 @@ namespace Grav\Framework\Object\Property;
  */
 trait ArrayPropertyTrait
 {
-    /**
-     * Properties of the object.
-     * @var array
-     */
+    /** @var array Properties of the object. */
     private $_elements;
 
     /**
      * @param array $elements
-     * @param string $key
-     * @throws \InvalidArgumentException
+     * @param string|null $key
+     * @throws InvalidArgumentException
      */
     public function __construct(array $elements = [], $key = null)
     {
@@ -66,6 +66,7 @@ trait ArrayPropertyTrait
     /**
      * @param string $property      Object property to be updated.
      * @param mixed  $value         New value.
+     * @return void
      */
     protected function doSetProperty($property, $value)
     {
@@ -74,6 +75,7 @@ trait ArrayPropertyTrait
 
     /**
      * @param string  $property     Object property to be unset.
+     * @return void
      */
     protected function doUnsetProperty($property)
     {
@@ -95,11 +97,14 @@ trait ArrayPropertyTrait
      */
     protected function getElements()
     {
-        return array_filter($this->_elements, function ($val) { return $val !== null; });
+        return array_filter($this->_elements, function ($val) {
+            return $val !== null;
+        });
     }
 
     /**
      * @param array $elements
+     * @return void
      */
     protected function setElements(array $elements)
     {

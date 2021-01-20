@@ -1,3 +1,4 @@
+#phpVersion: 70100
 includes:
     #- '../../vendor/phpstan/phpstan-strict-rules/rules.neon'
     - '../../vendor/phpstan/phpstan-deprecation-rules/rules.neon'
@@ -5,10 +6,17 @@ parameters:
     fileExtensions:
         - php
         - dist
-    bootstrap: tests/phpstan/phpstan-bootstrap.php
+    bootstrapFiles:
+        - phpstan-bootstrap.php
     excludes_analyse:
-        - system/src/Grav/Common/Errors/Resources/layout.html.php
+        - */system/src/Grav/Common/Errors/Resources/layout.html.php
+    inferPrivatePropertyTypeFromConstructor: true
     reportUnmatchedIgnoredErrors: false
+
+    # These checks are new in phpstan 0.12, ignore them for now.
+    checkMissingIterableValueType: false
+    checkGenericClassInNonGenericObjectType: false
+
     universalObjectCratesClasses:
         - Grav\Common\Config\Config
         - Grav\Common\Config\Languages
@@ -17,91 +25,139 @@ parameters:
         - Grav\Common\GPM\Common\Package
         - Grav\Common\GPM\Local\Package
         - Grav\Common\GPM\Remote\Package
+        - Grav\Common\Page\Header
         - Grav\Common\Session
+    dynamicConstantNames:
+        - GRAV_CLI
     ignoreErrors:
+        # New in phpstan 0.12, ignore them for now.
+        - '#Unsafe usage of new static\(\)#'
+        - '#Cannot instantiate interface Grav\\Framework\\#'
+        # TODO: phpstan bug #3875 (fixed, test if can be removed)
+        -
+            message: '#Unreachable statement - code above always terminates#'
+            path: '*/system/src/Grav/Common/Flex/Types/Pages/Storage/PageStorage.php'
 
         # FIXME: Bugs that need to be fixed
+        # FIXME: PHP 7.3 bug workaround
+        -
+            message: '#If condition is always false.#'
+            path: '*/system/src/Grav/Framework/Session/Session.php'
 
         # TODO: Errors that needs some more thinking (bad design?)
         - '#Access to an undefined property RocketTheme\\Toolbox\\Event\\Event::#'
+        - '#Instantiation of deprecated class RocketTheme\\Toolbox\\Event\\Event#'
+        - '#extends deprecated class RocketTheme\\Toolbox\\Event\\Event#'
+        - '#implements deprecated interface RocketTheme\\Toolbox\\Event\\EventSubscriberInterface#'
         - '#Access to an undefined property Grav\\Common\\Data\\Blueprint::#'
         - '#Access to an undefined property Grav\\Common\\Media\\Interfaces\\MediaObjectInterface::#'
-        - '#Access to an undefined property Grav\\Common\\Page\\Interfaces\\PageInterface::#'
         -
             message: '#Cannot call method path\(\) on string#'
-            path: 'system/src/Grav/Common/Page/Media.php'
+            path: '*/system/src/Grav/Common/Page/Media.php'
+        - '"FlexCollectionInterface::filterBy\(\) invoked with 2 parameters"'
 
         # TODO: system.twig.umask_fix will not work with Twig 2 anymore
         -
             message: '#Call to deprecated method writeCacheFile\(\) of class Twig\\Environment#'
-            path: 'system/src/Grav/Common/Twig/WriteCacheFileTrait.php'
+            path: '*/system/src/Grav/Common/Twig/WriteCacheFileTrait.php'
 
         # Needed: full coverage (probably with admin plugin...) then redesign constructor
         -
             message: '#Grav\\Common\\GPM\\Remote\\GravCore::__construct\(\) does not call parent constructor from Grav\\Common\\GPM\\Remote\\AbstractPackageCollection#'
-            path: 'system/src/Grav/Common/GPM/Remote/GravCore.php'
+            path: '*/system/src/Grav/Common/GPM/Remote/GravCore.php'
 
         # PSR-16 Exception interfaces do not extend \Throwable
         - '#PHPDoc tag \@throws with type Psr\\SimpleCache\\(CacheException|InvalidArgumentException) is not subtype of Throwable#'
-        - '#expects Exception, Psr\\SimpleCache\\InvalidArgumentException&Throwable given#'
-
-        # Needed: psr-17 (http-factories) support (through decorator or further investigations)
-        -
-            message: '#Call to an undefined static method Grav\\Framework\\Psr7\\Stream::create\(\)#'
-            path: 'system/src/Grav/Framework/Form/FormFlashFile.php'
 
         # Medium __call() methods
         - '#Call to an undefined method Grav\\Common\\Page\\Medium\\(\w*)Medium::#'
 
-        # Filesystem::getInstance()
-        -
-            message: '#Strict comparison using === between null and static#'
-            path: 'system/src/Grav/Framework/Filesystem/Filesystem.php'
-
         # These errors are about plugins (need to find a better solution)
         -
             message: '#Call to static method sendEmail\(\) on an unknown class Grav\\Plugin\\Email\\Utils#'
-            path: 'system/src/Grav/Common/Scheduler/Job.php'
+            path: '*/system/src/Grav/Common/Scheduler/Job.php'
         -
-            message: '#on an unknown class Grav\\Plugin\\Admin#'
-            path: 'system/src/Grav/Common/Page/Pages.php'
+            message: '#unknown class Grav\\Plugin\\Admin#'
+            path: '*/system/src/Grav/Common/Page/Pages.php'
         -
-            message: '#Call to method getFlash\(\) on an unknown class Grav\\Common\\Grav\\Plugin\\Form\\Forms#'
-            path: 'system/src/Grav/Common/Session.php'
+            message: '#unknown class Grav\\Plugin\\Admin#'
+            path: '*/system/src/Grav/Common/Flex/Pages/PageObject.php'
+        -
+            message: '#unknown class Grav\\Common\\Grav\\Plugin\\Form\\Forms#'
+            path: '*/system/src/Grav/Common/Session.php'
+        -
+            message: '#unknown class Grav\\Plugin\\Admin\\Admin#'
+            path: '*/system/src/Grav/Common/Flex/Types/Pages/PageObject.php'
 
         # Can be ignored, after fopen there's always an $http_response_header locally available
         -
             message: '#Variable \$http_response_header in isset\(\) always exists and is not nullable#'
-            path: 'system/src/Grav/Common/GPM/Response.php'
+            path: '*/system/src/Grav/Common/GPM/Response.php'
 
+        # Clockwork does not define functions for __call() call
+        -
+            message: '#Call to an undefined method Clockwork\\Clockwork::(info|userData|addEvent|alert)\(\)#'
+            path: '*/system/src/Grav/Common/Debugger.php'
 
         # These errors can be ignored (they depend on installed extensions)
         -
             message: '#Instantiated class (Memcache|Memcached|Redis|RedisException) not found#'
-            path: 'system/src/Grav/Common/Cache.php'
+            path: '*/system/src/Grav/Common/Cache.php'
         -
-            message: '#on an unknown class (Memcache|Memcached|Redis|RedisException)#'
-            path: 'system/src/Grav/Common/Cache.php'
+            message: '#unknown class (Memcache|Memcached|Redis|RedisException)#'
+            path: '*/system/src/Grav/Common/Cache.php'
         -
-            message: '#on an unknown class Collator#'
-            path: 'system/src/Grav/Common/Page/Pages.php'
+            message: '#unknown class Collator#'
+            path: '*/system/src/Grav/Common/Page/Pages.php'
+        -
+            message: '#unknown class Collator#'
+            path: '*/system/src/Grav/Common/Flex/Types/Pages/PageCollection.php'
+        -
+            message: '#Ternary operator condition is always true#'
+            path: '*/system/src/Grav/Framework/Cache/AbstractCache.php'
+        -
+            message: '#Call to function is_object\(\) with int will always evaluate to false#'
+            path: '*/system/src/Grav/Framework/Cache/AbstractCache.php'
+
+        # XHprof
+        - '#tideways_xhprof_enable#'
 
         # Support for deprecated features
         -
             message: '#Instantiation of deprecated class Doctrine\\Common\\Cache\\MemcacheCache#'
-            path: 'system/src/Grav/Common/Cache.php'
+            path: '*/system/src/Grav/Common/Cache.php'
         -
             message: '#Call to deprecated method order#'
-            path: 'system/src/Grav/Common/Page/Pages.php'
+            path: '*/system/src/Grav/Common/Page/Pages.php'
         -
             message: '#Fetching class constant class of deprecated class Grav\\Common\\User\\User#'
-            path: 'system/src/Grav/Common/Service/AccountsServiceProvider.php'
+            path: '*/system/src/Grav/Common/Service/AccountsServiceProvider.php'
         -
             message: '#Call to deprecated method getLegacyFiles\(\)#'
-            path: 'system/src/Grav/Common/Session.php'
+            path: '*/system/src/Grav/Common/Session.php'
         -
             message: '#Call to deprecated method getType\(\) of class#'
-            path: 'system/src/Grav/Framework/Object/Base/ObjectTrait.php'
+            path: '*/system/src/Grav/Framework/Object/Base/ObjectTrait.php'
+        -
+            message: '#Call to deprecated method \w+\(\) of class Grav\\Framework\\Flex\\FlexObject#'
+            path: '*/system/src/Grav/Framework/Flex/FlexObject.php'
+        -
+            message: '#Call to deprecated method \w+\(\) of class Grav\\Framework\\Flex\\FlexIndex#'
+            path: '*/system/src/Grav/Framework/Flex/FlexIndex.php'
+        -
+            message: '#Call to deprecated method \w+\(\) of class Grav\\Framework\\Flex\\FlexCollection#'
+            path: '*/system/src/Grav/Framework/Flex/FlexCollection.php'
+        -
+            message: '#Call to deprecated method (getAuthorizeScope|getActiveUser)\(\) of class Grav\\Framework\\Flex\\FlexObject#'
+            path: '*/system/src/Grav/Framework/Flex/Pages/Traits/PageAuthorsTrait.php'
         -
             message: '#deprecated class#'
-            path: 'system/src/Grav/Framework/Uri/Uri.php'
+            path: '*/system/src/Grav/Framework/Uri/Uri.php'
+        -
+            message: '#Method Symfony\\Contracts\\EventDispatcher\\EventDispatcherInterface::dispatch#'
+            path: '*/system/src/Grav/Common/Grav.php'
+
+        - '#has typehint with deprecated class RocketTheme\\Toolbox\\Event\\Event#'
+        - '#Call to deprecated method stopPropagation\(\) of class Symfony\\Component\\EventDispatcher\\Event#'
+        - '#Parameter \#2 \$listener of method Symfony\\Component\\EventDispatcher\\EventDispatcher::addListener\(\)#'
+        - '#Parameter \#2 \$listener of method Symfony\\Component\\EventDispatcher\\EventDispatcher::removeListener\(\)#'

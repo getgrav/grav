@@ -3,15 +3,26 @@
 /**
  * @package    Grav\Framework\Object
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Framework\Object\Collection;
 
+use Closure;
 use Doctrine\Common\Collections\Expr\ClosureExpressionVisitor;
 use Doctrine\Common\Collections\Expr\Comparison;
+use RuntimeException;
+use function in_array;
+use function is_array;
+use function is_callable;
+use function is_string;
+use function strlen;
 
+/**
+ * Class ObjectExpressionVisitor
+ * @package Grav\Framework\Object\Collection
+ */
 class ObjectExpressionVisitor extends ClosureExpressionVisitor
 {
     /**
@@ -19,7 +30,6 @@ class ObjectExpressionVisitor extends ClosureExpressionVisitor
      *
      * @param object $object
      * @param string $field
-     *
      * @return mixed
      */
     public static function getObjectFieldValue($object, $field)
@@ -28,7 +38,7 @@ class ObjectExpressionVisitor extends ClosureExpressionVisitor
 
         $pos = strpos($field, '(');
         if (false !== $pos) {
-            list ($op, $field) = explode('(', $field, 2);
+            [$op, $field] = explode('(', $field, 2);
             $field = rtrim($field, ')');
         }
 
@@ -40,7 +50,7 @@ class ObjectExpressionVisitor extends ClosureExpressionVisitor
             foreach ($accessors as $accessor) {
                 $accessor .= $field;
 
-                if (!method_exists($object, $accessor)) {
+                if (!is_callable([$object, $accessor])) {
                     continue;
                 }
 
@@ -59,31 +69,55 @@ class ObjectExpressionVisitor extends ClosureExpressionVisitor
         return $value;
     }
 
+    /**
+     * @param string $str
+     * @return string
+     */
     public static function filterLower($str)
     {
         return mb_strtolower($str);
     }
 
+    /**
+     * @param string $str
+     * @return string
+     */
     public static function filterUpper($str)
     {
         return mb_strtoupper($str);
     }
 
+    /**
+     * @param string $str
+     * @return int
+     */
     public static function filterLength($str)
     {
         return mb_strlen($str);
     }
 
+    /**
+     * @param string $str
+     * @return string
+     */
     public static function filterLtrim($str)
     {
         return ltrim($str);
     }
 
+    /**
+     * @param string $str
+     * @return string
+     */
     public static function filterRtrim($str)
     {
         return rtrim($str);
     }
 
+    /**
+     * @param string $str
+     * @return string
+     */
     public static function filterTrim($str)
     {
         return trim($str);
@@ -92,16 +126,18 @@ class ObjectExpressionVisitor extends ClosureExpressionVisitor
     /**
      * Helper for sorting arrays of objects based on multiple fields + orientations.
      *
+     * Comparison between two strings is natural and case insensitive.
+     *
      * @param string   $name
      * @param int      $orientation
-     * @param \Closure $next
+     * @param Closure|null $next
      *
-     * @return \Closure
+     * @return Closure
      */
-    public static function sortByField($name, $orientation = 1, \Closure $next = null)
+    public static function sortByField($name, $orientation = 1, Closure $next = null)
     {
         if (!$next) {
-            $next = function($a, $b) {
+            $next = function ($a, $b) {
                 return 0;
             };
         }
@@ -112,6 +148,11 @@ class ObjectExpressionVisitor extends ClosureExpressionVisitor
 
             if ($aValue === $bValue) {
                 return $next($a, $b);
+            }
+
+            // For strings we use natural case insensitive sorting.
+            if (is_string($aValue) && is_string($bValue)) {
+                return strnatcasecmp($aValue, $bValue) * $orientation;
             }
 
             return (($aValue > $bValue) ? 1 : -1) * $orientation;
@@ -159,12 +200,12 @@ class ObjectExpressionVisitor extends ClosureExpressionVisitor
 
             case Comparison::IN:
                 return function ($object) use ($field, $value) {
-                    return \in_array(static::getObjectFieldValue($object, $field), $value, true);
+                    return in_array(static::getObjectFieldValue($object, $field), $value, true);
                 };
 
             case Comparison::NIN:
                 return function ($object) use ($field, $value) {
-                    return !\in_array(static::getObjectFieldValue($object, $field), $value, true);
+                    return !in_array(static::getObjectFieldValue($object, $field), $value, true);
                 };
 
             case Comparison::CONTAINS:
@@ -175,10 +216,10 @@ class ObjectExpressionVisitor extends ClosureExpressionVisitor
             case Comparison::MEMBER_OF:
                 return function ($object) use ($field, $value) {
                     $fieldValues = static::getObjectFieldValue($object, $field);
-                    if (!\is_array($fieldValues)) {
+                    if (!is_array($fieldValues)) {
                         $fieldValues = iterator_to_array($fieldValues);
                     }
-                    return \in_array($value, $fieldValues, true);
+                    return in_array($value, $fieldValues, true);
                 };
 
             case Comparison::STARTS_WITH:
@@ -191,9 +232,8 @@ class ObjectExpressionVisitor extends ClosureExpressionVisitor
                     return $value === substr(static::getObjectFieldValue($object, $field), -strlen($value));
                 };
 
-
             default:
-                throw new \RuntimeException("Unknown comparison operator: " . $comparison->getOperator());
+                throw new RuntimeException("Unknown comparison operator: " . $comparison->getOperator());
         }
     }
 }

@@ -3,42 +3,79 @@
 /**
  * @package    Grav\Common\Scheduler
  * @author     Originally based on peppeocchi/php-cron-scheduler modified for Grav integration
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Common\Scheduler;
 
+use Closure;
 use Cron\CronExpression;
+use DateTime;
 use Grav\Common\Grav;
+use InvalidArgumentException;
+use RuntimeException;
 use Symfony\Component\Process\Process;
+use function call_user_func;
+use function call_user_func_array;
+use function count;
+use function is_array;
+use function is_callable;
+use function is_string;
 
+/**
+ * Class Job
+ * @package Grav\Common\Scheduler
+ */
 class Job
 {
     use IntervalTrait;
 
+    /** @var string */
     private $id;
-    private $enabled = true;
+    /** @var bool */
+    private $enabled;
+    /** @var callable|string */
     private $command;
+    /** @var string */
     private $at;
+    /** @var array */
     private $args = [];
+    /** @var bool */
     private $runInBackground = true;
+    /** @var DateTime */
     private $creationTime;
+    /** @var CronExpression */
     private $executionTime;
+    /** @var string */
     private $tempDir;
+    /** @var string */
     private $lockFile;
+    /** @var bool */
     private $truthTest = true;
+    /** @var string */
     private $output;
+    /** @var int */
     private $returnCode = 0;
+    /** @var array */
     private $outputTo = [];
+    /** @var array */
     private $emailTo = [];
+    /** @var array */
     private $emailConfig = [];
+    /** @var callable|null */
     private $before;
+    /** @var callable|null */
     private $after;
+    /** @var callable */
     private $whenOverlapping;
+    /** @var string */
     private $outputMode;
+    /** @var Process|null $process */
     private $process;
+    /** @var bool */
     private $successful = false;
+    /** @var string|null */
     private $backlink;
 
     /**
@@ -46,7 +83,7 @@ class Job
      *
      * @param  string|callable $command
      * @param  array $args
-     * @param  string $id
+     * @param  string|null $id
      */
     public function __construct($command, $args = [], $id = null)
     {
@@ -60,7 +97,7 @@ class Job
                 $this->id = spl_object_hash($command);
             }
         }
-        $this->creationTime = new \DateTime('now');
+        $this->creationTime = new DateTime('now');
         // initialize the directory path for lock files
         $this->tempDir = sys_get_temp_dir();
         $this->command = $command;
@@ -73,7 +110,7 @@ class Job
     /**
      * Get the command
      *
-     * @return string
+     * @return Closure|string
      */
     public function getCommand()
     {
@@ -107,13 +144,16 @@ class Job
      */
     public function getArguments()
     {
-        if (\is_string($this->args)) {
+        if (is_string($this->args)) {
             return $this->args;
         }
 
         return null;
     }
 
+    /**
+     * @return CronExpression
+     */
     public function getCronExpression()
     {
         return CronExpression::factory($this->at);
@@ -145,10 +185,10 @@ class Job
      * the job is due. Defaults to job creation time.
      * It also default the execution time if not previously defined.
      *
-     * @param  \DateTime $date
+     * @param  DateTime|null $date
      * @return bool
      */
-    public function isDue(\DateTime $date = null)
+    public function isDue(DateTime $date = null)
     {
         // The execution time is being defaulted if not defined
         if (!$this->executionTime) {
@@ -187,9 +227,8 @@ class Job
     /**
      * Sets/Gets an option backlink
      *
-     * @param string $link
-     *
-     * @return null|string
+     * @param string|null $link
+     * @return string|null
      */
     public function backlink($link = null)
     {
@@ -216,8 +255,8 @@ class Job
      * being executed if the previous is still running.
      * The job id is used as a filename for the lock file.
      *
-     * @param  string $tempDir The directory path for the lock files
-     * @param  callable $whenOverlapping A callback to ignore job overlapping
+     * @param  string|null $tempDir The directory path for the lock files
+     * @param  callable|null $whenOverlapping A callback to ignore job overlapping
      * @return self
      */
     public function onlyOne($tempDir = null, callable $whenOverlapping = null)
@@ -298,7 +337,7 @@ class Job
         if (is_callable($this->command)) {
             $this->output = $this->exec();
         } else {
-            $args = \is_string($this->args) ? explode(' ', $this->args) : $this->args;
+            $args = is_string($this->args) ? explode(' ', $this->args) : $this->args;
             $command = array_merge([$this->command], $args);
             $process = new Process($command);
 
@@ -322,7 +361,6 @@ class Job
      */
     public function finalize()
     {
-        /** @var Process $process */
         $process = $this->process;
 
         if ($process) {
@@ -344,6 +382,8 @@ class Job
 
     /**
      * Things to run after job has run
+     *
+     * @return void
      */
     private function postRun()
     {
@@ -374,7 +414,7 @@ class Job
     private function createLockFile($content = null)
     {
         if ($this->lockFile) {
-            if ($content === null || !\is_string($content)) {
+            if ($content === null || !is_string($content)) {
                 $content = $this->getId();
             }
             file_put_contents($this->lockFile, $content);
@@ -396,8 +436,8 @@ class Job
     /**
      * Execute a callable job.
      *
-     * @throws \RuntimeException
      * @return string
+     * @throws RuntimeException
      */
     private function exec()
     {
@@ -406,12 +446,15 @@ class Job
         try {
             $return_data = call_user_func_array($this->command, $this->args);
             $this->successful = true;
-        } catch (\RuntimeException $e) {
+        } catch (RuntimeException $e) {
+            $return_data = $e->getMessage();
             $this->successful = false;
         }
         $this->output = ob_get_clean() . (is_string($return_data) ? $return_data : '');
 
         $this->postRun();
+
+        return $this->output;
     }
 
     /**
@@ -450,7 +493,7 @@ class Job
     public function email($email)
     {
         if (!is_string($email) && !is_array($email)) {
-            throw new \InvalidArgumentException('The email can be only string or array');
+            throw new InvalidArgumentException('The email can be only string or array');
         }
 
         $this->emailTo = is_array($email) ? $email : [$email];
@@ -519,4 +562,3 @@ class Job
         return $this;
     }
 }
-

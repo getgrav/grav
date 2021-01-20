@@ -3,26 +3,30 @@
 /**
  * @package    Grav\Common\Markdown
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Common\Markdown;
 
+use Exception;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Page\Markdown\Excerpts;
-use Grav\Framework\Parsedown\ParsedownExtra as ParsedownExtraLib;
 
-class ParsedownExtra extends ParsedownExtraLib
+/**
+ * Class ParsedownExtra
+ * @package Grav\Common\Markdown
+ */
+class ParsedownExtra extends \ParsedownExtra
 {
     use ParsedownGravTrait;
 
     /**
      * ParsedownExtra constructor.
      *
-     * @param Excerpts|null $excerpts
+     * @param Excerpts|PageInterface|null $excerpts
      * @param array|null $defaults
-     * @throws \Exception
+     * @throws Exception
      */
     public function __construct($excerpts = null, $defaults = null)
     {

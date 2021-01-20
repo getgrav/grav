@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Console\Cli
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -14,14 +14,18 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
+/**
+ * Class CleanCommand
+ * @package Grav\Console\Cli
+ */
 class CleanCommand extends Command
 {
-    /* @var InputInterface $output */
+    /** @var InputInterface */
     protected $input;
-
-    /* @var OutputInterface $output */
-    protected $output;
+    /** @var SymfonyStyle */
+    protected $io;
 
     /** @var array */
     protected $paths_to_remove = [
@@ -260,7 +264,10 @@ class CleanCommand extends Command
         'cache/compiled/',
     ];
 
-    protected function configure()
+    /**
+     * @return void
+     */
+    protected function configure(): void
     {
         $this
             ->setName('clean')
@@ -271,33 +278,46 @@ class CleanCommand extends Command
     /**
      * @param InputInterface  $input
      * @param OutputInterface $output
+     * @return int
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->setupConsole($input, $output);
 
-        $this->cleanPaths();
+        return $this->cleanPaths() ? 0 : 1;
     }
 
-    private function cleanPaths()
+    /**
+     * @return bool
+     */
+    private function cleanPaths(): bool
     {
-        $this->output->writeln('');
-        $this->output->writeln('<red>DELETING</red>');
+        $success = true;
+
+        $this->io->writeln('');
+        $this->io->writeln('<red>DELETING</red>');
         $anything = false;
         foreach ($this->paths_to_remove as $path) {
-            $path = ROOT_DIR . $path;
-            if (is_dir($path) && @Folder::delete($path)) {
-                $anything = true;
-                $this->output->writeln('<red>dir:  </red>' . $path);
-            } elseif (is_file($path) && @unlink($path)) {
-                $anything = true;
-                $this->output->writeln('<red>file: </red>' . $path);
+            $path = GRAV_ROOT . $path;
+            try {
+                if (is_dir($path) && Folder::delete($path)) {
+                    $anything = true;
+                    $this->io->writeln('<red>dir:  </red>' . $path);
+                } elseif (is_file($path) && @unlink($path)) {
+                    $anything = true;
+                    $this->io->writeln('<red>file: </red>' . $path);
+                }
+            } catch (\Exception $e) {
+                $success = false;
+                $this->io->error(sprintf('Failed to delete %s: %s', $path, $e->getMessage()));
             }
         }
         if (!$anything) {
-            $this->output->writeln('');
-            $this->output->writeln('<green>Nothing to clean...</green>');
+            $this->io->writeln('');
+            $this->io->writeln('<green>Nothing to clean...</green>');
         }
+
+        return $success;
     }
 
     /**
@@ -305,19 +325,19 @@ class CleanCommand extends Command
      *
      * @param InputInterface  $input
      * @param OutputInterface $output
+     * @return void
      */
-    public function setupConsole(InputInterface $input, OutputInterface $output)
+    public function setupConsole(InputInterface $input, OutputInterface $output): void
     {
         $this->input = $input;
-        $this->output = $output;
+        $this->io = new SymfonyStyle($input, $output);
 
-        $this->output->getFormatter()->setStyle('normal', new OutputFormatterStyle('white'));
-        $this->output->getFormatter()->setStyle('yellow', new OutputFormatterStyle('yellow', null, ['bold']));
-        $this->output->getFormatter()->setStyle('red', new OutputFormatterStyle('red', null, ['bold']));
-        $this->output->getFormatter()->setStyle('cyan', new OutputFormatterStyle('cyan', null, ['bold']));
-        $this->output->getFormatter()->setStyle('green', new OutputFormatterStyle('green', null, ['bold']));
-        $this->output->getFormatter()->setStyle('magenta', new OutputFormatterStyle('magenta', null, ['bold']));
-        $this->output->getFormatter()->setStyle('white', new OutputFormatterStyle('white', null, ['bold']));
+        $this->io->getFormatter()->setStyle('normal', new OutputFormatterStyle('white'));
+        $this->io->getFormatter()->setStyle('yellow', new OutputFormatterStyle('yellow', null, ['bold']));
+        $this->io->getFormatter()->setStyle('red', new OutputFormatterStyle('red', null, ['bold']));
+        $this->io->getFormatter()->setStyle('cyan', new OutputFormatterStyle('cyan', null, ['bold']));
+        $this->io->getFormatter()->setStyle('green', new OutputFormatterStyle('green', null, ['bold']));
+        $this->io->getFormatter()->setStyle('magenta', new OutputFormatterStyle('magenta', null, ['bold']));
+        $this->io->getFormatter()->setStyle('white', new OutputFormatterStyle('white', null, ['bold']));
     }
-
 }

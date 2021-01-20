@@ -1,5 +1,11 @@
 title: PLUGIN_ADMIN_PRO.ADD_GROUP
 
+rules:
+  slug:
+    pattern: '[a-zA-Zа-яA-Я0-9_\-]+'
+    min: 1
+    max: 200
+
 form:
   validation: loose
   fields:
@@ -14,3 +20,4 @@ form:
       help: PLUGIN_ADMIN_PRO.GROUP_NAME_HELP
       validate:
         required: true
+        rule: slug

@@ -1,8 +1,15 @@
-:8080
+# To use this file simply install caddy and run the command below from the root of your Grav site
+# Once running it will redirect http://localhost to https://localhost (new default for Caddy2)
+# More infromation here: https://caddyserver.com/docs/
+#
+# $ caddy run --config webserver-configs/Caddyfile
+
+localhost
 encode gzip
-root * /path/to/grav/root
-php_fastcgi unix//run/php/php7.3-fpm.sock
+root * .
 file_server
+
+php_fastcgi 127.0.0.1:9000
 
 # Begin - Security
 # deny all direct access for these folders

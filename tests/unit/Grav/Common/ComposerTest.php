@@ -16,17 +16,16 @@ class ComposerTest extends \Codeception\TestCase\Test
     public function testGetComposerLocation()
     {
         $composerLocation = Composer::getComposerLocation();
-        $this->assertInternalType('string', $composerLocation);
+        $this->assertIsString($composerLocation);
         $this->assertSame('/', $composerLocation[0]);
     }
 
     public function testGetComposerExecutor()
     {
         $composerExecutor = Composer::getComposerExecutor();
-        $this->assertInternalType('string', $composerExecutor);
+        $this->assertIsString($composerExecutor);
         $this->assertSame('/', $composerExecutor[0]);
         $this->assertNotNull(strstr($composerExecutor, 'php'));
         $this->assertNotNull(strstr($composerExecutor, 'composer'));
     }
-
 }

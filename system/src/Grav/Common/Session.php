@@ -3,14 +3,21 @@
 /**
  * @package    Grav\Common
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Common;
 
 use Grav\Common\Form\FormFlash;
+use Grav\Events\SessionStartEvent;
+use Grav\Plugin\Form\Forms;
+use function is_string;
 
+/**
+ * Class Session
+ * @package Grav\Common
+ */
 class Session extends \Grav\Framework\Session\Session
 {
     /** @var bool */
@@ -31,6 +38,8 @@ class Session extends \Grav\Framework\Session\Session
      * Initialize session.
      *
      * Code in this function has been moved into SessionServiceProvider class.
+     *
+     * @return void
      */
     public function init()
     {
@@ -68,7 +77,7 @@ class Session extends \Grav\Framework\Session\Session
     /**
      * Checks if the session was started.
      *
-     * @return Boolean
+     * @return bool
      * @deprecated 1.5 Use ->isStarted() method instead.
      */
     public function started()
@@ -102,7 +111,7 @@ class Session extends \Grav\Framework\Session\Session
     {
         $serialized = $this->__get($name);
 
-        $object = \is_string($serialized) ? unserialize($serialized, ['allowed_classes' => true]) : $serialized;
+        $object = is_string($serialized) ? unserialize($serialized, ['allowed_classes' => true]) : $serialized;
 
         $this->__unset($name);
 
@@ -118,14 +127,14 @@ class Session extends \Grav\Framework\Session\Session
 
                 /** @var Uri $uri */
                 $uri = $grav['uri'];
-                /** @var Grav\Plugin\Form\Forms $form */
+                /** @var Forms|null $form */
                 $form = $grav['forms']->getActiveForm();
 
                 $sessionField = base64_encode($uri->url);
 
-                /** @var FormFlash $flash */
+                /** @var FormFlash|null $flash */
                 $flash = $form ? $form->getFlash() : null;
-                $object = $flash ? [$sessionField => $flash->getLegacyFiles()] : null;
+                $object = $flash && method_exists($flash, 'getLegacyFiles') ? [$sessionField => $flash->getLegacyFiles()] : null;
             }
         }
 
@@ -156,11 +165,22 @@ class Session extends \Grav\Framework\Session\Session
     public function getFlashCookieObject($name)
     {
         if (isset($_COOKIE[$name])) {
-            $object = json_decode($_COOKIE[$name]);
+            $object = json_decode($_COOKIE[$name], false);
             setcookie($name, '', time() - 3600, '/');
             return $object;
         }
 
         return null;
+    }
+
+    /**
+     * @return void
+     */
+    protected function onSessionStart(): void
+    {
+        $event = new SessionStartEvent($this);
+
+        $grav = Grav::instance();
+        $grav->dispatchEvent($event);
     }
 }

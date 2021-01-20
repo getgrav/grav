@@ -16,7 +16,6 @@ class GpmStub extends GPM
         if (isset($this->data[$packageName])) {
             return $this->data[$packageName];
         }
-
     }
 
     public function findPackages($searches = [])
@@ -80,7 +79,7 @@ class GpmTest extends \Codeception\TestCase\Test
 
         $dependencies = $this->gpm->calculateMergedDependenciesOfPackages($packages);
 
-        $this->assertInternalType('array', $dependencies);
+        $this->assertIsArray($dependencies);
         $this->assertCount(5, $dependencies);
 
         $this->assertSame('>=1.0.10', $dependencies['grav']);
@@ -93,7 +92,7 @@ class GpmTest extends \Codeception\TestCase\Test
         $packages = ['admin', 'form'];
 
         $dependencies = $this->gpm->calculateMergedDependenciesOfPackages($packages);
-        $this->assertInternalType('array', $dependencies);
+        $this->assertIsArray($dependencies);
         $this->assertCount(5, $dependencies);
         $this->assertSame('>=3.2', $dependencies['errors']);
 
@@ -124,7 +123,7 @@ class GpmTest extends \Codeception\TestCase\Test
 
 
         $dependencies = $this->gpm->calculateMergedDependenciesOfPackages($packages);
-        $this->assertInternalType('array', $dependencies);
+        $this->assertIsArray($dependencies);
         $this->assertCount(1, $dependencies);
         $this->assertSame('>=4.0', $dependencies['errors']);
 
@@ -253,7 +252,7 @@ class GpmTest extends \Codeception\TestCase\Test
 
         $dependencies = $this->gpm->calculateMergedDependenciesOfPackages($packages);
 
-        $this->assertInternalType('array', $dependencies);
+        $this->assertIsArray($dependencies);
         $this->assertCount(7, $dependencies);
 
         $this->assertSame('>=1.0.10', $dependencies['grav']);

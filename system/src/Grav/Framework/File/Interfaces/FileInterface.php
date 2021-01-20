@@ -5,11 +5,14 @@ declare(strict_types=1);
 /**
  * @package    Grav\Framework\File
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Framework\File\Interfaces;
+
+use RuntimeException;
+use Serializable;
 
 /**
  * Defines common interface for all file readers.
@@ -24,7 +27,7 @@ namespace Grav\Framework\File\Interfaces;
  *
  * @since 1.6
  */
-interface FileInterface extends \Serializable
+interface FileInterface extends Serializable
 {
     /**
      * Get both path and filename of the file.
@@ -98,7 +101,7 @@ interface FileInterface extends \Serializable
      * @param bool $block For non-blocking lock, set the parameter to `false`.
      *
      * @return bool Returns `true` if the file was successfully locked, `false` otherwise.
-     * @throws \RuntimeException
+     * @throws RuntimeException
      * @api
      */
     public function lock(bool $block = true): bool;
@@ -150,7 +153,7 @@ interface FileInterface extends \Serializable
      *
      * @param  mixed $data Data to be saved.
      *
-     * @throws \RuntimeException
+     * @throws RuntimeException
      * @api
      */
     public function save($data): void;

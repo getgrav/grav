@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * @package    Grav\Framework\File\Formatter
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -13,6 +13,10 @@ namespace Grav\Framework\File\Formatter;
 
 use Grav\Framework\File\Interfaces\FileFormatterInterface;
 
+/**
+ * Class MarkdownFormatter
+ * @package Grav\Framework\File\Formatter
+ */
 class MarkdownFormatter extends AbstractFormatter
 {
     /** @var FileFormatterInterface */
@@ -30,7 +34,7 @@ class MarkdownFormatter extends AbstractFormatter
 
         parent::__construct($config);
 
-        $this->headerFormatter = $headerFormatter ?: new YamlFormatter($config['yaml']);
+        $this->headerFormatter = $headerFormatter ?? new YamlFormatter($config['yaml']);
     }
 
     /**
@@ -93,7 +97,10 @@ class MarkdownFormatter extends AbstractFormatter
         $encoded .= $body;
 
         // Normalize line endings to Unix style.
-        $encoded = preg_replace("/(\r\n|\r)/", "\n", $encoded);
+        $encoded = preg_replace("/(\r\n|\r)/u", "\n", $encoded);
+        if (null === $encoded) {
+            throw new \RuntimeException('Encoding markdown failed');
+        }
 
         return $encoded;
     }
@@ -117,11 +124,14 @@ class MarkdownFormatter extends AbstractFormatter
         $headerRegex = "/^---\n(.+?)\n---\n{0,}(.*)$/uis";
 
         // Normalize line endings to Unix style.
-        $data = preg_replace("/(\r\n|\r)/", "\n", $data);
+        $data = preg_replace("/(\r\n|\r)/u", "\n", $data);
+        if (null === $data) {
+            throw new \RuntimeException('Decoding markdown failed');
+        }
 
         // Parse header.
         preg_match($headerRegex, ltrim($data), $matches);
-        if(empty($matches)) {
+        if (empty($matches)) {
             $content[$bodyVar] = $data;
         } else {
             // Normalize frontmatter.
@@ -134,5 +144,17 @@ class MarkdownFormatter extends AbstractFormatter
         }
 
         return $content;
+    }
+
+    public function __serialize(): array
+    {
+        return parent::__serialize() + ['headerFormatter' => $this->headerFormatter];
+    }
+
+    public function __unserialize(array $data): void
+    {
+        parent::__unserialize($data);
+
+        $this->headerFormatter = $data['headerFormatter'] ?? new YamlFormatter(['inline' => 20]);
     }
 }

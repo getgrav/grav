@@ -3,15 +3,21 @@
 /**
  * @package    Grav\Framework\Cache
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Framework\Cache\Adapter;
 
+use ErrorException;
+use FilesystemIterator;
 use Grav\Framework\Cache\AbstractCache;
 use Grav\Framework\Cache\Exception\CacheException;
 use Grav\Framework\Cache\Exception\InvalidArgumentException;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+use RuntimeException;
+use function strlen;
 
 /**
  * Cache class for PSR-16 compatible "Simple Cache" implementation using file backend.
@@ -22,11 +28,17 @@ use Grav\Framework\Cache\Exception\InvalidArgumentException;
  */
 class FileCache extends AbstractCache
 {
+    /** @var string */
     private $directory;
+    /** @var string|null */
     private $tmp;
 
     /**
-     * @inheritdoc
+     * FileCache constructor.
+     * @param string $namespace
+     * @param int|null $defaultLifetime
+     * @param string|null $folder
+     * @throws \Psr\SimpleCache\InvalidArgumentException|InvalidArgumentException
      */
     public function __construct($namespace = '', $defaultLifetime = null, $folder = null)
     {
@@ -51,12 +63,12 @@ class FileCache extends AbstractCache
             fclose($h);
             @unlink($file);
         } else {
-            $i = rawurldecode(rtrim(fgets($h)));
-            $value = stream_get_contents($h);
+            $i = rawurldecode(rtrim((string)fgets($h)));
+            $value = stream_get_contents($h) ?: '';
             fclose($h);
 
             if ($i === $key) {
-                return unserialize($value);
+                return unserialize($value, ['allowed_classes' => true]);
             }
         }
 
@@ -65,7 +77,7 @@ class FileCache extends AbstractCache
 
     /**
      * @inheritdoc
-     * @throws \Psr\SimpleCache\CacheException|InvalidArgumentException
+     * @throws CacheException
      */
     public function doSet($key, $value, $ttl)
     {
@@ -100,7 +112,7 @@ class FileCache extends AbstractCache
     public function doClear()
     {
         $result = true;
-        $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($this->directory, \FilesystemIterator::SKIP_DOTS));
+        $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($this->directory, FilesystemIterator::SKIP_DOTS));
 
         foreach ($iterator as $file) {
             $result = ($file->isDir() || @unlink($file) || !file_exists($file)) && $result;
@@ -139,7 +151,8 @@ class FileCache extends AbstractCache
     /**
      * @param string $namespace
      * @param string $directory
-     * @throws \Psr\SimpleCache\InvalidArgumentException|InvalidArgumentException
+     * @return void
+     * @throws InvalidArgumentException
      */
     protected function initFileCache($namespace, $directory)
     {
@@ -195,7 +208,8 @@ class FileCache extends AbstractCache
 
     /**
      * @param  string  $dir
-     * @throws \RuntimeException
+     * @return void
+     * @throws RuntimeException
      */
     private function mkdir($dir)
     {
@@ -210,20 +224,28 @@ class FileCache extends AbstractCache
             // Take yet another look, make sure that the folder doesn't exist.
             clearstatcache(true, $dir);
             if (!@is_dir($dir)) {
-                throw new \RuntimeException(sprintf('Unable to create directory: %s', $dir));
+                throw new RuntimeException(sprintf('Unable to create directory: %s', $dir));
             }
         }
     }
 
     /**
+     * @param int $type
+     * @param string $message
+     * @param string $file
+     * @param int $line
+     * @return bool
      * @internal
-     * @throws \ErrorException
+     * @throws ErrorException
      */
     public static function throwError($type, $message, $file, $line)
     {
-        throw new \ErrorException($message, 0, $type, $file, $line);
+        throw new ErrorException($message, 0, $type, $file, $line);
     }
 
+    /**
+     * @return void
+     */
     public function __destruct()
     {
         if ($this->tmp !== null && file_exists($this->tmp)) {

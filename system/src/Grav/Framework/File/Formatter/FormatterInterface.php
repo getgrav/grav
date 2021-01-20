@@ -7,4 +7,6 @@ use Grav\Framework\File\Interfaces\FileFormatterInterface;
 /**
  * @deprecated 1.6 Use Grav\Framework\File\Interfaces\FileFormatterInterface instead
  */
-interface FormatterInterface extends FileFormatterInterface {};
+interface FormatterInterface extends FileFormatterInterface
+{
+}

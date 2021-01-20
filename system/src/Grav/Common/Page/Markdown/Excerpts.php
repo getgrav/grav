@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Page
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -12,19 +12,36 @@ namespace Grav\Common\Page\Markdown;
 use Grav\Common\Grav;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Page\Medium\Link;
+use Grav\Common\Page\Pages;
 use Grav\Common\Uri;
 use Grav\Common\Page\Medium\Medium;
 use Grav\Common\Utils;
 use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
+use function array_key_exists;
+use function call_user_func_array;
+use function count;
+use function dirname;
+use function in_array;
+use function is_bool;
+use function is_string;
 
+/**
+ * Class Excerpts
+ * @package Grav\Common\Page\Markdown
+ */
 class Excerpts
 {
-    /** @var PageInterface */
+    /** @var PageInterface|null */
     protected $page;
     /** @var array */
     protected $config;
 
+    /**
+     * Excerpts constructor.
+     * @param PageInterface|null $page
+     * @param array|null $config
+     */
     public function __construct(PageInterface $page = null, array $config = null)
     {
         $this->page = $page ?? Grav::instance()['page'] ?? null;
@@ -42,16 +59,26 @@ class Excerpts
         $this->config = $config;
     }
 
-    public function getPage(): PageInterface
+    /**
+     * @return PageInterface|null
+     */
+    public function getPage(): ?PageInterface
     {
         return $this->page;
     }
 
+    /**
+     * @return array
+     */
     public function getConfig(): array
     {
         return $this->config;
     }
 
+    /**
+     * @param object $markdown
+     * @return void
+     */
     public function fireInitializedEvent($markdown): void
     {
         $grav = Grav::instance();
@@ -89,12 +116,16 @@ class Excerpts
             // Valid attributes supported.
             $valid_attributes = Grav::instance()['config']->get('system.pages.markdown.valid_link_attributes');
 
+            $skip = [];
             // Unless told to not process, go through actions.
             if (array_key_exists('noprocess', $actions)) {
+                $skip = is_bool($actions['noprocess']) ? $actions : explode(',', $actions['noprocess']);
                 unset($actions['noprocess']);
-            } else {
-                // Loop through actions for the image and call them.
-                foreach ($actions as $attrib => $value) {
+            }
+
+            // Loop through actions for the image and call them.
+            foreach ($actions as $attrib => $value) {
+                if (!in_array($attrib, $skip)) {
                     $key = $attrib;
 
                     if (in_array($attrib, $valid_attributes, true)) {
@@ -108,12 +139,12 @@ class Excerpts
                 }
             }
 
-            $url_parts['query'] = http_build_query($actions, null, '&', PHP_QUERY_RFC3986);
+            $url_parts['query'] = http_build_query($actions, '', '&', PHP_QUERY_RFC3986);
         }
 
         // If no query elements left, unset query.
         if (empty($url_parts['query'])) {
-            unset ($url_parts['query']);
+            unset($url_parts['query']);
         }
 
         // Set path to / if not set.
@@ -162,9 +193,10 @@ class Excerpts
             $filename = $url_parts['scheme'] . '://' . ($url_parts['path'] ?? '');
 
             $media = $this->page->getMedia();
-
         } else {
             $grav = Grav::instance();
+            /** @var Pages $pages */
+            $pages = $grav['pages'];
 
             // File is also local if scheme is http(s) and host matches.
             $local_file = isset($url_parts['path'])
@@ -181,11 +213,10 @@ class Excerpts
                     $media = $this->page->getMedia();
                 } else {
                     // see if this is an external page to this one
-                    $base_url = rtrim($grav['base_url_relative'] . $grav['pages']->base(), '/');
+                    $base_url = rtrim($grav['base_url_relative'] . $pages->base(), '/');
                     $page_route = '/' . ltrim(str_replace($base_url, '', $folder), '/');
 
-                    /** @var PageInterface $ext_page */
-                    $ext_page = $grav['pages']->dispatch($page_route, true);
+                    $ext_page = $pages->find($page_route, true);
                     if ($ext_page) {
                         $media = $ext_page->getMedia();
                     } else {
@@ -211,7 +242,6 @@ class Excerpts
             $id = $element_excerpt['id'] ?? '';
 
             $excerpt['element'] = $medium->parsedownElement($title, $alt, $class, $id, true);
-
         } else {
             // Not a current page media file, see if it needs converting to relative.
             $excerpt['element']['attributes']['src'] = Uri::buildUrl($url_parts);
@@ -248,18 +278,15 @@ class Excerpts
             );
         }
 
-        $config = $this->getConfig();
-        if (!empty($config['images']['auto_fix_orientation'])) {
-            $actions[] = ['method' => 'fixOrientation', 'params' => ''];
-        }
-
         $defaults = $config['images']['defaults'] ?? [];
         if (count($defaults)) {
             foreach ($defaults as $method => $params) {
-                $actions[] = [
-                    'method' => $method,
-                    'params' => $params,
-                ];
+                if (!array_search($method, array_column($actions, 'method'))) {
+                    $actions[] = [
+                        'method' => $method,
+                        'params' => $params,
+                    ];
+                }
             }
         }
 
@@ -287,7 +314,7 @@ class Excerpts
      * Variation of parse_url() which works also with local streams.
      *
      * @param string $url
-     * @return array|bool
+     * @return array
      */
     protected function parseUrl(string $url)
     {
@@ -314,7 +341,7 @@ class Excerpts
 
     /**
      * @param string $url
-     * @return bool|string
+     * @return string
      */
     protected function resolveStream(string $url)
     {

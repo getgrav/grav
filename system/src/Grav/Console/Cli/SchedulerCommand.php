@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Console\Cli
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -13,15 +13,22 @@ use Cron\CronExpression;
 use Grav\Common\Grav;
 use Grav\Common\Utils;
 use Grav\Common\Scheduler\Scheduler;
-use Grav\Console\ConsoleCommand;
+use Grav\Console\GravCommand;
 use RocketTheme\Toolbox\Event\Event;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Style\SymfonyStyle;
+use function is_null;
 
-class SchedulerCommand extends ConsoleCommand
+/**
+ * Class SchedulerCommand
+ * @package Grav\Console\Cli
+ */
+class SchedulerCommand extends GravCommand
 {
-    protected function configure()
+    /**
+     * @return void
+     */
+    protected function configure(): void
     {
         $this
             ->setName('scheduler')
@@ -43,24 +50,28 @@ class SchedulerCommand extends ConsoleCommand
                 InputOption::VALUE_NONE,
                 'Show Job Details'
             )
+            ->addOption(
+                'run',
+                'r',
+                InputOption::VALUE_OPTIONAL,
+                'Force run all jobs or a specific job if you specify a specific Job ID',
+                false
+            )
             ->setDescription('Run the Grav Scheduler.  Best when integrated with system cron')
             ->setHelp("Running without any options will force the Scheduler to run through it's jobs and process them");
     }
 
-    protected function serve()
+    /**
+     * @return int
+     */
+    protected function serve(): int
     {
-//        error_reporting(1);
+        $this->initializePlugins();
+
         $grav = Grav::instance();
-        $grav->setup();
-
-        $grav['uri']->init();
-        $grav['config']->init();
-        $grav['plugins']->init();
-        $grav['themes']->init();
         $grav['backups']->init();
-
-        // Initialize Plugins
-        $grav->fireEvent('onPluginsInitialized');
+        $this->initializePages();
+        $this->initializeThemes();
 
         /** @var Scheduler $scheduler */
         $scheduler = $grav['scheduler'];
@@ -68,16 +79,20 @@ class SchedulerCommand extends ConsoleCommand
 
         $this->setHelp('foo');
 
-        $io = new SymfonyStyle($this->input, $this->output);
+        $input = $this->getInput();
+        $io = $this->getIO();
+        $error = 0;
 
-        if ($this->input->getOption('jobs')) {
+        $run = $input->getOption('run');
+
+        if ($input->getOption('jobs')) {
             // Show jobs list
 
             $jobs = $scheduler->getAllJobs();
-            $job_states = $scheduler->getJobStates()->content();
+            $job_states = (array)$scheduler->getJobStates()->content();
             $rows = [];
 
-            $table = new Table($this->output);
+            $table = new Table($io);
             $table->setStyle('box');
             $headers = ['Job ID', 'Command', 'Run At', 'Status', 'Last Run', 'State'];
 
@@ -111,13 +126,13 @@ class SchedulerCommand extends ConsoleCommand
             $io->newLine();
             $io->note('For error details run "bin/grav scheduler -d"');
             $io->newLine();
-        } elseif ($this->input->getOption('details')) {
+        } elseif ($input->getOption('details')) {
             $jobs = $scheduler->getAllJobs();
-            $job_states = $scheduler->getJobStates()->content();
+            $job_states = (array)$scheduler->getJobStates()->content();
 
             $io->title('Job Details');
 
-            $table = new Table($this->output);
+            $table = new Table($io);
             $table->setStyle('box');
             $table->setHeaders(['Job ID', 'Last Run', 'Next Run', 'Errors']);
             $rows = [];
@@ -149,31 +164,62 @@ class SchedulerCommand extends ConsoleCommand
 
             $table->setRows($rows);
             $table->render();
+        } elseif ($run !== false && $run !== null) {
+            $io->title('Force Run Job: ' . $run);
 
-        } elseif ($this->input->getOption('install')) {
+            $job = $scheduler->getJob($run);
+
+            if ($job) {
+                $job->inForeground()->run();
+
+                if ($job->isSuccessful()) {
+                    $io->success('Job ran successfully...');
+                } else {
+                    $error = 1;
+                    $io->error('Job failed to run successfully...');
+                }
+
+                $output = $job->getOutput();
+
+                if ($output) {
+                    $io->write($output);
+                }
+            } else {
+                $error = 1;
+                $io->error('Could not find a job with id: ' . $run);
+            }
+        } elseif ($input->getOption('install')) {
             $io->title('Install Scheduler');
 
+            $verb = 'install';
+
             if ($scheduler->isCrontabSetup()) {
-                $io->success('All Ready! You have already set up Grav\'s Scheduler in your crontab');
+                $io->success('All Ready! You have already set up Grav\'s Scheduler in your crontab. You can validate this by running "crontab -l" to list your current crontab entries.');
+                $verb = 'reinstall';
             } else {
-                $io->error('You still need to set up Grav\'s Scheduler in your crontab');
+                $user = $scheduler->whoami();
+                $error = 1;
+                $io->error('Can\'t find a crontab for ' . $user . '. You need to set up Grav\'s Scheduler in your crontab');
             }
             if (!Utils::isWindows()) {
-                $io->note('To install, run the following command from your terminal:');
+                $io->note("To $verb, run the following command from your terminal:");
                 $io->newLine();
                 $io->text(trim($scheduler->getCronCommand()));
             } else {
-                $io->note('To install, create a scheduled task in Windows.');
+                $io->note("To $verb, create a scheduled task in Windows.");
                 $io->text('Learn more at https://learn.getgrav.org/advanced/scheduler');
             }
         } else {
             // Run scheduler
-            $scheduler->run();
+            $force = $run === null;
+            $scheduler->run(null, $force);
 
-            if ($this->input->getOption('verbose')) {
+            if ($input->getOption('verbose')) {
                 $io->title('Running Scheduled Jobs');
                 $io->text($scheduler->getVerboseOutput());
             }
         }
+
+        return $error;
     }
 }

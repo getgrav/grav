@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * @package    Grav\Framework\Psr7
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -15,6 +15,8 @@ use Grav\Framework\Psr7\Traits\ServerRequestDecoratorTrait;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
+use function is_array;
+use function is_object;
 
 /**
  * Class ServerRequest
@@ -159,7 +161,7 @@ class ServerRequest implements ServerRequestInterface
      * Note: This method is not part of the PSR-7 standard.
      *
      * @param  string $key The parameter key.
-     * @param  string $default The default value.
+     * @param  string|null $default The default value.
      *
      * @return mixed The parameter value.
      */

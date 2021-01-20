@@ -3,91 +3,287 @@
 /**
  * @package    Grav\Console
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Console;
 
+use Exception;
 use Grav\Common\Cache;
 use Grav\Common\Grav;
 use Grav\Common\Composer;
-use Grav\Common\GravTrait;
+use Grav\Common\Language\Language;
+use Grav\Common\Processors\InitializeProcessor;
 use Grav\Console\Cli\ClearCacheCommand;
+use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\File\YamlFile;
-use Symfony\Component\Console\Formatter\OutputFormatterStyle;
+use Symfony\Component\Console\Exception\InvalidArgumentException;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
+/**
+ * Trait ConsoleTrait
+ * @package Grav\Console
+ */
 trait ConsoleTrait
 {
+    /** @var string */
     protected $argv;
-
-    /* @var InputInterface $output */
+    /** @var InputInterface */
     protected $input;
-
-    /* @var OutputInterface $output */
+    /** @var SymfonyStyle */
     protected $output;
-
     /** @var array */
     protected $local_config;
+
+    /** @var bool */
+    private $plugins_initialized = false;
+    /** @var bool */
+    private $themes_initialized = false;
+    /** @var bool */
+    private $pages_initialized = false;
 
     /**
      * Set colors style definition for the formatter.
      *
      * @param InputInterface  $input
      * @param OutputInterface $output
+     * @return void
      */
     public function setupConsole(InputInterface $input, OutputInterface $output)
     {
-        // Initialize cache with CLI compatibility
-        Grav::instance()['config']->set('system.cache.cli_compatibility', true);
-        Grav::instance()['cache'];
-
         $this->argv = $_SERVER['argv'][0];
-        $this->input  = $input;
-        $this->output = $output;
+        $this->input = $input;
+        $this->output = new SymfonyStyle($input, $output);
 
-        $this->output->getFormatter()->setStyle('normal', new OutputFormatterStyle('white'));
-        $this->output->getFormatter()->setStyle('yellow', new OutputFormatterStyle('yellow', null, array('bold')));
-        $this->output->getFormatter()->setStyle('red', new OutputFormatterStyle('red', null, array('bold')));
-        $this->output->getFormatter()->setStyle('cyan', new OutputFormatterStyle('cyan', null, array('bold')));
-        $this->output->getFormatter()->setStyle('green', new OutputFormatterStyle('green', null, array('bold')));
-        $this->output->getFormatter()->setStyle('magenta', new OutputFormatterStyle('magenta', null, array('bold')));
-        $this->output->getFormatter()->setStyle('white', new OutputFormatterStyle('white', null, array('bold')));
+        $this->setupGrav();
+    }
+
+    public function getInput(): InputInterface
+    {
+        return $this->input;
+    }
+
+    /**
+     * @return SymfonyStyle
+     */
+    public function getIO(): SymfonyStyle
+    {
+        return $this->output;
+    }
+
+    /**
+     * Adds an option.
+     *
+     * @param string                        $name        The option name
+     * @param string|array|null             $shortcut    The shortcuts, can be null, a string of shortcuts delimited by | or an array of shortcuts
+     * @param int|null                      $mode        The option mode: One of the InputOption::VALUE_* constants
+     * @param string                        $description A description text
+     * @param string|string[]|int|bool|null $default     The default value (must be null for InputOption::VALUE_NONE)
+     * @return $this
+     * @throws InvalidArgumentException If option mode is invalid or incompatible
+     */
+    public function addOption($name, $shortcut = null, $mode = null, $description = '', $default = null)
+    {
+        if ($name !== 'env' && $name !== 'lang') {
+            parent::addOption($name, $shortcut, $mode, $description, $default);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return void
+     */
+    final protected function setupGrav(): void
+    {
+        try {
+            $language = $this->input->getOption('lang');
+            if ($language) {
+                // Set used language.
+                $this->setLanguage($language);
+            }
+        } catch (InvalidArgumentException $e) {}
+
+        // Initialize cache with CLI compatibility
+        $grav = Grav::instance();
+        $grav['config']->set('system.cache.cli_compatibility', true);
+    }
+
+    /**
+     * Initialize Grav.
+     *
+     * - Load configuration
+     * - Initialize logger
+     * - Disable debugger
+     * - Set timezone, locale
+     * - Load plugins (call PluginsLoadedEvent)
+     * - Set Pages and Users type to be used in the site
+     *
+     * Safe to be called multiple times.
+     *
+     * @return $this
+     */
+    final protected function initializeGrav()
+    {
+        InitializeProcessor::initializeCli(Grav::instance());
+
+        return $this;
+    }
+
+    /**
+     * Set language to be used in CLI.
+     *
+     * @param string|null $code
+     * @return $this
+     */
+    final protected function setLanguage(string $code = null)
+    {
+        $this->initializeGrav();
+
+        $grav = Grav::instance();
+        /** @var Language $language */
+        $language = $grav['language'];
+        if ($language->enabled()) {
+            if ($code && $language->validate($code)) {
+                $language->setActive($code);
+            } else {
+                $language->setActive($language->getDefault());
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * Properly initialize plugins.
+     *
+     * - call $this->initializeGrav()
+     * - call onPluginsInitialized event
+     *
+     * Safe to be called multiple times.
+     *
+     * @return $this
+     */
+    final protected function initializePlugins()
+    {
+        if (!$this->plugins_initialized) {
+            $this->plugins_initialized = true;
+
+            $this->initializeGrav();
+
+            // Initialize plugins.
+            $grav = Grav::instance();
+            $grav['plugins']->init();
+            $grav->fireEvent('onPluginsInitialized');
+        }
+
+        return $this;
+    }
+
+    /**
+     * Properly initialize themes.
+     *
+     * - call $this->initializePlugins()
+     * - initialize theme (call onThemeInitialized event)
+     *
+     * Safe to be called multiple times.
+     *
+     * @return $this
+     */
+    final protected function initializeThemes()
+    {
+        if (!$this->themes_initialized) {
+            $this->themes_initialized = true;
+
+            $this->initializePlugins();
+
+            // Initialize themes.
+            $grav = Grav::instance();
+            $grav['themes']->init();
+        }
+
+        return $this;
+    }
+
+    /**
+     * Properly initialize pages.
+     *
+     * - call $this->initializeThemes()
+     * - initialize assets (call onAssetsInitialized event)
+     * - initialize twig (calls the twig events)
+     * - initialize pages (calls onPagesInitialized event)
+     *
+     * Safe to be called multiple times.
+     *
+     * @return $this
+     */
+    final protected function initializePages()
+    {
+        if (!$this->pages_initialized) {
+            $this->pages_initialized = true;
+
+            $this->initializeThemes();
+
+            $grav = Grav::instance();
+
+            // Initialize assets.
+            $grav['assets']->init();
+            $grav->fireEvent('onAssetsInitialized');
+
+            // Initialize twig.
+            $grav['twig']->init();
+
+            // Initialize pages.
+            $pages = $grav['pages'];
+            $pages->init();
+            $grav->fireEvent('onPagesInitialized', new Event(['pages' => $pages]));
+        }
+
+        return $this;
     }
 
     /**
      * @param string $path
+     * @return void
      */
     public function isGravInstance($path)
     {
+        $io = $this->getIO();
+
         if (!file_exists($path)) {
-            $this->output->writeln('');
-            $this->output->writeln("<red>ERROR</red>: Destination doesn't exist:");
-            $this->output->writeln("       <white>$path</white>");
-            $this->output->writeln('');
+            $io->writeln('');
+            $io->writeln("<red>ERROR</red>: Destination doesn't exist:");
+            $io->writeln("       <white>$path</white>");
+            $io->writeln('');
             exit;
         }
 
         if (!is_dir($path)) {
-            $this->output->writeln('');
-            $this->output->writeln("<red>ERROR</red>: Destination chosen to install is not a directory:");
-            $this->output->writeln("       <white>$path</white>");
-            $this->output->writeln('');
+            $io->writeln('');
+            $io->writeln("<red>ERROR</red>: Destination chosen to install is not a directory:");
+            $io->writeln("       <white>$path</white>");
+            $io->writeln('');
             exit;
         }
 
         if (!file_exists($path . DS . 'index.php') || !file_exists($path . DS . '.dependencies') || !file_exists($path . DS . 'system' . DS . 'config' . DS . 'system.yaml')) {
-            $this->output->writeln('');
-            $this->output->writeln('<red>ERROR</red>: Destination chosen to install does not appear to be a Grav instance:');
-            $this->output->writeln("       <white>$path</white>");
-            $this->output->writeln('');
+            $io->writeln('');
+            $io->writeln('<red>ERROR</red>: Destination chosen to install does not appear to be a Grav instance:');
+            $io->writeln("       <white>$path</white>");
+            $io->writeln('');
             exit;
         }
     }
 
+    /**
+     * @param string $path
+     * @param string $action
+     * @return string|false
+     */
     public function composerUpdate($path, $action = 'install')
     {
         $composer = Composer::getComposerExecutor();
@@ -97,9 +293,8 @@ trait ConsoleTrait
 
     /**
      * @param array $all
-     *
      * @return int
-     * @throws \Exception
+     * @throws Exception
      */
     public function clearCache($all = [])
     {
@@ -112,6 +307,9 @@ trait ConsoleTrait
         return $command->run($input, $this->output);
     }
 
+    /**
+     * @return void
+     */
     public function invalidateCache()
     {
         Cache::invalidateCache();
@@ -120,7 +318,7 @@ trait ConsoleTrait
     /**
      * Load the local config file
      *
-     * @return mixed string the local config file name. false if local config does not exist
+     * @return string|false The local config file name. false if local config does not exist
      */
     public function loadLocalConfig()
     {
@@ -131,6 +329,7 @@ trait ConsoleTrait
             $file = YamlFile::instance($local_config_file);
             $this->local_config = $file->content();
             $file->free();
+
             return $local_config_file;
         }
 

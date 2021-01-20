@@ -3,27 +3,36 @@
 /**
  * @package    Grav\Common\Page
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Common\Page;
 
+use Exception;
 use Grav\Common\Grav;
 use Grav\Common\Iterator;
+use Grav\Common\Page\Interfaces\PageCollectionInterface;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Utils;
+use InvalidArgumentException;
+use function array_key_exists;
+use function array_keys;
+use function array_search;
+use function count;
+use function in_array;
+use function is_array;
+use function is_string;
 
-class Collection extends Iterator
+/**
+ * Class Collection
+ * @package Grav\Common\Page
+ */
+class Collection extends Iterator implements PageCollectionInterface
 {
-    /**
-     * @var Pages
-     */
+    /** @var Pages */
     protected $pages;
-
-    /**
-     * @var array
-     */
+    /** @var array */
     protected $params;
 
     /**
@@ -52,10 +61,22 @@ class Collection extends Iterator
     }
 
     /**
+     * Set parameters to the Collection
+     *
+     * @param array $params
+     * @return $this
+     */
+    public function setParams(array $params)
+    {
+        $this->params = array_merge($this->params, $params);
+
+        return $this;
+    }
+
+    /**
      * Add a single page to a collection
      *
      * @param PageInterface $page
-     *
      * @return $this
      */
     public function addPage(PageInterface $page)
@@ -94,12 +115,12 @@ class Collection extends Iterator
      *
      * Merge another collection with the current collection
      *
-     * @param Collection $collection
+     * @param PageCollectionInterface $collection
      * @return $this
      */
-    public function merge(Collection $collection)
+    public function merge(PageCollectionInterface $collection)
     {
-        foreach($collection as $page) {
+        foreach ($collection as $page) {
             $this->addPage($page);
         }
 
@@ -109,31 +130,17 @@ class Collection extends Iterator
     /**
      * Intersect another collection with the current collection
      *
-     * @param Collection $collection
+     * @param PageCollectionInterface $collection
      * @return $this
      */
-    public function intersect(Collection $collection)
+    public function intersect(PageCollectionInterface $collection)
     {
         $array1 = $this->items;
         $array2 = $collection->toArray();
 
-        $this->items = array_uintersect($array1, $array2, function($val1, $val2) {
+        $this->items = array_uintersect($array1, $array2, function ($val1, $val2) {
             return strcmp($val1['slug'], $val2['slug']);
         });
-
-        return $this;
-    }
-
-    /**
-     * Set parameters to the Collection
-     *
-     * @param array $params
-     *
-     * @return $this
-     */
-    public function setParams(array $params)
-    {
-        $this->params = array_merge($this->params, $params);
 
         return $this;
     }
@@ -165,9 +172,8 @@ class Collection extends Iterator
     /**
      * Returns the value at specified offset.
      *
-     * @param mixed $offset The offset to retrieve.
-     *
-     * @return mixed         Can return all value types.
+     * @param string $offset
+     * @return PageInterface|null
      */
     public function offsetGet($offset)
     {
@@ -178,7 +184,7 @@ class Collection extends Iterator
      * Split collection into array of smaller collections.
      *
      * @param int $size
-     * @return array|Collection[]
+     * @return Collection[]
      */
     public function batch($size)
     {
@@ -196,9 +202,8 @@ class Collection extends Iterator
      * Remove item from the list.
      *
      * @param PageInterface|string|null $key
-     *
      * @return $this
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function remove($key = null)
     {
@@ -207,8 +212,8 @@ class Collection extends Iterator
         } elseif (null === $key) {
             $key = (string)key($this->items);
         }
-        if (!\is_string($key)) {
-            throw new \InvalidArgumentException('Invalid argument $key.');
+        if (!is_string($key)) {
+            throw new InvalidArgumentException('Invalid argument $key.');
         }
 
         parent::remove($key);
@@ -221,9 +226,8 @@ class Collection extends Iterator
      *
      * @param string $by
      * @param string $dir
-     * @param array  $manual
-     * @param string $sort_flags
-     *
+     * @param array|null  $manual
+     * @param string|null $sort_flags
      * @return $this
      */
     public function order($by, $dir = 'asc', $manual = null, $sort_flags = null)
@@ -237,10 +241,9 @@ class Collection extends Iterator
      * Check to see if this item is the first in the collection.
      *
      * @param  string $path
-     *
      * @return bool True if item is first.
      */
-    public function isFirst($path)
+    public function isFirst($path): bool
     {
         return $this->items && $path === array_keys($this->items)[0];
     }
@@ -249,12 +252,11 @@ class Collection extends Iterator
      * Check to see if this item is the last in the collection.
      *
      * @param  string $path
-     *
      * @return bool True if item is last.
      */
-    public function isLast($path)
+    public function isLast($path): bool
     {
-        return $this->items && $path === array_keys($this->items)[\count($this->items) - 1];
+        return $this->items && $path === array_keys($this->items)[count($this->items) - 1];
     }
 
     /**
@@ -286,7 +288,6 @@ class Collection extends Iterator
      *
      * @param  string  $path
      * @param  int $direction either -1 or +1
-     *
      * @return PageInterface|Collection    The sibling item.
      */
     public function adjacentSibling($path, $direction = 1)
@@ -301,19 +302,19 @@ class Collection extends Iterator
         }
 
         return $this;
-
     }
 
     /**
      * Returns the item in the current position.
      *
      * @param  string $path the path the item
-     *
-     * @return int   the index of the current page.
+     * @return int|null The index of the current page, null if not found.
      */
-    public function currentPosition($path)
+    public function currentPosition($path): ?int
     {
-        return \array_search($path, \array_keys($this->items), true);
+        $pos = array_search($path, array_keys($this->items), true);
+
+        return $pos !== false ? $pos : null;
     }
 
     /**
@@ -325,9 +326,8 @@ class Collection extends Iterator
      * @param string $startDate
      * @param bool $endDate
      * @param string|null $field
-     *
      * @return $this
-     * @throws \Exception
+     * @throws Exception
      */
     public function dateRange($startDate, $endDate = false, $field = null)
     {
@@ -392,17 +392,17 @@ class Collection extends Iterator
     }
 
     /**
-     * Creates new collection with only modular pages
+     * Creates new collection with only pages
      *
-     * @return Collection The collection with only modular pages
+     * @return Collection The collection with only pages
      */
-    public function modular()
+    public function pages()
     {
         $modular = [];
 
         foreach ($this->items as $path => $slug) {
             $page = $this->pages->get($path);
-            if ($page !== null && $page->modular()) {
+            if ($page !== null && !$page->isModule()) {
                 $modular[$path] = $slug;
             }
         }
@@ -412,21 +412,87 @@ class Collection extends Iterator
     }
 
     /**
-     * Creates new collection with only non-modular pages
+     * Creates new collection with only modules
      *
-     * @return Collection The collection with only non-modular pages
+     * @return Collection The collection with only modules
      */
-    public function nonModular()
+    public function modules()
     {
         $modular = [];
 
         foreach ($this->items as $path => $slug) {
             $page = $this->pages->get($path);
-            if ($page !== null && !$page->modular()) {
+            if ($page !== null && $page->isModule()) {
                 $modular[$path] = $slug;
             }
         }
         $this->items = $modular;
+
+        return $this;
+    }
+
+    /**
+     * Alias of pages()
+     *
+     * @return Collection The collection with only non-module pages
+     */
+    public function nonModular()
+    {
+        $this->pages();
+
+        return $this;
+    }
+
+    /**
+     * Alias of modules()
+     *
+     * @return Collection The collection with only modules
+     */
+    public function modular()
+    {
+        $this->modules();
+
+        return $this;
+    }
+
+    /**
+     * Creates new collection with only translated pages
+     *
+     * @return Collection The collection with only published pages
+     * @internal
+     */
+    public function translated()
+    {
+        $published = [];
+
+        foreach ($this->items as $path => $slug) {
+            $page = $this->pages->get($path);
+            if ($page !== null && $page->translated()) {
+                $published[$path] = $slug;
+            }
+        }
+        $this->items = $published;
+
+        return $this;
+    }
+
+    /**
+     * Creates new collection with only untranslated pages
+     *
+     * @return Collection The collection with only non-published pages
+     * @internal
+     */
+    public function nonTranslated()
+    {
+        $published = [];
+
+        foreach ($this->items as $path => $slug) {
+            $page = $this->pages->get($path);
+            if ($page !== null && !$page->translated()) {
+                $published[$path] = $slug;
+            }
+        }
+        $this->items = $published;
 
         return $this;
     }
@@ -517,7 +583,6 @@ class Collection extends Iterator
      * Creates new collection with only pages of the specified type
      *
      * @param string $type
-     *
      * @return Collection The collection
      */
     public function ofType($type)
@@ -540,7 +605,6 @@ class Collection extends Iterator
      * Creates new collection with only pages of one of the specified types
      *
      * @param string[] $types
-     *
      * @return Collection The collection
      */
     public function ofOneOfTheseTypes($types)
@@ -549,7 +613,7 @@ class Collection extends Iterator
 
         foreach ($this->items as $path => $slug) {
             $page = $this->pages->get($path);
-            if ($page !== null && \in_array($page->template(), $types, true)) {
+            if ($page !== null && in_array($page->template(), $types, true)) {
                 $items[$path] = $slug;
             }
         }
@@ -563,7 +627,6 @@ class Collection extends Iterator
      * Creates new collection with only pages of one of the specified access levels
      *
      * @param array $accessLevels
-     *
      * @return Collection The collection
      */
     public function ofOneOfTheseAccessLevels($accessLevels)
@@ -574,19 +637,19 @@ class Collection extends Iterator
             $page = $this->pages->get($path);
 
             if ($page !== null && isset($page->header()->access)) {
-                if (\is_array($page->header()->access)) {
+                if (is_array($page->header()->access)) {
                     //Multiple values for access
                     $valid = false;
 
                     foreach ($page->header()->access as $index => $accessLevel) {
-                        if (\is_array($accessLevel)) {
+                        if (is_array($accessLevel)) {
                             foreach ($accessLevel as $innerIndex => $innerAccessLevel) {
-                                if (\in_array($innerAccessLevel, $accessLevels)) {
+                                if (in_array($innerAccessLevel, $accessLevels, false)) {
                                     $valid = true;
                                 }
                             }
                         } else {
-                            if (\in_array($index, $accessLevels)) {
+                            if (in_array($index, $accessLevels, false)) {
                                 $valid = true;
                             }
                         }
@@ -596,11 +659,10 @@ class Collection extends Iterator
                     }
                 } else {
                     //Single value for access
-                    if (\in_array($page->header()->access, $accessLevels)) {
+                    if (in_array($page->header()->access, $accessLevels, false)) {
                         $items[$path] = $slug;
                     }
                 }
-
             }
         }
 
@@ -613,7 +675,7 @@ class Collection extends Iterator
      * Get the extended version of this Collection with each page keyed by route
      *
      * @return array
-     * @throws \Exception
+     * @throws Exception
      */
     public function toExtendedArray()
     {

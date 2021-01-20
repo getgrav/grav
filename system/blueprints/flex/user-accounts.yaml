@@ -1,0 +1,142 @@
+title: User Accounts
+description: Manage your User Accounts in Flex.
+type: flex-objects
+
+# Extends user account
+extends@:
+  type: account
+  context: blueprints://user
+
+#
+# HIGHLY SPECIALIZED FLEX TYPE, AVOID USING USER ACCOUNTS AS BASE FOR YOUR OWN TYPE.
+#
+
+# Flex configuration
+config:
+  # Administration Configuration (needs Flex Objects plugin)
+  admin:
+    # Admin router
+    router:
+      path: '/accounts/users'
+      actions:
+        configure:
+          path: '/accounts/configure'
+      redirects:
+        '/user': '/accounts/users'
+        '/accounts': '/accounts/users'
+
+    # Permissions
+    permissions:
+      # Primary permissions
+      admin.users:
+        type: crudl
+        label: User Accounts
+      admin.configuration.users:
+        type: default
+        label: Accounts Configuration
+
+    # Admin menu
+    menu:
+      base:
+        location: '/accounts'
+        route: '/accounts/users'
+        index: 0
+        title: PLUGIN_ADMIN.ACCOUNTS
+        icon: fa-users
+        authorize: ['admin.users.list', 'admin.super']
+        priority: 6
+
+    # Admin template type (folder)
+    template: user-accounts
+
+    # List view
+    list:
+      # Fields shown in the list view
+      fields:
+        username:
+          link: edit
+          search: true
+          field:
+            label: PLUGIN_ADMIN.USERNAME
+        email:
+          search: true
+        fullname:
+          search: true
+      # Extra options
+      options:
+        per_page: 20
+        order:
+          by: username
+          dir: asc
+
+    # Edit view
+    edit:
+      title:
+        template: "{{ form.value('fullname') ?? form.value('username') }} &lt;{{ form.value('email') }}&gt;"
+
+    # Configure view
+    configure:
+      hidden: true
+      authorize: 'admin.configuration.users'
+      form: 'accounts'
+      title:
+        template: "{{ 'PLUGIN_ADMIN.ACCOUNTS'|tu }} {{ 'PLUGIN_ADMIN.CONFIGURATION'|tu }}"
+
+  # Site Configuration
+  site:
+    # Hide from flex types
+    hidden: true
+    templates:
+      collection:
+        # Lookup for the template layout files for collections of objects
+        paths:
+          - 'flex/{TYPE}/collection/{LAYOUT}{EXT}'
+      object:
+        # Lookup for the template layout files for objects
+        paths:
+          - 'flex/{TYPE}/object/{LAYOUT}{EXT}'
+      defaults:
+        # Default template {TYPE}; overridden by filename of this blueprint if template folder exists
+        type: user-accounts
+        # Default template {LAYOUT}; can be overridden in render calls (usually Twig in templates)
+        layout: default
+
+  # Data Configuration
+  data:
+    object: 'Grav\Common\Flex\Types\Users\UserObject'
+    collection: 'Grav\Common\Flex\Types\Users\UserCollection'
+    index: 'Grav\Common\Flex\Types\Users\UserIndex'
+    storage:
+      class: 'Grav\Common\Flex\Types\Users\Storage\UserFileStorage'
+      options:
+        formatter:
+          class: 'Grav\Framework\File\Formatter\YamlFormatter'
+        folder: 'account://'
+        pattern: '{FOLDER}/{KEY}{EXT}'
+        indexed: true
+        key: username
+        case_sensitive: false
+    search:
+      options:
+        contains: 1
+      fields:
+        - key
+        - email
+
+blueprints:
+  configure:
+    fields:
+      import@:
+        type: configure/compat
+        context: blueprints://flex
+
+# Regular form definition
+form:
+  fields:
+    username:
+      flex-disabled@: exists
+      disabled: false
+      flex-readonly@: exists
+      readonly: false
+      validate:
+        required: true

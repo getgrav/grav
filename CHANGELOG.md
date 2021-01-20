@@ -1,3 +1,606 @@
+# v1.7.1
+## mm/dd/2021
+
+1. [](#bugfix)
+    * Fixed fatal error when `site.taxonomies` contains a bad value
+    * Sanitize valid Page extensions from `Page::template_format()`
+    * Fixed `bin/gpm index` erroring out [#3158](https://github.com/getgrav/grav/issues/3158)
+    * Fixed `bin/gpm selfupgrade` failing to report failed Grav update [#3116](https://github.com/getgrav/grav/issues/3116)
+    * Fixed `bin/gpm selfupgrade` error on `Call to undefined method` [#3160](https://github.com/getgrav/grav/issues/3160)
+    * Flex Pages: Fixed fatal error when trying to move a page to Root (/) [#3161](https://github.com/getgrav/grav/issues/3161)
+    * Fixed twig parsing errors in pages where twig is parsed after markdown [#3162](https://github.com/getgrav/grav/issues/3162)
+    * Fixed `lighttpd.conf` access-deny rule [#1876](https://github.com/getgrav/grav/issues/1876)
+    * Fixed page metadata being double-escaped [#3121](https://github.com/getgrav/grav/issues/3121)
+
+# v1.7.0
+## 01/19/2021
+
+1. [](#new)
+    * Requires **PHP 7.3.6**
+    * Read about this release in the [Grav 1.7 Released](https://getgrav.org/blog/grav-1.7-released) blog post
+    * Read the full list of all changes in the [Changelog on GitHub](https://github.com/getgrav/grav/blob/1.7.0/CHANGELOG.md)
+    * Please read [Grav 1.7 Upgrade Guide](https://learn.getgrav.org/17/advanced/grav-development/grav-17-upgrade-guide) before upgrading!
+    * Added support for overriding configuration by using environment variables
+    * Use PHP 7.4 serialization (the old `Serializable` methods are now final and cannot be overridden)
+    * Enabled `ETag` setting by default for 304 responses
+    * Added `FlexCollection::getDistinctValues()` to get all the assigned values from the field
+    * `Flex Pages` method `$page->header()` returns `\Grav\Common\Page\Header` object, old `Page` class still returns `stdClass`
+1. [](#improved)
+    * Make it possible to use an absolute path when loading a blueprint
+    * Make serialize methods final in `ContentBlock`, `AbstractFile`, `FormTrait`, `ObjectCollectionTrait` and `ObjectTrait`
+    * Added support for relative paths in `PageObject::getLevelListing()` [#3110](https://github.com/getgrav/grav/issues/3110)
+    * Better `--env` and `--lang` support for `bin/grav`, `bin/gpm` and `bin/plugin` console commands
+      * **BC BREAK** Shorthand for `--env`: `-e` will not work anymore as it conflicts with some plugins
+    * Added support for locking the `start` and `limit` in a Page Collection
+1. [](#bugfix)
+    * Fixed port issue with `system.custom_base_url`
+    * Hide errors with `exif_read_data` in `ImageFile`
+    * Fixed unserialize in `MarkdownFormatter` and `Framework\File` classes
+    * Fixed pages with session messages should never be cached [#3108](https://github.com/getgrav/grav/issues/3108)
+    * Fixed `Filesystem::normalize()` with dot-dot paths
+    * Fixed Flex sorting issues [grav-plugin-flex-objects#92](https://github.com/trilbymedia/grav-plugin-flex-objects/issues/92)
+    * Fixed Clockwork missing dumped arrays and objects
+    * Fixed fatal error in PHP 8 when trying to access root page
+    * Fixed Array->String conversion error when `languages:translations: false` [admin#1896](https://github.com/getgrav/grav-plugin-admin/issues/1896)
+    * Fixed `Inflector` methods when translation is missing `GRAV.INFLECTOR_*` translations
+    * Fixed exception when changing parent of new page [grav-plugin-admin#2018](https://github.com/getgrav/grav-plugin-admin/issues/2018)
+    * Fixed ordering issue with moving pages [grav-plugin-admin#2015](https://github.com/getgrav/grav-plugin-admin/issues/2015)
+    * Fixed Flex Pages cache not invalidating if saving an old `Page` object [#3152](https://github.com/getgrav/grav/issues/3152)
+    * Fixed multiple issues with `system.language.translations: false`
+    * Fixed page collections containing dummy items for untranslated default language [#2985](https://github.com/getgrav/grav/issues/2985)
+    * Fixed streams in `setup.php` being overridden by `system/streams.yaml` [#2450](https://github.com/getgrav/grav/issues/2450)
+    * Fixed `ERR_TOO_MANY_REDIRECTS` with HTTPS = 'On' [#3155](https://github.com/getgrav/grav/issues/3155)
+    * Fixed page collection pagination not behaving as it did in Grav 1.6
+
+# v1.7.0-rc.20
+## 12/15/2020
+
+1. [](#new)
+    * Update phpstan to version 0.12
+    * Auto-Escape enabled by default. Manually enable **Twig Compatibility** and disable **Auto-Escape** to use the old setting.
+    * Updated unit tests to use codeception 4.1
+    * Added support for setting `GRAV_ENVIRONMENT` by using environment variable or a constant
+    * Added support for setting `GRAV_SETUP_PATH` by using environment variable (constant already worked)
+    * Added support for setting `GRAV_ENVIRONMENTS_PATH` by using environment variable or a constant
+    * Added support for setting `GRAV_ENVIRONMENT_PATH` by using environment variable or a constant
+1. [](#improved)
+    * Improved `bin/grav install` command
+1. [](#bugfix)
+    * Fixed potential error when upgrading Grav
+    * Fixed broken list in `bin/gpm index` [#3092](https://github.com/getgrav/grav/issues/3092)
+    * Fixed CLI/GPM command failures returning 0 (success) value [#3017](https://github.com/getgrav/grav/issues/3017)
+    * Fixed unimplemented `PageObject::getOriginal()` call [#3098](https://github.com/getgrav/grav/issues/3098)
+    * Fixed `Argument 1 passed to Grav\Common\User\DataUser\User::filterUsername() must be of the type string` [#3101](https://github.com/getgrav/grav/issues/3101)
+    * Fixed broken check if php exif module is enabled in `ImageFile::fixOrientation()`
+    * Fixed `StaticResizeTrait::resize()` bad image height/width attributes if `null` values are passed to the method
+    * Fixed twig script/style tag `{% script 'file.js' at 'bottom' %}`, replaces broken `in` operator [#3084](https://github.com/getgrav/grav/issues/3084)
+    * Fixed dropped query params when `?` is preceded with `/` [#2964](https://github.com/getgrav/grav/issues/2964)
+
+# v1.7.0-rc.19
+## 12/02/2020
+
+1. [](#bugfix)
+    * Updated composer libraries with latest Toolbox v1.5.6 that contains critical fixes
+
+# v1.7.0-rc.18
+## 12/02/2020
+
+1. [](#new)
+    * Set minimum requirements to **PHP 7.3.6**
+    * Updated Clockwork to v5.0
+    * Added `FlexDirectoryInterface` interface
+    * Renamed `PageCollectionInterface::nonModular()` into `PageCollectionInterface::pages()` and deprecated the old method
+    * Renamed `PageCollectionInterface::modular()` into `PageCollectionInterface::modules()` and deprecated the old method'
+    * Upgraded `bin/composer.phar` to `2.0.2` which is all new and much faster
+    * Added search option `same_as` to Flex Objects
+    * Added PHP 8 compatible `function_exists()`: `Utils::functionExists()`
+    * New sites have `compatibility` features turned off by default, upgrading from older versions will keep the settings on
+1. [](#improved)
+    * Updated bundled JQuery to latest version `3.5.1`
+    * Forward a `sid` to GPM when downloading a premium package via CLI
+    * Allow `JsonFormatter` options to be passed as a string
+    * Hide Flex Pages frontend configuration (not ready for production use)
+    * Improve Flex configuration: gather views together in blueprint
+    * Added XSS detection to all forms. See [documentation](https://learn.getgrav.org/17/forms/forms/form-options#xss-checks)
+    * Better handling of missing repository index [grav-plugin-admin#1916](https://github.com/getgrav/grav-plugin-admin/issues/1916)
+    * Added support for having all sites / environments under `user/env` folder [#3072](https://github.com/getgrav/grav/issues/3072)
+    * Added `FlexObject::refresh()` method to make sure object is up to date
+1. [](#bugfix)
+    * *Menu Visibility Requires Access* Security option setting wrong frontmatter [login#265](https://github.com/getgrav/grav-plugin-login/issues/265)
+    * Accessing page with unsupported file extension (jpg, pdf, xsl) will use wrong mime type [#3031](https://github.com/getgrav/grav/issues/3031)
+    * Fixed media crashing on a bad image
+    * Fixed bug in collections where filter `type: false` did not work
+    * Fixed `print_r()` in twig
+    * Fixed sorting by groups in `Flex Users`
+    * Changing `Flex Page` template causes the other language versions of that page to lose their content [admin#1958](https://github.com/getgrav/grav-plugin-admin/issues/1958)
+    * Fixed plugins getting initialized multiple times (by CLI commands for example)
+    * Fixed `header.admin.children_display_order` in Flex Pages to work just like with regular pages
+    * Fixed `Utils::isFunctionDisabled()` method if there are spaces in `disable_functions` [#3023](https://github.com/getgrav/grav/issues/3023)
+    * Fixed potential fatal error when creating flex index using cache [#3062](https://github.com/getgrav/grav/issues/3062)
+    * Fixed fatal error in `CompiledFile` if the cached version is broken
+    * Fixed updated media missing from media when editing Flex Object after page reload
+    * Fixed issue with `config-default@` breaking on set [#1972](https://github.com/getgrav/grav-plugin-admin/issues/1971)
+    * Escape titles in Flex pages list [flex-objects#84](https://github.com/trilbymedia/grav-plugin-flex-objects/issues/84)
+    * Fixed Purge successful message only working in Scheduler but broken in CLI and Admin [#1935](https://github.com/getgrav/grav-plugin-admin/issues/1935)
+    * Fixed `system://` stream is causing issues in Admin, making Media tab to disappear and possibly causing other issues [#3072](https://github.com/getgrav/grav/issues/3072)
+    * Fixed CLI self-upgrade from Grav 1.6 [#3079](https://github.com/getgrav/grav/issues/3079)
+    * Fixed `bin/grav yamllinter -a` and `-f` not following symlinks [#3080](https://github.com/getgrav/grav/issues/3080)
+    * Fixed `|safe_email` filter to return safe and escaped UTF-8 HTML [#3072](https://github.com/getgrav/grav/issues/3072)
+    * Fixed exception in CLI GPM and backup commands when `php-zip` is not enabled [#3075](https://github.com/getgrav/grav/issues/3075)
+    * Fix for XSS advisory [GHSA-cvmr-6428-87w9](https://github.com/getgrav/grav/security/advisories/GHSA-cvmr-6428-87w9)
+    * Fixed Flex and Page ordering to be natural and case insensitive [flex-objects#87](https://github.com/trilbymedia/grav-plugin-flex-objects/issues/87)
+    * Fixed plugin/theme priority ordering to be numeric
+
+# v1.7.0-rc.17
+## 10/07/2020
+
+1. [](#new)
+    * Added a `Uri::getAllHeaders()` compatibility function
+1. [](#improved)
+    * Fall back through various templates scenarios if they don't exist in theme to avoid unhelpful error.
+    * Added default templates for `external.html.twig`, `default.html.twig`, and `modular.html.twig`
+    * Improve Media classes
+    * _POTENTIAL BREAKING CHANGE:_ Added reload argument to `FlexStorageInterface::getMetaData()`
+1. [](#bugfix)
+    * Fixed `Security::sanitizeSVG()` creating an empty file if SVG file cannot be parsed
+    * Fixed infinite loop in blueprints with `extend@` to a parent stream
+    * Added missing `Stream::create()` method
+    * Added missing `onBlueprintCreated` event for Flex Pages
+    * Fixed `onBlueprintCreated` firing multiple times recursively
+    * Fixed media upload failing with custom folders
+    * Fixed `unset()` in `ObjectProperty` class
+    * Fixed `FlexObject::freeMedia()` method causing media to become null
+    * Fixed bug in `Flex Form` making it impossible to set nested values
+    * Fixed `Flex User` avatar when using folder storage, also allow multiple images
+    * Fixed Referer reference during GPM calls.
+    * Fixed fatal error with toggled lists
+
+# v1.7.0-rc.16
+## 09/01/2020
+
+1. [](#new)
+    * Added a new `svg_image()` twig function to make it easier to 'include' SVG source in Twig
+    * Added a helper `Utils::fullPath()` to get the full path to a file be it stream, relative, etc.
+1. [](#improved)
+    * Added `themes` to cached blueprints and configuration
+1. [](#bugfix)
+    * Fixed `Flex Pages` issue with `getRoute()` returning path with language prefix for default language if set not to do that
+    * Fixed `Flex Pages` bug where reordering pages causes page content to disappear if default language uses wrong extension (`.md` vs `.en.md`)
+    * Fixed `Flex Pages` bug where `onAdminSave` passes page as `$event['page']` instead of `$event['object']` [#2995](https://github.com/getgrav/grav/issues/2995)
+    * Fixed `Flex Pages` bug where changing a modular page template added duplicate file [admin#1899](https://github.com/getgrav/grav-plugin-admin/issues/1899)
+    * Fixed `Flex Pages` bug where renaming slug causes bad ordering range after save [#2997](https://github.com/getgrav/grav/issues/2997)
+
+# v1.7.0-rc.15
+## 07/22/2020
+
+1. [](#bugfix)
+    * Fixed Flex index file caching [#2962](https://github.com/getgrav/grav/issues/2962)
+    * Fixed various issues with Exif data reading and images being incorrectly rotated [#1923](https://github.com/getgrav/grav-plugin-admin/issues/1923)
+
+# v1.7.0-rc.14
+## 07/09/2020
+
+1. [](#improved)
+    * Added ability to `noprocess` specific items only in Link/Image Excerpts, e.g. `http://foo.com/page?id=foo&target=_blank&noprocess=id` [#2954](https://github.com/getgrav/grav/pull/2954)
+1. [](#bugfix)
+    * Regression: Default language fix broke `Language::getLanguageURLPrefix()` and `Language::isIncludeDefaultLanguage()` methods when not using multi-language
+    * Reverted `Language::getDefault()` and `Language::getLanguage()` to return false again because of plugin compatibility (updated docblocks)
+    * Fixed UTF-8 issue in `Excerpts::getExcerptsFromHtml`
+    * Fixed some compatibility issues with recent Changes to `Assets` handling
+    * Fixed issue with `CSS_IMPORTS_REGEX` breaking with complex URLs [#2958](https://github.com/getgrav/grav/issues/2958)
+    * Moved duplicated `CSS_IMPORT_REGEX` to local variable in `AssetUtilsTrait::moveImports()`
+    * Fixed page media only accepting images [#2943](https://github.com/getgrav/grav/issues/2943)
+
+# v1.7.0-rc.13
+## 07/01/2020
+
+1. [](#new)
+    * Added support for uploading and deleting images directly in `Media`
+    * Added new `onAfterCacheClear` event
+1. [](#improved)
+    * Improved `CvsFormatter` to attempt to encode non-scalar variables into JSON before giving up
+    * Moved image loading into its own trait to be used by images+static images
+    * Adjusted asset types to enable extension of assets in class [#2937](https://github.com/getgrav/grav/pull/2937)
+    * Composer update for vendor library updates
+    * Updated bundled `composer.phar` to `2.0.0-dev`
+1. [](#bugfix)
+    * Fixed `MediaUploadTrait::copyUploadedFile()` not adding uploaded media to the collection
+    * Fixed regression in saving media to a new Flex Object [admin#1867](https://github.com/getgrav/grav-plugin-admin/issues/1867)
+    * Fixed `Trying to get property 'username' of non-object` error in Flex [flex-objects#62](https://github.com/trilbymedia/grav-plugin-flex-objects/issues/62)
+    * Fixed retina images not working in Flex [flex-objects#64](https://github.com/trilbymedia/grav-plugin-flex-objects/issues/64)
+    * Fixed plugin initialization in CLI
+    * Fixed broken logic in `Page::topParent()` when dealing with first-level pages
+    * Fixed broken `Flex Page` authorization for groups
+    * Fixed missing `onAdminSave` and `onAdminAfterSave` events when using `Flex Pages` and `Flex Users` [flex-objects#58](https://github.com/trilbymedia/grav-plugin-flex-objects/issues/58)
+    * Fixed new `User Group` allowing bad group name to be saved [admin#1917](https://github.com/getgrav/grav-plugin-admin/issues/1917)
+    * Fixed `Language::getDefault()` returning false and not 'en'
+    * Fixed non-text links in `Excerpts::getExcerptFromHtml`
+    * Fixed CLI commands not properly intializing Plugins so events can fire
+
+# v1.7.0-rc.12
+## 06/08/2020
+
+1. [](#improved)
+    * Changed `Folder::hasChildren` to `Folder::countChildren`
+    * Added `Content Editor` option to user account blueprint
+1. [](#bugfix)
+    * Fixed new `Flex Page` not having correct form fields for the page type
+    * Fixed new `Flex User` erroring out on save (thanks @mikebi42)
+    * Fixed `Flex Object` request cache clear when saving object
+    * Fixed blueprint value filtering in lists [#2923](https://github.com/getgrav/grav/issues/2923)
+    * Fixed blueprint for `system.pages.hide_empty_folders` [#1925](https://github.com/getgrav/grav/issues/2925)
+    * Fixed file field in `Flex Objects` (use `Grav\Common\Flex\Types\GenericObject` instead of `FlexObject`) [flex-objects#37](https://github.com/trilbymedia/grav-plugin-flex-objects/issues/37)
+    * Fixed saving nested file fields in `Flex Objects` [flex-objects#34](https://github.com/trilbymedia/grav-plugin-flex-objects/issues/34)
+    * JSON Route of homepage with no ‘route’ set is valid [form#425](https://github.com/getgrav/grav-plugin-form/issues/425)
+
+# v1.7.0-rc.11
+## 05/14/2020
+
+1. [](#new)
+    * Added support for native `loading=lazy` attributes on images.  Can be set in `system.images.defaults` or per md image with `?loading=lazy` [#2910](https://github.com/getgrav/grav/issues/2910)
+1. [](#improved)
+    * Added `PageCollection::all()` to mimic Pages class
+    * Added system configuration support for `HTTP_X_Forwarded` headers (host disabled by default)
+    * Updated `PHPUserAgentParser` to 1.0.0
+    * Improved docblocks
+    * Fixed some phpstan issues
+    * Tighten vendor requirements
+1. [](#bugfix)
+    * Fix for uppercase image extensions
+    * Fix for `&` errors in HTML when passed to `Excerpts.php`
+
+# v1.7.0-rc.10
+## 04/30/2020
+
+1. [](#new)
+    * Changed `Response::get()` used by **GPM/Admin** to use [Symfony HttpClient v4.4](https://symfony.com/doc/current/components/http_client.html) (`composer install --nodev` required for Git installations)
+    * Added new `Excerpts::processLinkHtml()` method
+1. [](#bugfix)
+    * Fixed `Flex Pages` admin with PHP `intl` extension enabled when using custom page order
+    * Fixed saving non-numeric-prefix `Flex Page` changing to numeric-prefix [flex-objects#56](https://github.com/trilbymedia/grav-plugin-flex-objects/issues/56)
+    * Copying `Flex Page` in admin does nothing [flex-objects#55](https://github.com/trilbymedia/grav-plugin-flex-objects/issues/55)
+    * Force GPM progress to be between 0-100%
+
+# v1.7.0-rc.9
+## 04/27/2020
+
+1. [](#new)
+    * Support for `webp` image format in Page Media [#1168](https://github.com/getgrav/grav/issues/1168)
+    * Added `Route::getBase()` method
+1. [](#improved)
+    * Support symlinks when saving `File`
+1. [](#bugfix)
+    * Fixed flex objects with integer keys not working [#2863](https://github.com/getgrav/grav/issues/2863)
+    * Fixed `Pages::instances()` returning null values when using `Flex Pages` [#2889](https://github.com/getgrav/grav/issues/2889)
+    * Fixed Flex Page parent `header.admin.children_display_order` setting being ignored in Admin [#2881](https://github.com/getgrav/grav/issues/2881)
+    * Implemented missing Flex `$pageCollection->batch()` and `$pageCollection->order()` methods
+    * Fixed user avatar creation for new `Flex Users` when using folder storage
+    * Fixed `Trying to access array offset on value of type null` PHP 7.4 error in `Plugin.php`
+    * Fixed Gregwar Image library using `.jpeg` for cached images, rather use `.jpg`
+    * Fixed `Flex Pages` with `00.home` page not having ordering set
+    * Fixed `Flex Pages` not updating empty content on save [#2890](https://github.com/getgrav/grav/issues/2890)
+    * Fixed creating new Flex User with file storage
+    * Fixed saving new `Flex Object` with custom key
+    * Fixed broken `Plugin::config()` method
+
+# v1.7.0-rc.8
+## 03/19/2020
+
+1. [](#new)
+    * Added `MediaTrait::freeMedia()` method to free media (and memory)
+    * Added `Folder::hasChildren()` method to determine if a folder has child folders
+1. [](#improved)
+    * Save memory when updating large flex indexes
+    * Better `Content-Encoding` handling in Apache when content compression is disabled [#2619](https://github.com/getgrav/grav/issues/2619)
+1. [](#bugfix)
+    * Fixed creating new `Flex User` when folder storage has been selected
+    * Fixed some bugs in Flex root page methods
+    * Fixed bad default redirect code in `ControllerResponseTrait::createRedirectResponse()`
+    * Fixed issue with PHP `HTTP_X_HTTP_METHOD_OVERRIDE` [#2847](https://github.com/getgrav/grav/issues/2847)
+    * Fixed numeric usernames not working in `Flex Users`
+    * Implemented missing Flex `$page->move()` method
+
+# v1.7.0-rc.7
+## 03/05/2020
+
+1. [](#new)
+    * Added `Session::regenerateId()` method to properly prevent session fixation issues
+    * Added configuration option `system.strict_mode.blueprint_compat` to maintain old `validation: strict` behavior [#1273](https://github.com/getgrav/grav/issues/1273)
+1. [](#improved)
+    * Improved Flex events
+    * Updated CLI commands to use the new methods to initialize Grav
+1. [](#bugfix)
+    * Fixed Flex Pages having broken `isFirst()`, `isLast()`, `prevSibling()`, `nextSibling()` and `adjacentSibling()`
+    * Fixed broken ordering sometimes when saving/moving visible `Flex Page` [#2837](https://github.com/getgrav/grav/issues/2837)
+    * Fixed ordering being lost when saving modular `Flex Page`
+    * Fixed `validation: strict` not working in blueprints (see `system.strict_mode.blueprint_compat` setting) [#1273](https://github.com/getgrav/grav/issues/1273)
+    * Fixed `Blueprint::extend()` and `Blueprint::embed()` not initializing dynamic properties
+    * Fixed fatal error on storing flex flash using new object without a key
+    * Regression: Fixed unchecking toggleable having no effect in Flex forms
+    * Fixed changing page template in Flex Pages [#2828](https://github.com/getgrav/grav/issues/2828)
+
+# v1.7.0-rc.6
+## 02/11/2020
+
+1. [](#new)
+    * Plugins & Themes: Call `$plugin->autoload()` and `$theme->autoload()` automatically when object gets initialized
+    * CLI: Added `$grav->initializeCli()` method
+    * Flex Directory: Implemented customizable configuration
+    * Flex Storages: Added support for renaming directory entries
+1. [](#improved)
+    * Vendor updates to latest
+1. [](#bugfix)
+    * Regression: Fixed fatal error in blueprints [#2811](https://github.com/getgrav/grav/issues/2811)
+    * Regression: Fixed bad method call in FlexDirectory::getAuthorizeRule()
+    * Regression: Fixed fatal error in admin if the site has custom permissions in `onAdminRegisterPermissions`
+    * Regression: Fixed flex user index with folder storage
+    * Regression: Fixed fatal error in `bin/plugin` command
+    * Fixed `FlexObject::triggerEvent()` not emitting events [#2816](https://github.com/getgrav/grav/issues/2816)
+    * Grav 1.7: Fixed saving Flex configuration with ignored values becoming null
+    * Grav 1.7: Fixed `bin/plugin` initialization
+    * Grav 1.7: Fixed Flex Page cache key not taking account active language
+
+# v1.7.0-rc.5
+## 02/03/2020
+
+1. [](#bugfix)
+    * Regression: Flex not working in PHP 7.2 or older
+    * Fixed creating first user from admin not clearing Flex User directory cache [#2809](https://github.com/getgrav/grav/issues/2809)
+    * Fixed Flex Pages allowing root page to be deleted
+
+# v1.7.0-rc.4
+## 02/03/2020
+
+1. [](#new)
+    * _POTENTIAL BREAKING CHANGE:_ Upgraded Parsedown to 1.7 for Parsedown-Extra 0.8. Plugins that extend Parsedown may need a fix to render as HTML
+    * Added `$grav['flex']` to access all registered Flex Directories
+    * Added `$grav->dispatchEvent()` method for PSR-14 events
+    * Added `FlexRegisterEvent` which triggers when `$grav['flex']` is being accessed the first time
+    * Added Flex cache configuration options
+    * Added `PluginsLoadedEvent` which triggers after plugins have been loaded but not yet initialized
+    * Added `SessionStartEvent` which triggers when session is started
+    * Added `PermissionsRegisterEvent` which triggers when `$grav['permissions']` is being accessed the first time
+    * Added support for Flex Directory specific configuration
+    * Added support for more advanced ACL
+    * Added `flatten_array` filter to form field validation
+    * Added support for `security@: or: [admin.super, admin.pages]` in blueprints (nested AND/OR mode support)
+1. [](#improved)
+    * Blueprint validation: Added `validate: value_type: bool|int|float|string|trim` to `array` to filter all the values inside the array
+    * Twig `url()` takes now third parameter (`true`) to return URL on non-existing file instead of returning false
+1. [](#bugfix)
+    * Grav 1.7: Fixed blueprint loading issues [#2782](https://github.com/getgrav/grav/issues/2782)
+    * Fixed PHP 7.4 compatibility issue with `Stream`
+    * Fixed new `Flex Users` being stored with wrong filename, login issues [#2785](https://github.com/getgrav/grav/issues/2785)
+    * Fixed `ignore_empty: true` not removing empty values in blueprint filtering
+    * Fixed `{{ false|string }}` twig to return '0' instead of ''
+    * Fixed twig `url()` failing if stream has extra slash in it (e.g. `user:///data`)
+    * Fixed `Blueprint::filter()` returning null instead of array if there is nothing to return
+    * Fixed `Cannot use a scalar value as an array` error in `Utils::arrayUnflattenDotNotation()`, ignore nested structure instead
+    * Fixed `Route` instance in multi-site setups
+    * Fixed `system.translations: false` breaking `Inflector` methods
+    * Fixed filtering ignored (eg. `security@: admin.super`) fields causing `Flex Objects` to lose data on save
+    * Grav 1.7: Fixed `Flex Pages` unserialize issues if Flex-Objects Plugin has not been installed
+    * Grav 1.7: Require Flex-Objects Plugin to edit Flex Accounts
+    * Grav 1.7: Fixed bad result on testing `isPage()` when using Flex Pages
+
+# v1.7.0-rc.3
+## 01/02/2020
+
+1. [](#new)
+    * Added root page support for `Flex Pages`
+1. [](#improved)
+    * Twig filter `|yaml_serialize`: added support for `JsonSerializable` objects and other array-like objects
+    * Added support for returning Flex Page specific permissions for admin and testing
+    * Updated copyright dates to `2020`
+    * Various vendor updates
+1. [](#bugfix)
+    * Grav 1.7: Fixed error on page initialization [#2753](https://github.com/getgrav/grav/issues/2753)
+    * Fixed checking ACL for another user (who is not currently logged in) in a Flex Object or Directory
+    * Fixed bug in Windows where `Filesystem::dirname()` returns backslashes
+    * Fixed Flex object issues in Windows [#2773](https://github.com/getgrav/grav/issues/2773)
+
+# v1.7.0-rc.2
+## 12/04/2019
+
+1. [](#new)
+    * Updated Symfony Components to 4.4
+    * Added support for page specific CRUD permissions (`Flex Pages` only)
+    * Added new `-r <job-id>` option for Scheduler CLI command to force-run a job [#2720](https://github.com/getgrav/grav/issues/2720)
+    * Added `Utils::isAssoc()` and `Utils::isNegative()` helper methods
+    * Changed `UserInterface::authorize()` to return `null` having the same meaning as `false` if access is denied because of no matching rule
+    * Changed `FlexAuthorizeInterface::isAuthorized()` to return `null` having the same meaning as `false` if access is denied because of no matching rule
+    * Moved all Flex type classes under `Grav\Common\Flex`
+    * DEPRECATED `Grav\Common\User\Group` in favor of `$grav['user_groups']`, which contains Flex UserGroup collection
+    * DEPRECATED `$page->modular()` in favor of `$page->isModule()` for better readability
+    * Fixed phpstan issues in all code up to level 3
+1. [](#improved)
+    * Improved twig `|array` filter to work with iterators and objects with `toArray()` method
+    * Updated Flex `SimpleStorage` code to feature match the other storages
+    * Improved user and group ACL to support deny permissions (`Flex Users` only)
+    * Improved twig `authorize()` function to work better with nested rule parameters
+    * Output the current username that Scheduler is using if crontab not setup
+    * Translations: rename MODULAR to MODULE everywhere
+    * Optimized `Flex Pages` collection filtering
+    * Frontend optimizations for `Flex Pages`
+1. [](#bugfix)
+    * Regression: Fixed Grav update bug [#2722](https://github.com/getgrav/grav/issues/2722)
+    * Fixed fatal error when calling `{{ grav.undefined }}`
+    * Grav 1.7: Reverted `$object->getStorageKey()` interface as it was not a good idea, added `getMasterKey()` for pages
+    * Grav 1.7: Fixed logged in user being able to delete his own account from admin account manager
+
+# v1.7.0-rc.1
+## 11/06/2019
+
+1. [](#new)
+    * Added `Flex Pages` to Grav core and removed Flex Objects plugin dependency
+    * Added `Utils::simpleTemplate()` method for very simple variable templating
+    * Added `array_diff()` twig function
+    * Added `template_from_string()` twig function
+    * Updated Symfony Components to 4.3
+1. [](#improved)
+    * Improved `Scheduler` cron command check and more useful CLI information
+    * Improved `Flex Users`: obey blueprints and allow Flex to be used in admin only
+    * Improved `Flex` to support custom site template paths
+    * Changed Twig `{% cache %}` tag to not need unique key, and `lifetime` is now optional
+    * Added mime support for file formatters
+    * Updated built-in `composer.phar` to latest `1.9.0`
+    * Updated vendor libraries
+    * Use `Symfony EventDispatcher` directly and not rockettheme/toolbox wrapper
+1. [](#bugfix)
+    * Fixed exception caused by missing template type based on `Accept:` header [#2705](https://github.com/getgrav/grav/issues/2705)
+    * Fixed `Page::untranslatedLanguages()` not being symmetrical to `Page::translatedLanguages()`
+    * Fixed `Flex Pages` not calling `onPageProcessed` event when cached
+    * Fixed phpstan issues in Framework up to level 7
+    * Fixed issue with duplicate configuration settings in Flex Directory
+    * Fixed fatal error if there are numeric folders in `Flex Pages`
+    * Fixed error on missing `Flex` templates in if `Flex Objects` plugin isn't installed
+    * Fixed `PageTranslateTrait::getAllLanguages()` and `getAllLanguages()` to include default language
+    * Fixed multi-language saving issues with default language in `Flex Pages`
+    * Selfupgrade CLI: Fixed broken selfupgrade assets reference [#2681](https://github.com/getgrav/grav/issues/2681)
+    * Grav 1.7: Fixed PHP 7.1 compatibility issues
+    * Grav 1.7: Fixed fatal error in multi-site setups
+    * Grav 1.7: Fixed `Flex Pages` routing if using translated slugs or `system.hide_in_urls` setting
+    * Grav 1.7: Fixed bug where Flex index file couldn't be disabled
+
+# v1.7.0-beta.10
+## 10/03/2019
+
+1. [](#improved)
+    * Flex: Removed extra exists check when creating object (messes up "non-existing" pages)
+    * Support customizable null character replacement in `CSVFormatter::decode()`
+1. [](#bugfix)
+    * Fixed wrong Grav param separator when using `Route` class
+    * Fixed Flex User Avatar not fully backwards compatible with old user
+    * Grav 1.7: Fixed prev/next page missing pages if pagination was turned on in page header
+    * Grav 1.7: Reverted setting language for every page during initialization
+    * Grav 1.7: Fixed numeric language inconsistencies
+
+# v1.7.0-beta.9
+## 09/26/2019
+
+1. [](#new)
+    * Added a new `{% cache %}` Twig tag eliminating need for `twigcache` extension.
+1. [](#improved)
+    * Improved blueprint initialization in Flex Objects (fixes content aware fields)
+    * Improved Flex FolderStorage class to better hide storage specific logic
+    * Exception will output a badly formatted line in `CsvFormatter::decode()`
+1. [](#bugfix)
+    * Fixed error when activating Flex Accounts in GRAV system configuration (PHP 7.1)
+    * Fixed Grav parameter handling in `RouteFactory::createFromString()`
+
+# v1.7.0-beta.8
+## 09/19/2019
+
+1. [](#new)
+    * Added new `Security::sanitizeSVG()` function
+    * Backwards compatibility break: `FlexStorageInterface::getStoragePath()` and `getMediaPath()` can now return null
+1. [](#improved)
+    * Several FlexObject loading improvements
+    * Added `bin/grav page-system-validator [-r|--record] [-c|--check]` to test Flex Pages
+    * Improved language support for `Route` class
+1. [](#bugfix)
+    * Regression: Fixed language fallback
+    * Regression: Fixed translations when language code is used for non-language purposes
+    * Regression: Allow SVG avatar images for users
+    * Fixed error in `Session::getFlashObject()` if Flex Form is being used
+    * Fixed broken Twig `dump()`
+    * Fixed `Page::modular()` and `Page::modularTwig()` returning `null` for folders and other non-initialized pages
+    * Fixed 404 error when you click to non-routable menu item with children: redirect to the first child instead
+    * Fixed wrong `Pages::dispatch()` calls (with redirect) when we really meant to call `Pages::find()`
+    * Fixed avatars not being displayed with flex users [#2431](https://github.com/getgrav/grav/issues/2431)
+    * Fixed initial Flex Object state when creating a new objects in a form
+
+# v1.7.0-beta.7
+## 08/30/2019
+
+1. [](#improved)
+    * Improved language support
+1. [](#bugfix)
+    * `FlexForm`: Fixed some compatibility issues with Form plugin
+
+# v1.7.0-beta.6
+## 08/29/2019
+
+1. [](#new)
+    * Added experimental support for `Flex Pages` (**Flex Objects** plugin required)
+1. [](#improved)
+    * Improved `bin/grav yamllinter` CLI command by adding an option to find YAML Linting issues from the whole site or custom folder
+    * Added support for not instantiating pages, useful to speed up tasks
+    * Greatly improved speed of loading Flex collections
+1. [](#bugfix)
+    * Fixed `$page->summary()` always striping HTML tags if the summary was set by `$page->setSummary()`
+    * Fixed `Flex->getObject()` when using Flex Key
+    * Grav 1.7: Fixed enabling PHP Debug Bar causes fatal error in Gantry [#2634](https://github.com/getgrav/grav/issues/2634)
+    * Grav 1.7: Fixed broken taxonomies [#2633](https://github.com/getgrav/grav/issues/2633)
+    * Grav 1.7: Fixed unpublished blog posts being displayed on the front-end [#2650](https://github.com/getgrav/grav/issues/2650)
+
+# v1.7.0-beta.5
+## 08/11/2019
+
+1. [](#new)
+    * Added a new `bin/grav server` CLI command to easily run Symfony or PHP built-in webservers
+    * Added `hasFlexFeature()` method to test if `FlexObject` or `FlexCollection` implements a given feature
+    * Added `getFlexFeatures()` method to return all features that `FlexObject` or `FlexCollection` implements
+    * DEPRECATED `FlexDirectory::update()` and `FlexDirectory::remove()`
+    * Added `FlexStorage::getMetaData()` to get updated object meta information for listed keys
+    * Added `Language::getPageExtensions()` to get full list of supported page language extensions
+    * Added `$grav->close()` method to properly terminate the request with a response
+    * Added `Pages::getCollection()` method
+1. [](#improved)
+    * Better support for Symfony local server `symfony server:start`
+    * Make `Route` objects immutable
+    * `FlexDirectory::getObject()` can now be called without any parameters to create a new object
+    * Flex objects no longer return temporary key if they do not have one; empty key is returned instead
+    * Updated vendor libraries
+    * Moved `collection()` and `evaluate()` logic from `Page` class into `Pages` class
+1. [](#bugfix)
+    * Fixed `Form` not to use deleted flash object until the end of the request fixing issues with reset
+    * Fixed `FlexForm` to allow multiple form instances with non-existing objects
+    * Fixed `FlexObject` search by using `key`
+    * Grav 1.7: Fixed clockwork messages with arrays and objects
+
+# v1.7.0-beta.4
+## 07/01/2019
+
+1. [](#new)
+    * Updated with Grav 1.6.12 features, improvements & fixes
+    * Added new configuration option `system.debugger.censored` to hide potentially sensitive information
+    * Added new configuration option `system.languages.include_default_lang_file_extension` to keep default language in `.md` files if set to `false`
+    * Added configuration option to set fallback content languages individually for every language
+1. [](#improved)
+    * Updated Vendor libraries
+1. [](#bugfix)
+    * Fixed `.md` page to be assigned to the default language and to be listed in translated/untranslated page list
+    * Fixed `Language::getFallbackPageExtensions()` to fall back only to default language instead of going through all languages
+    * Fixed `Language::getFallbackPageExtensions()` returning wrong file extensions when passing custom page extension
+
+# v1.7.0-beta.3
+## 06/24/2019
+
+1. [](#bugfix)
+    * Fixed Clockwork on Windows machines
+    * Fixed parent field issues on Windows machines
+    * Fixed unreliable Clockwork calls in sub-folders
+
+# v1.7.0-beta.2
+## 06/21/2019
+
+1. [](#new)
+    * Updated with Grav 1.6.11 fixes
+1. [](#improved)
+    * Updated the Clockwork text
+
+# v1.7.0-beta.1
+## 06/14/2019
+
+1. [](#new)
+    * Added support for [Clockwork](https://underground.works/clockwork) developer tools (now default debugger)
+    * Added support for [Tideways XHProf](https://github.com/tideways/php-xhprof-extension) PHP Extension for profiling method calls
+    * Added Twig profiling for Clockwork debugger
+    * Added support for Twig 2.11 (compatible with Twig 1.40+)
+    * Optimization: Initialize debugbar only after the configuration has been loaded
+    * Optimization: Combine some early Grav processors into a single one
+
 # v1.6.31
 ## 12/14/2020
 

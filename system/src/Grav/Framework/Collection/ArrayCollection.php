@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Collection
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -15,6 +15,10 @@ use Doctrine\Common\Collections\ArrayCollection as BaseArrayCollection;
  * General JSON serializable collection.
  *
  * @package Grav\Framework\Collection
+ * @template TKey
+ * @template T
+ * @extends BaseArrayCollection<TKey,T>
+ * @implements CollectionInterface<TKey,T>
  */
 class ArrayCollection extends BaseArrayCollection implements CollectionInterface
 {
@@ -22,6 +26,7 @@ class ArrayCollection extends BaseArrayCollection implements CollectionInterface
      * Reverse the order of the items.
      *
      * @return static
+     * @phpstan-return static<TKey,T>
      */
     public function reverse()
     {
@@ -32,13 +37,14 @@ class ArrayCollection extends BaseArrayCollection implements CollectionInterface
      * Shuffle items.
      *
      * @return static
+     * @phpstan-return static<TKey,T>
      */
     public function shuffle()
     {
         $keys = $this->getKeys();
         shuffle($keys);
 
-        return $this->createFrom(array_replace(array_flip($keys), $this->toArray()));
+        return $this->createFrom(array_replace(array_flip($keys), $this->toArray()) ?? []);
     }
 
     /**
@@ -57,8 +63,10 @@ class ArrayCollection extends BaseArrayCollection implements CollectionInterface
      *
      * Collection is returned in the order of $keys given to the function.
      *
-     * @param array $keys
+     * @param array<int|string> $keys
      * @return static
+     * @phpstan-param array<TKey> $keys
+     * @phpstan-return static<TKey,T>
      */
     public function select(array $keys)
     {
@@ -75,8 +83,9 @@ class ArrayCollection extends BaseArrayCollection implements CollectionInterface
     /**
      * Un-select items from collection.
      *
-     * @param array $keys
+     * @param array<int|string> $keys
      * @return static
+     * @phpstan-return static<TKey,T>
      */
     public function unselect(array $keys)
     {

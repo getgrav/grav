@@ -12,54 +12,71 @@
     "homepage": "https://getgrav.org",
     "license": "MIT",
     "require": {
-        "php": ">=7.1.3",
+        "php": "^7.3.6 || ^8.0",
         "ext-json": "*",
-        "ext-mbstring": "*",
         "ext-openssl": "*",
         "ext-curl": "*",
         "ext-zip": "*",
         "ext-dom": "*",
-        "symfony/polyfill-iconv": "^1.9",
-        "symfony/polyfill-php72": "^1.9",
-        "symfony/polyfill-php73": "^1.9",
+        "ext-libxml": "*",
+        "symfony/polyfill-mbstring": "~1.20",
+        "symfony/polyfill-iconv": "^1.20",
+        "symfony/polyfill-php74": "^1.20",
+        "symfony/polyfill-php80": "^1.20",
         "psr/simple-cache": "^1.0",
         "psr/http-message": "^1.0",
         "psr/http-server-middleware": "^1.0",
         "kodus/psr7-server": "*",
-        "nyholm/psr7": "^1.0",
-        "twig/twig": "~1.40",
-        "symfony/yaml": "~4.2.0",
-        "symfony/console": "~4.2.0",
-        "symfony/event-dispatcher": "~4.2.0",
-        "symfony/var-dumper": "~4.2.0",
-        "symfony/process": "~4.2.0",
-        "doctrine/cache": "^1.8",
-        "doctrine/collections": "^1.5",
-        "guzzlehttp/psr7": "^1.4",
-        "filp/whoops": "~2.2",
+        "nyholm/psr7": "^1.3",
+        "twig/twig": "~1.44",
+        "erusev/parsedown": "^1.7",
+        "erusev/parsedown-extra": "~0.8",
+        "symfony/contracts": "~1.1",
+        "symfony/yaml": "~4.4",
+        "symfony/console": "~4.4",
+        "symfony/event-dispatcher": "~4.4",
+        "symfony/var-dumper": "~4.4",
+        "symfony/process": "~4.4",
+        "doctrine/cache": "^1.10",
+        "doctrine/collections": "^1.6",
+        "guzzlehttp/psr7": "^1.7",
+        "filp/whoops": "~2.9",
         "matthiasmullie/minify": "^1.3",
-        "monolog/monolog": "~1.0",
-        "gregwar/image": "2.*",
-        "donatj/phpuseragentparser": "~1.0",
-        "pimple/pimple": "~3.2",
-        "rockettheme/toolbox": "~1.4.0",
-        "maximebf/debugbar": "~1.15",
-        "league/climate": "^3.4",
+        "monolog/monolog": "~1.25",
+        "gregwar/image": "dev-php8",
+        "gregwar/cache": "dev-php8",
+        "donatj/phpuseragentparser": "~1.1",
+        "pimple/pimple": "~3.3",
+        "rockettheme/toolbox": "~1.5",
+        "maximebf/debugbar": "~1.16",
+        "league/climate": "^3.6",
         "antoligy/dom-string-iterators": "^1.0",
-        "miljar/php-exif": "^0.6.4",
-        "composer/ca-bundle": "^1.0",
+        "miljar/php-exif": "^0.6",
+        "composer/ca-bundle": "^1.2",
         "dragonmantank/cron-expression": "^1.2",
         "phive/twig-extensions-deferred": "^1.0",
-        "willdurand/negotiation": "^3.0"
+        "willdurand/negotiation": "^3.0",
+        "itsgoingd/clockwork": "^5.0",
+        "enshrined/svg-sanitize": "~0.13",
+        "symfony/http-client": "^4.4"
     },
     "require-dev": {
-        "codeception/codeception": "^2.4",
-        "phpstan/phpstan": "^0.11",
-        "phpstan/phpstan-deprecation-rules": "^0.11.0",
-        "phpunit/php-code-coverage": "~6.0",
-        "fzaninotto/faker": "^1.8"
+        "codeception/codeception": "^4.1",
+        "phpstan/phpstan": "^0.12",
+        "phpstan/phpstan-deprecation-rules": "^0.12",
+        "phpunit/php-code-coverage": "~9.2",
+        "fzaninotto/faker": "^1.9",
+        "victorjonsson/markdowndocs": "dev-master",
+        "codeception/module-asserts": "^1.3",
+        "codeception/module-phpbrowser": "^1.0"
+    },
+    "provide": {
+        "symfony/polyfill-php72": "*",
+        "symfony/polyfill-php73": "*"
     },
     "suggest": {
+        "ext-mbstring": "Recommended for better performance",
+        "ext-iconv": "Recommended for better performance",
         "ext-zend-opcache": "Recommended for better performance",
         "ext-intl": "Recommended for multi-language sites",
         "ext-memcache": "Needed to support Memcache servers",
@@ -69,13 +86,21 @@
     "config": {
         "apcu-autoloader": true,
         "platform": {
-            "php": "7.1.3"
+            "php": "7.3.6"
         }
     },
     "repositories": [
         {
             "type": "vcs",
             "url": "https://github.com/trilbymedia/PHP-Markdown-Documentation-Generator"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/getgrav/Cache"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/getgrav/Image"
         }
     ],
     "autoload": {
@@ -83,8 +108,7 @@
             "Grav\\": "system/src/Grav"
         },
         "files": [
-            "system/defines.php",
-            "system/aliases.php"
+            "system/defines.php"
         ]
     },
     "archive": {
@@ -93,12 +117,11 @@
         ]
     },
     "scripts": {
-        "api-16": "vendor/bin/phpdoc-md generate system/src > user/pages/14.api/default.16.md",
-        "api-15": "vendor/bin/phpdoc-md generate system/src > user/pages/14.api/default.md",
+        "api-17": "vendor/bin/phpdoc-md generate system/src > user/pages/14.api/default.17.md",
         "post-create-project-cmd": "bin/grav install",
-        "phpstan": "vendor/bin/phpstan analyse -l 2 -c ./tests/phpstan/phpstan.neon system/src --memory-limit=256M",
-        "phpstan-framework": "vendor/bin/phpstan analyse -l 5 -c ./tests/phpstan/phpstan.neon system/src/Grav/Framework --memory-limit=256M",
-        "phpstan-plugins": "vendor/bin/phpstan analyse -l 0 -c ./tests/phpstan/plugins.neon user/plugins --memory-limit=256M",
+        "phpstan": "vendor/bin/phpstan analyse -l 1 -c ./tests/phpstan/phpstan.neon --memory-limit=480M system/src",
+        "phpstan-framework": "vendor/bin/phpstan analyse -l 1 -c ./tests/phpstan/phpstan.neon --memory-limit=480M system/src/Grav/Framework system/src/Grav/Events system/src/Grav/Installer",
+        "phpstan-plugins": "vendor/bin/phpstan analyse -l 1 -c ./tests/phpstan/plugins.neon --memory-limit=400M user/plugins",
         "test": "vendor/bin/codecept run unit",
         "test-windows": "vendor\\bin\\codecept run unit"
     },

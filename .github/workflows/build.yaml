@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-
+    if: "!github.event.release.prerelease"
     runs-on: ubuntu-latest
 
     steps:
@@ -15,9 +15,11 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: 7.1
+          php-version: 7.3
           extensions: opcache, gd
           coverage: none
+        env:
+          COMPOSER_TOKEN: ${{ secrets.GLOBAL_TOKEN }}
 
       - name: Install Dependencies
         run: |
@@ -38,9 +40,9 @@ jobs:
 
       - name: Upload Grav Release Assets
         id: upload-release-asset
-        uses: alexellis/upload-assets@0.2.2
+        uses: alexellis/upload-assets@0.2.3
         env:
-          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ secrets.GLOBAL_TOKEN }}
         with:
           asset_paths: '["./grav-dist/*.zip"]'
 
@@ -59,6 +61,6 @@ jobs:
           author_name: 'Github Action Build'
           text: '🚚 Automated Build Failure'
         env:
-          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ secrets.GLOBAL_TOKEN }}
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         if: env.WORKFLOW_CONCLUSION == 'failure'

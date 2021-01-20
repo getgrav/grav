@@ -3,21 +3,29 @@
 /**
  * @package    Grav\Common\Assets\Traits
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Common\Assets\Traits;
 
+use FilesystemIterator;
 use Grav\Common\Grav;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+use RegexIterator;
+use function strlen;
 
+/**
+ * Trait TestingAssetsTrait
+ * @package Grav\Common\Assets\Traits
+ */
 trait TestingAssetsTrait
 {
     /**
      * Determines if an asset exists as a collection, CSS or JS reference
      *
      * @param string $asset
-     *
      * @return bool
      */
     public function exists($asset)
@@ -39,7 +47,6 @@ trait TestingAssetsTrait
      * Set the array of collections explicitly
      *
      * @param array $collections
-     *
      * @return $this
      */
     public function setCollection($collections)
@@ -54,7 +61,7 @@ trait TestingAssetsTrait
      * If a $key is provided, it will try to return only that asset
      * else it will return null
      *
-     * @param null|string $key the asset key
+     * @param string|null $key the asset key
      * @return array
      */
     public function getCss($key = null)
@@ -73,7 +80,7 @@ trait TestingAssetsTrait
      * If a $key is provided, it will try to return only that asset
      * else it will return null
      *
-     * @param null|string $key the asset key
+     * @param string|null $key the asset key
      * @return array
      */
     public function getJs($key = null)
@@ -91,7 +98,6 @@ trait TestingAssetsTrait
      * Set the whole array of CSS assets
      *
      * @param array $css
-     *
      * @return $this
      */
     public function setCss($css)
@@ -105,7 +111,6 @@ trait TestingAssetsTrait
      * Set the whole array of JS assets
      *
      * @param array $js
-     *
      * @return $this
      */
     public function setJs($js)
@@ -119,7 +124,6 @@ trait TestingAssetsTrait
      * Removes an item from the CSS array if set
      *
      * @param string $key  The asset key
-     *
      * @return $this
      */
     public function removeCss($key)
@@ -136,7 +140,6 @@ trait TestingAssetsTrait
      * Removes an item from the JS array if set
      *
      * @param string $key  The asset key
-     *
      * @return $this
      */
     public function removeJs($key)
@@ -153,7 +156,6 @@ trait TestingAssetsTrait
      * Sets the state of CSS Pipeline
      *
      * @param bool $value
-     *
      * @return $this
      */
     public function setCssPipeline($value)
@@ -167,7 +169,6 @@ trait TestingAssetsTrait
      * Sets the state of JS Pipeline
      *
      * @param bool $value
-     *
      * @return $this
      */
     public function setJsPipeline($value)
@@ -230,7 +231,7 @@ trait TestingAssetsTrait
      * Get the timestamp for assets
      *
      * @param  bool  $include_join
-     * @return string
+     * @return string|null
      */
     public function getTimestamp($include_join = true)
     {
@@ -246,7 +247,6 @@ trait TestingAssetsTrait
      *
      * @param  string $directory Relative to the Grav root path, or a stream identifier
      * @param  string $pattern   (regex)
-     *
      * @return $this
      */
     public function addDir($directory, $pattern = self::DEFAULT_REGEX)
@@ -296,7 +296,6 @@ trait TestingAssetsTrait
      * Add all JavaScript assets within $directory
      *
      * @param  string $directory Relative to the Grav root path, or a stream identifier
-     *
      * @return $this
      */
     public function addDirJs($directory)
@@ -308,7 +307,6 @@ trait TestingAssetsTrait
      * Add all CSS assets within $directory
      *
      * @param  string $directory Relative to the Grav root path, or a stream identifier
-     *
      * @return $this
      */
     public function addDirCss($directory)
@@ -321,15 +319,16 @@ trait TestingAssetsTrait
      *
      * @param  string $directory
      * @param  string $pattern (regex)
-     * @param  string $ltrim   Will be trimmed from the left of the file path
-     *
+     * @param  string|null $ltrim   Will be trimmed from the left of the file path
      * @return array
      */
     protected function rglob($directory, $pattern, $ltrim = null)
     {
-        $iterator = new \RegexIterator(new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($directory,
-            \FilesystemIterator::SKIP_DOTS)), $pattern);
-        $offset = \strlen($ltrim);
+        $iterator = new RegexIterator(new RecursiveIteratorIterator(new RecursiveDirectoryIterator(
+            $directory,
+            FilesystemIterator::SKIP_DOTS
+        )), $pattern);
+        $offset = strlen($ltrim);
         $files = [];
 
         foreach ($iterator as $file) {
@@ -338,6 +337,4 @@ trait TestingAssetsTrait
 
         return $files;
     }
-
-
 }

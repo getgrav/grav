@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * @package    Grav\Framework\Flex
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -37,6 +37,21 @@ interface FlexCommonInterface extends RenderInterface
      * @api
      */
     public function getFlexDirectory(): FlexDirectory;
+
+    /**
+     * Test whether the feature is implemented in the object / collection.
+     *
+     * @param string $name
+     * @return bool
+     */
+    public function hasFlexFeature(string $name): bool;
+
+    /**
+     * Get full list of features the object / collection implements.
+     *
+     * @return array
+     */
+    public function getFlexFeatures(): array;
 
     /**
      * Get last updated timestamp for the object / collection.

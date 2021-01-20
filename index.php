@@ -10,14 +10,18 @@
 namespace Grav;
 
 \define('GRAV_REQUEST_TIME', microtime(true));
-\define('GRAV_PHP_MIN', '7.1.3');
+\define('GRAV_PHP_MIN', '7.3.6');
 
 if (version_compare($ver = PHP_VERSION, $req = GRAV_PHP_MIN, '<')) {
     die(sprintf('You are running PHP %s, but Grav needs at least <strong>PHP %s</strong> to run.', $ver, $req));
 }
 
-if (PHP_SAPI === 'cli-server' && !isset($_SERVER['PHP_CLI_ROUTER'])) {
-    die("PHP webserver requires a router to run Grav, please use: <pre>php -S {$_SERVER['SERVER_NAME']}:{$_SERVER['SERVER_PORT']} system/router.php</pre>");
+if (PHP_SAPI === 'cli-server') {
+    $symfony_server = stripos(getenv('_'), 'symfony') !== false || stripos($_SERVER['SERVER_SOFTWARE'], 'symfony
+') !== false;
+    if (!isset($_SERVER['PHP_CLI_ROUTER']) && !$symfony_server) {
+        die("PHP webserver requires a router to run Grav, please use: <pre>php -S {$_SERVER['SERVER_NAME']}:{$_SERVER['SERVER_PORT']} system/router.php</pre>");
+    }
 }
 
 // Set timezone to default, falls back to system if php.ini not set

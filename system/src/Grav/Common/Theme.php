@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -13,6 +13,10 @@ use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Config\Config;
 use RocketTheme\Toolbox\File\YamlFile;
 
+/**
+ * Class Theme
+ * @package Grav\Common
+ */
 class Theme extends Plugin
 {
     /**
@@ -30,19 +34,18 @@ class Theme extends Plugin
     /**
      * Get configuration of the plugin.
      *
-     * @return Config
+     * @return array
      */
     public function config()
     {
-        return $this->config["themes.{$this->name}"];
+        return $this->config["themes.{$this->name}"] ?? [];
     }
 
     /**
      * Persists to disk the theme parameters currently stored in the Grav Config object
      *
      * @param string $theme_name The name of the theme whose config it should store.
-     *
-     * @return true
+     * @return bool
      */
     public static function saveConfig($theme_name)
     {
@@ -63,6 +66,12 @@ class Theme extends Plugin
 
     /**
      * Override the mergeConfig method to work for themes
+     *
+     * @param PageInterface $page
+     * @param string $deep
+     * @param array $params
+     * @param string $type
+     * @return Data\Data
      */
     protected function mergeConfig(PageInterface $page, $deep = 'merge', $params = [], $type = 'themes')
     {
@@ -84,6 +93,8 @@ class Theme extends Plugin
 
     /**
      * Load blueprints.
+     *
+     * @return void
      */
     protected function loadBlueprint()
     {

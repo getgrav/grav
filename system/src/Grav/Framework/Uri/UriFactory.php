@@ -3,11 +3,14 @@
 /**
  * @package    Grav\Framework\Uri
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Framework\Uri;
+
+use InvalidArgumentException;
+use function is_string;
 
 /**
  * Class Uri
@@ -18,7 +21,7 @@ class UriFactory
     /**
      * @param array $env
      * @return Uri
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public static function createFromEnvironment(array $env)
     {
@@ -28,7 +31,7 @@ class UriFactory
     /**
      * @param string $uri
      * @return Uri
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public static function createFromString($uri)
     {
@@ -40,7 +43,7 @@ class UriFactory
      *
      * @param array $parts
      * @return Uri
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public static function createFromParts(array $parts)
     {
@@ -50,7 +53,7 @@ class UriFactory
     /**
      * @param array $env
      * @return array
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public static function parseUrlFromEnvironment(array $env)
     {
@@ -112,23 +115,25 @@ class UriFactory
      *
      * @param string $url
      * @return array
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public static function parseUrl($url)
     {
-        if (!\is_string($url)) {
-            throw new \InvalidArgumentException('URL must be a string');
+        if (!is_string($url)) {
+            throw new InvalidArgumentException('URL must be a string');
         }
 
         $encodedUrl = preg_replace_callback(
             '%[^:/@?&=#]+%u',
-            function ($matches) { return rawurlencode($matches[0]); },
+            function ($matches) {
+                return rawurlencode($matches[0]);
+            },
             $url
         );
 
-        $parts = \is_string($encodedUrl) ? parse_url($encodedUrl) : false;
+        $parts = is_string($encodedUrl) ? parse_url($encodedUrl) : false;
         if ($parts === false) {
-            throw new \InvalidArgumentException("Malformed URL: {$url}");
+            throw new InvalidArgumentException("Malformed URL: {$url}");
         }
 
         return $parts;

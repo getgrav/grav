@@ -11,6 +11,7 @@ namespace Grav\Common\Twig\TokenParser;
 
 use Grav\Common\Grav;
 use Grav\Common\Twig\Node\TwigNodeCache;
+use Twig\Error\SyntaxError;
 use Twig\Token;
 use Twig\TokenParser\AbstractTokenParser;
 
@@ -26,7 +27,9 @@ use Twig\TokenParser\AbstractTokenParser;
 class TwigTokenParserCache extends AbstractTokenParser
 {
     /**
-     * {@inheritDoc}
+     * @param Token $token
+     * @return TwigNodeCache
+     * @throws SyntaxError
      */
     public function parse(Token $token)
     {
@@ -54,14 +57,14 @@ class TwigTokenParserCache extends AbstractTokenParser
      * @param Token $token
      * @return bool
      */
-    public function decideCacheEnd(Token $token)
+    public function decideCacheEnd(Token $token): bool
     {
         return $token->test('endcache');
     }
     /**
      * {@inheritDoc}
      */
-    public function getTag()
+    public function getTag(): string
     {
         return 'cache';
     }

@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -14,6 +14,7 @@ namespace Grav\Common;
  */
 trait GravTrait
 {
+    /** @var Grav */
     protected static $grav;
 
     /**
@@ -24,7 +25,7 @@ trait GravTrait
     {
         user_error(__TRAIT__ . ' is deprecated since Grav 1.4, use Grav::instance() instead', E_USER_DEPRECATED);
 
-        if (!self::$grav) {
+        if (null === self::$grav) {
             self::$grav = Grav::instance();
         }
 

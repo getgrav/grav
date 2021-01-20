@@ -3,14 +3,14 @@
 /**
  * @package    Grav\Common\Twig
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Common\Twig\TokenParser;
 
 use Grav\Common\Twig\Node\TwigNodeStyle;
-use Twig\Node\Node;
+use Twig\Error\SyntaxError;
 use Twig\Token;
 use Twig\TokenParser\AbstractTokenParser;
 
@@ -28,16 +28,16 @@ class TwigTokenParserStyle extends AbstractTokenParser
     /**
      * Parses a token and returns a node.
      *
-     * @param Token $token A Twig_Token instance
-     *
-     * @return Node A Twig_Node instance
+     * @param Token $token
+     * @return TwigNodeStyle
+     * @throws SyntaxError
      */
     public function parse(Token $token)
     {
         $lineno = $token->getLine();
         $stream = $this->parser->getStream();
 
-        list ($file, $group, $priority, $attributes) = $this->parseArguments($token);
+        [$file, $group, $priority, $attributes] = $this->parseArguments($token);
 
         $content = null;
         if (!$file) {
@@ -52,17 +52,33 @@ class TwigTokenParserStyle extends AbstractTokenParser
      * @param Token $token
      * @return array
      */
-    protected function parseArguments(Token $token)
+    protected function parseArguments(Token $token): array
     {
         $stream = $this->parser->getStream();
 
+        // Look for deprecated {% style ... in ... %}
+        if (!$stream->test(Token::BLOCK_END_TYPE) && !$stream->test(Token::OPERATOR_TYPE, 'in')) {
+            $i = 0;
+            do {
+                $token = $stream->look(++$i);
+                if ($token->test(Token::BLOCK_END_TYPE)) {
+                    break;
+                }
+                if ($token->test(Token::OPERATOR_TYPE, 'in') && $stream->look($i+1)->test(Token::STRING_TYPE)) {
+                    user_error("Twig: Using {% style ... in ... %} is deprecated, use {% style ...  at ... %} instead", E_USER_DEPRECATED);
+
+                    break;
+                }
+            } while (true);
+        }
+
         $file = null;
-        if (!$stream->test(Token::NAME_TYPE) && !$stream->test(Token::OPERATOR_TYPE) && !$stream->test(Token::BLOCK_END_TYPE)) {
+        if (!$stream->test(Token::NAME_TYPE) && !$stream->test(Token::OPERATOR_TYPE, 'in') && !$stream->test(Token::BLOCK_END_TYPE)) {
             $file = $this->parser->getExpressionParser()->parseExpression();
         }
 
         $group = null;
-        if ($stream->nextIf(Token::OPERATOR_TYPE, 'in')) {
+        if ($stream->nextIf(Token::NAME_TYPE, 'at') || $stream->nextIf(Token::OPERATOR_TYPE, 'in')) {
             $group = $this->parser->getExpressionParser()->parseExpression();
         }
 
@@ -86,7 +102,7 @@ class TwigTokenParserStyle extends AbstractTokenParser
      * @param Token $token
      * @return bool
      */
-    public function decideBlockEnd(Token $token)
+    public function decideBlockEnd(Token $token): bool
     {
         return $token->test('endstyle');
     }
@@ -96,7 +112,7 @@ class TwigTokenParserStyle extends AbstractTokenParser
      *
      * @return string The tag name
      */
-    public function getTag()
+    public function getTag(): string
     {
         return 'style';
     }

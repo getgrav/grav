@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Twig
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -11,9 +11,15 @@ namespace Grav\Common\Twig;
 
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\Grav;
+use function dirname;
 
+/**
+ * Trait WriteCacheFileTrait
+ * @package Grav\Common\Twig
+ */
 trait WriteCacheFileTrait
 {
+    /** @var bool */
     protected static $umask;
 
     /**
@@ -22,6 +28,7 @@ trait WriteCacheFileTrait
      *
      * @param string $file
      * @param string $content
+     * @return void
      */
     protected function writeCacheFile($file, $content)
     {

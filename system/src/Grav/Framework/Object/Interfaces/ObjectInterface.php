@@ -3,17 +3,20 @@
 /**
  * @package    Grav\Framework\Object
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Framework\Object\Interfaces;
 
+use JsonSerializable;
+use Serializable;
+
 /**
  * Object Interface
  * @package Grav\Framework\Object
  */
-interface ObjectInterface extends \Serializable, \JsonSerializable
+interface ObjectInterface extends Serializable, JsonSerializable
 {
     /**
      * @return string
@@ -27,14 +30,14 @@ interface ObjectInterface extends \Serializable, \JsonSerializable
 
     /**
      * @param  string       $property   Object property name.
-     * @return bool|bool[]              True if property has been defined (can be null).
+     * @return bool                     True if property has been defined (property can be null).
      */
     public function hasProperty($property);
 
     /**
      * @param  string       $property   Object property to be fetched.
      * @param  mixed|null   $default    Default value if property has not been set.
-     * @return mixed|mixed[]            Property value.
+     * @return mixed                    Property value.
      */
     public function getProperty($property, $default = null);
 

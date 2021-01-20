@@ -3,33 +3,36 @@
 /**
  * @package    Grav\Console\Gpm
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Console\Gpm;
 
 use Grav\Common\GPM\GPM;
-use Grav\Console\ConsoleCommand;
+use Grav\Console\GpmCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
+use function strlen;
 
-class InfoCommand extends ConsoleCommand
+/**
+ * Class InfoCommand
+ * @package Grav\Console\Gpm
+ */
+class InfoCommand extends GpmCommand
 {
     /** @var array */
     protected $data;
-
     /** @var GPM */
     protected $gpm;
-
     /** @var string */
     protected $all_yes;
 
     /**
-     *
+     * @return void
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('info')
@@ -51,45 +54,51 @@ class InfoCommand extends ConsoleCommand
                 'The package of which more informations are desired. Use the "index" command for a list of packages'
             )
             ->setDescription('Shows more informations about a package')
-            ->setHelp('The <info>info</info> shows more informations about a package');
+            ->setHelp('The <info>info</info> shows more information about a package');
     }
 
     /**
-     * @return int|null|void
+     * @return int
      */
-    protected function serve()
+    protected function serve(): int
     {
-        $this->gpm = new GPM($this->input->getOption('force'));
+        $input = $this->getInput();
+        $io = $this->getIO();
 
-        $this->all_yes = $this->input->getOption('all-yes');
+        $this->gpm = new GPM($input->getOption('force'));
+
+        $this->all_yes = $input->getOption('all-yes');
 
         $this->displayGPMRelease();
 
-        $foundPackage = $this->gpm->findPackage($this->input->getArgument('package'));
+        $foundPackage = $this->gpm->findPackage($input->getArgument('package'));
 
         if (!$foundPackage) {
-            $this->output->writeln("The package <cyan>'{$this->input->getArgument('package')}'</cyan> was not found in the Grav repository.");
-            $this->output->writeln('');
-            $this->output->writeln('You can list all the available packages by typing:');
-            $this->output->writeln("    <green>{$this->argv} index</green>");
-            $this->output->writeln('');
-            exit;
+            $io->writeln("The package <cyan>'{$input->getArgument('package')}'</cyan> was not found in the Grav repository.");
+            $io->newLine();
+            $io->writeln('You can list all the available packages by typing:');
+            $io->writeln("    <green>{$this->argv} index</green>");
+            $io->newLine();
+
+            return 1;
         }
 
-        $this->output->writeln("Found package <cyan>'{$this->input->getArgument('package')}'</cyan> under the '<green>" . ucfirst($foundPackage->package_type) . "</green>' section");
-        $this->output->writeln('');
-        $this->output->writeln("<cyan>{$foundPackage->name}</cyan> [{$foundPackage->slug}]");
-        $this->output->writeln(str_repeat('-', \strlen($foundPackage->name) + \strlen($foundPackage->slug) + 3));
-        $this->output->writeln('<white>' . strip_tags($foundPackage->description_plain) . '</white>');
-        $this->output->writeln('');
+        $io->writeln("Found package <cyan>'{$input->getArgument('package')}'</cyan> under the '<green>" . ucfirst($foundPackage->package_type) . "</green>' section");
+        $io->newLine();
+        $io->writeln("<cyan>{$foundPackage->name}</cyan> [{$foundPackage->slug}]");
+        $io->writeln(str_repeat('-', strlen($foundPackage->name) + strlen($foundPackage->slug) + 3));
+        $io->writeln('<white>' . strip_tags($foundPackage->description_plain) . '</white>');
+        $io->newLine();
 
         $packageURL = '';
         if (isset($foundPackage->author['url'])) {
             $packageURL = '<' . $foundPackage->author['url'] . '>';
         }
 
-        $this->output->writeln('<green>' . str_pad('Author',
-                12) . ':</green> ' . $foundPackage->author['name'] . ' <' . $foundPackage->author['email'] . '> ' . $packageURL);
+        $io->writeln('<green>' . str_pad(
+            'Author',
+            12
+        ) . ':</green> ' . $foundPackage->author['name'] . ' <' . $foundPackage->author['email'] . '> ' . $packageURL);
 
         foreach ([
                      'version',
@@ -118,7 +127,7 @@ class InfoCommand extends ConsoleCommand
                 }
 
                 $name = str_pad($name, 12);
-                $this->output->writeln("<green>{$name}:</green> {$data}");
+                $io->writeln("<green>{$name}:</green> {$data}");
             }
         }
 
@@ -129,52 +138,54 @@ class InfoCommand extends ConsoleCommand
         // display current version if installed and different
         if ($installed && $updatable) {
             $local = $this->gpm->{'getInstalled'. $type}($foundPackage->slug);
-            $this->output->writeln('');
-            $this->output->writeln("Currently installed version: <magenta>{$local->version}</magenta>");
-            $this->output->writeln('');
+            $io->newLine();
+            $io->writeln("Currently installed version: <magenta>{$local->version}</magenta>");
+            $io->newLine();
         }
 
         // display changelog information
-        $questionHelper = $this->getHelper('question');
-        $question = new ConfirmationQuestion('Would you like to read the changelog? [y|N] ',
-            false);
-        $answer = $this->all_yes ? true : $questionHelper->ask($this->input, $this->output, $question);
+        $question = new ConfirmationQuestion(
+            'Would you like to read the changelog? [y|N] ',
+            false
+        );
+        $answer = $this->all_yes ? true : $io->askQuestion($question);
 
         if ($answer) {
             $changelog = $foundPackage->changelog;
 
-            $this->output->writeln('');
+            $io->newLine();
             foreach ($changelog as $version => $log) {
                 $title = $version . ' [' . $log['date'] . ']';
-                $content = preg_replace_callback('/\d\.\s\[\]\(#(.*)\)/', function ($match) {
+                $content = preg_replace_callback('/\d\.\s\[\]\(#(.*)\)/', static function ($match) {
                     return "\n" . ucfirst($match[1]) . ':';
                 }, $log['content']);
 
-                $this->output->writeln("<cyan>{$title}</cyan>");
-                $this->output->writeln(str_repeat('-', \strlen($title)));
-                $this->output->writeln($content);
-                $this->output->writeln('');
+                $io->writeln("<cyan>{$title}</cyan>");
+                $io->writeln(str_repeat('-', strlen($title)));
+                $io->writeln($content);
+                $io->newLine();
 
                 $question = new ConfirmationQuestion('Press [ENTER] to continue or [q] to quit ', true);
-                $answer = $this->all_yes ? false : $questionHelper->ask($this->input, $this->output, $question);
+                $answer = $this->all_yes ? false : $io->askQuestion($question);
                 if (!$answer) {
                     break;
                 }
-                $this->output->writeln('');
+                $io->newLine();
             }
         }
 
-        $this->output->writeln('');
+        $io->newLine();
 
         if ($installed && $updatable) {
-            $this->output->writeln('You can update this package by typing:');
-            $this->output->writeln("    <green>{$this->argv} update</green> <cyan>{$foundPackage->slug}</cyan>");
+            $io->writeln('You can update this package by typing:');
+            $io->writeln("    <green>{$this->argv} update</green> <cyan>{$foundPackage->slug}</cyan>");
         } else {
-            $this->output->writeln("You can install this package by typing:");
-            $this->output->writeln("    <green>{$this->argv} install</green> <cyan>{$foundPackage->slug}</cyan>");
+            $io->writeln('You can install this package by typing:');
+            $io->writeln("    <green>{$this->argv} install</green> <cyan>{$foundPackage->slug}</cyan>");
         }
 
-        $this->output->writeln('');
+        $io->newLine();
 
+        return 0;
     }
 }

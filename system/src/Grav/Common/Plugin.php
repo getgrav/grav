@@ -3,43 +3,43 @@
 /**
  * @package    Grav\Common
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Common;
 
+use ArrayAccess;
 use Grav\Common\Data\Blueprint;
 use Grav\Common\Data\Data;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Config\Config;
-use RocketTheme\Toolbox\Event\EventDispatcher;
-use RocketTheme\Toolbox\Event\EventSubscriberInterface;
+use LogicException;
 use RocketTheme\Toolbox\File\YamlFile;
+use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use function defined;
+use function is_bool;
+use function is_string;
 
-class Plugin implements EventSubscriberInterface, \ArrayAccess
+/**
+ * Class Plugin
+ * @package Grav\Common
+ */
+class Plugin implements EventSubscriberInterface, ArrayAccess
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     public $name;
-
-    /**
-     * @var array
-     */
+    /** @var array */
     public $features = [];
 
-    /**
-     * @var Grav
-     */
+    /** @var Grav */
     protected $grav;
-
-    /**
-     * @var Config
-     */
+    /** @var Config */
     protected $config;
-
+    /** @var bool */
     protected $active = true;
+    /** @var Blueprint */
     protected $blueprint;
 
     /**
@@ -49,7 +49,7 @@ class Plugin implements EventSubscriberInterface, \ArrayAccess
      */
     public static function getSubscribedEvents()
     {
-        $methods = get_class_methods(get_called_class());
+        $methods = get_class_methods(static::class);
 
         $list = [];
         foreach ($methods as $method) {
@@ -66,12 +66,13 @@ class Plugin implements EventSubscriberInterface, \ArrayAccess
      *
      * @param string $name
      * @param Grav   $grav
-     * @param Config $config
+     * @param Config|null $config
      */
     public function __construct($name, Grav $grav, Config $config = null)
     {
         $this->name = $name;
         $this->grav = $grav;
+
         if ($config) {
             $this->setConfig($config);
         }
@@ -95,7 +96,7 @@ class Plugin implements EventSubscriberInterface, \ArrayAccess
      */
     public function config()
     {
-        return $this->config["plugins.{$this->name}"];
+        return null !== $this->config ? $this->config["plugins.{$this->name}"] : [];
     }
 
     /**
@@ -115,7 +116,7 @@ class Plugin implements EventSubscriberInterface, \ArrayAccess
      */
     public function isCli()
     {
-        return \defined('GRAV_CLI');
+        return defined('GRAV_CLI');
     }
 
     /**
@@ -148,9 +149,9 @@ class Plugin implements EventSubscriberInterface, \ArrayAccess
         $dispatcher = $this->grav['events'];
 
         foreach ($events as $eventName => $params) {
-            if (\is_string($params)) {
+            if (is_string($params)) {
                 $dispatcher->addListener($eventName, [$this, $params]);
-            } elseif (\is_string($params[0])) {
+            } elseif (is_string($params[0])) {
                 $dispatcher->addListener($eventName, [$this, $params[0]], $this->getPriority($params, $eventName));
             } else {
                 foreach ($params as $listener) {
@@ -167,11 +168,11 @@ class Plugin implements EventSubscriberInterface, \ArrayAccess
     private function getPriority($params, $eventName)
     {
         $grav = Grav::instance();
-        $override = implode('.', ["priorities", $this->name, $eventName, $params[0]]);
-        if ($grav['config']->get($override) !== null)
-        {
+        $override = implode('.', ['priorities', $this->name, $eventName, $params[0]]);
+        if ($grav['config']->get($override) !== null) {
             return $grav['config']->get($override);
-        } elseif (isset($params[1])) {
+        }
+        if (isset($params[1])) {
             return $params[1];
         }
         return 0;
@@ -186,9 +187,9 @@ class Plugin implements EventSubscriberInterface, \ArrayAccess
         $dispatcher = $this->grav['events'];
 
         foreach ($events as $eventName => $params) {
-            if (\is_string($params)) {
+            if (is_string($params)) {
                 $dispatcher->removeListener($eventName, [$this, $params]);
-            } elseif (\is_string($params[0])) {
+            } elseif (is_string($params[0])) {
                 $dispatcher->removeListener($eventName, [$this, $params[0]]);
             } else {
                 foreach ($params as $listener) {
@@ -235,22 +236,35 @@ class Plugin implements EventSubscriberInterface, \ArrayAccess
      *
      * @param string $offset  The offset to assign the value to.
      * @param mixed $value   The value to set.
-     * @throws \LogicException
+     * @throws LogicException
      */
     public function offsetSet($offset, $value)
     {
-        throw new \LogicException(__CLASS__ . ' blueprints cannot be modified.');
+        throw new LogicException(__CLASS__ . ' blueprints cannot be modified.');
     }
 
     /**
      * Unsets an offset.
      *
      * @param string $offset  The offset to unset.
-     * @throws \LogicException
+     * @throws LogicException
      */
     public function offsetUnset($offset)
     {
-        throw new \LogicException(__CLASS__ . ' blueprints cannot be modified.');
+        throw new LogicException(__CLASS__ . ' blueprints cannot be modified.');
+    }
+
+    /**
+     * @return array
+     */
+    public function __debugInfo(): array
+    {
+        $array = (array)$this;
+
+        unset($array["\0*\0grav"]);
+        $array["\0*\0config"] = $this->config();
+
+        return $array;
     }
 
     /**
@@ -263,7 +277,6 @@ class Plugin implements EventSubscriberInterface, \ArrayAccess
      * @param string   $content        The string to perform operations upon
      * @param callable $function       The anonymous callback function
      * @param string   $internal_regex Optional internal regex to extra data from
-     *
      * @return string
      */
     protected function parseLinks($content, $function, $internal_regex = '(.*)')
@@ -276,13 +289,14 @@ class Plugin implements EventSubscriberInterface, \ArrayAccess
     /**
      * Merge global and page configurations.
      *
+     * WARNING: This method modifies page header!
+     *
      * @param PageInterface $page The page to merge the configurations with the
      *                       plugin settings.
      * @param mixed $deep false = shallow|true = recursive|merge = recursive+unique
      * @param array $params Array of additional configuration options to
      *                       merge with the plugin settings.
      * @param string $type Is this 'plugins' or 'themes'
-     *
      * @return Data
      */
     protected function mergeConfig(PageInterface $page, $deep = false, $params = [], $type = 'plugins')
@@ -296,7 +310,7 @@ class Plugin implements EventSubscriberInterface, \ArrayAccess
         if (!isset($page_header->{$class_name_merged}) && isset($page_header->{$class_name})) {
             // Get default plugin configurations and retrieve page header configuration
             $config = $page_header->{$class_name};
-            if (\is_bool($config)) {
+            if (is_bool($config)) {
                 // Overwrite enabled option with boolean value in page header
                 $config = ['enabled' => $config];
             }

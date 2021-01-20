@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\User
  *
- * @copyright  Copyright (C) 2015 - 2019 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -12,8 +12,9 @@ namespace Grav\Common\User\Interfaces;
 use Grav\Common\Data\Blueprint;
 use Grav\Common\Data\DataInterface;
 use Grav\Common\Media\Interfaces\MediaInterface;
-use Grav\Common\Page\Medium\ImageMedium;
+use Grav\Common\Page\Medium\Medium;
 use RocketTheme\Toolbox\ArrayTraits\ExportInterface;
+use RuntimeException;
 
 /**
  * Interface UserInterface
@@ -29,7 +30,7 @@ use RocketTheme\Toolbox\ArrayTraits\ExportInterface;
  * @property bool $authenticated
  * @property bool $authorized
  */
-interface UserInterface extends DataInterface, MediaInterface, \ArrayAccess, \JsonSerializable, ExportInterface
+interface UserInterface extends AuthorizeInterface, DataInterface, MediaInterface, \ArrayAccess, \JsonSerializable, ExportInterface
 {
     /**
      * @param array $items
@@ -44,7 +45,7 @@ interface UserInterface extends DataInterface, MediaInterface, \ArrayAccess, \Js
      *
      * @param string  $name       Dot separated path to the requested value.
      * @param mixed   $default    Default value (or null).
-     * @param string  $separator  Separator, defaults to '.'
+     * @param string|null  $separator  Separator, defaults to '.'
      * @return mixed  Value.
      */
     public function get($name, $default = null, $separator = null);
@@ -56,7 +57,7 @@ interface UserInterface extends DataInterface, MediaInterface, \ArrayAccess, \Js
      *
      * @param string  $name       Dot separated path to the requested value.
      * @param mixed   $value      New value.
-     * @param string  $separator  Separator, defaults to '.'
+     * @param string|null  $separator  Separator, defaults to '.'
      * @return $this
      */
     public function set($name, $value, $separator = null);
@@ -67,7 +68,7 @@ interface UserInterface extends DataInterface, MediaInterface, \ArrayAccess, \Js
      * @example $data->undef('this.is.my.nested.variable');
      *
      * @param string  $name       Dot separated path to the requested value.
-     * @param string  $separator  Separator, defaults to '.'
+     * @param string|null  $separator  Separator, defaults to '.'
      * @return $this
      */
     public function undef($name, $separator = null);
@@ -79,7 +80,7 @@ interface UserInterface extends DataInterface, MediaInterface, \ArrayAccess, \Js
      *
      * @param string  $name       Dot separated path to the requested value.
      * @param mixed   $default    Default value (or null).
-     * @param string  $separator  Separator, defaults to '.'
+     * @param string|null  $separator  Separator, defaults to '.'
      * @return $this
      */
     public function def($name, $default = null, $separator = null);
@@ -91,7 +92,7 @@ interface UserInterface extends DataInterface, MediaInterface, \ArrayAccess, \Js
      * @param mixed   $value      Value to be joined.
      * @param string  $separator  Separator, defaults to '.'
      * @return $this
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
     public function join($name, $value, $separator = '.');
 
@@ -121,7 +122,7 @@ interface UserInterface extends DataInterface, MediaInterface, \ArrayAccess, \Js
      * @param array|object $value      Value to be joined.
      * @param string  $separator  Separator, defaults to '.'
      * @return array
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
     public function getJoined($name, $value, $separator = '.');
 
@@ -166,28 +167,18 @@ interface UserInterface extends DataInterface, MediaInterface, \ArrayAccess, \Js
      * If user password needs to be updated, new information will be saved.
      *
      * @param string $password Plaintext password.
-     *
      * @return bool
      */
     public function authenticate(string $password): bool;
-
-    /**
-     * Checks user authorization to the action.
-     *
-     * @param  string $action
-     * @param  string|null $scope
-     * @return bool
-     */
-    public function authorize(string $action, string $scope = null): bool;
 
     /**
      * Return media object for the User's avatar.
      *
      * Note: if there's no local avatar image for the user, you should call getAvatarUrl() to get the external avatar URL.
      *
-     * @return ImageMedium|null
+     * @return Medium|null
      */
-    public function getAvatarImage(): ?ImageMedium;
+    public function getAvatarImage(): ?Medium;
 
     /**
      * Return the User's avatar URL.
