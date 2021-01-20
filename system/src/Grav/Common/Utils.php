@@ -737,9 +737,8 @@ abstract class Utils
 
         // Set from uri extension
         $uri_extension = $uri->extension();
-        if (is_string($uri_extension)) {
-            $uri_extension = $uri->isValidExtension($uri_extension) ? $uri_extension : 'html';
-            return $uri_extension;
+        if (is_string($uri_extension) && $uri->isValidExtension($uri_extension)) {
+            return($uri_extension);
         }
 
         // Use content negotiation via the `accept:` header
