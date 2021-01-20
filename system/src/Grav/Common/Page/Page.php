@@ -783,7 +783,7 @@ class Page implements PageInterface
                         Grav::instance()->fireEvent('onPageContentProcessed', new Event(['page' => $this]));
                     } else {
                         if ($process_markdown) {
-                            $this->processMarkdown();
+                            $this->processMarkdown($process_twig);
                         }
 
                         // Content Processed but not cached yet
@@ -871,9 +871,10 @@ class Page implements PageInterface
     /**
      * Process the Markdown content.  Uses Parsedown or Parsedown Extra depending on configuration
      *
+     * @param bool $keepTwig If true, content between twig tags will not be processed.
      * @return void
      */
-    protected function processMarkdown()
+    protected function processMarkdown(bool $keepTwig = false)
     {
         /** @var Config $config */
         $config = Grav::instance()['config'];
@@ -905,7 +906,27 @@ class Page implements PageInterface
             $parsedown = new Parsedown($excerpts);
         }
 
-        $this->content = $parsedown->text($this->content);
+        $content = $this->content;
+        if ($keepTwig) {
+            // Base64 encode any twig.
+            $content = preg_replace_callback(
+                ['/({#)(.*?)(#})/mu', '/({{)(.*?)(}})/mu', '/({%)(.*?)(%})/mu'],
+                static function ($matches) { return $matches[1] . base64_encode($matches[2]) . $matches[3]; },
+                $content
+            );
+        }
+        $content = $parsedown->text($content);
+
+        if ($keepTwig) {
+            // Base64 decode the encoded twig.
+            $content = preg_replace_callback(
+                ['/({#)(.*?)(#})/mu', '/({{)(.*?)(}})/mu', '/({%)(.*?)(%})/mu'],
+                static function ($matches) { return $matches[1] . base64_decode($matches[2]) . $matches[3]; },
+                $content
+            );
+        }
+
+        $this->content = $content;
     }
 
 

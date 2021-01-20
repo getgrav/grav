@@ -734,6 +734,7 @@ trait PageContentTrait
                 $grav->fireEvent('onPageContentProcessed', new Event(['page' => $this]));
             } else {
                 if ($process_markdown) {
+                    $options['keep_twig'] = $process_twig;
                     $this->_content = $this->processMarkdown($this->_content, $options);
                 }
 
@@ -807,7 +808,28 @@ trait PageContentTrait
             $parsedown = new Parsedown($excerpts);
         }
 
-        return $parsedown->text($content);
+        $keepTwig = (bool)($options['keep_twig'] ?? false);
+        if ($keepTwig) {
+            // Base64 encode any twig.
+            $content = preg_replace_callback(
+                ['/({#)(.*?)(#})/mu', '/({{)(.*?)(}})/mu', '/({%)(.*?)(%})/mu'],
+                static function ($matches) { return $matches[1] . base64_encode($matches[2]) . $matches[3]; },
+                $content
+            );
+        }
+
+        $content = $parsedown->text($content);
+
+        if ($keepTwig) {
+            // Base64 decode the encoded twig.
+            $content = preg_replace_callback(
+                ['/({#)(.*?)(#})/mu', '/({{)(.*?)(}})/mu', '/({%)(.*?)(%})/mu'],
+                static function ($matches) { return $matches[1] . base64_decode($matches[2]) . $matches[3]; },
+                $content
+            );
+        }
+
+        return $content;
     }
 
     abstract protected function loadHeaderProperty(string $property, $var, callable $filter);
