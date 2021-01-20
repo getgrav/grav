@@ -9,6 +9,7 @@
     * Fixed `bin/gpm selfupgrade` error on `Call to undefined method` [#3160](https://github.com/getgrav/grav/issues/3160)
     * Flex Pages: Fixed fatal error when trying to move a page to Root (/) [#3161](https://github.com/getgrav/grav/issues/3161)
     * Fixed twig parsing errors in pages where twig is parsed after markdown [#3162](https://github.com/getgrav/grav/issues/3162)
+    * Fixed `lighttpd.conf` access-deny rule [#1876](https://github.com/getgrav/grav/issues/1876)
 
 # v1.7.0
 ## 01/19/2021
