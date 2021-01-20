@@ -255,13 +255,12 @@ class SelfupgradeCommand extends GpmCommand
 
         $this->upgradeGrav($this->file, $folder);
 
-        $errorCode = Installer::lastErrorCode();
-
         if ($this->tmp) {
             Folder::delete($this->tmp);
         }
 
-        if ($errorCode & (Installer::ZIP_OPEN_ERROR | Installer::ZIP_EXTRACT_ERROR)) {
+        $errorCode = Installer::lastErrorCode();
+        if ($errorCode) {
             $io->write("\x0D");
             // extra white spaces to clear out the buffer properly
             $io->writeln('  |- Installing upgrade...    <red>error</red>                             ');

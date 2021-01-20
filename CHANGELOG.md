@@ -5,6 +5,7 @@
     * Fixed fatal error when `site.taxonomies` contains a bad value
     * Sanitize valid Page extensions from `Page::template_format()`
     * Fixed `bin/gpm index` erroring out [#3158](https://github.com/getgrav/grav/issues/3158)
+    * Fixed `bin/gpm selfupgrade` failing to report failed Grav update [#3116](https://github.com/getgrav/grav/issues/3116)
 
 # v1.7.0
 ## 01/19/2021
