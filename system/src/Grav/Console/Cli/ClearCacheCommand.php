@@ -44,6 +44,14 @@ class ClearCacheCommand extends GravCommand
      */
     protected function serve(): int
     {
+        // Old versions of Grav called this command after grav upgrade.
+        // We need make this command to work with older GravCommand instance:
+        if (!method_exists($this, 'initializePlugins')) {
+            Cache::clearCache('all');
+
+            return 0;
+        }
+
         $this->initializePlugins();
         $this->cleanPaths();
 

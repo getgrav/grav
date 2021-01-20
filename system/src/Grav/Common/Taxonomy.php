@@ -74,6 +74,10 @@ class Taxonomy
         $config = $this->grav['config'];
         $taxonomies = (array)$config->get('site.taxonomies');
         foreach ($taxonomies as $taxonomy) {
+            // Skip invalid taxonomies.
+            if (!\is_string($taxonomy)) {
+                continue;
+            }
             $current = $page_taxonomy[$taxonomy] ?? null;
             foreach ((array)$current as $item) {
                 $this->iterateTaxonomy($page, $taxonomy, '', $item);

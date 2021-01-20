@@ -73,6 +73,7 @@ class DirectInstallCommand extends GpmCommand
     {
         $input = $this->getInput();
         $io = $this->getIO();
+
         if (!class_exists(ZipArchive::class)) {
             $io->title('Direct Install');
             $io->error('php-zip extension needs to be enabled!');
@@ -266,6 +267,9 @@ class DirectInstallCommand extends GpmCommand
                     ],
                     $extracted
                 );
+
+                // clear cache after successful upgrade
+                $this->clearCache();
             }
 
             Folder::delete($tmp_source);
@@ -289,31 +293,16 @@ class DirectInstallCommand extends GpmCommand
 
         Folder::delete($tmp_zip);
 
-        // clear cache after successful upgrade
-        $this->clearCache();
-
         return 0;
     }
 
     /**
      * @param string $zip
      * @param string $folder
-     * @param bool $keepFolder
      * @return void
      */
-    private function upgradeGrav(string $zip, string $folder, bool $keepFolder = false): void
+    private function upgradeGrav(string $zip, string $folder): void
     {
-        static $ignores = [
-            'backup',
-            'cache',
-            'images',
-            'logs',
-            'tmp',
-            'user',
-            '.htaccess',
-            'robots.txt'
-        ];
-
         if (!is_dir($folder)) {
             Installer::setError('Invalid source folder');
         }
@@ -324,15 +313,7 @@ class DirectInstallCommand extends GpmCommand
             if ((file_exists($script) && $install = include $script) && is_callable($install)) {
                 $install($zip);
             } else {
-                Installer::install(
-                    $zip,
-                    GRAV_ROOT,
-                    ['sophisticated' => true, 'overwrite' => true, 'ignore_symlinks' => true, 'ignores' => $ignores],
-                    $folder,
-                    $keepFolder
-                );
-
-                Cache::clearCache();
+                throw new RuntimeException('Uploaded archive file is not a valid Grav update package');
             }
         } catch (Exception $e) {
             Installer::setError($e->getMessage());

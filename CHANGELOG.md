@@ -1,3 +1,17 @@
+# v1.7.1
+## 01/20/2021
+
+1. [](#bugfix)
+    * Fixed fatal error when `site.taxonomies` contains a bad value
+    * Sanitize valid Page extensions from `Page::template_format()`
+    * Fixed `bin/gpm index` erroring out [#3158](https://github.com/getgrav/grav/issues/3158)
+    * Fixed `bin/gpm selfupgrade` failing to report failed Grav update [#3116](https://github.com/getgrav/grav/issues/3116)
+    * Fixed `bin/gpm selfupgrade` error on `Call to undefined method` [#3160](https://github.com/getgrav/grav/issues/3160)
+    * Flex Pages: Fixed fatal error when trying to move a page to Root (/) [#3161](https://github.com/getgrav/grav/issues/3161)
+    * Fixed twig parsing errors in pages where twig is parsed after markdown [#3162](https://github.com/getgrav/grav/issues/3162)
+    * Fixed `lighttpd.conf` access-deny rule [#1876](https://github.com/getgrav/grav/issues/1876)
+    * Fixed page metadata being double-escaped [#3121](https://github.com/getgrav/grav/issues/3121)
+
 # v1.7.0
 ## 01/19/2021
 

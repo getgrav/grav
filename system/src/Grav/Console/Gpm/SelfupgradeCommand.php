@@ -10,13 +10,13 @@
 namespace Grav\Console\Gpm;
 
 use Exception;
-use Grav\Common\Cache;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\GPM\Installer;
 use Grav\Common\GPM\Response;
 use Grav\Common\GPM\Upgrader;
 use Grav\Common\Grav;
 use Grav\Console\GpmCommand;
+use RuntimeException;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
@@ -36,7 +36,7 @@ class SelfupgradeCommand extends GpmCommand
     protected $file;
     /** @var array */
     protected $types = ['plugins', 'themes'];
-    /** @var string */
+    /** @var string|null */
     private $tmp;
     /** @var Upgrader */
     private $upgrader;
@@ -202,8 +202,9 @@ class SelfupgradeCommand extends GpmCommand
             $io->newLine();
         }
 
-        // clear cache after successful upgrade
-        $this->clearCache(['all']);
+        if ($this->tmp && is_dir($this->tmp)) {
+            Folder::delete($this->tmp);
+        }
 
         return $error;
     }
@@ -217,7 +218,7 @@ class SelfupgradeCommand extends GpmCommand
         $io = $this->getIO();
 
         $tmp_dir = Grav::instance()['locator']->findResource('tmp://', true, true);
-        $this->tmp = $tmp_dir . '/Grav-' . uniqid('', false);
+        $this->tmp = $tmp_dir . '/grav-update-' . uniqid('', false);
         $options = [
             'curl' => [
                 CURLOPT_TIMEOUT => $this->timeout,
@@ -247,21 +248,10 @@ class SelfupgradeCommand extends GpmCommand
     {
         $io = $this->getIO();
 
-        if ($this->file) {
-            $folder = Installer::unZip($this->file, $this->tmp . '/zip');
-        } else {
-            $folder = false;
-        }
-
-        $this->upgradeGrav($this->file, $folder);
+        $this->upgradeGrav($this->file);
 
         $errorCode = Installer::lastErrorCode();
-
-        if ($this->tmp) {
-            Folder::delete($this->tmp);
-        }
-
-        if ($errorCode & (Installer::ZIP_OPEN_ERROR | Installer::ZIP_EXTRACT_ERROR)) {
+        if ($errorCode) {
             $io->write("\x0D");
             // extra white spaces to clear out the buffer properly
             $io->writeln('  |- Installing upgrade...    <red>error</red>                             ');
@@ -309,42 +299,21 @@ class SelfupgradeCommand extends GpmCommand
 
     /**
      * @param string $zip
-     * @param string $folder
-     * @param bool $keepFolder
      * @return void
      */
-    private function upgradeGrav(string $zip, string $folder, bool $keepFolder = false): void
+    private function upgradeGrav(string $zip): void
     {
-        static $ignores = [
-            'backup',
-            'cache',
-            'images',
-            'logs',
-            'tmp',
-            'user',
-            '.htaccess',
-            'robots.txt'
-        ];
-
-        if (!is_dir($folder)) {
-            Installer::setError('Invalid source folder');
-        }
-
         try {
+            $folder = Installer::unZip($zip, $this->tmp . '/zip');
+            if ($folder === false) {
+                throw new RuntimeException(Installer::lastErrorMsg());
+            }
+
             $script = $folder . '/system/install.php';
-            /** Install $installer */
             if ((file_exists($script) && $install = include $script) && is_callable($install)) {
                 $install($zip);
             } else {
-                Installer::install(
-                    $zip,
-                    GRAV_ROOT,
-                    ['sophisticated' => true, 'overwrite' => true, 'ignore_symlinks' => true, 'ignores' => $ignores],
-                    $folder,
-                    $keepFolder
-                );
-
-                Cache::clearCache();
+                throw new RuntimeException('Uploaded archive file is not a valid Grav update package');
             }
         } catch (Exception $e) {
             Installer::setError($e->getMessage());
