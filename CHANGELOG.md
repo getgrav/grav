@@ -1,3 +1,9 @@
+# v1.7.2
+## mm/dd/2021
+
+1. [](#bugfix)
+    * Fixed default GPM Channel back to 'stable' - this was inadvertently left as 'testing'
+
 # v1.7.1
 ## 01/20/2021
 
