@@ -9,14 +9,16 @@
 
 namespace Grav\Console\Gpm;
 
+use Grav\Common\GPM\Remote\AbstractPackageCollection;
 use Grav\Common\GPM\Remote\Package;
 use Grav\Common\GPM\GPM;
 use Grav\Common\GPM\Remote\Packages;
+use Grav\Common\GPM\Remote\Plugins;
+use Grav\Common\GPM\Remote\Themes;
 use Grav\Common\Utils;
 use Grav\Console\GpmCommand;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Style\SymfonyStyle;
 use function count;
 
 /**
@@ -78,9 +80,9 @@ class IndexCommand extends GpmCommand
             ->addOption(
                 'sort',
                 's',
-                InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY,
-                'Allows to sort (ASC) the results based on one or multiple keys. SORT can be either "name", "slug", "author", "date"',
-                ['date']
+                InputOption::VALUE_REQUIRED,
+                'Allows to sort (ASC) the results. SORT can be either "name", "slug", "author", "date"',
+                'date'
             )
             ->addOption(
                 'desc',
@@ -249,22 +251,24 @@ class IndexCommand extends GpmCommand
     }
 
     /**
-     * @param Packages $packages
-     * @return Packages
+     * @param AbstractPackageCollection|Plugins|Themes $packages
+     * @return array
      */
-    public function sort(Packages $packages): Packages
+    public function sort(AbstractPackageCollection $packages): array
     {
-        foreach ($this->options['sort'] as $key) {
-            $packages = $packages->sort(function ($a, $b) use ($key) {
+        $key = $this->options['sort'];
+
+        // Sorting only works once.
+        return $packages->sort(
+            function ($a, $b) use ($key) {
                 switch ($key) {
                     case 'author':
                         return strcmp($a->{$key}['name'], $b->{$key}['name']);
                     default:
                         return strcmp($a->$key, $b->$key);
                 }
-            }, $this->options['desc'] ? true : false);
-        }
-
-        return $packages;
+            },
+            $this->options['desc'] ? true : false
+        );
     }
 }
