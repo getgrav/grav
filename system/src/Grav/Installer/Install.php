@@ -285,7 +285,7 @@ ERR;
     {
         $this->updater->postflight();
 
-        Cache::clearCache();
+        Cache::clearCache('all');
 
         clearstatcache();
         if (function_exists('opcache_reset')) {

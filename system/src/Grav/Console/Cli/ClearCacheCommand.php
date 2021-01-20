@@ -12,6 +12,7 @@ namespace Grav\Console\Cli;
 use Grav\Common\Cache;
 use Grav\Console\GravCommand;
 use Symfony\Component\Console\Input\InputOption;
+use function is_callable;
 
 /**
  * Class ClearCacheCommand
@@ -44,6 +45,14 @@ class ClearCacheCommand extends GravCommand
      */
     protected function serve(): int
     {
+        // Old versions of Grav called this command after grav upgrade.
+        // We need make this command to work with older GravCommand instance:
+        if (!is_callable($this, 'initializePlugins')) {
+            Cache::clearCache('all');
+
+            return 0;
+        }
+
         $this->initializePlugins();
         $this->cleanPaths();
 
