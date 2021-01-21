@@ -362,19 +362,27 @@ class Setup extends Data
         try {
             // If environment is found, remove all missing override locations (B/C compatibility).
             if ($locator->findResource('environment://', true)) {
-                $prefixes = $this->get('streams.schemes.environment.prefixes.');
-                $update = false;
-                foreach ($prefixes as $i => $prefix) {
-                    if ($locator->findResource($prefix, true)) {
-                        break;
+                $force = $this->get('streams.schemes.environment.force', false);
+                if (!$force) {
+                    $prefixes = $this->get('streams.schemes.environment.prefixes.');
+                    $update = false;
+                    foreach ($prefixes as $i => $prefix) {
+                        if ($locator->isStream($prefix)) {
+                            if ($locator->findResource($prefix, true)) {
+                                break;
+                            }
+                        } elseif (file_exists($prefix)) {
+                            break;
+                        }
+
+                        unset($prefixes[$i]);
+                        $update = true;
                     }
 
-                    unset($prefixes[$i]);
-                    $update = true;
-                }
-                if ($update) {
-                    $this->set('streams.schemes.environment.prefixes', ['' => array_values($prefixes)]);
-                    $this->initializeLocator($locator);
+                    if ($update) {
+                        $this->set('streams.schemes.environment.prefixes', ['' => array_values($prefixes)]);
+                        $this->initializeLocator($locator);
+                    }
                 }
             }
 

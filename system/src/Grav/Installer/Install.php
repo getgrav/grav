@@ -283,6 +283,13 @@ ERR;
      */
     public function finalize(): void
     {
+        // Finalize can be run without installing Grav first.
+        if (!$this->updater) {
+            $versions = Versions::instance(GRAV_ROOT . '/user/config/versions.yaml');
+            $this->updater = new VersionUpdater('core/grav', __DIR__ . '/updates', GRAV_VERSION, $versions);
+            $this->updater->install();
+        }
+
         $this->updater->postflight();
 
         Cache::clearCache('all');

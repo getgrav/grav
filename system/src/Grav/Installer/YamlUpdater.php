@@ -148,6 +148,26 @@ final class YamlUpdater
         array_splice($this->lines, abs($currentLine)+1, 0, $value);
     }
 
+    public function undefine(string $variable): void
+    {
+        // If variable does not have value, we're good.
+        if ($this->get($variable) === null) {
+            return;
+        }
+
+        // If one of the parents isn't array, we're good, too.
+        if (!$this->canDefine($variable)) {
+            return;
+        }
+
+        $this->undef($variable);
+        if (!$this->isHandWritten()) {
+            return;
+        }
+
+        // TODO: support also removing property from handwritten configuration file.
+    }
+
     private function __construct(string $filename)
     {
         $content = is_file($filename) ? (string)file_get_contents($filename) : '';
