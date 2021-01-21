@@ -1,6 +1,9 @@
 # v1.7.2
 ## mm/dd/2021
 
+1. [](#improved)
+    * Added support for symlinking individual plugins and themes by using `bin/grav install -p myplugin` or `-t mytheme`
+    * Added support for symlinking plugins and themes with `hebe.json` file to support custom folder structures
 1. [](#bugfix)
     * Fixed default GPM Channel back to 'stable' - this was inadvertently left as 'testing'
 

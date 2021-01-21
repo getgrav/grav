@@ -10,9 +10,12 @@
 namespace Grav\Console\Cli;
 
 use Grav\Console\GravCommand;
+use Grav\Framework\File\Formatter\JsonFormatter;
+use Grav\Framework\File\JsonFile;
 use RocketTheme\Toolbox\File\YamlFile;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
+use function is_array;
 
 /**
  * Class InstallCommand
@@ -40,6 +43,18 @@ class InstallCommand extends GravCommand
                 InputOption::VALUE_NONE,
                 'Symlink the required bits'
             )
+            ->addOption(
+                'plugin',
+                'p',
+                InputOption::VALUE_REQUIRED,
+                'Install plugin (symlink)'
+            )
+            ->addOption(
+                'theme',
+                't',
+                InputOption::VALUE_REQUIRED,
+                'Install theme (symlink)'
+            )
             ->addArgument(
                 'destination',
                 InputArgument::OPTIONAL,
@@ -58,7 +73,7 @@ class InstallCommand extends GravCommand
         $io = $this->getIO();
 
         $dependencies_file = '.dependencies';
-        $this->destination = $input->getArgument('destination') ?: ROOT_DIR;
+        $this->destination = $input->getArgument('destination') ?: GRAV_ROOT;
 
         // fix trailing slash
         $this->destination = rtrim($this->destination, DS) . DS;
@@ -93,14 +108,21 @@ class InstallCommand extends GravCommand
             return 1;
         }
 
-        if (!$input->getOption('symlink')) {
+        $plugin = $input->getOption('plugin');
+        $theme = $input->getOption('theme');
+        $name = $plugin ?? $theme;
+        $symlink = $name || $input->getOption('symlink');
+
+        if (!$symlink) {
             // Updates composer first
             $io->writeln("\nInstalling vendor dependencies");
             $io->writeln($this->composerUpdate(GRAV_ROOT, 'install'));
 
             $error = $this->gitclone();
         } else {
-            $error = $this->symlink();
+            $type = $name ? ($plugin ? 'plugin' : 'theme') : null;
+
+            $error = $this->symlink($name, $type);
         }
 
         return $error;
@@ -147,9 +169,11 @@ class InstallCommand extends GravCommand
     /**
      * Symlinks
      *
+     * @param string|null $name
+     * @param string|null $type
      * @return int
      */
-    private function symlink(): int
+    private function symlink(string $name = null, string $type = null): int
     {
         $io = $this->getIO();
 
@@ -167,7 +191,21 @@ class InstallCommand extends GravCommand
 
         $error = 0;
         $this->destination = rtrim($this->destination, DS);
-        foreach ($this->config['links'] as $name => $data) {
+
+        if ($name) {
+            $src = "grav-{$type}-{$name}";
+            $links = [
+                $name => [
+                    'scm' => 'github', // TODO: make configurable
+                    'src' => $src,
+                    'path' => "user/{$type}s/{$name}"
+                ]
+            ];
+        } else {
+            $links = $this->config['links'];
+        }
+
+        foreach ($links as $name => $data) {
             $scm = $data['scm'] ?? null;
             $src = $data['src'] ?? null;
             $path = $data['path'] ?? null;
@@ -191,7 +229,7 @@ class InstallCommand extends GravCommand
                 }
             }
 
-            if (is_link($to) && !is_file("{$to}/{$name}.yaml")) {
+            if (is_link($to) && !realpath($to)) {
                 $io->writeln('<yellow>Removed broken symlink '. $path .'</yellow>');
                 unlink($to);
             }
@@ -200,8 +238,7 @@ class InstallCommand extends GravCommand
                 $io->newLine();
                 $error = 1;
             } elseif (!file_exists($to)) {
-                symlink($from, $to);
-                $io->writeln('<green>SUCCESS</green> symlinked <magenta>' . $src . '</magenta> -> <cyan>' . $path . '</cyan>');
+                $error = $this->addSymlinks($from, $to, ['name' => $name, 'src' => $src, 'path' => $path]);
                 $io->newLine();
             } else {
                 $io->writeln('<yellow>destination: ' . $path . ' already exists, skipping...</yellow>');
@@ -210,5 +247,56 @@ class InstallCommand extends GravCommand
         }
 
         return $error;
+    }
+
+    private function addSymlinks(string $from, string $to, array $options): int
+    {
+        $io = $this->getIO();
+
+        $hebe = $this->readHebe($from);
+        if (null === $hebe) {
+            symlink($from, $to);
+
+            $io->writeln('<green>SUCCESS</green> symlinked <magenta>' . $options['src'] . '</magenta> -> <cyan>' . $options['path'] . '</cyan>');
+        } else {
+            $to = GRAV_ROOT;
+            $name = $options['name'];
+            $io->writeln("Processing <magenta>{$name}</magenta>");
+            foreach ($hebe as $section => $symlinks) {
+                foreach ($symlinks as $symlink) {
+                    $src = trim($symlink['source'], '/');
+                    $dst = trim($symlink['destination'], '/');
+                    $s = "{$from}/{$src}";
+                    $d = "{$to}/{$dst}";
+
+                    if (is_link($d) && !realpath($d)) {
+                        unlink($d);
+                        $io->writeln('    <yellow>Removed broken symlink '. $dst .'</yellow>');
+                    }
+                    if (!file_exists($d)) {
+                        symlink($s, $d);
+                        $io->writeln('    symlinked <magenta>' . $src . '</magenta> -> <cyan>' . $dst . '</cyan>');
+                    }
+                }
+            }
+            $io->writeln('<green>SUCCESS</green>');
+        }
+
+        return 0;
+    }
+
+    private function readHebe(string $folder): ?array
+    {
+        $filename = "{$folder}/hebe.json";
+        if (!is_file($filename)) {
+            return null;
+        }
+
+        $formatter = new JsonFormatter();
+        $file = new JsonFile($filename, $formatter);
+        $hebe = $file->load();
+        $paths = $hebe['platforms']['grav']['nodes'] ?? null;
+
+        return is_array($paths) ? $paths : null;
     }
 }
