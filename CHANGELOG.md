@@ -4,11 +4,12 @@
 1. [](#improved)
     * Added support for symlinking individual plugins and themes by using `bin/grav install -p myplugin` or `-t mytheme`
     * Added support for symlinking plugins and themes with `hebe.json` file to support custom folder structures
+    * Added support for running post-install scripts in `bin/gpm selfupgrade` if Grav was updated manually
 1. [](#bugfix)
     * Fixed default GPM Channel back to 'stable' - this was inadvertently left as 'testing' [#3163](https://github.com/getgrav/grav/issues/3163)
     * Fixed broken stream initialization if `environment://` paths aren't streams
     * Fixed Clockwork debugger in sub-folder multi-site setups
-    * Fixed `Unsupported option "curl" passed to "Symfony\Component\HttpClient\CurlHttpClient"` in `bin/gpm selfupdate` [#3165](https://github.com/getgrav/grav/issues/3165)
+    * Fixed `Unsupported option "curl" passed to "Symfony\Component\HttpClient\CurlHttpClient"` in `bin/gpm selfupgrade` [#3165](https://github.com/getgrav/grav/issues/3165)
 
 # v1.7.1
 ## 01/20/2021

@@ -16,6 +16,7 @@ use Grav\Common\GPM\Response;
 use Grav\Common\GPM\Upgrader;
 use Grav\Common\Grav;
 use Grav\Console\GpmCommand;
+use Grav\Installer\Install;
 use RuntimeException;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputOption;
@@ -126,7 +127,32 @@ class SelfupgradeCommand extends GpmCommand
         }
 
         if (!$this->overwrite && !$this->upgrader->isUpgradable()) {
-            $io->writeln("You are already running the latest version of Grav (v{$local}) released on {$release}");
+            $io->writeln("You are already running the latest version of <green>Grav v{$local}</green>");
+            $io->writeln("which was released on {$release}");
+
+            $config = Grav::instance()['config'];
+            if ($config->get('versions.core.grav.schema') !== GRAV_SCHEMA) {
+                $io->newLine();
+                $io->writeln('However not all post-install scripts have not been run.');
+                if (!$this->all_yes) {
+                    $question = new ConfirmationQuestion(
+                        'Would you like to run the scripts? [Y|n] ',
+                        true
+                    );
+                    $answer = $io->askQuestion($question);
+                } else {
+                    $answer = true;
+                }
+
+                if ($answer) {
+                    // Finalize installation.
+                    Install::instance()->finalize();
+
+                    $io->write('  |- Running post-install scripts...  ');
+                    $io->writeln("  '- <green>Success!</green>  ");
+                    $io->newLine();
+                }
+            }
 
             return 0;
         }
