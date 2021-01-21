@@ -365,13 +365,18 @@ class Setup extends Data
                 $prefixes = $this->get('streams.schemes.environment.prefixes.');
                 $update = false;
                 foreach ($prefixes as $i => $prefix) {
-                    if ($locator->findResource($prefix, true)) {
+                    if ($locator->isStream($prefix)) {
+                        if ($locator->findResource($prefix, true)) {
+                            break;
+                        }
+                    } elseif (file_exists($prefix)) {
                         break;
                     }
 
                     unset($prefixes[$i]);
                     $update = true;
                 }
+
                 if ($update) {
                     $this->set('streams.schemes.environment.prefixes', ['' => array_values($prefixes)]);
                     $this->initializeLocator($locator);
