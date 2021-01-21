@@ -30,7 +30,11 @@ class GravCommand extends Command
     {
         $this->setupConsole($input, $output);
 
-        $this->initializeGrav();
+        // Old versions of Grav called this command after grav upgrade.
+        // We need make this command to work with older ConsoleTrait:
+        if (method_exists($this, 'initializeGrav')) {
+            $this->initializeGrav();
+        }
 
         return $this->serve();
     }
