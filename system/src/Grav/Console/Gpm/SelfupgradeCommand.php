@@ -133,7 +133,7 @@ class SelfupgradeCommand extends GpmCommand
             $config = Grav::instance()['config'];
             if ($config->get('versions.core.grav.schema') !== GRAV_SCHEMA) {
                 $io->newLine();
-                $io->writeln('However not all post-install scripts have not been run.');
+                $io->writeln('However post-install scripts have not been run.');
                 if (!$this->all_yes) {
                     $question = new ConfirmationQuestion(
                         'Would you like to run the scripts? [Y|n] ',
