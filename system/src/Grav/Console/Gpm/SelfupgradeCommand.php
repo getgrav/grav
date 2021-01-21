@@ -220,12 +220,7 @@ class SelfupgradeCommand extends GpmCommand
         $tmp_dir = Grav::instance()['locator']->findResource('tmp://', true, true);
         $this->tmp = $tmp_dir . '/grav-update-' . uniqid('', false);
         $options = [
-            'curl' => [
-                CURLOPT_TIMEOUT => $this->timeout,
-            ],
-            'fopen' => [
-                'timeout' => $this->timeout,
-            ],
+            'timeout' => $this->timeout,
         ];
 
         $output = Response::get($package['download'], $options, [$this, 'progress']);
