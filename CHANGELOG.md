@@ -1,4 +1,4 @@
-# v1.7.2
+# v1.7.3
 ## 01/21/2021
 
 1. [](#improved)
@@ -11,6 +11,12 @@
     * Fixed broken stream initialization if `environment://` paths aren't streams
     * Fixed Clockwork debugger in sub-folder multi-site setups
     * Fixed `Unsupported option "curl" passed to "Symfony\Component\HttpClient\CurlHttpClient"` in `bin/gpm selfupgrade` [#3165](https://github.com/getgrav/grav/issues/3165)
+
+# v1.7.2
+## 01/21/2021
+
+1. [](#improved)
+    * This release was pulled due to a bug in the installer, 1.7.3 replaces it.
 
 # v1.7.1
 ## 01/20/2021
