@@ -113,7 +113,6 @@ class DirectInstallCommand extends GpmCommand
         $io->newLine();
         $io->writeln("Preparing to install <cyan>{$package_file}</cyan>");
 
-
         if (Response::isRemote($package_file)) {
             $io->write('  |- Downloading package...     0%');
             try {
@@ -131,7 +130,7 @@ class DirectInstallCommand extends GpmCommand
                 $io->write('  |- Downloading package...   100%');
                 $io->newLine();
             }
-        } else {
+        } elseif (is_file($package_file)) {
             $io->write('  |- Copying package...         0%');
             $zip = GPM::copyPackage($package_file, $tmp_zip);
             if ($zip) {

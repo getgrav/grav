@@ -131,7 +131,8 @@ class SelfupgradeCommand extends GpmCommand
             $io->writeln("which was released on {$release}");
 
             $config = Grav::instance()['config'];
-            if ($config->get('versions.core.grav.schema') !== GRAV_SCHEMA) {
+            $schema = $config->get('versions.core.grav.schema');
+            if ($schema !== GRAV_SCHEMA && version_compare($schema, GRAV_SCHEMA, '<')) {
                 $io->newLine();
                 $io->writeln('However post-install scripts have not been run.');
                 if (!$this->all_yes) {
