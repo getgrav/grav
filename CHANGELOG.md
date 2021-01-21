@@ -7,6 +7,7 @@
 1. [](#bugfix)
     * Fixed default GPM Channel back to 'stable' - this was inadvertently left as 'testing'
     * Fixed broken stream initialization if `environment://` paths aren't streams
+    * Fixed Clockwork debugger in sub-folder multi-site setups
 
 # v1.7.1
 ## 01/20/2021
