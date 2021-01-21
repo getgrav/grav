@@ -1,7 +1,8 @@
 # v1.7.2
-## mm/dd/2021
+## 01/21/2021
 
 1. [](#improved)
+    * IMPORTANT - Please [checkout the process](https://getgrav.org/blog/grav-170-cli-self-upgrade-bug) to `self-upgrade` from CLI if you are on **Grav 1.7.0 or 1.7.1**
     * Added support for symlinking individual plugins and themes by using `bin/grav install -p myplugin` or `-t mytheme`
     * Added support for symlinking plugins and themes with `hebe.json` file to support custom folder structures
     * Added support for running post-install scripts in `bin/gpm selfupgrade` if Grav was updated manually
