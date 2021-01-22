@@ -1,6 +1,7 @@
 <?php
 
 use Grav\Common\Grav;
+use Grav\Common\Plugin;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 \define('GRAV_CLI', true);
@@ -21,7 +22,7 @@ if (!file_exists(GRAV_ROOT . '/index.php')) {
     exit('FATAL: Must be run from ROOT directory of Grav!');
 }
 
-$grav = Grav::instance(array('loader' => $autoload));
+$grav = Grav::instance(['loader' => $autoload]);
 $grav->setup('tests');
 $grav['config']->init();
 
@@ -30,13 +31,31 @@ $grav['config']->init();
 /** @var UniformResourceLocator $locator */
 $locator = Grav::instance()['locator'];
 $iterator = $locator->getIterator('plugins://');
+/** @var DirectoryIterator $directory */
 foreach ($iterator as $directory) {
     if (!$directory->isDir()) {
         continue;
     }
-    $autoloader = $directory->getPathname() . '/vendor/autoload.php';
-    if (file_exists($autoloader)) {
-        require $autoloader;
+    $plugin = $directory->getBasename();
+    $file = $directory->getPathname() . '/' . $plugin . '.php';
+    $classloader = null;
+    if (file_exists($file)) {
+        require_once $file;
+
+        $pluginClass = "\\Grav\\Plugin\\{$plugin}Plugin";
+
+        if (is_subclass_of($pluginClass, Plugin::class, true)) {
+            $class = new $pluginClass($plugin, $grav);
+            if (is_callable([$class, 'autoload'])) {
+                $classloader = $class->autoload();
+            }
+        }
+    }
+    if (null === $classloader) {
+        $autoloader = $directory->getPathname() . '/vendor/autoload.php';
+        if (file_exists($autoloader)) {
+            require $autoloader;
+        }
     }
 }
 
