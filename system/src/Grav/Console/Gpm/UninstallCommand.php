@@ -11,7 +11,7 @@ namespace Grav\Console\Gpm;
 
 use Grav\Common\GPM\GPM;
 use Grav\Common\GPM\Installer;
-use Grav\Common\GPM\Remote\Package;
+use Grav\Common\GPM\Local\Package;
 use Grav\Common\Grav;
 use Grav\Console\GpmCommand;
 use Symfony\Component\Console\Input\InputArgument;
@@ -145,7 +145,7 @@ class UninstallCommand extends GpmCommand
      * @param bool $is_dependency
      * @return bool
      */
-    private function uninstallPackage($slug, $package, $is_dependency = false): bool
+    private function uninstallPackage($slug, Package $package, $is_dependency = false): bool
     {
         $io = $this->getIO();
 

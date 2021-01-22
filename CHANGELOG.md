@@ -1,3 +1,9 @@
+# v1.7.4
+## mm/dd/2021
+
+1. [](#bugfix)
+    * Fixed `bin/gpm uninstall` script not working because of bad typehint [#3172](https://github.com/getgrav/grav/issues/3172)
+
 # v1.7.3
 ## 01/21/2021
 
