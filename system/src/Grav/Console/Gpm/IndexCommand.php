@@ -94,13 +94,13 @@ class IndexCommand extends GpmCommand
                 'enabled',
                 'e',
                 InputOption::VALUE_NONE,
-                'Filters the results to only installed and enabled Plugins.'
+                'Filters the results to only enabled Themes and Plugins.'
             )
             ->addOption(
                 'disabled',
                 'd',
                 InputOption::VALUE_NONE,
-                'Filters the results to only installed and disabled Plugins.'
+                'Filters the results to only disabled Themes and Plugins.'
             )
             ->setDescription('Lists the plugins and themes available for installation')
             ->setHelp('The <info>index</info> command lists the plugins and themes available for installation')
