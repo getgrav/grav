@@ -59,9 +59,9 @@ class Pages
 
     /** @var Grav */
     protected $grav;
-    /** @var array<PageInterface|string> */
+    /** @var array<PageInterface> */
     protected $instances = [];
-    /** @var array */
+    /** @var array<PageInterface|string> */
     protected $index = [];
     /** @var array */
     protected $children;
@@ -339,14 +339,15 @@ class Pages
      */
     public function instances()
     {
-        // Make sure we load all the instances.
+        $instances = [];
         foreach ($this->index as $path => $instance) {
-            if ($instance && !$instance instanceof PageInterface) {
-                $this->get($path);
+            $page = $this->get($path);
+            if ($page) {
+                $instances[$path] = $page;
             }
         }
 
-        return $this->instances;
+        return $instances;
     }
 
     /**
