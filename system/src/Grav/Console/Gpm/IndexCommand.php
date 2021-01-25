@@ -219,11 +219,11 @@ class IndexCommand extends GpmCommand
         $method = 'is' . $type . 'Enabled';
         $enabled = $this->gpm->{$method}($package->slug);
 
-        if ($enabled === null){
+        if ($enabled === null) {
             $result = '';
-        } else if ($enabled === true) {
+        } elseif ($enabled === true) {
             $result = '<cyan>enabled</cyan>';
-        } else if ($enabled === false) {
+        } elseif ($enabled === false) {
             $result = '<red>disabled</red>';
         }
 
@@ -284,7 +284,6 @@ class IndexCommand extends GpmCommand
                         // Check if packaged is enabled.
                         $function = 'is' . $method . 'Enabled';
                         $filter = $this->gpm->{$function}($package->slug);
-
                     }
 
                     // Filtering disabled only
@@ -299,7 +298,6 @@ class IndexCommand extends GpmCommand
                         if (!( $enabled_filter === false)) {
                             $filter = false;
                         }
-
                     }
 
                     if (!$filter) {
