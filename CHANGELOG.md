@@ -4,6 +4,7 @@
 1. [](#bugfix)
     * Fixed `bin/gpm uninstall` script not working because of bad typehint [#3172](https://github.com/getgrav/grav/issues/3172)
     * Fixed `login: visibility_requires_access` not working [#3176](https://github.com/getgrav/grav/issues/3176)
+    * Fixed cannot change image format [#3173](https://github.com/getgrav/grav/issues/3173)
 
 # v1.7.3
 ## 01/21/2021
