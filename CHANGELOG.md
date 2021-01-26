@@ -1,10 +1,14 @@
 # v1.7.4
 ## mm/dd/2021
 
+1. [](#new)
+    * Added `FlexForm::setSubmitMethod()` to customize form submit action
 1. [](#bugfix)
     * Fixed `bin/gpm uninstall` script not working because of bad typehint [#3172](https://github.com/getgrav/grav/issues/3172)
-    * Fixed `login: visibility_requires_access` not working [#3176](https://github.com/getgrav/grav/issues/3176)
+    * Fixed `login: visibility_requires_access` not working in pages [#3176](https://github.com/getgrav/grav/issues/3176)
     * Fixed cannot change image format [#3173](https://github.com/getgrav/grav/issues/3173)
+    * Fixed saving page in expert mode [#3174](https://github.com/getgrav/grav/issues/3174)
+    * Fixed exception in `$flexPage->frontmatter()` method when setting value
 
 # v1.7.3
 ## 01/21/2021

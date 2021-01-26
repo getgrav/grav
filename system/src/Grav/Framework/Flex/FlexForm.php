@@ -53,6 +53,8 @@ class FlexForm implements FlexObjectFormInterface, JsonSerializable
     private $object;
     /** @var string */
     private $flexName;
+    /** @var callable|null */
+    private $submitMethod;
 
     /**
      * @param array $options    Options to initialize the form instance:
@@ -211,6 +213,14 @@ class FlexForm implements FlexObjectFormInterface, JsonSerializable
     public function getName(): string
     {
         return $this->flexName;
+    }
+
+    /**
+     * @param callable|null $submitMethod
+     */
+    public function setSubmitMethod(?callable $submitMethod): void
+    {
+        $this->submitMethod = $submitMethod;
     }
 
     /**
@@ -504,8 +514,13 @@ class FlexForm implements FlexObjectFormInterface, JsonSerializable
         /** @var FlexObject $object */
         $object = clone $this->getObject();
 
-        $object->update($data, $files);
-        $object->save();
+        $method = $this->submitMethod;
+        if ($method) {
+            $method($data, $files, $object);
+        } else {
+            $object->update($data, $files);
+            $object->save();
+        }
 
         $this->setObject($object);
         $this->reset();

@@ -92,8 +92,11 @@ trait PageLegacyTrait
     public function frontmatter($var = null): string
     {
         if (null !== $var) {
-            // TODO:
-            throw new RuntimeException(__METHOD__ . '(string): Not Implemented');
+            $formatter = new YamlFormatter();
+            $this->setProperty('frontmatter', $var);
+            $this->setProperty('header', $formatter->decode($var));
+
+            return $var;
         }
 
         $storage = $this->getFlexDirectory()->getStorage();

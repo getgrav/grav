@@ -396,7 +396,7 @@ class FlexPageObject extends FlexObject implements PageInterface, FlexTranslateI
             unset($elements['content']);
         }
 
-        // RAW frontmatter support.
+        // TODO: Remove: RAW frontmatter support has been moved to Flex-Objects v1.0.2 controller.
         if (isset($elements['frontmatter'])) {
             $formatter = new YamlFormatter();
             try {
