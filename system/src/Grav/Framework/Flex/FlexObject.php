@@ -65,6 +65,8 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     private $_flexDirectory;
     /** @var FlexFormInterface[] */
     private $_forms = [];
+    /** @var Blueprint|null */
+    private $_blueprint;
     /** @var array */
     private $_meta;
     /** @var array */
@@ -769,11 +771,15 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      */
     public function getBlueprint(string $name = '')
     {
-        $blueprint = $this->doGetBlueprint($name);
-        $blueprint->setScope('object');
-        $blueprint->setObject($this);
+        if (null === $this->_blueprint) {
+            $blueprint = $this->doGetBlueprint($name);
+            $blueprint->setScope('object');
+            $blueprint->setObject($this);
 
-        return $blueprint->init();
+            $this->_blueprint = $blueprint->init();
+        }
+
+        return $this->_blueprint;
     }
 
     /**

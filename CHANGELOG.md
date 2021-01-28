@@ -9,6 +9,7 @@
     * Fixed cannot change image format [#3173](https://github.com/getgrav/grav/issues/3173)
     * Fixed saving page in expert mode [#3174](https://github.com/getgrav/grav/issues/3174)
     * Fixed exception in `$flexPage->frontmatter()` method when setting value
+    * Fixed `onBlueprintCreated` event being called multiple times in `Flex Pages` [grav-plugin-flex-objects#97](https://github.com/trilbymedia/grav-plugin-flex-objects/issues/97)
 
 # v1.7.3
 ## 01/21/2021
