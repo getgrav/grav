@@ -71,7 +71,7 @@
         "codeception/module-asserts": "^1.3",
         "codeception/module-phpbrowser": "^1.0"
     },
-    "provide": {
+    "replace": {
         "symfony/polyfill-php72": "*",
         "symfony/polyfill-php73": "*"
     },
