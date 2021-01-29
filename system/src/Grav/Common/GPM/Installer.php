@@ -187,7 +187,11 @@ class Installer
                 return false;
             }
 
-            $package_folder_name = preg_replace('#\./$#', '', $zip->getNameIndex(0));
+            $package_folder_name = $zip->getNameIndex(0);
+            if ($package_folder_name === false) {
+                throw new \RuntimeException('Bad package file: ' . basename($zip_file));
+            }
+            $package_folder_name = preg_replace('#\./$#', '', $package_folder_name);
             $zip->close();
 
             return $destination . '/' . $package_folder_name;
@@ -208,8 +212,6 @@ class Installer
      */
     private static function loadInstaller($installer_file_folder, $is_install)
     {
-        $installer = null;
-
         $installer_file_folder = rtrim($installer_file_folder, DS);
 
         $install_file = $installer_file_folder . DS . 'install.php';
@@ -242,13 +244,13 @@ class Installer
             return $class_name;
         }
 
-        $class_name_alphanumeric = preg_replace('/[^a-zA-Z0-9]+/', '', $class_name);
+        $class_name_alphanumeric = preg_replace('/[^a-zA-Z0-9]+/', '', $class_name) ?? $class_name;
 
         if (class_exists($class_name_alphanumeric)) {
             return $class_name_alphanumeric;
         }
 
-        return $installer;
+        return null;
     }
 
     /**
@@ -308,7 +310,8 @@ class Installer
                 }
 
                 if ($file->getFilename() === 'bin') {
-                    foreach (glob($path . DS . '*') as $bin_file) {
+                    $glob = glob($path . DS . '*') ?: [];
+                    foreach ($glob as $bin_file) {
                         @chmod($bin_file, 0755);
                     }
                 }
@@ -528,6 +531,7 @@ class Installer
      * Allows to manually set an error
      *
      * @param int|string $error the Error code
+     * @return void
      */
     public static function setError($error)
     {

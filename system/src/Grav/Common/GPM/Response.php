@@ -30,7 +30,7 @@ class Response
 {
     /** @var callable    The callback for the progress, either a function or callback in array notation */
     public static $callback = null;
-
+    /** @var string[] */
     private static $headers = [
         'User-Agent' => 'Grav CMS'
     ];
@@ -80,7 +80,7 @@ class Response
         // Use callback if provided
         if ($callback) {
             self::$callback = $callback;
-            $options->setOnProgress(['Grav\Common\GPM\Response', 'progress']);
+            $options->setOnProgress([Response::class, 'progress']);
         }
 
         $preferred_method = $config->get('system.gpm.method', 'auto');

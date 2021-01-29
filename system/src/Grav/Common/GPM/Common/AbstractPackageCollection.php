@@ -31,7 +31,7 @@ abstract class AbstractPackageCollection extends Iterator
             $items[$name] = $package->toArray();
         }
 
-        return json_encode($items);
+        return json_encode($items, JSON_THROW_ON_ERROR);
     }
 
     /**

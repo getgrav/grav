@@ -95,8 +95,7 @@ class Upgrader
      */
     public function meetsRequirements()
     {
-        $current_php_version = phpversion();
-        if (version_compare($current_php_version, $this->minPHPVersion(), '<')) {
+        if (version_compare(PHP_VERSION, $this->minPHPVersion(), '<')) {
             return false;
         }
 
@@ -113,6 +112,7 @@ class Upgrader
         if (null === $this->min_php) {
             $this->min_php = $this->remote->getMinPHPVersion();
         }
+
         return $this->min_php;
     }
 
@@ -131,7 +131,6 @@ class Upgrader
      *
      * @return bool True if Grav is symlinked, False otherwise.
      */
-
     public function isSymlink()
     {
         return $this->remote->isSymlink();
