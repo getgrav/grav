@@ -803,23 +803,21 @@ class GPM extends Iterator
         $themes = $this->getInstalledThemes();
         $packages = array_merge($plugins->toArray(), $themes->toArray());
 
-        $dependent_packages = [];
-
+        $list = [];
         foreach ($packages as $package_name => $package) {
-            if (isset($package['dependencies'])) {
-                foreach ($package['dependencies'] as $dependency) {
-                    if (is_array($dependency) && isset($dependency['name'])) {
-                        $dependency = $dependency['name'];
-                    }
+            $dependencies = $package['dependencies'] ?? [];
+            foreach ($dependencies as $dependency) {
+                if (is_array($dependency) && isset($dependency['name'])) {
+                    $dependency = $dependency['name'];
+                }
 
-                    if ($dependency === $slug) {
-                        $dependent_packages[] = $package_name;
-                    }
+                if ($dependency === $slug) {
+                    $list[] = $package_name;
                 }
             }
         }
 
-        return $dependent_packages;
+        return $list;
     }
 
 
@@ -852,30 +850,20 @@ class GPM extends Iterator
      * @return bool
      * @throws RuntimeException
      */
-    public function checkNoOtherPackageNeedsThisDependencyInALowerVersion(
-        $slug,
-        $version_with_operator,
-        $ignore_packages_list
-    ) {
-
+    public function checkNoOtherPackageNeedsThisDependencyInALowerVersion($slug, $version_with_operator, $ignore_packages_list)
+    {
         // check if any of the currently installed package need this in a lower version than the one we need. In case, abort and tell which package
         $dependent_packages = $this->getPackagesThatDependOnPackage($slug);
         $version = $this->calculateVersionNumberFromDependencyVersion($version_with_operator);
 
         if (count($dependent_packages)) {
             foreach ($dependent_packages as $dependent_package) {
-                $other_dependency_version_with_operator = $this->getVersionOfDependencyRequiredByPackage(
-                    $dependent_package,
-                    $slug
-                );
+                $other_dependency_version_with_operator = $this->getVersionOfDependencyRequiredByPackage($dependent_package, $slug);
                 $other_dependency_version = $this->calculateVersionNumberFromDependencyVersion($other_dependency_version_with_operator);
 
                 // check version is compatible with the one needed by the current package
                 if ($this->versionFormatIsNextSignificantRelease($other_dependency_version_with_operator)) {
-                    $compatible = $this->checkNextSignificantReleasesAreCompatible(
-                        $version,
-                        $other_dependency_version
-                    );
+                    $compatible = $this->checkNextSignificantReleasesAreCompatible($version, $other_dependency_version);
                     if (!$compatible && !in_array($dependent_package, $ignore_packages_list, true)) {
                         throw new RuntimeException(
                             "Package <cyan>$slug</cyan> is required in an older version by package <cyan>$dependent_package</cyan>. This package needs a newer version, and because of this it cannot be installed. The <cyan>$dependent_package</cyan> package must be updated to use a newer release of <cyan>$slug</cyan>.",
@@ -899,11 +887,8 @@ class GPM extends Iterator
     public function checkPackagesCanBeInstalled($packages_names_list)
     {
         foreach ($packages_names_list as $package_name) {
-            $this->checkNoOtherPackageNeedsThisDependencyInALowerVersion(
-                $package_name,
-                $this->getLatestVersionOfPackage($package_name),
-                $packages_names_list
-            );
+            $latest = $this->getLatestVersionOfPackage($package_name);
+            $this->checkNoOtherPackageNeedsThisDependencyInALowerVersion($package_name, $latest, $packages_names_list);
         }
     }
 
@@ -931,11 +916,8 @@ class GPM extends Iterator
 
             // Check PHP version
             if ($dependency_slug === 'php') {
-                if (version_compare(
-                    $this->calculateVersionNumberFromDependencyVersion($dependencyVersionWithOperator),
-                    PHP_VERSION
-                ) === 1
-                ) {
+                $testVersion = $this->calculateVersionNumberFromDependencyVersion($dependencyVersionWithOperator);
+                if (version_compare($testVersion, PHP_VERSION) === 1) {
                     //Needs a Grav update first
                     throw new RuntimeException("<red>One of the packages require PHP {$dependencies['php']}. Please update PHP to resolve this");
                 }
@@ -946,11 +928,8 @@ class GPM extends Iterator
 
             //First, check for Grav dependency. If a dependency requires Grav > the current version, abort and tell.
             if ($dependency_slug === 'grav') {
-                if (version_compare(
-                    $this->calculateVersionNumberFromDependencyVersion($dependencyVersionWithOperator),
-                    GRAV_VERSION
-                ) === 1
-                ) {
+                $testVersion = $this->calculateVersionNumberFromDependencyVersion($dependencyVersionWithOperator);
+                if (version_compare($testVersion, GRAV_VERSION) === 1) {
                     //Needs a Grav update first
                     throw new RuntimeException("<red>One of the packages require Grav {$dependencies['grav']}. Please update Grav to the latest release.");
                 }
@@ -978,10 +957,7 @@ class GPM extends Iterator
                 // if requirement is next significant release, check is compatible with currently installed version, might not be
                 if ($this->versionFormatIsNextSignificantRelease($dependencyVersionWithOperator)
                     && $this->firstVersionIsLower($dependencyVersion, $currentlyInstalledVersion)) {
-                    $compatible = $this->checkNextSignificantReleasesAreCompatible(
-                        $dependencyVersion,
-                        $currentlyInstalledVersion
-                    );
+                    $compatible = $this->checkNextSignificantReleasesAreCompatible($dependencyVersion, $currentlyInstalledVersion);
 
                     if (!$compatible) {
                         throw new RuntimeException(
@@ -1072,86 +1048,68 @@ class GPM extends Iterator
      * @param string $packageName The package information
      * @param array $dependencies The dependencies array
      * @return array
-     * @throws Exception
      */
     private function calculateMergedDependenciesOfPackage($packageName, $dependencies)
     {
         $packageData = $this->findPackage($packageName);
 
-        //Check for dependencies
-        if (isset($packageData->dependencies)) {
-            foreach ($packageData->dependencies as $dependency) {
-                $current_package_name = $dependency['name'];
-                if (isset($dependency['version'])) {
-                    $current_package_version_information = $dependency['version'];
+        if (empty($packageData->dependencies)) {
+            return $dependencies;
+        }
+
+        foreach ($packageData->dependencies as $dependency) {
+            $dependencyName = $dependency['name'] ?? null;
+            if (!$dependencyName) {
+                continue;
+            }
+
+            $dependencyVersion = $dependency['version'] ?? '*';
+
+            if (!isset($dependencies[$dependencyName])) {
+                // Dependency added for the first time
+                $dependencies[$dependencyName] = $dependencyVersion;
+
+                //Factor in the package dependencies too
+                $dependencies = $this->calculateMergedDependenciesOfPackage($dependencyName, $dependencies);
+
+            } elseif ($dependencyVersion !== '*') {
+                // Dependency already added by another package
+                // If this package requires a version higher than the currently stored one, store this requirement instead
+                $currentDependencyVersion = $dependencies[$dependencyName];
+                $currently_stored_version_number = $this->calculateVersionNumberFromDependencyVersion($currentDependencyVersion);
+
+                $currently_stored_version_is_in_next_significant_release_format = false;
+                if ($this->versionFormatIsNextSignificantRelease($currentDependencyVersion)) {
+                    $currently_stored_version_is_in_next_significant_release_format = true;
                 }
 
-                if (!isset($dependencies[$current_package_name])) {
-                    // Dependency added for the first time
+                if (!$currently_stored_version_number) {
+                    $currently_stored_version_number = '*';
+                }
 
-                    if (!isset($current_package_version_information)) {
-                        $dependencies[$current_package_name] = '*';
-                    } else {
-                        $dependencies[$current_package_name] = $current_package_version_information;
+                $current_package_version_number = $this->calculateVersionNumberFromDependencyVersion($dependencyVersion);
+                if (!$current_package_version_number) {
+                    throw new RuntimeException("Bad format for version of dependency {$dependencyName} for package {$packageName}", 1);
+                }
+
+                $current_package_version_is_in_next_significant_release_format = false;
+                if ($this->versionFormatIsNextSignificantRelease($dependencyVersion)) {
+                    $current_package_version_is_in_next_significant_release_format = true;
+                }
+
+                //If I had stored '*', change right away with the more specific version required
+                if ($currently_stored_version_number === '*') {
+                    $dependencies[$dependencyName] = $dependencyVersion;
+                } elseif (!$currently_stored_version_is_in_next_significant_release_format && !$current_package_version_is_in_next_significant_release_format) {
+                    //Comparing versions equals or higher, a simple version_compare is enough
+                    if (version_compare($currently_stored_version_number, $current_package_version_number) === -1) {
+                        //Current package version is higher
+                        $dependencies[$dependencyName] = $dependencyVersion;
                     }
-
-                    //Factor in the package dependencies too
-                    $dependencies = $this->calculateMergedDependenciesOfPackage($current_package_name, $dependencies);
                 } else {
-                    // Dependency already added by another package
-                    //if this package requires a version higher than the currently stored one, store this requirement instead
-                    if (isset($current_package_version_information) && $current_package_version_information !== '*') {
-                        $currently_stored_version_information = $dependencies[$current_package_name];
-                        $currently_stored_version_number = $this->calculateVersionNumberFromDependencyVersion($currently_stored_version_information);
-
-                        $currently_stored_version_is_in_next_significant_release_format = false;
-                        if ($this->versionFormatIsNextSignificantRelease($currently_stored_version_information)) {
-                            $currently_stored_version_is_in_next_significant_release_format = true;
-                        }
-
-                        if (!$currently_stored_version_number) {
-                            $currently_stored_version_number = '*';
-                        }
-
-                        $current_package_version_number = $this->calculateVersionNumberFromDependencyVersion($current_package_version_information);
-                        if (!$current_package_version_number) {
-                            throw new RuntimeException(
-                                'Bad format for version of dependency ' . $current_package_name . ' for package ' . $packageName,
-                                1
-                            );
-                        }
-
-                        $current_package_version_is_in_next_significant_release_format = false;
-                        if ($this->versionFormatIsNextSignificantRelease($current_package_version_information)) {
-                            $current_package_version_is_in_next_significant_release_format = true;
-                        }
-
-                        //If I had stored '*', change right away with the more specific version required
-                        if ($currently_stored_version_number === '*') {
-                            $dependencies[$current_package_name] = $current_package_version_information;
-                        } else {
-                            if (!$currently_stored_version_is_in_next_significant_release_format && !$current_package_version_is_in_next_significant_release_format) {
-                                //Comparing versions equals or higher, a simple version_compare is enough
-                                if (version_compare(
-                                    $currently_stored_version_number,
-                                    $current_package_version_number
-                                ) === -1
-                                ) { //Current package version is higher
-                                    $dependencies[$current_package_name] = $current_package_version_information;
-                                }
-                            } else {
-                                $compatible = $this->checkNextSignificantReleasesAreCompatible(
-                                    $currently_stored_version_number,
-                                    $current_package_version_number
-                                );
-                                if (!$compatible) {
-                                    throw new RuntimeException(
-                                        'Dependency ' . $current_package_name . ' is required in two incompatible versions',
-                                        2
-                                    );
-                                }
-                            }
-                        }
+                    $compatible = $this->checkNextSignificantReleasesAreCompatible($currently_stored_version_number,$current_package_version_number);
+                    if (!$compatible) {
+                        throw new RuntimeException("Dependency {$dependencyName} is required in two incompatible versions", 2);
                     }
                 }
             }
