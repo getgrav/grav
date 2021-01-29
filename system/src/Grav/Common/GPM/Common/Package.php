@@ -53,6 +53,7 @@ class Package
     /**
      * @param string $key
      * @param mixed $value
+     * @return void
      */
     public function __set($key, $value)
     {
