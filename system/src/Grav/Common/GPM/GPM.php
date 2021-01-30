@@ -139,6 +139,32 @@ class GPM extends Iterator
         return $this->installed['plugins'];
     }
 
+
+    /**
+     * Returns the plugin's enabled state
+     *
+     * @param  string $slug
+     * @return bool True if the Plugin is Enabled. False if manually set to enable:false. Null otherwise.
+     */
+    public function isPluginEnabled($slug)
+    {
+        $result = null;
+        $grav = new Grav();
+        $config = $grav::instance()['config']['plugins'];
+        $installed = $this->isPluginInstalled($slug);
+
+        $enabled = isset($config[$slug]) && ((bool)$config[$slug]['enabled'] == true);
+        $disabled = isset($config[$slug]['enabled']) && ((bool)$config[$slug]['enabled'] === false);
+
+        if ($enabled) {
+            $result = true;
+        }
+        if ($disabled) {
+            $result = false;
+        }
+        return $result;
+    }
+
     /**
      * Checks if a Plugin is installed
      *
@@ -180,6 +206,28 @@ class GPM extends Iterator
     public function getInstalledThemes()
     {
         return $this->installed['themes'];
+    }
+
+    /**
+     * Checks if a Theme is enabled
+     *
+     * @param  string $slug The slug of the Theme
+     * @return bool
+     *   True if the Theme has been set to the default theme. False if installed, but not enabled. Null otherwise.
+     */
+    public function isThemeEnabled($slug)
+    {
+        $grav = new Grav();
+        $result = null;
+        $current_theme = $grav::instance()['config']['system']['pages']['theme'];
+        $theme_installed = $this->isThemeInstalled($slug);
+
+        if ($current_theme == $slug) {
+            $result = true;
+        } elseif ($theme_installed) {
+            $result = false;
+        }
+        return $result;
     }
 
     /**
@@ -1023,7 +1071,6 @@ class GPM extends Iterator
 
                 //Factor in the package dependencies too
                 $dependencies = $this->calculateMergedDependenciesOfPackage($dependencyName, $dependencies);
-
             } elseif ($dependencyVersion !== '*') {
                 // Dependency already added by another package
                 // If this package requires a version higher than the currently stored one, store this requirement instead
@@ -1059,7 +1106,7 @@ class GPM extends Iterator
                         $dependencies[$dependencyName] = $dependencyVersion;
                     }
                 } else {
-                    $compatible = $this->checkNextSignificantReleasesAreCompatible($currently_stored_version_number,$current_package_version_number);
+                    $compatible = $this->checkNextSignificantReleasesAreCompatible($currently_stored_version_number, $current_package_version_number);
                     if (!$compatible) {
                         throw new RuntimeException("Dependency {$dependencyName} is required in two incompatible versions", 2);
                     }
