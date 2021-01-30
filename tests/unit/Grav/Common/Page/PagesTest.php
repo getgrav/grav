@@ -236,6 +236,19 @@ class PagesTest extends \Codeception\TestCase\Test
         $this->assertSame('&mdash;-&rtrif; Blog', $list['/blog']);
     }
 
+    public function testTranslatedLanguages()
+    {
+        /** @var UniformResourceLocator $locator */
+        $locator = $this->grav['locator'];
+        $folder = $locator->findResource('tests://');
+
+        $page = $this->pages->get($folder . '/fake/simple-site/user/pages/04.page-translated');
+        $this->assertInstanceOf(PageInterface::class, $page);
+        $translatedLanguages = $page->translatedLanguages();
+        $this->assertIsArray($translatedLanguages);
+        $this->assertSame(["en" => "/page-translated", "fr" => "/page-translated"], $translatedLanguages);
+    }
+
     public function testGetTypes()
     {
     }
