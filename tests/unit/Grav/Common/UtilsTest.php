@@ -297,11 +297,11 @@ class UtilsTest extends \Codeception\TestCase\Test
         $arrayOfLanguages = ['en', 'de', 'it', 'es', 'dk', 'el'];
         $languagesNotEnabled = array_diff($arrayOfLanguages, $languagesEnabled);
         $oneLanguageNotEnabled = reset($languagesNotEnabled);
-dump($oneLanguageNotEnabled);
-dump($languagesNotEnabled);
-dump($languagesEnabled);
+
         if (count($languagesEnabled)) {
-            $this->assertTrue(Utils::pathPrefixedByLangCode('/' . $languagesEnabled[0] . '/test'));
+            $languageCodePathPrefix = Utils::pathPrefixedByLangCode('/' . $languagesEnabled[0] . '/test');
+            $this->assertIsString($languageCodePathPrefix);
+            $this->assertTrue(in_array($languageCodePathPrefix, $languagesEnabled));
         }
 
         $this->assertFalse(Utils::pathPrefixedByLangCode('/' . $oneLanguageNotEnabled . '/test'));
