@@ -1,5 +1,5 @@
 # v1.7.4
-## mm/dd/2021
+## 02/01/2021
 
 1. [](#new)
     * Added `FlexForm::setSubmitMethod()` to customize form submit action
