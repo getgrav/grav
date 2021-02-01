@@ -887,7 +887,7 @@ class Pages
             // fall back and check site based redirects
             if (!$page || !$page->routable()) {
                 // Redirect to the first child (placeholder page)
-                if ($redirect && $page && count($children = $page->children()->visible()) > 0) {
+                if ($redirect && $page && count($children = $page->children()->visible()->routable()->published()) > 0) {
                     $this->grav->redirectLangSafe($children->first()->route());
                 }
 
