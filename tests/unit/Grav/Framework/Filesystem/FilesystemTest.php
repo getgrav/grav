@@ -2,6 +2,9 @@
 
 use Grav\Framework\Filesystem\Filesystem;
 
+/**
+ * Class FilesystemTest
+ */
 class FilesystemTest extends \Codeception\TestCase\Test
 {
     protected $class;
@@ -277,17 +280,21 @@ class FilesystemTest extends \Codeception\TestCase\Test
         ],
     ];
 
-    protected function _before()
+    protected function _before(): void
     {
         $this->class = Filesystem::getInstance();
     }
 
-    protected function _after()
+    protected function _after(): void
     {
         unset($this->class);
     }
 
-    protected function runTestSet(array $tests, $method)
+    /**
+     * @param array $tests
+     * @param string $method
+     */
+    protected function runTestSet(array $tests, $method): void
     {
         $class = $this->class;
         foreach ($tests as $path => $candidates) {
@@ -299,32 +306,32 @@ class FilesystemTest extends \Codeception\TestCase\Test
 
             $result = $class->{$method}($path);
 
-            $this->assertSame($expected, $result, "Test {$method}('{$path}')");
+            self::assertSame($expected, $result, "Test {$method}('{$path}')");
 
             if (function_exists($method) && !strpos($path, '://')) {
                 $cmp_result = $method($path);
 
-                $this->assertSame($cmp_result, $result, "Compare to original {$method}('{$path}')");
+                self::assertSame($cmp_result, $result, "Compare to original {$method}('{$path}')");
             }
         }
     }
 
-    public function testParent()
+    public function testParent(): void
     {
         $this->runTestSet($this->tests, 'parent');
     }
 
-    public function testNormalize()
+    public function testNormalize(): void
     {
         $this->runTestSet($this->tests, 'normalize');
     }
 
-    public function testDirname()
+    public function testDirname(): void
     {
         $this->runTestSet($this->tests, 'dirname');
     }
 
-    public function testPathinfo()
+    public function testPathinfo(): void
     {
         $this->runTestSet($this->tests, 'pathinfo');
     }

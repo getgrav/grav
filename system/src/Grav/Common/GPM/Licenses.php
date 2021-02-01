@@ -70,11 +70,12 @@ class Licenses
         $licenses = self::getLicenseFile();
         $data = (array)$licenses->content();
         $licenses->free();
-        $slug = strtolower($slug);
 
-        if (!$slug) {
+        if (null === $slug) {
             return $data['licenses'] ?? [];
         }
+
+        $slug = strtolower($slug);
 
         return $data['licenses'][$slug] ?? '';
     }
@@ -92,7 +93,7 @@ class Licenses
             return false;
         }
 
-        return preg_match('#' . self::$regex. '#', $license);
+        return (bool)preg_match('#' . self::$regex. '#', $license);
     }
 
     /**

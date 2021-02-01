@@ -2,6 +2,7 @@
 
 use Codeception\Util\Fixtures;
 use Grav\Common\Grav;
+use Grav\Console\Gpm\InstallCommand;
 
 /**
  * Class InstallCommandTest
@@ -15,13 +16,13 @@ class InstallCommandTest extends \Codeception\TestCase\Test
     protected $installCommand;
 
 
-    protected function _before()
+    protected function _before(): void
     {
         $this->grav = Fixtures::get('grav');
         $this->installCommand = new InstallCommand();
     }
 
-    protected function _after()
+    protected function _after(): void
     {
     }
 }

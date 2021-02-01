@@ -92,7 +92,7 @@ class LanguageCodes
         'la'         => [ 'name' => 'Latin',                     'nativeName' => 'Latina' ],
         'lb'         => [ 'name' => 'Luxembourgish',             'nativeName' => 'Lëtzebuergesch' ],
         'lg'         => [ 'name' => 'Luganda',                   'nativeName' => 'Luganda' ],
-        'lt'         => [ 'name' => 'Lithuanian',                'nativeName' => 'Lietuvių kalba' ],
+        'lt'         => [ 'name' => 'Lithuanian',                'nativeName' => 'Lietuvių' ],
         'lv'         => [ 'name' => 'Latvian',                   'nativeName' => 'Latviešu' ],
         'mai'        => [ 'name' => 'Maithili',                  'nativeName' => 'मैथिली মৈথিলী' ],
         'mg'         => [ 'name' => 'Malagasy',                  'nativeName' => 'Malagasy' ],

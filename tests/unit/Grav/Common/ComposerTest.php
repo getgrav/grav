@@ -5,27 +5,27 @@ use Grav\Common\Composer;
 
 class ComposerTest extends \Codeception\TestCase\Test
 {
-    protected function _before()
+    protected function _before(): void
     {
     }
 
-    protected function _after()
+    protected function _after(): void
     {
     }
 
-    public function testGetComposerLocation()
+    public function testGetComposerLocation(): void
     {
         $composerLocation = Composer::getComposerLocation();
-        $this->assertIsString($composerLocation);
-        $this->assertSame('/', $composerLocation[0]);
+        self::assertIsString($composerLocation);
+        self::assertSame('/', $composerLocation[0]);
     }
 
-    public function testGetComposerExecutor()
+    public function testGetComposerExecutor(): void
     {
         $composerExecutor = Composer::getComposerExecutor();
-        $this->assertIsString($composerExecutor);
-        $this->assertSame('/', $composerExecutor[0]);
-        $this->assertNotNull(strstr($composerExecutor, 'php'));
-        $this->assertNotNull(strstr($composerExecutor, 'composer'));
+        self::assertIsString($composerExecutor);
+        self::assertSame('/', $composerExecutor[0]);
+        self::assertNotNull(strstr($composerExecutor, 'php'));
+        self::assertNotNull(strstr($composerExecutor, 'composer'));
     }
 }

@@ -29,6 +29,3 @@ $grav = function () {
 };
 
 Fixtures::add('grav', $grav);
-
-$fake = Factory::create();
-Fixtures::add('fake', $fake);

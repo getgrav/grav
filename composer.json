@@ -58,19 +58,19 @@
         "willdurand/negotiation": "^3.0",
         "itsgoingd/clockwork": "^5.0",
         "enshrined/svg-sanitize": "~0.13",
-        "symfony/http-client": "^4.4"
+        "symfony/http-client": "^4.4",
+        "composer/semver": "^1.4"
     },
     "require-dev": {
         "codeception/codeception": "^4.1",
         "phpstan/phpstan": "^0.12",
         "phpstan/phpstan-deprecation-rules": "^0.12",
         "phpunit/php-code-coverage": "~9.2",
-        "fzaninotto/faker": "^1.9",
         "victorjonsson/markdowndocs": "dev-master",
         "codeception/module-asserts": "^1.3",
         "codeception/module-phpbrowser": "^1.0"
     },
-    "provide": {
+    "replace": {
         "symfony/polyfill-php72": "*",
         "symfony/polyfill-php73": "*"
     },

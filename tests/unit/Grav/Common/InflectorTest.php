@@ -16,130 +16,130 @@ class InflectorTest extends \Codeception\TestCase\Test
     /** @var Inflector $uri */
     protected $inflector;
 
-    protected function _before()
+    protected function _before(): void
     {
         $grav = Fixtures::get('grav');
         $this->grav = $grav();
         $this->inflector = $this->grav['inflector'];
     }
 
-    protected function _after()
+    protected function _after(): void
     {
     }
 
-    public function testPluralize()
+    public function testPluralize(): void
     {
-        $this->assertSame('words', $this->inflector->pluralize('word'));
-        $this->assertSame('kisses', $this->inflector->pluralize('kiss'));
-        $this->assertSame('volcanoes', $this->inflector->pluralize('volcanoe'));
-        $this->assertSame('cherries', $this->inflector->pluralize('cherry'));
-        $this->assertSame('days', $this->inflector->pluralize('day'));
-        $this->assertSame('knives', $this->inflector->pluralize('knife'));
+        self::assertSame('words', $this->inflector->pluralize('word'));
+        self::assertSame('kisses', $this->inflector->pluralize('kiss'));
+        self::assertSame('volcanoes', $this->inflector->pluralize('volcanoe'));
+        self::assertSame('cherries', $this->inflector->pluralize('cherry'));
+        self::assertSame('days', $this->inflector->pluralize('day'));
+        self::assertSame('knives', $this->inflector->pluralize('knife'));
     }
 
-    public function testSingularize()
+    public function testSingularize(): void
     {
-        $this->assertSame('word', $this->inflector->singularize('words'));
-        $this->assertSame('kiss', $this->inflector->singularize('kisses'));
-        $this->assertSame('volcanoe', $this->inflector->singularize('volcanoe'));
-        $this->assertSame('cherry', $this->inflector->singularize('cherries'));
-        $this->assertSame('day', $this->inflector->singularize('days'));
-        $this->assertSame('knife', $this->inflector->singularize('knives'));
+        self::assertSame('word', $this->inflector->singularize('words'));
+        self::assertSame('kiss', $this->inflector->singularize('kisses'));
+        self::assertSame('volcanoe', $this->inflector->singularize('volcanoe'));
+        self::assertSame('cherry', $this->inflector->singularize('cherries'));
+        self::assertSame('day', $this->inflector->singularize('days'));
+        self::assertSame('knife', $this->inflector->singularize('knives'));
     }
 
-    public function testTitleize()
+    public function testTitleize(): void
     {
-        $this->assertSame('This String Is Titleized', $this->inflector->titleize('ThisStringIsTitleized'));
-        $this->assertSame('This String Is Titleized', $this->inflector->titleize('this string is titleized'));
-        $this->assertSame('This String Is Titleized', $this->inflector->titleize('this_string_is_titleized'));
-        $this->assertSame('This String Is Titleized', $this->inflector->titleize('this-string-is-titleized'));
+        self::assertSame('This String Is Titleized', $this->inflector->titleize('ThisStringIsTitleized'));
+        self::assertSame('This String Is Titleized', $this->inflector->titleize('this string is titleized'));
+        self::assertSame('This String Is Titleized', $this->inflector->titleize('this_string_is_titleized'));
+        self::assertSame('This String Is Titleized', $this->inflector->titleize('this-string-is-titleized'));
 
-        $this->assertSame('This string is titleized', $this->inflector->titleize('ThisStringIsTitleized', 'first'));
-        $this->assertSame('This string is titleized', $this->inflector->titleize('this string is titleized', 'first'));
-        $this->assertSame('This string is titleized', $this->inflector->titleize('this_string_is_titleized', 'first'));
-        $this->assertSame('This string is titleized', $this->inflector->titleize('this-string-is-titleized', 'first'));
+        self::assertSame('This string is titleized', $this->inflector->titleize('ThisStringIsTitleized', 'first'));
+        self::assertSame('This string is titleized', $this->inflector->titleize('this string is titleized', 'first'));
+        self::assertSame('This string is titleized', $this->inflector->titleize('this_string_is_titleized', 'first'));
+        self::assertSame('This string is titleized', $this->inflector->titleize('this-string-is-titleized', 'first'));
     }
 
-    public function testCamelize()
+    public function testCamelize(): void
     {
-        $this->assertSame('ThisStringIsCamelized', $this->inflector->camelize('This String Is Camelized'));
-        $this->assertSame('ThisStringIsCamelized', $this->inflector->camelize('thisStringIsCamelized'));
-        $this->assertSame('ThisStringIsCamelized', $this->inflector->camelize('This_String_Is_Camelized'));
-        $this->assertSame('ThisStringIsCamelized', $this->inflector->camelize('this string is camelized'));
-        $this->assertSame('GravSPrettyCoolMy1', $this->inflector->camelize("Grav's Pretty Cool. My #1!"));
+        self::assertSame('ThisStringIsCamelized', $this->inflector->camelize('This String Is Camelized'));
+        self::assertSame('ThisStringIsCamelized', $this->inflector->camelize('thisStringIsCamelized'));
+        self::assertSame('ThisStringIsCamelized', $this->inflector->camelize('This_String_Is_Camelized'));
+        self::assertSame('ThisStringIsCamelized', $this->inflector->camelize('this string is camelized'));
+        self::assertSame('GravSPrettyCoolMy1', $this->inflector->camelize("Grav's Pretty Cool. My #1!"));
     }
 
-    public function testUnderscorize()
+    public function testUnderscorize(): void
     {
-        $this->assertSame('this_string_is_underscorized', $this->inflector->underscorize('This String Is Underscorized'));
-        $this->assertSame('this_string_is_underscorized', $this->inflector->underscorize('ThisStringIsUnderscorized'));
-        $this->assertSame('this_string_is_underscorized', $this->inflector->underscorize('This_String_Is_Underscorized'));
-        $this->assertSame('this_string_is_underscorized', $this->inflector->underscorize('This-String-Is-Underscorized'));
+        self::assertSame('this_string_is_underscorized', $this->inflector->underscorize('This String Is Underscorized'));
+        self::assertSame('this_string_is_underscorized', $this->inflector->underscorize('ThisStringIsUnderscorized'));
+        self::assertSame('this_string_is_underscorized', $this->inflector->underscorize('This_String_Is_Underscorized'));
+        self::assertSame('this_string_is_underscorized', $this->inflector->underscorize('This-String-Is-Underscorized'));
     }
 
-    public function testHyphenize()
+    public function testHyphenize(): void
     {
-        $this->assertSame('this-string-is-hyphenized', $this->inflector->hyphenize('This String Is Hyphenized'));
-        $this->assertSame('this-string-is-hyphenized', $this->inflector->hyphenize('ThisStringIsHyphenized'));
-        $this->assertSame('this-string-is-hyphenized', $this->inflector->hyphenize('This-String-Is-Hyphenized'));
-        $this->assertSame('this-string-is-hyphenized', $this->inflector->hyphenize('This_String_Is_Hyphenized'));
+        self::assertSame('this-string-is-hyphenized', $this->inflector->hyphenize('This String Is Hyphenized'));
+        self::assertSame('this-string-is-hyphenized', $this->inflector->hyphenize('ThisStringIsHyphenized'));
+        self::assertSame('this-string-is-hyphenized', $this->inflector->hyphenize('This-String-Is-Hyphenized'));
+        self::assertSame('this-string-is-hyphenized', $this->inflector->hyphenize('This_String_Is_Hyphenized'));
     }
 
-    public function testHumanize()
+    public function testHumanize(): void
     {
-        //$this->assertSame('This string is humanized',   $this->inflector->humanize('ThisStringIsHumanized'));
-        $this->assertSame('This string is humanized', $this->inflector->humanize('this_string_is_humanized'));
-        //$this->assertSame('This string is humanized',   $this->inflector->humanize('this-string-is-humanized'));
+        //self::assertSame('This string is humanized',   $this->inflector->humanize('ThisStringIsHumanized'));
+        self::assertSame('This string is humanized', $this->inflector->humanize('this_string_is_humanized'));
+        //self::assertSame('This string is humanized',   $this->inflector->humanize('this-string-is-humanized'));
 
-        $this->assertSame('This String Is Humanized', $this->inflector->humanize('this_string_is_humanized', 'all'));
-        //$this->assertSame('This String Is Humanized',   $this->inflector->humanize('this-string-is-humanized'), 'all');
+        self::assertSame('This String Is Humanized', $this->inflector->humanize('this_string_is_humanized', 'all'));
+        //self::assertSame('This String Is Humanized',   $this->inflector->humanize('this-string-is-humanized'), 'all');
     }
 
-    public function testVariablize()
+    public function testVariablize(): void
     {
-        $this->assertSame('thisStringIsVariablized', $this->inflector->variablize('This String Is Variablized'));
-        $this->assertSame('thisStringIsVariablized', $this->inflector->variablize('ThisStringIsVariablized'));
-        $this->assertSame('thisStringIsVariablized', $this->inflector->variablize('This_String_Is_Variablized'));
-        $this->assertSame('thisStringIsVariablized', $this->inflector->variablize('this string is variablized'));
-        $this->assertSame('gravSPrettyCoolMy1', $this->inflector->variablize("Grav's Pretty Cool. My #1!"));
+        self::assertSame('thisStringIsVariablized', $this->inflector->variablize('This String Is Variablized'));
+        self::assertSame('thisStringIsVariablized', $this->inflector->variablize('ThisStringIsVariablized'));
+        self::assertSame('thisStringIsVariablized', $this->inflector->variablize('This_String_Is_Variablized'));
+        self::assertSame('thisStringIsVariablized', $this->inflector->variablize('this string is variablized'));
+        self::assertSame('gravSPrettyCoolMy1', $this->inflector->variablize("Grav's Pretty Cool. My #1!"));
     }
 
-    public function testTableize()
+    public function testTableize(): void
     {
-        $this->assertSame('people', $this->inflector->tableize('Person'));
-        $this->assertSame('pages', $this->inflector->tableize('Page'));
-        $this->assertSame('blog_pages', $this->inflector->tableize('BlogPage'));
-        $this->assertSame('admin_dependencies', $this->inflector->tableize('adminDependency'));
-        $this->assertSame('admin_dependencies', $this->inflector->tableize('admin-dependency'));
-        $this->assertSame('admin_dependencies', $this->inflector->tableize('admin_dependency'));
+        self::assertSame('people', $this->inflector->tableize('Person'));
+        self::assertSame('pages', $this->inflector->tableize('Page'));
+        self::assertSame('blog_pages', $this->inflector->tableize('BlogPage'));
+        self::assertSame('admin_dependencies', $this->inflector->tableize('adminDependency'));
+        self::assertSame('admin_dependencies', $this->inflector->tableize('admin-dependency'));
+        self::assertSame('admin_dependencies', $this->inflector->tableize('admin_dependency'));
     }
 
-    public function testClassify()
+    public function testClassify(): void
     {
-        $this->assertSame('Person', $this->inflector->classify('people'));
-        $this->assertSame('Page', $this->inflector->classify('pages'));
-        $this->assertSame('BlogPage', $this->inflector->classify('blog_pages'));
-        $this->assertSame('AdminDependency', $this->inflector->classify('admin_dependencies'));
+        self::assertSame('Person', $this->inflector->classify('people'));
+        self::assertSame('Page', $this->inflector->classify('pages'));
+        self::assertSame('BlogPage', $this->inflector->classify('blog_pages'));
+        self::assertSame('AdminDependency', $this->inflector->classify('admin_dependencies'));
     }
 
-    public function testOrdinalize()
+    public function testOrdinalize(): void
     {
-        $this->assertSame('1st', $this->inflector->ordinalize(1));
-        $this->assertSame('2nd', $this->inflector->ordinalize(2));
-        $this->assertSame('3rd', $this->inflector->ordinalize(3));
-        $this->assertSame('4th', $this->inflector->ordinalize(4));
-        $this->assertSame('5th', $this->inflector->ordinalize(5));
-        $this->assertSame('16th', $this->inflector->ordinalize(16));
-        $this->assertSame('51st', $this->inflector->ordinalize(51));
-        $this->assertSame('111th', $this->inflector->ordinalize(111));
-        $this->assertSame('123rd', $this->inflector->ordinalize(123));
+        self::assertSame('1st', $this->inflector->ordinalize(1));
+        self::assertSame('2nd', $this->inflector->ordinalize(2));
+        self::assertSame('3rd', $this->inflector->ordinalize(3));
+        self::assertSame('4th', $this->inflector->ordinalize(4));
+        self::assertSame('5th', $this->inflector->ordinalize(5));
+        self::assertSame('16th', $this->inflector->ordinalize(16));
+        self::assertSame('51st', $this->inflector->ordinalize(51));
+        self::assertSame('111th', $this->inflector->ordinalize(111));
+        self::assertSame('123rd', $this->inflector->ordinalize(123));
     }
 
-    public function testMonthize()
+    public function testMonthize(): void
     {
-        $this->assertSame(0, $this->inflector->monthize(10));
-        $this->assertSame(1, $this->inflector->monthize(33));
-        $this->assertSame(1, $this->inflector->monthize(41));
-        $this->assertSame(11, $this->inflector->monthize(364));
+        self::assertSame(0, $this->inflector->monthize(10));
+        self::assertSame(1, $this->inflector->monthize(33));
+        self::assertSame(1, $this->inflector->monthize(41));
+        self::assertSame(11, $this->inflector->monthize(364));
     }
 }

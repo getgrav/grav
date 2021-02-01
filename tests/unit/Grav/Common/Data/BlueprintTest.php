@@ -11,7 +11,7 @@ class BlueprintTest extends \Codeception\TestCase\Test
 {
     /**
      */
-    public function testValidateStrict()
+    public function testValidateStrict(): void
     {
         $blueprint = $this->loadBlueprint('strict');
 
@@ -21,7 +21,7 @@ class BlueprintTest extends \Codeception\TestCase\Test
     /**
      * @depends testValidateStrict
      */
-    public function testValidateStrictRequired()
+    public function testValidateStrictRequired(): void
     {
         $blueprint = $this->loadBlueprint('strict');
 
@@ -32,7 +32,7 @@ class BlueprintTest extends \Codeception\TestCase\Test
     /**
      * @depends testValidateStrict
      */
-    public function testValidateStrictExtra()
+    public function testValidateStrictExtra(): void
     {
         $blueprint = $this->loadBlueprint('strict');
 
@@ -42,7 +42,7 @@ class BlueprintTest extends \Codeception\TestCase\Test
     /**
      * @depends testValidateStrict
      */
-    public function testValidateStrictExtraException()
+    public function testValidateStrictExtraException(): void
     {
         $blueprint = $this->loadBlueprint('strict');
 
@@ -61,7 +61,7 @@ class BlueprintTest extends \Codeception\TestCase\Test
      * @param string $filename
      * @return Blueprint
      */
-    protected function loadBlueprint($filename)
+    protected function loadBlueprint($filename): Blueprint
     {
         $blueprint = new Blueprint('strict');
         $blueprint->setContext(dirname(__DIR__, 3). '/data/blueprints');

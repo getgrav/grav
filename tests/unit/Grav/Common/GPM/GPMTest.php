@@ -7,17 +7,25 @@ use Grav\Common\GPM\GPM;
 define('EXCEPTION_BAD_FORMAT', 1);
 define('EXCEPTION_INCOMPATIBLE_VERSIONS', 2);
 
+/**
+ * Class GpmStub
+ */
 class GpmStub extends GPM
 {
+    /** @var array */
     public $data;
 
-    public function findPackage($packageName, $ignore_exception = false)
+    /**
+     * @inheritdoc
+     */
+    public function findPackage($search, $ignore_exception = false)
     {
-        if (isset($this->data[$packageName])) {
-            return $this->data[$packageName];
-        }
+        return $this->data[$search] ?? false;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function findPackages($searches = [])
     {
         return $this->data;
@@ -35,17 +43,17 @@ class GpmTest extends \Codeception\TestCase\Test
     /** @var GpmStub */
     protected $gpm;
 
-    protected function _before()
+    protected function _before(): void
     {
         $this->grav = Fixtures::get('grav');
         $this->gpm = new GpmStub();
     }
 
-    protected function _after()
+    protected function _after(): void
     {
     }
 
-    public function testCalculateMergedDependenciesOfPackages()
+    public function testCalculateMergedDependenciesOfPackages(): void
     {
         //////////////////////////////////////////////////////////////////////////////////////////
         // First working example
@@ -53,22 +61,22 @@ class GpmTest extends \Codeception\TestCase\Test
         $this->gpm->data = [
             'admin' => (object)[
                 'dependencies' => [
-                    ["name" => "grav", "version" => ">=1.0.10"],
-                    ["name" => "form", "version" => "~2.0"],
-                    ["name" => "login", "version" => ">=2.0"],
-                    ["name" => "errors", "version" => "*"],
-                    ["name" => "problems"],
+                    ['name' => 'grav', 'version' => '>=1.0.10'],
+                    ['name' => 'form', 'version' => '~2.0'],
+                    ['name' => 'login', 'version' => '>=2.0'],
+                    ['name' => 'errors', 'version' => '*'],
+                    ['name' => 'problems'],
                 ]
             ],
             'test' => (object)[
                 'dependencies' => [
-                    ["name" => "errors", "version" => ">=1.0"]
+                    ['name' => 'errors', 'version' => '>=1.0']
                 ]
             ],
             'grav',
             'form' => (object)[
                 'dependencies' => [
-                    ["name" => "errors", "version" => ">=3.2"]
+                    ['name' => 'errors', 'version' => '>=3.2']
                 ]
             ]
 
@@ -79,12 +87,12 @@ class GpmTest extends \Codeception\TestCase\Test
 
         $dependencies = $this->gpm->calculateMergedDependenciesOfPackages($packages);
 
-        $this->assertIsArray($dependencies);
-        $this->assertCount(5, $dependencies);
+        self::assertIsArray($dependencies);
+        self::assertCount(5, $dependencies);
 
-        $this->assertSame('>=1.0.10', $dependencies['grav']);
-        $this->assertArrayHasKey('errors', $dependencies);
-        $this->assertArrayHasKey('problems', $dependencies);
+        self::assertSame('>=1.0.10', $dependencies['grav']);
+        self::assertArrayHasKey('errors', $dependencies);
+        self::assertArrayHasKey('problems', $dependencies);
 
         //////////////////////////////////////////////////////////////////////////////////////////
         // Second working example
@@ -92,9 +100,9 @@ class GpmTest extends \Codeception\TestCase\Test
         $packages = ['admin', 'form'];
 
         $dependencies = $this->gpm->calculateMergedDependenciesOfPackages($packages);
-        $this->assertIsArray($dependencies);
-        $this->assertCount(5, $dependencies);
-        $this->assertSame('>=3.2', $dependencies['errors']);
+        self::assertIsArray($dependencies);
+        self::assertCount(5, $dependencies);
+        self::assertSame('>=3.2', $dependencies['errors']);
 
         //////////////////////////////////////////////////////////////////////////////////////////
         // Third working example
@@ -103,17 +111,17 @@ class GpmTest extends \Codeception\TestCase\Test
 
             'admin' => (object)[
                 'dependencies' => [
-                    ["name" => "errors", "version" => ">=4.0"],
+                    ['name' => 'errors', 'version' => '>=4.0'],
                 ]
             ],
             'test' => (object)[
                 'dependencies' => [
-                    ["name" => "errors", "version" => ">=1.0"]
+                    ['name' => 'errors', 'version' => '>=1.0']
                 ]
             ],
             'another' => (object)[
                 'dependencies' => [
-                    ["name" => "errors", "version" => ">=3.2"]
+                    ['name' => 'errors', 'version' => '>=3.2']
                 ]
             ]
 
@@ -123,9 +131,9 @@ class GpmTest extends \Codeception\TestCase\Test
 
 
         $dependencies = $this->gpm->calculateMergedDependenciesOfPackages($packages);
-        $this->assertIsArray($dependencies);
-        $this->assertCount(1, $dependencies);
-        $this->assertSame('>=4.0', $dependencies['errors']);
+        self::assertIsArray($dependencies);
+        self::assertCount(1, $dependencies);
+        self::assertSame('>=4.0', $dependencies['errors']);
 
 
 
@@ -135,23 +143,23 @@ class GpmTest extends \Codeception\TestCase\Test
         $this->gpm->data = [
             'admin' => (object)[
                 'dependencies' => [
-                    ["name" => "package1", "version" => ">=4.0.0-rc1"],
-                    ["name" => "package4", "version" => ">=3.2.0"],
+                    ['name' => 'package1', 'version' => '>=4.0.0-rc1'],
+                    ['name' => 'package4', 'version' => '>=3.2.0'],
                 ]
             ],
             'test' => (object)[
                 'dependencies' => [
-                    ["name" => "package1", "version" => ">=4.0.0-rc2"],
-                    ["name" => "package2", "version" => ">=3.2.0-alpha"],
-                    ["name" => "package3", "version" => ">=3.2.0-alpha.2"],
-                    ["name" => "package4", "version" => ">=3.2.0-alpha"],
+                    ['name' => 'package1', 'version' => '>=4.0.0-rc2'],
+                    ['name' => 'package2', 'version' => '>=3.2.0-alpha'],
+                    ['name' => 'package3', 'version' => '>=3.2.0-alpha.2'],
+                    ['name' => 'package4', 'version' => '>=3.2.0-alpha'],
                 ]
             ],
             'another' => (object)[
                 'dependencies' => [
-                    ["name" => "package2", "version" => ">=3.2.0-beta.11"],
-                    ["name" => "package3", "version" => ">=3.2.0-alpha.1"],
-                    ["name" => "package4", "version" => ">=3.2.0-beta"],
+                    ['name' => 'package2', 'version' => '>=3.2.0-beta.11'],
+                    ['name' => 'package3', 'version' => '>=3.2.0-alpha.1'],
+                    ['name' => 'package4', 'version' => '>=3.2.0-beta'],
                 ]
             ]
         ];
@@ -160,10 +168,10 @@ class GpmTest extends \Codeception\TestCase\Test
 
 
         $dependencies = $this->gpm->calculateMergedDependenciesOfPackages($packages);
-        $this->assertSame('>=4.0.0-rc2', $dependencies['package1']);
-        $this->assertSame('>=3.2.0-beta.11', $dependencies['package2']);
-        $this->assertSame('>=3.2.0-alpha.2', $dependencies['package3']);
-        $this->assertSame('>=3.2.0', $dependencies['package4']);
+        self::assertSame('>=4.0.0-rc2', $dependencies['package1']);
+        self::assertSame('>=3.2.0-beta.11', $dependencies['package2']);
+        self::assertSame('>=3.2.0-alpha.2', $dependencies['package3']);
+        self::assertSame('>=3.2.0', $dependencies['package4']);
 
 
         //////////////////////////////////////////////////////////////////////////////////////////
@@ -173,12 +181,12 @@ class GpmTest extends \Codeception\TestCase\Test
 
             'admin' => (object)[
                 'dependencies' => [
-                    ["name" => "errors", "version" => ">=4.0"],
+                    ['name' => 'errors', 'version' => '>=4.0'],
                 ]
             ],
             'test' => (object)[
                 'dependencies' => [
-                    ["name" => "errors", "version" => ">="]
+                    ['name' => 'errors', 'version' => '>=']
                 ]
             ],
 
@@ -188,10 +196,10 @@ class GpmTest extends \Codeception\TestCase\Test
 
         try {
             $this->gpm->calculateMergedDependenciesOfPackages($packages);
-            $this->fail("Expected Exception not thrown");
+            self::fail('Expected Exception not thrown');
         } catch (Exception $e) {
-            $this->assertEquals(EXCEPTION_BAD_FORMAT, $e->getCode());
-            $this->assertStringStartsWith("Bad format for version of dependency", $e->getMessage());
+            self::assertEquals(EXCEPTION_BAD_FORMAT, $e->getCode());
+            self::assertStringStartsWith('Bad format for version of dependency', $e->getMessage());
         }
 
         //////////////////////////////////////////////////////////////////////////////////////////
@@ -200,12 +208,12 @@ class GpmTest extends \Codeception\TestCase\Test
         $this->gpm->data = [
             'admin' => (object)[
                 'dependencies' => [
-                    ["name" => "errors", "version" => "~4.0"],
+                    ['name' => 'errors', 'version' => '~4.0'],
                 ]
             ],
             'test' => (object)[
                 'dependencies' => [
-                    ["name" => "errors", "version" => "~3.0"]
+                    ['name' => 'errors', 'version' => '~3.0']
                 ]
             ],
         ];
@@ -214,10 +222,10 @@ class GpmTest extends \Codeception\TestCase\Test
 
         try {
             $this->gpm->calculateMergedDependenciesOfPackages($packages);
-            $this->fail("Expected Exception not thrown");
+            self::fail('Expected Exception not thrown');
         } catch (Exception $e) {
-            $this->assertEquals(EXCEPTION_INCOMPATIBLE_VERSIONS, $e->getCode());
-            $this->assertStringEndsWith("required in two incompatible versions", $e->getMessage());
+            self::assertEquals(EXCEPTION_INCOMPATIBLE_VERSIONS, $e->getCode());
+            self::assertStringEndsWith('required in two incompatible versions', $e->getMessage());
         }
 
         //////////////////////////////////////////////////////////////////////////////////////////
@@ -226,22 +234,22 @@ class GpmTest extends \Codeception\TestCase\Test
         $this->gpm->data = [
             'admin' => (object)[
                 'dependencies' => [
-                    ["name" => "grav", "version" => ">=1.0.10"],
-                    ["name" => "form", "version" => "~2.0"],
-                    ["name" => "login", "version" => ">=2.0"],
-                    ["name" => "errors", "version" => "*"],
-                    ["name" => "problems"],
+                    ['name' => 'grav', 'version' => '>=1.0.10'],
+                    ['name' => 'form', 'version' => '~2.0'],
+                    ['name' => 'login', 'version' => '>=2.0'],
+                    ['name' => 'errors', 'version' => '*'],
+                    ['name' => 'problems'],
                 ]
             ],
             'login' => (object)[
                 'dependencies' => [
-                    ["name" => "antimatter", "version" => ">=1.0"]
+                    ['name' => 'antimatter', 'version' => '>=1.0']
                 ]
             ],
             'grav',
             'antimatter' => (object)[
                 'dependencies' => [
-                    ["name" => "something", "version" => ">=3.2"]
+                    ['name' => 'something', 'version' => '>=3.2']
                 ]
             ]
 
@@ -252,71 +260,70 @@ class GpmTest extends \Codeception\TestCase\Test
 
         $dependencies = $this->gpm->calculateMergedDependenciesOfPackages($packages);
 
-        $this->assertIsArray($dependencies);
-        $this->assertCount(7, $dependencies);
+        self::assertIsArray($dependencies);
+        self::assertCount(7, $dependencies);
 
-        $this->assertSame('>=1.0.10', $dependencies['grav']);
-        $this->assertArrayHasKey('errors', $dependencies);
-        $this->assertArrayHasKey('problems', $dependencies);
-        $this->assertArrayHasKey('antimatter', $dependencies);
-        $this->assertArrayHasKey('something', $dependencies);
-        $this->assertSame('>=3.2', $dependencies['something']);
+        self::assertSame('>=1.0.10', $dependencies['grav']);
+        self::assertArrayHasKey('errors', $dependencies);
+        self::assertArrayHasKey('problems', $dependencies);
+        self::assertArrayHasKey('antimatter', $dependencies);
+        self::assertArrayHasKey('something', $dependencies);
+        self::assertSame('>=3.2', $dependencies['something']);
     }
 
-    public function testVersionFormatIsNextSignificantRelease()
+    public function testVersionFormatIsNextSignificantRelease(): void
     {
-        $this->assertFalse($this->gpm->versionFormatIsNextSignificantRelease('>=1.0'));
-        $this->assertFalse($this->gpm->versionFormatIsNextSignificantRelease('>=2.3.4'));
-        $this->assertFalse($this->gpm->versionFormatIsNextSignificantRelease('>=2.3.x'));
-        $this->assertFalse($this->gpm->versionFormatIsNextSignificantRelease('1.0'));
-        $this->assertTrue($this->gpm->versionFormatIsNextSignificantRelease('~2.3.x'));
-        $this->assertTrue($this->gpm->versionFormatIsNextSignificantRelease('~2.0'));
+        self::assertFalse($this->gpm->versionFormatIsNextSignificantRelease('>=1.0'));
+        self::assertFalse($this->gpm->versionFormatIsNextSignificantRelease('>=2.3.4'));
+        self::assertFalse($this->gpm->versionFormatIsNextSignificantRelease('>=2.3.x'));
+        self::assertFalse($this->gpm->versionFormatIsNextSignificantRelease('1.0'));
+        self::assertTrue($this->gpm->versionFormatIsNextSignificantRelease('~2.3.x'));
+        self::assertTrue($this->gpm->versionFormatIsNextSignificantRelease('~2.0'));
     }
 
-    public function testVersionFormatIsEqualOrHigher()
+    public function testVersionFormatIsEqualOrHigher(): void
     {
-        $this->assertTrue($this->gpm->versionFormatIsEqualOrHigher('>=1.0'));
-        $this->assertTrue($this->gpm->versionFormatIsEqualOrHigher('>=2.3.4'));
-        $this->assertTrue($this->gpm->versionFormatIsEqualOrHigher('>=2.3.x'));
-        $this->assertFalse($this->gpm->versionFormatIsEqualOrHigher('~2.3.x'));
-        $this->assertFalse($this->gpm->versionFormatIsEqualOrHigher('1.0'));
+        self::assertTrue($this->gpm->versionFormatIsEqualOrHigher('>=1.0'));
+        self::assertTrue($this->gpm->versionFormatIsEqualOrHigher('>=2.3.4'));
+        self::assertTrue($this->gpm->versionFormatIsEqualOrHigher('>=2.3.x'));
+        self::assertFalse($this->gpm->versionFormatIsEqualOrHigher('~2.3.x'));
+        self::assertFalse($this->gpm->versionFormatIsEqualOrHigher('1.0'));
     }
 
-    public function testCheckNextSignificantReleasesAreCompatible()
+    public function testCheckNextSignificantReleasesAreCompatible(): void
     {
         /*
          * ~1.0     is equivalent to >=1.0 < 2.0.0
          * ~1.2     is equivalent to >=1.2 <2.0.0
          * ~1.2.3   is equivalent to >=1.2.3 <1.3.0
          */
-        $this->assertTrue($this->gpm->checkNextSignificantReleasesAreCompatible('1.0', '1.2'));
-        $this->assertTrue($this->gpm->checkNextSignificantReleasesAreCompatible('1.2', '1.0'));
-        $this->assertTrue($this->gpm->checkNextSignificantReleasesAreCompatible('1.0', '1.0.10'));
-        $this->assertTrue($this->gpm->checkNextSignificantReleasesAreCompatible('1.1', '1.1.10'));
-        $this->assertTrue($this->gpm->checkNextSignificantReleasesAreCompatible('30.0', '30.10'));
-        $this->assertTrue($this->gpm->checkNextSignificantReleasesAreCompatible('1.0', '1.1.10'));
-        $this->assertTrue($this->gpm->checkNextSignificantReleasesAreCompatible('1.0', '1.8'));
-        $this->assertTrue($this->gpm->checkNextSignificantReleasesAreCompatible('1.0.1', '1.1'));
-        $this->assertTrue($this->gpm->checkNextSignificantReleasesAreCompatible('2.0.0-beta', '2.0'));
-        $this->assertTrue($this->gpm->checkNextSignificantReleasesAreCompatible('2.0.0-rc.1', '2.0'));
-        $this->assertTrue($this->gpm->checkNextSignificantReleasesAreCompatible('2.0', '2.0.0-alpha'));
+        self::assertTrue($this->gpm->checkNextSignificantReleasesAreCompatible('1.0', '1.2'));
+        self::assertTrue($this->gpm->checkNextSignificantReleasesAreCompatible('1.2', '1.0'));
+        self::assertTrue($this->gpm->checkNextSignificantReleasesAreCompatible('1.0', '1.0.10'));
+        self::assertTrue($this->gpm->checkNextSignificantReleasesAreCompatible('1.1', '1.1.10'));
+        self::assertTrue($this->gpm->checkNextSignificantReleasesAreCompatible('30.0', '30.10'));
+        self::assertTrue($this->gpm->checkNextSignificantReleasesAreCompatible('1.0', '1.1.10'));
+        self::assertTrue($this->gpm->checkNextSignificantReleasesAreCompatible('1.0', '1.8'));
+        self::assertTrue($this->gpm->checkNextSignificantReleasesAreCompatible('1.0.1', '1.1'));
+        self::assertTrue($this->gpm->checkNextSignificantReleasesAreCompatible('2.0.0-beta', '2.0'));
+        self::assertTrue($this->gpm->checkNextSignificantReleasesAreCompatible('2.0.0-rc.1', '2.0'));
+        self::assertTrue($this->gpm->checkNextSignificantReleasesAreCompatible('2.0', '2.0.0-alpha'));
 
-        $this->assertFalse($this->gpm->checkNextSignificantReleasesAreCompatible('1.0', '2.2'));
-        $this->assertFalse($this->gpm->checkNextSignificantReleasesAreCompatible('1.0.0-beta.1', '2.0'));
-        $this->assertFalse($this->gpm->checkNextSignificantReleasesAreCompatible('0.9.99', '1.0.0'));
-        $this->assertFalse($this->gpm->checkNextSignificantReleasesAreCompatible('0.9.99', '1.0.10'));
-        $this->assertFalse($this->gpm->checkNextSignificantReleasesAreCompatible('0.9.99', '1.0.10.2'));
+        self::assertFalse($this->gpm->checkNextSignificantReleasesAreCompatible('1.0', '2.2'));
+        self::assertFalse($this->gpm->checkNextSignificantReleasesAreCompatible('1.0.0-beta.1', '2.0'));
+        self::assertFalse($this->gpm->checkNextSignificantReleasesAreCompatible('0.9.99', '1.0.0'));
+        self::assertFalse($this->gpm->checkNextSignificantReleasesAreCompatible('0.9.99', '1.0.10'));
+        self::assertFalse($this->gpm->checkNextSignificantReleasesAreCompatible('0.9.99', '1.0.10.2'));
     }
 
-
-    public function testCalculateVersionNumberFromDependencyVersion()
+    public function testCalculateVersionNumberFromDependencyVersion(): void
     {
-        $this->assertSame('2.0', $this->gpm->calculateVersionNumberFromDependencyVersion('>=2.0'));
-        $this->assertSame('2.0.2', $this->gpm->calculateVersionNumberFromDependencyVersion('>=2.0.2'));
-        $this->assertSame('2.0.2', $this->gpm->calculateVersionNumberFromDependencyVersion('~2.0.2'));
-        $this->assertSame('1', $this->gpm->calculateVersionNumberFromDependencyVersion('~1'));
-        $this->assertNull($this->gpm->calculateVersionNumberFromDependencyVersion(''));
-        $this->assertNull($this->gpm->calculateVersionNumberFromDependencyVersion('*'));
-        $this->assertSame('2.0.2', $this->gpm->calculateVersionNumberFromDependencyVersion('2.0.2'));
+        self::assertSame('2.0', $this->gpm->calculateVersionNumberFromDependencyVersion('>=2.0'));
+        self::assertSame('2.0.2', $this->gpm->calculateVersionNumberFromDependencyVersion('>=2.0.2'));
+        self::assertSame('2.0.2', $this->gpm->calculateVersionNumberFromDependencyVersion('~2.0.2'));
+        self::assertSame('1', $this->gpm->calculateVersionNumberFromDependencyVersion('~1'));
+        self::assertNull($this->gpm->calculateVersionNumberFromDependencyVersion(''));
+        self::assertNull($this->gpm->calculateVersionNumberFromDependencyVersion('*'));
+        self::assertSame('2.0.2', $this->gpm->calculateVersionNumberFromDependencyVersion('2.0.2'));
     }
 }

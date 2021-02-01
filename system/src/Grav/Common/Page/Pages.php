@@ -59,9 +59,9 @@ class Pages
 
     /** @var Grav */
     protected $grav;
-    /** @var array<PageInterface|string> */
+    /** @var array<PageInterface> */
     protected $instances = [];
-    /** @var array */
+    /** @var array<PageInterface|string> */
     protected $index = [];
     /** @var array */
     protected $children;
@@ -339,14 +339,15 @@ class Pages
      */
     public function instances()
     {
-        // Make sure we load all the instances.
+        $instances = [];
         foreach ($this->index as $path => $instance) {
-            if ($instance && !$instance instanceof PageInterface) {
-                $this->get($path);
+            $page = $this->get($path);
+            if ($page) {
+                $instances[$path] = $page;
             }
         }
 
-        return $this->instances;
+        return $instances;
     }
 
     /**
@@ -886,7 +887,7 @@ class Pages
             // fall back and check site based redirects
             if (!$page || !$page->routable()) {
                 // Redirect to the first child (placeholder page)
-                if ($redirect && $page && count($children = $page->children()->visible()) > 0) {
+                if ($redirect && $page && count($children = $page->children()->visible()->routable()->published()) > 0) {
                     $this->grav->redirectLangSafe($children->first()->route());
                 }
 
@@ -1750,8 +1751,9 @@ class Pages
             $path = $directory . DS . $filename;
             $child = $this->recurse($path, $page);
 
-            if (Utils::startsWith($filename, '_')) {
+            if (preg_match('/^(\d+\.)_/', $filename)) {
                 $child->routable(false);
+                $child->modularTwig(true);
             }
 
             $this->children[$page->path()][$child->path()] = ['slug' => $child->slug()];
@@ -1954,6 +1956,7 @@ class Pages
                 $locale = setlocale(LC_COLLATE, '0'); //`setlocale` with a '0' param returns the current locale set
                 $col = Collator::create($locale);
                 if ($col) {
+                    $col->setAttribute(Collator::NUMERIC_COLLATION, Collator::ON);
                     if (($sort_flags & SORT_NATURAL) === SORT_NATURAL) {
                         $list = preg_replace_callback('~([0-9]+)\.~', static function ($number) {
                             return sprintf('%032d.', $number[0]);

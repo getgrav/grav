@@ -11,7 +11,7 @@ namespace Grav\Console\Gpm;
 
 use Grav\Common\GPM\GPM;
 use Grav\Common\GPM\Installer;
-use Grav\Common\GPM\Remote\Package;
+use Grav\Common\GPM\Local\Package;
 use Grav\Common\Grav;
 use Grav\Console\GpmCommand;
 use Symfony\Component\Console\Input\InputArgument;
@@ -110,6 +110,13 @@ class UninstallCommand extends GpmCommand
 
         unset($this->data['not_found'], $this->data['total']);
 
+        // Plugins need to be initialized in order to make clear-cache to work.
+        try {
+            $this->initializePlugins();
+        } catch (\Throwable $e) {
+            $io->writeln("<red>Some plugins failed to initialize: {$e->getMessage()}</red>");
+        }
+
         $error = 0;
         foreach ($this->data as $slug => $package) {
             $io->writeln("Preparing to uninstall <cyan>{$package->name}</cyan> [v{$package->version}]");
@@ -145,7 +152,7 @@ class UninstallCommand extends GpmCommand
      * @param bool $is_dependency
      * @return bool
      */
-    private function uninstallPackage($slug, $package, $is_dependency = false): bool
+    private function uninstallPackage($slug, Package $package, $is_dependency = false): bool
     {
         $io = $this->getIO();
 

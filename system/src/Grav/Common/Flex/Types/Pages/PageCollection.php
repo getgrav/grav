@@ -362,6 +362,7 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
             $locale = setlocale(LC_COLLATE, '0'); //`setlocale` with a '0' param returns the current locale set
             $col = Collator::create($locale);
             if ($col) {
+                $col->setAttribute(Collator::NUMERIC_COLLATION, Collator::ON);
                 if (($sort_flags & SORT_NATURAL) === SORT_NATURAL) {
                     $list = preg_replace_callback('~([0-9]+)\.~', static function ($number) {
                         return sprintf('%032d.', $number[0]);
