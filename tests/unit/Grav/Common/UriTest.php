@@ -854,18 +854,18 @@ class UriTest extends \Codeception\TestCase\Test
         ],
     ];
 
-    protected function _before()
+    protected function _before(): void
     {
         $grav = Fixtures::get('grav');
         $this->grav = $grav();
         $this->uri = $this->grav['uri'];
     }
 
-    protected function _after()
+    protected function _after(): void
     {
     }
 
-    protected function runTestSet(array $tests, $method, $params = [])
+    protected function runTestSet(array $tests, $method, $params = []): void
     {
         foreach ($tests as $url => $candidates) {
             if (!array_key_exists($method, $candidates) && $method !== 'toOriginalString') {
@@ -875,7 +875,7 @@ class UriTest extends \Codeception\TestCase\Test
                 $nonce = Utils::getNonce('test-action');
                 $expected = str_replace('{{nonce}}', $nonce, $candidates[$method]);
 
-                $this->assertSame($expected, Uri::addNonce($url, 'test-action'));
+                self::assertSame($expected, Uri::addNonce($url, 'test-action'));
 
                 continue;
             }
@@ -893,213 +893,213 @@ class UriTest extends \Codeception\TestCase\Test
                 $result = $this->uri->{$method}();
             }
 
-            $this->assertSame($expected, $result, "Test \$url->{$method}() for {$url}");
+            self::assertSame($expected, $result, "Test \$url->{$method}() for {$url}");
             // Deal with $url->query($key)
             if ($method === 'query') {
                 parse_str($expected, $queryParams);
                 foreach ($queryParams as $key => $value) {
-                    $this->assertSame($value, $this->uri->{$method}($key), "Test \$url->{$method}('{$key}') for {$url}");
+                    self::assertSame($value, $this->uri->{$method}($key), "Test \$url->{$method}('{$key}') for {$url}");
                 }
-                $this->assertNull($this->uri->{$method}('non-existing'), "Test \$url->{$method}('non-existing') for {$url}");
+                self::assertNull($this->uri->{$method}('non-existing'), "Test \$url->{$method}('non-existing') for {$url}");
             }
         }
     }
 
-    public function testValidatingHostname()
+    public function testValidatingHostname(): void
     {
-        $this->assertTrue($this->uri->validateHostname('localhost'));
-        $this->assertTrue($this->uri->validateHostname('google.com'));
-        $this->assertTrue($this->uri->validateHostname('google.it'));
-        $this->assertTrue($this->uri->validateHostname('goog.le'));
-        $this->assertTrue($this->uri->validateHostname('goog.wine'));
-        $this->assertTrue($this->uri->validateHostname('goog.localhost'));
+        self::assertTrue($this->uri->validateHostname('localhost'));
+        self::assertTrue($this->uri->validateHostname('google.com'));
+        self::assertTrue($this->uri->validateHostname('google.it'));
+        self::assertTrue($this->uri->validateHostname('goog.le'));
+        self::assertTrue($this->uri->validateHostname('goog.wine'));
+        self::assertTrue($this->uri->validateHostname('goog.localhost'));
 
-        $this->assertFalse($this->uri->validateHostname('localhost:80'));
-        $this->assertFalse($this->uri->validateHostname('http://localhost'));
-        $this->assertFalse($this->uri->validateHostname('localhost!'));
+        self::assertFalse($this->uri->validateHostname('localhost:80'));
+        self::assertFalse($this->uri->validateHostname('http://localhost'));
+        self::assertFalse($this->uri->validateHostname('localhost!'));
     }
 
-    public function testToString()
+    public function testToString(): void
     {
         $this->runTestSet($this->tests, 'toOriginalString');
     }
 
-    public function testScheme()
+    public function testScheme(): void
     {
         $this->runTestSet($this->tests, 'scheme');
     }
 
-    public function testUser()
+    public function testUser(): void
     {
         $this->runTestSet($this->tests, 'user');
     }
 
-    public function testPassword()
+    public function testPassword(): void
     {
         $this->runTestSet($this->tests, 'password');
     }
 
-    public function testHost()
+    public function testHost(): void
     {
         $this->runTestSet($this->tests, 'host');
     }
 
-    public function testPort()
+    public function testPort(): void
     {
         $this->runTestSet($this->tests, 'port');
     }
 
-    public function testPath()
+    public function testPath(): void
     {
         $this->runTestSet($this->tests, 'path');
     }
 
-    public function testQuery()
+    public function testQuery(): void
     {
         $this->runTestSet($this->tests, 'query');
     }
 
-    public function testFragment()
+    public function testFragment(): void
     {
         $this->runTestSet($this->tests, 'fragment');
 
         $this->uri->fragment('something-new');
-        $this->assertSame('something-new', $this->uri->fragment());
+        self::assertSame('something-new', $this->uri->fragment());
     }
 
-    public function testPaths()
+    public function testPaths(): void
     {
         $this->runTestSet($this->tests, 'paths');
     }
 
-    public function testRoute()
+    public function testRoute(): void
     {
         $this->runTestSet($this->tests, 'route');
     }
 
-    public function testParams()
+    public function testParams(): void
     {
         $this->runTestSet($this->tests, 'params');
 
         $this->uri->initializeWithURL('http://localhost:8080/grav/it/ueper:xxx')->init();
-        $this->assertSame('/ueper:xxx', $this->uri->params('ueper'));
+        self::assertSame('/ueper:xxx', $this->uri->params('ueper'));
         $this->uri->initializeWithURL('http://localhost:8080/grav/it/ueper:xxx/test:yyy')->init();
-        $this->assertSame('/ueper:xxx', $this->uri->params('ueper'));
-        $this->assertSame('/test:yyy', $this->uri->params('test'));
+        self::assertSame('/ueper:xxx', $this->uri->params('ueper'));
+        self::assertSame('/test:yyy', $this->uri->params('test'));
         $this->uri->initializeWithURL('http://localhost:8080/grav/it/ueper:xxx++/test:yyy')->init();
-        $this->assertSame('/ueper:xxx++/test:yyy', $this->uri->params());
-        $this->assertSame('/ueper:xxx++', $this->uri->params('ueper'));
-        $this->assertSame('/test:yyy', $this->uri->params('test'));
+        self::assertSame('/ueper:xxx++/test:yyy', $this->uri->params());
+        self::assertSame('/ueper:xxx++', $this->uri->params('ueper'));
+        self::assertSame('/test:yyy', $this->uri->params('test'));
         $this->uri->initializeWithURL('http://localhost:8080/grav/it/ueper:xxx++/test:yyy#something')->init();
-        $this->assertSame('/ueper:xxx++/test:yyy', $this->uri->params());
-        $this->assertSame('/ueper:xxx++', $this->uri->params('ueper'));
-        $this->assertSame('/test:yyy', $this->uri->params('test'));
+        self::assertSame('/ueper:xxx++/test:yyy', $this->uri->params());
+        self::assertSame('/ueper:xxx++', $this->uri->params('ueper'));
+        self::assertSame('/test:yyy', $this->uri->params('test'));
         $this->uri->initializeWithURL('http://localhost:8080/grav/it/ueper:xxx++/test:yyy?foo=bar')->init();
-        $this->assertSame('/ueper:xxx++/test:yyy', $this->uri->params());
-        $this->assertSame('/ueper:xxx++', $this->uri->params('ueper'));
-        $this->assertSame('/test:yyy', $this->uri->params('test'));
+        self::assertSame('/ueper:xxx++/test:yyy', $this->uri->params());
+        self::assertSame('/ueper:xxx++', $this->uri->params('ueper'));
+        self::assertSame('/test:yyy', $this->uri->params('test'));
         $this->uri->initializeWithURL('http://localhost:8080/grav/it/ueper?test=x')->init();
-        $this->assertNull($this->uri->params());
-        $this->assertNull($this->uri->params('ueper'));
+        self::assertNull($this->uri->params());
+        self::assertNull($this->uri->params('ueper'));
         $this->uri->initializeWithURL('http://localhost:8080/grav/it/ueper?test=x&test2=y')->init();
-        $this->assertNull($this->uri->params());
-        $this->assertNull($this->uri->params('ueper'));
+        self::assertNull($this->uri->params());
+        self::assertNull($this->uri->params('ueper'));
         $this->uri->initializeWithURL('http://localhost:8080/grav/it/ueper?test=x&test2=y&test3=x&test4=y')->init();
-        $this->assertNull($this->uri->params());
-        $this->assertNull($this->uri->params('ueper'));
+        self::assertNull($this->uri->params());
+        self::assertNull($this->uri->params('ueper'));
         $this->uri->initializeWithURL('http://localhost:8080/grav/it/ueper?test=x&test2=y&test3=x&test4=y/test')->init();
-        $this->assertNull($this->uri->params());
-        $this->assertNull($this->uri->params('ueper'));
+        self::assertNull($this->uri->params());
+        self::assertNull($this->uri->params('ueper'));
         $this->uri->initializeWithURL('http://localhost:8080/a/b/c/d')->init();
-        $this->assertNull($this->uri->params());
-        $this->assertNull($this->uri->params('ueper'));
+        self::assertNull($this->uri->params());
+        self::assertNull($this->uri->params('ueper'));
         $this->uri->initializeWithURL('http://localhost:8080/a/b/c/d/e/f/a/b/c/d/e/f/a/b/c/d/e/f')->init();
-        $this->assertNull($this->uri->params());
-        $this->assertNull($this->uri->params('ueper'));
+        self::assertNull($this->uri->params());
+        self::assertNull($this->uri->params('ueper'));
     }
 
-    public function testParam()
+    public function testParam(): void
     {
         $this->uri->initializeWithURL('http://localhost:8080/grav/it/ueper:xxx')->init();
-        $this->assertSame('xxx', $this->uri->param('ueper'));
+        self::assertSame('xxx', $this->uri->param('ueper'));
         $this->uri->initializeWithURL('http://localhost:8080/grav/it/ueper:xxx/test:yyy')->init();
-        $this->assertSame('xxx', $this->uri->param('ueper'));
-        $this->assertSame('yyy', $this->uri->param('test'));
+        self::assertSame('xxx', $this->uri->param('ueper'));
+        self::assertSame('yyy', $this->uri->param('test'));
         $this->uri->initializeWithURL('http://localhost:8080/grav/it/ueper:xxx++/test:yy%20y/foo:bar_baz-bank')->init();
-        $this->assertSame('xxx++', $this->uri->param('ueper'));
-        $this->assertSame('yy y', $this->uri->param('test'));
-        $this->assertSame('bar_baz-bank', $this->uri->param('foo'));
+        self::assertSame('xxx++', $this->uri->param('ueper'));
+        self::assertSame('yy y', $this->uri->param('test'));
+        self::assertSame('bar_baz-bank', $this->uri->param('foo'));
     }
 
-    public function testUrl()
+    public function testUrl(): void
     {
         $this->runTestSet($this->tests, 'url');
     }
 
-    public function testExtension()
+    public function testExtension(): void
     {
         $this->runTestSet($this->tests, 'extension');
 
         $this->uri->initializeWithURL('http://localhost/a-page')->init();
-        $this->assertSame('x', $this->uri->extension('x'));
+        self::assertSame('x', $this->uri->extension('x'));
     }
 
-    public function testEnvironment()
+    public function testEnvironment(): void
     {
         $this->runTestSet($this->tests, 'environment');
     }
 
-    public function testBasename()
+    public function testBasename(): void
     {
         $this->runTestSet($this->tests, 'basename');
     }
 
-    public function testBase()
+    public function testBase(): void
     {
         $this->runTestSet($this->tests, 'base');
     }
 
-    public function testRootUrl()
+    public function testRootUrl(): void
     {
         $this->runTestSet($this->tests, 'rootUrl', [true]);
 
         $this->uri->initializeWithUrlAndRootPath('https://localhost/grav/page-foo', '/grav')->init();
-        $this->assertSame('/grav', $this->uri->rootUrl());
-        $this->assertSame('https://localhost/grav', $this->uri->rootUrl(true));
+        self::assertSame('/grav', $this->uri->rootUrl());
+        self::assertSame('https://localhost/grav', $this->uri->rootUrl(true));
     }
 
-    public function testCurrentPage()
+    public function testCurrentPage(): void
     {
         $this->runTestSet($this->tests, 'currentPage');
 
         $this->uri->initializeWithURL('http://localhost:8080/a-page/page:2')->init();
-        $this->assertSame(2, $this->uri->currentPage());
+        self::assertSame(2, $this->uri->currentPage());
     }
 
-    public function testReferrer()
+    public function testReferrer(): void
     {
         $this->uri->initializeWithURL('http://localhost/foo/page:test')->init();
-        $this->assertSame('/foo', $this->uri->referrer());
+        self::assertSame('/foo', $this->uri->referrer());
         $this->uri->initializeWithURL('http://localhost/foo/bar/page:test')->init();
-        $this->assertSame('/foo/bar', $this->uri->referrer());
+        self::assertSame('/foo/bar', $this->uri->referrer());
     }
 
-    public function testIp()
+    public function testIp(): void
     {
         $this->uri->initializeWithURL('http://localhost/foo/page:test')->init();
-        $this->assertSame('UNKNOWN', Uri::ip());
+        self::assertSame('UNKNOWN', Uri::ip());
     }
 
-    public function testIsExternal()
+    public function testIsExternal(): void
     {
         $this->uri->initializeWithURL('http://localhost/')->init();
-        $this->assertFalse(Uri::isExternal('/test'));
-        $this->assertFalse(Uri::isExternal('/foo/bar'));
-        $this->assertTrue(Uri::isExternal('http://localhost/test'));
-        $this->assertTrue(Uri::isExternal('http://google.it/test'));
+        self::assertFalse(Uri::isExternal('/test'));
+        self::assertFalse(Uri::isExternal('/foo/bar'));
+        self::assertTrue(Uri::isExternal('http://localhost/test'));
+        self::assertTrue(Uri::isExternal('http://google.it/test'));
     }
 
-    public function testBuildUrl()
+    public function testBuildUrl(): void
     {
         $parsed_url = [
             'scheme' => 'http',
@@ -1107,7 +1107,7 @@ class UriTest extends \Codeception\TestCase\Test
             'port'   => 8080,
         ];
 
-        $this->assertSame('http://localhost:8080', Uri::buildUrl($parsed_url));
+        self::assertSame('http://localhost:8080', Uri::buildUrl($parsed_url));
 
         $parsed_url = [
             'scheme'   => 'http',
@@ -1120,32 +1120,32 @@ class UriTest extends \Codeception\TestCase\Test
             'fragment' => 'xxx',
         ];
 
-        $this->assertSame('http://foo:bar@localhost:8080/test?x=2#xxx', Uri::buildUrl($parsed_url));
+        self::assertSame('http://foo:bar@localhost:8080/test?x=2#xxx', Uri::buildUrl($parsed_url));
 
         /** @var Uri $uri */
         $uri = Grav::instance()['uri'];
 
         $uri->initializeWithUrlAndRootPath('https://testing.dev/subdir/path1/path2/file.html', '/subdir')->init();
-        $this->assertSame('https://testing.dev/subdir/path1/path2/file.html', Uri::buildUrl($uri->toArray(true)));
+        self::assertSame('https://testing.dev/subdir/path1/path2/file.html', Uri::buildUrl($uri->toArray(true)));
 
         $uri->initializeWithUrlAndRootPath('https://testing.dev/subdir/path1/path2/file.foo', '/subdir')->init();
-        $this->assertSame('https://testing.dev/subdir/path1/path2/file.foo', Uri::buildUrl($uri->toArray(true)));
+        self::assertSame('https://testing.dev/subdir/path1/path2/file.foo', Uri::buildUrl($uri->toArray(true)));
 
         $uri->initializeWithUrlAndRootPath('https://testing.dev/subdir/path1/path2/file.html', '/subdir/path1')->init();
-        $this->assertSame('https://testing.dev/subdir/path1/path2/file.html', Uri::buildUrl($uri->toArray(true)));
+        self::assertSame('https://testing.dev/subdir/path1/path2/file.html', Uri::buildUrl($uri->toArray(true)));
 
         $uri->initializeWithUrlAndRootPath('https://testing.dev/subdir/path1/path2/file.html/foo:blah/bang:boom', '/subdir')->init();
-        $this->assertSame('https://testing.dev/subdir/path1/path2/file.html/foo:blah/bang:boom', Uri::buildUrl($uri->toArray(true)));
+        self::assertSame('https://testing.dev/subdir/path1/path2/file.html/foo:blah/bang:boom', Uri::buildUrl($uri->toArray(true)));
 
         $uri->initializeWithUrlAndRootPath('https://testing.dev/subdir/path1/path2/file.html/foo:blah/bang:boom?fig=something', '/subdir')->init();
-        $this->assertSame('https://testing.dev/subdir/path1/path2/file.html/foo:blah/bang:boom?fig=something', Uri::buildUrl($uri->toArray(true)));
+        self::assertSame('https://testing.dev/subdir/path1/path2/file.html/foo:blah/bang:boom?fig=something', Uri::buildUrl($uri->toArray(true)));
     }
 
-    public function testConvertUrl()
+    public function testConvertUrl(): void
     {
     }
 
-    public function testAddNonce()
+    public function testAddNonce(): void
     {
         $this->runTestSet($this->tests, 'addNonce');
     }

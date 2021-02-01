@@ -7,21 +7,21 @@ use Grav\Common\Language\LanguageCodes;
  */
 class LanguageCodesTest extends \Codeception\TestCase\Test
 {
-    public function testRtl()
+    public function testRtl(): void
     {
-        $this->assertSame(
+        self::assertSame(
             'ltr',
             LanguageCodes::getOrientation('en')
         );
-        $this->assertSame(
+        self::assertSame(
             'rtl',
             LanguageCodes::getOrientation('ar')
         );
-        $this->assertSame(
+        self::assertSame(
             'rtl',
             LanguageCodes::getOrientation('he')
         );
-        $this->assertTrue(LanguageCodes::isRtl('ar'));
-        $this->assertFalse(LanguageCodes::isRtl('fr'));
+        self::assertTrue(LanguageCodes::isRtl('ar'));
+        self::assertFalse(LanguageCodes::isRtl('fr'));
     }
 }
