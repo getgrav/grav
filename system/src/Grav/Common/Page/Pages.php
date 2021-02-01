@@ -1751,8 +1751,9 @@ class Pages
             $path = $directory . DS . $filename;
             $child = $this->recurse($path, $page);
 
-            if (Utils::startsWith($filename, '_')) {
+            if (preg_match('/^(\d+\.)_/', $filename)) {
                 $child->routable(false);
+                $child->modularTwig(true);
             }
 
             $this->children[$page->path()][$child->path()] = ['slug' => $child->slug()];
