@@ -11,41 +11,41 @@ class BrowserTest extends \Codeception\TestCase\Test
     /** @var Grav $grav */
     protected $grav;
 
-    protected function _before()
+    protected function _before(): void
     {
         $grav = Fixtures::get('grav');
         $this->grav = $grav();
     }
 
-    protected function _after()
+    protected function _after(): void
     {
     }
 
-    public function testGetBrowser()
-    {
- /* Already covered by PhpUserAgent tests */
-    }
-
-    public function testGetPlatform()
+    public function testGetBrowser(): void
     {
  /* Already covered by PhpUserAgent tests */
     }
 
-    public function testGetLongVersion()
+    public function testGetPlatform(): void
     {
  /* Already covered by PhpUserAgent tests */
     }
 
-    public function testGetVersion()
+    public function testGetLongVersion(): void
     {
  /* Already covered by PhpUserAgent tests */
     }
 
-    public function testIsHuman()
+    public function testGetVersion(): void
+    {
+ /* Already covered by PhpUserAgent tests */
+    }
+
+    public function testIsHuman(): void
     {
         //Already Partially covered by PhpUserAgent tests
 
         //Make sure it recognizes the test as not human
-        $this->assertFalse($this->grav['browser']->isHuman());
+        self::assertFalse($this->grav['browser']->isHuman());
     }
 }

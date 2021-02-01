@@ -3,6 +3,8 @@
 
 1. [](#new)
     * Added `FlexForm::setSubmitMethod()` to customize form submit action
+1. [](#improved)
+    * Improved GPM error handling
 1. [](#bugfix)
     * Fixed `bin/gpm uninstall` script not working because of bad typehint [#3172](https://github.com/getgrav/grav/issues/3172)
     * Fixed `login: visibility_requires_access` not working in pages [#3176](https://github.com/getgrav/grav/issues/3176)
@@ -10,6 +12,10 @@
     * Fixed saving page in expert mode [#3174](https://github.com/getgrav/grav/issues/3174)
     * Fixed exception in `$flexPage->frontmatter()` method when setting value
     * Fixed `onBlueprintCreated` event being called multiple times in `Flex Pages` [grav-plugin-flex-objects#97](https://github.com/trilbymedia/grav-plugin-flex-objects/issues/97)
+    * Fixed wrong ordering in page collections if `intl` extension has been enabled [#3167](https://github.com/getgrav/grav/issues/3167)
+    * Fixed page redirect to the first visible child page (needs to be routable and published, too)
+    * Fixed untranslated module pages showing up in the menu
+    * Fixed page save failing because of uploaded images [#3191](https://github.com/getgrav/grav/issues/3191)
 
 # v1.7.3
 ## 01/21/2021
