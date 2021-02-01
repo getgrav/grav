@@ -52,21 +52,21 @@ jobs:
       - name: Run test suite
         run: vendor/bin/codecept run
 
-  slack:
-      name: Slack
-      needs: unit-tests
-      runs-on: ubuntu-latest
-      if: always()
-      steps:
-        - uses: technote-space/workflow-conclusion-action@v2
-        - uses: 8398a7/action-slack@v3
-          with:
-             status: failure
-             fields: repo,message,author,action
-             icon_emoji: ':octocat:'
-             author_name: 'Github Action Tests'
-             text: '💥 Automated Test Failure'
-          env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-            SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-          if: env.WORKFLOW_CONCLUSION == 'failure'
+#  slack:
+#      name: Slack
+#      needs: unit-tests
+#      runs-on: ubuntu-latest
+#      if: always()
+#      steps:
+#        - uses: technote-space/workflow-conclusion-action@v2
+#        - uses: 8398a7/action-slack@v3
+#          with:
+#             status: failure
+#             fields: repo,message,author,action
+#             icon_emoji: ':octocat:'
+#             author_name: 'Github Action Tests'
+#             text: '💥 Automated Test Failure'
+#          env:
+#            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#            SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+#          if: env.WORKFLOW_CONCLUSION == 'failure'
