@@ -29,11 +29,11 @@ jobs:
         env:
           COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Update composer
-        run: composer update
-
-      - name: Validate composer.json and composer.lock
-        run: composer validate
+#      - name: Update composer
+#        run: composer update
+#
+#      - name: Validate composer.json and composer.lock
+#        run: composer validate
 
       - name: Get composer cache directory
         id: composer-cache
