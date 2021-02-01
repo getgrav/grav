@@ -15,6 +15,7 @@
     * Fixed wrong ordering in page collections if `intl` extension has been enabled [#3167](https://github.com/getgrav/grav/issues/3167)
     * Fixed page redirect to the first visible child page (needs to be routable and published, too)
     * Fixed untranslated module pages showing up in the menu
+    * Fixed page save failing because of uploaded images [#3191](https://github.com/getgrav/grav/issues/3191)
 
 # v1.7.3
 ## 01/21/2021
