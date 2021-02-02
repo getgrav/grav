@@ -66,9 +66,9 @@ class BackupCommand extends GravCommand
 
         ProgressBar::setFormatDefinition('zip', 'Archiving <cyan>%current%</cyan> files [<green>%bar%</green>] <white>%percent:3s%%</white> %elapsed:6s% <yellow>%message%</yellow>');
 
-        $this->progress = $io->createProgressBar();
+        $this->progress = new ProgressBar($this->output, 100);
         $this->progress->setFormat('zip');
-        $this->progress->setBarWidth(100);
+
 
         /** @var Backups $backups */
         $backups = Grav::instance()['backups'];

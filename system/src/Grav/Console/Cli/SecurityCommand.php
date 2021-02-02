@@ -46,7 +46,7 @@ class SecurityCommand extends GravCommand
 
         /** @var Grav $grav */
         $grav = Grav::instance();
-        $this->progress = $io->createProgressBar(count($grav['pages']->routes()) - 1);
+        $this->progress = new ProgressBar($this->output, count($grav['pages']->routes()) - 1);
         $this->progress->setFormat('Scanning <cyan>%current%</cyan> pages [<green>%bar%</green>] <white>%percent:3s%%</white> %elapsed:6s%');
         $this->progress->setBarWidth(100);
 

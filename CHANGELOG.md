@@ -1,3 +1,10 @@
+# v1.7.6
+## 02/dd/2021
+
+1. [](#bugfix)
+    * Fixed CLI progressbar in `backup` and `security` commands to use styled output [#3198](https://github.com/getgrav/grav/issues/3198)
+
+
 # v1.7.5
 ## 02/01/2021
 
