@@ -1,3 +1,9 @@
+# v1.7.5
+## 02/01/2021
+
+1. [](#bugfix)
+    * Revert: Fixed page save failing because of uploaded images [#3191](https://github.com/getgrav/grav/issues/3191) - breaking save
+
 # v1.7.4
 ## 02/01/2021
 
