@@ -354,8 +354,8 @@ class FlexPageObject extends FlexObject implements PageInterface, FlexTranslateI
      */
     public function setNestedProperty($property, $value, $separator = null)
     {
-        if (strpos($property, 'header' . $separator) === 0) {
-            $this->getProperty('header')->set(str_replace('header' . $separator, '', $property), $value, $separator);
+        if (strpos($property, 'header.') === 0) {
+            $this->getProperty('header')->set(str_replace('header.', '', $property), $value, $separator);
 
             return $this;
         }
@@ -372,8 +372,8 @@ class FlexPageObject extends FlexObject implements PageInterface, FlexTranslateI
      */
     public function unsetNestedProperty($property, $separator = null)
     {
-        if (strpos($property, 'header' . $separator) === 0) {
-            $this->getProperty('header')->undef(str_replace('header' . $separator, '', $property), $separator);
+        if (strpos($property, 'header.') === 0) {
+            $this->getProperty('header')->undef(str_replace('header.', '', $property), $separator);
 
             return $this;
         }
