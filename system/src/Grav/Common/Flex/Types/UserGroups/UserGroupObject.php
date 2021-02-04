@@ -11,12 +11,9 @@ declare(strict_types=1);
 
 namespace Grav\Common\Flex\Types\UserGroups;
 
-use Grav\Common\Flex\Traits\FlexGravTrait;
-use Grav\Common\Flex\Traits\FlexObjectTrait;
+use Grav\Common\Flex\FlexObject;
 use Grav\Common\User\Access;
 use Grav\Common\User\Interfaces\UserGroupInterface;
-use Grav\Framework\Flex\FlexObject;
-use Grav\Framework\Flex\Traits\FlexMediaTrait;
 use function is_bool;
 
 /**
@@ -29,10 +26,6 @@ use function is_bool;
  */
 class UserGroupObject extends FlexObject implements UserGroupInterface
 {
-    use FlexGravTrait;
-    use FlexObjectTrait;
-    use FlexMediaTrait;
-
     /** @var Access */
     protected $_access;
     /** @var array|null */

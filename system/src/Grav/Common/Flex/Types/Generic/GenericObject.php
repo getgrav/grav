@@ -11,10 +11,7 @@ declare(strict_types=1);
 
 namespace Grav\Common\Flex\Types\Generic;
 
-use Grav\Common\Flex\Traits\FlexGravTrait;
-use Grav\Common\Flex\Traits\FlexObjectTrait;
-use Grav\Framework\Flex\FlexObject;
-use Grav\Framework\Flex\Traits\FlexMediaTrait;
+use Grav\Common\Flex\FlexObject;
 
 /**
  * Class GenericObject
@@ -22,7 +19,4 @@ use Grav\Framework\Flex\Traits\FlexMediaTrait;
  */
 class GenericObject extends FlexObject
 {
-    use FlexGravTrait;
-    use FlexObjectTrait;
-    use FlexMediaTrait;
 }

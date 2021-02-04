@@ -11,11 +11,9 @@ declare(strict_types=1);
 
 namespace Grav\Common\Flex\Types\Users;
 
-use Grav\Common\Flex\Traits\FlexCollectionTrait;
-use Grav\Common\Flex\Traits\FlexGravTrait;
+use Grav\Common\Flex\FlexCollection;
 use Grav\Common\User\Interfaces\UserCollectionInterface;
 use Grav\Common\User\Interfaces\UserInterface;
-use Grav\Framework\Flex\FlexCollection;
 use function is_string;
 
 /**
@@ -26,9 +24,6 @@ use function is_string;
  */
 class UserCollection extends FlexCollection implements UserCollectionInterface
 {
-    use FlexGravTrait;
-    use FlexCollectionTrait;
-
     /**
      * @return array
      */

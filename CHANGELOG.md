@@ -1,6 +1,8 @@
 # v1.7.6
 ## mm/dd/2021
 
+1. [](#improved)
+    * Added abstract `FlexObject`, `FlexCollection` and `FlexIndex` classes to `\Grav\Common\Flex` namespace (extend those instead of Framework or Generic classes)
 1. [](#bugfix)
     * Fixed CLI progressbar in `backup` and `security` commands to use styled output [#3198](https://github.com/getgrav/grav/issues/3198)
     * Fixed page save failing because of uploaded images [#3191](https://github.com/getgrav/grav/issues/3191)

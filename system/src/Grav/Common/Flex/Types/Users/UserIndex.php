@@ -13,11 +13,9 @@ namespace Grav\Common\Flex\Types\Users;
 
 use Grav\Common\Debugger;
 use Grav\Common\File\CompiledYamlFile;
-use Grav\Common\Flex\Traits\FlexGravTrait;
-use Grav\Common\Flex\Traits\FlexIndexTrait;
+use Grav\Common\Flex\FlexIndex;
 use Grav\Common\Grav;
 use Grav\Common\User\Interfaces\UserInterface;
-use Grav\Framework\Flex\FlexIndex;
 use Grav\Framework\Flex\Interfaces\FlexStorageInterface;
 use Monolog\Logger;
 use function count;
@@ -29,14 +27,10 @@ use function method_exists;
  * @package Grav\Common\Flex\Types\Users
  *
  * @extends FlexIndex<string,UserObject,UserCollection>
- * @mixin UserCollection
  */
 class UserIndex extends FlexIndex
 {
     public const VERSION = parent::VERSION . '.1';
-
-    use FlexGravTrait;
-    use FlexIndexTrait;
 
     /**
      * @param FlexStorageInterface $storage

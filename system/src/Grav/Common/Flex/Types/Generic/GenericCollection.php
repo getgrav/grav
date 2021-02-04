@@ -11,18 +11,14 @@ declare(strict_types=1);
 
 namespace Grav\Common\Flex\Types\Generic;
 
-use Grav\Common\Flex\Traits\FlexCollectionTrait;
-use Grav\Common\Flex\Traits\FlexGravTrait;
-use Grav\Framework\Flex\FlexCollection;
+use Grav\Common\Flex\FlexCollection;
 
 /**
  * Class GenericCollection
  * @package Grav\Common\Flex\Generic
  *
- * @extends FLexCollection<string,GenericObject>
+ * @extends FlexCollection<string,GenericObject>
  */
 class GenericCollection extends FlexCollection
 {
-    use FlexGravTrait;
-    use FlexCollectionTrait;
 }

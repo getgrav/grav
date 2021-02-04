@@ -38,6 +38,7 @@ use function in_array;
  * @template C of FlexCollectionInterface
  * @extends ObjectIndex<TKey,T>
  * @implements FlexIndexInterface<TKey,T>
+ * @mixin C
  */
 class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexIndexInterface
 {

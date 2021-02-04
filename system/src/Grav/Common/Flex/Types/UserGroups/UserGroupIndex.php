@@ -11,19 +11,14 @@ declare(strict_types=1);
 
 namespace Grav\Common\Flex\Types\UserGroups;
 
-use Grav\Common\Flex\Traits\FlexGravTrait;
-use Grav\Common\Flex\Traits\FlexIndexTrait;
-use Grav\Framework\Flex\FlexIndex;
+use Grav\Common\Flex\FlexIndex;
 
 /**
  * Class GroupIndex
  * @package Grav\Common\User\FlexUser
  *
  * @extends FlexIndex<string,UserGroupObject,UserGroupCollection>
- * @mixin UserGroupCollection
  */
 class UserGroupIndex extends FlexIndex
 {
-    use FlexGravTrait;
-    use FlexIndexTrait;
 }

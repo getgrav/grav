@@ -11,9 +11,7 @@ declare(strict_types=1);
 
 namespace Grav\Common\Flex\Types\UserGroups;
 
-use Grav\Common\Flex\Traits\FlexCollectionTrait;
-use Grav\Common\Flex\Traits\FlexGravTrait;
-use Grav\Framework\Flex\FlexCollection;
+use Grav\Common\Flex\FlexCollection;
 
 /**
  * Class UserGroupCollection
@@ -23,9 +21,6 @@ use Grav\Framework\Flex\FlexCollection;
  */
 class UserGroupCollection extends FlexCollection
 {
-    use FlexGravTrait;
-    use FlexCollectionTrait;
-
     /**
      * @return array
      */

@@ -11,19 +11,14 @@ declare(strict_types=1);
 
 namespace Grav\Common\Flex\Types\Generic;
 
-use Grav\Common\Flex\Traits\FlexGravTrait;
-use Grav\Common\Flex\Traits\FlexIndexTrait;
-use Grav\Framework\Flex\FlexIndex;
+use Grav\Common\Flex\FlexIndex;
 
 /**
  * Class GenericIndex
  * @package Grav\Common\Flex\Generic
  *
- * @extends FLexIndex<string,GenericObject,GenericCollection>
- * @mixin GenericCollection
+ * @extends FlexIndex<string,GenericObject,GenericCollection>
  */
 class GenericIndex extends FlexIndex
 {
-    use FlexGravTrait;
-    use FlexIndexTrait;
 }

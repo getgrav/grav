@@ -36,7 +36,6 @@ use function is_string;
  * @package Grav\Plugin\FlexObjects\Types\GravPages
  *
  * @extends FlexPageIndex<string,PageObject,PageCollection>
- * @mixin PageCollection
  *
  * @method PageIndex withModules(bool $bool = true)
  * @method PageIndex withPages(bool $bool = true)
