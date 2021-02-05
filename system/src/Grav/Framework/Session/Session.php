@@ -11,6 +11,8 @@ namespace Grav\Framework\Session;
 
 use ArrayIterator;
 use Exception;
+use Grav\Common\Debugger;
+use Grav\Common\Grav;
 use Grav\Common\User\Interfaces\UserInterface;
 use Grav\Framework\Session\Exceptions\SessionException;
 use RuntimeException;
@@ -285,7 +287,8 @@ class Session implements SessionInterface
         if (PHP_VERSION_ID < 70400) {
             $newId = 0;
         } else {
-            $newId = session_create_id();
+            // Session id creation may fail with some session storages.
+            $newId = @session_create_id() ?: 0;
         }
 
         // Set destroyed timestamp for the old session as well as pointer to the new id.
@@ -294,6 +297,10 @@ class Session implements SessionInterface
 
         // Keep the old session alive to avoid lost sessions by unstable network.
         if (!$newId) {
+            /** @var Debugger $debugger */
+            $debugger = Grav::instance()['debugger'];
+            $debugger->addMessage('Session fixation lost session detection is turned of due to server limitations.', 'warning');
+
             session_regenerate_id(false);
         } else {
             session_write_close();
