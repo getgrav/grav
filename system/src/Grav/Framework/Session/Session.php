@@ -281,16 +281,22 @@ class Session implements SessionInterface
             return $this;
         }
 
-        // TODO: session_create_id() segfaults in PHP 7.3 (PHP bug #73461), remove phpstan rule when fixing this one.
-        $newId = 0; // session_create_id();
+        // TODO: session_create_id() segfaults in PHP 7.3 (PHP bug #73461), remove phpstan rule when removing this one.
+        if (PHP_VERSION_ID < 70400) {
+            $newId = 0;
+        } else {
+            $newId = session_create_id();
+        }
 
         // Set destroyed timestamp for the old session as well as pointer to the new id.
         $this->__set('session_destroyed', time());
         $this->__set('session_new_id', $newId);
 
         // Keep the old session alive to avoid lost sessions by unstable network.
-        // TODO: remove session_regenerate_id() and use session_create_id() from above when not in PHP 7.3 (PHP bug #73461).
-        session_regenerate_id(false);
+        // TODO: remove check when PHP 7.3 isn't supported anymore (the same PHP bug #73461).
+        if (PHP_VERSION_ID < 70400) {
+            session_regenerate_id(false);
+        }
         session_write_close();
 
         // Start session with new session id.
