@@ -30,6 +30,7 @@ class Session implements SessionInterface
     protected $options = [];
     /** @var bool */
     protected $started = false;
+
     /** @var Session */
     protected static $instance;
 
@@ -223,7 +224,17 @@ class Session implements SessionInterface
 
                 // Not fully expired yet. Could be lost cookie by unstable network. Start session with new session id.
                 session_write_close();
+
+                // Start session with new session id.
+                $useStrictMode = $options['use_strict_mode'] ?? 0;
+                if ($useStrictMode) {
+                    ini_set('session.use_strict_mode', '0');
+                }
                 session_id($newId);
+                if ($useStrictMode) {
+                    ini_set('session.use_strict_mode', '1');
+                }
+
                 $success = @session_start($options);
                 if (!$success) {
                     $last = error_get_last();
@@ -248,22 +259,7 @@ class Session implements SessionInterface
 
         // Extend the lifetime of the session.
         if ($sessionExists) {
-            $params = session_get_cookie_params();
-
-            $cookie_options = array (
-                'expires'  => time() + $params['lifetime'],
-                'path'     => $params['path'],
-                'domain'   => $params['domain'],
-                'secure'   => $params['secure'],
-                'httponly' => $params['httponly'],
-                'samesite' => $params['samesite']
-            );
-
-            setcookie(
-                $sessionName,
-                session_id(),
-                $cookie_options
-            );
+            $this->setCookie();
         }
 
         return $this;
@@ -315,7 +311,17 @@ class Session implements SessionInterface
                 ini_set('session.use_strict_mode', '1');
             }
 
-            session_start();
+            $this->removeCookie();
+
+            $success = @session_start($this->options);
+            if (!$success) {
+                $last = error_get_last();
+                $error = $last ? $last['message'] : 'Unknown error';
+
+                throw new RuntimeException($error);
+            }
+
+            $this->onSessionStart();
         }
 
         // New session does not have these.
@@ -452,6 +458,61 @@ class Session implements SessionInterface
 
     protected function onSessionStart(): void
     {
+    }
+
+    /**
+     * @return void
+     */
+    protected function setCookie(): void
+    {
+        $params = session_get_cookie_params();
+
+        $cookie_options = array (
+            'expires'  => time() + $params['lifetime'],
+            'path'     => $params['path'],
+            'domain'   => $params['domain'],
+            'secure'   => $params['secure'],
+            'httponly' => $params['httponly'],
+            'samesite' => $params['samesite']
+        );
+
+        $this->removeCookie();
+
+        setcookie(
+            session_name(),
+            session_id(),
+            $cookie_options
+        );
+    }
+
+    protected function removeCookie(): void
+    {
+        $search = " {$this->getName()}=";
+        $cookies = [];
+        $found = false;
+
+        foreach (headers_list() as $header) {
+            // Identify cookie headers
+            if (strpos($header, 'Set-Cookie:') === 0) {
+                // Add all but session cookie(s).
+                if (!str_contains($header, $search)) {
+                    $cookies[] = $header;
+                } else {
+                    $found = true;
+                }
+            }
+        }
+
+        // Nothing to do.
+        if (false === $found) {
+            return;
+        }
+
+        // Remove all cookies and put back all but session cookie.
+        header_remove('Set-Cookie');
+        foreach($cookies as $cookie) {
+            header($cookie, false);
+        }
     }
 
     /**
