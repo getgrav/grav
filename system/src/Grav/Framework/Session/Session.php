@@ -216,7 +216,7 @@ class Session implements SessionInterface
                     // Should not happen usually. This could be attack or due to unstable network. Destroy this session.
                     $this->invalidate();
 
-                    throw new RuntimeException('Your session was destroyed.', 500);
+                    throw new RuntimeException('Obsolete session access.', 500);
                 }
 
                 // Not fully expired yet. Could be lost cookie by unstable network. Start session with new session id.
@@ -293,14 +293,12 @@ class Session implements SessionInterface
         $this->__set('session_new_id', $newId);
 
         // Keep the old session alive to avoid lost sessions by unstable network.
-        // TODO: remove check when PHP 7.3 isn't supported anymore (the same PHP bug #73461).
-        if (PHP_VERSION_ID < 70400) {
+        if (!$newId) {
             session_regenerate_id(false);
-        }
-        session_write_close();
+        } else {
+            session_write_close();
 
-        // Start session with new session id.
-        if ($newId) {
+            // Start session with new session id.
             $useStrictMode = $this->options['use_strict_mode'] ?? 0;
             if ($useStrictMode) {
                 ini_set('session.use_strict_mode', '0');
@@ -309,8 +307,9 @@ class Session implements SessionInterface
             if ($useStrictMode) {
                 ini_set('session.use_strict_mode', '1');
             }
+
+            session_start();
         }
-        session_start();
 
         // New session does not have these.
         $this->__unset('session_destroyed');
