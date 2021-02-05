@@ -759,6 +759,12 @@ class Pages
 
         $instance = $this->index[$path] ?? null;
         if (is_string($instance)) {
+            /** @var Language $language */
+            $language = $this->grav['language'];
+            $lang = $language->getActive();
+            if ($lang) {
+                $instance .= ':' . $lang;
+            }
             $instance = $this->directory ? $this->directory->getObject($instance, 'flex_key') : null;
             if ($instance) {
                 if ($this->fire_events && method_exists($instance, 'initialize')) {

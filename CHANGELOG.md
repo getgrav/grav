@@ -7,6 +7,7 @@
 1. [](#bugfix)
     * Fixed CLI progressbar in `backup` and `security` commands to use styled output [#3198](https://github.com/getgrav/grav/issues/3198)
     * Fixed page save failing because of uploaded images [#3191](https://github.com/getgrav/grav/issues/3191)
+    * Fixed `Flex Pages` using only default language in frontend [#106](https://github.com/trilbymedia/grav-plugin-flex-objects/issues/106)
 
 # v1.7.5
 ## 02/01/2021
