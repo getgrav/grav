@@ -349,6 +349,8 @@ class Session implements SessionInterface
                 'samesite' => $params['samesite']
             );
 
+            $this->removeCookie();
+
             setcookie(
                 session_name(),
                 '',
