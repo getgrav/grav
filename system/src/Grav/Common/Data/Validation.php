@@ -1117,6 +1117,21 @@ class Validation
     }
 
     /**
+     * Custom input: int
+     *
+     * @param  mixed  $value   Value to be validated.
+     * @param  array  $params  Validation parameters.
+     * @param  array  $field   Blueprint for the field.
+     * @return bool   True if validation succeeded.
+     */
+    public static function typeInt($value, array $params, array $field)
+    {
+        $params['step'] = max(1, (int)($params['step'] ?? 0));
+
+        return self::typeNumber($value, $params, $field);
+    }
+
+    /**
      * @param mixed $value
      * @param mixed $params
      * @return bool
