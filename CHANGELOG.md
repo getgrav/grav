@@ -7,6 +7,7 @@
     * Improved session fixation handling in PHP 7.4+ (cannot fix it in PHP 7.3 due to PHP bug)
     * Added optional password/database attributes for redis in `system.yaml`
 1. [](#bugfix)
+    * Fixed issue with `content-security-policy` not being properly supported with `http-equiv` + support single quotes
     * Fixed CLI progressbar in `backup` and `security` commands to use styled output [#3198](https://github.com/getgrav/grav/issues/3198)
     * Fixed page save failing because of uploaded images [#3191](https://github.com/getgrav/grav/issues/3191)
     * Fixed `Flex Pages` using only default language in frontend [#106](https://github.com/trilbymedia/grav-plugin-flex-objects/issues/106)
