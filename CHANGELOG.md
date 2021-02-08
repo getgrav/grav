@@ -11,6 +11,7 @@
     * Fixed page save failing because of uploaded images [#3191](https://github.com/getgrav/grav/issues/3191)
     * Fixed `Flex Pages` using only default language in frontend [#106](https://github.com/trilbymedia/grav-plugin-flex-objects/issues/106)
     * Fixed empty `route()` and `raw_route()` when getting translated pages [#3184](https://github.com/getgrav/grav/pull/3184)
+    * Fixed error on `bin/gpm plugin uninstall` [#3207](https://github.com/getgrav/grav/issues/3207)
 
 # v1.7.5
 ## 02/01/2021
