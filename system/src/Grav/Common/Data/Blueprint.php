@@ -294,13 +294,14 @@ class Blueprint extends BlueprintForm
      * Flatten data by using blueprints.
      *
      * @param  array $data
+     * @param  bool $includeAll
      * @return array
      */
-    public function flattenData(array $data)
+    public function flattenData(array $data, bool $includeAll = false)
     {
         $this->initInternals();
 
-        return $this->blueprintSchema->flattenData($data);
+        return $this->blueprintSchema->flattenData($data, $includeAll);
     }
 
 
