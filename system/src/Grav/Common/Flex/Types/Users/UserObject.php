@@ -120,11 +120,22 @@ class UserObject extends FlexObject implements UserInterface, Countable
         // User can only be authenticated via login.
         unset($elements['authenticated'], $elements['authorized']);
 
-        parent::__construct($elements, $key, $directory, $validate);
+        // Define username if it's not set.
+        if (!isset($elements['username'])) {
+            $storageKey = $elements['__META']['storage_key'] ?? null;
+            if (null !== $storageKey && $key === $directory->getStorage()->normalizeKey($storageKey)) {
+                $elements['username'] = $storageKey;
+            } else {
+                $elements['username'] = $key;
+            }
+        }
 
-        // Define username and state if they aren't set.
-        $this->defProperty('username', $key);
-        $this->defProperty('state', 'enabled');
+        // Define state if it isn't set.
+        if (!isset($elements['state'])) {
+            $elements['state'] = 'enabled';
+        }
+
+        parent::__construct($elements, $key, $directory, $validate);
     }
 
     /**

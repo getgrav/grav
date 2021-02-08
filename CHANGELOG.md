@@ -16,6 +16,7 @@
     * Fixed error on `bin/gpm plugin uninstall` [#3207](https://github.com/getgrav/grav/issues/3207)
     * Fixed lowering uppercase characters in usernames when saving from frontend [#2565](https://github.com/getgrav/grav/pull/2565)
     * Fixed broken min/max validation for field `type: int`
+    * Fixed save error when editing accounts that have been created with capital letters in their username [#3211](https://github.com/getgrav/grav/issues/3211)
 
 # v1.7.5
 ## 02/01/2021
