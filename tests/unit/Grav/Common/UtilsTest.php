@@ -299,7 +299,9 @@ class UtilsTest extends \Codeception\TestCase\Test
         $oneLanguageNotEnabled = reset($languagesNotEnabled);
 
         if (count($languagesEnabled)) {
-            self::assertTrue(Utils::pathPrefixedByLangCode('/' . $languagesEnabled[0] . '/test'));
+            $languageCodePathPrefix = Utils::pathPrefixedByLangCode('/' . $languagesEnabled[0] . '/test');
+            $this->assertIsString($languageCodePathPrefix);
+            $this->assertTrue(in_array($languageCodePathPrefix, $languagesEnabled));
         }
 
         self::assertFalse(Utils::pathPrefixedByLangCode('/' . $oneLanguageNotEnabled . '/test'));
