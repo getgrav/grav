@@ -448,6 +448,10 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
                         'has-children' => $child_count > 0
                     ];
                 } else {
+                    $lang = $child->findTranslation($language) ?? 'n/a';
+                    /** @var PageObject $child */
+                    $child = $child->getTranslation($language) ?? $child;
+
                     // TODO: all these features are independent from each other, we cannot just have one icon/color to catch all.
                     // TODO: maybe icon by home/modular/page/folder (or even from blueprints) and color by visibility etc..
                     if ($child->home()) {
@@ -467,9 +471,6 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
                         $child->visible() ? 'visible' : 'non-visible',
                         $child->routable() ? 'routable' : 'non-routable'
                     ];
-                    $lang = $child->findTranslation($language) ?? 'n/a';
-                    /** @var PageObject $child */
-                    $child = $child->getTranslation($language) ?? $child;
                     $extras = [
                         'template' => $child->template(),
                         'lang' => $lang ?: null,

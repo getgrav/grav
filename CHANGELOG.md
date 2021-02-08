@@ -18,6 +18,7 @@
     * Fixed lowering uppercase characters in usernames when saving from frontend [#2565](https://github.com/getgrav/grav/pull/2565)
     * Fixed save error when editing accounts that have been created with capital letters in their username [#3211](https://github.com/getgrav/grav/issues/3211)
     * Fixed renaming flex objects key when using file storage
+    * Fixed wrong values in Admin pages list [#3214](https://github.com/getgrav/grav/issues/3214)
 
 # v1.7.5
 ## 02/01/2021
