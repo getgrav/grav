@@ -19,22 +19,6 @@ use Grav\Framework\Flex\Storage\FolderStorage;
  */
 class UserFolderStorage extends FolderStorage
 {
-    /** @var bool */
-    public $caseSensitive;
-
-    /**
-     * @param string $key
-     * @return string
-     */
-    public function normalizeKey(string $key): string
-    {
-        if ($this->caseSensitive === true) {
-            return $key;
-        }
-
-        return mb_strtolower($key);
-    }
-
     /**
      * Prepares the row for saving and returns the storage key for the record.
      *
@@ -49,16 +33,5 @@ class UserFolderStorage extends FolderStorage
         if ($access) {
             $row['access'] = $access;
         }
-    }
-
-    /**
-     * @param array $options
-     * @return void
-     */
-    protected function initOptions(array $options): void
-    {
-        parent::initOptions($options);
-
-        $this->caseSensitive = $options['case_sensitive'] ?? false;
     }
 }

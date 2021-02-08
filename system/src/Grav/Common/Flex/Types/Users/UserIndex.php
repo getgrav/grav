@@ -146,11 +146,7 @@ class UserIndex extends FlexIndex
      */
     protected static function filterUsername(string $key, FlexStorageInterface $storage): string
     {
-        if (method_exists($storage, 'normalizeKey')) {
-            return $storage->normalizeKey($key);
-        }
-
-        return mb_strtolower($key);
+        return $storage->normalizeKey($key);
     }
 
     /**

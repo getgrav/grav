@@ -271,7 +271,8 @@ class Page implements PageInterface
             if ($exists) {
                 $aPage = new Page();
                 $aPage->init(new SplFileInfo($path), $languageExtension);
-
+                $aPage->route($this->route());
+                $aPage->rawRoute($this->rawRoute());
                 $route = $aPage->header()->routes['default'] ?? $aPage->rawRoute();
                 if (!$route) {
                     $route = $aPage->route();

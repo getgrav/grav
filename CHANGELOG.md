@@ -6,11 +6,20 @@
     * Updated bundled `composer.phar` binary to latest version `2.0.9`
     * Improved session fixation handling in PHP 7.4+ (cannot fix it in PHP 7.3 due to PHP bug)
     * Added optional password/database attributes for redis in `system.yaml`
+    * Added ability to filter enabled or disabled with bin/gpm index [#3187](https://github.com/getgrav/grav/pull/3187)
+    * Added `$grav->getVersion()` or `grav.version` in twig to get the current Grav version [#3142](https://github.com/getgrav/grav/issues/3142)
 1. [](#bugfix)
     * Fixed issue with `content-security-policy` not being properly supported with `http-equiv` + support single quotes
     * Fixed CLI progressbar in `backup` and `security` commands to use styled output [#3198](https://github.com/getgrav/grav/issues/3198)
     * Fixed page save failing because of uploaded images [#3191](https://github.com/getgrav/grav/issues/3191)
     * Fixed `Flex Pages` using only default language in frontend [#106](https://github.com/trilbymedia/grav-plugin-flex-objects/issues/106)
+    * Fixed empty `route()` and `raw_route()` when getting translated pages [#3184](https://github.com/getgrav/grav/pull/3184)
+    * Fixed error on `bin/gpm plugin uninstall` [#3207](https://github.com/getgrav/grav/issues/3207)
+    * Fixed broken min/max validation for field `type: int`
+    * Fixed lowering uppercase characters in usernames when saving from frontend [#2565](https://github.com/getgrav/grav/pull/2565)
+    * Fixed save error when editing accounts that have been created with capital letters in their username [#3211](https://github.com/getgrav/grav/issues/3211)
+    * Fixed renaming flex objects key when using file storage
+    * Fixed wrong values in Admin pages list [#3214](https://github.com/getgrav/grav/issues/3214)
 
 # v1.7.5
 ## 02/01/2021
