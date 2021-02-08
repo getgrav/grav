@@ -1666,7 +1666,7 @@ class Page implements PageInterface
 
         // if not metadata yet, process it.
         if (null === $this->metadata) {
-            $header_tag_http_equivs = ['content-type', 'default-style', 'refresh', 'x-ua-compatible'];
+            $header_tag_http_equivs = ['content-type', 'default-style', 'refresh', 'x-ua-compatible', 'content-security-policy'];
 
             $this->metadata = [];
 
@@ -1699,7 +1699,7 @@ class Page implements PageInterface
                         $this->metadata[$prop_key] = [
                             'name' => $prop_key,
                             'property' => $prop_key,
-                            'content' => $escape ? htmlspecialchars($prop_value, ENT_QUOTES, 'UTF-8') : $prop_value
+                            'content' => $escape ? htmlspecialchars($prop_value, ENT_QUOTES | ENT_HTML5, 'UTF-8') : $prop_value
                         ];
                     }
                 } else {
@@ -1708,16 +1708,16 @@ class Page implements PageInterface
                         if (in_array($key, $header_tag_http_equivs, true)) {
                             $this->metadata[$key] = [
                                 'http_equiv' => $key,
-                                'content' => $escape ? htmlspecialchars($value, ENT_QUOTES, 'UTF-8') : $value
+                                'content' => $escape ? htmlspecialchars($value, ENT_COMPAT, 'UTF-8') : $value
                             ];
                         } elseif ($key === 'charset') {
-                            $this->metadata[$key] = ['charset' => $escape ? htmlspecialchars($value, ENT_QUOTES, 'UTF-8') : $value];
+                            $this->metadata[$key] = ['charset' => $escape ? htmlspecialchars($value, ENT_QUOTES | ENT_HTML5, 'UTF-8') : $value];
                         } else {
                             // if it's a social metadata with separator, render as property
                             $separator = strpos($key, ':');
                             $hasSeparator = $separator && $separator < strlen($key) - 1;
                             $entry = [
-                                'content' => $escape ? htmlspecialchars($value, ENT_QUOTES, 'UTF-8') : $value
+                                'content' => $escape ? htmlspecialchars($value, ENT_QUOTES | ENT_HTML5, 'UTF-8') : $value
                             ];
 
                             if ($hasSeparator && !Utils::startsWith($key, 'twitter')) {
