@@ -12,6 +12,10 @@ $grav = function () {
     $grav = Grav::instance();
     $grav['config']->init();
 
+    // This must be set first before the other init
+    $grav['config']->set('system.languages.supported', ['en', 'fr', 'vi']);
+    $grav['config']->set('system.languages.default_lang', 'en');
+
     foreach (array_keys($grav['setup']->getStreams()) as $stream) {
         @stream_wrapper_unregister($stream);
     }

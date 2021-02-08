@@ -1196,7 +1196,6 @@ abstract class Utils
         if (count($parts) > 0 && in_array($parts[0], $languages_enabled)) {
             return $parts[0];
         }
-
         return false;
     }
 
