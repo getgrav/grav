@@ -146,23 +146,11 @@ class GPM extends Iterator
      * @param  string $slug
      * @return bool True if the Plugin is Enabled. False if manually set to enable:false. Null otherwise.
      */
-    public function isPluginEnabled($slug)
+    public function isPluginEnabled($slug): bool
     {
-        $result = null;
-        $grav = new Grav();
-        $config = $grav::instance()['config']['plugins'];
-        $installed = $this->isPluginInstalled($slug);
+        $grav = Grav::instance();
 
-        $enabled = isset($config[$slug]) && ((bool)$config[$slug]['enabled'] == true);
-        $disabled = isset($config[$slug]['enabled']) && ((bool)$config[$slug]['enabled'] === false);
-
-        if ($enabled) {
-            $result = true;
-        }
-        if ($disabled) {
-            $result = false;
-        }
-        return $result;
+        return ($grav['config']['plugins'][$slug]['enabled'] ?? false) === true;
     }
 
     /**
@@ -171,7 +159,7 @@ class GPM extends Iterator
      * @param  string $slug The slug of the Plugin
      * @return bool True if the Plugin has been installed. False otherwise
      */
-    public function isPluginInstalled($slug)
+    public function isPluginInstalled($slug): bool
     {
         return isset($this->installed['plugins'][$slug]);
     }
@@ -212,22 +200,15 @@ class GPM extends Iterator
      * Checks if a Theme is enabled
      *
      * @param  string $slug The slug of the Theme
-     * @return bool
-     *   True if the Theme has been set to the default theme. False if installed, but not enabled. Null otherwise.
+     * @return bool True if the Theme has been set to the default theme. False if installed, but not enabled. Null otherwise.
      */
-    public function isThemeEnabled($slug)
+    public function isThemeEnabled($slug): bool
     {
-        $grav = new Grav();
-        $result = null;
-        $current_theme = $grav::instance()['config']['system']['pages']['theme'];
-        $theme_installed = $this->isThemeInstalled($slug);
+        $grav = Grav::instance();
 
-        if ($current_theme == $slug) {
-            $result = true;
-        } elseif ($theme_installed) {
-            $result = false;
-        }
-        return $result;
+        $current_theme = $grav['config']['system']['pages']['theme'] ?? null;
+
+        return $current_theme === $slug;
     }
 
     /**
@@ -236,7 +217,7 @@ class GPM extends Iterator
      * @param  string $slug The slug of the Theme
      * @return bool True if the Theme has been installed. False otherwise
      */
-    public function isThemeInstalled($slug)
+    public function isThemeInstalled($slug): bool
     {
         return isset($this->installed['themes'][$slug]);
     }

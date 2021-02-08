@@ -216,15 +216,19 @@ class IndexCommand extends GpmCommand
     {
         $package   = $list[$package->slug] ?? $package;
         $type      = ucfirst(preg_replace('/s$/', '', $package->package_type));
-        $method = 'is' . $type . 'Enabled';
-        $enabled = $this->gpm->{$method}($package->slug);
+        $method = 'is' . $type . 'Installed';
+        $installed = $this->gpm->{$method}($package->slug);
 
-        if ($enabled === null) {
+        if ($installed) {
+            $method = 'is' . $type . 'Enabled';
+            $enabled = $this->gpm->{$method}($package->slug);
+            if ($enabled === true) {
+                $result = '<cyan>enabled</cyan>';
+            } elseif ($enabled === false) {
+                $result = '<red>disabled</red>';
+            }
+        } else {
             $result = '';
-        } elseif ($enabled === true) {
-            $result = '<cyan>enabled</cyan>';
-        } elseif ($enabled === false) {
-            $result = '<red>disabled</red>';
         }
 
         return $result;
@@ -264,7 +268,7 @@ class IndexCommand extends GpmCommand
                     }
 
                     // Filtering updatables only
-                    if ($filter && $this->options['installed-only']) {
+                    if ($filter && ($this->options['installed-only'] || $this->options['enabled'] || $this->options['disabled'])) {
                         $method = ucfirst(preg_replace('/s$/', '', $package->package_type));
                         $function = 'is' . $method . 'Installed';
                         $filter = $this->gpm->{$function}($package->slug);
