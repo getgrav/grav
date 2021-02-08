@@ -110,7 +110,7 @@ class User extends Data implements UserInterface
     }
 
     /**
-     * Save user without the username
+     * Save user
      *
      * @return void
      */
@@ -138,7 +138,10 @@ class User extends Data implements UserInterface
             }
 
             $data = $this->items;
-            unset($data['username'], $data['authenticated'], $data['authorized']);
+            if ($username === $data['username']) {
+                unset($data['username']);
+            }
+            unset($data['authenticated'], $data['authorized']);
 
             $file->save($data);
 

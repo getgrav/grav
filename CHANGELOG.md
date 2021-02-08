@@ -14,6 +14,7 @@
     * Fixed `Flex Pages` using only default language in frontend [#106](https://github.com/trilbymedia/grav-plugin-flex-objects/issues/106)
     * Fixed empty `route()` and `raw_route()` when getting translated pages [#3184](https://github.com/getgrav/grav/pull/3184)
     * Fixed error on `bin/gpm plugin uninstall` [#3207](https://github.com/getgrav/grav/issues/3207)
+    * Fixed lowering uppercase characters in usernames when saving from frontend [#2565](https://github.com/getgrav/grav/pull/2565)
 
 # v1.7.5
 ## 02/01/2021

@@ -535,7 +535,7 @@ class UserObject extends FlexObject implements UserInterface, Countable
     }
 
     /**
-     * Save user without the username
+     * Save user
      *
      * @return static
      */
