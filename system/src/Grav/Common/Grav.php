@@ -162,6 +162,19 @@ class Grav extends Container
         return self::$instance;
     }
 
+    /**
+     * Get Grav version.
+     *
+     * @return string
+     */
+    public function getVersion(): string
+    {
+        return GRAV_VERSION;
+    }
+
+    /**
+     * @return bool
+     */
     public function isSetup(): bool
     {
         return isset($this->initialized['setup']);
