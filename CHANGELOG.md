@@ -21,6 +21,7 @@
     * Fixed save error when editing accounts that have been created with capital letters in their username [#3211](https://github.com/getgrav/grav/issues/3211)
     * Fixed renaming flex objects key when using file storage
     * Fixed wrong values in Admin pages list [#3214](https://github.com/getgrav/grav/issues/3214)
+    * Fixed pipelined asset using different hash when extra asset is added to before/after position [#2781](https://github.com/getgrav/grav/issues/2781)
 
 # v1.7.5
 ## 02/01/2021

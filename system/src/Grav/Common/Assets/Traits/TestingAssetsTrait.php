@@ -189,6 +189,7 @@ trait TestingAssetsTrait
         $this->resetJs();
         $this->setCssPipeline(false);
         $this->setJsPipeline(false);
+        $this->order = [];
 
         return $this;
     }
