@@ -425,7 +425,8 @@ class InitializeProcessor extends ProcessorBase
         $root = $this->container['uri']->rootUrl();
 
         if ($path !== $root && $path !== $root . '/' && Utils::endsWith($path, '/')) {
-            return $this->container->getRedirectResponse((string)$uri->withPath(rtrim($path, '/')));
+            // Use permanent redirect for SEO reasons.
+            return $this->container->getRedirectResponse((string)$uri->withPath(rtrim($path, '/')), 301);
         }
 
         return null;

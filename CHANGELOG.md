@@ -22,7 +22,7 @@
     * Fixed renaming flex objects key when using file storage
     * Fixed wrong values in Admin pages list [#3214](https://github.com/getgrav/grav/issues/3214)
     * Fixed pipelined asset using different hash when extra asset is added to before/after position [#2781](https://github.com/getgrav/grav/issues/2781)
-    * Only redirect GET/HEAD if `system.pages.redirect_trailing_slash` is true and request has a trailing slash
+    * Fixed trailing slash redirect to only apply to GET/HEAD requests and use 301 status code [#3127](https://github.com/getgrav/grav/issues/3127)
 
 # v1.7.5
 ## 02/01/2021
