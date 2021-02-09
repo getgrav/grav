@@ -219,6 +219,7 @@ class IndexCommand extends GpmCommand
         $method = 'is' . $type . 'Installed';
         $installed = $this->gpm->{$method}($package->slug);
 
+        $result = '';
         if ($installed) {
             $method = 'is' . $type . 'Enabled';
             $enabled = $this->gpm->{$method}($package->slug);
@@ -227,8 +228,6 @@ class IndexCommand extends GpmCommand
             } elseif ($enabled === false) {
                 $result = '<red>disabled</red>';
             }
-        } else {
-            $result = '';
         }
 
         return $result;

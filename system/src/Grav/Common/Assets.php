@@ -242,7 +242,7 @@ class Assets extends PropertyObject
            $this->order[$orderKey] = 0;
         }
 
-        $options['order'] = ++$this->order[$orderKey];
+        $options['order'] = $this->order[$orderKey]++;
 
         // Create asset of correct type
         $asset_object = new $type();
