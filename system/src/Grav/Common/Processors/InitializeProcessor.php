@@ -30,6 +30,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use function defined;
+use function in_array;
 
 /**
  * Class InitializeProcessor
@@ -414,6 +415,10 @@ class InitializeProcessor extends ProcessorBase
 
     protected function handleRedirectRequest(RequestInterface $request): ?ResponseInterface
     {
+        if (!in_array($request->getMethod(), ['GET', 'HEAD'])) {
+            return null;
+        }
+
         // Redirect pages with trailing slash if configured to do so.
         $uri = $request->getUri();
         $path = $uri->getPath() ?: '/';
