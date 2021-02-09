@@ -116,7 +116,7 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
         if ($includeAll) {
             foreach ($this->items as $key => $rules) {
                 $type = $rules['type'] ?? '';
-                if (!str_starts_with($type, '_')) {
+                if (!str_starts_with($type, '_') && !str_contains($key, '*')) {
                     $list[$key] = null;
                 }
             }
