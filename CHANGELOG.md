@@ -1,6 +1,8 @@
 # v1.7.6
 ## mm/dd/2021
 
+1. [](#new)
+    * Added `Medium::attribute()` to pass arbitrary attributes [#3065](https://github.com/getgrav/grav/pull/3065)
 1. [](#improved)
     * Added abstract `FlexObject`, `FlexCollection` and `FlexIndex` classes to `\Grav\Common\Flex` namespace (extend those instead of Framework or Generic classes)
     * Updated bundled `composer.phar` binary to latest version `2.0.9`

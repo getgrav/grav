@@ -304,6 +304,21 @@ trait MediaObjectTrait
     }
 
     /**
+     * Add custom attribute to medium.
+     *
+     * @param string $attribute
+     * @param string $value
+     * @return $this
+     */
+    public function attribute($attribute = null, $value = '')
+    {
+        if (!empty($attribute)) {
+            $this->attributes[$attribute] = $value;
+        }
+        return $this;
+    }
+
+    /**
      * Switch display mode.
      *
      * @param string $mode
