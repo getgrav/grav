@@ -449,12 +449,20 @@ class Pages
             }
         }
 
-        // Remove any inclusive sets from filter.
         $filters = $params['filter'] ?? [];
 
         // Assume published=true if not set.
         if (!isset($filters['published']) && !isset($filters['non-published'])) {
             $filters['published'] = true;
+        }
+
+        // Remove any inclusive sets from filter.
+        $sets = ['published', 'visible', 'modular', 'routable'];
+        foreach ($sets as $type) {
+            $var = "non-{$type}";
+            if (isset($filters[$type], $filters[$var]) && $filters[$type] && $filters[$var]) {
+                unset($filters[$type], $filters[$var]);
+            }
         }
 
         // Filter the collection
