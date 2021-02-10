@@ -459,14 +459,24 @@ class Pages
         // Remove any inclusive sets from filter.
         $sets = ['published', 'visible', 'modular', 'routable'];
         foreach ($sets as $type) {
-            $var = "non-{$type}";
-            if (isset($filters[$type], $filters[$var]) && $filters[$type] && $filters[$var]) {
-                unset($filters[$type], $filters[$var]);
+            $nonType = "non-{$type}";
+            if (isset($filters[$type], $filters[$nonType]) && $filters[$type] === $filters[$nonType]) {
+                if (!$filters[$type]) {
+                    // Both options are false, return empty collection as nothing can match the filters.
+                    return new Collection();
+                }
+
+                // Both options are true, remove opposite filters as all pages will match the filters.
+                unset($filters[$type], $filters[$nonType]);
             }
         }
 
         // Filter the collection
         foreach ($filters as $type => $filter) {
+            if (null === $filter) {
+                continue;
+            }
+
             // Convert non-type to type.
             if (str_starts_with($type, 'non-')) {
                 $type = substr($type, 4);
