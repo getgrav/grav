@@ -172,7 +172,8 @@ session:
   httponly: true                                 # Set session HTTP only. If true, indicates that cookies should be used only over HTTP, and JavaScript modification is not allowed.
   samesite: Lax                                  # Set session SameSite. Possible values are Lax, Strict and None. See https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie/SameSite
   split: true                                    # Sessions should be independent between site and plugins (such as admin)
-  path:
+  domain:                                        # Domain used by sessions.
+  path:                                          # Path used by sessions.
 
 gpm:
   releases: stable                               # Set to either 'stable' or 'testing'

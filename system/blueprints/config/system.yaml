@@ -1348,6 +1348,12 @@ form:
               validate:
                 type: bool
 
+            session.domain:
+              type: text
+              size: small
+              label: PLUGIN_ADMIN.SESSION_DOMAIN
+              help: PLUGIN_ADMIN.SESSION_DOMAIN_HELP
+
             session.path:
               type: text
               size: small
