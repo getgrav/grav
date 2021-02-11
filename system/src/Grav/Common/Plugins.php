@@ -171,6 +171,33 @@ class Plugins extends Iterator
     }
 
     /**
+     * @return Plugin[] Index of all plugins by plugin name.
+     */
+    public static function getPlugins(): array
+    {
+        $grav = Grav::instance();
+        $plugins = $grav['plugins'];
+
+        $list = [];
+        foreach ($plugins as $instance) {
+            $list[$instance->name] = $instance;
+        }
+
+        return $list;
+    }
+
+    /**
+     * @param string $name Plugin name
+     * @return Plugin|null Plugin object or null if plugin cannot be found.
+     */
+    public static function getPlugin(string $name)
+    {
+        $list = static::getPlugins();
+
+        return $list[$name] ?? null;
+    }
+
+    /**
      * Return list of all plugin data with their blueprints.
      *
      * @return array<string,Data>
