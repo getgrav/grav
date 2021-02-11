@@ -1162,13 +1162,13 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
     /**
      * Twig wrapper for PHP's preg_match method
      *
-     * @param string $pattern the regex pattern to use for match
      * @param string $subject the content to perform the match on
+     * @param string $pattern the regex pattern to use for match
      * @param int $flags
      * @param int $offset
      * @return array|false returns the matches if there is at least one match in the subject for a given pattern or null if not.
      */
-    public function regexMatch($pattern, $subject, $flags = 0, $offset = 0)
+    public function regexMatch($subject, $pattern, $flags = 0, $offset = 0)
     {
         if (preg_match($pattern, $subject, $matches, $flags, $offset) === false) {
             return false;
@@ -1180,13 +1180,13 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
     /**
      * Twig wrapper for PHP's preg_split method
      *
-     * @param string $pattern the regex pattern to use for split
      * @param string $subject the content to perform the split on
+     * @param string $pattern the regex pattern to use for split
      * @param int $limit the maximum possible splits for the given pattern
      * @param int $flags
      * @return array|false the resulting array after performing the split operation
      */
-    public function regexSplit($pattern, $subject, $limit = -1, $flags = 0)
+    public function regexSplit($subject, $pattern, $limit = -1, $flags = 0)
     {
         return preg_split($pattern, $subject, $limit, $flags);
     }
