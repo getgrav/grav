@@ -27,6 +27,7 @@
     * Fixed wrong values in Admin pages list [#3214](https://github.com/getgrav/grav/issues/3214)
     * Fixed pipelined asset using different hash when extra asset is added to before/after position [#2781](https://github.com/getgrav/grav/issues/2781)
     * Fixed trailing slash redirect to only apply to GET/HEAD requests and use 301 status code [#3127](https://github.com/getgrav/grav/issues/3127)
+    * Fixed root page to always contain trailing slash [#3127](https://github.com/getgrav/grav/issues/3127)
     * Fixed `<meta name="flattr:*" content="*">` to use name instead property [#3010](https://github.com/getgrav/grav/pull/3010)
     * Fixed behavior of opposite filters in `Pages::getCollection()` to match Grav 1.6 [#3216](https://github.com/getgrav/grav/pull/3216)
 

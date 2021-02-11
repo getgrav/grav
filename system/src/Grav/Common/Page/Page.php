@@ -1859,11 +1859,6 @@ class Page implements PageInterface
         $uri = $grav['uri'];
         $url = $uri->rootUrl($include_host) . '/' . trim($route, '/') . $this->urlExtension();
 
-        // trim trailing / if not root
-        if ($url !== '/') {
-            $url = rtrim($url, '/');
-        }
-
         return Uri::filterPath($url);
     }
 
