@@ -24,6 +24,7 @@ use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Media\Traits\MediaTrait;
 use Grav\Common\Page\Markdown\Excerpts;
 use Grav\Common\Page\Traits\PageFormTrait;
+use Grav\Common\Twig\Twig;
 use Grav\Common\Uri;
 use Grav\Common\Utils;
 use Grav\Common\Yaml;
@@ -938,6 +939,7 @@ class Page implements PageInterface
      */
     private function processTwig()
     {
+        /** @var Twig $twig */
         $twig = Grav::instance()['twig'];
         $this->content = $twig->processPage($this, $this->content);
     }
@@ -949,6 +951,7 @@ class Page implements PageInterface
      */
     public function cachePageContent()
     {
+        /** @var Cache $cache */
         $cache = Grav::instance()['cache'];
         $cache_id = md5('page' . $this->getCacheKey());
         $cache->save($cache_id, ['content' => $this->content, 'content_meta' => $this->content_meta]);

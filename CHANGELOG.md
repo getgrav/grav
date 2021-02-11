@@ -31,6 +31,7 @@
     * Fixed root page to always contain trailing slash [#3127](https://github.com/getgrav/grav/issues/3127)
     * Fixed `<meta name="flattr:*" content="*">` to use name instead property [#3010](https://github.com/getgrav/grav/pull/3010)
     * Fixed behavior of opposite filters in `Pages::getCollection()` to match Grav 1.6 [#3216](https://github.com/getgrav/grav/pull/3216)
+    * Fixed modular content with missing template file ending up using non-modular template [#3218](https://github.com/getgrav/grav/issues/3218)
 
 # v1.7.5
 ## 02/01/2021
