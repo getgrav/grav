@@ -810,9 +810,10 @@ class UserObject extends FlexObject implements UserInterface, Countable
 
     /**
      * @param array|mixed $value
+     * @param array $settings
      * @return array|mixed
      */
-    protected function parseFileProperty($value)
+    protected function parseFileProperty($value, array $settings = [])
     {
         if (!is_array($value)) {
             return $value;
