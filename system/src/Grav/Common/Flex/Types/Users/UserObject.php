@@ -281,32 +281,6 @@ class UserObject extends FlexObject implements UserInterface, Countable
     }
 
     /**
-     * Get value from a page variable (used mostly for creating edit forms).
-     *
-     * @param string $name Variable name.
-     * @param mixed $default
-     * @param string|null $separator
-     * @return mixed
-     */
-    public function getFormValue(string $name, $default = null, string $separator = null)
-    {
-        $value = parent::getFormValue($name, null, $separator);
-
-        $settings = $this->getFieldSettings($name);
-        if ($settings['media_field'] ?? false === true) {
-            return $this->parseFileProperty($value);
-        }
-
-        if (null === $value) {
-            if ($name === 'media_order') {
-                return implode(',', $this->getMediaOrder());
-            }
-        }
-
-        return $value ?? $default;
-    }
-
-    /**
      * @param string $property
      * @param mixed $default
      * @return mixed
