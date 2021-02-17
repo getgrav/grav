@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Twig
  *
- * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -289,8 +289,7 @@ class Twig
         $output = '';
 
         try {
-            // Process Modular Twig
-            if ($item->modularTwig()) {
+            if ($item->isModule()) {
                 $twig_vars['content'] = $content;
                 $template = $this->getPageTwigTemplate($item);
                 $output = $content = $local_twig->render($template, $twig_vars);
@@ -452,6 +451,7 @@ class Twig
     public function getPageTwigTemplate($page, &$format = null)
     {
         $template = $page->template();
+        $default = $page->isModule() ? 'modular/default' : 'default';
         $extension = $format ?: $page->templateFormat();
         $twig_extension = $extension ? '.'. $extension .TWIG_EXT : TEMPLATE_EXT;
         $template_file = $this->template($page->template() . $twig_extension);
@@ -459,26 +459,21 @@ class Twig
         $page_template = null;
 
         $loader = $this->twig->getLoader();
-        if ($loader instanceof ExistsLoaderInterface ) {
-
+        if ($loader instanceof ExistsLoaderInterface) {
             if ($loader->exists($template_file)) {
+                // template.xxx.twig
                 $page_template = $template_file;
+            } elseif ($twig_extension !== TEMPLATE_EXT && $loader->exists($template . TEMPLATE_EXT)) {
+                // template.html.twig
+                $page_template = $template . TEMPLATE_EXT;
+                $format = 'html';
+            } elseif ($loader->exists($default . $twig_extension)) {
+                // default.xxx.twig
+                $page_template = $default . $twig_extension;
             } else {
-                // Try with template + html.twig
-                if ($twig_extension !== TEMPLATE_EXT && $loader->exists($template . TEMPLATE_EXT)) {
-                    $page_template = $template . TEMPLATE_EXT;
-                    $format = 'html';
-                // Try with default and original extension
-                } elseif ($loader->exists('default' . $twig_extension)) {
-                    $page_template = 'default' . $twig_extension;
-                // Else try default + default extension
-                } elseif (!$page->isModule() && $loader->exists('default' . TEMPLATE_EXT)) {
-                    $page_template = 'default' . TEMPLATE_EXT;
-                    $format = 'html';
-                } else {
-                    $page_template = 'modular/default' . TEMPLATE_EXT;
-                    $format = 'html';
-                }
+                // default.html.twig
+                $page_template = $default . TEMPLATE_EXT;
+                $format = 'html';
             }
         }
 

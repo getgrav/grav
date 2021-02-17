@@ -101,9 +101,10 @@ GRAV:
     YR_PLURAL: Jahre
     DEC_PLURAL: Jahrzehnten
   FORM:
-    VALIDATION_FAIL: <b>Überprüfung fehlgeschlagen:</b>
-    INVALID_INPUT: Ungültige Eingabe in
+    VALIDATION_FAIL: '<b>Überprüfung fehlgeschlagen:</b>'
+    INVALID_INPUT: 'Ungültige Eingabe in'
     MISSING_REQUIRED_FIELD: 'Erforderliches Feld fehlt:'
+    XSS_ISSUES: "Potenzielle XSS-Probleme im Feld '%s' erkannt"
   MONTHS_OF_THE_YEAR:
     - 'Januar'
     - 'Februar'
@@ -125,8 +126,8 @@ GRAV:
     - 'Freitag'
     - 'Samstag'
     - 'Sonntag'
-  YES: 'Ja'
-  NO: 'Nein'
+  YES: "Ja"
+  NO: "Nein"
   CRON:
     EVERY: jede
     EVERY_HOUR: jede Stunde

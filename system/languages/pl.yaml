@@ -1,11 +1,32 @@
 ---
 GRAV:
   FRONTMATTER_ERROR_PAGE: "---\ntitle: %1$s\n---\n\n# Error: Nieprawidłowy Frontmatter\n\nPath: `%2$s`\n\n**%3$s**\n\n```\n%4$s\n```"
+  INFLECTOR_SINGULAR:
+    '/(alias|status)es$/i': '\1'
+  INFLECTOR_UNCOUNTABLE:
+    - 'wyposażenie'
+    - 'informacja'
+    - 'rice'
+    - 'pieniądze'
+    - 'species'
+    - 'series'
+    - 'ryba'
+    - 'owca'
+  INFLECTOR_IRREGULAR:
+    'person': 'człowiek'
+    'man': 'mężczyźni'
+    'child': 'dzieci'
+    'sex': 'płci'
+  INFLECTOR_ORDINALS:
+    'first': 'pierwszy'
+    'second': 'drugi'
+    'third': 'trzeci'
   NICETIME:
     NO_DATE_PROVIDED: Nie podano daty
     BAD_DATE: Zła data
     AGO: temu
     FROM_NOW: od teraz
+    JUST_NOW: właśnie teraz
     SECOND: sekunda
     MINUTE: minuta
     HOUR: godzina
@@ -15,6 +36,7 @@ GRAV:
     YEAR: rok
     DECADE: dekada
     SEC: sek
+    MIN: minuta
     HR: godz
     WK: tydz
     MO: m-c
@@ -36,9 +58,10 @@ GRAV:
     YR_PLURAL: lat
     DEC_PLURAL: dekad
   FORM:
-    VALIDATION_FAIL: <b>Weryfikacja nie powiodła się:</b>
-    INVALID_INPUT: Nieprawidłowe dane wejściowe
+    VALIDATION_FAIL: '<b>Weryfikacja nie powiodła się:</b>'
+    INVALID_INPUT: 'Nieprawidłowe dane wejściowe'
     MISSING_REQUIRED_FIELD: 'Opuszczono wymagane pole:'
+    XSS_ISSUES: "Potencjalne problemy XSS wykryte w polu '%s'"
   MONTHS_OF_THE_YEAR:
     - 'Styczeń'
     - 'Luty'
@@ -60,3 +83,18 @@ GRAV:
     - 'Piątek'
     - 'Sobota'
     - 'Niedziela'
+  YES: "Tak"
+  NO: "Nie"
+  CRON:
+    EVERY: każdy
+    EVERY_HOUR: każdą godzinę
+    EVERY_MINUTE: każdą minutę
+    EVERY_DAY_OF_WEEK: każdego dnia tygodnia
+    EVERY_DAY_OF_MONTH: każdego dnia miesiące
+    EVERY_MONTH: każdego miesiąca
+    TEXT_PERIOD: Każdego <b />
+    TEXT_MINS: 'o <b /> minut po godzinie'
+    TEXT_TIME: 'o <b />:<b />'
+    ERROR1: Znacznik %s nie jest wspierany!
+    ERROR2: Nieprawidłowa liczba elementów
+    ERROR4: Wyrażenie nierozpoznane

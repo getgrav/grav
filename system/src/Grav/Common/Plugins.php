@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common
  *
- * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -168,6 +168,33 @@ class Plugins extends Iterator
         unset($array["\0Grav\Common\Iterator\0iteratorUnset"]);
 
         return $array;
+    }
+
+    /**
+     * @return Plugin[] Index of all plugins by plugin name.
+     */
+    public static function getPlugins(): array
+    {
+        $grav = Grav::instance();
+        $plugins = $grav['plugins'];
+
+        $list = [];
+        foreach ($plugins as $instance) {
+            $list[$instance->name] = $instance;
+        }
+
+        return $list;
+    }
+
+    /**
+     * @param string $name Plugin name
+     * @return Plugin|null Plugin object or null if plugin cannot be found.
+     */
+    public static function getPlugin(string $name)
+    {
+        $list = static::getPlugins();
+
+        return $list[$name] ?? null;
     }
 
     /**

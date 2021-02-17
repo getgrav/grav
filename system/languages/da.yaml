@@ -1,11 +1,27 @@
 ---
 GRAV:
   FRONTMATTER_ERROR_PAGE: "---\nTitel: %1$s\n---\n\n# Fejl: Ugyldigt frontmatter\n\nSti: `%2$s`\n\n**%3$s**\n\n```\n%4$s\n```"
+  INFLECTOR_UNCOUNTABLE:
+    - 'udstyr'
+    - 'information'
+    - 'ris'
+    - 'penge'
+    - 'arter'
+    - 'Serier'
+    - 'fisk'
+    - 'får'
+  INFLECTOR_IRREGULAR:
+    'person': 'personer'
+    'man': 'mænd'
+    'child': 'børn'
+    'sex': 'køn'
+    'move': 'flyt'
   NICETIME:
     NO_DATE_PROVIDED: Ingen dato angivet
     BAD_DATE: Ugyldig dato
     AGO: siden
     FROM_NOW: fra nu
+    JUST_NOW: lige nu
     SECOND: sekund
     MINUTE: minut
     HOUR: time
@@ -15,6 +31,7 @@ GRAV:
     YEAR: år
     DECADE: årti
     SEC: sek
+    MIN: min.
     HR: t
     WK: u
     MO: md
@@ -36,8 +53,8 @@ GRAV:
     YR_PLURAL: år
     DEC_PLURAL: årtier
   FORM:
-    VALIDATION_FAIL: <b>Validering mislykkedes:</b>
-    INVALID_INPUT: Ugyldigt input i
+    VALIDATION_FAIL: '<b>Validering mislykkedes:</b>'
+    INVALID_INPUT: 'Ugyldigt input i'
     MISSING_REQUIRED_FIELD: 'Mangler obligatorisk felt:'
   MONTHS_OF_THE_YEAR:
     - 'januar'
@@ -60,3 +77,14 @@ GRAV:
     - 'fredag'
     - 'lørdag'
     - 'søndag'
+  CRON:
+    EVERY: hver
+    EVERY_HOUR: hver time
+    EVERY_MINUTE: hvert minut
+    EVERY_DAY_OF_WEEK: alle ugens dage
+    EVERY_DAY_OF_MONTH: alle dage i måneden
+    EVERY_MONTH: hver måned
+    TEXT_PERIOD: Hver <b />
+    TEXT_MINS: ' ved <b /> minut(ter) over timen'
+    ERROR1: Tagget %s understøttes ikke!
+    ERROR2: Ugyldigt antal elementer

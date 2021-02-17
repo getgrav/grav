@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common
  *
- * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -162,6 +162,19 @@ class Grav extends Container
         return self::$instance;
     }
 
+    /**
+     * Get Grav version.
+     *
+     * @return string
+     */
+    public function getVersion(): string
+    {
+        return GRAV_VERSION;
+    }
+
+    /**
+     * @return bool
+     */
     public function isSetup(): bool
     {
         return isset($this->initialized['setup']);

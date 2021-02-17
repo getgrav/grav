@@ -52,8 +52,8 @@ GRAV:
     YR_PLURAL: m.
     DEC_PLURAL: dešimtmečiai
   FORM:
-    VALIDATION_FAIL: <b>Patvirtinimas nepavyko:</b>
-    INVALID_INPUT: Neteisingai įvesta į
+    VALIDATION_FAIL: '<b>Patvirtinimas nepavyko:</b>'
+    INVALID_INPUT: 'Neteisingai įvesta į'
     MISSING_REQUIRED_FIELD: 'Būtina užpildyti laukelį:'
   MONTHS_OF_THE_YEAR:
     - 'Sausis'

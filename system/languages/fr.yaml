@@ -16,6 +16,7 @@ GRAV:
     '/(buffal|tomat)o$/i': '\1es'
     '/(bu)s$/i': 'Bus'
     '/(alias|status)/i': 'alias|status'
+    '/(octop|vir)us$/i': 'virus'
     '/(ax|test)is$/i': '\1s'
     '/s$/i': 's'
     '/$/': 's'
@@ -80,30 +81,30 @@ GRAV:
     YR_PLURAL: a
     DEC_PLURAL: décs
   FORM:
-    VALIDATION_FAIL: <b>La validation a échoué :</b>
-    INVALID_INPUT: Saisie non valide
+    VALIDATION_FAIL: '<b>La validation a échoué :</b>'
+    INVALID_INPUT: 'Saisie non valide'
     MISSING_REQUIRED_FIELD: 'Champ obligatoire manquant :'
   MONTHS_OF_THE_YEAR:
-    - 'Janvier'
-    - 'Février'
-    - 'Mars'
-    - 'Avril'
-    - 'Mai'
-    - 'Juin'
-    - 'Juillet'
-    - 'Août'
-    - 'Septembre'
-    - 'Octobre'
-    - 'Novembre'
-    - 'Décembre'
+    - 'janvier'
+    - 'février'
+    - 'mars'
+    - 'avril'
+    - 'mai'
+    - 'juin'
+    - 'juillet'
+    - 'août'
+    - 'septembre'
+    - 'octobre'
+    - 'novembre'
+    - 'décembre'
   DAYS_OF_THE_WEEK:
-    - 'Lundi'
-    - 'Mardi'
-    - 'Mercredi'
-    - 'Jeudi'
-    - 'Vendredi'
-    - 'Samedi'
-    - 'Dimanche'
+    - 'lundi'
+    - 'mardi'
+    - 'mercredi'
+    - 'jeudi'
+    - 'vendredi'
+    - 'samedi'
+    - 'dimanche'
   CRON:
     EVERY: chaque
     EVERY_HOUR: toutes les heures

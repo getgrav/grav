@@ -5,18 +5,15 @@ declare(strict_types=1);
 /**
  * @package    Grav\Common\Flex
  *
- * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Common\Flex\Types\UserGroups;
 
-use Grav\Common\Flex\Traits\FlexGravTrait;
-use Grav\Common\Flex\Traits\FlexObjectTrait;
+use Grav\Common\Flex\FlexObject;
 use Grav\Common\User\Access;
 use Grav\Common\User\Interfaces\UserGroupInterface;
-use Grav\Framework\Flex\FlexObject;
-use Grav\Framework\Flex\Traits\FlexMediaTrait;
 use function is_bool;
 
 /**
@@ -29,10 +26,6 @@ use function is_bool;
  */
 class UserGroupObject extends FlexObject implements UserGroupInterface
 {
-    use FlexGravTrait;
-    use FlexObjectTrait;
-    use FlexMediaTrait;
-
     /** @var Access */
     protected $_access;
     /** @var array|null */

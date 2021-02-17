@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Data
  *
- * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -107,11 +107,22 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
      * Flatten data by using blueprints.
      *
      * @param  array $data                  Data to be flattened.
+     * @param bool $includeAll
      * @return array
      */
-    public function flattenData(array $data)
+    public function flattenData(array $data, bool $includeAll = false)
     {
-        return $this->flattenArray($data, $this->nested, '');
+        $list = [];
+        if ($includeAll) {
+            foreach ($this->items as $key => $rules) {
+                $type = $rules['type'] ?? '';
+                if (!str_starts_with($type, '_') && !str_contains($key, '*')) {
+                    $list[$key] = null;
+                }
+            }
+        }
+
+        return array_replace($list, $this->flattenArray($data, $this->nested, ''));
     }
 
     /**
@@ -139,6 +150,7 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
                 $array[$prefix.$key] = $field;
             }
         }
+
         return $array;
     }
 

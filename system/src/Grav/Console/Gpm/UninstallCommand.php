@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Console\Gpm
  *
- * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -11,12 +11,14 @@ namespace Grav\Console\Gpm;
 
 use Grav\Common\GPM\GPM;
 use Grav\Common\GPM\Installer;
-use Grav\Common\GPM\Local\Package;
+use Grav\Common\GPM\Local;
+use Grav\Common\GPM\Remote;
 use Grav\Common\Grav;
 use Grav\Console\GpmCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
+use Throwable;
 use function count;
 use function in_array;
 use function is_array;
@@ -113,7 +115,7 @@ class UninstallCommand extends GpmCommand
         // Plugins need to be initialized in order to make clear-cache to work.
         try {
             $this->initializePlugins();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $io->writeln("<red>Some plugins failed to initialize: {$e->getMessage()}</red>");
         }
 
@@ -148,11 +150,11 @@ class UninstallCommand extends GpmCommand
 
     /**
      * @param string $slug
-     * @param Package $package
+     * @param Local\Package|Remote\Package $package
      * @param bool $is_dependency
      * @return bool
      */
-    private function uninstallPackage($slug, Package $package, $is_dependency = false): bool
+    private function uninstallPackage($slug, $package, $is_dependency = false): bool
     {
         $io = $this->getIO();
 
@@ -255,10 +257,10 @@ class UninstallCommand extends GpmCommand
 
     /**
      * @param string $slug
-     * @param Package $package
+     * @param Local\Package|Remote\Package $package
      * @return bool
      */
-    private function checkDestination(string $slug, Package $package): bool
+    private function checkDestination(string $slug, $package): bool
     {
         $io = $this->getIO();
 
@@ -297,10 +299,10 @@ class UninstallCommand extends GpmCommand
      * Check if package exists
      *
      * @param string $slug
-     * @param Package $package
+     * @param Local\Package|Remote\Package $package
      * @return int
      */
-    private function packageExists(string $slug, Package $package): int
+    private function packageExists(string $slug, $package): int
     {
         $path = Grav::instance()['locator']->findResource($package->package_type . '://' . $slug);
         Installer::isValidDestination($path);

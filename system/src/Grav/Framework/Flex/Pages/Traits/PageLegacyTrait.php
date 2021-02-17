@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Flex
  *
- * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -619,7 +619,7 @@ trait PageLegacyTrait
             // Get initial metadata for the page
             $metadata = array_merge($defaultMetadata, $siteMetadata, $headerMetadata);
 
-            $header_tag_http_equivs = ['content-type', 'default-style', 'refresh', 'x-ua-compatible'];
+            $header_tag_http_equivs = ['content-type', 'default-style', 'refresh', 'x-ua-compatible', 'content-security-policy'];
             $escape = !$config->get('system.strict_mode.twig_compat', false) || $config->get('system.twig.autoescape', true);
 
             // Build an array of meta objects..
@@ -643,7 +643,7 @@ trait PageLegacyTrait
                     if (in_array($key, $header_tag_http_equivs, true)) {
                         $this->_metadata[$key] = [
                             'http_equiv' => $key,
-                            'content' => $escape ? htmlspecialchars($value, ENT_QUOTES | ENT_HTML5, 'UTF-8') : $value
+                            'content' => $escape ? htmlspecialchars($value, ENT_COMPAT, 'UTF-8') : $value
                         ];
                     } elseif ($key === 'charset') {
                         $this->_metadata[$key] = ['charset' => $escape ? htmlspecialchars($value, ENT_QUOTES | ENT_HTML5, 'UTF-8') : $value];

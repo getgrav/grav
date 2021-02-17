@@ -12,11 +12,21 @@ GRAV:
     - 'får'
   INFLECTOR_IRREGULAR:
     'person': 'personer'
+    'man': 'män'
+    'child': 'barn'
+    'sex': 'kön'
+    'move': 'flytta'
+  INFLECTOR_ORDINALS:
+    'default': ':e'
+    'first': ':a'
+    'second': ':a'
+    'third': ':e'
   NICETIME:
     NO_DATE_PROVIDED: Inget datum har angivits
     BAD_DATE: Ogiltigt datum
     AGO: sedan
     FROM_NOW: fr.o.m nu
+    JUST_NOW: just nu
     SECOND: sekund
     MINUTE: minut
     HOUR: timme
@@ -26,10 +36,12 @@ GRAV:
     YEAR: år
     DECADE: årtionde
     SEC: sek
+    MIN: min
     HR: t
     WK: v
     MO: m
     YR: år
+    DEC: dec
     SECOND_PLURAL: sekunder
     MINUTE_PLURAL: minuter
     HOUR_PLURAL: timmar
@@ -46,8 +58,8 @@ GRAV:
     YR_PLURAL: år
     DEC_PLURAL: dec
   FORM:
-    VALIDATION_FAIL: <b>Kontrollen misslyckades:</b>
-    INVALID_INPUT: Ogiltig indata i
+    VALIDATION_FAIL: '<b>Kontrollen misslyckades:</b>'
+    INVALID_INPUT: 'Ogiltig indata i'
     MISSING_REQUIRED_FIELD: 'Obligatoriskt fält måste fyllas i:'
   MONTHS_OF_THE_YEAR:
     - 'Januari'
@@ -70,3 +82,19 @@ GRAV:
     - 'Fredag'
     - 'Lördag'
     - 'Söndag'
+  CRON:
+    EVERY: varje
+    EVERY_HOUR: varje timme
+    EVERY_MINUTE: varje minut
+    EVERY_DAY_OF_WEEK: varje veckodag
+    EVERY_DAY_OF_MONTH: alla månadens dagar
+    EVERY_MONTH: varje månad
+    TEXT_PERIOD: Varje <b />
+    TEXT_MINS: ' timmens <b />:e minut'
+    TEXT_TIME: ' kl <b />:<b />'
+    TEXT_DOW: ' <b />'
+    TEXT_MONTH: ' <b />'
+    TEXT_DOM: ' <b />'
+    ERROR1: Taggen %s stöds inte!
+    ERROR2: Ogiltigt antal element
+    ERROR4: Uttrycket känns inte igen

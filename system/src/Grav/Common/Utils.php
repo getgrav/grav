@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common
  *
- * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -1196,7 +1196,6 @@ abstract class Utils
         if (count($parts) > 0 && in_array($parts[0], $languages_enabled)) {
             return $parts[0];
         }
-
         return false;
     }
 

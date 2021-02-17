@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Flex
  *
- * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -354,8 +354,9 @@ class FlexPageObject extends FlexObject implements PageInterface, FlexTranslateI
      */
     public function setNestedProperty($property, $value, $separator = null)
     {
-        if (strpos($property, 'header.') === 0) {
-            $this->getProperty('header')->set(str_replace('header.', '', $property), $value, $separator);
+        $separator = $separator ?: '.';
+        if (strpos($property, 'header' . $separator) === 0) {
+            $this->getProperty('header')->set(str_replace('header' . $separator, '', $property), $value, $separator);
 
             return $this;
         }
@@ -372,8 +373,9 @@ class FlexPageObject extends FlexObject implements PageInterface, FlexTranslateI
      */
     public function unsetNestedProperty($property, $separator = null)
     {
-        if (strpos($property, 'header.') === 0) {
-            $this->getProperty('header')->undef(str_replace('header.', '', $property), $separator);
+        $separator = $separator ?: '.';
+        if (strpos($property, 'header' . $separator) === 0) {
+            $this->getProperty('header')->undef(str_replace('header' . $separator, '', $property), $separator);
 
             return $this;
         }

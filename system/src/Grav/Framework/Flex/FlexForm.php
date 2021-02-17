@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Flex
  *
- * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -121,6 +121,10 @@ class FlexForm implements FlexObjectFormInterface, JsonSerializable
         $directory = $object->getFlexDirectory();
         $this->setFlashLookupFolder($directory->getBlueprint()->get('form/flash_folder') ?? 'tmp://forms/[SESSIONID]');
         $this->form = $options['form'] ?? null;
+
+        if (!empty($options['reset'])) {
+            $this->getFlash()->delete();
+        }
 
         $this->initialize();
     }

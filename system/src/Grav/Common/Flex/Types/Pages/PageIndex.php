@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * @package    Grav\Common\Flex
  *
- * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -36,7 +36,6 @@ use function is_string;
  * @package Grav\Plugin\FlexObjects\Types\GravPages
  *
  * @extends FlexPageIndex<string,PageObject,PageCollection>
- * @mixin PageCollection
  *
  * @method PageIndex withModules(bool $bool = true)
  * @method PageIndex withPages(bool $bool = true)
@@ -449,6 +448,10 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
                         'has-children' => $child_count > 0
                     ];
                 } else {
+                    $lang = $child->findTranslation($language) ?? 'n/a';
+                    /** @var PageObject $child */
+                    $child = $child->getTranslation($language) ?? $child;
+
                     // TODO: all these features are independent from each other, we cannot just have one icon/color to catch all.
                     // TODO: maybe icon by home/modular/page/folder (or even from blueprints) and color by visibility etc..
                     if ($child->home()) {
@@ -468,9 +471,6 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
                         $child->visible() ? 'visible' : 'non-visible',
                         $child->routable() ? 'routable' : 'non-routable'
                     ];
-                    $lang = $child->findTranslation($language) ?? 'n/a';
-                    /** @var PageObject $child */
-                    $child = $child->getTranslation($language) ?? $child;
                     $extras = [
                         'template' => $child->template(),
                         'lang' => $lang ?: null,

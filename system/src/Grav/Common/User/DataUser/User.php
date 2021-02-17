@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\User
  *
- * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -110,7 +110,7 @@ class User extends Data implements UserInterface
     }
 
     /**
-     * Save user without the username
+     * Save user
      *
      * @return void
      */
@@ -138,7 +138,10 @@ class User extends Data implements UserInterface
             }
 
             $data = $this->items;
-            unset($data['username'], $data['authenticated'], $data['authorized']);
+            if ($username === $data['username']) {
+                unset($data['username']);
+            }
+            unset($data['authenticated'], $data['authorized']);
 
             $file->save($data);
 

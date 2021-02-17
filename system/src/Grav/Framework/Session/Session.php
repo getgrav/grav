@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Session
  *
- * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -11,6 +11,8 @@ namespace Grav\Framework\Session;
 
 use ArrayIterator;
 use Exception;
+use Grav\Common\Debugger;
+use Grav\Common\Grav;
 use Grav\Common\User\Interfaces\UserInterface;
 use Grav\Framework\Session\Exceptions\SessionException;
 use RuntimeException;
@@ -28,6 +30,7 @@ class Session implements SessionInterface
     protected $options = [];
     /** @var bool */
     protected $started = false;
+
     /** @var Session */
     protected static $instance;
 
@@ -216,12 +219,22 @@ class Session implements SessionInterface
                     // Should not happen usually. This could be attack or due to unstable network. Destroy this session.
                     $this->invalidate();
 
-                    throw new RuntimeException('Your session was destroyed.', 500);
+                    throw new RuntimeException('Obsolete session access.', 500);
                 }
 
                 // Not fully expired yet. Could be lost cookie by unstable network. Start session with new session id.
                 session_write_close();
+
+                // Start session with new session id.
+                $useStrictMode = $options['use_strict_mode'] ?? 0;
+                if ($useStrictMode) {
+                    ini_set('session.use_strict_mode', '0');
+                }
                 session_id($newId);
+                if ($useStrictMode) {
+                    ini_set('session.use_strict_mode', '1');
+                }
+
                 $success = @session_start($options);
                 if (!$success) {
                     $last = error_get_last();
@@ -246,22 +259,7 @@ class Session implements SessionInterface
 
         // Extend the lifetime of the session.
         if ($sessionExists) {
-            $params = session_get_cookie_params();
-
-            $cookie_options = array (
-                'expires'  => time() + $params['lifetime'],
-                'path'     => $params['path'],
-                'domain'   => $params['domain'],
-                'secure'   => $params['secure'],
-                'httponly' => $params['httponly'],
-                'samesite' => $params['samesite']
-            );
-
-            setcookie(
-                $sessionName,
-                session_id(),
-                $cookie_options
-            );
+            $this->setCookie();
         }
 
         return $this;
@@ -281,20 +279,29 @@ class Session implements SessionInterface
             return $this;
         }
 
-        // TODO: session_create_id() segfaults in PHP 7.3 (PHP bug #73461), remove phpstan rule when fixing this one.
-        $newId = 0; // session_create_id();
+        // TODO: session_create_id() segfaults in PHP 7.3 (PHP bug #73461), remove phpstan rule when removing this one.
+        if (PHP_VERSION_ID < 70400) {
+            $newId = 0;
+        } else {
+            // Session id creation may fail with some session storages.
+            $newId = @session_create_id() ?: 0;
+        }
 
         // Set destroyed timestamp for the old session as well as pointer to the new id.
         $this->__set('session_destroyed', time());
         $this->__set('session_new_id', $newId);
 
         // Keep the old session alive to avoid lost sessions by unstable network.
-        // TODO: remove session_regenerate_id() and use session_create_id() from above when not in PHP 7.3 (PHP bug #73461).
-        session_regenerate_id(false);
-        session_write_close();
+        if (!$newId) {
+            /** @var Debugger $debugger */
+            $debugger = Grav::instance()['debugger'];
+            $debugger->addMessage('Session fixation lost session detection is turned of due to server limitations.', 'warning');
 
-        // Start session with new session id.
-        if ($newId) {
+            session_regenerate_id(false);
+        } else {
+            session_write_close();
+
+            // Start session with new session id.
             $useStrictMode = $this->options['use_strict_mode'] ?? 0;
             if ($useStrictMode) {
                 ini_set('session.use_strict_mode', '0');
@@ -303,8 +310,19 @@ class Session implements SessionInterface
             if ($useStrictMode) {
                 ini_set('session.use_strict_mode', '1');
             }
+
+            $this->removeCookie();
+
+            $success = @session_start($this->options);
+            if (!$success) {
+                $last = error_get_last();
+                $error = $last ? $last['message'] : 'Unknown error';
+
+                throw new RuntimeException($error);
+            }
+
+            $this->onSessionStart();
         }
-        session_start();
 
         // New session does not have these.
         $this->__unset('session_destroyed');
@@ -330,6 +348,8 @@ class Session implements SessionInterface
                 'httponly' => $params['httponly'],
                 'samesite' => $params['samesite']
             );
+
+            $this->removeCookie();
 
             setcookie(
                 session_name(),
@@ -440,6 +460,61 @@ class Session implements SessionInterface
 
     protected function onSessionStart(): void
     {
+    }
+
+    /**
+     * @return void
+     */
+    protected function setCookie(): void
+    {
+        $params = session_get_cookie_params();
+
+        $cookie_options = array (
+            'expires'  => time() + $params['lifetime'],
+            'path'     => $params['path'],
+            'domain'   => $params['domain'],
+            'secure'   => $params['secure'],
+            'httponly' => $params['httponly'],
+            'samesite' => $params['samesite']
+        );
+
+        $this->removeCookie();
+
+        setcookie(
+            session_name(),
+            session_id(),
+            $cookie_options
+        );
+    }
+
+    protected function removeCookie(): void
+    {
+        $search = " {$this->getName()}=";
+        $cookies = [];
+        $found = false;
+
+        foreach (headers_list() as $header) {
+            // Identify cookie headers
+            if (strpos($header, 'Set-Cookie:') === 0) {
+                // Add all but session cookie(s).
+                if (!str_contains($header, $search)) {
+                    $cookies[] = $header;
+                } else {
+                    $found = true;
+                }
+            }
+        }
+
+        // Nothing to do.
+        if (false === $found) {
+            return;
+        }
+
+        // Remove all cookies and put back all but session cookie.
+        header_remove('Set-Cookie');
+        foreach($cookies as $cookie) {
+            header($cookie, false);
+        }
     }
 
     /**

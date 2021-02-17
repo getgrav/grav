@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * @package    Grav\Framework\Flex
  *
- * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -242,7 +242,6 @@ class FolderStorage extends AbstractFilesystemStorage
         return $this->copyFolder($srcPath, $dstPath);
     }
 
-
     /**
      * {@inheritdoc}
      * @see FlexStorageInterface::renameRow()
@@ -360,7 +359,12 @@ class FolderStorage extends AbstractFilesystemStorage
      */
     protected function prepareRow(array &$row): void
     {
-        unset($row[$this->keyField]);
+        if (array_key_exists($this->keyField, $row)) {
+            $key = $row[$this->keyField];
+            if ($key === $this->normalizeKey($key)) {
+                unset($row[$this->keyField]);
+            }
+        }
     }
 
     /**
@@ -400,6 +404,8 @@ class FolderStorage extends AbstractFilesystemStorage
             if (strpos($key, '@@') !== false) {
                 $key = $this->getNewKey();
             }
+
+            $key = $this->normalizeKey($key);
 
             // Check if the row already exists and if the key has been changed.
             $oldKey = $row['__META']['storage_key'] ?? null;
@@ -679,6 +685,7 @@ class FolderStorage extends AbstractFilesystemStorage
         $this->indexed = (bool)($options['indexed'] ?? false);
         $this->keyField = $options['key'] ?? 'storage_key';
         $this->keyLen = (int)($options['key_len'] ?? 32);
+        $this->caseSensitive = (bool)($options['case_sensitive'] ?? true);
 
         $variables = ['FOLDER' => '%1$s', 'KEY' => '%2$s', 'KEY:2' => '%3$s', 'FILE' => '%4$s', 'EXT' => '%5$s'];
         $pattern = Utils::simpleTemplate($pattern, $variables);

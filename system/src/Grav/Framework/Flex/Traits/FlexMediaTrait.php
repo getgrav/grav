@@ -5,7 +5,7 @@ namespace Grav\Framework\Flex\Traits;
 /**
  * @package    Grav\Framework\Flex
  *
- * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -73,6 +73,10 @@ trait FlexMediaTrait
         return $media;
     }
 
+    /**
+     * @param string $field
+     * @return array|null
+     */
     protected function getFieldSettings(string $field): ?array
     {
         if ($field === '') {
@@ -107,6 +111,57 @@ trait FlexMediaTrait
         $settings = $this->getFieldSettings($field) ?? [];
 
         return $settings + ['accept' => '*', 'limit' => 1000, 'self' => true];
+    }
+
+
+    protected function getMediaFields(): array
+    {
+        // Load settings for the field.
+        $schema = $this->getBlueprint()->schema();
+
+        $list = [];
+        foreach ($schema->getState()['items'] as $field => $settings) {
+            if (isset($settings['type']) && (in_array($settings['type'], ['avatar', 'file', 'pagemedia']) || !empty($settings['destination']))) {
+                $list[] = $field;
+            }
+        }
+
+        return $list;
+    }
+
+    /**
+     * @param array|mixed $value
+     * @param array $settings
+     * @return array|mixed
+     */
+    protected function parseFileProperty($value, array $settings = [])
+    {
+        if (!is_array($value)) {
+            return $value;
+        }
+
+        $media = $this->getMedia();
+
+        $list = [];
+        foreach ($value as $filename => $info) {
+            if (!is_array($info)) {
+                continue;
+            }
+
+            /** @var Medium|null $thumbFile */
+            $imageFile = $media[$filename];
+            $url = $imageFile ? $imageFile->url() : null;
+            $list[$filename] = [
+                'name' => $info['name'] ?? null,
+                'type' => $info['type'] ?? null,
+                'size' => $info['size'] ?? null,
+                'path' => $filename,
+                'image_url' => $url,
+                'thumb_url' => $url
+            ];
+        }
+
+        return $list;
     }
 
     /**

@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Page
  *
- * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -449,7 +449,6 @@ class Pages
             }
         }
 
-        // Remove any inclusive sets from filter.
         $filters = $params['filter'] ?? [];
 
         // Assume published=true if not set.
@@ -457,8 +456,27 @@ class Pages
             $filters['published'] = true;
         }
 
+        // Remove any inclusive sets from filter.
+        $sets = ['published', 'visible', 'modular', 'routable'];
+        foreach ($sets as $type) {
+            $nonType = "non-{$type}";
+            if (isset($filters[$type], $filters[$nonType]) && $filters[$type] === $filters[$nonType]) {
+                if (!$filters[$type]) {
+                    // Both options are false, return empty collection as nothing can match the filters.
+                    return new Collection();
+                }
+
+                // Both options are true, remove opposite filters as all pages will match the filters.
+                unset($filters[$type], $filters[$nonType]);
+            }
+        }
+
         // Filter the collection
         foreach ($filters as $type => $filter) {
+            if (null === $filter) {
+                continue;
+            }
+
             // Convert non-type to type.
             if (str_starts_with($type, 'non-')) {
                 $type = substr($type, 4);
@@ -759,6 +777,12 @@ class Pages
 
         $instance = $this->index[$path] ?? null;
         if (is_string($instance)) {
+            /** @var Language $language */
+            $language = $this->grav['language'];
+            $lang = $language->getActive();
+            if ($lang) {
+                $instance .= ':' . $lang;
+            }
             $instance = $this->directory ? $this->directory->getObject($instance, 'flex_key') : null;
             if ($instance) {
                 if ($this->fire_events && method_exists($instance, 'initialize')) {

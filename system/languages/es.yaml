@@ -1,19 +1,25 @@
 ---
 GRAV:
-  FRONTMATTER_ERROR_PAGE: "---\ntítulo: %1$s\n---\n\n# Error: Frontmatter no válido\n\nRuta: `%2$s`\n\n**%3$s**\n\n```\n%4$s\n```"
+  FRONTMATTER_ERROR_PAGE: "---\ntítulo: %1$s\n---\n\n# Error: Prefacio no válido\n\nRuta: `%2$s`\n\n**%3$s**\n\n```\n%4$s\n```"
+  INFLECTOR_PLURALS:
+    '/(quiz)$/i': '\1ios'
+    '/s$/i': 's'
+    '/$/': 's'
   INFLECTOR_UNCOUNTABLE:
-    - 'equipo'
+    - 'equipamiento'
     - 'información'
-    - 'rice'
+    - 'arroz'
     - 'dinero'
-    - 'species'
+    - 'especies'
     - 'series'
     - 'pescado'
     - 'oveja'
   INFLECTOR_IRREGULAR:
+    'person': 'personas'
     'man': 'hombres'
     'child': 'niños'
     'sex': 'sexos'
+    'move': 'movido'
   INFLECTOR_ORDINALS:
     'first': 'ro'
     'second': 'do'
@@ -33,10 +39,12 @@ GRAV:
     YEAR: año
     DECADE: década
     SEC: seg
+    MIN: min
     HR: h
     WK: sem
     MO: mes
     YR: año
+    DEC: dic
     SECOND_PLURAL: segundos
     MINUTE_PLURAL: minutos
     HOUR_PLURAL: horas
@@ -46,6 +54,7 @@ GRAV:
     YEAR_PLURAL: años
     DECADE_PLURAL: décadas
     SEC_PLURAL: segs
+    MIN_PLURAL: mins
     HR_PLURAL: hs
     WK_PLURAL: sem
     MO_PLURAL: mes
@@ -55,6 +64,7 @@ GRAV:
     VALIDATION_FAIL: '<b>Falló la validación: </b>'
     INVALID_INPUT: 'Dato inválido en: '
     MISSING_REQUIRED_FIELD: 'Falta el campo requerido: '
+    XSS_ISSUES: "Se detectaron problemas XSS potenciales en el campo '%s'"
   MONTHS_OF_THE_YEAR:
     - 'Enero'
     - 'Febrero'
@@ -76,6 +86,8 @@ GRAV:
     - 'Viernes'
     - 'Sábado'
     - 'Domingo'
+  YES: "Si"
+  NO: "No"
   CRON:
     EVERY: cada
     EVERY_HOUR: cada hora

@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * @package    Grav\Framework\Flex
  *
- * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -20,7 +20,6 @@ use Grav\Framework\File\Formatter\MarkdownFormatter;
 use Grav\Framework\File\Formatter\YamlFormatter;
 use Grav\Framework\File\Interfaces\FileFormatterInterface;
 use Grav\Framework\Flex\Interfaces\FlexStorageInterface;
-use RocketTheme\Toolbox\File\File;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use RuntimeException;
 use function is_array;
@@ -37,6 +36,8 @@ abstract class AbstractFilesystemStorage implements FlexStorageInterface
     protected $keyField = 'storage_key';
     /** @var int */
     protected $keyLen = 32;
+    /** @var bool */
+    protected $caseSensitive = true;
 
     /**
      * @return bool
@@ -98,7 +99,7 @@ abstract class AbstractFilesystemStorage implements FlexStorageInterface
     public function extractKeysFromRow(array $row): array
     {
         return [
-            'key' => $row[$this->keyField] ?? ''
+            'key' => $this->normalizeKey($row[$this->keyField] ?? '')
         ];
     }
 
@@ -199,6 +200,19 @@ abstract class AbstractFilesystemStorage implements FlexStorageInterface
     protected function generateKey(): string
     {
         return substr(hash('sha256', random_bytes($this->keyLen)), 0, $this->keyLen);
+    }
+
+    /**
+     * @param string $key
+     * @return string
+     */
+    public function normalizeKey(string $key): string
+    {
+        if ($this->caseSensitive === true) {
+            return $key;
+        }
+
+        return mb_strtolower($key);
     }
 
     /**

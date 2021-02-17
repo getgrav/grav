@@ -100,8 +100,8 @@ GRAV:
     YR_PLURAL: v
     DEC_PLURAL: vuosikymmentä
   FORM:
-    VALIDATION_FAIL: <b>Vahvistus epäonnistui:</b>
-    INVALID_INPUT: Syöte ei kelpaa
+    VALIDATION_FAIL: '<b>Vahvistus epäonnistui:</b>'
+    INVALID_INPUT: 'Syöte ei kelpaa'
     MISSING_REQUIRED_FIELD: 'Puuttuva pakollinen kenttä:'
   MONTHS_OF_THE_YEAR:
     - 'Tammikuu'

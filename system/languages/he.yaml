@@ -37,8 +37,8 @@ GRAV:
     YR_PLURAL: שני'
     DEC_PLURAL: עש'
   FORM:
-    VALIDATION_FAIL: <b>האימות נכשל:</b>
-    INVALID_INPUT: קלט לא חוקי
+    VALIDATION_FAIL: '<b>האימות נכשל:</b>'
+    INVALID_INPUT: 'קלט לא חוקי'
     MISSING_REQUIRED_FIELD: 'שדות חובה חסרים:'
   MONTHS_OF_THE_YEAR:
     - 'ינואר'

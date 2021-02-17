@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Media
  *
- * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -300,6 +300,21 @@ trait MediaObjectTrait
     {
         $this->attributes = [];
 
+        return $this;
+    }
+
+    /**
+     * Add custom attribute to medium.
+     *
+     * @param string $attribute
+     * @param string $value
+     * @return $this
+     */
+    public function attribute($attribute = null, $value = '')
+    {
+        if (!empty($attribute)) {
+            $this->attributes[$attribute] = $value;
+        }
         return $this;
     }
 

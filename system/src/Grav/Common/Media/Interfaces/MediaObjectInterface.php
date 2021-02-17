@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Media
  *
- * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -114,6 +114,15 @@ interface MediaObjectInterface extends \Grav\Framework\Media\Interfaces\MediaObj
      * @return $this
      */
     public function reset();
+
+    /**
+     * Add custom attribute to medium.
+     *
+     * @param string $attribute
+     * @param string $value
+     * @return $this
+     */
+    public function attribute($attribute = null, $value = '');
 
     /**
      * Switch display mode.

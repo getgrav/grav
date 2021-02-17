@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common
  *
- * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -92,6 +92,8 @@ class Assets extends PropertyObject
     protected $collections;
     /** @var string */
     protected $timestamp;
+    /** @var array Keeping track for order counts (for sorting) */
+    protected $order = [];
 
     /**
      * Initialization called in the Grav lifecycle to initialize the Assets with appropriate configuration
@@ -232,7 +234,15 @@ class Assets extends PropertyObject
         $options['timestamp'] = $this->timestamp;
 
         // Set order
-        $options['order'] = count($this->$collection);
+        $group = $options['group'] ?? 'head';
+        $position = $options['position'] ?? 'pipeline';
+
+        $orderKey = "{$type}|{$group}|{$position}";
+        if (!isset($this->order[$orderKey])) {
+           $this->order[$orderKey] = 0;
+        }
+
+        $options['order'] = $this->order[$orderKey]++;
 
         // Create asset of correct type
         $asset_object = new $type();

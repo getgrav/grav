@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Data
  *
- * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -1114,6 +1114,21 @@ class Validation
     public static function validateHex($value, $params)
     {
         return ctype_xdigit($value);
+    }
+
+    /**
+     * Custom input: int
+     *
+     * @param  mixed  $value   Value to be validated.
+     * @param  array  $params  Validation parameters.
+     * @param  array  $field   Blueprint for the field.
+     * @return bool   True if validation succeeded.
+     */
+    public static function typeInt($value, array $params, array $field)
+    {
+        $params['step'] = max(1, (int)($params['step'] ?? 0));
+
+        return self::typeNumber($value, $params, $field);
     }
 
     /**

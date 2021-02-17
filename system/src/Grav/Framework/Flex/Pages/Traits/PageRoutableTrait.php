@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Flex
  *
- * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -149,11 +149,6 @@ trait PageRoutableTrait
         /** @var Uri $uri */
         $uri = $grav['uri'];
         $url = $uri->rootUrl($include_host) . '/' . trim($route, '/') . $this->urlExtension();
-
-        // trim trailing / if not root
-        if ($url !== '/') {
-            $url = rtrim($url, '/');
-        }
 
         return Uri::filterPath($url);
     }

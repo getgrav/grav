@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Page
  *
- * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -24,6 +24,7 @@ use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Media\Traits\MediaTrait;
 use Grav\Common\Page\Markdown\Excerpts;
 use Grav\Common\Page\Traits\PageFormTrait;
+use Grav\Common\Twig\Twig;
 use Grav\Common\Uri;
 use Grav\Common\Utils;
 use Grav\Common\Yaml;
@@ -271,7 +272,8 @@ class Page implements PageInterface
             if ($exists) {
                 $aPage = new Page();
                 $aPage->init(new SplFileInfo($path), $languageExtension);
-
+                $aPage->route($this->route());
+                $aPage->rawRoute($this->rawRoute());
                 $route = $aPage->header()->routes['default'] ?? $aPage->rawRoute();
                 if (!$route) {
                     $route = $aPage->route();
@@ -908,20 +910,25 @@ class Page implements PageInterface
 
         $content = $this->content;
         if ($keepTwig) {
+            $token = [
+                '/' . Utils::generateRandomString(3),
+                Utils::generateRandomString(3) . '/'
+            ];
             // Base64 encode any twig.
             $content = preg_replace_callback(
-                ['/({#)(.*?)(#})/mu', '/({{)(.*?)(}})/mu', '/({%)(.*?)(%})/mu'],
-                static function ($matches) { return $matches[1] . base64_encode($matches[2]) . $matches[3]; },
+                ['/({#.*?#})/mu', '/({{.*?}})/mu', '/({%.*?%})/mu'],
+                static function ($matches) use ($token) { return $token[0] . base64_encode($matches[1]) . $token[1]; },
                 $content
             );
         }
+
         $content = $parsedown->text($content);
 
         if ($keepTwig) {
             // Base64 decode the encoded twig.
             $content = preg_replace_callback(
-                ['/({#)(.*?)(#})/mu', '/({{)(.*?)(}})/mu', '/({%)(.*?)(%})/mu'],
-                static function ($matches) { return $matches[1] . base64_decode($matches[2]) . $matches[3]; },
+                ['`' . $token[0] . '([A-Za-z0-9+/]+={0,2})' . $token[1] . '`mu'],
+                static function ($matches) { return base64_decode($matches[1]); },
                 $content
             );
         }
@@ -937,6 +944,7 @@ class Page implements PageInterface
      */
     private function processTwig()
     {
+        /** @var Twig $twig */
         $twig = Grav::instance()['twig'];
         $this->content = $twig->processPage($this, $this->content);
     }
@@ -948,6 +956,7 @@ class Page implements PageInterface
      */
     public function cachePageContent()
     {
+        /** @var Cache $cache */
         $cache = Grav::instance()['cache'];
         $cache_id = md5('page' . $this->getCacheKey());
         $cache->save($cache_id, ['content' => $this->content, 'content_meta' => $this->content_meta]);
@@ -1665,7 +1674,7 @@ class Page implements PageInterface
 
         // if not metadata yet, process it.
         if (null === $this->metadata) {
-            $header_tag_http_equivs = ['content-type', 'default-style', 'refresh', 'x-ua-compatible'];
+            $header_tag_http_equivs = ['content-type', 'default-style', 'refresh', 'x-ua-compatible', 'content-security-policy'];
 
             $this->metadata = [];
 
@@ -1698,7 +1707,7 @@ class Page implements PageInterface
                         $this->metadata[$prop_key] = [
                             'name' => $prop_key,
                             'property' => $prop_key,
-                            'content' => $escape ? htmlspecialchars($prop_value, ENT_QUOTES, 'UTF-8') : $prop_value
+                            'content' => $escape ? htmlspecialchars($prop_value, ENT_QUOTES | ENT_HTML5, 'UTF-8') : $prop_value
                         ];
                     }
                 } else {
@@ -1707,19 +1716,19 @@ class Page implements PageInterface
                         if (in_array($key, $header_tag_http_equivs, true)) {
                             $this->metadata[$key] = [
                                 'http_equiv' => $key,
-                                'content' => $escape ? htmlspecialchars($value, ENT_QUOTES, 'UTF-8') : $value
+                                'content' => $escape ? htmlspecialchars($value, ENT_COMPAT, 'UTF-8') : $value
                             ];
                         } elseif ($key === 'charset') {
-                            $this->metadata[$key] = ['charset' => $escape ? htmlspecialchars($value, ENT_QUOTES, 'UTF-8') : $value];
+                            $this->metadata[$key] = ['charset' => $escape ? htmlspecialchars($value, ENT_QUOTES | ENT_HTML5, 'UTF-8') : $value];
                         } else {
                             // if it's a social metadata with separator, render as property
                             $separator = strpos($key, ':');
                             $hasSeparator = $separator && $separator < strlen($key) - 1;
                             $entry = [
-                                'content' => $escape ? htmlspecialchars($value, ENT_QUOTES, 'UTF-8') : $value
+                                'content' => $escape ? htmlspecialchars($value, ENT_QUOTES | ENT_HTML5, 'UTF-8') : $value
                             ];
 
-                            if ($hasSeparator && !Utils::startsWith($key, 'twitter')) {
+                            if ($hasSeparator && !Utils::startsWith($key, ['twitter', 'flattr'])) {
                                 $entry['property'] = $key;
                             } else {
                                 $entry['name'] = $key;
@@ -1857,11 +1866,6 @@ class Page implements PageInterface
         /** @var Uri $uri */
         $uri = $grav['uri'];
         $url = $uri->rootUrl($include_host) . '/' . trim($route, '/') . $this->urlExtension();
-
-        // trim trailing / if not root
-        if ($url !== '/') {
-            $url = rtrim($url, '/');
-        }
 
         return Uri::filterPath($url);
     }

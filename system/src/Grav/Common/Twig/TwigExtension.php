@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Twig
  *
- * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -192,6 +192,8 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             new TwigFunction('repeat', [$this, 'repeatFunc']),
             new TwigFunction('regex_replace', [$this, 'regexReplace']),
             new TwigFunction('regex_filter', [$this, 'regexFilter']),
+            new TwigFunction('regex_match', [$this, 'regexMatch']),
+            new TwigFunction('regex_split', [$this, 'regexSplit']),
             new TwigFunction('string', [$this, 'stringFilter']),
             new TwigFunction('url', [$this, 'urlFunc']),
             new TwigFunction('json_decode', [$this, 'jsonDecodeFilter']),
@@ -1155,6 +1157,38 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
     public function regexFilter($array, $regex, $flags = 0)
     {
         return preg_grep($regex, $array, $flags);
+    }
+
+    /**
+     * Twig wrapper for PHP's preg_match method
+     *
+     * @param string $subject the content to perform the match on
+     * @param string $pattern the regex pattern to use for match
+     * @param int $flags
+     * @param int $offset
+     * @return array|false returns the matches if there is at least one match in the subject for a given pattern or null if not.
+     */
+    public function regexMatch($subject, $pattern, $flags = 0, $offset = 0)
+    {
+        if (preg_match($pattern, $subject, $matches, $flags, $offset) === false) {
+            return false;
+        }
+
+        return $matches;
+    }
+
+    /**
+     * Twig wrapper for PHP's preg_split method
+     *
+     * @param string $subject the content to perform the split on
+     * @param string $pattern the regex pattern to use for split
+     * @param int $limit the maximum possible splits for the given pattern
+     * @param int $flags
+     * @return array|false the resulting array after performing the split operation
+     */
+    public function regexSplit($subject, $pattern, $limit = -1, $flags = 0)
+    {
+        return preg_split($pattern, $subject, $limit, $flags);
     }
 
     /**

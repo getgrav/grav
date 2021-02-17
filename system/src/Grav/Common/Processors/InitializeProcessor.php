@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Processors
  *
- * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -30,6 +30,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use function defined;
+use function in_array;
 
 /**
  * Class InitializeProcessor
@@ -414,13 +415,18 @@ class InitializeProcessor extends ProcessorBase
 
     protected function handleRedirectRequest(RequestInterface $request): ?ResponseInterface
     {
+        if (!in_array($request->getMethod(), ['GET', 'HEAD'])) {
+            return null;
+        }
+
         // Redirect pages with trailing slash if configured to do so.
         $uri = $request->getUri();
         $path = $uri->getPath() ?: '/';
         $root = $this->container['uri']->rootUrl();
 
         if ($path !== $root && $path !== $root . '/' && Utils::endsWith($path, '/')) {
-            return $this->container->getRedirectResponse((string)$uri->withPath(rtrim($path, '/')));
+            // Use permanent redirect for SEO reasons.
+            return $this->container->getRedirectResponse((string)$uri->withPath(rtrim($path, '/')), 301);
         }
 
         return null;

@@ -21,6 +21,7 @@ GRAV:
     BAD_DATE: Ugyldig dato
     AGO: siden
     FROM_NOW: fra nå
+    JUST_NOW: akkurat nå
     SECOND: sekund
     MINUTE: minutt
     HOUR: time
@@ -51,8 +52,8 @@ GRAV:
     YR_PLURAL: år
     DEC_PLURAL: årtier
   FORM:
-    VALIDATION_FAIL: <b>Godkjenning mislyktes:</b>
-    INVALID_INPUT: Ugyldig innhold i
+    VALIDATION_FAIL: '<b>Godkjenning mislyktes:</b>'
+    INVALID_INPUT: 'Ugyldig innhold i'
     MISSING_REQUIRED_FIELD: 'Mangler påkrevd felt:'
   MONTHS_OF_THE_YEAR:
     - 'januar'
@@ -75,3 +76,7 @@ GRAV:
     - 'fredag'
     - 'lørdag'
     - 'søndag'
+  CRON:
+    EVERY: hver
+    EVERY_HOUR: hver time
+    EVERY_MINUTE: hvert minutt

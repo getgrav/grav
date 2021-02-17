@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Console\Gpm
  *
- * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -90,6 +90,18 @@ class IndexCommand extends GpmCommand
                 InputOption::VALUE_NONE,
                 'Reverses the order of the output.'
             )
+            ->addOption(
+                'enabled',
+                'e',
+                InputOption::VALUE_NONE,
+                'Filters the results to only enabled Themes and Plugins.'
+            )
+            ->addOption(
+                'disabled',
+                'd',
+                InputOption::VALUE_NONE,
+                'Filters the results to only disabled Themes and Plugins.'
+            )
             ->setDescription('Lists the plugins and themes available for installation')
             ->setHelp('The <info>index</info> command lists the plugins and themes available for installation')
         ;
@@ -129,7 +141,7 @@ class IndexCommand extends GpmCommand
             if (!empty($packages)) {
                 $io->section('Packages table');
                 $table = new Table($io);
-                $table->setHeaders(['Count', 'Name', 'Slug', 'Version', 'Installed']);
+                $table->setHeaders(['Count', 'Name', 'Slug', 'Version', 'Installed', 'Enabled']);
 
                 $index = 0;
                 foreach ($packages as $slug => $package) {
@@ -138,7 +150,8 @@ class IndexCommand extends GpmCommand
                         'Name' => '<cyan>' . Utils::truncate($package->name, 20, false, ' ', '...') . '</cyan> ',
                         'Slug' => $slug,
                         'Version'=> $this->version($package),
-                        'Installed' => $this->installed($package)
+                        'Installed' => $this->installed($package),
+                        'Enabled' => $this->enabled($package),
                     ];
 
                     $table->addRow($row);
@@ -196,6 +209,31 @@ class IndexCommand extends GpmCommand
     }
 
     /**
+     * @param Package $package
+     * @return string
+     */
+    private function enabled(Package $package): string
+    {
+        $package   = $list[$package->slug] ?? $package;
+        $type      = ucfirst(preg_replace('/s$/', '', $package->package_type));
+        $method = 'is' . $type . 'Installed';
+        $installed = $this->gpm->{$method}($package->slug);
+
+        $result = '';
+        if ($installed) {
+            $method = 'is' . $type . 'Enabled';
+            $enabled = $this->gpm->{$method}($package->slug);
+            if ($enabled === true) {
+                $result = '<cyan>enabled</cyan>';
+            } elseif ($enabled === false) {
+                $result = '<red>disabled</red>';
+            }
+        }
+
+        return $result;
+    }
+
+    /**
      * @param Packages $data
      * @return Packages
      */
@@ -210,10 +248,12 @@ class IndexCommand extends GpmCommand
         }
 
         $filter = [
+            $this->options['desc'],
+            $this->options['disabled'],
+            $this->options['enabled'],
             $this->options['filter'],
             $this->options['installed-only'],
             $this->options['updates-only'],
-            $this->options['desc']
         ];
 
         if (count(array_filter($filter))) {
@@ -227,7 +267,7 @@ class IndexCommand extends GpmCommand
                     }
 
                     // Filtering updatables only
-                    if ($filter && $this->options['installed-only']) {
+                    if ($filter && ($this->options['installed-only'] || $this->options['enabled'] || $this->options['disabled'])) {
                         $method = ucfirst(preg_replace('/s$/', '', $package->package_type));
                         $function = 'is' . $method . 'Installed';
                         $filter = $this->gpm->{$function}($package->slug);
@@ -238,6 +278,29 @@ class IndexCommand extends GpmCommand
                         $method = ucfirst(preg_replace('/s$/', '', $package->package_type));
                         $function = 'is' . $method . 'Updatable';
                         $filter = $this->gpm->{$function}($package->slug);
+                    }
+
+                    // Filtering enabled only
+                    if ($filter && $this->options['enabled']) {
+                        $method = ucfirst(preg_replace('/s$/', '', $package->package_type));
+
+                        // Check if packaged is enabled.
+                        $function = 'is' . $method . 'Enabled';
+                        $filter = $this->gpm->{$function}($package->slug);
+                    }
+
+                    // Filtering disabled only
+                    if ($filter && $this->options['disabled']) {
+                        $method = ucfirst(preg_replace('/s$/', '', $package->package_type));
+
+                        // Check if package is disabled.
+                        $function = 'is' . $method . 'Enabled';
+                        $enabled_filter = $this->gpm->{$function}($package->slug);
+
+                        // Apply filtering results.
+                        if (!( $enabled_filter === false)) {
+                            $filter = false;
+                        }
                     }
 
                     if (!$filter) {

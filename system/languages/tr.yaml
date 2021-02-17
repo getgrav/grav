@@ -1,11 +1,32 @@
 ---
 GRAV:
   FRONTMATTER_ERROR_PAGE: "---\nBaşlık: %1$s\n---\n\n# Hata: Geçersiz Önbölüm\n\nYol: `%2$s`\n\n**%3$s**\n\n```\n%4$s\n```"
+  INFLECTOR_UNCOUNTABLE:
+    - 'ekipman'
+    - 'bilgi'
+    - 'pirinç'
+    - 'para'
+    - 'türler'
+    - 'seriler'
+    - 'balık'
+    - 'koyun'
+  INFLECTOR_IRREGULAR:
+    'person': 'kişi'
+    'man': 'erkek'
+    'child': 'çocuklar'
+    'sex': 'cinsiyet'
+    'move': 'taşınmış'
+  INFLECTOR_ORDINALS:
+    'default': '#F'
+    'first': ' 1.'
+    'second': ' 2.'
+    'third': ' 3.'
   NICETIME:
     NO_DATE_PROVIDED: Sağlanan tarih yok
     BAD_DATE: Yanlış tarih
     AGO: önce
     FROM_NOW: şu andan itibaren
+    JUST_NOW: şimdi
     SECOND: saniye
     MINUTE: dakika
     HOUR: saat
@@ -37,8 +58,8 @@ GRAV:
     YR_PLURAL: yıl
     DEC_PLURAL: onyl
   FORM:
-    VALIDATION_FAIL: <b>Doğrulama başarısız:</b>
-    INVALID_INPUT: Geçersiz bilgi girişi
+    VALIDATION_FAIL: '<b>Doğrulama başarısız:</b>'
+    INVALID_INPUT: 'Geçersiz bilgi girişi'
     MISSING_REQUIRED_FIELD: 'Gerekli alan eksik:'
   MONTHS_OF_THE_YEAR:
     - 'Ocak'
@@ -61,3 +82,17 @@ GRAV:
     - 'Cuma'
     - 'Cumartesi'
     - 'Pazar'
+  CRON:
+    EVERY: her
+    EVERY_HOUR: saatte bir
+    EVERY_MINUTE: dakikada bir
+    EVERY_DAY_OF_WEEK: haftanın her günü
+    EVERY_DAY_OF_MONTH: ayın her günü
+    EVERY_MONTH: her ay
+    TEXT_PERIOD: Her <b />
+    TEXT_MINS: ' saatin <b /> dakikasında'
+    TEXT_TIME: ' da'
+    ERROR1: Etiket %s desteklenmiyor!
+    ERROR2: Kötü eleman sayısı
+    ERROR3: jquery_element jqCron ayarları içinde tanımlanmalı
+    ERROR4: Tanınmayan ifade

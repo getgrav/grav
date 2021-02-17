@@ -741,6 +741,16 @@ form:
               size: small
               label: PLUGIN_ADMIN.REDIS_PASSWORD
 
+            cache.redis.database:
+              type: text
+              size: medium
+              label: PLUGIN_ADMIN.REDIS_DATABASE
+              help: PLUGIN_ADMIN.REDIS_DATABASE_HELP
+              placeholder: "0"
+              validate:
+                type: number
+                min: 0
+
             flex_caching:
               type: section
               title: PLUGIN_ADMIN.FLEX_CACHING
@@ -1337,6 +1347,12 @@ form:
               default: true
               validate:
                 type: bool
+
+            session.domain:
+              type: text
+              size: small
+              label: PLUGIN_ADMIN.SESSION_DOMAIN
+              help: PLUGIN_ADMIN.SESSION_DOMAIN_HELP
 
             session.path:
               type: text

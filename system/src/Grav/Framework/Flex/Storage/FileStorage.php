@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * @package    Grav\Framework\Flex
  *
- * @copyright  Copyright (C) 2015 - 2020 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -13,6 +13,7 @@ namespace Grav\Framework\Flex\Storage;
 
 use FilesystemIterator;
 use Grav\Framework\Flex\Interfaces\FlexStorageInterface;
+use RuntimeException;
 use SplFileInfo;
 
 /**
@@ -48,6 +49,73 @@ class FileStorage extends FolderStorage
         }
 
         return $key ? "{$path}/{$key}" : $path;
+    }
+
+    /**
+     * @param string $src
+     * @param string $dst
+     * @return bool
+     */
+    public function copyRow(string $src, string $dst): bool
+    {
+        if ($this->hasKey($dst)) {
+            throw new RuntimeException("Cannot copy object: key '{$dst}' is already taken");
+        }
+
+        if (!$this->hasKey($src)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * {@inheritdoc}
+     * @see FlexStorageInterface::renameRow()
+     */
+    public function renameRow(string $src, string $dst): bool
+    {
+        if (!$this->hasKey($src)) {
+            return false;
+        }
+
+        // Remove old file.
+        $path = $this->getPathFromKey($src);
+        $file = $this->getFile($path);
+        $file->delete();
+
+        return true;
+    }
+
+    /**
+     * @param string $src
+     * @param string $dst
+     * @return bool
+     */
+    protected function copyFolder(string $src, string $dst): bool
+    {
+        // Nothing to copy.
+        return true;
+    }
+
+    /**
+     * @param string $src
+     * @param string $dst
+     * @return bool
+     */
+    protected function moveFolder(string $src, string $dst): bool
+    {
+        // Nothing to move.
+        return true;
+    }
+
+    /**
+     * @param string $key
+     * @return bool
+     */
+    protected function canDeleteFolder(string $key): bool
+    {
+        return false;
     }
 
     /**
