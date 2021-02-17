@@ -5,6 +5,7 @@
     * Added `Medium::attribute()` to pass arbitrary attributes [#3065](https://github.com/getgrav/grav/pull/3065)
     * Added `Plugins::getPlugins()` and `Plugins::getPlugin($name)` to make it easier to access plugin instances [#2277](https://github.com/getgrav/grav/pull/2277)
     * Added `regex_match` and `regex_split` twig functions [#2788](https://github.com/getgrav/grav/pull/2788)
+    * Updated all languages from [Crowdin](https://crowdin.com/project/grav-core) - Please update any translations here
 1. [](#improved)
     * Added abstract `FlexObject`, `FlexCollection` and `FlexIndex` classes to `\Grav\Common\Flex` namespace (extend those instead of Framework or Generic classes)
     * Updated bundled `composer.phar` binary to latest version `2.0.9`
