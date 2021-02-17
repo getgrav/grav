@@ -101,9 +101,9 @@ GRAV:
     YR_PLURAL: 年
     DEC_PLURAL: 年代
   FORM:
-    VALIDATION_FAIL: <b>验证失败：</b>
-    INVALID_INPUT: 无效输入
-    MISSING_REQUIRED_FIELD: 必填字段缺失：
+    VALIDATION_FAIL: '<b>验证失败：</b>'
+    INVALID_INPUT: '无效输入'
+    MISSING_REQUIRED_FIELD: '必填字段缺失：'
   MONTHS_OF_THE_YEAR:
     - '1月'
     - '2月'
