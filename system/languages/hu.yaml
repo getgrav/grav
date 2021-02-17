@@ -58,7 +58,7 @@ GRAV:
     YR_PLURAL: év
     DEC_PLURAL: évt
   FORM:
-    VALIDATION_FAIL: <b>Érvényesítés nem sikerült:</b>
+    VALIDATION_FAIL: '<b>Érvényesítés nem sikerült:</b>'
     INVALID_INPUT: 'A megadott érték érvénytelen:'
     MISSING_REQUIRED_FIELD: 'Ez a kötelező mező nincs kitöltve:'
   MONTHS_OF_THE_YEAR:

@@ -1,6 +1,8 @@
 ---
 GRAV:
   FRONTMATTER_ERROR_PAGE: "---\ntitle: %1$s\n---\n\n# Error: Frontmatter tidak valid\n\nLokasi: `%2$s`\n\n**%3$s**\n\n```\n%4$s\n```"
+  INFLECTOR_PLURALS:
+    '/(quiz)$/i': '\1zes'
   INFLECTOR_UNCOUNTABLE:
     - 'peralatan'
     - 'informasi'
@@ -53,8 +55,8 @@ GRAV:
     YR_PLURAL: thn
     DEC_PLURAL: dekade
   FORM:
-    VALIDATION_FAIL: <b>Validasi gagal:</b>
-    INVALID_INPUT: Input tidak valid di
+    VALIDATION_FAIL: '<b>Validasi gagal:</b>'
+    INVALID_INPUT: 'Input tidak valid di'
     MISSING_REQUIRED_FIELD: 'Data yang diperlukan belum terisi:'
   MONTHS_OF_THE_YEAR:
     - 'Januari'

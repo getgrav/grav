@@ -5,6 +5,7 @@
     * Added `Medium::attribute()` to pass arbitrary attributes [#3065](https://github.com/getgrav/grav/pull/3065)
     * Added `Plugins::getPlugins()` and `Plugins::getPlugin($name)` to make it easier to access plugin instances [#2277](https://github.com/getgrav/grav/pull/2277)
     * Added `regex_match` and `regex_split` twig functions [#2788](https://github.com/getgrav/grav/pull/2788)
+    * Updated all languages from [Crowdin](https://crowdin.com/project/grav-core) - Please update any translations here
 1. [](#improved)
     * Added abstract `FlexObject`, `FlexCollection` and `FlexIndex` classes to `\Grav\Common\Flex` namespace (extend those instead of Framework or Generic classes)
     * Updated bundled `composer.phar` binary to latest version `2.0.9`
@@ -14,6 +15,7 @@
     * Added `$grav->getVersion()` or `grav.version` in twig to get the current Grav version [#3142](https://github.com/getgrav/grav/issues/3142)
     * Added second parameter to `$blueprint->flattenData()` to include every field, including those which have no data
     * Added support for setting session domain [#2040](https://github.com/getgrav/grav/pull/2040)
+    * Better support inheriting languages when using child themes [#3226](https://github.com/getgrav/grav/pull/3226)
     * Added option for `FlexForm` constructor to reset the form
 1. [](#bugfix)
     * Fixed issue with `content-security-policy` not being properly supported with `http-equiv` + support single quotes

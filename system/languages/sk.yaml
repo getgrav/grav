@@ -101,8 +101,8 @@ GRAV:
     YR_PLURAL: rokov
     DEC_PLURAL: dekád
   FORM:
-    VALIDATION_FAIL: <b>Overenie zlyhalo:</b>
-    INVALID_INPUT: Neplatný vstup v
+    VALIDATION_FAIL: '<b>Overenie zlyhalo:</b>'
+    INVALID_INPUT: 'Neplatný vstup v'
     MISSING_REQUIRED_FIELD: 'Chýba vyžadované pole:'
   MONTHS_OF_THE_YEAR:
     - 'Január'

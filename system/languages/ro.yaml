@@ -53,8 +53,8 @@ GRAV:
     YR_PLURAL: ani
     DEC_PLURAL: decenii
   FORM:
-    VALIDATION_FAIL: <b>Validare nereușită</b>
-    INVALID_INPUT: Date incorecte în
+    VALIDATION_FAIL: '<b>Validare nereușită</b>'
+    INVALID_INPUT: 'Date incorecte în'
     MISSING_REQUIRED_FIELD: 'Câmp obligatoriu lipsă:'
   MONTHS_OF_THE_YEAR:
     - 'Ianuarie'

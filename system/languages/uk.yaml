@@ -37,8 +37,8 @@ GRAV:
     YR_PLURAL: рр.
     DEC_PLURAL: рр.
   FORM:
-    VALIDATION_FAIL: <b>Перевірка не вдалася:</b>
-    INVALID_INPUT: Невірне введення в
+    VALIDATION_FAIL: '<b>Перевірка не вдалася:</b>'
+    INVALID_INPUT: 'Невірне введення в'
     MISSING_REQUIRED_FIELD: 'Відсутнє обов''язкове поле:'
   MONTHS_OF_THE_YEAR:
     - 'Січень'

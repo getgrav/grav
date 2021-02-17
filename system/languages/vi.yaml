@@ -37,8 +37,8 @@ GRAV:
     YR_PLURAL: năm
     DEC_PLURAL: thập kỷ
   FORM:
-    VALIDATION_FAIL: <b>Xác nhận thất bại:</b>
-    INVALID_INPUT: Dữ liệu nhập không hợp lệ cho
+    VALIDATION_FAIL: '<b>Xác nhận thất bại:</b>'
+    INVALID_INPUT: 'Dữ liệu nhập không hợp lệ cho'
     MISSING_REQUIRED_FIELD: 'Thiếu trường bắt buộc:'
   MONTHS_OF_THE_YEAR:
     - 'Tháng 1'

@@ -36,8 +36,8 @@ GRAV:
     YR_PLURAL: سال
     DEC_PLURAL: دهه
   FORM:
-    VALIDATION_FAIL: <b>سنجش اعتبار ناموفق بود</b>
-    INVALID_INPUT: ورودی نامعتبر در
+    VALIDATION_FAIL: '<b>سنجش اعتبار ناموفق بود</b>'
+    INVALID_INPUT: 'ورودی نامعتبر در'
     MISSING_REQUIRED_FIELD: 'قسمت ضروری جا افتاده:'
   MONTHS_OF_THE_YEAR:
     - 'ژانویه'
