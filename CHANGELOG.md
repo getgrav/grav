@@ -1,5 +1,5 @@
 # v1.7.6
-## mm/dd/2021
+## 02/17/2021
 
 1. [](#new)
     * Added `Medium::attribute()` to pass arbitrary attributes [#3065](https://github.com/getgrav/grav/pull/3065)
