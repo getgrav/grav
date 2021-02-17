@@ -810,10 +810,14 @@ trait PageContentTrait
 
         $keepTwig = (bool)($options['keep_twig'] ?? false);
         if ($keepTwig) {
+            $token = [
+                '/' . Utils::generateRandomString(3),
+                Utils::generateRandomString(3) . '/'
+            ];
             // Base64 encode any twig.
             $content = preg_replace_callback(
-                ['/({#)(.*?)(#})/mu', '/({{)(.*?)(}})/mu', '/({%)(.*?)(%})/mu'],
-                static function ($matches) { return $matches[1] . base64_encode($matches[2]) . $matches[3]; },
+                ['/({#.*?#})/mu', '/({{.*?}})/mu', '/({%.*?%})/mu'],
+                static function ($matches) use ($token) { return $token[0] . base64_encode($matches[1]) . $token[1]; },
                 $content
             );
         }
@@ -823,8 +827,8 @@ trait PageContentTrait
         if ($keepTwig) {
             // Base64 decode the encoded twig.
             $content = preg_replace_callback(
-                ['/({#)(.*?)(#})/mu', '/({{)(.*?)(}})/mu', '/({%)(.*?)(%})/mu'],
-                static function ($matches) { return $matches[1] . base64_decode($matches[2]) . $matches[3]; },
+                ['`' . $token[0] . '([A-Za-z0-9+/]+={0,2})' . $token[1] . '`mu'],
+                static function ($matches) { return base64_decode($matches[1]); },
                 $content
             );
         }

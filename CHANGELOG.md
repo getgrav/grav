@@ -36,6 +36,7 @@
     * Fixed behavior of opposite filters in `Pages::getCollection()` to match Grav 1.6 [#3216](https://github.com/getgrav/grav/pull/3216)
     * Fixed modular content with missing template file ending up using non-modular template [#3218](https://github.com/getgrav/grav/issues/3218)
     * Fixed broken attachment image in Flex Objects Admin when `destination: self@` used [#3225](https://github.com/getgrav/grav/issues/3225)
+    * Fixed bug in page content with both markdown and twig enabled [#3223](https://github.com/getgrav/grav/issues/3223)
 
 # v1.7.5
 ## 02/01/2021
