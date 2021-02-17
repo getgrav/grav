@@ -37,8 +37,8 @@ GRAV:
     YR_PLURAL: 년
     DEC_PLURAL: 년간
   FORM:
-    VALIDATION_FAIL: <b>유효성 검사 실패:</b>
-    INVALID_INPUT: 잘못된 입력
+    VALIDATION_FAIL: '<b>유효성 검사 실패:</b>'
+    INVALID_INPUT: '잘못된 입력'
     MISSING_REQUIRED_FIELD: '누락 된 필수 필드:'
   MONTHS_OF_THE_YEAR:
     - '일월'

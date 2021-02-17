@@ -101,8 +101,8 @@ GRAV:
     YR_PLURAL: jaren
     DEC_PLURAL: decennia
   FORM:
-    VALIDATION_FAIL: <b>Validatie mislukt:</b>
-    INVALID_INPUT: Ongeldige invoer in
+    VALIDATION_FAIL: '<b>Validatie mislukt:</b>'
+    INVALID_INPUT: 'Ongeldige invoer in'
     MISSING_REQUIRED_FIELD: 'Ontbrekend verplicht veld:'
   MONTHS_OF_THE_YEAR:
     - 'Januari'

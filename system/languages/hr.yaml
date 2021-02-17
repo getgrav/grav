@@ -50,8 +50,8 @@ GRAV:
     YR_PLURAL: g
     DEC_PLURAL: des
   FORM:
-    VALIDATION_FAIL: <b>Validacija nije uspjela:</b>
-    INVALID_INPUT: Pogrešan unos u
+    VALIDATION_FAIL: '<b>Validacija nije uspjela:</b>'
+    INVALID_INPUT: 'Pogrešan unos u'
     MISSING_REQUIRED_FIELD: 'Nedostaje obavezno polje:'
   MONTHS_OF_THE_YEAR:
     - 'Siječanj'

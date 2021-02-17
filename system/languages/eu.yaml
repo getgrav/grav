@@ -36,8 +36,8 @@ GRAV:
     YR_PLURAL: urt
     DEC_PLURAL: ham
   FORM:
-    VALIDATION_FAIL: <b>Balidazioak huts egin du</b>
-    INVALID_INPUT: Baliogabeko sarrera
+    VALIDATION_FAIL: '<b>Balidazioak huts egin du</b>'
+    INVALID_INPUT: 'Baliogabeko sarrera'
     MISSING_REQUIRED_FIELD: 'Derrigorrezko eremua bete gabe:'
   MONTHS_OF_THE_YEAR:
     - 'Urtarrila'

@@ -101,9 +101,10 @@ GRAV:
     YR_PLURAL: r
     DEC_PLURAL: dek
   FORM:
-    VALIDATION_FAIL: <b>Ověření se nezdařilo:</b>
-    INVALID_INPUT: Neplatný vstup v
+    VALIDATION_FAIL: '<b>Ověření se nezdařilo:</b>'
+    INVALID_INPUT: 'Neplatný vstup v'
     MISSING_REQUIRED_FIELD: 'Chybí požadované pole:'
+    XSS_ISSUES: "Byly zjištěny možné problémy XSS v poli '%s'"
   MONTHS_OF_THE_YEAR:
     - 'leden'
     - 'únor'
@@ -125,6 +126,8 @@ GRAV:
     - 'pátek'
     - 'sobota'
     - 'neděle'
+  YES: "Ano"
+  NO: "Ne"
   CRON:
     EVERY: každý
     EVERY_HOUR: každou hodinu

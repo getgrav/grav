@@ -36,8 +36,8 @@ GRAV:
     YR_PLURAL: г
     DEC_PLURAL: дстлт
   FORM:
-    VALIDATION_FAIL: <b>Неуспешна проверка:</b>
-    INVALID_INPUT: Невалидно въвеждане в
+    VALIDATION_FAIL: '<b>Неуспешна проверка:</b>'
+    INVALID_INPUT: 'Невалидно въвеждане в'
     MISSING_REQUIRED_FIELD: 'Липсва задължително поле:'
   MONTHS_OF_THE_YEAR:
     - 'януари'

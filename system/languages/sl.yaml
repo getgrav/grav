@@ -36,8 +36,8 @@ GRAV:
     YR_PLURAL: l
     DEC_PLURAL: des
   FORM:
-    VALIDATION_FAIL: <b>Preverjanje veljavnosti ni uspelo:</b>
-    INVALID_INPUT: Neveljaven vnos v
+    VALIDATION_FAIL: '<b>Preverjanje veljavnosti ni uspelo:</b>'
+    INVALID_INPUT: 'Neveljaven vnos v'
     MISSING_REQUIRED_FIELD: 'Manjka obvezno polje:'
   MONTHS_OF_THE_YEAR:
     - 'Januar'

@@ -46,8 +46,8 @@ GRAV:
     YR_PLURAL: árum
     DEC_PLURAL: árat
   FORM:
-    VALIDATION_FAIL: <b>Sannvottun mistókst:</b>
-    INVALID_INPUT: Ógilt inntak í
+    VALIDATION_FAIL: '<b>Sannvottun mistókst:</b>'
+    INVALID_INPUT: 'Ógilt inntak í'
     MISSING_REQUIRED_FIELD: 'Vantar nauðsynlegan reit:'
   MONTHS_OF_THE_YEAR:
     - 'janúar'

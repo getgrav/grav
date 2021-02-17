@@ -31,7 +31,7 @@ GRAV:
     YR_PLURAL: ปี
   FORM:
     VALIDATION_FAIL: '<b>ตรวจสอบล้มเหลว: </b>'
-    INVALID_INPUT: ป้อนข้อมูลไม่ถูกต้องใน
+    INVALID_INPUT: 'ป้อนข้อมูลไม่ถูกต้องใน'
     MISSING_REQUIRED_FIELD: 'ขาดข้อมูลที่จำเป็น:'
   MONTHS_OF_THE_YEAR:
     - 'มกราคม'
