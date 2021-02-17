@@ -122,6 +122,10 @@ class FlexForm implements FlexObjectFormInterface, JsonSerializable
         $this->setFlashLookupFolder($directory->getBlueprint()->get('form/flash_folder') ?? 'tmp://forms/[SESSIONID]');
         $this->form = $options['form'] ?? null;
 
+        if (!empty($options['reset'])) {
+            $this->getFlash()->delete();
+        }
+
         $this->initialize();
     }
 

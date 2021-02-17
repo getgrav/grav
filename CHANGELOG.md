@@ -14,6 +14,7 @@
     * Added `$grav->getVersion()` or `grav.version` in twig to get the current Grav version [#3142](https://github.com/getgrav/grav/issues/3142)
     * Added second parameter to `$blueprint->flattenData()` to include every field, including those which have no data
     * Added support for setting session domain [#2040](https://github.com/getgrav/grav/pull/2040)
+    * Added option for `FlexForm` constructor to reset the form
 1. [](#bugfix)
     * Fixed issue with `content-security-policy` not being properly supported with `http-equiv` + support single quotes
     * Fixed CLI progressbar in `backup` and `security` commands to use styled output [#3198](https://github.com/getgrav/grav/issues/3198)
