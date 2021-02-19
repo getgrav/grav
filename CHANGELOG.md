@@ -5,6 +5,7 @@
     * Added original image support for all flex objects and media fields
 1. [](#bugfix)
     * Fixed avatar of the user not being saved [grav-plugin-flex-objects#111](https://github.com/trilbymedia/grav-plugin-flex-objects/issues/111)
+    * Replaced special space character with regular space in `system/blueprints/user/account_new.yaml`
 
 # v1.7.6
 ## 02/17/2021
