@@ -1,6 +1,8 @@
 # v1.7.7
 ## mm/dd/2021
 
+1. [](#new)
+   * Added `Utils::arrayToQueryParams()` to convert an array into query params
 1. [](#improved)
     * Added original image support for all flex objects and media fields
 1. [](#bugfix)

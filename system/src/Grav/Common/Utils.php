@@ -1087,6 +1087,29 @@ abstract class Utils
     }
 
     /**
+     * Flatten a multi-dimensional associative array into query params.
+     *
+     * @param  array   $array
+     * @param  string  $prepend
+     * @return array
+     */
+    public static function arrayToQueryParams($array, $prepend = '')
+    {
+        $results = [];
+        foreach ($array as $key => $value) {
+            $name = $prepend ? $prepend  . '[' . $key . ']' : $key;
+
+            if (is_array($value)) {
+                $results = array_merge($results, static::arrayToQueryParams($value, $name));
+            } else {
+                $results[$name] = $value;
+            }
+        }
+
+        return $results;
+    }
+
+    /**
      * Flatten an array
      *
      * @param array $array
