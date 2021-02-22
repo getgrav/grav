@@ -39,7 +39,7 @@ class Language
     /** @var array */
     protected $fallback_extensions = [];
     /** @var array */
-    protected $page_extesions = [];
+    protected $page_extensions = [];
     /** @var string|false */
     protected $default;
     /** @var string|false */
@@ -400,7 +400,7 @@ class Language
     {
         $this->fallback_languages = [];
         $this->fallback_extensions = [];
-        $this->page_extesions = [];
+        $this->page_extensions = [];
     }
 
     /**
