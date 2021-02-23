@@ -1,5 +1,5 @@
 # v1.7.7
-## mm/dd/2021
+## 02/23/2021
 
 1. [](#new)
    * Added `Utils::arrayToQueryParams()` to convert an array into query params
