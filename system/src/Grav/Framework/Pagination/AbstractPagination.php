@@ -47,7 +47,9 @@ class AbstractPagination implements PaginationInterface
         'display' => 5,
         'opening' => 0,
         'ending' => 0,
-        'url' => null
+        'url' => null,
+        'param' => null,
+        'use_query_param' => false
     ];
     /** @var array */
     private $items;
@@ -126,12 +128,21 @@ class AbstractPagination implements PaginationInterface
         }
 
         $start = ($page - 1) * $this->limit;
-        if ($this->getOptions()['type'] === 'page') {
-            $name = 'page';
+        $type = $this->getOptions()['type'];
+        $param = $this->getOptions()['param'];
+        $useQuery = $this->getOptions()['use_query_param'];
+        if ($type === 'page') {
+            $param = $param ?? 'page';
             $offset = $page;
         } else {
-            $name = 'start';
+            $param = $param ?? 'start';
             $offset = $start;
+        }
+
+        if ($useQuery) {
+            $route = $this->route->withQueryParam($param, $offset);
+        } else {
+            $route = $this->route->withGravParam($param, $offset);
         }
 
         return new PaginationPage(
@@ -142,7 +153,7 @@ class AbstractPagination implements PaginationInterface
                 'offset_end' => min($start + $this->limit, $this->total) - 1,
                 'enabled' => $page !== $this->page || $this->viewAll,
                 'active' => $page === $this->page,
-                'route' => $this->route->withGravParam($name, $offset)
+                'route' => $route
             ]
         );
     }

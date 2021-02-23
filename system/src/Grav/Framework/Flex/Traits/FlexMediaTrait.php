@@ -25,6 +25,8 @@ use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use RuntimeException;
 use function in_array;
 use function is_array;
+use function is_callable;
+use function is_int;
 use function is_object;
 use function is_string;
 use function strpos;
@@ -141,24 +143,38 @@ trait FlexMediaTrait
         }
 
         $media = $this->getMedia();
+        $originalMedia = is_callable([$this, 'getOriginalMedia']) ? $this->getOriginalMedia() : null;
 
         $list = [];
         foreach ($value as $filename => $info) {
             if (!is_array($info)) {
+                $list[$filename] = $info;
                 continue;
+            }
+
+            if (is_int($filename)) {
+                $filename = $info['path'] ?? $info['name'];
             }
 
             /** @var Medium|null $thumbFile */
             $imageFile = $media[$filename];
+
+            /** @var Medium|null $thumbFile */
+            $originalFile = $originalMedia ? $originalMedia[$filename] : null;
+
             $url = $imageFile ? $imageFile->url() : null;
+            $originalUrl = $originalFile ? $originalFile->url() : null;
             $list[$filename] = [
                 'name' => $info['name'] ?? null,
                 'type' => $info['type'] ?? null,
                 'size' => $info['size'] ?? null,
                 'path' => $filename,
-                'image_url' => $url,
-                'thumb_url' => $url
+                'thumb_url' => $url,
+                'image_url' => $originalUrl ?? $url
             ];
+            if ($originalFile) {
+                $list[$filename]['cropData'] = (object)($originalFile->metadata()['upload']['crop'] ?? []);
+            }
         }
 
         return $list;

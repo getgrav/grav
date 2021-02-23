@@ -1,3 +1,15 @@
+# v1.7.7
+## 02/23/2021
+
+1. [](#new)
+   * Added `Utils::arrayToQueryParams()` to convert an array into query params
+1. [](#improved)
+    * Added original image support for all flex objects and media fields
+    * Improved `Pagination` class to allow custom pagination query parameter
+1. [](#bugfix)
+    * Fixed avatar of the user not being saved [grav-plugin-flex-objects#111](https://github.com/trilbymedia/grav-plugin-flex-objects/issues/111)
+    * Replaced special space character with regular space in `system/blueprints/user/account_new.yaml`
+
 # v1.7.6
 ## 02/17/2021
 

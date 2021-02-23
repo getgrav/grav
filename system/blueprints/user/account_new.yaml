@@ -13,6 +13,6 @@ form:
       label: PLUGIN_ADMIN.USERNAME
       help: PLUGIN_ADMIN.USERNAME_HELP
       unset-disabled@: true
-      unset-readonly@: true
+      unset-readonly@: true
       validate:
         required: true

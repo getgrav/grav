@@ -290,7 +290,8 @@ class UserObject extends FlexObject implements UserInterface, Countable
         $value = parent::getProperty($property, $default);
 
         if ($property === 'avatar') {
-            $value = $this->parseFileProperty($value);
+            $settings = $this->getMediaFieldSettings($property);
+            $value = $this->parseFileProperty($value, $settings);
         }
 
         return $value;
@@ -304,7 +305,9 @@ class UserObject extends FlexObject implements UserInterface, Countable
     public function toArray()
     {
         $array = $this->jsonSerialize();
-        $array['avatar'] = $this->parseFileProperty($array['avatar'] ?? null);
+
+        $settings = $this->getMediaFieldSettings('avatar');
+        $array['avatar'] = $this->parseFileProperty($array['avatar'] ?? null, $settings);
 
         return $array;
     }
@@ -806,46 +809,6 @@ class UserObject extends FlexObject implements UserInterface, Countable
 
         $this->setUpdatedMedia([]);
         $this->clearMediaCache();
-    }
-
-    /**
-     * @param array|mixed $value
-     * @param array $settings
-     * @return array|mixed
-     */
-    protected function parseFileProperty($value, array $settings = [])
-    {
-        if (!is_array($value)) {
-            return $value;
-        }
-
-        $originalMedia = $this->getOriginalMedia();
-        $resizedMedia = $this->getMedia();
-
-        $list = [];
-        foreach ($value as $filename => $info) {
-            if (!is_array($info)) {
-                continue;
-            }
-
-            /** @var Medium|null $thumbFile */
-            $thumbFile = $resizedMedia[$filename];
-            /** @var Medium|null $imageFile */
-            $imageFile = $originalMedia[$filename] ?? $thumbFile;
-            if ($thumbFile && $imageFile) {
-                $list[$filename] = [
-                    'name' => $info['name'] ?? null,
-                    'type' => $info['type'] ?? null,
-                    'size' => $info['size'] ?? null,
-                    'path' => $info['path'] ?? null,
-                    'image_url' => $imageFile->url(),
-                    'thumb_url' =>  $thumbFile->url(),
-                    'cropData' => (object)($imageFile->metadata()['upload']['crop'] ?? [])
-                ];
-            }
-        }
-
-        return $list;
     }
 
     /**
