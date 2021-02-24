@@ -30,8 +30,7 @@ jobs:
             VERSION=$(echo "$SKELETON" | jq -cr '.[]')
             URL="https://api.github.com/repos/${KEY}/actions/workflows/${WORKFLOW}/dispatches"
 
-            curl --silent --output /dev/null
-            -X POST \
+            curl -X POST \
             -u "${AUTH}" \
             -H "Accept: application/vnd.github.everest-preview+json" \
             -H "Content-Type: application/json" \
@@ -42,6 +41,6 @@ jobs:
                         "version": "'"$INPUT_VERSION"'", 
                         "admin": "'"$INPUT_ADMIN"'" 
                       } 
-                    }'
+                    }' > /dev/null
             echo "Dispatched Worfklow for ${KEY}@$VERSION"
           done
