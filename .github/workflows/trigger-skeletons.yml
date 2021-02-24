@@ -1,0 +1,45 @@
+name: Trigger Skeletons Build
+
+on:
+  release:
+    types: [ published ]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Which Grav release to use'
+        required: true
+        default: 'latest'
+      admin:
+        description: 'Create also a package with Admin'
+        required: true
+        default: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      WORKFLOW: "build-skeleton.yml"
+      AUTH: ":${{secrets.GLOBAL_TOKEN}}"
+    steps:
+      - uses: actions/checkout@v2
+      - name: Make it rain ☔️
+        run: |
+          SKELETONS=`curl -s "${{secrets.SKELETONS_JSON_LIST}}"`
+          echo "$SKELETONS"
+          echo "$SKELETONS" | jq -cr '.[]' | while read SKELETON; do
+            KEY=$(echo "$SKELETON" | jq -cr 'keys[0]')
+            VERSION=$(echo "$SKELETON" | jq -cr '.[]')
+            URL="https://api.github.com/repos/${KEY}/actions/workflows/${WORKFLOW}/dispatches"
+            
+            curl -XPOST -u "${AUTH}" \
+            -H "Accept: application/vnd.github.everest-preview+json" \
+            -H "Content-Type: application/json" ${URL} \
+            --data '{ "ref": "master", 
+                      "inputs": { 
+                        "tag": "'"$VERSION"'"", 
+                        "version": "'"$INPUT_VERSION"'", 
+                        "admin": "'"$INPUT_ADMIN"'" 
+                      } 
+                    }'
+            echo "Dispatched Worfklow for ${KEY}@$VERSION"
+          done
