@@ -25,14 +25,13 @@ jobs:
       - name: Make it rain ☔️
         run: |
           SKELETONS=`curl -s "${{secrets.SKELETONS_JSON_LIST}}"`
-          echo "$SKELETONS"
           echo "$SKELETONS" | jq -cr '.[]' | while read SKELETON; do
             KEY=$(echo "$SKELETON" | jq -cr 'keys[0]')
             VERSION=$(echo "$SKELETON" | jq -cr '.[]')
             URL="https://api.github.com/repos/${KEY}/actions/workflows/${WORKFLOW}/dispatches"
-            
-            echo $KEY - $VERSION - $URL
-            curl -X POST \
+
+            curl --silent --output /dev/null
+            -X POST \
             -u "${AUTH}" \
             -H "Accept: application/vnd.github.everest-preview+json" \
             -H "Content-Type: application/json" \
