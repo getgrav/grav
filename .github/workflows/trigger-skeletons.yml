@@ -37,7 +37,7 @@ jobs:
             -H "Accept: application/vnd.github.everest-preview+json" \
             -H "Content-Type: application/json" \
             ${URL} \
-            --data '{ "ref": "master", 
+            --data '{ "ref": "develop", 
                       "inputs": { 
                         "tag": "'"$VERSION"'", 
                         "version": "'"$INPUT_VERSION"'", 
