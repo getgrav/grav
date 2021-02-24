@@ -39,7 +39,7 @@ jobs:
             ${URL} \
             --data '{ "ref": "master", 
                       "inputs": { 
-                        "tag": "'"$VERSION"'"", 
+                        "tag": "'"$VERSION"'", 
                         "version": "'"$INPUT_VERSION"'", 
                         "admin": "'"$INPUT_ADMIN"'" 
                       } 
