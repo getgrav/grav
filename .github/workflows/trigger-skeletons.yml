@@ -31,9 +31,12 @@ jobs:
             VERSION=$(echo "$SKELETON" | jq -cr '.[]')
             URL="https://api.github.com/repos/${KEY}/actions/workflows/${WORKFLOW}/dispatches"
             
-            curl -XPOST -u "${AUTH}" \
+            echo $KEY - $VERSION - $URL
+            curl -X POST \
+            -u "${AUTH}" \
             -H "Accept: application/vnd.github.everest-preview+json" \
-            -H "Content-Type: application/json" ${URL} \
+            -H "Content-Type: application/json" \
+            ${URL} \
             --data '{ "ref": "master", 
                       "inputs": { 
                         "tag": "'"$VERSION"'"", 
