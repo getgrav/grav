@@ -34,7 +34,7 @@ jobs:
             -u "${AUTH}" \
             -H "Accept: application/vnd.github.everest-preview+json" \
             -H "Content-Type: application/json" \
-            -S \
+            -sS \
             ${URL} \
             --data '{ "ref": "develop", 
                       "inputs": { 
