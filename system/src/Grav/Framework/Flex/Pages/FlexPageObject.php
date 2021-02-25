@@ -398,23 +398,6 @@ class FlexPageObject extends FlexObject implements PageInterface, FlexTranslateI
             unset($elements['content']);
         }
 
-        // TODO: Remove: RAW frontmatter support has been moved to Flex-Objects v1.0.2 controller.
-        if (isset($elements['frontmatter'])) {
-            $formatter = new YamlFormatter();
-            try {
-                // Replace the whole header except for media order, which is used in admin.
-                $media_order = $elements['media_order'] ?? null;
-                $elements['header'] = $formatter->decode($elements['frontmatter']);
-                if ($media_order) {
-                    $elements['header']['media_order'] = $media_order;
-                }
-            } catch (RuntimeException $e) {
-                throw new RuntimeException('Badly formatted markdown');
-            }
-
-            unset($elements['frontmatter']);
-        }
-
         if (!$extended) {
             $folder = !empty($elements['folder']) ? trim($elements['folder']) : '';
 

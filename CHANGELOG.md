@@ -2,16 +2,15 @@
 ## mm/dd/2021
 
 1. [](#new)
-   * Added `ControllerResponseTrait::createDownloadResponse()` method
+    * Added `ControllerResponseTrait::createDownloadResponse()` method
 1. [](#improved)
-    * Optimized `Flex Pages` parent method when using multi-language
-    * Optimized `Flex Pages` permissions lookups
+    * Optimized `Flex Pages` for speed
 
 # v1.7.7
 ## 02/23/2021
 
 1. [](#new)
-   * Added `Utils::arrayToQueryParams()` to convert an array into query params
+    * Added `Utils::arrayToQueryParams()` to convert an array into query params
 1. [](#improved)
     * Added original image support for all flex objects and media fields
     * Improved `Pagination` class to allow custom pagination query parameter
