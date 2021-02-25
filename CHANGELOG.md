@@ -1,3 +1,9 @@
+# v1.7.8
+## mm/dd/2021
+
+1. [](#new)
+   * Added `ControllerResponseTrait::createDownloadResponse()` method
+
 # v1.7.7
 ## 02/23/2021
 
