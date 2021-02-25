@@ -18,6 +18,7 @@ use Grav\Common\Uri;
 use Grav\Framework\Filesystem\Filesystem;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use RuntimeException;
+use function dirname;
 use function is_string;
 
 /**
@@ -419,9 +420,8 @@ trait PageRoutableTrait
             return $this->_parentCache;
         }
 
-        $filesystem = Filesystem::getInstance(false);
         $directory = $this->getFlexDirectory();
-        $parentKey = ltrim($filesystem->dirname("/{$this->getKey()}"), '/');
+        $parentKey = ltrim(dirname("/{$this->getKey()}"), '/');
         if ($parentKey) {
             $parent = $directory->getObject($parentKey);
             $language = $this->getLanguage();
