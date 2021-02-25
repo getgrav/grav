@@ -3,6 +3,9 @@
 
 1. [](#new)
    * Added `ControllerResponseTrait::createDownloadResponse()` method
+1. [](#improved)
+    * Optimized `Flex Pages` parent method when using multi-language
+    * Optimized `Flex Pages` permissions lookups
 
 # v1.7.7
 ## 02/23/2021
