@@ -381,6 +381,7 @@ class FolderStorage extends AbstractFilesystemStorage
             if (isset($data[0])) {
                 throw new RuntimeException('Broken object file');
             }
+            unset($file);
         } catch (RuntimeException $e) {
             $data = ['__ERROR' => $e->getMessage()];
         }
@@ -425,6 +426,7 @@ class FolderStorage extends AbstractFilesystemStorage
             $file = $this->getFile($path);
 
             $file->save($row);
+            $file->free();
 
             /** @var UniformResourceLocator $locator */
             $locator = Grav::instance()['locator'];
@@ -434,6 +436,7 @@ class FolderStorage extends AbstractFilesystemStorage
         } catch (RuntimeException $e) {
             throw new RuntimeException(sprintf('Flex saveFile(%s): %s', $path ?? $key, $e->getMessage()));
         }
+        unset($file);
 
         $row['__META'] = $this->getObjectMeta($key, true);
 

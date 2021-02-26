@@ -418,6 +418,7 @@ class SimpleStorage extends AbstractFilesystemStorage
         } catch (RuntimeException $e) {
             throw new RuntimeException(sprintf('Flex save(): %s', $e->getMessage()));
         }
+        unset($file);
     }
 
     /**
@@ -453,6 +454,10 @@ class SimpleStorage extends AbstractFilesystemStorage
             $data = new Data($content);
             $content = $data->get($this->prefix);
         }
+
+        $file->free();
+        unset($file);
+
         $this->data = $content;
 
         $list = [];
