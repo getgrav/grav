@@ -5,6 +5,9 @@
     * Added `ControllerResponseTrait::createDownloadResponse()` method
 1. [](#improved)
     * Optimized `Flex Pages` for speed
+    * Clearing cache now deletes all clockwork files
+1. [](#bugfix)
+    * Fixed clockwork error when clearing cache
 
 # v1.7.7
 ## 02/23/2021
