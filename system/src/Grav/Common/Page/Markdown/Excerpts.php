@@ -278,7 +278,7 @@ class Excerpts
             );
         }
 
-        $defaults = $config['images']['defaults'] ?? [];
+        $defaults = $this->config['images']['defaults'] ?? [];
         if (count($defaults)) {
             foreach ($defaults as $method => $params) {
                 if (!array_search($method, array_column($actions, 'method'))) {
