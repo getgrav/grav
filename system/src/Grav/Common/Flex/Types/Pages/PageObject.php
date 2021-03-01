@@ -223,7 +223,7 @@ class PageObject extends FlexPageObject
         }
 
         // Reorder siblings.
-        $siblings = is_array($reorder) ? $this->reorderSiblings($reorder) : [];
+        $siblings = is_array($reorder) ? ($this->reorderSiblings($reorder) ?? []) : [];
 
         $data = $this->prepareStorage();
         unset($data['header']);
@@ -314,7 +314,7 @@ class PageObject extends FlexPageObject
 
     /**
      * @param array $ordering
-     * @return PageCollection
+     * @return PageCollection|null
      */
     protected function reorderSiblings(array $ordering)
     {
@@ -324,17 +324,35 @@ class PageObject extends FlexPageObject
         $newParentKey = $this->getProperty('parent_key');
         $isMoved = $oldParentKey !== $newParentKey;
         $order = !$isMoved ? $this->order() : false;
+        if ($order !== false) {
+            $order = (int)$order;
+        }
 
         $parent = $this->parent();
         if (!$parent) {
             throw new RuntimeException('Cannot reorder a page which has no parent');
         }
 
-        /** @var PageCollection|null $siblings */
+        /** @var PageCollection $siblings */
         $siblings = $parent->children();
+        $siblings = $siblings->getCollection()->withOrdered();
 
-        /** @var PageCollection|null $siblings */
-        $siblings = $siblings->getCollection()->withOrdered()->orderBy(['order' => 'ASC']);
+        // Handle special case where ordering isn't given.
+        if ($ordering === []) {
+            if ($order >= 999999) {
+                // Set ordering to point to be the last item.
+                $order = 0;
+                foreach ($siblings as $sibling) {
+                    $order = max($order, (int)$sibling->order());
+                }
+                $this->order($order + 1);
+            }
+
+            // Do not change sibling ordering.
+            return null;
+        }
+
+        $siblings = $siblings->orderBy(['order' => 'ASC']);
 
         if ($storageKey !== null) {
             if ($order !== false) {
@@ -378,7 +396,9 @@ class PageObject extends FlexPageObject
                     throw new RuntimeException("New parent page '{$parentKey}' not found.");
                 }
             }
-            $newSiblings = $newParent->children()->getCollection()->withOrdered();
+            /** @var PageCollection $newSiblings */
+            $newSiblings = $newParent->children();
+            $newSiblings = $newSiblings->getCollection()->withOrdered();
             $order = 0;
             foreach ($newSiblings as $sibling) {
                 $order = max($order, (int)$sibling->order());
@@ -584,14 +604,17 @@ class PageObject extends FlexPageObject
             unset($elements['ordering'], $elements['order']);
         } elseif (array_key_exists('ordering', $elements) && array_key_exists('order', $elements)) {
             // Store ordering.
-            $this->_reorder = !empty($elements['order']) ? explode(',', $elements['order']) : [];
+            $ordering = $elements['order'] ?? null;
+            $this->_reorder = !empty($ordering) ? explode(',', $ordering) : [];
 
             $order = false;
             if ((bool)($elements['ordering'] ?? false)) {
-                $order = 999999;
+                $order = $this->order();
+                if ($order === false) {
+                    $order = 999999;
+                }
             }
 
-            $this->order();
             $elements['order'] = $order;
         }
 

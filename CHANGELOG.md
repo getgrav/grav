@@ -5,6 +5,7 @@
     * Added `ControllerResponseTrait::createDownloadResponse()` method
 1. [](#improved)
     * Optimized `Flex Pages` for speed
+    * Optimized saving visible/ordered pages when there are a lot of siblings [#3231](https://github.com/getgrav/grav/issues/3231)
     * Clearing cache now deletes all clockwork files
 1. [](#bugfix)
     * Fixed clockwork error when clearing cache
