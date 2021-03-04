@@ -310,6 +310,7 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
         /** @var Debugger $debugger */
         $debugger = Grav::instance()['debugger'];
 
+        $result = null;
         try {
             $cached = $cache->get($key);
             $test = $cached[0] ?? null;
@@ -319,7 +320,7 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
         }
 
         try {
-            if (!isset($result)) {
+            if (null === $result) {
                 $result = $this->getLevelListingRecurse($options);
                 $cache->set($key, [$checksum, $result]);
             }
