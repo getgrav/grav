@@ -9,6 +9,7 @@
     * Clearing cache now deletes all clockwork files
 1. [](#bugfix)
     * Fixed clockwork error when clearing cache
+    * Fixed missing method `translated()` in `Flex Pages`
 
 # v1.7.7
 ## 02/23/2021

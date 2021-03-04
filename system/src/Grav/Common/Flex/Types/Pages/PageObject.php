@@ -78,6 +78,7 @@ class PageObject extends FlexPageObject
             'path' => true,
             'full_order' => true,
             'filterBy' => true,
+            'translated' => false,
         ] + parent::getCachedMethods();
     }
 
@@ -90,6 +91,11 @@ class PageObject extends FlexPageObject
             Grav::instance()->fireEvent('onPageProcessed', new Event(['page' => $this]));
             $this->_initialized = true;
         }
+    }
+
+    public function translated(): bool
+    {
+        return $this->translatedLanguages(true) ? true : false;
     }
 
     /**
