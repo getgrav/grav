@@ -10,6 +10,7 @@
 1. [](#bugfix)
     * Fixed clockwork error when clearing cache
     * Fixed missing method `translated()` in `Flex Pages`
+    * Fixed missing `Flex Pages` in site if multi-language support has been enabled
 
 # v1.7.7
 ## 02/23/2021
