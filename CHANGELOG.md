@@ -12,6 +12,7 @@
     * Fixed missing method `translated()` in `Flex Pages`
     * Fixed missing `Flex Pages` in site if multi-language support has been enabled
     * Fixed Grav using blueprints and form fields from disabled plugins
+    * Fixed default Flex Pages collection ordering to order by filesystem path
 
 # v1.7.7
 ## 02/23/2021
