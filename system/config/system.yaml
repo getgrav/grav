@@ -127,6 +127,7 @@ assets:                                          # Configuration for Assets Mana
   js_pipeline_before_excludes: true              # Render the pipeline before any excluded files
   js_minify: true                                # Minify the JS during pipelining
   enable_asset_timestamp: false                  # Enable asset timestamps
+  enable_asset_sri: false                        # Enable asset SRI
   collections:
     jquery: system://assets/jquery/jquery-2.x.min.js
 
