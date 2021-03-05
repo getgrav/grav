@@ -47,6 +47,6 @@ class Css extends BaseAsset
             return "<style>\n" . trim($buffer) . "\n</style>\n";
         }
 
-        return '<link href="' . trim($this->asset) . $this->renderQueryString() . '"' . $this->renderAttributes() . ">\n";
+        return '<link href="' . trim($this->asset) . $this->renderQueryString() . '"' . $this->renderAttributes() . $this->integrityHash($this->asset) . ">\n";
     }
 }
