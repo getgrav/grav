@@ -68,13 +68,21 @@ class Plugins extends Iterator
         $blueprints = [];
         $formFields = [];
 
+        $grav = Grav::instance();
+
+        /** @var Config $config */
+        $config = $grav['config'];
+
         /** @var Plugin $plugin */
         foreach ($this->items as $plugin) {
-            if (isset($plugin->features['blueprints'])) {
-                $blueprints["plugin://{$plugin->name}/blueprints"] = $plugin->features['blueprints'];
-            }
-            if (method_exists($plugin, 'getFormFieldTypes')) {
-                $formFields[get_class($plugin)] = isset($plugin->features['formfields']) ? $plugin->features['formfields'] : 0;
+            // Setup only enabled plugins.
+            if ($config["plugins.{$plugin->name}.enabled"] && $plugin instanceof Plugin) {
+                if (isset($plugin->features['blueprints'])) {
+                    $blueprints["plugin://{$plugin->name}/blueprints"] = $plugin->features['blueprints'];
+                }
+                if (method_exists($plugin, 'getFormFieldTypes')) {
+                    $formFields[get_class($plugin)] = $plugin->features['formfields'] ?? 0;
+                }
             }
         }
 
@@ -83,7 +91,7 @@ class Plugins extends Iterator
             arsort($blueprints, SORT_NUMERIC);
 
             /** @var UniformResourceLocator $locator */
-            $locator = Grav::instance()['locator'];
+            $locator = $grav['locator'];
             $locator->addPath('blueprints', '', array_keys($blueprints), ['system', 'blueprints']);
         }
 
