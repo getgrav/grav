@@ -1005,6 +1005,17 @@ form:
                 0: PLUGIN_ADMIN.NO
               validate:
                 type: bool
+                
+            assets.enable_asset_sri:
+              type: toggle
+              label: PLUGIN_ADMIN.ENABLED_SRI_ON_ASSETS
+              help: PLUGIN_ADMIN.ENABLED_SRI_ON_ASSETS_HELP
+              highlight: 0
+              options:
+                1: PLUGIN_ADMIN.YES
+                0: PLUGIN_ADMIN.NO
+              validate:
+                type: bool
 
             assets.collections:
               type: multilevel
