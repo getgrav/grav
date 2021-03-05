@@ -180,7 +180,7 @@ abstract class BaseAsset extends PropertyObject
      *
      * @return string
      */
-    protected function integrityHash( $input )
+    public function integrityHash( $input )
     {
         $grav = Grav::instance();
 
