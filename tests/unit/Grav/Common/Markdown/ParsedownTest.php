@@ -240,6 +240,46 @@ class ParsedownTest extends \Codeception\TestCase\Test
         );
     }
 
+    public function testImagesDefaults(): void
+    {
+        /**
+         * Testing default 'loading'
+        */
+
+        $this->setImagesDefaults(['loading' => 'auto']);
+
+        // loading should NOT be added to image by default
+        self::assertSame(
+            '<p><img alt="" src="/tests/fake/nested-site/user/pages/02.item2/02.item2-2/sample-image.jpg" /></p>',
+            $this->parsedown->text('![](sample-image.jpg)')
+        );
+
+        // loading="lazy" should be added when default is overridden by ?loading=lazy
+        self::assertSame(
+            '<p><img loading="lazy" alt="" src="/tests/fake/nested-site/user/pages/02.item2/02.item2-2/sample-image.jpg" /></p>',
+            $this->parsedown->text('![](sample-image.jpg?loading=lazy)')
+        );
+
+        $this->setImagesDefaults(['loading' => 'lazy']);
+
+        // loading="lazy" should be added by default
+        self::assertSame(
+            '<p><img loading="lazy" alt="" src="/tests/fake/nested-site/user/pages/02.item2/02.item2-2/sample-image.jpg" /></p>',
+            $this->parsedown->text('![](sample-image.jpg)')
+        );
+
+        // loading should not be added when default is overridden by ?loading=auto
+        self::assertSame(
+            '<p><img alt="" src="/tests/fake/nested-site/user/pages/02.item2/02.item2-2/sample-image.jpg" /></p>',
+            $this->parsedown->text('![](sample-image.jpg?loading=auto)')
+        );
+
+        // loading="eager" should be added when default is overridden by ?loading=eager
+        self::assertSame(
+            '<p><img loading="eager" alt="" src="/tests/fake/nested-site/user/pages/02.item2/02.item2-2/sample-image.jpg" /></p>',
+            $this->parsedown->text('![](sample-image.jpg?loading=eager)')
+        );
+    }
 
     public function testRootImages(): void
     {
@@ -1125,5 +1165,16 @@ class ParsedownTest extends \Codeception\TestCase\Test
     private function stripLeadingWhitespace($string)
     {
         return preg_replace('/^\s*(.*)/', '', $string);
+    }
+
+    private function setImagesDefaults($defaults) {
+        $defaults = [
+            'images' => [
+                'defaults' => $defaults
+            ],
+        ];
+        $page = $this->pages->find('/item2/item2-2');
+        $excerpts = new Excerpts($page, $defaults);
+        $this->parsedown = new Parsedown($excerpts);
     }
 }
