@@ -10,6 +10,7 @@
 namespace Grav\Common\Assets;
 
 use Grav\Common\Assets\Traits\AssetUtilsTrait;
+use Grav\Common\Config\Config;
 use Grav\Common\Grav;
 use Grav\Common\Uri;
 use Grav\Common\Utils;
@@ -170,6 +171,31 @@ abstract class BaseAsset extends PropertyObject
         $this->position = $position;
 
         return $this;
+    }
+    
+    /**
+     * Receive asset location and return the SRI integrity hash
+     * 
+     * @param $input
+     *
+     * @return string
+     */
+    public static function integrityHash( $input )
+    {
+        $grav = Grav::instance();
+
+        $assetsConfig = $grav['config']->get('system.assets');
+
+        if ( !empty($assetsConfig['enable_asset_sri']) && $assetsConfig['enable_asset_sri'] )
+        {
+            $dataToHash = file_get_contents( GRAV_ROOT . $input);
+
+            $hash = hash('sha256', $dataToHash, true);
+            $hash_base64 = base64_encode($hash);
+            return ' integrity="sha256-' . $hash_base64 . '"';
+        }
+
+        return '';
     }
 
 

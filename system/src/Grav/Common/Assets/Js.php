@@ -43,6 +43,6 @@ class Js extends BaseAsset
             return '<script' . $this->renderAttributes() . ">\n" . trim($buffer) . "\n</script>\n";
         }
 
-        return '<script src="' . trim($this->asset) . $this->renderQueryString() . '"' . $this->renderAttributes() . "></script>\n";
+        return '<script src="' . trim($this->asset) . $this->renderQueryString() . '"' . $this->renderAttributes() . $this->integrityHash($this->asset) . "></script>\n";
     }
 }
