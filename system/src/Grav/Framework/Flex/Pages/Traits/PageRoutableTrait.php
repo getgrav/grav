@@ -320,7 +320,7 @@ trait PageRoutableTrait
 
         /** @var UniformResourceLocator $locator */
         $locator = Grav::instance()['locator'];
-        $path = $locator->findResource($folder, false);
+        $path = $locator->isStream($folder) ? $locator->findResource($folder, false) : $folder;
 
         return is_string($path) ? $path : null;
     }
@@ -353,7 +353,7 @@ trait PageRoutableTrait
         if ($folder) {
             /** @var UniformResourceLocator $locator */
             $locator = Grav::instance()['locator'];
-            $folder = $locator($folder);
+            $folder = $locator->isStream($folder) ? $locator->getResource($folder) : GRAV_ROOT . "/{$folder}";
         }
 
         return $this->_path = is_string($folder) ? $folder : null;

@@ -413,7 +413,7 @@ class PageStorage extends FolderStorage
                     if (!$isClone && $file->exists()) {
                         /** @var UniformResourceLocator $locator */
                         $locator = $grav['locator'];
-                        $toPath = $locator->isStream($newFilepath) ? $locator->findResource($newFilepath, true, true) : $newFilepath;
+                        $toPath = $locator->isStream($newFilepath) ? $locator->findResource($newFilepath, true, true) : GRAV_ROOT . "/{$newFilepath}";
                         $success = $file->rename($toPath);
                         if (!$success) {
                             throw new RuntimeException("Changing page template failed: {$oldFilepath} => {$newFilepath}");
@@ -521,7 +521,11 @@ class PageStorage extends FolderStorage
             $locator = Grav::instance()['locator'];
             if (mb_strpos($key, '@@') === false) {
                 $path = $this->getStoragePath($key);
-                $path = $path ? $locator->findResource($path) : null;
+                if (is_string($path)) {
+                    $path = $locator->isStream($path) ? $locator->findResource($path) : GRAV_ROOT . "/{$path}";
+                } else {
+                    $path = null;
+                }
             } else {
                 $path = null;
             }

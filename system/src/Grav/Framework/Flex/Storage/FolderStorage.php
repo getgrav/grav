@@ -667,7 +667,14 @@ class FolderStorage extends AbstractFilesystemStorage
         /** @var string $pattern */
         $pattern = !empty($options['pattern']) ? $options['pattern'] : $this->dataPattern;
 
-        $this->dataFolder = $options['folder'];
+        /** @var UniformResourceLocator $locator */
+        $locator = Grav::instance()['locator'];
+        $folder = $options['folder'];
+        if ($locator->isStream($folder)) {
+            $folder = $locator->getResource($folder, false);
+        }
+
+        $this->dataFolder = $folder;
         $this->dataFile = $options['file'] ?? 'item';
         $this->dataExt = $extension;
         if (mb_strpos($pattern, '{FILE}') === false && mb_strpos($pattern, '{EXT}') === false) {

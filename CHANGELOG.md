@@ -14,6 +14,7 @@
     * Fixed Grav using blueprints and form fields from disabled plugins
     * Fixed `FlexIndex::sortBy(['key' => 'ASC'])` having no effect
     * Fixed default Flex Pages collection ordering to order by filesystem path
+    * Fixed disappearing pages  on save if `pages://` stream resolves to multiple folders where the preferred folder doesn't exist
 
 # v1.7.7
 ## 02/23/2021

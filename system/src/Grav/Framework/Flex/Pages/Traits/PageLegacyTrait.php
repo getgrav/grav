@@ -715,8 +715,9 @@ trait PageLegacyTrait
 
         /** @var UniformResourceLocator $locator */
         $locator = Grav::instance()['locator'];
+        $folder = $locator->isStream($folder) ? $locator->getResource($folder) : GRAV_ROOT . "/{$folder}";
 
-        return $locator->findResource($folder, true, true) . '/' . ($this->isPage() ? $this->name() : 'default.md');
+        return $folder . '/' . ($this->isPage() ? $this->name() : 'default.md');
     }
 
     /**
@@ -733,8 +734,9 @@ trait PageLegacyTrait
 
         /** @var UniformResourceLocator $locator */
         $locator = Grav::instance()['locator'];
+        $folder = $locator->isStream($folder) ? $locator->getResource($folder, false) : $folder;
 
-        return $locator->findResource($folder, false, true) .  '/' . ($this->isPage() ? $this->name() : 'default.md');
+        return $folder .  '/' . ($this->isPage() ? $this->name() : 'default.md');
     }
 
     /**
