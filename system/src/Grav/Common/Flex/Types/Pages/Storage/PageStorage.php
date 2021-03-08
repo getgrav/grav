@@ -110,6 +110,9 @@ class PageStorage extends FolderStorage
             }
         } catch (RuntimeException $e) {
             $frontmatter = 'ERROR: ' . $e->getMessage();
+        } finally {
+            $file->free();
+            unset($file);
         }
 
         return $frontmatter;
@@ -127,6 +130,9 @@ class PageStorage extends FolderStorage
             $raw = $file->raw();
         } catch (RuntimeException $e) {
             $raw = 'ERROR: ' . $e->getMessage();
+        } finally {
+            $file->free();
+            unset($file);
         }
 
         return $raw;
@@ -439,16 +445,19 @@ class PageStorage extends FolderStorage
             } else {
                 $debugger->addMessage('Page content has not been changed, do not update the file', 'debug');
             }
-
-            /** @var UniformResourceLocator $locator */
-            $locator = Grav::instance()['locator'];
-            if ($locator->isStream($newFolder)) {
-                $locator->clearCache();
-            }
         } catch (RuntimeException $e) {
             $name = isset($file) ? $file->filename() : $newKey;
 
             throw new RuntimeException(sprintf('Flex saveRow(%s): %s', $name, $e->getMessage()));
+        } finally {
+            /** @var UniformResourceLocator $locator */
+            $locator = Grav::instance()['locator'];
+            $locator->clearCache();
+
+            if (isset($file)) {
+                $file->free();
+                unset($file);
+            }
         }
 
         $row['__META'] = $this->getObjectMeta($newKey, true);

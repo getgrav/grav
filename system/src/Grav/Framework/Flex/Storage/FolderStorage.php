@@ -377,13 +377,14 @@ class FolderStorage extends AbstractFilesystemStorage
         $file = $this->getFile($path);
         try {
             $data = (array)$file->content();
-            $file->free();
             if (isset($data[0])) {
                 throw new RuntimeException('Broken object file');
             }
-            unset($file);
         } catch (RuntimeException $e) {
             $data = ['__ERROR' => $e->getMessage()];
+        } finally {
+            $file->free();
+            unset($file);
         }
 
         $data['__META'] = $this->getObjectMeta($key);
@@ -426,17 +427,19 @@ class FolderStorage extends AbstractFilesystemStorage
             $file = $this->getFile($path);
 
             $file->save($row);
-            $file->free();
 
-            /** @var UniformResourceLocator $locator */
-            $locator = Grav::instance()['locator'];
-            if ($locator->isStream($path)) {
-                $locator->clearCache();
-            }
         } catch (RuntimeException $e) {
             throw new RuntimeException(sprintf('Flex saveFile(%s): %s', $path ?? $key, $e->getMessage()));
+        } finally {
+            /** @var UniformResourceLocator $locator */
+            $locator = Grav::instance()['locator'];
+            $locator->clearCache();
+
+            if (isset($file)) {
+                $file->free();
+                unset($file);
+            }
         }
-        unset($file);
 
         $row['__META'] = $this->getObjectMeta($key, true);
 
@@ -455,14 +458,14 @@ class FolderStorage extends AbstractFilesystemStorage
             if ($file->exists()) {
                 $file->delete();
             }
-
-            /** @var UniformResourceLocator $locator */
-            $locator = Grav::instance()['locator'];
-            if ($locator->isStream($filename)) {
-                $locator->clearCache($filename);
-            }
         } catch (RuntimeException $e) {
             throw new RuntimeException(sprintf('Flex deleteFile(%s): %s', $filename, $e->getMessage()));
+        } finally {
+            /** @var UniformResourceLocator $locator */
+            $locator = Grav::instance()['locator'];
+            $locator->clearCache();
+
+            $file->free();
         }
 
         return $data;
@@ -477,14 +480,12 @@ class FolderStorage extends AbstractFilesystemStorage
     {
         try {
             Folder::copy($this->resolvePath($src), $this->resolvePath($dst));
-
-            /** @var UniformResourceLocator $locator */
-            $locator = Grav::instance()['locator'];
-            if ($locator->isStream($src) || $locator->isStream($dst)) {
-                $locator->clearCache();
-            }
         } catch (RuntimeException $e) {
             throw new RuntimeException(sprintf('Flex copyFolder(%s, %s): %s', $src, $dst, $e->getMessage()));
+        } finally {
+            /** @var UniformResourceLocator $locator */
+            $locator = Grav::instance()['locator'];
+            $locator->clearCache();
         }
 
         return true;
@@ -499,14 +500,12 @@ class FolderStorage extends AbstractFilesystemStorage
     {
         try {
             Folder::move($this->resolvePath($src), $this->resolvePath($dst));
-
-            /** @var UniformResourceLocator $locator */
-            $locator = Grav::instance()['locator'];
-            if ($locator->isStream($src) || $locator->isStream($dst)) {
-                $locator->clearCache();
-            }
         } catch (RuntimeException $e) {
             throw new RuntimeException(sprintf('Flex moveFolder(%s, %s): %s', $src, $dst, $e->getMessage()));
+        } finally {
+            /** @var UniformResourceLocator $locator */
+            $locator = Grav::instance()['locator'];
+            $locator->clearCache();
         }
 
         return true;
@@ -520,17 +519,13 @@ class FolderStorage extends AbstractFilesystemStorage
     protected function deleteFolder(string $path, bool $include_target = false): bool
     {
         try {
-            $success = Folder::delete($this->resolvePath($path), $include_target);
-
-            /** @var UniformResourceLocator $locator */
-            $locator = Grav::instance()['locator'];
-            if ($locator->isStream($path)) {
-                $locator->clearCache();
-            }
-
-            return $success;
+            return Folder::delete($this->resolvePath($path), $include_target);
         } catch (RuntimeException $e) {
             throw new RuntimeException(sprintf('Flex deleteFolder(%s): %s', $path, $e->getMessage()));
+        } finally {
+            /** @var UniformResourceLocator $locator */
+            $locator = Grav::instance()['locator'];
+            $locator->clearCache();
         }
     }
 

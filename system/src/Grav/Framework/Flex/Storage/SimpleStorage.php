@@ -415,6 +415,7 @@ class SimpleStorage extends AbstractFilesystemStorage
             $file->save($content);
             $this->modified = (int)$file->modified(); // cast false to 0
             $file->free();
+            unset($file);
         } catch (RuntimeException $e) {
             throw new RuntimeException(sprintf('Flex save(): %s', $e->getMessage()));
         }

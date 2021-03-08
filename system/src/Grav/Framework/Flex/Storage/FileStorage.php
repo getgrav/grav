@@ -84,6 +84,7 @@ class FileStorage extends FolderStorage
         $file = $this->getFile($path);
         $file->delete();
         $file->free();
+        unset($file);
 
         return true;
     }
