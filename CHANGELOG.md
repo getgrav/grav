@@ -15,6 +15,7 @@
     * Fixed `FlexIndex::sortBy(['key' => 'ASC'])` having no effect
     * Fixed default Flex Pages collection ordering to order by filesystem path
     * Fixed disappearing pages  on save if `pages://` stream resolves to multiple folders where the preferred folder doesn't exist
+    * Fixed Markdown image attribute `loading` [#3251](https://github.com/getgrav/grav/pull/3251)
 
 # v1.7.7
 ## 02/23/2021
