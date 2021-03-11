@@ -1174,7 +1174,14 @@ class Pages
                 $event->types = $types;
                 $grav->fireEvent('onGetPageBlueprints', $event);
 
-                $types->scanBlueprints('theme://blueprints/');
+                $types->init();
+
+                // Try new location first.
+                $lookup = 'theme://blueprints/pages/';
+                if (!is_dir($lookup)) {
+                    $lookup = 'theme://blueprints/';
+                }
+                $types->scanBlueprints($lookup);
 
                 // Scan templates
                 $event = new Event();

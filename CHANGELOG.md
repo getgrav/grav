@@ -3,6 +3,8 @@
 
 1. [](#new)
     * Added `ControllerResponseTrait::createDownloadResponse()` method
+    * Added full blueprint support to theme if you move existing files in `blueprints/` to `blueprints/pages/` folder [#3255](https://github.com/getgrav/grav/issues/3255)
+    * Added support for `Theme::getFormFieldTypes()` just like in plugins
 1. [](#improved)
     * Optimized `Flex Pages` for speed
     * Optimized saving visible/ordered pages when there are a lot of siblings [#3231](https://github.com/getgrav/grav/issues/3231)
