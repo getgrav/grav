@@ -9,6 +9,7 @@
     * Optimized `Flex Pages` for speed
     * Optimized saving visible/ordered pages when there are a lot of siblings [#3231](https://github.com/getgrav/grav/issues/3231)
     * Clearing cache now deletes all clockwork files
+    * Improved `system.pages.redirect_default_route` and `system.pages.redirect_trailing_slash` configuration options to accept redirect code
 1. [](#bugfix)
     * Fixed clockwork error when clearing cache
     * Fixed missing method `translated()` in `Flex Pages`
@@ -19,6 +20,7 @@
     * Fixed disappearing pages  on save if `pages://` stream resolves to multiple folders where the preferred folder doesn't exist
     * Fixed Markdown image attribute `loading` [#3251](https://github.com/getgrav/grav/pull/3251)
     * Fixed `Uri::isValidExtension()` returning false positives
+    * Fixed `page.html` returning duplicated content with `system.pages.redirect_default_route` turned on [#3130](https://github.com/getgrav/grav/issues/3130)
 
 # v1.7.7
 ## 02/23/2021

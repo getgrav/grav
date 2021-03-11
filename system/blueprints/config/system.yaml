@@ -177,39 +177,48 @@ form:
               label: PLUGIN_ADMIN.APPEND_URL_EXT
               help: PLUGIN_ADMIN.APPEND_URL_EXT_HELP
 
-            pages.redirect_default_route:
-              type: toggle
-              label: PLUGIN_ADMIN.REDIRECT_DEFAULT_ROUTE
-              help: PLUGIN_ADMIN.REDIRECT_DEFAULT_ROUTE_HELP
-              highlight: 0
-              options:
-                1: PLUGIN_ADMIN.YES
-                0: PLUGIN_ADMIN.NO
-              validate:
-                type: bool
-
             pages.redirect_default_code:
               type: select
               size: medium
               classes: fancy
               label: PLUGIN_ADMIN.REDIRECT_DEFAULT_CODE
               help: PLUGIN_ADMIN.REDIRECT_DEFAULT_CODE_HELP
+              default: 302
               options:
-                301: 301 - Permanent
-                302: 302 - Found
-                303: 303 - Other
+                301: 301 - Moved permanently
+                302: 302 - Moved temporarily
+                303: 303 - See Other
                 304: 304 - Not Modified
 
+            pages.redirect_default_route:
+              type: select
+              size: medium
+              classes: fancy
+              label: PLUGIN_ADMIN.REDIRECT_DEFAULT_ROUTE
+              help: PLUGIN_ADMIN.REDIRECT_DEFAULT_ROUTE_HELP
+              default: 0
+              options:
+                0: No redirect
+                1: Use default redirect code
+                301: 301 - Moved permanently
+                302: 302 - Moved temporarily
+              validate:
+                type: int
+
             pages.redirect_trailing_slash:
-              type: toggle
+              type: select
+              size: medium
+              classes: fancy
               label: PLUGIN_ADMIN.REDIRECT_TRAILING_SLASH
               help: PLUGIN_ADMIN.REDIRECT_TRAILING_SLASH_HELP
-              highlight: 1
+              default: 1
               options:
-                1: PLUGIN_ADMIN.YES
-                0: PLUGIN_ADMIN.NO
+                0: No redirect
+                1: Use default redirect code
+                301: 301 - Moved permanently
+                302: 302 - Moved temporarily
               validate:
-                type: bool
+                type: int
 
             pages.ignore_hidden:
               type: toggle
@@ -1005,7 +1014,7 @@ form:
                 0: PLUGIN_ADMIN.NO
               validate:
                 type: bool
-                
+
             assets.enable_asset_sri:
               type: toggle
               label: PLUGIN_ADMIN.ENABLED_SRI_ON_ASSETS

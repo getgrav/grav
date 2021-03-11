@@ -1875,7 +1875,7 @@ class Page implements PageInterface
      * the parents route and the current Page's slug.
      *
      * @param  string|null $var Set new default route.
-     * @return string  The route for the Page.
+     * @return string|null  The route for the Page.
      */
     public function route($var = null)
     {

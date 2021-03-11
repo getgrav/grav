@@ -77,32 +77,39 @@ class PagesServiceProvider implements ServiceProviderInterface
                     }
                 }
 
-                $url = $pages->route($page->route());
+                $route = $page->route();
+                if ($route) {
+                    $url = $pages->route($route);
 
-                if ($uri->params()) {
-                    if ($url === '/') { //Avoid double slash
-                        $url = $uri->params();
-                    } else {
-                        $url .= $uri->params();
+                    if ($uri->params()) {
+                        if ($url === '/') { //Avoid double slash
+                            $url = $uri->params();
+                        } else {
+                            $url .= $uri->params();
+                        }
                     }
-                }
-                if ($uri->query()) {
-                    $url .= '?' . $uri->query();
-                }
-                if ($uri->fragment()) {
-                    $url .= '#' . $uri->fragment();
-                }
+                    if ($uri->query()) {
+                        $url .= '?' . $uri->query();
+                    }
+                    if ($uri->fragment()) {
+                        $url .= '#' . $uri->fragment();
+                    }
 
-                /** @var Language $language */
-                $language = $grav['language'];
+                    /** @var Language $language */
+                    $language = $grav['language'];
 
-                // Language-specific redirection scenarios
-                if ($language->enabled() && ($language->isLanguageInUrl() xor $language->isIncludeDefaultLanguage())) {
-                    $grav->redirect($url);
-                }
-                // Default route test and redirect
-                if ($config->get('system.pages.redirect_default_route') && $page->route() !== $path) {
-                    $grav->redirect($url);
+                    // Language-specific redirection scenarios
+                    if ($language->enabled() && ($language->isLanguageInUrl() xor $language->isIncludeDefaultLanguage())) {
+                        $grav->redirect($url);
+                    }
+
+                    // Default route test and redirect
+                    $redirectCode = (int)$config->get('system.pages.redirect_default_route', 0);
+                    if ($redirectCode && \in_array($uri->method(), ['GET', 'HEAD'], true)) {
+                        if ($route !== $path || \in_array($uri->extension(), ['htm', 'html'], true)) {
+                            $grav->redirect($url, $redirectCode > 300 ? $redirectCode : null);
+                        }
+                    }
                 }
             }
 
