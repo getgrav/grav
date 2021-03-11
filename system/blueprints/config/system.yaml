@@ -185,10 +185,9 @@ form:
               help: PLUGIN_ADMIN.REDIRECT_DEFAULT_CODE_HELP
               default: 302
               options:
-                301: 301 - Moved permanently
-                302: 302 - Moved temporarily
-                303: 303 - See Other
-                304: 304 - Not Modified
+                301: PLUGIN_ADMIN.REDIRECT_OPTION_301
+                302: PLUGIN_ADMIN.REDIRECT_OPTION_302
+                303: PLUGIN_ADMIN.REDIRECT_OPTION_303
 
             pages.redirect_default_route:
               type: select
@@ -198,10 +197,10 @@ form:
               help: PLUGIN_ADMIN.REDIRECT_DEFAULT_ROUTE_HELP
               default: 0
               options:
-                0: No redirect
-                1: Use default redirect code
-                301: 301 - Moved permanently
-                302: 302 - Moved temporarily
+                0: PLUGIN_ADMIN.REDIRECT_OPTION_NO_REDIRECT
+                1: PLUGIN_ADMIN.REDIRECT_OPTION_DEFAULT_REDIRECT
+                301: PLUGIN_ADMIN.REDIRECT_OPTION_301
+                302: PLUGIN_ADMIN.REDIRECT_OPTION_302
               validate:
                 type: int
 
@@ -213,10 +212,10 @@ form:
               help: PLUGIN_ADMIN.REDIRECT_TRAILING_SLASH_HELP
               default: 1
               options:
-                0: No redirect
-                1: Use default redirect code
-                301: 301 - Moved permanently
-                302: 302 - Moved temporarily
+                0: PLUGIN_ADMIN.REDIRECT_OPTION_NO_REDIRECT
+                1: PLUGIN_ADMIN.REDIRECT_OPTION_DEFAULT_REDIRECT
+                301: PLUGIN_ADMIN.REDIRECT_OPTION_301
+                302: PLUGIN_ADMIN.REDIRECT_OPTION_302
               validate:
                 type: int
 
