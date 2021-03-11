@@ -21,6 +21,7 @@
     * Fixed Markdown image attribute `loading` [#3251](https://github.com/getgrav/grav/pull/3251)
     * Fixed `Uri::isValidExtension()` returning false positives
     * Fixed `page.html` returning duplicated content with `system.pages.redirect_default_route` turned on [#3130](https://github.com/getgrav/grav/issues/3130)
+    * Fixed site redirect with redirect code failing when redirecting to sub-pages [#3035](https://github.com/getgrav/grav/pull/3035/files)
 
 # v1.7.7
 ## 02/23/2021
