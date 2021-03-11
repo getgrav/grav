@@ -78,8 +78,9 @@ class PagesServiceProvider implements ServiceProviderInterface
                 }
 
                 $route = $page->route();
-                if ($route) {
-                    $url = $pages->route($route);
+                if ($route && \in_array($uri->method(), ['GET', 'HEAD'], true)) {
+                    $pageExtension = $page->urlExtension();
+                    $url = $pages->route($route) . $pageExtension;
 
                     if ($uri->params()) {
                         if ($url === '/') { //Avoid double slash
@@ -98,20 +99,22 @@ class PagesServiceProvider implements ServiceProviderInterface
                     /** @var Language $language */
                     $language = $grav['language'];
 
+                    $redirectCode = (int)$config->get('system.pages.redirect_default_route', 0);
+
                     // Language-specific redirection scenarios
                     if ($language->enabled() && ($language->isLanguageInUrl() xor $language->isIncludeDefaultLanguage())) {
-                        $grav->redirect($url);
+                        $grav->redirect($url, $redirectCode);
                     }
 
                     // Default route test and redirect
-                    $redirectCode = (int)$config->get('system.pages.redirect_default_route', 0);
-                    if ($redirectCode && \in_array($uri->method(), ['GET', 'HEAD'], true)) {
-                        $urlExtension = $page->urlExtension();
+                    if ($redirectCode) {
                         $uriExtension = $uri->extension();
                         $uriExtension = null !== $uriExtension ? '.' . $uriExtension : '';
 
-                        if ($route !== $path || ($urlExtension !== $uriExtension && \in_array($uriExtension, ['htm', 'html', null], true))) {
-                            $grav->redirect($url . $urlExtension, $redirectCode > 300 ? $redirectCode : null);
+                        if ($route !== $path || ($pageExtension !== $uriExtension
+                                && \in_array($pageExtension, ['', '.htm', '.html'], true)
+                                && \in_array($uriExtension, ['', '.htm', '.html'], true))) {
+                            $grav->redirect($url, $redirectCode);
                         }
                     }
                 }
