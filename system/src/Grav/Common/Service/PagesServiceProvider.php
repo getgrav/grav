@@ -106,8 +106,12 @@ class PagesServiceProvider implements ServiceProviderInterface
                     // Default route test and redirect
                     $redirectCode = (int)$config->get('system.pages.redirect_default_route', 0);
                     if ($redirectCode && \in_array($uri->method(), ['GET', 'HEAD'], true)) {
-                        if ($route !== $path || \in_array($uri->extension(), ['htm', 'html'], true)) {
-                            $grav->redirect($url, $redirectCode > 300 ? $redirectCode : null);
+                        $urlExtension = $page->urlExtension();
+                        $uriExtension = $uri->extension();
+                        $uriExtension = null !== $uriExtension ? '.' . $uriExtension : '';
+
+                        if ($route !== $path || ($urlExtension !== $uriExtension && \in_array($uriExtension, ['htm', 'html', null], true))) {
+                            $grav->redirect($url . $urlExtension, $redirectCode > 300 ? $redirectCode : null);
                         }
                     }
                 }

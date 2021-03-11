@@ -395,7 +395,7 @@ class Uri
      * Return the Extension of the URI
      *
      * @param string|null $default
-     * @return string The extension of the URI
+     * @return string|null The extension of the URI
      */
     public function extension($default = null)
     {
