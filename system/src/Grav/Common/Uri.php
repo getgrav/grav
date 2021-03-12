@@ -519,7 +519,7 @@ class Uri
      * Return the full uri
      *
      * @param bool $include_root
-     * @return mixed
+     * @return string
      */
     public function uri($include_root = true)
     {

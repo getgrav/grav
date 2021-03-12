@@ -880,103 +880,146 @@ class Pages
     }
 
     /**
-     * alias method to return find a page.
+     * Find a page based on route.
      *
-     * @param string $route The relative URL of the page
-     * @param bool   $all
+     * @param string $route The route of the page
+     * @param bool   $all   If true, return also non-routable pages, otherwise return null if page isn't routable
      * @return PageInterface|null
      */
     public function find($route, $all = false)
     {
-        return $this->dispatch($route, $all, false);
+        $route = urldecode((string)$route);
+
+        // Fetch page if there's a defined route to it.
+        $path = $this->routes[$route] ?? null;
+        $page = null !== $path ? $this->get($path) : null;
+
+        // Try without trailing slash
+        if (null === $page && Utils::endsWith($route, '/')) {
+            $path = $this->routes[rtrim($route, '/')] ?? null;
+            $page = null !== $path ? $this->get($path) : null;
+        }
+
+        if (!$all && !isset($this->grav['admin'])) {
+            if (null === $page || !$page->routable()) {
+                // If the page cannot be accessed, look for the site wide routes and wildcards.
+                $page = $this->findSiteBasedRoute($route) ?? $page;
+            }
+        }
+
+        return $page;
+    }
+
+    /**
+     * Check site based routes.
+     *
+     * @param string $route
+     * @return PageInterface|null
+     */
+    protected function findSiteBasedRoute($route)
+    {
+        /** @var Config $config */
+        $config = $this->grav['config'];
+
+        $site_routes = $config->get('site.routes');
+        if (!is_array($site_routes)) {
+            return null;
+        }
+
+        $page = null;
+
+        // See if route matches one in the site configuration
+        $site_route = $site_routes[$route] ?? null;
+        if ($site_route) {
+            $page = $this->find($site_route);
+        } else {
+            // Use reverse order because of B/C (previously matched multiple and returned the last match).
+            foreach (array_reverse($site_routes, true) as $pattern => $replace) {
+                $pattern = '#^' . str_replace('/', '\/', ltrim($pattern, '^')) . '#';
+                try {
+                    $found = preg_replace($pattern, $replace, $route);
+                    if ($found && $found !== $route) {
+                        $page = $this->find($found);
+                        if ($page) {
+                            return $page;
+                        }
+                    }
+                } catch (ErrorException $e) {
+                    $this->grav['log']->error('site.routes: ' . $pattern . '-> ' . $e->getMessage());
+                }
+            }
+        }
+
+        return $page;
     }
 
     /**
      * Dispatch URI to a page.
      *
      * @param string $route The relative URL of the page
-     * @param bool $all
-     * @param bool $redirect
+     * @param bool $all If true, return also non-routable pages, otherwise return null if page isn't routable
+     * @param bool $redirect If true, allow redirects
      * @return PageInterface|null
      * @throws Exception
      */
     public function dispatch($route, $all = false, $redirect = true)
     {
-        $route = urldecode($route);
+        $page = $this->find($route, true);
 
-        // Fetch page if there's a defined route to it.
-        $path = $this->routes[$route] ?? null;
-        $page = null !== $path ? $this->get($path) : null;
-        // Try without trailing slash
-        if (!$page && Utils::endsWith($route, '/')) {
-            $path = $this->routes[rtrim($route, '/')] ?? null;
-            $page = null !== $path ? $this->get($path) : null;
+        // If we want all pages or are in admin, return what we already have.
+        if ($all || isset($this->grav['admin'])) {
+            return $page;
         }
 
-        // Are we in the admin? this is important!
-        $not_admin = !isset($this->grav['admin']);
-
-        // If the page cannot be reached, look into site wide redirects, routes + wildcards
-        if (!$all && $not_admin) {
-            // If the page is a simple redirect, just do it.
-            if ($redirect && $page && $page->redirect()) {
-                $this->grav->redirectLangSafe($page->redirect());
-            }
-
-            // fall back and check site based redirects
-            if (!$page || !$page->routable()) {
-                // Redirect to the first child (placeholder page)
-                if ($redirect && $page && count($children = $page->children()->visible()->routable()->published()) > 0) {
-                    $this->grav->redirectLangSafe($children->first()->route());
+        if ($page) {
+            $routable = $page->routable();
+            if ($redirect) {
+                if ($page->redirect()) {
+                    // Follow a redirect page.
+                    $this->grav->redirectLangSafe($page->redirect());
                 }
 
-                /** @var Config $config */
-                $config = $this->grav['config'];
+                if (!$routable && ($child = $page->children()->visible()->routable()->published()->first()) !== null) {
+                    // Redirect to the first visible child as current page isn't routable.
+                    $this->grav->redirectLangSafe($child->route());
+                }
+            }
 
-                // See if route matches one in the site configuration
-                $site_route = $config->get("site.routes.{$route}");
-                if ($site_route) {
-                    $page = $this->dispatch($site_route, $all, $redirect);
-                } else {
-                    /** @var Uri $uri */
-                    $uri = $this->grav['uri'];
-                    /** @var \Grav\Framework\Uri\Uri $source_url */
-                    $source_url = $uri->uri(false);
+            if ($routable) {
+                return $page;
+            }
+        }
 
-                    // Try Regex style redirects
-                    $site_redirects = $config->get('site.redirects');
-                    if (is_array($site_redirects)) {
-                        foreach ((array)$site_redirects as $pattern => $replace) {
-                            $pattern = ltrim($pattern, '^');
-                            $pattern = '#^' . str_replace('/', '\/', $pattern) . '#';
-                            try {
-                                /** @var string $found */
-                                $found = preg_replace($pattern, $replace, $source_url);
-                                if ($found && $found !== $source_url) {
-                                    $this->grav->redirectLangSafe($found);
-                                }
-                            } catch (ErrorException $e) {
-                                $this->grav['log']->error('site.redirects: ' . $pattern . '-> ' . $e->getMessage());
-                            }
-                        }
+        $route = urldecode((string)$route);
+
+        // The page cannot be reached, look into site wide redirects, routes and wildcards.
+        $redirectedPage = $this->findSiteBasedRoute($route);
+        if ($redirectedPage) {
+            $page = $this->dispatch($redirectedPage->route(), false, $redirect);
+        }
+
+        /** @var Config $config */
+        $config = $this->grav['config'];
+
+        /** @var Uri $uri */
+        $uri = $this->grav['uri'];
+        /** @var \Grav\Framework\Uri\Uri $source_url */
+        $source_url = $uri->uri(false);
+
+        // Try Regex style redirects
+        $site_redirects = $config->get('site.redirects');
+        if (is_array($site_redirects)) {
+            foreach ((array)$site_redirects as $pattern => $replace) {
+                $pattern = ltrim($pattern, '^');
+                $pattern = '#^' . str_replace('/', '\/', $pattern) . '#';
+                try {
+                    /** @var string $found */
+                    $found = preg_replace($pattern, $replace, $source_url);
+                    if ($found && $found !== $source_url) {
+                        $this->grav->redirectLangSafe($found);
                     }
-
-                    // Try Regex style routes
-                    $site_routes = $config->get('site.routes');
-                    if (is_array($site_routes)) {
-                        foreach ((array)$site_routes as $pattern => $replace) {
-                            $pattern = '#^' . str_replace('/', '\/', ltrim($pattern, '^')) . '#';
-                            try {
-                                /** @var string $found */
-                                $found = preg_replace($pattern, $replace, $source_url);
-                                if ($found && $found !== $source_url) {
-                                    $page = $this->dispatch($found, $all, $redirect);
-                                }
-                            } catch (ErrorException $e) {
-                                $this->grav['log']->error('site.routes: ' . $pattern . '-> ' . $e->getMessage());
-                            }
-                        }
-                    }
+                } catch (ErrorException $e) {
+                    $this->grav['log']->error('site.redirects: ' . $pattern . '-> ' . $e->getMessage());
                 }
             }
         }
