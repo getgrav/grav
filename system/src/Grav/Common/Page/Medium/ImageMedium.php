@@ -307,6 +307,13 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
         try {
             $this->image->{$method}(...$args);
 
+            if (isset(static::$magic_resize_actions[$method])) {
+                $this->image->get('guess', $this->default_quality);
+
+                $this->set('width', $this->image->width());
+                $this->set('height', $this->image->height());
+            }
+
             /** @var ImageMediaInterface $medium */
             foreach ($this->alternatives as $medium) {
                 $args_copy = $args;
