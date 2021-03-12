@@ -18,6 +18,7 @@ use Grav\Common\Media\Traits\ImageLoadingTrait;
 use Grav\Common\Media\Traits\ImageMediaTrait;
 use Grav\Common\Utils;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
+use Whoops\Exception\ErrorException;
 use function func_get_args;
 use function in_array;
 
