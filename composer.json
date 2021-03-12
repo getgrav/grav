@@ -27,7 +27,7 @@
         "psr/http-message": "^1.0",
         "psr/http-server-middleware": "^1.0",
         "psr/container": "~1.0.0",
-        "kodus/psr7-server": "*",
+        "nyholm/psr7-server": "^1.0",
         "nyholm/psr7": "^1.3",
         "twig/twig": "~1.44",
         "erusev/parsedown": "^1.7",
