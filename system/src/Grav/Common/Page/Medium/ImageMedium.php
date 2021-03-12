@@ -308,10 +308,16 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
             $this->image->{$method}(...$args);
 
             if (isset(static::$magic_resize_actions[$method])) {
-                $this->image->get('guess', $this->default_quality);
+                try {
+                    $image = $this->image->get('guess', $this->default_quality);
 
-                $this->set('width', $this->image->width());
-                $this->set('height', $this->image->height());
+                    $this->set('width', $this->image->width());
+                    $this->set('height', $this->image->height());
+                } catch (ErrorException $exception) {
+                    // Image most likely was deleted from page, but page was not saved
+                    // Lets do nothing about it and just ignore that image
+                    // Once page is saved, everything goes back to normal
+                }
             }
 
             /** @var ImageMediaInterface $medium */
