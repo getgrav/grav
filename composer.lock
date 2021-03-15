@@ -763,18 +763,18 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/getgrav/Image.git",
-                "reference": "70afaa75ea19856813124142c51f5fb2e9f1a285"
+                "reference": "ea23859700f32447a85e79d96f331e3d6c8897a8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/getgrav/Image/zipball/70afaa75ea19856813124142c51f5fb2e9f1a285",
-                "reference": "70afaa75ea19856813124142c51f5fb2e9f1a285",
+                "url": "https://api.github.com/repos/getgrav/Image/zipball/ea23859700f32447a85e79d96f331e3d6c8897a8",
+                "reference": "ea23859700f32447a85e79d96f331e3d6c8897a8",
                 "shasum": ""
             },
             "require": {
                 "ext-gd": "*",
                 "gregwar/cache": "dev-php8",
-                "php": "^5.3 || ^7.0 || ^8.0"
+                "php": "^5.6 || ^7.0 || ^8.0"
             },
             "require-dev": {
                 "sllh/php-cs-fixer-styleci-bridge": "~1.0",
@@ -808,7 +808,7 @@
             "support": {
                 "source": "https://github.com/getgrav/Image/tree/php8"
             },
-            "time": "2020-12-02T14:04:28+00:00"
+            "time": "2021-03-15T17:03:52+00:00"
         },
         {
             "name": "guzzlehttp/psr7",
@@ -887,16 +887,16 @@
         },
         {
             "name": "itsgoingd/clockwork",
-            "version": "v5.0.6",
+            "version": "v5.0.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/itsgoingd/clockwork.git",
-                "reference": "1de3f9f9fc22217aa024f79ecbdf0fde418fc0a1"
+                "reference": "e41ee368ff4dcc30d3f4563fe8bd80ed72b293b4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/itsgoingd/clockwork/zipball/1de3f9f9fc22217aa024f79ecbdf0fde418fc0a1",
-                "reference": "1de3f9f9fc22217aa024f79ecbdf0fde418fc0a1",
+                "url": "https://api.github.com/repos/itsgoingd/clockwork/zipball/e41ee368ff4dcc30d3f4563fe8bd80ed72b293b4",
+                "reference": "e41ee368ff4dcc30d3f4563fe8bd80ed72b293b4",
                 "shasum": ""
             },
             "require": {
@@ -944,7 +944,7 @@
             ],
             "support": {
                 "issues": "https://github.com/itsgoingd/clockwork/issues",
-                "source": "https://github.com/itsgoingd/clockwork/tree/v5.0.6"
+                "source": "https://github.com/itsgoingd/clockwork/tree/v5.0.7"
             },
             "funding": [
                 {
@@ -952,7 +952,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2020-12-27T00:18:25+00:00"
+            "time": "2021-03-14T16:29:40+00:00"
         },
         {
             "name": "league/climate",
