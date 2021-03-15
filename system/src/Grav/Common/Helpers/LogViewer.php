@@ -34,7 +34,7 @@ class LogViewer
     public function objectTail($filepath, $lines = 1, $desc = true)
     {
         $data = $this->tail($filepath, $lines);
-        $tailed_log = explode(PHP_EOL, $data);
+        $tailed_log = $data ? explode(PHP_EOL, $data) : [];
         $line_objects = [];
 
         foreach ($tailed_log as $line) {
@@ -54,12 +54,12 @@ class LogViewer
     public function tail($filepath, $lines = 1)
     {
 
-        $f = @fopen($filepath, "rb");
+        $f = $filepath ? @fopen($filepath, 'rb') : false;
         if ($f === false) {
             return false;
-        } else {
-            $buffer = ($lines < 2 ? 64 : ($lines < 10 ? 512 : 4096));
         }
+
+        $buffer = ($lines < 2 ? 64 : ($lines < 10 ? 512 : 4096));
 
         fseek($f, -1, SEEK_END);
         if (fread($f, 1) != "\n") {
