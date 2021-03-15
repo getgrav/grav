@@ -1231,6 +1231,16 @@ form:
                 lazy: Lazy
                 eager: Eager
 
+            images.defaults.size:
+              type: select
+              size: small
+              label: PLUGIN_ADMIN.IMAGES_SIZE
+              help: PLUGIN_ADMIN.IMAGES_SIZE_HELP
+              highlight: none
+              options:
+                none: None
+                auto: Auto
+
             images.seofriendly:
               type: toggle
               label: PLUGIN_ADMIN.IMAGES_SEOFRIENDLY

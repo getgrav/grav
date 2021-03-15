@@ -279,6 +279,50 @@ class ParsedownTest extends \Codeception\TestCase\Test
             '<p><img loading="eager" alt="" src="/tests/fake/nested-site/user/pages/02.item2/02.item2-2/sample-image.jpg" /></p>',
             $this->parsedown->text('![](sample-image.jpg?loading=eager)')
         );
+
+        /**
+         * Testing default 'size' adding height/width
+        */
+
+        $this->setImagesDefaults(['size' => 'none']);
+
+        // height/width should NOT be added by default
+        self::assertSame(
+            '<p><img alt="" src="/tests/fake/nested-site/user/pages/02.item2/02.item2-2/sample-image.jpg" /></p>',
+            $this->parsedown->text('![](sample-image.jpg)')
+        );
+
+        // height="768" width="1024" should be added when default is overridden by ?size=auto
+        self::assertSame(
+            '<p><img height="768" width="1024" alt="" src="/tests/fake/nested-site/user/pages/02.item2/02.item2-2/sample-image.jpg" /></p>',
+            $this->parsedown->text('![](sample-image.jpg?size=auto)')
+        );
+
+        // height="1" width="1" should be added when default is overridden by ?height=1&width=1
+        self::assertSame(
+            '<p><img height="1" width="1" alt="" src="/tests/fake/nested-site/user/pages/02.item2/02.item2-2/sample-image.jpg" /></p>',
+            $this->parsedown->text('![](sample-image.jpg?height=1&width=1)')
+        );
+
+        $this->setImagesDefaults(['size' => 'auto']);
+
+        // height="768" width="1024" should be added by default
+        self::assertSame(
+            '<p><img height="768" width="1024" alt="" src="/tests/fake/nested-site/user/pages/02.item2/02.item2-2/sample-image.jpg" /></p>',
+            $this->parsedown->text('![](sample-image.jpg)')
+        );
+
+        // height/width should NOT be added when default is overridden by ?size=none
+        self::assertSame(
+            '<p><img alt="" src="/tests/fake/nested-site/user/pages/02.item2/02.item2-2/sample-image.jpg" /></p>',
+            $this->parsedown->text('![](sample-image.jpg?size=none)')
+        );
+
+        // height="1" width="1" should be added when default is overridden by ?height=1&width=1
+        self::assertSame(
+            '<p><img height="1" width="1" alt="" src="/tests/fake/nested-site/user/pages/02.item2/02.item2-2/sample-image.jpg" /></p>',
+            $this->parsedown->text('![](sample-image.jpg?height=1&width=1)')
+        );
     }
 
     public function testRootImages(): void

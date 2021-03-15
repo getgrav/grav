@@ -16,6 +16,7 @@ use Grav\Common\Media\Interfaces\ImageMediaInterface;
 use Grav\Common\Media\Interfaces\MediaLinkInterface;
 use Grav\Common\Media\Traits\ImageLoadingTrait;
 use Grav\Common\Media\Traits\ImageMediaTrait;
+use Grav\Common\Media\Traits\ImageSizeTrait;
 use Grav\Common\Utils;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use function func_get_args;
@@ -29,7 +30,8 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
 {
     use ImageMediaTrait;
     use ImageLoadingTrait;
-
+    use ImageSizeTrait;
+    
     /**
      * Construct.
      *

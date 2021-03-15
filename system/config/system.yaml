@@ -156,6 +156,7 @@ images:
   seofriendly: false                             # SEO-friendly processed image names
   defaults:
     loading: auto                                # Let browser pick [auto|lazy|eager]
+    size: none                                   # Add height/width to image [auto|none]. See https://web.dev/optimize-cls/
 
 media:
   enable_media_timestamp: false                  # Enable media timestamps
