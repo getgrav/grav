@@ -24,6 +24,7 @@
     * Fixed site redirect with redirect code failing when redirecting to sub-pages [#3035](https://github.com/getgrav/grav/pull/3035/files)
     * Fixed `Uncaught ValueError: Path cannot be empty` when failing to upload a file [#3265](https://github.com/getgrav/grav/issues/3265)
     * Fixed `Path cannot be empty` when viewing non-existent log file [#3270](https://github.com/getgrav/grav/issues/3270)
+    * Fixed `onAdminSave` original page having empty header [#3259](https://github.com/getgrav/grav/issues/3259)
 
 # v1.7.7
 ## 02/23/2021

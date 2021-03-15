@@ -277,6 +277,8 @@ trait PageLegacyTrait
             throw new RuntimeException('Failed: Cannot set page parent to a child of current page');
         }
 
+        $this->storeOriginal();
+
         // TODO:
         throw new RuntimeException(__METHOD__ . '(): Not Implemented');
     }
@@ -292,6 +294,8 @@ trait PageLegacyTrait
      */
     public function copy(PageInterface $parent = null)
     {
+        $this->storeOriginal();
+
         $filesystem = Filesystem::getInstance(false);
 
         $parentStorageKey = ltrim($filesystem->dirname("/{$this->getMasterKey()}"), '/');
@@ -1085,18 +1089,6 @@ trait PageLegacyTrait
     public function folderExists(): bool
     {
         return $this->exists() || is_dir($this->getStorageFolder() ?? '');
-    }
-
-    /**
-     * Gets the Page Unmodified (original) version of the page.
-     *
-     * Assumes that object has been cloned before modifying it.
-     *
-     * @return PageInterface|null The original version of the page.
-     */
-    public function getOriginal()
-    {
-        return $this->getFlexDirectory()->getObject($this->getKey());
     }
 
     /**

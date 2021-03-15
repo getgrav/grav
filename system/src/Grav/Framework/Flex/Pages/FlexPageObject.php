@@ -16,7 +16,6 @@ use Grav\Common\Grav;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Page\Traits\PageFormTrait;
 use Grav\Common\User\Interfaces\UserCollectionInterface;
-use Grav\Framework\File\Formatter\YamlFormatter;
 use Grav\Framework\Flex\FlexObject;
 use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
 use Grav\Framework\Flex\Interfaces\FlexTranslateInterface;
@@ -50,6 +49,20 @@ class FlexPageObject extends FlexObject implements PageInterface, FlexTranslateI
 
     /** @var array|null */
     protected $_reorder;
+    /** @var FlexPageObject|null */
+    protected $_original;
+
+    /**
+     * Clone page.
+     */
+    public function __clone()
+    {
+        parent::__clone();
+
+        if (isset($this->header)) {
+            $this->header = clone($this->header);
+        }
+    }
 
     /**
      * @return array
@@ -240,6 +253,32 @@ class FlexPageObject extends FlexObject implements PageInterface, FlexTranslateI
     public function save($reorder = true)
     {
         return parent::save();
+    }
+
+    /**
+     * Gets the Page Unmodified (original) version of the page.
+     *
+     * Assumes that object has been cloned before modifying it.
+     *
+     * @return FlexPageObject|null The original version of the page.
+     */
+    public function getOriginal()
+    {
+        return $this->_original;
+    }
+
+    /**
+     * Store the Page Unmodified (original) version of the page.
+     *
+     * Can be called multiple times, only the first call matters.
+     *
+     * @return void
+     */
+    public function storeOriginal(): void
+    {
+        if (null === $this->_original) {
+            $this->_original = clone $this;
+        }
     }
 
     /**

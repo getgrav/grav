@@ -885,6 +885,14 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
         ];
     }
 
+    /**
+     * Clone object.
+     */
+    public function __clone()
+    {
+        // Allows future compatibility as parent::__clone() works.
+    }
+
     protected function markAsCopy(): void
     {
         $meta = $this->getMetaData();
