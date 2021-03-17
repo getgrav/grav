@@ -3,6 +3,9 @@
 
 1. [](#new)
     * Added `Media::hide()` method to hide files from media
+    * Added `Utils::getPathFromToken()` method which works also with `Flex Objects`
+1. [](#improved)
+    * Method `Utils::getPagePathFromToken()` now calls the more generic `Utils::getPathFromToken()`
 
 # v1.7.8
 ## 03/17/2021

@@ -395,6 +395,12 @@ class UtilsTest extends \Codeception\TestCase\Test
         self::assertTrue(Utils::verifyNonce(Utils::getNonce('test-action'), 'test-action'));
     }
 
+    public function testGetPagePathFromToken(): void
+    {
+        self::assertEquals('', Utils::getPagePathFromToken(''));
+        self::assertEquals('/test/path', Utils::getPagePathFromToken('/test/path'));
+    }
+
     public function testUrl(): void
     {
         $this->uri->initializeWithUrl('http://testing.dev/path1/path2')->init();
