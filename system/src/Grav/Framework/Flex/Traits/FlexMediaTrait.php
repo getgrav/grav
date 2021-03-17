@@ -14,8 +14,10 @@ use Grav\Common\Grav;
 use Grav\Common\Media\Interfaces\MediaCollectionInterface;
 use Grav\Common\Media\Interfaces\MediaUploadInterface;
 use Grav\Common\Media\Traits\MediaTrait;
+use Grav\Common\Page\Media;
 use Grav\Common\Page\Medium\Medium;
 use Grav\Common\Page\Medium\MediumFactory;
+use Grav\Common\Utils;
 use Grav\Framework\Cache\CacheInterface;
 use Grav\Framework\Filesystem\Filesystem;
 use Grav\Framework\Flex\FlexDirectory;
@@ -23,6 +25,7 @@ use Grav\Framework\Form\FormFlashFile;
 use Psr\Http\Message\UploadedFileInterface;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use RuntimeException;
+use function array_key_exists;
 use function in_array;
 use function is_array;
 use function is_callable;
@@ -77,9 +80,38 @@ trait FlexMediaTrait
 
     /**
      * @param string $field
+     * @return MediaCollectionInterface|null
+     */
+    public function getMediaField(string $field): ?MediaCollectionInterface
+    {
+        // Field specific media.
+        $settings = $this->getFieldSettings($field);
+        if (!empty($settings['media_field'])) {
+            $var = 'destination';
+        } elseif (!empty($settings['media_picker_field'])) {
+            $var = 'folder';
+        }
+
+        if (empty($var)) {
+            // Not a media field.
+            $media = null;
+        } elseif ($settings['self']) {
+            // Uses main media.
+            $media = $this->getMedia();
+        } else {
+            // Uses custom media.
+            $media = new Media($settings[$var]);
+            $this->addUpdatedMedia($media);
+        }
+
+        return $media;
+    }
+
+    /**
+     * @param string $field
      * @return array|null
      */
-    protected function getFieldSettings(string $field): ?array
+    public function getFieldSettings(string $field): ?array
     {
         if ($field === '') {
             return null;
@@ -88,14 +120,32 @@ trait FlexMediaTrait
         // Load settings for the field.
         $schema = $this->getBlueprint()->schema();
         $settings = $field && is_object($schema) ? (array)$schema->getProperty($field) : null;
+        if (!isset($settings) || !is_array($settings)) {
+            return null;
+        }
 
-        if (isset($settings['type']) && (in_array($settings['type'], ['avatar', 'file', 'pagemedia']) || !empty($settings['destination']))) {
-            // Set destination folder.
+        $type = $settings['type'] ?? '';
+
+        // Media field.
+        if (!empty($settings['media_field']) || array_key_exists('destination', $settings) || in_array($type, ['avatar', 'file', 'pagemedia'], true)) {
             $settings['media_field'] = true;
-            if (empty($settings['destination']) || in_array($settings['destination'], ['@self', 'self@', '@self@'], true)) {
-                $settings['destination'] = $this->getMediaFolder();
+            $var = 'destination';
+        }
+
+        // Media picker field.
+        if (!empty($settings['media_picker_field']) || in_array($type, ['filepicker', 'pagemediaselect'], true)) {
+            $settings['media_picker_field'] = true;
+            $var = 'folder';
+        }
+
+        // Set media folder for media fields.
+        if (isset($var)) {
+            $folder = $settings[$var] ?? '';
+            if (in_array(rtrim($folder, '/'), ['', '@self', 'self@', '@self@'], true)) {
+                $settings[$var] = $this->getMediaFolder();
                 $settings['self'] = true;
             } else {
+                $settings[$var] = Utils::getPathFromToken($folder, $this);
                 $settings['self'] = false;
             }
         }
@@ -114,7 +164,6 @@ trait FlexMediaTrait
 
         return $settings + ['accept' => '*', 'limit' => 1000, 'self' => true];
     }
-
 
     protected function getMediaFields(): array
     {
@@ -206,12 +255,13 @@ trait FlexMediaTrait
      */
     public function uploadMediaFile(UploadedFileInterface $uploadedFile, string $filename = null, string $field = null): void
     {
-        $media = $this->getMedia();
+        $settings = $this->getMediaFieldSettings($field ?? '');
+
+        $media = $field ? $this->getMediaField($field) : $this->getMedia();
         if (!$media instanceof MediaUploadInterface) {
             throw new RuntimeException("Media for {$this->getFlexDirectory()->getFlexType()} doesn't support file uploads.");
         }
 
-        $settings = $this->getMediaFieldSettings($field ?? '');
         $filename = $media->checkUploadedFile($uploadedFile, $filename, $settings);
         $media->copyUploadedFile($uploadedFile, $filename, $settings);
         $this->clearMediaCache();
@@ -322,13 +372,20 @@ trait FlexMediaTrait
         foreach ($this->getUpdatedMedia() as $filename => $upload) {
             if (is_array($upload)) {
                 // Uses new format with [UploadedFileInterface, array].
-                $upload = $upload[0];
+                $settings = $upload[1];
+                if ($settings['destination'] === $media->getPath()) {
+                    $upload = $upload[0];
+                } else {
+                    $upload = false;
+                }
             }
-            if ($upload) {
-                $medium = MediumFactory::fromUploadedFile($upload);
+            if (false !== $upload) {
+                $medium = $upload ? MediumFactory::fromUploadedFile($upload) : null;
+                $updated = true;
                 if ($medium) {
-                    $updated = true;
                     $media->add($filename, $medium);
+                } else {
+                    $media->hide($filename);
                 }
             }
         }
@@ -355,7 +412,6 @@ trait FlexMediaTrait
         if (!$media instanceof MediaUploadInterface) {
             return;
         }
-
 
         // Upload/delete altered files.
         /**

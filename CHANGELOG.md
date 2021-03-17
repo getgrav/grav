@@ -1,5 +1,19 @@
-# v1.7.8
+# v1.7.9
 ## mm/dd/2021
+
+1. [](#new)
+    * Added `Media::hide()` method to hide files from media
+    * Added `Utils::getPathFromToken()` method which works also with `Flex Objects`
+    * Added `FlexMediaTrait::getMediaField()`, which can be used to access custom media set in the blueprint fields
+    * Added `FlexMediaTrait::getFieldSettings()`, which can be used to get media field settings
+1. [](#improved)
+    * Method `Utils::getPagePathFromToken()` now calls the more generic `Utils::getPathFromToken()`
+1. [](#bugfix)
+    * Fixed broken media upload in `Flex` with `@self/path`, `@page` and `@theme` destinations [#3275](https://github.com/getgrav/grav/issues/3275)
+    * Fixed media fields excluding newly deleted files before saving the object
+
+# v1.7.8
+## 03/17/2021
 
 1. [](#new)
     * Added `ControllerResponseTrait::createDownloadResponse()` method
@@ -24,6 +38,7 @@
     * Fixed site redirect with redirect code failing when redirecting to sub-pages [#3035](https://github.com/getgrav/grav/pull/3035/files)
     * Fixed `Uncaught ValueError: Path cannot be empty` when failing to upload a file [#3265](https://github.com/getgrav/grav/issues/3265)
     * Fixed `Path cannot be empty` when viewing non-existent log file [#3270](https://github.com/getgrav/grav/issues/3270)
+    * Fixed `onAdminSave` original page having empty header [#3259](https://github.com/getgrav/grav/issues/3259)
 
 # v1.7.7
 ## 02/23/2021

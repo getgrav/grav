@@ -12,11 +12,15 @@ namespace Grav\Common;
 use DateTime;
 use DateTimeZone;
 use Exception;
+use Grav\Common\Flex\Types\Pages\PageObject;
 use Grav\Common\Helpers\Truncator;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Markdown\Parsedown;
 use Grav\Common\Markdown\ParsedownExtra;
 use Grav\Common\Page\Markdown\Excerpts;
+use Grav\Common\Page\Pages;
+use Grav\Framework\Flex\Flex;
+use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
 use InvalidArgumentException;
 use Negotiation\Accept;
 use Negotiation\Negotiator;
@@ -1520,7 +1524,7 @@ abstract class Utils
     }
 
     /**
-     * Get path based on a token
+     * Get relative page path based on a token.
      *
      * @param string $path
      * @param PageInterface|null $page
@@ -1529,47 +1533,122 @@ abstract class Utils
      */
     public static function getPagePathFromToken($path, PageInterface $page = null)
     {
-        $path_parts = pathinfo($path);
-        $grav       = Grav::instance();
+        return static::getPathFromToken($path, $page);
+    }
 
-        $basename = '';
-        if (isset($path_parts['extension'])) {
-            $basename = '/' . $path_parts['basename'];
-            $path     = rtrim($path_parts['dirname'], ':');
+    /**
+     * Get relative path based on a token.
+     *
+     * Path supports following syntaxes:
+     *
+     * 'self@', 'self@/path'
+     * 'page@:/route', 'page@:/route/filename.ext'
+     * 'theme@:', 'theme@:/path'
+     *
+     * @param string $path
+     * @param FlexObjectInterface|PageInterface|null $object
+     * @return string
+     * @throws RuntimeException
+     */
+    public static function getPathFromToken($path, $object = null)
+    {
+        $matches = static::resolveTokenPath($path);
+        if (null === $matches) {
+            return $path;
         }
 
-        $regex = '/(@self|self@)|((?:@page|page@):(?:.*))|((?:@theme|theme@):(?:.*))/';
-        preg_match($regex, $path, $matches);
+        $grav = Grav::instance();
 
-        if ($matches) {
-            if ($matches[1]) {
-                if (null === $page) {
-                    throw new RuntimeException('Page not available for this self@ reference');
+        switch ($matches[0]) {
+            case 'self':
+                if (null === $object) {
+                    throw new RuntimeException(sprintf('Page not available for self@ reference: %s', $path));
                 }
-            } elseif ($matches[2]) {
-                // page@
-                $parts = explode(':', $path);
-                $route = $parts[1];
-                $page  = $grav['page']->find($route);
-            } elseif ($matches[3]) {
-                // theme@
-                $parts = explode(':', $path);
-                $route = $parts[1];
-                $theme = str_replace(ROOT_DIR, '', $grav['locator']->findResource('theme://'));
 
-                return $theme . $route . $basename;
+                if ($matches[2] === '') {
+                    if ($object->exists()) {
+                        $route = '/' . $matches[1];
+
+                        if ($object instanceof PageInterface) {
+                            return trim($object->relativePagePath() . $route, '/');
+                        }
+
+                        $folder = $object->getMediaFolder();
+                        if ($folder) {
+                            return trim($folder . $route, '/');
+                        }
+                    } else {
+                        return '';
+                    }
+                }
+
+                break;
+            case 'page':
+                if ($matches[1] === '') {
+                    $route = '/' . $matches[2];
+
+                    // Exclude filename from the page lookup.
+                    if (pathinfo($route, PATHINFO_EXTENSION)) {
+                        $basename = '/' . basename($route);
+                        $route = \dirname($route);
+                    } else {
+                        $basename = '';
+                    }
+
+                    $key = trim($route === '/' ? $grav['config']->get('system.home.alias') : $route, '/');
+                    if ($object instanceof PageObject) {
+                        $object = $object->getFlexDirectory()->getObject($key);
+                    } elseif (static::isAdminPlugin()) {
+                        /** @var Flex|null $flex */
+                        $flex = $grav['flex'] ?? null;
+                        $object = $flex ? $flex->getObject($key, 'pages') : null;
+                    } else {
+                        /** @var Pages $pages */
+                        $pages = $grav['pages'];
+                        $object = $pages->find($route);
+                    }
+
+                    if ($object instanceof PageInterface) {
+                        return trim($object->relativePagePath() . $basename, '/');
+                    }
+                }
+
+                break;
+            case 'theme':
+                if ($matches[1] === '') {
+                    $route = '/' . $matches[2];
+                    $theme = $grav['locator']->findResource('theme://', false);
+                    if (false !== $theme) {
+                        return trim($theme . $route, '/');
+                    }
+                }
+
+                break;
+        }
+
+        throw new RuntimeException(sprintf('Token path not found: %s', $path));
+    }
+
+    /**
+     * Returns [token, route, path] from '@token/route:/path'. Route and path are optional. If pattern does not match, return null.
+     *
+     * @param string $path
+     * @return string[]|null
+     */
+    private static function resolveTokenPath(string $path): ?array
+    {
+        if (strpos($path, '@') !== false) {
+            $regex = '/^(@\w+|\w+@|@\w+@)([^:]*)(.*)$/u';
+            if (preg_match($regex, $path, $matches)) {
+                return [
+                    trim($matches[1], '@'),
+                    trim($matches[2], '/'),
+                    trim($matches[3], ':/')
+                ];
             }
-        } else {
-            return $path . $basename;
         }
 
-        if (!$page) {
-            throw new RuntimeException('Page route not found: ' . $path);
-        }
-
-        $path = str_replace($matches[0], rtrim($page->relativePagePath(), '/'), $path);
-
-        return $path . $basename;
+        return null;
     }
 
     /**

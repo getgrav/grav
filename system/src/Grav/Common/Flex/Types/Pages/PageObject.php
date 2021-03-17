@@ -62,7 +62,6 @@ class PageObject extends FlexPageObject
 
     /** @var string Language code, eg: 'en' */
     protected $language;
-
     /** @var string File format, eg. 'md' */
     protected $format;
 
@@ -295,6 +294,9 @@ class PageObject extends FlexPageObject
             $grav->fireEvent('onAdminAfterSave', new Event(['type' => 'flex', 'directory' => $this->getFlexDirectory(), 'object' => $this]));
         }
 
+        // Reset original after save events have all been called.
+        $this->_original = null;
+
         return $instance;
     }
 
@@ -314,6 +316,7 @@ class PageObject extends FlexPageObject
 
         $this->_reorder = [];
         $this->setProperty('parent_key', $parent->getStorageKey());
+        $this->storeOriginal();
 
         return $this;
     }
