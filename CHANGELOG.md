@@ -11,6 +11,7 @@
 1. [](#bugfix)
     * Fixed broken media upload in `Flex` with `@self/path`, `@page` and `@theme` destinations [#3275](https://github.com/getgrav/grav/issues/3275)
     * Fixed media fields excluding newly deleted files before saving the object
+    * Fixed method `$pages->find()` should never redirect [#3266](https://github.com/getgrav/grav/pull/3266)
 
 # v1.7.8
 ## 03/17/2021
