@@ -199,6 +199,17 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
     }
 
     /**
+     * @param string $name
+     * @return void
+     */
+    public function hide($name)
+    {
+        $this->offsetUnset($name);
+
+        unset($this->images[$name], $this->videos[$name], $this->audios[$name], $this->files[$name]);
+    }
+
+    /**
      * Create Medium from a file.
      *
      * @param  string $file
