@@ -21,13 +21,16 @@ use Grav\Common\Grav;
 use Grav\Common\Page\Header;
 use Grav\Common\Page\Interfaces\PageCollectionInterface;
 use Grav\Common\Page\Interfaces\PageInterface;
+use Grav\Common\User\Interfaces\UserInterface;
 use Grav\Common\Utils;
 use Grav\Framework\Flex\FlexDirectory;
-use Grav\Framework\Flex\Interfaces\FlexCollectionInterface;
 use Grav\Framework\Flex\Interfaces\FlexStorageInterface;
 use Grav\Framework\Flex\Pages\FlexPageIndex;
 use InvalidArgumentException;
 use RuntimeException;
+use function array_slice;
+use function count;
+use function in_array;
 use function is_array;
 use function is_string;
 
@@ -299,7 +302,33 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
             'type' => ['root', 'dir'],
         ];
 
-        return $this->getLevelListingRecurse($options);
+        $key = 'page.idx.lev.' . sha1(json_encode($options, JSON_THROW_ON_ERROR) . $this->getCacheKey());
+        $checksum = $this->getCacheChecksum();
+
+        $cache = $this->getCache('object');
+
+        /** @var Debugger $debugger */
+        $debugger = Grav::instance()['debugger'];
+
+        $result = null;
+        try {
+            $cached = $cache->get($key);
+            $test = $cached[0] ?? null;
+            $result = $test === $checksum ? ($cached[1] ?? null) : null;
+        } catch (\Psr\SimpleCache\InvalidArgumentException $e) {
+            $debugger->addException($e);
+        }
+
+        try {
+            if (null === $result) {
+                $result = $this->getLevelListingRecurse($options);
+                $cache->set($key, [$checksum, $result]);
+            }
+        } catch (\Psr\SimpleCache\InvalidArgumentException $e) {
+            $debugger->addException($e);
+        }
+
+        return $result;
     }
 
     /**
@@ -429,6 +458,9 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
                 $selectedChildren = $selectedChildren->order($sortby, $order, $custom ?? null);
             }
 
+            /** @var UserInterface|null $user */
+            $user = Grav::instance()['user'] ?? null;
+
             /** @var PageObject $child */
             foreach ($selectedChildren as $child) {
                 $selected = $child->path() === $extra;
@@ -482,7 +514,7 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
                         'visible' => $child->visible(),
                         'routable' => $child->routable(),
                         'tags' => $tags,
-                        'actions' => $this->getListingActions($child),
+                        'actions' => $this->getListingActions($child, $user),
                     ];
                     $extras = array_filter($extras, static function ($v) {
                         return $v !== null;
@@ -535,20 +567,21 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
 
     /**
      * @param PageObject $object
+     * @param UserInterface $user
      * @return array
      */
-    protected function getListingActions(PageObject $object): array
+    protected function getListingActions(PageObject $object, UserInterface $user): array
     {
         $actions = [];
-        if ($object->isAuthorized('read')) {
+        if ($object->isAuthorized('read', null, $user)) {
             $actions[] = 'preview';
             $actions[] = 'edit';
         }
-        if ($object->isAuthorized('update')) {
+        if ($object->isAuthorized('update', null, $user)) {
             $actions[] = 'copy';
             $actions[] = 'move';
         }
-        if ($object->isAuthorized('delete')) {
+        if ($object->isAuthorized('delete', null, $user)) {
             $actions[] = 'delete';
         }
 

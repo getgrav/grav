@@ -77,32 +77,46 @@ class PagesServiceProvider implements ServiceProviderInterface
                     }
                 }
 
-                $url = $pages->route($page->route());
+                $route = $page->route();
+                if ($route && \in_array($uri->method(), ['GET', 'HEAD'], true)) {
+                    $pageExtension = $page->urlExtension();
+                    $url = $pages->route($route) . $pageExtension;
 
-                if ($uri->params()) {
-                    if ($url === '/') { //Avoid double slash
-                        $url = $uri->params();
-                    } else {
-                        $url .= $uri->params();
+                    if ($uri->params()) {
+                        if ($url === '/') { //Avoid double slash
+                            $url = $uri->params();
+                        } else {
+                            $url .= $uri->params();
+                        }
                     }
-                }
-                if ($uri->query()) {
-                    $url .= '?' . $uri->query();
-                }
-                if ($uri->fragment()) {
-                    $url .= '#' . $uri->fragment();
-                }
+                    if ($uri->query()) {
+                        $url .= '?' . $uri->query();
+                    }
+                    if ($uri->fragment()) {
+                        $url .= '#' . $uri->fragment();
+                    }
 
-                /** @var Language $language */
-                $language = $grav['language'];
+                    /** @var Language $language */
+                    $language = $grav['language'];
 
-                // Language-specific redirection scenarios
-                if ($language->enabled() && ($language->isLanguageInUrl() xor $language->isIncludeDefaultLanguage())) {
-                    $grav->redirect($url);
-                }
-                // Default route test and redirect
-                if ($config->get('system.pages.redirect_default_route') && $page->route() !== $path) {
-                    $grav->redirect($url);
+                    $redirectCode = (int)$config->get('system.pages.redirect_default_route', 0);
+
+                    // Language-specific redirection scenarios
+                    if ($language->enabled() && ($language->isLanguageInUrl() xor $language->isIncludeDefaultLanguage())) {
+                        $grav->redirect($url, $redirectCode);
+                    }
+
+                    // Default route test and redirect
+                    if ($redirectCode) {
+                        $uriExtension = $uri->extension();
+                        $uriExtension = null !== $uriExtension ? '.' . $uriExtension : '';
+
+                        if ($route !== $path || ($pageExtension !== $uriExtension
+                                && \in_array($pageExtension, ['', '.htm', '.html'], true)
+                                && \in_array($uriExtension, ['', '.htm', '.html'], true))) {
+                            $grav->redirect($url, $redirectCode);
+                        }
+                    }
                 }
             }
 

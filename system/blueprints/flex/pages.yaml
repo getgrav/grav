@@ -176,7 +176,7 @@ config:
         indexed: true
     # Set default ordering of the pages
     ordering:
-      key: ASC
+      storage_key: ASC
     search:
        # Search options
       options:

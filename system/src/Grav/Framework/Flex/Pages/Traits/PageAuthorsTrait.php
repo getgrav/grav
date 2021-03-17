@@ -27,6 +27,8 @@ trait PageAuthorsTrait
 {
     /** @var array<int,UserInterface> */
     private $_authors;
+    /** @var array|null */
+    private $_permissionsCache;
 
     /**
      * Returns true if object has the named author.
@@ -70,15 +72,19 @@ trait PageAuthorsTrait
      */
     public function getPermissions(bool $inherit = false)
     {
-        $permissions = [];
-        if ($inherit && $this->getNestedProperty('header.permissions.inherit', true)) {
-            $parent = $this->parent();
-            if ($parent && method_exists($parent, 'getPermissions')) {
-                $permissions = $parent->getPermissions($inherit);
+        if (null === $this->_permissionsCache) {
+            $permissions = [];
+            if ($inherit && $this->getNestedProperty('header.permissions.inherit', true)) {
+                $parent = $this->parent();
+                if ($parent && method_exists($parent, 'getPermissions')) {
+                    $permissions = $parent->getPermissions($inherit);
+                }
             }
+
+            $this->_permissionsCache = $this->loadPermissions($permissions);
         }
 
-        return $this->loadPermissions($permissions);
+        return $this->_permissionsCache;
     }
 
     /**

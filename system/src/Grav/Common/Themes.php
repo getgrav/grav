@@ -33,10 +33,8 @@ class Themes extends Iterator
 {
     /** @var Grav */
     protected $grav;
-
     /** @var Config */
     protected $config;
-
     /** @var bool */
     protected $inited = false;
 
@@ -93,6 +91,20 @@ class Themes extends Iterator
                 /** @var EventDispatcher $events */
                 $events = $this->grav['events'];
                 $events->addSubscriber($instance);
+            }
+
+            // Register blueprints.
+            if (is_dir('theme://blueprints/pages')) {
+                /** @var UniformResourceLocator $locator */
+                $locator = $this->grav['locator'];
+                $locator->addPath('blueprints', '', ['theme://blueprints'], ['user', 'blueprints']);
+            }
+
+            // Register form fields.
+            if (method_exists($instance, 'getFormFieldTypes')) {
+                /** @var Plugins $plugins */
+                $plugins = $this->grav['plugins'];
+                $plugins->formFieldTypes = $instance->getFormFieldTypes() + $plugins->formFieldTypes;
             }
 
             $this->grav['theme'] = $instance;
@@ -382,7 +394,10 @@ class Themes extends Iterator
             }
 
             // Try Old style theme classes
-            $path = strtolower(preg_replace('#\\\|_(?!.+\\\)#', '/', $class));
+            $path = preg_replace('#\\\|_(?!.+\\\)#', '/', $class);
+            \assert(null !== $path);
+
+            $path = strtolower($path);
             $file = $locator("themes://{$path}/theme.php") ?: $locator("themes://{$path}/{$path}.php");
 
             // Load class

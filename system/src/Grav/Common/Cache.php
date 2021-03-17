@@ -71,6 +71,7 @@ class Cache extends Getters
         'cache://twig/',
         'cache://doctrine/',
         'cache://compiled/',
+        'cache://clockwork/',
         'cache://validated-',
         'cache://images',
         'asset://',
@@ -80,6 +81,7 @@ class Cache extends Getters
         'cache://twig/',
         'cache://doctrine/',
         'cache://compiled/',
+        'cache://clockwork/',
         'cache://validated-',
         'asset://',
     ];
@@ -311,7 +313,7 @@ class Cache extends Getters
                     if ($password && !$redis->auth($password)) {
                         throw new \RedisException('Redis authentication failed');
                     }
-                    
+
                     // Select alternate ( !=0 ) database ID if set
                     if ($databaseId && !$redis->select($databaseId)) {
                         throw new \RedisException('Could not select alternate Redis database ID');
@@ -498,7 +500,7 @@ class Cache extends Getters
                                 $anything = true;
                             }
                         } elseif (is_dir($file)) {
-                            if (Folder::delete($file)) {
+                            if (Folder::delete($file, false)) {
                                 $anything = true;
                             }
                         }

@@ -75,9 +75,9 @@ pages:
   last_modified: false                           # Set the last modified date header based on file modification timestamp
   etag: true                                     # Set the etag header tag
   vary_accept_encoding: false                    # Add `Vary: Accept-Encoding` header
-  redirect_default_route: false                  # Automatically redirect to a page's default route
-  redirect_default_code: 302                     # Default code to use for redirects
-  redirect_trailing_slash: true                  # Handle automatically or 302 redirect a trailing / URL
+  redirect_default_code: 302                     # Default code to use for redirects: 301|302|303
+  redirect_trailing_slash: 1                     # Always redirect trailing slash with redirect code 0|1|301|302 (0: no redirect, 1: use default code)
+  redirect_default_route: 0                      # Always redirect to page's default route using code 0|1|301|302, also removes .htm and .html extensions
   ignore_files: [.DS_Store]                      # Files to ignore in Pages
   ignore_folders: [.git, .idea]                  # Folders to ignore in Pages
   ignore_hidden: true                            # Ignore all Hidden files and folders
@@ -127,6 +127,7 @@ assets:                                          # Configuration for Assets Mana
   js_pipeline_before_excludes: true              # Render the pipeline before any excluded files
   js_minify: true                                # Minify the JS during pipelining
   enable_asset_timestamp: false                  # Enable asset timestamps
+  enable_asset_sri: false                        # Enable asset SRI
   collections:
     jquery: system://assets/jquery/jquery-2.x.min.js
 

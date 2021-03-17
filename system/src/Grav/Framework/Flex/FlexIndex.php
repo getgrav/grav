@@ -380,7 +380,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
 
         // Handle primary key alias.
         $keyField = $this->getFlexDirectory()->getStorage()->getKeyField();
-        if (isset($orderings[$keyField])) {
+        if ($keyField !== 'key' && $keyField !== 'storage_key' && isset($orderings[$keyField])) {
             $orderings['key'] = $orderings[$keyField];
             unset($orderings[$keyField]);
         }

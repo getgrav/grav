@@ -14,11 +14,13 @@ namespace Grav\Framework\Controller\Traits;
 use Grav\Common\Config\Config;
 use Grav\Common\Debugger;
 use Grav\Common\Grav;
+use Grav\Common\Utils;
 use Grav\Framework\Psr7\Response;
 use Grav\Framework\RequestHandler\Exception\RequestException;
 use Grav\Framework\Route\Route;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\StreamInterface;
 use Throwable;
 use function get_class;
 use function in_array;
@@ -74,6 +76,55 @@ trait ControllerResponseTrait
         ];
 
         return new Response($code, $headers, json_encode($content));
+    }
+
+    /**
+     * @param string $filename
+     * @param string|resource|StreamInterface $resource
+     * @param array|null $headers
+     * @param array|null $options
+     * @return ResponseInterface
+     */
+    protected function createDownloadResponse(string $filename, $resource, array $headers = null, array $options = null): ResponseInterface
+    {
+        // Required for IE, otherwise Content-Disposition may be ignored
+        if (ini_get('zlib.output_compression')) {
+            @ini_set('zlib.output_compression', 'Off');
+        }
+
+        $headers = $headers ?? [];
+        $options = $options ?? ['force_download' => true];
+
+        $file_parts = pathinfo($filename);
+
+        if (!isset($headers['Content-Type'])) {
+            $mimetype = Utils::getMimeByExtension($file_parts['extension']);
+
+            $headers['Content-Type'] = $mimetype;
+        }
+
+        // TODO: add multipart download support.
+        //$headers['Accept-Ranges'] = 'bytes';
+
+        if (!empty($options['force_download'])) {
+            $headers['Content-Disposition'] = 'attachment; filename="' . $file_parts['basename'] . '"';
+        }
+
+        if (!isset($headers['Content-Length'])) {
+            $realpath = realpath($filename);
+            if ($realpath) {
+                $headers['Content-Length'] = filesize($realpath);
+            }
+        }
+
+        $headers += [
+            'Expires' => 'Mon, 26 Jul 1997 05:00:00 GMT',
+            'Last-Modified' => gmdate('D, d M Y H:i:s') . ' GMT',
+            'Cache-Control' => 'no-store, no-cache, must-revalidate',
+            'Pragma' => 'no-cache'
+        ];
+
+        return new Response(200, $headers, $resource);
     }
 
     /**

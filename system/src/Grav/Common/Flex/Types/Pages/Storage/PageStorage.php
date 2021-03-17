@@ -110,6 +110,9 @@ class PageStorage extends FolderStorage
             }
         } catch (RuntimeException $e) {
             $frontmatter = 'ERROR: ' . $e->getMessage();
+        } finally {
+            $file->free();
+            unset($file);
         }
 
         return $frontmatter;
@@ -127,6 +130,9 @@ class PageStorage extends FolderStorage
             $raw = $file->raw();
         } catch (RuntimeException $e) {
             $raw = 'ERROR: ' . $e->getMessage();
+        } finally {
+            $file->free();
+            unset($file);
         }
 
         return $raw;
@@ -407,7 +413,7 @@ class PageStorage extends FolderStorage
                     if (!$isClone && $file->exists()) {
                         /** @var UniformResourceLocator $locator */
                         $locator = $grav['locator'];
-                        $toPath = $locator->isStream($newFilepath) ? $locator->findResource($newFilepath, true, true) : $newFilepath;
+                        $toPath = $locator->isStream($newFilepath) ? $locator->findResource($newFilepath, true, true) : GRAV_ROOT . "/{$newFilepath}";
                         $success = $file->rename($toPath);
                         if (!$success) {
                             throw new RuntimeException("Changing page template failed: {$oldFilepath} => {$newFilepath}");
@@ -439,16 +445,19 @@ class PageStorage extends FolderStorage
             } else {
                 $debugger->addMessage('Page content has not been changed, do not update the file', 'debug');
             }
-
-            /** @var UniformResourceLocator $locator */
-            $locator = Grav::instance()['locator'];
-            if ($locator->isStream($newFolder)) {
-                $locator->clearCache();
-            }
         } catch (RuntimeException $e) {
             $name = isset($file) ? $file->filename() : $newKey;
 
             throw new RuntimeException(sprintf('Flex saveRow(%s): %s', $name, $e->getMessage()));
+        } finally {
+            /** @var UniformResourceLocator $locator */
+            $locator = Grav::instance()['locator'];
+            $locator->clearCache();
+
+            if (isset($file)) {
+                $file->free();
+                unset($file);
+            }
         }
 
         $row['__META'] = $this->getObjectMeta($newKey, true);
@@ -512,7 +521,11 @@ class PageStorage extends FolderStorage
             $locator = Grav::instance()['locator'];
             if (mb_strpos($key, '@@') === false) {
                 $path = $this->getStoragePath($key);
-                $path = $path ? $locator->findResource($path) : null;
+                if (is_string($path)) {
+                    $path = $locator->isStream($path) ? $locator->findResource($path) : GRAV_ROOT . "/{$path}";
+                } else {
+                    $path = null;
+                }
             } else {
                 $path = null;
             }

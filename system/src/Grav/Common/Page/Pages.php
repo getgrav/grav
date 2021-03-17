@@ -769,6 +769,9 @@ class Pages
     public function get($path)
     {
         $path = (string)$path;
+        if ($path === '') {
+            return null;
+        }
 
         // Check for local instances first.
         if (array_key_exists($path, $this->instances)) {
@@ -777,14 +780,26 @@ class Pages
 
         $instance = $this->index[$path] ?? null;
         if (is_string($instance)) {
-            /** @var Language $language */
-            $language = $this->grav['language'];
-            $lang = $language->getActive();
-            if ($lang) {
-                $instance .= ':' . $lang;
+            if ($this->directory) {
+                /** @var Language $language */
+                $language = $this->grav['language'];
+                $lang = $language->getActive();
+                if ($lang) {
+                    $languages = $language->getFallbackLanguages($lang, true);
+                    $key = $instance;
+                    $instance = null;
+                    foreach ($languages as $code) {
+                        $test = $code ? $key . ':' . $code : $key;
+                        if (($instance = $this->directory->getObject($test, 'flex_key')) !== null) {
+                            break;
+                        }
+                    }
+                } else {
+                    $instance = $this->directory->getObject($instance, 'flex_key');
+                }
             }
-            $instance = $this->directory ? $this->directory->getObject($instance, 'flex_key') : null;
-            if ($instance) {
+
+            if ($instance instanceof PageInterface) {
                 if ($this->fire_events && method_exists($instance, 'initialize')) {
                     $instance->initialize();
                 }
@@ -1159,7 +1174,14 @@ class Pages
                 $event->types = $types;
                 $grav->fireEvent('onGetPageBlueprints', $event);
 
-                $types->scanBlueprints('theme://blueprints/');
+                $types->init();
+
+                // Try new location first.
+                $lookup = 'theme://blueprints/pages/';
+                if (!is_dir($lookup)) {
+                    $lookup = 'theme://blueprints/';
+                }
+                $types->scanBlueprints($lookup);
 
                 // Scan templates
                 $event = new Event();

@@ -16,7 +16,6 @@ use Grav\Common\Grav;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Page\Traits\PageFormTrait;
 use Grav\Common\User\Interfaces\UserCollectionInterface;
-use Grav\Framework\File\Formatter\YamlFormatter;
 use Grav\Framework\Flex\FlexObject;
 use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
 use Grav\Framework\Flex\Interfaces\FlexTranslateInterface;
@@ -50,6 +49,20 @@ class FlexPageObject extends FlexObject implements PageInterface, FlexTranslateI
 
     /** @var array|null */
     protected $_reorder;
+    /** @var FlexPageObject|null */
+    protected $_original;
+
+    /**
+     * Clone page.
+     */
+    public function __clone()
+    {
+        parent::__clone();
+
+        if (isset($this->header)) {
+            $this->header = clone($this->header);
+        }
+    }
 
     /**
      * @return array
@@ -243,6 +256,32 @@ class FlexPageObject extends FlexObject implements PageInterface, FlexTranslateI
     }
 
     /**
+     * Gets the Page Unmodified (original) version of the page.
+     *
+     * Assumes that object has been cloned before modifying it.
+     *
+     * @return FlexPageObject|null The original version of the page.
+     */
+    public function getOriginal()
+    {
+        return $this->_original;
+    }
+
+    /**
+     * Store the Page Unmodified (original) version of the page.
+     *
+     * Can be called multiple times, only the first call matters.
+     *
+     * @return void
+     */
+    public function storeOriginal(): void
+    {
+        if (null === $this->_original) {
+            $this->_original = clone $this;
+        }
+    }
+
+    /**
      * Get display order for the associated media.
      *
      * @return array
@@ -396,23 +435,6 @@ class FlexPageObject extends FlexObject implements PageInterface, FlexTranslateI
         if (array_key_exists('content', $elements)) {
             $elements['markdown'] = $elements['content'];
             unset($elements['content']);
-        }
-
-        // TODO: Remove: RAW frontmatter support has been moved to Flex-Objects v1.0.2 controller.
-        if (isset($elements['frontmatter'])) {
-            $formatter = new YamlFormatter();
-            try {
-                // Replace the whole header except for media order, which is used in admin.
-                $media_order = $elements['media_order'] ?? null;
-                $elements['header'] = $formatter->decode($elements['frontmatter']);
-                if ($media_order) {
-                    $elements['header']['media_order'] = $media_order;
-                }
-            } catch (RuntimeException $e) {
-                throw new RuntimeException('Badly formatted markdown');
-            }
-
-            unset($elements['frontmatter']);
         }
 
         if (!$extended) {

@@ -67,7 +67,7 @@ trait PageTranslateTrait
         if (!$folder) {
             return [];
         }
-        $folder = $locator($folder);
+        $folder = $locator->isStream($folder) ? $locator->getResource($folder) : GRAV_ROOT . "/{$folder}";
 
         $list = array_fill_keys($languages, null);
         foreach ($translated as $languageCode => $languageFile) {

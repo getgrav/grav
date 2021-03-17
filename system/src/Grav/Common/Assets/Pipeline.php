@@ -9,6 +9,7 @@
 
 namespace Grav\Common\Assets;
 
+use Grav\Common\Assets\BaseAsset;
 use Grav\Common\Assets\Traits\AssetUtilsTrait;
 use Grav\Common\Config\Config;
 use Grav\Common\Grav;
@@ -148,7 +149,7 @@ class Pipeline extends PropertyObject
             $output = "<style>\n" . $buffer . "\n</style>\n";
         } else {
             $this->asset = $relative_path;
-            $output = '<link href="' . $relative_path . $this->renderQueryString() . '"' . $this->renderAttributes() . ">\n";
+            $output = '<link href="' . $relative_path . $this->renderQueryString() . '"' . $this->renderAttributes() . BaseAsset::integrityHash($this->asset) . ">\n";
         }
 
         return $output;
@@ -211,7 +212,7 @@ class Pipeline extends PropertyObject
             $output = '<script' . $this->renderAttributes(). ">\n" . $buffer . "\n</script>\n";
         } else {
             $this->asset = $relative_path;
-            $output = '<script src="' . $relative_path . $this->renderQueryString() . '"' . $this->renderAttributes() . "></script>\n";
+            $output = '<script src="' . $relative_path . $this->renderQueryString() . '"' . $this->renderAttributes() . BaseAsset::integrityHash($this->asset) . "></script>\n";
         }
 
         return $output;
