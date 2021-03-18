@@ -422,7 +422,7 @@ trait PageRoutableTrait
 
         $directory = $this->getFlexDirectory();
         $parentKey = ltrim(dirname("/{$this->getKey()}"), '/');
-        if ($parentKey) {
+        if ('' !== $parentKey) {
             $parent = $directory->getObject($parentKey);
             $language = $this->getLanguage();
             if ($language && $parent && method_exists($parent, 'getTranslation')) {
@@ -433,7 +433,7 @@ trait PageRoutableTrait
         } else {
             $index = $directory->getIndex();
 
-            $this->_parentCache = method_exists($index, 'getRoot') ? $index->getRoot() : null;
+            $this->_parentCache = \is_callable([$index, 'getRoot']) ? $index->getRoot() : null;
         }
 
         return $this->_parentCache;

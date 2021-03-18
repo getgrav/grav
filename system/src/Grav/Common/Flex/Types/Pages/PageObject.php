@@ -22,6 +22,7 @@ use Grav\Common\Flex\Types\Pages\Traits\PageTranslateTrait;
 use Grav\Common\Language\Language;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Page\Pages;
+use Grav\Common\User\Interfaces\UserInterface;
 use Grav\Common\Utils;
 use Grav\Framework\Filesystem\Filesystem;
 use Grav\Framework\Flex\FlexObject;
@@ -319,6 +320,28 @@ class PageObject extends FlexPageObject
         $this->storeOriginal();
 
         return $this;
+    }
+
+    /**
+     * @param UserInterface $user
+     * @param string $action
+     * @param string $scope
+     * @param bool $isMe
+     * @return bool|null
+     */
+    protected function isAuthorizedOverride(UserInterface $user, string $action, string $scope, bool $isMe): ?bool
+    {
+        // Special case: creating a new page means checking parent for its permissions.
+        if ($action === 'create' && !$this->exists()) {
+            $parent = $this->parent();
+            if ($parent && method_exists($parent, 'isAuthorized')) {
+                return $parent->isAuthorized($action, $scope, $user);
+            }
+
+            return false;
+        }
+
+        return parent::isAuthorizedOverride($user, $action, $scope, $isMe);
     }
 
     /**
