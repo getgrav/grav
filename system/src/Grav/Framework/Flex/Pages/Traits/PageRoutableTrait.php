@@ -497,22 +497,22 @@ trait PageRoutableTrait
     public function activeChild(): bool
     {
         $grav = Grav::instance();
+        /** @var Uri $uri */
         $uri = $grav['uri'];
+        /** @var Pages $pages */
         $pages = $grav['pages'];
         $uri_path = rtrim(urldecode($uri->path()), '/');
         $routes = $pages->routes();
 
         if (isset($routes[$uri_path])) {
-            /** @var PageInterface $child_page|null */
-            $child_page = $pages->find($uri->route())->parent();
-            if (null !== $child_page) {
-                while (!$child_page->root()) {
-                    if ($this->path() === $child_page->path()) {
-                        return true;
-                    }
-                    /** @var PageInterface $child_page|null */
-                    $child_page = $child_page->parent();
+            $page = $pages->find($uri->route());
+            /** @var PageInterface|null $child_page */
+            $child_page = $page ? $page->parent() : null;
+            while ($child_page && !$child_page->root()) {
+                if ($this->path() === $child_page->path()) {
+                    return true;
                 }
+                $child_page = $child_page->parent();
             }
         }
 
