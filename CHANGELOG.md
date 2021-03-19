@@ -15,6 +15,7 @@
     * Fixed `Page::activeChild()` throwing an error [#3276](https://github.com/getgrav/grav/issues/3276)
     * Fixed `Flex Page` CRUD ACL when creating a new page (needs Flex Objects plugin update) [grav-plugin-flex-objects#115](https://github.com/trilbymedia/grav-plugin-flex-objects/issues/115)
     * Fixed the list of pages not showing up in admin [#3280](https://github.com/getgrav/grav/issues/3280)
+    * Fixed text field min/max validation for UTF8 characters [#3281](https://github.com/getgrav/grav/issues/3281)
 
 # v1.7.8
 ## 03/17/2021
