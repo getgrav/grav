@@ -8,6 +8,7 @@
     * Added `FlexMediaTrait::getFieldSettings()`, which can be used to get media field settings
 1. [](#improved)
     * Method `Utils::getPagePathFromToken()` now calls the more generic `Utils::getPathFromToken()`
+    * Updated `SECURITY.md` to use security@getgrav.org
 1. [](#bugfix)
     * Fixed broken media upload in `Flex` with `@self/path`, `@page` and `@theme` destinations [#3275](https://github.com/getgrav/grav/issues/3275)
     * Fixed media fields excluding newly deleted files before saving the object
