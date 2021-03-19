@@ -1,5 +1,5 @@
 # v1.7.9
-## mm/dd/2021
+## 03/19/2021
 
 1. [](#new)
     * Added `Media::hide()` method to hide files from media
