@@ -18,4 +18,4 @@ If you cannot update to the latest stable version available because, for example
 
 ## Reporting a Vulnerability
 
-Please contact contact@getgrav.org with a detailed explaination of the security issue found and we will work with you to get it resolved as fast as possible.
+Please contact security@getgrav.org with a detailed explaination of the security issue found and we will work with you to get it resolved as fast as possible.
