@@ -27,7 +27,6 @@ use function is_bool;
 use function is_float;
 use function is_int;
 use function is_string;
-use function strlen;
 
 /**
  * Class Validation
@@ -239,16 +238,20 @@ class Validation
             $value = trim($value);
         }
 
-        if (isset($params['min']) && strlen($value) < $params['min']) {
+        $len = mb_strlen($value);
+
+        $min = (int)($params['min'] ?? 0);
+        if ($min && $len < $min) {
             return false;
         }
 
-        if (isset($params['max']) && strlen($value) > $params['max']) {
+        $max = (int)($params['max'] ?? 0);
+        if ($max && $len > $max) {
             return false;
         }
 
-        $min = $params['min'] ?? 0;
-        if (isset($params['step']) && (strlen($value) - $min) % $params['step'] === 0) {
+        $step = (int)($params['step'] ?? 0);
+        if ($step && ($len - $min) % $step === 0) {
             return false;
         }
 
@@ -271,11 +274,13 @@ class Validation
             return '';
         }
 
+        $value = (string)$value;
+
         if (!empty($params['trim'])) {
             $value = trim($value);
         }
 
-        return (string) $value;
+        return $value;
     }
 
     /**
@@ -332,7 +337,7 @@ class Validation
      */
     protected static function filterLower($value, array $params)
     {
-        return strtolower($value);
+        return mb_strtolower($value);
     }
 
     /**
@@ -342,7 +347,7 @@ class Validation
      */
     protected static function filterUpper($value, array $params)
     {
-        return strtoupper($value);
+        return mb_strtoupper($value);
     }
 
 
@@ -534,7 +539,7 @@ class Validation
      */
     protected static function filterNumber($value, array $params, array $field)
     {
-        return (string)(int)$value !== (string)(float)$value ? (float) $value : (int) $value;
+        return (string)(int)$value !== (string)(float)$value ? (float)$value : (int)$value;
     }
 
     /**

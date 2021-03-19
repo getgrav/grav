@@ -522,12 +522,13 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
                     $tmp = $child->children()->getIndex();
                     $child_count = $tmp->count();
                     $count = $filters ? $tmp->filterBy($filters, true)->count() : null;
+                    $route = $child->getRoute();
                     $payload = [
                         'item-key' => basename($child->rawRoute() ?? $child->getKey()),
                         'icon' => $icon,
                         'title' => htmlspecialchars($child->menu()),
                         'route' => [
-                            'display' => $child->getRoute()->toString(false) ?: '/',
+                            'display' => ($route ? ($route->toString(false) ?: '/') : null) ?? '',
                             'raw' => $child->rawRoute(),
                         ],
                         'modified' => $this->jsDate($child->modified()),

@@ -1,3 +1,24 @@
+# v1.7.9
+## 03/19/2021
+
+1. [](#new)
+    * Added `Media::hide()` method to hide files from media
+    * Added `Utils::getPathFromToken()` method which works also with `Flex Objects`
+    * Added `FlexMediaTrait::getMediaField()`, which can be used to access custom media set in the blueprint fields
+    * Added `FlexMediaTrait::getFieldSettings()`, which can be used to get media field settings
+1. [](#improved)
+    * Method `Utils::getPagePathFromToken()` now calls the more generic `Utils::getPathFromToken()`
+    * Updated `SECURITY.md` to use security@getgrav.org
+1. [](#bugfix)
+    * Fixed broken media upload in `Flex` with `@self/path`, `@page` and `@theme` destinations [#3275](https://github.com/getgrav/grav/issues/3275)
+    * Fixed media fields excluding newly deleted files before saving the object
+    * Fixed method `$pages->find()` should never redirect [#3266](https://github.com/getgrav/grav/pull/3266)
+    * Fixed `Page::activeChild()` throwing an error [#3276](https://github.com/getgrav/grav/issues/3276)
+    * Fixed `Flex Page` CRUD ACL when creating a new page (needs Flex Objects plugin update) [grav-plugin-flex-objects#115](https://github.com/trilbymedia/grav-plugin-flex-objects/issues/115)
+    * Fixed the list of pages not showing up in admin [#3280](https://github.com/getgrav/grav/issues/3280)
+    * Fixed text field min/max validation for UTF8 characters [#3281](https://github.com/getgrav/grav/issues/3281)
+    * Fixed redirects using wrong redirect code
+
 # v1.7.8
 ## 03/17/2021
 

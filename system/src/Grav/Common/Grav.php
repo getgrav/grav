@@ -426,7 +426,7 @@ class Grav extends Container
         // Clean route for redirect
         $route = preg_replace("#^\/[\\\/]+\/#", '/', $route);
 
-        if (null !== $code || $code < 300 || $code > 399) {
+        if ($code < 300 || $code > 399) {
             $code = null;
         }
 

@@ -2496,21 +2496,23 @@ class Page implements PageInterface
      */
     public function activeChild()
     {
-        $uri = Grav::instance()['uri'];
-        $pages = Grav::instance()['pages'];
+        $grav = Grav::instance();
+        /** @var Uri $uri */
+        $uri = $grav['uri'];
+        /** @var Pages $pages */
+        $pages = $grav['pages'];
         $uri_path = rtrim(urldecode($uri->path()), '/');
-        $routes = Grav::instance()['pages']->routes();
+        $routes = $pages->routes();
 
         if (isset($routes[$uri_path])) {
+            $page = $pages->find($uri->route());
             /** @var PageInterface|null $child_page */
-            $child_page = $pages->find($uri->route())->parent();
-            if ($child_page) {
-                while (!$child_page->root()) {
-                    if ($this->path() === $child_page->path()) {
-                        return true;
-                    }
-                    $child_page = $child_page->parent();
+            $child_page = $page ? $page->parent() : null;
+            while ($child_page && !$child_page->root()) {
+                if ($this->path() === $child_page->path()) {
+                    return true;
                 }
+                $child_page = $child_page->parent();
             }
         }
 
