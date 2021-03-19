@@ -62,7 +62,7 @@ abstract class Archiver
     {
         // Set infinite PHP execution time if possible.
         if (Utils::functionExists('set_time_limit')) {
-            set_time_limit(0);
+            @set_time_limit(0);
         }
 
         $this->options = $options + $this->options;

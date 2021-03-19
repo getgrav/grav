@@ -1,3 +1,9 @@
+# v1.7.10
+## mm/dd/2021
+
+1. [](#bugfix)
+    * Ignore errors when using `set_time_limit` in `Archiver` class. [#3023](https://github.com/getgrav/grav/issues/3023)
+
 # v1.7.9
 ## 03/19/2021
 
