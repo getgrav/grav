@@ -420,8 +420,10 @@ trait PageRoutableTrait
             return $this->_parentCache;
         }
 
+        // Use filesystem as \dirname() does not work in Windows because of '/foo' becomes '\'.
+        $filesystem = Filesystem::getInstance(false);
         $directory = $this->getFlexDirectory();
-        $parentKey = ltrim(dirname("/{$this->getKey()}"), '/');
+        $parentKey = ltrim($filesystem->dirname("/{$this->getKey()}"), '/');
         if ('' !== $parentKey) {
             $parent = $directory->getObject($parentKey);
             $language = $this->getLanguage();
