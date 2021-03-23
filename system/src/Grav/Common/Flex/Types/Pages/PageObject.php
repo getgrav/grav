@@ -204,9 +204,10 @@ class PageObject extends FlexPageObject
             }
 
             // Make sure page isn't being moved under itself.
-            $key = $this->getKey();
+            $key = $this->getStorageKey();
+
             if ($key === $parentKey || strpos($parentKey, $key . '/') === 0) {
-                throw new RuntimeException(sprintf('Page /%s cannot be moved to %s', $key, $parentRoute));
+                throw new RuntimeException(sprintf('Page /%s cannot be moved to %s', $this->getKey(), $parentRoute));
             }
 
             /** @var PageObject|null $parent */

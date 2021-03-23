@@ -3,6 +3,7 @@
 
 1. [](#bugfix)
     * Ignore errors when using `set_time_limit` in `Archiver` and `GPM\Response` classes [#3023](https://github.com/getgrav/grav/issues/3023)
+    * Fixed moving page to itself causing the page folder to be lost (converted to an empty file)
 
 # v1.7.9
 ## 03/19/2021
