@@ -534,7 +534,7 @@ class PageStorage extends FolderStorage
             $markdown = [];
             $children = [];
 
-            if (is_string($path) && file_exists($path)) {
+            if (is_string($path) && is_dir($path)) {
                 $modified = filemtime($path);
                 $iterator = new FilesystemIterator($path, $this->flags);
 
