@@ -15,6 +15,7 @@ use Grav\Common\Debugger;
 use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Flex\FlexIndex;
 use Grav\Common\Grav;
+use Grav\Common\User\Interfaces\UserCollectionInterface;
 use Grav\Common\User\Interfaces\UserInterface;
 use Grav\Framework\Flex\Interfaces\FlexStorageInterface;
 use Monolog\Logger;
@@ -28,7 +29,7 @@ use function method_exists;
  *
  * @extends FlexIndex<string,UserObject,UserCollection>
  */
-class UserIndex extends FlexIndex
+class UserIndex extends FlexIndex implements UserCollectionInterface
 {
     public const VERSION = parent::VERSION . '.1';
 
@@ -104,6 +105,24 @@ class UserIndex extends FlexIndex
         );
 
         return $object;
+    }
+
+    /**
+     * Delete user account.
+     *
+     * @param string $username
+     * @return bool True if user account was found and was deleted.
+     */
+    public function delete($username): bool
+    {
+        $user = $this->load($username);
+
+        $exists = $user->exists();
+        if ($exists) {
+            $user->delete();
+        }
+
+        return $exists;
     }
 
     /**
