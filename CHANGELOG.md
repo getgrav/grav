@@ -3,7 +3,8 @@
 
 1. [](#bugfix)
     * Ignore errors when using `set_time_limit` in `Archiver` and `GPM\Response` classes [#3023](https://github.com/getgrav/grav/issues/3023)
-    * Fixed moving page to itself causing the page folder to be lost (converted to an empty file)
+    * Fixed `Folder::move()` deleting the folder if you move folder into itself, created empty file instead
+    * Fixed moving `Flex Page` to itself causing the page to be lost [#3227](https://github.com/getgrav/grav/issues/3227)
     * Fixed `PageStorage` detecting files as pages
 
 # v1.7.9
