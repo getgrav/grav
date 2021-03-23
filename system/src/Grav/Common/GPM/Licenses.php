@@ -63,7 +63,7 @@ class Licenses
      * Returns the license for a Premium package
      *
      * @param string|null $slug
-     * @return array|string
+     * @return string[]|string
      */
     public static function get($slug = null)
     {
