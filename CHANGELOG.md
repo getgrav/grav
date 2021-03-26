@@ -1,6 +1,8 @@
 # v1.7.10
 ## mm/dd/2021
 
+1. [](#improved)
+    * Improved password handling when saving a user
 1. [](#bugfix)
     * Ignore errors when using `set_time_limit` in `Archiver` and `GPM\Response` classes [#3023](https://github.com/getgrav/grav/issues/3023)
     * Fixed `Folder::move()` deleting the folder if you move folder into itself, created empty file instead
