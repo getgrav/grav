@@ -11,6 +11,7 @@
     * Fixed moving `Flex Page` to itself causing the page to be lost [#3227](https://github.com/getgrav/grav/issues/3227)
     * Fixed `PageStorage` from detecting files as pages
     * Fixed `UserIndex` not implementing `UserCollectionInterface`
+    * Fixed missing `onAdminAfterDelete` event call in `Flex Pages`
 
 # v1.7.9
 ## 03/19/2021
