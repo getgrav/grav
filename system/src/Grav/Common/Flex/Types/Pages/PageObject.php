@@ -299,6 +299,22 @@ class PageObject extends FlexPageObject
     }
 
     /**
+     * @return PageObject
+     */
+    public function delete()
+    {
+        $result = parent::delete();
+
+        // Backwards compatibility with older plugins.
+        $fireEvents = $this->isAdminSite() && $this->getFlexDirectory()->getConfig('object.compat.events', true);
+        if ($fireEvents) {
+            $this->grav->fireEvent('onAdminAfterDelete', new Event(['object' => $this]));
+        }
+
+        return $result;
+    }
+
+    /**
      * Prepare move page to new location. Moves also everything that's under the current page.
      *
      * You need to call $this->save() in order to perform the move.
