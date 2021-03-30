@@ -1,6 +1,8 @@
 # v1.7.10
 ## mm/dd/2021
 
+1. [](#new)
+    * Added initial support for running Grav library from outside the webroot [#3297](https://github.com/getgrav/grav/issues/3297)
 1. [](#improved)
     * Improved password handling when saving a user
 1. [](#bugfix)

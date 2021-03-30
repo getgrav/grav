@@ -178,7 +178,7 @@ class InitializeProcessor extends ProcessorBase
         $grav['plugins']->setup();
 
         if (defined('GRAV_SCHEMA') && $config->get('versions') === null) {
-            $filename = GRAV_ROOT . '/user/config/versions.yaml';
+            $filename = USER_DIR . 'config/versions.yaml';
             if (!is_file($filename)) {
                 $versions = [
                     'core' => [

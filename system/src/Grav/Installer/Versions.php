@@ -36,7 +36,7 @@ final class Versions
      */
     public static function instance(string $filename = null): self
     {
-        $filename = $filename ?? GRAV_ROOT . '/user/config/versions.yaml';
+        $filename = $filename ?? USER_DIR . 'config/versions.yaml';
 
         if (!isset(self::$instance[$filename])) {
             self::$instance[$filename] = new self($filename);
