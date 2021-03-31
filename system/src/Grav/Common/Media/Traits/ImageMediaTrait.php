@@ -42,10 +42,13 @@ trait ImageMediaTrait
     protected $debug_watermarked = false;
 
     /** @var bool  */
-    protected $auto_size;
+    protected $auto_sizes;
+
+    /** @var bool */
+    protected $aspect_ratio;
 
     /** @var integer */
-    protected $scaling_factor;
+    protected $responsive_scale;
 
 
     /** @var array */
@@ -371,9 +374,10 @@ trait ImageMediaTrait
             $this->image->fixOrientation();
         }
 
-        // Set auto_size based on config
-        $this->auto_size = $config->get('system.images.auto_size', false);
-        $this->scaling_factor = $config->get('system.images.scaling_factor', 1);
+        // Set CLS configuration
+        $this->auto_sizes = $config->get('system.images.cls.auto_sizes', false);
+        $this->aspect_ratio = $config->get('system.images.cls.aspect_ratio', false);
+        $this->responsive_scale = $config->get('system.images.cls.responsive_scale', 1);
 
         return $this;
     }

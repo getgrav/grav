@@ -30,7 +30,7 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
 {
     use ImageMediaTrait;
     use ImageLoadingTrait;
-//    use ImageSizeTrait;
+
     /**
      * @var mixed|string
      */
@@ -238,12 +238,20 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
             $attributes['sizes'] = $this->sizes();
         }
 
-        if ($this->saved_image_path && $this->auto_size) {
+        if ($this->saved_image_path && $this->auto_sizes) {
             if (!array_key_exists('height', $this->attributes) && !array_key_exists('width', $this->attributes)) {
                 $info = getimagesize($this->saved_image_path);
-                $scaling_factor = $this->scaling_factor > 0 ? $this->scaling_factor : 1;
-                $attributes['width'] = intval($info[0] / $scaling_factor);
-                $attributes['height'] = intval($info[1] / $scaling_factor);
+                $width = intval($info[0]);
+                $height = intval($info[1]);
+
+                $scaling_factor = $this->responsive_scale > 0 ? $this->responsive_scale : 1;
+                $attributes['width'] = intval($width / $scaling_factor);
+                $attributes['height'] = intval($height / $scaling_factor);
+
+                if ($this->aspect_ratio) {
+                    $style = ($attributes['style'] ?? ' ') . "--aspect-ratio: $width/$height;";
+                    $attributes['style'] = trim($style);
+                }
             }
         }
 
