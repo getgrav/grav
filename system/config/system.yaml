@@ -154,9 +154,10 @@ images:
   debug: false                                   # Show an overlay over images indicating the pixel depth of the image when working with retina for example
   auto_fix_orientation: true                     # Automatically fix the image orientation based on the Exif data
   seofriendly: false                             # SEO-friendly processed image names
+  auto_size: false                               # Add height/width to image [auto|none]. See https://web.dev/optimize-cls/
+  scaling_factor: 1
   defaults:
     loading: auto                                # Let browser pick [auto|lazy|eager]
-    size: none                                   # Add height/width to image [auto|none]. See https://web.dev/optimize-cls/
 
 media:
   enable_media_timestamp: false                  # Enable media timestamps

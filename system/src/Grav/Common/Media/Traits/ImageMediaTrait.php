@@ -41,6 +41,13 @@ trait ImageMediaTrait
     /** @var bool */
     protected $debug_watermarked = false;
 
+    /** @var bool  */
+    protected $auto_size;
+
+    /** @var integer */
+    protected $scaling_factor;
+
+
     /** @var array */
     public static $magic_actions = [
         'resize', 'forceResize', 'cropResize', 'crop', 'zoomCrop',
@@ -358,10 +365,15 @@ trait ImageMediaTrait
             ->setPrettyName($this->getImagePrettyName());
 
         // Fix orientation if enabled
-        if (Grav::instance()['config']->get('system.images.auto_fix_orientation', false) &&
+        $config = Grav::instance()['config'];
+        if ($config->get('system.images.auto_fix_orientation', false) &&
             extension_loaded('exif') && function_exists('exif_read_data')) {
             $this->image->fixOrientation();
         }
+
+        // Set auto_size based on config
+        $this->auto_size = $config->get('system.images.auto_size', false);
+        $this->scaling_factor = $config->get('system.images.scaling_factor', 1);
 
         return $this;
     }

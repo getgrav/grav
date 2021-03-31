@@ -30,8 +30,12 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
 {
     use ImageMediaTrait;
     use ImageLoadingTrait;
-    use ImageSizeTrait;
-    
+//    use ImageSizeTrait;
+    /**
+     * @var mixed|string
+     */
+    private $saved_image_path;
+
     /**
      * Construct.
      *
@@ -172,7 +176,7 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
         /** @var UniformResourceLocator $locator */
         $locator = $grav['locator'];
         $image_path = (string)($locator->findResource('cache://images', true) ?: $locator->findResource('cache://images', true, true));
-        $saved_image_path = $this->saveImage();
+        $saved_image_path = $this->saved_image_path = $this->saveImage();
 
         $output = preg_replace('|^' . preg_quote(GRAV_ROOT, '|') . '|', '', $saved_image_path) ?: $saved_image_path;
 
@@ -234,6 +238,15 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
             $attributes['sizes'] = $this->sizes();
         }
 
+        if ($this->saved_image_path && $this->auto_size) {
+            if (!array_key_exists('height', $this->attributes) && !array_key_exists('width', $this->attributes)) {
+                $info = getimagesize($this->saved_image_path);
+                $scaling_factor = $this->scaling_factor > 0 ? $this->scaling_factor : 1;
+                $attributes['width'] = intval($info[0] / $scaling_factor);
+                $attributes['height'] = intval($info[1] / $scaling_factor);
+            }
+        }
+
         return ['name' => 'img', 'attributes' => $attributes];
     }
 
@@ -274,6 +287,14 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
         }
 
         return parent::lightbox($width, $height, $reset);
+    }
+
+    public function autoSize($enabled = 'true')
+    {
+        $enabled = $enabled === 'true' ?: false;
+        $this->auto_size = $enabled;
+
+        return $this;
     }
 
     /**
