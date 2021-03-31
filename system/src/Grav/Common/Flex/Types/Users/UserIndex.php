@@ -21,13 +21,12 @@ use Grav\Framework\Flex\Interfaces\FlexStorageInterface;
 use Monolog\Logger;
 use function count;
 use function is_string;
-use function method_exists;
 
 /**
  * Class UserIndex
  * @package Grav\Common\Flex\Types\Users
  *
- * @extends FlexIndex<string,UserObject,UserCollection>
+ * @extends FlexIndex<UserObject,UserCollection>
  */
 class UserIndex extends FlexIndex implements UserCollectionInterface
 {

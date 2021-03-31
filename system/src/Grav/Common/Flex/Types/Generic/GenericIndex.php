@@ -17,7 +17,7 @@ use Grav\Common\Flex\FlexIndex;
  * Class GenericIndex
  * @package Grav\Common\Flex\Generic
  *
- * @extends FlexIndex<string,GenericObject,GenericCollection>
+ * @extends FlexIndex<GenericObject,GenericCollection>
  */
 class GenericIndex extends FlexIndex
 {

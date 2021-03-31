@@ -18,9 +18,8 @@ use Grav\Common\Flex\Traits\FlexGravTrait;
  * Class FlexCollection
  *
  * @package Grav\Common\Flex
- * @template TKey
  * @template T of \Grav\Framework\Flex\Interfaces\FlexObjectInterface
- * @extends \Grav\Framework\Flex\FlexCollection<TKey,T>
+ * @extends \Grav\Framework\Flex\FlexCollection<T>
  */
 abstract class FlexCollection extends \Grav\Framework\Flex\FlexCollection
 {

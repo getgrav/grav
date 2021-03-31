@@ -18,10 +18,9 @@ use Grav\Common\Flex\Traits\FlexIndexTrait;
  * Class FlexIndex
  *
  * @package Grav\Common\Flex
- * @template TKey
  * @template T of \Grav\Framework\Flex\Interfaces\FlexObjectInterface
  * @template C of \Grav\Framework\Flex\Interfaces\FlexCollectionInterface
- * @extends \Grav\Framework\Flex\FlexIndex<TKey,T,C>
+ * @extends \Grav\Framework\Flex\FlexIndex<T,C>
  */
 abstract class FlexIndex extends \Grav\Framework\Flex\FlexIndex
 {

@@ -205,10 +205,10 @@ trait FlexMediaTrait
                 $filename = $info['path'] ?? $info['name'];
             }
 
-            /** @var Medium|null $thumbFile */
+            /** @var Medium|null $imageFile */
             $imageFile = $media[$filename];
 
-            /** @var Medium|null $thumbFile */
+            /** @var Medium|null $originalFile */
             $originalFile = $originalMedia ? $originalMedia[$filename] : null;
 
             $url = $imageFile ? $imageFile->url() : null;
