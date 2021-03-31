@@ -308,7 +308,7 @@ class PageObject extends FlexPageObject
         // Backwards compatibility with older plugins.
         $fireEvents = $this->isAdminSite() && $this->getFlexDirectory()->getConfig('object.compat.events', true);
         if ($fireEvents) {
-            $this->grav->fireEvent('onAdminAfterDelete', new Event(['object' => $this]));
+            $this->getContainer()->fireEvent('onAdminAfterDelete', new Event(['object' => $this]));
         }
 
         return $result;
