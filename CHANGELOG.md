@@ -13,6 +13,7 @@
     * Fixed `UserIndex` not implementing `UserCollectionInterface`
     * Fixed missing `onAdminAfterDelete` event call in `Flex Pages`
     * Fixed system templates not getting scanned [#3296](https://github.com/getgrav/grav/issues/3296)
+    * Fixed incorrect routing if url path looks like a domain name [#2184](https://github.com/getgrav/grav/issues/2184)
 
 # v1.7.9
 ## 03/19/2021
