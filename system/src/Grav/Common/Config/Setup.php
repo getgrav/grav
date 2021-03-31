@@ -164,7 +164,8 @@ class Setup extends Data
     public function __construct($container)
     {
         // Configure main streams.
-        $this->streams['system']['prefixes'][''] = [GRAV_SYSTEM_PATH];
+        $abs = str_starts_with(GRAV_SYSTEM_PATH, '/');
+        $this->streams['system']['prefixes'][''] = $abs ? ['system', GRAV_SYSTEM_PATH] : ['system'];
         $this->streams['user']['prefixes'][''] = [GRAV_USER_PATH];
         $this->streams['cache']['prefixes'][''] = [GRAV_CACHE_PATH];
         $this->streams['log']['prefixes'][''] = [GRAV_LOG_PATH];
