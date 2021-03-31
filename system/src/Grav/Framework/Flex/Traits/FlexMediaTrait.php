@@ -384,7 +384,7 @@ trait FlexMediaTrait
                 $updated = true;
                 if ($medium) {
                     $media->add($filename, $medium);
-                } else {
+                } elseif (is_callable([$media, 'hide'])) {
                     $media->hide($filename);
                 }
             }

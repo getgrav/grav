@@ -176,11 +176,10 @@ abstract class BaseAsset extends PropertyObject
     /**
      * Receive asset location and return the SRI integrity hash
      *
-     * @param $input
-     *
+     * @param string $input
      * @return string
      */
-    public static function integrityHash( $input )
+    public static function integrityHash($input)
     {
         $grav = Grav::instance();
 

@@ -161,3 +161,8 @@ parameters:
         - '#Call to deprecated method stopPropagation\(\) of class Symfony\\Component\\EventDispatcher\\Event#'
         - '#Parameter \#2 \$listener of method Symfony\\Component\\EventDispatcher\\EventDispatcher::addListener\(\)#'
         - '#Parameter \#2 \$listener of method Symfony\\Component\\EventDispatcher\\EventDispatcher::removeListener\(\)#'
+
+        # Installer updates
+        -
+            message: '#Variable \$this in PHPDoc tag @var does not exist#'
+            path: '*/system/src/Grav/Installer/updates/*'
