@@ -323,6 +323,12 @@ class ParsedownTest extends \Codeception\TestCase\Test
             '<p><img height="1" width="1" alt="" src="/tests/fake/nested-site/user/pages/02.item2/02.item2-2/sample-image.jpg" /></p>',
             $this->parsedown->text('![](sample-image.jpg?height=1&width=1)')
         );
+
+        // Height/width should be derived from resized image
+        self::assertRegExp(
+            '/height="200" width="400"/',
+            $this->parsedown->text('![](sample-image.jpg?resize=400,200)')
+        );
     }
 
     public function testRootImages(): void
