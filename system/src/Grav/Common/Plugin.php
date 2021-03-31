@@ -36,7 +36,7 @@ class Plugin implements EventSubscriberInterface, ArrayAccess
 
     /** @var Grav */
     protected $grav;
-    /** @var Config */
+    /** @var Config|null */
     protected $config;
     /** @var bool */
     protected $active = true;
@@ -74,7 +74,9 @@ class Plugin implements EventSubscriberInterface, ArrayAccess
         $this->name = $name;
         $this->grav = $grav;
 
-        $this->setConfig($config ?? $grav['config']);
+        if ($config) {
+            $this->setConfig($config);
+        }
     }
 
     /**
@@ -95,7 +97,7 @@ class Plugin implements EventSubscriberInterface, ArrayAccess
      */
     public function config()
     {
-        return $this->config["plugins.{$this->name}"];
+        return null !== $this->config ? $this->config["plugins.{$this->name}"] : [];
     }
 
     /**
@@ -130,7 +132,8 @@ class Plugin implements EventSubscriberInterface, ArrayAccess
 
         /** @var Uri $uri */
         $uri = $this->grav['uri'];
-        $config = $this->config;
+        /** @var Config $config */
+        $config = $this->config ?? $this->grav['config'];
 
         if (strpos($uri->path(), $config->get('plugins.admin.route') . '/' . $plugin_route) === false) {
             $active = false;
@@ -304,7 +307,8 @@ class Plugin implements EventSubscriberInterface, ArrayAccess
      */
     protected function mergeConfig(PageInterface $page, $deep = false, $params = [], $type = 'plugins')
     {
-        $config = $this->config;
+        /** @var Config $config */
+        $config = $this->config ?? $this->grav['config'];
 
         $class_name = $this->name;
         $class_name_merged = $class_name . '.merged';
