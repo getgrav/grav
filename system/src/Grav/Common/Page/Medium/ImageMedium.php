@@ -244,7 +244,7 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
                 $width = intval($info[0]);
                 $height = intval($info[1]);
 
-                $scaling_factor = $this->responsive_scale > 0 ? $this->responsive_scale : 1;
+                $scaling_factor = $this->retina_scale > 0 ? $this->retina_scale : 1;
                 $attributes['width'] = intval($width / $scaling_factor);
                 $attributes['height'] = intval($height / $scaling_factor);
 
@@ -297,10 +297,10 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
         return parent::lightbox($width, $height, $reset);
     }
 
-    public function autoSize($enabled = 'true')
+    public function autoSizes($enabled = 'true')
     {
         $enabled = $enabled === 'true' ?: false;
-        $this->auto_size = $enabled;
+        $this->auto_sizes = $enabled;
 
         return $this;
     }

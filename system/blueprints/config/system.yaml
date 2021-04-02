@@ -1231,16 +1231,6 @@ form:
                 lazy: Lazy
                 eager: Eager
 
-            images.defaults.size:
-              type: select
-              size: small
-              label: PLUGIN_ADMIN.IMAGES_SIZE
-              help: PLUGIN_ADMIN.IMAGES_SIZE_HELP
-              highlight: none
-              options:
-                none: None
-                auto: Auto
-
             images.seofriendly:
               type: toggle
               label: PLUGIN_ADMIN.IMAGES_SEOFRIENDLY
@@ -1291,6 +1281,45 @@ form:
               classes: fancy
               validate:
                 type: commalist
+
+            section_images_cls:
+              type: section
+              title: PLUGIN_ADMIN.IMAGES_CLS_TITLE
+              underline: true
+
+            images.cls.auto_sizes:
+              type: toggle
+              label: PLUGIN_ADMIN.IMAGES_CLS_AUTO_SIZES
+              help: PLUGIN_ADMIN.IMAGES_CLS_AUTO_SIZES_HELP
+              highlight: 0
+              options:
+                1: PLUGIN_ADMIN.YES
+                0: PLUGIN_ADMIN.NO
+              validate:
+                type: bool
+
+            images.cls.aspect_ratio:
+              type: toggle
+              label: PLUGIN_ADMIN.IMAGES_CLS_ASPECT_RATIO
+              help: PLUGIN_ADMIN.IMAGES_CLS_ASPECT_RATIO_HELP
+              highlight: 0
+              options:
+                1: PLUGIN_ADMIN.YES
+                0: PLUGIN_ADMIN.NO
+              validate:
+                type: bool
+
+            images.cls.retina_scale:
+              type: select
+              label: PLUGIN_ADMIN.IMAGES_CLS_RETINA_SCALE
+              help: PLUGIN_ADMIN.IMAGES_CLS_RETINA_SCALE_HELP
+              size: small
+              highlight: 1
+              options:
+                1: 1X
+                2: 2X
+                3: 3X
+                4: 4X
 
         session:
           type: tab

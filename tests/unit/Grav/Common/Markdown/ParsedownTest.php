@@ -248,6 +248,7 @@ class ParsedownTest extends \Codeception\TestCase\Test
 
         $this->setImagesDefaults(['loading' => 'auto']);
 
+
         // loading should NOT be added to image by default
         self::assertSame(
             '<p><img alt="" src="/tests/fake/nested-site/user/pages/02.item2/02.item2-2/sample-image.jpg" /></p>',
@@ -280,55 +281,64 @@ class ParsedownTest extends \Codeception\TestCase\Test
             $this->parsedown->text('![](sample-image.jpg?loading=eager)')
         );
 
-        /**
-         * Testing default 'size' adding height/width
-        */
+    }
 
-        $this->setImagesDefaults(['size' => 'none']);
+    public function testCLSAutoSizes(): void
+    {
+        $this->config->set('system.images.cls.auto_sizes', false);
+        $this->uri->initializeWithURL('http://testing.dev/item2/item2-2')->init();
 
-        // height/width should NOT be added by default
         self::assertSame(
             '<p><img alt="" src="/tests/fake/nested-site/user/pages/02.item2/02.item2-2/sample-image.jpg" /></p>',
             $this->parsedown->text('![](sample-image.jpg)')
         );
 
-        // height="768" width="1024" should be added when default is overridden by ?size=auto
-        self::assertSame(
-            '<p><img height="768" width="1024" alt="" src="/tests/fake/nested-site/user/pages/02.item2/02.item2-2/sample-image.jpg" /></p>',
-            $this->parsedown->text('![](sample-image.jpg?size=auto)')
-        );
-
-        // height="1" width="1" should be added when default is overridden by ?height=1&width=1
         self::assertSame(
             '<p><img height="1" width="1" alt="" src="/tests/fake/nested-site/user/pages/02.item2/02.item2-2/sample-image.jpg" /></p>',
             $this->parsedown->text('![](sample-image.jpg?height=1&width=1)')
         );
 
-        $this->setImagesDefaults(['size' => 'auto']);
-
-        // height="768" width="1024" should be added by default
         self::assertSame(
-            '<p><img height="768" width="1024" alt="" src="/tests/fake/nested-site/user/pages/02.item2/02.item2-2/sample-image.jpg" /></p>',
+            '<p><img alt="" src="/tests/fake/nested-site/user/pages/02.item2/02.item2-2/sample-image.jpg" width="1024" height="768" /></p>',
+            $this->parsedown->text('![](sample-image.jpg?autoSizes=true)')
+        );
+
+        $this->config->set('system.images.cls.auto_sizes', true);
+
+        self::assertSame(
+            '<p><img alt="" src="/tests/fake/nested-site/user/pages/02.item2/02.item2-2/sample-image.jpg" width="1024" height="768" /></p>',
             $this->parsedown->text('![](sample-image.jpg)')
         );
 
-        // height/width should NOT be added when default is overridden by ?size=none
-        self::assertSame(
-            '<p><img alt="" src="/tests/fake/nested-site/user/pages/02.item2/02.item2-2/sample-image.jpg" /></p>',
-            $this->parsedown->text('![](sample-image.jpg?size=none)')
-        );
-
-        // height="1" width="1" should be added when default is overridden by ?height=1&width=1
         self::assertSame(
             '<p><img height="1" width="1" alt="" src="/tests/fake/nested-site/user/pages/02.item2/02.item2-2/sample-image.jpg" /></p>',
             $this->parsedown->text('![](sample-image.jpg?height=1&width=1)')
         );
 
-        // Height/width should be derived from resized image
+        self::assertSame(
+            '<p><img alt="" src="/tests/fake/nested-site/user/pages/02.item2/02.item2-2/sample-image.jpg" /></p>',
+            $this->parsedown->text('![](sample-image.jpg?autoSizes=false)')
+        );
+
         self::assertRegExp(
-            '/height="200" width="400"/',
+            '/width="400" height="200"/',
             $this->parsedown->text('![](sample-image.jpg?resize=400,200)')
         );
+
+        $this->config->set('system.images.cls.retina_scale', 2);
+        $this->config->set('system.images.cls.aspect_ratio', true);
+
+        self::assertRegExp(
+            '/width="400" height="200"/',
+            $this->parsedown->text('![](sample-image.jpg?reset&resize=800,400)')
+        );
+
+        self::assertRegExp(
+            '/style="--aspect-ratio: 800\/400;"/',
+            $this->parsedown->text('![](sample-image.jpg?reset&resize=800,400)')
+        );
+
+
     }
 
     public function testRootImages(): void

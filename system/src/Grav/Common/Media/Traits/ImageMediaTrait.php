@@ -48,7 +48,7 @@ trait ImageMediaTrait
     protected $aspect_ratio;
 
     /** @var integer */
-    protected $responsive_scale;
+    protected $retina_scale;
 
 
     /** @var array */
@@ -377,7 +377,7 @@ trait ImageMediaTrait
         // Set CLS configuration
         $this->auto_sizes = $config->get('system.images.cls.auto_sizes', false);
         $this->aspect_ratio = $config->get('system.images.cls.aspect_ratio', false);
-        $this->responsive_scale = $config->get('system.images.cls.responsive_scale', 1);
+        $this->retina_scale = $config->get('system.images.cls.retina_scale', 1);
 
         return $this;
     }
