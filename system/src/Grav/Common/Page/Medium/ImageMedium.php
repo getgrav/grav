@@ -305,6 +305,21 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
         return $this;
     }
 
+    public function aspectRatio($enabled = 'true')
+    {
+        $enabled = $enabled === 'true' ?: false;
+        $this->aspect_ratio = $enabled;
+
+        return $this;
+    }
+
+    public function retinaScale($scale = 1)
+    {
+        $this->retina_scale = intval($scale);
+
+        return $this;
+    }
+
     /**
      * Handle this commonly used variant
      *

@@ -326,18 +326,38 @@ class ParsedownTest extends \Codeception\TestCase\Test
         );
 
         $this->config->set('system.images.cls.retina_scale', 2);
-        $this->config->set('system.images.cls.aspect_ratio', true);
+
 
         self::assertRegExp(
             '/width="400" height="200"/',
             $this->parsedown->text('![](sample-image.jpg?reset&resize=800,400)')
         );
 
+        $this->config->set('system.images.cls.retina_scale', 4);
+
+        self::assertRegExp(
+            '/width="200" height="100"/',
+            $this->parsedown->text('![](sample-image.jpg?reset&resize=800,400)')
+        );
+
+        self::assertRegExp(
+            '/width="266" height="133"/',
+            $this->parsedown->text('![](sample-image.jpg?reset&resize=800,400&retinaScale=3)')
+        );
+
+        $this->config->set('system.images.cls.aspect_ratio', true);
+
         self::assertRegExp(
             '/style="--aspect-ratio: 800\/400;"/',
             $this->parsedown->text('![](sample-image.jpg?reset&resize=800,400)')
         );
 
+        $this->config->set('system.images.cls.aspect_ratio', false);
+
+        self::assertRegExp(
+            '/style="--aspect-ratio: 800\/400;"/',
+            $this->parsedown->text('![](sample-image.jpg?reset&resize=800,400&aspectRatio=true)')
+        );
 
     }
 
