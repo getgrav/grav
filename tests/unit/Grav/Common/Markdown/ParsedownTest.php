@@ -307,7 +307,7 @@ class ParsedownTest extends \Codeception\TestCase\Test
 
         self::assertSame(
             '<p><img alt="" src="/tests/fake/nested-site/user/pages/02.item2/02.item2-2/sample-image.jpg" width="1024" height="768" /></p>',
-            $this->parsedown->text('![](sample-image.jpg)')
+            $this->parsedown->text('![](sample-image.jpg?reset)')
         );
 
         self::assertSame(
@@ -322,7 +322,7 @@ class ParsedownTest extends \Codeception\TestCase\Test
 
         self::assertRegExp(
             '/width="400" height="200"/',
-            $this->parsedown->text('![](sample-image.jpg?resize=400,200)')
+            $this->parsedown->text('![](sample-image.jpg?reset&resize=400,200)')
         );
 
         $this->config->set('system.images.cls.retina_scale', 2);

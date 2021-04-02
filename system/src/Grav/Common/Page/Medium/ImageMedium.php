@@ -126,6 +126,12 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
 
         $this->debug_watermarked = false;
 
+        $config = $this->getGrav()['config'];
+        // Set CLS configuration
+        $this->auto_sizes = $config->get('system.images.cls.auto_sizes', false);
+        $this->aspect_ratio = $config->get('system.images.cls.aspect_ratio', false);
+        $this->retina_scale = $config->get('system.images.cls.retina_scale', 1);
+
         return $this;
     }
 
