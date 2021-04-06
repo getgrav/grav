@@ -1,5 +1,5 @@
 # v1.7.10
-## mm/dd/2021
+## 04/06/2021
 
 1. [](#new)
     * Added initial support for running Grav library from outside the webroot [#3297](https://github.com/getgrav/grav/issues/3297)
