@@ -37,10 +37,9 @@ use function is_scalar;
 /**
  * Class FlexCollection
  * @package Grav\Framework\Flex
- * @template TKey
  * @template T of FlexObjectInterface
- * @extends ObjectCollection<TKey,T>
- * @implements FlexCollectionInterface<TKey,T>
+ * @extends ObjectCollection<string,T>
+ * @implements FlexCollectionInterface<T>
  */
 class FlexCollection extends ObjectCollection implements FlexCollectionInterface
 {
@@ -460,7 +459,6 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
     /**
      * @param string $key
      * @return array
-     * @phpstan-param TKey $key
      */
     public function getMetaData(string $key): array
     {
@@ -491,7 +489,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
      * @param string|null $scope
      * @param UserInterface|null $user
      * @return static
-     * @phpstan-return static<TKey,T>
+     * @phpstan-return static<T>
      */
     public function isAuthorized(string $action, string $scope = null, UserInterface $user = null)
     {
@@ -559,7 +557,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
      * @param array $elements Elements.
      * @param string|null $keyField
      * @return static
-     * @phpstan-return static<TKey,T>
+     * @phpstan-return static<T>
      * @throws \InvalidArgumentException
      */
     protected function createFrom(array $elements, $keyField = null)

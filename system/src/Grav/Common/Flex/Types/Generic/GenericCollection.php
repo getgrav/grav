@@ -17,7 +17,7 @@ use Grav\Common\Flex\FlexCollection;
  * Class GenericCollection
  * @package Grav\Common\Flex\Generic
  *
- * @extends FlexCollection<string,GenericObject>
+ * @extends FlexCollection<GenericObject>
  */
 class GenericCollection extends FlexCollection
 {

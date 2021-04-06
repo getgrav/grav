@@ -21,9 +21,8 @@ use Grav\Framework\Flex\FlexDirectory;
  *
  * @used-by \Grav\Framework\Flex\FlexIndex
  * @since 1.6
- * @template TKey
  * @template T
- * @extends FlexCollectionInterface<TKey,T>
+ * @extends FlexCollectionInterface<T>
  */
 interface FlexIndexInterface extends FlexCollectionInterface
 {

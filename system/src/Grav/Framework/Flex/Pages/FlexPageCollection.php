@@ -20,9 +20,8 @@ use function is_int;
 /**
  * Class FlexPageCollection
  * @package Grav\Plugin\FlexObjects\Types\FlexPages
- * @template TKey
  * @template T of \Grav\Framework\Flex\Interfaces\FlexObjectInterface
- * @extends FlexCollection<TKey,T>
+ * @extends FlexCollection<T>
  */
 class FlexPageCollection extends FlexCollection
 {
@@ -53,7 +52,7 @@ class FlexPageCollection extends FlexCollection
     /**
      * @param bool $bool
      * @return static
-     * @phpstan-return static<TKey,T>
+     * @phpstan-return static<T>
      */
     public function withPublished(bool $bool = true)
     {
@@ -65,7 +64,7 @@ class FlexPageCollection extends FlexCollection
     /**
      * @param bool $bool
      * @return static
-     * @phpstan-return static<TKey,T>
+     * @phpstan-return static<T>
      */
     public function withVisible(bool $bool = true)
     {
@@ -77,7 +76,7 @@ class FlexPageCollection extends FlexCollection
     /**
      * @param bool $bool
      * @return static
-     * @phpstan-return static<TKey,T>
+     * @phpstan-return static<T>
      */
     public function withRoutable(bool $bool = true)
     {

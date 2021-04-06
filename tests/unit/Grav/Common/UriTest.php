@@ -697,14 +697,14 @@ class UriTest extends \Codeception\TestCase\Test
             'password' => null,
             'host' => null,
             'port' => null,
-            'path' => '%22%3E%3Cscript%3Ealert%3C/localhost',
+            'path' => '/localhost',
             'query' => '',
             'fragment' => null,
 
-            'route' => '/%22%3E%3Cscript%3Ealert%3C/localhost',
-            'paths' => ['%22%3E%3Cscript%3Ealert%3C', 'localhost'],
+            'route' => '/localhost',
+            'paths' => ['localhost'],
             'params' => '/script%3E:',
-            'url' => '%22%3E%3Cscript%3Ealert%3C//localhost',
+            'url' => '//localhost',
             'environment' => 'unknown',
             'basename' => 'localhost',
             'base' => '',
@@ -712,7 +712,7 @@ class UriTest extends \Codeception\TestCase\Test
             'rootUrl' => '',
             'extension' => null,
             //'addNonce' => '%22%3E%3Cscript%3Ealert%3C/localhost/script%3E:/nonce:{{nonce}}', // FIXME <-
-            'toOriginalString' => '%22%3E%3Cscript%3Ealert%3C/localhost/script%3E:' // FIXME <-
+            'toOriginalString' => '/localhost/script%3E:' // FIXME <-
         ],
         'http://"><script>alert</script>' => [
             'scheme' => 'http://',

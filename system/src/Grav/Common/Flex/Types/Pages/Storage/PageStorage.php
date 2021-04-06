@@ -373,7 +373,7 @@ class PageStorage extends FolderStorage
 
         try {
             if ($key === '' && empty($row['root'])) {
-                throw new RuntimeException('No storage key given');
+                throw new RuntimeException('Page has no path');
             }
 
             $grav = Grav::instance();
@@ -394,9 +394,17 @@ class PageStorage extends FolderStorage
                 if ($oldFolder !== $newFolder && file_exists($oldFolder)) {
                     $isCopy = $row['__META']['copy'] ?? false;
                     if ($isCopy) {
+                        if (strpos($newFolder, $oldFolder . '/') === 0) {
+                            throw new RuntimeException(sprintf('Page /%s cannot be copied to itself', $oldKey));
+                        }
+
                         $this->copyRow($oldKey, $newKey);
                         $debugger->addMessage("Page copied: {$oldFolder} => {$newFolder}", 'debug');
                     } else {
+                        if (strpos($newFolder, $oldFolder . '/') === 0) {
+                            throw new RuntimeException(sprintf('Page /%s cannot be moved to itself', $oldKey));
+                        }
+
                         $this->renameRow($oldKey, $newKey);
                         $debugger->addMessage("Page moved: {$oldFolder} => {$newFolder}", 'debug');
                     }
@@ -534,7 +542,7 @@ class PageStorage extends FolderStorage
             $markdown = [];
             $children = [];
 
-            if (is_string($path) && file_exists($path)) {
+            if (is_string($path) && is_dir($path)) {
                 $modified = filemtime($path);
                 $iterator = new FilesystemIterator($path, $this->flags);
 

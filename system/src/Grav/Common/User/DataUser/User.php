@@ -131,11 +131,18 @@ class User extends Data implements UserInterface
             }
 
             // if plain text password, hash it and remove plain text
-            $password = $this->get('password');
-            if ($password) {
+            $password = $this->get('password') ?? $this->get('password1');
+            if (null !== $password && '' !== $password) {
+                $password2 = $this->get('password2');
+                if (!\is_string($password) || ($password2 && $password !== $password2)) {
+                    throw new \RuntimeException('Passwords did not match.');
+                }
+
                 $this->set('hashed_password', Authentication::create($password));
-                $this->undef('password');
             }
+            $this->undef('password');
+            $this->undef('password1');
+            $this->undef('password2');
 
             $data = $this->items;
             if ($username === $data['username']) {

@@ -204,10 +204,7 @@ class PageObject extends FlexPageObject
             }
 
             // Make sure page isn't being moved under itself.
-            $key = $this->getKey();
-            if ($key === $parentKey || strpos($parentKey, $key . '/') === 0) {
-                throw new RuntimeException(sprintf('Page /%s cannot be moved to %s', $key, $parentRoute));
-            }
+            $key = $this->getStorageKey();
 
             /** @var PageObject|null $parent */
             $parent = $parentKey !== false ? $this->getFlexDirectory()->getObject($parentKey, 'storage_key') : null;
@@ -299,6 +296,22 @@ class PageObject extends FlexPageObject
         $this->_original = null;
 
         return $instance;
+    }
+
+    /**
+     * @return PageObject
+     */
+    public function delete()
+    {
+        $result = parent::delete();
+
+        // Backwards compatibility with older plugins.
+        $fireEvents = $this->isAdminSite() && $this->getFlexDirectory()->getConfig('object.compat.events', true);
+        if ($fireEvents) {
+            $this->getContainer()->fireEvent('onAdminAfterDelete', new Event(['object' => $this]));
+        }
+
+        return $result;
     }
 
     /**

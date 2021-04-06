@@ -164,6 +164,8 @@ class Setup extends Data
     public function __construct($container)
     {
         // Configure main streams.
+        $abs = str_starts_with(GRAV_SYSTEM_PATH, '/');
+        $this->streams['system']['prefixes'][''] = $abs ? ['system', GRAV_SYSTEM_PATH] : ['system'];
         $this->streams['user']['prefixes'][''] = [GRAV_USER_PATH];
         $this->streams['cache']['prefixes'][''] = [GRAV_CACHE_PATH];
         $this->streams['log']['prefixes'][''] = [GRAV_LOG_PATH];
@@ -197,16 +199,16 @@ class Setup extends Data
         if (null !== $setupFile) {
             // Make sure that the custom setup file exists. Terminates the script if not.
             if (!str_starts_with($setupFile, '/')) {
-                $setupFile = GRAV_ROOT . '/' . $setupFile;
+                $setupFile = GRAV_WEBROOT . '/' . $setupFile;
             }
             if (!is_file($setupFile)) {
                 echo 'GRAV_SETUP_PATH is defined but does not point to existing setup file.';
                 exit(1);
             }
         } else {
-            $setupFile = GRAV_ROOT . '/setup.php';
+            $setupFile = GRAV_WEBROOT . '/setup.php';
             if (!is_file($setupFile)) {
-                $setupFile = GRAV_ROOT . '/' . GRAV_USER_PATH . '/setup.php';
+                $setupFile = GRAV_WEBROOT . '/' . GRAV_USER_PATH . '/setup.php';
             }
             if (!is_file($setupFile)) {
                 $setupFile = null;
@@ -234,7 +236,7 @@ class Setup extends Data
                 $envPath .= '/';
             } else {
                 // Use default location. Start with Grav 1.7 default.
-                $envPath = GRAV_ROOT. '/' . GRAV_USER_PATH . '/env';
+                $envPath = GRAV_WEBROOT. '/' . GRAV_USER_PATH . '/env';
                 if (is_dir($envPath)) {
                     $envPath = 'user://env/';
                 } else {
@@ -257,7 +259,7 @@ class Setup extends Data
      */
     public function init()
     {
-        $locator = new UniformResourceLocator(GRAV_ROOT);
+        $locator = new UniformResourceLocator(GRAV_WEBROOT);
         $files = [];
 
         $guard = 5;

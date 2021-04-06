@@ -127,7 +127,6 @@ class Cache extends Getters
      */
     public function init(Grav $grav)
     {
-        /** @var Config $config */
         $this->config = $grav['config'];
         $this->now = time();
 

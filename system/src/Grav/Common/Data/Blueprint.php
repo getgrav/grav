@@ -524,8 +524,12 @@ class Blueprint extends BlueprintForm
      * @param string $op
      * @return bool
      */
-    protected function resolveActions(UserInterface $user, array $actions, string $op = 'and')
+    protected function resolveActions(?UserInterface $user, array $actions, string $op = 'and')
     {
+        if (null === $user) {
+            return false;
+        }
+
         $c = $i = count($actions);
         foreach ($actions as $key => $action) {
             if (!is_int($key) && is_array($actions)) {

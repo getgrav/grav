@@ -31,6 +31,11 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
     use ImageLoadingTrait;
 
     /**
+     * @var mixed|string
+     */
+    private $saved_image_path;
+
+    /**
      * Construct.
      *
      * @param array $items
@@ -121,6 +126,12 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
 
         $this->debug_watermarked = false;
 
+        $config = $this->getGrav()['config'];
+        // Set CLS configuration
+        $this->auto_sizes = $config->get('system.images.cls.auto_sizes', false);
+        $this->aspect_ratio = $config->get('system.images.cls.aspect_ratio', false);
+        $this->retina_scale = $config->get('system.images.cls.retina_scale', 1);
+
         return $this;
     }
 
@@ -170,7 +181,7 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
         /** @var UniformResourceLocator $locator */
         $locator = $grav['locator'];
         $image_path = (string)($locator->findResource('cache://images', true) ?: $locator->findResource('cache://images', true, true));
-        $saved_image_path = $this->saveImage();
+        $saved_image_path = $this->saved_image_path = $this->saveImage();
 
         $output = preg_replace('|^' . preg_quote(GRAV_ROOT, '|') . '|', '', $saved_image_path) ?: $saved_image_path;
 
@@ -232,6 +243,23 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
             $attributes['sizes'] = $this->sizes();
         }
 
+        if ($this->saved_image_path && $this->auto_sizes) {
+            if (!array_key_exists('height', $this->attributes) && !array_key_exists('width', $this->attributes)) {
+                $info = getimagesize($this->saved_image_path);
+                $width = intval($info[0]);
+                $height = intval($info[1]);
+
+                $scaling_factor = $this->retina_scale > 0 ? $this->retina_scale : 1;
+                $attributes['width'] = intval($width / $scaling_factor);
+                $attributes['height'] = intval($height / $scaling_factor);
+
+                if ($this->aspect_ratio) {
+                    $style = ($attributes['style'] ?? ' ') . "--aspect-ratio: $width/$height;";
+                    $attributes['style'] = trim($style);
+                }
+            }
+        }
+
         return ['name' => 'img', 'attributes' => $attributes];
     }
 
@@ -272,6 +300,29 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
         }
 
         return parent::lightbox($width, $height, $reset);
+    }
+
+    public function autoSizes($enabled = 'true')
+    {
+        $enabled = $enabled === 'true' ?: false;
+        $this->auto_sizes = $enabled;
+
+        return $this;
+    }
+
+    public function aspectRatio($enabled = 'true')
+    {
+        $enabled = $enabled === 'true' ?: false;
+        $this->aspect_ratio = $enabled;
+
+        return $this;
+    }
+
+    public function retinaScale($scale = 1)
+    {
+        $this->retina_scale = intval($scale);
+
+        return $this;
     }
 
     /**

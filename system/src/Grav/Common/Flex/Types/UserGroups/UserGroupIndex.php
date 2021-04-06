@@ -17,7 +17,7 @@ use Grav\Common\Flex\FlexIndex;
  * Class GroupIndex
  * @package Grav\Common\User\FlexUser
  *
- * @extends FlexIndex<string,UserGroupObject,UserGroupCollection>
+ * @extends FlexIndex<UserGroupObject,UserGroupCollection>
  */
 class UserGroupIndex extends FlexIndex
 {

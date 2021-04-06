@@ -205,8 +205,8 @@ class Uri
         // set active language
         $uri = $language->setActiveFromUri($uri);
 
-        // split the URL and params
-        $bits = parse_url($uri);
+        // split the URL and params (and make sure that the path isn't seen as domain)
+        $bits = parse_url('http://domain.com' . $uri);
 
         //process fragment
         if (isset($bits['fragment'])) {

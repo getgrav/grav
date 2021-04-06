@@ -17,7 +17,7 @@ use Grav\Common\Flex\FlexCollection;
  * Class UserGroupCollection
  * @package Grav\Common\Flex\Types\UserGroups
  *
- * @extends FlexCollection<string,UserGroupObject>
+ * @extends FlexCollection<UserGroupObject>
  */
 class UserGroupCollection extends FlexCollection
 {

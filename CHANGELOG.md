@@ -1,3 +1,20 @@
+# v1.7.10
+## 04/06/2021
+
+1. [](#new)
+    * Added initial support for running Grav library from outside the webroot [#3297](https://github.com/getgrav/grav/issues/3297)
+1. [](#improved)
+    * Improved password handling when saving a user
+1. [](#bugfix)
+    * Ignore errors when using `set_time_limit` in `Archiver` and `GPM\Response` classes [#3023](https://github.com/getgrav/grav/issues/3023)
+    * Fixed `Folder::move()` deleting the folder if you move folder into itself, created empty file instead
+    * Fixed moving `Flex Page` to itself causing the page to be lost [#3227](https://github.com/getgrav/grav/issues/3227)
+    * Fixed `PageStorage` from detecting files as pages
+    * Fixed `UserIndex` not implementing `UserCollectionInterface`
+    * Fixed missing `onAdminAfterDelete` event call in `Flex Pages`
+    * Fixed system templates not getting scanned [#3296](https://github.com/getgrav/grav/issues/3296)
+    * Fixed incorrect routing if url path looks like a domain name [#2184](https://github.com/getgrav/grav/issues/2184)
+
 # v1.7.9
 ## 03/19/2021
 

@@ -125,7 +125,7 @@ abstract class BaseAsset extends PropertyObject
                 if ($locator->isStream($asset)) {
                     $path = $locator->findResource($asset, true);
                 } else {
-                    $path = GRAV_ROOT . $asset;
+                    $path = GRAV_WEBROOT . $asset;
                 }
 
                 // If local file is missing return
@@ -172,15 +172,14 @@ abstract class BaseAsset extends PropertyObject
 
         return $this;
     }
-    
+
     /**
      * Receive asset location and return the SRI integrity hash
-     * 
-     * @param $input
      *
+     * @param string $input
      * @return string
      */
-    public static function integrityHash( $input )
+    public static function integrityHash($input)
     {
         $grav = Grav::instance();
 
@@ -188,7 +187,7 @@ abstract class BaseAsset extends PropertyObject
 
         if ( !empty($assetsConfig['enable_asset_sri']) && $assetsConfig['enable_asset_sri'] )
         {
-            $dataToHash = file_get_contents( GRAV_ROOT . $input);
+            $dataToHash = file_get_contents( GRAV_WEBROOT . $input);
 
             $hash = hash('sha256', $dataToHash, true);
             $hash_base64 = base64_encode($hash);
@@ -209,7 +208,7 @@ abstract class BaseAsset extends PropertyObject
      */
 //    protected function getLastModificationTime($asset)
 //    {
-//        $file = GRAV_ROOT . $asset;
+//        $file = GRAV_WEBROOT . $asset;
 //        if (Grav::instance()['locator']->isStream($asset)) {
 //            $file = $this->buildLocalLink($asset, true);
 //        }
@@ -228,7 +227,7 @@ abstract class BaseAsset extends PropertyObject
     protected function buildLocalLink($asset)
     {
         if ($asset) {
-            return $this->base_url . ltrim(Utils::replaceFirstOccurrence(GRAV_ROOT, '', $asset), '/');
+            return $this->base_url . ltrim(Utils::replaceFirstOccurrence(GRAV_WEBROOT, '', $asset), '/');
         }
         return false;
     }

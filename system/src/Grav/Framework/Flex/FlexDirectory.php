@@ -46,7 +46,6 @@ use function is_callable;
  * Class FlexDirectory
  * @package Grav\Framework\Flex
  * @template T
- * @template TKey
  */
 class FlexDirectory implements FlexDirectoryInterface, FlexAuthorizeInterface
 {
@@ -309,7 +308,7 @@ class FlexDirectory implements FlexDirectoryInterface, FlexAuthorizeInterface
      * @param array|null $keys  Array of keys.
      * @param string|null $keyField  Field to be used as the key.
      * @return FlexCollectionInterface
-     * @phpstan-return FlexCollectionInterface<TKey,T>
+     * @phpstan-return FlexCollectionInterface<T>
      */
     public function getCollection(array $keys = null, string $keyField = null): FlexCollectionInterface
     {

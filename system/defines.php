@@ -8,7 +8,7 @@
 
 // Some standard defines
 define('GRAV', true);
-define('GRAV_VERSION', '1.7.9');
+define('GRAV_VERSION', '1.7.10');
 define('GRAV_SCHEMA', '1.7.0_2020-11-20_1');
 define('GRAV_TESTING', false);
 
@@ -27,9 +27,16 @@ if (!defined('GRAV_ROOT')) {
     $path = rtrim(str_replace(DIRECTORY_SEPARATOR, DS, getenv('GRAV_ROOT') ?: getcwd()), DS);
     define('GRAV_ROOT', $path);
 }
+if (!defined('GRAV_WEBROOT')) {
+    define('GRAV_WEBROOT', GRAV_ROOT);
+}
 if (!defined('GRAV_USER_PATH')) {
     $path = rtrim(getenv('GRAV_USER_PATH') ?: 'user', DS);
     define('GRAV_USER_PATH', $path);
+}
+if (!defined('GRAV_SYSTEM_PATH')) {
+    $path = rtrim(getenv('GRAV_SYSTEM_PATH') ?: 'system', DS);
+    define('GRAV_SYSTEM_PATH', $path);
 }
 if (!defined('GRAV_CACHE_PATH')) {
     $path = rtrim(getenv('GRAV_CACHE_PATH') ?: 'cache', DS);
@@ -52,21 +59,21 @@ unset($path);
 define('USER_PATH', GRAV_USER_PATH . DS);
 define('CACHE_PATH', GRAV_CACHE_PATH . DS);
 define('ROOT_DIR', GRAV_ROOT . DS);
-define('USER_DIR', ROOT_DIR . USER_PATH);
-define('CACHE_DIR', ROOT_DIR . CACHE_PATH);
+define('USER_DIR', (!str_starts_with(USER_PATH, '/') ? GRAV_WEBROOT . '/' : '') . USER_PATH);
+define('CACHE_DIR', (!str_starts_with(CACHE_PATH, '/') ? ROOT_DIR : '') . CACHE_PATH);
 
 // DEPRECATED: Do not use!
-define('ASSETS_DIR', ROOT_DIR . 'assets/');
-define('IMAGES_DIR', ROOT_DIR . 'images/');
+define('ASSETS_DIR', GRAV_WEBROOT . '/assets/');
+define('IMAGES_DIR', GRAV_WEBROOT . '/images/');
 define('ACCOUNTS_DIR', USER_DIR .'accounts/');
 define('PAGES_DIR', USER_DIR .'pages/');
 define('DATA_DIR', USER_DIR .'data/');
-define('SYSTEM_DIR', ROOT_DIR .'system/');
-define('LIB_DIR', SYSTEM_DIR .'src/');
 define('PLUGINS_DIR', USER_DIR .'plugins/');
 define('THEMES_DIR', USER_DIR .'themes/');
+define('SYSTEM_DIR', (!str_starts_with(GRAV_SYSTEM_PATH, '/') ? ROOT_DIR : '') . GRAV_SYSTEM_PATH);
+define('LIB_DIR', SYSTEM_DIR .'src/');
 define('VENDOR_DIR', ROOT_DIR .'vendor/');
-define('LOG_DIR', ROOT_DIR . GRAV_LOG_PATH . DS);
+define('LOG_DIR', (!str_starts_with(GRAV_LOG_PATH, '/') ? ROOT_DIR : '') . GRAV_LOG_PATH . DS);
 // END DEPRECATED
 
 // Some extensions

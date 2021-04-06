@@ -61,7 +61,7 @@ class Types implements \ArrayAccess, \Iterator, \Countable
      */
     public function init()
     {
-        if (null === $this->systemBlueprints) {
+        if (empty($this->systemBlueprints)) {
             // Register all blueprints from the blueprints stream.
             $this->systemBlueprints = $this->findBlueprints('blueprints://pages');
             foreach ($this->systemBlueprints as $type => $blueprint) {
