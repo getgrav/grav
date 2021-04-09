@@ -1,3 +1,9 @@
+# v1.7.11
+## mm/dd/2021
+
+1. [](#improved)
+    * Better GPM detection of unauthorized installations
+
 # v1.7.10
 ## 04/06/2021
 
