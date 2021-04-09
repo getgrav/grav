@@ -77,7 +77,7 @@ class InstallCommand extends GravCommand
 
         // fix trailing slash
         $this->destination = rtrim($this->destination, DS) . DS;
-        $this->user_path = $this->destination . USER_PATH;
+        $this->user_path = (str_starts_with(USER_PATH, DS) ? '' : $this->destination) . USER_PATH;
         if ($local_config_file = $this->loadLocalConfig()) {
             $io->writeln('Read local config from <cyan>' . $local_config_file . '</cyan>');
         }

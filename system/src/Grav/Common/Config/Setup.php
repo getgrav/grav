@@ -208,7 +208,7 @@ class Setup extends Data
         } else {
             $setupFile = GRAV_WEBROOT . '/setup.php';
             if (!is_file($setupFile)) {
-                $setupFile = GRAV_WEBROOT . '/' . GRAV_USER_PATH . '/setup.php';
+                $setupFile = USER_DIR . 'setup.php';
             }
             if (!is_file($setupFile)) {
                 $setupFile = null;
@@ -236,7 +236,7 @@ class Setup extends Data
                 $envPath .= '/';
             } else {
                 // Use default location. Start with Grav 1.7 default.
-                $envPath = GRAV_WEBROOT. '/' . GRAV_USER_PATH . '/env';
+                $envPath = USER_DIR . 'env';
                 if (is_dir($envPath)) {
                     $envPath = 'user://env/';
                 } else {
