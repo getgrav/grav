@@ -1844,11 +1844,14 @@ abstract class Utils
      * Wrapper to ensure html, htm in the front of the supported page types
      *
      * @param array|null $defaults
-     * @return array|mixed
+     * @return array
      */
     public static function getSupportPageTypes(array $defaults = null)
     {
         $types = Grav::instance()['config']->get('system.pages.types', $defaults);
+        if (!is_array($types)) {
+            return [];
+        }
 
         // remove html/htm
         $types = static::arrayRemoveValue($types, ['html', 'htm']);
