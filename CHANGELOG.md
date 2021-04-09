@@ -6,6 +6,7 @@
 1. [](#bugfix)
     * Fixed nxinx appending repeating `?_url=` in some redirects
     * Fixed deleting page with language code not removing the folder if it was the last language [#3305](https://github.com/getgrav/grav/issues/3305)
+    * Fixed fatal error when using markdown links with `image://` stream [#3285](https://github.com/getgrav/grav/issues/3285)
 
 # v1.7.10
 ## 04/06/2021

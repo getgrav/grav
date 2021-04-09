@@ -95,8 +95,8 @@ class Excerpts
      */
     public function processLinkExcerpt(array $excerpt, string $type = 'link'): array
     {
+        $grav = Grav::instance();
         $url = htmlspecialchars_decode(rawurldecode($excerpt['element']['attributes']['href']));
-
         $url_parts = $this->parseUrl($url);
 
         // If there is a query, then parse it and build action calls.
@@ -114,7 +114,7 @@ class Excerpts
             );
 
             // Valid attributes supported.
-            $valid_attributes = Grav::instance()['config']->get('system.pages.markdown.valid_link_attributes');
+            $valid_attributes = $grav['config']->get('system.pages.markdown.valid_link_attributes');
 
             $skip = [];
             // Unless told to not process, go through actions.
@@ -155,9 +155,11 @@ class Excerpts
         // If scheme isn't http(s)..
         if (!empty($url_parts['scheme']) && !in_array($url_parts['scheme'], ['http', 'https'])) {
             // Handle custom streams.
-            if ($type !== 'image' && !empty($url_parts['stream']) && !empty($url_parts['path'])) {
-                $grav = Grav::instance();
-                $url_parts['path'] = $grav['base_url_relative'] . '/' . $this->resolveStream("{$url_parts['scheme']}://{$url_parts['path']}");
+            /** @var UniformResourceLocator $locator */
+            $locator = $grav['locator'];
+            if ($locator->isStream($url)) {
+                $path = $locator->findResource($url, false) ?: $locator->findResource($url, false, true);
+                $url_parts['path'] = $grav['base_url_relative'] . '/' . $path;
                 unset($url_parts['stream'], $url_parts['scheme']);
             }
 
@@ -337,21 +339,5 @@ class Excerpts
         }
 
         return $url_parts;
-    }
-
-    /**
-     * @param string $url
-     * @return string
-     */
-    protected function resolveStream(string $url)
-    {
-        /** @var UniformResourceLocator $locator */
-        $locator = Grav::instance()['locator'];
-
-        if ($locator->isStream($url)) {
-            return $locator->findResource($url, false) ?: $locator->findResource($url, false, true);
-        }
-
-        return $url;
     }
 }
