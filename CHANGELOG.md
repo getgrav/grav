@@ -1,7 +1,8 @@
 # v1.7.11
 ## mm/dd/2021
 
-1. [](#bugfix)
+1. [](#improved)
+    * Better GPM detection of unauthorized installations
     * Fixed nxinx appending repeating `?url=` in some redirects
 
 # v1.7.10
