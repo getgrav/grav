@@ -3,6 +3,7 @@
 
 1. [](#improved)
     * Better GPM detection of unauthorized installations
+1. [](#bugfix)
     * Fixed nxinx appending repeating `?_url=` in some redirects
     * Fixed deleting page with language code not removing the folder if it was the last language [#3305](https://github.com/getgrav/grav/issues/3305)
 
