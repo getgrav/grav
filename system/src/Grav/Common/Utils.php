@@ -1370,9 +1370,7 @@ abstract class Utils
         }
 
         //Nonce generated 12-24 hours ago
-        $previousTick = true;
-
-        return $nonce === self::getNonce($action, $previousTick);
+        return $nonce === self::getNonce($action, true);
     }
 
     /**
@@ -1382,11 +1380,7 @@ abstract class Utils
      */
     public static function isAdminPlugin()
     {
-        if (isset(Grav::instance()['admin'])) {
-            return true;
-        }
-
-        return false;
+        return isset(Grav::instance()['admin']);
     }
 
     /**
