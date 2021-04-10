@@ -28,7 +28,8 @@ if (!defined('GRAV_ROOT')) {
     define('GRAV_ROOT', $path);
 }
 if (!defined('GRAV_WEBROOT')) {
-    define('GRAV_WEBROOT', GRAV_ROOT);
+    $path = rtrim(getenv('GRAV_WEBROOT') ?: GRAV_ROOT, DS);
+    define('GRAV_WEBROOT', $path);
 }
 if (!defined('GRAV_USER_PATH')) {
     $path = rtrim(getenv('GRAV_USER_PATH') ?: 'user', DS);
@@ -59,7 +60,7 @@ unset($path);
 define('USER_PATH', GRAV_USER_PATH . DS);
 define('CACHE_PATH', GRAV_CACHE_PATH . DS);
 define('ROOT_DIR', GRAV_ROOT . DS);
-define('USER_DIR', (!str_starts_with(USER_PATH, '/') ? GRAV_WEBROOT . '/' : '') . USER_PATH);
+define('USER_DIR', GRAV_WEBROOT . '/' . USER_PATH);
 define('CACHE_DIR', (!str_starts_with(CACHE_PATH, '/') ? ROOT_DIR : '') . CACHE_PATH);
 
 // DEPRECATED: Do not use!
