@@ -16,6 +16,8 @@ use Grav\Common\Language\Language;
 use Grav\Common\Language\LanguageCodes;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Page\Pages;
+use Grav\Common\Twig\Extension\FilesystemExtension;
+use Grav\Common\Twig\Extension\GravExtension;
 use Grav\Common\Utils;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use RocketTheme\Toolbox\Event\Event;
@@ -217,7 +219,8 @@ class Twig
             if ($config->get('system.twig.debug')) {
                 $this->twig->addExtension(new DebugExtension());
             }
-            $this->twig->addExtension(new TwigExtension());
+            $this->twig->addExtension(new GravExtension());
+            $this->twig->addExtension(new FilesystemExtension());
             $this->twig->addExtension(new DeferredExtension());
             $this->twig->addExtension(new StringLoaderExtension());
 

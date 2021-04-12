@@ -7,7 +7,7 @@
  * @license    MIT License; see LICENSE file for details.
  */
 
-namespace Grav\Common\Twig;
+namespace Grav\Common\Twig\Extension;
 
 use Cron\CronExpression;
 use Grav\Common\Config\Config;
@@ -60,14 +60,13 @@ use function is_numeric;
 use function is_object;
 use function is_scalar;
 use function is_string;
-use function ord;
 use function strlen;
 
 /**
  * Class TwigExtension
  * @package Grav\Common\Twig
  */
-class TwigExtension extends AbstractExtension implements GlobalsInterface
+class GravExtension extends AbstractExtension implements GlobalsInterface
 {
     /** @var Grav */
     protected $grav;
@@ -213,7 +212,6 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             new TwigFunction('cron', [$this, 'cronFunc']),
             new TwigFunction('svg_image', [$this, 'svgImageFunction']),
             new TwigFunction('xss', [$this, 'xssFunc']),
-
 
             // Translations
             new TwigFunction('t', [$this, 'translate'], ['needs_environment' => true]),

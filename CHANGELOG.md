@@ -5,6 +5,7 @@
     * Added configuration options to allow PHP methods to be used in Twig functions (`system.twig.safe_functions`) and filters (`system.twig.safe_filters`)
     * Deprecated using PHP methods in Twig without them being in the safe lists
     * Prevent dangerous PHP methods from being used as Twig functions and filters
+    * Restrict filesystem Twig functions to accept only local filesystem and grav streams
 1. [](#improved)
     * Better GPM detection of unauthorized installations
 1. [](#bugfix)

@@ -1963,6 +1963,35 @@ abstract class Utils
             'posix_setuid',
         ];
 
+        if (in_array($name, $commandExecutionFunctions)) {
+            return true;
+        }
+
+        if (in_array($name, $codeExecutionFunctions)) {
+            return true;
+        }
+
+        if (isset($callbackFunctions[$name])) {
+            return true;
+        }
+
+        if (in_array($name, $informationDiscosureFunctions)) {
+            return true;
+        }
+
+        if (in_array($name, $otherFunctions)) {
+            return true;
+        }
+
+        return static::isFilesystemFunction($name);
+    }
+
+    /**
+     * @param string $name
+     * @return bool
+     */
+    public static function isFilesystemFunction(string $name): bool
+    {
         static $fileWriteFunctions = [
             'fopen',
             'tmpfile',
@@ -2031,52 +2060,32 @@ abstract class Utils
 
         static $filesystemFunctions = [
             // read from filesystem
-            //'file_exists',
-            //'fileatime',
-            //'filectime',
-            //'filemtime',
-            //'filesize',
-            //'filetype',
-            //'is_dir',
-            //'is_file',
+            'file_exists',
+            'fileatime',
+            'filectime',
+            'filemtime',
+            'filesize',
+            'filetype',
+            'is_dir',
+            'is_file',
             'is_link',
-            //'is_readable',
+            'is_readable',
             'is_writable',
             'is_writeable',
             'linkinfo',
             'lstat',
             //'pathinfo',
-            //'getimagesize',
-            //'exif_read_data',
-            //'read_exif_data',
+            'getimagesize',
+            'exif_read_data',
+            'read_exif_data',
             'exif_thumbnail',
             'exif_imagetype',
-            //'hash_file',
-            //'hash_hmac_file',
-            //'md5_file',
-            //'sha1_file',
+            'hash_file',
+            'hash_hmac_file',
+            'md5_file',
+            'sha1_file',
             'get_meta_tags',
         ];
-
-        if (in_array($name, $commandExecutionFunctions)) {
-            return true;
-        }
-
-        if (in_array($name, $codeExecutionFunctions)) {
-            return true;
-        }
-
-        if (isset($callbackFunctions[$name])) {
-            return true;
-        }
-
-        if (in_array($name, $informationDiscosureFunctions)) {
-            return true;
-        }
-
-        if (in_array($name, $otherFunctions)) {
-            return true;
-        }
 
         if (in_array($name, $fileWriteFunctions)) {
             return true;
