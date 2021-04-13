@@ -57,7 +57,7 @@ if (!defined('GRAV_BACKUP_PATH')) {
 }
 unset($path);
 
-define('USER_DIR', GRAV_WEBROOT . '/' . USER_PATH . '/');
+define('USER_DIR', GRAV_WEBROOT . '/' . GRAV_USER_PATH . '/');
 define('CACHE_DIR', (!str_starts_with(GRAV_CACHE_PATH, '/') ? GRAV_ROOT . '/' : '') . GRAV_CACHE_PATH . '/');
 
 // DEPRECATED: Do not use!
