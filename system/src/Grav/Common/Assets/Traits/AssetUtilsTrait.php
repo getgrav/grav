@@ -90,7 +90,7 @@ trait AssetUtilsTrait
                 }
 
                 $relative_dir = dirname($relative_path);
-                $link = ROOT_DIR . $relative_path;
+                $link = GRAV_ROOT . '/' . $relative_path;
             }
 
             // TODO: looks like this is not being used.

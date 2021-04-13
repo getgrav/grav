@@ -211,7 +211,7 @@ class Twig
                     'assets'            => $this->grav['assets'],
                     'taxonomy'          => $this->grav['taxonomy'],
                     'browser'           => $this->grav['browser'],
-                    'base_dir'          => rtrim(ROOT_DIR, '/'),
+                    'base_dir'          => GRAV_ROOT,
                     'home_url'          => $pages->homeUrl($active_language),
                     'base_url'          => $pages->baseUrl($active_language),
                     'base_url_absolute' => $pages->baseUrl($active_language, true),

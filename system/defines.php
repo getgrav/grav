@@ -57,24 +57,24 @@ if (!defined('GRAV_BACKUP_PATH')) {
 }
 unset($path);
 
-define('USER_PATH', GRAV_USER_PATH . DS);
-define('CACHE_PATH', GRAV_CACHE_PATH . DS);
-define('ROOT_DIR', GRAV_ROOT . DS);
-define('USER_DIR', GRAV_WEBROOT . '/' . USER_PATH);
-define('CACHE_DIR', (!str_starts_with(CACHE_PATH, '/') ? ROOT_DIR : '') . CACHE_PATH);
+define('USER_DIR', GRAV_WEBROOT . '/' . USER_PATH . '/');
+define('CACHE_DIR', (!str_starts_with(GRAV_CACHE_PATH, '/') ? GRAV_ROOT . '/' : '') . GRAV_CACHE_PATH . '/');
 
 // DEPRECATED: Do not use!
+define('CACHE_PATH', GRAV_CACHE_PATH . DS);
+define('USER_PATH', GRAV_USER_PATH . DS);
+define('ROOT_DIR', GRAV_ROOT . DS);
 define('ASSETS_DIR', GRAV_WEBROOT . '/assets/');
 define('IMAGES_DIR', GRAV_WEBROOT . '/images/');
-define('ACCOUNTS_DIR', USER_DIR .'accounts/');
-define('PAGES_DIR', USER_DIR .'pages/');
-define('DATA_DIR', USER_DIR .'data/');
-define('PLUGINS_DIR', USER_DIR .'plugins/');
-define('THEMES_DIR', USER_DIR .'themes/');
-define('SYSTEM_DIR', (!str_starts_with(GRAV_SYSTEM_PATH, '/') ? ROOT_DIR : '') . GRAV_SYSTEM_PATH);
-define('LIB_DIR', SYSTEM_DIR .'src/');
-define('VENDOR_DIR', ROOT_DIR .'vendor/');
-define('LOG_DIR', (!str_starts_with(GRAV_LOG_PATH, '/') ? ROOT_DIR : '') . GRAV_LOG_PATH . DS);
+define('ACCOUNTS_DIR', USER_DIR . 'accounts/');
+define('PAGES_DIR', USER_DIR . 'pages/');
+define('DATA_DIR', USER_DIR . 'data/');
+define('PLUGINS_DIR', USER_DIR . 'plugins/');
+define('THEMES_DIR', USER_DIR . 'themes/');
+define('SYSTEM_DIR', (!str_starts_with(GRAV_SYSTEM_PATH, '/') ? GRAV_ROOT . '/' : '') . GRAV_SYSTEM_PATH . '/');
+define('LIB_DIR', SYSTEM_DIR . 'src/');
+define('VENDOR_DIR', GRAV_ROOT . '/vendor/');
+define('LOG_DIR', (!str_starts_with(GRAV_LOG_PATH, '/') ? GRAV_ROOT . '/' : '') . GRAV_LOG_PATH . '/');
 // END DEPRECATED
 
 // Some extensions

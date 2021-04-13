@@ -73,11 +73,11 @@ class InstallCommand extends GravCommand
         $io = $this->getIO();
 
         $dependencies_file = '.dependencies';
-        $this->destination = $input->getArgument('destination') ?: GRAV_ROOT;
+        $this->destination = $input->getArgument('destination') ?: GRAV_WEBROOT;
 
         // fix trailing slash
         $this->destination = rtrim($this->destination, DS) . DS;
-        $this->user_path = $this->destination . USER_PATH;
+        $this->user_path = $this->destination . GRAV_USER_PATH . DS;
         if ($local_config_file = $this->loadLocalConfig()) {
             $io->writeln('Read local config from <cyan>' . $local_config_file . '</cyan>');
         }
