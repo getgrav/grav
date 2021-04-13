@@ -252,7 +252,7 @@ trait TestingAssetsTrait
      */
     public function addDir($directory, $pattern = self::DEFAULT_REGEX)
     {
-        $root_dir = rtrim(ROOT_DIR, '/');
+        $root_dir = GRAV_ROOT;
 
         // Check if $directory is a stream.
         if (strpos($directory, '://')) {

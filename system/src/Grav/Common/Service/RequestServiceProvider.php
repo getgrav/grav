@@ -14,6 +14,12 @@ use Nyholm\Psr7\Factory\Psr17Factory;
 use Nyholm\Psr7Server\ServerRequestCreator;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
+use function explode;
+use function fopen;
+use function function_exists;
+use function in_array;
+use function strtolower;
+use function trim;
 
 /**
  * Class RequestServiceProvider
@@ -36,7 +42,44 @@ class RequestServiceProvider implements ServiceProviderInterface
                 $psr17Factory  // StreamFactory
             );
 
-            return $creator->fromGlobals();
+            $server = $_SERVER;
+            if (false === isset($server['REQUEST_METHOD'])) {
+                $server['REQUEST_METHOD'] = 'GET';
+            }
+            $method = $server['REQUEST_METHOD'];
+
+            $headers = function_exists('getallheaders') ? getallheaders() : $creator::getHeadersFromServer($_SERVER);
+
+            $post = null;
+            if ('POST' === $method) {
+                foreach ($headers as $headerName => $headerValue) {
+                    if ('content-type' !== strtolower($headerName)) {
+                        continue;
+                    }
+                    if (in_array(
+                        strtolower(trim(explode(';', $headerValue, 2)[0])),
+                        ['application/x-www-form-urlencoded', 'multipart/form-data']
+                    )) {
+                        $post = $_POST;
+
+                        break;
+                    }
+                }
+            }
+
+            // Remove _url from ngnix routes.
+            $get = $_GET;
+            unset($get['_url']);
+            if (isset($server['QUERY_STRING'])) {
+                $query = $server['QUERY_STRING'];
+                if (strpos($query, '_url=') !== false) {
+                    parse_str($query, $query);
+                    unset($query['_url']);
+                    $server['QUERY_STRING'] = http_build_query($query);
+                }
+            }
+
+            return $creator->fromArrays($server, $headers, $_COOKIE, $get, $post, $_FILES, fopen('php://input', 'rb') ?: null);
         };
 
         $container['route'] = $container->factory(function () {

@@ -311,7 +311,7 @@ class Plugins extends Iterator
             }
         } else {
             $grav['log']->addWarning(
-                sprintf("Plugin '%s' enabled but not found! Try clearing cache with `bin/grav clear-cache`", $name)
+                sprintf("Plugin '%s' enabled but not found! Try clearing cache with `bin/grav clearcache`", $name)
             );
             return null;
         }

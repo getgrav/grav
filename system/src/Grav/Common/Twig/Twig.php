@@ -16,6 +16,9 @@ use Grav\Common\Language\Language;
 use Grav\Common\Language\LanguageCodes;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Page\Pages;
+use Grav\Common\Twig\Extension\FilesystemExtension;
+use Grav\Common\Twig\Extension\GravExtension;
+use Grav\Common\Utils;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use RocketTheme\Toolbox\Event\Event;
 use Phive\Twig\Extensions\Deferred\DeferredExtension;
@@ -34,6 +37,8 @@ use Twig\Profiler\Profile;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
 use function function_exists;
+use function in_array;
+use function is_array;
 
 /**
  * Class Twig
@@ -154,27 +159,53 @@ class Twig
 
             $this->twig = new TwigEnvironment($loader_chain, $params);
 
-            if ($config->get('system.twig.undefined_functions')) {
-                $this->twig->registerUndefinedFunctionCallback(function ($name) {
+            $this->twig->registerUndefinedFunctionCallback(function ($name) use ($config) {
+                $allowed = $config->get('system.twig.safe_functions');
+                if (is_array($allowed) && in_array($name, $allowed, true) && function_exists($name)) {
+                    return new TwigFunction($name, $name);
+                }
+                if ($config->get('system.twig.undefined_functions')) {
                     if (function_exists($name)) {
-                        return new TwigFunction($name, $name);
+                        if (!Utils::isDangerousFunction($name)) {
+                            user_error("PHP function {$name}() was used as Twig function. This is deprecated in Grav 1.7. Please add it to system configuration: `system.twig.safe_functions`", E_USER_DEPRECATED);
+
+                            return new TwigFunction($name, $name);
+                        }
+
+                        /** @var Debugger $debugger */
+                        $debugger = $this->grav['debugger'];
+                        $debugger->addException(new RuntimeException("Blocked potentially dangerous PHP function {$name}() being used as Twig function. If you really want to use it, please add it to system configuration: `system.twig.safe_functions`"));
                     }
 
-                    return new TwigFunction($name, static function () {
-                    });
-                });
-            }
+                    return new TwigFunction($name, static function () {});
+                }
 
-            if ($config->get('system.twig.undefined_filters')) {
-                $this->twig->registerUndefinedFilterCallback(function ($name) {
+                return false;
+            });
+
+            $this->twig->registerUndefinedFilterCallback(function ($name) use ($config) {
+                $allowed = $config->get('system.twig.safe_filters');
+                if (is_array($allowed) && in_array($name, $allowed, true) && function_exists($name)) {
+                    return new TwigFilter($name, $name);
+                }
+                if ($config->get('system.twig.undefined_filters')) {
                     if (function_exists($name)) {
-                        return new TwigFilter($name, $name);
+                        if (!Utils::isDangerousFunction($name)) {
+                            user_error("PHP function {$name}() used as Twig filter. This is deprecated in Grav 1.7. Please add it to system configuration: `system.twig.safe_filters`", E_USER_DEPRECATED);
+
+                            return new TwigFilter($name, $name);
+                        }
+
+                        /** @var Debugger $debugger */
+                        $debugger = $this->grav['debugger'];
+                        $debugger->addException(new RuntimeException("Blocked potentially dangerous PHP function {$name}() being used as Twig filter. If you really want to use it, please add it to system configuration: `system.twig.safe_filters`"));
                     }
 
-                    return new TwigFilter($name, static function () {
-                    });
-                });
-            }
+                    return new TwigFilter($name, static function () {});
+                }
+
+                return false;
+            });
 
             $this->grav->fireEvent('onTwigInitialized');
 
@@ -188,7 +219,8 @@ class Twig
             if ($config->get('system.twig.debug')) {
                 $this->twig->addExtension(new DebugExtension());
             }
-            $this->twig->addExtension(new TwigExtension());
+            $this->twig->addExtension(new GravExtension());
+            $this->twig->addExtension(new FilesystemExtension());
             $this->twig->addExtension(new DeferredExtension());
             $this->twig->addExtension(new StringLoaderExtension());
 
@@ -211,7 +243,7 @@ class Twig
                     'assets'            => $this->grav['assets'],
                     'taxonomy'          => $this->grav['taxonomy'],
                     'browser'           => $this->grav['browser'],
-                    'base_dir'          => rtrim(ROOT_DIR, '/'),
+                    'base_dir'          => GRAV_ROOT,
                     'home_url'          => $pages->homeUrl($active_language),
                     'base_url'          => $pages->baseUrl($active_language),
                     'base_url_absolute' => $pages->baseUrl($active_language, true),

@@ -18,6 +18,7 @@ config:
         configure:
           path: '/accounts/configure'
       redirects:
+        '/groups': '/accounts/groups'
         '/accounts': '/accounts/groups'
 
     # Permissions

@@ -2095,7 +2095,7 @@ class Page implements PageInterface
      */
     public function filePathClean()
     {
-        return str_replace(ROOT_DIR, '', $this->filePath());
+        return str_replace(GRAV_ROOT . DS, '', $this->filePath());
     }
 
     /**

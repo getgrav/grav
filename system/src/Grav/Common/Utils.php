@@ -44,7 +44,7 @@ use function strlen;
  */
 abstract class Utils
 {
-    /** @var array  */
+    /** @var array */
     protected static $nonces = [];
 
     protected const ROOTURL_REGEX = '{^((?:http[s]?:\/\/[^\/]+)|(?:\/\/[^\/]+))(.*)}';
@@ -178,8 +178,8 @@ abstract class Utils
     /**
      * Check if the $haystack string starts with the substring $needle
      *
-     * @param  string $haystack
-     * @param  string|string[] $needle
+     * @param string $haystack
+     * @param string|string[] $needle
      * @param bool $case_sensitive
      * @return bool
      */
@@ -202,8 +202,8 @@ abstract class Utils
     /**
      * Check if the $haystack string ends with the substring $needle
      *
-     * @param  string $haystack
-     * @param  string|string[] $needle
+     * @param string $haystack
+     * @param string|string[] $needle
      * @param bool $case_sensitive
      * @return bool
      */
@@ -227,9 +227,9 @@ abstract class Utils
     /**
      * Check if the $haystack string contains the substring $needle
      *
-     * @param  string $haystack
-     * @param  string|string[] $needle
-     * @param  bool $case_sensitive
+     * @param string $haystack
+     * @param string|string[] $needle
+     * @param bool $case_sensitive
      * @return bool
      */
     public static function contains($haystack, $needle, $case_sensitive = true)
@@ -266,19 +266,19 @@ abstract class Utils
     {
         $regex = str_replace(
             array("\*", "\?"), // wildcard chars
-            array('.*','.'),   // regexp chars
+            array('.*', '.'),   // regexp chars
             preg_quote($wildcard_pattern, '/')
         );
 
-        return preg_match('/^'.$regex.'$/is', $haystack);
+        return preg_match('/^' . $regex . '$/is', $haystack);
     }
 
     /**
      * Render simple template filling up the variables in it. If value is not defined, leave it as it was.
      *
-     * @param string $template      Template string
-     * @param array $variables      Variables with values
-     * @param array $brackets       Optional array of opening and closing brackets or symbols
+     * @param string $template Template string
+     * @param array $variables Variables with values
+     * @param array $brackets Optional array of opening and closing brackets or symbols
      * @return string               Final string filled with values
      */
     public static function simpleTemplate(string $template, array $variables, array $brackets = ['{', '}']): string
@@ -376,8 +376,8 @@ abstract class Utils
     /**
      * Merge two objects into one.
      *
-     * @param  object $obj1
-     * @param  object $obj2
+     * @param object $obj1
+     * @param object $obj2
      *
      * @return object
      */
@@ -415,7 +415,7 @@ abstract class Utils
      */
     public static function arrayRemoveValue(array $search, $value)
     {
-        foreach ((array) $value as $val) {
+        foreach ((array)$value as $val) {
             $key = array_search($val, $search);
             if ($key !== false) {
                 unset($search[$key]);
@@ -481,8 +481,8 @@ abstract class Utils
     /**
      * Array combine but supports different array lengths
      *
-     * @param  array $arr1
-     * @param  array $arr2
+     * @param array $arr1
+     * @param array $arr2
      * @return array|false
      */
     public static function arrayCombine($arr1, $arr2)
@@ -495,7 +495,7 @@ abstract class Utils
     /**
      * Array is associative or not
      *
-     * @param  array $arr
+     * @param array $arr
      * @return bool
      */
     public static function arrayIsAssociative($arr)
@@ -517,15 +517,15 @@ abstract class Utils
         $now = new DateTime();
 
         $date_formats = [
-            'd-m-Y H:i' => 'd-m-Y H:i (e.g. '.$now->format('d-m-Y H:i').')',
-            'Y-m-d H:i' => 'Y-m-d H:i (e.g. '.$now->format('Y-m-d H:i').')',
-            'm/d/Y h:i a' => 'm/d/Y h:i a (e.g. '.$now->format('m/d/Y h:i a').')',
-            'H:i d-m-Y' => 'H:i d-m-Y (e.g. '.$now->format('H:i d-m-Y').')',
-            'h:i a m/d/Y' => 'h:i a m/d/Y (e.g. '.$now->format('h:i a m/d/Y').')',
-            ];
+            'd-m-Y H:i' => 'd-m-Y H:i (e.g. ' . $now->format('d-m-Y H:i') . ')',
+            'Y-m-d H:i' => 'Y-m-d H:i (e.g. ' . $now->format('Y-m-d H:i') . ')',
+            'm/d/Y h:i a' => 'm/d/Y h:i a (e.g. ' . $now->format('m/d/Y h:i a') . ')',
+            'H:i d-m-Y' => 'H:i d-m-Y (e.g. ' . $now->format('H:i d-m-Y') . ')',
+            'h:i a m/d/Y' => 'h:i a m/d/Y (e.g. ' . $now->format('h:i a m/d/Y') . ')',
+        ];
         $default_format = Grav::instance()['config']->get('system.pages.dateformat.default');
         if ($default_format) {
-            $date_formats = array_merge([$default_format => $default_format.' (e.g. '.$now->format($default_format).')'], $date_formats);
+            $date_formats = array_merge([$default_format => $default_format . ' (e.g. ' . $now->format($default_format) . ')'], $date_formats);
         }
 
         return $date_formats;
@@ -552,11 +552,11 @@ abstract class Utils
     /**
      * Truncate text by number of characters but can cut off words.
      *
-     * @param  string $string
-     * @param  int    $limit       Max number of characters.
-     * @param  bool   $up_to_break truncate up to breakpoint after char count
-     * @param  string $break       Break point.
-     * @param  string $pad         Appended padding to the end of the string.
+     * @param string $string
+     * @param int $limit Max number of characters.
+     * @param bool $up_to_break truncate up to breakpoint after char count
+     * @param string $break Break point.
+     * @param string $pad Appended padding to the end of the string.
      * @return string
      */
     public static function truncate($string, $limit = 150, $up_to_break = false, $break = ' ', $pad = '&hellip;')
@@ -582,7 +582,7 @@ abstract class Utils
      * Truncate text by number of characters in a "word-safe" manor.
      *
      * @param string $string
-     * @param int    $limit
+     * @param int $limit
      * @return string
      */
     public static function safeTruncate($string, $limit = 150)
@@ -594,9 +594,9 @@ abstract class Utils
     /**
      * Truncate HTML by number of characters. not "word-safe"!
      *
-     * @param  string $text
-     * @param  int $length in characters
-     * @param  string $ellipsis
+     * @param string $text
+     * @param int $length in characters
+     * @param string $ellipsis
      * @return string
      */
     public static function truncateHtml($text, $length = 100, $ellipsis = '...')
@@ -607,9 +607,9 @@ abstract class Utils
     /**
      * Truncate HTML by number of characters in a "word-safe" manor.
      *
-     * @param  string $text
-     * @param  int    $length in words
-     * @param  string $ellipsis
+     * @param string $text
+     * @param int $length in words
+     * @param string $ellipsis
      * @return string
      */
     public static function safeTruncateHtml($text, $length = 25, $ellipsis = '...')
@@ -633,8 +633,8 @@ abstract class Utils
      *
      * @param string $file the full path to the file to be downloaded
      * @param bool $force_download as opposed to letting browser choose if to download or render
-     * @param int $sec      Throttling, try 0.1 for some speed throttling of downloads
-     * @param int $bytes    Size of chunks to send in bytes. Default is 1024
+     * @param int $sec Throttling, try 0.1 for some speed throttling of downloads
+     * @param int $bytes Size of chunks to send in bytes. Default is 1024
      * @throws Exception
      */
     public static function download($file, $force_download = true, $sec = 0, $bytes = 1024)
@@ -645,7 +645,7 @@ abstract class Utils
 
             $file_parts = pathinfo($file);
             $mimetype = static::getMimeByExtension($file_parts['extension']);
-            $size   = filesize($file); // File size
+            $size = filesize($file); // File size
 
             // clean all buffers
             while (ob_get_level()) {
@@ -742,7 +742,7 @@ abstract class Utils
         // Set from uri extension
         $uri_extension = $uri->extension();
         if (is_string($uri_extension) && $uri->isValidExtension($uri_extension)) {
-            return($uri_extension);
+            return ($uri_extension);
         }
 
         // Use content negotiation via the `accept:` header
@@ -1060,7 +1060,7 @@ abstract class Utils
 
             $pretty_offset = "UTC${offset_prefix}${offset_formatted}";
 
-            $timezone_list[$timezone] = "(${pretty_offset}) ".str_replace('_', ' ', $timezone);
+            $timezone_list[$timezone] = "(${pretty_offset}) " . str_replace('_', ' ', $timezone);
         }
 
         return $timezone_list;
@@ -1069,11 +1069,11 @@ abstract class Utils
     /**
      * Recursively filter an array, filtering values by processing them through the $fn function argument
      *
-     * @param array    $source the Array to filter
-     * @param callable $fn     the function to pass through each array item
+     * @param array $source the Array to filter
+     * @param callable $fn the function to pass through each array item
      * @return array
      */
-    public static function arrayFilterRecursive(Array $source, $fn)
+    public static function arrayFilterRecursive(array $source, $fn)
     {
         $result = [];
         foreach ($source as $key => $value) {
@@ -1093,15 +1093,15 @@ abstract class Utils
     /**
      * Flatten a multi-dimensional associative array into query params.
      *
-     * @param  array   $array
-     * @param  string  $prepend
+     * @param array $array
+     * @param string $prepend
      * @return array
      */
     public static function arrayToQueryParams($array, $prepend = '')
     {
         $results = [];
         foreach ($array as $key => $value) {
-            $name = $prepend ? $prepend  . '[' . $key . ']' : $key;
+            $name = $prepend ? $prepend . '[' . $key . ']' : $key;
 
             if (is_array($value)) {
                 $results = array_merge($results, static::arrayToQueryParams($value, $name));
@@ -1138,8 +1138,8 @@ abstract class Utils
     /**
      * Flatten a multi-dimensional associative array into dot notation
      *
-     * @param  array   $array
-     * @param  string  $prepend
+     * @param array $array
+     * @param string $prepend
      * @return array
      */
     public static function arrayFlattenDotNotation($array, $prepend = '')
@@ -1147,9 +1147,9 @@ abstract class Utils
         $results = array();
         foreach ($array as $key => $value) {
             if (is_array($value)) {
-                $results = array_merge($results, static::arrayFlattenDotNotation($value, $prepend.$key.'.'));
+                $results = array_merge($results, static::arrayFlattenDotNotation($value, $prepend . $key . '.'));
             } else {
-                $results[$prepend.$key] = $value;
+                $results[$prepend . $key] = $value;
             }
         }
 
@@ -1297,7 +1297,7 @@ abstract class Utils
      * with reverse proxy setups.
      *
      * @param string $action
-     * @param bool   $previousTick if true, generates the token for the previous tick (the previous 12 hours)
+     * @param bool $previousTick if true, generates the token for the previous tick (the previous 12 hours)
      * @return string the nonce string
      */
     private static function generateNonceString($action, $previousTick = false)
@@ -1334,8 +1334,8 @@ abstract class Utils
      * Creates a hashed nonce tied to the passed action. Tied to the current user and time. The nonce for a given
      * action is the same for 12 hours.
      *
-     * @param string $action      the action the nonce is tied to (e.g. save-user-admin or move-page-homepage)
-     * @param bool   $previousTick if true, generates the token for the previous tick (the previous 12 hours)
+     * @param string $action the action the nonce is tied to (e.g. save-user-admin or move-page-homepage)
+     * @param bool $previousTick if true, generates the token for the previous tick (the previous 12 hours)
      * @return string the nonce
      */
     public static function getNonce($action, $previousTick = false)
@@ -1353,7 +1353,7 @@ abstract class Utils
     /**
      * Verify the passed nonce for the give action
      *
-     * @param string|string[] $nonce  the nonce to verify
+     * @param string|string[] $nonce the nonce to verify
      * @param string $action the action to verify the nonce to
      * @return boolean verified or not
      */
@@ -1370,9 +1370,7 @@ abstract class Utils
         }
 
         //Nonce generated 12-24 hours ago
-        $previousTick = true;
-
-        return $nonce === self::getNonce($action, $previousTick);
+        return $nonce === self::getNonce($action, true);
     }
 
     /**
@@ -1382,11 +1380,7 @@ abstract class Utils
      */
     public static function isAdminPlugin()
     {
-        if (isset(Grav::instance()['admin'])) {
-            return true;
-        }
-
-        return false;
+        return isset(Grav::instance()['admin']);
     }
 
     /**
@@ -1440,7 +1434,7 @@ abstract class Utils
         while (count($keys) > 1) {
             $key = array_shift($keys);
 
-            if (! isset($array[$key]) || ! is_array($array[$key])) {
+            if (!isset($array[$key]) || !is_array($array[$key])) {
                 $array[$key] = array();
             }
 
@@ -1731,7 +1725,7 @@ abstract class Utils
             $size *= 1024 ** stripos('bkmgtpezy', $unit[0]);
         }
 
-        return (int) abs(round($size));
+        return (int)abs(round($size));
     }
 
     /**
@@ -1776,7 +1770,7 @@ abstract class Utils
     public static function processMarkdown($string, $block = true, $page = null)
     {
         $grav = Grav::instance();
-        $page     = $page ?? $grav['page'] ?? null;
+        $page = $page ?? $grav['page'] ?? null;
         $defaults = [
             'markdown' => $grav['config']->get('system.pages.markdown', []),
             'images' => $grav['config']->get('system.images', [])
@@ -1818,12 +1812,12 @@ abstract class Utils
         $ip = (string)inet_pton($ip);
 
         // Maximum netmask length = same as packed address
-        $len = 8*strlen($ip);
+        $len = 8 * strlen($ip);
         if ($prefix > $len) {
             $prefix = $len;
         }
 
-        $mask  = str_repeat('f', $prefix>>2);
+        $mask = str_repeat('f', $prefix >> 2);
 
         switch ($prefix & 3) {
             case 3:
@@ -1836,7 +1830,7 @@ abstract class Utils
                 $mask .= '8';
                 break;
         }
-        $mask = str_pad($mask, $len>>2, '0');
+        $mask = str_pad($mask, $len >> 2, '0');
 
         // Packed representation of netmask
         $mask = pack('H*', $mask);
@@ -1850,11 +1844,14 @@ abstract class Utils
      * Wrapper to ensure html, htm in the front of the supported page types
      *
      * @param array|null $defaults
-     * @return array|mixed
+     * @return array
      */
     public static function getSupportPageTypes(array $defaults = null)
     {
         $types = Grav::instance()['config']->get('system.pages.types', $defaults);
+        if (!is_array($types)) {
+            return [];
+        }
 
         // remove html/htm
         $types = static::arrayRemoveValue($types, ['html', 'htm']);
@@ -1863,5 +1860,245 @@ abstract class Utils
         $types = array_merge(['html', 'htm'], $types);
 
         return $types;
+    }
+
+    /**
+     * @param string $name
+     * @return bool
+     */
+    public static function isDangerousFunction(string $name): bool
+    {
+        static $commandExecutionFunctions = [
+            'exec',
+            'passthru',
+            'system',
+            'shell_exec',
+            'popen',
+            'proc_open',
+            'pcntl_exec',
+        ];
+
+        static $codeExecutionFunctions = [
+            'assert',
+            'preg_replace',
+            'create_function',
+            'include',
+            'include_once',
+            'require',
+            'require_once'
+        ];
+
+        static $callbackFunctions = [
+            'ob_start' => 0,
+            'array_diff_uassoc' => -1,
+            'array_diff_ukey' => -1,
+            'array_filter' => 1,
+            'array_intersect_uassoc' => -1,
+            'array_intersect_ukey' => -1,
+            'array_map' => 0,
+            'array_reduce' => 1,
+            'array_udiff_assoc' => -1,
+            'array_udiff_uassoc' => [-1, -2],
+            'array_udiff' => -1,
+            'array_uintersect_assoc' => -1,
+            'array_uintersect_uassoc' => [-1, -2],
+            'array_uintersect' => -1,
+            'array_walk_recursive' => 1,
+            'array_walk' => 1,
+            'assert_options' => 1,
+            'uasort' => 1,
+            'uksort' => 1,
+            'usort' => 1,
+            'preg_replace_callback' => 1,
+            'spl_autoload_register' => 0,
+            'iterator_apply' => 1,
+            'call_user_func' => 0,
+            'call_user_func_array' => 0,
+            'register_shutdown_function' => 0,
+            'register_tick_function' => 0,
+            'set_error_handler' => 0,
+            'set_exception_handler' => 0,
+            'session_set_save_handler' => [0, 1, 2, 3, 4, 5],
+            'sqlite_create_aggregate' => [2, 3],
+            'sqlite_create_function' => 2,
+        ];
+
+        static $informationDiscosureFunctions = [
+            'phpinfo',
+            'posix_mkfifo',
+            'posix_getlogin',
+            'posix_ttyname',
+            'getenv',
+            'get_current_user',
+            'proc_get_status',
+            'get_cfg_var',
+            'disk_free_space',
+            'disk_total_space',
+            'diskfreespace',
+            'getcwd',
+            'getlastmo',
+            'getmygid',
+            'getmyinode',
+            'getmypid',
+            'getmyuid'
+        ];
+
+        static $otherFunctions = [
+            'extract',
+            'parse_str',
+            'putenv',
+            'ini_set',
+            'mail',
+            'header',
+            'proc_nice',
+            'proc_terminate',
+            'proc_close',
+            'pfsockopen',
+            'fsockopen',
+            'apache_child_terminate',
+            'posix_kill',
+            'posix_mkfifo',
+            'posix_setpgid',
+            'posix_setsid',
+            'posix_setuid',
+        ];
+
+        if (in_array($name, $commandExecutionFunctions)) {
+            return true;
+        }
+
+        if (in_array($name, $codeExecutionFunctions)) {
+            return true;
+        }
+
+        if (isset($callbackFunctions[$name])) {
+            return true;
+        }
+
+        if (in_array($name, $informationDiscosureFunctions)) {
+            return true;
+        }
+
+        if (in_array($name, $otherFunctions)) {
+            return true;
+        }
+
+        return static::isFilesystemFunction($name);
+    }
+
+    /**
+     * @param string $name
+     * @return bool
+     */
+    public static function isFilesystemFunction(string $name): bool
+    {
+        static $fileWriteFunctions = [
+            'fopen',
+            'tmpfile',
+            'bzopen',
+            'gzopen',
+            // write to filesystem (partially in combination with reading)
+            'chgrp',
+            'chmod',
+            'chown',
+            'copy',
+            'file_put_contents',
+            'lchgrp',
+            'lchown',
+            'link',
+            'mkdir',
+            'move_uploaded_file',
+            'rename',
+            'rmdir',
+            'symlink',
+            'tempnam',
+            'touch',
+            'unlink',
+            'imagepng',
+            'imagewbmp',
+            'image2wbmp',
+            'imagejpeg',
+            'imagexbm',
+            'imagegif',
+            'imagegd',
+            'imagegd2',
+            'iptcembed',
+            'ftp_get',
+            'ftp_nb_get',
+        ];
+
+        static $fileContentFunctions = [
+            'file_get_contents',
+            'file',
+            'filegroup',
+            'fileinode',
+            'fileowner',
+            'fileperms',
+            'glob',
+            'is_executable',
+            'is_uploaded_file',
+            'parse_ini_file',
+            'readfile',
+            'readlink',
+            'realpath',
+            'gzfile',
+            'readgzfile',
+            'stat',
+            'imagecreatefromgif',
+            'imagecreatefromjpeg',
+            'imagecreatefrompng',
+            'imagecreatefromwbmp',
+            'imagecreatefromxbm',
+            'imagecreatefromxpm',
+            'ftp_put',
+            'ftp_nb_put',
+            'hash_update_file',
+            'highlight_file',
+            'show_source',
+            'php_strip_whitespace',
+        ];
+
+        static $filesystemFunctions = [
+            // read from filesystem
+            'file_exists',
+            'fileatime',
+            'filectime',
+            'filemtime',
+            'filesize',
+            'filetype',
+            'is_dir',
+            'is_file',
+            'is_link',
+            'is_readable',
+            'is_writable',
+            'is_writeable',
+            'linkinfo',
+            'lstat',
+            //'pathinfo',
+            'getimagesize',
+            'exif_read_data',
+            'read_exif_data',
+            'exif_thumbnail',
+            'exif_imagetype',
+            'hash_file',
+            'hash_hmac_file',
+            'md5_file',
+            'sha1_file',
+            'get_meta_tags',
+        ];
+
+        if (in_array($name, $fileWriteFunctions)) {
+            return true;
+        }
+
+        if (in_array($name, $fileContentFunctions)) {
+            return true;
+        }
+
+        if (in_array($name, $filesystemFunctions)) {
+            return true;
+        }
+
+        return false;
     }
 }

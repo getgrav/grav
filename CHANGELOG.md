@@ -1,3 +1,21 @@
+# v1.7.11
+## 04/13/2021
+
+1. [](#new)
+    * Added configuration options to allow PHP methods to be used in Twig functions (`system.twig.safe_functions`) and filters (`system.twig.safe_filters`)
+    * Deprecated using PHP methods in Twig without them being in the safe lists
+    * Prevent dangerous PHP methods from being used as Twig functions and filters
+    * Restrict filesystem Twig functions to accept only local filesystem and grav streams
+1. [](#improved)
+    * Better GPM detection of unauthorized installations
+1. [](#bugfix)
+  * **IMPORTANT** Fixed security vulnerability with Twig allowing dangerous PHP functions by default (GHSA-g8r4-p96j-xfxc)[https://github.com/getgrav/grav/security/advisories/GHSA-g8r4-p96j-xfxc]
+    * Fixed nxinx appending repeating `?_url=` in some redirects
+    * Fixed deleting page with language code not removing the folder if it was the last language [#3305](https://github.com/getgrav/grav/issues/3305)
+    * Fixed fatal error when using markdown links with `image://` stream [#3285](https://github.com/getgrav/grav/issues/3285)
+    * Fixed `system.languages.session_store_active` not having any effect [#3269](https://github.com/getgrav/grav/issues/3269)
+    * Fixed fatal error if `system.pages.types` is not an array [#2984](https://github.com/getgrav/grav/issues/2984)
+
 # v1.7.10
 ## 04/06/2021
 

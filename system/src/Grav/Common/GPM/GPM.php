@@ -527,7 +527,7 @@ class GPM extends Iterator
         $plugins = $this->getRepositoryPlugins();
 
         if (null === $themes || null === $plugins) {
-            if (!is_writable(ROOT_DIR . '/cache/gpm')) {
+            if (!is_writable(GRAV_ROOT . '/cache/gpm')) {
                 throw new RuntimeException('The cache/gpm folder is not writable. Please check the folder permissions.');
             }
 
