@@ -9,7 +9,7 @@
 1. [](#improved)
     * Better GPM detection of unauthorized installations
 1. [](#bugfix)
-  * **IMPORTANT** Fixed security vulnerability with Twig allowing dangerous PHP functions by default (GHSA-g8r4-p96j-xfxc)[https://github.com/getgrav/grav/security/advisories/GHSA-g8r4-p96j-xfxc]
+  * **IMPORTANT** Fixed security vulnerability with Twig allowing dangerous PHP functions by default [GHSA-g8r4-p96j-xfxc](https://github.com/getgrav/grav/security/advisories/GHSA-g8r4-p96j-xfxc)
     * Fixed nxinx appending repeating `?_url=` in some redirects
     * Fixed deleting page with language code not removing the folder if it was the last language [#3305](https://github.com/getgrav/grav/issues/3305)
     * Fixed fatal error when using markdown links with `image://` stream [#3285](https://github.com/getgrav/grav/issues/3285)
