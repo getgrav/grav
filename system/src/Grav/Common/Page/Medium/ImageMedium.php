@@ -381,7 +381,6 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
 
         $this->__call('merge', [$watermark,$positionX, $positionY]);
 
-        dump($this);
         return $this;
     }
 
