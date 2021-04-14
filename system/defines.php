@@ -68,7 +68,7 @@ unset($path);
 
 // INTERNAL: Do not use!
 define('USER_DIR', GRAV_WEBROOT . '/' . GRAV_USER_PATH . '/');
-define('CACHE_DIR', (!str_starts_with(GRAV_CACHE_PATH, '/') ? GRAV_ROOT . '/' : '') . GRAV_CACHE_PATH . '/');
+define('CACHE_DIR', (!preg_match('`^(/|[a-z]:[\\\/])`ui', GRAV_CACHE_PATH) ? GRAV_ROOT . '/' : '') . GRAV_CACHE_PATH . '/');
 
 // DEPRECATED: Do not use!
 define('CACHE_PATH', GRAV_CACHE_PATH . DS);
@@ -81,10 +81,10 @@ define('PAGES_DIR', USER_DIR . 'pages/');
 define('DATA_DIR', USER_DIR . 'data/');
 define('PLUGINS_DIR', USER_DIR . 'plugins/');
 define('THEMES_DIR', USER_DIR . 'themes/');
-define('SYSTEM_DIR', (!str_starts_with(GRAV_SYSTEM_PATH, '/') ? GRAV_ROOT . '/' : '') . GRAV_SYSTEM_PATH . '/');
+define('SYSTEM_DIR', (!preg_match('`^(/|[a-z]:[\\\/])`ui', GRAV_SYSTEM_PATH) ? GRAV_ROOT . '/' : '') . GRAV_SYSTEM_PATH . '/');
 define('LIB_DIR', SYSTEM_DIR . 'src/');
 define('VENDOR_DIR', GRAV_ROOT . '/vendor/');
-define('LOG_DIR', (!str_starts_with(GRAV_LOG_PATH, '/') ? GRAV_ROOT . '/' : '') . GRAV_LOG_PATH . '/');
+define('LOG_DIR', (!preg_match('`^(/|[a-z]:[\\\/])`ui', GRAV_LOG_PATH) ? GRAV_ROOT . '/' : '') . GRAV_LOG_PATH . '/');
 // END DEPRECATED
 
 // Some extensions
