@@ -3,6 +3,7 @@
 
 1. [](#bugfix)
     * Fixed absolute path support for Windows [#3297](https://github.com/getgrav/grav/issues/3297)
+    * Fixed adding tags in admin after upgrading Grav [#3315](https://github.com/getgrav/grav/issues/3315)
 
 # v1.7.11
 ## 04/13/2021

@@ -2135,16 +2135,16 @@
         },
         {
             "name": "rockettheme/toolbox",
-            "version": "1.5.8",
+            "version": "1.5.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/rockettheme/toolbox.git",
-                "reference": "531b2c333d024becabc67b13ae819d92708c5e5f"
+                "reference": "2d6693235aaca2efaadb61c84dac927aaf4eabfa"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rockettheme/toolbox/zipball/531b2c333d024becabc67b13ae819d92708c5e5f",
-                "reference": "531b2c333d024becabc67b13ae819d92708c5e5f",
+                "url": "https://api.github.com/repos/rockettheme/toolbox/zipball/2d6693235aaca2efaadb61c84dac927aaf4eabfa",
+                "reference": "2d6693235aaca2efaadb61c84dac927aaf4eabfa",
                 "shasum": ""
             },
             "require": {
@@ -2185,9 +2185,9 @@
             ],
             "support": {
                 "issues": "https://github.com/rockettheme/toolbox/issues",
-                "source": "https://github.com/rockettheme/toolbox/tree/1.5.8"
+                "source": "https://github.com/rockettheme/toolbox/tree/1.5.9"
             },
-            "time": "2021-04-12T20:11:43+00:00"
+            "time": "2021-04-14T19:52:40+00:00"
         },
         {
             "name": "seld/cli-prompt",
