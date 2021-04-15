@@ -10,6 +10,7 @@
 namespace Grav\Common\Service;
 
 use Grav\Common\Uri;
+use JsonException;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Nyholm\Psr7Server\ServerRequestCreator;
 use Pimple\Container;
@@ -18,6 +19,7 @@ use function explode;
 use function fopen;
 use function function_exists;
 use function in_array;
+use function is_array;
 use function strtolower;
 use function trim;
 
@@ -51,18 +53,30 @@ class RequestServiceProvider implements ServiceProviderInterface
             $headers = function_exists('getallheaders') ? getallheaders() : $creator::getHeadersFromServer($_SERVER);
 
             $post = null;
-            if ('POST' === $method) {
+            if (in_array($method, ['POST', 'PUT', 'PATCH', 'DELETE'])) {
                 foreach ($headers as $headerName => $headerValue) {
                     if ('content-type' !== strtolower($headerName)) {
                         continue;
                     }
-                    if (in_array(
-                        strtolower(trim(explode(';', $headerValue, 2)[0])),
-                        ['application/x-www-form-urlencoded', 'multipart/form-data']
-                    )) {
-                        $post = $_POST;
 
-                        break;
+                    $contentType = strtolower(trim(explode(';', $headerValue, 2)[0]));
+                    switch ($contentType) {
+                        case 'application/x-www-form-urlencoded':
+                        case 'multipart/form-data':
+                            $post = $_POST;
+                            break 2;
+                        case 'application/json':
+                        case 'application/vnd.api+json':
+                            try {
+                                $json = file_get_contents('php://input');
+                                $post = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
+                                if (!is_array($post)) {
+                                    $post = null;
+                                }
+                            } catch (JsonException $e) {
+                                $post = null;
+                            }
+                            break 2;
                     }
                 }
             }
