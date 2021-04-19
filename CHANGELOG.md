@@ -1,3 +1,9 @@
+# v1.7.13
+## mm/dd/2021
+
+1. [](#bugfix)
+    * Fixed `The "Grav/Common/Twig/TwigExtension" extension is not enabled` when using markdown twig tag [#3317](https://github.com/getgrav/grav/issues/3317)
+
 # v1.7.12
 ## 04/15/2021
 

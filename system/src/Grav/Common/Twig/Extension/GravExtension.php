@@ -63,8 +63,8 @@ use function is_string;
 use function strlen;
 
 /**
- * Class TwigExtension
- * @package Grav\Common\Twig
+ * Class GravExtension
+ * @package Grav\Common\Twig\Extension
  */
 class GravExtension extends AbstractExtension implements GlobalsInterface
 {
@@ -76,7 +76,7 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
     protected $config;
 
     /**
-     * TwigExtension constructor.
+     * GravExtension constructor.
      */
     public function __construct()
     {

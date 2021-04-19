@@ -16,8 +16,8 @@ use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
 /**
- * Class TwigExtension
- * @package Grav\Common\Twig
+ * Class FilesystemExtension
+ * @package Grav\Common\Twig\Extension
  */
 class FilesystemExtension extends AbstractExtension
 {
