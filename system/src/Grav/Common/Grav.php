@@ -320,7 +320,7 @@ class Grav extends Container
         $route = preg_replace("#^\/[\\\/]+\/#", '/', $route);
 
          // Check for code in route
-        $regex = '/.*(\[(30[1-7])\])$/';
+        $regex = '/.*(\[(30[1-7])\])(?:$|\?.*)/';
         preg_match($regex, $route, $matches);
         if ($matches) {
             $route = str_replace($matches[1], '', $matches[0]);
