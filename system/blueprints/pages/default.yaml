@@ -121,7 +121,7 @@ form:
                       underline: true
 
                     folder:
-                      type: text
+                      type: folder-slug
                       label: PLUGIN_ADMIN.FOLDER_NAME
                       validate:
                         rule: slug
