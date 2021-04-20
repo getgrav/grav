@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4ae6fc7274c018b1bb34bb1b80bd62c5",
+    "content-hash": "36375d8a5daf3aef0341f9a2b023f4e9",
     "packages": [
         {
             "name": "antoligy/dom-string-iterators",
@@ -712,18 +712,18 @@
             "time": "2021-03-30T12:00:00+00:00"
         },
         {
-            "name": "gregwar/cache",
-            "version": "dev-php8",
+            "name": "getgrav/cache",
+            "version": "v2.0.0",
             "target-dir": "Gregwar/Cache",
             "source": {
                 "type": "git",
                 "url": "https://github.com/getgrav/Cache.git",
-                "reference": "49ccdf9ae760b009a192bc3c7b417980c8a8cc2e"
+                "reference": "56fd63f752779928fcd1074ab7d12f406dde8861"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/getgrav/Cache/zipball/49ccdf9ae760b009a192bc3c7b417980c8a8cc2e",
-                "reference": "49ccdf9ae760b009a192bc3c7b417980c8a8cc2e",
+                "url": "https://api.github.com/repos/getgrav/Cache/zipball/56fd63f752779928fcd1074ab7d12f406dde8861",
+                "reference": "56fd63f752779928fcd1074ab7d12f406dde8861",
                 "shasum": ""
             },
             "require": {
@@ -735,6 +735,7 @@
                     "Gregwar\\Cache": ""
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -742,6 +743,11 @@
                 {
                     "name": "Gregwar",
                     "email": "g.passault@gmail.com"
+                },
+                {
+                    "name": "Grav CMS",
+                    "email": "hello@getgrav.org",
+                    "homepage": "https://getgrav.org"
                 }
             ],
             "description": "A lightweight file-system cache system",
@@ -752,28 +758,28 @@
                 "system"
             ],
             "support": {
-                "source": "https://github.com/getgrav/Cache/tree/php8"
+                "source": "https://github.com/getgrav/Cache/tree/v2.0.0"
             },
-            "time": "2020-12-02T10:54:35+00:00"
+            "time": "2021-04-20T05:48:00+00:00"
         },
         {
-            "name": "gregwar/image",
-            "version": "dev-php8",
+            "name": "getgrav/image",
+            "version": "v3.0.0",
             "target-dir": "Gregwar/Image",
             "source": {
                 "type": "git",
                 "url": "https://github.com/getgrav/Image.git",
-                "reference": "ea23859700f32447a85e79d96f331e3d6c8897a8"
+                "reference": "02c1bb2c179dd894c4f6610c9c49da364ee7d264"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/getgrav/Image/zipball/ea23859700f32447a85e79d96f331e3d6c8897a8",
-                "reference": "ea23859700f32447a85e79d96f331e3d6c8897a8",
+                "url": "https://api.github.com/repos/getgrav/Image/zipball/02c1bb2c179dd894c4f6610c9c49da364ee7d264",
+                "reference": "02c1bb2c179dd894c4f6610c9c49da364ee7d264",
                 "shasum": ""
             },
             "require": {
                 "ext-gd": "*",
-                "gregwar/cache": "dev-php8",
+                "getgrav/cache": "^2.0",
                 "php": "^5.6 || ^7.0 || ^8.0"
             },
             "require-dev": {
@@ -789,6 +795,7 @@
                     "Gregwar\\Image": ""
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -797,6 +804,11 @@
                     "name": "Grégoire Passault",
                     "email": "g.passault@gmail.com",
                     "homepage": "http://www.gregwar.com/"
+                },
+                {
+                    "name": "Grav CMS",
+                    "email": "hello@getgrav.org",
+                    "homepage": "https://getgrav.org"
                 }
             ],
             "description": "Image handling",
@@ -806,9 +818,9 @@
                 "image"
             ],
             "support": {
-                "source": "https://github.com/getgrav/Image/tree/php8"
+                "source": "https://github.com/getgrav/Image/tree/v3.0.0"
             },
-            "time": "2021-03-15T17:03:52+00:00"
+            "time": "2021-04-20T05:50:18+00:00"
         },
         {
             "name": "guzzlehttp/psr7",
@@ -3892,6 +3904,58 @@
             "time": "2020-11-10T18:47:58+00:00"
         },
         {
+            "name": "getgrav/markdowndocs",
+            "version": "2.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/getgrav/PHP-Markdown-Documentation-Generator.git",
+                "reference": "4a24d1b64a88da17e8f1696dc64969f5ca769064"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/getgrav/PHP-Markdown-Documentation-Generator/zipball/4a24d1b64a88da17e8f1696dc64969f5ca769064",
+                "reference": "4a24d1b64a88da17e8f1696dc64969f5ca769064",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.5.0",
+                "symfony/console": ">=2.6"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "3.7.23"
+            },
+            "bin": [
+                "bin/phpdoc-md"
+            ],
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "PHPDocsMD": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Victor Jonsson",
+                    "email": "kontakt@victorjonsson.se"
+                },
+                {
+                    "name": "Grav CMS",
+                    "email": "hello@getgrav.org",
+                    "homepage": "https://getgrav.org"
+                }
+            ],
+            "description": "Command line tool for generating markdown-formatted class documentation",
+            "homepage": "https://github.com/victorjonsson/PHP-Markdown-Documentation-Generator",
+            "support": {
+                "source": "https://github.com/getgrav/PHP-Markdown-Documentation-Generator/tree/2.0.1"
+            },
+            "time": "2021-04-20T06:04:42+00:00"
+        },
+        {
             "name": "guzzlehttp/guzzle",
             "version": "7.3.0",
             "source": {
@@ -4501,16 +4565,16 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "0.12.83",
+            "version": "0.12.84",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan.git",
-                "reference": "4a967cec6efb46b500dd6d768657336a3ffe699f"
+                "reference": "9c43f15da8798c8f30a4b099e6a94530a558cfd5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/4a967cec6efb46b500dd6d768657336a3ffe699f",
-                "reference": "4a967cec6efb46b500dd6d768657336a3ffe699f",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/9c43f15da8798c8f30a4b099e6a94530a558cfd5",
+                "reference": "9c43f15da8798c8f30a4b099e6a94530a558cfd5",
                 "shasum": ""
             },
             "require": {
@@ -4541,7 +4605,7 @@
             "description": "PHPStan - PHP Static Analysis Tool",
             "support": {
                 "issues": "https://github.com/phpstan/phpstan/issues",
-                "source": "https://github.com/phpstan/phpstan/tree/0.12.83"
+                "source": "https://github.com/phpstan/phpstan/tree/0.12.84"
             },
             "funding": [
                 {
@@ -4557,7 +4621,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2021-04-03T15:35:45+00:00"
+            "time": "2021-04-19T17:10:54+00:00"
         },
         {
             "name": "phpstan/phpstan-deprecation-rules",
@@ -6369,53 +6433,6 @@
             "time": "2020-07-12T23:59:07+00:00"
         },
         {
-            "name": "victorjonsson/markdowndocs",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/trilbymedia/PHP-Markdown-Documentation-Generator.git",
-                "reference": "c9fa153b28a79f5da89ec32aa501be92db212aed"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/trilbymedia/PHP-Markdown-Documentation-Generator/zipball/c9fa153b28a79f5da89ec32aa501be92db212aed",
-                "reference": "c9fa153b28a79f5da89ec32aa501be92db212aed",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.5.0",
-                "symfony/console": ">=2.6"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "3.7.23"
-            },
-            "default-branch": true,
-            "bin": [
-                "bin/phpdoc-md"
-            ],
-            "type": "library",
-            "autoload": {
-                "psr-0": {
-                    "PHPDocsMD": "src/"
-                }
-            },
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Victor Jonsson",
-                    "email": "kontakt@victorjonsson.se"
-                }
-            ],
-            "description": "Command line tool for generating markdown-formatted class documentation",
-            "homepage": "https://github.com/victorjonsson/PHP-Markdown-Documentation-Generator",
-            "support": {
-                "source": "https://github.com/trilbymedia/PHP-Markdown-Documentation-Generator/tree/master"
-            },
-            "time": "2017-09-20T13:29:22+00:00"
-        },
-        {
             "name": "webmozart/assert",
             "version": "1.10.0",
             "source": {
@@ -6476,11 +6493,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "gregwar/image": 20,
-        "gregwar/cache": 20,
-        "victorjonsson/markdowndocs": 20
-    },
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
