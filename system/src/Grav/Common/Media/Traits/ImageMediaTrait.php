@@ -56,7 +56,7 @@ trait ImageMediaTrait
         'resize', 'forceResize', 'cropResize', 'crop', 'zoomCrop',
         'negate', 'brightness', 'contrast', 'grayscale', 'emboss',
         'smooth', 'sharp', 'edge', 'colorize', 'sepia', 'enableProgressive',
-        'rotate', 'flip', 'fixOrientation', 'gaussianBlur', 'format'
+        'rotate', 'flip', 'fixOrientation', 'gaussianBlur', 'format', 'create', 'fill', 'merge'
     ];
 
     /** @var array */
