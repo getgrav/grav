@@ -22,7 +22,6 @@ use Grav\Common\Grav;
 use Grav\Common\Media\Interfaces\MediaCollectionInterface;
 use Grav\Common\Media\Interfaces\MediaUploadInterface;
 use Grav\Common\Page\Media;
-use Grav\Common\Page\Medium\Medium;
 use Grav\Common\Page\Medium\MediumFactory;
 use Grav\Common\User\Access;
 use Grav\Common\User\Authentication;
@@ -78,16 +77,12 @@ class UserObject extends FlexObject implements UserInterface, Countable
 
     /** @var array|null */
     protected $_uploads_original;
-
     /** @var FileInterface|null */
     protected $_storage;
-
     /** @var UserGroupIndex */
     protected $_groups;
-
     /** @var Access */
     protected $_access;
-
     /** @var array|null */
     protected $access;
 

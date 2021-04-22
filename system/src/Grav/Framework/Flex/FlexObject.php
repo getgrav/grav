@@ -196,9 +196,10 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     /**
      * Refresh object from the storage.
      *
+     * @param bool $keepMissing
      * @return bool True if the object was refreshed
      */
-    public function refresh(): bool
+    public function refresh(bool $keepMissing = false): bool
     {
         $key = $this->getStorageKey();
         if ('' === $key) {
@@ -216,20 +217,36 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
             return false;
         }
 
+        // Get current elements (if requested).
+        $current = $keepMissing ? $this->getElements() : [];
+        // Get elements from the filesystem.
         $elements = $storage->readRows([$key => null])[$key] ?? null;
-        if (null !== $elements || isset($elements['__ERROR'])) {
-            $meta = $elements['_META'] ?? $meta;
+        if (null !== $elements) {
+            $meta = $elements['__META'] ?? $meta;
+            unset($elements['__META']);
             $this->filterElements($elements);
             $newKey = $meta['key'] ?? $this->getKey();
             if ($meta) {
                 $this->setMetaData($meta);
             }
             $this->objectConstruct($elements, $newKey);
-        }
 
-        /** @var Debugger $debugger */
-        $debugger = Grav::instance()['debugger'];
-        $debugger->addMessage("Refreshed {$this->getFlexType()} object {$this->getKey()}", 'debug');
+            if ($current) {
+                // Inject back elements which are missing in the filesystem.
+                $data = $this->getBlueprint()->flattenData($current);
+                foreach ($data as $property => $value) {
+                    if (strpos($property, '.') === false) {
+                        $this->defProperty($property, $value);
+                    } else {
+                        $this->defNestedProperty($property, $value);
+                    }
+                }
+            }
+
+            /** @var Debugger $debugger */
+            $debugger = Grav::instance()['debugger'];
+            $debugger->addMessage("Refreshed {$this->getFlexType()} object {$this->getKey()}", 'debug');
+        }
 
         return true;
     }

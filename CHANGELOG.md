@@ -7,6 +7,7 @@
 1. [](#bugfix)
     * Fixed `The "Grav/Common/Twig/TwigExtension" extension is not enabled` when using markdown twig tag [#3317](https://github.com/getgrav/grav/issues/3317)
     * Fixed text field maxlength validation newline issue [#3324](https://github.com/getgrav/grav/issues/3324)
+    * Fixed a bug in Flex Object `refresh()` method
 
 # v1.7.12
 ## 04/15/2021
