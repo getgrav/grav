@@ -3,9 +3,10 @@
 
 1. [](#improved)
     * Moved `gregwar/Image` and `gregwar/Cache` in-house to official `getgrav/Image` and `getgrav/Cache` packagist packages. This will help environments with very strict proxy setups that don't allow VCS setup. [#3289](https://github.com/getgrav/grav/issues/3289)
-    * Improved XSS Invalid Protocol detection regex [#3298](https://github.com/getgrav/grav/issues/3298)  
+    * Improved XSS Invalid Protocol detection regex [#3298](https://github.com/getgrav/grav/issues/3298)
 1. [](#bugfix)
     * Fixed `The "Grav/Common/Twig/TwigExtension" extension is not enabled` when using markdown twig tag [#3317](https://github.com/getgrav/grav/issues/3317)
+    * Fixed text field maxlength validation newline issue [#3324](https://github.com/getgrav/grav/issues/3324)
 
 # v1.7.12
 ## 04/15/2021
