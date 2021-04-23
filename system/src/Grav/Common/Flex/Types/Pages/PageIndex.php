@@ -18,6 +18,7 @@ use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Flex\Traits\FlexGravTrait;
 use Grav\Common\Flex\Traits\FlexIndexTrait;
 use Grav\Common\Grav;
+use Grav\Common\Language\Language;
 use Grav\Common\Page\Header;
 use Grav\Common\Page\Interfaces\PageCollectionInterface;
 use Grav\Common\Page\Interfaces\PageInterface;
@@ -165,6 +166,31 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
     }
 
     /**
+     * @param string|null $languageCode
+     * @param bool|null $fallback
+     * @return PageIndex
+     */
+    public function withTranslated(string $languageCode = null, bool $fallback = null)
+    {
+        if (null === $languageCode) {
+            return $this;
+        }
+
+        $entries = $this->translateEntries($this->getEntries(), $languageCode, $fallback);
+        $params = ['language' => $languageCode, 'language_fallback' => $fallback] + $this->getParams();
+
+        return $this->createFrom($entries)->setParams($params);
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getLanguage(): ?string
+    {
+        return $this->_params['language'] ?? null;
+    }
+
+    /**
      * Get the collection params
      *
      * @return array
@@ -172,6 +198,17 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
     public function getParams(): array
     {
         return $this->_params ?? [];
+    }
+
+    /**
+     * Get the collection param
+     *
+     * @param string $name
+     * @return mixed
+     */
+    public function getParam(string $name)
+    {
+        return $this->_params[$name] ?? null;
     }
 
     /**
@@ -188,6 +225,20 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
     }
 
     /**
+     * Set a parameter to the Collection
+     *
+     * @param string $name
+     * @param mixed $value
+     * @return $this
+     */
+    public function setParam(string $name, $value)
+    {
+        $this->_params[$name] = $value;
+
+        return $this;
+    }
+
+    /**
      * Get the collection params
      *
      * @return array
@@ -195,6 +246,15 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
     public function params(): array
     {
         return $this->getParams();
+    }
+
+        /**
+     * {@inheritdoc}
+     * @see FlexCollectionInterface::getCacheKey()
+     */
+    public function getCacheKey(): string
+    {
+        return $this->getTypePrefix() . $this->getFlexType() . '.' . sha1(json_encode($this->getKeys()) . $this->getKeyField() . $this->getLanguage());
     }
 
     /**
@@ -343,6 +403,96 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
         $index->_root = $this->getRoot();
 
         return $index;
+    }
+
+    /**
+     * @param array $entries
+     * @param string $lang
+     * @param bool|null $fallback
+     * @return array
+     */
+    protected function translateEntries(array $entries, string $lang, bool $fallback = null): array
+    {
+        $languages = $this->getFallbackLanguages($lang, $fallback);
+        foreach ($entries as $key => &$entry) {
+            // Find out which version of the page we should load.
+            $translations = $this->getLanguageTemplates($key);
+            if (!$translations) {
+                // No translations found, is this a folder?
+                continue;
+            }
+
+            // Find a translation.
+            $template = null;
+            foreach ($languages as $code) {
+                if (isset($translations[$code])) {
+                    $template = $translations[$code];
+                    break;
+                }
+            }
+
+            // We couldn't find a translation, remove entry from the list.
+            if (!isset($code, $template)) {
+                unset($entries['key']);
+                continue;
+            }
+
+            // Get the main key without template and langauge.
+            [$main_key,] = explode('|', $entry['storage_key'] . '|', 2);
+
+            // Update storage key and language.
+            $entry['storage_key'] = $main_key . '|' . $template . '.' . $code;
+            $entry['lang'] = $code;
+        }
+        unset($entry);
+
+        return $entries;
+    }
+
+    /**
+     * @return array
+     */
+    protected function getLanguageTemplates(string $key): array
+    {
+        $meta = $this->getMetaData($key);
+        $template = $meta['template'] ?? 'folder';
+        $translations = $meta['markdown'] ?? [];
+        $list = [];
+        foreach ($translations as $code => $search) {
+            if (isset($search[$template])) {
+                // Use main template if possible.
+                $list[$code] = $template;
+            } elseif (!empty($search)) {
+                // Fall back to first matching template.
+                $list[$code] = key($search);
+            }
+        }
+
+        return $list;
+    }
+
+    /**
+     * @param string|null $languageCode
+     * @param bool|null $fallback
+     * @return array
+     */
+    protected function getFallbackLanguages(string $languageCode = null, bool $fallback = null): array
+    {
+        $fallback = $fallback ?? true;
+        if (!$fallback && null !== $languageCode) {
+            return [$languageCode];
+        }
+
+        $grav = Grav::instance();
+
+        /** @var Language $language */
+        $language = $grav['language'];
+        $languageCode = $languageCode ?? '';
+        if ($languageCode === '' && $fallback) {
+            return $language->getFallbackLanguages(null, true);
+        }
+
+        return $fallback ? $language->getFallbackLanguages($languageCode, true) : [$languageCode];
     }
 
     /**
