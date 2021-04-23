@@ -747,6 +747,16 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
     }
 
     /**
+     * @param string|null $languageCode
+     * @param bool|null $fallback
+     * @return PageIndex
+     */
+    public function withTranslated(string $languageCode = null, bool $fallback = null)
+    {
+        return $this->getIndex()->withTranslated($languageCode, $fallback);
+    }
+
+    /**
      * Filter pages by given filters.
      *
      * - search: string

@@ -44,8 +44,8 @@
         "filp/whoops": "~2.9",
         "matthiasmullie/minify": "^1.3",
         "monolog/monolog": "~1.25",
-        "gregwar/image": "dev-php8",
-        "gregwar/cache": "dev-php8",
+        "getgrav/image": "^3.0",
+        "getgrav/cache": "^2.0",
         "donatj/phpuseragentparser": "~1.1",
         "pimple/pimple": "~3.3.0",
         "rockettheme/toolbox": "~1.5",
@@ -67,7 +67,7 @@
         "phpstan/phpstan": "^0.12",
         "phpstan/phpstan-deprecation-rules": "^0.12",
         "phpunit/php-code-coverage": "~9.2",
-        "victorjonsson/markdowndocs": "dev-master",
+        "getgrav/markdowndocs": "^2.0",
         "codeception/module-asserts": "^1.3",
         "codeception/module-phpbrowser": "^1.0",
         "symfony/service-contracts": "*"
@@ -91,20 +91,6 @@
             "php": "7.3.6"
         }
     },
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/trilbymedia/PHP-Markdown-Documentation-Generator"
-        },
-        {
-            "type": "vcs",
-            "url": "https://github.com/getgrav/Cache"
-        },
-        {
-            "type": "vcs",
-            "url": "https://github.com/getgrav/Image"
-        }
-    ],
     "autoload": {
         "psr-4": {
             "Grav\\": "system/src/Grav"

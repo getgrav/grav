@@ -1,3 +1,17 @@
+# v1.7.13
+## 04/23/2021
+
+1. [](#new)
+    * Added support for getting translated collection of Flex Pages using `$collection->withTranslated('de')`
+1. [](#improved)
+    * Moved `gregwar/Image` and `gregwar/Cache` in-house to official `getgrav/Image` and `getgrav/Cache` packagist packages. This will help environments with very strict proxy setups that don't allow VCS setup. [#3289](https://github.com/getgrav/grav/issues/3289)
+    * Improved XSS Invalid Protocol detection regex [#3298](https://github.com/getgrav/grav/issues/3298)
+    * Added support for user provided folder in Flex `$page->copy()`
+1. [](#bugfix)
+    * Fixed `The "Grav/Common/Twig/TwigExtension" extension is not enabled` when using markdown twig tag [#3317](https://github.com/getgrav/grav/issues/3317)
+    * Fixed text field maxlength validation newline issue [#3324](https://github.com/getgrav/grav/issues/3324)
+    * Fixed a bug in Flex Object `refresh()` method
+
 # v1.7.12
 ## 04/15/2021
 
