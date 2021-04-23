@@ -1,5 +1,5 @@
 # v1.7.13
-## mm/dd/2021
+## 04/23/2021
 
 1. [](#new)
     * Added support for getting translated collection of Flex Pages using `$collection->withTranslated('de')`
