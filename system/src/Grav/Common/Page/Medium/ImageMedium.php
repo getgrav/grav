@@ -73,10 +73,6 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
         if ($config->get('system.images.cache_all', false)) {
             $this->cache();
         }
-
-        if ($config->get('system.images.watermark.watermark_all', false)) {
-            $this->watermark();
-        }
     }
 
     /**
@@ -330,7 +326,7 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
         return $this;
     }
 
-    public function watermark($image = null, $position = null)
+    public function watermark($image = null, $position = null, $scale = null)
     {
         $grav = $this->getGrav();
 
@@ -345,6 +341,13 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
         $watermark = $locator->findResource($file);
         $watermark = ImageFile::open($watermark);
 
+        // Scaling operations
+        $scale     = ($scale ?? $config->get('system.images.watermark.scale', 100)) / 100;
+        $wwidth    = $this->get('width')  * $scale;
+        $wheight   = $this->get('height') * $scale;
+        $watermark->resize($wwidth, $wheight);
+
+        // Position operations
         $position = !empty($args[1]) ? explode('-',  $args[1]) : ['center', 'center']; // todo change to config
         $positionY = $position[0] ?? $config->get('system.images.watermark.position_y', 'center');
         $positionX = $position[1] ?? $config->get('system.images.watermark.position_x', 'center');
@@ -356,11 +359,11 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
                 break;
 
             case 'bottom':
-                $positionY = $this->get('height')-$watermark->height();
+                $positionY = $this->get('height')-$wheight;
                 break;
 
             case 'center':
-                $positionY = ($this->get('height')/2) - ($watermark->height()/2);
+                $positionY = ($this->get('height')/2) - ($wheight/2);
                 break;
         }
 
@@ -371,11 +374,11 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
                 break;
 
             case 'right':
-                $positionX = $this->get('width')-$watermark->width();
+                $positionX = $this->get('width')-$wwidth;
                 break;
 
             case 'center':
-                $positionX = ($this->get('width')/2) - ($watermark->width()/2);
+                $positionX = ($this->get('width')/2) - ($wwidth/2);
                 break;
         }
 

@@ -164,6 +164,7 @@ images:
     image: 'system://images/watermark.png'       # Path to a watermark image
     position_y: 'center'                         # top|center|bottom
     position_x: 'center'                         # left|center|right
+    scale: 33                                    # percentage of watermark scale
     watermark_all: false                         # automatically watermark all images
 
 media:
