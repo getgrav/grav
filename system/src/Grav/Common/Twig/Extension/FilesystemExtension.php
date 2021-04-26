@@ -265,7 +265,7 @@ class FilesystemExtension extends AbstractExtension
             return false;
         }
 
-        return @exif_imagetype();
+        return @exif_imagetype($filename);
     }
 
     /**
