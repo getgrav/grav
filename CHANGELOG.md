@@ -1,3 +1,9 @@
+# v1.7.14
+## mm/dd/2021
+
+1. [](#bugfix)
+    * Fixed broken numeric language codes in Flex Pages [#2131](https://github.com/getgrav/grav-plugin-admin/issues/2131)
+
 # v1.7.13
 ## 04/23/2021
 

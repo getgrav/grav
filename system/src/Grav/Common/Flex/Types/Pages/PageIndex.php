@@ -416,7 +416,7 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
         $languages = $this->getFallbackLanguages($lang, $fallback);
         foreach ($entries as $key => &$entry) {
             // Find out which version of the page we should load.
-            $translations = $this->getLanguageTemplates($key);
+            $translations = $this->getLanguageTemplates((string)$key);
             if (!$translations) {
                 // No translations found, is this a folder?
                 continue;
