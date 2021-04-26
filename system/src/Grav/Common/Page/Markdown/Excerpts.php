@@ -114,7 +114,7 @@ class Excerpts
             );
 
             // Valid attributes supported.
-            $valid_attributes = $grav['config']->get('system.pages.markdown.valid_link_attributes');
+            $valid_attributes = $grav['config']->get('system.pages.markdown.valid_link_attributes') ?? [];
 
             $skip = [];
             // Unless told to not process, go through actions.
