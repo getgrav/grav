@@ -119,7 +119,7 @@ class FlexForm implements FlexObjectFormInterface, JsonSerializable
         }
         $this->setUniqueId($uniqueId);
         $directory = $object->getFlexDirectory();
-        $this->setFlashLookupFolder($directory->getBlueprint()->get('form/flash_folder') ?? 'tmp://forms/[SESSIONID]');
+        $this->setFlashLookupFolder($options['flash_folder'] ?? $directory->getBlueprint()->get('form/flash_folder') ?? 'tmp://forms/[SESSIONID]');
         $this->form = $options['form'] ?? null;
 
         if (!empty($options['reset'])) {
