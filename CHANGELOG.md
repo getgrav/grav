@@ -1,6 +1,8 @@
 # v1.7.14
 ## mm/dd/2021
 
+1. [](#new)
+    * Added `MediaUploadTrait::checkFileMetadata()` method
 1. [](#bugfix)
     * Fixed broken numeric language codes in Flex Pages [#3332](https://github.com/getgrav/grav/issues/3332)
     * Fixed broken `exif_imagetype()` twig function
