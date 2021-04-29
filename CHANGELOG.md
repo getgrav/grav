@@ -1,5 +1,5 @@
 # v1.7.14
-## mm/dd/2021
+## 04/29/2021
 
 1. [](#new)
     * Added `MediaUploadTrait::checkFileMetadata()` method
