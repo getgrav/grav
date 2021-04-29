@@ -1,3 +1,14 @@
+# v1.7.14
+## 04/29/2021
+
+1. [](#new)
+    * Added `MediaUploadTrait::checkFileMetadata()` method
+1. [](#improved)
+    * Updating a theme should always keep the custom files [getgrav/grav-plugin-admin#2135](https://github.com/getgrav/grav-plugin-admin/issues/2135)
+1. [](#bugfix)
+    * Fixed broken numeric language codes in Flex Pages [#3332](https://github.com/getgrav/grav/issues/3332)
+    * Fixed broken `exif_imagetype()` twig function
+
 # v1.7.13
 ## 04/23/2021
 

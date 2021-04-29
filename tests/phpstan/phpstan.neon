@@ -124,8 +124,11 @@ parameters:
 
         # Support for deprecated features
         -
-            message: '#Instantiation of deprecated class Doctrine\\Common\\Cache\\MemcacheCache#'
+            message: '#Instantiation of deprecated class Doctrine\\Common\\Cache\\(\w+)Cache#'
             path: '*/system/src/Grav/Common/Cache.php'
+        -
+            message: '#Instantiation of deprecated class Doctrine\\Common\\Cache\\(\w+)Cache#'
+            path: '*/system/src/Grav/Common/GPM/Remote/*.php'
         -
             message: '#Call to deprecated method order#'
             path: '*/system/src/Grav/Common/Page/Pages.php'
