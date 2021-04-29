@@ -135,7 +135,10 @@ class Installer
         }
 
         if (!$options['sophisticated']) {
-            if ($options['theme']) {
+            $isTheme = $options['theme'] ?? false;
+            // Make sure that themes are always being copied, even if option was not set!
+            $isTheme = $isTheme || preg_match('|/themes/[^/]+|ui', $install_path);
+            if ($isTheme) {
                 self::copyInstall($extracted, $install_path);
             } else {
                 self::moveInstall($extracted, $install_path);
