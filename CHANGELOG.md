@@ -1,3 +1,9 @@
+# v1.7.15
+## mm/dd/2021
+
+1. [](#bugfix)
+    * Fixed twig deprecated TwigFilter messages [#3348](https://github.com/getgrav/grav/issues/3348)
+
 # v1.7.14
 ## 04/29/2021
 
