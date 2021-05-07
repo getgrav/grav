@@ -157,7 +157,7 @@ class Excerpts
             // Handle custom streams.
             /** @var UniformResourceLocator $locator */
             $locator = $grav['locator'];
-            if ($locator->isStream($url)) {
+            if ($type === 'link' && $locator->isStream($url)) {
                 $path = $locator->findResource($url, false) ?: $locator->findResource($url, false, true);
                 $url_parts['path'] = $grav['base_url_relative'] . '/' . $path;
                 unset($url_parts['stream'], $url_parts['scheme']);
