@@ -239,6 +239,41 @@ class Page implements PageInterface
     }
 
     /**
+     * Return a different representation of the same page.
+     * Place a new file named _<representation>.md next to the current
+     * markdown file.
+     *
+     * @param string $representation the name of the alternative representation.
+     *
+     * @return Page A new instance of Page or null if the representation does not
+     * exists or is not published.
+     */
+    public function alternativeRepresentation($representation)
+    {
+        $returnValue;
+
+        $path = $this->path . DS . $this->folder . DS . '_' . $representation . '.md';
+        if (file_exists($path)) {
+            $aPage = new Page();
+            $aPage->init(new \SplFileInfo($path), '.md');
+
+            if (!$aPage->published()) {
+                $returnValue = null;
+            }
+            else {
+                // Removes the '_'
+                $aPage->template(($this->modular() ? 'modular/' : '') . $representation);
+                $returnValue = $aPage;
+            }
+        }
+        else {
+            $returnValue = null;
+        }
+
+        return $returnValue;
+    }
+
+    /**
      * Return an array with the routes of other translated languages
      *
      * @param bool $onlyPublished only return published translations
