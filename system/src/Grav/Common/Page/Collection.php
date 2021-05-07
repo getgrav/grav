@@ -331,14 +331,14 @@ class Collection extends Iterator implements PageCollectionInterface
      */
     public function dateRange($startDate = null, $endDate = null, $field = null)
     {
-        $start = $startDate ? Utils::date2timestamp($startDate) : false;
-        $end = $endDate ? Utils::date2timestamp($endDate) : false;
+        $start = $startDate ? Utils::date2timestamp($startDate) : null;
+        $end = $endDate ? Utils::date2timestamp($endDate) : null;
 
         $date_range = [];
         foreach ($this->items as $path => $slug) {
             $page = $this->pages->get($path);
             if (!$page) {
-                continue ;
+                continue;
             }
 
             $date = $field ? strtotime($page->value($field)) : $page->date();

@@ -438,8 +438,8 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
      */
     public function dateRange($startDate = null, $endDate = null, $field = null)
     {
-        $start = $startDate ? Utils::date2timestamp($startDate) : false;
-        $end = $endDate ? Utils::date2timestamp($endDate) : false;
+        $start = $startDate ? Utils::date2timestamp($startDate) : null;
+        $end = $endDate ? Utils::date2timestamp($endDate) : null;
 
         $entries = [];
         foreach ($this as $key => $object) {
