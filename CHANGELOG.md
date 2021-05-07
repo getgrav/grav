@@ -3,6 +3,7 @@
 
 1. [](#bugfix)
     * Fixed twig deprecated TwigFilter messages [#3348](https://github.com/getgrav/grav/issues/3348)
+    * Fixed fatal error with some markdown links [grav-premium-issues#95](https://github.com/getgrav/grav-premium-issues/issues/95)
 
 # v1.7.14
 ## 04/29/2021
