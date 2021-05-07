@@ -337,12 +337,14 @@ class Collection extends Iterator implements PageCollectionInterface
         $date_range = [];
         foreach ($this->items as $path => $slug) {
             $page = $this->pages->get($path);
-            if ($page !== null) {
-                $date = $field ? strtotime($page->value($field)) : $page->date();
+            if (!$page) {
+                continue ;
+            }
 
-                if ((!$start || $date >= $start) && (!$end || $date <= $end)) {
-                    $date_range[$path] = $slug;
-                }
+            $date = $field ? strtotime($page->value($field)) : $page->date();
+
+            if ((!$start || $date >= $start) && (!$end || $date <= $end)) {
+                $date_range[$path] = $slug;
             }
         }
 
