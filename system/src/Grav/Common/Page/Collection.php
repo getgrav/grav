@@ -326,7 +326,7 @@ class Collection extends Iterator implements PageCollectionInterface
      * @param string|null $startDate
      * @param string|null $endDate
      * @param string|null $field
-     * @return PageCollectionInterface
+     * @return $this
      * @throws Exception
      */
     public function dateRange($startDate = null, $endDate = null, $field = null)
