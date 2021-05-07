@@ -438,7 +438,7 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
      */
     public function dateRange($startDate, $endDate = false, $field = null)
     {
-        $start = Utils::date2timestamp($startDate);
+        $start = $startDate ? Utils::date2timestamp($startDate) : false;
         $end = $endDate ? Utils::date2timestamp($endDate) : false;
 
         $entries = [];
@@ -449,7 +449,7 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
 
             $date = $field ? strtotime($object->getNestedProperty($field)) : $object->date();
 
-            if ($date >= $start && (!$end || $date <= $end)) {
+            if ((!$start || $date >= $start) && (!$end || $date <= $end)) {
                 $entries[$key] = $object;
             }
         }

@@ -331,7 +331,7 @@ class Collection extends Iterator implements PageCollectionInterface
      */
     public function dateRange($startDate, $endDate = false, $field = null)
     {
-        $start = Utils::date2timestamp($startDate);
+        $start = $startDate ? Utils::date2timestamp($startDate) : false;
         $end = $endDate ? Utils::date2timestamp($endDate) : false;
 
         $date_range = [];
@@ -340,7 +340,7 @@ class Collection extends Iterator implements PageCollectionInterface
             if ($page !== null) {
                 $date = $field ? strtotime($page->value($field)) : $page->date();
 
-                if ($date >= $start && (!$end || $date <= $end)) {
+                if ((!$start || $date >= $start) && (!$end || $date <= $end)) {
                     $date_range[$path] = $slug;
                 }
             }
