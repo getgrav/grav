@@ -759,6 +759,8 @@ class UserObject extends FlexObject implements UserInterface, Countable
             }
         }
 
+        $this->clearMediaCache();
+
         $this->_uploads = $list;
         $this->_uploads_original = $list_original;
     }
