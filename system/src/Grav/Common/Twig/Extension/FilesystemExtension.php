@@ -31,7 +31,7 @@ class FilesystemExtension extends AbstractExtension
     }
 
     /**
-     * @return TwigFunction[]
+     * @return TwigFilter[]
      */
     public function getFilters()
     {
@@ -58,6 +58,7 @@ class FilesystemExtension extends AbstractExtension
             new TwigFilter('md5_file', [$this, 'md5_file']),
             new TwigFilter('sha1_file', [$this, 'sha1_file']),
             new TwigFilter('get_meta_tags', [$this, 'get_meta_tags']),
+            new TwigFilter('pathinfo', [$this, 'pathinfo']),
         ];
     }
 
@@ -91,6 +92,7 @@ class FilesystemExtension extends AbstractExtension
             new TwigFunction('md5_file', [$this, 'md5_file']),
             new TwigFunction('sha1_file', [$this, 'sha1_file']),
             new TwigFunction('get_meta_tags', [$this, 'get_meta_tags']),
+            new TwigFunction('pathinfo', [$this, 'pathinfo']),
         ];
     }
 
@@ -362,6 +364,16 @@ class FilesystemExtension extends AbstractExtension
         }
 
         return get_meta_tags($filename);
+    }
+
+    /**
+     * @param string $path
+     * @param int $flags
+     * @return string|string[]
+     */
+    public function pathinfo($path, $flags = PATHINFO_ALL)
+    {
+        return pathinfo($path);
     }
 
     /**

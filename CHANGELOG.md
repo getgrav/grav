@@ -8,6 +8,7 @@
     * Fixed fatal error with some markdown links [getgrav/grav-premium-issues#95](https://github.com/getgrav/grav-premium-issues/issues/95)
     * Fixed markdown media operations not working when using `image://` stream [#3333](https://github.com/getgrav/grav/issues/3333) [#3349](https://github.com/getgrav/grav/issues/3349)
     * Fixed copying page without changing the slug [getgrav/grav-plugin-admin#2135](https://github.com/getgrav/grav-plugin-admin/issues/2139)
+    * Fixed missing and commonly used methods when using `system.twig.undefined_functions = false` [getgrav/grav-plugin-admin#2138](https://github.com/getgrav/grav-plugin-admin/issues/2138)
 
 # v1.7.14
 ## 04/29/2021
