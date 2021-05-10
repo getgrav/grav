@@ -383,6 +383,7 @@ trait FlexMediaTrait
                 $medium = $upload ? MediumFactory::fromUploadedFile($upload) : null;
                 $updated = true;
                 if ($medium) {
+                    $medium->uploaded = true;
                     $media->add($filename, $medium);
                 } elseif (is_callable([$media, 'hide'])) {
                     $media->hide($filename);
