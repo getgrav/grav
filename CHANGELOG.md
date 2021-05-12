@@ -3,6 +3,7 @@
 
 1. [](#improved)
     * Allow optional start date in page collections [#3350](https://github.com/getgrav/grav/pull/3350)
+    * Added page and content properties to `onOutputGenerated` and `onOutputRendered` events
 1. [](#bugfix)
     * Fixed twig deprecated TwigFilter messages [#3348](https://github.com/getgrav/grav/issues/3348)
     * Fixed fatal error with some markdown links [getgrav/grav-premium-issues#95](https://github.com/getgrav/grav-premium-issues/issues/95)
