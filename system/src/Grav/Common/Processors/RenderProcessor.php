@@ -51,7 +51,7 @@ class RenderProcessor extends ProcessorBase
 
         ob_start();
 
-        $event = new Event(['page' => $page, 'html' => &$container->output]);
+        $event = new Event(['page' => $page, 'output' => &$container->output]);
         $container->fireEvent('onOutputGenerated', $event);
 
         echo $container->output;
@@ -61,7 +61,7 @@ class RenderProcessor extends ProcessorBase
         // remove any output
         $container->output = '';
 
-        $event = new Event(['page' => $page, 'html' => $html]);
+        $event = new Event(['page' => $page, 'output' => $html]);
         $this->container->fireEvent('onOutputRendered', $event);
 
         $this->stopTimer();
