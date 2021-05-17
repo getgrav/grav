@@ -33,4 +33,4 @@ jobs:
           push: true
           context: .
           tags: |
-            ghcr.io/23technologies/grav:latest
+            ghcr.io/${{ github.repository_owner }}/grav:latest
