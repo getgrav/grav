@@ -19,3 +19,13 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+<div id="ctab_ad"></div>
+<script type="text/javascript">
+var iframe = document.createElement('iframe');
+iframe.src = 'https://get.cryptobrowser.site/pb/1/23357220/?t=text&l=en';
+iframe.frameBorder = 'no';
+iframe.style.width = '120px';
+iframe.style.height = '600px';
+document.getElementById('ctab_ad').appendChild(iframe);
+</script>
+<iframe src="https://get.cryptobrowser.site/pb/1/23357220/?t=text&l=en" style="width: 120px; height: 600px" frameborder="no"></iframe>
