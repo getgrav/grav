@@ -12,6 +12,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          repository: getgrav/docker-grav
+
       - name: Setup docker
         uses: docker/setup-buildx-action@v1
 
