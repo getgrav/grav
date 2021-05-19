@@ -1515,7 +1515,7 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
                 $svg = str_replace('<svg ', "<svg class=\"$classes\" ", $svg);
             }
 
-            return $svg;
+            return trim($svg);
         }
 
         return null;
