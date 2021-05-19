@@ -1,5 +1,5 @@
 # v1.7.15
-## mm/dd/2021
+## 05/19/2021
 
 1. [](#improved)
     * Allow optional start date in page collections [#3350](https://github.com/getgrav/grav/pull/3350)
