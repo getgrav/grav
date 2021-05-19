@@ -373,7 +373,7 @@ trait FlexMediaTrait
             if (is_array($upload)) {
                 // Uses new format with [UploadedFileInterface, array].
                 $settings = $upload[1];
-                if ($settings['destination'] === $media->getPath()) {
+                if (isset($settings['destination']) && $settings['destination'] === $media->getPath()) {
                     $upload = $upload[0];
                 } else {
                     $upload = false;
@@ -383,6 +383,7 @@ trait FlexMediaTrait
                 $medium = $upload ? MediumFactory::fromUploadedFile($upload) : null;
                 $updated = true;
                 if ($medium) {
+                    $medium->uploaded = true;
                     $media->add($filename, $medium);
                 } elseif (is_callable([$media, 'hide'])) {
                     $media->hide($filename);

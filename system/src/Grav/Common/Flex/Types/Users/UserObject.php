@@ -696,6 +696,9 @@ class UserObject extends FlexObject implements UserInterface, Countable
         $locator = Grav::instance()['locator'];
 
         $media = $this->getMedia();
+        if (!$media instanceof MediaUploadInterface) {
+            return;
+        }
 
         $list = [];
         $list_original = [];
@@ -707,7 +710,6 @@ class UserObject extends FlexObject implements UserInterface, Countable
 
             // Load settings for the field.
             $settings = $this->getMediaFieldSettings($field);
-
             foreach ($group as $filename => $file) {
                 if ($file) {
                     // File upload.
@@ -723,7 +725,7 @@ class UserObject extends FlexObject implements UserInterface, Countable
 
                 if ($file) {
                     // Check file upload against media limits.
-                    $filename = $media->checkUploadedFile($file, $filename, $settings);
+                    $filename = $media->checkUploadedFile($file, $filename, ['filesize' => 0] + $settings);
                 }
 
                 $self = $settings['self'];
@@ -758,6 +760,8 @@ class UserObject extends FlexObject implements UserInterface, Countable
                 }
             }
         }
+
+        $this->clearMediaCache();
 
         $this->_uploads = $list;
         $this->_uploads_original = $list_original;

@@ -540,9 +540,9 @@ class Pages
         }
 
         if (isset($params['dateRange'])) {
-            $start = $params['dateRange']['start'] ?? 0;
-            $end = $params['dateRange']['end'] ?? false;
-            $field = $params['dateRange']['field'] ?? false;
+            $start = $params['dateRange']['start'] ?? null;
+            $end = $params['dateRange']['end'] ?? null;
+            $field = $params['dateRange']['field'] ?? null;
             $collection = $collection->dateRange($start, $end, $field);
         }
 

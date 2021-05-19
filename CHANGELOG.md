@@ -1,3 +1,17 @@
+# v1.7.15
+## 05/19/2021
+
+1. [](#improved)
+    * Allow optional start date in page collections [#3350](https://github.com/getgrav/grav/pull/3350)
+    * Added `page` and `output` properties to `onOutputGenerated` and `onOutputRendered` events
+1. [](#bugfix)
+    * Fixed twig deprecated TwigFilter messages [#3348](https://github.com/getgrav/grav/issues/3348)
+    * Fixed fatal error with some markdown links [getgrav/grav-premium-issues#95](https://github.com/getgrav/grav-premium-issues/issues/95)
+    * Fixed markdown media operations not working when using `image://` stream [#3333](https://github.com/getgrav/grav/issues/3333) [#3349](https://github.com/getgrav/grav/issues/3349)
+    * Fixed copying page without changing the slug [getgrav/grav-plugin-admin#2135](https://github.com/getgrav/grav-plugin-admin/issues/2139)
+    * Fixed missing and commonly used methods when using `system.twig.undefined_functions = false` [getgrav/grav-plugin-admin#2138](https://github.com/getgrav/grav-plugin-admin/issues/2138)
+    * Fixed uploading images into Flex Object if field destination is not set
+
 # v1.7.14
 ## 04/29/2021
 

@@ -13,6 +13,7 @@ use Grav\Common\Grav;
 use Grav\Common\Utils;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use Twig\Extension\AbstractExtension;
+use Twig\TwigFilter;
 use Twig\TwigFunction;
 
 /**
@@ -30,11 +31,35 @@ class FilesystemExtension extends AbstractExtension
     }
 
     /**
-     * @return TwigFunction[]
+     * @return TwigFilter[]
      */
     public function getFilters()
     {
-        return $this->getFunctions();
+        return [
+            new TwigFilter('file_exists', [$this, 'file_exists']),
+            new TwigFilter('fileatime', [$this, 'fileatime']),
+            new TwigFilter('filectime', [$this, 'filectime']),
+            new TwigFilter('filemtime', [$this, 'filemtime']),
+            new TwigFilter('filesize', [$this, 'filesize']),
+            new TwigFilter('filetype', [$this, 'filetype']),
+            new TwigFilter('is_dir', [$this, 'is_dir']),
+            new TwigFilter('is_file', [$this, 'is_file']),
+            new TwigFilter('is_link', [$this, 'is_link']),
+            new TwigFilter('is_readable', [$this, 'is_readable']),
+            new TwigFilter('is_writable', [$this, 'is_writable']),
+            new TwigFilter('is_writeable', [$this, 'is_writable']),
+            new TwigFilter('lstat', [$this, 'lstat']),
+            new TwigFilter('getimagesize', [$this, 'getimagesize']),
+            new TwigFilter('exif_read_data', [$this, 'exif_read_data']),
+            new TwigFilter('read_exif_data', [$this, 'exif_read_data']),
+            new TwigFilter('exif_imagetype', [$this, 'exif_imagetype']),
+            new TwigFilter('hash_file', [$this, 'hash_file']),
+            new TwigFilter('hash_hmac_file', [$this, 'hash_hmac_file']),
+            new TwigFilter('md5_file', [$this, 'md5_file']),
+            new TwigFilter('sha1_file', [$this, 'sha1_file']),
+            new TwigFilter('get_meta_tags', [$this, 'get_meta_tags']),
+            new TwigFilter('pathinfo', [$this, 'pathinfo']),
+        ];
     }
 
     /**
@@ -67,6 +92,7 @@ class FilesystemExtension extends AbstractExtension
             new TwigFunction('md5_file', [$this, 'md5_file']),
             new TwigFunction('sha1_file', [$this, 'sha1_file']),
             new TwigFunction('get_meta_tags', [$this, 'get_meta_tags']),
+            new TwigFunction('pathinfo', [$this, 'pathinfo']),
         ];
     }
 
@@ -338,6 +364,16 @@ class FilesystemExtension extends AbstractExtension
         }
 
         return get_meta_tags($filename);
+    }
+
+    /**
+     * @param string $path
+     * @param int $flags
+     * @return string|string[]
+     */
+    public function pathinfo($path, $flags = PATHINFO_ALL)
+    {
+        return pathinfo($path);
     }
 
     /**

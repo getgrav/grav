@@ -12,6 +12,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Extract Tag
+        run: echo "PACKAGE_VERSION=${{ github.ref }}" >> $GITHUB_ENV
+
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
@@ -38,13 +41,14 @@ jobs:
         run: |
           bash ./build-grav.sh
 
-      - name: Upload Grav Release Assets
-        id: upload-release-asset
-        uses: alexellis/upload-assets@0.2.3
-        env:
-          GITHUB_TOKEN: ${{ secrets.GLOBAL_TOKEN }}
+      - name: Upload packages to release
+        uses: svenstaro/upload-release-action@v2
         with:
-          asset_paths: '["./grav-dist/*.zip"]'
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ env.PACKAGE_VERSION }}
+          file: ./grav-dist/*.zip
+          overwrite: true
+          file_glob: true
 
   slack:
     name: Slack

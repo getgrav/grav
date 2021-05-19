@@ -322,6 +322,7 @@ trait PageLegacyTrait
         $parentKey = $parent ? $parent->getKey() : '';
         if ($this instanceof FlexPageObject) {
             $key = trim($parentKey . '/' . $this->folder(), '/');
+            $key = preg_replace(static::PAGE_ORDER_PREFIX_REGEX, '', $key);
         } else {
             $key = trim($parentKey . '/' . basename($this->getKey()), '/');
         }

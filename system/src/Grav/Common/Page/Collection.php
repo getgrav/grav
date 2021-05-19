@@ -319,30 +319,32 @@ class Collection extends Iterator implements PageCollectionInterface
 
     /**
      * Returns the items between a set of date ranges of either the page date field (default) or
-     * an arbitrary datetime page field where end date is optional
-     * Dates can be passed in as text that strtotime() can process
+     * an arbitrary datetime page field where start date and end date are optional
+     * Dates must be passed in as text that strtotime() can process
      * http://php.net/manual/en/function.strtotime.php
      *
-     * @param string $startDate
-     * @param bool $endDate
+     * @param string|null $startDate
+     * @param string|null $endDate
      * @param string|null $field
      * @return $this
      * @throws Exception
      */
-    public function dateRange($startDate, $endDate = false, $field = null)
+    public function dateRange($startDate = null, $endDate = null, $field = null)
     {
-        $start = Utils::date2timestamp($startDate);
-        $end = $endDate ? Utils::date2timestamp($endDate) : false;
+        $start = $startDate ? Utils::date2timestamp($startDate) : null;
+        $end = $endDate ? Utils::date2timestamp($endDate) : null;
 
         $date_range = [];
         foreach ($this->items as $path => $slug) {
             $page = $this->pages->get($path);
-            if ($page !== null) {
-                $date = $field ? strtotime($page->value($field)) : $page->date();
+            if (!$page) {
+                continue;
+            }
 
-                if ($date >= $start && (!$end || $date <= $end)) {
-                    $date_range[$path] = $slug;
-                }
+            $date = $field ? strtotime($page->value($field)) : $page->date();
+
+            if ((!$start || $date >= $start) && (!$end || $date <= $end)) {
+                $date_range[$path] = $slug;
             }
         }
 
