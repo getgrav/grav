@@ -1,3 +1,9 @@
+# v1.7.16
+## mm/dd/2021
+
+1. [](#bugfix)
+    * Improve Plugin and Theme initialization to fix PHP8 bug [#3368](https://github.com/getgrav/grav/issues/3368)
+
 # v1.7.15
 ## 05/19/2021
 
