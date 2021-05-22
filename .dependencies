@@ -11,9 +11,9 @@ git:
         url: https://github.com/getgrav/grav-plugin-markdown-notices
         path: user/plugins/markdown-notices
         branch: master
-    quark:
-        url: https://github.com/getgrav/grav-theme-quark
-        path: user/themes/quark
+    afj:
+        url: https://github.com/voodoos/grav-theme-afj
+        path: user/themes/afj
         branch: master
 links:
     problems:
