@@ -1,5 +1,5 @@
 en:
-  THEME_QUARK:
+  THEME_AFJ:
     BLOG:
       ITEM:
         CONTINUE_READING: Continue reading...
@@ -23,7 +23,7 @@ en:
         HEADLINE: Syndicate
 
 de:
-  THEME_QUARK:
+  THEME_AFJ:
     BLOG:
       ITEM:
         CONTINUE_READING: Weiterlesen...

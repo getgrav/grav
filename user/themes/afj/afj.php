@@ -4,7 +4,7 @@ namespace Grav\Theme;
 use Grav\Common\Grav;
 use Grav\Common\Theme;
 
-class Quark extends Theme
+class Afj extends Theme
 {
     public static function getSubscribedEvents()
     {

@@ -1,17 +1,16 @@
-name: Quark
-slug: quark
+name: Afj
+slug: afj
 type: theme
 version: 2.0.3
-description: New Grav Default Theme
+description: A theme for the AFJ's website, based on Grav's default theme quark
 icon: microchip
 author:
-  name: Team Grav
-  email: devs@getgrav.org
-  url: https://getgrav.org
-homepage: https://github.com/getgrav/grav-theme-quark
-demo: https://demo.getgrav.org/onepage-skeleton
-keywords: quark, spectre, theme, core, modern, fast, responsive, html5, css3
-bugs: https://github.com/getgrav/grav-theme-quark/issues
+  name: Team AFJ
+  email: devs@afj.asso.fr
+  url: https://afj.asso.fr
+homepage: https://github.com/voodoos/grav-theme-afj
+keywords: afj, spectre, theme, core, modern, fast, responsive, html5, css3
+bugs: https://github.com/voodoos/grav-theme-afj/issues
 license: MIT
 
 dependencies:
@@ -24,7 +23,7 @@ form:
     production-mode:
       type: toggle
       label: Production mode
-      help: When enabled, Quark will render with minified CSS
+      help: When enabled, the theme will render with minified CSS
       highlight: 1
       default: 1
       options:
