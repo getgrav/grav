@@ -1,0 +1,11 @@
+{% set title_level = title_level ?: 'h2' %}
+{% if page.header.link %}
+    <{{ title_level }} class="p-name mt-1">
+        {% if page.header.continue_link is not same as(false) %}
+        <a href="{{ page.url }}"><i class="fa fa-angle-double-right u-url"></i></a>
+        {% endif %}
+        <a href="{{ page.header.link }}" class="u-url">{{ page.title }}</a>
+    </{{ title_level }}>
+{% else %}
+    <{{ title_level }} class="p-name mt-1"><a href="{{ page.url }}" class="u-url">{{ page.title }}</a></{{ title_level }}>
+{% endif %}

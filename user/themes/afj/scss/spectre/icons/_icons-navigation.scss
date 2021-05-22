@@ -1,0 +1,127 @@
+// Icon arrows
+.icon-arrow-down,
+.icon-arrow-left,
+.icon-arrow-right,
+.icon-arrow-up,
+.icon-downward,
+.icon-back,
+.icon-forward,
+.icon-upward {
+  &::before {
+    border: $icon-border-width solid currentColor;
+    border-bottom: 0;
+    border-right: 0;
+    height: .65em;
+    width: .65em;
+  }
+}
+
+.icon-arrow-down {
+  &::before {
+    transform: translate(-50%, -75%) rotate(225deg);
+  }
+}
+
+.icon-arrow-left {
+  &::before {
+    transform: translate(-25%, -50%) rotate(-45deg);
+  }
+}
+
+.icon-arrow-right {
+  &::before {
+    transform: translate(-75%, -50%) rotate(135deg);
+  }
+}
+
+.icon-arrow-up {
+  &::before {
+    transform: translate(-50%, -25%) rotate(45deg);
+  }
+}
+
+.icon-back,
+.icon-forward {
+  &::after {
+    background: currentColor;
+    height: $icon-border-width;
+    width: .8em;
+  }
+}
+
+.icon-downward,
+.icon-upward {
+  &::after {
+    background: currentColor;
+    height: .8em;
+    width: $icon-border-width;
+  }
+}
+
+.icon-back {
+  &::after {
+    left: 55%;
+  }
+  &::before {
+    transform: translate(-50%, -50%) rotate(-45deg);
+  }
+}
+
+.icon-downward {
+  &::after {
+    top: 45%;
+  }
+  &::before {
+    transform: translate(-50%, -50%) rotate(-135deg);
+  }
+}
+
+.icon-forward {
+  &::after {
+    left: 45%;
+  }
+  &::before {
+    transform: translate(-50%, -50%) rotate(135deg);
+  }
+}
+
+.icon-upward {
+  &::after {
+    top: 55%;
+  }
+  &::before {
+    transform: translate(-50%, -50%) rotate(45deg);
+  }
+}
+
+// Icon caret
+.icon-caret {
+  &::before {
+    border-top: .3em solid currentColor;
+    border-right: .3em solid transparent;
+    border-left: .3em solid transparent;
+    height: 0;
+    transform: translate(-50%, -25%);
+    width: 0;
+  }
+}
+
+// Icon menu
+.icon-menu {
+  &::before {
+    background: currentColor;
+    box-shadow: 0 -.35em, 0 .35em;
+    height: $icon-border-width;
+    width: 100%;
+  }
+}
+
+// Icon apps
+.icon-apps {
+  &::before {
+    background: currentColor;
+    box-shadow: -.35em -.35em, -.35em 0, -.35em .35em, 0 -.35em, 0 .35em, .35em -.35em, .35em 0, .35em .35em;
+    height: 3px;
+    width: 3px;
+  }
+}

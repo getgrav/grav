@@ -1,0 +1,101 @@
+#header {
+  width: 100%;
+  height: $header-height-large;
+  border-bottom: 1px solid rgba($gray-color, 0.2);
+  @extend .default-animation;
+
+  font-size: 0.7rem;
+  font-weight: 700;
+
+  background: $light-color;
+  color: $dark-color;
+
+  a {
+    color: $dark-color;
+  }
+
+  .logo svg path {
+    fill: $header-color-dark;
+  }
+
+  .header-dark &:not(.scrolled) {
+    background: $header-color-dark;
+    color: $light-color;
+    a {
+      color: rgba($light-color, 0.7) !important;
+    }
+    a.active {
+      color: $light-color !important;
+    }
+    .dropmenu ul ul a {
+        color: $dark-color !important;
+    }
+    .logo svg path {
+      fill: $light-color;
+    }
+  }
+
+  .header-dark.header-transparent &:not(.scrolled) {
+    background: rgba(#000, 0.05);
+  }
+
+  .header-transparent &:not(.scrolled) {
+    background: rgba(#fff, 0.05);
+    //border-bottom: 0 !important;
+  }
+
+  .navbar-section {
+    height: $header-height-large;
+    @extend .default-animation;
+
+    @include breakpoint(md) {
+      margin-right: 2rem;
+    }
+  }
+
+  .navbar-section.desktop-menu {
+    @include breakpoint(md) {
+      display: none;
+    }
+  }
+
+  .logo {
+    svg, img {
+      height: 42px;
+      display: inherit;
+      @extend .default-animation;
+    }
+  }
+
+  // Fixed Header solution
+  .header-fixed & {
+    position: fixed;
+    top: 0;
+    z-index: 2;
+  }
+}
+
+// Animate Fixed Header
+body.header-fixed.header-animated {
+  #header.scrolled {
+    height: $header-height-small;
+
+    .navbar-section {
+      height: $header-height-small;
+    }
+
+    .logo {
+      svg, img {
+        height: 28px;
+      }
+    }
+
+    ~ .mobile-menu .button_container {
+      top: 0.5rem;
+    }
+  }
+}
+
+.login-status-wrapper {
+  white-space: nowrap;
+}

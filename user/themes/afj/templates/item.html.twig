@@ -1,0 +1,41 @@
+{% extends 'partials/base.html.twig' %}
+{% set blog = page.find(header_var('blog_url')|defined(theme_var('blog-page'))) %}
+{% set show_breadcrumbs = header_var('show_breadcrumbs', [page, blog])|defined(true) %}
+{% set show_sidebar = header_var('show_sidebar', [page, blog])|defined(true)  %}
+{% set show_pagination = header_var('show_pagination', [page, blog])|defined(true) %}
+{% set hero_image_name = page.header.hero_image %}
+
+{% block hero %}
+    {% if hero_image_name %}
+        {% set hero_image = page.media[hero_image_name] %}
+        {% set content %}
+            <h1>{{ page.title }}</h1>
+            <h2>{{ page.header.subtitle }}</h2>
+            {% include 'partials/blog/date.html.twig' %}
+            {% include 'partials/blog/taxonomy.html.twig' %}
+        {% endset %}
+        {% include 'partials/hero.html.twig' with {id: 'blog-hero'} %}
+
+    {% endif %}
+{% endblock %}
+
+{% block body %}
+<section id="body-wrapper" class="section blog-listing">
+    <section class="container {{ grid_size }}">
+
+        {% if show_breadcrumbs and config.plugins.breadcrumbs.enabled %}
+            {% include 'partials/breadcrumbs.html.twig' %}
+        {% endif %}
+
+        {% embed 'partials/layout.html.twig' %}
+            {% block item %}
+                {% include 'partials/blog-item.html.twig' %}
+            {% endblock %}
+            {% block sidebar %}
+                {% include 'partials/sidebar.html.twig' %}
+            {% endblock %}
+        {% endembed %}
+
+    </section>
+</section>
+{% endblock %}

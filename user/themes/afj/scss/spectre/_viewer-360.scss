@@ -1,0 +1,34 @@
+// 360 Degree Viewer
+
+// Mixin: Viewer slider sizes
+@mixin viewer-slider-size($image-number: 36) {
+  @for $s from 1 through ($image-number) {
+    .viewer-slider[max='#{$image-number}'][value='#{$s}'] + .viewer-image {
+      background-position-y: percentage((($s)-1) * 1/(($image-number)-1));
+    }
+  }
+}
+
+.viewer-360 {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+
+  // Copy and add more numbers if you need
+  @include viewer-slider-size(36);
+
+  .viewer-slider {
+    cursor: ew-resize;
+    margin: 1rem;
+    order: 2;
+    width: 60%;
+  }
+
+  .viewer-image {
+    background-position-y: 0;
+    background-repeat: no-repeat;
+    background-size: 100%;
+    max-width: 100%;
+    order: 1;
+  }
+}

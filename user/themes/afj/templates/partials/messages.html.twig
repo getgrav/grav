@@ -1,0 +1,17 @@
+{% set type_mapping = {'info':'success', 'error': 'error', 'warning': 'warning'} %}
+{% set icon_mapping = {'info':'checkmark', 'error':'wrong', 'warning':'information'} %}
+
+{% if grav.messages.all %}
+    <div id="messages">
+    {% for message in grav.messages.fetch %}
+
+        {% set scope = message.scope|e %}
+        {% set type = type_mapping[scope] %}
+        {% set icon = icon_mapping[scope] %}
+
+        <div class="toast toast-{{ type }} {{ scope }}">
+            <i class="icon dripicons-{{ icon }}"></i> {{ message.message|raw }}
+        </div>
+    {% endfor %}
+    </div>
+{% endif %}

@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = git@github.com:voodoos/grav-theme-afj.git
+	branch = develop
+	commit = 058d04ded5e772d048a1e04e0a661a2781b91687
+	parent = 3f8c51cc01488328b6cbc9a081ab5d1ab98d43d8
+	method = merge
+	cmdver = 0.4.3

@@ -1,0 +1,71 @@
+// Steps
+.step {
+  display: flex;
+  flex-wrap: nowrap;
+  list-style: none;
+  margin: $unit-1 0;
+  width: 100%;
+
+  .step-item {
+    flex: 1 1 0;
+    margin-top: 0;
+    min-height: 1rem;
+    text-align: center;
+    position: relative;
+
+    &:not(:first-child)::before {
+      background: $primary-color;
+      content: "";
+      height: 2px;
+      left: -50%;
+      position: absolute;
+      top: 9px;
+      width: 100%;
+    }
+
+    a {
+      color: $primary-color;
+      display: inline-block;
+      padding: 20px 10px 0;
+      text-decoration: none;
+
+      &::before {
+        background: $primary-color;
+        border: $border-width-lg solid $light-color;
+        border-radius: 50%;
+        content: "";
+        display: block;
+        height: $unit-3;
+        left: 50%;
+        position: absolute;
+        top: $unit-1;
+        transform: translateX(-50%);
+        width: $unit-3;
+        z-index: $zindex-0;
+      }
+    }
+
+    &.active {
+      a {
+        &::before {
+          background: $light-color;
+          border: $border-width-lg solid $primary-color;
+        }
+      }
+
+      & ~ .step-item {
+        &::before {
+          background: $border-color;
+        }
+
+        a {
+          color: $gray-color;
+
+          &::before {
+            background: $border-color;
+          }
+        }
+      }
+    }
+  }
+}

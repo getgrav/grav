@@ -1,0 +1,54 @@
+// Icon variables
+$icon-border-width: $border-width-lg;
+$icon-prefix: "icon";
+
+// Icon base style
+.#{$icon-prefix} {
+  box-sizing: border-box;
+  display: inline-block;
+  font-size: inherit;
+  font-style: normal;
+  height: 1em;
+  position: relative;
+  text-indent: -9999px;
+  vertical-align: middle;
+  width: 1em;
+  &::before,
+  &::after {
+    content: "";
+    display: block;
+    left: 50%;
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  // Icon sizes
+  &.icon-2x {
+    font-size: 1.6rem;
+  }
+
+  &.icon-3x {
+    font-size: 2.4rem;
+  }
+
+  &.icon-4x {
+    font-size: 3.2rem;
+  }
+}
+
+// Component icon support
+.accordion,
+.btn,
+.toast,
+.menu {
+  .#{$icon-prefix} {
+    vertical-align: -10%;
+  }
+}
+
+.btn-lg {
+  .#{$icon-prefix} {
+    vertical-align: -15%;
+  }
+}

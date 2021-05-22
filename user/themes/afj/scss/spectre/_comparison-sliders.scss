@@ -1,0 +1,115 @@
+// Image comparison slider
+// Credit: http://codepen.io/solipsistacp/pen/Gpmaq
+.comparison-slider {
+  height: 50vh;
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+  -webkit-overflow-scrolling: touch;
+
+  .comparison-before,
+  .comparison-after {
+    height: 100%;
+    left: 0;
+    margin: 0;
+    overflow: hidden;
+    position: absolute;
+    top: 0;
+
+    img {
+      height: 100%;
+      object-fit: cover;
+      object-position: left center;
+      position: absolute;
+      width: 100%;
+    }
+  }
+
+  .comparison-before {
+    width: 100%;
+    z-index: 1;
+
+    .comparison-label {
+      right: $unit-4;
+    }
+  }
+
+  .comparison-after {
+    max-width: 100%;
+    min-width: 0;
+    z-index: 2;
+
+    &::before {
+      background: transparent;
+      content: "";
+      cursor: default;
+      height: 100%;
+      left: 0;
+      position: absolute;
+      right: $unit-4;
+      top: 0;
+      z-index: $zindex-0;
+    }
+
+    &::after {
+      background: currentColor;
+      border-radius: 50%;
+      box-shadow: 0 -5px, 0 5px;
+      color: $light-color;
+      content: "";
+      height: 3px;
+      position: absolute;
+      right: $unit-2;
+      top: 50%;
+      transform: translate(50%, -50%);
+      width: 3px;
+    }
+
+    .comparison-label {
+      left: $unit-4;
+    }
+  }
+
+  .comparison-resizer {
+    animation: first-run 1.5s 1 ease-in-out;
+    cursor: ew-resize;
+    height: $unit-4;
+    left: 0;
+    max-width: 100%;
+    min-width: $unit-4;
+    opacity: 0;
+    outline: none;
+    position: relative;
+    resize: horizontal;
+    top: 50%;
+    transform: translateY(-50%) scaleY(30);
+    width: 0;
+  }
+
+  .comparison-label {
+    background: rgba($dark-color, .5);
+    bottom: $unit-4;
+    color: $light-color;
+    padding: $unit-1 $unit-2;
+    position: absolute;
+    user-select: none;
+  }
+}
+
+@keyframes first-run {
+  0% {
+    width: 0;
+  }
+  25% {
+    width: $unit-12;
+  }
+  50% {
+    width: $unit-4;
+  }
+  75% {
+    width: $unit-6;
+  }
+  100% {
+    width: 0;
+  }
+}

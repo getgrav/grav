@@ -1,0 +1,30 @@
+<div class="content-item h-entry">
+
+{% if not hero_image_name %}
+    <div class="content-title text-center">
+        {% include 'partials/blog/title.html.twig' with {title_level: 'h2'} %}
+        {% if page.header.subtitle %}
+        <h3 >{{ page.header.subtitle }}</h3>
+        {% endif %}
+        {% include 'partials/blog/date.html.twig' %}
+        {% include 'partials/blog/taxonomy.html.twig' %}
+    </div>
+{% endif %}
+    <div class="e-content">
+        {{ page.content|raw }}
+    </div>
+
+    {% if page.header.continue_link is same as(true) and config.plugins.comments.enabled %}
+        {% include 'partials/comments.html.twig' %}
+    {% endif %}
+</div>
+
+<p class="prev-next text-center">
+    {% if not page.isLast %}
+            <a class="btn" href="{{ page.prevSibling.url }}"><i class="fa fa-angle-left"></i> {{ 'THEME_QUARK.BLOG.ITEM.PREV_POST'|t }}</a>
+    {% endif %}
+
+    {% if not page.isFirst %}
+        <a class="btn" href="{{ page.nextSibling.url }}">{{ 'THEME_QUARK.BLOG.ITEM.NEXT_POST'|t }} <i class="fa fa-angle-right"></i></a>
+    {% endif %}
+</p>

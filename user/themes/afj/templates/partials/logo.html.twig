@@ -1,0 +1,9 @@
+{% set logo = theme_var(mobile ? 'custom_logo_mobile' : 'custom_logo') %}
+<a href="{{ home_url }}" class="navbar-brand mr-10">
+{% if logo %}
+  {% set logo_file = (logo|first).name %}
+  <img src="{{ url('theme://images/logo/' ~ logo_file)  }}" alt="{{ site.title }}" />
+{% else %}
+  {% include('@images/grav-logo.svg') %}
+{% endif %}
+</a>

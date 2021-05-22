@@ -1,0 +1,43 @@
+// Optimized for East Asian CJK
+html:lang(zh),
+html:lang(zh-Hans),
+.lang-zh,
+.lang-zh-hans {
+  font-family: $cjk-zh-hans-font-family;
+}
+
+html:lang(zh-Hant),
+.lang-zh-hant {
+  font-family: $cjk-zh-hant-font-family;
+}
+
+html:lang(ja),
+.lang-ja {
+  font-family: $cjk-jp-font-family;
+}
+
+html:lang(ko),
+.lang-ko {
+  font-family: $cjk-ko-font-family;
+}
+
+:lang(zh),
+:lang(ja),
+.lang-cjk {
+  ins,
+  u {
+    border-bottom: $border-width solid;
+    text-decoration: none;
+  }
+
+  del + del,
+  del + s,
+  ins + ins,
+  ins + u,
+  s + del,
+  s + s,
+  u + ins,
+  u + u {
+    margin-left: .125em;
+  }
+}

@@ -1,0 +1,77 @@
+@mixin breakpoint($point) {
+  @if $point == 2x {
+    @media (min-width:$size-2x) {
+      @content;
+    }
+  } @else if $point == xl {
+    @media (max-width: $size-xl) {
+      @content;
+    }
+
+  } @else if $point == lg {
+    @media (max-width: $size-lg) {
+      @content;
+    }
+  } @else if $point == md {
+    @media (max-width: $size-md) {
+      @content;
+    }
+  } @else if $point == sm {
+    @media (max-width: $size-sm) {
+      @content;
+    }
+  } @else if $point == xs {
+    @media (max-width: $size-xs) {
+      @content;
+    }
+  }  @else {
+    @warn "Breakpoint mixin supports: xs, sm, md, lg, xl, 2x";
+  }
+}
+
+@mixin vertical-align($position: relative) {
+  position: $position;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+@mixin button-primary() {
+  background: $primary-color;
+  border-color: $primary-color-dark;
+  color: $light-color;
+  &:focus,
+  &:hover {
+    background: darken($primary-color-dark, 2%);
+    border-color: darken($primary-color-dark, 5%);
+    color: $light-color;
+  }
+  &:active,
+  &.active {
+    background: darken($primary-color-dark, 4%);
+    border-color: darken($primary-color-dark, 7%);
+    color: $light-color;
+  }
+}
+
+@function strip-unit($value) {
+  @return $value / ($value * 0 + 1);
+}
+
+@mixin fluid-type($min-vw, $max-vw, $min-font-size, $max-font-size) {
+  $u1: unit($min-vw);
+  $u2: unit($max-vw);
+  $u3: unit($min-font-size);
+  $u4: unit($max-font-size);
+
+  @if $u1 == $u2 and $u1 == $u3 and $u1 == $u4 {
+    & {
+      font-size: $min-font-size;
+      @media screen and (min-width: $min-vw) {
+        font-size: calc(#{$min-font-size} + #{strip-unit($max-font-size - $min-font-size)} * ((100vw - #{$min-vw}) / #{strip-unit($max-vw - $min-vw)}));
+      }
+      @media screen and (min-width: $max-vw) {
+        font-size: $max-font-size;
+      }
+    }
+  }
+}

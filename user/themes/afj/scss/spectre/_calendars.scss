@@ -1,0 +1,222 @@
+// Calendars
+.calendar {
+  border: $border-width solid $border-color;
+  border-radius: $border-radius;
+  display: block;
+  min-width: 280px;
+
+  .calendar-nav {
+    align-items: center;
+    background: $bg-color;
+    border-top-left-radius: $border-radius;
+    border-top-right-radius: $border-radius;
+    display: flex;
+    font-size: $font-size-lg;
+    padding: $layout-spacing;
+  }
+
+  .calendar-header,
+  .calendar-body {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: $layout-spacing 0;
+
+    .calendar-date {
+      flex: 0 0 14.28%; // 7 calendar-items each row
+      max-width: 14.28%;
+    }
+  }
+
+  .calendar-header {
+    background: $bg-color;
+    border-bottom: $border-width solid $border-color;
+    color: $gray-color;
+    font-size: $font-size-sm;
+    text-align: center;
+  }
+
+  .calendar-body {
+    color: $gray-color-dark;
+  }
+
+  .calendar-date {
+    border: 0;
+    padding: $unit-1;
+
+    .date-item {
+      appearance: none;
+      background: transparent;
+      border: $border-width solid transparent;
+      border-radius: 50%;
+      color: $gray-color-dark;
+      cursor: pointer;
+      font-size: $font-size-sm;
+      height: $unit-7;
+      line-height: $unit-5;
+      outline: none;
+      padding: $unit-h;
+      position: relative;
+      text-align: center;
+      text-decoration: none;
+      transition: background .2s, border .2s, box-shadow .2s, color .2s;
+      vertical-align: middle;
+      white-space: nowrap;
+      width: $unit-7;
+
+      &.date-today {
+        border-color: $secondary-color-dark;
+        color: $primary-color;
+      }
+
+      &:focus {
+        @include control-shadow();
+      }
+
+      &:focus,
+      &:hover {
+        background: $secondary-color-light;
+        border-color: $secondary-color-dark;
+        color: $primary-color;
+        text-decoration: none;
+      }
+      &:active,
+      &.active {
+        background: $primary-color-dark;
+        border-color: darken($primary-color-dark, 5%);
+        color: $light-color;
+      }
+
+      // Calendar badge support
+      &.badge {
+        &::after {
+          position: absolute;
+          top: 3px;
+          right: 3px;
+          transform: translate(50%, -50%);
+        }
+      }
+    }
+
+    .date-item,
+    .calendar-event {
+      &:disabled,
+      &.disabled {
+        cursor: default;
+        opacity: .25;
+        pointer-events: none;
+      }
+    }
+
+    &.prev-month,
+    &.next-month {
+      .date-item,
+      .calendar-event {
+        opacity: .25;
+      }
+    }
+  }
+
+  .calendar-range {
+    position: relative;
+
+    &::before {
+      background: $secondary-color;
+      content: "";
+      height: $unit-7;
+      left: 0;
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+    &.range-start {
+      &::before {
+        left: 50%;
+      }
+    }
+    &.range-end {
+      &::before {
+        right: 50%;
+      }
+    }
+
+    &.range-start,
+    &.range-end {
+      .date-item {
+        background: $primary-color-dark;
+        border-color: darken($primary-color-dark, 5%);
+        color: $light-color;
+      }
+    }
+
+    .date-item {
+      color: $primary-color;
+    }
+  }
+
+  // Calendars size
+  &.calendar-lg {
+    .calendar-body {
+      padding: 0;
+
+      .calendar-date {
+        border-bottom: $border-width solid $border-color;
+        border-right: $border-width solid $border-color;
+        display: flex;
+        flex-direction: column;
+        height: 5.5rem;
+        padding: 0;
+
+        &:nth-child(7n) {
+          border-right: 0;
+        }
+        &:nth-last-child(-n+7) {
+          border-bottom: 0;
+        }
+      }
+    }
+
+    .date-item {
+      align-self: flex-end;
+      height: $unit-7;
+      margin-right: $layout-spacing-sm;
+      margin-top: $layout-spacing-sm;
+    }
+
+    .calendar-range {
+      &::before {
+        top: 19px;
+      }
+      &.range-start {
+        &::before {
+          left: auto;
+          width: 19px;
+        }
+      }
+      &.range-end {
+        &::before {
+          right: 19px;
+        }
+      }
+    }
+
+    .calendar-events {
+      flex-grow: 1;
+      line-height: 1;
+      overflow-y: auto;
+      padding: $layout-spacing-sm;
+    }
+
+    .calendar-event {
+      border-radius: $border-radius;
+      font-size: $font-size-sm;
+      display: block;
+      margin: $unit-h auto;
+      overflow: hidden;
+      padding: 3px 4px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+}

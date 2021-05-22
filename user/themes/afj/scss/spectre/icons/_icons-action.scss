@@ -1,0 +1,315 @@
+// Icon resize
+.icon-resize-horiz,
+.icon-resize-vert {
+  &::before,
+  &::after {
+    border: $icon-border-width solid currentColor;
+    border-bottom: 0;
+    border-right: 0;
+    height: .45em;
+    width: .45em;
+  }
+  &::before {
+    transform: translate(-50%, -90%) rotate(45deg);
+  }
+  &::after {
+    transform: translate(-50%, -10%) rotate(225deg);
+  }
+}
+
+.icon-resize-horiz {
+  &::before {
+    transform: translate(-90%, -50%) rotate(-45deg);
+  }
+  &::after {
+    transform: translate(-10%, -50%) rotate(135deg);
+  }
+}
+
+// Icon more
+.icon-more-horiz,
+.icon-more-vert {
+  &::before {
+    background: currentColor;
+    box-shadow: -.4em 0, .4em 0;
+    border-radius: 50%;
+    height: 3px;
+    width: 3px;
+  }
+}
+
+.icon-more-vert {
+  &::before {
+    box-shadow: 0 -.4em, 0 .4em;
+  }
+}
+
+// Icon plus, minus, cross
+.icon-plus,
+.icon-minus,
+.icon-cross {
+  &::before {
+    background: currentColor;
+    height: $icon-border-width;
+    width: 100%;
+  }
+}
+
+.icon-plus,
+.icon-cross {
+  &::after {
+    background: currentColor;
+    height: 100%;
+    width: $icon-border-width;
+  }
+}
+
+.icon-cross {
+  &::before {
+    width: 100%;
+  }
+  &::after {
+    height: 100%;
+  }
+  &::before,
+  &::after {
+    transform: translate(-50%, -50%) rotate(45deg);
+  }
+}
+
+// Icon check
+.icon-check {
+  &::before {
+    border: $icon-border-width solid currentColor;
+    border-right: 0;
+    border-top: 0;
+    height: .5em;
+    width: .9em;
+    transform: translate(-50%, -75%) rotate(-45deg);
+  }
+}
+
+// Icon stop
+.icon-stop {
+  border: $icon-border-width solid currentColor;
+  border-radius: 50%;
+  &::before {
+    background: currentColor;
+    height: $icon-border-width;
+    transform: translate(-50%, -50%) rotate(45deg);
+    width: 1em;
+  }
+}
+
+// Icon shutdown
+.icon-shutdown {
+  border: $icon-border-width solid currentColor;
+  border-radius: 50%;
+  border-top-color: transparent;
+  &::before {
+    background: currentColor;
+    content: "";
+    height: .5em;
+    top: .1em;
+    width: $icon-border-width;
+  }
+}
+
+// Icon refresh
+.icon-refresh {
+  &::before {
+    border: $icon-border-width solid currentColor;
+    border-radius: 50%;
+    border-right-color: transparent;
+    height: 1em;
+    width: 1em;
+  }
+  &::after {
+    border: .2em solid currentColor;
+    border-top-color: transparent;
+    border-left-color: transparent;
+    height: 0;
+    left: 80%;
+    top: 20%;
+    width: 0;
+  }
+}
+
+// Icon search
+.icon-search {
+  &::before {
+    border: $icon-border-width solid currentColor;
+    border-radius: 50%;
+    height: .75em;
+    left: 5%;
+    top: 5%;
+    transform: translate(0, 0) rotate(45deg);
+    width: .75em;
+  }
+  &::after {
+    background: currentColor;
+    height: $icon-border-width;
+    left: 80%;
+    top: 80%;
+    transform: translate(-50%, -50%) rotate(45deg);
+    width: .4em;
+  }
+}
+
+// Icon edit
+.icon-edit {
+  &::before {
+    border: $icon-border-width solid currentColor;
+    height: .4em;
+    transform: translate(-40%, -60%) rotate(-45deg);
+    width: .85em;
+  }
+  &::after {
+    border: .15em solid currentColor;
+    border-top-color: transparent;
+    border-right-color: transparent;
+    height: 0;
+    left: 5%;
+    top: 95%;
+    transform: translate(0, -100%);
+    width: 0;
+  }
+}
+
+// Icon delete
+.icon-delete {
+  &::before {
+    border: $icon-border-width solid currentColor;
+    border-bottom-left-radius: $border-radius;
+    border-bottom-right-radius: $border-radius;
+    border-top: 0;
+    height: .75em;
+    top: 60%;
+    width: .75em;
+  }
+  &::after {
+    background: currentColor;
+    box-shadow: -.25em .2em, .25em .2em;
+    height: $icon-border-width;
+    top: $icon-border-width/2;
+    width: .5em;
+  }
+}
+
+// Icon share
+.icon-share {
+  border: $icon-border-width solid currentColor;
+  border-radius: $border-radius;
+  border-right: 0;
+  border-top: 0;
+  &::before {
+    border: $icon-border-width solid currentColor;
+    border-left: 0;
+    border-top: 0;
+    height: .4em;
+    left: 100%;
+    top: .25em;
+    transform: translate(-125%, -50%) rotate(-45deg);
+    width: .4em;
+  }
+  &::after {
+    border: $icon-border-width solid currentColor;
+    border-bottom: 0;
+    border-right: 0;
+    border-radius: 75% 0;
+    height: .5em;
+    width: .6em;
+  }
+}
+
+// Icon flag
+.icon-flag {
+  &::before {
+    background: currentColor;
+    height: 1em;
+    left: 15%;
+    width: $icon-border-width;
+  }
+  &::after {
+    border: $icon-border-width solid currentColor;
+    border-bottom-right-radius: $border-radius;
+    border-left: 0;
+    border-top-right-radius: $border-radius;
+    height: .65em;
+    top: 35%;
+    left: 60%;
+    width: .8em;
+  }
+}
+
+// Icon bookmark
+.icon-bookmark {
+  &::before {
+    border: $icon-border-width solid currentColor;
+    border-bottom: 0;
+    border-top-left-radius: $border-radius;
+    border-top-right-radius: $border-radius;
+    height: .9em;
+    width: .8em;
+  }
+  &::after {
+    border: $icon-border-width solid currentColor;
+    border-bottom: 0;
+    border-left: 0;
+    border-radius: $border-radius;
+    height: .5em;
+    transform: translate(-50%, 35%) rotate(-45deg) skew(15deg, 15deg);
+    width: .5em;
+  }
+}
+
+// Icon download & upload
+.icon-download,
+.icon-upload {
+  border-bottom: $icon-border-width solid currentColor;
+  &::before {
+    border: $icon-border-width solid currentColor;
+    border-bottom: 0;
+    border-right: 0;
+    height: .5em;
+    width: .5em;
+    transform: translate(-50%, -60%) rotate(-135deg);
+  }
+  &::after {
+    background: currentColor;
+    height: .6em;
+    top: 40%;
+    width: $icon-border-width;
+  }
+}
+
+.icon-upload {
+  &::before {
+    transform: translate(-50%, -60%) rotate(45deg);
+  }
+  &::after {
+    top: 50%;
+  }
+}
+
+// Icon copy
+.icon-copy {
+  &::before {
+    border: $icon-border-width solid currentColor;
+    border-radius: $border-radius;
+    border-right: 0;
+    border-bottom: 0;
+    height: .8em;
+    left: 40%;
+    top: 35%;
+    width: .8em;
+  }
+  &::after {
+    border: $icon-border-width solid currentColor;
+    border-radius: $border-radius;
+    height: .8em;
+    left: 60%;
+    top: 60%;
+    width: .8em;
+  }
+}

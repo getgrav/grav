@@ -1,0 +1,48 @@
+// Toasts
+.toast {
+  @include toast-variant($dark-color);
+  border: $border-width solid $dark-color;
+  border-radius: $border-radius;
+  color: $light-color;
+  display: block;
+  padding: $layout-spacing;
+  width: 100%;
+
+  &.toast-primary {
+    @include toast-variant($primary-color);
+  }
+
+  &.toast-success {
+    @include toast-variant($success-color);
+  }
+
+  &.toast-warning {
+    @include toast-variant($warning-color);
+  }
+
+  &.toast-error {
+    @include toast-variant($error-color);
+  }
+
+  a {
+    color: $light-color;
+    text-decoration: underline;
+    
+    &:focus,
+    &:hover,
+    &:active,
+    &.active {
+      opacity: .75;
+    }
+  }
+
+  .btn-clear {
+    margin: $unit-h;
+  }
+
+  p {
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}

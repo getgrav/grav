@@ -1,0 +1,44 @@
+{% extends "forms/field.html.twig" %}
+
+{% set originalValue = value %}
+{% set value = (value is null ? field.default : value) %}
+{% if field.use == 'keys' and field.default %}
+    {% set value = field.default|merge(value) %}
+{% endif %}
+
+{% block global_attributes %}
+    {{ parent() }}
+    data-grav-keys="{{ field.use == 'keys' ? 'true' : 'false' }}"
+    data-grav-field-name="{{ (scope ~ field.name)|fieldName }}"
+{% endblock %}
+
+{% block input %}
+    {% for key, text in field.options %}
+
+        {% set id = field.id|default(field.name) ~ '-' ~ key %}
+        {% set name = field.use == 'keys' ? key : id %}
+        {% set val = field.use == 'keys' ? '1' : key %}
+        {% set checked = (field.use == 'keys' ? value[key] : key in value) %}
+        {% set help = (key in field.help_options|keys ? field.help_options[key] : false) %}
+
+        <div class="checkboxes {{ form_field_wrapper_classes }} {{ field.wrapper_classes }}">
+            <label class="{{ form_field_checkbox_classes }}" for="{{ id|e }}">
+            <input type="checkbox"
+                   id="{{ id|e }}"
+                   value="{{ val|e }}"
+                   name="{{ (scope ~ field.name)|fieldName ~ '[' ~ name ~ ']' }}"
+                   {% if checked %}checked="checked"{% endif %}
+                   {% if field.classes is defined %}class="{{ field.classes }}" {% endif %}
+                   {% if field.disabled or isDisabledToggleable %}disabled="disabled"{% endif %}
+
+            >
+                <i class="form-icon"></i>
+                {% if help %}
+                    <span class="hint--bottom" data-hint="{{ help|t|e('html_attr') }}">{{ text|t|e }}</span>
+                {% else %}
+                    {{ text|t|e }}
+                {% endif %}
+            </label>
+        </div>
+    {% endfor %}
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends "forms/field.html.twig" %}
+
+{% set originalValue = value %}
+{% set value = (value is null ? field.default : value) %}
+
+{% block input %}
+    {% for key, text in field.options %}
+        {% set id = field.id|default(field.name) ~ '-' ~ key %}
+
+        <div class="radio {{ form_field_wrapper_classes }} {{ field.wrapper_classes }}">
+            <label class="{{ form_field_radio_classes }}" for="{{ id|e }}">
+            <input type="radio"
+                   value="{{ key|e }}"
+                   id="{{ id|e }}"
+                   name="{{ (scope ~ field.name)|fieldName }}"
+                   {% if field.classes is defined %}class="{{ field.classes }}" {% endif %}
+                   {% if key == value %}checked="checked" {% endif %}
+                   {% if field.disabled or isDisabledToggleable %}disabled="disabled"{% endif %}
+                   {% if required %}required="required"{% endif %}
+            />
+            <i class="form-icon"></i>
+            {% if grav.twig.twig.filters['tu'] is defined %}{{ text|tu|raw }}{% else %}{{ text|t|raw }}{% endif %}
+            </label>
+        </div>
+    {% endfor %}
+{% endblock %}

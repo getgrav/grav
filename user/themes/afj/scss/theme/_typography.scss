@@ -1,0 +1,178 @@
+html {
+  @include fluid-type($size-xs, $size-xl, $min-responsive-font-size, $html-font-size);
+}
+
+// Header Overrides
+h1, h2, h3, h4, h5, h6 {
+  margin-top: 2rem;
+  font-family: $title-font-family;
+  color: darken($body-font-color, 10%);
+}
+
+h1, .h1 {
+  font-size: 3rem;
+}
+
+h2, .h2 {
+  font-size: 1.8rem;
+}
+
+h6, .h6 {
+  font-weight: 400;
+}
+
+.title-center {
+  h1, h2 {
+    text-align: center;
+  }
+}
+
+.title-h1h2 {
+  h1  {
+    font-weight: 100;
+    margin-bottom: 0;
+    line-height: 1.1;
+
+    strong, bold {
+      font-weight: 400;
+    }
+  }
+  h1 + h2 {
+    line-height: 1.1;
+    margin-top: 0;
+  }
+
+}
+
+// Typography Hints
+.title-h1h2, .title-center {
+  h1 + h2 {
+    margin-bottom: 50px;
+    font-weight: 700;
+  }
+}
+
+a:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+img {
+  max-width: 100%;
+}
+
+// Tables
+.table > table {
+  border-spacing: 0;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+
+// Codeblocks
+pre code, pre.xdebug-var-dump{
+  background: #fafafa;
+  display: block;
+  padding: 1rem !important;
+  line-height: 1.5;
+  color: inherit;
+  border-radius: 2px;
+  overflow-x: auto;
+}
+
+pre[class*="language-"] {
+  code {
+    border-radius: inherit;
+    padding: 0 !important;
+    overflow-x: initial;
+  }
+}
+
+pre {
+  code:not(.hljs):not([class*="language-"]) {
+    background: #f8f8f8;
+  }
+}
+
+// Icon Tweaks
+i.fa {
+
+
+  &.fa-heart, &.fa-heart-o {
+    &.pulse {
+      color: #920
+    }
+  }
+}
+
+// Font Weights
+b,
+strong {
+  font-weight: 700;
+}
+
+.heavy {
+  font-weight: 700;
+}
+
+.light {
+  font-weight: 200;
+}
+
+// Colors
+.text-light {
+  color: rgba($light-color, 0.8);
+
+  h1, h2, h3, h4, h5, h6 {
+    color: rgba($light-color, 0.9);
+  }
+}
+
+// Error configuration
+#error {
+  text-align: center;
+  position: relative;
+  margin-top: 5rem;
+
+  .icon {
+    font-size: 50px;
+  }
+}
+
+// Messages
+#messages {
+  margin-bottom: 1rem;
+
+  .icon {
+    font-size: 1rem;
+  }
+}
+
+// Lists
+ul,
+ol {
+  margin-left: $unit-8;
+
+  ul,
+  ol {
+    margin-left: $unit-8;
+  }
+}
+
+ul {
+  list-style: disc outside;
+}
+
+ol {
+  list-style: decimal outside;
+}
+
+// Notices
+.notices {
+  margin: 1.5rem 0;
+  p {
+    margin: 1rem 0;
+  }
+}
+
+

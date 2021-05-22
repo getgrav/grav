@@ -1,0 +1,156 @@
+html {
+  height: 100%;
+}
+
+#body-wrapper {
+  .container {
+    padding: $vert-padding;
+  }
+
+  // Fixed Header solution
+  .header-fixed & {
+    padding-top: $header-height-large;
+  }
+}
+
+.header-fixed {
+  .hero + #start > #body-wrapper {
+    padding-top: 0;
+  }
+}
+
+section.section {
+  padding-left: $horiz-padding;
+  padding-right: $horiz-padding;
+  position: relative;
+}
+
+.overlay-light, .overlay-dark, .overlay-light-gradient, .overlay-dark-gradient {
+  z-index: 0;
+}
+
+// Hero
+.hero {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding-top: 6rem;
+  padding-bottom: 7rem;
+  background-size: cover;
+  background-position: center;
+
+  h1 {
+    color: $header-text-dark;
+    font-size: 4rem;
+  }
+
+  h2 {
+    color: rgba($header-text-dark, 0.8);
+    font-size: 2.5rem;
+  }
+
+  &.hero-fullscreen {
+    min-height: 100vh;
+  }
+
+  &.hero-large {
+    min-height: 500px;
+  }
+
+  &.hero-medium {
+    min-height: 400px;
+  }
+
+  &.hero-small {
+    min-height: 110px;
+  }
+
+  &.hero-tiny {
+    min-height: 8rem;
+  }
+  
+  .header-fixed & {
+    background-position: 50% 0;
+  }
+
+  //&.parallax {
+  //  background-attachment: fixed;
+  //}
+
+  @include breakpoint(md) {
+    h1 {
+      font-size: 3rem;
+    }
+    h2 {
+      font-size: 1.75rem;
+    }
+  }
+
+  @include breakpoint(sm) {
+    h1 {
+      font-size: 2rem;
+    }
+    h2 {
+      font-size: 1.25rem;
+    }
+  }
+
+
+  &.text-light {
+    h1 {
+      color: $header-text-light;
+    }
+    h2 {
+      color: rgba($header-text-light, 0.8);
+    }
+  }
+
+  p {
+    font-size: .9rem;
+    font-weight: 300;
+  }
+
+  #to-start {
+    display: inline-block;
+    position: absolute;
+    bottom: 10px;
+    font-size: 2rem;
+    cursor: pointer;
+  }
+}
+
+// Overlay
+.image-overlay {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: -1;
+
+  .overlay-light & {
+    background: rgba(#fff, 0.4);
+  }
+
+  .overlay-light-gradient & {
+    background: linear-gradient(to bottom, rgba(#fff,0.5), rgba(#fff,0.2));
+  }
+
+  .overlay-dark & {
+    background: rgba(#000, 0.4);
+  }
+
+  .overlay-dark-gradient & {
+    background: linear-gradient(to bottom, rgba(#000,0.5), rgba(#000,0.2));
+  }
+}
+
+
+
+
+
+
+
+
+

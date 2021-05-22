@@ -1,0 +1,21 @@
+{% set grid_size = theme_var('grid-size') %}
+{% set image = page.media.images|first %}
+
+<section class="section modular-text {{ page.header.class}} bg-gray">
+    <section class="container {{ grid_size }}">
+        <div class="columns {{ page.header.image_align|default('align-right') }}">
+            {% if image %}
+            <div class="column col-6 col-md-12">
+                {{ content|raw }}
+            </div>
+            <div class="column col-6 col-md-12">
+                {{ image.html|raw }}
+            </div>
+            {% else %}
+            <div class="column col-12">
+                {{ content|raw }}
+            </div>
+            {% endif %}
+        </div>
+    </section>
+</section>

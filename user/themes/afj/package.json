@@ -1,0 +1,49 @@
+{
+  "name": "spectre.css",
+  "version": "0.5.1",
+  "homepage": "http://picturepan2.github.io/spectre",
+  "author": "Yan Zhu <picturepan2@hotmail.com>",
+  "description": "Spectre.css: a lightweight, responsive and modern CSS framework",
+  "main": "docs/dist/spectre.css",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/picturepan2/spectre.git"
+  },
+  "license": "MIT",
+  "keywords": [
+    "css",
+    "framework",
+    "flexbox",
+    "responsive",
+    "mobile-friendly",
+    "front-end",
+    "sass",
+    "modern"
+  ],
+  "bugs": {
+    "url": "https://github.com/picturepan2/spectre/issues"
+  },
+  "devDependencies": {
+    "gulp": "^4.0.0",
+    "gulp-autoprefixer": "^6.1.0",
+    "gulp-clean-css": "^3.9.4",
+    "gulp-csscomb": "^3.0.8",
+    "gulp-rename": "^1.2.2",
+    "gulp-sass": "^4.0.1"
+  },
+  "browserslist": [
+    "last 4 Chrome versions",
+    "Edge >= 12",
+    "Firefox ESR",
+    "last 4 Safari versions",
+    "last 4 Opera versions",
+    "Explorer >= 10"
+  ],
+  "scripts": {
+    "dev": "gulp watch",
+    "build": "gulp build"
+  },
+  "dependencies": {
+    "gulp-sourcemaps": "^2.6.4"
+  }
+}

@@ -1,0 +1,6 @@
+{% if form.message %}
+  {% set inline_errors = form.inline_errors is not null ? form.inline_errors : config.plugins.form.inline_errors(false) %}
+  {% set status_mapping = {'success':'green', 'error': 'red', 'warning': 'yellow'} %}
+  {% set message = inline_errors and form.messages ? "GRAV.FORM.VALIDATION_FAIL"|t : form.message %}
+    <div class="toast toast-{{ form.status }} {{ status_mapping[form.status] ?: 'green' }} mt-2 mb-2">{{ message|raw }}</div>
+{% endif %}

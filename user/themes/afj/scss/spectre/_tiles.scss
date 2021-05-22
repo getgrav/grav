@@ -1,0 +1,38 @@
+// Tiles
+.tile {
+  align-content: space-between;
+  align-items: flex-start;
+  display: flex;
+
+  .tile-icon,
+  .tile-action {
+    flex: 0 0 auto;
+  }
+  .tile-content {
+    flex: 1 1 auto;
+    &:not(:first-child) {
+      padding-left: $unit-2;
+    }
+    &:not(:last-child) {
+      padding-right: $unit-2;
+    }
+  }
+  .tile-title,
+  .tile-subtitle {
+    line-height: $line-height;
+  }
+
+  &.tile-centered {
+    align-items: center;
+
+    .tile-content {
+      overflow: hidden;
+    }
+
+    .tile-title,
+    .tile-subtitle {
+      @include text-ellipsis();
+      margin-bottom: 0;
+    }
+  }
+}

@@ -1,0 +1,94 @@
+.dropmenu {
+
+  @include breakpoint(md) {
+    display: none;
+  }
+
+  ul {
+    white-space: nowrap;
+    margin: 0;
+    display: flex;
+
+    li {
+      position: relative;
+      margin: 0;
+
+      a {
+        text-decoration: none;
+        padding: $dropmenu-vert-padding ($dropmenu-horiz-padding + $dropmenu-child-padding) $dropmenu-vert-padding $dropmenu-horiz-padding;
+        display: block;
+
+        &:hover, &:focus, &.active {
+          color: $dropmenu-hover-text !important;
+        }
+
+        &:before {
+          content: '\f107';
+          font-family: 'FontAwesome';
+          display: inline-block;
+          vertical-align: middle;
+          float: right;
+          margin-right: - (2 *$dropmenu-child-padding);
+        }
+
+        &:only-child {
+          //background: none;
+          padding-right: $dropmenu-horiz-padding;
+
+          &:before {
+            content: '';
+          }
+        }
+      }
+
+      &:hover {
+        & > ul {
+          display: block;
+          visibility: visible;
+        }
+      }
+    }
+
+    ul li a:before {
+      content: '\f105';
+    }
+
+    ul {
+      position: absolute;
+      top: 100%;
+      list-style: none;
+      background: $dropmenu-bg;
+      box-shadow: $dropmenu-shadow;
+      visibility: hidden;
+
+      ul {
+        position: absolute;
+        left: 100%;
+        top: 0;
+      }
+    }
+
+  }
+
+  & > ul > li {
+    display: inline-block;
+  }
+
+  // Animation options
+  &.animated {
+    ul li {
+      transition: background .7s, color 0.5s;
+    }
+
+    ul li:hover > ul {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    ul ul {
+      transition: transform .3s, opacity .5s;
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+  }
+}

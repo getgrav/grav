@@ -1,0 +1,56 @@
+// Timelines
+.timeline {
+  .timeline-item {
+    display: flex;
+    margin-bottom: $unit-6;
+    position: relative;
+    &::before {
+      background: $border-color;
+      content: "";
+      height: 100%;
+      left: 11px;
+      position: absolute;
+      top: $unit-6;
+      width: 2px;
+    }
+
+    .timeline-left {
+      flex: 0 0 auto;
+    }
+
+    .timeline-content {
+      flex: 1 1 auto;
+      padding: 2px 0 2px $layout-spacing-lg;
+    }
+
+    .timeline-icon {
+      align-items: center;
+      border-radius: 50%;
+      color: $light-color;
+      display: flex;
+      height: $unit-6;
+      justify-content: center;
+      text-align: center;
+      width: $unit-6;
+      &::before {
+        border: $border-width-lg solid $primary-color;
+        border-radius: 50%;
+        content: "";
+        display: block;
+        height: $unit-2;
+        left: $unit-2;
+        position: absolute;
+        top: $unit-2;
+        width: $unit-2;
+      }
+
+      &.icon-lg {
+        background: $primary-color;
+        line-height: $line-height;
+        &::before {
+          content: none;
+        }
+      }
+    }
+  }
+}

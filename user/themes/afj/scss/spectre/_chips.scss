@@ -1,0 +1,33 @@
+// Chips
+.chip {
+  align-items: center;
+  background: $bg-color-dark;
+  border-radius: 5rem;
+  display: inline-flex;
+  font-size: 90%;
+  height: $unit-6;
+  line-height: $unit-4;
+  margin: $unit-h;
+  max-width: $control-width-sm;
+  overflow: hidden;
+  padding: $unit-1 $unit-2;
+  text-decoration: none;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+  white-space: nowrap;
+
+  &.active {
+    background: $primary-color;
+    color: $light-color;
+  }
+
+  .avatar {
+    margin-left: -$unit-2;
+    margin-right: $unit-1;
+  }
+
+  .btn-clear {
+    border-radius: 50%;
+    transform: scale(.75);
+  }
+}

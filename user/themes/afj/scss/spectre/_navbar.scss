@@ -1,0 +1,28 @@
+// Navbar
+.navbar {
+  align-items: stretch;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+
+  .navbar-section {
+    align-items: center;
+    display: flex;
+    flex: 1 0 0;
+
+    &:not(:first-child):last-child {
+      justify-content: flex-end;
+    }
+  }
+
+  .navbar-center {
+    align-items: center;
+    display: flex;
+    flex: 0 0 auto;
+  }
+
+  .navbar-brand {
+    font-size: $font-size-lg;
+    text-decoration: none;
+  }
+}

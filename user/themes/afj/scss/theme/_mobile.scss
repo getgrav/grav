@@ -1,0 +1,193 @@
+.mobile-container {
+  position: absolute;
+  //width: 100%;
+  //height: 100%;
+  top: 40%;
+  left: 0;
+  margin:  0 auto;
+  z-index: 2;
+}
+
+.mobile-logo {
+  svg, img {
+    height: 42px;
+    margin-top: .7rem;
+    margin-left: 1.4rem;
+
+    path {
+      fill: $light-color;
+    }
+
+  }
+}
+
+// Hamburger Menu
+.mobile-menu {
+
+  display: none;
+  top: 0;
+  right: 0;
+  z-index: 3;
+
+  .header-fixed & {
+    position: fixed;
+  }
+
+  @include breakpoint(md) {
+    display: block;
+  }
+
+  .button_container {
+    position: absolute;
+    top: 1.3rem;
+    right: $horiz-padding;
+    height: $mobile-button-height;
+    width: $mobile-button-width;
+    cursor: pointer;
+    z-index: 100;
+    transition: opacity .25s ease, top 0.5s ease;
+
+    $bar-offset: $mobile-button-height / 3;
+
+    &:hover {
+      opacity: .7;
+    }
+
+    &.active {
+      position: fixed;
+
+      .top {
+        transform: translateY($bar-offset) translateX(0) rotate(45deg);
+        background: $mobile-color-active;
+      }
+      .middle {
+        opacity: 0;
+        background: $mobile-color-active;
+      }
+
+      .bottom {
+        transform: translateY(-($bar-offset)) translateX(0) rotate(-45deg);
+        background: $mobile-color-active;
+      }
+    }
+
+    span {
+      background: $mobile-color-main;
+      border: none;
+      height: 4px;
+      width: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      transition:  all .35s ease;
+      cursor: pointer;
+
+      &:nth-of-type(2) {
+        top: $bar-offset;
+      }
+
+      &:nth-of-type(3) {
+        top: $bar-offset * 2;
+      }
+    }
+  }
+}
+
+.overlay {
+  position: fixed;
+  background: #000;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 0%;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity .35s, visibility .35s, height .35s;
+
+  &.open {
+    opacity: .95;
+    visibility: visible;
+    height: 100%;
+
+  }
+  nav {
+
+    position: relative;
+    margin: 0 auto;
+    text-align: center;
+  }
+}
+
+.overlay-menu {
+  height: calc(100% - 90px);
+  overflow-y: scroll;
+
+  & > .tree {
+    text-align: left;
+  }
+}
+
+
+.treemenu {
+
+  &.treemenu-root {
+    margin: 1rem;
+  }
+
+  li {
+    list-style: none;
+    margin: 0 0 1px;
+    padding: 5px 0;
+    line-height: 1.2rem;
+
+    background: rgba($gray-color-dark,0.1);
+
+    a {
+      display: block;
+      margin-left: 1.2rem;
+      font-size: 1rem;
+
+      &:hover, &:focus, &.active {
+        color: $primary-color-light !important;
+        text-decoration: none;
+      }
+    }
+  }
+
+  ul {
+    margin: 0 0 0 1rem;
+  }
+
+  .toggler {
+    cursor: pointer;
+    vertical-align: top;
+    font-size: 1.1rem;
+    line-height: 1rem;
+    padding-left: 5px;
+    float: left;
+
+    &:before {
+      display: inline-block; margin-right: 2pt;
+    }
+  }
+
+  li.tree-empty  > .toggler {
+    opacity: 0.3; cursor: default;
+
+    &:before {
+      content: "\2022";
+    }
+  }
+
+  li.tree-closed > .toggler:before {
+    content: "+";
+  }
+
+  li.tree-opened > .toggler:before {
+    content: "\2212";
+  }
+}
+
+.mobile-nav-open {
+  overflow-y: hidden;
+}

@@ -1,0 +1,38 @@
+// Spectre Overrides
+$primary-color: #3085EE !default;
+$dark-color: #454d5d !default;
+$light-color: #fff !default;
+$gray-color: lighten($dark-color, 40%) !default;
+$gray-color-dark: darken($gray-color, 25%) !default;
+$border-color: lighten($dark-color, 60%) !default;
+$bg-color: lighten($dark-color, 66%) !default;
+$body-font-color: lighten($dark-color, 5%) !default;
+
+// Layout
+$horiz-padding: 1rem;
+$vert-padding: 2rem 0 2rem;
+
+// Fonts
+$min-responsive-font-size: 16px;
+
+// Header
+$header-height-large: 4rem;
+$header-height-small: 2.3rem;
+$header-color-dark: #222;
+$header-text-light: $light-color;
+$header-text-dark: darken($dark-color, 15%);
+
+// Dropdown Menu
+$dropmenu-bg: $light-color;
+$dropmenu-hover-text: $primary-color;
+$dropmenu-horiz-padding: 20px;
+$dropmenu-vert-padding: 7px;
+$dropmenu-child-padding: 10px;
+$dropmenu-shadow: 0 3px 5px rgba(0, 0, 0, 0.1);
+
+// Mobile Menu
+$mobile-color-main: $primary-color;
+$mobile-color-active: #FFF;
+$mobile-color-link: #FFF;
+$mobile-button-height: 24px;
+$mobile-button-width: 28px;

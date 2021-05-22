@@ -1,0 +1,77 @@
+// Avatars
+.avatar {
+  @include avatar-base();
+  background: $primary-color;
+  border-radius: 50%;
+  color: rgba($light-color, .85);
+  display: inline-block;
+  font-weight: 300;
+  line-height: 1.25;
+  margin: 0;
+  position: relative;
+  vertical-align: middle;
+
+  &.avatar-xs {
+    @include avatar-base($unit-4);
+  }
+  &.avatar-sm {
+    @include avatar-base($unit-6);
+  }
+  &.avatar-lg {
+    @include avatar-base($unit-12);
+  }
+  &.avatar-xl {
+    @include avatar-base($unit-16);
+  }
+
+  img {
+    border-radius: 50%;
+    height: 100%;
+    position: relative;
+    width: 100%;
+    z-index: $zindex-0;
+  }
+
+  .avatar-icon,
+  .avatar-presence {
+    background: $bg-color-light;
+    bottom: 14.64%;
+    height: 50%;
+    padding: $border-width-lg;
+    position: absolute;
+    right: 14.64%;
+    transform: translate(50%, 50%);
+    width: 50%;
+    z-index: $zindex-0 + 1;
+  }
+
+  .avatar-presence {
+    background: $gray-color;
+    box-shadow: 0 0 0 $border-width-lg $light-color;
+    border-radius: 50%;
+    height: .5em;
+    width: .5em;
+
+    &.online {
+      background: $success-color;
+    }
+
+    &.busy {
+      background: $error-color;
+    }
+
+    &.away {
+      background: $warning-color;
+    }
+  }
+
+  &[data-initial]::before {
+    color: currentColor;
+    content: attr(data-initial);
+    left: 50%;
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: $zindex-0;
+  }
+}

@@ -1,0 +1,31 @@
+// Text colors
+@include text-color-variant(".text-primary", $primary-color);
+
+@include text-color-variant(".text-secondary", $secondary-color-dark);
+
+@include text-color-variant(".text-gray", $gray-color);
+
+@include text-color-variant(".text-light", $light-color);
+
+@include text-color-variant(".text-dark", $body-font-color);
+
+@include text-color-variant(".text-success", $success-color);
+
+@include text-color-variant(".text-warning", $warning-color);
+
+@include text-color-variant(".text-error", $error-color);
+
+// Background colors
+@include bg-color-variant(".bg-primary", $primary-color);
+
+@include bg-color-variant(".bg-secondary", $secondary-color);
+
+@include bg-color-variant(".bg-dark", $dark-color);
+
+@include bg-color-variant(".bg-gray", $bg-color);
+
+@include bg-color-variant(".bg-success", $success-color);
+
+@include bg-color-variant(".bg-warning", $warning-color);
+
+@include bg-color-variant(".bg-error", $error-color);

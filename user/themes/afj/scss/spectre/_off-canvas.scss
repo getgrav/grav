@@ -1,0 +1,95 @@
+// Off canvas menus
+$off-canvas-breakpoint: $size-lg !default;
+
+.off-canvas {
+  display: flex;
+  flex-flow: nowrap;
+  height: 100%;
+  position: relative;
+  width: 100%;
+
+  .off-canvas-toggle {
+    display: block;
+    position: absolute;
+    top: $layout-spacing;
+    transition: none;
+    z-index: $zindex-0;
+    @if $rtl == true {
+      right: $layout-spacing;
+    } @else {
+      left: $layout-spacing;
+    }
+  }
+
+  .off-canvas-sidebar {
+    background: $bg-color;
+    bottom: 0;
+    min-width: 10rem;
+    overflow-y: auto;
+    position: fixed;
+    top: 0;
+    transition: transform .25s;
+    z-index: $zindex-2;
+    @if $rtl == true {
+      right: 0;
+      transform: translateX(100%);
+    } @else {
+      left: 0;
+      transform: translateX(-100%);
+    }
+  }
+
+  .off-canvas-content {
+    flex: 1 1 auto;
+    height: 100%;
+    padding: $layout-spacing $layout-spacing $layout-spacing 4rem;
+  }
+
+  .off-canvas-overlay {
+    background: rgba($dark-color, .1);
+    border-color: transparent;
+    border-radius: 0;
+    bottom: 0;
+    display: none;
+    height: 100%;
+    left: 0;
+    position: fixed;
+    right: 0;
+    top: 0;
+    width: 100%;
+  }
+
+  .off-canvas-sidebar {
+    &:target,
+    &.active {
+      transform: translateX(0);
+    }
+
+    &:target ~ .off-canvas-overlay,
+    &.active ~ .off-canvas-overlay {
+      display: block;
+      z-index: $zindex-1;
+    }
+  }
+}
+
+// Responsive layout
+@media (min-width: $off-canvas-breakpoint) {
+  .off-canvas {
+    &.off-canvas-sidebar-show {
+      .off-canvas-toggle {
+        display: none;
+      }
+  
+      .off-canvas-sidebar {
+        flex: 0 0 auto;
+        position: relative;
+        transform: none;
+      }
+
+      .off-canvas-overlay {
+        display: none !important;
+      }
+    }
+  }
+}

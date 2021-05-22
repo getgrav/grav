@@ -1,0 +1,77 @@
+form {
+  .button-wrapper {
+    margin-top: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  span.required {
+    color: $error-color;
+    font-weight: 700;
+    font-size: 1.2rem;
+  }
+
+  .form-input[type=range] {
+    appearance: slider-horizontal;
+    &:focus {
+      box-shadow: none;
+      border: none;
+    }
+  }
+
+  /** Reset some defaults for Quark Theme **/
+  .form-group:not(.form-field-toggleable) {
+    .checkboxes {
+      display: inherit;
+
+      label {
+        display: inherit;
+        padding: (($control-size-sm - $line-height) / 2) $control-padding-x (($control-size-sm - $line-height) / 2) ($control-icon-size + $control-padding-x);
+        margin: inherit;
+
+        &:before {
+          display: none;
+        }
+      }
+    }
+  }
+
+}
+
+#grav-login {
+
+  > form {
+    margin: 2rem auto 0;
+    max-width: 350px;
+  }
+  .form-label {
+    display: none;
+  }
+  .form-data {
+    margin: 1rem 0;
+  }
+  .form-input {
+    text-align: center;
+  }
+  .button-wrapper {
+    text-align: right;
+
+    .form-data.rememberme {
+      margin: 0;
+      float: left;
+    }
+  }
+
+  .login-form {
+    button[type="submit"] {
+      @include button-primary;
+    }
+  }
+
+  .twofa-form {
+    button[type="submit"]:first-child {
+      @include button-primary;
+      float: right;
+      margin-left: 4px;
+    }
+  }
+}
