@@ -28,7 +28,7 @@ links:
         src: grav-plugin-markdown-notices
         path: user/plugins/markdown-notices
         scm: github
-    quark:
-        src: grav-theme-quark
-        path: user/themes/quark
+    afj:
+        src: grav-theme-afj
+        path: user/themes/afj
         scm: github
