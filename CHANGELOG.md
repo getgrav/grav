@@ -3,6 +3,7 @@
 
 1. [](#bugfix)
     * Improve Plugin and Theme initialization to fix PHP8 bug [#3368](https://github.com/getgrav/grav/issues/3368)
+    * Fixed `pathinfo()` twig filter in PHP 7
 
 # v1.7.15
 ## 05/19/2021
