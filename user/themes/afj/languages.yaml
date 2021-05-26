@@ -47,7 +47,7 @@ de:
         HEADLINE: Abonnements
 
 es:
-  THEME_QUARK:
+  THEME_AFJ:
     BLOG:
       ITEM:
         CONTINUE_READING: Continuar leyendo...
@@ -71,8 +71,8 @@ es:
         HEADLINE: Distribuir
 
 fr:
-  THEME_QUARK:
-    TRANSLATION_TEST: Quark !
+  THEME_AFJ:
+    TRANSLATION_TEST: Afj !
     BLOG:
       ITEM:
         CONTINUE_READING: Continuer la lecture...
@@ -96,7 +96,7 @@ fr:
         HEADLINE: Syndication
 
 it:
-  THEME_QUARK:
+  THEME_AFJ:
     BLOG:
       ITEM:
         CONTINUE_READING: Continua a leggere...
@@ -120,7 +120,7 @@ it:
         HEADLINE: Feed
 
 ro:
-  THEME_QUARK:
+  THEME_AFJ:
     BLOG:
      ITEM:
         CONTINUE_READING: Mai multe...
@@ -144,7 +144,7 @@ ro:
         HEADLINE: Abonați-vă
 
 ru:
-  THEME_QUARK:
+  THEME_AFJ:
     BLOG:
       ITEM:
         CONTINUE_READING: Читать далее...
@@ -168,7 +168,7 @@ ru:
         HEADLINE: Синдикация
 
 uk:
-  THEME_QUARK:
+  THEME_AFJ:
     BLOG:
       ITEM:
         CONTINUE_READING: Читати далі...
@@ -192,7 +192,7 @@ uk:
         HEADLINE: Синдикація
 
 hr:
-  THEME_QUARK:
+  THEME_AFJ:
     BLOG:
       ITEM:
         CONTINUE_READING: Nastavi s čitanjem...
@@ -216,7 +216,7 @@ hr:
         HEADLINE: Kanali
 
 nl:
-  THEME_QUARK:
+  THEME_AFJ:
     BLOG:
       ITEM:
         CONTINUE_READING: Lees Meer...
@@ -240,7 +240,7 @@ nl:
         HEADLINE: Syndicatie
 
 cs:
-  THEME_QUARK:
+  THEME_AFJ:
     BLOG:
       ITEM:
         CONTINUE_READING: Pokračovat ve čtení...
@@ -264,7 +264,7 @@ cs:
         HEADLINE: Syndikace
 
 zh:
-  THEME_QUARK:
+  THEME_AFJ:
     BLOG:
       ITEM:
         CONTINUE_READING: 继续阅读...
