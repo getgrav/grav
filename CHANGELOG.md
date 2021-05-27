@@ -9,6 +9,7 @@
     * Fixed `pathinfo()` twig filter in PHP7
     * Fixed the first visible child page getting ordering number `999999.` [#3365](https://github.com/getgrav/grav/issues/3365)
     * Fixed flex pages search using only folder name [#3316](https://github.com/getgrav/grav/issues/3316)
+    * Fixed flex pages using wrong type in `onBlueprintCreated` event [#3157](https://github.com/getgrav/grav/issues/3157)
 
 # v1.7.15
 ## 05/19/2021

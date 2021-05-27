@@ -502,6 +502,8 @@ class PageObject extends FlexPageObject
         if ($isNew === true && $name === '') {
             // Support onBlueprintCreated event just like in Pages::blueprints($template)
             $blueprint->set('initialized', true);
+            $blueprint->setFilename($template);
+
             Grav::instance()->fireEvent('onBlueprintCreated', new Event(['blueprint' => $blueprint, 'type' => $template]));
         }
 
