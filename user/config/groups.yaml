@@ -1,0 +1,19 @@
+superadmin:
+  access:
+    site:
+      login: true
+    admin:
+      login: true
+      super: true
+      cache: true
+      configuration: true
+      pages: true
+      maintenance: true
+      statistics: true
+      plugins: true
+      themes: true
+      tools: true
+      users: true
+      flex-objects: true
+  readableName: Jonglus
+  enabled: true
