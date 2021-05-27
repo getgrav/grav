@@ -298,7 +298,11 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
 
         $weight = 0;
         foreach ($properties as $property) {
-            $weight += $this->searchNestedProperty($property, $search, $options);
+            if (strpos($property, '.')) {
+                $weight += $this->searchNestedProperty($property, $search, $options);
+            } else {
+                $weight += $this->searchProperty($property, $search, $options);
+            }
         }
 
         return $weight > 0 ? min($weight, 1) : 0;
