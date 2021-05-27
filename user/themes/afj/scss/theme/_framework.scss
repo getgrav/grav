@@ -42,7 +42,7 @@ section.section {
 
   h1 {
     color: $header-text-dark;
-    font-size: 4rem;
+    font-size: 3rem;
   }
 
   h2 {
@@ -69,10 +69,7 @@ section.section {
   &.hero-tiny {
     min-height: 8rem;
   }
-  
-  .header-fixed & {
-    background-position: 50% 0;
-  }
+
 
   //&.parallax {
   //  background-attachment: fixed;
@@ -142,7 +139,7 @@ section.section {
   }
 
   .overlay-dark-gradient & {
-    background: linear-gradient(to bottom, rgba(#000,0.5), rgba(#000,0.2));
+    background: linear-gradient(to bottom, rgba($dark-color,0.8), rgba(#000,0.3));
   }
 }
 

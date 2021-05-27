@@ -1,7 +1,32 @@
-<section id="{{ id }}" class="section modular-hero hero {{ page.header.hero_classes }} {{ page.header.background.parallax ? 'parallax' : '' }}" {% if hero_image %}style="background-image: url('{{ hero_image.url }}');"{% endif %}>
+<section id="{{ id }}"
+    class="section modular-hero hero
+        {{ page.header.hero_classes }}
+        {{ page.header.background.parallax ? 'parallax' : '' }}"
+    style="{% if hero_image %}
+            background-image: url('{{ hero_image.url }}');
+        {% endif %}
+        {% if page.header.hero_arrow == false %}
+            padding-bottom:4rem;
+        {% endif %}"
+    >
     <div class="image-overlay"></div>
-    <section class="container {{ grid_size }}" style="text-align: {{ page.header.hero_align|default('center') }}">
-        {{ content|raw }}
+    <section class="container columns {{ grid_size }}"
+        style="
+            text-align: {{ page.header.hero_align|default('center') }};
+            justify-content: center;
+            align-items: center;
+            padding-top: 1rem;">
+        {% if hero_visual %}
+        <div class="column col-auto">
+        {{ hero_visual.resize(400).html(
+            'Logo AFJ',
+            'Association Française de Jonglerie')
+            |raw }}
+        </div>
+        {% endif %}
+        <div class="column">{{ content|raw }}</div>
     </section>
-    <i id="to-start" class="pulse fa fa-angle-down"></i>
+    {% if page.header.hero_arrow or page.header.hero_arrow is null %}
+        <i id="to-start" class="pulse fa fa-angle-down"></i>
+    {% endif %}
 </section>
