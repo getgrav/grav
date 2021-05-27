@@ -1,1 +1,8 @@
-$title-font-family: $base-font-family, $fallback-font-family !default;
+@font-face {
+    src: url("../fonts/rajdhani/Rajdhani-Regular.ttf") format("truetype");
+
+    font-family: "Rajdhani";
+    font-weight: 400;
+}
+
+$title-font-family: "Rajdhani", $fallback-font-family !default;
