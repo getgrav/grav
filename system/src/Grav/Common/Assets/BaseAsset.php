@@ -15,6 +15,7 @@ use Grav\Common\Grav;
 use Grav\Common\Uri;
 use Grav\Common\Utils;
 use Grav\Framework\Object\PropertyObject;
+use RocketTheme\Toolbox\File\File;
 use SplFileInfo;
 
 /**
@@ -182,16 +183,21 @@ abstract class BaseAsset extends PropertyObject
     public static function integrityHash($input)
     {
         $grav = Grav::instance();
+        $uri = $grav['uri'];
 
         $assetsConfig = $grav['config']->get('system.assets');
 
-        if ( !empty($assetsConfig['enable_asset_sri']) && $assetsConfig['enable_asset_sri'] )
-        {
-            $dataToHash = file_get_contents( GRAV_WEBROOT . $input);
+        if (!self::isRemoteLink($input) && !empty($assetsConfig['enable_asset_sri']) && $assetsConfig['enable_asset_sri']) {
+            $input = preg_replace('#^' . $uri->rootUrl() . '#', '', $input);
+            $asset = File::instance(GRAV_WEBROOT . $input);
 
-            $hash = hash('sha256', $dataToHash, true);
-            $hash_base64 = base64_encode($hash);
-            return ' integrity="sha256-' . $hash_base64 . '"';
+            if ($asset->exists()) {
+                $dataToHash = $asset->content();
+                $hash = hash('sha256', $dataToHash, true);
+                $hash_base64 = base64_encode($hash);
+
+                return ' integrity="sha256-' . $hash_base64 . '"';
+            }
         }
 
         return '';
