@@ -1,12 +1,12 @@
 // Spectre Overrides
-$primary-color: #3085EE !default;
-$dark-color: #454d5d !default;
+$primary-color: #009cde !default;
+$dark-color: #000523 !default; // #454d5d !default;
 $light-color: #fff !default;
-$gray-color: lighten($dark-color, 40%) !default;
+$gray-color: lighten(#454d5d, 40%) !default;
 $gray-color-dark: darken($gray-color, 25%) !default;
 $border-color: lighten($dark-color, 60%) !default;
-$bg-color: lighten($dark-color, 66%) !default;
-$body-font-color: lighten($dark-color, 5%) !default;
+$bg-color: lighten(#454d5d, 66%) !default;
+$body-font-color: lighten(#454d5d, 5%) !default;
 
 // Layout
 $horiz-padding: 1rem;
@@ -18,7 +18,7 @@ $min-responsive-font-size: 16px;
 // Header
 $header-height-large: 4rem;
 $header-height-small: 2.3rem;
-$header-color-dark: #222;
+$header-color-dark: $dark-color;
 $header-text-light: $light-color;
 $header-text-dark: darken($dark-color, 15%);
 
