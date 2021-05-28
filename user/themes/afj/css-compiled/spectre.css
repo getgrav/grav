@@ -165,7 +165,7 @@ h6, .h6 { font-size: .8rem; }
 
 p { margin: 0 0 1.2rem; }
 
-a, ins, u { -webkit-text-decoration-skip: ink edges; text-decoration-skip: ink edges; }
+a, ins, u { text-decoration-skip: ink edges; }
 
 abbr[title] { border-bottom: 0.05rem dotted; cursor: help; text-decoration: none; }
 
@@ -221,7 +221,7 @@ html:lang(ko), .lang-ko { font-family: -apple-system, system-ui, BlinkMacSystemF
 
 .table th { border-bottom-width: 0.1rem; }
 
-.btn, .button { -webkit-appearance: none; -moz-appearance: none; appearance: none; background: #fff; border: 0.05rem solid #009cde; border-radius: 0.1rem; color: #009cde; cursor: pointer; display: inline-block; font-size: 0.8rem; height: 1.8rem; line-height: 1.2rem; outline: none; padding: 0.25rem 0.4rem; text-align: center; text-decoration: none; transition: background .2s, border .2s, box-shadow .2s, color .2s; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; vertical-align: middle; white-space: nowrap; }
+.btn, .button { -webkit-appearance: none; -moz-appearance: none; appearance: none; background: #fff; border: 0.05rem solid #009cde; border-radius: 0.1rem; color: #009cde; cursor: pointer; display: inline-block; font-size: 0.8rem; height: 1.8rem; line-height: 1.2rem; outline: none; padding: 0.25rem 0.4rem; text-align: center; text-decoration: none; transition: background .2s, border .2s, box-shadow .2s, color .2s; -webkit-user-select: none; -ms-user-select: none; user-select: none; vertical-align: middle; white-space: nowrap; }
 
 .btn:focus, .button:focus { box-shadow: 0 0 0 0.1rem rgba(0, 156, 222, 0.2); }
 
@@ -445,9 +445,15 @@ textarea.form-input, textarea.search-input, [data-grav-field="array"] textarea, 
 
 .has-error .form-checkbox input:indeterminate + .form-icon, .form-checkbox.is-error input:indeterminate + .form-icon { background: #e85600; border-color: #e85600; }
 
+.form-input:not(:-ms-input-placeholder):invalid, .search-input:not(:-ms-input-placeholder):invalid, [data-grav-field="array"] input:not(:-ms-input-placeholder):invalid, [data-grav-field="array"] textarea:not(:-ms-input-placeholder):invalid { border-color: #e85600; }
+
 .form-input:not(:placeholder-shown):invalid, .search-input:not(:placeholder-shown):invalid, [data-grav-field="array"] input:not(:placeholder-shown):invalid, [data-grav-field="array"] textarea:not(:placeholder-shown):invalid { border-color: #e85600; }
 
+.form-input:not(:-ms-input-placeholder):invalid:focus, .search-input:not(:-ms-input-placeholder):invalid:focus, [data-grav-field="array"] input:not(:-ms-input-placeholder):invalid:focus, [data-grav-field="array"] textarea:not(:-ms-input-placeholder):invalid:focus { box-shadow: 0 0 0 0.1rem rgba(232, 86, 0, 0.2); background: #fffaf7; }
+
 .form-input:not(:placeholder-shown):invalid:focus, .search-input:not(:placeholder-shown):invalid:focus, [data-grav-field="array"] input:not(:placeholder-shown):invalid:focus, [data-grav-field="array"] textarea:not(:placeholder-shown):invalid:focus { box-shadow: 0 0 0 0.1rem rgba(232, 86, 0, 0.2); background: #fffaf7; }
+
+.form-input:not(:-ms-input-placeholder):invalid + .form-input-hint, .search-input:not(:-ms-input-placeholder):invalid + .form-input-hint, [data-grav-field="array"] input:not(:-ms-input-placeholder):invalid + .form-input-hint, [data-grav-field="array"] textarea:not(:-ms-input-placeholder):invalid + .form-input-hint { color: #e85600; }
 
 .form-input:not(:placeholder-shown):invalid + .form-input-hint, .search-input:not(:placeholder-shown):invalid + .form-input-hint, [data-grav-field="array"] input:not(:placeholder-shown):invalid + .form-input-hint, [data-grav-field="array"] textarea:not(:placeholder-shown):invalid + .form-input-hint { color: #e85600; }
 
@@ -1130,7 +1136,7 @@ a.text-error:visited { color: #ff6003; }
 
 .p-fixed { position: fixed !important; }
 
-.p-sticky { position: -webkit-sticky !important; position: sticky !important; }
+.p-sticky { position: sticky !important; }
 
 .p-centered { display: block; float: none; margin-left: auto; margin-right: auto; }
 
