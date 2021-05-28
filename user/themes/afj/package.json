@@ -1,35 +1,35 @@
 {
-  "name": "spectre.css",
-  "version": "0.5.1",
-  "homepage": "http://picturepan2.github.io/spectre",
-  "author": "Yan Zhu <picturepan2@hotmail.com>",
-  "description": "Spectre.css: a lightweight, responsive and modern CSS framework",
-  "main": "docs/dist/spectre.css",
+  "name": "grav-theme-afj",
+  "version": "0.0.1",
+  "homepage": "https://github.com/voodoos/grav-theme-afj",
+  "author": "Team AFJ <thevoodoos@gmail.com>",
+  "description": "A Grav theme based on Quark",
   "repository": {
     "type": "git",
-    "url": "https://github.com/picturepan2/spectre.git"
+    "url": "https://github.com/voodoos/grav-theme-afj.git"
   },
   "license": "MIT",
-  "keywords": [
-    "css",
-    "framework",
-    "flexbox",
-    "responsive",
-    "mobile-friendly",
-    "front-end",
-    "sass",
-    "modern"
-  ],
   "bugs": {
-    "url": "https://github.com/picturepan2/spectre/issues"
+    "url": "https://github.com/voodoos/grav-theme-afj/issues"
   },
   "devDependencies": {
+    "@rollup/plugin-commonjs": "^19.0.0",
+    "@rollup/plugin-node-resolve": "^13.0.0",
+    "@rollup/stream": "^2.0.0",
+    "esm": "^3.2.25",
     "gulp": "^4.0.0",
     "gulp-autoprefixer": "^6.1.0",
     "gulp-clean-css": "^3.9.4",
     "gulp-csscomb": "^3.0.8",
     "gulp-rename": "^1.2.2",
-    "gulp-sass": "^4.0.1"
+    "gulp-sass": "^4.0.1",
+    "gulp-sourcemaps": "^2.6.4",
+    "gulp-terser": "^2.0.1",
+    "rollup": "^2.50.2",
+    "rollup-plugin-css-only": "^3.1.0",
+    "rollup-plugin-css-porter": "^1.0.2",
+    "vinyl-buffer": "^1.0.1",
+    "vinyl-source-stream": "^2.0.0"
   },
   "browserslist": [
     "last 4 Chrome versions",
@@ -39,11 +39,11 @@
     "last 4 Opera versions",
     "Explorer >= 10"
   ],
+  "jshintConfig": {
+    "esversion": 6
+  },
   "scripts": {
     "dev": "gulp watch",
     "build": "gulp build"
-  },
-  "dependencies": {
-    "gulp-sourcemaps": "^2.6.4"
   }
 }
