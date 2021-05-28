@@ -25,7 +25,7 @@ import { parallel, series } from 'gulp';
 // configure the paths
 let scss_watch_dir = ['./scss/**/*.scss'];
 let scss_src_dir = './scss/*.scss';
-let css_dest_dir = './css-compiled';
+let css_dest_dir = './dist/css';
 
 // all javascript using modules must be in the `js-es6` folder
 let js_watch_dir = ['./js-es6/**/*.js'];
@@ -35,7 +35,7 @@ let rollup = js_file => {
     const options = {
         input: `./js-es6/${js_file}.js`,
         plugins: [
-            css({dest: `./css-compiled/${js_file}.css`, raw: false}),
+            css({dest: `./dist/css/${js_file}.css`, raw: false}),
             commonjs(),
             nodeResolve()
         ],
@@ -49,7 +49,7 @@ let rollup = js_file => {
       .pipe(sourcemaps.init({ loadMaps: true }))
       .pipe(terser())
       .pipe(sourcemaps.write('./'))
-      .pipe(gulp.dest('js-compiled'));
+      .pipe(gulp.dest('dist/js'));
 };
 
 let javascript = () => rollup('calendar');
