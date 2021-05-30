@@ -2,6 +2,7 @@
   width: 100%;
   height: $header-height-large;
   border-bottom: 1px solid rgba($gray-color, 0.2);
+  z-index: 2;
   @extend .default-animation;
 
   font-size: 0.7rem;
