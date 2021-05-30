@@ -72,11 +72,18 @@ let scss = () =>
         }))
         .pipe(gulp.dest(css_dest_dir));
 
-let watch_scss = () => gulp.watch(scss_watch_dir, scss);
-let watch_js = () =>  gulp.watch(js_watch_dir, javascript);
+let watch_scss = () =>
+    gulp.watch(scss_watch_dir, scss);
+
+let watch_js = () =>
+    gulp.watch(js_watch_dir, javascript);
 
 let build = parallel(scss, javascript);
 
-exports.watch = series(build, parallel(watch_js, watch_scss));
+exports.watch_css = watch_scss;
+exports.watch = () => {
+    watch_scss ();
+    watch_js ();
+};
 exports.build = build;
 exports.default = build;
