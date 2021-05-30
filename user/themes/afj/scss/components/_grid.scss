@@ -1,0 +1,9 @@
+.two-columns-grid {
+    display:grid;
+    grid-template-columns: 2fr 1fr;
+    padding-bottom: 1rem;
+
+    @include breakpoint(md) {
+        grid-template-columns: repeat(auto-fit,minmax(350px, 1fr));
+    }
+}

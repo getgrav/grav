@@ -1,0 +1,12 @@
+{% extends 'modular.html.twig' %}
+
+{% block body %}
+    <div class="container grid-lg bg-gray two-columns-grid" style="">
+    {% for module in page.collection() if module.template != 'modular/hero' %}
+        <div style="padding-left: 1rem; padding-right: 1rem;">
+            <div id="{{ module.menu|hyphenize }}"></div>
+            {{ module.content|raw }}
+        </div>
+    {% endfor %}
+    </div>
+{% endblock %}
