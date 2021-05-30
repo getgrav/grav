@@ -28,6 +28,8 @@ user/themes/*
 !user/themes/afj
 user/localhost/config/security.yaml
 user/config/security.yaml
+tmp/*
+!tmp/.*
 
 # OS Generated
 .DS_Store*
