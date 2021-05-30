@@ -1,6 +1,17 @@
 import { Calendar } from '@fullcalendar/core';
 import listPlugin from '@fullcalendar/list';
 import iCalendarPlugin from '@fullcalendar/icalendar';
+import * as ICAL from 'ical.js';
+
+function parse_ical(content) {
+    var jcalData = ICAL.parse(content.trim());
+    var comp = new ICAL.Component(jcalData);
+    var eventComps = comp.getAllSubcomponents("vevent");
+
+    console.log(JSON.stringify(eventComps));
+}
+
+window.parse_ical = parse_ical;
 
 document.addEventListener('DOMContentLoaded', function() {
     let make_calendar = (id, url) => {
@@ -10,6 +21,7 @@ document.addEventListener('DOMContentLoaded', function() {
             initialView: 'listYear',
             displayEventTime: false,
             locale: 'fr',
+            height: '100%',
             events: {
                 url: url,
                 format: 'ics'
