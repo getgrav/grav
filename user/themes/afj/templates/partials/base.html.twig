@@ -18,10 +18,10 @@
 {% endblock head %}
 
 {% block stylesheets %}
-    {% do assets.addCss('theme://css-compiled/spectre'~compress) %}
-    {% if theme_var('spectre.exp') %}{% do assets.addCss('theme://css-compiled/spectre-exp'~compress)  %}{% endif %}
-    {% if theme_var('spectre.icons') %}{%  do assets.addCss('theme://css-compiled/spectre-icons'~compress) %}{% endif %}
-    {% do assets.addCss('theme://css-compiled/theme'~compress) %}
+    {% do assets.addCss('theme://dist/css/spectre'~compress) %}
+    {% if theme_var('spectre.exp') %}{% do assets.addCss('theme://dist/css/spectre-exp'~compress)  %}{% endif %}
+    {% if theme_var('spectre.icons') %}{%  do assets.addCss('theme://dist/css/spectre-icons'~compress) %}{% endif %}
+    {% do assets.addCss('theme://dist/css/theme'~compress) %}
     {% do assets.addCss('theme://css/custom.css') %}
     {% do assets.addCss('theme://css/line-awesome.min.css') %}
 {% endblock %}
