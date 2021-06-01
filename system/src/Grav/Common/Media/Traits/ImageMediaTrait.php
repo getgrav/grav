@@ -50,13 +50,15 @@ trait ImageMediaTrait
     /** @var integer */
     protected $retina_scale;
 
+    /** @var bool */
+    protected $watermark;
 
     /** @var array */
     public static $magic_actions = [
         'resize', 'forceResize', 'cropResize', 'crop', 'zoomCrop',
         'negate', 'brightness', 'contrast', 'grayscale', 'emboss',
         'smooth', 'sharp', 'edge', 'colorize', 'sepia', 'enableProgressive',
-        'rotate', 'flip', 'fixOrientation', 'gaussianBlur', 'format'
+        'rotate', 'flip', 'fixOrientation', 'gaussianBlur', 'format', 'merge'
     ];
 
     /** @var array */
@@ -379,6 +381,8 @@ trait ImageMediaTrait
         $this->aspect_ratio = $config->get('system.images.cls.aspect_ratio', false);
         $this->retina_scale = $config->get('system.images.cls.retina_scale', 1);
 
+        $this->watermark = $config->get('system.images.watermark.watermark_all', false);
+
         return $this;
     }
 
@@ -413,6 +417,10 @@ trait ImageMediaTrait
             $locator = Grav::instance()['locator'];
             $overlay = $locator->findResource("system://assets/responsive-overlays/{$ratio}x.png") ?: $locator->findResource('system://assets/responsive-overlays/unknown.png');
             $this->image->merge(ImageFile::open($overlay));
+        }
+
+        if ($this->watermark) {
+            $this->watermark();
         }
 
         return $this->image->cacheFile($this->format, $this->quality, false, [$this->get('width'), $this->get('height'), $this->get('modified')]);

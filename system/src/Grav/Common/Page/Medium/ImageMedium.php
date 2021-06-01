@@ -17,6 +17,7 @@ use Grav\Common\Media\Interfaces\MediaLinkInterface;
 use Grav\Common\Media\Traits\ImageLoadingTrait;
 use Grav\Common\Media\Traits\ImageMediaTrait;
 use Grav\Common\Utils;
+use Gregwar\Image\Image;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use function func_get_args;
 use function in_array;
@@ -321,6 +322,67 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
     public function retinaScale($scale = 1)
     {
         $this->retina_scale = intval($scale);
+
+        return $this;
+    }
+
+    public function watermark($image = null, $position = null, $scale = null)
+    {
+        $grav = $this->getGrav();
+
+        $locator = $grav['locator'];
+        $config = $grav['config'];
+
+        $args = func_get_args();
+
+        $file = $args[0] ?? '1'; // using '1' because of markdown. doing ![](image.jpg?watermark) returns $args[0]='1';
+        $file = $file === '1' ? $config->get('system.images.watermark.image') : $args[0];
+
+        $watermark = $locator->findResource($file);
+        $watermark = ImageFile::open($watermark);
+
+        // Scaling operations
+        $scale     = ($scale ?? $config->get('system.images.watermark.scale', 100)) / 100;
+        $wwidth    = $this->get('width')  * $scale;
+        $wheight   = $this->get('height') * $scale;
+        $watermark->resize($wwidth, $wheight);
+
+        // Position operations
+        $position = !empty($args[1]) ? explode('-',  $args[1]) : ['center', 'center']; // todo change to config
+        $positionY = $position[0] ?? $config->get('system.images.watermark.position_y', 'center');
+        $positionX = $position[1] ?? $config->get('system.images.watermark.position_x', 'center');
+
+        switch ($positionY)
+        {
+            case 'top':
+                $positionY = 0;
+                break;
+
+            case 'bottom':
+                $positionY = $this->get('height')-$wheight;
+                break;
+
+            case 'center':
+                $positionY = ($this->get('height')/2) - ($wheight/2);
+                break;
+        }
+
+        switch ($positionX)
+        {
+            case 'left':
+                $positionX = 0;
+                break;
+
+            case 'right':
+                $positionX = $this->get('width')-$wwidth;
+                break;
+
+            case 'center':
+                $positionX = ($this->get('width')/2) - ($wwidth/2);
+                break;
+        }
+
+        $this->__call('merge', [$watermark,$positionX, $positionY]);
 
         return $this;
     }
