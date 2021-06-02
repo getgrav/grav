@@ -368,11 +368,15 @@ class FilesystemExtension extends AbstractExtension
 
     /**
      * @param string $path
-     * @param int $flags
+     * @param int|null $flags
      * @return string|string[]
      */
-    public function pathinfo($path, $flags = PATHINFO_ALL)
+    public function pathinfo($path, $flags = null)
     {
+        if (null !== $flags) {
+            return pathinfo($path, (int)$flags);
+        }
+
         return pathinfo($path);
     }
 

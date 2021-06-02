@@ -367,7 +367,7 @@ class PageObject extends FlexPageObject
         $filesystem = Filesystem::getInstance(false);
         $oldParentKey = ltrim($filesystem->dirname("/{$storageKey}"), '/');
         $newParentKey = $this->getProperty('parent_key');
-        $isMoved = $oldParentKey !== $newParentKey;
+        $isMoved = $this->exists() && $oldParentKey !== $newParentKey;
         $order = !$isMoved ? $this->order() : false;
         if ($order !== false) {
             $order = (int)$order;
@@ -385,10 +385,12 @@ class PageObject extends FlexPageObject
         // Handle special case where ordering isn't given.
         if ($ordering === []) {
             if ($order >= 999999) {
-                // Set ordering to point to be the last item.
+                // Set ordering to point to be the last item, ignoring the object itself.
                 $order = 0;
                 foreach ($siblings as $sibling) {
-                    $order = max($order, (int)$sibling->order());
+                    if ($sibling->getKey() !== $this->getKey()) {
+                        $order = max($order, (int)$sibling->order());
+                    }
                 }
                 $this->order($order + 1);
             }
@@ -500,6 +502,8 @@ class PageObject extends FlexPageObject
         if ($isNew === true && $name === '') {
             // Support onBlueprintCreated event just like in Pages::blueprints($template)
             $blueprint->set('initialized', true);
+            $blueprint->setFilename($template);
+
             Grav::instance()->fireEvent('onBlueprintCreated', new Event(['blueprint' => $blueprint, 'type' => $template]));
         }
 
