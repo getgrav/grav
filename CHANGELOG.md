@@ -1,6 +1,8 @@
 # v1.7.16
 ## mm/dd/2021
 
+1. [](#new)
+    * Added 'addFrame()' method to ImageMedium [#3323](https://github.com/getgrav/grav/pull/3323)
 1. [](#improved)
     * Set `cache.clear_images_by_default` to `false` by default
     * Improve error on bad nested form data [#3364](https://github.com/getgrav/grav/issues/3364)
@@ -12,6 +14,7 @@
     * Fixed flex pages using wrong type in `onBlueprintCreated` event [#3157](https://github.com/getgrav/grav/issues/3157)
     * Fixed wrong SRI paths invoked when Grav instance as a sub folder [#3358](https://github.com/getgrav/grav/issues/3358)
     * Fixed SRI trying to calculate remote assets, only ever set integrity for local files. Use the SRI provided by the remote source and manually add it in the `addJs/addCss` call for remote support. [#3358](https://github.com/getgrav/grav/issues/3358)
+    * Fix for weird regex issue with latest PHP versions on Intel Macs causing params to not parse properly in URI object
 
 # v1.7.15
 ## 05/19/2021
