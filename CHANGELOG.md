@@ -1,5 +1,5 @@
 # v1.7.16
-## mm/dd/2021
+## 06/02/2021
 
 1. [](#new)
     * Added 'addFrame()' method to ImageMedium [#3323](https://github.com/getgrav/grav/pull/3323)
