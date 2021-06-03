@@ -201,8 +201,12 @@ class Assets extends PropertyObject
     protected function addType($collection, $type, $asset, $options)
     {
         if (is_array($asset)) {
-            foreach ($asset as $a) {
-                $this->addType($collection, $type, $a, $options);
+            foreach ($asset as $index => $location) {
+                if (is_array($location)) {
+                    $options = array_replace_recursive([], $options, $location);
+                    $location = $index;
+                }
+                $this->addType($collection, $type, $location, $options);
             }
 
             return $this;
