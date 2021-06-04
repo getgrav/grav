@@ -164,9 +164,15 @@ class Assets extends PropertyObject
 
         // More than one asset
         if (is_array($asset)) {
-            foreach ($asset as $a) {
+            foreach ($asset as $index => $location) {
                 array_shift($args);
-                $args = array_merge([$a], $args);
+                if (is_array($location)) {
+                    $args = array_shift($args);
+                    $args = [array_replace_recursive([], $location, $args)];
+                    $location = $index;
+                }
+
+                $args = array_merge([$location], $args);
                 call_user_func_array([$this, 'add'], $args);
             }
         } elseif (isset($this->collections[$asset])) {
