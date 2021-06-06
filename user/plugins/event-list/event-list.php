@@ -25,6 +25,7 @@ class EventListPlugin extends Plugin
     {
         return [
             'onPluginsInitialized' => [
+                ['autoload', 100000],
                 ['onPluginsInitialized', 0]
             ],
         ];
@@ -76,7 +77,6 @@ class EventListPlugin extends Plugin
      */
     public function onTwigExtensions(): void
     {
-
         $this->grav['twig']->twig->addGlobal(
             'events',
             new EventList\Events($this->grav)

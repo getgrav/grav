@@ -240,6 +240,6 @@
             "install-path": "../sabre/xml"
         }
     ],
-    "dev": true,
+    "dev": false,
     "dev-package-names": []
 }

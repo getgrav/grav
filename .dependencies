@@ -19,6 +19,10 @@ git:
         url: https://github.com/voodoos/grav-theme-afj
         path: user/themes/afj
         branch: master
+    event-list:
+        url: https://github.com/voodoos/grav-plugin-event-list
+        path: user/plugins/event-list
+        branch: master
 links:
     problems:
         src: grav-plugin-problems
@@ -39,4 +43,8 @@ links:
     afj:
         src: grav-theme-afj
         path: user/themes/afj
+        scm: github
+    event-list:
+        src: grav-event-list
+        path: user/plugins/event-list
         scm: github

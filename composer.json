@@ -113,7 +113,8 @@
         "test": "vendor/bin/codecept run unit",
         "test-windows": "vendor\\bin\\codecept run unit",
         "compile": [
-          "bin/grav install"
+            "cd user/plugins/event-list && composer update --no-dev",
+            "bin/grav install"
         ]
     },
     "extra": {

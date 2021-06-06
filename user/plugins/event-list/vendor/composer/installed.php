@@ -6,7 +6,7 @@
     'aliases' => 
     array (
     ),
-    'reference' => 'c1a4c336c07ace713d070afadcb99d7d928c7aee',
+    'reference' => '80fedab79d1065f20ab74336d5e174b08490b350',
     'name' => 'voodoos/event-list',
   ),
   'versions' => 
@@ -45,7 +45,7 @@
       'aliases' => 
       array (
       ),
-      'reference' => 'c1a4c336c07ace713d070afadcb99d7d928c7aee',
+      'reference' => '80fedab79d1065f20ab74336d5e174b08490b350',
     ),
   ),
 );
