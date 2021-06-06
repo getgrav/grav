@@ -1,0 +1,29 @@
+{# Plugin's css #}
+{% do assets.addCss('plugin://event-list/css/main.css') %}
+
+<div class="title-center">
+    {{ content|raw }}
+</div>
+<div class="event-list-tbl">
+<table>
+    <tbody>
+    {% for event in events.get_events('conventions.ics') %}
+        {% set start_date = 
+            event.start_time|localizeddate('none', 'none', null, null, 'd MMMM') %}
+        {% set end_date = 
+            event.end_time|localizeddate('none', 'none', null, null, 'd MMMM') %}
+        
+        {# We show the date header only if the previous date is not the same #}
+        {# @TODO Untested #}
+        {% if start_date != previous_start or end_date != previous_end %}
+            {% set previous_start = start_date %}
+            {% set previous_end = end_date %}
+            <tr class="head-tr"><th>{{ start_date }}<span class="las">&#xf105;</span> {{ end_date }}</th></tr>
+        {% endif %}
+
+        <tr><td>{{ event.summary }}</td></tr>
+
+    {% endfor %}
+    <tbody>
+</table>
+</div>

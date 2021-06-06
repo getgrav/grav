@@ -1,0 +1,32 @@
+name: Event List
+slug: event-list
+type: plugin
+version: 0.1.0
+description: Display a list of events from a ical file
+icon: plug
+author:
+  name: Ulysse Gérard
+  email: thevoodoos@gmail.com
+homepage: https://github.com/voodoos/grav-plugin-event-list
+keywords: grav, plugin
+bugs: https://github.com/voodoos/grav-plugin-event-list/issues
+docs: https://github.com/voodoos/grav-plugin-event-list/blob/develop/README.md
+license: MIT
+
+dependencies:
+  - { name: grav, version: '>=1.6.0' }
+  - { name: twig-extensions, version: '>=1.1.0' }
+
+form:
+  validation: loose
+  fields:
+    enabled:
+      type: toggle
+      label: PLUGIN_ADMIN.PLUGIN_STATUS
+      highlight: 1
+      default: 0
+      options:
+        1: PLUGIN_ADMIN.ENABLED
+        0: PLUGIN_ADMIN.DISABLED
+      validate:
+        type: bool

@@ -1,0 +1,30 @@
+.event-list-tbl {
+    background-color: white;
+    border-radius: 1rem;
+    box-shadow: 0px 0px 2px -1px rgb(0 0 0 / 75%);
+    overflow: hidden;
+    position: relative;
+}
+
+.event-list-tbl table {
+    position: relative;
+    top: -3px;
+}
+
+.event-list-tbl .head-tr {
+    box-shadow: 0px 0px 3px -1px rgb(0 0 0 / 75%);
+    text-align: left;
+}
+
+.event-list-tbl td, .event-list-tbl th {
+    padding: 0.5rem;
+}
+
+.event-list-tbl td {
+    text-align: center;
+}
+
+.event-list-tbl .las {    
+    font-family: FontAwesome;
+    padding-left: 4px;
+}
