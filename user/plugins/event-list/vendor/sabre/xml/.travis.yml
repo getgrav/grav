@@ -1,0 +1,49 @@
+language: php
+sudo: required
+php:
+  - 7.1
+  - 7.2
+  - 7.3
+  - 7.4
+
+env:
+  global:
+    - RUN_PHPCSFIXER="TRUE"
+    - RUN_PHPUNIT="TRUE"
+    - RUN_PHPSTAN="FALSE"
+  matrix:
+    - PREFER_LOWEST="" REPORT_COVERAGE="TRUE" WITH_COVERAGE="--coverage-clover=coverage.xml"
+    - PREFER_LOWEST="--prefer-lowest" REPORT_COVERAGE="FALSE" WITH_COVERAGE=""
+
+matrix:
+  include:
+    - name: 'PHP8'
+      dist: focal
+      php: nightly
+      env:
+        - RUN_PHPCSFIXER="FALSE"
+        - REPORT_COVERAGE="FALSE"
+    - name: 'PHPStan'
+      php: 7.4
+      env:
+        - RUN_PHPCSFIXER="FALSE"
+        - RUN_PHPUNIT="FALSE"
+        - RUN_PHPSTAN="TRUE"
+        - REPORT_COVERAGE="FALSE"
+  fast_finish: true
+
+cache:
+  directories:
+    - $HOME/.composer/cache
+
+before_script:
+  - if [ $RUN_PHPCSFIXER == "FALSE" ]; then composer remove --dev friendsofphp/php-cs-fixer; fi
+  - composer update $PREFER_LOWEST
+
+script:
+  - if [ $RUN_PHPCSFIXER == "TRUE" ]; then php vendor/bin/php-cs-fixer fix --dry-run --diff; fi
+  - if [ $RUN_PHPUNIT == "TRUE" ]; then php vendor/bin/phpunit --configuration tests/phpunit.xml $WITH_COVERAGE; fi
+  - if [ $RUN_PHPSTAN == "TRUE" ]; then composer phpstan; fi
+
+after_success:
+  - if [ $REPORT_COVERAGE == "TRUE" ]; then bash <(curl -s https://codecov.io/bash); fi

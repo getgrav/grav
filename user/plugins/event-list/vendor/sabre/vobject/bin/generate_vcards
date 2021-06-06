@@ -1,0 +1,241 @@
+#!/usr/bin/env php
+<?php
+
+namespace Sabre\VObject;
+
+// This sucks.. we have to try to find the composer autoloader. But chances
+// are, we can't find it this way. So we'll do our bestest
+$paths = [
+    __DIR__ . '/../vendor/autoload.php',  // In case vobject is cloned directly
+    __DIR__ . '/../../../autoload.php',   // In case vobject is a composer dependency.
+];
+
+foreach($paths as $path) {
+    if (file_exists($path)) {
+        include $path;
+        break;
+    }
+}
+
+if (!class_exists('Sabre\\VObject\\Version')) {
+    fwrite(STDERR, "Composer autoloader could not be properly loaded.\n");
+    die(1);
+}
+
+if ($argc < 2) {
+
+    $version = Version::VERSION;
+
+    $help = <<<HI
+sabre/vobject $version
+Usage:
+    generate_vcards [count]
+
+Options:
+    count   The number of random vcards to generate
+
+Examples:
+    generate_vcards 1000 > testdata.vcf
+
+HI;
+
+    fwrite(STDERR, $help);
+    exit(2);
+}
+
+$count = (int)$argv[1];
+if ($count < 1) {
+    fwrite(STDERR, "Count must be at least 1\n");
+    exit(2);
+}
+
+fwrite(STDERR, "sabre/vobject " . Version::VERSION . "\n");
+fwrite(STDERR, "Generating " . $count . " vcards in vCard 4.0 format\n");
+
+/**
+ * The following list is just some random data we compiled from various
+ * sources online.
+ *
+ * Very little thought went into compiling this list, and certainly nothing
+ * political or ethical.
+ *
+ * We would _love_ more additions to this to add more variation to this list.
+ *
+ * Send us PR's and don't be shy adding your own first and last name for fun.
+ */
+
+$sets = array(
+    "nl" => array(
+        "country" => "Netherlands",
+        "boys" => array(
+            "Anno",
+            "Bram",
+            "Daan",
+            "Evert",
+            "Finn",
+            "Jayden",
+            "Jens",
+            "Jesse",
+            "Levi",
+            "Lucas",
+            "Luuk",
+            "Milan",
+            "René",
+            "Sem",
+            "Sibrand",
+            "Willem",
+        ),
+        "girls" => array(
+            "Celia",
+            "Emma",
+            "Fenna",
+            "Geke",
+            "Inge",
+            "Julia",
+            "Lisa",
+            "Lotte",
+            "Mila",
+            "Sara",
+            "Sophie",
+            "Tess",
+            "Zoë",
+        ),
+        "last" => array(
+            "Bakker",
+            "Bos",
+            "De Boer",
+            "De Groot",
+            "De Jong",
+            "De Vries",
+            "Jansen",
+            "Janssen",
+            "Meyer",
+            "Mulder",
+            "Peters",
+            "Smit",
+            "Van Dijk",
+            "Van den Berg",
+            "Visser",
+            "Vos",
+        ),
+    ),
+    "us" => array(
+        "country" => "United States",
+        "boys" => array(
+            "Aiden",
+            "Alexander",
+            "Charles",
+            "David",
+            "Ethan",
+            "Jacob",
+            "James",
+            "Jayden",
+            "John",
+            "Joseph",
+            "Liam",
+            "Mason",
+            "Michael",
+            "Noah",
+            "Richard",
+            "Robert",
+            "Thomas",
+            "William",
+        ),
+        "girls" => array(
+            "Ava",
+            "Barbara",
+            "Chloe",
+            "Dorothy",
+            "Elizabeth",
+            "Emily",
+            "Emma",
+            "Isabella",
+            "Jennifer",
+            "Lily",
+            "Linda",
+            "Margaret",
+            "Maria",
+            "Mary",
+            "Mia",
+            "Olivia",
+            "Patricia",
+            "Roxy",
+            "Sophia",
+            "Susan",
+            "Zoe",
+        ),
+        "last" => array(
+            "Smith",
+            "Johnson",
+            "Williams",
+            "Jones",
+            "Brown",
+            "Davis",
+            "Miller",
+            "Wilson",
+            "Moore",
+            "Taylor",
+            "Anderson",
+            "Thomas",
+            "Jackson",
+            "White",
+            "Harris",
+            "Martin",
+            "Thompson",
+            "Garcia",
+            "Martinez",
+            "Robinson",
+        ),
+    ),
+);
+
+$current = 0;
+
+$r = function($arr) {
+
+    return $arr[mt_rand(0,count($arr)-1)];
+
+};
+
+$bdayStart = strtotime('-85 years');
+$bdayEnd = strtotime('-20 years');
+
+while($current < $count) {
+
+    $current++;
+    fwrite(STDERR, "\033[100D$current/$count");
+
+    $country = array_rand($sets);
+    $gender = mt_rand(0,1)?'girls':'boys';
+
+    $vcard = new Component\VCard(array(
+        'VERSION' => '4.0',
+        'FN' => $r($sets[$country][$gender]) . ' ' . $r($sets[$country]['last']),
+        'UID' => UUIDUtil::getUUID(),
+    ));
+
+    $bdayRatio = mt_rand(0,9);
+
+    if($bdayRatio < 2) {
+        // 20% has a birthday property with a full date
+        $dt = new \DateTime('@' . mt_rand($bdayStart, $bdayEnd));
+        $vcard->add('BDAY', $dt->format('Ymd'));
+
+    } elseif ($bdayRatio < 3) {
+        // 10% we only know the month and date of
+        $dt = new \DateTime('@' . mt_rand($bdayStart, $bdayEnd));
+        $vcard->add('BDAY', '--' . $dt->format('md'));
+    }
+    if ($result = $vcard->validate()) {
+        ob_start();
+        echo "\nWe produced an invalid vcard somehow!\n";
+        foreach($result as $message) {
+            echo "  " . $message['message'] . "\n";
+        }
+        fwrite(STDERR, ob_get_clean());
+    }
+    echo $vcard->serialize();
+
+}
+
+fwrite(STDERR,"\nDone.\n");

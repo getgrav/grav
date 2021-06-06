@@ -1,0 +1,6 @@
+parameters:
+  level: 5
+  ignoreErrors:
+    -
+      message: '!Parameter #3 \$uri of method XMLWriter::startElementNs\(\) expects string, null given.!'
+      path: lib/Writer.php

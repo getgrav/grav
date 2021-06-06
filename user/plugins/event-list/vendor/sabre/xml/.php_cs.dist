@@ -1,0 +1,12 @@
+<?php
+
+$config = PhpCsFixer\Config::create();
+$config->getFinder()
+    ->exclude('vendor')
+    ->in(__DIR__);
+$config->setRules([
+    '@PSR1' => true,
+    '@Symfony' => true
+]);
+
+return $config;
