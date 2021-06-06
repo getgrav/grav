@@ -2,7 +2,9 @@
   "name": "voodoos/event-list",
   "type": "grav-plugin",
   "description": "Display a list of events from a ical file",
-  "keywords": ["plugin"],
+  "keywords": [
+    "plugin"
+  ],
   "homepage": "https://github.com/voodoos/grav-plugin-event-list",
   "license": "MIT",
   "authors": [
@@ -14,13 +16,16 @@
   ],
   "require": {
     "php": ">=7.1.3",
+    "ext-intl": "*",
     "sabre/vobject": "^4.3"
   },
   "autoload": {
     "psr-4": {
       "Grav\\Plugin\\EventList\\": "classes/"
     },
-    "classmap":  ["event-list.php"]
+    "classmap": [
+      "event-list.php"
+    ]
   },
   "config": {
     "platform": {
