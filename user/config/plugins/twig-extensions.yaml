@@ -1,0 +1,2 @@
+enabled: true
+modules: [intl] // date array
