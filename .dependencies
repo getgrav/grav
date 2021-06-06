@@ -11,6 +11,10 @@ git:
         url: https://github.com/getgrav/grav-plugin-markdown-notices
         path: user/plugins/markdown-notices
         branch: master
+    twig-extensions:
+        url: https://github.com/Perlkonig/grav-plugin-twig-extensions
+        path: user/plugins/twig-extensions
+        branch: master
     afj:
         url: https://github.com/voodoos/grav-theme-afj
         path: user/themes/afj
@@ -27,6 +31,10 @@ links:
     markdown-notices:
         src: grav-plugin-markdown-notices
         path: user/plugins/markdown-notices
+        scm: github
+    twig-extensions:
+        src: grav-plugin-twig-extensions
+        path: user/plugins/twig-extensions
         scm: github
     afj:
         src: grav-theme-afj
