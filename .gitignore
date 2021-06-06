@@ -23,6 +23,7 @@ user/data/*
 !user/data/.*
 user/plugins/*
 !user/plugins/.*
+!user/plugins/event-list
 user/themes/*
 !user/themes/.*
 !user/themes/afj
