@@ -16,6 +16,7 @@
         "ext-json": "*",
         "ext-openssl": "*",
         "ext-curl": "*",
+        "ext-intl": "*",
         "ext-zip": "*",
         "ext-dom": "*",
         "ext-libxml": "*",
