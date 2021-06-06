@@ -15,15 +15,16 @@ http_x_forwarded:
   port: true
   ip: true
 languages:
-  supported: null
-  default_lang: null
+  supported:
+    - fr
+  default_lang: fr-FR
   include_default_lang: true
-  include_default_lang_file_extension: true
+  include_default_lang_file_extension: false
   translations: true
   translations_fallback: true
   session_store_active: false
   http_accept_language: false
-  override_locale: false
+  override_locale: true
   pages_fallback_only: false
 home:
   alias: /home
@@ -71,6 +72,7 @@ pages:
     - json
     - rss
     - atom
+    - ics
   append_url_extension: null
   expires: 604800
   cache_control: null
