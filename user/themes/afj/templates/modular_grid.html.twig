@@ -1,12 +1,14 @@
 {% extends 'modular.html.twig' %}
 
 {% block body %}
-    <div class="container grid-lg bg-gray two-columns-grid" style="">
-    {% for module in page.collection() if module.template != 'modular/hero' %}
-        <div style="padding-left: 1rem; padding-right: 1rem;">
-            <div id="{{ module.menu|hyphenize }}"></div>
-            {{ module.content|raw }}
-        </div>
-    {% endfor %}
+    <div class="container grid-lg bg-gray" style="padding-bottom: 1.5rem;">
+    <div class="columns col-gapless">
+    <div class="left column col-8 col-md-6 col-sm-12">
+        {% include 'partials/module-iter.html.twig' with {side: 'left'} %}
+    </div>
+    <div class="right column col-4 col-md-6 col-sm-12">
+        {% include 'partials/module-iter.html.twig' with {side: 'right'} %}
+    </div>
+    </div>
     </div>
 {% endblock %}

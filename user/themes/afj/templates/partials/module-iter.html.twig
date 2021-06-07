@@ -1,0 +1,9 @@
+
+    {% for module in page.collection() 
+        if module.template != 'modular/hero'
+        and (module.header.column is null or module.header.column == side) %}
+        <div style="padding-left: 1rem; padding-right: 1rem;">
+            <div id="{{ module.menu|hyphenize }}"></div>
+            {{ module.content|raw }}
+        </div>
+    {% endfor %}
