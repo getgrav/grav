@@ -1,0 +1,149 @@
+.night {
+    position: absolute;
+    width: 100%;
+    height: 300%;
+    transform: rotateZ(33deg);
+    // animation: sky 200000ms linear infinite;
+  }
+
+$shooting-time: 3000ms;
+.shooting-star {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    // width: 100px;
+    height: 2px;
+    background: linear-gradient(-45deg, rgb(219, 228, 247), rgba(0, 0, 255, 0));
+    border-radius: 999px;
+    filter: drop-shadow(0 0 6px rgb(214, 223, 241));
+    animation:
+      tail $shooting-time ease-in-out infinite,
+      shooting $shooting-time ease-in-out infinite;
+    
+    &::before {
+      content: '';
+      position: absolute;
+      top: calc(50% - 1px);
+      right: 0;
+      // width: 30px;
+      height: 2px;
+      background: linear-gradient(-45deg, rgba(0, 0, 255, 0), rgba(95, 145, 255, 1), rgba(0, 0, 255, 0));
+      transform: translateX(50%) rotateZ(45deg);
+      border-radius: 100%;
+      animation: shining $shooting-time ease-in-out infinite;
+    }
+  
+    &::after {
+      // CodePen Error
+      // @extend .shooting-star::before;
+      
+      content: '';
+      position: absolute;
+      top: calc(50% - 1px);
+      right: 0;
+      // width: 30px;
+      height: 2px;
+      background: linear-gradient(-45deg, rgba(0, 0, 255, 0), rgb(208, 220, 247), rgba(0, 0, 255, 0));
+      transform: translateX(50%) rotateZ(45deg);
+      border-radius: 100%;
+      animation: shining $shooting-time ease-in-out infinite;
+      transform: translateX(50%) rotateZ(-45deg);
+    }
+    
+    @for $i from 1 through 2 {
+      &:nth-child(#{$i}) {
+        $delay: random(9999) + 0ms;
+        top: percentage(random(100)/100);
+        left: percentage((random(60) + 20) / 100);
+        animation-delay: $delay;
+        // opacity: random(50) / 100 + 0.5;
+        
+        &::before,
+        &::after {
+          animation-delay: $delay;
+        }
+      }
+    }
+
+    &:nth-child(1) {
+      $delay: 8000ms !important;
+      top: 23% !important;
+      left: 50% !important;
+      animation-delay: $delay;
+      &::before,
+      &::after {
+        animation-delay: $delay;
+      }
+    }
+
+    &:nth-child(2) {
+      $delay: 9000ms !important;
+      top: 49% !important;
+      left: -2% !important;
+      animation-delay: $delay;
+      &::before,
+      &::after {
+        animation-delay: $delay;
+      }
+    }
+
+    &:nth-child(3) {
+      $delay: 6000ms !important;
+      top: 76% !important;
+      left: 11% !important;
+      animation-delay: $delay;
+      &::before,
+      &::after {
+        animation-delay: $delay;
+      }
+    }
+  }
+  
+  @keyframes tail {
+    0% {
+      width: 0;
+    }
+    
+    30% {
+      width: 100px;
+    }
+    
+    100% {
+      width: 0;
+    }
+  }
+  
+  @keyframes shining {
+    0% {
+      width: 0;
+    }
+    
+    50% {
+      width: 30px;
+    }
+    
+    100% {
+      width: 0;
+    }
+  }
+  
+  @keyframes shooting {
+    0% {
+      transform: translateX(0);
+    }
+    
+    100% {
+      transform: translateX(600px);
+    }
+  }
+  
+  @keyframes sky {
+    0% {
+      transform: rotate(45deg);
+    }
+    
+    100% {
+      transform: rotate(45 + 360deg);
+    }
+  }
+  
