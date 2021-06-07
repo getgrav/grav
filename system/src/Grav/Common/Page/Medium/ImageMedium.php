@@ -338,12 +338,44 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
     }
 
     /**
+     * Add a frame to image
+     *
+     * @return $this
+     */
+    public function addFrame(int $border = 10, string $color = '0x000000')
+    {
+      if(is_int(intval($border)) && $border>0 && preg_match('/^0x[a-f0-9]{6}$/i', $color)) { // $border must be an integer and bigger than 0; $color must be formatted as an HEX value (0x??????).
+        $image = ImageFile::open($this->path());
+      }
+      else {
+        return $this;
+      }
+
+      $dst_width = $image->width()+2*$border;
+      $dst_height = $image->height()+2*$border;
+
+      $frame = ImageFile::create($dst_width, $dst_height);
+
+      $frame->__call('fill', [$color]);
+
+      $this->image = $frame;
+
+      $this->__call('merge', [$image, $border, $border]);
+
+      $this->saveImage();
+
+      return $this;
+
+    }
+
+    /**
      * Forward the call to the image processing method.
      *
      * @param string $method
      * @param mixed $args
      * @return $this|mixed
      */
+    
     public function __call($method, $args)
     {
         if (!in_array($method, static::$magic_actions, true)) {

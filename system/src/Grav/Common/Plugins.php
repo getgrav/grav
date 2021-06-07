@@ -287,33 +287,42 @@ class Plugins extends Iterator
     {
         // NOTE: ALL THE LOCAL VARIABLES ARE USED INSIDE INCLUDED FILE, DO NOT REMOVE THEM!
         $grav = Grav::instance();
+        /** @var UniformResourceLocator $locator */
         $locator = $grav['locator'];
-        $file = $locator->findResource('plugins://' . $name . DS . $name . PLUGIN_EXT);
+        $class = null;
 
+        // Start by attempting to load the plugin_name.php file.
+        $file = $locator->findResource('plugins://' . $name . DS . $name . PLUGIN_EXT);
         if (is_file($file)) {
             // Local variables available in the file: $grav, $name, $file
             $class = include_once $file;
+            if (!is_object($class) || !is_subclass_of($class, Plugin::class, true)) {
+                $class = null;
+            }
+        }
 
-            if (!$class || !is_subclass_of($class, Plugin::class, true)) {
-                $className = Inflector::camelize($name);
-                $pluginClassFormat = [
-                    'Grav\\Plugin\\' . ucfirst($name). 'Plugin',
-                    'Grav\\Plugin\\' . $className . 'Plugin',
-                    'Grav\\Plugin\\' . $className
-                ];
+        // If the class hasn't been initialized yet, guess the class name and create a new instance.
+        if (null === $class) {
+            $className = Inflector::camelize($name);
+            $pluginClassFormat = [
+                'Grav\\Plugin\\' . ucfirst($name). 'Plugin',
+                'Grav\\Plugin\\' . $className . 'Plugin',
+                'Grav\\Plugin\\' . $className
+            ];
 
-                foreach ($pluginClassFormat as $pluginClass) {
-                    if (is_subclass_of($pluginClass, Plugin::class, true)) {
-                        $class = new $pluginClass($name, $grav);
-                        break;
-                    }
+            foreach ($pluginClassFormat as $pluginClass) {
+                if (is_subclass_of($pluginClass, Plugin::class, true)) {
+                    $class = new $pluginClass($name, $grav);
+                    break;
                 }
             }
-        } else {
+        }
+
+        // Log a warning if plugin cannot be found.
+        if (null === $class) {
             $grav['log']->addWarning(
                 sprintf("Plugin '%s' enabled but not found! Try clearing cache with `bin/grav clearcache`", $name)
             );
-            return null;
         }
 
         return $class;
