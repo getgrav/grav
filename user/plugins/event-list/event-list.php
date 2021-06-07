@@ -52,6 +52,7 @@ class EventListPlugin extends Plugin
         }
 
         // Add CSS to the page
+        $this->grav["assets"]->addCss('plugin://event-list/css/main.css');
 
         // Enable the main events we are interested in
         $this->enable([
