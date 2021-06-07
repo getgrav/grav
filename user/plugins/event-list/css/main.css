@@ -7,13 +7,21 @@
 }
 
 .event-list-tbl table {
+     /* C'est dégeulasse mais sinon les ombres débordent */
+    width: calc(100% + 4px);
     position: relative;
+    left: -2px;
     top: -3px;
 }
 
 .event-list-tbl .head-tr {
     box-shadow: 0px 0px 3px -1px rgb(0 0 0 / 75%);
     text-align: left;
+}
+
+.event-list-tbl .year-tr {
+    background-color: #020b46;
+    color: white;
 }
 
 .event-list-tbl td, .event-list-tbl th {

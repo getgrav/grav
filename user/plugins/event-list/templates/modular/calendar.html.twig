@@ -1,18 +1,34 @@
 {# Plugin's css #}
 {% do assets.addCss('plugin://event-list/css/main.css') %}
 
-<div class="title-center">
+<div class="center">
     {{ content|raw }}
 </div>
 <div class="event-list-tbl">
 <table>
     <tbody>
+    {% set locale = grav.language.getLanguage %}
     {% for event in events.get_events('conventions.ics') %}
         {% set start_date = 
-            event.start_time|localizeddate('none', 'none', null, null, 'd MMMM') %}
+            event.start_time|
+            localizeddate('none', 'none', locale, null, 'd MMMM') 
+        %}
+        {% set year =
+            event.start_time|
+            localizeddate('none', 'none', locale, null, 'YYYY')
+        %}
         {% set end_date = 
-            event.end_time|localizeddate('none', 'none', null, null, 'd MMMM') %}
+            event.end_time|
+            localizeddate('none', 'none', locale, null, 'd MMMM') 
+        %}
         
+        {# We show the year header only if the previous date is not the same #}
+        {# @TODO Untested #}
+        {% if year != previous_year %}
+            {% set previous_year = year%}
+            <tr class="year-tr"><th>{{ year }}</th></tr>
+        {% endif %}
+
         {# We show the date header only if the previous date is not the same #}
         {# @TODO Untested #}
         {% if start_date != previous_start or end_date != previous_end %}
@@ -21,8 +37,14 @@
             <tr class="head-tr"><th>{{ start_date }}<span class="las">&#xf105;</span> {{ end_date }}</th></tr>
         {% endif %}
 
-        <tr><td>{{ event.summary }}</td></tr>
-
+        {% set link = event.get_first_link() %}
+        {% if link %}
+            <tr><td><a href="{{ link }}" target="_blank">
+            {{ event.summary }}
+            </a></td></tr>
+        {% else %}
+            <tr><td>{{ event.summary }}</td></tr>
+        {% endif %}
     {% endfor %}
     <tbody>
 </table>

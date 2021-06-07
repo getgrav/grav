@@ -13,6 +13,9 @@ class Event
     /** @var string */
     public $summary;
 
+    /** @var string */
+    public $description;
+
     /**
      * Constructor
      *
@@ -21,12 +24,29 @@ class Event
      * @param \DateTime $end_time
      * 
      * @param string $summary
+     * 
+     * @param description $summary
      */
-    public function __construct($start_time, $end_time, $summary)
+    public function __construct($start_time, $end_time, $summary, $description)
     {
         $this->start_time = $start_time;
         $this->end_time = $end_time;
         $this->summary = $summary;
+        $this->description = $description;
+    }
+
+    public function get_first_link()
+    {
+        // We expect DESCRIPTIOn to be an HTML source with some links. It is
+        // then easy to match with urls in `href` properties
+        $reg_exUrl = '/"(https?[^"]*)"/m';
+
+        // Check if there is a url in the description
+        if (preg_match($reg_exUrl, $this->description, $url)) {
+            return $url[1];
+        }
+
+        return null;
     }
 
     /**

@@ -48,7 +48,8 @@ class Events
                 $events[(string)$event->UID] = new Event(
                     $start_date,
                     $event->DTEND->getDateTime(),
-                    (string)$event->SUMMARY
+                    (string)$event->SUMMARY,
+                    (string)$event->DESCRIPTION,
                 );
         }
 
