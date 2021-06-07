@@ -98,7 +98,7 @@ pages:
 cache:
   enabled: true
   check:
-    method: file
+    method: hash
   driver: auto
   prefix: g
   purge_at: '0 4 * * *'
