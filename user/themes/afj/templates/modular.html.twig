@@ -2,16 +2,10 @@
 
 {% set show_onpage_menu = header.onpage_menu == true or header.onpage_menu is null %}
 
-{% block stylesheets %}
-    {{ parent() }}
-    {% do assets.addCss('theme://dist/css/calendar.min.css') %}
-{% endblock %}
-
 {% block javascripts %}
     {% if show_onpage_menu %}
         {% do assets.add('theme://js/singlepagenav.min.js') %}
     {% endif %}
-    {% do assets.add('theme://dist/js/calendar.js') %}
     {{ parent() }}
 {% endblock %}
 

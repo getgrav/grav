@@ -2,7 +2,7 @@
   "name": "grav-theme-afj",
   "version": "0.0.1",
   "homepage": "https://github.com/voodoos/grav-theme-afj",
-  "author": "Team AFJ <thevoodoos@gmail.com>",
+  "author": "Team AFJ <afj.jonglerie@gmail.com>",
   "description": "A Grav theme based on Quark",
   "repository": {
     "type": "git",
@@ -45,13 +45,5 @@
   "scripts": {
     "dev": "gulp watch",
     "build": "gulp build"
-  },
-  "dependencies": {
-    "@fullcalendar/core": "^5.7.0",
-    "@fullcalendar/icalendar": "^5.7.0",
-    "@fullcalendar/list": "^5.7.0"
-  },
-  "resolutions": {
-    "ical.js": "file:./vendor/ical.js"
   }
 }

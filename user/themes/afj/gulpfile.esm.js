@@ -35,32 +35,31 @@ let rollup = js_file => {
     const options = {
         input: `./js-es6/${js_file}.js`,
         plugins: [
-            css({dest: `./dist/css/${js_file}.css`, raw: false}),
+            css({ dest: `./dist/css/${js_file}.css`, raw: false }),
             commonjs(),
             nodeResolve()
         ],
         output: {
             format: 'iife',
             sourcemap: true
-        } };
+        }
+    };
     return rollupStream(options)
-      .pipe(source(`${js_file}.js`))
-      .pipe(buffer())
-      .pipe(sourcemaps.init({ loadMaps: true }))
-      .pipe(terser())
-      .pipe(sourcemaps.write('./'))
-      .pipe(gulp.dest('dist/js'));
+        .pipe(source(`${js_file}.js`))
+        .pipe(buffer())
+        .pipe(sourcemaps.init({ loadMaps: true }))
+        .pipe(terser())
+        .pipe(sourcemaps.write('./'))
+        .pipe(gulp.dest('dist/js'));
 };
-
-let javascript = () => rollup('calendar');
 
 let scss = () =>
     gulp.src(scss_src_dir)
         .pipe(sourcemaps.init())
         .pipe(sass({
-                outputStyle: 'compact',
-                precision: 10
-            }).on('error', sass.logError)
+            outputStyle: 'compact',
+            precision: 10
+        }).on('error', sass.logError)
         )
         .pipe(sourcemaps.write())
         .pipe(autoprefixer())
@@ -75,15 +74,9 @@ let scss = () =>
 let watch_scss = () =>
     gulp.watch(scss_watch_dir, scss);
 
-let watch_js = () =>
-    gulp.watch(js_watch_dir, javascript);
-
-let build = parallel(scss, javascript);
+let build = scss;
 
 exports.watch_css = watch_scss;
-exports.watch = () => {
-    watch_scss ();
-    watch_js ();
-};
+exports.watch = watch_scss;
 exports.build = build;
 exports.default = build;
