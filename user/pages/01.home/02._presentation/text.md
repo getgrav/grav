@@ -1,6 +1,7 @@
 ---
 title: Présentation
 image_align: left
+column: left
 ---
 
 ## L'association
