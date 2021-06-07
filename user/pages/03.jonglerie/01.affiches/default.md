@@ -1,5 +1,5 @@
 ---
-title: Typography
+title: 'Affiches de conventions'
 ---
 
 ! Details on the full capabilities of Spectre.css can be found in the [Official Spectre Documentation](https://picturepan2.github.io/spectre/elements.html)

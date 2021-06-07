@@ -1,5 +1,6 @@
 ---
 title: Présentation
+image_align: left
 ---
 
 ## L'association
@@ -11,17 +12,16 @@ Convention Française de Jonglerie. Ces conventions françaises ont lieu chaque
 année dans une ville de France différente.
 
 
-Vous pouvez nous contacter par mail à l’adresse :
-afj.jonglerie gmail.com.
+Vous pouvez nous contacter par mail à l’adresse [afj.jonglerie@gmail.com](mailto:afj.jonglerie@gmail.com).
 
 ## La convention française
 
-Cette année, **du 25 au 29 août**, c’est l’association Mamagabe qui organise la
+En 2021, **du 25 au 29 août**, c’est l’association Mamagabe qui organise la
 Convention Française de Jonglerie à **Poitiers** (86).
 
 *Un appel massif à bénévoles sera bientôt passé afin de garantir à l’équipe organisatrice de pouvoir assurer l’évènement.*
 
-Retrouvez les informations sur ce site sur cette rencontre ainsi que sur les
+Retrouvez les informations sur cette rencontre à [cette adresse](https://www.facebook.com/groups/132641280106271/) ainsi que sur les
 autres conventions régionales de France.
 
 ## L'AFJ soutient vos projets
