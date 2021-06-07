@@ -6,7 +6,7 @@
 [subrepo]
 	remote = git@github.com:Association-Francaise-de-Jonglerie/grav-theme-afj.git
 	branch = develop
-	commit = 657223d65d3535d5b385c995e99a6df595f41b58
-	parent = 1d48d5f4baab4e53eceb008e04c1cffa1075fca6
+	commit = 16bdd6b1e7913598713a181fb6266b0a6572ce22
+	parent = 9e04e7b640389fefe8b949cf2a38ac4efe5c5cee
 	method = merge
 	cmdver = 0.4.3
