@@ -1,0 +1,22 @@
+{% set grid_size = theme_var('grid-size') %}
+
+{% set target = "" %}
+{% if page.header.target %}
+    {% set target = ' target="' ~page.header.target~ '"' %}
+{% endif %}
+
+{% set link = page.header.link %}
+{% if page.header.media %}
+    {% set link = page.media[page.header.media].url %}
+{% endif %}
+
+
+<section class="section modular-text {{ page.header.class}} bg-gray">
+    <section class="container center {{ grid_size }}">
+        <a href="{{ link }}"{{ target }}>
+            <button class="btn inline-block btn-primary">
+                {{ content|raw }}
+            </button>
+        </a>
+    </section>
+</section>

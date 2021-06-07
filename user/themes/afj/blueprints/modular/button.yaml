@@ -1,0 +1,33 @@
+title: Button
+'@extends': default
+
+form:
+  fields:
+    tabs:
+      fields:
+        buttons:
+          type: tab
+          title: Button
+          fields:
+            header.link:
+              type: text
+              label: Link
+              markdown: true
+              description: 'Set a link that will be opened when clicking the
+              button. This field is overriden by the `Media file` field.'
+            header.media:
+              type: pagemediaselect
+              label: Media file
+              toggleable: true
+              markdown: true
+              description: 'A media to open when the button is clicked. If you
+              choose a media, the `Link` field will not be used.'
+            header.target:
+              type: toggle
+              default: _blank
+              options:
+                '_blank': PLUGIN_ADMIN.YES
+                '_self': PLUGIN_ADMIN.NO
+              label: Open in new window
+
+
