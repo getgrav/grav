@@ -3,13 +3,13 @@ production-mode: true
 grid-size: grid-lg
 header-fixed: true
 header-animated: true
-header-dark: true
-header-transparent: true
+header-dark: false
+header-transparent: false
 sticky-footer: true
 blog-page: /blog
 spectre:
-  exp: false
-  icons: false
+  exp: true
+  icons: true
 custom_logo:
   -
     name: afj.png
