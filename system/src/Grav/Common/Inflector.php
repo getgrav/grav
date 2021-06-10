@@ -161,9 +161,16 @@ class Inflector
      */
     public static function titleize($word, $uppercase = '')
     {
-        $uppercase = $uppercase === 'first' ? 'ucfirst' : 'ucwords';
+        $replacement = preg_replace('/(\p{Lu}\p{Ll})/u', ' \1', $word); /* Me ->  Me */
+        $replacement = preg_replace('/(\p{Ll})(\p{Lu})/u', '\1 \2', $replacement); /* eM -> e M */
+        $replacement = preg_replace('/(\p{N})(\p{L})/u', '\1 \2', $replacement); /* 1a -> 1 a (any case) */
+        $replacement = preg_replace('/(\p{L})(\p{N})/u', '\1 \2', $replacement); /* a1 -> a 1 (any case) */
+        $replacement = preg_replace('/[^\p{L}\p{N}]/u', ' ', $replacement); /* if not a letter or a number replace with a space */
+        $replacement = preg_replace('/( )\1+/', ' ', $replacement); /* remove repeating spaces */
+        $replacement = trim($replacement, ' ');
+        $replacement = mb_convert_case($replacement, MB_CASE_TITLE, "UTF-8"); /* title case words */
 
-        return $uppercase(static::humanize(static::underscorize($word)));
+        return $replacement;
     }
 
     /**
@@ -180,7 +187,11 @@ class Inflector
      */
     public static function camelize($word)
     {
-        return str_replace(' ', '', ucwords(preg_replace('/[^A-Z^a-z^0-9]+/', ' ', $word)));
+        $replacement = preg_replace('/[^\p{L}\p{N}]+/u', ' ', $word); /* replace every non-alphanumeric character with a space */
+        $replacement = mb_convert_case($replacement, MB_CASE_TITLE, "UTF-8"); /* title case words */
+        $replacement = str_replace(' ', '', $replacement); /* remove spaces */
+        
+        return $replacement;
     }
 
     /**
@@ -196,11 +207,16 @@ class Inflector
      */
     public static function underscorize($word)
     {
-        $regex1 = preg_replace('/([A-Z]+)([A-Z][a-z])/', '\1_\2', $word);
-        $regex2 = preg_replace('/([a-zd])([A-Z])/', '\1_\2', $regex1);
-        $regex3 = preg_replace('/[^A-Z^a-z^0-9]+/', '_', $regex2);
-
-        return strtolower($regex3);
+        $replacement = preg_replace('/(\p{Lu}\p{Ll})/u', '_\1', $word); /* Me -> _Me */
+        $replacement = preg_replace('/(\p{Ll})(\p{Lu})/u', '\1_\2', $replacement); /* eM -> e_M */
+        $replacement = preg_replace('/(\p{N})(\p{L})/u', '\1_\2', $replacement); /* 1a -> 1_a (any case) */
+        $replacement = preg_replace('/(\p{L})(\p{N})/u', '\1_\2', $replacement); /* a1 -> a_1 (any case) */
+        $replacement = preg_replace('/[^\p{L}\p{N}]/u', '_', $replacement); /* if not a letter or a number replace with a '_' */
+        $replacement = preg_replace('/(_)\1+/', '_', $replacement); /* remove repeating '_'s */
+        $replacement = trim($replacement, '_');
+        $replacement = mb_strtolower ($replacement);
+        
+        return $replacement;
     }
 
     /**
@@ -216,14 +232,16 @@ class Inflector
      */
     public static function hyphenize($word)
     {
-        $regex1 = preg_replace('/([A-Z]+)([A-Z][a-z])/', '\1-\2', $word);
-        $regex2 = preg_replace('/([a-z])([A-Z])/', '\1-\2', $regex1);
-        $regex3 = preg_replace('/([0-9])([A-Z])/', '\1-\2', $regex2);
-        $regex4 = preg_replace('/[^A-Z^a-z^0-9]+/', '-', $regex3);
-
-        $regex4 = trim($regex4, '-');
-
-        return strtolower($regex4);
+        $replacement = preg_replace('/(\p{Lu}\p{Ll})/u', '-\1', $word); /* Me -> -Me */
+        $replacement = preg_replace('/(\p{Ll})(\p{Lu})/u', '\1-\2', $replacement); /* eM -> e-M */
+        $replacement = preg_replace('/(\p{N})(\p{L})/u', '\1-\2', $replacement); /* 1a -> 1-a (any case) */
+        $replacement = preg_replace('/(\p{L})(\p{N})/u', '\1-\2', $replacement); /* a1 -> a-1 (any case) */
+        $replacement = preg_replace('/[^\p{L}\p{N}]/u', '-', $replacement); /* if not a letter or a number replace with a '-' */
+        $replacement = preg_replace('/(-)\1+/', '-', $replacement); /* remove repeating '-'s */
+        $replacement = trim($replacement, '-');
+        $replacement = mb_strtolower ($replacement);
+        
+        return $replacement;
     }
 
     /**
@@ -244,12 +262,20 @@ class Inflector
      */
     public static function humanize($word, $uppercase = '')
     {
-        $uppercase = $uppercase === 'all' ? 'ucwords' : 'ucfirst';
-
-        return $uppercase(str_replace('_', ' ', preg_replace('/_id$/', '', $word)));
+        $replacement = preg_replace('/[^\p{L}\p{N}]/u', ' ', $word); /* if not a letter or a number replace with a space */
+        $strlen = mb_strlen($replacement);
+        $firstChar = mb_substr($replacement, 0, 1);
+        $then = mb_substr($replacement, 1, $strlen - 1);
+        $then = mb_strtolower ($then);
+        $replacement = mb_strtoupper($firstChar) . $then;
+        
+        return $replacement;
     }
 
     /**
+     *
+     * WARNING: This function is currently not in use in Twig filters and is a candidate for removal
+     *
      * Same as camelize but first char is underscored
      *
      * Converts a word like "send_email" to "sendEmail". It
@@ -263,9 +289,14 @@ class Inflector
      */
     public static function variablize($word)
     {
-        $word = static::camelize($word);
+        $replacement = static::camelize($word);
 
-        return strtolower($word[0]) . substr($word, 1);
+        $strlen = mb_strlen($replacement);
+        $firstChar = mb_substr($replacement, 0, 1);
+        $then = mb_substr($replacement, 1, $strlen - 1);
+        $replacement = mb_strtolower($firstChar) . $then;
+        
+        return $replacement;
     }
 
     /**
