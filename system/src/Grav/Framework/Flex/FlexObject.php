@@ -692,6 +692,17 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     }
 
     /**
+     * @param UserInterface|null $user
+     */
+    public function check(UserInterface $user = null): void
+    {
+        // If user has been provided, check if the user has permissions to save this object.
+        if ($user && !$this->isAuthorized('save', null, $user)) {
+            throw new \RuntimeException('Forbidden', 403);
+        }
+    }
+
+    /**
      * {@inheritdoc}
      * @see FlexObjectInterface::save()
      */

@@ -9,6 +9,7 @@
     * File `frontmatter.yaml` isn't part of media, ignore it
 1. [](#bugfix)
     * Fixed missing styles when CSS/JS Pipeline is used and `asset://` folder is missing
+    * Fixed permission check when moving a page [#3382](https://github.com/getgrav/grav/issues/3382)
 
 # v1.7.16
 ## 06/02/2021
