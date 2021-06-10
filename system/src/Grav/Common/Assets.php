@@ -110,7 +110,7 @@ class Assets extends PropertyObject
 
         /** @var UniformResourceLocator $locator */
         $locator = $grav['locator'];
-        $this->assets_dir = $locator->findResource('asset://') . DS;
+        $this->assets_dir = $locator->findResource('asset://');
         $this->assets_url = $locator->findResource('asset://', false);
 
         $this->config($asset_config);

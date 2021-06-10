@@ -5,6 +5,8 @@
     * Allow to unset an asset attribute by specifying null (ie, `'defer': null`)
     * Support specifying custom attributes to assets in a collection [Read more](https://learn.getgrav.org/17/themes/asset-manager#collections-with-attributes?target=_blank) [#3358](https://github.com/getgrav/grav/issues/3358)
     * File `frontmatter.yaml` isn't part of media, ignore it
+1. [](#bugfix)
+    * Fixed missing styles when CSS/JS Pipeline is used and `assets/` folder is missing
 
 # v1.7.16
 ## 06/02/2021
