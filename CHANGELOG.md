@@ -1,6 +1,8 @@
 # v1.7.17
 ## mm/dd/2021
 
+1. [](#new)
+    * Interface `FlexDirectoryInterface` now extends `FlexAuthorizeInterface`
 1. [](#improved)
     * Allow to unset an asset attribute by specifying null (ie, `'defer': null`)
     * Support specifying custom attributes to assets in a collection [Read more](https://learn.getgrav.org/17/themes/asset-manager#collections-with-attributes?target=_blank) [#3358](https://github.com/getgrav/grav/issues/3358)
