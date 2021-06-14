@@ -168,6 +168,9 @@ class Assets extends PropertyObject
                 array_shift($args);
                 if (is_array($location)) {
                     $args = array_shift($args);
+                    if (is_numeric($args)) {
+                        $args = [ 'priority' => $args ];
+                    }
                     $args = [array_replace_recursive([], $location, $args)];
                     $location = $index;
                 }
