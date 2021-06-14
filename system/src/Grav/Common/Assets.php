@@ -165,18 +165,18 @@ class Assets extends PropertyObject
         // More than one asset
         if (is_array($asset)) {
             foreach ($asset as $index => $location) {
-                array_shift($args);
+                $params = array_slice($args, 1);
                 if (is_array($location)) {
-                    $args = array_shift($args);
-                    if (is_numeric($args)) {
-                        $args = [ 'priority' => $args ];
+                    $params = array_shift($params);
+                    if (is_numeric($params)) {
+                        $params = [ 'priority' => $params ];
                     }
-                    $args = [array_replace_recursive([], $location, $args)];
+                    $params = [array_replace_recursive([], $location, $params)];
                     $location = $index;
                 }
 
-                $args = array_merge([$location], $args);
-                call_user_func_array([$this, 'add'], $args);
+                $params = array_merge([$location], $params);
+                call_user_func_array([$this, 'add'], $params);
             }
         } elseif (isset($this->collections[$asset])) {
             array_shift($args);
@@ -211,11 +211,12 @@ class Assets extends PropertyObject
     {
         if (is_array($asset)) {
             foreach ($asset as $index => $location) {
+                $assetOptions = $options;
                 if (is_array($location)) {
-                    $options = array_replace_recursive([], $options, $location);
+                    $assetOptions = array_replace_recursive([], $options, $location);
                     $location = $index;
                 }
-                $this->addType($collection, $type, $location, $options);
+                $this->addType($collection, $type, $location, $assetOptions);
             }
 
             return $this;
