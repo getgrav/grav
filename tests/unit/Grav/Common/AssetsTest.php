@@ -340,7 +340,7 @@ class AssetsTest extends \Codeception\TestCase\Test
         $this->assets->reset();
         $this->assets->addJs('jquery', ['loading' => 'async']);
         $js = $this->assets->js();
-        self::assertSame('<script src="/system/assets/jquery/jquery-2.x.min.js" async></script>' . PHP_EOL, $js);
+        self::assertSame('<script src="/system/assets/jquery/jquery-3.x.min.js" async></script>' . PHP_EOL, $js);
 
         //Test priority too
         $this->assets->reset();
@@ -348,7 +348,7 @@ class AssetsTest extends \Codeception\TestCase\Test
         $this->assets->addJs('test.js', ['loading' => 'async', 'priority' => 2]);
         $js = $this->assets->js();
         self::assertSame('<script src="/test.js" async></script>' . PHP_EOL .
-            '<script src="/system/assets/jquery/jquery-2.x.min.js" async></script>' . PHP_EOL, $js);
+            '<script src="/system/assets/jquery/jquery-3.x.min.js" async></script>' . PHP_EOL, $js);
 
         //Test multiple groups
         $this->assets->reset();
@@ -357,7 +357,7 @@ class AssetsTest extends \Codeception\TestCase\Test
         $js = $this->assets->js();
         self::assertSame('<script src="/test.js" async></script>' . PHP_EOL, $js);
         $js = $this->assets->js('footer');
-        self::assertSame('<script src="/system/assets/jquery/jquery-2.x.min.js" async></script>' . PHP_EOL, $js);
+        self::assertSame('<script src="/system/assets/jquery/jquery-3.x.min.js" async></script>' . PHP_EOL, $js);
 
         //Test adding array of assets
         //Test priority too
@@ -365,7 +365,7 @@ class AssetsTest extends \Codeception\TestCase\Test
         $this->assets->addJs(['jquery', 'test.js'], ['loading' => 'async']);
         $js = $this->assets->js();
 
-        self::assertSame('<script src="/system/assets/jquery/jquery-2.x.min.js" async></script>' . PHP_EOL .
+        self::assertSame('<script src="/system/assets/jquery/jquery-3.x.min.js" async></script>' . PHP_EOL .
             '<script src="/test.js" async></script>' . PHP_EOL, $js);
     }
 
@@ -626,7 +626,7 @@ class AssetsTest extends \Codeception\TestCase\Test
         $this->assets->reset();
         $this->assets->addAsyncJs('jquery');
         $js = $this->assets->js();
-        self::assertSame('<script src="/system/assets/jquery/jquery-2.x.min.js" async></script>' . PHP_EOL, $js);
+        self::assertSame('<script src="/system/assets/jquery/jquery-3.x.min.js" async></script>' . PHP_EOL, $js);
     }
 
     public function testAddDeferJs(): void
@@ -634,7 +634,7 @@ class AssetsTest extends \Codeception\TestCase\Test
         $this->assets->reset();
         $this->assets->addDeferJs('jquery');
         $js = $this->assets->js();
-        self::assertSame('<script src="/system/assets/jquery/jquery-2.x.min.js" defer></script>' . PHP_EOL, $js);
+        self::assertSame('<script src="/system/assets/jquery/jquery-3.x.min.js" defer></script>' . PHP_EOL, $js);
     }
 
     public function testTimestamps(): void
@@ -716,7 +716,7 @@ class AssetsTest extends \Codeception\TestCase\Test
     {
         self::assertIsArray($this->assets->getCollections());
         self::assertContains('jquery', array_keys($this->assets->getCollections()));
-        self::assertContains('system://assets/jquery/jquery-2.x.min.js', $this->assets->getCollections());
+        self::assertContains('system://assets/jquery/jquery-3.x.min.js', $this->assets->getCollections());
     }
 
     public function testExists(): void
