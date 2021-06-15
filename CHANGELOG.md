@@ -1,5 +1,5 @@
 # v1.7.17
-## mm/dd/2021
+## 06/15/2021
 
 1. [](#new)
     * Interface `FlexDirectoryInterface` now extends `FlexAuthorizeInterface`
