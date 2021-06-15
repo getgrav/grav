@@ -47,7 +47,7 @@ use function is_callable;
  * @package Grav\Framework\Flex
  * @template T
  */
-class FlexDirectory implements FlexDirectoryInterface, FlexAuthorizeInterface
+class FlexDirectory implements FlexDirectoryInterface
 {
     use FlexAuthorizeTrait;
 

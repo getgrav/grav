@@ -156,6 +156,10 @@ trait AssetUtilsTrait
         $no_key = ['loading'];
 
         foreach ($this->attributes as $key => $value) {
+            if ($value === null) {
+                continue;
+            }
+
             if (is_numeric($key)) {
                 $key = $value;
             }

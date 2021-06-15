@@ -17,7 +17,7 @@ use Grav\Framework\Cache\CacheInterface;
  * Interface FlexDirectoryInterface
  * @package Grav\Framework\Flex\Interfaces
  */
-interface FlexDirectoryInterface
+interface FlexDirectoryInterface extends FlexAuthorizeInterface
 {
     /**
      * @return bool

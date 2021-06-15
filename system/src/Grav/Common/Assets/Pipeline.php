@@ -9,9 +9,9 @@
 
 namespace Grav\Common\Assets;
 
-use Grav\Common\Assets\BaseAsset;
 use Grav\Common\Assets\Traits\AssetUtilsTrait;
 use Grav\Common\Config\Config;
+use Grav\Common\Filesystem\Folder;
 use Grav\Common\Grav;
 use Grav\Common\Uri;
 use Grav\Common\Utils;
@@ -88,7 +88,14 @@ class Pipeline extends PropertyObject
         $uri = Grav::instance()['uri'];
 
         $this->base_url = rtrim($uri->rootUrl($config->get('system.absolute_urls')), '/') . '/';
-        $this->assets_dir = $locator->findResource('asset://') . DS;
+        $this->assets_dir = $locator->findResource('asset://');
+        if (!$this->assets_dir) {
+            // Attempt to create assets folder if it doesn't exist yet.
+            $this->assets_dir = $locator->findResource('asset://', true, true);
+            Folder::mkdir($this->assets_dir);
+            $locator->clearCache();
+        }
+
         $this->assets_url = $locator->findResource('asset://', false);
     }
 
@@ -119,10 +126,9 @@ class Pipeline extends PropertyObject
         $file = $uid . '.css';
         $relative_path = "{$this->base_url}{$this->assets_url}/{$file}";
 
-        $buffer = null;
-
-        if (file_exists($this->assets_dir . $file)) {
-            $buffer = file_get_contents($this->assets_dir . $file) . "\n";
+        $filepath = "{$this->assets_dir}/{$file}";
+        if (file_exists($filepath)) {
+            $buffer = file_get_contents($filepath) . "\n";
         } else {
             //if nothing found get out of here!
             if (empty($assets)) {
@@ -141,7 +147,7 @@ class Pipeline extends PropertyObject
 
             // Write file
             if (trim($buffer) !== '') {
-                file_put_contents($this->assets_dir . $file, $buffer);
+                file_put_contents($filepath, $buffer);
             }
         }
 
@@ -182,10 +188,9 @@ class Pipeline extends PropertyObject
         $file = $uid . '.js';
         $relative_path = "{$this->base_url}{$this->assets_url}/{$file}";
 
-        $buffer = null;
-
-        if (file_exists($this->assets_dir . $file)) {
-            $buffer = file_get_contents($this->assets_dir . $file) . "\n";
+        $filepath = "{$this->assets_dir}/{$file}";
+        if (file_exists($filepath)) {
+            $buffer = file_get_contents($filepath) . "\n";
         } else {
             //if nothing found get out of here!
             if (empty($assets)) {
@@ -204,7 +209,7 @@ class Pipeline extends PropertyObject
 
             // Write file
             if (trim($buffer) !== '') {
-                file_put_contents($this->assets_dir . $file, $buffer);
+                file_put_contents($filepath, $buffer);
             }
         }
 

@@ -1,3 +1,17 @@
+# v1.7.17
+## 06/15/2021
+
+1. [](#new)
+    * Interface `FlexDirectoryInterface` now extends `FlexAuthorizeInterface`
+1. [](#improved)
+    * Allow to unset an asset attribute by specifying null (ie, `'defer': null`)
+    * Support specifying custom attributes to assets in a collection [Read more](https://learn.getgrav.org/17/themes/asset-manager#collections-with-attributes?target=_blank) [#3358](https://github.com/getgrav/grav/issues/3358)
+    * File `frontmatter.yaml` isn't part of media, ignore it
+    * Switched default `JQuery` collection to use 3.x rather than 2.x
+1. [](#bugfix)
+    * Fixed missing styles when CSS/JS Pipeline is used and `asset://` folder is missing
+    * Fixed permission check when moving a page [#3382](https://github.com/getgrav/grav/issues/3382)
+
 # v1.7.16
 ## 06/02/2021
 

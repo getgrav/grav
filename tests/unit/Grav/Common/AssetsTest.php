@@ -340,7 +340,7 @@ class AssetsTest extends \Codeception\TestCase\Test
         $this->assets->reset();
         $this->assets->addJs('jquery', ['loading' => 'async']);
         $js = $this->assets->js();
-        self::assertSame('<script src="/system/assets/jquery/jquery-2.x.min.js" async></script>' . PHP_EOL, $js);
+        self::assertSame('<script src="/system/assets/jquery/jquery-3.x.min.js" async></script>' . PHP_EOL, $js);
 
         //Test priority too
         $this->assets->reset();
@@ -348,7 +348,7 @@ class AssetsTest extends \Codeception\TestCase\Test
         $this->assets->addJs('test.js', ['loading' => 'async', 'priority' => 2]);
         $js = $this->assets->js();
         self::assertSame('<script src="/test.js" async></script>' . PHP_EOL .
-            '<script src="/system/assets/jquery/jquery-2.x.min.js" async></script>' . PHP_EOL, $js);
+            '<script src="/system/assets/jquery/jquery-3.x.min.js" async></script>' . PHP_EOL, $js);
 
         //Test multiple groups
         $this->assets->reset();
@@ -357,7 +357,7 @@ class AssetsTest extends \Codeception\TestCase\Test
         $js = $this->assets->js();
         self::assertSame('<script src="/test.js" async></script>' . PHP_EOL, $js);
         $js = $this->assets->js('footer');
-        self::assertSame('<script src="/system/assets/jquery/jquery-2.x.min.js" async></script>' . PHP_EOL, $js);
+        self::assertSame('<script src="/system/assets/jquery/jquery-3.x.min.js" async></script>' . PHP_EOL, $js);
 
         //Test adding array of assets
         //Test priority too
@@ -365,7 +365,7 @@ class AssetsTest extends \Codeception\TestCase\Test
         $this->assets->addJs(['jquery', 'test.js'], ['loading' => 'async']);
         $js = $this->assets->js();
 
-        self::assertSame('<script src="/system/assets/jquery/jquery-2.x.min.js" async></script>' . PHP_EOL .
+        self::assertSame('<script src="/system/assets/jquery/jquery-3.x.min.js" async></script>' . PHP_EOL .
             '<script src="/test.js" async></script>' . PHP_EOL, $js);
     }
 
@@ -473,6 +473,59 @@ class AssetsTest extends \Codeception\TestCase\Test
             '<link href="/test.css" type="text/css" rel="stylesheet" async>' . PHP_EOL, $css);
     }
 
+    public function testAddingAssetPropertiesWithArrayFromCollectionAndParameters(): void
+    {
+        $this->assets->registerCollection('collection_multi_params', [
+            'foo.js' => [ 'defer' => true ],
+            'bar.js' => [ 'integrity' => 'sha512-abc123' ],
+            'foobar.css' => [ 'defer' => null, 'loading' => null ]
+        ]);
+
+        // # Test adding properties with array
+        $this->assets->addJs('collection_multi_params', ['loading' => 'async']);
+        $js = $this->assets->js();
+
+        // expected output
+        $expected = [
+            '<script src="/foo.js" async defer="1"></script>',
+            '<script src="/bar.js" async integrity="sha512-abc123"></script>',
+            '<script src="/foobar.css"></script>',
+        ];
+
+        self::assertCount(count($expected), array_filter(explode("\n", $js)));
+        self::assertSame(implode("\n", $expected) . PHP_EOL, $js);
+
+        // # Test priority as second argument + render JS should not have any css
+        $this->assets->reset();
+        $this->assets->add('low_priority.js', 1);
+        $this->assets->add('collection_multi_params', 2);
+        $js = $this->assets->js();
+
+        // expected output
+        $expected = [
+            '<script src="/foo.js" defer="1"></script>',
+            '<script src="/bar.js" integrity="sha512-abc123"></script>',
+            '<script src="/low_priority.js"></script>',
+        ];
+
+        self::assertCount(3, array_filter(explode("\n", $js)));
+        self::assertSame(implode("\n", $expected) . PHP_EOL, $js);
+
+        // # Test rendering CSS, should not have any JS
+        $this->assets->reset();
+        $this->assets->add('collection_multi_params', [ 'class' => '__classname' ]);
+        $css = $this->assets->css();
+
+        // expected output
+        $expected = [
+            '<link href="/foobar.css" type="text/css" rel="stylesheet" class="__classname">',
+        ];
+
+
+        self::assertCount(1, array_filter(explode("\n", $css)));
+        self::assertSame(implode("\n", $expected) . PHP_EOL, $css);
+    }
+
     public function testPriorityOfAssets(): void
     {
         $this->assets->reset();
@@ -573,7 +626,7 @@ class AssetsTest extends \Codeception\TestCase\Test
         $this->assets->reset();
         $this->assets->addAsyncJs('jquery');
         $js = $this->assets->js();
-        self::assertSame('<script src="/system/assets/jquery/jquery-2.x.min.js" async></script>' . PHP_EOL, $js);
+        self::assertSame('<script src="/system/assets/jquery/jquery-3.x.min.js" async></script>' . PHP_EOL, $js);
     }
 
     public function testAddDeferJs(): void
@@ -581,7 +634,7 @@ class AssetsTest extends \Codeception\TestCase\Test
         $this->assets->reset();
         $this->assets->addDeferJs('jquery');
         $js = $this->assets->js();
-        self::assertSame('<script src="/system/assets/jquery/jquery-2.x.min.js" defer></script>' . PHP_EOL, $js);
+        self::assertSame('<script src="/system/assets/jquery/jquery-3.x.min.js" defer></script>' . PHP_EOL, $js);
     }
 
     public function testTimestamps(): void
@@ -663,7 +716,7 @@ class AssetsTest extends \Codeception\TestCase\Test
     {
         self::assertIsArray($this->assets->getCollections());
         self::assertContains('jquery', array_keys($this->assets->getCollections()));
-        self::assertContains('system://assets/jquery/jquery-2.x.min.js', $this->assets->getCollections());
+        self::assertContains('system://assets/jquery/jquery-3.x.min.js', $this->assets->getCollections());
     }
 
     public function testExists(): void
@@ -677,6 +730,27 @@ class AssetsTest extends \Codeception\TestCase\Test
         $this->assets->registerCollection('debugger', ['/system/assets/debugger.css']);
         self::assertTrue($this->assets->exists('debugger'));
         self::assertContains('debugger', array_keys($this->assets->getCollections()));
+    }
+
+    public function testRegisterCollectionWithParameters(): void
+    {
+        $this->assets->registerCollection('collection_multi_params', [
+            'foo.js' => [ 'defer' => true ],
+            'bar.js' => [ 'integrity' => 'sha512-abc123' ],
+            'foobar.css' => [ 'defer' => null ],
+        ]);
+
+        self::assertTrue($this->assets->exists('collection_multi_params'));
+
+        $collection = $this->assets->getCollections()['collection_multi_params'];
+        self::assertArrayHasKey('foo.js', $collection);
+        self::assertArrayHasKey('bar.js', $collection);
+        self::assertArrayHasKey('foobar.css', $collection);
+        self::assertArrayHasKey('defer', $collection['foo.js']);
+        self::assertArrayHasKey('defer', $collection['foobar.css']);
+
+        self::assertNull($collection['foobar.css']['defer']);
+        self::assertTrue($collection['foo.js']['defer']);
     }
 
     public function testReset(): void

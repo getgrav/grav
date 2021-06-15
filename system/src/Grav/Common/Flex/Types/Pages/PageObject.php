@@ -263,6 +263,24 @@ class PageObject extends FlexPageObject
     }
 
     /**
+     * @param UserInterface|null $user
+     */
+    public function check(UserInterface $user = null): void
+    {
+        parent::check($user);
+
+        if ($user && $this->isMoved()) {
+            $parentKey = $this->getProperty('parent_key');
+
+            /** @var PageObject|null $parent */
+            $parent = $this->getFlexDirectory()->getObject($parentKey);
+            if (!$parent || !$parent->isAuthorized('create', null, $user)) {
+                throw new \RuntimeException('Forbidden', 403);
+            }
+        }
+    }
+
+    /**
      * @param array|bool $reorder
      * @return FlexObject|FlexObjectInterface
      */
@@ -358,16 +376,26 @@ class PageObject extends FlexPageObject
     }
 
     /**
+     * @return bool
+     */
+    protected function isMoved(): bool
+    {
+        $storageKey = $this->getMasterKey();
+        $filesystem = Filesystem::getInstance(false);
+        $oldParentKey = ltrim($filesystem->dirname("/{$storageKey}"), '/');
+        $newParentKey = $this->getProperty('parent_key');
+
+        return $this->exists() && $oldParentKey !== $newParentKey;
+    }
+
+    /**
      * @param array $ordering
      * @return PageCollection|null
      */
     protected function reorderSiblings(array $ordering)
     {
         $storageKey = $this->getMasterKey();
-        $filesystem = Filesystem::getInstance(false);
-        $oldParentKey = ltrim($filesystem->dirname("/{$storageKey}"), '/');
-        $newParentKey = $this->getProperty('parent_key');
-        $isMoved = $this->exists() && $oldParentKey !== $newParentKey;
+        $isMoved = $this->isMoved();
         $order = !$isMoved ? $this->order() : false;
         if ($order !== false) {
             $order = (int)$order;
