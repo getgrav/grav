@@ -131,7 +131,7 @@ assets:                                          # Configuration for Assets Mana
   enable_asset_timestamp: false                  # Enable asset timestamps
   enable_asset_sri: false                        # Enable asset SRI
   collections:
-    jquery: system://assets/jquery/jquery-2.x.min.js
+    jquery: system://assets/jquery/jquery-3.x.min.js
 
 errors:
   display: 0                                     # Display either (1) Full backtrace | (0) Simple Error | (-1) System Error
