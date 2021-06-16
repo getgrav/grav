@@ -1,3 +1,9 @@
+# v1.7.18
+## mm/dd/2021
+
+1. [](#improved)
+    * Added support for loading Flex Directory configuration from main configuration
+
 # v1.7.17
 ## 06/15/2021
 
