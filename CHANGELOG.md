@@ -3,6 +3,8 @@
 
 1. [](#improved)
     * Added support for loading Flex Directory configuration from main configuration
+1. [](#bugfix)
+    * Fixed error when using Flex `SimpleStorage` with no entries
 
 # v1.7.17
 ## 06/15/2021

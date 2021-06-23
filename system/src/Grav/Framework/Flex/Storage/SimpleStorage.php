@@ -455,7 +455,7 @@ class SimpleStorage extends AbstractFilesystemStorage
         $content = (array) $file->content();
         if ($this->prefix) {
             $data = new Data($content);
-            $content = $data->get($this->prefix);
+            $content = $data->get($this->prefix, []);
         }
 
         $file->free();
