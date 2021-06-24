@@ -5,7 +5,8 @@
     * Added support for loading Flex Directory configuration from main configuration
 1. [](#bugfix)
     * Fixed error when using Flex `SimpleStorage` with no entries
-    * Improve page search to include slug [#3316](https://github.com/getgrav/grav/issues/3316)
+    * Fixed page search to include slug field [#3316](https://github.com/getgrav/grav/issues/3316)
+    * Fixed Admin becoming unusable when GPM cannot be reached [#3383](https://github.com/getgrav/grav/issues/3383)
 
 # v1.7.17
 ## 06/15/2021
