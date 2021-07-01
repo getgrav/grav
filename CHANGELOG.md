@@ -3,6 +3,7 @@
 
 1. [](#improved)
     * Added support for loading Flex Directory configuration from main configuration
+    * Move SVGs that cannot be sanitized to quarantine folder under `log://quarantine`
 1. [](#bugfix)
     * Fixed error when using Flex `SimpleStorage` with no entries
     * Fixed page search to include slug field [#3316](https://github.com/getgrav/grav/issues/3316)
