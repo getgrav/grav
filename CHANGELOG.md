@@ -7,6 +7,7 @@
     * Fixed error when using Flex `SimpleStorage` with no entries
     * Fixed page search to include slug field [#3316](https://github.com/getgrav/grav/issues/3316)
     * Fixed Admin becoming unusable when GPM cannot be reached [#3383](https://github.com/getgrav/grav/issues/3383)
+    * Fixed `Failed to save entry: Forbidden` when moving a page to a visible page [#3389](https://github.com/getgrav/grav/issues/3389)
 
 # v1.7.17
 ## 06/15/2021
