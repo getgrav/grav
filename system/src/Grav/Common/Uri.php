@@ -675,10 +675,15 @@ class Uri
      */
     public static function ip()
     {
+        $ip = 'UNKNOWN';
+
         if (getenv('HTTP_CLIENT_IP')) {
             $ip = getenv('HTTP_CLIENT_IP');
+        } elseif (getenv('HTTP_CF_CONNECTING_IP')) {
+            $ip = getenv('HTTP_CF_CONNECTING_IP');
         } elseif (getenv('HTTP_X_FORWARDED_FOR') && Grav::instance()['config']->get('system.http_x_forwarded.ip')) {
-            $ip = getenv('HTTP_X_FORWARDED_FOR');
+            $ips = array_map('trim', explode(',', getenv('HTTP_X_FORWARDED_FOR')));
+            $ip = array_shift($ips);
         } elseif (getenv('HTTP_X_FORWARDED') && Grav::instance()['config']->get('system.http_x_forwarded.ip')) {
             $ip = getenv('HTTP_X_FORWARDED');
         } elseif (getenv('HTTP_FORWARDED_FOR')) {
@@ -687,8 +692,6 @@ class Uri
             $ip = getenv('HTTP_FORWARDED');
         } elseif (getenv('REMOTE_ADDR')) {
             $ip = getenv('REMOTE_ADDR');
-        } else {
-            $ip = 'UNKNOWN';
         }
 
         return $ip;
