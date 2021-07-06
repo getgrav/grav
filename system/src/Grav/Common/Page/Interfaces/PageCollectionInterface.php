@@ -127,7 +127,7 @@ interface PageCollectionInterface extends Traversable, ArrayAccess, Countable, S
      * Gets the previous sibling based on current position.
      *
      * @param  string $path
-     * @return PageInterface  The previous item.
+     * @return PageInterface|false The previous item.
      */
     public function prevSibling($path);
 
@@ -135,7 +135,7 @@ interface PageCollectionInterface extends Traversable, ArrayAccess, Countable, S
      * Gets the next sibling based on current position.
      *
      * @param  string $path
-     * @return PageInterface The next item.
+     * @return PageInterface|false The next item.
      */
     public function nextSibling($path);
 
@@ -144,7 +144,7 @@ interface PageCollectionInterface extends Traversable, ArrayAccess, Countable, S
      *
      * @param  string  $path
      * @param  int $direction either -1 or +1
-     * @return PageInterface|PageCollectionInterface|false    The sibling item.
+     * @return PageInterface|false The sibling item.
      */
     public function adjacentSibling($path, $direction = 1);
 

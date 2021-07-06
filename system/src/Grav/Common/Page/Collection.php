@@ -264,7 +264,7 @@ class Collection extends Iterator implements PageCollectionInterface
      *
      * @param  string $path
      *
-     * @return PageInterface  The previous item.
+     * @return PageInterface|false The previous item.
      */
     public function prevSibling($path)
     {
@@ -276,7 +276,7 @@ class Collection extends Iterator implements PageCollectionInterface
      *
      * @param  string $path
      *
-     * @return PageInterface The next item.
+     * @return PageInterface|false The next item.
      */
     public function nextSibling($path)
     {
@@ -288,7 +288,7 @@ class Collection extends Iterator implements PageCollectionInterface
      *
      * @param  string  $path
      * @param  int $direction either -1 or +1
-     * @return PageInterface|Collection    The sibling item.
+     * @return PageInterface|false The sibling item.
      */
     public function adjacentSibling($path, $direction = 1)
     {
@@ -298,10 +298,10 @@ class Collection extends Iterator implements PageCollectionInterface
         if (array_key_exists($path, $keys)) {
             $index = $keys[$path] - $direction;
 
-            return isset($values[$index]) ? $this->offsetGet($values[$index]) : $this;
+            return isset($values[$index]) ? $this->offsetGet($values[$index]) : false;
         }
 
-        return $this;
+        return false;
     }
 
     /**
