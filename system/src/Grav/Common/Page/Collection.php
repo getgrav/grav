@@ -146,6 +146,18 @@ class Collection extends Iterator implements PageCollectionInterface
     }
 
     /**
+     * Set current page.
+     */
+    public function setCurrent(string $path): void
+    {
+        reset($this->items);
+
+        while (key($this->items) !== $path && key($this->items) !== null) {
+            next($this->items);
+        }
+    }
+
+    /**
      * Returns current page.
      *
      * @return PageInterface
