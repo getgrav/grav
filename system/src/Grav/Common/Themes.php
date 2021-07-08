@@ -317,6 +317,12 @@ class Themes extends Iterator
             }
         }
 
+        // If theme is inherited, merge the theme config files
+        $paths = $config['prefixes'][''];
+        if (count($paths) > 1) {
+            $this->mergeConfiguration($name, $paths, $this->config);    
+        }
+
         // Load languages after streams has been properly initialized
         $this->loadLanguages($this->config);
     }
@@ -332,6 +338,24 @@ class Themes extends Iterator
     {
         $themeConfig = CompiledYamlFile::instance("themes://{$name}/{$name}" . YAML_EXT)->content();
         $config->joinDefaults("themes.{$name}", $themeConfig);
+    }
+
+    /**
+     * Merge theme configuration.
+     *
+     * @param string $name   Theme name
+     * @param array  $paths  Paths to inherited themes
+     * @param Config $config Configuration class
+     */
+    protected function mergeConfiguration($name, $paths, Config $config)
+    {
+        $merged = array();
+        foreach (array_reverse($paths) as $path) {
+            $nodename = end(explode(DS, $path));
+            $node = CompiledYamlFile::instance("themes://{$nodename}/{$nodename}" . YAML_EXT)->content();
+            $merged = array_replace_recursive($merged, $node);
+        }
+        $config->joinDefaults("themes.{$name}", $merged);
     }
 
     /**
