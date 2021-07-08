@@ -152,7 +152,7 @@ class Collection extends Iterator implements PageCollectionInterface
     {
         reset($this->items);
 
-        while (key($this->items) !== $path && key($this->items) !== null) {
+        while (($key = key($this->items)) !== null && $key !== $path) {
             next($this->items);
         }
     }
