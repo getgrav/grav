@@ -184,9 +184,9 @@ config:
       # Fields to be searched
       fields:
         - key
+        - slug
         - menu
         - title
-        - name
 
 blueprints:
   configure:

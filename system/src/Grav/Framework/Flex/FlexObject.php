@@ -1074,6 +1074,17 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
         return $action;
     }
 
+    /**
+     * Method to reset blueprints if the type changes.
+     *
+     * @return void
+     * @since 1.7.18
+     */
+    protected function resetBlueprints(): void
+    {
+        $this->_blueprint = [];
+    }
+
     // DEPRECATED METHODS
 
     /**

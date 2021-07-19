@@ -120,7 +120,7 @@ class FormFlash implements FormFlashInterface
     protected function loadStoredForm(): ?array
     {
         $file = $this->getTmpIndex();
-        $exists = $file->exists();
+        $exists = $file && $file->exists();
 
         $data = null;
         if ($exists) {
@@ -246,8 +246,10 @@ class FormFlash implements FormFlashInterface
         if ($force || $this->data || $this->files) {
             // Only save if there is data or files to be saved.
             $file = $this->getTmpIndex();
-            $file->save($this->jsonSerialize());
-            $this->exists = true;
+            if ($file) {
+                $file->save($this->jsonSerialize());
+                $this->exists = true;
+            }
         } elseif ($this->exists) {
             // Delete empty form flash if it exists (it carries no information).
             return $this->delete();
@@ -476,12 +478,14 @@ class FormFlash implements FormFlashInterface
     }
 
     /**
-     * @return YamlFile
+     * @return ?YamlFile
      */
-    protected function getTmpIndex(): YamlFile
+    protected function getTmpIndex(): ?YamlFile
     {
+        $tmpDir = $this->getTmpDir();
+
         // Do not use CompiledYamlFile as the file can change multiple times per second.
-        return YamlFile::instance($this->getTmpDir() . '/index.yaml');
+        return $tmpDir ? YamlFile::instance($tmpDir . '/index.yaml') : null;
     }
 
     /**
@@ -503,7 +507,9 @@ class FormFlash implements FormFlashInterface
     {
         // Make sure that index file cache gets always cleared.
         $file = $this->getTmpIndex();
-        $file->free();
+        if ($file) {
+            $file->free();
+        }
 
         $tmpDir = $this->getTmpDir();
         if ($tmpDir && file_exists($tmpDir)) {

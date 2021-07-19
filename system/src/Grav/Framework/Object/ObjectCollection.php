@@ -9,7 +9,6 @@
 
 namespace Grav\Framework\Object;
 
-use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\Criteria;
 use Grav\Framework\Collection\ArrayCollection;
 use Grav\Framework\Object\Access\NestedPropertyCollectionTrait;

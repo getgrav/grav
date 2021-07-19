@@ -1,3 +1,18 @@
+# v1.7.18
+## 07/19/2021
+
+1. [](#improved)
+    * Added support for loading Flex Directory configuration from main configuration
+    * Move SVGs that cannot be sanitized to quarantine folder under `log://quarantine`
+    * Added support for CloudFlare-forwarded client IP in the `URI::ip()` method
+1. [](#bugfix)
+    * Fixed error when using Flex `SimpleStorage` with no entries
+    * Fixed page search to include slug field [#3316](https://github.com/getgrav/grav/issues/3316)
+    * Fixed Admin becoming unusable when GPM cannot be reached [#3383](https://github.com/getgrav/grav/issues/3383)
+    * Fixed `Failed to save entry: Forbidden` when moving a page to a visible page [#3389](https://github.com/getgrav/grav/issues/3389)
+    * Better support for Symfony local server on linux [#3400](https://github.com/getgrav/grav/pull/3400)
+    * Fixed `open_basedir()` error with some forms
+
 # v1.7.17
 ## 06/15/2021
 

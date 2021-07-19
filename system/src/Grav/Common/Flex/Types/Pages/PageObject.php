@@ -273,7 +273,7 @@ class PageObject extends FlexPageObject
             $parentKey = $this->getProperty('parent_key');
 
             /** @var PageObject|null $parent */
-            $parent = $this->getFlexDirectory()->getObject($parentKey);
+            $parent = $this->getFlexDirectory()->getObject($parentKey, 'storage_key');
             if (!$parent || !$parent->isAuthorized('create', null, $user)) {
                 throw new \RuntimeException('Forbidden', 403);
             }
