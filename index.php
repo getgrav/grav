@@ -17,7 +17,7 @@ if (version_compare($ver = PHP_VERSION, $req = GRAV_PHP_MIN, '<')) {
 }
 
 if (PHP_SAPI === 'cli-server') {
-    $symfony_server = stripos(getenv('_'), 'symfony') !== false || stripos($_SERVER['SERVER_SOFTWARE'], 'symfony') !== false || stripos($_ENV['SERVER_SOFTWARE'], 'symfony') !== false;
+    $symfony_server = stripos(getenv('_'), 'symfony') !== false || stripos($_SERVER['SERVER_SOFTWARE'] ?? '', 'symfony') !== false || stripos($_ENV['SERVER_SOFTWARE'] ?? '', 'symfony') !== false;
 
     if (!isset($_SERVER['PHP_CLI_ROUTER']) && !$symfony_server) {
         die("PHP webserver requires a router to run Grav, please use: <pre>php -S {$_SERVER['SERVER_NAME']}:{$_SERVER['SERVER_PORT']} system/router.php</pre>");
