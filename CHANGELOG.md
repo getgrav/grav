@@ -3,6 +3,7 @@
 
 1. [](#improved)
     * Added meta support for `UploadedFile` class
+    * Add `setCurrent()` method to Page Collection [#3398](https://github.com/getgrav/grav/pull/3398)
 1. [](#bugfix)
     * Fixed `Warning: Undefined array key "SERVER_SOFTWARE" in index.php` [#3408](https://github.com/getgrav/grav/issues/3408)
     * Fixed error in `loadDirectoryConfig()` if configuration hasn't been saved [#3409](https://github.com/getgrav/grav/issues/3409)
