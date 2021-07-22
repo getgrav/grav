@@ -241,7 +241,7 @@ class FlexDirectory implements FlexDirectoryInterface
         if (str_starts_with($uri, 'config://')) {
             $path = strtr(substr($uri, 9,  -5), '/', '.');
 
-            return $grav['config']->get($path);
+            return (array)$grav['config']->get($path);
         }
 
         // Load the configuration file.
