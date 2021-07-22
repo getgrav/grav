@@ -419,6 +419,17 @@ trait MediaUploadTrait
     }
 
     /**
+     * Get upload settings.
+     *
+     * @param array|null $settings Form field specific settings (override).
+     * @return array
+     */
+    public function getUploadSettings(?array $settings = null): array
+    {
+        return null !== $settings ? $settings + $this->_upload_defaults : $this->_upload_defaults;
+    }
+
+    /**
      * Internal logic to copy file.
      *
      * @param string $src
@@ -602,17 +613,6 @@ trait MediaUploadTrait
         if ($file->exists()) {
             $file->delete();
         }
-    }
-
-    /**
-     * Get upload settings.
-     *
-     * @param array|null $settings Form field specific settings (override).
-     * @return array
-     */
-    protected function getUploadSettings(?array $settings = null): array
-    {
-        return null !== $settings ? $settings + $this->_upload_defaults : $this->_upload_defaults;
     }
 
     /**
