@@ -1,6 +1,8 @@
 # v1.7.19
 ## mm/dd/2021
 
+1. [](#improved)
+    * Added meta support for `UploadedFile` class
 1. [](#bugfix)
     * Fixed `Warning: Undefined array key "SERVER_SOFTWARE" in index.php` [#3408](https://github.com/getgrav/grav/issues/3408)
     * Fixed error in `loadDirectoryConfig()` if configuration hasn't been saved [#3409](https://github.com/getgrav/grav/issues/3409)
