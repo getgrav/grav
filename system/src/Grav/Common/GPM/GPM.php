@@ -60,7 +60,7 @@ class GPM extends Iterator
     {
         parent::__construct();
 
-        Folder::create(GRAV_ROOT . '/cache/gpm');
+        Folder::create(CACHE_DIR . '/gpm');
 
         $this->cache = [];
         $this->installed = new Local\Packages();
