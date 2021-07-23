@@ -390,7 +390,10 @@ class Setup extends Data
 
             if (!$locator->findResource('environment://config', true)) {
                 // If environment does not have its own directory, remove it from the lookup.
-                $this->set('streams.schemes.environment.prefixes', ['config' => []]);
+                $prefixes = $this->get('streams.schemes.environment.prefixes');
+                $prefixes['config'] = [];
+
+                $this->set('streams.schemes.environment.prefixes', $prefixes);
                 $this->initializeLocator($locator);
             }
 
