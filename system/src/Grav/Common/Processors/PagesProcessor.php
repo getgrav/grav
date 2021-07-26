@@ -71,12 +71,13 @@ class PagesProcessor extends ProcessorBase
             $forms = $this->container['forms'] ?? null;
             $form = $forms ? $forms->getActiveForm() : null;
 
+            $options = ['page' => $page, 'form' => $form, 'request' => $request];
             if ($task) {
-                $event = new Event(['task' => $task, 'page' => $page, 'form' => $form]);
+                $event = new Event(['task' => $task] + $options);
                 $this->container->fireEvent('onPageTask', $event);
                 $this->container->fireEvent('onPageTask.' . $task, $event);
             } elseif ($action) {
-                $event = new Event(['action' => $action, 'page' => $page, 'form' => $form]);
+                $event = new Event(['action' => $action] + $options);
                 $this->container->fireEvent('onPageAction', $event);
                 $this->container->fireEvent('onPageAction.' . $action, $event);
             }
