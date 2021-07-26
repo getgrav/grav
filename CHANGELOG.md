@@ -1,6 +1,8 @@
 # v1.7.19
 ## mm/dd/2021
 
+1. [](#new)
+    * Include active form in `onPageTask` and `onPageAction` events (defaults to `null`)
 1. [](#improved)
     * Added meta support for `UploadedFile` class
     * Add `setCurrent()` method to Page Collection [#3398](https://github.com/getgrav/grav/pull/3398)

@@ -10,6 +10,7 @@
 namespace Grav\Common\Processors;
 
 use Grav\Common\Page\Interfaces\PageInterface;
+use Grav\Plugin\Form\Forms;
 use RocketTheme\Toolbox\Event\Event;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -65,12 +66,17 @@ class PagesProcessor extends ProcessorBase
 
             $task = $this->container['task'];
             $action = $this->container['action'];
+
+            /** @var Forms $forms */
+            $forms = $this->container['forms'] ?? null;
+            $form = $forms ? $forms->getActiveForm() : null;
+
             if ($task) {
-                $event = new Event(['task' => $task, 'page' => $page]);
+                $event = new Event(['task' => $task, 'page' => $page, 'form' => $form]);
                 $this->container->fireEvent('onPageTask', $event);
                 $this->container->fireEvent('onPageTask.' . $task, $event);
             } elseif ($action) {
-                $event = new Event(['action' => $action, 'page' => $page]);
+                $event = new Event(['action' => $action, 'page' => $page, 'form' => $form]);
                 $this->container->fireEvent('onPageAction', $event);
                 $this->container->fireEvent('onPageAction.' . $action, $event);
             }
