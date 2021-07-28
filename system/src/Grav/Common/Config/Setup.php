@@ -41,6 +41,9 @@ class Setup extends Data
      */
     public static $environment;
 
+    /** @var string */
+    public static $securityFile = 'config://security.yaml';
+
     /** @var array */
     protected $streams = [
         'user' => [
@@ -398,7 +401,7 @@ class Setup extends Data
             }
 
             // Create security.yaml if it doesn't exist.
-            $filename = $locator->findResource('config://security.yaml', true, true);
+            $filename = $locator->findResource(static::$securityFile, true, true);
             $security_file = CompiledYamlFile::instance($filename);
             $security_content = (array)$security_file->content();
 
