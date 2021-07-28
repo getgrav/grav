@@ -11,6 +11,7 @@
     * Fixed error in `loadDirectoryConfig()` if configuration hasn't been saved [#3409](https://github.com/getgrav/grav/issues/3409)
     * Fixed GPM not using non-standard cache path [#3410](https://github.com/getgrav/grav/issues/3410)
     * Fixed broken `environment://` stream when it doesn't have configuration
+    * Fixed `Flex Object` missing key field value when using `FolderStorage`
 
 # v1.7.18
 ## 07/19/2021

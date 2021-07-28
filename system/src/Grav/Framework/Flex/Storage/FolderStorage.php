@@ -380,6 +380,12 @@ class FolderStorage extends AbstractFilesystemStorage
             if (isset($data[0])) {
                 throw new RuntimeException('Broken object file');
             }
+
+            // Add key field to the object.
+            $keyField = $this->keyField;
+            if ($keyField !== 'storage_key' && !isset($data[$keyField])) {
+                $data[$keyField] = $key;
+            }
         } catch (RuntimeException $e) {
             $data = ['__ERROR' => $e->getMessage()];
         } finally {
