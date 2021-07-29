@@ -12,6 +12,7 @@
     * Fixed GPM not using non-standard cache path [#3410](https://github.com/getgrav/grav/issues/3410)
     * Fixed broken `environment://` stream when it doesn't have configuration
     * Fixed `Flex Object` missing key field value when using `FolderStorage`
+    * Fixed broken Twig try tag when catch has not been defined or is empty
 
 # v1.7.18
 ## 07/19/2021
