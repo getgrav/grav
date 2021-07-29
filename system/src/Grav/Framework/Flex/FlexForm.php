@@ -103,7 +103,14 @@ class FlexForm implements FlexObjectFormInterface, JsonSerializable
     {
         $this->name = $name;
         $this->setObject($object);
-        $this->setName($object->getFlexType(), $name);
+
+        if (isset($options['form']['name'])) {
+            // Use custom form name.
+            $this->flexName = $options['form']['name'];
+        } else {
+            // Use standard form name.
+            $this->setName($object->getFlexType(), $name);
+        }
         $this->setId($this->getName());
 
         $uniqueId = $options['unique_id'] ?? null;
@@ -536,7 +543,11 @@ class FlexForm implements FlexObjectFormInterface, JsonSerializable
     protected function doSerialize(): array
     {
         return $this->doTraitSerialize() + [
+                'items' => $this->items,
+                'form' => $this->form,
                 'object' => $this->object,
+                'flexName' => $this->flexName,
+                'submitMethod' => $this->submitMethod,
             ];
     }
 
@@ -548,7 +559,11 @@ class FlexForm implements FlexObjectFormInterface, JsonSerializable
     {
         $this->doTraitUnserialize($data);
 
-        $this->object = $data['object'];
+        $this->items = $data['items'] ?? null;
+        $this->form = $data['form'] ?? null;
+        $this->object = $data['object'] ?? null;
+        $this->flexName = $data['flexName'] ?? null;
+        $this->submitMethod = $data['submitMethod'] ?? null;
     }
 
     /**
