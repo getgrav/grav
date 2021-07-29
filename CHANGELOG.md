@@ -3,6 +3,7 @@
 
 1. [](#new)
     * Include active form and request in `onPageTask` and `onPageAction` events (defaults to `null`)
+    * Added `UserObject::$authorizeCallable` to allow `$user->authorize()` customization
 1. [](#improved)
     * Added meta support for `UploadedFile` class
     * Add `setCurrent()` method to Page Collection [#3398](https://github.com/getgrav/grav/pull/3398)
