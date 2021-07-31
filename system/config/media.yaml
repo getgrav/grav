@@ -207,7 +207,7 @@ types:
   js:
     type: file
     thumb: media/thumb-js.png
-    mime: application/javascript
+    mime: text/javascript
   json:
     type: file
     thumb: media/thumb-json.png
