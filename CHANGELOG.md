@@ -16,6 +16,7 @@
     * Fixed `Flex Object` missing key field value when using `FolderStorage`
     * Fixed broken Twig try tag when catch has not been defined or is empty
     * Fixed `FlexForm` serialization
+    * Fixed form validation for numeric values in PHP 8
 
 # v1.7.18
 ## 07/19/2021

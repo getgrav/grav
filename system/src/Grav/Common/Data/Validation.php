@@ -519,17 +519,30 @@ class Validation
             return false;
         }
 
-        if (isset($params['min']) && $value < $params['min']) {
-            return false;
+        $value = (float)$value;
+
+        $min = 0;
+        if (isset($params['min'])) {
+            $min = (float)$params['min'];
+            if ($value < $min) {
+                return false;
+            }
         }
 
-        if (isset($params['max']) && $value > $params['max']) {
-            return false;
+        if (isset($params['max'])) {
+            $max = (float)$params['max'];
+            if ($value > $max) {
+                return false;
+            }
         }
 
-        $min = $params['min'] ?? 0;
+        if (isset($params['step'])) {
+            $step = (float)$params['step'];
 
-        return !(isset($params['step']) && fmod($value - $min, $params['step']) === 0);
+            return fmod($value - $min, $step) === 0.0;
+        }
+
+        return true;
     }
 
     /**
