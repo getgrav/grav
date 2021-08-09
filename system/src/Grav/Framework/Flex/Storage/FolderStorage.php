@@ -40,6 +40,8 @@ class FolderStorage extends AbstractFilesystemStorage
     protected $dataFolder;
     /** @var string Pattern to access an object. */
     protected $dataPattern = '{FOLDER}/{KEY}/{FILE}{EXT}';
+    /** @var string[] */
+    protected $variables = ['FOLDER' => '%1$s', 'KEY' => '%2$s', 'KEY:2' => '%3$s', 'FILE' => '%4$s', 'EXT' => '%5$s'];
     /** @var string Filename for the object. */
     protected $dataFile;
     /** @var string File extension for the object. */
@@ -698,9 +700,7 @@ class FolderStorage extends AbstractFilesystemStorage
         $this->keyLen = (int)($options['key_len'] ?? 32);
         $this->caseSensitive = (bool)($options['case_sensitive'] ?? true);
 
-        $variables = ['FOLDER' => '%1$s', 'KEY' => '%2$s', 'KEY:2' => '%3$s', 'FILE' => '%4$s', 'EXT' => '%5$s'];
-        $pattern = Utils::simpleTemplate($pattern, $variables);
-
+        $pattern = Utils::simpleTemplate($pattern, $this->variables);
         if (!$pattern) {
             throw new RuntimeException('Bad storage folder pattern');
         }
