@@ -17,6 +17,7 @@
     * Fixed broken Twig try tag when catch has not been defined or is empty
     * Fixed `FlexForm` serialization
     * Fixed form validation for numeric values in PHP 8
+    * Fixed `flex-options@` in blueprints duplicating items in array
 
 # v1.7.18
 ## 07/19/2021
