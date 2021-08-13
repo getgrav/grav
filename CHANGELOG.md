@@ -6,7 +6,8 @@
     * Added `UserObject::$authorizeCallable` to allow `$user->authorize()` customization
 1. [](#improved)
     * Added meta support for `UploadedFile` class
-    * Add `setCurrent()` method to Page Collection [#3398](https://github.com/getgrav/grav/pull/3398)
+    * Added support for multiple mime-types per file extension [#3422](https://github.com/getgrav/grav/issues/3422)
+    * Added `setCurrent()` method to Page Collection [#3398](https://github.com/getgrav/grav/pull/3398)
     * Initialize `$grav['uri]` before session
 1. [](#bugfix)
     * Fixed `Warning: Undefined array key "SERVER_SOFTWARE" in index.php` [#3408](https://github.com/getgrav/grav/issues/3408)
