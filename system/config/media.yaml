@@ -91,7 +91,7 @@ types:
   aif:
     type: audio
     thumb: media/thumb-aif.png
-    mime: audio/aif
+    mime: audio/aiff
   txt:
     type: file
     thumb: media/thumb-txt.png
