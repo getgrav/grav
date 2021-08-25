@@ -20,6 +20,7 @@
     * Fixed form validation for numeric values in PHP 8
     * Fixed `flex-options@` in blueprints duplicating items in array
     * Fixed wrong form issue with flex objects after cache clear
+    * Fixed Flex object types not implementing `MediaInterface`
 
 # v1.7.18
 ## 07/19/2021

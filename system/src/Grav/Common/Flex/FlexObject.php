@@ -13,6 +13,7 @@ namespace Grav\Common\Flex;
 
 use Grav\Common\Flex\Traits\FlexGravTrait;
 use Grav\Common\Flex\Traits\FlexObjectTrait;
+use Grav\Common\Media\Interfaces\MediaInterface;
 use Grav\Framework\Flex\Traits\FlexMediaTrait;
 use function is_array;
 
@@ -21,7 +22,7 @@ use function is_array;
  *
  * @package Grav\Common\Flex
  */
-abstract class FlexObject extends \Grav\Framework\Flex\FlexObject
+abstract class FlexObject extends \Grav\Framework\Flex\FlexObject implements MediaInterface
 {
     use FlexGravTrait;
     use FlexObjectTrait;
