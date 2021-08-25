@@ -4,12 +4,12 @@
 1. [](#new)
     * Include active form and request in `onPageTask` and `onPageAction` events (defaults to `null`)
     * Added `UserObject::$authorizeCallable` to allow `$user->authorize()` customization
-1. [](#improved)
+2. [](#improved)
     * Added meta support for `UploadedFile` class
     * Added support for multiple mime-types per file extension [#3422](https://github.com/getgrav/grav/issues/3422)
     * Added `setCurrent()` method to Page Collection [#3398](https://github.com/getgrav/grav/pull/3398)
     * Initialize `$grav['uri]` before session
-1. [](#bugfix)
+3. [](#bugfix)
     * Fixed `Warning: Undefined array key "SERVER_SOFTWARE" in index.php` [#3408](https://github.com/getgrav/grav/issues/3408)
     * Fixed error in `loadDirectoryConfig()` if configuration hasn't been saved [#3409](https://github.com/getgrav/grav/issues/3409)
     * Fixed GPM not using non-standard cache path [#3410](https://github.com/getgrav/grav/issues/3410)
@@ -19,6 +19,7 @@
     * Fixed `FlexForm` serialization
     * Fixed form validation for numeric values in PHP 8
     * Fixed `flex-options@` in blueprints duplicating items in array
+    * Fixed wrong form issue with flex objects after cache clear
 
 # v1.7.18
 ## 07/19/2021
