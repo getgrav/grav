@@ -1499,7 +1499,7 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
             }
 
             //Look for existing class
-            $svg = preg_replace_callback('/^<svg[^>]*(class=\")([^"]*)(\")[^>]*>/', function($matches) use ($classes, &$matched) {
+            $svg = preg_replace_callback('/^<svg[^>]*(class=\"([^"]*)\")[^>]*>/', function($matches) use ($classes, &$matched) {
                 if (isset($matches[2])) {
                     $new_classes = $matches[2] . $classes;
                     $matched = true;

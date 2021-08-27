@@ -21,6 +21,7 @@
     * Fixed `flex-options@` in blueprints duplicating items in array
     * Fixed wrong form issue with flex objects after cache clear
     * Fixed Flex object types not implementing `MediaInterface`
+    * Fixed issue with `svgImageFunction()` that was causing broken output
 
 # v1.7.18
 ## 07/19/2021
