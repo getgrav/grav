@@ -239,7 +239,7 @@ class FlexDirectory implements FlexDirectoryInterface
 
         // If configuration is found in main configuration, use it.
         if (str_starts_with($uri, 'config://')) {
-            $path = strtr(substr($uri, 9,  -5), '/', '.');
+            $path = str_replace('/', '.', substr($uri, 9, -5));
 
             return (array)$grav['config']->get($path);
         }
