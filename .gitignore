@@ -45,3 +45,4 @@ tests/cache/*
 tests/error.log
 system/templates/testing/*
 /user/config/versions.yaml
+/user/cli/config/security.yaml

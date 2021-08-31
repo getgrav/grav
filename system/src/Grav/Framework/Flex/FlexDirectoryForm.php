@@ -453,7 +453,9 @@ class FlexDirectoryForm implements FlexDirectoryFormInterface, JsonSerializable
     protected function doSerialize(): array
     {
         return $this->doTraitSerialize() + [
+                'form' => $this->form,
                 'directory' => $this->directory,
+                'flexName' => $this->flexName
             ];
     }
 
@@ -465,7 +467,9 @@ class FlexDirectoryForm implements FlexDirectoryFormInterface, JsonSerializable
     {
         $this->doTraitUnserialize($data);
 
+        $this->form = $data['form'];
         $this->directory = $data['directory'];
+        $this->flexName = $data['flexName'];
     }
 
     /**

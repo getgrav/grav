@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Grav\Common\Flex\Types\Users;
 
+use Closure;
 use Countable;
 use Grav\Common\Config\Config;
 use Grav\Common\Data\Blueprint;
@@ -74,6 +75,9 @@ class UserObject extends FlexObject implements UserInterface, Countable
     }
     use UserTrait;
     use UserObjectLegacyTrait;
+
+    /** @var Closure|null */
+    static public $authorizeCallable;
 
     /** @var array|null */
     protected $_uploads_original;
@@ -256,6 +260,15 @@ class UserObject extends FlexObject implements UserInterface, Countable
             // Workaround bug in Login::isUserAuthorizedForPage() <= Login v3.0.4
             if ((string)(int)$action === $action) {
                 return false;
+            }
+        }
+
+        $authorizeCallable = static::$authorizeCallable;
+        if ($authorizeCallable instanceof Closure) {
+            $authorizeCallable->bindTo($this);
+            $authorized = $authorizeCallable($action, $scope);
+            if (is_bool($authorized)) {
+                return $authorized;
             }
         }
 

@@ -44,6 +44,7 @@ use function is_array;
 use function is_object;
 use function is_scalar;
 use function is_string;
+use function json_encode;
 
 /**
  * Class FlexObject
@@ -820,11 +821,12 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      */
     public function getForm(string $name = '', array $options = null)
     {
-        if (!isset($this->_forms[$name])) {
-            $this->_forms[$name] = $this->createFormObject($name, $options);
+        $hash = $name . '-' . md5(json_encode($options, JSON_THROW_ON_ERROR));
+        if (!isset($this->_forms[$hash])) {
+            $this->_forms[$hash] = $this->createFormObject($name, $options);
         }
 
-        return $this->_forms[$name];
+        return $this->_forms[$hash];
     }
 
     /**

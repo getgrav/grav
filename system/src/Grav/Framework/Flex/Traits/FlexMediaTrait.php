@@ -120,7 +120,7 @@ trait FlexMediaTrait
         // Load settings for the field.
         $schema = $this->getBlueprint()->schema();
         $settings = $field && is_object($schema) ? (array)$schema->getProperty($field) : null;
-        if (!isset($settings) || !is_array($settings)) {
+        if (!is_array($settings)) {
             return null;
         }
 

@@ -105,11 +105,11 @@ class InitializeProcessor extends ProcessorBase
         // TODO: remove in 2.0.
         $this->container['accounts'];
 
-        // Initialize session.
-        $this->initializeSession($config);
-
         // Initialize URI (uses session, see issue #3269).
         $this->initializeUri($config);
+
+        // Initialize session.
+        $this->initializeSession($config);
 
         // Grav may return redirect response right away.
         $redirectCode = (int)$config->get('system.pages.redirect_trailing_slash', 1);

@@ -193,6 +193,14 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
     }
 
     /**
+     * Set current page.
+     */
+    public function setCurrent(string $path): void
+    {
+        throw new RuntimeException(__METHOD__ . '(): Not Implemented');
+    }
+
+    /**
      * Return previous item.
      *
      * @return PageInterface|false
