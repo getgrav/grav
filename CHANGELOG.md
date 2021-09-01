@@ -1,3 +1,9 @@
+# v1.7.20
+## 09/01/2021
+
+2. [](#improved)
+    * Added support for `task` and `action` inside JSON request body
+
 # v1.7.19
 ## 08/31/2021
 

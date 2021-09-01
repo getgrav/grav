@@ -12,6 +12,7 @@ namespace Grav\Common\Service;
 use Grav\Common\Grav;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
+use Psr\Http\Message\ServerRequestInterface;
 
 /**
  * Class TaskServiceProvider
@@ -26,7 +27,11 @@ class TaskServiceProvider implements ServiceProviderInterface
     public function register(Container $container)
     {
         $container['task'] = function (Grav $c) {
-            $task = $_POST['task'] ?? $c['uri']->param('task');
+            /** @var ServerRequestInterface $request */
+            $request = $c['request'];
+            $body = $request->getParsedBody();
+
+            $task = $body['task'] ?? $c['uri']->param('task');
             if (null !== $task) {
                 $task = filter_var($task, FILTER_SANITIZE_STRING);
             }
@@ -35,7 +40,11 @@ class TaskServiceProvider implements ServiceProviderInterface
         };
 
         $container['action'] = function (Grav $c) {
-            $action = $_POST['action'] ?? $c['uri']->param('action');
+            /** @var ServerRequestInterface $request */
+            $request = $c['request'];
+            $body = $request->getParsedBody();
+
+            $action = $body['action'] ?? $c['uri']->param('action');
             if (null !== $action) {
                 $action = filter_var($action, FILTER_SANITIZE_STRING);
             }
