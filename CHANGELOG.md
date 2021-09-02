@@ -1,3 +1,9 @@
+# v1.7.21
+## mm/dd/2021
+
+1. [](#bugfix)
+    * Fixed escaping in PageIndex::getLevelListing()
+
 # v1.7.20
 ## 09/01/2021
 
