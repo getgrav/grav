@@ -541,7 +541,7 @@ class Validation
             // Count of how many steps we are above/below the minimum value.
             $pos = ($value - $min) / $step;
 
-            return fmod($pos, 1) === 0.0;
+            return is_int(static::filterNumber($pos, $params, $field));
         }
 
         return true;
