@@ -3,6 +3,7 @@
 
 1. [](#bugfix)
     * Fixed escaping in PageIndex::getLevelListing()
+    * Fixed validation of `number` type
 
 # v1.7.20
 ## 09/01/2021

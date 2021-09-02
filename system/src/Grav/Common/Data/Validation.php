@@ -538,8 +538,10 @@ class Validation
 
         if (isset($params['step'])) {
             $step = (float)$params['step'];
+            // Count of how many steps we are above/below the minimum value.
+            $pos = ($value - $min) / $step;
 
-            return fmod($value - $min, $step) === 0.0;
+            return fmod($pos, 1) === 0.0;
         }
 
         return true;
