@@ -3,7 +3,7 @@
 
 1. [](#bugfix)
     * Fixed escaping in PageIndex::getLevelListing()
-    * Fixed validation of `number` type
+    * Fixed validation of `number` type [#3433](https://github.com/getgrav/grav/issues/3433)
 
 # v1.7.20
 ## 09/01/2021
