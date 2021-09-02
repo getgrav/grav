@@ -1,7 +1,9 @@
 # v1.7.21
 ## mm/dd/2021
 
-1. [](#bugfix)
+1. [](#new)
+    * Added `|yaml` filter to convert input to YAML
+3. [](#bugfix)
     * Fixed escaping in PageIndex::getLevelListing()
     * Fixed validation of `number` type [#3433](https://github.com/getgrav/grav/issues/3433)
 
