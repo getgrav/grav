@@ -43,7 +43,7 @@ class TwigNodeThrow extends Node
         $compiler->addDebugInfo($this);
 
         $compiler
-            ->write('throw new \RuntimeException(')
+            ->write('throw new \Grav\Common\Twig\Exception\TwigException(')
             ->subcompile($this->getNode('message'))
             ->write(', ')
             ->write($this->getAttribute('code') ?: 500)

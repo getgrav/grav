@@ -9,6 +9,7 @@
 
 namespace Grav\Common;
 
+use Composer\Autoload\ClassLoader;
 use Grav\Common\Config\Config;
 use Grav\Common\Config\Setup;
 use Grav\Common\Helpers\Exif;
@@ -152,6 +153,13 @@ class Grav extends Container
     {
         if (null === self::$instance) {
             self::$instance = static::load($values);
+
+            /** @var ClassLoader|null $loader */
+            $loader = self::$instance['loader'] ?? null;
+            if ($loader) {
+                // Load fix for Deferred Twig Extension
+                $loader->addPsr4('Phive\\Twig\\Extensions\\Deferred\\', LIB_DIR . 'Phive/Twig/Extensions/Deferred/', true);
+            }
         } elseif ($values) {
             $instance = self::$instance;
             foreach ($values as $key => $value) {
