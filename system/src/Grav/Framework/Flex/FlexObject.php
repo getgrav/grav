@@ -370,7 +370,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      */
     public function searchProperty(string $property, string $search, array $options = null): float
     {
-        $options = $options ?? $this->getFlexDirectory()->getConfig('data.search.options', []);
+        $options = $options ?? (array)$this->getFlexDirectory()->getConfig('data.search.options');
         $value = $this->getProperty($property);
 
         return $this->searchValue($property, $value, $search, $options);
@@ -384,7 +384,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      */
     public function searchNestedProperty(string $property, string $search, array $options = null): float
     {
-        $options = $options ?? $this->getFlexDirectory()->getConfig('data.search.options', []);
+        $options = $options ?? (array)$this->getFlexDirectory()->getConfig('data.search.options');
         if ($property === 'key') {
             $value = $this->getKey();
         } else {
