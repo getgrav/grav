@@ -378,22 +378,28 @@ class FlexForm implements FlexObjectFormInterface, JsonSerializable
     {
         $object = $this->getObject();
         if (!method_exists($object, 'route')) {
-            return null;
+            /** @var Route $route */
+            $route = Grav::instance()['route'];
+
+            return $route->withExtension('json')->withGravParam('task', 'media.upload');
         }
 
         return $object->route('/edit.json/task:media.upload');
     }
 
     /**
-     * @param string $field
-     * @param string $filename
+     * @param string|null $field
+     * @param string|null $filename
      * @return Route|null
      */
-    public function getFileDeleteAjaxRoute($field, $filename): ?Route
+    public function getFileDeleteAjaxRoute($field = null, $filename = null): ?Route
     {
         $object = $this->getObject();
         if (!method_exists($object, 'route')) {
-            return null;
+            /** @var Route $route */
+            $route = Grav::instance()['route'];
+
+            return $route->withExtension('json')->withGravParam('task', 'media.delete');
         }
 
         return $object->route('/edit.json/task:media.delete');
