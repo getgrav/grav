@@ -5,6 +5,7 @@
     * Added `|yaml` filter to convert input to YAML
     * Added `route` and `request` to `onPageNotFound` event
     * Added file upload/remove support for `Flex Forms`
+    * Added support for `flex-required@: not exists` and `flex-required@: '!exists'` in blueprints
     * Throwing exceptions from Twig templates fires `onDisplayErrorPage.[code]` event allowing better error pages
 3. [](#bugfix)
     * Fixed escaping in PageIndex::getLevelListing()

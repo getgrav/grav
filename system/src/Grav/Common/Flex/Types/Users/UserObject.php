@@ -307,6 +307,14 @@ class UserObject extends FlexObject implements UserInterface, Countable
     }
 
     /**
+     * @return UserGroupIndex
+     */
+    public function getRoles(): UserGroupIndex
+    {
+        return $this->getGroups();
+    }
+
+    /**
      * Convert object into an array.
      *
      * @return array
