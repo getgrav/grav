@@ -71,6 +71,8 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     /** @var array */
     private $_meta;
     /** @var array */
+    protected $_original;
+    /** @var array */
     protected $_changes;
     /** @var string */
     protected $storage_key;
@@ -442,6 +444,16 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     }
 
     /**
+     * Get original data before update
+     *
+     * @return array
+     */
+    public function getOriginal(): array
+    {
+        return $this->_original ?? [];
+    }
+
+    /**
      * Get any changes based on data sent to update
      *
      * @return array
@@ -654,7 +666,8 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
             }
 
             // Store the changes
-            $this->_changes = Utils::arrayDiffMultidimensional($this->getElements(), $elements);
+            $this->_original = $this->getElements();
+            $this->_changes = Utils::arrayDiffMultidimensional($this->_original, $elements);
         }
 
         if ($files && method_exists($this, 'setUpdatedMedia')) {
