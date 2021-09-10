@@ -448,7 +448,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      *
      * @return array
      */
-    public function getOriginal(): array
+    public function getOriginalData(): array
     {
         return $this->_original ?? [];
     }
