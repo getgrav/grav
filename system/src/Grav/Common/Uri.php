@@ -1261,7 +1261,7 @@ class Uri
             $this->port = null;
         }
 
-        if ($this->hasStandardPort()) {
+        if ($this->port === 0 || $this->hasStandardPort()) {
             $this->port = null;
         }
 
@@ -1314,11 +1314,13 @@ class Uri
         if ($parts === false) {
             throw new RuntimeException('Malformed URL: ' . $url);
         }
+        $port = (int)($parts['port'] ?? 0);
+
         $this->scheme = $parts['scheme'] ?? null;
         $this->user = $parts['user'] ?? null;
         $this->password = $parts['pass'] ?? null;
         $this->host = $parts['host'] ?? null;
-        $this->port = isset($parts['port']) ? (int)$parts['port'] : null;
+        $this->port = $port ?: null;
         $this->path = $parts['path'] ?? '';
         $this->query = $parts['query'] ?? '';
         $this->fragment = $parts['fragment'] ?? null;
