@@ -404,7 +404,7 @@ class Setup extends Data
             $securityFile = basename(static::$securityFile);
             $securityFolder = substr(static::$securityFile, 0, -\strlen($securityFile));
             $securityFolder = $locator->findResource($securityFolder, true) ?: $locator->findResource($securityFolder, true, true);
-            $filename = " {$securityFolder}/{$securityFile}";
+            $filename = "{$securityFolder}/{$securityFile}";
 
             $security_file = CompiledYamlFile::instance($filename);
             $security_content = (array)$security_file->content();
