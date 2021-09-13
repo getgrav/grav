@@ -8,6 +8,9 @@
     * Added support for `flex-required@: not exists` and `flex-required@: '!exists'` in blueprints
     * Added `$object->getOriginalData()` to get flex objects data before it was modified with `update()`
     * Throwing exceptions from Twig templates fires `onDisplayErrorPage.[code]` event allowing better error pages
+2. [](#improved)
+    * Use a simplified text-based `cron` field for scheduler
+    * Add timestamp to logging output of scheduler jobs to see when they ran
 3. [](#bugfix)
     * Fixed escaping in PageIndex::getLevelListing()
     * Fixed validation of `number` type [#3433](https://github.com/getgrav/grav/issues/3433)
