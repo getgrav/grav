@@ -11,6 +11,7 @@
 3. [](#bugfix)
     * Fixed escaping in PageIndex::getLevelListing()
     * Fixed validation of `number` type [#3433](https://github.com/getgrav/grav/issues/3433)
+    * Fixed excessive `security.yaml` file creation [#3432](https://github.com/getgrav/grav/issues/3432)
 
 # v1.7.20
 ## 09/01/2021
