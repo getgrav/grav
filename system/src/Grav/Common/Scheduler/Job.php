@@ -390,7 +390,9 @@ class Job
         if (count($this->outputTo) > 0) {
             foreach ($this->outputTo as $file) {
                 $output_mode = $this->outputMode === 'append' ? FILE_APPEND | LOCK_EX : LOCK_EX;
-                file_put_contents($file, $this->output, $output_mode);
+                $timestamp = (new DateTime('now'))->format('c');
+                $output = $timestamp . "\n" . str_pad('', strlen($timestamp), '>') . "\n" . $this->output;
+                file_put_contents($file, $output, $output_mode);
             }
         }
 

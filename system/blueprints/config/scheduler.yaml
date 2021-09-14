@@ -47,7 +47,8 @@ form:
               label: PLUGIN_ADMIN.EXTRA_ARGUMENTS
               placeholder: '-lah'
             .at:
-              type: cron
+              type: text
+              wrapper_classes: cron-selector
               label: PLUGIN_ADMIN.SCHEDULER_RUNAT
               help: PLUGIN_ADMIN.SCHEDULER_RUNAT_HELP
               placeholder: '* * * * *'
