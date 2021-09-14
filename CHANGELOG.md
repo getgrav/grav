@@ -13,6 +13,7 @@
     * Fixed validation of `number` type [#3433](https://github.com/getgrav/grav/issues/3433)
     * Fixed excessive `security.yaml` file creation [#3432](https://github.com/getgrav/grav/issues/3432)
     * Fixed incorrect port :0 with nginx unix socket setup [#3439](https://github.com/getgrav/grav/issues/3439)
+    * Fixed `Session::setFlashCookieObject()` to use the same options as the main session cookie
 
 # v1.7.20
 ## 09/01/2021

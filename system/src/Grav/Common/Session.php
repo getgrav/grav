@@ -12,6 +12,7 @@ namespace Grav\Common;
 use Grav\Common\Form\FormFlash;
 use Grav\Events\SessionStartEvent;
 use Grav\Plugin\Form\Forms;
+use JsonException;
 use function is_string;
 
 /**
@@ -148,10 +149,11 @@ class Session extends \Grav\Framework\Session\Session
      * @param mixed $object
      * @param int $time
      * @return $this
+     * @throws JsonException
      */
     public function setFlashCookieObject($name, $object, $time = 60)
     {
-        setcookie($name, json_encode($object), time() + $time, '/');
+        setcookie($name, json_encode($object, JSON_THROW_ON_ERROR), $this->getCookieOptions($time));
 
         return $this;
     }
@@ -161,13 +163,15 @@ class Session extends \Grav\Framework\Session\Session
      *
      * @param string $name
      * @return mixed|null
+     * @throws JsonException
      */
     public function getFlashCookieObject($name)
     {
         if (isset($_COOKIE[$name])) {
-            $object = json_decode($_COOKIE[$name], false);
-            setcookie($name, '', time() - 3600, '/');
-            return $object;
+            $cookie = $_COOKIE[$name];
+            setcookie($name, '', $this->getCookieOptions(-42000));
+
+            return json_decode($cookie, false, 512, JSON_THROW_ON_ERROR);
         }
 
         return null;
