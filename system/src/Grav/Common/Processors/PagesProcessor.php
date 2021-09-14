@@ -10,6 +10,7 @@
 namespace Grav\Common\Processors;
 
 use Grav\Common\Page\Interfaces\PageInterface;
+use Grav\Framework\RequestHandler\Exception\RequestException;
 use Grav\Plugin\Form\Forms;
 use RocketTheme\Toolbox\Event\Event;
 use Psr\Http\Message\ResponseInterface;
@@ -48,8 +49,17 @@ class PagesProcessor extends ProcessorBase
         $page = $this->container['page'];
 
         if (!$page->routable()) {
+            $exception = new RequestException($request, 'Page Not Found', 404);
+            $route = $this->container['route'];
             // If no page found, fire event
-            $event = new Event(['page' => $page]);
+            $event = new Event([
+                'page' => $page,
+                'code' => $exception->getCode(),
+                'message' => $exception->getMessage(),
+                'exception' => $exception,
+                'route' => $route,
+                'request' => $request
+            ]);
             $event->page = null;
             $event = $this->container->fireEvent('onPageNotFound', $event);
 

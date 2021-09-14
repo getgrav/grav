@@ -32,6 +32,7 @@ use Grav\Common\User\Interfaces\UserInterface;
 use Grav\Common\User\Traits\UserTrait;
 use Grav\Framework\File\Formatter\JsonFormatter;
 use Grav\Framework\File\Formatter\YamlFormatter;
+use Grav\Framework\Filesystem\Filesystem;
 use Grav\Framework\Flex\Flex;
 use Grav\Framework\Flex\FlexDirectory;
 use Grav\Framework\Flex\Storage\FileStorage;
@@ -303,6 +304,14 @@ class UserObject extends FlexObject implements UserInterface, Countable
         }
 
         return $value;
+    }
+
+    /**
+     * @return UserGroupIndex
+     */
+    public function getRoles(): UserGroupIndex
+    {
+        return $this->getGroups();
     }
 
     /**
@@ -702,6 +711,7 @@ class UserObject extends FlexObject implements UserInterface, Countable
 
     /**
      * @param array $files
+     * @return void
      */
     protected function setUpdatedMedia(array $files): void
     {
@@ -713,9 +723,12 @@ class UserObject extends FlexObject implements UserInterface, Countable
             return;
         }
 
+        $filesystem = Filesystem::getInstance(false);
+
         $list = [];
         $list_original = [];
         foreach ($files as $field => $group) {
+            // Ignore files without a field.
             if ($field === '') {
                 continue;
             }
@@ -737,7 +750,7 @@ class UserObject extends FlexObject implements UserInterface, Countable
                 }
 
                 if ($file) {
-                    // Check file upload against media limits.
+                    // Check file upload against media limits (except for max size).
                     $filename = $media->checkUploadedFile($file, $filename, ['filesize' => 0] + $settings);
                 }
 
@@ -761,15 +774,19 @@ class UserObject extends FlexObject implements UserInterface, Countable
                     continue;
                 }
 
+                // Calculate path without the retina scaling factor.
+                $realpath = $filesystem->pathname($filepath) . str_replace(['@3x', '@2x'], '', basename($filepath));
+
                 $list[$filename] = [$file, $settings];
 
+                $path = str_replace('.', "\n", $field);
                 if (null !== $data) {
                     $data['name'] = $filename;
                     $data['path'] = $filepath;
 
-                    $this->setNestedProperty("{$field}\n{$filepath}", $data, "\n");
+                    $this->setNestedProperty("{$path}\n{$realpath}", $data, "\n");
                 } else {
-                    $this->unsetNestedProperty("{$field}\n{$filepath}", "\n");
+                    $this->unsetNestedProperty("{$path}\n{$realpath}", "\n");
                 }
             }
         }

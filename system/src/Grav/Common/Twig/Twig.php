@@ -16,6 +16,7 @@ use Grav\Common\Language\Language;
 use Grav\Common\Language\LanguageCodes;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Page\Pages;
+use Grav\Common\Twig\Exception\TwigException;
 use Grav\Common\Twig\Extension\FilesystemExtension;
 use Grav\Common\Twig\Extension\GravExtension;
 use Grav\Common\Utils;
@@ -26,6 +27,7 @@ use RuntimeException;
 use Twig\Cache\FilesystemCache;
 use Twig\Environment;
 use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
 use Twig\Extension\CoreExtension;
 use Twig\Extension\DebugExtension;
 use Twig\Extension\StringLoaderExtension;
@@ -404,38 +406,63 @@ class Twig
      */
     public function processSite($format = null, array $vars = [])
     {
-        // set the page now its been processed
-        $this->grav->fireEvent('onTwigSiteVariables');
-        /** @var Pages $pages */
-        $pages = $this->grav['pages'];
-        /** @var PageInterface $page */
-        $page = $this->grav['page'];
-        $content = $page->content();
-
-        $twig_vars = $this->twig_vars;
-
-        $twig_vars['theme'] = $this->grav['config']->get('theme');
-        $twig_vars['pages'] = $pages->root();
-        $twig_vars['page'] = $page;
-        $twig_vars['header'] = $page->header();
-        $twig_vars['media'] = $page->media();
-        $twig_vars['content'] = $content;
-
-        // determine if params are set, if so disable twig cache
-        $params = $this->grav['uri']->params(null, true);
-        if (!empty($params)) {
-            $this->twig->setCache(false);
-        }
-
-        // Get Twig template layout
-        $template = $this->getPageTwigTemplate($page, $format);
-        $page->templateFormat($format);
-
         try {
+            $grav = $this->grav;
+
+            // set the page now its been processed
+            $grav->fireEvent('onTwigSiteVariables');
+
+            /** @var Pages $pages */
+            $pages = $grav['pages'];
+
+            /** @var PageInterface $page */
+            $page = $grav['page'];
+
+            $twig_vars = $this->twig_vars;
+            $twig_vars['theme'] = $grav['config']->get('theme');
+            $twig_vars['pages'] = $pages->root();
+            $twig_vars['page'] = $page;
+            $twig_vars['header'] = $page->header();
+            $twig_vars['media'] = $page->media();
+            $twig_vars['content'] = $page->content();
+
+            // determine if params are set, if so disable twig cache
+            $params = $grav['uri']->params(null, true);
+            if (!empty($params)) {
+                $this->twig->setCache(false);
+            }
+
+            // Get Twig template layout
+            $template = $this->getPageTwigTemplate($page, $format);
+            $page->templateFormat($format);
+
             $output = $this->twig->render($template, $vars + $twig_vars);
         } catch (LoaderError $e) {
-            $error_msg = $e->getMessage();
-            throw new RuntimeException($error_msg, 400, $e);
+            throw new RuntimeException($e->getMessage(), 400, $e);
+        } catch (RuntimeError $e) {
+            $prev = $e->getPrevious();
+            if ($prev instanceof TwigException) {
+                $code = $prev->getCode() ?: 500;
+                // Fire onPageNotFound event.
+                $event = new Event([
+                    'page' => $page,
+                    'code' => $code,
+                    'message' => $prev->getMessage(),
+                    'exception' => $prev,
+                    'route' => $grav['route'],
+                    'request' => $grav['request']
+                ]);
+                $event = $grav->fireEvent("onDisplayErrorPage.{$code}", $event);
+                $newPage = $event['page'];
+                if ($newPage && $newPage !== $page) {
+                    unset($grav['page']);
+                    $grav['page'] = $newPage;
+
+                    return $this->processSite($newPage->templateFormat(), $vars);
+                }
+            }
+
+            throw $e;
         }
 
         return $output;

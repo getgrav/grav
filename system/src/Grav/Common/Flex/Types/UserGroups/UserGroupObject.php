@@ -42,6 +42,14 @@ class UserGroupObject extends FlexObject implements UserGroupInterface
     }
 
     /**
+     * @return string
+     */
+    public function getTitle(): string
+    {
+        return $this->getProperty('readableName');
+    }
+
+    /**
      * Checks user authorization to the action.
      *
      * @param  string $action

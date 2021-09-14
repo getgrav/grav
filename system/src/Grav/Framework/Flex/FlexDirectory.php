@@ -836,13 +836,22 @@ class FlexDirectory implements FlexDirectoryInterface
         $params = (array)$call['params'];
         $object = $call['object'] ?? null;
         $method = array_shift($params);
+        $not = false;
+        if (str_starts_with($method, '!')) {
+            $method = substr($method, 1);
+            $not = true;
+        } elseif (str_starts_with($method, 'not ')) {
+            $method = substr($method, 4);
+            $not = true;
+        }
+        $method = trim($method);
 
         if ($object && method_exists($object, $method)) {
             $value = $object->{$method}(...$params);
             if (is_array($value) && isset($field[$property]) && is_array($field[$property])) {
                 $value = $this->mergeArrays($field[$property], $value);
             }
-            $field[$property] = $value;
+            $field[$property] = $not ? !$value : $value;
         }
     }
 

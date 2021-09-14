@@ -338,23 +338,12 @@ class Session implements SessionInterface
     {
         $name = $this->getName();
         if (null !== $name) {
-            $params = session_get_cookie_params();
-
-            $cookie_options = array (
-                'expires'  => time() - 42000,
-                'path'     => $params['path'],
-                'domain'   => $params['domain'],
-                'secure'   => $params['secure'],
-                'httponly' => $params['httponly'],
-                'samesite' => $params['samesite']
-            );
-
             $this->removeCookie();
 
             setcookie(
                 session_name(),
                 '',
-                $cookie_options
+                $this->getCookieOptions(-42000)
             );
         }
 
@@ -463,27 +452,36 @@ class Session implements SessionInterface
     }
 
     /**
-     * @return void
+     * Store something in cookie temporarily.
+     *
+     * @param int|null $lifetime
+     * @return array
      */
-    protected function setCookie(): void
+    public function getCookieOptions(int $lifetime = null): array
     {
         $params = session_get_cookie_params();
 
-        $cookie_options = array (
-            'expires'  => time() + $params['lifetime'],
+        return [
+            'expires'  => time() + ($lifetime ?? $params['lifetime']),
             'path'     => $params['path'],
             'domain'   => $params['domain'],
             'secure'   => $params['secure'],
             'httponly' => $params['httponly'],
             'samesite' => $params['samesite']
-        );
+        ];
+    }
 
+    /**
+     * @return void
+     */
+    protected function setCookie(): void
+    {
         $this->removeCookie();
 
         setcookie(
             session_name(),
             session_id(),
-            $cookie_options
+            $this->getCookieOptions()
         );
     }
 
