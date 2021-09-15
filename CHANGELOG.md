@@ -1,3 +1,9 @@
+# v1.7.22
+## mm/dd/2021
+
+3. [](#bugfix)
+    * Fixed conflicting `$_original` variable in `Flex Pages`
+
 # v1.7.21
 ## 09/14/2021
 

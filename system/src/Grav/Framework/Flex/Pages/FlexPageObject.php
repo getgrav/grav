@@ -50,7 +50,7 @@ class FlexPageObject extends FlexObject implements PageInterface, FlexTranslateI
     /** @var array|null */
     protected $_reorder;
     /** @var FlexPageObject|null */
-    protected $_original;
+    protected $_originalObject;
 
     /**
      * Clone page.
@@ -264,7 +264,7 @@ class FlexPageObject extends FlexObject implements PageInterface, FlexTranslateI
      */
     public function getOriginal()
     {
-        return $this->_original;
+        return $this->_originalObject;
     }
 
     /**
@@ -276,8 +276,8 @@ class FlexPageObject extends FlexObject implements PageInterface, FlexTranslateI
      */
     public function storeOriginal(): void
     {
-        if (null === $this->_original) {
-            $this->_original = clone $this;
+        if (null === $this->_originalObject) {
+            $this->_originalObject = clone $this;
         }
     }
 

@@ -311,7 +311,7 @@ class PageObject extends FlexPageObject
         }
 
         // Reset original after save events have all been called.
-        $this->_original = null;
+        $this->_originalObject = null;
 
         return $instance;
     }
