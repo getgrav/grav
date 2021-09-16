@@ -143,7 +143,7 @@ class Plugins extends Iterator
                 $instance->setConfig($config);
                 // Register autoloader.
                 if (method_exists($instance, 'autoload')) {
-                    $instance->autoload();
+                    $instance->setAutoloader($instance->autoload());
                 }
                 // Register event listeners.
                 $events->addSubscriber($instance);
