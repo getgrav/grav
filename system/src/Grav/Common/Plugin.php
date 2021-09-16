@@ -10,6 +10,7 @@
 namespace Grav\Common;
 
 use ArrayAccess;
+use Composer\Autoload\ClassLoader;
 use Grav\Common\Data\Blueprint;
 use Grav\Common\Data\Data;
 use Grav\Common\Page\Interfaces\PageInterface;
@@ -42,6 +43,8 @@ class Plugin implements EventSubscriberInterface, ArrayAccess
     protected $active = true;
     /** @var Blueprint|null */
     protected $blueprint;
+    /** @var ClassLoader|null */
+    protected $loader;
 
     /**
      * By default assign all methods as listeners using the default priority.
@@ -77,6 +80,24 @@ class Plugin implements EventSubscriberInterface, ArrayAccess
         if ($config) {
             $this->setConfig($config);
         }
+    }
+
+    /**
+     * @return ClassLoader|null
+     * @internal
+     */
+    final public function getAutoloader(): ?ClassLoader
+    {
+        return $this->loader;
+    }
+
+    /**
+     * @param ClassLoader|null $loader
+     * @internal
+     */
+    final public function setAutoloader(?ClassLoader $loader): void
+    {
+        $this->loader = $loader;
     }
 
     /**

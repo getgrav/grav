@@ -1,3 +1,11 @@
+# v1.7.22
+## 09/16/2021
+
+1. [](#new)
+    * Register plugin autoloaders into plugin objects
+1. [](#bugfix)
+    * Fixed conflicting `$_original` variable in `Flex Pages`
+
 # v1.7.21
 ## 09/14/2021
 
