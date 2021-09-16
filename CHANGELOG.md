@@ -1,5 +1,5 @@
 # v1.7.22
-## mm/dd/2021
+## 09/16/2021
 
 1. [](#new)
     * Register plugin autoloaders into plugin objects
