@@ -3,7 +3,10 @@
 
 1. [](#new)
     * Register plugin autoloaders into plugin objects
-1. [](#bugfix)
+2. [](#improved)
+    * Improve Twig 2 compatibility
+    * Update to customized version of Twig DeferredExtension (Twig 1/2 compatible)
+3. [](#bugfix)
     * Fixed conflicting `$_original` variable in `Flex Pages`
 
 # v1.7.21

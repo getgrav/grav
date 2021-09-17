@@ -90,7 +90,7 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
      *
      * @return array
      */
-    public function getGlobals()
+    public function getGlobals(): array
     {
         return [
             'grav' => $this->grav,
@@ -102,7 +102,7 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
      *
      * @return array
      */
-    public function getFilters()
+    public function getFilters(): array
     {
         return [
             new TwigFilter('*ize', [$this, 'inflectorFilter']),
@@ -172,7 +172,7 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
      *
      * @return array
      */
-    public function getFunctions()
+    public function getFunctions(): array
     {
         return [
             new TwigFunction('array', [$this, 'arrayFilter']),
@@ -243,7 +243,7 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
     /**
      * @return array
      */
-    public function getTokenParsers()
+    public function getTokenParsers(): array
     {
         return [
             new TwigTokenParserRender(),

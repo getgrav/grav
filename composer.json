@@ -55,7 +55,6 @@
         "miljar/php-exif": "^0.6",
         "composer/ca-bundle": "^1.2",
         "dragonmantank/cron-expression": "^1.2",
-        "phive/twig-extensions-deferred": "^1.0",
         "willdurand/negotiation": "^3.0",
         "itsgoingd/clockwork": "^5.0",
         "enshrined/svg-sanitize": "~0.13",
@@ -93,7 +92,8 @@
     },
     "autoload": {
         "psr-4": {
-            "Grav\\": "system/src/Grav"
+            "Grav\\": "system/src/Grav",
+            "Twig\\": "system/src/Twig"
         },
         "files": [
             "system/defines.php"

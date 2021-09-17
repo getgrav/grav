@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "36375d8a5daf3aef0341f9a2b023f4e9",
+    "content-hash": "a777a09c8efd3109a03df1d9c9c20b87",
     "packages": [
         {
             "name": "antoligy/dom-string-iterators",
@@ -380,20 +380,20 @@
         },
         {
             "name": "donatj/phpuseragentparser",
-            "version": "v1.4.0",
+            "version": "v1.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/donatj/PhpUserAgent.git",
-                "reference": "246c1cf0a44f07168c702203bf30d5f48f17bab0"
+                "reference": "cc9d872cddfc180c52d084d0dff1e4aad653d37f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/donatj/PhpUserAgent/zipball/246c1cf0a44f07168c702203bf30d5f48f17bab0",
-                "reference": "246c1cf0a44f07168c702203bf30d5f48f17bab0",
+                "url": "https://api.github.com/repos/donatj/PhpUserAgent/zipball/cc9d872cddfc180c52d084d0dff1e4aad653d37f",
+                "reference": "cc9d872cddfc180c52d084d0dff1e4aad653d37f",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.3.0"
+                "php": ">=5.4.0"
             },
             "require-dev": {
                 "camspiers/json-pretty": "~1.0",
@@ -432,7 +432,7 @@
             ],
             "support": {
                 "issues": "https://github.com/donatj/PhpUserAgent/issues",
-                "source": "https://github.com/donatj/PhpUserAgent/tree/v1.4.0"
+                "source": "https://github.com/donatj/PhpUserAgent/tree/v1.5.0"
             },
             "funding": [
                 {
@@ -444,7 +444,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2021-03-16T16:25:14+00:00"
+            "time": "2021-09-16T17:05:03+00:00"
         },
         {
             "name": "dragonmantank/cron-expression",
@@ -1515,59 +1515,6 @@
                 }
             ],
             "time": "2021-05-12T11:11:27+00:00"
-        },
-        {
-            "name": "phive/twig-extensions-deferred",
-            "version": "v1.0.2",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/rybakit/twig-extensions-deferred-legacy.git",
-                "reference": "5a2426d622afa74034e754ca5ea1d1ff7887627f"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/rybakit/twig-extensions-deferred-legacy/zipball/5a2426d622afa74034e754ca5ea1d1ff7887627f",
-                "reference": "5a2426d622afa74034e754ca5ea1d1ff7887627f",
-                "shasum": ""
-            },
-            "require": {
-                "twig/twig": "~1.18"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Phive\\Twig\\Extensions\\Deferred\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Eugene Leonovich",
-                    "email": "gen.work@gmail.com"
-                }
-            ],
-            "description": "An extension for Twig that allows to defer block rendering",
-            "homepage": "https://github.com/rybakit/twig-extensions-deferred",
-            "keywords": [
-                "defer",
-                "extension",
-                "lazy",
-                "twig"
-            ],
-            "support": {
-                "issues": "https://github.com/rybakit/twig-extensions-deferred-legacy/issues",
-                "source": "https://github.com/rybakit/twig-extensions-deferred-legacy/tree/v1.0.2"
-            },
-            "funding": [
-                {
-                    "url": "https://github.com/rybakit",
-                    "type": "github"
-                }
-            ],
-            "time": "2017-03-17T21:39:21+00:00"
         },
         {
             "name": "php-http/message-factory",
@@ -3231,16 +3178,16 @@
         },
         {
             "name": "twig/twig",
-            "version": "v1.44.4",
+            "version": "v1.44.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/twigphp/Twig.git",
-                "reference": "4d400421528e9fa40caaffcf7824c172526dd99d"
+                "reference": "dd4353357c5a116322e92a00d16043a31881a81e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/twigphp/Twig/zipball/4d400421528e9fa40caaffcf7824c172526dd99d",
-                "reference": "4d400421528e9fa40caaffcf7824c172526dd99d",
+                "url": "https://api.github.com/repos/twigphp/Twig/zipball/dd4353357c5a116322e92a00d16043a31881a81e",
+                "reference": "dd4353357c5a116322e92a00d16043a31881a81e",
                 "shasum": ""
             },
             "require": {
@@ -3293,7 +3240,7 @@
             ],
             "support": {
                 "issues": "https://github.com/twigphp/Twig/issues",
-                "source": "https://github.com/twigphp/Twig/tree/v1.44.4"
+                "source": "https://github.com/twigphp/Twig/tree/v1.44.5"
             },
             "funding": [
                 {
@@ -3305,7 +3252,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2021-05-16T12:11:20+00:00"
+            "time": "2021-09-17T08:35:19+00:00"
         },
         {
             "name": "willdurand/negotiation",
@@ -4502,33 +4449,33 @@
         },
         {
             "name": "phpspec/prophecy",
-            "version": "1.13.0",
+            "version": "1.14.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpspec/prophecy.git",
-                "reference": "be1996ed8adc35c3fd795488a653f4b518be70ea"
+                "reference": "d86dfc2e2a3cd366cee475e52c6bb3bbc371aa0e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpspec/prophecy/zipball/be1996ed8adc35c3fd795488a653f4b518be70ea",
-                "reference": "be1996ed8adc35c3fd795488a653f4b518be70ea",
+                "url": "https://api.github.com/repos/phpspec/prophecy/zipball/d86dfc2e2a3cd366cee475e52c6bb3bbc371aa0e",
+                "reference": "d86dfc2e2a3cd366cee475e52c6bb3bbc371aa0e",
                 "shasum": ""
             },
             "require": {
                 "doctrine/instantiator": "^1.2",
-                "php": "^7.2 || ~8.0, <8.1",
+                "php": "^7.2 || ~8.0, <8.2",
                 "phpdocumentor/reflection-docblock": "^5.2",
                 "sebastian/comparator": "^3.0 || ^4.0",
                 "sebastian/recursion-context": "^3.0 || ^4.0"
             },
             "require-dev": {
-                "phpspec/phpspec": "^6.0",
+                "phpspec/phpspec": "^6.0 || ^7.0",
                 "phpunit/phpunit": "^8.0 || ^9.0"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.11.x-dev"
+                    "dev-master": "1.x-dev"
                 }
             },
             "autoload": {
@@ -4563,22 +4510,22 @@
             ],
             "support": {
                 "issues": "https://github.com/phpspec/prophecy/issues",
-                "source": "https://github.com/phpspec/prophecy/tree/1.13.0"
+                "source": "https://github.com/phpspec/prophecy/tree/1.14.0"
             },
-            "time": "2021-03-17T13:42:18+00:00"
+            "time": "2021-09-10T09:02:12+00:00"
         },
         {
             "name": "phpstan/phpstan",
-            "version": "0.12.98",
+            "version": "0.12.99",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan.git",
-                "reference": "3bb7cc246c057405dd5e290c3ecc62ab51d57e00"
+                "reference": "b4d40f1d759942f523be267a1bab6884f46ca3f7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/3bb7cc246c057405dd5e290c3ecc62ab51d57e00",
-                "reference": "3bb7cc246c057405dd5e290c3ecc62ab51d57e00",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/b4d40f1d759942f523be267a1bab6884f46ca3f7",
+                "reference": "b4d40f1d759942f523be267a1bab6884f46ca3f7",
                 "shasum": ""
             },
             "require": {
@@ -4609,7 +4556,7 @@
             "description": "PHPStan - PHP Static Analysis Tool",
             "support": {
                 "issues": "https://github.com/phpstan/phpstan/issues",
-                "source": "https://github.com/phpstan/phpstan/tree/0.12.98"
+                "source": "https://github.com/phpstan/phpstan/tree/0.12.99"
             },
             "funding": [
                 {
@@ -4629,7 +4576,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2021-09-02T12:33:01+00:00"
+            "time": "2021-09-12T20:09:55+00:00"
         },
         {
             "name": "phpstan/phpstan-deprecation-rules",
@@ -4684,23 +4631,23 @@
         },
         {
             "name": "phpunit/php-code-coverage",
-            "version": "9.2.6",
+            "version": "9.2.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/php-code-coverage.git",
-                "reference": "f6293e1b30a2354e8428e004689671b83871edde"
+                "reference": "d4c798ed8d51506800b441f7a13ecb0f76f12218"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/f6293e1b30a2354e8428e004689671b83871edde",
-                "reference": "f6293e1b30a2354e8428e004689671b83871edde",
+                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/d4c798ed8d51506800b441f7a13ecb0f76f12218",
+                "reference": "d4c798ed8d51506800b441f7a13ecb0f76f12218",
                 "shasum": ""
             },
             "require": {
                 "ext-dom": "*",
                 "ext-libxml": "*",
                 "ext-xmlwriter": "*",
-                "nikic/php-parser": "^4.10.2",
+                "nikic/php-parser": "^4.12.0",
                 "php": ">=7.3",
                 "phpunit/php-file-iterator": "^3.0.3",
                 "phpunit/php-text-template": "^2.0.2",
@@ -4749,7 +4696,7 @@
             ],
             "support": {
                 "issues": "https://github.com/sebastianbergmann/php-code-coverage/issues",
-                "source": "https://github.com/sebastianbergmann/php-code-coverage/tree/9.2.6"
+                "source": "https://github.com/sebastianbergmann/php-code-coverage/tree/9.2.7"
             },
             "funding": [
                 {
@@ -4757,7 +4704,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2021-03-28T07:26:59+00:00"
+            "time": "2021-09-17T05:39:03+00:00"
         },
         {
             "name": "phpunit/php-file-iterator",
@@ -6008,7 +5955,6 @@
                     "type": "github"
                 }
             ],
-            "abandoned": true,
             "time": "2020-09-28T06:45:17+00:00"
         },
         {
