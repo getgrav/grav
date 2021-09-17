@@ -18,11 +18,11 @@ use Twig\Node\ModuleNode;
 use Twig\Node\Node;
 use Twig\NodeVisitor\NodeVisitorInterface;
 
-final class DeferredNodeVisitor implements NodeVisitorInterface
+final class DeferredNodeVisitorCompat implements NodeVisitorInterface
 {
     private $hasDeferred = false;
 
-    public function enterNode(Node $node, Environment $env) : Node
+    public function enterNode(\Twig_NodeInterface $node, Environment $env) : Node
     {
         if (!$this->hasDeferred && $node instanceof DeferredBlockNode) {
             $this->hasDeferred = true;
@@ -31,7 +31,7 @@ final class DeferredNodeVisitor implements NodeVisitorInterface
         return $node;
     }
 
-    public function leaveNode(Node $node, Environment $env) : ?Node
+    public function leaveNode(\Twig_NodeInterface $node, Environment $env) : ?Node
     {
         if ($this->hasDeferred && $node instanceof ModuleNode) {
             $node->setNode('constructor_end', new Node([new DeferredExtensionNode(), $node->getNode('constructor_end')]));

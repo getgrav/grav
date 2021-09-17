@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Twig\DeferredExtension;
 
+use Twig\Environment;
 use Twig\Extension\AbstractExtension;
 use Twig\Template;
 
@@ -27,6 +28,11 @@ final class DeferredExtension extends AbstractExtension
 
     public function getNodeVisitors() : array
     {
+        if (Environment::VERSION_ID < 20000) {
+            // Twig 1.x support
+            return [new DeferredNodeVisitorCompat()];
+        }
+
         return [new DeferredNodeVisitor()];
     }
 
