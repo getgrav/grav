@@ -3,6 +3,8 @@
 
 1. [](#new)
     * Composer update
+2. [](#improved)
+    * `Uri::referrer()` now accepts third parameter, if set to `true`, it returns route without base or language code
 
 # v1.7.22
 ## 09/16/2021

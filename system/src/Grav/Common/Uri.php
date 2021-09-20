@@ -588,31 +588,34 @@ class Uri
      *
      * @param string|null $default
      * @param string|null $attributes
+     * @param bool $withoutBaseRoute Set to true if you want not to include `/base/lang` (useful for redirects).
      * @return string
      */
-    public function referrer($default = null, $attributes = null)
+    public function referrer($default = null, $attributes = null, bool $withoutBaseRoute = false)
     {
         $referrer = $_SERVER['HTTP_REFERER'] ?? null;
 
         // Check that referrer came from our site.
-        $root = $this->rootUrl(true);
-        if ($referrer) {
-            // Referrer should always have host set and it should come from the same base address.
-            if (stripos($referrer, $root) !== 0) {
-                $referrer = null;
-            }
+        if ($withoutBaseRoute) {
+            /** @var Pages $pages */
+            $pages = Grav::instance()['pages'];
+            $base = $pages->baseUrl(null, true);
+        } else {
+            $base = $this->rootUrl(true);
         }
 
-        if (!$referrer) {
+        // Referrer should always have host set and it should come from the same base address.
+        if (!is_string($referrer) || !str_starts_with($referrer, $base)) {
             $referrer = $default ?: $this->route(true, true);
         }
 
+        // Relative path from grav root.
+        $referrer = substr($referrer, strlen($base));
         if ($attributes) {
             $referrer .= $attributes;
         }
 
-        // Return relative path.
-        return substr($referrer, strlen($root));
+        return $referrer;
     }
 
     /**
