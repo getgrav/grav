@@ -197,6 +197,58 @@ class Pages
     }
 
     /**
+     * Get relative referrer route and language code. Returns null if the route isn't within the current base, language (if set) and route.
+     *
+     * @example `$langCode = null; $referrer = $pages->referrerRoute($langCode, '/admin');` returns relative referrer url within /admin and updates $langCode
+     * @example `$langCode = 'en'; $referrer = $pages->referrerRoute($langCode, '/admin');` returns relative referrer url within the /en/admin
+     *
+     * @param string|null $langCode Variable to store the language code. If already set, check only against that language.
+     * @param string $route Optional route within the site.
+     * @return string|null
+     * @since 1.7.23
+     */
+    public function referrerRoute(?string &$langCode, string $route = '/'): ?string
+    {
+        $referrer = $_SERVER['HTTP_REFERER'] ?? null;
+
+        // Start by checking that referrer came from our site.
+        $root = $this->grav['base_url_absolute'];
+        if (!is_string($referrer) || !str_starts_with($referrer, $root)) {
+            return null;
+        }
+
+        /** @var Language $language */
+        $language = $this->grav['language'];
+
+        // Get all language codes and append no language.
+        if (null === $langCode) {
+            $languages = $language->enabled() ? $language->getLanguages() : [];
+            $languages[] = '';
+        } else {
+            $languages[] = $langCode;
+        }
+
+        $path_base = rtrim($this->base(), '/');
+        $path_route = rtrim($route, '/');
+
+        // Try to figure out the language code.
+        foreach ($languages as $code) {
+            $path_lang = $code ? "/{$code}" : '';
+
+            $base = $path_base . $path_lang . $path_route;
+            if ($referrer === $base || str_starts_with($referrer, "{$base}/")) {
+                if (null === $langCode) {
+                    $langCode = $code;
+                }
+
+                return substr($referrer, \strlen($base));
+            }
+        }
+
+        return null;
+    }
+
+    /**
      *
      * Get base URL for Grav pages.
      *

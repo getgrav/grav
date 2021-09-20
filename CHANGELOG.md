@@ -3,6 +3,7 @@
 
 1. [](#new)
     * Composer update
+    * Added method `Pages::referrerRoute()` to get the referrer route and language
 2. [](#improved)
     * `Uri::referrer()` now accepts third parameter, if set to `true`, it returns route without base or language code [#3411](https://github.com/getgrav/grav/issues/3411)
 
