@@ -4,7 +4,7 @@
 1. [](#new)
     * Composer update
 2. [](#improved)
-    * `Uri::referrer()` now accepts third parameter, if set to `true`, it returns route without base or language code
+    * `Uri::referrer()` now accepts third parameter, if set to `true`, it returns route without base or language code [#3411](https://github.com/getgrav/grav/issues/3411)
 
 # v1.7.22
 ## 09/16/2021
