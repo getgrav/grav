@@ -586,9 +586,11 @@ class Uri
     /**
      * Return relative path to the referrer defaulting to current or given page.
      *
+     * You should set the third parameter to `true` for redirects as long as you came from the same sub-site and language.
+     *
      * @param string|null $default
      * @param string|null $attributes
-     * @param bool $withoutBaseRoute Set to true if you want not to include `/base/lang` (useful for redirects).
+     * @param bool $withoutBaseRoute
      * @return string
      */
     public function referrer($default = null, $attributes = null, bool $withoutBaseRoute = false)
