@@ -6,6 +6,8 @@
     * Added method `Pages::referrerRoute()` to get the referrer route and language
 2. [](#improved)
     * `Uri::referrer()` now accepts third parameter, if set to `true`, it returns route without base or language code [#3411](https://github.com/getgrav/grav/issues/3411)
+3. [](#bugfix)
+    * Fixed `Folder::move()` throwing an error when target folder is changed by only appending characters to the end [#3445](https://github.com/getgrav/grav/issues/3445)
 
 # v1.7.22
 ## 09/16/2021

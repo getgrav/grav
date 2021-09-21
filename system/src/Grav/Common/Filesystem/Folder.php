@@ -371,7 +371,7 @@ abstract class Folder
             return;
         }
 
-        if (strpos($target, $source) === 0) {
+        if (strpos($target, $source . '/') === 0) {
             throw new RuntimeException('Cannot move folder to itself');
         }
 
