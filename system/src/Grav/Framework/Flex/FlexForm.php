@@ -173,6 +173,17 @@ class FlexForm implements FlexObjectFormInterface, JsonSerializable
     }
 
     /**
+     * @param string $uniqueId
+     * @return void
+     */
+    public function setUniqueId(string $uniqueId): void
+    {
+        if ($uniqueId !== '') {
+            $this->uniqueid = $uniqueId;
+        }
+    }
+
+    /**
      * @param string $name
      * @param mixed $default
      * @param string|null $separator

@@ -10,6 +10,7 @@
 3. [](#bugfix)
     * Fixed `Folder::move()` throwing an error when target folder is changed by only appending characters to the end [#3445](https://github.com/getgrav/grav/issues/3445)
     * Fixed some phpstan issues (all code level 1, Framework level 3)
+    * Fixed form reset causing image uploads to fail when using Flex
 
 # v1.7.22
 ## 09/16/2021
