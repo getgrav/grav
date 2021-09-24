@@ -838,12 +838,8 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
      * @param Environment $twig
      * @return string
      */
-    public function translate(Environment $twig)
+    public function translate(Environment $twig, ...$args)
     {
-        // shift off the environment
-        $args = func_get_args();
-        array_shift($args);
-
         // If admin and tu filter provided, use it
         if (isset($this->grav['admin'])) {
             $numargs = count($args);
