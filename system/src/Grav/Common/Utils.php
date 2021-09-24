@@ -629,6 +629,23 @@ abstract class Utils
     }
 
     /**
+     * Generates a random string with configurable length, prefix and suffix.
+     * Unlike the built-in `uniqid()`, this string is non-conflicting and safe
+     *
+     * @param int $length
+     * @param array $options
+     * @return string
+     * @throws Exception
+     */
+    public static function uniqueId(int $length = 13, array $options = []): string
+    {
+        $options = array_merge(['prefix' => '', 'suffix' => ''], $options);
+        $bytes = random_bytes(ceil($length / 2));
+
+        return $options['prefix'] . substr(bin2hex($bytes), 0, $length) . $options['suffix'];
+    }
+
+    /**
      * Provides the ability to download a file to the browser
      *
      * @param string $file the full path to the file to be downloaded

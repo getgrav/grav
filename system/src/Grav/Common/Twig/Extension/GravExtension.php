@@ -217,6 +217,7 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
             new TwigFunction('cron', [$this, 'cronFunc']),
             new TwigFunction('svg_image', [$this, 'svgImageFunction']),
             new TwigFunction('xss', [$this, 'xssFunc']),
+            new TwigFunction('unique_id', [$this, 'uniqueId']),
 
             // Translations
             new TwigFunction('t', [$this, 'translate'], ['needs_environment' => true]),
@@ -652,6 +653,20 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
         }, array_values($results), array_keys($results));
 
         return implode(', ', $results_parts);
+    }
+
+    /**
+     * Generates a random string with configurable length, prefix and suffix.
+     * Unlike the built-in `uniqid()`, this string is non-conflicting and safe
+     *
+     * @param int $length
+     * @param array $options
+     * @return string
+     * @throws \Exception
+     */
+    public function uniqueId(int $length = 9, array $options = ['prefix' => '', 'suffix' => '']): string
+    {
+        return Utils::uniqueId($length, $options);
     }
 
     /**
