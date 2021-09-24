@@ -540,6 +540,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
      */
     protected function createFrom(array $entries, string $keyField = null)
     {
+        /** @phpstan-var static<T,C> $index */
         $index = new static($entries, $this->getFlexDirectory());
         $index->setKeyField($keyField ?? $this->_keyField);
 
@@ -630,7 +631,10 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
      */
     protected function loadCollection(array $entries = null): CollectionInterface
     {
-        return $this->getFlexDirectory()->loadCollection($entries ?? $this->getEntries(), $this->_keyField);
+        /** @var C $collection */
+        $collection = $this->getFlexDirectory()->loadCollection($entries ?? $this->getEntries(), $this->_keyField);
+
+        return $collection;
     }
 
     /**

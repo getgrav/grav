@@ -15,7 +15,7 @@ use RuntimeException;
  * Common Interface for both Objects and Collections
  * @package Grav\Framework\Object
  *
- * @template TKey
+ * @template TKey of array-key
  * @template T
  * @extends ObjectCollectionInterface<TKey,T>
  */

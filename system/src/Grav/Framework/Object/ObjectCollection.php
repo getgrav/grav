@@ -21,7 +21,7 @@ use function array_slice;
 /**
  * Class contains a collection of objects.
  *
- * @template TKey
+ * @template TKey of array-key
  * @template T
  * @extends ArrayCollection<TKey,T>
  * @implements NestedObjectCollectionInterface<TKey,T>

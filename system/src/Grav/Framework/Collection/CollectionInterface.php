@@ -16,7 +16,7 @@ use JsonSerializable;
  * Collection Interface.
  *
  * @package Grav\Framework\Collection
- * @template TKey
+ * @template TKey of array-key
  * @template T
  * @extends Collection<TKey,T>
  */
