@@ -3,13 +3,13 @@
 
 1. [](#new)
     * Added method `Pages::referrerRoute()` to get the referrer route and language
-    * Added true unique `Utils::uniqueId()` / `{{ unique_id() }}`utilities  with length, prefix, and suffix support.
+    * Added true unique `Utils::uniqueId()` / `{{ unique_id() }}` utilities  with length, prefix, and suffix support
 2. [](#improved)
    * Replaced GPL `SVG-Sanitizer` with MIT licensed `DOM-Sanitizer`
    * `Uri::referrer()` now accepts third parameter, if set to `true`, it returns route without base or language code [#3411](https://github.com/getgrav/grav/issues/3411)
 3. [](#bugfix)
     * Fixed `Folder::move()` throwing an error when target folder is changed by only appending characters to the end [#3445](https://github.com/getgrav/grav/issues/3445)
-    * Fixed some phpstan issues (all code level 1, Framework level 3)
+    * Fixed some phpstan issues (all code back to level 1, Framework level 3)
     * Fixed form reset causing image uploads to fail when using Flex
 
 # v1.7.22
