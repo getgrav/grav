@@ -141,7 +141,7 @@ class Cache extends Getters
         $uniqueness = substr(md5($uri->rootUrl(true) . $this->config->key() . GRAV_VERSION), 2, 8);
 
         // Cache key allows us to invalidate all cache on configuration changes.
-        $this->key = ($prefix ? $prefix : 'g') . '-' . $uniqueness;
+        $this->key = ($prefix ?: 'g') . '-' . $uniqueness;
         $this->cache_dir = $grav['locator']->findResource('cache://doctrine/' . $uniqueness, true, true);
         $this->driver_setting = $this->config->get('system.cache.driver');
         $this->driver = $this->getCacheDriver();
@@ -618,11 +618,7 @@ class Cache extends Getters
      */
     public function isVolatileDriver($setting)
     {
-        if (in_array($setting, ['apc', 'apcu', 'xcache', 'wincache'])) {
-            return true;
-        }
-
-        return false;
+        return in_array($setting, ['apc', 'apcu', 'xcache', 'wincache'], true);
     }
 
     /**

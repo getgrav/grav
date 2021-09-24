@@ -608,7 +608,7 @@ class Validation
      */
     public static function typeColor($value, array $params, array $field)
     {
-        return preg_match('/^\#[0-9a-fA-F]{3}[0-9a-fA-F]{3}?$/u', $value);
+        return (bool)preg_match('/^\#[0-9a-fA-F]{3}[0-9a-fA-F]{3}?$/u', $value);
     }
 
     /**
@@ -1189,7 +1189,7 @@ class Validation
      */
     public static function filterItem_List($value, $params)
     {
-        return array_values(array_filter($value, function ($v) {
+        return array_values(array_filter($value, static function ($v) {
             return !empty($v);
         }));
     }

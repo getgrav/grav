@@ -107,7 +107,7 @@ class Security
                 $content = $page->value('content');
 
                 $data = ['header' => $header, 'content' => $content];
-                $results = Security::detectXssFromArray($data);
+                $results = static::detectXssFromArray($data);
 
                 if (!empty($results)) {
                     if ($route) {
@@ -199,7 +199,7 @@ class Security
         $string = urldecode($string);
 
         // Convert Hexadecimals
-        $string = (string)preg_replace_callback('!(&#|\\\)[xX]([0-9a-fA-F]+);?!u', function ($m) {
+        $string = (string)preg_replace_callback('!(&#|\\\)[xX]([0-9a-fA-F]+);?!u', static function ($m) {
             return chr(hexdec($m[2]));
         }, $string);
 
@@ -239,7 +239,7 @@ class Security
             }
         }
 
-        return false;
+        return null;
     }
 
     public static function getXssDefaults(): array

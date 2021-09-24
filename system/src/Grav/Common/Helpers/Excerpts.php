@@ -33,6 +33,9 @@ class Excerpts
     public static function processImageHtml($html, PageInterface $page = null)
     {
         $excerpt = static::getExcerptFromHtml($html, 'img');
+        if (null === $excerpt) {
+            return '';
+        }
 
         $original_src = $excerpt['element']['attributes']['src'];
         $excerpt['element']['attributes']['href'] = $original_src;
@@ -61,6 +64,9 @@ class Excerpts
     public static function processLinkHtml($html, PageInterface $page = null)
     {
         $excerpt = static::getExcerptFromHtml($html, 'a');
+        if (null === $excerpt) {
+            return '';
+        }
 
         $original_href = $excerpt['element']['attributes']['href'];
         $excerpt = static::processLinkExcerpt($excerpt, $page, 'link');
@@ -89,7 +95,6 @@ class Excerpts
         $excerpt = null;
         $inner = [];
 
-        /** @var DOMElement $element */
         foreach ($elements as $element) {
             $attributes = [];
             foreach ($element->attributes as $name => $value) {

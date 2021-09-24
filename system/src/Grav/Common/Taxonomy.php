@@ -105,7 +105,7 @@ class Taxonomy
             }
         } elseif (is_string($value)) {
             if (!empty($key)) {
-                $taxonomy = $taxonomy . $key;
+                $taxonomy .= $key;
             }
             $this->taxonomy_map[$taxonomy][(string) $value][$page->path()] = ['slug' => $page->slug()];
         }

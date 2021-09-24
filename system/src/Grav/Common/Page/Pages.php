@@ -326,7 +326,7 @@ class Pages
      *
      * @return void
      */
-    public function reset()
+    public function reset(): void
     {
         $this->initialized = false;
 
@@ -606,7 +606,7 @@ class Pages
 
             if (is_array($sort_flags)) {
                 $sort_flags = array_map('constant', $sort_flags); //transform strings to constant value
-                $sort_flags = array_reduce($sort_flags, function ($a, $b) {
+                $sort_flags = array_reduce($sort_flags, static function ($a, $b) {
                     return $a | $b;
                 }, 0); //merge constant values using bit or
             }
@@ -715,29 +715,39 @@ class Pages
 
         switch ($type) {
             case 'all':
-                return $page->children();
+                $collection = $page->children();
+                break;
             case 'modules':
             case 'modular':
-                return $page->children()->modules();
+                $collection = $page->children()->modules();
+                break;
             case 'pages':
             case 'children':
-                return $page->children()->pages();
+                $collection = $page->children()->pages();
+                break;
             case 'page':
             case 'self':
-                return !$page->root() ? (new Collection())->addPage($page) : new Collection();
+                $collection = !$page->root() ? (new Collection())->addPage($page) : new Collection();
+                break;
             case 'parent':
                 $parent = $page->parent();
                 $collection = new Collection();
-                return $parent ? $collection->addPage($parent) : $collection;
+                $collection = $parent ? $collection->addPage($parent) : $collection;
+                break;
             case 'siblings':
                 $parent = $page->parent();
-                return $parent ? $parent->children()->remove($page->path()) : new Collection();
+                $collection = $parent ? $parent->children()->remove($page->path()) : new Collection();
+                break;
             case 'descendants':
-                return $this->all($page)->remove($page->path())->pages();
+                $collection = $this->all($page)->remove($page->path())->pages();
+                break;
             default:
                 // Unknown type; return empty collection.
-                return new Collection();
+                $collection = new Collection();
+                break;
         }
+
+        return $collection;
     }
 
     /**
@@ -1813,7 +1823,7 @@ class Pages
         // Build regular expression for all the allowed page extensions.
         $page_extensions = $language->getFallbackPageExtensions();
         $regex = '/^[^\.]*(' . implode('|', array_map(
-            function ($str) {
+            static function ($str) {
                 return preg_quote($str, '/');
             },
             $page_extensions

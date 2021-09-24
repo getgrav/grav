@@ -104,12 +104,12 @@ class PageObject extends FlexPageObject
      */
     public function getRoute($query = []): ?Route
     {
-        $route = $this->route();
-        if (null === $route) {
+        $path = $this->route();
+        if (null === $path) {
             return null;
         }
 
-        $route = RouteFactory::createFromString($route);
+        $route = RouteFactory::createFromString($path);
         if ($lang = $route->getLanguage()) {
             $grav = Grav::instance();
             if (!$grav['config']->get('system.languages.include_default_lang')) {
@@ -441,7 +441,8 @@ class PageObject extends FlexPageObject
 
         // Add missing siblings into the end of the list, keeping the previous ordering between them.
         foreach ($siblings as $sibling) {
-            $basename = preg_replace('|^\d+\.|', '', $sibling->getProperty('folder'));
+            $folder = (string)$sibling->getProperty('folder');
+            $basename = preg_replace('|^\d+\.|', '', $folder);
             if (!in_array($basename, $ordering, true)) {
                 $ordering[] = $basename;
             }
@@ -451,7 +452,8 @@ class PageObject extends FlexPageObject
         $ordering = array_flip(array_values($ordering));
         $count = count($ordering);
         foreach ($siblings as $sibling) {
-            $basename = preg_replace('|^\d+\.|', '', $sibling->getProperty('folder'));
+            $folder = (string)$sibling->getProperty('folder');
+            $basename = preg_replace('|^\d+\.|', '', $folder);
             $newOrder = $ordering[$basename] ?? null;
             $newOrder = null !== $newOrder ? $newOrder + 1 : (int)$sibling->order() + $count;
             $sibling->order($newOrder);

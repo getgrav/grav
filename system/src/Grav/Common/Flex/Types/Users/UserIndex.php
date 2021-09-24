@@ -62,7 +62,7 @@ class UserIndex extends FlexIndex implements UserCollectionInterface
      * @param FlexStorageInterface $storage
      * @return void
      */
-    public static function updateObjectMeta(array &$meta, array $data, FlexStorageInterface $storage)
+    public static function updateObjectMeta(array &$meta, array $data, FlexStorageInterface $storage): void
     {
         // Username can also be number and stored as such.
         $key = (string)($data['username'] ?? $meta['key'] ?? $meta['storage_key']);
@@ -187,7 +187,7 @@ class UserIndex extends FlexIndex implements UserCollectionInterface
      * @param array $updated
      * @param array $removed
      */
-    protected static function onChanges(array $entries, array $added, array $updated, array $removed)
+    protected static function onChanges(array $entries, array $added, array $updated, array $removed): void
     {
         $message = sprintf('Flex: User index updated, %d objects (%d added, %d updated, %d removed).', count($entries), count($added), count($updated), count($removed));
 

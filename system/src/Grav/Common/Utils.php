@@ -166,9 +166,9 @@ abstract class Utils
 
         if ($locator->isStream($path)) {
             $path = $locator->findResource($path, true);
-        } elseif (!Utils::startsWith($path, GRAV_ROOT)) {
+        } elseif (!static::startsWith($path, GRAV_ROOT)) {
             $base_url = Grav::instance()['base_url'];
-            $path = GRAV_ROOT . '/' . ltrim(Utils::replaceFirstOccurrence($base_url, '', $path), '/');
+            $path = GRAV_ROOT . '/' . ltrim(static::replaceFirstOccurrence($base_url, '', $path), '/');
         }
 
         return $path;
@@ -767,13 +767,13 @@ abstract class Utils
         if (is_string($http_accept)) {
             $negotiator = new Negotiator();
 
-            $supported_types = Utils::getSupportPageTypes(['html', 'json']);
-            $priorities = Utils::getMimeTypes($supported_types);
+            $supported_types = static::getSupportPageTypes(['html', 'json']);
+            $priorities = static::getMimeTypes($supported_types);
 
             $media_type = $negotiator->getBest($http_accept, $priorities);
             $mimetype = $media_type instanceof Accept ? $media_type->getValue() : '';
 
-            return Utils::getExtensionByMime($mimetype);
+            return static::getExtensionByMime($mimetype);
         }
 
         return 'html';
@@ -808,13 +808,7 @@ abstract class Utils
 
         $media_types = Grav::instance()['config']->get('media.types');
 
-        if (isset($media_types[$extension])) {
-            if (isset($media_types[$extension]['mime'])) {
-                return $media_types[$extension]['mime'];
-            }
-        }
-
-        return $default;
+        return $media_types[$extension]['mime'] ?? $default;
     }
 
     /**
@@ -1756,7 +1750,7 @@ abstract class Utils
     {
         $enc_url = preg_replace_callback(
             '%[^:/@?&=#]+%usD',
-            function ($matches) {
+            static function ($matches) {
                 return urlencode($matches[0]);
             },
             $url

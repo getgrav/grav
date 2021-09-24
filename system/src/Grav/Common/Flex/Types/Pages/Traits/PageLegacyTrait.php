@@ -103,7 +103,10 @@ trait PageLegacyTrait
         $parent = $this->parent();
         $collection = $parent ? $parent->collection('content', false) : null;
         if (null !== $path && $collection instanceof PageCollectionInterface) {
-            return $collection->adjacentSibling($path, $direction);
+            $child = $collection->adjacentSibling($path, $direction);
+            if ($child instanceof PageInterface) {
+                return $child;
+            }
         }
 
         return false;

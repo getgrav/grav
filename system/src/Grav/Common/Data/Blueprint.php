@@ -37,7 +37,7 @@ class Blueprint extends BlueprintForm
     /** @var string|null */
     protected $scope;
 
-    /** @var BlueprintSchema */
+    /** @var BlueprintSchema|null */
     protected $blueprintSchema;
 
     /** @var object|null */
@@ -54,7 +54,7 @@ class Blueprint extends BlueprintForm
      */
     public function __clone()
     {
-        if ($this->blueprintSchema) {
+        if (null !== $this->blueprintSchema) {
             $this->blueprintSchema = clone $this->blueprintSchema;
         }
     }

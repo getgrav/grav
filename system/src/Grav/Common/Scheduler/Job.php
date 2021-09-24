@@ -271,7 +271,7 @@ class Job
         if ($whenOverlapping) {
             $this->whenOverlapping = $whenOverlapping;
         } else {
-            $this->whenOverlapping = function () {
+            $this->whenOverlapping = static function () {
                 return false;
             };
         }

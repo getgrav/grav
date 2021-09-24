@@ -43,7 +43,7 @@ abstract class FlexObject extends \Grav\Framework\Flex\FlexObject implements Med
 
         // Handle media fields.
         $settings = $this->getFieldSettings($name);
-        if ($settings['media_field'] ?? false === true) {
+        if (($settings['media_field'] ?? false) === true) {
             return $this->parseFileProperty($value, $settings);
         }
 

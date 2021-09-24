@@ -187,12 +187,7 @@ class LanguageCodes
      */
     public static function getOrientation($code)
     {
-        if (isset(static::$codes[$code])) {
-            if (isset(static::$codes[$code]['orientation'])) {
-                return static::get($code, 'orientation');
-            }
-        }
-        return 'ltr';
+        return static::$codes[$code]['orientation'] ?? 'ltr';
     }
 
     /**
@@ -226,11 +221,7 @@ class LanguageCodes
      */
     public static function get($code, $type)
     {
-        if (isset(static::$codes[$code][$type])) {
-            return static::$codes[$code][$type];
-        }
-
-        return false;
+        return static::$codes[$code][$type] ?? false;
     }
 
     /**

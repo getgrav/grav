@@ -264,7 +264,7 @@ class Data implements DataInterface, ArrayAccess, \Countable, JsonSerializable, 
      */
     public function blueprints()
     {
-        if (!$this->blueprints) {
+        if (null === $this->blueprints) {
             $this->blueprints = new Blueprint();
         } elseif (is_callable($this->blueprints)) {
             // Lazy load blueprints.
