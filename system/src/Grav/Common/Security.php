@@ -9,11 +9,11 @@
 
 namespace Grav\Common;
 
-use enshrined\svgSanitize\Sanitizer;
 use Exception;
 use Grav\Common\Config\Config;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\Page\Pages;
+use Rhukster\DomSanitizer\DOMSanitizer;
 use function chr;
 use function count;
 use function is_array;
@@ -34,7 +34,7 @@ class Security
     public static function sanitizeSvgString(string $svg): string
     {
         if (Grav::instance()['config']->get('security.sanitize_svg')) {
-            $sanitizer = new Sanitizer();
+            $sanitizer = new DOMSanitizer(DOMSanitizer::SVG);
             $sanitized = $sanitizer->sanitize($svg);
             if (is_string($sanitized)) {
                 $svg = $sanitized;
@@ -53,7 +53,7 @@ class Security
     public static function sanitizeSVG(string $file): void
     {
         if (file_exists($file) && Grav::instance()['config']->get('security.sanitize_svg')) {
-            $sanitizer = new Sanitizer();
+            $sanitizer = new DOMSanitizer(DOMSanitizer::SVG);
             $original_svg = file_get_contents($file);
             $clean_svg = $sanitizer->sanitize($original_svg);
 
