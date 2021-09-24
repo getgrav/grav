@@ -160,8 +160,8 @@ class Uri
         $language = $grav['language'];
 
         // add the port to the base for non-standard ports
-        if ($this->port !== null && $config->get('system.reverse_proxy_setup') === false) {
-            $this->base .= ':' . (string)$this->port;
+        if ($this->port && $config->get('system.reverse_proxy_setup') === false) {
+            $this->base .= ':' . $this->port;
         }
 
         // Handle custom base
@@ -176,8 +176,8 @@ class Uri
             if (isset($custom_parts['scheme'])) {
                 $this->base = $custom_parts['scheme'] . '://' . $custom_parts['host'];
                 $this->port = $custom_parts['port'] ?? null;
-                if ($this->port !== null && $config->get('system.reverse_proxy_setup') === false) {
-                    $this->base .= ':' . (string)$this->port;
+                if ($this->port && $config->get('system.reverse_proxy_setup') === false) {
+                    $this->base .= ':' . $this->port;
                 }
                 $this->root = $custom_base;
             } else {
@@ -462,8 +462,8 @@ class Uri
     public function port($raw = false)
     {
         $port = $this->port;
-        // If not in raw mode and port is not set, figure it out from scheme.
-        if (!$raw && $port === null) {
+        // If not in raw mode and port is not set or is 0, figure it out from scheme.
+        if (!$raw && !$port) {
             if ($this->scheme === 'http') {
                 $this->port = 80;
             } elseif ($this->scheme === 'https') {
@@ -471,7 +471,7 @@ class Uri
             }
         }
 
-        return $this->port;
+        return $this->port ?: null;
     }
 
     /**
@@ -653,7 +653,7 @@ class Uri
         return [
             'scheme'    => $this->scheme,
             'host'      => $this->host,
-            'port'      => $this->port,
+            'port'      => $this->port ?: null,
             'user'      => $this->user,
             'pass'      => $this->password,
             'path'      => $path,
@@ -1151,11 +1151,8 @@ class Uri
     public static function isValidUrl($url)
     {
         $regex = '/^(?:(https?|ftp|telnet):)?\/\/((?:[a-z0-9@:.-]|%[0-9A-F]{2}){3,})(?::(\d+))?((?:\/(?:[a-z0-9-._~!$&\'\(\)\*\+\,\;\=\:\@]|%[0-9A-F]{2})*)*)(?:\?((?:[a-z0-9-._~!$&\'\(\)\*\+\,\;\=\:\/?@]|%[0-9A-F]{2})*))?(?:#((?:[a-z0-9-._~!$&\'\(\)\*\+\,\;\=\:\/?@]|%[0-9A-F]{2})*))?/';
-        if (preg_match($regex, $url)) {
-            return true;
-        }
 
-        return false;
+        return (bool)preg_match($regex, $url);
     }
 
     /**
@@ -1306,7 +1303,7 @@ class Uri
      */
     protected function hasStandardPort()
     {
-        return ($this->port === 80 || $this->port === 443);
+        return (!$this->port || $this->port === 80 || $this->port === 443);
     }
 
     /**
