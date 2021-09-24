@@ -57,7 +57,6 @@
         "dragonmantank/cron-expression": "^1.2",
         "willdurand/negotiation": "^3.0",
         "itsgoingd/clockwork": "^5.0",
-        "enshrined/svg-sanitize": "~0.13",
         "symfony/http-client": "^4.4",
         "composer/semver": "^1.4"
     },
