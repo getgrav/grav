@@ -1,4 +1,4 @@
-#phpVersion: 70100
+#phpVersion: 70300
 includes:
     #- '../../vendor/phpstan/phpstan-strict-rules/rules.neon'
     - '../../vendor/phpstan/phpstan-deprecation-rules/rules.neon'
@@ -10,8 +10,11 @@ parameters:
         - phpstan-bootstrap.php
     excludes_analyse:
         - */system/src/Grav/Common/Errors/Resources/layout.html.php
+        - */system/src/Twig/DeferredExtension/DeferredNodeVisitor.php
+
     inferPrivatePropertyTypeFromConstructor: true
     reportUnmatchedIgnoredErrors: false
+    treatPhpDocTypesAsCertain: false
 
     # These checks are new in phpstan 0.12, ignore them for now.
     checkMissingIterableValueType: false
@@ -169,3 +172,8 @@ parameters:
         -
             message: '#Variable \$this in PHPDoc tag @var does not exist#'
             path: '*/system/src/Grav/Installer/updates/*'
+
+        # Twig Deferred extension compatibility
+        -
+            message: '#typehint with deprecated interface#'
+            path: '*/system/src/Twig/DeferredExtension/DeferredNodeVisitorCompat.php'
