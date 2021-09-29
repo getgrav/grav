@@ -2048,16 +2048,16 @@
         },
         {
             "name": "rhukster/dom-sanitizer",
-            "version": "1.0.4",
+            "version": "1.0.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/rhukster/dom-sanitizer.git",
-                "reference": "ac73f962679dc83f8b3635b6182e15bfa67b3138"
+                "reference": "836d1dd9808adee0e4bb0ce4cdacc0f9a1497b7e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rhukster/dom-sanitizer/zipball/ac73f962679dc83f8b3635b6182e15bfa67b3138",
-                "reference": "ac73f962679dc83f8b3635b6182e15bfa67b3138",
+                "url": "https://api.github.com/repos/rhukster/dom-sanitizer/zipball/836d1dd9808adee0e4bb0ce4cdacc0f9a1497b7e",
+                "reference": "836d1dd9808adee0e4bb0ce4cdacc0f9a1497b7e",
                 "shasum": ""
             },
             "require": {
@@ -2087,9 +2087,9 @@
             "description": "A simple but effective DOM/SVG/MathML Sanitizer for PHP 7.4+",
             "support": {
                 "issues": "https://github.com/rhukster/dom-sanitizer/issues",
-                "source": "https://github.com/rhukster/dom-sanitizer/tree/1.0.4"
+                "source": "https://github.com/rhukster/dom-sanitizer/tree/1.0.5"
             },
-            "time": "2021-09-24T01:10:48+00:00"
+            "time": "2021-09-29T20:14:54+00:00"
         },
         {
             "name": "rockettheme/toolbox",
@@ -6535,5 +6535,5 @@
     "platform-overrides": {
         "php": "7.3.6"
     },
-    "plugin-api-version": "2.0.0"
+    "plugin-api-version": "2.1.0"
 }
