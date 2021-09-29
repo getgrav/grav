@@ -57,6 +57,15 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
     }
 
     /**
+     * @param string $name
+     * @return array|null
+     */
+    public function getNestedRules(string $name)
+    {
+        return $this->getNested($name);
+    }
+
+    /**
      * Validate data against blueprints.
      *
      * @param  array $data
