@@ -1,5 +1,5 @@
 # v1.7.23
-## mm/dd/2021
+## 09/29/2021
 
 1. [](#new)
     * Added method `Pages::referrerRoute()` to get the referrer route and language
