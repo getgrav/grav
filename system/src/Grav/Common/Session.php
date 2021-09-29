@@ -129,12 +129,12 @@ class Session extends \Grav\Framework\Session\Session
                 /** @var Uri $uri */
                 $uri = $grav['uri'];
                 /** @var Forms|null $form */
-                $form = $grav['forms']->getActiveForm(); // @phpstan-ignore-line
+                $form = $grav['forms']->getActiveForm(); // @phpstan-ignore-line (form plugin)
 
                 $sessionField = base64_encode($uri->url);
 
                 /** @var FormFlash|null $flash */
-                $flash = $form ? $form->getFlash() : null; // @phpstan-ignore-line
+                $flash = $form ? $form->getFlash() : null; // @phpstan-ignore-line (form plugin)
                 $object = $flash && method_exists($flash, 'getLegacyFiles') ? [$sessionField => $flash->getLegacyFiles()] : null;
             }
         }

@@ -20,6 +20,7 @@ jobs:
         with:
           php-version: 7.3
           extensions: opcache, gd
+          tools: composer:v2
           coverage: none
         env:
           COMPOSER_TOKEN: ${{ secrets.GLOBAL_TOKEN }}

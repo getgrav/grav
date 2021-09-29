@@ -47,7 +47,7 @@ class Collection extends Iterator implements PageCollectionInterface
         parent::__construct($items);
 
         $this->params = $params;
-        $this->pages = $pages ? $pages : Grav::instance()->offsetGet('pages');
+        $this->pages = $pages ?: Grav::instance()->offsetGet('pages');
     }
 
     /**

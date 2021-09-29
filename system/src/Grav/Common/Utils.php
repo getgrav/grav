@@ -166,9 +166,9 @@ abstract class Utils
 
         if ($locator->isStream($path)) {
             $path = $locator->findResource($path, true);
-        } elseif (!Utils::startsWith($path, GRAV_ROOT)) {
+        } elseif (!static::startsWith($path, GRAV_ROOT)) {
             $base_url = Grav::instance()['base_url'];
-            $path = GRAV_ROOT . '/' . ltrim(Utils::replaceFirstOccurrence($base_url, '', $path), '/');
+            $path = GRAV_ROOT . '/' . ltrim(static::replaceFirstOccurrence($base_url, '', $path), '/');
         }
 
         return $path;
@@ -629,6 +629,23 @@ abstract class Utils
     }
 
     /**
+     * Generates a random string with configurable length, prefix and suffix.
+     * Unlike the built-in `uniqid()`, this string is non-conflicting and safe
+     *
+     * @param int $length
+     * @param array $options
+     * @return string
+     * @throws Exception
+     */
+    public static function uniqueId(int $length = 13, array $options = []): string
+    {
+        $options = array_merge(['prefix' => '', 'suffix' => ''], $options);
+        $bytes = random_bytes(ceil($length / 2));
+
+        return $options['prefix'] . substr(bin2hex($bytes), 0, $length) . $options['suffix'];
+    }
+
+    /**
      * Provides the ability to download a file to the browser
      *
      * @param string $file the full path to the file to be downloaded
@@ -750,13 +767,13 @@ abstract class Utils
         if (is_string($http_accept)) {
             $negotiator = new Negotiator();
 
-            $supported_types = Utils::getSupportPageTypes(['html', 'json']);
-            $priorities = Utils::getMimeTypes($supported_types);
+            $supported_types = static::getSupportPageTypes(['html', 'json']);
+            $priorities = static::getMimeTypes($supported_types);
 
             $media_type = $negotiator->getBest($http_accept, $priorities);
             $mimetype = $media_type instanceof Accept ? $media_type->getValue() : '';
 
-            return Utils::getExtensionByMime($mimetype);
+            return static::getExtensionByMime($mimetype);
         }
 
         return 'html';
@@ -791,13 +808,7 @@ abstract class Utils
 
         $media_types = Grav::instance()['config']->get('media.types');
 
-        if (isset($media_types[$extension])) {
-            if (isset($media_types[$extension]['mime'])) {
-                return $media_types[$extension]['mime'];
-            }
-        }
-
-        return $default;
+        return $media_types[$extension]['mime'] ?? $default;
     }
 
     /**
@@ -1739,7 +1750,7 @@ abstract class Utils
     {
         $enc_url = preg_replace_callback(
             '%[^:/@?&=#]+%usD',
-            function ($matches) {
+            static function ($matches) {
                 return urlencode($matches[0]);
             },
             $url

@@ -22,9 +22,9 @@ use Grav\Common\Twig\Extension\GravExtension;
 use Grav\Common\Utils;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use RocketTheme\Toolbox\Event\Event;
-use Phive\Twig\Extensions\Deferred\DeferredExtension;
 use RuntimeException;
 use Twig\Cache\FilesystemCache;
+use Twig\DeferredExtension\DeferredExtension;
 use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
@@ -33,7 +33,6 @@ use Twig\Extension\DebugExtension;
 use Twig\Extension\StringLoaderExtension;
 use Twig\Loader\ArrayLoader;
 use Twig\Loader\ChainLoader;
-use Twig\Loader\ExistsLoaderInterface;
 use Twig\Loader\FilesystemLoader;
 use Twig\Profiler\Profile;
 use Twig\TwigFilter;
@@ -515,25 +514,21 @@ class Twig
         $twig_extension = $extension ? '.'. $extension .TWIG_EXT : TEMPLATE_EXT;
         $template_file = $this->template($page->template() . $twig_extension);
 
-        $page_template = null;
-
         $loader = $this->twig->getLoader();
-        if ($loader instanceof ExistsLoaderInterface) {
-            if ($loader->exists($template_file)) {
-                // template.xxx.twig
-                $page_template = $template_file;
-            } elseif ($twig_extension !== TEMPLATE_EXT && $loader->exists($template . TEMPLATE_EXT)) {
-                // template.html.twig
-                $page_template = $template . TEMPLATE_EXT;
-                $format = 'html';
-            } elseif ($loader->exists($default . $twig_extension)) {
-                // default.xxx.twig
-                $page_template = $default . $twig_extension;
-            } else {
-                // default.html.twig
-                $page_template = $default . TEMPLATE_EXT;
-                $format = 'html';
-            }
+        if ($loader->exists($template_file)) {
+            // template.xxx.twig
+            $page_template = $template_file;
+        } elseif ($twig_extension !== TEMPLATE_EXT && $loader->exists($template . TEMPLATE_EXT)) {
+            // template.html.twig
+            $page_template = $template . TEMPLATE_EXT;
+            $format = 'html';
+        } elseif ($loader->exists($default . $twig_extension)) {
+            // default.xxx.twig
+            $page_template = $default . $twig_extension;
+        } else {
+            // default.html.twig
+            $page_template = $default . TEMPLATE_EXT;
+            $format = 'html';
         }
 
         return $page_template;

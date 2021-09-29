@@ -197,6 +197,58 @@ class Pages
     }
 
     /**
+     * Get relative referrer route and language code. Returns null if the route isn't within the current base, language (if set) and route.
+     *
+     * @example `$langCode = null; $referrer = $pages->referrerRoute($langCode, '/admin');` returns relative referrer url within /admin and updates $langCode
+     * @example `$langCode = 'en'; $referrer = $pages->referrerRoute($langCode, '/admin');` returns relative referrer url within the /en/admin
+     *
+     * @param string|null $langCode Variable to store the language code. If already set, check only against that language.
+     * @param string $route Optional route within the site.
+     * @return string|null
+     * @since 1.7.23
+     */
+    public function referrerRoute(?string &$langCode, string $route = '/'): ?string
+    {
+        $referrer = $_SERVER['HTTP_REFERER'] ?? null;
+
+        // Start by checking that referrer came from our site.
+        $root = $this->grav['base_url_absolute'];
+        if (!is_string($referrer) || !str_starts_with($referrer, $root)) {
+            return null;
+        }
+
+        /** @var Language $language */
+        $language = $this->grav['language'];
+
+        // Get all language codes and append no language.
+        if (null === $langCode) {
+            $languages = $language->enabled() ? $language->getLanguages() : [];
+            $languages[] = '';
+        } else {
+            $languages[] = $langCode;
+        }
+
+        $path_base = rtrim($this->base(), '/');
+        $path_route = rtrim($route, '/');
+
+        // Try to figure out the language code.
+        foreach ($languages as $code) {
+            $path_lang = $code ? "/{$code}" : '';
+
+            $base = $path_base . $path_lang . $path_route;
+            if ($referrer === $base || str_starts_with($referrer, "{$base}/")) {
+                if (null === $langCode) {
+                    $langCode = $code;
+                }
+
+                return substr($referrer, \strlen($base));
+            }
+        }
+
+        return null;
+    }
+
+    /**
      *
      * Get base URL for Grav pages.
      *
@@ -274,7 +326,7 @@ class Pages
      *
      * @return void
      */
-    public function reset()
+    public function reset(): void
     {
         $this->initialized = false;
 
@@ -554,7 +606,7 @@ class Pages
 
             if (is_array($sort_flags)) {
                 $sort_flags = array_map('constant', $sort_flags); //transform strings to constant value
-                $sort_flags = array_reduce($sort_flags, function ($a, $b) {
+                $sort_flags = array_reduce($sort_flags, static function ($a, $b) {
                     return $a | $b;
                 }, 0); //merge constant values using bit or
             }
@@ -663,29 +715,39 @@ class Pages
 
         switch ($type) {
             case 'all':
-                return $page->children();
+                $collection = $page->children();
+                break;
             case 'modules':
             case 'modular':
-                return $page->children()->modules();
+                $collection = $page->children()->modules();
+                break;
             case 'pages':
             case 'children':
-                return $page->children()->pages();
+                $collection = $page->children()->pages();
+                break;
             case 'page':
             case 'self':
-                return !$page->root() ? (new Collection())->addPage($page) : new Collection();
+                $collection = !$page->root() ? (new Collection())->addPage($page) : new Collection();
+                break;
             case 'parent':
                 $parent = $page->parent();
                 $collection = new Collection();
-                return $parent ? $collection->addPage($parent) : $collection;
+                $collection = $parent ? $collection->addPage($parent) : $collection;
+                break;
             case 'siblings':
                 $parent = $page->parent();
-                return $parent ? $parent->children()->remove($page->path()) : new Collection();
+                $collection = $parent ? $parent->children()->remove($page->path()) : new Collection();
+                break;
             case 'descendants':
-                return $this->all($page)->remove($page->path())->pages();
+                $collection = $this->all($page)->remove($page->path())->pages();
+                break;
             default:
                 // Unknown type; return empty collection.
-                return new Collection();
+                $collection = new Collection();
+                break;
         }
+
+        return $collection;
     }
 
     /**
@@ -1761,7 +1823,7 @@ class Pages
         // Build regular expression for all the allowed page extensions.
         $page_extensions = $language->getFallbackPageExtensions();
         $regex = '/^[^\.]*(' . implode('|', array_map(
-            function ($str) {
+            static function ($str) {
                 return preg_quote($str, '/');
             },
             $page_extensions

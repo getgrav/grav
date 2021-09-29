@@ -51,6 +51,7 @@ GRAV:
     VALIDATION_FAIL: '<b>فشل التحقق من صحة:</b>'
     INVALID_INPUT: 'إدخال غير صحيح في'
     MISSING_REQUIRED_FIELD: 'حقل مطلوب مفقود:'
+    XSS_ISSUES: "مشاكل XSS محتملة تم اكتشافها في حقل '%s' '"
   MONTHS_OF_THE_YEAR:
     - 'كانون الثاني'
     - 'شباط'
@@ -72,6 +73,8 @@ GRAV:
     - 'الجمعة'
     - 'السبت'
     - 'الأحد'
+  YES: "نعم"
+  NO: "لا"
   CRON:
     EVERY: كل
     EVERY_HOUR: كل ساعة
@@ -80,3 +83,11 @@ GRAV:
     EVERY_DAY_OF_MONTH: كل يوم في الشهر
     EVERY_MONTH: ' كل شهر'
     TEXT_PERIOD: كل <b />
+    TEXT_MINS: ' في <b /> دقيقة(دقائق) بعد الساعة'
+    TEXT_TIME: ' في <b />:<b />'
+    TEXT_DOW: ' في <b />'
+    TEXT_MONTH: ' من <b />'
+    TEXT_DOM: ' في <b />'
+    ERROR1: الوسم %s غير مدعوم!
+    ERROR2: عدد عناصر غير صالح.
+    ERROR4: تعبير غير معروف

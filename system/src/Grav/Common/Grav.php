@@ -135,7 +135,7 @@ class Grav extends Container
      *
      * @return void
      */
-    public static function resetInstance()
+    public static function resetInstance(): void
     {
         if (self::$instance) {
             // @phpstan-ignore-next-line
@@ -242,7 +242,7 @@ class Grav extends Container
      *
      * @return void
      */
-    public function process()
+    public function process(): void
     {
         if (isset($this->initialized['process'])) {
             return;
@@ -474,7 +474,7 @@ class Grav extends Container
      * @param int    $code  Redirection code (30x)
      * @return void
      */
-    public function redirectLangSafe($route, $code = null)
+    public function redirectLangSafe($route, $code = null): void
     {
         if (!$this['uri']->isExternal($route)) {
             $this->redirect($this['pages']->route($route), $code);
@@ -489,7 +489,7 @@ class Grav extends Container
      * @param ResponseInterface|null $response
      * @return void
      */
-    public function header(ResponseInterface $response = null)
+    public function header(ResponseInterface $response = null): void
     {
         if (null === $response) {
             /** @var PageInterface $page */
@@ -514,7 +514,7 @@ class Grav extends Container
      *
      * @return void
      */
-    public function setLocale()
+    public function setLocale(): void
     {
         // Initialize Locale if set and configured.
         if ($this['language']->enabled() && $this['config']->get('system.languages.override_locale')) {
@@ -575,7 +575,7 @@ class Grav extends Container
      *
      * @return void
      */
-    public function shutdown()
+    public function shutdown(): void
     {
         // Prevent user abort allowing onShutdown event to run without interruptions.
         if (function_exists('ignore_user_abort')) {
@@ -694,7 +694,7 @@ class Grav extends Container
      *
      * @return void
      */
-    protected function registerServices()
+    protected function registerServices(): void
     {
         foreach (self::$diMap as $serviceKey => $serviceClass) {
             if (is_int($serviceKey)) {
@@ -761,12 +761,10 @@ class Grav extends Container
             // unsupported media type, try to download it...
             if ($uri_extension) {
                 $extension = $uri_extension;
+            } elseif (isset($path_parts['extension'])) {
+                $extension = $path_parts['extension'];
             } else {
-                if (isset($path_parts['extension'])) {
-                    $extension = $path_parts['extension'];
-                } else {
-                    $extension = null;
-                }
+                $extension = null;
             }
 
             if ($extension) {
@@ -781,6 +779,6 @@ class Grav extends Container
             return false;
         }
 
-        return $page;
+        return $page ?? false;
     }
 }

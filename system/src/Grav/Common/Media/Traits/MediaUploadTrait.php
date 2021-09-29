@@ -108,7 +108,7 @@ trait MediaUploadTrait
      *
      * @param array $metadata
      * @param array|null $settings
-     * @return string|null
+     * @return string
      * @throws RuntimeException
      */
     public function checkFileMetadata(array $metadata, string $filename = null, array $settings = null): string

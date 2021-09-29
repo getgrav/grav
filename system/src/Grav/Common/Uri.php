@@ -160,8 +160,8 @@ class Uri
         $language = $grav['language'];
 
         // add the port to the base for non-standard ports
-        if ($this->port !== null && $config->get('system.reverse_proxy_setup') === false) {
-            $this->base .= ':' . (string)$this->port;
+        if ($this->port && $config->get('system.reverse_proxy_setup') === false) {
+            $this->base .= ':' . $this->port;
         }
 
         // Handle custom base
@@ -176,8 +176,8 @@ class Uri
             if (isset($custom_parts['scheme'])) {
                 $this->base = $custom_parts['scheme'] . '://' . $custom_parts['host'];
                 $this->port = $custom_parts['port'] ?? null;
-                if ($this->port !== null && $config->get('system.reverse_proxy_setup') === false) {
-                    $this->base .= ':' . (string)$this->port;
+                if ($this->port && $config->get('system.reverse_proxy_setup') === false) {
+                    $this->base .= ':' . $this->port;
                 }
                 $this->root = $custom_base;
             } else {
@@ -462,8 +462,8 @@ class Uri
     public function port($raw = false)
     {
         $port = $this->port;
-        // If not in raw mode and port is not set, figure it out from scheme.
-        if (!$raw && $port === null) {
+        // If not in raw mode and port is not set or is 0, figure it out from scheme.
+        if (!$raw && !$port) {
             if ($this->scheme === 'http') {
                 $this->port = 80;
             } elseif ($this->scheme === 'https') {
@@ -471,7 +471,7 @@ class Uri
             }
         }
 
-        return $this->port;
+        return $this->port ?: null;
     }
 
     /**
@@ -586,33 +586,38 @@ class Uri
     /**
      * Return relative path to the referrer defaulting to current or given page.
      *
+     * You should set the third parameter to `true` for redirects as long as you came from the same sub-site and language.
+     *
      * @param string|null $default
      * @param string|null $attributes
+     * @param bool $withoutBaseRoute
      * @return string
      */
-    public function referrer($default = null, $attributes = null)
+    public function referrer($default = null, $attributes = null, bool $withoutBaseRoute = false)
     {
         $referrer = $_SERVER['HTTP_REFERER'] ?? null;
 
         // Check that referrer came from our site.
-        $root = $this->rootUrl(true);
-        if ($referrer) {
-            // Referrer should always have host set and it should come from the same base address.
-            if (stripos($referrer, $root) !== 0) {
-                $referrer = null;
-            }
+        if ($withoutBaseRoute) {
+            /** @var Pages $pages */
+            $pages = Grav::instance()['pages'];
+            $base = $pages->baseUrl(null, true);
+        } else {
+            $base = $this->rootUrl(true);
         }
 
-        if (!$referrer) {
+        // Referrer should always have host set and it should come from the same base address.
+        if (!is_string($referrer) || !str_starts_with($referrer, $base)) {
             $referrer = $default ?: $this->route(true, true);
         }
 
+        // Relative path from grav root.
+        $referrer = substr($referrer, strlen($base));
         if ($attributes) {
             $referrer .= $attributes;
         }
 
-        // Return relative path.
-        return substr($referrer, strlen($root));
+        return $referrer;
     }
 
     /**
@@ -648,7 +653,7 @@ class Uri
         return [
             'scheme'    => $this->scheme,
             'host'      => $this->host,
-            'port'      => $this->port,
+            'port'      => $this->port ?: null,
             'user'      => $this->user,
             'pass'      => $this->password,
             'path'      => $path,
@@ -1146,11 +1151,8 @@ class Uri
     public static function isValidUrl($url)
     {
         $regex = '/^(?:(https?|ftp|telnet):)?\/\/((?:[a-z0-9@:.-]|%[0-9A-F]{2}){3,})(?::(\d+))?((?:\/(?:[a-z0-9-._~!$&\'\(\)\*\+\,\;\=\:\@]|%[0-9A-F]{2})*)*)(?:\?((?:[a-z0-9-._~!$&\'\(\)\*\+\,\;\=\:\/?@]|%[0-9A-F]{2})*))?(?:#((?:[a-z0-9-._~!$&\'\(\)\*\+\,\;\=\:\/?@]|%[0-9A-F]{2})*))?/';
-        if (preg_match($regex, $url)) {
-            return true;
-        }
 
-        return false;
+        return (bool)preg_match($regex, $url);
     }
 
     /**
@@ -1301,7 +1303,7 @@ class Uri
      */
     protected function hasStandardPort()
     {
-        return ($this->port === 80 || $this->port === 443);
+        return (!$this->port || $this->port === 80 || $this->port === 443);
     }
 
     /**

@@ -197,7 +197,7 @@ abstract class Folder
      * Shift first directory out of the path.
      *
      * @param string $path
-     * @return string
+     * @return string|null
      */
     public static function shift(&$path)
     {
@@ -371,7 +371,7 @@ abstract class Folder
             return;
         }
 
-        if (strpos($target, $source) === 0) {
+        if (strpos($target, $source . '/') === 0) {
             throw new RuntimeException('Cannot move folder to itself');
         }
 
@@ -417,7 +417,8 @@ abstract class Folder
 
         if (!$success) {
             $error = error_get_last();
-            throw new RuntimeException($error['message']);
+
+            throw new RuntimeException($error['message'] ?? 'Unknown error');
         }
 
         // Make sure that the change will be detected when caching.

@@ -13,7 +13,7 @@ namespace Grav\Framework\Collection;
  * Collection of objects stored into a filesystem.
  *
  * @package Grav\Framework\Collection
- * @template TKey
+ * @template TKey of array-key
  * @template T
  * @extends AbstractFileCollection<TKey,T>
  */

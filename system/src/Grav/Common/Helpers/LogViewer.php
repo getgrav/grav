@@ -53,7 +53,6 @@ class LogViewer
      */
     public function tail($filepath, $lines = 1)
     {
-
         $f = $filepath ? @fopen($filepath, 'rb') : false;
         if ($f === false) {
             return false;
@@ -62,13 +61,12 @@ class LogViewer
         $buffer = ($lines < 2 ? 64 : ($lines < 10 ? 512 : 4096));
 
         fseek($f, -1, SEEK_END);
-        if (fread($f, 1) != "\n") {
-            $lines -= 1;
+        if (fread($f, 1) !== "\n") {
+            --$lines;
         }
 
         // Start reading
         $output = '';
-        $chunk = '';
         // While we would like more
         while (ftell($f) > 0 && $lines >= 0) {
             // Figure out how far back we should jump
@@ -76,7 +74,11 @@ class LogViewer
             // Do the jump (backwards, relative to where we are)
             fseek($f, -$seek, SEEK_CUR);
             // Read a chunk and prepend it to our output
-            $output = ($chunk = fread($f, $seek)) . $output;
+            $chunk = fread($f, $seek);
+            if ($chunk === false) {
+                throw new \RuntimeException('Cannot read file');
+            }
+            $output = $chunk . $output;
             // Jump back to where we started reading
             fseek($f, -mb_strlen($chunk, '8bit'), SEEK_CUR);
             // Decrease our line counter
@@ -123,13 +125,13 @@ class LogViewer
      */
     public function parse($line)
     {
-        if (!is_string($line) || strlen($line) === 0) {
-            return array();
+        if (!is_string($line) || $line === '') {
+            return [];
         }
 
         preg_match($this->pattern, $line, $data);
         if (!isset($data['date'])) {
-            return array();
+            return [];
         }
 
         preg_match('/(.*)- Trace:(.*)/', $data['message'], $matches);
@@ -138,7 +140,7 @@ class LogViewer
             $data['trace'] = trim($matches[2]);
         }
 
-        return array(
+        return [
             'date' => DateTime::createFromFormat('Y-m-d H:i:s', $data['date']),
             'logger' => $data['logger'],
             'level' => $data['level'],
@@ -146,7 +148,7 @@ class LogViewer
             'trace' => isset($data['trace']) ? $this->parseTrace($data['trace']) : null,
             'context' => json_decode($data['context'], true),
             'extra' => json_decode($data['extra'], true)
-        );
+        ];
     }
 
     /**

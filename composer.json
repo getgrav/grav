@@ -55,12 +55,11 @@
         "miljar/php-exif": "^0.6",
         "composer/ca-bundle": "^1.2",
         "dragonmantank/cron-expression": "^1.2",
-        "phive/twig-extensions-deferred": "^1.0",
         "willdurand/negotiation": "^3.0",
         "itsgoingd/clockwork": "^5.0",
-        "enshrined/svg-sanitize": "~0.13",
         "symfony/http-client": "^4.4",
-        "composer/semver": "^1.4"
+        "composer/semver": "^1.4",
+        "rhukster/dom-sanitizer": "^1.0"
     },
     "require-dev": {
         "codeception/codeception": "^4.1",
@@ -93,7 +92,8 @@
     },
     "autoload": {
         "psr-4": {
-            "Grav\\": "system/src/Grav"
+            "Grav\\": "system/src/Grav",
+            "Twig\\": "system/src/Twig"
         },
         "files": [
             "system/defines.php"
@@ -107,8 +107,8 @@
     "scripts": {
         "api-17": "vendor/bin/phpdoc-md generate system/src > user/pages/14.api/default.17.md",
         "post-create-project-cmd": "bin/grav install",
-        "phpstan": "vendor/bin/phpstan analyse -l 1 -c ./tests/phpstan/phpstan.neon --memory-limit=480M system/src",
-        "phpstan-framework": "vendor/bin/phpstan analyse -l 1 -c ./tests/phpstan/phpstan.neon --memory-limit=480M system/src/Grav/Framework system/src/Grav/Events system/src/Grav/Installer",
+        "phpstan": "vendor/bin/phpstan analyse -l 1 -c ./tests/phpstan/phpstan.neon --memory-limit=520M system/src",
+        "phpstan-framework": "vendor/bin/phpstan analyse -l 3 -c ./tests/phpstan/phpstan.neon --memory-limit=480M system/src/Grav/Framework system/src/Grav/Events system/src/Grav/Installer",
         "phpstan-plugins": "vendor/bin/phpstan analyse -l 1 -c ./tests/phpstan/plugins.neon --memory-limit=400M user/plugins",
         "test": "vendor/bin/codecept run unit",
         "test-windows": "vendor\\bin\\codecept run unit"

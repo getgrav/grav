@@ -92,6 +92,10 @@ abstract class BaseAsset extends PropertyObject
      */
     public function init($asset, $options)
     {
+        if (!$asset) {
+            return false;
+        }
+
         $config = Grav::instance()['config'];
         $uri = Grav::instance()['uri'];
 
@@ -259,6 +263,6 @@ abstract class BaseAsset extends PropertyObject
      */
     protected function cssRewrite($file, $dir, $local)
     {
-        return;
+        return '';
     }
 }

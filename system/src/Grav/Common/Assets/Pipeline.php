@@ -254,7 +254,7 @@ class Pipeline extends PropertyObject
                 $old_url = ltrim($old_url, '/');
             }
 
-            $new_url = ($local ? $this->base_url: '') . $old_url;
+            $new_url = ($local ? $this->base_url : '') . $old_url;
 
             return str_replace($matches[2], $new_url, $matches[0]);
         }, $file);

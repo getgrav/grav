@@ -25,6 +25,7 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
           extensions: opcache, gd
+          tools: composer:v2
           coverage: none
         env:
           COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}

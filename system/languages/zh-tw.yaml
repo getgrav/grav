@@ -38,7 +38,9 @@ GRAV:
     YR_PLURAL: 年
     DEC_PLURAL: 十年
   FORM:
-    MISSING_REQUIRED_FIELD: 遺漏必填欄位：
+    VALIDATION_FAIL: '<b>確驗證失敗：</b>'
+    INVALID_INPUT: '無效輸入：'
+    MISSING_REQUIRED_FIELD: '遺漏必填欄位：'
   MONTHS_OF_THE_YEAR:
     - '一月'
     - '二月'
@@ -60,3 +62,16 @@ GRAV:
     - '星期五'
     - '星期六'
     - '星期日'
+  CRON:
+    EVERY: 每
+    EVERY_HOUR: 每小時
+    EVERY_MINUTE: 每分鐘
+    EVERY_DAY_OF_WEEK: 每一天
+    EVERY_DAY_OF_MONTH: 每一天
+    EVERY_MONTH: 每個月
+    TEXT_PERIOD: 每 <b />
+    TEXT_MINS: ' 的 <b /> 分'
+    TEXT_TIME: ' <b />:<b />'
+    TEXT_DOW: ' 的 <b />'
+    TEXT_MONTH: ' 的 <b />'
+    TEXT_DOM: ' 的 <b />'

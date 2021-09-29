@@ -207,8 +207,6 @@ trait ObjectCollectionTrait
 
     /**
      * Create a copy from this collection by cloning all objects in the collection.
-     *
-     * @return static
      */
     public function copy()
     {
