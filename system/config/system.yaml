@@ -184,10 +184,16 @@ session:
 
 gpm:
   releases: stable                               # Set to either 'stable' or 'testing'
-  proxy_url:                                     # Configure a manual proxy URL for GPM (eg 127.0.0.1:3128)
-  method: 'auto'                                 # Either 'curl', 'fopen' or 'auto'. 'auto' will try fopen first and if not available cURL
-  verify_peer: true                              # Sometimes on some systems (Windows most commonly) GPM is unable to connect because the SSL certificate cannot be verified. Disabling this setting might help.
   official_gpm_only: true                        # By default GPM direct-install will only allow URLs via the official GPM proxy to ensure security
+
+http:
+  method: auto                                   # Either 'curl', 'fopen' or 'auto'. 'auto' will try fopen first and if not available cURL
+  enable_proxy: false                            # Enabled proxy server
+  proxy_url:                                     # Configure a manual proxy URL for GPM (eg 127.0.0.1:3128)
+  proxy_cert_path:                               # Local path to proxy certificate folder containing pem files
+  concurrent_connections: 5                      # Concurrent HTTP connections when multiplexing
+  verify_peer: true                              # Enable/Disable SSL verification of peer certificates
+  verify_host: true                              # Enable/Disable SSL verification of host certificates
 
 accounts:
   type: regular                                  # EXPERIMENTAL: Account type: regular or flex
