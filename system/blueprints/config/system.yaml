@@ -1492,7 +1492,7 @@ form:
               options:
                 1: PLUGIN_ADMIN.YES
                 0: PLUGIN_ADMIN.NO
-              default: true
+              default: false
               validate:
                 type: bool
 

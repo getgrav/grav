@@ -37,7 +37,11 @@ class Client
         }
 
         $settings = array_merge($options->toArray(), $overrides);
-        $preferred_method = $config->get('system.http.method', $config->get('system.gpm.method', 'auto'));
+        $preferred_method = $config->get('system.http.method');
+        // Try old GPM setting if value is the same as system default
+        if ($preferred_method === 'auto') {
+            $preferred_method = $config->get('system.gpm.method', 'auto');
+        }
 
         switch ($preferred_method) {
             case 'curl':
@@ -70,17 +74,18 @@ class Client
         $options->setHeaders(array_merge([ 'Referer' => $referer ], self::$headers));
 
         // Disable verify Peer if required
-        $verify_peer = $config->get('system.http.verify_peer', $config->get('system.gpm.verify_peer', null));
-        if ($verify_peer !== null) {
-            $options->verifyPeer($verify_peer);
+        $verify_peer = $config->get('system.http.verify_peer');
+        // Try old GPM setting if value is default
+        if ($verify_peer === true) {
+            $verify_peer = $config->get('system.gpm.verify_peer', null) ?? $verify_peer;
         }
+        $options->verifyPeer($verify_peer);
 
-        // Disable verify Host if required
-        $verify_host = $config->get('system.http.verify_host', null);
-        if ($verify_host !== null) {
-            $options->verifyHost($verify_host);
-        }
+        // Set verify Host
+        $verify_host = $config->get('system.http.verify_host', true);
+        $options->verifyHost($verify_host);
 
+        // New setting and must be enabled for Proxy to work
         if ($config->get('system.http.enable_proxy', true)) {
             // Set proxy url if provided
             $proxy_url = $config->get('system.http.proxy_url', $config->get('system.gpm.proxy_url', null));

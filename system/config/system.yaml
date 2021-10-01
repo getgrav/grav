@@ -188,7 +188,7 @@ gpm:
 
 http:
   method: auto                                   # Either 'curl', 'fopen' or 'auto'. 'auto' will try fopen first and if not available cURL
-  enable_proxy: false                            # Enabled proxy server
+  enable_proxy: true                             # Enable proxy server configuration
   proxy_url:                                     # Configure a manual proxy URL for GPM (eg 127.0.0.1:3128)
   proxy_cert_path:                               # Local path to proxy certificate folder containing pem files
   concurrent_connections: 5                      # Concurrent HTTP connections when multiplexing
