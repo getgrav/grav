@@ -5,6 +5,7 @@
     * Added method `Pages::referrerRoute()` to get the referrer route and language
     * Added true unique `Utils::uniqueId()` / `{{ unique_id() }}` utilities  with length, prefix, and suffix support
     * Added `UserObject::isMyself()` method to check if flex user is currently logged in
+    * Added support for custom form field options validation with `validate: options: key|ignore`
 2. [](#improved)
    * Replaced GPL `SVG-Sanitizer` with MIT licensed `DOM-Sanitizer`
    * `Uri::referrer()` now accepts third parameter, if set to `true`, it returns route without base or language code [#3411](https://github.com/getgrav/grav/issues/3411)
