@@ -33,7 +33,7 @@ class Client
         // Use callback if provided
         if ($callback) {
             self::$callback = $callback;
-            $options->setOnProgress([Response::class, 'progress']);
+            $options->setOnProgress([Client::class, 'progress']);
         }
 
         $settings = array_merge($options->toArray(), $overrides);
