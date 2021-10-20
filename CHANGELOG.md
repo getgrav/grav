@@ -1,3 +1,9 @@
+# v1.7.24
+## mm/dd/2021
+
+3. [](#bugfix)
+    * Fixed a bug in `PermissionsReader` in PHP 7.3
+
 # v1.7.23
 ## 09/29/2021
 
