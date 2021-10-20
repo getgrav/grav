@@ -227,6 +227,7 @@ class Plugin implements EventSubscriberInterface, ArrayAccess
      * @param string $offset  An offset to check for.
      * @return bool          Returns TRUE on success or FALSE on failure.
      */
+    #[\ReturnTypeWillChange]
     public function offsetExists($offset)
     {
         if ($offset === 'title') {
@@ -244,6 +245,7 @@ class Plugin implements EventSubscriberInterface, ArrayAccess
      * @param string $offset  The offset to retrieve.
      * @return mixed         Can return all value types.
      */
+    #[\ReturnTypeWillChange]
     public function offsetGet($offset)
     {
         if ($offset === 'title') {
@@ -262,6 +264,7 @@ class Plugin implements EventSubscriberInterface, ArrayAccess
      * @param mixed $value   The value to set.
      * @throws LogicException
      */
+    #[\ReturnTypeWillChange]
     public function offsetSet($offset, $value)
     {
         throw new LogicException(__CLASS__ . ' blueprints cannot be modified.');
@@ -273,6 +276,7 @@ class Plugin implements EventSubscriberInterface, ArrayAccess
      * @param string $offset  The offset to unset.
      * @throws LogicException
      */
+    #[\ReturnTypeWillChange]
     public function offsetUnset($offset)
     {
         throw new LogicException(__CLASS__ . ' blueprints cannot be modified.');

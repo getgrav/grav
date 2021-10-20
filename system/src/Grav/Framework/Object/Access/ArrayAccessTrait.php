@@ -21,6 +21,7 @@ trait ArrayAccessTrait
      * @param mixed $offset  An offset to check for.
      * @return bool          Returns TRUE on success or FALSE on failure.
      */
+    #[\ReturnTypeWillChange]
     public function offsetExists($offset)
     {
         return $this->hasProperty($offset);
@@ -32,6 +33,7 @@ trait ArrayAccessTrait
      * @param mixed $offset  The offset to retrieve.
      * @return mixed         Can return all value types.
      */
+    #[\ReturnTypeWillChange]
     public function offsetGet($offset)
     {
         return $this->getProperty($offset);
@@ -44,6 +46,7 @@ trait ArrayAccessTrait
      * @param mixed $value   The value to set.
      * @return void
      */
+    #[\ReturnTypeWillChange]
     public function offsetSet($offset, $value)
     {
         $this->setProperty($offset, $value);
@@ -55,6 +58,7 @@ trait ArrayAccessTrait
      * @param mixed $offset  The offset to unset.
      * @return void
      */
+    #[\ReturnTypeWillChange]
     public function offsetUnset($offset)
     {
         $this->unsetProperty($offset);

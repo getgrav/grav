@@ -187,6 +187,7 @@ class Collection extends Iterator implements PageCollectionInterface
      * @param string $offset
      * @return PageInterface|null
      */
+    #[\ReturnTypeWillChange]
     public function offsetGet($offset)
     {
         return $this->pages->get($offset) ?: null;
