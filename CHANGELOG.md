@@ -3,6 +3,7 @@
 
 3. [](#bugfix)
     * Fixed a bug in `PermissionsReader` in PHP 7.3
+    * Fixed `session_store_active` language option (#3464)
 
 # v1.7.23
 ## 09/29/2021
