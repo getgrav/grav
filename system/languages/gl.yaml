@@ -104,6 +104,7 @@ GRAV:
     VALIDATION_FAIL: '<b>Fallou a validación:</b>'
     INVALID_INPUT: 'Entrada incorrecta en'
     MISSING_REQUIRED_FIELD: 'Falta un campo requirido:'
+    XSS_ISSUES: "Detectáronse posibles problemas XSS no campo '% s'"
   MONTHS_OF_THE_YEAR:
     - 'xaneiro'
     - 'febreiro'
@@ -125,6 +126,8 @@ GRAV:
     - 'venres'
     - 'sábado'
     - 'domingo'
+  YES: "Si"
+  NO: "Non"
   CRON:
     EVERY: cada
     EVERY_HOUR: Cada hora

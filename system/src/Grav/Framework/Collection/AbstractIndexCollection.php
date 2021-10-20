@@ -144,6 +144,7 @@ abstract class AbstractIndexCollection implements CollectionInterface
      *
      * {@inheritDoc}
      */
+    #[\ReturnTypeWillChange]
     public function offsetExists($offset)
     {
         return $this->containsKey($offset);
@@ -154,6 +155,7 @@ abstract class AbstractIndexCollection implements CollectionInterface
      *
      * {@inheritDoc}
      */
+    #[\ReturnTypeWillChange]
     public function offsetGet($offset)
     {
         return $this->get($offset);
@@ -164,6 +166,7 @@ abstract class AbstractIndexCollection implements CollectionInterface
      *
      * {@inheritDoc}
      */
+    #[\ReturnTypeWillChange]
     public function offsetSet($offset, $value)
     {
         if (null === $offset) {
@@ -178,6 +181,7 @@ abstract class AbstractIndexCollection implements CollectionInterface
      *
      * {@inheritDoc}
      */
+    #[\ReturnTypeWillChange]
     public function offsetUnset($offset)
     {
         return $this->remove($offset);

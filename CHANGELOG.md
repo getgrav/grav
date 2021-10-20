@@ -1,12 +1,24 @@
-# v1.7.23
+# v1.7.24
 ## mm/dd/2021
+
+3. [](#bugfix)
+    * Fixed a bug in `PermissionsReader` in PHP 7.3
+    * Fixed `session_store_active` language option (#3464)
+    * Fixed deprecated warnings on `ArrayAccess` in PHP 8.1
+
+# v1.7.23
+## 09/29/2021
 
 1. [](#new)
     * Added method `Pages::referrerRoute()` to get the referrer route and language
     * Added true unique `Utils::uniqueId()` / `{{ unique_id() }}` utilities  with length, prefix, and suffix support
+    * Added `UserObject::isMyself()` method to check if flex user is currently logged in
+    * Added support for custom form field options validation with `validate: options: key|ignore`
 2. [](#improved)
    * Replaced GPL `SVG-Sanitizer` with MIT licensed `DOM-Sanitizer`
    * `Uri::referrer()` now accepts third parameter, if set to `true`, it returns route without base or language code [#3411](https://github.com/getgrav/grav/issues/3411)
+   * Updated vendor libs with latest
+   * Updated with latest language strings via Crowdin.com
 3. [](#bugfix)
     * Fixed `Folder::move()` throwing an error when target folder is changed by only appending characters to the end [#3445](https://github.com/getgrav/grav/issues/3445)
     * Fixed some phpstan issues (all code back to level 1, Framework level 3)

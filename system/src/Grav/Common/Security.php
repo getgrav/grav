@@ -138,7 +138,7 @@ class Security
             $options = static::getXssDefaults();
         }
 
-        $list = [];
+        $list = [[]];
         foreach ($array as $key => $value) {
             if (is_array($value)) {
                 $list[] = static::detectXssFromArray($value, $prefix . $key . '.', $options);
@@ -148,11 +148,7 @@ class Security
             }
         }
 
-        if (!empty($list)) {
-            return array_merge(...$list);
-        }
-
-        return $list;
+        return array_merge(...$list);
     }
 
     /**

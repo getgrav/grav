@@ -131,7 +131,7 @@ class PermissionsReader
      */
     protected static function getDependencies(array $dependencies): array
     {
-        $list = [];
+        $list = [[]];
         foreach ($dependencies as $name => $deps) {
             $current = $deps ? static::getDependencies($deps) : [];
             $current[] = $name;

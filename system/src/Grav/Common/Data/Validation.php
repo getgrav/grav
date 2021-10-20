@@ -781,14 +781,22 @@ class Validation
         }
 
         // If creating new values is allowed, no further checks are needed.
-        if (!empty($field['selectize']['create'])) {
+        $validateOptions = $field['validate']['options'] ?? null;
+        if (!empty($field['selectize']['create']) || $validateOptions === 'ignore') {
             return true;
         }
 
         $options = $field['options'] ?? [];
         $use = $field['use'] ?? 'values';
 
-        if (empty($field['selectize']) || empty($field['multiple'])) {
+        if ($validateOptions) {
+            // Use custom options structure.
+            foreach ($options as &$option) {
+                $option = $option[$validateOptions] ?? null;
+            }
+            unset($option);
+            $options = array_values($options);
+        } elseif (empty($field['selectize']) || empty($field['multiple'])) {
             $options = array_keys($options);
         }
         if ($use === 'keys') {

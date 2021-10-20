@@ -82,6 +82,8 @@ GRAV:
     - 'Cuma'
     - 'Cumartesi'
     - 'Pazar'
+  YES: "Evet"
+  NO: "Hayır"
   CRON:
     EVERY: her
     EVERY_HOUR: saatte bir

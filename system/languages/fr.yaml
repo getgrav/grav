@@ -24,6 +24,7 @@ GRAV:
     '/(quiz)zes$/i': '\1'
     '/(alias|status)es$/i': '\1'
     '/([octop|vir])i$/i': '\1us'
+    '/(n)ews$/i': '\1ouvelles'
   INFLECTOR_UNCOUNTABLE:
     - 'équipement'
     - 'information'
@@ -58,10 +59,10 @@ GRAV:
     MONTH: mois
     YEAR: année
     DECADE: décennie
-    SEC: s
-    MIN: m
-    HR: h
-    WK: sem
+    SEC: sec.
+    MIN: min.
+    HR: hr.
+    WK: sem.
     MO: m
     YR: an
     DEC: déc
@@ -84,6 +85,7 @@ GRAV:
     VALIDATION_FAIL: '<b>La validation a échoué :</b>'
     INVALID_INPUT: 'Saisie non valide'
     MISSING_REQUIRED_FIELD: 'Champ obligatoire manquant :'
+    XSS_ISSUES: "Erreurs XSS probablement détectées dans le champ '%s'"
   MONTHS_OF_THE_YEAR:
     - 'janvier'
     - 'février'
@@ -105,6 +107,8 @@ GRAV:
     - 'vendredi'
     - 'samedi'
     - 'dimanche'
+  YES: "Oui"
+  NO: "Non"
   CRON:
     EVERY: chaque
     EVERY_HOUR: toutes les heures
@@ -118,7 +122,7 @@ GRAV:
     TEXT_DOW: ' sur <b/>'
     TEXT_MONTH: ' de <b />'
     TEXT_DOM: ' sur <b/>'
-    ERROR1: La balise %s n'est pas supportée!
+    ERROR1: La balise %s n'est pas prise en charge !
     ERROR2: Nombre invalide d'éléments
     ERROR3: L'élément jquery_element doit être défini dans les paramètres jqCron
     ERROR4: Expression non reconnue
