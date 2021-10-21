@@ -105,7 +105,7 @@ class InitializeProcessor extends ProcessorBase
         // TODO: remove in 2.0.
         $this->container['accounts'];
 
-        // Initialize session.
+        // Initialize session (used by URI, see issue #3269).
         $this->initializeSession($config);
 
         // Initialize URI (uses session, see issue #3269).

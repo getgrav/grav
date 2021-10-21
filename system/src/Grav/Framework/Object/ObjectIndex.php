@@ -23,7 +23,7 @@ use function is_object;
  * This is an abstract class and has some protected abstract methods to load objects which you need to implement in
  * order to use the class.
  *
- * @template TKey
+ * @template TKey of array-key
  * @template T
  * @extends AbstractIndexCollection<TKey,T>
  * @implements NestedObjectCollectionInterface<TKey,T>
@@ -176,6 +176,7 @@ abstract class ObjectIndex extends AbstractIndexCollection implements NestedObje
      * Create a copy from this collection by cloning all objects in the collection.
      *
      * @return static
+     * @return static<TKey,T>
      */
     public function copy()
     {

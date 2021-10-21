@@ -332,7 +332,7 @@ class Debugger
             return new Response(404, $headers, json_encode($response));
         }
 
-        $data = is_array($data) ? array_map(function ($item) {
+        $data = is_array($data) ? array_map(static function ($item) {
             return $item->toArray();
         }, $data) : $data->toArray();
 

@@ -57,6 +57,15 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
     }
 
     /**
+     * @param string $name
+     * @return array|null
+     */
+    public function getNestedRules(string $name)
+    {
+        return $this->getNested($name);
+    }
+
+    /**
      * Validate data against blueprints.
      *
      * @param  array $data
@@ -317,6 +326,10 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
                     $toggle = [];
                 }
                 // Recursively fetch the items.
+                $childData = $data[$key] ?? null;
+                if (null !== $childData && !is_array($childData)) {
+                    throw new \RuntimeException(sprintf("Bad form data for field collection '%s': %s used instead of an array", $key, gettype($childData)));
+                }
                 $data[$key] = $this->processFormRecursive($data[$key] ?? null, $toggle, $value);
             } else {
                 $field = $this->get($value);

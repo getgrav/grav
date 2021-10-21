@@ -20,11 +20,13 @@ use Grav\Common\Security;
 use Grav\Common\Utils;
 use Grav\Framework\Filesystem\Filesystem;
 use Grav\Framework\Form\FormFlashFile;
+use Grav\Framework\Mime\MimeTypes;
 use Psr\Http\Message\UploadedFileInterface;
 use RocketTheme\Toolbox\File\YamlFile;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use RuntimeException;
 use function dirname;
+use function in_array;
 
 /**
  * Implements media upload and delete functionality.
@@ -71,15 +73,6 @@ trait MediaUploadTrait
      */
     public function checkUploadedFile(UploadedFileInterface $uploadedFile, string $filename = null, array $settings = null): string
     {
-        // Add the defaults to the settings.
-        $settings = $this->getUploadSettings($settings);
-
-        // Destination is always needed (but it can be set in defaults).
-        $self = $settings['self'] ?? false;
-        if (!isset($settings['destination']) && $self === false) {
-            throw new RuntimeException($this->translate('PLUGIN_ADMIN.DESTINATION_NOT_SPECIFIED'), 400);
-        }
-
         // Check if there is an upload error.
         switch ($uploadedFile->getError()) {
             case UPLOAD_ERR_OK:
@@ -101,10 +94,38 @@ trait MediaUploadTrait
                 throw new RuntimeException($this->translate('PLUGIN_ADMIN.UNKNOWN_ERRORS'), 400);
         }
 
+        $metadata = [
+            'filename' => $uploadedFile->getClientFilename(),
+            'mime' => $uploadedFile->getClientMediaType(),
+            'size' => $uploadedFile->getSize(),
+        ];
+
+        return $this->checkFileMetadata($metadata, $filename, $settings);
+    }
+
+    /**
+     * Checks that file metadata meets the requirements. Returns new filename.
+     *
+     * @param array $metadata
+     * @param array|null $settings
+     * @return string
+     * @throws RuntimeException
+     */
+    public function checkFileMetadata(array $metadata, string $filename = null, array $settings = null): string
+    {
+        // Add the defaults to the settings.
+        $settings = $this->getUploadSettings($settings);
+
+        // Destination is always needed (but it can be set in defaults).
+        $self = $settings['self'] ?? false;
+        if (!isset($settings['destination']) && $self === false) {
+            throw new RuntimeException($this->translate('PLUGIN_ADMIN.DESTINATION_NOT_SPECIFIED'), 400);
+        }
+
         if (null === $filename) {
             // If no filename is given, use the filename from the uploaded file (path is not allowed).
             $folder = '';
-            $filename = $uploadedFile->getClientFilename() ?? '';
+            $filename = $metadata['filename'] ?? '';
         } else {
             // If caller sets the filename, we will accept any custom path.
             $folder = dirname($filename);
@@ -128,7 +149,7 @@ trait MediaUploadTrait
                 $filename = date('YmdHis') . '-' . $filename;
             }
         }
-        $filepath = $folder !== '' ? $folder . $filename : $filename;
+        $filepath = $folder . $filename;
 
         // Check if the filename is allowed.
         if (!Utils::checkFilename($filename)) {
@@ -148,23 +169,32 @@ trait MediaUploadTrait
         $filesize = $settings['filesize'];
         if ($filesize) {
             $max_filesize = $filesize * 1048576;
-            if ($uploadedFile->getSize() > $max_filesize) {
+            if ($metadata['size'] > $max_filesize) {
                 // TODO: use own language string
                 throw new RuntimeException($this->translate('PLUGIN_ADMIN.EXCEEDED_GRAV_FILESIZE_LIMIT'), 400);
             }
         } elseif (null === $filesize) {
             // Check size against the Grav upload limit.
             $grav_limit = Utils::getUploadLimit();
-            if ($grav_limit > 0 && $uploadedFile->getSize() > $grav_limit) {
+            if ($grav_limit > 0 && $metadata['size'] > $grav_limit) {
                 throw new RuntimeException($this->translate('PLUGIN_ADMIN.EXCEEDED_GRAV_FILESIZE_LIMIT'), 400);
             }
         }
 
+        $grav = Grav::instance();
+        /** @var MimeTypes $mimeChecker */
+        $mimeChecker = $grav['mime'];
+
         // Handle Accepted file types. Accept can only be mime types (image/png | image/*) or file extensions (.pdf | .jpg)
+        // Do not trust mime type sent by the browser.
+        $mime = $metadata['mime'] ?? $mimeChecker->getMimeType($extension);
+        $validExtensions = $mimeChecker->getExtensions($mime);
+        if (!in_array($extension, $validExtensions, true)) {
+            throw new RuntimeException('The mime type does not match to file extension', 400);
+        }
+
         $accepted = false;
         $errors = [];
-        // Do not trust mime type sent by the browser.
-        $mime = Utils::getMimeByFilename($filename);
         foreach ((array)$settings['accept'] as $type) {
             // Force acceptance of any file when star notation
             if ($type === '*') {
@@ -395,6 +425,17 @@ trait MediaUploadTrait
     }
 
     /**
+     * Get upload settings.
+     *
+     * @param array|null $settings Form field specific settings (override).
+     * @return array
+     */
+    public function getUploadSettings(?array $settings = null): array
+    {
+        return null !== $settings ? $settings + $this->_upload_defaults : $this->_upload_defaults;
+    }
+
+    /**
      * Internal logic to copy file.
      *
      * @param string $src
@@ -578,17 +619,6 @@ trait MediaUploadTrait
         if ($file->exists()) {
             $file->delete();
         }
-    }
-
-    /**
-     * Get upload settings.
-     *
-     * @param array|null $settings Form field specific settings (override).
-     * @return array
-     */
-    protected function getUploadSettings(?array $settings = null): array
-    {
-        return null !== $settings ? $settings + $this->_upload_defaults : $this->_upload_defaults;
     }
 
     /**

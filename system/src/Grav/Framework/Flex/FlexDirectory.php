@@ -47,7 +47,7 @@ use function is_callable;
  * @package Grav\Framework\Flex
  * @template T
  */
-class FlexDirectory implements FlexDirectoryInterface, FlexAuthorizeInterface
+class FlexDirectory implements FlexDirectoryInterface
 {
     use FlexAuthorizeTrait;
 
@@ -235,7 +235,17 @@ class FlexDirectory implements FlexDirectoryInterface, FlexAuthorizeInterface
 
         /** @var UniformResourceLocator $locator */
         $locator = $grav['locator'];
-        $filename = $locator->findResource($this->getDirectoryConfigUri($name), true);
+        $uri = $this->getDirectoryConfigUri($name);
+
+        // If configuration is found in main configuration, use it.
+        if (str_starts_with($uri, 'config://')) {
+            $path = str_replace('/', '.', substr($uri, 9, -5));
+
+            return (array)$grav['config']->get($path);
+        }
+
+        // Load the configuration file.
+        $filename = $locator->findResource($uri, true);
         if ($filename === false) {
             return [];
         }
@@ -821,20 +831,46 @@ class FlexDirectory implements FlexDirectoryInterface, FlexAuthorizeInterface
      * @param array $call
      * @return void
      */
-    protected function dynamicFlexField(array &$field, $property, array $call)
+    protected function dynamicFlexField(array &$field, $property, array $call): void
     {
         $params = (array)$call['params'];
         $object = $call['object'] ?? null;
         $method = array_shift($params);
+        $not = false;
+        if (str_starts_with($method, '!')) {
+            $method = substr($method, 1);
+            $not = true;
+        } elseif (str_starts_with($method, 'not ')) {
+            $method = substr($method, 4);
+            $not = true;
+        }
+        $method = trim($method);
 
         if ($object && method_exists($object, $method)) {
             $value = $object->{$method}(...$params);
             if (is_array($value) && isset($field[$property]) && is_array($field[$property])) {
-                $field[$property] = array_merge_recursive($field[$property], $value);
+                $value = $this->mergeArrays($field[$property], $value);
+            }
+            $field[$property] = $not ? !$value : $value;
+        }
+    }
+
+    /**
+     * @param array $array1
+     * @param array $array2
+     * @return array
+     */
+    protected function mergeArrays(array $array1, array $array2): array
+    {
+        foreach ($array2 as $key => $value) {
+            if (is_array($value) && isset($array1[$key]) && is_array($array1[$key])) {
+                $array1[$key] = $this->mergeArrays($array1[$key], $value);
             } else {
-                $field[$property] = $value;
+                $array1[$key] = $value;
             }
         }
+
+        return $array1;
     }
 
     /**

@@ -9,10 +9,11 @@
 
 namespace Grav\Common;
 
-use enshrined\svgSanitize\Sanitizer;
 use Exception;
 use Grav\Common\Config\Config;
+use Grav\Common\Filesystem\Folder;
 use Grav\Common\Page\Pages;
+use Rhukster\DomSanitizer\DOMSanitizer;
 use function chr;
 use function count;
 use function is_array;
@@ -33,7 +34,7 @@ class Security
     public static function sanitizeSvgString(string $svg): string
     {
         if (Grav::instance()['config']->get('security.sanitize_svg')) {
-            $sanitizer = new Sanitizer();
+            $sanitizer = new DOMSanitizer(DOMSanitizer::SVG);
             $sanitized = $sanitizer->sanitize($svg);
             if (is_string($sanitized)) {
                 $svg = $sanitized;
@@ -52,13 +53,20 @@ class Security
     public static function sanitizeSVG(string $file): void
     {
         if (file_exists($file) && Grav::instance()['config']->get('security.sanitize_svg')) {
-            $sanitizer = new Sanitizer();
+            $sanitizer = new DOMSanitizer(DOMSanitizer::SVG);
             $original_svg = file_get_contents($file);
             $clean_svg = $sanitizer->sanitize($original_svg);
 
-            // TODO: what to do with bad SVG files which return false?
-            if ($clean_svg !== false && $clean_svg !== $original_svg) {
+            // Quarantine bad SVG files and throw exception
+            if ($clean_svg !== false ) {
                 file_put_contents($file, $clean_svg);
+            } else {
+                $quarantine_file = basename($file);
+                $quarantine_dir = 'log://quarantine';
+                Folder::mkdir($quarantine_dir);
+                file_put_contents("$quarantine_dir/$quarantine_file", $original_svg);
+                unlink($file);
+                throw new Exception('SVG could not be sanitized, it has been moved to the logs/quarantine folder');
             }
         }
     }
@@ -99,7 +107,7 @@ class Security
                 $content = $page->value('content');
 
                 $data = ['header' => $header, 'content' => $content];
-                $results = Security::detectXssFromArray($data);
+                $results = static::detectXssFromArray($data);
 
                 if (!empty($results)) {
                     if ($route) {
@@ -130,7 +138,7 @@ class Security
             $options = static::getXssDefaults();
         }
 
-        $list = [];
+        $list = [[]];
         foreach ($array as $key => $value) {
             if (is_array($value)) {
                 $list[] = static::detectXssFromArray($value, $prefix . $key . '.', $options);
@@ -140,11 +148,7 @@ class Security
             }
         }
 
-        if (!empty($list)) {
-            return array_merge(...$list);
-        }
-
-        return $list;
+        return array_merge(...$list);
     }
 
     /**
@@ -191,7 +195,7 @@ class Security
         $string = urldecode($string);
 
         // Convert Hexadecimals
-        $string = (string)preg_replace_callback('!(&#|\\\)[xX]([0-9a-fA-F]+);?!u', function ($m) {
+        $string = (string)preg_replace_callback('!(&#|\\\)[xX]([0-9a-fA-F]+);?!u', static function ($m) {
             return chr(hexdec($m[2]));
         }, $string);
 
@@ -210,7 +214,7 @@ class Security
             'on_events' => '#(<[^>]+[[a-z\x00-\x20\"\'\/])([\s\/]on|\sxmlns)[a-z].*=>?#iUu',
 
             // Match javascript:, livescript:, vbscript:, mocha:, feed: and data: protocols
-            'invalid_protocols' => '#(' . implode('|', array_map('preg_quote', $invalid_protocols, ['#'])) . '):.*?#iUu',
+            'invalid_protocols' => '#(' . implode('|', array_map('preg_quote', $invalid_protocols, ['#'])) . '):\S.*?#iUu',
 
             // Match -moz-bindings
             'moz_binding' => '#-moz-binding[a-z\x00-\x20]*:#u',
@@ -231,7 +235,7 @@ class Security
             }
         }
 
-        return false;
+        return null;
     }
 
     public static function getXssDefaults(): array

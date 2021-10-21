@@ -63,6 +63,7 @@ class Media extends AbstractMedia
      * @param string $offset
      * @return bool
      */
+    #[\ReturnTypeWillChange]
     public function offsetExists($offset)
     {
         return parent::offsetExists($offset) ?: isset(static::$global[$offset]);
@@ -72,6 +73,7 @@ class Media extends AbstractMedia
      * @param string $offset
      * @return MediaObjectInterface|null
      */
+    #[\ReturnTypeWillChange]
     public function offsetGet($offset)
     {
         return parent::offsetGet($offset) ?: static::$global[$offset];
@@ -102,12 +104,13 @@ class Media extends AbstractMedia
 
         foreach ($iterator as $file => $info) {
             // Ignore folders and Markdown files.
-            if (!$info->isFile() || $info->getExtension() === 'md' || strpos($info->getFilename(), '.') === 0) {
+            $filename = $info->getFilename();
+            if (!$info->isFile() || $info->getExtension() === 'md' || $filename === 'frontmatter.yaml' || strpos($filename, '.') === 0) {
                 continue;
             }
 
             // Find out what type we're dealing with
-            [$basename, $ext, $type, $extra] = $this->getFileParts($info->getFilename());
+            [$basename, $ext, $type, $extra] = $this->getFileParts($filename);
 
             if (!in_array(strtolower($ext), $media_types, true)) {
                 continue;

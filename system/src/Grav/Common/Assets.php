@@ -110,7 +110,7 @@ class Assets extends PropertyObject
 
         /** @var UniformResourceLocator $locator */
         $locator = $grav['locator'];
-        $this->assets_dir = $locator->findResource('asset://') . DS;
+        $this->assets_dir = $locator->findResource('asset://');
         $this->assets_url = $locator->findResource('asset://', false);
 
         $this->config($asset_config);
@@ -164,10 +164,19 @@ class Assets extends PropertyObject
 
         // More than one asset
         if (is_array($asset)) {
-            foreach ($asset as $a) {
-                array_shift($args);
-                $args = array_merge([$a], $args);
-                call_user_func_array([$this, 'add'], $args);
+            foreach ($asset as $index => $location) {
+                $params = array_slice($args, 1);
+                if (is_array($location)) {
+                    $params = array_shift($params);
+                    if (is_numeric($params)) {
+                        $params = [ 'priority' => $params ];
+                    }
+                    $params = [array_replace_recursive([], $location, $params)];
+                    $location = $index;
+                }
+
+                $params = array_merge([$location], $params);
+                call_user_func_array([$this, 'add'], $params);
             }
         } elseif (isset($this->collections[$asset])) {
             array_shift($args);
@@ -201,8 +210,13 @@ class Assets extends PropertyObject
     protected function addType($collection, $type, $asset, $options)
     {
         if (is_array($asset)) {
-            foreach ($asset as $a) {
-                $this->addType($collection, $type, $a, $options);
+            foreach ($asset as $index => $location) {
+                $assetOptions = $options;
+                if (is_array($location)) {
+                    $assetOptions = array_replace_recursive([], $options, $location);
+                    $location = $index;
+                }
+                $this->addType($collection, $type, $location, $assetOptions);
             }
 
             return $this;

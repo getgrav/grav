@@ -14,6 +14,7 @@ use Grav\Framework\Psr7\Response;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use RocketTheme\Toolbox\Event\Event;
 
 /**
  * Class RenderProcessor
@@ -42,23 +43,27 @@ class RenderProcessor extends ProcessorBase
             return $output;
         }
 
-        ob_start();
+        /** @var PageInterface $page */
+        $page = $this->container['page'];
 
         // Use internal Grav output.
         $container->output = $output;
-        $container->fireEvent('onOutputGenerated');
+
+        ob_start();
+
+        $event = new Event(['page' => $page, 'output' => &$container->output]);
+        $container->fireEvent('onOutputGenerated', $event);
 
         echo $container->output;
+
+        $html = ob_get_clean();
 
         // remove any output
         $container->output = '';
 
-        $this->container->fireEvent('onOutputRendered');
+        $event = new Event(['page' => $page, 'output' => $html]);
+        $this->container->fireEvent('onOutputRendered', $event);
 
-        $html = ob_get_clean();
-
-        /** @var PageInterface $page */
-        $page = $this->container['page'];
         $this->stopTimer();
 
         return new Response($page->httpResponseCode(), $page->httpHeaders(), $html);

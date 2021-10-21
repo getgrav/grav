@@ -68,8 +68,6 @@ trait AssetUtilsTrait
     protected function gatherLinks(array $assets, $css = true)
     {
         $buffer = '';
-
-
         foreach ($assets as $id => $asset) {
             $local = true;
 
@@ -90,7 +88,7 @@ trait AssetUtilsTrait
                 }
 
                 $relative_dir = dirname($relative_path);
-                $link = ROOT_DIR . $relative_path;
+                $link = GRAV_ROOT . '/' . $relative_path;
             }
 
             // TODO: looks like this is not being used.
@@ -135,7 +133,7 @@ trait AssetUtilsTrait
 
         $imports = [];
 
-        $file = (string)preg_replace_callback($regex, function ($matches) use (&$imports) {
+        $file = (string)preg_replace_callback($regex, static function ($matches) use (&$imports) {
             $imports[] = $matches[0];
 
             return '';
@@ -156,6 +154,10 @@ trait AssetUtilsTrait
         $no_key = ['loading'];
 
         foreach ($this->attributes as $key => $value) {
+            if ($value === null) {
+                continue;
+            }
+
             if (is_numeric($key)) {
                 $key = $value;
             }
@@ -196,7 +198,7 @@ trait AssetUtilsTrait
         }
 
         if ($this->timestamp) {
-            if (Utils::contains($asset, '?') || $querystring) {
+            if ($querystring || Utils::contains($asset, '?')) {
                 $querystring .=  '&' . $this->timestamp;
             } else {
                 $querystring .= '?' . $this->timestamp;

@@ -10,6 +10,7 @@
 namespace Grav\Common;
 
 use ArrayAccess;
+use Composer\Autoload\ClassLoader;
 use Grav\Common\Data\Blueprint;
 use Grav\Common\Data\Data;
 use Grav\Common\Page\Interfaces\PageInterface;
@@ -42,6 +43,8 @@ class Plugin implements EventSubscriberInterface, ArrayAccess
     protected $active = true;
     /** @var Blueprint|null */
     protected $blueprint;
+    /** @var ClassLoader|null */
+    protected $loader;
 
     /**
      * By default assign all methods as listeners using the default priority.
@@ -77,6 +80,24 @@ class Plugin implements EventSubscriberInterface, ArrayAccess
         if ($config) {
             $this->setConfig($config);
         }
+    }
+
+    /**
+     * @return ClassLoader|null
+     * @internal
+     */
+    final public function getAutoloader(): ?ClassLoader
+    {
+        return $this->loader;
+    }
+
+    /**
+     * @param ClassLoader|null $loader
+     * @internal
+     */
+    final public function setAutoloader(?ClassLoader $loader): void
+    {
+        $this->loader = $loader;
     }
 
     /**
@@ -206,6 +227,7 @@ class Plugin implements EventSubscriberInterface, ArrayAccess
      * @param string $offset  An offset to check for.
      * @return bool          Returns TRUE on success or FALSE on failure.
      */
+    #[\ReturnTypeWillChange]
     public function offsetExists($offset)
     {
         if ($offset === 'title') {
@@ -223,6 +245,7 @@ class Plugin implements EventSubscriberInterface, ArrayAccess
      * @param string $offset  The offset to retrieve.
      * @return mixed         Can return all value types.
      */
+    #[\ReturnTypeWillChange]
     public function offsetGet($offset)
     {
         if ($offset === 'title') {
@@ -241,6 +264,7 @@ class Plugin implements EventSubscriberInterface, ArrayAccess
      * @param mixed $value   The value to set.
      * @throws LogicException
      */
+    #[\ReturnTypeWillChange]
     public function offsetSet($offset, $value)
     {
         throw new LogicException(__CLASS__ . ' blueprints cannot be modified.');
@@ -252,6 +276,7 @@ class Plugin implements EventSubscriberInterface, ArrayAccess
      * @param string $offset  The offset to unset.
      * @throws LogicException
      */
+    #[\ReturnTypeWillChange]
     public function offsetUnset($offset)
     {
         throw new LogicException(__CLASS__ . ' blueprints cannot be modified.');

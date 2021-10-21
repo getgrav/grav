@@ -15,6 +15,7 @@ GRAV:
     BAD_DATE: Data invàlida
     AGO: abans
     FROM_NOW: des d'ara
+    JUST_NOW: Ara mateix
     SECOND: segon
     MINUTE: minut
     HOUR: hora
@@ -48,6 +49,7 @@ GRAV:
     VALIDATION_FAIL: '<b>Ha fallat la validació:</b>'
     INVALID_INPUT: 'Entrada no vàlida a'
     MISSING_REQUIRED_FIELD: 'Falta camp obligatori:'
+    XSS_ISSUES: "Detectats potencials problemes XSS al camp '%s'"
   MONTHS_OF_THE_YEAR:
     - 'Gener'
     - 'Febrer'
@@ -69,3 +71,17 @@ GRAV:
     - 'Divendres'
     - 'Dissabte'
     - 'Diumenge'
+  YES: "Sí"
+  NO: "No"
+  CRON:
+    EVERY: cada
+    EVERY_HOUR: cada hora
+    EVERY_MINUTE: cada minut
+    EVERY_DAY_OF_WEEK: cada dia de la setmana
+    EVERY_DAY_OF_MONTH: cada dia del mes
+    EVERY_MONTH: cada mes
+    TEXT_PERIOD: Cada <b />
+    ERROR1: L'etiqueta %s no està suportada!
+    ERROR2: Nombre d'elements incorrecte
+    ERROR3: El jquery_element s'ha d'establir a la configuració de jqCron
+    ERROR4: Expressió no reconeguda

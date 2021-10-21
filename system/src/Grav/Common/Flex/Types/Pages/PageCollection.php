@@ -19,7 +19,6 @@ use Grav\Common\Page\Header;
 use Grav\Common\Page\Interfaces\PageCollectionInterface;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Utils;
-use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
 use Grav\Framework\Flex\Pages\FlexPageCollection;
 use Collator;
 use InvalidArgumentException;
@@ -159,7 +158,7 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
      */
     public function addPage(PageInterface $page)
     {
-        if (!$page instanceof FlexObjectInterface) {
+        if (!$page instanceof PageObject) {
             throw new InvalidArgumentException('$page is not a flex page.');
         }
 
@@ -188,6 +187,14 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
      * @return static
      */
     public function intersect(PageCollectionInterface $collection)
+    {
+        throw new RuntimeException(__METHOD__ . '(): Not Implemented');
+    }
+
+    /**
+     * Set current page.
+     */
+    public function setCurrent(string $path): void
     {
         throw new RuntimeException(__METHOD__ . '(): Not Implemented');
     }
@@ -392,8 +399,8 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
             $i = count($manual);
             $new_list = [];
             foreach ($list as $key => $dummy) {
-                $child = $this[$key];
-                $order = array_search($child->slug, $manual, true);
+                $child = $this[$key] ?? null;
+                $order = $child ? array_search($child->slug, $manual, true) : false;
                 if ($order === false) {
                     $order = $i++;
                 }
@@ -426,20 +433,20 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
 
     /**
      * Returns the items between a set of date ranges of either the page date field (default) or
-     * an arbitrary datetime page field where end date is optional
-     * Dates can be passed in as text that strtotime() can process
+     * an arbitrary datetime page field where start date and end date are optional
+     * Dates must be passed in as text that strtotime() can process
      * http://php.net/manual/en/function.strtotime.php
      *
-     * @param string $startDate
-     * @param string|false $endDate
+     * @param string|null $startDate
+     * @param string|null $endDate
      * @param string|null $field
      * @return static
      * @throws Exception
      */
-    public function dateRange($startDate, $endDate = false, $field = null)
+    public function dateRange($startDate = null, $endDate = null, $field = null)
     {
-        $start = Utils::date2timestamp($startDate);
-        $end = $endDate ? Utils::date2timestamp($endDate) : false;
+        $start = $startDate ? Utils::date2timestamp($startDate) : null;
+        $end = $endDate ? Utils::date2timestamp($endDate) : null;
 
         $entries = [];
         foreach ($this as $key => $object) {
@@ -449,7 +456,7 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
 
             $date = $field ? strtotime($object->getNestedProperty($field)) : $object->date();
 
-            if ($date >= $start && (!$end || $date <= $end)) {
+            if ((!$start || $date >= $start) && (!$end || $date <= $end)) {
                 $entries[$key] = $object;
             }
         }
@@ -744,6 +751,16 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
         $list = array_keys(array_filter($this->call('hasTranslation', [$languageCode, $fallback])));
 
         return $bool ? $this->select($list) : $this->unselect($list);
+    }
+
+    /**
+     * @param string|null $languageCode
+     * @param bool|null $fallback
+     * @return PageIndex
+     */
+    public function withTranslated(string $languageCode = null, bool $fallback = null)
+    {
+        return $this->getIndex()->withTranslated($languageCode, $fallback);
     }
 
     /**

@@ -86,12 +86,14 @@ class LanguageCodes
         'ja-JP'      => [ 'name' => 'Japanese',                  'nativeName' => '日本語' ], // not iso-639-1
         'ka'         => [ 'name' => 'Georgian',                  'nativeName' => 'ქართული' ],
         'kk'         => [ 'name' => 'Kazakh',                    'nativeName' => 'Қазақ' ],
+        'km'         => [ 'name' => 'Khmer',                     'nativeName' => 'Khmer' ],
         'kn'         => [ 'name' => 'Kannada',                   'nativeName' => 'ಕನ್ನಡ' ],
         'ko'         => [ 'name' => 'Korean',                    'nativeName' => '한국어' ],
         'ku'         => [ 'name' => 'Kurdish',                   'nativeName' => 'Kurdî' ],
         'la'         => [ 'name' => 'Latin',                     'nativeName' => 'Latina' ],
         'lb'         => [ 'name' => 'Luxembourgish',             'nativeName' => 'Lëtzebuergesch' ],
         'lg'         => [ 'name' => 'Luganda',                   'nativeName' => 'Luganda' ],
+        'lo'         => [ 'name' => 'Lao',                       'nativeName' => 'Lao' ],        
         'lt'         => [ 'name' => 'Lithuanian',                'nativeName' => 'Lietuvių' ],
         'lv'         => [ 'name' => 'Latvian',                   'nativeName' => 'Latviešu' ],
         'mai'        => [ 'name' => 'Maithili',                  'nativeName' => 'मैथिली মৈথিলী' ],
@@ -101,6 +103,7 @@ class LanguageCodes
         'ml'         => [ 'name' => 'Malayalam',                 'nativeName' => 'മലയാളം' ],
         'mn'         => [ 'name' => 'Mongolian',                 'nativeName' => 'Монгол' ],
         'mr'         => [ 'name' => 'Marathi',                   'nativeName' => 'मराठी' ],
+        'my'         => [ 'name' => 'Myanmar (Burmese)',         'nativeName' => 'ဗမာी' ],        
         'no'         => [ 'name' => 'Norwegian',                 'nativeName' => 'Norsk' ],
         'nb'         => [ 'name' => 'Norwegian',                 'nativeName' => 'Norsk' ],
         'nb-NO'      => [ 'name' => 'Norwegian (Bokmål)',        'nativeName' => 'Norsk bokmål' ],
@@ -132,6 +135,7 @@ class LanguageCodes
         'st'         => [ 'name' => 'Southern Sotho',            'nativeName' => 'Sesotho' ],
         'sv'         => [ 'name' => 'Swedish',                   'nativeName' => 'Svenska' ],
         'sv-SE'      => [ 'name' => 'Swedish',                   'nativeName' => 'Svenska' ],
+        'sw'         => [ 'name' => 'Swahili',                   'nativeName' => 'Swahili' ],
         'ta'         => [ 'name' => 'Tamil',                     'nativeName' => 'தமிழ்' ],
         'ta-IN'      => [ 'name' => 'Tamil (India)',             'nativeName' => 'தமிழ் (இந்தியா)' ],
         'ta-LK'      => [ 'name' => 'Tamil (Sri Lanka)',         'nativeName' => 'தமிழ் (இலங்கை)' ],
@@ -187,12 +191,7 @@ class LanguageCodes
      */
     public static function getOrientation($code)
     {
-        if (isset(static::$codes[$code])) {
-            if (isset(static::$codes[$code]['orientation'])) {
-                return static::get($code, 'orientation');
-            }
-        }
-        return 'ltr';
+        return static::$codes[$code]['orientation'] ?? 'ltr';
     }
 
     /**
@@ -226,11 +225,7 @@ class LanguageCodes
      */
     public static function get($code, $type)
     {
-        if (isset(static::$codes[$code][$type])) {
-            return static::$codes[$code][$type];
-        }
-
-        return false;
+        return static::$codes[$code][$type] ?? false;
     }
 
     /**

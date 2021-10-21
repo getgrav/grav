@@ -320,14 +320,22 @@ trait PageLegacyTrait
 
         // Find non-existing key.
         $parentKey = $parent ? $parent->getKey() : '';
-        $key = trim($parentKey . '/' . basename($this->getKey()), '/');
-        $key = preg_replace('/-\d+$/', '', $key);
-        $i = 1;
-        do {
-            $i++;
-            $test = "{$key}-{$i}";
-        } while ($index->containsKey($test));
-        $key = $test;
+        if ($this instanceof FlexPageObject) {
+            $key = trim($parentKey . '/' . $this->folder(), '/');
+            $key = preg_replace(static::PAGE_ORDER_PREFIX_REGEX, '', $key);
+        } else {
+            $key = trim($parentKey . '/' . basename($this->getKey()), '/');
+        }
+
+        if ($index->containsKey($key)) {
+            $key = preg_replace('/\d+$/', '', $key);
+            $i = 1;
+            do {
+                $i++;
+                $test = "{$key}{$i}";
+            } while ($index->containsKey($test));
+            $key = $test;
+        }
         $folder = basename($key);
 
         // Get the folder name.

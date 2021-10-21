@@ -114,7 +114,7 @@ class Excerpts
             );
 
             // Valid attributes supported.
-            $valid_attributes = $grav['config']->get('system.pages.markdown.valid_link_attributes');
+            $valid_attributes = $grav['config']->get('system.pages.markdown.valid_link_attributes') ?? [];
 
             $skip = [];
             // Unless told to not process, go through actions.
@@ -157,7 +157,7 @@ class Excerpts
             // Handle custom streams.
             /** @var UniformResourceLocator $locator */
             $locator = $grav['locator'];
-            if ($locator->isStream($url)) {
+            if ($type === 'link' && $locator->isStream($url)) {
                 $path = $locator->findResource($url, false) ?: $locator->findResource($url, false, true);
                 $url_parts['path'] = $grav['base_url_relative'] . '/' . $path;
                 unset($url_parts['stream'], $url_parts['scheme']);

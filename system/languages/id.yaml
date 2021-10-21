@@ -3,26 +3,72 @@ GRAV:
   FRONTMATTER_ERROR_PAGE: "---\ntitle: %1$s\n---\n\n# Error: Frontmatter tidak valid\n\nLokasi: `%2$s`\n\n**%3$s**\n\n```\n%4$s\n```"
   INFLECTOR_PLURALS:
     '/(quiz)$/i': '\1zes'
+    '/^(ox)$/i': '\1en'
+    '/([m|l])ouse$/i': '\1ice'
+    '/(matr|vert|ind)ix|ex$/i': '\1ices'
+    '/(x|ch|ss|sh)$/i': '\1es'
+    '/([^aeiouy]|qu)ies$/i': '\1y'
+    '/([^aeiouy]|qu)y$/i': '\1ies'
+    '/(hive)$/i': '\1s'
+    '/(?:([^f])fe|([lr])f)$/i': '\1\2ves'
+    '/sis$/i': 'ses'
+    '/([ti])um$/i': '\1a'
+    '/(buffal|tomat)o$/i': '\1oes'
+    '/(bu)s$/i': '\1ses'
+    '/(alias|status)/i': '\1es'
+    '/(octop|vir)us$/i': '\1i'
+    '/(ax|test)is$/i': '\1es'
+    '/s$/i': 's'
+    '/$/': 's'
+  INFLECTOR_SINGULAR:
+    '/(quiz)zes$/i': '\1'
+    '/(matr)ices$/i': '\1ix'
+    '/(vert|ind)ices$/i': '\1ex'
+    '/^(ox)en/i': '\1'
+    '/(alias|status)es$/i': '\1'
+    '/([octop|vir])i$/i': '\1us'
+    '/(cris|ax|test)es$/i': '\1is'
+    '/(shoe)s$/i': '\1'
+    '/(o)es$/i': '\1'
+    '/(bus)es$/i': '\1'
+    '/([m|l])ice$/i': '\1ouse'
+    '/(x|ch|ss|sh)es$/i': '\1'
+    '/(m)ovies$/i': '\1ovie'
+    '/(s)eries$/i': '\1eries'
+    '/([^aeiouy]|qu)ies$/i': '\1y'
+    '/([lr])ves$/i': '\1f'
+    '/(tive)s$/i': '\1'
+    '/(hive)s$/i': '\1'
+    '/([^f])ves$/i': '\1fe'
+    '/(^analy)ses$/i': '\1sis'
+    '/((a)naly|(b)a|(d)iagno|(p)arenthe|(p)rogno|(s)ynop|(t)he)ses$/i': '\1\2sis'
+    '/([ti])a$/i': '\1um'
+    '/(n)ews$/i': '\1ews'
   INFLECTOR_UNCOUNTABLE:
-    - 'peralatan'
-    - 'informasi'
-    - 'nasi'
-    - 'uang'
-    - 'spesies'
-    - 'rangkaian'
-    - 'ikan'
-    - 'domba'
+    - 'Peralatan'
+    - 'Informasi '
+    - 'Nasi'
+    - 'Uang'
+    - 'Jenis'
+    - 'Seri'
+    - 'Ikan'
+    - 'Domba'
   INFLECTOR_IRREGULAR:
-    'person': 'orang-orang'
-    'man': 'laki-laki'
-    'child': 'anak-anak'
-    'sex': 'jenis kelamin'
+    'person': 'Orang-orang'
+    'man': 'Pria'
+    'child': 'Balita'
+    'sex': 'Jenis Kelamin'
     'move': 'pindahkan'
+  INFLECTOR_ORDINALS:
+    'default': 'ke'
+    'first': 'pertama'
+    'second': 'nd'
+    'third': 'rd'
   NICETIME:
-    NO_DATE_PROVIDED: Tanggal tidak tersedia
+    NO_DATE_PROVIDED: Tidak ada tanggal yang disediakan
     BAD_DATE: Format tanggal salah
     AGO: yang lalu
-    FROM_NOW: dari saat ini
+    FROM_NOW: dari sekarang
     JUST_NOW: baru saja
     SECOND: detik
     MINUTE: menit
@@ -32,12 +78,12 @@ GRAV:
     MONTH: bulan
     YEAR: tahun
     DECADE: dekade
-    SEC: dtk
-    MIN: mnt
-    HR: j
-    WK: mng
-    MO: bln
-    YR: thn
+    SEC: detik
+    MIN: menit
+    HR: ' jam'
+    WK: minggu
+    MO: bulan
+    YR: tahun
     DEC: desimal
     SECOND_PLURAL: detik
     MINUTE_PLURAL: menit
@@ -47,17 +93,18 @@ GRAV:
     MONTH_PLURAL: bulan
     YEAR_PLURAL: tahun
     DECADE_PLURAL: dekade
-    SEC_PLURAL: dtk
-    MIN_PLURAL: mnt
-    HR_PLURAL: j
-    WK_PLURAL: mgg
-    MO_PLURAL: bln
-    YR_PLURAL: thn
+    SEC_PLURAL: detik
+    MIN_PLURAL: menit
+    HR_PLURAL: jam
+    WK_PLURAL: minggu
+    MO_PLURAL: bulan
+    YR_PLURAL: tahun
     DEC_PLURAL: dekade
   FORM:
     VALIDATION_FAIL: '<b>Validasi gagal:</b>'
     INVALID_INPUT: 'Input tidak valid di'
     MISSING_REQUIRED_FIELD: 'Data yang diperlukan belum terisi:'
+    XSS_ISSUES: "Isu berpotensial XSS terdeteksi dalam baris %s"
   MONTHS_OF_THE_YEAR:
     - 'Januari'
     - 'Februari'
@@ -76,22 +123,25 @@ GRAV:
     - 'Selasa'
     - 'Rabu'
     - 'Kamis'
-    - 'Jumat'
+    - 'Jum''at'
     - 'Sabtu'
     - 'Minggu'
+  YES: "Ya"
+  NO: "Tidak"
   CRON:
     EVERY: Setiap
     EVERY_HOUR: Setiap jam
     EVERY_MINUTE: Setiap menit
     EVERY_DAY_OF_WEEK: Setiap hari selama seminggu
-    EVERY_DAY_OF_MONTH: pada tanggal setiap bulannya
+    EVERY_DAY_OF_MONTH: Setiap hari dalam sebulan
     EVERY_MONTH: setiap bulan
     TEXT_PERIOD: Setiap <b />
+    TEXT_MINS: 'dalam <b />  menit setelah jam yang lalu'
     TEXT_TIME: ' pada <b />:<b />'
     TEXT_DOW: ' pada <b />'
     TEXT_MONTH: ' pada <b />'
     TEXT_DOM: ' pada <b />'
     ERROR1: Tag %s tidak didukung!
-    ERROR2: Jumlah elemen tidak valid
-    ERROR3: jquery_element harus ditetapkan ke pengaturan jqCron
-    ERROR4: Ekspresi tidak dikenali
+    ERROR2: Jumlah elemen yang buruk
+    ERROR3: jquery_element harus diatur ke dalam pengaturan jqCron
+    ERROR4: Ekspresi tidak dikenal

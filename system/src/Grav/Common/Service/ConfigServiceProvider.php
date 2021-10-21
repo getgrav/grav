@@ -17,6 +17,7 @@ use Grav\Common\Config\Config;
 use Grav\Common\Config\ConfigFileFinder;
 use Grav\Common\Config\Setup;
 use Grav\Common\Language\Language;
+use Grav\Framework\Mime\MimeTypes;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 use RocketTheme\Toolbox\File\YamlFile;
@@ -54,6 +55,19 @@ class ConfigServiceProvider implements ServiceProviderInterface
             }
 
             return $config;
+        };
+
+        $container['mime'] = function ($c) {
+            /** @var Config $config */
+            $config = $c['config'];
+            $mimes = $config->get('mime.types', []);
+            foreach ($config->get('media.types', []) as $ext => $media) {
+                if (!empty($media['mime'])) {
+                    $mimes[$ext] = array_unique(array_merge([$media['mime']], $mimes[$ext] ?? []));
+                }
+            }
+
+            return MimeTypes::createFromMimes($mimes);
         };
 
         $container['languages'] = function ($c) {

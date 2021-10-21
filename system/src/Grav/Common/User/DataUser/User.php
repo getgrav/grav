@@ -57,6 +57,7 @@ class User extends Data implements UserInterface
      * @param string $offset
      * @return bool
      */
+    #[\ReturnTypeWillChange]
     public function offsetExists($offset)
     {
         $value = parent::offsetExists($offset);
@@ -73,6 +74,7 @@ class User extends Data implements UserInterface
      * @param string $offset
      * @return mixed
      */
+    #[\ReturnTypeWillChange]
     public function offsetGet($offset)
     {
         $value = parent::offsetGet($offset);

@@ -24,7 +24,7 @@ use function array_slice;
  * Collection of objects stored into a filesystem.
  *
  * @package Grav\Framework\Collection
- * @template TKey
+ * @template TKey of array-key
  * @template T
  * @extends AbstractLazyCollection<TKey,T>
  * @mplements FileCollectionInterface<TKey,T>

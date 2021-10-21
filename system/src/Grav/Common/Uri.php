@@ -160,8 +160,8 @@ class Uri
         $language = $grav['language'];
 
         // add the port to the base for non-standard ports
-        if ($this->port !== null && $config->get('system.reverse_proxy_setup') === false) {
-            $this->base .= ':' . (string)$this->port;
+        if ($this->port && $config->get('system.reverse_proxy_setup') === false) {
+            $this->base .= ':' . $this->port;
         }
 
         // Handle custom base
@@ -176,8 +176,8 @@ class Uri
             if (isset($custom_parts['scheme'])) {
                 $this->base = $custom_parts['scheme'] . '://' . $custom_parts['host'];
                 $this->port = $custom_parts['port'] ?? null;
-                if ($this->port !== null && $config->get('system.reverse_proxy_setup') === false) {
-                    $this->base .= ':' . (string)$this->port;
+                if ($this->port && $config->get('system.reverse_proxy_setup') === false) {
+                    $this->base .= ':' . $this->port;
                 }
                 $this->root = $custom_base;
             } else {
@@ -462,8 +462,8 @@ class Uri
     public function port($raw = false)
     {
         $port = $this->port;
-        // If not in raw mode and port is not set, figure it out from scheme.
-        if (!$raw && $port === null) {
+        // If not in raw mode and port is not set or is 0, figure it out from scheme.
+        if (!$raw && !$port) {
             if ($this->scheme === 'http') {
                 $this->port = 80;
             } elseif ($this->scheme === 'https') {
@@ -471,7 +471,7 @@ class Uri
             }
         }
 
-        return $this->port;
+        return $this->port ?: null;
     }
 
     /**
@@ -586,33 +586,38 @@ class Uri
     /**
      * Return relative path to the referrer defaulting to current or given page.
      *
+     * You should set the third parameter to `true` for redirects as long as you came from the same sub-site and language.
+     *
      * @param string|null $default
      * @param string|null $attributes
+     * @param bool $withoutBaseRoute
      * @return string
      */
-    public function referrer($default = null, $attributes = null)
+    public function referrer($default = null, $attributes = null, bool $withoutBaseRoute = false)
     {
         $referrer = $_SERVER['HTTP_REFERER'] ?? null;
 
         // Check that referrer came from our site.
-        $root = $this->rootUrl(true);
-        if ($referrer) {
-            // Referrer should always have host set and it should come from the same base address.
-            if (stripos($referrer, $root) !== 0) {
-                $referrer = null;
-            }
+        if ($withoutBaseRoute) {
+            /** @var Pages $pages */
+            $pages = Grav::instance()['pages'];
+            $base = $pages->baseUrl(null, true);
+        } else {
+            $base = $this->rootUrl(true);
         }
 
-        if (!$referrer) {
+        // Referrer should always have host set and it should come from the same base address.
+        if (!is_string($referrer) || !str_starts_with($referrer, $base)) {
             $referrer = $default ?: $this->route(true, true);
         }
 
+        // Relative path from grav root.
+        $referrer = substr($referrer, strlen($base));
         if ($attributes) {
             $referrer .= $attributes;
         }
 
-        // Return relative path.
-        return substr($referrer, strlen($root));
+        return $referrer;
     }
 
     /**
@@ -648,7 +653,7 @@ class Uri
         return [
             'scheme'    => $this->scheme,
             'host'      => $this->host,
-            'port'      => $this->port,
+            'port'      => $this->port ?: null,
             'user'      => $this->user,
             'pass'      => $this->password,
             'path'      => $path,
@@ -665,7 +670,7 @@ class Uri
      */
     public static function paramsRegex()
     {
-        return '/\/([^\:\#\/\?]*' . Grav::instance()['config']->get('system.param_sep') . '[^\:\#\/\?]*)/';
+        return '/\/{1,}([^\:\#\/\?]*' . Grav::instance()['config']->get('system.param_sep') . '[^\:\#\/\?]*)/';
     }
 
     /**
@@ -675,10 +680,15 @@ class Uri
      */
     public static function ip()
     {
+        $ip = 'UNKNOWN';
+
         if (getenv('HTTP_CLIENT_IP')) {
             $ip = getenv('HTTP_CLIENT_IP');
+        } elseif (getenv('HTTP_CF_CONNECTING_IP')) {
+            $ip = getenv('HTTP_CF_CONNECTING_IP');
         } elseif (getenv('HTTP_X_FORWARDED_FOR') && Grav::instance()['config']->get('system.http_x_forwarded.ip')) {
-            $ip = getenv('HTTP_X_FORWARDED_FOR');
+            $ips = array_map('trim', explode(',', getenv('HTTP_X_FORWARDED_FOR')));
+            $ip = array_shift($ips);
         } elseif (getenv('HTTP_X_FORWARDED') && Grav::instance()['config']->get('system.http_x_forwarded.ip')) {
             $ip = getenv('HTTP_X_FORWARDED');
         } elseif (getenv('HTTP_FORWARDED_FOR')) {
@@ -687,8 +697,6 @@ class Uri
             $ip = getenv('HTTP_FORWARDED');
         } elseif (getenv('REMOTE_ADDR')) {
             $ip = getenv('REMOTE_ADDR');
-        } else {
-            $ip = 'UNKNOWN';
         }
 
         return $ip;
@@ -1143,11 +1151,8 @@ class Uri
     public static function isValidUrl($url)
     {
         $regex = '/^(?:(https?|ftp|telnet):)?\/\/((?:[a-z0-9@:.-]|%[0-9A-F]{2}){3,})(?::(\d+))?((?:\/(?:[a-z0-9-._~!$&\'\(\)\*\+\,\;\=\:\@]|%[0-9A-F]{2})*)*)(?:\?((?:[a-z0-9-._~!$&\'\(\)\*\+\,\;\=\:\/?@]|%[0-9A-F]{2})*))?(?:#((?:[a-z0-9-._~!$&\'\(\)\*\+\,\;\=\:\/?@]|%[0-9A-F]{2})*))?/';
-        if (preg_match($regex, $url)) {
-            return true;
-        }
 
-        return false;
+        return (bool)preg_match($regex, $url);
     }
 
     /**
@@ -1258,7 +1263,7 @@ class Uri
             $this->port = null;
         }
 
-        if ($this->hasStandardPort()) {
+        if ($this->port === 0 || $this->hasStandardPort()) {
             $this->port = null;
         }
 
@@ -1298,7 +1303,7 @@ class Uri
      */
     protected function hasStandardPort()
     {
-        return ($this->port === 80 || $this->port === 443);
+        return (!$this->port || $this->port === 80 || $this->port === 443);
     }
 
     /**
@@ -1311,11 +1316,13 @@ class Uri
         if ($parts === false) {
             throw new RuntimeException('Malformed URL: ' . $url);
         }
+        $port = (int)($parts['port'] ?? 0);
+
         $this->scheme = $parts['scheme'] ?? null;
         $this->user = $parts['user'] ?? null;
         $this->password = $parts['pass'] ?? null;
         $this->host = $parts['host'] ?? null;
-        $this->port = isset($parts['port']) ? (int)$parts['port'] : null;
+        $this->port = $port ?: null;
         $this->path = $parts['path'] ?? '';
         $this->query = $parts['query'] ?? '';
         $this->fragment = $parts['fragment'] ?? null;
@@ -1498,7 +1505,7 @@ class Uri
      * @param string $delimiter
      * @return string
      */
-    private function processParams($uri, $delimiter = ':')
+    private function processParams(string $uri, string $delimiter = ':'): string
     {
         if (strpos($uri, $delimiter) !== false) {
             preg_match_all(static::paramsRegex(), $uri, $matches, PREG_SET_ORDER);

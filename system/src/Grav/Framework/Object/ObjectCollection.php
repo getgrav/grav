@@ -9,7 +9,6 @@
 
 namespace Grav\Framework\Object;
 
-use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\Criteria;
 use Grav\Framework\Collection\ArrayCollection;
 use Grav\Framework\Object\Access\NestedPropertyCollectionTrait;
@@ -22,7 +21,7 @@ use function array_slice;
 /**
  * Class contains a collection of objects.
  *
- * @template TKey
+ * @template TKey of array-key
  * @template T
  * @extends ArrayCollection<TKey,T>
  * @implements NestedObjectCollectionInterface<TKey,T>

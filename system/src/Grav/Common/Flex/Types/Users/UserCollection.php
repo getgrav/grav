@@ -92,7 +92,7 @@ class UserCollection extends FlexCollection implements UserCollectionInterface
                 } else {
                     $user = parent::find($query, $field);
                 }
-                if ($user) {
+                if ($user instanceof UserObject) {
                     return $user;
                 }
             }
@@ -123,7 +123,7 @@ class UserCollection extends FlexCollection implements UserCollectionInterface
      * @param string $key
      * @return string
      */
-    protected function filterUsername(string $key)
+    protected function filterUsername(string $key): string
     {
         $storage = $this->getFlexDirectory()->getStorage();
         if (method_exists($storage, 'normalizeKey')) {

@@ -69,6 +69,7 @@ abstract class Getters implements ArrayAccess, Countable
      * @param int|string $offset
      * @return bool
      */
+    #[\ReturnTypeWillChange]
     public function offsetExists($offset)
     {
         if ($this->gettersVariable) {
@@ -84,6 +85,7 @@ abstract class Getters implements ArrayAccess, Countable
      * @param int|string $offset
      * @return mixed
      */
+    #[\ReturnTypeWillChange]
     public function offsetGet($offset)
     {
         if ($this->gettersVariable) {
@@ -99,6 +101,7 @@ abstract class Getters implements ArrayAccess, Countable
      * @param int|string $offset
      * @param mixed $value
      */
+    #[\ReturnTypeWillChange]
     public function offsetSet($offset, $value)
     {
         if ($this->gettersVariable) {
@@ -112,6 +115,7 @@ abstract class Getters implements ArrayAccess, Countable
     /**
      * @param int|string $offset
      */
+    #[\ReturnTypeWillChange]
     public function offsetUnset($offset)
     {
         if ($this->gettersVariable) {

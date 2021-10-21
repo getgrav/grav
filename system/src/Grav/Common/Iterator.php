@@ -230,9 +230,7 @@ class Iterator implements \ArrayAccess, \Iterator, \Countable, \Serializable
     public function filter(callable $callback = null)
     {
         foreach ($this->items as $key => $value) {
-            if ((!$callback && !(bool)$value) ||
-                ($callback && !$callback($value, $key))
-            ) {
+            if ((!$callback && !(bool)$value) || ($callback && !$callback($value, $key))) {
                 unset($this->items[$key]);
             }
         }

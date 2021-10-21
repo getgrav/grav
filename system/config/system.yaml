@@ -96,7 +96,7 @@ cache:
   purge_at: '0 4 * * *'                          # How often to purge old file cache (using new scheduler)
   clear_at: '0 3 * * *'                           # How often to clear cache (using new scheduler)
   clear_job_type: 'standard'                     # Type to clear when processing the scheduled clear job `standard`|`all`
-  clear_images_by_default: true                  # By default grav will include processed images in cache clear, this can be disabled
+  clear_images_by_default: false                  # By default grav does not include processed images in cache clear, this can be enabled
   cli_compatibility: false                       # Ensures only non-volatile drivers are used (file, redis, memcache, etc.)
   lifetime: 604800                               # Lifetime of cached data in seconds (0 = infinite)
   gzip: false                                    # GZip compress the page output
@@ -113,6 +113,8 @@ twig:
   autoescape: true                               # Autoescape Twig vars (DEPRECATED, always enabled in strict mode)
   undefined_functions: true                      # Allow undefined functions
   undefined_filters: true                        # Allow undefined filters
+  safe_functions: []                             # List of PHP functions which are allowed to be used as Twig functions
+  safe_filters: []                               # List of PHP functions which are allowed to be used as Twig filters
   umask_fix: false                               # By default Twig creates cached files as 755, fix switches this to 775
 
 assets:                                          # Configuration for Assets Manager (JS, CSS)
@@ -129,7 +131,7 @@ assets:                                          # Configuration for Assets Mana
   enable_asset_timestamp: false                  # Enable asset timestamps
   enable_asset_sri: false                        # Enable asset SRI
   collections:
-    jquery: system://assets/jquery/jquery-2.x.min.js
+    jquery: system://assets/jquery/jquery-3.x.min.js
 
 errors:
   display: 0                                     # Display either (1) Full backtrace | (0) Simple Error | (-1) System Error
@@ -188,10 +190,16 @@ session:
 
 gpm:
   releases: stable                               # Set to either 'stable' or 'testing'
-  proxy_url:                                     # Configure a manual proxy URL for GPM (eg 127.0.0.1:3128)
-  method: 'auto'                                 # Either 'curl', 'fopen' or 'auto'. 'auto' will try fopen first and if not available cURL
-  verify_peer: true                              # Sometimes on some systems (Windows most commonly) GPM is unable to connect because the SSL certificate cannot be verified. Disabling this setting might help.
   official_gpm_only: true                        # By default GPM direct-install will only allow URLs via the official GPM proxy to ensure security
+
+http:
+  method: auto                                   # Either 'curl', 'fopen' or 'auto'. 'auto' will try fopen first and if not available cURL
+  enable_proxy: true                             # Enable proxy server configuration
+  proxy_url:                                     # Configure a manual proxy URL for GPM (eg 127.0.0.1:3128)
+  proxy_cert_path:                               # Local path to proxy certificate folder containing pem files
+  concurrent_connections: 5                      # Concurrent HTTP connections when multiplexing
+  verify_peer: true                              # Enable/Disable SSL verification of peer certificates
+  verify_host: true                              # Enable/Disable SSL verification of host certificates
 
 accounts:
   type: regular                                  # EXPERIMENTAL: Account type: regular or flex

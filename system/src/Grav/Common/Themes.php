@@ -224,28 +224,18 @@ class Themes extends Iterator
         $grav = $this->grav;
         $config = $this->config;
         $name = $this->current();
+        $class = null;
 
         /** @var UniformResourceLocator $locator */
         $locator = $grav['locator'];
-        $file = $locator('theme://theme.php') ?: $locator("theme://{$name}.php");
 
+        // Start by attempting to load the theme.php file.
+        $file = $locator('theme://theme.php') ?: $locator("theme://{$name}.php");
         if ($file) {
             // Local variables available in the file: $grav, $config, $name, $file
             $class = include $file;
-
-            if (!$class || !is_subclass_of($class, Plugin::class, true)) {
-                $className = Inflector::camelize($name);
-                $themeClassFormat = [
-                    'Grav\\Theme\\' . $className,
-                    'Grav\\Theme\\' . ucfirst($name)
-                ];
-
-                foreach ($themeClassFormat as $themeClass) {
-                    if (is_subclass_of($themeClass, Theme::class, true)) {
-                        $class = new $themeClass($grav, $config, $name);
-                        break;
-                    }
-                }
+            if (!\is_object($class) || !is_subclass_of($class, Theme::class, true)) {
+                $class = null;
             }
         } elseif (!$locator('theme://') && !defined('GRAV_CLI')) {
             $response = new Response(500, [], "Theme '$name' does not exist, unable to display page.");
@@ -253,11 +243,27 @@ class Themes extends Iterator
             $grav->close($response);
         }
 
-        $this->config->set('theme', $config->get('themes.' . $name));
+        // If the class hasn't been initialized yet, guess the class name and create a new instance.
+        if (null === $class) {
+            $themeClassFormat = [
+                'Grav\\Theme\\' . Inflector::camelize($name),
+                'Grav\\Theme\\' . ucfirst($name)
+            ];
 
-        if (empty($class)) {
+            foreach ($themeClassFormat as $themeClass) {
+                if (is_subclass_of($themeClass, Theme::class, true)) {
+                    $class = new $themeClass($grav, $config, $name);
+                    break;
+                }
+            }
+        }
+
+        // Finally if everything else fails, just create a new instance from the default Theme class.
+        if (null === $class) {
             $class = new Theme($grav, $config, $name);
         }
+
+        $this->config->set('theme', $config->get('themes.' . $name));
 
         return $class;
     }

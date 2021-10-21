@@ -2095,7 +2095,7 @@ class Page implements PageInterface
      */
     public function filePathClean()
     {
-        return str_replace(ROOT_DIR, '', $this->filePath());
+        return str_replace(GRAV_ROOT . DS, '', $this->filePath());
     }
 
     /**
@@ -2274,11 +2274,11 @@ class Page implements PageInterface
     {
         if ($var !== null) {
             // make sure first level are arrays
-            array_walk($var, function (&$value) {
+            array_walk($var, static function (&$value) {
                 $value = (array) $value;
             });
             // make sure all values are strings
-            array_walk_recursive($var, function (&$value) {
+            array_walk_recursive($var, static function (&$value) {
                 $value = (string) $value;
             });
             $this->taxonomy = $var;

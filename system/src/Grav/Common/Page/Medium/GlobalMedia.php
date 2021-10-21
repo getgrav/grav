@@ -46,6 +46,7 @@ class GlobalMedia extends AbstractMedia
      * @param string $offset
      * @return bool
      */
+    #[\ReturnTypeWillChange]
     public function offsetExists($offset)
     {
         return parent::offsetExists($offset) ?: !empty($this->resolveStream($offset));
@@ -55,6 +56,7 @@ class GlobalMedia extends AbstractMedia
      * @param string $offset
      * @return MediaObjectInterface|null
      */
+    #[\ReturnTypeWillChange]
     public function offsetGet($offset)
     {
         return parent::offsetGet($offset) ?: $this->addMedium($offset);

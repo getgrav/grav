@@ -173,6 +173,7 @@ trait ControllerResponseTrait
             if ($method !== 'GET' && $method !== 'HEAD') {
                 $this->setMessage($message, 'error');
                 $referer = $request->getHeaderLine('Referer');
+
                 return $this->createRedirectResponse($referer, 303);
             }
 

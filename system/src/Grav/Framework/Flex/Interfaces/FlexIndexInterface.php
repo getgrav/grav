@@ -51,6 +51,7 @@ interface FlexIndexInterface extends FlexCollectionInterface
      *
      * @param string|null $keyField Switch key field of the collection.
      * @return static  Returns a new Flex Collection with new key field.
+     * @phpstan-return static<T>
      * @api
      */
     public function withKeyField(string $keyField = null);

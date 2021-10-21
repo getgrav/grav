@@ -2,23 +2,23 @@
 
 use Codeception\Util\Fixtures;
 use Grav\Common\Grav;
-use Grav\Common\Twig\TwigExtension;
+use Grav\Common\Twig\Extension\GravExtension;
 
 /**
- * Class TwigExtensionTest
+ * Class GravExtensionTest
  */
-class TwigExtensionTest extends \Codeception\TestCase\Test
+class GravExtensionTest extends \Codeception\TestCase\Test
 {
     /** @var Grav $grav */
     protected $grav;
 
-    /** @var  TwigExtension $twig_ext */
+    /** @var  GravExtension $twig_ext */
     protected $twig_ext;
 
     protected function _before(): void
     {
         $this->grav = Fixtures::get('grav');
-        $this->twig_ext = new TwigExtension();
+        $this->twig_ext = new GravExtension();
     }
 
     public function testInflectorFilter(): void

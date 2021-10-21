@@ -15,7 +15,7 @@ use Doctrine\Common\Collections\ArrayCollection as BaseArrayCollection;
  * General JSON serializable collection.
  *
  * @package Grav\Framework\Collection
- * @template TKey
+ * @template TKey of array-key
  * @template T
  * @extends BaseArrayCollection<TKey,T>
  * @implements CollectionInterface<TKey,T>

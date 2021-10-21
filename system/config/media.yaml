@@ -28,6 +28,10 @@ types:
     type: image
     thumb: media/thumb-webp.png
     mime: image/webp
+  avif:
+    type: image
+    thumb: media/thumb.png
+    mime: image/avif
   gif:
     type: animated
     thumb: media/thumb-gif.png
@@ -91,7 +95,7 @@ types:
   aif:
     type: audio
     thumb: media/thumb-aif.png
-    mime: audio/aif
+    mime: audio/aiff
   txt:
     type: file
     thumb: media/thumb-txt.png
@@ -207,7 +211,7 @@ types:
   js:
     type: file
     thumb: media/thumb-js.png
-    mime: application/javascript
+    mime: text/javascript
   json:
     type: file
     thumb: media/thumb-json.png
