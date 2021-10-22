@@ -2,6 +2,7 @@
 ## mm/dd/2021
 
 1. [](#new)
+    * Added support for image watermarks
     * Added support to disable a form, making it readonly
 3. [](#bugfix)
     * Fixed a bug in `PermissionsReader` in PHP 7.3
