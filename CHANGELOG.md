@@ -1,6 +1,8 @@
 # v1.7.24
 ## mm/dd/2021
 
+1. [](#new)
+    * Added support to disable a form, making it readonly
 3. [](#bugfix)
     * Fixed a bug in `PermissionsReader` in PHP 7.3
     * Fixed `session_store_active` language option (#3464)
