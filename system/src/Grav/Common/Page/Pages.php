@@ -649,7 +649,7 @@ class Pages
             $cmd = $value;
             $params = [];
         } elseif (is_array($value) && count($value) === 1 && !is_int(key($value))) {
-            // Format: @command.param: { attr1: value1, attr2: value2 }
+            // Format: @command.param: { attr1: value1, attr2: value2 }
             $cmd = (string)key($value);
             $params = (array)current($value);
         } else {
