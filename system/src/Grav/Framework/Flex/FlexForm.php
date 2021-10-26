@@ -15,6 +15,7 @@ use Grav\Common\Data\Blueprint;
 use Grav\Common\Data\Data;
 use Grav\Common\Grav;
 use Grav\Common\Twig\Twig;
+use Grav\Common\Utils;
 use Grav\Framework\Flex\Interfaces\FlexFormInterface;
 use Grav\Framework\Flex\Interfaces\FlexObjectFormInterface;
 use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
@@ -125,9 +126,14 @@ class FlexForm implements FlexObjectFormInterface, JsonSerializable
             $uniqueId = md5($uniqueId);
         }
         $this->setUniqueId($uniqueId);
+
         $directory = $object->getFlexDirectory();
         $this->setFlashLookupFolder($options['flash_folder'] ?? $directory->getBlueprint()->get('form/flash_folder') ?? 'tmp://forms/[SESSIONID]');
         $this->form = $options['form'] ?? null;
+
+        if (Utils::isPositive($this->items['disabled'] ?? $this->form['disabled'] ?? false)) {
+            $this->disable();
+        }
 
         if (!empty($options['reset'])) {
             $this->getFlash()->delete();

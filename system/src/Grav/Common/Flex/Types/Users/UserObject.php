@@ -231,6 +231,16 @@ class UserObject extends FlexObject implements UserInterface, Countable
     }
 
     /**
+     * @return bool
+     */
+    public function isMyself(): bool
+    {
+        $me = $this->getActiveUser();
+
+        return $me && $me->authenticated && $this->username === $me->username;
+    }
+
+    /**
      * Checks user authorization to the action.
      *
      * @param  string $action
@@ -264,6 +274,7 @@ class UserObject extends FlexObject implements UserInterface, Countable
             }
         }
 
+        // Check custom application access.
         $authorizeCallable = static::$authorizeCallable;
         if ($authorizeCallable instanceof Closure) {
             $authorizeCallable->bindTo($this);
@@ -280,13 +291,14 @@ class UserObject extends FlexObject implements UserInterface, Countable
             return $authorized;
         }
 
-        // If specific rule isn't hit, check if user is super user.
-        if ($access->authorize('admin.super') === true) {
-            return true;
+        // Check group access.
+        $authorized = $this->getGroups()->authorize($action, $scope);
+        if (is_bool($authorized)) {
+            return $authorized;
         }
 
-        // Check group access.
-        return $this->getGroups()->authorize($action, $scope);
+        // If any specific rule isn't hit, check if user is a superuser.
+        return $access->authorize('admin.super') === true;
     }
 
     /**

@@ -138,7 +138,7 @@ class Security
             $options = static::getXssDefaults();
         }
 
-        $list = [];
+        $list = [[]];
         foreach ($array as $key => $value) {
             if (is_array($value)) {
                 $list[] = static::detectXssFromArray($value, $prefix . $key . '.', $options);
@@ -148,11 +148,7 @@ class Security
             }
         }
 
-        if (!empty($list)) {
-            return array_merge(...$list);
-        }
-
-        return $list;
+        return array_merge(...$list);
     }
 
     /**
@@ -207,7 +203,7 @@ class Security
         $string = preg_replace('!(&#0+[0-9]+)!u', '$1;', $string);
 
         // Decode entities
-        $string = html_entity_decode($string, ENT_NOQUOTES, 'UTF-8');
+        $string = html_entity_decode($string, ENT_NOQUOTES | ENT_HTML5, 'UTF-8');
 
         // Strip whitespace characters
         $string = preg_replace('!\s!u', '', $string);

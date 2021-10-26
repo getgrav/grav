@@ -1,9 +1,25 @@
+# v1.7.24
+## 10/26/2021
+
+1. [](#new)
+    * Added support for image watermarks
+    * Added support to disable a form, making it readonly
+2. [](#improved)
+    * Flex `$user->authorize()` now checks user groups before `admin.super`, allowing deny rules to work properly
+3. [](#bugfix)
+    * Fixed a bug in `PermissionsReader` in PHP 7.3
+    * Fixed `session_store_active` language option (#3464)
+    * Fixed deprecated warnings on `ArrayAccess` in PHP 8.1
+    * Fixed XSS detection with `&colon;`
+
 # v1.7.23
 ## 09/29/2021
 
 1. [](#new)
     * Added method `Pages::referrerRoute()` to get the referrer route and language
     * Added true unique `Utils::uniqueId()` / `{{ unique_id() }}` utilities  with length, prefix, and suffix support
+    * Added `UserObject::isMyself()` method to check if flex user is currently logged in
+    * Added support for custom form field options validation with `validate: options: key|ignore`
 2. [](#improved)
    * Replaced GPL `SVG-Sanitizer` with MIT licensed `DOM-Sanitizer`
    * `Uri::referrer()` now accepts third parameter, if set to `true`, it returns route without base or language code [#3411](https://github.com/getgrav/grav/issues/3411)

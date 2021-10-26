@@ -63,6 +63,7 @@ class Media extends AbstractMedia
      * @param string $offset
      * @return bool
      */
+    #[\ReturnTypeWillChange]
     public function offsetExists($offset)
     {
         return parent::offsetExists($offset) ?: isset(static::$global[$offset]);
@@ -72,6 +73,7 @@ class Media extends AbstractMedia
      * @param string $offset
      * @return MediaObjectInterface|null
      */
+    #[\ReturnTypeWillChange]
     public function offsetGet($offset)
     {
         return parent::offsetGet($offset) ?: static::$global[$offset];
