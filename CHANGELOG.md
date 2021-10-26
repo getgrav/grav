@@ -5,7 +5,7 @@
     * Added support for image watermarks
     * Added support to disable a form, making it readonly
 2. [](#improved)
-    * User `authorize()` now checks user groups before superuser, allowing deny rules to work
+    * Flex `$user->authorize()` now checks user groups before `admin.super`, allowing deny rules to work properly
 3. [](#bugfix)
     * Fixed a bug in `PermissionsReader` in PHP 7.3
     * Fixed `session_store_active` language option (#3464)
