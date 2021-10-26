@@ -1,5 +1,5 @@
 # v1.7.24
-## mm/dd/2021
+## 10/26/2021
 
 1. [](#new)
     * Added support for image watermarks
