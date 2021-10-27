@@ -3,7 +3,7 @@
 
 1. [](#improved)
     * Added `route` and `request` to `onPagesInitialized` event
-    * Improved page cloning
+    * Improved page cloning, added method `Page::initialize()`
 
 # v1.7.24
 ## 10/26/2021
