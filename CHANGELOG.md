@@ -3,6 +3,7 @@
 
 1. [](#improved)
     * Added `route` and `request` to `onPagesInitialized` event
+    * Improved page cloning
 
 # v1.7.24
 ## 10/26/2021
