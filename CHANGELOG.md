@@ -1,3 +1,9 @@
+# v1.7.25
+## mm/dd/2021
+
+1. [](#improved)
+    * Added `route` and `request` to `onPagesInitialized` event
+
 # v1.7.24
 ## 10/26/2021
 
