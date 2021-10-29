@@ -1,3 +1,9 @@
+# v1.7.25
+## mm/dd/2021
+
+2. [](#improved)
+   * Use Symfony `dump` instead of PHP's `vardump` in side the `{{ vardump(x) }}` Twig vardump function
+
 # v1.7.24
 ## 10/26/2021
 

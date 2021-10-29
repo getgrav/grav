@@ -1354,7 +1354,7 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
      */
     public function vardumpFunc($var)
     {
-        var_dump($var);
+        dump($var);
     }
 
     /**
