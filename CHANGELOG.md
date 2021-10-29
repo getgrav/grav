@@ -1,8 +1,11 @@
 # v1.7.25
 ## mm/dd/2021
 
-2. [](#improved)
+1. [](#improved)
    * Use Symfony `dump` instead of PHP's `vardump` in side the `{{ vardump(x) }}` Twig vardump function
+   * Added `route` and `request` to `onPagesInitialized` event
+   * Improved page cloning, added method `Page::initialize()`
+
 
 # v1.7.24
 ## 10/26/2021

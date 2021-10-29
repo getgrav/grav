@@ -218,6 +218,25 @@ class Page implements PageInterface
         return $this;
     }
 
+    public function __clone()
+    {
+        $this->initialized = false;
+        $this->header = $this->header ? clone $this->header : null;
+    }
+
+    /**
+     * @return void
+     */
+    public function initialize(): void
+    {
+        if (!$this->initialized) {
+            $this->initialized = true;
+            $this->route = null;
+            $this->raw_route = null;
+            $this->_forms = null;
+        }
+    }
+
     /**
      * @return void
      */
