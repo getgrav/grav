@@ -847,6 +847,12 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
 
             if (($numargs === 3 && is_array($args[1])) || ($numargs === 2 && !is_array($args[1]))) {
                 $lang = array_pop($args);
+                /** @var Language $language */
+                $language = $this->grav['language'];
+                if (is_string($lang) && !$language->getLanguageCode($lang)) {
+                    $args[] = $lang;
+                    $lang = null;
+                }
             } elseif ($numargs === 2 && is_array($args[1])) {
                 $subs = array_pop($args);
                 $args = array_merge($args, $subs);

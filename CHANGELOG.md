@@ -7,6 +7,7 @@
     * Improved page cloning, added method `Page::initialize()`
 2. [](#bugfix)
     * Fixed unescaped error messages in JSON error responses
+    * Fixed `|t(variable)` twig filter in admin
 
 # v1.7.24
 ## 10/26/2021
