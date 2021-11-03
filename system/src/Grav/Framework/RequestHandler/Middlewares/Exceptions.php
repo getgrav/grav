@@ -14,6 +14,7 @@ namespace Grav\Framework\RequestHandler\Middlewares;
 use Grav\Common\Debugger;
 use Grav\Common\Grav;
 use Grav\Framework\Psr7\Response;
+use JsonException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
@@ -27,15 +28,26 @@ use function get_class;
  */
 class Exceptions implements MiddlewareInterface
 {
+    /**
+     * @param ServerRequestInterface $request
+     * @param RequestHandlerInterface $handler
+     * @return ResponseInterface
+     * @throws JsonException
+     */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         try {
             return $handler->handle($request);
         } catch (Throwable $exception) {
+            $code = $exception->getCode();
+            $message = htmlspecialchars($exception->getMessage(), ENT_QUOTES | ENT_HTML5, 'UTF-8');
             $response = [
+                'code' => $code,
+                'status' => 'error',
+                'message' => $message,
                 'error' => [
-                    'code' => $exception->getCode(),
-                    'message' => $exception->getMessage(),
+                    'code' => $code,
+                    'message' => $message,
                 ]
             ];
 
@@ -51,9 +63,9 @@ class Exceptions implements MiddlewareInterface
             }
 
             /** @var string $json */
-            $json = json_encode($response);
+            $json = json_encode($response, JSON_THROW_ON_ERROR);
 
-            return new Response($exception->getCode() ?: 500, ['Content-Type' => 'application/json'], $json);
+            return new Response($code ?: 500, ['Content-Type' => 'application/json'], $json);
         }
     }
 }

@@ -203,7 +203,7 @@ trait ControllerResponseTrait
     protected function getErrorJson(Throwable $e): array
     {
         $code = $this->getErrorCode($e instanceof RequestException ? $e->getHttpCode() : $e->getCode());
-        $message = $e->getMessage();
+        $message = htmlspecialchars($e->getMessage(), ENT_QUOTES | ENT_HTML5, 'UTF-8');
         $response = [
             'code' => $code,
             'status' => 'error',

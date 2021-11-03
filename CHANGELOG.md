@@ -2,10 +2,11 @@
 ## mm/dd/2021
 
 1. [](#improved)
-   * Use Symfony `dump` instead of PHP's `vardump` in side the `{{ vardump(x) }}` Twig vardump function
-   * Added `route` and `request` to `onPagesInitialized` event
-   * Improved page cloning, added method `Page::initialize()`
-
+    * Use Symfony `dump` instead of PHP's `vardump` in side the `{{ vardump(x) }}` Twig vardump function
+    * Added `route` and `request` to `onPagesInitialized` event
+    * Improved page cloning, added method `Page::initialize()`
+2. [](#bugfix)
+    * Fixed unescaped error messages in JSON error responses
 
 # v1.7.24
 ## 10/26/2021
