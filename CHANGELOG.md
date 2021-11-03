@@ -6,6 +6,7 @@
     * Added `route` and `request` to `onPagesInitialized` event
     * Improved page cloning, added method `Page::initialize()`
 2. [](#bugfix)
+    * Fixed path traversal vulnerability when using `bin/grav server`
     * Fixed unescaped error messages in JSON error responses
     * Fixed `|t(variable)` twig filter in admin
 
