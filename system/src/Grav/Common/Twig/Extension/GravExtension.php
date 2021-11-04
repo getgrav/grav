@@ -1424,7 +1424,7 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
      * @param array $context      Twig Context
      * @param string $var variable to be found (using dot notation)
      * @param null $default the default value to be used as last resort
-     * @param null $page an optional page to use for the current page
+     * @param PageInterface|null $page an optional page to use for the current page
      * @param bool $exists toggle to simply return the page where the variable is set, else null
      * @return mixed
      */

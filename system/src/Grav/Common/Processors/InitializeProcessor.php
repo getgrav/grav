@@ -44,7 +44,7 @@ class InitializeProcessor extends ProcessorBase
     public $title = 'Initialize';
 
     /** @var bool */
-    private static $cli_initialized = false;
+    protected static $cli_initialized = false;
 
     /**
      * @param Grav $grav

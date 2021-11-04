@@ -99,7 +99,7 @@ class FlexDirectoryForm implements FlexDirectoryFormInterface, JsonSerializable
         $this->setFlashLookupFolder($directory->getDirectoryBlueprint()->get('form/flash_folder') ?? 'tmp://forms/[SESSIONID]');
         $this->form = $options['form'] ?? null;
 
-        if (Utils::isPositive($this->items['disabled'] ?? $this->form['disabled'] ?? false)) {
+        if (Utils::isPositive($this->form['disabled'] ?? false)) {
             $this->disable();
         }
 

@@ -994,7 +994,7 @@ class Page implements PageInterface
     /**
      * Needed by the onPageContentProcessed event to set the raw page content
      *
-     * @param string $content
+     * @param string|null $content
      * @return void
      */
     public function setRawContent($content)

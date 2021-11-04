@@ -17,8 +17,8 @@ use Grav\Framework\File\Formatter\YamlFormatter;
  */
 abstract class Yaml
 {
-    /** @var YamlFormatter */
-    private static $yaml;
+    /** @var YamlFormatter|null */
+    protected static $yaml;
 
     /**
      * @param string $data
@@ -51,7 +51,7 @@ abstract class Yaml
     /**
      * @return void
      */
-    private static function init()
+    protected static function init()
     {
         $config = [
             'inline' => 5,

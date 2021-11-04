@@ -9,13 +9,13 @@
 
 namespace Grav\Framework\Collection;
 
+use stdClass;
+
 /**
  * Collection of objects stored into a filesystem.
  *
  * @package Grav\Framework\Collection
- * @template TKey of array-key
- * @template T
- * @extends AbstractFileCollection<TKey,T>
+ * @extends AbstractFileCollection<array-key,stdClass>
  */
 class FileCollection extends AbstractFileCollection
 {

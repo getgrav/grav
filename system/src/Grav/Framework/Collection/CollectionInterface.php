@@ -26,7 +26,7 @@ interface CollectionInterface extends Collection, JsonSerializable
      * Reverse the order of the items.
      *
      * @return CollectionInterface
-     * @phpstan-return CollectionInterface<TKey,T>
+     * @phpstan-return static<TKey,T>
      */
     public function reverse();
 
@@ -34,7 +34,7 @@ interface CollectionInterface extends Collection, JsonSerializable
      * Shuffle items.
      *
      * @return CollectionInterface
-     * @phpstan-return CollectionInterface<TKey,T>
+     * @phpstan-return static<TKey,T>
      */
     public function shuffle();
 
@@ -53,7 +53,7 @@ interface CollectionInterface extends Collection, JsonSerializable
      *
      * @param array<int|string> $keys
      * @return CollectionInterface
-     * @phpstan-return CollectionInterface<TKey,T>
+     * @phpstan-return static<TKey,T>
      */
     public function select(array $keys);
 
@@ -62,7 +62,7 @@ interface CollectionInterface extends Collection, JsonSerializable
      *
      * @param array<int|string> $keys
      * @return CollectionInterface
-     * @phpstan-return CollectionInterface<TKey,T>
+     * @phpstan-return static<TKey,T>
      */
     public function unselect(array $keys);
 }

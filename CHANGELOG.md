@@ -1,11 +1,13 @@
 # v1.7.25
 ## mm/dd/2021
 
-1. [](#improved)
+1. [](#new)
+    * Updated phpstan to v1.0
+2. [](#improved)
     * Use Symfony `dump` instead of PHP's `vardump` in side the `{{ vardump(x) }}` Twig vardump function
     * Added `route` and `request` to `onPagesInitialized` event
     * Improved page cloning, added method `Page::initialize()`
-2. [](#bugfix)
+3. [](#bugfix)
     * Fixed path traversal vulnerability when using `bin/grav server`
     * Fixed unescaped error messages in JSON error responses
     * Fixed `|t(variable)` twig filter in admin

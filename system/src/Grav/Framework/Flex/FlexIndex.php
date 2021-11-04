@@ -35,7 +35,7 @@ use function in_array;
  * @package Grav\Framework\Flex
  * @template T of FlexObjectInterface
  * @template C of FlexCollectionInterface
- * @extends ObjectIndex<string,T>
+ * @extends ObjectIndex<string,T,C>
  * @implements FlexIndexInterface<T>
  * @mixin C
  */
