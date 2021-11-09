@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Grav\Framework\RequestHandler\Middlewares;
 
+use Grav\Common\Data\ValidationException;
 use Grav\Common\Debugger;
 use Grav\Common\Grav;
 use Grav\Framework\Psr7\Response;
@@ -40,7 +41,11 @@ class Exceptions implements MiddlewareInterface
             return $handler->handle($request);
         } catch (Throwable $exception) {
             $code = $exception->getCode();
-            $message = htmlspecialchars($exception->getMessage(), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+            if ($exception instanceof ValidationException) {
+                $message = $exception->getMessage();
+            } else {
+                $message = htmlspecialchars($exception->getMessage(), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+            }
             $response = [
                 'code' => $code,
                 'status' => 'error',

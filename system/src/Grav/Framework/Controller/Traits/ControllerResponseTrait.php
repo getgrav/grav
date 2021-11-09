@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace Grav\Framework\Controller\Traits;
 
 use Grav\Common\Config\Config;
+use Grav\Common\Data\ValidationException;
 use Grav\Common\Debugger;
 use Grav\Common\Grav;
 use Grav\Common\Utils;
@@ -203,7 +204,11 @@ trait ControllerResponseTrait
     protected function getErrorJson(Throwable $e): array
     {
         $code = $this->getErrorCode($e instanceof RequestException ? $e->getHttpCode() : $e->getCode());
-        $message = htmlspecialchars($e->getMessage(), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        if ($e instanceof ValidationException) {
+            $message = $e->getMessage();
+        } else {
+            $message = htmlspecialchars($e->getMessage(), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        }
         $response = [
             'code' => $code,
             'status' => 'error',
