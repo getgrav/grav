@@ -3,10 +3,12 @@
 
 1. [](#new)
     * Updated phpstan to v1.0
+    * Added `FlexObject::getDiff()` to see difference to the saved object
 2. [](#improved)
     * Use Symfony `dump` instead of PHP's `vardump` in side the `{{ vardump(x) }}` Twig vardump function
     * Added `route` and `request` to `onPagesInitialized` event
     * Improved page cloning, added method `Page::initialize()`
+    * Improved `FlexObject::getChanges()`: return changed lists and arrays as whole instead of just changed keys/values
 3. [](#bugfix)
     * Fixed path traversal vulnerability when using `bin/grav server`
     * Fixed unescaped error messages in JSON error responses
