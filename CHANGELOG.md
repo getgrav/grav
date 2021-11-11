@@ -11,6 +11,7 @@
     * Fixed path traversal vulnerability when using `bin/grav server`
     * Fixed unescaped error messages in JSON error responses
     * Fixed `|t(variable)` twig filter in admin
+    * Fixed `FlexObject::getChanges()` always returning empty array
 
 # v1.7.24
 ## 10/26/2021

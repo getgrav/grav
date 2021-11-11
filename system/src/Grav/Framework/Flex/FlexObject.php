@@ -666,8 +666,10 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
             }
 
             // Store the changes
-            $this->_original = $this->getElements();
-            $this->_changes = Utils::arrayDiffMultidimensional($this->_original, $elements);
+            if ($this->_original === null) {
+                $this->_original = $elements;
+            }
+            $this->_changes = Utils::arrayDiffMultidimensional($this->_original, $this->getElements());
         }
 
         if ($files && method_exists($this, 'setUpdatedMedia')) {
