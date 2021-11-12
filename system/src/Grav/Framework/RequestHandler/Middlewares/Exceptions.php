@@ -16,6 +16,7 @@ use Grav\Common\Debugger;
 use Grav\Common\Grav;
 use Grav\Framework\Psr7\Response;
 use JsonException;
+use JsonSerializable;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
@@ -46,6 +47,9 @@ class Exceptions implements MiddlewareInterface
             } else {
                 $message = htmlspecialchars($exception->getMessage(), ENT_QUOTES | ENT_HTML5, 'UTF-8');
             }
+
+            $extra = $exception instanceof JsonSerializable ? $exception->jsonSerialize() : [];
+
             $response = [
                 'code' => $code,
                 'status' => 'error',
@@ -53,7 +57,7 @@ class Exceptions implements MiddlewareInterface
                 'error' => [
                     'code' => $code,
                     'message' => $message,
-                ]
+                ] + $extra
             ];
 
             /** @var Debugger $debugger */

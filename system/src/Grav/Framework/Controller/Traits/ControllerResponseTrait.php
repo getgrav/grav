@@ -19,6 +19,7 @@ use Grav\Common\Utils;
 use Grav\Framework\Psr7\Response;
 use Grav\Framework\RequestHandler\Exception\RequestException;
 use Grav\Framework\Route\Route;
+use JsonSerializable;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
@@ -209,6 +210,9 @@ trait ControllerResponseTrait
         } else {
             $message = htmlspecialchars($e->getMessage(), ENT_QUOTES | ENT_HTML5, 'UTF-8');
         }
+
+        $extra = $e instanceof JsonSerializable ? $e->jsonSerialize() : [];
+
         $response = [
             'code' => $code,
             'status' => 'error',
@@ -216,7 +220,7 @@ trait ControllerResponseTrait
             'error' => [
                 'code' => $code,
                 'message' => $message
-            ]
+            ] + $extra
         ];
 
         /** @var Debugger $debugger */

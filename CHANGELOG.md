@@ -9,6 +9,7 @@
     * Added `route` and `request` to `onPagesInitialized` event
     * Improved page cloning, added method `Page::initialize()`
     * Improved `FlexObject::getChanges()`: return changed lists and arrays as whole instead of just changed keys/values
+    * Improved form validation JSON responses to contain list of failed fields with their error messages
 3. [](#bugfix)
     * Fixed path traversal vulnerability when using `bin/grav server`
     * Fixed unescaped error messages in JSON error responses
