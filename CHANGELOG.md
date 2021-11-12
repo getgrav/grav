@@ -14,6 +14,7 @@
     * Fixed unescaped error messages in JSON error responses
     * Fixed `|t(variable)` twig filter in admin
     * Fixed `FlexObject::getChanges()` always returning empty array
+    * Fixed form validation exceptions to use `400 Bad Request` instead of `500 Internal Server Error`
 
 # v1.7.24
 ## 10/26/2021
