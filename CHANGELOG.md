@@ -1,5 +1,5 @@
 # v1.7.25
-## mm/dd/2021
+## 11/16/2021
 
 1. [](#new)
     * Updated phpstan to v1.0
