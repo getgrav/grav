@@ -711,7 +711,7 @@ trait FormTrait
 
         return [
             $data,
-            $files ?? []
+            $files
         ];
     }
 

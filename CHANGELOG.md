@@ -1,3 +1,23 @@
+# v1.7.25
+## 11/16/2021
+
+1. [](#new)
+    * Updated phpstan to v1.0
+    * Added `FlexObject::getDiff()` to see difference to the saved object
+2. [](#improved)
+    * Use Symfony `dump` instead of PHP's `vardump` in side the `{{ vardump(x) }}` Twig vardump function
+    * Added `route` and `request` to `onPagesInitialized` event
+    * Improved page cloning, added method `Page::initialize()`
+    * Improved `FlexObject::getChanges()`: return changed lists and arrays as whole instead of just changed keys/values
+    * Improved form validation JSON responses to contain list of failed fields with their error messages
+    * Improved redirects: send redirect response in JSON if the request was in JSON
+3. [](#bugfix)
+    * Fixed path traversal vulnerability when using `bin/grav server`
+    * Fixed unescaped error messages in JSON error responses
+    * Fixed `|t(variable)` twig filter in admin
+    * Fixed `FlexObject::getChanges()` always returning empty array
+    * Fixed form validation exceptions to use `400 Bad Request` instead of `500 Internal Server Error`
+
 # v1.7.24
 ## 10/26/2021
 

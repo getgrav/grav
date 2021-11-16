@@ -21,6 +21,7 @@ use Grav\Common\Page\Markdown\Excerpts;
 use Grav\Common\Page\Pages;
 use Grav\Framework\Flex\Flex;
 use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
+use Grav\Framework\Media\Interfaces\MediaInterface;
 use InvalidArgumentException;
 use Negotiation\Accept;
 use Negotiation\Negotiator;
@@ -150,7 +151,7 @@ abstract class Utils
 
         $domain = $domain ?: $grav['config']->get('system.absolute_urls', false);
 
-        return rtrim($uri->rootUrl($domain), '/') . '/' . ($resource ?? '');
+        return rtrim($uri->rootUrl($domain), '/') . '/' . ($resource ?: '');
     }
 
     /**
@@ -1566,7 +1567,7 @@ abstract class Utils
 
         switch ($matches[0]) {
             case 'self':
-                if (null === $object) {
+                if (!$object instanceof MediaInterface) {
                     throw new RuntimeException(sprintf('Page not available for self@ reference: %s', $path));
                 }
 
@@ -1640,7 +1641,7 @@ abstract class Utils
      * @param string $path
      * @return string[]|null
      */
-    private static function resolveTokenPath(string $path): ?array
+    protected static function resolveTokenPath(string $path): ?array
     {
         if (strpos($path, '@') !== false) {
             $regex = '/^(@\w+|\w+@|@\w+@)([^:]*)(.*)$/u';
@@ -1774,7 +1775,7 @@ abstract class Utils
      *
      * @param string $string
      * @param bool $block Block or Line processing
-     * @param null $page
+     * @param PageInterface|null $page
      * @return string
      * @throws Exception
      */

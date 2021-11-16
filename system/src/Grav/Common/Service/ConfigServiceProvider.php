@@ -179,7 +179,7 @@ class ConfigServiceProvider implements ServiceProviderInterface
      * @param string $folder_path
      * @return array
      */
-    private static function pluginFolderPaths($plugins, $folder_path)
+    protected static function pluginFolderPaths($plugins, $folder_path)
     {
         $paths = [];
 

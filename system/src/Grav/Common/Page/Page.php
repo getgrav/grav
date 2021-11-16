@@ -218,6 +218,25 @@ class Page implements PageInterface
         return $this;
     }
 
+    public function __clone()
+    {
+        $this->initialized = false;
+        $this->header = $this->header ? clone $this->header : null;
+    }
+
+    /**
+     * @return void
+     */
+    public function initialize(): void
+    {
+        if (!$this->initialized) {
+            $this->initialized = true;
+            $this->route = null;
+            $this->raw_route = null;
+            $this->_forms = null;
+        }
+    }
+
     /**
      * @return void
      */
@@ -975,7 +994,7 @@ class Page implements PageInterface
     /**
      * Needed by the onPageContentProcessed event to set the raw page content
      *
-     * @param string $content
+     * @param string|null $content
      * @return void
      */
     public function setRawContent($content)

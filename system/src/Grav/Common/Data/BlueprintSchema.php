@@ -83,7 +83,7 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
         }
 
         if (!empty($messages)) {
-            throw (new ValidationException())->setMessages($messages);
+            throw (new ValidationException('', 400))->setMessages($messages);
         }
     }
 
@@ -199,7 +199,7 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
                 /** @var Config $config */
                 $config = Grav::instance()['config'];
                 if (!$config->get('system.strict_mode.blueprint_strict_compat', true)) {
-                    throw new RuntimeException(sprintf('%s is not defined in blueprints', $key));
+                    throw new RuntimeException(sprintf('%s is not defined in blueprints', $key), 400);
                 }
 
                 user_error(sprintf('Having extra key %s in your data is deprecated with blueprint having \'validation: strict\'', $key), E_USER_DEPRECATED);

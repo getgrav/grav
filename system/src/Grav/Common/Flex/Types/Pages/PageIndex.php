@@ -554,6 +554,9 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
         $filters = array_filter($filters, static function($val) { return $val !== null && $val !== ''; });
 
         if ($page) {
+            $status = 'success';
+            $msg = 'PLUGIN_ADMIN.PAGE_ROUTE_FOUND';
+
             if ($page->root() && (!$filter_type || in_array('root', $filter_type, true))) {
                 if ($field) {
                     $response[] = [
@@ -592,9 +595,6 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
                     ];
                 }
             }
-
-            $status = 'success';
-            $msg = 'PLUGIN_ADMIN.PAGE_ROUTE_FOUND';
 
             /** @var PageIndex $children */
             $children = $page->children()->getIndex();
@@ -721,7 +721,7 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
             $response = Utils::arrayFlatten($sorted);
         }
 
-        return [$status, $msg ?? 'PLUGIN_ADMIN.NO_ROUTE_PROVIDED', $response, $path];
+        return [$status, $msg, $response, $path];
     }
 
     /**

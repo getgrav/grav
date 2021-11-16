@@ -8,7 +8,7 @@ parameters:
         - dist
     bootstrapFiles:
         - phpstan-bootstrap.php
-    excludes_analyse:
+    excludePaths:
         - */system/src/Grav/Common/Errors/Resources/layout.html.php
         - */system/src/Twig/DeferredExtension/DeferredNodeVisitor.php
 

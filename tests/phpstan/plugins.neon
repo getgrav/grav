@@ -4,7 +4,7 @@ includes:
 parameters:
     fileExtensions:
         - php
-    excludes_analyse:
+    excludePaths:
         - %currentWorkingDirectory%/user/plugins/*/vendor/*
         - %currentWorkingDirectory%/user/plugins/*/tests/*
         - %currentWorkingDirectory%/user/plugins/gantry5/src/platforms

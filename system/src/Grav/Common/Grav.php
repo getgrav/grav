@@ -464,6 +464,10 @@ class Grav extends Container
             }
         }
 
+        if ($uri->extension() === 'json') {
+            return new Response(200, ['Content-Type' => 'application/json'], json_encode(['code' => $code, 'redirect' => $url], JSON_THROW_ON_ERROR));
+        }
+
         return new Response($code, ['Location' => $url]);
     }
 
@@ -774,11 +778,9 @@ class Grav extends Container
                 }
                 Utils::download($page->path() . DIRECTORY_SEPARATOR . $uri->basename(), $download);
             }
-
-            // Nothing found
-            return false;
         }
 
-        return $page ?? false;
+        // Nothing found
+        return false;
     }
 }

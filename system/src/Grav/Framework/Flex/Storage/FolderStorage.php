@@ -224,6 +224,7 @@ class FolderStorage extends AbstractFilesystemStorage
      * @param string $src
      * @param string $dst
      * @return bool
+     * @throws RuntimeException
      */
     public function copyRow(string $src, string $dst): bool
     {
@@ -247,6 +248,7 @@ class FolderStorage extends AbstractFilesystemStorage
     /**
      * {@inheritdoc}
      * @see FlexStorageInterface::renameRow()
+     * @throws RuntimeException
      */
     public function renameRow(string $src, string $dst): bool
     {
