@@ -49,6 +49,7 @@ use Grav\Common\Twig\Twig;
 use Grav\Framework\DI\Container;
 use Grav\Framework\Psr7\Response;
 use Grav\Framework\RequestHandler\RequestHandler;
+use Grav\Framework\Route\Route;
 use Grav\Framework\Session\Messages;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -62,6 +63,7 @@ use function get_class;
 use function in_array;
 use function is_callable;
 use function is_int;
+use function is_string;
 use function strlen;
 
 /**
@@ -408,7 +410,7 @@ class Grav extends Container
      *
      * Please use this method instead of calling `header("Location: {$url}", true, 302); exit();`.
      *
-     * @param string $route Internal route.
+     * @param Route|string $route Internal route.
      * @param int|null $code  Redirection code (30x)
      * @return void
      */
@@ -422,7 +424,7 @@ class Grav extends Container
     /**
      * Returns redirect response object from Grav.
      *
-     * @param string $route Internal route.
+     * @param Route|string $route Internal route.
      * @param int|null $code  Redirection code (30x)
      * @return ResponseInterface
      */
@@ -431,37 +433,41 @@ class Grav extends Container
         /** @var Uri $uri */
         $uri = $this['uri'];
 
-        // Clean route for redirect
-        $route = preg_replace("#^\/[\\\/]+\/#", '/', $route);
+        if (is_string($route)) {
+            // Clean route for redirect
+            $route = preg_replace("#^\/[\\\/]+\/#", '/', $route);
+
+            if (null === $code) {
+                // Check for redirect code in the route: e.g. /new/[301], /new[301]/route or /new[301].html
+                $regex = '/.*(\[(30[1-7])\])(.\w+|\/.*?)?$/';
+                preg_match($regex, $route, $matches);
+                if ($matches) {
+                    $route = str_replace($matches[1], '', $matches[0]);
+                    $code = $matches[2];
+                }
+            }
+
+            if ($uri::isExternal($route)) {
+                $url = $route;
+            } else {
+                $url = rtrim($uri->rootUrl(), '/') . '/';
+
+                if ($this['config']->get('system.pages.redirect_trailing_slash', true)) {
+                    $url .= trim($route, '/'); // Remove trailing slash
+                } else {
+                    $url .= ltrim($route, '/'); // Support trailing slash default routes
+                }
+            }
+        } elseif ($route instanceof Route) {
+            $url = $route->toString(true);
+        }
 
         if ($code < 300 || $code > 399) {
             $code = null;
         }
 
-        if (null === $code) {
-            // Check for redirect code in the route: e.g. /new/[301], /new[301]/route or /new[301].html
-            $regex = '/.*(\[(30[1-7])\])(.\w+|\/.*?)?$/';
-            preg_match($regex, $route, $matches);
-            if ($matches) {
-                $route = str_replace($matches[1], '', $matches[0]);
-                $code = $matches[2];
-            }
-        }
-
         if ($code === null) {
             $code = $this['config']->get('system.pages.redirect_default_code', 302);
-        }
-
-        if ($uri::isExternal($route)) {
-            $url = $route;
-        } else {
-            $url = rtrim($uri->rootUrl(), '/') . '/';
-
-            if ($this['config']->get('system.pages.redirect_trailing_slash', true)) {
-                $url .= trim($route, '/'); // Remove trailing slash
-            } else {
-                $url .= ltrim($route, '/'); // Support trailing slash default routes
-            }
         }
 
         if ($uri->extension() === 'json') {
