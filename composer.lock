@@ -2123,16 +2123,16 @@
         },
         {
             "name": "rockettheme/toolbox",
-            "version": "1.5.10",
+            "version": "1.5.11",
             "source": {
                 "type": "git",
                 "url": "https://github.com/rockettheme/toolbox.git",
-                "reference": "d9738de013fa12df77754a0f11dded220b246efb"
+                "reference": "ea23368c1bf635981c7b33babd842a6236befd86"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rockettheme/toolbox/zipball/d9738de013fa12df77754a0f11dded220b246efb",
-                "reference": "d9738de013fa12df77754a0f11dded220b246efb",
+                "url": "https://api.github.com/repos/rockettheme/toolbox/zipball/ea23368c1bf635981c7b33babd842a6236befd86",
+                "reference": "ea23368c1bf635981c7b33babd842a6236befd86",
                 "shasum": ""
             },
             "require": {
@@ -2140,12 +2140,14 @@
                 "php": ">=5.6.0",
                 "pimple/pimple": "~3.0",
                 "symfony/event-dispatcher": "^3.4|^4.0",
+                "symfony/polyfill-php80": "^1.23",
+                "symfony/polyfill-php81": "^1.23",
                 "symfony/yaml": "^3.4|^4.0"
             },
             "require-dev": {
-                "phpstan/phpstan": "^0.12",
-                "phpstan/phpstan-deprecation-rules": "^0.12",
-                "phpunit/phpunit": "~7.0"
+                "phpstan/phpstan": "^1.0",
+                "phpstan/phpstan-deprecation-rules": "^1.0",
+                "phpunit/phpunit": "~8.0"
             },
             "type": "library",
             "autoload": {
@@ -2173,9 +2175,9 @@
             ],
             "support": {
                 "issues": "https://github.com/rockettheme/toolbox/issues",
-                "source": "https://github.com/rockettheme/toolbox/tree/1.5.10"
+                "source": "https://github.com/rockettheme/toolbox/tree/1.5.11"
             },
-            "time": "2021-09-29T16:50:13+00:00"
+            "time": "2021-11-25T19:43:12+00:00"
         },
         {
             "name": "seld/cli-prompt",
@@ -3286,16 +3288,16 @@
         },
         {
             "name": "twig/twig",
-            "version": "v1.44.5",
+            "version": "v1.44.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/twigphp/Twig.git",
-                "reference": "dd4353357c5a116322e92a00d16043a31881a81e"
+                "reference": "ae39480f010ef88adc7938503c9b02d3baf2f3b3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/twigphp/Twig/zipball/dd4353357c5a116322e92a00d16043a31881a81e",
-                "reference": "dd4353357c5a116322e92a00d16043a31881a81e",
+                "url": "https://api.github.com/repos/twigphp/Twig/zipball/ae39480f010ef88adc7938503c9b02d3baf2f3b3",
+                "reference": "ae39480f010ef88adc7938503c9b02d3baf2f3b3",
                 "shasum": ""
             },
             "require": {
@@ -3348,7 +3350,7 @@
             ],
             "support": {
                 "issues": "https://github.com/twigphp/Twig/issues",
-                "source": "https://github.com/twigphp/Twig/tree/v1.44.5"
+                "source": "https://github.com/twigphp/Twig/tree/v1.44.6"
             },
             "funding": [
                 {
@@ -3360,7 +3362,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2021-09-17T08:35:19+00:00"
+            "time": "2021-11-25T13:31:46+00:00"
         },
         {
             "name": "willdurand/negotiation",
