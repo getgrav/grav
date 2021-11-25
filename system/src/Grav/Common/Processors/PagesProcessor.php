@@ -42,15 +42,29 @@ class PagesProcessor extends ProcessorBase
         $this->container['debugger']->addMessage($this->container['cache']->getCacheStatus());
 
         $this->container['pages']->init();
-        $this->container->fireEvent('onPagesInitialized', new Event(['pages' => $this->container['pages']]));
-        $this->container->fireEvent('onPageInitialized', new Event(['page' => $this->container['page']]));
+
+        $route = $this->container['route'];
+
+        $this->container->fireEvent('onPagesInitialized', new Event(
+            [
+                'pages' => $this->container['pages'],
+                'route' => $route,
+                'request' => $request
+            ]
+        ));
+        $this->container->fireEvent('onPageInitialized', new Event(
+            [
+                'page' => $this->container['page'],
+                'route' => $route,
+                'request' => $request
+            ]
+        ));
 
         /** @var PageInterface $page */
         $page = $this->container['page'];
 
         if (!$page->routable()) {
             $exception = new RequestException($request, 'Page Not Found', 404);
-            $route = $this->container['route'];
             // If no page found, fire event
             $event = new Event([
                 'page' => $page,

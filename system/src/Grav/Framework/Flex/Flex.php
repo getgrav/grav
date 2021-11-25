@@ -256,7 +256,7 @@ class Flex implements FlexInterface
         }
 
         // Remove missing objects if not asked to keep them.
-        if (empty($option['keep_missing'])) {
+        if (empty($options['keep_missing'])) {
             $list = array_filter($list);
         }
 

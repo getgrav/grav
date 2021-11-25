@@ -58,7 +58,7 @@ interface PageContentInterface
     /**
      * Needed by the onPageContentProcessed event to set the raw page content
      *
-     * @param string $content
+     * @param string|null $content
      */
     public function setRawContent($content);
 

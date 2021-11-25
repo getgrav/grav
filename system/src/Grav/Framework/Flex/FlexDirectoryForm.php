@@ -15,6 +15,7 @@ use Grav\Common\Data\Blueprint;
 use Grav\Common\Data\Data;
 use Grav\Common\Grav;
 use Grav\Common\Twig\Twig;
+use Grav\Common\Utils;
 use Grav\Framework\Flex\Interfaces\FlexDirectoryFormInterface;
 use Grav\Framework\Flex\Interfaces\FlexFormInterface;
 use Grav\Framework\Form\Interfaces\FormFlashInterface;
@@ -94,8 +95,13 @@ class FlexDirectoryForm implements FlexDirectoryFormInterface, JsonSerializable
             $uniqueId = md5($directory->getFlexType() . '-directory-' . $this->name);
         }
         $this->setUniqueId($uniqueId);
+
         $this->setFlashLookupFolder($directory->getDirectoryBlueprint()->get('form/flash_folder') ?? 'tmp://forms/[SESSIONID]');
         $this->form = $options['form'] ?? null;
+
+        if (Utils::isPositive($this->form['disabled'] ?? false)) {
+            $this->disable();
+        }
 
         $this->initialize();
     }

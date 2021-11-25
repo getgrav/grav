@@ -203,7 +203,7 @@ class Security
         $string = preg_replace('!(&#0+[0-9]+)!u', '$1;', $string);
 
         // Decode entities
-        $string = html_entity_decode($string, ENT_NOQUOTES, 'UTF-8');
+        $string = html_entity_decode($string, ENT_NOQUOTES | ENT_HTML5, 'UTF-8');
 
         // Strip whitespace characters
         $string = preg_replace('!\s!u', '', $string);

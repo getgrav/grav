@@ -57,6 +57,8 @@ trait FormTrait
     private $name;
     /** @var string */
     private $id;
+    /** @var bool */
+    private $enabled = true;
     /** @var string */
     private $uniqueid;
     /** @var string */
@@ -88,6 +90,30 @@ trait FormTrait
     public function setId(string $id): void
     {
         $this->id = $id;
+    }
+
+    /**
+     * @return void
+     */
+    public function disable(): void
+    {
+        $this->enabled = false;
+    }
+
+    /**
+     * @return void
+     */
+    public function enable(): void
+    {
+        $this->enabled = true;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isEnabled(): bool
+    {
+        return $this->enabled;
     }
 
     /**
@@ -685,7 +711,7 @@ trait FormTrait
 
         return [
             $data,
-            $files ?? []
+            $files
         ];
     }
 

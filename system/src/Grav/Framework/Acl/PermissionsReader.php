@@ -21,7 +21,7 @@ use function is_array;
 class PermissionsReader
 {
     /** @var array */
-    private static $types;
+    protected static $types;
 
     /**
      * @param string $filename

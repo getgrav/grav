@@ -27,7 +27,7 @@ class Group extends Data
      * @return array
      * @deprecated 1.7, use $grav['user_groups'] Flex UserGroupCollection instead
      */
-    private static function groups()
+    protected static function groups()
     {
         user_error(__METHOD__ . '() is deprecated since Grav 1.7, use $grav[\'user_groups\'] Flex UserGroupCollection instead', E_USER_DEPRECATED);
 

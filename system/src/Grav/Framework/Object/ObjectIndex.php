@@ -24,8 +24,9 @@ use function is_object;
  * order to use the class.
  *
  * @template TKey of array-key
- * @template T
- * @extends AbstractIndexCollection<TKey,T>
+ * @template T of \Grav\Framework\Object\Interfaces\ObjectInterface
+ * @template C of \Grav\Framework\Collection\CollectionInterface
+ * @extends AbstractIndexCollection<TKey,T,C>
  * @implements NestedObjectCollectionInterface<TKey,T>
  */
 abstract class ObjectIndex extends AbstractIndexCollection implements NestedObjectCollectionInterface
@@ -176,7 +177,7 @@ abstract class ObjectIndex extends AbstractIndexCollection implements NestedObje
      * Create a copy from this collection by cloning all objects in the collection.
      *
      * @return static
-     * @return static<TKey,T>
+     * @return static<TKey,T,C>
      */
     public function copy()
     {

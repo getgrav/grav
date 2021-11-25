@@ -13,8 +13,25 @@ if (PHP_SAPI !== 'cli-server') {
 
 $_SERVER['PHP_CLI_ROUTER'] = true;
 
-if (is_file($_SERVER['DOCUMENT_ROOT'] . DIRECTORY_SEPARATOR . $_SERVER['SCRIPT_NAME'])) {
-    return false;
+$root = $_SERVER['DOCUMENT_ROOT'];
+$path = $_SERVER['SCRIPT_NAME'];
+if ($path !== '/index.php' && is_file($root . $path)) {
+    if (!(
+        // Block all direct access to files and folders beginning with a dot
+        strpos($path, '/.') !== false
+        // Block all direct access for these folders
+        || preg_match('`^/(\.git|cache|bin|logs|backup|webserver-configs|tests)/`ui', $path)
+        // Block access to specific file types for these system folders
+        || preg_match('`^/(system|vendor)/(.*)\.(txt|xml|md|html|yaml|yml|php|pl|py|cgi|twig|sh|bat)$`ui', $path)
+        // Block access to specific file types for these user folders
+        || preg_match('`^/(user)/(.*)\.(txt|md|yaml|yml|php|pl|py|cgi|twig|sh|bat)$`ui', $path)
+        // Block all direct access to .md files
+        || preg_match('`\.md$`ui', $path)
+        // Block access to specific files in the root folder
+        || preg_match('`^/(LICENSE\.txt|composer\.lock|composer\.json|\.htaccess)$`ui', $path)
+    )) {
+        return false;
+    }
 }
 
 $grav_index = 'index.php';
