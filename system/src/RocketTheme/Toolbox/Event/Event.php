@@ -14,7 +14,7 @@ use RocketTheme\Toolbox\ArrayTraits\Export;
  * @license MIT
  * @deprecated Event classes will be removed in the future. Use PSR-14 implementation instead.
  */
-class Event extends \Symfony\Component\EventDispatcher\Event implements \ArrayAccess
+class Event extends \Symfony\Contracts\EventDispatcher\Event implements \ArrayAccess
 {
     use ArrayAccess, Constructor, Export;
 
