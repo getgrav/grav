@@ -51,6 +51,7 @@ use Grav\Framework\Psr7\Response;
 use Grav\Framework\RequestHandler\RequestHandler;
 use Grav\Framework\Route\Route;
 use Grav\Framework\Session\Messages;
+use InvalidArgumentException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use RocketTheme\Toolbox\Event\Event;
@@ -460,6 +461,8 @@ class Grav extends Container
             }
         } elseif ($route instanceof Route) {
             $url = $route->toString(true);
+        } else {
+            throw new InvalidArgumentException('Bad $route');
         }
 
         if ($code < 300 || $code > 399) {
