@@ -131,7 +131,7 @@ abstract class AbstractIndexCollection implements CollectionInterface
     {
         $key = $this->isAllowedElement($element) ? $this->getCurrentKey($element) : null;
 
-        if (!$key || !isset($this->entries[$key])) {
+        if (null !== $key || !isset($this->entries[$key])) {
             return false;
         }
 
@@ -148,7 +148,7 @@ abstract class AbstractIndexCollection implements CollectionInterface
     #[\ReturnTypeWillChange]
     public function offsetExists($offset)
     {
-        return $this->containsKey($offset);
+        return $offset !== null ? $this->containsKey($offset) : false;
     }
 
     /**
@@ -159,7 +159,7 @@ abstract class AbstractIndexCollection implements CollectionInterface
     #[\ReturnTypeWillChange]
     public function offsetGet($offset)
     {
-        return $this->get($offset);
+        return $offset !== null ? $this->get($offset) : null;
     }
 
     /**
@@ -172,9 +172,9 @@ abstract class AbstractIndexCollection implements CollectionInterface
     {
         if (null === $offset) {
             $this->add($value);
+        } else {
+            $this->set($offset, $value);
         }
-
-        $this->set($offset, $value);
     }
 
     /**
@@ -185,7 +185,9 @@ abstract class AbstractIndexCollection implements CollectionInterface
     #[\ReturnTypeWillChange]
     public function offsetUnset($offset)
     {
-        $this->remove($offset);
+        if ($offset !== null) {
+            $this->remove($offset);
+        }
     }
 
     /**

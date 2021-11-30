@@ -191,8 +191,9 @@ class AbstractFile implements FileInterface
             $this->handle = @fopen($this->filepath, 'cb+') ?: null;
             if (!$this->handle) {
                 $error = error_get_last();
+                $message = $error['message'] ?? 'Unknown error';
 
-                throw new RuntimeException("Opening file for writing failed on error {$error['message']}");
+                throw new RuntimeException("Opening file for writing failed on error {$message}");
             }
         }
 

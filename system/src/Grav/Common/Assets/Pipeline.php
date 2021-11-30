@@ -122,7 +122,7 @@ class Pipeline extends PropertyObject
 
         // Compute uid based on assets and timestamp
         $json_assets = json_encode($assets);
-        $uid = md5($json_assets . $this->css_minify . $this->css_rewrite . $group);
+        $uid = md5($json_assets . (int)$this->css_minify . (int)$this->css_rewrite . $group);
         $file = $uid . '.css';
         $relative_path = "{$this->base_url}{$this->assets_url}/{$file}";
 

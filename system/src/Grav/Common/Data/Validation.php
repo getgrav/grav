@@ -816,7 +816,7 @@ class Validation
     {
         $value = static::filterArray($value, $params, $field);
 
-        return Utils::arrayUnflattenDotNotation($value);
+        return is_array($value) ? Utils::arrayUnflattenDotNotation($value) : null;
     }
 
     /**

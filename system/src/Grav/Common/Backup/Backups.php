@@ -145,7 +145,7 @@ class Backups
     {
         $backups = static::getAvailableBackups();
 
-        return array_sum(array_column($backups, 'size'));
+        return $backups ? array_sum(array_column($backups, 'size')) : 0;
     }
 
     /**

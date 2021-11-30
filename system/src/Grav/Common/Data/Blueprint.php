@@ -99,7 +99,7 @@ class Blueprint extends BlueprintForm
      */
     public function getDefaultValue(string $name)
     {
-        $path = explode('.', $name) ?: [];
+        $path = explode('.', $name);
         $current = $this->getDefaults();
 
         foreach ($path as $field) {
