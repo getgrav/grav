@@ -129,6 +129,7 @@ abstract class Getters implements ArrayAccess, Countable
     /**
      * @return int
      */
+    #[\ReturnTypeWillChange]
     public function count()
     {
         if ($this->gettersVariable) {

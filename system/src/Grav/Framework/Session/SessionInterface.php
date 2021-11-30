@@ -108,6 +108,7 @@ interface SessionInterface extends IteratorAggregate
      *
      * @return ArrayIterator Return an ArrayIterator of $_SESSION
      */
+    #[\ReturnTypeWillChange]
     public function getIterator();
 
     /**

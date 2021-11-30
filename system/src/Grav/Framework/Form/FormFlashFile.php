@@ -176,6 +176,7 @@ class FormFlashFile implements UploadedFileInterface, JsonSerializable
     /**
      * @return array
      */
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return $this->upload;

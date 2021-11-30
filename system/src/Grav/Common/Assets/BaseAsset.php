@@ -248,6 +248,7 @@ abstract class BaseAsset extends PropertyObject
      *
      * @return array
      */
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return ['type' => $this->getType(), 'elements' => $this->getElements()];

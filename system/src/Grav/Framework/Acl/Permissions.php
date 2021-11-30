@@ -206,6 +206,7 @@ class Permissions implements \ArrayAccess, \Countable, \IteratorAggregate
     /**
      * @return ArrayIterator|Traversable
      */
+    #[\ReturnTypeWillChange]
     public function getIterator()
     {
         return new ArrayIterator($this->actions);

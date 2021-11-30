@@ -33,13 +33,9 @@ parameters:
     dynamicConstantNames:
         - GRAV_CLI
     ignoreErrors:
-        # New in phpstan 0.12, ignore them for now.
+        # New in phpstan 1, ignore them for now.
         - '#Unsafe usage of new static\(\)#'
         - '#Cannot instantiate interface Grav\\Framework\\#'
-        # TODO: phpstan bug #3875 (fixed, test if can be removed)
-        -
-            message: '#Unreachable statement - code above always terminates#'
-            path: '*/system/src/Grav/Common/Flex/Types/Pages/Storage/PageStorage.php'
 
         # FIXME: Bugs that need to be fixed
         # FIXME: PHP 7.3 bug workaround
@@ -85,11 +81,11 @@ parameters:
             message: '#unknown class Grav\\Plugin\\Admin#'
             path: '*/system/src/Grav/Common/Flex/Pages/PageObject.php'
         -
-            message: '#unknown class Grav\\Common\\Grav\\Plugin\\Form\\Forms#'
-            path: '*/system/src/Grav/Common/Session.php'
-        -
             message: '#unknown class Grav\\Plugin\\Admin\\Admin#'
             path: '*/system/src/Grav/Common/Flex/Types/Pages/PageObject.php'
+        -
+            message: '#unknown class Grav\\Plugin\\Form\\Forms#'
+            path: '*/system/src/Grav/Common/Processors/PagesProcessor.php'
 
         # Can be ignored, after fopen there's always an $http_response_header locally available
         -

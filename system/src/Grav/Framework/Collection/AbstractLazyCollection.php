@@ -78,6 +78,7 @@ abstract class AbstractLazyCollection extends BaseAbstractLazyCollection impleme
     /**
      * @return array
      */
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         $this->initialize();

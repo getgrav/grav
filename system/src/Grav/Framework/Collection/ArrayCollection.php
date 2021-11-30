@@ -97,6 +97,7 @@ class ArrayCollection extends BaseArrayCollection implements CollectionInterface
      *
      * @return array
      */
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return $this->toArray();

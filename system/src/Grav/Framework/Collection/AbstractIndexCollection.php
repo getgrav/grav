@@ -257,6 +257,7 @@ abstract class AbstractIndexCollection implements CollectionInterface
     /**
      * {@inheritDoc}
      */
+    #[\ReturnTypeWillChange]
     public function count()
     {
         return count($this->entries);
@@ -301,6 +302,7 @@ abstract class AbstractIndexCollection implements CollectionInterface
      *
      * {@inheritDoc}
      */
+    #[\ReturnTypeWillChange]
     public function getIterator()
     {
         return new ArrayIterator($this->loadElements());
@@ -468,6 +470,7 @@ abstract class AbstractIndexCollection implements CollectionInterface
      *
      * @return array
      */
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return $this->loadCollection()->jsonSerialize();

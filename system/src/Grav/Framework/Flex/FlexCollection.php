@@ -520,6 +520,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
     /**
      * @return array
      */
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         $elements = [];

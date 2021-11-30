@@ -84,6 +84,7 @@ trait UserObjectLegacyTrait
      * @return int
      * @deprecated 1.6 Method makes no sense for user account.
      */
+    #[\ReturnTypeWillChange]
     public function count()
     {
         user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6', E_USER_DEPRECATED);

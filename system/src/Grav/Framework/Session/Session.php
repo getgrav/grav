@@ -392,6 +392,7 @@ class Session implements SessionInterface
     /**
      * @inheritdoc
      */
+    #[\ReturnTypeWillChange]
     public function getIterator()
     {
         return new ArrayIterator($_SESSION);
