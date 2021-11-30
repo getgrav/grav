@@ -35,6 +35,7 @@ use function is_string;
  * @package Grav\Plugin\FlexObjects\Types\GravPages
  *
  * @extends FlexPageCollection<PageObject>
+ * @implements PageCollectionInterface<string,PageObject>
  *
  * Incompatibilities with Grav\Common\Page\Collection:
  *     $page = $collection->key()       will not work at all

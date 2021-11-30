@@ -27,6 +27,7 @@ use function is_string;
 /**
  * Class Collection
  * @package Grav\Common\Page
+ * @implements PageCollectionInterface<string,Page>
  */
 class Collection extends Iterator implements PageCollectionInterface
 {

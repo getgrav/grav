@@ -19,6 +19,11 @@ use Traversable;
 /**
  * Interface PageCollectionInterface
  * @package Grav\Common\Page\Interfaces
+ *
+ * @template TKey of array-key
+ * @template T
+ * @extends Traversable<TKey,T>
+ * @extends ArrayAccess<TKey|null,T>
  */
 interface PageCollectionInterface extends Traversable, ArrayAccess, Countable, Serializable
 {
