@@ -5,6 +5,7 @@
     * Made `Grav::redirect()` to accept `Route` class
 2. [](#improved)
    * Upgraded vendor libs for PHP 8.1 compatibility
+   * Upgraded to **composer v2.1.14** for PHP 8.1 compatibility
    * Added third `$name` parameter to `Blueprint::flattenData()` method, useful for flattening repeating data
 
 # v1.7.25
