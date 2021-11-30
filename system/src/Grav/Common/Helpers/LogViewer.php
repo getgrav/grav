@@ -145,7 +145,7 @@ class LogViewer
             'logger' => $data['logger'],
             'level' => $data['level'],
             'message' => $data['message'],
-            'trace' => isset($data['trace']) ? $this->parseTrace($data['trace']) : null,
+            'trace' => isset($data['trace']) ? self::parseTrace($data['trace']) : null,
             'context' => json_decode($data['context'], true),
             'extra' => json_decode($data['extra'], true)
         ];

@@ -22,6 +22,11 @@ final class DeferredNodeVisitorCompat implements NodeVisitorInterface
 {
     private $hasDeferred = false;
 
+    /**
+     * @param \Twig_NodeInterface $node
+     * @param Environment $env
+     * @return Node
+     */
     public function enterNode(\Twig_NodeInterface $node, Environment $env): Node
     {
         if (!$this->hasDeferred && $node instanceof DeferredBlockNode) {
@@ -33,6 +38,11 @@ final class DeferredNodeVisitorCompat implements NodeVisitorInterface
         return $node;
     }
 
+    /**
+     * @param \Twig_NodeInterface $node
+     * @param Environment $env
+     * @return Node|null
+     */
     public function leaveNode(\Twig_NodeInterface $node, Environment $env): ?Node
     {
         if ($this->hasDeferred && $node instanceof ModuleNode) {
@@ -46,6 +56,9 @@ final class DeferredNodeVisitorCompat implements NodeVisitorInterface
         return $node;
     }
 
+    /**
+     * @return int
+     */
     public function getPriority() : int
     {
         return 0;

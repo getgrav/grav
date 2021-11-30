@@ -62,12 +62,14 @@ class PermissionsReader
     {
         $list = [];
         foreach ($actions as $name => $action) {
-            $prefixNname = $prefix . $name;
-            $list[$prefixNname] = null;
+            $prefixName = $prefix . $name;
+            $list[$prefixName] = null;
 
             // Support nested sets of actions.
             if (isset($action['actions']) && is_array($action['actions'])) {
-                $list += static::read($action['actions'], "{$prefixNname}.");
+                $innerList = static::read($action['actions'], "{$prefixName}.");
+
+                $list += $innerList;
             }
 
             unset($action['actions']);
@@ -76,7 +78,7 @@ class PermissionsReader
             $action = static::addDefaults($action);
 
             // Build flat list of actions.
-            $list[$prefixNname] = $action;
+            $list[$prefixName] = $action;
         }
 
         return $list;

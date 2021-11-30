@@ -9,6 +9,7 @@
 
 namespace Grav\Framework\Route;
 
+use Grav\Framework\Uri\Uri;
 use Grav\Framework\Uri\UriFactory;
 use InvalidArgumentException;
 use function array_slice;
@@ -318,7 +319,7 @@ class Route
     }
 
     /**
-     * @return \Grav\Framework\Uri\Uri
+     * @return Uri
      */
     public function getUri()
     {

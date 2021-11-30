@@ -11,6 +11,7 @@ namespace Grav\Framework\Object\Base;
 
 use Grav\Framework\Compat\Serializable;
 use Grav\Framework\Object\Interfaces\ObjectInterface;
+use InvalidArgumentException;
 use function call_user_func_array;
 use function get_class;
 use function is_callable;
@@ -51,6 +52,7 @@ trait ObjectCollectionTrait
         }
 
         $class = get_class($this);
+
         return $type . strtolower(substr($class, strrpos($class, '\\') + 1));
     }
 
@@ -167,7 +169,7 @@ trait ObjectCollectionTrait
     protected function doUnserialize(array $data)
     {
         if (!isset($data['key'], $data['type'], $data['elements']) || $data['type'] !== $this->getType()) {
-            throw new \InvalidArgumentException("Cannot unserialize '{$this->getType()}': Bad data");
+            throw new InvalidArgumentException("Cannot unserialize '{$this->getType()}': Bad data");
         }
 
         $this->setKey($data['key']);

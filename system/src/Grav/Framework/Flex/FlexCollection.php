@@ -460,7 +460,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
      * @param string $key
      * @return array
      */
-    public function getMetaData(string $key): array
+    public function getMetaData($key): array
     {
         $object = $this->get($key);
 

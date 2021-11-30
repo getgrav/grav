@@ -199,7 +199,7 @@ class AbstractFile implements FileInterface
         $lock = $block ? LOCK_EX : LOCK_EX | LOCK_NB;
 
         // Some filesystems do not support file locks, only fail if another process holds the lock.
-        $this->locked = flock($this->handle, $lock, $wouldblock) || !$wouldblock;
+        $this->locked = flock($this->handle, $lock, $wouldBlock) || !$wouldBlock;
 
         return $this->locked;
     }

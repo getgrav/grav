@@ -43,4 +43,9 @@ interface FlexFormInterface extends Serializable, FormInterface
      * @return Route|null       Returns Route object or null if file uploads are not enabled.
      */
     public function getFileDeleteAjaxRoute($field, $filename);
+
+//    /**
+//     * @return FlexObjectInterface
+//     */
+//    public function getObject();
 }

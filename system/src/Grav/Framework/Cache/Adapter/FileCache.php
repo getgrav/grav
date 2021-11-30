@@ -156,7 +156,7 @@ class FileCache extends AbstractCache
      */
     protected function initFileCache($namespace, $directory)
     {
-        if (!isset($directory[0])) {
+        if ($directory === '') {
             $directory = sys_get_temp_dir() . '/grav-cache';
         } else {
             $directory = realpath($directory) ?: $directory;
