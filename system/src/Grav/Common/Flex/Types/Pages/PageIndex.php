@@ -118,7 +118,7 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
             $element = $element->getTranslation(ltrim($params, '.'));
         }
 
-        \assert($element instanceof PageObject);
+        \assert(null === $element || $element instanceof PageObject);
 
         return $element;
     }
