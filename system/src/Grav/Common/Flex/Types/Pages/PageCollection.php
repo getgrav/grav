@@ -47,10 +47,10 @@ use function is_string;
  *     $collection->prev()              does not rewind the internal pointer
  * AND most methods are immutable; they do not update the current collection, but return updated one
  *
- * @method static shuffle()
- * @method static select(array $keys)
- * @method static unselect(array $keys)
- * @method static createFrom(array $elements, string $keyField = null)
+ * @method PageCollection shuffle()
+ * @method PageCollection select(array $keys)
+ * @method PageCollection unselect(array $keys)
+ * @method PageCollection createFrom(array $elements, string $keyField = null)
  * @method PageIndex getIndex()
  */
 class PageCollection extends FlexPageCollection implements PageCollectionInterface

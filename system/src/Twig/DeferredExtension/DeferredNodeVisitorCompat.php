@@ -22,22 +22,26 @@ final class DeferredNodeVisitorCompat implements NodeVisitorInterface
 {
     private $hasDeferred = false;
 
-    public function enterNode(\Twig_NodeInterface $node, Environment $env) : Node
+    public function enterNode(\Twig_NodeInterface $node, Environment $env): Node
     {
         if (!$this->hasDeferred && $node instanceof DeferredBlockNode) {
             $this->hasDeferred = true;
         }
 
+        \assert($node instanceof Node);
+
         return $node;
     }
 
-    public function leaveNode(\Twig_NodeInterface $node, Environment $env) : ?Node
+    public function leaveNode(\Twig_NodeInterface $node, Environment $env): ?Node
     {
         if ($this->hasDeferred && $node instanceof ModuleNode) {
             $node->setNode('constructor_end', new Node([new DeferredExtensionNode(), $node->getNode('constructor_end')]));
             $node->setNode('display_end', new Node([new DeferredNode(), $node->getNode('display_end')]));
             $this->hasDeferred = false;
         }
+
+        \assert($node instanceof Node);
 
         return $node;
     }
