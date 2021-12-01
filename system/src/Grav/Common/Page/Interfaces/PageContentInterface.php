@@ -9,6 +9,7 @@
 
 namespace Grav\Common\Page\Interfaces;
 
+use Grav\Common\Data\Blueprint;
 use Grav\Common\Media\Interfaces\MediaCollectionInterface;
 
 /**
@@ -254,4 +255,12 @@ interface PageContentInterface
      * @return bool
      */
     public function exists();
+
+    /**
+     * Returns the blueprint from the page.
+     *
+     * @param string $name Name of the Blueprint form. Used by flex only.
+     * @return Blueprint Returns a Blueprint.
+     */
+    public function getBlueprint(string $name = '');
 }

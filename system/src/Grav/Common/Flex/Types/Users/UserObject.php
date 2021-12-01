@@ -123,7 +123,8 @@ class UserObject extends FlexObject implements UserInterface, Countable
         // Define username if it's not set.
         if (!isset($elements['username'])) {
             $storageKey = $elements['__META']['storage_key'] ?? null;
-            if (null !== $storageKey && $key === $directory->getStorage()->normalizeKey($storageKey)) {
+            $storage = $directory->getStorage();
+            if (null !== $storageKey && method_exists($storage, 'normalizeKey') && $key === $storage->normalizeKey($storageKey)) {
                 $elements['username'] = $storageKey;
             } else {
                 $elements['username'] = $key;

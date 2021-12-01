@@ -1247,6 +1247,17 @@ class Page implements PageInterface
     }
 
     /**
+     * Returns the blueprint from the page.
+     *
+     * @param string $name Not used.
+     * @return Blueprint Returns a Blueprint.
+     */
+    public function getBlueprint(string $name = '')
+    {
+        return $this->blueprints();
+    }
+
+    /**
      * Get the blueprint name for this page.  Use the blueprint form field if set
      *
      * @return string
