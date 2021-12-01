@@ -27,6 +27,14 @@ trait PageTranslateTrait
     private $_translations = [];
 
     /**
+     * @return bool
+     */
+    public function translated(): bool
+    {
+        return (bool)$this->translatedLanguages(true);
+    }
+
+    /**
      * @param string|null $languageCode
      * @param bool|null $fallback
      * @return bool

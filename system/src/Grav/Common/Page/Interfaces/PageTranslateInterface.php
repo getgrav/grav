@@ -8,6 +8,11 @@ namespace Grav\Common\Page\Interfaces;
 interface PageTranslateInterface
 {
     /**
+     * @return bool
+     */
+    public function translated(): bool;
+
+    /**
      * Return an array with the routes of other translated languages
      *
      * @param bool $onlyPublished only return published translations
