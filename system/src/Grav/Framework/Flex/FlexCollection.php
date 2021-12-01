@@ -171,7 +171,8 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
 
     /**
      * @param array $filters
-     * @return FlexCollectionInterface|Collection
+     * @return static
+     * @phpstan-return static<T>
      */
     public function filterBy(array $filters)
     {
@@ -502,7 +503,8 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
     /**
      * @param string $value
      * @param string $field
-     * @return T|null
+     * @return FlexObjectInterface|null
+     * @phpstan-return T|null
      */
     public function find($value, $field = 'id')
     {

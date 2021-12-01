@@ -386,6 +386,7 @@ class PageObject extends FlexPageObject
     /**
      * @param array $ordering
      * @return PageCollection|null
+     * @phpstan-return ObjectCollection<string,PageObject>|null
      */
     protected function reorderSiblings(array $ordering)
     {

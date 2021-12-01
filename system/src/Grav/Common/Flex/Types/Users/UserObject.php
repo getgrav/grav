@@ -898,7 +898,9 @@ class UserObject extends FlexObject implements UserInterface, Countable
     protected function getGroups()
     {
         if (null === $this->_groups) {
-            $this->_groups = $this->getUserGroups()->select((array)$this->getProperty('groups'));
+            /** @var UserGroupIndex $groups */
+            $groups = $this->getUserGroups()->select((array)$this->getProperty('groups'));
+            $this->_groups = $groups;
         }
 
         return $this->_groups;

@@ -11,6 +11,7 @@ namespace Grav\Framework\Flex;
 
 use Exception;
 use Grav\Common\Debugger;
+use Grav\Common\File\CompiledJsonFile;
 use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Grav;
 use Grav\Common\Inflector;
@@ -606,9 +607,11 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
      * @param string $key
      * @param mixed $value
      * @return ObjectInterface|null
+     * @phpstan-return T|null
      */
     protected function loadElement($key, $value): ?ObjectInterface
     {
+        /** @phpstan-var T[] $objects */
         $objects = $this->getFlexDirectory()->loadObjects([$key => $value]);
 
         return $objects ? reset($objects): null;
@@ -617,10 +620,14 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
     /**
      * @param array|null $entries
      * @return ObjectInterface[]
+     * @phpstan-return T[]
      */
     protected function loadElements(array $entries = null): array
     {
-        return $this->getFlexDirectory()->loadObjects($entries ?? $this->getEntries());
+        /** @phpstan-var T[] $objects */
+        $objects = $this->getFlexDirectory()->loadObjects($entries ?? $this->getEntries());
+
+        return $objects;
     }
 
     /**
@@ -823,7 +830,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
 
     /**
      * @param FlexStorageInterface $storage
-     * @return CompiledYamlFile|null
+     * @return CompiledYamlFile|CompiledJsonFile|null
      */
     protected static function getIndexFile(FlexStorageInterface $storage)
     {
