@@ -16,7 +16,7 @@ parameters:
     reportUnmatchedIgnoredErrors: false
     treatPhpDocTypesAsCertain: false
 
-    # These checks are new in phpstan 0.12, ignore them for now.
+    # These checks are new in phpstan 1, ignore them for now.
     checkMissingIterableValueType: false
     checkGenericClassInNonGenericObjectType: false
 
@@ -35,21 +35,12 @@ parameters:
     ignoreErrors:
         # New in phpstan 1, ignore them for now.
         - '#Unsafe usage of new static\(\)#'
-        - '#Cannot instantiate interface Grav\\Framework\\#'
-
-        # FIXME: Bugs that need to be fixed
-        # FIXME: PHP 7.3 bug workaround
-        -
-            message: '#If condition is always false.#'
-            path: '*/system/src/Grav/Framework/Session/Session.php'
 
         # TODO: Errors that needs some more thinking (bad design?)
         - '#Access to an undefined property RocketTheme\\Toolbox\\Event\\Event::#'
         - '#Instantiation of deprecated class RocketTheme\\Toolbox\\Event\\Event#'
         - '#extends deprecated class RocketTheme\\Toolbox\\Event\\Event#'
-        - '#implements deprecated interface RocketTheme\\Toolbox\\Event\\EventSubscriberInterface#'
         - '#Access to an undefined property Grav\\Common\\Data\\Blueprint::#'
-        - '#Access to an undefined property Grav\\Common\\Media\\Interfaces\\MediaObjectInterface::#'
         -
             message: '#Cannot call method path\(\) on string#'
             path: '*/system/src/Grav/Common/Page/Media.php'
@@ -58,11 +49,6 @@ parameters:
         -
             message: '#Call to deprecated method writeCacheFile\(\) of class Twig\\Environment#'
             path: '*/system/src/Grav/Common/Twig/WriteCacheFileTrait.php'
-
-        # Needed: full coverage (probably with admin plugin...) then redesign constructor
-        -
-            message: '#Grav\\Common\\GPM\\Remote\\GravCore::__construct\(\) does not call parent constructor from Grav\\Common\\GPM\\Remote\\AbstractPackageCollection#'
-            path: '*/system/src/Grav/Common/GPM/Remote/GravCore.php'
 
         # PSR-16 Exception interfaces do not extend \Throwable
         - '#PHPDoc tag \@throws with type Psr\\SimpleCache\\(CacheException|InvalidArgumentException) is not subtype of Throwable#'
@@ -86,11 +72,6 @@ parameters:
         -
             message: '#unknown class Grav\\Plugin\\Form\\Forms#'
             path: '*/system/src/Grav/Common/Processors/PagesProcessor.php'
-
-        # Can be ignored, after fopen there's always an $http_response_header locally available
-        -
-            message: '#Variable \$http_response_header in isset\(\) always exists and is not nullable#'
-            path: '*/system/src/Grav/Common/GPM/Response.php'
 
         # Clockwork does not define functions for __call() call
         -
@@ -136,9 +117,6 @@ parameters:
         -
             message: '#Call to deprecated method getLegacyFiles\(\)#'
             path: '*/system/src/Grav/Common/Session.php'
-        -
-            message: '#Call to deprecated method getType\(\) of class#'
-            path: '*/system/src/Grav/Framework/Object/Base/ObjectTrait.php'
         -
             message: '#Call to deprecated method \w+\(\) of class Grav\\Framework\\Flex\\FlexObject#'
             path: '*/system/src/Grav/Framework/Flex/FlexObject.php'
