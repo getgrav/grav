@@ -398,7 +398,7 @@ class Grav extends Container
 
     /**
      * @param ResponseInterface $response
-     * @return void
+     * @return never-return
      * @deprecated 1.7 Do not use
      */
     public function exit(ResponseInterface $response): void
@@ -413,7 +413,7 @@ class Grav extends Container
      *
      * @param Route|string $route Internal route.
      * @param int|null $code  Redirection code (30x)
-     * @return void
+     * @return never-return
      */
     public function redirect($route, $code = null): void
     {
