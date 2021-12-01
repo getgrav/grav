@@ -346,7 +346,7 @@ class Grav extends Container
      * Please use this method instead of calling `die();` or `exit();`. Note that you need to create a response object.
      *
      * @param ResponseInterface $response
-     * @return void
+     * @return never-return
      */
     public function close(ResponseInterface $response): void
     {
