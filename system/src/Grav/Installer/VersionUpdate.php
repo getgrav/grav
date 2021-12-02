@@ -50,7 +50,7 @@ final class VersionUpdate
 
     public function getPatch(): string
     {
-        return $this->date;
+        return $this->patch;
     }
 
     public function getUpdater(): VersionUpdater
