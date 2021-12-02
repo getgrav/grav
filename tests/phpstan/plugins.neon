@@ -9,6 +9,17 @@ parameters:
         - %currentWorkingDirectory%/user/plugins/*/tests/*
         - %currentWorkingDirectory%/user/plugins/gantry5/src/platforms
         - %currentWorkingDirectory%/user/plugins/gantry5/src/classes/Gantry/Framework/Services/ErrorServiceProvider.php
+        # Ignore vendor dev dependencies and tests
+        - */vendor/*/*/tests
+        - */vendor/behat
+        - */vendor/codeception
+        - */vendor/phpstan
+        - */vendor/phpunit
+        - */vendor/phpspec
+        - */vendor/phpdocumentor
+        - */vendor/sebastian
+        - */vendor/theseer
+        - */vendor/webmozart
     bootstrapFiles:
         - plugins-bootstrap.php
     inferPrivatePropertyTypeFromConstructor: true

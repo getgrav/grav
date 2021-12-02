@@ -190,6 +190,7 @@ class Action implements IteratorAggregate, Countable
     /**
      * @return array
      */
+    #[\ReturnTypeWillChange]
     public function __debugInfo()
     {
         return [

@@ -11,6 +11,17 @@ parameters:
     excludePaths:
         - */system/src/Grav/Common/Errors/Resources/layout.html.php
         - */system/src/Twig/DeferredExtension/DeferredNodeVisitor.php
+        # Ignore vendor dev dependencies and tests
+        - */vendor/*/*/tests
+        - */vendor/behat
+        - */vendor/codeception
+        - */vendor/phpstan
+        - */vendor/phpunit
+        - */vendor/phpspec
+        - */vendor/phpdocumentor
+        - */vendor/sebastian
+        - */vendor/theseer
+        - */vendor/webmozart
 
     inferPrivatePropertyTypeFromConstructor: true
     reportUnmatchedIgnoredErrors: false
