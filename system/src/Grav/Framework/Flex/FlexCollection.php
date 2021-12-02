@@ -541,6 +541,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
     /**
      * @return array
      */
+    #[\ReturnTypeWillChange]
     public function __debugInfo()
     {
         return [

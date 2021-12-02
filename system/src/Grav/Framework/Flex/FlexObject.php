@@ -951,6 +951,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      *
      * @return string
      */
+    #[\ReturnTypeWillChange]
     public function __toString()
     {
         return $this->getFlexKey();
@@ -959,6 +960,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     /**
      * @return array
      */
+    #[\ReturnTypeWillChange]
     public function __debugInfo()
     {
         return [
@@ -974,6 +976,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     /**
      * Clone object.
      */
+    #[\ReturnTypeWillChange]
     public function __clone()
     {
         // Allows future compatibility as parent::__clone() works.

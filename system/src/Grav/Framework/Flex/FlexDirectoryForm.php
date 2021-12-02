@@ -358,6 +358,7 @@ class FlexDirectoryForm implements FlexDirectoryFormInterface, JsonSerializable
      * @param string $name
      * @return mixed|null
      */
+    #[\ReturnTypeWillChange]
     public function __get($name)
     {
         $method = "get{$name}";
@@ -375,6 +376,7 @@ class FlexDirectoryForm implements FlexDirectoryFormInterface, JsonSerializable
      * @param mixed $value
      * @return void
      */
+    #[\ReturnTypeWillChange]
     public function __set($name, $value)
     {
         $method = "set{$name}";
@@ -387,6 +389,7 @@ class FlexDirectoryForm implements FlexDirectoryFormInterface, JsonSerializable
      * @param string $name
      * @return bool
      */
+    #[\ReturnTypeWillChange]
     public function __isset($name)
     {
         $method = "get{$name}";
@@ -403,6 +406,7 @@ class FlexDirectoryForm implements FlexDirectoryFormInterface, JsonSerializable
      * @param string $name
      * @return void
      */
+    #[\ReturnTypeWillChange]
     public function __unset($name)
     {
     }

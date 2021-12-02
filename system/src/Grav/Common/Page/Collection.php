@@ -163,6 +163,7 @@ class Collection extends Iterator implements PageCollectionInterface
      *
      * @return PageInterface
      */
+    #[\ReturnTypeWillChange]
     public function current()
     {
         $current = parent::key();
@@ -175,6 +176,7 @@ class Collection extends Iterator implements PageCollectionInterface
      *
      * @return mixed
      */
+    #[\ReturnTypeWillChange]
     public function key()
     {
         $current = parent::current();

@@ -79,6 +79,7 @@ abstract class AbstractIndexCollection implements CollectionInterface
     /**
      * {@inheritDoc}
      */
+    #[\ReturnTypeWillChange]
     public function key()
     {
         /** @phpstan-var TKey $key */
@@ -90,6 +91,7 @@ abstract class AbstractIndexCollection implements CollectionInterface
     /**
      * {@inheritDoc}
      */
+    #[\ReturnTypeWillChange]
     public function next()
     {
         $value = next($this->entries);
@@ -101,6 +103,7 @@ abstract class AbstractIndexCollection implements CollectionInterface
     /**
      * {@inheritDoc}
      */
+    #[\ReturnTypeWillChange]
     public function current()
     {
         $value = current($this->entries);
@@ -345,6 +348,7 @@ abstract class AbstractIndexCollection implements CollectionInterface
      *
      * @return string
      */
+    #[\ReturnTypeWillChange]
     public function __toString()
     {
         return __CLASS__ . '@' . spl_object_hash($this);

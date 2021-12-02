@@ -286,6 +286,7 @@ trait FlexMediaTrait
     /**
      * @return array
      */
+    #[\ReturnTypeWillChange]
     public function __debugInfo()
     {
         return parent::__debugInfo() + [

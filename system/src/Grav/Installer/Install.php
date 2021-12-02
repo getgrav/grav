@@ -151,6 +151,7 @@ final class Install
      * @param string|null $zip
      * @return void
      */
+    #[\ReturnTypeWillChange]
     public function __invoke(?string $zip)
     {
         $this->zip = $zip;

@@ -124,6 +124,7 @@ interface SessionInterface extends IteratorAggregate
      * @param string $name
      * @return bool
      */
+    #[\ReturnTypeWillChange]
     public function __isset($name);
 
     /**
@@ -132,6 +133,7 @@ interface SessionInterface extends IteratorAggregate
      * @param string $name
      * @return mixed
      */
+    #[\ReturnTypeWillChange]
     public function __get($name);
 
     /**
@@ -141,6 +143,7 @@ interface SessionInterface extends IteratorAggregate
      * @param mixed  $value
      * @return void
      */
+    #[\ReturnTypeWillChange]
     public function __set($name, $value);
 
     /**
@@ -149,5 +152,6 @@ interface SessionInterface extends IteratorAggregate
      * @param string $name
      * @return void
      */
+    #[\ReturnTypeWillChange]
     public function __unset($name);
 }

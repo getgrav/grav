@@ -55,6 +55,7 @@ class AbstractFile implements FileInterface
     /**
      * Unlock file when the object gets destroyed.
      */
+    #[\ReturnTypeWillChange]
     public function __destruct()
     {
         if ($this->isLocked()) {
@@ -65,6 +66,7 @@ class AbstractFile implements FileInterface
     /**
      * @return void
      */
+    #[\ReturnTypeWillChange]
     public function __clone()
     {
         $this->handle = null;

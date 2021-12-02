@@ -215,6 +215,7 @@ class Permissions implements \ArrayAccess, \Countable, \IteratorAggregate
     /**
      * @return array
      */
+    #[\ReturnTypeWillChange]
     public function __debugInfo()
     {
         return [

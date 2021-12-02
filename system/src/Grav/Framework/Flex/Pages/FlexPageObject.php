@@ -55,6 +55,7 @@ class FlexPageObject extends FlexObject implements PageInterface, FlexTranslateI
     /**
      * Clone page.
      */
+    #[\ReturnTypeWillChange]
     public function __clone()
     {
         parent::__clone();

@@ -26,6 +26,7 @@ class RecursiveActionIterator implements RecursiveIterator, \Countable
      * @see \Iterator::key()
      * @return string
      */
+    #[\ReturnTypeWillChange]
     public function key()
     {
         /** @var Action $current */

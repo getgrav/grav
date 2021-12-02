@@ -623,6 +623,7 @@ class Uri
     /**
      * @return string
      */
+    #[\ReturnTypeWillChange]
     public function __toString()
     {
         return static::buildUrl($this->toArray());

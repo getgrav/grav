@@ -138,6 +138,7 @@ trait MediaObjectTrait
      *
      * @return string
      */
+    #[\ReturnTypeWillChange]
     abstract public function __toString();
 
     /**
@@ -478,6 +479,7 @@ trait MediaObjectTrait
      * @param array $args
      * @return $this
      */
+    #[\ReturnTypeWillChange]
     public function __call($method, $args)
     {
         $count = count($args);

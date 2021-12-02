@@ -74,6 +74,7 @@ class GPM extends Iterator
      * @param string $offset Asset name value
      * @return mixed Asset value
      */
+    #[\ReturnTypeWillChange]
     public function __get($offset)
     {
         switch ($offset) {
@@ -90,6 +91,7 @@ class GPM extends Iterator
      * @param string $offset Asset name value
      * @return bool True if the value is set
      */
+    #[\ReturnTypeWillChange]
     public function __isset($offset)
     {
         switch ($offset) {

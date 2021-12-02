@@ -28,6 +28,7 @@ abstract class Getters implements ArrayAccess, Countable
      * @param int|string $offset Medium name value
      * @param mixed $value  Medium value
      */
+    #[\ReturnTypeWillChange]
     public function __set($offset, $value)
     {
         $this->offsetSet($offset, $value);
@@ -39,6 +40,7 @@ abstract class Getters implements ArrayAccess, Countable
      * @param  int|string $offset Medium name value
      * @return mixed         Medium value
      */
+    #[\ReturnTypeWillChange]
     public function __get($offset)
     {
         return $this->offsetGet($offset);
@@ -50,6 +52,7 @@ abstract class Getters implements ArrayAccess, Countable
      * @param  int|string $offset Medium name value
      * @return boolean         True if the value is set
      */
+    #[\ReturnTypeWillChange]
     public function __isset($offset)
     {
         return $this->offsetExists($offset);
@@ -60,6 +63,7 @@ abstract class Getters implements ArrayAccess, Countable
      *
      * @param int|string $offset The name value to unset
      */
+    #[\ReturnTypeWillChange]
     public function __unset($offset)
     {
         $this->offsetUnset($offset);

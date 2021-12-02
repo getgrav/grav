@@ -409,6 +409,7 @@ class Session implements SessionInterface
     /**
      * @inheritdoc
      */
+    #[\ReturnTypeWillChange]
     public function __isset($name)
     {
         return isset($_SESSION[$name]);
@@ -417,6 +418,7 @@ class Session implements SessionInterface
     /**
      * @inheritdoc
      */
+    #[\ReturnTypeWillChange]
     public function __get($name)
     {
         return $_SESSION[$name] ?? null;
@@ -425,6 +427,7 @@ class Session implements SessionInterface
     /**
      * @inheritdoc
      */
+    #[\ReturnTypeWillChange]
     public function __set($name, $value)
     {
         $_SESSION[$name] = $value;
@@ -433,6 +436,7 @@ class Session implements SessionInterface
     /**
      * @inheritdoc
      */
+    #[\ReturnTypeWillChange]
     public function __unset($name)
     {
         unset($_SESSION[$name]);

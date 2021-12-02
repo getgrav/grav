@@ -38,6 +38,7 @@ class Iterator implements \ArrayAccess, \Iterator, \Countable, \Serializable
      * @param  mixed  $args
      * @return mixed
      */
+    #[\ReturnTypeWillChange]
     public function __call($key, $args)
     {
         return $this->items[$key] ?? null;
@@ -46,6 +47,7 @@ class Iterator implements \ArrayAccess, \Iterator, \Countable, \Serializable
     /**
      * Clone the iterator.
      */
+    #[\ReturnTypeWillChange]
     public function __clone()
     {
         foreach ($this as $key => $value) {
@@ -60,6 +62,7 @@ class Iterator implements \ArrayAccess, \Iterator, \Countable, \Serializable
      *
      * @return string
      */
+    #[\ReturnTypeWillChange]
     public function __toString()
     {
         return implode(',', $this->items);

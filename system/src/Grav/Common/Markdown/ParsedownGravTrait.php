@@ -289,6 +289,7 @@ trait ParsedownGravTrait
      * @param array $args
      * @return mixed|null
      */
+    #[\ReturnTypeWillChange]
     public function __call($method, $args)
     {
         if (isset($this->{$method}) === true) {

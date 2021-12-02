@@ -201,6 +201,7 @@ class FormFlashFile implements UploadedFileInterface, JsonSerializable
     /**
      * @return array
      */
+    #[\ReturnTypeWillChange]
     public function __debugInfo()
     {
         return [

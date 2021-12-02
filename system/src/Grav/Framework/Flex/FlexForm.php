@@ -444,6 +444,7 @@ class FlexForm implements FlexObjectFormInterface, JsonSerializable
      * @param string $name
      * @return mixed|null
      */
+    #[\ReturnTypeWillChange]
     public function __get($name)
     {
         $method = "get{$name}";
@@ -461,6 +462,7 @@ class FlexForm implements FlexObjectFormInterface, JsonSerializable
      * @param mixed $value
      * @return void
      */
+    #[\ReturnTypeWillChange]
     public function __set($name, $value)
     {
         $method = "set{$name}";
@@ -473,6 +475,7 @@ class FlexForm implements FlexObjectFormInterface, JsonSerializable
      * @param string $name
      * @return bool
      */
+    #[\ReturnTypeWillChange]
     public function __isset($name)
     {
         $method = "get{$name}";
@@ -489,6 +492,7 @@ class FlexForm implements FlexObjectFormInterface, JsonSerializable
      * @param string $name
      * @return void
      */
+    #[\ReturnTypeWillChange]
     public function __unset($name)
     {
     }

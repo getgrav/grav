@@ -254,6 +254,7 @@ abstract class ObjectIndex extends AbstractIndexCollection implements NestedObje
      * @param array $arguments
      * @return mixed
      */
+    #[\ReturnTypeWillChange]
     abstract public function __call($name, $arguments);
 
     /**

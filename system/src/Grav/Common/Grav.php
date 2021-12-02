@@ -652,6 +652,7 @@ class Grav extends Container
      * @param array $args
      * @return mixed|null
      */
+    #[\ReturnTypeWillChange]
     public function __call($method, $args)
     {
         $closure = $this->{$method} ?? null;

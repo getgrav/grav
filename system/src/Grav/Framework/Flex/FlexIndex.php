@@ -432,6 +432,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
      * @param array $arguments
      * @return mixed
      */
+    #[\ReturnTypeWillChange]
     public function __call($name, $arguments)
     {
         /** @var Debugger $debugger */
@@ -522,6 +523,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
     /**
      * @return array
      */
+    #[\ReturnTypeWillChange]
     public function __debugInfo()
     {
         return [
