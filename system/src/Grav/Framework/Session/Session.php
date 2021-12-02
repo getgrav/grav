@@ -189,7 +189,12 @@ class Session implements SessionInterface
             return $this;
         }
 
-        $sessionName = session_name();
+        $sessionName = $this->getName();
+        $sessionId = $this->getId();
+        if (null === $sessionName || null === $sessionId) {
+            return $this;
+        }
+
         $sessionExists = isset($_COOKIE[$sessionName]);
 
         // Protection against invalid session cookie names throwing exception: http://php.net/manual/en/function.session-id.php#116836
@@ -341,7 +346,7 @@ class Session implements SessionInterface
             $this->removeCookie();
 
             setcookie(
-                session_name(),
+                $name,
                 '',
                 $this->getCookieOptions(-42000)
             );
@@ -483,9 +488,15 @@ class Session implements SessionInterface
     {
         $this->removeCookie();
 
+        $sessionName = $this->getName();
+        $sessionId = $this->getId();
+        if (null === $sessionName || null === $sessionId) {
+            return;
+        }
+
         setcookie(
-            session_name(),
-            session_id(),
+            $sessionName,
+            $sessionId,
             $this->getCookieOptions()
         );
     }
