@@ -43,6 +43,7 @@ interface CollectionInterface extends Collection, JsonSerializable
      *
      * @param int $size     Size of each chunk.
      * @return array
+     * @phpstan-return array<array<TKey,T>>
      */
     public function chunk($size);
 

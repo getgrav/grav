@@ -497,6 +497,7 @@ class FlexDirectoryForm implements FlexDirectoryFormInterface, JsonSerializable
      * Filter validated data.
      *
      * @param ArrayAccess|Data|null $data
+     * @phpstan-param ArrayAccess<string,mixed>|Data|null $data
      */
     protected function filterData($data = null): void
     {

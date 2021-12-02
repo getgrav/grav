@@ -16,6 +16,7 @@ use Grav\Framework\File\Interfaces\FileFormatterInterface;
 use JsonSerializable;
 use RuntimeException;
 use stdClass;
+use function count;
 use function is_array;
 use function is_object;
 use function is_scalar;

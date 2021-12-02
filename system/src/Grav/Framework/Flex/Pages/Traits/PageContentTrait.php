@@ -75,13 +75,13 @@ trait PageContentTrait
         'template' => 'template',
     ];
 
-    /** @var object */
+    /** @var object|null */
     protected $header;
 
-    /** @var string */
+    /** @var string|null */
     protected $_summary;
 
-    /** @var string */
+    /** @var string|null */
     protected $_content;
 
     /**

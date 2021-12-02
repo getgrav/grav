@@ -438,7 +438,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
         /** @var Debugger $debugger */
         $debugger = Grav::instance()['debugger'];
 
-        /** @var FlexCollection $className */
+        /** @phpstan-var class-string $className */
         $className = $this->getFlexDirectory()->getCollectionClass();
         $cachedMethods = $className::getCachedMethods();
 

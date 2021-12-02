@@ -65,10 +65,10 @@ trait FormTrait
     private $sessionid;
     /** @var bool */
     private $submitted;
-    /** @var ArrayAccess|Data|null */
+    /** @var ArrayAccess<string,mixed>|Data|null */
     private $data;
-    /** @var array|UploadedFileInterface[] */
-    private $files;
+    /** @var UploadedFileInterface[] */
+    private $files = [];
     /** @var FormFlashInterface|null */
     private $flash;
     /** @var string */
@@ -721,6 +721,7 @@ trait FormTrait
      * @param ArrayAccess|Data|null $data
      * @return void
      * @throws ValidationException
+     * @phpstan-param ArrayAccess<string,mixed>|Data|null $data
      * @throws Exception
      */
     protected function validateData($data = null): void
@@ -735,6 +736,7 @@ trait FormTrait
      *
      * @param ArrayAccess|Data|null $data
      * @return void
+     * @phpstan-param ArrayAccess<string,mixed>|Data|null $data
      */
     protected function filterData($data = null): void
     {

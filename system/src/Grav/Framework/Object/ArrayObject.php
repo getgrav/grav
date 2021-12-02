@@ -19,6 +19,7 @@ use Grav\Framework\Object\Property\ArrayPropertyTrait;
 
 /**
  * Array Objects keep the data in private array property.
+ * @implements ArrayAccess<string,mixed>
  */
 class ArrayObject implements NestedObjectInterface, ArrayAccess
 {

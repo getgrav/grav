@@ -13,6 +13,7 @@ namespace Grav\Framework\Flex\Pages;
 
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Framework\Flex\FlexCollection;
+use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
 use function array_search;
 use function assert;
 use function is_int;
@@ -20,7 +21,7 @@ use function is_int;
 /**
  * Class FlexPageCollection
  * @package Grav\Plugin\FlexObjects\Types\FlexPages
- * @template T of \Grav\Framework\Flex\Interfaces\FlexObjectInterface
+ * @template T of FlexObjectInterface
  * @extends FlexCollection<T>
  */
 class FlexPageCollection extends FlexCollection
@@ -56,8 +57,10 @@ class FlexPageCollection extends FlexCollection
      */
     public function withPublished(bool $bool = true)
     {
+        /** @var string[] $list */
         $list = array_keys(array_filter($this->call('isPublished', [$bool])));
 
+        /** @phpstan-var static<T> */
         return $this->select($list);
     }
 
@@ -68,8 +71,10 @@ class FlexPageCollection extends FlexCollection
      */
     public function withVisible(bool $bool = true)
     {
+        /** @var string[] $list */
         $list = array_keys(array_filter($this->call('isVisible', [$bool])));
 
+        /** @phpstan-var static<T> */
         return $this->select($list);
     }
 
@@ -80,8 +85,10 @@ class FlexPageCollection extends FlexCollection
      */
     public function withRoutable(bool $bool = true)
     {
+        /** @var string[] $list */
         $list = array_keys(array_filter($this->call('isRoutable', [$bool])));
 
+        /** @phpstan-var static<T> */
         return $this->select($list);
     }
 

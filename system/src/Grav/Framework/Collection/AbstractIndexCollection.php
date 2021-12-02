@@ -14,6 +14,7 @@ use Closure;
 use Grav\Framework\Compat\Serializable;
 use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
 use InvalidArgumentException;
+use Iterator;
 use function array_key_exists;
 use function array_slice;
 use function count;
@@ -82,10 +83,8 @@ abstract class AbstractIndexCollection implements CollectionInterface
     #[\ReturnTypeWillChange]
     public function key()
     {
-        /** @phpstan-var TKey $key */
-        $key = (string)key($this->entries);
-
-        return $key;
+        /** @phpstan-var TKey */
+        return (string)key($this->entries);
     }
 
     /**
@@ -147,6 +146,7 @@ abstract class AbstractIndexCollection implements CollectionInterface
      * Required by interface ArrayAccess.
      *
      * {@inheritDoc}
+     * @phpstan-param TKey|null $offset
      */
     #[\ReturnTypeWillChange]
     public function offsetExists($offset)
@@ -158,6 +158,7 @@ abstract class AbstractIndexCollection implements CollectionInterface
      * Required by interface ArrayAccess.
      *
      * {@inheritDoc}
+     * @phpstan-param TKey|null $offset
      */
     #[\ReturnTypeWillChange]
     public function offsetGet($offset)
@@ -169,6 +170,7 @@ abstract class AbstractIndexCollection implements CollectionInterface
      * Required by interface ArrayAccess.
      *
      * {@inheritDoc}
+     * @phpstan-param TKey|null $offset
      */
     #[\ReturnTypeWillChange]
     public function offsetSet($offset, $value)
@@ -184,6 +186,7 @@ abstract class AbstractIndexCollection implements CollectionInterface
      * Required by interface ArrayAccess.
      *
      * {@inheritDoc}
+     * @phpstan-param TKey|null $offset
      */
     #[\ReturnTypeWillChange]
     public function offsetUnset($offset)
@@ -304,6 +307,7 @@ abstract class AbstractIndexCollection implements CollectionInterface
      * Required by interface IteratorAggregate.
      *
      * {@inheritDoc}
+     * @phpstan-return Iterator<TKey,T>
      */
     #[\ReturnTypeWillChange]
     public function getIterator()
@@ -444,6 +448,7 @@ abstract class AbstractIndexCollection implements CollectionInterface
      *
      * @param int $size     Size of each chunk.
      * @return array
+     * @phpstan-return array<array<TKey,T>>
      */
     public function chunk($size)
     {

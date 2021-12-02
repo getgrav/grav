@@ -176,6 +176,7 @@ class Filesystem implements FilesystemInterface
      * @param string $path
      * @param int $levels
      * @return string
+     * @phpstan-param positive-int $levels
      */
     public function pathname(string $path, int $levels = 1): string
     {
@@ -204,6 +205,7 @@ class Filesystem implements FilesystemInterface
      * @param string $path
      * @param int $levels
      * @return array
+     * @phpstan-param positive-int $levels
      */
     protected function dirnameInternal(?string $scheme, string $path, int $levels = 1): array
     {

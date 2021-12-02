@@ -123,6 +123,7 @@ class Flex implements FlexInterface
      * @param array|null $keys
      * @param string|null $keyField
      * @return FlexCollectionInterface|null
+     * @phpstan-return FlexCollectionInterface<FlexObjectInterface>|null
      */
     public function getCollection(string $type, array $keys = null, string $keyField = null): ?FlexCollectionInterface
     {
@@ -137,6 +138,7 @@ class Flex implements FlexInterface
      *                                  collection_class:   Class to be used to create the collection. Defaults to ObjectCollection.
      * @return FlexCollectionInterface
      * @throws RuntimeException
+     * @phpstan-return FlexCollectionInterface<FlexObjectInterface>
      */
     public function getMixedCollection(array $keys, array $options = []): FlexCollectionInterface
     {

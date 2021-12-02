@@ -19,6 +19,8 @@ use Grav\Framework\Object\Property\ObjectPropertyTrait;
 
 /**
  * Property Objects keep their data in protected object properties.
+ *
+ * @implements ArrayAccess<string,mixed>
  */
 class PropertyObject implements NestedObjectInterface, ArrayAccess
 {

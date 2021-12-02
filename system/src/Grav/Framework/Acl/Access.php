@@ -25,6 +25,7 @@ use function strlen;
 /**
  * Class Access
  * @package Grav\Framework\Acl
+ * @implements IteratorAggregate<string,bool|array|null>
  */
 class Access implements JsonSerializable, IteratorAggregate, Countable
 {
@@ -34,7 +35,7 @@ class Access implements JsonSerializable, IteratorAggregate, Countable
     private $rules;
     /** @var array */
     private $ops;
-    /** @var array */
+    /** @var array<string,bool|array|null> */
     private $acl = [];
     /** @var array */
     private $inherited = [];

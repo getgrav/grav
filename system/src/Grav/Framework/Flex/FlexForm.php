@@ -598,6 +598,7 @@ class FlexForm implements FlexObjectFormInterface, JsonSerializable
      *
      * @param ArrayAccess|Data|null $data
      * @return void
+     * @phpstan-param ArrayAccess<string,mixed>|Data|null $data
      */
     protected function filterData($data = null): void
     {

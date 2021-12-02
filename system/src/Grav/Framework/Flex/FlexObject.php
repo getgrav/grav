@@ -69,13 +69,13 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     private $_forms = [];
     /** @var Blueprint[] */
     private $_blueprint = [];
-    /** @var array */
+    /** @var array|null */
     private $_meta;
-    /** @var array */
+    /** @var array|null */
     protected $_original;
-    /** @var string */
+    /** @var string|null */
     protected $storage_key;
-    /** @var int */
+    /** @var int|null */
     protected $storage_timestamp;
 
     /**
@@ -776,7 +776,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
         $value = reset($result);
         $meta = $value['__META'] ?? null;
         if ($meta) {
-            /** @var FlexIndex $indexClass */
+            /** @phpstan-var class-string $indexClass */
             $indexClass = $this->getFlexDirectory()->getIndexClass();
             $indexClass::updateObjectMeta($meta, $value, $storage);
             $this->_meta = $meta;

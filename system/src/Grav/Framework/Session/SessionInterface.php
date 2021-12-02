@@ -16,6 +16,7 @@ use RuntimeException;
 /**
  * Class Session
  * @package Grav\Framework\Session
+ * @extends IteratorAggregate<array-key,mixed>
  */
 interface SessionInterface extends IteratorAggregate
 {
@@ -107,6 +108,7 @@ interface SessionInterface extends IteratorAggregate
      * Retrieve an external iterator
      *
      * @return ArrayIterator Return an ArrayIterator of $_SESSION
+     * @phpstan-return ArrayIterator<array-key,mixed>
      */
     #[\ReturnTypeWillChange]
     public function getIterator();

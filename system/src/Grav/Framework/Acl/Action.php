@@ -21,6 +21,7 @@ use function strlen;
 /**
  * Class Action
  * @package Grav\Framework\Acl
+ * @implements IteratorAggregate<string,Action>
  */
 class Action implements IteratorAggregate, Countable
 {
@@ -37,7 +38,7 @@ class Action implements IteratorAggregate, Countable
 
     /** @var Action|null */
     protected $parent;
-    /** @var Action[] */
+    /** @var array<string,Action> */
     protected $children = [];
 
     /**

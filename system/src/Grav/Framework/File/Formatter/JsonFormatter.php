@@ -117,6 +117,7 @@ class JsonFormatter extends AbstractFormatter
      * Returns recursion depth used in decode() function.
      *
      * @return int
+     * @phpstan-return positive-int
      */
     public function getDecodeDepth(): int
     {

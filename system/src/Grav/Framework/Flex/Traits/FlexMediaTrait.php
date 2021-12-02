@@ -165,6 +165,9 @@ trait FlexMediaTrait
         return $settings + ['accept' => '*', 'limit' => 1000, 'self' => true];
     }
 
+    /**
+     * @return array
+     */
     protected function getMediaFields(): array
     {
         // Load settings for the field.
@@ -398,7 +401,7 @@ trait FlexMediaTrait
     }
 
     /**
-     * @return array<string, UploadedFileInterface|array|null>
+     * @return array<string,UploadedFileInterface|array|null>
      */
     protected function getUpdatedMedia(): array
     {

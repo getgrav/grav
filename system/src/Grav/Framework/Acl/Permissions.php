@@ -9,20 +9,26 @@
 
 namespace Grav\Framework\Acl;
 
+use ArrayAccess;
 use ArrayIterator;
+use Countable;
+use IteratorAggregate;
 use RecursiveIteratorIterator;
 use RuntimeException;
 use Traversable;
+use function count;
 
 /**
  * Class Permissions
  * @package Grav\Framework\Acl
+ * @implements ArrayAccess<string,Action>
+ * @implements IteratorAggregate<string,Action>
  */
-class Permissions implements \ArrayAccess, \Countable, \IteratorAggregate
+class Permissions implements ArrayAccess, Countable, IteratorAggregate
 {
-    /** @var Action[] */
+    /** @var array<string,Action> */
     protected $instances = [];
-    /** @var Action[] */
+    /** @var array<string,Action> */
     protected $actions = [];
     /** @var array */
     protected $nested = [];

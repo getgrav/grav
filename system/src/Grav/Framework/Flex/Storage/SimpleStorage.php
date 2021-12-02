@@ -30,7 +30,7 @@ class SimpleStorage extends AbstractFilesystemStorage
     protected $dataFolder;
     /** @var string */
     protected $dataPattern;
-    /** @var string */
+    /** @var string|null */
     protected $prefix;
     /** @var array|null */
     protected $data;

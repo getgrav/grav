@@ -15,6 +15,8 @@ use Iterator;
 
 /**
  * Class implements media collection interface.
+ * @extends ArrayAccess<string,MediaObjectInterface>
+ * @extends Iterator<string,MediaObjectInterface>
  */
 interface MediaCollectionInterface extends ArrayAccess, Countable, Iterator
 {

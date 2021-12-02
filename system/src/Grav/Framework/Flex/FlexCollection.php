@@ -152,7 +152,11 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
             arsort($matching, SORT_NUMERIC);
         }
 
-        return $this->select(array_keys($matching));
+        /** @var string[] $array */
+        $array = array_keys($matching);
+
+        /** @phpstan-var static<T> */
+        return $this->select($array);
     }
 
     /**
@@ -163,7 +167,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
     {
         $criteria = Criteria::create()->orderBy($order);
 
-        /** @var FlexCollectionInterface $matching */
+        /** @phpstan-var FlexCollectionInterface<T> $matching */
         $matching = $this->matching($criteria);
 
         return $matching;
@@ -183,6 +187,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
             $criteria->andWhere($expr->eq($key, $value));
         }
 
+        /** @phpstan-var static<T> */
         return $this->matching($criteria);
     }
 
@@ -497,7 +502,11 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
         $list = $this->call('isAuthorized', [$action, $scope, $user]);
         $list = array_filter($list);
 
-        return $this->select(array_keys($list));
+        /** @var string[] $keys */
+        $keys = array_keys($list);
+
+        /** @phpstan-var static<T> */
+        return $this->select($keys);
     }
 
     /**
