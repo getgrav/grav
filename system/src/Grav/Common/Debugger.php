@@ -856,6 +856,10 @@ class Debugger
             $scope = 'grav';
         } elseif (strpos($errfile, '/twig/') !== false) {
             $scope = 'twig';
+            // TODO: remove when upgrading to Twig 2+
+            if (str_contains($errstr, '#[\ReturnTypeWillChange]') || str_contains($errstr, 'Passing null to parameter')) {
+                return true;
+            }
         } elseif (stripos($errfile, '/yaml/') !== false) {
             $scope = 'yaml';
         } elseif (strpos($errfile, '/vendor/') !== false) {
