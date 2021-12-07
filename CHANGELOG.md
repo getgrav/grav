@@ -11,6 +11,7 @@
    * `ControllerResponseTrait`: Redirect response should be json if the extension is .json
 3. [](#bugfix)
    * Fixed bad key lookup in `FlexRelatedDirectoryTrait::getCollectionByProperty()`
+   * Fixed RequestHandlers `NotFoundException` having empty request
 
 # v1.7.25
 ## 11/16/2021
