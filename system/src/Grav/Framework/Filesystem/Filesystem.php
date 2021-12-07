@@ -239,7 +239,7 @@ class Filesystem implements FilesystemInterface
 
         if (null !== $scheme) {
             $info['scheme'] = $scheme;
-            $dirname = isset($info['dirname']) && $info['dirname'] !== '.' ? $info['dirname'] : null;
+            $dirname = $info['dirname'] !== '.' ? $info['dirname'] : null;
 
             if (null !== $dirname) {
                 // In Windows dirname may be using backslashes, fix that.

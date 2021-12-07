@@ -75,9 +75,11 @@ class JsonFormatter extends AbstractFormatter
             if (is_string($options)) {
                 $list = preg_split('/[\s,|]+/', $options);
                 $options = 0;
-                foreach ($list as $option) {
-                    if (isset($this->encodeOptions[$option])) {
-                        $options += $this->encodeOptions[$option];
+                if ($list) {
+                    foreach ($list as $option) {
+                        if (isset($this->encodeOptions[$option])) {
+                            $options += $this->encodeOptions[$option];
+                        }
                     }
                 }
             } else {
@@ -100,9 +102,11 @@ class JsonFormatter extends AbstractFormatter
             if (is_string($options)) {
                 $list = preg_split('/[\s,|]+/', $options);
                 $options = 0;
-                foreach ($list as $option) {
-                    if (isset($this->decodeOptions[$option])) {
-                        $options += $this->decodeOptions[$option];
+                if ($list) {
+                    foreach ($list as $option) {
+                        if (isset($this->decodeOptions[$option])) {
+                            $options += $this->decodeOptions[$option];
+                        }
                     }
                 }
             } else {

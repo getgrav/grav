@@ -22,15 +22,6 @@ class File extends AbstractFile
 {
     /**
      * {@inheritdoc}
-     * @see FileInterface::load()
-     */
-    public function load()
-    {
-        return parent::load();
-    }
-
-    /**
-     * {@inheritdoc}
      * @see FileInterface::save()
      */
     public function save($data): void
