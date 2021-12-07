@@ -737,7 +737,7 @@ class Grav extends Container
         /** @var Config $config */
         $config = $this['config'];
 
-        $uri_extension = strtolower($uri->extension());
+        $uri_extension = strtolower($uri->extension() ?? '');
         $fallback_types = $config->get('system.media.allowed_fallback_types', null);
         $supported_types = $config->get('media.types');
 
