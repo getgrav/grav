@@ -190,8 +190,7 @@ class Session implements SessionInterface
         }
 
         $sessionName = $this->getName();
-        $sessionId = $this->getId();
-        if (null === $sessionName || null === $sessionId) {
+        if (null === $sessionName) {
             return $this;
         }
 
