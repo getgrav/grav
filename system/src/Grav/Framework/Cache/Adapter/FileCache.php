@@ -42,9 +42,13 @@ class FileCache extends AbstractCache
      */
     public function __construct($namespace = '', $defaultLifetime = null, $folder = null)
     {
-        parent::__construct($namespace, $defaultLifetime ?: 31557600); // = 1 year
+        try {
+            parent::__construct($namespace, $defaultLifetime ?: 31557600); // = 1 year
 
-        $this->initFileCache($namespace, $folder ?? '');
+            $this->initFileCache($namespace, $folder ?? '');
+        } catch (\Psr\SimpleCache\InvalidArgumentException $e) {
+            throw new InvalidArgumentException($e->getMessage(), $e->getCode(), $e);
+        }
     }
 
     /**
@@ -103,7 +107,13 @@ class FileCache extends AbstractCache
     {
         $file = $this->getFile($key);
 
-        return (!file_exists($file) || @unlink($file) || !file_exists($file));
+        $result = false;
+        if (file_exists($file)) {
+            $result = @unlink($file);
+            $result &= !file_exists($file);
+        }
+
+        return $result;
     }
 
     /**
