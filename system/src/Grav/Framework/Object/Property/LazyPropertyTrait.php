@@ -87,8 +87,7 @@ trait LazyPropertyTrait
      */
     protected function doUnsetProperty($property)
     {
-        $this->hasObjectProperty($property) ?
-            $this->unsetObjectProperty($property) : $this->unsetArrayProperty($property);
+        $this->hasObjectProperty($property) ? $this->unsetObjectProperty($property) : $this->unsetArrayProperty($property);
     }
 
     /**

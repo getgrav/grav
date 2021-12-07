@@ -258,7 +258,7 @@ class Response implements ResponseInterface
         }
 
         $output .= self::EOL;
-        $output .= (string) $response->getBody();
+        $output .= $response->getBody();
 
         return $output;
     }

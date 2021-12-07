@@ -30,7 +30,7 @@ parameters:
 
     # These checks are new in phpstan 1, ignore them for now.
     checkMissingIterableValueType: false
-    checkGenericClassInNonGenericObjectType: false
+    #checkGenericClassInNonGenericObjectType: false
 
     universalObjectCratesClasses:
         - Grav\Common\Config\Config
