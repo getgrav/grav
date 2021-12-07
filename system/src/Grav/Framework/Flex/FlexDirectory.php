@@ -1054,7 +1054,9 @@ class FlexDirectory implements FlexDirectoryInterface
             $newKey = $object->getStorageKey();
 
             if ($oldKey !== $newKey) {
-                $object->triggerEvent('move');
+                if (method_exists($object, 'triggerEvent')) {
+                    $object->triggerEvent('move');
+                }
                 $storage->renameRow($oldKey, $newKey);
                 // TODO: media support.
             }

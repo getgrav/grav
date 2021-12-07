@@ -191,7 +191,6 @@ class FlexPageCollection extends FlexCollection
         $keys = $collection->getStorageKeys();
 
         // Assign next free order.
-        /** @var FlexPageObject|null $last */
         $last = null;
         $order = 0;
         foreach ($keys as $folder => $key) {
@@ -203,8 +202,9 @@ class FlexPageCollection extends FlexCollection
             }
         }
 
+        /** @var FlexPageObject|null $last */
         $last = $collection[$last];
 
-        return sprintf('%d.', $last ? $last->value('order') + 1 : 1);
+        return sprintf('%d.', $last ? $last->getFormValue('order') + 1 : 1);
     }
 }
