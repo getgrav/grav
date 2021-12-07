@@ -127,6 +127,10 @@ abstract class AbstractFilesystemStorage implements FlexStorageInterface
         $formatterClassName = $formatter['class'] ?? JsonFormatter::class;
         $formatterOptions = $formatter['options'] ?? [];
 
+        if (!is_a($formatterClassName, FileFormatterInterface::class, true)) {
+            throw new \InvalidArgumentException('Bad Data Formatter');
+        }
+
         $this->dataFormatter = new $formatterClassName($formatterOptions);
     }
 

@@ -407,7 +407,7 @@ abstract class AbstractIndexCollection implements CollectionInterface
         $keys = $this->getKeys();
         shuffle($keys);
 
-        return $this->createFrom(array_replace(array_flip($keys), $this->entries) ?? []);
+        return $this->createFrom(array_replace(array_flip($keys), $this->entries));
     }
 
     /**

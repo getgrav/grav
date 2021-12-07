@@ -62,7 +62,7 @@ class Flex implements FlexInterface
      */
     public function addDirectoryType(string $type, string $blueprint, array $config = [])
     {
-        $config = array_replace_recursive(['enabled' => true], $this->config ?? [], $config);
+        $config = array_replace_recursive(['enabled' => true], $this->config, $config);
 
         $this->types[$type] = new FlexDirectory($type, $blueprint, $config);
 
@@ -143,7 +143,7 @@ class Flex implements FlexInterface
     public function getMixedCollection(array $keys, array $options = []): FlexCollectionInterface
     {
         $collectionClass = $options['collection_class'] ?? ObjectCollection::class;
-        if (!class_exists($collectionClass)) {
+        if (!is_a($collectionClass, FlexCollectionInterface::class, true)) {
             throw new RuntimeException(sprintf('Cannot create collection: Class %s does not exist', $collectionClass));
         }
 
@@ -233,7 +233,7 @@ class Flex implements FlexInterface
 
         // Use the original key ordering.
         if (!$guessed) {
-            $list = array_replace(array_fill_keys($keys, null), $list) ?? [];
+            $list = array_replace(array_fill_keys($keys, null), $list);
         } else {
             // We have mixed keys, we need to map flex keys back to storage keys.
             $results = [];

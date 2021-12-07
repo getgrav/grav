@@ -44,7 +44,7 @@ trait FlexMediaTrait
     }
 
     /** @var array */
-    protected $_uploads;
+    protected $_uploads = [];
 
     /**
      * @return string|null
@@ -119,7 +119,7 @@ trait FlexMediaTrait
 
         // Load settings for the field.
         $schema = $this->getBlueprint()->schema();
-        $settings = $field && is_object($schema) ? (array)$schema->getProperty($field) : null;
+        $settings = (array)$schema->getProperty($field);
         if (!is_array($settings)) {
             return null;
         }
@@ -405,7 +405,7 @@ trait FlexMediaTrait
      */
     protected function getUpdatedMedia(): array
     {
-        return $this->_uploads ?? [];
+        return $this->_uploads;
     }
 
     /**

@@ -40,14 +40,14 @@ use function in_array;
  * @implements FlexIndexInterface<T>
  * @mixin C
  */
-class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexIndexInterface
+class FlexIndex extends ObjectIndex implements FlexIndexInterface
 {
     const VERSION = 1;
 
     /** @var FlexDirectory|null */
     private $_flexDirectory;
     /** @var string */
-    private $_keyField;
+    private $_keyField = 'storage_key';
     /** @var array */
     private $_indexKeys;
 
@@ -353,7 +353,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
      */
     public function getKeyField(): string
     {
-        return $this->_keyField ?? 'storage_key';
+        return $this->_keyField;
     }
 
     /**
@@ -416,7 +416,7 @@ class FlexIndex extends ObjectIndex implements FlexCollectionInterface, FlexInde
             $previous = $search;
         }
 
-        return $this->createFrom(array_replace($previous ?? [], $this->getEntries()) ?? []);
+        return $this->createFrom(array_replace($previous ?? [], $this->getEntries()));
     }
 
     /**

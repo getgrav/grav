@@ -288,7 +288,7 @@ trait PageContentTrait
             'process',
             $var,
             function ($value) {
-                $value = array_replace(Grav::instance()['config']->get('system.pages.process', []), is_array($value) ? $value : []) ?? [];
+                $value = array_replace(Grav::instance()['config']->get('system.pages.process', []), is_array($value) ? $value : []);
                 foreach ($value as $process => $status) {
                     $value[$process] = (bool)$status;
                 }
@@ -664,6 +664,7 @@ trait PageContentTrait
      */
     protected function processContent($content): string
     {
+        $content = is_string($content) ? $content : '';
         $grav = Grav::instance();
 
         /** @var Config $config */
@@ -676,7 +677,6 @@ trait PageContentTrait
         $twig_first = $this->getNestedProperty('header.twig_first') ?? $config->get('system.pages.twig_first', false);
         $never_cache_twig = $this->getNestedProperty('header.never_cache_twig') ?? $config->get('system.pages.never_cache_twig', false);
 
-        $cached = null;
         if ($cache_enable) {
             $cache = $this->getCache('render');
             $key = md5($this->getCacheKey() . '-content');
@@ -688,12 +688,10 @@ trait PageContentTrait
                 if ($process_twig && $never_cache_twig) {
                     $this->_content = $this->processTwig($this->_content);
                 }
-            } else {
-                $cached = null;
             }
         }
 
-        if (!$cached) {
+        if (null === $this->_content) {
             $markdown_options = [];
             if ($process_markdown) {
                 // Build markdown options.

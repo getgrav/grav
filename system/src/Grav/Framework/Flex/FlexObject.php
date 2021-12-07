@@ -888,8 +888,8 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     public function getDefaultValue(string $name, string $separator = null)
     {
         $separator = $separator ?: '.';
-        $path = explode($separator, $name) ?: [];
-        $offset = array_shift($path) ?? '';
+        $path = explode($separator, $name);
+        $offset = array_shift($path);
 
         $current = $this->getDefaultValues();
 

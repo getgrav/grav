@@ -47,7 +47,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
     private $_flexDirectory;
 
     /** @var string */
-    private $_keyField;
+    private $_keyField = 'storage_key';
 
     /**
      * Get list of cached methods.
@@ -487,7 +487,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
      */
     public function getKeyField(): string
     {
-        return $this->_keyField ?? 'storage_key';
+        return $this->_keyField;
     }
 
     /**

@@ -495,6 +495,9 @@ class FlexDirectory implements FlexDirectoryInterface
     {
         /** @phpstan-var class-string $className */
         $className = $this->objectClassName ?: $this->getObjectClass();
+        if (!is_a($className, FlexObjectInterface::class, true)) {
+            throw new \RuntimeException('Bad object class: ' . $className);
+        }
 
         return new $className($data, $key, $this, $validate);
     }
@@ -509,6 +512,9 @@ class FlexDirectory implements FlexDirectoryInterface
     {
         /** phpstan-var class-string $className */
         $className = $this->collectionClassName ?: $this->getCollectionClass();
+        if (!is_a($className, FlexCollectionInterface::class, true)) {
+            throw new \RuntimeException('Bad collection class: ' . $className);
+        }
 
         return $className::createFromArray($entries, $this, $keyField);
     }
@@ -523,6 +529,9 @@ class FlexDirectory implements FlexDirectoryInterface
     {
         /** @phpstan-var class-string $className */
         $className = $this->indexClassName ?: $this->getIndexClass();
+        if (!is_a($className, FlexIndexInterface::class, true)) {
+            throw new \RuntimeException('Bad index class: ' . $className);
+        }
 
         return $className::createFromArray($entries, $this, $keyField);
     }
