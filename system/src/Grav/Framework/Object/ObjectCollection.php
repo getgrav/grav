@@ -125,7 +125,7 @@ class ObjectCollection extends ArrayCollection implements NestedObjectCollection
      */
     protected function setElements(array $elements)
     {
-        /** @phpstan-var array<TKey,T> */
+        /** @phpstan-var array<TKey,T> $elements */
         return $elements;
     }
 }

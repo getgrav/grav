@@ -257,8 +257,10 @@ abstract class ObjectIndex extends AbstractIndexCollection implements NestedObje
     {
         $collection = $this->loadCollection($this->getEntries());
 
-        /** @phpstan-var C */
-        return $collection->matching($criteria);
+        /** @phpstan-var C $matching */
+        $matching = $collection->matching($criteria);
+
+        return $matching;
     }
 
     /**

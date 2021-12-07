@@ -19,6 +19,7 @@ use Grav\Common\User\Interfaces\UserInterface;
 use Grav\Common\Utils;
 use Grav\Framework\Cache\CacheInterface;
 use Grav\Framework\ContentBlock\HtmlBlock;
+use Grav\Framework\Flex\Interfaces\FlexIndexInterface;
 use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
 use Grav\Framework\Object\ObjectCollection;
 use Grav\Framework\Flex\Interfaces\FlexCollectionInterface;
@@ -342,6 +343,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
      */
     public function getIndex()
     {
+        /** @phpstan-var FlexIndexInterface<T> */
         return $this->getFlexDirectory()->getIndex($this->getKeys(), $this->getKeyField());
     }
 

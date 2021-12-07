@@ -452,6 +452,7 @@ abstract class AbstractIndexCollection implements CollectionInterface
      */
     public function chunk($size)
     {
+        /** @phpstan-var array<array<TKey,T>> */
         return $this->loadCollection($this->entries)->chunk($size);
     }
 
