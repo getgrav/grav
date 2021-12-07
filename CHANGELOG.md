@@ -9,6 +9,8 @@
    * Upgraded to **composer v2.1.14** for PHP 8.1 compatibility
    * Added third `$name` parameter to `Blueprint::flattenData()` method, useful for flattening repeating data
    * `ControllerResponseTrait`: Redirect response should be json if the extension is .json
+3. [](#bugfix)
+   * Fixed bad key lookup in `FlexRelatedDirectoryTrait::getCollectionByProperty()`
 
 # v1.7.25
 ## 11/16/2021
