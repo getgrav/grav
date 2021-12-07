@@ -16,7 +16,6 @@ use IteratorAggregate;
 use RuntimeException;
 use Traversable;
 use function count;
-use function strlen;
 
 /**
  * Class Action
@@ -49,8 +48,8 @@ class Action implements IteratorAggregate, Countable
     {
         $label = $action['label'] ?? null;
         if (!$label) {
-            if ($pos = strrpos($name, '.')) {
-                $label = substr($name, $pos + 1);
+            if ($pos = mb_strrpos($name, '.')) {
+                $label = mb_substr($name, $pos + 1);
             } else {
                 $label = $name;
             }
@@ -115,9 +114,9 @@ class Action implements IteratorAggregate, Countable
      */
     public function getScope(): string
     {
-        $pos = strpos($this->name, '.');
+        $pos = mb_strpos($this->name, '.');
         if ($pos) {
-            return substr($this->name, 0, $pos);
+            return mb_substr($this->name, 0, $pos);
         }
 
         return $this->name;
@@ -128,7 +127,7 @@ class Action implements IteratorAggregate, Countable
      */
     public function getLevels(): int
     {
-        return substr_count($this->name, '.');
+        return mb_substr_count($this->name, '.');
     }
 
     /**
@@ -162,12 +161,12 @@ class Action implements IteratorAggregate, Countable
      */
     public function addChild(Action $child): void
     {
-        if (strpos($child->name, "{$this->name}.") !== 0) {
+        if (mb_strpos($child->name, "{$this->name}.") !== 0) {
             throw new RuntimeException('Bad child');
         }
 
         $child->setParent($this);
-        $name = substr($child->name, strlen($this->name) + 1);
+        $name = mb_substr($child->name, mb_strlen($this->name) + 1);
 
         $this->children[$name] = $child;
     }

@@ -14,7 +14,6 @@ use Countable;
 use Grav\Common\Utils;
 use IteratorAggregate;
 use JsonSerializable;
-use RuntimeException;
 use Traversable;
 use function count;
 use function is_array;
@@ -79,12 +78,7 @@ class Access implements JsonSerializable, IteratorAggregate, Countable
         $inherited = array_diff_key($parent->getAllActions(), $acl);
 
         $this->inherited += $parent->inherited + array_fill_keys(array_keys($inherited), $name ?? $parent->getName());
-        $acl = array_replace($acl, $inherited);
-        if (null === $acl) {
-            throw new RuntimeException('Internal error');
-        }
-
-        $this->acl = $acl;
+        $this->acl = array_replace($acl, $inherited);
     }
 
     /**

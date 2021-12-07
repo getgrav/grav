@@ -174,9 +174,6 @@ class PermissionsReader
             $scopes[] = $action;
 
             $action = array_replace_recursive(...$scopes);
-            if (null === $action) {
-                throw new RuntimeException('Internal error');
-            }
 
             $newType =  $defaults['type'] ?? null;
             if ($newType && $newType !== $type) {
