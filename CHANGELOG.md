@@ -12,6 +12,7 @@
 3. [](#bugfix)
    * Fixed bad key lookup in `FlexRelatedDirectoryTrait::getCollectionByProperty()`
    * Fixed RequestHandlers `NotFoundException` having empty request
+   * Block `.json` files in web server configs
 
 # v1.7.25
 ## 11/16/2021
