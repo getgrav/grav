@@ -27,6 +27,7 @@ use function is_string;
 /**
  * Class Collection
  * @package Grav\Common\Page
+ * @implements PageCollectionInterface<string,Page>
  */
 class Collection extends Iterator implements PageCollectionInterface
 {
@@ -162,6 +163,7 @@ class Collection extends Iterator implements PageCollectionInterface
      *
      * @return PageInterface
      */
+    #[\ReturnTypeWillChange]
     public function current()
     {
         $current = parent::key();
@@ -174,6 +176,7 @@ class Collection extends Iterator implements PageCollectionInterface
      *
      * @return mixed
      */
+    #[\ReturnTypeWillChange]
     public function key()
     {
         $current = parent::current();

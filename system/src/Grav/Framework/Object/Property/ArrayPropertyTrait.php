@@ -97,7 +97,7 @@ trait ArrayPropertyTrait
      */
     protected function getElements()
     {
-        return array_filter($this->_elements, function ($val) {
+        return array_filter($this->_elements, static function ($val) {
             return $val !== null;
         });
     }

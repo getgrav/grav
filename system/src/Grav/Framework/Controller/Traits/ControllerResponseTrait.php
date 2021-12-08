@@ -140,9 +140,9 @@ trait ControllerResponseTrait
             $code = (int)$this->getConfig()->get('system.pages.redirect_default_code', 302);
         }
 
+        $ext = pathinfo($url, PATHINFO_EXTENSION);
         $accept = $this->getAccept(['application/json', 'text/html']);
-
-        if ($accept === 'application/json') {
+        if ($ext === 'json' || $accept === 'application/json') {
             return $this->createJsonResponse(['code' => $code, 'status' => 'redirect', 'redirect' => $url]);
         }
 
@@ -217,6 +217,7 @@ trait ControllerResponseTrait
             'code' => $code,
             'status' => 'error',
             'message' => $message,
+            'redirect' => null,
             'error' => [
                 'code' => $code,
                 'message' => $message

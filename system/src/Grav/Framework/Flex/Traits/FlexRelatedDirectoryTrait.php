@@ -36,7 +36,7 @@ trait FlexRelatedDirectoryTrait
 
         /** @var FlexCollection $collection */
         $collection = $collection->filter(static function ($object) use ($list) {
-            return in_array($object->id, $list, true);
+            return in_array($object->getKey(), $list, true);
         });
 
         return $collection;

@@ -140,5 +140,5 @@ interface FlexCollectionInterface extends FlexCommonInterface, ObjectCollectionI
      * @param string $key Key.
      * @return array
      */
-    public function getMetaData(string $key): array;
+    public function getMetaData($key): array;
 }

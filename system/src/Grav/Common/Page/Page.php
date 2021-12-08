@@ -84,7 +84,7 @@ class Page implements PageInterface
     protected $unpublish_date;
     /** @var string */
     protected $slug;
-    /** @var string */
+    /** @var string|null */
     protected $route;
     /** @var string|null */
     protected $raw_route;
@@ -218,6 +218,7 @@ class Page implements PageInterface
         return $this;
     }
 
+    #[\ReturnTypeWillChange]
     public function __clone()
     {
         $this->initialized = false;
@@ -1244,6 +1245,17 @@ class Page implements PageInterface
         }
 
         return $blueprint;
+    }
+
+    /**
+     * Returns the blueprint from the page.
+     *
+     * @param string $name Not used.
+     * @return Blueprint Returns a Blueprint.
+     */
+    public function getBlueprint(string $name = '')
+    {
+        return $this->blueprints();
     }
 
     /**

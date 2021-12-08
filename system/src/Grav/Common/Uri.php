@@ -165,7 +165,7 @@ class Uri
         }
 
         // Handle custom base
-        $custom_base = rtrim($grav['config']->get('system.custom_base_url'), '/');
+        $custom_base = rtrim($grav['config']->get('system.custom_base_url', ''), '/');
         if ($custom_base) {
             $custom_parts = parse_url($custom_base);
             if ($custom_parts === false) {
@@ -623,6 +623,7 @@ class Uri
     /**
      * @return string
      */
+    #[\ReturnTypeWillChange]
     public function __toString()
     {
         return static::buildUrl($this->toArray());
@@ -1272,9 +1273,9 @@ class Uri
         $this->path = rawurldecode(parse_url('http://example.com' . $request_uri, PHP_URL_PATH));
 
         // Build query string.
-        $this->query =  $env['QUERY_STRING'] ?? '';
+        $this->query = $env['QUERY_STRING'] ?? '';
         if ($this->query === '') {
-            $this->query = parse_url('http://example.com' . $request_uri, PHP_URL_QUERY);
+            $this->query = parse_url('http://example.com' . $request_uri, PHP_URL_QUERY) ?? '';
         }
 
         // Support ngnix routes.

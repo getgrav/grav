@@ -22,6 +22,7 @@ use Grav\Framework\Object\Property\LazyPropertyTrait;
  * not exist or is not initialized.
  *
  * @package Grav\Framework\Object
+ * @implements ArrayAccess<string,mixed>
  */
 class LazyObject implements NestedObjectInterface, ArrayAccess
 {

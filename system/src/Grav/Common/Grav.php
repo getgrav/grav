@@ -51,6 +51,7 @@ use Grav\Framework\Psr7\Response;
 use Grav\Framework\RequestHandler\RequestHandler;
 use Grav\Framework\Route\Route;
 use Grav\Framework\Session\Messages;
+use InvalidArgumentException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use RocketTheme\Toolbox\Event\Event;
@@ -345,7 +346,7 @@ class Grav extends Container
      * Please use this method instead of calling `die();` or `exit();`. Note that you need to create a response object.
      *
      * @param ResponseInterface $response
-     * @return void
+     * @return never-return
      */
     public function close(ResponseInterface $response): void
     {
@@ -397,7 +398,7 @@ class Grav extends Container
 
     /**
      * @param ResponseInterface $response
-     * @return void
+     * @return never-return
      * @deprecated 1.7 Do not use
      */
     public function exit(ResponseInterface $response): void
@@ -412,7 +413,7 @@ class Grav extends Container
      *
      * @param Route|string $route Internal route.
      * @param int|null $code  Redirection code (30x)
-     * @return void
+     * @return never-return
      */
     public function redirect($route, $code = null): void
     {
@@ -460,6 +461,8 @@ class Grav extends Container
             }
         } elseif ($route instanceof Route) {
             $url = $route->toString(true);
+        } else {
+            throw new InvalidArgumentException('Bad $route');
         }
 
         if ($code < 300 || $code > 399) {
@@ -649,6 +652,7 @@ class Grav extends Container
      * @param array $args
      * @return mixed|null
      */
+    #[\ReturnTypeWillChange]
     public function __call($method, $args)
     {
         $closure = $this->{$method} ?? null;
@@ -733,7 +737,7 @@ class Grav extends Container
         /** @var Config $config */
         $config = $this['config'];
 
-        $uri_extension = strtolower($uri->extension());
+        $uri_extension = strtolower($uri->extension() ?? '');
         $fallback_types = $config->get('system.media.allowed_fallback_types', null);
         $supported_types = $config->get('media.types');
 

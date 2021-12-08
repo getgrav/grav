@@ -57,6 +57,7 @@ class Medium extends Data implements RenderableInterface, MediaFileInterface
     /**
      * Clone medium.
      */
+    #[\ReturnTypeWillChange]
     public function __clone()
     {
         // Allows future compatibility as parent::__clone() works.
@@ -90,6 +91,7 @@ class Medium extends Data implements RenderableInterface, MediaFileInterface
      *
      * @return string
      */
+    #[\ReturnTypeWillChange]
     public function __toString()
     {
         return $this->html();

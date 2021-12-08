@@ -172,6 +172,7 @@ trait ObjectTrait
      *
      * @return array
      */
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return $this->doSerialize();
@@ -182,6 +183,7 @@ trait ObjectTrait
      *
      * @return string
      */
+    #[\ReturnTypeWillChange]
     public function __toString()
     {
         return $this->getKey();

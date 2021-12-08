@@ -98,13 +98,8 @@ class ServerRequest implements ServerRequestInterface
     public function getCookieParam($key, $default = null)
     {
         $cookies = $this->getRequest()->getCookieParams();
-        $result = $default;
 
-        if (isset($cookies[$key])) {
-            $result = $cookies[$key];
-        }
-
-        return $result;
+        return $cookies[$key] ?? $default;
     }
 
     /**
@@ -238,13 +233,8 @@ class ServerRequest implements ServerRequestInterface
     public function getQueryParam($key, $default = null)
     {
         $getParams = $this->getQueryParams();
-        $result = $default;
 
-        if (isset($getParams[$key])) {
-            $result = $getParams[$key];
-        }
-
-        return $result;
+        return $getParams[$key] ?? $default;
     }
 
     /**

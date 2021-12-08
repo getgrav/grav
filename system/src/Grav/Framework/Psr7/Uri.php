@@ -24,9 +24,6 @@ class Uri implements UriInterface
 {
     use UriDecorationTrait;
 
-    /** @var array Array of Uri query. */
-    private $queryParams;
-
     public function __construct(string $uri = '')
     {
         $this->uri = new \Nyholm\Psr7\Uri($uri);

@@ -9,9 +9,15 @@
 
 namespace Grav\Framework\Media\Interfaces;
 
+use ArrayAccess;
+use Countable;
+use Iterator;
+
 /**
  * Class implements media collection interface.
+ * @extends ArrayAccess<string,MediaObjectInterface>
+ * @extends Iterator<string,MediaObjectInterface>
  */
-interface MediaCollectionInterface extends \ArrayAccess, \Countable, \Iterator
+interface MediaCollectionInterface extends ArrayAccess, Countable, Iterator
 {
 }

@@ -164,7 +164,7 @@ class UserIndex extends FlexIndex implements UserCollectionInterface
      */
     protected static function filterUsername(string $key, FlexStorageInterface $storage): string
     {
-        return $storage->normalizeKey($key);
+        return method_exists($storage, 'normalizeKey') ? $storage->normalizeKey($key) : $key;
     }
 
     /**

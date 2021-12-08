@@ -123,7 +123,8 @@ class UserObject extends FlexObject implements UserInterface, Countable
         // Define username if it's not set.
         if (!isset($elements['username'])) {
             $storageKey = $elements['__META']['storage_key'] ?? null;
-            if (null !== $storageKey && $key === $directory->getStorage()->normalizeKey($storageKey)) {
+            $storage = $directory->getStorage();
+            if (null !== $storageKey && method_exists($storage, 'normalizeKey') && $key === $storage->normalizeKey($storageKey)) {
                 $elements['username'] = $storageKey;
             } else {
                 $elements['username'] = $key;
@@ -898,7 +899,9 @@ class UserObject extends FlexObject implements UserInterface, Countable
     protected function getGroups()
     {
         if (null === $this->_groups) {
-            $this->_groups = $this->getUserGroups()->select((array)$this->getProperty('groups'));
+            /** @var UserGroupIndex $groups */
+            $groups = $this->getUserGroups()->select((array)$this->getProperty('groups'));
+            $this->_groups = $groups;
         }
 
         return $this->_groups;

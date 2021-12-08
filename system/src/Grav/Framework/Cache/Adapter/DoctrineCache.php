@@ -29,12 +29,16 @@ class DoctrineCache extends AbstractCache
      * @param CacheProvider $doctrineCache
      * @param string $namespace
      * @param null|int|DateInterval $defaultLifetime
-     * @throws \Psr\SimpleCache\InvalidArgumentException|InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function __construct(CacheProvider $doctrineCache, $namespace = '', $defaultLifetime = null)
     {
         // Do not use $namespace or $defaultLifetime directly, store them with constructor and fetch with methods.
-        parent::__construct($namespace, $defaultLifetime);
+        try {
+            parent::__construct($namespace, $defaultLifetime);
+        } catch (\Psr\SimpleCache\InvalidArgumentException $e) {
+            throw new InvalidArgumentException($e->getMessage(), $e->getCode(), $e);
+        }
 
         // Set namespace to Doctrine Cache provider if it was given.
         $namespace = $this->getNamespace();

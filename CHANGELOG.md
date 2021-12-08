@@ -3,9 +3,15 @@
 
 1. [](#new)
     * Made `Grav::redirect()` to accept `Route` class
+    * Added `translated()` method to `PageTranslateInterface`
 2. [](#improved)
    * Upgraded vendor libs for PHP 8.1 compatibility
+   * Upgraded to **composer v2.1.14** for PHP 8.1 compatibility
    * Added third `$name` parameter to `Blueprint::flattenData()` method, useful for flattening repeating data
+   * `ControllerResponseTrait`: Redirect response should be json if the extension is .json
+3. [](#bugfix)
+   * Fixed bad key lookup in `FlexRelatedDirectoryTrait::getCollectionByProperty()`
+   * Fixed RequestHandlers `NotFoundException` having empty request
 
 # v1.7.25
 ## 11/16/2021

@@ -31,6 +31,7 @@ interface FilesystemInterface
      * @param int       $levels     The number of parent directories to go up (>= 1).
      * @return string               Returns parent path.
      * @throws RuntimeException
+     * @phpstan-param positive-int $levels
      * @api
      */
     public function parent(string $path, int $levels = 1): string;
@@ -64,6 +65,7 @@ interface FilesystemInterface
      * @param int       $levels     The number of parent directories to go up (>= 1).
      * @return string               Returns path to the directory.
      * @throws RuntimeException
+     * @phpstan-param positive-int $levels
      * @api
      */
     public function dirname(string $path, int $levels = 1): string;

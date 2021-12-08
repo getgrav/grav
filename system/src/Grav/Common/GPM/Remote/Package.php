@@ -32,6 +32,7 @@ class Package extends BasePackage implements \JsonSerializable
     /**
      * @return array
      */
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return $this->data->toArray();

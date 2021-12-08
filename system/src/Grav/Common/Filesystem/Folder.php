@@ -513,7 +513,7 @@ abstract class Folder
         }
         $directories = glob($directory . '/*', GLOB_ONLYDIR);
 
-        return count($directories);
+        return $directories ? count($directories) : false;
     }
 
     /**
@@ -530,7 +530,8 @@ abstract class Folder
         }
 
         // Go through all items in filesystem and recursively remove everything.
-        $files = array_diff(scandir($folder, SCANDIR_SORT_NONE), array('.', '..'));
+        $files = scandir($folder, SCANDIR_SORT_NONE);
+        $files = $files ? array_diff($files, ['.', '..']) : [];
         foreach ($files as $file) {
             $path = "{$folder}/{$file}";
             is_dir($path) ? self::doDelete($path) : @unlink($path);

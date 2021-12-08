@@ -176,6 +176,7 @@ class Filesystem implements FilesystemInterface
      * @param string $path
      * @param int $levels
      * @return string
+     * @phpstan-param positive-int $levels
      */
     public function pathname(string $path, int $levels = 1): string
     {
@@ -204,6 +205,7 @@ class Filesystem implements FilesystemInterface
      * @param string $path
      * @param int $levels
      * @return array
+     * @phpstan-param positive-int $levels
      */
     protected function dirnameInternal(?string $scheme, string $path, int $levels = 1): array
     {
@@ -237,12 +239,12 @@ class Filesystem implements FilesystemInterface
 
         if (null !== $scheme) {
             $info['scheme'] = $scheme;
-            $dirname = isset($info['dirname']) && $info['dirname'] !== '.' ? $info['dirname'] : null;
+            $dirname = $info['dirname'] ?? '.';
 
-            if (null !== $dirname) {
+            if ('' !== $dirname && '.' !== $dirname) {
                 // In Windows dirname may be using backslashes, fix that.
                 if (DIRECTORY_SEPARATOR !== '/') {
-                    $dirname = str_replace('\\', '/', $dirname);
+                    $dirname = str_replace(DIRECTORY_SEPARATOR, '/', $dirname);
                 }
 
                 $info['dirname'] = $scheme . '://' . $dirname;

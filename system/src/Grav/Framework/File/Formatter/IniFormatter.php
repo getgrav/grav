@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace Grav\Framework\File\Formatter;
 
 use Grav\Framework\File\Interfaces\FileFormatterInterface;
+use RuntimeException;
 
 /**
  * Class IniFormatter
@@ -59,7 +60,7 @@ class IniFormatter extends AbstractFormatter
         $decoded = @parse_ini_string($data);
 
         if ($decoded === false) {
-            throw new \RuntimeException('Decoding INI failed');
+            throw new RuntimeException('Decoding INI failed');
         }
 
         return $decoded;

@@ -21,9 +21,6 @@ use function in_array;
  */
 class NotFoundException extends RequestException
 {
-    /** @var ServerRequestInterface */
-    private $request;
-
     /**
      * NotFoundException constructor.
      * @param ServerRequestInterface $request
@@ -36,10 +33,5 @@ class NotFoundException extends RequestException
         } else {
             parent::__construct($request, 'Not Found', 404, $previous);
         }
-    }
-
-    public function getRequest(): ServerRequestInterface
-    {
-        return $this->request;
     }
 }

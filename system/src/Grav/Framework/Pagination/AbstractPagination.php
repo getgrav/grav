@@ -234,7 +234,9 @@ class AbstractPagination implements PaginationInterface
 
     /**
      * @return ArrayIterator
+     * @phpstan-return ArrayIterator<int,PaginationPage>
      */
+    #[\ReturnTypeWillChange]
     public function getIterator()
     {
         $this->loadItems();

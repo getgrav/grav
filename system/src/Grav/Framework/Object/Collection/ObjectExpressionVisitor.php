@@ -9,6 +9,7 @@
 
 namespace Grav\Framework\Object\Collection;
 
+use ArrayAccess;
 use Closure;
 use Doctrine\Common\Collections\Expr\ClosureExpressionVisitor;
 use Doctrine\Common\Collections\Expr\Comparison;
@@ -42,7 +43,7 @@ class ObjectExpressionVisitor extends ClosureExpressionVisitor
             $field = rtrim($field, ')');
         }
 
-        if (isset($object[$field])) {
+        if ($object instanceof ArrayAccess && isset($object[$field])) {
             $value = $object[$field];
         } else {
             $accessors = array('', 'get', 'is');
@@ -233,7 +234,7 @@ class ObjectExpressionVisitor extends ClosureExpressionVisitor
                 };
 
             default:
-                throw new RuntimeException("Unknown comparison operator: " . $comparison->getOperator());
+                throw new RuntimeException('Unknown comparison operator: ' . $comparison->getOperator());
         }
     }
 }

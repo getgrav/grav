@@ -23,6 +23,7 @@ use RuntimeException;
 /**
  * Defines Flex Objects.
  *
+ * @extends ArrayAccess<string,mixed>
  * @used-by \Grav\Framework\Flex\FlexObject
  * @since 1.6
  */

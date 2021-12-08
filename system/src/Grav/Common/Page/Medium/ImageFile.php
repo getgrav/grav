@@ -34,6 +34,7 @@ class ImageFile extends Image
     /**
      * Destruct also image object.
      */
+    #[\ReturnTypeWillChange]
     public function __destruct()
     {
         $adapter = $this->adapter;

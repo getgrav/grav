@@ -33,6 +33,7 @@ trait StreamDecoratorTrait
     /**
      * @return void
      */
+    #[\ReturnTypeWillChange]
     public function __destruct()
     {
         $this->stream->close();

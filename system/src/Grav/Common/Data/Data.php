@@ -335,6 +335,7 @@ class Data implements DataInterface, ArrayAccess, \Countable, JsonSerializable, 
     /**
      * @return array
      */
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return $this->items;

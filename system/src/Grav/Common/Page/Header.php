@@ -30,6 +30,7 @@ class Header implements ArrayAccess, ExportInterface, JsonSerializable
     /**
      * @return array
      */
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return $this->toArray();

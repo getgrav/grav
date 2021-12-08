@@ -17,6 +17,7 @@ use RocketTheme\Toolbox\ArrayTraits\Iterator;
 /**
  * Class Action
  * @package Grav\Framework\Acl
+ * @implements RecursiveIterator<string,Action>
  */
 class RecursiveActionIterator implements RecursiveIterator, \Countable
 {
@@ -26,6 +27,7 @@ class RecursiveActionIterator implements RecursiveIterator, \Countable
      * @see \Iterator::key()
      * @return string
      */
+    #[\ReturnTypeWillChange]
     public function key()
     {
         /** @var Action $current */

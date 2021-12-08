@@ -28,4 +28,13 @@ class IniFile extends DataFile
     {
         parent::__construct($filepath, $formatter);
     }
+
+    /**
+     * @return array
+     */
+    public function load(): array
+    {
+        /** @var array */
+        return parent::load();
+    }
 }

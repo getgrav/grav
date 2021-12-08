@@ -90,6 +90,7 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
      * @param string $filename
      * @return mixed
      */
+    #[\ReturnTypeWillChange]
     public function __invoke($filename)
     {
         return $this->offsetGet($filename);

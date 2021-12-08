@@ -45,7 +45,6 @@ use function is_callable;
 /**
  * Class FlexDirectory
  * @package Grav\Framework\Flex
- * @template T
  */
 class FlexDirectory implements FlexDirectoryInterface
 {
@@ -57,9 +56,15 @@ class FlexDirectory implements FlexDirectoryInterface
     protected $blueprint_file;
     /** @var Blueprint[] */
     protected $blueprints;
-    /** @var FlexIndexInterface[] */
+    /**
+     * @var FlexIndexInterface[]
+     * @phpstan-var FlexIndexInterface<FlexObjectInterface>[]
+     */
     protected $indexes = [];
-    /** @var FlexCollectionInterface|null */
+    /**
+     * @var FlexCollectionInterface|null
+     * @phpstan-var FlexCollectionInterface<FlexObjectInterface>|null
+     */
     protected $collection;
     /** @var bool */
     protected $enabled;
@@ -318,7 +323,7 @@ class FlexDirectory implements FlexDirectoryInterface
      * @param array|null $keys  Array of keys.
      * @param string|null $keyField  Field to be used as the key.
      * @return FlexCollectionInterface
-     * @phpstan-return FlexCollectionInterface<T>
+     * @phpstan-return FlexCollectionInterface<FlexObjectInterface>
      */
     public function getCollection(array $keys = null, string $keyField = null): FlexCollectionInterface
     {
@@ -345,6 +350,7 @@ class FlexDirectory implements FlexDirectoryInterface
      * @param array|null $keys  Array of keys.
      * @param string|null $keyField  Field to be used as the key.
      * @return FlexIndexInterface
+     * @phpstan-return FlexIndexInterface<FlexObjectInterface>
      */
     public function getIndex(array $keys = null, string $keyField = null): FlexIndexInterface
     {
@@ -353,7 +359,7 @@ class FlexDirectory implements FlexDirectoryInterface
         $index = clone $index;
 
         if (null !== $keys) {
-            /** @var FlexIndexInterface $index */
+            /** @var FlexIndexInterface<FlexObjectInterface> $index */
             $index = $index->select($keys);
         }
 
@@ -487,8 +493,11 @@ class FlexDirectory implements FlexDirectoryInterface
      */
     public function createObject(array $data, string $key = '', bool $validate = false): FlexObjectInterface
     {
-        /** @var string|FlexObjectInterface $className */
+        /** @phpstan-var class-string $className */
         $className = $this->objectClassName ?: $this->getObjectClass();
+        if (!is_a($className, FlexObjectInterface::class, true)) {
+            throw new \RuntimeException('Bad object class: ' . $className);
+        }
 
         return new $className($data, $key, $this, $validate);
     }
@@ -497,11 +506,15 @@ class FlexDirectory implements FlexDirectoryInterface
      * @param array $entries
      * @param string|null $keyField
      * @return FlexCollectionInterface
+     * @phpstan-return FlexCollectionInterface<FlexObjectInterface>
      */
     public function createCollection(array $entries, string $keyField = null): FlexCollectionInterface
     {
-        /** @var string|FlexCollectionInterface $className */
+        /** phpstan-var class-string $className */
         $className = $this->collectionClassName ?: $this->getCollectionClass();
+        if (!is_a($className, FlexCollectionInterface::class, true)) {
+            throw new \RuntimeException('Bad collection class: ' . $className);
+        }
 
         return $className::createFromArray($entries, $this, $keyField);
     }
@@ -510,11 +523,15 @@ class FlexDirectory implements FlexDirectoryInterface
      * @param array $entries
      * @param string|null $keyField
      * @return FlexIndexInterface
+     * @phpstan-return FlexIndexInterface<FlexObjectInterface>
      */
     public function createIndex(array $entries, string $keyField = null): FlexIndexInterface
     {
-        /** @var string|FlexIndexInterface $className */
+        /** @phpstan-var class-string $className */
         $className = $this->indexClassName ?: $this->getIndexClass();
+        if (!is_a($className, FlexIndexInterface::class, true)) {
+            throw new \RuntimeException('Bad index class: ' . $className);
+        }
 
         return $className::createFromArray($entries, $this, $keyField);
     }
@@ -560,6 +577,7 @@ class FlexDirectory implements FlexDirectoryInterface
      * @param array $entries
      * @param string|null $keyField
      * @return FlexCollectionInterface
+     * @phpstan-return FlexCollectionInterface<FlexObjectInterface>
      */
     public function loadCollection(array $entries, string $keyField = null): FlexCollectionInterface
     {
@@ -895,6 +913,7 @@ class FlexDirectory implements FlexDirectoryInterface
     /**
      * @param string $keyField
      * @return FlexIndexInterface
+     * @phpstan-return FlexIndexInterface<FlexObjectInterface>
      */
     protected function loadIndex(string $keyField): FlexIndexInterface
     {
@@ -924,7 +943,7 @@ class FlexDirectory implements FlexDirectoryInterface
             }
 
             if (!is_array($keys)) {
-                /** @var string|FlexIndexInterface $className */
+                /** @phpstan-var class-string $className */
                 $className = $this->getIndexClass();
                 $keys = $className::loadEntriesFromStorage($storage);
                 if (!$cache instanceof MemoryCache) {
@@ -946,7 +965,7 @@ class FlexDirectory implements FlexDirectoryInterface
             // We need to do this in two steps as orderBy() calls loadIndex() again and we do not want infinite loop.
             $this->indexes['storage_key'] = $index = $this->createIndex($keys, 'storage_key');
             if ($ordering) {
-                /** @var FlexCollectionInterface $collection */
+                /** @var FlexCollectionInterface<FlexObjectInterface> $collection */
                 $collection = $this->indexes['storage_key']->orderBy($ordering);
                 $this->indexes['storage_key'] = $index = $collection->getIndex();
             }
@@ -1035,7 +1054,9 @@ class FlexDirectory implements FlexDirectoryInterface
             $newKey = $object->getStorageKey();
 
             if ($oldKey !== $newKey) {
-                $object->triggerEvent('move');
+                if (method_exists($object, 'triggerEvent')) {
+                    $object->triggerEvent('move');
+                }
                 $storage->renameRow($oldKey, $newKey);
                 // TODO: media support.
             }

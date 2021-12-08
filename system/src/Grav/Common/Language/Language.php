@@ -636,6 +636,7 @@ class Language
     /**
      * @return array
      */
+    #[\ReturnTypeWillChange]
     public function __debugInfo()
     {
         $vars = get_object_vars($this);

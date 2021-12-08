@@ -9,20 +9,26 @@
 
 namespace Grav\Framework\Acl;
 
+use ArrayAccess;
 use ArrayIterator;
+use Countable;
+use IteratorAggregate;
 use RecursiveIteratorIterator;
 use RuntimeException;
 use Traversable;
+use function count;
 
 /**
  * Class Permissions
  * @package Grav\Framework\Acl
+ * @implements ArrayAccess<string,Action>
+ * @implements IteratorAggregate<string,Action>
  */
-class Permissions implements \ArrayAccess, \Countable, \IteratorAggregate
+class Permissions implements ArrayAccess, Countable, IteratorAggregate
 {
-    /** @var Action[] */
+    /** @var array<string,Action> */
     protected $instances = [];
-    /** @var Action[] */
+    /** @var array<string,Action> */
     protected $actions = [];
     /** @var array */
     protected $nested = [];
@@ -142,9 +148,6 @@ class Permissions implements \ArrayAccess, \Countable, \IteratorAggregate
     public function addTypes(array $types): void
     {
         $types = array_replace($this->types, $types);
-        if (null === $types) {
-            throw new RuntimeException('Internal error');
-        }
 
         $this->types = $types;
     }
@@ -206,6 +209,7 @@ class Permissions implements \ArrayAccess, \Countable, \IteratorAggregate
     /**
      * @return ArrayIterator|Traversable
      */
+    #[\ReturnTypeWillChange]
     public function getIterator()
     {
         return new ArrayIterator($this->actions);
@@ -214,6 +218,7 @@ class Permissions implements \ArrayAccess, \Countable, \IteratorAggregate
     /**
      * @return array
      */
+    #[\ReturnTypeWillChange]
     public function __debugInfo()
     {
         return [

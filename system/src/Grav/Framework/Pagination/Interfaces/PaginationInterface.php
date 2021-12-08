@@ -16,6 +16,7 @@ use IteratorAggregate;
 /**
  * Interface PaginationInterface
  * @package Grav\Framework\Pagination\Interfaces
+ * @extends IteratorAggregate<int,PaginationPage>
  */
 interface PaginationInterface extends Countable, IteratorAggregate
 {

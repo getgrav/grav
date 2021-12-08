@@ -41,7 +41,7 @@ abstract class AbstractPaginationPage implements PaginationPageInterface
      */
     public function getOptions(): array
     {
-        return $this->options ?? [];
+        return $this->options;
     }
 
     /**
