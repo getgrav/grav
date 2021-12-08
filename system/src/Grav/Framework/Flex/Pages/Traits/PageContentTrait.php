@@ -744,6 +744,7 @@ trait PageContentTrait
                 }
 
                 if ($process_twig) {
+                    \assert(is_string($this->_content));
                     $this->_content = $this->processTwig($this->_content);
                 }
             }
@@ -752,6 +753,8 @@ trait PageContentTrait
                 $this->cachePageContent();
             }
         }
+
+        \assert(is_string($this->_content));
 
         // Handle summary divider
         $delimiter = $config->get('site.summary.delimiter', '===');

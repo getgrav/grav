@@ -22,6 +22,7 @@ use Grav\Framework\File\Formatter\YamlFormatter;
 use Grav\Framework\Filesystem\Filesystem;
 use Grav\Framework\Flex\Interfaces\FlexCollectionInterface;
 use Grav\Framework\Flex\Interfaces\FlexIndexInterface;
+use Grav\Framework\Flex\Pages\FlexPageCollection;
 use Grav\Framework\Flex\Pages\FlexPageIndex;
 use Grav\Framework\Flex\Pages\FlexPageObject;
 use InvalidArgumentException;
@@ -298,7 +299,7 @@ trait PageLegacyTrait
 
         $parentStorageKey = ltrim($filesystem->dirname("/{$this->getMasterKey()}"), '/');
 
-        /** @var FlexPageIndex $index */
+        /** @var FlexPageIndex<FlexPageObject,FlexPageCollection<FlexPageObject>> $index */
         $index = $this->getFlexDirectory()->getIndex();
 
         if ($parent) {
@@ -321,6 +322,7 @@ trait PageLegacyTrait
         if ($this instanceof FlexPageObject) {
             $key = trim($parentKey . '/' . $this->folder(), '/');
             $key = preg_replace(static::PAGE_ORDER_PREFIX_REGEX, '', $key);
+            \assert(is_string($key));
         } else {
             $key = trim($parentKey . '/' . basename($this->getKey()), '/');
         }

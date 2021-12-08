@@ -11,9 +11,9 @@ declare(strict_types=1);
 
 namespace Grav\Framework\Flex\Traits;
 
-use Grav\Framework\Flex\FlexCollection;
 use Grav\Framework\Flex\FlexDirectory;
 use Grav\Framework\Flex\Interfaces\FlexCollectionInterface;
+use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
 use RuntimeException;
 use function in_array;
 
@@ -26,7 +26,7 @@ trait FlexRelatedDirectoryTrait
     /**
      * @param string $type
      * @param string $property
-     * @return FlexCollectionInterface
+     * @return FlexCollectionInterface<FlexObjectInterface>
      */
     protected function getCollectionByProperty($type, $property)
     {
@@ -34,7 +34,7 @@ trait FlexRelatedDirectoryTrait
         $collection = $directory->getCollection();
         $list = $this->getNestedProperty($property) ?: [];
 
-        /** @var FlexCollection $collection */
+        /** @var FlexCollectionInterface<FlexObjectInterface> $collection */
         $collection = $collection->filter(static function ($object) use ($list) {
             return in_array($object->getKey(), $list, true);
         });

@@ -22,7 +22,7 @@ use function array_slice;
  * Class contains a collection of objects.
  *
  * @template TKey of array-key
- * @template T of object
+ * @template T of \Grav\Framework\Object\Interfaces\ObjectInterface
  * @extends ArrayCollection<TKey,T>
  * @implements NestedObjectCollectionInterface<TKey,T>
  */
