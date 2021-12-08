@@ -239,6 +239,8 @@ class Filesystem implements FilesystemInterface
 
         if (null !== $scheme) {
             $info['scheme'] = $scheme;
+
+            /** @phpstan-ignore-next-line because pathinfo('') doesn't have dirname */
             $dirname = $info['dirname'] ?? '.';
 
             if ('' !== $dirname && '.' !== $dirname) {

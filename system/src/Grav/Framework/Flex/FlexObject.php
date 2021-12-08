@@ -163,6 +163,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      */
     public function getFlexFeatures(): array
     {
+        /** @var array $implements */
         $implements = class_implements($this);
 
         $list = [];

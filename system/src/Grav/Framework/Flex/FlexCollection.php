@@ -125,6 +125,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
      */
     public function getFlexFeatures(): array
     {
+        /** @var array $implements */
         $implements = class_implements($this);
 
         $list = [];

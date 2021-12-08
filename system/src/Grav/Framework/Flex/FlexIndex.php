@@ -133,6 +133,7 @@ class FlexIndex extends ObjectIndex implements FlexIndexInterface
      */
     public function getFlexFeatures(): array
     {
+        /** @var array $implements */
         $implements = class_implements($this->getFlexDirectory()->getCollectionClass());
 
         $list = [];

@@ -907,6 +907,10 @@ class FlexDirectory implements FlexDirectoryInterface
         $className = $storage['class'] ?? SimpleStorage::class;
         $options = $storage['options'] ?? [];
 
+        if (!is_a($className, FlexStorageInterface::class, true)) {
+            throw new \RuntimeException('Bad storage class: ' . $className);
+        }
+
         return new $className($options);
     }
 
