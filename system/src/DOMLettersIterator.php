@@ -156,7 +156,7 @@ final class DOMLettersIterator implements Iterator
     {
         $this->current = $this->start;
         $this->offset = -1;
-        $this->key = -1;
+        $this->key = 0;
         $this->letters = [];
 
         $this->next();

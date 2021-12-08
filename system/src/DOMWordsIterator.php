@@ -28,7 +28,7 @@ final class DOMWordsIterator implements Iterator
     private $offset = -1;
     /** @var int|null */
     private $key;
-    /** @var array<int,string>|null */
+    /** @var array<int,array<int,int|string>>|null */
     private $words;
 
     /**
@@ -94,7 +94,7 @@ final class DOMWordsIterator implements Iterator
 
         if ($this->current->nodeType === XML_TEXT_NODE || $this->current->nodeType === XML_CDATA_SECTION_NODE) {
             if ($this->offset === -1) {
-                $this->words = preg_split("/[\n\r\t ]+/u", $this->current->textContent, -1, PREG_SPLIT_NO_EMPTY) ?: [];
+                $this->words = preg_split("/[\n\r\t ]+/", $this->current->textContent, -1, PREG_SPLIT_NO_EMPTY|PREG_SPLIT_OFFSET_CAPTURE) ?: [];
             }
             $this->offset++;
 
@@ -133,7 +133,7 @@ final class DOMWordsIterator implements Iterator
      */
     public function current(): ?string
     {
-        return $this->words ? $this->words[$this->offset] : null;
+        return $this->words ? (string)$this->words[$this->offset][0] : null;
     }
 
     /**
@@ -150,7 +150,7 @@ final class DOMWordsIterator implements Iterator
     {
         $this->current = $this->start;
         $this->offset = -1;
-        $this->key = -1;
+        $this->key = 0;
         $this->words = [];
 
         $this->next();
