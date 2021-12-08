@@ -4,6 +4,7 @@
 1. [](#new)
     * Made `Grav::redirect()` to accept `Route` class
     * Added `translated()` method to `PageTranslateInterface`
+    * Use secure session cookies in HTTPS by default (`system.session.secure_https: true`)
 2. [](#improved)
    * Upgraded vendor libs for PHP 8.1 compatibility
    * Upgraded to **composer v2.1.14** for PHP 8.1 compatibility
