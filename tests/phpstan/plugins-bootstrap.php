@@ -10,10 +10,6 @@ use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 $autoload = require __DIR__ . '/../../vendor/autoload.php';
 
-if (version_compare($ver = PHP_VERSION, $req = GRAV_PHP_MIN, '<')) {
-    exit(sprintf("You are running PHP %s, but Grav needs at least PHP %s to run.\n", $ver, $req));
-}
-
 if (!ini_get('date.timezone')) {
     date_default_timezone_set('UTC');
 }

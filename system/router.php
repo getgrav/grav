@@ -22,9 +22,9 @@ if ($path !== '/index.php' && is_file($root . $path)) {
         // Block all direct access for these folders
         || preg_match('`^/(\.git|cache|bin|logs|backup|webserver-configs|tests)/`ui', $path)
         // Block access to specific file types for these system folders
-        || preg_match('`^/(system|vendor)/(.*)\.(txt|xml|md|html|yaml|yml|php|pl|py|cgi|twig|sh|bat)$`ui', $path)
+        || preg_match('`^/(system|vendor)/(.*)\.(txt|xml|md|html|json|yaml|yml|php|pl|py|cgi|twig|sh|bat)$`ui', $path)
         // Block access to specific file types for these user folders
-        || preg_match('`^/(user)/(.*)\.(txt|md|yaml|yml|php|pl|py|cgi|twig|sh|bat)$`ui', $path)
+        || preg_match('`^/(user)/(.*)\.(txt|md|json|yaml|yml|php|pl|py|cgi|twig|sh|bat)$`ui', $path)
         // Block all direct access to .md files
         || preg_match('`\.md$`ui', $path)
         // Block access to specific files in the root folder
