@@ -40,6 +40,7 @@ class TwigEnvironment extends Environment
                 return $name;
             }
 
+            // Avoid throwing an exception as it is really slow to handle.
             if (1 !== $count && !$this->getLoader()->exists($name)) {
                 continue;
             }
