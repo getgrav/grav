@@ -101,6 +101,11 @@
             "system/src/DOMWordsIterator.php"
         ]
     },
+    "autoload-dev": {
+        "psr-4": {
+            "PHPStan\\": "tests/phpstan/classes"
+        }
+    },
     "archive": {
         "exclude": [
             "VERSION"

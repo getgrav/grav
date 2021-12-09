@@ -22,7 +22,12 @@ use Grav\Common\Media\Traits\MediaObjectTrait;
  * Class Medium
  * @package Grav\Common\Page\Medium
  *
+ * @property string $filepath
  * @property string $mime
+ * @property int $size
+ * @property int $modified
+ * @property array $metadata
+ * @property int|string $timestamp
  */
 class Medium extends Data implements RenderableInterface, MediaFileInterface
 {

@@ -337,9 +337,9 @@ class Uri
     /**
      * Get URI parameter.
      *
-     * @param string|null $id
-     * @param string|bool|null $default
-     * @return bool|string
+     * @param string $id
+     * @param string|false|null $default
+     * @return string|false|null
      */
     public function param($id, $default = false)
     {
