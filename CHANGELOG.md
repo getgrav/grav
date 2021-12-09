@@ -15,6 +15,7 @@
    * Fixed RequestHandlers `NotFoundException` having empty request
    * Block `.json` files in web server configs
    * Disabled pretty debug info for Flex as it slows down Twig rendering
+   * Fixed Twig being very slow when templates do not exist
 
 # v1.7.25
 ## 11/16/2021
