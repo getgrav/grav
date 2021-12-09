@@ -1,7 +1,7 @@
-title: PLUGIN_ADMIN:EXTERNAL
+title: PLUGIN_ADMIN.EXTERNAL
 extends@:
-    type: default
-    context: blueprints://pages
+  type: default
+  context: blueprints://pages
 
 form:
   validation: loose
@@ -29,16 +29,16 @@ form:
               unset@: true
 
             header.external_url:
-                type: text
-                label: PLUGIN_ADMIN.EXTERNAL_URL
-                placeholder: https://getgrav.org
-                validate:
-                    required: true
+              type: text
+              label: PLUGIN_ADMIN.EXTERNAL_URL
+              placeholder: https://getgrav.org
+              validate:
+                required: true
+
         options:
           fields:
 
             publishing:
-
               fields:
 
                 header.date:
