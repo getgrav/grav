@@ -958,9 +958,10 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
         return $this->getFlexKey();
     }
 
-    /**
+    // TODO: Disabled because this slows down exception handling on missing Twig template files
+    /* *
      * @return array
-     */
+     * /
     #[\ReturnTypeWillChange]
     public function __debugInfo()
     {
@@ -973,6 +974,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
             'storage:private' => $this->getMetaData()
         ];
     }
+    */
 
     /**
      * Clone object.

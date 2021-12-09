@@ -529,9 +529,10 @@ class FlexIndex extends ObjectIndex implements FlexIndexInterface
         $this->setEntries($data['entries']);
     }
 
-    /**
+    // TODO: Disabled because this slows down exception handling on missing Twig template files
+    /* *
      * @return array
-     */
+     * /
     #[\ReturnTypeWillChange]
     public function __debugInfo()
     {
@@ -542,6 +543,7 @@ class FlexIndex extends ObjectIndex implements FlexIndexInterface
             'entries:private' => $this->getEntries()
         ];
     }
+    */
 
     /**
      * @param array $entries

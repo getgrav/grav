@@ -14,6 +14,7 @@
    * Fixed bad key lookup in `FlexRelatedDirectoryTrait::getCollectionByProperty()`
    * Fixed RequestHandlers `NotFoundException` having empty request
    * Block `.json` files in web server configs
+   * Disabled pretty debug info for Flex as it slows down Twig rendering
 
 # v1.7.25
 ## 11/16/2021
