@@ -550,10 +550,9 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
         return $elements;
     }
 
-    // TODO: Disabled because this slows down exception handling on missing Twig template files
-    /* *
+    /**
      * @return array
-     * /
+     */
     #[\ReturnTypeWillChange]
     public function __debugInfo()
     {
@@ -564,7 +563,6 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
             'objects:private' => $this->getElements()
         ];
     }
-    */
 
     /**
      * Creates a new instance from the specified elements.
