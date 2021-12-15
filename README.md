@@ -2,7 +2,7 @@
 
 [![PHPStan](https://img.shields.io/badge/PHPStan-enabled-brightgreen.svg?style=flat)](https://github.com/phpstan/phpstan)
 [![Discord](https://img.shields.io/discord/501836936584101899.svg?logo=discord&colorB=728ADA&label=Discord%20Chat)](https://chat.getgrav.org)
- [![PHP Tests](https://github.com/getgrav/grav/workflows/PHP%20Tests/badge.svg?branch=develop)](https://github.com/getgrav/grav/actions?query=workflow%3A%22PHP+Tests%22) [![OpenCollective](https://opencollective.com/grav/backers/badge.svg)](#backers) [![OpenCollective](https://opencollective.com/grav/sponsors/badge.svg)](#sponsors)
+ [![PHP Tests](https://github.com/getgrav/grav/workflows/PHP%20Tests/badge.svg?branch=develop)](https://github.com/getgrav/grav/actions?query=workflow%3A%22PHP+Tests%22) [![OpenCollective](https://opencollective.com/grav/tiers/backers/badge.svg?label=Backers&color=brightgreen)](#backers) [![OpenCollective](https://opencollective.com/grav/tiers/supporters/badge.svg?label=Supporters&color=brightgreen)](#supporters) [![OpenCollective](https://opencollective.com/grav/tiers/sponsors/badge.svg?label=Sponsors&color=brightgreen)](#sponsors) 
 
 Grav is a **Fast**, **Simple**, and **Flexible**, file-based Web-platform.  There is **Zero** installation required.  Just extract the ZIP archive, and you are already up and running.  It follows similar principles to other flat-file CMS platforms, but has a different design philosophy than most. Grav comes with a powerful **Package Management System** to allow for simple installation and upgrading of plugins and themes, as well as simple updating of Grav itself.
 
@@ -117,12 +117,19 @@ If you discover a possible security issue related to Grav or one of its plugins,
 * More [Awesome Grav Stuff](https://github.com/getgrav/awesome-grav)
 
 # Backers
-Support Grav with a monthly donation to help us continue development. [[Become a backer](https://opencollective.com/grav#backer)]
+Support Grav with a monthly donation to help us continue development. [[Become a backer](https://opencollective.com/grav/contribute)]
 
 <img src="https://opencollective.com/grav/tiers/backers.svg?avatarHeight=36&width=600" />
 
+
+# Supporters
+Support Grav with a monthly donation to help us continue development. [[Become a supporter](https://opencollective.com/grav/contribute)]
+
+<img src="https://opencollective.com/grav/tiers/supporters.svg?avatarHeight=36&width=600" />
+
+
 # Sponsors
-Become a sponsor and get your logo on our README on Github with a link to your site. [[Become a sponsor](https://opencollective.com/grav#sponsor)]
+Support Grav with a yearly donation to help us continue development. [[Become a sponsor](https://opencollective.com/grav/contribute)]
 
 <img src="https://opencollective.com/grav/tiers/sponsors.svg?avatarHeight=36&width=600" />
 
