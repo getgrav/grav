@@ -4,6 +4,8 @@
 1. [](#new)
     * Made `Grav::redirect()` to accept `Route` class
     * Added `translated()` method to `PageTranslateInterface`
+    * Added second parameter to `UserObject::isMyself()` method
+    * Added `UserObject::$isAuthorizedCallable` to allow `$user->isAuthorized()` customization
     * Use secure session cookies in HTTPS by default (`system.session.secure_https: true`)
 2. [](#improved)
    * Upgraded vendor libs for PHP 8.1 compatibility
@@ -14,6 +16,9 @@
    * Fixed bad key lookup in `FlexRelatedDirectoryTrait::getCollectionByProperty()`
    * Fixed RequestHandlers `NotFoundException` having empty request
    * Block `.json` files in web server configs
+   * Disabled pretty debug info for Flex as it slows down Twig rendering
+   * Fixed Twig being very slow when template overrides do not exist
+   * Fixed `UserObject::$authorizeCallable` binding to the user object
 
 # v1.7.25
 ## 11/16/2021

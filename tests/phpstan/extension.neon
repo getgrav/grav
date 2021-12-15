@@ -1,0 +1,5 @@
+services:
+    -
+        class: PHPStan\Toolbox\UniformResourceLocatorExtension
+        tags:
+            - phpstan.broker.dynamicMethodReturnTypeExtension
