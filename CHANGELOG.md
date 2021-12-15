@@ -5,6 +5,7 @@
     * Made `Grav::redirect()` to accept `Route` class
     * Added `translated()` method to `PageTranslateInterface`
     * Added second parameter to `UserObject::isMyself()` method
+    * Added `UserObject::$isAuthorizedCallable` to allow `$user->isAuthorized()` customization
     * Use secure session cookies in HTTPS by default (`system.session.secure_https: true`)
 2. [](#improved)
    * Upgraded vendor libs for PHP 8.1 compatibility

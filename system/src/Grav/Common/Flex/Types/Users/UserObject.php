@@ -79,6 +79,8 @@ class UserObject extends FlexObject implements UserInterface, Countable
 
     /** @var Closure|null */
     static public $authorizeCallable;
+    /** @var Closure|null */
+    static public $isAuthorizedCallable;
 
     /** @var array|null */
     protected $_uploads_original;
@@ -690,6 +692,16 @@ class UserObject extends FlexObject implements UserInterface, Countable
      */
     protected function isAuthorizedOverride(UserInterface $user, string $action, string $scope, bool $isMe = false): ?bool
     {
+        // Check custom application access.
+        $isAuthorizedCallable = static::$isAuthorizedCallable;
+        if ($isAuthorizedCallable instanceof Closure) {
+            $callable = $isAuthorizedCallable->bindTo($this, $this);
+            $authorized = $callable($user, $action, $scope, $isMe);
+            if (is_bool($authorized)) {
+                return $authorized;
+            }
+        }
+
         if ($user instanceof self && $user->getStorageKey() === $this->getStorageKey()) {
             // User cannot delete his own account, otherwise he has full access.
             return $action !== 'delete';
