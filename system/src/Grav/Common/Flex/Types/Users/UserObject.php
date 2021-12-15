@@ -232,13 +232,19 @@ class UserObject extends FlexObject implements UserInterface, Countable
     }
 
     /**
+     * @param UserInterface|null $user
      * @return bool
      */
-    public function isMyself(): bool
+    public function isMyself(?UserInterface $user = null): bool
     {
-        $me = $this->getActiveUser();
+        if (null === $user) {
+            $user = $this->getActiveUser();
+            if ($user && !$user->authenticated) {
+                $user = null;
+            }
+        }
 
-        return $me && $me->authenticated && $this->username === $me->username;
+        return $user && $this->username === $user->username;
     }
 
     /**
