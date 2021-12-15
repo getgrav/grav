@@ -119,6 +119,14 @@ class FlexIndex extends ObjectIndex implements FlexIndexInterface
     }
 
     /**
+     * @return string
+     */
+    public function getKey()
+    {
+        return $this->_key ?: $this->getFlexType() . '@@' . spl_object_hash($this);
+    }
+
+    /**
      * {@inheritdoc}
      * @see FlexCommonInterface::hasFlexFeature()
      */

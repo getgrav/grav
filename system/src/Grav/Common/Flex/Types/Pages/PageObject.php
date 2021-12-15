@@ -641,9 +641,10 @@ class PageObject extends FlexPageObject
         return $this->root ?: parent::exists();
     }
 
-    /**
+    // TODO: Disabled because this slows down exception handling on missing Twig template files
+    /* *
      * @return array
-     */
+     * /
     public function __debugInfo(): array
     {
         $list = parent::__debugInfo();
@@ -653,6 +654,7 @@ class PageObject extends FlexPageObject
             '_content:private' => $this->getRawContent()
         ];
     }
+   */
 
     /**
      * @param array $elements

@@ -35,7 +35,7 @@ abstract class ObjectIndex extends AbstractIndexCollection implements NestedObje
     protected static $type;
 
     /** @var string */
-    private $_key;
+    protected $_key;
 
     /**
      * @param bool $prefix

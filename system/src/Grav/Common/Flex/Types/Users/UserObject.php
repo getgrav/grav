@@ -79,6 +79,8 @@ class UserObject extends FlexObject implements UserInterface, Countable
 
     /** @var Closure|null */
     static public $authorizeCallable;
+    /** @var Closure|null */
+    static public $isAuthorizedCallable;
 
     /** @var array|null */
     protected $_uploads_original;
@@ -232,13 +234,19 @@ class UserObject extends FlexObject implements UserInterface, Countable
     }
 
     /**
+     * @param UserInterface|null $user
      * @return bool
      */
-    public function isMyself(): bool
+    public function isMyself(?UserInterface $user = null): bool
     {
-        $me = $this->getActiveUser();
+        if (null === $user) {
+            $user = $this->getActiveUser();
+            if ($user && !$user->authenticated) {
+                $user = null;
+            }
+        }
 
-        return $me && $me->authenticated && $this->username === $me->username;
+        return $user && $this->username === $user->username;
     }
 
     /**
@@ -278,8 +286,8 @@ class UserObject extends FlexObject implements UserInterface, Countable
         // Check custom application access.
         $authorizeCallable = static::$authorizeCallable;
         if ($authorizeCallable instanceof Closure) {
-            $authorizeCallable->bindTo($this);
-            $authorized = $authorizeCallable($action, $scope);
+            $callable = $authorizeCallable->bindTo($this, $this);
+            $authorized = $callable($action, $scope);
             if (is_bool($authorized)) {
                 return $authorized;
             }
@@ -684,6 +692,16 @@ class UserObject extends FlexObject implements UserInterface, Countable
      */
     protected function isAuthorizedOverride(UserInterface $user, string $action, string $scope, bool $isMe = false): ?bool
     {
+        // Check custom application access.
+        $isAuthorizedCallable = static::$isAuthorizedCallable;
+        if ($isAuthorizedCallable instanceof Closure) {
+            $callable = $isAuthorizedCallable->bindTo($this, $this);
+            $authorized = $callable($user, $action, $scope, $isMe);
+            if (is_bool($authorized)) {
+                return $authorized;
+            }
+        }
+
         if ($user instanceof self && $user->getStorageKey() === $this->getStorageKey()) {
             // User cannot delete his own account, otherwise he has full access.
             return $action !== 'delete';
