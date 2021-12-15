@@ -44,7 +44,7 @@ GRAV:
     WK: sem
     MO: mes
     YR: año
-    DEC: dic
+    DEC: déc
     SECOND_PLURAL: segundos
     MINUTE_PLURAL: minutos
     HOUR_PLURAL: horas
@@ -64,7 +64,7 @@ GRAV:
     VALIDATION_FAIL: '<b>Falló la validación: </b>'
     INVALID_INPUT: 'Dato inválido en: '
     MISSING_REQUIRED_FIELD: 'Falta el campo requerido: '
-    XSS_ISSUES: "Se detectaron problemas XSS potenciales en el campo '%s'"
+    XSS_ISSUES: "Se detectaron potenciales problemas XSS en el campo '%s'"
   MONTHS_OF_THE_YEAR:
     - 'Enero'
     - 'Febrero'
@@ -86,7 +86,7 @@ GRAV:
     - 'Viernes'
     - 'Sábado'
     - 'Domingo'
-  YES: "Si"
+  YES: "Sí"
   NO: "No"
   CRON:
     EVERY: cada
@@ -96,12 +96,12 @@ GRAV:
     EVERY_DAY_OF_MONTH: cada día del mes
     EVERY_MONTH: cada mes
     TEXT_PERIOD: Cada <b />
-    TEXT_MINS: ' a <b /> minuto(s) despues de la hora'
+    TEXT_MINS: ' a <b /> minuto(s) después de la hora'
     TEXT_TIME: ' a <b />:<b />'
     TEXT_DOW: ' en <b />'
     TEXT_MONTH: ' de<b />'
     TEXT_DOM: ' en<b />'
-    ERROR1: La etiqueta %s no está soportada!
-    ERROR2: El número de elementos es erroneo
+    ERROR1: '¡La etiqueta %s no está soportada!'
+    ERROR2: El número de elementos es erróneo
     ERROR3: El jquery_element debería establecerse en la configuración del jqCron
     ERROR4: Expresión no reconocida
