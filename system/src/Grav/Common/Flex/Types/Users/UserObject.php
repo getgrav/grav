@@ -284,8 +284,8 @@ class UserObject extends FlexObject implements UserInterface, Countable
         // Check custom application access.
         $authorizeCallable = static::$authorizeCallable;
         if ($authorizeCallable instanceof Closure) {
-            $authorizeCallable->bindTo($this);
-            $authorized = $authorizeCallable($action, $scope);
+            $callable = $authorizeCallable->bindTo($this, $this);
+            $authorized = $callable($action, $scope);
             if (is_bool($authorized)) {
                 return $authorized;
             }

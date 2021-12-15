@@ -17,6 +17,7 @@
    * Block `.json` files in web server configs
    * Disabled pretty debug info for Flex as it slows down Twig rendering
    * Fixed Twig being very slow when template overrides do not exist
+   * Fixed `UserObject::$authorizeCallable` binding to the user object
 
 # v1.7.25
 ## 11/16/2021
