@@ -11,6 +11,7 @@ namespace Grav\Common\Page\Interfaces;
 
 use Grav\Common\Data\Blueprint;
 use Grav\Common\Media\Interfaces\MediaCollectionInterface;
+use Grav\Common\Page\Header;
 
 /**
  * Methods currently implemented in Flex Page emulation layer.
@@ -21,7 +22,7 @@ interface PageContentInterface
      * Gets and Sets the header based on the YAML configuration at the top of the .md file
      *
      * @param  object|array|null $var a YAML object representing the configuration for the file
-     * @return object      the current YAML configuration
+     * @return \stdClass|Header      The current YAML configuration
      */
     public function header($var = null);
 

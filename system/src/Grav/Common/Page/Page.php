@@ -388,7 +388,7 @@ class Page implements PageInterface
      * Gets and Sets the header based on the YAML configuration at the top of the .md file
      *
      * @param  object|array|null $var a YAML object representing the configuration for the file
-     * @return object      the current YAML configuration
+     * @return \stdClass      the current YAML configuration
      */
     public function header($var = null)
     {

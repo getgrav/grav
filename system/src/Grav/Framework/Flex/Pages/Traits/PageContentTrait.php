@@ -100,6 +100,7 @@ trait PageContentTrait
 
     /**
      * @inheritdoc
+     * @return Header
      */
     public function header($var = null)
     {
