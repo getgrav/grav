@@ -141,6 +141,14 @@ class UserObject extends FlexObject implements UserInterface, Countable
         parent::__construct($elements, $key, $directory, $validate);
     }
 
+    public function __clone()
+    {
+        $this->_access = null;
+        $this->_groups = null;
+
+        parent::__clone();
+    }
+
     /**
      * @return void
      */
