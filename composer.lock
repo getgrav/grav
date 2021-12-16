@@ -2075,16 +2075,16 @@
         },
         {
             "name": "rockettheme/toolbox",
-            "version": "1.5.11",
+            "version": "1.6.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/rockettheme/toolbox.git",
-                "reference": "ea23368c1bf635981c7b33babd842a6236befd86"
+                "reference": "a0eb328b9c416e526c8264b48ccbc1a7519e8618"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rockettheme/toolbox/zipball/ea23368c1bf635981c7b33babd842a6236befd86",
-                "reference": "ea23368c1bf635981c7b33babd842a6236befd86",
+                "url": "https://api.github.com/repos/rockettheme/toolbox/zipball/a0eb328b9c416e526c8264b48ccbc1a7519e8618",
+                "reference": "a0eb328b9c416e526c8264b48ccbc1a7519e8618",
                 "shasum": ""
             },
             "require": {
@@ -2097,9 +2097,9 @@
                 "symfony/yaml": "^3.4|^4.0"
             },
             "require-dev": {
-                "phpstan/phpstan": "^1.0",
+                "phpstan/phpstan": "^1.2",
                 "phpstan/phpstan-deprecation-rules": "^1.0",
-                "phpunit/phpunit": "~8.0"
+                "phpunit/phpunit": "^8.0"
             },
             "type": "library",
             "autoload": {
@@ -2113,7 +2113,10 @@
                     "RocketTheme\\Toolbox\\ResourceLocator\\": "ResourceLocator/src",
                     "RocketTheme\\Toolbox\\Session\\": "Session/src",
                     "RocketTheme\\Toolbox\\StreamWrapper\\": "StreamWrapper/src"
-                }
+                },
+                "exclude-from-classmap": [
+                    "**/tests/"
+                ]
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
@@ -2127,9 +2130,9 @@
             ],
             "support": {
                 "issues": "https://github.com/rockettheme/toolbox/issues",
-                "source": "https://github.com/rockettheme/toolbox/tree/1.5.11"
+                "source": "https://github.com/rockettheme/toolbox/tree/1.6.0"
             },
-            "time": "2021-11-25T19:43:12+00:00"
+            "time": "2021-12-15T19:20:00+00:00"
         },
         {
             "name": "seld/cli-prompt",
