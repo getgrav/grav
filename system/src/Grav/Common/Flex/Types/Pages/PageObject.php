@@ -643,7 +643,7 @@ class PageObject extends FlexPageObject
 
     /**
      * @return array
-     * /
+     */
     public function __debugInfo(): array
     {
         $list = parent::__debugInfo();
