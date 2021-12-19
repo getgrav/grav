@@ -414,6 +414,30 @@ class Plugin implements EventSubscriberInterface, ArrayAccess
         return true;
     }
 
+    public static function upstreamConfigVar(string $plugin, string $var, PageInterface $page = null, $default = null)
+    {
+        if (Utils::isAdminPlugin()) {
+            $page = Grav::instance()['admin']->page() ?? null;
+        } else {
+            $page = $page ?? Grav::instance()['page'] ?? null;
+        }
+
+        // Try to find var in the page headers
+        if ($page instanceof PageInterface && $page->exists()) {
+            // Loop over pages and look for header vars
+            while ($page && !$page->root()) {
+                $header = new Data((array)$page->header());
+                $value = $header->get("$plugin.$var");
+                if (isset($value)) {
+                    return $value;
+                }
+                $page = $page->parent();
+            }
+        }
+
+        return Grav::instance()['config']->get("plugins.$plugin.$var", $default);
+    }
+
     /**
      * Simpler getter for the plugin blueprint
      *
