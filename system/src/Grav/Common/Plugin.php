@@ -414,7 +414,7 @@ class Plugin implements EventSubscriberInterface, ArrayAccess
         return true;
     }
 
-    public static function upstreamConfigVar(string $plugin, string $var, PageInterface $page = null, $default = null)
+    public static function inheritedConfigOption(string $plugin, string $var, PageInterface $page = null, $default = null)
     {
         if (Utils::isAdminPlugin()) {
             $page = Grav::instance()['admin']->page() ?? null;

@@ -7,7 +7,7 @@
     * Added second parameter to `UserObject::isMyself()` method
     * Added `UserObject::$isAuthorizedCallable` to allow `$user->isAuthorized()` customization
     * Use secure session cookies in HTTPS by default (`system.session.secure_https: true`)
-    * Added new `Plugin::upstreamConfigVar()` function to access plugin specific functions for page overrides
+    * Added new `Plugin::inheritedConfigOption()` function to access plugin specific functions for page overrides
 2. [](#improved)
    * Upgraded vendor libs for PHP 8.1 compatibility
    * Upgraded to **composer v2.1.14** for PHP 8.1 compatibility
