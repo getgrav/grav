@@ -502,9 +502,13 @@ class FlexIndex extends ObjectIndex implements FlexIndexInterface
             }
         } else {
             $collection = $this->loadCollection();
-            $result = $collection->{$name}(...$arguments);
-            if (!isset($cachedMethods[$name])) {
-                $debugger->addMessage("Call '{$flexType}:{$name}()' isn't cached", 'debug');
+            if (\is_callable([$collection, $name])) {
+                $result = $collection->{$name}(...$arguments);
+                if (!isset($cachedMethods[$name])) {
+                    $debugger->addMessage("Call '{$flexType}:{$name}()' isn't cached", 'debug');
+                }
+            } else {
+                $result = null;
             }
         }
 
