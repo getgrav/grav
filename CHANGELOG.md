@@ -22,6 +22,7 @@
    * Fixed Twig being very slow when template overrides do not exist
    * Fixed `UserObject::$authorizeCallable` binding to the user object
    * Fixed `FlexIndex::call()` to return null instead of failing to call undefined method
+   * Fixed Flex directory configuration creating environment configuration when it should not
 
 # v1.7.25
 ## 11/16/2021
