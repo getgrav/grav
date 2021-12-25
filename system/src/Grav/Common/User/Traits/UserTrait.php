@@ -144,7 +144,7 @@ trait UserTrait
     }
 
     /**
-     * Return the User's avatar URL
+     * Return the User's avatar URL if available. Otherwise, an empty string.
      *
      * @return string
      */
@@ -174,10 +174,8 @@ trait UserTrait
             }
         }
 
-        $email = $this->get('email');
-
-        // By default fall back to gravatar image.
-        return $email ? 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($email))) : '';
+        // By default return nothing and let frontend decide on fallback/default image.
+        return '';
     }
 
     abstract public function get($name, $default = null, $separator = null);
