@@ -82,7 +82,8 @@
         "ext-intl": "Recommended for multi-language sites",
         "ext-memcache": "Needed to support Memcache servers",
         "ext-memcached": "Needed to support Memcached servers",
-        "ext-redis": "Needed to support Redis servers"
+        "ext-redis": "Needed to support Redis servers",
+        "ext-exif": "Needed to use exif data from images."
     },
     "config": {
         "apcu-autoloader": true,
