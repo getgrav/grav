@@ -283,7 +283,7 @@ class FilesystemExtension extends AbstractExtension
 
     /**
      * @param string $filename
-     * @return string|false
+     * @return int|false
      */
     public function exif_imagetype($filename)
     {
