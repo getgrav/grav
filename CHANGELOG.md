@@ -14,6 +14,7 @@
    * Added third `$name` parameter to `Blueprint::flattenData()` method, useful for flattening repeating data
    * `ControllerResponseTrait`: Redirect response should be json if the extension is .json
    * When symlinking Grav install, include also tests
+   * Updated copyright year to `2022`
 3. [](#bugfix)
    * Fixed bad key lookup in `FlexRelatedDirectoryTrait::getCollectionByProperty()`
    * Fixed RequestHandlers `NotFoundException` having empty request
