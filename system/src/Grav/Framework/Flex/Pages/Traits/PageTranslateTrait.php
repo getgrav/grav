@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Flex
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -25,6 +25,14 @@ trait PageTranslateTrait
 
     /** @var PageInterface[] */
     private $_translations = [];
+
+    /**
+     * @return bool
+     */
+    public function translated(): bool
+    {
+        return (bool)$this->translatedLanguages(true);
+    }
 
     /**
      * @param string|null $languageCode

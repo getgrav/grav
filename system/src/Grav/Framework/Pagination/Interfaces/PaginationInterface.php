@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Pagination
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -16,6 +16,7 @@ use IteratorAggregate;
 /**
  * Interface PaginationInterface
  * @package Grav\Framework\Pagination\Interfaces
+ * @extends IteratorAggregate<int,PaginationPage>
  */
 interface PaginationInterface extends Countable, IteratorAggregate
 {

@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\GPM
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -45,6 +45,7 @@ class Package
      * @param string $key
      * @return mixed
      */
+    #[\ReturnTypeWillChange]
     public function __get($key)
     {
         return $this->data->get($key);
@@ -55,6 +56,7 @@ class Package
      * @param mixed $value
      * @return void
      */
+    #[\ReturnTypeWillChange]
     public function __set($key, $value)
     {
         $this->data->set($key, $value);
@@ -64,6 +66,7 @@ class Package
      * @param string $key
      * @return bool
      */
+    #[\ReturnTypeWillChange]
     public function __isset($key)
     {
         return isset($this->data->{$key});
@@ -72,6 +75,7 @@ class Package
     /**
      * @return string
      */
+    #[\ReturnTypeWillChange]
     public function __toString()
     {
         return $this->toJson();

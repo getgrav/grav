@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Flex
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -69,13 +69,13 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     private $_forms = [];
     /** @var Blueprint[] */
     private $_blueprint = [];
-    /** @var array */
+    /** @var array|null */
     private $_meta;
-    /** @var array */
+    /** @var array|null */
     protected $_original;
-    /** @var string */
+    /** @var string|null */
     protected $storage_key;
-    /** @var int */
+    /** @var int|null */
     protected $storage_timestamp;
 
     /**
@@ -163,6 +163,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      */
     public function getFlexFeatures(): array
     {
+        /** @var array $implements */
         $implements = class_implements($this);
 
         $list = [];
@@ -656,6 +657,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     /**
      * @return array
      */
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return $this->getElements();
@@ -775,7 +777,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
         $value = reset($result);
         $meta = $value['__META'] ?? null;
         if ($meta) {
-            /** @var FlexIndex $indexClass */
+            /** @phpstan-var class-string $indexClass */
             $indexClass = $this->getFlexDirectory()->getIndexClass();
             $indexClass::updateObjectMeta($meta, $value, $storage);
             $this->_meta = $meta;
@@ -887,8 +889,8 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     public function getDefaultValue(string $name, string $separator = null)
     {
         $separator = $separator ?: '.';
-        $path = explode($separator, $name) ?: [];
-        $offset = array_shift($path) ?? '';
+        $path = explode($separator, $name);
+        $offset = array_shift($path);
 
         $current = $this->getDefaultValues();
 
@@ -950,6 +952,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      *
      * @return string
      */
+    #[\ReturnTypeWillChange]
     public function __toString()
     {
         return $this->getFlexKey();
@@ -958,6 +961,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     /**
      * @return array
      */
+    #[\ReturnTypeWillChange]
     public function __debugInfo()
     {
         return [
@@ -973,6 +977,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     /**
      * Clone object.
      */
+    #[\ReturnTypeWillChange]
     public function __clone()
     {
         // Allows future compatibility as parent::__clone() works.

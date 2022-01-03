@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * @package    Grav\Framework\Flex
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -59,6 +59,7 @@ interface FlexInterface extends Countable
      * @param array|null $keys
      * @param string|null $keyField
      * @return FlexCollectionInterface|null
+     * @phpstan-return FlexCollectionInterface<FlexObjectInterface>|null
      */
     public function getCollection(string $type, array $keys = null, string $keyField = null): ?FlexCollectionInterface;
 
@@ -68,6 +69,7 @@ interface FlexInterface extends Countable
      *                                  collection_class:   Class to be used to create the collection. Defaults to ObjectCollection.
      * @return FlexCollectionInterface
      * @throws RuntimeException
+     * @phpstan-return FlexCollectionInterface<FlexObjectInterface>
      */
     public function getMixedCollection(array $keys, array $options = []): FlexCollectionInterface;
 

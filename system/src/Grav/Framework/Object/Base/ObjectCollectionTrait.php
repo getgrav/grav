@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Object
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -11,6 +11,7 @@ namespace Grav\Framework\Object\Base;
 
 use Grav\Framework\Compat\Serializable;
 use Grav\Framework\Object\Interfaces\ObjectInterface;
+use InvalidArgumentException;
 use function call_user_func_array;
 use function get_class;
 use function is_callable;
@@ -19,6 +20,9 @@ use function is_object;
 /**
  * ObjectCollection Trait
  * @package Grav\Framework\Object
+ *
+ * @template TKey as array-key
+ * @template T as ObjectInterface
  */
 trait ObjectCollectionTrait
 {
@@ -51,6 +55,7 @@ trait ObjectCollectionTrait
         }
 
         $class = get_class($this);
+
         return $type . strtolower(substr($class, strrpos($class, '\\') + 1));
     }
 
@@ -167,7 +172,7 @@ trait ObjectCollectionTrait
     protected function doUnserialize(array $data)
     {
         if (!isset($data['key'], $data['type'], $data['elements']) || $data['type'] !== $this->getType()) {
-            throw new \InvalidArgumentException("Cannot unserialize '{$this->getType()}': Bad data");
+            throw new InvalidArgumentException("Cannot unserialize '{$this->getType()}': Bad data");
         }
 
         $this->setKey($data['key']);
@@ -179,6 +184,7 @@ trait ObjectCollectionTrait
      *
      * @return array
      */
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return $this->doSerialize();
@@ -189,6 +195,7 @@ trait ObjectCollectionTrait
      *
      * @return string
      */
+    #[\ReturnTypeWillChange]
     public function __toString()
     {
         return $this->getKey();
@@ -207,14 +214,18 @@ trait ObjectCollectionTrait
 
     /**
      * Create a copy from this collection by cloning all objects in the collection.
+     *
+     * @return static<TKey,T>
      */
     public function copy()
     {
         $list = [];
         foreach ($this->getIterator() as $key => $value) {
+            /** @phpstan-ignore-next-line */
             $list[$key] = is_object($value) ? clone $value : $value;
         }
 
+        /** @phpstan-var static<TKey,T> */
         return $this->createFrom($list);
     }
 
@@ -330,6 +341,7 @@ trait ObjectCollectionTrait
      *
      * @param string $property
      * @return array
+     * @phpstan-return array<TKey,T>
      */
     public function group($property)
     {
@@ -348,12 +360,13 @@ trait ObjectCollectionTrait
      *
      * @param string $property
      * @return static[]
+     * @phpstan-return array<static<TKey,T>>
      */
     public function collectionGroup($property)
     {
         $collections = [];
         foreach ($this->group($property) as $id => $elements) {
-            /** @var static $collection */
+            /** @phpstan-var static<TKey,T> $collection */
             $collection = $this->createFrom($elements);
 
             $collections[$id] = $collection;

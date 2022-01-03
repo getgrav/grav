@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -165,7 +165,7 @@ class Uri
         }
 
         // Handle custom base
-        $custom_base = rtrim($grav['config']->get('system.custom_base_url'), '/');
+        $custom_base = rtrim($grav['config']->get('system.custom_base_url', ''), '/');
         if ($custom_base) {
             $custom_parts = parse_url($custom_base);
             if ($custom_parts === false) {
@@ -337,9 +337,9 @@ class Uri
     /**
      * Get URI parameter.
      *
-     * @param string|null $id
-     * @param string|bool|null $default
-     * @return bool|string
+     * @param string $id
+     * @param string|false|null $default
+     * @return string|false|null
      */
     public function param($id, $default = false)
     {
@@ -623,6 +623,7 @@ class Uri
     /**
      * @return string
      */
+    #[\ReturnTypeWillChange]
     public function __toString()
     {
         return static::buildUrl($this->toArray());
@@ -1272,9 +1273,9 @@ class Uri
         $this->path = rawurldecode(parse_url('http://example.com' . $request_uri, PHP_URL_PATH));
 
         // Build query string.
-        $this->query =  $env['QUERY_STRING'] ?? '';
+        $this->query = $env['QUERY_STRING'] ?? '';
         if ($this->query === '') {
-            $this->query = parse_url('http://example.com' . $request_uri, PHP_URL_QUERY);
+            $this->query = parse_url('http://example.com' . $request_uri, PHP_URL_QUERY) ?? '';
         }
 
         // Support ngnix routes.

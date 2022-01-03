@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Backup
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -145,7 +145,7 @@ class Backups
     {
         $backups = static::getAvailableBackups();
 
-        return array_sum(array_column($backups, 'size'));
+        return $backups ? array_sum(array_column($backups, 'size')) : 0;
     }
 
     /**

@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Service
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -40,7 +40,8 @@ class SessionServiceProvider implements ServiceProviderInterface
 
             // Get session options.
             $enabled = (bool)$config->get('system.session.enabled', false);
-            $cookie_secure = (bool)$config->get('system.session.secure', false);
+            $cookie_secure = $config->get('system.session.secure', false)
+                || ($config->get('system.session.secure_https', true) && $uri->scheme(true) === 'https');
             $cookie_httponly = (bool)$config->get('system.session.httponly', true);
             $cookie_lifetime = (int)$config->get('system.session.timeout', 1800);
             $cookie_domain = $config->get('system.session.domain');

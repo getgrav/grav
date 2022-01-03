@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * @package    Grav\Framework\File
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -27,5 +27,14 @@ class CsvFile extends DataFile
     public function __construct($filepath, CsvFormatter $formatter)
     {
         parent::__construct($filepath, $formatter);
+    }
+
+    /**
+     * @return array
+     */
+    public function load(): array
+    {
+        /** @var array */
+        return parent::load();
     }
 }

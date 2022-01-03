@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Cache
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -42,9 +42,13 @@ class FileCache extends AbstractCache
      */
     public function __construct($namespace = '', $defaultLifetime = null, $folder = null)
     {
-        parent::__construct($namespace, $defaultLifetime ?: 31557600); // = 1 year
+        try {
+            parent::__construct($namespace, $defaultLifetime ?: 31557600); // = 1 year
 
-        $this->initFileCache($namespace, $folder ?? '');
+            $this->initFileCache($namespace, $folder ?? '');
+        } catch (\Psr\SimpleCache\InvalidArgumentException $e) {
+            throw new InvalidArgumentException($e->getMessage(), $e->getCode(), $e);
+        }
     }
 
     /**
@@ -103,7 +107,13 @@ class FileCache extends AbstractCache
     {
         $file = $this->getFile($key);
 
-        return (!file_exists($file) || @unlink($file) || !file_exists($file));
+        $result = false;
+        if (file_exists($file)) {
+            $result = @unlink($file);
+            $result &= !file_exists($file);
+        }
+
+        return $result;
     }
 
     /**
@@ -156,7 +166,7 @@ class FileCache extends AbstractCache
      */
     protected function initFileCache($namespace, $directory)
     {
-        if (!isset($directory[0])) {
+        if ($directory === '') {
             $directory = sys_get_temp_dir() . '/grav-cache';
         } else {
             $directory = realpath($directory) ?: $directory;
@@ -246,6 +256,7 @@ class FileCache extends AbstractCache
     /**
      * @return void
      */
+    #[\ReturnTypeWillChange]
     public function __destruct()
     {
         if ($this->tmp !== null && file_exists($this->tmp)) {

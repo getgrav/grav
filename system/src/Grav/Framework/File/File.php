@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * @package    Grav\Framework\File
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -20,15 +20,6 @@ use function is_string;
  */
 class File extends AbstractFile
 {
-    /**
-     * {@inheritdoc}
-     * @see FileInterface::load()
-     */
-    public function load()
-    {
-        return parent::load();
-    }
-
     /**
      * {@inheritdoc}
      * @see FileInterface::save()

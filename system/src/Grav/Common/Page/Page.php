@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Page
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -84,7 +84,7 @@ class Page implements PageInterface
     protected $unpublish_date;
     /** @var string */
     protected $slug;
-    /** @var string */
+    /** @var string|null */
     protected $route;
     /** @var string|null */
     protected $raw_route;
@@ -218,6 +218,7 @@ class Page implements PageInterface
         return $this;
     }
 
+    #[\ReturnTypeWillChange]
     public function __clone()
     {
         $this->initialized = false;
@@ -387,7 +388,7 @@ class Page implements PageInterface
      * Gets and Sets the header based on the YAML configuration at the top of the .md file
      *
      * @param  object|array|null $var a YAML object representing the configuration for the file
-     * @return object      the current YAML configuration
+     * @return \stdClass      the current YAML configuration
      */
     public function header($var = null)
     {
@@ -1244,6 +1245,17 @@ class Page implements PageInterface
         }
 
         return $blueprint;
+    }
+
+    /**
+     * Returns the blueprint from the page.
+     *
+     * @param string $name Not used.
+     * @return Blueprint Returns a Blueprint.
+     */
+    public function getBlueprint(string $name = '')
+    {
+        return $this->blueprints();
     }
 
     /**

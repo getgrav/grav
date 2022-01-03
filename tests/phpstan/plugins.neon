@@ -1,6 +1,7 @@
 includes:
     #- '../../vendor/phpstan/phpstan-strict-rules/rules.neon'
     - '../../vendor/phpstan/phpstan-deprecation-rules/rules.neon'
+    - 'extension.neon'
 parameters:
     fileExtensions:
         - php
@@ -9,12 +10,23 @@ parameters:
         - %currentWorkingDirectory%/user/plugins/*/tests/*
         - %currentWorkingDirectory%/user/plugins/gantry5/src/platforms
         - %currentWorkingDirectory%/user/plugins/gantry5/src/classes/Gantry/Framework/Services/ErrorServiceProvider.php
+        # Ignore vendor dev dependencies and tests
+        - */vendor/*/*/tests
+        - */vendor/behat
+        - */vendor/codeception
+        - */vendor/phpstan
+        - */vendor/phpunit
+        - */vendor/phpspec
+        - */vendor/phpdocumentor
+        - */vendor/sebastian
+        - */vendor/theseer
+        - */vendor/webmozart
     bootstrapFiles:
         - plugins-bootstrap.php
     inferPrivatePropertyTypeFromConstructor: true
     reportUnmatchedIgnoredErrors: false
 
-    # These checks are new in phpstan 0.12, ignore them for now.
+    # These checks are new in phpstan 1, ignore them for now.
     checkMissingIterableValueType: false
     checkGenericClassInNonGenericObjectType: false
 
@@ -26,6 +38,7 @@ parameters:
         - Grav\Common\GPM\Common\Package
         - Grav\Common\GPM\Local\Package
         - Grav\Common\GPM\Remote\Package
+        - Grav\Common\Page\Header
         - Grav\Common\Session
         - Gantry\Component\Config\Config
     dynamicConstantNames:
@@ -37,7 +50,7 @@ parameters:
         - GANTRY5_PLATFORM
         - GANTRY5_ROOT
     ignoreErrors:
-        # New in phpstan 0.12, ignore them for now.
+        # New in phpstan 1, ignore them for now.
         - '#Unsafe usage of new static\(\)#'
         - '#Cannot instantiate interface Grav\\Framework\\#'
 

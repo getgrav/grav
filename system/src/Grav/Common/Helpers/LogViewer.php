@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Helpers
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -145,7 +145,7 @@ class LogViewer
             'logger' => $data['logger'],
             'level' => $data['level'],
             'message' => $data['message'],
-            'trace' => isset($data['trace']) ? $this->parseTrace($data['trace']) : null,
+            'trace' => isset($data['trace']) ? self::parseTrace($data['trace']) : null,
             'context' => json_decode($data['context'], true),
             'extra' => json_decode($data['extra'], true)
         ];

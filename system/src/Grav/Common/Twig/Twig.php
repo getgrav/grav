@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Twig
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -33,6 +33,7 @@ use Twig\Extension\DebugExtension;
 use Twig\Extension\StringLoaderExtension;
 use Twig\Loader\ArrayLoader;
 use Twig\Loader\ChainLoader;
+use Twig\Loader\ExistsLoaderInterface;
 use Twig\Loader\FilesystemLoader;
 use Twig\Profiler\Profile;
 use Twig\TwigFilter;
@@ -160,7 +161,7 @@ class Twig
 
             $this->twig = new TwigEnvironment($loader_chain, $params);
 
-            $this->twig->registerUndefinedFunctionCallback(function ($name) use ($config) {
+            $this->twig->registerUndefinedFunctionCallback(function (string $name) use ($config) {
                 $allowed = $config->get('system.twig.safe_functions');
                 if (is_array($allowed) && in_array($name, $allowed, true) && function_exists($name)) {
                     return new TwigFunction($name, $name);
@@ -184,7 +185,7 @@ class Twig
                 return false;
             });
 
-            $this->twig->registerUndefinedFilterCallback(function ($name) use ($config) {
+            $this->twig->registerUndefinedFilterCallback(function (string $name) use ($config) {
                 $allowed = $config->get('system.twig.safe_filters');
                 if (is_array($allowed) && in_array($name, $allowed, true) && function_exists($name)) {
                     return new TwigFilter($name, $name);
@@ -514,6 +515,8 @@ class Twig
         $twig_extension = $extension ? '.'. $extension .TWIG_EXT : TEMPLATE_EXT;
         $template_file = $this->template($page->template() . $twig_extension);
 
+        // TODO: no longer needed in Twig 3.
+        /** @var ExistsLoaderInterface $loader */
         $loader = $this->twig->getLoader();
         if ($loader->exists($template_file)) {
             // template.xxx.twig

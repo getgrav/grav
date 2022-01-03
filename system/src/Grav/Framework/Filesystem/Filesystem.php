@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * @package    Grav\Framework\Filesystem
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -176,6 +176,7 @@ class Filesystem implements FilesystemInterface
      * @param string $path
      * @param int $levels
      * @return string
+     * @phpstan-param positive-int $levels
      */
     public function pathname(string $path, int $levels = 1): string
     {
@@ -204,6 +205,7 @@ class Filesystem implements FilesystemInterface
      * @param string $path
      * @param int $levels
      * @return array
+     * @phpstan-param positive-int $levels
      */
     protected function dirnameInternal(?string $scheme, string $path, int $levels = 1): array
     {
@@ -237,12 +239,14 @@ class Filesystem implements FilesystemInterface
 
         if (null !== $scheme) {
             $info['scheme'] = $scheme;
-            $dirname = isset($info['dirname']) && $info['dirname'] !== '.' ? $info['dirname'] : null;
 
-            if (null !== $dirname) {
+            /** @phpstan-ignore-next-line because pathinfo('') doesn't have dirname */
+            $dirname = $info['dirname'] ?? '.';
+
+            if ('' !== $dirname && '.' !== $dirname) {
                 // In Windows dirname may be using backslashes, fix that.
                 if (DIRECTORY_SEPARATOR !== '/') {
-                    $dirname = str_replace('\\', '/', $dirname);
+                    $dirname = str_replace(DIRECTORY_SEPARATOR, '/', $dirname);
                 }
 
                 $info['dirname'] = $scheme . '://' . $dirname;

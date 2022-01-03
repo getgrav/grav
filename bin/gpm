@@ -2,7 +2,7 @@
 <?php
 
 /**
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -24,10 +24,6 @@ if (!file_exists(__DIR__ . '/../vendor/autoload.php')){
 }
 
 $autoload = require __DIR__ . '/../vendor/autoload.php';
-
-if (version_compare($ver = PHP_VERSION, $req = GRAV_PHP_MIN, '<')) {
-    exit(sprintf("You are running PHP %s, but Grav needs at least PHP %s to run.\n", $ver, $req));
-}
 
 if (!ini_get('date.timezone')) {
     date_default_timezone_set('UTC');

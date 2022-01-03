@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -38,6 +38,7 @@ class Iterator implements \ArrayAccess, \Iterator, \Countable, \Serializable
      * @param  mixed  $args
      * @return mixed
      */
+    #[\ReturnTypeWillChange]
     public function __call($key, $args)
     {
         return $this->items[$key] ?? null;
@@ -46,6 +47,7 @@ class Iterator implements \ArrayAccess, \Iterator, \Countable, \Serializable
     /**
      * Clone the iterator.
      */
+    #[\ReturnTypeWillChange]
     public function __clone()
     {
         foreach ($this as $key => $value) {
@@ -60,6 +62,7 @@ class Iterator implements \ArrayAccess, \Iterator, \Countable, \Serializable
      *
      * @return string
      */
+    #[\ReturnTypeWillChange]
     public function __toString()
     {
         return implode(',', $this->items);

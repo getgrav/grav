@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Object
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -19,6 +19,8 @@ use Grav\Framework\Object\Property\ObjectPropertyTrait;
 
 /**
  * Property Objects keep their data in protected object properties.
+ *
+ * @implements ArrayAccess<string,mixed>
  */
 class PropertyObject implements NestedObjectInterface, ArrayAccess
 {

@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * @package    Grav\Framework\File\Formatter
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -107,7 +107,9 @@ class YamlFormatter extends AbstractFormatter
             $saved = @ini_get('yaml.decode_php');
             @ini_set('yaml.decode_php', '0');
             $decoded = @yaml_parse($data);
-            @ini_set('yaml.decode_php', $saved);
+            if ($saved !== false) {
+                @ini_set('yaml.decode_php', $saved);
+            }
 
             if ($decoded !== false) {
                 return (array) $decoded;

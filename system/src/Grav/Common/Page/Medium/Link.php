@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Page
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -28,7 +28,7 @@ class Link implements RenderableInterface, MediaLinkInterface
 
     /** @var array */
     protected $attributes = [];
-    /** @var MediaObjectInterface */
+    /** @var MediaObjectInterface|MediaLinkInterface */
     protected $source;
 
     /**
@@ -79,6 +79,7 @@ class Link implements RenderableInterface, MediaLinkInterface
      * @param mixed $args
      * @return mixed
      */
+    #[\ReturnTypeWillChange]
     public function __call($method, $args)
     {
         $object = $this->source;

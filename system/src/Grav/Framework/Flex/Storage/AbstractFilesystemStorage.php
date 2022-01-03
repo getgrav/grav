@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * @package    Grav\Framework\Flex
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -126,6 +126,10 @@ abstract class AbstractFilesystemStorage implements FlexStorageInterface
         }
         $formatterClassName = $formatter['class'] ?? JsonFormatter::class;
         $formatterOptions = $formatter['options'] ?? [];
+
+        if (!is_a($formatterClassName, FileFormatterInterface::class, true)) {
+            throw new \InvalidArgumentException('Bad Data Formatter');
+        }
 
         $this->dataFormatter = new $formatterClassName($formatterOptions);
     }

@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Console\Cli
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -200,6 +200,10 @@ class SandboxCommand extends GravCommand
         $io->newLine();
         $io->writeln('<comment>Resetting Symbolic Links</comment>');
 
+        // Symlink also tests if using git.
+        if (is_dir($this->source . '/tests')) {
+            $this->mappings['/tests'] = '/tests';
+        }
 
         foreach ($this->mappings as $source => $target) {
             if ((string)(int)$source === (string)$source) {

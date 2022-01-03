@@ -2,6 +2,7 @@
 includes:
     #- '../../vendor/phpstan/phpstan-strict-rules/rules.neon'
     - '../../vendor/phpstan/phpstan-deprecation-rules/rules.neon'
+    - 'extension.neon'
 parameters:
     fileExtensions:
         - php
@@ -10,15 +11,27 @@ parameters:
         - phpstan-bootstrap.php
     excludePaths:
         - */system/src/Grav/Common/Errors/Resources/layout.html.php
-        - */system/src/Twig/DeferredExtension/DeferredNodeVisitor.php
+        - */system/src/Twig/DeferredExtension/DeferredNodeVisitorCompat.php    # Twig 1
+        - */system/src/Twig/DeferredExtension/DeferredNodeVisitor.php          # Twig 2+3
+        # Ignore vendor dev dependencies and tests
+        - */vendor/*/*/tests
+        - */vendor/behat
+        - */vendor/codeception
+        - */vendor/phpstan
+        - */vendor/phpunit
+        - */vendor/phpspec
+        - */vendor/phpdocumentor
+        - */vendor/sebastian
+        - */vendor/theseer
+        - */vendor/webmozart
 
     inferPrivatePropertyTypeFromConstructor: true
     reportUnmatchedIgnoredErrors: false
     treatPhpDocTypesAsCertain: false
 
-    # These checks are new in phpstan 0.12, ignore them for now.
+    # These checks are new in phpstan 1, ignore them for now.
     checkMissingIterableValueType: false
-    checkGenericClassInNonGenericObjectType: false
+    #checkGenericClassInNonGenericObjectType: false
 
     universalObjectCratesClasses:
         - Grav\Common\Config\Config
@@ -33,41 +46,22 @@ parameters:
     dynamicConstantNames:
         - GRAV_CLI
     ignoreErrors:
-        # New in phpstan 0.12, ignore them for now.
+        # New in phpstan 1, ignore them for now.
         - '#Unsafe usage of new static\(\)#'
-        - '#Cannot instantiate interface Grav\\Framework\\#'
-        # TODO: phpstan bug #3875 (fixed, test if can be removed)
-        -
-            message: '#Unreachable statement - code above always terminates#'
-            path: '*/system/src/Grav/Common/Flex/Types/Pages/Storage/PageStorage.php'
-
-        # FIXME: Bugs that need to be fixed
-        # FIXME: PHP 7.3 bug workaround
-        -
-            message: '#If condition is always false.#'
-            path: '*/system/src/Grav/Framework/Session/Session.php'
 
         # TODO: Errors that needs some more thinking (bad design?)
         - '#Access to an undefined property RocketTheme\\Toolbox\\Event\\Event::#'
         - '#Instantiation of deprecated class RocketTheme\\Toolbox\\Event\\Event#'
         - '#extends deprecated class RocketTheme\\Toolbox\\Event\\Event#'
-        - '#implements deprecated interface RocketTheme\\Toolbox\\Event\\EventSubscriberInterface#'
         - '#Access to an undefined property Grav\\Common\\Data\\Blueprint::#'
-        - '#Access to an undefined property Grav\\Common\\Media\\Interfaces\\MediaObjectInterface::#'
         -
             message: '#Cannot call method path\(\) on string#'
             path: '*/system/src/Grav/Common/Page/Media.php'
-        - '"FlexCollectionInterface::filterBy\(\) invoked with 2 parameters"'
 
         # TODO: system.twig.umask_fix will not work with Twig 2 anymore
         -
             message: '#Call to deprecated method writeCacheFile\(\) of class Twig\\Environment#'
             path: '*/system/src/Grav/Common/Twig/WriteCacheFileTrait.php'
-
-        # Needed: full coverage (probably with admin plugin...) then redesign constructor
-        -
-            message: '#Grav\\Common\\GPM\\Remote\\GravCore::__construct\(\) does not call parent constructor from Grav\\Common\\GPM\\Remote\\AbstractPackageCollection#'
-            path: '*/system/src/Grav/Common/GPM/Remote/GravCore.php'
 
         # PSR-16 Exception interfaces do not extend \Throwable
         - '#PHPDoc tag \@throws with type Psr\\SimpleCache\\(CacheException|InvalidArgumentException) is not subtype of Throwable#'
@@ -86,16 +80,11 @@ parameters:
             message: '#unknown class Grav\\Plugin\\Admin#'
             path: '*/system/src/Grav/Common/Flex/Pages/PageObject.php'
         -
-            message: '#unknown class Grav\\Common\\Grav\\Plugin\\Form\\Forms#'
-            path: '*/system/src/Grav/Common/Session.php'
-        -
             message: '#unknown class Grav\\Plugin\\Admin\\Admin#'
             path: '*/system/src/Grav/Common/Flex/Types/Pages/PageObject.php'
-
-        # Can be ignored, after fopen there's always an $http_response_header locally available
         -
-            message: '#Variable \$http_response_header in isset\(\) always exists and is not nullable#'
-            path: '*/system/src/Grav/Common/GPM/Response.php'
+            message: '#unknown class Grav\\Plugin\\Form\\Forms#'
+            path: '*/system/src/Grav/Common/Processors/PagesProcessor.php'
 
         # Clockwork does not define functions for __call() call
         -
@@ -141,9 +130,6 @@ parameters:
         -
             message: '#Call to deprecated method getLegacyFiles\(\)#'
             path: '*/system/src/Grav/Common/Session.php'
-        -
-            message: '#Call to deprecated method getType\(\) of class#'
-            path: '*/system/src/Grav/Framework/Object/Base/ObjectTrait.php'
         -
             message: '#Call to deprecated method \w+\(\) of class Grav\\Framework\\Flex\\FlexObject#'
             path: '*/system/src/Grav/Framework/Flex/FlexObject.php'

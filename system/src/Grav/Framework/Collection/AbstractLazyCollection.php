@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Collection
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -22,11 +22,15 @@ use Doctrine\Common\Collections\AbstractLazyCollection as BaseAbstractLazyCollec
  */
 abstract class AbstractLazyCollection extends BaseAbstractLazyCollection implements CollectionInterface
 {
-    /** @var ArrayCollection The backed collection to use */
+    /**
+     * @par ArrayCollection
+     * @phpstan-var ArrayCollection<TKey,T>
+     */
     protected $collection;
 
     /**
      * {@inheritDoc}
+     * @phpstan-return ArrayCollection<TKey,T>
      */
     public function reverse()
     {
@@ -37,6 +41,7 @@ abstract class AbstractLazyCollection extends BaseAbstractLazyCollection impleme
 
     /**
      * {@inheritDoc}
+     * @phpstan-return ArrayCollection<TKey,T>
      */
     public function shuffle()
     {
@@ -57,6 +62,8 @@ abstract class AbstractLazyCollection extends BaseAbstractLazyCollection impleme
 
     /**
      * {@inheritDoc}
+     * @phpstan-param array<TKey,T> $keys
+     * @phpstan-return ArrayCollection<TKey,T>
      */
     public function select(array $keys)
     {
@@ -67,6 +74,8 @@ abstract class AbstractLazyCollection extends BaseAbstractLazyCollection impleme
 
     /**
      * {@inheritDoc}
+     * @phpstan-param array<TKey,T> $keys
+     * @phpstan-return ArrayCollection<TKey,T>
      */
     public function unselect(array $keys)
     {
@@ -78,6 +87,7 @@ abstract class AbstractLazyCollection extends BaseAbstractLazyCollection impleme
     /**
      * @return array
      */
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         $this->initialize();

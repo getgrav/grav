@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Flex
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -55,6 +55,7 @@ class FlexPageObject extends FlexObject implements PageInterface, FlexTranslateI
     /**
      * Clone page.
      */
+    #[\ReturnTypeWillChange]
     public function __clone()
     {
         parent::__clone();

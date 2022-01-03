@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Collection
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -30,7 +30,10 @@ class ArrayCollection extends BaseArrayCollection implements CollectionInterface
      */
     public function reverse()
     {
-        return $this->createFrom(array_reverse($this->toArray()));
+        $keys = array_reverse($this->toArray());
+
+        /** @phpstan-var static<TKey,T> */
+        return $this->createFrom($keys);
     }
 
     /**
@@ -43,8 +46,10 @@ class ArrayCollection extends BaseArrayCollection implements CollectionInterface
     {
         $keys = $this->getKeys();
         shuffle($keys);
+        $keys = array_replace(array_flip($keys), $this->toArray());
 
-        return $this->createFrom(array_replace(array_flip($keys), $this->toArray()) ?? []);
+        /** @phpstan-var static<TKey,T> */
+        return $this->createFrom($keys);
     }
 
     /**
@@ -52,9 +57,11 @@ class ArrayCollection extends BaseArrayCollection implements CollectionInterface
      *
      * @param int $size     Size of each chunk.
      * @return array
+     * @phpstan-return array<array<TKey,T>>
      */
     public function chunk($size)
     {
+        /** @phpstan-var array<array<TKey,T>> */
         return array_chunk($this->toArray(), $size, true);
     }
 
@@ -63,9 +70,9 @@ class ArrayCollection extends BaseArrayCollection implements CollectionInterface
      *
      * Collection is returned in the order of $keys given to the function.
      *
-     * @param array<int|string> $keys
+     * @param array<int,string> $keys
      * @return static
-     * @phpstan-param array<TKey> $keys
+     * @phpstan-param TKey[] $keys
      * @phpstan-return static<TKey,T>
      */
     public function select(array $keys)
@@ -77,6 +84,7 @@ class ArrayCollection extends BaseArrayCollection implements CollectionInterface
             }
         }
 
+        /** @phpstan-var static<TKey,T> */
         return $this->createFrom($list);
     }
 
@@ -85,11 +93,15 @@ class ArrayCollection extends BaseArrayCollection implements CollectionInterface
      *
      * @param array<int|string> $keys
      * @return static
+     * @phpstan-param TKey[] $keys
      * @phpstan-return static<TKey,T>
      */
     public function unselect(array $keys)
     {
-        return $this->select(array_diff($this->getKeys(), $keys));
+        $list = array_diff($this->getKeys(), $keys);
+
+        /** @phpstan-var static<TKey,T> */
+        return $this->select($list);
     }
 
     /**
@@ -97,6 +109,7 @@ class ArrayCollection extends BaseArrayCollection implements CollectionInterface
      *
      * @return array
      */
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return $this->toArray();

@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Media
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -208,6 +208,7 @@ interface MediaObjectInterface extends \Grav\Framework\Media\Interfaces\MediaObj
      * @param mixed $args
      * @return $this
      */
+    #[\ReturnTypeWillChange]
     public function __call($method, $args);
 
     /**

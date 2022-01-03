@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Session
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -16,6 +16,7 @@ use RuntimeException;
 /**
  * Class Session
  * @package Grav\Framework\Session
+ * @extends IteratorAggregate<array-key,mixed>
  */
 interface SessionInterface extends IteratorAggregate
 {
@@ -107,7 +108,9 @@ interface SessionInterface extends IteratorAggregate
      * Retrieve an external iterator
      *
      * @return ArrayIterator Return an ArrayIterator of $_SESSION
+     * @phpstan-return ArrayIterator<array-key,mixed>
      */
+    #[\ReturnTypeWillChange]
     public function getIterator();
 
     /**
@@ -123,6 +126,7 @@ interface SessionInterface extends IteratorAggregate
      * @param string $name
      * @return bool
      */
+    #[\ReturnTypeWillChange]
     public function __isset($name);
 
     /**
@@ -131,6 +135,7 @@ interface SessionInterface extends IteratorAggregate
      * @param string $name
      * @return mixed
      */
+    #[\ReturnTypeWillChange]
     public function __get($name);
 
     /**
@@ -140,6 +145,7 @@ interface SessionInterface extends IteratorAggregate
      * @param mixed  $value
      * @return void
      */
+    #[\ReturnTypeWillChange]
     public function __set($name, $value);
 
     /**
@@ -148,5 +154,6 @@ interface SessionInterface extends IteratorAggregate
      * @param string $name
      * @return void
      */
+    #[\ReturnTypeWillChange]
     public function __unset($name);
 }

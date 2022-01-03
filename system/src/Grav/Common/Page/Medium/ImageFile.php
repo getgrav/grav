@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Page
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -34,6 +34,7 @@ class ImageFile extends Image
     /**
      * Destruct also image object.
      */
+    #[\ReturnTypeWillChange]
     public function __destruct()
     {
         $adapter = $this->adapter;

@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Installer
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -36,9 +36,11 @@ final class Install
         'php' => [
             'name' => 'PHP',
             'versions' => [
-                '7.4' => '7.4.0',
+                '8.1' => '8.1.0',
+                '8.0' => '8.0.0',
+                '7.4' => '7.4.1',
                 '7.3' => '7.3.6',
-                '' => '7.4.12'
+                '' => '8.0.13'
             ]
         ],
         'grav' => [
@@ -114,7 +116,7 @@ final class Install
     /** @var string|null */
     private $location;
 
-    /** @var VersionUpdater */
+    /** @var VersionUpdater|null */
     private $updater;
 
     /** @var static */
@@ -151,6 +153,7 @@ final class Install
      * @param string|null $zip
      * @return void
      */
+    #[\ReturnTypeWillChange]
     public function __invoke(?string $zip)
     {
         $this->zip = $zip;
@@ -249,6 +252,11 @@ ERR;
         }
 
         try {
+            if (null === $this->updater) {
+                $versions = Versions::instance(USER_DIR . 'config/versions.yaml');
+                $this->updater = new VersionUpdater('core/grav', __DIR__ . '/updates', $this->getVersion(), $versions);
+            }
+
             // Update user/config/version.yaml before copying the files to avoid frontend from setting the version schema.
             $this->updater->install();
 
@@ -279,7 +287,7 @@ ERR;
     public function finalize(): void
     {
         // Finalize can be run without installing Grav first.
-        if (!$this->updater) {
+        if (null === $this->updater) {
             $versions = Versions::instance(USER_DIR . 'config/versions.yaml');
             $this->updater = new VersionUpdater('core/grav', __DIR__ . '/updates', GRAV_VERSION, $versions);
             $this->updater->install();

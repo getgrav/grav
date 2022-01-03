@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Data
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -816,7 +816,7 @@ class Validation
     {
         $value = static::filterArray($value, $params, $field);
 
-        return Utils::arrayUnflattenDotNotation($value);
+        return is_array($value) ? Utils::arrayUnflattenDotNotation($value) : null;
     }
 
     /**

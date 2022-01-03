@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * @package    Grav\Framework\Psr7
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -53,6 +53,7 @@ class Response implements ResponseInterface
      * @param  int    $options Json encoding options
      * @param  int    $depth Json encoding max depth
      * @return static
+     * @phpstan-param positive-int $depth
      */
     public function withJson($data, int $status = null, int $options = 0, int $depth = 512): ResponseInterface
     {
@@ -257,7 +258,7 @@ class Response implements ResponseInterface
         }
 
         $output .= self::EOL;
-        $output .= (string) $response->getBody();
+        $output .= $response->getBody();
 
         return $output;
     }

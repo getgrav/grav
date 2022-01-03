@@ -5,13 +5,14 @@ declare(strict_types=1);
 /**
  * @package    Grav\Framework\File\Formatter
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Framework\File\Formatter;
 
 use Grav\Framework\File\Interfaces\FileFormatterInterface;
+use RuntimeException;
 
 /**
  * Class MarkdownFormatter
@@ -99,7 +100,7 @@ class MarkdownFormatter extends AbstractFormatter
         // Normalize line endings to Unix style.
         $encoded = preg_replace("/(\r\n|\r)/u", "\n", $encoded);
         if (null === $encoded) {
-            throw new \RuntimeException('Encoding markdown failed');
+            throw new RuntimeException('Encoding markdown failed');
         }
 
         return $encoded;
@@ -126,7 +127,7 @@ class MarkdownFormatter extends AbstractFormatter
         // Normalize line endings to Unix style.
         $data = preg_replace("/(\r\n|\r)/u", "\n", $data);
         if (null === $data) {
-            throw new \RuntimeException('Decoding markdown failed');
+            throw new RuntimeException('Decoding markdown failed');
         }
 
         // Parse header.

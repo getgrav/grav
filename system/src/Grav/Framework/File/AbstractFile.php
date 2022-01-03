@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * @package    Grav\Framework\File
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -55,6 +55,7 @@ class AbstractFile implements FileInterface
     /**
      * Unlock file when the object gets destroyed.
      */
+    #[\ReturnTypeWillChange]
     public function __destruct()
     {
         if ($this->isLocked()) {
@@ -65,6 +66,7 @@ class AbstractFile implements FileInterface
     /**
      * @return void
      */
+    #[\ReturnTypeWillChange]
     public function __clone()
     {
         $this->handle = null;
@@ -191,15 +193,16 @@ class AbstractFile implements FileInterface
             $this->handle = @fopen($this->filepath, 'cb+') ?: null;
             if (!$this->handle) {
                 $error = error_get_last();
+                $message = $error['message'] ?? 'Unknown error';
 
-                throw new RuntimeException("Opening file for writing failed on error {$error['message']}");
+                throw new RuntimeException("Opening file for writing failed on error {$message}");
             }
         }
 
         $lock = $block ? LOCK_EX : LOCK_EX | LOCK_NB;
 
         // Some filesystems do not support file locks, only fail if another process holds the lock.
-        $this->locked = flock($this->handle, $lock, $wouldblock) || !$wouldblock;
+        $this->locked = flock($this->handle, $lock, $wouldBlock) || !$wouldBlock;
 
         return $this->locked;
     }

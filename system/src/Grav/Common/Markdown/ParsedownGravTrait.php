@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Markdown
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -289,6 +289,7 @@ trait ParsedownGravTrait
      * @param array $args
      * @return mixed|null
      */
+    #[\ReturnTypeWillChange]
     public function __call($method, $args)
     {
         if (isset($this->{$method}) === true) {

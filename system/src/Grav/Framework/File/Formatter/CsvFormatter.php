@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * @package    Grav\Framework\File\Formatter
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -16,6 +16,7 @@ use Grav\Framework\File\Interfaces\FileFormatterInterface;
 use JsonSerializable;
 use RuntimeException;
 use stdClass;
+use function count;
 use function is_array;
 use function is_object;
 use function is_scalar;

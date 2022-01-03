@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Form
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -11,6 +11,7 @@ namespace Grav\Framework\Form;
 
 use Grav\Framework\Psr7\Stream;
 use InvalidArgumentException;
+use JsonSerializable;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UploadedFileInterface;
 use RuntimeException;
@@ -23,7 +24,7 @@ use function sprintf;
  * Class FormFlashFile
  * @package Grav\Framework\Form
  */
-class FormFlashFile implements UploadedFileInterface, \JsonSerializable
+class FormFlashFile implements UploadedFileInterface, JsonSerializable
 {
     /** @var string */
     private $field;
@@ -175,6 +176,7 @@ class FormFlashFile implements UploadedFileInterface, \JsonSerializable
     /**
      * @return array
      */
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return $this->upload;
@@ -199,6 +201,7 @@ class FormFlashFile implements UploadedFileInterface, \JsonSerializable
     /**
      * @return array
      */
+    #[\ReturnTypeWillChange]
     public function __debugInfo()
     {
         return [

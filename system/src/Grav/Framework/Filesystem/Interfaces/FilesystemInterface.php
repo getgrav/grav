@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * @package    Grav\Framework\Filesystem
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -31,6 +31,7 @@ interface FilesystemInterface
      * @param int       $levels     The number of parent directories to go up (>= 1).
      * @return string               Returns parent path.
      * @throws RuntimeException
+     * @phpstan-param positive-int $levels
      * @api
      */
     public function parent(string $path, int $levels = 1): string;
@@ -64,6 +65,7 @@ interface FilesystemInterface
      * @param int       $levels     The number of parent directories to go up (>= 1).
      * @return string               Returns path to the directory.
      * @throws RuntimeException
+     * @phpstan-param positive-int $levels
      * @api
      */
     public function dirname(string $path, int $levels = 1): string;

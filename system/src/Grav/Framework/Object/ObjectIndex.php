@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Object
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -25,7 +25,7 @@ use function is_object;
  *
  * @template TKey of array-key
  * @template T of \Grav\Framework\Object\Interfaces\ObjectInterface
- * @template C of \Grav\Framework\Collection\CollectionInterface
+ * @template C of ObjectCollectionInterface
  * @extends AbstractIndexCollection<TKey,T,C>
  * @implements NestedObjectCollectionInterface<TKey,T>
  */
@@ -35,7 +35,7 @@ abstract class ObjectIndex extends AbstractIndexCollection implements NestedObje
     protected static $type;
 
     /** @var string */
-    private $_key;
+    protected $_key;
 
     /**
      * @param bool $prefix
@@ -95,6 +95,7 @@ abstract class ObjectIndex extends AbstractIndexCollection implements NestedObje
      * @param string $property      Object property to be updated.
      * @param string $value         New value.
      * @return ObjectCollectionInterface
+     * @phpstan-return C
      */
     public function setProperty($property, $value)
     {
@@ -105,6 +106,7 @@ abstract class ObjectIndex extends AbstractIndexCollection implements NestedObje
      * @param string  $property     Object property to be defined.
      * @param mixed   $default      Default value.
      * @return ObjectCollectionInterface
+     * @phpstan-return C
      */
     public function defProperty($property, $default)
     {
@@ -114,6 +116,7 @@ abstract class ObjectIndex extends AbstractIndexCollection implements NestedObje
     /**
      * @param string  $property     Object property to be unset.
      * @return ObjectCollectionInterface
+     * @phpstan-return C
      */
     public function unsetProperty($property)
     {
@@ -146,6 +149,7 @@ abstract class ObjectIndex extends AbstractIndexCollection implements NestedObje
      * @param mixed  $value         New value.
      * @param string|null $separator     Separator, defaults to '.'
      * @return ObjectCollectionInterface
+     * @phpstan-return C
      */
     public function setNestedProperty($property, $value, $separator = null)
     {
@@ -157,6 +161,7 @@ abstract class ObjectIndex extends AbstractIndexCollection implements NestedObje
      * @param mixed   $default      Default value.
      * @param string|null  $separator    Separator, defaults to '.'
      * @return ObjectCollectionInterface
+     * @phpstan-return C
      */
     public function defNestedProperty($property, $default, $separator = null)
     {
@@ -167,6 +172,7 @@ abstract class ObjectIndex extends AbstractIndexCollection implements NestedObje
      * @param string  $property     Object property to be unset.
      * @param string|null  $separator    Separator, defaults to '.'
      * @return ObjectCollectionInterface
+     * @phpstan-return C
      */
     public function unsetNestedProperty($property, $separator = null)
     {
@@ -183,9 +189,11 @@ abstract class ObjectIndex extends AbstractIndexCollection implements NestedObje
     {
         $list = [];
         foreach ($this->getIterator() as $key => $value) {
+            /** @phpstan-ignore-next-line */
             $list[$key] = is_object($value) ? clone $value : $value;
         }
 
+        /** @phpstan-var static<TKey,T,C> */
         return $this->createFrom($list);
     }
 
@@ -200,6 +208,7 @@ abstract class ObjectIndex extends AbstractIndexCollection implements NestedObje
     /**
      * @param array $ordering
      * @return ObjectCollectionInterface
+     * @phpstan-return C
      */
     public function orderBy(array $ordering)
     {
@@ -232,6 +241,7 @@ abstract class ObjectIndex extends AbstractIndexCollection implements NestedObje
      *
      * @param string $property
      * @return ObjectCollectionInterface[]
+     * @phpstan-return C[]
      */
     public function collectionGroup($property)
     {
@@ -239,14 +249,18 @@ abstract class ObjectIndex extends AbstractIndexCollection implements NestedObje
     }
 
     /**
-     * {@inheritDoc}
+     * @param Criteria $criteria
+     * @return ObjectCollectionInterface
+     * @phpstan-return C
      */
     public function matching(Criteria $criteria)
     {
-        /** @var ObjectCollectionInterface $collection */
         $collection = $this->loadCollection($this->getEntries());
 
-        return $collection->matching($criteria);
+        /** @phpstan-var C $matching */
+        $matching = $collection->matching($criteria);
+
+        return $matching;
     }
 
     /**
@@ -254,6 +268,7 @@ abstract class ObjectIndex extends AbstractIndexCollection implements NestedObje
      * @param array $arguments
      * @return mixed
      */
+    #[\ReturnTypeWillChange]
     abstract public function __call($name, $arguments);
 
     /**

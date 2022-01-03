@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Assets
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -248,6 +248,7 @@ abstract class BaseAsset extends PropertyObject
      *
      * @return array
      */
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return ['type' => $this->getType(), 'elements' => $this->getElements()];

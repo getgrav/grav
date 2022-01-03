@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Collection
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -68,6 +68,7 @@ class AbstractFileCollection extends AbstractLazyCollection implements FileColle
     /**
      * @param Criteria $criteria
      * @return ArrayCollection
+     * @phpstan-return ArrayCollection<TKey,T>
      * @todo Implement lazy matching
      */
     public function matching(Criteria $criteria)
@@ -93,6 +94,7 @@ class AbstractFileCollection extends AbstractLazyCollection implements FileColle
             foreach (array_reverse($orderings) as $field => $ordering) {
                 $next = ClosureExpressionVisitor::sortByField($field, $ordering === Criteria::DESC ? -1 : 1, $next);
             }
+            /** @phpstan-ignore-next-line */
             if (null === $next) {
                 throw new RuntimeException('Criteria is missing orderings');
             }
@@ -162,6 +164,7 @@ class AbstractFileCollection extends AbstractLazyCollection implements FileColle
      * @param SeekableIterator $iterator
      * @param int $nestingLimit
      * @return array
+     * @phpstan-param SeekableIterator<int,T> $iterator
      */
     protected function doInitializeByIterator(SeekableIterator $iterator, $nestingLimit)
     {
@@ -211,7 +214,6 @@ class AbstractFileCollection extends AbstractLazyCollection implements FileColle
     protected function doInitializeChildren(array $children, $nestingLimit)
     {
         $objects = [];
-
         foreach ($children as $iterator) {
             $objects += $this->doInitializeByIterator($iterator, $nestingLimit);
         }

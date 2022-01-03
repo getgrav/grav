@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Object
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -21,6 +21,7 @@ trait OverloadedPropertyTrait
      * @param mixed $offset  An offset to check for.
      * @return bool          Returns TRUE on success or FALSE on failure.
      */
+    #[\ReturnTypeWillChange]
     public function __isset($offset)
     {
         return $this->hasProperty($offset);
@@ -32,6 +33,7 @@ trait OverloadedPropertyTrait
      * @param mixed $offset  The offset to retrieve.
      * @return mixed         Can return all value types.
      */
+    #[\ReturnTypeWillChange]
     public function __get($offset)
     {
         return $this->getProperty($offset);
@@ -44,6 +46,7 @@ trait OverloadedPropertyTrait
      * @param mixed $value   The value to set.
      * @return void
      */
+    #[\ReturnTypeWillChange]
     public function __set($offset, $value)
     {
         $this->setProperty($offset, $value);
@@ -55,6 +58,7 @@ trait OverloadedPropertyTrait
      * @param mixed $offset The name value to unset
      * @return void
      */
+    #[\ReturnTypeWillChange]
     public function __unset($offset)
     {
         $this->unsetProperty($offset);

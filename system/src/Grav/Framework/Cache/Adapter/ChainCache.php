@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Cache
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -33,11 +33,15 @@ class ChainCache extends AbstractCache
      * Chain Cache constructor.
      * @param array $caches
      * @param null|int|DateInterval $defaultLifetime
-     * @throws \Psr\SimpleCache\InvalidArgumentException|InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function __construct(array $caches, $defaultLifetime = null)
     {
-        parent::__construct('', $defaultLifetime);
+        try {
+            parent::__construct('', $defaultLifetime);
+        } catch (\Psr\SimpleCache\InvalidArgumentException $e) {
+            throw new InvalidArgumentException($e->getMessage(), $e->getCode(), $e);
+        }
 
         if (!$caches) {
             throw new InvalidArgumentException('At least one cache must be specified');

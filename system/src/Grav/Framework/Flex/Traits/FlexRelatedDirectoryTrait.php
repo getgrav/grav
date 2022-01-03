@@ -5,15 +5,15 @@ declare(strict_types=1);
 /**
  * @package    Grav\Common\Flex
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Framework\Flex\Traits;
 
-use Grav\Framework\Flex\FlexCollection;
 use Grav\Framework\Flex\FlexDirectory;
 use Grav\Framework\Flex\Interfaces\FlexCollectionInterface;
+use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
 use RuntimeException;
 use function in_array;
 
@@ -26,7 +26,7 @@ trait FlexRelatedDirectoryTrait
     /**
      * @param string $type
      * @param string $property
-     * @return FlexCollectionInterface
+     * @return FlexCollectionInterface<FlexObjectInterface>
      */
     protected function getCollectionByProperty($type, $property)
     {
@@ -34,9 +34,9 @@ trait FlexRelatedDirectoryTrait
         $collection = $directory->getCollection();
         $list = $this->getNestedProperty($property) ?: [];
 
-        /** @var FlexCollection $collection */
+        /** @var FlexCollectionInterface<FlexObjectInterface> $collection */
         $collection = $collection->filter(static function ($object) use ($list) {
-            return in_array($object->id, $list, true);
+            return in_array($object->getKey(), $list, true);
         });
 
         return $collection;

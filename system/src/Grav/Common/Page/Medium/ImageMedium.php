@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Page
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -89,6 +89,7 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
     /**
      * Also unset the image on destruct.
      */
+    #[\ReturnTypeWillChange]
     public function __destruct()
     {
         unset($this->image);
@@ -97,6 +98,7 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
     /**
      * Also clone image.
      */
+    #[\ReturnTypeWillChange]
     public function __clone()
     {
         if ($this->image) {
@@ -247,12 +249,12 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
         if ($this->saved_image_path && $this->auto_sizes) {
             if (!array_key_exists('height', $this->attributes) && !array_key_exists('width', $this->attributes)) {
                 $info = getimagesize($this->saved_image_path);
-                $width = intval($info[0]);
-                $height = intval($info[1]);
+                $width = (int)$info[0];
+                $height = (int)$info[1];
 
                 $scaling_factor = $this->retina_scale > 0 ? $this->retina_scale : 1;
-                $attributes['width'] = intval($width / $scaling_factor);
-                $attributes['height'] = intval($height / $scaling_factor);
+                $attributes['width'] = (int)($width / $scaling_factor);
+                $attributes['height'] = (int)($height / $scaling_factor);
 
                 if ($this->aspect_ratio) {
                     $style = ($attributes['style'] ?? ' ') . "--aspect-ratio: $width/$height;";
@@ -303,29 +305,45 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
         return parent::lightbox($width, $height, $reset);
     }
 
+    /**
+     * @param string $enabled
+     * @return $this
+     */
     public function autoSizes($enabled = 'true')
     {
-        $enabled = $enabled === 'true' ?: false;
-        $this->auto_sizes = $enabled;
+        $this->auto_sizes = $enabled === 'true' ?: false;
 
         return $this;
     }
 
+    /**
+     * @param string $enabled
+     * @return $this
+     */
     public function aspectRatio($enabled = 'true')
     {
-        $enabled = $enabled === 'true' ?: false;
-        $this->aspect_ratio = $enabled;
+        $this->aspect_ratio = $enabled === 'true' ?: false;
 
         return $this;
     }
 
+    /**
+     * @param int $scale
+     * @return $this
+     */
     public function retinaScale($scale = 1)
     {
-        $this->retina_scale = intval($scale);
+        $this->retina_scale = (int)$scale;
 
         return $this;
     }
 
+    /**
+     * @param string|null $image
+     * @param string|null $position
+     * @param int|float|null $scale
+     * @return $this
+     */
     public function watermark($image = null, $position = null, $scale = null)
     {
         $grav = $this->getGrav();
@@ -406,7 +424,7 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
      */
     public function addFrame(int $border = 10, string $color = '0x000000')
     {
-      if(is_int(intval($border)) && $border>0 && preg_match('/^0x[a-f0-9]{6}$/i', $color)) { // $border must be an integer and bigger than 0; $color must be formatted as an HEX value (0x??????).
+      if($border > 0 && preg_match('/^0x[a-f0-9]{6}$/i', $color)) { // $border must be an integer and bigger than 0; $color must be formatted as an HEX value (0x??????).
         $image = ImageFile::open($this->path());
       }
       else {
@@ -437,7 +455,7 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
      * @param mixed $args
      * @return $this|mixed
      */
-    
+    #[\ReturnTypeWillChange]
     public function __call($method, $args)
     {
         if (!in_array($method, static::$magic_actions, true)) {

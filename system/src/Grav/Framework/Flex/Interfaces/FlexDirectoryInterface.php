@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Flex
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -105,6 +105,7 @@ interface FlexDirectoryInterface extends FlexAuthorizeInterface
      * @param array|null $keys  Array of keys.
      * @param string|null $keyField  Field to be used as the key.
      * @return FlexCollectionInterface
+     * @phpstan-return FlexCollectionInterface<FlexObjectInterface>
      */
     public function getCollection(array $keys = null, string $keyField = null): FlexCollectionInterface;
 
@@ -116,6 +117,7 @@ interface FlexDirectoryInterface extends FlexAuthorizeInterface
      * @param array|null $keys  Array of keys.
      * @param string|null $keyField  Field to be used as the key.
      * @return FlexIndexInterface
+     * @phpstan-return FlexIndexInterface<FlexObjectInterface>
      */
     public function getIndex(array $keys = null, string $keyField = null): FlexIndexInterface;
 
@@ -170,6 +172,7 @@ interface FlexDirectoryInterface extends FlexAuthorizeInterface
      * @param array $entries
      * @param string|null $keyField
      * @return FlexCollectionInterface
+     * @phpstan-return FlexCollectionInterface<FlexObjectInterface>
      */
     public function createCollection(array $entries, string $keyField = null): FlexCollectionInterface;
 
@@ -177,6 +180,7 @@ interface FlexDirectoryInterface extends FlexAuthorizeInterface
      * @param array $entries
      * @param string|null $keyField
      * @return FlexIndexInterface
+     * @phpstan-return FlexIndexInterface<FlexObjectInterface>
      */
     public function createIndex(array $entries, string $keyField = null): FlexIndexInterface;
 
@@ -199,6 +203,7 @@ interface FlexDirectoryInterface extends FlexAuthorizeInterface
      * @param array $entries
      * @param string|null $keyField
      * @return FlexCollectionInterface
+     * @phpstan-return FlexCollectionInterface<FlexObjectInterface>
      */
     public function loadCollection(array $entries, string $keyField = null): FlexCollectionInterface;
 

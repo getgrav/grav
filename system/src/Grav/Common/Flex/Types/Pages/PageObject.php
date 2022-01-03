@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * @package    Grav\Common\Flex
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -25,9 +25,9 @@ use Grav\Common\Page\Pages;
 use Grav\Common\User\Interfaces\UserInterface;
 use Grav\Common\Utils;
 use Grav\Framework\Filesystem\Filesystem;
-use Grav\Framework\Flex\FlexObject;
 use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
 use Grav\Framework\Flex\Pages\FlexPageObject;
+use Grav\Framework\Object\ObjectCollection;
 use Grav\Framework\Route\Route;
 use Grav\Framework\Route\RouteFactory;
 use Grav\Plugin\Admin\Admin;
@@ -91,11 +91,6 @@ class PageObject extends FlexPageObject
             Grav::instance()->fireEvent('onPageProcessed', new Event(['page' => $this]));
             $this->_initialized = true;
         }
-    }
-
-    public function translated(): bool
-    {
-        return $this->translatedLanguages(true) ? true : false;
     }
 
     /**
@@ -282,7 +277,7 @@ class PageObject extends FlexPageObject
 
     /**
      * @param array|bool $reorder
-     * @return FlexObject|FlexObjectInterface
+     * @return static
      */
     public function save($reorder = true)
     {
@@ -317,7 +312,7 @@ class PageObject extends FlexPageObject
     }
 
     /**
-     * @return PageObject
+     * @return static
      */
     public function delete()
     {
@@ -391,6 +386,7 @@ class PageObject extends FlexPageObject
     /**
      * @param array $ordering
      * @return PageCollection|null
+     * @phpstan-return ObjectCollection<string,PageObject>|null
      */
     protected function reorderSiblings(array $ordering)
     {
@@ -466,7 +462,9 @@ class PageObject extends FlexPageObject
         if ($isMoved && $this->order() !== false) {
             $parentKey = $this->getProperty('parent_key');
             if ($parentKey === '') {
-                $newParent = $this->getFlexDirectory()->getIndex()->getRoot();
+                /** @var PageIndex $index */
+                $index = $this->getFlexDirectory()->getIndex();
+                $newParent = $index->getRoot();
             } else {
                 $newParent = $this->getFlexDirectory()->getObject($parentKey, 'storage_key');
                 if (!$newParent instanceof PageInterface) {

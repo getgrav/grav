@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\GPM
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -74,6 +74,7 @@ class GPM extends Iterator
      * @param string $offset Asset name value
      * @return mixed Asset value
      */
+    #[\ReturnTypeWillChange]
     public function __get($offset)
     {
         switch ($offset) {
@@ -90,6 +91,7 @@ class GPM extends Iterator
      * @param string $offset Asset name value
      * @return bool True if the value is set
      */
+    #[\ReturnTypeWillChange]
     public function __isset($offset)
     {
         switch ($offset) {

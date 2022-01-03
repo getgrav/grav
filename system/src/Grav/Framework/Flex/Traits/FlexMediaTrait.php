@@ -5,7 +5,7 @@ namespace Grav\Framework\Flex\Traits;
 /**
  * @package    Grav\Framework\Flex
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -44,7 +44,7 @@ trait FlexMediaTrait
     }
 
     /** @var array */
-    protected $_uploads;
+    protected $_uploads = [];
 
     /**
      * @return string|null
@@ -119,7 +119,7 @@ trait FlexMediaTrait
 
         // Load settings for the field.
         $schema = $this->getBlueprint()->schema();
-        $settings = $field && is_object($schema) ? (array)$schema->getProperty($field) : null;
+        $settings = (array)$schema->getProperty($field);
         if (!is_array($settings)) {
             return null;
         }
@@ -165,6 +165,9 @@ trait FlexMediaTrait
         return $settings + ['accept' => '*', 'limit' => 1000, 'self' => true];
     }
 
+    /**
+     * @return array
+     */
     protected function getMediaFields(): array
     {
         // Load settings for the field.
@@ -286,6 +289,7 @@ trait FlexMediaTrait
     /**
      * @return array
      */
+    #[\ReturnTypeWillChange]
     public function __debugInfo()
     {
         return parent::__debugInfo() + [
@@ -397,11 +401,11 @@ trait FlexMediaTrait
     }
 
     /**
-     * @return array<string, UploadedFileInterface|array|null>
+     * @return array<string,UploadedFileInterface|array|null>
      */
     protected function getUpdatedMedia(): array
     {
-        return $this->_uploads ?? [];
+        return $this->_uploads;
     }
 
     /**

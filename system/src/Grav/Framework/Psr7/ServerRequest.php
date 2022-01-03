@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * @package    Grav\Framework\Psr7
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -98,13 +98,8 @@ class ServerRequest implements ServerRequestInterface
     public function getCookieParam($key, $default = null)
     {
         $cookies = $this->getRequest()->getCookieParams();
-        $result = $default;
 
-        if (isset($cookies[$key])) {
-            $result = $cookies[$key];
-        }
-
-        return $result;
+        return $cookies[$key] ?? $default;
     }
 
     /**
@@ -238,13 +233,8 @@ class ServerRequest implements ServerRequestInterface
     public function getQueryParam($key, $default = null)
     {
         $getParams = $this->getQueryParams();
-        $result = $default;
 
-        if (isset($getParams[$key])) {
-            $result = $getParams[$key];
-        }
-
-        return $result;
+        return $getParams[$key] ?? $default;
     }
 
     /**

@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * @package    Grav\Common\Flex
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -164,7 +164,7 @@ class UserIndex extends FlexIndex implements UserCollectionInterface
      */
     protected static function filterUsername(string $key, FlexStorageInterface $storage): string
     {
-        return $storage->normalizeKey($key);
+        return method_exists($storage, 'normalizeKey') ? $storage->normalizeKey($key) : $key;
     }
 
     /**

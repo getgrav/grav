@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Flex
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -17,13 +17,12 @@ use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Page\Pages;
 use Grav\Common\Utils;
 use Grav\Common\Yaml;
-use Grav\Framework\Cache\CacheInterface;
 use Grav\Framework\File\Formatter\MarkdownFormatter;
 use Grav\Framework\File\Formatter\YamlFormatter;
 use Grav\Framework\Filesystem\Filesystem;
-use Grav\Framework\Flex\FlexDirectory;
 use Grav\Framework\Flex\Interfaces\FlexCollectionInterface;
 use Grav\Framework\Flex\Interfaces\FlexIndexInterface;
+use Grav\Framework\Flex\Pages\FlexPageCollection;
 use Grav\Framework\Flex\Pages\FlexPageIndex;
 use Grav\Framework\Flex\Pages\FlexPageObject;
 use InvalidArgumentException;
@@ -300,7 +299,7 @@ trait PageLegacyTrait
 
         $parentStorageKey = ltrim($filesystem->dirname("/{$this->getMasterKey()}"), '/');
 
-        /** @var FlexPageIndex $index */
+        /** @var FlexPageIndex<FlexPageObject,FlexPageCollection<FlexPageObject>> $index */
         $index = $this->getFlexDirectory()->getIndex();
 
         if ($parent) {
@@ -323,6 +322,7 @@ trait PageLegacyTrait
         if ($this instanceof FlexPageObject) {
             $key = trim($parentKey . '/' . $this->folder(), '/');
             $key = preg_replace(static::PAGE_ORDER_PREFIX_REGEX, '', $key);
+            \assert(is_string($key));
         } else {
             $key = trim($parentKey . '/' . basename($this->getKey()), '/');
         }

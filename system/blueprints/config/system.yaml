@@ -1394,6 +1394,18 @@ form:
               validate:
                 type: bool
 
+            session.secure_https:
+              type: toggle
+              label: PLUGIN_ADMIN.SESSION_SECURE_HTTPS
+              help: PLUGIN_ADMIN.SESSION_SECURE_HTTPS_HELP
+              highlight: 1
+              options:
+                1: PLUGIN_ADMIN.YES
+                0: PLUGIN_ADMIN.NO
+              default: true
+              validate:
+                type: bool
+
             session.httponly:
               type: toggle
               label: PLUGIN_ADMIN.SESSION_HTTPONLY

@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * @package    Grav\Framework\File\Formatter
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -75,9 +75,11 @@ class JsonFormatter extends AbstractFormatter
             if (is_string($options)) {
                 $list = preg_split('/[\s,|]+/', $options);
                 $options = 0;
-                foreach ($list as $option) {
-                    if (isset($this->encodeOptions[$option])) {
-                        $options += $this->encodeOptions[$option];
+                if ($list) {
+                    foreach ($list as $option) {
+                        if (isset($this->encodeOptions[$option])) {
+                            $options += $this->encodeOptions[$option];
+                        }
                     }
                 }
             } else {
@@ -100,9 +102,11 @@ class JsonFormatter extends AbstractFormatter
             if (is_string($options)) {
                 $list = preg_split('/[\s,|]+/', $options);
                 $options = 0;
-                foreach ($list as $option) {
-                    if (isset($this->decodeOptions[$option])) {
-                        $options += $this->decodeOptions[$option];
+                if ($list) {
+                    foreach ($list as $option) {
+                        if (isset($this->decodeOptions[$option])) {
+                            $options += $this->decodeOptions[$option];
+                        }
                     }
                 }
             } else {
@@ -117,6 +121,7 @@ class JsonFormatter extends AbstractFormatter
      * Returns recursion depth used in decode() function.
      *
      * @return int
+     * @phpstan-return positive-int
      */
     public function getDecodeDepth(): int
     {

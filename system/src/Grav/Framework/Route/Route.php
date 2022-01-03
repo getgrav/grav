@@ -3,12 +3,13 @@
 /**
  * @package    Grav\Framework\Route
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Framework\Route;
 
+use Grav\Framework\Uri\Uri;
 use Grav\Framework\Uri\UriFactory;
 use InvalidArgumentException;
 use function array_slice;
@@ -318,7 +319,7 @@ class Route
     }
 
     /**
-     * @return \Grav\Framework\Uri\Uri
+     * @return Uri
      */
     public function getUri()
     {
@@ -344,6 +345,7 @@ class Route
      * @return string
      * @deprecated 1.6 Use ->toString(true) or ->getUri() instead.
      */
+    #[\ReturnTypeWillChange]
     public function __toString()
     {
         user_error(__CLASS__ . '::' . __FUNCTION__ . '() will change in the future to return route, not relative url: use ->toString(true) or ->getUri() instead.', E_USER_DEPRECATED);

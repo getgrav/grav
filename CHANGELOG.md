@@ -1,3 +1,30 @@
+# v1.7.26
+## 01/03/2022
+
+1. [](#new)
+    * Made `Grav::redirect()` to accept `Route` class
+    * Added `translated()` method to `PageTranslateInterface`
+    * Added second parameter to `UserObject::isMyself()` method
+    * Added `UserObject::$isAuthorizedCallable` to allow `$user->isAuthorized()` customization
+    * Use secure session cookies in HTTPS by default (`system.session.secure_https: true`)
+    * Added new `Plugin::inheritedConfigOption()` function to access plugin specific functions for page overrides
+2. [](#improved)
+   * Upgraded vendor libs for PHP 8.1 compatibility
+   * Upgraded to **composer v2.1.14** for PHP 8.1 compatibility
+   * Added third `$name` parameter to `Blueprint::flattenData()` method, useful for flattening repeating data
+   * `ControllerResponseTrait`: Redirect response should be json if the extension is .json
+   * When symlinking Grav install, include also tests
+   * Updated copyright year to `2022`
+3. [](#bugfix)
+   * Fixed bad key lookup in `FlexRelatedDirectoryTrait::getCollectionByProperty()`
+   * Fixed RequestHandlers `NotFoundException` having empty request
+   * Block `.json` files in web server configs
+   * Disabled pretty debug info for Flex as it slows down Twig rendering
+   * Fixed Twig being very slow when template overrides do not exist
+   * Fixed `UserObject::$authorizeCallable` binding to the user object
+   * Fixed `FlexIndex::call()` to return null instead of failing to call undefined method
+   * Fixed Flex directory configuration creating environment configuration when it should not
+
 # v1.7.25
 ## 11/16/2021
 

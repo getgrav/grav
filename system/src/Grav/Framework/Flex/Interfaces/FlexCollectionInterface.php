@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * @package    Grav\Framework\Flex
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -140,5 +140,5 @@ interface FlexCollectionInterface extends FlexCommonInterface, ObjectCollectionI
      * @param string $key Key.
      * @return array
      */
-    public function getMetaData(string $key): array;
+    public function getMetaData($key): array;
 }

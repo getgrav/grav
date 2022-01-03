@@ -5,13 +5,14 @@ declare(strict_types=1);
 /**
  * @package    Grav\Framework\File\Formatter
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Framework\File\Formatter;
 
 use Grav\Framework\File\Interfaces\FileFormatterInterface;
+use RuntimeException;
 
 /**
  * Class IniFormatter
@@ -59,7 +60,7 @@ class IniFormatter extends AbstractFormatter
         $decoded = @parse_ini_string($data);
 
         if ($decoded === false) {
-            throw new \RuntimeException('Decoding INI failed');
+            throw new RuntimeException('Decoding INI failed');
         }
 
         return $decoded;

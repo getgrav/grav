@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\RequestHandler
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -21,9 +21,6 @@ use function in_array;
  */
 class NotFoundException extends RequestException
 {
-    /** @var ServerRequestInterface */
-    private $request;
-
     /**
      * NotFoundException constructor.
      * @param ServerRequestInterface $request
@@ -36,10 +33,5 @@ class NotFoundException extends RequestException
         } else {
             parent::__construct($request, 'Not Found', 404, $previous);
         }
-    }
-
-    public function getRequest(): ServerRequestInterface
-    {
-        return $this->request;
     }
 }

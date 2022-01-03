@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\GPM
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -32,6 +32,7 @@ class Package extends BasePackage implements \JsonSerializable
     /**
      * @return array
      */
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return $this->data->toArray();

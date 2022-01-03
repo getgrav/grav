@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Flex
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -444,6 +444,7 @@ class FlexForm implements FlexObjectFormInterface, JsonSerializable
      * @param string $name
      * @return mixed|null
      */
+    #[\ReturnTypeWillChange]
     public function __get($name)
     {
         $method = "get{$name}";
@@ -461,6 +462,7 @@ class FlexForm implements FlexObjectFormInterface, JsonSerializable
      * @param mixed $value
      * @return void
      */
+    #[\ReturnTypeWillChange]
     public function __set($name, $value)
     {
         $method = "set{$name}";
@@ -473,6 +475,7 @@ class FlexForm implements FlexObjectFormInterface, JsonSerializable
      * @param string $name
      * @return bool
      */
+    #[\ReturnTypeWillChange]
     public function __isset($name)
     {
         $method = "get{$name}";
@@ -489,6 +492,7 @@ class FlexForm implements FlexObjectFormInterface, JsonSerializable
      * @param string $name
      * @return void
      */
+    #[\ReturnTypeWillChange]
     public function __unset($name)
     {
     }
@@ -594,6 +598,7 @@ class FlexForm implements FlexObjectFormInterface, JsonSerializable
      *
      * @param ArrayAccess|Data|null $data
      * @return void
+     * @phpstan-param ArrayAccess<string,mixed>|Data|null $data
      */
     protected function filterData($data = null): void
     {

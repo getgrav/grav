@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\RequestHandler
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -12,9 +12,11 @@ declare(strict_types=1);
 namespace Grav\Framework\RequestHandler;
 
 use Grav\Framework\RequestHandler\Traits\RequestHandlerTrait;
+use Pimple\Container;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use function assert;
 
 /**
  * Class RequestHandler
@@ -47,7 +49,11 @@ class RequestHandler implements RequestHandlerInterface
      */
     public function addCallable(string $name, callable $callable): self
     {
-        $this->container[$name] = $callable;
+        if (null !== $this->container) {
+            assert($this->container instanceof Container);
+            $this->container[$name] = $callable;
+        }
+
         array_unshift($this->middleware, $name);
 
         return $this;
@@ -62,7 +68,11 @@ class RequestHandler implements RequestHandlerInterface
      */
     public function addMiddleware(string $name, MiddlewareInterface $middleware): self
     {
-        $this->container[$name] = $middleware;
+        if (null !== $this->container) {
+            assert($this->container instanceof Container);
+            $this->container[$name] = $middleware;
+        }
+
         array_unshift($this->middleware, $name);
 
         return $this;

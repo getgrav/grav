@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * @package    Grav\Framework\Flex
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -23,6 +23,7 @@ use RuntimeException;
 /**
  * Defines Flex Objects.
  *
+ * @extends ArrayAccess<string,mixed>
  * @used-by \Grav\Framework\Flex\FlexObject
  * @since 1.6
  */

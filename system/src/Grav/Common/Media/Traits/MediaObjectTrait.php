@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Media
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -138,6 +138,7 @@ trait MediaObjectTrait
      *
      * @return string
      */
+    #[\ReturnTypeWillChange]
     abstract public function __toString();
 
     /**
@@ -478,6 +479,7 @@ trait MediaObjectTrait
      * @param array $args
      * @return $this
      */
+    #[\ReturnTypeWillChange]
     public function __call($method, $args)
     {
         $count = count($args);

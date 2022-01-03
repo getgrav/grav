@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Page
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -19,6 +19,11 @@ use Traversable;
 /**
  * Interface PageCollectionInterface
  * @package Grav\Common\Page\Interfaces
+ *
+ * @template TKey of array-key
+ * @template T
+ * @extends Traversable<TKey,T>
+ * @extends ArrayAccess<TKey|null,T>
  */
 interface PageCollectionInterface extends Traversable, ArrayAccess, Countable, Serializable
 {
@@ -68,6 +73,7 @@ interface PageCollectionInterface extends Traversable, ArrayAccess, Countable, S
      *
      * @param PageCollectionInterface $collection
      * @return PageCollectionInterface
+     * @phpstan-return PageCollectionInterface<TKey,T>
      */
     public function merge(PageCollectionInterface $collection);
 
@@ -76,6 +82,7 @@ interface PageCollectionInterface extends Traversable, ArrayAccess, Countable, S
      *
      * @param PageCollectionInterface $collection
      * @return PageCollectionInterface
+     * @phpstan-return PageCollectionInterface<TKey,T>
      */
     public function intersect(PageCollectionInterface $collection);
 
@@ -84,6 +91,7 @@ interface PageCollectionInterface extends Traversable, ArrayAccess, Countable, S
      *
      * @param int $size
      * @return PageCollectionInterface[]
+     * @phpstan-return array<PageCollectionInterface<TKey,T>>
      */
     public function batch($size);
 
@@ -92,6 +100,7 @@ interface PageCollectionInterface extends Traversable, ArrayAccess, Countable, S
      *
      * @param PageInterface|string|null $key
      * @return PageCollectionInterface
+     * @phpstan-return PageCollectionInterface<TKey,T>
      * @throws InvalidArgumentException
      */
     //public function remove($key = null);
@@ -104,6 +113,7 @@ interface PageCollectionInterface extends Traversable, ArrayAccess, Countable, S
      * @param array|null  $manual
      * @param string|null $sort_flags
      * @return PageCollectionInterface
+     * @phpstan-return PageCollectionInterface<TKey,T>
      */
     public function order($by, $dir = 'asc', $manual = null, $sort_flags = null);
 
@@ -128,6 +138,7 @@ interface PageCollectionInterface extends Traversable, ArrayAccess, Countable, S
      *
      * @param  string $path
      * @return PageInterface  The previous item.
+     * @phpstan-return T
      */
     public function prevSibling($path);
 
@@ -136,6 +147,7 @@ interface PageCollectionInterface extends Traversable, ArrayAccess, Countable, S
      *
      * @param  string $path
      * @return PageInterface The next item.
+     * @phpstan-return T
      */
     public function nextSibling($path);
 
@@ -145,6 +157,7 @@ interface PageCollectionInterface extends Traversable, ArrayAccess, Countable, S
      * @param  string  $path
      * @param  int $direction either -1 or +1
      * @return PageInterface|PageCollectionInterface|false    The sibling item.
+     * @phpstan-return T|false
      */
     public function adjacentSibling($path, $direction = 1);
 
@@ -166,6 +179,7 @@ interface PageCollectionInterface extends Traversable, ArrayAccess, Countable, S
      * @param string|null $endDate
      * @param string|null $field
      * @return PageCollectionInterface
+     * @phpstan-return PageCollectionInterface<TKey,T>
      * @throws Exception
      */
     public function dateRange($startDate = null, $endDate = null, $field = null);
@@ -174,6 +188,7 @@ interface PageCollectionInterface extends Traversable, ArrayAccess, Countable, S
      * Creates new collection with only visible pages
      *
      * @return PageCollectionInterface The collection with only visible pages
+     * @phpstan-return PageCollectionInterface<TKey,T>
      */
     public function visible();
 
@@ -181,6 +196,7 @@ interface PageCollectionInterface extends Traversable, ArrayAccess, Countable, S
      * Creates new collection with only non-visible pages
      *
      * @return PageCollectionInterface The collection with only non-visible pages
+     * @phpstan-return PageCollectionInterface<TKey,T>
      */
     public function nonVisible();
 
@@ -188,6 +204,7 @@ interface PageCollectionInterface extends Traversable, ArrayAccess, Countable, S
      * Creates new collection with only pages
      *
      * @return PageCollectionInterface The collection with only pages
+     * @phpstan-return PageCollectionInterface<TKey,T>
      */
     public function pages();
 
@@ -195,6 +212,7 @@ interface PageCollectionInterface extends Traversable, ArrayAccess, Countable, S
      * Creates new collection with only modules
      *
      * @return PageCollectionInterface The collection with only modules
+     * @phpstan-return PageCollectionInterface<TKey,T>
      */
     public function modules();
 
@@ -202,6 +220,7 @@ interface PageCollectionInterface extends Traversable, ArrayAccess, Countable, S
      * Creates new collection with only modules
      *
      * @return PageCollectionInterface The collection with only modules
+     * @phpstan-return PageCollectionInterface<TKey,T>
      * @deprecated 1.7 Use $this->modules() instead
      */
     public function modular();
@@ -210,6 +229,7 @@ interface PageCollectionInterface extends Traversable, ArrayAccess, Countable, S
      * Creates new collection with only non-module pages
      *
      * @return PageCollectionInterface The collection with only non-module pages
+     * @phpstan-return PageCollectionInterface<TKey,T>
      * @deprecated 1.7 Use $this->pages() instead
      */
     public function nonModular();
@@ -218,6 +238,7 @@ interface PageCollectionInterface extends Traversable, ArrayAccess, Countable, S
      * Creates new collection with only published pages
      *
      * @return PageCollectionInterface The collection with only published pages
+     * @phpstan-return PageCollectionInterface<TKey,T>
      */
     public function published();
 
@@ -225,6 +246,7 @@ interface PageCollectionInterface extends Traversable, ArrayAccess, Countable, S
      * Creates new collection with only non-published pages
      *
      * @return PageCollectionInterface The collection with only non-published pages
+     * @phpstan-return PageCollectionInterface<TKey,T>
      */
     public function nonPublished();
 
@@ -232,6 +254,7 @@ interface PageCollectionInterface extends Traversable, ArrayAccess, Countable, S
      * Creates new collection with only routable pages
      *
      * @return PageCollectionInterface The collection with only routable pages
+     * @phpstan-return PageCollectionInterface<TKey,T>
      */
     public function routable();
 
@@ -239,6 +262,7 @@ interface PageCollectionInterface extends Traversable, ArrayAccess, Countable, S
      * Creates new collection with only non-routable pages
      *
      * @return PageCollectionInterface The collection with only non-routable pages
+     * @phpstan-return PageCollectionInterface<TKey,T>
      */
     public function nonRoutable();
 
@@ -247,6 +271,7 @@ interface PageCollectionInterface extends Traversable, ArrayAccess, Countable, S
      *
      * @param string $type
      * @return PageCollectionInterface The collection
+     * @phpstan-return PageCollectionInterface<TKey,T>
      */
     public function ofType($type);
 
@@ -255,6 +280,7 @@ interface PageCollectionInterface extends Traversable, ArrayAccess, Countable, S
      *
      * @param string[] $types
      * @return PageCollectionInterface The collection
+     * @phpstan-return PageCollectionInterface<TKey,T>
      */
     public function ofOneOfTheseTypes($types);
 
@@ -263,6 +289,7 @@ interface PageCollectionInterface extends Traversable, ArrayAccess, Countable, S
      *
      * @param array $accessLevels
      * @return PageCollectionInterface The collection
+     * @phpstan-return PageCollectionInterface<TKey,T>
      */
     public function ofOneOfTheseAccessLevels($accessLevels);
 
