@@ -1,5 +1,5 @@
 # v1.7.26
-## mm/dd/2021
+## 01/03/2022
 
 1. [](#new)
     * Made `Grav::redirect()` to accept `Route` class
