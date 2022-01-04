@@ -1,3 +1,9 @@
+# v1.7.27
+## mm/dd/2022
+
+3. [](#bugfix)
+   * Fixed `UserObject::getAccess()` after cloning the object
+
 # v1.7.26
 ## 01/03/2022
 

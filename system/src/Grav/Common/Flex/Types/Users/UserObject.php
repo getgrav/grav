@@ -939,7 +939,7 @@ class UserObject extends FlexObject implements UserInterface, Countable
     protected function getAccess(): Access
     {
         if (null === $this->_access) {
-            $this->getProperty('access');
+            $this->_access = new Access($this->getProperty('access'));
         }
 
         return $this->_access;
@@ -954,8 +954,6 @@ class UserObject extends FlexObject implements UserInterface, Countable
         if (!$value instanceof Access) {
             $value = new Access($value);
         }
-
-        $this->_access = $value;
 
         return $value->jsonSerialize();
     }
