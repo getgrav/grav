@@ -1,3 +1,9 @@
+# v1.7.27
+## 01/04/2022
+
+3. [](#bugfix)
+    * Fixed CLI `--env` and `--lang` options having no effect if they aren't added before all the other options
+
 # v1.7.26.1
 ## 01/04/2022
 
