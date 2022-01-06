@@ -1,6 +1,8 @@
 # v1.7.27
 ## 01/04/2022
 
+1. [](#improved)
+    * Improved `Utils::download()` method to allow overrides on download name, mime and expires header
 3. [](#bugfix)
     * Fixed CLI `--env` and `--lang` options having no effect if they aren't added before all the other options
 
