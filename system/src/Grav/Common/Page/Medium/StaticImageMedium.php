@@ -37,4 +37,12 @@ class StaticImageMedium extends Medium implements ImageMediaInterface
 
         return ['name' => 'img', 'attributes' => $attributes];
     }
+
+    /**
+     * @return $this
+     */
+    public function higherQualityAlternative()
+    {
+        return $this;
+    }
 }
