@@ -48,13 +48,30 @@ class Application extends \Symfony\Component\Console\Application
         $this->setDispatcher($dispatcher);
     }
 
-    public function prepareEnvironment(ConsoleCommandEvent $event): void
+    /**
+     * @param InputInterface $input
+     * @return string|null
+     */
+    public function getCommandName(InputInterface $input): ?string
     {
-        $input = $event->getInput();
-        $this->environment = $input->getOption('env');
-        $this->language = $input->getOption('lang') ?? $this->language;
+        if ($input->hasParameterOption('--env', true)) {
+            $this->environment = $input->getParameterOption('--env');
+        }
+        if ($input->hasParameterOption('--lang', true)) {
+            $this->language = $input->getParameterOption('--lang');
+        }
 
         $this->init();
+
+        return parent::getCommandName($input);
+    }
+
+    /**
+     * @param ConsoleCommandEvent $event
+     * @return void
+     */
+    public function prepareEnvironment(ConsoleCommandEvent $event): void
+    {
     }
 
     /**
