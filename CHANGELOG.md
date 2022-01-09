@@ -1,7 +1,10 @@
 # v1.7.27
 ## mm/dd/2022
 
-1. [](#improved)
+1. [](#new)
+   * Added support for generic `assets.link()` for external references. No pipeline support.
+   * Added support for `assets.addJSmodule()` with full pipeline support.
+2. [](#improved)
     * Improved `Utils::download()` method to allow overrides on download name, mime and expires header
     * Improved `onPageFallBackUrl` event
 3. [](#bugfix)

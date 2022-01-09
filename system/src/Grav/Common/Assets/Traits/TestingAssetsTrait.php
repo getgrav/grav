@@ -30,7 +30,7 @@ trait TestingAssetsTrait
      */
     public function exists($asset)
     {
-        return isset($this->collections[$asset]) || isset($this->assets_css[$asset]) || isset($this->assets_js[$asset]);
+        return isset($this->collections[$asset]) || isset($this->assets[self::CSS_COLLECTION][$asset]) || isset($this->assets[self::JS_COLLECTION][$asset]);
     }
 
     /**
@@ -69,10 +69,10 @@ trait TestingAssetsTrait
         if (null !== $key) {
             $asset_key = md5($key);
 
-            return $this->assets_css[$asset_key] ?? null;
+            return $this->assets[self::CSS_COLLECTION][$asset_key] ?? null;
         }
 
-        return $this->assets_css;
+        return $this->assets[self::CSS_COLLECTION];
     }
 
     /**
@@ -88,10 +88,10 @@ trait TestingAssetsTrait
         if (null !== $key) {
             $asset_key = md5($key);
 
-            return $this->assets_js[$asset_key] ?? null;
+            return $this->assets[self::JS_COLLECTION][$asset_key] ?? null;
         }
 
-        return $this->assets_js;
+        return $this->assets[self::JS_COLLECTION];
     }
 
     /**
@@ -102,7 +102,7 @@ trait TestingAssetsTrait
      */
     public function setCss($css)
     {
-        $this->assets_css = $css;
+        $this->assets[self::CSS_COLLECTION] = $css;
 
         return $this;
     }
@@ -115,7 +115,7 @@ trait TestingAssetsTrait
      */
     public function setJs($js)
     {
-        $this->assets_js = $js;
+        $this->assets[self::JS_COLLECTION] = $js;
 
         return $this;
     }
@@ -129,8 +129,8 @@ trait TestingAssetsTrait
     public function removeCss($key)
     {
         $asset_key = md5($key);
-        if (isset($this->assets_css[$asset_key])) {
-            unset($this->assets_css[$asset_key]);
+        if (isset($this->assets[self::CSS_COLLECTION][$asset_key])) {
+            unset($this->assets[self::CSS_COLLECTION][$asset_key]);
         }
 
         return $this;
@@ -145,8 +145,8 @@ trait TestingAssetsTrait
     public function removeJs($key)
     {
         $asset_key = md5($key);
-        if (isset($this->assets_js[$asset_key])) {
-            unset($this->assets_js[$asset_key]);
+        if (isset($this->assets[self::JS_COLLECTION][$asset_key])) {
+            unset($this->assets[self::JS_COLLECTION][$asset_key]);
         }
 
         return $this;
@@ -201,7 +201,7 @@ trait TestingAssetsTrait
      */
     public function resetJs()
     {
-        $this->assets_js = [];
+        $this->assets[self::JS_COLLECTION] = [];
 
         return $this;
     }
@@ -213,7 +213,7 @@ trait TestingAssetsTrait
      */
     public function resetCss()
     {
-        $this->assets_css = [];
+        $this->assets[self::CSS_COLLECTION] = [];
 
         return $this;
     }

@@ -992,6 +992,39 @@ form:
               validate:
                 type: bool
 
+            assets.js_module_pipeline:
+              type: toggle
+              label: PLUGIN_ADMIN.JAVASCRIPT_MODULE_PIPELINE
+              help: PLUGIN_ADMIN.JAVASCRIPT_MODULE_PIPELINE_HELP
+              highlight: 0
+              options:
+                1: PLUGIN_ADMIN.YES
+                0: PLUGIN_ADMIN.NO
+              validate:
+                type: bool
+
+            assets.js_module_pipeline_include_externals:
+              type: toggle
+              label: PLUGIN_ADMIN.JAVASCRIPT_MODULE_PIPELINE_INCLUDE_EXTERNALS
+              help: PLUGIN_ADMIN.JAVASCRIPT_MODULE_PIPELINE_INCLUDE_EXTERNALS_HELP
+              highlight: 1
+              options:
+                1: PLUGIN_ADMIN.YES
+                0: PLUGIN_ADMIN.NO
+              validate:
+                type: bool
+
+            assets.js_module_pipeline_before_excludes:
+              type: toggle
+              label: PLUGIN_ADMIN.JAVASCRIPT_MODULE_PIPELINE_BEFORE_EXCLUDES
+              help: PLUGIN_ADMIN.JAVASCRIPT_MODULE_PIPELINE_BEFORE_EXCLUDES_HELP
+              highlight: 1
+              options:
+                1: PLUGIN_ADMIN.YES
+                0: PLUGIN_ADMIN.NO
+              validate:
+                type: bool
+
             assets.js_minify:
               type: toggle
               label: PLUGIN_ADMIN.JAVASCRIPT_MINIFY

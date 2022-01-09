@@ -12,21 +12,20 @@ namespace Grav\Common\Assets;
 use Grav\Common\Utils;
 
 /**
- * Class InlineCss
+ * Class Link
  * @package Grav\Common\Assets
  */
-class InlineCss extends BaseAsset
+class Link extends BaseAsset
 {
     /**
-     * InlineCss constructor.
+     * Css constructor.
      * @param array $elements
      * @param string|null $key
      */
     public function __construct(array $elements = [], ?string $key = null)
     {
         $base_options = [
-            'asset_type' => 'css',
-            'position' => 'after'
+            'asset_type' => 'link',
         ];
 
         $merged_attributes = Utils::arrayMergeRecursiveUnique($base_options, $elements);
@@ -39,6 +38,6 @@ class InlineCss extends BaseAsset
      */
     public function render()
     {
-        return '<style' . $this->renderAttributes(). ">\n" . trim($this->asset) . "\n</style>\n";
+        return '<link href="' . trim($this->asset) . $this->renderQueryString() . '"' . $this->renderAttributes() . $this->integrityHash($this->asset) . ">\n";
     }
 }

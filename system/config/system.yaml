@@ -127,6 +127,9 @@ assets:                                          # Configuration for Assets Mana
   js_pipeline: false                             # The JS pipeline is the unification of multiple JS resources into one file
   js_pipeline_include_externals: true            # Include external URLs in the pipeline by default
   js_pipeline_before_excludes: true              # Render the pipeline before any excluded files
+  js_module_pipeline: false                      # The JS Module pipeline is the unification of multiple JS Module resources into one file
+  js_module_pipeline_include_externals: true     # Include external URLs in the pipeline by default
+  js_module_pipeline_before_excludes: true       # Render the pipeline before any excluded files
   js_minify: true                                # Minify the JS during pipelining
   enable_asset_timestamp: false                  # Enable asset timestamps
   enable_asset_sri: false                        # Enable asset SRI
