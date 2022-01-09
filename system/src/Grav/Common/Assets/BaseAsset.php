@@ -26,8 +26,9 @@ abstract class BaseAsset extends PropertyObject
 {
     use AssetUtilsTrait;
 
-    protected const CSS_ASSET = true;
-    protected const JS_ASSET = false;
+    protected const CSS_ASSET = 1;
+    protected const JS_ASSET = 2;
+    protected const JS_MODULE_ASSET = 3;
 
     /** @var string|false */
     protected $asset;

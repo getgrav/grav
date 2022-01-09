@@ -15,7 +15,7 @@ use Grav\Common\Utils;
  * Class Js
  * @package Grav\Common\Assets
  */
-class JsModule extends Js
+class JsModule extends BaseAsset
 {
     /**
      * Js constructor.
@@ -32,5 +32,18 @@ class JsModule extends Js
         $merged_attributes = Utils::arrayMergeRecursiveUnique($base_options, $elements);
 
         parent::__construct($merged_attributes, $key);
+    }
+
+        /**
+     * @return string
+     */
+    public function render()
+    {
+        if (isset($this->attributes['loading']) && $this->attributes['loading'] === 'inline') {
+            $buffer = $this->gatherLinks([$this], self::JS_MODULE_ASSET);
+            return '<script' . $this->renderAttributes() . ">\n" . trim($buffer) . "\n</script>\n";
+        }
+
+        return '<script src="' . trim($this->asset) . $this->renderQueryString() . '"' . $this->renderAttributes() . $this->integrityHash($this->asset) . "></script>\n";
     }
 }

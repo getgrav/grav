@@ -12,22 +12,20 @@ namespace Grav\Common\Assets;
 use Grav\Common\Utils;
 
 /**
- * Class InlineJs
+ * Class Link
  * @package Grav\Common\Assets
  */
-class InlineJsModule extends BaseAsset
+class Link extends BaseAsset
 {
     /**
-     * InlineJs constructor.
+     * Css constructor.
      * @param array $elements
      * @param string|null $key
      */
     public function __construct(array $elements = [], ?string $key = null)
     {
         $base_options = [
-            'asset_type' => 'js_module',
-            'attributes' => ['type' => 'module'],
-            'position' => 'after'
+            'asset_type' => 'link',
         ];
 
         $merged_attributes = Utils::arrayMergeRecursiveUnique($base_options, $elements);
@@ -40,7 +38,6 @@ class InlineJsModule extends BaseAsset
      */
     public function render()
     {
-        return '<script' . $this->renderAttributes(). ">\n" . trim($this->asset) . "\n</script>\n";
+        return '<link href="' . trim($this->asset) . $this->renderQueryString() . '"' . $this->renderAttributes() . $this->integrityHash($this->asset) . ">\n";
     }
-
 }

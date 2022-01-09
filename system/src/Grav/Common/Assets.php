@@ -30,12 +30,15 @@ class Assets extends PropertyObject
     use TestingAssetsTrait;
     use LegacyAssetsTrait;
 
+    const LINK = 'link';
     const CSS = 'css';
     const JS = 'js';
     const JS_MODULE = 'js_module';
+    const LINK_COLLECTION = 'assets_link';
     const CSS_COLLECTION = 'assets_css';
     const JS_COLLECTION = 'assets_js';
     const JS_MODULE_COLLECTION = 'assets_js_module';
+    const LINK_TYPE = Assets\Link::class;
     const CSS_TYPE = Assets\Css::class;
     const JS_TYPE = Assets\Js::class;
     const JS_MODULE_TYPE = Assets\JsModule::class;
@@ -232,7 +235,7 @@ class Assets extends PropertyObject
             return $this;
         }
 
-        if (($type === $this::CSS_TYPE || $type === $this::JS_TYPE || $type === $this::JS_MODULE_TYPE) && isset($this->collections[$asset])) {
+        if ($this->isValidType($type) && isset($this->collections[$asset])) {
             $this->addType($collection, $type, $this->collections[$asset], $options);
             return $this;
         }
@@ -241,18 +244,7 @@ class Assets extends PropertyObject
         if (isset($options['pipeline'])) {
             if ($options['pipeline'] === false) {
 
-                switch ($type) {
-                    case $this::JS_TYPE:
-                    case $this::INLINE_JS_TYPE:
-                        $exclude_type = $this::JS;
-                        break;
-                    case $this::JS_MODULE_TYPE:
-                    case $this::INLINE_JS_MODULE_TYPE:
-                        $exclude_type = $this::JS_MODULE;
-                        break;
-                    default:
-                        $exclude_type = $this::CSS;
-                }
+                $exclude_type = $this->getBaseType($type);
 
                 $excludes = strtolower($exclude_type . '_pipeline_before_excludes');
                 if ($this->{$excludes}) {
@@ -290,6 +282,16 @@ class Assets extends PropertyObject
         }
 
         return $this;
+    }
+
+    /**
+     * Add a CSS asset or a collection of assets.
+     *
+     * @return $this
+     */
+    public function addLink($asset)
+    {
+        return $this->addType($this::LINK_COLLECTION, $this::LINK_TYPE, $asset, $this->unifyLegacyArguments(func_get_args(), $this::LINK_TYPE));
     }
 
     /**
@@ -442,7 +444,7 @@ class Assets extends PropertyObject
         $after_assets = $this->filterAssets($group_assets, 'position', 'after', true);
 
         // Pipeline
-        if ($this->{$pipeline_enabled}) {
+        if ($this->{$pipeline_enabled} ?? false) {
             $options = array_merge($this->pipeline_options, ['timestamp' => $this->timestamp]);
 
             $pipeline = new Pipeline($options);
@@ -476,7 +478,9 @@ class Assets extends PropertyObject
      */
     public function css($group = 'head', $attributes = [])
     {
-        return $this->render('css', $group, $attributes);
+        $output = $this->render(self::LINK, $group, $attributes);
+        $output .= $this->render(self::CSS, $group, $attributes);
+        return $output;
     }
 
     /**
@@ -488,7 +492,32 @@ class Assets extends PropertyObject
      */
     public function js($group = 'head', $attributes = [])
     {
-        return $this->render('js', $group, $attributes) . $this->render('js_module', $group, $attributes);
+        $output = $this->render(self::JS, $group, $attributes);
+        $output .= $this->render(self::JS_MODULE, $group, $attributes);
+        return $output;
 
+    }
+
+    protected function isValidType($type)
+    {
+        return in_array($type, [self::CSS_TYPE, self::JS_TYPE, self::JS_MODULE_TYPE]);
+    }
+
+    protected function getBaseType($type)
+    {
+        switch ($type) {
+            case $this::JS_TYPE:
+            case $this::INLINE_JS_TYPE:
+                $base_type = $this::JS;
+                break;
+            case $this::JS_MODULE_TYPE:
+            case $this::INLINE_JS_MODULE_TYPE:
+                $base_type = $this::JS_MODULE;
+                break;
+            default:
+                $base_type = $this::CSS;
+        }
+
+        return $base_type;
     }
 }
