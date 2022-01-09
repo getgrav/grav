@@ -120,6 +120,7 @@ class Assets extends PropertyObject
         $this->assets_url = $locator->findResource('asset://', false);
 
         // Initialize asset collection storage
+        $this->assets[self::LINK_COLLECTION] = [];
         $this->assets[self::CSS_COLLECTION] = [];
         $this->assets[self::JS_COLLECTION] = [];
         $this->assets[self::JS_MODULE_COLLECTION] = [];
@@ -476,11 +477,29 @@ class Assets extends PropertyObject
      * @param  array  $attributes
      * @return string
      */
-    public function css($group = 'head', $attributes = [])
+    public function css($group = 'head', $attributes = [], $include_link = true)
     {
-        $output = $this->render(self::LINK, $group, $attributes);
+        $output = '';
+
+        if ($include_link) {
+            $output = $this->link($group, $attributes);
+        }
+
         $output .= $this->render(self::CSS, $group, $attributes);
+
         return $output;
+    }
+
+    /**
+     * Build the CSS link tags.
+     *
+     * @param  string $group name of the group
+     * @param  array  $attributes
+     * @return string
+     */
+    public function link($group = 'head', $attributes = [])
+    {
+        return $this->render(self::LINK, $group, $attributes);
     }
 
     /**
@@ -490,12 +509,36 @@ class Assets extends PropertyObject
      * @param  array  $attributes
      * @return string
      */
-    public function js($group = 'head', $attributes = [])
+    public function js($group = 'head', $attributes = [], $include_js_module = true)
     {
         $output = $this->render(self::JS, $group, $attributes);
-        $output .= $this->render(self::JS_MODULE, $group, $attributes);
-        return $output;
 
+        if ($include_js_module) {
+            $output .= $this->jsModule($group, $attributes);
+        }
+
+        return $output;
+    }
+
+    /**
+     * Build the Javascript Modules tags
+     *
+     * @param $group
+     * @param $attributes
+     * @return string
+     */
+    public function jsModule($group = 'head', $attributes = [])
+    {
+        return $this->render(self::JS_MODULE, $group, $attributes);
+    }
+
+    public function all($group = 'head', $attributes = [])
+    {
+        $output = $this->css($group, $attributes, false);
+        $output .= $this->link($group, $attributes);
+        $output .= $this->js($group, $attributes, false);
+        $output .= $this->jsModule($group, $attributes);
+        return $output;
     }
 
     protected function isValidType($type)
