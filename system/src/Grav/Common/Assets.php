@@ -61,11 +61,7 @@ class Assets extends PropertyObject
     protected $assets_url;
 
     /** @var array */
-    protected $assets_css = [];
-    /** @var array */
-    protected $assets_js = [];
-    /** @var array  */
-    protected $assets_js_module = [];
+    protected $assets= [];
 
     // Following variables come from the configuration:
     /** @var bool */
@@ -119,6 +115,11 @@ class Assets extends PropertyObject
         $locator = $grav['locator'];
         $this->assets_dir = $locator->findResource('asset://');
         $this->assets_url = $locator->findResource('asset://', false);
+
+        // Initialize asset collection storage
+        $this->assets[self::CSS_COLLECTION] = [];
+        $this->assets[self::JS_COLLECTION] = [];
+        $this->assets[self::JS_MODULE_COLLECTION] = [];
 
         $this->config($asset_config);
 
@@ -285,7 +286,7 @@ class Assets extends PropertyObject
 
         // If exists
         if ($asset_object->init($asset, $options)) {
-            $this->$collection[md5($asset)] = $asset_object;
+            $this->assets[$collection][md5($asset)] = $asset_object;
         }
 
         return $this;
@@ -431,11 +432,11 @@ class Assets extends PropertyObject
         $pipeline_output = '';
         $after_output = '';
 
-        $assets = 'assets_' . $type;
+        $collection = 'assets_' . $type;
         $pipeline_enabled = $type . '_pipeline';
         $render_pipeline = 'render' . ucfirst($type);
 
-        $group_assets = $this->filterAssets($this->$assets, 'group', $group);
+        $group_assets = $this->filterAssets($this->assets[$collection], 'group', $group);
         $pipeline_assets = $this->filterAssets($group_assets, 'position', 'pipeline', true);
         $before_assets = $this->filterAssets($group_assets, 'position', 'before', true);
         $after_assets = $this->filterAssets($group_assets, 'position', 'after', true);
