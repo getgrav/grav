@@ -22,7 +22,7 @@ class Css extends BaseAsset
      * @param array $elements
      * @param string|null $key
      */
-    public function __construct(array $elements = [], $key = null)
+    public function __construct(array $elements = [], ?string $key = null)
     {
         $base_options = [
             'asset_type' => 'css',

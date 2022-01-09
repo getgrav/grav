@@ -32,12 +32,16 @@ class Assets extends PropertyObject
 
     const CSS = 'css';
     const JS = 'js';
+    const JS_MODULE = 'js_module';
     const CSS_COLLECTION = 'assets_css';
     const JS_COLLECTION = 'assets_js';
+    const JS_MODULE_COLLECTION = 'assets_js_module';
     const CSS_TYPE = Assets\Css::class;
     const JS_TYPE = Assets\Js::class;
+    const JS_MODULE_TYPE = Assets\JsModule::class;
     const INLINE_CSS_TYPE = Assets\InlineCss::class;
     const INLINE_JS_TYPE = Assets\InlineJs::class;
+    const INLINE_JS_MODULE_TYPE = Assets\InlineJsModule::class;
 
     /** @const Regex to match CSS and JavaScript files */
     const DEFAULT_REGEX = '/.\.(css|js)$/i';
@@ -48,6 +52,9 @@ class Assets extends PropertyObject
     /** @const Regex to match JavaScript files */
     const JS_REGEX = '/.\.js$/i';
 
+    /** @const Regex to match JavaScriptModyle files */
+    const JS_MODULE_REGEX = '/.\.mjs$/i';
+
     /** @var string */
     protected $assets_dir;
     /** @var string */
@@ -57,6 +64,8 @@ class Assets extends PropertyObject
     protected $assets_css = [];
     /** @var array */
     protected $assets_js = [];
+    /** @var array  */
+    protected $assets_js_module = [];
 
     // Following variables come from the configuration:
     /** @var bool */
@@ -66,19 +75,17 @@ class Assets extends PropertyObject
     /** @var bool */
     protected $css_pipeline_before_excludes;
     /** @var bool */
-    protected $inlinecss_pipeline_include_externals;
-    /** @var bool */
-    protected $inlinecss_pipeline_before_excludes;
-    /** @var bool */
     protected $js_pipeline;
     /** @var bool */
     protected $js_pipeline_include_externals;
     /** @var bool */
     protected $js_pipeline_before_excludes;
     /** @var bool */
-    protected $inlinejs_pipeline_include_externals;
+    protected $js_module_pipeline;
     /** @var bool */
-    protected $inlinejs_pipeline_before_excludes;
+    protected $js_module_pipeline_include_externals;
+    /** @var bool */
+    protected $js_module_pipeline_before_excludes;
     /** @var array */
     protected $pipeline_options = [];
 
@@ -193,6 +200,8 @@ class Assets extends PropertyObject
                     call_user_func_array([$this, 'addCss'], $args);
                 } elseif ($extension === 'js') {
                     call_user_func_array([$this, 'addJs'], $args);
+                } elseif ($extension === 'mjs') {
+                    call_user_func_array([$this, 'addJsModule'], $args);
                 }
             }
         }
@@ -222,7 +231,7 @@ class Assets extends PropertyObject
             return $this;
         }
 
-        if (($type === $this::CSS_TYPE || $type === $this::JS_TYPE) && isset($this->collections[$asset])) {
+        if (($type === $this::CSS_TYPE || $type === $this::JS_TYPE || $type === $this::JS_MODULE_TYPE) && isset($this->collections[$asset])) {
             $this->addType($collection, $type, $this->collections[$asset], $options);
             return $this;
         }
@@ -230,7 +239,20 @@ class Assets extends PropertyObject
         // If pipeline disabled, set to position if provided, else after
         if (isset($options['pipeline'])) {
             if ($options['pipeline'] === false) {
-                $exclude_type = ($type === $this::JS_TYPE || $type === $this::INLINE_JS_TYPE) ? $this::JS : $this::CSS;
+
+                switch ($type) {
+                    case $this::JS_TYPE:
+                    case $this::INLINE_JS_TYPE:
+                        $exclude_type = $this::JS;
+                        break;
+                    case $this::JS_MODULE_TYPE:
+                    case $this::INLINE_JS_MODULE_TYPE:
+                        $exclude_type = $this::JS_MODULE;
+                        break;
+                    default:
+                        $exclude_type = $this::CSS;
+                }
+
                 $excludes = strtolower($exclude_type . '_pipeline_before_excludes');
                 if ($this->{$excludes}) {
                     $default = 'after';
@@ -309,6 +331,25 @@ class Assets extends PropertyObject
         return $this->addType($this::JS_COLLECTION, $this::INLINE_JS_TYPE, $asset, $this->unifyLegacyArguments(func_get_args(), $this::INLINE_JS_TYPE));
     }
 
+        /**
+     * Add a JS asset or a collection of assets.
+     *
+     * @return $this
+     */
+    public function addJsModule($asset)
+    {
+        return $this->addType($this::JS_MODULE_COLLECTION, $this::JS_MODULE_TYPE, $asset, $this->unifyLegacyArguments(func_get_args(), $this::JS_MODULE_TYPE));
+    }
+
+    /**
+     * Add an Inline JS asset or a collection of assets.
+     *
+     * @return $this
+     */
+    public function addInlineJsModule($asset)
+    {
+        return $this->addType($this::JS_MODULE_COLLECTION, $this::INLINE_JS_MODULE_TYPE, $asset, $this->unifyLegacyArguments(func_get_args(), $this::INLINE_JS_MODULE_TYPE));
+    }
 
     /**
      * Add/replace collection.
@@ -446,6 +487,7 @@ class Assets extends PropertyObject
      */
     public function js($group = 'head', $attributes = [])
     {
-        return $this->render('js', $group, $attributes);
+        return $this->render('js', $group, $attributes) . $this->render('js_module', $group, $attributes);
+
     }
 }

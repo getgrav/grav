@@ -29,8 +29,9 @@ class Pipeline extends PropertyObject
 {
     use AssetUtilsTrait;
 
-    protected const CSS_ASSET = true;
-    protected const JS_ASSET = false;
+    protected const CSS_ASSET = 1;
+    protected const JS_ASSET = 2;
+    protected const JS_MODULE_ASSET = 3;
 
     /** @const Regex to match CSS urls */
     protected const CSS_URL_REGEX = '{url\(([\'\"]?)(.*?)\1\)}';
@@ -169,7 +170,7 @@ class Pipeline extends PropertyObject
      * @param array $attributes
      * @return bool|string     URL or generated content if available, else false
      */
-    public function renderJs($assets, $group, $attributes = [])
+    public function renderJs($assets, $group, $attributes = [], $type = self::JS_ASSET)
     {
         // temporary list of assets to pipeline
         $inline_group = false;
@@ -198,7 +199,7 @@ class Pipeline extends PropertyObject
             }
 
             // Concatenate files
-            $buffer = $this->gatherLinks($assets, self::JS_ASSET);
+            $buffer = $this->gatherLinks($assets, $type);
 
             // Minify if required
             if ($this->shouldMinify('js')) {
@@ -223,6 +224,19 @@ class Pipeline extends PropertyObject
         return $output;
     }
 
+        /**
+     * Minify and concatenate JS files.
+     *
+     * @param array $assets
+     * @param string $group
+     * @param array $attributes
+     * @return bool|string     URL or generated content if available, else false
+     */
+    public function renderJs_Module($assets, $group, $attributes = [])
+    {
+        $attributes['type'] = 'module';
+        return $this->renderJs($assets, $group, $attributes, self::JS_MODULE_ASSET);
+    }
 
     /**
      * Finds relative CSS urls() and rewrites the URL with an absolute one

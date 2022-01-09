@@ -12,33 +12,25 @@ namespace Grav\Common\Assets;
 use Grav\Common\Utils;
 
 /**
- * Class InlineCss
+ * Class Js
  * @package Grav\Common\Assets
  */
-class InlineCss extends BaseAsset
+class JsModule extends Js
 {
     /**
-     * InlineCss constructor.
+     * Js constructor.
      * @param array $elements
      * @param string|null $key
      */
     public function __construct(array $elements = [], ?string $key = null)
     {
         $base_options = [
-            'asset_type' => 'css',
-            'position' => 'after'
+            'asset_type' => 'js_module',
+            'attributes' => ['type' => 'module']
         ];
 
         $merged_attributes = Utils::arrayMergeRecursiveUnique($base_options, $elements);
 
         parent::__construct($merged_attributes, $key);
-    }
-
-    /**
-     * @return string
-     */
-    public function render()
-    {
-        return '<style' . $this->renderAttributes(). ">\n" . trim($this->asset) . "\n</style>\n";
     }
 }
