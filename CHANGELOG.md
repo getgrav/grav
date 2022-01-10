@@ -11,6 +11,7 @@
    * Reorganized the Asset system configuration blueprint for clarity
 3. [](#bugfix)
    * Fixed CLI `--env` and `--lang` options having no effect if they aren't added before all the other options
+   * Fixed scaled image medium filename when using non-existing retina file
 
 # v1.7.26.1
 ## 01/04/2022
