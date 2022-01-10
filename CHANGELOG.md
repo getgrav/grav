@@ -2,8 +2,9 @@
 ## mm/dd/2022
 
 1. [](#new)
-   * Added support for generic `assets.link()` for external references. No pipeline support.
-   * Added support for `assets.addJsModule()` with full pipeline support.
+   * Added support for generic `assets.link()` for external references. No pipeline support
+   * Added support for `assets.addJsModule()` with full pipeline support
+   * Added `Utils::getExtensionsByMime()` method to get all the registered extensions for the specific mime type
 2. [](#improved)
    * Improved `Utils::download()` method to allow overrides on download name, mime and expires header
    * Improved `onPageFallBackUrl` event

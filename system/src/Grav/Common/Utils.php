@@ -831,6 +831,31 @@ abstract class Utils
         return $mimetypes;
     }
 
+    /**
+     * Return all extensions for given mimetype. The first extension is the default one.
+     *
+     * @param string $mime Mime type (eg 'image/jpeg')
+     * @return string[] List of extensions eg. ['jpg', 'jpe', 'jpeg']
+     */
+    public static function getExtensionsByMime($mime)
+    {
+        $mime = strtolower($mime);
+
+        $media_types = (array)Grav::instance()['config']->get('media.types');
+
+        $list = [];
+        foreach ($media_types as $extension => $type) {
+            if ($extension === '' || $extension === 'defaults') {
+                continue;
+            }
+
+            if (isset($type['mime']) && $type['mime'] === $mime) {
+                $list[] = $extension;
+            }
+        }
+
+        return $list;
+    }
 
     /**
      * Return the mimetype based on filename extension
