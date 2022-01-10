@@ -5,10 +5,11 @@
    * Added support for generic `assets.link()` for external references. No pipeline support.
    * Added support for `assets.addJsModule()` with full pipeline support.
 2. [](#improved)
-    * Improved `Utils::download()` method to allow overrides on download name, mime and expires header
-    * Improved `onPageFallBackUrl` event
+   * Improved `Utils::download()` method to allow overrides on download name, mime and expires header
+   * Improved `onPageFallBackUrl` event
+   * Reorganized the Asset system configuration blueprint for clarity
 3. [](#bugfix)
-    * Fixed CLI `--env` and `--lang` options having no effect if they aren't added before all the other options
+   * Fixed CLI `--env` and `--lang` options having no effect if they aren't added before all the other options
 
 # v1.7.26.1
 ## 01/04/2022
