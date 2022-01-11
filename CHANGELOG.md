@@ -5,6 +5,7 @@
    * Added support for generic `assets.link()` for external references. No pipeline support
    * Added support for `assets.addJsModule()` with full pipeline support
    * Added `Utils::getExtensionsByMime()` method to get all the registered extensions for the specific mime type
+   * Added `Media::getRoute()` and `Media::getRawRoute()` methods to get page route if available
 2. [](#improved)
    * Improved `Utils::download()` method to allow overrides on download name, mime and expires header
    * Improved `onPageFallBackUrl` event
