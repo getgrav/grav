@@ -61,6 +61,46 @@ class Media extends AbstractMedia
     }
 
     /**
+     * Return raw route to the page.
+     *
+     * @return string|null Route to the page or null if media isn't for a page.
+     */
+    public function getRawRoute(): ?string
+    {
+        $path = $this->getPath();
+        if ($path) {
+            /** @var Pages $pages */
+            $pages = $this->getGrav()['pages'];
+            $page = $pages->get($path);
+            if ($page) {
+                return $page->rawRoute();
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Return page route.
+     *
+     * @return string|null Route to the page or null if media isn't for a page.
+     */
+    public function getRoute(): ?string
+    {
+        $path = $this->getPath();
+        if ($path) {
+            /** @var Pages $pages */
+            $pages = $this->getGrav()['pages'];
+            $page = $pages->get($path);
+            if ($page) {
+                return $page->route();
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * @param string $offset
      * @return bool
      */
