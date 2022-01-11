@@ -2,6 +2,7 @@
 ## mm/dd/2022
 
 1. [](#new)
+   * Support for `YubiKey OTP` 2-Factor authenticator
    * Added support for generic `assets.link()` for external references. No pipeline support
    * Added support for `assets.addJsModule()` with full pipeline support
    * Added `Utils::getExtensionsByMime()` method to get all the registered extensions for the specific mime type
