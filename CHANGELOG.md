@@ -7,6 +7,7 @@
    * Added support for `assets.addJsModule()` with full pipeline support
    * Added `Utils::getExtensionsByMime()` method to get all the registered extensions for the specific mime type
    * Added `Media::getRoute()` and `Media::getRawRoute()` methods to get page route if available
+   * Added `Medium::getAlternatives()` to be able to list all the retina sizes
 2. [](#improved)
    * Improved `Utils::download()` method to allow overrides on download name, mime and expires header
    * Improved `onPageFallBackUrl` event
