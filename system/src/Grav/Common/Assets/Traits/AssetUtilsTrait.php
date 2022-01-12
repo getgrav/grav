@@ -100,7 +100,7 @@ trait AssetUtilsTrait
             }
 
             // Double check last character being
-            if ($type === self::CSS_ASSET) {
+            if ($type === self::JS_ASSET || $type === self::JS_MODULE_ASSET) {
                 $file = rtrim($file, ' ;') . ';';
             }
 
