@@ -37,7 +37,7 @@ class Pipeline extends PropertyObject
     protected const CSS_URL_REGEX = '{url\(([\'\"]?)(.*?)\1\)}';
 
     /** @const Regex to match JS imports */
-    protected const JS_IMPORT_REGEX = '{import.*from\s?[\'|\"](.+?)[\'|\"]}';
+    protected const JS_IMPORT_REGEX = '{import.+from\s?[\'|\"](.+?)[\'|\"]}';
 
     /** @const Regex to match CSS sourcemap comments */
     protected const CSS_SOURCEMAP_REGEX = '{\/\*# (.*?) \*\/}';
