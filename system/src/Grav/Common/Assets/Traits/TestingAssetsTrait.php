@@ -285,6 +285,15 @@ trait TestingAssetsTrait
             return $this;
         }
 
+        // Add JavaScript Module files
+        if ($pattern === self::JS_MODULE_REGEX) {
+            foreach ($files as $file) {
+                $this->addJsModule($file);
+            }
+
+            return $this;
+        }
+
         // Unknown pattern.
         foreach ($files as $asset) {
             $this->add($asset);

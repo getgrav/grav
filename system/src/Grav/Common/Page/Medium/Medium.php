@@ -23,6 +23,8 @@ use Grav\Common\Media\Traits\MediaObjectTrait;
  * @package Grav\Common\Page\Medium
  *
  * @property string $filepath
+ * @property string $filename
+ * @property string $basename
  * @property string $mime
  * @property int $size
  * @property int $modified

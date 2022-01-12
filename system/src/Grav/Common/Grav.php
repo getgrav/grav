@@ -729,17 +729,35 @@ class Grav extends Container
      */
     public function fallbackUrl($path)
     {
-        $this->fireEvent('onPageFallBackUrl');
-
         /** @var Uri $uri */
         $uri = $this['uri'];
 
         /** @var Config $config */
         $config = $this['config'];
 
+        $path_parts = pathinfo($path);
+
+        /** @var Pages $pages */
+        $pages = $this['pages'];
+        $page = $pages->find($path_parts['dirname'], true);
+
         $uri_extension = strtolower($uri->extension() ?? '');
-        $fallback_types = $config->get('system.media.allowed_fallback_types', null);
+        $fallback_types = $config->get('system.media.allowed_fallback_types');
         $supported_types = $config->get('media.types');
+
+        $parsed_url = parse_url(rawurldecode($uri->basename()));
+        $media_file = $parsed_url['path'];
+
+        $event = new Event([
+            'uri' => $uri,
+            'page' => &$page,
+            'filename' => &$media_file,
+            'extension' => $uri_extension,
+            'allowed_fallback_types' => &$fallback_types,
+            'media_types' => &$supported_types
+        ]);
+
+        $this->fireEvent('onPageFallBackUrl', $event);
 
         // Check whitelist first, then ensure extension is a valid media type
         if (!empty($fallback_types) && !in_array($uri_extension, $fallback_types, true)) {
@@ -749,16 +767,8 @@ class Grav extends Container
             return false;
         }
 
-        $path_parts = pathinfo($path);
-
-        /** @var Pages $pages */
-        $pages = $this['pages'];
-        $page = $pages->find($path_parts['dirname'], true);
-
         if ($page) {
             $media = $page->media()->all();
-            $parsed_url = parse_url(rawurldecode($uri->basename()));
-            $media_file = $parsed_url['path'];
 
             // if this is a media object, try actions first
             if (isset($media[$media_file])) {

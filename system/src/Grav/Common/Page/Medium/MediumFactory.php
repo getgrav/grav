@@ -193,7 +193,7 @@ class MediumFactory
         $height = $medium->get('height') * $ratio;
 
         $prev_basename = $medium->get('basename');
-        $basename = str_replace('@'.$from.'x', '@'.$to.'x', $prev_basename);
+        $basename = str_replace('@' . $from . 'x', $to !== 1 ? '@' . $to . 'x' : '', $prev_basename);
 
         $debug = $medium->get('debug');
         $medium->set('debug', false);
@@ -208,6 +208,8 @@ class MediumFactory
 
         $medium = self::fromFile($file);
         if ($medium) {
+            $medium->set('basename', $basename);
+            $medium->set('filename', $basename . '.' . $medium->extension);
             $medium->set('size', $size);
         }
 

@@ -1,3 +1,22 @@
+# v1.7.27
+## 01/12/2022
+
+1. [](#new)
+   * Support for `YubiKey OTP` 2-Factor authenticator
+   * Added support for generic `assets.link()` for external references. No pipeline support
+   * Added support for `assets.addJsModule()` with full pipeline support
+   * Added `Utils::getExtensionsByMime()` method to get all the registered extensions for the specific mime type
+   * Added `Media::getRoute()` and `Media::getRawRoute()` methods to get page route if available
+   * Added `Medium::getAlternatives()` to be able to list all the retina sizes
+2. [](#improved)
+   * Improved `Utils::download()` method to allow overrides on download name, mime and expires header
+   * Improved `onPageFallBackUrl` event
+   * Reorganized the Asset system configuration blueprint for clarity
+3. [](#bugfix)
+   * Fixed CLI `--env` and `--lang` options having no effect if they aren't added before all the other options
+   * Fixed scaled image medium filename when using non-existing retina file
+   * Fixed an issue with JS `imports` and pipelining Assets
+
 # v1.7.26.1
 ## 01/04/2022
 

@@ -77,8 +77,6 @@ class SchedulerCommand extends GravCommand
         $scheduler = $grav['scheduler'];
         $grav->fireEvent('onSchedulerInitialized', new Event(['scheduler' => $scheduler]));
 
-        $this->setHelp('foo');
-
         $input = $this->getInput();
         $io = $this->getIO();
         $error = 0;

@@ -107,6 +107,12 @@ form:
                     label: PLUGIN_ADMIN.2FA_SECRET
                     sublabel: PLUGIN_ADMIN.2FA_SECRET_HELP
 
+                yubikey_id:
+                    type: text
+                    label: PLUGIN_ADMIN.YUBIKEY_ID
+                    description: PLUGIN_ADMIN.YUBIKEY_HELP
+                    size: small
+                    maxlength: 12
 
 
 
