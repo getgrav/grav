@@ -128,9 +128,27 @@ trait MediaObjectTrait
         }
 
         $alternative->set('ratio', $ratio);
-        $width = $alternative->get('width');
+        $width = $alternative->get('width', 0);
 
         $this->alternatives[$width] = $alternative;
+    }
+
+    /**
+     * @param bool $withDerived
+     * @return array
+     */
+    public function getAlternatives(bool $withDerived = true): array
+    {
+        $alternatives = [];
+        foreach ($this->alternatives + [$this->get('width', 0) => $this] as $size => $alternative) {
+            if ($withDerived || $alternative->filename === basename($alternative->filepath)) {
+                $alternatives[$size] = $alternative;
+            }
+        }
+
+        ksort($alternatives, SORT_NUMERIC);
+
+        return $alternatives;
     }
 
     /**
