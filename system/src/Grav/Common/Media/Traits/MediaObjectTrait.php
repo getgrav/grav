@@ -146,7 +146,7 @@ trait MediaObjectTrait
             }
         }
 
-        ksort($alternatives);
+        ksort($alternatives, SORT_NUMERIC);
 
         return $alternatives;
     }
