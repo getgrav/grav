@@ -111,6 +111,7 @@ form:
                     type: text
                     label: PLUGIN_ADMIN.YUBIKEY_ID
                     description: PLUGIN_ADMIN.YUBIKEY_HELP
+                    size: small
                     maxlength: 12
 
 
