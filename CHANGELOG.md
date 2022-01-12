@@ -1,3 +1,9 @@
+# v1.7.27.1
+## 01/12/2022
+
+3. [](#bugfix)
+   * Fixed a typo in CSS Asset pipeline that was erroneously joining files with `;`  
+
 # v1.7.27
 ## 01/12/2022
 

@@ -100,7 +100,7 @@ trait AssetUtilsTrait
             }
 
             // Double check last character being
-            if ($type === self::CSS_ASSET) {
+            if ($type !== self::CSS_ASSET) {
                 $file = rtrim($file, ' ;') . ';';
             }
 
