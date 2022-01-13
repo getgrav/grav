@@ -3,6 +3,7 @@
 
 1. [](#new)
     * Added links and modules support to `HtmlBlock` class
+    * Added module support for twig script tag: `{% script module 'theme://js/module.mjs' %}`
 
 # v1.7.27.1
 ## 01/12/2022

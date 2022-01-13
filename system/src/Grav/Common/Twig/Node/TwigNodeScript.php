@@ -27,6 +27,7 @@ class TwigNodeScript extends Node implements NodeCaptureInterface
     /**
      * TwigNodeScript constructor.
      * @param Node|null $body
+     * @param string|null $type
      * @param AbstractExpression|null $file
      * @param AbstractExpression|null $group
      * @param AbstractExpression|null $priority
@@ -34,12 +35,12 @@ class TwigNodeScript extends Node implements NodeCaptureInterface
      * @param int $lineno
      * @param string|null $tag
      */
-    public function __construct(?Node $body, ?AbstractExpression $file, ?AbstractExpression $group, ?AbstractExpression $priority, ?AbstractExpression $attributes, $lineno = 0, $tag = null)
+    public function __construct(?Node $body, ?string $type, ?AbstractExpression $file, ?AbstractExpression $group, ?AbstractExpression $priority, ?AbstractExpression $attributes, $lineno = 0, $tag = null)
     {
         $nodes = ['body' => $body, 'file' => $file, 'group' => $group, 'priority' => $priority, 'attributes' => $attributes];
         $nodes = array_filter($nodes);
 
-        parent::__construct($nodes, [], $lineno, $tag);
+        parent::__construct($nodes, ['type' => $type], $lineno, $tag);
     }
 
     /**
@@ -90,7 +91,8 @@ class TwigNodeScript extends Node implements NodeCaptureInterface
 
         if ($this->hasNode('file')) {
             $compiler
-                ->write('$assets->addJs(')
+                ->write("\$method = '{$this->getAttribute('type')}' === 'module' ? 'addJsModule' : 'addJs';\n")
+                ->write('$assets->{$method}(')
                 ->subcompile($this->getNode('file'))
                 ->raw(", \$attributes);\n");
         } else {
@@ -98,7 +100,8 @@ class TwigNodeScript extends Node implements NodeCaptureInterface
                 ->write("ob_start();\n")
                 ->subcompile($this->getNode('body'))
                 ->write('$content = ob_get_clean();' . "\n")
-                ->write("\$assets->addInlineJs(\$content, \$attributes);\n");
+                ->write("\$method = '{$this->getAttribute('type')}' === 'module' ? 'addInlineJsModule' : 'addInlineJs';\n")
+                ->write("\$assets->{\$method}(\$content, \$attributes);\n");
         }
     }
 }
