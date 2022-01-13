@@ -320,6 +320,18 @@ form:
 
               fields:
 
+                header.redirect_default_route:
+                  type: toggle
+                  toggleable: true
+                  label: PLUGIN_ADMIN.REDIRECT_DEFAULT_ROUTE
+                  help: PLUGIN_ADMIN.REDIRECT_DEFAULT_ROUTE_HELP
+                  config-highlight@: system.pages.redirect_default_route
+                  options:
+                    1: PLUGIN_ADMIN.YES
+                    0: PLUGIN_ADMIN.NO
+                  validate:
+                    type: bool
+
                 header.routes.default:
                   type: text
                   toggleable: true

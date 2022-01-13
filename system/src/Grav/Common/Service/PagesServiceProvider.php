@@ -99,7 +99,8 @@ class PagesServiceProvider implements ServiceProviderInterface
                     /** @var Language $language */
                     $language = $grav['language'];
 
-                    $redirectCode = (int)$config->get('system.pages.redirect_default_route', 0);
+                    $redirect_default_route = $page->header()->redirect_default_route ?? $config->get('system.pages.redirect_default_route', 0);
+                    $redirectCode = (int) $redirect_default_route;
 
                     // Language-specific redirection scenarios
                     if ($language->enabled() && ($language->isLanguageInUrl() xor $language->isIncludeDefaultLanguage())) {
