@@ -1,8 +1,14 @@
+# v1.7.28
+## mm/dd/2022
+
+1. [](#new)
+    * Added links and modules support to `HtmlBlock` class
+
 # v1.7.27.1
 ## 01/12/2022
 
 3. [](#bugfix)
-   * Fixed a typo in CSS Asset pipeline that was erroneously joining files with `;`  
+   * Fixed a typo in CSS Asset pipeline that was erroneously joining files with `;`
 
 # v1.7.27
 ## 01/12/2022
