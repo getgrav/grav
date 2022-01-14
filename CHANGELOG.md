@@ -5,6 +5,7 @@
     * Added links and modules support to `HtmlBlock` class
     * Added module support for twig script tag: `{% script module 'theme://js/module.mjs' %}`
     * Added twig tag for links: `{% link icon 'theme://images/favicon.png' priority: 20 with { type: 'image/png' } %}`
+    * Added `HtmlBlock` support for `{% style %}`, `{% script %}` and `{% link %}` tags
 
 # v1.7.27.1
 ## 01/12/2022

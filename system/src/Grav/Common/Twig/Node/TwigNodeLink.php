@@ -56,43 +56,59 @@ class TwigNodeLink extends Node implements NodeCaptureInterface
             return;
         }
 
-        $compiler->write("\$assets = \\Grav\\Common\\Grav::instance()['assets'];\n");
-
         $compiler->write('$attributes = [\'rel\' => \'' . $this->getAttribute('rel') . '\'];' . "\n");
         if ($this->hasNode('attributes')) {
             $compiler
                 ->write('$attributes += ')
                 ->subcompile($this->getNode('attributes'))
-                ->raw(";\n")
-                ->write("if (!is_array(\$attributes)) {\n")
+                ->raw(';' . PHP_EOL)
+                ->write('if (!is_array($attributes)) {' . PHP_EOL)
                 ->indent()
-                ->write("throw new UnexpectedValueException('{% {$this->tagName} with x %}: x is not an array');\n")
+                ->write("throw new UnexpectedValueException('{% {$this->tagName} with x %}: x is not an array');" . PHP_EOL)
                 ->outdent()
-                ->write("}\n");
+                ->write('}' . PHP_EOL);
         }
 
         if ($this->hasNode('group')) {
             $compiler
-                ->write("\$attributes['group'] = ")
+                ->write('$group = ')
                 ->subcompile($this->getNode('group'))
-                ->raw(";\n")
-                ->write("if (!is_string(\$attributes['group'])) {\n")
+                ->raw(';' . PHP_EOL)
+                ->write('if (!is_string($group)) {' . PHP_EOL)
                 ->indent()
-                ->write("throw new UnexpectedValueException('{% {$this->tagName} in x %}: x is not a string');\n")
+                ->write("throw new UnexpectedValueException('{% {$this->tagName} in x %}: x is not a string');" . PHP_EOL)
                 ->outdent()
-                ->write("}\n");
+                ->write('}' . PHP_EOL);
+        } else {
+            $compiler->write('$group = \'head\';' . PHP_EOL);
         }
 
         if ($this->hasNode('priority')) {
             $compiler
-                ->write("\$attributes['priority'] = (int)(")
+                ->write('$priority = (int)(')
                 ->subcompile($this->getNode('priority'))
-                ->raw(");\n");
+                ->raw(');' . PHP_EOL);
+        } else {
+            $compiler->write('$priority = 10;' . PHP_EOL);
         }
 
+        $compiler->write("\$assets = \\Grav\\Common\\Grav::instance()['assets'];" . PHP_EOL);
+        $compiler->write("\$block = \$context['block'] ?? null;" . PHP_EOL);
+
         $compiler
-            ->write('$assets->addLink(')
+            ->write('$file = (string)(')
             ->subcompile($this->getNode('file'))
-            ->raw(", \$attributes);\n");
+            ->raw(');' . PHP_EOL);
+
+        // Assets support.
+        $compiler->write('$assets->addLink($file, [\'group\' => $group, \'priority\' => $priority] + $attributes);' . PHP_EOL);
+
+        // HtmlBlock support.
+        $compiler
+            ->write('if ($block instanceof \Grav\Framework\ContentBlock\HtmlBlock) {' . PHP_EOL)
+            ->indent()
+            ->write('$block->addLink([\'href\'=> $file] + $attributes, $priority, $group);' . PHP_EOL)
+            ->outdent()
+            ->write('}' . PHP_EOL);
     }
 }
