@@ -131,6 +131,9 @@ parameters:
             message: '#Call to deprecated method getLegacyFiles\(\)#'
             path: '*/system/src/Grav/Common/Session.php'
         -
+            message: '#Call to deprecated method \w+\(\) of class Grav\\Common\\Flex\\Types\\Users\\UserObject#'
+            path: '*/system/src/Grav/Common/Flex/Types/Users/UserObject.php'
+        -
             message: '#Call to deprecated method \w+\(\) of class Grav\\Framework\\Flex\\FlexObject#'
             path: '*/system/src/Grav/Framework/Flex/FlexObject.php'
         -
