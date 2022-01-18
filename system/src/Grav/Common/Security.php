@@ -214,7 +214,7 @@ class Security
             'on_events' => '#(<[^>]+[[a-z\x00-\x20\"\'\/])([\s\/]on|\sxmlns)[a-z].*=>?#iUu',
 
             // Match javascript:, livescript:, vbscript:, mocha:, feed: and data: protocols
-            'invalid_protocols' => '#(' . implode('|', array_map('preg_quote', $invalid_protocols, ['#'])) . '):\S.*?#iUu',
+            'invalid_protocols' => '#(' . implode('|', array_map('preg_quote', $invalid_protocols, ['#'])) . ')(:|\&\#58)\S.*?#iUu',
 
             // Match -moz-bindings
             'moz_binding' => '#-moz-binding[a-z\x00-\x20]*:#u',

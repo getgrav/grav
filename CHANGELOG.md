@@ -7,6 +7,8 @@
     * Added twig tag for links: `{% link icon 'theme://images/favicon.png' priority: 20 with { type: 'image/png' } %}`
     * Added `HtmlBlock` support for `{% style %}`, `{% script %}` and `{% link %}` tags
     * Support for page-level `redirect_default_route` frontmatter header override
+3. [](#bugfix)
+    * Fixed XSS check not detecting escaped `&#58`
 
 # v1.7.27.1
 ## 01/12/2022
