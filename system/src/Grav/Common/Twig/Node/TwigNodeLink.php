@@ -16,17 +16,17 @@ use Twig\Node\Node;
 use Twig\Node\NodeCaptureInterface;
 
 /**
- * Class TwigNodeStyle
+ * Class TwigNodeLink
  * @package Grav\Common\Twig\Node
  */
-class TwigNodeStyle extends Node implements NodeCaptureInterface
+class TwigNodeLink extends Node implements NodeCaptureInterface
 {
     /** @var string */
-    protected $tagName = 'style';
+    protected $tagName = 'link';
 
     /**
-     * TwigNodeAssets constructor.
-     * @param Node|null $body
+     * TwigNodeLink constructor.
+     * @param string|null $rel
      * @param AbstractExpression|null $file
      * @param AbstractExpression|null $group
      * @param AbstractExpression|null $priority
@@ -34,12 +34,12 @@ class TwigNodeStyle extends Node implements NodeCaptureInterface
      * @param int $lineno
      * @param string|null $tag
      */
-    public function __construct(?Node $body, ?AbstractExpression $file, ?AbstractExpression $group, ?AbstractExpression $priority, ?AbstractExpression $attributes, $lineno = 0, $tag = null)
+    public function __construct(?string $rel, ?AbstractExpression $file, ?AbstractExpression $group, ?AbstractExpression $priority, ?AbstractExpression $attributes, $lineno = 0, $tag = null)
     {
-        $nodes = ['body' => $body, 'file' => $file, 'group' => $group, 'priority' => $priority, 'attributes' => $attributes];
+        $nodes = ['file' => $file, 'group' => $group, 'priority' => $priority, 'attributes' => $attributes];
         $nodes = array_filter($nodes);
 
-        parent::__construct($nodes, [], $lineno, $tag);
+        parent::__construct($nodes, ['rel' => $rel], $lineno, $tag);
     }
 
     /**
@@ -52,10 +52,14 @@ class TwigNodeStyle extends Node implements NodeCaptureInterface
     public function compile(Compiler $compiler): void
     {
         $compiler->addDebugInfo($this);
+        if (!$this->hasNode('file')) {
+            return;
+        }
 
+        $compiler->write('$attributes = [\'rel\' => \'' . $this->getAttribute('rel') . '\'];' . "\n");
         if ($this->hasNode('attributes')) {
             $compiler
-                ->write('$attributes = ')
+                ->write('$attributes += ')
                 ->subcompile($this->getNode('attributes'))
                 ->raw(';' . PHP_EOL)
                 ->write('if (!is_array($attributes)) {' . PHP_EOL)
@@ -63,8 +67,6 @@ class TwigNodeStyle extends Node implements NodeCaptureInterface
                 ->write("throw new UnexpectedValueException('{% {$this->tagName} with x %}: x is not an array');" . PHP_EOL)
                 ->outdent()
                 ->write('}' . PHP_EOL);
-        } else {
-            $compiler->write('$attributes = [];' . PHP_EOL);
         }
 
         if ($this->hasNode('group')) {
@@ -93,41 +95,20 @@ class TwigNodeStyle extends Node implements NodeCaptureInterface
         $compiler->write("\$assets = \\Grav\\Common\\Grav::instance()['assets'];" . PHP_EOL);
         $compiler->write("\$block = \$context['block'] ?? null;" . PHP_EOL);
 
-        if ($this->hasNode('file')) {
-            // CSS file.
-            $compiler
-                ->write('$file = (string)(')
-                ->subcompile($this->getNode('file'))
-                ->raw(');' . PHP_EOL);
+        $compiler
+            ->write('$file = (string)(')
+            ->subcompile($this->getNode('file'))
+            ->raw(');' . PHP_EOL);
 
-            // Assets support.
-            $compiler->write('$assets->addCss($file, [\'group\' => $group, \'priority\' => $priority] + $attributes);' . PHP_EOL);
+        // Assets support.
+        $compiler->write('$assets->addLink($file, [\'group\' => $group, \'priority\' => $priority] + $attributes);' . PHP_EOL);
 
-            // HtmlBlock support.
-            $compiler
-                ->write('if ($block instanceof \Grav\Framework\ContentBlock\HtmlBlock) {' . PHP_EOL)
-                ->indent()
-                ->write('$block->addStyle([\'href\'=> $file] + $attributes, $priority, $group);' . PHP_EOL)
-                ->outdent()
-                ->write('}' . PHP_EOL);
-
-        } else {
-            // Inline style.
-            $compiler
-                ->write('ob_start();' . PHP_EOL)
-                ->subcompile($this->getNode('body'))
-                ->write('$content = ob_get_clean();' . PHP_EOL);
-
-            // Assets support.
-            $compiler->write('$assets->addInlineCss($content, [\'group\' => $group, \'priority\' => $priority] + $attributes);' . PHP_EOL);
-
-            // HtmlBlock support.
-            $compiler
-                ->write('if ($block instanceof \Grav\Framework\ContentBlock\HtmlBlock) {' . PHP_EOL)
-                ->indent()
-                ->write('$block->addInlineStyle([\'content\'=> $content] + $attributes, $priority, $group);' . PHP_EOL)
-                ->outdent()
-                ->write('}' . PHP_EOL);
-        }
+        // HtmlBlock support.
+        $compiler
+            ->write('if ($block instanceof \Grav\Framework\ContentBlock\HtmlBlock) {' . PHP_EOL)
+            ->indent()
+            ->write('$block->addLink([\'href\'=> $file] + $attributes, $priority, $group);' . PHP_EOL)
+            ->outdent()
+            ->write('}' . PHP_EOL);
     }
 }

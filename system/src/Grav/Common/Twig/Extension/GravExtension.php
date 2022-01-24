@@ -22,6 +22,7 @@ use Grav\Common\Page\Media;
 use Grav\Common\Scheduler\Cron;
 use Grav\Common\Security;
 use Grav\Common\Twig\TokenParser\TwigTokenParserCache;
+use Grav\Common\Twig\TokenParser\TwigTokenParserLink;
 use Grav\Common\Twig\TokenParser\TwigTokenParserRender;
 use Grav\Common\Twig\TokenParser\TwigTokenParserScript;
 use Grav\Common\Twig\TokenParser\TwigTokenParserStyle;
@@ -252,6 +253,7 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
             new TwigTokenParserTryCatch(),
             new TwigTokenParserScript(),
             new TwigTokenParserStyle(),
+            new TwigTokenParserLink(),
             new TwigTokenParserMarkdown(),
             new TwigTokenParserSwitch(),
             new TwigTokenParserCache(),

@@ -279,11 +279,11 @@ class Pipeline extends PropertyObject
         return $file;
     }
 
-        /**
+    /**
      * Finds relative JS urls() and rewrites the URL with an absolute one
      *
      * @param string $file the css source file
-     * @param string $dir , $local relative path to the css file
+     * @param string $dir local relative path to the css file
      * @param bool $local is this a local or remote asset
      * @return string
      */
