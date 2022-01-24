@@ -11,10 +11,10 @@ namespace Grav\Framework\Flex\Traits;
 
 use Grav\Common\Config\Config;
 use Grav\Common\Grav;
+use Grav\Common\Media\Factories\MediaFactory;
 use Grav\Common\Media\Interfaces\MediaCollectionInterface;
 use Grav\Common\Media\Interfaces\MediaUploadInterface;
 use Grav\Common\Media\Traits\MediaTrait;
-use Grav\Common\Page\Media;
 use Grav\Common\Page\Medium\Medium;
 use Grav\Common\Page\Medium\MediumFactory;
 use Grav\Common\Utils;
@@ -99,8 +99,18 @@ trait FlexMediaTrait
             // Uses main media.
             $media = $this->getMedia();
         } else {
+            /** @var MediaFactory $factory */
+            $factory = Grav::instance()['media_factory'];
+
+            $params = [
+                'path' => $settings[$var],
+                'order' => [],
+                'load' => true
+            ];
+
             // Uses custom media.
-            $media = new Media($settings[$var]);
+            $media = $factory->createCollection($params);
+
             $this->addUpdatedMedia($media);
         }
 

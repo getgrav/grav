@@ -11,6 +11,7 @@ namespace Grav\Common\Media\Traits;
 
 use Grav\Common\Cache;
 use Grav\Common\Grav;
+use Grav\Common\Media\Factories\MediaFactory;
 use Grav\Common\Media\Interfaces\MediaCollectionInterface;
 use Grav\Common\Page\Media;
 use Psr\SimpleCache\CacheInterface;
@@ -86,7 +87,12 @@ trait MediaTrait
             // Use cached media if possible.
             $media = $cache->get($cacheKey);
             if (!$media instanceof MediaCollectionInterface) {
-                $media = new Media($this->getMediaFolder(), $this->getMediaOrder(), $this->_loadMedia);
+                $settings = $this->getMediaSettings();
+
+                /** @var MediaFactory $factory */
+                $factory = Grav::instance()['media_factory'];
+                $media = $factory->createCollection($settings);
+
                 $cache->set($cacheKey, $media);
             }
 
@@ -94,6 +100,21 @@ trait MediaTrait
         }
 
         return $media;
+    }
+
+    /**
+     * Get media settings.
+     *
+     * @return array
+     */
+    protected function getMediaSettings(): array
+    {
+        return [
+            'path' => $this->getMediaFolder(),
+            'order' => $this->getMediaOrder(),
+            'load' => $this->_loadMedia,
+            'object' => $this
+        ];
     }
 
     /**
