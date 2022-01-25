@@ -49,6 +49,21 @@ class Media extends AbstractMedia
         }
     }
 
+    public function __serialize(): array
+    {
+        return parent::__serialize() + [
+            'standard_exif' => $this->standard_exif
+        ];
+    }
+
+    public function __unserialize(array $data): void
+    {
+        parent::__unserialize($data);
+
+        $this->standard_exif = $data['standard_exif'];
+        $this->__wakeup();
+    }
+
     /**
      * Initialize static variables on unserialize.
      */

@@ -84,8 +84,12 @@ trait MediaTrait
             $cache = $this->getMediaCache();
             $cacheKey = md5('media' . $this->getCacheKey());
 
-            // Use cached media if possible.
-            $media = $cache->get($cacheKey);
+            try {
+                // Use cached media if possible.
+                $media = $cache->get($cacheKey);
+            } catch (\Throwable $e) {
+            }
+
             if (!$media instanceof MediaCollectionInterface) {
                 $settings = $this->getMediaSettings();
 

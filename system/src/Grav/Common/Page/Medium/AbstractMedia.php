@@ -19,6 +19,7 @@ use Grav\Common\Media\Interfaces\MediaUploadInterface;
 use Grav\Common\Media\Traits\MediaUploadTrait;
 use Grav\Common\Page\Pages;
 use Grav\Common\Utils;
+use Grav\Framework\Compat\Serializable;
 use RocketTheme\Toolbox\ArrayTraits\ArrayAccess;
 use RocketTheme\Toolbox\ArrayTraits\Countable;
 use RocketTheme\Toolbox\ArrayTraits\Export;
@@ -31,13 +32,17 @@ use function is_array;
  * Class AbstractMedia
  * @package Grav\Common\Page\Medium
  */
-abstract class AbstractMedia implements ExportInterface, MediaCollectionInterface, MediaUploadInterface
+abstract class AbstractMedia implements ExportInterface, MediaCollectionInterface, MediaUploadInterface, \Serializable
 {
     use ArrayAccess;
     use Countable;
     use Iterator;
     use Export;
     use MediaUploadTrait;
+    use Serializable;
+
+    /** @var string */
+    protected const VERSION = '1';
 
     /** @var array */
     protected $items = [];
@@ -53,6 +58,30 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
     protected $files = [];
     /** @var array|null */
     protected $media_order;
+
+    public function __serialize(): array
+    {
+        return [
+            'version' => static::VERSION,
+            'items' => $this->items,
+            'path' => $this->path,
+            'media_order' => $this->media_order,
+        ];
+    }
+
+    public function __unserialize(array $data): void
+    {
+        if ($data['version'] !== static::VERSION) {
+            throw new \RuntimeException('Cannot unserialize: version mismatch');
+        }
+
+        $this->path = $data['path'];
+        $this->media_order = $data['media_order'];
+        $items = $data['items'];
+        foreach ($items as $name => $item) {
+            $this->add($name, $item);
+        }
+    }
 
     /**
      * Return media path.

@@ -23,6 +23,9 @@ class GlobalMedia extends AbstractMedia
     /** @var self */
     protected static $instance;
 
+    /**
+     * @return static
+     */
     public static function getInstance(): self
     {
         if (null === self::$instance) {
@@ -30,6 +33,23 @@ class GlobalMedia extends AbstractMedia
         }
 
         return self::$instance;
+    }
+
+    /**
+     * @return array
+     */
+    public function __serialize(): array
+    {
+        throw new \RuntimeException('Global media cannot be serialized!');
+    }
+
+    /**
+     * @param array $data
+     * @return void
+     */
+    public function __unserialize(array $data): void
+    {
+        throw new \RuntimeException('Global media cannot be unserialized!');
     }
 
     /**
