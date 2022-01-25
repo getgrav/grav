@@ -27,6 +27,8 @@ use function in_array;
  */
 class Media extends AbstractMedia
 {
+    protected const VERSION = parent::VERSION . '.1';
+
     /** @var GlobalMedia */
     protected static $global;
 
