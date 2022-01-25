@@ -1,5 +1,5 @@
 # v1.7.28
-## mm/dd/2022
+## 01/24/2022
 
 1. [](#new)
     * Added links and modules support to `HtmlBlock` class
