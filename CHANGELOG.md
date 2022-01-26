@@ -3,8 +3,10 @@
 
 1. [](#new)
     * Added support for registering assets from `HtmlBlock`
+    * Added unicode-safe `Utils::basename()` and `Utils::pathinfo()` methods
 2. [](#improved)
-    * Improved `Filesystem::basename()` and `Filesystem::pathinfo()` to be UTF-8 safe
+    * Improved `Filesystem::basename()` and `Filesystem::pathinfo()` to be unicode-safe
+    * Made path handling unicode-safe, use new `Utils::basename()` and `Utils::pathinfo()` everywhere
 
 # v1.7.28
 ## 01/24/2022

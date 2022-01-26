@@ -61,7 +61,7 @@ class Security
             if ($clean_svg !== false ) {
                 file_put_contents($file, $clean_svg);
             } else {
-                $quarantine_file = basename($file);
+                $quarantine_file = Utils::basename($file);
                 $quarantine_dir = 'log://quarantine';
                 Folder::mkdir($quarantine_dir);
                 file_put_contents("$quarantine_dir/$quarantine_file", $original_svg);

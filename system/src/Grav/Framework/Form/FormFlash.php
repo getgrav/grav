@@ -343,7 +343,7 @@ class FormFlash implements FormFlashInterface
 
         // Prepare upload data for later save
         $data = [
-            'name' => basename($filename),
+            'name' => Utils::basename($filename),
             'type' => Utils::getMimeByLocalFile($filename),
             'size' => filesize($filename),
         ];

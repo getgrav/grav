@@ -206,7 +206,7 @@ class Excerpts
                 && (empty($url_parts['host']) || $url_parts['host'] === $grav['uri']->host());
 
             if ($local_file) {
-                $filename = basename($url_parts['path']);
+                $filename = Utils::basename($url_parts['path']);
                 $folder = dirname($url_parts['path']);
 
                 // Get the local path to page media if possible.

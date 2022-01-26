@@ -30,6 +30,7 @@ use Grav\Common\Flex\Types\UserGroups\UserGroupCollection;
 use Grav\Common\Flex\Types\UserGroups\UserGroupIndex;
 use Grav\Common\User\Interfaces\UserInterface;
 use Grav\Common\User\Traits\UserTrait;
+use Grav\Common\Utils;
 use Grav\Framework\File\Formatter\JsonFormatter;
 use Grav\Framework\File\Formatter\YamlFormatter;
 use Grav\Framework\Filesystem\Filesystem;
@@ -645,7 +646,7 @@ class UserObject extends FlexObject implements UserInterface, Countable
             $medium = MediumFactory::fromFile($path);
             if ($medium) {
                 $media->add($path, $medium);
-                $name = basename($path);
+                $name = Utils::basename($path);
                 if ($name !== $path) {
                     $media->add($name, $medium);
                 }
@@ -814,7 +815,7 @@ class UserObject extends FlexObject implements UserInterface, Countable
                 }
 
                 // Calculate path without the retina scaling factor.
-                $realpath = $filesystem->pathname($filepath) . str_replace(['@3x', '@2x'], '', basename($filepath));
+                $realpath = $filesystem->pathname($filepath) . str_replace(['@3x', '@2x'], '', Utils::basename($filepath));
 
                 $list[$filename] = [$file, $settings];
 

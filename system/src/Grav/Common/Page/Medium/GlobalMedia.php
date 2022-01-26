@@ -11,6 +11,7 @@ namespace Grav\Common\Page\Medium;
 
 use Grav\Common\Grav;
 use Grav\Common\Media\Interfaces\MediaObjectInterface;
+use Grav\Common\Utils;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use function dirname;
 
@@ -89,7 +90,7 @@ class GlobalMedia extends AbstractMedia
         }
 
         $path = dirname($filename);
-        [$basename, $ext,, $extra] = $this->getFileParts(basename($filename));
+        [$basename, $ext,, $extra] = $this->getFileParts(Utils::basename($filename));
         $medium = MediumFactory::fromFile($filename);
 
         if (null === $medium) {

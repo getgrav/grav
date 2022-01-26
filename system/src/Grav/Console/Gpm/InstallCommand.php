@@ -579,7 +579,7 @@ class InstallCommand extends GpmCommand
 
         $tmp_dir = Grav::instance()['locator']->findResource('tmp://', true, true);
         $this->tmp = $tmp_dir . '/Grav-' . uniqid();
-        $filename = $package->slug . basename($package->zipball_url);
+        $filename = $package->slug . Utils::basename($package->zipball_url);
         $filename = preg_replace('/[\\\\\/:"*?&<>|]+/m', '-', $filename);
         $query = '';
 

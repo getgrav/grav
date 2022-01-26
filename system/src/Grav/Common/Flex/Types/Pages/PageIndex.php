@@ -637,7 +637,7 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
                     $payload = [
                         'name' => $child->menu(),
                         'value' => $child->rawRoute(),
-                        'item-key' => basename($child->rawRoute() ?? ''),
+                        'item-key' => Utils::basename($child->rawRoute() ?? ''),
                         'filename' => $child->folder(),
                         'extension' => $child->extension(),
                         'type' => 'dir',
@@ -692,7 +692,7 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
                     $route = $child->getRoute();
                     $route = $route ? ($route->toString(false) ?: '/') : '';
                     $payload = [
-                        'item-key' => htmlspecialchars(basename($child->rawRoute() ?? $child->getKey())),
+                        'item-key' => htmlspecialchars(Utils::basename($child->rawRoute() ?? $child->getKey())),
                         'icon' => $icon,
                         'title' => htmlspecialchars($child->menu()),
                         'route' => [

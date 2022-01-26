@@ -141,7 +141,7 @@ trait MediaObjectTrait
     {
         $alternatives = [];
         foreach ($this->alternatives + [$this->get('width', 0) => $this] as $size => $alternative) {
-            if ($withDerived || $alternative->filename === basename($alternative->filepath)) {
+            if ($withDerived || $alternative->filename === Utils::basename($alternative->filepath)) {
                 $alternatives[$size] = $alternative;
             }
         }

@@ -9,6 +9,7 @@
 
 namespace Grav\Installer;
 
+use Grav\Common\Utils;
 use Symfony\Component\Yaml\Yaml;
 use function assert;
 use function count;
@@ -69,7 +70,7 @@ final class YamlUpdater
             file_put_contents($this->filename, $yaml);
 
         } catch (\Exception $e) {
-            throw new \RuntimeException('Failed to update ' . basename($this->filename) . ': ' . $e->getMessage());
+            throw new \RuntimeException('Failed to update ' . Utils::basename($this->filename) . ': ' . $e->getMessage());
         }
 
         return true;
