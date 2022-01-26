@@ -3,6 +3,8 @@
 
 1. [](#new)
     * Added support for registering assets from `HtmlBlock`
+2. [](#improved)
+    * Improved `Filesystem::basename()` and `Filesystem::pathinfo()` to be UTF-8 safe
 
 # v1.7.28
 ## 01/24/2022
