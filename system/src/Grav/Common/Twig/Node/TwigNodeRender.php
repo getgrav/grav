@@ -75,6 +75,7 @@ class TwigNodeRender extends Node implements NodeCaptureInterface
             ->outdent()
             ->write('} else {' . PHP_EOL)
             ->indent()
+            ->write('\Grav\Common\Assets\BlockAssets::registerAssets($html);' . PHP_EOL)
             ->write('echo (string)$html;' . PHP_EOL)
             ->outdent()
             ->write('}' . PHP_EOL)
