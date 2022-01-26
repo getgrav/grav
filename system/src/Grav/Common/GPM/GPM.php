@@ -631,7 +631,7 @@ class GPM extends Iterator
             throw new \RuntimeException("Malformed GPM URL: {$package_file}");
         }
 
-        $filename = basename($package['path'] ?? '');
+        $filename = Utils::basename($package['path'] ?? '');
 
         if (Grav::instance()['config']->get('system.gpm.official_gpm_only') && ($package['host'] ?? null) !== 'getgrav.org') {
             throw new RuntimeException('Only official GPM URLs are allowed. You can modify this behavior in the System configuration.');
@@ -660,7 +660,7 @@ class GPM extends Iterator
         $package_file = realpath($package_file);
 
         if ($package_file && file_exists($package_file)) {
-            $filename = basename($package_file);
+            $filename = Utils::basename($package_file);
             Folder::create($tmp);
             copy($package_file, $tmp . DS . $filename);
             return $tmp . DS . $filename;
@@ -692,7 +692,7 @@ class GPM extends Iterator
         }
 
         // either theme or plugin
-        $name = basename($source);
+        $name = Utils::basename($source);
         if (Utils::contains($name, 'theme')) {
             return 'theme';
         }
@@ -730,7 +730,7 @@ class GPM extends Iterator
 
         $glob = glob($source . '*.yaml') ?: [];
         foreach ($glob as $filename) {
-            $name = strtolower(basename($filename, '.yaml'));
+            $name = strtolower(Utils::basename($filename, '.yaml'));
             if (in_array($name, $ignore_yaml_files)) {
                 continue;
             }

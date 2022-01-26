@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace Grav\Framework\Flex\Storage;
 
 use FilesystemIterator;
+use Grav\Common\Utils;
 use Grav\Framework\Flex\Interfaces\FlexStorageInterface;
 use RuntimeException;
 use SplFileInfo;
@@ -125,7 +126,7 @@ class FileStorage extends FolderStorage
      */
     protected function getKeyFromPath(string $path): string
     {
-        return basename($path, $this->dataFormatter->getDefaultFileExtension());
+        return Utils::basename($path, $this->dataFormatter->getDefaultFileExtension());
     }
 
     /**

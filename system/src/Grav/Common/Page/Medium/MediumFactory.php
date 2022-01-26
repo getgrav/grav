@@ -13,6 +13,7 @@ use Grav\Common\Grav;
 use Grav\Common\Data\Blueprint;
 use Grav\Common\Media\Interfaces\ImageMediaInterface;
 use Grav\Common\Media\Interfaces\MediaObjectInterface;
+use Grav\Common\Utils;
 use Grav\Framework\Form\FormFlashFile;
 use Psr\Http\Message\UploadedFileInterface;
 use function dirname;
@@ -37,7 +38,7 @@ class MediumFactory
             return null;
         }
 
-        $parts = pathinfo($file);
+        $parts = Utils::pathinfo($file);
         $path = $parts['dirname'];
         $filename = $parts['basename'];
         $ext = $parts['extension'] ?? '';
@@ -101,7 +102,7 @@ class MediumFactory
             return null;
         }
 
-        $parts = pathinfo($clientName);
+        $parts = Utils::pathinfo($clientName);
         $filename = $parts['basename'];
         $ext = $parts['extension'] ?? '';
         $basename = $parts['filename'];

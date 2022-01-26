@@ -217,7 +217,7 @@ class Uri
         $path = $bits['path'] ?? '/';
 
         // remove the extension if there is one set
-        $parts = pathinfo($path);
+        $parts = Utils::pathinfo($path);
 
         // set the original basename
         $this->basename = $parts['basename'];
@@ -854,7 +854,7 @@ class Uri
                 }
 
                 if ($full_path) {
-                    $path_info = pathinfo($full_path);
+                    $path_info = Utils::pathinfo($full_path);
                     $page_path = $path_info['dirname'];
                     $filename = '';
 
@@ -899,7 +899,7 @@ class Uri
             $routes = $pages->routes();
 
             // if this is an image, get the proper path
-            $url_bits = pathinfo($url_path);
+            $url_bits = Utils::pathinfo($url_path);
             if (isset($url_bits['extension'])) {
                 $target_path = $url_bits['dirname'];
             } else {
@@ -1046,7 +1046,7 @@ class Uri
         $base_url = rtrim($base . $grav['pages']->base(), '/') . $language_append;
 
         // if absolute and starts with a base_url move on
-        if (pathinfo($markdown_url, PATHINFO_DIRNAME) === '.' && $page->url() === '/') {
+        if (Utils::pathinfo($markdown_url, PATHINFO_DIRNAME) === '.' && $page->url() === '/') {
             return '/' . $markdown_url;
         }
         // no path to convert
@@ -1085,7 +1085,7 @@ class Uri
             return $normalized_url;
         }
 
-        $path_info = pathinfo($full_path);
+        $path_info = Utils::pathinfo($full_path);
         $page_path = $path_info['dirname'];
         $filename = '';
 

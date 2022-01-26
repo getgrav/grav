@@ -114,7 +114,7 @@ class UserCollection implements UserCollectionInterface
         if (!$user->exists()) {
             foreach ($files as $file) {
                 if (Utils::endsWith($file, YAML_EXT)) {
-                    $find_user = $this->load(trim(pathinfo($file, PATHINFO_FILENAME)));
+                    $find_user = $this->load(trim(Utils::pathinfo($file, PATHINFO_FILENAME)));
                     foreach ($fields as $field) {
                         if (isset($find_user[$field]) && $find_user[$field] === $query) {
                             return $find_user;

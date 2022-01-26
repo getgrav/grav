@@ -324,7 +324,7 @@ trait PageLegacyTrait
             $key = preg_replace(static::PAGE_ORDER_PREFIX_REGEX, '', $key);
             \assert(is_string($key));
         } else {
-            $key = trim($parentKey . '/' . basename($this->getKey()), '/');
+            $key = trim($parentKey . '/' . Utils::basename($this->getKey()), '/');
         }
 
         if ($index->containsKey($key)) {
@@ -336,7 +336,7 @@ trait PageLegacyTrait
             } while ($index->containsKey($test));
             $key = $test;
         }
-        $folder = basename($key);
+        $folder = Utils::basename($key);
 
         // Get the folder name.
         $order = $this->getProperty('order');
@@ -539,7 +539,7 @@ trait PageLegacyTrait
         if ($language) {
             $language = '.' . $language;
         }
-        $format = '.' . ($this->getProperty('format') ?? pathinfo($this->name(), PATHINFO_EXTENSION));
+        $format = '.' . ($this->getProperty('format') ?? Utils::pathinfo($this->name(), PATHINFO_EXTENSION));
 
         return $language . $format;
     }

@@ -97,7 +97,7 @@ trait ControllerResponseTrait
         $headers = $headers ?? [];
         $options = $options ?? ['force_download' => true];
 
-        $file_parts = pathinfo($filename);
+        $file_parts = Utils::pathinfo($filename);
 
         if (!isset($headers['Content-Type'])) {
             $mimetype = Utils::getMimeByExtension($file_parts['extension']);
@@ -140,7 +140,7 @@ trait ControllerResponseTrait
             $code = (int)$this->getConfig()->get('system.pages.redirect_default_code', 302);
         }
 
-        $ext = pathinfo($url, PATHINFO_EXTENSION);
+        $ext = Utils::pathinfo($url, PATHINFO_EXTENSION);
         $accept = $this->getAccept(['application/json', 'text/html']);
         if ($ext === 'json' || $accept === 'application/json') {
             return $this->createJsonResponse(['code' => $code, 'status' => 'redirect', 'redirect' => $url]);

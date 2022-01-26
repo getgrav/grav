@@ -10,6 +10,7 @@
 namespace Grav\Common\Form;
 
 use Grav\Common\Filesystem\Folder;
+use Grav\Common\Utils;
 use Grav\Framework\Form\FormFlash as FrameworkFormFlash;
 use function is_array;
 
@@ -58,7 +59,7 @@ class FormFlash extends FrameworkFormFlash
         Folder::create($tmp_dir);
 
         $tmp_file = $upload['file']['tmp_name'];
-        $basename = basename($tmp_file);
+        $basename = Utils::basename($tmp_file);
 
         if (!move_uploaded_file($tmp_file, $tmp_dir . '/' . $basename)) {
             return false;
@@ -90,7 +91,7 @@ class FormFlash extends FrameworkFormFlash
         Folder::create($tmp_dir);
 
         $tmp_file = $upload['file']['tmp_name'];
-        $basename = basename($tmp_file);
+        $basename = Utils::basename($tmp_file);
 
         if (!move_uploaded_file($tmp_file, $tmp_dir . '/' . $basename)) {
             return false;

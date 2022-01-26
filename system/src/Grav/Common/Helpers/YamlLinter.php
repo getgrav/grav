@@ -11,6 +11,7 @@ namespace Grav\Common\Helpers;
 
 use Exception;
 use Grav\Common\Grav;
+use Grav\Common\Utils;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use RegexIterator;
@@ -108,7 +109,7 @@ class YamlLinter
      */
     protected static function extractYaml($path)
     {
-        $extension = pathinfo($path, PATHINFO_EXTENSION);
+        $extension = Utils::pathinfo($path, PATHINFO_EXTENSION);
         if ($extension === 'md') {
             $file = MarkdownFile::instance($path);
             $contents = $file->frontmatter();

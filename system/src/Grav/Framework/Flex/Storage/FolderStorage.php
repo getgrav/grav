@@ -352,7 +352,7 @@ class FolderStorage extends AbstractFilesystemStorage
      */
     protected function getKeyFromPath(string $path): string
     {
-        return basename($path);
+        return Utils::basename($path);
     }
 
     /**
@@ -688,7 +688,7 @@ class FolderStorage extends AbstractFilesystemStorage
                 $pattern .= '/{FILE}{EXT}';
             } else {
                 $filesystem = Filesystem::getInstance(true);
-                $this->dataFile = basename($pattern, $extension);
+                $this->dataFile = Utils::basename($pattern, $extension);
                 $pattern = $filesystem->dirname($pattern) . '/{FILE}{EXT}';
             }
         }

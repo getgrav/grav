@@ -198,7 +198,7 @@ class Assets extends PropertyObject
             call_user_func_array([$this, 'add'], $args);
         } else {
             // Get extension
-            $extension = pathinfo(parse_url($asset, PHP_URL_PATH), PATHINFO_EXTENSION);
+            $extension = Utils::pathinfo(parse_url($asset, PHP_URL_PATH), PATHINFO_EXTENSION);
 
             // JavaScript or CSS
             if ($extension !== '') {

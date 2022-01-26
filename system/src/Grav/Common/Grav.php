@@ -735,7 +735,7 @@ class Grav extends Container
         /** @var Config $config */
         $config = $this['config'];
 
-        $path_parts = pathinfo($path);
+        $path_parts = Utils::pathinfo($path);
 
         /** @var Pages $pages */
         $pages = $this['pages'];

@@ -662,7 +662,7 @@ abstract class Utils
             // fire download event
             Grav::instance()->fireEvent('onBeforeDownload', new Event(['file' => $file, 'options' => &$options]));
 
-            $file_parts = pathinfo($file);
+            $file_parts = static::pathinfo($file);
             $mimetype = $options['mime'] ?? static::getMimeByExtension($file_parts['extension']);
             $size = filesize($file); // File size
 
@@ -926,7 +926,7 @@ abstract class Utils
      */
     public static function getMimeByFilename($filename, $default = 'application/octet-stream')
     {
-        return static::getMimeByExtension(pathinfo($filename, PATHINFO_EXTENSION), $default);
+        return static::getMimeByExtension(static::pathinfo($filename, PATHINFO_EXTENSION), $default);
     }
 
     /**
@@ -971,7 +971,7 @@ abstract class Utils
     public static function checkFilename($filename)
     {
         $dangerous_extensions = Grav::instance()['config']->get('security.uploads_dangerous_extensions', []);
-        $extension = pathinfo($filename, PATHINFO_EXTENSION);
+        $extension = static::pathinfo($filename, PATHINFO_EXTENSION);
 
         return !(
             // Empty filenames are not allowed.
@@ -983,6 +983,46 @@ abstract class Utils
             // File extension should not be part of configured dangerous extensions
             || in_array($extension, $dangerous_extensions)
         );
+    }
+
+    /**
+     * Unicode-safe version of PHP’s pathinfo() function.
+     *
+     * @link  https://www.php.net/manual/en/function.pathinfo.php
+     *
+     * @param string $path
+     * @param int|null $flags
+     * @return array|string
+     */
+    public static function pathinfo(string $path, int $flags = null)
+    {
+        $path = str_replace(['%2F', '%5C'], ['/', '\\'], rawurlencode($path));
+
+        if (null === $flags) {
+            $info = pathinfo($path);
+        } else {
+            $info = pathinfo($path, $flags);
+        }
+
+        if (is_array($info)) {
+            return array_map('rawurldecode', $info);
+        }
+
+        return rawurldecode($info);
+    }
+
+    /**
+     * Unicode-safe version of the PHP basename() function.
+     *
+     * @link  https://www.php.net/manual/en/function.basename.php
+     *
+     * @param string $path
+     * @param string $suffix
+     * @return string
+     */
+    public static function basename(string $path, string $suffix = ''): string
+    {
+        return rawurldecode(basename(str_replace(['%2F', '%5C'], '/', rawurlencode($path)), $suffix));
     }
 
     /**
@@ -1620,8 +1660,8 @@ abstract class Utils
                     $route = '/' . $matches[2];
 
                     // Exclude filename from the page lookup.
-                    if (pathinfo($route, PATHINFO_EXTENSION)) {
-                        $basename = '/' . basename($route);
+                    if (static::pathinfo($route, PATHINFO_EXTENSION)) {
+                        $basename = '/' . static::basename($route);
                         $route = \dirname($route);
                     } else {
                         $basename = '';

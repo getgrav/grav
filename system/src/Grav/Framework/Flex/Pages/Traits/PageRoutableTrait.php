@@ -15,10 +15,10 @@ use Grav\Common\Page\Interfaces\PageCollectionInterface;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Page\Pages;
 use Grav\Common\Uri;
+use Grav\Common\Utils;
 use Grav\Framework\Filesystem\Filesystem;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use RuntimeException;
-use function dirname;
 use function is_string;
 
 /**
@@ -375,7 +375,7 @@ trait PageRoutableTrait
                     $value = $this->getMasterKey() ?: $this->getKey();
                 }
 
-                return basename($value) ?: null;
+                return Utils::basename($value) ?: null;
             }
         );
     }
