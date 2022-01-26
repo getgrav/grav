@@ -1,3 +1,9 @@
+# v1.7.29
+## mm/dd/2022
+
+1. [](#new)
+    * Added support for registering assets from `HtmlBlock`
+
 # v1.7.28
 ## 01/24/2022
 
