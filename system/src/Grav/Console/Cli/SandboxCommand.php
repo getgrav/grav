@@ -10,6 +10,7 @@
 namespace Grav\Console\Cli;
 
 use Grav\Common\Filesystem\Folder;
+use Grav\Common\Utils;
 use Grav\Console\GravCommand;
 use RuntimeException;
 use Symfony\Component\Console\Input\InputArgument;
@@ -301,7 +302,7 @@ class SandboxCommand extends GravCommand
 
         foreach ($binaries as $bin) {
             chmod($bin, $dir_perms);
-            $io->writeln('    <cyan>bin/' . basename($bin) . '</cyan> permissions reset to ' . decoct($dir_perms));
+            $io->writeln('    <cyan>bin/' . Utils::basename($bin) . '</cyan> permissions reset to ' . decoct($dir_perms));
         }
 
         $io->newLine();

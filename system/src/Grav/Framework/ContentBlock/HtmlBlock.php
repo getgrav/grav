@@ -215,11 +215,14 @@ class HtmlBlock extends ContentBlock implements HtmlBlockInterface
         $content = (string) $element['content'];
         $type = !empty($element['type']) ? (string) $element['type'] : 'text/css';
 
+        unset($element['content'], $element['type']);
+
         $this->styles[$location][md5($content) . sha1($content)] = [
             ':type' => 'inline',
             ':priority' => (int) $priority,
             'content' => $content,
-            'type' => $type
+            'type' => $type,
+            'element' => $element
         ];
 
         return true;
@@ -250,6 +253,8 @@ class HtmlBlock extends ContentBlock implements HtmlBlockInterface
         $async = !empty($element['async']);
         $handle = !empty($element['handle']) ? (string) $element['handle'] : '';
 
+        unset($element['src'], $element['type'], $element['loading'], $element['defer'], $element['async'], $element['handle']);
+
         $this->scripts[$location][md5($src) . sha1($src)] = [
             ':type' => 'file',
             ':priority' => (int) $priority,
@@ -258,7 +263,8 @@ class HtmlBlock extends ContentBlock implements HtmlBlockInterface
             'loading' => $loading,
             'defer' => $defer,
             'async' => $async,
-            'handle' => $handle
+            'handle' => $handle,
+            'element' => $element
         ];
 
         return true;
@@ -286,12 +292,15 @@ class HtmlBlock extends ContentBlock implements HtmlBlockInterface
         $type = !empty($element['type']) ? (string) $element['type'] : 'text/javascript';
         $loading = !empty($element['loading']) ? (string) $element['loading'] : null;
 
+        unset($element['content'], $element['type'], $element['loading']);
+
         $this->scripts[$location][md5($content) . sha1($content)] = [
             ':type' => 'inline',
             ':priority' => (int) $priority,
             'content' => $content,
             'type' => $type,
-            'loading' => $loading
+            'loading' => $loading,
+            'element' => $element
         ];
 
         return true;

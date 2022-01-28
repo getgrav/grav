@@ -3,6 +3,7 @@
 namespace Grav\Installer;
 
 use Closure;
+use Grav\Common\Utils;
 
 /**
  * Class VersionUpdate
@@ -25,7 +26,7 @@ final class VersionUpdate
 
     public function __construct(string $file, VersionUpdater $updater)
     {
-        $name = basename($file, '.php');
+        $name = Utils::basename($file, '.php');
 
         $this->revision = $name;
         [$this->version, $this->date, $this->patch] = explode('_', $name);

@@ -346,7 +346,7 @@ trait FlexMediaTrait
                 }
 
                 // Calculate path without the retina scaling factor.
-                $realpath = $filesystem->pathname($filepath) . str_replace(['@3x', '@2x'], '', basename($filepath));
+                $realpath = $filesystem->pathname($filepath) . str_replace(['@3x', '@2x'], '', Utils::basename($filepath));
 
                 $list[$filename] = [$file, $settings];
 
@@ -508,7 +508,7 @@ trait FlexMediaTrait
         user_error(__METHOD__ . '() is deprecated since Grav 1.7, use Media class that implements MediaUploadInterface instead', E_USER_DEPRECATED);
 
         // Check the file extension.
-        $extension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+        $extension = strtolower(Utils::pathinfo($filename, PATHINFO_EXTENSION));
 
         $grav = Grav::instance();
 

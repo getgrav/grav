@@ -2065,7 +2065,7 @@ class Pages
                     $list[$key] = $child->slug();
                     break;
                 case 'basename':
-                    $list[$key] = basename($key);
+                    $list[$key] = Utils::basename($key);
                     break;
                 case 'folder':
                     $list[$key] = $child->folder();

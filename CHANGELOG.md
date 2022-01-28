@@ -1,3 +1,16 @@
+# v1.7.29
+## 01/28/2022
+
+1. [](#new)
+    * Added support for registering assets from `HtmlBlock`
+    * Added unicode-safe `Utils::basename()` and `Utils::pathinfo()` methods
+2. [](#improved)
+    * Improved `Filesystem::basename()` and `Filesystem::pathinfo()` to be unicode-safe
+    * Made path handling unicode-safe, use new `Utils::basename()` and `Utils::pathinfo()` everywhere
+3. [](#bugfix)
+    * Fixed error on thumbnail image creation
+    * Fixed MimeType for `gzip` (`application/x-gzip`)
+
 # v1.7.28
 ## 01/24/2022
 

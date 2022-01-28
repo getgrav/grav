@@ -11,6 +11,7 @@ namespace Grav\Common\Processors;
 
 use Grav\Common\Processors\Events\RequestHandlerEvent;
 use Grav\Common\Uri;
+use Grav\Common\Utils;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
@@ -42,7 +43,7 @@ class RequestProcessor extends ProcessorBase
         }
 
         $uri = $request->getUri();
-        $ext = mb_strtolower(pathinfo($uri->getPath(), PATHINFO_EXTENSION));
+        $ext = mb_strtolower(Utils::pathinfo($uri->getPath(), PATHINFO_EXTENSION));
 
         $request = $request
             ->withAttribute('grav', $this->container)

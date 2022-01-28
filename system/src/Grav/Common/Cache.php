@@ -177,7 +177,7 @@ class Cache extends Getters
     public function purgeOldCache()
     {
         $cache_dir = dirname($this->cache_dir);
-        $current = basename($this->cache_dir);
+        $current = Utils::basename($this->cache_dir);
         $count = 0;
 
         foreach (new DirectoryIterator($cache_dir) as $file) {

@@ -141,7 +141,7 @@ trait MediaObjectTrait
     {
         $alternatives = [];
         foreach ($this->alternatives + [$this->get('width', 0) => $this] as $size => $alternative) {
-            if ($withDerived || $alternative->filename === basename($alternative->filepath)) {
+            if ($withDerived || $alternative->filename === Utils::basename($alternative->filepath)) {
                 $alternatives[$size] = $alternative;
             }
         }
@@ -574,11 +574,12 @@ trait MediaObjectTrait
 
             foreach ($types as $type) {
                 $thumb = $this->get("thumbnails.{$type}", false);
-
                 if ($thumb) {
-                    $thumb = $thumb instanceof ThumbnailImageMedium ? $thumb : $this->createThumbnail($thumb);
-                    $thumb->parent = $this;
-                    $this->_thumbnail = $thumb;
+                    $image = $thumb instanceof ThumbnailImageMedium ? $thumb : $this->createThumbnail($thumb);
+                    if($image) {
+                        $image->parent = $this;
+                        $this->_thumbnail = $image;
+                    }
                     break;
                 }
             }

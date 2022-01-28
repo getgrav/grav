@@ -373,11 +373,7 @@ class FilesystemExtension extends AbstractExtension
      */
     public function pathinfo($path, $flags = null)
     {
-        if (null !== $flags) {
-            return pathinfo($path, (int)$flags);
-        }
-
-        return pathinfo($path);
+        return Utils::pathinfo($path, $flags);
     }
 
     /**

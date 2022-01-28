@@ -47,7 +47,7 @@ interface FilesystemInterface
     public function normalize(string $path): string;
 
     /**
-     * Returns filename component of path.
+     * Unicode-safe and stream-safe `\basename()` replacement.
      *
      * @param string      $path     A filename or path, does not need to exist as a file.
      * @param string|null $suffix   If the filename ends in suffix this will also be cut off.
@@ -57,7 +57,7 @@ interface FilesystemInterface
     public function basename(string $path, ?string $suffix = null): string;
 
     /**
-     * Stream-safe `\dirname()` replacement.
+     * Unicode-safe and stream-safe `\dirname()` replacement.
      *
      * @see   http://php.net/manual/en/function.dirname.php
      *
@@ -71,7 +71,7 @@ interface FilesystemInterface
     public function dirname(string $path, int $levels = 1): string;
 
     /**
-     * Stream-safe `\pathinfo()` replacement.
+     * Unicode-safe and stream-safe `\pathinfo()` replacement.
      *
      * @see   http://php.net/manual/en/function.pathinfo.php
      *

@@ -12,6 +12,7 @@ namespace Grav\Common\GPM;
 use DirectoryIterator;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\Grav;
+use Grav\Common\Utils;
 use RuntimeException;
 use ZipArchive;
 use function count;
@@ -192,7 +193,7 @@ class Installer
 
             $package_folder_name = $zip->getNameIndex(0);
             if ($package_folder_name === false) {
-                throw new \RuntimeException('Bad package file: ' . basename($zip_file));
+                throw new \RuntimeException('Bad package file: ' . Utils::basename($zip_file));
             }
             $package_folder_name = preg_replace('#\./$#', '', $package_folder_name);
             $zip->close();
