@@ -9,6 +9,7 @@
     * Made path handling unicode-safe, use new `Utils::basename()` and `Utils::pathinfo()` everywhere
 3. [](#bugfix)
     * Fixed error on thumbnail image creation
+    * Fixed MimeType for `gzip` (`application/x-gzip`)
 
 # v1.7.28
 ## 01/24/2022
