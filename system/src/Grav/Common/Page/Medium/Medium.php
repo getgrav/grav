@@ -106,6 +106,7 @@ class Medium extends Data implements RenderableInterface, MediaFileInterface
 
     /**
      * @param string $thumb
+     * @return Medium|null
      */
     protected function createThumbnail($thumb)
     {
