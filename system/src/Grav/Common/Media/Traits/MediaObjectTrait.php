@@ -574,11 +574,12 @@ trait MediaObjectTrait
 
             foreach ($types as $type) {
                 $thumb = $this->get("thumbnails.{$type}", false);
-
                 if ($thumb) {
-                    $thumb = $thumb instanceof ThumbnailImageMedium ? $thumb : $this->createThumbnail($thumb);
-                    $thumb->parent = $this;
-                    $this->_thumbnail = $thumb;
+                    $image = $thumb instanceof ThumbnailImageMedium ? $thumb : $this->createThumbnail($thumb);
+                    if($image) {
+                        $image->parent = $this;
+                        $this->_thumbnail = $image;
+                    }
                     break;
                 }
             }
