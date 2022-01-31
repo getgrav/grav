@@ -1,3 +1,9 @@
+# v1.7.29.1
+## 01/31/2022
+
+3. [](#bugfix)
+    * Fixed `Call to undefined method` error when upgrading from Grav 1.6 [#3523](https://github.com/getgrav/grav/issues/3523)
+
 # v1.7.29
 ## 01/28/2022
 

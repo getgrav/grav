@@ -26,7 +26,7 @@ final class VersionUpdate
 
     public function __construct(string $file, VersionUpdater $updater)
     {
-        $name = Utils::basename($file, '.php');
+        $name = basename($file, '.php');
 
         $this->revision = $name;
         [$this->version, $this->date, $this->patch] = explode('_', $name);
