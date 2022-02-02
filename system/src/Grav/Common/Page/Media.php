@@ -24,7 +24,7 @@ class Media extends AbstractMedia
     protected const VERSION = parent::VERSION . '.1';
 
     /**
-     * @param string $path
+     * @param string|null $path
      * @param array|null $media_order
      * @param bool   $load
      */
