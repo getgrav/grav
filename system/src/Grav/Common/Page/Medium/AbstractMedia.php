@@ -12,6 +12,7 @@ namespace Grav\Common\Page\Medium;
 use Grav\Common\Config\Config;
 use Grav\Common\Data\Blueprint;
 use Grav\Common\File\CompiledYamlFile;
+use Grav\Common\Filesystem\Folder;
 use Grav\Common\Grav;
 use Grav\Common\Language\Language;
 use Grav\Common\Media\Interfaces\MediaCollectionInterface;
@@ -236,16 +237,34 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
     /**
      * Create Medium from a file.
      *
-     * @param  string $file
+     * @param  string $filename
      * @param  array  $params
      * @return Medium|null
      */
-    public function createFromFile($file, array $params = [])
+    public function createFromFile($filename, array $params = [])
     {
-        return MediumFactory::fromFile($file, $params);
+        $info = $this->index[$filename] ?? null;
+        if (null === $info) {
+            // Find out if the file is in this media folder or fall back to MediumFactory.
+            $relativePath = Folder::getRelativePath($filename, $this->path);
+            if ($relativePath !== $filename) {
+                $info = $this->index[$relativePath] ?? null;
+            } elseif (file_exists($filename)) {
+                return MediumFactory::fromFile($filename);
+            }
+        }
+
+        $this->addMediaDefaults($info);
+        if (!is_array($info)) {
+            return null;
+        }
+
+        $params += $info;
+
+        return $this->createFromArray($params);
     }
 
-        /**
+    /**
      * Create Medium from array of parameters
      *
      * @param  array          $items
@@ -255,15 +274,6 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
     public function createFromArray(array $items = [], Blueprint $blueprint = null)
     {
         return MediumFactory::fromArray($items, $blueprint);
-    }
-
-    /**
-     * @param string $path
-     * @return array
-     */
-    public function readImageSize(string $path): array
-    {
-        return getimagesize($path);
     }
 
     /**
@@ -345,6 +355,16 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
     }
 
     /**
+     * Load file listing from the filesystem.
+     *
+     * @return array
+     */
+    protected function loadFileInfo(): array
+    {
+        return [];
+    }
+
+    /**
      * Prepare file information for media.
      *
      * Removes all non-media files and adds some additional metadata.
@@ -359,7 +379,7 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
         //$exifReader = $this->getExifReader();
 
         $list = [];
-        foreach ($files as $filepath => $info) {
+        foreach ($files as $info) {
             // Ignore markdown, frontmatter and dot files. Also ignore all files which are not listed in media types.
             $basename = $info['basename'];
             $extension = $info['extension'] ?? '';
@@ -368,6 +388,7 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
                 continue;
             }
 
+            $filepath = $info['filepath'] ?? (($info['dirname'] ? $info['dirname'] . '/' : '') . $basename);
             $filename = $info['filename'];
 
             $type = $params['type'] ?? 'file';
@@ -376,9 +397,7 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
             if ($info['dirname'] === '.') {
                 $info['dirname'] = '';
             }
-            if (!isset($info['filepath'])) {
-                $info['filepath'] = $filepath;
-            }
+            $info['filepath'] = $filepath;
             $info['basename'] = $filename;
             $info['filename'] = $basename;
 
@@ -389,7 +408,7 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
                     $info += $existing;
                 } elseif ($type === 'image') {
                     // Cached data cannot be used, load the image from the filesystem and read the image size.
-                    $image_info = $this->readImageSize($filepath);
+                    $image_info = $this->readImageSize($info);
                     if ($image_info) {
                         [$width, $height] = $image_info;
                         $info += [
@@ -411,10 +430,53 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
                 }
             }
 
-            $list[$filepath] = $info;
+            $list[$basename] = $info;
         }
 
         return $list;
+    }
+
+    /**
+     * @param array|null $info
+     * @return void
+     */
+    protected function addMediaDefaults(?array &$info): void
+    {
+        if (!is_array($info)) {
+            $info = null;
+
+            return;
+        }
+
+        $config = $this->getConfig();
+        $ext = $info['extension'] ?? '';
+        $media_params = $ext ? $config->get('media.types.' . strtolower($ext)) : null;
+        if (!is_array($media_params)) {
+            $info = null;
+
+            return;
+        }
+
+        // Remove empty 'image' attribute
+        if (isset($media_params['image']) && empty($media_params['image'])) {
+            unset($media_params['image']);
+        }
+
+        // Add default settings for undefined variables.
+        $info += $media_params + (array)$config->get('media.types.defaults');
+        $info += [
+            'thumb' => 'media/thumb.png',
+            'path' => $info['dirname'],
+            'thumbnails' => []
+        ];
+
+        /** @var UniformResourceLocator $locator */
+        $locator = $this->getGrav()['locator'];
+
+        $file = $locator->findResource("image://{$info['thumb']}");
+        if ($file) {
+            $info['thumbnails']['default'] = $file;
+        }
     }
 
     /**
@@ -445,11 +507,11 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
 
         // Group images by base name.
         $media = [];
-        foreach ($files as $filepath => $info) {
+        foreach ($files as $info) {
             // Find out what type we're dealing with
             [$basename, $extension, $type, $extra] = $this->getFileParts($info['filename']);
 
-            $info['file'] = $filepath;
+            $info['file'] = $info['filepath']; // TODO: use filename
             $filename = "{$basename}.{$extension}";
             if ($type === 'alternative') {
                 $media[$filename][$type][$extra] = $info;
@@ -468,7 +530,7 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
                  * @var array $alt
                  */
                 foreach ($types['alternative'] as $ratio => &$alt) {
-                    $alt['file'] = $this->createFromFile($alt['file'], $alt);
+                    $alt['file'] = $this->createFromFile($alt['file']);
                     if (empty($alt['file'])) {
                         unset($types['alternative'][$ratio]);
                     }
@@ -488,7 +550,7 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
                 $file_path = $medium->path();
                 $medium = MediumFactory::scaledFromMedium($medium, $max, 1)['file'];
             } else {
-                $medium = $this->createFromFile($types['base']['file'], $types['base']);
+                $medium = $this->createFromFile($types['base']['file']);
                 if ($medium) {
                     $medium->set('size', $types['base']['size']);
                     $file_path = $medium->path();
@@ -586,6 +648,17 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
     protected function fileExists(string $filename, string $destination): bool
     {
         return file_exists("{$destination}/{$filename}");
+    }
+
+    /**
+     * @param array $info
+     * @return array
+     */
+    protected function readImageSize(array $info): array
+    {
+        $path = $info['filepath'];
+
+        return getimagesize($path);
     }
 
     /**

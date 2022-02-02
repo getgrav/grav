@@ -120,7 +120,7 @@ class Media extends AbstractMedia
             $info['modified'] = $item->getMTime();
             $info['size'] = $item->getSize();
 
-            $media[$path] = $info;
+            $media[$info['basename']] = $info;
         }
 
         return $media;
