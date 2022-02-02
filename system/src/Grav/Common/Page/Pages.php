@@ -1788,6 +1788,7 @@ class Pages
     {
         $directory = rtrim($directory, DS);
         $page = new Page;
+        $page->enableMedia();
 
         /** @var Config $config */
         $config = $this->grav['config'];

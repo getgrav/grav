@@ -173,6 +173,15 @@ class Page implements PageInterface
         $this->taxonomy = [];
         $this->process = $config->get('system.pages.process');
         $this->published = true;
+        $this->_loadMedia = false;
+    }
+
+    /**
+     * @return void
+     */
+    public function enableMedia(): void
+    {
+        $this->_loadMedia = true;
     }
 
     /**

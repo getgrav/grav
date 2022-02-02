@@ -1,3 +1,9 @@
+# v1.7.99-feature
+## mm/dd/2022
+
+2. [](#improved)
+    * By default, add media to only pages which have been initialized in pages loop
+
 # v1.7.30
 ## mm/dd/2022
 
