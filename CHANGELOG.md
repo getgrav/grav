@@ -1,3 +1,9 @@
+# v1.7.30
+## mm/dd/2022
+
+3. [](#new)
+    * Added twig filter `|field_parent` to get parent field name
+
 # v1.7.29.1
 ## 01/31/2022
 
