@@ -116,6 +116,7 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
             new TwigFilter('defined', [$this, 'definedDefaultFilter']),
             new TwigFilter('ends_with', [$this, 'endsWithFilter']),
             new TwigFilter('fieldName', [$this, 'fieldNameFilter']),
+            new TwigFilter('parent_field', [$this, 'fieldParentFilter']),
             new TwigFilter('ksort', [$this, 'ksortFilter']),
             new TwigFilter('ltrim', [$this, 'ltrimFilter']),
             new TwigFilter('markdown', [$this, 'markdownFunction'], ['needs_context' => true, 'is_safe' => ['html']]),
@@ -260,6 +261,10 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
         ];
     }
 
+    /**
+     * @param mixed $var
+     * @return string
+     */
     public function print_r($var)
     {
         return print_r($var, true);
@@ -276,6 +281,20 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
         $path = explode('.', rtrim($str, '.'));
 
         return array_shift($path) . ($path ? '[' . implode('][', $path) . ']' : '');
+    }
+
+    /**
+     * Filters field name by changing dot notation into array notation.
+     *
+     * @param  string $str
+     * @return string
+     */
+    public function fieldParentFilter($str)
+    {
+        $path = explode('.', rtrim($str, '.'));
+        array_pop($path);
+
+        return implode('.', $path);
     }
 
     /**
