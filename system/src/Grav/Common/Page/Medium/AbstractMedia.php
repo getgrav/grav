@@ -44,6 +44,9 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
     use MediaUploadTrait;
     use Serializable;
 
+    /** @var string[] */
+    static public $ignore = ['frontmatter.yaml', 'media.json'];
+
     /** @var string */
     protected const VERSION = '1';
 
@@ -384,7 +387,7 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
             $basename = $info['basename'];
             $extension = $info['extension'] ?? '';
             $params = $media_types[strtolower($extension)] ?? [];
-            if (!$params || $extension === 'md' || $basename === 'frontmatter.yaml' || str_starts_with($basename, '.')) {
+            if (!$params || $extension === 'md' || str_starts_with($basename, '.') || \in_array($basename, static::$ignore, true)) {
                 continue;
             }
 
