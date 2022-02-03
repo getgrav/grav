@@ -16,14 +16,14 @@ use Grav\Common\Page\Media;
 /**
  *
  */
-class FolderMediaFactory implements MediaFactoryInterface
+class LocalMediaFactory implements MediaFactoryInterface
 {
     /**
      * @return string[]
      */
     public function getCollectionTypes(): array
     {
-        return ['folder'];
+        return ['local'];
     }
 
     /**

@@ -50,12 +50,18 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
     /** @var string */
     protected const VERSION = '1';
 
+    /** @var string|null */
+    protected $path;
     /** @var array */
     protected $index = [];
     /** @var array */
     protected $items = [];
-    /** @var string|null */
-    protected $path;
+    /** @var array|null */
+    protected $media_order;
+    /** @var array */
+    protected $standard_exif = ['FileSize', 'MimeType', 'height', 'width'];
+    /** @var int */
+    protected $indexTimeout = 0;
     /** @var array */
     protected $images = [];
     /** @var array */
@@ -64,12 +70,6 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
     protected $audios = [];
     /** @var array */
     protected $files = [];
-    /** @var array|null */
-    protected $media_order;
-    /** @var array */
-    protected $standard_exif = ['FileSize', 'MimeType', 'height', 'width'];
-    /** @var int */
-    protected $indexTimeout = 0;
 
     /**
      * Return media path.
@@ -382,17 +382,13 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
         //$exifReader = $this->getExifReader();
 
         $list = [];
-        foreach ($files as $info) {
+        foreach ($files as $filename => $info) {
             // Ignore markdown, frontmatter and dot files. Also ignore all files which are not listed in media types.
-            $basename = $info['basename'];
             $extension = $info['extension'] ?? '';
             $params = $media_types[strtolower($extension)] ?? [];
-            if (!$params || $extension === 'md' || str_starts_with($basename, '.') || \in_array($basename, static::$ignore, true)) {
+            if (!$params || $extension === 'md' || str_starts_with($filename, '.') || \in_array($filename, static::$ignore, true)) {
                 continue;
             }
-
-            $filepath = $info['filepath'] ?? (($info['dirname'] ? $info['dirname'] . '/' : '') . $basename);
-            $filename = $info['filename'];
 
             $type = $params['type'] ?? 'file';
             $info['type'] = $type;
@@ -400,12 +396,11 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
             if ($info['dirname'] === '.') {
                 $info['dirname'] = '';
             }
-            $info['filepath'] = $filepath;
-            $info['basename'] = $filename;
-            $info['filename'] = $basename;
+            $info['basename'] = $info['filename'];
+            $info['filename'] = $filename;
 
             if (null !== $cached) {
-                $existing = $cached[$filepath] ?? null;
+                $existing = $cached[$filename] ?? null;
                 if ($existing && $existing['size'] === $info['size'] && $existing['modified'] === $info['modified']) {
                     // Append cached data.
                     $info += $existing;
@@ -433,7 +428,7 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
                 }
             }
 
-            $list[$basename] = $info;
+            $list[$filename] = $info;
         }
 
         return $list;
@@ -449,6 +444,10 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
             $info = null;
 
             return;
+        }
+
+        if (!isset($info['filepath'])) {
+            $info['filepath'] = ($info['dirname'] ? $info['dirname'] . '/' : '') . $info['filename'];
         }
 
         $config = $this->getConfig();
@@ -514,7 +513,7 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
             // Find out what type we're dealing with
             [$basename, $extension, $type, $extra] = $this->getFileParts($info['filename']);
 
-            $info['file'] = $info['filepath']; // TODO: use filename
+            $info['file'] = $info['filepath'] ?? (($info['dirname'] ? $info['dirname'] . '/' : '') . $info['filename']);  // TODO: use filename
             $filename = "{$basename}.{$extension}";
             if ($type === 'alternative') {
                 $media[$filename][$type][$extra] = $info;
@@ -659,7 +658,7 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
      */
     protected function readImageSize(array $info): array
     {
-        $path = $info['filepath'];
+        $path = $info['filepath'] ?? (($info['dirname'] ? $info['dirname'] . '/' : '') . $info['filename']);
 
         return getimagesize($path);
     }

@@ -88,7 +88,7 @@ final class MediaFactory implements MediaFactoryInterface
      */
     public function createCollection(array $settings): ?MediaCollectionInterface
     {
-        $type = $settings['type'] ?? 'folder';
+        $type = $settings['type'] ?? 'local';
         $factory = $this->collectionTypes[$type] ?? null;
         if ($factory) {
             return $factory->createCollection($settings);

@@ -9,7 +9,7 @@
 
 namespace Grav\Common\Media\Events;
 
-use Grav\Common\Media\Factories\FolderMediaFactory;
+use Grav\Common\Media\Factories\LocalMediaFactory;
 use Grav\Common\Media\Factories\MediaFactory;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -34,6 +34,6 @@ class MediaEventSubscriber implements EventSubscriberInterface
      */
     public function onMediaFactoryInit(MediaFactory $factory): void
     {
-        $factory->register(new FolderMediaFactory());
+        $factory->register(new LocalMediaFactory());
     }
 }
