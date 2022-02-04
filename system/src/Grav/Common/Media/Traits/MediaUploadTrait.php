@@ -573,6 +573,8 @@ trait MediaUploadTrait
                 }
             }
         }
+
+        $this->hide($filename);
     }
 
     /**

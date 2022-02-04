@@ -7,13 +7,15 @@
 # v1.7.30
 ## mm/dd/2022
 
-3. [](#new)
+1. [](#new)
     * Added twig filter `|field_parent` to get parent field name
+2. [](#bugfix)
+    * Fixed error while deleting retina image in admin
 
 # v1.7.29.1
 ## 01/31/2022
 
-3. [](#bugfix)
+1. [](#bugfix)
     * Fixed `Call to undefined method` error when upgrading from Grav 1.6 [#3523](https://github.com/getgrav/grav/issues/3523)
 
 # v1.7.29
