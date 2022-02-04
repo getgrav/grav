@@ -308,6 +308,11 @@ trait MediaUploadTrait
             // TODO: This overrides existing media sizes if used with multiple retina image sizes.
             $this->doAddUploadedMedium($name, $filename, $path);
 
+            // Force media index update.
+            if (method_exists($this, 'saveIndex')) {
+                $this->saveIndex($this->index, 0);
+            }
+
         } catch (Exception $e) {
             throw new RuntimeException($this->translate('PLUGIN_ADMIN.FAILED_TO_MOVE_UPLOADED_FILE') . $e->getMessage(), 400);
         } finally {
@@ -355,6 +360,11 @@ trait MediaUploadTrait
         // Remove file and all all the associated metadata.
         $this->doRemove($name, $path);
 
+        // Force media index update.
+        if (method_exists($this, 'saveIndex')) {
+            $this->saveIndex($this->index, 0);
+        }
+
         // Finally clear media cache.
         $locator->clearCache();
         $this->clearCache();
@@ -394,6 +404,11 @@ trait MediaUploadTrait
         $to = "{$pathname}{$base}.{$ext}";
 
         $this->doRename($from, $to, $path);
+
+        // Force media index update.
+        if (method_exists($this, 'saveIndex')) {
+            $this->saveIndex($this->index, 0);
+        }
 
         // Finally clear media cache.
         $locator->clearCache();
