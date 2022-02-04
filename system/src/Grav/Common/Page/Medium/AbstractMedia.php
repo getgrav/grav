@@ -474,7 +474,8 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
         // Get file media listing. Use cached version if possible to avoid I/O.
         $now = time();
         [$files, $timestamp] = $this->loadIndex();
-        if ($timestamp < $now - $this->indexTimeout) {
+        $timeout = $this->indexTimeout;
+        if (!$timestamp || ($timeout && $timestamp < $now - $timeout)) {
             $media_types = $config->get('media.types');
             $files = $this->prepareFileInfo($this->loadFileInfo(), $media_types, $files);
 

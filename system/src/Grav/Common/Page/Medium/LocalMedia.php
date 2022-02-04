@@ -189,8 +189,9 @@ abstract class LocalMedia extends AbstractMedia
 
         $index = $indexFile && $indexFile->exists() ? $indexFile->load() : [];
         $version = $index['version'] ?? null;
+        $type = $index['type'] ?? null;
         $folder = $index['folder'] ?? null;
-        if ($version !== static::VERSION || $folder !== $this->path) {
+        if ($version !== static::VERSION || $folder !== $this->path || $type !== ($this->config['type'] ?? 'local')) {
             $index = [];
         }
 

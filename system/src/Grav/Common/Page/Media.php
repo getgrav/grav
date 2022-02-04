@@ -29,6 +29,7 @@ class Media extends LocalMedia
     public function __construct(?string $path, array $media_order = null, bool $load = true)
     {
         $this->setPath($path);
+        $this->indexTimeout = 60;
         $this->media_order = $media_order;
 
         if ($load) {
