@@ -5,6 +5,7 @@
     * Added twig filter `|field_parent` to get parent field name
 2. [](#bugfix)
     * Fixed error while deleting retina image in admin
+    * Fixed "Page Authors" field in Security tab, wrongly loading and saving the value [#3525](https://github.com/getgrav/grav/issues/3525)
 
 # v1.7.29.1
 ## 01/31/2022
