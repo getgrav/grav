@@ -19,7 +19,7 @@ use function dirname;
  * Class GlobalMedia
  * @package Grav\Common\Page\Medium
  */
-class GlobalMedia extends AbstractMedia
+class GlobalMedia extends LocalMedia
 {
     /** @var self */
     protected static $instance;
@@ -56,9 +56,10 @@ class GlobalMedia extends AbstractMedia
     /**
      * Return media path.
      *
+     * @param string|null $filename
      * @return string|null
      */
-    public function getPath(): ?string
+    public function getPath(string $filename = null): ?string
     {
         return null;
     }
@@ -67,18 +68,16 @@ class GlobalMedia extends AbstractMedia
      * @param string $offset
      * @return bool
      */
-    #[\ReturnTypeWillChange]
-    public function offsetExists($offset)
+    public function offsetExists($offset): bool
     {
-        return parent::offsetExists($offset) ?: !empty($this->resolveStream($offset));
+        return parent::offsetExists($offset) || !empty($this->resolveStream($offset));
     }
 
     /**
      * @param string $offset
      * @return MediaObjectInterface|null
      */
-    #[\ReturnTypeWillChange]
-    public function offsetGet($offset)
+    public function offsetGet($offset): ?MediaObjectInterface
     {
         return parent::offsetGet($offset) ?: $this->addMedium($offset);
     }
@@ -87,7 +86,7 @@ class GlobalMedia extends AbstractMedia
      * @param string $filename
      * @return string|null
      */
-    protected function resolveStream($filename)
+    protected function resolveStream(string $filename): ?string
     {
         /** @var UniformResourceLocator $locator */
         $locator = Grav::instance()['locator'];
@@ -102,7 +101,7 @@ class GlobalMedia extends AbstractMedia
      * @param string $stream
      * @return MediaObjectInterface|null
      */
-    protected function addMedium($stream)
+    protected function addMedium(string $stream): ?MediaObjectInterface
     {
         $filename = $this->resolveStream($stream);
         if (!$filename) {

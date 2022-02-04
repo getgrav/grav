@@ -9,17 +9,15 @@
 
 namespace Grav\Common\Page;
 
-use FilesystemIterator;
 use Grav\Common\Media\Interfaces\MediaObjectInterface;
-use Grav\Common\Utils;
-use Grav\Common\Page\Medium\AbstractMedia;
+use Grav\Common\Page\Medium\LocalMedia;
 use Grav\Common\Page\Medium\GlobalMedia;
 
 /**
  * Class Media
  * @package Grav\Common\Page
  */
-class Media extends AbstractMedia
+class Media extends LocalMedia
 {
     protected const VERSION = parent::VERSION . '.1';
 
@@ -28,7 +26,7 @@ class Media extends AbstractMedia
      * @param array|null $media_order
      * @param bool   $load
      */
-    public function __construct($path, array $media_order = null, $load = true)
+    public function __construct(?string $path, array $media_order = null, bool $load = true)
     {
         $this->setPath($path);
         $this->media_order = $media_order;
@@ -82,48 +80,18 @@ class Media extends AbstractMedia
      * @param string $offset
      * @return bool
      */
-    #[\ReturnTypeWillChange]
-    public function offsetExists($offset)
+    public function offsetExists($offset): bool
     {
-        return parent::offsetExists($offset) ?: isset(GlobalMedia::getInstance()[$offset]);
+        return parent::offsetExists($offset) || isset(GlobalMedia::getInstance()[$offset]);
     }
 
     /**
      * @param string $offset
      * @return MediaObjectInterface|null
      */
-    #[\ReturnTypeWillChange]
-    public function offsetGet($offset)
+    public function offsetGet($offset): ?MediaObjectInterface
     {
         return parent::offsetGet($offset) ?: GlobalMedia::getInstance()[$offset];
-    }
-
-
-    /**
-     * Load file listing from the filesystem.
-     *
-     * @return array
-     */
-    protected function loadFileInfo(): array
-    {
-        $media = [];
-        $files = new FilesystemIterator($this->path, FilesystemIterator::UNIX_PATHS | FilesystemIterator::SKIP_DOTS);
-        foreach ($files as $item) {
-            if (!$item->isFile()) {
-                continue;
-            }
-
-            $path = $item->getPathname();
-            $info = Utils::pathinfo($path);
-
-            // Include extra information.
-            $info['modified'] = $item->getMTime();
-            $info['size'] = $item->getSize();
-
-            $media[$info['basename']] = $info;
-        }
-
-        return $media;
     }
 
     /**

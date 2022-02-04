@@ -21,15 +21,16 @@ interface MediaCollectionInterface extends \Grav\Framework\Media\Interfaces\Medi
     /**
      * Return media path.
      *
+     * @param string|null $filename
      * @return string|null
      */
-    public function getPath();
+    public function getPath(string $filename = null): ?string;
 
     /**
      * @param string|null $path
      * @return void
      */
-    public function setPath(?string $path);
+    public function setPath(?string $path): void;
 
     /**
      * Get medium by filename.
@@ -37,42 +38,42 @@ interface MediaCollectionInterface extends \Grav\Framework\Media\Interfaces\Medi
      * @param string $filename
      * @return Medium|null
      */
-    public function get($filename);
+    public function get($filename): ?MediaObjectInterface;
 
     /**
      * Get a list of all media.
      *
      * @return MediaObjectInterface[]
      */
-    public function all();
+    public function all(): array;
 
     /**
      * Get a list of all image media.
      *
      * @return MediaObjectInterface[]
      */
-    public function images();
+    public function images(): array;
 
     /**
      * Get a list of all video media.
      *
      * @return MediaObjectInterface[]
      */
-    public function videos();
+    public function videos(): array;
 
     /**
      * Get a list of all audio media.
      *
      * @return MediaObjectInterface[]
      */
-    public function audios();
+    public function audios(): array;
 
     /**
      * Get a list of all file media.
      *
      * @return MediaObjectInterface[]
      */
-    public function files();
+    public function files(): array;
 
     /**
      * Set file modification timestamps (query params) for all the media files.
@@ -87,7 +88,7 @@ interface MediaCollectionInterface extends \Grav\Framework\Media\Interfaces\Medi
      * @param MediaObjectInterface $file
      * @return void
      */
-    public function add($name, $file);
+    public function add(string $name, MediaObjectInterface $file): void;
 
     /**
      * Create Medium from a file.
@@ -96,7 +97,7 @@ interface MediaCollectionInterface extends \Grav\Framework\Media\Interfaces\Medi
      * @param  array  $params
      * @return Medium|null
      */
-    public function createFromFile($file, array $params = []);
+    public function createFromFile($file, array $params = []): ?MediaObjectInterface;
 
     /**
      * Create Medium from array of parameters
@@ -105,7 +106,7 @@ interface MediaCollectionInterface extends \Grav\Framework\Media\Interfaces\Medi
      * @param  Blueprint|null $blueprint
      * @return Medium|null
      */
-    public function createFromArray(array $items = [], Blueprint $blueprint = null);
+    public function createFromArray(array $items = [], Blueprint $blueprint = null): ?MediaObjectInterface;
 
     /**
      * @param MediaObjectInterface $mediaObject
