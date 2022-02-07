@@ -51,16 +51,12 @@ form:
             type: bool
 
         header.permissions.authors:
-          type: list
+          type: array
           toggleable: true
+          value_only: true
+          placeholder_value: PLUGIN_ADMIN.USERNAME
           label: PLUGIN_ADMIN.PAGE_AUTHORS
           help: PLUGIN_ADMIN.PAGE_AUTHORS_HELP
-
-          fields:
-            value:
-              type: text
-              placeholder: PLUGIN_ADMIN.USERNAME
-              style: vertical
 
         header.permissions.groups:
           ignore@: true

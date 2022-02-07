@@ -113,6 +113,7 @@ config:
       fields:
         - key
         - groupname
+        - readableName
         - description
 
 blueprints:
