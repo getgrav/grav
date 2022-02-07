@@ -266,24 +266,24 @@ class FilesystemExtension extends AbstractExtension
     }
 
     /**
-     * @param string $file
+     * @param string $filename
      * @param string|null $required_sections
      * @param bool $as_arrays
      * @param bool $read_thumbnail
      * @return array|false
      */
-    public function exif_read_data($file, ?string $required_sections, bool $as_arrays = false, bool $read_thumbnail = false)
+    public function exif_read_data($filename, ?string $required_sections, bool $as_arrays = false, bool $read_thumbnail = false)
     {
-        if (!Utils::functionExists('exif_read_data') || !$this->checkFilename($file)) {
+        if (!Utils::functionExists('exif_read_data') || !$this->checkFilename($filename)) {
             return false;
         }
 
-        return exif_read_data($file, $required_sections, $as_arrays, $read_thumbnail);
+        return exif_read_data($filename, $required_sections, $as_arrays, $read_thumbnail);
     }
 
     /**
      * @param string $filename
-     * @return string|false
+     * @return int|false
      */
     public function exif_imagetype($filename)
     {
@@ -311,18 +311,18 @@ class FilesystemExtension extends AbstractExtension
 
     /**
      * @param string $algo
-     * @param string $data
+     * @param string $filename
      * @param string $key
      * @param bool $binary
      * @return string|false
      */
-    public function hash_hmac_file(string $algo, string $data, string $key, bool $binary = false)
+    public function hash_hmac_file(string $algo, string $filename, string $key, bool $binary = false)
     {
-        if (!$this->checkFilename($data)) {
+        if (!$this->checkFilename($filename)) {
             return false;
         }
 
-        return hash_hmac_file($algo, $data, $key, $binary);
+        return hash_hmac_file($algo, $filename, $key, $binary);
     }
 
     /**

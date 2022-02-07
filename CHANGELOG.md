@@ -5,7 +5,7 @@
     * By default, add media to only pages which have been initialized in pages loop
 
 # v1.7.30
-## mm/dd/2022
+## 02/07/2022
 
 1. [](#new)
     * Added twig filter `|field_parent` to get parent field name
