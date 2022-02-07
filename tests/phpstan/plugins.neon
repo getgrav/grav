@@ -1,6 +1,7 @@
 includes:
     #- '../../vendor/phpstan/phpstan-strict-rules/rules.neon'
     - '../../vendor/phpstan/phpstan-deprecation-rules/rules.neon'
+    - 'extension.neon'
 parameters:
     fileExtensions:
         - php
@@ -37,6 +38,7 @@ parameters:
         - Grav\Common\GPM\Common\Package
         - Grav\Common\GPM\Local\Package
         - Grav\Common\GPM\Remote\Package
+        - Grav\Common\Page\Header
         - Grav\Common\Session
         - Gantry\Component\Config\Config
     dynamicConstantNames:

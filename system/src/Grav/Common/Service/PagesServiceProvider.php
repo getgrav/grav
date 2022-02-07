@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Service
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -99,7 +99,8 @@ class PagesServiceProvider implements ServiceProviderInterface
                     /** @var Language $language */
                     $language = $grav['language'];
 
-                    $redirectCode = (int)$config->get('system.pages.redirect_default_route', 0);
+                    $redirect_default_route = $page->header()->redirect_default_route ?? $config->get('system.pages.redirect_default_route', 0);
+                    $redirectCode = (int) $redirect_default_route;
 
                     // Language-specific redirection scenarios
                     if ($language->enabled() && ($language->isLanguageInUrl() xor $language->isIncludeDefaultLanguage())) {

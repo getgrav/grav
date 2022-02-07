@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Page
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -12,6 +12,7 @@ namespace Grav\Common\Page;
 use Grav\Common\Data\Blueprint;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\Grav;
+use Grav\Common\Utils;
 use InvalidArgumentException;
 use RocketTheme\Toolbox\ArrayTraits\ArrayAccess;
 use RocketTheme\Toolbox\ArrayTraits\Constructor;
@@ -144,7 +145,7 @@ class Types implements \ArrayAccess, \Iterator, \Countable
             if (strpos($name, 'modular/') !== 0) {
                 continue;
             }
-            $list[$name] = ucfirst(trim(str_replace('_', ' ', basename($name))));
+            $list[$name] = ucfirst(trim(str_replace('_', ' ', Utils::basename($name))));
         }
         ksort($list);
 

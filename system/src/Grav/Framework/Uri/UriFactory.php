@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Uri
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -125,7 +125,7 @@ class UriFactory
 
         $encodedUrl = preg_replace_callback(
             '%[^:/@?&=#]+%u',
-            function ($matches) {
+            static function ($matches) {
                 return rawurlencode($matches[0]);
             },
             $url

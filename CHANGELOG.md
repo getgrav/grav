@@ -1,17 +1,101 @@
+# v1.7.30
+## mm/dd/2022
+
+1. [](#new)
+    * Added twig filter `|field_parent` to get parent field name
+2. [](#bugfix)
+    * Fixed error while deleting retina image in admin
+    * Fixed "Page Authors" field in Security tab, wrongly loading and saving the value [#3525](https://github.com/getgrav/grav/issues/3525)
+    * Fixed accounts filter only matches against email address [getgrav/grav-plugin-admin#2224](https://github.com/getgrav/grav-plugin-admin/issues/2224)
+
+# v1.7.29.1
+## 01/31/2022
+
+1. [](#bugfix)
+    * Fixed `Call to undefined method` error when upgrading from Grav 1.6 [#3523](https://github.com/getgrav/grav/issues/3523)
+
+# v1.7.29
+## 01/28/2022
+
+1. [](#new)
+    * Added support for registering assets from `HtmlBlock`
+    * Added unicode-safe `Utils::basename()` and `Utils::pathinfo()` methods
+2. [](#improved)
+    * Improved `Filesystem::basename()` and `Filesystem::pathinfo()` to be unicode-safe
+    * Made path handling unicode-safe, use new `Utils::basename()` and `Utils::pathinfo()` everywhere
+3. [](#bugfix)
+    * Fixed error on thumbnail image creation
+    * Fixed MimeType for `gzip` (`application/x-gzip`)
+
+# v1.7.28
+## 01/24/2022
+
+1. [](#new)
+    * Added links and modules support to `HtmlBlock` class
+    * Added module support for twig script tag: `{% script module 'theme://js/module.mjs' %}`
+    * Added twig tag for links: `{% link icon 'theme://images/favicon.png' priority: 20 with { type: 'image/png' } %}`
+    * Added `HtmlBlock` support for `{% style %}`, `{% script %}` and `{% link %}` tags
+    * Support for page-level `redirect_default_route` frontmatter header override
+3. [](#bugfix)
+    * Fixed XSS check not detecting escaped `&#58`
+
+# v1.7.27.1
+## 01/12/2022
+
+3. [](#bugfix)
+   * Fixed a typo in CSS Asset pipeline that was erroneously joining files with `;`
+
+# v1.7.27
+## 01/12/2022
+
+1. [](#new)
+   * Support for `YubiKey OTP` 2-Factor authenticator
+   * Added support for generic `assets.link()` for external references. No pipeline support
+   * Added support for `assets.addJsModule()` with full pipeline support
+   * Added `Utils::getExtensionsByMime()` method to get all the registered extensions for the specific mime type
+   * Added `Media::getRoute()` and `Media::getRawRoute()` methods to get page route if available
+   * Added `Medium::getAlternatives()` to be able to list all the retina sizes
+2. [](#improved)
+   * Improved `Utils::download()` method to allow overrides on download name, mime and expires header
+   * Improved `onPageFallBackUrl` event
+   * Reorganized the Asset system configuration blueprint for clarity
+3. [](#bugfix)
+   * Fixed CLI `--env` and `--lang` options having no effect if they aren't added before all the other options
+   * Fixed scaled image medium filename when using non-existing retina file
+   * Fixed an issue with JS `imports` and pipelining Assets
+
+# v1.7.26.1
+## 01/04/2022
+
+3. [](#bugfix)
+   * Fixed `UserObject::getAccess()` after cloning the object
+
 # v1.7.26
-## mm/dd/2021
+## 01/03/2022
 
 1. [](#new)
     * Made `Grav::redirect()` to accept `Route` class
     * Added `translated()` method to `PageTranslateInterface`
+    * Added second parameter to `UserObject::isMyself()` method
+    * Added `UserObject::$isAuthorizedCallable` to allow `$user->isAuthorized()` customization
+    * Use secure session cookies in HTTPS by default (`system.session.secure_https: true`)
+    * Added new `Plugin::inheritedConfigOption()` function to access plugin specific functions for page overrides
 2. [](#improved)
    * Upgraded vendor libs for PHP 8.1 compatibility
    * Upgraded to **composer v2.1.14** for PHP 8.1 compatibility
    * Added third `$name` parameter to `Blueprint::flattenData()` method, useful for flattening repeating data
    * `ControllerResponseTrait`: Redirect response should be json if the extension is .json
+   * When symlinking Grav install, include also tests
+   * Updated copyright year to `2022`
 3. [](#bugfix)
    * Fixed bad key lookup in `FlexRelatedDirectoryTrait::getCollectionByProperty()`
    * Fixed RequestHandlers `NotFoundException` having empty request
+   * Block `.json` files in web server configs
+   * Disabled pretty debug info for Flex as it slows down Twig rendering
+   * Fixed Twig being very slow when template overrides do not exist
+   * Fixed `UserObject::$authorizeCallable` binding to the user object
+   * Fixed `FlexIndex::call()` to return null instead of failing to call undefined method
+   * Fixed Flex directory configuration creating environment configuration when it should not
 
 # v1.7.25
 ## 11/16/2021

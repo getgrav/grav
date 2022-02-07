@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Form
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -343,7 +343,7 @@ class FormFlash implements FormFlashInterface
 
         // Prepare upload data for later save
         $data = [
-            'name' => basename($filename),
+            'name' => Utils::basename($filename),
             'type' => Utils::getMimeByLocalFile($filename),
             'size' => filesize($filename),
         ];

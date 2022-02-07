@@ -29,6 +29,7 @@ assets:
   css_minify: true
   css_rewrite: true
   js_pipeline: false
+  js_module_pipeline: false
   js_minify: true
 
 errors:

@@ -127,6 +127,9 @@ assets:                                          # Configuration for Assets Mana
   js_pipeline: false                             # The JS pipeline is the unification of multiple JS resources into one file
   js_pipeline_include_externals: true            # Include external URLs in the pipeline by default
   js_pipeline_before_excludes: true              # Render the pipeline before any excluded files
+  js_module_pipeline: false                      # The JS Module pipeline is the unification of multiple JS Module resources into one file
+  js_module_pipeline_include_externals: true     # Include external URLs in the pipeline by default
+  js_module_pipeline_before_excludes: true       # Render the pipeline before any excluded files
   js_minify: true                                # Minify the JS during pipelining
   enable_asset_timestamp: false                  # Enable asset timestamps
   enable_asset_sri: false                        # Enable asset SRI
@@ -182,6 +185,7 @@ session:
   name: grav-site                                # Name prefix of the session cookie. Use alphanumeric, dashes or underscores only. Do not use dots in the session name
   uniqueness: path                               # Should sessions be `path` based or `security.salt` based
   secure: false                                  # Set session secure. If true, indicates that communication for this cookie must be over an encrypted transmission. Enable this only on sites that run exclusively on HTTPS
+  secure_https: true                             # Set session secure on HTTPS but not on HTTP. Has no effect if you have `session.secure: true`. Set to false if your site jumps between HTTP and HTTPS.
   httponly: true                                 # Set session HTTP only. If true, indicates that cookies should be used only over HTTP, and JavaScript modification is not allowed.
   samesite: Lax                                  # Set session SameSite. Possible values are Lax, Strict and None. See https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie/SameSite
   split: true                                    # Sessions should be independent between site and plugins (such as admin)

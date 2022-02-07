@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Object
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -22,7 +22,7 @@ use function is_object;
  * @package Grav\Framework\Object
  *
  * @template TKey as array-key
- * @template T as object
+ * @template T as ObjectInterface
  */
 trait ObjectCollectionTrait
 {
@@ -366,6 +366,7 @@ trait ObjectCollectionTrait
     {
         $collections = [];
         foreach ($this->group($property) as $id => $elements) {
+            /** @phpstan-var static<TKey,T> $collection */
             $collection = $this->createFrom($elements);
 
             $collections[$id] = $collection;

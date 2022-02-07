@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * @package    Grav\Common\Flex
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -16,13 +16,13 @@ use Grav\Common\Debugger;
 use Grav\Common\Flex\Types\Pages\PageIndex;
 use Grav\Common\Grav;
 use Grav\Common\Language\Language;
+use Grav\Common\Utils;
 use Grav\Framework\Filesystem\Filesystem;
 use Grav\Framework\Flex\Storage\FolderStorage;
 use RocketTheme\Toolbox\File\MarkdownFile;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use RuntimeException;
 use SplFileInfo;
-use function assert;
 use function in_array;
 use function is_string;
 
@@ -277,7 +277,7 @@ class PageStorage extends FolderStorage
         } else {
             $params = $template = $language = '';
         }
-        $objectKey = basename($key);
+        $objectKey = Utils::basename($key);
         if (preg_match('|^(\d+)\.(.+)$|', $objectKey, $matches)) {
             [, $order, $folder] = $matches;
         } else {
@@ -584,7 +584,7 @@ class PageStorage extends FolderStorage
                             $mark = $matches[2] ?? '';
                             $ext = $matches[1] ?? '';
                             $ext .= $this->dataExt;
-                            $markdown[$mark][basename($k, $ext)] = $timestamp;
+                            $markdown[$mark][Utils::basename($k, $ext)] = $timestamp;
                         }
 
                         $modified = max($modified, $timestamp);
@@ -675,7 +675,7 @@ class PageStorage extends FolderStorage
 
                 /** @phpstan-var array{'storage_key': string, 'storage_timestamp': int, 'children': array<string, mixed>} $parent */
                 $parent = &$list[$parentKey];
-                $basename = basename($storage_key);
+                $basename = Utils::basename($storage_key);
 
                 if (isset($parent['children'][$basename])) {
                     $timestamp = $meta['storage_timestamp'];

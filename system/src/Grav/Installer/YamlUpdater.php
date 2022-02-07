@@ -3,12 +3,13 @@
 /**
  * @package    Grav\Installer
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Installer;
 
+use Grav\Common\Utils;
 use Symfony\Component\Yaml\Yaml;
 use function assert;
 use function count;

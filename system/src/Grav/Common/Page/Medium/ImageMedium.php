@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Page
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -249,12 +249,12 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
         if ($this->saved_image_path && $this->auto_sizes) {
             if (!array_key_exists('height', $this->attributes) && !array_key_exists('width', $this->attributes)) {
                 $info = getimagesize($this->saved_image_path);
-                $width = intval($info[0]);
-                $height = intval($info[1]);
+                $width = (int)$info[0];
+                $height = (int)$info[1];
 
                 $scaling_factor = $this->retina_scale > 0 ? $this->retina_scale : 1;
-                $attributes['width'] = intval($width / $scaling_factor);
-                $attributes['height'] = intval($height / $scaling_factor);
+                $attributes['width'] = (int)($width / $scaling_factor);
+                $attributes['height'] = (int)($height / $scaling_factor);
 
                 if ($this->aspect_ratio) {
                     $style = ($attributes['style'] ?? ' ') . "--aspect-ratio: $width/$height;";

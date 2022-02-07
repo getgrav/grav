@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -118,7 +118,7 @@ class Plugin implements EventSubscriberInterface, ArrayAccess
      */
     public function config()
     {
-        return null !== $this->config ? $this->config["plugins.{$this->name}"] : [];
+        return $this->config["plugins.{$this->name}"] ?? [];
     }
 
     /**
@@ -412,6 +412,30 @@ class Plugin implements EventSubscriberInterface, ArrayAccess
         unset($file);
 
         return true;
+    }
+
+    public static function inheritedConfigOption(string $plugin, string $var, PageInterface $page = null, $default = null)
+    {
+        if (Utils::isAdminPlugin()) {
+            $page = Grav::instance()['admin']->page() ?? null;
+        } else {
+            $page = $page ?? Grav::instance()['page'] ?? null;
+        }
+
+        // Try to find var in the page headers
+        if ($page instanceof PageInterface && $page->exists()) {
+            // Loop over pages and look for header vars
+            while ($page && !$page->root()) {
+                $header = new Data((array)$page->header());
+                $value = $header->get("$plugin.$var");
+                if (isset($value)) {
+                    return $value;
+                }
+                $page = $page->parent();
+            }
+        }
+
+        return Grav::instance()['config']->get("plugins.$plugin.$var", $default);
     }
 
     /**

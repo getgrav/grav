@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Media
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -62,6 +62,14 @@ interface MediaObjectInterface extends \Grav\Framework\Media\Interfaces\MediaObj
      * @param MediaObjectInterface $alternative
      */
     public function addAlternative($ratio, MediaObjectInterface $alternative);
+
+    /**
+     * Get list of image alternatives. Includes the current media image as well.
+     *
+     * @param bool $withDerived If true, include generated images as well. If false, only return existing files.
+     * @return array
+     */
+    public function getAlternatives(bool $withDerived = true): array;
 
     /**
      * Return string representation of the object (html).

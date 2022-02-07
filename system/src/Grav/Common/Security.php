@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -61,7 +61,7 @@ class Security
             if ($clean_svg !== false ) {
                 file_put_contents($file, $clean_svg);
             } else {
-                $quarantine_file = basename($file);
+                $quarantine_file = Utils::basename($file);
                 $quarantine_dir = 'log://quarantine';
                 Folder::mkdir($quarantine_dir);
                 file_put_contents("$quarantine_dir/$quarantine_file", $original_svg);
@@ -214,7 +214,7 @@ class Security
             'on_events' => '#(<[^>]+[[a-z\x00-\x20\"\'\/])([\s\/]on|\sxmlns)[a-z].*=>?#iUu',
 
             // Match javascript:, livescript:, vbscript:, mocha:, feed: and data: protocols
-            'invalid_protocols' => '#(' . implode('|', array_map('preg_quote', $invalid_protocols, ['#'])) . '):\S.*?#iUu',
+            'invalid_protocols' => '#(' . implode('|', array_map('preg_quote', $invalid_protocols, ['#'])) . ')(:|\&\#58)\S.*?#iUu',
 
             // Match -moz-bindings
             'moz_binding' => '#-moz-binding[a-z\x00-\x20]*:#u',

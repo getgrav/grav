@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -177,7 +177,7 @@ class Cache extends Getters
     public function purgeOldCache()
     {
         $cache_dir = dirname($this->cache_dir);
-        $current = basename($this->cache_dir);
+        $current = Utils::basename($this->cache_dir);
         $count = 0;
 
         foreach (new DirectoryIterator($cache_dir) as $file) {

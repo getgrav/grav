@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Collection
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -145,31 +145,37 @@ abstract class AbstractIndexCollection implements CollectionInterface
     /**
      * Required by interface ArrayAccess.
      *
-     * {@inheritDoc}
+     * @param string|int|null $offset
+     * @return bool
      * @phpstan-param TKey|null $offset
      */
     #[\ReturnTypeWillChange]
     public function offsetExists($offset)
     {
+        /** @phpstan-ignore-next-line phpstan bug? */
         return $offset !== null ? $this->containsKey($offset) : false;
     }
 
     /**
      * Required by interface ArrayAccess.
      *
-     * {@inheritDoc}
+     * @param string|int|null $offset
+     * @return mixed
      * @phpstan-param TKey|null $offset
      */
     #[\ReturnTypeWillChange]
     public function offsetGet($offset)
     {
+        /** @phpstan-ignore-next-line phpstan bug? */
         return $offset !== null ? $this->get($offset) : null;
     }
 
     /**
      * Required by interface ArrayAccess.
      *
-     * {@inheritDoc}
+     * @param string|int|null $offset
+     * @param mixed $value
+     * @return void
      * @phpstan-param TKey|null $offset
      */
     #[\ReturnTypeWillChange]
@@ -178,6 +184,7 @@ abstract class AbstractIndexCollection implements CollectionInterface
         if (null === $offset) {
             $this->add($value);
         } else {
+            /** @phpstan-ignore-next-line phpstan bug? */
             $this->set($offset, $value);
         }
     }
@@ -185,13 +192,15 @@ abstract class AbstractIndexCollection implements CollectionInterface
     /**
      * Required by interface ArrayAccess.
      *
-     * {@inheritDoc}
+     * @param string|int|null $offset
+     * @return void
      * @phpstan-param TKey|null $offset
      */
     #[\ReturnTypeWillChange]
     public function offsetUnset($offset)
     {
         if ($offset !== null) {
+            /** @phpstan-ignore-next-line phpstan bug? */
             $this->remove($offset);
         }
     }

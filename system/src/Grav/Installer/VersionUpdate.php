@@ -3,6 +3,7 @@
 namespace Grav\Installer;
 
 use Closure;
+use Grav\Common\Utils;
 
 /**
  * Class VersionUpdate

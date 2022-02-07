@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Page
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -206,7 +206,7 @@ class Excerpts
                 && (empty($url_parts['host']) || $url_parts['host'] === $grav['uri']->host());
 
             if ($local_file) {
-                $filename = basename($url_parts['path']);
+                $filename = Utils::basename($url_parts['path']);
                 $folder = dirname($url_parts['path']);
 
                 // Get the local path to page media if possible.

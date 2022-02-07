@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * @package    Grav\Framework\Filesystem
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -15,6 +15,7 @@ use Grav\Framework\Filesystem\Interfaces\FilesystemInterface;
 use RuntimeException;
 use function count;
 use function dirname;
+use function is_array;
 use function pathinfo;
 
 /**
@@ -150,7 +151,10 @@ class Filesystem implements FilesystemInterface
      */
     public function basename(string $path, ?string $suffix = null): string
     {
-        return $suffix ? basename($path, $suffix) : basename($path);
+        // Escape path.
+        $path = str_replace(['%2F', '%5C'], '/', rawurlencode($path));
+
+        return rawurldecode($suffix ? basename($path, $suffix) : basename($path));
     }
 
     /**
@@ -231,14 +235,24 @@ class Filesystem implements FilesystemInterface
      */
     protected function pathinfoInternal(?string $scheme, string $path, ?int $options = null)
     {
-        if ($options) {
-            return pathinfo($path, $options);
+        $path = str_replace(['%2F', '%5C'], ['/', '\\'], rawurlencode($path));
+
+        if (null === $options) {
+            $info = pathinfo($path);
+        } else {
+            $info = pathinfo($path, $options);
         }
 
-        $info = pathinfo($path);
+        if (!is_array($info)) {
+            return rawurldecode($info);
+        }
+
+        $info = array_map('rawurldecode', $info);
 
         if (null !== $scheme) {
             $info['scheme'] = $scheme;
+
+            /** @phpstan-ignore-next-line because pathinfo('') doesn't have dirname */
             $dirname = $info['dirname'] ?? '.';
 
             if ('' !== $dirname && '.' !== $dirname) {

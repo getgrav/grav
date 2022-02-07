@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Twig
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -15,14 +15,20 @@ use Twig\Token;
 use Twig\TokenParser\AbstractTokenParser;
 
 /**
- * Adds a script to head/bottom/custom location in the document.
+ * Adds a script to head/bottom/custom group location in the document.
  *
- * {% script 'theme://js/something.js' at 'bottom' priority: 20 with { defer: true, async: true } %}
+ * {% script 'theme://js/something.js' at 'bottom' priority: 20 with { position: 'pipeline', loading: 'async defer' } %}
+ * {% script module 'theme://js/module.mjs' at 'head' %}
  *
+ * {% script 'theme://js/something.js' at 'bottom' priority: 20 with { loading: 'inline' } %}
  * {% script at 'bottom' priority: 20 %}
- *     alert('Warning!');
+ *   alert('Warning!');
  * {% endscript %}
-
+ *
+ * {% script module 'theme://js/module.mjs' at 'bottom' with { loading: 'inline' } %}
+ * {% script module at 'bottom' %}
+ *   ...
+ * {% endscript %}
  */
 class TwigTokenParserScript extends AbstractTokenParser
 {
@@ -38,7 +44,7 @@ class TwigTokenParserScript extends AbstractTokenParser
         $lineno = $token->getLine();
         $stream = $this->parser->getStream();
 
-        [$file, $group, $priority, $attributes] = $this->parseArguments($token);
+        [$type, $file, $group, $priority, $attributes] = $this->parseArguments($token);
 
         $content = null;
         if ($file === null) {
@@ -46,7 +52,7 @@ class TwigTokenParserScript extends AbstractTokenParser
             $stream->expect(Token::BLOCK_END_TYPE);
         }
 
-        return new TwigNodeScript($content, $file, $group, $priority, $attributes, $lineno, $this->getTag());
+        return new TwigNodeScript($content, $type, $file, $group, $priority, $attributes, $lineno, $this->getTag());
     }
 
     /**
@@ -73,6 +79,12 @@ class TwigTokenParserScript extends AbstractTokenParser
             } while (true);
         }
 
+        $type = null;
+        if ($stream->test(Token::NAME_TYPE, 'module')) {
+            $type = $stream->getCurrent()->getValue();
+            $stream->next();
+        }
+
         $file = null;
         if (!$stream->test(Token::NAME_TYPE) && !$stream->test(Token::OPERATOR_TYPE, 'in') && !$stream->test(Token::BLOCK_END_TYPE)) {
             $file = $this->parser->getExpressionParser()->parseExpression();
@@ -96,7 +108,7 @@ class TwigTokenParserScript extends AbstractTokenParser
 
         $stream->expect(Token::BLOCK_END_TYPE);
 
-        return [$file, $group, $priority, $attributes];
+        return [$type, $file, $group, $priority, $attributes];
     }
 
     /**

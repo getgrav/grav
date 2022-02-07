@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Console\Gpm
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -579,7 +579,7 @@ class InstallCommand extends GpmCommand
 
         $tmp_dir = Grav::instance()['locator']->findResource('tmp://', true, true);
         $this->tmp = $tmp_dir . '/Grav-' . uniqid();
-        $filename = $package->slug . basename($package->zipball_url);
+        $filename = $package->slug . Utils::basename($package->zipball_url);
         $filename = preg_replace('/[\\\\\/:"*?&<>|]+/m', '-', $filename);
         $query = '';
 

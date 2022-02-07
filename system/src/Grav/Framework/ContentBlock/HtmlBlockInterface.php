@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\ContentBlock
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -36,6 +36,13 @@ interface HtmlBlockInterface extends ContentBlockInterface
      * @return array
      */
     public function getScripts($location = 'head');
+
+
+    /**
+     * @param string $location
+     * @return array
+     */
+    public function getLinks($location = 'head');
 
     /**
      * @param string $location
@@ -76,7 +83,6 @@ interface HtmlBlockInterface extends ContentBlockInterface
      */
     public function addScript($element, $priority = 0, $location = 'head');
 
-
     /**
      * @param string|array $element
      * @param int $priority
@@ -84,6 +90,35 @@ interface HtmlBlockInterface extends ContentBlockInterface
      * @return bool
      */
     public function addInlineScript($element, $priority = 0, $location = 'head');
+
+
+    /**
+     * Shortcut for writing addScript(['type' => 'module', 'src' => ...]).
+     *
+     * @param string|array $element
+     * @param int $priority
+     * @param string $location
+     * @return bool
+     */
+    public function addModule($element, $priority = 0, $location = 'head');
+
+    /**
+     * Shortcut for writing addInlineScript(['type' => 'module', 'content' => ...]).
+     *
+     * @param string|array $element
+     * @param int $priority
+     * @param string $location
+     * @return bool
+     */
+    public function addInlineModule($element, $priority = 0, $location = 'head');
+
+    /**
+     * @param array $element
+     * @param int $priority
+     * @param string $location
+     * @return bool
+     */
+    public function addLink($element, $priority = 0, $location = 'head');
 
     /**
      * @param string $html

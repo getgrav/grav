@@ -3,18 +3,21 @@
 /**
  * @package    Grav\Console
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Console\Application;
 
 use Grav\Common\Grav;
+use Symfony\Component\Console\ConsoleEvents;
+use Symfony\Component\Console\Event\ConsoleCommandEvent;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * Class GpmApplication
@@ -30,16 +33,45 @@ class Application extends \Symfony\Component\Console\Application
     protected $initialized = false;
 
     /**
+     * PluginApplication constructor.
+     * @param string $name
+     * @param string $version
+     */
+    public function __construct(string $name = 'UNKNOWN', string $version = 'UNKNOWN')
+    {
+        parent::__construct($name, $version);
+
+        // Add listener to prepare environment.
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener(ConsoleEvents::COMMAND, [$this, 'prepareEnvironment']);
+
+        $this->setDispatcher($dispatcher);
+    }
+
+    /**
      * @param InputInterface $input
      * @return string|null
      */
     public function getCommandName(InputInterface $input): ?string
     {
-        $this->environment = $input->getOption('env');
-        $this->language = $input->getOption('lang') ?? $this->language;
+        if ($input->hasParameterOption('--env', true)) {
+            $this->environment = $input->getParameterOption('--env');
+        }
+        if ($input->hasParameterOption('--lang', true)) {
+            $this->language = $input->getParameterOption('--lang');
+        }
+
         $this->init();
 
         return parent::getCommandName($input);
+    }
+
+    /**
+     * @param ConsoleCommandEvent $event
+     * @return void
+     */
+    public function prepareEnvironment(ConsoleCommandEvent $event): void
+    {
     }
 
     /**
@@ -58,7 +90,7 @@ class Application extends \Symfony\Component\Console\Application
     }
 
     /**
-     * Add global a --env option.
+     * Add global --env and --lang options.
      *
      * @return InputDefinition
      */
@@ -67,16 +99,16 @@ class Application extends \Symfony\Component\Console\Application
         $inputDefinition = parent::getDefaultInputDefinition();
         $inputDefinition->addOption(
             new InputOption(
-                'env',
-                null,
+                '--env',
+                '',
                 InputOption::VALUE_OPTIONAL,
                 'Use environment configuration (defaults to localhost)'
             )
         );
         $inputDefinition->addOption(
             new InputOption(
-                'lang',
-                null,
+                '--lang',
+                '',
                 InputOption::VALUE_OPTIONAL,
                 'Language to be used (defaults to en)'
             )

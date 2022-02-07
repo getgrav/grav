@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Assets
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -26,8 +26,9 @@ abstract class BaseAsset extends PropertyObject
 {
     use AssetUtilsTrait;
 
-    protected const CSS_ASSET = true;
-    protected const JS_ASSET = false;
+    protected const CSS_ASSET = 1;
+    protected const JS_ASSET = 2;
+    protected const JS_MODULE_ASSET = 3;
 
     /** @var string|false */
     protected $asset;
@@ -69,7 +70,7 @@ abstract class BaseAsset extends PropertyObject
      * @param array $elements
      * @param string|null $key
      */
-    public function __construct(array $elements = [], $key = null)
+    public function __construct(array $elements = [], ?string $key = null)
     {
         $base_config = [
             'group' => 'head',
@@ -263,6 +264,19 @@ abstract class BaseAsset extends PropertyObject
      * @return string
      */
     protected function cssRewrite($file, $dir, $local)
+    {
+        return '';
+    }
+
+    /**
+     * Finds relative JS urls() and rewrites the URL with an absolute one
+     *
+     * @param string $file the css source file
+     * @param string $dir local relative path to the css file
+     * @param bool $local is this a local or remote asset
+     * @return string
+     */
+    protected function jsRewrite($file, $dir, $local)
     {
         return '';
     }

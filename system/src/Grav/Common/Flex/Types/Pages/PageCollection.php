@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * @package    Grav\Common\Flex
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -335,7 +335,7 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
                     $list[$key] = $child->slug();
                     break;
                 case 'basename':
-                    $list[$key] = basename($key);
+                    $list[$key] = Utils::basename($key);
                     break;
                 case 'folder':
                     $list[$key] = $child->folder();

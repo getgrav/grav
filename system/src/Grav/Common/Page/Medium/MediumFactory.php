@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Page
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -13,6 +13,7 @@ use Grav\Common\Grav;
 use Grav\Common\Data\Blueprint;
 use Grav\Common\Media\Interfaces\ImageMediaInterface;
 use Grav\Common\Media\Interfaces\MediaObjectInterface;
+use Grav\Common\Utils;
 use Grav\Framework\Form\FormFlashFile;
 use Psr\Http\Message\UploadedFileInterface;
 use function dirname;
@@ -37,7 +38,7 @@ class MediumFactory
             return null;
         }
 
-        $parts = pathinfo($file);
+        $parts = Utils::pathinfo($file);
         $path = $parts['dirname'];
         $filename = $parts['basename'];
         $ext = $parts['extension'] ?? '';
@@ -101,7 +102,7 @@ class MediumFactory
             return null;
         }
 
-        $parts = pathinfo($clientName);
+        $parts = Utils::pathinfo($clientName);
         $filename = $parts['basename'];
         $ext = $parts['extension'] ?? '';
         $basename = $parts['filename'];
@@ -193,7 +194,7 @@ class MediumFactory
         $height = $medium->get('height') * $ratio;
 
         $prev_basename = $medium->get('basename');
-        $basename = str_replace('@'.$from.'x', '@'.$to.'x', $prev_basename);
+        $basename = str_replace('@' . $from . 'x', $to !== 1 ? '@' . $to . 'x' : '', $prev_basename);
 
         $debug = $medium->get('debug');
         $medium->set('debug', false);
@@ -208,6 +209,8 @@ class MediumFactory
 
         $medium = self::fromFile($file);
         if ($medium) {
+            $medium->set('basename', $basename);
+            $medium->set('filename', $basename . '.' . $medium->extension);
             $medium->set('size', $size);
         }
 

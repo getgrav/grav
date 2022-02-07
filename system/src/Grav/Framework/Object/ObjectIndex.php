@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Object
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -35,7 +35,7 @@ abstract class ObjectIndex extends AbstractIndexCollection implements NestedObje
     protected static $type;
 
     /** @var string */
-    private $_key;
+    protected $_key;
 
     /**
      * @param bool $prefix

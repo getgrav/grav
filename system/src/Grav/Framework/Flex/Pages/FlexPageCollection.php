@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * @package    Grav\Framework\Flex
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -155,9 +155,10 @@ class FlexPageCollection extends FlexCollection
     public function adjacentSibling($path, $direction = 1)
     {
         $keys = $this->getKeys();
+        $direction = (int)$direction;
         $pos = array_search($path, $keys, true);
 
-        if ($pos !== false) {
+        if (is_int($pos)) {
             $pos += $direction;
             if (isset($keys[$pos])) {
                 return $this[$keys[$pos]];
@@ -177,7 +178,7 @@ class FlexPageCollection extends FlexCollection
     {
         $pos = array_search($path, $this->getKeys(), true);
 
-        return $pos !== false ? $pos : null;
+        return is_int($pos) ? $pos : null;
     }
 
     /**

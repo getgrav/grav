@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Twig
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -22,6 +22,7 @@ use Grav\Common\Page\Media;
 use Grav\Common\Scheduler\Cron;
 use Grav\Common\Security;
 use Grav\Common\Twig\TokenParser\TwigTokenParserCache;
+use Grav\Common\Twig\TokenParser\TwigTokenParserLink;
 use Grav\Common\Twig\TokenParser\TwigTokenParserRender;
 use Grav\Common\Twig\TokenParser\TwigTokenParserScript;
 use Grav\Common\Twig\TokenParser\TwigTokenParserStyle;
@@ -115,6 +116,7 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
             new TwigFilter('defined', [$this, 'definedDefaultFilter']),
             new TwigFilter('ends_with', [$this, 'endsWithFilter']),
             new TwigFilter('fieldName', [$this, 'fieldNameFilter']),
+            new TwigFilter('parent_field', [$this, 'fieldParentFilter']),
             new TwigFilter('ksort', [$this, 'ksortFilter']),
             new TwigFilter('ltrim', [$this, 'ltrimFilter']),
             new TwigFilter('markdown', [$this, 'markdownFunction'], ['needs_context' => true, 'is_safe' => ['html']]),
@@ -252,12 +254,17 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
             new TwigTokenParserTryCatch(),
             new TwigTokenParserScript(),
             new TwigTokenParserStyle(),
+            new TwigTokenParserLink(),
             new TwigTokenParserMarkdown(),
             new TwigTokenParserSwitch(),
             new TwigTokenParserCache(),
         ];
     }
 
+    /**
+     * @param mixed $var
+     * @return string
+     */
     public function print_r($var)
     {
         return print_r($var, true);
@@ -274,6 +281,20 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
         $path = explode('.', rtrim($str, '.'));
 
         return array_shift($path) . ($path ? '[' . implode('][', $path) . ']' : '');
+    }
+
+    /**
+     * Filters field name by changing dot notation into array notation.
+     *
+     * @param  string $str
+     * @return string
+     */
+    public function fieldParentFilter($str)
+    {
+        $path = explode('.', rtrim($str, '.'));
+        array_pop($path);
+
+        return implode('.', $path);
     }
 
     /**

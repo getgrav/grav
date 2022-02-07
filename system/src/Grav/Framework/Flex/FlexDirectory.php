@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Flex
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -21,7 +21,7 @@ use Grav\Common\Utils;
 use Grav\Framework\Cache\Adapter\DoctrineCache;
 use Grav\Framework\Cache\Adapter\MemoryCache;
 use Grav\Framework\Cache\CacheInterface;
-use Grav\Framework\Flex\Interfaces\FlexAuthorizeInterface;
+use Grav\Framework\Filesystem\Filesystem;
 use Grav\Framework\Flex\Interfaces\FlexCollectionInterface;
 use Grav\Framework\Flex\Interfaces\FlexDirectoryInterface;
 use Grav\Framework\Flex\Interfaces\FlexFormInterface;
@@ -218,8 +218,17 @@ class FlexDirectory implements FlexDirectoryInterface
 
         /** @var UniformResourceLocator $locator */
         $locator = $grav['locator'];
-        /** @var string $filename Filename is always string */
-        $filename = $locator->findResource($this->getDirectoryConfigUri($name), true, true);
+
+        $filename = $this->getDirectoryConfigUri($name);
+        if (file_exists($filename)) {
+            $filename = $locator->findResource($filename, true);
+        } else {
+            $filesystem = Filesystem::getInstance();
+            $dirname = $filesystem->dirname($filename);
+            $basename = $filesystem->basename($filename);
+            $dirname = $locator->findResource($dirname, true) ?: $locator->findResource($dirname, true, true);
+            $filename = "{$dirname}/{$basename}";
+        }
 
         $file = YamlFile::instance($filename);
         if (!empty($data)) {
@@ -906,6 +915,10 @@ class FlexDirectory implements FlexDirectoryInterface
 
         $className = $storage['class'] ?? SimpleStorage::class;
         $options = $storage['options'] ?? [];
+
+        if (!is_a($className, FlexStorageInterface::class, true)) {
+            throw new \RuntimeException('Bad storage class: ' . $className);
+        }
 
         return new $className($options);
     }

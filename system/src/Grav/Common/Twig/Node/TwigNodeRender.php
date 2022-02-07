@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Twig
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -75,6 +75,7 @@ class TwigNodeRender extends Node implements NodeCaptureInterface
             ->outdent()
             ->write('} else {' . PHP_EOL)
             ->indent()
+            ->write('\Grav\Common\Assets\BlockAssets::registerAssets($html);' . PHP_EOL)
             ->write('echo (string)$html;' . PHP_EOL)
             ->outdent()
             ->write('}' . PHP_EOL)

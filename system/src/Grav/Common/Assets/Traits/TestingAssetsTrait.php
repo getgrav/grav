@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Assets\Traits
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -280,6 +280,15 @@ trait TestingAssetsTrait
         if ($pattern === self::JS_REGEX) {
             foreach ($files as $file) {
                 $this->addJs($file);
+            }
+
+            return $this;
+        }
+
+        // Add JavaScript Module files
+        if ($pattern === self::JS_MODULE_REGEX) {
+            foreach ($files as $file) {
+                $this->addJsModule($file);
             }
 
             return $this;

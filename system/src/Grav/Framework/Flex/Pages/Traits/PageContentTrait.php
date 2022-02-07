@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Flex
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -100,6 +100,7 @@ trait PageContentTrait
 
     /**
      * @inheritdoc
+     * @return Header
      */
     public function header($var = null)
     {
@@ -744,6 +745,7 @@ trait PageContentTrait
                 }
 
                 if ($process_twig) {
+                    \assert(is_string($this->_content));
                     $this->_content = $this->processTwig($this->_content);
                 }
             }
@@ -752,6 +754,8 @@ trait PageContentTrait
                 $this->cachePageContent();
             }
         }
+
+        \assert(is_string($this->_content));
 
         // Handle summary divider
         $delimiter = $config->get('site.summary.delimiter', '===');

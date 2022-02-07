@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Helpers
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -11,6 +11,7 @@ namespace Grav\Common\Helpers;
 
 use Exception;
 use Grav\Common\Grav;
+use Grav\Common\Utils;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use RegexIterator;
@@ -108,7 +109,7 @@ class YamlLinter
      */
     protected static function extractYaml($path)
     {
-        $extension = pathinfo($path, PATHINFO_EXTENSION);
+        $extension = Utils::pathinfo($path, PATHINFO_EXTENSION);
         if ($extension === 'md') {
             $file = MarkdownFile::instance($path);
             $contents = $file->frontmatter();

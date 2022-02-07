@@ -3,13 +3,14 @@
 /**
  * @package    Grav\Common\File
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Common\File;
 
 use Exception;
+use Grav\Common\Utils;
 use RocketTheme\Toolbox\File\PhpFile;
 use RuntimeException;
 use Throwable;
@@ -88,7 +89,7 @@ trait CompiledFile
                 $this->content = $cache['data'];
             }
         } catch (Exception $e) {
-            throw new RuntimeException(sprintf('Failed to read %s: %s', basename($this->filename), $e->getMessage()), 500, $e);
+            throw new RuntimeException(sprintf('Failed to read %s: %s', Utils::basename($this->filename), $e->getMessage()), 500, $e);
         }
 
         return parent::content($var);

@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Flex
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -119,6 +119,14 @@ class FlexIndex extends ObjectIndex implements FlexIndexInterface
     }
 
     /**
+     * @return string
+     */
+    public function getKey()
+    {
+        return $this->_key ?: $this->getFlexType() . '@@' . spl_object_hash($this);
+    }
+
+    /**
      * {@inheritdoc}
      * @see FlexCommonInterface::hasFlexFeature()
      */
@@ -133,6 +141,7 @@ class FlexIndex extends ObjectIndex implements FlexIndexInterface
      */
     public function getFlexFeatures(): array
     {
+        /** @var array $implements */
         $implements = class_implements($this->getFlexDirectory()->getCollectionClass());
 
         $list = [];
@@ -493,9 +502,13 @@ class FlexIndex extends ObjectIndex implements FlexIndexInterface
             }
         } else {
             $collection = $this->loadCollection();
-            $result = $collection->{$name}(...$arguments);
-            if (!isset($cachedMethods[$name])) {
-                $debugger->addMessage("Call '{$flexType}:{$name}()' isn't cached", 'debug');
+            if (\is_callable([$collection, $name])) {
+                $result = $collection->{$name}(...$arguments);
+                if (!isset($cachedMethods[$name])) {
+                    $debugger->addMessage("Call '{$flexType}:{$name}()' isn't cached", 'debug');
+                }
+            } else {
+                $result = null;
             }
         }
 

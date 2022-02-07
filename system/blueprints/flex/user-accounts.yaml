@@ -122,6 +122,8 @@ config:
       fields:
         - key
         - email
+        - username
+        - fullname
 
 blueprints:
   configure:

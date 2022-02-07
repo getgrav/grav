@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Console\Cli
  *
- * @copyright  Copyright (c) 2015 - 2021 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -76,8 +76,6 @@ class SchedulerCommand extends GravCommand
         /** @var Scheduler $scheduler */
         $scheduler = $grav['scheduler'];
         $grav->fireEvent('onSchedulerInitialized', new Event(['scheduler' => $scheduler]));
-
-        $this->setHelp('foo');
 
         $input = $this->getInput();
         $io = $this->getIO();
