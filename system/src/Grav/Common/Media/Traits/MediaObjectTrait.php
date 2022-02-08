@@ -31,31 +31,22 @@ trait MediaObjectTrait
 {
     /** @var string */
     protected $mode = 'source';
-
     /** @var MediaObjectInterface|null */
     protected $_thumbnail;
-
     /** @var array */
     protected $thumbnailTypes = ['page', 'default'];
-
     /** @var string|null */
     protected $thumbnailType;
-
     /** @var MediaObjectInterface[] */
     protected $alternatives = [];
-
     /** @var array */
     protected $attributes = [];
-
     /** @var array */
     protected $styleAttributes = [];
-
     /** @var array */
     protected $metadata = [];
-
     /** @var array */
     protected $medium_querystring = [];
-
     /** @var string */
     protected $timestamp;
 

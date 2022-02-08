@@ -53,9 +53,14 @@ class Medium extends Data implements RenderableInterface, MediaFileInterface
 
         $this->def('mime', 'application/octet-stream');
 
-        if (!$this->offsetExists('size')) {
-            $path = $this->get('filepath');
-            $this->def('size', filesize($path));
+        $path = $this->get('filepath');
+        if ($path && file_exists($path)) {
+            if (!$this->offsetExists('size')) {
+                $this->set('size', filesize($path));
+            }
+            if (!$this->offsetExists('modified')) {
+                $this->set('modified', filemtime($path));
+            }
         }
 
         $this->reset();

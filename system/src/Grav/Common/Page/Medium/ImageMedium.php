@@ -181,17 +181,18 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
     {
         $grav = $this->getGrav();
 
-        /** @var UniformResourceLocator $locator */
-        $locator = $grav['locator'];
-        $image_path = (string)($locator->findResource('cache://images', true) ?: $locator->findResource('cache://images', true, true));
         $saved_image_path = $this->saved_image_path = $this->saveImage();
 
         $output = preg_replace('|^' . preg_quote(GRAV_ROOT, '|') . '|', '', $saved_image_path) ?: $saved_image_path;
+
+        /** @var UniformResourceLocator $locator */
+        $locator = $grav['locator'];
 
         if ($locator->isStream($output)) {
             $output = (string)($locator->findResource($output, false) ?: $locator->findResource($output, false, true));
         }
 
+        $image_path = (string)($locator->findResource('cache://images', true) ?: $locator->findResource('cache://images', true, true));
         if (Utils::startsWith($output, $image_path)) {
             $image_dir = $locator->findResource('cache://images', false);
             $output = '/' . $image_dir . preg_replace('|^' . preg_quote($image_path, '|') . '|', '', $output);

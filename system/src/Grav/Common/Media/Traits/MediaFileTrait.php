@@ -37,12 +37,7 @@ trait MediaFileTrait
      */
     public function modified()
     {
-        $path = $this->path(false);
-        if (!file_exists($path)) {
-            return null;
-        }
-
-        return filemtime($path) ?: null;
+        return $this->get('modified');
     }
 
     /**
@@ -52,12 +47,7 @@ trait MediaFileTrait
      */
     public function size()
     {
-        $path = $this->path(false);
-        if (!file_exists($path)) {
-            return 0;
-        }
-
-        return filesize($path) ?: 0;
+        return $this->get('size');
     }
 
     /**
@@ -88,7 +78,7 @@ trait MediaFileTrait
         }
 
         $path = $this->path(false);
-        $output = preg_replace('|^' . preg_quote(GRAV_ROOT, '|') . '|', '', $path) ?: $path;
+        $output = preg_replace('|^' . preg_quote(GRAV_WEBROOT, '|') . '|', '', $path) ?: $path;
 
         /** @var UniformResourceLocator $locator */
         $locator = $this->getGrav()['locator'];

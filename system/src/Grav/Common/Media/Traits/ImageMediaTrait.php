@@ -9,12 +9,14 @@
 
 namespace Grav\Common\Media\Traits;
 
+use Grav\Common\Config\Config;
 use Grav\Common\Grav;
 use Grav\Common\Media\Interfaces\ImageMediaInterface;
 use Grav\Common\Media\Interfaces\MediaCollectionInterface;
 use Grav\Common\Page\Medium\ImageFile;
 use Grav\Common\Page\Medium\ImageMedium;
 use Grav\Common\Page\Medium\MediumFactory;
+use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use function array_key_exists;
 use function extension_loaded;
 use function func_num_args;
@@ -28,28 +30,20 @@ trait ImageMediaTrait
 {
     /** @var ImageFile|null */
     protected $image;
-
     /** @var string */
     protected $format = 'guess';
-
     /** @var int */
     protected $quality;
-
     /** @var int */
     protected $default_quality;
-
     /** @var bool */
     protected $debug_watermarked = false;
-
     /** @var bool  */
     protected $auto_sizes;
-
     /** @var bool */
     protected $aspect_ratio;
-
     /** @var integer */
     protected $retina_scale;
-
     /** @var bool */
     protected $watermark;
 
@@ -348,6 +342,7 @@ trait ImageMediaTrait
      */
     protected function image()
     {
+        /** @var UniformResourceLocator $locator */
         $locator = Grav::instance()['locator'];
 
         // Use existing cache folder or if it doesn't exist, create it.
@@ -370,6 +365,7 @@ trait ImageMediaTrait
             ->setPrettyName($this->getImagePrettyName());
 
         // Fix orientation if enabled
+        /** @var Config $config */
         $config = Grav::instance()['config'];
         if ($config->get('system.images.auto_fix_orientation', false) &&
             extension_loaded('exif') && function_exists('exif_read_data')) {
@@ -414,6 +410,7 @@ trait ImageMediaTrait
                 $ratio = 1;
             }
 
+            /** @var UniformResourceLocator $locator */
             $locator = Grav::instance()['locator'];
             $overlay = $locator->findResource("system://assets/responsive-overlays/{$ratio}x.png") ?: $locator->findResource('system://assets/responsive-overlays/unknown.png');
             $this->image->merge(ImageFile::open($overlay));
