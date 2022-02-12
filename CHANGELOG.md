@@ -1,5 +1,11 @@
-# v1.7.30
+# v1.7.31
 ## mm/dd/2022
+
+1. [](#new)
+    * Added support to get image size for SVG vector images [#3533](https://github.com/getgrav/grav/pull/3533)
+
+# v1.7.30
+## 02/07/2022
 
 1. [](#new)
     * Added twig filter `|field_parent` to get parent field name
