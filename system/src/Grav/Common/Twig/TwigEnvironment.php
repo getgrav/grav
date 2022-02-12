@@ -20,10 +20,10 @@ use Twig\TemplateWrapper;
  */
 class TwigEnvironment extends Environment
 {
-    use WriteCacheFileTrait;
-
     /**
      * @inheritDoc
+     *
+     * TODO: Needed for Twig 1 compatibility.
      */
     public function resolveTemplate($names)
     {

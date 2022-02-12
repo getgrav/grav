@@ -872,17 +872,6 @@ form:
               validate:
                 type: bool
 
-            twig.umask_fix:
-              type: toggle
-              label: PLUGIN_ADMIN.TWIG_UMASK_FIX
-              help: PLUGIN_ADMIN.TWIG_UMASK_FIX_HELP
-              highlight: 0
-              options:
-                1: PLUGIN_ADMIN.YES
-                0: PLUGIN_ADMIN.NO
-              validate:
-                type: bool
-
         assets:
           type: tab
           title: PLUGIN_ADMIN.ASSETS

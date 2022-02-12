@@ -115,7 +115,6 @@ twig:
   undefined_filters: true                        # Allow undefined filters
   safe_functions: []                             # List of PHP functions which are allowed to be used as Twig functions
   safe_filters: []                               # List of PHP functions which are allowed to be used as Twig filters
-  umask_fix: false                               # By default Twig creates cached files as 755, fix switches this to 775
 
 assets:                                          # Configuration for Assets Manager (JS, CSS)
   css_pipeline: false                            # The CSS pipeline is the unification of multiple CSS resources into one file

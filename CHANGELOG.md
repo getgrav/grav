@@ -1,3 +1,14 @@
+# v1.8.0-dev
+## mm/dd/2022
+
+1. [](#new)
+    * Set minimum requirements to **PHP 7.4.1**
+    * Updated to **Twig 2.14**
+    * Updated to **Symfony 5.4**
+    * Updated to **RocketTheme/Toolbox 2.0**
+    * Updated to **Composer/Semver 3.2**
+    * Removed `system.umask_fix` setting for security reasons
+
 # v1.7.31
 ## mm/dd/2022
 

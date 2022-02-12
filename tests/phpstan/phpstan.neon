@@ -11,6 +11,7 @@ parameters:
         - phpstan-bootstrap.php
     excludePaths:
         - */system/src/Grav/Common/Errors/Resources/layout.html.php
+        - */system/src/Twig/DeferredExtension/DeferredExtension.php            # For below
         - */system/src/Twig/DeferredExtension/DeferredNodeVisitorCompat.php    # Twig 1
         - */system/src/Twig/DeferredExtension/DeferredNodeVisitor.php          # Twig 2+3
         # Ignore vendor dev dependencies and tests
@@ -57,11 +58,6 @@ parameters:
         -
             message: '#Cannot call method path\(\) on string#'
             path: '*/system/src/Grav/Common/Page/Media.php'
-
-        # TODO: system.twig.umask_fix will not work with Twig 2 anymore
-        -
-            message: '#Call to deprecated method writeCacheFile\(\) of class Twig\\Environment#'
-            path: '*/system/src/Grav/Common/Twig/WriteCacheFileTrait.php'
 
         # PSR-16 Exception interfaces do not extend \Throwable
         - '#PHPDoc tag \@throws with type Psr\\SimpleCache\\(CacheException|InvalidArgumentException) is not subtype of Throwable#'
