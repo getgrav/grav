@@ -8,9 +8,9 @@
     * Updated to **Monolog 2.3**
     * Updated to **RocketTheme/Toolbox 2.0**
     * Updated to **Composer/Semver 3.2**
-    * Use **Symfony Cache** (with backward compatibility layer) instead of unmaintained **Doctrine Cache**
+    * Use **Symfony Cache** instead of unmaintained **Doctrine Cache**
+    * Removed unsupported **APC**, **WinCache**, **XCache** and **Memcache**, use apcu or memcached instead
     * Removed `system.umask_fix` setting for security reasons
-    * Removed deprecated **APC**, **WinCache**, **XCache** and **Memcache** support, use apcu or memcached instead
 
 # v1.7.31
 ## mm/dd/2022
