@@ -28,10 +28,19 @@ class VectorImageMedium extends StaticImageMedium
     {
         parent::__construct($items, $blueprint);
 
+        // If we already have the image size, we do not need to do anything else.
+        $width = $this->get('width');
+        $height = $this->get('height');
+        if ($width && $height) {
+            return;
+        }
+
+        // Make sure that getting image size is supported.
         if ($this->mime !== 'image/svg+xml' || !\extension_loaded('simplexml')) {
             return;
         }
 
+        // Make sure that the image exists.
         $path = $this->get('filepath');
         if (!$path || !file_exists($path) || !filesize($path)) {
             return;
@@ -39,19 +48,19 @@ class VectorImageMedium extends StaticImageMedium
 
         $xml = simplexml_load_string(file_get_contents($path));
         $attr = $xml ? $xml->attributes() : null;
-
         if (!$attr instanceof \SimpleXMLElement) {
             return;
         }
 
+        // Get the size from svg image.
         if ($attr->width > 0 && $attr->height > 0) {
-            $width = (int)$attr->width;
-            $height = (int)$attr->height;
+            $width = $attr->width;
+            $height = $attr->height;
         } elseif ($attr->viewBox && \count($size = explode(' ', $attr->viewBox)) === 4) {
             [,$width,$height,] = $size;
         }
 
-        if (isset($width, $height)) {
+        if ($width && $height) {
             $this->def('width', (int)$width);
             $this->def('height', (int)$height);
         }

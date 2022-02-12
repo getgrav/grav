@@ -2,7 +2,7 @@
 ## mm/dd/2022
 
 1. [](#new)
-    * Added auto_sizes support for SVG vector images [#3533](https://github.com/getgrav/grav/pull/3533)
+    * Added support to get image size for SVG vector images [#3533](https://github.com/getgrav/grav/pull/3533)
 
 # v1.7.30
 ## 02/07/2022
