@@ -7,7 +7,9 @@
     * Updated to **Symfony 5.4**
     * Updated to **RocketTheme/Toolbox 2.0**
     * Updated to **Composer/Semver 3.2**
+    * Use **Symfony Cache** instead of unmaintaided **Doctrine Cache** (with backward compatibility layer)
     * Removed `system.umask_fix` setting for security reasons
+    * Removed deprecated APC, WinCache, XCache and Memcache support, use apcu or memcached instead
 
 # v1.7.31
 ## mm/dd/2022

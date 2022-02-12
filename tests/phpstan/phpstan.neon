@@ -11,6 +11,7 @@ parameters:
         - phpstan-bootstrap.php
     excludePaths:
         - */system/src/Grav/Common/Errors/Resources/layout.html.php
+        - */system/src/Doctrine/Common/Cache/*.php
         - */system/src/Twig/DeferredExtension/DeferredExtension.php            # For below
         - */system/src/Twig/DeferredExtension/DeferredNodeVisitorCompat.php    # Twig 1
         - */system/src/Twig/DeferredExtension/DeferredNodeVisitor.php          # Twig 2+3

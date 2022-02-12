@@ -606,12 +606,8 @@ form:
               options:
                 auto: Auto detect
                 file: File
-                apc: APC
                 apcu: APCu
-                xcache: Xcache
-                memcache: Memcache
                 memcached: Memcached
-                wincache: WinCache
                 redis: Redis
 
             cache.prefix:
@@ -694,20 +690,6 @@ form:
                 0: PLUGIN_ADMIN.NO
               validate:
                 type: bool
-
-            cache.memcache.server:
-              type: text
-              size: medium
-              label: PLUGIN_ADMIN.MEMCACHE_SERVER
-              help: PLUGIN_ADMIN.MEMCACHE_SERVER_HELP
-              placeholder: "localhost"
-
-            cache.memcache.port:
-              type: text
-              size: small
-              label: PLUGIN_ADMIN.MEMCACHE_PORT
-              help: PLUGIN_ADMIN.MEMCACHE_PORT_HELP
-              placeholder: "11211"
 
             cache.memcached.server:
               type: text

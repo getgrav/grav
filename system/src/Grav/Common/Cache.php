@@ -10,7 +10,8 @@
 namespace Grav\Common;
 
 use DirectoryIterator;
-use \Doctrine\Common\Cache as DoctrineCache;
+use Doctrine\Common\Cache\Cache as DoctrineCache;
+use Doctrine\Common\Cache\Psr6\DoctrineProvider;
 use Exception;
 use Grav\Common\Config\Config;
 use Grav\Common\Filesystem\Folder;
@@ -18,6 +19,12 @@ use Grav\Common\Scheduler\Scheduler;
 use LogicException;
 use Psr\SimpleCache\CacheInterface;
 use RocketTheme\Toolbox\Event\Event;
+use Symfony\Component\Cache\Adapter\AdapterInterface;
+use Symfony\Component\Cache\Adapter\ApcuAdapter;
+use Symfony\Component\Cache\Adapter\FilesystemAdapter;
+use Symfony\Component\Cache\Adapter\MemcachedAdapter;
+use Symfony\Component\Cache\Adapter\RedisAdapter;
+use Symfony\Component\Cache\Psr16Cache;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use function dirname;
 use function extension_loaded;
@@ -27,12 +34,11 @@ use function is_array;
 
 /**
  * The GravCache object is used throughout Grav to store and retrieve cached data.
- * It uses DoctrineCache library and supports a variety of caching mechanisms. Those include:
+ * It uses Symfony library (adding backward compatibility to Doctrine Cache) and supports a variety of caching mechanisms. Those include:
  *
  * APCu
  * RedisCache
- * MemCache
- * MemCacheD
+ * MemCached
  * FileSystem
  */
 class Cache extends Getters
@@ -49,7 +55,10 @@ class Cache extends Getters
     /** @var Config $config */
     protected $config;
 
-    /** @var DoctrineCache\CacheProvider */
+    /** @var AdapterInterface */
+    protected $adapter;
+
+    /** @var DoctrineCache */
     protected $driver;
 
     /** @var CacheInterface */
@@ -70,6 +79,7 @@ class Cache extends Getters
     protected static $standard_remove = [
         'cache://twig/',
         'cache://doctrine/',
+        'cache://grav/',
         'cache://compiled/',
         'cache://clockwork/',
         'cache://validated-',
@@ -80,6 +90,7 @@ class Cache extends Getters
     protected static $standard_remove_no_images = [
         'cache://twig/',
         'cache://doctrine/',
+        'cache://grav/',
         'cache://compiled/',
         'cache://clockwork/',
         'cache://validated-',
@@ -142,10 +153,10 @@ class Cache extends Getters
 
         // Cache key allows us to invalidate all cache on configuration changes.
         $this->key = ($prefix ?: 'g') . '-' . $uniqueness;
-        $this->cache_dir = $grav['locator']->findResource('cache://doctrine/' . $uniqueness, true, true);
+        $this->cache_dir = $grav['locator']->findResource('cache://grav/' . $uniqueness, true, true);
         $this->driver_setting = $this->config->get('system.cache.driver');
-        $this->driver = $this->getCacheDriver();
-        $this->driver->setNamespace($this->key);
+        $this->adapter = $this->getCacheAdapter();
+        $this->driver = $this->getCacheDriver($this->adapter);
 
         /** @var EventDispatcher $dispatcher */
         $dispatcher = Grav::instance()['events'];
@@ -158,12 +169,7 @@ class Cache extends Getters
     public function getSimpleCache()
     {
         if (null === $this->simpleCache) {
-            $cache = new \Grav\Framework\Cache\Adapter\DoctrineCache($this->driver, '', $this->getLifetime());
-
-            // Disable cache key validation.
-            $cache->setValidation(false);
-
-            $this->simpleCache = $cache;
+            $this->simpleCache = new Psr16Cache($this->adapter);
         }
 
         return $this->simpleCache;
@@ -229,53 +235,38 @@ class Cache extends Getters
      * If there is no config option for $driver in the config, or it's set to 'auto', it will
      * pick the best option based on which cache extensions are installed.
      *
-     * @return DoctrineCache\CacheProvider  The cache driver to use
+     * @return AdapterInterface  The cache driver to use
      */
-    public function getCacheDriver()
+    public function getCacheAdapter(): AdapterInterface
     {
-        $setting = $this->driver_setting;
+        $setting = $this->driver_setting ?? 'auto';
         $driver_name = 'file';
 
+        if (in_array($setting, ['apc', 'xcache', 'wincache', 'memcache'], true)) {
+            throw new LogicException(sprintf('Cache driver for %s has been removed, use auto, file, apcu or memcached instead!', $setting));
+        }
+
         // CLI compatibility requires a non-volatile cache driver
-        if ($this->config->get('system.cache.cli_compatibility') && (
-            $setting === 'auto' || $this->isVolatileDriver($setting))) {
+        if ($this->config->get('system.cache.cli_compatibility') && ($setting === 'auto' || $this->isVolatileDriver($setting))) {
             $setting = $driver_name;
         }
 
-        if (!$setting || $setting === 'auto') {
+        if ($setting === 'auto' || $this->isVolatileDriver($setting)) {
             if (extension_loaded('apcu')) {
                 $driver_name = 'apcu';
-            } elseif (extension_loaded('wincache')) {
-                $driver_name = 'wincache';
             }
         } else {
             $driver_name = $setting;
         }
 
         $this->driver_name = $driver_name;
+        $namespace = $this->key;
+        $defaultLifetime = 0;
 
         switch ($driver_name) {
             case 'apc':
             case 'apcu':
-                $driver = new DoctrineCache\ApcuCache();
-                break;
-
-            case 'wincache':
-                $driver = new DoctrineCache\WinCacheCache();
-                break;
-
-            case 'memcache':
-                if (extension_loaded('memcache')) {
-                    $memcache = new \Memcache();
-                    $memcache->connect(
-                        $this->config->get('system.cache.memcache.server', 'localhost'),
-                        $this->config->get('system.cache.memcache.port', 11211)
-                    );
-                    $driver = new DoctrineCache\MemcacheCache();
-                    $driver->setMemcache($memcache);
-                } else {
-                    throw new LogicException('Memcache PHP extension has not been installed');
-                }
+                $adapter = new ApcuAdapter($namespace,  $defaultLifetime);
                 break;
 
             case 'memcached':
@@ -285,8 +276,7 @@ class Cache extends Getters
                         $this->config->get('system.cache.memcached.server', 'localhost'),
                         $this->config->get('system.cache.memcached.port', 11211)
                     );
-                    $driver = new DoctrineCache\MemcachedCache();
-                    $driver->setMemcached($memcached);
+                    $adapter = new MemcachedAdapter($memcached, $namespace, $defaultLifetime);
                 } else {
                     throw new LogicException('Memcached PHP extension has not been installed');
                 }
@@ -318,19 +308,34 @@ class Cache extends Getters
                         throw new \RedisException('Could not select alternate Redis database ID');
                     }
 
-                    $driver = new DoctrineCache\RedisCache();
-                    $driver->setRedis($redis);
+                    $adapter = new RedisAdapter($redis, $namespace, $defaultLifetime);
                 } else {
                     throw new LogicException('Redis PHP extension has not been installed');
                 }
                 break;
 
             default:
-                $driver = new DoctrineCache\FilesystemCache($this->cache_dir);
+                $adapter = new FilesystemAdapter($namespace, $defaultLifetime, $this->cache_dir);
                 break;
         }
 
-        return $driver;
+        return $adapter;
+    }
+
+    /**
+     * Automatically picks the cache mechanism to use.  If you pick one manually it will use that
+     * If there is no config option for $driver in the config, or it's set to 'auto', it will
+     * pick the best option based on which cache extensions are installed.
+     *
+     * @return DoctrineCache  The cache driver to use
+     */
+    public function getCacheDriver(AdapterInterface $adapter = null)
+    {
+        if (null === $adapter) {
+            $adapter = $this->getCacheAdapter();
+        }
+
+        return DoctrineProvider::wrap($adapter);
     }
 
     /**
@@ -618,7 +623,7 @@ class Cache extends Getters
      */
     public function isVolatileDriver($setting)
     {
-        return in_array($setting, ['apc', 'apcu', 'xcache', 'wincache'], true);
+        return $setting === 'apcu';
     }
 
     /**

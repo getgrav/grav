@@ -34,13 +34,15 @@
         "erusev/parsedown": "^1.7",
         "erusev/parsedown-extra": "~0.8",
         "symfony/contracts": "~v2.5",
+        "symfony/cache": "^5.4",
         "symfony/yaml": "~5.4",
         "symfony/console": "~5.4",
         "symfony/event-dispatcher": "~5.4",
+        "symfony/var-exporter": "~5.4",
         "symfony/var-dumper": "~5.4",
         "symfony/process": "~5.4",
         "symfony/http-client": "^5.4",
-        "doctrine/cache": "^1.12",
+        "doctrine/cache": "^2.1",
         "doctrine/collections": "^1.6",
         "guzzlehttp/psr7": "^2.0",
         "filp/whoops": "~2.14",
@@ -102,6 +104,7 @@
     "autoload": {
         "psr-4": {
             "Grav\\": "system/src/Grav",
+            "Doctrine\\": "system/src/Doctrine",
             "RocketTheme\\": "system/src/RocketTheme",
             "Twig\\": "system/src/Twig"
         },

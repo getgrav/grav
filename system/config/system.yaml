@@ -91,13 +91,13 @@ cache:
   enabled: true                                  # Set to true to enable caching
   check:
     method: file                                 # Method to check for updates in pages: file|folder|hash|none
-  driver: auto                                   # One of: auto|file|apcu|memcache|wincache
+  driver: auto                                   # One of: auto|file|apcu|memcached|redis
   prefix: 'g'                                    # Cache prefix string (prevents cache conflicts)
   purge_at: '0 4 * * *'                          # How often to purge old file cache (using new scheduler)
   clear_at: '0 3 * * *'                           # How often to clear cache (using new scheduler)
   clear_job_type: 'standard'                     # Type to clear when processing the scheduled clear job `standard`|`all`
   clear_images_by_default: false                 # By default grav does not include processed images in cache clear, this can be enabled
-  cli_compatibility: false                       # Ensures only non-volatile drivers are used (file, redis, memcache, etc.)
+  cli_compatibility: false                       # Ensures only non-volatile drivers are used (file, redis, memcached, etc.)
   lifetime: 604800                               # Lifetime of cached data in seconds (0 = infinite)
   gzip: false                                    # GZip compress the page output
   allow_webserver_gzip: false                    # If true, `content-encoding: identity` but connection isn't closed before `onShutDown()` event
