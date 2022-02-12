@@ -992,7 +992,8 @@ abstract class Utils
      *
      * @param string $path
      * @param int|null $flags
-     * @return array|string
+     * @return string[]|string
+     * @phpstan-return array{dirname: string, basename: string, extension: string|null, filename: string}|string
      */
     public static function pathinfo(string $path, int $flags = null)
     {

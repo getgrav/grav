@@ -19,6 +19,7 @@ use Grav\Common\Media\Traits\ImageMediaTrait;
 use Grav\Common\Utils;
 use Gregwar\Image\Image;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
+use function array_key_exists;
 use function func_get_args;
 use function in_array;
 
@@ -239,7 +240,9 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
      */
     public function sourceParsedownElement(array $attributes, $reset = true)
     {
-        empty($attributes['src']) && $attributes['src'] = $this->url(false);
+        if (empty($attributes['src'])) {
+            $attributes['src'] = $this->url(false);
+        }
 
         $srcset = $this->srcset($reset);
         if ($srcset) {
