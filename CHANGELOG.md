@@ -5,6 +5,7 @@
     * Set minimum requirements to **PHP 7.4.1**
     * Updated to **Twig 2.14**
     * Updated to **Symfony 5.4**
+    * Updated to **Monolog 2.3**
     * Updated to **RocketTheme/Toolbox 2.0**
     * Updated to **Composer/Semver 3.2**
     * Use **Symfony Cache** instead of unmaintaided **Doctrine Cache** (with backward compatibility layer)
