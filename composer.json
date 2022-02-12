@@ -83,7 +83,8 @@
         "ext-memcache": "Needed to support Memcache servers",
         "ext-memcached": "Needed to support Memcached servers",
         "ext-redis": "Needed to support Redis servers",
-        "ext-exif": "Needed to use exif data from images."
+        "ext-exif": "Needed to use exif data from images.",
+        "ext-gd": "Needed to resize images."
     },
     "config": {
         "apcu-autoloader": true,
