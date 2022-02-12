@@ -28,10 +28,7 @@ class VectorImageMedium extends StaticImageMedium
     {
         parent::__construct($items, $blueprint);
 
-        $height = false;
-        $width = false;
-
-        if (!extension_loaded('simplexml')) {
+        if ($this->mime !== 'image/svg+xml' || !\extension_loaded('simplexml')) {
             return;
         }
 
@@ -41,7 +38,7 @@ class VectorImageMedium extends StaticImageMedium
         }
 
         $xml = simplexml_load_string(file_get_contents($path));
-        $attr = $xml->attributes();
+        $attr = $xml ? $xml->attributes() : null;
 
         if (!$attr instanceof \SimpleXMLElement) {
             return;
@@ -50,14 +47,13 @@ class VectorImageMedium extends StaticImageMedium
         if ($attr->width > 0 && $attr->height > 0) {
             $width = (int)$attr->width;
             $height = (int)$attr->height;
-        } elseif ($attr->viewBox && count($size = explode(' ', $attr->viewBox)) === 4) {
-            $width = (int)$size[2];
-            $height = (int)$size[3];
+        } elseif ($attr->viewBox && \count($size = explode(' ', $attr->viewBox)) === 4) {
+            [,$width,$height,] = $size;
         }
 
-        if ($width && $height) {
-            $this->def('width', $width);
-            $this->def('height', $height);
+        if (isset($width, $height)) {
+            $this->def('width', (int)$width);
+            $this->def('height', (int)$height);
         }
     }
 }
