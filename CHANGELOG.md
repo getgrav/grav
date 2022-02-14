@@ -3,6 +3,8 @@
 
 1. [](#new)
     * Added support to get image size for SVG vector images [#3533](https://github.com/getgrav/grav/pull/3533)
+2. [](#bugfix)
+    * Fixed `'mbstring' extension is not loaded` error, use Polyfill instead [#3504](https://github.com/getgrav/grav/pull/3504)
 
 # v1.7.30
 ## 02/07/2022
