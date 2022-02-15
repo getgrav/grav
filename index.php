@@ -45,10 +45,7 @@ $grav = Grav::instance(array('loader' => $loader));
 // Process the page
 try {
     $grav->process();
-} catch (\Error $e) {
-    $grav->fireEvent('onFatalException', new Event(array('exception' => $e)));
-    throw $e;
-} catch (\Exception $e) {
+} catch (\Error|\Exception $e) {
     $grav->fireEvent('onFatalException', new Event(array('exception' => $e)));
     throw $e;
 }
