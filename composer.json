@@ -38,7 +38,7 @@
         "symfony/process": "~5.4",
         "symfony/http-client": "^5.4",
         "twig/twig": "^2.14",
-        "monolog/monolog": "^2.3",
+        "monolog/monolog": "^1.26",
         "doctrine/cache": "^2.1",
         "doctrine/collections": "^1.6",
         "pimple/pimple": "~3.5.0",
