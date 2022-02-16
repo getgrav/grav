@@ -17,6 +17,7 @@ use Grav\Common\Utils;
 use Grav\Framework\File\Formatter\JsonFormatter;
 use Grav\Framework\File\JsonFile;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
+use RuntimeException;
 use function count;
 use function is_array;
 
@@ -131,17 +132,44 @@ abstract class LocalMedia extends AbstractMedia
 
     /**
      * @param string $filepath
+     * @return string
+     */
+    protected function readFileContents(string $filepath): string
+    {
+        return file_get_contents($filepath);
+    }
+
+    /**
+     * @param string $filepath
      * @return array
      */
     protected function readImageSize(string $filepath): array
     {
-        if (str_ends_with($filepath, '.svg')) {
-            // Make sure that getting image size is supported.
-            if (!\extension_loaded('simplexml')) {
-                return [0, 0, 'mime' => 'image/svg+xml'];
-            }
+        $info = getimagesize($filepath);
+        if (!$info) {
+            throw new RuntimeException('Cannot read image size');
+        }
 
-            $xml = simplexml_load_string(file_get_contents($filepath));
+        // TODO: This is going to be slow without any indexing!
+        /*
+        // Add missing jpeg exif data.
+        if (null !== $exifReader && !isset($info['exif']) && $info['mime'] === 'image/jpeg') {
+            $exif = $exifReader->read($filepath);
+            if ($exif) {
+                $info['exif'] = array_diff_key($exif->getData(), array_flip($this->standard_exif));
+            }
+        }
+        */
+
+        return ['width' => $info[0], 'height' => $info[0], 'mime' => $info['mime']];
+    }
+
+    protected function readVectorSize(string $filepath): array
+    {
+        // Make sure that getting image size is supported.
+        if (\extension_loaded('simplexml')) {
+            $data = $this->readFileContents($filepath);
+            $xml = simplexml_load_string($data);
             $attr = $xml ? $xml->attributes() : null;
             if ($attr instanceof \SimpleXMLElement) {
                 // Get the size from svg image.
@@ -153,14 +181,12 @@ abstract class LocalMedia extends AbstractMedia
                 }
 
                 if ($width && $height) {
-                    return [(int)$width, (int)$height, 'mime' => 'image/svg+xml'];
+                    return ['width' => (int)$width, 'height' => (int)$height, 'mime' => 'image/svg+xml'];
                 }
             }
-
-            return [0, 0, 'mime' => 'application/octet-stream'];
         }
 
-        return getimagesize($filepath);
+        throw new RuntimeException('Cannot read image size');
     }
 
     /**

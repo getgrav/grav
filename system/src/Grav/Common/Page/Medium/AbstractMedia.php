@@ -369,32 +369,19 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
             unset($info['dirname'], $info['filename']);
 
             if (null !== $cached) {
-                $filepath = $this->getPath($filename);
-                $existing = $cached[$filename] ?? null;
-                if ($existing && $existing['size'] === $info['size'] && $existing['modified'] === $info['modified']) {
-                    // Append cached data.
-                    $info += $existing;
-                } elseif ($type === 'image') {
-                    // Cached data cannot be used, load the image from the filesystem and read the image size.
-                    $image_info = $this->readImageSize($filepath);
-                    if ($image_info) {
-                        [$width, $height] = $image_info;
-                        $info += [
-                            'width' => $width,
-                            'height' => $height
-                        ];
+                try {
+                    $filepath = $this->getPath($filename);
+                    $existing = $cached[$filename] ?? null;
+                    if ($existing && $existing['size'] === $info['size'] && $existing['modified'] === $info['modified']) {
+                        // Append cached data.
+                        $info += $existing;
+                    } else if ($type === 'image') {
+                        $info += $this->readImageSize($filepath);
+                    } elseif ($type === 'vector') {
+                        $info += $this->readVectorSize($filepath);
                     }
-
-                    // TODO: This is going to be slow without any indexing!
-                    /*
-                    // Add missing jpeg exif data.
-                    if (null !== $exifReader && !isset($info['exif']) && $info['mime'] === 'image/jpeg') {
-                        $exif = $exifReader->read($filepath);
-                        if ($exif) {
-                            $info['exif'] = array_diff_key($exif->getData(), array_flip($this->standard_exif));
-                        }
-                    }
-                    */
+                } catch (\RuntimeException $e) {
+                    // TODO: Maybe we want to handle this..?
                 }
             }
 
