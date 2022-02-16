@@ -18,7 +18,6 @@ use Grav\Framework\File\Formatter\JsonFormatter;
 use Grav\Framework\File\JsonFile;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use RuntimeException;
-use function count;
 use function is_array;
 
 /**
@@ -115,9 +114,41 @@ abstract class LocalMedia extends AbstractMedia
      */
     public function getImageFileObject(MediaObjectInterface $mediaObject): ImageFile
     {
-        $path = $mediaObject->get('filepath');
+        $filepath = $mediaObject->get('filepath');
 
-        return ImageFile::open($path);
+        return ImageFile::open($filepath);
+    }
+
+    /**
+     * @param string $filepath
+     * @return string
+     * @throws RuntimeException
+     */
+    public function readFile(string $filepath): string
+    {
+        error_clear_last();
+        $contents = @file_get_contents($filepath);
+        if (false === $contents) {
+            throw new RuntimeException(error_get_last()['message'] ?? '');
+        }
+
+        return $contents;
+    }
+
+    /**
+     * @param string $filepath
+     * @return resource
+     * @throws RuntimeException
+     */
+    public function readStream(string $filepath)
+    {
+        error_clear_last();
+        $contents = @fopen($filepath, 'rb');
+        if (false === $contents) {
+            throw new RuntimeException(error_get_last()['message'] ?? '');
+        }
+
+        return $contents;
     }
 
     /**
@@ -127,16 +158,7 @@ abstract class LocalMedia extends AbstractMedia
      */
     protected function fileExists(string $filename, string $destination): bool
     {
-        return file_exists("{$destination}/{$filename}");
-    }
-
-    /**
-     * @param string $filepath
-     * @return string
-     */
-    protected function readFileContents(string $filepath): string
-    {
-        return file_get_contents($filepath);
+        return is_file("{$destination}/{$filename}");
     }
 
     /**
@@ -145,9 +167,10 @@ abstract class LocalMedia extends AbstractMedia
      */
     protected function readImageSize(string $filepath): array
     {
-        $info = getimagesize($filepath);
-        if (!$info) {
-            throw new RuntimeException('Cannot read image size');
+        error_clear_last();
+        $info = @getimagesize($filepath);
+        if (false === $info) {
+            throw new RuntimeException(error_get_last()['message'] ?? '');
         }
 
         $info = [
@@ -168,33 +191,6 @@ abstract class LocalMedia extends AbstractMedia
         */
 
         return $info;
-    }
-
-    protected function readVectorSize(string $filepath): array
-    {
-        // Make sure that getting image size is supported.
-        if (\extension_loaded('simplexml')) {
-            $data = $this->readFileContents($filepath);
-            $xml = simplexml_load_string($data);
-            $attr = $xml ? $xml->attributes() : null;
-            if ($attr instanceof \SimpleXMLElement) {
-                // Get the size from svg image.
-                if ($attr->width > 0 && $attr->height > 0) {
-                    $width = $attr->width;
-                    $height = $attr->height;
-                } elseif ($attr->viewBox && 4 === count($size = explode(' ', (string)$attr->viewBox))) {
-                    [,$width,$height,] = $size;
-                }
-
-                if ($width && $height) {
-                    return ['width' => (int)$width, 'height' => (int)$height, 'mime' => 'image/svg+xml'];
-                }
-            }
-
-            throw new RuntimeException('Cannot read image size');
-        }
-
-        return [];
     }
 
     /**

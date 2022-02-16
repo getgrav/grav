@@ -28,6 +28,8 @@ use RocketTheme\Toolbox\ArrayTraits\Export;
 use RocketTheme\Toolbox\ArrayTraits\ExportInterface;
 use RocketTheme\Toolbox\ArrayTraits\Iterator;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
+use RuntimeException;
+use function count;
 use function in_array;
 use function is_array;
 
@@ -58,6 +60,8 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
     protected $items = [];
     /** @var array|null */
     protected $media_order;
+    /** @var array */
+    protected $config = [];
     /** @var array */
     protected $standard_exif = ['FileSize', 'MimeType', 'height', 'width'];
     /** @var int */
@@ -275,7 +279,7 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
     {
         $version = $data['version'] ?? null;
         if ($version !== static::VERSION) {
-            throw new \RuntimeException('Cannot unserialize: version mismatch');
+            throw new RuntimeException('Cannot unserialize: version mismatch');
         }
 
         $this->index = $data['index'];
@@ -288,6 +292,20 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
             $this->add($name, $item);
         }
     }
+
+    /**
+     * @param string $filepath
+     * @return string
+     * @throws RuntimeException
+     */
+    abstract public function readFile(string $filepath): string;
+
+    /**
+     * @param string $filepath
+     * @return resource
+     * @throws RuntimeException
+     */
+    abstract public function readStream(string $filepath);
 
     /**
      * Order the media based on the page's media_order
@@ -330,6 +348,37 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
      * @return array
      */
     abstract protected function readImageSize(string $filepath): array;
+
+    /**
+     * @param string $filepath
+     * @return array
+     */
+    protected function readVectorSize(string $filepath): array
+    {
+        // Make sure that getting image size is supported.
+        if (\extension_loaded('simplexml')) {
+            $data = $this->readFile($filepath);
+            $xml = @simplexml_load_string($data);
+            $attr = $xml ? $xml->attributes() : null;
+            if ($attr instanceof \SimpleXMLElement) {
+                // Get the size from svg image.
+                if ($attr->width > 0 && $attr->height > 0) {
+                    $width = $attr->width;
+                    $height = $attr->height;
+                } elseif ($attr->viewBox && 4 === count($size = explode(' ', (string)$attr->viewBox))) {
+                    [,$width,$height,] = $size;
+                }
+
+                if (isset($width, $height)) {
+                    return ['width' => (int)$width, 'height' => (int)$height, 'mime' => 'image/svg+xml'];
+                }
+            }
+
+            throw new RuntimeException(sprintf('Cannot read image size from %s', $filepath));
+        }
+
+        return [];
+    }
 
     /**
      * Load file listing from the filesystem.
@@ -380,7 +429,7 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
                     } elseif ($type === 'vector') {
                         $info += $this->readVectorSize($filepath);
                     }
-                } catch (\RuntimeException $e) {
+                } catch (RuntimeException $e) {
                     // TODO: Maybe we want to handle this..?
                 }
             }

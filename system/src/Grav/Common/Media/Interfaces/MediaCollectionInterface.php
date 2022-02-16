@@ -12,6 +12,7 @@ namespace Grav\Common\Media\Interfaces;
 use Grav\Common\Data\Blueprint;
 use Grav\Common\Page\Medium\ImageFile;
 use Grav\Common\Page\Medium\Medium;
+use RuntimeException;
 
 /**
  * Class implements media collection interface.
@@ -113,4 +114,18 @@ interface MediaCollectionInterface extends \Grav\Framework\Media\Interfaces\Medi
      * @return ImageFile
      */
     public function getImageFileObject(MediaObjectInterface $mediaObject): ImageFile;
+
+    /**
+     * @param string $filepath
+     * @return string
+     * @throws RuntimeException
+     */
+    public function readFile(string $filepath): string;
+
+    /**
+     * @param string $filepath
+     * @return resource
+     * @throws RuntimeException
+     */
+    public function readStream(string $filepath);
 }
