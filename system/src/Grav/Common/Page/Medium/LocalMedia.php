@@ -17,6 +17,7 @@ use Grav\Common\Utils;
 use Grav\Framework\File\Formatter\JsonFormatter;
 use Grav\Framework\File\JsonFile;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
+use function count;
 use function is_array;
 
 /**
@@ -134,6 +135,31 @@ abstract class LocalMedia extends AbstractMedia
      */
     protected function readImageSize(string $filepath): array
     {
+        if (str_ends_with($filepath, '.svg')) {
+            // Make sure that getting image size is supported.
+            if (!\extension_loaded('simplexml')) {
+                return [0, 0, 'mime' => 'image/svg+xml'];
+            }
+
+            $xml = simplexml_load_string(file_get_contents($filepath));
+            $attr = $xml ? $xml->attributes() : null;
+            if ($attr instanceof \SimpleXMLElement) {
+                // Get the size from svg image.
+                if ($attr->width > 0 && $attr->height > 0) {
+                    $width = $attr->width;
+                    $height = $attr->height;
+                } elseif ($attr->viewBox && 4 === count($size = explode(' ', (string)$attr->viewBox))) {
+                    [,$width,$height,] = $size;
+                }
+
+                if ($width && $height) {
+                    return [(int)$width, (int)$height, 'mime' => 'image/svg+xml'];
+                }
+            }
+
+            return [0, 0, 'mime' => 'application/octet-stream'];
+        }
+
         return getimagesize($filepath);
     }
 
