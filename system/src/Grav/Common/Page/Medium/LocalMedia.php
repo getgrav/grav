@@ -150,6 +150,12 @@ abstract class LocalMedia extends AbstractMedia
             throw new RuntimeException('Cannot read image size');
         }
 
+        $info = [
+            'width' => $info[0],
+            'height' => $info[1],
+            'mime' => $info['mime']
+        ];
+
         // TODO: This is going to be slow without any indexing!
         /*
         // Add missing jpeg exif data.
@@ -161,7 +167,7 @@ abstract class LocalMedia extends AbstractMedia
         }
         */
 
-        return ['width' => $info[0], 'height' => $info[0], 'mime' => $info['mime']];
+        return $info;
     }
 
     protected function readVectorSize(string $filepath): array
@@ -184,9 +190,11 @@ abstract class LocalMedia extends AbstractMedia
                     return ['width' => (int)$width, 'height' => (int)$height, 'mime' => 'image/svg+xml'];
                 }
             }
+
+            throw new RuntimeException('Cannot read image size');
         }
 
-        throw new RuntimeException('Cannot read image size');
+        return [];
     }
 
     /**
