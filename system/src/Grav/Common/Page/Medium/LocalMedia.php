@@ -13,7 +13,6 @@ use FilesystemIterator;
 use Grav\Common\Data\Blueprint;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\Media\Interfaces\MediaObjectInterface;
-use Grav\Common\Utils;
 use Grav\Framework\File\Formatter\JsonFormatter;
 use Grav\Framework\File\JsonFile;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
@@ -79,14 +78,15 @@ abstract class LocalMedia extends AbstractMedia
         if (null === $info) {
             // Find out if the file is in this media folder or fall back to MediumFactory.
             $relativePath = Folder::getRelativePath($filename, $this->getPath());
-            if ($relativePath !== $filename) {
-                $info = $this->index[$relativePath] ?? null;
-            } elseif (file_exists($filename)) {
+            $info = $this->index[$relativePath] ?? null;
+            if (null === $info && file_exists($filename)) {
                 return MediumFactory::fromFile($filename);
             }
+
+            $filename = $relativePath;
         }
 
-        $this->addMediaDefaults($info);
+        $this->addMediaDefaults($filename, $info);
         if (!is_array($info)) {
             return null;
         }
@@ -129,7 +129,7 @@ abstract class LocalMedia extends AbstractMedia
         error_clear_last();
         $contents = @file_get_contents($filepath);
         if (false === $contents) {
-            throw new RuntimeException(error_get_last()['message'] ?? '');
+            throw new RuntimeException('Reading media file failed: ' . (error_get_last()['message'] ?? sprintf('Cannot read %s', $filepath)));
         }
 
         return $contents;
@@ -145,7 +145,7 @@ abstract class LocalMedia extends AbstractMedia
         error_clear_last();
         $contents = @fopen($filepath, 'rb');
         if (false === $contents) {
-            throw new RuntimeException(error_get_last()['message'] ?? '');
+            throw new RuntimeException('Reading media file failed: ' . (error_get_last()['message'] ?? sprintf('Cannot open %s', $filepath)));
         }
 
         return $contents;
@@ -170,7 +170,7 @@ abstract class LocalMedia extends AbstractMedia
         error_clear_last();
         $info = @getimagesize($filepath);
         if (false === $info) {
-            throw new RuntimeException(error_get_last()['message'] ?? '');
+            throw new RuntimeException(error_get_last()['message'] ?? 'Unable to get image size');
         }
 
         $info = [
@@ -182,6 +182,7 @@ abstract class LocalMedia extends AbstractMedia
         // TODO: This is going to be slow without any indexing!
         /*
         // Add missing jpeg exif data.
+        $exifReader = $this->getExifReader();
         if (null !== $exifReader && !isset($info['exif']) && $info['mime'] === 'image/jpeg') {
             $exif = $exifReader->read($filepath);
             if ($exif) {
@@ -207,13 +208,13 @@ abstract class LocalMedia extends AbstractMedia
                 continue;
             }
 
-            $info = Utils::pathinfo($item->getFilename());
-
             // Include extra information.
-            $info['modified'] = $item->getMTime();
-            $info['size'] = $item->getSize();
+            $info = [
+                'modified' => $item->getMTime(),
+                'size' => $item->getSize()
+            ];
 
-            $media[$info['basename']] = $info;
+            $media[$item->getFilename()] = $info;
         }
 
         return $media;

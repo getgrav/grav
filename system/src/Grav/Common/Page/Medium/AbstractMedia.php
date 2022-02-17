@@ -54,9 +54,11 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
 
     /** @var string|null */
     protected $path;
+    /** @var string|null */
+    protected $url;
     /** @var array */
     protected $index = [];
-    /** @var array */
+    /** @var MediaObjectInterface[] */
     protected $items = [];
     /** @var array|null */
     protected $media_order;
@@ -265,6 +267,7 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
             'index' => $this->index,
             'items' => $this->items,
             'path' => $this->path,
+            'url' => $this->url,
             'media_order' => $this->media_order,
             'standard_exif' => $this->standard_exif,
             'indexTimeout' => $this->indexTimeout
@@ -284,6 +287,7 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
 
         $this->index = $data['index'];
         $this->path = $data['path'];
+        $this->url = $data['url'];
         $this->media_order = $data['media_order'];
         $this->standard_exif = $data['standard_exif'];
         $this->indexTimeout = $data['indexTimeout'];
@@ -399,26 +403,19 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
      */
     protected function prepareFileInfo(iterable $files, array $media_types, ?array $cached): array
     {
-        //$exifReader = $this->getExifReader();
-
         $list = [];
         foreach ($files as $filename => $info) {
             // Ignore markdown, frontmatter and dot files. Also ignore all files which are not listed in media types.
-            $extension = $info['extension'] ?? '';
+            $extension = Utils::pathinfo($filename, PATHINFO_EXTENSION);
             $params = $media_types[strtolower($extension)] ?? [];
             if (!$params || $extension === 'md' || str_starts_with($filename, '.') || in_array($filename, static::$ignore, true)) {
                 continue;
             }
 
-            $type = $params['type'] ?? 'file';
-
-            $info['type'] = $type;
-            $info['mime'] = $params['mime'];
-            $info['basename'] = $info['filename'];
-            unset($info['dirname'], $info['filename']);
-
+            $info['mime'] = null;
             if (null !== $cached) {
                 try {
+                    $type = $params['type'] ?? 'file';
                     $filepath = $this->getPath($filename);
                     $existing = $cached[$filename] ?? null;
                     if ($existing && $existing['size'] === $info['size'] && $existing['modified'] === $info['modified']) {
@@ -433,6 +430,9 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
                     // TODO: Maybe we want to handle this..?
                 }
             }
+            if (!isset($info['mime'])) {
+                $info['mime'] = $params['mime'];
+            }
 
             $list[$filename] = $info;
         }
@@ -441,16 +441,23 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
     }
 
     /**
+     * @param string $filename
      * @param array|null $info
      * @return void
      */
-    protected function addMediaDefaults(?array &$info): void
+    protected function addMediaDefaults(string $filename, ?array &$info): void
     {
-        if (!is_array($info)) {
-            $info = null;
-
+        if (null === $info) {
             return;
         }
+
+        $pathInfo = Utils::pathinfo($filename);
+        $info['filename'] = $pathInfo['basename'];
+        if (!isset($info['path'])) {
+            $info['path'] = $pathInfo['dirname'] === '.' ? $this->getPath() : $pathInfo['dirname'];
+        }
+        unset($pathInfo['dirname'], $pathInfo['basename']);
+        $info += $pathInfo;
 
         $config = $this->getConfig();
         $ext = $info['extension'] ?? '';
@@ -461,14 +468,8 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
             return;
         }
 
-        if (!isset($info['filename'])) {
-            $info['filename'] = $info['basename'] . ($ext ? '.' . $ext : '');
-        }
-        if (!isset($info['path'])) {
-            $info['path'] = $this->getPath();
-        }
         if (!isset($info['filepath'])) {
-            $info['filepath'] = $this->getPath($info['filename']);
+            $info['filepath'] = $info['path'] . '/' . $info['filename'];
         }
 
         // Remove empty 'image' attribute
@@ -526,7 +527,11 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
             // Find out what type we're dealing with
             [$basename, $extension, $type, $extra] = $this->getFileParts($filename);
 
-            $info['file'] = $this->getPath($filename);
+            $info['filename'] = $filename;
+            $info['file'] = $filename;
+            if ($this->url) {
+                $info['url'] = "{$this->url}/{$filename}";
+            }
             $filename = "{$basename}.{$extension}";
             if ($type === 'alternative') {
                 $media[$filename][$type][$extra] = $info;
