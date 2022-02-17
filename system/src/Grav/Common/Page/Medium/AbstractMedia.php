@@ -21,12 +21,10 @@ use Grav\Common\Media\Traits\MediaUploadTrait;
 use Grav\Common\Page\Pages;
 use Grav\Common\Utils;
 use Grav\Framework\Compat\Serializable;
+use InvalidArgumentException;
 use PHPExif\Reader\Reader;
-use RocketTheme\Toolbox\ArrayTraits\ArrayAccess;
-use RocketTheme\Toolbox\ArrayTraits\Countable;
 use RocketTheme\Toolbox\ArrayTraits\Export;
 use RocketTheme\Toolbox\ArrayTraits\ExportInterface;
-use RocketTheme\Toolbox\ArrayTraits\Iterator;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use RuntimeException;
 use function count;
@@ -39,9 +37,6 @@ use function is_array;
  */
 abstract class AbstractMedia implements ExportInterface, MediaCollectionInterface, MediaUploadInterface, \Serializable
 {
-    use ArrayAccess;
-    use Countable;
-    use Iterator;
     use Export;
     use MediaUploadTrait;
     use Serializable;
@@ -58,7 +53,9 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
     protected $url;
     /** @var array|null */
     protected $index;
-    /** @var MediaObjectInterface[] */
+    /** @var array|null */
+    protected $grouped;
+    /** @var array<string,array|MediaObjectInterface> */
     protected $items = [];
     /** @var array|null */
     protected $media_order;
@@ -68,14 +65,10 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
     protected $standard_exif = ['FileSize', 'MimeType', 'height', 'width'];
     /** @var int */
     protected $indexTimeout = 0;
-    /** @var array */
-    protected $images = [];
-    /** @var array */
-    protected $videos = [];
-    /** @var array */
-    protected $audios = [];
-    /** @var array */
-    protected $files = [];
+    /** @var string|int|null */
+    protected $timestamp;
+    /** @var bool Hack to make Iterator work together with unset(). */
+    private $iteratorUnset = false;
 
     /**
      * Return media path.
@@ -97,26 +90,123 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
     abstract public function exists(): bool;
 
     /**
-     * Get medium by filename.
-     *
-     * @param string $filename
-     * @return MediaObjectInterface|null
+     * @return int
      */
-    public function get($filename): ?MediaObjectInterface
+    public function count(): int
     {
-        return $this->offsetGet($filename);
+        return count($this->items);
     }
 
     /**
-     * Call object as function to get medium by filename.
-     *
-     * @param string $filename
+     * @param string $offset
+     * @return bool
+     */
+    public function offsetExists($offset): bool
+    {
+        return isset($this->items[$offset]);
+    }
+
+    /**
+     * @param string $offset
      * @return MediaObjectInterface|null
      */
-    #[\ReturnTypeWillChange]
-    public function __invoke(string $filename): ?MediaObjectInterface
+    public function offsetGet($offset): ?MediaObjectInterface
     {
-        return $this->offsetGet($filename);
+        $instance = $this->items[$offset] ?? null;
+        if ($instance && !$instance instanceof MediaObjectInterface) {
+            // Initialize media object.
+            $key = $this->key();
+            $this->items[$key] = $instance = $this->initMedium($key);
+        }
+
+        return $instance ? $instance->setTimestamp($this->timestamp) : null;
+    }
+
+    /**
+     * @param string|null $offset
+     * @param MediaObjectInterface $value
+     * @return void
+     */
+    public function offsetSet($offset, $value): void
+    {
+        if (!$value instanceof MediaObjectInterface) {
+            throw new InvalidArgumentException('Parameter $value needs to be instance of MediaObjectInterface');
+        }
+
+        if (null === $offset) {
+            $this->items[$value->filename] = $value;
+        } else {
+            $this->items[$offset] = $value;
+        }
+    }
+
+    /**
+     * @param string $offset
+     * @return void
+     */
+    public function offsetUnset($offset): void
+    {
+        // Hack to make Iterator trait work together with unset.
+        if (isset($this->iteratorUnset) && (string)$offset === (string)key($this->items)) {
+            $this->iteratorUnset = true;
+        }
+
+        unset($this->items[$offset]);
+    }
+
+    /**
+     * @return MediaObjectInterface|null
+     */
+    public function current(): ?MediaObjectInterface
+    {
+        $instance = current($this->items);
+        if ($instance && !$instance instanceof MediaObjectInterface) {
+            // Initialize media object.
+            $key = $this->key();
+            $this->items[$key] = $instance = $this->initMedium($key);
+        }
+
+        return $instance ? $instance->setTimestamp($this->timestamp) : null;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function key(): ?string
+    {
+        $key = key($this->items);
+
+        return $key !== null ? (string)$key : null;
+    }
+
+    /**
+     * @return void
+     */
+    public function next(): void
+    {
+        if ($this->iteratorUnset) {
+            // If current item was unset, position is already in the next element (do nothing).
+            $this->iteratorUnset = false;
+        } else {
+            next($this->items);
+        }
+    }
+
+    /**
+     * @return void
+     */
+    public function rewind(): void
+    {
+        $this->iteratorUnset = false;
+        reset($this->items);
+    }
+
+    /**
+     * @return bool
+     */
+    public function valid(): bool
+    {
+        return key($this->items) !== null;
     }
 
     /**
@@ -127,9 +217,7 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
      */
     public function setTimestamps($timestamp = null)
     {
-        foreach ($this->items as $instance) {
-            $instance->setTimestamp($timestamp);
-        }
+        $this->timestamp = $timestamp;
 
         return $this;
     }
@@ -141,9 +229,15 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
      */
     public function all(): array
     {
+        // Reorder.
         $this->items = $this->orderMedia($this->items);
 
-        return $this->items;
+        $list = [];
+        foreach ($this as $filename => $instance) {
+            $list[$filename] = $instance;
+        }
+
+        return $list;
     }
 
     /**
@@ -153,9 +247,14 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
      */
     public function images(): array
     {
-        $this->images = $this->orderMedia($this->images);
+        $list = [];
+        foreach ($this->all() as $filename => $file) {
+            if ($file->type === 'image') {
+                $list[$filename] = $file;
+            }
+        }
 
-        return $this->images;
+        return $list;
     }
 
     /**
@@ -165,9 +264,14 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
      */
     public function videos(): array
     {
-        $this->videos = $this->orderMedia($this->videos);
+        $list = [];
+        foreach ($this->all() as $filename => $file) {
+            if ($file->type === 'video') {
+                $list[$filename] = $file;
+            }
+        }
 
-        return $this->videos;
+        return $list;
     }
 
     /**
@@ -177,9 +281,14 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
      */
     public function audios(): array
     {
-        $this->audios = $this->orderMedia($this->audios);
+        $list = [];
+        foreach ($this->all() as $filename => $file) {
+            if ($file->type === 'audio') {
+                $list[$filename] = $file;
+            }
+        }
 
-        return $this->audios;
+        return $list;
     }
 
     /**
@@ -189,9 +298,25 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
      */
     public function files(): array
     {
-        $this->files = $this->orderMedia($this->files);
+        $list = [];
+        foreach ($this->all() as $filename => $file) {
+            if (!in_array($file->type, ['image', 'video', 'audio'])) {
+                $list[$filename] = $file;
+            }
+        }
 
-        return $this->files;
+        return $list;
+    }
+
+    /**
+     * Get medium by filename.
+     *
+     * @param string $filename
+     * @return MediaObjectInterface|null
+     */
+    public function get(string $filename): ?MediaObjectInterface
+    {
+        return $this->offsetGet($filename);
     }
 
     /**
@@ -206,20 +331,6 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
         }
 
         $this->offsetSet($name, $file);
-
-        switch ($file->type) {
-            case 'image':
-                $this->images[$name] = $file;
-                break;
-            case 'video':
-                $this->videos[$name] = $file;
-                break;
-            case 'audio':
-                $this->audios[$name] = $file;
-                break;
-            default:
-                $this->files[$name] = $file;
-        }
     }
 
     /**
@@ -229,8 +340,6 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
     public function hide(string $name): void
     {
         $this->offsetUnset($name);
-
-        unset($this->images[$name], $this->videos[$name], $this->audios[$name], $this->files[$name]);
     }
 
     /**
@@ -240,7 +349,7 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
      * @param  array  $params
      * @return Medium|null
      */
-    abstract public function createFromFile($filename, array $params = []): ?MediaObjectInterface;
+    abstract public function createFromFile(string $filename, array $params = []): ?MediaObjectInterface;
 
     /**
      * Create a new ImageMedium by scaling another ImageMedium object.
@@ -269,6 +378,7 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
         return [
             'version' => static::VERSION,
             'index' => $this->index ?? [],
+            'grouped' => $this->grouped,
             'path' => $this->path,
             'url' => $this->url,
             'media_order' => $this->media_order,
@@ -289,13 +399,15 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
         }
 
         $this->index = $data['index'];
+        $this->grouped = $data['grouped'];
         $this->path = $data['path'];
         $this->url = $data['url'];
         $this->media_order = $data['media_order'];
         $this->standard_exif = $data['standard_exif'];
         $this->indexTimeout = $data['indexTimeout'];
 
-        $this->init();
+        // Initialize items.
+        $this->items = $this->grouped;
     }
 
     /**
@@ -545,99 +657,111 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
             }
         }
 
-        foreach ($media as $name => $types) {
-            // Prepare the alternatives in case there is no base medium.
-            if (!empty($types['alternative'])) {
-                /**
-                 * @var string|int $ratio
-                 * @var array $alt
-                 */
-                foreach ($types['alternative'] as $ratio => &$alt) {
-                    $alt['file'] = $this->createFromFile($alt['file']);
-                    if (empty($alt['file'])) {
-                        unset($types['alternative'][$ratio]);
-                    }
-                }
-                unset($alt);
-            }
+        $media = $this->orderMedia($media);
 
-            // Create the base medium.
-            $file_path = null;
-            if (empty($types['base'])) {
-                if (!isset($types['alternative'])) {
-                    continue;
-                }
+        $this->grouped = $media;
+        $this->items = $media;
+    }
 
-                $max = max(array_keys($types['alternative']));
-                $medium = $types['alternative'][$max]['file'];
-                $file_path = $medium->path();
-                $medium = $this->scaledFromMedium($medium, $max);
-            } else {
-                $medium = $this->createFromFile($types['base']['file']);
-                if ($medium) {
-                    $medium->set('size', $types['base']['size']);
-                    $file_path = $medium->path();
+    /**
+     * @param string $name
+     * @return MediaObjectInterface|null
+     */
+    protected function initMedium(string $name): ?MediaObjectInterface
+    {
+        $types = $this->grouped[$name];
+
+        // Prepare the alternatives in case there is no base medium.
+        if (!empty($types['alternative'])) {
+            /**
+             * @var string|int $ratio
+             * @var array $alt
+             */
+            foreach ($types['alternative'] as $ratio => &$alt) {
+                $alt['file'] = $this->createFromFile($alt['file']);
+                if (empty($alt['file'])) {
+                    unset($types['alternative'][$ratio]);
                 }
             }
-
-            if ($file_path) {
-                $meta_path = $file_path . '.meta.yaml';
-                if (file_exists($meta_path)) {
-                    $types['meta']['file'] = $meta_path;
-                } elseif ($exifReader = $this->getExifReader()) {
-                    $meta = $exifReader->read($file_path);
-                    if ($meta) {
-                        $meta_data = $meta->getData();
-                        $meta_trimmed = array_diff_key($meta_data, array_flip($this->standard_exif));
-                        if ($meta_trimmed) {
-                            $locator = $this->getGrav()['locator'];
-                            if ($locator->isStream($meta_path)) {
-                                $file = CompiledYamlFile::instance($locator->findResource($meta_path, true, true));
-                            } else {
-                                $file = CompiledYamlFile::instance($meta_path);
-                            }
-                            $file->save($meta_trimmed);
-                            $types['meta']['file'] = $meta_path;
-                        }
-                    }
-                }
-            }
-
-            if (!empty($types['meta']['file'])) {
-                $medium->addMetaFile($types['meta']['file']);
-            }
-
-            if (!empty($types['thumb']['file'])) {
-                // We will not turn it into medium yet because user might never request the thumbnail
-                // not wasting any resources on that, maybe we should do this for medium in general?
-                $medium->set('thumbnails.page', $types['thumb']['file']);
-            }
-
-            // Build missing alternatives.
-            if (!empty($types['alternative'])) {
-                $alternatives = $types['alternative'];
-                $max = max(array_keys($alternatives));
-
-                for ($i=$max; $i > 1; $i--) {
-                    if (!isset($alternatives[$i])) {
-                        $types['alternative'][$i] = $this->scaledFromMedium($alternatives[$max]['file'], $max, $i);
-                    }
-                }
-
-                foreach ($types['alternative'] as $altMedium) {
-                    if ($altMedium['file'] != $medium) {
-                        $altWidth = $altMedium['file']->get('width');
-                        $medWidth = $medium->get('width');
-                        if ($altWidth && $medWidth) {
-                            $ratio = (string)($altWidth / $medWidth);
-                            $medium->addAlternative($ratio, $altMedium['file']);
-                        }
-                    }
-                }
-            }
-
-            $this->add($name, $medium);
+            unset($alt);
         }
+
+        // Create the base medium.
+        $file_path = null;
+        if (empty($types['base'])) {
+            if (!isset($types['alternative'])) {
+                return null;
+            }
+
+            $max = max(array_keys($types['alternative']));
+            $medium = $types['alternative'][$max]['file'];
+            $file_path = $medium->path();
+            $medium = $this->scaledFromMedium($medium, $max);
+        } else {
+            $medium = $this->createFromFile($types['base']['file']);
+            if ($medium) {
+                $medium->set('size', $types['base']['size']);
+                $file_path = $medium->path();
+            }
+        }
+
+        if ($file_path) {
+            $meta_path = $file_path . '.meta.yaml';
+            if (file_exists($meta_path)) {
+                $types['meta']['file'] = $meta_path;
+            } elseif ($exifReader = $this->getExifReader()) {
+                $meta = $exifReader->read($file_path);
+                if ($meta) {
+                    $meta_data = $meta->getData();
+                    $meta_trimmed = array_diff_key($meta_data, array_flip($this->standard_exif));
+                    if ($meta_trimmed) {
+                        $locator = $this->getGrav()['locator'];
+                        if ($locator->isStream($meta_path)) {
+                            $file = CompiledYamlFile::instance($locator->findResource($meta_path, true, true));
+                        } else {
+                            $file = CompiledYamlFile::instance($meta_path);
+                        }
+                        $file->save($meta_trimmed);
+                        $types['meta']['file'] = $meta_path;
+                    }
+                }
+            }
+        }
+
+        if (!empty($types['meta']['file'])) {
+            $medium->addMetaFile($types['meta']['file']);
+        }
+
+        if (!empty($types['thumb']['file'])) {
+            // We will not turn it into medium yet because user might never request the thumbnail
+            // not wasting any resources on that, maybe we should do this for medium in general?
+            $medium->set('thumbnails.page', $types['thumb']['file']);
+        }
+
+        // Build missing alternatives.
+        if (!empty($types['alternative'])) {
+            $alternatives = $types['alternative'];
+            $max = max(array_keys($alternatives));
+
+            for ($i=$max; $i > 1; $i--) {
+                if (!isset($alternatives[$i])) {
+                    $types['alternative'][$i] = $this->scaledFromMedium($alternatives[$max]['file'], $max, $i);
+                }
+            }
+
+            foreach ($types['alternative'] as $altMedium) {
+                if ($altMedium['file'] != $medium) {
+                    $altWidth = $altMedium['file']->get('width');
+                    $medWidth = $medium->get('width');
+                    if ($altWidth && $medWidth) {
+                        $ratio = (string)($altWidth / $medWidth);
+                        $medium->addAlternative($ratio, $altMedium['file']);
+                    }
+                }
+            }
+        }
+
+        return $medium;
     }
 
     /**
@@ -745,5 +869,19 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
         /** @var UniformResourceLocator $locator */
         $locator = $this->getGrav()['locator'];
         $locator->clearCache();
+    }
+
+    /**
+     * Call object as function to get medium by filename.
+     *
+     * @param string $filename
+     * @return MediaObjectInterface|null
+     * @deprecated 1.8 Use $media[$filename] instead
+     */
+    public function __invoke(string $filename): ?MediaObjectInterface
+    {
+        user_error(__METHOD__ . '() is deprecated since Grav 1.8, use $media[$filename] instead', E_USER_DEPRECATED);
+
+        return $this->offsetGet($filename);
     }
 }

@@ -72,7 +72,7 @@ abstract class LocalMedia extends AbstractMedia
      * @param  array  $params
      * @return Medium|null
      */
-    public function createFromFile($filename, array $params = []): ?MediaObjectInterface
+    public function createFromFile(string $filename, array $params = []): ?MediaObjectInterface
     {
         $info = $this->index[$filename] ?? null;
         if (null === $info) {

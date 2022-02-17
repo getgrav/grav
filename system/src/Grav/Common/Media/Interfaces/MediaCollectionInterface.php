@@ -39,7 +39,7 @@ interface MediaCollectionInterface extends \Grav\Framework\Media\Interfaces\Medi
      * @param string $filename
      * @return Medium|null
      */
-    public function get($filename): ?MediaObjectInterface;
+    public function get(string $filename): ?MediaObjectInterface;
 
     /**
      * Get a list of all media.
@@ -98,7 +98,7 @@ interface MediaCollectionInterface extends \Grav\Framework\Media\Interfaces\Medi
      * @param  array  $params
      * @return Medium|null
      */
-    public function createFromFile($file, array $params = []): ?MediaObjectInterface;
+    public function createFromFile(string $file, array $params = []): ?MediaObjectInterface;
 
     /**
      * Create Medium from array of parameters
