@@ -50,4 +50,16 @@ interface MediaFileInterface extends MediaObjectInterface
      * @return mixed
      */
     public function relativePath($reset = true);
+
+    /**
+     * @return string
+     * @throws \RuntimeException
+     */
+    public function readFile(): string;
+
+    /**
+     * @return resource
+     * @throws \RuntimeException
+     */
+    public function readStream();
 }

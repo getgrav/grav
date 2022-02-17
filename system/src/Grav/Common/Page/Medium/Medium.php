@@ -13,10 +13,13 @@ use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Grav;
 use Grav\Common\Data\Data;
 use Grav\Common\Data\Blueprint;
+use Grav\Common\Media\Interfaces\MediaCollectionInterface;
 use Grav\Common\Media\Interfaces\MediaFileInterface;
 use Grav\Common\Media\Interfaces\MediaLinkInterface;
+use Grav\Common\Media\Interfaces\MediaObjectInterface;
 use Grav\Common\Media\Traits\MediaFileTrait;
 use Grav\Common\Media\Traits\MediaObjectTrait;
+use RuntimeException;
 
 /**
  * Class Medium
@@ -45,27 +48,21 @@ class Medium extends Data implements RenderableInterface, MediaFileInterface
      */
     public function __construct($items = [], Blueprint $blueprint = null)
     {
+        $items += ['mime' => 'application/octet-stream'];
+        $size = $items['size'] ?? null;
+        $modified = $items['modified'] ?? null;
+        if (null === $size || null === $modified) {
+            $path = $items['filepath'];
+            if ($path && file_exists($path)) {
+                $items['size'] = $size ?? filesize($path);
+                $items['modified'] = $modified ?? filemtime($path);
+            }
+        }
+
         parent::__construct($items, $blueprint);
 
         if (Grav::instance()['config']->get('system.media.enable_media_timestamp', true)) {
             $this->timestamp = Grav::instance()['cache']->getKey();
-        }
-
-        $this->def('mime', 'application/octet-stream');
-
-        $sizeMissing = !$this->offsetExists('size');
-        $modifiedMissing = !$this->offsetExists('modified');
-        if ($sizeMissing || $modifiedMissing) {
-            $path = $this->get('filepath');
-            if ($path && file_exists($path)) {
-                if ($sizeMissing) {
-                    $this->set('size', filesize($path));
-                }
-                if ($modifiedMissing) {
-                    $this->set('modified', filemtime($path));
-                }
-            }
-
         }
 
         $this->reset();
@@ -78,6 +75,24 @@ class Medium extends Data implements RenderableInterface, MediaFileInterface
     public function __clone()
     {
         // Allows future compatibility as parent::__clone() works.
+    }
+
+    /**
+     * @return string
+     * @throws RuntimeException
+     */
+    public function readFile(): string
+    {
+        return $this->getMedia()->readFile($this->filepath);
+    }
+
+    /**
+     * @return resource
+     * @throws RuntimeException
+     */
+    public function readStream()
+    {
+        return $this->getMedia()->readStream($this->filepath);
     }
 
     /**
@@ -116,11 +131,11 @@ class Medium extends Data implements RenderableInterface, MediaFileInterface
 
     /**
      * @param string $thumb
-     * @return Medium|null
+     * @return MediaObjectInterface|null
      */
     protected function createThumbnail($thumb)
     {
-        return MediumFactory::fromFile($thumb, ['type' => 'thumbnail']);
+        return $this->getMedia()->createFromFile($thumb, ['type' => 'thumbnail']);
     }
 
     /**
@@ -130,6 +145,14 @@ class Medium extends Data implements RenderableInterface, MediaFileInterface
     protected function createLink(array $attributes)
     {
         return new Link($attributes, $this);
+    }
+
+    /**
+     * @return MediaCollectionInterface
+     */
+    protected function getMedia(): MediaCollectionInterface
+    {
+        return $this->get('media', GlobalMedia::getInstance());
     }
 
     /**

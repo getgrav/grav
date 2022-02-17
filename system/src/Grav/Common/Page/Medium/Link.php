@@ -40,7 +40,7 @@ class Link implements RenderableInterface, MediaLinkInterface
     {
         $this->attributes = $attributes;
 
-        $source = $medium->reset()->thumbnail('auto')->display('thumbnail');
+        $source = $medium->reset()->thumbnail()->display('thumbnail');
         if (!$source instanceof MediaObjectInterface) {
             throw new RuntimeException('Media has no thumbnail set');
         }

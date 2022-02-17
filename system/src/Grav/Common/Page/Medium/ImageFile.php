@@ -175,11 +175,16 @@ class ImageFile extends Image
      */
     public function fixOrientation()
     {
+        $info = $this->source->getInfos();
+        if (!\is_string($info) || !file_exists($info)) {
+            return $this;
+        }
+
         if (!extension_loaded('exif')) {
             throw new RuntimeException('You need to EXIF PHP Extension to use this function');
         }
 
-        if (!in_array(exif_imagetype($this->source->getInfos()), [IMAGETYPE_JPEG, IMAGETYPE_TIFF_II, IMAGETYPE_TIFF_MM], true)) {
+        if (!in_array(exif_imagetype($info), [IMAGETYPE_JPEG, IMAGETYPE_TIFF_II, IMAGETYPE_TIFF_MM], true)) {
             return $this;
         }
 
@@ -188,7 +193,7 @@ class ImageFile extends Image
         $locator = Grav::instance()['locator'];
         $filepath = $this->source->getInfos();
         if ($locator->isStream($filepath)) {
-            $filepath = $locator->findResource($this->source->getInfos(), true, true);
+            $filepath = $locator->findResource($info, true, true);
         }
 
         // Make sure file exists

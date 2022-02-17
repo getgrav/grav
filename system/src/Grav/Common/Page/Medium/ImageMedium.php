@@ -17,7 +17,6 @@ use Grav\Common\Media\Interfaces\MediaLinkInterface;
 use Grav\Common\Media\Traits\ImageLoadingTrait;
 use Grav\Common\Media\Traits\ImageMediaTrait;
 use Grav\Common\Utils;
-use Gregwar\Image\Image;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use function array_key_exists;
 use function func_get_args;
@@ -54,13 +53,10 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
         $this->def('debug', $config->get('system.images.debug'));
 
         $path = $this->get('filepath');
-        if (!$path || !file_exists($path) || !filesize($path)) {
-            return;
-        }
-
         $this->set('thumbnails.media', $path);
 
-        if (!($this->offsetExists('width') && $this->offsetExists('height') && $this->offsetExists('mime'))) {
+        $exists = $path && file_exists($path) && filesize($path);
+        if ($exists && !($this->offsetExists('width') && $this->offsetExists('height') && $this->offsetExists('mime'))) {
             $image_info = getimagesize($path);
             if ($image_info) {
                 $this->def('width', $image_info[0]);
@@ -223,7 +219,7 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
         }
 
         $srcset = [];
-        foreach ($this->alternatives as $ratio => $medium) {
+        foreach ($this->alternatives as $medium) {
             $srcset[] = $medium->url($reset) . ' ' . $medium->get('width') . 'w';
         }
         $srcset[] = str_replace(' ', '%20', $this->url($reset)) . ' ' . $this->get('width') . 'w';
@@ -315,7 +311,7 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
      */
     public function autoSizes($enabled = 'true')
     {
-        $this->auto_sizes = $enabled === 'true' ?: false;
+        $this->auto_sizes = $enabled === 'true';
 
         return $this;
     }
@@ -326,7 +322,7 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
      */
     public function aspectRatio($enabled = 'true')
     {
-        $this->aspect_ratio = $enabled === 'true' ?: false;
+        $this->aspect_ratio = $enabled === 'true';
 
         return $this;
     }
@@ -429,7 +425,7 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
     public function addFrame(int $border = 10, string $color = '0x000000')
     {
       if($border > 0 && preg_match('/^0x[a-f0-9]{6}$/i', $color)) { // $border must be an integer and bigger than 0; $color must be formatted as an HEX value (0x??????).
-        $image = ImageFile::open($this->path());
+        $image = ImageFile::fromData($this->readFile());
       }
       else {
         return $this;

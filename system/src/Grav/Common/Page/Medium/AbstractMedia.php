@@ -56,8 +56,8 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
     protected $path;
     /** @var string|null */
     protected $url;
-    /** @var array */
-    protected $index = [];
+    /** @var array|null */
+    protected $index;
     /** @var MediaObjectInterface[] */
     protected $items = [];
     /** @var array|null */
@@ -243,6 +243,16 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
     abstract public function createFromFile($filename, array $params = []): ?MediaObjectInterface;
 
     /**
+     * Create a new ImageMedium by scaling another ImageMedium object.
+     *
+     * @param  MediaObjectInterface $medium
+     * @param  int $from
+     * @param  int $to
+     * @return MediaObjectInterface
+     */
+    abstract public function scaledFromMedium(MediaObjectInterface $medium, int $from, int $to = 1): MediaObjectInterface;
+
+    /**
      * Create Medium from array of parameters
      *
      * @param  array          $items
@@ -252,20 +262,13 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
     abstract public function createFromArray(array $items = [], Blueprint $blueprint = null): ?MediaObjectInterface;
 
     /**
-     * @param MediaObjectInterface $mediaObject
-     * @return ImageFile
-     */
-    abstract public function getImageFileObject(MediaObjectInterface $mediaObject): ImageFile;
-
-    /**
      * @return array
      */
     public function __serialize(): array
     {
         return [
             'version' => static::VERSION,
-            'index' => $this->index,
-            'items' => $this->items,
+            'index' => $this->index ?? [],
             'path' => $this->path,
             'url' => $this->url,
             'media_order' => $this->media_order,
@@ -291,10 +294,8 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
         $this->media_order = $data['media_order'];
         $this->standard_exif = $data['standard_exif'];
         $this->indexTimeout = $data['indexTimeout'];
-        $items = $data['items'];
-        foreach ($items as $name => $item) {
-            $this->add($name, $item);
-        }
+
+        $this->init();
     }
 
     /**
@@ -509,17 +510,19 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
         $config = $this->getConfig();
 
         // Get file media listing. Use cached version if possible to avoid I/O.
-        $now = time();
-        [$files, $timestamp] = $this->loadIndex();
-        $timeout = $this->indexTimeout;
-        if (!$timestamp || ($timeout && $timestamp < $now - $timeout)) {
-            $media_types = $config->get('media.types');
-            $files = $this->prepareFileInfo($this->loadFileInfo(), $media_types, $files);
+        if (null === $this->index) {
+            $now = time();
+            [$files, $timestamp] = $this->loadIndex();
+            $timeout = $this->indexTimeout;
+            if (!$timestamp || ($timeout && $timestamp < $now - $timeout)) {
+                $media_types = $config->get('media.types');
+                $files = $this->prepareFileInfo($this->loadFileInfo(), $media_types, $files);
 
-            $this->saveIndex($files, $now);
+                $this->saveIndex($files, $now);
+            }
+
+            $this->index = $files;
         }
-
-        $this->index = $files;
 
         // Group images by base name.
         $media = [];
@@ -542,8 +545,8 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
             }
         }
 
-        // Prepare the alternatives in case there is no base medium.
         foreach ($media as $name => $types) {
+            // Prepare the alternatives in case there is no base medium.
             if (!empty($types['alternative'])) {
                 /**
                  * @var string|int $ratio
@@ -568,17 +571,13 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
                 $max = max(array_keys($types['alternative']));
                 $medium = $types['alternative'][$max]['file'];
                 $file_path = $medium->path();
-                $medium = MediumFactory::scaledFromMedium($medium, $max, 1)['file'];
+                $medium = $this->scaledFromMedium($medium, $max);
             } else {
                 $medium = $this->createFromFile($types['base']['file']);
                 if ($medium) {
                     $medium->set('size', $types['base']['size']);
                     $file_path = $medium->path();
                 }
-            }
-
-            if (empty($medium)) {
-                continue;
             }
 
             if ($file_path) {
@@ -620,11 +619,9 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
                 $max = max(array_keys($alternatives));
 
                 for ($i=$max; $i > 1; $i--) {
-                    if (isset($alternatives[$i])) {
-                        continue;
+                    if (!isset($alternatives[$i])) {
+                        $types['alternative'][$i] = $this->scaledFromMedium($alternatives[$max]['file'], $max, $i);
                     }
-
-                    $types['alternative'][$i] = MediumFactory::scaledFromMedium($alternatives[$max]['file'], $max, $i);
                 }
 
                 foreach ($types['alternative'] as $altMedium) {

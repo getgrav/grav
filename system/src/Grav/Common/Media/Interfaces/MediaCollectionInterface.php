@@ -110,12 +110,6 @@ interface MediaCollectionInterface extends \Grav\Framework\Media\Interfaces\Medi
     public function createFromArray(array $items = [], Blueprint $blueprint = null): ?MediaObjectInterface;
 
     /**
-     * @param MediaObjectInterface $mediaObject
-     * @return ImageFile
-     */
-    public function getImageFileObject(MediaObjectInterface $mediaObject): ImageFile;
-
-    /**
      * @param string $filepath
      * @return string
      * @throws RuntimeException
