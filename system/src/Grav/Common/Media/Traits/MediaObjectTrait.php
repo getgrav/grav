@@ -15,6 +15,7 @@ use Grav\Common\Media\Interfaces\MediaLinkInterface;
 use Grav\Common\Media\Interfaces\MediaObjectInterface;
 use Grav\Common\Page\Medium\ThumbnailImageMedium;
 use Grav\Common\Utils;
+use RuntimeException;
 use function count;
 use function func_get_args;
 use function in_array;
@@ -283,7 +284,7 @@ trait MediaObjectTrait
                 break;
             case 'thumbnail':
                 $thumbnail = $this->getThumbnail();
-                $element = $thumbnail ? $thumbnail->sourceParsedownElement($attributes, false) : [];
+                $element = $thumbnail->sourceParsedownElement($attributes, false);
                 break;
             case 'source':
                 $element = $this->sourceParsedownElement($attributes, false);
@@ -344,9 +345,7 @@ trait MediaObjectTrait
 
         $this->mode = $mode;
         if ($mode === 'thumbnail') {
-            $thumbnail = $this->getThumbnail();
-
-            return $thumbnail ? $thumbnail->reset() : null;
+            return $this->getThumbnail()->reset();
         }
 
         return $this->reset();
@@ -552,28 +551,43 @@ trait MediaObjectTrait
     /**
      * Get the thumbnail Medium object
      *
-     * @return ThumbnailImageMedium|null
+     * @return ThumbnailImageMedium
      */
-    protected function getThumbnail()
+    protected function getThumbnail(): ThumbnailImageMedium
     {
         if (null === $this->_thumbnail) {
+            $thumbnails = (array)$this->get('thumbnails') + ['system' => 'system://images/media/thumb.png'];
             $types = $this->thumbnailTypes;
+            $types[] = 'system';
 
-            if ($this->thumbnailType !== 'auto') {
+            if ($this->thumbnailType && $this->thumbnailType !== 'auto') {
                 array_unshift($types, $this->thumbnailType);
             }
 
+            $image = null;
             foreach ($types as $type) {
-                $thumb = $this->get("thumbnails.{$type}", false);
+                $thumb = $thumbnails[$type] ?? null;
                 if ($thumb) {
-                    $image = $thumb instanceof ThumbnailImageMedium ? $thumb : $this->createThumbnail($thumb);
-                    if($image) {
-                        $image->parent = $this;
-                        $this->_thumbnail = $image;
+                    if (is_string($thumb)) {
+                        $image = $this->createThumbnail($thumb);
+                    } elseif ($thumb instanceof ThumbnailImageMedium) {
+                        $image = $thumb;
+                    } else {
+                        throw new RuntimeException('Unsupported thumbnail type', 500);
                     }
-                    break;
+
+                    if ($image) {
+                        break;
+                    }
                 }
             }
+
+            if (!$image) {
+                throw new RuntimeException(sprintf("Default thumbnail image '%s' does not exist!", $thumbnails['system']), 500);
+            }
+
+            $image->parent = $this;
+            $this->_thumbnail = $image;
         }
 
         return $this->_thumbnail;

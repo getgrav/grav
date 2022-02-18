@@ -66,6 +66,15 @@ abstract class LocalMedia extends AbstractMedia
     {
         $info = $this->index[$filename] ?? null;
         if (null === $info) {
+            /** @var UniformResourceLocator $locator */
+            $locator = $this->getGrav()['locator'];
+            if ($locator->isStream($filename)) {
+                $filename = (string)$locator->getResource($filename);
+                if (!$filename) {
+                    return null;
+                }
+            }
+
             // Find out if the file is in this media folder or fall back to MediumFactory.
             $relativePath = Folder::getRelativePath($filename, $this->getPath());
             $info = $this->index[$relativePath] ?? null;
