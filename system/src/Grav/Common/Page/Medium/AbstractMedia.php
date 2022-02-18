@@ -566,6 +566,8 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
             $list[$filename] = $info;
         }
 
+        ksort($list, SORT_NATURAL);
+
         return $list;
     }
 
@@ -640,13 +642,20 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
         // Get file media listing. Use cached version if possible to avoid I/O.
         if (null === $this->index) {
             $now = time();
-            [$files, $timestamp] = $this->loadIndex();
+            [$data, $timestamp] = $this->loadIndex();
             $timeout = $this->indexTimeout;
             if (!$timestamp || ($timeout && $timestamp < $now - $timeout)) {
                 $media_types = $config->get('media.types');
-                $files = $this->prepareFileInfo($this->loadFileInfo(), $media_types, $files);
-
-                $this->saveIndex($files, $now);
+                $files = $this->prepareFileInfo($this->loadFileInfo(), $media_types, $data['files'] ?? []);
+                $oldChecksum = $data['checksum'] ?? null;
+                $newChecksum = md5(serialize($files));
+                if ($oldChecksum !== $newChecksum) {
+                    $this->saveIndex($files, $now);
+                } else {
+                    $this->touchIndex($now);
+                }
+            } else {
+                $files = $data['files'] ?? [];
             }
 
             $this->index = $files;
@@ -802,7 +811,7 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
         // Read media index file.
         $indexFile = $this->getIndexFile();
         if (!($indexFile && $indexFile->exists())) {
-            return [[], 0, 0];
+            return [[], 0];
         }
 
         $index = $indexFile->load();
@@ -810,23 +819,24 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
         $folder = $index['folder'] ?? null;
         $type = $index['type'] ?? null;
         if ($version !== static::VERSION || $folder !== $this->path || $type !== ($this->config['type'] ?? 'local')) {
-            return [[], 0, 0];
+            return [[], 0];
         }
 
-        return [$index['files'] ?? [], $index['timestamp'] ?? 0, $indexFile->getModificationTime()];
+        return [$index, $indexFile->getModificationTime()];
     }
 
     /**
+     * @param int|null $timestamp
      * @return void
      */
-    protected function touchIndex(): void
+    protected function touchIndex(?int $timestamp = null): void
     {
         $index = $this->getIndexFile();
         if (!$index || !$this->exists) {
             return;
         }
 
-        $index->touch();
+        $index->touch($timestamp);
     }
 
     /**
@@ -834,7 +844,7 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
      * @param int|null $timestamp
      * @return void
      */
-    protected function saveIndex(array $files, ?int $timestamp = null): void
+    protected function saveIndex(array $files, string $checksum, ?int $timestamp = null): void
     {
         $index = $this->getIndexFile();
         if (!$index || !$this->exists) {
@@ -844,6 +854,7 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
         $data = [
             'type' => $this->config['type'] ?? 'local',
             'version' => static::VERSION,
+            'checksum' => $checksum,
             'timestamp' => $timestamp ?? time(),
             'folder' => $this->path,
             'url' => $this->url,
