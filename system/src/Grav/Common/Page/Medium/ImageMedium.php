@@ -44,8 +44,6 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
      */
     public function __construct($items = [], Blueprint $blueprint = null)
     {
-        parent::__construct($items, $blueprint);
-
         /** @var Config $config */
         $config = $this->getGrav()['config'];
 
@@ -58,6 +56,8 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
             'retina_scale' => (int)$config->get('system.images.cls.retina_scale', 1)
 
         ];
+
+        parent::__construct($items, $blueprint);
 
         $this->def('debug', $config->get('system.images.debug'));
 
@@ -74,8 +74,6 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
                 $this->def('mime', $image_info['mime']);
             }
         }
-
-        $this->reset();
 
         if ($config->get('system.images.cache_all', false)) {
             $this->cache();
@@ -104,7 +102,7 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
 
         $this->format = 'guess';
         $this->options = $this->defaults;
-        $this->quality = $this->options['quality'];
+        $this->quality = $this->defaults['quality'];
         $this->debug_watermarked = false;
 
         $this->resetImage();
