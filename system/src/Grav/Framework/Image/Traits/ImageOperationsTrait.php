@@ -145,6 +145,11 @@ trait ImageOperationsTrait
             $height = $new_height;
         }
 
+        if ($width === $new_width && $height === $new_height) {
+            // Nothing to resize.
+            return $this;
+        }
+
         $this->operations[] = ['resize', [$bg, $width, $height, $new_width, $new_height]];
 
         // Update image size.
@@ -261,6 +266,11 @@ trait ImageOperationsTrait
      */
     public function crop(int $x, int $y, int $width, int $height)
     {
+        if ($x === 0 && $y === 0 && $width === $this->width && $height === $this->height) {
+            // Nothing to crop.
+            return $this;
+        }
+
         $this->operations[] = ['crop', [$x, $y, $width, $height]];
 
         // Update image size.

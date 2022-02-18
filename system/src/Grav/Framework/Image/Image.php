@@ -15,10 +15,16 @@ class Image implements ImageOperationsInterface
     use ImageOperationsTrait;
     use Serializable;
 
+    /** @var int */
+    protected $origWidth;
+    /** @var int */
+    protected $origHeight;
     /** @var string */
     protected $filepath;
-    /** @var array */
-    protected $info;
+    /** @var int */
+    protected $modified;
+    /** @var int */
+    protected $size;
 
     /**
      * @param string $filepath
@@ -27,8 +33,8 @@ class Image implements ImageOperationsInterface
     public function __construct(string $filepath, array $info)
     {
         $this->filepath = $filepath;
-        $this->width = $info['width'] ?? 0;
-        $this->height = $info['height'] ?? 0;
+        $this->origWidth = $this->width = $info['width'] ?? 0;
+        $this->origHeight = $this->height = $info['height'] ?? 0;
         $this->orientation = isset($info['exif']['Orientation']) ? (int)$info['exif']['Orientation'] : null;
     }
 
@@ -40,10 +46,11 @@ class Image implements ImageOperationsInterface
         return [
             'image' => 1,
             'filepath' => $this->filepath,
-            'info' => $this->info,
+            'orientation' => $this->orientation,
+            'orig_width' => $this->origWidth,
+            'orig_height' => $this->origHeight,
             'width' => $this->width,
             'height' => $this->height,
-            'orientation' => $this->orientation,
             'operations' => $this->operations,
         ];
     }
@@ -60,10 +67,11 @@ class Image implements ImageOperationsInterface
         }
 
         $this->filepath = $data['filepath'];
-        $this->info = $data['info'];
+        $this->origWidth = $data['orig_width'];
+        $this->origHeight = $data['orig_height'];
+        $this->orientation = $data['orientation'];
         $this->width = $data['width'];
         $this->height = $data['height'];
-        $this->orientation = $data['orientation'];
         $this->operations = $data['operations'];
     }
 
