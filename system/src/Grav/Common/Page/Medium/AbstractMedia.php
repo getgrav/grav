@@ -115,8 +115,7 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
         $instance = $this->items[$offset] ?? null;
         if ($instance && !$instance instanceof MediaObjectInterface) {
             // Initialize media object.
-            $key = $this->key();
-            $this->items[$key] = $instance = $this->initMedium($key);
+            $this->items[$offset] = $instance = $this->initMedium($offset);
         }
 
         return $instance ? $instance->setTimestamp($this->timestamp) : null;
@@ -638,7 +637,7 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
 
         // Group images by base name.
         $media = [];
-        foreach ($files as $filename => $info) {
+        foreach ($this->index as $filename => $info) {
             // Find out what type we're dealing with
             [$basename, $extension, $type, $extra] = $this->getFileParts($filename);
 

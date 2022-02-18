@@ -97,7 +97,7 @@ trait MediaTrait
                 $factory = Grav::instance()['media_factory'];
                 $media = $factory->createCollection($settings);
                 if (!$media) {
-                    $media = new Media('');
+                    $media = new Media('', []);
                 }
 
                 $cache->set($cacheKey, $media);
