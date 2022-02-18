@@ -23,14 +23,18 @@ class Media extends LocalMedia
 
     /**
      * @param string|null $path
-     * @param array|null $media_order
+     * @param array|null $mediaOrder
      * @param bool   $load
      */
-    public function __construct(?string $path, array $media_order = null, bool $load = true)
+    public function __construct(?string $path, array $mediaOrder = null, bool $load = true)
     {
         $this->setPath($path);
+        $this->indexFolder = $this->getPath();
         $this->indexTimeout = 60;
-        $this->media_order = $media_order;
+        $this->media_order = $mediaOrder;
+
+        $path = $this->getPath();
+        $this->exists = null !== $path && is_dir($path);
 
         if ($load) {
             $this->init();

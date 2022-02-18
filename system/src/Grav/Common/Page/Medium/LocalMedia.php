@@ -56,16 +56,6 @@ abstract class LocalMedia extends AbstractMedia
     }
 
     /**
-     * @return bool
-     */
-    public function exists(): bool
-    {
-        $path = $this->getPath();
-
-        return null !== $path && is_dir($path);
-    }
-
-    /**
      * Create Medium from a file.
      *
      * @param  string $filename
@@ -222,63 +212,5 @@ abstract class LocalMedia extends AbstractMedia
         }
 
         return $media;
-    }
-
-    /**
-     * Get index file, which stores media file index.
-     *
-     * @return JsonFile|null
-     */
-    protected function getIndexFile(): ?JsonFile
-    {
-        $indexFolder = $this->getPath();
-        $indexFile = 'media.json';
-        if (null === $indexFolder || null === $indexFile) {
-            return null;
-        }
-
-        return new JsonFile($indexFolder . '/' . $indexFile, new JsonFormatter(['encode_options' => JSON_PRETTY_PRINT]));
-    }
-
-    /**
-     * @return array
-     */
-    protected function loadIndex(): array
-    {
-        // Read media index file.
-        $indexFile = $this->getIndexFile();
-
-        $index = $indexFile && $indexFile->exists() ? $indexFile->load() : [];
-        $version = $index['version'] ?? null;
-        $type = $index['type'] ?? null;
-        $folder = $index['folder'] ?? null;
-        if ($version !== static::VERSION || $folder !== $this->path || $type !== ($this->config['type'] ?? 'local')) {
-            $index = [];
-        }
-
-        return [$index['files'] ?? [], $index['timestamp'] ?? 0];
-    }
-
-    /**
-     * @param array $files
-     * @param int|null $timestamp
-     * @return void
-     */
-    protected function saveIndex(array $files, ?int $timestamp = null): void
-    {
-        $index = $this->getIndexFile();
-        if (!$index || !$this->exists()) {
-            return;
-        }
-
-        $index->save(
-            [
-                'timestamp' => $timestamp ?? time(),
-                'type' => $this->config['type'] ?? 'local',
-                'version' => static::VERSION,
-                'folder' => $this->path,
-                'files' => $files,
-            ]
-        );
     }
 }

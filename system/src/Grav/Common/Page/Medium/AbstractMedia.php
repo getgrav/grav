@@ -21,6 +21,8 @@ use Grav\Common\Media\Traits\MediaUploadTrait;
 use Grav\Common\Page\Pages;
 use Grav\Common\Utils;
 use Grav\Framework\Compat\Serializable;
+use Grav\Framework\File\Formatter\JsonFormatter;
+use Grav\Framework\File\JsonFile;
 use InvalidArgumentException;
 use PHPExif\Reader\Reader;
 use RocketTheme\Toolbox\ArrayTraits\Export;
@@ -51,6 +53,8 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
     protected $path;
     /** @var string|null */
     protected $url;
+    /** @var bool */
+    protected $exists = false;
     /** @var array|null */
     protected $index;
     /** @var array|null */
@@ -63,6 +67,10 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
     protected $config = [];
     /** @var array */
     protected $standard_exif = ['FileSize', 'MimeType', 'height', 'width'];
+    /** @var string|null */
+    protected $indexFolder;
+    /** @var string|null */
+    protected $indexFile = 'media.json';
     /** @var int */
     protected $indexTimeout = 0;
     /** @var string|int|null */
@@ -87,7 +95,10 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
     /**
      * @return bool
      */
-    abstract public function exists(): bool;
+    public function exists(): bool
+    {
+        return $this->exists;
+    }
 
     /**
      * @return int
@@ -380,8 +391,11 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
             'grouped' => $this->grouped,
             'path' => $this->path,
             'url' => $this->url,
+            'exists' => $this->exists,
             'media_order' => $this->media_order,
             'standard_exif' => $this->standard_exif,
+            'indexFolder' => $this->indexFolder,
+            'indexFile' => $this->indexFile,
             'indexTimeout' => $this->indexTimeout
         ];
     }
@@ -401,8 +415,11 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
         $this->grouped = $data['grouped'];
         $this->path = $data['path'];
         $this->url = $data['url'];
+        $this->exists = $data['exists'];
         $this->media_order = $data['media_order'];
         $this->standard_exif = $data['standard_exif'];
+        $this->indexFolder = $data['indexFolder'];
+        $this->indexFile = $data['indexFile'];
         $this->indexTimeout = $data['indexTimeout'];
 
         // Initialize items.
@@ -764,11 +781,52 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
     }
 
     /**
+     * Get index file, which stores media file index.
+     *
+     * @return JsonFile|null
+     */
+    protected function getIndexFile(): ?JsonFile
+    {
+        if (null === $this->indexFolder || null === $this->indexFile) {
+            return null;
+        }
+
+        return new JsonFile($this->indexFolder . '/' . $this->indexFile, new JsonFormatter(['encode_options' => JSON_PRETTY_PRINT]));
+    }
+
+    /**
      * @return array
      */
     protected function loadIndex(): array
     {
-        return [[], 0];
+        // Read media index file.
+        $indexFile = $this->getIndexFile();
+        if (!($indexFile && $indexFile->exists())) {
+            return [[], 0, 0];
+        }
+
+        $index = $indexFile->load();
+        $version = $index['version'] ?? null;
+        $folder = $index['folder'] ?? null;
+        $type = $index['type'] ?? null;
+        if ($version !== static::VERSION || $folder !== $this->path || $type !== ($this->config['type'] ?? 'local')) {
+            return [[], 0, 0];
+        }
+
+        return [$index['files'] ?? [], $index['timestamp'] ?? 0, $indexFile->getModificationTime()];
+    }
+
+    /**
+     * @return void
+     */
+    protected function touchIndex(): void
+    {
+        $index = $this->getIndexFile();
+        if (!$index || !$this->exists) {
+            return;
+        }
+
+        $index->touch();
     }
 
     /**
@@ -778,6 +836,21 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
      */
     protected function saveIndex(array $files, ?int $timestamp = null): void
     {
+        $index = $this->getIndexFile();
+        if (!$index || !$this->exists) {
+            return;
+        }
+
+        $data = [
+            'type' => $this->config['type'] ?? 'local',
+            'version' => static::VERSION,
+            'timestamp' => $timestamp ?? time(),
+            'folder' => $this->path,
+            'url' => $this->url,
+            'files' => $files,
+        ];
+
+        $index->save($data);
     }
 
     /**
