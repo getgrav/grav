@@ -309,6 +309,7 @@ trait MediaObjectTrait
     public function reset()
     {
         $this->attributes = [];
+        $this->medium_querystring = [];
 
         return $this;
     }
@@ -486,9 +487,8 @@ trait MediaObjectTrait
      *
      * @param string $method
      * @param array $args
-     * @return $this
+     * @return MediaObjectInterface|MediaLinkInterface
      */
-    #[\ReturnTypeWillChange]
     public function __call($method, $args)
     {
         $count = count($args);

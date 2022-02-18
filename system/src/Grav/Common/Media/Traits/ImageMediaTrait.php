@@ -9,6 +9,7 @@
 
 namespace Grav\Common\Media\Traits;
 
+use BadFunctionCallException;
 use Grav\Common\Config\Config;
 use Grav\Common\Grav;
 use Grav\Common\Media\Interfaces\ImageMediaInterface;
@@ -20,6 +21,7 @@ use function array_key_exists;
 use function extension_loaded;
 use function func_num_args;
 use function function_exists;
+use function in_array;
 
 /**
  * Trait ImageMediaTrait
@@ -33,16 +35,8 @@ trait ImageMediaTrait
     protected $format = 'guess';
     /** @var int */
     protected $quality;
-    /** @var int */
-    protected $default_quality;
     /** @var bool */
     protected $debug_watermarked = false;
-    /** @var bool  */
-    protected $auto_sizes;
-    /** @var bool */
-    protected $aspect_ratio;
-    /** @var int */
-    protected $retina_scale;
     /** @var bool */
     protected $watermark;
 
@@ -66,6 +60,37 @@ trait ImageMediaTrait
     /** @var string */
     protected $sizes = '100vw';
 
+    /**
+     * Also unset the image on destruct.
+     */
+    public function __destruct()
+    {
+        unset($this->image);
+    }
+
+    /**
+     * Also clone image.
+     */
+    public function __clone()
+    {
+        if ($this->image) {
+            $this->image = clone $this->image;
+        }
+
+        parent::__clone();
+    }
+
+    /**
+     * @return void
+     */
+    protected function resetImage(): void
+    {
+        if ($this->image) {
+            $this->image();
+            $this->filter();
+            $this->clearAlternatives();
+        }
+    }
 
     /**
      * Allows the ability to override the image's pretty name stored in cache
@@ -336,6 +361,161 @@ trait ImageMediaTrait
     }
 
     /**
+     * Handle this commonly used variant
+     *
+     * @return $this
+     */
+    public function cropZoom()
+    {
+        $this->__call('zoomCrop', func_get_args());
+
+        return $this;
+    }
+
+
+
+    /**
+     * @param string|null $image
+     * @param string|null $position
+     * @param int|float|null $scale
+     * @return $this
+     */
+    public function watermark($image = null, $position = null, $scale = null)
+    {
+        $grav = $this->getGrav();
+
+        $locator = $grav['locator'];
+        $config = $grav['config'];
+
+        $args = func_get_args();
+
+        $file = $args[0] ?? '1'; // using '1' because of markdown. doing ![](image.jpg?watermark) returns $args[0]='1';
+        $file = $file === '1' ? $config->get('system.images.watermark.image') : $args[0];
+
+        $watermark = $locator->findResource($file);
+        $watermark = ImageFile::open($watermark);
+
+        // Scaling operations
+        $scale     = ($scale ?? $config->get('system.images.watermark.scale', 100)) / 100;
+        $wwidth    = $this->get('width')  * $scale;
+        $wheight   = $this->get('height') * $scale;
+        $watermark->resize($wwidth, $wheight);
+
+        // Position operations
+        $position = !empty($args[1]) ? explode('-',  $args[1]) : ['center', 'center']; // todo change to config
+        $positionY = $position[0] ?? $config->get('system.images.watermark.position_y', 'center');
+        $positionX = $position[1] ?? $config->get('system.images.watermark.position_x', 'center');
+
+        switch ($positionY)
+        {
+            case 'top':
+                $positionY = 0;
+                break;
+
+            case 'bottom':
+                $positionY = $this->get('height')-$wheight;
+                break;
+
+            case 'center':
+                $positionY = ($this->get('height')/2) - ($wheight/2);
+                break;
+        }
+
+        switch ($positionX)
+        {
+            case 'left':
+                $positionX = 0;
+                break;
+
+            case 'right':
+                $positionX = $this->get('width')-$wwidth;
+                break;
+
+            case 'center':
+                $positionX = ($this->get('width')/2) - ($wwidth/2);
+                break;
+        }
+
+        $this->__call('merge', [$watermark,$positionX, $positionY]);
+
+        return $this;
+    }
+
+    /**
+     * Add a frame to image
+     *
+     * @return $this
+     */
+    public function addFrame(int $border = 10, string $color = '0x000000')
+    {
+        if($border > 0 && preg_match('/^0x[a-f0-9]{6}$/i', $color)) { // $border must be an integer and bigger than 0; $color must be formatted as an HEX value (0x??????).
+            $image = ImageFile::fromData($this->readFile());
+        }
+        else {
+            return $this;
+        }
+
+        $dst_width = $image->width()+2*$border;
+        $dst_height = $image->height()+2*$border;
+
+        $frame = ImageFile::create($dst_width, $dst_height);
+
+        $frame->__call('fill', [$color]);
+
+        $this->image = $frame;
+
+        $this->__call('merge', [$image, $border, $border]);
+
+        $this->saveImage();
+
+        return $this;
+    }
+
+    /**
+     * Forward the call to the image processing method.
+     *
+     * @param string $method
+     * @param mixed $args
+     * @return mixed
+     */
+    public function __call($method, $args)
+    {
+        if (!in_array($method, static::$magic_actions, true)) {
+            return parent::__call($method, $args);
+        }
+
+        // Always initialize image.
+        if (!$this->image) {
+            $this->image();
+        }
+
+        try {
+            $this->image->{$method}(...$args);
+
+            /** @var ImageMediaInterface $medium */
+            foreach ($this->alternatives as $medium) {
+                $args_copy = $args;
+
+                // regular image: resize 400x400 -> 200x200
+                // --> @2x: resize 800x800->400x400
+                if (isset(static::$magic_resize_actions[$method])) {
+                    foreach (static::$magic_resize_actions[$method] as $param) {
+                        if (isset($args_copy[$param])) {
+                            $args_copy[$param] *= $medium->get('ratio');
+                        }
+                    }
+                }
+
+                // Do the same call for alternative media.
+                $medium->__call($method, $args_copy);
+            }
+        } catch (BadFunctionCallException $e) {
+        }
+
+        return $this;
+    }
+
+    /**
      * Gets medium image, resets image manipulation operations.
      *
      * @return $this
@@ -364,11 +544,6 @@ trait ImageMediaTrait
             extension_loaded('exif') && function_exists('exif_read_data')) {
             $this->image->fixOrientation();
         }
-
-        // Set CLS configuration
-        $this->auto_sizes = $config->get('system.images.cls.auto_sizes', false);
-        $this->aspect_ratio = $config->get('system.images.cls.aspect_ratio', false);
-        $this->retina_scale = $config->get('system.images.cls.retina_scale', 1);
 
         $this->watermark = $config->get('system.images.watermark.watermark_all', false);
 

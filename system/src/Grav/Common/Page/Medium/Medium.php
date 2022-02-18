@@ -103,6 +103,7 @@ class Medium extends Data implements RenderableInterface, MediaFileInterface
     {
         $this->metadata = (array)CompiledYamlFile::instance($filepath)->content();
         $this->merge($this->metadata);
+        $this->reset();
     }
 
     /**

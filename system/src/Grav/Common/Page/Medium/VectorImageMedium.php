@@ -65,4 +65,15 @@ class VectorImageMedium extends StaticImageMedium
             $this->def('height', (int)$height);
         }
     }
+
+    /**
+     * @return array
+     */
+    public function getMeta(): array
+    {
+        return [
+            'width' => $this->width,
+            'height' => $this->height,
+        ] + parent::getMeta();
+    }
 }

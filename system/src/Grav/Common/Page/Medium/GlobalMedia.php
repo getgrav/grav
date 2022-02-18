@@ -25,7 +25,7 @@ class GlobalMedia extends LocalMedia
     protected static $instance;
 
     /**
-     * @return static
+     * @return self
      */
     public static function getInstance(): self
     {

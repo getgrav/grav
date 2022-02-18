@@ -77,9 +77,8 @@ class Link implements RenderableInterface, MediaLinkInterface
      *
      * @param string $method
      * @param mixed $args
-     * @return mixed
+     * @return MediaObjectInterface|MediaLinkInterface
      */
-    #[\ReturnTypeWillChange]
     public function __call($method, $args)
     {
         $object = $this->source;

@@ -9,7 +9,7 @@
 
 namespace Grav\Common\Page\Medium;
 
-use BadFunctionCallException;
+use Grav\Common\Config\Config;
 use Grav\Common\Data\Blueprint;
 use Grav\Common\Media\Interfaces\ImageManipulateInterface;
 use Grav\Common\Media\Interfaces\ImageMediaInterface;
@@ -19,8 +19,6 @@ use Grav\Common\Media\Traits\ImageMediaTrait;
 use Grav\Common\Utils;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use function array_key_exists;
-use function func_get_args;
-use function in_array;
 
 /**
  * Class ImageMedium
@@ -31,9 +29,11 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
     use ImageMediaTrait;
     use ImageLoadingTrait;
 
-    /**
-     * @var mixed|string
-     */
+    /** @var array */
+    protected $defaults = [];
+    /** @var array */
+    protected $options = [];
+    /** @var string|null */
     private $saved_image_path;
 
     /**
@@ -46,15 +46,25 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
     {
         parent::__construct($items, $blueprint);
 
+        /** @var Config $config */
         $config = $this->getGrav()['config'];
 
         $this->thumbnailTypes = ['page', 'media', 'default'];
-        $this->default_quality = $config->get('system.images.default_image_quality', 85);
+        $this->defaults = [
+            'quality' => (int)$config->get('system.images.default_image_quality', 85),
+            // CLS configuration
+            'auto_sizes' => (bool)$config->get('system.images.cls.auto_sizes', false),
+            'aspect_ratio' => (bool)$config->get('system.images.cls.aspect_ratio', false),
+            'retina_scale' => (int)$config->get('system.images.cls.retina_scale', 1)
+
+        ];
+
         $this->def('debug', $config->get('system.images.debug'));
 
         $path = $this->get('filepath');
         $this->set('thumbnails.media', $path);
 
+        // TODO:
         $exists = $path && file_exists($path) && filesize($path);
         if ($exists && !($this->offsetExists('width') && $this->offsetExists('height') && $this->offsetExists('mime'))) {
             $image_info = getimagesize($path);
@@ -84,26 +94,6 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
     }
 
     /**
-     * Also unset the image on destruct.
-     */
-    public function __destruct()
-    {
-        unset($this->image);
-    }
-
-    /**
-     * Also clone image.
-     */
-    public function __clone()
-    {
-        if ($this->image) {
-            $this->image = clone $this->image;
-        }
-
-        parent::__clone();
-    }
-
-    /**
      * Reset image.
      *
      * @return $this
@@ -112,39 +102,12 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
     {
         parent::reset();
 
-        if ($this->image) {
-            $this->image();
-            $this->medium_querystring = [];
-            $this->filter();
-            $this->clearAlternatives();
-        }
-
         $this->format = 'guess';
-        $this->quality = $this->default_quality;
-
+        $this->options = $this->defaults;
+        $this->quality = $this->options['quality'];
         $this->debug_watermarked = false;
 
-        $config = $this->getGrav()['config'];
-        // Set CLS configuration
-        $this->auto_sizes = $config->get('system.images.cls.auto_sizes', false);
-        $this->aspect_ratio = $config->get('system.images.cls.aspect_ratio', false);
-        $this->retina_scale = $config->get('system.images.cls.retina_scale', 1);
-
-        return $this;
-    }
-
-    /**
-     * Add meta file for the medium.
-     *
-     * @param string $filepath
-     * @return $this
-     */
-    public function addMetaFile($filepath)
-    {
-        parent::addMetaFile($filepath);
-
-        // Apply filters in meta file
-        $this->reset();
+        $this->resetImage();
 
         return $this;
     }
@@ -176,9 +139,10 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
     {
         $grav = $this->getGrav();
 
+        // FIXME: update this code
         $saved_image_path = $this->saved_image_path = $this->saveImage();
 
-        $output = preg_replace('|^' . preg_quote(GRAV_ROOT, '|') . '|', '', $saved_image_path) ?: $saved_image_path;
+        $output = preg_replace('|^' . preg_quote(GRAV_WEBROOT, '|') . '|', '', $saved_image_path) ?: $saved_image_path;
 
         /** @var UniformResourceLocator $locator */
         $locator = $grav['locator'];
@@ -244,17 +208,18 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
             $attributes['sizes'] = $this->sizes();
         }
 
-        if ($this->saved_image_path && $this->auto_sizes) {
+        if ($this->saved_image_path && $this->options['auto_sizes']) {
+            // FIXME: we can calculate this from the new image object..?
             if (!array_key_exists('height', $this->attributes) && !array_key_exists('width', $this->attributes)) {
                 $info = getimagesize($this->saved_image_path);
                 $width = (int)$info[0];
                 $height = (int)$info[1];
 
-                $scaling_factor = $this->retina_scale > 0 ? $this->retina_scale : 1;
+                $scaling_factor = min(1, $this->options['retina_scale']);
                 $attributes['width'] = (int)($width / $scaling_factor);
                 $attributes['height'] = (int)($height / $scaling_factor);
 
-                if ($this->aspect_ratio) {
+                if ($this->options['aspect_ratio']) {
                     $style = ($attributes['style'] ?? ' ') . "--aspect-ratio: $width/$height;";
                     $attributes['style'] = trim($style);
                 }
@@ -304,23 +269,27 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
     }
 
     /**
-     * @param string $enabled
+     * @param string|bool $enabled
      * @return $this
      */
-    public function autoSizes($enabled = 'true')
+    public function autoSizes($enabled = true)
     {
-        $this->auto_sizes = $enabled === 'true';
+        $enabled = \is_bool($enabled) ? $enabled : $enabled === 'true';
+
+        $this->options['auto_sizes'] = $enabled;
 
         return $this;
     }
 
     /**
-     * @param string $enabled
+     * @param string|bool $enabled
      * @return $this
      */
-    public function aspectRatio($enabled = 'true')
+    public function aspectRatio($enabled = true)
     {
-        $this->aspect_ratio = $enabled === 'true';
+        $enabled = \is_bool($enabled) ? $enabled : $enabled === 'true';
+
+        $this->options['aspect_ratio'] = $enabled;
 
         return $this;
     }
@@ -331,162 +300,7 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
      */
     public function retinaScale($scale = 1)
     {
-        $this->retina_scale = (int)$scale;
-
-        return $this;
-    }
-
-    /**
-     * @param string|null $image
-     * @param string|null $position
-     * @param int|float|null $scale
-     * @return $this
-     */
-    public function watermark($image = null, $position = null, $scale = null)
-    {
-        $grav = $this->getGrav();
-
-        $locator = $grav['locator'];
-        $config = $grav['config'];
-
-        $args = func_get_args();
-
-        $file = $args[0] ?? '1'; // using '1' because of markdown. doing ![](image.jpg?watermark) returns $args[0]='1';
-        $file = $file === '1' ? $config->get('system.images.watermark.image') : $args[0];
-
-        $watermark = $locator->findResource($file);
-        $watermark = ImageFile::open($watermark);
-
-        // Scaling operations
-        $scale     = ($scale ?? $config->get('system.images.watermark.scale', 100)) / 100;
-        $wwidth    = $this->get('width')  * $scale;
-        $wheight   = $this->get('height') * $scale;
-        $watermark->resize($wwidth, $wheight);
-
-        // Position operations
-        $position = !empty($args[1]) ? explode('-',  $args[1]) : ['center', 'center']; // todo change to config
-        $positionY = $position[0] ?? $config->get('system.images.watermark.position_y', 'center');
-        $positionX = $position[1] ?? $config->get('system.images.watermark.position_x', 'center');
-
-        switch ($positionY)
-        {
-            case 'top':
-                $positionY = 0;
-                break;
-
-            case 'bottom':
-                $positionY = $this->get('height')-$wheight;
-                break;
-
-            case 'center':
-                $positionY = ($this->get('height')/2) - ($wheight/2);
-                break;
-        }
-
-        switch ($positionX)
-        {
-            case 'left':
-                $positionX = 0;
-                break;
-
-            case 'right':
-                $positionX = $this->get('width')-$wwidth;
-                break;
-
-            case 'center':
-                $positionX = ($this->get('width')/2) - ($wwidth/2);
-                break;
-        }
-
-        $this->__call('merge', [$watermark,$positionX, $positionY]);
-
-        return $this;
-    }
-
-    /**
-     * Handle this commonly used variant
-     *
-     * @return $this
-     */
-    public function cropZoom()
-    {
-        $this->__call('zoomCrop', func_get_args());
-
-        return $this;
-    }
-
-    /**
-     * Add a frame to image
-     *
-     * @return $this
-     */
-    public function addFrame(int $border = 10, string $color = '0x000000')
-    {
-      if($border > 0 && preg_match('/^0x[a-f0-9]{6}$/i', $color)) { // $border must be an integer and bigger than 0; $color must be formatted as an HEX value (0x??????).
-        $image = ImageFile::fromData($this->readFile());
-      }
-      else {
-        return $this;
-      }
-
-      $dst_width = $image->width()+2*$border;
-      $dst_height = $image->height()+2*$border;
-
-      $frame = ImageFile::create($dst_width, $dst_height);
-
-      $frame->__call('fill', [$color]);
-
-      $this->image = $frame;
-
-      $this->__call('merge', [$image, $border, $border]);
-
-      $this->saveImage();
-
-      return $this;
-
-    }
-
-    /**
-     * Forward the call to the image processing method.
-     *
-     * @param string $method
-     * @param mixed $args
-     * @return $this|mixed
-     */
-    #[\ReturnTypeWillChange]
-    public function __call($method, $args)
-    {
-        if (!in_array($method, static::$magic_actions, true)) {
-            return parent::__call($method, $args);
-        }
-
-        // Always initialize image.
-        if (!$this->image) {
-            $this->image();
-        }
-
-        try {
-            $this->image->{$method}(...$args);
-
-            /** @var ImageMediaInterface $medium */
-            foreach ($this->alternatives as $medium) {
-                $args_copy = $args;
-
-                // regular image: resize 400x400 -> 200x200
-                // --> @2x: resize 800x800->400x400
-                if (isset(static::$magic_resize_actions[$method])) {
-                    foreach (static::$magic_resize_actions[$method] as $param) {
-                        if (isset($args_copy[$param])) {
-                            $args_copy[$param] *= $medium->get('ratio');
-                        }
-                    }
-                }
-
-                // Do the same call for alternative media.
-                $medium->__call($method, $args_copy);
-            }
-        } catch (BadFunctionCallException $e) {
-        }
+        $this->options['retina_scale'] = (int)$scale;
 
         return $this;
     }
