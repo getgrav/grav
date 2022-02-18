@@ -177,4 +177,13 @@ interface FileInterface extends Serializable
      * @api
      */
     public function delete(): bool;
+
+    /**
+     * Touch file in the filesystem.
+     *
+     * @param int|null $mtime
+     * @return bool Returns `true` if the file was successfully touched, `false` otherwise.
+     * @api
+     */
+    public function touch(int $mtime = null): bool;
 }

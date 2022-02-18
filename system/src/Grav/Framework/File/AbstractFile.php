@@ -342,6 +342,15 @@ class AbstractFile implements FileInterface
     }
 
     /**
+     * {@inheritdoc}
+     * @see FileInterface::touch()
+     */
+    public function touch(int $mtime = null): bool
+    {
+        return @touch($this->filepath, $mtime);
+    }
+
+    /**
      * @param  string  $dir
      * @return bool
      * @throws RuntimeException

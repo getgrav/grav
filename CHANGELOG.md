@@ -1,6 +1,8 @@
 # v1.7.99-feature
 ## mm/dd/2022
 
+1. [](#new)
+    * Added `FileInterface::touch()` method
 2. [](#improved)
     * By default, add media to only pages which have been initialized in pages loop
 
