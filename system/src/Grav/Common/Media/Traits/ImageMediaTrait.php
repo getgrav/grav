@@ -41,7 +41,7 @@ trait ImageMediaTrait
     protected $auto_sizes;
     /** @var bool */
     protected $aspect_ratio;
-    /** @var integer */
+    /** @var int */
     protected $retina_scale;
     /** @var bool */
     protected $watermark;
@@ -93,6 +93,7 @@ trait ImageMediaTrait
         if (preg_match('/[a-z0-9]{40}-(.*)/', $basename, $matches)) {
             $basename = $matches[1];
         }
+
         return $basename;
     }
 

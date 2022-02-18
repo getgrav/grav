@@ -71,7 +71,6 @@ class Medium extends Data implements RenderableInterface, MediaFileInterface
     /**
      * Clone medium.
      */
-    #[\ReturnTypeWillChange]
     public function __clone()
     {
         // Allows future compatibility as parent::__clone() works.

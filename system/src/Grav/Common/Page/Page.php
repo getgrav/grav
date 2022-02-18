@@ -227,7 +227,6 @@ class Page implements PageInterface
         return $this;
     }
 
-    #[\ReturnTypeWillChange]
     public function __clone()
     {
         $this->initialized = false;

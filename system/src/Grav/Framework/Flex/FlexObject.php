@@ -977,7 +977,6 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     /**
      * Clone object.
      */
-    #[\ReturnTypeWillChange]
     public function __clone()
     {
         // Allows future compatibility as parent::__clone() works.

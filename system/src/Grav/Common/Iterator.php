@@ -47,7 +47,6 @@ class Iterator implements \ArrayAccess, \Iterator, \Countable, \Serializable
     /**
      * Clone the iterator.
      */
-    #[\ReturnTypeWillChange]
     public function __clone()
     {
         foreach ($this as $key => $value) {

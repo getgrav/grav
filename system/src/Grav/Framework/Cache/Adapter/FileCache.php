@@ -256,7 +256,6 @@ class FileCache extends AbstractCache
     /**
      * @return void
      */
-    #[\ReturnTypeWillChange]
     public function __destruct()
     {
         if ($this->tmp !== null && file_exists($this->tmp)) {

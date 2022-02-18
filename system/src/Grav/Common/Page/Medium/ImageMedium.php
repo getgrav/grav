@@ -86,7 +86,6 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
     /**
      * Also unset the image on destruct.
      */
-    #[\ReturnTypeWillChange]
     public function __destruct()
     {
         unset($this->image);
@@ -95,7 +94,6 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
     /**
      * Also clone image.
      */
-    #[\ReturnTypeWillChange]
     public function __clone()
     {
         if ($this->image) {

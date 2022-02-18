@@ -22,7 +22,7 @@ class TwigNodeCache extends Node
      * @param string    $key       unique name for key
      * @param int       $lifetime  in seconds
      * @param Node      $body
-     * @param integer   $lineno
+     * @param int       $lineno
      * @param string|null $tag
      */
     public function __construct(string $key, int $lifetime, Node $body, $lineno, $tag = null)
