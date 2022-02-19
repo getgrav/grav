@@ -93,6 +93,9 @@ parameters:
 
         # These errors can be ignored (they depend on installed extensions)
         -
+            message: '#GdImage#'
+            path: '*/system/src/Grav/Framework/Image/Adapter/GdAdapter.php'
+        -
             message: '#Instantiated class (Memcache|Memcached|Redis|RedisException) not found#'
             path: '*/system/src/Grav/Common/Cache.php'
         -
