@@ -495,9 +495,9 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
             $attr = $xml ? $xml->attributes() : null;
             if ($attr instanceof \SimpleXMLElement) {
                 // Get the size from svg image.
-                if ($attr->width > 0 && $attr->height > 0) {
-                    $width = $attr->width;
-                    $height = $attr->height;
+                if ($attr->width && $attr->height) {
+                    $width = (string)$attr->width;
+                    $height = (string)$attr->height;
                 } elseif ($attr->viewBox && 4 === count($size = explode(' ', (string)$attr->viewBox))) {
                     [,$width,$height,] = $size;
                 }
@@ -940,7 +940,6 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
         $config = $this->getConfig();
         $exifEnabled = !empty($config->get('system.media.auto_metadata_exif'));
 
-        /** @var Reader|null $exifReader */
         return $exifEnabled && isset($grav['exif']) ? $grav['exif']->getReader() : null;
     }
 

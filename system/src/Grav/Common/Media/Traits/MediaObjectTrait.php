@@ -586,7 +586,7 @@ trait MediaObjectTrait
                 throw new RuntimeException(sprintf("Default thumbnail image '%s' does not exist!", $thumbnails['system']), 500);
             }
 
-            $image->parent = $this;
+            $image->set('parent', $this);
             $this->_thumbnail = $image;
         }
 
