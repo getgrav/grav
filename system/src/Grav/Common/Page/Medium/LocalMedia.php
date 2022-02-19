@@ -79,7 +79,7 @@ abstract class LocalMedia extends AbstractMedia
             $relativePath = Folder::getRelativePath($filename, $this->getPath());
             $info = $this->index[$relativePath] ?? null;
             if (null === $info && file_exists($filename)) {
-                return MediumFactory::fromFile($filename);
+                return MediumFactory::fromFile($filename, $params);
             }
 
             $filename = $relativePath;

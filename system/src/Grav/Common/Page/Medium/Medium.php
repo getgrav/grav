@@ -133,7 +133,7 @@ class Medium extends Data implements RenderableInterface, MediaFileInterface
      * @param string $thumb
      * @return MediaObjectInterface|null
      */
-    protected function createThumbnail($thumb)
+    protected function createThumbnail($thumb): ?MediaObjectInterface
     {
         return $this->getMedia()->createFromFile($thumb, ['type' => 'thumbnail']);
     }
