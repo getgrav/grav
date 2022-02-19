@@ -53,10 +53,10 @@ class VectorImageMedium extends StaticImageMedium
         }
 
         // Get the size from svg image.
-        if ($attr->width > 0 && $attr->height > 0) {
-            $width = $attr->width;
-            $height = $attr->height;
-        } elseif ($attr->viewBox && \count($size = explode(' ', $attr->viewBox)) === 4) {
+        if ($attr->width && $attr->height) {
+            $width = (string)$attr->width;
+            $height = (string)$attr->height;
+        } elseif ($attr->viewBox && \count($size = explode(' ', (string)$attr->viewBox)) === 4) {
             [,$width,$height,] = $size;
         }
 

@@ -11,6 +11,8 @@ namespace Grav\Common\Twig;
 
 use Twig\Environment;
 use Twig\Error\LoaderError;
+use Twig\Loader\ExistsLoaderInterface;
+use Twig\Loader\LoaderInterface;
 use Twig\Template;
 use Twig\TemplateWrapper;
 
@@ -41,8 +43,12 @@ class TwigEnvironment extends Environment
             }
 
             // Optimization: Avoid throwing an exception when it would be ignored anyway.
-            if (1 !== $count && !$this->getLoader()->exists($name)) {
-                continue;
+            if (1 !== $count) {
+                /** @var LoaderInterface|ExistsLoaderInterface $loader */
+                $loader = $this->getLoader();
+                if (!$loader->exists($name)) {
+                    continue;
+                }
             }
 
             // Throws LoaderError: Unable to find template "%s".

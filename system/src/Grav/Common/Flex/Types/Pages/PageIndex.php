@@ -606,8 +606,10 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
                 }
             }
 
+            /** @var PageCollection|PageIndex $children */
+            $children = $page->children();
             /** @var PageIndex $children */
-            $children = $page->children()->getIndex();
+            $children = $children->getIndex();
             $selectedChildren = $children->filterBy($filters, true);
 
             /** @var Header $header */
@@ -686,6 +688,8 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
                     $extras = array_filter($extras, static function ($v) {
                         return $v !== null;
                     });
+
+                    /** @var PageIndex $tmp */
                     $tmp = $child->children()->getIndex();
                     $child_count = $tmp->count();
                     $count = $filters ? $tmp->filterBy($filters, true)->count() : null;
