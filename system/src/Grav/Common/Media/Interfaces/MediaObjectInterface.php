@@ -218,7 +218,6 @@ interface MediaObjectInterface extends \Grav\Framework\Media\Interfaces\MediaObj
      * @param mixed $args
      * @return $this
      */
-    #[\ReturnTypeWillChange]
     public function __call($method, $args);
 
     /**

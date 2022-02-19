@@ -10,7 +10,6 @@
 namespace Grav\Common\Media\Interfaces;
 
 use Grav\Common\Data\Blueprint;
-use Grav\Common\Page\Medium\ImageFile;
 use Grav\Common\Page\Medium\Medium;
 use RuntimeException;
 
@@ -44,35 +43,35 @@ interface MediaCollectionInterface extends \Grav\Framework\Media\Interfaces\Medi
     /**
      * Get a list of all media.
      *
-     * @return MediaObjectInterface[]
+     * @return array<string,MediaObjectInterface>
      */
     public function all(): array;
 
     /**
      * Get a list of all image media.
      *
-     * @return MediaObjectInterface[]
+     * @return array<string,MediaObjectInterface>
      */
     public function images(): array;
 
     /**
      * Get a list of all video media.
      *
-     * @return MediaObjectInterface[]
+     * @return array<string,MediaObjectInterface>
      */
     public function videos(): array;
 
     /**
      * Get a list of all audio media.
      *
-     * @return MediaObjectInterface[]
+     * @return array<string,MediaObjectInterface>
      */
     public function audios(): array;
 
     /**
      * Get a list of all file media.
      *
-     * @return MediaObjectInterface[]
+     * @return array<string,MediaObjectInterface>
      */
     public function files(): array;
 

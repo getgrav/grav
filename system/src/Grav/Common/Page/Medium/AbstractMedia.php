@@ -235,7 +235,7 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
     /**
      * Get a list of all media.
      *
-     * @return MediaObjectInterface[]
+     * @return array<string,MediaObjectInterface>
      */
     public function all(): array
     {
@@ -253,7 +253,7 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
     /**
      * Get a list of all image media.
      *
-     * @return MediaObjectInterface[]
+     * @return array<string,MediaObjectInterface>
      */
     public function images(): array
     {
@@ -270,7 +270,7 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
     /**
      * Get a list of all video media.
      *
-     * @return MediaObjectInterface[]
+     * @return array<string,MediaObjectInterface>
      */
     public function videos(): array
     {
@@ -287,7 +287,7 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
     /**
      * Get a list of all audio media.
      *
-     * @return MediaObjectInterface[]
+     * @return array<string,MediaObjectInterface>
      */
     public function audios(): array
     {
@@ -304,7 +304,7 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
     /**
      * Get a list of all file media.
      *
-     * @return MediaObjectInterface[]
+     * @return array<string,MediaObjectInterface>
      */
     public function files(): array
     {
