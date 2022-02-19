@@ -11,6 +11,7 @@
     * Use **Symfony Cache** instead of unmaintained **Doctrine Cache**
     * Removed unsupported **APC**, **WinCache**, **XCache** and **Memcache**, use apcu or memcached instead
     * Removed `system.umask_fix` setting for security reasons
+    * Support phpstan level 6 in Framework classes
 
 # v1.7.31
 ## mm/dd/2022

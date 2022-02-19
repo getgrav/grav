@@ -367,7 +367,7 @@ trait ObjectCollectionTrait
         $collections = [];
         foreach ($this->group($property) as $id => $elements) {
             /** @phpstan-var static<TKey,T> $collection */
-            $collection = $this->createFrom($elements);
+            $collection = $this->createFrom($elements); /** @phpstan-ignore-line generic type in trait cannot be resolved */
 
             $collections[$id] = $collection;
         }
