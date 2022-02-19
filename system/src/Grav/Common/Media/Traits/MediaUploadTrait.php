@@ -310,7 +310,7 @@ trait MediaUploadTrait
 
             // Force media index update.
             if (method_exists($this, 'saveIndex')) {
-                $this->saveIndex($this->index, 0);
+                $this->saveIndex($this->index);
             }
 
         } catch (Exception $e) {
@@ -362,7 +362,7 @@ trait MediaUploadTrait
 
         // Force media index update.
         if (method_exists($this, 'saveIndex')) {
-            $this->saveIndex($this->index, 0);
+            $this->saveIndex($this->index);
         }
 
         // Finally clear media cache.
@@ -407,7 +407,7 @@ trait MediaUploadTrait
 
         // Force media index update.
         if (method_exists($this, 'saveIndex')) {
-            $this->saveIndex($this->index, 0);
+            $this->saveIndex($this->index);
         }
 
         // Finally clear media cache.

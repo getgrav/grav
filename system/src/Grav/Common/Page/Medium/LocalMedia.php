@@ -187,10 +187,10 @@ abstract class LocalMedia extends AbstractMedia
         // Add missing jpeg exif data.
         $exifReader = $this->getExifReader();
         if (null !== $exifReader && !isset($info['exif']) && $info['mime'] === 'image/jpeg') {
+        try {
             $exif = $exifReader->read($filepath);
-            if ($exif) {
-                $info['exif'] = array_diff_key($exif->getData(), array_flip($this->standard_exif));
-            }
+            $info['exif'] = array_diff_key($exif->getData(), array_flip($this->standard_exif));
+        } catch (\RuntimeException $e) {
         }
         */
 

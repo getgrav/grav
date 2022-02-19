@@ -157,7 +157,7 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
     public function offsetUnset($offset): void
     {
         // Hack to make Iterator trait work together with unset.
-        if (isset($this->iteratorUnset) && (string)$offset === (string)key($this->items)) {
+        if ((string)$offset === (string)key($this->items)) {
             $this->iteratorUnset = true;
         }
 
@@ -650,7 +650,7 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
                 $oldChecksum = $data['checksum'] ?? null;
                 $newChecksum = md5(serialize($files));
                 if ($oldChecksum !== $newChecksum) {
-                    $this->saveIndex($files, $now);
+                    $this->saveIndex($files, $newChecksum, $now);
                 } else {
                     $this->touchIndex($now);
                 }
@@ -735,8 +735,8 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
             if (file_exists($meta_path)) {
                 $types['meta']['file'] = $meta_path;
             } elseif ($exifReader = $this->getExifReader()) {
-                $meta = $exifReader->read($file_path);
-                if ($meta) {
+                try {
+                    $meta = $exifReader->read($file_path);
                     $meta_data = $meta->getData();
                     $meta_trimmed = array_diff_key($meta_data, array_flip($this->standard_exif));
                     if ($meta_trimmed) {
@@ -749,6 +749,7 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
                         $file->save($meta_trimmed);
                         $types['meta']['file'] = $meta_path;
                     }
+                } catch (RuntimeException $e) {
                 }
             }
         }
@@ -779,7 +780,7 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
                     $altWidth = $altMedium['file']->get('width');
                     $medWidth = $medium->get('width');
                     if ($altWidth && $medWidth) {
-                        $ratio = (string)($altWidth / $medWidth);
+                        $ratio = $altWidth / $medWidth;
                         $medium->addAlternative($ratio, $altMedium['file']);
                     }
                 }
@@ -841,10 +842,11 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
 
     /**
      * @param array $files
+     * @param string|null $checksum
      * @param int|null $timestamp
      * @return void
      */
-    protected function saveIndex(array $files, string $checksum, ?int $timestamp = null): void
+    protected function saveIndex(array $files, string $checksum = null, ?int $timestamp = null): void
     {
         $index = $this->getIndexFile();
         if (!$index || !$this->exists) {
@@ -854,7 +856,7 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
         $data = [
             'type' => $this->config['type'] ?? 'local',
             'version' => static::VERSION,
-            'checksum' => $checksum,
+            'checksum' => $checksum ?? md5(serialize($files)),
             'timestamp' => $timestamp ?? time(),
             'folder' => $this->path,
             'url' => $this->url,

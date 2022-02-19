@@ -104,6 +104,7 @@ trait MediaObjectTrait
      * Add meta file for the medium.
      *
      * @param string $filepath
+     * @return void
      */
     abstract public function addMetaFile($filepath);
 
@@ -112,6 +113,7 @@ trait MediaObjectTrait
      *
      * @param int|float $ratio
      * @param MediaObjectInterface $alternative
+     * @return void
      */
     public function addAlternative($ratio, MediaObjectInterface $alternative)
     {

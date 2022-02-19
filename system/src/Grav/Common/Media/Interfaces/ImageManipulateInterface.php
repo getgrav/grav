@@ -18,6 +18,7 @@ interface ImageManipulateInterface
      * Allows the ability to override the image's pretty name stored in cache
      *
      * @param string $name
+     * @return void
      */
     public function setImagePrettyName($name);
 
@@ -47,6 +48,8 @@ interface ImageManipulateInterface
 
     /**
      * Clear out the alternatives.
+     *
+     * @return void
      */
     public function clearAlternatives();
 

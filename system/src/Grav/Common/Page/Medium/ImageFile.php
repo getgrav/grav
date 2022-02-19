@@ -171,6 +171,8 @@ class ImageFile extends Image
 
     /**
      * Read exif rotation from file and apply it.
+     *
+     * @return $this
      */
     public function fixOrientation()
     {

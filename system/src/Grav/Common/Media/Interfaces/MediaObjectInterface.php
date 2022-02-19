@@ -18,6 +18,8 @@ use Grav\Common\Data\Data;
  * @property string $type
  * @property string $filename
  * @property string $filepath
+ *
+ * @extends ArrayAccess<string,mixed>
  */
 interface MediaObjectInterface extends \Grav\Framework\Media\Interfaces\MediaObjectInterface, ArrayAccess
 {
@@ -54,6 +56,7 @@ interface MediaObjectInterface extends \Grav\Framework\Media\Interfaces\MediaObj
      * Add meta file for the medium.
      *
      * @param string $filepath
+     * @return void
      */
     public function addMetaFile($filepath);
 
@@ -62,6 +65,7 @@ interface MediaObjectInterface extends \Grav\Framework\Media\Interfaces\MediaObj
      *
      * @param int|float $ratio
      * @param MediaObjectInterface $alternative
+     * @return void
      */
     public function addAlternative($ratio, MediaObjectInterface $alternative);
 

@@ -105,6 +105,8 @@ trait MediaPlayerTrait
 
     /**
      * Reset player.
+     *
+     * @return void
      */
     public function resetPlayer()
     {

@@ -98,6 +98,7 @@ class Medium extends Data implements RenderableInterface, MediaFileInterface
      * Add meta file for the medium.
      *
      * @param string $filepath
+     * @return void
      */
     public function addMetaFile($filepath)
     {

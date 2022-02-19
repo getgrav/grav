@@ -202,7 +202,9 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
 
         $srcset = $this->srcset($reset);
         if ($srcset) {
-            empty($attributes['srcset']) && $attributes['srcset'] = $srcset;
+            if (empty($attributes['srcset'])) {
+                $attributes['srcset'] = $srcset;
+            }
             $attributes['sizes'] = $this->sizes();
         }
 
