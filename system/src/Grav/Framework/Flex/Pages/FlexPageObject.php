@@ -39,6 +39,7 @@ class FlexPageObject extends FlexObject implements PageInterface, FlexTranslateI
     use PageAuthorsTrait;
     use PageContentTrait;
     use PageFormTrait;
+    /** @phpstan-use PageLegacyTrait<FlexPageObject,FlexPageCollection> */
     use PageLegacyTrait;
     use PageRoutableTrait;
     use PageTranslateTrait;

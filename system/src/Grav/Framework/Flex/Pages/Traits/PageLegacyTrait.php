@@ -37,6 +37,9 @@ use function strlen;
 
 /**
  * Implements PageLegacyInterface
+ *
+ * @template T of FlexPageObject
+ * @template C of FlexPageCollection
  */
 trait PageLegacyTrait
 {
@@ -862,6 +865,7 @@ trait PageLegacyTrait
      * Returns children of this page.
      *
      * @return PageCollectionInterface|FlexIndexInterface
+     * @phpstan-return FlexPageIndex<T,C>
      */
     public function children()
     {
@@ -1040,6 +1044,7 @@ trait PageLegacyTrait
      * @param string|array $params
      * @param bool $pagination
      * @return PageCollectionInterface|Collection
+     * @phpstan-return PageCollectionInterface<T,C>|Collection
      * @throws InvalidArgumentException
      */
     public function collection($params = 'content', $pagination = true)
@@ -1069,6 +1074,7 @@ trait PageLegacyTrait
      * @param string|array $value
      * @param bool $only_published
      * @return PageCollectionInterface|Collection
+     * @phpstan-return PageCollectionInterface<T,C>|Collection
      */
     public function evaluate($value, $only_published = true)
     {

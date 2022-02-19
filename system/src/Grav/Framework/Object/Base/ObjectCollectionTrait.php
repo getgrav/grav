@@ -21,8 +21,8 @@ use function is_object;
  * ObjectCollection Trait
  * @package Grav\Framework\Object
  *
- * @template TKey as array-key
- * @template T as ObjectInterface
+ * @template TKey of array-key
+ * @template T of ObjectInterface
  */
 trait ObjectCollectionTrait
 {
