@@ -525,8 +525,8 @@ class Assets extends PropertyObject
     /**
      * Build the Javascript Modules tags
      *
-     * @param $group
-     * @param $attributes
+     * @param string $group
+     * @param array $attributes
      * @return string
      */
     public function jsModule($group = 'head', $attributes = [])
@@ -534,6 +534,11 @@ class Assets extends PropertyObject
         return $this->render(self::JS_MODULE, $group, $attributes);
     }
 
+    /**
+     * @param string $group
+     * @param array $attributes
+     * @return string
+     */
     public function all($group = 'head', $attributes = [])
     {
         $output = $this->css($group, $attributes, false);
@@ -543,11 +548,19 @@ class Assets extends PropertyObject
         return $output;
     }
 
+    /**
+     * @param class-string $type
+     * @return bool
+     */
     protected function isValidType($type)
     {
         return in_array($type, [self::CSS_TYPE, self::JS_TYPE, self::JS_MODULE_TYPE]);
     }
 
+    /**
+     * @param class-string $type
+     * @return string
+     */
     protected function getBaseType($type)
     {
         switch ($type) {
