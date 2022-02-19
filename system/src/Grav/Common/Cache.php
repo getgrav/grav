@@ -11,6 +11,7 @@ namespace Grav\Common;
 
 use DirectoryIterator;
 use Doctrine\Common\Cache\Cache as DoctrineCache;
+use Doctrine\Common\Cache\CacheProvider;
 use Doctrine\Common\Cache\Psr6\DoctrineProvider;
 use Exception;
 use Grav\Common\Config\Config;
@@ -58,7 +59,7 @@ class Cache extends Getters
     /** @var AdapterInterface */
     protected $adapter;
 
-    /** @var DoctrineCache */
+    /** @var CacheProvider */
     protected $driver;
 
     /** @var CacheInterface */
@@ -235,9 +236,13 @@ class Cache extends Getters
      * If there is no config option for $driver in the config, or it's set to 'auto', it will
      * pick the best option based on which cache extensions are installed.
      *
+     * @param string|null $namespace
+     * @param int|null $defaultLifetime
      * @return AdapterInterface  The cache driver to use
+     * @throws \RedisException
+     * @throws \Symfony\Component\Cache\Exception\CacheException
      */
-    public function getCacheAdapter(): AdapterInterface
+    public function getCacheAdapter(string $namespace = null, int $defaultLifetime = null): AdapterInterface
     {
         $setting = $this->driver_setting ?? 'auto';
         $driver_name = 'file';
@@ -260,13 +265,13 @@ class Cache extends Getters
         }
 
         $this->driver_name = $driver_name;
-        $namespace = $this->key;
-        $defaultLifetime = 0;
+        $namespace = $namespace ?? $this->key;
+        $defaultLifetime = $defaultLifetime ?? 0;
 
         switch ($driver_name) {
             case 'apc':
             case 'apcu':
-                $adapter = new ApcuAdapter($namespace,  $defaultLifetime);
+                $adapter = new ApcuAdapter($namespace, $defaultLifetime);
                 break;
 
             case 'memcached':

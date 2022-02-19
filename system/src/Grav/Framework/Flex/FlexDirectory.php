@@ -34,6 +34,7 @@ use Psr\SimpleCache\InvalidArgumentException;
 use RocketTheme\Toolbox\File\YamlFile;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use RuntimeException;
+use Symfony\Component\Cache\Psr16Cache;
 use function call_user_func_array;
 use function count;
 use function is_array;
@@ -421,7 +422,8 @@ class FlexDirectory implements FlexDirectoryInterface
                     if (Utils::isAdminPlugin()) {
                         $key = substr($key, 0, -1);
                     }
-                    $cache = new DoctrineCache($gravCache->getCacheDriver(), 'flex-objects-' . $this->getFlexType() . $key, $lifetime);
+
+                    $cache = new Psr16Cache($gravCache->getCacheAdapter('flex-objects-' . $this->getFlexType() . $key, $lifetime));
                 }
             } catch (Exception $e) {
                 /** @var Debugger $debugger */
