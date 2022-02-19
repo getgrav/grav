@@ -46,7 +46,7 @@ interface PageCollectionInterface extends Traversable, ArrayAccess, Countable, S
      * Add a single page to a collection
      *
      * @param PageInterface $page
-     * @return $this
+     * @return $this|PageCollectionInterface<TKey,T>
      */
     public function addPage(PageInterface $page);
 
@@ -63,7 +63,7 @@ interface PageCollectionInterface extends Traversable, ArrayAccess, Countable, S
      *
      * Create a copy of this collection
      *
-     * @return static
+     * @return static<TKey,T>
      */
     public function copy();
 

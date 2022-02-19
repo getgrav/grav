@@ -415,6 +415,7 @@ class FlexDirectory implements FlexDirectoryInterface
                 $config = $this->getConfig('object.cache.' . $namespace);
                 if (empty($config['enabled'])) {
                     $cache = new MemoryCache('flex-objects-' . $this->getFlexType());
+                    $cache->setValidation(false);
                 } else {
                     $lifetime = $config['lifetime'] ?? 60;
 
@@ -431,10 +432,9 @@ class FlexDirectory implements FlexDirectoryInterface
                 $debugger->addException($e);
 
                 $cache = new MemoryCache('flex-objects-' . $this->getFlexType());
+                $cache->setValidation(false);
             }
 
-            // Disable cache key validation.
-            $cache->setValidation(false);
             $this->cache[$namespace] = $cache;
         }
 

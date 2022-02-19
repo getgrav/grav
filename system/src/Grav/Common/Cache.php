@@ -10,7 +10,6 @@
 namespace Grav\Common;
 
 use DirectoryIterator;
-use Doctrine\Common\Cache\Cache as DoctrineCache;
 use Doctrine\Common\Cache\CacheProvider;
 use Doctrine\Common\Cache\Psr6\DoctrineProvider;
 use Exception;
@@ -332,7 +331,7 @@ class Cache extends Getters
      * If there is no config option for $driver in the config, or it's set to 'auto', it will
      * pick the best option based on which cache extensions are installed.
      *
-     * @return DoctrineCache  The cache driver to use
+     * @return CacheProvider  The cache driver to use
      */
     public function getCacheDriver(AdapterInterface $adapter = null)
     {
@@ -340,7 +339,12 @@ class Cache extends Getters
             $adapter = $this->getCacheAdapter();
         }
 
-        return DoctrineProvider::wrap($adapter);
+        $cache = DoctrineProvider::wrap($adapter);
+        if (!$cache instanceof CacheProvider) {
+            throw new \RuntimeException('Internal error');
+        }
+
+        return $cache;
     }
 
     /**

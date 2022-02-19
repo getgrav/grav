@@ -57,7 +57,7 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
     public const ORDER_LIST_REGEX = '/(\/\d+)\.[^\/]+/u';
     public const PAGE_ROUTE_REGEX = '/\/\d+\./u';
 
-    /** @var PageObject|array */
+    /** @var T|array */
     protected $_root;
     /** @var array|null */
     protected $_params;

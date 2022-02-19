@@ -87,9 +87,9 @@ class UserObject extends FlexObject implements UserInterface, Countable
     protected $_uploads_original;
     /** @var FileInterface|null */
     protected $_storage;
-    /** @var UserGroupIndex */
+    /** @var UserGroupIndex|null */
     protected $_groups;
-    /** @var Access */
+    /** @var Access|null */
     protected $_access;
     /** @var array|null */
     protected $access;

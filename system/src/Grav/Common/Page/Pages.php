@@ -753,6 +753,10 @@ class Pages
                 break;
         }
 
+        if (!$collection instanceof Collection) {
+            $collection = new Collection($collection->toArray());
+        }
+
         return $collection;
     }
 
