@@ -16,6 +16,8 @@ use Grav\Common\Data\Data;
  * Class implements media object interface.
  *
  * @property string $type
+ * @property string $filename
+ * @property string $filepath
  */
 interface MediaObjectInterface extends \Grav\Framework\Media\Interfaces\MediaObjectInterface, ArrayAccess
 {

@@ -625,7 +625,14 @@ class PageObject extends FlexPageObject
 
             // If current filter does not match, we still may have match as a parent.
             if ($matches === false) {
-                return $recursive && $this->children()->getIndex()->filterBy($filters, true)->count() > 0;
+                if (!$recursive) {
+                    return false;
+                }
+
+                /** @var PageIndex $index */
+                $index = $this->children()->getIndex();
+
+                return $index->filterBy($filters, true)->count() > 0;
             }
         }
 

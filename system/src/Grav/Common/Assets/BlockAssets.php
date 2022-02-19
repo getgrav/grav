@@ -55,7 +55,7 @@ class BlockAssets
 
     /**
      * @param Assets $assets
-     * @param array $groups
+     * @param array $list
      * @return void
      */
     protected static function registerFrameworks(Assets $assets, array $list): void

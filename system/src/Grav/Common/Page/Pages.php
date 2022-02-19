@@ -736,7 +736,13 @@ class Pages
                 break;
             case 'siblings':
                 $parent = $page->parent();
-                $collection = $parent ? $parent->children()->remove($page->path()) : new Collection();
+                if ($parent) {
+                    /** @var Collection $collection */
+                    $collection = $parent->children();
+                    $collection = $collection->remove($page->path());
+                } else {
+                    $collection = new Collection();
+                }
                 break;
             case 'descendants':
                 $collection = $this->all($page)->remove($page->path())->pages();
@@ -1041,9 +1047,14 @@ class Pages
                     $this->grav->redirectLangSafe($page->redirect());
                 }
 
-                if (!$routable && ($child = $page->children()->visible()->routable()->published()->first()) !== null) {
-                    // Redirect to the first visible child as current page isn't routable.
-                    $this->grav->redirectLangSafe($child->route());
+                if (!$routable) {
+                    /** @var Collection $children */
+                    $children = $page->children()->visible()->routable()->published();
+                    $child = $children->first();
+                    if ($child !== null) {
+                        // Redirect to the first visible child as current page isn't routable.
+                        $this->grav->redirectLangSafe($child->route());
+                    }
                 }
             }
 
