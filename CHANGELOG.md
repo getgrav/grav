@@ -6,6 +6,7 @@
     * Fixed phpstan issues (All level 2, Framework level 5)
 2. [](#bugfix)
     * Fixed `'mbstring' extension is not loaded` error, use Polyfill instead [#3504](https://github.com/getgrav/grav/pull/3504)
+    * Fixed new `Utils::pathinfo()` and `Utils::basename()` being too strict for legacy use [#3542](https://github.com/getgrav/grav/issues/3542)
 
 # v1.7.30
 ## 02/07/2022
