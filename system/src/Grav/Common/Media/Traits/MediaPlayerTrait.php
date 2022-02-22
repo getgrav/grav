@@ -25,7 +25,7 @@ trait MediaPlayerTrait
     public function controls($status = true)
     {
         if ($status) {
-            $this->attributes['controls'] = true;
+            $this->attributes['controls'] = 'controls';
         } else {
             unset($this->attributes['controls']);
         }
@@ -42,7 +42,7 @@ trait MediaPlayerTrait
     public function loop($status = false)
     {
         if ($status) {
-            $this->attributes['loop'] = true;
+            $this->attributes['loop'] = 'loop';
         } else {
             unset($this->attributes['loop']);
         }
@@ -59,7 +59,7 @@ trait MediaPlayerTrait
     public function autoplay($status = false)
     {
         if ($status) {
-            $this->attributes['autoplay'] = true;
+            $this->attributes['autoplay'] = 'autoplay';
         } else {
             unset($this->attributes['autoplay']);
         }
@@ -76,7 +76,7 @@ trait MediaPlayerTrait
     public function muted($status = false)
     {
         if ($status) {
-            $this->attributes['muted'] = true;
+            $this->attributes['muted'] = 'muted';
         } else {
             unset($this->attributes['muted']);
         }
@@ -108,6 +108,6 @@ trait MediaPlayerTrait
      */
     public function resetPlayer()
     {
-        $this->attributes['controls'] = true;
+        $this->attributes['controls'] = 'controls';
     }
 }
