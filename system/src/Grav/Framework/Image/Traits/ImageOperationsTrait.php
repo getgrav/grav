@@ -17,6 +17,8 @@ trait ImageOperationsTrait
     /** @var int|null */
     protected $orientation = null;
     /** @var array */
+    protected $dependencies = [];
+    /** @var array */
     protected $operations = [];
 
     /**
@@ -475,8 +477,9 @@ trait ImageOperationsTrait
      */
     public function merge(Image $other, int $x = 0, int $y = 0, int $width = 0, int $height = 0)
     {
-        $serialized = $other->__serialize();
+        $serialized = $other->jsonSerialize();
 
+        $dependencies[] = $serialized;
         $this->operations[] = ['merge', [$serialized, $x, $y, $width, $height]];
 
         return $this;
