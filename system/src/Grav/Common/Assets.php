@@ -16,8 +16,8 @@ use Grav\Common\Assets\Traits\TestingAssetsTrait;
 use Grav\Common\Config\Config;
 use Grav\Framework\Object\PropertyObject;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
+use function array_slice;
 use function call_user_func_array;
-use function count;
 use function func_get_args;
 use function is_array;
 
@@ -174,6 +174,10 @@ class Assets extends PropertyObject
      */
     public function add($asset)
     {
+        if (!$asset) {
+            return $this;
+        }
+
         $args = func_get_args();
 
         // More than one asset
@@ -198,7 +202,8 @@ class Assets extends PropertyObject
             call_user_func_array([$this, 'add'], $args);
         } else {
             // Get extension
-            $extension = Utils::pathinfo(parse_url($asset, PHP_URL_PATH), PATHINFO_EXTENSION);
+            $path = parse_url($asset, PHP_URL_PATH);
+            $extension = $path ? Utils::pathinfo($path, PATHINFO_EXTENSION) : '';
 
             // JavaScript or CSS
             if ($extension !== '') {

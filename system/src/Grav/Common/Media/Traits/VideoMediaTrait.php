@@ -40,7 +40,7 @@ trait VideoMediaTrait
     public function playsinline($status = false)
     {
         if ($status) {
-            $this->attributes['playsinline'] = true;
+            $this->attributes['playsinline'] = 'playsinline';
         } else {
             unset($this->attributes['playsinline']);
         }
