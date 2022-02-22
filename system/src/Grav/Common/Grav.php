@@ -62,6 +62,7 @@ use function call_user_func_array;
 use function function_exists;
 use function get_class;
 use function in_array;
+use function is_array;
 use function is_callable;
 use function is_int;
 use function is_string;
@@ -729,13 +730,16 @@ class Grav extends Container
      */
     public function fallbackUrl($path)
     {
+        $path_parts = Utils::pathinfo($path);
+        if (!is_array($path_parts)) {
+            return false;
+        }
+
         /** @var Uri $uri */
         $uri = $this['uri'];
 
         /** @var Config $config */
         $config = $this['config'];
-
-        $path_parts = Utils::pathinfo($path);
 
         /** @var Pages $pages */
         $pages = $this['pages'];
