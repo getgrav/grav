@@ -200,7 +200,7 @@ class Security
         }, $string);
 
         // Clean up entities
-        $string = preg_replace('!(&#0+[0-9]+)!u', '$1;', $string);
+        $string = preg_replace('!(&#[0-9]+)!u', '$1;', $string);
 
         // Decode entities
         $string = html_entity_decode($string, ENT_NOQUOTES | ENT_HTML5, 'UTF-8');
