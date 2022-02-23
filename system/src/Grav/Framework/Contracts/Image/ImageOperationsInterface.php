@@ -117,6 +117,12 @@ interface ImageOperationsInterface extends ImageResizeInterface, ImageInfoInterf
     public function sepia();
 
     /**
+     * @param int $blurFactor
+     * @return $this
+     */
+    public function gaussianBlur(int $blurFactor = 1);
+
+    /**
      * Merge with another image.
      *
      * @param Image $other

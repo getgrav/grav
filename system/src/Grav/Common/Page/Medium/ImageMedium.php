@@ -32,7 +32,7 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
     /** @var array */
     protected $defaults = [];
     /** @var array */
-    protected $options = [];
+    protected $imageSettings = [];
     /** @var string|null */
     private $saved_image_path;
 
@@ -47,6 +47,7 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
         /** @var Config $config */
         $config = $this->getGrav()['config'];
 
+        $this->watermark = $config->get('system.images.watermark.watermark_all', false);
         $this->thumbnailTypes = ['page', 'media', 'default'];
         $this->defaults = [
             'quality' => (int)$config->get('system.images.default_image_quality', 85),
@@ -54,7 +55,6 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
             'auto_sizes' => (bool)$config->get('system.images.cls.auto_sizes', false),
             'aspect_ratio' => (bool)$config->get('system.images.cls.aspect_ratio', false),
             'retina_scale' => (int)$config->get('system.images.cls.retina_scale', 1)
-
         ];
 
         parent::__construct($items, $blueprint);
@@ -64,7 +64,7 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
         $path = $this->get('filepath');
         $this->set('thumbnails.media', $path);
 
-        // TODO:
+        // TODO: We shouldn't have this here
         $exists = $path && file_exists($path) && filesize($path);
         if ($exists && !($this->offsetExists('width') && $this->offsetExists('height') && $this->offsetExists('mime'))) {
             $image_info = getimagesize($path);
@@ -101,9 +101,8 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
         parent::reset();
 
         $this->format = 'guess';
-        $this->options = $this->defaults;
+        $this->imageSettings = $this->defaults;
         $this->quality = $this->defaults['quality'];
-        $this->debug_watermarked = false;
 
         $this->resetImage();
 
@@ -135,12 +134,12 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
      */
     public function url($reset = true)
     {
-        $grav = $this->getGrav();
-
         // FIXME: update this code
         $saved_image_path = $this->saved_image_path = $this->saveImage();
 
         $output = preg_replace('|^' . preg_quote(GRAV_WEBROOT, '|') . '|', '', $saved_image_path) ?: $saved_image_path;
+
+        $grav = $this->getGrav();
 
         /** @var UniformResourceLocator $locator */
         $locator = $grav['locator'];
@@ -208,18 +207,18 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
             $attributes['sizes'] = $this->sizes();
         }
 
-        if ($this->saved_image_path && $this->options['auto_sizes']) {
+        if ($this->saved_image_path && $this->imageSettings['auto_sizes']) {
             // FIXME: we can calculate this from the new image object..?
             if (!array_key_exists('height', $this->attributes) && !array_key_exists('width', $this->attributes)) {
                 $info = getimagesize($this->saved_image_path);
                 $width = (int)$info[0];
                 $height = (int)$info[1];
 
-                $scaling_factor = min(1, $this->options['retina_scale']);
+                $scaling_factor = min(1, $this->imageSettings['retina_scale']);
                 $attributes['width'] = (int)($width / $scaling_factor);
                 $attributes['height'] = (int)($height / $scaling_factor);
 
-                if ($this->options['aspect_ratio']) {
+                if ($this->imageSettings['aspect_ratio']) {
                     $style = ($attributes['style'] ?? ' ') . "--aspect-ratio: $width/$height;";
                     $attributes['style'] = trim($style);
                 }
@@ -276,7 +275,7 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
     {
         $enabled = \is_bool($enabled) ? $enabled : $enabled === 'true';
 
-        $this->options['auto_sizes'] = $enabled;
+        $this->imageSettings['auto_sizes'] = $enabled;
 
         return $this;
     }
@@ -289,18 +288,18 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
     {
         $enabled = \is_bool($enabled) ? $enabled : $enabled === 'true';
 
-        $this->options['aspect_ratio'] = $enabled;
+        $this->imageSettings['aspect_ratio'] = $enabled;
 
         return $this;
     }
 
     /**
-     * @param int $scale
+     * @param string|int $scale
      * @return $this
      */
     public function retinaScale($scale = 1)
     {
-        $this->options['retina_scale'] = (int)$scale;
+        $this->imageSettings['retina_scale'] = (int)$scale;
 
         return $this;
     }

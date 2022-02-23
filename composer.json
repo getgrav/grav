@@ -45,8 +45,6 @@
         "filp/whoops": "~2.9",
         "matthiasmullie/minify": "^1.3",
         "monolog/monolog": "~1.25",
-        "getgrav/image": "^3.0",
-        "getgrav/cache": "^2.0",
         "donatj/phpuseragentparser": "~1.1",
         "pimple/pimple": "~3.5.0",
         "rockettheme/toolbox": "~1.5",

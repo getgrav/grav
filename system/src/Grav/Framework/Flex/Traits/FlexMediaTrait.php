@@ -15,6 +15,7 @@ use Grav\Common\Media\Factories\MediaFactory;
 use Grav\Common\Media\Interfaces\MediaCollectionInterface;
 use Grav\Common\Media\Interfaces\MediaUploadInterface;
 use Grav\Common\Media\Traits\MediaTrait;
+use Grav\Common\Page\Media;
 use Grav\Common\Page\Medium\Medium;
 use Grav\Common\Page\Medium\MediumFactory;
 use Grav\Common\Utils;
@@ -205,10 +206,12 @@ trait FlexMediaTrait
         }
 
         $media = $this->getMedia();
+        /** @var Media|null $originalMedia */
         $originalMedia = is_callable([$this, 'getOriginalMedia']) ? $this->getOriginalMedia() : null;
 
         $list = [];
         foreach ($value as $filename => $info) {
+            $filename = (string)$filename;
             if (!is_array($info)) {
                 $list[$filename] = $info;
                 continue;

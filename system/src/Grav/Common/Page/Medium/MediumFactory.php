@@ -182,11 +182,7 @@ class MediumFactory
      */
     public static function scaledFromMedium($medium, $from, $to)
     {
-        if (!$medium instanceof ImageMedium) {
-            return $medium;
-        }
-
-        if ($to > $from) {
+        if (!$medium instanceof ImageMedium || $to > $from) {
             return $medium;
         }
 
@@ -206,13 +202,15 @@ class MediumFactory
         $medium->set('debug', $debug);
         $medium->setImagePrettyName($prev_basename);
 
-        $size = filesize($file);
-
         $medium = self::fromFile($file);
         if ($medium) {
+            $size = filesize($file);
+
             $medium->set('basename', $basename);
             $medium->set('filename', $basename . '.' . $medium->extension);
             $medium->set('size', $size);
+        } else {
+            $size = 0;
         }
 
         return ['file' => $medium, 'size' => $size];

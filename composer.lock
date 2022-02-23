@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1067938388862c52927c6450e8a36df0",
+    "content-hash": "ddf2ee1968a5086f59be53180004e557",
     "packages": [
         {
             "name": "composer/ca-bundle",
@@ -616,117 +616,6 @@
                 }
             ],
             "time": "2022-01-07T12:00:00+00:00"
-        },
-        {
-            "name": "getgrav/cache",
-            "version": "v2.0.0",
-            "target-dir": "Gregwar/Cache",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/getgrav/Cache.git",
-                "reference": "56fd63f752779928fcd1074ab7d12f406dde8861"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/getgrav/Cache/zipball/56fd63f752779928fcd1074ab7d12f406dde8861",
-                "reference": "56fd63f752779928fcd1074ab7d12f406dde8861",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.3"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-0": {
-                    "Gregwar\\Cache": ""
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Gregwar",
-                    "email": "g.passault@gmail.com"
-                },
-                {
-                    "name": "Grav CMS",
-                    "email": "hello@getgrav.org",
-                    "homepage": "https://getgrav.org"
-                }
-            ],
-            "description": "A lightweight file-system cache system",
-            "keywords": [
-                "cache",
-                "caching",
-                "file-system",
-                "system"
-            ],
-            "support": {
-                "source": "https://github.com/getgrav/Cache/tree/v2.0.0"
-            },
-            "time": "2021-04-20T05:48:00+00:00"
-        },
-        {
-            "name": "getgrav/image",
-            "version": "v3.0.0",
-            "target-dir": "Gregwar/Image",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/getgrav/Image.git",
-                "reference": "02c1bb2c179dd894c4f6610c9c49da364ee7d264"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/getgrav/Image/zipball/02c1bb2c179dd894c4f6610c9c49da364ee7d264",
-                "reference": "02c1bb2c179dd894c4f6610c9c49da364ee7d264",
-                "shasum": ""
-            },
-            "require": {
-                "ext-gd": "*",
-                "getgrav/cache": "^2.0",
-                "php": "^5.6 || ^7.0 || ^8.0"
-            },
-            "require-dev": {
-                "sllh/php-cs-fixer-styleci-bridge": "~1.0",
-                "symfony/phpunit-bridge": "^2.7.4 || ^3.0"
-            },
-            "suggest": {
-                "behat/transliterator": "Transliterator provides ability to set non-latin1 pretty names"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-0": {
-                    "Gregwar\\Image": ""
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Grégoire Passault",
-                    "email": "g.passault@gmail.com",
-                    "homepage": "http://www.gregwar.com/"
-                },
-                {
-                    "name": "Grav CMS",
-                    "email": "hello@getgrav.org",
-                    "homepage": "https://getgrav.org"
-                }
-            ],
-            "description": "Image handling",
-            "homepage": "https://github.com/Gregwar/Image",
-            "keywords": [
-                "gd",
-                "image"
-            ],
-            "support": {
-                "source": "https://github.com/getgrav/Image/tree/v3.0.0"
-            },
-            "time": "2021-04-20T05:50:18+00:00"
         },
         {
             "name": "guzzlehttp/psr7",
@@ -4126,12 +4015,12 @@
                 }
             },
             "autoload": {
-                "psr-4": {
-                    "GuzzleHttp\\Promise\\": "src/"
-                },
                 "files": [
                     "src/functions_include.php"
-                ]
+                ],
+                "psr-4": {
+                    "GuzzleHttp\\Promise\\": "src/"
+                }
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
@@ -4748,16 +4637,16 @@
         },
         {
             "name": "phpunit/php-code-coverage",
-            "version": "9.2.11",
+            "version": "9.2.13",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/php-code-coverage.git",
-                "reference": "665a1ac0a763c51afc30d6d130dac0813092b17f"
+                "reference": "deac8540cb7bd40b2b8cfa679b76202834fd04e8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/665a1ac0a763c51afc30d6d130dac0813092b17f",
-                "reference": "665a1ac0a763c51afc30d6d130dac0813092b17f",
+                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/deac8540cb7bd40b2b8cfa679b76202834fd04e8",
+                "reference": "deac8540cb7bd40b2b8cfa679b76202834fd04e8",
                 "shasum": ""
             },
             "require": {
@@ -4813,7 +4702,7 @@
             ],
             "support": {
                 "issues": "https://github.com/sebastianbergmann/php-code-coverage/issues",
-                "source": "https://github.com/sebastianbergmann/php-code-coverage/tree/9.2.11"
+                "source": "https://github.com/sebastianbergmann/php-code-coverage/tree/9.2.13"
             },
             "funding": [
                 {
@@ -4821,7 +4710,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2022-02-18T12:46:09+00:00"
+            "time": "2022-02-23T17:02:38+00:00"
         },
         {
             "name": "phpunit/php-file-iterator",
@@ -5066,16 +4955,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "9.5.14",
+            "version": "9.5.16",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "1883687169c017d6ae37c58883ca3994cfc34189"
+                "reference": "5ff8c545a50226c569310a35f4fa89d79f1ddfdc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/1883687169c017d6ae37c58883ca3994cfc34189",
-                "reference": "1883687169c017d6ae37c58883ca3994cfc34189",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/5ff8c545a50226c569310a35f4fa89d79f1ddfdc",
+                "reference": "5ff8c545a50226c569310a35f4fa89d79f1ddfdc",
                 "shasum": ""
             },
             "require": {
@@ -5091,7 +4980,7 @@
                 "phar-io/version": "^3.0.2",
                 "php": ">=7.3",
                 "phpspec/prophecy": "^1.12.1",
-                "phpunit/php-code-coverage": "^9.2.7",
+                "phpunit/php-code-coverage": "^9.2.13",
                 "phpunit/php-file-iterator": "^3.0.5",
                 "phpunit/php-invoker": "^3.1.1",
                 "phpunit/php-text-template": "^2.0.3",
@@ -5153,7 +5042,7 @@
             ],
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/9.5.14"
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/9.5.16"
             },
             "funding": [
                 {
@@ -5165,7 +5054,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2022-02-18T12:54:07+00:00"
+            "time": "2022-02-23T17:10:58+00:00"
         },
         {
             "name": "psr/http-client",

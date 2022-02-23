@@ -13,6 +13,7 @@ use Grav\Common\Data\Data;
 use Grav\Common\Media\Interfaces\MediaFileInterface;
 use Grav\Common\Media\Interfaces\MediaLinkInterface;
 use Grav\Common\Media\Interfaces\MediaObjectInterface;
+use Grav\Common\Page\Medium\ImageMedium;
 use Grav\Common\Page\Medium\ThumbnailImageMedium;
 use Grav\Common\Utils;
 use RuntimeException;
@@ -553,9 +554,9 @@ trait MediaObjectTrait
     /**
      * Get the thumbnail Medium object
      *
-     * @return ThumbnailImageMedium
+     * @return ThumbnailImageMedium|ImageMedium
      */
-    protected function getThumbnail(): ThumbnailImageMedium
+    protected function getThumbnail(): ImageMedium
     {
         if (null === $this->_thumbnail) {
             $thumbnails = (array)$this->get('thumbnails') + ['system' => 'system://images/media/thumb.png'];

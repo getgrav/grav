@@ -2,10 +2,31 @@
 
 namespace Grav\Framework\Image\Adapter;
 
+use Grav\Common\Utils;
 use Grav\Framework\Contracts\Image\ImageAdapterInterface;
 use InvalidArgumentException;
 use RuntimeException;
 use UnexpectedValueException;
+use function count;
+use function define;
+use function defined;
+use function extension_loaded;
+use function function_exists;
+use function is_resource;
+
+// Make sure DG defines have been set!
+if (!defined('IMG_GIF')) {
+    define('IMG_GIF', 1);
+}
+if (!defined('IMG_JPG')) {
+    define('IMG_JPG', 2);
+}
+if (!defined('IMG_PNG')) {
+    define('IMG_PNG', 4);
+}
+if (!defined('IMG_WEBP')) {
+    define('IMG_WEBP', 32);
+}
 
 /**
  * GD Image adapter.
@@ -42,6 +63,58 @@ class GdAdapter extends Adapter
         return (bool)(imagetypes() & $test);
     }
 
+        /**
+     * Creates a new image.
+     *
+     * @param int $width
+     * @param int $height
+     * @return static
+     */
+    public static function create(int $width, int $height): GdAdapter
+    {
+        $resource = static::createResource($width, $height);
+
+        return new static($resource);
+    }
+
+    /**
+     * Creates image from a file.
+     *
+     * @param string $filepath
+     * @return static
+     */
+    public static function createFromFile(string $filepath): GdAdapter
+    {
+        $extension = strtolower(Utils::pathinfo($filepath, PATHINFO_EXTENSION));
+        $resource = static::createResourceFromFile($filepath, $extension);
+
+        return new static($resource);
+    }
+
+    /**
+     * Creates image from string of image data.
+     *
+     * @param string $data
+     * @return static
+     */
+    public static function createFromString(string $data): GdAdapter
+    {
+        $resource = static::createResourceFromString($data);
+
+        return new static($resource);
+    }
+
+    /**
+     * Creates an instance of image from resource.
+     *
+     * @param \GdImage|resource $resource
+     * @return static
+     */
+    public static function createFromImage($resource): GdAdapter
+    {
+        return new static($resource);
+    }
+
     /**
      * @param \GdImage|resource $resource
      */
@@ -56,6 +129,15 @@ class GdAdapter extends Adapter
         }
 
         $this->resource = $resource;
+
+        $this->convertToTrueColor();
+    }
+
+    public function __destruct()
+    {
+        if ($this->resource) {
+            imagedestroy($this->resource);
+        }
     }
 
     /**
@@ -77,7 +159,7 @@ class GdAdapter extends Adapter
     /**
      * {@inheritdoc}
      */
-    public function fillBackground(?int $background = 0xffffff)
+    public function fillBackground(?int $background = 0xffffff): GdAdapter
     {
         $w = $this->width();
         $h = $this->height();
@@ -96,10 +178,13 @@ class GdAdapter extends Adapter
     /**
      * {@inheritdoc}
      */
-    public function resize(?int $background, int $target_width, int $target_height, int $new_width, int $new_height)
+    public function resize(?int $background, int $target_width, int $target_height, int $new_width, int $new_height): GdAdapter
     {
         $width = $this->width();
         $height = $this->height();
+        $dst_x = (int)(($target_width - $new_width) / 2);
+        $dst_y = (int)(($target_height - $new_height) / 2);
+
         $n = imagecreatetruecolor($target_width, $target_height);
         if (!$n) {
             throw new RuntimeException('Failed to resize image: image creation failed');
@@ -115,7 +200,7 @@ class GdAdapter extends Adapter
             imagesavealpha($n, true);
         }
 
-        imagecopyresampled($n, $this->resource, ($target_width - $new_width) / 2, ($target_height - $new_height) / 2, 0, 0, $new_width, $new_height, $width, $height);
+        imagecopyresampled($n, $this->resource, $dst_x, $dst_y, 0, 0, $new_width, $new_height, $width, $height);
         imagedestroy($this->resource);
 
         $this->resource = $n;
@@ -126,7 +211,7 @@ class GdAdapter extends Adapter
     /**
      * {@inheritdoc}
      */
-    public function crop(int $x, int $y, int $width, int $height)
+    public function crop(int $x, int $y, int $width, int $height): GdAdapter
     {
         $destination = imagecreatetruecolor($width, $height);
         if (!$destination) {
@@ -146,7 +231,7 @@ class GdAdapter extends Adapter
     /**
      * {@inheritdoc}
      */
-    public function negate()
+    public function negate(): GdAdapter
     {
         imagefilter($this->resource, IMG_FILTER_NEGATE);
 
@@ -156,7 +241,7 @@ class GdAdapter extends Adapter
     /**
      * {@inheritdoc}
      */
-    public function brightness($brightness)
+    public function brightness($brightness): GdAdapter
     {
         imagefilter($this->resource, IMG_FILTER_BRIGHTNESS, $brightness);
 
@@ -166,7 +251,7 @@ class GdAdapter extends Adapter
     /**
      * {@inheritdoc}
      */
-    public function contrast($contrast)
+    public function contrast($contrast): GdAdapter
     {
         imagefilter($this->resource, IMG_FILTER_CONTRAST, $contrast);
 
@@ -176,7 +261,7 @@ class GdAdapter extends Adapter
     /**
      * {@inheritdoc}
      */
-    public function grayscale()
+    public function grayscale(): GdAdapter
     {
         imagefilter($this->resource, IMG_FILTER_GRAYSCALE);
 
@@ -186,7 +271,7 @@ class GdAdapter extends Adapter
     /**
      * {@inheritdoc}
      */
-    public function emboss()
+    public function emboss(): GdAdapter
     {
         imagefilter($this->resource, IMG_FILTER_EMBOSS);
 
@@ -196,7 +281,7 @@ class GdAdapter extends Adapter
     /**
      * {@inheritdoc}
      */
-    public function smooth(int $p)
+    public function smooth(int $p): GdAdapter
     {
         imagefilter($this->resource, IMG_FILTER_SMOOTH, $p);
 
@@ -206,7 +291,7 @@ class GdAdapter extends Adapter
     /**
      * {@inheritdoc}
      */
-    public function sharp()
+    public function sharp(): GdAdapter
     {
         imagefilter($this->resource, IMG_FILTER_MEAN_REMOVAL);
 
@@ -216,7 +301,7 @@ class GdAdapter extends Adapter
     /**
      * {@inheritdoc}
      */
-    public function edge()
+    public function edge(): GdAdapter
     {
         imagefilter($this->resource, IMG_FILTER_EDGEDETECT);
 
@@ -226,7 +311,7 @@ class GdAdapter extends Adapter
     /**
      * {@inheritdoc}
      */
-    public function colorize(int $red, int $green, int $blue)
+    public function colorize(int $red, int $green, int $blue): GdAdapter
     {
         imagefilter($this->resource, IMG_FILTER_COLORIZE, $red, $green, $blue);
 
@@ -236,7 +321,7 @@ class GdAdapter extends Adapter
     /**
      * {@inheritdoc}
      */
-    public function sepia()
+    public function sepia(): GdAdapter
     {
         imagefilter($this->resource, IMG_FILTER_GRAYSCALE);
         imagefilter($this->resource, IMG_FILTER_COLORIZE, 100, 50, 0);
@@ -247,7 +332,7 @@ class GdAdapter extends Adapter
     /**
      * {@inheritdoc}
      */
-    public function gaussianBlur(int $blurFactor = 1)
+    public function gaussianBlur(int $blurFactor = 1): GdAdapter
     {
         if ($blurFactor < 1) {
             return $this;
@@ -267,8 +352,8 @@ class GdAdapter extends Adapter
         // scale way down and gradually scale back up, blurring all the way
         for ($i = 0; $i < $blurFactor; ++$i) {
             // determine dimensions of next image
-            $nextWidth = (int)($smallestWidth * (2 ** $i));
-            $nextHeight = (int)($smallestHeight * (2 ** $i));
+            $nextWidth = $smallestWidth * (2 ** $i);
+            $nextHeight = $smallestHeight * (2 ** $i);
 
             // resize previous image to next size
             $nextImage = imagecreatetruecolor($nextWidth, $nextHeight);
@@ -288,8 +373,7 @@ class GdAdapter extends Adapter
         }
 
         // scale back to original size and blur one more time
-        imagecopyresized($this->resource, $nextImage,
-            0, 0, 0, 0, $originalWidth, $originalHeight, $nextWidth, $nextHeight);
+        imagecopyresized($this->resource, $nextImage, 0, 0, 0, 0, $originalWidth, $originalHeight, $nextWidth, $nextHeight);
         imagefilter($this->resource, IMG_FILTER_GAUSSIAN_BLUR);
 
         // clean up
@@ -303,7 +387,7 @@ class GdAdapter extends Adapter
      *
      * @param GdAdapter $other
      */
-    public function merge(ImageAdapterInterface $other, int $x = 0, int $y = 0, int $width = null, int $height = null)
+    public function merge(ImageAdapterInterface $other, int $x = 0, int $y = 0, int $width = null, int $height = null): GdAdapter
     {
         if (!$other instanceof self) {
             throw new InvalidArgumentException('Image to be merged needs to be instance of GdAdapter');
@@ -327,7 +411,7 @@ class GdAdapter extends Adapter
     /**
      * {@inheritdoc}
      */
-    public function rotate(float $angle, ?int $background = 0xffffff)
+    public function rotate(float $angle, ?int $background = 0xffffff): GdAdapter
     {
         $resource = imagerotate($this->resource, $angle, $this->allocateColor($background));
         if (!$resource) {
@@ -344,7 +428,7 @@ class GdAdapter extends Adapter
     /**
      * {@inheritdoc}
      */
-    public function fill(int $color = 0xffffff, int $x = 0, int $y = 0)
+    public function fill(int $color = 0xffffff, int $x = 0, int $y = 0): GdAdapter
     {
         imagealphablending($this->resource, false);
         imagefill($this->resource, $x, $y, $this->allocateColor($color));
@@ -355,7 +439,7 @@ class GdAdapter extends Adapter
     /**
      * {@inheritdoc}
      */
-    public function write(string $font, string $text, int $x = 0, int $y = 0, float $size = 12.0, float $angle = 0.0, int $color = 0x000000, string $align = 'left')
+    public function write(string $font, string $text, int $x = 0, int $y = 0, float $size = 12.0, float $angle = 0.0, int $color = 0x000000, string $align = 'left'): GdAdapter
     {
         imagealphablending($this->resource, true);
 
@@ -363,7 +447,7 @@ class GdAdapter extends Adapter
             $sim_size = $this->getTTFBox($font, $text, $size, $angle);
 
             if ($align === 'center') {
-                $x -= $sim_size['width'] / 2;
+                $x -= (int)($sim_size['width'] / 2);
             }
 
             if ($align === 'right') {
@@ -379,7 +463,7 @@ class GdAdapter extends Adapter
     /**
      * {@inheritdoc}
      */
-    public function rectangle(int $x1, int $y1, int $x2, int $y2, int $color, bool $filled = false)
+    public function rectangle(int $x1, int $y1, int $x2, int $y2, int $color, bool $filled = false): GdAdapter
     {
         $c = $this->allocateColor($color);
         if ($filled) {
@@ -394,7 +478,7 @@ class GdAdapter extends Adapter
     /**
      * {@inheritdoc}
      */
-    public function roundedRectangle(int $x1, int $y1, int $x2, int $y2, int $radius, int $color, bool $filled = false)
+    public function roundedRectangle(int $x1, int $y1, int $x2, int $y2, int $radius, int $color, bool $filled = false): GdAdapter
     {
         $c = $this->allocateColor($color);
 
@@ -425,7 +509,7 @@ class GdAdapter extends Adapter
     /**
      * {@inheritdoc}
      */
-    public function line(int $x1, int $y1, int $x2, int $y2, $color = 0x000000)
+    public function line(int $x1, int $y1, int $x2, int $y2, $color = 0x000000): GdAdapter
     {
         imageline($this->resource, $x1, $y1, $x2, $y2, $this->allocateColor($color));
 
@@ -435,7 +519,7 @@ class GdAdapter extends Adapter
     /**
      * {@inheritdoc}
      */
-    public function ellipse(int $cx, int $cy, int $width, int $height, $color = 0x000000, bool $filled = false)
+    public function ellipse(int $cx, int $cy, int $width, int $height, $color = 0x000000, bool $filled = false): GdAdapter
     {
         $c = $this->allocateColor($color);
         if ($filled) {
@@ -450,7 +534,7 @@ class GdAdapter extends Adapter
     /**
      * {@inheritdoc}
      */
-    public function circle(int $cx, int $cy, int $r, $color = 0x000000, bool $filled = false)
+    public function circle(int $cx, int $cy, int $r, $color = 0x000000, bool $filled = false): GdAdapter
     {
         return $this->ellipse($cx, $cy, $r, $r, $this->allocateColor($color), $filled);
     }
@@ -458,7 +542,7 @@ class GdAdapter extends Adapter
     /**
      * {@inheritdoc}
      */
-    public function polygon(array $points, $color, bool $filled = false)
+    public function polygon(array $points, $color, bool $filled = false): GdAdapter
     {
         $num = (int)(count($points) / 2);
         $c = $this->allocateColor($color);
@@ -475,7 +559,7 @@ class GdAdapter extends Adapter
     /**
      * {@inheritdoc}
      */
-    public function flip(bool $flipVertical, bool $flipHorizontal)
+    public function flip(bool $flipVertical, bool $flipHorizontal): GdAdapter
     {
         if (!$flipVertical && !$flipHorizontal) {
             return $this;
@@ -548,7 +632,7 @@ class GdAdapter extends Adapter
     /**
      * {@inheritdoc}
      */
-    public function saveGif(string $filepath)
+    public function saveGif(?string $filepath): GdAdapter
     {
         $transColor = imagecolorallocatealpha($this->resource, 255, 255, 255, 127);
         if (!$transColor) {
@@ -556,7 +640,10 @@ class GdAdapter extends Adapter
         }
 
         imagecolortransparent($this->resource, $transColor);
-        imagegif($this->resource, $filepath);
+        $result = imagegif($this->resource, $filepath);
+        if (false === $result) {
+            throw new RuntimeException('Failed to save image as gif');
+        }
 
         return $this;
     }
@@ -564,9 +651,13 @@ class GdAdapter extends Adapter
     /**
      * {@inheritdoc}
      */
-    public function savePng(string $filepath)
+    public function savePng(?string $filepath): GdAdapter
     {
-        imagepng($this->resource, $filepath);
+        $result = imagepng($this->resource, $filepath);
+        if (false === $result) {
+            throw new RuntimeException('Failed to save image as png');
+        }
+
 
         return $this;
     }
@@ -574,9 +665,12 @@ class GdAdapter extends Adapter
     /**
      * {@inheritdoc}
      */
-    public function saveWebp(string $filepath, int $quality)
+    public function saveWebp(?string $filepath, int $quality): GdAdapter
     {
-        imagewebp($this->resource, $filepath, $quality);
+        $result = imagewebp($this->resource, $filepath, $quality);
+        if (false === $result) {
+            throw new RuntimeException('Failed to save image as webp');
+        }
 
         return $this;
     }
@@ -584,9 +678,12 @@ class GdAdapter extends Adapter
     /**
      * {@inheritdoc}
      */
-    public function saveJpeg(string $filepath, int $quality)
+    public function saveJpeg(?string $filepath, int $quality): GdAdapter
     {
-        imagejpeg($this->resource, $filepath, $quality);
+        $result = imagejpeg($this->resource, $filepath, $quality);
+        if (false === $result) {
+            throw new RuntimeException('Failed to save image as jpeg');
+        }
 
         return $this;
     }
@@ -594,7 +691,7 @@ class GdAdapter extends Adapter
     /**
      * {@inheritdoc}
      */
-    public function enableProgressive()
+    public function enableProgressive(): GdAdapter
     {
         imageinterlace($this->resource, true);
 
@@ -602,100 +699,19 @@ class GdAdapter extends Adapter
     }
 
     /**
-     * Create empty image.
-     *
-     * @param int $width
-     * @param int $height
-     * @return void
-     */
-    protected function createImage(int $width, int $height): void
-    {
-        $this->resource = imagecreatetruecolor($width, $height) ?: null;
-    }
-
-    /**
-     * Create image from a string.
-     *
-     * @param string $data
-     * @return void
-     */
-    protected function createImageFromString(string $data): void
-    {
-        $this->resource = @imagecreatefromstring($data) ?: null;
-    }
-
-    /**
      * Converts the image to true color.
      *
-     * @return void
+     * @return static
      */
-    protected function convertToTrueColor(): void
+    protected function convertToTrueColor(): GdAdapter
     {
         if (!imageistruecolor($this->resource)) {
             imagepalettetotruecolor($this->resource);
         }
 
         imagesavealpha($this->resource, true);
-    }
 
-    /**
-     * Try to open the file using jpeg.
-     *
-     * @param string $filepath
-     * @return void
-     */
-    protected function openJpeg(string $filepath): void
-    {
-        if (file_exists($filepath) && filesize($filepath)) {
-            $this->resource = @imagecreatefromjpeg($filepath) ?: null;
-        } else {
-            $this->resource = null;
-        }
-    }
-
-    /**
-     * Try to open the file using gif.
-     *
-     * @param string $filepath
-     * @return void
-     */
-    protected function openGif(string $filepath): void
-    {
-        if (file_exists($filepath) && filesize($filepath)) {
-            $this->resource = @imagecreatefromgif($filepath) ?: null;
-        } else {
-            $this->resource = null;
-        }
-    }
-
-    /**
-     * Try to open the file using PNG.
-     *
-     * @param string $filepath
-     * @return void
-     */
-    protected function openPng(string $filepath): void
-    {
-        if (file_exists($filepath) && filesize($filepath)) {
-            $this->resource = @imagecreatefrompng($filepath) ?: null;
-        } else {
-            $this->resource = null;
-        }
-    }
-
-    /**
-     * Try to open the file using WEBP.
-     *
-     * @param string $filepath
-     * @return void
-     */
-    protected function openWebp(string $filepath): void
-    {
-        if (file_exists($filepath) && filesize($filepath)) {
-            $this->resource = @imagecreatefromwebp($filepath) ?: null;
-        } else {
-            $this->resource = null;
-        }
+        return $this;
     }
 
     /**
@@ -708,56 +724,6 @@ class GdAdapter extends Adapter
     protected function getColor(int $x, int $y)
     {
         return imagecolorat($this->resource, $x, $y);
-    }
-
-    /**
-     * Load image resource.
-     *
-     * @param \GdImage|resource $resource
-     */
-    protected function loadResource($resource): void
-    {
-        $this->resource = $resource;
-
-        imagesavealpha($this->resource, true);
-    }
-
-    /**
-     * Load file.
-     *
-     * @param string $filepath
-     * @param string $type
-     * @return void
-     * @throws UnexpectedValueException
-     */
-    protected function loadFile(string $filepath, string $type): void
-    {
-        if (!static::isSupported($type)) {
-            throw new UnexpectedValueException('Type ' . $type . ' is not supported by GD');
-        }
-
-        switch ($type) {
-            case 'jpeg':
-                $this->openJpeg($filepath);
-                break;
-            case 'gif':
-                $this->openGif($filepath);
-                break;
-            case 'png':
-                $this->openPng($filepath);
-                break;
-            case 'webp':
-                $this->openWebp($filepath);
-                break;
-            default:
-                throw new UnexpectedValueException('Unable to open file (' . $filepath . ')');
-        }
-
-        if (null === $this->getResource()) {
-            throw new UnexpectedValueException('Unable to open file (' . $filepath . ')');
-        }
-
-        $this->convertToTrueColor();
     }
 
     /**
@@ -812,5 +778,71 @@ class GdAdapter extends Adapter
         }
 
         return $c;
+    }
+
+    /**
+     * Load file.
+     *
+     * @param string $filepath
+     * @param string $type
+     * @return \GdImage|resource|null
+     * @throws UnexpectedValueException
+     */
+    protected static function createResourceFromFile(string $filepath, string $type)
+    {
+        if (!static::isSupported($type)) {
+            throw new UnexpectedValueException(sprintf('Type %s is not supported by GD', $type));
+        }
+
+        // Check if file exists.
+        if (!file_exists($filepath) || !filesize($filepath)) {
+            return null;
+        }
+
+        $test = self::$types[$type] ?? 0;
+        $resource = null;
+        switch ($test) {
+            case \IMG_JPG:
+                $resource = @imagecreatefromjpeg($filepath) ?: null;
+                break;
+            case \IMG_GIF:
+                $resource = @imagecreatefromgif($filepath) ?: null;
+                break;
+            case \IMG_PNG:
+                $resource = @imagecreatefrompng($filepath) ?: null;
+                break;
+            case \IMG_WEBP:
+                $resource = @imagecreatefromwebp($filepath) ?: null;
+                break;
+        }
+
+        if (null === $resource) {
+            throw new UnexpectedValueException(sprintf('Unable to open file (%s)', $filepath));
+        }
+
+        return $resource;
+    }
+
+    /**
+     * Create image from a string.
+     *
+     * @param string $data
+     * @return \GdImage|resource|null
+     */
+    protected static function createResourceFromString(string $data)
+    {
+        return @imagecreatefromstring($data) ?: null;
+    }
+
+    /**
+     * Create empty image.
+     *
+     * @param int $width
+     * @param int $height
+     * @return \GdImage|resource|null
+     */
+    protected static function createResource(int $width, int $height)
+    {
+        return imagecreatetruecolor($width, $height) ?: null;
     }
 }

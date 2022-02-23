@@ -10,17 +10,15 @@
 namespace Grav\Common\Media\Traits;
 
 use BadFunctionCallException;
-use Grav\Common\Config\Config;
 use Grav\Common\Grav;
 use Grav\Common\Media\Interfaces\ImageMediaInterface;
-use Grav\Common\Page\Medium\ImageFile;
 use Grav\Common\Page\Medium\ImageMedium;
-use Grav\Common\Page\Medium\MediumFactory;
+use Grav\Framework\File\Formatter\JsonFormatter;
+use Grav\Framework\File\JsonFile;
+use Grav\Framework\Image\Adapter\GdAdapter;
+use Grav\Framework\Image\Image;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
-use function array_key_exists;
-use function extension_loaded;
 use function func_num_args;
-use function function_exists;
 use function in_array;
 
 /**
@@ -29,14 +27,12 @@ use function in_array;
  */
 trait ImageMediaTrait
 {
-    /** @var ImageFile|null */
+    /** @var Image|null */
     protected $image;
     /** @var string */
     protected $format = 'guess';
     /** @var int */
     protected $quality;
-    /** @var bool */
-    protected $debug_watermarked = false;
     /** @var bool */
     protected $watermark;
 
@@ -101,9 +97,6 @@ trait ImageMediaTrait
     public function setImagePrettyName($name)
     {
         $this->set('prettyname', $name);
-        if ($this->image) {
-            $this->image->setPrettyName($name);
-        }
     }
 
     /**
@@ -111,8 +104,9 @@ trait ImageMediaTrait
      */
     public function getImagePrettyName()
     {
-        if ($this->get('prettyname')) {
-            return $this->get('prettyname');
+        $prettyName = $this->get('prettyname');
+        if ($prettyName) {
+            return $prettyName;
         }
 
         $basename = $this->get('basename');
@@ -149,55 +143,46 @@ trait ImageMediaTrait
      */
     public function derivatives($min_width, $max_width = 2500, $step = 200)
     {
-        if (!empty($this->alternatives)) {
+        // Get the largest image to be the base.
+        if (empty($this->alternatives)) {
+            $base = $this;
+        } else {
             $max = max(array_keys($this->alternatives));
             $base = $this->alternatives[$max];
-        } else {
-            $base = $this;
         }
 
-        $widths = [];
+        $baseWidth = $base->get('width');
+        $filepath = $base->get('filepath');
 
+        $widths = [];
         if (func_num_args() === 1) {
-            foreach ((array) func_get_arg(0) as $width) {
-                if ($width < $base->get('width')) {
-                    $widths[] = $width;
+            foreach ((array) $min_width as $width) {
+                if ($width < $baseWidth) {
+                    $widths[] = (int)$width;
                 }
             }
         } else {
-            $max_width = min($max_width, $base->get('width'));
-
+            $max_width = min($max_width, $baseWidth);
             for ($width = $min_width; $width < $max_width; $width += $step) {
-                $widths[] = $width;
+                $widths[] = (int)$width;
             }
         }
 
         foreach ($widths as $width) {
             // Only generate image alternatives that don't already exist
-            if (array_key_exists((int) $width, $this->alternatives)) {
+            if (isset($this->alternatives[$width])) {
                 continue;
             }
-
-            $derivative = MediumFactory::fromFile($base->get('filepath'));
 
             // It's possible that MediumFactory::fromFile returns null if the
             // original image file no longer exists and this class instance was
             // retrieved from the page cache
+            $derivative = $this->getMedia()->createFromFile($filepath);
             if (null !== $derivative) {
-                $index = 2;
-                $alt_widths = array_keys($this->alternatives);
-                sort($alt_widths);
-
-                foreach ($alt_widths as $i => $key) {
-                    if ($width > $key) {
-                        $index += max($i, 1);
-                    }
-                }
-
                 $basename = preg_replace('/(@\d+x)?$/', "@{$width}w", $base->get('basename'), 1);
                 $derivative->setImagePrettyName($basename);
 
-                $ratio = $base->get('width') / $width;
+                $ratio = $baseWidth / $width;
                 $height = $derivative->get('height') / $ratio;
 
                 $derivative->resize($width, $height);
@@ -263,7 +248,7 @@ trait ImageMediaTrait
      * Set or get sizes parameter for srcset media action
      *
      * @param  string|null $sizes
-     * @return string
+     * @return string|$this
      */
     public function sizes($sizes = null)
     {
@@ -330,9 +315,9 @@ trait ImageMediaTrait
      */
     public function filter($filter = 'image.filters.default')
     {
-        $filters = (array) $this->get($filter, []);
+        $filters = (array)$this->get($filter, []);
         foreach ($filters as $params) {
-            $params = (array) $params;
+            $params = (array)$params;
             $method = array_shift($params);
             $this->__call($method, $params);
         }
@@ -368,14 +353,12 @@ trait ImageMediaTrait
      *
      * @return $this
      */
-    public function cropZoom()
+    public function cropZoom(...$args)
     {
-        $this->__call('zoomCrop', func_get_args());
+        $this->__call('zoomCrop', $args);
 
         return $this;
     }
-
-
 
     /**
      * @param string|null $image
@@ -385,6 +368,8 @@ trait ImageMediaTrait
      */
     public function watermark($image = null, $position = null, $scale = null)
     {
+        // TODO:
+        /*
         $grav = $this->getGrav();
 
         $locator = $grav['locator'];
@@ -440,6 +425,7 @@ trait ImageMediaTrait
         }
 
         $this->__call('merge', [$watermark,$positionX, $positionY]);
+        */
 
         return $this;
     }
@@ -451,7 +437,9 @@ trait ImageMediaTrait
      */
     public function addFrame(int $border = 10, string $color = '0x000000')
     {
-        if($border > 0 && preg_match('/^0x[a-f0-9]{6}$/i', $color)) { // $border must be an integer and bigger than 0; $color must be formatted as an HEX value (0x??????).
+        // TODO:
+        /*
+        if( $border > 0 && preg_match('/^0x[a-f0-9]{6}$/i', $color)) { // $border must be an integer and bigger than 0; $color must be formatted as an HEX value (0x??????).
             $image = ImageFile::fromData($this->readFile());
         }
         else {
@@ -470,6 +458,7 @@ trait ImageMediaTrait
         $this->__call('merge', [$image, $border, $border]);
 
         $this->saveImage();
+        */
 
         return $this;
     }
@@ -525,30 +514,14 @@ trait ImageMediaTrait
      */
     protected function image()
     {
-        /** @var UniformResourceLocator $locator */
-        $locator = Grav::instance()['locator'];
+        $filepath = $this->filepath;
+        $webroot = preg_quote(GRAV_WEBROOT, '`');
+        $root = preg_quote(GRAV_WEBROOT, '`');
+        $filepath = preg_replace(['`^' . $webroot . '/`u', '`^' . $root . '/`u'], ['GRAV_WEBROOT/', 'GRAV_ROOT/'], $filepath);
 
-        // Use existing cache folder or if it doesn't exist, create it.
-        $cacheDir = $locator->findResource('cache://images', true) ?: $locator->findResource('cache://images', true, true);
-
-        // Make sure we free previous image.
-        unset($this->image);
-
-        $this->image = ImageFile::fromData($this->readFile());
-        $this->image
-            ->setCacheDir($cacheDir)
-            ->setActualCacheDir($cacheDir)
-            ->setPrettyName($this->getImagePrettyName());
-
-        // Fix orientation if enabled
-        /** @var Config $config */
-        $config = Grav::instance()['config'];
-        if ($config->get('system.images.auto_fix_orientation', false) &&
-            extension_loaded('exif') && function_exists('exif_read_data')) {
-            $this->image->fixOrientation();
-        }
-
-        $this->watermark = $config->get('system.images.watermark.watermark_all', false);
+        // Create a new image.
+        $this->image = new Image($filepath, $this->getItems());
+        $this->image->fixOrientation();
 
         return $this;
     }
@@ -570,27 +543,102 @@ trait ImageMediaTrait
             return $this->result;
         }
 
-        if ($this->format === 'guess') {
-            $extension = strtolower($this->get('extension'));
-            $this->format($extension);
-        }
-
-        if (!$this->debug_watermarked && $this->get('debug')) {
-            $ratio = $this->get('ratio');
-            if (!$ratio) {
-                $ratio = 1;
-            }
+        if ($this->get('debug')) {
+            $ratio = min(1, (int)$this->get('ratio'));
 
             /** @var UniformResourceLocator $locator */
             $locator = Grav::instance()['locator'];
             $overlay = $locator->findResource("system://assets/responsive-overlays/{$ratio}x.png") ?: $locator->findResource('system://assets/responsive-overlays/unknown.png');
-            $this->image->merge(ImageFile::open($overlay));
+
+            // FIXME
+            $info = [
+                'modified' => 0,
+                'size' => 0,
+                'width' => 0,
+                'height' => 0,
+            ];
+
+            $overlayImage = new Image($overlay, $info);
+
+            $this->image->merge($overlayImage);
         }
 
         if ($this->watermark) {
             $this->watermark();
         }
 
-        return $this->image->cacheFile($this->format, $this->quality, false, [$this->get('width'), $this->get('height'), $this->get('modified')]);
+        return $this->generateCache();
+    }
+
+    /**
+     * @return string
+     */
+    protected function generateCache(): string
+    {
+        $quality = $this->quality;
+        $format = $this->format;
+        if ($format === 'guess') {
+            $extension = strtolower($this->get('extension'));
+            $format = $extension;
+        }
+
+        $image = $this->image;
+        $image->extra['format'] = $format;
+        $image->extra['quality'] = $quality;
+
+        $data = $image->jsonSerialize();
+        $hash = $data['hash'];
+        $d1 = substr($hash, 0, 2);
+        $d2 = substr($hash, 2, 2);
+        $d3 = substr($hash, 4);
+        $prettyName = $this->getImagePrettyName();
+
+        $imageFile = "cache://images/{$d1}/{$d2}/{$d3}/{$prettyName}.{$format}";
+        $cacheFile = "{$imageFile}.json";
+
+        /** @var UniformResourceLocator $locator */
+        $locator = $this->getGrav()['locator'];
+        $imageFile = '/' . $locator->getResource($imageFile, false);
+        $cacheFile = $locator->getResource($cacheFile, true);
+
+        $file = $this->getCacheMetaFile($cacheFile);
+        if (!$file->exists()) {
+            $file->save($data);
+        } else {
+            $file->touch();
+        }
+
+        return $this->generateCacheImage(GRAV_WEBROOT . '/' . $imageFile);
+    }
+
+    /**
+     * @param string $filepath
+     * @return string
+     */
+    protected function generateCacheImage(string $filepath): string
+    {
+        if (file_exists($filepath)) {
+            return $filepath;
+        }
+
+        $adapter = GdAdapter::createFromString($this->readFile());
+
+        $image = $this->image;
+        $image->setAdapter($adapter);
+        $image->save($filepath, 'jpg', $this->quality);
+        $image->freeAdapter();
+
+        return $filepath;
+    }
+
+    /**
+     * @param string $filepath
+     * @return JsonFile
+     */
+    protected function getCacheMetaFile(string $filepath): JsonFile
+    {
+        $formatter = new JsonFormatter(['encode_options' => JSON_PRETTY_PRINT]);
+
+        return new JsonFile($filepath, $formatter);
     }
 }

@@ -10,34 +10,34 @@ interface ImageSaveInterface
     /**
      * Save the image as a gif.
      *
-     * @param string $file
+     * @param string|null $filepath
      * @return $this
      */
-    public function saveGif(string $file);
+    public function saveGif(?string $filepath);
 
     /**
      * Save the image as a png.
      *
-     * @param string $file
+     * @param string|null $filepath
      * @return $this
      */
-    public function savePng(string $file);
+    public function savePng(?string $filepath);
 
     /**
      * Save the image as a Webp.
      *
-     * @param string $file
+     * @param string|null $filepath
      * @param int $quality
      * @return $this
      */
-    public function saveWebp(string $file, int $quality);
+    public function saveWebp(?string $filepath, int $quality);
 
     /**
      * Save the image as a jpeg.
      *
-     * @param string $file
+     * @param string|null $filepath
      * @param int $quality
      * @return $this
      */
-    public function saveJpeg(string $file, int $quality);
+    public function saveJpeg(?string $filepath, int $quality);
 }

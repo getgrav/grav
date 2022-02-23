@@ -147,7 +147,7 @@ trait ImageOperationsTrait
             $height = $new_height;
         }
 
-        if ($width === $new_width && $height === $new_height) {
+        if ($width === $new_width && $height === $new_height && $width === $this->width() && $height === $this->height()) {
             // Nothing to resize.
             return $this;
         }
@@ -466,6 +466,17 @@ trait ImageOperationsTrait
     }
 
     /**
+     * @param int $blurFactor
+     * @return $this
+     */
+    public function gaussianBlur(int $blurFactor = 1)
+    {
+        $this->operations[] = ['gaussianBlur', [$blurFactor]];
+
+        return $this;
+    }
+
+    /**
      * Merge with another image.
      *
      * @param Image $other
@@ -478,8 +489,10 @@ trait ImageOperationsTrait
     public function merge(Image $other, int $x = 0, int $y = 0, int $width = 0, int $height = 0)
     {
         $serialized = $other->jsonSerialize();
+        $deps = $other->dependencies;
+        $deps[] = $serialized;
 
-        $dependencies[] = $serialized;
+        $this->dependencies = array_merge($this->dependencies, $deps);
         $this->operations[] = ['merge', [$serialized, $x, $y, $width, $height]];
 
         return $this;

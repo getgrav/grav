@@ -583,6 +583,7 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
         }
 
         $pathInfo = Utils::pathinfo($filename);
+        $info['basename'] = $pathInfo['filename'];
         $info['filename'] = $pathInfo['basename'];
         if (!isset($info['path'])) {
             $info['path'] = $pathInfo['dirname'] === '.' ? $this->getPath() : $pathInfo['dirname'];
