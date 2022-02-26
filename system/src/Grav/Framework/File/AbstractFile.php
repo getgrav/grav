@@ -345,6 +345,10 @@ class AbstractFile implements FileInterface
      */
     public function touch(int $mtime = null): bool
     {
+        if (null === $mtime) {
+            return @touch($this->filepath);
+        }
+
         return @touch($this->filepath, $mtime);
     }
 
