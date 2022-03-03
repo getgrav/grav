@@ -502,19 +502,19 @@ class UtilsTest extends \Codeception\TestCase\Test
         self::assertSame('http://testing.dev/subdir/path1/path2/foobar.jpg', Utils::url('/path1/path2/foobar.jpg', true));
         self::assertSame('http://testing.dev/subdir/random/path1/path2/foobar.jpg', Utils::url('/random/path1/path2/foobar.jpg', true));
 
-        // Paths including the grav base.
-        self::assertSame('/subdir/', Utils::url('/subdir'));
-        self::assertSame('/subdir/path1', Utils::url('/subdir/path1'));
-        self::assertSame('/subdir/path1/path2', Utils::url('/subdir/path1/path2'));
-        self::assertSame('/subdir/foobar.jpg', Utils::url('/subdir/foobar.jpg'));
-        self::assertSame('/subdir/path1/foobar.jpg', Utils::url('/subdir/path1/foobar.jpg'));
+        // Absolute Paths including the grav base.
+        self::assertSame('/subdir/subdir', Utils::url('/subdir'));
+        self::assertSame('/subdir/subdir/path1', Utils::url('/subdir/path1'));
+        self::assertSame('/subdir/subdir/path1/path2', Utils::url('/subdir/path1/path2'));
+        self::assertSame('/subdir/subdir/foobar.jpg', Utils::url('/subdir/foobar.jpg'));
+        self::assertSame('/subdir/subdir/path1/foobar.jpg', Utils::url('/subdir/path1/foobar.jpg'));
 
-        // Relative paths from Grav root with domain.
-        self::assertSame('http://testing.dev/subdir/', Utils::url('/subdir', true));
-        self::assertSame('http://testing.dev/subdir/path1', Utils::url('/subdir/path1', true));
-        self::assertSame('http://testing.dev/subdir/path1/path2', Utils::url('/subdir/path1/path2', true));
-        self::assertSame('http://testing.dev/subdir/foobar.jpg', Utils::url('/subdir/foobar.jpg', true));
-        self::assertSame('http://testing.dev/subdir/path1/foobar.jpg', Utils::url('/subdir/path1/foobar.jpg', true));
+        // Absolute paths from Grav root with domain.
+        self::assertSame('http://testing.dev/subdir/subdir', Utils::url('/subdir', true));
+        self::assertSame('http://testing.dev/subdir/subdir/path1', Utils::url('/subdir/path1', true));
+        self::assertSame('http://testing.dev/subdir/subdir/path1/path2', Utils::url('/subdir/path1/path2', true));
+        self::assertSame('http://testing.dev/subdir/subdir/foobar.jpg', Utils::url('/subdir/foobar.jpg', true));
+        self::assertSame('http://testing.dev/subdir/subdir/path1/foobar.jpg', Utils::url('/subdir/path1/foobar.jpg', true));
 
         // Relative paths from Grav root.
         self::assertSame('/subdir/subdir', Utils::url('subdir'));
