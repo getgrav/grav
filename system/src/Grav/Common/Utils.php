@@ -134,14 +134,15 @@ abstract class Utils
                 $resource = $locator->findResource($input, false);
             }
         } else {
-//            $root = $uri->rootUrl();
-//            $pattern = '/(' . '\\' . $root . '[\s\/])/';
-//            if (preg_match($pattern, $input, $matches)) {
-//                $input = static::replaceFirstOccurrence($matches[0], '', $input);
-//            }
+            // You can manually restore the old legacy behavior that does not produce expected results
+            if ($grav['config']->get('system.legacy_url_root_behavior', false)) {
+                $root = $uri->rootUrl();
+                if (static::startsWith($input, $root)) {
+                    $input = static::replaceFirstOccurrence($root, '', $input);
+                }
+            }
 
             $input = ltrim($input, '/');
-
             $resource = $input;
         }
 

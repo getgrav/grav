@@ -15,6 +15,7 @@ http_x_forwarded:                                # Configuration options for the
   host: false
   port: true
   ip: true
+legacy_url_root_behavior: false                  # Enable legacy root URL behavior that breaks URls with paths that match root
 
 languages:
   supported: []                                  # List of languages supported. eg: [en, fr, de]
