@@ -994,7 +994,7 @@ abstract class Utils
      * @param int|null $flags
      * @return array|string
      */
-    public static function pathinfo(string $path, int $flags = null)
+    public static function pathinfo($path, int $flags = null)
     {
         $path = str_replace(['%2F', '%5C'], ['/', '\\'], rawurlencode($path));
 
@@ -1020,7 +1020,7 @@ abstract class Utils
      * @param string $suffix
      * @return string
      */
-    public static function basename(string $path, string $suffix = ''): string
+    public static function basename($path, string $suffix = ''): string
     {
         return rawurldecode(basename(str_replace(['%2F', '%5C'], '/', rawurlencode($path)), $suffix));
     }

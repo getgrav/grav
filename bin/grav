@@ -25,14 +25,10 @@ if (!file_exists(__DIR__ . '/../vendor/autoload.php')){
 
 $autoload = require __DIR__ . '/../vendor/autoload.php';
 
-if (!ini_get('date.timezone')) {
-    date_default_timezone_set('UTC');
-}
+// Set timezone to default, falls back to system if php.ini not set
+date_default_timezone_set(@date_default_timezone_get());
 
 // Set internal encoding.
-if (!\extension_loaded('mbstring')) {
-    die("'mbstring' extension is not loaded.  This is required for Grav to run correctly");
-}
 @ini_set('default_charset', 'UTF-8');
 mb_internal_encoding('UTF-8');
 
