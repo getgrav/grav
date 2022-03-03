@@ -11,7 +11,7 @@ form:
         avatar:
             type: file
             size: large
-            destination: 'user://accounts/avatars'
+            destination: 'account://avatars'
             multiple: false
             random_name: true
 

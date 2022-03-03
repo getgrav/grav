@@ -134,10 +134,10 @@ abstract class Utils
                 $resource = $locator->findResource($input, false);
             }
         } else {
-            $root = $uri->rootUrl();
+            $root = $uri->rootUrl() . '/';
 
             if (static::startsWith($input, $root)) {
-                $input = static::replaceFirstOccurrence($root, '', $input);
+                $input = static::replaceFirstOccurrence($root, '/', $input);
             }
 
             $input = ltrim($input, '/');

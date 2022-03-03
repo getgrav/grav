@@ -193,7 +193,7 @@ class User extends Data implements UserInterface
      */
     public function getMediaFolder()
     {
-        return $this->blueprints()->fields()['avatar']['destination'] ?? 'user://accounts/avatars';
+        return $this->blueprints()->fields()['avatar']['destination'] ?? 'account://avatars';
     }
 
     /**
