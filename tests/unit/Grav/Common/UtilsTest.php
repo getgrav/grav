@@ -519,7 +519,9 @@ class UtilsTest extends \Codeception\TestCase\Test
         self::assertSame('http://testing.dev/subdir/path1/foobar.jpg', Utils::url('/subdir/path1/foobar.jpg', true));
 
         // Relative paths from Grav root.
+        self::assertSame('/subdir/sub', Utils::url('/sub'));
         self::assertSame('/subdir/subdir', Utils::url('subdir'));
+        self::assertSame('/subdir/subdir2/sub', Utils::url('/subdir2/sub'));
         self::assertSame('/subdir/subdir/path1', Utils::url('subdir/path1'));
         self::assertSame('/subdir/subdir/path1/path2', Utils::url('subdir/path1/path2'));
         self::assertSame('/subdir/path1', Utils::url('path1'));
