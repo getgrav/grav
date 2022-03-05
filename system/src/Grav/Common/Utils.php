@@ -136,7 +136,7 @@ abstract class Utils
         } else {
             $root = $uri->rootUrl();
             $pattern = '/(\\' . $root . '$|\\' . $root . '\/)/';
-            if (preg_match($pattern, $input, $matches)) {
+            if (!empty($root) && preg_match($pattern, $input, $matches)) {
                 $input = static::replaceFirstOccurrence($matches[0], '', $input);
             }
 
