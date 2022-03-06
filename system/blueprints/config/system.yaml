@@ -1631,6 +1631,17 @@ form:
               label: PLUGIN_ADMIN.PWD_REGEX
               help: PLUGIN_ADMIN.PWD_REGEX_HELP
 
+            avatar_use_gravatar:
+              type: toggle
+              label: Gravatar avatars
+              highlight: 0
+              help: If enabled and no custom user avatar is set, then gravatar is used as external avatar source. Possibly relevant to your privacy policy.
+              options:
+                1: PLUGIN_ADMIN.YES
+                0: PLUGIN_ADMIN.NO
+              validate:
+                type: bool
+
             intl_enabled:
               type: toggle
               label: PLUGIN_ADMIN.INTL_ENABLED
