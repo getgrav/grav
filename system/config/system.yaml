@@ -15,6 +15,7 @@ http_x_forwarded:                                # Configuration options for the
   host: false
   port: true
   ip: true
+avatar_use_gravatar: false                       # If enabled and no custom user avatar is set, then gravatar is used as external avatar source. Possibly relevant to your privacy policy.
 
 languages:
   supported: []                                  # List of languages supported. eg: [en, fr, de]

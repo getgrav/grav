@@ -175,6 +175,15 @@ trait UserTrait
             }
         }
 
+        // Generate URL to external avatar source "gravatar".
+        $grav = Grav::instance();
+        if ($grav['config']->get('system.avatar_use_gravatar', false)) {
+            $email = $this->get('email');
+            if ($email) {
+                return 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($email)));
+            }
+        }
+
         // By default return nothing and let frontend decide on fallback/default image.
         return '';
     }
