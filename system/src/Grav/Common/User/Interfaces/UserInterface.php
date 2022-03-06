@@ -181,7 +181,8 @@ interface UserInterface extends AuthorizeInterface, DataInterface, MediaInterfac
     public function getAvatarImage(): ?Medium;
 
     /**
-     * Return the User's avatar URL.
+     * Return the User's avatar URL if available. Otherwise, an empty string.
+     * Warning: it is also possible that a base64 encoded image data is returned.
      *
      * @return string
      */
