@@ -1833,3 +1833,13 @@ form:
               options:
                 file: PLUGIN_ADMIN.FILE
                 folder: PLUGIN_ADMIN.FOLDER
+
+            accounts.avatar:
+              type: select
+              label: PLUGIN_ADMIN.AVATAR
+              default: multiavatar
+              help: PLUGIN_ADMIN.AVATAR_HELP
+              options:
+                multiavatar: Multiavatar [local]
+                gravatar: Gravatar [external]
+

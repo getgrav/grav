@@ -59,7 +59,8 @@
         "itsgoingd/clockwork": "^5.0",
         "symfony/http-client": "^4.4",
         "composer/semver": "^1.4",
-        "rhukster/dom-sanitizer": "^1.0"
+        "rhukster/dom-sanitizer": "^1.0",
+        "multiavatar/multiavatar-php": "^1.0"
     },
     "require-dev": {
         "codeception/codeception": "^4.1",
