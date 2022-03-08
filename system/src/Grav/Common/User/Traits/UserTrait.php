@@ -9,12 +9,14 @@
 
 namespace Grav\Common\User\Traits;
 
+use Grav\Common\Filesystem\Folder;
 use Grav\Common\Grav;
 use Grav\Common\Page\Medium\ImageMedium;
 use Grav\Common\Page\Medium\Medium;
 use Grav\Common\Page\Medium\StaticImageMedium;
 use Grav\Common\User\Authentication;
 use Grav\Common\Utils;
+use Gregwar\Image\Image;
 use function is_array;
 use function is_string;
 
@@ -174,10 +176,43 @@ trait UserTrait
             }
         }
 
+        $avatar_url = '';
         $email = $this->get('email');
+        $hashcode = $this->get('avatar_hash');
+        $avatar_generator = Grav::instance()['config']->get('system.accounts.avatar', 'multiavatar');
 
-        // By default fall back to gravatar image.
-        return $email ? 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($email))) : '';
+        if ($hashcode || $email) {
+            $hash = $hashcode ?: md5(strtolower(trim($email)));
+            switch ($avatar_generator) {
+                case 'gravatar':
+                    $avatar_url = 'https://www.gravatar.com/avatar/' . $hash;
+                    break;
+                default:
+                    return $this->generateMultiavatar($hash);
+            }
+        }
+
+        return $avatar_url;
+    }
+
+    protected function generateMultiavatar($hash) {
+
+        $storage = Grav::instance()['locator']->findResource('image://multiavatar', true, true);
+        $avatar_file = "$storage/$hash.svg";
+        $avatar_url = "/user/images/multiavatar/$hash.svg";
+
+        if (!file_exists($storage)) {
+            Folder::create($storage);
+        }
+
+        if (!file_exists($avatar_file)) {
+            $mavatar = new \Multiavatar();
+            file_put_contents($avatar_file, $mavatar->generate($hash, null, null));
+        }
+
+
+        return Utils::url($avatar_url);
+
     }
 
     abstract public function get($name, $default = null, $separator = null);
