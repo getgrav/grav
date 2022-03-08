@@ -178,10 +178,11 @@ trait UserTrait
 
         $avatar_url = '';
         $email = $this->get('email');
+        $hashcode = $this->get('avatar_hash');
         $avatar_generator = Grav::instance()['config']->get('system.accounts.avatar', 'multiavatar');
 
-        if ($email) {
-            $hash = md5(strtolower(trim($email)));
+        if ($hashcode || $email) {
+            $hash = $hashcode ?: md5(strtolower(trim($email)));
             switch ($avatar_generator) {
                 case 'gravatar':
                     $avatar_url = 'https://www.gravatar.com/avatar/' . $hash;
