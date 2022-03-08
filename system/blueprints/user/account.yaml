@@ -15,12 +15,16 @@ form:
             multiple: false
             random_name: true
 
-        avatar_hash:
-            type: text
-            label: ''
-            placeholder: 'e.g. dceaadcfda491f4e45'
-            description: PLUGIN_ADMIN.AVATAR_HASH
-            size: large
+        multiavatar_only:
+          type: conditional
+          condition: config.system.accounts.avatar == 'multiavatar'
+          fields:
+            avatar_hash:
+                type: text
+                label: ''
+                placeholder: 'e.g. dceaadcfda491f4e45'
+                description: PLUGIN_ADMIN.AVATAR_HASH
+                size: large
 
         content:
             type: section
