@@ -26,6 +26,22 @@ use function is_string;
 class Security
 {
     /**
+     * @param string $filepath
+     * @param array|null $options
+     * @return string|null
+     */
+    public static function detectXssFromSvgFile(string $filepath, array $options = null): ?string
+    {
+        if (file_exists($filepath) && Grav::instance()['config']->get('security.sanitize_svg')) {
+            $content = file_get_contents($filepath);
+
+            return static::detectXss($content, $options);
+        }
+
+        return null;
+    }
+
+    /**
      * Sanitize SVG string for XSS code
      *
      * @param string $svg
@@ -200,7 +216,7 @@ class Security
         }, $string);
 
         // Clean up entities
-        $string = preg_replace('!(&#0+[0-9]+)!u', '$1;', $string);
+        $string = preg_replace('!(&#[0-9]+);?!u', '$1;', $string);
 
         // Decode entities
         $string = html_entity_decode($string, ENT_NOQUOTES | ENT_HTML5, 'UTF-8');

@@ -63,7 +63,8 @@
         "getgrav/cache": "^2.0",
         "antoligy/dom-string-iterators": "^1.0",
         "miljar/php-exif": "^0.6",
-        "league/climate": "^3.8"
+        "league/climate": "^3.8",
+        "multiavatar/multiavatar-php": "^1.0"
     },
     "require-dev": {
         "codeception/codeception": "^4.1",

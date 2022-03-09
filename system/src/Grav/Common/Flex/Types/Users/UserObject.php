@@ -666,7 +666,7 @@ class UserObject extends FlexObject implements UserInterface, Countable
         // Check for shared media
         if (!$folder && !$this->getFlexDirectory()->getMediaFolder()) {
             $this->_loadMedia = false;
-            $folder = $this->getBlueprint()->fields()['avatar']['destination'] ?? 'user://accounts/avatars';
+            $folder = $this->getBlueprint()->fields()['avatar']['destination'] ?? 'account://avatars';
         }
 
         return $folder;

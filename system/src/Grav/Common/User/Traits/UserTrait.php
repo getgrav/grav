@@ -9,12 +9,15 @@
 
 namespace Grav\Common\User\Traits;
 
+use Grav\Common\Filesystem\Folder;
 use Grav\Common\Grav;
 use Grav\Common\Page\Medium\ImageMedium;
 use Grav\Common\Page\Medium\Medium;
 use Grav\Common\Page\Medium\StaticImageMedium;
 use Grav\Common\User\Authentication;
 use Grav\Common\Utils;
+use Multiavatar;
+use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use function is_array;
 use function is_string;
 
@@ -175,9 +178,52 @@ trait UserTrait
         }
 
         $email = $this->get('email');
+        $avatar_generator = Grav::instance()['config']->get('system.accounts.avatar', 'multiavatar');
+        if ($avatar_generator === 'gravatar') {
+            if (!$email) {
+                return '';
+            }
 
-        // By default fall back to gravatar image.
-        return $email ? 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($email))) : '';
+            $hash = md5(strtolower(trim($email)));
+
+            return 'https://www.gravatar.com/avatar/' . $hash;
+        }
+
+        $hash = $this->get('avatar_hash');
+        if (!$hash) {
+            $username = $this->get('username');
+            $hash = md5(strtolower(trim($email ?? $username)));
+        }
+
+        return $this->generateMultiavatar($hash);
+    }
+
+    /**
+     * @param string $hash
+     * @return string
+     */
+    protected function generateMultiavatar(string $hash): string
+    {
+        /** @var UniformResourceLocator $locator */
+        $locator = Grav::instance()['locator'];
+
+        $storage = $locator->findResource('image://multiavatar', true, true);
+        $avatar_file = "{$storage}/{$hash}.svg";
+
+        if (!file_exists($storage)) {
+            Folder::create($storage);
+        }
+
+        if (!file_exists($avatar_file)) {
+            $mavatar = new Multiavatar();
+
+            file_put_contents($avatar_file, $mavatar->generate($hash, null, null));
+        }
+
+        $avatar_url = $locator->findResource("image://multiavatar/{$hash}.svg", false, true);
+
+        return Utils::url($avatar_url);
+
     }
 
     abstract public function get($name, $default = null, $separator = null);
