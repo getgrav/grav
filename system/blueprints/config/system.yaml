@@ -1786,35 +1786,15 @@ form:
               validate:
                 type: bool
 
-        experimental:
+
+        accounts:
           type: tab
-          title: PLUGIN_ADMIN.EXPERIMENTAL
+          title: PLUGIN_ADMIN.ACCOUNTS
 
           fields:
-            experimental_section:
-              type: section
-              title: PLUGIN_ADMIN.EXPERIMENTAL
-              underline: true
-
-#            flex_pages:
-#              type: section
-#              title: Flex Pages
-#
-#            pages.type:
-#              type: select
-#              label: PLUGIN_ADMIN.PAGES_TYPE
-#              highlight: regular
-#              help: PLUGIN_ADMIN.PAGES_TYPE_HELP
-#              options:
-#                regular: PLUGIN_ADMIN.REGULAR
-#                flex: PLUGIN_ADMIN.FLEX
-
-            pages.type:
-              type: hidden
-
             flex_accounts:
               type: section
-              title: Flex Accounts
+              title: User Accounts
 
             accounts.type:
               type: select
@@ -1833,3 +1813,41 @@ form:
               options:
                 file: PLUGIN_ADMIN.FILE
                 folder: PLUGIN_ADMIN.FOLDER
+
+            accounts.avatar:
+              type: select
+              label: PLUGIN_ADMIN.AVATAR
+              default: gravatar
+              help: PLUGIN_ADMIN.AVATAR_HELP
+              options:
+                multiavatar: Multiavatar [local]
+                gravatar: Gravatar [external]
+
+#        experimental:
+#          type: tab
+#          title: PLUGIN_ADMIN.EXPERIMENTAL
+#
+#          fields:
+#            experimental_section:
+#              type: section
+#              title: PLUGIN_ADMIN.EXPERIMENTAL
+#              underline: true
+#
+#            flex_pages:
+#              type: section
+#              title: Flex Pages
+#
+#            pages.type:
+#              type: select
+#              label: PLUGIN_ADMIN.PAGES_TYPE
+#              highlight: regular
+#              help: PLUGIN_ADMIN.PAGES_TYPE_HELP
+#              options:
+#                regular: PLUGIN_ADMIN.REGULAR
+#                flex: PLUGIN_ADMIN.FLEX
+#
+#            pages.type:
+#              type: hidden
+
+
+

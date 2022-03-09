@@ -134,14 +134,13 @@ abstract class Utils
                 $resource = $locator->findResource($input, false);
             }
         } else {
-//            $root = $uri->rootUrl();
-//            $pattern = '/(' . '\\' . $root . '[\s\/])/';
-//            if (preg_match($pattern, $input, $matches)) {
-//                $input = static::replaceFirstOccurrence($matches[0], '', $input);
-//            }
+            $root = preg_quote($uri->rootUrl(), '#');
+            $pattern = '#(' . $root . '$|' . $root . '/)#';
+            if (!empty($root) && preg_match($pattern, $input, $matches)) {
+                $input = static::replaceFirstOccurrence($matches[0], '', $input);
+            }
 
             $input = ltrim($input, '/');
-
             $resource = $input;
         }
 
