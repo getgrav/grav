@@ -134,7 +134,7 @@ abstract class Utils
                 $resource = $locator->findResource($input, false);
             }
         } else {
-            $root = $uri->rootUrl();
+            $root = preg_quote($uri->rootUrl(), '#');
             $pattern = '#(' . $root . '$|' . $root . '/)#';
             if (!empty($root) && preg_match($pattern, $input, $matches)) {
                 $input = static::replaceFirstOccurrence($matches[0], '', $input);
