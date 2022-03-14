@@ -1,5 +1,5 @@
 # v1.7.31
-## mm/dd/2022
+## 03/14/2022
 
 1. [](#new)
    * Added new local Multiavatar (local generation). **This will be default in Grav 1.8**
@@ -7,7 +7,7 @@
    * Added XSS check for uploaded SVG files before they get stored
    * Fixed phpstan issues (All level 2, Framework level 5)
 2. [](#improved)
-   * Moved Accounts out of Experimental section of System configuration
+   * Moved Accounts out of Experimental section of System configuration to new "Accounts" tab
 3. [](#bugfix)
    * Fixed `'mbstring' extension is not loaded` error, use Polyfill instead [#3504](https://github.com/getgrav/grav/pull/3504)
    * Fixed new `Utils::pathinfo()` and `Utils::basename()` being too strict for legacy use [#3542](https://github.com/getgrav/grav/issues/3542)
