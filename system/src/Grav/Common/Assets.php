@@ -16,8 +16,8 @@ use Grav\Common\Assets\Traits\TestingAssetsTrait;
 use Grav\Common\Config\Config;
 use Grav\Framework\Object\PropertyObject;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
+use function array_slice;
 use function call_user_func_array;
-use function count;
 use function func_get_args;
 use function is_array;
 
@@ -174,6 +174,10 @@ class Assets extends PropertyObject
      */
     public function add($asset)
     {
+        if (!$asset) {
+            return $this;
+        }
+
         $args = func_get_args();
 
         // More than one asset
@@ -198,7 +202,8 @@ class Assets extends PropertyObject
             call_user_func_array([$this, 'add'], $args);
         } else {
             // Get extension
-            $extension = Utils::pathinfo(parse_url($asset, PHP_URL_PATH), PATHINFO_EXTENSION);
+            $path = parse_url($asset, PHP_URL_PATH);
+            $extension = $path ? Utils::pathinfo($path, PATHINFO_EXTENSION) : '';
 
             // JavaScript or CSS
             if ($extension !== '') {
@@ -525,8 +530,8 @@ class Assets extends PropertyObject
     /**
      * Build the Javascript Modules tags
      *
-     * @param $group
-     * @param $attributes
+     * @param string $group
+     * @param array $attributes
      * @return string
      */
     public function jsModule($group = 'head', $attributes = [])
@@ -534,6 +539,11 @@ class Assets extends PropertyObject
         return $this->render(self::JS_MODULE, $group, $attributes);
     }
 
+    /**
+     * @param string $group
+     * @param array $attributes
+     * @return string
+     */
     public function all($group = 'head', $attributes = [])
     {
         $output = $this->css($group, $attributes, false);
@@ -543,11 +553,19 @@ class Assets extends PropertyObject
         return $output;
     }
 
+    /**
+     * @param class-string $type
+     * @return bool
+     */
     protected function isValidType($type)
     {
         return in_array($type, [self::CSS_TYPE, self::JS_TYPE, self::JS_MODULE_TYPE]);
     }
 
+    /**
+     * @param class-string $type
+     * @return string
+     */
     protected function getBaseType($type)
     {
         switch ($type) {

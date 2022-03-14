@@ -9,6 +9,8 @@
 
 namespace Grav\Framework\Form;
 
+use Grav\Common\Security;
+use Grav\Common\Utils;
 use Grav\Framework\Psr7\Stream;
 use InvalidArgumentException;
 use JsonSerializable;
@@ -180,6 +182,21 @@ class FormFlashFile implements UploadedFileInterface, JsonSerializable
     public function jsonSerialize()
     {
         return $this->upload;
+    }
+
+    /**
+     * @return void
+     */
+    public function checkXss(): void
+    {
+        $tmpFile = $this->getTmpFile();
+        $mime = $this->getClientMediaType();
+        if (Utils::contains($mime, 'svg', false)) {
+            $response = Security::detectXssFromSvgFile($tmpFile);
+            if ($response) {
+                throw new RuntimeException(sprintf('SVG file XSS check failed on %s', $response));
+            }
+        }
     }
 
     /**

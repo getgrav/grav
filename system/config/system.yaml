@@ -208,6 +208,7 @@ http:
 accounts:
   type: regular                                  # EXPERIMENTAL: Account type: regular or flex
   storage: file                                  # EXPERIMENTAL: Flex storage type: file or folder
+  avatar: gravatar                               # Avatar generator [multiavatar|gravatar]
 
 flex:
   cache:

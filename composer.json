@@ -59,7 +59,8 @@
         "itsgoingd/clockwork": "^5.0",
         "symfony/http-client": "^4.4",
         "composer/semver": "^1.4",
-        "rhukster/dom-sanitizer": "^1.0"
+        "rhukster/dom-sanitizer": "^1.0",
+        "multiavatar/multiavatar-php": "^1.0"
     },
     "require-dev": {
         "codeception/codeception": "^4.1",
@@ -115,8 +116,8 @@
     "scripts": {
         "api-17": "vendor/bin/phpdoc-md generate system/src > user/pages/14.api/default.17.md",
         "post-create-project-cmd": "bin/grav install",
-        "phpstan": "vendor/bin/phpstan analyse -l 1 -c ./tests/phpstan/phpstan.neon --memory-limit=720M system/src",
-        "phpstan-framework": "vendor/bin/phpstan analyse -l 4 -c ./tests/phpstan/phpstan.neon --memory-limit=480M system/src/Grav/Framework system/src/Grav/Events system/src/Grav/Installer",
+        "phpstan": "vendor/bin/phpstan analyse -l 2 -c ./tests/phpstan/phpstan.neon --memory-limit=720M system/src",
+        "phpstan-framework": "vendor/bin/phpstan analyse -l 5 -c ./tests/phpstan/phpstan.neon --memory-limit=480M system/src/Grav/Framework system/src/Grav/Events system/src/Grav/Installer",
         "phpstan-plugins": "vendor/bin/phpstan analyse -l 1 -c ./tests/phpstan/plugins.neon --memory-limit=400M user/plugins",
         "test": "vendor/bin/codecept run unit",
         "test-windows": "vendor\\bin\\codecept run unit"

@@ -134,14 +134,13 @@ abstract class Utils
                 $resource = $locator->findResource($input, false);
             }
         } else {
-            $root = $uri->rootUrl();
-
-            if (static::startsWith($input, $root)) {
-                $input = static::replaceFirstOccurrence($root, '', $input);
+            $root = preg_quote($uri->rootUrl(), '#');
+            $pattern = '#(' . $root . '$|' . $root . '/)#';
+            if (!empty($root) && preg_match($pattern, $input, $matches)) {
+                $input = static::replaceFirstOccurrence($matches[0], '', $input);
             }
 
             $input = ltrim($input, '/');
-
             $resource = $input;
         }
 
@@ -994,7 +993,7 @@ abstract class Utils
      * @param int|null $flags
      * @return array|string
      */
-    public static function pathinfo(string $path, int $flags = null)
+    public static function pathinfo($path, int $flags = null)
     {
         $path = str_replace(['%2F', '%5C'], ['/', '\\'], rawurlencode($path));
 
@@ -1020,7 +1019,7 @@ abstract class Utils
      * @param string $suffix
      * @return string
      */
-    public static function basename(string $path, string $suffix = ''): string
+    public static function basename($path, string $suffix = ''): string
     {
         return rawurldecode(basename(str_replace(['%2F', '%5C'], '/', rawurlencode($path)), $suffix));
     }

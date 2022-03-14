@@ -11,9 +11,20 @@ form:
         avatar:
             type: file
             size: large
-            destination: 'user://accounts/avatars'
+            destination: 'account://avatars'
             multiple: false
             random_name: true
+
+        multiavatar_only:
+          type: conditional
+          condition: config.system.accounts.avatar == 'multiavatar'
+          fields:
+            avatar_hash:
+                type: text
+                label: ''
+                placeholder: 'e.g. dceaadcfda491f4e45'
+                description: PLUGIN_ADMIN.AVATAR_HASH
+                size: large
 
         content:
             type: section
