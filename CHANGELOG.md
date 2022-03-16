@@ -1,3 +1,9 @@
+# v1.7.32
+## mm/dd/2022
+
+1. [](#improved)
+    * Added multilanguage support for page routes in `Utils::url()`
+
 # v1.7.31
 ## 03/14/2022
 

@@ -78,6 +78,14 @@ abstract class Utils
 
         $grav = Grav::instance();
 
+        // is this a page?
+        /** @var Pages $pages */
+        $pages = $grav['pages'];
+        $page = $pages->dispatch($input);
+        if ($page) {
+            return $page->url($domain);
+        }
+
         /** @var Uri $uri */
         $uri = $grav['uri'];
 
