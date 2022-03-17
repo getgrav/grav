@@ -3,8 +3,13 @@
 
 1. [](#new)
     * Added `|replace_last(search, replace)` filter
-1. [](#improved)
+2. [](#improved)
     * Added multi-language support for page routes in `Utils::url()`
+    * Set default maximum length for text fields
+      - `password`: 256
+      - `email`: 320
+      - `text`, `url`, `hidden`, `commalist`: 2048
+      - `text` (multiline), `textarea`: 65536
 
 # v1.7.31
 ## 03/14/2022
