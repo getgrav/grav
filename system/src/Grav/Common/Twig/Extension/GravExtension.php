@@ -145,6 +145,7 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
             new TwigFilter('yaml_encode', [$this, 'yamlEncodeFilter']),
             new TwigFilter('yaml_decode', [$this, 'yamlDecodeFilter']),
             new TwigFilter('nicecron', [$this, 'niceCronFilter']),
+            new TwigFilter('replace_last', [$this, 'replaceLastFilter']),
 
             // Translations
             new TwigFilter('t', [$this, 'translate'], ['needs_environment' => true]),
@@ -545,6 +546,21 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
     {
         $cron = new Cron($at);
         return $cron->getText('en');
+    }
+
+    /**
+     * @param $str
+     * @param $search
+     * @param $replace
+     * @return string|mixed
+     */
+    public function replaceLastFilter($str, $search, $replace)
+    {
+        if (is_string($str) && ($pos = mb_strrpos($str, $search)) !== false) {
+            $str = substr_replace($str, $replace, $pos, mb_strlen($search));
+        }
+
+        return $str;
     }
 
     /**

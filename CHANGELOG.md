@@ -1,6 +1,8 @@
 # v1.7.32
 ## mm/dd/2022
 
+1. [](#new)
+    * Added `|replace_last(search, replace)` filter
 1. [](#improved)
     * Added multi-language support for page routes in `Utils::url()`
 
