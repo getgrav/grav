@@ -81,8 +81,8 @@ abstract class Utils
         // is this a page?
         /** @var Pages $pages */
         $pages = $grav['pages'];
-        $page = $pages->dispatch($input);
-        if ($page) {
+        $page = $pages->find($input, true);
+        if ($page && $page->routable()) {
             return $page->url($domain);
         }
 
