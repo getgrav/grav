@@ -78,19 +78,12 @@ abstract class Utils
 
         $grav = Grav::instance();
 
-        // is this a page?
-        /** @var Pages $pages */
-        $pages = $grav['pages'];
-        $page = $pages->find($input, true);
-        if ($page && $page->routable()) {
-            return $page->url($domain);
-        }
-
         /** @var Uri $uri */
         $uri = $grav['uri'];
 
         $resource = false;
         if (static::contains((string)$input, '://')) {
+            // Url contains a scheme (https:// , user:// etc).
             /** @var UniformResourceLocator $locator */
             $locator = $grav['locator'];
 
@@ -142,6 +135,16 @@ abstract class Utils
                 $resource = $locator->findResource($input, false);
             }
         } else {
+            // Just a path.
+            /** @var Pages $pages */
+            $pages = $grav['pages'];
+
+            // Is this a page?
+            $page = $pages->find($input, true);
+            if ($page && $page->routable()) {
+                return $page->url($domain);
+            }
+
             $root = preg_quote($uri->rootUrl(), '#');
             $pattern = '#(' . $root . '$|' . $root . '/)#';
             if (!empty($root) && preg_match($pattern, $input, $matches)) {
