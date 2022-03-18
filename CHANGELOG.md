@@ -10,6 +10,8 @@
       - `email`: 320
       - `text`, `url`, `hidden`, `commalist`: 2048
       - `text` (multiline), `textarea`: 65536
+3. [](#bugfix)
+   * Fixed issue with `system.cache.gzip: true` resulted in admin "Fetch Failed" for PHP 8.0+
 
 # v1.7.31
 ## 03/14/2022
