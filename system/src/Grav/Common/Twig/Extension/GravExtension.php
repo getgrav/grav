@@ -557,7 +557,7 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
     public function replaceLastFilter($str, $search, $replace)
     {
         if (is_string($str) && ($pos = mb_strrpos($str, $search)) !== false) {
-            $str = substr_replace($str, $replace, $pos, mb_strlen($search));
+            $str = mb_substr($str, 0, $pos) . $replace . mb_substr($str, $pos + mb_strlen($search));
         }
 
         return $str;
