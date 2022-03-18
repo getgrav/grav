@@ -351,8 +351,9 @@ class Grav extends Container
      */
     public function close(ResponseInterface $response): void
     {
+        $gzip_enabled = (int) Grav::instance()['config']->get('system.cache.gzip');
         // Make sure nothing extra gets written to the response.
-        while (ob_get_level()) {
+        while (ob_get_level() > 2 + $gzip_enabled) {
             ob_end_clean();
         }
 
