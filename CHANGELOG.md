@@ -3,7 +3,7 @@
 
 1. [](#new)
     * Added `|replace_last(search, replace)` filter
-    * Added `urlparse` Twig function to expose PHP's `url_parse` function
+    * Added `parseurl` Twig function to expose PHP's `parse_url` function
 2. [](#improved)
     * Added multi-language support for page routes in `Utils::url()`
     * Set default maximum length for text fields
