@@ -12,6 +12,7 @@
       - `text` (multiline), `textarea`: 65536
 3. [](#bugfix)
    * Fixed issue with `system.cache.gzip: true` resulted in admin "Fetch Failed" for PHP 8.0+
+   * Fix for multi-lang issues with Security Report
 
 # v1.7.31
 ## 03/14/2022
