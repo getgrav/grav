@@ -195,6 +195,7 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
             new TwigFunction('gist', [$this, 'gistFunc']),
             new TwigFunction('nonce_field', [$this, 'nonceFieldFunc']),
             new TwigFunction('pathinfo', 'pathinfo'),
+            new TwigFunction('parseurl', 'parse_url'),
             new TwigFunction('random_string', [$this, 'randomStringFunc']),
             new TwigFunction('repeat', [$this, 'repeatFunc']),
             new TwigFunction('regex_replace', [$this, 'regexReplace']),
