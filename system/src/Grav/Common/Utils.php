@@ -676,8 +676,10 @@ abstract class Utils
             $mimetype = $options['mime'] ?? static::getMimeByExtension($file_parts['extension']);
             $size = filesize($file); // File size
 
+            $gzip_enabled = (int) Grav::instance()['config']->get('system.cache.gzip');
+
             // clean all buffers
-            while (ob_get_level()) {
+            while (ob_get_level() > 2 + $gzip_enabled) {
                 ob_end_clean();
             }
 
