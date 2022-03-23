@@ -6,8 +6,25 @@
 2. [](#improved)
     * By default, add media to only pages which have been initialized in pages loop
 
-# v1.7.31
+# v1.7.32
 ## mm/dd/2022
+
+1. [](#new)
+    * Added `|replace_last(search, replace)` filter
+    * Added `parseurl` Twig function to expose PHP's `parse_url` function
+2. [](#improved)
+    * Added multi-language support for page routes in `Utils::url()`
+    * Set default maximum length for text fields
+      - `password`: 256
+      - `email`: 320
+      - `text`, `url`, `hidden`, `commalist`: 2048
+      - `text` (multiline), `textarea`: 65536
+3. [](#bugfix)
+   * Fixed issue with `system.cache.gzip: true` resulted in "Fetch Failed" for PHP 8.0.17 and PHP 8.1.4 [PHP issue #8218](https://github.com/php/php-src/issues/8218).
+   * Fix for multi-lang issues with Security Report
+
+# v1.7.31
+## 03/14/2022
 
 1. [](#new)
    * Added new local Multiavatar (local generation). **This will be default in Grav 1.8**
@@ -15,7 +32,7 @@
    * Added XSS check for uploaded SVG files before they get stored
    * Fixed phpstan issues (All level 2, Framework level 5)
 2. [](#improved)
-   * Moved Accounts out of Experimental section of System configuration
+   * Moved Accounts out of Experimental section of System configuration to new "Accounts" tab
 3. [](#bugfix)
    * Fixed `'mbstring' extension is not loaded` error, use Polyfill instead [#3504](https://github.com/getgrav/grav/pull/3504)
    * Fixed new `Utils::pathinfo()` and `Utils::basename()` being too strict for legacy use [#3542](https://github.com/getgrav/grav/issues/3542)

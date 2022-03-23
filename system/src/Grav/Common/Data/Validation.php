@@ -246,7 +246,9 @@ class Validation
             return false;
         }
 
-        $max = (int)($params['max'] ?? 0);
+        $multiline = isset($params['multiline']) && $params['multiline'];
+
+        $max = (int)($params['max'] ?? ($multiline ? 65536 : 2048));
         if ($max && $len > $max) {
             return false;
         }
@@ -256,7 +258,7 @@ class Validation
             return false;
         }
 
-        if ((!isset($params['multiline']) || !$params['multiline']) && preg_match('/\R/um', $value)) {
+        if (!$multiline && preg_match('/\R/um', $value)) {
             return false;
         }
 
@@ -317,6 +319,10 @@ class Validation
      */
     public static function typeCommaList($value, array $params, array $field)
     {
+        if (!isset($params['max'])) {
+            $params['max'] = 2048;
+        }
+
         return is_array($value) ? true : self::typeText($value, $params, $field);
     }
 
@@ -379,6 +385,10 @@ class Validation
      */
     public static function typePassword($value, array $params, array $field)
     {
+        if (!isset($params['max'])) {
+            $params['max'] = 256;
+        }
+
         return self::typeText($value, $params, $field);
     }
 
@@ -621,6 +631,10 @@ class Validation
      */
     public static function typeEmail($value, array $params, array $field)
     {
+        if (!isset($params['max'])) {
+            $params['max'] = 320;
+        }
+
         $values = !is_array($value) ? explode(',', preg_replace('/\s+/', '', $value)) : $value;
 
         foreach ($values as $val) {
@@ -642,6 +656,10 @@ class Validation
      */
     public static function typeUrl($value, array $params, array $field)
     {
+        if (!isset($params['max'])) {
+            $params['max'] = 2048;
+        }
+
         return self::typeText($value, $params, $field) && filter_var($value, FILTER_VALIDATE_URL);
     }
 
