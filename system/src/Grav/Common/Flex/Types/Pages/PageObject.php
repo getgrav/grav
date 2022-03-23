@@ -242,6 +242,7 @@ class PageObject extends FlexPageObject
     {
         /** @var PageCollection $siblings */
         $siblings = $variables['siblings'];
+        /** @var PageObject $sibling */
         foreach ($siblings as $sibling) {
             $sibling->save(false);
         }
