@@ -693,7 +693,11 @@ class GdAdapter extends Adapter
      */
     public function enableProgressive(): GdAdapter
     {
-        imageinterlace($this->resource, true);
+        if (version_compare(PHP_VERSION, '8.0.5', '>=')) {
+            imageinterlace($this->resource, true);
+        } else {
+            imageinterlace($this->resource, 1);
+        }
 
         return $this;
     }
