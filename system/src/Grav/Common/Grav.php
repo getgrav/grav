@@ -350,14 +350,12 @@ class Grav extends Container
      */
     public function cleanOutputBuffers(): void
     {
-        /** @var Config $config */
-        $config = $this['config'];
-        $gzip_enabled = (int) $config->get('system.cache.gzip');
-
         // Make sure nothing extra gets written to the response.
-        while (ob_get_level() > 2 + $gzip_enabled) {
+        while (ob_get_level()) {
             ob_end_clean();
         }
+        // Work around PHP bug #8218 (8.0.17 & 8.1.4).
+        header_remove('Content-Encoding');
     }
 
     /**
