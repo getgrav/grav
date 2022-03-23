@@ -668,20 +668,17 @@ abstract class Utils
      */
     public static function download($file, $force_download = true, $sec = 0, $bytes = 1024, array $options = [])
     {
+        $grav = Grav::instance();
+
         if (file_exists($file)) {
             // fire download event
-            Grav::instance()->fireEvent('onBeforeDownload', new Event(['file' => $file, 'options' => &$options]));
+            $grav->fireEvent('onBeforeDownload', new Event(['file' => $file, 'options' => &$options]));
 
             $file_parts = static::pathinfo($file);
             $mimetype = $options['mime'] ?? static::getMimeByExtension($file_parts['extension']);
             $size = filesize($file); // File size
 
-            $gzip_enabled = (int) Grav::instance()['config']->get('system.cache.gzip');
-
-            // clean all buffers
-            while (ob_get_level() > 2 + $gzip_enabled) {
-                ob_end_clean();
-            }
+            $grav->cleanOutputBuffers();
 
             // required for IE, otherwise Content-Disposition may be ignored
             if (ini_get('zlib.output_compression')) {
@@ -716,8 +713,8 @@ abstract class Utils
                 $new_length = $size;
                 header('Content-Length: ' . $size);
 
-                if (Grav::instance()['config']->get('system.cache.enabled')) {
-                    $expires = $options['expires'] ?? Grav::instance()['config']->get('system.pages.expires');
+                if ($grav['config']->get('system.cache.enabled')) {
+                    $expires = $options['expires'] ?? $grav['config']->get('system.pages.expires');
                     if ($expires > 0) {
                         $expires_date = gmdate('D, d M Y H:i:s T', time() + $expires);
                         header('Cache-Control: max-age=' . $expires);
