@@ -97,7 +97,7 @@ class Security
      */
     public static function detectXssFromPages(Pages $pages, $route = true, callable $status = null)
     {
-        $routes = $pages->routes();
+        $routes = $pages->getList(null, 0, true);
 
         // Remove duplicate for homepage
         unset($routes['/']);
@@ -110,26 +110,23 @@ class Security
             'steps' => count($routes),
         ]);
 
-        foreach ($routes as $path) {
+        foreach (array_keys($routes) as $route) {
             $status && $status([
                 'type' => 'progress',
             ]);
 
             try {
-                $page = $pages->get($path);
+                $page = $pages->find($route);
+                if ($page->exists()) {
+                    // call the content to load/cache it
+                    $header = (array) $page->header();
+                    $content = $page->value('content');
 
-                // call the content to load/cache it
-                $header = (array) $page->header();
-                $content = $page->value('content');
+                    $data = ['header' => $header, 'content' => $content];
+                    $results = static::detectXssFromArray($data);
 
-                $data = ['header' => $header, 'content' => $content];
-                $results = static::detectXssFromArray($data);
-
-                if (!empty($results)) {
-                    if ($route) {
-                        $list[$page->route()] = $results;
-                    } else {
-                        $list[$page->filePathClean()] = $results;
+                    if (!empty($results)) {
+                        $list[$page->rawRoute()] = $results;
                     }
                 }
             } catch (Exception $e) {

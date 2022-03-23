@@ -23,6 +23,7 @@ use Grav\Common\User\Interfaces\UserInterface;
 use Grav\Common\Utils;
 use Grav\Framework\Compat\Serializable;
 use Grav\Framework\ContentBlock\HtmlBlock;
+use Grav\Framework\Form\FormFlashFile;
 use Grav\Framework\Form\Interfaces\FormFlashInterface;
 use Grav\Framework\Form\Interfaces\FormInterface;
 use Grav\Framework\Session\SessionInterface;
@@ -775,12 +776,15 @@ trait FormTrait
     {
         // Handle bad filenames.
         $filename = $file->getClientFilename();
-
         if ($filename && !Utils::checkFilename($filename)) {
             $grav = Grav::instance();
             throw new RuntimeException(
                 sprintf($grav['language']->translate('PLUGIN_FORM.FILEUPLOAD_UNABLE_TO_UPLOAD', null, true), $filename, 'Bad filename')
             );
+        }
+
+        if ($file instanceof FormFlashFile) {
+            $file->checkXss();
         }
     }
 
