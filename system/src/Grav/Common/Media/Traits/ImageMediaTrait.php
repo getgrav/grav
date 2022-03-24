@@ -368,8 +368,6 @@ trait ImageMediaTrait
      */
     public function watermark($image = null, $position = null, $scale = null)
     {
-        // TODO:
-        /*
         $grav = $this->getGrav();
 
         $locator = $grav['locator'];
@@ -381,7 +379,22 @@ trait ImageMediaTrait
         $file = $file === '1' ? $config->get('system.images.watermark.image') : $args[0];
 
         $watermark = $locator->findResource($file);
-        $watermark = ImageFile::open($watermark);
+        $image_info = $watermark ? getimagesize($watermark) : false;
+        if (!$image_info) {
+            return $this;
+        }
+
+        $info = [
+            'modified' => filemtime($watermark),
+            'size' => filesize($watermark),
+            'width' => $image_info[0],
+            'height' => $image_info[0],
+            'mime' => $image_info['mime']
+        ];
+
+        $watermark = new Image($watermark, $info);
+
+        $this->image->merge($watermark);
 
         // Scaling operations
         $scale     = ($scale ?? $config->get('system.images.watermark.scale', 100)) / 100;
@@ -394,14 +407,13 @@ trait ImageMediaTrait
         $positionY = $position[0] ?? $config->get('system.images.watermark.position_y', 'center');
         $positionX = $position[1] ?? $config->get('system.images.watermark.position_x', 'center');
 
-        switch ($positionY)
-        {
+        switch ($positionY) {
             case 'top':
                 $positionY = 0;
                 break;
 
             case 'bottom':
-                $positionY = $this->get('height')-$wheight;
+                $positionY = $this->get('height') - $wheight;
                 break;
 
             case 'center':
@@ -409,14 +421,13 @@ trait ImageMediaTrait
                 break;
         }
 
-        switch ($positionX)
-        {
+        switch ($positionX) {
             case 'left':
                 $positionX = 0;
                 break;
 
             case 'right':
-                $positionX = $this->get('width')-$wwidth;
+                $positionX = $this->get('width') - $wwidth;
                 break;
 
             case 'center':
@@ -424,8 +435,7 @@ trait ImageMediaTrait
                 break;
         }
 
-        $this->__call('merge', [$watermark,$positionX, $positionY]);
-        */
+        $this->__call('merge', [$watermark, $positionX, $positionY]);
 
         return $this;
     }
@@ -549,18 +559,22 @@ trait ImageMediaTrait
             /** @var UniformResourceLocator $locator */
             $locator = Grav::instance()['locator'];
             $overlay = $locator->findResource("system://assets/responsive-overlays/{$ratio}x.png") ?: $locator->findResource('system://assets/responsive-overlays/unknown.png');
+            if ($overlay) {
+                $image_info = getimagesize($overlay);
+                if ($image_info) {
+                    $info = [
+                        'modified' => filemtime($overlay),
+                        'size' => filesize($overlay),
+                        'width' => $image_info[0],
+                        'height' => $image_info[0],
+                        'mime' => $image_info['mime']
+                    ];
 
-            // FIXME
-            $info = [
-                'modified' => 0,
-                'size' => 0,
-                'width' => 0,
-                'height' => 0,
-            ];
+                    $overlayImage = new Image($overlay, $info);
 
-            $overlayImage = new Image($overlay, $info);
-
-            $this->image->merge($overlayImage);
+                    $this->image->merge($overlayImage);
+                }
+            }
         }
 
         if ($this->watermark) {

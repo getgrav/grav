@@ -24,6 +24,9 @@ use function is_bool;
 /**
  * Class ImageMedium
  * @package Grav\Common\Page\Medium
+ *
+ * @property int $width
+ * @property int $height
  */
 class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulateInterface
 {
@@ -65,14 +68,17 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
         $path = $this->get('filepath');
         $this->set('thumbnails.media', $path);
 
-        // TODO: We shouldn't have this here
-        $exists = $path && file_exists($path) && filesize($path);
-        if ($exists && !($this->offsetExists('width') && $this->offsetExists('height') && $this->offsetExists('mime'))) {
-            $image_info = getimagesize($path);
-            if ($image_info) {
-                $this->def('width', $image_info[0]);
-                $this->def('height', $image_info[1]);
-                $this->def('mime', $image_info['mime']);
+        if (!($this->offsetExists('width') && $this->offsetExists('height') && $this->offsetExists('mime'))) {
+            user_error(__METHOD__ . '() Creating image without width, height and mime type is deprecated since Grav 1.8', E_USER_DEPRECATED);
+
+            $exists = $path && file_exists($path) && filesize($path);
+            if ($exists) {
+                $image_info = getimagesize($path);
+                if ($image_info) {
+                    $this->set('width', $image_info[0]);
+                    $this->set('height', $image_info[1]);
+                    $this->set('mime', $image_info['mime']);
+                }
             }
         }
 

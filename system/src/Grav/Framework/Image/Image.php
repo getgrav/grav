@@ -54,6 +54,18 @@ class Image implements ImageOperationsInterface, JsonSerializable
     protected $operationsCursor = 0;
 
     /**
+     * @param array $data
+     * @return static
+     */
+    public static function createFromArray(array $data)
+    {
+        $instance = new static($data['filepath'], []);
+        $instance->__unserialize($data);
+
+        return $instance;
+    }
+
+    /**
      * @param string $filepath
      * @param array $info
      */
@@ -323,6 +335,16 @@ class Image implements ImageOperationsInterface, JsonSerializable
 
         foreach ($operations as $cursor => $operation) {
             [$method, $params] = $operation;
+            if ($method === 'merge') {
+                $image = static::createFromArray($params[0]);
+
+                // FIXME: Right now this only works for the local files.
+                $adapter = $adapter::createFromFile($image->filepath);
+                $image->setAdapter($adapter);
+
+                // Apply all operations to the image that is being merged and get the adapter.
+                $params[0] = $image->applyOperations()->getAdapter();
+            }
 
             $adapter->{$method}(...$params);
         }

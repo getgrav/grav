@@ -15,6 +15,9 @@ use Grav\Common\Data\Blueprint;
 /**
  * Class StaticImageMedium
  * @package Grav\Common\Page\Medium
+ *
+ * @property int $width
+ * @property int $height
  */
 class VectorImageMedium extends StaticImageMedium
 {
@@ -34,6 +37,8 @@ class VectorImageMedium extends StaticImageMedium
         if ($width && $height) {
             return;
         }
+
+        user_error(__METHOD__ . '() Creating image without width and height is deprecated since Grav 1.8', E_USER_DEPRECATED);
 
         // Make sure that getting image size is supported.
         if ($this->mime !== 'image/svg+xml' || !\extension_loaded('simplexml')) {
