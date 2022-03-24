@@ -4,6 +4,8 @@ namespace Grav\Framework\Image\Traits;
 
 use Grav\Framework\Image\Image;
 use Grav\Framework\Image\ImageColor;
+use RuntimeException;
+use function is_string;
 
 /**
  * Trait to record image operations.
@@ -179,6 +181,9 @@ trait ImageOperationsTrait
         }
 
         $bg = ImageColor::parse($background);
+        if (null === $bg) {
+            throw new RuntimeException('Invalid background color given');
+        }
 
         $originalWidth = $this->width();
         $originalHeight = $this->height();
@@ -688,7 +693,7 @@ trait ImageOperationsTrait
     /**
      * @param string|float|int|null $width
      * @param string|float|int|null $height
-     * @return int[]
+     * @return array<int,int>
      */
     protected function getSize($width, $height): array
     {

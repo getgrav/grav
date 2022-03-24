@@ -135,9 +135,7 @@ class GdAdapter extends Adapter
 
     public function __destruct()
     {
-        if ($this->resource) {
-            imagedestroy($this->resource);
-        }
+        imagedestroy($this->resource);
     }
 
     /**
@@ -352,8 +350,8 @@ class GdAdapter extends Adapter
         // scale way down and gradually scale back up, blurring all the way
         for ($i = 0; $i < $blurFactor; ++$i) {
             // determine dimensions of next image
-            $nextWidth = $smallestWidth * (2 ** $i);
-            $nextHeight = $smallestHeight * (2 ** $i);
+            $nextWidth = (int)($smallestWidth * (2 ** $i));
+            $nextHeight = (int)($smallestHeight * (2 ** $i));
 
             // resize previous image to next size
             $nextImage = imagecreatetruecolor($nextWidth, $nextHeight);
@@ -694,9 +692,9 @@ class GdAdapter extends Adapter
     public function enableProgressive(): GdAdapter
     {
         if (version_compare(PHP_VERSION, '8.0.5', '>=')) {
-            imageinterlace($this->resource, true);
+            imageinterlace($this->resource, true); /** @phpstan-ignore-line */
         } else {
-            imageinterlace($this->resource, 1);
+            imageinterlace($this->resource, 1); /** @phpstan-ignore-line */
         }
 
         return $this;

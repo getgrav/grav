@@ -3,6 +3,9 @@
 namespace Grav\Framework\Image;
 
 use InvalidArgumentException;
+use function is_int;
+use function is_string;
+use function strlen;
 
 /**
  * Image color class.
@@ -12,7 +15,7 @@ class ImageColor
     /**
      * All HTML color names.
      *
-     * @var int[]
+     * @var array<string,int>
      */
     private static $colors = [
         'aliceblue' => 0xf0f8ff,

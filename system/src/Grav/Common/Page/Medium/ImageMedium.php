@@ -19,6 +19,7 @@ use Grav\Common\Media\Traits\ImageMediaTrait;
 use Grav\Common\Utils;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use function array_key_exists;
+use function is_bool;
 
 /**
  * Class ImageMedium
@@ -273,7 +274,7 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
      */
     public function autoSizes($enabled = true)
     {
-        $enabled = \is_bool($enabled) ? $enabled : $enabled === 'true';
+        $enabled = is_bool($enabled) ? $enabled : $enabled === 'true';
 
         $this->imageSettings['auto_sizes'] = $enabled;
 
@@ -286,7 +287,7 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
      */
     public function aspectRatio($enabled = true)
     {
-        $enabled = \is_bool($enabled) ? $enabled : $enabled === 'true';
+        $enabled = is_bool($enabled) ? $enabled : $enabled === 'true';
 
         $this->imageSettings['aspect_ratio'] = $enabled;
 

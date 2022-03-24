@@ -11,7 +11,6 @@ use Grav\Framework\Image\Traits\ImageOperationsTrait;
 use InvalidArgumentException;
 use JsonSerializable;
 use RuntimeException;
-use Symfony\Component\Filesystem\Exception\IOException;
 use function array_slice;
 use function dirname;
 use function is_int;
@@ -53,8 +52,6 @@ class Image implements ImageOperationsInterface, JsonSerializable
     protected $size;
     /** @var int */
     protected $operationsCursor = 0;
-
-
 
     /**
      * @param string $filepath
@@ -148,7 +145,7 @@ class Image implements ImageOperationsInterface, JsonSerializable
      *
      * Note: You should always call $this->freeAdapter() as soon as you have generated the image!
      *
-     * @param ImageAdapterInterface|string $adapter
+     * @param ImageAdapterInterface $adapter
      * @return $this
      * @throws RuntimeException
      */
@@ -166,7 +163,7 @@ class Image implements ImageOperationsInterface, JsonSerializable
      */
     public function freeAdapter(): void
     {
-        $this->adapter = null;
+        unset($this->adapter);
     }
 
     /**
@@ -174,12 +171,12 @@ class Image implements ImageOperationsInterface, JsonSerializable
      * @param int $quality
      * @param bool $actual
      * @return string
-     * @throws IOException|InvalidArgumentException|RuntimeException
+     * @throws InvalidArgumentException|RuntimeException
      */
     public function cacheFile(string $type = 'jpg', int $quality = 80, bool $actual = false): string
     {
         $filepath = $actual ? null : $this->filepath;
-        if (file_exists($filepath)) {
+        if ($filepath && file_exists($filepath)) {
             return $filepath;
         }
 
@@ -189,7 +186,7 @@ class Image implements ImageOperationsInterface, JsonSerializable
     /**
      * @param int $quality
      * @return string
-     * @throws IOException|InvalidArgumentException|RuntimeException
+     * @throws InvalidArgumentException|RuntimeException
      */
     public function jpeg(int $quality = 80): string
     {
@@ -198,7 +195,7 @@ class Image implements ImageOperationsInterface, JsonSerializable
 
     /**
      * @return string
-     * @throws IOException|InvalidArgumentException|RuntimeException
+     * @throws InvalidArgumentException|RuntimeException
      */
     public function gif(): string
     {
@@ -207,7 +204,7 @@ class Image implements ImageOperationsInterface, JsonSerializable
 
     /**
      * @return string
-     * @throws IOException|InvalidArgumentException|RuntimeException
+     * @throws InvalidArgumentException|RuntimeException
      */
     public function png(): string
     {
@@ -217,7 +214,7 @@ class Image implements ImageOperationsInterface, JsonSerializable
     /**
      * @param int $quality
      * @return string
-     * @throws IOException|InvalidArgumentException|RuntimeException
+     * @throws InvalidArgumentException|RuntimeException
      */
     public function webp(int $quality = 80): string
     {
@@ -227,7 +224,7 @@ class Image implements ImageOperationsInterface, JsonSerializable
     /**
      * @param int $quality
      * @return string
-     * @throws IOException|InvalidArgumentException|RuntimeException
+     * @throws InvalidArgumentException|RuntimeException
      */
     public function guess(int $quality = 80): string
     {
@@ -251,7 +248,7 @@ class Image implements ImageOperationsInterface, JsonSerializable
      * @param string|int $type
      * @param int $quality
      * @return string
-     * @throws IOException|InvalidArgumentException|RuntimeException
+     * @throws InvalidArgumentException|RuntimeException
      */
     public function save(?string $filepath, $type = 'guess', int $quality = 80): string
     {
@@ -300,7 +297,7 @@ class Image implements ImageOperationsInterface, JsonSerializable
                     break;
             }
 
-            return $filepath ?? ob_get_clean();
+            return ($filepath ?? ob_get_clean()) ?: '';
         } catch (Exception $e) {
             throw new RuntimeException('', $e->getCode(), $e);
         }
@@ -316,9 +313,6 @@ class Image implements ImageOperationsInterface, JsonSerializable
     public function applyOperations(): Image
     {
         $adapter = $this->adapter;
-        if (!$adapter) {
-            throw new RuntimeException('You need to set image adapter first!');
-        }
 
         // Only get the remaining operations.
         $operations = $this->operations;
