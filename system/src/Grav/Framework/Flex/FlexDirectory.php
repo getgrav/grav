@@ -171,6 +171,44 @@ class FlexDirectory implements FlexDirectoryInterface
     }
 
     /**
+     * @param string|string[]|null
+     * @return array
+     */
+    public function getSearchProperties($properties = null): array
+    {
+        if (null !== $properties) {
+            return (array)$properties;
+        }
+
+        $properties = $this->getConfig('data.search.fields');
+        if (!$properties) {
+            $fields = $this->getConfig('admin.views.list.fields') ?? $this->getConfig('admin.list.fields', []);
+            foreach ($fields as $property => $value) {
+                if (!empty($value['link'])) {
+                    $properties[] = $property;
+                }
+            }
+        }
+
+        return $properties;
+    }
+    
+    /**
+     * @param array|null $options
+     * @return array
+     */
+    public function getSearchOptions(array $options = null): array
+    {
+        if (empty($options['merge'])) {
+            return $options ?? (array)$this->getConfig('data.search.options');
+        }
+
+        unset($options['merge']);
+
+        return $options + (array)$this->getConfig('data.search.options');
+    }
+
+    /**
      * @param string|null $name
      * @param array $options
      * @return FlexFormInterface

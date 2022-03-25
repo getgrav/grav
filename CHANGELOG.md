@@ -12,7 +12,7 @@
       - `text`, `url`, `hidden`, `commalist`: 2048
       - `text` (multiline), `textarea`: 65536
 3. [](#bugfix)
-   * Fixed issue with `system.cache.gzip: true` resulted in "Fetch Failed" for PHP 8.0.17 and PHP 8.1.4 [PHP issue #8218](https://github.com/php/php-src/issues/8218).
+   * Fixed issue with `system.cache.gzip: true` resulted in "Fetch Failed" for PHP 8.0.17 and PHP 8.1.4 [PHP issue #8218](https://github.com/php/php-src/issues/8218)
    * Fix for multi-lang issues with Security Report
 
 # v1.7.31
