@@ -14,6 +14,7 @@
 3. [](#bugfix)
    * Fixed issue with `system.cache.gzip: true` resulted in "Fetch Failed" for PHP 8.0.17 and PHP 8.1.4 [PHP issue #8218](https://github.com/php/php-src/issues/8218)
    * Fix for multi-lang issues with Security Report
+   * Fixed page search not working with selected language [#3316](https://github.com/getgrav/grav/issues/3316)
 
 # v1.7.31
 ## 03/14/2022
