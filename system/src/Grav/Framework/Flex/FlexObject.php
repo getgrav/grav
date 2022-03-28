@@ -287,17 +287,9 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      */
     public function search(string $search, $properties = null, array $options = null): float
     {
-        $properties = (array)($properties ?? $this->getFlexDirectory()->getConfig('data.search.fields'));
-        if (!$properties) {
-            $fields = $this->getFlexDirectory()->getConfig('admin.views.list.fields') ?? $this->getFlexDirectory()->getConfig('admin.list.fields', []);
-            foreach ($fields as $property => $value) {
-                if (!empty($value['link'])) {
-                    $properties[] = $property;
-                }
-            }
-        }
-
-        $options = $options ?? (array)$this->getFlexDirectory()->getConfig('data.search.options');
+        $directory = $this->getFlexDirectory();
+        $properties = $directory->getSearchProperties($properties);
+        $options = $directory->getSearchOptions($options);
 
         $weight = 0;
         foreach ($properties as $property) {
