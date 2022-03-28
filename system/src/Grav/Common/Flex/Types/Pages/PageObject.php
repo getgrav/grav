@@ -242,6 +242,7 @@ class PageObject extends FlexPageObject
     {
         /** @var PageCollection $siblings */
         $siblings = $variables['siblings'];
+        /** @var PageObject $sibling */
         foreach ($siblings as $sibling) {
             $sibling->save(false);
         }
@@ -585,38 +586,46 @@ class PageObject extends FlexPageObject
      */
     public function filterBy(array $filters, bool $recursive = false): bool
     {
+        $language = $filters['language'] ?? null;
+        if (null !== $language) {
+            /** @var PageObject $test */
+            $test = $this->getTranslation($language) ?? $this;
+        } else {
+            $test = $this;
+        }
+
         foreach ($filters as $key => $value) {
             switch ($key) {
                 case 'search':
-                    $matches = $this->search((string)$value) > 0.0;
+                    $matches = $test->search((string)$value) > 0.0;
                     break;
                 case 'page_type':
                     $types = $value ? explode(',', $value) : [];
-                    $matches = in_array($this->template(), $types, true);
+                    $matches = in_array($test->template(), $types, true);
                     break;
                 case 'extension':
-                    $matches = Utils::contains((string)$value, $this->extension());
+                    $matches = Utils::contains((string)$value, $test->extension());
                     break;
                 case 'routable':
-                    $matches = $this->isRoutable() === (bool)$value;
+                    $matches = $test->isRoutable() === (bool)$value;
                     break;
                 case 'published':
-                    $matches = $this->isPublished() === (bool)$value;
+                    $matches = $test->isPublished() === (bool)$value;
                     break;
                 case 'visible':
-                    $matches = $this->isVisible() === (bool)$value;
+                    $matches = $test->isVisible() === (bool)$value;
                     break;
                 case 'module':
-                    $matches = $this->isModule() === (bool)$value;
+                    $matches = $test->isModule() === (bool)$value;
                     break;
                 case 'page':
-                    $matches = $this->isPage() === (bool)$value;
+                    $matches = $test->isPage() === (bool)$value;
                     break;
                 case 'folder':
-                    $matches = $this->isPage() === !$value;
+                    $matches = $test->isPage() === !$value;
                     break;
                 case 'translated':
-                    $matches = $this->hasTranslation() === (bool)$value;
+                    $matches = $test->hasTranslation() === (bool)$value;
                     break;
                 default:
                     $matches = true;

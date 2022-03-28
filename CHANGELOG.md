@@ -1,3 +1,21 @@
+# v1.7.32
+## 03/28/2022
+
+1. [](#new)
+    * Added `|replace_last(search, replace)` filter
+    * Added `parseurl` Twig function to expose PHP's `parse_url` function
+2. [](#improved)
+    * Added multi-language support for page routes in `Utils::url()`
+    * Set default maximum length for text fields
+      - `password`: 256
+      - `email`: 320
+      - `text`, `url`, `hidden`, `commalist`: 2048
+      - `text` (multiline), `textarea`: 65536
+3. [](#bugfix)
+   * Fixed issue with `system.cache.gzip: true` resulted in "Fetch Failed" for PHP 8.0.17 and PHP 8.1.4 [PHP issue #8218](https://github.com/php/php-src/issues/8218)
+   * Fix for multi-lang issues with Security Report
+   * Fixed page search not working with selected language [#3316](https://github.com/getgrav/grav/issues/3316)
+
 # v1.7.31
 ## 03/14/2022
 

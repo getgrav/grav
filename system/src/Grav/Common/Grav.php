@@ -342,6 +342,23 @@ class Grav extends Container
     }
 
     /**
+     * Clean any output buffers. Useful when exiting from the application.
+     *
+     * Please use $grav->close() and $grav->redirect() instead of calling this one!
+     *
+     * @return void
+     */
+    public function cleanOutputBuffers(): void
+    {
+        // Make sure nothing extra gets written to the response.
+        while (ob_get_level()) {
+            ob_end_clean();
+        }
+        // Work around PHP bug #8218 (8.0.17 & 8.1.4).
+        header_remove('Content-Encoding');
+    }
+
+    /**
      * Terminates Grav request with a response.
      *
      * Please use this method instead of calling `die();` or `exit();`. Note that you need to create a response object.
@@ -351,10 +368,7 @@ class Grav extends Container
      */
     public function close(ResponseInterface $response): void
     {
-        // Make sure nothing extra gets written to the response.
-        while (ob_get_level()) {
-            ob_end_clean();
-        }
+        $this->cleanOutputBuffers();
 
         // Close the session.
         if (isset($this['session'])) {
@@ -400,7 +414,7 @@ class Grav extends Container
     /**
      * @param ResponseInterface $response
      * @return never-return
-     * @deprecated 1.7 Do not use
+     * @deprecated 1.7 Use $grav->close() instead.
      */
     public function exit(ResponseInterface $response): void
     {
