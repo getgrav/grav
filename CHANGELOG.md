@@ -1,5 +1,5 @@
 # v1.7.32
-## mm/dd/2022
+## 03/28/2022
 
 1. [](#new)
     * Added `|replace_last(search, replace)` filter
