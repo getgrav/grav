@@ -32,9 +32,10 @@ trait CompiledFile
     public function content($var = null)
     {
         try {
+            $filename = $this->filename;
             // If nothing has been loaded, attempt to get pre-compiled version of the file first.
             if ($var === null && $this->raw === null && $this->content === null) {
-                $key = md5($this->filename);
+                $key = md5($filename);
                 $file = PhpFile::instance(CACHE_DIR . "compiled/files/{$key}{$this->extension}.php");
 
                 $modified = $this->modified();
@@ -48,13 +49,15 @@ trait CompiledFile
 
                 $class = get_class($this);
 
+                $size = filesize($filename);
                 $cache = $file->exists() ? $file->content() : null;
 
                 // Load real file if cache isn't up to date (or is invalid).
                 if (!isset($cache['@class'])
                     || $cache['@class'] !== $class
                     || $cache['modified'] !== $modified
-                    || $cache['filename'] !== $this->filename
+                    || ($cache['size'] ?? null) !== $size
+                    || $cache['filename'] !== $filename
                 ) {
                     // Attempt to lock the file for writing.
                     try {
@@ -67,8 +70,9 @@ trait CompiledFile
                     $data = (array)$this->decode($this->raw());
                     $cache = [
                         '@class' => $class,
-                        'filename' => $this->filename,
+                        'filename' => $filename,
                         'modified' => $modified,
+                        'size' => $size,
                         'data' => $data
                     ];
 
@@ -89,7 +93,7 @@ trait CompiledFile
                 $this->content = $cache['data'];
             }
         } catch (Exception $e) {
-            throw new RuntimeException(sprintf('Failed to read %s: %s', Utils::basename($this->filename), $e->getMessage()), 500, $e);
+            throw new RuntimeException(sprintf('Failed to read %s: %s', Utils::basename($filename), $e->getMessage()), 500, $e);
         }
 
         return parent::content($var);
