@@ -10,6 +10,8 @@
 namespace Grav\Common\File;
 
 use Exception;
+use Grav\Common\Debugger;
+use Grav\Common\Grav;
 use Grav\Common\Utils;
 use RocketTheme\Toolbox\File\PhpFile;
 use RuntimeException;
@@ -61,9 +63,13 @@ trait CompiledFile
                 ) {
                     // Attempt to lock the file for writing.
                     try {
-                        $file->lock(false);
+                        $locked = $file->lock(false);
                     } catch (Exception $e) {
-                        // Another process has locked the file; we will check this in a bit.
+                        $locked = false;
+
+                        /** @var Debugger $debugger */
+                        $debugger = Grav::instance()['debugger'];
+                        $debugger->addMessage(sprintf('%s(): Cannot obtain a lock for compiling cache file for %s: %s', __METHOD__, $this->filename, $e->getMessage()), 'warning');
                     }
 
                     // Decode RAW file into compiled array.
@@ -77,14 +83,17 @@ trait CompiledFile
                     ];
 
                     // If compiled file wasn't already locked by another process, save it.
-                    if ($file->locked() !== false) {
+                    if ($locked) {
                         $file->save($cache);
                         $file->unlock();
 
                         // Compile cached file into bytecode cache
-                        if (function_exists('opcache_invalidate')) {
+                        if (function_exists('opcache_invalidate') && filter_var(ini_get('opcache.enable'), \FILTER_VALIDATE_BOOLEAN)) {
+                            $lockName = $file->filename();
+
                             // Silence error if function exists, but is restricted.
-                            @opcache_invalidate($file->filename(), true);
+                            @opcache_invalidate($lockName, true);
+                            @opcache_compile_file($lockName);
                         }
                     }
                 }
@@ -97,6 +106,58 @@ trait CompiledFile
         }
 
         return parent::content($var);
+    }
+
+    /**
+     * Save file.
+     *
+     * @param  mixed  $data  Optional data to be saved, usually array.
+     * @return void
+     * @throws RuntimeException
+     */
+    public function save($data = null)
+    {
+        // Make sure that the cache file is always up to date!
+        $key = md5($this->filename);
+        $file = PhpFile::instance(CACHE_DIR . "compiled/files/{$key}{$this->extension}.php");
+        try {
+            $locked = $file->lock();
+        } catch (Exception $e) {
+            $locked = false;
+
+            /** @var Debugger $debugger */
+            $debugger = Grav::instance()['debugger'];
+            $debugger->addMessage(sprintf('%s(): Cannot obtain a lock for compiling cache file for %s: %s', __METHOD__, $this->filename, $e->getMessage()), 'warning');
+        }
+
+        parent::save($data);
+
+        if ($locked) {
+            $modified = $this->modified();
+            $filename = $this->filename;
+            $class = get_class($this);
+            $size = filesize($filename);
+
+            // Decode data into compiled array.
+            $cache = [
+                '@class' => $class,
+                'filename' => $filename,
+                'modified' => $modified,
+                'size' => $size,
+                'data' => $data
+            ];
+
+            $file->save($cache);
+            $file->unlock();
+
+            // Compile cached file into bytecode cache
+            if (function_exists('opcache_invalidate') && filter_var(ini_get('opcache.enable'), \FILTER_VALIDATE_BOOLEAN)) {
+                $lockName = $file->filename();
+                // Silence error if function exists, but is restricted.
+                @opcache_invalidate($lockName, true);
+                @opcache_compile_file($lockName);
+            }
+        }
     }
 
     /**

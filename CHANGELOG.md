@@ -1,7 +1,9 @@
 # v1.7.33
 ## mm/dd/2022
 
-1. [](#bugfix)
+1. [](#improved)
+    * When saving yaml and markdown, create also a cached version of the file and recompile it in opcache
+2. [](#bugfix)
     * Fixed missing changes in yaml & markdown files if saved multiple times during the same second because of a caching issue
 
 # v1.7.32
