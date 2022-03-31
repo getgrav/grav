@@ -7,6 +7,7 @@
     * By default, add media to only pages which have been initialized in pages loop
 3. [](#bugfix)
     * Fixed locking and reading files using `Framework\File` classes
+    * Fixed `Utils::resolveTokenPath()` with `@variable@` not working properly
 
 # v1.7.33
 ## mm/dd/2022

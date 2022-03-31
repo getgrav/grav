@@ -1720,7 +1720,7 @@ abstract class Utils
     protected static function resolveTokenPath(string $path): ?array
     {
         if (strpos($path, '@') !== false) {
-            $regex = '/^(@\w+|\w+@|@\w+@)([^:]*)(.*)$/u';
+            $regex = '/^(@\w+@|@\w+|\w+@)([^:]*)(.*)$/u';
             if (preg_match($regex, $path, $matches)) {
                 return [
                     trim($matches[1], '@'),
