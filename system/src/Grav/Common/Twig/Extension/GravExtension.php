@@ -550,9 +550,9 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
     }
 
     /**
-     * @param $str
-     * @param $search
-     * @param $replace
+     * @param string|mixed $str
+     * @param string $search
+     * @param string $replace
      * @return string|mixed
      */
     public function replaceLastFilter($str, $search, $replace)

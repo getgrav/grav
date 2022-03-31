@@ -147,6 +147,10 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
      */
     public function search(string $search, $properties = null, array $options = null)
     {
+        $directory = $this->getFlexDirectory();
+        $properties = $directory->getSearchProperties($properties);
+        $options = $directory->getSearchOptions($options);
+
         $matching = $this->call('search', [$search, $properties, $options]);
         $matching = array_filter($matching);
 

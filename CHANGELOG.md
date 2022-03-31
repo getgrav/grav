@@ -13,8 +13,17 @@
     * Removed `system.umask_fix` setting for security reasons
     * Support phpstan level 6 in Framework classes
 
-# v1.7.32
+# v1.7.33
 ## mm/dd/2022
+
+1. [](#improved)
+    * When saving yaml and markdown, create also a cached version of the file and recompile it in opcache
+2. [](#bugfix)
+    * Fixed missing changes in yaml & markdown files if saved multiple times during the same second because of a caching issue
+    * Fixed XSS check not detecting onX events without quotes
+
+# v1.7.32
+## 03/28/2022
 
 1. [](#new)
     * Added `|replace_last(search, replace)` filter
@@ -27,8 +36,9 @@
       - `text`, `url`, `hidden`, `commalist`: 2048
       - `text` (multiline), `textarea`: 65536
 3. [](#bugfix)
-   * Fixed issue with `system.cache.gzip: true` resulted in admin "Fetch Failed" for PHP 8.0+
+   * Fixed issue with `system.cache.gzip: true` resulted in "Fetch Failed" for PHP 8.0.17 and PHP 8.1.4 [PHP issue #8218](https://github.com/php/php-src/issues/8218)
    * Fix for multi-lang issues with Security Report
+   * Fixed page search not working with selected language [#3316](https://github.com/getgrav/grav/issues/3316)
 
 # v1.7.31
 ## 03/14/2022
