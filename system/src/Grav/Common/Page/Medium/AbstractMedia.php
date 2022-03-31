@@ -365,10 +365,10 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
     }
 
     /**
-     * @param array $files
+     * @param array|null $files
      * @return void
      */
-    public function updateIndex(array $files): void
+    public function updateIndex(array $files = null): void
     {
         $mediaIndex = $this->getIndex();
         if (!$mediaIndex) {
@@ -380,11 +380,17 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
         $id = $this->getId();
         $index = $mediaIndex->get($id, true);
 
-        // Add new files and remove the old ones.
-        $files += $index['files'] ?? [];
-        $files = array_filter($files, static function($val) { return $val !== null; } );
+        if ($files === null) {
+            $files = $index['files'] ?? [];
+            $timestamp = 0;
+        } else {
+            // Add new files and remove the old ones.
+            $files += $index['files'] ?? [];
+            $files = array_filter($files, static function($val) { return $val !== null; } );
+            $timestamp = time();
+        }
 
-        $index = $this->generateIndex($files);
+        $index = $this->generateIndex($files, null, $timestamp);
 
         $mediaIndex->save($id, $index);
     }
