@@ -101,6 +101,10 @@ class YamlFormatter extends AbstractFormatter
      */
     public function decode($data): array
     {
+        if ($data === '') {
+            return [];
+        }
+
         // Try native PECL YAML PHP extension first if available.
         if (function_exists('yaml_parse') && $this->useNativeDecoder()) {
             // Safely decode YAML.

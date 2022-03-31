@@ -41,6 +41,8 @@ class AbstractFile implements FileInterface
     private $handle;
     /** @var bool */
     private $locked = false;
+    /** @var bool */
+    private $created = false;
 
     /**
      * @param string $filepath
@@ -59,6 +61,9 @@ class AbstractFile implements FileInterface
     {
         if ($this->isLocked()) {
             $this->unlock();
+            if ($this->created) {
+                $this->delete();
+            }
         }
     }
 
@@ -69,6 +74,7 @@ class AbstractFile implements FileInterface
     {
         $this->handle = null;
         $this->locked = false;
+        $this->created = false;
     }
 
     /**
@@ -157,7 +163,7 @@ class AbstractFile implements FileInterface
      */
     public function exists(): bool
     {
-        return is_file($this->filepath);
+        return $this->created === false && is_file($this->filepath);
     }
 
     /**
@@ -189,7 +195,8 @@ class AbstractFile implements FileInterface
                 throw new RuntimeException('Creating directory failed for ' . $this->filepath);
             }
 
-            $handle = is_file($this->filepath) ? @fopen($this->filepath, 'rb+') : @fopen($this->filepath, 'cb+');
+            $this->created = !is_file($this->filepath);
+            $handle = $this->created ? @fopen($this->filepath, 'cb+') : @fopen($this->filepath, 'rb+');
             if (!$handle) {
                 $error = error_get_last();
                 $message = $error['message'] ?? 'Unknown error';
@@ -313,6 +320,8 @@ class AbstractFile implements FileInterface
         if ($tmp === false) {
             throw new RuntimeException('Failed to save file ' . $filepath);
         }
+
+        $this->created = false;
 
         // Touch the directory as well, thus marking it modified.
         @touch($dir);

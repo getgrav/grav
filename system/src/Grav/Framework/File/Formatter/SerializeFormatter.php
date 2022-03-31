@@ -64,6 +64,10 @@ class SerializeFormatter extends AbstractFormatter
      */
     public function decode($data)
     {
+        if ($data === '') {
+            return [];
+        }
+
         $classes = $this->getOptions()['allowed_classes'] ?? false;
         $decoded = @unserialize($data, ['allowed_classes' => $classes]);
 

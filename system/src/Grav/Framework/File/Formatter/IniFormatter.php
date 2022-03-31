@@ -57,6 +57,10 @@ class IniFormatter extends AbstractFormatter
      */
     public function decode($data): array
     {
+        if ($data === '') {
+            return [];
+        }
+
         $decoded = @parse_ini_string($data);
 
         if ($decoded === false) {

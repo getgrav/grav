@@ -86,6 +86,10 @@ class CsvFormatter extends AbstractFormatter
      */
     public function decode($data, $delimiter = null): array
     {
+        if ($data === '') {
+            return [];
+        }
+
         $delimiter = $delimiter ?? $this->getDelimiter();
         $lines = preg_split('/\r\n|\r|\n/', $data);
         if ($lines === false) {

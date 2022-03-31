@@ -159,6 +159,10 @@ class JsonFormatter extends AbstractFormatter
      */
     public function decode($data)
     {
+        if ($data === '') {
+            return $this->getDecodeAssoc() ? [] : new \stdClass();
+        }
+
         $decoded = @json_decode($data, $this->getDecodeAssoc(), $this->getDecodeDepth(), $this->getDecodeOptions());
 
         if (null === $decoded && json_last_error() !== JSON_ERROR_NONE) {

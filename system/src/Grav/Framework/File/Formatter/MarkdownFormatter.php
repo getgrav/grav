@@ -122,6 +122,10 @@ class MarkdownFormatter extends AbstractFormatter
             $bodyVar => ''
         ];
 
+        if ($data === '') {
+            return $content;
+        }
+
         $headerRegex = "/^---\n(.+?)\n---\n{0,}(.*)$/uis";
 
         // Normalize line endings to Unix style.
