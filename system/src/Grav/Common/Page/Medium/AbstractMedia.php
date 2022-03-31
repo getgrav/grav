@@ -17,12 +17,11 @@ use Grav\Common\Language\Language;
 use Grav\Common\Media\Interfaces\MediaCollectionInterface;
 use Grav\Common\Media\Interfaces\MediaObjectInterface;
 use Grav\Common\Media\Interfaces\MediaUploadInterface;
+use Grav\Common\Media\MediaIndex;
 use Grav\Common\Media\Traits\MediaUploadTrait;
 use Grav\Common\Page\Pages;
 use Grav\Common\Utils;
 use Grav\Framework\Compat\Serializable;
-use Grav\Framework\File\Formatter\JsonFormatter;
-use Grav\Framework\File\JsonFile;
 use InvalidArgumentException;
 use PHPExif\Reader\Reader;
 use RocketTheme\Toolbox\ArrayTraits\Export;
@@ -77,6 +76,19 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
     protected $timestamp;
     /** @var bool Hack to make Iterator work together with unset(). */
     private $iteratorUnset = false;
+
+    /**
+     * @return string
+     */
+    public function getId(): string
+    {
+        return md5($this->getType() . ':' . $this->path);
+    }
+
+    /**
+     * @return string
+     */
+    abstract public function getType(): string;
 
     /**
      * Return media path.
@@ -358,10 +370,23 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
      */
     public function updateIndex(array $files): void
     {
-        [$index,] = $this->loadIndex();
-        $files = array_merge($files, $index['files']);
-        ksort($files, SORT_NATURAL);
-        $this->saveIndex($files);
+        $mediaIndex = $this->getIndex();
+        if (!$mediaIndex) {
+            return;
+        }
+
+        $mediaIndex->lock();
+
+        $id = $this->getId();
+        $index = $mediaIndex->get($id, true);
+
+        // Add new files and remove the old ones.
+        $files += $index['files'] ?? [];
+        $files = array_filter($files, static function($val) { return $val !== null; } );
+
+        $index = $this->generateIndex($files);
+
+        $mediaIndex->save($id, $index);
     }
 
     /**
@@ -804,17 +829,38 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
     }
 
     /**
+     * @param array $files
+     * @param string|null $checksum
+     * @param int|null $timestamp
+     * @return array
+     */
+    protected function generateIndex(array $files, string $checksum = null, ?int $timestamp = null): array
+    {
+        ksort($files, SORT_NATURAL);
+
+        return [
+            'type' => $this->getType(),
+            'version' => static::VERSION,
+            'checksum' => $checksum ?? md5(serialize($files)),
+            'timestamp' => $timestamp ?? time(),
+            'folder' => $this->path,
+            'url' => $this->url,
+            'files' => $files,
+        ];
+    }
+
+    /**
      * Get index file, which stores media file index.
      *
-     * @return JsonFile|null
+     * @return MediaIndex|null
      */
-    protected function getIndexFile(): ?JsonFile
+    protected function getIndex(): ?MediaIndex
     {
         if (null === $this->indexFolder || null === $this->indexFile) {
             return null;
         }
 
-        return new JsonFile($this->indexFolder . '/' . $this->indexFile, new JsonFormatter(['encode_options' => JSON_PRETTY_PRINT]));
+        return MediaIndex::getInstance($this->indexFolder . '/' . $this->indexFile);
     }
 
     /**
@@ -823,12 +869,14 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
     protected function loadIndex(): array
     {
         // Read media index file.
-        $indexFile = $this->getIndexFile();
-        if (!($indexFile && $indexFile->exists())) {
+        $mediaIndex = $this->getIndex();
+        if (!$mediaIndex || !$this->exists) {
             return [[], 0];
         }
 
-        $index = $indexFile->load();
+        $id = $this->getId();
+        [$index, $modified] = $mediaIndex->get($id);
+
         $version = $index['version'] ?? null;
         $folder = $index['folder'] ?? null;
         $type = $index['type'] ?? null;
@@ -836,7 +884,7 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
             return [[], 0];
         }
 
-        return [$index, $indexFile->getModificationTime()];
+        return [$index, $modified];
     }
 
     /**
@@ -845,12 +893,13 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
      */
     protected function touchIndex(?int $timestamp = null): void
     {
-        $index = $this->getIndexFile();
-        if (!$index || !$this->exists) {
+        $mediaIndex = $this->getIndex();
+        if (!$mediaIndex || !$this->exists) {
             return;
         }
+        $id = $this->getId();
 
-        $index->touch($timestamp);
+        $mediaIndex->touch($id, $timestamp);
     }
 
     /**
@@ -861,22 +910,15 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
      */
     protected function saveIndex(array $files, string $checksum = null, ?int $timestamp = null): void
     {
-        $index = $this->getIndexFile();
-        if (!$index || !$this->exists) {
+        $mediaIndex = $this->getIndex();
+        if (!$mediaIndex || !$this->exists) {
             return;
         }
 
-        $data = [
-            'type' => $this->config['type'] ?? 'local',
-            'version' => static::VERSION,
-            'checksum' => $checksum ?? md5(serialize($files)),
-            'timestamp' => $timestamp ?? time(),
-            'folder' => $this->path,
-            'url' => $this->url,
-            'files' => $files,
-        ];
+        $id = $this->getId();
+        $index = $this->generateIndex($files, $checksum, $timestamp);
 
-        $index->save($data);
+        $mediaIndex->save($id, $index);
     }
 
     /**

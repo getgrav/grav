@@ -24,6 +24,7 @@ use Grav\Framework\Filesystem\Filesystem;
 use Grav\Framework\Flex\FlexDirectory;
 use Grav\Framework\Form\FormFlashFile;
 use Psr\Http\Message\UploadedFileInterface;
+use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use RuntimeException;
 use function array_key_exists;
@@ -46,6 +47,8 @@ trait FlexMediaTrait
 
     /** @var array */
     protected $_uploads = [];
+    /** @var array */
+    protected $_mediaSettings = [];
 
     /**
      * @return string|null
@@ -103,7 +106,9 @@ trait FlexMediaTrait
             /** @var MediaFactory $factory */
             $factory = Grav::instance()['media_factory'];
 
-            $params = [
+            $params = $settings['media'] ?? [];
+            $params += [
+                'object' => $this,
                 'path' => $settings[$var],
                 'order' => [],
                 'load' => true
@@ -126,6 +131,10 @@ trait FlexMediaTrait
     {
         if ($field === '') {
             return null;
+        }
+
+        if (isset($this->_mediaSettings[$field])) {
+            return $this->_mediaSettings[$field];
         }
 
         // Load settings for the field.
@@ -151,13 +160,27 @@ trait FlexMediaTrait
 
         // Set media folder for media fields.
         if (isset($var)) {
-            $folder = $settings[$var] ?? '';
-            if (in_array(rtrim($folder, '/'), ['', '@self', 'self@', '@self@'], true)) {
+            $settings['type'] = 'local';
+            $token = $settings[$var] ?? '';
+            if (in_array(rtrim($token, '/'), ['', '@self', 'self@', '@self@'], true)) {
                 $settings[$var] = $this->getMediaFolder();
                 $settings['self'] = true;
             } else {
-                $settings[$var] = Utils::getPathFromToken($folder, $this);
+                $event = new Event([
+                    'token' => $token,
+                    'object' => $this,
+                    'field' => $field,
+                    'type' => $type,
+                    'settings' => &$settings, // Value can be changed.
+                    'uri' => &$uri // Value will be set to here.
+                ]);
+
+                Grav::instance()->fireEvent('onGetFlexMediaFieldSettings', $event);
+
+                $settings[$var] = $uri ?? Utils::getPathFromToken($token, $this);
                 $settings['self'] = false;
+
+                $this->_mediaSettings[$field] = $settings;
             }
         }
 

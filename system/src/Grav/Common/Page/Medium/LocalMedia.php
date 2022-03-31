@@ -13,8 +13,6 @@ use FilesystemIterator;
 use Grav\Common\Data\Blueprint;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\Media\Interfaces\MediaObjectInterface;
-use Grav\Framework\File\Formatter\JsonFormatter;
-use Grav\Framework\File\JsonFile;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use RuntimeException;
 use function is_array;
@@ -25,6 +23,14 @@ use function is_array;
  */
 abstract class LocalMedia extends AbstractMedia
 {
+    /**
+     * @return string
+     */
+    public function getType(): string
+    {
+        return 'local';
+    }
+
     /**
      * Return media path.
      *
