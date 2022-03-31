@@ -353,6 +353,18 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
     }
 
     /**
+     * @param array $files
+     * @return void
+     */
+    public function updateIndex(array $files): void
+    {
+        [$index,] = $this->loadIndex();
+        $files = array_merge($files, $index['files']);
+        ksort($files, SORT_NATURAL);
+        $this->saveIndex($files);
+    }
+
+    /**
      * Create Medium from a file.
      *
      * @param  string $filename
