@@ -5,6 +5,8 @@
     * Added `FileInterface::touch()` method
 2. [](#improved)
     * By default, add media to only pages which have been initialized in pages loop
+3. [](#bugfix)
+    * Fixed locking and reading files using `Framework\File` classes
 
 # v1.7.33
 ## mm/dd/2022

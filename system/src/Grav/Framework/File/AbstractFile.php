@@ -188,13 +188,16 @@ class AbstractFile implements FileInterface
             if (!$this->mkdir($this->getPath())) {
                 throw new RuntimeException('Creating directory failed for ' . $this->filepath);
             }
-            $this->handle = @fopen($this->filepath, 'cb+') ?: null;
-            if (!$this->handle) {
+
+            $handle = is_file($this->filepath) ? @fopen($this->filepath, 'rb+') : @fopen($this->filepath, 'cb+');
+            if (!$handle) {
                 $error = error_get_last();
                 $message = $error['message'] ?? 'Unknown error';
 
                 throw new RuntimeException("Opening file for writing failed on error {$message}");
             }
+
+            $this->handle = $handle;
         }
 
         $lock = $block ? LOCK_EX : LOCK_EX | LOCK_NB;
@@ -283,7 +286,7 @@ class AbstractFile implements FileInterface
             if ($this->handle) {
                 $tmp = true;
                 // As we are using non-truncating locking, make sure that the file is empty before writing.
-                if (@ftruncate($this->handle, 0) === false || @fwrite($this->handle, $data) === false) {
+                if (@ftruncate($this->handle, 0) === false || @rewind($this->handle) === false || @fwrite($this->handle, $data) === false) {
                     // Writing file failed, throw an error.
                     $tmp = false;
                 }
