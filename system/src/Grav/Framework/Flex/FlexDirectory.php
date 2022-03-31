@@ -171,7 +171,7 @@ class FlexDirectory implements FlexDirectoryInterface
     }
 
     /**
-     * @param string|string[]|null
+     * @param string|string[]|null $properties
      * @return array
      */
     public function getSearchProperties($properties = null): array
@@ -192,7 +192,7 @@ class FlexDirectory implements FlexDirectoryInterface
 
         return $properties;
     }
-    
+
     /**
      * @param array|null $options
      * @return array
