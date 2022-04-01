@@ -308,14 +308,15 @@ trait FlexMediaTrait
 
     /**
      * @param string $filename
+     * @param string|null $field
      * @return void
      * @internal
      */
-    public function deleteMediaFile(string $filename): void
+    public function deleteMediaFile(string $filename, string $field = null): void
     {
-        $media = $this->getMedia();
+        $media = $field ? $this->getMediaField($field) : $this->getMedia();
         if (!$media instanceof MediaUploadInterface) {
-            throw new RuntimeException("Media for {$this->getFlexDirectory()->getFlexType()} doesn't support file uploads.");
+            throw new RuntimeException("Media for {$this->getFlexDirectory()->getFlexType()}:{$field} doesn't support file uploads.");
         }
 
         $media->deleteFile($filename);
