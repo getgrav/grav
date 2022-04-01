@@ -222,6 +222,7 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
             new TwigFunction('svg_image', [$this, 'svgImageFunction']),
             new TwigFunction('xss', [$this, 'xssFunc']),
             new TwigFunction('unique_id', [$this, 'uniqueId']),
+            new TwigFunction('has_env', [$this, 'hasEnv']),
 
             // Translations
             new TwigFunction('t', [$this, 'translate'], ['needs_environment' => true]),
@@ -705,6 +706,15 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
     public function uniqueId(int $length = 9, array $options = ['prefix' => '', 'suffix' => '']): string
     {
         return Utils::uniqueId($length, $options);
+    }
+
+    /**
+     * @param $string
+     * @return bool
+     */
+    public function hasEnv($string): bool
+    {
+        return is_string($string) && getenv($string) !== false;
     }
 
     /**

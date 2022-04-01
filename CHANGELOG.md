@@ -4,6 +4,7 @@
 1. [](#new)
     * Added `FileInterface::touch()` method
     * Added optional `$field` parameter to `FlexMediaTrait::deleteMediaFile()` method
+    * Added `has_env()` twig function to test if environmental variable is defined
 2. [](#improved)
     * By default, add media to only pages which have been initialized in pages loop
 3. [](#bugfix)
