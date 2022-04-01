@@ -89,7 +89,7 @@ class MediaIndex
         $indexes = $file->exists() ? $file->load() : ['version' => 1];
         $version = $indexes['version'] ?? null;
         if ($version !== 1) {
-            $indexes = [];
+            $indexes = ['version' => 1];
         }
         $indexes[$id] = $index;
 
