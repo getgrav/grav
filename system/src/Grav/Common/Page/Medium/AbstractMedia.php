@@ -866,7 +866,12 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
             return null;
         }
 
-        return MediaIndex::getInstance($this->indexFolder . '/' . $this->indexFile);
+        $indexFolder = $this->indexFolder;
+        if (!str_starts_with($indexFolder, '/') && !str_contains($indexFolder, '://')) {
+            $indexFolder = GRAV_WEBROOT . '/' . $indexFolder;
+        }
+
+        return MediaIndex::getInstance($indexFolder . '/' . $this->indexFile);
     }
 
     /**
