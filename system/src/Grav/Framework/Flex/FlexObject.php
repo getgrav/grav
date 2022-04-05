@@ -16,6 +16,7 @@ use Grav\Common\Data\Data;
 use Grav\Common\Debugger;
 use Grav\Common\Grav;
 use Grav\Common\Inflector;
+use Grav\Common\Page\Medium\LocalMedia;
 use Grav\Common\Twig\Twig;
 use Grav\Common\User\Interfaces\UserInterface;
 use Grav\Common\Utils;
@@ -928,7 +929,19 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
             return $this->getTimestamp();
         }
 
-        return $this->getNestedProperty($name, $default, $separator);
+        $value = $this->getNestedProperty($name, $default, $separator);
+
+        if (method_exists($this, 'getMediaField')) {
+            $media = $this->getMediaField($name);
+            if ($media && !$media instanceof LocalMedia) {
+                $value = [];
+                foreach ($media->all() as $filename => $medium) {
+                    $value[$filename] = $medium->meta;
+                }
+            }
+        }
+
+        return $value;
     }
 
     /**
