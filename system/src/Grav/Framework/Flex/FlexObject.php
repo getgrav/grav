@@ -935,7 +935,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
             $media = $this->getMediaField($name);
             if ($media && !$media instanceof LocalMedia) {
                 $value = [];
-                foreach ($media->all() as $filename => $medium) {
+                foreach ($media->all() as $medium) {
                     $value[] = $medium->meta;
                 }
             }

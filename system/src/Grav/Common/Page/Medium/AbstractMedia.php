@@ -378,7 +378,7 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
         $mediaIndex->lock();
 
         $id = $this->getId();
-        $index = $mediaIndex->get($id, true);
+        [$index,] = $mediaIndex->get($id, true);
 
         if ($files === null) {
             $files = $index['files'] ?? [];
