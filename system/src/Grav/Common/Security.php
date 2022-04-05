@@ -219,7 +219,8 @@ class Security
         $string = html_entity_decode($string, ENT_NOQUOTES | ENT_HTML5, 'UTF-8');
 
         // Strip whitespace characters
-        $string = preg_replace('!\s!u', '', $string);
+        $string = preg_replace('!\s!u', ' ', $string);
+        $stripped = preg_replace('!\s!u', '', $string);
 
         // Set the patterns we'll test against
         $patterns = [
@@ -242,7 +243,7 @@ class Security
         // Iterate over rules and return label if fail
         foreach ($patterns as $name => $regex) {
             if (!empty($enabled_rules[$name])) {
-                if (preg_match($regex, $string) || preg_match($regex, $orig)) {
+                if (preg_match($regex, $string) || preg_match($regex, $stripped) || preg_match($regex, $orig)) {
                     return $name;
                 }
             }
