@@ -366,8 +366,9 @@ trait MediaUploadTrait
 
         // Update media index.
         if (method_exists($this, 'updateIndex')) {
-            $this->updateIndex();
+            $this->updateIndex([$filename => null]);
         }
+        $this->hide($filename);
 
         // Finally clear media cache.
         $locator->clearCache();
@@ -592,8 +593,6 @@ trait MediaUploadTrait
                 }
             }
         }
-
-        $this->hide($filename);
     }
 
     /**
