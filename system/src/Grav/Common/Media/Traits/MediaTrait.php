@@ -156,7 +156,7 @@ trait MediaTrait
             $media = $factory->createCollection($params);
 
             // From media upload interface.
-            if (method_exists($this, 'addUpdatedMedia')) {
+            if ($media && method_exists($this, 'addUpdatedMedia')) {
                 $this->addUpdatedMedia($media);
             }
         }
