@@ -43,6 +43,15 @@ abstract class LocalMedia extends AbstractMedia
     }
 
     /**
+     * @param string $filename
+     * @return string
+     */
+    public function getUrl(string $filename): string
+    {
+        return $this->getPath($filename);
+    }
+
+    /**
      * @param string|null $path
      * @return void
      */

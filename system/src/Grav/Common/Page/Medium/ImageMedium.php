@@ -13,6 +13,7 @@ use Grav\Common\Config\Config;
 use Grav\Common\Data\Blueprint;
 use Grav\Common\Media\Interfaces\ImageManipulateInterface;
 use Grav\Common\Media\Interfaces\ImageMediaInterface;
+use Grav\Common\Media\Interfaces\MediaCollectionInterface;
 use Grav\Common\Media\Interfaces\MediaLinkInterface;
 use Grav\Common\Media\Traits\ImageLoadingTrait;
 use Grav\Common\Media\Traits\ImageMediaTrait;
@@ -141,6 +142,14 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
      */
     public function url($reset = true)
     {
+        if (!$this->image) {
+            /** @var string|null $url */
+            $url = $this->get('url');
+            if ($url) {
+                return $url;
+            }
+        }
+
         // FIXME: update this code
         $saved_image_path = $this->saved_image_path = $this->saveImage();
 

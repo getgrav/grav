@@ -97,6 +97,7 @@ trait MediaFileTrait
      */
     public function url($reset = true)
     {
+        /** @var string|null $url */
         $url = $this->get('url');
         if ($url) {
             return $url;
