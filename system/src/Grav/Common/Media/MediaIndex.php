@@ -76,7 +76,7 @@ class MediaIndex
 
     /**
      * @param string $id
-     * @param array $data
+     * @param array $index
      * @return void
      */
     public function save(string $id, array $index): void

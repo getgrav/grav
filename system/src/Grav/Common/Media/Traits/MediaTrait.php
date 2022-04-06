@@ -232,6 +232,8 @@ trait MediaTrait
                     $settings[$var] = $this->getMediaFolder();
                     $settings['self'] = true;
                 } else {
+                    /** @var string|null $uri */
+                    $uri = null;
                     $event = new Event([
                         'token' => $token,
                         'object' => $this,

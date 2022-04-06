@@ -709,7 +709,7 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
     }
 
     /**
-     * @param $string
+     * @param mixed|string $string
      * @return bool
      */
     public function hasEnv($string): bool

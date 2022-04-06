@@ -119,14 +119,14 @@ trait FlexMediaTrait
 
         $list = [];
         foreach ($value as $filename => $info) {
+            if (is_int($filename)) {
+                $filename = $info['path'] ?? $info['name'];
+            }
+
             $filename = (string)$filename;
             if (!is_array($info)) {
                 $list[$filename] = $info;
                 continue;
-            }
-
-            if (is_int($filename)) {
-                $filename = $info['path'] ?? $info['name'];
             }
 
             /** @var Medium|null $imageFile */
