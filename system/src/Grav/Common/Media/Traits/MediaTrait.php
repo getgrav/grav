@@ -14,8 +14,13 @@ use Grav\Common\Grav;
 use Grav\Common\Media\Factories\MediaFactory;
 use Grav\Common\Media\Interfaces\MediaCollectionInterface;
 use Grav\Common\Page\Media;
+use Grav\Common\Utils;
 use Psr\SimpleCache\CacheInterface;
+use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
+use Throwable;
+use function array_key_exists;
+use function in_array;
 use function strlen;
 
 /**
@@ -28,6 +33,8 @@ trait MediaTrait
     protected $media;
     /** @var bool */
     protected $_loadMedia = true;
+    /** @var array */
+    protected $_mediaSettings = [];
 
     /**
      * Get filesystem path to the associated media.
@@ -87,7 +94,7 @@ trait MediaTrait
             try {
                 // Use cached media if possible.
                 $media = $cache->get($cacheKey);
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
             }
 
             if (!$media instanceof MediaCollectionInterface) {
@@ -110,6 +117,73 @@ trait MediaTrait
     }
 
     /**
+     * @param string $field
+     * @return MediaCollectionInterface|null
+     */
+    public function getMediaField(string $field): ?MediaCollectionInterface
+    {
+        if (!method_exists($this, 'getMediaFieldSettings')) {
+            return null;
+        }
+
+        // Field specific media.
+        $settings = $this->getMediaFieldSettings($field);
+        if (!empty($settings['media_field'])) {
+            $var = 'destination';
+        } elseif (!empty($settings['media_picker_field'])) {
+            $var = 'folder';
+        }
+
+        if (empty($var)) {
+            // Not a media field.
+            $media = null;
+        } elseif ($settings['self']) {
+            // Uses main media.
+            $media = $this->getMedia();
+        } else {
+            /** @var MediaFactory $factory */
+            $factory = Grav::instance()['media_factory'];
+
+            $params = $settings['media'] ?? [];
+            $params += [
+                'object' => $this,
+                'path' => $settings[$var],
+                'order' => [], // TODO: ordering from the stored value?
+                'load' => true
+            ];
+
+            // Uses custom media.
+            $media = $factory->createCollection($params);
+
+            // From media upload interface.
+            if (method_exists($this, 'addUpdatedMedia')) {
+                $this->addUpdatedMedia($media);
+            }
+        }
+
+        return $media;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getMediaFields(): array
+    {
+        // Load settings for the field.
+        $schema = $this->getBlueprint()->schema();
+        $list = [];
+        if (null !== $schema) {
+            foreach ($schema->getState()['items'] as $field => $settings) {
+                if (isset($settings['type']) && (in_array($settings['type'], ['avatar', 'file', 'pagemedia']) || !empty($settings['destination']))) {
+                    $list[] = $field;
+                }
+            }
+        }
+
+        return $list;
+    }
+
+    /**
      * Get media settings.
      *
      * @return array
@@ -122,6 +196,64 @@ trait MediaTrait
             'load' => $this->_loadMedia,
             'object' => $this
         ];
+    }
+
+    /**
+     * @param string $field
+     * @param array|null $settings
+     * @return array|null
+     */
+    protected function parseMediaFieldSettings(string $field, ?array $settings): ?array
+    {
+        if (!isset($this->_mediaSettings[$field])) {
+            if (!$settings) {
+                return null;
+            }
+
+            $type = $settings['type'] ?? '';
+
+            // Media field.
+            if (!empty($settings['media_field']) || array_key_exists('destination', $settings) || in_array($type, ['avatar', 'file', 'pagemedia'], true)) {
+                $settings['media_field'] = true;
+                $var = 'destination';
+            }
+
+            // Media picker field.
+            if (!empty($settings['media_picker_field']) || in_array($type, ['filepicker', 'pagemediaselect'], true)) {
+                $settings['media_picker_field'] = true;
+                $var = 'folder';
+            }
+
+            // Set media folder for media fields.
+            if (isset($var)) {
+                $settings['type'] = 'local';
+                $token = $settings[$var] ?? '';
+                if (in_array(rtrim($token, '/'), ['', '@self', 'self@', '@self@'], true)) {
+                    $settings[$var] = $this->getMediaFolder();
+                    $settings['self'] = true;
+                } else {
+                    $event = new Event([
+                        'token' => $token,
+                        'object' => $this,
+                        'field' => $field,
+                        'type' => $type,
+                        'settings' => &$settings, // Value can be changed.
+                        'uri' => &$uri // Value will be set to here.
+                    ]);
+
+                    Grav::instance()->fireEvent('onGetMediaFieldSettings', $event);
+
+                    $settings[$var] = $uri ?? Utils::getPathFromToken($token, $this);
+                    $settings['self'] = false;
+                }
+
+                $this->_mediaSettings[$field] = $settings + ['accept' => '*', 'limit' => 1000, 'self' => true];
+            } else {
+                $this->_mediaSettings[$field] = null;
+            }
+        }
+
+        return $this->_mediaSettings[$field];
     }
 
     /**

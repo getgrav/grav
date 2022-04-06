@@ -14,10 +14,10 @@ use Grav\Common\Config\Config;
 use Grav\Common\Grav;
 use Grav\Common\Markdown\Parsedown;
 use Grav\Common\Markdown\ParsedownExtra;
+use Grav\Common\Media\Interfaces\MediaCollectionInterface;
 use Grav\Common\Page\Header;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Page\Markdown\Excerpts;
-use Grav\Common\Page\Media;
 use Grav\Common\Twig\Twig;
 use Grav\Common\Utils;
 use Grav\Framework\File\Formatter\YamlFormatter;
@@ -185,13 +185,14 @@ trait PageContentTrait
     /**
      * @inheritdoc
      */
-    public function media($var = null): Media
+    public function media($var = null): ?MediaCollectionInterface
     {
-        if ($var instanceof Media) {
+        if ($var instanceof MediaCollectionInterface) {
             $this->setProperty('media', $var);
+            $var = null;
         }
 
-        return $this->getProperty('media');
+        return is_string($var) ? $this->getMediaField($var) : $this->getMedia();
     }
 
     /**

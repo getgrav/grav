@@ -11,7 +11,6 @@ namespace Grav\Framework\Flex\Traits;
 
 use Grav\Common\Config\Config;
 use Grav\Common\Grav;
-use Grav\Common\Media\Factories\MediaFactory;
 use Grav\Common\Media\Interfaces\MediaCollectionInterface;
 use Grav\Common\Media\Interfaces\MediaUploadInterface;
 use Grav\Common\Media\Traits\MediaTrait;
@@ -24,15 +23,11 @@ use Grav\Framework\Filesystem\Filesystem;
 use Grav\Framework\Flex\FlexDirectory;
 use Grav\Framework\Form\FormFlashFile;
 use Psr\Http\Message\UploadedFileInterface;
-use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use RuntimeException;
-use function array_key_exists;
-use function in_array;
 use function is_array;
 use function is_callable;
 use function is_int;
-use function is_object;
 use function is_string;
 use function strpos;
 
@@ -47,8 +42,6 @@ trait FlexMediaTrait
 
     /** @var array */
     protected $_uploads = [];
-    /** @var array */
-    protected $_mediaSettings = [];
 
     /**
      * @return string|null
@@ -84,137 +77,29 @@ trait FlexMediaTrait
 
     /**
      * @param string $field
-     * @return MediaCollectionInterface|null
+     * @return array|null
      */
-    public function getMediaField(string $field): ?MediaCollectionInterface
+    public function getFieldSettings(string $field): ?array
     {
-        // Field specific media.
-        $settings = $this->getFieldSettings($field);
-        if (!empty($settings['media_field'])) {
-            $var = 'destination';
-        } elseif (!empty($settings['media_picker_field'])) {
-            $var = 'folder';
-        }
+        // Load settings for the field.
+        $schema = $this->getBlueprint()->schema();
+        $settings = $schema ? $schema->getProperty($field) : null;
 
-        if (empty($var)) {
-            // Not a media field.
-            $media = null;
-        } elseif ($settings['self']) {
-            // Uses main media.
-            $media = $this->getMedia();
-        } else {
-            /** @var MediaFactory $factory */
-            $factory = Grav::instance()['media_factory'];
-
-            $params = $settings['media'] ?? [];
-            $params += [
-                'object' => $this,
-                'path' => $settings[$var],
-                'order' => [],
-                'load' => true
-            ];
-
-            // Uses custom media.
-            $media = $factory->createCollection($params);
-
-            $this->addUpdatedMedia($media);
-        }
-
-        return $media;
+        return $this->parseMediaFieldSettings($field, $settings) ?? $settings;
     }
 
     /**
      * @param string $field
      * @return array|null
-     */
-    public function getFieldSettings(string $field): ?array
-    {
-        if ($field === '') {
-            return null;
-        }
-
-        if (isset($this->_mediaSettings[$field])) {
-            return $this->_mediaSettings[$field];
-        }
-
-        // Load settings for the field.
-        $schema = $this->getBlueprint()->schema();
-        $settings = (array)$schema->getProperty($field);
-        if (!is_array($settings)) {
-            return null;
-        }
-
-        $type = $settings['type'] ?? '';
-
-        // Media field.
-        if (!empty($settings['media_field']) || array_key_exists('destination', $settings) || in_array($type, ['avatar', 'file', 'pagemedia'], true)) {
-            $settings['media_field'] = true;
-            $var = 'destination';
-        }
-
-        // Media picker field.
-        if (!empty($settings['media_picker_field']) || in_array($type, ['filepicker', 'pagemediaselect'], true)) {
-            $settings['media_picker_field'] = true;
-            $var = 'folder';
-        }
-
-        // Set media folder for media fields.
-        if (isset($var)) {
-            $settings['type'] = 'local';
-            $token = $settings[$var] ?? '';
-            if (in_array(rtrim($token, '/'), ['', '@self', 'self@', '@self@'], true)) {
-                $settings[$var] = $this->getMediaFolder();
-                $settings['self'] = true;
-            } else {
-                $event = new Event([
-                    'token' => $token,
-                    'object' => $this,
-                    'field' => $field,
-                    'type' => $type,
-                    'settings' => &$settings, // Value can be changed.
-                    'uri' => &$uri // Value will be set to here.
-                ]);
-
-                Grav::instance()->fireEvent('onGetFlexMediaFieldSettings', $event);
-
-                $settings[$var] = $uri ?? Utils::getPathFromToken($token, $this);
-                $settings['self'] = false;
-
-                $this->_mediaSettings[$field] = $settings;
-            }
-        }
-
-        return $settings;
-    }
-
-    /**
-     * @param string $field
-     * @return array
      * @internal
      */
-    protected function getMediaFieldSettings(string $field): array
-    {
-        $settings = $this->getFieldSettings($field) ?? [];
-
-        return $settings + ['accept' => '*', 'limit' => 1000, 'self' => true];
-    }
-
-    /**
-     * @return array
-     */
-    protected function getMediaFields(): array
+    protected function getMediaFieldSettings(string $field): ?array
     {
         // Load settings for the field.
         $schema = $this->getBlueprint()->schema();
+        $settings = $schema ? $schema->getProperty($field) : null;
 
-        $list = [];
-        foreach ($schema->getState()['items'] as $field => $settings) {
-            if (isset($settings['type']) && (in_array($settings['type'], ['avatar', 'file', 'pagemedia']) || !empty($settings['destination']))) {
-                $list[] = $field;
-            }
-        }
-
-        return $list;
+        return $this->parseMediaFieldSettings($field, $settings);
     }
 
     /**

@@ -84,8 +84,8 @@ interface PageContentInterface
     /**
      * Gets and sets the associated media as found in the page folder.
      *
-     * @param  MediaCollectionInterface|null $var New media object.
-     * @return MediaCollectionInterface           Representation of associated media.
+     * @param  MediaCollectionInterface|string|null $var New media object.
+     * @return MediaCollectionInterface|null Representation of associated media.
      */
     public function media($var = null);
 

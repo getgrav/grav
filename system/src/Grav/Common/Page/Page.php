@@ -19,6 +19,7 @@ use Grav\Common\Grav;
 use Grav\Common\Language\Language;
 use Grav\Common\Markdown\Parsedown;
 use Grav\Common\Markdown\ParsedownExtra;
+use Grav\Common\Media\Interfaces\MediaCollectionInterface;
 use Grav\Common\Page\Interfaces\PageCollectionInterface;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Media\Traits\MediaTrait;
@@ -1360,19 +1361,17 @@ class Page implements PageInterface
     /**
      * Gets and sets the associated media as found in the page folder.
      *
-     * @param  Media|null $var Representation of associated media.
-     * @return Media      Representation of associated media.
+     * @param  MediaCollectionInterface|string|null $var Representation of associated media.
+     * @return MediaCollectionInterface|null      Representation of associated media.
      */
     public function media($var = null)
     {
-        if ($var) {
+        if ($var instanceof MediaCollectionInterface) {
             $this->setMedia($var);
+            $var = null;
         }
 
-        /** @var Media $media */
-        $media = $this->getMedia();
-
-        return $media;
+        return is_string($var) ? $this->getMediaField($var) : $this->getMedia();
     }
 
     /**
@@ -2896,6 +2895,23 @@ class Page implements PageInterface
         $case_insensitive = Grav::instance()['config']->get('system.force_lowercase_urls');
 
         return $case_insensitive ? mb_strtolower($route) : $route;
+    }
+
+    /**
+     * @param string $field
+     * @return array|null
+     */
+    protected function getMediaFieldSettings(string $field): ?array
+    {
+        if ($field === '') {
+            return null;
+        }
+
+        // Load settings for the field.
+        $schema = $this->getBlueprint()->schema();
+        $settings = $schema ? $schema->getProperty($field) : null;
+
+        return $this->parseMediaFieldSettings($field, $settings);
     }
 
     /**
