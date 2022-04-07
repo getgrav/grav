@@ -1045,4 +1045,13 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
 
         return $this->offsetGet($filename);
     }
+
+    /**
+     * @return string|null
+     * @deprecated 1.6 Use $this->getPath() instead.
+     */
+    public function path(): ?string
+    {
+        return $this->getPath();
+    }
 }

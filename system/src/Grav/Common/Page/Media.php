@@ -98,13 +98,4 @@ class Media extends LocalMedia
     {
         return parent::offsetGet($offset) ?: GlobalMedia::getInstance()[$offset];
     }
-
-    /**
-     * @return string|null
-     * @deprecated 1.6 Use $this->getPath() instead.
-     */
-    public function path(): ?string
-    {
-        return $this->getPath();
-    }
 }
