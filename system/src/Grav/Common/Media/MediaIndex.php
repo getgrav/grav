@@ -9,6 +9,7 @@
 
 namespace Grav\Common\Media;
 
+use Exception;
 use Grav\Framework\File\Formatter\JsonFormatter;
 use Grav\Framework\File\JsonFile;
 
@@ -86,11 +87,19 @@ class MediaIndex
 
         $index = array_filter($index, static function($val) { return $val !== null; } );
 
-        $indexes = $file->exists() ? $file->load() : ['version' => 1];
-        $version = $indexes['version'] ?? null;
-        if ($version !== 1) {
+        try {
             $indexes = ['version' => 1];
+            if ($file->exists()) {
+                $indexes = $file->load();
+            }
+            $version = $indexes['version'] ?? null;
+            if ($version !== 1) {
+                $indexes = ['version' => 1];
+            }
+        } catch (Exception $e) {
+            // TODO: Broken data lost. Maybe log this?
         }
+
         $indexes[$id] = $index;
 
         $file->save($indexes);
@@ -105,16 +114,23 @@ class MediaIndex
         if (!isset($this->indexes) || $reload) {
             // Read media index file.
             $file = $this->getFile();
-            if ($file->exists()) {
-                $this->indexes = $file->load();
-                $version = $this->indexes['version'] ?? null;
-                if ($version !== 1) {
-                    $this->indexes = [];
+
+             try {
+                 $this->indexes = [];
+                 $this->modified = 0;
+
+                if ($file->exists()) {
+                    $modified = $file->getModificationTime();
+                    $indexes = $file->load();
+
+                    $version = $this->indexes['version'] ?? null;
+                    if ($version === 1) {
+                        $this->indexes = $indexes;
+                        $this->modified = $modified;
+                    }
                 }
-                $this->modified = $file->getModificationTime();
-            } else {
-                $this->indexes = [];
-                $this->modified = 0;
+            } catch (Exception $e) {
+                // No need to catch the error, index will be regenerated.
             }
         }
 
