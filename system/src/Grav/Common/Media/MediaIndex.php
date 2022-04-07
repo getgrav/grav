@@ -91,10 +91,7 @@ class MediaIndex
             $indexes = ['version' => 1];
             if ($file->exists()) {
                 $indexes = $file->load();
-            }
-            $version = $indexes['version'] ?? null;
-            if ($version !== 1) {
-                $indexes = ['version' => 1];
+                // TODO: Handle B/C
             }
         } catch (Exception $e) {
             // TODO: Broken data lost. Maybe log this?
@@ -123,11 +120,14 @@ class MediaIndex
                     $modified = $file->getModificationTime();
                     $indexes = $file->load();
 
-                    $version = $this->indexes['version'] ?? null;
-                    if ($version === 1) {
-                        $this->indexes = $indexes;
-                        $this->modified = $modified;
+                    $version = $indexes['version'] ?? null;
+                    if ($version !== 1) {
+                        // TODO: Handle B/C
                     }
+
+                    unset($indexes['version']);
+                    $this->indexes = $indexes;
+                    $this->modified = $modified;
                 }
             } catch (Exception $e) {
                 // No need to catch the error, index will be regenerated.
