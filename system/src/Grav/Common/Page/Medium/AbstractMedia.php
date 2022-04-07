@@ -91,6 +91,11 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
     abstract public function getType(): string;
 
     /**
+     * @return string
+     */
+    abstract public function getName(): string;
+
+    /**
      * Return media path.
      *
      * @param string|null $filename

@@ -32,6 +32,14 @@ abstract class LocalMedia extends AbstractMedia
     }
 
     /**
+     * @return string
+     */
+    public function getName(): string
+    {
+        return 'local';
+    }
+
+    /**
      * Return media path.
      *
      * @param string|null $filename
