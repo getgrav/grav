@@ -143,7 +143,7 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
     public function url($reset = true)
     {
         if (!$this->image) {
-            parent::url($reset);
+            return parent::url($reset);
         }
 
         // FIXME: update this code
