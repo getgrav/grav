@@ -47,7 +47,11 @@ abstract class LocalMedia extends AbstractMedia
      */
     public function getPath(string $filename = null): ?string
     {
-        return $this->path ? GRAV_WEBROOT . '/' . $this->path . ($filename ? '/' . $filename : '') : null;
+        if (!$this->path) {
+            return null;
+        }
+
+        return GRAV_WEBROOT . '/' . $this->path . ($filename ? '/' . $filename : '');
     }
 
     /**

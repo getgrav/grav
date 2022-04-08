@@ -194,7 +194,7 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
     public function current(): ?MediaObjectInterface
     {
         $instance = current($this->items);
-        if ($instance && !$instance instanceof MediaObjectInterface) {
+        if (false !== $instance && !$instance instanceof MediaObjectInterface) {
             // Initialize media object.
             $key = $this->key();
             $this->items[$key] = $instance = $this->initMedium($key);

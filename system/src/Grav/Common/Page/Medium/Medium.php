@@ -112,11 +112,18 @@ class Medium extends Data implements RenderableInterface, MediaFileInterface
      */
     public function getMeta(): array
     {
-        return [
+        // TODO: this may require some tweaking, works for now.
+        $meta = $this->metadata + ($this->meta ?? []) + [
+            'name' => $this->filename,
             'mime' => $this->mime,
             'size' => $this->size,
+            'width' => $this->width,
+            'height' => $this->height,
+            'orientation' => $this->orientation,
             'modified' => $this->modified,
         ];
+
+        return array_filter($meta, static function($val) { return $val !== null; } );
     }
 
     /**

@@ -624,7 +624,7 @@ trait ImageMediaTrait
             $file->touch();
         }
 
-        return $this->generateCacheImage(GRAV_WEBROOT . '/' . $imageFile);
+        return $this->generateCacheImage(GRAV_WEBROOT . $imageFile);
     }
 
     /**
