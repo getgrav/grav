@@ -10,6 +10,7 @@
 3. [](#bugfix)
     * Fixed locking and reading files using `Framework\File` classes
     * Fixed `Utils::resolveTokenPath()` with `@variable@` not working properly
+    * Fixed remote URLs in markdown if using subfolder setup
 
 # v1.7.33
 ## mm/dd/2022

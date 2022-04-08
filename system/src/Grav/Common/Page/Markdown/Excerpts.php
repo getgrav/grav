@@ -97,6 +97,10 @@ class Excerpts
     {
         $grav = Grav::instance();
         $url = htmlspecialchars_decode(rawurldecode($excerpt['element']['attributes']['href']));
+        if (Uri::isExternal($url) && !str_starts_with($url, $grav['base_url_absolute'])) {
+            return $excerpt;
+        }
+
         $url_parts = $this->parseUrl($url);
 
         // If there is a query, then parse it and build action calls.
@@ -185,7 +189,12 @@ class Excerpts
      */
     public function processImageExcerpt(array $excerpt): array
     {
+        $grav = Grav::instance();
         $url = htmlspecialchars_decode(urldecode($excerpt['element']['attributes']['src']));
+        if (Uri::isExternal($url) && !str_starts_with($url, $grav['base_url_absolute'])) {
+            return $excerpt;
+        }
+
         $url_parts = $this->parseUrl($url);
 
         $media = null;
@@ -196,7 +205,6 @@ class Excerpts
 
             $media = $this->page->getMedia();
         } else {
-            $grav = Grav::instance();
             /** @var Pages $pages */
             $pages = $grav['pages'];
 
