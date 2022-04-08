@@ -202,13 +202,16 @@ class MediumFactory
         $medium->set('debug', $debug);
         $medium->setImagePrettyName($prev_basename);
 
-        $medium = self::fromFile($file);
-        if ($medium) {
+        $newMedium = self::fromFile($file);
+        if ($newMedium) {
             $size = filesize($file);
 
-            $medium->set('basename', $basename);
-            $medium->set('filename', $basename . '.' . $medium->extension);
-            $medium->set('size', $size);
+            $newMedium->set('basename', $basename);
+            $newMedium->set('filename', $basename . '.' . $newMedium->extension);
+            $newMedium->set('size', $size);
+            // FIXME: this is a workaround, better solution needed.
+            $newMedium->def('meta', $medium->meta);
+            $newMedium->def('metadata', $medium->metadata);
         } else {
             $size = 0;
         }
