@@ -10,6 +10,7 @@
 namespace Grav\Common\Media\Traits;
 
 use BadFunctionCallException;
+use Grav\Common\Debugger;
 use Grav\Common\Grav;
 use Grav\Common\Media\Interfaces\ImageMediaInterface;
 use Grav\Common\Page\Medium\ImageMedium;
@@ -18,6 +19,7 @@ use Grav\Framework\File\JsonFile;
 use Grav\Framework\Image\Adapter\GdAdapter;
 use Grav\Framework\Image\Image;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
+use RuntimeException;
 use function func_num_args;
 use function in_array;
 
@@ -635,12 +637,23 @@ trait ImageMediaTrait
             return $filepath;
         }
 
-        $adapter = GdAdapter::createFromString($this->readFile());
+        try {
+            $fileData = $this->readFile();
+            $adapter = GdAdapter::createFromString($fileData);
 
-        $image = $this->image;
-        $image->setAdapter($adapter);
-        $image->save($filepath, 'jpg', $this->quality);
-        $image->freeAdapter();
+            $image = $this->image;
+            $image->setAdapter($adapter);
+            $image->save($filepath, 'jpg', $this->quality);
+            $image->freeAdapter();
+
+        } catch (RuntimeException $e) {
+            /** @var Debugger $debugger */
+            $debugger = Grav::instance()['debugger'];
+            $debugger->addMessage(sprintf('Could not generate resized image for %s: %s', $this->filename, $e->getMessage()), 'warning');
+
+            // FIXME: Fallback image?
+            return '';
+        }
 
         return $filepath;
     }

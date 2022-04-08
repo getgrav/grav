@@ -11,6 +11,7 @@ namespace Grav\Common\Page\Medium;
 
 use Grav\Common\Config\Config;
 use Grav\Common\Data\Blueprint;
+use Grav\Common\Debugger;
 use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Grav;
 use Grav\Common\Language\Language;
@@ -421,9 +422,9 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
      * @param  MediaObjectInterface $medium
      * @param  int $from
      * @param  int $to
-     * @return MediaObjectInterface
+     * @return MediaObjectInterface|null
      */
-    abstract public function scaledFromMedium(MediaObjectInterface $medium, int $from, int $to = 1): MediaObjectInterface;
+    abstract public function scaledFromMedium(MediaObjectInterface $medium, int $from, int $to = 1): ?MediaObjectInterface;
 
     /**
      * Create Medium from array of parameters
@@ -785,6 +786,10 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
             }
         }
 
+        if (!$medium) {
+            return null;
+        }
+
         if ($file_path) {
             $meta_path = $file_path . '.meta.yaml';
             if (file_exists($meta_path)) {
@@ -826,7 +831,14 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
 
             for ($i=$max; $i > 1; $i--) {
                 if (!isset($alternatives[$i])) {
-                    $types['alternative'][$i] = $this->scaledFromMedium($alternatives[$max]['file'], $max, $i);
+                    $scaled = $this->scaledFromMedium($alternatives[$max]['file'], $max, $i);
+                    if ($scaled) {
+                        $types['alternative'][$i] = $scaled;
+                    } else {
+                        /** @var Debugger $debugger */
+                        $debugger = Grav::instance()['debugger'];
+                        $debugger->addMessage(sprintf('Could not create alternative image for %s: %s', $medium->filename, $e->getMessage()), 'warning');
+                    }
                 }
             }
 

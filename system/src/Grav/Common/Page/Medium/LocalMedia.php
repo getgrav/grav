@@ -136,9 +136,9 @@ abstract class LocalMedia extends AbstractMedia
      * @param  MediaObjectInterface $medium
      * @param  int $from
      * @param  int $to
-     * @return MediaObjectInterface
+     * @return MediaObjectInterface|null
      */
-    public function scaledFromMedium(MediaObjectInterface $medium, int $from, int $to = 1): MediaObjectInterface
+    public function scaledFromMedium(MediaObjectInterface $medium, int $from, int $to = 1): ?MediaObjectInterface
     {
         $result = MediumFactory::scaledFromMedium($medium, $from, $to);
 
