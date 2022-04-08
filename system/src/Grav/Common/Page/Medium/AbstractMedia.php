@@ -611,6 +611,10 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
                         $info += $this->readVectorSize($filepath);
                     }
                 } catch (RuntimeException $e) {
+                    /** @var Debugger $debugger */
+                    $debugger = Grav::instance()['debugger'];
+                    $debugger->addMessage(sprintf('Could not initialize %s for index: %s', $filename, $e->getMessage()), 'warning');
+
                     // TODO: Maybe we want to handle this..?
                 }
             }
@@ -771,6 +775,10 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
         $file_path = null;
         if (empty($types['base'])) {
             if (!isset($types['alternative'])) {
+                /** @var Debugger $debugger */
+                $debugger = Grav::instance()['debugger'];
+                $debugger->addMessage(sprintf('Could not create base media %s', $name), 'warning');
+
                 return null;
             }
 
@@ -787,6 +795,10 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
         }
 
         if (!$medium) {
+            /** @var Debugger $debugger */
+            $debugger = Grav::instance()['debugger'];
+            $debugger->addMessage(sprintf('Could not initialize %s', $name), 'warning');
+
             return null;
         }
 
@@ -810,6 +822,9 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
                         $types['meta']['file'] = $meta_path;
                     }
                 } catch (RuntimeException $e) {
+                    /** @var Debugger $debugger */
+                    $debugger = Grav::instance()['debugger'];
+                    $debugger->addMessage(sprintf('Could not create image meta for %s: %s', $name, $e->getMessage()), 'warning');
                 }
             }
         }
