@@ -96,6 +96,7 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
         return [
             'width' => $this->width,
             'height' => $this->height,
+            'orientation' => $this->orientation,
         ] + parent::getMeta();
     }
 

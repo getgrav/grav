@@ -534,6 +534,7 @@ trait ImageMediaTrait
         // Create a new image.
         $this->image = new Image($filepath, $this->getItems());
         $this->image->fixOrientation();
+        $this->undef('url');
 
         return $this;
     }

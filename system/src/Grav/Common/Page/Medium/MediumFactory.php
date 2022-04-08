@@ -212,6 +212,7 @@ class MediumFactory
             // FIXME: this is a workaround, better solution needed.
             $newMedium->def('meta', $medium->meta);
             $newMedium->def('metadata', $medium->metadata);
+            unset($newMedium->url);
         } else {
             $size = 0;
         }

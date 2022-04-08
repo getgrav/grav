@@ -117,9 +117,6 @@ class Medium extends Data implements RenderableInterface, MediaFileInterface
             'name' => $this->filename,
             'mime' => $this->mime,
             'size' => $this->size,
-            'width' => $this->width,
-            'height' => $this->height,
-            'orientation' => $this->orientation,
             'modified' => $this->modified,
         ];
 
