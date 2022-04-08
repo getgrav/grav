@@ -100,6 +100,10 @@ class Excerpts
         if (Uri::isExternal($url) && !str_starts_with($url, $grav['base_url_absolute'])) {
             return $excerpt;
         }
+        if (str_starts_with($url, '/-') && str_ends_with($url, '-/')) {
+            // Twig in markdown
+            return $excerpt;
+        }
 
         $url_parts = $this->parseUrl($url);
 
@@ -192,6 +196,10 @@ class Excerpts
         $grav = Grav::instance();
         $url = htmlspecialchars_decode(urldecode($excerpt['element']['attributes']['src']));
         if (Uri::isExternal($url) && !str_starts_with($url, $grav['base_url_absolute'])) {
+            return $excerpt;
+        }
+        if (str_starts_with($url, '/-') && str_ends_with($url, '-/')) {
+            // Twig in markdown
             return $excerpt;
         }
 

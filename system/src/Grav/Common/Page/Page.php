@@ -940,8 +940,8 @@ class Page implements PageInterface
         $content = $this->content;
         if ($keepTwig) {
             $token = [
-                '/' . Utils::generateRandomString(3),
-                Utils::generateRandomString(3) . '/'
+                '/-' . Utils::generateRandomString(3),
+                Utils::generateRandomString(3) . '-/'
             ];
             // Base64 encode any twig.
             $content = preg_replace_callback(
