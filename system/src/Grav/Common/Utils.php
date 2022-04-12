@@ -36,6 +36,7 @@ use function function_exists;
 use function in_array;
 use function is_array;
 use function is_callable;
+use function is_object;
 use function is_string;
 use function strlen;
 
@@ -1293,6 +1294,33 @@ abstract class Utils
         }
 
         return $newArray;
+    }
+
+    /**
+     * @param array|object $current
+     * @param string $name
+     * @param mixed|null $default
+     * @param string $separator
+     * @return mixed|null
+     */
+    public static function getField($current, string $name, $default = null, string $separator = '.')
+    {
+        if ($name === '') {
+            return $current;
+        }
+
+        $path = explode($separator, $name);
+        foreach ($path as $field) {
+            if (is_object($current) && isset($current->{$field})) {
+                $current = $current->{$field};
+            } elseif (is_array($current) && isset($current[$field])) {
+                $current = $current[$field];
+            } else {
+                return $default;
+            }
+        }
+
+        return $current;
     }
 
     /**

@@ -99,7 +99,17 @@ trait FlexMediaTrait
         $schema = $this->getBlueprint()->schema();
         $settings = $schema ? $schema->getProperty($field) : null;
 
-        return $this->parseMediaFieldSettings($field, $settings);
+        $settings = $this->parseMediaFieldSettings($field, $settings);
+        if ($settings && !isset($settings['media']['order'])) {
+            $order = Utils::getField($this->getArrayElements(), $field);
+            if (is_array($order)) {
+                $settings['media']['order'] = array_is_list($order) ? $order : array_keys($order);
+            } else {
+                $settings['media']['order'] = [];
+            }
+        }
+
+        return $settings;
     }
 
     /**

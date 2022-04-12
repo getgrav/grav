@@ -2911,7 +2911,22 @@ class Page implements PageInterface
         $schema = $this->getBlueprint()->schema();
         $settings = $schema ? $schema->getProperty($field) : null;
 
-        return $this->parseMediaFieldSettings($field, $settings);
+        $settings = $this->parseMediaFieldSettings($field, $settings);
+        if ($settings && !isset($settings['media']['order'])) {
+            if (str_starts_with($field, 'header.')) {
+                $field = substr($field, 7);
+            }
+            $header = $this->header();
+            $order = Utils::getField($header, $field);
+
+            if (is_array($order)) {
+                $settings['media']['order'] = array_is_list($order) ? $order : array_keys($order);
+            } else {
+                $settings['media']['order'] = [];
+            }
+        }
+
+        return $settings;
     }
 
     /**

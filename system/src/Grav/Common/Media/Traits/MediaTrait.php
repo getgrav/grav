@@ -145,18 +145,10 @@ trait MediaTrait
             /** @var MediaFactory $factory */
             $factory = Grav::instance()['media_factory'];
 
-            $order = $this->getNestedProperty($field);
-            if (is_array($order)) {
-                $order = array_is_list($order) ? $order : array_keys($order);
-            } else {
-                $order = [];
-            }
-
             $params = $settings['media'] ?? [];
             $params += [
                 'object' => $this,
                 'path' => $settings[$var],
-                'order' => $order,
                 'load' => true
             ];
 
