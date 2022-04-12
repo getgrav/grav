@@ -21,6 +21,7 @@ use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use Throwable;
 use function array_key_exists;
 use function in_array;
+use function is_array;
 use function strlen;
 
 /**
@@ -144,11 +145,18 @@ trait MediaTrait
             /** @var MediaFactory $factory */
             $factory = Grav::instance()['media_factory'];
 
+            $order = $this->getNestedProperty($field);
+            if (is_array($order)) {
+                $order = array_is_list($order) ? $order : array_keys($order);
+            } else {
+                $order = [];
+            }
+
             $params = $settings['media'] ?? [];
             $params += [
                 'object' => $this,
                 'path' => $settings[$var],
-                'order' => [], // TODO: ordering from the stored value?
+                'order' => $order,
                 'load' => true
             ];
 
