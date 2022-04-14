@@ -528,13 +528,12 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
 
     /**
      * @param string $filename
-     * @param string $destination
      * @return bool
      */
-    abstract protected function fileExists(string $filename, string $destination): bool;
+    abstract protected function fileExists(string $filename): bool;
 
     /**
-     * @param string $filepath
+     * @param string $filename
      * @return array
      */
     abstract protected function readImageSize(string $filename, array $info = null): array;

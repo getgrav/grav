@@ -9,12 +9,12 @@
 
 namespace Grav\Common\Page\Medium;
 
+use Exception;
 use FilesystemIterator;
 use Grav\Common\Data\Blueprint;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\Media\Interfaces\MediaObjectInterface;
 use Grav\Common\Security;
-use Grav\Framework\Filesystem\Filesystem;
 use Psr\Http\Message\UploadedFileInterface;
 use RuntimeException;
 use function dirname;
@@ -157,7 +157,7 @@ abstract class LocalMedia extends AbstractMedia
     public function readFile(string $filename, array $info = null): string
     {
         error_clear_last();
-        $filepath = $this->getPath($filename);
+        $filepath = $this->getRealPath($filename);
         $contents = @file_get_contents($filepath);
         if (false === $contents) {
             throw new RuntimeException('Reading media file failed: ' . (error_get_last()['message'] ?? sprintf('Cannot read %s', $filename)));
@@ -167,14 +167,14 @@ abstract class LocalMedia extends AbstractMedia
     }
 
     /**
-     * @param string $filepath
+     * @param string $filename
      * @return resource
      * @throws RuntimeException
      */
     public function readStream(string $filename, array $info = null)
     {
         error_clear_last();
-        $filepath = $this->getPath($filename);
+        $filepath = $this->getRealPath($filename);
         $contents = @fopen($filepath, 'rb');
         if (false === $contents) {
             throw new RuntimeException('Reading media file failed: ' . (error_get_last()['message'] ?? sprintf('Cannot open %s', $filename)));
@@ -185,12 +185,25 @@ abstract class LocalMedia extends AbstractMedia
 
     /**
      * @param string $filename
-     * @param string $destination
      * @return bool
      */
-    protected function fileExists(string $filename, string $destination): bool
+    protected function fileExists(string $filename): bool
     {
-        return is_file("{$destination}/{$filename}");
+        $filepath = $this->getRealPath($filename);
+
+        return is_file($filepath);
+    }
+
+    /**
+     * Internal method to get real path to the media file.
+     *
+     * @param string $filename
+     * @param array|null $info
+     * @return string
+     */
+    protected function getRealPath(string $filename, array $info = null): string
+    {
+        return $this->getPath($filename);
     }
 
     /**
@@ -200,17 +213,13 @@ abstract class LocalMedia extends AbstractMedia
     protected function readImageSize(string $filename, array $info = null): array
     {
         error_clear_last();
-        $filepath = $this->getPath($filename);
+        $filepath = $this->getRealPath($filename);
         $sizes = @getimagesize($filepath);
         if (false === $sizes) {
             throw new RuntimeException(error_get_last()['message'] ?? 'Unable to get image size');
         }
 
-        $sizes = [
-            'width' => $sizes[0],
-            'height' => $sizes[1],
-            'mime' => $sizes['mime']
-        ];
+        $sizes = ['width' => $sizes[0], 'height' => $sizes[1], 'mime' => $sizes['mime']];
 
         // TODO: This is going to be slow without any indexing!
         /*
@@ -254,36 +263,14 @@ abstract class LocalMedia extends AbstractMedia
     }
 
     /**
-     * @param array|null $settings
-     * @return string
-     */
-    protected function getDestination(?array $settings = null): string
-    {
-        $settings = $this->getUploadSettings($settings);
-        $path = $settings['destination'] ?? $this->getPath();
-        if (!$path) {
-            throw new RuntimeException($this->translate('GRAV.MEDIA.BAD_DESTINATION'), 400);
-        }
-
-        return $path;
-    }
-
-    /**
-     * Internal logic to move uploaded file.
+     * Internal logic to move uploaded file to the media folder.
      *
      * @param UploadedFileInterface $uploadedFile
      * @param string $filename
-     * @param string $path
      */
-    protected function doMoveUploadedFile(UploadedFileInterface $uploadedFile, string $filename, string $path): void
+    protected function doMoveUploadedFile(UploadedFileInterface $uploadedFile, string $filename): void
     {
-        $filepath = sprintf('%s/%s', $path, $filename);
-
-        // Do not use streams internally.
-        $locator = $this->getLocator();
-        if ($locator->isStream($filepath)) {
-            $filepath = (string)$locator->findResource($filepath, true, true);
-        }
+        $filepath = $this->getRealPath($filename);
 
         Folder::create(dirname($filepath));
 
@@ -291,22 +278,15 @@ abstract class LocalMedia extends AbstractMedia
     }
 
     /**
-     * Internal logic to copy file.
+     * Internal logic to copy file within the same media folder.
      *
      * @param string $src
      * @param string $dst
-     * @param string $path
      */
-    protected function doCopy(string $src, string $dst, string $path): void
+    protected function doCopy(string $src, string $dst): void
     {
-        $src = sprintf('%s/%s', $path, $src);
-        $dst = sprintf('%s/%s', $path, $dst);
-
-        // Do not use streams internally.
-        $locator = $this->getLocator();
-        if ($locator->isStream($dst)) {
-            $dst = (string)$locator->findResource($dst, true, true);
-        }
+        $src = $this->getRealPath($src);
+        $dst = $this->getRealPath($dst);
 
         Folder::create(dirname($dst));
 
@@ -318,76 +298,57 @@ abstract class LocalMedia extends AbstractMedia
      *
      * @param string $from
      * @param string $to
-     * @param string $path
      */
-    protected function doRename(string $from, string $to, string $path): void
+    protected function doRename(string $from, string $to): void
     {
-        $fromPath = $path . '/' . $from;
-
-        $locator = $this->getLocator();
-        if ($locator->isStream($fromPath)) {
-            $fromPath = $locator->findResource($fromPath, true, true);
-        }
-
+        $fromPath = $this->getRealPath($from);
         if (!is_file($fromPath)) {
             return;
         }
 
-        $mediaPath = dirname($fromPath);
-        $toPath = $mediaPath . '/' . $to;
-        if ($locator->isStream($toPath)) {
-            $toPath = $locator->findResource($toPath, true, true);
-        }
+        $toPath = $this->getRealPath($to);
 
         if (is_file($toPath)) {
             // TODO: translate error message
-            throw new RuntimeException(sprintf('%s already exists (%s)', $to, $mediaPath), 500);
+            throw new RuntimeException(sprintf('%s already exists', $to), 500);
         }
 
         $result = rename($fromPath, $toPath);
         if (!$result) {
             // TODO: translate error message
-            throw new RuntimeException(sprintf('%s -> %s (%s)', $from, $to, $mediaPath), 500);
+            throw new RuntimeException(sprintf('%s -> %s', $from, $to), 500);
         }
 
-        // TODO: Add missing logic to handle retina files.
+        // TODO: Add missing logic to handle retina files (move out of here!).
+        /*
         if (is_file($fromPath . '.meta.yaml')) {
             $result = rename($fromPath . '.meta.yaml', $toPath . '.meta.yaml');
             if (!$result) {
                 // TODO: translate error message
-                throw new RuntimeException(sprintf('Meta %s -> %s (%s)', $from, $to, $mediaPath), 500);
+                throw new RuntimeException(sprintf('Meta %s -> %s', $from, $to), 500);
             }
         }
+        */
     }
 
     /**
-     * Internal logic to remove file.
+     * Internal logic to remove a file.
      *
      * @param string $filename
-     * @param string $path
+     * @return void
      */
-    protected function doRemove(string $filename, string $path): void
+    protected function doRemove(string $filename): void
     {
-        $filesystem = Filesystem::getInstance(false);
-
-        $locator = $this->getLocator();
-        $folder = $locator->isStream($path) ? (string)$locator->findResource($path, true, true) : $path;
-
-        // If path doesn't exist, there's nothing to do.
-        $pathname = $filesystem->pathname($filename);
-        $targetPath = rtrim(sprintf('%s/%s', $folder, $pathname), '/');
-        if (!is_dir($targetPath)) {
-            return;
-        }
-
-        // Remove requested media file.
-        if ($this->fileExists($filename, $path)) {
-            $result = unlink("{$folder}/{$filename}");
+        $filepath = $this->getRealPath($filename);
+        if ($this->fileExists($filepath)) {
+            $result = unlink($filepath);
             if (!$result) {
-                throw new RuntimeException($this->translate('PLUGIN_ADMIN.FILE_COULD_NOT_BE_DELETED') . ': ' . $filename, 500);
+                throw new RuntimeException($filename, 500);
             }
         }
 
+        // TODO: move this out of here!
+        /*
         // Remove associated metadata.
         $this->doRemoveMetadata($filename, $path);
 
@@ -420,21 +381,17 @@ abstract class LocalMedia extends AbstractMedia
                 }
             }
         }
+        */
     }
 
     /**
      * @param string $filename
-     * @param string $path
+     * @return void
+     * @throws Exception
      */
-    protected function doSanitizeSvg(string $filename, string $path): void
+    protected function doSanitizeSvg(string $filename): void
     {
-        $filepath = sprintf('%s/%s', $path, $filename);
-
-        // Do not use streams internally.
-        $locator = $this->getLocator();
-        if ($locator->isStream($filepath)) {
-            $filepath = (string)$locator->findResource($filepath, true, true);
-        }
+        $filepath = $this->getRealPath($filename);
 
         Security::sanitizeSVG($filepath);
     }
