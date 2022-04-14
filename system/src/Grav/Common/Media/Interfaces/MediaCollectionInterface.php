@@ -109,16 +109,20 @@ interface MediaCollectionInterface extends \Grav\Framework\Media\Interfaces\Medi
     public function createFromArray(array $items = [], Blueprint $blueprint = null): ?MediaObjectInterface;
 
     /**
-     * @param string $filepath
+     * @param string $filename
+     * @param array|null $info
      * @return string
      * @throws RuntimeException
+     * @internal Use $medium->readFile() instead!
      */
-    public function readFile(string $filepath): string;
+    public function readFile(string $filename, array $info = null): string;
 
     /**
-     * @param string $filepath
+     * @param string $filename
+     * @param array|null $info
      * @return resource
      * @throws RuntimeException
+     * @internal Use $medium->readFile() instead!
      */
-    public function readStream(string $filepath);
+    public function readStream(string $filename, array $info = null);
 }

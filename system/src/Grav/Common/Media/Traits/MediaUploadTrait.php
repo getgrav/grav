@@ -11,12 +11,10 @@ namespace Grav\Common\Media\Traits;
 
 use Exception;
 use Grav\Common\Config\Config;
-use Grav\Common\Filesystem\Folder;
 use Grav\Common\Grav;
 use Grav\Common\Language\Language;
 use Grav\Common\Page\Medium\Medium;
 use Grav\Common\Page\Medium\MediumFactory;
-use Grav\Common\Security;
 use Grav\Common\Utils;
 use Grav\Framework\Filesystem\Filesystem;
 use Grav\Framework\Form\FormFlashFile;
@@ -25,7 +23,6 @@ use Psr\Http\Message\UploadedFileInterface;
 use RocketTheme\Toolbox\File\YamlFile;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use RuntimeException;
-use function dirname;
 use function in_array;
 
 /**
@@ -79,19 +76,24 @@ trait MediaUploadTrait
                 break;
             case UPLOAD_ERR_INI_SIZE:
             case UPLOAD_ERR_FORM_SIZE:
-                throw new RuntimeException($this->translate('PLUGIN_ADMIN.EXCEEDED_FILESIZE_LIMIT'), 400);
+                $size = Utils::prettySize(Utils::getUploadLimit());
+
+                throw new RuntimeException($this->translate('GRAV.MEDIA.UPLOAD_ERR_SIZE', $size), 400);
             case UPLOAD_ERR_PARTIAL:
+                throw new RuntimeException($this->translate('GRAV.MEDIA.UPLOAD_ERR_PARTIAL'), 400);
             case UPLOAD_ERR_NO_FILE:
                 if (!$uploadedFile instanceof FormFlashFile) {
-                    throw new RuntimeException($this->translate('PLUGIN_ADMIN.NO_FILES_SENT'), 400);
+                    throw new RuntimeException($this->translate('GRAV.MEDIA.UPLOAD_ERR_NO_FILE'), 400);
                 }
                 break;
             case UPLOAD_ERR_NO_TMP_DIR:
-                throw new RuntimeException($this->translate('PLUGIN_ADMIN.UPLOAD_ERR_NO_TMP_DIR'), 400);
+                throw new RuntimeException($this->translate('GRAV.MEDIA.UPLOAD_ERR_NO_TMP_DIR'), 400);
             case UPLOAD_ERR_CANT_WRITE:
+                throw new RuntimeException($this->translate('GRAV.MEDIA.UPLOAD_ERR_CANT_WRITE'), 400);
             case UPLOAD_ERR_EXTENSION:
+                throw new RuntimeException($this->translate('GRAV.MEDIA.UPLOAD_ERR_EXTENSION'), 400);
             default:
-                throw new RuntimeException($this->translate('PLUGIN_ADMIN.UNKNOWN_ERRORS'), 400);
+                throw new RuntimeException($this->translate('GRAV.MEDIA.UPLOAD_ERR_UNKNOWN'), 400);
         }
 
         $metadata = [
@@ -111,90 +113,63 @@ trait MediaUploadTrait
      * Checks that file metadata meets the requirements. Returns new filename.
      *
      * @param array $metadata
+     * @param string|null $filename
      * @param array|null $settings
      * @return string
-     * @throws RuntimeException
      */
     public function checkFileMetadata(array $metadata, string $filename = null, array $settings = null): string
     {
-        // Add the defaults to the settings.
-        $settings = $this->getUploadSettings($settings);
-
-        // Destination is always needed (but it can be set in defaults).
-        $self = $settings['self'] ?? false;
-        if (!isset($settings['destination']) && $self === false) {
-            throw new RuntimeException($this->translate('PLUGIN_ADMIN.DESTINATION_NOT_SPECIFIED'), 400);
-        }
-
         if (null === $filename) {
-            // If no filename is given, use the filename from the uploaded file (path is not allowed).
-            $folder = '';
+            // If no filename is given, use the filename from the uploaded file.
             $filename = $metadata['filename'] ?? '';
-        } else {
-            // If caller sets the filename, we will accept any custom path.
-            $folder = dirname($filename);
-            if ($folder === '.') {
-                $folder = '';
-            }
-            $filename = Utils::basename($filename);
         }
+
         $extension = Utils::pathinfo($filename, PATHINFO_EXTENSION);
 
-        // Decide which filename to use.
+        // Generate random filename if asked for.
+        $settings = $this->getUploadSettings($settings);
         if ($settings['random_name']) {
-            // Generate random filename if asked for.
             $filename = mb_strtolower(Utils::generateRandomString(15) . '.' . $extension);
         }
 
+        // Destination is always needed (but it can be set in defaults).
+        $path = $this->getDestination($settings);
+
         // Handle conflicting filename if needed.
-        if ($settings['avoid_overwriting']) {
-            $destination = $settings['destination'];
-            if ($destination && $this->fileExists($filename, $destination)) {
-                $filename = date('YmdHis') . '-' . $filename;
-            }
+        if ($settings['avoid_overwriting'] && $this->fileExists($filename, $path)) {
+            $filename = date('YmdHis') . '-' . $filename;
         }
-        $filepath = $folder . $filename;
 
         // Check if the filename is allowed.
         if (!Utils::checkFilename($filename)) {
-            throw new RuntimeException(
-                sprintf($this->translate('PLUGIN_ADMIN.FILEUPLOAD_UNABLE_TO_UPLOAD'), $filepath, $this->translate('PLUGIN_ADMIN.BAD_FILENAME'))
-            );
+            throw new RuntimeException($this->translate('GRAV.MEDIA.BAD_FILENAME', $filename), 400);
         }
 
         // Check if the file extension is allowed.
         $extension = mb_strtolower($extension);
         if (!$extension || !$this->getConfig()->get("media.types.{$extension}")) {
-            // Not a supported type.
-            throw new RuntimeException($this->translate('PLUGIN_ADMIN.UNSUPPORTED_FILE_TYPE') . ': ' . $extension, 400);
+            throw new RuntimeException($this->translate('GRAV.MEDIA.BAD_FILE_EXTENSION', $filename), 400);
         }
 
-        // Calculate maximum file size (from MB).
-        $filesize = $settings['filesize'];
-        if ($filesize) {
-            $max_filesize = $filesize * 1048576;
-            if ($metadata['size'] > $max_filesize) {
-                // TODO: use own language string
-                throw new RuntimeException($this->translate('PLUGIN_ADMIN.EXCEEDED_GRAV_FILESIZE_LIMIT'), 400);
-            }
-        } elseif (null === $filesize) {
-            // Check size against the Grav upload limit.
-            $grav_limit = Utils::getUploadLimit();
-            if ($grav_limit > 0 && $metadata['size'] > $grav_limit) {
-                throw new RuntimeException($this->translate('PLUGIN_ADMIN.EXCEEDED_GRAV_FILESIZE_LIMIT'), 400);
-            }
+        // Check for maximum file size.
+        $sizeLimit = $settings['filesize'];
+        if ($sizeLimit > 0 && $metadata['size'] > $sizeLimit) {
+            $size = Utils::prettySize($sizeLimit);
+
+            throw new RuntimeException($this->translate('GRAV.MEDIA.EXCEEDED_GRAV_FILESIZE_LIMIT', $filename, $size), 400);
         }
 
-        $grav = Grav::instance();
-        /** @var MimeTypes $mimeChecker */
-        $mimeChecker = $grav['mime'];
+        $grav = $this->getGrav();
 
         // Handle Accepted file types. Accept can only be mime types (image/png | image/*) or file extensions (.pdf | .jpg)
         // Do not trust mime type sent by the browser.
+
+        /** @var MimeTypes $mimeChecker */
+        $mimeChecker = $grav['mime'];
         $mime = $metadata['mime'] ?? $mimeChecker->getMimeType($extension);
         $validExtensions = $mimeChecker->getExtensions($mime);
         if (!in_array($extension, $validExtensions, true)) {
-            throw new RuntimeException('The mime type does not match to file extension', 400);
+            throw new RuntimeException($this->translate('GRAV.MEDIA.MIMETYPE_MISMATCH', $mime, $filename), 400);
         }
 
         $accepted = false;
@@ -212,8 +187,7 @@ trait MediaUploadTrait
             if ($isMime) {
                 $match = preg_match('#' . $find . '$#', $mime);
                 if (!$match) {
-                    // TODO: translate
-                    $errors[] = 'The MIME type "' . $mime . '" for the file "' . $filepath . '" is not an accepted.';
+                    $errors[] = $this->translate('GRAV.MEDIA.BAD_MIMETYPE', $mime, $filename);
                 } else {
                     $accepted = true;
                     break;
@@ -221,8 +195,7 @@ trait MediaUploadTrait
             } else {
                 $match = preg_match('#' . $find . '$#', $filename);
                 if (!$match) {
-                    // TODO: translate
-                    $errors[] = 'The File Extension for the file "' . $filepath . '" is not an accepted.';
+                    $errors[] = $this->translate('GRAV.MEDIA.BAD_FILE_EXTENSION', $filename);
                 } else {
                     $accepted = true;
                     break;
@@ -233,7 +206,7 @@ trait MediaUploadTrait
             throw new RuntimeException(implode('<br />', $errors), 400);
         }
 
-        return $filepath;
+        return $filename;
     }
 
     /**
@@ -254,20 +227,12 @@ trait MediaUploadTrait
      */
     public function copyUploadedFile(UploadedFileInterface $uploadedFile, string $filename, array $settings = null): void
     {
-        // Add the defaults to the settings.
-        $settings = $this->getUploadSettings($settings);
-
-        $path = $settings['destination'] ?? $this->getPath();
-        if (!$path || !$filename) {
-            throw new RuntimeException($this->translate('PLUGIN_ADMIN.FAILED_TO_MOVE_UPLOADED_FILE'), 400);
-        }
-
-        /** @var UniformResourceLocator $locator */
-        $locator = $this->getGrav()['locator'];
-
         try {
-            // Clear locator cache to make sure we have up to date information from the filesystem.
-            $locator->clearCache();
+            // Add the defaults to the settings.
+            if (!$filename) {
+                throw new RuntimeException($this->translate('GRAV.MEDIA.BAD_FILENAME', '(N/A)'), 400);
+            }
+
             $this->clearCache();
 
             $filesystem = Filesystem::getInstance(false);
@@ -279,6 +244,8 @@ trait MediaUploadTrait
             // Get name for the uploaded file.
             [$base, $ext,,] = $this->getFileParts($basename);
             $name = "{$pathname}{$base}.{$ext}";
+
+            $path = $this->getDestination($settings);
 
             // Upload file.
             if ($uploadedFile instanceof FormFlashFile) {
@@ -318,10 +285,8 @@ trait MediaUploadTrait
             }
 
         } catch (Exception $e) {
-            throw new RuntimeException($this->translate('PLUGIN_ADMIN.FAILED_TO_MOVE_UPLOADED_FILE') . $e->getMessage(), 400);
+            throw new RuntimeException($this->translate('GRAV.MEDIA.UPLOAD_ERR_FAILED_TO_MOVE') . $e->getMessage(), 400);
         } finally {
-            // Finally clear media cache.
-            $locator->clearCache();
             $this->clearCache();
         }
     }
@@ -336,43 +301,32 @@ trait MediaUploadTrait
      */
     public function deleteFile(string $filename, array $settings = null): void
     {
-        // Add the defaults to the settings.
-        $settings = $this->getUploadSettings($settings);
-        $filesystem = Filesystem::getInstance(false);
+        try {
+            // First check for allowed filename.
+            if (!Utils::checkFilename($filename)) {
+                throw new RuntimeException($this->translate('GRAV.MEDIA.BAD_FILENAME', $filename), 400);
+            }
 
-        // First check for allowed filename.
-        $basename = $filesystem->basename($filename);
-        if (!Utils::checkFilename($basename)) {
-            throw new RuntimeException($this->translate('PLUGIN_ADMIN.FILE_COULD_NOT_BE_DELETED') . ": {$this->translate('PLUGIN_ADMIN.BAD_FILENAME')}: " . $filename, 400);
+            // Get base name of the file.
+            [$base, $ext,,] = $this->getFileParts($filename);
+            $name = "{$base}.{$ext}";
+
+            // Remove file and all the associated metadata.
+            $this->clearCache();
+
+            $path = $this->getDestination($settings);
+
+            $this->doRemove($name, $path);
+
+            // Update media index.
+            if (method_exists($this, 'updateIndex')) {
+                $this->updateIndex([$filename => null]);
+            }
+            $this->hide($filename);
+            $this->clearCache();
+        } catch (Exception $e) {
+            throw new RuntimeException($this->translate('GRAV.MEDIA.FILE_COULD_NOT_BE_DELETED', $e->getMessage()), $e->getCode(), $e);
         }
-
-        $path = $settings['destination'] ?? $this->getPath();
-        if (!$path) {
-            return;
-        }
-
-        /** @var UniformResourceLocator $locator */
-        $locator = $this->getGrav()['locator'];
-        $locator->clearCache();
-
-        $pathname = $filesystem->pathname($filename);
-
-        // Get base name of the file.
-        [$base, $ext,,] = $this->getFileParts($basename);
-        $name = "{$pathname}{$base}.{$ext}";
-
-        // Remove file and all all the associated metadata.
-        $this->doRemove($name, $path);
-
-        // Update media index.
-        if (method_exists($this, 'updateIndex')) {
-            $this->updateIndex([$filename => null]);
-        }
-        $this->hide($filename);
-
-        // Finally clear media cache.
-        $locator->clearCache();
-        $this->clearCache();
     }
 
     /**
@@ -384,64 +338,34 @@ trait MediaUploadTrait
      */
     public function renameFile(string $from, string $to, array $settings = null): void
     {
-        // Add the defaults to the settings.
-        $settings = $this->getUploadSettings($settings);
-        $filesystem = Filesystem::getInstance(false);
+        try {
+            $filesystem = Filesystem::getInstance(false);
 
-        $path = $settings['destination'] ?? $this->getPath();
-        if (!$path) {
-            // TODO: translate error message
-            throw new RuntimeException('Failed to rename file: Bad destination', 400);
+            $this->clearCache();
+
+            // Get base name of the file.
+            $pathname = $filesystem->pathname($from);
+
+            // Remove @2x, @3x and .meta.yaml
+            [$base, $ext,,] = $this->getFileParts($filesystem->basename($from));
+            $from = "{$pathname}{$base}.{$ext}";
+
+            [$base, $ext,,] = $this->getFileParts($filesystem->basename($to));
+            $to = "{$pathname}{$base}.{$ext}";
+
+            $path = $this->getDestination($settings);
+
+            $this->doRename($from, $to, $path);
+
+            // Update media index.
+            if (method_exists($this, 'updateIndex')) {
+                $this->updateIndex();
+            }
+
+            $this->clearCache();
+        } catch (Exception $e) {
+            throw new RuntimeException($this->translate('GRAV.MEDIA.FILE_COULD_NOT_BE_RENAMED', $e->getMessage()), $e->getCode(), $e);
         }
-
-        /** @var UniformResourceLocator $locator */
-        $locator = $this->getGrav()['locator'];
-        $locator->clearCache();
-
-        // Get base name of the file.
-        $pathname = $filesystem->pathname($from);
-
-        // Remove @2x, @3x and .meta.yaml
-        [$base, $ext,,] = $this->getFileParts($filesystem->basename($from));
-        $from = "{$pathname}{$base}.{$ext}";
-
-        [$base, $ext,,] = $this->getFileParts($filesystem->basename($to));
-        $to = "{$pathname}{$base}.{$ext}";
-
-        $this->doRename($from, $to, $path);
-
-        // Update media index.
-        if (method_exists($this, 'updateIndex')) {
-            $this->updateIndex();
-        }
-
-        // Finally clear media cache.
-        $locator->clearCache();
-        $this->clearCache();
-    }
-
-    /**
-     * Internal logic to move uploaded file.
-     *
-     * @param UploadedFileInterface $uploadedFile
-     * @param string $filename
-     * @param string $path
-     */
-    protected function doMoveUploadedFile(UploadedFileInterface $uploadedFile, string $filename, string $path): void
-    {
-        $filepath = sprintf('%s/%s', $path, $filename);
-
-        /** @var UniformResourceLocator $locator */
-        $locator = $this->getGrav()['locator'];
-
-        // Do not use streams internally.
-        if ($locator->isStream($filepath)) {
-            $filepath = (string)$locator->findResource($filepath, true, true);
-        }
-
-        Folder::create(dirname($filepath));
-
-        $uploadedFile->moveTo($filepath);
     }
 
     /**
@@ -452,8 +376,39 @@ trait MediaUploadTrait
      */
     public function getUploadSettings(?array $settings = null): array
     {
-        return null !== $settings ? $settings + $this->_upload_defaults : $this->_upload_defaults;
+        $settings = null !== $settings ? $settings + $this->_upload_defaults : $this->_upload_defaults;
+        if ($settings['filesize']) {
+            $settings['filesize'] *= 1048576;
+        } else {
+            $settings['filesize'] = Utils::getUploadLimit();
+        }
+
+        return $settings;
     }
+
+    /**
+     * @param array|null $settings
+     * @return string
+     */
+    protected function getDestination(?array $settings = null): string
+    {
+        $settings = $this->getUploadSettings($settings);
+        $path = $settings['destination'] ?? $this->getPath();
+        if (!$path) {
+            throw new RuntimeException($this->translate('GRAV.MEDIA.BAD_DESTINATION'), 400);
+        }
+
+        return $path;
+    }
+
+    /**
+     * Internal logic to move uploaded file.
+     *
+     * @param UploadedFileInterface $uploadedFile
+     * @param string $filename
+     * @param string $path
+     */
+    abstract protected function doMoveUploadedFile(UploadedFileInterface $uploadedFile, string $filename, string $path): void;
 
     /**
      * Internal logic to copy file.
@@ -462,23 +417,7 @@ trait MediaUploadTrait
      * @param string $dst
      * @param string $path
      */
-    protected function doCopy(string $src, string $dst, string $path): void
-    {
-        $src = sprintf('%s/%s', $path, $src);
-        $dst = sprintf('%s/%s', $path, $dst);
-
-        /** @var UniformResourceLocator $locator */
-        $locator = $this->getGrav()['locator'];
-
-        // Do not use streams internally.
-        if ($locator->isStream($dst)) {
-            $dst = (string)$locator->findResource($dst, true, true);
-        }
-
-        Folder::create(dirname($dst));
-
-        copy($src, $dst);
-    }
+    abstract protected function doCopy(string $src, string $dst, string $path): void;
 
     /**
      * Internal logic to rename file.
@@ -487,46 +426,7 @@ trait MediaUploadTrait
      * @param string $to
      * @param string $path
      */
-    protected function doRename(string $from, string $to, string $path): void
-    {
-        /** @var UniformResourceLocator $locator */
-        $locator = $this->getGrav()['locator'];
-
-        $fromPath = $path . '/' . $from;
-        if ($locator->isStream($fromPath)) {
-            $fromPath = $locator->findResource($fromPath, true, true);
-        }
-
-        if (!is_file($fromPath)) {
-            return;
-        }
-
-        $mediaPath = dirname($fromPath);
-        $toPath = $mediaPath . '/' . $to;
-        if ($locator->isStream($toPath)) {
-            $toPath = $locator->findResource($toPath, true, true);
-        }
-
-        if (is_file($toPath)) {
-            // TODO: translate error message
-            throw new RuntimeException(sprintf('File could not be renamed: %s already exists (%s)', $to, $mediaPath), 500);
-        }
-
-        $result = rename($fromPath, $toPath);
-        if (!$result) {
-            // TODO: translate error message
-            throw new RuntimeException(sprintf('File could not be renamed: %s -> %s (%s)', $from, $to, $mediaPath), 500);
-        }
-
-        // TODO: Add missing logic to handle retina files.
-        if (is_file($fromPath . '.meta.yaml')) {
-            $result = rename($fromPath . '.meta.yaml', $toPath . '.meta.yaml');
-            if (!$result) {
-                // TODO: translate error message
-                throw new RuntimeException(sprintf('Meta could not be renamed: %s -> %s (%s)', $from, $to, $mediaPath), 500);
-            }
-        }
-    }
+    abstract protected function doRename(string $from, string $to, string $path): void;
 
     /**
      * Internal logic to remove file.
@@ -534,66 +434,13 @@ trait MediaUploadTrait
      * @param string $filename
      * @param string $path
      */
-    protected function doRemove(string $filename, string $path): void
-    {
-        $filesystem = Filesystem::getInstance(false);
+    abstract protected function doRemove(string $filename, string $path): void;
 
-        /** @var UniformResourceLocator $locator */
-        $locator = $this->getGrav()['locator'];
-
-        // If path doesn't exist, there's nothing to do.
-        $pathname = $filesystem->pathname($filename);
-        if (!$this->fileExists($pathname, $path)) {
-            return;
-        }
-
-        $folder = $locator->isStream($path) ? (string)$locator->findResource($path, true, true) : $path;
-
-        // Remove requested media file.
-        if ($this->fileExists($filename, $path)) {
-            $result = unlink("{$folder}/{$filename}");
-            if (!$result) {
-                throw new RuntimeException($this->translate('PLUGIN_ADMIN.FILE_COULD_NOT_BE_DELETED') . ': ' . $filename, 500);
-            }
-        }
-
-        // Remove associated metadata.
-        $this->doRemoveMetadata($filename, $path);
-
-        // Remove associated 2x, 3x and their .meta.yaml files.
-        $targetPath = rtrim(sprintf('%s/%s', $folder, $pathname), '/');
-        $dir = scandir($targetPath, SCANDIR_SORT_NONE);
-        if (false === $dir) {
-            throw new RuntimeException($this->translate('PLUGIN_ADMIN.FILE_COULD_NOT_BE_DELETED') . ': ' . $filename, 500);
-        }
-
-        /** @var UniformResourceLocator $locator */
-        $locator = $this->getGrav()['locator'];
-
-        $basename = $filesystem->basename($filename);
-        $fileParts = (array)$filesystem->pathinfo($filename);
-
-        foreach ($dir as $file) {
-            $preg_name = preg_quote($fileParts['filename'], '`');
-            $preg_ext = preg_quote($fileParts['extension'] ?? '.', '`');
-            $preg_filename = preg_quote($basename, '`');
-
-            if (preg_match("`({$preg_name}@\d+x\.{$preg_ext}(?:\.meta\.yaml)?$|{$preg_filename}\.meta\.yaml)$`", $file)) {
-                $testPath = $targetPath . '/' . $file;
-                if ($locator->isStream($testPath)) {
-                    $testPath = (string)$locator->findResource($testPath, true, true);
-                    $locator->clearCache($testPath);
-                }
-
-                if (is_file($testPath)) {
-                    $result = unlink($testPath);
-                    if (!$result) {
-                        throw new RuntimeException($this->translate('PLUGIN_ADMIN.FILE_COULD_NOT_BE_DELETED') . ': ' . $filename, 500);
-                    }
-                }
-            }
-        }
-    }
+    /**
+     * @param string $filename
+     * @param string $path
+     */
+    abstract protected function doSanitizeSvg(string $filename, string $path): void;
 
     /**
      * @param array $metadata
@@ -604,10 +451,8 @@ trait MediaUploadTrait
     {
         $filepath = sprintf('%s/%s', $path, $filename);
 
-        /** @var UniformResourceLocator $locator */
-        $locator = $this->getGrav()['locator'];
-
         // Do not use streams internally.
+        $locator = $this->getLocator();
         if ($locator->isStream($filepath)) {
             $filepath = (string)$locator->findResource($filepath, true, true);
         }
@@ -624,10 +469,8 @@ trait MediaUploadTrait
     {
         $filepath = sprintf('%s/%s', $path, $filename);
 
-        /** @var UniformResourceLocator $locator */
-        $locator = $this->getGrav()['locator'];
-
         // Do not use streams internally.
+        $locator = $this->getLocator();
         if ($locator->isStream($filepath)) {
             $filepath = (string)$locator->findResource($filepath, true);
             if (!$filepath) {
@@ -639,25 +482,6 @@ trait MediaUploadTrait
         if ($file->exists()) {
             $file->delete();
         }
-    }
-
-    /**
-     * @param string $filename
-     * @param string $path
-     */
-    protected function doSanitizeSvg(string $filename, string $path): void
-    {
-        $filepath = sprintf('%s/%s', $path, $filename);
-
-        /** @var UniformResourceLocator $locator */
-        $locator = $this->getGrav()['locator'];
-
-        // Do not use streams internally.
-        if ($locator->isStream($filepath)) {
-            $filepath = (string)$locator->findResource($filepath, true, true);
-        }
-
-        Security::sanitizeSVG($filepath);
     }
 
     /**
@@ -675,16 +499,21 @@ trait MediaUploadTrait
 
     /**
      * @param string $string
+     * @param mixed ...$args
      * @return string
      */
-    protected function translate(string $string): string
+    protected function translate(string $string, ...$args): string
     {
-        return $this->getLanguage()->translate($string);
+        array_unshift($args, $string);
+
+        return $this->getLanguage()->translate($args);
     }
 
     abstract protected function getPath(): ?string;
 
     abstract protected function getGrav(): Grav;
+
+    abstract protected function getLocator(): UniformResourceLocator;
 
     abstract protected function getConfig(): Config;
 

@@ -104,6 +104,9 @@ trait FlexMediaTrait
             $order = Utils::getField($this->getArrayElements(), $field);
             if (is_array($order)) {
                 $settings['media']['order'] = array_is_list($order) ? $order : array_keys($order);
+            } elseif (is_string($order) && $order !== '') {
+                // Support comma separated string.
+                $settings['media']['order'] = array_map('trim', explode(',', $order));
             } else {
                 $settings['media']['order'] = [];
             }
@@ -189,12 +192,12 @@ trait FlexMediaTrait
      */
     public function uploadMediaFile(UploadedFileInterface $uploadedFile, string $filename = null, string $field = null): void
     {
-        $settings = $this->getMediaFieldSettings($field ?? '');
-
         $media = $field ? $this->getMediaField($field) : $this->getMedia();
         if (!$media instanceof MediaUploadInterface) {
             throw new RuntimeException("Media for {$this->getFlexDirectory()->getFlexType()} doesn't support file uploads.");
         }
+
+        $settings = $this->getMediaFieldSettings($field ?? '');
 
         $filename = $media->checkUploadedFile($uploadedFile, $filename, $settings);
         $media->copyUploadedFile($uploadedFile, $filename, $settings);

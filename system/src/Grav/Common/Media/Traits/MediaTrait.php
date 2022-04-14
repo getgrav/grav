@@ -21,7 +21,6 @@ use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use Throwable;
 use function array_key_exists;
 use function in_array;
-use function is_array;
 use function strlen;
 
 /**
@@ -145,11 +144,13 @@ trait MediaTrait
             /** @var MediaFactory $factory */
             $factory = Grav::instance()['media_factory'];
 
+            $path = $settings[$var] ?? null;
             $params = $settings['media'] ?? [];
             $params += [
                 'object' => $this,
-                'path' => $settings[$var],
-                'load' => true
+                'path' => $path,
+                'load' => true,
+                'field' => $settings
             ];
 
             // Uses custom media.
@@ -191,10 +192,10 @@ trait MediaTrait
     protected function getMediaSettings(): array
     {
         return [
+            'object' => $this,
             'path' => $this->getMediaFolder(),
             'order' => $this->getMediaOrder(),
             'load' => $this->_loadMedia,
-            'object' => $this
         ];
     }
 
@@ -229,7 +230,7 @@ trait MediaTrait
                 $settings['type'] = 'local';
                 $token = $settings[$var] ?? '';
                 if (in_array(rtrim($token, '/'), ['', '@self', 'self@', '@self@'], true)) {
-                    $settings[$var] = $this->getMediaFolder();
+                    $settings += $this->getMediaSettings();
                     $settings['self'] = true;
                 } else {
                     /** @var string|null $uri */

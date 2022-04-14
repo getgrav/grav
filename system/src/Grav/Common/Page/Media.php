@@ -21,6 +21,9 @@ class Media extends LocalMedia
 {
     protected const VERSION = parent::VERSION . '.1';
 
+    /** @var bool */
+    protected $useGlobalMedia;
+
     /**
      * @param string|null $path
      * @param array|null $mediaOrder
@@ -29,6 +32,7 @@ class Media extends LocalMedia
     public function __construct(?string $path, array $mediaOrder = null, bool $load = true)
     {
         $this->setPath($path);
+        $this->useGlobalMedia = true;
         $this->indexFolder = $this->getPath();
         $this->indexTimeout = 60;
         $this->media_order = $mediaOrder;
@@ -87,7 +91,7 @@ class Media extends LocalMedia
      */
     public function offsetExists($offset): bool
     {
-        return parent::offsetExists($offset) || isset(GlobalMedia::getInstance()[$offset]);
+        return parent::offsetExists($offset) || ($this->useGlobalMedia && isset(GlobalMedia::getInstance()[$offset]));
     }
 
     /**
@@ -96,6 +100,6 @@ class Media extends LocalMedia
      */
     public function offsetGet($offset): ?MediaObjectInterface
     {
-        return parent::offsetGet($offset) ?: GlobalMedia::getInstance()[$offset];
+        return parent::offsetGet($offset) ?? ($this->useGlobalMedia ? GlobalMedia::getInstance()[$offset] : null);
     }
 }

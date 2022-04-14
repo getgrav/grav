@@ -9,10 +9,9 @@
 
 namespace Grav\Common\Page\Medium;
 
-use Grav\Common\Grav;
 use Grav\Common\Media\Interfaces\MediaObjectInterface;
 use Grav\Common\Utils;
-use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
+use RuntimeException;
 use function dirname;
 
 /**
@@ -41,7 +40,7 @@ class GlobalMedia extends LocalMedia
      */
     public function __serialize(): array
     {
-        throw new \RuntimeException('Global media cannot be serialized!');
+        throw new RuntimeException('Global media cannot be serialized!');
     }
 
     /**
@@ -50,7 +49,7 @@ class GlobalMedia extends LocalMedia
      */
     public function __unserialize(array $data): void
     {
-        throw new \RuntimeException('Global media cannot be unserialized!');
+        throw new RuntimeException('Global media cannot be unserialized!');
     }
 
     /**
@@ -88,8 +87,7 @@ class GlobalMedia extends LocalMedia
      */
     protected function resolveStream(string $filename): ?string
     {
-        /** @var UniformResourceLocator $locator */
-        $locator = Grav::instance()['locator'];
+        $locator = $this->getLocator();
         if (!$locator->isStream($filename)) {
             return null;
         }

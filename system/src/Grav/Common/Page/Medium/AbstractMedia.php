@@ -482,18 +482,20 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
     }
 
     /**
-     * @param string $filepath
+     * @param string $filename
+     * @param array|null $info
      * @return string
      * @throws RuntimeException
      */
-    abstract public function readFile(string $filepath): string;
+    abstract public function readFile(string $filename, array $info = null): string;
 
     /**
-     * @param string $filepath
+     * @param string $filename
+     * @param array|null $info
      * @return resource
      * @throws RuntimeException
      */
-    abstract public function readStream(string $filepath);
+    abstract public function readStream(string $filename, array $info = null);
 
     /**
      * Order the media based on the page's media_order
@@ -535,17 +537,17 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
      * @param string $filepath
      * @return array
      */
-    abstract protected function readImageSize(string $filepath): array;
+    abstract protected function readImageSize(string $filename, array $info = null): array;
 
     /**
-     * @param string $filepath
+     * @param string $filename
      * @return array
      */
-    protected function readVectorSize(string $filepath): array
+    protected function readVectorSize(string $filename, array $info = null): array
     {
         // Make sure that getting image size is supported.
         if (\extension_loaded('simplexml')) {
-            $data = $this->readFile($filepath);
+            $data = $this->readFile($filename, $info);
             $xml = @simplexml_load_string($data);
             $attr = $xml ? $xml->attributes() : null;
             if ($attr instanceof \SimpleXMLElement) {
@@ -562,7 +564,7 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
                 }
             }
 
-            throw new RuntimeException(sprintf('Cannot read image size from %s', $filepath));
+            throw new RuntimeException(sprintf('Cannot read image size from %s', $filename));
         }
 
         return [];
@@ -600,15 +602,14 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
             if (null !== $cached) {
                 try {
                     $type = $params['type'] ?? 'file';
-                    $filepath = $this->getPath($filename);
                     $existing = $cached[$filename] ?? null;
                     if ($existing && $existing['size'] === $info['size'] && $existing['modified'] === $info['modified']) {
                         // Append cached data.
                         $info += $existing;
                     } else if ($type === 'image') {
-                        $info += $this->readImageSize($filepath);
+                        $info += $this->readImageSize($filename, $info + ($info['meta'] ?? []));
                     } elseif ($type === 'vector') {
-                        $info += $this->readVectorSize($filepath);
+                        $info += $this->readVectorSize($filename, $info + ($info['meta'] ?? []));
                     }
                 } catch (RuntimeException $e) {
                     /** @var Debugger $debugger */
@@ -676,9 +677,7 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
             'thumbnails' => []
         ];
 
-        /** @var UniformResourceLocator $locator */
-        $locator = $this->getGrav()['locator'];
-
+        $locator = $this->getLocator();
         $file = $locator->findResource("image://{$info['thumb']}");
         if ($file) {
             $info['thumbnails']['default'] = $file;
@@ -812,7 +811,7 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
                     $meta_data = $meta->getData();
                     $meta_trimmed = array_diff_key($meta_data, array_flip($this->standard_exif));
                     if ($meta_trimmed) {
-                        $locator = $this->getGrav()['locator'];
+                        $locator = $this->getLocator();
                         if ($locator->isStream($meta_path)) {
                             $file = CompiledYamlFile::instance($locator->findResource($meta_path, true, true));
                         } else {
@@ -1022,6 +1021,14 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
     }
 
     /**
+     * @return UniformResourceLocator
+     */
+    protected function getLocator(): UniformResourceLocator
+    {
+        return $this->getGrav()['locator'];
+    }
+
+    /**
      * @return Config
      */
     protected function getConfig(): Config
@@ -1054,9 +1061,7 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
      */
     protected function clearCache(): void
     {
-        /** @var UniformResourceLocator $locator */
-        $locator = $this->getGrav()['locator'];
-        $locator->clearCache();
+        $this->getLocator()->clearCache();
     }
 
     /**

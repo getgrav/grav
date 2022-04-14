@@ -48,7 +48,9 @@ class Medium extends Data implements RenderableInterface, MediaFileInterface
      */
     public function __construct($items = [], Blueprint $blueprint = null)
     {
-        $items += ['mime' => 'application/octet-stream'];
+        $items += [
+            'mime' => 'application/octet-stream'
+        ];
         $size = $items['size'] ?? null;
         $modified = $items['modified'] ?? null;
         if (null === $size || null === $modified) {
@@ -82,7 +84,7 @@ class Medium extends Data implements RenderableInterface, MediaFileInterface
      */
     public function readFile(): string
     {
-        return $this->getMedia()->readFile($this->filepath);
+        return $this->getMedia()->readFile($this->filename, $this->getInfo());
     }
 
     /**
@@ -91,7 +93,7 @@ class Medium extends Data implements RenderableInterface, MediaFileInterface
      */
     public function readStream()
     {
-        return $this->getMedia()->readStream($this->filepath);
+        return $this->getMedia()->readStream($this->filename, $this->getInfo());
     }
 
     /**
@@ -105,6 +107,27 @@ class Medium extends Data implements RenderableInterface, MediaFileInterface
         $this->metadata = (array)CompiledYamlFile::instance($filepath)->content();
         $this->merge($this->metadata);
         $this->reset();
+    }
+
+    /**
+     * Get basic file info.
+     *
+     * @return array
+     */
+    public function getInfo(): array
+    {
+        // TODO: this may require some tweaking, works for now.
+        $info = [
+            'modified' => $this->modified,
+            'size' => $this->size,
+            'mime' => $this->mime,
+            'width' => $this->width,
+            'height' => $this->height,
+            'orientation' => $this->orientation,
+            'meta' => $this->meta ?? [],
+        ];
+
+        return array_filter($info, static function($val) { return $val !== null; } );
     }
 
     /**

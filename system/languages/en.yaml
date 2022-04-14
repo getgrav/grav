@@ -119,3 +119,22 @@ GRAV:
         ERROR2: Bad number of elements
         ERROR3: The jquery_element should be set into jqCron settings
         ERROR4: Unrecognized expression
+
+    MEDIA:
+        UPLOAD_ERR_SIZE: "The uploaded file exceeds exceeds maximum upload limit of %s"
+        UPLOAD_ERR_PARTIAL: "The uploaded file was only partially uploaded"
+        UPLOAD_ERR_NO_FILE: "No file was uploaded"
+        UPLOAD_ERR_NO_TMP_DIR: "File upload failed, missing a temporary folder"
+        UPLOAD_ERR_CANT_WRITE: "Failed to write uploaded file to disk"
+        UPLOAD_ERR_EXTENSION: "File upload was stopped by an extension"
+        UPLOAD_ERR_UNKNOWN: "File upload failed, no reason given"
+
+        UPLOAD_ERR_FAILED_TO_MOVE: "Failed to move uploaded file: %s"
+        FILE_COULD_NOT_BE_DELETED: "File could not be deleted: %s"
+        FILE_COULD_NOT_BE_RENAMED: "File could not be renamed: %s"
+        BAD_FILENAME: "Bad filename: %s"
+        BAD_DESTINATION: "Bad destination path"
+        BAD_FILE_EXTENSION: "The file extension for the file '%s' is not an accepted"
+        BAD_MIMETYPE: "The MIME type '%s' for the file '%s' is not an accepted"
+        MIMETYPE_MISMATCH: "The mime '%s' type does not match the file %s''"
+        EXCEEDED_GRAV_FILESIZE_LIMIT: "The file '%s' exceeds maximum allowed size of %s"

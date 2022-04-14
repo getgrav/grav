@@ -13,8 +13,11 @@ use FilesystemIterator;
 use Grav\Common\Data\Blueprint;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\Media\Interfaces\MediaObjectInterface;
-use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
+use Grav\Common\Security;
+use Grav\Framework\Filesystem\Filesystem;
+use Psr\Http\Message\UploadedFileInterface;
 use RuntimeException;
+use function dirname;
 use function is_array;
 
 /**
@@ -69,10 +72,8 @@ abstract class LocalMedia extends AbstractMedia
      */
     public function setPath(?string $path): void
     {
-        /** @var UniformResourceLocator $locator */
-        $locator = $this->getGrav()['locator'];
-
         // Make path relative from GRAV_WEBROOT.
+        $locator = $this->getLocator();
         if ($locator->isStream($path)) {
             $path = $locator->findResource($path, false) ?: null;
         } else {
@@ -93,8 +94,7 @@ abstract class LocalMedia extends AbstractMedia
     {
         $info = $this->index[$filename] ?? null;
         if (null === $info) {
-            /** @var UniformResourceLocator $locator */
-            $locator = $this->getGrav()['locator'];
+            $locator = $this->getLocator();
             if ($locator->isStream($filename)) {
                 $filename = (string)$locator->getResource($filename);
                 if (!$filename) {
@@ -150,16 +150,17 @@ abstract class LocalMedia extends AbstractMedia
     }
 
     /**
-     * @param string $filepath
+     * @param string $filename
      * @return string
      * @throws RuntimeException
      */
-    public function readFile(string $filepath): string
+    public function readFile(string $filename, array $info = null): string
     {
         error_clear_last();
+        $filepath = $this->getPath($filename);
         $contents = @file_get_contents($filepath);
         if (false === $contents) {
-            throw new RuntimeException('Reading media file failed: ' . (error_get_last()['message'] ?? sprintf('Cannot read %s', $filepath)));
+            throw new RuntimeException('Reading media file failed: ' . (error_get_last()['message'] ?? sprintf('Cannot read %s', $filename)));
         }
 
         return $contents;
@@ -170,12 +171,13 @@ abstract class LocalMedia extends AbstractMedia
      * @return resource
      * @throws RuntimeException
      */
-    public function readStream(string $filepath)
+    public function readStream(string $filename, array $info = null)
     {
         error_clear_last();
+        $filepath = $this->getPath($filename);
         $contents = @fopen($filepath, 'rb');
         if (false === $contents) {
-            throw new RuntimeException('Reading media file failed: ' . (error_get_last()['message'] ?? sprintf('Cannot open %s', $filepath)));
+            throw new RuntimeException('Reading media file failed: ' . (error_get_last()['message'] ?? sprintf('Cannot open %s', $filename)));
         }
 
         return $contents;
@@ -192,36 +194,37 @@ abstract class LocalMedia extends AbstractMedia
     }
 
     /**
-     * @param string $filepath
+     * @param string $filename
      * @return array
      */
-    protected function readImageSize(string $filepath): array
+    protected function readImageSize(string $filename, array $info = null): array
     {
         error_clear_last();
-        $info = @getimagesize($filepath);
-        if (false === $info) {
+        $filepath = $this->getPath($filename);
+        $sizes = @getimagesize($filepath);
+        if (false === $sizes) {
             throw new RuntimeException(error_get_last()['message'] ?? 'Unable to get image size');
         }
 
-        $info = [
-            'width' => $info[0],
-            'height' => $info[1],
-            'mime' => $info['mime']
+        $sizes = [
+            'width' => $sizes[0],
+            'height' => $sizes[1],
+            'mime' => $sizes['mime']
         ];
 
         // TODO: This is going to be slow without any indexing!
         /*
         // Add missing jpeg exif data.
         $exifReader = $this->getExifReader();
-        if (null !== $exifReader && !isset($info['exif']) && $info['mime'] === 'image/jpeg') {
+        if (null !== $exifReader && !isset($sizes['exif']) && $sizes['mime'] === 'image/jpeg') {
         try {
             $exif = $exifReader->read($filepath);
-            $info['exif'] = array_diff_key($exif->getData(), array_flip($this->standard_exif));
+            $sizes['exif'] = array_diff_key($exif->getData(), array_flip($this->standard_exif));
         } catch (\RuntimeException $e) {
         }
         */
 
-        return $info;
+        return $sizes;
     }
 
     /**
@@ -248,5 +251,191 @@ abstract class LocalMedia extends AbstractMedia
         }
 
         return $media;
+    }
+
+    /**
+     * @param array|null $settings
+     * @return string
+     */
+    protected function getDestination(?array $settings = null): string
+    {
+        $settings = $this->getUploadSettings($settings);
+        $path = $settings['destination'] ?? $this->getPath();
+        if (!$path) {
+            throw new RuntimeException($this->translate('GRAV.MEDIA.BAD_DESTINATION'), 400);
+        }
+
+        return $path;
+    }
+
+    /**
+     * Internal logic to move uploaded file.
+     *
+     * @param UploadedFileInterface $uploadedFile
+     * @param string $filename
+     * @param string $path
+     */
+    protected function doMoveUploadedFile(UploadedFileInterface $uploadedFile, string $filename, string $path): void
+    {
+        $filepath = sprintf('%s/%s', $path, $filename);
+
+        // Do not use streams internally.
+        $locator = $this->getLocator();
+        if ($locator->isStream($filepath)) {
+            $filepath = (string)$locator->findResource($filepath, true, true);
+        }
+
+        Folder::create(dirname($filepath));
+
+        $uploadedFile->moveTo($filepath);
+    }
+
+    /**
+     * Internal logic to copy file.
+     *
+     * @param string $src
+     * @param string $dst
+     * @param string $path
+     */
+    protected function doCopy(string $src, string $dst, string $path): void
+    {
+        $src = sprintf('%s/%s', $path, $src);
+        $dst = sprintf('%s/%s', $path, $dst);
+
+        // Do not use streams internally.
+        $locator = $this->getLocator();
+        if ($locator->isStream($dst)) {
+            $dst = (string)$locator->findResource($dst, true, true);
+        }
+
+        Folder::create(dirname($dst));
+
+        copy($src, $dst);
+    }
+
+    /**
+     * Internal logic to rename file.
+     *
+     * @param string $from
+     * @param string $to
+     * @param string $path
+     */
+    protected function doRename(string $from, string $to, string $path): void
+    {
+        $fromPath = $path . '/' . $from;
+
+        $locator = $this->getLocator();
+        if ($locator->isStream($fromPath)) {
+            $fromPath = $locator->findResource($fromPath, true, true);
+        }
+
+        if (!is_file($fromPath)) {
+            return;
+        }
+
+        $mediaPath = dirname($fromPath);
+        $toPath = $mediaPath . '/' . $to;
+        if ($locator->isStream($toPath)) {
+            $toPath = $locator->findResource($toPath, true, true);
+        }
+
+        if (is_file($toPath)) {
+            // TODO: translate error message
+            throw new RuntimeException(sprintf('%s already exists (%s)', $to, $mediaPath), 500);
+        }
+
+        $result = rename($fromPath, $toPath);
+        if (!$result) {
+            // TODO: translate error message
+            throw new RuntimeException(sprintf('%s -> %s (%s)', $from, $to, $mediaPath), 500);
+        }
+
+        // TODO: Add missing logic to handle retina files.
+        if (is_file($fromPath . '.meta.yaml')) {
+            $result = rename($fromPath . '.meta.yaml', $toPath . '.meta.yaml');
+            if (!$result) {
+                // TODO: translate error message
+                throw new RuntimeException(sprintf('Meta %s -> %s (%s)', $from, $to, $mediaPath), 500);
+            }
+        }
+    }
+
+    /**
+     * Internal logic to remove file.
+     *
+     * @param string $filename
+     * @param string $path
+     */
+    protected function doRemove(string $filename, string $path): void
+    {
+        $filesystem = Filesystem::getInstance(false);
+
+        $locator = $this->getLocator();
+        $folder = $locator->isStream($path) ? (string)$locator->findResource($path, true, true) : $path;
+
+        // If path doesn't exist, there's nothing to do.
+        $pathname = $filesystem->pathname($filename);
+        $targetPath = rtrim(sprintf('%s/%s', $folder, $pathname), '/');
+        if (!is_dir($targetPath)) {
+            return;
+        }
+
+        // Remove requested media file.
+        if ($this->fileExists($filename, $path)) {
+            $result = unlink("{$folder}/{$filename}");
+            if (!$result) {
+                throw new RuntimeException($this->translate('PLUGIN_ADMIN.FILE_COULD_NOT_BE_DELETED') . ': ' . $filename, 500);
+            }
+        }
+
+        // Remove associated metadata.
+        $this->doRemoveMetadata($filename, $path);
+
+        // Remove associated 2x, 3x and their .meta.yaml files.
+        $dir = scandir($targetPath, SCANDIR_SORT_NONE);
+        if (false === $dir) {
+            throw new RuntimeException($this->translate('PLUGIN_ADMIN.FILE_COULD_NOT_BE_DELETED') . ': ' . $filename, 500);
+        }
+
+        $basename = $filesystem->basename($filename);
+        $fileParts = (array)$filesystem->pathinfo($filename);
+
+        foreach ($dir as $file) {
+            $preg_name = preg_quote($fileParts['filename'], '`');
+            $preg_ext = preg_quote($fileParts['extension'] ?? '.', '`');
+            $preg_filename = preg_quote($basename, '`');
+
+            if (preg_match("`({$preg_name}@\d+x\.{$preg_ext}(?:\.meta\.yaml)?$|{$preg_filename}\.meta\.yaml)$`", $file)) {
+                $testPath = $targetPath . '/' . $file;
+                if ($locator->isStream($testPath)) {
+                    $testPath = (string)$locator->findResource($testPath, true, true);
+                    $locator->clearCache($testPath);
+                }
+
+                if (is_file($testPath)) {
+                    $result = unlink($testPath);
+                    if (!$result) {
+                        throw new RuntimeException($this->translate('PLUGIN_ADMIN.FILE_COULD_NOT_BE_DELETED') . ': ' . $filename, 500);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * @param string $filename
+     * @param string $path
+     */
+    protected function doSanitizeSvg(string $filename, string $path): void
+    {
+        $filepath = sprintf('%s/%s', $path, $filename);
+
+        // Do not use streams internally.
+        $locator = $this->getLocator();
+        if ($locator->isStream($filepath)) {
+            $filepath = (string)$locator->findResource($filepath, true, true);
+        }
+
+        Security::sanitizeSVG($filepath);
     }
 }
