@@ -66,6 +66,8 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
     /** @var array */
     protected $config = [];
     /** @var array */
+    protected $settings = [];
+    /** @var array */
     protected $standard_exif = ['FileSize', 'MimeType', 'height', 'width'];
     /** @var string|null */
     protected $indexFolder;
@@ -684,7 +686,7 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
      */
     protected function init(): void
     {
-        // Handle special cases where page doesn't exist in filesystem.
+        // Handle special cases where the object doesn't exist in filesystem.
         if (!$this->exists()) {
             return;
         }
@@ -1022,6 +1024,14 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
     protected function getGrav(): Grav
     {
         return Grav::instance();
+    }
+
+    /**
+     * @return Debugger
+     */
+    protected function getDebugger(): Debugger
+    {
+        return $this->getGrav()['debugger'];
     }
 
     /**
