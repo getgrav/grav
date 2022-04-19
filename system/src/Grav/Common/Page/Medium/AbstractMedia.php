@@ -111,12 +111,6 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
     abstract public function getUrl(string $filename): string;
 
     /**
-     * @param string|null $path
-     * @return void
-     */
-    abstract public function setPath(?string $path): void;
-
-    /**
      * @return bool
      */
     public function exists(): bool
@@ -966,6 +960,17 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
         $index = $this->generateIndex($files, $checksum, $timestamp);
 
         $mediaIndex->save($id, $index);
+    }
+
+    /**
+     * @param string $filename
+     * @return string
+     */
+    protected function getBasename(string $filename): string
+    {
+        [$base, $ext,,] = $this->getFileParts($filename);
+
+        return "{$base}.{$ext}";
     }
 
     /**

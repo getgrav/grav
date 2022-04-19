@@ -41,33 +41,29 @@ interface MediaUploadInterface
      *
      * @example
      *   $filename = null;  // Override filename if needed (ignored if randomizing filenames).
-     *   $settings = ['destination' => 'user://pages/media']; // Settings from the form field.
-     *   $filename = $media->checkUploadedFile($uploadedFile, $filename, $settings);
+     *   $filename = $media->checkUploadedFile($uploadedFile, $filename);
      *   $media->copyUploadedFile($uploadedFile, $filename);
      *
      * @param UploadedFileInterface $uploadedFile
      * @param string $filename
-     * @param array|null $settings
      * @return void
      * @throws RuntimeException
      */
-    public function copyUploadedFile(UploadedFileInterface $uploadedFile, string $filename, array $settings = null): void;
+    public function copyUploadedFile(UploadedFileInterface $uploadedFile, string $filename): void;
 
     /**
      * Delete real file from the media collection.
      *
      * @param string $filename
-     * @param array|null $settings
      * @return void
      */
-    public function deleteFile(string $filename, array $settings = null): void;
+    public function deleteFile(string $filename): void;
 
     /**
      * Rename file inside the media collection.
      *
      * @param string $from
      * @param string $to
-     * @param array|null $settings
      */
-    public function renameFile(string $from, string $to, array $settings = null): void;
+    public function renameFile(string $from, string $to): void;
 }

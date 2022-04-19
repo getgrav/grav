@@ -221,25 +221,22 @@ trait MediaUploadTrait
      * WARNING: Always check uploaded file before copying it!
      *
      * @example
-     *   $settings = ['destination' => 'user://pages/media']; // Settings from the form field.
-     *   $filename = $media->checkUploadedFile($uploadedFile, $filename, $settings);
-     *   $media->copyUploadedFile($uploadedFile, $filename, $settings);
+     *   $filename = $media->checkUploadedFile($uploadedFile, $filename);
+     *   $media->copyUploadedFile($uploadedFile, $filename);
      *
      * @param UploadedFileInterface $uploadedFile
      * @param string $filename
-     * @param array|null $settings
      * @return void
      * @throws RuntimeException
      */
-    public function copyUploadedFile(UploadedFileInterface $uploadedFile, string $filename, array $settings = null): void
+    public function copyUploadedFile(UploadedFileInterface $uploadedFile, string $filename): void
     {
         try {
             // Check if the filename is allowed.
             $this->checkFilename($filename);
 
             // Calculate path without the retina scaling factor.
-            [$base, $ext,,] = $this->getFileParts($filename);
-            $name = "{$base}.{$ext}";
+            $name = $this->getBasename($filename);
 
             $this->clearCache();
 
@@ -295,19 +292,17 @@ trait MediaUploadTrait
      * Delete real file from the media collection.
      *
      * @param string $filename
-     * @param array|null $settings
      * @return void
      * @throws RuntimeException
      */
-    public function deleteFile(string $filename, array $settings = null): void
+    public function deleteFile(string $filename): void
     {
         try {
             // Check if the filename is allowed.
             $this->checkFilename($filename);
 
             // Get base name of the file.
-            [$base, $ext,,] = $this->getFileParts($filename);
-            $name = "{$base}.{$ext}";
+            $name = $this->getBasename($filename);
 
             // Remove file and all the associated metadata.
             $this->clearCache();
@@ -330,9 +325,8 @@ trait MediaUploadTrait
      *
      * @param string $from
      * @param string $to
-     * @param array|null $settings
      */
-    public function renameFile(string $from, string $to, array $settings = null): void
+    public function renameFile(string $from, string $to): void
     {
         try {
             // Check if the filename is allowed.
@@ -342,11 +336,8 @@ trait MediaUploadTrait
             $this->clearCache();
 
             // Remove @2x, @3x and .meta.yaml
-            [$base, $ext,,] = $this->getFileParts($from);
-            $from = "{$base}.{$ext}";
-
-            [$base, $ext,,] = $this->getFileParts($to);
-            $to = "{$base}.{$ext}";
+            $from = $this->getBasename($from);
+            $to = $this->getBasename($to);
 
             $this->doRename($from, $to);
 

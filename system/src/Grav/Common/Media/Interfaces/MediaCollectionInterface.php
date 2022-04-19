@@ -19,6 +19,27 @@ use RuntimeException;
 interface MediaCollectionInterface extends \Grav\Framework\Media\Interfaces\MediaCollectionInterface
 {
     /**
+     * Get media id.
+     *
+     * @return string
+     */
+    public function getId(): string;
+
+    /**
+     * Get media type used in MediaFactory.
+     *
+     * @return string
+     */
+    public function getType(): string;
+
+    /**
+     * Get media name used in MediaFactory.
+     *
+     * @return string
+     */
+    public function getName(): string;
+
+    /**
      * Return media path.
      *
      * @param string|null $filename
@@ -27,16 +48,18 @@ interface MediaCollectionInterface extends \Grav\Framework\Media\Interfaces\Medi
     public function getPath(string $filename = null): ?string;
 
     /**
-     * @param string|null $path
-     * @return void
+     * Return media file url.
+     *
+     * @param string $filename
+     * @return string
      */
-    public function setPath(?string $path): void;
+    public function getUrl(string $filename): string;
 
     /**
      * Get medium by filename.
      *
      * @param string $filename
-     * @return Medium|null
+     * @return MediaObjectInterface|null
      */
     public function get(string $filename): ?MediaObjectInterface;
 

@@ -67,23 +67,6 @@ abstract class LocalMedia extends AbstractMedia
     }
 
     /**
-     * @param string|null $path
-     * @return void
-     */
-    public function setPath(?string $path): void
-    {
-        // Make path relative from GRAV_WEBROOT.
-        $locator = $this->getLocator();
-        if ($locator->isStream($path)) {
-            $path = $locator->findResource($path, false) ?: null;
-        } else {
-            $path = Folder::getRelativePath($path, GRAV_WEBROOT) ?: null;
-        }
-
-        $this->path = $path;
-    }
-
-    /**
      * Create Medium from a file.
      *
      * @param  string $filename
@@ -394,5 +377,22 @@ abstract class LocalMedia extends AbstractMedia
         $filepath = $this->getRealPath($filename);
 
         Security::sanitizeSVG($filepath);
+    }
+
+    /**
+     * @param string|null $path
+     * @return void
+     */
+    protected function setPath(?string $path): void
+    {
+        // Make path relative from GRAV_WEBROOT.
+        $locator = $this->getLocator();
+        if ($locator->isStream($path)) {
+            $path = $locator->findResource($path, false) ?: null;
+        } else {
+            $path = Folder::getRelativePath($path, GRAV_WEBROOT) ?: null;
+        }
+
+        $this->path = $path;
     }
 }
