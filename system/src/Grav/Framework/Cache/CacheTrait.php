@@ -157,9 +157,6 @@ trait CacheTrait
         $this->validateKeys($keys);
         $keys = array_unique($keys);
         $keys = array_combine($keys, $keys);
-        if (empty($keys)) {
-            return [];
-        }
 
         $list = $this->doGetMultiple($keys, $this->miss);
 
