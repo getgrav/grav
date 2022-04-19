@@ -182,9 +182,9 @@ abstract class LocalMedia extends AbstractMedia
      *
      * @param string $filename
      * @param array|null $info
-     * @return string
+     * @return string|null
      */
-    protected function getRealPath(string $filename, array $info = null): string
+    protected function getRealPath(string $filename, array $info = null): ?string
     {
         return $this->getPath($filename);
     }

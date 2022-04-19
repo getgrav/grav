@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f0530b0fd3e574fef0852376653da5a0",
+    "content-hash": "1839932141982d2f562e894613efe9b6",
     "packages": [
         {
             "name": "composer/ca-bundle",
@@ -616,117 +616,6 @@
                 }
             ],
             "time": "2022-01-07T12:00:00+00:00"
-        },
-        {
-            "name": "getgrav/cache",
-            "version": "v2.0.0",
-            "target-dir": "Gregwar/Cache",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/getgrav/Cache.git",
-                "reference": "56fd63f752779928fcd1074ab7d12f406dde8861"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/getgrav/Cache/zipball/56fd63f752779928fcd1074ab7d12f406dde8861",
-                "reference": "56fd63f752779928fcd1074ab7d12f406dde8861",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.3"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-0": {
-                    "Gregwar\\Cache": ""
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Gregwar",
-                    "email": "g.passault@gmail.com"
-                },
-                {
-                    "name": "Grav CMS",
-                    "email": "hello@getgrav.org",
-                    "homepage": "https://getgrav.org"
-                }
-            ],
-            "description": "A lightweight file-system cache system",
-            "keywords": [
-                "cache",
-                "caching",
-                "file-system",
-                "system"
-            ],
-            "support": {
-                "source": "https://github.com/getgrav/Cache/tree/v2.0.0"
-            },
-            "time": "2021-04-20T05:48:00+00:00"
-        },
-        {
-            "name": "getgrav/image",
-            "version": "v3.0.0",
-            "target-dir": "Gregwar/Image",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/getgrav/Image.git",
-                "reference": "02c1bb2c179dd894c4f6610c9c49da364ee7d264"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/getgrav/Image/zipball/02c1bb2c179dd894c4f6610c9c49da364ee7d264",
-                "reference": "02c1bb2c179dd894c4f6610c9c49da364ee7d264",
-                "shasum": ""
-            },
-            "require": {
-                "ext-gd": "*",
-                "getgrav/cache": "^2.0",
-                "php": "^5.6 || ^7.0 || ^8.0"
-            },
-            "require-dev": {
-                "sllh/php-cs-fixer-styleci-bridge": "~1.0",
-                "symfony/phpunit-bridge": "^2.7.4 || ^3.0"
-            },
-            "suggest": {
-                "behat/transliterator": "Transliterator provides ability to set non-latin1 pretty names"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-0": {
-                    "Gregwar\\Image": ""
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Grégoire Passault",
-                    "email": "g.passault@gmail.com",
-                    "homepage": "http://www.gregwar.com/"
-                },
-                {
-                    "name": "Grav CMS",
-                    "email": "hello@getgrav.org",
-                    "homepage": "https://getgrav.org"
-                }
-            ],
-            "description": "Image handling",
-            "homepage": "https://github.com/Gregwar/Image",
-            "keywords": [
-                "gd",
-                "image"
-            ],
-            "support": {
-                "source": "https://github.com/getgrav/Image/tree/v3.0.0"
-            },
-            "time": "2021-04-20T05:50:18+00:00"
         },
         {
             "name": "guzzlehttp/psr7",

@@ -454,7 +454,7 @@ trait MediaUploadTrait
 
     abstract protected function getPath(): ?string;
 
-    abstract protected function getRealPath(string $filename, array $info = null): string;
+    abstract protected function getRealPath(string $filename, array $info = null): ?string;
 
     abstract protected function getGrav(): Grav;
 
