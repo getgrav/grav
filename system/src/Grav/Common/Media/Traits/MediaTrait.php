@@ -226,7 +226,7 @@ trait MediaTrait
             }
 
             // Set media folder for media fields.
-            if (isset($var)) {
+            if (isset($var) && $this->exists()) {
                 $settings['type'] = 'local';
                 $token = $settings[$var] ?? '';
                 if (in_array(rtrim($token, '/'), ['', '@self', 'self@', '@self@'], true)) {
