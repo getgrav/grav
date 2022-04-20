@@ -225,34 +225,37 @@ trait MediaTrait
                 $var = 'folder';
             }
 
-            // Set media folder for media fields.
-            if (isset($var) && $this->exists()) {
-                $settings['type'] = 'local';
-                $token = $settings[$var] ?? '';
-                if (in_array(rtrim($token, '/'), ['', '@self', 'self@', '@self@'], true)) {
-                    $settings += $this->getMediaSettings();
-                    $settings['self'] = true;
-                } else {
-                    /** @var string|null $uri */
-                    $uri = null;
-                    $event = new Event([
-                        'token' => $token,
-                        'object' => $this,
-                        'field' => $field,
-                        'type' => $type,
-                        'settings' => &$settings, // Value can be changed.
-                        'uri' => &$uri // Value will be set to here.
-                    ]);
+            $this->_mediaSettings[$field] = null;
 
-                    Grav::instance()->fireEvent('onGetMediaFieldSettings', $event);
+            try {
+                // Set media folder for media fields.
+                if (isset($var)) {
+                    $settings['type'] = 'local';
+                    $token = $settings[$var] ?? '';
+                    if (in_array(rtrim($token, '/'), ['', '@self', 'self@', '@self@'], true)) {
+                        $settings += $this->getMediaSettings();
+                        $settings['self'] = true;
+                    } else {
+                        /** @var string|null $uri */
+                        $uri = null;
+                        $event = new Event([
+                            'token' => $token,
+                            'object' => $this,
+                            'field' => $field,
+                            'type' => $type,
+                            'settings' => &$settings, // Value can be changed.
+                            'uri' => &$uri // Value will be set to here.
+                        ]);
 
-                    $settings[$var] = $uri ?? Utils::getPathFromToken($token, $this);
-                    $settings['self'] = false;
+                        Grav::instance()->fireEvent('onGetMediaFieldSettings', $event);
+
+                        $settings[$var] = $uri ?? Utils::getPathFromToken($token, $this);
+                        $settings['self'] = false;
+                    }
+
+                    $this->_mediaSettings[$field] = $settings + ['accept' => '*', 'limit' => 1000, 'self' => true];
                 }
-
-                $this->_mediaSettings[$field] = $settings + ['accept' => '*', 'limit' => 1000, 'self' => true];
-            } else {
-                $this->_mediaSettings[$field] = null;
+            } catch (\Exception $e) {
             }
         }
 
