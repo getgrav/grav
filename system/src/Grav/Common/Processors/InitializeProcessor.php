@@ -13,6 +13,7 @@ use Grav\Common\Config\Config;
 use Grav\Common\Debugger;
 use Grav\Common\Errors\Errors;
 use Grav\Common\Grav;
+use Grav\Common\Page\Medium\ImageMedium;
 use Grav\Common\Page\Pages;
 use Grav\Common\Plugins;
 use Grav\Common\Session;
@@ -30,6 +31,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use function defined;
+use function dirname;
 use function in_array;
 
 /**
@@ -97,6 +99,14 @@ class InitializeProcessor extends ProcessorBase
 
         // Load plugins.
         $this->initializePlugins();
+
+        // Image handling can return response right away.
+        $response = $this->handleImageRequest($request);
+        if ($response) {
+            $this->stopTimer('_init');
+
+            return $response;
+        }
 
         // Load pages.
         $this->initializePages($config);
@@ -326,6 +336,31 @@ class InitializeProcessor extends ProcessorBase
             }
 
             $this->container['clockwork'] = $clockwork;
+        }
+
+        return null;
+    }
+
+    /**
+     * @param ServerRequestInterface $request
+     * @return ResponseInterface|null
+     */
+    protected function handleImageRequest(ServerRequestInterface $request): ?ResponseInterface
+    {
+        // Handle clockwork API calls.
+        $uri = $request->getUri();
+        $server = $request->getServerParams();
+        $basePath = str_replace('\\', '/', dirname(parse_url($server['SCRIPT_NAME'], PHP_URL_PATH)));
+        if ($basePath === '/') {
+            $basePath = '';
+        }
+        $imagePath = $basePath . '/images/';
+        $path = $uri->getPath();
+
+        if (str_starts_with($path, $imagePath)) {
+            $path = mb_substr($path, mb_strlen($basePath));
+
+            return ImageMedium::createImageResponseFromCache($path);
         }
 
         return null;

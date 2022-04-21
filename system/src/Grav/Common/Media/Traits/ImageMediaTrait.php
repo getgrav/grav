@@ -18,6 +18,8 @@ use Grav\Framework\File\Formatter\JsonFormatter;
 use Grav\Framework\File\JsonFile;
 use Grav\Framework\Image\Adapter\GdAdapter;
 use Grav\Framework\Image\Image;
+use Grav\Framework\Psr7\Response;
+use Psr\Http\Message\ResponseInterface;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use RuntimeException;
 use function func_num_args;
@@ -57,6 +59,70 @@ trait ImageMediaTrait
 
     /** @var string */
     protected $sizes = '100vw';
+
+    /**
+     * @param string $path
+     * @return array|null
+     */
+    protected static function createImageFromCache(string $path): ?array
+    {
+        $filepath = GRAV_WEBROOT . $path;
+        $cachepath = "{$filepath}.json";
+        $file = static::getCacheMetaFile($cachepath);
+        if (!$file->exists()) {
+            return null;
+        }
+
+        $data = $file->load();
+        $format = $data['extra']['format'] ?? 'jpg';
+        $mime = $data['extra']['mime'] ?? '';
+        $quality = $data['extra']['quality'] ?? 80;
+        $mediaUri = $data['extra']['media-uri'] ?? null;
+
+        $mediaFactory = Grav::instance()['media_factory'];
+
+        $fileData = $mediaFactory->readFile($mediaUri);
+        $adapter = GdAdapter::createFromString($fileData);
+
+        $image = Image::createFromArray($data);
+
+        $image->setAdapter($adapter);
+        $filepath = $image->save($filepath, $format, $quality);
+        $image->freeAdapter();
+
+        $time = filemtime($filepath);
+        $size = filesize($filepath);
+
+        return [$filepath, $mime, $time, $size];
+    }
+
+    /**
+     * @param string $path
+     * @return ResponseInterface
+     */
+    public static function createImageResponseFromCache(string $path): ResponseInterface
+    {
+        [$filepath, $mime, $time, $size] = static::createImageFromCache($path);
+        if (is_file($filepath)) {
+            $code = 200;
+        } else {
+            $code = 404;
+            // TODO: customizable 404 image?
+            $filepath = GRAV_WEBROOT . '/system/images/media/thumb-jpg.png';
+            $mime = 'image/png';
+            $time = filemtime($filepath);
+            $size = filesize($filepath);
+        }
+
+        $body = fopen($filepath, 'rb');
+        $headers = [
+            'Content-Type' => $mime,
+            'Last-Modified' => gmdate('D, d M Y H:i:s', $time) . ' GMT',
+            'ETag' => sprintf('%x-%x', $size, $time)
+        ];
+
+        return new Response($code, $headers, $body);
+    }
 
     /**
      * Also unset the image on destruct.
@@ -599,9 +665,12 @@ trait ImageMediaTrait
             $format = $extension;
         }
 
+
         $image = $this->image;
         $image->extra['format'] = $format;
         $image->extra['quality'] = $quality;
+        $image->extra['media-uri'] = $this->getMedia()->getMediaUri($this->filename);
+        $image->extra['mime'] = $this->mime;
 
         $data = $image->jsonSerialize();
         $hash = $data['hash'];
@@ -618,14 +687,15 @@ trait ImageMediaTrait
         $imageFile = '/' . $locator->getResource($imageFile, false);
         $cacheFile = $locator->getResource($cacheFile, true);
 
-        $file = $this->getCacheMetaFile($cacheFile);
+        $file = static::getCacheMetaFile($cacheFile);
         if (!$file->exists()) {
             $file->save($data);
         } else {
             $file->touch();
         }
 
-        return $this->generateCacheImage(GRAV_WEBROOT . $imageFile);
+        return GRAV_WEBROOT . $imageFile;
+        //return $this->generateCacheImage(GRAV_WEBROOT . $imageFile);
     }
 
     /**
@@ -663,7 +733,7 @@ trait ImageMediaTrait
      * @param string $filepath
      * @return JsonFile
      */
-    protected function getCacheMetaFile(string $filepath): JsonFile
+    protected static function getCacheMetaFile(string $filepath): JsonFile
     {
         $formatter = new JsonFormatter(['encode_options' => JSON_PRETTY_PRINT]);
 

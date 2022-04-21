@@ -13,7 +13,6 @@ use Grav\Common\Config\Config;
 use Grav\Common\Data\Blueprint;
 use Grav\Common\Media\Interfaces\ImageManipulateInterface;
 use Grav\Common\Media\Interfaces\ImageMediaInterface;
-use Grav\Common\Media\Interfaces\MediaCollectionInterface;
 use Grav\Common\Media\Interfaces\MediaLinkInterface;
 use Grav\Common\Media\Traits\ImageLoadingTrait;
 use Grav\Common\Media\Traits\ImageMediaTrait;
