@@ -79,6 +79,11 @@ class Image implements ImageOperationsInterface, JsonSerializable
         $this->orientation = isset($info['exif']['Orientation']) ? (int)$info['exif']['Orientation'] : null;
     }
 
+    public function getFilepath(): string
+    {
+        return $this->filepath;
+    }
+
     /**
      * @return array
      */

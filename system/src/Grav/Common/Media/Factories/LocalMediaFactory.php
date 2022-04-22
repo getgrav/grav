@@ -49,6 +49,9 @@ class LocalMediaFactory implements MediaFactoryInterface
     public function readFile(string $type, string $path): string
     {
         $filepath = GRAV_WEBROOT . '/' . $path;
+        if (!is_file($filepath)) {
+            throw new RuntimeException(sprintf("Reading media file failed: File '%s' not found", $path));
+        }
 
         error_clear_last();
         $contents = @file_get_contents($filepath);
@@ -67,6 +70,9 @@ class LocalMediaFactory implements MediaFactoryInterface
     public function readStream(string $type, string $path)
     {
         $filepath = GRAV_WEBROOT . '/' . $path;
+        if (!is_file($filepath)) {
+            throw new RuntimeException(sprintf("Reading media file failed: File '%s' not found", $path));
+        }
 
         error_clear_last();
         $contents = @fopen($filepath, 'rb');

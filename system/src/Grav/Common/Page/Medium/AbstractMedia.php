@@ -114,14 +114,11 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
 
     /**
      * @param string $filename
-     * @return string
+     * @return string|null
      */
-    public function getMediaUri(string $filename): string
+    public function getMediaUri(string $filename): ?string
     {
-        $schema = 'media-' . str_replace('_', '-', $this->getName());
-        $path = $this->getRealPath($filename);
-
-        return "{$schema}://{$path}";
+        return null;
     }
 
     /**

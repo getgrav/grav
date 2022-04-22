@@ -10,6 +10,7 @@
 namespace Grav\Common\Media\Traits;
 
 use BadFunctionCallException;
+use Exception;
 use Grav\Common\Debugger;
 use Grav\Common\Grav;
 use Grav\Common\Media\Interfaces\ImageMediaInterface;
@@ -81,17 +82,25 @@ trait ImageMediaTrait
 
         $mediaFactory = Grav::instance()['media_factory'];
 
-        $fileData = $mediaFactory->readFile($mediaUri);
-        $adapter = GdAdapter::createFromString($fileData);
+        try {
+            $fileData = $mediaFactory->readFile($mediaUri);
+            $adapter = GdAdapter::createFromString($fileData);
 
-        $image = Image::createFromArray($data);
+            $image = Image::createFromArray($data);
 
-        $image->setAdapter($adapter);
-        $filepath = $image->save($filepath, $format, $quality);
-        $image->freeAdapter();
+            $image->setAdapter($adapter);
+            $filepath = $image->save($filepath, $format, $quality);
+            $image->freeAdapter();
 
-        $time = filemtime($filepath);
-        $size = filesize($filepath);
+            $time = filemtime($filepath);
+            $size = filesize($filepath);
+        } catch (Exception $e) {
+            /** @var Debugger $debugger */
+            $debugger = Grav::instance()['debugger'];
+            $debugger->addException($e);
+
+            return null;
+        }
 
         return [$filepath, $mime, $time, $size];
     }
@@ -665,11 +674,16 @@ trait ImageMediaTrait
             $format = $extension;
         }
 
-
         $image = $this->image;
+
+        $mediaUri = $this->getMedia()->getMediaUri($this->filename);
+        if (null === $mediaUri) {
+            $mediaUri = 'media-local://' . str_replace('GRAV_WEBROOT', '', $image->getFilepath());
+        }
+
         $image->extra['format'] = $format;
         $image->extra['quality'] = $quality;
-        $image->extra['media-uri'] = $this->getMedia()->getMediaUri($this->filename);
+        $image->extra['media-uri'] = $mediaUri;
         $image->extra['mime'] = $this->mime;
 
         $data = $image->jsonSerialize();
