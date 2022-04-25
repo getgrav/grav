@@ -4,7 +4,7 @@
 1. [](#improved)
     * When saving yaml and markdown, create also a cached version of the file and recompile it in opcache
 2. [](#bugfix)
-    * Fixed missing changes in yaml & markdown files if saved multiple times during the same second because of a caching issue
+    * Fixed missing changes in **yaml** & **markdown** files if saved multiple times during the same second because of a caching issue
     * Fixed XSS check not detecting onX events without quotes
     * Fixed default collection ordering in pages admin
 
