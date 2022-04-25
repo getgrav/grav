@@ -612,7 +612,7 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
             /** @var Header $header */
             $header = $page->header();
 
-            if (!$field && $header->get('admin.children_display_order') === 'collection' && ($orderby = $header->get('content.order.by'))) {
+            if (!$field && $header->get('admin.children_display_order', 'collection') === 'collection' && ($orderby = $header->get('content.order.by'))) {
                 // Use custom sorting by page header.
                 $sortby = $orderby;
                 $order = $header->get('content.order.dir', $order);

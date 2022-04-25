@@ -6,6 +6,7 @@
 2. [](#bugfix)
     * Fixed missing changes in yaml & markdown files if saved multiple times during the same second because of a caching issue
     * Fixed XSS check not detecting onX events without quotes
+    * Fixed default collection ordering in pages admin
 
 # v1.7.32
 ## 03/28/2022
