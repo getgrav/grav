@@ -12,7 +12,7 @@
     "homepage": "https://getgrav.org",
     "license": "MIT",
     "require": {
-        "php": "^7.4.1 || ^8.0",
+        "php": "^7.3.6 || ^8.0",
         "ext-json": "*",
         "ext-openssl": "*",
         "ext-curl": "*",
@@ -89,7 +89,7 @@
     "config": {
         "apcu-autoloader": true,
         "platform": {
-            "php": "7.4.1"
+            "php": "7.3.6"
         }
     },
     "autoload": {
