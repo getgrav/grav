@@ -51,6 +51,13 @@ interface MediaObjectInterface extends \Grav\Framework\Media\Interfaces\MediaObj
     public function metadata();
 
     /**
+     * Returns an array containing the file metadata
+     *
+     * @return array
+     */
+    public function getMeta();
+
+    /**
      * Add meta file for the medium.
      *
      * @param string $filepath
