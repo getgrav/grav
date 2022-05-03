@@ -23,6 +23,13 @@ interface FormFlashInterface extends \JsonSerializable
     public function __construct($config);
 
     /**
+     * Get unique form flash id if set.
+     *
+     * @return string
+     */
+    public function getId(): string;
+
+    /**
      * Get session Id associated to this form instance.
      *
      * @return string

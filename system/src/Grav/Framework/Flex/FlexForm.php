@@ -326,6 +326,7 @@ class FlexForm implements FlexObjectFormInterface, JsonSerializable
                 'unique_id' => $this->getUniqueId(),
                 'form_name' => $this->getName(),
                 'folder' => $this->getFlashFolder(),
+                'id' => $this->getFlashId(),
                 'object' => $this->getObject()
             ];
 

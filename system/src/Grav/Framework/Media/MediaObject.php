@@ -14,8 +14,7 @@ use Throwable;
  */
 class MediaObject implements MediaObjectInterface
 {
-    // FIXME:
-    static public string $placeholderImage = 'theme://img/revkit-temp.svg';
+    static public string $placeholderImage = 'image://media/thumb.png';
 
     public FlexObjectInterface $object;
     public ?GravMediaObjectInterface $media;

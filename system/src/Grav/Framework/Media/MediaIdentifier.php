@@ -60,7 +60,7 @@ class MediaIdentifier extends Identifier
                 if ($flash->exists()) {
                     $uploadedFile = $flash->getFilesByField($field)[$filename] ?? null;
 
-                    $this->object = new UploadedMediaObject($field, $filename, $flash, $uploadedFile);
+                    $this->object = UploadedMediaObject::createFromFlash($flash, $field, $filename, $uploadedFile);
                 }
             } else {
                 $type = array_shift($parts);

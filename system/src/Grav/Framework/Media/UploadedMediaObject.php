@@ -13,28 +13,41 @@ use Psr\Http\Message\UploadedFileInterface;
  */
 class UploadedMediaObject implements MediaObjectInterface
 {
-    // FIXME:
-    static public string $placeholderImage = 'theme://img/revkit-temp.svg';
+    static public string $placeholderImage = 'image://media/thumb.png';
 
     public FormFlashInterface $object;
 
+    private string $id;
     private ?string $field;
     private string $filename;
     private array $meta;
     private ?UploadedFileInterface $uploadedFile;
 
     /**
-     * UploadedMediaObject constructor.
+     * @param FlexFormFlash $flash
      * @param string|null $field
      * @param string $filename
-     * @param FormFlashInterface $object
+     * @param UploadedFileInterface|null $uploadedFile
+     * @return static
+     */
+    public static function createFromFlash(FlexFormFlash $flash, ?string $field, string $filename, ?UploadedFileInterface $uploadedFile = null)
+    {
+        $id = $flash->getId();
+
+        return new static($id, $field, $filename, $uploadedFile);
+    }
+
+    /**
+     * @param string $id
+     * @param string|null $field
+     * @param string $filename
      * @param UploadedFileInterface|null $uploadedFile
      */
-    public function __construct(?string $field, string $filename, FormFlashInterface $object, ?UploadedFileInterface $uploadedFile = null)
+    public function __construct(string $id, ?string $field, string $filename, ?UploadedFileInterface $uploadedFile = null)
     {
+        $this->id = $id;
         $this->field = $field;
         $this->filename = $filename;
-        $this->object = $object;
         $this->uploadedFile = $uploadedFile;
         if ($uploadedFile) {
             $this->meta = [
@@ -60,15 +73,8 @@ class UploadedMediaObject implements MediaObjectInterface
      */
     public function getId(): string
     {
+        $id = $this->id;
         $field = $this->field;
-        $object = $this->object;
-        if ($object instanceof FlexFormFlash) {
-            $type = $object->getObject()->getFlexType();
-        } else {
-            $type = 'undefined';
-        }
-
-        $id = $type . '/' . $object->getUniqueId();
         $path = $field ? "/{$field}/" : '';
 
         return 'uploads/' . $id . $path . basename($this->filename);

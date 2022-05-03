@@ -7,6 +7,9 @@ use Grav\Framework\Contracts\Relationships\RelationshipsInterface;
 use Grav\Framework\Flex\FlexIdentifier;
 use Grav\Framework\Relationships\Relationships;
 
+/**
+ * Trait FlexRelationshipsTrait
+ */
 trait FlexRelationshipsTrait
 {
     private ?RelationshipsInterface $_relationships = null;
@@ -39,5 +42,19 @@ trait FlexRelationshipsTrait
     protected function resetRelationships(): void
     {
         $this->_relationships = null;
+    }
+
+    /**
+     * @param iterable $collection
+     * @return array
+     */
+    protected function buildFlexIdentifierList(iterable $collection): array
+    {
+        $list = [];
+        foreach ($collection as $object) {
+            $list[] = FlexIdentifier::createFromObject($object);
+        }
+
+        return $list;
     }
 }
