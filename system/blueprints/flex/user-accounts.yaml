@@ -126,16 +126,15 @@ config:
         - fullname
 
   relationships:
-      relationships:
-        media:
-          type: media
-          cardinality: to-many
-        avatar:
-          type: media
-          cardinality: to-one
-#        roles:
-#          type: user-groups
-#          cardinality: to-many
+    media:
+      type: media
+      cardinality: to-many
+    avatar:
+      type: media
+      cardinality: to-one
+#    roles:
+#      type: user-groups
+#      cardinality: to-many
 
 blueprints:
   configure:
