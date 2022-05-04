@@ -28,10 +28,10 @@ trait RequestHandlerTrait
     protected $middleware;
 
     /** @var callable */
-    private $handler;
+    protected $handler;
 
     /** @var ContainerInterface|null */
-    private $container;
+    protected $container;
 
     /**
      * {@inheritdoc}
