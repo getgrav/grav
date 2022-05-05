@@ -27,8 +27,20 @@ trait ImageLoadingTrait
         if (null === $value) {
             $value = Grav::instance()['config']->get('system.images.defaults.loading', 'auto');
         }
-        if ($value && $value !== 'auto') {
+
+        if ($value === 'auto') {
+            $value = null;
+        }
+
+        $currentValue = $this->attributes['loading'] ?? null;
+        if ($currentValue === $value) {
+            return $this;
+        }
+
+        if ($value) {
             $this->attributes['loading'] = $value;
+        } else {
+            unset($this->attributes['loading']);
         }
 
         return $this;

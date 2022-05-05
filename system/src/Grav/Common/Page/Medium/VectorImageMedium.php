@@ -71,6 +71,19 @@ class VectorImageMedium extends StaticImageMedium
     }
 
     /**
+     * Get basic file info.
+     *
+     * @return array
+     */
+    public function getInfo(): array
+    {
+        return [
+                'width' => $this->width,
+                'height' => $this->height,
+            ] + parent::getInfo();
+    }
+
+    /**
      * @return array
      */
     public function getMeta(): array

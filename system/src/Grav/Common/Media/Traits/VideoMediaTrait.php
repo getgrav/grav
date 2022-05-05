@@ -26,7 +26,16 @@ trait VideoMediaTrait
      */
     public function poster(string $poster = null)
     {
-        $this->attributes['poster'] = $urlImage;
+        $currentPoster = $this->attributes['poster'] ?? null;
+        if ($currentPoster !== $poster) {
+            return $this;
+        }
+
+        if ($poster) {
+            $this->attributes['poster'] = $poster;
+        } else {
+            unset($this->attributes['poster']);
+        }
 
         return $this;
     }
@@ -39,6 +48,11 @@ trait VideoMediaTrait
      */
     public function playsinline(bool $status = false)
     {
+        $currentStatus = (bool)($this->attributes['playsinline'] ?? null);
+        if ($currentStatus === $status) {
+            return $this;
+        }
+
         if ($status) {
             $this->attributes['playsinline'] = 'playsinline';
         } else {

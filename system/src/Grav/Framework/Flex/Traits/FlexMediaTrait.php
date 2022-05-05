@@ -83,7 +83,7 @@ trait FlexMediaTrait
     {
         // Load settings for the field.
         $schema = $this->getBlueprint()->schema();
-        $settings = $schema ? $schema->getProperty($field) : null;
+        $settings = $schema->getProperty($field);
 
         return $this->parseMediaFieldSettings($field, $settings) ?? $settings;
     }
@@ -97,7 +97,7 @@ trait FlexMediaTrait
     {
         // Load settings for the field.
         $schema = $this->getBlueprint()->schema();
-        $settings = $schema ? $schema->getProperty($field) : null;
+        $settings = $schema->getProperty($field);
 
         $settings = $this->parseMediaFieldSettings($field, $settings);
         if ($settings && !isset($settings['media']['order'])) {

@@ -81,12 +81,18 @@ trait MediaObjectTrait
     public function setTimestamp($timestamp = null)
     {
         if (null !== $timestamp) {
-            $this->timestamp = (string)($timestamp);
+            $timestamp = (string)$timestamp;
         } elseif ($this instanceof MediaFileInterface) {
-            $this->timestamp = (string)$this->modified();
+            $timestamp = (string)$this->modified();
         } else {
-            $this->timestamp = '';
+            $timestamp = '';
         }
+
+        if ($timestamp === $this->timestamp) {
+            return $this;
+        }
+
+        $this->timestamp = $timestamp;
 
         return $this;
     }
@@ -326,9 +332,21 @@ trait MediaObjectTrait
      */
     public function attribute(string $attribute = '', ?string $value = '')
     {
-        if (!empty($attribute)) {
-            $this->attributes[$attribute] = $value;
+        if ('' === $attribute) {
+            return $this;
         }
+
+        $currentValue = $this->attributes[$attribute] ?? null;
+        if ($currentValue === $value) {
+            return $this;
+        }
+
+        if (null !== $value) {
+            $this->attributes[$attribute] = $value;
+        } else {
+            unset($this->attributes[$attribute]);
+        }
+
         return $this;
     }
 
@@ -377,12 +395,12 @@ trait MediaObjectTrait
         if ($type !== 'auto' && !in_array($type, $this->thumbnailTypes, true)) {
             return $this;
         }
-
-        if ($this->thumbnailType !== $type) {
-            $this->_thumbnail = null;
+        if ($this->thumbnailType === $type) {
+            return $this;
         }
 
         $this->thumbnailType = $type;
+        $this->_thumbnail = null;
 
         return $this;
     }
@@ -475,8 +493,15 @@ trait MediaObjectTrait
      */
     public function id(string $id = null)
     {
-        if (is_string($id)) {
+        $currentId = $this->attributes['id'] ?? null;
+        if ($currentId === $id) {
+            return $this;
+        }
+
+        if ($id) {
             $this->attributes['id'] = trim($id);
+        } else {
+            unset($this->attributes['id']);
         }
 
         return $this;

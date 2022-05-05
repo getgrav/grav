@@ -24,15 +24,25 @@ trait StaticResizeTrait
      */
     public function resize(int $width = null, int $height = null)
     {
-        if ($width) {
-            $this->styleAttributes['width'] = (int)$width . 'px';
-        } else {
-            unset($this->styleAttributes['width']);
+        $currentWidth = $this->styleAttributes['width'] ?? null;
+        $currentHeight = $this->styleAttributes['height'] ?? null;
+        if ($currentWidth === $width && $currentHeight === $height) {
+            return $this;
         }
-        if ($height) {
-            $this->styleAttributes['height'] = (int)$height . 'px';
-        } else {
-            unset($this->styleAttributes['height']);
+
+        if ($currentWidth !== $width) {
+            if ($width) {
+                $this->styleAttributes['width'] = $width . 'px';
+            } else {
+                unset($this->styleAttributes['width']);
+            }
+        }
+        if ($currentHeight !== $height) {
+            if ($height) {
+                $this->styleAttributes['height'] = $height . 'px';
+            } else {
+                unset($this->styleAttributes['height']);
+            }
         }
 
         return $this;

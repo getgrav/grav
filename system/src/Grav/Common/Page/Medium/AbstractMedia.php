@@ -856,7 +856,7 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
                     } else {
                         /** @var Debugger $debugger */
                         $debugger = Grav::instance()['debugger'];
-                        $debugger->addMessage(sprintf('Could not create alternative image for %s: %s', $medium->filename, $e->getMessage()), 'warning');
+                        $debugger->addMessage(sprintf('Could not create alternative image for %s', $medium->filename), 'warning');
                     }
                 }
             }

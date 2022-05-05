@@ -24,6 +24,11 @@ trait MediaPlayerTrait
      */
     public function controls(bool $status = true)
     {
+        $currentStatus = (bool)($this->attributes['controls'] ?? null);
+        if ($currentStatus === $status) {
+            return $this;
+        }
+
         if ($status) {
             $this->attributes['controls'] = 'controls';
         } else {
@@ -41,6 +46,11 @@ trait MediaPlayerTrait
      */
     public function loop(bool $status = false)
     {
+        $currentStatus = (bool)($this->attributes['loop'] ?? null);
+        if ($currentStatus === $status) {
+            return $this;
+        }
+
         if ($status) {
             $this->attributes['loop'] = 'loop';
         } else {
@@ -58,6 +68,11 @@ trait MediaPlayerTrait
      */
     public function autoplay(bool $status = false)
     {
+        $currentStatus = (bool)($this->attributes['autoplay'] ?? null);
+        if ($currentStatus === $status) {
+            return $this;
+        }
+
         if ($status) {
             $this->attributes['autoplay'] = 'autoplay';
         } else {
@@ -75,6 +90,11 @@ trait MediaPlayerTrait
      */
     public function muted(bool $status = false)
     {
+        $currentStatus = (bool)($this->attributes['muted'] ?? null);
+        if ($currentStatus === $status) {
+            return $this;
+        }
+
         if ($status) {
             $this->attributes['muted'] = 'muted';
         } else {
@@ -92,6 +112,11 @@ trait MediaPlayerTrait
      */
     public function preload(string $preload = null)
     {
+        $currentPreload = $this->attributes['preload'] ?? null;
+        if ($currentPreload === $preload) {
+            return $this;
+        }
+
         $validPreloadAttrs = ['auto', 'metadata', 'none'];
 
         if (null === $preload) {
@@ -111,5 +136,6 @@ trait MediaPlayerTrait
     public function resetPlayer(): void
     {
         $this->attributes['controls'] = 'controls';
+        unset($this->attributes['loop'], $this->attributes['autoplay'], $this->attributes['muted'], $this->attributes['preload']);
     }
 }

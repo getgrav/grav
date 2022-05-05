@@ -67,7 +67,7 @@ class Link implements RenderableInterface, MediaLinkInterface
         return [
             'name' => 'a',
             'attributes' => $this->attributes,
-            'handler' => is_array($innerElement) ? 'element' : 'line',
+            'handler' => 'element',
             'text' => $innerElement
         ];
     }

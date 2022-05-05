@@ -28,7 +28,17 @@ trait AudioMediaTrait
     public function controlsList(string $controlsList)
     {
         $controlsList = str_replace('-', ' ', $controlsList);
-        $this->attributes['controlsList'] = $controlsList;
+        $currentList = $this->attributes['controlsList'] ?? null;
+
+        if ($currentList === $controlsList) {
+            return $this;
+        }
+
+        if ($controlsList) {
+            $this->attributes['controlsList'] = $controlsList;
+        } else {
+            unset($this->attributes['controlsList']);
+        }
 
         return $this;
     }

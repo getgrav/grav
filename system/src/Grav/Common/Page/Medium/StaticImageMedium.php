@@ -26,6 +26,19 @@ class StaticImageMedium extends Medium implements ImageMediaInterface
     use ImageLoadingTrait;
 
     /**
+     * Get basic file info.
+     *
+     * @return array
+     */
+    public function getInfo(): array
+    {
+        return [
+                'width' => $this->width,
+                'height' => $this->height,
+            ] + parent::getInfo();
+    }
+
+    /**
      * Parsedown element for source display mode
      *
      * @param  array $attributes

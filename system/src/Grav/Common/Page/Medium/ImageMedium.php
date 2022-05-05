@@ -88,6 +88,20 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
     }
 
     /**
+     * Get basic file info.
+     *
+     * @return array
+     */
+    public function getInfo(): array
+    {
+        return [
+            'width' => $this->width,
+            'height' => $this->height,
+            'orientation' => $this->orientation,
+        ] + parent::getInfo();
+    }
+
+    /**
      * @return array
      */
     public function getMeta(): array
@@ -110,7 +124,7 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
 
         $this->format = 'guess';
         $this->imageSettings = $this->defaults;
-        $this->quality = $this->defaults['quality'];
+        $this->quality = $this->defaults['quality'] ?? 80;
 
         $this->resetImage();
 

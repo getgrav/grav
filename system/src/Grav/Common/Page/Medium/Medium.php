@@ -134,14 +134,10 @@ class Medium implements RenderableInterface, MediaFileInterface, JsonSerializabl
      */
     public function getInfo(): array
     {
-        // TODO: this may require some tweaking, works for now.
         $info = [
             'modified' => $this->modified,
             'size' => $this->size,
             'mime' => $this->mime,
-            'width' => $this->width,
-            'height' => $this->height,
-            'orientation' => $this->orientation,
             'meta' => $this->meta ?? [],
         ];
 

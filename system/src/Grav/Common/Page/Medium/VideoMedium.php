@@ -36,4 +36,17 @@ class VideoMedium extends Medium implements VideoMediaInterface
 
         return $this;
     }
+
+    /**
+     * Get basic file info.
+     *
+     * @return array
+     */
+    public function getInfo(): array
+    {
+        return [
+                'width' => $this->width,
+                'height' => $this->height,
+            ] + parent::getInfo();
+    }
 }
