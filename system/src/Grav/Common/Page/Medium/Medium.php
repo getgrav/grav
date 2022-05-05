@@ -11,14 +11,17 @@ namespace Grav\Common\Page\Medium;
 
 use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Grav;
-use Grav\Common\Data\Data;
-use Grav\Common\Data\Blueprint;
 use Grav\Common\Media\Interfaces\MediaCollectionInterface;
 use Grav\Common\Media\Interfaces\MediaFileInterface;
 use Grav\Common\Media\Interfaces\MediaLinkInterface;
 use Grav\Common\Media\Interfaces\MediaObjectInterface;
 use Grav\Common\Media\Traits\MediaFileTrait;
 use Grav\Common\Media\Traits\MediaObjectTrait;
+use JsonSerializable;
+use RocketTheme\Toolbox\ArrayTraits\Countable;
+use RocketTheme\Toolbox\ArrayTraits\Export;
+use RocketTheme\Toolbox\ArrayTraits\ExportInterface;
+use RocketTheme\Toolbox\ArrayTraits\NestedArrayAccessWithGetters;
 use RuntimeException;
 
 /**
@@ -34,19 +37,24 @@ use RuntimeException;
  * @property array $metadata
  * @property int|string $timestamp
  */
-class Medium extends Data implements RenderableInterface, MediaFileInterface
+class Medium implements RenderableInterface, MediaFileInterface, JsonSerializable, \Countable, ExportInterface
 {
+    use NestedArrayAccessWithGetters;
+    use Countable;
+    use Export;
     use MediaObjectTrait;
     use MediaFileTrait;
     use ParsedownHtmlTrait;
+
+    /** @var string[] */
+    protected $items;
 
     /**
      * Construct.
      *
      * @param array $items
-     * @param Blueprint|null $blueprint
      */
-    public function __construct($items = [], Blueprint $blueprint = null)
+    public function __construct(array $items = [])
     {
         $items += [
             'mime' => 'application/octet-stream'
@@ -61,7 +69,7 @@ class Medium extends Data implements RenderableInterface, MediaFileInterface
             }
         }
 
-        parent::__construct($items, $blueprint);
+        $this->items = $items;
 
         if (Grav::instance()['config']->get('system.media.enable_media_timestamp', true)) {
             $this->timestamp = Grav::instance()['cache']->getKey();
@@ -75,7 +83,15 @@ class Medium extends Data implements RenderableInterface, MediaFileInterface
      */
     public function __clone()
     {
-        // Allows future compatibility as parent::__clone() works.
+
+    }
+
+    /**
+     * @return array
+     */
+    public function jsonSerialize(): array
+    {
+        return $this->items;
     }
 
     /**
