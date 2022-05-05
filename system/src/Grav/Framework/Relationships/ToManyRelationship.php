@@ -89,6 +89,21 @@ class ToManyRelationship implements ToManyRelationshipInterface
     }
 
     /**
+     * @param positive-int $pos
+     * @return IdentifierInterface|null
+     */
+    public function getNthIdentifier(int $pos): ?IdentifierInterface
+    {
+        $items = array_keys($this->identifiers);
+        $key = $items[$pos - 1] ?? null;
+        if (null === $key) {
+            return null;
+        }
+
+        return $this->identifiers[$key] ?? null;
+    }
+
+    /**
      * @param string $id
      * @param string|null $type
      * @return IdentifierInterface|null

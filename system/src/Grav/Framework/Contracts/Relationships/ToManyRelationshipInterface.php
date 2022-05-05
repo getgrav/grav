@@ -14,6 +14,12 @@ use Grav\Framework\Contracts\Object\IdentifierInterface;
 interface ToManyRelationshipInterface extends RelationshipInterface
 {
     /**
+     * @param positive-int $pos
+     * @return IdentifierInterface|null
+     */
+    public function getNthIdentifier(int $pos): ?IdentifierInterface;
+
+    /**
      * @param string $id
      * @param string|null $type
      * @return T|null
