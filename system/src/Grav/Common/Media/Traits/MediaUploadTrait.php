@@ -25,7 +25,7 @@ use RuntimeException;
 use function in_array;
 
 /**
- * Implements media upload and delete functionality.
+ * Implements media upload and delete functionality for media collection.
  */
 trait MediaUploadTrait
 {

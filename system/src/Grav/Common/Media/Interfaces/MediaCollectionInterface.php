@@ -56,6 +56,12 @@ interface MediaCollectionInterface extends \Grav\Framework\Media\Interfaces\Medi
     public function getUrl(string $filename): string;
 
     /**
+     * @param string $filename
+     * @return string|null
+     */
+    public function getMediaUri(string $filename): ?string;
+
+    /**
      * Get medium by filename.
      *
      * @param string $filename
@@ -126,10 +132,9 @@ interface MediaCollectionInterface extends \Grav\Framework\Media\Interfaces\Medi
      * Create Medium from array of parameters
      *
      * @param  array          $items
-     * @param  Blueprint|null $blueprint
      * @return Medium|null
      */
-    public function createFromArray(array $items = [], Blueprint $blueprint = null): ?MediaObjectInterface;
+    public function createFromArray(array $items = []): ?MediaObjectInterface;
 
     /**
      * @param string $filename

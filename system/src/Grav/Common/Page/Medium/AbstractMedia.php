@@ -435,10 +435,9 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
      * Create Medium from array of parameters
      *
      * @param  array          $items
-     * @param  Blueprint|null $blueprint
      * @return Medium|null
      */
-    abstract public function createFromArray(array $items = [], Blueprint $blueprint = null): ?MediaObjectInterface;
+    abstract public function createFromArray(array $items = []): ?MediaObjectInterface;
 
     /**
      * @return array
@@ -506,7 +505,7 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
      * Order the media based on the page's media_order
      *
      * @param array $media
-     * @return array
+     * @return array<string,MediaObjectInterface>
      */
     protected function orderMedia(array $media): array
     {
@@ -539,12 +538,14 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
 
     /**
      * @param string $filename
+     * @param array|null $info
      * @return array
      */
     abstract protected function readImageSize(string $filename, array $info = null): array;
 
     /**
      * @param string $filename
+     * @param array|null $info
      * @return array
      */
     protected function readVectorSize(string $filename, array $info = null): array

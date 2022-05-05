@@ -100,11 +100,14 @@ final class MediaFactory implements MediaFactoryInterface
 
     /**
      * @param string $uri
+     * @param string|null $type
      * @return string
      */
-    public function readFile(string $uri): string
+    public function readFile(string $uri, string $type = null): string
     {
-        if (preg_match('{^(?:media-([^:]+)://)?(.*)$}', $uri, $matches)) {
+        if ($type) {
+            $filepath = $uri;
+        } elseif (preg_match('{^(?:media-([^:]+)://)?(.*)$}', $uri, $matches)) {
             $type = str_replace('-', '_', $matches[1]);
             $filepath = $matches[2];
         } else {
@@ -114,7 +117,7 @@ final class MediaFactory implements MediaFactoryInterface
 
         $factory = $this->collectionTypes[$type] ?? null;
         if ($factory) {
-            return $factory->readFile($type, $filepath);
+            return $factory->readFile($filepath, $type);
         }
 
         throw new RuntimeException(sprintf('Reading media file failed: type %s does not exist', $type), 500);
@@ -122,11 +125,14 @@ final class MediaFactory implements MediaFactoryInterface
 
     /**
      * @param string $uri
+     * @param string|null $type
      * @return resource
      */
-    public function readStream(string $uri)
+    public function readStream(string $uri, string $type = null)
     {
-        if (preg_match('{^(?:media-([^:]+)://)?(.*)$}', $uri, $matches)) {
+        if ($type) {
+            $filepath = $uri;
+        } elseif (preg_match('{^(?:media-([^:]+)://)?(.*)$}', $uri, $matches)) {
             $type = str_replace('-', '_', $matches[1]);
             $filepath = $matches[2];
         } else {
@@ -136,7 +142,7 @@ final class MediaFactory implements MediaFactoryInterface
 
         $factory = $this->collectionTypes[$type] ?? null;
         if ($factory) {
-            return $factory->readStream($type, $filepath);
+            return $factory->readStream($filepath, $type);
         }
 
         throw new RuntimeException(sprintf('Reading media file failed: type %s does not exist', $type), 500);

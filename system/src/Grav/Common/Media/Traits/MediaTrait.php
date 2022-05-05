@@ -24,8 +24,9 @@ use function in_array;
 use function strlen;
 
 /**
- * Trait MediaTrait
- * @package Grav\Common\Media\Traits
+ * Adds methods to fetch media from an object.
+ *
+ * Supports both object and field based media.
  */
 trait MediaTrait
 {

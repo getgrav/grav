@@ -19,21 +19,21 @@ interface MediaFileInterface extends MediaObjectInterface
      *
      * @return bool
      */
-    public function exists();
+    public function exists(): bool;
 
     /**
      * Get file modification time for the medium.
      *
      * @return int|null
      */
-    public function modified();
+    public function modified(): ?int;
 
     /**
      * Get size of the medium.
      *
      * @return int
      */
-    public function size();
+    public function size(): int;
 
     /**
      * Return the path to file.
@@ -41,15 +41,15 @@ interface MediaFileInterface extends MediaObjectInterface
      * @param bool $reset
      * @return string path to file
      */
-    public function path($reset = true);
+    public function path(bool $reset = true): string;
 
     /**
      * Return the relative path to file
      *
      * @param bool $reset
-     * @return mixed
+     * @return string
      */
-    public function relativePath($reset = true);
+    public function relativePath(bool $reset = true): string;
 
     /**
      * @return string

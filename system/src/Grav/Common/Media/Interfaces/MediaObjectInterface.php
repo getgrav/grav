@@ -35,7 +35,7 @@ interface MediaObjectInterface extends \Grav\Framework\Media\Interfaces\MediaObj
      *
      * @return Data
      */
-    public function meta();
+    public function meta(): Data;
 
     /**
      * Set querystring to file modification timestamp (or value provided as a parameter).
@@ -50,7 +50,7 @@ interface MediaObjectInterface extends \Grav\Framework\Media\Interfaces\MediaObj
      *
      * @return array
      */
-    public function metadata();
+    public function metadata(): array;
 
     /**
      * Add meta file for the medium.
@@ -58,7 +58,7 @@ interface MediaObjectInterface extends \Grav\Framework\Media\Interfaces\MediaObj
      * @param string $filepath
      * @return void
      */
-    public function addMetaFile($filepath);
+    public function addMetaFile(string $filepath): void;
 
     /**
      * Add alternative Medium to this Medium.
@@ -67,7 +67,7 @@ interface MediaObjectInterface extends \Grav\Framework\Media\Interfaces\MediaObj
      * @param MediaObjectInterface $alternative
      * @return void
      */
-    public function addAlternative($ratio, MediaObjectInterface $alternative);
+    public function addAlternative($ratio, MediaObjectInterface $alternative): void;
 
     /**
      * Get list of image alternatives. Includes the current media image as well.
@@ -82,7 +82,7 @@ interface MediaObjectInterface extends \Grav\Framework\Media\Interfaces\MediaObj
      *
      * @return string
      */
-    public function __toString();
+    public function __toString(): string;
 
     /**
      * Get/set querystring for the file's url
@@ -91,7 +91,7 @@ interface MediaObjectInterface extends \Grav\Framework\Media\Interfaces\MediaObj
      * @param  bool $withQuestionmark
      * @return string
      */
-    public function querystring($querystring = null, $withQuestionmark = true);
+    public function querystring(string $querystring = null, bool $withQuestionmark = true): string;
 
     /**
      * Get the URL with full querystring
@@ -99,7 +99,7 @@ interface MediaObjectInterface extends \Grav\Framework\Media\Interfaces\MediaObj
      * @param string $url
      * @return string
      */
-    public function urlQuerystring($url);
+    public function urlQuerystring(string $url): string;
 
     /**
      * Get/set hash for the file's url
@@ -108,7 +108,7 @@ interface MediaObjectInterface extends \Grav\Framework\Media\Interfaces\MediaObj
      * @param  bool $withHash
      * @return string
      */
-    public function urlHash($hash = null, $withHash = true);
+    public function urlHash(string $hash = null, bool $withHash = true): string;
 
     /**
      * Get an element (is array) that can be rendered by the Parsedown engine
@@ -120,7 +120,7 @@ interface MediaObjectInterface extends \Grav\Framework\Media\Interfaces\MediaObj
      * @param  bool $reset
      * @return array
      */
-    public function parsedownElement($title = null, $alt = null, $class = null, $id = null, $reset = true);
+    public function parsedownElement(string $title = null, string $alt = null, string $class = null, string $id = null, bool $reset = true): array;
 
     /**
      * Reset medium.
@@ -133,18 +133,18 @@ interface MediaObjectInterface extends \Grav\Framework\Media\Interfaces\MediaObj
      * Add custom attribute to medium.
      *
      * @param string $attribute
-     * @param string $value
+     * @param string|null $value
      * @return $this
      */
-    public function attribute($attribute = null, $value = '');
+    public function attribute(string $attribute = '', ?string $value = '');
 
     /**
      * Switch display mode.
      *
      * @param string $mode
-     * @return MediaObjectInterface|null
+     * @return MediaLinkInterface|MediaObjectInterface|null
      */
-    public function display($mode = 'source');
+    public function display(string $mode = 'source');
 
     /**
      * Helper method to determine if this media item has a thumbnail or not
@@ -152,7 +152,7 @@ interface MediaObjectInterface extends \Grav\Framework\Media\Interfaces\MediaObj
      * @param string $type;
      * @return bool
      */
-    public function thumbnailExists($type = 'page');
+    public function thumbnailExists(string $type = 'page'): bool;
 
     /**
      * Switch thumbnail.
@@ -160,7 +160,7 @@ interface MediaObjectInterface extends \Grav\Framework\Media\Interfaces\MediaObj
      * @param string $type
      * @return $this
      */
-    public function thumbnail($type = 'auto');
+    public function thumbnail(string $type = 'auto');
 
     /**
      * Return URL to file.
@@ -168,7 +168,7 @@ interface MediaObjectInterface extends \Grav\Framework\Media\Interfaces\MediaObj
      * @param bool $reset
      * @return string
      */
-    public function url($reset = true);
+    public function url(bool $reset = true): string;
 
     /**
      * Turn the current Medium into a Link
@@ -177,25 +177,26 @@ interface MediaObjectInterface extends \Grav\Framework\Media\Interfaces\MediaObj
      * @param  array  $attributes
      * @return MediaLinkInterface
      */
-    public function link($reset = true, array $attributes = []);
+    public function link(bool $reset = true, array $attributes = []): MediaLinkInterface;
 
     /**
      * Turn the current Medium into a Link with lightbox enabled
      *
-     * @param  int  $width
-     * @param  int  $height
+     * @param  int|null  $width
+     * @param  int|null  $height
      * @param  bool $reset
      * @return MediaLinkInterface
      */
-    public function lightbox($width = null, $height = null, $reset = true);
+    public function lightbox(int $width = null, int $height = null, bool $reset = true): MediaLinkInterface;
 
     /**
      * Add a class to the element from Markdown or Twig
      * Example: ![Example](myimg.png?classes=float-left) or ![Example](myimg.png?classes=myclass1,myclass2)
      *
+     * @param string ...$args
      * @return $this
      */
-    public function classes();
+    public function classes(string ...$args);
 
     /**
      * Add an id to the element from Markdown or Twig
@@ -204,7 +205,7 @@ interface MediaObjectInterface extends \Grav\Framework\Media\Interfaces\MediaObj
      * @param string $id
      * @return $this
      */
-    public function id($id);
+    public function id(string $id);
 
     /**
      * Allows to add an inline style attribute from Markdown or Twig
@@ -213,16 +214,16 @@ interface MediaObjectInterface extends \Grav\Framework\Media\Interfaces\MediaObj
      * @param string $style
      * @return $this
      */
-    public function style($style);
+    public function style(string $style);
 
     /**
      * Allow any action to be called on this medium from twig or markdown
      *
      * @param string $method
-     * @param mixed $args
+     * @param array $args
      * @return $this
      */
-    public function __call($method, $args);
+    public function __call(string $method, array $args);
 
     /**
      * Get value by using dot notation for nested arrays/objects.
@@ -234,7 +235,7 @@ interface MediaObjectInterface extends \Grav\Framework\Media\Interfaces\MediaObj
      * @param string|null $separator Separator, defaults to '.'
      * @return mixed Value.
      */
-    public function get($name, $default = null, $separator = null);
+    public function get(string $name, $default = null, string $separator = null);
 
     /**
      * Set value by using dot notation for nested arrays/objects.
@@ -246,5 +247,5 @@ interface MediaObjectInterface extends \Grav\Framework\Media\Interfaces\MediaObj
      * @param string|null $separator Separator, defaults to '.'
      * @return $this
      */
-    public function set($name, $value, $separator = null);
+    public function set(string $name, $value, string $separator = null);
 }

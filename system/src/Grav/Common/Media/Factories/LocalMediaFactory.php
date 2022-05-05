@@ -42,15 +42,15 @@ class LocalMediaFactory implements MediaFactoryInterface
     }
 
     /**
-     * @param string $type
-     * @param string $path
+     * @param string $uri
+     * @param string|null $type
      * @return string
      */
-    public function readFile(string $type, string $path): string
+    public function readFile(string $uri, string $type = null): string
     {
-        $filepath = GRAV_WEBROOT . '/' . $path;
+        $filepath = GRAV_WEBROOT . '/' . $uri;
         if (!is_file($filepath)) {
-            throw new RuntimeException(sprintf("Reading media file failed: File '%s' not found", $path));
+            throw new RuntimeException(sprintf("Reading media file failed: File '%s' not found", $uri));
         }
 
         error_clear_last();
@@ -63,15 +63,15 @@ class LocalMediaFactory implements MediaFactoryInterface
     }
 
     /**
-     * @param string $type
-     * @param string $path
+     * @param string $uri
+     * @param string|null $type
      * @return resource
      */
-    public function readStream(string $type, string $path)
+    public function readStream(string $uri, string $type = null)
     {
-        $filepath = GRAV_WEBROOT . '/' . $path;
+        $filepath = GRAV_WEBROOT . '/' . $uri;
         if (!is_file($filepath)) {
-            throw new RuntimeException(sprintf("Reading media file failed: File '%s' not found", $path));
+            throw new RuntimeException(sprintf("Reading media file failed: File '%s' not found", $uri));
         }
 
         error_clear_last();

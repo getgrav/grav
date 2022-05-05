@@ -21,5 +21,5 @@ interface AudioMediaInterface extends MediaObjectInterface, MediaPlayerInterface
      * @param string $controlsList
      * @return $this
      */
-    public function controlsList($controlsList);
+    public function controlsList(string $controlsList);
 }

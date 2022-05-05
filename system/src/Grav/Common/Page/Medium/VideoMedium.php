@@ -15,6 +15,9 @@ use Grav\Common\Media\Traits\VideoMediaTrait;
 /**
  * Class VideoMedium
  * @package Grav\Common\Page\Medium
+ *
+ * @property int|null $width
+ * @property int|null $height
  */
 class VideoMedium extends Medium implements VideoMediaInterface
 {

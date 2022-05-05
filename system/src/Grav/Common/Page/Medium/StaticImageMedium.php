@@ -16,6 +16,9 @@ use Grav\Common\Media\Traits\StaticResizeTrait;
 /**
  * Class StaticImageMedium
  * @package Grav\Common\Page\Medium
+ *
+ * @property int|null $width
+ * @property int|null $height
  */
 class StaticImageMedium extends Medium implements ImageMediaInterface
 {
@@ -29,7 +32,7 @@ class StaticImageMedium extends Medium implements ImageMediaInterface
      * @param  bool $reset
      * @return array
      */
-    protected function sourceParsedownElement(array $attributes, $reset = true)
+    protected function sourceParsedownElement(array $attributes, bool $reset = true): array
     {
         if (empty($attributes['src'])) {
             $attributes['src'] = $this->url($reset);
@@ -41,7 +44,7 @@ class StaticImageMedium extends Medium implements ImageMediaInterface
     /**
      * @return $this
      */
-    public function higherQualityAlternative()
+    public function higherQualityAlternative(): ImageMediaInterface
     {
         return $this;
     }

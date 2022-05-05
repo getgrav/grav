@@ -171,7 +171,7 @@ trait ImageMediaTrait
      * @param string $name
      * @return void
      */
-    public function setImagePrettyName($name)
+    public function setImagePrettyName(string $name): void
     {
         $this->set('prettyname', $name);
     }
@@ -179,7 +179,7 @@ trait ImageMediaTrait
     /**
      * @return string
      */
-    public function getImagePrettyName()
+    public function getImagePrettyName(): string
     {
         $prettyName = $this->get('prettyname');
         if ($prettyName) {
@@ -218,7 +218,7 @@ trait ImageMediaTrait
      * @param  int       $step
      * @return $this
      */
-    public function derivatives($min_width, $max_width = 2500, $step = 200)
+    public function derivatives($min_width, int $max_width = 2500, int $step = 200)
     {
         // Get the largest image to be the base.
         if (empty($this->alternatives)) {
@@ -278,7 +278,7 @@ trait ImageMediaTrait
      *
      * @return void
      */
-    public function clearAlternatives()
+    public function clearAlternatives(): void
     {
         $this->alternatives = [];
     }
@@ -289,7 +289,7 @@ trait ImageMediaTrait
      * @param  int|null $quality 0-100 quality
      * @return int|$this
      */
-    public function quality($quality = null)
+    public function quality(int $quality = null)
     {
         if ($quality) {
             if (!$this->image) {
@@ -310,7 +310,7 @@ trait ImageMediaTrait
      * @param string $format
      * @return $this
      */
-    public function format($format)
+    public function format(string $format)
     {
         if (!$this->image) {
             $this->image();
@@ -327,7 +327,7 @@ trait ImageMediaTrait
      * @param  string|null $sizes
      * @return string|$this
      */
-    public function sizes($sizes = null)
+    public function sizes(string $sizes = null)
     {
         if ($sizes) {
             $this->sizes = $sizes;
@@ -390,7 +390,7 @@ trait ImageMediaTrait
      * @param string $filter Filter to be used.
      * @return $this
      */
-    public function filter($filter = 'image.filters.default')
+    public function filter(string $filter = 'image.filters.default')
     {
         $filters = (array)$this->get($filter, []);
         foreach ($filters as $params) {
@@ -407,7 +407,7 @@ trait ImageMediaTrait
      *
      * @return ImageMediaInterface|$this the alternative version with higher quality
      */
-    public function higherQualityAlternative()
+    public function higherQualityAlternative(): ImageMediaInterface
     {
         if ($this->alternatives) {
             /** @var ImageMedium $max */
@@ -443,7 +443,7 @@ trait ImageMediaTrait
      * @param int|float|null $scale
      * @return $this
      */
-    public function watermark($image = null, $position = null, $scale = null)
+    public function watermark(string $image = null, string $position = null, $scale = null)
     {
         $grav = $this->getGrav();
 
@@ -554,10 +554,10 @@ trait ImageMediaTrait
      * Forward the call to the image processing method.
      *
      * @param string $method
-     * @param mixed $args
+     * @param array $args
      * @return mixed
      */
-    public function __call($method, $args)
+    public function __call(string $method, array $args)
     {
         if (!in_array($method, static::$magic_actions, true)) {
             return parent::__call($method, $args);
@@ -619,7 +619,7 @@ trait ImageMediaTrait
      *
      * @return string
      */
-    protected function saveImage()
+    protected function saveImage(): string
     {
         if (!$this->image) {
             return parent::path(false);

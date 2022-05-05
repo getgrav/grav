@@ -109,12 +109,11 @@ abstract class LocalMedia extends AbstractMedia
      * Create Medium from array of parameters
      *
      * @param  array          $items
-     * @param  Blueprint|null $blueprint
      * @return Medium|null
      */
-    public function createFromArray(array $items = [], Blueprint $blueprint = null): ?MediaObjectInterface
+    public function createFromArray(array $items = []): ?MediaObjectInterface
     {
-        return MediumFactory::fromArray($items, $blueprint);
+        return MediumFactory::fromArray($items);
     }
 
     /**

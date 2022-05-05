@@ -25,7 +25,7 @@ trait AudioMediaTrait
      * @param string $controlsList
      * @return $this
      */
-    public function controlsList($controlsList)
+    public function controlsList(string $controlsList)
     {
         $controlsList = str_replace('-', ' ', $controlsList);
         $this->attributes['controlsList'] = $controlsList;
@@ -40,7 +40,7 @@ trait AudioMediaTrait
      * @param  bool $reset
      * @return array
      */
-    protected function sourceParsedownElement(array $attributes, $reset = true)
+    protected function sourceParsedownElement(array $attributes, bool $reset = true): array
     {
         $location = $this->url($reset);
 

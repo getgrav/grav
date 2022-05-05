@@ -31,11 +31,14 @@ use RuntimeException;
  * @property string $filepath
  * @property string $filename
  * @property string $basename
+ * @property string|null $extension
  * @property string $mime
  * @property int $size
  * @property int $modified
  * @property array $metadata
+ * @property array|null $meta
  * @property int|string $timestamp
+ * @property bool|null $uploaded
  */
 class Medium implements RenderableInterface, MediaFileInterface, JsonSerializable, \Countable, ExportInterface
 {
@@ -83,7 +86,6 @@ class Medium implements RenderableInterface, MediaFileInterface, JsonSerializabl
      */
     public function __clone()
     {
-
     }
 
     /**
@@ -118,10 +120,10 @@ class Medium implements RenderableInterface, MediaFileInterface, JsonSerializabl
      * @param string $filepath
      * @return void
      */
-    public function addMetaFile($filepath)
+    public function addMetaFile(string $filepath): void
     {
         $this->metadata = (array)CompiledYamlFile::instance($filepath)->content();
-        $this->merge($this->metadata);
+        $this->items = array_merge($this->items, $this->metadata);
         $this->reset();
     }
 
@@ -167,8 +169,7 @@ class Medium implements RenderableInterface, MediaFileInterface, JsonSerializabl
      *
      * @return string
      */
-    #[\ReturnTypeWillChange]
-    public function __toString()
+    public function __toString(): string
     {
         return $this->html();
     }
@@ -177,7 +178,7 @@ class Medium implements RenderableInterface, MediaFileInterface, JsonSerializabl
      * @param string $thumb
      * @return MediaObjectInterface|null
      */
-    protected function createThumbnail($thumb): ?MediaObjectInterface
+    protected function createThumbnail(string $thumb): ?MediaObjectInterface
     {
         return $this->getMedia()->createFromFile($thumb, ['type' => 'thumbnail']);
     }
@@ -186,7 +187,7 @@ class Medium implements RenderableInterface, MediaFileInterface, JsonSerializabl
      * @param array $attributes
      * @return MediaLinkInterface
      */
-    protected function createLink(array $attributes)
+    protected function createLink(array $attributes): MediaLinkInterface
     {
         return new Link($attributes, $this);
     }

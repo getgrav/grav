@@ -20,12 +20,12 @@ interface ImageManipulateInterface
      * @param string $name
      * @return void
      */
-    public function setImagePrettyName($name);
+    public function setImagePrettyName(string $name): void;
 
     /**
      * @return string
      */
-    public function getImagePrettyName();
+    public function getImagePrettyName(): string;
 
     /**
      * Simply processes with no extra methods.  Useful for triggering events.
@@ -44,14 +44,14 @@ interface ImageManipulateInterface
      * @param int $step
      * @return $this
      */
-    public function derivatives($min_width, $max_width = 2500, $step = 200);
+    public function derivatives($min_width, int $max_width = 2500, int $step = 200);
 
     /**
      * Clear out the alternatives.
      *
      * @return void
      */
-    public function clearAlternatives();
+    public function clearAlternatives(): void;
 
     /**
      * Sets or gets the quality of the image
@@ -59,7 +59,7 @@ interface ImageManipulateInterface
      * @param int|null $quality 0-100 quality
      * @return int|$this
      */
-    public function quality($quality = null);
+    public function quality(int $quality = null);
 
     /**
      * Sets image output format.
@@ -67,15 +67,15 @@ interface ImageManipulateInterface
      * @param string $format
      * @return $this
      */
-    public function format($format);
+    public function format(string $format);
 
     /**
      * Set or get sizes parameter for srcset media action
      *
      * @param string|null $sizes
-     * @return string
+     * @return string|$this
      */
-    public function sizes($sizes = null);
+    public function sizes(string $sizes = null);
 
     /**
      * Allows to set the width attribute from Markdown or Twig
@@ -110,14 +110,13 @@ interface ImageManipulateInterface
      *
      * @param string $filter Filter to be used.
      * @return $this
-     * FIXME: Conflicts against Data class
      */
-    //public function filter($filter = 'image.filters.default');
+    public function filter(string $filter = 'image.filters.default');
 
     /**
      * Return the image higher quality version
      *
      * @return ImageMediaInterface the alternative version with higher quality
      */
-    public function higherQualityAlternative();
+    public function higherQualityAlternative(): ImageMediaInterface;
 }

@@ -27,6 +27,7 @@ use function is_bool;
  *
  * @property int $width
  * @property int $height
+ * @property int|null $orientation
  */
 class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulateInterface
 {
@@ -44,10 +45,11 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
      * Construct.
      *
      * @param array $items
-     * @param Blueprint|null $blueprint
      */
-    public function __construct($items = [], Blueprint $blueprint = null)
+    public function __construct(array $items = [])
     {
+        parent::__construct($items);
+
         /** @var Config $config */
         $config = $this->getGrav()['config'];
 
@@ -60,8 +62,6 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
             'aspect_ratio' => (bool)$config->get('system.images.cls.aspect_ratio', false),
             'retina_scale' => (int)$config->get('system.images.cls.retina_scale', 1)
         ];
-
-        parent::__construct($items, $blueprint);
 
         $this->def('debug', $config->get('system.images.debug'));
 
@@ -123,7 +123,7 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
      * @param bool $reset
      * @return string path to image
      */
-    public function path($reset = true)
+    public function path(bool $reset = true): string
     {
         $output = $this->saveImage();
 
@@ -140,7 +140,7 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
      * @param bool $reset
      * @return string
      */
-    public function url($reset = true)
+    public function url(bool $reset = true): string
     {
         if (!$this->image) {
             return parent::url($reset);
@@ -179,7 +179,7 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
      * @param bool $reset
      * @return string
      */
-    public function srcset($reset = true)
+    public function srcset(bool $reset = true): string
     {
         if (empty($this->alternatives)) {
             if ($reset) {
@@ -205,7 +205,7 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
      * @param  bool $reset
      * @return array
      */
-    public function sourceParsedownElement(array $attributes, $reset = true)
+    public function sourceParsedownElement(array $attributes, bool $reset = true): array
     {
         if (empty($attributes['src'])) {
             $attributes['src'] = $this->url(false);
@@ -247,7 +247,7 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
      * @param  array  $attributes
      * @return MediaLinkInterface
      */
-    public function link($reset = true, array $attributes = [])
+    public function link(bool $reset = true, array $attributes = []): MediaLinkInterface
     {
         $attributes['href'] = $this->url(false);
         $srcset = $this->srcset(false);
@@ -261,12 +261,12 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
     /**
      * Turn the current Medium into a Link with lightbox enabled
      *
-     * @param  int  $width
-     * @param  int  $height
+     * @param  int|null $width
+     * @param  int|null $height
      * @param  bool $reset
      * @return MediaLinkInterface
      */
-    public function lightbox($width = null, $height = null, $reset = true)
+    public function lightbox(int $width = null, int $height = null, bool $reset = true): MediaLinkInterface
     {
         if ($this->mode !== 'source') {
             $this->display('source');
@@ -306,10 +306,10 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
     }
 
     /**
-     * @param string|int $scale
+     * @param int $scale
      * @return $this
      */
-    public function retinaScale($scale = 1)
+    public function retinaScale(int $scale = 1)
     {
         $this->imageSettings['retina_scale'] = (int)$scale;
 

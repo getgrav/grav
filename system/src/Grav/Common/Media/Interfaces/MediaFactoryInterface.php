@@ -24,4 +24,18 @@ interface MediaFactoryInterface
      * @return MediaCollectionInterface|null
      */
     public function createCollection(array $settings): ?MediaCollectionInterface;
+
+    /**
+     * @param string $uri
+     * @param string|null $type
+     * @return string
+     */
+    public function readFile(string $uri, string $type = null): string;
+
+    /**
+     * @param string $uri
+     * @param string|null $type
+     * @return resource
+     */
+    public function readStream(string $uri, string $type = null);
 }

@@ -25,11 +25,10 @@ class VectorImageMedium extends StaticImageMedium
      * Construct.
      *
      * @param array $items
-     * @param Blueprint|null $blueprint
      */
-    public function __construct($items = [], Blueprint $blueprint = null)
+    public function __construct(array $items = [])
     {
-        parent::__construct($items, $blueprint);
+        parent::__construct($items);
 
         // If we already have the image size, we do not need to do anything else.
         $width = $this->get('width');

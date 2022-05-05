@@ -25,7 +25,7 @@ interface RenderableInterface
      * @param bool $reset
      * @return string
      */
-    public function html($title = null, $alt = null, $class = null, $id = null, $reset = true);
+    public function html(string $title = null, string $alt = null, string $class = null, string $id = null, bool $reset = true): string;
 
     /**
      * Return Parsedown Element from the medium.
@@ -37,5 +37,5 @@ interface RenderableInterface
      * @param bool $reset
      * @return array
      */
-    public function parsedownElement($title = null, $alt = null, $class = null, $id = null, $reset = true);
+    public function parsedownElement(string $title = null, string $alt = null, string $class = null, string $id = null, bool $reset = true): array;
 }

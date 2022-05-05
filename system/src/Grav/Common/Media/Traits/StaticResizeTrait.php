@@ -22,7 +22,7 @@ trait StaticResizeTrait
      * @param  int|null $height
      * @return $this
      */
-    public function resize($width = null, $height = null)
+    public function resize(int $width = null, int $height = null)
     {
         if ($width) {
             $this->styleAttributes['width'] = (int)$width . 'px';

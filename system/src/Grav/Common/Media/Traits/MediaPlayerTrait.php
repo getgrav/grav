@@ -22,7 +22,7 @@ trait MediaPlayerTrait
      * @param bool $status
      * @return $this
      */
-    public function controls($status = true)
+    public function controls(bool $status = true)
     {
         if ($status) {
             $this->attributes['controls'] = 'controls';
@@ -39,7 +39,7 @@ trait MediaPlayerTrait
      * @param bool $status
      * @return $this
      */
-    public function loop($status = false)
+    public function loop(bool $status = false)
     {
         if ($status) {
             $this->attributes['loop'] = 'loop';
@@ -56,7 +56,7 @@ trait MediaPlayerTrait
      * @param bool $status
      * @return $this
      */
-    public function autoplay($status = false)
+    public function autoplay(bool $status = false)
     {
         if ($status) {
             $this->attributes['autoplay'] = 'autoplay';
@@ -73,7 +73,7 @@ trait MediaPlayerTrait
      * @param bool $status
      * @return $this
      */
-    public function muted($status = false)
+    public function muted(bool $status = false)
     {
         if ($status) {
             $this->attributes['muted'] = 'muted';
@@ -90,7 +90,7 @@ trait MediaPlayerTrait
      * @param string|null $preload
      * @return $this
      */
-    public function preload($preload = null)
+    public function preload(string $preload = null)
     {
         $validPreloadAttrs = ['auto', 'metadata', 'none'];
 
@@ -108,7 +108,7 @@ trait MediaPlayerTrait
      *
      * @return void
      */
-    public function resetPlayer()
+    public function resetPlayer(): void
     {
         $this->attributes['controls'] = 'controls';
     }

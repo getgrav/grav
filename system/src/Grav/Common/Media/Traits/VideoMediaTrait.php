@@ -21,10 +21,10 @@ trait VideoMediaTrait
     /**
      * Allows to set the video's poster image
      *
-     * @param string $urlImage
+     * @param string|null $poster
      * @return $this
      */
-    public function poster($urlImage)
+    public function poster(string $poster = null)
     {
         $this->attributes['poster'] = $urlImage;
 
@@ -37,7 +37,7 @@ trait VideoMediaTrait
      * @param bool $status
      * @return $this
      */
-    public function playsinline($status = false)
+    public function playsinline(bool $status = false)
     {
         if ($status) {
             $this->attributes['playsinline'] = 'playsinline';
@@ -55,7 +55,7 @@ trait VideoMediaTrait
      * @param  bool $reset
      * @return array
      */
-    protected function sourceParsedownElement(array $attributes, $reset = true)
+    protected function sourceParsedownElement(array $attributes, bool $reset = true): array
     {
         $location = $this->url($reset);
 

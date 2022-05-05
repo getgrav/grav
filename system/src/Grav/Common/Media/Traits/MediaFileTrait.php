@@ -23,7 +23,7 @@ trait MediaFileTrait
      *
      * @return bool
      */
-    public function exists()
+    public function exists(): bool
     {
         $path = $this->path(false);
 
@@ -35,7 +35,7 @@ trait MediaFileTrait
      *
      * @return int|null
      */
-    public function modified()
+    public function modified(): ?int
     {
         return $this->get('modified');
     }
@@ -45,7 +45,7 @@ trait MediaFileTrait
      *
      * @return int
      */
-    public function size()
+    public function size(): int
     {
         return $this->get('size');
     }
@@ -56,7 +56,7 @@ trait MediaFileTrait
      * @param bool $reset
      * @return string path to file
      */
-    public function path($reset = true)
+    public function path(bool $reset = true): string
     {
         if ($reset) {
             $this->reset();
@@ -71,7 +71,7 @@ trait MediaFileTrait
      * @param bool $reset
      * @return string
      */
-    public function relativePath($reset = true)
+    public function relativePath(bool $reset = true): string
     {
         if ($reset) {
             $this->reset();
@@ -95,7 +95,7 @@ trait MediaFileTrait
      * @param bool $reset
      * @return string
      */
-    public function url($reset = true)
+    public function url(bool $reset = true): string
     {
         /** @var string|null $url */
         $url = $this->get('url');
@@ -114,7 +114,7 @@ trait MediaFileTrait
      * @param string $url
      * @return string
      */
-    abstract public function urlQuerystring($url);
+    abstract public function urlQuerystring(string $url): string;
 
     /**
      * Reset medium.

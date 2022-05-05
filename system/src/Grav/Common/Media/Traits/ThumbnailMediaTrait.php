@@ -33,7 +33,7 @@ trait ThumbnailMediaTrait
      * @param bool $reset
      * @return string
      */
-    public function srcset($reset = true)
+    public function srcset(bool $reset = true): string
     {
         return '';
     }
@@ -48,7 +48,7 @@ trait ThumbnailMediaTrait
      * @param bool $reset
      * @return array
      */
-    public function parsedownElement($title = null, $alt = null, $class = null, $id = null, $reset = true)
+    public function parsedownElement(string $title = null, string $alt = null, string $class = null, string $id = null, bool $reset = true): array
     {
         return $this->bubble('parsedownElement', [$title, $alt, $class, $id, $reset]);
     }
@@ -63,7 +63,7 @@ trait ThumbnailMediaTrait
      * @param bool $reset
      * @return string
      */
-    public function html($title = null, $alt = null, $class = null, $id = null, $reset = true)
+    public function html(string $title = null, string $alt = null, string $class = null, string $id = null, bool $reset = true): string
     {
         return $this->bubble('html', [$title, $alt, $class, $id, $reset]);
     }
@@ -75,7 +75,7 @@ trait ThumbnailMediaTrait
      *
      * @return MediaLinkInterface|MediaObjectInterface|null
      */
-    public function display($mode = 'source')
+    public function display(string $mode = 'source')
     {
         return $this->bubble('display', [$mode], false);
     }
@@ -87,7 +87,7 @@ trait ThumbnailMediaTrait
      *
      * @return MediaLinkInterface|MediaObjectInterface
      */
-    public function thumbnail($type = 'auto')
+    public function thumbnail(string $type = 'auto')
     {
         $this->bubble('thumbnail', [$type], false);
 
@@ -101,7 +101,7 @@ trait ThumbnailMediaTrait
      * @param  array  $attributes
      * @return MediaLinkInterface
      */
-    public function link($reset = true, array $attributes = [])
+    public function link(bool $reset = true, array $attributes = []): MediaLinkInterface
     {
         return $this->bubble('link', [$reset, $attributes], false);
     }
@@ -114,7 +114,7 @@ trait ThumbnailMediaTrait
      * @param  bool $reset
      * @return MediaLinkInterface
      */
-    public function lightbox($width = null, $height = null, $reset = true)
+    public function lightbox(int $width = null, int $height = null, bool $reset = true): MediaLinkInterface
     {
         return $this->bubble('lightbox', [$width, $height, $reset], false);
     }
@@ -127,7 +127,7 @@ trait ThumbnailMediaTrait
      * @param  bool $testLinked
      * @return mixed
      */
-    protected function bubble($method, array $arguments = [], $testLinked = true)
+    protected function bubble(string $method, array $arguments = [], bool $testLinked = true)
     {
         if (!$testLinked || $this->linked) {
             $parent = $this->parent;

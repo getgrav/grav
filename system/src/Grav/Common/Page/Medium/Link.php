@@ -60,7 +60,7 @@ class Link implements RenderableInterface, MediaLinkInterface
      * @param  bool $reset
      * @return array
      */
-    public function parsedownElement($title = null, $alt = null, $class = null, $id = null, $reset = true)
+    public function parsedownElement($title = null, $alt = null, $class = null, $id = null, $reset = true): array
     {
         $innerElement = $this->source->parsedownElement($title, $alt, $class, $id, $reset);
 
@@ -76,10 +76,10 @@ class Link implements RenderableInterface, MediaLinkInterface
      * Forward the call to the source element
      *
      * @param string $method
-     * @param mixed $args
+     * @param array $args
      * @return MediaObjectInterface|MediaLinkInterface
      */
-    public function __call($method, $args)
+    public function __call(string $method, array $args)
     {
         $object = $this->source;
         $callable = [$object, $method];

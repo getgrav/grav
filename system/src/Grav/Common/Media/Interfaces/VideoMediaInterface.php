@@ -17,10 +17,10 @@ interface VideoMediaInterface extends MediaObjectInterface, MediaPlayerInterface
     /**
      * Allows to set the video's poster image
      *
-     * @param string $urlImage
+     * @param string|null $poster
      * @return $this
      */
-    public function poster($urlImage);
+    public function poster(string $poster = null);
 
     /**
      * Allows to set the playsinline attribute
@@ -28,5 +28,5 @@ interface VideoMediaInterface extends MediaObjectInterface, MediaPlayerInterface
      * @param bool $status
      * @return $this
      */
-    public function playsinline($status = false);
+    public function playsinline(bool $status = false);
 }

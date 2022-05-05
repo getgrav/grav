@@ -31,7 +31,7 @@ trait ParsedownHtmlTrait
      * @param bool $reset
      * @return string
      */
-    public function html($title = null, $alt = null, $class = null, $id = null, $reset = true)
+    public function html(string $title = null, string $alt = null, string $class = null, string $id = null, bool $reset = true): string
     {
         $element = $this->parsedownElement($title, $alt, $class, $id, $reset);
 

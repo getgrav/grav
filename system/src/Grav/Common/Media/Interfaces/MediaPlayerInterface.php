@@ -20,7 +20,7 @@ interface MediaPlayerInterface extends MediaObjectInterface
      * @param bool $status
      * @return $this
      */
-    public function controls($status = true);
+    public function controls(bool $status = true);
 
     /**
      * Allows to set the loop attribute
@@ -28,7 +28,7 @@ interface MediaPlayerInterface extends MediaObjectInterface
      * @param bool $status
      * @return $this
      */
-    public function loop($status = false);
+    public function loop(bool $status = false);
 
     /**
      * Allows to set the autoplay attribute
@@ -36,7 +36,7 @@ interface MediaPlayerInterface extends MediaObjectInterface
      * @param bool $status
      * @return $this
      */
-    public function autoplay($status = false);
+    public function autoplay(bool $status = false);
 
     /**
      * Allows to set the muted attribute
@@ -44,7 +44,7 @@ interface MediaPlayerInterface extends MediaObjectInterface
      * @param bool $status
      * @return $this
      */
-    public function muted($status = false);
+    public function muted(bool $status = false);
 
     /**
      * Allows to set the preload behaviour
@@ -52,5 +52,5 @@ interface MediaPlayerInterface extends MediaObjectInterface
      * @param string|null $preload
      * @return $this
      */
-    public function preload($preload = null);
+    public function preload(string $preload = null);
 }

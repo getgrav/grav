@@ -67,7 +67,7 @@ trait MediaObjectTrait
      *
      * @return Data
      */
-    public function meta()
+    public function meta(): Data
     {
         return new Data($this->getItems());
     }
@@ -96,7 +96,7 @@ trait MediaObjectTrait
      *
      * @return array
      */
-    public function metadata()
+    public function metadata(): array
     {
         return $this->metadata;
     }
@@ -107,7 +107,7 @@ trait MediaObjectTrait
      * @param string $filepath
      * @return void
      */
-    abstract public function addMetaFile($filepath);
+    abstract public function addMetaFile(string $filepath): void;
 
     /**
      * Add alternative Medium to this Medium.
@@ -116,7 +116,7 @@ trait MediaObjectTrait
      * @param MediaObjectInterface $alternative
      * @return void
      */
-    public function addAlternative($ratio, MediaObjectInterface $alternative)
+    public function addAlternative($ratio, MediaObjectInterface $alternative): void
     {
         if (!is_numeric($ratio) || $ratio === 0) {
             return;
@@ -151,17 +151,16 @@ trait MediaObjectTrait
      *
      * @return string
      */
-    #[\ReturnTypeWillChange]
-    abstract public function __toString();
+    abstract public function __toString(): string;
 
     /**
-     * Get/set querystring for the file's url
+     * Get/set query string for the file's url
      *
      * @param  string|null  $querystring
      * @param  bool $withQuestionmark
      * @return string
      */
-    public function querystring($querystring = null, $withQuestionmark = true)
+    public function querystring(string $querystring = null, bool $withQuestionmark = true): string
     {
         if (null !== $querystring) {
             $this->medium_querystring[] = ltrim($querystring, '?&');
@@ -185,12 +184,12 @@ trait MediaObjectTrait
     }
 
     /**
-     * Get the URL with full querystring
+     * Get the URL with full query string
      *
      * @param string $url
      * @return string
      */
-    public function urlQuerystring($url)
+    public function urlQuerystring(string $url): string
     {
         $querystring = $this->querystring();
         if (isset($this->timestamp) && !Utils::contains($querystring, $this->timestamp)) {
@@ -207,7 +206,7 @@ trait MediaObjectTrait
      * @param  bool $withHash
      * @return string
      */
-    public function urlHash($hash = null, $withHash = true)
+    public function urlHash(string $hash = null, bool $withHash = true): string
     {
         if ($hash) {
             $this->set('urlHash', ltrim($hash, '#'));
@@ -228,7 +227,7 @@ trait MediaObjectTrait
      * @param  bool $reset
      * @return array
      */
-    public function parsedownElement($title = null, $alt = null, $class = null, $id = null, $reset = true)
+    public function parsedownElement(string $title = null, string $alt = null, string $class = null, string $id = null, bool $reset = true): array
     {
         $attributes = $this->attributes;
         $items = $this->getItems();
@@ -322,10 +321,10 @@ trait MediaObjectTrait
      * Add custom attribute to medium.
      *
      * @param string $attribute
-     * @param string $value
+     * @param string|null $value
      * @return $this
      */
-    public function attribute($attribute = null, $value = '')
+    public function attribute(string $attribute = '', ?string $value = '')
     {
         if (!empty($attribute)) {
             $this->attributes[$attribute] = $value;
@@ -338,9 +337,9 @@ trait MediaObjectTrait
      *
      * @param string $mode
      *
-     * @return MediaObjectInterface|null
+     * @return MediaLinkInterface|MediaObjectInterface|null
      */
-    public function display($mode = 'source')
+    public function display(string $mode = 'source')
     {
         if ($this->mode === $mode) {
             return $this;
@@ -360,7 +359,7 @@ trait MediaObjectTrait
      * @param string $type;
      * @return bool
      */
-    public function thumbnailExists($type = 'page')
+    public function thumbnailExists(string $type = 'page'): bool
     {
         $thumbs = $this->get('thumbnails');
 
@@ -373,7 +372,7 @@ trait MediaObjectTrait
      * @param string $type
      * @return $this
      */
-    public function thumbnail($type = 'auto')
+    public function thumbnail(string $type = 'auto')
     {
         if ($type !== 'auto' && !in_array($type, $this->thumbnailTypes, true)) {
             return $this;
@@ -394,7 +393,7 @@ trait MediaObjectTrait
      * @param bool $reset
      * @return string
      */
-    abstract public function url($reset = true);
+    abstract public function url(bool $reset = true): string;
 
     /**
      * Turn the current Medium into a Link
@@ -403,7 +402,7 @@ trait MediaObjectTrait
      * @param  array  $attributes
      * @return MediaLinkInterface
      */
-    public function link($reset = true, array $attributes = [])
+    public function link(bool $reset = true, array $attributes = []): MediaLinkInterface
     {
         if ($this->mode !== 'source') {
             $this->display('source');
@@ -426,7 +425,7 @@ trait MediaObjectTrait
      * @param  bool $reset
      * @return MediaLinkInterface
      */
-    public function lightbox($width = null, $height = null, $reset = true)
+    public function lightbox(int $width = null, int $height = null, bool $reset = true): MediaLinkInterface
     {
         $attributes = ['rel' => 'lightbox'];
 
@@ -442,13 +441,26 @@ trait MediaObjectTrait
      * Add a class to the element from Markdown or Twig
      * Example: ![Example](myimg.png?classes=float-left) or ![Example](myimg.png?classes=myclass1,myclass2)
      *
+     * @param string ...$args
      * @return $this
      */
-    public function classes()
+    public function classes(string ...$args)
     {
-        $classes = func_get_args();
-        if (!empty($classes)) {
-            $this->attributes['class'] = implode(',', $classes);
+        if (!empty($args)) {
+            $classes = implode(',', $args);
+        } else {
+            $classes = null;
+        }
+
+        $currentClasses = $this->attributes['class'] ?? null;
+        if ($currentClasses === $classes) {
+            return $this;
+        }
+
+        if ($classes) {
+            $this->attributes['class'] = $classes;
+        } else {
+            unset($this->attributes['class']);
         }
 
         return $this;
@@ -458,10 +470,10 @@ trait MediaObjectTrait
      * Add an id to the element from Markdown or Twig
      * Example: ![Example](myimg.png?id=primary-img)
      *
-     * @param string $id
+     * @param string|null $id
      * @return $this
      */
-    public function id($id)
+    public function id(string $id = null)
     {
         if (is_string($id)) {
             $this->attributes['id'] = trim($id);
@@ -477,7 +489,7 @@ trait MediaObjectTrait
      * @param string $style
      * @return $this
      */
-    public function style($style)
+    public function style(string $style)
     {
         $this->styleAttributes[] = rtrim($style, ';') . ';';
 
@@ -491,7 +503,7 @@ trait MediaObjectTrait
      * @param array $args
      * @return MediaObjectInterface|MediaLinkInterface
      */
-    public function __call($method, $args)
+    public function __call(string $method, array $args)
     {
         $count = count($args);
         if ($count > 1 || ($count === 1 && !empty($args[0]))) {
@@ -518,7 +530,7 @@ trait MediaObjectTrait
      * @param  bool $reset
      * @return array
      */
-    protected function sourceParsedownElement(array $attributes, $reset = true)
+    protected function sourceParsedownElement(array $attributes, bool $reset = true): array
     {
         return $this->textParsedownElement($attributes, $reset);
     }
@@ -530,7 +542,7 @@ trait MediaObjectTrait
      * @param  bool $reset
      * @return array
      */
-    protected function textParsedownElement(array $attributes, $reset = true)
+    protected function textParsedownElement(array $attributes, bool $reset = true): array
     {
         if ($reset) {
             $this->reset();
@@ -606,7 +618,7 @@ trait MediaObjectTrait
      * @param string|null $separator Separator, defaults to '.'
      * @return mixed Value.
      */
-    abstract public function get($name, $default = null, $separator = null);
+    abstract public function get(string $name, $default = null, string $separator = null);
 
         /**
      * Set value by using dot notation for nested arrays/objects.
@@ -618,18 +630,19 @@ trait MediaObjectTrait
      * @param string|null $separator Separator, defaults to '.'
      * @return $this
      */
-    abstract public function set($name, $value, $separator = null);
+    abstract public function set(string $name, $value, string $separator = null);
 
     /**
      * @param string $thumb
+     * @return MediaObjectInterface|null
      */
-    abstract protected function createThumbnail($thumb);
+    abstract protected function createThumbnail(string $thumb): ?MediaObjectInterface;
 
     /**
      * @param array $attributes
      * @return MediaLinkInterface
      */
-    abstract protected function createLink(array $attributes);
+    abstract protected function createLink(array $attributes): MediaLinkInterface;
 
     /**
      * @return array

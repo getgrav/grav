@@ -147,28 +147,27 @@ class MediumFactory
      * Create Medium from array of parameters
      *
      * @param  array          $items
-     * @param  Blueprint|null $blueprint
      * @return Medium
      */
-    public static function fromArray(array $items = [], Blueprint $blueprint = null)
+    public static function fromArray(array $items = [])
     {
         $type = $items['type'] ?? null;
 
         switch ($type) {
             case 'image':
-                return new ImageMedium($items, $blueprint);
+                return new ImageMedium($items);
             case 'thumbnail':
-                return new ThumbnailImageMedium($items, $blueprint);
+                return new ThumbnailImageMedium($items);
             case 'vector':
-                return new VectorImageMedium($items, $blueprint);
+                return new VectorImageMedium($items);
             case 'animated':
-                return new StaticImageMedium($items, $blueprint);
+                return new StaticImageMedium($items);
             case 'video':
-                return new VideoMedium($items, $blueprint);
+                return new VideoMedium($items);
             case 'audio':
-                return new AudioMedium($items, $blueprint);
+                return new AudioMedium($items);
             default:
-                return new Medium($items, $blueprint);
+                return new Medium($items);
         }
     }
 
