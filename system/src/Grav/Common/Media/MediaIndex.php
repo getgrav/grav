@@ -18,17 +18,13 @@ use Grav\Framework\File\JsonFile;
  */
 class MediaIndex
 {
-    /** @var array */
-    protected static $instances = [];
+    /** @var array<string,MediaIndex> */
+    protected static array $instances = [];
 
-    /** @var string */
-    protected $filepath;
-    /** @var array|null */
-    protected $indexes;
-    /** @var int */
-    protected $modified = 0;
-    /** @var JsonFile|null */
-    protected $file;
+    protected string $filepath;
+    protected ?array $indexes = null;
+    protected int $modified = 0;
+    protected ?JsonFile $file = null;
 
     /**
      * @param string $filepath

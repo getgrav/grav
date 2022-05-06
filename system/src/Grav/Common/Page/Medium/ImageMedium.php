@@ -34,12 +34,9 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
     use ImageMediaTrait;
     use ImageLoadingTrait;
 
-    /** @var array */
-    protected $defaults = [];
-    /** @var array */
-    protected $imageSettings = [];
-    /** @var string|null */
-    private $saved_image_path;
+    protected array $defaults = [];
+    protected array $imageSettings = [];
+    private ?string $saved_image_path = null;
 
     /**
      * Construct.

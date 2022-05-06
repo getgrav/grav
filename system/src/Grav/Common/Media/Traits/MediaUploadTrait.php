@@ -30,7 +30,7 @@ use function in_array;
 trait MediaUploadTrait
 {
     /** @var array */
-    private $_upload_defaults = [
+    private array $_upload_defaults = [
         'self'              => true,        // Whether path is in the media collection path itself.
         'avoid_overwriting' => false,       // Do not override existing files (adds datetime postfix if conflict).
         'random_name'       => false,       // True if name needs to be randomized.

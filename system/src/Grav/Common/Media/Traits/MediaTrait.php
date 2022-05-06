@@ -30,12 +30,10 @@ use function strlen;
  */
 trait MediaTrait
 {
-    /** @var MediaCollectionInterface|null */
-    protected $media;
-    /** @var bool */
-    protected $_loadMedia = true;
+    protected ?MediaCollectionInterface $media = null;
+    protected bool $_loadMedia = true;
     /** @var array */
-    protected $_mediaSettings = [];
+    protected array $_mediaSettings = [];
 
     /**
      * Get filesystem path to the associated media.

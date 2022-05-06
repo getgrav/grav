@@ -21,11 +21,8 @@ use function is_callable;
  */
 trait ThumbnailMediaTrait
 {
-    /** @var MediaObjectInterface|null */
-    public $parent;
-
-    /** @var bool */
-    public $linked = false;
+    public ?MediaObjectInterface $parent;
+    public bool $linked = false;
 
     /**
      * Return srcset string for this Medium and its alternatives.

@@ -32,8 +32,8 @@ use function in_array;
  */
 trait ImageMediaTrait
 {
-    /** @var array */
-    public static $magic_actions = [
+    /** @var string[] */
+    public static array $magic_actions = [
         'resize', 'forceResize', 'cropResize', 'crop', 'zoomCrop',
         'negate', 'brightness', 'contrast', 'grayscale', 'emboss',
         'smooth', 'sharp', 'edge', 'colorize', 'sepia', 'enableProgressive',
@@ -41,7 +41,7 @@ trait ImageMediaTrait
     ];
 
     /** @var array */
-    public static $magic_resize_actions = [
+    public static array $magic_resize_actions = [
         'resize' => [0, 1],
         'forceResize' => [0, 1],
         'cropResize' => [0, 1],
@@ -49,16 +49,11 @@ trait ImageMediaTrait
         'zoomCrop' => [0, 1]
     ];
 
-    /** @var Image|null */
-    protected $image;
-    /** @var string */
-    protected $format = 'guess';
-    /** @var int */
-    protected $quality;
-    /** @var bool */
-    protected $watermark;
-    /** @var string */
-    protected $sizes = '100vw';
+    protected ?Image $image = null;
+    protected string $format = 'guess';
+    protected int $quality = 85;
+    protected bool $watermark = false;
+    protected string $sizes = '100vw';
 
     /**
      * @return array

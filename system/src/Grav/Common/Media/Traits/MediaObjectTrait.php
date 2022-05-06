@@ -14,11 +14,11 @@ use Grav\Common\Media\Interfaces\ImageMediaInterface;
 use Grav\Common\Media\Interfaces\MediaFileInterface;
 use Grav\Common\Media\Interfaces\MediaLinkInterface;
 use Grav\Common\Media\Interfaces\MediaObjectInterface;
+use Grav\Common\Page\Medium\Medium;
 use Grav\Common\Page\Medium\ThumbnailImageMedium;
 use Grav\Common\Utils;
 use RuntimeException;
 use function count;
-use function func_get_args;
 use function in_array;
 use function is_array;
 use function is_string;
@@ -31,27 +31,23 @@ use function is_string;
  */
 trait MediaObjectTrait
 {
-    /** @var string|int */
-    public $timestamp;
+    public ?string $timestamp = null;
     /** @var array */
-    public $metadata = [];
+    public array $metadata = [];
 
-    /** @var string */
-    protected $mode = 'source';
-    /** @var MediaObjectInterface|null */
-    protected $_thumbnail;
-    /** @var array */
-    protected $thumbnailTypes = ['page', 'default'];
-    /** @var string|null */
-    protected $thumbnailType;
+    protected string $mode = 'source';
+    protected ?MediaObjectInterface $_thumbnail = null;
+    /** @var string[] */
+    protected array $thumbnailTypes = ['page', 'default'];
+    protected ?string $thumbnailType = null;
     /** @var MediaObjectInterface[] */
-    protected $alternatives = [];
+    protected array $alternatives = [];
     /** @var array */
-    protected $attributes = [];
+    protected array $attributes = [];
     /** @var array */
-    protected $styleAttributes = [];
+    protected array $styleAttributes = [];
     /** @var array */
-    protected $medium_querystring = [];
+    protected array $medium_querystring = [];
 
     /**
      * @return array
@@ -647,7 +643,7 @@ trait MediaObjectTrait
     /**
      * Get the thumbnail Medium object
      *
-     * @return ImageMediaInterface
+     * @return Medium&ImageMediaInterface
      */
     protected function getThumbnail(): ImageMediaInterface
     {

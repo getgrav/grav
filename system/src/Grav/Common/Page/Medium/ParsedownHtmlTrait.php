@@ -19,7 +19,7 @@ use Grav\Common\Page\Markdown\Excerpts;
 trait ParsedownHtmlTrait
 {
     /** @var Parsedown|null */
-    protected $parsedown;
+    protected ?Parsedown $parsedown;
 
     /**
      * Return HTML markup from the medium.
@@ -36,7 +36,7 @@ trait ParsedownHtmlTrait
     {
         $element = $this->parsedownElement($title, $alt, $class, $id, $reset);
 
-        if (!$this->parsedown) {
+        if (!isset($this->parsedown)) {
             $this->parsedown = new Parsedown(new Excerpts());
         }
 

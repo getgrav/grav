@@ -22,7 +22,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 final class MediaFactory implements MediaFactoryInterface
 {
     /** @var MediaFactoryInterface[] */
-    private $collectionTypes = [];
+    private array $collectionTypes = [];
 
     /**
      * @param Grav $grav
