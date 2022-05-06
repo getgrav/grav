@@ -23,11 +23,11 @@ class MediaIndex
 
     /** @var string */
     protected $filepath;
-    /** @var array */
+    /** @var array|null */
     protected $indexes;
     /** @var int */
     protected $modified = 0;
-    /** @var JsonFile */
+    /** @var JsonFile|null */
     protected $file;
 
     /**

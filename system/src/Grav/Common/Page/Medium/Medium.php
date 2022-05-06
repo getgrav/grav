@@ -11,10 +11,10 @@ namespace Grav\Common\Page\Medium;
 
 use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Grav;
+use Grav\Common\Media\Interfaces\ImageMediaInterface;
 use Grav\Common\Media\Interfaces\MediaCollectionInterface;
 use Grav\Common\Media\Interfaces\MediaFileInterface;
 use Grav\Common\Media\Interfaces\MediaLinkInterface;
-use Grav\Common\Media\Interfaces\MediaObjectInterface;
 use Grav\Common\Media\Traits\MediaFileTrait;
 use Grav\Common\Media\Traits\MediaObjectTrait;
 use JsonSerializable;
@@ -178,11 +178,17 @@ class Medium implements RenderableInterface, MediaFileInterface, JsonSerializabl
 
     /**
      * @param string $thumb
-     * @return MediaObjectInterface|null
+     * @return ImageMediaInterface|null
+     * @phpstan-impure
      */
-    protected function createThumbnail(string $thumb): ?MediaObjectInterface
+    protected function createThumbnail(string $thumb): ?ImageMediaInterface
     {
-        return $this->getMedia()->createFromFile($thumb, ['type' => 'thumbnail']);
+        $thumbnail = $this->getMedia()->createFromFile($thumb, ['type' => 'thumbnail']);
+        if (!$thumbnail instanceof ImageMediaInterface) {
+            return null;
+        }
+
+        return $thumbnail;
     }
 
     /**

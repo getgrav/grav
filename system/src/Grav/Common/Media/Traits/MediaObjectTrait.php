@@ -10,10 +10,10 @@
 namespace Grav\Common\Media\Traits;
 
 use Grav\Common\Data\Data;
+use Grav\Common\Media\Interfaces\ImageMediaInterface;
 use Grav\Common\Media\Interfaces\MediaFileInterface;
 use Grav\Common\Media\Interfaces\MediaLinkInterface;
 use Grav\Common\Media\Interfaces\MediaObjectInterface;
-use Grav\Common\Page\Medium\ImageMedium;
 use Grav\Common\Page\Medium\ThumbnailImageMedium;
 use Grav\Common\Utils;
 use RuntimeException;
@@ -611,9 +611,9 @@ trait MediaObjectTrait
     /**
      * Get the thumbnail Medium object
      *
-     * @return ThumbnailImageMedium|ImageMedium
+     * @return ImageMediaInterface
      */
-    protected function getThumbnail(): ImageMedium
+    protected function getThumbnail(): ImageMediaInterface
     {
         if (null === $this->_thumbnail) {
             $thumbnails = (array)$this->get('thumbnails') + ['system' => 'system://images/media/thumb.png'];
@@ -644,6 +644,10 @@ trait MediaObjectTrait
 
             if (!$image) {
                 throw new RuntimeException(sprintf("Default thumbnail image '%s' does not exist!", $thumbnails['system']), 500);
+            }
+
+            if (!$image instanceof ImageMediaInterface) {
+                throw new RuntimeException(sprintf("Thumbnail '%s' is not an image", $image->filepath), 500);
             }
 
             $image->set('parent', $this);

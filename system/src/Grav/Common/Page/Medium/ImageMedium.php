@@ -63,6 +63,9 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
             'retina_scale' => (int)$config->get('system.images.cls.retina_scale', 1)
         ];
 
+        $this->imageSettings = $this->defaults;
+        $this->quality = $this->defaults['quality'];
+
         $this->def('debug', $config->get('system.images.debug'));
 
         $path = $this->get('filepath');
@@ -125,9 +128,12 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
     {
         parent::reset();
 
+        /** @var Config $config */
+        $config = $this->getGrav()['config'];
+
         $this->format = 'guess';
         $this->imageSettings = $this->defaults;
-        $this->quality = $this->defaults['quality'] ?? 80;
+        $this->quality = $this->defaults['quality'] ?? (int)$config->get('system.images.default_image_quality', 85);
 
         $this->resetImage();
 
