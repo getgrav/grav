@@ -91,6 +91,34 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
     }
 
     /**
+     * @return array
+     */
+    public function __serialize(): array
+    {
+        return parent::__serialize() +
+            $this->serializeImageMediaTrait() +
+            [
+                'defaults' => $this->defaults,
+                'imageSettings' => $this->imageSettings,
+                'saved_image_path' => $this->saved_image_path
+            ];
+    }
+
+    /**
+     * @param array $data
+     * @return void
+     */
+    public function __unserialize(array $data): void
+    {
+        parent::__unserialize($data);
+        $this->unserializeImageMediaTrait($data);
+
+        $this->defaults = $data['defaults'];
+        $this->imageSettings = $data['imageSettings'];
+        $this->saved_image_path = $data['saved_image_path'];
+    }
+
+    /**
      * Get basic file info.
      *
      * @return array

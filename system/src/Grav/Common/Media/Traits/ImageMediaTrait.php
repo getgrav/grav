@@ -32,15 +32,6 @@ use function in_array;
  */
 trait ImageMediaTrait
 {
-    /** @var Image|null */
-    protected $image;
-    /** @var string */
-    protected $format = 'guess';
-    /** @var int */
-    protected $quality;
-    /** @var bool */
-    protected $watermark;
-
     /** @var array */
     public static $magic_actions = [
         'resize', 'forceResize', 'cropResize', 'crop', 'zoomCrop',
@@ -58,8 +49,43 @@ trait ImageMediaTrait
         'zoomCrop' => [0, 1]
     ];
 
+    /** @var Image|null */
+    protected $image;
+    /** @var string */
+    protected $format = 'guess';
+    /** @var int */
+    protected $quality;
+    /** @var bool */
+    protected $watermark;
     /** @var string */
     protected $sizes = '100vw';
+
+    /**
+     * @return array
+     */
+    private function serializeImageMediaTrait(): array
+    {
+        return [
+            'image' => $this->image,
+            'format' => $this->format,
+            'quality' => $this->quality,
+            'watermark' => $this->watermark,
+            'sizes' => $this->sizes,
+        ];
+    }
+
+    /**
+     * @param array $data
+     * @return void
+     */
+    private function unserializeImageMediaTrait(array $data): void
+    {
+        $this->image = $data['image'];
+        $this->format = $data['format'];
+        $this->quality = $data['quality'];
+        $this->watermark = $data['watermark'];
+        $this->sizes = $data['sizes'];
+    }
 
     /**
      * @param string $path
@@ -767,7 +793,7 @@ trait ImageMediaTrait
     /**
      * @param string $filepath
      * @return JsonFile
-     * @phpstan-pure 
+     * @phpstan-pure
      */
     protected static function getCacheMetaFile(string $filepath): JsonFile
     {

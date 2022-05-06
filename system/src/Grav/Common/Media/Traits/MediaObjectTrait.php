@@ -31,6 +31,11 @@ use function is_string;
  */
 trait MediaObjectTrait
 {
+    /** @var string|int */
+    public $timestamp;
+    /** @var array */
+    public $metadata = [];
+
     /** @var string */
     protected $mode = 'source';
     /** @var MediaObjectInterface|null */
@@ -46,11 +51,42 @@ trait MediaObjectTrait
     /** @var array */
     protected $styleAttributes = [];
     /** @var array */
-    protected $metadata = [];
-    /** @var array */
     protected $medium_querystring = [];
-    /** @var string */
-    protected $timestamp;
+
+    /**
+     * @return array
+     */
+    private function serializeMediaObjectTrait(): array
+    {
+        return [
+            'mode' => $this->mode,
+            'thumbnailTypes' => $this->thumbnailTypes,
+            'thumbnailType' => $this->thumbnailType,
+            'alternatives' => $this->alternatives,
+            'attributes' => $this->attributes,
+            'styleAttributes' => $this->styleAttributes,
+            'metadata' => $this->metadata,
+            'medium_querystring' => $this->medium_querystring,
+            'timestamp' => $this->timestamp,
+        ];
+    }
+
+    /**
+     * @param array $data
+     * @return void
+     */
+    private function unserializeMediaObjectTrait(array $data): void
+    {
+        $this->mode = $data['mode'];
+        $this->thumbnailTypes = $data['thumbnailTypes'];
+        $this->thumbnailType = $data['thumbnailType'];
+        $this->alternatives = $data['alternatives'];
+        $this->attributes = $data['attributes'];
+        $this->styleAttributes = $data['styleAttributes'];
+        $this->metadata = $data['metadata'];
+        $this->medium_querystring = $data['medium_querystring'];
+        $this->timestamp = $data['timestamp'];
+    }
 
     /**
      * Create a copy of this media object

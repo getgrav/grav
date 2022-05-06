@@ -35,9 +35,7 @@ use RuntimeException;
  * @property string $mime
  * @property int $size
  * @property int $modified
- * @property array $metadata
  * @property array|null $meta
- * @property int|string $timestamp
  * @property bool|null $uploaded
  */
 class Medium implements RenderableInterface, MediaFileInterface, JsonSerializable, \Countable, ExportInterface
@@ -50,7 +48,7 @@ class Medium implements RenderableInterface, MediaFileInterface, JsonSerializabl
     use ParsedownHtmlTrait;
 
     /** @var string[] */
-    protected $items;
+    protected array $items;
 
     /**
      * Construct.
@@ -65,6 +63,8 @@ class Medium implements RenderableInterface, MediaFileInterface, JsonSerializabl
         $size = $items['size'] ?? null;
         $modified = $items['modified'] ?? null;
         if (null === $size || null === $modified) {
+            user_error(__METHOD__ . '() missing size and modified properties are deprecated since Grav 1.8, pass those in $items array', E_USER_DEPRECATED);
+
             $path = $items['filepath'];
             if ($path && file_exists($path)) {
                 $items['size'] = $size ?? filesize($path);
@@ -74,7 +74,7 @@ class Medium implements RenderableInterface, MediaFileInterface, JsonSerializabl
 
         $this->items = $items;
 
-        if (Grav::instance()['config']->get('system.media.enable_media_timestamp', true)) {
+        if ($this->getGrav()['config']->get('system.media.enable_media_timestamp', true)) {
             $this->timestamp = Grav::instance()['cache']->getKey();
         }
 
@@ -90,6 +90,29 @@ class Medium implements RenderableInterface, MediaFileInterface, JsonSerializabl
 
     /**
      * @return array
+     */
+    public function __serialize(): array
+    {
+        return [
+            'items' => $this->items,
+            'nestedSeparator' => $this->nestedSeparator,
+        ] + $this->serializeMediaObjectTrait();
+    }
+
+    /**
+     * @param array $data
+     * @return void
+     */
+    public function __unserialize(array $data): void
+    {
+        $this->items = $data['items'];
+        $this->nestedSeparator = $data['nestedSeparator'];
+        $this->unserializeMediaObjectTrait($data);
+    }
+
+    /**
+     * @return array
+     * @phpstan-pure
      */
     public function jsonSerialize(): array
     {

@@ -15,9 +15,6 @@ use Grav\Common\Data\Blueprint;
 /**
  * Class StaticImageMedium
  * @package Grav\Common\Page\Medium
- *
- * @property int $width
- * @property int $height
  */
 class VectorImageMedium extends StaticImageMedium
 {
@@ -68,31 +65,5 @@ class VectorImageMedium extends StaticImageMedium
             $this->def('width', (int)$width);
             $this->def('height', (int)$height);
         }
-    }
-
-    /**
-     * Get basic file info.
-     *
-     * @return array
-     * @phpstan-pure
-     */
-    public function getInfo(): array
-    {
-        return [
-                'width' => $this->width,
-                'height' => $this->height,
-            ] + parent::getInfo();
-    }
-
-    /**
-     * @return array
-     * @phpstan-pure
-     */
-    public function getMeta(): array
-    {
-        return [
-            'width' => $this->width,
-            'height' => $this->height,
-        ] + parent::getMeta();
     }
 }

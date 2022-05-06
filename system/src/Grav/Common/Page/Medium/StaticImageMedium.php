@@ -40,6 +40,18 @@ class StaticImageMedium extends Medium implements ImageMediaInterface
     }
 
     /**
+     * @return array
+     * @phpstan-pure
+     */
+    public function getMeta(): array
+    {
+        return [
+                'width' => $this->width,
+                'height' => $this->height,
+            ] + parent::getMeta();
+    }
+
+    /**
      * Parsedown element for source display mode
      *
      * @param  array $attributes

@@ -24,6 +24,32 @@ class VideoMedium extends Medium implements VideoMediaInterface
     use VideoMediaTrait;
 
     /**
+     * Get basic file info.
+     *
+     * @return array
+     * @phpstan-pure
+     */
+    public function getInfo(): array
+    {
+        return [
+                'width' => $this->width,
+                'height' => $this->height,
+            ] + parent::getInfo();
+    }
+
+    /**
+     * @return array
+     * @phpstan-pure
+     */
+    public function getMeta(): array
+    {
+        return [
+                'width' => $this->width,
+                'height' => $this->height,
+            ] + parent::getMeta();
+    }
+
+    /**
      * Reset medium.
      *
      * @return $this
@@ -36,19 +62,5 @@ class VideoMedium extends Medium implements VideoMediaInterface
         $this->resetPlayer();
 
         return $this;
-    }
-
-    /**
-     * Get basic file info.
-     *
-     * @return array
-     * @phpstan-pure
-     */
-    public function getInfo(): array
-    {
-        return [
-                'width' => $this->width,
-                'height' => $this->height,
-            ] + parent::getInfo();
     }
 }

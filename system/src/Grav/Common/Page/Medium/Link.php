@@ -27,7 +27,7 @@ class Link implements RenderableInterface, MediaLinkInterface
     use ParsedownHtmlTrait;
 
     /** @var array */
-    protected $attributes = [];
+    protected array $attributes;
     /** @var MediaObjectInterface|MediaLinkInterface */
     protected $source;
 
@@ -48,6 +48,27 @@ class Link implements RenderableInterface, MediaLinkInterface
         $source->set('linked', true);
 
         $this->source = $source;
+    }
+
+    /**
+     * @return array
+     */
+    public function __serialize(): array
+    {
+        return [
+            'attributes' => $this->attributes,
+            'source' => $this->source
+        ];
+    }
+
+    /**
+     * @param array $data
+     * @return void
+     */
+    public function __unserialize(array $data): void
+    {
+        $this->attributes = $data['attributes'];
+        $this->source = $data['source'];
     }
 
     /**
