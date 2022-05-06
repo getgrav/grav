@@ -1,11 +1,11 @@
-# v1.7.99-feature
+# v1.8.0-dev-media
 ## mm/dd/2022
 
 1. [](#new)
     * Added `FileInterface::touch()` method
     * Added optional `$field` parameter to `FlexMediaTrait::deleteMediaFile()` method
     * Added `has_env()` twig function to test if environmental variable is defined
-    * Added `system.images.mutation_compat` setting
+    * **BC BREAK** Added `system.images.mutation_compat` setting
 2. [](#improved)
     * **BC BREAK** `Medium` no longer extends `Data`
     * By default, add media to only pages which have been initialized in pages loop
