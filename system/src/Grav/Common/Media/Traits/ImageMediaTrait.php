@@ -57,6 +57,7 @@ trait ImageMediaTrait
 
     /**
      * @return array
+     * @phpstan-pure
      */
     private function serializeImageMediaTrait(): array
     {
@@ -72,6 +73,7 @@ trait ImageMediaTrait
     /**
      * @param array $data
      * @return void
+     * @phpstan-impure
      */
     private function unserializeImageMediaTrait(array $data): void
     {
@@ -85,6 +87,7 @@ trait ImageMediaTrait
     /**
      * @param string $path
      * @return array|null
+     * @phpstan-impure
      */
     protected static function createImageFromCache(string $path): ?array
     {
@@ -129,6 +132,7 @@ trait ImageMediaTrait
     /**
      * @param string $path
      * @return ResponseInterface
+     * @phpstan-impure
      */
     public static function createImageResponseFromCache(string $path): ResponseInterface
     {

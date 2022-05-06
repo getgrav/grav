@@ -68,13 +68,12 @@ trait VideoMediaTrait
      * Parsedown element for source display mode
      *
      * @param  array $attributes
-     * @param  bool $reset
      * @return array
      * @phpstan-impure
      */
-    protected function sourceParsedownElement(array $attributes, bool $reset = true): array
+    protected function sourceParsedownElement(array $attributes): array
     {
-        $location = $this->url($reset);
+        $location = $this->url(false);
 
         return [
             'name' => 'video',

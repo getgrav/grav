@@ -202,7 +202,7 @@ class Medium implements RenderableInterface, MediaFileInterface, JsonSerializabl
     /**
      * @param string $thumb
      * @return ImageMediaInterface|null
-     * @phpstan-impure
+     * @phpstan-pure
      */
     protected function createThumbnail(string $thumb): ?ImageMediaInterface
     {
@@ -217,7 +217,7 @@ class Medium implements RenderableInterface, MediaFileInterface, JsonSerializabl
     /**
      * @param array $attributes
      * @return MediaLinkInterface
-     * @phpstan-impure
+     * @phpstan-pure
      */
     protected function createLink(array $attributes): MediaLinkInterface
     {

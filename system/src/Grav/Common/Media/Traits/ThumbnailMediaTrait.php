@@ -21,7 +21,7 @@ use function is_callable;
  */
 trait ThumbnailMediaTrait
 {
-    public ?MediaObjectInterface $parent;
+    public ?MediaObjectInterface $parent = null;
     public bool $linked = false;
 
     /**
@@ -73,6 +73,7 @@ trait ThumbnailMediaTrait
      *
      * @param string $mode
      * @return MediaLinkInterface|MediaObjectInterface|null
+     * @phpstan-impure
      */
     public function display(string $mode = 'source')
     {
@@ -84,6 +85,7 @@ trait ThumbnailMediaTrait
      *
      * @param string $type
      * @return MediaLinkInterface|MediaObjectInterface
+     * @phpstan-impure
      */
     public function thumbnail(string $type = 'auto')
     {
@@ -98,6 +100,7 @@ trait ThumbnailMediaTrait
      * @param  bool $reset
      * @param  array  $attributes
      * @return MediaLinkInterface
+     * @phpstan-impure
      */
     public function link(bool $reset = true, array $attributes = []): MediaLinkInterface
     {
@@ -111,6 +114,7 @@ trait ThumbnailMediaTrait
      * @param  int|null  $height
      * @param  bool $reset
      * @return MediaLinkInterface
+     * @phpstan-impure
      */
     public function lightbox(int $width = null, int $height = null, bool $reset = true): MediaLinkInterface
     {
@@ -124,6 +128,7 @@ trait ThumbnailMediaTrait
      * @param  array  $arguments
      * @param  bool $testLinked
      * @return mixed
+     * @phpstan-impure
      */
     protected function bubble(string $method, array $arguments = [], bool $testLinked = true)
     {

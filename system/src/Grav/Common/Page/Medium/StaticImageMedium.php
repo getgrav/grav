@@ -55,14 +55,13 @@ class StaticImageMedium extends Medium implements ImageMediaInterface
      * Parsedown element for source display mode
      *
      * @param  array $attributes
-     * @param  bool $reset
      * @return array
-     * @phpstan-impure
+     * @phpstan-pure
      */
-    protected function sourceParsedownElement(array $attributes, bool $reset = true): array
+    protected function sourceParsedownElement(array $attributes): array
     {
         if (empty($attributes['src'])) {
-            $attributes['src'] = $this->url($reset);
+            $attributes['src'] = $this->url(false);
         }
 
         return ['name' => 'img', 'attributes' => $attributes];

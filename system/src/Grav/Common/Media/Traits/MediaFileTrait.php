@@ -45,6 +45,8 @@ trait MediaFileTrait
     /**
      * Get size of the medium.
      *
+     * Returns 0 if file does not exist or size is unknown.
+     *
      * @return int
      * @phpstan-pure
      */
@@ -113,27 +115,4 @@ trait MediaFileTrait
 
         return trim($this->getGrav()['base_url'] . '/' . $this->urlQuerystring($path), '\\');
     }
-
-    /**
-     * Get the URL with full querystring
-     *
-     * @param string $url
-     * @return string
-     * @phpstan-pure
-     */
-    abstract public function urlQuerystring(string $url): string;
-
-    /**
-     * Reset medium.
-     *
-     * @return $this
-     * @phpstan-impure
-     */
-    abstract public function reset();
-
-    /**
-     * @return Grav
-     * @phpstan-pure
-     */
-    abstract protected function getGrav(): Grav;
 }

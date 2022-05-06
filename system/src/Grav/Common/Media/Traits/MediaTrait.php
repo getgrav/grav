@@ -36,14 +36,6 @@ trait MediaTrait
     protected array $_mediaSettings = [];
 
     /**
-     * Get filesystem path to the associated media.
-     *
-     * @return string|null
-     * @phpstan-pure
-     */
-    abstract public function getMediaFolder();
-
-    /**
      * Get display order for the associated media.
      *
      * @return array Empty array means default ordering.
@@ -85,6 +77,7 @@ trait MediaTrait
      * Gets the associated media collection.
      *
      * @return MediaCollectionInterface|Media  Representation of associated media.
+     * @phpstan-impure
      */
     public function getMedia()
     {

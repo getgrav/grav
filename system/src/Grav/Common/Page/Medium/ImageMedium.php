@@ -253,17 +253,16 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
      * Parsedown element for source display mode
      *
      * @param  array $attributes
-     * @param  bool $reset
      * @return array
-     * @phpstan-impure
+     * @phpstan-pure
      */
-    public function sourceParsedownElement(array $attributes, bool $reset = true): array
+    protected function sourceParsedownElement(array $attributes): array
     {
         if (empty($attributes['src'])) {
             $attributes['src'] = $this->url(false);
         }
 
-        $srcset = $this->srcset($reset);
+        $srcset = $this->srcset(false);
         if ($srcset) {
             if (empty($attributes['srcset'])) {
                 $attributes['srcset'] = $srcset;

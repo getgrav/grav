@@ -51,6 +51,7 @@ trait MediaObjectTrait
 
     /**
      * @return array
+     * @phpstan-pure
      */
     private function serializeMediaObjectTrait(): array
     {
@@ -70,6 +71,7 @@ trait MediaObjectTrait
     /**
      * @param array $data
      * @return void
+     * @phpstan-impure
      */
     private function unserializeMediaObjectTrait(array $data): void
     {
@@ -88,7 +90,7 @@ trait MediaObjectTrait
      * Create a copy of this media object
      *
      * @return static
-     * @phpstan-impure
+     * @phpstan-pure
      */
     public function copy()
     {
@@ -332,14 +334,14 @@ trait MediaObjectTrait
 
         switch ($this->mode) {
             case 'text':
-                $element = $this->textParsedownElement($attributes, false);
+                $element = $this->textParsedownElement($attributes);
                 break;
             case 'thumbnail':
                 $thumbnail = $this->getThumbnail();
-                $element = $thumbnail->sourceParsedownElement($attributes, false);
+                $element = $thumbnail->sourceParsedownElement($attributes);
                 break;
             case 'source':
-                $element = $this->sourceParsedownElement($attributes, false);
+                $element = $this->sourceParsedownElement($attributes);
                 break;
             default:
                 $element = [];
@@ -604,27 +606,23 @@ trait MediaObjectTrait
      * Parsedown element for source display mode
      *
      * @param  array $attributes
-     * @param  bool $reset
      * @return array
+     * @phpstan-pure
      */
-    protected function sourceParsedownElement(array $attributes, bool $reset = true): array
+    protected function sourceParsedownElement(array $attributes): array
     {
-        return $this->textParsedownElement($attributes, $reset);
+        return $this->textParsedownElement($attributes);
     }
 
     /**
      * Parsedown element for text display mode
      *
      * @param  array $attributes
-     * @param  bool $reset
      * @return array
+     * @phpstan-pure
      */
-    protected function textParsedownElement(array $attributes, bool $reset = true): array
+    protected function textParsedownElement(array $attributes): array
     {
-        if ($reset) {
-            $this->reset();
-        }
-
         $text = $attributes['title'] ?? '';
         if ($text === '') {
             $text = $attributes['alt'] ?? '';
@@ -644,6 +642,7 @@ trait MediaObjectTrait
      * Get the thumbnail Medium object
      *
      * @return Medium&ImageMediaInterface
+     * @phpstan-pure Changes internal state (cached image), but does not affect behavior or change object state.
      */
     protected function getThumbnail(): ImageMediaInterface
     {
@@ -688,45 +687,4 @@ trait MediaObjectTrait
 
         return $this->_thumbnail;
     }
-
-    /**
-     * Get value by using dot notation for nested arrays/objects.
-     *
-     * @example $value = $this->get('this.is.my.nested.variable');
-     *
-     * @param string $name Dot separated path to the requested value.
-     * @param mixed $default Default value (or null).
-     * @param string|null $separator Separator, defaults to '.'
-     * @return mixed Value.
-     */
-    abstract public function get(string $name, $default = null, string $separator = null);
-
-        /**
-     * Set value by using dot notation for nested arrays/objects.
-     *
-     * @example $data->set('this.is.my.nested.variable', $value);
-     *
-     * @param string $name Dot separated path to the requested value.
-     * @param mixed $value New value.
-     * @param string|null $separator Separator, defaults to '.'
-     * @return $this
-     */
-    abstract public function set(string $name, $value, string $separator = null);
-
-    /**
-     * @param string $thumb
-     * @return MediaObjectInterface|null
-     */
-    abstract protected function createThumbnail(string $thumb): ?MediaObjectInterface;
-
-    /**
-     * @param array $attributes
-     * @return MediaLinkInterface
-     */
-    abstract protected function createLink(array $attributes): MediaLinkInterface;
-
-    /**
-     * @return array
-     */
-    abstract protected function getItems(): array;
 }
