@@ -19,6 +19,7 @@ interface VideoMediaInterface extends MediaObjectInterface, MediaPlayerInterface
      *
      * @param string|null $poster
      * @return $this
+     * @phpstan-impure
      */
     public function poster(string $poster = null);
 
@@ -27,6 +28,7 @@ interface VideoMediaInterface extends MediaObjectInterface, MediaPlayerInterface
      *
      * @param bool $status
      * @return $this
+     * @phpstan-impure
      */
     public function playsinline(bool $status = false);
 }

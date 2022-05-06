@@ -21,6 +21,7 @@ trait ImageLoadingTrait
      *
      * @param string|null $value
      * @return static
+     * @phpstan-impure
      */
     public function loading(string $value = null)
     {

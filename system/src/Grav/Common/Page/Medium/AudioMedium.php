@@ -24,6 +24,7 @@ class AudioMedium extends Medium implements AudioMediaInterface
      * Reset medium.
      *
      * @return $this
+     * @phpstan-impure
      */
     public function reset()
     {

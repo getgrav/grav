@@ -27,6 +27,7 @@ class VideoMedium extends Medium implements VideoMediaInterface
      * Reset medium.
      *
      * @return $this
+     * @phpstan-impure
      */
     public function reset()
     {
@@ -41,6 +42,7 @@ class VideoMedium extends Medium implements VideoMediaInterface
      * Get basic file info.
      *
      * @return array
+     * @phpstan-pure
      */
     public function getInfo(): array
     {

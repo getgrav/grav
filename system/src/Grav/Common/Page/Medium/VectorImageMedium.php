@@ -74,6 +74,7 @@ class VectorImageMedium extends StaticImageMedium
      * Get basic file info.
      *
      * @return array
+     * @phpstan-pure
      */
     public function getInfo(): array
     {
@@ -85,6 +86,7 @@ class VectorImageMedium extends StaticImageMedium
 
     /**
      * @return array
+     * @phpstan-pure
      */
     public function getMeta(): array
     {

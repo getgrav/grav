@@ -41,6 +41,7 @@ trait MediaTrait
      * Get filesystem path to the associated media.
      *
      * @return string|null
+     * @phpstan-pure
      */
     abstract public function getMediaFolder();
 
@@ -48,6 +49,7 @@ trait MediaTrait
      * Get display order for the associated media.
      *
      * @return array Empty array means default ordering.
+     * @phpstan-pure
      */
     public function getMediaOrder()
     {
@@ -58,6 +60,7 @@ trait MediaTrait
      * Get URI ot the associated media. Method will return null if path isn't URI.
      *
      * @return string|null
+     * @phpstan-pure
      */
     public function getMediaUri()
     {
@@ -168,6 +171,7 @@ trait MediaTrait
 
     /**
      * @return string[]
+     * @phpstan-pure
      */
     public function getMediaFields(): array
     {
@@ -189,6 +193,7 @@ trait MediaTrait
      * Get media settings.
      *
      * @return array
+     * @phpstan-pure
      */
     protected function getMediaSettings(): array
     {
@@ -204,6 +209,7 @@ trait MediaTrait
      * @param string $field
      * @param array|null $settings
      * @return array|null
+     * @phpstan-impure
      */
     protected function parseMediaFieldSettings(string $field, ?array $settings): ?array
     {
@@ -265,6 +271,7 @@ trait MediaTrait
      *
      * @param  MediaCollectionInterface|Media  $media Representation of associated media.
      * @return $this
+     * @phpstan-impure
      */
     protected function setMedia(MediaCollectionInterface $media)
     {
@@ -279,6 +286,7 @@ trait MediaTrait
 
     /**
      * @return void
+     * @phpstan-impure
      */
     protected function freeMedia()
     {
@@ -289,6 +297,7 @@ trait MediaTrait
      * Clear media cache.
      *
      * @return void
+     * @phpstan-impure
      */
     protected function clearMediaCache()
     {
@@ -301,6 +310,7 @@ trait MediaTrait
 
     /**
      * @return CacheInterface
+     * @phpstan-pure
      */
     protected function getMediaCache()
     {
@@ -312,6 +322,7 @@ trait MediaTrait
 
     /**
      * @return string
+     * @phpstan-pure
      */
     abstract protected function getCacheKey(): string;
 }

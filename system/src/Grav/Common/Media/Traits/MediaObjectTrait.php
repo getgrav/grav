@@ -56,6 +56,7 @@ trait MediaObjectTrait
      * Create a copy of this media object
      *
      * @return static
+     * @phpstan-impure
      */
     public function copy()
     {
@@ -66,6 +67,7 @@ trait MediaObjectTrait
      * Return just metadata from the Medium object
      *
      * @return Data
+     * @phpstan-pure
      */
     public function meta(): Data
     {
@@ -77,6 +79,7 @@ trait MediaObjectTrait
      *
      * @param string|int|null $timestamp
      * @return $this
+     * @phpstan-impure
      */
     public function setTimestamp($timestamp = null)
     {
@@ -101,6 +104,7 @@ trait MediaObjectTrait
      * Returns an array containing just the metadata
      *
      * @return array
+     * @phpstan-pure
      */
     public function metadata(): array
     {
@@ -112,6 +116,7 @@ trait MediaObjectTrait
      *
      * @param string $filepath
      * @return void
+     * @phpstan-impure
      */
     abstract public function addMetaFile(string $filepath): void;
 
@@ -121,6 +126,7 @@ trait MediaObjectTrait
      * @param int|float $ratio
      * @param MediaObjectInterface $alternative
      * @return void
+     * @phpstan-impure
      */
     public function addAlternative($ratio, MediaObjectInterface $alternative): void
     {
@@ -137,6 +143,7 @@ trait MediaObjectTrait
     /**
      * @param bool $withDerived
      * @return array
+     * @phpstan-pure
      */
     public function getAlternatives(bool $withDerived = true): array
     {
@@ -156,6 +163,7 @@ trait MediaObjectTrait
      * Return string representation of the object (html).
      *
      * @return string
+     * @phpstan-pure
      */
     abstract public function __toString(): string;
 
@@ -165,6 +173,7 @@ trait MediaObjectTrait
      * @param  string|null  $querystring
      * @param  bool $withQuestionmark
      * @return string
+     * @phpstan-impure
      */
     public function querystring(string $querystring = null, bool $withQuestionmark = true): string
     {
@@ -194,6 +203,7 @@ trait MediaObjectTrait
      *
      * @param string $url
      * @return string
+     * @phpstan-pure
      */
     public function urlQuerystring(string $url): string
     {
@@ -211,6 +221,7 @@ trait MediaObjectTrait
      * @param  string|null  $hash
      * @param  bool $withHash
      * @return string
+     * @phpstan-impure
      */
     public function urlHash(string $hash = null, bool $withHash = true): string
     {
@@ -232,6 +243,7 @@ trait MediaObjectTrait
      * @param  string|null  $id
      * @param  bool $reset
      * @return array
+     * @phpstan-impure
      */
     public function parsedownElement(string $title = null, string $alt = null, string $class = null, string $id = null, bool $reset = true): array
     {
@@ -314,6 +326,7 @@ trait MediaObjectTrait
      * Reset medium.
      *
      * @return $this
+     * @phpstan-impure
      */
     public function reset()
     {
@@ -329,6 +342,7 @@ trait MediaObjectTrait
      * @param string $attribute
      * @param string|null $value
      * @return $this
+     * @phpstan-impure
      */
     public function attribute(string $attribute = '', ?string $value = '')
     {
@@ -354,8 +368,8 @@ trait MediaObjectTrait
      * Switch display mode.
      *
      * @param string $mode
-     *
      * @return MediaLinkInterface|MediaObjectInterface|null
+     * @phpstan-impure
      */
     public function display(string $mode = 'source')
     {
@@ -376,6 +390,7 @@ trait MediaObjectTrait
      *
      * @param string $type;
      * @return bool
+     * @phpstan-pure
      */
     public function thumbnailExists(string $type = 'page'): bool
     {
@@ -389,6 +404,7 @@ trait MediaObjectTrait
      *
      * @param string $type
      * @return $this
+     * @phpstan-impure
      */
     public function thumbnail(string $type = 'auto')
     {
@@ -410,6 +426,7 @@ trait MediaObjectTrait
      *
      * @param bool $reset
      * @return string
+     * @phpstan-impure
      */
     abstract public function url(bool $reset = true): string;
 
@@ -419,6 +436,7 @@ trait MediaObjectTrait
      * @param  bool $reset
      * @param  array  $attributes
      * @return MediaLinkInterface
+     * @phpstan-impure
      */
     public function link(bool $reset = true, array $attributes = []): MediaLinkInterface
     {
@@ -442,6 +460,7 @@ trait MediaObjectTrait
      * @param  int|null  $height
      * @param  bool $reset
      * @return MediaLinkInterface
+     * @phpstan-impure
      */
     public function lightbox(int $width = null, int $height = null, bool $reset = true): MediaLinkInterface
     {
@@ -461,6 +480,7 @@ trait MediaObjectTrait
      *
      * @param string ...$args
      * @return $this
+     * @phpstan-impure
      */
     public function classes(string ...$args)
     {

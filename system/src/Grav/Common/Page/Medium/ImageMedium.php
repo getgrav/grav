@@ -91,6 +91,7 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
      * Get basic file info.
      *
      * @return array
+     * @phpstan-pure
      */
     public function getInfo(): array
     {
@@ -103,6 +104,7 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
 
     /**
      * @return array
+     * @phpstan-pure
      */
     public function getMeta(): array
     {
@@ -117,6 +119,7 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
      * Reset image.
      *
      * @return $this
+     * @phpstan-impure
      */
     public function reset()
     {
@@ -136,6 +139,7 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
      *
      * @param bool $reset
      * @return string path to image
+     * @phpstan-impure
      */
     public function path(bool $reset = true): string
     {
@@ -153,6 +157,7 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
      *
      * @param bool $reset
      * @return string
+     * @phpstan-impure
      */
     public function url(bool $reset = true): string
     {
@@ -192,6 +197,7 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
      *
      * @param bool $reset
      * @return string
+     * @phpstan-impure
      */
     public function srcset(bool $reset = true): string
     {
@@ -218,6 +224,7 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
      * @param  array $attributes
      * @param  bool $reset
      * @return array
+     * @phpstan-impure
      */
     public function sourceParsedownElement(array $attributes, bool $reset = true): array
     {
@@ -260,6 +267,7 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
      * @param  bool $reset
      * @param  array  $attributes
      * @return MediaLinkInterface
+     * @phpstan-impure
      */
     public function link(bool $reset = true, array $attributes = []): MediaLinkInterface
     {
@@ -279,6 +287,7 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
      * @param  int|null $height
      * @param  bool $reset
      * @return MediaLinkInterface
+     * @phpstan-impure
      */
     public function lightbox(int $width = null, int $height = null, bool $reset = true): MediaLinkInterface
     {
@@ -296,6 +305,7 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
     /**
      * @param string|bool $enabled
      * @return $this
+     * @phpstan-impure
      */
     public function autoSizes($enabled = true)
     {
@@ -309,6 +319,7 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
     /**
      * @param string|bool $enabled
      * @return $this
+     * @phpstan-impure
      */
     public function aspectRatio($enabled = true)
     {
@@ -322,6 +333,7 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
     /**
      * @param int $scale
      * @return $this
+     * @phpstan-impure
      */
     public function retinaScale(int $scale = 1)
     {

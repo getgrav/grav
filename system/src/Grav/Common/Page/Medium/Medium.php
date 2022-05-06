@@ -99,6 +99,7 @@ class Medium implements RenderableInterface, MediaFileInterface, JsonSerializabl
     /**
      * @return string
      * @throws RuntimeException
+     * @phpstan-pure
      */
     public function readFile(): string
     {
@@ -108,6 +109,7 @@ class Medium implements RenderableInterface, MediaFileInterface, JsonSerializabl
     /**
      * @return resource
      * @throws RuntimeException
+     * @phpstan-pure
      */
     public function readStream()
     {
@@ -119,6 +121,7 @@ class Medium implements RenderableInterface, MediaFileInterface, JsonSerializabl
      *
      * @param string $filepath
      * @return void
+     * @phpstan-impure
      */
     public function addMetaFile(string $filepath): void
     {
@@ -131,6 +134,7 @@ class Medium implements RenderableInterface, MediaFileInterface, JsonSerializabl
      * Get basic file info.
      *
      * @return array
+     * @phpstan-pure
      */
     public function getInfo(): array
     {
@@ -146,6 +150,7 @@ class Medium implements RenderableInterface, MediaFileInterface, JsonSerializabl
 
     /**
      * @return array
+     * @phpstan-pure
      */
     public function getMeta(): array
     {
@@ -164,6 +169,7 @@ class Medium implements RenderableInterface, MediaFileInterface, JsonSerializabl
      * Return string representation of the object (html).
      *
      * @return string
+     * @phpstan-pure
      */
     public function __toString(): string
     {
@@ -182,6 +188,7 @@ class Medium implements RenderableInterface, MediaFileInterface, JsonSerializabl
     /**
      * @param array $attributes
      * @return MediaLinkInterface
+     * @phpstan-impure
      */
     protected function createLink(array $attributes): MediaLinkInterface
     {
@@ -190,6 +197,7 @@ class Medium implements RenderableInterface, MediaFileInterface, JsonSerializabl
 
     /**
      * @return MediaCollectionInterface
+     * @phpstan-pure
      */
     protected function getMedia(): MediaCollectionInterface
     {
@@ -198,6 +206,7 @@ class Medium implements RenderableInterface, MediaFileInterface, JsonSerializabl
 
     /**
      * @return Grav
+     * @phpstan-pure
      */
     protected function getGrav(): Grav
     {
@@ -206,6 +215,7 @@ class Medium implements RenderableInterface, MediaFileInterface, JsonSerializabl
 
     /**
      * @return array
+     * @phpstan-pure
      */
     protected function getItems(): array
     {

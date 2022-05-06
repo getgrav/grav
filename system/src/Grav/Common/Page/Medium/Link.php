@@ -59,6 +59,7 @@ class Link implements RenderableInterface, MediaLinkInterface
      * @param  string|null  $id
      * @param  bool $reset
      * @return array
+     * @phpstan-impure
      */
     public function parsedownElement($title = null, $alt = null, $class = null, $id = null, $reset = true): array
     {
@@ -78,6 +79,7 @@ class Link implements RenderableInterface, MediaLinkInterface
      * @param string $method
      * @param array $args
      * @return MediaObjectInterface|MediaLinkInterface
+     * @phpstan-impure
      */
     public function __call(string $method, array $args)
     {

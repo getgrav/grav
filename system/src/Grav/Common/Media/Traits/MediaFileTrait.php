@@ -22,6 +22,7 @@ trait MediaFileTrait
      * Check if this medium exists or not
      *
      * @return bool
+     * @phpstan-pure
      */
     public function exists(): bool
     {
@@ -34,6 +35,7 @@ trait MediaFileTrait
      * Get file modification time for the medium.
      *
      * @return int|null
+     * @phpstan-pure
      */
     public function modified(): ?int
     {
@@ -44,6 +46,7 @@ trait MediaFileTrait
      * Get size of the medium.
      *
      * @return int
+     * @phpstan-pure
      */
     public function size(): int
     {
@@ -55,6 +58,7 @@ trait MediaFileTrait
      *
      * @param bool $reset
      * @return string path to file
+     * @phpstan-impure
      */
     public function path(bool $reset = true): string
     {
@@ -70,6 +74,7 @@ trait MediaFileTrait
      *
      * @param bool $reset
      * @return string
+     * @phpstan-impure
      */
     public function relativePath(bool $reset = true): string
     {
@@ -94,6 +99,7 @@ trait MediaFileTrait
      *
      * @param bool $reset
      * @return string
+     * @phpstan-impure
      */
     public function url(bool $reset = true): string
     {
@@ -113,6 +119,7 @@ trait MediaFileTrait
      *
      * @param string $url
      * @return string
+     * @phpstan-pure
      */
     abstract public function urlQuerystring(string $url): string;
 
@@ -120,11 +127,13 @@ trait MediaFileTrait
      * Reset medium.
      *
      * @return $this
+     * @phpstan-impure
      */
     abstract public function reset();
 
     /**
      * @return Grav
+     * @phpstan-pure
      */
     abstract protected function getGrav(): Grav;
 }

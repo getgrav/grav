@@ -31,6 +31,7 @@ interface MediaUploadInterface
      * @param array|null $settings
      * @return string
      * @throws RuntimeException
+     * @phpstan-pure
      */
     public function checkUploadedFile(UploadedFileInterface $uploadedFile, string $filename = null, array $settings = null): string;
 
@@ -48,6 +49,7 @@ interface MediaUploadInterface
      * @param string $filename
      * @return void
      * @throws RuntimeException
+     * @phpstan-impure
      */
     public function copyUploadedFile(UploadedFileInterface $uploadedFile, string $filename): void;
 
@@ -56,6 +58,7 @@ interface MediaUploadInterface
      *
      * @param string $filename
      * @return void
+     * @phpstan-impure
      */
     public function deleteFile(string $filename): void;
 
@@ -64,6 +67,8 @@ interface MediaUploadInterface
      *
      * @param string $from
      * @param string $to
+     * @return void
+     * @phpstan-impure
      */
     public function renameFile(string $from, string $to): void;
 }

@@ -32,6 +32,7 @@ trait ThumbnailMediaTrait
      *
      * @param bool $reset
      * @return string
+     * @phpstan-pure
      */
     public function srcset(bool $reset = true): string
     {
@@ -47,6 +48,7 @@ trait ThumbnailMediaTrait
      * @param string|null $id
      * @param bool $reset
      * @return array
+     * @phpstan-impure
      */
     public function parsedownElement(string $title = null, string $alt = null, string $class = null, string $id = null, bool $reset = true): array
     {
@@ -62,6 +64,7 @@ trait ThumbnailMediaTrait
      * @param string|null $id
      * @param bool $reset
      * @return string
+     * @phpstan-impure
      */
     public function html(string $title = null, string $alt = null, string $class = null, string $id = null, bool $reset = true): string
     {
@@ -72,7 +75,6 @@ trait ThumbnailMediaTrait
      * Switch display mode.
      *
      * @param string $mode
-     *
      * @return MediaLinkInterface|MediaObjectInterface|null
      */
     public function display(string $mode = 'source')
@@ -84,7 +86,6 @@ trait ThumbnailMediaTrait
      * Switch thumbnail.
      *
      * @param string $type
-     *
      * @return MediaLinkInterface|MediaObjectInterface
      */
     public function thumbnail(string $type = 'auto')

@@ -21,6 +21,7 @@ trait MediaPlayerTrait
      *
      * @param bool $status
      * @return $this
+     * @phpstan-impure
      */
     public function controls(bool $status = true)
     {
@@ -43,6 +44,7 @@ trait MediaPlayerTrait
      *
      * @param bool $status
      * @return $this
+     * @phpstan-impure
      */
     public function loop(bool $status = false)
     {
@@ -65,6 +67,7 @@ trait MediaPlayerTrait
      *
      * @param bool $status
      * @return $this
+     * @phpstan-impure
      */
     public function autoplay(bool $status = false)
     {
@@ -87,6 +90,7 @@ trait MediaPlayerTrait
      *
      * @param bool $status
      * @return $this
+     * @phpstan-impure
      */
     public function muted(bool $status = false)
     {
@@ -109,6 +113,7 @@ trait MediaPlayerTrait
      *
      * @param string|null $preload
      * @return $this
+     * @phpstan-impure
      */
     public function preload(string $preload = null)
     {
@@ -132,6 +137,7 @@ trait MediaPlayerTrait
      * Reset player.
      *
      * @return void
+     * @phpstan-impure
      */
     public function resetPlayer(): void
     {

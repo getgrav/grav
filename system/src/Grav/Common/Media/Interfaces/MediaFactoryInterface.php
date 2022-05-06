@@ -16,12 +16,14 @@ interface MediaFactoryInterface
 {
     /**
      * @return string[]
+     * @phpstan-pure
      */
     public function getCollectionTypes(): array;
 
     /**
      * @param array $settings
      * @return MediaCollectionInterface|null
+     * @phpstan-impure
      */
     public function createCollection(array $settings): ?MediaCollectionInterface;
 

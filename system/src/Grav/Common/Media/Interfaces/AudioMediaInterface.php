@@ -20,6 +20,7 @@ interface AudioMediaInterface extends MediaObjectInterface, MediaPlayerInterface
      *
      * @param string $controlsList
      * @return $this
+     * @phpstan-impure
      */
     public function controlsList(string $controlsList);
 }

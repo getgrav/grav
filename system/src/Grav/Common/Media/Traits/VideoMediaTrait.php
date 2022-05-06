@@ -23,6 +23,7 @@ trait VideoMediaTrait
      *
      * @param string|null $poster
      * @return $this
+     * @phpstan-impure
      */
     public function poster(string $poster = null)
     {
@@ -45,6 +46,7 @@ trait VideoMediaTrait
      *
      * @param bool $status
      * @return $this
+     * @phpstan-impure
      */
     public function playsinline(bool $status = false)
     {
@@ -68,6 +70,7 @@ trait VideoMediaTrait
      * @param  array $attributes
      * @param  bool $reset
      * @return array
+     * @phpstan-impure
      */
     protected function sourceParsedownElement(array $attributes, bool $reset = true): array
     {

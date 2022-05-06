@@ -155,6 +155,7 @@ trait ImageMediaTrait
 
     /**
      * @return void
+     * @phpstan-impure
      */
     protected function resetImage(): void
     {
@@ -170,6 +171,7 @@ trait ImageMediaTrait
      *
      * @param string $name
      * @return void
+     * @phpstan-impure
      */
     public function setImagePrettyName(string $name): void
     {
@@ -178,6 +180,7 @@ trait ImageMediaTrait
 
     /**
      * @return string
+     * @phpstan-pure
      */
     public function getImagePrettyName(): string
     {
@@ -198,6 +201,7 @@ trait ImageMediaTrait
      * Simply processes with no extra methods.  Useful for triggering events.
      *
      * @return $this
+     * @phpstan-impure
      */
     public function cache()
     {
@@ -217,6 +221,7 @@ trait ImageMediaTrait
      * @param  int       $max_width
      * @param  int       $step
      * @return $this
+     * @phpstan-impure
      */
     public function derivatives($min_width, int $max_width = 2500, int $step = 200)
     {
@@ -277,6 +282,7 @@ trait ImageMediaTrait
      * Clear out the alternatives.
      *
      * @return void
+     * @phpstan-impure
      */
     public function clearAlternatives(): void
     {
@@ -288,6 +294,7 @@ trait ImageMediaTrait
      *
      * @param  int|null $quality 0-100 quality
      * @return int|$this
+     * @phpstan-impure
      */
     public function quality(int $quality = null)
     {
@@ -309,6 +316,7 @@ trait ImageMediaTrait
      *
      * @param string $format
      * @return $this
+     * @phpstan-impure
      */
     public function format(string $format)
     {
@@ -326,6 +334,7 @@ trait ImageMediaTrait
      *
      * @param  string|null $sizes
      * @return string|$this
+     * @phpstan-impure
      */
     public function sizes(string $sizes = null)
     {
@@ -349,6 +358,7 @@ trait ImageMediaTrait
      *
      * @param string|int $value A value or 'auto' or empty to use the width of the image
      * @return $this
+     * @phpstan-impure
      */
     public function width($value = 'auto')
     {
@@ -372,6 +382,7 @@ trait ImageMediaTrait
      *
      * @param string|int $value A value or 'auto' or empty to use the height of the image
      * @return $this
+     * @phpstan-impure
      */
     public function height($value = 'auto')
     {
@@ -389,6 +400,7 @@ trait ImageMediaTrait
      *
      * @param string $filter Filter to be used.
      * @return $this
+     * @phpstan-impure
      */
     public function filter(string $filter = 'image.filters.default')
     {
@@ -406,6 +418,7 @@ trait ImageMediaTrait
      * Return the image higher quality version
      *
      * @return ImageMediaInterface|$this the alternative version with higher quality
+     * @phpstan-pure
      */
     public function higherQualityAlternative(): ImageMediaInterface
     {
@@ -429,6 +442,7 @@ trait ImageMediaTrait
      * Handle this commonly used variant
      *
      * @return $this
+     * @phpstan-impure
      */
     public function cropZoom(...$args)
     {
@@ -442,6 +456,7 @@ trait ImageMediaTrait
      * @param string|null $position
      * @param int|float|null $scale
      * @return $this
+     * @phpstan-impure
      */
     public function watermark(string $image = null, string $position = null, $scale = null)
     {
@@ -521,6 +536,7 @@ trait ImageMediaTrait
      * Add a frame to image
      *
      * @return $this
+     * @phpstan-impure
      */
     public function addFrame(int $border = 10, string $color = '0x000000')
     {
@@ -556,6 +572,7 @@ trait ImageMediaTrait
      * @param string $method
      * @param array $args
      * @return mixed
+     * @phpstan-impure
      */
     public function __call(string $method, array $args)
     {
@@ -598,6 +615,7 @@ trait ImageMediaTrait
      * Gets medium image, resets image manipulation operations.
      *
      * @return $this
+     * @phpstan-impure
      */
     protected function image()
     {
@@ -618,6 +636,7 @@ trait ImageMediaTrait
      * Save the image with cache.
      *
      * @return string
+     * @phpstan-impure
      */
     protected function saveImage(): string
     {
@@ -664,6 +683,7 @@ trait ImageMediaTrait
 
     /**
      * @return string
+     * @phpstan-impure
      */
     protected function generateCache(): string
     {
@@ -715,6 +735,7 @@ trait ImageMediaTrait
     /**
      * @param string $filepath
      * @return string
+     * @phpstan-impure
      */
     protected function generateCacheImage(string $filepath): string
     {
@@ -746,6 +767,7 @@ trait ImageMediaTrait
     /**
      * @param string $filepath
      * @return JsonFile
+     * @phpstan-pure 
      */
     protected static function getCacheMetaFile(string $filepath): JsonFile
     {

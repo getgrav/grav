@@ -19,6 +19,7 @@ interface MediaPlayerInterface extends MediaObjectInterface
      *
      * @param bool $status
      * @return $this
+     * @phpstan-impure
      */
     public function controls(bool $status = true);
 
@@ -27,6 +28,7 @@ interface MediaPlayerInterface extends MediaObjectInterface
      *
      * @param bool $status
      * @return $this
+     * @phpstan-impure
      */
     public function loop(bool $status = false);
 
@@ -35,6 +37,7 @@ interface MediaPlayerInterface extends MediaObjectInterface
      *
      * @param bool $status
      * @return $this
+     * @phpstan-impure
      */
     public function autoplay(bool $status = false);
 
@@ -43,6 +46,7 @@ interface MediaPlayerInterface extends MediaObjectInterface
      *
      * @param bool $status
      * @return $this
+     * @phpstan-impure
      */
     public function muted(bool $status = false);
 
@@ -51,6 +55,7 @@ interface MediaPlayerInterface extends MediaObjectInterface
      *
      * @param string|null $preload
      * @return $this
+     * @phpstan-impure
      */
     public function preload(string $preload = null);
 }

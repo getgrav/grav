@@ -29,6 +29,7 @@ class StaticImageMedium extends Medium implements ImageMediaInterface
      * Get basic file info.
      *
      * @return array
+     * @phpstan-pure
      */
     public function getInfo(): array
     {
@@ -44,6 +45,7 @@ class StaticImageMedium extends Medium implements ImageMediaInterface
      * @param  array $attributes
      * @param  bool $reset
      * @return array
+     * @phpstan-impure
      */
     protected function sourceParsedownElement(array $attributes, bool $reset = true): array
     {
@@ -56,6 +58,7 @@ class StaticImageMedium extends Medium implements ImageMediaInterface
 
     /**
      * @return $this
+     * @phpstan-pure
      */
     public function higherQualityAlternative(): ImageMediaInterface
     {

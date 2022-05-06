@@ -22,6 +22,7 @@ interface MediaCollectionInterface extends \Grav\Framework\Media\Interfaces\Medi
      * Get media id.
      *
      * @return string
+     * @phpstan-pure
      */
     public function getId(): string;
 
@@ -29,6 +30,7 @@ interface MediaCollectionInterface extends \Grav\Framework\Media\Interfaces\Medi
      * Get media type used in MediaFactory.
      *
      * @return string
+     * @phpstan-pure
      */
     public function getType(): string;
 
@@ -36,6 +38,7 @@ interface MediaCollectionInterface extends \Grav\Framework\Media\Interfaces\Medi
      * Get media name used in MediaFactory.
      *
      * @return string
+     * @phpstan-pure
      */
     public function getName(): string;
 
@@ -44,6 +47,7 @@ interface MediaCollectionInterface extends \Grav\Framework\Media\Interfaces\Medi
      *
      * @param string|null $filename
      * @return string|null
+     * @phpstan-pure
      */
     public function getPath(string $filename = null): ?string;
 
@@ -52,12 +56,14 @@ interface MediaCollectionInterface extends \Grav\Framework\Media\Interfaces\Medi
      *
      * @param string $filename
      * @return string
+     * @phpstan-pure
      */
     public function getUrl(string $filename): string;
 
     /**
      * @param string $filename
      * @return string|null
+     * @phpstan-pure
      */
     public function getMediaUri(string $filename): ?string;
 
@@ -66,6 +72,7 @@ interface MediaCollectionInterface extends \Grav\Framework\Media\Interfaces\Medi
      *
      * @param string $filename
      * @return MediaObjectInterface|null
+     * @phpstan-pure
      */
     public function get(string $filename): ?MediaObjectInterface;
 
@@ -73,6 +80,7 @@ interface MediaCollectionInterface extends \Grav\Framework\Media\Interfaces\Medi
      * Get a list of all media.
      *
      * @return array<string,MediaObjectInterface>
+     * @phpstan-pure
      */
     public function all(): array;
 
@@ -80,6 +88,7 @@ interface MediaCollectionInterface extends \Grav\Framework\Media\Interfaces\Medi
      * Get a list of all image media.
      *
      * @return array<string,MediaObjectInterface>
+     * @phpstan-pure
      */
     public function images(): array;
 
@@ -87,6 +96,7 @@ interface MediaCollectionInterface extends \Grav\Framework\Media\Interfaces\Medi
      * Get a list of all video media.
      *
      * @return array<string,MediaObjectInterface>
+     * @phpstan-pure
      */
     public function videos(): array;
 
@@ -94,6 +104,7 @@ interface MediaCollectionInterface extends \Grav\Framework\Media\Interfaces\Medi
      * Get a list of all audio media.
      *
      * @return array<string,MediaObjectInterface>
+     * @phpstan-pure
      */
     public function audios(): array;
 
@@ -101,6 +112,7 @@ interface MediaCollectionInterface extends \Grav\Framework\Media\Interfaces\Medi
      * Get a list of all file media.
      *
      * @return array<string,MediaObjectInterface>
+     * @phpstan-pure
      */
     public function files(): array;
 
@@ -109,6 +121,7 @@ interface MediaCollectionInterface extends \Grav\Framework\Media\Interfaces\Medi
      *
      * @param string|int|null $timestamp
      * @return $this
+     * @phpstan-impure
      */
     public function setTimestamps($timestamp = null);
 
@@ -116,23 +129,26 @@ interface MediaCollectionInterface extends \Grav\Framework\Media\Interfaces\Medi
      * @param string $name
      * @param MediaObjectInterface $file
      * @return void
+     * @phpstan-impure
      */
     public function add(string $name, MediaObjectInterface $file): void;
 
     /**
      * Create Medium from a file.
      *
-     * @param  string $file
-     * @param  array  $params
+     * @param string $file
+     * @param array  $params
      * @return Medium|null
+     * @phpstan-impure
      */
     public function createFromFile(string $file, array $params = []): ?MediaObjectInterface;
 
     /**
      * Create Medium from array of parameters
      *
-     * @param  array          $items
+     * @param array $items
      * @return Medium|null
+     * @phpstan-impure
      */
     public function createFromArray(array $items = []): ?MediaObjectInterface;
 

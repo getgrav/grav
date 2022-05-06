@@ -27,6 +27,7 @@ interface MediaObjectInterface extends \Grav\Framework\Media\Interfaces\MediaObj
      * Create a copy of this media object
      *
      * @return static
+     * @phpstan-impure
      */
     public function copy();
 
@@ -34,6 +35,7 @@ interface MediaObjectInterface extends \Grav\Framework\Media\Interfaces\MediaObj
      * Return just metadata from the Medium object
      *
      * @return Data
+     * @phpstan-pure
      */
     public function meta(): Data;
 
@@ -42,6 +44,7 @@ interface MediaObjectInterface extends \Grav\Framework\Media\Interfaces\MediaObj
      *
      * @param string|int|null $timestamp
      * @return $this
+     * @phpstan-impure
      */
     public function setTimestamp($timestamp = null);
 
@@ -49,6 +52,7 @@ interface MediaObjectInterface extends \Grav\Framework\Media\Interfaces\MediaObj
      * Returns an array containing just the metadata
      *
      * @return array
+     * @phpstan-pure
      */
     public function metadata(): array;
 
@@ -57,6 +61,7 @@ interface MediaObjectInterface extends \Grav\Framework\Media\Interfaces\MediaObj
      *
      * @param string $filepath
      * @return void
+     * @phpstan-impure
      */
     public function addMetaFile(string $filepath): void;
 
@@ -66,6 +71,7 @@ interface MediaObjectInterface extends \Grav\Framework\Media\Interfaces\MediaObj
      * @param int|float $ratio
      * @param MediaObjectInterface $alternative
      * @return void
+     * @phpstan-impure
      */
     public function addAlternative($ratio, MediaObjectInterface $alternative): void;
 
@@ -74,6 +80,7 @@ interface MediaObjectInterface extends \Grav\Framework\Media\Interfaces\MediaObj
      *
      * @param bool $withDerived If true, include generated images as well. If false, only return existing files.
      * @return array
+     * @phpstan-pure
      */
     public function getAlternatives(bool $withDerived = true): array;
 
@@ -81,6 +88,7 @@ interface MediaObjectInterface extends \Grav\Framework\Media\Interfaces\MediaObj
      * Return string representation of the object (html).
      *
      * @return string
+     * @phpstan-pure
      */
     public function __toString(): string;
 
@@ -90,6 +98,7 @@ interface MediaObjectInterface extends \Grav\Framework\Media\Interfaces\MediaObj
      * @param  string|null  $querystring
      * @param  bool $withQuestionmark
      * @return string
+     * @phpstan-impure
      */
     public function querystring(string $querystring = null, bool $withQuestionmark = true): string;
 
@@ -98,6 +107,7 @@ interface MediaObjectInterface extends \Grav\Framework\Media\Interfaces\MediaObj
      *
      * @param string $url
      * @return string
+     * @phpstan-pure
      */
     public function urlQuerystring(string $url): string;
 
@@ -107,6 +117,7 @@ interface MediaObjectInterface extends \Grav\Framework\Media\Interfaces\MediaObj
      * @param  string|null $hash
      * @param  bool $withHash
      * @return string
+     * @phpstan-impure
      */
     public function urlHash(string $hash = null, bool $withHash = true): string;
 
@@ -119,6 +130,7 @@ interface MediaObjectInterface extends \Grav\Framework\Media\Interfaces\MediaObj
      * @param  string|null  $id
      * @param  bool $reset
      * @return array
+     * @phpstan-impure
      */
     public function parsedownElement(string $title = null, string $alt = null, string $class = null, string $id = null, bool $reset = true): array;
 
@@ -126,6 +138,7 @@ interface MediaObjectInterface extends \Grav\Framework\Media\Interfaces\MediaObj
      * Reset medium.
      *
      * @return $this
+     * @phpstan-impure
      */
     public function reset();
 
@@ -135,6 +148,7 @@ interface MediaObjectInterface extends \Grav\Framework\Media\Interfaces\MediaObj
      * @param string $attribute
      * @param string|null $value
      * @return $this
+     * @phpstan-impure
      */
     public function attribute(string $attribute = '', ?string $value = '');
 
@@ -143,6 +157,7 @@ interface MediaObjectInterface extends \Grav\Framework\Media\Interfaces\MediaObj
      *
      * @param string $mode
      * @return MediaLinkInterface|MediaObjectInterface|null
+     * @phpstan-impure
      */
     public function display(string $mode = 'source');
 
@@ -151,6 +166,7 @@ interface MediaObjectInterface extends \Grav\Framework\Media\Interfaces\MediaObj
      *
      * @param string $type;
      * @return bool
+     * @phpstan-pure
      */
     public function thumbnailExists(string $type = 'page'): bool;
 
@@ -159,6 +175,7 @@ interface MediaObjectInterface extends \Grav\Framework\Media\Interfaces\MediaObj
      *
      * @param string $type
      * @return $this
+     * @phpstan-impure
      */
     public function thumbnail(string $type = 'auto');
 
@@ -167,6 +184,7 @@ interface MediaObjectInterface extends \Grav\Framework\Media\Interfaces\MediaObj
      *
      * @param bool $reset
      * @return string
+     * @phpstan-impure
      */
     public function url(bool $reset = true): string;
 
@@ -176,6 +194,7 @@ interface MediaObjectInterface extends \Grav\Framework\Media\Interfaces\MediaObj
      * @param  bool $reset
      * @param  array  $attributes
      * @return MediaLinkInterface
+     * @phpstan-impure
      */
     public function link(bool $reset = true, array $attributes = []): MediaLinkInterface;
 
@@ -186,6 +205,7 @@ interface MediaObjectInterface extends \Grav\Framework\Media\Interfaces\MediaObj
      * @param  int|null  $height
      * @param  bool $reset
      * @return MediaLinkInterface
+     * @phpstan-impure
      */
     public function lightbox(int $width = null, int $height = null, bool $reset = true): MediaLinkInterface;
 
@@ -195,6 +215,7 @@ interface MediaObjectInterface extends \Grav\Framework\Media\Interfaces\MediaObj
      *
      * @param string ...$args
      * @return $this
+     * @phpstan-impure
      */
     public function classes(string ...$args);
 
@@ -204,6 +225,7 @@ interface MediaObjectInterface extends \Grav\Framework\Media\Interfaces\MediaObj
      *
      * @param string $id
      * @return $this
+     * @phpstan-pure
      */
     public function id(string $id);
 
@@ -213,6 +235,7 @@ interface MediaObjectInterface extends \Grav\Framework\Media\Interfaces\MediaObj
      *
      * @param string $style
      * @return $this
+     * @phpstan-impure
      */
     public function style(string $style);
 
@@ -222,6 +245,7 @@ interface MediaObjectInterface extends \Grav\Framework\Media\Interfaces\MediaObj
      * @param string $method
      * @param array $args
      * @return $this
+     * @phpstan-impure
      */
     public function __call(string $method, array $args);
 
@@ -234,6 +258,7 @@ interface MediaObjectInterface extends \Grav\Framework\Media\Interfaces\MediaObj
      * @param mixed $default Default value (or null).
      * @param string|null $separator Separator, defaults to '.'
      * @return mixed Value.
+     * @phpstan-pure
      */
     public function get(string $name, $default = null, string $separator = null);
 
@@ -246,6 +271,7 @@ interface MediaObjectInterface extends \Grav\Framework\Media\Interfaces\MediaObj
      * @param mixed $value New value.
      * @param string|null $separator Separator, defaults to '.'
      * @return $this
+     * @phpstan-impure
      */
     public function set(string $name, $value, string $separator = null);
 }

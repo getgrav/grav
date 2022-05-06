@@ -24,6 +24,7 @@ trait AudioMediaTrait
      *
      * @param string $controlsList
      * @return $this
+     * @phpstan-impure
      */
     public function controlsList(string $controlsList)
     {
@@ -49,6 +50,7 @@ trait AudioMediaTrait
      * @param  array $attributes
      * @param  bool $reset
      * @return array
+     * @phpstan-pure
      */
     protected function sourceParsedownElement(array $attributes, bool $reset = true): array
     {

@@ -19,11 +19,13 @@ interface ImageManipulateInterface
      *
      * @param string $name
      * @return void
+     * @phpstan-impure
      */
     public function setImagePrettyName(string $name): void;
 
     /**
      * @return string
+     * @phpstan-pure
      */
     public function getImagePrettyName(): string;
 
@@ -31,6 +33,7 @@ interface ImageManipulateInterface
      * Simply processes with no extra methods.  Useful for triggering events.
      *
      * @return $this
+     * @phpstan-impure
      */
     public function cache();
 
@@ -43,6 +46,7 @@ interface ImageManipulateInterface
      * @param int $max_width
      * @param int $step
      * @return $this
+     * @phpstan-impure
      */
     public function derivatives($min_width, int $max_width = 2500, int $step = 200);
 
@@ -50,6 +54,7 @@ interface ImageManipulateInterface
      * Clear out the alternatives.
      *
      * @return void
+     * @phpstan-impure
      */
     public function clearAlternatives(): void;
 
@@ -58,6 +63,7 @@ interface ImageManipulateInterface
      *
      * @param int|null $quality 0-100 quality
      * @return int|$this
+     * @phpstan-impure
      */
     public function quality(int $quality = null);
 
@@ -66,6 +72,7 @@ interface ImageManipulateInterface
      *
      * @param string $format
      * @return $this
+     * @phpstan-impure
      */
     public function format(string $format);
 
@@ -74,6 +81,7 @@ interface ImageManipulateInterface
      *
      * @param string|null $sizes
      * @return string|$this
+     * @phpstan-impure
      */
     public function sizes(string $sizes = null);
 
@@ -88,6 +96,7 @@ interface ImageManipulateInterface
      *
      * @param string|int $value A value or 'auto' or empty to use the width of the image
      * @return $this
+     * @phpstan-impure
      */
     public function width($value = 'auto');
 
@@ -102,14 +111,16 @@ interface ImageManipulateInterface
      *
      * @param string|int $value A value or 'auto' or empty to use the height of the image
      * @return $this
+     * @phpstan-impure
      */
     public function height($value = 'auto');
 
-    /* *
+    /**
      * Filter image by using user defined filter parameters.
      *
      * @param string $filter Filter to be used.
      * @return $this
+     * @phpstan-impure
      */
     public function filter(string $filter = 'image.filters.default');
 
@@ -117,6 +128,7 @@ interface ImageManipulateInterface
      * Return the image higher quality version
      *
      * @return ImageMediaInterface the alternative version with higher quality
+     * @phpstan-pure
      */
     public function higherQualityAlternative(): ImageMediaInterface;
 }

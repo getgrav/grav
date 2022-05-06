@@ -30,6 +30,7 @@ trait ParsedownHtmlTrait
      * @param string|null $id
      * @param bool $reset
      * @return string
+     * @phpstan-impure
      */
     public function html(string $title = null, string $alt = null, string $class = null, string $id = null, bool $reset = true): string
     {

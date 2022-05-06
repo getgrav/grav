@@ -21,6 +21,7 @@ trait StaticResizeTrait
      * @param  int|null $width
      * @param  int|null $height
      * @return $this
+     * @phpstan-impure
      */
     public function resize(int $width = null, int $height = null)
     {

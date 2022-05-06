@@ -18,6 +18,7 @@ interface MediaFileInterface extends MediaObjectInterface
      * Check if this medium exists or not
      *
      * @return bool
+     * @phpstan-pure
      */
     public function exists(): bool;
 
@@ -25,6 +26,7 @@ interface MediaFileInterface extends MediaObjectInterface
      * Get file modification time for the medium.
      *
      * @return int|null
+     * @phpstan-pure
      */
     public function modified(): ?int;
 
@@ -32,6 +34,7 @@ interface MediaFileInterface extends MediaObjectInterface
      * Get size of the medium.
      *
      * @return int
+     * @phpstan-pure
      */
     public function size(): int;
 
@@ -40,6 +43,7 @@ interface MediaFileInterface extends MediaObjectInterface
      *
      * @param bool $reset
      * @return string path to file
+     * @phpstan-impure
      */
     public function path(bool $reset = true): string;
 
@@ -48,6 +52,7 @@ interface MediaFileInterface extends MediaObjectInterface
      *
      * @param bool $reset
      * @return string
+     * @phpstan-impure
      */
     public function relativePath(bool $reset = true): string;
 
