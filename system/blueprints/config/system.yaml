@@ -1219,6 +1219,40 @@ form:
               title: PLUGIN_ADMIN.MEDIA
               underline: true
 
+            media.enable_media_timestamp:
+              type: toggle
+              label: PLUGIN_ADMIN.ENABLE_MEDIA_TIMESTAMP
+              help: PLUGIN_ADMIN.ENABLE_MEDIA_TIMESTAMP_HELP
+              highlight: 0
+              options:
+                1: PLUGIN_ADMIN.YES
+                0: PLUGIN_ADMIN.NO
+              validate:
+                type: bool
+
+            media.allowed_fallback_types:
+              type: selectize
+              size: large
+              label: PLUGIN_ADMIN.FALLBACK_TYPES
+              help: PLUGIN_ADMIN.FALLBACK_TYPES_HELP
+              classes: fancy
+              validate:
+                type: commalist
+
+            media.unsupported_inline_types:
+              type: selectize
+              size: large
+              label: PLUGIN_ADMIN.INLINE_TYPES
+              help: PLUGIN_ADMIN.INLINE_TYPES_HELP
+              classes: fancy
+              validate:
+                type: commalist
+
+            section_images:
+              type: section
+              title: PLUGIN_ADMIN.IMAGES_TITLE
+              underline: true
+
             images.default_image_quality:
               type: range
               append: '%'
@@ -1282,28 +1316,6 @@ form:
                 lazy: Lazy
                 eager: Eager
 
-            images.seofriendly:
-              type: toggle
-              label: PLUGIN_ADMIN.IMAGES_SEOFRIENDLY
-              help: PLUGIN_ADMIN.IMAGES_SEOFRIENDLY_HELP
-              highlight: 0
-              options:
-                1: PLUGIN_ADMIN.YES
-                0: PLUGIN_ADMIN.NO
-              validate:
-                type: bool
-
-            media.enable_media_timestamp:
-              type: toggle
-              label: PLUGIN_ADMIN.ENABLE_MEDIA_TIMESTAMP
-              help: PLUGIN_ADMIN.ENABLE_MEDIA_TIMESTAMP_HELP
-              highlight: 0
-              options:
-                1: PLUGIN_ADMIN.YES
-                0: PLUGIN_ADMIN.NO
-              validate:
-                type: bool
-
             media.auto_metadata_exif:
               type: toggle
               label: PLUGIN_ADMIN.ENABLE_AUTO_METADATA
@@ -1315,23 +1327,16 @@ form:
               validate:
                 type: bool
 
-            media.allowed_fallback_types:
-              type: selectize
-              size: large
-              label: PLUGIN_ADMIN.FALLBACK_TYPES
-              help: PLUGIN_ADMIN.FALLBACK_TYPES_HELP
-              classes: fancy
+            images.mutation_compat:
+              type: toggle
+              label: PLUGIN_ADMIN.LEGACY_MEDIA_MUTATION
+              help: PLUGIN_ADMIN.LEGACY_MEDIA_MUTATION_HELP
+              highlight: 0
+              options:
+                1: PLUGIN_ADMIN.YES
+                0: PLUGIN_ADMIN.NO
               validate:
-                type: commalist
-
-            media.unsupported_inline_types:
-              type: selectize
-              size: large
-              label: PLUGIN_ADMIN.INLINE_TYPES
-              help: PLUGIN_ADMIN.INLINE_TYPES_HELP
-              classes: fancy
-              validate:
-                type: commalist
+                type: bool
 
             section_images_cls:
               type: section
@@ -1749,6 +1754,10 @@ form:
               validate:
                 type: bool
 
+            compat_section:
+              type: section
+              title: PLUGIN_ADMIN.BACKWARD_COMPATIBILITY
+              underline: true
 
             strict_mode.blueprint_compat:
               type: toggle

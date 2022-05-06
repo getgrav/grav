@@ -158,7 +158,7 @@ images:
   cache_perms: '0755'                            # MUST BE IN QUOTES!! Default cache folder perms. Usually '0755' or '0775'
   debug: false                                   # Show an overlay over images indicating the pixel depth of the image when working with retina for example
   auto_fix_orientation: true                     # Automatically fix the image orientation based on the Exif data
-  seofriendly: false                             # SEO-friendly processed image names
+  mutation_compat: false                         # Legacy media manipulation compatibility. Use if image manipulation breaks after Grav update.
   cls:                                           # Cumulative Layout Shift: See https://web.dev/optimize-cls/
     auto_sizes: false                            # Automatically add height/width to image
     aspect_ratio: false                          # Reserve space with aspect ratio style
