@@ -82,9 +82,14 @@ class ExcerptsTest extends \Codeception\TestCase\Test
             '|<img alt="Sample Image" src="\/images\/.*\/sample-image.jpg\" data-src="sample-image\.jpg\?cropZoom=300,300" \/>|',
             Excerpts::processImageHtml('<img src="sample-image.jpg?cropZoom=300,300" alt="Sample Image" />', $this->page)
         );
+        // This one should not be processed.
         self::assertRegexp(
-            '|<img alt="Sample Image" class="foo" src="\/images\/.*\/sample-image.jpg\" data-src="sample-image\.jpg\?classes=foo" \/>|',
+            '|<img alt="Sample Image" class="foo" src="\/tests\/fake\/.*\/sample-image.jpg\" data-src="sample-image\.jpg\?classes=foo" \/>|',
             Excerpts::processImageHtml('<img src="sample-image.jpg?classes=foo" alt="Sample Image" />', $this->page)
+        );
+        self::assertRegexp(
+            '|<img alt="Sample Image" class="foo" src="\/images\/.*\/sample-image.jpg\" data-src="sample-image\.jpg\?classes=foo&cropZoom=300,300" \/>|',
+            Excerpts::processImageHtml('<img src="sample-image.jpg?classes=foo&cropZoom=300,300" alt="Sample Image" />', $this->page)
         );
     }
 
