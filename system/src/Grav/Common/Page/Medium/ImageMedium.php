@@ -116,6 +116,19 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
     }
 
     /**
+     * @param $timestamp
+     * @return $this|ImageMedium
+     */
+    public function setTimestamp($timestamp = null)
+    {
+        if ($this->image) {
+            return $this;
+        }
+
+        return parent::setTimestamp();
+    }
+
+    /**
      * Get basic file info.
      *
      * @return array

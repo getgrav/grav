@@ -654,6 +654,9 @@ trait ImageMediaTrait
         $this->image->fixOrientation();
         $this->undef('url');
 
+        // Cached media doesn't need timestamps.
+        $this->timestamp = null;
+
         return $this;
     }
 
