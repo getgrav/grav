@@ -282,7 +282,8 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
                 $height = $this->height;
             }
 
-            $scaling_factor = min(1, $this->imageSettings['retina_scale'] ?? (int)$this->getConfig('system.images.cls.retina_scale', 1));
+            $scaling_factor = max(1, $this->imageSettings['retina_scale'] ?? (int)$this->getConfig('system.images.cls.retina_scale', 1));
+
             if (!isset($attributes['width'])) {
                 $attributes['width'] = (int)($width / $scaling_factor);
             }
