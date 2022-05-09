@@ -9,6 +9,7 @@
 
 namespace Grav\Common\Page\Medium;
 
+use Grav\Common\Config\Config;
 use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Grav;
 use Grav\Common\Media\Interfaces\ImageMediaInterface;
@@ -240,6 +241,19 @@ class Medium implements RenderableInterface, MediaFileInterface, JsonSerializabl
     protected function getGrav(): Grav
     {
         return Grav::instance();
+    }
+
+    /**
+     * @param string $name
+     * @param mixed $default
+     * @return mixed
+     */
+    protected function getConfig(string $name, $default)
+    {
+        /** @var Config $config */
+        $config = $this->getGrav()['config'];
+
+        return $config->get($name, $default);
     }
 
     /**

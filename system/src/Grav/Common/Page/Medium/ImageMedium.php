@@ -34,7 +34,6 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
     use ImageMediaTrait;
     use ImageLoadingTrait;
 
-    protected array $defaults = [];
     protected array $imageSettings = [];
     private ?string $saved_image_path = null;
 
@@ -52,16 +51,9 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
 
         $this->watermark = $config->get('system.images.watermark.watermark_all', false);
         $this->thumbnailTypes = ['page', 'media', 'default'];
-        $this->defaults = [
-            'quality' => (int)$config->get('system.images.default_image_quality', 85),
-            // CLS configuration
-            'auto_sizes' => (bool)$config->get('system.images.cls.auto_sizes', false),
-            'aspect_ratio' => (bool)$config->get('system.images.cls.aspect_ratio', false),
-            'retina_scale' => (int)$config->get('system.images.cls.retina_scale', 1)
-        ];
 
-        $this->imageSettings = $this->defaults;
-        $this->quality = $this->defaults['quality'];
+        $this->imageSettings = [];
+        $this->quality = (int)$config->get('system.images.default_image_quality', 85);
 
         $this->def('debug', $config->get('system.images.debug'));
 
@@ -95,7 +87,6 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
         return parent::__serialize() +
             $this->serializeImageMediaTrait() +
             [
-                'defaults' => $this->defaults,
                 'imageSettings' => $this->imageSettings,
                 'saved_image_path' => $this->saved_image_path
             ];
@@ -110,7 +101,6 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
         parent::__unserialize($data);
         $this->unserializeImageMediaTrait($data);
 
-        $this->defaults = $data['defaults'];
         $this->imageSettings = $data['imageSettings'];
         $this->saved_image_path = $data['saved_image_path'];
     }
@@ -170,8 +160,8 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
         $config = $this->getGrav()['config'];
 
         $this->format = 'guess';
-        $this->imageSettings = $this->defaults;
-        $this->quality = $this->defaults['quality'] ?? (int)$config->get('system.images.default_image_quality', 85);
+        $this->imageSettings = [];
+        $this->quality = (int)$config->get('system.images.default_image_quality', 85);
 
         $this->resetImage();
 
@@ -283,21 +273,26 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
             $attributes['sizes'] = $this->sizes();
         }
 
-        if ($this->saved_image_path && $this->imageSettings['auto_sizes']) {
-            // FIXME: we can calculate this from the new image object..?
-            if (!array_key_exists('height', $this->attributes) && !array_key_exists('width', $this->attributes)) {
-                $info = getimagesize($this->saved_image_path);
-                $width = (int)$info[0];
-                $height = (int)$info[1];
+        if ($this->imageSettings['auto_sizes'] ?? $this->getConfig('system.images.cls.auto_sizes', false)) {
+            if ($this->image) {
+                $width = $this->image->width();
+                $height = $this->image->height();
+            } else {
+                $width = $this->width;
+                $height = $this->height;
+            }
 
-                $scaling_factor = min(1, $this->imageSettings['retina_scale']);
+            $scaling_factor = min(1, $this->imageSettings['retina_scale'] ?? (int)$this->getConfig('system.images.cls.retina_scale', 1));
+            if (!isset($attributes['width'])) {
                 $attributes['width'] = (int)($width / $scaling_factor);
+            }
+            if (!isset($attributes['height'])) {
                 $attributes['height'] = (int)($height / $scaling_factor);
+            }
 
-                if ($this->imageSettings['aspect_ratio']) {
-                    $style = ($attributes['style'] ?? ' ') . "--aspect-ratio: $width/$height;";
-                    $attributes['style'] = trim($style);
-                }
+            if ($this->imageSettings['aspect_ratio'] ?? $this->getConfig('system.images.cls.aspect_ratio', false)) {
+                $style = ($attributes['style'] ?? ' ') . "--aspect-ratio: {$width}/{$height};";
+                $attributes['style'] = trim($style);
             }
         }
 
@@ -380,7 +375,7 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
      */
     public function retinaScale(int $scale = 1)
     {
-        $this->imageSettings['retina_scale'] = (int)$scale;
+        $this->imageSettings['retina_scale'] = $scale;
 
         return $this;
     }
