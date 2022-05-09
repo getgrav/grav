@@ -158,7 +158,7 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
             $this->items[$offset] = $instance = $this->initMedium($offset);
         }
 
-        return $instance ? $instance->setTimestamp($this->timestamp) : null;
+        return $instance ? (clone $instance)->setTimestamp($this->timestamp) : null;
     }
 
     /**
@@ -205,7 +205,7 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
             $this->items[$key] = $instance = $this->initMedium($key);
         }
 
-        return $instance ? $instance->setTimestamp($this->timestamp) : null;
+        return $instance ? (clone $instance)->setTimestamp($this->timestamp) : null;
     }
 
     /**
@@ -272,8 +272,8 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
         $this->items = $this->orderMedia($this->items);
 
         $list = [];
-        foreach ($this as $filename => $instance) {
-            $list[$filename] = $instance;
+        foreach ($this as $filename => $file) {
+            $list[$filename] = (clone $file)->setTimestamp($this->timestamp);
         }
 
         return $list;
@@ -289,7 +289,7 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
         $list = [];
         foreach ($this->all() as $filename => $file) {
             if ($file->type === 'image') {
-                $list[$filename] = $file;
+                $list[$filename] = (clone $file)->setTimestamp($this->timestamp);
             }
         }
 
@@ -306,7 +306,7 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
         $list = [];
         foreach ($this->all() as $filename => $file) {
             if ($file->type === 'video') {
-                $list[$filename] = $file;
+                $list[$filename] = (clone $file)->setTimestamp($this->timestamp);
             }
         }
 
@@ -323,7 +323,7 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
         $list = [];
         foreach ($this->all() as $filename => $file) {
             if ($file->type === 'audio') {
-                $list[$filename] = $file;
+                $list[$filename] = (clone $file)->setTimestamp($this->timestamp);
             }
         }
 
@@ -340,7 +340,7 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
         $list = [];
         foreach ($this->all() as $filename => $file) {
             if (!in_array($file->type, ['image', 'video', 'audio'])) {
-                $list[$filename] = $file;
+                $list[$filename] = (clone $file)->setTimestamp($this->timestamp);
             }
         }
 
