@@ -119,10 +119,8 @@ trait MediaObjectTrait
     {
         if (null !== $timestamp) {
             $timestamp = (string)$timestamp;
-        } elseif ($this instanceof MediaFileInterface) {
-            $timestamp = (string)$this->modified();
         } else {
-            $timestamp = '';
+            $timestamp = null;
         }
 
         if ($timestamp === $this->timestamp) {

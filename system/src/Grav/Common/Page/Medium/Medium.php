@@ -74,7 +74,7 @@ class Medium implements RenderableInterface, MediaFileInterface, JsonSerializabl
 
         $this->items = $items;
 
-        if ($this->getGrav()['config']->get('system.media.enable_media_timestamp', true)) {
+        if ($this->getGrav()['config']->get('system.media.enable_media_timestamp', false)) {
             $this->timestamp = Grav::instance()['cache']->getKey();
         }
 
