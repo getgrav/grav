@@ -593,6 +593,17 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
      */
     protected function prepareFileInfo(iterable $files, array $media_types, ?array $cached): array
     {
+        $lookup = [];
+        if ($cached) {
+            foreach ($cached as $filename => $info) {
+                $name = $info['name'] ?? null;
+                if ($name && $name !== $filename) {
+                    $info['filename'] = $filename;
+                    $lookup[$name] = $info;
+                }
+            }
+        }
+
         $list = [];
         foreach ($files as $filename => $info) {
             // Ignore markdown, frontmatter and dot files. Also ignore all files which are not listed in media types.
@@ -606,8 +617,12 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
             if (null !== $cached) {
                 try {
                     $type = $params['type'] ?? 'file';
-                    $existing = $cached[$filename] ?? null;
-                    if ($existing && $existing['size'] === $info['size'] && $existing['modified'] === $info['modified']) {
+                    $existing = $lookup[$filename] ?? $cached[$filename] ?? null;
+                    if (isset($existing['filename'])) {
+                        $filename = $existing['filename'];
+                        unset($existing['filename']);
+                    }
+                    if ($existing && $existing['size'] === $info['size'] && (!isset($existing['modified']) || $existing['modified'] === $info['modified'])) {
                         // Append cached data.
                         $info += $existing;
                     } else if ($type === 'image') {
