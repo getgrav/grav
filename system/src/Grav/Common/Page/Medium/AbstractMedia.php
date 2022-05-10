@@ -46,7 +46,7 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
     static public $ignore = ['frontmatter.yaml', 'media.json'];
 
     /** @var string */
-    protected const VERSION = '1';
+    protected const VERSION = '2';
 
     /** @var string|null */
     protected $path;
@@ -642,6 +642,11 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
                 $info['mime'] = $params['mime'];
             }
 
+            // Add basic file info to metadata.
+            $meta = $info['meta'] ?? [];
+            unset($info['meta']);
+            $info['meta'] = $meta + $info;
+
             $list[$filename] = $info;
         }
 
@@ -898,7 +903,20 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
      */
     protected function generateIndex(array $files, string $checksum = null, ?int $timestamp = null): array
     {
+        // Clear files array.
         ksort($files, SORT_NATURAL);
+        foreach ($files as $filename => &$info) {
+            $meta = $info['meta'] ?? [];
+            if ($meta) {
+                $metaName = $meta['name'] ?? null;
+                if ($metaName === $filename) {
+                    unset($meta['name']);
+                }
+                unset($info['meta']);
+                $info['meta'] = array_diff_assoc($meta, $info);
+            }
+        }
+        unset($info);
 
         return [
             'type' => $this->getType(),
@@ -945,13 +963,28 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
         $id = $this->getId();
         [$index, $modified] = $mediaIndex->get($id);
 
+        $files = $index['files'] ?? [];
+        foreach ($files as $filename => &$info) {
+            $meta = $info['meta'] ?? [];
+            unset($info['meta']);
+            $info['meta'] = ['name' => $filename] + $meta + $info;
+        }
+        unset($info);
+        $index['files'] = $files;
+
         $version = $index['version'] ?? null;
         $folder = $index['folder'] ?? null;
         $type = $index['type'] ?? null;
         if ($version !== static::VERSION || $folder !== $this->path || $type !== ($this->config['type'] ?? 'local')) {
-            return [[], 0];
+            return [$index, 0];
         }
 
+        /*
+        $name = $index['name'] ?? null;
+        if ($version !== static::VERSION || $folder !== $this->path || $type !== ($this->config['type'] ?? 'local') || $name !== ($this->config['name'] ?? null)) {
+            return [[], 0];
+        }
+        */
         return [$index, $modified];
     }
 
