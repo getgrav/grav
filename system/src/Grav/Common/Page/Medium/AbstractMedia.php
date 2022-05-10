@@ -597,6 +597,9 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
         if ($cached) {
             foreach ($cached as $filename => $info) {
                 $name = $info['name'] ?? null;
+                if (!$name) {
+                    $name = Utils::basename($info['meta']['remote_url'] ?? '');
+                }
                 if ($name && $name !== $filename) {
                     $info['filename'] = $filename;
                     $lookup[$name] = $info;
