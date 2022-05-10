@@ -136,12 +136,12 @@ interface MediaCollectionInterface extends \Grav\Framework\Media\Interfaces\Medi
     /**
      * Create Medium from a file.
      *
-     * @param string $file
+     * @param string $filename
      * @param array  $params
      * @return Medium|null
      * @phpstan-impure
      */
-    public function createFromFile(string $file, array $params = []): ?MediaObjectInterface;
+    public function createFromFile(string $filename, array $params = []): ?MediaObjectInterface;
 
     /**
      * Create Medium from array of parameters

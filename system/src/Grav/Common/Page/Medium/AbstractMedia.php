@@ -10,7 +10,6 @@
 namespace Grav\Common\Page\Medium;
 
 use Grav\Common\Config\Config;
-use Grav\Common\Data\Blueprint;
 use Grav\Common\Debugger;
 use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Grav;
@@ -888,6 +887,7 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
 
         return [
             'type' => $this->getType(),
+            'name' => $this->getName(),
             'version' => static::VERSION,
             'checksum' => $checksum ?? md5(serialize($files)),
             'timestamp' => $timestamp ?? time(),
