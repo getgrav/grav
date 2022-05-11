@@ -11,7 +11,6 @@ namespace Grav\Common\Media\Traits;
 
 use Grav\Common\Data\Data;
 use Grav\Common\Media\Interfaces\ImageMediaInterface;
-use Grav\Common\Media\Interfaces\MediaFileInterface;
 use Grav\Common\Media\Interfaces\MediaLinkInterface;
 use Grav\Common\Media\Interfaces\MediaObjectInterface;
 use Grav\Common\Page\Medium\Medium;
@@ -574,27 +573,34 @@ trait MediaObjectTrait
     }
 
     /**
-     * Allow any action to be called on this medium from twig or markdown
-     *
      * @param string $method
-     * @param array $args
-     * @return MediaObjectInterface|MediaLinkInterface
+     * @return bool
      */
-    public function __call(string $method, array $args)
+    public function isAction(string $method): bool
+    {
+        return false;
+    }
+
+    /**
+     * @param string $var
+     * @param array $args
+     * @return static
+     */
+    public function addQuerystring(string $var, array $args)
     {
         $count = count($args);
         if ($count > 1 || ($count === 1 && !empty($args[0]))) {
-            $method .= '=' . implode(',', array_map(static function ($a) {
-                if (is_array($a)) {
-                    $a = '[' . implode(',', $a) . ']';
-                }
+            $var .= '=' . implode(',', array_map(static function ($a) {
+                    if (is_array($a)) {
+                        $a = '[' . implode(',', $a) . ']';
+                    }
 
-                return rawurlencode($a);
-            }, $args));
+                    return rawurlencode($a);
+                }, $args));
         }
 
-        if (!empty($method)) {
-            $this->querystring($this->querystring(null, false) . '&' . $method);
+        if (!empty($var)) {
+            $this->querystring($this->querystring(null, false) . '&' . $var);
         }
 
         return $this;

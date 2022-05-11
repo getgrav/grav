@@ -240,14 +240,23 @@ interface MediaObjectInterface extends \Grav\Framework\Media\Interfaces\MediaObj
     public function style(string $style);
 
     /**
-     * Allow any action to be called on this medium from twig or markdown
+     * Checks if the action is supported by the media object.
      *
      * @param string $method
+     * @return bool
+     * @phpstan-pure
+     */
+    public function isAction(string $method): bool;
+
+    /**
+     * Adds query string to the media object.
+     *
+     * @param string $var
      * @param array $args
      * @return $this
      * @phpstan-impure
      */
-    public function __call(string $method, array $args);
+    public function addQuerystring(string $var, array $args);
 
     /**
      * Get value by using dot notation for nested arrays/objects.

@@ -36,8 +36,9 @@ trait ImageMediaTrait
     public static array $magic_actions = [
         'resize', 'forceResize', 'cropResize', 'crop', 'zoomCrop',
         'negate', 'brightness', 'contrast', 'grayscale', 'emboss',
-        'smooth', 'sharp', 'edge', 'colorize', 'sepia', 'enableProgressive',
-        'rotate', 'flip', 'fixOrientation', 'gaussianBlur', 'format', 'create', 'fill', 'merge'
+        'smooth', 'sharp', 'edge', 'colorize', 'sepia',
+        'enableProgressive', 'rotate', 'flip', 'fixOrientation', 'gaussianBlur',
+        'format', 'create', 'fill', 'merge'
     ];
 
     /** @var array */
@@ -471,9 +472,7 @@ trait ImageMediaTrait
      */
     public function cropZoom(...$args)
     {
-        $this->__call('zoomCrop', $args);
-
-        return $this;
+        return $this->zoomCrop(...$args);
     }
 
     /**
@@ -552,7 +551,7 @@ trait ImageMediaTrait
                 break;
         }
 
-        $this->__call('merge', [$watermark, $positionX, $positionY]);
+        $this->merge($watermark, $positionX, $positionY);
 
         return $this;
     }
@@ -579,16 +578,25 @@ trait ImageMediaTrait
 
         $frame = ImageFile::create($dst_width, $dst_height);
 
-        $frame->__call('fill', [$color]);
+        $frame->fill($color);
 
         $this->image = $frame;
 
-        $this->__call('merge', [$image, $border, $border]);
+        $this->merge($image, $border, $border);
 
         $this->saveImage();
         */
 
         return $this;
+    }
+
+    /**
+     * @param string $method
+     * @return bool
+     */
+    public function isAction(string $method): bool
+    {
+        return in_array($method, static::$magic_actions, true) || parent::isAction($method);
     }
 
     /**
@@ -602,7 +610,7 @@ trait ImageMediaTrait
     public function __call(string $method, array $args)
     {
         if (!in_array($method, static::$magic_actions, true)) {
-            return parent::__call($method, $args);
+            return null;
         }
 
         // Always initialize image.
@@ -628,7 +636,7 @@ trait ImageMediaTrait
                 }
 
                 // Do the same call for alternative media.
-                $medium->__call($method, $args_copy);
+                $medium->{$method}(...$args_copy);
             }
         } catch (BadFunctionCallException $e) {
         }

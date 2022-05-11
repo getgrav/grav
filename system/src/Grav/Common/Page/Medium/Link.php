@@ -105,12 +105,11 @@ class Link implements RenderableInterface, MediaLinkInterface
     public function __call(string $method, array $args)
     {
         $object = $this->source;
-        $callable = [$object, $method];
-        if (!is_callable($callable)) {
+        if (!(is_callable([$object, $method]) || $object->isAction($method))) {
             throw new BadMethodCallException(get_class($object) . '::' . $method . '() not found.');
         }
 
-        $object = call_user_func_array($callable, $args);
+        $object = $object->{$method}(...$args);
         if (!$object instanceof MediaLinkInterface) {
             // Don't start nesting links, if user has multiple link calls in his
             // actions, we will drop the previous links.

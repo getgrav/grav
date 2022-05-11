@@ -335,7 +335,7 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
         }
 
         if ($width && $height) {
-            $this->__call('cropResize', [$width, $height]);
+            $this->cropResize($width, $height);
         }
 
         return parent::lightbox($width, $height, $reset);

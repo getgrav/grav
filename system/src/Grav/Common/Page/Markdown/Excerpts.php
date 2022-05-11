@@ -19,11 +19,11 @@ use Grav\Common\Utils;
 use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use function array_key_exists;
-use function call_user_func_array;
 use function count;
 use function dirname;
 use function in_array;
 use function is_bool;
+use function is_callable;
 use function is_string;
 
 /**
@@ -282,7 +282,7 @@ class Excerpts
         $actions = [];
 
 
-        // if there is a query, then parse it and build action calls
+        // if there is a query, then parse it and build action calls.
         if (isset($url_parts['query'])) {
             $actions = array_reduce(
                 explode('&', $url_parts['query']),
@@ -297,6 +297,7 @@ class Excerpts
             );
         }
 
+        // Add default actions.
         $defaults = $this->config['images']['defaults'] ?? [];
         if (count($defaults)) {
             foreach ($defaults as $method => $params) {
@@ -313,13 +314,22 @@ class Excerpts
         foreach ($actions as $action) {
             $matches = [];
 
-            if (preg_match('/\[(.*)\]/', $action['params'], $matches)) {
+            if (preg_match('/\[(.*)]/', $action['params'], $matches)) {
                 $args = [explode(',', $matches[1])];
             } else {
                 $args = explode(',', $action['params']);
             }
 
-            $medium = call_user_func_array([$medium, $action['method']], $args);
+            $method = $action['method'];
+            $result = null;
+            if (is_callable([$medium, $method]) || $medium->isAction($method)) {
+                $result = $medium->{$method}(...$args);
+            }
+            if ($result instanceof Medium) {
+                $medium = $result;
+            } else {
+                $medium->addQuerystring($method, $args);
+            }
         }
 
         if (isset($url_parts['fragment'])) {

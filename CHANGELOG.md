@@ -13,6 +13,7 @@
     * Fixed locking and reading files using `Framework\File` classes
     * Fixed `Utils::resolveTokenPath()` with `@variable@` not working properly
     * Fixed remote URLs in markdown if using subfolder setup
+    * Fixed calls to undefined `Media` methods, they will now return `null` in order to fix twig templates with undefined variables
 
 # v1.7.33
 ## 04/25/2022
