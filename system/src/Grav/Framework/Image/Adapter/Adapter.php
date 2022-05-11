@@ -11,6 +11,26 @@ abstract class Adapter implements ImageAdapterInterface
 {
     /** @var int */
     protected $orientation = 1;
+    /** @var int */
+    protected $scale = 1;
+
+    /**
+     * @return int
+     */
+    public function getRetinaScale(): int
+    {
+        return $this->scale;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setRetinaScale(int $scale)
+    {
+        $this->scale = $scale;
+
+        return $this;
+    }
 
     /**
      * {@inheritdoc}

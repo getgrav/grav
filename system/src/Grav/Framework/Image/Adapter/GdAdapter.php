@@ -68,13 +68,17 @@ class GdAdapter extends Adapter
      *
      * @param int $width
      * @param int $height
+     * @param int $scale
      * @return static
      */
-    public static function create(int $width, int $height): GdAdapter
+    public static function create(int $width, int $height, int $scale = 1): GdAdapter
     {
         $resource = static::createResource($width, $height);
 
-        return new static($resource);
+        $image = new static($resource);
+        $image->scale = $scale;
+
+        return $image;
     }
 
     /**
@@ -178,6 +182,13 @@ class GdAdapter extends Adapter
      */
     public function resize(?int $background, int $target_width, int $target_height, int $new_width, int $new_height): GdAdapter
     {
+        if ($this->scale !== 1) {
+            $target_width *= $this->scale;
+            $target_height *= $this->scale;
+            $new_width *= $this->scale;
+            $new_height *= $this->scale;
+        }
+
         $width = $this->width();
         $height = $this->height();
         $dst_x = (int)(($target_width - $new_width) / 2);
@@ -211,6 +222,13 @@ class GdAdapter extends Adapter
      */
     public function crop(int $x, int $y, int $width, int $height): GdAdapter
     {
+        if ($this->scale !== 1) {
+            $x *= $this->scale;
+            $y *= $this->scale;
+            $width *= $this->scale;
+            $height *= $this->scale;
+        }
+
         $destination = imagecreatetruecolor($width, $height);
         if (!$destination) {
             throw new RuntimeException('Image crop failed');
@@ -391,17 +409,30 @@ class GdAdapter extends Adapter
             throw new InvalidArgumentException('Image to be merged needs to be instance of GdAdapter');
         }
 
+        $scale = $this->scale;
+        $otherScale = $other->getRetinaScale();
+
+        $x *= $scale;
+        $y *= $scale;
+
+        if (null !== $width) {
+            $otherWidth = $width * $otherScale;
+            $width *= $scale;
+        } else {
+            $otherWidth = $other->width();
+            $width = (int)($otherWidth * $scale / $otherScale);
+        }
+
+        if (null !== $height) {
+            $otherHeight = $height * $otherScale;
+            $height *= $scale;
+        } else {
+            $otherHeight = $other->height();
+            $height = (int)($otherHeight * $scale / $otherScale);
+        }
+
         imagealphablending($this->resource, true);
-
-        if (null === $width) {
-            $width = $other->width();
-        }
-
-        if (null === $height) {
-            $height = $other->height();
-        }
-
-        imagecopyresampled($this->resource, $other->getResource(), $x, $y, 0, 0, $width, $height, $width, $height);
+        imagecopyresampled($this->resource, $other->getResource(), $x, $y, 0, 0, $width, $height, $otherWidth, $otherHeight);
 
         return $this;
     }
@@ -428,6 +459,11 @@ class GdAdapter extends Adapter
      */
     public function fill(int $color = 0xffffff, int $x = 0, int $y = 0): GdAdapter
     {
+        if ($this->scale !== 1) {
+            $x *= $this->scale;
+            $y *= $this->scale;
+        }
+
         imagealphablending($this->resource, false);
         imagefill($this->resource, $x, $y, $this->allocateColor($color));
 
@@ -439,6 +475,12 @@ class GdAdapter extends Adapter
      */
     public function write(string $font, string $text, int $x = 0, int $y = 0, float $size = 12.0, float $angle = 0.0, int $color = 0x000000, string $align = 'left'): GdAdapter
     {
+        if ($this->scale !== 1) {
+            $x *= $this->scale;
+            $y *= $this->scale;
+            $size *= $this->scale;
+        }
+
         imagealphablending($this->resource, true);
 
         if ($align !== 'left') {
@@ -463,6 +505,13 @@ class GdAdapter extends Adapter
      */
     public function rectangle(int $x1, int $y1, int $x2, int $y2, int $color, bool $filled = false): GdAdapter
     {
+        if ($this->scale !== 1) {
+            $x1 *= $this->scale;
+            $y1 *= $this->scale;
+            $x2 *= $this->scale;
+            $y2 *= $this->scale;
+        }
+
         $c = $this->allocateColor($color);
         if ($filled) {
             imagefilledrectangle($this->resource, $x1, $y1, $x2, $y2, $c);
@@ -478,6 +527,14 @@ class GdAdapter extends Adapter
      */
     public function roundedRectangle(int $x1, int $y1, int $x2, int $y2, int $radius, int $color, bool $filled = false): GdAdapter
     {
+        if ($this->scale !== 1) {
+            $x1 *= $this->scale;
+            $y1 *= $this->scale;
+            $x2 *= $this->scale;
+            $y2 *= $this->scale;
+            $radius *= $this->scale;
+        }
+
         $c = $this->allocateColor($color);
 
         if ($filled) {
@@ -509,6 +566,13 @@ class GdAdapter extends Adapter
      */
     public function line(int $x1, int $y1, int $x2, int $y2, $color = 0x000000): GdAdapter
     {
+        if ($this->scale !== 1) {
+            $x1 *= $this->scale;
+            $y1 *= $this->scale;
+            $x2 *= $this->scale;
+            $y2 *= $this->scale;
+        }
+
         imageline($this->resource, $x1, $y1, $x2, $y2, $this->allocateColor($color));
 
         return $this;
@@ -519,6 +583,13 @@ class GdAdapter extends Adapter
      */
     public function ellipse(int $cx, int $cy, int $width, int $height, $color = 0x000000, bool $filled = false): GdAdapter
     {
+        if ($this->scale !== 1) {
+            $cx *= $this->scale;
+            $cy *= $this->scale;
+            $width *= $this->scale;
+            $height *= $this->scale;
+        }
+
         $c = $this->allocateColor($color);
         if ($filled) {
             imagefilledellipse($this->resource, $cx, $cy, $width, $height, $c);
@@ -534,6 +605,12 @@ class GdAdapter extends Adapter
      */
     public function circle(int $cx, int $cy, int $r, $color = 0x000000, bool $filled = false): GdAdapter
     {
+        if ($this->scale !== 1) {
+            $cx *= $this->scale;
+            $cy *= $this->scale;
+            $r *= $this->scale;
+        }
+
         return $this->ellipse($cx, $cy, $r, $r, $this->allocateColor($color), $filled);
     }
 
@@ -542,6 +619,13 @@ class GdAdapter extends Adapter
      */
     public function polygon(array $points, $color, bool $filled = false): GdAdapter
     {
+        if ($this->scale !== 1) {
+            foreach ($points as &$point) {
+                $point *= $this->scale;
+            }
+            unset($point);
+        }
+
         $num = (int)(count($points) / 2);
         $c = $this->allocateColor($color);
 
@@ -725,6 +809,11 @@ class GdAdapter extends Adapter
      */
     protected function getColor(int $x, int $y)
     {
+        if ($this->scale !== 1) {
+            $x *= $this->scale;
+            $y *= $this->scale;
+        }
+
         return imagecolorat($this->resource, $x, $y);
     }
 
@@ -739,6 +828,10 @@ class GdAdapter extends Adapter
      */
     protected function getTTFBox(string $font, string $text, float $size, float $angle = 0): array
     {
+        if ($this->scale !== 1) {
+            $size *= $this->scale;
+        }
+
         $box = imagettfbbox($size, $angle, $font, $text);
         if (false === $box) {
             throw new RuntimeException('Failed to allocate room for text');

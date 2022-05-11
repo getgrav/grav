@@ -37,6 +37,24 @@ interface ImageAdapterInterface extends ImageInfoInterface, ImageSaveInterface
     public function getName(): string;
 
     /**
+     * Gets the retina scaling for the image.
+     *
+     * Image size for resize operations and image sizes or coordinates will be multiplied by this factor.
+     *
+     * @return int
+     */
+    public function getRetinaScale(): int;
+
+    /**
+     * Sets the retina scaling for the image.
+     *
+     * NOTE: Set this before any image operations.
+     *
+     * @return $this
+     */
+    public function setRetinaScale(int $scale);
+
+    /**
      * Resizes the image.
      *
      * @param int|null $background
