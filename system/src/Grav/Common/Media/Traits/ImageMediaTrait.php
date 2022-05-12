@@ -92,11 +92,27 @@ trait ImageMediaTrait
      */
     protected static function createImageFromCache(string $path): ?array
     {
+        // Find out if browser wants a larger image.
+        if (preg_match('/(.*)(?:@(\d+)x)?(\..*)$/Uu', $path, $matches)) {
+            [,$basepath,$scale,$ext] = $matches;
+        }
+
+        // Prevent bad retina scales.
+        $scale = $scale ?? 1;
+        if ($scale < 1 || $scale > 3) {
+            return null;
+        }
+
         $filepath = GRAV_WEBROOT . $path;
         $cachepath = "{$filepath}.json";
         $file = static::getCacheMetaFile($cachepath);
         if (!$file->exists()) {
-            return null;
+            $filepath = GRAV_WEBROOT . $basepath . $ext;
+            $cachepath = "{$filepath}.json";
+            $file = static::getCacheMetaFile($cachepath);
+            if (!$file->exists()) {
+                return null;
+            }
         }
 
         $data = $file->load();
@@ -110,6 +126,11 @@ trait ImageMediaTrait
         try {
             $fileData = $mediaFactory->readFile($mediaUri);
             $adapter = GdAdapter::createFromString($fileData);
+            if ($scale > 1) {
+                $filepath = GRAV_WEBROOT . "{$basepath}@{$scale}x{$ext}";
+
+                $adapter->setRetinaScale($scale);
+            }
 
             $image = Image::createFromArray($data);
 

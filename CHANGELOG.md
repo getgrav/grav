@@ -6,6 +6,8 @@
     * Added optional `$field` parameter to `FlexMediaTrait::deleteMediaFile()` method
     * Added `has_env()` twig function to test if environmental variable is defined
     * **BC BREAK** Added `system.images.mutation_compat` setting
+    * Added retina support for `Image` operations, result should now be same for retina images
+    * Added retina support for cached images just by requesting `@2x` or `@3x`: `/images/04/b6/6f9...109/image@2x.jpg`
 2. [](#improved)
     * **BC BREAK** `Medium` no longer extends `Data`
     * By default, add media to only pages which have been initialized in pages loop
