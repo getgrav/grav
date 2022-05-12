@@ -48,23 +48,23 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
     /** @var string */
     protected const VERSION = '2';
 
-    protected ?string $path;
-    protected ?string $url;
+    protected ?string $path = null;
+    protected ?string $url = null;
     protected bool $exists = false;
-    protected ?array $index;
-    protected ?array $grouped;
+    protected ?array $index = null;
+    protected ?array $grouped = null;
     /** @var array<string,array|MediaObjectInterface> */
     protected array $items = [];
-    protected ?array $media_order;
+    protected ?array $media_order = null;
     protected array $config = [];
     protected array $settings = [];
     /** @var string[] */
     protected array $standard_exif = ['FileSize', 'MimeType', 'height', 'width'];
-    protected ?string $indexFolder;
+    protected ?string $indexFolder = null;
     protected ?string $indexFile = 'media.json';
     protected int $indexTimeout = 0;
     /** @var string|int|null */
-    protected $timestamp;
+    protected $timestamp = null;
     /** @var bool Hack to make Iterator work together with unset(). */
     private bool $iteratorUnset = false;
 

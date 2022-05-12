@@ -467,6 +467,7 @@ trait ImageMediaTrait
     /**
      * Handle this commonly used variant
      *
+     * @param mixed $args
      * @return $this
      * @phpstan-impure
      */

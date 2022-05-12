@@ -22,7 +22,7 @@ class Media extends LocalMedia
     protected const VERSION = parent::VERSION . '.1';
 
     /** @var bool */
-    protected $useGlobalMedia;
+    protected bool $useGlobalMedia;
 
     /**
      * @param string|null $path
