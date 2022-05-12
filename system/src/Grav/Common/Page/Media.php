@@ -22,7 +22,7 @@ class Media extends LocalMedia
     protected const VERSION = parent::VERSION . '.1';
 
     /** @var bool */
-    protected bool $useGlobalMedia;
+    protected bool $useGlobalMedia = true;
 
     /**
      * @param string|null $path
@@ -32,7 +32,6 @@ class Media extends LocalMedia
     public function __construct(?string $path, array $mediaOrder = null, bool $load = true)
     {
         $this->setPath($path);
-        $this->useGlobalMedia = true;
         $this->indexFolder = $this->getPath();
         $this->indexTimeout = 60;
         $this->media_order = $mediaOrder;

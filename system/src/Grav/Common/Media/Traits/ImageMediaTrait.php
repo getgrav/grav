@@ -105,7 +105,7 @@ trait ImageMediaTrait
         [,$basepath,$scale,$ext] = $matches;
 
         // Prevent bad retina scales.
-        $scale = $scale ?? 1;
+        $scale = $scale !== '' ? (int)$scale : 1;
         if ($scale < 1 || $scale > 3) {
             return [$path, '', 0, 0, $scale, $ext];
         }
