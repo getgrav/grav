@@ -812,39 +812,6 @@ trait ImageMediaTrait
         }
 
         return GRAV_WEBROOT . $imageFile;
-        //return $this->generateCacheImage(GRAV_WEBROOT . $imageFile);
-    }
-
-    /**
-     * @param string $filepath
-     * @return string
-     * @phpstan-impure
-     */
-    protected function generateCacheImage(string $filepath): string
-    {
-        if (file_exists($filepath)) {
-            return $filepath;
-        }
-
-        try {
-            $fileData = $this->readFile();
-            $adapter = GdAdapter::createFromString($fileData);
-
-            $image = $this->image;
-            $image->setAdapter($adapter);
-            $image->save($filepath, 'jpg', $this->quality);
-            $image->freeAdapter();
-
-        } catch (RuntimeException $e) {
-            /** @var Debugger $debugger */
-            $debugger = Grav::instance()['debugger'];
-            $debugger->addMessage(sprintf('Could not generate resized image for %s: %s', $this->filename, $e->getMessage()), 'warning');
-
-            // FIXME: Fallback image?
-            return '';
-        }
-
-        return $filepath;
     }
 
     /**
