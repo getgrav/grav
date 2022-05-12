@@ -11,6 +11,7 @@ namespace Grav\Common\Media\Traits;
 
 use BadFunctionCallException;
 use Exception;
+use Grav\Common\Config\Config;
 use Grav\Common\Debugger;
 use Grav\Common\Grav;
 use Grav\Common\Media\Interfaces\ImageMediaInterface;
@@ -86,32 +87,38 @@ trait ImageMediaTrait
     }
 
     /**
+     * Creates scaled image from cache.
+     *
+     * NOTE: If timestamp is 0, file wasn't created.
+     *
      * @param string $path
-     * @return array|null
+     * @return array
      * @phpstan-impure
      */
-    protected static function createImageFromCache(string $path): ?array
+    protected static function createImageFromCache(string $path): array
     {
         // Find out if browser wants a larger image.
-        if (preg_match('/(.*)(?:@(\d+)x)?(\..*)$/Uu', $path, $matches)) {
-            [,$basepath,$scale,$ext] = $matches;
+        if (!preg_match('/(.*)(?:@(\d+)x)?\.(.*)$/Uu', $path, $matches)) {
+            return [$path, '', 0, 0, 1, null];
         }
+
+        [,$basepath,$scale,$ext] = $matches;
 
         // Prevent bad retina scales.
         $scale = $scale ?? 1;
         if ($scale < 1 || $scale > 3) {
-            return null;
+            return [$path, '', 0, 0, $scale, $ext];
         }
 
         $filepath = GRAV_WEBROOT . $path;
         $cachepath = "{$filepath}.json";
         $file = static::getCacheMetaFile($cachepath);
         if (!$file->exists()) {
-            $filepath = GRAV_WEBROOT . $basepath . $ext;
+            $filepath = GRAV_WEBROOT . $basepath . '.' . $ext;
             $cachepath = "{$filepath}.json";
             $file = static::getCacheMetaFile($cachepath);
             if (!$file->exists()) {
-                return null;
+                return [$path, '', 0, 0, $scale, $ext];
             }
         }
 
@@ -127,7 +134,7 @@ trait ImageMediaTrait
             $fileData = $mediaFactory->readFile($mediaUri);
             $adapter = GdAdapter::createFromString($fileData);
             if ($scale > 1) {
-                $filepath = GRAV_WEBROOT . "{$basepath}@{$scale}x{$ext}";
+                $filepath = GRAV_WEBROOT . "{$basepath}@{$scale}x.{$ext}";
 
                 $adapter->setRetinaScale($scale);
             }
@@ -145,10 +152,10 @@ trait ImageMediaTrait
             $debugger = Grav::instance()['debugger'];
             $debugger->addException($e);
 
-            return null;
+            return [$filepath, $mime, 0, 0, $scale, $ext];
         }
 
-        return [$filepath, $mime, $time, $size];
+        return [$filepath, $mime, $time, $size, $scale, $ext];
     }
 
     /**
@@ -158,13 +165,31 @@ trait ImageMediaTrait
      */
     public static function createImageResponseFromCache(string $path): ResponseInterface
     {
-        [$filepath, $mime, $time, $size] = static::createImageFromCache($path);
-        if (is_file($filepath)) {
+        [$filepath, $mime, $time, $size,, $ext] = static::createImageFromCache($path);
+        if ($time && is_file($filepath)) {
             $code = 200;
         } else {
             $code = 404;
-            // TODO: customizable 404 image?
-            $filepath = GRAV_WEBROOT . '/system/images/media/thumb-jpg.png';
+
+            $grav = Grav::instance();
+
+            /** @var Config $config */
+            $config = $grav['config'];
+
+            /** @var UniformResourceLocator $locator */
+            $locator = $grav['locator'];
+
+            $media_params = $ext ? $config->get('media.types.' . strtolower($ext)) : null;
+            if (!$media_params) {
+                $media_params = $config->get('media.types.defaults');
+            }
+            $thumb = $media_params['thumb'] ?? 'media/thumb.png';
+
+            $filepath = $locator->getResource('system://images/' . $thumb);
+            if (!$filepath || !is_file($filepath)) {
+                return new Response($code, [], 'Not Found');
+            }
+
             $mime = 'image/png';
             $time = filemtime($filepath);
             $size = filesize($filepath);
