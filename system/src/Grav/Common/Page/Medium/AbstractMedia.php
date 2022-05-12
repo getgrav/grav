@@ -43,41 +43,30 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
     use Serializable;
 
     /** @var string[] */
-    static public $ignore = ['frontmatter.yaml', 'media.json'];
+    static public array $ignore = ['frontmatter.yaml', 'media.json'];
 
     /** @var string */
     protected const VERSION = '2';
 
-    /** @var string|null */
-    protected $path;
-    /** @var string|null */
-    protected $url;
-    /** @var bool */
-    protected $exists = false;
-    /** @var array|null */
-    protected $index;
-    /** @var array|null */
-    protected $grouped;
+    protected ?string $path;
+    protected ?string $url;
+    protected bool $exists = false;
+    protected ?array $index;
+    protected ?array $grouped;
     /** @var array<string,array|MediaObjectInterface> */
-    protected $items = [];
-    /** @var array|null */
-    protected $media_order;
-    /** @var array */
-    protected $config = [];
-    /** @var array */
-    protected $settings = [];
-    /** @var array */
-    protected $standard_exif = ['FileSize', 'MimeType', 'height', 'width'];
-    /** @var string|null */
-    protected $indexFolder;
-    /** @var string|null */
-    protected $indexFile = 'media.json';
-    /** @var int */
-    protected $indexTimeout = 0;
+    protected array $items = [];
+    protected ?array $media_order;
+    protected array $config = [];
+    protected array $settings = [];
+    /** @var string[] */
+    protected array $standard_exif = ['FileSize', 'MimeType', 'height', 'width'];
+    protected ?string $indexFolder;
+    protected ?string $indexFile = 'media.json';
+    protected int $indexTimeout = 0;
     /** @var string|int|null */
     protected $timestamp;
     /** @var bool Hack to make Iterator work together with unset(). */
-    private $iteratorUnset = false;
+    private bool $iteratorUnset = false;
 
     /**
      * @return string
@@ -201,7 +190,9 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
         if (false !== $instance && !$instance instanceof MediaObjectInterface) {
             // Initialize media object.
             $key = $this->key();
-            $this->items[$key] = $instance = $this->initMedium($key);
+            $instance = $this->initMedium($key);
+
+            $this->items[$key] = $instance;
         }
 
         return $instance ? (clone $instance)->setTimestamp($this->timestamp) : null;
@@ -271,8 +262,13 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
         $this->items = $this->orderMedia($this->items);
 
         $list = [];
+        /**
+         * @var string $filename
+         * @var MediaObjectInterface $file
+         */
         foreach ($this as $filename => $file) {
-            $list[$filename] = (clone $file)->setTimestamp($this->timestamp);
+            $instance = clone $file;
+            $list[$filename] = $instance->setTimestamp($this->timestamp);
         }
 
         return $list;

@@ -689,6 +689,8 @@ trait MediaObjectTrait
             $this->_thumbnail = $image;
         }
 
+        \assert($this->_thumbnail instanceof ImageMediaInterface && $this->_thumbnail instanceof Medium);
+
         return $this->_thumbnail;
     }
 }

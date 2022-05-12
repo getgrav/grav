@@ -20,15 +20,14 @@ use function dirname;
  */
 class GlobalMedia extends LocalMedia
 {
-    /** @var self */
-    protected static $instance;
+    protected static GlobalMedia $instance;
 
     /**
      * @return self
      */
     public static function getInstance(): self
     {
-        if (null === self::$instance) {
+        if (!isset(self::$instance)) {
             self::$instance = new self();
         }
 

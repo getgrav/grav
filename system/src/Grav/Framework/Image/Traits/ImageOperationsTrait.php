@@ -12,16 +12,11 @@ use function is_string;
  */
 trait ImageOperationsTrait
 {
-    /** @var int */
-    protected $width = 0;
-    /** @var int */
-    protected $height = 0;
-    /** @var int|null */
-    protected $orientation = null;
-    /** @var array */
-    protected $dependencies = [];
-    /** @var array */
-    protected $operations = [];
+    protected int $width = 0;
+    protected int $height = 0;
+    protected ?int $orientation = null;
+    protected array $dependencies = [];
+    protected array $operations = [];
 
     /**
      * Image width.

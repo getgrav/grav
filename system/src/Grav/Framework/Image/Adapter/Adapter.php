@@ -9,10 +9,8 @@ use Grav\Framework\Contracts\Image\ImageAdapterInterface;
  */
 abstract class Adapter implements ImageAdapterInterface
 {
-    /** @var int */
-    protected $orientation = 1;
-    /** @var int */
-    protected $scale = 1;
+    protected int $orientation = 1;
+    protected int $scale = 1;
 
     /**
      * @return int

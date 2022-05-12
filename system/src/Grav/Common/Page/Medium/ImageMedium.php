@@ -106,7 +106,7 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
     }
 
     /**
-     * @param $timestamp
+     * @param string|int $timestamp
      * @return $this|ImageMedium
      */
     public function setTimestamp($timestamp = null)

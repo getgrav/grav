@@ -34,7 +34,7 @@ if (!defined('IMG_WEBP')) {
 class GdAdapter extends Adapter
 {
     /** @var array<string,int> */
-    public static $types = [
+    public static array $types = [
         'jpeg'  => \IMG_JPG,
         'jpg'  => \IMG_JPG,
         'gif'   => \IMG_GIF,

@@ -27,7 +27,7 @@ class Image implements ImageOperationsInterface, JsonSerializable
      * Supported types.
      * @var array
      */
-    public static $types = [
+    public static array $types = [
         'jpg'   => 'jpeg',
         'jpeg'  => 'jpeg',
         'webp'  => 'webp',
@@ -35,23 +35,15 @@ class Image implements ImageOperationsInterface, JsonSerializable
         'gif'   => 'gif',
     ];
 
-    /** @var array */
-    public $extra = [];
+    public array $extra = [];
 
-    /** @var ImageAdapterInterface */
-    protected $adapter;
-    /** @var int */
-    protected $origWidth;
-    /** @var int */
-    protected $origHeight;
-    /** @var string */
-    protected $filepath;
-    /** @var int */
-    protected $modified;
-    /** @var int */
-    protected $size;
-    /** @var int */
-    protected $operationsCursor = 0;
+    protected ImageAdapterInterface $adapter;
+    protected int $origWidth;
+    protected int $origHeight;
+    protected string $filepath;
+    protected int $modified;
+    protected int $size;
+    protected int $operationsCursor = 0;
 
     /**
      * @param array $data
