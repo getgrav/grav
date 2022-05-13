@@ -1,3 +1,9 @@
+# v1.7.34
+## mm/dd/2022
+
+1. [](#bugfix)
+    * Fixed a potential fatal error when using watermark in images
+
 # v1.7.33
 ## 04/25/2022
 

@@ -361,8 +361,8 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
 
         // Scaling operations
         $scale     = ($scale ?? $config->get('system.images.watermark.scale', 100)) / 100;
-        $wwidth    = $this->get('width')  * $scale;
-        $wheight   = $this->get('height') * $scale;
+        $wwidth    = (int)$this->get('width')  * $scale;
+        $wheight   = (int)$this->get('height') * $scale;
         $watermark->resize($wwidth, $wheight);
 
         // Position operations
@@ -377,11 +377,11 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
                 break;
 
             case 'bottom':
-                $positionY = $this->get('height')-$wheight;
+                $positionY = (int)$this->get('height')-$wheight;
                 break;
 
             case 'center':
-                $positionY = ($this->get('height')/2) - ($wheight/2);
+                $positionY = ((int)$this->get('height')/2) - ($wheight/2);
                 break;
         }
 
@@ -392,11 +392,11 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
                 break;
 
             case 'right':
-                $positionX = $this->get('width')-$wwidth;
+                $positionX = (int)$this->get('width')-$wwidth;
                 break;
 
             case 'center':
-                $positionX = ($this->get('width')/2) - ($wwidth/2);
+                $positionX = ((int)$this->get('width')/2) - ($wwidth/2);
                 break;
         }
 
