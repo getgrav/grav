@@ -459,7 +459,7 @@ trait ImageMediaTrait
     public function width($value = 'auto')
     {
         if (!$value || $value === 'auto') {
-            $this->attributes['width'] = $this->get('width');
+            $this->attributes['width'] = null;
         } else {
             $this->attributes['width'] = $value;
         }
@@ -483,7 +483,7 @@ trait ImageMediaTrait
     public function height($value = 'auto')
     {
         if (!$value || $value === 'auto') {
-            $this->attributes['height'] = $this->get('height');
+            $this->attributes['height'] = null;
         } else {
             $this->attributes['height'] = $value;
         }
