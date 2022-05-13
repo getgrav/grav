@@ -45,6 +45,8 @@ class Image implements ImageOperationsInterface, JsonSerializable
     protected int $size;
     protected int $operationsCursor = 0;
 
+    protected int $retina;
+
     /**
      * @param array $data
      * @return static
@@ -69,6 +71,7 @@ class Image implements ImageOperationsInterface, JsonSerializable
         $this->origWidth = $this->width = (int)($info['width'] ?? 0);
         $this->origHeight = $this->height = (int)($info['height'] ?? 0);
         $this->orientation = isset($info['exif']['Orientation']) ? (int)$info['exif']['Orientation'] : null;
+        $this->retina = (int)($info['retina'] ?? 1);
     }
 
     public function getFilepath(): string
@@ -91,6 +94,7 @@ class Image implements ImageOperationsInterface, JsonSerializable
             'orig_height' => $this->origHeight,
             'width' => $this->width,
             'height' => $this->height,
+            'retina' => $this->retina,
             'dependencies' => $this->dependencies,
             'operations' => $this->operations,
             'extra' => $this->extra
@@ -116,6 +120,7 @@ class Image implements ImageOperationsInterface, JsonSerializable
         $this->orientation = $data['orientation'];
         $this->width = $data['width'];
         $this->height = $data['height'];
+        $this->retina = $data['retina'] ?? 1;
         $this->dependencies = $data['dependencies'];
         $this->operations = $data['operations'];
         $this->extra = $data['extra'];
@@ -321,29 +326,40 @@ class Image implements ImageOperationsInterface, JsonSerializable
      */
     public function applyOperations(): Image
     {
+        $operations = $this->operations;
+        if (!$operations) {
+            return $this;
+        }
+
         $adapter = $this->adapter;
 
         // Only get the remaining operations.
-        $operations = $this->operations;
         $cursor = $this->operationsCursor;
         if ($cursor) {
             $operations = array_slice($operations, $cursor, null, true);
         }
 
-        foreach ($operations as $cursor => $operation) {
+        foreach ($operations as $operation) {
             [$method, $params] = $operation;
             if ($method === 'merge') {
                 $image = static::createFromArray($params[0]);
 
                 // FIXME: Right now this only works for the local files.
-                $adapter = $adapter::createFromFile($image->filepath);
-                $image->setAdapter($adapter);
+                try {
+                    $imgAdapter = $adapter::createFromFile($image->filepath);
+                    $imgAdapter->setRetinaScale($image->retina);
+                    $image->setAdapter($imgAdapter);
+                } catch (\InvalidArgumentException $e) {
+                    // TODO: log errors on missing files?
+                    continue;
+                }
 
                 // Apply all operations to the image that is being merged and get the adapter.
                 $params[0] = $image->applyOperations()->getAdapter();
             }
 
             $adapter->{$method}(...$params);
+            $cursor++;
         }
 
         $this->operationsCursor = $cursor;
