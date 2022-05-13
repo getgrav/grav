@@ -23,7 +23,6 @@ use Grav\Framework\Image\Image;
 use Grav\Framework\Psr7\Response;
 use Psr\Http\Message\ResponseInterface;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
-use RuntimeException;
 use function func_num_args;
 use function in_array;
 
@@ -42,7 +41,7 @@ trait ImageMediaTrait
         'format', 'create', 'fill', 'merge'
     ];
 
-    /** @var array */
+    /** @var array<string,array<int>> */
     public static array $magic_resize_actions = [
         'resize' => [0, 1],
         'forceResize' => [0, 1],
@@ -127,6 +126,7 @@ trait ImageMediaTrait
         $mime = $data['extra']['mime'] ?? '';
         $quality = $data['extra']['quality'] ?? 80;
         $mediaUri = $data['extra']['media-uri'] ?? null;
+        $debug = $data['extra']['debug'] ?? false;
 
         $mediaFactory = Grav::instance()['media_factory'];
 
@@ -140,6 +140,30 @@ trait ImageMediaTrait
             }
 
             $image = Image::createFromArray($data);
+
+            // If debugging is turned on, show overlay for retina scaling.
+            if ($debug) {
+                /** @var UniformResourceLocator $locator */
+                $locator = Grav::instance()['locator'];
+                $overlay = $locator->findResource("system://assets/responsive-overlays/{$scale}x.png") ?: $locator->findResource('system://assets/responsive-overlays/unknown.png');
+                if ($overlay) {
+                    $image_info = getimagesize($overlay);
+                    if ($image_info) {
+                        $info = [
+                            'modified' => filemtime($overlay),
+                            'size' => filesize($overlay),
+                            'width' => $image_info[0],
+                            'height' => $image_info[0],
+                            'mime' => $image_info['mime'],
+                            'retina' => $scale
+                        ];
+
+                        $overlayImage = new Image($overlay, $info);
+
+                        $image->merge($overlayImage);
+                    }
+                }
+            }
 
             $image->setAdapter($adapter);
             $filepath = $image->save($filepath, $format, $quality);
@@ -733,30 +757,6 @@ trait ImageMediaTrait
             return $this->result;
         }
 
-        if ($this->get('debug')) {
-            $ratio = min(1, (int)$this->get('ratio'));
-
-            /** @var UniformResourceLocator $locator */
-            $locator = Grav::instance()['locator'];
-            $overlay = $locator->findResource("system://assets/responsive-overlays/{$ratio}x.png") ?: $locator->findResource('system://assets/responsive-overlays/unknown.png');
-            if ($overlay) {
-                $image_info = getimagesize($overlay);
-                if ($image_info) {
-                    $info = [
-                        'modified' => filemtime($overlay),
-                        'size' => filesize($overlay),
-                        'width' => $image_info[0],
-                        'height' => $image_info[0],
-                        'mime' => $image_info['mime']
-                    ];
-
-                    $overlayImage = new Image($overlay, $info);
-
-                    $this->image->merge($overlayImage);
-                }
-            }
-        }
-
         if ($this->watermark) {
             $this->watermark();
         }
@@ -788,6 +788,7 @@ trait ImageMediaTrait
         $image->extra['quality'] = $quality;
         $image->extra['media-uri'] = $mediaUri;
         $image->extra['mime'] = $this->mime;
+        $image->extra['debug'] = $this->debug;
 
         $data = $image->jsonSerialize();
         $hash = $data['hash'];
