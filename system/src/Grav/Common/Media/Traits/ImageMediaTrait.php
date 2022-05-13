@@ -547,29 +547,33 @@ trait ImageMediaTrait
     }
 
     /**
-     * @param string|null $image
+     * @param string|null $file
      * @param string|null $position
-     * @param int|float|null $scale
+     * @param float|null $scale
      * @return $this
      * @phpstan-impure
      */
-    public function watermark(string $image = null, string $position = null, $scale = null)
+    public function watermark(string $file = null, string $position = null, float $scale = null)
     {
         $grav = $this->getGrav();
 
+        /** @var UniformResourceLocator $locator */
         $locator = $grav['locator'];
+        /** @var Config $config */
         $config = $grav['config'];
 
-        $args = func_get_args();
+        if ($file === '1') { // ![](image.jpg?watermark) returns $image='1';
+            $file = null;
+        }
+        $file = $file ?? $config->get('system.images.watermark.image', 'system://images/watermark.png');
 
-        $file = $args[0] ?? '1'; // using '1' because of markdown. doing ![](image.jpg?watermark) returns $args[0]='1';
-        $file = $file === '1' ? $config->get('system.images.watermark.image') : $args[0];
-
-        $watermark = $locator->findResource($file);
+        $watermark = $locator->isStream($file) ? $locator->findResource($file) : GRAV_WEBROOT . '/' . $file;
         $image_info = $watermark ? getimagesize($watermark) : false;
         if (!$image_info) {
             return $this;
         }
+
+        $scale = ($scale ?? (float)$config->get('system.images.watermark.scale', 33)) / 100;
 
         $info = [
             'modified' => filemtime($watermark),
@@ -581,30 +585,32 @@ trait ImageMediaTrait
 
         $watermark = new Image($watermark, $info);
 
-        $this->image->merge($watermark);
+        if (null === $this->image) {
+            $this->image();
+        }
+
+        $width = $this->image->width();
+        $height = $this->image->width();
 
         // Scaling operations
-        $scale     = ($scale ?? $config->get('system.images.watermark.scale', 100)) / 100;
-        $wwidth    = $this->get('width')  * $scale;
-        $wheight   = $this->get('height') * $scale;
-        $watermark->resize($wwidth, $wheight);
+        $wwidth    = $width * $scale;
+        $wheight   = $height * $scale;
 
         // Position operations
-        $position = !empty($args[1]) ? explode('-',  $args[1]) : ['center', 'center']; // todo change to config
-        $positionY = $position[0] ?? $config->get('system.images.watermark.position_y', 'center');
-        $positionX = $position[1] ?? $config->get('system.images.watermark.position_x', 'center');
+        $positionParts = strpos($position, '-') ? explode('-',  $position, 2) : [];
+        $positionY = $positionParts[0] ?? $config->get('system.images.watermark.position_y', 'center');
+        $positionX = $positionParts[1] ?? $config->get('system.images.watermark.position_x', 'center');
 
         switch ($positionY) {
             case 'top':
                 $positionY = 0;
                 break;
-
             case 'bottom':
-                $positionY = $this->get('height') - $wheight;
+                $positionY = $height - $wheight;
                 break;
-
             case 'center':
-                $positionY = ($this->get('height')/2) - ($wheight/2);
+            default:
+                $positionY = (int)($height / 2 - $wheight / 2);
                 break;
         }
 
@@ -612,17 +618,19 @@ trait ImageMediaTrait
             case 'left':
                 $positionX = 0;
                 break;
-
             case 'right':
-                $positionX = $this->get('width') - $wwidth;
+                $positionX = $width - $wwidth;
                 break;
-
             case 'center':
-                $positionX = ($this->get('width')/2) - ($wwidth/2);
+            default:
+                $positionX = (int)($width / 2 - $wwidth / 2);
                 break;
         }
 
-        $this->merge($watermark, $positionX, $positionY);
+        $this->image->merge($watermark, $positionX, $positionY, $wwidth, $wheight);
+
+        // Do not apply watermark more than once.
+        $this->watermark = false;
 
         return $this;
     }
