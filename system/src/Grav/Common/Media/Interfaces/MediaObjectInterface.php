@@ -269,7 +269,7 @@ interface MediaObjectInterface extends \Grav\Framework\Media\Interfaces\MediaObj
      * @return mixed Value.
      * @phpstan-pure
      */
-    public function get(string $name, $default = null, string $separator = null);
+    public function get($name, $default = null, $separator = null);
 
     /**
      * Set value by using dot notation for nested arrays/objects.
@@ -282,5 +282,5 @@ interface MediaObjectInterface extends \Grav\Framework\Media\Interfaces\MediaObj
      * @return $this
      * @phpstan-impure
      */
-    public function set(string $name, $value, string $separator = null);
+    public function set($name, $value, $separator = null);
 }
