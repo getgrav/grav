@@ -194,7 +194,9 @@ trait ImageMediaTrait
             'jpg' => ['jpg', 'webp'],
             'jpe' => ['jpe', 'webp'],
             'jpeg' => ['jpeg', 'webp'],
-            'webp' => ['webp', 'jpg', 'jpeg', 'jpe']
+            'webp' => ['webp', 'jpg', 'jpeg', 'jpe'],
+            'png' => ['png'],
+            'gif' => ['gif']
         ];
 
         $basepath = GRAV_WEBROOT . "{$path}{$basename}";
