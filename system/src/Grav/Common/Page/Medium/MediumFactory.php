@@ -179,43 +179,18 @@ class MediumFactory
      * @param  int         $to
      * @return ImageMediaInterface|MediaObjectInterface|array
      */
-    public static function scaledFromMedium($medium, $from, $to)
+    public static function scaledFromMedium($medium, int $from, int $to)
     {
         if (!$medium instanceof ImageMedium || $to > $from) {
             return $medium;
         }
 
-        $ratio = $to / $from;
-        $width = $medium->get('width') * $ratio;
-        $height = $medium->get('height') * $ratio;
+        $basename = str_replace('@' . $from . 'x', $to !== 1 ? '@' . $to . 'x' : '', $medium->get('basename'));
 
-        $prev_basename = $medium->get('basename');
-        $basename = str_replace('@' . $from . 'x', $to !== 1 ? '@' . $to . 'x' : '', $prev_basename);
-
-        $debug = $medium->get('debug');
-        $medium->set('debug', false);
+        $medium = clone $medium;
         $medium->setImagePrettyName($basename);
+        $medium->retinaScale($to);
 
-        $file = $medium->resize($width, $height)->path();
-
-        $medium->set('debug', $debug);
-        $medium->setImagePrettyName($prev_basename);
-
-        $newMedium = self::fromFile($file);
-        if ($newMedium) {
-            $size = filesize($file);
-
-            $newMedium->set('basename', $basename);
-            $newMedium->set('filename', $basename . '.' . $newMedium->extension);
-            $newMedium->set('size', $size);
-            // FIXME: this is a workaround, better solution needed.
-            $newMedium->def('meta', $medium->meta);
-            $newMedium->def('metadata', $medium->metadata);
-            unset($newMedium->url);
-        } else {
-            $size = 0;
-        }
-
-        return ['file' => $medium, 'size' => $size];
+        return ['file' => $medium, 'size' => 0];
     }
 }
