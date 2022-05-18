@@ -194,8 +194,8 @@ trait ImageMediaTrait
             'jpg' => ['jpg', 'webp'],
             'jpe' => ['jpe', 'webp'],
             'jpeg' => ['jpeg', 'webp'],
-            'webp' => ['webp', 'jpg', 'jpeg', 'jpe'],
-            'png' => ['png'],
+            'webp' => ['webp', 'png', 'jpg', 'jpeg', 'jpe'],
+            'png' => ['png', 'webp'],
             'gif' => ['gif']
         ];
 
