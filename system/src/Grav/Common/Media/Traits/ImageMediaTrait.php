@@ -53,6 +53,7 @@ trait ImageMediaTrait
     protected ?Image $image = null;
     protected string $format = 'guess';
     protected int $quality = 85;
+    protected int $scale = 1;
     protected bool $watermark = false;
     protected string $sizes = '100vw';
 
@@ -66,6 +67,7 @@ trait ImageMediaTrait
             'image' => $this->image,
             'format' => $this->format,
             'quality' => $this->quality,
+            'scale' => $this->scale,
             'watermark' => $this->watermark,
             'sizes' => $this->sizes,
         ];
@@ -81,6 +83,7 @@ trait ImageMediaTrait
         $this->image = $data['image'];
         $this->format = $data['format'];
         $this->quality = $data['quality'];
+        $this->scale = $data['scale'];
         $this->watermark = $data['watermark'];
         $this->sizes = $data['sizes'];
     }
@@ -90,35 +93,30 @@ trait ImageMediaTrait
      *
      * NOTE: If timestamp is 0, file wasn't created.
      *
-     * @param string $path
+     * @param string $filepath
      * @return array
      * @phpstan-impure
      */
-    protected static function createImageFromCache(string $path): array
+    protected static function createImageFromCache(string $filepath): array
     {
+        [$path, $basename, $ext, $scale] = static::parseFilepath($filepath);
+
         // Find out if browser wants a larger image.
-        if (!preg_match('/(.*)(?:@(\d+)x)?\.(.*)$/Uu', $path, $matches)) {
+        if (null === $basename) {
             return [$path, '', 0, 0, 1, null];
         }
 
-        [,$basepath,$scale,$ext] = $matches;
-
         // Prevent bad retina scales.
-        $scale = $scale !== '' ? (int)$scale : 1;
+        $scale = $scale ?? 1;
         if ($scale < 1 || $scale > 3) {
             return [$path, '', 0, 0, $scale, $ext];
         }
 
-        $filepath = GRAV_WEBROOT . $path;
+        $filepath = GRAV_WEBROOT . "{$path}{$basename}.{$ext}";
         $cachepath = "{$filepath}.json";
         $file = static::getCacheMetaFile($cachepath);
         if (!$file->exists()) {
-            $filepath = GRAV_WEBROOT . $basepath . '.' . $ext;
-            $cachepath = "{$filepath}.json";
-            $file = static::getCacheMetaFile($cachepath);
-            if (!$file->exists()) {
-                return [$path, '', 0, 0, $scale, $ext];
-            }
+            return [$path, '', 0, 0, $scale, $ext];
         }
 
         $data = $file->load();
@@ -134,12 +132,11 @@ trait ImageMediaTrait
             $fileData = $mediaFactory->readFile($mediaUri);
             $adapter = GdAdapter::createFromString($fileData);
             if ($scale > 1) {
-                $filepath = GRAV_WEBROOT . "{$basepath}@{$scale}x.{$ext}";
-
-                $adapter->setRetinaScale($scale);
+                $filepath = GRAV_WEBROOT . "{$path}{$basename}@{$scale}x.{$ext}";
             }
 
             $image = Image::createFromArray($data);
+            $image->setRetinaScale($scale);
 
             // If debugging is turned on, show overlay for retina scaling.
             if ($debug) {
@@ -155,7 +152,7 @@ trait ImageMediaTrait
                             'width' => $image_info[0],
                             'height' => $image_info[0],
                             'mime' => $image_info['mime'],
-                            'retina' => $scale
+                            'scale' => $scale
                         ];
 
                         $overlayImage = new Image($overlay, $info);
@@ -583,7 +580,7 @@ trait ImageMediaTrait
             'mime' => $image_info['mime']
         ];
 
-        $watermark = new Image($watermark, $info);
+        $watermarkImage = new Image($watermark, $info);
 
         if (null === $this->image) {
             $this->image();
@@ -592,25 +589,25 @@ trait ImageMediaTrait
         $width = $this->image->width();
         $height = $this->image->width();
 
-        // Scaling operations
-        $wwidth    = $width * $scale;
-        $wheight   = $height * $scale;
-
         // Position operations
         $positionParts = strpos($position, '-') ? explode('-',  $position, 2) : [];
         $positionY = $positionParts[0] ?? $config->get('system.images.watermark.position_y', 'center');
         $positionX = $positionParts[1] ?? $config->get('system.images.watermark.position_x', 'center');
+
+        // Scaling operations
+        $scaledWidth    = (int)($width * $scale);
+        $scaledHeight   = (int)($height * $scale);
 
         switch ($positionY) {
             case 'top':
                 $positionY = 0;
                 break;
             case 'bottom':
-                $positionY = $height - $wheight;
+                $positionY = $height - $scaledHeight;
                 break;
             case 'center':
             default:
-                $positionY = (int)($height / 2 - $wheight / 2);
+                $positionY = (int)(($height - $scaledHeight) / 2);
                 break;
         }
 
@@ -619,15 +616,15 @@ trait ImageMediaTrait
                 $positionX = 0;
                 break;
             case 'right':
-                $positionX = $width - $wwidth;
+                $positionX = $width - $scaledWidth;
                 break;
             case 'center':
             default:
-                $positionX = (int)($width / 2 - $wwidth / 2);
+                $positionX = (int)(($width - $scaledWidth) / 2);
                 break;
         }
 
-        $this->image->merge($watermark, $positionX, $positionY, $wwidth, $wheight);
+        $this->image->merge($watermarkImage, $positionX, $positionY, $scaledWidth, $scaledHeight);
 
         // Do not apply watermark more than once.
         $this->watermark = false;
@@ -804,14 +801,15 @@ trait ImageMediaTrait
         $d2 = substr($hash, 2, 2);
         $d3 = substr($hash, 4);
         $prettyName = $this->getImagePrettyName();
+        $basename = preg_replace('/(@\d+x)?$/', '', $prettyName, 1);
 
         $imageFile = "cache://images/{$d1}/{$d2}/{$d3}/{$prettyName}.{$format}";
-        $cacheFile = "{$imageFile}.json";
+        $cacheFile = "cache://images/{$d1}/{$d2}/{$d3}/{$basename}.{$format}.json";
 
         /** @var UniformResourceLocator $locator */
         $locator = $this->getGrav()['locator'];
         $imageFile = '/' . $locator->getResource($imageFile, false);
-        $cacheFile = $locator->getResource($cacheFile, true);
+        $cacheFile = $locator->getResource($cacheFile);
 
         $file = static::getCacheMetaFile($cacheFile);
         if (!$file->exists()) {
@@ -833,5 +831,21 @@ trait ImageMediaTrait
         $formatter = new JsonFormatter(['encode_options' => JSON_PRETTY_PRINT]);
 
         return new JsonFile($filepath, $formatter);
+    }
+
+    /**
+     * @param string $path
+     * @return array|null
+     * @phpstan-pure
+     */
+    protected static function parseFilepath(string $path): ?array
+    {
+        if (!preg_match('{^(.*)?([^/]+)(?:@(\d+)x)?\.([^.]+)$}Uu', $path, $matches)) {
+            return null;
+        }
+
+        $scale = '' !== $matches[3] ? (int)$matches[3] : null;
+
+        return [$matches[1], $matches[2], $matches[4], $scale];
     }
 }

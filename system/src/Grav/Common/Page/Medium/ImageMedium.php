@@ -10,7 +10,6 @@
 namespace Grav\Common\Page\Medium;
 
 use Grav\Common\Config\Config;
-use Grav\Common\Data\Blueprint;
 use Grav\Common\Media\Interfaces\ImageManipulateInterface;
 use Grav\Common\Media\Interfaces\ImageMediaInterface;
 use Grav\Common\Media\Interfaces\MediaLinkInterface;
@@ -18,7 +17,6 @@ use Grav\Common\Media\Traits\ImageLoadingTrait;
 use Grav\Common\Media\Traits\ImageMediaTrait;
 use Grav\Common\Utils;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
-use function array_key_exists;
 use function is_bool;
 
 /**
@@ -34,7 +32,10 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
     use ImageMediaTrait;
     use ImageLoadingTrait;
 
-    protected array $imageSettings = [];
+    protected int $retina = 1;
+    protected ?bool $autoSizes = null;
+    protected ?bool $aspectRatio = null;
+
     private ?string $saved_image_path = null;
 
     /**
@@ -49,23 +50,26 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
         /** @var Config $config */
         $config = $this->getGrav()['config'];
 
+        $filepath = $this->get('filepath');
+
+        [, , , $scale] = static::parseFilepath($filepath);
+        if ($scale && $scale > 1) {
+            $this->scale = $this->retina = $scale;
+        }
+
+        $this->quality = (int)$config->get('system.images.default_image_quality', 85);
         $this->watermark = $config->get('system.images.watermark.watermark_all', false);
         $this->thumbnailTypes = ['page', 'media', 'default'];
 
-        $this->imageSettings = [];
-        $this->quality = (int)$config->get('system.images.default_image_quality', 85);
-
         $this->def('debug', $config->get('system.images.debug'));
-
-        $path = $this->get('filepath');
-        $this->set('thumbnails.media', $path);
+        $this->set('thumbnails.media', $filepath);
 
         if (!($this->offsetExists('width') && $this->offsetExists('height') && $this->offsetExists('mime'))) {
             user_error(__METHOD__ . '() Creating image without width, height and mime type is deprecated since Grav 1.8', E_USER_DEPRECATED);
 
-            $exists = $path && file_exists($path) && filesize($path);
+            $exists = $filepath && file_exists($filepath) && filesize($filepath);
             if ($exists) {
-                $image_info = getimagesize($path);
+                $image_info = getimagesize($filepath);
                 if ($image_info) {
                     $this->set('width', $image_info[0]);
                     $this->set('height', $image_info[1]);
@@ -87,7 +91,9 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
         return parent::__serialize() +
             $this->serializeImageMediaTrait() +
             [
-                'imageSettings' => $this->imageSettings,
+                'retina' => $this->retina,
+                'auto_sizes' => $this->autoSizes,
+                'aspect_ratio' => $this->aspectRatio,
                 'saved_image_path' => $this->saved_image_path
             ];
     }
@@ -101,8 +107,41 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
         parent::__unserialize($data);
         $this->unserializeImageMediaTrait($data);
 
-        $this->imageSettings = $data['imageSettings'];
+        $this->retina = $data['retina'];
+        $this->autoSizes = $data['auto_sizes'];
+        $this->aspectRatio = $data['aspect_ratio'];
         $this->saved_image_path = $data['saved_image_path'];
+    }
+
+
+    /**
+     * @param string $name
+     * @param mixed $default
+     * @param string|null $separator
+     * @return mixed
+     */
+    public function get($name, $default = null, $separator = null)
+    {
+        // Special logic to get resized image data.
+        switch ($name) {
+            case 'format':
+            case 'quality':
+            case 'scale':
+            case 'watermark':
+            case 'sizes':
+            case 'retina':
+                return $this->{$name};
+            case 'width':
+            case 'height':
+                $value = parent::get($name, $default, $separator);
+                if (!$value) {
+                    return $value;
+                }
+
+                return null !== $this->image ? $this->image->{$name}() * $this->retina : (int)($value * $this->retina / $this->scale);
+        }
+
+        return parent::get($name, $default, $separator);
     }
 
     /**
@@ -129,6 +168,7 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
         return [
             'width' => $this->width,
             'height' => $this->height,
+            'scale' => $this->scale,
             'orientation' => $this->orientation,
         ] + parent::getInfo();
     }
@@ -142,6 +182,7 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
         return [
             'width' => $this->width,
             'height' => $this->height,
+            'scale' => $this->scale,
             'orientation' => $this->orientation,
         ] + parent::getMeta();
     }
@@ -160,7 +201,8 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
         $config = $this->getGrav()['config'];
 
         $this->format = 'guess';
-        $this->imageSettings = [];
+        $this->autoSizes = null;
+        $this->aspectRatio = null;
         $this->quality = (int)$config->get('system.images.default_image_quality', 85);
 
         $this->resetImage();
@@ -213,7 +255,7 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
             $output = (string)($locator->findResource($output, false) ?: $locator->findResource($output, false, true));
         }
 
-        $image_path = (string)($locator->findResource('cache://images', true) ?: $locator->findResource('cache://images', true, true));
+        $image_path = (string)($locator->findResource('cache://images') ?: $locator->findResource('cache://images', true, true));
         if (Utils::startsWith($output, $image_path)) {
             $image_dir = $locator->findResource('cache://images', false);
             $output = '/' . $image_dir . preg_replace('|^' . preg_quote($image_path, '|') . '|', '', $output);
@@ -244,10 +286,13 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
         }
 
         $srcset = [];
-        foreach ($this->alternatives as $medium) {
-            $srcset[] = $medium->url($reset) . ' ' . $medium->get('width') . 'w';
+        foreach ([$this] + $this->alternatives as $medium) {
+            $url = str_replace(' ', '%20', $medium->url($reset));
+            $width = (int)$medium->get('width');
+
+            $srcset[$width] = $url . ' ' . $width . 'w';
         }
-        $srcset[] = str_replace(' ', '%20', $this->url($reset)) . ' ' . $this->get('width') . 'w';
+        ksort($srcset, SORT_NUMERIC);
 
         return implode(', ', $srcset);
     }
@@ -273,7 +318,7 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
             $attributes['sizes'] = $this->sizes();
         }
 
-        if ($this->imageSettings['auto_sizes'] ?? $this->getConfig('system.images.cls.auto_sizes', false)) {
+        if ($this->autoSizes ?? $this->getConfig('system.images.cls.auto_sizes', false)) {
             if ($this->image) {
                 $width = $this->image->width();
                 $height = $this->image->height();
@@ -282,7 +327,7 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
                 $height = $this->height;
             }
 
-            $scaling_factor = max(1, $this->imageSettings['retina_scale'] ?? (int)$this->getConfig('system.images.cls.retina_scale', 1));
+            $scaling_factor = max(1, $this->scale ?? (int)$this->getConfig('system.images.cls.retina_scale', 1));
 
             if (!isset($attributes['width'])) {
                 $attributes['width'] = (int)($width / $scaling_factor);
@@ -291,7 +336,7 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
                 $attributes['height'] = (int)($height / $scaling_factor);
             }
 
-            if ($this->imageSettings['aspect_ratio'] ?? $this->getConfig('system.images.cls.aspect_ratio', false)) {
+            if ($this->aspectRatio ?? $this->getConfig('system.images.cls.aspect_ratio', false)) {
                 $style = ($attributes['style'] ?? ' ') . "--aspect-ratio: {$width}/{$height};";
                 $attributes['style'] = trim($style);
             }
@@ -348,9 +393,7 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
      */
     public function autoSizes($enabled = true)
     {
-        $enabled = is_bool($enabled) ? $enabled : $enabled === 'true';
-
-        $this->imageSettings['auto_sizes'] = $enabled;
+        $this->autoSizes = is_bool($enabled) ? $enabled : $enabled === 'true';
 
         return $this;
     }
@@ -362,9 +405,7 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
      */
     public function aspectRatio($enabled = true)
     {
-        $enabled = is_bool($enabled) ? $enabled : $enabled === 'true';
-
-        $this->imageSettings['aspect_ratio'] = $enabled;
+        $this->aspectRatio = is_bool($enabled) ? $enabled : $enabled === 'true';
 
         return $this;
     }
@@ -376,8 +417,22 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
      */
     public function retinaScale(int $scale = 1)
     {
-        $this->imageSettings['retina_scale'] = $scale;
+        if ($scale === $this->retina) {
+            return $this;
+        }
+
+        if (!$this->image) {
+            $this->image();
+        }
+
+        $this->retina = $scale;
+        $this->image->setRetinaScale($scale);
 
         return $this;
+    }
+
+    protected function getItems(): array
+    {
+        return parent::getItems() + ['scale' => $this->scale];
     }
 }

@@ -4,12 +4,14 @@ namespace Grav\Framework\Image;
 
 use Exception;
 use Grav\Common\Filesystem\Folder;
+use Grav\Common\Grav;
 use Grav\Framework\Compat\Serializable;
 use Grav\Framework\Contracts\Image\ImageAdapterInterface;
 use Grav\Framework\Contracts\Image\ImageOperationsInterface;
 use Grav\Framework\Image\Traits\ImageOperationsTrait;
 use InvalidArgumentException;
 use JsonSerializable;
+use Psr\Log\LoggerInterface;
 use RuntimeException;
 use function array_slice;
 use function dirname;
@@ -38,13 +40,13 @@ class Image implements ImageOperationsInterface, JsonSerializable
     public array $extra = [];
 
     protected ImageAdapterInterface $adapter;
-    protected int $origWidth;
-    protected int $origHeight;
+    protected int $imageWidth;
+    protected int $imageHeight;
+    protected int $scale;
     protected string $filepath;
     protected int $modified;
     protected int $size;
-    protected int $operationsCursor = 0;
-
+    protected int $operationsCursor;
     protected int $retina;
 
     /**
@@ -68,10 +70,13 @@ class Image implements ImageOperationsInterface, JsonSerializable
         $this->filepath = $filepath;
         $this->modified = (int)($info['modified'] ?? 0);
         $this->size = (int)($info['size'] ?? 0);
-        $this->origWidth = $this->width = (int)($info['width'] ?? 0);
-        $this->origHeight = $this->height = (int)($info['height'] ?? 0);
+        $this->imageWidth = (int)($info['width'] ?? 0);
+        $this->imageHeight = (int)($info['height'] ?? 0);
         $this->orientation = isset($info['exif']['Orientation']) ? (int)$info['exif']['Orientation'] : null;
-        $this->retina = (int)($info['retina'] ?? 1);
+        $this->scale = (int)($info['scale'] ?? 1);
+        $this->width = (int)($this->imageWidth / $this->scale);
+        $this->height = (int)($this->imageHeight / $this->scale);
+        $this->retina = $this->scale;
     }
 
     public function getFilepath(): string
@@ -89,12 +94,12 @@ class Image implements ImageOperationsInterface, JsonSerializable
             'filepath' => $this->filepath,
             'modified' => $this->modified,
             'size' => $this->size,
+            'image_width' => $this->imageWidth,
+            'image_height' => $this->imageHeight,
             'orientation' => $this->orientation,
-            'orig_width' => $this->origWidth,
-            'orig_height' => $this->origHeight,
             'width' => $this->width,
             'height' => $this->height,
-            'retina' => $this->retina,
+            'scale' => $this->scale,
             'dependencies' => $this->dependencies,
             'operations' => $this->operations,
             'extra' => $this->extra
@@ -115,15 +120,16 @@ class Image implements ImageOperationsInterface, JsonSerializable
         $this->filepath = $data['filepath'];
         $this->modified = $data['modified'];
         $this->size = $data['size'];
-        $this->origWidth = $data['orig_width'];
-        $this->origHeight = $data['orig_height'];
+        $this->imageWidth = $data['image_width'];
+        $this->imageHeight = $data['image_height'];
         $this->orientation = $data['orientation'];
         $this->width = $data['width'];
         $this->height = $data['height'];
-        $this->retina = $data['retina'] ?? 1;
+        $this->scale = $data['scale'];
         $this->dependencies = $data['dependencies'];
         $this->operations = $data['operations'];
         $this->extra = $data['extra'];
+        $this->retina = $this->scale;
     }
 
     /**
@@ -142,6 +148,29 @@ class Image implements ImageOperationsInterface, JsonSerializable
     public function generateHash(): string
     {
         return sha1(serialize($this));
+    }
+
+    /**
+     * @return int
+     */
+    public function getRetinaScale(): int
+    {
+        return $this->retina;
+    }
+
+    /**
+     * @param int $scale
+     * @return $this
+     */
+    public function setRetinaScale(int $scale)
+    {
+        if (isset($this->operationsCursor)) {
+            throw new RuntimeException('You can set retina scale only before applying operations!');
+        }
+
+        $this->retina = $scale;
+
+        return $this;
     }
 
     /**
@@ -326,45 +355,78 @@ class Image implements ImageOperationsInterface, JsonSerializable
      */
     public function applyOperations(): Image
     {
+        $adapter = $this->adapter;
         $operations = $this->operations;
-        if (!$operations) {
-            return $this;
+
+        // On first run we need to initialize the state of the image.
+        if (!isset($this->operationsCursor)) {
+            $this->operationsCursor = 0;
+
+            // Apply retina scale and resize the image to have the correct size.
+            if ($this->retina !== 1) {
+                $width = (int)($this->imageWidth * $this->retina / $this->scale);
+                $height = (int)($this->imageHeight * $this->retina / $this->scale);
+            } else {
+                $width = $this->width;
+                $height = $this->height;
+            }
+
+            if ($width !== $this->imageWidth || $height !== $this->imageHeight) {
+                $adapter->resize(null, $width, $height, $width, $height);
+            }
+
+            // Set retina scaling for the rest of the operations.
+            $adapter->setRetinaScale($this->retina);
         }
 
-        $adapter = $this->adapter;
-
-        // Only get the remaining operations.
+        // Only get the remaining operations (this method can be called more than once).
         $cursor = $this->operationsCursor;
         if ($cursor) {
             $operations = array_slice($operations, $cursor, null, true);
         }
 
+        // Apply all the remaining operations.
         foreach ($operations as $operation) {
-            [$method, $params] = $operation;
-            if ($method === 'merge') {
-                $image = static::createFromArray($params[0]);
+            try {
+                [$method, $params] = $operation;
 
-                // FIXME: Right now this only works for the local files.
-                try {
-                    $imgAdapter = $adapter::createFromFile($image->filepath);
-                    $imgAdapter->setRetinaScale($image->retina);
-                    $image->setAdapter($imgAdapter);
-                } catch (\InvalidArgumentException $e) {
-                    // TODO: log errors on missing files?
-                    continue;
+                if ($method === 'merge') {
+                    $params[0] = $this->getImageParameter($params[0]);
                 }
 
-                // Apply all operations to the image that is being merged and get the adapter.
-                $params[0] = $image->applyOperations()->getAdapter();
+                $adapter->{$method}(...$params);
+
+            } catch (\InvalidArgumentException $e) {
+                /** @var LoggerInterface $log */
+                $log = Grav::instance()['log'];
+                $log->warning(sprintf('Image operation %s failed: %s', $method, $e->getMessage()));
+
+                continue;
             }
 
-            $adapter->{$method}(...$params);
             $cursor++;
         }
 
         $this->operationsCursor = $cursor;
 
         return $this;
+    }
+
+    /**
+     * @param array $param
+     * @return ImageAdapterInterface|null
+     */
+    protected function getImageParameter(array $param): ?ImageAdapterInterface
+    {
+        $adapter = $this->adapter;
+        $image = static::createFromArray($param);
+
+        // TODO: Right now this only works for the local files.
+        $imgAdapter = $adapter::createFromFile($image->filepath, $image->scale);
+        $image->setAdapter($imgAdapter);
+
+        // Apply all operations to the image that is being merged and get the adapter.
+        return $image->applyOperations()->getAdapter();
     }
 
     /**

@@ -31,6 +31,7 @@ use RuntimeException;
 use function count;
 use function in_array;
 use function is_array;
+use function strlen;
 
 /**
  * Class AbstractMedia
@@ -1040,35 +1041,26 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
      */
     protected function getFileParts(string $filename): array
     {
-        if (preg_match('/(.*)@(\d+)x\.(.*)$/', $filename, $matches)) {
-            $name = $matches[1];
-            $extension = $matches[3];
-            $extra = (int) $matches[2];
-            $type = 'alternative';
+        $type = null;
+        $extra = null;
+        if (str_ends_with($filename, $ext = '.meta.yaml')) {
+            $type = 'meta';
+            $filename = substr($filename, 0, -strlen($ext));
+        } elseif (preg_match('/^(.*)\.thumb\.(.*)$/Uu', $filename, $matches)) {
+            $type = 'thumb';
+            [, $filename, $extra] = $matches;
+        }
 
-            if ($extra === 1) {
+        $parts = explode('.', $filename);
+        $extension = count($parts) > 1 ? array_pop($parts) : null;
+        $name = implode('.', $parts);
+
+        if (!$type && $extension) {
+            if (preg_match('/^(.*)@(\d+)x$/Uu', $name, $matches)) {
+                $type = 'alternative';
+                [, $name, $extra] = $matches;
+            } else {
                 $type = 'base';
-                $extra = null;
-            }
-        } else {
-            $fileParts = explode('.', $filename);
-
-            $name = array_shift($fileParts);
-            $extension = null;
-            $extra = null;
-            $type = 'base';
-
-            while (($part = array_shift($fileParts)) !== null) {
-                if ($part !== 'meta' && $part !== 'thumb') {
-                    if (null !== $extension) {
-                        $name .= '.' . $extension;
-                    }
-                    $extension = $part;
-                } else {
-                    $type = $part;
-                    $extra = '.' . $part . '.' . implode('.', $fileParts);
-                    break;
-                }
             }
         }
 

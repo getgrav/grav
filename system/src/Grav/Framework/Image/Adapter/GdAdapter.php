@@ -63,66 +63,67 @@ class GdAdapter extends Adapter
         return (bool)(imagetypes() & $test);
     }
 
-        /**
+    /**
      * Creates a new image.
      *
-     * @param int $width
-     * @param int $height
-     * @param int $scale
+     * @param positive-int $width
+     * @param positive-int $height
+     * @param positive-int $scale
      * @return static
      */
     public static function create(int $width, int $height, int $scale = 1): GdAdapter
     {
         $resource = static::createResource($width, $height);
 
-        $image = new static($resource);
-        $image->scale = $scale;
-
-        return $image;
+        return new static($resource, $scale);
     }
 
     /**
      * Creates image from a file.
      *
      * @param string $filepath
+     * @param positive-int $scale
      * @return static
      */
-    public static function createFromFile(string $filepath): GdAdapter
+    public static function createFromFile(string $filepath, int $scale = 1): GdAdapter
     {
         $extension = strtolower(Utils::pathinfo($filepath, PATHINFO_EXTENSION));
         $resource = static::createResourceFromFile($filepath, $extension);
 
-        return new static($resource);
+        return new static($resource, $scale);
     }
 
     /**
      * Creates image from string of image data.
      *
      * @param string $data
+     * @param positive-int $scale
      * @return static
      */
-    public static function createFromString(string $data): GdAdapter
+    public static function createFromString(string $data, int $scale = 1): GdAdapter
     {
         $resource = static::createResourceFromString($data);
 
-        return new static($resource);
+        return new static($resource, $scale);
     }
 
     /**
      * Creates an instance of image from resource.
      *
      * @param \GdImage|resource $resource
+     * @param positive-int $scale
      * @return static
      */
-    public static function createFromImage($resource): GdAdapter
+    public static function createFromImage($resource, int $scale = 1): GdAdapter
     {
-        return new static($resource);
+        return new static($resource, $scale);
     }
 
     /**
      * @param \GdImage|resource $resource
+     * @param positive-int $scale
      */
-    public function __construct($resource)
+    public function __construct($resource, int $scale = 1)
     {
         if (PHP_VERSION_ID > 80000) {
             if (!$resource instanceof \GdImage) {
@@ -133,6 +134,7 @@ class GdAdapter extends Adapter
         }
 
         $this->resource = $resource;
+        $this->scale = $scale;
 
         $this->convertToTrueColor();
     }
@@ -400,10 +402,8 @@ class GdAdapter extends Adapter
 
     /**
      * {@inheritdoc}
-     *
-     * @param GdAdapter $other
      */
-    public function merge(ImageAdapterInterface $other, int $x = 0, int $y = 0, int $width = null, int $height = null): GdAdapter
+    public function merge(ImageAdapterInterface $other, int $x = 0, int $y = 0, int $width = 0, int $height = 0): GdAdapter
     {
         if (!$other instanceof self) {
             throw new InvalidArgumentException('Image to be merged needs to be instance of GdAdapter');
@@ -415,20 +415,18 @@ class GdAdapter extends Adapter
         $x *= $scale;
         $y *= $scale;
 
-        if (null !== $width) {
-            $otherWidth = $width * $otherScale;
-            $width *= $scale;
-        } else {
-            $otherWidth = $other->width();
-            $width = (int)($otherWidth * $scale / $otherScale);
-        }
+        $otherWidth = $other->width();
+        $otherHeight = $other->height();
 
-        if (null !== $height) {
-            $otherHeight = $height * $otherScale;
-            $height *= $scale;
+        if (!$width) {
+            $width = (int)($otherWidth * $scale / $otherScale);
         } else {
-            $otherHeight = $other->height();
+            $width *= $scale;
+        }
+        if (!$height) {
             $height = (int)($otherHeight * $scale / $otherScale);
+        } else {
+            $height *= $scale;
         }
 
         imagealphablending($this->resource, true);

@@ -50,6 +50,7 @@ interface ImageAdapterInterface extends ImageInfoInterface, ImageSaveInterface
      *
      * NOTE: Set this before any image operations.
      *
+     * @param positive-int $scale
      * @return $this
      */
     public function setRetinaScale(int $scale);
@@ -58,10 +59,10 @@ interface ImageAdapterInterface extends ImageInfoInterface, ImageSaveInterface
      * Resizes the image.
      *
      * @param int|null $background
-     * @param int $target_width
-     * @param int $target_height
-     * @param int $new_width
-     * @param int $new_height
+     * @param positive-int $target_width
+     * @param positive-int $target_height
+     * @param positive-int $new_width
+     * @param positive-int $new_height
      * @return $this
      */
     public function resize(?int $background, int $target_width, int $target_height, int $new_width, int $new_height);
@@ -71,8 +72,8 @@ interface ImageAdapterInterface extends ImageInfoInterface, ImageSaveInterface
      *
      * @param int $x      The top-left x position of the crop box
      * @param int $y      The top-left y position of the crop box
-     * @param int $width  The width of the crop box
-     * @param int $height The height of the crop box
+     * @param positive-int $width  The width of the crop box
+     * @param positive-int $height The height of the crop box
      * @return $this
      */
     public function crop(int $x, int $y, int $width, int $height);
@@ -190,8 +191,8 @@ interface ImageAdapterInterface extends ImageInfoInterface, ImageSaveInterface
      * @param ImageAdapterInterface $other
      * @param int $x
      * @param int $y
-     * @param int $width
-     * @param int $height
+     * @param positive-int $width
+     * @param positive-int $height
      * @return $this
      */
     public function merge(ImageAdapterInterface $other, int $x = 0, int $y = 0, int $width = 0, int $height = 0);
@@ -274,8 +275,8 @@ interface ImageAdapterInterface extends ImageInfoInterface, ImageSaveInterface
      *
      * @param int $cx
      * @param int $cy
-     * @param int $width
-     * @param int $height
+     * @param positive-int $width
+     * @param positive-int $height
      * @param int $color
      * @param bool $filled
      * @return $this
@@ -287,7 +288,7 @@ interface ImageAdapterInterface extends ImageInfoInterface, ImageSaveInterface
      *
      * @param int $cx
      * @param int $cy
-     * @param int $r
+     * @param positive-int $r
      * @param int $color
      * @param bool $filled
      * @return $this

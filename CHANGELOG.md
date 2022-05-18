@@ -12,6 +12,8 @@
 2. [](#improved)
     * **BC BREAK** `Medium` no longer extends `Data`
     * By default, add media to only pages which have been initialized in pages loop
+    * Removed `system.images.seofriendly` option as it's not needed anymore
+    * Improved retina image support
 3. [](#bugfix)
     * Fixed locking and reading files using `Framework\File` classes
     * Fixed `Utils::resolveTokenPath()` with `@variable@` not working properly
