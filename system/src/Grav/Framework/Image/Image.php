@@ -37,6 +37,13 @@ class Image implements ImageOperationsInterface, JsonSerializable
         'gif'   => 'gif',
     ];
 
+    public static array $mimes = [
+        'jpeg' => 'image/jpeg',
+        'webp' => 'image/webp',
+        'png' => 'image/png',
+        'gif' => 'image/gif',
+    ];
+
     public array $extra = [];
 
     protected ImageAdapterInterface $adapter;
@@ -60,6 +67,27 @@ class Image implements ImageOperationsInterface, JsonSerializable
 
         return $instance;
     }
+
+    /**
+     * @param string $extension
+     * @return string|null
+     */
+    public static function getImageType(string $extension): ?string
+    {
+        return self::$types[$extension] ?? null;
+    }
+
+    /**
+     * @param string $extension
+     * @return string|null
+     */
+    public static function getMimeType(string $extension): ?string
+    {
+        $type = self::getImageType($extension) ?? '';
+
+        return self::$mimes[$type] ?? null;
+    }
+
 
     /**
      * @param string $filepath
@@ -275,11 +303,14 @@ class Image implements ImageOperationsInterface, JsonSerializable
     }
 
     /**
-     * @return string
+     * @param string|null $filepath
+     * @return string|null
      */
-    public function guessType(): string
+    public function guessType(string $filepath = null): ?string
     {
-        return pathinfo($this->filepath, PATHINFO_EXTENSION);
+        $type = (string)pathinfo($filepath ?? $this->filepath, PATHINFO_EXTENSION);
+
+        return static::getImageType($type);
     }
 
     /**
@@ -301,10 +332,11 @@ class Image implements ImageOperationsInterface, JsonSerializable
         }
 
         if ($type === 'guess') {
-            $type = $this->guessType();
+            $type = $this->guessType() ?? '';
+        } else {
+            $type = static::getImageType($type) ?? '';
         }
 
-        $type = self::$types[$type] ?? '';
         if ('' === $type) {
             throw new InvalidArgumentException(sprintf("Given image type '%s' is not valid", $type));
         }

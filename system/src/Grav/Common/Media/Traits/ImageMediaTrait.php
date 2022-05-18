@@ -16,6 +16,7 @@ use Grav\Common\Debugger;
 use Grav\Common\Grav;
 use Grav\Common\Media\Interfaces\ImageMediaInterface;
 use Grav\Common\Page\Medium\ImageMedium;
+use Grav\Common\Utils;
 use Grav\Framework\File\Formatter\JsonFormatter;
 use Grav\Framework\File\JsonFile;
 use Grav\Framework\Image\Adapter\GdAdapter;
@@ -101,27 +102,29 @@ trait ImageMediaTrait
     {
         [$path, $basename, $ext, $scale] = static::parseFilepath($filepath);
 
-        // Find out if browser wants a larger image.
-        if (null === $basename) {
+        $type = $ext ? Image::getImageType($ext) : null;
+        if (!$type) {
             return [$path, '', 0, 0, 1, null];
         }
 
-        // Prevent bad retina scales.
+        // Only allow retina scale between 1 and 3.
         $scale = $scale ?? 1;
         if ($scale < 1 || $scale > 3) {
             return [$path, '', 0, 0, $scale, $ext];
         }
 
-        $filepath = GRAV_WEBROOT . "{$path}{$basename}.{$ext}";
-        $cachepath = "{$filepath}.json";
-        $file = static::getCacheMetaFile($cachepath);
-        if (!$file->exists()) {
+        // Find out if image has been registered.
+        $filepath = static::findCacheMetaFile($path, $basename, $ext) ?? '';
+        if (!$filepath) {
             return [$path, '', 0, 0, $scale, $ext];
         }
 
+        // Load meta file.
+        $cachepath = "{$filepath}.json";
+        $file = static::getCacheMetaFile($cachepath);
+        $mime = Image::getMimeType($ext);
+
         $data = $file->load();
-        $format = $data['extra']['format'] ?? 'jpg';
-        $mime = $data['extra']['mime'] ?? '';
         $quality = $data['extra']['quality'] ?? 80;
         $mediaUri = $data['extra']['media-uri'] ?? null;
         $debug = $data['extra']['debug'] ?? false;
@@ -163,7 +166,7 @@ trait ImageMediaTrait
             }
 
             $image->setAdapter($adapter);
-            $filepath = $image->save($filepath, $format, $quality);
+            $filepath = $image->save($filepath, $type, $quality);
             $image->freeAdapter();
 
             $time = filemtime($filepath);
@@ -177,6 +180,35 @@ trait ImageMediaTrait
         }
 
         return [$filepath, $mime, $time, $size, $scale, $ext];
+    }
+
+    /**
+     * @param string $path
+     * @param string $basename
+     * @param string $extension
+     * @return string|null
+     */
+    protected static function findCacheMetaFile(string $path, string $basename, string $extension): ?string
+    {
+        static $map = [
+            'jpg' => ['jpg', 'webp'],
+            'jpe' => ['jpe', 'webp'],
+            'jpeg' => ['jpeg', 'webp'],
+            'webp' => ['webp', 'jpg', 'jpeg', 'jpe']
+        ];
+
+        $basepath = GRAV_WEBROOT . "{$path}{$basename}";
+
+        $search = $map[$extension] ?? [];
+        foreach ($search as $ext) {
+            $filepath = "{$basepath}.{$ext}";
+            $cachepath = "{$filepath}.json";
+            if (is_file($cachepath)) {
+                return $filepath;
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -211,7 +243,8 @@ trait ImageMediaTrait
                 return new Response($code, [], 'Not Found');
             }
 
-            $mime = 'image/png';
+            $ext = Utils::pathinfo($filepath, PATHINFO_EXTENSION);
+            $mime = Image::getMimeType($ext);
             $time = filemtime($filepath);
             $size = filesize($filepath);
         }
