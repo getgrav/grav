@@ -282,12 +282,7 @@ trait ImageMediaTrait
             return $prettyName;
         }
 
-        $basename = $this->get('basename');
-        if (preg_match('/[a-z0-9]{40}-(.*)/', $basename, $matches)) {
-            $basename = $matches[1];
-        }
-
-        return $basename;
+        return $this->get('basename');
     }
 
     /**
@@ -309,6 +304,8 @@ trait ImageMediaTrait
      * Generate alternative image widths, using either an array of integers, or
      * a min width, a max width, and a step parameter to fill out the necessary
      * widths. Existing image alternatives won't be overwritten.
+     *
+     * TODO: Is this being used anywhere?
      *
      * @param  int|int[] $min_width
      * @param  int       $max_width
@@ -373,6 +370,8 @@ trait ImageMediaTrait
 
     /**
      * Clear out the alternatives.
+     *
+     * TODO: It's better just to get a new clone of the image from the media collection instead.
      *
      * @return void
      * @phpstan-impure
@@ -520,6 +519,7 @@ trait ImageMediaTrait
             $max = reset($this->alternatives);
             /** @var ImageMedium $alternative */
             foreach ($this->alternatives as $alternative) {
+                // FIXME: this makes no sense. We cannot know the quality from the images unless they were cached.
                 if ($alternative->quality() > $max->quality()) {
                     $max = $alternative;
                 }
@@ -635,33 +635,34 @@ trait ImageMediaTrait
     /**
      * Add a frame to image
      *
+     * FIXME: not working yet.
+     *
      * @return $this
      * @phpstan-impure
      */
     public function addFrame(int $border = 10, string $color = '0x000000')
     {
-        // TODO:
-        /*
-        if( $border > 0 && preg_match('/^0x[a-f0-9]{6}$/i', $color)) { // $border must be an integer and bigger than 0; $color must be formatted as an HEX value (0x??????).
-            $image = ImageFile::fromData($this->readFile());
+        if (null === $this->image) {
+            $this->image();
         }
-        else {
-            return $this;
-        }
+
+        $image = $this->image;
 
         $dst_width = $image->width()+2*$border;
         $dst_height = $image->height()+2*$border;
 
-        $frame = ImageFile::create($dst_width, $dst_height);
+        $info = [
+            'width' => $dst_width,
+            'height' => $dst_height,
+        ];
 
+        // Fixme
+        $frame = new Image('', $info);
         $frame->fill($color);
 
         $this->image = $frame;
 
         $this->merge($image, $border, $border);
-
-        $this->saveImage();
-        */
 
         return $this;
     }
@@ -730,7 +731,7 @@ trait ImageMediaTrait
     {
         $filepath = $this->filepath;
         $webroot = preg_quote(GRAV_WEBROOT, '`');
-        $root = preg_quote(GRAV_WEBROOT, '`');
+        $root = preg_quote(GRAV_ROOT, '`');
         $filepath = preg_replace(['`^' . $webroot . '/`u', '`^' . $root . '/`u'], ['GRAV_WEBROOT/', 'GRAV_ROOT/'], $filepath);
 
         // Create a new image.

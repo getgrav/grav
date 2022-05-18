@@ -64,8 +64,7 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
     protected ?string $indexFolder = null;
     protected ?string $indexFile = 'media.json';
     protected int $indexTimeout = 0;
-    /** @var string|int|null */
-    protected $timestamp = null;
+    protected ?string $timestamp = null;
     /** @var bool Hack to make Iterator work together with unset(). */
     private bool $iteratorUnset = false;
 
@@ -247,7 +246,7 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
      */
     public function setTimestamps($timestamp = null)
     {
-        $this->timestamp = $timestamp;
+        $this->timestamp = null !== $timestamp ? (string)$timestamp : null;
 
         return $this;
     }
@@ -747,11 +746,10 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
         // Group images by base name.
         $media = [];
         foreach ($this->index as $filename => $info) {
+            $info = ['filename' => $filename] + $info;
             // Find out what type we're dealing with
             [$basename, $extension, $type, $extra] = $this->getFileParts($filename);
 
-            $info['filename'] = $filename;
-            $info['file'] = $filename;
             if ($this->url) {
                 $info['url'] = "{$this->url}/{$filename}";
             }
@@ -786,7 +784,7 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
              * @var array $alt
              */
             foreach ($types['alternative'] as $ratio => &$alt) {
-                $alt['file'] = $this->createFromFile($alt['file']);
+                $alt['file'] = $this->createFromFile($alt['filename']);
                 if (empty($alt['file'])) {
                     unset($types['alternative'][$ratio]);
                 }
@@ -810,7 +808,7 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
             $file_path = $medium->path();
             $medium = $this->scaledFromMedium($medium, $max);
         } else {
-            $medium = $this->createFromFile($types['base']['file']);
+            $medium = $this->createFromFile($types['base']['filename']);
             if ($medium) {
                 $medium->set('size', $types['base']['size']);
                 $file_path = $medium->path();
@@ -825,41 +823,37 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
             return null;
         }
 
-        if ($file_path) {
-            $meta_path = $file_path . '.meta.yaml';
-            if (file_exists($meta_path)) {
-                $types['meta']['file'] = $meta_path;
-            } elseif ($exifReader = $this->getExifReader()) {
-                try {
-                    $meta = $exifReader->read($file_path);
-                    $meta_data = $meta->getData();
-                    $meta_trimmed = array_diff_key($meta_data, array_flip($this->standard_exif));
-                    if ($meta_trimmed) {
-                        $locator = $this->getLocator();
-                        if ($locator->isStream($meta_path)) {
-                            $file = CompiledYamlFile::instance($locator->findResource($meta_path, true, true));
-                        } else {
-                            $file = CompiledYamlFile::instance($meta_path);
-                        }
-                        $file->save($meta_trimmed);
-                        $types['meta']['file'] = $meta_path;
+        $meta_path = $file_path ? ($types['meta']['filename'] ?? $file_path . '.meta.yaml') : null;
+        if ($meta_path && !file_exists($meta_path) && $exifReader = $this->getExifReader()) {
+            try {
+                $meta = $exifReader->read($file_path);
+                $meta_data = $meta->getData();
+                $meta_trimmed = array_diff_key($meta_data, array_flip($this->standard_exif));
+                if ($meta_trimmed) {
+                    $locator = $this->getLocator();
+                    if ($locator->isStream($meta_path)) {
+                        $file = CompiledYamlFile::instance($locator->findResource($meta_path, true, true));
+                    } else {
+                        $file = CompiledYamlFile::instance($meta_path);
                     }
-                } catch (RuntimeException $e) {
-                    /** @var Debugger $debugger */
-                    $debugger = Grav::instance()['debugger'];
-                    $debugger->addMessage(sprintf('Could not create image meta for %s: %s', $name, $e->getMessage()), 'warning');
+                    $file->save($meta_trimmed);
+                    $types['meta']['filename'] = $meta_path;
                 }
+            } catch (RuntimeException $e) {
+                /** @var Debugger $debugger */
+                $debugger = Grav::instance()['debugger'];
+                $debugger->addMessage(sprintf('Could not create image meta for %s: %s', $name, $e->getMessage()), 'warning');
             }
         }
 
-        if (!empty($types['meta']['file'])) {
-            $medium->addMetaFile($types['meta']['file']);
+        if (!empty($types['meta']['filepath'])) {
+            $medium->addMetaFile($types['meta']['filepath']);
         }
 
-        if (!empty($types['thumb']['file'])) {
+        if (!empty($types['thumb']['filepath'])) {
             // We will not turn it into medium yet because user might never request the thumbnail
             // not wasting any resources on that, maybe we should do this for medium in general?
-            $medium->set('thumbnails.page', $types['thumb']['file']);
+            $medium->set('thumbnails.page', $types['thumb']['filepath']);
         }
 
         // Build missing alternatives.
@@ -881,7 +875,7 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
             }
 
             foreach ($types['alternative'] as $altMedium) {
-                if ($altMedium['file'] != $medium) {
+                if ($altMedium['file'] !== $medium) {
                     $altWidth = $altMedium['file']->get('width');
                     $medWidth = $medium->get('width');
                     if ($altWidth && $medWidth) {
@@ -963,14 +957,7 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
         $id = $this->getId();
         [$index, $modified] = $mediaIndex->get($id);
 
-        $files = $index['files'] ?? [];
-        foreach ($files as $filename => &$info) {
-            $meta = $info['meta'] ?? [];
-            unset($info['meta']);
-            $info['meta'] = ['name' => $filename] + $meta + $info;
-        }
-        unset($info);
-        $index['files'] = $files;
+        $index['files'] = $index['files'] ?? [];
 
         $version = $index['version'] ?? null;
         $folder = $index['folder'] ?? null;
