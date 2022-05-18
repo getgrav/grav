@@ -424,7 +424,12 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
      * @param  int $to
      * @return MediaObjectInterface|null
      */
-    abstract public function scaledFromMedium(MediaObjectInterface $medium, int $from, int $to = 1): ?MediaObjectInterface;
+    public function scaledFromMedium(MediaObjectInterface $medium, int $from, int $to = 1): ?MediaObjectInterface
+    {
+        $result = MediumFactory::scaledFromMedium($medium, $from, $to);
+
+        return is_array($result) ? $result['file'] : $result;
+    }
 
     /**
      * Create Medium from array of parameters

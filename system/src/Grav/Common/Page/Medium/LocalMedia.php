@@ -117,21 +117,6 @@ abstract class LocalMedia extends AbstractMedia
     }
 
     /**
-     * Create a new ImageMedium by scaling another ImageMedium object.
-     *
-     * @param  MediaObjectInterface $medium
-     * @param  int $from
-     * @param  int $to
-     * @return MediaObjectInterface|null
-     */
-    public function scaledFromMedium(MediaObjectInterface $medium, int $from, int $to = 1): ?MediaObjectInterface
-    {
-        $result = MediumFactory::scaledFromMedium($medium, $from, $to);
-
-        return is_array($result) ? $result['file'] : $result;
-    }
-
-    /**
      * @param string $filename
      * @return string
      * @throws RuntimeException
