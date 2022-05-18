@@ -594,7 +594,7 @@ trait ImageMediaTrait
         /** @var Config $config */
         $config = $grav['config'];
 
-        if ($file === '1') { // ![](image.jpg?watermark) returns $image='1';
+        if ($file === '1') { // Note: ![](image.jpg?watermark) returns $image='1';
             $file = null;
         }
         $file = $file ?? $config->get('system.images.watermark.image', 'system://images/watermark.png');

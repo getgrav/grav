@@ -851,14 +851,14 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
             }
         }
 
-        if (!empty($types['meta']['filepath'])) {
-            $medium->addMetaFile($types['meta']['filepath']);
+        if (!empty($types['meta']['filename'])) {
+            $medium->addMetaFile($this->getPath($types['meta']['filename']));
         }
 
-        if (!empty($types['thumb']['filepath'])) {
+        if (!empty($types['thumb']['filename'])) {
             // We will not turn it into medium yet because user might never request the thumbnail
             // not wasting any resources on that, maybe we should do this for medium in general?
-            $medium->set('thumbnails.page', $types['thumb']['filepath']);
+            $medium->set('thumbnails.page', $this->getPath($types['thumb']['filename']));
         }
 
         // Build missing alternatives.
