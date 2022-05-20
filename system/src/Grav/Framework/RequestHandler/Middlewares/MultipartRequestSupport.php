@@ -92,7 +92,8 @@ class MultipartRequestSupport implements MiddlewareInterface
             $this->addFile($files, $name, new UploadedFile($stream, strlen($body), UPLOAD_ERR_OK, $filename, $headers['content-type'] ?? null));
         } elseif (strpos($contentDisposition, 'filename') !== false) {
             // Not uploaded file.
-            $this->addFile($files, $name, new UploadedFile(null, 0, UPLOAD_ERR_NO_FILE));
+             $stream = Stream::create('');
+            $this->addFile($files, $name, new UploadedFile($stream, 0, UPLOAD_ERR_NO_FILE));
         } else {
             // Regular field.
             $params[$name] = substr($body, 0, -2);
