@@ -2,7 +2,7 @@
 ## mm/dd/2022
 
 1. [](#bugfix)
-    * Regression: Fixed saving page with a new language causing cache corruption [#2282](https://github.com/getgrav/grav-plugin-admin/issues/2282)
+    * Regression: Fixed saving page with a new language causing cache corruption [getgrav/grav-plugin-admin##2282](https://github.com/getgrav/grav-plugin-admin/issues/2282)
     * Fixed a potential fatal error when using watermark in images
 
 # v1.7.33
