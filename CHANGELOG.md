@@ -14,13 +14,22 @@
     * Support phpstan level 6 in Framework classes
 
 # v1.7.33
+# v1.7.34
 ## mm/dd/2022
+
+1. [](#bugfix)
+    * Regression: Fixed saving page with a new language causing cache corruption [getgrav/grav-plugin-admin#2282](https://github.com/getgrav/grav-plugin-admin/issues/2282)
+    * Fixed a potential fatal error when using watermark in images
+
+# v1.7.33
+## 04/25/2022
 
 1. [](#improved)
     * When saving yaml and markdown, create also a cached version of the file and recompile it in opcache
 2. [](#bugfix)
-    * Fixed missing changes in yaml & markdown files if saved multiple times during the same second because of a caching issue
+    * Fixed missing changes in **yaml** & **markdown** files if saved multiple times during the same second because of a caching issue
     * Fixed XSS check not detecting onX events without quotes
+    * Fixed default collection ordering in pages admin
 
 # v1.7.32
 ## 03/28/2022
