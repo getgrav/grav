@@ -51,13 +51,11 @@ class MediaIdentifier extends Identifier
             $parts = explode('/', $id);
             if ($type === 'media' && str_starts_with($id, 'uploads/')) {
                 array_shift($parts);
-                $type = array_shift($parts);
-                $uniqueId = array_shift($parts);
-                $field = array_shift($parts);
-                $filename = implode('/', $parts);
+                [, $folder, $uniqueId, $field, $filename] = $this->findFlash($parts);
 
-                $flash = $this->getFlash($type, $uniqueId);
+                $flash = $this->getFlash($folder, $uniqueId);
                 if ($flash->exists()) {
+
                     $uploadedFile = $flash->getFilesByField($field)[$filename] ?? null;
 
                     $this->object = UploadedMediaObject::createFromFlash($flash, $field, $filename, $uploadedFile);
@@ -103,20 +101,35 @@ class MediaIdentifier extends Identifier
         $this->object = $object;
     }
 
-    protected function getFlash(string $type, string $uniqueId): FlexFormFlash
+    protected function findFlash(array $parts): ?array
     {
-        /** @var UserInterface|null $user */
-        $user = Grav::instance()['user'] ?? null;
-        if (null !== $user && $user->exists()) {
-            // TODO: Modify uniqueid so we can detect if flash is user or session based.
-            $mediaFolder = $user->getMediaFolder();
+        $type = array_shift($parts);
+        if ($type === 'account') {
+            /** @var UserInterface|null $user */
+            $user = Grav::instance()['user'] ?? null;
+            $folder = $user->getMediaFolder();
         } else {
-            // TODO: Implement session based flash.
-            throw new \RuntimeException('Not implemented');
+            $folder = 'tmp://';
         }
 
-        $folder = "{$mediaFolder}/tmp/api/flex-{$type}";
+        if (!$folder) {
+            return null;
+        }
 
+        do {
+            $part = array_shift($parts);
+            $folder .= "/{$part}";
+        } while (!str_starts_with($part, 'flex-'));
+
+        $uniqueId = array_shift($parts);
+        $field = array_shift($parts);
+        $filename = implode('/', $parts);
+
+        return [$type, $folder, $uniqueId, $field, $filename];
+    }
+
+    protected function getFlash(string $folder, string $uniqueId): FlexFormFlash
+    {
         $config = [
             'unique_id' => $uniqueId,
             'folder' => $folder
