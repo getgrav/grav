@@ -1,6 +1,8 @@
 # v1.7.34
 ## mm/dd/2022
 
+1. [](#new)
+    * Added back Yiddish to Language Codes [#3336](https://github.com/getgrav/grav/pull/3336)
 1. [](#bugfix)
     * Regression: Fixed saving page with a new language causing cache corruption [getgrav/grav-plugin-admin#2282](https://github.com/getgrav/grav-plugin-admin/issues/2282)
     * Fixed a potential fatal error when using watermark in images
