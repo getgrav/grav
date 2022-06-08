@@ -112,6 +112,17 @@ class Medium implements RenderableInterface, MediaFileInterface, JsonSerializabl
     }
 
     /**
+     * TODO: do we want this in base medium?
+     *
+     * @return ImageMediaInterface
+     * @phpstan-pure
+     */
+    public function higherQualityAlternative(): ImageMediaInterface
+    {
+        return $this->getThumbnail();
+    }
+
+    /**
      * @return array
      * @phpstan-pure
      */
