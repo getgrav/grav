@@ -769,6 +769,8 @@ trait ImageMediaTrait
         $root = preg_quote(GRAV_ROOT, '`');
         $filepath = preg_replace(['`^' . $webroot . '/`u', '`^' . $root . '/`u'], ['GRAV_WEBROOT/', 'GRAV_ROOT/'], $filepath);
 
+        // TODO: Handle better broken/invalid images.
+
         // Create a new image.
         $this->image = new Image($filepath, $this->getItems());
         $this->image->fixOrientation();

@@ -95,15 +95,21 @@ class Image implements ImageOperationsInterface, JsonSerializable
      */
     public function __construct(string $filepath, array $info)
     {
+        $width = (int)($info['width'] ?? 0);
+        $height = (int)($info['height'] ?? 0);
+        if ($width === 0 || $height === 0) {
+            throw new InvalidArgumentException('Image needs to have width and height');
+        }
+
         $this->filepath = $filepath;
         $this->modified = (int)($info['modified'] ?? 0);
         $this->size = (int)($info['size'] ?? 0);
-        $this->imageWidth = (int)($info['width'] ?? 0);
-        $this->imageHeight = (int)($info['height'] ?? 0);
+        $this->imageWidth = $width;
+        $this->imageHeight = $height;
         $this->orientation = isset($info['exif']['Orientation']) ? (int)$info['exif']['Orientation'] : null;
         $this->scale = (int)($info['scale'] ?? 1);
-        $this->width = (int)($this->imageWidth / $this->scale);
-        $this->height = (int)($this->imageHeight / $this->scale);
+        $this->width = (int)($width / $this->scale);
+        $this->height = (int)($height / $this->scale);
         $this->retina = $this->scale;
     }
 
