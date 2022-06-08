@@ -34,9 +34,9 @@ class StaticImageMedium extends Medium implements ImageMediaInterface
     public function getInfo(): array
     {
         return [
-                'width' => $this->width,
-                'height' => $this->height,
-            ] + parent::getInfo();
+            'width' => $this->width,
+            'height' => $this->height,
+        ] + parent::getInfo();
     }
 
     /**
@@ -46,9 +46,9 @@ class StaticImageMedium extends Medium implements ImageMediaInterface
     public function getMeta(): array
     {
         return [
-                'width' => $this->width,
-                'height' => $this->height,
-            ] + parent::getMeta();
+            'width' => $this->width,
+            'height' => $this->height,
+        ] + parent::getMeta();
     }
 
     /**

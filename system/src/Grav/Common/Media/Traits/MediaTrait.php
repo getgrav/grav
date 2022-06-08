@@ -189,10 +189,11 @@ trait MediaTrait
     protected function getMediaSettings(): array
     {
         return [
-            'object' => $this,
+            'id' => '@self@',
             'path' => $this->getMediaFolder(),
             'order' => $this->getMediaOrder(),
             'load' => $this->_loadMedia,
+            'object' => $this,
         ];
     }
 
@@ -231,6 +232,9 @@ trait MediaTrait
                 if (in_array(rtrim($token, '/'), ['', '@self', 'self@', '@self@'], true)) {
                     $settings += $this->getMediaSettings();
                     $settings['self'] = true;
+                    if (!isset($settings['media']['id'])) {
+                        $settings['media']['id'] = '@self@';
+                    }
                 } else {
                     /** @var string|null $uri */
                     $uri = null;

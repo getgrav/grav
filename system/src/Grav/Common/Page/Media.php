@@ -12,6 +12,7 @@ namespace Grav\Common\Page;
 use Grav\Common\Media\Interfaces\MediaObjectInterface;
 use Grav\Common\Page\Medium\LocalMedia;
 use Grav\Common\Page\Medium\GlobalMedia;
+use function is_string;
 
 /**
  * Class Media
@@ -25,12 +26,22 @@ class Media extends LocalMedia
     protected bool $useGlobalMedia = true;
 
     /**
-     * @param string|null $path
+     * @param array|string|null $settings
      * @param array|null $mediaOrder
-     * @param bool   $load
+     * @param bool $load
      */
-    public function __construct(?string $path, array $mediaOrder = null, bool $load = true)
+    public function __construct($settings, array $mediaOrder = null, bool $load = true)
     {
+        if (null === $settings || is_string($settings)) {
+            $path = $settings;
+        } else {
+            $path = (string)($settings['path'] ?? '');
+            $mediaOrder = (array)($settings['order'] ?? null);
+            $load = (bool)($settings['load'] ?? true);
+
+            $this->id = $settings['id'] ?? null;
+        }
+
         $this->setPath($path);
         $this->indexFolder = $this->getPath();
         $this->indexTimeout = 60;

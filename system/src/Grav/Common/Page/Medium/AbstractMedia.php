@@ -49,6 +49,7 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
     /** @var string */
     protected const VERSION = '2';
 
+    protected ?string $id = null;
     protected ?string $path = null;
     protected ?string $url = null;
     protected bool $exists = false;
@@ -73,7 +74,7 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
      */
     public function getId(): string
     {
-        return md5($this->getType() . ':' . $this->path);
+        return md5($this->getType() . ':' . ($this->id ?? $this->path));
     }
 
     /**

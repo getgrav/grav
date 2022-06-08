@@ -34,11 +34,7 @@ class LocalMediaFactory implements MediaFactoryInterface
      */
     public function createCollection(array $settings): ?MediaCollectionInterface
     {
-        $path = (string)($settings['path'] ?? '');
-        $order = (array)($settings['order'] ?? null);
-        $load = (bool)($settings['load'] ?? true);
-
-        return new Media($path, $order, $load);
+        return new Media($settings);
     }
 
     /**
