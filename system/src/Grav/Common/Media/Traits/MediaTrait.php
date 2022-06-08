@@ -88,7 +88,8 @@ trait MediaTrait
 
             try {
                 // Use cached media if possible.
-                $media = $cache->get($cacheKey);
+                // TODO: Do we still want to cache media?
+                $media = null; // $cache->get($cacheKey);
             } catch (Throwable $e) {
             }
 
@@ -102,7 +103,7 @@ trait MediaTrait
                     $media = new Media('', []);
                 }
 
-                $cache->set($cacheKey, $media);
+                // $cache->set($cacheKey, $media);
             }
 
             $this->media = $media;
