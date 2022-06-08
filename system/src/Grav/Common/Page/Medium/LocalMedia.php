@@ -307,7 +307,7 @@ abstract class LocalMedia extends AbstractMedia
     protected function doRemove(string $filename): void
     {
         $filepath = $this->getRealPath($filename);
-        if ($this->fileExists($filepath)) {
+        if (is_file($filepath)) {
             $result = unlink($filepath);
             if (!$result) {
                 throw new RuntimeException($filename, 500);
