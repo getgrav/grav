@@ -70,6 +70,14 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
     private bool $iteratorUnset = false;
 
     /**
+     * @return array
+     */
+    public function __debugInfo(): array
+    {
+        return $this->__serialize();
+    }
+
+    /**
      * @return string
      */
     public function getId(): string
