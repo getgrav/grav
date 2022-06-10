@@ -62,7 +62,7 @@ class Image implements ImageOperationsInterface, JsonSerializable
      */
     public static function createFromArray(array $data)
     {
-        $instance = new static($data['filepath'], []);
+        $instance = new static($data['filepath'], ['__serialized' => true]);
         $instance->__unserialize($data);
 
         return $instance;
@@ -95,6 +95,10 @@ class Image implements ImageOperationsInterface, JsonSerializable
      */
     public function __construct(string $filepath, array $info)
     {
+        if (!empty($info['__serialized'])) {
+            return;
+        }
+
         $width = (int)($info['width'] ?? 0);
         $height = (int)($info['height'] ?? 0);
         if ($width === 0 || $height === 0) {
