@@ -21,6 +21,14 @@ trait FlexObjectTrait
 {
     use FlexCommonTrait;
 
+    protected $events = [
+        'onRender' => 'onFlexObjectRender',
+        'onBeforeSave' => 'onFlexObjectBeforeSave',
+        'onAfterSave' => 'onFlexObjectAfterSave',
+        'onBeforeDelete' => 'onFlexObjectBeforeDelete',
+        'onAfterDelete' => 'onFlexObjectAfterDelete'
+    ];
+
     /**
      * @param string $name
      * @param object|null $event
@@ -28,14 +36,6 @@ trait FlexObjectTrait
      */
     public function triggerEvent(string $name, $event = null)
     {
-        $events = [
-            'onRender' => 'onFlexObjectRender',
-            'onBeforeSave' => 'onFlexObjectBeforeSave',
-            'onAfterSave' => 'onFlexObjectAfterSave',
-            'onBeforeDelete' => 'onFlexObjectBeforeDelete',
-            'onAfterDelete' => 'onFlexObjectAfterDelete'
-        ];
-
         if (null === $event) {
             $event = new Event([
                 'type' => 'flex',
@@ -44,8 +44,8 @@ trait FlexObjectTrait
             ]);
         }
 
-        if (isset($events['name'])) {
-            $name = $events['name'];
+        if (isset(static::$events['name'])) {
+            $name = static::$events['name'];
         } elseif (strpos($name, 'onFlexObject') !== 0 && strpos($name, 'on') === 0) {
             $name = 'onFlexObject' . substr($name, 2);
         }

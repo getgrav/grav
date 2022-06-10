@@ -71,4 +71,21 @@ interface MediaUploadInterface
      * @phpstan-impure
      */
     public function renameFile(string $from, string $to): void;
+
+    /**
+     * @return bool True if media was deleted. Shared media cannot be deleted and will return false.
+     */
+    public function deleteAll(): bool;
+
+    /**
+     * @param string $to
+     * @return bool True if media was moved. Shared media cannot be deleted and will return false.
+     */
+    public function moveAll(string $to): bool;
+
+    /**
+     * @param string $to
+     * @return bool True if media was copied. Shared media cannot be deleted and will return false.
+     */
+    public function copyAll(string $to): bool;
 }
