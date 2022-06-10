@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Grav\Common\Flex\Traits;
 
+use Grav\Common\Media\Interfaces\MediaUploadInterface;
 use RocketTheme\Toolbox\Event\Event;
 
 /**
@@ -58,5 +59,22 @@ trait FlexObjectTrait
         }
 
         return $this;
+    }
+
+
+    /**
+     * @return void
+     */
+    protected function doDelete(): void
+    {
+        $fields = $this->getMediaFields();
+        foreach ($fields as $field) {
+            $media = $this->getMediaField($field);
+            if ($media instanceof MediaUploadInterface) {
+                $media->deleteAll();
+            }
+        }
+
+        parent::doDelete();
     }
 }

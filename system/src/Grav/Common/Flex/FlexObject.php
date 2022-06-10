@@ -14,7 +14,6 @@ namespace Grav\Common\Flex;
 use Grav\Common\Flex\Traits\FlexGravTrait;
 use Grav\Common\Flex\Traits\FlexObjectTrait;
 use Grav\Common\Media\Interfaces\MediaInterface;
-use Grav\Common\Media\Interfaces\MediaUploadInterface;
 use Grav\Framework\Flex\Traits\FlexMediaTrait;
 use function is_array;
 
@@ -71,21 +70,5 @@ abstract class FlexObject extends \Grav\Framework\Flex\FlexObject implements Med
         }
 
         return parent::prepareStorage();
-    }
-
-    /**
-     * @return void
-     */
-    protected function doDelete(): void
-    {
-        $fields = $this->getMediaFields();
-        foreach ($fields as $field) {
-            $media = $this->getMediaField($field);
-            if ($media instanceof MediaUploadInterface) {
-                $media->deleteAll();
-            }
-        }
-
-        parent::doDelete();
     }
 }
