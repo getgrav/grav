@@ -824,20 +824,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
 
         $this->triggerEvent('onBeforeDelete');
 
-        $this->getFlexDirectory()->getStorage()->deleteRows([$this->getStorageKey() => $this->prepareStorage()]);
-
-        try {
-            $this->getFlexDirectory()->reloadIndex();
-            if (method_exists($this, 'clearMediaCache')) {
-                $this->clearMediaCache();
-            }
-        } catch (Exception $e) {
-            /** @var Debugger $debugger */
-            $debugger = Grav::instance()['debugger'];
-            $debugger->addException($e);
-
-            // Caching failed, but we can ignore that for now.
-        }
+        $this->onDelete();
 
         $this->triggerEvent('onAfterDelete');
 
@@ -1048,6 +1035,38 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
         $this->setMetaData($serialized['storage']);
         $this->setKey($serialized['key']);
         $this->setElements($serialized['elements']);
+    }
+
+    /**
+     * @return void
+     */
+    protected function doDelete(): void
+    {
+        $this->getFlexDirectory()->getStorage()->deleteRows([$this->getStorageKey() => $this->prepareStorage()]);
+    }
+
+    /**
+     * @return void
+     */
+    protected function onDelete(): void
+    {
+        $this->doDelete();
+
+        try {
+            // Force reload object index.
+            $this->getFlexDirectory()->reloadIndex();
+
+            // Clear media cache.
+            if (method_exists($this, 'clearMediaCache')) {
+                $this->clearMediaCache();
+            }
+        } catch (Exception $e) {
+            /** @var Debugger $debugger */
+            $debugger = Grav::instance()['debugger'];
+            $debugger->addException($e);
+
+            // Caching failed, but we can ignore that for now.
+        }
     }
 
     /**
