@@ -223,11 +223,5 @@ trait UserTrait
         $avatar_url = $locator->findResource("image://multiavatar/{$hash}.svg", false, true);
 
         return Utils::url($avatar_url);
-
     }
-
-    abstract public function get($name, $default = null, $separator = null);
-    abstract public function set($name, $value, $separator = null);
-    abstract public function undef($name, $separator = null);
-    abstract public function save();
 }

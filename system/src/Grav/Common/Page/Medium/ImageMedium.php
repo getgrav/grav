@@ -26,6 +26,7 @@ use function is_bool;
  * @property int $width
  * @property int $height
  * @property int|null $orientation
+ * @property bool $debug
  */
 class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulateInterface
 {

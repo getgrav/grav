@@ -247,15 +247,6 @@ class FlexPageObject extends FlexObject implements PageInterface, FlexTranslateI
     }
 
     /**
-     * @param array|bool $reorder
-     * @return FlexObject|FlexObjectInterface
-     */
-    public function save($reorder = true)
-    {
-        return parent::save();
-    }
-
-    /**
      * Gets the Page Unmodified (original) version of the page.
      *
      * Assumes that object has been cloned before modifying it.
