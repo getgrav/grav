@@ -22,6 +22,7 @@ trait FlexObjectTrait
 {
     use FlexCommonTrait;
 
+    /** @var string[] */
     protected $events = [
         'onRender' => 'onFlexObjectRender',
         'onBeforeSave' => 'onFlexObjectBeforeSave',
@@ -45,8 +46,8 @@ trait FlexObjectTrait
             ]);
         }
 
-        if (isset(static::$events['name'])) {
-            $name = static::$events['name'];
+        if (isset($this->events['name'])) {
+            $name = $this->events['name'];
         } elseif (strpos($name, 'onFlexObject') !== 0 && strpos($name, 'on') === 0) {
             $name = 'onFlexObject' . substr($name, 2);
         }
