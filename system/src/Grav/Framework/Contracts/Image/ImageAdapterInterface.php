@@ -191,8 +191,8 @@ interface ImageAdapterInterface extends ImageInfoInterface, ImageSaveInterface
      * @param ImageAdapterInterface $other
      * @param int $x
      * @param int $y
-     * @param positive-int $width
-     * @param positive-int $height
+     * @param int $width
+     * @param int $height
      * @return $this
      */
     public function merge(ImageAdapterInterface $other, int $x = 0, int $y = 0, int $width = 0, int $height = 0);
