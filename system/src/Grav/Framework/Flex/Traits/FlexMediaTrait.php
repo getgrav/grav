@@ -12,7 +12,6 @@ namespace Grav\Framework\Flex\Traits;
 use Grav\Common\Config\Config;
 use Grav\Common\Grav;
 use Grav\Common\Media\Interfaces\MediaCollectionInterface;
-use Grav\Common\Media\Interfaces\MediaObjectInterface;
 use Grav\Common\Media\Interfaces\MediaUploadInterface;
 use Grav\Common\Media\Traits\MediaTrait;
 use Grav\Common\Page\Media;
@@ -23,6 +22,7 @@ use Grav\Framework\Cache\CacheInterface;
 use Grav\Framework\Filesystem\Filesystem;
 use Grav\Framework\Flex\FlexDirectory;
 use Grav\Framework\Form\FormFlashFile;
+use Grav\Framework\Media\Interfaces\MediaObjectInterface;
 use Grav\Framework\Media\MediaObject;
 use Grav\Framework\Media\UploadedMediaObject;
 use Psr\Http\Message\UploadedFileInterface;
@@ -336,8 +336,9 @@ trait FlexMediaTrait
             if ($medium) {
                 if ($medium->uploaded_file) {
                     $upload = $medium->uploaded_file;
+                    $id = $upload->getId();
 
-                    $list[] = new UploadedMediaObject($upload->getId(), $field, $name, $upload);
+                    $list[] = new UploadedMediaObject($id, $field, $name, $upload);
                 } else {
                     $list[] = $this->buildMediaObject($field, $name, $medium);
                 }

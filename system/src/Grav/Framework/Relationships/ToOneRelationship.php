@@ -12,8 +12,9 @@ use function is_callable;
 /**
  * Class ToOneRelationship
  *
- * @template T of object
- * @template-implements ToOneRelationshipInterface<IdentifierInterface,IdentifierInterface>
+ * @template T of IdentifierInterface
+ * @template P of IdentifierInterface
+ * @template-implements ToOneRelationshipInterface<T,P>
  */
 class ToOneRelationship implements ToOneRelationshipInterface
 {
@@ -21,7 +22,8 @@ class ToOneRelationship implements ToOneRelationshipInterface
     use RelationshipTrait;
     use Serializable;
 
-    protected ?IdentifierInterface $identifier = null;
+    /** @var IdentifierInterface|null */
+    protected $identifier = null;
 
     public function __construct(IdentifierInterface $parent, string $name, array $options, IdentifierInterface $identifier = null)
     {

@@ -2,11 +2,12 @@
 
 namespace Grav\Framework\Media;
 
-use Grav\Common\Media\Interfaces\MediaObjectInterface as GravMediaObjectInterface;
 use Grav\Common\Page\Medium\ImageMedium;
 use Grav\Framework\Contracts\Media\MediaObjectInterface;
 use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
+use Grav\Framework\Media\Interfaces\MediaObjectInterface as GravMediaObjectInterface;
 use Grav\Framework\Psr7\Response;
+use Psr\Http\Message\ResponseInterface;
 use Throwable;
 
 /**
@@ -14,13 +15,18 @@ use Throwable;
  */
 class MediaObject implements MediaObjectInterface
 {
-    static public string $placeholderImage = 'image://media/thumb.png';
+    /** @var string */
+    static public $placeholderImage = 'image://media/thumb.png';
 
-    public FlexObjectInterface $object;
-    public ?GravMediaObjectInterface $media;
+    /** @var FlexObjectInterface */
+    public $object;
+    /** @var GravMediaObjectInterface|null */
+    public $media;
 
-    private ?string $field;
-    private string $filename;
+    /** @var string|null */
+    private $field;
+    /** @var string */
+    private $filename;
 
     /**
      * MediaObject constructor.
@@ -108,7 +114,7 @@ class MediaObject implements MediaObjectInterface
      * @param array $actions
      * @return Response
      */
-    public function createResponse(array $actions): Response
+    public function createResponse(array $actions): ResponseInterface
     {
         if (!isset($this->media)) {
             return $this->create404Response($actions);

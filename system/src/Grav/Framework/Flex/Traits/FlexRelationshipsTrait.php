@@ -12,7 +12,8 @@ use Grav\Framework\Relationships\Relationships;
  */
 trait FlexRelationshipsTrait
 {
-    private ?RelationshipsInterface $_relationships = null;
+    /** @var RelationshipsInterface|null */
+    private $_relationships = null;
 
     /**
      * @return Relationships

@@ -14,14 +14,16 @@ use Grav\Framework\Object\Identifiers\Identifier;
  * Interface IdentifierInterface
  *
  * @template T of MediaObjectInterface
+ * @extends Identifier<T>
  */
 class MediaIdentifier extends Identifier
 {
-    private ?MediaObjectInterface $object = null;
+    /** @var MediaObjectInterface|null */
+    private $object = null;
 
     /**
      * @param MediaObjectInterface $object
-     * @return MediaIdentifier
+     * @return MediaIdentifier<T>
      */
     public static function createFromObject(MediaObjectInterface $object): MediaIdentifier
     {

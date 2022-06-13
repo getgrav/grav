@@ -11,8 +11,10 @@ use Grav\Framework\Contracts\Object\IdentifierInterface;
  */
 class Identifier implements IdentifierInterface
 {
-    private string $id;
-    private string $type;
+    /** @var string */
+    private $id;
+    /** @var string */
+    private $type;
 
     /**
      * IdentifierInterface constructor.

@@ -9,6 +9,11 @@ use JsonSerializable;
 
 /**
  * Interface RelationshipsInterface
+ *
+ * @template T of \Grav\Framework\Contracts\Object\IdentifierInterface
+ * @template P of \Grav\Framework\Contracts\Object\IdentifierInterface
+ * @extends ArrayAccess<string,RelationshipInterface<T,P>>
+ * @extends Iterator<string,RelationshipInterface<T,P>>
  */
 interface RelationshipsInterface extends Countable, ArrayAccess, Iterator, JsonSerializable
 {
@@ -31,12 +36,12 @@ interface RelationshipsInterface extends Countable, ArrayAccess, Iterator, JsonS
 
     /**
      * @param string $offset
-     * @return RelationshipInterface|null
+     * @return RelationshipInterface<T,P>|null
      */
     public function offsetGet($offset): ?RelationshipInterface;
 
     /**
-     * @return RelationshipInterface|null
+     * @return RelationshipInterface<T,P>|null
      */
     public function current(): ?RelationshipInterface;
 

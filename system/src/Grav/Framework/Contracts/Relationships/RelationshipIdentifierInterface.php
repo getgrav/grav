@@ -21,7 +21,7 @@ interface RelationshipIdentifierInterface extends IdentifierInterface
     /**
      * Get identifier meta.
      *
-     * @return array|ArrayAccess
+     * @return array<string,mixed>|ArrayAccess<string,mixed>
      * @phpstan-pure
      */
     public function getIdentifierMeta();

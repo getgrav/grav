@@ -13,9 +13,9 @@ use function is_callable;
 /**
  * Class ToManyRelationship
  *
- * @template T of object
- * @template P of object
- * @template-implements ToManyRelationshipInterface<IdentifierInterface,IdentifierInterface>
+ * @template T of IdentifierInterface
+ * @template P of IdentifierInterface
+ * @template-implements ToManyRelationshipInterface<T,P>
  */
 class ToManyRelationship implements ToManyRelationshipInterface
 {
@@ -24,7 +24,7 @@ class ToManyRelationship implements ToManyRelationshipInterface
     use Serializable;
 
     /** @var IdentifierInterface[] */
-    protected array $identifiers = [];
+    protected $identifiers = [];
 
     /**
      * ToManyRelationship constructor.

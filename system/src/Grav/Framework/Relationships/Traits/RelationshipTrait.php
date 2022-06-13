@@ -6,6 +6,7 @@ use Grav\Framework\Contracts\Object\IdentifierInterface;
 use Grav\Framework\Flex\FlexIdentifier;
 use Grav\Framework\Media\MediaIdentifier;
 use Grav\Framework\Object\Identifiers\Identifier;
+use RuntimeException;
 use function get_class;
 
 /**
@@ -15,11 +16,16 @@ use function get_class;
  */
 trait RelationshipTrait
 {
-    protected IdentifierInterface $parent;
-    protected string $name;
-    protected string $type;
-    protected array $options;
-    protected bool $modified = false;
+    /** @var IdentifierInterface */
+    protected $parent;
+    /** @var string */
+    protected $name;
+    /** @var string */
+    protected $type;
+    /** @var array */
+    protected $options;
+    /** @var bool */
+    protected $modified = false;
 
     /**
      * @return string
@@ -85,10 +91,10 @@ trait RelationshipTrait
         if ($min || $max) {
             $count = $this->count();
             if ($min && $count < $min) {
-                throw new \RuntimeException(sprintf('%s relationship has too few objects in it', $this->name));
+                throw new RuntimeException(sprintf('%s relationship has too few objects in it', $this->name));
             }
             if ($max && $count > $max) {
-                throw new \RuntimeException(sprintf('%s relationship has too many objects in it', $this->name));
+                throw new RuntimeException(sprintf('%s relationship has too many objects in it', $this->name));
             }
         }
     }
@@ -100,7 +106,7 @@ trait RelationshipTrait
     private function checkIdentifier(IdentifierInterface $identifier): IdentifierInterface
     {
         if ($this->type !== $identifier->getType()) {
-            throw new \RuntimeException(sprintf('Bad identifier type %s', $identifier->getType()));
+            throw new RuntimeException(sprintf('Bad identifier type %s', $identifier->getType()));
         }
 
         if (get_class($identifier) !== Identifier::class) {

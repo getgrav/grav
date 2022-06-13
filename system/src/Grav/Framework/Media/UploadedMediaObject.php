@@ -6,6 +6,7 @@ use Grav\Framework\Contracts\Media\MediaObjectInterface;
 use Grav\Framework\Flex\FlexFormFlash;
 use Grav\Framework\Form\Interfaces\FormFlashInterface;
 use Grav\Framework\Psr7\Response;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UploadedFileInterface;
 
 /**
@@ -13,15 +14,22 @@ use Psr\Http\Message\UploadedFileInterface;
  */
 class UploadedMediaObject implements MediaObjectInterface
 {
-    static public string $placeholderImage = 'image://media/thumb.png';
+    /** @var string */
+    static public $placeholderImage = 'image://media/thumb.png';
 
-    public FormFlashInterface $object;
+    /** @var FormFlashInterface */
+    public $object;
 
-    private string $id;
-    private ?string $field;
-    private string $filename;
-    private array $meta;
-    private ?UploadedFileInterface $uploadedFile;
+    /** @var string */
+    private $id;
+    /** @var string|null */
+    private $field;
+    /** @var string */
+    private $filename;
+    /** @var array */
+    private $meta;
+    /** @var UploadedFileInterface|null */
+    private $uploadedFile;
 
     /**
      * @param FlexFormFlash $flash
@@ -126,7 +134,7 @@ class UploadedMediaObject implements MediaObjectInterface
      * @param array $actions
      * @return Response
      */
-    public function createResponse(array $actions): Response
+    public function createResponse(array $actions): ResponseInterface
     {
         // Display placeholder image.
         $filename = static::$placeholderImage;

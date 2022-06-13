@@ -11,18 +11,24 @@ use function count;
 
 /**
  * Class Relationships
+ *
+ * @template T of \Grav\Framework\Contracts\Object\IdentifierInterface
+ * @template P of \Grav\Framework\Contracts\Object\IdentifierInterface
+ * @implements RelationshipsInterface<T,P>
  */
 class Relationships implements RelationshipsInterface
 {
-    protected IdentifierInterface $parent;
-    protected array $options;
+    /** @var P */
+    protected $parent;
+    /** @var array */
+    protected $options;
 
-    /** @var RelationshipInterface[] */
-    protected array $relationships;
+    /** @var RelationshipInterface<T,P>[] */
+    protected $relationships;
 
     /**
      * Relationships constructor.
-     * @param IdentifierInterface $parent
+     * @param P $parent
      * @param array $options
      */
     public function __construct(IdentifierInterface $parent, array $options)
@@ -42,7 +48,7 @@ class Relationships implements RelationshipsInterface
     }
 
     /**
-     * @return RelationshipInterface[]
+     * @return RelationshipInterface<T,P>[]
      * @phpstan-pure
      */
     public function getModified(): array
@@ -78,7 +84,7 @@ class Relationships implements RelationshipsInterface
 
     /**
      * @param string $offset
-     * @return RelationshipInterface|null
+     * @return RelationshipInterface<T,P>|null
      */
     public function offsetGet($offset): ?RelationshipInterface
     {
@@ -114,7 +120,7 @@ class Relationships implements RelationshipsInterface
     }
 
     /**
-     * @return RelationshipInterface|null
+     * @return RelationshipInterface<T,P>|null
      */
     public function current(): ?RelationshipInterface
     {
@@ -178,7 +184,7 @@ class Relationships implements RelationshipsInterface
     /**
      * @param string $name
      * @param array $options
-     * @return RelationshipInterface
+     * @return ToOneRelationship|ToManyRelationship
      */
     private function createRelationship(string $name, array $options): RelationshipInterface
     {

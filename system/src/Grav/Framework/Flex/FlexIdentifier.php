@@ -11,15 +11,18 @@ use RuntimeException;
  * Interface IdentifierInterface
  *
  * @template T of FlexObjectInterface
+ * @extends Identifier<T>
  */
 class FlexIdentifier extends Identifier
 {
-    private string $keyField;
-    private ?FlexObjectInterface $object = null;
+    /** @var string */
+    private $keyField;
+    /** @var FlexObjectInterface|null */
+    private $object = null;
 
     /**
      * @param FlexObjectInterface $object
-     * @return FlexIdentifier
+     * @return FlexIdentifier<T>
      */
     public static function createFromObject(FlexObjectInterface $object): FlexIdentifier
     {

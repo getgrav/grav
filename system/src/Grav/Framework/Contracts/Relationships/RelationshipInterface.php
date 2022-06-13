@@ -13,6 +13,7 @@ use Serializable;
  *
  * @template T of IdentifierInterface
  * @template P of IdentifierInterface
+ * @extends IteratorAggregate<string, T>
  */
 interface RelationshipInterface extends Countable, IteratorAggregate, JsonSerializable, Serializable
 {
