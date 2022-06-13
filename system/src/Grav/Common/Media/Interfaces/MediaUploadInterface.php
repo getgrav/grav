@@ -78,14 +78,14 @@ interface MediaUploadInterface
     public function deleteAll(): bool;
 
     /**
-     * @param string $to
+     * @param string|null $to
      * @return bool True if media was moved. Shared media cannot be deleted and will return false.
      */
-    public function moveAll(string $to): bool;
+    public function moveAll(string $to = null): bool;
 
     /**
-     * @param string $to
+     * @param string|null $to
      * @return bool True if media was copied. Shared media cannot be deleted and will return false.
      */
-    public function copyAll(string $to): bool;
+    public function copyAll(string $to = null): bool;
 }

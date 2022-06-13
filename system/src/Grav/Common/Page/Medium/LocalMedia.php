@@ -126,20 +126,20 @@ abstract class LocalMedia extends AbstractMedia
     }
 
     /**
-     * @param string $to
+     * @param string|null $to
      * @return bool
      */
-    public function moveAll(string $to): bool
+    public function moveAll(string $to = null): bool
     {
         // TODO: Not implemented
         return false;
     }
 
     /**
-     * @param string $to
+     * @param string|null $to
      * @return bool
      */
-    public function copyAll(string $to): bool
+    public function copyAll(string $to = null): bool
     {
         // TODO: Not implemented
         return false;
