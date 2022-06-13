@@ -7,6 +7,7 @@
 1. [](#bugfix)
     * Regression: Fixed saving page with a new language causing cache corruption [getgrav/grav-plugin-admin#2282](https://github.com/getgrav/grav-plugin-admin/issues/2282)
     * Fixed a potential fatal error when using watermark in images
+    * Fixed `bin/grav install` command with arbitrary destination folder name
 
 # v1.7.33
 ## 04/25/2022

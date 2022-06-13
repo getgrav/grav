@@ -485,7 +485,7 @@ class InstallCommand extends GpmCommand
     {
         $io = $this->getIO();
 
-        exec('cd ' . $this->destination);
+        exec('cd ' . escapeshellarg($this->destination));
 
         $to = $this->destination . DS . $package->install_path;
         $from = $this->getSymlinkSource($package);
