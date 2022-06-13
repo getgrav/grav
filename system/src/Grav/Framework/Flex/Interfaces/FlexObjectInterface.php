@@ -143,10 +143,11 @@ interface FlexObjectInterface extends FlexCommonInterface, NestedObjectInterface
      *
      * @see FlexObjectInterface::update() If you want to update properties of the object.
      *
+     * @param mixed ...$params
      * @return static
      * @api
      */
-    public function save();
+    public function save(...$params);
 
     /**
      * Delete object from the storage.
@@ -154,7 +155,7 @@ interface FlexObjectInterface extends FlexCommonInterface, NestedObjectInterface
      * @return static
      * @api
      */
-    public function delete();
+    public function delete(...$params);
 
     /**
      * Returns the blueprint of the object.

@@ -570,11 +570,10 @@ class UserObject extends FlexObject implements UserInterface, Countable
     }
 
     /**
-     * Save user
-     *
-     * @return static
+     * @param array $params
+     * @return array
      */
-    public function save()
+    protected function doBeforeSave(array $params): array
     {
         // TODO: We may want to handle this in the storage layer in the future.
         $key = $this->getStorageKey();
@@ -598,6 +597,8 @@ class UserObject extends FlexObject implements UserInterface, Countable
         $this->unsetProperty('password1');
         $this->unsetProperty('password2');
 
+        $params = parent::doBeforeSave($params);
+
         // Backwards compatibility with older plugins.
         $fireEvents = $this->isAdminSite() && $this->getFlexDirectory()->getConfig('object.compat.events', true);
         $grav = $this->getContainer();
@@ -609,14 +610,23 @@ class UserObject extends FlexObject implements UserInterface, Countable
             }
         }
 
-        $instance = parent::save();
+        return $params;
+    }
+
+    /**
+     * @param array $params
+     * @return void
+     */
+    protected function onAfterSave(array $params): void
+    {
+        parent::doAfterSave($params);
 
         // Backwards compatibility with older plugins.
+        $fireEvents = $this->isAdminSite() && $this->getFlexDirectory()->getConfig('object.compat.events', true);
         if ($fireEvents) {
+            $grav = $this->getContainer();
             $grav->fireEvent('onAdminAfterSave', new Event(['type' => 'flex', 'directory' => $this->getFlexDirectory(), 'object' => $this]));
         }
-
-        return $instance;
     }
 
     /**

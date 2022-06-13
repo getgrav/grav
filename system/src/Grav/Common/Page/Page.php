@@ -1137,10 +1137,12 @@ class Page implements PageInterface
     /**
      * Save page if there's a file assigned to it.
      *
-     * @param bool|array $reorder Internal use.
+     * @param mixed ...$params
      */
-    public function save($reorder = true)
+    public function save(...$params)
     {
+        $reorder = $params[0] ?? true;
+
         // Perform move, copy [or reordering] if needed.
         $this->doRelocation();
 

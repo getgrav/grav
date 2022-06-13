@@ -62,11 +62,32 @@ trait FlexObjectTrait
         return $this;
     }
 
-
     /**
+     * @param array $params
      * @return void
      */
-    protected function doDelete(): void
+    protected function doSave(array $params): void
+    {
+        $copy = $this->getMetaData()['copy'] ?? false;
+
+        parent::doSave($params);
+
+        if ($copy) {
+            $fields = $this->getMediaFields();
+            foreach ($fields as $field) {
+                $media = $this->getMediaField($field);
+                if ($media instanceof MediaUploadInterface) {
+                    $media->copyAll();
+                }
+            }
+        }
+    }
+
+    /**
+     * @param array $params
+     * @return void
+     */
+    protected function doDelete(array $params): void
     {
         $fields = $this->getMediaFields();
         foreach ($fields as $field) {
@@ -76,6 +97,6 @@ trait FlexObjectTrait
             }
         }
 
-        parent::doDelete();
+        parent::doDelete($params);
     }
 }

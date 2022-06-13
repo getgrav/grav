@@ -103,9 +103,9 @@ interface PageLegacyInterface
     /**
      * Save page if there's a file assigned to it.
      *
-     * @param bool|mixed $reorder Internal use.
+     * @param mixed ...$params
      */
-    public function save($reorder = true);
+    public function save(...$params);
 
     /**
      * Prepare move page to new location. Moves also everything that's under the current page.

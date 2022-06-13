@@ -36,7 +36,6 @@ use RuntimeException;
 use stdClass;
 use function array_key_exists;
 use function count;
-use function func_get_args;
 use function in_array;
 use function is_array;
 
@@ -55,7 +54,9 @@ use function is_array;
 class PageObject extends FlexPageObject
 {
     use FlexGravTrait;
-    use FlexObjectTrait;
+    use FlexObjectTrait {
+        doSave as doObjectSave;
+    }
     use PageContentTrait;
     use PageLegacyTrait;
     use PageRoutableTrait;
@@ -176,12 +177,14 @@ class PageObject extends FlexPageObject
     }
 
     /**
-     * @param array $variables
+     * @param array $params
      * @return array
      */
-    protected function onBeforeSave(array $variables)
+    protected function doBeforeSave(array $params = []): array
     {
-        $reorder = $variables[0] ?? true;
+        $params = parent::doBeforeSave($params);
+
+        $reorder = $params[0] ?? true;
 
         $meta = $this->getMetaData();
         if (($meta['copy'] ?? false) === true) {
@@ -231,31 +234,54 @@ class PageObject extends FlexPageObject
             unset($data['header']);
         }
 
+        // Backwards compatibility with older plugins.
+        $fireEvents = $reorder && $this->isAdminSite() && $this->getFlexDirectory()->getConfig('object.compat.events', true);
+        if ($fireEvents) {
+            $self = $this;
+            $grav = $this->getContainer();
+            $grav->fireEvent('onAdminSave', new Event(['type' => 'flex', 'directory' => $this->getFlexDirectory(), 'object' => &$self]));
+            if ($self !== $this) {
+                throw new RuntimeException('Switching Flex Page object during onAdminSave event is not supported! Please update plugin.');
+            }
+        }
+
         return ['reorder' => $reorder, 'siblings' => $siblings];
     }
 
     /**
-     * @param array $variables
-     * @return array
+     * @param array $params
+     * @return void
      */
-    protected function onSave(array $variables): array
+    protected function doSave(array $params): void
     {
+        $this->doObjectSave($params);
+
         /** @var PageCollection $siblings */
-        $siblings = $variables['siblings'];
+        $siblings = $params['siblings'] ?? [];
         /** @var PageObject $sibling */
         foreach ($siblings as $sibling) {
             $sibling->save(false);
         }
-
-        return $variables;
     }
 
     /**
-     * @param array $variables
+     * @param array $params
+     * @return void
      */
-    protected function onAfterSave(array $variables): void
+    protected function doAfterSave(array $params): void
     {
-        $this->getFlexDirectory()->reloadIndex();
+        parent::doAfterSave($params);
+
+        // Backwards compatibility with older plugins.
+        $reorder = $params['reorder'] ?? true;
+        $fireEvents = $reorder && $this->isAdminSite() && $this->getFlexDirectory()->getConfig('object.compat.events', true);
+        if ($fireEvents) {
+            $grav = $this->getContainer();
+            $grav->fireEvent('onAdminAfterSave', new Event(['type' => 'flex', 'directory' => $this->getFlexDirectory(), 'object' => $this]));
+        }
+
+        // Reset original after save events have all been called.
+        $this->_originalObject = null;
     }
 
     /**
@@ -277,55 +303,35 @@ class PageObject extends FlexPageObject
     }
 
     /**
-     * @param array|bool $reorder
-     * @return static
+     * @param $params
+     * @return array
      */
-    public function save($reorder = true)
+    protected function doBeforeDelete($params): array
     {
-        $variables = $this->onBeforeSave(func_get_args());
+        $params = parent::doBeforeDelete($params);
 
         // Backwards compatibility with older plugins.
-        $fireEvents = $reorder && $this->isAdminSite() && $this->getFlexDirectory()->getConfig('object.compat.events', true);
-        $grav = $this->getContainer();
+        $fireEvents = $this->isAdminSite() && $this->getFlexDirectory()->getConfig('object.compat.events', true);
         if ($fireEvents) {
-            $self = $this;
-            $grav->fireEvent('onAdminSave', new Event(['type' => 'flex', 'directory' => $this->getFlexDirectory(), 'object' => &$self]));
-            if ($self !== $this) {
-                throw new RuntimeException('Switching Flex Page object during onAdminSave event is not supported! Please update plugin.');
-            }
+            $this->getContainer()->fireEvent('onAdminBeforeDelete', new Event(['object' => $this]));
         }
 
-        /** @var static $instance */
-        $instance = parent::save();
-        $variables = $this->onSave($variables);
-
-        $this->onAfterSave($variables);
-
-        // Backwards compatibility with older plugins.
-        if ($fireEvents) {
-            $grav->fireEvent('onAdminAfterSave', new Event(['type' => 'flex', 'directory' => $this->getFlexDirectory(), 'object' => $this]));
-        }
-
-        // Reset original after save events have all been called.
-        $this->_originalObject = null;
-
-        return $instance;
+        return $params;
     }
 
     /**
-     * @return static
+     * @param $params
+     * @return void
      */
-    public function delete()
+    protected function doAfterDelete($params): void
     {
-        $result = parent::delete();
+        parent::doAfterDelete($params);
 
         // Backwards compatibility with older plugins.
         $fireEvents = $this->isAdminSite() && $this->getFlexDirectory()->getConfig('object.compat.events', true);
         if ($fireEvents) {
             $this->getContainer()->fireEvent('onAdminAfterDelete', new Event(['object' => $this]));
         }
-
-        return $result;
     }
 
     /**

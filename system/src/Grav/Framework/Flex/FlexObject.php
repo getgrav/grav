@@ -753,61 +753,11 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      * {@inheritdoc}
      * @see FlexObjectInterface::save()
      */
-    public function save()
+    public function save(...$params)
     {
-        $this->triggerEvent('onBeforeSave');
-
-        $storage = $this->getFlexDirectory()->getStorage();
-
-        $storageKey = $this->getStorageKey() ?:  '@@' . spl_object_hash($this);
-
-        $result = $storage->replaceRows([$storageKey => $this->prepareStorage()]);
-
-        if (method_exists($this, 'clearMediaCache')) {
-            $this->clearMediaCache();
-        }
-
-        $value = reset($result);
-        $meta = $value['__META'] ?? null;
-        if ($meta) {
-            /** @phpstan-var class-string $indexClass */
-            $indexClass = $this->getFlexDirectory()->getIndexClass();
-            $indexClass::updateObjectMeta($meta, $value, $storage);
-            $this->_meta = $meta;
-        }
-
-        if ($value) {
-            $storageKey = $meta['storage_key'] ?? (string)key($result);
-            if ($storageKey !== '') {
-                $this->setStorageKey($storageKey);
-            }
-
-            $newKey = $meta['key'] ?? ($this->hasKey() ? $this->getKey() : null);
-            $this->setKey($newKey ?? $storageKey);
-        }
-
-        // FIXME: For some reason locator caching isn't cleared for the file, investigate!
-        $locator = Grav::instance()['locator'];
-        $locator->clearCache();
-
-        if (method_exists($this, 'saveUpdatedMedia')) {
-            $this->saveUpdatedMedia();
-        }
-
-        try {
-            $this->getFlexDirectory()->reloadIndex();
-            if (method_exists($this, 'clearMediaCache')) {
-                $this->clearMediaCache();
-            }
-        } catch (Exception $e) {
-            /** @var Debugger $debugger */
-            $debugger = Grav::instance()['debugger'];
-            $debugger->addException($e);
-
-            // Caching failed, but we can ignore that for now.
-        }
-
-        $this->triggerEvent('onAfterSave');
+        $params = $this->doBeforeSave($params);
+        $this->doSave($params);
+        $this->doAfterSave($params);
 
         return $this;
     }
@@ -816,17 +766,15 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      * {@inheritdoc}
      * @see FlexObjectInterface::delete()
      */
-    public function delete()
+    public function delete(...$params)
     {
         if (!$this->exists()) {
             return $this;
         }
 
-        $this->triggerEvent('onBeforeDelete');
-
-        $this->onDelete();
-
-        $this->triggerEvent('onAfterDelete');
+        $params = $this->doBeforeDelete($params);
+        $this->doDelete($params);
+        $this->doAfterDelete($params);
 
         return $this;
     }
@@ -1038,20 +986,108 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     }
 
     /**
+     * @param array $params
+     * @return array
+     */
+    protected function doBeforeSave(array $params): array
+    {
+        $this->triggerEvent('onBeforeSave');
+
+        return $params;
+    }
+
+    /**
+     * @param array $params
      * @return void
      */
-    protected function doDelete(): void
+    protected function doSave(array $params): void
+    {
+        $storage = $this->getFlexDirectory()->getStorage();
+
+        $storageKey = $this->getStorageKey() ?:  '@@' . spl_object_hash($this);
+
+        $result = $storage->replaceRows([$storageKey => $this->prepareStorage()]);
+
+        if (method_exists($this, 'clearMediaCache')) {
+            $this->clearMediaCache();
+        }
+
+        $value = reset($result);
+        $meta = $value['__META'] ?? null;
+        if ($meta) {
+            /** @phpstan-var class-string $indexClass */
+            $indexClass = $this->getFlexDirectory()->getIndexClass();
+            $indexClass::updateObjectMeta($meta, $value, $storage);
+            $this->_meta = $meta;
+        }
+
+        if ($value) {
+            $storageKey = $meta['storage_key'] ?? (string)key($result);
+            if ($storageKey !== '') {
+                $this->setStorageKey($storageKey);
+            }
+
+            $newKey = $meta['key'] ?? ($this->hasKey() ? $this->getKey() : null);
+            $this->setKey($newKey ?? $storageKey);
+        }
+
+        // FIXME: For some reason locator caching isn't cleared for the file, investigate!
+        $locator = Grav::instance()['locator'];
+        $locator->clearCache();
+
+        if (method_exists($this, 'saveUpdatedMedia')) {
+            $this->saveUpdatedMedia();
+        }
+    }
+
+    /**
+     * @param array $params
+     * @return void
+     */
+    protected function doAfterSave(array $params): void
+    {
+        try {
+            $this->getFlexDirectory()->reloadIndex();
+            if (method_exists($this, 'clearMediaCache')) {
+                $this->clearMediaCache();
+            }
+        } catch (Exception $e) {
+            /** @var Debugger $debugger */
+            $debugger = Grav::instance()['debugger'];
+            $debugger->addException($e);
+
+            // Caching failed, but we can ignore that for now.
+        }
+
+        $this->triggerEvent('onAfterSave');
+    }
+
+    /**
+     * @param array $params
+     * @return array
+     */
+    protected function doBeforeDelete(array $params): array
+    {
+        $this->triggerEvent('onBeforeDelete');
+
+        return $params;
+    }
+
+    /**
+     * @param array $params
+     * @return void
+     */
+    protected function doDelete(array $params): void
     {
         $this->getFlexDirectory()->getStorage()->deleteRows([$this->getStorageKey() => $this->prepareStorage()]);
     }
 
     /**
+     * @param array $params
      * @return void
      */
-    protected function onDelete(): void
+    protected function doAfterDelete(array $params): void
     {
-        $this->doDelete();
-
         try {
             // Force reload object index.
             $this->getFlexDirectory()->reloadIndex();
@@ -1067,6 +1103,8 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
 
             // Caching failed, but we can ignore that for now.
         }
+
+        $this->triggerEvent('onAfterDelete');
     }
 
     /**
