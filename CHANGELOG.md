@@ -9,6 +9,7 @@
     * Fixed a potential fatal error when using watermark in images
     * Fixed `bin/grav install` command with arbitrary destination folder name
     * Fixed Twig `|filter()` allowing code execution
+    * Fixed login and user search by email not being case-insensitive when using Flex Users
 
 # v1.7.33
 ## 04/25/2022
