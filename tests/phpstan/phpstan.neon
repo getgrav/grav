@@ -170,3 +170,6 @@ parameters:
         -
             message: '#typehint with deprecated interface#'
             path: '*/system/src/Twig/DeferredExtension/DeferredNodeVisitorCompat.php'
+        -
+            message: '#Function twig_array_filter not found#'
+            path: '*/system/src/Grav/Common/Twig/Extension/GravExtension.php'

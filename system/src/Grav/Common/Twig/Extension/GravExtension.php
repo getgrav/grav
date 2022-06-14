@@ -1695,6 +1695,6 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
             throw new RuntimeError('Twig |filter("' . $arrow . '") is not allowed.');
         }
 
-        return \twig_array_filter($env, $array, $arrow);
+        return twig_array_filter($env, $array, $arrow);
     }
 }
