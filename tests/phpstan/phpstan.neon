@@ -156,13 +156,20 @@ parameters:
         - '#Call to deprecated method stopPropagation\(\) of class Symfony\\Component\\EventDispatcher\\Event#'
         - '#Parameter \#2 \$listener of method Symfony\\Component\\EventDispatcher\\EventDispatcher::addListener\(\)#'
         - '#Parameter \#2 \$listener of method Symfony\\Component\\EventDispatcher\\EventDispatcher::removeListener\(\)#'
+        - '#Class Grav\\Common\\GPM\\Response not found#'
 
         # Installer updates
         -
             message: '#Variable \$this in PHPDoc tag @var does not exist#'
             path: '*/system/src/Grav/Installer/updates/*'
+        -
+            message: '#YamlUpdater::isInlineComment\(\) is unused#'
+            path: '*/system/src/Grav/Installer/YamlUpdater.php'
 
         # Twig Deferred extension compatibility
         -
             message: '#typehint with deprecated interface#'
             path: '*/system/src/Twig/DeferredExtension/DeferredNodeVisitorCompat.php'
+        -
+            message: '#Function twig_array_filter not found#'
+            path: '*/system/src/Grav/Common/Twig/Extension/GravExtension.php'

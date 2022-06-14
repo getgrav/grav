@@ -153,6 +153,8 @@ class LanguageCodes
         'vi'         => [ 'name' => 'Vietnamese',                'nativeName' => 'Tiếng Việt' ],
         'wo'         => [ 'name' => 'Wolof',                     'nativeName' => 'Wolof' ],
         'xh'         => [ 'name' => 'Xhosa',                     'nativeName' => 'isiXhosa' ],
+        'yi'         => [ 'name' => 'Yiddish',                   'nativeName' => 'ייִדיש', 'orientation' => 'rtl'  ],
+        'ydd'        => [ 'name' => 'Yiddish',                   'nativeName' => 'ייִדיש', 'orientation' => 'rtl'  ],
         'zh'         => [ 'name' => 'Chinese (Simplified)',      'nativeName' => '中文 (简体)' ],
         'zh-CN'      => [ 'name' => 'Chinese (Simplified)',      'nativeName' => '中文 (简体)' ],
         'zh-TW'      => [ 'name' => 'Chinese (Traditional)',     'nativeName' => '正體中文 (繁體)' ],

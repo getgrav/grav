@@ -1,3 +1,16 @@
+# v1.7.34
+## 06/14/2022
+
+1. [](#new)
+    * Added back Yiddish to Language Codes [#3336](https://github.com/getgrav/grav/pull/3336)
+    * Ignore upcoming `media.json` file in media
+1. [](#bugfix)
+    * Regression: Fixed saving page with a new language causing cache corruption [getgrav/grav-plugin-admin#2282](https://github.com/getgrav/grav-plugin-admin/issues/2282)
+    * Fixed a potential fatal error when using watermark in images
+    * Fixed `bin/grav install` command with arbitrary destination folder name
+    * Fixed Twig `|filter()` allowing code execution
+    * Fixed login and user search by email not being case-insensitive when using Flex Users
+
 # v1.7.33
 ## 04/25/2022
 

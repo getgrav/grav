@@ -9,6 +9,7 @@
 
 namespace Grav\Common\Twig\Extension;
 
+use CallbackFilterIterator;
 use Cron\CronExpression;
 use Grav\Common\Config\Config;
 use Grav\Common\Data\Data;
@@ -41,6 +42,7 @@ use JsonSerializable;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use Traversable;
 use Twig\Environment;
+use Twig\Error\RuntimeError;
 use Twig\Extension\AbstractExtension;
 use Twig\Extension\GlobalsInterface;
 use Twig\Loader\FilesystemLoader;
@@ -167,6 +169,9 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
             // PHP methods
             new TwigFilter('count', 'count'),
             new TwigFilter('array_diff', 'array_diff'),
+
+            // Security fix
+            new TwigFilter('filter', [$this, 'filterFilter'], ['needs_environment' => true]),
         ];
     }
 
@@ -1675,5 +1680,21 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
             case 'string':
                 return is_string($var);
         }
+    }
+
+    /**
+     * @param Environment $env
+     * @param array $array
+     * @param callable|string $arrow
+     * @return array|CallbackFilterIterator
+     * @throws RuntimeError
+     */
+    function filterFilter(Environment $env, $array, $arrow)
+    {
+        if (is_string($arrow) && Utils::isDangerousFunction($arrow)) {
+            throw new RuntimeError('Twig |filter("' . $arrow . '") is not allowed.');
+        }
+
+        return twig_array_filter($env, $array, $arrow);
     }
 }

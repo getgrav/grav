@@ -138,6 +138,10 @@ trait CompiledFile
             $class = get_class($this);
             $size = filesize($filename);
 
+            // Reload data from the filesystem. This ensures that we always cache the correct data (see issue #2282).
+            $this->raw = $this->content = null;
+            $data = (array)$this->decode($this->raw());
+
             // Decode data into compiled array.
             $cache = [
                 '@class' => $class,

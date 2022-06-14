@@ -12,6 +12,7 @@ namespace Grav\Common\GPM;
 use Exception;
 use Grav\Common\Grav;
 use Grav\Common\Filesystem\Folder;
+use Grav\Common\HTTP\Response;
 use Grav\Common\Inflector;
 use Grav\Common\Iterator;
 use Grav\Common\Utils;
