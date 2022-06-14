@@ -4,6 +4,7 @@
  * @package    Grav\Common\Processors
  *
  * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2022 Informatyka Boguslawski sp. z o.o. sp.k., http://www.ib.pl/
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -251,7 +252,8 @@ class InitializeProcessor extends ProcessorBase
             $log->popHandler();
 
             $facility = $config->get('system.log.syslog.facility', 'local6');
-            $logHandler = new SyslogHandler('grav', $facility);
+            $tag = $config->get('system.log.syslog.tag', 'grav');
+            $logHandler = new SyslogHandler($tag, $facility);
             $formatter = new LineFormatter("%channel%.%level_name%: %message% %extra%");
             $logHandler->setFormatter($formatter);
 
