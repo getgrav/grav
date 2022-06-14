@@ -1,5 +1,5 @@
 # v1.7.34
-## mm/dd/2022
+## 06/14/2022
 
 1. [](#new)
     * Added back Yiddish to Language Codes [#3336](https://github.com/getgrav/grav/pull/3336)
