@@ -97,7 +97,9 @@ class FlexServiceProvider implements ServiceProviderInterface
                 'options' => [
                     'file' => 'user',
                     'pattern' => '{FOLDER}/{KEY:2}/{KEY}/{FILE}{EXT}',
-                    'key' => 'storage_key'
+                    'key' => 'storage_key',
+                    'indexed' => true,
+                    'case_sensitive' => false
                 ],
             ];
         }
@@ -107,7 +109,9 @@ class FlexServiceProvider implements ServiceProviderInterface
                 'class' => UserFileStorage::class,
                 'options' => [
                     'pattern' => '{FOLDER}/{KEY}{EXT}',
-                    'key' => 'username'
+                    'key' => 'username',
+                    'indexed' => true,
+                    'case_sensitive' => false
                 ],
             ];
         }

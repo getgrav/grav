@@ -10,12 +10,11 @@
 namespace Grav\Console\Gpm;
 
 use Exception;
-use Grav\Common\Cache;
 use Grav\Common\Grav;
 use Grav\Common\Filesystem\Folder;
+use Grav\Common\HTTP\Response;
 use Grav\Common\GPM\GPM;
 use Grav\Common\GPM\Installer;
-use Grav\Common\GPM\Response;
 use Grav\Console\GpmCommand;
 use RuntimeException;
 use Symfony\Component\Console\Input\InputArgument;
