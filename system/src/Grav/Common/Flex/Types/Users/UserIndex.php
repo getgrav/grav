@@ -142,7 +142,7 @@ class UserIndex extends FlexIndex implements UserCollectionInterface
                 } elseif ($field === 'flex_key') {
                     $user = $this->withKeyField('flex_key')->get($query);
                 } elseif ($field === 'email') {
-                    $user = $this->withKeyField('email')->get($query);
+                    $user = $this->withKeyField('email')->get(static::filterUsername($query, $this->getFlexDirectory()->getStorage()));
                 } elseif ($field === 'username') {
                     $user = $this->get(static::filterUsername($query, $this->getFlexDirectory()->getStorage()));
                 } else {
