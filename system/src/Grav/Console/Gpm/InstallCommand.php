@@ -11,10 +11,10 @@ namespace Grav\Console\Gpm;
 
 use Exception;
 use Grav\Common\Filesystem\Folder;
+use Grav\Common\HTTP\Response;
 use Grav\Common\GPM\GPM;
 use Grav\Common\GPM\Installer;
 use Grav\Common\GPM\Licenses;
-use Grav\Common\GPM\Response;
 use Grav\Common\GPM\Remote\Package;
 use Grav\Common\Grav;
 use Grav\Common\Utils;
@@ -485,7 +485,7 @@ class InstallCommand extends GpmCommand
     {
         $io = $this->getIO();
 
-        exec('cd ' . $this->destination);
+        exec('cd ' . escapeshellarg($this->destination));
 
         $to = $this->destination . DS . $package->install_path;
         $from = $this->getSymlinkSource($package);

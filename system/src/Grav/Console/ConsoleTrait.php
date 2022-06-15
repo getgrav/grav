@@ -288,7 +288,7 @@ trait ConsoleTrait
     {
         $composer = Composer::getComposerExecutor();
 
-        return system($composer . ' --working-dir="'.$path.'" --no-interaction --no-dev --prefer-dist -o '. $action);
+        return system($composer . ' --working-dir=' . escapeshellarg($path) . ' --no-interaction --no-dev --prefer-dist -o '. $action);
     }
 
     /**
