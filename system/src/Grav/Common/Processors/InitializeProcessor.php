@@ -4,7 +4,6 @@
  * @package    Grav\Common\Processors
  *
  * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
- * @copyright  Copyright (c) 2022 Informatyka Boguslawski sp. z o.o. sp.k., http://www.ib.pl/
  * @license    MIT License; see LICENSE file for details.
  */
 
