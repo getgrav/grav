@@ -9,6 +9,7 @@
 
 namespace Grav\Common\Page\Medium;
 
+use Exception;
 use Grav\Common\Config\Config;
 use Grav\Common\Debugger;
 use Grav\Common\File\CompiledYamlFile;
@@ -789,6 +790,9 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
      */
     protected function initMedium(string $name): ?MediaObjectInterface
     {
+        /** @var Debugger $debugger */
+        $debugger = Grav::instance()['debugger'];
+
         $types = $this->grouped[$name];
 
         // Prepare the alternatives in case there is no base medium.
@@ -798,7 +802,11 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
              * @var array $alt
              */
             foreach ($types['alternative'] as $ratio => &$alt) {
-                $alt['file'] = $this->createFromFile($alt['filename']);
+                try {
+                    $alt['file'] = $this->createFromFile($alt['filename']);
+                } catch (Exception $e) {
+                    $debugger->addException($e);
+                }
                 if (empty($alt['file'])) {
                     unset($types['alternative'][$ratio]);
                 }
@@ -809,9 +817,7 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
         // Create the base medium.
         $file_path = null;
         if (empty($types['base'])) {
-            if (!isset($types['alternative'])) {
-                /** @var Debugger $debugger */
-                $debugger = Grav::instance()['debugger'];
+            if (empty($types['alternative'])) {
                 $debugger->addMessage(sprintf('Could not create base media %s', $name), 'warning');
 
                 return null;
@@ -822,7 +828,13 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
             $file_path = $medium->path();
             $medium = $this->scaledFromMedium($medium, $max);
         } else {
-            $medium = $this->createFromFile($types['base']['filename']);
+            try {
+                $medium = $this->createFromFile($types['base']['filename']);
+            } catch (Exception $e) {
+                $medium = null;
+
+                $debugger->addException($e);
+            }
             if ($medium) {
                 $medium->set('size', $types['base']['size']);
                 $file_path = $medium->path();
@@ -830,8 +842,6 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
         }
 
         if (!$medium) {
-            /** @var Debugger $debugger */
-            $debugger = Grav::instance()['debugger'];
             $debugger->addMessage(sprintf('Could not initialize %s', $name), 'warning');
 
             return null;
@@ -854,8 +864,6 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
                     $types['meta']['filename'] = $meta_path;
                 }
             } catch (RuntimeException $e) {
-                /** @var Debugger $debugger */
-                $debugger = Grav::instance()['debugger'];
                 $debugger->addMessage(sprintf('Could not create image meta for %s: %s', $name, $e->getMessage()), 'warning');
             }
         }
@@ -881,8 +889,6 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
                     if ($scaled) {
                         $types['alternative'][$i] = $scaled;
                     } else {
-                        /** @var Debugger $debugger */
-                        $debugger = Grav::instance()['debugger'];
                         $debugger->addMessage(sprintf('Could not create alternative image for %s', $medium->filename), 'warning');
                     }
                 }

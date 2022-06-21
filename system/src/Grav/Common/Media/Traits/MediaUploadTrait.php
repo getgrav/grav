@@ -281,7 +281,7 @@ trait MediaUploadTrait
             }
 
         } catch (Exception $e) {
-            throw new RuntimeException($this->translate('GRAV.MEDIA.UPLOAD_ERR_FAILED_TO_MOVE') . $e->getMessage(), 400);
+            throw new RuntimeException($this->translate('GRAV.MEDIA.UPLOAD_ERR_FAILED_TO_MOVE', $e->getMessage()), 400);
         } finally {
             $this->clearCache();
         }
