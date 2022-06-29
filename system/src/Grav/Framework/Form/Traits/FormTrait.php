@@ -453,9 +453,9 @@ trait FormTrait
                 'session_id' => $this->getSessionId(),
                 'unique_id' => $this->getUniqueId(),
                 'form_name' => $this->getName(),
-                'folder' => $this->getFlashFolder()
+                'folder' => $this->getFlashFolder(),
+                'id' => $this->getFlashId()
             ];
-
 
             $this->flash = new FormFlash($config);
             $this->flash->setUrl($grav['uri']->url)->setUser($grav['user'] ?? null);
@@ -486,7 +486,8 @@ trait FormTrait
                 'session_id' => $this->getSessionId(),
                 'unique_id' => $uniqueId,
                 'form_name' => $name,
-                'folder' => $this->getFlashFolder()
+                'folder' => $this->getFlashFolder(),
+                'id' => $this->getFlashId()
             ];
             $flash = new FormFlash($config);
             if ($flash->exists() && $flash->getFormName() === $name) {
@@ -604,6 +605,28 @@ trait FormTrait
             '[USERNAME]' => $username ?? '!!',
             '[USERNAME_OR_SESSIONID]' => $username ?? $sessionId ?? '!!',
             '[ACCOUNT]' => $mediaFolder ?? '!!'
+        ];
+
+        $flashLookupFolder = $this->getFlashLookupFolder();
+
+        $path = str_replace(array_keys($dataMap), array_values($dataMap), $flashLookupFolder);
+
+        // Make sure we only return valid paths.
+        return strpos($path, '!!') === false ? rtrim($path, '/') : null;
+    }
+
+    /**
+     * @return string|null
+     */
+    protected function getFlashId(): ?string
+    {
+        // Fill template token keys/value pairs.
+        $dataMap = [
+            '[FORM_NAME]' => $this->getName(),
+            '[SESSIONID]' => 'session',
+            '[USERNAME]' => '!!',
+            '[USERNAME_OR_SESSIONID]' => '!!',
+            '[ACCOUNT]' => 'account'
         ];
 
         $flashLookupFolder = $this->getFlashLookupFolder();

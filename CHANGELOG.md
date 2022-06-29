@@ -14,6 +14,13 @@
     * Support phpstan level 6 in Framework classes
 
 # v1.7.33
+# v1.7.35
+## mm/dd/2022
+
+1. [](#new)
+   * Added support for `multipart/form-data` content type in PUT and PATCH requests
+   * Added support for object relationships
+
 # v1.7.34
 ## 06/14/2022
 

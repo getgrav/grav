@@ -29,6 +29,8 @@ use function sprintf;
 class FormFlashFile implements UploadedFileInterface, JsonSerializable
 {
     /** @var string */
+    private $id;
+    /** @var string */
     private $field;
     /** @var bool */
     private $moved = false;
@@ -45,6 +47,7 @@ class FormFlashFile implements UploadedFileInterface, JsonSerializable
      */
     public function __construct(string $field, array $upload, FormFlash $flash)
     {
+        $this->id = $flash->getId() ?: $flash->getUniqueId();
         $this->field = $field;
         $this->upload = $upload;
         $this->flash = $flash;
@@ -105,6 +108,11 @@ class FormFlashFile implements UploadedFileInterface, JsonSerializable
         if ($filename) {
             $this->flash->removeFile($filename, $this->field);
         }
+    }
+
+    public function getId(): string
+    {
+        return $this->id;
     }
 
     /**
@@ -222,6 +230,7 @@ class FormFlashFile implements UploadedFileInterface, JsonSerializable
     public function __debugInfo()
     {
         return [
+            'id:private' => $this->id,
             'field:private' => $this->field,
             'moved:private' => $this->moved,
             'upload:private' => $this->upload,

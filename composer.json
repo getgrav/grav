@@ -68,7 +68,7 @@
     },
     "require-dev": {
         "codeception/codeception": "^4.1",
-        "phpstan/phpstan": "^1.4",
+        "phpstan/phpstan": "^1.8",
         "phpstan/phpstan-deprecation-rules": "^1.0",
         "phpunit/php-code-coverage": "~9.2",
         "getgrav/markdowndocs": "^2.0",
