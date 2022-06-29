@@ -336,7 +336,7 @@ trait FlexMediaTrait
             if ($medium) {
                 if ($medium->uploaded_file) {
                     $upload = $medium->uploaded_file;
-                    $id = $upload->getId();
+                    $id = $upload instanceof FormFlashFile ? $upload->getId() : "{$field}-{$name}";
 
                     $list[] = new UploadedMediaObject($id, $field, $name, $upload);
                 } else {
@@ -426,7 +426,7 @@ trait FlexMediaTrait
         $updated = false;
         foreach ($this->getUpdatedMedia() as $filename => $upload) {
             if (is_array($upload)) {
-                // Uses new format with [UploadedFileInterface, array].
+                /** @var array{UploadedFileInterface,array} $upload */
                 $settings = $upload[1];
                 if (isset($settings['destination']) && $settings['destination'] === $media->getPath()) {
                     $upload = $upload[0];
