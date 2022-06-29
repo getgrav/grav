@@ -275,6 +275,7 @@ class FlexDirectoryForm implements FlexDirectoryFormInterface, JsonSerializable
                 'unique_id' => $this->getUniqueId(),
                 'form_name' => $this->getName(),
                 'folder' => $this->getFlashFolder(),
+                'id' => $this->getFlashId(),
                 'directory' => $this->getDirectory()
             ];
 

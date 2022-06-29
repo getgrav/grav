@@ -21,6 +21,13 @@
     * Fixed remote URLs in markdown if using subfolder setup
     * Fixed calls to undefined `Media` methods, they will now return `null` in order to fix twig templates with undefined variables
 
+# v1.7.35
+## mm/dd/2022
+
+1. [](#new)
+   * Added support for `multipart/form-data` content type in PUT and PATCH requests
+   * Added support for object relationships
+
 # v1.7.34
 ## 06/14/2022
 

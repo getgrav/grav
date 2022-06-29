@@ -31,6 +31,8 @@ class FormFlash implements FormFlashInterface
     /** @var bool */
     protected $exists;
     /** @var string */
+    protected $id;
+    /** @var string */
     protected $sessionId;
     /** @var string */
     protected $uniqueId;
@@ -75,8 +77,11 @@ class FormFlash implements FormFlashInterface
             });
         }
 
-        $this->sessionId = $config['session_id'] ?? 'no-session';
+        $this->id = $config['id'] ?? '';
+        $this->sessionId = $config['session_id'] ?? '';
         $this->uniqueId = $config['unique_id'] ?? '';
+
+        $this->setUser($config['user'] ?? null);
 
         $folder = $config['folder'] ?? ($this->sessionId ? 'tmp://forms/' . $this->sessionId : '');
 
@@ -131,6 +136,14 @@ class FormFlash implements FormFlashInterface
         }
 
         return $data;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getId(): string
+    {
+        return $this->id && $this->uniqueId ? $this->id . '/' . $this->uniqueId : '';
     }
 
     /**
@@ -390,8 +403,8 @@ class FormFlash implements FormFlashInterface
      */
     public function clearFiles()
     {
-        foreach ($this->files as $field => $files) {
-            foreach ($files as $name => $upload) {
+        foreach ($this->files as $files) {
+            foreach ($files as $upload) {
                 $this->removeTmpFile($upload['tmp_name'] ?? '');
             }
         }
@@ -406,6 +419,7 @@ class FormFlash implements FormFlashInterface
     {
         return [
             'form' => $this->formName,
+            'id' => $this->getId(),
             'unique_id' => $this->uniqueId,
             'url' => $this->url,
             'user' => $this->user,

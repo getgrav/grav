@@ -144,6 +144,7 @@ log:
   handler: file                                 # Log handler. Currently supported: file | syslog
   syslog:
     facility: local6                            # Syslog facilities output
+    tag: grav                                   # Syslog tag. Default: "grav".
 
 debugger:
   enabled: false                                 # Enable Grav debugger and following settings
