@@ -184,7 +184,7 @@ class Relationships implements RelationshipsInterface
     /**
      * @param string $name
      * @param array $options
-     * @return ToOneRelationship|ToManyRelationship
+     * @return ToOneRelationship<T,P>|ToManyRelationship<T,P>
      */
     private function createRelationship(string $name, array $options): RelationshipInterface
     {
@@ -203,9 +203,11 @@ class Relationships implements RelationshipsInterface
         $cardinality = $options['cardinality'] ?? '';
         switch ($cardinality) {
             case 'to-one':
+                /** @var ToOneRelationship<T,P> $relationship */
                 $relationship = new ToOneRelationship($parent, $name, $options, $data);
                 break;
             case 'to-many':
+                /** @var ToManyRelationship<T,P> $relationship */
                 $relationship = new ToManyRelationship($parent, $name, $options, $data ?? []);
                 break;
             default:
