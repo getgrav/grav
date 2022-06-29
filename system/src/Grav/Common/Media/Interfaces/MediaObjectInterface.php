@@ -180,15 +180,6 @@ interface MediaObjectInterface extends \Grav\Framework\Media\Interfaces\MediaObj
     public function thumbnail(string $type = 'auto');
 
     /**
-     * Return URL to file.
-     *
-     * @param bool $reset
-     * @return string
-     * @phpstan-impure
-     */
-    public function url(bool $reset = true): string;
-
-    /**
      * Turn the current Medium into a Link
      *
      * @param  bool $reset
@@ -257,19 +248,6 @@ interface MediaObjectInterface extends \Grav\Framework\Media\Interfaces\MediaObj
      * @phpstan-impure
      */
     public function addQuerystring(string $var, array $args);
-
-    /**
-     * Get value by using dot notation for nested arrays/objects.
-     *
-     * @example $value = $this->get('this.is.my.nested.variable');
-     *
-     * @param string $name Dot separated path to the requested value.
-     * @param mixed $default Default value (or null).
-     * @param string|null $separator Separator, defaults to '.'
-     * @return mixed Value.
-     * @phpstan-pure
-     */
-    public function get($name, $default = null, $separator = null);
 
     /**
      * Set value by using dot notation for nested arrays/objects.

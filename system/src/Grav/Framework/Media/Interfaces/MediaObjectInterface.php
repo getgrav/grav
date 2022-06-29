@@ -22,6 +22,7 @@ interface MediaObjectInterface
      * Returns an array containing the file metadata
      *
      * @return array
+     * @phpstan-pure
      */
     public function getMeta();
 
@@ -30,8 +31,9 @@ interface MediaObjectInterface
      *
      * @param bool $reset
      * @return string
+     * @phpstan-impure
      */
-    public function url($reset = true);
+    public function url(bool $reset = true): string;
 
     /**
      * Get value by using dot notation for nested arrays/objects.
@@ -42,6 +44,7 @@ interface MediaObjectInterface
      * @param mixed $default Default value (or null).
      * @param string|null $separator Separator, defaults to '.'
      * @return mixed Value.
+     * @phpstan-pure
      */
     public function get($name, $default = null, $separator = null);
 }
