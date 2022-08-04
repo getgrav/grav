@@ -1,10 +1,12 @@
 # v1.7.35
-## mm/dd/2022
+## 08/04/2022
 
 1. [](#new)
    * Added support for `multipart/form-data` content type in PUT and PATCH requests
    * Added support for object relationships
    * Added variables `$environment` (string), `$request` (PSR-7 ServerRequestInterface|null) and `$uri` (PSR-7 Uri|null) to be used in `setup.php`
+1. [](#improved)
+   * Minor vendor updates
 
 # v1.7.34
 ## 06/14/2022
