@@ -251,7 +251,8 @@ class InitializeProcessor extends ProcessorBase
             $log->popHandler();
 
             $facility = $config->get('system.log.syslog.facility', 'local6');
-            $logHandler = new SyslogHandler('grav', $facility);
+            $tag = $config->get('system.log.syslog.tag', 'grav');
+            $logHandler = new SyslogHandler($tag, $facility);
             $formatter = new LineFormatter("%channel%.%level_name%: %message% %extra%");
             $logHandler->setFormatter($formatter);
 

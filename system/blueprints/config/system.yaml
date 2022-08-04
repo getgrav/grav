@@ -1156,6 +1156,13 @@ form:
                 local6: local6
                 local7: local7
 
+            log.syslog.tag:
+              type: text
+              size: small
+              label: PLUGIN_ADMIN.SYSLOG_TAG
+              help: PLUGIN_ADMIN.SYSLOG_TAG_HELP
+              placeholder: "grav"
+
         debugger:
           type: tab
           title: PLUGIN_ADMIN.DEBUGGER
