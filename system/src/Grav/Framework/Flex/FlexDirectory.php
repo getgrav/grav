@@ -788,6 +788,7 @@ class FlexDirectory implements FlexDirectoryInterface
     public function reloadIndex(): void
     {
         $this->getCache('index')->clear();
+        $this->getIndex()::loadEntriesFromStorage($this->getStorage());
 
         $this->indexes = [];
         $this->objects = [];
