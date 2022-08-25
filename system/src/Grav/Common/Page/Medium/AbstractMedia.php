@@ -277,8 +277,11 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
          * @var MediaObjectInterface $file
          */
         foreach ($this as $filename => $file) {
-            $instance = clone $file;
-            $list[$filename] = $instance->setTimestamp($this->timestamp);
+            // FIXME: iterator should do something with missing images, maybe point to fallback image.
+            if ($file) {
+                $instance = clone $file;
+                $list[$filename] = $instance->setTimestamp($this->timestamp);
+            }
         }
 
         return $list;
