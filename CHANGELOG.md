@@ -3,6 +3,7 @@
 
 1. [](#new)
     * Added `authorize-*@:` support for Flex blueprints, e.g. `authorize-disabled@: not delete` disables the field if user does not have access to delete object
+    * Added support for `flex-ignore@` to hide all the nested fields in the blueprint
 
 # v1.7.35
 ## 08/04/2022

@@ -920,7 +920,13 @@ class FlexDirectory implements FlexDirectoryInterface
             if (is_array($value) && isset($field[$property]) && is_array($field[$property])) {
                 $value = $this->mergeArrays($field[$property], $value);
             }
-            $field[$property] = $not ? !$value : $value;
+            $value = $not ? !$value : $value;
+
+            if ($property === 'ignore' && $value) {
+                Blueprint::addPropertyRecursive($field, 'validate', ['ignore' => true]);
+            } else {
+                $field[$property] = $value;
+            }
         }
     }
 
