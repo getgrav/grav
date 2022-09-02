@@ -1,3 +1,9 @@
+# v1.7.36
+## mm/dd/2022
+
+1. [](#new)
+    * Added `authorize-*@:` support for Flex blueprints, e.g. `authorize-disabled@: not delete` disables the field if user does not have access to delete objec
+
 # v1.7.35
 ## 08/04/2022
 
