@@ -112,11 +112,12 @@ class UserCollection implements UserCollectionInterface
 
         // If not found, try the fields
         if (!$user->exists()) {
+            $query = mb_strtolower($query);
             foreach ($files as $file) {
                 if (Utils::endsWith($file, YAML_EXT)) {
                     $find_user = $this->load(trim(Utils::pathinfo($file, PATHINFO_FILENAME)));
                     foreach ($fields as $field) {
-                        if (isset($find_user[$field]) && $find_user[$field] === $query) {
+                        if (isset($find_user[$field]) && mb_strtolower($find_user[$field]) === $query) {
                             return $find_user;
                         }
                     }
