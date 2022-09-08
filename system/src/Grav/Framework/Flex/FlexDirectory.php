@@ -836,6 +836,9 @@ class FlexDirectory implements FlexDirectoryInterface
             $blueprint->addDynamicHandler('flex', function (array &$field, $property, array &$call) {
                 $this->dynamicFlexField($field, $property, $call);
             });
+            $blueprint->addDynamicHandler('authorize', function (array &$field, $property, array &$call) {
+                $this->dynamicAuthorizeField($field, $property, $call);
+            });
 
             if ($context) {
                 $blueprint->setContext($context);
@@ -917,6 +920,40 @@ class FlexDirectory implements FlexDirectoryInterface
             if (is_array($value) && isset($field[$property]) && is_array($field[$property])) {
                 $value = $this->mergeArrays($field[$property], $value);
             }
+            $value = $not ? !$value : $value;
+
+            if ($property === 'ignore' && $value) {
+                Blueprint::addPropertyRecursive($field, 'validate', ['ignore' => true]);
+            } else {
+                $field[$property] = $value;
+            }
+        }
+    }
+
+    /**
+     * @param array $field
+     * @param string $property
+     * @param array $call
+     * @return void
+     */
+    protected function dynamicAuthorizeField(array &$field, $property, array $call): void
+    {
+        $params = (array)$call['params'];
+        $object = $call['object'] ?? null;
+        $permission = array_shift($params);
+        $not = false;
+        if (str_starts_with($permission, '!')) {
+            $permission = substr($permission, 1);
+            $not = true;
+        } elseif (str_starts_with($permission, 'not ')) {
+            $permission = substr($permission, 4);
+            $not = true;
+        }
+        $permission = trim($permission);
+
+        if ($object) {
+            $value = $object->isAuthorized($permission) ?? false;
+
             $field[$property] = $not ? !$value : $value;
         }
     }

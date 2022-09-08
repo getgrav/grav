@@ -1,3 +1,12 @@
+# v1.7.36
+## 09/08/2022
+
+1. [](#new)
+    * Added `authorize-*@:` support for Flex blueprints, e.g. `authorize-disabled@: not delete` disables the field if user does not have access to delete object
+    * Added support for `flex-ignore@` to hide all the nested fields in the blueprint
+1. [](#bugfix)
+    * Fixed loggin with a capitalised email address when using old users [getgrav/grav-plugin-login#229](https://github.com/getgrav/grav-plugin-login/issues/229)
+
 # v1.7.35
 ## 08/04/2022
 
