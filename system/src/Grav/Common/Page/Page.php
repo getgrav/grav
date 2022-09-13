@@ -622,7 +622,12 @@ class Page implements PageInterface
             $headers['Vary'] = 'Accept-Encoding';
         }
 
-        return $headers;
+
+        // Added new Headers event
+        $headers_obj = (object) $headers;
+        Grav::instance()->fireEvent('onPageHeaders', new Event(['headers' => $headers_obj]));
+
+        return (array)$headers_obj;
     }
 
     /**

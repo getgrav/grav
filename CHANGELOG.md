@@ -1,3 +1,9 @@
+# v1.7.37
+## mm/dd/2022
+
+1. [](#new)
+    * Added new `onPageHeaders()` event to allow for header modification as needed
+
 # v1.7.36
 ## 09/08/2022
 
