@@ -100,6 +100,7 @@ class Pages
     /** @var string|null */
     protected static $home_route;
 
+
     /**
      * Constructor
      *
@@ -1712,10 +1713,7 @@ class Pages
         /** @var Language $language */
         $language = $this->grav['language'];
 
-        $pages_dir = $locator->findResource('page://');
-        if (!is_string($pages_dir)) {
-            throw new RuntimeException('Internal Error');
-        }
+        $pages_dirs = $this->getPagesPaths();
 
         // Set active language
         $this->active_lang = $language->getActive();
@@ -1731,16 +1729,16 @@ class Pages
                     $hash = 0;
                     break;
                 case 'folder':
-                    $hash = Folder::lastModifiedFolder($pages_dir);
+                    $hash = Folder::lastModifiedFolder($pages_dirs);
                     break;
                 case 'hash':
-                    $hash = Folder::hashAllFiles($pages_dir);
+                    $hash = Folder::hashAllFiles($pages_dirs);
                     break;
                 default:
-                    $hash = Folder::lastModifiedFile($pages_dir);
+                    $hash = Folder::lastModifiedFile($pages_dirs);
             }
 
-            $this->pages_cache_id = md5($pages_dir . $hash . $language->getActive() . $config->checksum());
+            $this->pages_cache_id = md5(json_encode($pages_dirs) . $hash . $language->getActive() . $config->checksum());
 
             /** @var Cache $cache */
             $cache = $this->grav['cache'];
@@ -1760,18 +1758,39 @@ class Pages
             $this->grav['debugger']->addMessage('Page cache disabled, rebuilding pages..');
         }
 
-        $this->resetPages($pages_dir);
+        $this->resetPages($pages_dirs);
+    }
+
+    protected function getPagesPaths(): array
+    {
+        $grav = Grav::instance();
+        $locator = $grav['locator'];
+        $paths = [];
+
+        $dirs = (array) $grav['config']->get('system.pages.dirs', ['page://']);
+        foreach ($dirs as $dir) {
+            $path = $locator->findResource($dir);
+            if (file_exists($path)) {
+                $paths[] = $path;
+            }
+        }
+
+        return $paths;
     }
 
     /**
      * Accessible method to manually reset the pages cache
      *
-     * @param string $pages_dir
+     * @param array $pages_dirs
      */
-    public function resetPages($pages_dir): void
+    public function resetPages(array $pages_dirs): void
     {
         $this->sort = [];
-        $this->recurse($pages_dir);
+
+        foreach ($pages_dirs as $dir) {
+            $this->recurse($dir);
+        }
+
         $this->buildRoutes();
 
         // cache if needed
@@ -1795,7 +1814,7 @@ class Pages
      * @throws RuntimeException
      * @internal
      */
-    protected function recurse($directory, PageInterface $parent = null)
+    protected function recurse(string $directory, PageInterface $parent = null)
     {
         $directory = rtrim($directory, DS);
         $page = new Page;
