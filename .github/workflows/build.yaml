@@ -4,8 +4,13 @@ on:
   release:
     types: [published]
 
+permissions: {}
+
 jobs:
   build:
+    permissions:
+      contents: write # for release creation (svenstaro/upload-release-action)
+
     if: "!github.event.release.prerelease"
     runs-on: ubuntu-latest
 
@@ -52,6 +57,9 @@ jobs:
           file_glob: true
 
   slack:
+    permissions:
+      actions: read # to list jobs for workflow run (technote-space/workflow-conclusion-action)
+
     name: Slack
     needs: build
     runs-on: ubuntu-latest
