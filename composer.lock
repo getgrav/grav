@@ -3285,16 +3285,16 @@
         },
         {
             "name": "twig/twig",
-            "version": "v1.44.6",
+            "version": "v1.44.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/twigphp/Twig.git",
-                "reference": "ae39480f010ef88adc7938503c9b02d3baf2f3b3"
+                "reference": "0887422319889e442458e48e2f3d9add1a172ad5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/twigphp/Twig/zipball/ae39480f010ef88adc7938503c9b02d3baf2f3b3",
-                "reference": "ae39480f010ef88adc7938503c9b02d3baf2f3b3",
+                "url": "https://api.github.com/repos/twigphp/Twig/zipball/0887422319889e442458e48e2f3d9add1a172ad5",
+                "reference": "0887422319889e442458e48e2f3d9add1a172ad5",
                 "shasum": ""
             },
             "require": {
@@ -3347,7 +3347,7 @@
             ],
             "support": {
                 "issues": "https://github.com/twigphp/Twig/issues",
-                "source": "https://github.com/twigphp/Twig/tree/v1.44.6"
+                "source": "https://github.com/twigphp/Twig/tree/v1.44.7"
             },
             "funding": [
                 {
@@ -3359,7 +3359,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2021-11-25T13:31:46+00:00"
+            "time": "2022-09-28T08:38:36+00:00"
         },
         {
             "name": "willdurand/negotiation",
@@ -6692,5 +6692,5 @@
     "platform-overrides": {
         "php": "7.3.6"
     },
-    "plugin-api-version": "2.2.0"
+    "plugin-api-version": "2.3.0"
 }
