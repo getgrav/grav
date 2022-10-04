@@ -4,6 +4,8 @@
 1. [](#new)
     * Added new `onPageHeaders()` event to allow for header modification as needed
     * Added a `system.pages.dirs` configuration option to allow for configurable paths, and multiple page paths
+1. [](#bugfix)
+    * An attempt to workaround windows reading locked file issue [getgrav/grav-plugin-admin#2299](https://github.com/getgrav/grav-plugin-admin/issues/2299)
 
 # v1.7.36
 ## 09/08/2022
