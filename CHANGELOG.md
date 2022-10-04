@@ -3,6 +3,7 @@
 
 1. [](#new)
     * Added new `onPageHeaders()` event to allow for header modification as needed
+    * Added a `system.pages.dirs` configuration option to allow for configurable paths, and multiple page paths
 
 # v1.7.36
 ## 09/08/2022
