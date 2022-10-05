@@ -2226,9 +2226,9 @@ class Pages
      * this is particularly useful to know if pages have changed and you want
      * to sync another cache with pages cache - works best in `onPagesInitialized()`
      *
-     * @return string
+     * @return null|string
      */
-    public function getPagesCacheId(): string
+    public function getPagesCacheId(): ?string
     {
         return $this->pages_cache_id;
     }
@@ -2236,9 +2236,9 @@ class Pages
     /**
      * Get the simple pages hash that is not md5 encoded, and isn't specific to language
      *
-     * @return string
+     * @return null|string
      */
-    public function getSimplePagesHash(): string
+    public function getSimplePagesHash(): ?string
     {
         return $this->simple_pages_hash;
     }
