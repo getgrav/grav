@@ -1,3 +1,9 @@
+# v1.7.37.1
+## 10/05/2022
+
+1. [](#bugfix)
+    * Fixed a bad return type [#3630](https://github.com/getgrav/grav/issues/3630)
+
 # v1.7.37
 ## 10/05/2022
 
