@@ -1,3 +1,9 @@
+# v1.7.38
+## mm/dd/2022
+
+1. [](#improved)
+   * Updated `bin/composer.phar` to latest `2.4.2` version [#3627](https://github.com/getgrav/grav/issues/3627)
+
 # v1.7.37.1
 ## 10/05/2022
 
