@@ -1,3 +1,15 @@
+# v1.7.37
+## 10/05/2022
+
+1. [](#new)
+    * Added new `onPageHeaders()` event to allow for header modification as needed
+    * Added a `system.pages.dirs` configuration option to allow for configurable paths, and multiple page paths
+    * Added new `Pages::getSimplePagesHash` which is useful for caching pages specific data
+    * Updated to latest vendor libraries
+1. [](#bugfix)
+    * An attempt to workaround windows reading locked file issue [getgrav/grav-plugin-admin#2299](https://github.com/getgrav/grav-plugin-admin/issues/2299)
+    * Force user index file to be updated to fix email addresses [getgrav/grav-plugin-login#229](https://github.com/getgrav/grav-plugin-login/issues/229)
+
 # v1.7.36
 ## 09/08/2022
 
@@ -5,7 +17,7 @@
     * Added `authorize-*@:` support for Flex blueprints, e.g. `authorize-disabled@: not delete` disables the field if user does not have access to delete object
     * Added support for `flex-ignore@` to hide all the nested fields in the blueprint
 1. [](#bugfix)
-    * Fixed loggin with a capitalised email address when using old users [getgrav/grav-plugin-login#229](https://github.com/getgrav/grav-plugin-login/issues/229)
+    * Fixed login with a capitalised email address when using old users [getgrav/grav-plugin-login#229](https://github.com/getgrav/grav-plugin-login/issues/229)
 
 # v1.7.35
 ## 08/04/2022
