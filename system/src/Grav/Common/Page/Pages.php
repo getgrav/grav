@@ -88,6 +88,8 @@ class Pages
     /** @var string */
     protected $check_method;
     /** @var string */
+    protected $simple_pages_hash;
+    /** @var string */
     protected $pages_cache_id;
     /** @var bool */
     protected $initialized = false;
@@ -1738,7 +1740,8 @@ class Pages
                     $hash = Folder::lastModifiedFile($pages_dirs);
             }
 
-            $this->pages_cache_id = md5(json_encode($pages_dirs) . $hash . $language->getActive() . $config->checksum());
+            $this->simple_pages_hash = json_encode($pages_dirs) . $hash . $config->checksum();
+            $this->pages_cache_id = md5($this->simple_pages_hash . $language->getActive());
 
             /** @var Cache $cache */
             $cache = $this->grav['cache'];
@@ -2196,7 +2199,7 @@ class Pages
      * @param array $list
      * @return array
      */
-    protected function arrayShuffle($list)
+    protected function arrayShuffle(array $list): array
     {
         $keys = array_keys($list);
         shuffle($keys);
@@ -2212,7 +2215,7 @@ class Pages
     /**
      * @return string
      */
-    protected function getVersion()
+    protected function getVersion(): string
     {
         return $this->directory ? 'flex' : 'regular';
     }
@@ -2225,8 +2228,18 @@ class Pages
      *
      * @return string
      */
-    public function getPagesCacheId()
+    public function getPagesCacheId(): string
     {
         return $this->pages_cache_id;
+    }
+
+    /**
+     * Get the simple pages hash that is not md5 encoded, and isn't specific to language
+     *
+     * @return string
+     */
+    public function getSimplePagesHash(): string
+    {
+        return $this->simple_pages_hash;
     }
 }
