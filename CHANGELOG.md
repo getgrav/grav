@@ -3,7 +3,9 @@
 
 1. [](#improved)
    * Updated `bin/composer.phar` to latest `2.4.2` version [#3627](https://github.com/getgrav/grav/issues/3627)
-
+1. [](#bugfix)
+   * Don't fail hard if pages recurse with same page path
+   
 # v1.7.37.1
 ## 10/05/2022
 

@@ -1849,8 +1849,8 @@ class Pages
             if ($parent && $page->path()) {
                 $this->children[$parent->path()][$page->path()] = ['slug' => $page->slug()];
             }
-        } elseif ($parent !== null) {
-            throw new RuntimeException('Fatal error when creating page instances.');
+        } else {
+            return;
         }
 
         // Build regular expression for all the allowed page extensions.
