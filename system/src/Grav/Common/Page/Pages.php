@@ -1849,8 +1849,8 @@ class Pages
             if ($parent && $page->path()) {
                 $this->children[$parent->path()][$page->path()] = ['slug' => $page->slug()];
             }
-        } else {
-            return;
+        } elseif ($parent !== null) {
+            return null;
         }
 
         // Build regular expression for all the allowed page extensions.
