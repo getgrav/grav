@@ -1141,7 +1141,7 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
      */
     public function ofType($type)
     {
-        $collection = $this->__call('ofType', []);
+        $collection = $this->__call('ofType', [$type]);
 
         return $collection;
     }
@@ -1155,7 +1155,7 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
      */
     public function ofOneOfTheseTypes($types)
     {
-        $collection = $this->__call('ofOneOfTheseTypes', []);
+        $collection = $this->__call('ofOneOfTheseTypes', [$types]);
 
         return $collection;
     }
@@ -1169,7 +1169,7 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
      */
     public function ofOneOfTheseAccessLevels($accessLevels)
     {
-        $collection = $this->__call('ofOneOfTheseAccessLevels', []);
+        $collection = $this->__call('ofOneOfTheseAccessLevels', [$accessLevels]);
 
         return $collection;
     }
