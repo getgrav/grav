@@ -392,6 +392,9 @@ class Assets extends PropertyObject
 
             if ($key === 'position' && $value === 'pipeline') {
                 $type = $asset->getType();
+                if ($type === 'jsmodule') {
+                    $type = 'js_module';
+                }
 
                 if ($asset->getRemote() && $this->{strtolower($type) . '_pipeline_include_externals'} === false && $asset['position'] === 'pipeline') {
                     if ($this->{strtolower($type) . '_pipeline_before_excludes'}) {
