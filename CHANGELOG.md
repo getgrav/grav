@@ -1,3 +1,8 @@
+## 12/28/2022
+
+1. [](#improved)
+   * Handle the situation when GRAV_ROOT or GRAV_WEBROOT are `/`
+
 # v1.7.38
 ## mm/dd/2022
 
