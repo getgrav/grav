@@ -439,6 +439,12 @@ class Grav extends Container
     {
         $response = $this->getRedirectResponse($route, $code);
 
+        $session = $this['session'] ?? null;
+        $messages = $this['messages'] ?? null;
+        if (!isset($session->messages) && $session && $messages) {
+            $session->messages = $messages;
+        }
+
         $this->close($response);
     }
 

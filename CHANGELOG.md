@@ -4,9 +4,10 @@
 1. [](#improved)
    * Updated `bin/composer.phar` to latest `2.4.4` version [#3627](https://github.com/getgrav/grav/issues/3627)
 1. [](#bugfix)
-   * Don't failhard if pages recurse with same path
+   * Get around a bug where messages were not always being set on session during redirect
+   * Don't fail hard if pages recurse with same path
    * Github workflows security hardening [#3624](https://github.com/getgrav/grav/pull/3624)
-     
+
 # v1.7.37.1
 ## 10/05/2022
 
