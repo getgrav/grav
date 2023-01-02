@@ -10,6 +10,7 @@
 namespace Grav\Common;
 
 use Grav\Common\Form\FormFlash;
+use Grav\Events\BeforeSessionStartEvent;
 use Grav\Events\SessionStartEvent;
 use Grav\Plugin\Form\Forms;
 use JsonException;
@@ -175,6 +176,17 @@ class Session extends \Grav\Framework\Session\Session
         }
 
         return null;
+    }
+
+    /**
+     * @return void
+     */
+    protected function onBeforeSessionStart(): void
+    {
+        $event = new BeforeSessionStartEvent($this);
+
+        $grav = Grav::instance();
+        $grav->dispatchEvent($event);
     }
 
     /**

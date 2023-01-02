@@ -317,6 +317,8 @@ class Session implements SessionInterface
 
             $this->removeCookie();
 
+            $this->onBeforeSessionStart();
+
             $success = @session_start($this->options);
             if (!$success) {
                 $last = error_get_last();
@@ -454,6 +456,10 @@ class Session implements SessionInterface
     protected function isSessionStarted()
     {
         return \PHP_SAPI !== 'cli' ? \PHP_SESSION_ACTIVE === session_status() : false;
+    }
+
+    protected function onBeforeSessionStart(): void
+    {
     }
 
     protected function onSessionStart(): void
