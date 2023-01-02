@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [ develop ]
 
+permissions:
+  contents: read # to fetch code (actions/checkout)
+
 jobs:
 
   unit-tests:

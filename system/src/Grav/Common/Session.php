@@ -3,13 +3,14 @@
 /**
  * @package    Grav\Common
  *
- * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2023 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Common;
 
 use Grav\Common\Form\FormFlash;
+use Grav\Events\BeforeSessionStartEvent;
 use Grav\Events\SessionStartEvent;
 use Grav\Plugin\Form\Forms;
 use JsonException;
@@ -175,6 +176,17 @@ class Session extends \Grav\Framework\Session\Session
         }
 
         return null;
+    }
+
+    /**
+     * @return void
+     */
+    protected function onBeforeSessionStart(): void
+    {
+        $event = new BeforeSessionStartEvent($this);
+
+        $grav = Grav::instance();
+        $grav->dispatchEvent($event);
     }
 
     /**

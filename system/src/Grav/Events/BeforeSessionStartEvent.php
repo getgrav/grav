@@ -15,11 +15,11 @@ use Symfony\Contracts\EventDispatcher\Event;
 /**
  * Plugins Loaded Event
  *
- * This event is called from $grav['session']->start() right after successful session_start() call.
+ * This event is called from $grav['session']->start() right before session_start() call.
  *
  * @property SessionInterface $session Session instance.
  */
-class SessionStartEvent extends Event
+class BeforeSessionStartEvent extends Event
 {
     /** @var SessionInterface */
     public $session;

@@ -28,6 +28,10 @@ user/themes/*
 user/localhost/config/security.yaml
 user/config/security.yaml
 
+# Environments
+.env
+.gravenv
+
 # OS Generated
 .DS_Store*
 ehthumbs.db

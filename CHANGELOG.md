@@ -1,3 +1,16 @@
+# v1.7.38
+## 01/02/2023
+
+1. [](#new)
+    * New `onBeforeSessionStart()` event to be used to store data lost during session regeneration (e.g. login)
+1. [](#improved)
+   * Vendor library updates to latest versions
+   * Updated `bin/composer.phar` to latest `2.4.4` version [#3627](https://github.com/getgrav/grav/issues/3627)
+1. [](#bugfix)
+
+   * Don't fail hard if pages recurse with same path
+   * Github workflows security hardening [#3624](https://github.com/getgrav/grav/pull/3624)
+
 # v1.7.37.1
 ## 10/05/2022
 
