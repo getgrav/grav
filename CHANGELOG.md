@@ -1,3 +1,9 @@
+# v1.7.39
+## 01/02/2023
+
+1. [](#bugfix)
+   * Fixed an issue with `email` validation that was failing on UTF-8 characters. Following best practices and now only check for `@` and length.
+
 # v1.7.38
 ## 01/02/2023
 
@@ -7,7 +13,6 @@
    * Vendor library updates to latest versions
    * Updated `bin/composer.phar` to latest `2.4.4` version [#3627](https://github.com/getgrav/grav/issues/3627)
 1. [](#bugfix)
-
    * Don't fail hard if pages recurse with same path
    * Github workflows security hardening [#3624](https://github.com/getgrav/grav/pull/3624)
 
