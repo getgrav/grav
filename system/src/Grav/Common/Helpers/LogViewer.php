@@ -21,7 +21,7 @@ use function is_string;
 class LogViewer
 {
     /** @var string */
-    protected $pattern = '/\[(?P<date>.*)\] (?P<logger>\w+).(?P<level>\w+): (?P<message>.*[^ ]+) (?P<context>[^ ]+) (?P<extra>[^ ]+)/';
+    protected $pattern = '/\[(?P<date>.*?)\] (?P<logger>\w+)\.(?P<level>\w+): (?P<message>.*[^ ]+) (?P<context>[^ ]+) (?P<extra>[^ ]+)/';
 
     /**
      * Get the objects of a tailed file
