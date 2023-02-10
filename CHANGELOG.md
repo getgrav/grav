@@ -1,5 +1,5 @@
 # v1.7.39
-## 01/02/2023
+## mm/dd/2023
 
 1. [](#bugfix)
    * Fixed an issue with `email` validation that was failing on UTF-8 characters. Following best practices and now only check for `@` and length.
