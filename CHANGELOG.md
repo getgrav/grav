@@ -2,6 +2,7 @@
 ## mm/dd/2023
 
 1. [](#bugfix)
+   * Fixed an issue with modular pages rendering thew wrong template when dynamically changing the page
    * Fixed an issue with `email` validation that was failing on UTF-8 characters. Following best practices and now only check for `@` and length.
 
 # v1.7.38
