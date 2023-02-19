@@ -1,9 +1,13 @@
 # v1.7.39
 ## mm/dd/2023
 
+1. [](#improved)
+    * Vendor library updates to latest versions
 1. [](#bugfix)
-   * Fixed an issue with modular pages rendering thew wrong template when dynamically changing the page
-   * Fixed an issue with `email` validation that was failing on UTF-8 characters. Following best practices and now only check for `@` and length.
+    * Various PHP 8.2 fixes
+    * Fixed an issue with modular pages rendering thew wrong template when dynamically changing the page
+    * Fixed an issue with `email` validation that was failing on UTF-8 characters. Following best practices and now only check for `@` and length.
+    * Fixed PHPUnit tests to remove deprecation warnings
 
 # v1.7.38
 ## 01/02/2023
