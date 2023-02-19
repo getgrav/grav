@@ -317,7 +317,7 @@ class InstallCommand extends GpmCommand
                 $questionNoun = 'packages';
             }
 
-            $question = new ConfirmationQuestion("${questionAction} {$questionArticle} {$questionNoun}? [Y|n] ", true);
+            $question = new ConfirmationQuestion("{$questionAction} {$questionArticle} {$questionNoun}? [Y|n] ", true);
             $answer = $this->all_yes ? true : $io->askQuestion($question);
 
             if ($answer) {
