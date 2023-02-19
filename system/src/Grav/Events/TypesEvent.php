@@ -14,5 +14,5 @@ use RocketTheme\Toolbox\Event\Event;
 
 class TypesEvent extends Event
 {
-    public $type;
+    public $types;
 }
