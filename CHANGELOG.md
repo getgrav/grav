@@ -1,5 +1,5 @@
 # v1.7.39
-## mm/dd/2023
+## 02/19/2023
 
 1. [](#improved)
     * Vendor library updates to latest versions
