@@ -26,6 +26,7 @@ use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Taxonomy;
 use Grav\Common\Uri;
 use Grav\Common\Utils;
+use Grav\Events\TypesEvent;
 use Grav\Framework\Flex\Flex;
 use Grav\Framework\Flex\FlexDirectory;
 use Grav\Framework\Flex\Interfaces\FlexTranslateInterface;
@@ -1289,7 +1290,7 @@ class Pages
 
             $scanBlueprintsAndTemplates = static function (Types $types) use ($grav) {
                 // Scan blueprints
-                $event = new Event();
+                $event = new TypesEvent();
                 $event->types = $types;
                 $grav->fireEvent('onGetPageBlueprints', $event);
 
@@ -1303,7 +1304,7 @@ class Pages
                 $types->scanBlueprints($lookup);
 
                 // Scan templates
-                $event = new Event();
+                $event = new TypesEvent();
                 $event->types = $types;
                 $grav->fireEvent('onGetPageTemplates', $event);
 

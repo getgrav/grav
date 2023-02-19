@@ -638,7 +638,7 @@ class Validation
         $values = !is_array($value) ? explode(',', preg_replace('/\s+/', '', $value)) : $value;
 
         foreach ($values as $val) {
-            if (!(self::typeText($val, $params, $field) && filter_var($val, FILTER_VALIDATE_EMAIL))) {
+            if (!(self::typeText($val, $params, $field) && strpos($val, '@', 1))) {
                 return false;
             }
         }

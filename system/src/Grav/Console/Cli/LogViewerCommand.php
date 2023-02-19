@@ -82,7 +82,7 @@ class LogViewerCommand extends GravCommand
                 if ($log['trace'] && $verbose) {
                     $output .= " <white>{$log['message']}</white>\n";
                     foreach ((array) $log['trace'] as $index => $tracerow) {
-                        $output .= "<white>{$index}</white>${tracerow}\n";
+                        $output .= "<white>{$index}</white>{$tracerow}\n";
                     }
                 } else {
                     $output .= " {$log['message']}";

@@ -1145,9 +1145,9 @@ abstract class Utils
             $offset_prefix = $offset < 0 ? '-' : '+';
             $offset_formatted = gmdate('H:i', abs($offset));
 
-            $pretty_offset = "UTC${offset_prefix}${offset_formatted}";
+            $pretty_offset = "UTC{$offset_prefix}{$offset_formatted}";
 
-            $timezone_list[$timezone] = "(${pretty_offset}) " . str_replace('_', ' ', $timezone);
+            $timezone_list[$timezone] = "({$pretty_offset}) " . str_replace('_', ' ', $timezone);
         }
 
         return $timezone_list;

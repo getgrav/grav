@@ -513,7 +513,7 @@ class Twig
         $default = $page->isModule() ? 'modular/default' : 'default';
         $extension = $format ?: $page->templateFormat();
         $twig_extension = $extension ? '.'. $extension .TWIG_EXT : TEMPLATE_EXT;
-        $template_file = $this->template($page->template() . $twig_extension);
+        $template_file = $template . $twig_extension;
 
         // TODO: no longer needed in Twig 3.
         /** @var ExistsLoaderInterface $loader */
