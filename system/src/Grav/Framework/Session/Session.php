@@ -11,6 +11,7 @@ namespace Grav\Framework\Session;
 
 use ArrayIterator;
 use Exception;
+use Throwable;
 use Grav\Common\Debugger;
 use Grav\Common\Grav;
 use Grav\Common\User\Interfaces\UserInterface;
@@ -254,12 +255,16 @@ class Session implements SessionInterface
         $this->started = true;
         $this->onSessionStart();
 
-        $user = $this->__get('user');
-        if ($user && (!$user instanceof UserInterface || (method_exists($user, 'isValid') && !$user->isValid()))) {
+        try {
+            $user = $this->__get('user');
+            if ($user && (!$user instanceof UserInterface || (method_exists($user, 'isValid') && !$user->isValid()))) {
+                throw new RuntimeException('Bad user');
+            }
+        } catch (Throwable $e) {
             $this->invalidate();
-
             throw new SessionException('Invalid User object, session destroyed.', 500);
         }
+
 
         // Extend the lifetime of the session.
         if ($sessionExists) {
