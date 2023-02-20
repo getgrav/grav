@@ -1,3 +1,9 @@
+# v1.7.39.1
+## mm/dd/2023
+
+1. [](#bugfix)
+    * Fix for broken image CSS with the latest version of DebugBar
+
 # v1.7.39
 ## 02/19/2023
 
