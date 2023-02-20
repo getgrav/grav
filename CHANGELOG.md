@@ -1,5 +1,5 @@
-# v1.7.40
-## mm/dd/2023
+# v1.7.39.2
+## 02/20/2023
 
 1. [](#bugfix)
     * Fix for invalid session breaking Flex Accounts (when switching from Regular to Flex)
