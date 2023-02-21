@@ -495,17 +495,17 @@ class Twig
      * the one being passed in
      * NOTE: Modular pages that are injected should not use this pre-set template as it's usually set at the page level
      *
-     * @param  PageInterface $page the template name
+     * @param  string $template the template name
      * @return string           the template name
      */
-    public function template(PageInterface $page, string $extension): string
+    public function template(string $template): string
     {
-        $template = $page->template() . $extension;
-        if ($page->isModule()) {
-            return $template;
-        } else {
-            return $this->template ?? $template;
+        if (isset($this->template)) {
+            $template = $this->template;
+            unset($this->template);
         }
+        
+        return $template;
     }
 
     /**
@@ -519,8 +519,7 @@ class Twig
         $default = $page->isModule() ? 'modular/default' : 'default';
         $extension = $format ?: $page->templateFormat();
         $twig_extension = $extension ? '.'. $extension .TWIG_EXT : TEMPLATE_EXT;
-//        $template_file = $template . $twig_extension;
-        $template_file = $this->template($page, $twig_extension);
+        $template_file = $this->template($template . $twig_extension);
 
         // TODO: no longer needed in Twig 3.
         /** @var ExistsLoaderInterface $loader */
