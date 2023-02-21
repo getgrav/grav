@@ -1,5 +1,5 @@
-# v1.7.40
-## 02/dd/2023
+# v1.7.39.3
+## 02/21/2023
 
 1. [](#bugfix)
     * Fix for overzealous modular page template rendering fix in 1.7.39 causing Feed plugin to break [#3689](https://github.com/getgrav/grav/issues/3689)
