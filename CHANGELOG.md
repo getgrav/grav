@@ -1,3 +1,9 @@
+# v1.7.39.4
+## 02/22/2023
+
+1. [](#bugfix)
+    * Reverted a reorganization of `account.yaml` that caused username to be disabled [admin#2344](https://github.com/getgrav/grav-plugin-admin/issues/2344)
+
 # v1.7.39.3
 ## 02/21/2023
 
