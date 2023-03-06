@@ -608,7 +608,6 @@ form:
                 file: File
                 apc: APC
                 apcu: APCu
-                xcache: Xcache
                 memcache: Memcache
                 memcached: Memcached
                 wincache: WinCache
