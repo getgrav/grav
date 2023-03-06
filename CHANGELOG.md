@@ -1,3 +1,9 @@
+# v1.7.39.5
+## mm/dd/2023
+
+1. [](#bugfix)
+    * Fixed `BlueprintSchema:flattenData` to properly handle ignored fields
+
 # v1.7.39.4
 ## 02/22/2023
 
