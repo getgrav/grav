@@ -357,7 +357,7 @@ class Scheduler
      */
     public function whoami()
     {
-        $process = new Process('whoami');
+        $process = new Process(['whoami']);
         $process->run();
 
         if ($process->isSuccessful()) {
