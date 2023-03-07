@@ -1774,7 +1774,7 @@ class Pages
         $dirs = (array) $grav['config']->get('system.pages.dirs', ['page://']);
         foreach ($dirs as $dir) {
             $path = $locator->findResource($dir);
-            if (file_exists($path)) {
+            if (file_exists($path) && !in_array($path, $paths, true)) {
                 $paths[] = $path;
             }
         }

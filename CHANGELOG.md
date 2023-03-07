@@ -1,7 +1,8 @@
-# v1.7.39.5
+# v1.7.40
 ## mm/dd/2023
 
 1. [](#bugfix)
+    * Fixed an issue with duplicate identical page paths
     * Fixed `BlueprintSchema:flattenData` to properly handle ignored fields
 
 # v1.7.39.4
