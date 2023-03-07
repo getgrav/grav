@@ -1,9 +1,14 @@
 # v1.7.40
 ## mm/dd/2023
 
+1. [](#improved)
+    * Removed outdated `xcache` setting [#3615](https://github.com/getgrav/grav/pull/3615)
+    * Updated `robots.txt` [#3625](https://github.com/getgrav/grav/pull/3625)
 1. [](#bugfix)
     * Fixed an issue with duplicate identical page paths
     * Fixed `BlueprintSchema:flattenData` to properly handle ignored fields
+    * Fixed LogViewer regex greediness [#3684](https://github.com/getgrav/grav/pull/3684)
+    * Fixed `whoami` command [#3695](https://github.com/getgrav/grav/pull/3695)
 
 # v1.7.39.4
 ## 02/22/2023
