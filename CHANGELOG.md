@@ -1,17 +1,63 @@
-## 12/28/2022
+# v1.7.40
+## mm/dd/2023
 
 1. [](#improved)
-   * Handle the situation when GRAV_ROOT or GRAV_WEBROOT are `/`
+    * Removed outdated `xcache` setting [#3615](https://github.com/getgrav/grav/pull/3615)
+    * Updated `robots.txt` [#3625](https://github.com/getgrav/grav/pull/3625)
+    * Handle the situation when GRAV_ROOT or GRAV_WEBROOT are `/` [#3625](https://github.com/getgrav/grav/pull/3667)
+1. [](#bugfix)
+    * Fixed an issue with duplicate identical page paths
+    * Fixed `BlueprintSchema:flattenData` to properly handle ignored fields
+    * Fixed LogViewer regex greediness [#3684](https://github.com/getgrav/grav/pull/3684)
+    * Fixed `whoami` command [#3695](https://github.com/getgrav/grav/pull/3695)
+
+# v1.7.39.4
+## 02/22/2023
+
+1. [](#bugfix)
+    * Reverted a reorganization of `account.yaml` that caused username to be disabled [admin#2344](https://github.com/getgrav/grav-plugin-admin/issues/2344)
+
+# v1.7.39.3
+## 02/21/2023
+
+1. [](#bugfix)
+    * Fix for overzealous modular page template rendering fix in 1.7.39 causing Feed plugin to break [#3689](https://github.com/getgrav/grav/issues/3689)
+
+# v1.7.39.2
+## 02/20/2023
+
+1. [](#bugfix)
+    * Fix for invalid session breaking Flex Accounts (when switching from Regular to Flex)
+
+# v1.7.39.1
+## 02/20/2023
+
+1. [](#bugfix)
+    * Fix for broken image CSS with the latest version of DebugBar
+
+# v1.7.39
+## 02/19/2023
+
+1. [](#improved)
+    * Vendor library updates to latest versions
+1. [](#bugfix)
+    * Various PHP 8.2 fixes
+    * Fixed an issue with modular pages rendering thew wrong template when dynamically changing the page
+    * Fixed an issue with `email` validation that was failing on UTF-8 characters. Following best practices and now only check for `@` and length.
+    * Fixed PHPUnit tests to remove deprecation warnings
 
 # v1.7.38
-## mm/dd/2022
+## 01/02/2023
 
+1. [](#new)
+    * New `onBeforeSessionStart()` event to be used to store data lost during session regeneration (e.g. login)
 1. [](#improved)
+   * Vendor library updates to latest versions
    * Updated `bin/composer.phar` to latest `2.4.4` version [#3627](https://github.com/getgrav/grav/issues/3627)
 1. [](#bugfix)
-   * Don't failhard if pages recurse with same path
+   * Don't fail hard if pages recurse with same path
    * Github workflows security hardening [#3624](https://github.com/getgrav/grav/pull/3624)
-     
+
 # v1.7.37.1
 ## 10/05/2022
 

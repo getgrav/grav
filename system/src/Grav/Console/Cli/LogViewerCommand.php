@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Console\Cli
  *
- * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2023 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -82,7 +82,7 @@ class LogViewerCommand extends GravCommand
                 if ($log['trace'] && $verbose) {
                     $output .= " <white>{$log['message']}</white>\n";
                     foreach ((array) $log['trace'] as $index => $tracerow) {
-                        $output .= "<white>{$index}</white>${tracerow}\n";
+                        $output .= "<white>{$index}</white>{$tracerow}\n";
                     }
                 } else {
                     $output .= " {$log['message']}";

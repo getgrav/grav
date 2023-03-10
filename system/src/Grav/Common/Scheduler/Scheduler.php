@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Scheduler
  * @author     Originally based on peppeocchi/php-cron-scheduler modified for Grav integration
- * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2023 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -357,7 +357,7 @@ class Scheduler
      */
     public function whoami()
     {
-        $process = new Process('whoami');
+        $process = new Process(['whoami']);
         $process->run();
 
         if ($process->isSuccessful()) {

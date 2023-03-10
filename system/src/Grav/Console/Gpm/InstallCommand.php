@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Console\Gpm
  *
- * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2023 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -317,7 +317,7 @@ class InstallCommand extends GpmCommand
                 $questionNoun = 'packages';
             }
 
-            $question = new ConfirmationQuestion("${questionAction} {$questionArticle} {$questionNoun}? [Y|n] ", true);
+            $question = new ConfirmationQuestion("{$questionAction} {$questionArticle} {$questionNoun}? [Y|n] ", true);
             $answer = $this->all_yes ? true : $io->askQuestion($question);
 
             if ($answer) {

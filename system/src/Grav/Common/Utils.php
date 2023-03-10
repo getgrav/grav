@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common
  *
- * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2023 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -1145,9 +1145,9 @@ abstract class Utils
             $offset_prefix = $offset < 0 ? '-' : '+';
             $offset_formatted = gmdate('H:i', abs($offset));
 
-            $pretty_offset = "UTC${offset_prefix}${offset_formatted}";
+            $pretty_offset = "UTC{$offset_prefix}{$offset_formatted}";
 
-            $timezone_list[$timezone] = "(${pretty_offset}) " . str_replace('_', ' ', $timezone);
+            $timezone_list[$timezone] = "({$pretty_offset}) " . str_replace('_', ' ', $timezone);
         }
 
         return $timezone_list;
