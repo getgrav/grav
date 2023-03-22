@@ -1,6 +1,8 @@
 # v1.7.40
 ## mm/dd/2023
 
+1. [](#new)
+    * Added a new `timestamp: true|false` option for individual assets
 1. [](#improved)
     * Removed outdated `xcache` setting [#3615](https://github.com/getgrav/grav/pull/3615)
     * Updated `robots.txt` [#3625](https://github.com/getgrav/grav/pull/3625)
