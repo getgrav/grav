@@ -268,7 +268,13 @@ class Assets extends PropertyObject
         }
 
         // Add timestamp
-        $options['timestamp'] = $this->timestamp;
+        $timestamp_override = $options['timestamp'] ?? true;
+
+        if (filter_var($timestamp_override, FILTER_VALIDATE_BOOLEAN)) {
+            $options['timestamp'] = $this->timestamp;
+        } else {
+            $options['timestamp'] = null;
+        }
 
         // Set order
         $group = $options['group'] ?? 'head';
