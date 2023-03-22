@@ -1,5 +1,5 @@
 # v1.7.40
-## mm/dd/2023
+## 03/22/2023
 
 1. [](#new)
     * Added a new `timestamp: true|false` option for individual assets
