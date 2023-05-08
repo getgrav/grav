@@ -949,7 +949,7 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
      */
     public function repeatFunc($input, $multiplier)
     {
-        return str_repeat($input, $multiplier);
+        return str_repeat($input, (int) $multiplier);
     }
 
     /**

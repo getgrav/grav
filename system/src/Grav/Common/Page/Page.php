@@ -1802,7 +1802,7 @@ class Page implements PageInterface
         }
 
         if (empty($this->slug)) {
-            $this->slug = $this->adjustRouteCase(preg_replace(PAGE_ORDER_PREFIX_REGEX, '', $this->folder)) ?: null;
+            $this->slug = $this->adjustRouteCase(preg_replace(PAGE_ORDER_PREFIX_REGEX, '', (string) $this->folder)) ?: null;
         }
 
         return $this->slug;

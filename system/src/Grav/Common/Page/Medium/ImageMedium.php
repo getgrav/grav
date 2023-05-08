@@ -62,8 +62,8 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
         if (!($this->offsetExists('width') && $this->offsetExists('height') && $this->offsetExists('mime'))) {
             $image_info = getimagesize($path);
             if ($image_info) {
-                $this->def('width', $image_info[0]);
-                $this->def('height', $image_info[1]);
+                $this->def('width', (int) $image_info[0]);
+                $this->def('height', (int) $image_info[1]);
                 $this->def('mime', $image_info['mime']);
             }
         }
@@ -299,7 +299,7 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
         }
 
         if ($width && $height) {
-            $this->__call('cropResize', [$width, $height]);
+            $this->__call('cropResize', [(int) $width, (int) $height]);
         }
 
         return parent::lightbox($width, $height, $reset);
@@ -361,8 +361,8 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
 
         // Scaling operations
         $scale     = ($scale ?? $config->get('system.images.watermark.scale', 100)) / 100;
-        $wwidth    = (int)$this->get('width')  * $scale;
-        $wheight   = (int)$this->get('height') * $scale;
+        $wwidth    = (int) ($this->get('width')  * $scale);
+        $wheight   = (int) ($this->get('height') * $scale);
         $watermark->resize($wwidth, $wheight);
 
         // Position operations
@@ -392,11 +392,11 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
                 break;
 
             case 'right':
-                $positionX = (int)$this->get('width')-$wwidth;
+                $positionX = (int) ($this->get('width')-$wwidth);
                 break;
 
             case 'center':
-                $positionX = ((int)$this->get('width')/2) - ($wwidth/2);
+                $positionX = (int) (($this->get('width')/2) - ($wwidth/2));
                 break;
         }
 
@@ -431,8 +431,8 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
         return $this;
       }
 
-      $dst_width = $image->width()+2*$border;
-      $dst_height = $image->height()+2*$border;
+      $dst_width = (int) ($image->width()+2*$border);
+      $dst_height = (int) ($image->height()+2*$border);
 
       $frame = ImageFile::create($dst_width, $dst_height);
 

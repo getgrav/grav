@@ -42,7 +42,7 @@ trait NestedPropertyTrait
     public function getNestedProperty($property, $default = null, $separator = null)
     {
         $separator = $separator ?: '.';
-        $path = explode($separator, $property);
+        $path = explode($separator, (string) $property);
         $offset = array_shift($path);
 
         if (!$this->hasProperty($offset)) {

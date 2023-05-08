@@ -201,7 +201,7 @@ abstract class Utils
         $compare_func = $case_sensitive ? 'mb_strpos' : 'mb_stripos';
 
         foreach ((array)$needle as $each_needle) {
-            $status = $each_needle === '' || $compare_func($haystack, $each_needle) === 0;
+            $status = $each_needle === '' || $compare_func((string) $haystack, $each_needle) === 0;
             if ($status) {
                 break;
             }
