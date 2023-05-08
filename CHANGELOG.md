@@ -9,7 +9,9 @@
    * Fixed passing null into `mb_strpos()` deprecated for PHP 8.2+
    * Updated internal `TwigDeferredExtension` to be PHP 8.2+ compatible
    * Upgraded `getgrav/image` fork to take advantage of various PHP 8.2+ fixes
-   * Use `UserGroupObject::groupNames` method in blueprints
+   * Use `UserGroupObject::groupNames` method in blueprints for PHP 8.2+
+   * Comment out `files-upload` deprecated message as this is not going to be removed
+   * Added various public `Twig` class variables used by admin to address deprecated messages for PHP 8.2+
  
 # v1.7.40
 ## 03/22/2023
