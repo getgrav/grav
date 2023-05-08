@@ -715,17 +715,17 @@
         },
         {
             "name": "getgrav/image",
-            "version": "v3.0.0",
+            "version": "v3.0.1",
             "target-dir": "Gregwar/Image",
             "source": {
                 "type": "git",
                 "url": "https://github.com/getgrav/Image.git",
-                "reference": "02c1bb2c179dd894c4f6610c9c49da364ee7d264"
+                "reference": "a6a36c24db4b0fd7a7bfd50b86412eaecd5c6370"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/getgrav/Image/zipball/02c1bb2c179dd894c4f6610c9c49da364ee7d264",
-                "reference": "02c1bb2c179dd894c4f6610c9c49da364ee7d264",
+                "url": "https://api.github.com/repos/getgrav/Image/zipball/a6a36c24db4b0fd7a7bfd50b86412eaecd5c6370",
+                "reference": "a6a36c24db4b0fd7a7bfd50b86412eaecd5c6370",
                 "shasum": ""
             },
             "require": {
@@ -769,9 +769,9 @@
                 "image"
             ],
             "support": {
-                "source": "https://github.com/getgrav/Image/tree/v3.0.0"
+                "source": "https://github.com/getgrav/Image/tree/v3.0.1"
             },
-            "time": "2021-04-20T05:50:18+00:00"
+            "time": "2023-05-08T21:44:38+00:00"
         },
         {
             "name": "guzzlehttp/psr7",
@@ -5323,16 +5323,16 @@
         },
         {
             "name": "sebastian/diff",
-            "version": "4.0.4",
+            "version": "4.0.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/diff.git",
-                "reference": "3461e3fccc7cfdfc2720be910d3bd73c69be590d"
+                "reference": "74be17022044ebaaecfdf0c5cd504fc9cd5a7131"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/diff/zipball/3461e3fccc7cfdfc2720be910d3bd73c69be590d",
-                "reference": "3461e3fccc7cfdfc2720be910d3bd73c69be590d",
+                "url": "https://api.github.com/repos/sebastianbergmann/diff/zipball/74be17022044ebaaecfdf0c5cd504fc9cd5a7131",
+                "reference": "74be17022044ebaaecfdf0c5cd504fc9cd5a7131",
                 "shasum": ""
             },
             "require": {
@@ -5377,7 +5377,7 @@
             ],
             "support": {
                 "issues": "https://github.com/sebastianbergmann/diff/issues",
-                "source": "https://github.com/sebastianbergmann/diff/tree/4.0.4"
+                "source": "https://github.com/sebastianbergmann/diff/tree/4.0.5"
             },
             "funding": [
                 {
@@ -5385,7 +5385,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2020-10-26T13:10:38+00:00"
+            "time": "2023-05-07T05:35:17+00:00"
         },
         {
             "name": "sebastian/environment",

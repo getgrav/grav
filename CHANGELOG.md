@@ -8,6 +8,7 @@
    * Modified `Truncator` to not use deprecated `mb_convert_encoding()` for PHP 8.2+
    * Fixed passing null into `mb_strpos()` deprecated for PHP 8.2+
    * Updated internal `TwigDeferredExtension` to be PHP 8.2+ compatible
+   * Upgraded `getgrav/image` fork to take advantage of various PHP 8.2+ fixes
  
 # v1.7.40
 ## 03/22/2023
