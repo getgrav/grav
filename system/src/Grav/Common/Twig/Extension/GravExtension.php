@@ -1203,6 +1203,9 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
      */
     public function jsonDecodeFilter($str, $assoc = false, $depth = 512, $options = 0)
     {
+        if ($str === null) {
+            $str = '';
+        }
         return json_decode(html_entity_decode($str, ENT_COMPAT | ENT_HTML401, 'UTF-8'), $assoc, $depth, $options);
     }
 
@@ -1214,7 +1217,13 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
      */
     public function getCookie($key)
     {
-        return filter_input(INPUT_COOKIE, $key, FILTER_SANITIZE_STRING);
+        $cookie_value = filter_input(INPUT_COOKIE, $key);
+
+        if ($cookie_value === null) {
+            return null;
+        }
+
+        return htmlspecialchars(strip_tags($cookie_value), ENT_QUOTES, 'UTF-8');
     }
 
     /**

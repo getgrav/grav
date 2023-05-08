@@ -99,3 +99,6 @@ define('RAW_CONTENT', 1);
 define('TWIG_CONTENT', 2);
 define('TWIG_CONTENT_LIST', 3);
 define('TWIG_TEMPLATES', 4);
+
+// Filters
+define('GRAV_SANITIZE_STRING', 5001);
