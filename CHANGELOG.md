@@ -2,9 +2,12 @@
 ## mm/dd/2023
 
 1. [](#improved)
-   * Removed `FILTER_SANITIZE_STRING` input filter in favor of `htmlspecialchars(strip_tags())`
-   * Added `GRAV_SANITIZE_STRING` constant to replace `FILTER_SANITIZE_STRING`
-   * Support non-deprecated style dynamic properties in `Parsedown` class via `ParseDownGravTrait`
+   * Removed `FILTER_SANITIZE_STRING` input filter in favor of `htmlspecialchars(strip_tags())` for PHP 8.2+
+   * Added `GRAV_SANITIZE_STRING` constant to replace `FILTER_SANITIZE_STRING` for PHP 8.2+
+   * Support non-deprecated style dynamic properties in `Parsedown` class via `ParseDownGravTrait` for PHP 8.2+
+   * Modified `Truncator` to not use deprecated `mb_convert_encoding()` for PHP 8.2+
+   * Fixed passing null into `mb_strpos()` deprecated for PHP 8.2+
+   * Updated internal `TwigDeferredExtension` to be PHP 8.2+ compatible
  
 # v1.7.40
 ## 03/22/2023
