@@ -4,6 +4,7 @@
 1. [](#improved)
    * Removed `FILTER_SANITIZE_STRING` input filter in favor of `htmlspecialchars(strip_tags())`
    * Added `GRAV_SANITIZE_STRING` constant to replace `FILTER_SANITIZE_STRING`
+   * Support non-deprecated style dynamic properties in `Parsedown` class via `ParseDownGravTrait`
  
 # v1.7.40
 ## 03/22/2023
