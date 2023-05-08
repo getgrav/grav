@@ -468,7 +468,7 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
      */
     public function base64EncodeFilter($str)
     {
-        return base64_encode($str);
+        return base64_encode((string) $str);
     }
 
     /**

@@ -1874,9 +1874,9 @@ abstract class Utils
         }
 
         if ($block) {
-            $string = $parsedown->text($string);
+            $string = $parsedown->text((string) $string);
         } else {
-            $string = $parsedown->line($string);
+            $string = $parsedown->line((string) $string);
         }
 
         return $string;
