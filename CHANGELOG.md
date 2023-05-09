@@ -1,5 +1,5 @@
 # v1.7.41
-## mm/dd/2023
+## 05/09/2023
 
 1. [](#improved)
    * Removed `FILTER_SANITIZE_STRING` input filter in favor of `htmlspecialchars(strip_tags())` for PHP 8.2+
