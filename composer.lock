@@ -2101,16 +2101,16 @@
         },
         {
             "name": "rockettheme/toolbox",
-            "version": "1.6.4",
+            "version": "1.6.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/rockettheme/toolbox.git",
-                "reference": "4d1021492385117323b50e3370626da613dd6c16"
+                "reference": "c5e84deac813da7fcb78cd8a663c8966da9b27bd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rockettheme/toolbox/zipball/4d1021492385117323b50e3370626da613dd6c16",
-                "reference": "4d1021492385117323b50e3370626da613dd6c16",
+                "url": "https://api.github.com/repos/rockettheme/toolbox/zipball/c5e84deac813da7fcb78cd8a663c8966da9b27bd",
+                "reference": "c5e84deac813da7fcb78cd8a663c8966da9b27bd",
                 "shasum": ""
             },
             "require": {
@@ -2149,9 +2149,9 @@
             ],
             "support": {
                 "issues": "https://github.com/rockettheme/toolbox/issues",
-                "source": "https://github.com/rockettheme/toolbox/tree/1.6.4"
+                "source": "https://github.com/rockettheme/toolbox/tree/1.6.5"
             },
-            "time": "2023-03-24T18:58:25+00:00"
+            "time": "2023-05-09T18:11:17+00:00"
         },
         {
             "name": "seld/cli-prompt",
@@ -4442,16 +4442,16 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "1.10.14",
+            "version": "1.10.15",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan.git",
-                "reference": "d232901b09e67538e5c86a724be841bea5768a7c"
+                "reference": "762c4dac4da6f8756eebb80e528c3a47855da9bd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/d232901b09e67538e5c86a724be841bea5768a7c",
-                "reference": "d232901b09e67538e5c86a724be841bea5768a7c",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/762c4dac4da6f8756eebb80e528c3a47855da9bd",
+                "reference": "762c4dac4da6f8756eebb80e528c3a47855da9bd",
                 "shasum": ""
             },
             "require": {
@@ -4500,7 +4500,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-04-19T13:47:27+00:00"
+            "time": "2023-05-09T15:28:01+00:00"
         },
         {
             "name": "phpstan/phpstan-deprecation-rules",
