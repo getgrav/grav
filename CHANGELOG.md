@@ -13,6 +13,7 @@
    * Comment out `files-upload` deprecated message as this is not going to be removed
    * Added various public `Twig` class variables used by admin to address deprecated messages for PHP 8.2+
    * Added `parse_url` to list of PHP functions supported in Twig Extension
+   * Added support for dynamic functions in `Parsedown` to stop deprecation messages in PHP 8.2+
  
 # v1.7.40
 ## 03/22/2023
