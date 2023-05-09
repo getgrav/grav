@@ -23,6 +23,8 @@ class RecursiveActionIterator implements RecursiveIterator, \Countable
 {
     use Constructor, Iterator, Countable;
 
+    public $items;
+
     /**
      * @see \Iterator::key()
      * @return string
