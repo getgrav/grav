@@ -247,6 +247,7 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
             new TwigFunction('is_object', 'is_object'),
             new TwigFunction('count', 'count'),
             new TwigFunction('array_diff', 'array_diff'),
+            new TwigFunction('parse_url', 'parse_url'),
         ];
     }
 

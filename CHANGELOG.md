@@ -12,6 +12,7 @@
    * Use `UserGroupObject::groupNames` method in blueprints for PHP 8.2+
    * Comment out `files-upload` deprecated message as this is not going to be removed
    * Added various public `Twig` class variables used by admin to address deprecated messages for PHP 8.2+
+   * Added `parse_url` to list of PHP functions supported in Twig Extension
  
 # v1.7.40
 ## 03/22/2023
