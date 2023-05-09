@@ -9,7 +9,7 @@
 
 // Some standard defines
 define('GRAV', true);
-define('GRAV_VERSION', '1.7.40');
+define('GRAV_VERSION', '1.7.41');
 define('GRAV_SCHEMA', '1.7.0_2020-11-20_1');
 define('GRAV_TESTING', false);
 
@@ -99,3 +99,6 @@ define('RAW_CONTENT', 1);
 define('TWIG_CONTENT', 2);
 define('TWIG_CONTENT_LIST', 3);
 define('TWIG_TEMPLATES', 4);
+
+// Filters
+define('GRAV_SANITIZE_STRING', 5001);

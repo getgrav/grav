@@ -25,8 +25,7 @@ user/plugins/*
 !user/plugins/.*
 user/themes/*
 !user/themes/.*
-user/localhost/config/security.yaml
-user/config/security.yaml
+user/**/config/security.yaml
 
 # Environments
 .env
@@ -49,4 +48,3 @@ tests/cache/*
 tests/error.log
 system/templates/testing/*
 /user/config/versions.yaml
-/user/cli/config/security.yaml

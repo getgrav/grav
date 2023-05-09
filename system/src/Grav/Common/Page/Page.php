@@ -1270,9 +1270,14 @@ class Page implements PageInterface
      */
     public function blueprintName()
     {
-        $blueprint_name = filter_input(INPUT_POST, 'blueprint', FILTER_SANITIZE_STRING) ?: $this->template();
+        if (!isset($_POST['blueprint'])) {
+            return $this->template();
+        }
 
-        return $blueprint_name;
+        $post_value = $_POST['blueprint'];
+        $sanitized_value = htmlspecialchars(strip_tags($post_value), ENT_QUOTES, 'UTF-8');
+
+        return $sanitized_value ?: $this->template();
     }
 
     /**
@@ -1802,7 +1807,7 @@ class Page implements PageInterface
         }
 
         if (empty($this->slug)) {
-            $this->slug = $this->adjustRouteCase(preg_replace(PAGE_ORDER_PREFIX_REGEX, '', $this->folder)) ?: null;
+            $this->slug = $this->adjustRouteCase(preg_replace(PAGE_ORDER_PREFIX_REGEX, '', (string) $this->folder)) ?: null;
         }
 
         return $this->slug;

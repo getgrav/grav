@@ -122,10 +122,10 @@ class Session extends \Grav\Framework\Session\Session
 
             // Make sure that Forms 3.0+ has been installed.
             if (null === $object && isset($grav['forms'])) {
-                user_error(
-                    __CLASS__ . '::' . __FUNCTION__ . '(\'files-upload\') is deprecated since Grav 1.6, use $form->getFlash()->getLegacyFiles() instead',
-                    E_USER_DEPRECATED
-                );
+//                user_error(
+//                    __CLASS__ . '::' . __FUNCTION__ . '(\'files-upload\') is deprecated since Grav 1.6, use $form->getFlash()->getLegacyFiles() instead',
+//                    E_USER_DEPRECATED
+//                );
 
                 /** @var Uri $uri */
                 $uri = $grav['uri'];

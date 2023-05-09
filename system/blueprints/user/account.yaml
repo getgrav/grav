@@ -140,7 +140,7 @@ form:
                     multiple: true
                     size: large
                     label: PLUGIN_ADMIN.GROUPS
-                    data-options@: '\Grav\Common\User\Group::groupNames'
+                    data-options@: 'Grav\Common\Flex\Types\UserGroups\UserGroupObject::groupNames'
                     classes: fancy
                     help: PLUGIN_ADMIN.GROUPS_HELP
                     validate:

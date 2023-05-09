@@ -144,7 +144,7 @@ class Truncator
         }
 
         // Transform multibyte entities which otherwise display incorrectly.
-        $html = mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8');
+        $html = htmlspecialchars_decode(iconv('UTF-8', 'ISO-8859-1', htmlentities($html, ENT_COMPAT, 'UTF-8')), ENT_QUOTES);
 
         // Internal errors enabled as HTML5 not fully supported.
         libxml_use_internal_errors(true);

@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace Grav\Common\Flex\Types\UserGroups;
 
 use Grav\Common\Flex\FlexObject;
+use Grav\Common\Grav;
 use Grav\Common\User\Access;
 use Grav\Common\User\Interfaces\UserGroupInterface;
 use function is_bool;
@@ -72,6 +73,18 @@ class UserGroupObject extends FlexObject implements UserGroupInterface
         }
 
         return $access->authorize('admin.super') ? true : null;
+    }
+
+    public static function groupNames(): array
+    {
+        $groups = [];
+        $user_groups = Grav::instance()['user_groups'];
+
+        foreach ($user_groups as $key => $group) {
+            $groups[$key] = $group->readableName;
+        }
+
+        return $groups;
     }
 
     /**

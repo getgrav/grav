@@ -57,6 +57,15 @@ class Twig
     /** @var string */
     public $template;
 
+    /** @var array */
+    public $plugins_hooked_nav = [];
+    /** @var array */
+    public $plugins_quick_tray = [];
+    /** @var array */
+    public $plugins_hooked_dashboard_widgets_top = [];
+    /** @var array */
+    public $plugins_hooked_dashboard_widgets_main = [];
+
     /** @var Grav */
     protected $grav;
     /** @var FilesystemLoader */
