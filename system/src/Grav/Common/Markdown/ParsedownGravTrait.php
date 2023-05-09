@@ -26,8 +26,6 @@ trait ParsedownGravTrait
     /** @var array */
     public $continuable_blocks = [];
 
-    /** @var array  */
-    protected $values = [];
 
     /** @var Excerpts */
     protected $excerpts;
@@ -304,13 +302,5 @@ trait ParsedownGravTrait
         return null;
     }
 
-    public function __get($key)
-    {
-        return $this->values[$key];
-    }
 
-    public function __set($key, $value)
-    {
-        $this->values[$key] = $value;
-    }
 }
