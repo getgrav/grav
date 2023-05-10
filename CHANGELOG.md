@@ -1,3 +1,9 @@
+# v1.7.41.1
+## 05/10/2023
+
+1. [](#bugfix)
+   * Fixed certain UTF-8 characters breaking `Truncator` class [#3716](https://github.com/getgrav/grav/issues/3716)
+
 # v1.7.41
 ## 05/09/2023
 
