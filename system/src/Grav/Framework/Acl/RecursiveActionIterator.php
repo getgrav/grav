@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Acl
  *
- * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2023 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -22,6 +22,8 @@ use RocketTheme\Toolbox\ArrayTraits\Iterator;
 class RecursiveActionIterator implements RecursiveIterator, \Countable
 {
     use Constructor, Iterator, Countable;
+
+    public $items;
 
     /**
      * @see \Iterator::key()

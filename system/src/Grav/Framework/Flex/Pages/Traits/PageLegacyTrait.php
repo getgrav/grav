@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Flex
  *
- * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2023 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -369,9 +369,14 @@ trait PageLegacyTrait
      */
     public function blueprintName(): string
     {
-        $blueprint_name = filter_input(INPUT_POST, 'blueprint', FILTER_SANITIZE_STRING) ?: $this->template();
+        if (!isset($_POST['blueprint'])) {
+            return $this->template();
+        }
 
-        return $blueprint_name;
+        $post_value = $_POST['blueprint'];
+        $sanitized_value = htmlspecialchars(strip_tags($post_value), ENT_QUOTES, 'UTF-8');
+
+        return $sanitized_value ?: $this->template();
     }
 
     /**

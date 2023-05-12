@@ -35,6 +35,7 @@ home:
 
 pages:
   type: regular                                  # EXPERIMENTAL: Page type: regular or flex
+  dirs: ['page://']                              # Advanced functionality, allows for multiple page paths
   theme: quark                                   # Default theme (defaults to "quark" theme)
   order:
     by: default                                  # Order pages by "default", "alpha" or "date"

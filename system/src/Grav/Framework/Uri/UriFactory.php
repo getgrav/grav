@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Uri
  *
- * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2023 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -93,7 +93,7 @@ class UriFactory
         }
 
         // Support ngnix routes.
-        if (strpos($query, '_url=') === 0) {
+        if (strpos((string) $query, '_url=') === 0) {
             parse_str($query, $q);
             unset($q['_url']);
             $query = http_build_query($q);

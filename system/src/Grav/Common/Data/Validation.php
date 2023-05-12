@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Data
  *
- * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2023 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -638,7 +638,7 @@ class Validation
         $values = !is_array($value) ? explode(',', preg_replace('/\s+/', '', $value)) : $value;
 
         foreach ($values as $val) {
-            if (!(self::typeText($val, $params, $field) && filter_var($val, FILTER_VALIDATE_EMAIL))) {
+            if (!(self::typeText($val, $params, $field) && strpos($val, '@', 1))) {
                 return false;
             }
         }

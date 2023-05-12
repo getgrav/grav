@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Assets\Traits
  *
- * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2023 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -192,6 +192,7 @@ trait AssetUtilsTrait
         $querystring = '';
 
         $asset = $asset ?? $this->asset;
+        $attributes = $this->attributes;
 
         if (!empty($this->query)) {
             if (Utils::contains($asset, '?')) {

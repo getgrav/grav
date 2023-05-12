@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Page
  *
- * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2023 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -622,7 +622,12 @@ class Page implements PageInterface
             $headers['Vary'] = 'Accept-Encoding';
         }
 
-        return $headers;
+
+        // Added new Headers event
+        $headers_obj = (object) $headers;
+        Grav::instance()->fireEvent('onPageHeaders', new Event(['headers' => $headers_obj]));
+
+        return (array)$headers_obj;
     }
 
     /**
@@ -1265,9 +1270,14 @@ class Page implements PageInterface
      */
     public function blueprintName()
     {
-        $blueprint_name = filter_input(INPUT_POST, 'blueprint', FILTER_SANITIZE_STRING) ?: $this->template();
+        if (!isset($_POST['blueprint'])) {
+            return $this->template();
+        }
 
-        return $blueprint_name;
+        $post_value = $_POST['blueprint'];
+        $sanitized_value = htmlspecialchars(strip_tags($post_value), ENT_QUOTES, 'UTF-8');
+
+        return $sanitized_value ?: $this->template();
     }
 
     /**
@@ -1797,7 +1807,7 @@ class Page implements PageInterface
         }
 
         if (empty($this->slug)) {
-            $this->slug = $this->adjustRouteCase(preg_replace(PAGE_ORDER_PREFIX_REGEX, '', $this->folder)) ?: null;
+            $this->slug = $this->adjustRouteCase(preg_replace(PAGE_ORDER_PREFIX_REGEX, '', (string) $this->folder)) ?: null;
         }
 
         return $this->slug;

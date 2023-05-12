@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Helpers
  *
- * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2023 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -144,7 +144,7 @@ class Truncator
         }
 
         // Transform multibyte entities which otherwise display incorrectly.
-        $html = mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8');
+        $html = mb_encode_numericentity($html, [0x80, 0x10FFFF, 0, ~0], 'UTF-8');
 
         // Internal errors enabled as HTML5 not fully supported.
         libxml_use_internal_errors(true);

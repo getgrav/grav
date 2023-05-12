@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common
  *
- * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2023 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -201,7 +201,7 @@ abstract class Utils
         $compare_func = $case_sensitive ? 'mb_strpos' : 'mb_stripos';
 
         foreach ((array)$needle as $each_needle) {
-            $status = $each_needle === '' || $compare_func($haystack, $each_needle) === 0;
+            $status = $each_needle === '' || $compare_func((string) $haystack, $each_needle) === 0;
             if ($status) {
                 break;
             }
@@ -225,8 +225,8 @@ abstract class Utils
         $compare_func = $case_sensitive ? 'mb_strrpos' : 'mb_strripos';
 
         foreach ((array)$needle as $each_needle) {
-            $expectedPosition = mb_strlen($haystack) - mb_strlen($each_needle);
-            $status = $each_needle === '' || $compare_func($haystack, $each_needle, 0) === $expectedPosition;
+            $expectedPosition = mb_strlen((string) $haystack) - mb_strlen($each_needle);
+            $status = $each_needle === '' || $compare_func((string) $haystack, $each_needle, 0) === $expectedPosition;
             if ($status) {
                 break;
             }
@@ -250,7 +250,7 @@ abstract class Utils
         $compare_func = $case_sensitive ? 'mb_strpos' : 'mb_stripos';
 
         foreach ((array)$needle as $each_needle) {
-            $status = $each_needle === '' || $compare_func($haystack, $each_needle) !== false;
+            $status = $each_needle === '' || $compare_func((string) $haystack, $each_needle) !== false;
             if ($status) {
                 break;
             }
@@ -1145,9 +1145,9 @@ abstract class Utils
             $offset_prefix = $offset < 0 ? '-' : '+';
             $offset_formatted = gmdate('H:i', abs($offset));
 
-            $pretty_offset = "UTC${offset_prefix}${offset_formatted}";
+            $pretty_offset = "UTC{$offset_prefix}{$offset_formatted}";
 
-            $timezone_list[$timezone] = "(${pretty_offset}) " . str_replace('_', ' ', $timezone);
+            $timezone_list[$timezone] = "({$pretty_offset}) " . str_replace('_', ' ', $timezone);
         }
 
         return $timezone_list;
@@ -1874,9 +1874,9 @@ abstract class Utils
         }
 
         if ($block) {
-            $string = $parsedown->text($string);
+            $string = $parsedown->text((string) $string);
         } else {
-            $string = $parsedown->line($string);
+            $string = $parsedown->line((string) $string);
         }
 
         return $string;

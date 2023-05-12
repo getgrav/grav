@@ -16,7 +16,7 @@ namespace Twig\DeferredExtension;
 use Twig\Compiler;
 use Twig\Node\Node;
 
-final class DeferredExtensionNode extends Node
+final class DeferredInitializeNode extends Node
 {
     public function compile(Compiler $compiler) : void
     {

@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Object
  *
- * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2023 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -42,7 +42,7 @@ trait NestedPropertyTrait
     public function getNestedProperty($property, $default = null, $separator = null)
     {
         $separator = $separator ?: '.';
-        $path = explode($separator, $property);
+        $path = explode($separator, (string) $property);
         $offset = array_shift($path);
 
         if (!$this->hasProperty($offset)) {

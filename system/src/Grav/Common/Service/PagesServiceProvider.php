@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Service
  *
- * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2023 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -72,7 +72,7 @@ class PagesServiceProvider implements ServiceProviderInterface
                 if ($config->get('system.force_ssl')) {
                     $scheme = $uri->scheme(true);
                     if ($scheme !== 'https') {
-                        $url = 'https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+                        $url = 'https://' . $uri->host() . $uri->uri();
                         $grav->redirect($url);
                     }
                 }

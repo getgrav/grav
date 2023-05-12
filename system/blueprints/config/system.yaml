@@ -607,6 +607,7 @@ form:
                 auto: Auto detect
                 file: File
                 apcu: APCu
+                memcache: Memcache
                 memcached: Memcached
                 redis: Redis
 

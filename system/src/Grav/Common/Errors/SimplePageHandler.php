@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Errors
  *
- * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2023 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -57,7 +57,7 @@ class SimplePageHandler extends Handler
         $vars = array(
             'stylesheet' => file_get_contents($cssFile),
             'code'        => $code,
-            'message'     => filter_var(rawurldecode($message), FILTER_SANITIZE_STRING),
+            'message'     => htmlspecialchars(strip_tags(rawurldecode($message)), ENT_QUOTES, 'UTF-8'),
         );
 
         $helper->setVariables($vars);

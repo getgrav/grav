@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common
  *
- * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2023 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -268,7 +268,13 @@ class Assets extends PropertyObject
         }
 
         // Add timestamp
-        $options['timestamp'] = $this->timestamp;
+        $timestamp_override = $options['timestamp'] ?? true;
+
+        if (filter_var($timestamp_override, FILTER_VALIDATE_BOOLEAN)) {
+            $options['timestamp'] = $this->timestamp;
+        } else {
+            $options['timestamp'] = null;
+        }
 
         // Set order
         $group = $options['group'] ?? 'head';

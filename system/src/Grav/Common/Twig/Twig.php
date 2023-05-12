@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Twig
  *
- * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2023 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -56,6 +56,15 @@ class Twig
     public $twig_paths;
     /** @var string */
     public $template;
+
+    /** @var array */
+    public $plugins_hooked_nav = [];
+    /** @var array */
+    public $plugins_quick_tray = [];
+    /** @var array */
+    public $plugins_hooked_dashboard_widgets_top = [];
+    /** @var array */
+    public $plugins_hooked_dashboard_widgets_main = [];
 
     /** @var Grav */
     protected $grav;
@@ -493,13 +502,19 @@ class Twig
     /**
      * Simple helper method to get the twig template if it has already been set, else return
      * the one being passed in
+     * NOTE: Modular pages that are injected should not use this pre-set template as it's usually set at the page level
      *
      * @param  string $template the template name
      * @return string           the template name
      */
-    public function template($template)
+    public function template(string $template): string
     {
-        return $this->template ?? $template;
+        if (isset($this->template)) {
+            $template = $this->template;
+            unset($this->template);
+        }
+        
+        return $template;
     }
 
     /**
@@ -513,7 +528,7 @@ class Twig
         $default = $page->isModule() ? 'modular/default' : 'default';
         $extension = $format ?: $page->templateFormat();
         $twig_extension = $extension ? '.'. $extension .TWIG_EXT : TEMPLATE_EXT;
-        $template_file = $this->template($page->template() . $twig_extension);
+        $template_file = $this->template($template . $twig_extension);
 
         // TODO: no longer needed in Twig 3.
         /** @var ExistsLoaderInterface $loader */

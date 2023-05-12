@@ -5,13 +5,14 @@ declare(strict_types=1);
 /**
  * @package    Grav\Common\Flex
  *
- * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2023 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Common\Flex\Types\UserGroups;
 
 use Grav\Common\Flex\FlexObject;
+use Grav\Common\Grav;
 use Grav\Common\User\Access;
 use Grav\Common\User\Interfaces\UserGroupInterface;
 use function is_bool;
@@ -72,6 +73,18 @@ class UserGroupObject extends FlexObject implements UserGroupInterface
         }
 
         return $access->authorize('admin.super') ? true : null;
+    }
+
+    public static function groupNames(): array
+    {
+        $groups = [];
+        $user_groups = Grav::instance()['user_groups'];
+
+        foreach ($user_groups as $key => $group) {
+            $groups[$key] = $group->readableName;
+        }
+
+        return $groups;
     }
 
     /**

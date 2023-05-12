@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Helpers
  *
- * @copyright  Copyright (c) 2015 - 2022 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2023 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -21,7 +21,7 @@ use function is_string;
 class LogViewer
 {
     /** @var string */
-    protected $pattern = '/\[(?P<date>.*)\] (?P<logger>\w+).(?P<level>\w+): (?P<message>.*[^ ]+) (?P<context>[^ ]+) (?P<extra>[^ ]+)/';
+    protected $pattern = '/\[(?P<date>.*?)\] (?P<logger>\w+)\.(?P<level>\w+): (?P<message>.*[^ ]+) (?P<context>[^ ]+) (?P<extra>[^ ]+)/';
 
     /**
      * Get the objects of a tailed file

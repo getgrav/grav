@@ -131,8 +131,8 @@ class UtilsTest extends \Codeception\TestCase\Test
 
         $objMerged = Utils::mergeObjects($obj1, $obj2);
 
-        self::assertObjectHasAttribute('test1', $objMerged);
-        self::assertObjectHasAttribute('test2', $objMerged);
+        self::arrayHasKey('test1', (array) $objMerged);
+        self::arrayHasKey('test2', (array) $objMerged);
     }
 
     public function testDateFormats(): void

@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [ develop ]
 
+permissions:
+  contents: read # to fetch code (actions/checkout)
+
 jobs:
 
   unit-tests:
@@ -14,7 +17,7 @@ jobs:
 
     strategy:
       matrix:
-        php: [ 8.1, 8.0, 7.4, 7.3]
+        php: [8.2, 8.1, 8.0, 7.4, 7.3]
         os: [ubuntu-latest]
 
     steps:
