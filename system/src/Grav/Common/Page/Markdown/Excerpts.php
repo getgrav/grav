@@ -98,6 +98,7 @@ class Excerpts
         $grav = Grav::instance();
         $url = htmlspecialchars_decode(rawurldecode($excerpt['element']['attributes']['href']));
         $url_parts = $this->parseUrl($url);
+        $raw_url_parts = $this->parseUrl($excerpt['element']['attributes']['href']);
 
         // If there is a query, then parse it and build action calls.
         if (isset($url_parts['query'])) {
@@ -148,8 +149,8 @@ class Excerpts
         }
 
         // Set path to / if not set.
-        if (empty($url_parts['path'])) {
-            $url_parts['path'] = '';
+        if (empty($raw_url_parts['path'])) {
+            $raw_url_parts['path'] = '';
         }
 
         // If scheme isn't http(s)..
@@ -159,20 +160,20 @@ class Excerpts
             $locator = $grav['locator'];
             if ($type === 'link' && $locator->isStream($url)) {
                 $path = $locator->findResource($url, false) ?: $locator->findResource($url, false, true);
-                $url_parts['path'] = $grav['base_url_relative'] . '/' . $path;
+                $raw_url_parts['path'] = $grav['base_url_relative'] . '/' . $path;
                 unset($url_parts['stream'], $url_parts['scheme']);
             }
 
-            $excerpt['element']['attributes']['href'] = Uri::buildUrl($url_parts);
+            $excerpt['element']['attributes']['href'] = Uri::buildUrl($raw_url_parts);
 
             return $excerpt;
         }
 
         // Handle paths and such.
-        $url_parts = Uri::convertUrl($this->page, $url_parts, $type);
+        $raw_url_parts = Uri::convertUrl($this->page, $raw_url_parts, $type);
 
         // Build the URL from the component parts and set it on the element.
-        $excerpt['element']['attributes']['href'] = Uri::buildUrl($url_parts);
+        $excerpt['element']['attributes']['href'] = Uri::buildUrl($raw_url_parts);
 
         return $excerpt;
     }
@@ -187,6 +188,7 @@ class Excerpts
     {
         $url = htmlspecialchars_decode(urldecode($excerpt['element']['attributes']['src']));
         $url_parts = $this->parseUrl($url);
+        $raw_url_parts = $this->parseUrl($excerpt['element']['attributes']['src']);
 
         $media = null;
         $filename = null;
@@ -246,7 +248,7 @@ class Excerpts
             $excerpt['element'] = $medium->parsedownElement($title, $alt, $class, $id, true);
         } else {
             // Not a current page media file, see if it needs converting to relative.
-            $excerpt['element']['attributes']['src'] = Uri::buildUrl($url_parts);
+            $excerpt['element']['attributes']['src'] = Uri::buildUrl($raw_url_parts);
         }
 
         return $excerpt;
