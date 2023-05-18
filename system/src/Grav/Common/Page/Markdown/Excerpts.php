@@ -163,7 +163,14 @@ class Excerpts
                 $raw_url_parts['path'] = $grav['base_url_relative'] . '/' . $path;
                 unset($url_parts['stream'], $url_parts['scheme']);
             }
+
+            $excerpt['element']['attributes']['href'] = Uri::buildUrl($raw_url_parts);
+
+            return $excerpt;
         }
+
+        // Handle paths and such.
+        $raw_url_parts = Uri::convertUrl($this->page, $raw_url_parts, $type);
 
         // Build the URL from the component parts and set it on the element.
         $excerpt['element']['attributes']['href'] = Uri::buildUrl($raw_url_parts);
