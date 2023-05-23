@@ -11,7 +11,6 @@ namespace Grav\Common\Twig\TokenParser;
 
 use Grav\Common\Grav;
 use Grav\Common\Twig\Node\TwigNodeCache;
-use Twig\Error\SyntaxError;
 use Twig\Token;
 use Twig\TokenParser\AbstractTokenParser;
 
@@ -22,48 +21,52 @@ use Twig\TokenParser\AbstractTokenParser;
  * {{ some_complex_work() }}
  * {% endcache %}
  *
- * Where the `600` is an optional lifetime in seconds
+ * Also can provide a unique key for the cache:
+ *
+ * {% cache "prefix-"~lang 600 %}
+ *
+ * Where the "prefix-"~lang will use a unique key based on the current language. "prefix-en" for example
  */
 class TwigTokenParserCache extends AbstractTokenParser
 {
-    /**
-     * @param Token $token
-     * @return TwigNodeCache
-     * @throws SyntaxError
-     */
     public function parse(Token $token)
     {
-        $lineno = $token->getLine();
         $stream = $this->parser->getStream();
-        $key = $this->parser->getVarName() . $lineno;
-        $lifetime = Grav::instance()['cache']->getLifetime();
+        $lineno = $token->getLine();
 
-        // Check for optional lifetime override
-        if (!$stream->test(Token::BLOCK_END_TYPE)) {
-            $lifetime_expr = $this->parser->getExpressionParser()->parseExpression();
-            $lifetime = $lifetime_expr->getAttribute('value');
+        // Parse the optional key and timeout parameters
+        $defaults = [
+            'key' => $this->parser->getVarName() . $lineno,
+            'lifetime' => Grav::instance()['cache']->getLifetime()
+        ];
+
+        $key = null;
+        $lifetime = null;
+        while (!$stream->test(Token::BLOCK_END_TYPE)) {
+            if ($stream->test(Token::STRING_TYPE)) {
+                $key = $this->parser->getExpressionParser()->parseExpression();
+            } elseif ($stream->test(Token::NUMBER_TYPE)) {
+                $lifetime = $this->parser->getExpressionParser()->parseExpression();
+            } else {
+                throw new \Twig\Error\SyntaxError("Unexpected token type in cache tag.", $token->getLine(), $stream->getSourceContext());
+            }
         }
 
         $stream->expect(Token::BLOCK_END_TYPE);
-        $body = $this->parser->subparse(array($this, 'decideCacheEnd'), true);
+
+        // Parse the content inside the cache block
+        $body = $this->parser->subparse([$this, 'decideCacheEnd'], true);
+
         $stream->expect(Token::BLOCK_END_TYPE);
 
-        return new TwigNodeCache($key, $lifetime, $body, $lineno, $this->getTag());
+        return new TwigNodeCache($body, $key, $lifetime, $defaults, $lineno, $this->getTag());
     }
 
-    /**
-     * Decide if current token marks end of cache block.
-     *
-     * @param Token $token
-     * @return bool
-     */
     public function decideCacheEnd(Token $token): bool
     {
         return $token->test('endcache');
     }
-    /**
-     * {@inheritDoc}
-     */
+
     public function getTag(): string
     {
         return 'cache';

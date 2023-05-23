@@ -10,13 +10,15 @@
 namespace Grav\Common\Twig\Node;
 
 use Twig\Compiler;
+use Twig\Node\Expression\AbstractExpression;
 use Twig\Node\Node;
+use Twig\Node\NodeOutputInterface;
 
 /**
  * Class TwigNodeCache
  * @package Grav\Common\Twig\Node
  */
-class TwigNodeCache extends Node
+class TwigNodeCache extends Node implements NodeOutputInterface
 {
     /**
      * @param string    $key       unique name for key
@@ -25,25 +27,58 @@ class TwigNodeCache extends Node
      * @param integer   $lineno
      * @param string|null $tag
      */
-    public function __construct(string $key, int $lifetime, Node $body, $lineno, $tag = null)
+    public function __construct(Node $body, ?AbstractExpression $key, ?AbstractExpression $lifetime, array $defaults, int $lineno, string $tag)
     {
-        parent::__construct(array('body' => $body), array( 'key' => $key, 'lifetime' => $lifetime), $lineno, $tag);
+        $nodes = ['body' => $body];
+
+        if ($key !== null) {
+            $nodes['key'] = $key;
+        }
+
+        if ($lifetime !== null) {
+            $nodes['lifetime'] = $lifetime;
+        }
+
+        parent::__construct($nodes, $defaults, $lineno, $tag);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function compile(Compiler $compiler): void
     {
-        $boo = $this->getAttribute('key');
+        $compiler->addDebugInfo($this);
+
+
+        // Generate the cache key
+        if ($this->hasNode('key')) {
+            $compiler
+                ->write('$key = "twigcache-" . ')
+                ->subcompile($this->getNode('key'))
+                ->raw(";\n");
+        } else {
+            $compiler
+                ->write('$key = ')
+                ->string($this->getAttribute('key'))
+                ->raw(";\n");
+        }
+
+        // Set the cache timeout
+        if ($this->hasNode('lifetime')) {
+            $compiler
+                ->write('$lifetime = ')
+                ->subcompile($this->getNode('lifetime'))
+                ->raw(";\n");
+        } else {
+            $compiler
+                ->write('$lifetime = ')
+                ->write($this->getAttribute('lifetime'))
+                ->raw(";\n");
+        }
+
         $compiler
-            ->addDebugInfo($this)
             ->write("\$cache = \\Grav\\Common\\Grav::instance()['cache'];\n")
-            ->write("\$key = \"twigcache-\" . \"" . $this->getAttribute('key') . "\";\n")
-            ->write("\$lifetime = " . $this->getAttribute('lifetime') . ";\n")
             ->write("\$cache_body = \$cache->fetch(\$key);\n")
             ->write("if (\$cache_body === false) {\n")
             ->indent()
+                ->write("\\Grav\\Common\\Grav::instance()['debugger']->addMessage(\"Cache Key: \$key, Lifetime: \$lifetime\");\n")
                 ->write("ob_start();\n")
                     ->indent()
                         ->subcompile($this->getNode('body'))
@@ -53,6 +88,6 @@ class TwigNodeCache extends Node
                 ->write("\$cache->save(\$key, \$cache_body, \$lifetime);\n")
             ->outdent()
             ->write("}\n")
-            ->write("echo \$cache_body;\n");
+            ->write("echo '' === \$cache_body ? '' : new Markup(\$cache_body, \$this->env->getCharset());\n");
     }
 }

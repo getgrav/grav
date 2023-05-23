@@ -1,3 +1,9 @@
+# v1.7.42
+## mm/dd/2023
+
+1. [](#improved)
+   * Added the ability to set a configurable 'key' for the Twig Cache Tag: `{% cache 'my-key' 600 %}`
+
 # v1.7.41.1
 ## 05/10/2023
 
