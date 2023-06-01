@@ -18,6 +18,7 @@ use Grav\Common\Page\Markdown\Excerpts;
  */
 class Parsedown extends \Parsedown
 {
+
     use ParsedownGravTrait;
 
     /**

@@ -93,7 +93,7 @@ class UriFactory
         }
 
         // Support ngnix routes.
-        if (strpos($query, '_url=') === 0) {
+        if (strpos((string) $query, '_url=') === 0) {
             parse_str($query, $q);
             unset($q['_url']);
             $query = http_build_query($q);

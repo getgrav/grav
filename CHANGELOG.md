@@ -1,11 +1,43 @@
-# v1.7.40
+# v1.7.42
 ## mm/dd/2023
 
+1. [](#improved)
+   * Added the ability to set a configurable 'key' for the Twig Cache Tag: `{% cache 'my-key' 600 %}`
+
+# v1.7.41.1
+## 05/10/2023
+
+1. [](#bugfix)
+   * Fixed certain UTF-8 characters breaking `Truncator` class [#3716](https://github.com/getgrav/grav/issues/3716)
+
+# v1.7.41
+## 05/09/2023
+
+1. [](#improved)
+   * Removed `FILTER_SANITIZE_STRING` input filter in favor of `htmlspecialchars(strip_tags())` for PHP 8.2+
+   * Added `GRAV_SANITIZE_STRING` constant to replace `FILTER_SANITIZE_STRING` for PHP 8.2+
+   * Support non-deprecated style dynamic properties in `Parsedown` class via `ParseDownGravTrait` for PHP 8.2+
+   * Modified `Truncator` to not use deprecated `mb_convert_encoding()` for PHP 8.2+
+   * Fixed passing null into `mb_strpos()` deprecated for PHP 8.2+
+   * Updated internal `TwigDeferredExtension` to be PHP 8.2+ compatible
+   * Upgraded `getgrav/image` fork to take advantage of various PHP 8.2+ fixes
+   * Use `UserGroupObject::groupNames` method in blueprints for PHP 8.2+
+   * Comment out `files-upload` deprecated message as this is not going to be removed
+   * Added various public `Twig` class variables used by admin to address deprecated messages for PHP 8.2+
+   * Added `parse_url` to list of PHP functions supported in Twig Extension
+   * Added support for dynamic functions in `Parsedown` to stop deprecation messages in PHP 8.2+
+ 
+# v1.7.40
+## 03/22/2023
+
+1. [](#new)
+    * Added a new `timestamp: true|false` option for individual assets
 1. [](#improved)
     * Removed outdated `xcache` setting [#3615](https://github.com/getgrav/grav/pull/3615)
     * Updated `robots.txt` [#3625](https://github.com/getgrav/grav/pull/3625)
     * Handle the situation when GRAV_ROOT or GRAV_WEBROOT are `/` [#3625](https://github.com/getgrav/grav/pull/3667)
 1. [](#bugfix)
+    * Fixed `force_ssl` redirect in case of undefined hostname [#3702](https://github.com/getgrav/grav/pull/3702)
     * Fixed an issue with duplicate identical page paths
     * Fixed `BlueprintSchema:flattenData` to properly handle ignored fields
     * Fixed LogViewer regex greediness [#3684](https://github.com/getgrav/grav/pull/3684)

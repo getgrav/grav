@@ -247,6 +247,7 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
             new TwigFunction('is_object', 'is_object'),
             new TwigFunction('count', 'count'),
             new TwigFunction('array_diff', 'array_diff'),
+            new TwigFunction('parse_url', 'parse_url'),
         ];
     }
 
@@ -468,7 +469,7 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
      */
     public function base64EncodeFilter($str)
     {
-        return base64_encode($str);
+        return base64_encode((string) $str);
     }
 
     /**
@@ -949,7 +950,7 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
      */
     public function repeatFunc($input, $multiplier)
     {
-        return str_repeat($input, $multiplier);
+        return str_repeat($input, (int) $multiplier);
     }
 
     /**
@@ -1203,6 +1204,9 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
      */
     public function jsonDecodeFilter($str, $assoc = false, $depth = 512, $options = 0)
     {
+        if ($str === null) {
+            $str = '';
+        }
         return json_decode(html_entity_decode($str, ENT_COMPAT | ENT_HTML401, 'UTF-8'), $assoc, $depth, $options);
     }
 
@@ -1214,7 +1218,13 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
      */
     public function getCookie($key)
     {
-        return filter_input(INPUT_COOKIE, $key, FILTER_SANITIZE_STRING);
+        $cookie_value = filter_input(INPUT_COOKIE, $key);
+
+        if ($cookie_value === null) {
+            return null;
+        }
+
+        return htmlspecialchars(strip_tags($cookie_value), ENT_QUOTES, 'UTF-8');
     }
 
     /**

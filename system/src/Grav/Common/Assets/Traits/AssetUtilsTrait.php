@@ -192,6 +192,7 @@ trait AssetUtilsTrait
         $querystring = '';
 
         $asset = $asset ?? $this->asset;
+        $attributes = $this->attributes;
 
         if (!empty($this->query)) {
             if (Utils::contains($asset, '?')) {

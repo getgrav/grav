@@ -33,7 +33,7 @@ class TaskServiceProvider implements ServiceProviderInterface
 
             $task = $body['task'] ?? $c['uri']->param('task');
             if (null !== $task) {
-                $task = filter_var($task, FILTER_SANITIZE_STRING);
+                $task = htmlspecialchars(strip_tags($task), ENT_QUOTES, 'UTF-8');
             }
 
             return $task ?: null;
@@ -46,7 +46,7 @@ class TaskServiceProvider implements ServiceProviderInterface
 
             $action = $body['action'] ?? $c['uri']->param('action');
             if (null !== $action) {
-                $action = filter_var($action, FILTER_SANITIZE_STRING);
+                $action = htmlspecialchars(strip_tags($action), ENT_QUOTES, 'UTF-8');
             }
 
             return $action ?: null;

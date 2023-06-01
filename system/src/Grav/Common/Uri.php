@@ -1005,7 +1005,7 @@ class Uri
             foreach ($matches as $match) {
                 $param = explode($delimiter, $match[1]);
                 if (count($param) === 2) {
-                    $plain_var = filter_var(rawurldecode($param[1]), FILTER_SANITIZE_STRING);
+                    $plain_var = htmlspecialchars(strip_tags(rawurldecode($param[1])), ENT_QUOTES, 'UTF-8');
                     $params[$param[0]] = $plain_var;
                     $uri = str_replace($match[0], '', $uri);
                 }
@@ -1388,7 +1388,11 @@ class Uri
         if ($this->post && null !== $element) {
             $item = Utils::getDotNotation($this->post, $element);
             if ($filter_type) {
-                $item = filter_var($item, $filter_type);
+                if ($filter_type === FILTER_SANITIZE_STRING || $filter_type === GRAV_SANITIZE_STRING) {
+                    $item = htmlspecialchars(strip_tags($item), ENT_QUOTES, 'UTF-8');
+                } else {
+                    $item = filter_var($item, $filter_type);
+                }
             }
             return $item;
         }
@@ -1514,7 +1518,7 @@ class Uri
             foreach ($matches as $match) {
                 $param = explode($delimiter, $match[1]);
                 if (count($param) === 2) {
-                    $plain_var = filter_var($param[1], FILTER_SANITIZE_STRING);
+                    $plain_var = htmlspecialchars(strip_tags($param[1]), ENT_QUOTES, 'UTF-8');
                     $this->params[$param[0]] = $plain_var;
                     $uri = str_replace($match[0], '', $uri);
                 }
