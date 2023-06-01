@@ -59,7 +59,7 @@ class PagesServiceProvider implements ServiceProviderInterface
             /** @var Uri $uri */
             $uri = $grav['uri'];
 
-            $path = $uri->path() ?: '/'; // Don't trim to support trailing slash default routes
+            $path = $uri->path() ? urldecode($uri->path()) : '/'; // Don't trim to support trailing slash default routes
             $page = $pages->dispatch($path);
 
             // Redirection tests
