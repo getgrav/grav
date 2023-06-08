@@ -46,6 +46,7 @@ use Twig\Error\RuntimeError;
 use Twig\Extension\AbstractExtension;
 use Twig\Extension\GlobalsInterface;
 use Twig\Loader\FilesystemLoader;
+use Twig\Markup;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
 use function array_slice;
@@ -905,8 +906,13 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
             return $this->grav['admin']->translate($args, $lang);
         }
 
-        // else use the default grav translate functionality
-        return $this->grav['language']->translate($args);
+        $translation = $this->grav['language']->translate($args);
+
+        if ($this->config->get('system.languages.debug', false)) {
+            return new Markup("<span class=\"translate-debug\" data-toggle=\"tooltip\" title=\"" . $args[0] . "\">$translation</span>", 'UTF-8');
+        } else {
+            return $translation;
+        }
     }
 
     /**

@@ -448,6 +448,17 @@ form:
               validate:
                 type: bool
 
+            languages.debug:
+              type: toggle
+              label: PLUGIN_ADMIN.LANGUAGE_DEBUG
+              help: PLUGIN_ADMIN.LANGUAGE_DEBUG_HELP
+              highlight: 0
+              options:
+                1: PLUGIN_ADMIN.YES
+                0: PLUGIN_ADMIN.NO
+              validate:
+                type: bool
+
         http_headers:
           type: tab
           title: PLUGIN_ADMIN.HTTP_HEADERS
