@@ -1950,10 +1950,10 @@ abstract class Utils
     }
 
     /**
-     * @param string $name
+     * @param string|array $name
      * @return bool
      */
-    public static function isDangerousFunction(string $name): bool
+    public static function isDangerousFunction($name): bool
     {
         static $commandExecutionFunctions = [
             'exec',
@@ -2049,6 +2049,10 @@ abstract class Utils
             'posix_setsid',
             'posix_setuid',
         ];
+
+        if (is_array($name) || strpos($name, ":") !== false) {
+            return false;
+        }
 
         if (in_array($name, $commandExecutionFunctions)) {
             return true;

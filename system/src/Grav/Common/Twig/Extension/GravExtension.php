@@ -1708,7 +1708,7 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
      */
     function filterFilter(Environment $env, $array, $arrow)
     {
-        if (is_string($arrow) && Utils::isDangerousFunction($arrow)) {
+        if (!$arrow instanceof \Closure && !is_string($arrow) || Utils::isDangerousFunction($arrow)) {
             throw new RuntimeError('Twig |filter("' . $arrow . '") is not allowed.');
         }
 
@@ -1724,7 +1724,7 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
      */
     function mapFilter(Environment $env, $array, $arrow)
     {
-        if (is_string($arrow) && Utils::isDangerousFunction($arrow)) {
+        if (!$arrow instanceof \Closure && !is_string($arrow) || Utils::isDangerousFunction($arrow)) {
             throw new RuntimeError('Twig |map("' . $arrow . '") is not allowed.');
         }
 
