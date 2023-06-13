@@ -173,6 +173,7 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
 
             // Security fix
             new TwigFilter('filter', [$this, 'filterFilter'], ['needs_environment' => true]),
+            new TwigFilter('map', [$this, 'mapFilter'], ['needs_environment' => true]),
         ];
     }
 
@@ -1712,5 +1713,21 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
         }
 
         return twig_array_filter($env, $array, $arrow);
+    }
+
+    /**
+     * @param Environment $env
+     * @param array $array
+     * @param callable|string $arrow
+     * @return array|CallbackFilterIterator
+     * @throws RuntimeError
+     */
+    function mapFilter(Environment $env, $array, $arrow)
+    {
+        if (is_string($arrow) && Utils::isDangerousFunction($arrow)) {
+            throw new RuntimeError('Twig |map("' . $arrow . '") is not allowed.');
+        }
+
+        return twig_array_map($env, $array, $arrow);
     }
 }

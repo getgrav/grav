@@ -3,6 +3,8 @@
 
 1. [](#new)
    * Added a new `system.languages.debug` option that adds a `<span class="translate-debug"></span>` around strings translated with `|t`. This can be styled by the theme as needed.
+1. [](#bugfix)
+   * * Fixed Twig `|map()` allowing code execution
 
 # v1.7.41.2
 ## 06/01/2023
