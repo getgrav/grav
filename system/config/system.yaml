@@ -28,6 +28,7 @@ languages:
   override_locale: false                         # Override the default or system locale with language specific one
   content_fallback: {}                           # Custom language fallbacks. eg: {fr: ['fr', 'en']}
   pages_fallback_only: false                     # DEPRECATED: Use `content_fallback` instead
+  debug: false                                   # Debug language detection
 
 home:
   alias: '/home'                                 # Default path for home, ie /

@@ -1950,10 +1950,10 @@ abstract class Utils
     }
 
     /**
-     * @param string $name
+     * @param string|array|Closure $name
      * @return bool
      */
-    public static function isDangerousFunction(string $name): bool
+    public static function isDangerousFunction($name): bool
     {
         static $commandExecutionFunctions = [
             'exec',
@@ -2048,7 +2048,27 @@ abstract class Utils
             'posix_setpgid',
             'posix_setsid',
             'posix_setuid',
+            'unserialize',
+            'ini_alter',
+            'simplexml_load_file',
+            'simplexml_load_string',
+            'forward_static_call',
+            'forward_static_call_array',
         ];
+
+        $name = strtolower($name);
+
+        if ($name instanceof \Closure) {
+            return false;
+        }
+
+        if (strpos($name, "\\") !== false) {
+            return false;
+        }
+
+        if (is_array($name) || strpos($name, ":") !== false) {
+            return false;
+        }
 
         if (in_array($name, $commandExecutionFunctions)) {
             return true;
