@@ -4,10 +4,11 @@
 1. [](#new)
    * Added a new `system.languages.debug` option that adds a `<span class="translate-debug"></span>` around strings translated with `|t`. This can be styled by the theme as needed.
 1. [](#improved)
-   * More robust SSTI handling in `|filter` and `|map`
+   * More robust SSTI handling in `filter`, `map`, and `reduce` Twig filters and functions
    * Various SSTI improvements `Utils::isDangerousFunction()`
 1. [](#bugfix)
    * Fixed Twig `|map()` allowing code execution
+   * Fixed Twig `|reduce()` allowing code execution
 
 # v1.7.41.2
 ## 06/01/2023

@@ -171,9 +171,10 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
             new TwigFilter('count', 'count'),
             new TwigFilter('array_diff', 'array_diff'),
 
-            // Security fix
-            new TwigFilter('filter', [$this, 'filterFilter'], ['needs_environment' => true]),
-            new TwigFilter('map', [$this, 'mapFilter'], ['needs_environment' => true]),
+            // Security fixes
+            new TwigFilter('filter', [$this, 'filterFunc'], ['needs_environment' => true]),
+            new TwigFilter('map', [$this, 'mapFunc'], ['needs_environment' => true]),
+            new TwigFilter('reduce', [$this, 'reduceFunc'], ['needs_environment' => true]),
         ];
     }
 
@@ -250,6 +251,11 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
             new TwigFunction('count', 'count'),
             new TwigFunction('array_diff', 'array_diff'),
             new TwigFunction('parse_url', 'parse_url'),
+
+            // Security fixes
+            new TwigFunction('filter', [$this, 'filterFunc'], ['needs_environment' => true]),
+            new TwigFunction('map', [$this, 'mapFunc'], ['needs_environment' => true]),
+            new TwigFunction('reduce', [$this, 'reduceFunc'], ['needs_environment' => true]),
         ];
     }
 
@@ -1706,7 +1712,7 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
      * @return array|CallbackFilterIterator
      * @throws RuntimeError
      */
-    function filterFilter(Environment $env, $array, $arrow)
+    function filterFunc(Environment $env, $array, $arrow)
     {
         if (!$arrow instanceof \Closure && !is_string($arrow) || Utils::isDangerousFunction($arrow)) {
             throw new RuntimeError('Twig |filter("' . $arrow . '") is not allowed.');
@@ -1722,10 +1728,26 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
      * @return array|CallbackFilterIterator
      * @throws RuntimeError
      */
-    function mapFilter(Environment $env, $array, $arrow)
+    function mapFunc(Environment $env, $array, $arrow)
     {
         if (!$arrow instanceof \Closure && !is_string($arrow) || Utils::isDangerousFunction($arrow)) {
             throw new RuntimeError('Twig |map("' . $arrow . '") is not allowed.');
+        }
+
+        return twig_array_map($env, $array, $arrow);
+    }
+
+    /**
+     * @param Environment $env
+     * @param array $array
+     * @param callable|string $arrow
+     * @return array|CallbackFilterIterator
+     * @throws RuntimeError
+     */
+    function reduceFunc(Environment $env, $array, $arrow)
+    {
+        if (!$arrow instanceof \Closure && !is_string($arrow) || Utils::isDangerousFunction($arrow)) {
+            throw new RuntimeError('Twig |reduce("' . $arrow . '") is not allowed.');
         }
 
         return twig_array_map($env, $array, $arrow);
