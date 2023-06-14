@@ -1,5 +1,5 @@
 # v1.7.42
-## mm/dd/2023
+## 06/14/2023
 
 1. [](#new)
    * Added a new `system.languages.debug` option that adds a `<span class="translate-debug"></span>` around strings translated with `|t`. This can be styled by the theme as needed.
