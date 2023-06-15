@@ -1,5 +1,5 @@
 # v1.7.42.1
-## mm/dd/2023
+## 06/15/2023
 
 2. [](#improved)
    * Quick fix for `isDangerousFunction` when `$name` was a closure [#3727](https://github.com/getgrav/grav/issues/3727)
