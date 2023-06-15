@@ -2056,17 +2056,19 @@ abstract class Utils
             'forward_static_call_array',
         ];
 
-        $name = strtolower($name);
+        if (is_string($name)) {
+            $name = strtolower($name);
+        }
 
         if ($name instanceof \Closure) {
             return false;
         }
 
-        if (strpos($name, "\\") !== false) {
+        if (is_array($name) || strpos($name, ":") !== false) {
             return false;
         }
 
-        if (is_array($name) || strpos($name, ":") !== false) {
+        if (strpos($name, "\\") !== false) {
             return false;
         }
 
