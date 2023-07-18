@@ -1,3 +1,10 @@
+# v1.7.42.2
+## mm/dd/2023
+
+2. [](#improved)
+   * In `Utils::isDangerousFunction`, handle double `\\` in `|map` twig filter to mitigate SSTI attack
+   * Better handle empty email in `Validatoin::typeEmail()`
+
 # v1.7.42.1
 ## 06/15/2023
 

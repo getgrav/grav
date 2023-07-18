@@ -631,6 +631,10 @@ class Validation
      */
     public static function typeEmail($value, array $params, array $field)
     {
+        if (empty($value)) {
+            return false;
+        }
+
         if (!isset($params['max'])) {
             $params['max'] = 320;
         }
