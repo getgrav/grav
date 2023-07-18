@@ -2069,7 +2069,7 @@ abstract class Utils
         }
 
         if (strpos($name, "\\") !== false) {
-            return false;
+            return true;
         }
 
         if (in_array($name, $commandExecutionFunctions)) {
