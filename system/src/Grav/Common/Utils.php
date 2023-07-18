@@ -2065,7 +2065,7 @@ abstract class Utils
         }
 
         if (is_array($name) || strpos($name, ":") !== false) {
-            return false;
+            return true;
         }
 
         if (strpos($name, "\\") !== false) {
