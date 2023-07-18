@@ -1,3 +1,9 @@
+# v1.7.42.3
+## 07/18/2023
+
+2. [](#improved)
+   * Fixed a typo in `Utils::isDangerousFunction`
+
 # v1.7.42.2
 ## 07/18/2023
 
