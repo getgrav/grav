@@ -18,4 +18,12 @@ If you cannot update to the latest stable version available because, for example
 
 ## Reporting a Vulnerability
 
-Please contact security@getgrav.org with a detailed explaination of the security issue found and we will work with you to get it resolved as fast as possible.
+Please contact security@getgrav.org with a detailed explanation of the security issue found.  If it appears to be a legitimate issues, please submit an **advisory via GitHub Security**: https://github.com/getgrav/grav/security/advisories
+
+>> NOTE: Please do not use 3rd party security issue reporting services, we like to keep everything in the GitHub ecosystem for easier manageability.
+
+## Bug Bounties
+
+We do greatly appreciate your efforts to improve Grav, but unfortunately because we are a small open source project, we **do not have the resources to offer bounties** for security issues found.  
+
+
