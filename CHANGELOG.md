@@ -1,3 +1,9 @@
+# v1.7.42.4
+## mm/dd/2023
+
+2. [](#improved)
+   * Include `phar` in the list of `security.uploads_dangerous_extensions`
+
 # v1.7.42.3
 ## 07/18/2023
 
