@@ -34,7 +34,7 @@ class Pipeline extends PropertyObject
     protected const JS_MODULE_ASSET = 3;
 
     /** @const Regex to match CSS urls */
-    protected const CSS_URL_REGEX = '{url\(([\'\"]?)(.*?)\1\)}';
+    protected const CSS_URL_REGEX = '{url\(([\'\"]?)(.*?)\1\)|(@import)\s+([\'\"])(.*?)\4}';
 
     /** @const Regex to match JS imports */
     protected const JS_IMPORT_REGEX = '{import.+from\s?[\'|\"](.+?)[\'|\"]}';
@@ -257,9 +257,14 @@ class Pipeline extends PropertyObject
         // Find any css url() elements, grab the URLs and calculate an absolute path
         // Then replace the old url with the new one
         $file = (string)preg_replace_callback(self::CSS_URL_REGEX, function ($matches) use ($dir, $local) {
+            $isImport = count($matches) > 3 && $matches[3] === '@import';
 
-            $old_url = $matches[2];
-
+            if ($isImport) {
+                $old_url = $matches[5];
+            } else {
+                $old_url = $matches[2];
+            }
+ 
             // Ensure link is not rooted to web server, a data URL, or to a remote host
             if (preg_match(self::FIRST_FORWARDSLASH_REGEX, $old_url) || Utils::startsWith($old_url, 'data:') || $this->isRemoteLink($old_url)) {
                 return $matches[0];
@@ -273,7 +278,11 @@ class Pipeline extends PropertyObject
 
             $new_url = ($local ? $this->base_url : '') . $old_url;
 
-            return str_replace($matches[2], $new_url, $matches[0]);
+            if ($isImport) {
+                return str_replace($matches[5], $new_url, $matches[0]);
+            } else {
+                return str_replace($matches[2], $new_url, $matches[0]);
+            }
         }, $file);
 
         return $file;
