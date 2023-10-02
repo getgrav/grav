@@ -916,10 +916,11 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
         $translation = $this->grav['language']->translate($args);
 
         if ($this->config->get('system.languages.debug', false)) {
-            return new Markup("<span class=\"translate-debug\" data-toggle=\"tooltip\" title=\"" . $args[0] . "\">$translation</span>", 'UTF-8');
-        } else {
-            return $translation;
+            $debugger = $this->grav['debugger'];
+            $debugger->addMessage("$args[0] -> $translation", 'debug');
         }
+
+        return $translation;
     }
 
     /**

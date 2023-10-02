@@ -5,6 +5,7 @@
    * Add the ability to programtically set a page's `modified` timestamp via a `modified:` frontmatter entry
 2. [](#improved)
    * Include `phar` in the list of `security.uploads_dangerous_extensions`
+   * When enabled `system.languages.debug` now dumps **Key -> Value** to debugger [#3752](https://github.com/getgrav/grav/issues/3752)
 
 # v1.7.42.3
 ## 07/18/2023
