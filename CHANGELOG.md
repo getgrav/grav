@@ -1,6 +1,8 @@
 # v1.7.42.4
 ## mm/dd/2023
 
+1. [](#new)
+   * Add the ability to programtically set a page's `modified` timestamp via a `modified:` frontmatter entry
 2. [](#improved)
    * Include `phar` in the list of `security.uploads_dangerous_extensions`
 
