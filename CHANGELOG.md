@@ -1,3 +1,15 @@
+# v1.7.43
+## 10/02/2023
+
+1. [](#new)
+   * Add the ability to programtically set a page's `modified` timestamp via a `modified:` frontmatter entry
+2. [](#improved)
+   * Update vendor libraries
+   * Include `phar` in the list of `security.uploads_dangerous_extensions`
+   * When enabled `system.languages.debug` now dumps **Key -> Value** to debugger [#3752](https://github.com/getgrav/grav/issues/3752)
+   * Updated built-in composer to latest `2.6.4` [#3748](https://github.com/getgrav/grav/issues/3748)
+   * Added support for `@import` to ensure paths are rewritten correctly in CSS pipeline [#3750](https://github.com/getgrav/grav/pull/3750)
+
 # v1.7.42.3
 ## 07/18/2023
 

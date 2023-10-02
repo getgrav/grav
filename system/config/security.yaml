@@ -32,6 +32,7 @@ xss_dangerous_tags:
     - base
 uploads_dangerous_extensions:
     - php
+    - phar
     - html
     - htm
     - js
