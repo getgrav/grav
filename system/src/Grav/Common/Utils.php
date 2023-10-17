@@ -977,10 +977,10 @@ abstract class Utils
      * @param string $filename
      * @return bool
      */
-    public static function checkFilename($filename)
+    public static function checkFilename($filename): bool
     {
         $dangerous_extensions = Grav::instance()['config']->get('security.uploads_dangerous_extensions', []);
-        $extension = static::pathinfo($filename, PATHINFO_EXTENSION);
+        $extension = strtolower(static::pathinfo($filename, PATHINFO_EXTENSION));
 
         return !(
             // Empty filenames are not allowed.
