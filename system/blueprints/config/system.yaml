@@ -103,6 +103,7 @@ form:
                 "D, d M Y G:i:s": Date3
                 "d-m-y G:i": Date4
                 "jS M Y": Date5
+                "Y-m-d G:i": Date6
 
             pages.dateformat.long:
               type: dateformat
@@ -116,6 +117,7 @@ form:
                 "D, d M Y G:i:s": Date3
                 "d-m-y G:i": Date4
                 "jS M Y": Date5
+                "Y-m-d G:i:s": Date6
 
             pages.order.by:
               type: select
