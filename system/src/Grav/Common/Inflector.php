@@ -310,11 +310,11 @@ class Inflector
      */
     public static function ordinalize($number)
     {
+        static::init();
+
         if (!is_array(static::$ordinals)) {
             return (string)$number;
         }
-
-        static::init();
 
         if (in_array($number % 100, range(11, 13), true)) {
             return $number . static::$ordinals['default'];
