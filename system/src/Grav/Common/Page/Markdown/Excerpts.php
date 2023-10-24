@@ -244,6 +244,7 @@ class Excerpts
             $id = $element_excerpt['id'] ?? '';
 
             $excerpt['element'] = $medium->parsedownElement($title, $alt, $class, $id, true);
+            $excerpt['element']['attributes']['src'] = str_replace(' ', '%20', $excerpt['element']['attributes']['src']);
         } else {
             // Not a current page media file, see if it needs converting to relative.
             $excerpt['element']['attributes']['src'] = Uri::buildUrl($url_parts);

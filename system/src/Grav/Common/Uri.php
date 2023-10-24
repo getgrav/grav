@@ -761,7 +761,7 @@ class Uri
         $pass      = isset($parsed_url['pass']) ? ':' . $parsed_url['pass']  : '';
         $pass      = ($user || $pass) ? "{$pass}@" : '';
         $path      = $parsed_url['path'] ?? '';
-        $path      = !empty($parsed_url['params']) ? rtrim($path, '/') . static::buildParams($parsed_url['params']) : $path;
+        $path      = !empty($parsed_url['params']) ? str_replace(' ', '%20', rtrim($path, '/')) . static::buildParams($parsed_url['params']) : str_replace(' ', '%20', $path);
         $query     = !empty($parsed_url['query']) ? '?' . $parsed_url['query'] : '';
         $fragment  = isset($parsed_url['fragment']) ? '#' . $parsed_url['fragment'] : '';
 
