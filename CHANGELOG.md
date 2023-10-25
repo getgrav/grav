@@ -1,3 +1,9 @@
+# v1.7.44
+## 10/02/2023
+
+1. [](#bugfix)
+   * Fixed a math rounding issue with number validation when using floating point steps [#3761](https://github.com/getgrav/grav/issues/3761)
+
 # v1.7.43
 ## 10/02/2023
 

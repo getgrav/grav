@@ -550,7 +550,7 @@ class Validation
             $step = (float)$params['step'];
             // Count of how many steps we are above/below the minimum value.
             $pos = ($value - $min) / $step;
-
+            $pos = round($pos, 10);
             return is_int(static::filterNumber($pos, $params, $field));
         }
 
