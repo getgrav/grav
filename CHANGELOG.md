@@ -8,7 +8,6 @@
    * Fixed a math rounding issue with number validation when using floating point steps [#3761](https://github.com/getgrav/grav/issues/3761)
    * Fixed an issue with `Inflector::ordinalize()` not working as expected [#3759](https://github.com/getgrav/grav/pull/3759)
    * Fix for invalid input to foreach in `UserGroupObject` [#3724](https://github.com/getgrav/grav/pull/3724)
-   * Fix whitespace encoding in URLs (#3661)[https://github.com/getgrav/grav/pull/3719]
    * Fixed exception: `Property 'jsmodule_pipeline_include_externals' does not exist in object` (#3661)[https://github.com/getgrav/grav/pull/3661]
    * Fixed `too few arguments exception` in FlexObjects [#3658](https://github.com/getgrav/grav/pull/3658)
 
