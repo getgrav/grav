@@ -380,19 +380,20 @@
         },
         {
             "name": "donatj/phpuseragentparser",
-            "version": "v1.7.0",
+            "version": "v1.8.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/donatj/PhpUserAgent.git",
-                "reference": "a35900b93530715f8669c10e49756adde5c8e6fc"
+                "reference": "b8c16fd6e963651c6d86f66cb782ce599d62418e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/donatj/PhpUserAgent/zipball/a35900b93530715f8669c10e49756adde5c8e6fc",
-                "reference": "a35900b93530715f8669c10e49756adde5c8e6fc",
+                "url": "https://api.github.com/repos/donatj/PhpUserAgent/zipball/b8c16fd6e963651c6d86f66cb782ce599d62418e",
+                "reference": "b8c16fd6e963651c6d86f66cb782ce599d62418e",
                 "shasum": ""
             },
             "require": {
+                "ext-ctype": "*",
                 "php": ">=5.4.0"
             },
             "require-dev": {
@@ -433,7 +434,7 @@
             ],
             "support": {
                 "issues": "https://github.com/donatj/PhpUserAgent/issues",
-                "source": "https://github.com/donatj/PhpUserAgent/tree/v1.7.0"
+                "source": "https://github.com/donatj/PhpUserAgent/tree/v1.8.0"
             },
             "funding": [
                 {
@@ -443,9 +444,13 @@
                 {
                     "url": "https://github.com/donatj",
                     "type": "github"
+                },
+                {
+                    "url": "https://ko-fi.com/donatj",
+                    "type": "ko_fi"
                 }
             ],
-            "time": "2022-08-06T15:41:58+00:00"
+            "time": "2023-10-27T05:22:44+00:00"
         },
         {
             "name": "dragonmantank/cron-expression",
@@ -597,16 +602,16 @@
         },
         {
             "name": "filp/whoops",
-            "version": "2.15.3",
+            "version": "2.15.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/filp/whoops.git",
-                "reference": "c83e88a30524f9360b11f585f71e6b17313b7187"
+                "reference": "a139776fa3f5985a50b509f2a02ff0f709d2a546"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/filp/whoops/zipball/c83e88a30524f9360b11f585f71e6b17313b7187",
-                "reference": "c83e88a30524f9360b11f585f71e6b17313b7187",
+                "url": "https://api.github.com/repos/filp/whoops/zipball/a139776fa3f5985a50b509f2a02ff0f709d2a546",
+                "reference": "a139776fa3f5985a50b509f2a02ff0f709d2a546",
                 "shasum": ""
             },
             "require": {
@@ -656,7 +661,7 @@
             ],
             "support": {
                 "issues": "https://github.com/filp/whoops/issues",
-                "source": "https://github.com/filp/whoops/tree/2.15.3"
+                "source": "https://github.com/filp/whoops/tree/2.15.4"
             },
             "funding": [
                 {
@@ -664,7 +669,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-07-13T12:00:00+00:00"
+            "time": "2023-11-03T12:00:00+00:00"
         },
         {
             "name": "getgrav/cache",
@@ -1141,16 +1146,16 @@
         },
         {
             "name": "maximebf/debugbar",
-            "version": "v1.19.0",
+            "version": "v1.19.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/maximebf/php-debugbar.git",
-                "reference": "30f65f18f7ac086255a77a079f8e0dcdd35e828e"
+                "reference": "03dd40a1826f4d585ef93ef83afa2a9874a00523"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/maximebf/php-debugbar/zipball/30f65f18f7ac086255a77a079f8e0dcdd35e828e",
-                "reference": "30f65f18f7ac086255a77a079f8e0dcdd35e828e",
+                "url": "https://api.github.com/repos/maximebf/php-debugbar/zipball/03dd40a1826f4d585ef93ef83afa2a9874a00523",
+                "reference": "03dd40a1826f4d585ef93ef83afa2a9874a00523",
                 "shasum": ""
             },
             "require": {
@@ -1201,9 +1206,9 @@
             ],
             "support": {
                 "issues": "https://github.com/maximebf/php-debugbar/issues",
-                "source": "https://github.com/maximebf/php-debugbar/tree/v1.19.0"
+                "source": "https://github.com/maximebf/php-debugbar/tree/v1.19.1"
             },
-            "time": "2023-09-19T19:53:10+00:00"
+            "time": "2023-10-12T08:10:52+00:00"
         },
         {
             "name": "miljar/php-exif",
@@ -2060,16 +2065,16 @@
         },
         {
             "name": "rhukster/dom-sanitizer",
-            "version": "1.0.6",
+            "version": "1.0.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/rhukster/dom-sanitizer.git",
-                "reference": "4db3ef1ac3d5505d044c5eb12aa106ba745bf129"
+                "reference": "c2a98f27ad742668b254282ccc5581871d0fb601"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rhukster/dom-sanitizer/zipball/4db3ef1ac3d5505d044c5eb12aa106ba745bf129",
-                "reference": "4db3ef1ac3d5505d044c5eb12aa106ba745bf129",
+                "url": "https://api.github.com/repos/rhukster/dom-sanitizer/zipball/c2a98f27ad742668b254282ccc5581871d0fb601",
+                "reference": "c2a98f27ad742668b254282ccc5581871d0fb601",
                 "shasum": ""
             },
             "require": {
@@ -2099,9 +2104,9 @@
             "description": "A simple but effective DOM/SVG/MathML Sanitizer for PHP 7.4+",
             "support": {
                 "issues": "https://github.com/rhukster/dom-sanitizer/issues",
-                "source": "https://github.com/rhukster/dom-sanitizer/tree/1.0.6"
+                "source": "https://github.com/rhukster/dom-sanitizer/tree/1.0.7"
             },
-            "time": "2021-09-30T15:41:33+00:00"
+            "time": "2023-11-06T16:46:48+00:00"
         },
         {
             "name": "rockettheme/toolbox",
@@ -4443,16 +4448,16 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "1.10.37",
+            "version": "1.10.41",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan.git",
-                "reference": "058ba07e92f744d4dcf6061ae75283d0c6456f2e"
+                "reference": "c6174523c2a69231df55bdc65b61655e72876d76"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/058ba07e92f744d4dcf6061ae75283d0c6456f2e",
-                "reference": "058ba07e92f744d4dcf6061ae75283d0c6456f2e",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/c6174523c2a69231df55bdc65b61655e72876d76",
+                "reference": "c6174523c2a69231df55bdc65b61655e72876d76",
                 "shasum": ""
             },
             "require": {
@@ -4501,7 +4506,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-10-02T16:18:37+00:00"
+            "time": "2023-11-05T12:57:57+00:00"
         },
         {
             "name": "phpstan/phpstan-deprecation-rules",
@@ -6402,5 +6407,5 @@
     "platform-overrides": {
         "php": "7.3.6"
     },
-    "plugin-api-version": "2.3.0"
+    "plugin-api-version": "2.6.0"
 }
