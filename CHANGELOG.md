@@ -2,8 +2,10 @@
 ## 10/02/2023
 
 1. [](#improved)
+   * Added debugger messages when Page routes conflict
    * Added `ISO 8601` date format (#3721)[https://github.com/getgrav/grav/pull/3721]
    * Update jQuery to `v3.6.4` (#3713)[https://github.com/getgrav/grav/pull/3713]
+   * Updated vendor libraries including Dom-Sanitizer `v1.0.7` that addresses an XSS issue 
 1. [](#bugfix)
    * Fixed a math rounding issue with number validation when using floating point steps [#3761](https://github.com/getgrav/grav/issues/3761)
    * Fixed an issue with `Inflector::ordinalize()` not working as expected [#3759](https://github.com/getgrav/grav/pull/3759)
