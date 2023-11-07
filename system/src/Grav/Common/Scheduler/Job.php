@@ -201,6 +201,28 @@ class Job
     }
 
     /**
+     * Check if the Job should have run previously.
+     *
+     * @param  DateTime|null $date
+     * @return bool
+     */
+    public function isOverdue(?DateTime $date = null, ?DateTime $lastRun = null)
+    {
+        // If the time elapsed since the creation is inferior to the interval, it's not overdue
+        if ($this->creationTime > $this->executionTime->getPreviousRunDate($date)) {
+            return false;
+        }
+        // Else, if the job has never run, it's overdue
+        if (null === $lastRun) {
+            return true;
+        }
+        $date = $date ?? new DateTime('now');
+
+        // Else if the last run time is inferior to the previous scheduled time, it's overdue
+        return $lastRun < $this->executionTime->getPreviousRunDate($date);
+    }
+
+    /**
      * Check if the Job is overlapping.
      *
      * @return bool
