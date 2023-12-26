@@ -1835,7 +1835,7 @@ abstract class Utils
         $parts = parse_url($enc_url);
 
         if ($parts === false) {
-            throw new InvalidArgumentException('Malformed URL: ' . $url);
+            $parts = [];
         }
 
         foreach ($parts as $name => $value) {
