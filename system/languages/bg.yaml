@@ -5,6 +5,7 @@ GRAV:
     BAD_DATE: Невалидна дата
     AGO: преди
     FROM_NOW: от сега
+    JUST_NOW: току що
     SECOND: секунда
     MINUTE: минута
     HOUR: час
@@ -60,3 +61,12 @@ GRAV:
     - 'петък'
     - 'събота'
     - 'неделя'
+  YES: "Да"
+  NO: "Не"
+  CRON:
+    EVERY: всеки
+    EVERY_HOUR: Всеки час
+    EVERY_MINUTE: Всяка минута
+    EVERY_DAY_OF_WEEK: Всеки ден от седмицата
+    EVERY_DAY_OF_MONTH: Всеки ден от месеца
+    EVERY_MONTH: Всеки месец

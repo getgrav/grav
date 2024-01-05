@@ -2,8 +2,8 @@
 GRAV:
   FRONTMATTER_ERROR_PAGE: "---\ntitle: %1$s\n---\n\n# Klaida: klaidinga įžanginė konfigūracija\n\nPath: `%2$s`\n\n**%3$s**\n\n```\n %4$s\n```"
   INFLECTOR_UNCOUNTABLE:
-    - 'equipment'
-    - 'information'
+    - ''
+    - ''
     - 'ryžiai'
     - 'pinigai'
     - 'prieskoniai'

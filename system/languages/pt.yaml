@@ -67,7 +67,7 @@ GRAV:
   NICETIME:
     NO_DATE_PROVIDED: Nenhuma data fornecida
     BAD_DATE: Data inválida
-    AGO: atrás
+    AGO: há
     FROM_NOW: a partir de agora
     JUST_NOW: mesmo agora
     SECOND: segundo

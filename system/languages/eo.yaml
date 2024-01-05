@@ -1,0 +1,40 @@
+---
+GRAV:
+  FRONTMATTER_ERROR_PAGE: "---\ntitle: %1$s\n---\n\n# Eraro: Nevalida Frontmatter\n\nVojo: `%2$s`\n\n**%3$s**\n\n```\n%4$s\n```"
+  INFLECTOR_PLURALS:
+    '/sis$/i': 'j'
+  NICETIME:
+    FROM_NOW: ekde nun
+    JUST_NOW: Ĝuste nun
+    SECOND: sekundo
+    MINUTE: minuto
+    HOUR: horo
+    DAY: tago
+    WEEK: semajno
+    MONTH: monato
+    YEAR: jaro
+    DECADE: jardeko
+    SEC: sek.
+    MIN: min.
+    HR: horo
+    SECOND_PLURAL: sekundoj
+    MINUTE_PLURAL: minutoj
+    HOUR_PLURAL: horoj
+    DAY_PLURAL: tagoj
+    WEEK_PLURAL: semajnoj
+    MONTH_PLURAL: monatoj
+    YEAR_PLURAL: jaroj
+    DECADE_PLURAL: jardekoj
+  MONTHS_OF_THE_YEAR:
+    - 'januaro'
+    - 'februaro'
+    - 'marto'
+    - 'aprilo'
+    - ''
+    - ''
+    - ''
+    - ''
+    - ''
+    - ''
+    - ''
+    - ''

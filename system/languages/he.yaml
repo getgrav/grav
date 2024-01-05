@@ -1,11 +1,27 @@
 ---
 GRAV:
   FRONTMATTER_ERROR_PAGE: "---\nכותרת: %1$s\n---\n# שגיאה: Fronmatter לא חוקי\nנתיב: `%2$s`\n**%3$s**\n```\n%4$s\n```"
+  INFLECTOR_UNCOUNTABLE:
+    - 'ציוד'
+    - 'מידע'
+    - 'אורז'
+    - 'כסף'
+    - 'מינים'
+    - 'סדרה'
+    - 'דג'
+    - 'כבשה'
+  INFLECTOR_IRREGULAR:
+    'person': 'אנשים'
+    'man': 'גברים'
+    'child': 'ילדים'
+    'sex': 'מינים'
+    'move': 'מהלכים'
   NICETIME:
     NO_DATE_PROVIDED: לא סופק תאריך
     BAD_DATE: תאריך פגום
     AGO: לפני
     FROM_NOW: כרגע
+    JUST_NOW: כרגע
     SECOND: שנייה
     MINUTE: דקה
     HOUR: שעה
@@ -40,6 +56,7 @@ GRAV:
     VALIDATION_FAIL: '<b>האימות נכשל:</b>'
     INVALID_INPUT: 'קלט לא חוקי'
     MISSING_REQUIRED_FIELD: 'שדות חובה חסרים:'
+    XSS_ISSUES: "בעיות XSS פוטנציאליות זוהו בשדה '%s'"
   MONTHS_OF_THE_YEAR:
     - 'ינואר'
     - 'פברואר'
@@ -61,3 +78,22 @@ GRAV:
     - 'שישי'
     - 'שבת'
     - 'ראשון'
+  YES: "כן"
+  NO: "לא"
+  CRON:
+    EVERY: בכל
+    EVERY_HOUR: בכל שעה
+    EVERY_MINUTE: כל דקה
+    EVERY_DAY_OF_WEEK: כל יום בשבוע
+    EVERY_DAY_OF_MONTH: בכל יום בחודש
+    EVERY_MONTH: כל חודש
+    TEXT_PERIOD: כל  <b />
+    TEXT_MINS: 'ב <b /> דקות אחרי השעה'
+    TEXT_TIME: 'ב  <b />:<b />'
+    TEXT_DOW: 'ב  <b />'
+    TEXT_MONTH: 'של  <b />'
+    TEXT_DOM: 'ב  <b />'
+    ERROR1: התגית %s אינו נתמכת
+    ERROR2: מספר לא חוקי של משתנים.
+    ERROR3: יש להגדיר את ה-jquery_element להגדרות jqCron
+    ERROR4: ביטוי לא מזוהה

@@ -1,6 +1,17 @@
 ---
 GRAV:
   FRONTMATTER_ERROR_PAGE: "---\ntitle: %1$s\n---\n\n# Napaka: Neveljavna Frontmatter\n\nPath: `%2$s`\n\n**%3$s ** \n\n```\n%4$s \n```"
+  INFLECTOR_UNCOUNTABLE:
+    - 'oprema'
+    - 'informacija'
+    - 'riž'
+    - 'denar'
+    - 'vrste'
+    - 'serija'
+    - 'riba'
+    - 'ovca'
+  INFLECTOR_IRREGULAR:
+    'person': 'ljudje'
   NICETIME:
     NO_DATE_PROVIDED: Datum ni na voljo
     BAD_DATE: Neveljaven datum
@@ -43,15 +54,15 @@ GRAV:
     - 'Januar'
     - 'Februar'
     - 'Marec'
-    - 'April'
+    - 'april'
     - 'Maj'
     - 'Junij'
     - 'Julij'
     - 'Avgust'
-    - 'September'
+    - 'september'
     - 'Oktober'
-    - 'November'
-    - 'December'
+    - 'november'
+    - 'december'
   DAYS_OF_THE_WEEK:
     - 'Ponedeljek'
     - 'Torek'
@@ -60,3 +71,15 @@ GRAV:
     - 'Petek'
     - 'Sobota'
     - 'Nedelja'
+  YES: "Da"
+  NO: "Ne"
+  CRON:
+    EVERY: vsak
+    EVERY_HOUR: vsako uro
+    EVERY_MINUTE: vsako minuto
+    EVERY_DAY_OF_WEEK: vsak dan v tednu
+    EVERY_DAY_OF_MONTH: vsak dan v mesecu
+    EVERY_MONTH: vsak mesec
+    ERROR1: Oznaka %s ni podprta!
+    ERROR2: Napačno število elementov.
+    ERROR4: Neznan izraz

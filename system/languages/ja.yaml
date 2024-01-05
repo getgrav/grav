@@ -1,12 +1,12 @@
 ---
 GRAV:
   INFLECTOR_UNCOUNTABLE:
-    - 'equipment'
+    - ''
     - '情報'
-    - 'rice'
+    - ''
     - 'お金'
-    - 'species'
-    - 'series'
+    - ''
+    - ''
     - '魚'
     - 'ヒツジ'
   INFLECTOR_IRREGULAR:
