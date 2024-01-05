@@ -72,7 +72,6 @@ class SchedulerTest extends \Codeception\Test\Unit
         $this->scheduler->run($date, false, true);
         $this->assertFileExists($this->statusFilePath);
         $this->assertFileIsReadable($this->statusFilePath);
-        dump(file_get_contents($this->statusFilePath));
         foreach ($jobs as $id => $job) {
             $this->assertStringContainsString($id, file_get_contents($this->statusFilePath));
         }
