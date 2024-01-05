@@ -2,7 +2,6 @@
 ## 01/05/2024
 
 1. [](#new)
-   * Added new `outdated` option to schedule command [#3771](https://github.com/getgrav/grav/pull/3771)
    * Added PHP `8.3` to tests [#3782](https://github.com/getgrav/grav/pull/3782)
    * Added debugger messages when Page routes conflict
    * Added `ISO 8601` date format [#3721](https://github.com/getgrav/grav/pull/37210)
