@@ -188,7 +188,7 @@ class Scheduler
      * @param DateTime|null $runTime Optional, run at specific moment
      * @param bool $force force run even if not due
      */
-    public function run(DateTime $runTime = null, $force = false, $overdue = false)
+    public function run(DateTime $runTime = null, $force = false)
     {
         $this->loadSavedJobs();
 
@@ -199,17 +199,9 @@ class Scheduler
             $runTime = new DateTime('now');
         }
 
-        if ($overdue) {
-            $lastRuns = [];
-            foreach ($this->getJobStates()->content() as $id => $state) {
-                $timestamp = $state['last-run'] ?? time();
-                $lastRuns[$id] = DateTime::createFromFormat('U',$timestamp);
-            }
-        }
-
         // Star processing jobs
         foreach ($alljobs as $job) {
-            if ($job->isDue($runTime) || $force || ($overdue && $job->isOverdue($runTime, $lastRuns[$job->getId()] ?? null))) {
+            if ($job->isDue($runTime) || $force) {
                 $job->run();
                 $this->jobs_run[] = $job;
             }
