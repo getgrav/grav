@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common
  *
- * @copyright  Copyright (c) 2015 - 2023 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2024 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -398,6 +398,9 @@ class Assets extends PropertyObject
 
             if ($key === 'position' && $value === 'pipeline') {
                 $type = $asset->getType();
+                if ($type === 'jsmodule') {
+                    $type = 'js_module';
+                }
 
                 if ($asset->getRemote() && $this->{strtolower($type) . '_pipeline_include_externals'} === false && $asset['position'] === 'pipeline') {
                     if ($this->{strtolower($type) . '_pipeline_before_excludes'}) {

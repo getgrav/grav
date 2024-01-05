@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common
  *
- * @copyright  Copyright (c) 2015 - 2023 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2024 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -977,10 +977,10 @@ abstract class Utils
      * @param string $filename
      * @return bool
      */
-    public static function checkFilename($filename)
+    public static function checkFilename($filename): bool
     {
         $dangerous_extensions = Grav::instance()['config']->get('security.uploads_dangerous_extensions', []);
-        $extension = static::pathinfo($filename, PATHINFO_EXTENSION);
+        $extension = mb_strtolower(static::pathinfo($filename, PATHINFO_EXTENSION));
 
         return !(
             // Empty filenames are not allowed.
@@ -1835,7 +1835,7 @@ abstract class Utils
         $parts = parse_url($enc_url);
 
         if ($parts === false) {
-            throw new InvalidArgumentException('Malformed URL: ' . $url);
+            $parts = [];
         }
 
         foreach ($parts as $name => $value) {

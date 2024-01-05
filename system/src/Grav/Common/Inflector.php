@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common
  *
- * @copyright  Copyright (c) 2015 - 2023 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2024 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -310,11 +310,11 @@ class Inflector
      */
     public static function ordinalize($number)
     {
+        static::init();
+
         if (!is_array(static::$ordinals)) {
             return (string)$number;
         }
-
-        static::init();
 
         if (in_array($number % 100, range(11, 13), true)) {
             return $number . static::$ordinals['default'];

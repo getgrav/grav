@@ -62,6 +62,8 @@ GRAV:
     - '星期五'
     - '星期六'
     - '星期日'
+  YES: "是"
+  NO: "否"
   CRON:
     EVERY: 每
     EVERY_HOUR: 每小時

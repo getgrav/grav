@@ -561,6 +561,7 @@ class UtilsTest extends \Codeception\TestCase\Test
         $config->set('security.uploads_dangerous_extensions', ['php', 'html', 'htm', 'exe', 'js']);
 
         self::assertFalse(Utils::checkFilename('foo.php'));
+        self::assertFalse(Utils::checkFilename('foo.PHP'));
         self::assertFalse(Utils::checkFilename('bar.js'));
 
         self::assertTrue(Utils::checkFilename('foo.json'));

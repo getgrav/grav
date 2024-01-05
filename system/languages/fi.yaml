@@ -45,12 +45,12 @@ GRAV:
     '/([ti])a$/i': '\1um'
     '/(n)ews$/i': '\1ews'
   INFLECTOR_UNCOUNTABLE:
-    - 'equipment'
-    - 'information'
+    - ''
+    - ''
     - 'riisi'
     - 'raha'
     - 'lajit'
-    - 'series'
+    - ''
     - 'kala'
     - 'lammas'
   INFLECTOR_IRREGULAR:

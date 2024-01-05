@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Page
  *
- * @copyright  Copyright (c) 2015 - 2023 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2024 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -2013,17 +2013,26 @@ class Pages
 
             // add regular route
             if ($route) {
+                if (isset($this->routes[$route]) && $this->routes[$route] !== $page_path) {
+                    $this->grav['debugger']->addMessage("Route '{$route}' already exists: {$this->routes[$route]}, overwriting with {$page_path}");
+                }
                 $this->routes[$route] = $page_path;
             }
 
             // add raw route
-            if ($raw_route && $raw_route !== $route) {
+            if ($raw_route) {
+                if (isset($this->routes[$raw_route]) && $this->routes[$route] !== $page_path) {
+                    $this->grav['debugger']->addMessage("Raw Route '{$raw_route}' already exists: {$this->routes[$raw_route]}, overwriting with {$page_path}");
+                }
                 $this->routes[$raw_route] = $page_path;
             }
 
             // add canonical route
             $route_canonical = $page->routeCanonical();
-            if ($route_canonical && $route !== $route_canonical) {
+            if ($route_canonical) {
+                if (isset($this->routes[$route_canonical]) && $this->routes[$route_canonical] !== $page_path) {
+                    $this->grav['debugger']->addMessage("Canonical Route '{$route_canonical}' already exists: {$this->routes[$route_canonical]}, overwriting with {$page_path}");
+                }
                 $this->routes[$route_canonical] = $page_path;
             }
 
@@ -2031,6 +2040,9 @@ class Pages
             $route_aliases = $page->routeAliases();
             if ($route_aliases) {
                 foreach ($route_aliases as $alias) {
+                    if (isset($this->routes[$alias]) && $this->routes[$alias] !== $page_path) {
+                        $this->grav['debugger']->addMessage("Alias Route '{$alias}' already exists: {$this->routes[$alias]}, overwriting with {$page_path}");
+                    }
                     $this->routes[$alias] = $page_path;
                 }
             }

@@ -2,14 +2,14 @@
 GRAV:
   FRONTMATTER_ERROR_PAGE: "---\ntitle: %1$s\n---\n\n# S'ha produït un error: Frontmatter invàlid\n\nRuta: `%2$s`\n\n**%3$s**\n\n```\n%4$s\n```"
   INFLECTOR_UNCOUNTABLE:
-    - 'equipment'
+    - ''
     - 'informació'
-    - 'rice'
-    - 'money'
-    - 'species'
-    - 'series'
-    - 'fish'
-    - 'sheep'
+    - ''
+    - ''
+    - ''
+    - ''
+    - ''
+    - ''
   NICETIME:
     NO_DATE_PROVIDED: No s'ha proporcionat data
     BAD_DATE: Data invàlida

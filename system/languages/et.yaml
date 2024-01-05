@@ -13,12 +13,12 @@ GRAV:
     '/(tive)s$/i': '\1'
     '/(hive)s$/i': '\1'
   INFLECTOR_UNCOUNTABLE:
-    - 'equipment'
+    - ''
     - 'informatsioon'
     - 'riis'
     - 'raha'
-    - 'species'
-    - 'series'
+    - ''
+    - ''
     - 'kala'
     - 'lammas'
   INFLECTOR_IRREGULAR:
@@ -70,6 +70,7 @@ GRAV:
     VALIDATION_FAIL: '<b>Kinnitamine nurjus:</b>'
     INVALID_INPUT: 'Vigane sisend:'
     MISSING_REQUIRED_FIELD: 'Nõutud väli puudub:'
+    XSS_ISSUES: "Tuvastasime '%s' väljal võimaliku XSS-riski"
   MONTHS_OF_THE_YEAR:
     - 'jaanuar'
     - 'veebruar'
@@ -91,11 +92,14 @@ GRAV:
     - 'reede'
     - 'laupäev'
     - 'pühapäev'
+  YES: "Jah"
+  NO: "Ei"
   CRON:
     EVERY: iga
     EVERY_HOUR: iga tund
     EVERY_MINUTE: iga minut
-    EVERY_DAY_OF_WEEK: iga nädala päev
+    EVERY_DAY_OF_WEEK: nädala igal päeval
+    EVERY_DAY_OF_MONTH: kuu igal päeval
     EVERY_MONTH: iga kuu
     TEXT_PERIOD: Iga <b />
     ERROR1: Silt %s pole toetatud!

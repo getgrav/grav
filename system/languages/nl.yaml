@@ -104,6 +104,7 @@ GRAV:
     VALIDATION_FAIL: '<b>Validatie mislukt:</b>'
     INVALID_INPUT: 'Ongeldige invoer in'
     MISSING_REQUIRED_FIELD: 'Ontbrekend verplicht veld:'
+    XSS_ISSUES: "Mogelijke XSS-problemen ontdekt in '%s' veld"
   MONTHS_OF_THE_YEAR:
     - 'Januari'
     - 'Februari'
@@ -125,6 +126,8 @@ GRAV:
     - 'Vrijdag'
     - 'Zaterdag'
     - 'Zondag'
+  YES: "Ja"
+  NO: "Nee"
   CRON:
     EVERY: elke
     EVERY_HOUR: elk uur

@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Scheduler
  * @author     Originally based on peppeocchi/php-cron-scheduler modified for Grav integration
- * @copyright  Copyright (c) 2015 - 2023 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2024 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -198,6 +198,28 @@ class Job
         $date = $date ?? $this->creationTime;
 
         return $this->executionTime->isDue($date);
+    }
+
+    /**
+     * Check if the Job should have run previously.
+     *
+     * @param  DateTime|null $date
+     * @return bool
+     */
+    public function isOverdue(?DateTime $date = null, ?DateTime $lastRun = null)
+    {
+        // If the time elapsed since the creation is inferior to the interval, it's not overdue
+        if ($this->creationTime > $this->executionTime->getPreviousRunDate($date)) {
+            return false;
+        }
+        // Else, if the job has never run, it's overdue
+        if (null === $lastRun) {
+            return true;
+        }
+        $date = $date ?? new DateTime('now');
+
+        // Else if the last run time is inferior to the previous scheduled time, it's overdue
+        return $lastRun < $this->executionTime->getPreviousRunDate($date);
     }
 
     /**

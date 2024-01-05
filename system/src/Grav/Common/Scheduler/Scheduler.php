@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Scheduler
  * @author     Originally based on peppeocchi/php-cron-scheduler modified for Grav integration
- * @copyright  Copyright (c) 2015 - 2023 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2024 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -188,7 +188,7 @@ class Scheduler
      * @param DateTime|null $runTime Optional, run at specific moment
      * @param bool $force force run even if not due
      */
-    public function run(DateTime $runTime = null, $force = false)
+    public function run(DateTime $runTime = null, $force = false, $overdue = false)
     {
         $this->loadSavedJobs();
 
@@ -199,9 +199,17 @@ class Scheduler
             $runTime = new DateTime('now');
         }
 
+        if ($overdue) {
+            $lastRuns = [];
+            foreach ($this->getJobStates()->content() as $id => $state) {
+                $timestamp = $state['last-run'] ?? time();
+                $lastRuns[$id] = DateTime::createFromFormat('U',$timestamp);
+            }
+        }
+
         // Star processing jobs
         foreach ($alljobs as $job) {
-            if ($job->isDue($runTime) || $force) {
+            if ($job->isDue($runTime) || $force || ($overdue && $job->isOverdue($runTime, $lastRuns[$job->getId()] ?? null))) {
                 $job->run();
                 $this->jobs_run[] = $job;
             }
@@ -214,6 +222,9 @@ class Scheduler
 
         // Store states
         $this->saveJobStates();
+
+        // Store run date
+        file_put_contents("logs/lastcron.run", (new DateTime("now"))->format("Y-m-d H:i:s"), LOCK_EX);
     }
 
     /**
@@ -291,7 +302,7 @@ class Scheduler
     }
 
     /**
-     * Helper to determine if cron job is setup
+     * Helper to determine if cron-like job is setup
      * 0 - Crontab Not found
      * 1 - Crontab Found
      * 2 - Error
@@ -300,6 +311,13 @@ class Scheduler
      */
     public function isCrontabSetup()
     {
+        // Check for external triggers
+        $last_run = @file_get_contents("logs/lastcron.run");
+        if (time() - strtotime($last_run) < 120){
+            return 1;
+        }
+
+        // No external triggers found, so do legacy cron checks
         $process = new Process(['crontab', '-l']);
         $process->run();
 

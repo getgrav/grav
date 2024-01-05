@@ -1,8 +1,9 @@
 ---
 GRAV:
+  FRONTMATTER_ERROR_PAGE: "---\nnaslov: %1$s\n---\n\n# Pogreška: nevažeći frontmatter\n\nPutanja datoteke: `%2$s`\n\n**%3$s**\n\n```\n%4$s\n```"
   INFLECTOR_UNCOUNTABLE:
     - 'oprema'
-    - 'informacije'
+    - 'informacija'
     - 'riža'
     - 'novac'
     - 'vrsta'
@@ -15,11 +16,17 @@ GRAV:
     'child': 'djeca'
     'sex': 'spolovi'
     'move': 'Pomakni'
+  INFLECTOR_ORDINALS:
+    'default': '.'
+    'first': '.'
+    'second': '.'
+    'third': '.'
   NICETIME:
     NO_DATE_PROVIDED: Datum nije upisan
     BAD_DATE: Pogrešan datum
     AGO: prije
     FROM_NOW: od sada
+    JUST_NOW: upravo sad
     SECOND: sekunda
     MINUTE: minuta
     HOUR: sat
@@ -29,6 +36,7 @@ GRAV:
     YEAR: godina
     DECADE: desetljeće
     SEC: sek
+    MIN: min
     HR: sat
     WK: t
     MO: m
@@ -53,6 +61,7 @@ GRAV:
     VALIDATION_FAIL: '<b>Validacija nije uspjela:</b>'
     INVALID_INPUT: 'Pogrešan unos u'
     MISSING_REQUIRED_FIELD: 'Nedostaje obavezno polje:'
+    XSS_ISSUES: "Potencijalni XSS problemi otkriveni u polju '%s'"
   MONTHS_OF_THE_YEAR:
     - 'Siječanj'
     - 'Veljača'
@@ -74,3 +83,22 @@ GRAV:
     - 'Petak'
     - 'Subota'
     - 'Nedjelja'
+  YES: "Da"
+  NO: "Ne"
+  CRON:
+    EVERY: svaki
+    EVERY_HOUR: svaki sat
+    EVERY_MINUTE: svake minute
+    EVERY_DAY_OF_WEEK: svaki dan u tjednu
+    EVERY_DAY_OF_MONTH: svaki dan u mjesecu
+    EVERY_MONTH: svaki mjesec
+    TEXT_PERIOD: Svakih <b />
+    TEXT_MINS: ' u <b /> minut(e) nakon sata'
+    TEXT_TIME: ' u <b />:<b />'
+    TEXT_DOW: ' na <b />'
+    TEXT_MONTH: '  <b />'
+    TEXT_DOM: ' na <b />'
+    ERROR1: Oznaka %s nije podržana!
+    ERROR2: Pogrešan broj elemenata.
+    ERROR3: jquery_element treba postaviti u postavke jqCron
+    ERROR4: Izraz nije prepoznat
