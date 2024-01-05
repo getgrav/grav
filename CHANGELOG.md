@@ -1,27 +1,32 @@
 # v1.7.44
-## 10/02/2023
+## 01/05/2024
 
-1. [](#improved)
+1. [](#new)
+   * Added new `outdated` option to schedule command [#3771](https://github.com/getgrav/grav/pull/3771)
+   * Added PHP `8.3` to tests [#3782](https://github.com/getgrav/grav/pull/3782)
    * Added debugger messages when Page routes conflict
-   * Added `ISO 8601` date format (#3721)[https://github.com/getgrav/grav/pull/3721]
-   * Update jQuery to `v3.6.4` (#3713)[https://github.com/getgrav/grav/pull/3713]
-   * Updated vendor libraries including Dom-Sanitizer `v1.0.7` that addresses an XSS issue 
+   * Added `ISO 8601` date format [#3721](https://github.com/getgrav/grav/pull/37210)
    * Added support for `.vcf` (vCard) in media configuration [#3772](https://github.com/getgrav/grav/pull/3772)
-   * Updated `bin/composer.phar` to latest `2.6.5`
+1. [](#improved) 
+   * Update jQuery to `v3.6.4` [#3713](https://github.com/getgrav/grav/pull/3713)
+   * Updated vendor libraries including Dom-Sanitizer `v1.0.7` that addresses an XSS issue 
+   * Updated `bin/composer.phar` to latest `2.6.6`
    * Updated vendor libraries to latest
+   * Updated language files
+   * Updated copyright year
 1. [](#bugfix)
    * Fixed a math rounding issue with number validation when using floating point steps [#3761](https://github.com/getgrav/grav/issues/3761)
    * Fixed an issue with `Inflector::ordinalize()` not working as expected [#3759](https://github.com/getgrav/grav/pull/3759)
    * Fixed various issues with file extension checking with dangerous extensions [#3756(https://github.com/getgrav/grav/pull/3756)]
    * Fix for invalid input to foreach in `UserGroupObject` [#3724](https://github.com/getgrav/grav/pull/3724)
-   * Fixed exception: `Property 'jsmodule_pipeline_include_externals' does not exist in object` (#3661)[https://github.com/getgrav/grav/pull/3661]
+   * Fixed exception: `Property 'jsmodule_pipeline_include_externals' does not exist in object` [#3661](https://github.com/getgrav/grav/pull/3661)
    * Fixed `too few arguments exception` in FlexObjects [#3658](https://github.com/getgrav/grav/pull/3658)
 
 # v1.7.43
 ## 10/02/2023
 
 1. [](#new)
-   * Add the ability to programtically set a page's `modified` timestamp via a `modified:` frontmatter entry
+   * Add the ability to programatically set a page's `modified` timestamp via a `modified:` frontmatter entry
 2. [](#improved)
    * Update vendor libraries
    * Include `phar` in the list of `security.uploads_dangerous_extensions`
