@@ -1,3 +1,9 @@
+# v1.7.45
+## mm/dd/2024
+
+1. [](#bugfix)
+   * Fixed some multibyte issues in Inflector class [#732](https://github.com/getgrav/grav/issues/732)
+
 # v1.7.44
 ## 01/05/2024
 
