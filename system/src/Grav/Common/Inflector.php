@@ -161,9 +161,15 @@ class Inflector
      */
     public static function titleize($word, $uppercase = '')
     {
-        $uppercase = $uppercase === 'first' ? 'ucfirst' : 'ucwords';
+        $humanize_underscorize = static::humanize(static::underscorize($word));
 
-        return $uppercase(static::humanize(static::underscorize($word)));
+        if ($uppercase === 'first') {
+            $firstLetter = mb_strtoupper(mb_substr($humanize_underscorize, 0, 1, "UTF-8"), "UTF-8");
+            return $firstLetter . mb_substr($humanize_underscorize, 1, mb_strlen($humanize_underscorize, "UTF-8"), "UTF-8");
+        } else {
+            return mb_convert_case($humanize_underscorize, MB_CASE_TITLE, 'UTF-8');
+        }
+
     }
 
     /**
@@ -198,7 +204,7 @@ class Inflector
     {
         $regex1 = preg_replace('/([A-Z]+)([A-Z][a-z])/', '\1_\2', $word);
         $regex2 = preg_replace('/([a-zd])([A-Z])/', '\1_\2', $regex1);
-        $regex3 = preg_replace('/[^A-Z^a-z^0-9]+/', '_', $regex2);
+        $regex3 = preg_replace('/[^\p{L}^0-9]+/u', '_', $regex2);
 
         return strtolower($regex3);
     }
