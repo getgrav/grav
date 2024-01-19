@@ -186,7 +186,7 @@ class Inflector
      */
     public static function camelize($word)
     {
-        return str_replace(' ', '', ucwords(preg_replace('/[^A-Z^a-z^0-9]+/', ' ', $word)));
+        return str_replace(' ', '', ucwords(preg_replace('/[^\p{L}^0-9]+/', ' ', $word)));
     }
 
     /**
@@ -225,7 +225,7 @@ class Inflector
         $regex1 = preg_replace('/([A-Z]+)([A-Z][a-z])/', '\1-\2', $word);
         $regex2 = preg_replace('/([a-z])([A-Z])/', '\1-\2', $regex1);
         $regex3 = preg_replace('/([0-9])([A-Z])/', '\1-\2', $regex2);
-        $regex4 = preg_replace('/[^A-Z^a-z^0-9]+/', '-', $regex3);
+        $regex4 = preg_replace('/[^\p{L}^0-9]+/', '-', $regex3);
 
         $regex4 = trim($regex4, '-');
 
