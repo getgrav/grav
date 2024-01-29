@@ -2,8 +2,7 @@
 
 /**
  * @package    Grav\Common\Media
- *
- * @copyright  Copyright (c) 2015 - 2024 Trilby Media, LLC. All rights reserved.
+ * @author     Pedro Moreno https://github.com/pmoreno-rodriguez
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -12,7 +11,7 @@ namespace Grav\Common\Media\Traits;
 use Grav\Common\Grav;
 
 /**
- * Trait ImageLoadingTrait
+ * Trait ImageDecodingTrait
  * @package Grav\Common\Media\Traits
  */
 
