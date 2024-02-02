@@ -25,17 +25,16 @@ trait ImageDecodingTrait
      */
     public function decoding($value = null)
     {
-        $validValues = ['sync', 'async', 'auto'];
-
         if (null === $value) {
             $value = Grav::instance()['config']->get('system.images.defaults.decoding', 'auto');
         }
 
-        // Validate the provided value
-        if ($value && in_array($value, $validValues, true)) {
+        // Validate the provided value (similar to loading)
+        if ($value !== null && $value !== 'auto') {
             $this->attributes['decoding'] = $value;
         }
 
         return $this;
     }
+
 }
