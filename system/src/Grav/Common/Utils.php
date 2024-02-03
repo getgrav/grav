@@ -1330,7 +1330,11 @@ abstract class Utils
         if ($dateformat) {
             $datetime = DateTime::createFromFormat($dateformat, $date);
         } else {
-            $datetime = new DateTime($date);
+            try {
+                $datetime = new DateTime($date);
+            } catch (Exception $e) {
+                $datetime = false;
+            }
         }
 
         // fallback to strtotime() if DateTime approach failed
