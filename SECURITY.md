@@ -22,6 +22,15 @@ Please contact security@getgrav.org with a detailed explanation of the security 
 
 >> NOTE: Please do not use 3rd party security issue reporting services, we like to keep everything in the GitHub ecosystem for easier manageability.
 
+## Note on Security Severity
+
+IMPORTANT!!! Please use the following guidlines when selecting a **Severity**.  Submitted advisories that are marked **High** or **Critical** that don't meet the guidelines below will be cliosed.
+
+* **CRITICAL** - no account required, can modify content, or run malicious code or nefarious activity without any access.
+* **HIGH** - publisher level account able to run malicious code or nefarious activity, or other high level security things.
+* **MODERATE** - admin level account able to run malicious code or do nefarious things. other moderate security things.
+* **LOW** - super admin level account able to run malicious code or do nefarious things. other minor security things.
+
 ## Bug Bounties
 
 We do greatly appreciate your efforts to improve Grav, but unfortunately because we are a small open source project, we **do not have the resources to offer bounties** for security issues found.  
