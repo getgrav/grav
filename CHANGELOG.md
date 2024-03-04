@@ -6,6 +6,7 @@
 1. [](#bugfix)
    * Fixed some multibyte issues in Inflector class [#732](https://github.com/getgrav/grav/issues/732)
    * Fallback to page modified date if Page date provided is invalid and can't be parsed [getgrav/grav-plugin-admin#2394](https://github.com/getgrav/grav-plugin-admin/issues/2394)
+   * Fixed a path traversal vulnerability with file uploads [GHSA-m7hx-hw6h-mqmc](https://github.com/getgrav/grav/security/advisories/GHSA-m7hx-hw6h-mqmc)
 
 # v1.7.44
 ## 01/05/2024
