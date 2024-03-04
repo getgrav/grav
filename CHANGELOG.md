@@ -5,7 +5,7 @@
    * Added new Image trait for `decoding` attribute [#3796](https://github.com/getgrav/grav/pull/3796)
 1. [](#bugfix)
    * Fixed some multibyte issues in Inflector class [#732](https://github.com/getgrav/grav/issues/732)
-   * Fallback to paeg modified date if Page date provided is invalid and can't be parsed [getgrav/grav-plugin-admin#2394](https://github.com/getgrav/grav-plugin-admin/issues/2394)
+   * Fallback to page modified date if Page date provided is invalid and can't be parsed [getgrav/grav-plugin-admin#2394](https://github.com/getgrav/grav-plugin-admin/issues/2394)
 
 # v1.7.44
 ## 01/05/2024
