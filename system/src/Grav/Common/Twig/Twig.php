@@ -16,6 +16,7 @@ use Grav\Common\Language\Language;
 use Grav\Common\Language\LanguageCodes;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Page\Pages;
+use Grav\Common\Security;
 use Grav\Common\Twig\Exception\TwigException;
 use Grav\Common\Twig\Extension\FilesystemExtension;
 use Grav\Common\Twig\Extension\GravExtension;
@@ -319,6 +320,7 @@ class Twig
     public function processPage(PageInterface $item, $content = null)
     {
         $content = $content ?? $item->content();
+        $content = Security::cleanDangerousTwig($content);
 
         // override the twig header vars for local resolution
         $this->grav->fireEvent('onTwigPageVariables', new Event(['page' => $item]));
@@ -392,6 +394,8 @@ class Twig
         $this->grav->fireEvent('onTwigStringVariables');
         $vars += $this->twig_vars;
 
+        $string = Security::cleanDangerousTwig($string);
+
         $name = '@Var:' . $string;
         $this->setTemplate($name, $string);
 
@@ -418,7 +422,7 @@ class Twig
         try {
             $grav = $this->grav;
 
-            // set the page now its been processed
+            // set the page now it's been processed
             $grav->fireEvent('onTwigSiteVariables');
 
             /** @var Pages $pages */
@@ -427,13 +431,15 @@ class Twig
             /** @var PageInterface $page */
             $page = $grav['page'];
 
+            $content = Security::cleanDangerousTwig($page->content());
+
             $twig_vars = $this->twig_vars;
             $twig_vars['theme'] = $grav['config']->get('theme');
             $twig_vars['pages'] = $pages->root();
             $twig_vars['page'] = $page;
             $twig_vars['header'] = $page->header();
             $twig_vars['media'] = $page->media();
-            $twig_vars['content'] = $page->content();
+            $twig_vars['content'] = $content;
 
             // determine if params are set, if so disable twig cache
             $params = $grav['uri']->params(null, true);
@@ -568,4 +574,5 @@ class Twig
 
         $this->autoescape = (bool) $state;
     }
+
 }
