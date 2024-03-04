@@ -10,6 +10,15 @@ We are focusing our security updates on the following versions
 | 1.6.x   | :warning:          |
 | < 1.6   | :x:                |
 
+## :pushpin: Note on Security Severity
+
+> NOTE: Please use the following guidlines when selecting a **Severity**.  Submitted advisories that are marked **High** or **Critical** that don't meet the guidelines below will be cliosed.
+
+* **CRITICAL** - no account required, can modify content, or run malicious code or nefarious activity without any access.
+* **HIGH** - publisher level account able to run malicious code or nefarious activity, or other high level security things.
+* **MODERATE** - admin level account able to run malicious code or do nefarious things. other moderate security things.
+* **LOW** - super admin level account able to run malicious code or do nefarious things. other minor security things.
+
 ## :warning: Versions
 
 Versions with :warning: will be supported for security issues, however you won't be able to update to them, you will need to manually update through the [`direct-install` command](https://learn.getgrav.org/17/admin-panel/tools).
@@ -21,15 +30,6 @@ If you cannot update to the latest stable version available because, for example
 Please contact security@getgrav.org with a detailed explanation of the security issue found.  If it appears to be a legitimate issues, please submit an **advisory via GitHub Security**: https://github.com/getgrav/grav/security/advisories
 
 > NOTE: Please do not use 3rd party security issue reporting services, we like to keep everything in the GitHub ecosystem for easier manageability.
-
-## :pushpin: Note on Security Severity
-
-> NOTE: Please use the following guidlines when selecting a **Severity**.  Submitted advisories that are marked **High** or **Critical** that don't meet the guidelines below will be cliosed._
-
-* **CRITICAL** - no account required, can modify content, or run malicious code or nefarious activity without any access.
-* **HIGH** - publisher level account able to run malicious code or nefarious activity, or other high level security things.
-* **MODERATE** - admin level account able to run malicious code or do nefarious things. other moderate security things.
-* **LOW** - super admin level account able to run malicious code or do nefarious things. other minor security things.
 
 ## :bug: Bug Bounties
 
