@@ -278,6 +278,7 @@ class Security
             'undefined_functions',
             'twig.getFunction',
             'core.setEscaper',
+            'twig.safe_functions',
         ];
         $string = preg_replace('/(({{\s*|{%\s*)[^}]*?(' . implode('|', $bad_twig) . ')[^}]*?(\s*}}|\s*%}))/i', '{# $1 #}', $string);
         return $string;
