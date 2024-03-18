@@ -168,6 +168,7 @@ images:
     retina_scale: 1                              # scale to adjust auto-sizes for better handling of HiDPI resolutions
   defaults:
     loading: auto                                # Let browser pick [auto|lazy|eager]
+    decoding: auto                               # Let browser pick [auto|sync|async]
   watermark:
     image: 'system://images/watermark.png'       # Path to a watermark image
     position_y: 'center'                         # top|center|bottom

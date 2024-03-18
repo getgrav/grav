@@ -263,4 +263,24 @@ class Security
             'invalid_protocols' => array_map('trim', $config->get('security.xss_invalid_protocols')),
         ];
     }
+
+    public static function cleanDangerousTwig(string $string): string
+    {
+        if ($string === '') {
+            return $string;
+        }
+
+        $bad_twig = [
+            'twig_array_map',
+            'twig_array_filter',
+            'call_user_func',
+            'registerUndefinedFunctionCallback',
+            'undefined_functions',
+            'twig.getFunction',
+            'core.setEscaper',
+            'twig.safe_functions',
+        ];
+        $string = preg_replace('/(({{\s*|{%\s*)[^}]*?(' . implode('|', $bad_twig) . ')[^}]*?(\s*}}|\s*%}))/i', '{# $1 #}', $string);
+        return $string;
+    }
 }

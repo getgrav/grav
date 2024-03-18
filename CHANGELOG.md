@@ -1,3 +1,17 @@
+# v1.7.45
+## 03/18/2024
+
+1. [](#news)
+   * Added new Image trait for `decoding` attribute [#3796](https://github.com/getgrav/grav/pull/3796)
+1. [](#bugfix)
+   * Fixed some multibyte issues in Inflector class [#732](https://github.com/getgrav/grav/issues/732)
+   * Fallback to page modified date if Page date provided is invalid and can't be parsed [getgrav/grav-plugin-admin#2394](https://github.com/getgrav/grav-plugin-admin/issues/2394)
+   * Fixed a path traversal vulnerability with file uploads [#GHSA-m7hx-hw6h-mqmc](https://github.com/getgrav/grav/security/advisories/GHSA-m7hx-hw6h-mqmc)
+   * Fixed a security issue with insecure Twig functions be processed [#GHSA-2m7x-c7px-hp58](https://github.com/getgrav/grav/security/advisories/GHSA-2m7x-c7px-hp58) [#GHSA-r6vw-8v8r-pmp4](https://github.com/getgrav/grav/security/advisories/GHSA-r6vw-8v8r-pmp4) [#GHSA-qfv4-q44r-g7rv](https://github.com/getgrav/grav/security/advisories/GHSA-qfv4-q44r-g7rv) [#GHSA-c9gp-64c4-2rrh](https://github.com/getgrav/grav/security/advisories/GHSA-c9gp-64c4-2rrh)
+1. [](#improved) 
+   * Updated composer packages
+   * Updated `bin/composer.phar` to latest `2.7.2`
+
 # v1.7.44
 ## 01/05/2024
 

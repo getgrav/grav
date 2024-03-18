@@ -1300,6 +1300,17 @@ form:
                 auto: Auto
                 lazy: Lazy
                 eager: Eager
+            
+            images.defaults.decoding:
+              type: select
+              size: small
+              label: PLUGIN_ADMIN.IMAGES_DECODING
+              help: PLUGIN_ADMIN.IMAGES_DECODING_HELP
+              highlight: auto
+              options:
+                auto: Auto
+                sync: Sync
+                async: Async
 
             images.seofriendly:
               type: toggle

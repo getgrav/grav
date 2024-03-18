@@ -53,11 +53,13 @@ class InflectorTest extends \Codeception\TestCase\Test
         self::assertSame('This String Is Titleized', $this->inflector->titleize('this string is titleized'));
         self::assertSame('This String Is Titleized', $this->inflector->titleize('this_string_is_titleized'));
         self::assertSame('This String Is Titleized', $this->inflector->titleize('this-string-is-titleized'));
+        self::assertSame('Échelle Synoptique', $this->inflector->titleize('échelle synoptique'));
 
         self::assertSame('This string is titleized', $this->inflector->titleize('ThisStringIsTitleized', 'first'));
         self::assertSame('This string is titleized', $this->inflector->titleize('this string is titleized', 'first'));
         self::assertSame('This string is titleized', $this->inflector->titleize('this_string_is_titleized', 'first'));
         self::assertSame('This string is titleized', $this->inflector->titleize('this-string-is-titleized', 'first'));
+        self::assertSame('Échelle synoptique', $this->inflector->titleize('échelle synoptique', 'first'));
     }
 
     public function testCamelize(): void
