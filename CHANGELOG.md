@@ -1,5 +1,5 @@
 # v1.7.45
-## mm/dd/2024
+## 03/18/2024
 
 1. [](#news)
    * Added new Image trait for `decoding` attribute [#3796](https://github.com/getgrav/grav/pull/3796)
