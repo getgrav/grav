@@ -1,3 +1,9 @@
+# v1.7.46
+## mm/dd/2024
+
+1. [](#bugfix)
+   * Fixes for multi-lang taxonomy when reinitializing the languages (e.g. LangSwitcher plugin) 
+
 # v1.7.45
 ## 03/18/2024
 

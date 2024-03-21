@@ -10,6 +10,7 @@
 namespace Grav\Common;
 
 use Grav\Common\Config\Config;
+use Grav\Common\Language\Language;
 use Grav\Common\Page\Collection;
 use Grav\Common\Page\Interfaces\PageInterface;
 use function is_string;
@@ -37,6 +38,8 @@ class Taxonomy
     protected $taxonomy_map;
     /** @var Grav */
     protected $grav;
+    /** @var Language */
+    protected $language;
 
     /**
      * Constructor that resets the map
@@ -45,8 +48,9 @@ class Taxonomy
      */
     public function __construct(Grav $grav)
     {
-        $this->taxonomy_map = [];
         $this->grav = $grav;
+        $this->language = $grav['language'];
+        $this->taxonomy_map[$this->language->getLanguage()] = [];
     }
 
     /**
@@ -107,7 +111,8 @@ class Taxonomy
             if (!empty($key)) {
                 $taxonomy .= $key;
             }
-            $this->taxonomy_map[$taxonomy][(string) $value][$page->path()] = ['slug' => $page->slug()];
+            $active = $this->language->getLanguage();
+            $this->taxonomy_map[$active][$taxonomy][(string) $value][$page->path()] = ['slug' => $page->slug()];
         }
     }
 
@@ -123,14 +128,11 @@ class Taxonomy
     {
         $matches = [];
         $results = [];
+        $active = $this->language->getLanguage();
 
         foreach ((array)$taxonomies as $taxonomy => $items) {
             foreach ((array)$items as $item) {
-                if (isset($this->taxonomy_map[$taxonomy][$item])) {
-                    $matches[] = $this->taxonomy_map[$taxonomy][$item];
-                } else {
-                    $matches[] = [];
-                }
+                $matches[] = $this->taxonomy_map[$active][$taxonomy][$item] ?? [];
             }
         }
 
@@ -156,11 +158,13 @@ class Taxonomy
      */
     public function taxonomy($var = null)
     {
+        $active = $this->language->getLanguage();
+
         if ($var) {
-            $this->taxonomy_map = $var;
+            $this->taxonomy_map[$active] = $var;
         }
 
-        return $this->taxonomy_map;
+        return $this->taxonomy_map[$active] ?? [];
     }
 
     /**
@@ -171,6 +175,7 @@ class Taxonomy
      */
     public function getTaxonomyItemKeys($taxonomy)
     {
-        return isset($this->taxonomy_map[$taxonomy]) ? array_keys($this->taxonomy_map[$taxonomy]) : [];
+        $active = $this->language->getLanguage();
+        return isset($this->taxonomy_map[$active][$taxonomy]) ? array_keys($this->taxonomy_map[$active][$taxonomy]) : [];
     }
 }
