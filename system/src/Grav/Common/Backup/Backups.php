@@ -218,7 +218,7 @@ class Backups
         if ($locator->isStream($backup_root)) {
             $backup_root = $locator->findResource($backup_root);
         } else {
-            $backup_root = rtrim(GRAV_ROOT . $backup_root, '/');
+            $backup_root = rtrim(GRAV_ROOT . $backup_root, DS) ?: DS;
         }
 
         if (!$backup_root || !file_exists($backup_root)) {
