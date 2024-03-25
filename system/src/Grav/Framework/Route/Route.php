@@ -438,10 +438,10 @@ class Route
 
             $path = $parts['path'] ?? '/';
             if (isset($parts['params'])) {
-                $this->route = trim(rawurldecode($path), '/');
+                $this->route = rawurlencode(trim(rawurldecode($path), '/'));
                 $this->gravParams = $parts['params'];
             } else {
-                $this->route = trim(RouteFactory::stripParams($path, true), '/');
+                $this->route = rawurlencode(trim(RouteFactory::stripParams($path, true), '/'));
                 $this->gravParams = RouteFactory::getParams($path);
             }
             if (isset($parts['query'])) {
