@@ -1,0 +1,3 @@
+setup:
+  project: grav-core
+  config: prd
