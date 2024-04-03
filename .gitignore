@@ -17,16 +17,6 @@ logs/*
 !logs/.*
 images/*
 !images/.*
-user/accounts/*
-!user/accounts/.*
-user/data/*
-!user/data/.*
-user/plugins/*
-!user/plugins/.*
-user/themes/*
-!user/themes/.*
-!user/themes/local/*
-user/**/config/security.yaml
 
 # Environments
 .env

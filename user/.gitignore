@@ -1,9 +1,15 @@
 # Grav Specific
-config/security.yaml
+#accounts/*
+#!accounts/.*
 data/*
 !data/.*
 plugins/*
 !plugins/.*
+themes/*
+!themes/.*
+!themes/local/*
+
+config/security.yaml
 
 # OS Generated
 .DS_Store*
