@@ -1,0 +1,34 @@
+form:
+  validation: loose
+  fields:
+    section:
+        type: section
+        title: Add Presentation
+
+    title:
+      type: text
+      label: Presentation Title
+      validate:
+        required: true
+
+    folder:
+      type: hidden
+      default: '@slugify-title'
+
+    route:
+      type: parents
+      label: PLUGIN_ADMIN.PARENT
+      classes: fancy
+      validate:
+        required: true
+
+    name:
+      type: hidden
+      default: 'presentation'
+
+    visible:
+      type: hidden
+      default: ''
+
+    blueprint:
+      type: blueprint

@@ -1,0 +1,13 @@
+# Grav Specific
+config/security.yaml
+data/*
+!data/.*
+plugins/*
+!plugins/.*
+
+# OS Generated
+.DS_Store*
+thumbs.db
+Icon?
+Thumbs.db
+*.swp

@@ -1,0 +1,66 @@
+enabled: false
+default_for_all: true
+dev_host: localhost
+dev_port: 2000
+env: production
+options:
+  markdownit:
+    breaks: true
+    highlight: 'function (/*str, lang*/) { return ''''; }'
+    html: true
+    langPrefix: language-
+    linkify: false
+    quotes: “”‘’
+    typographer: false
+    xhtmlOut: false
+  nextgenEditor:
+    height: null
+    toolbar:
+      items:
+        - undo
+        - redo
+        - removeFormat
+        - heading
+        - bold
+        - italic
+        - underline
+        - strikethrough
+        - horizontalLine
+        - link
+        - imageUpload
+        - blockQuote
+        - numberedList
+        - bulletedList
+        - htmlEmbed
+        - codeBlock
+        - code
+        - insertTable
+        - mediaEmbed
+        - sourceEditing
+      sticky: true
+    htmlEmbed:
+      showPreviews: false
+  turndown:
+    bulletListMarker: '*'
+    codeBlockStyle: fenced
+    emDelimiter: '*'
+    headingStyle: atx
+    hr: '---'
+    linkReferenceStyle: full
+    linkStyle: inlined
+    strongDelimiter: '**'
+    preformattedCode: false
+  transformations:
+    typography: true
+    quotes: true
+    symbols: true
+    mathematical: true
+    nonbreaking_space: true
+    custom: null
+  lang:
+    transformations:
+      typography: null
+      quotes: null
+      symbols: null
+      mathematical: null
+      nonbreaking_space: null

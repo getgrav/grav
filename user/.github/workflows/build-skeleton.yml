@@ -1,0 +1,42 @@
+name: Build Skeleton
+
+on:
+  release:
+    types: [ published ]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Target tag for re-upload'     
+        required: true
+        default: ''
+      version:
+        description: 'Which Grav release to use'
+        required: true
+        default: 'latest'
+      admin:
+        description: 'Create also a package with Admin'
+        required: false
+        default: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Extract Tag
+        run: echo "SKELETON_VERSION=${{ github.event.inputs.tag || github.ref }}" >> $GITHUB_ENV
+      - name: Generate Skeleton Packages
+        uses: getgrav/skeleton-builder@v1
+        with:
+          version: ${{ github.event.inputs.version || 'latest' }}
+          admin: ${{ github.event.inputs.admin || false }}
+          exclude: README.md
+          filename_version: false
+      - name: Upload packages to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ env.SKELETON_VERSION }}
+          file: dist/*.zip
+          overwrite: true
+          file_glob: true

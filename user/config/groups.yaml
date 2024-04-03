@@ -1,0 +1,38 @@
+g_default:
+  access:
+    site:
+      login: true
+    admin:
+      login: true
+      users:
+        read: true
+        list: true
+  enabled: true
+  readableName: 'Default Group'
+  description: 'Kann sich in Admin Anmelden'
+g_statistics:
+  access:
+    admin:
+      statistics: true
+  enabled: true
+  readableName: 'Site Analyzer'
+  description: 'Kann Statistiken der Seite einsehen'
+g_maintainer:
+  access:
+    admin:
+      cache: true
+      maintenance: true
+      tools: true
+      flex-objects: true
+  enabled: true
+  readableName: 'Site Maintainer'
+  description: 'Kann die Seite warten/ in Stand halten'
+g_editor:
+  access:
+    admin:
+      cache: true
+      pages: true
+      flex-objects: true
+  readableName: 'Site Editor'
+  description: 'Kann Seiten bearbeiten'
+  enabled: true

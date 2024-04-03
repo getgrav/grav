@@ -1,0 +1,27 @@
+enabled: true
+route: /sitemap
+ignore_external: true
+ignore_protected: true
+ignore_redirect: true
+include_news_tags: true
+standalone_sitemap_news: false
+sitemap_news_path: /sitemap-news.xml
+news_max_age_days: 14
+news_enabled_paths:
+  - /tutorial
+ignores:
+  - /blog/blog-post-to-ignore
+  - /ignore-this-route
+  - '/ignore-children-of-this-route/.*'
+xsl_transform: true
+html_support: false
+urlset: 'http://www.sitemaps.org/schemas/sitemap/0.9'
+urlnewsset: 'http://www.google.com/schemas/sitemap-news/0.9'
+urlimageset: 'http://www.google.com/schemas/sitemap-image/1.1'
+short_date_format: true
+include_changefreq: true
+changefreq: never
+include_priority: true
+priority: 0.5
+multilang_enabled: true
+date_type: page_date

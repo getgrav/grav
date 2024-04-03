@@ -1,0 +1,20 @@
+title: "Grav Demo"
+default_lang: de
+author:
+  name: Crabston
+  email: contact@crabston.dev
+taxonomies:
+  - category
+  - tag
+  - month
+  - author
+  - filter
+metadata:
+  description: "Diese Seite dient als inoffizielle Demonstration und Hilfestellung für Grav"
+summary:
+  enabled: true
+  format: short
+  size: 300
+  delimiter: '==='
+blog:
+  route: ''

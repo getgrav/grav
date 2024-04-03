@@ -1,0 +1,11 @@
+enabled: true
+from: noreply@services.crabston.dev
+to: noreply@services.crabston.dev
+mailer:
+  engine: sendgrid
+content_type: text/html
+debug: false
+cc: null
+bcc: null
+reply_to: null
+body: null

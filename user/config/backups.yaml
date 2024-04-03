@@ -1,0 +1,20 @@
+purge:
+  trigger: space
+  max_backups_count: 25
+  max_backups_space: 5
+  max_backups_time: 365
+profiles:
+  -
+    name: 'Default Site Backup'
+    root: /
+    exclude_paths: "/backup\n/cache\n/images\n/logs\n/tmp"
+    exclude_files: ".DS_Store\n.git\n.svn\n.hg\n.idea\n.vscode\nnode_modules"
+    schedule: false
+    schedule_at: '0 3 * * *'
+  -
+    name: 'Site Data'
+    root: /user
+    exclude_paths: "/plugins\n/themes"
+    exclude_files: ".DS_Store\n.git\n.svn\n.hg\n.idea\n.vscode\nnode_modules"
+    schedule: false
+    schedule_at: '* * * * *'

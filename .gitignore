@@ -25,6 +25,7 @@ user/plugins/*
 !user/plugins/.*
 user/themes/*
 !user/themes/.*
+!user/themes/local/*
 user/**/config/security.yaml
 
 # Environments

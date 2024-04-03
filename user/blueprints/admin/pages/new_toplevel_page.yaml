@@ -1,0 +1,37 @@
+form:
+  validation: loose
+  fields:
+    section:
+        type: section
+        title: Add Standard Page
+
+    title:
+      type: text
+      label: Page Title
+      validate:
+        required: true
+
+    text:
+        type: display
+        size: large
+        label:
+        content: "This top-level page will also be added to your site menu."
+
+    folder:
+      type: hidden
+      default: '@slugify-title'
+
+    route:
+      type: hidden
+      default: /
+
+    name:
+      type: hidden
+      default: 'default'
+
+    visible:
+      type: hidden
+      default: ''
+
+    blueprint:
+      type: blueprint
