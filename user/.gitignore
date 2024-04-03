@@ -7,7 +7,7 @@ plugins/*
 !plugins/.*
 themes/*
 !themes/.*
-!themes/local/*
+!themes/local
 
 config/security.yaml
 
