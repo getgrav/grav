@@ -7,7 +7,7 @@
 # v1.7.45
 ## 03/18/2024
 
-1. [](#news)
+1. [](#new)
    * Added new Image trait for `decoding` attribute [#3796](https://github.com/getgrav/grav/pull/3796)
 1. [](#bugfix)
    * Fixed some multibyte issues in Inflector class [#732](https://github.com/getgrav/grav/issues/732)
