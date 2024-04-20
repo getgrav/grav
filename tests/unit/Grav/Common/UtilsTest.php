@@ -461,7 +461,7 @@ class UtilsTest extends \Codeception\TestCase\Test
         self::assertSame('pop://domain.com', Utils::url('pop://domain.com'));
         self::assertSame('foo://bar/baz', Utils::url('foo://bar/baz'));
         self::assertSame('foo://bar/baz', Utils::url('foo://bar/baz', true));
-        // self::assertSame('mailto:joe@domain.com', Utils::url('mailto:joe@domain.com', true)); // FIXME <-
+        self::assertSame('mailto:joe@domain.com', Utils::url('mailto:joe@domain.com', true)); // FIXME <-
     }
 
     public function testUrlWithRoot(): void

@@ -1,6 +1,8 @@
 # v1.7.46
 ## mm/dd/2024
 
+1. [](#improved) 
+   * Better handling of external protocols in `Utils::url()` such as `mailto:`, `tel:`, etc.
 1. [](#bugfix)
    * Fixes for multi-lang taxonomy when reinitializing the languages (e.g. LangSwitcher plugin) 
 

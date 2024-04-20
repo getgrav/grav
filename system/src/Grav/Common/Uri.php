@@ -742,7 +742,7 @@ class Uri
      */
     public static function isExternal($url)
     {
-        return (0 === strpos($url, 'http://') || 0 === strpos($url, 'https://') || 0 === strpos($url, '//'));
+        return (0 === strpos($url, 'http://') || 0 === strpos($url, 'https://') || 0 === strpos($url, '//') || 0 === strpos($url, 'mailto:') || 0 === strpos($url, 'tel:') || 0 === strpos($url, 'ftp://') || 0 === strpos($url, 'ftps://') || 0 === strpos($url, 'news:') || 0 === strpos($url, 'irc:') || 0 === strpos($url, 'gopher:') || 0 === strpos($url, 'nntp:') || 0 === strpos($url, 'feed:') || 0 === strpos($url, 'cvs:') || 0 === strpos($url, 'ssh:') || 0 === strpos($url, 'git:') || 0 === strpos($url, 'svn:') || 0 === strpos($url, 'hg:'));
     }
 
     /**
