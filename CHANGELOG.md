@@ -5,7 +5,9 @@
    * Better handling of external protocols in `Utils::url()` such as `mailto:`, `tel:`, etc.
 1. [](#bugfix)
    * Fixes for multi-lang taxonomy when reinitializing the languages (e.g. LangSwitcher plugin) 
-   * Ensure the full filepath is checked for invalid filename in `Utils::checkFileMetadata()`
+   * Ensure the full filepath is checked for invalid filename in `MediaUploadTrait::checkFileMetadata()`
+   * Fixed a bug in the `on_events` REGEX pattern of `Security::detectXss()` as it was not matching correctly.
+   * Fixed an issue where `read_file()` Twig function could be used nefariously in content [#GHSA-f8v5-jmfh-pr69](https://github.com/getgrav/grav/security/advisories/GHSA-f8v5-jmfh-pr69)
 
 # v1.7.45
 ## 03/18/2024
