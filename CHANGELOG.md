@@ -5,6 +5,7 @@
    * Better handling of external protocols in `Utils::url()` such as `mailto:`, `tel:`, etc.
 1. [](#bugfix)
    * Fixes for multi-lang taxonomy when reinitializing the languages (e.g. LangSwitcher plugin) 
+   * Ensure the full filepath is checked for invalid filename in `Utils::checkFileMetadata()`
 
 # v1.7.45
 ## 03/18/2024
