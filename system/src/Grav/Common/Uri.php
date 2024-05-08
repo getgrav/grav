@@ -206,7 +206,7 @@ class Uri
         $uri = $language->setActiveFromUri($uri);
 
         // split the URL and params (and make sure that the path isn't seen as domain)
-        $bits = parse_url('http://domain.com' . $uri);
+        $bits = static::parseUrl('http://domain.com' . $uri);
 
         //process fragment
         if (isset($bits['fragment'])) {
@@ -264,6 +264,7 @@ class Uri
 
         return $this->paths;
     }
+
 
     /**
      * Return route to the current URI. By default route doesn't include base path.
@@ -954,9 +955,7 @@ class Uri
         $grav = Grav::instance();
 
         // Remove extra slash from streams, parse_url() doesn't like it.
-        if ($pos = strpos($url, ':///')) {
-            $url = substr_replace($url, '://', $pos, 4);
-        }
+        $url = preg_replace('/([^:])(\/{2,})/', '$1/', $url);
 
         $encodedUrl = preg_replace_callback(
             '%[^:/@?&=#]+%usD',
