@@ -1,6 +1,7 @@
 <?php
 
 use Codeception\Util\Fixtures;
+use Grav\Common\Config\Config;
 use Grav\Common\Grav;
 use Grav\Common\Uri;
 use Grav\Common\Utils;
@@ -15,6 +16,9 @@ class UriTest extends \Codeception\TestCase\Test
 
     /** @var Uri $uri */
     protected $uri;
+
+    /** @var Config $config */
+    protected $config;
 
     protected $tests = [
         '/path' => [
@@ -704,7 +708,7 @@ class UriTest extends \Codeception\TestCase\Test
             'route' => '/localhost',
             'paths' => ['localhost'],
             'params' => '/script%3E:',
-            'url' => '//localhost',
+            'url' => '/localhost',
             'environment' => 'unknown',
             'basename' => 'localhost',
             'base' => '',
@@ -859,6 +863,7 @@ class UriTest extends \Codeception\TestCase\Test
         $grav = Fixtures::get('grav');
         $this->grav = $grav();
         $this->uri = $this->grav['uri'];
+        $this->config = $this->grav['config'];
     }
 
     protected function _after(): void
@@ -1148,5 +1153,26 @@ class UriTest extends \Codeception\TestCase\Test
     public function testAddNonce(): void
     {
         $this->runTestSet($this->tests, 'addNonce');
+    }
+
+    public function testCustomBase(): void
+    {
+        $current_base = $this->config->get('system.custom_base_url');
+        $this->config->set('system.custom_base_url', '/test');
+        $this->uri->initializeWithURL('https://mydomain.example.com:8090/test/korteles/kodai%20something?test=true#some-fragment')->init();
+
+        $this->assertSame([
+          "scheme" => "https",
+          "host" => "mydomain.example.com",
+          "port" => 8090,
+          "user" => null,
+          "pass" => null,
+          "path" => "/korteles/kodai%20something",
+          "params" => [],
+          "query" => "test=true",
+          "fragment" => "some-fragment",
+        ], $this->uri->toArray());
+
+        $this->config->set('system.custom_base_url', $current_base);
     }
 }
