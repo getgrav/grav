@@ -1,8 +1,9 @@
 # v1.7.46
-## mm/dd/2024
+## 05/15/2024
 
 1. [](#improved) 
    * Better handling of external protocols in `Utils::url()` such as `mailto:`, `tel:`, etc.
+   * Handle `GRAV_ROOT` or `GRAV_WEBROOT` when `/` [#3667](https://github.com/getgrav/grav/pull/3667)
 1. [](#bugfix)
    * Fixes for multi-lang taxonomy when reinitializing the languages (e.g. LangSwitcher plugin) 
    * Ensure the full filepath is checked for invalid filename in `MediaUploadTrait::checkFileMetadata()`
