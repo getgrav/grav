@@ -156,7 +156,7 @@ trait MediaUploadTrait
         $filepath = $folder . $filename;
 
         // Check if the filename is allowed.
-        if (!Utils::checkFilename($filename)) {
+        if (!Utils::checkFilename($filepath)) {
             throw new RuntimeException(
                 sprintf($this->translate('PLUGIN_ADMIN.FILEUPLOAD_UNABLE_TO_UPLOAD'), $filepath, $this->translate('PLUGIN_ADMIN.BAD_FILENAME'))
             );

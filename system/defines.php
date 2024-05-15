@@ -9,7 +9,7 @@
 
 // Some standard defines
 define('GRAV', true);
-define('GRAV_VERSION', '1.7.45');
+define('GRAV_VERSION', '1.7.46');
 define('GRAV_SCHEMA', '1.7.0_2020-11-20_1');
 define('GRAV_TESTING', false);
 
@@ -26,12 +26,12 @@ if (!defined('DS')) {
 // Absolute path to Grav root. This is where Grav is installed into.
 if (!defined('GRAV_ROOT')) {
     $path = rtrim(str_replace(DIRECTORY_SEPARATOR, DS, getenv('GRAV_ROOT') ?: getcwd()), DS);
-    define('GRAV_ROOT', $path);
+    define('GRAV_ROOT', $path ?: DS);
 }
 // Absolute path to Grav webroot. This is the path where your site is located in.
 if (!defined('GRAV_WEBROOT')) {
     $path = rtrim(getenv('GRAV_WEBROOT') ?: GRAV_ROOT, DS);
-    define('GRAV_WEBROOT', $path);
+    define('GRAV_WEBROOT', $path ?: DS);
 }
 // Relative path to user folder. This path needs to be located under GRAV_WEBROOT.
 if (!defined('GRAV_USER_PATH')) {

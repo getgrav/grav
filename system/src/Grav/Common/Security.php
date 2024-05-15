@@ -225,7 +225,7 @@ class Security
         // Set the patterns we'll test against
         $patterns = [
             // Match any attribute starting with "on" or xmlns
-            'on_events' => '#(<[^>]+[[a-z\x00-\x20\"\'\/])([\s\/]on|\sxmlns)[a-z].*=>?#iUu',
+            'on_events' => '#(<[^>]+[a-z\x00-\x20\"\'\/])(on[a-z]+|xmlns)\s*=[\s|\'\"].*[\s|\'\"]>#iUu',
 
             // Match javascript:, livescript:, vbscript:, mocha:, feed: and data: protocols
             'invalid_protocols' => '#(' . implode('|', array_map('preg_quote', $invalid_protocols, ['#'])) . ')(:|\&\#58)\S.*?#iUu',
@@ -279,6 +279,7 @@ class Security
             'twig.getFunction',
             'core.setEscaper',
             'twig.safe_functions',
+            'read_file',
         ];
         $string = preg_replace('/(({{\s*|{%\s*)[^}]*?(' . implode('|', $bad_twig) . ')[^}]*?(\s*}}|\s*%}))/i', '{# $1 #}', $string);
         return $string;
