@@ -613,7 +613,15 @@ class Page implements PageInterface
 
         // Set Last-Modified header
         if ($this->lastModified()) {
-            $last_modified_date = gmdate('D, d M Y H:i:s', $this->modified()) . ' GMT';
+            $last_modified = $this->modified();
+            foreach ($this->children()->modular() as $cpage) {
+                $modular_mtime = $cpage->modified();
+                if ($modular_mtime > $last_modified) {
+                    $last_modified = $modular_mtime;
+                }
+            }
+
+            $last_modified_date = gmdate('D, d M Y H:i:s', $last_modified) . ' GMT';
             $headers['Last-Modified'] = $last_modified_date;
         }
 
