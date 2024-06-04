@@ -610,7 +610,7 @@ class Page implements PageInterface
         if ($this->lastModified()) {
             $last_modified = $this->modified();
             foreach ($this->children()->modular() as $cpage) {
-                $modular_mtime = (int)filemtime($cpage->filePath());
+                $modular_mtime = $cpage->modified();
                 if ($modular_mtime > $last_modified) {
                     $last_modified = $modular_mtime;
                 }
