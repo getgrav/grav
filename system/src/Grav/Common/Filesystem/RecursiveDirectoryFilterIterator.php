@@ -49,7 +49,7 @@ class RecursiveDirectoryFilterIterator extends RecursiveFilterIterator
      *
      * @return bool true if the current element is acceptable, otherwise false.
      */
-    public function accept()
+    public function accept() :bool
     {
         /** @var SplFileInfo $file */
         $file = $this->current();
@@ -72,7 +72,7 @@ class RecursiveDirectoryFilterIterator extends RecursiveFilterIterator
     /**
      * @return RecursiveDirectoryFilterIterator|RecursiveFilterIterator
      */
-    public function getChildren()
+    public function getChildren() :RecursiveFilterIterator
     {
         /** @var RecursiveDirectoryFilterIterator $iterator */
         $iterator = $this->getInnerIterator();

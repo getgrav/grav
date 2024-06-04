@@ -45,7 +45,7 @@ class RecursiveFolderFilterIterator extends \RecursiveFilterIterator
      *
      * @return bool true if the current element is acceptable, otherwise false.
      */
-    public function accept()
+    public function accept() :bool
     {
         /** @var SplFileInfo $current */
         $current = $this->current();
