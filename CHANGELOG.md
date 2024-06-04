@@ -1,6 +1,14 @@
 # v1.7.46
 ## 05/15/2024
 
+1. [](#new)
+   * Added a new `Utils::toAscii()` method to remove UTF-8 characters from string
+1. [](#bugfix)
+   * Fixed some deprecated issues in Filesystem [#3831](https://github.com/getgrav/grav/issues/3831)
+
+# v1.7.46
+## 05/15/2024
+
 1. [](#improved) 
    * Better handling of external protocols in `Utils::url()` such as `mailto:`, `tel:`, etc.
    * Handle `GRAV_ROOT` or `GRAV_WEBROOT` when `/` [#3667](https://github.com/getgrav/grav/pull/3667)
