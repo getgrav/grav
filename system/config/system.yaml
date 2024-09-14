@@ -169,6 +169,7 @@ images:
   defaults:
     loading: auto                                # Let browser pick [auto|lazy|eager]
     decoding: auto                               # Let browser pick [auto|sync|async]
+    fetchpriority: auto                          # Let browser pick [auto|high|low]
   watermark:
     image: 'system://images/watermark.png'       # Path to a watermark image
     position_y: 'center'                         # top|center|bottom
