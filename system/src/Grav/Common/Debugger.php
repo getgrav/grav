@@ -399,8 +399,16 @@ class Debugger
 
             // Clockwork specific assets
             if ($this->clockwork) {
-                $assets->addCss('/system/assets/debugger/clockwork.css', ['loading' => 'inline']);
-                $assets->addJs('/system/assets/debugger/clockwork.js', ['loading' => 'inline']);
+                if ($this->config->get('plugins.clockwork-web.enabled')) {
+                    $route = Utils::url($this->grav['config']->get('plugins.clockwork-web.route'));
+                } else {
+                    $route = 'https://github.com/getgrav/grav-plugin-clockwork-web';
+                }
+                $assets->addCss('/system/assets/debugger/clockwork.css');
+                $assets->addJs('/system/assets/debugger/clockwork.js', [
+                    'id' => 'clockwork-script',
+                    'data-route' => $route
+                ]);
             }
 
 
