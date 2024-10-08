@@ -1,3 +1,10 @@
+# v1.7.47
+## mm/dd/2024
+
+1. [](#improved) 
+  * Fixed an issue with Clockwork Debugger to allow web UI
+  * Updated vendor libs to latest versions
+
 # v1.7.46
 ## 05/15/2024
 
