@@ -16,6 +16,7 @@ use Grav\Common\Media\Interfaces\ImageMediaInterface;
 use Grav\Common\Media\Interfaces\MediaLinkInterface;
 use Grav\Common\Media\Traits\ImageLoadingTrait;
 use Grav\Common\Media\Traits\ImageDecodingTrait;
+use Grav\Common\Media\Traits\ImageFetchPriorityTrait;
 use Grav\Common\Media\Traits\ImageMediaTrait;
 use Grav\Common\Utils;
 use Gregwar\Image\Image;
@@ -32,6 +33,7 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
     use ImageMediaTrait;
     use ImageLoadingTrait;
     use ImageDecodingTrait;
+    use ImageFetchPriorityTrait;
 
     /**
      * @var mixed|string
