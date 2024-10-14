@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common
  *
- * @copyright  Copyright (c) 2015 - 2023 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2024 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -225,7 +225,7 @@ class Security
         // Set the patterns we'll test against
         $patterns = [
             // Match any attribute starting with "on" or xmlns
-            'on_events' => '#(<[^>]+[[a-z\x00-\x20\"\'\/])([\s\/]on|\sxmlns)[a-z].*=>?#iUu',
+            'on_events' => '#(<[^>]+[a-z\x00-\x20\"\'\/])(on[a-z]+|xmlns)\s*=[\s|\'\"].*[\s|\'\"]>#iUu',
 
             // Match javascript:, livescript:, vbscript:, mocha:, feed: and data: protocols
             'invalid_protocols' => '#(' . implode('|', array_map('preg_quote', $invalid_protocols, ['#'])) . ')(:|\&\#58)\S.*?#iUu',
@@ -262,5 +262,26 @@ class Security
             'dangerous_tags' => array_map('trim', $config->get('security.xss_dangerous_tags')),
             'invalid_protocols' => array_map('trim', $config->get('security.xss_invalid_protocols')),
         ];
+    }
+
+    public static function cleanDangerousTwig(string $string): string
+    {
+        if ($string === '') {
+            return $string;
+        }
+
+        $bad_twig = [
+            'twig_array_map',
+            'twig_array_filter',
+            'call_user_func',
+            'registerUndefinedFunctionCallback',
+            'undefined_functions',
+            'twig.getFunction',
+            'core.setEscaper',
+            'twig.safe_functions',
+            'read_file',
+        ];
+        $string = preg_replace('/(({{\s*|{%\s*)[^}]*?(' . implode('|', $bad_twig) . ')[^}]*?(\s*}}|\s*%}))/i', '{# $1 #}', $string);
+        return $string;
     }
 }

@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Scheduler
  * @author     Originally based on peppeocchi/php-cron-scheduler modified for Grav integration
- * @copyright  Copyright (c) 2015 - 2023 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2024 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -214,6 +214,9 @@ class Scheduler
 
         // Store states
         $this->saveJobStates();
+
+        // Store run date
+        file_put_contents("logs/lastcron.run", (new DateTime("now"))->format("Y-m-d H:i:s"), LOCK_EX);
     }
 
     /**
@@ -291,7 +294,7 @@ class Scheduler
     }
 
     /**
-     * Helper to determine if cron job is setup
+     * Helper to determine if cron-like job is setup
      * 0 - Crontab Not found
      * 1 - Crontab Found
      * 2 - Error
@@ -300,6 +303,13 @@ class Scheduler
      */
     public function isCrontabSetup()
     {
+        // Check for external triggers
+        $last_run = @file_get_contents("logs/lastcron.run");
+        if (time() - strtotime($last_run) < 120){
+            return 1;
+        }
+
+        // No external triggers found, so do legacy cron checks
         $process = new Process(['crontab', '-l']);
         $process->run();
 

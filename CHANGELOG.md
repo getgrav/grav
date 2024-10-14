@@ -2,9 +2,9 @@
 ## mm/dd/2022
 
 1. [](#new)
-    * Set minimum requirements to **PHP 7.4.1**
+    * Set minimum requirements to **PHP 8.2**
     * Updated to **Twig 2.14**
-    * Updated to **Symfony 5.4**
+    * Updated to **Symfony 6.4**
     * Updated to **Monolog 2.3**
     * Updated to **RocketTheme/Toolbox 2.0**
     * Updated to **Composer/Semver 3.2**
@@ -12,6 +12,135 @@
     * Removed unsupported **APC**, **WinCache**, **XCache** and **Memcache**, use apcu or memcached instead
     * Removed `system.umask_fix` setting for security reasons
     * Support phpstan level 6 in Framework classes
+
+# v1.7.47
+## mm/dd/2024
+
+1. [](#new)
+  * New `Utils::toAscii()` method  
+  * Added support for Clockwork Debugger to allow web UI (requires `clockwork-web` plugin)
+1. [](#improved) 
+  * Include modular sub-pages in last-modification date computation [#3562](https://github.com/getgrav/grav/pull/3562)
+  * Updated vendor libs to latest versions
+  * Updated JQuery to `3.7.1` [#3787](https://github.com/getgrav/grav/pull/3827)
+  * Updated vendor libraries to latest versions
+  * Support for Fediverse Creator meta tag [](#3844)(https://github.com/getgrav/grav/pull/3844)
+1. [](#bugfix)
+  * Fixes deprecated for return type in Filesystem with PHP 8.3.6 [#3831](https://github.com/getgrav/grav/issues/3831) 
+  * Fix for `exif_imagtetype()` throwing an exception when file doesn't exist
+
+# v1.7.46
+## 05/15/2024
+
+1. [](#new)
+   * Added a new `Utils::toAscii()` method to remove UTF-8 characters from string
+1. [](#improved) 
+   * Removed unused `symfony/service-contracts` [#3828](https://github.com/getgrav/grav/pull/3828)
+   * Upgraded bundled legacy JQuery to `3.7.1` [#3727](https://github.com/getgrav/grav/pull/3827)
+   * Include modular pages in header `last-modified:` calculation [#3562](https://github.com/getgrav/grav/pull/3562)
+   * Updated vendor libs to latest versions
+1. [](#bugfix)
+   * Fixed some deprecated issues in Filesystem [#3831](https://github.com/getgrav/grav/issues/3831)
+
+# v1.7.46
+## 05/15/2024
+
+1. [](#improved) 
+   * Better handling of external protocols in `Utils::url()` such as `mailto:`, `tel:`, etc.
+   * Handle `GRAV_ROOT` or `GRAV_WEBROOT` when `/` [#3667](https://github.com/getgrav/grav/pull/3667)
+1. [](#bugfix)
+   * Fixes for multi-lang taxonomy when reinitializing the languages (e.g. LangSwitcher plugin) 
+   * Ensure the full filepath is checked for invalid filename in `MediaUploadTrait::checkFileMetadata()`
+   * Fixed a bug in the `on_events` REGEX pattern of `Security::detectXss()` as it was not matching correctly.
+   * Fixed an issue where `read_file()` Twig function could be used nefariously in content [#GHSA-f8v5-jmfh-pr69](https://github.com/getgrav/grav/security/advisories/GHSA-f8v5-jmfh-pr69)
+
+# v1.7.45
+## 03/18/2024
+
+1. [](#new)
+   * Added new Image trait for `decoding` attribute [#3796](https://github.com/getgrav/grav/pull/3796)
+1. [](#bugfix)
+   * Fixed some multibyte issues in Inflector class [#732](https://github.com/getgrav/grav/issues/732)
+   * Fallback to page modified date if Page date provided is invalid and can't be parsed [getgrav/grav-plugin-admin#2394](https://github.com/getgrav/grav-plugin-admin/issues/2394)
+   * Fixed a path traversal vulnerability with file uploads [#GHSA-m7hx-hw6h-mqmc](https://github.com/getgrav/grav/security/advisories/GHSA-m7hx-hw6h-mqmc)
+   * Fixed a security issue with insecure Twig functions be processed [#GHSA-2m7x-c7px-hp58](https://github.com/getgrav/grav/security/advisories/GHSA-2m7x-c7px-hp58) [#GHSA-r6vw-8v8r-pmp4](https://github.com/getgrav/grav/security/advisories/GHSA-r6vw-8v8r-pmp4) [#GHSA-qfv4-q44r-g7rv](https://github.com/getgrav/grav/security/advisories/GHSA-qfv4-q44r-g7rv) [#GHSA-c9gp-64c4-2rrh](https://github.com/getgrav/grav/security/advisories/GHSA-c9gp-64c4-2rrh)
+1. [](#improved) 
+   * Updated composer packages
+   * Updated `bin/composer.phar` to latest `2.7.2`
+
+# v1.7.44
+## 01/05/2024
+
+1. [](#new)
+   * Added PHP `8.3` to tests [#3782](https://github.com/getgrav/grav/pull/3782)
+   * Added debugger messages when Page routes conflict
+   * Added `ISO 8601` date format [#3721](https://github.com/getgrav/grav/pull/37210)
+   * Added support for `.vcf` (vCard) in media configuration [#3772](https://github.com/getgrav/grav/pull/3772)
+1. [](#improved) 
+   * Update jQuery to `v3.6.4` [#3713](https://github.com/getgrav/grav/pull/3713)
+   * Updated vendor libraries including Dom-Sanitizer `v1.0.7` that addresses an XSS issue 
+   * Updated `bin/composer.phar` to latest `2.6.6`
+   * Updated vendor libraries to latest
+   * Updated language files
+   * Updated copyright year
+1. [](#bugfix)
+   * Fixed a math rounding issue with number validation when using floating point steps [#3761](https://github.com/getgrav/grav/issues/3761)
+   * Fixed an issue with `Inflector::ordinalize()` not working as expected [#3759](https://github.com/getgrav/grav/pull/3759)
+   * Fixed various issues with file extension checking with dangerous extensions [#3756(https://github.com/getgrav/grav/pull/3756)]
+   * Fix for invalid input to foreach in `UserGroupObject` [#3724](https://github.com/getgrav/grav/pull/3724)
+   * Fixed exception: `Property 'jsmodule_pipeline_include_externals' does not exist in object` [#3661](https://github.com/getgrav/grav/pull/3661)
+   * Fixed `too few arguments exception` in FlexObjects [#3658](https://github.com/getgrav/grav/pull/3658)
+
+# v1.7.43
+## 10/02/2023
+
+1. [](#new)
+   * Add the ability to programatically set a page's `modified` timestamp via a `modified:` frontmatter entry
+2. [](#improved)
+   * Update vendor libraries
+   * Include `phar` in the list of `security.uploads_dangerous_extensions`
+   * When enabled `system.languages.debug` now dumps **Key -> Value** to debugger [#3752](https://github.com/getgrav/grav/issues/3752)
+   * Updated built-in composer to latest `2.6.4` [#3748](https://github.com/getgrav/grav/issues/3748)
+   * Added support for `@import` to ensure paths are rewritten correctly in CSS pipeline [#3750](https://github.com/getgrav/grav/pull/3750)
+
+# v1.7.42.3
+## 07/18/2023
+
+2. [](#improved)
+   * Fixed a typo in `Utils::isDangerousFunction`
+
+# v1.7.42.2
+## 07/18/2023
+
+2. [](#improved)
+   * In `Utils::isDangerousFunction`, handle double `\\` in `|map` twig filter to mitigate SSTI attack
+   * Better handle empty email in `Validatoin::typeEmail()`
+
+# v1.7.42.1
+## 06/15/2023
+
+2. [](#improved)
+   * Quick fix for `isDangerousFunction` when `$name` was a closure [#3727](https://github.com/getgrav/grav/issues/3727)
+
+# v1.7.42
+## 06/14/2023
+
+1. [](#new)
+   * Added a new `system.languages.debug` option that adds a `<span class="translate-debug"></span>` around strings translated with `|t`. This can be styled by the theme as needed.
+1. [](#improved)
+   * More robust SSTI handling in `filter`, `map`, and `reduce` Twig filters and functions
+   * Various SSTI improvements `Utils::isDangerousFunction()`
+1. [](#bugfix)
+   * Fixed Twig `|map()` allowing code execution
+   * Fixed Twig `|reduce()` allowing code execution
+
+# v1.7.41.2
+## 06/01/2023
+
+1. [](#improved)
+   * Added the ability to set a configurable 'key' for the Twig Cache Tag: `{% cache 'my-key' 600 %}`
+1. [](#bugfix)
+   * Fixed an issue with special characters in slug's would cause redirect loops
 
 # v1.7.41.1
 ## 05/10/2023
@@ -44,6 +173,7 @@
 1. [](#improved)
     * Removed outdated `xcache` setting [#3615](https://github.com/getgrav/grav/pull/3615)
     * Updated `robots.txt` [#3625](https://github.com/getgrav/grav/pull/3625)
+    * Handle the situation when GRAV_ROOT or GRAV_WEBROOT are `/` [#3625](https://github.com/getgrav/grav/pull/3667)
 1. [](#bugfix)
     * Fixed `force_ssl` redirect in case of undefined hostname [#3702](https://github.com/getgrav/grav/pull/3702)
     * Fixed an issue with duplicate identical page paths

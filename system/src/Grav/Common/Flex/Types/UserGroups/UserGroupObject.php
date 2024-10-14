@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * @package    Grav\Common\Flex
  *
- * @copyright  Copyright (c) 2015 - 2023 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2024 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -78,7 +78,7 @@ class UserGroupObject extends FlexObject implements UserGroupInterface
     public static function groupNames(): array
     {
         $groups = [];
-        $user_groups = Grav::instance()['user_groups'];
+        $user_groups = Grav::instance()['user_groups'] ?? [];
 
         foreach ($user_groups as $key => $group) {
             $groups[$key] = $group->readableName;

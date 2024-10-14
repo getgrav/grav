@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Backup
  *
- * @copyright  Copyright (c) 2015 - 2023 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2024 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -218,7 +218,7 @@ class Backups
         if ($locator->isStream($backup_root)) {
             $backup_root = $locator->findResource($backup_root);
         } else {
-            $backup_root = rtrim(GRAV_ROOT . $backup_root, '/');
+            $backup_root = rtrim(GRAV_ROOT . $backup_root, DS) ?: DS;
         }
 
         if (!$backup_root || !file_exists($backup_root)) {

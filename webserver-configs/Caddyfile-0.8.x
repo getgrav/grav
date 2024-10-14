@@ -12,12 +12,12 @@ rewrite {
 }
 # deny running scripts inside core system folders
 rewrite {
-    r       /(system|vendor)/.*\.(txt|xml|md|html|yaml|yml|php|pl|py|cgi|twig|sh|bat)$
+    r       /(system|vendor)/.*\.(txt|xml|md|html|htm|shtml|shtm|yaml|yml|php|php2|php3|php4|php5|phar|phtml|pl|py|cgi|twig|sh|bat)$
     status  403
 }
 # deny running scripts inside user folder
 rewrite {
-    r       /user/.*\.(txt|md|yaml|yml|php|pl|py|cgi|twig|sh|bat)$
+    r       /user/.*\.(txt|md|yaml|yml|php|php2|php3|php4|php5|phar|phtml|pl|py|cgi|twig|sh|bat)$
     status  403
 }
 # deny access to specific files in the root folder

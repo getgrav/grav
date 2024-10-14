@@ -6,10 +6,10 @@ GRAV:
   INFLECTOR_UNCOUNTABLE:
     - 'wyposażenie'
     - 'informacja'
-    - 'rice'
+    - ''
     - 'pieniądze'
-    - 'species'
-    - 'series'
+    - ''
+    - ''
     - 'ryba'
     - 'owca'
   INFLECTOR_IRREGULAR:

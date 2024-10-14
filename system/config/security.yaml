@@ -32,8 +32,16 @@ xss_dangerous_tags:
     - base
 uploads_dangerous_extensions:
     - php
+    - php2
+    - php3
+    - php4
+    - php5
+    - phar
+    - phtml
     - html
     - htm
+    - shtml
+    - shtm
     - js
     - exe
 sanitize_svg: true

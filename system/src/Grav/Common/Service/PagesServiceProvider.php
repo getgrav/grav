@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Service
  *
- * @copyright  Copyright (c) 2015 - 2023 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2024 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -59,7 +59,7 @@ class PagesServiceProvider implements ServiceProviderInterface
             /** @var Uri $uri */
             $uri = $grav['uri'];
 
-            $path = $uri->path() ?: '/'; // Don't trim to support trailing slash default routes
+            $path = $uri->path() ? urldecode($uri->path()) : '/'; // Don't trim to support trailing slash default routes
             $page = $pages->dispatch($path);
 
             // Redirection tests

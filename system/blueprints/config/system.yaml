@@ -103,6 +103,7 @@ form:
                 "D, d M Y G:i:s": Date3
                 "d-m-y G:i": Date4
                 "jS M Y": Date5
+                "Y-m-d G:i": Date6
 
             pages.dateformat.long:
               type: dateformat
@@ -116,6 +117,7 @@ form:
                 "D, d M Y G:i:s": Date3
                 "d-m-y G:i": Date4
                 "jS M Y": Date5
+                "Y-m-d G:i:s": Date6
 
             pages.order.by:
               type: select
@@ -441,6 +443,17 @@ form:
               type: toggle
               label: PLUGIN_ADMIN.OVERRIDE_LOCALE
               help: PLUGIN_ADMIN.OVERRIDE_LOCALE_HELP
+              highlight: 0
+              options:
+                1: PLUGIN_ADMIN.YES
+                0: PLUGIN_ADMIN.NO
+              validate:
+                type: bool
+
+            languages.debug:
+              type: toggle
+              label: PLUGIN_ADMIN.LANGUAGE_DEBUG
+              help: PLUGIN_ADMIN.LANGUAGE_DEBUG_HELP
               highlight: 0
               options:
                 1: PLUGIN_ADMIN.YES
@@ -1260,6 +1273,17 @@ form:
                 auto: Auto
                 lazy: Lazy
                 eager: Eager
+            
+            images.defaults.decoding:
+              type: select
+              size: small
+              label: PLUGIN_ADMIN.IMAGES_DECODING
+              help: PLUGIN_ADMIN.IMAGES_DECODING_HELP
+              highlight: auto
+              options:
+                auto: Auto
+                sync: Sync
+                async: Async
 
             images.seofriendly:
               type: toggle
