@@ -9,13 +9,13 @@
 
 // Some standard defines
 define('GRAV', true);
-define('GRAV_VERSION', '1.7.46');
-define('GRAV_SCHEMA', '1.7.0_2020-11-20_1');
+define('GRAV_VERSION', '1.8.0');
+define('GRAV_SCHEMA', '1.8.0_2024-10-14_1');
 define('GRAV_TESTING', false);
 
 // PHP minimum requirement
 if (!defined('GRAV_PHP_MIN')) {
-    define('GRAV_PHP_MIN', '7.3.6');
+    define('GRAV_PHP_MIN', '8.2.0');
 }
 
 // Directory separator

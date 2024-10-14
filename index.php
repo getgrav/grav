@@ -10,7 +10,7 @@
 namespace Grav;
 
 \define('GRAV_REQUEST_TIME', microtime(true));
-\define('GRAV_PHP_MIN', '7.3.6');
+\define('GRAV_PHP_MIN', '8.2.0');
 
 if (PHP_SAPI === 'cli-server') {
     $symfony_server = stripos(getenv('_'), 'symfony') !== false || stripos($_SERVER['SERVER_SOFTWARE'] ?? '', 'symfony') !== false || stripos($_ENV['SERVER_SOFTWARE'] ?? '', 'symfony') !== false;

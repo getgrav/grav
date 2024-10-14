@@ -86,7 +86,7 @@ trait ConsoleTrait
      * @return $this
      * @throws InvalidArgumentException If option mode is invalid or incompatible
      */
-    public function addOption($name, $shortcut = null, $mode = null, $description = '', $default = null)
+    public function addOption(string $name, array|string|null $shortcut = null, ?int $mode = null, string $description = '', mixed $default = null): static
     {
         if ($name !== 'env' && $name !== 'lang') {
             parent::addOption($name, $shortcut, $mode, $description, $default);
