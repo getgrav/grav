@@ -43,6 +43,17 @@ use function function_exists;
 use function in_array;
 use function is_array;
 
+// Twig3 compatibility
+if (!class_exists('Twig_SimpleFunction')) {
+    class_alias('\Twig\TwigFunction', 'Twig_SimpleFunction');
+}
+if (!class_exists('Twig_SimpleFilter')) {
+    class_alias('\Twig\TwigFilter', 'Twig_SimpleFilter');
+}
+if (!class_exists('Twig_Extension')) {
+    class_alias('\Twig\Extension\AbstractExtension', 'Twig_Extension');
+}
+
 /**
  * Class Twig
  * @package Grav\Common\Twig
