@@ -1888,7 +1888,7 @@ abstract class Utils
         return $string;
     }
 
-    public function toAscii(String $string): String
+    public static function toAscii(String $string): String
     {
         return strtr(utf8_decode($string),
             utf8_decode(
