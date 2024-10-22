@@ -5,7 +5,7 @@ use Grav\Framework\File\Formatter\CsvFormatter;
 /**
  * Class CsvFormatterTest
  */
-class CsvFormatterTest extends \Codeception\TestCase\Test
+class CsvFormatterTest extends \PHPUnit\Framework\TestCase
 {
     public function testEncodeWithAssocColumns(): void
     {

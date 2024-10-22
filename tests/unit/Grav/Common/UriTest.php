@@ -9,7 +9,7 @@ use Grav\Common\Utils;
 /**
  * Class UriTest
  */
-class UriTest extends \Codeception\TestCase\Test
+class UriTest extends \PHPUnit\Framework\TestCase
 {
     /** @var Grav $grav */
     protected $grav;
@@ -858,15 +858,16 @@ class UriTest extends \Codeception\TestCase\Test
         ],
     ];
 
-    protected function _before(): void
+    protected function setUp(): void
     {
+        parent::setUp();
         $grav = Fixtures::get('grav');
         $this->grav = $grav();
         $this->uri = $this->grav['uri'];
         $this->config = $this->grav['config'];
     }
 
-    protected function _after(): void
+    protected function tearDown(): void
     {
     }
 

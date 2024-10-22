@@ -68,13 +68,13 @@
         "multiavatar/multiavatar-php": "^1.0"
     },
     "require-dev": {
-        "codeception/codeception": "^5.0",
+        "codeception/codeception": "^5.1",
         "phpstan/phpstan": "^1.12",
         "phpstan/phpstan-deprecation-rules": "^1.2",
         "phpunit/php-code-coverage": "~9.2",
         "getgrav/markdowndocs": "^2.0",
-        "codeception/module-asserts": "^3.0",
-        "codeception/module-phpbrowser": "^3.0"
+        "codeception/module-asserts": "*",
+        "codeception/module-phpbrowser": "*"
     },
     "repositories": [
         {

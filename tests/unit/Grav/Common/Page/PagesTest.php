@@ -10,7 +10,7 @@ use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 /**
  * Class PagesTest
  */
-class PagesTest extends \Codeception\TestCase\Test
+class PagesTest extends \PHPUnit\Framework\TestCase
 {
     /** @var Grav $grav */
     protected $grav;
@@ -21,8 +21,9 @@ class PagesTest extends \Codeception\TestCase\Test
     /** @var PageInterface $root_page */
     protected $root_page;
 
-    protected function _before(): void
+    protected function setUp(): void
     {
+        parent::setUp();
         $grav = Fixtures::get('grav');
         $this->grav = $grav();
         $this->pages = $this->grav['pages'];

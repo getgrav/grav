@@ -7,7 +7,7 @@ use Grav\Common\Twig\Extension\GravExtension;
 /**
  * Class GravExtensionTest
  */
-class GravExtensionTest extends \Codeception\TestCase\Test
+class GravExtensionTest extends \PHPUnit\Framework\TestCase
 {
     /** @var Grav $grav */
     protected $grav;
@@ -15,8 +15,9 @@ class GravExtensionTest extends \Codeception\TestCase\Test
     /** @var  GravExtension $twig_ext */
     protected $twig_ext;
 
-    protected function _before(): void
+    protected function setUp(): void
     {
+        parent::setUp();
         $this->grav = Fixtures::get('grav');
         $this->twig_ext = new GravExtension();
     }

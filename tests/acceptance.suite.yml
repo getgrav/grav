@@ -4,7 +4,7 @@
 # Perform tests in browser using the WebDriver or PhpBrowser.
 # If you need both WebDriver and PHPBrowser tests - create a separate suite.
 
-class_name: AcceptanceTester
+class: AcceptanceTester
 modules:
     enabled:
         - PhpBrowser:

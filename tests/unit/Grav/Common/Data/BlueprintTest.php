@@ -7,7 +7,7 @@ use Grav\Common\Grav;
 /**
  * Class InstallCommandTest
  */
-class BlueprintTest extends \Codeception\TestCase\Test
+class BlueprintTest extends \PHPUnit\Framework\TestCase
 {
     /**
      */

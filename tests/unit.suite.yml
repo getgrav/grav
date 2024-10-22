@@ -2,7 +2,7 @@
 #
 # Suite for unit (internal) tests.
 
-class_name: UnitTester
+class: UnitTester
 modules:
     enabled:
         - Asserts

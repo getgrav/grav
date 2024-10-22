@@ -7,7 +7,7 @@ use Grav\Console\Gpm\InstallCommand;
 /**
  * Class InstallCommandTest
  */
-class InstallCommandTest extends \Codeception\TestCase\Test
+class InstallCommandTest extends \PHPUnit\Framework\TestCase
 {
     /** @var Grav $grav */
     protected $grav;
@@ -16,13 +16,14 @@ class InstallCommandTest extends \Codeception\TestCase\Test
     protected $installCommand;
 
 
-    protected function _before(): void
+    protected function setUp(): void
     {
+        parent::setUp();
         $this->grav = Fixtures::get('grav');
         $this->installCommand = new InstallCommand();
     }
 
-    protected function _after(): void
+    protected function tearDown(): void
     {
     }
 }

@@ -8,7 +8,7 @@ use Grav\Common\Utils;
 /**
  * Class UtilsTest
  */
-class UtilsTest extends \Codeception\TestCase\Test
+class UtilsTest extends \PHPUnit\Framework\TestCase
 {
     /** @var Grav $grav */
     protected $grav;
@@ -16,14 +16,15 @@ class UtilsTest extends \Codeception\TestCase\Test
     /** @var Uri $uri */
     protected $uri;
 
-    protected function _before(): void
+    protected function setUp(): void
     {
+        parent::setUp();
         $grav = Fixtures::get('grav');
         $this->grav = $grav();
         $this->uri = $this->grav['uri'];
     }
 
-    protected function _after(): void
+    protected function tearDown(): void
     {
     }
 

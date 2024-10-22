@@ -5,7 +5,7 @@ use Grav\Common\Language\LanguageCodes;
 /**
  * Class ParsedownTest
  */
-class LanguageCodesTest extends \Codeception\TestCase\Test
+class LanguageCodesTest extends \PHPUnit\Framework\TestCase
 {
     public function testRtl(): void
     {

@@ -35,7 +35,7 @@ class GpmStub extends GPM
 /**
  * Class InstallCommandTest
  */
-class GpmTest extends \Codeception\TestCase\Test
+class GpmTest extends \PHPUnit\Framework\TestCase
 {
     /** @var Grav $grav */
     protected $grav;
@@ -43,13 +43,15 @@ class GpmTest extends \Codeception\TestCase\Test
     /** @var GpmStub */
     protected $gpm;
 
-    protected function _before(): void
+    protected function setUp(): void
     {
-        $this->grav = Fixtures::get('grav');
+        parent::setUp();
+
+$this->grav = Fixtures::get('grav');
         $this->gpm = new GpmStub();
     }
 
-    protected function _after(): void
+    protected function tearDown(): void
     {
     }
 

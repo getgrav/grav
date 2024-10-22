@@ -6,18 +6,19 @@ use Grav\Common\Grav;
 /**
  * Class BrowserTest
  */
-class BrowserTest extends \Codeception\TestCase\Test
+class BrowserTest extends \PHPUnit\Framework\TestCase
 {
     /** @var Grav $grav */
     protected $grav;
 
-    protected function _before(): void
+    protected function setUp(): void
     {
+        parent::setUp();
         $grav = Fixtures::get('grav');
         $this->grav = $grav();
     }
 
-    protected function _after(): void
+    protected function tearDown(): void
     {
     }
 
