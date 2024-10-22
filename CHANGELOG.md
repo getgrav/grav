@@ -28,6 +28,7 @@
 1. [](#bugfix)
   * Fixes deprecated for return type in Filesystem with PHP 8.3.6 [#3831](https://github.com/getgrav/grav/issues/3831) 
   * Fix for `exif_imagtetype()` throwing an exception when file doesn't exist
+  * Fix JSON output comments check with content type [#3859](https://github.com/getgrav/grav/pull/3859)
 
 # v1.7.46
 ## 05/15/2024
