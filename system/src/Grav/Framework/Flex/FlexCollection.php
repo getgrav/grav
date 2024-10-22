@@ -440,7 +440,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
                 ] + $context
             );
 
-            if ($debugger->enabled() && $grav['uri']->extension() !== 'json') {
+            if ($debugger->enabled() && $grav['uri']->getContentType() !== 'application/json') {
                 $output = "\n<!–– START {$type} collection ––>\n{$output}\n<!–– END {$type} collection ––>\n";
             }
 
