@@ -17,18 +17,18 @@
 ## 10/23/2024
 
 1. [](#new)
-  * New `Utils::toAscii()` method  
-  * Added support for Clockwork Debugger to allow web UI (requires new `clockwork-web` plugin)
+   * New `Utils::toAscii()` method  
+   * Added support for Clockwork Debugger to allow web UI (requires new `clockwork-web` plugin)
 1. [](#improved) 
-  * Include modular sub-pages in last-modification date computation [#3562](https://github.com/getgrav/grav/pull/3562)
-  * Updated vendor libs to latest versions
-  * Updated JQuery to `3.7.1` [#3787](https://github.com/getgrav/grav/pull/3827)
-  * Updated vendor libraries to latest versions
-  * Support for Fediverse Creator meta tag [#3844](https://github.com/getgrav/grav/pull/3844)
+   * Include modular sub-pages in last-modification date computation [#3562](https://github.com/getgrav/grav/pull/3562)
+   * Updated vendor libs to latest versions
+   * Updated JQuery to `3.7.1` [#3787](https://github.com/getgrav/grav/pull/3827)
+   * Updated vendor libraries to latest versions
+   * Support for Fediverse Creator meta tag [#3844](https://github.com/getgrav/grav/pull/3844)
 1. [](#bugfix)
-  * Fixes deprecated for return type in Filesystem with PHP 8.3.6 [#3831](https://github.com/getgrav/grav/issues/3831) 
-  * Fix for `exif_imagtetype()` throwing an exception when file doesn't exist
-  * Fix JSON output comments check with content type [#3859](https://github.com/getgrav/grav/pull/3859)
+   * Fixes deprecated for return type in Filesystem with PHP 8.3.6 [#3831](https://github.com/getgrav/grav/issues/3831) 
+   * Fix for `exif_imagtetype()` throwing an exception when file doesn't exist
+   * Fix JSON output comments check with content type [#3859](https://github.com/getgrav/grav/pull/3859)
 
 # v1.7.46
 ## 05/15/2024
