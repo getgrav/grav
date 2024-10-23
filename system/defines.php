@@ -11,7 +11,7 @@
 define('GRAV', true);
 define('GRAV_VERSION', '1.8.0');
 define('GRAV_SCHEMA', '1.7.0_2020-11-20_1');
-define('GRAV_TESTING', false);
+define('GRAV_TESTING', true);
 
 // PHP minimum requirement
 if (!defined('GRAV_PHP_MIN')) {
