@@ -1,5 +1,5 @@
-# v1.8.0-dev
-## mm/dd/2022
+# v1.8.0-beta.1
+## 10/23/2024
 
 1. [](#new)
     * Set minimum requirements to **PHP 8.2**

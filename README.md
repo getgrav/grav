@@ -89,9 +89,10 @@ $ bin/gpm update
 
 ## Upgrading from older version
 
+* [Upgrading to Grav 1.8](https://learn.getgrav.org/16/advanced/grav-development/grav-18-upgrade-guide)
 * [Upgrading to Grav 1.7](https://learn.getgrav.org/16/advanced/grav-development/grav-17-upgrade-guide)
 * [Upgrading to Grav 1.6](https://learn.getgrav.org/16/advanced/grav-development/grav-16-upgrade-guide)
-* [Upgrading from Grav <1.6](https://learn.getgrav.org/16/advanced/grav-development/grav-15-upgrade-guide)
+* [Upgrading from Grav before 1.6](https://learn.getgrav.org/16/advanced/grav-development/grav-15-upgrade-guide)
 
 # Contributing
 We appreciate any contribution to Grav, whether it is related to bugs, grammar, or simply a suggestion or improvement! Please refer to the [Contributing guide](CONTRIBUTING.md) for more guidance on this topic.
