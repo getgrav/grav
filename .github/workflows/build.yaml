@@ -11,7 +11,7 @@ jobs:
     permissions:
       contents: write # for release creation (svenstaro/upload-release-action)
 
-    if: "!github.event.release.prerelease"
+    #if: "!github.event.release.prerelease"
     runs-on: ubuntu-latest
 
     steps:
@@ -23,7 +23,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: 7.3
+          php-version: 8.2
           extensions: opcache, gd
           tools: composer:v2
           coverage: none
