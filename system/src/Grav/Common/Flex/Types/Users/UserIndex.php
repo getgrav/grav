@@ -197,7 +197,7 @@ class UserIndex extends FlexIndex implements UserCollectionInterface
 
         /** @var Logger $logger */
         $logger = $grav['log'];
-        $logger->addDebug($message);
+        $logger->debug($message);
 
         /** @var Debugger $debugger */
         $debugger = $grav['debugger'];

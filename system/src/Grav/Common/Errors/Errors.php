@@ -70,7 +70,7 @@ class Errors
             $logger = $grav['log'];
             $whoops->pushHandler(function ($exception, $inspector, $run) use ($logger) {
                 try {
-                    $logger->addCritical($exception->getMessage() . ' - Trace: ' . $exception->getTraceAsString());
+                    $logger->critical($exception->getMessage() . ' - Trace: ' . $exception->getTraceAsString());
                 } catch (Exception $e) {
                     echo $e;
                 }
