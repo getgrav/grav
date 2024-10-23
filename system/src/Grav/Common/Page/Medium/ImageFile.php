@@ -179,7 +179,7 @@ class ImageFile extends Image
             throw new RuntimeException('You need to EXIF PHP Extension to use this function');
         }
 
-        if (!in_array(exif_imagetype($this->source->getInfos()), [IMAGETYPE_JPEG, IMAGETYPE_TIFF_II, IMAGETYPE_TIFF_MM], true)) {
+        if (!file_exists($this->source->getInfos()) || !in_array(exif_imagetype($this->source->getInfos()), [IMAGETYPE_JPEG, IMAGETYPE_TIFF_II, IMAGETYPE_TIFF_MM], true)) {
             return $this;
         }
 

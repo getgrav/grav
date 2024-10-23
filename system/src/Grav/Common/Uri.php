@@ -1407,14 +1407,13 @@ class Uri
      */
     public function getContentType($short = true)
     {
-        if (isset($_SERVER['CONTENT_TYPE'])) {
-            $content_type = $_SERVER['CONTENT_TYPE'];
+       $content_type = $_SERVER['CONTENT_TYPE'] ?? $_SERVER['HTTP_CONTENT_TYPE'] ?? $_SERVER['HTTP_ACCEPT'] ?? null;
+        if ($content_type) {
             if ($short) {
                 return Utils::substrToString($content_type, ';');
             }
-            return $content_type;
         }
-        return null;
+        return $content_type;
     }
 
     /**

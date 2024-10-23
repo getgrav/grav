@@ -613,7 +613,15 @@ class Page implements PageInterface
 
         // Set Last-Modified header
         if ($this->lastModified()) {
-            $last_modified_date = gmdate('D, d M Y H:i:s', $this->modified()) . ' GMT';
+            $last_modified = $this->modified();
+            foreach ($this->children()->modular() as $cpage) {
+                $modular_mtime = $cpage->modified();
+                if ($modular_mtime > $last_modified) {
+                    $last_modified = $modular_mtime;
+                }
+            }
+
+            $last_modified_date = gmdate('D, d M Y H:i:s', $last_modified) . ' GMT';
             $headers['Last-Modified'] = $last_modified_date;
         }
 
@@ -1774,7 +1782,7 @@ class Page implements PageInterface
                                 'content' => $escape ? htmlspecialchars($value, ENT_QUOTES | ENT_HTML5, 'UTF-8') : $value
                             ];
 
-                            if ($hasSeparator && !Utils::startsWith($key, ['twitter', 'flattr'])) {
+                            if ($hasSeparator && !Utils::startsWith($key, ['twitter', 'flattr','fediverse'])) {
                                 $entry['property'] = $key;
                             } else {
                                 $entry['name'] = $key;

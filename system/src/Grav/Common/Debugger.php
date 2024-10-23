@@ -279,11 +279,7 @@ class Debugger
             ->withHeader('X-Clockwork-Id', $clockworkRequest->id)
             ->withHeader('X-Clockwork-Version', $clockwork::VERSION);
 
-        $grav = Grav::instance();
-        $basePath = $this->grav['base_url_relative'] . $grav['pages']->base();
-        if ($basePath) {
-            $response = $response->withHeader('X-Clockwork-Path', $basePath . '/__clockwork/');
-        }
+        $response = $response->withHeader('X-Clockwork-Path', Utils::url('/__clockwork/'));
 
         return $response->withHeader('Server-Timing', ServerTiming::fromRequest($clockworkRequest)->value());
     }
@@ -307,7 +303,7 @@ class Debugger
         }
 
         $id = $matches['id'] ?? null;
-        $direction = $matches['direction'] ?? null;
+        $direction = $matches['direction'] ?? 'latest';
         $count = $matches['count'] ?? null;
 
         $storage = $clockwork->getStorage();
@@ -316,7 +312,7 @@ class Debugger
             $data = $storage->previous($id, $count);
         } elseif ($direction === 'next') {
             $data = $storage->next($id, $count);
-        } elseif ($id === 'latest') {
+        } elseif ($direction === 'latest' || $id === 'latest') {
             $data = $storage->latest();
         } else {
             $data = $storage->find($id);
@@ -403,8 +399,16 @@ class Debugger
 
             // Clockwork specific assets
             if ($this->clockwork) {
-                $assets->addCss('/system/assets/debugger/clockwork.css', ['loading' => 'inline']);
-                $assets->addJs('/system/assets/debugger/clockwork.js', ['loading' => 'inline']);
+                if ($this->config->get('plugins.clockwork-web.enabled')) {
+                    $route = Utils::url($this->grav['config']->get('plugins.clockwork-web.route'));
+                } else {
+                    $route = 'https://github.com/getgrav/grav-plugin-clockwork-web';
+                }
+                $assets->addCss('/system/assets/debugger/clockwork.css');
+                $assets->addJs('/system/assets/debugger/clockwork.js', [
+                    'id' => 'clockwork-script',
+                    'data-route' => $route
+                ]);
             }
 
 

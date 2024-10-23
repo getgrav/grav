@@ -1888,6 +1888,14 @@ abstract class Utils
         return $string;
     }
 
+    public static function toAscii(String $string): String
+    {
+        return strtr(utf8_decode($string),
+            utf8_decode(
+            'ŠŒŽšœžŸ¥µÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝßàáâãäåæçèéêëìíîïðñòóôõöøùúûüýÿ'),
+            'SOZsozYYuAAAAAAACEEEEIIIIDNOOOOOOUUUUYsaaaaaaaceeeeiiiionoooooouuuuyy');
+    }
+
     /**
      * Find the subnet of an ip with CIDR prefix size
      *
