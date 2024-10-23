@@ -38,14 +38,14 @@ jobs:
       - name: Retrieval of Builder Scripts
         run: |
           # Real Grav URL
-          curl --silent -H "Authorization: token ${{ secrets.GLOBAL_TOKEN }}" -H "Accept: application/vnd.github.v3.raw" ${{ secrets.BUILD_SCRIPT_URL }} --output build-grav-18.sh
+          curl --silent -H "Authorization: token ${{ secrets.GLOBAL_TOKEN }}" -H "Accept: application/vnd.github.v3.raw" ${{ secrets.BUILD_SCRIPT_URL_18 }} --output build-grav.sh
 
           # Development Local URL
-          # curl ${{ secrets.BUILD_SCRIPT_URL }} --output build-grav-18.sh
+          # curl ${{ secrets.BUILD_SCRIPT_URL_18 }} --output build-grav.sh
 
       - name: Grav Builder
         run: |
-          bash ./build-grav-18.sh
+          bash ./build-grav.sh
 
       - name: Upload packages to release
         uses: svenstaro/upload-release-action@v2
