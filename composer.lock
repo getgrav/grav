@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6624f4f63ab14ab12417c415ec58fbc3",
+    "content-hash": "cfe92c7f71ab9a5954889cf8546d5bc8",
     "packages": [
         {
             "name": "antoligy/dom-string-iterators",
@@ -961,29 +961,31 @@
         },
         {
             "name": "itsgoingd/clockwork",
-            "version": "v5.2.2",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/itsgoingd/clockwork.git",
-                "reference": "29bc4cedfbe742b419544c30b7b6e15cd9da08ef"
+                "reference": "bbcefdf1e32540e9a2de5fbd1eacbb77d3f50bda"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/itsgoingd/clockwork/zipball/29bc4cedfbe742b419544c30b7b6e15cd9da08ef",
-                "reference": "29bc4cedfbe742b419544c30b7b6e15cd9da08ef",
+                "url": "https://api.github.com/repos/itsgoingd/clockwork/zipball/bbcefdf1e32540e9a2de5fbd1eacbb77d3f50bda",
+                "reference": "bbcefdf1e32540e9a2de5fbd1eacbb77d3f50bda",
                 "shasum": ""
             },
             "require": {
                 "ext-json": "*",
-                "php": ">=5.6"
+                "php": ">=7.1"
             },
             "suggest": {
                 "ext-pdo": "Needed in order to use a SQL database for metadata storage",
                 "ext-pdo_mysql": "Needed in order to use MySQL for metadata storage",
                 "ext-pdo_postgres": "Needed in order to use Postgres for metadata storage",
                 "ext-pdo_sqlite": "Needed in order to use a SQLite for metadata storage",
-                "ext-redis": "Needed in order to use Redis for metadata storage"
+                "ext-redis": "Needed in order to use Redis for metadata storage",
+                "php-http/discovery": "Vanilla integration - required for the middleware zero-configuration setup"
             },
+            "default-branch": true,
             "type": "library",
             "extra": {
                 "laravel": {
@@ -1024,7 +1026,7 @@
             ],
             "support": {
                 "issues": "https://github.com/itsgoingd/clockwork/issues",
-                "source": "https://github.com/itsgoingd/clockwork/tree/v5.2.2"
+                "source": "https://github.com/itsgoingd/clockwork/tree/master"
             },
             "funding": [
                 {
@@ -1032,7 +1034,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2024-04-14T10:49:22+00:00"
+            "time": "2024-10-22T22:30:34+00:00"
         },
         {
             "name": "league/climate",
@@ -7341,7 +7343,8 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "rockettheme/toolbox": 20
+        "rockettheme/toolbox": 20,
+        "itsgoingd/clockwork": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,
