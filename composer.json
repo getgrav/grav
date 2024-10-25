@@ -58,7 +58,7 @@
         "filp/whoops": "~2.16",
         "itsgoingd/clockwork": "dev-master",
         "maximebf/debugbar": "~1.23",
-        "getgrav/image": "^3.0",
+        "getgrav/image": "^4.0",
         "getgrav/cache": "^2.0",
         "antoligy/dom-string-iterators": "^1.0",
         "miljar/php-exif": "^0.6",

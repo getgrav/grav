@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "cfe92c7f71ab9a5954889cf8546d5bc8",
+    "content-hash": "ab43b03988d8dd81b83f75d4ff9b5253",
     "packages": [
         {
             "name": "antoligy/dom-string-iterators",
@@ -734,17 +734,17 @@
         },
         {
             "name": "getgrav/cache",
-            "version": "v2.0.0",
+            "version": "v2.0.1",
             "target-dir": "Gregwar/Cache",
             "source": {
                 "type": "git",
                 "url": "https://github.com/getgrav/Cache.git",
-                "reference": "56fd63f752779928fcd1074ab7d12f406dde8861"
+                "reference": "28e2b0072add37b9547daea1da6fcd26d660850b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/getgrav/Cache/zipball/56fd63f752779928fcd1074ab7d12f406dde8861",
-                "reference": "56fd63f752779928fcd1074ab7d12f406dde8861",
+                "url": "https://api.github.com/repos/getgrav/Cache/zipball/28e2b0072add37b9547daea1da6fcd26d660850b",
+                "reference": "28e2b0072add37b9547daea1da6fcd26d660850b",
                 "shasum": ""
             },
             "require": {
@@ -779,41 +779,40 @@
                 "system"
             ],
             "support": {
-                "source": "https://github.com/getgrav/Cache/tree/v2.0.0"
+                "source": "https://github.com/getgrav/Cache/tree/v2.0.1"
             },
-            "time": "2021-04-20T05:48:00+00:00"
+            "time": "2024-10-25T14:21:29+00:00"
         },
         {
             "name": "getgrav/image",
-            "version": "v3.0.1",
-            "target-dir": "Gregwar/Image",
+            "version": "v4.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/getgrav/Image.git",
-                "reference": "a6a36c24db4b0fd7a7bfd50b86412eaecd5c6370"
+                "reference": "5d06194ca0588727b25f80d7302253edaf5d8e9f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/getgrav/Image/zipball/a6a36c24db4b0fd7a7bfd50b86412eaecd5c6370",
-                "reference": "a6a36c24db4b0fd7a7bfd50b86412eaecd5c6370",
+                "url": "https://api.github.com/repos/getgrav/Image/zipball/5d06194ca0588727b25f80d7302253edaf5d8e9f",
+                "reference": "5d06194ca0588727b25f80d7302253edaf5d8e9f",
                 "shasum": ""
             },
             "require": {
                 "ext-gd": "*",
                 "getgrav/cache": "^2.0",
-                "php": "^5.6 || ^7.0 || ^8.0"
+                "php": "^7.2 || ^8.0"
             },
             "require-dev": {
-                "sllh/php-cs-fixer-styleci-bridge": "~1.0",
-                "symfony/phpunit-bridge": "^2.7.4 || ^3.0"
+                "phpunit/phpunit": "^9",
+                "sllh/php-cs-fixer-styleci-bridge": "~1.0"
             },
             "suggest": {
                 "behat/transliterator": "Transliterator provides ability to set non-latin1 pretty names"
             },
             "type": "library",
             "autoload": {
-                "psr-0": {
-                    "Gregwar\\Image": ""
+                "psr-4": {
+                    "Gregwar\\Image\\": ""
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -839,9 +838,9 @@
                 "image"
             ],
             "support": {
-                "source": "https://github.com/getgrav/Image/tree/v3.0.1"
+                "source": "https://github.com/getgrav/Image/tree/v4.0.0"
             },
-            "time": "2023-05-08T21:44:38+00:00"
+            "time": "2024-10-25T14:14:34+00:00"
         },
         {
             "name": "guzzlehttp/psr7",
@@ -965,12 +964,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/itsgoingd/clockwork.git",
-                "reference": "bbcefdf1e32540e9a2de5fbd1eacbb77d3f50bda"
+                "reference": "00eb90fb2842532e4c3b0ae2eafae290c854b11f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/itsgoingd/clockwork/zipball/bbcefdf1e32540e9a2de5fbd1eacbb77d3f50bda",
-                "reference": "bbcefdf1e32540e9a2de5fbd1eacbb77d3f50bda",
+                "url": "https://api.github.com/repos/itsgoingd/clockwork/zipball/00eb90fb2842532e4c3b0ae2eafae290c854b11f",
+                "reference": "00eb90fb2842532e4c3b0ae2eafae290c854b11f",
                 "shasum": ""
             },
             "require": {
@@ -1034,7 +1033,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2024-10-22T22:30:34+00:00"
+            "time": "2024-10-24T20:15:54+00:00"
         },
         {
             "name": "league/climate",
