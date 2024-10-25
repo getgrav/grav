@@ -156,7 +156,7 @@ class FlexDirectory implements FlexDirectoryInterface
      * @param mixed $default
      * @return mixed
      */
-    public function getConfig(string $name = null, $default = null)
+    public function getConfig(?string $name = null, $default = null)
     {
         if (null === $this->config) {
             $config = $this->getBlueprintInternal()->get('config', []);
@@ -198,7 +198,7 @@ class FlexDirectory implements FlexDirectoryInterface
      * @param array|null $options
      * @return array
      */
-    public function getSearchOptions(array $options = null): array
+    public function getSearchOptions(?array $options = null): array
     {
         if (empty($options['merge'])) {
             return $options ?? (array)$this->getConfig('data.search.options');
@@ -215,7 +215,7 @@ class FlexDirectory implements FlexDirectoryInterface
      * @return FlexFormInterface
      * @internal
      */
-    public function getDirectoryForm(string $name = null, array $options = [])
+    public function getDirectoryForm(?string $name = null, array $options = [])
     {
         $name = $name ?: $this->getConfig('admin.views.configure.form', '') ?: $this->getConfig('admin.configure.form', '');
 
@@ -312,7 +312,7 @@ class FlexDirectory implements FlexDirectoryInterface
      * @param string|null $name
      * @return string
      */
-    public function getDirectoryConfigUri(string $name = null): string
+    public function getDirectoryConfigUri(?string $name = null): string
     {
         $name = $name ?: $this->getFlexType();
         $blueprint = $this->getBlueprint();
@@ -324,7 +324,7 @@ class FlexDirectory implements FlexDirectoryInterface
      * @param string|null $name
      * @return array
      */
-    protected function getDirectoryConfig(string $name = null): array
+    protected function getDirectoryConfig(?string $name = null): array
     {
         $grav = Grav::instance();
 
@@ -373,7 +373,7 @@ class FlexDirectory implements FlexDirectoryInterface
      * @return FlexCollectionInterface
      * @phpstan-return FlexCollectionInterface<FlexObjectInterface>
      */
-    public function getCollection(array $keys = null, string $keyField = null): FlexCollectionInterface
+    public function getCollection(?array $keys = null, ?string $keyField = null): FlexCollectionInterface
     {
         // Get all selected entries.
         $index = $this->getIndex($keys, $keyField);
@@ -400,7 +400,7 @@ class FlexDirectory implements FlexDirectoryInterface
      * @return FlexIndexInterface
      * @phpstan-return FlexIndexInterface<FlexObjectInterface>
      */
-    public function getIndex(array $keys = null, string $keyField = null): FlexIndexInterface
+    public function getIndex(?array $keys = null, ?string $keyField = null): FlexIndexInterface
     {
         $keyField = $keyField ?? '';
         $index = $this->indexes[$keyField] ?? $this->loadIndex($keyField);
@@ -423,7 +423,7 @@ class FlexDirectory implements FlexDirectoryInterface
      * @param string|null $keyField  Field to be used as the key.
      * @return FlexObjectInterface|null
      */
-    public function getObject($key = null, string $keyField = null): ?FlexObjectInterface
+    public function getObject($key = null, ?string $keyField = null): ?FlexObjectInterface
     {
         if (null === $key) {
             return $this->createObject([], '');
@@ -439,7 +439,7 @@ class FlexDirectory implements FlexDirectoryInterface
      * @param string|null $namespace
      * @return CacheInterface
      */
-    public function getCache(string $namespace = null)
+    public function getCache(?string $namespace = null)
     {
         $namespace = $namespace ?: 'index';
         $cache = $this->cache[$namespace] ?? null;
@@ -508,7 +508,7 @@ class FlexDirectory implements FlexDirectoryInterface
      * @param string|null $key
      * @return string|null
      */
-    public function getStorageFolder(string $key = null): ?string
+    public function getStorageFolder(?string $key = null): ?string
     {
         return $this->getStorage()->getStoragePath($key);
     }
@@ -517,7 +517,7 @@ class FlexDirectory implements FlexDirectoryInterface
      * @param string|null $key
      * @return string|null
      */
-    public function getMediaFolder(string $key = null): ?string
+    public function getMediaFolder(?string $key = null): ?string
     {
         return $this->getStorage()->getMediaPath($key);
     }
@@ -557,7 +557,7 @@ class FlexDirectory implements FlexDirectoryInterface
      * @return FlexCollectionInterface
      * @phpstan-return FlexCollectionInterface<FlexObjectInterface>
      */
-    public function createCollection(array $entries, string $keyField = null): FlexCollectionInterface
+    public function createCollection(array $entries, ?string $keyField = null): FlexCollectionInterface
     {
         /** phpstan-var class-string $className */
         $className = $this->collectionClassName ?: $this->getCollectionClass();
@@ -574,7 +574,7 @@ class FlexDirectory implements FlexDirectoryInterface
      * @return FlexIndexInterface
      * @phpstan-return FlexIndexInterface<FlexObjectInterface>
      */
-    public function createIndex(array $entries, string $keyField = null): FlexIndexInterface
+    public function createIndex(array $entries, ?string $keyField = null): FlexIndexInterface
     {
         /** @phpstan-var class-string $className */
         $className = $this->indexClassName ?: $this->getIndexClass();
@@ -628,7 +628,7 @@ class FlexDirectory implements FlexDirectoryInterface
      * @return FlexCollectionInterface
      * @phpstan-return FlexCollectionInterface<FlexObjectInterface>
      */
-    public function loadCollection(array $entries, string $keyField = null): FlexCollectionInterface
+    public function loadCollection(array $entries, ?string $keyField = null): FlexCollectionInterface
     {
         return $this->createCollection($this->loadObjects($entries), $keyField);
     }
@@ -1122,7 +1122,7 @@ class FlexDirectory implements FlexDirectoryInterface
      * @return FlexObjectInterface
      * @deprecated 1.7 Use $object->update()->save() instead.
      */
-    public function update(array $data, string $key = null): FlexObjectInterface
+    public function update(array $data, ?string $key = null): FlexObjectInterface
     {
         user_error(__CLASS__ . '::' . __FUNCTION__ . '() should not be used anymore: use $object->update()->save() instead.', E_USER_DEPRECATED);
 

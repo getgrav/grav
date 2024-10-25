@@ -23,7 +23,7 @@ class MarkdownFormatter extends AbstractFormatter
     /** @var FileFormatterInterface */
     private $headerFormatter;
 
-    public function __construct(array $config = [], FileFormatterInterface $headerFormatter = null)
+    public function __construct(array $config = [], ?FileFormatterInterface $headerFormatter = null)
     {
         $config += [
             'file_extension' => '.md',

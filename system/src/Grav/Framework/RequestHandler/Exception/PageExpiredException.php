@@ -25,7 +25,7 @@ class PageExpiredException extends RequestException
      * @param ServerRequestInterface $request
      * @param Throwable|null $previous
      */
-    public function __construct(ServerRequestInterface $request, Throwable $previous = null)
+    public function __construct(ServerRequestInterface $request, ?Throwable $previous = null)
     {
         parent::__construct($request, 'Page Expired', 400, $previous); // 419
     }

@@ -38,7 +38,7 @@ class Media extends AbstractMedia
      * @param array|null $media_order
      * @param bool   $load
      */
-    public function __construct($path, array $media_order = null, $load = true)
+    public function __construct($path, ?array $media_order = null, $load = true)
     {
         $this->setPath($path);
         $this->media_order = $media_order;

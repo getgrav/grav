@@ -135,7 +135,7 @@ class FolderStorage extends AbstractFilesystemStorage
      * {@inheritdoc}
      * @see FlexStorageInterface::readRows()
      */
-    public function readRows(array $rows, array &$fetched = null): array
+    public function readRows(array $rows, ?array &$fetched = null): array
     {
         $list = [];
         foreach ($rows as $key => $row) {
@@ -277,7 +277,7 @@ class FolderStorage extends AbstractFilesystemStorage
      * {@inheritdoc}
      * @see FlexStorageInterface::getStoragePath()
      */
-    public function getStoragePath(string $key = null): ?string
+    public function getStoragePath(?string $key = null): ?string
     {
         if (null === $key || $key === '') {
             $path = $this->dataFolder;
@@ -301,7 +301,7 @@ class FolderStorage extends AbstractFilesystemStorage
      * {@inheritdoc}
      * @see FlexStorageInterface::getMediaPath()
      */
-    public function getMediaPath(string $key = null): ?string
+    public function getMediaPath(?string $key = null): ?string
     {
         return $this->getStoragePath($key);
     }

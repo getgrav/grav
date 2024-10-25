@@ -32,7 +32,7 @@ trait PageRoutableTrait
      * @return PageInterface|null the parent page object if it exists.
      */
 
-    public function parent(PageInterface $var = null)
+    public function parent(?PageInterface $var = null)
     {
         if (Utils::isAdminPlugin()) {
             return parent::parent();

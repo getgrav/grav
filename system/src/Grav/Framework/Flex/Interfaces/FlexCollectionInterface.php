@@ -37,7 +37,7 @@ interface FlexCollectionInterface extends FlexCommonInterface, ObjectCollectionI
      * @param string|null               $keyField   Key field used to index the collection.
      * @return static                           Returns a new Flex Collection.
      */
-    public static function createFromArray(array $entries, FlexDirectory $directory, string $keyField = null);
+    public static function createFromArray(array $entries, FlexDirectory $directory, ?string $keyField = null);
 
     /**
      * Creates a new Flex Collection.
@@ -48,7 +48,7 @@ interface FlexCollectionInterface extends FlexCommonInterface, ObjectCollectionI
      * @param FlexDirectory|null        $directory  Flex Directory where all the objects belong into.
      * @throws InvalidArgumentException
      */
-    public function __construct(array $entries = [], FlexDirectory $directory = null);
+    public function __construct(array $entries = [], ?FlexDirectory $directory = null);
 
     /**
      * Search a string from the collection.
@@ -60,7 +60,7 @@ interface FlexCollectionInterface extends FlexCommonInterface, ObjectCollectionI
      * @phpstan-return static<T>
      * @api
      */
-    public function search(string $search, $properties = null, array $options = null);
+    public function search(string $search, $properties = null, ?array $options = null);
 
     /**
      * Sort the collection.
@@ -116,7 +116,7 @@ interface FlexCollectionInterface extends FlexCommonInterface, ObjectCollectionI
      * @phpstan-return static<T>
      * @api
      */
-    public function withKeyField(string $keyField = null);
+    public function withKeyField(?string $keyField = null);
 
     /**
      * Get Flex Index from the Flex Collection.

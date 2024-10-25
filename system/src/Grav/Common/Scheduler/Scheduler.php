@@ -188,7 +188,7 @@ class Scheduler
      * @param DateTime|null $runTime Optional, run at specific moment
      * @param bool $force force run even if not due
      */
-    public function run(DateTime $runTime = null, $force = false)
+    public function run(?DateTime $runTime = null, $force = false)
     {
         $this->loadSavedJobs();
 

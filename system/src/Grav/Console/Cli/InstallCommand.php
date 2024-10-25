@@ -173,7 +173,7 @@ class InstallCommand extends GravCommand
      * @param string|null $type
      * @return int
      */
-    private function symlink(string $name = null, string $type = null): int
+    private function symlink(?string $name = null, ?string $type = null): int
     {
         $io = $this->getIO();
 

@@ -135,7 +135,7 @@ class ObjectExpressionVisitor extends ClosureExpressionVisitor
      *
      * @return Closure
      */
-    public static function sortByField($name, $orientation = 1, Closure $next = null)
+    public static function sortByField($name, $orientation = 1, ?Closure $next = null)
     {
         if (!$next) {
             $next = function ($a, $b) {

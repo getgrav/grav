@@ -66,7 +66,7 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
      * @param array $entries
      * @param FlexDirectory|null $directory
      */
-    public function __construct(array $entries = [], FlexDirectory $directory = null)
+    public function __construct(array $entries = [], ?FlexDirectory $directory = null)
     {
         // Remove root if it's taken.
         if (isset($entries[''])) {
@@ -181,7 +181,7 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
      * @return static
      * @phpstan-return static<T,C>
      */
-    public function withTranslated(string $languageCode = null, bool $fallback = null)
+    public function withTranslated(?string $languageCode = null, ?bool $fallback = null)
     {
         if (null === $languageCode) {
             return $this;
@@ -413,7 +413,7 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
      * @return static
      * @phpstan-return static<T,C>
      */
-    protected function createFrom(array $entries, string $keyField = null)
+    protected function createFrom(array $entries, ?string $keyField = null)
     {
         /** @var static $index */
         $index = parent::createFrom($entries, $keyField);
@@ -428,7 +428,7 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
      * @param bool|null $fallback
      * @return array
      */
-    protected function translateEntries(array $entries, string $lang, bool $fallback = null): array
+    protected function translateEntries(array $entries, string $lang, ?bool $fallback = null): array
     {
         $languages = $this->getFallbackLanguages($lang, $fallback);
         foreach ($entries as $key => &$entry) {
@@ -493,7 +493,7 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
      * @param bool|null $fallback
      * @return array
      */
-    protected function getFallbackLanguages(string $languageCode = null, bool $fallback = null): array
+    protected function getFallbackLanguages(?string $languageCode = null, ?bool $fallback = null): array
     {
         $fallback = $fallback ?? true;
         if (!$fallback && null !== $languageCode) {
@@ -781,7 +781,7 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
      * @param int|null $timestamp
      * @return string|null
      */
-    private function jsDate(int $timestamp = null): ?string
+    private function jsDate(?int $timestamp = null): ?string
     {
         if (!$timestamp) {
             return null;

@@ -30,7 +30,7 @@ class Excerpts
      * @param PageInterface|null $page  Page, defaults to the current page object
      * @return string                   Returns final HTML string
      */
-    public static function processImageHtml($html, PageInterface $page = null)
+    public static function processImageHtml($html, ?PageInterface $page = null)
     {
         $excerpt = static::getExcerptFromHtml($html, 'img');
         if (null === $excerpt) {
@@ -61,7 +61,7 @@ class Excerpts
      * @param PageInterface|null $page  Page, defaults to the current page object
      * @return string                   Returns final HTML string
      */
-    public static function processLinkHtml($html, PageInterface $page = null)
+    public static function processLinkHtml($html, ?PageInterface $page = null)
     {
         $excerpt = static::getExcerptFromHtml($html, 'a');
         if (null === $excerpt) {
@@ -158,7 +158,7 @@ class Excerpts
      * @param string $type
      * @return mixed
      */
-    public static function processLinkExcerpt($excerpt, PageInterface $page = null, $type = 'link')
+    public static function processLinkExcerpt($excerpt, ?PageInterface $page = null, $type = 'link')
     {
         $excerpts = new ExcerptsObject($page);
 
@@ -172,7 +172,7 @@ class Excerpts
      * @param PageInterface|null $page  Page, defaults to the current page object
      * @return array
      */
-    public static function processImageExcerpt(array $excerpt, PageInterface $page = null)
+    public static function processImageExcerpt(array $excerpt, ?PageInterface $page = null)
     {
         $excerpts = new ExcerptsObject($page);
 
@@ -187,7 +187,7 @@ class Excerpts
      * @param PageInterface|null $page  Page, defaults to the current page object
      * @return Medium|Link
      */
-    public static function processMediaActions($medium, $url, PageInterface $page = null)
+    public static function processMediaActions($medium, $url, ?PageInterface $page = null)
     {
         $excerpts = new ExcerptsObject($page);
 

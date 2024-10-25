@@ -80,5 +80,5 @@ interface DataInterface
      * @param FileInterface|null $storage Optionally enter a new storage.
      * @return FileInterface
      */
-    public function file(FileInterface $storage = null);
+    public function file(?FileInterface $storage = null);
 }

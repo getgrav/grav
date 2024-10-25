@@ -241,7 +241,7 @@ trait FlexMediaTrait
      * @return void
      * @internal
      */
-    public function checkUploadedMediaFile(UploadedFileInterface $uploadedFile, string $filename = null, string $field = null)
+    public function checkUploadedMediaFile(UploadedFileInterface $uploadedFile, ?string $filename = null, ?string $field = null)
     {
         $media = $this->getMedia();
         if (!$media instanceof MediaUploadInterface) {
@@ -258,7 +258,7 @@ trait FlexMediaTrait
      * @return void
      * @internal
      */
-    public function uploadMediaFile(UploadedFileInterface $uploadedFile, string $filename = null, string $field = null): void
+    public function uploadMediaFile(UploadedFileInterface $uploadedFile, ?string $filename = null, ?string $field = null): void
     {
         $settings = $this->getMediaFieldSettings($field ?? '');
 
@@ -305,7 +305,7 @@ trait FlexMediaTrait
      * @param MediaObjectInterface|null $image
      * @return MediaObject|UploadedMediaObject
      */
-    protected function buildMediaObject(?string $field, string $filename, MediaObjectInterface $image = null)
+    protected function buildMediaObject(?string $field, string $filename, ?MediaObjectInterface $image = null)
     {
         if (!$image) {
             $media = $field ? $this->getMediaField($field) : null;

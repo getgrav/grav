@@ -94,7 +94,7 @@ class Flex implements FlexInterface
      * @param bool $keepMissing
      * @return array<FlexDirectory|null>
      */
-    public function getDirectories(array $types = null, bool $keepMissing = false): array
+    public function getDirectories(?array $types = null, bool $keepMissing = false): array
     {
         if ($types === null) {
             return $this->types;
@@ -125,7 +125,7 @@ class Flex implements FlexInterface
      * @return FlexCollectionInterface|null
      * @phpstan-return FlexCollectionInterface<FlexObjectInterface>|null
      */
-    public function getCollection(string $type, array $keys = null, string $keyField = null): ?FlexCollectionInterface
+    public function getCollection(string $type, ?array $keys = null, ?string $keyField = null): ?FlexCollectionInterface
     {
         $directory = $type ? $this->getDirectory($type) : null;
 
@@ -271,7 +271,7 @@ class Flex implements FlexInterface
      * @param string|null $keyField
      * @return FlexObjectInterface|null
      */
-    public function getObject(string $key, string $type = null, string $keyField = null): ?FlexObjectInterface
+    public function getObject(string $key, ?string $type = null, ?string $keyField = null): ?FlexObjectInterface
     {
         if (null === $type && null === $keyField) {
             // Special handling for quick Flex key lookups.
@@ -303,7 +303,7 @@ class Flex implements FlexInterface
      * @param string|null $type
      * @return array
      */
-    protected function resolveKeyAndType(string $flexKey, string $type = null): array
+    protected function resolveKeyAndType(string $flexKey, ?string $type = null): array
     {
         $guess = false;
         if (strpos($flexKey, ':') !== false) {
@@ -323,7 +323,7 @@ class Flex implements FlexInterface
      * @param string|null $type
      * @return string
      */
-    protected function resolveType(string $type = null): string
+    protected function resolveType(?string $type = null): string
     {
         if (null !== $type && strpos($type, '.') !== false) {
             return preg_replace('|\.obj$|', '', $type) ?? $type;

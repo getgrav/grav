@@ -41,7 +41,7 @@ class Response
      * @return string
      * @throws TransportExceptionInterface|RedirectionExceptionInterface|ServerExceptionInterface|TransportExceptionInterface|ClientExceptionInterface
      */
-    public static function get(string $uri = '', array $overrides = [], callable $callback = null): string
+    public static function get(string $uri = '', array $overrides = [], ?callable $callback = null): string
     {
         $response = static::request('GET', $uri, $overrides, $callback);
         return $response->getContent();
@@ -58,7 +58,7 @@ class Response
      * @return ResponseInterface
      * @throws TransportExceptionInterface
      */
-    public static function request(string $method, string $uri, array $overrides = [], callable $callback = null): ResponseInterface
+    public static function request(string $method, string $uri, array $overrides = [], ?callable $callback = null): ResponseInterface
     {
         if (empty($method)) {
             throw new TransportException('missing method (GET, PUT, etc.)');

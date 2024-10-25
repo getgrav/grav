@@ -29,7 +29,7 @@ class YamlLinter
      * @param string|null $folder
      * @return array
      */
-    public static function lint(string $folder = null)
+    public static function lint(?string $folder = null)
     {
         if (null !== $folder) {
             $folder = $folder ?: GRAV_ROOT;

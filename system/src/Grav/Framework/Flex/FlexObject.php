@@ -285,7 +285,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      * {@inheritdoc}
      * @see FlexObjectInterface::search()
      */
-    public function search(string $search, $properties = null, array $options = null): float
+    public function search(string $search, $properties = null, ?array $options = null): float
     {
         $directory = $this->getFlexDirectory();
         $properties = $directory->getSearchProperties($properties);
@@ -362,7 +362,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      * @param array|null $options
      * @return float
      */
-    public function searchProperty(string $property, string $search, array $options = null): float
+    public function searchProperty(string $property, string $search, ?array $options = null): float
     {
         $options = $options ?? (array)$this->getFlexDirectory()->getConfig('data.search.options');
         $value = $this->getProperty($property);
@@ -376,7 +376,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      * @param array|null $options
      * @return float
      */
-    public function searchNestedProperty(string $property, string $search, array $options = null): float
+    public function searchNestedProperty(string $property, string $search, ?array $options = null): float
     {
         $options = $options ?? (array)$this->getFlexDirectory()->getConfig('data.search.options');
         if ($property === 'key') {
@@ -395,7 +395,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      * @param array|null $options
      * @return float
      */
-    protected function searchValue(string $name, $value, string $search, array $options = null): float
+    protected function searchValue(string $name, $value, string $search, ?array $options = null): float
     {
         $options = $options ?? [];
 
@@ -515,7 +515,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      * @param string|null $namespace
      * @return CacheInterface
      */
-    public function getCache(string $namespace = null)
+    public function getCache(?string $namespace = null)
     {
         return $this->_flexDirectory->getCache($namespace);
     }
@@ -546,7 +546,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      * {@inheritdoc}
      * @see FlexObjectInterface::render()
      */
-    public function render(string $layout = null, array $context = [])
+    public function render(?string $layout = null, array $context = [])
     {
         if (!$layout) {
             $config = $this->getTemplateConfig();
@@ -714,7 +714,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      * {@inheritdoc}
      * @see FlexObjectInterface::create()
      */
-    public function create(string $key = null)
+    public function create(?string $key = null)
     {
         if ($key) {
             $this->setStorageKey($key);
@@ -731,7 +731,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      * @param string|null $key
      * @return FlexObject|FlexObjectInterface
      */
-    public function createCopy(string $key = null)
+    public function createCopy(?string $key = null)
     {
         $this->markAsCopy();
 
@@ -741,7 +741,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
     /**
      * @param UserInterface|null $user
      */
-    public function check(UserInterface $user = null): void
+    public function check(?UserInterface $user = null): void
     {
         // If user has been provided, check if the user has permissions to save this object.
         if ($user && !$this->isAuthorized('save', null, $user)) {
@@ -865,7 +865,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      * {@inheritdoc}
      * @see FlexObjectInterface::getForm()
      */
-    public function getForm(string $name = '', array $options = null)
+    public function getForm(string $name = '', ?array $options = null)
     {
         $hash = $name . '-' . md5(json_encode($options, JSON_THROW_ON_ERROR));
         if (!isset($this->_forms[$hash])) {
@@ -879,7 +879,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      * {@inheritdoc}
      * @see FlexObjectInterface::getDefaultValue()
      */
-    public function getDefaultValue(string $name, string $separator = null)
+    public function getDefaultValue(string $name, ?string $separator = null)
     {
         $separator = $separator ?: '.';
         $path = explode($separator, $name);
@@ -920,7 +920,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      * {@inheritdoc}
      * @see FlexObjectInterface::getFormValue()
      */
-    public function getFormValue(string $name, $default = null, string $separator = null)
+    public function getFormValue(string $name, $default = null, ?string $separator = null)
     {
         if ($name === 'storage_key') {
             return $this->getStorageKey();
@@ -1018,7 +1018,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      * @param FlexDirectory|null $directory
      * @return void
      */
-    protected function doUnserialize(array $serialized, FlexDirectory $directory = null): void
+    protected function doUnserialize(array $serialized, ?FlexDirectory $directory = null): void
     {
         $type = $serialized['type'] ?? 'unknown';
 
@@ -1106,7 +1106,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface
      * @param array|null $options Form optiosn
      * @return FlexFormInterface
      */
-    protected function createFormObject(string $name, array $options = null)
+    protected function createFormObject(string $name, ?array $options = null)
     {
         return new FlexForm($name, $this, $options);
     }

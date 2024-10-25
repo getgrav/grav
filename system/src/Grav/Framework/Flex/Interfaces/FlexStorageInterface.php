@@ -78,7 +78,7 @@ interface FlexStorageInterface
      * @param  array|null $fetched  Optional reference to store only fetched items.
      * @return array  Returns rows. Note that non-existing rows will have `null` as their value.
      */
-    public function readRows(array $rows, array &$fetched = null): array;
+    public function readRows(array $rows, ?array &$fetched = null): array;
 
     /**
      * Update existing rows in the storage.
@@ -126,7 +126,7 @@ interface FlexStorageInterface
      * @param  string|null $key Optional storage key.
      * @return string|null Path in the filesystem. Can be URI or null if storage is not filesystem based.
      */
-    public function getStoragePath(string $key = null): ?string;
+    public function getStoragePath(?string $key = null): ?string;
 
     /**
      * Get filesystem path for the collection or object media.
@@ -134,5 +134,5 @@ interface FlexStorageInterface
      * @param  string|null $key Optional storage key.
      * @return string|null Path in the filesystem. Can be URI or null if media isn't supported.
      */
-    public function getMediaPath(string $key = null): ?string;
+    public function getMediaPath(?string $key = null): ?string;
 }

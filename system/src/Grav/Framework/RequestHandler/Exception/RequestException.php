@@ -73,7 +73,7 @@ class RequestException extends \RuntimeException
      * @param int $code
      * @param Throwable|null $previous
      */
-    public function __construct(ServerRequestInterface $request, string $message, int $code = 500, Throwable $previous = null)
+    public function __construct(ServerRequestInterface $request, string $message, int $code = 500, ?Throwable $previous = null)
     {
         $this->request = $request;
 

@@ -105,7 +105,7 @@ interface MediaCollectionInterface extends \Grav\Framework\Media\Interfaces\Medi
      * @param  Blueprint|null $blueprint
      * @return Medium|null
      */
-    public function createFromArray(array $items = [], Blueprint $blueprint = null);
+    public function createFromArray(array $items = [], ?Blueprint $blueprint = null);
 
     /**
      * @param MediaObjectInterface $mediaObject

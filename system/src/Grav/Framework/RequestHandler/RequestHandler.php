@@ -33,7 +33,7 @@ class RequestHandler implements RequestHandlerInterface
      * @param callable $default
      * @param ContainerInterface|null $container
      */
-    public function __construct(array $middleware, callable $default, ContainerInterface $container = null)
+    public function __construct(array $middleware, callable $default, ?ContainerInterface $container = null)
     {
         $this->middleware = $middleware;
         $this->handler = $default;

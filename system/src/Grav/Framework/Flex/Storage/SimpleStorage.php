@@ -148,7 +148,7 @@ class SimpleStorage extends AbstractFilesystemStorage
      * {@inheritdoc}
      * @see FlexStorageInterface::readRows()
      */
-    public function readRows(array $rows, array &$fetched = null): array
+    public function readRows(array $rows, ?array &$fetched = null): array
     {
         if (null === $this->data) {
             $this->buildIndex();
@@ -305,7 +305,7 @@ class SimpleStorage extends AbstractFilesystemStorage
      * {@inheritdoc}
      * @see FlexStorageInterface::getStoragePath()
      */
-    public function getStoragePath(string $key = null): ?string
+    public function getStoragePath(?string $key = null): ?string
     {
         return $this->dataFolder . '/' . $this->dataPattern;
     }
@@ -314,7 +314,7 @@ class SimpleStorage extends AbstractFilesystemStorage
      * {@inheritdoc}
      * @see FlexStorageInterface::getMediaPath()
      */
-    public function getMediaPath(string $key = null): ?string
+    public function getMediaPath(?string $key = null): ?string
     {
         return null;
     }

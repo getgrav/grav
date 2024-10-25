@@ -26,7 +26,7 @@ class ZipArchiver extends Archiver
      * @param callable|null $status
      * @return $this
      */
-    public function extract($destination, callable $status = null)
+    public function extract($destination, ?callable $status = null)
     {
         $zip = new ZipArchive();
         $archive = $zip->open($this->archive_file);
@@ -51,7 +51,7 @@ class ZipArchiver extends Archiver
      * @param callable|null $status
      * @return $this
      */
-    public function compress($source, callable $status = null)
+    public function compress($source, ?callable $status = null)
     {
         if (!extension_loaded('zip')) {
             throw new InvalidArgumentException('ZipArchiver: Zip PHP module not installed...');
@@ -105,7 +105,7 @@ class ZipArchiver extends Archiver
      * @param callable|null $status
      * @return $this
      */
-    public function addEmptyFolders($folders, callable $status = null)
+    public function addEmptyFolders($folders, ?callable $status = null)
     {
         if (!extension_loaded('zip')) {
             throw new InvalidArgumentException('ZipArchiver: Zip PHP module not installed...');

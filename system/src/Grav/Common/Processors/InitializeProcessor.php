@@ -415,7 +415,7 @@ class InitializeProcessor extends ProcessorBase
         $this->stopTimer('_init_uri');
     }
 
-    protected function handleRedirectRequest(RequestInterface $request, int $code = null): ?ResponseInterface
+    protected function handleRedirectRequest(RequestInterface $request, ?int $code = null): ?ResponseInterface
     {
         if (!in_array($request->getMethod(), ['GET', 'HEAD'])) {
             return null;

@@ -140,7 +140,7 @@ trait ConsoleTrait
      * @param string|null $code
      * @return $this
      */
-    final protected function setLanguage(string $code = null)
+    final protected function setLanguage(?string $code = null)
     {
         $this->initializeGrav();
 

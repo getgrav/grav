@@ -294,7 +294,7 @@ trait PageLegacyTrait
      * @param PageInterface|null $parent New parent page.
      * @return $this
      */
-    public function copy(PageInterface $parent = null)
+    public function copy(?PageInterface $parent = null)
     {
         $this->storeOriginal();
 

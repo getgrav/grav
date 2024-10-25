@@ -932,7 +932,7 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
      * @param bool $html_out
      * @return string
      */
-    public function translateLanguage($args, array $languages = null, $array_support = false, $html_out = false)
+    public function translateLanguage($args, ?array $languages = null, $array_support = false, $html_out = false)
     {
         /** @var Language $language */
         $language = $this->grav['language'];

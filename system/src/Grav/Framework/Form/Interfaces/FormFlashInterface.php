@@ -146,7 +146,7 @@ interface FormFlashInterface extends \JsonSerializable
      * @param array|null $crop
      * @return string Return name of the file
      */
-    public function addUploadedFile(UploadedFileInterface $upload, string $field = null, array $crop = null): string;
+    public function addUploadedFile(UploadedFileInterface $upload, ?string $field = null, ?array $crop = null): string;
 
     /**
      * Add existing file to the form flash.
@@ -156,7 +156,7 @@ interface FormFlashInterface extends \JsonSerializable
      * @param array|null $crop
      * @return bool
      */
-    public function addFile(string $filename, string $field, array $crop = null): bool;
+    public function addFile(string $filename, string $field, ?array $crop = null): bool;
 
     /**
      * Remove any file from form flash.
@@ -165,7 +165,7 @@ interface FormFlashInterface extends \JsonSerializable
      * @param string|null $field
      * @return bool
      */
-    public function removeFile(string $name, string $field = null): bool;
+    public function removeFile(string $name, ?string $field = null): bool;
 
     /**
      * Clear form flash from all uploaded files.

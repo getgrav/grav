@@ -26,7 +26,7 @@ class TwigNodeTryCatch extends Node
      * @param int $lineno
      * @param string|null $tag
      */
-    public function __construct(Node $try, Node $catch = null, $lineno = 0, $tag = null)
+    public function __construct(Node $try, ?Node $catch = null, $lineno = 0, $tag = null)
     {
         $nodes = ['try' => $try, 'catch' => $catch];
         $nodes = array_filter($nodes);

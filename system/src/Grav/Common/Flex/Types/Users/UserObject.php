@@ -270,7 +270,7 @@ class UserObject extends FlexObject implements UserInterface, Countable
      * @param  string|null $scope
      * @return bool|null
      */
-    public function authorize(string $action, string $scope = null): ?bool
+    public function authorize(string $action, ?string $scope = null): ?bool
     {
         if ($scope === 'test') {
             // Special scope to test user permissions.
@@ -557,7 +557,7 @@ class UserObject extends FlexObject implements UserInterface, Countable
      * @param FileInterface|null $storage Optionally enter a new storage.
      * @return FileInterface|null
      */
-    public function file(FileInterface $storage = null)
+    public function file(?FileInterface $storage = null)
     {
         if (null !== $storage) {
             $this->_storage = $storage;

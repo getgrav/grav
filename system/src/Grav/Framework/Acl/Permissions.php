@@ -156,7 +156,7 @@ class Permissions implements ArrayAccess, Countable, IteratorAggregate
      * @param array|null $access
      * @return Access
      */
-    public function getAccess(array $access = null): Access
+    public function getAccess(?array $access = null): Access
     {
         return new Access($access ?? []);
     }

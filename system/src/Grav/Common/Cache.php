@@ -241,7 +241,7 @@ class Cache extends Getters
      * @throws \RedisException
      * @throws \Symfony\Component\Cache\Exception\CacheException
      */
-    public function getCacheAdapter(string $namespace = null, int $defaultLifetime = null): AdapterInterface
+    public function getCacheAdapter(?string $namespace = null, ?int $defaultLifetime = null): AdapterInterface
     {
         $setting = $this->driver_setting ?? 'auto';
         $driver_name = 'file';
@@ -333,7 +333,7 @@ class Cache extends Getters
      *
      * @return CacheProvider  The cache driver to use
      */
-    public function getCacheDriver(AdapterInterface $adapter = null)
+    public function getCacheDriver(?AdapterInterface $adapter = null)
     {
         if (null === $adapter) {
             $adapter = $this->getCacheAdapter();

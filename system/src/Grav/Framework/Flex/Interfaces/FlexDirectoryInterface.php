@@ -49,7 +49,7 @@ interface FlexDirectoryInterface extends FlexAuthorizeInterface
      * @param mixed $default
      * @return mixed
      */
-    public function getConfig(string $name = null, $default = null);
+    public function getConfig(?string $name = null, $default = null);
 
     /**
      * @param string|null $name
@@ -57,7 +57,7 @@ interface FlexDirectoryInterface extends FlexAuthorizeInterface
      * @return FlexFormInterface
      * @internal
      */
-    public function getDirectoryForm(string $name = null, array $options = []);
+    public function getDirectoryForm(?string $name = null, array $options = []);
 
     /**
      * @return Blueprint
@@ -78,7 +78,7 @@ interface FlexDirectoryInterface extends FlexAuthorizeInterface
      * @param string|null $name
      * @return string
      */
-    public function getDirectoryConfigUri(string $name = null): string;
+    public function getDirectoryConfigUri(?string $name = null): string;
 
     /**
      * Returns a new uninitialized instance of blueprint.
@@ -107,7 +107,7 @@ interface FlexDirectoryInterface extends FlexAuthorizeInterface
      * @return FlexCollectionInterface
      * @phpstan-return FlexCollectionInterface<FlexObjectInterface>
      */
-    public function getCollection(array $keys = null, string $keyField = null): FlexCollectionInterface;
+    public function getCollection(?array $keys = null, ?string $keyField = null): FlexCollectionInterface;
 
     /**
      * Get the full collection of all stored objects.
@@ -119,7 +119,7 @@ interface FlexDirectoryInterface extends FlexAuthorizeInterface
      * @return FlexIndexInterface
      * @phpstan-return FlexIndexInterface<FlexObjectInterface>
      */
-    public function getIndex(array $keys = null, string $keyField = null): FlexIndexInterface;
+    public function getIndex(?array $keys = null, ?string $keyField = null): FlexIndexInterface;
 
     /**
      * Returns an object if it exists. If no arguments are passed (or both of them are null), method creates a new empty object.
@@ -130,13 +130,13 @@ interface FlexDirectoryInterface extends FlexAuthorizeInterface
      * @param string|null $keyField  Field to be used as the key.
      * @return FlexObjectInterface|null
      */
-    public function getObject($key = null, string $keyField = null): ?FlexObjectInterface;
+    public function getObject($key = null, ?string $keyField = null): ?FlexObjectInterface;
 
     /**
      * @param string|null $namespace
      * @return CacheInterface
      */
-    public function getCache(string $namespace = null);
+    public function getCache(?string $namespace = null);
 
     /**
      * @return $this
@@ -147,13 +147,13 @@ interface FlexDirectoryInterface extends FlexAuthorizeInterface
      * @param string|null $key
      * @return string|null
      */
-    public function getStorageFolder(string $key = null): ?string;
+    public function getStorageFolder(?string $key = null): ?string;
 
     /**
      * @param string|null $key
      * @return string|null
      */
-    public function getMediaFolder(string $key = null): ?string;
+    public function getMediaFolder(?string $key = null): ?string;
 
     /**
      * @return FlexStorageInterface
@@ -174,7 +174,7 @@ interface FlexDirectoryInterface extends FlexAuthorizeInterface
      * @return FlexCollectionInterface
      * @phpstan-return FlexCollectionInterface<FlexObjectInterface>
      */
-    public function createCollection(array $entries, string $keyField = null): FlexCollectionInterface;
+    public function createCollection(array $entries, ?string $keyField = null): FlexCollectionInterface;
 
     /**
      * @param array $entries
@@ -182,7 +182,7 @@ interface FlexDirectoryInterface extends FlexAuthorizeInterface
      * @return FlexIndexInterface
      * @phpstan-return FlexIndexInterface<FlexObjectInterface>
      */
-    public function createIndex(array $entries, string $keyField = null): FlexIndexInterface;
+    public function createIndex(array $entries, ?string $keyField = null): FlexIndexInterface;
 
     /**
      * @return string
@@ -205,7 +205,7 @@ interface FlexDirectoryInterface extends FlexAuthorizeInterface
      * @return FlexCollectionInterface
      * @phpstan-return FlexCollectionInterface<FlexObjectInterface>
      */
-    public function loadCollection(array $entries, string $keyField = null): FlexCollectionInterface;
+    public function loadCollection(array $entries, ?string $keyField = null): FlexCollectionInterface;
 
     /**
      * @param array $entries

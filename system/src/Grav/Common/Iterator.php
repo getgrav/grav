@@ -230,7 +230,7 @@ class Iterator implements \ArrayAccess, \Iterator, \Countable, \Serializable
      *
      * @return $this
      */
-    public function filter(callable $callback = null)
+    public function filter(?callable $callback = null)
     {
         foreach ($this->items as $key => $value) {
             if ((!$callback && !(bool)$value) || ($callback && !$callback($value, $key))) {
@@ -250,7 +250,7 @@ class Iterator implements \ArrayAccess, \Iterator, \Countable, \Serializable
      * @return $this|array
      *
      */
-    public function sort(callable $callback = null, $desc = false)
+    public function sort(?callable $callback = null, $desc = false)
     {
         if (!$callback || !is_callable($callback)) {
             return $this;

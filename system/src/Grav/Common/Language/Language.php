@@ -358,7 +358,7 @@ class Language
      * @param bool $assoc  Return values in ['en' => '.en.md', ...] format.
      * @return array Key is the language code, value is the file extension to be used.
      */
-    public function getFallbackPageExtensions(string $fileExtension = null, string $languageCode = null, bool $assoc = false)
+    public function getFallbackPageExtensions(?string $fileExtension = null, ?string $languageCode = null, bool $assoc = false)
     {
         $fileExtension = $fileExtension ?: CONTENT_EXT;
         $key = $fileExtension . '-' . ($languageCode ?? 'default') . '-' . (int)$assoc;
@@ -411,7 +411,7 @@ class Language
      * @param bool $includeDefault  If true, list contains '', which can be used for default
      * @return array
      */
-    public function getFallbackLanguages(string $languageCode = null, bool $includeDefault = false)
+    public function getFallbackLanguages(?string $languageCode = null, bool $includeDefault = false)
     {
         // Handle default.
         if ($languageCode === '' || !$this->enabled()) {
@@ -489,7 +489,7 @@ class Language
      * @param bool  $html_out
      * @return string|string[]
      */
-    public function translate($args, array $languages = null, $array_support = false, $html_out = false)
+    public function translate($args, ?array $languages = null, $array_support = false, $html_out = false)
     {
         if (is_array($args)) {
             $lookup = array_shift($args);

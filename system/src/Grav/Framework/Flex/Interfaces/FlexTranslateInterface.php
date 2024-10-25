@@ -23,7 +23,7 @@ interface FlexTranslateInterface
      * @param bool|null $fallback
      * @return bool
      */
-    public function hasTranslation(string $languageCode = null, bool $fallback = null): bool;
+    public function hasTranslation(?string $languageCode = null, ?bool $fallback = null): bool;
 
     /**
      * Get translation.
@@ -32,7 +32,7 @@ interface FlexTranslateInterface
      * @param bool|null $fallback
      * @return static|null
      */
-    public function getTranslation(string $languageCode = null, bool $fallback = null);
+    public function getTranslation(?string $languageCode = null, ?bool $fallback = null);
 
     /**
      * Returns all translated languages.

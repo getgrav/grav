@@ -92,7 +92,7 @@ class Route
      * @param string|null $language
      * @return string
      */
-    public function getBase(string $language = null): string
+    public function getBase(?string $language = null): string
     {
         $parts = [$this->root];
 

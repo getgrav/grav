@@ -323,7 +323,7 @@ class Data implements DataInterface, ArrayAccess, \Countable, JsonSerializable, 
      * @param FileInterface|null $storage Optionally enter a new storage.
      * @return FileInterface|null
      */
-    public function file(FileInterface $storage = null)
+    public function file(?FileInterface $storage = null)
     {
         if ($storage) {
             $this->storage = $storage;

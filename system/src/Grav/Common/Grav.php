@@ -200,7 +200,7 @@ class Grav extends Container
      * @param string|null $environment
      * @return $this
      */
-    public function setup(string $environment = null)
+    public function setup(?string $environment = null)
     {
         if (isset($this->initialized['setup'])) {
             return $this;
@@ -522,7 +522,7 @@ class Grav extends Container
      * @param ResponseInterface|null $response
      * @return void
      */
-    public function header(ResponseInterface $response = null): void
+    public function header(?ResponseInterface $response = null): void
     {
         if (null === $response) {
             /** @var PageInterface $page */
@@ -585,7 +585,7 @@ class Grav extends Container
      * @param  Event|null $event
      * @return Event
      */
-    public function fireEvent($eventName, Event $event = null)
+    public function fireEvent($eventName, ?Event $event = null)
     {
         /** @var EventDispatcherInterface $events */
         $events = $this['events'];

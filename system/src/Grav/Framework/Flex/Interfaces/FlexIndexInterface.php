@@ -54,11 +54,11 @@ interface FlexIndexInterface extends FlexCollectionInterface
      * @phpstan-return static<T>
      * @api
      */
-    public function withKeyField(string $keyField = null);
+    public function withKeyField(?string $keyField = null);
 
     /**
      * @param string|null $indexKey
      * @return array
      */
-    public function getIndexMap(string $indexKey = null);
+    public function getIndexMap(?string $indexKey = null);
 }

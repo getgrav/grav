@@ -194,7 +194,7 @@ class Backups
      * @param callable|null $status
      * @return string|null
      */
-    public static function backup($id = 0, callable $status = null)
+    public static function backup($id = 0, ?callable $status = null)
     {
         $grav = Grav::instance();
 

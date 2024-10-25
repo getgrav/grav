@@ -2395,7 +2395,7 @@ class Page implements PageInterface
      * @param  PageInterface|null $var the parent page object
      * @return PageInterface|null the parent page object if it exists.
      */
-    public function parent(PageInterface $var = null)
+    public function parent(?PageInterface $var = null)
     {
         if ($var) {
             $this->parent = $var->path();

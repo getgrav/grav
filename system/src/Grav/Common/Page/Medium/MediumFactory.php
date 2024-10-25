@@ -150,7 +150,7 @@ class MediumFactory
      * @param  Blueprint|null $blueprint
      * @return Medium
      */
-    public static function fromArray(array $items = [], Blueprint $blueprint = null)
+    public static function fromArray(array $items = [], ?Blueprint $blueprint = null)
     {
         $type = $items['type'] ?? null;
 

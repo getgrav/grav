@@ -645,7 +645,7 @@ class Pages
      * @param PageInterface|null $self
      * @return Collection
      */
-    protected function evaluate($value, PageInterface $self = null)
+    protected function evaluate($value, ?PageInterface $self = null)
     {
         // Parse command.
         if (is_string($value)) {
@@ -1160,7 +1160,7 @@ class Pages
      * @param PageInterface|null $current
      * @return Collection
      */
-    public function all(PageInterface $current = null)
+    public function all(?PageInterface $current = null)
     {
         $all = new Collection();
 
@@ -1234,7 +1234,7 @@ class Pages
      * @param bool $limitLevels
      * @return array
      */
-    public function getList(PageInterface $current = null, $level = 0, $rawRoutes = false, $showAll = true, $showFullpath = false, $showSlug = false, $showModular = false, $limitLevels = false)
+    public function getList(?PageInterface $current = null, $level = 0, $rawRoutes = false, $showAll = true, $showFullpath = false, $showSlug = false, $showModular = false, $limitLevels = false)
     {
         if (!$current) {
             if ($level) {
@@ -1822,7 +1822,7 @@ class Pages
      * @throws RuntimeException
      * @internal
      */
-    protected function recurse(string $directory, PageInterface $parent = null)
+    protected function recurse(string $directory, ?PageInterface $parent = null)
     {
         $directory = rtrim($directory, DS);
         $page = new Page;

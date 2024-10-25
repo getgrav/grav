@@ -320,7 +320,7 @@ class FormFlash implements FormFlashInterface
     /**
      * @inheritDoc
      */
-    public function addUploadedFile(UploadedFileInterface $upload, string $field = null, array $crop = null): string
+    public function addUploadedFile(UploadedFileInterface $upload, ?string $field = null, ?array $crop = null): string
     {
         $tmp_dir = $this->getTmpDir();
         $tmp_name = Utils::generateRandomString(12);
@@ -348,7 +348,7 @@ class FormFlash implements FormFlashInterface
     /**
      * @inheritDoc
      */
-    public function addFile(string $filename, string $field, array $crop = null): bool
+    public function addFile(string $filename, string $field, ?array $crop = null): bool
     {
         if (!file_exists($filename)) {
             throw new RuntimeException("File not found: {$filename}");
@@ -369,7 +369,7 @@ class FormFlash implements FormFlashInterface
     /**
      * @inheritDoc
      */
-    public function removeFile(string $name, string $field = null): bool
+    public function removeFile(string $name, ?string $field = null): bool
     {
         if (!$name) {
             return false;
@@ -447,7 +447,7 @@ class FormFlash implements FormFlashInterface
      * @param UserInterface|null $user
      * @return $this
      */
-    public function setUser(UserInterface $user = null)
+    public function setUser(?UserInterface $user = null)
     {
         if ($user && $user->username) {
             $this->user = [
@@ -465,7 +465,7 @@ class FormFlash implements FormFlashInterface
      * @param string|null $username
      * @return $this
      */
-    public function setUserName(string $username = null): self
+    public function setUserName(?string $username = null): self
     {
         $this->user['username'] = $username;
 
@@ -476,7 +476,7 @@ class FormFlash implements FormFlashInterface
      * @param string|null $email
      * @return $this
      */
-    public function setUserEmail(string $email = null): self
+    public function setUserEmail(?string $email = null): self
     {
         $this->user['email'] = $email;
 
@@ -538,7 +538,7 @@ class FormFlash implements FormFlashInterface
      * @param array|null $crop
      * @return void
      */
-    protected function addFileInternal(?string $field, string $name, array $data, array $crop = null): void
+    protected function addFileInternal(?string $field, string $name, array $data, ?array $crop = null): void
     {
         if (!($this->folder && $this->uniqueId)) {
             throw new RuntimeException('Cannot upload files: form flash folder not defined');

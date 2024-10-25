@@ -766,7 +766,7 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
      * @return static
      * @phpstan-return static<T>
      */
-    public function withTranslation(bool $bool = true, string $languageCode = null, bool $fallback = null)
+    public function withTranslation(bool $bool = true, ?string $languageCode = null, ?bool $fallback = null)
     {
         $list = array_keys(array_filter($this->call('hasTranslation', [$languageCode, $fallback])));
 
@@ -778,7 +778,7 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
      * @param bool|null $fallback
      * @return PageIndex
      */
-    public function withTranslated(string $languageCode = null, bool $fallback = null)
+    public function withTranslated(?string $languageCode = null, ?bool $fallback = null)
     {
         return $this->getIndex()->withTranslated($languageCode, $fallback);
     }

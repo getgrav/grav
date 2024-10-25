@@ -30,7 +30,7 @@ class InvalidArgumentException extends \InvalidArgumentException
      * @param int $code
      * @param Throwable|null $previous
      */
-    public function __construct($message = '', $invalidMiddleware = null, $code = 0, Throwable $previous = null)
+    public function __construct($message = '', $invalidMiddleware = null, $code = 0, ?Throwable $previous = null)
     {
         parent::__construct($message, $code, $previous);
 

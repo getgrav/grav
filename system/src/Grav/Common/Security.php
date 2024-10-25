@@ -30,7 +30,7 @@ class Security
      * @param array|null $options
      * @return string|null
      */
-    public static function detectXssFromSvgFile(string $filepath, array $options = null): ?string
+    public static function detectXssFromSvgFile(string $filepath, ?array $options = null): ?string
     {
         if (file_exists($filepath) && Grav::instance()['config']->get('security.sanitize_svg')) {
             $content = file_get_contents($filepath);
@@ -95,7 +95,7 @@ class Security
      * @param callable|null $status
      * @return array
      */
-    public static function detectXssFromPages(Pages $pages, $route = true, callable $status = null)
+    public static function detectXssFromPages(Pages $pages, $route = true, ?callable $status = null)
     {
         $routes = $pages->getList(null, 0, true);
 
@@ -145,7 +145,7 @@ class Security
      * @param string $prefix    Prefix for returned values.
      * @return array            Returns flatten list of potentially dangerous input values, such as 'data.content'.
      */
-    public static function detectXssFromArray(array $array, string $prefix = '', array $options = null)
+    public static function detectXssFromArray(array $array, string $prefix = '', ?array $options = null)
     {
         if (null === $options) {
             $options = static::getXssDefaults();
@@ -176,7 +176,7 @@ class Security
      *
      * Copies the code from: https://github.com/symphonycms/xssfilter/blob/master/extension.driver.php#L138
      */
-    public static function detectXss($string, array $options = null): ?string
+    public static function detectXss($string, ?array $options = null): ?string
     {
         // Skip any null or non string values
         if (null === $string || !is_string($string) || empty($string)) {

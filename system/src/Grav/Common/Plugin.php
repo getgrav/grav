@@ -72,7 +72,7 @@ class Plugin implements EventSubscriberInterface, ArrayAccess
      * @param Grav   $grav
      * @param Config|null $config
      */
-    public function __construct($name, Grav $grav, Config $config = null)
+    public function __construct($name, Grav $grav, ?Config $config = null)
     {
         $this->name = $name;
         $this->grav = $grav;
@@ -414,7 +414,7 @@ class Plugin implements EventSubscriberInterface, ArrayAccess
         return true;
     }
 
-    public static function inheritedConfigOption(string $plugin, string $var, PageInterface $page = null, $default = null)
+    public static function inheritedConfigOption(string $plugin, string $var, ?PageInterface $page = null, $default = null)
     {
         if (Utils::isAdminPlugin()) {
             $page = Grav::instance()['admin']->page() ?? null;

@@ -71,7 +71,7 @@ trait MediaUploadTrait
      * @return string
      * @throws RuntimeException
      */
-    public function checkUploadedFile(UploadedFileInterface $uploadedFile, string $filename = null, array $settings = null): string
+    public function checkUploadedFile(UploadedFileInterface $uploadedFile, ?string $filename = null, ?array $settings = null): string
     {
         // Check if there is an upload error.
         switch ($uploadedFile->getError()) {
@@ -115,7 +115,7 @@ trait MediaUploadTrait
      * @return string
      * @throws RuntimeException
      */
-    public function checkFileMetadata(array $metadata, string $filename = null, array $settings = null): string
+    public function checkFileMetadata(array $metadata, ?string $filename = null, ?array $settings = null): string
     {
         // Add the defaults to the settings.
         $settings = $this->getUploadSettings($settings);
@@ -252,7 +252,7 @@ trait MediaUploadTrait
      * @return void
      * @throws RuntimeException
      */
-    public function copyUploadedFile(UploadedFileInterface $uploadedFile, string $filename, array $settings = null): void
+    public function copyUploadedFile(UploadedFileInterface $uploadedFile, string $filename, ?array $settings = null): void
     {
         // Add the defaults to the settings.
         $settings = $this->getUploadSettings($settings);
@@ -329,7 +329,7 @@ trait MediaUploadTrait
      * @return void
      * @throws RuntimeException
      */
-    public function deleteFile(string $filename, array $settings = null): void
+    public function deleteFile(string $filename, ?array $settings = null): void
     {
         // Add the defaults to the settings.
         $settings = $this->getUploadSettings($settings);
@@ -371,7 +371,7 @@ trait MediaUploadTrait
      * @param string $to
      * @param array|null $settings
      */
-    public function renameFile(string $from, string $to, array $settings = null): void
+    public function renameFile(string $from, string $to, ?array $settings = null): void
     {
         // Add the defaults to the settings.
         $settings = $this->getUploadSettings($settings);

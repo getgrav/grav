@@ -25,7 +25,7 @@ class Client
         'User-Agent' => 'Grav CMS'
     ];
 
-    public static function getClient(array $overrides = [], int $connections = 6, callable $callback = null): HttpClientInterface
+    public static function getClient(array $overrides = [], int $connections = 6, ?callable $callback = null): HttpClientInterface
     {
         $config = Grav::instance()['config'];
         $options = static::getOptions();

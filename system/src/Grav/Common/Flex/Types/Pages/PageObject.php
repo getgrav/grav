@@ -129,7 +129,7 @@ class PageObject extends FlexPageObject
     /**
      * @inheritdoc PageInterface
      */
-    public function getFormValue(string $name, $default = null, string $separator = null)
+    public function getFormValue(string $name, $default = null, ?string $separator = null)
     {
         $test = new stdClass();
 
@@ -261,7 +261,7 @@ class PageObject extends FlexPageObject
     /**
      * @param UserInterface|null $user
      */
-    public function check(UserInterface $user = null): void
+    public function check(?UserInterface $user = null): void
     {
         parent::check($user);
 

@@ -39,7 +39,7 @@ trait PageTranslateTrait
      * @param bool|null $fallback
      * @return bool
      */
-    public function hasTranslation(string $languageCode = null, bool $fallback = null): bool
+    public function hasTranslation(?string $languageCode = null, ?bool $fallback = null): bool
     {
         $code = $this->findTranslation($languageCode, $fallback);
 
@@ -51,7 +51,7 @@ trait PageTranslateTrait
      * @param bool|null $fallback
      * @return FlexObjectInterface|PageInterface|null
      */
-    public function getTranslation(string $languageCode = null, bool $fallback = null)
+    public function getTranslation(?string $languageCode = null, ?bool $fallback = null)
     {
         if ($this->root()) {
             return $this;
@@ -147,7 +147,7 @@ trait PageTranslateTrait
      * @param bool|null $fallback
      * @return string|null
      */
-    public function findTranslation(string $languageCode = null, bool $fallback = null): ?string
+    public function findTranslation(?string $languageCode = null, ?bool $fallback = null): ?string
     {
         $translated = $this->getLanguageTemplates();
 
@@ -270,7 +270,7 @@ trait PageTranslateTrait
      * @param bool|null $fallback
      * @return array
      */
-    protected function getFallbackLanguages(string $languageCode = null, bool $fallback = null): array
+    protected function getFallbackLanguages(?string $languageCode = null, ?bool $fallback = null): array
     {
         $fallback = $fallback ?? true;
         if (!$fallback && null !== $languageCode) {

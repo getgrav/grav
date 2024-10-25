@@ -52,5 +52,5 @@ interface PagesSourceInterface // extends \Iterator
      * @param array|null $options
      * @return array
      */
-    public function getChildren(string $route, array $options = null): array;
+    public function getChildren(string $route, ?array $options = null): array;
 }

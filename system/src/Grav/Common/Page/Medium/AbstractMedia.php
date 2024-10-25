@@ -229,7 +229,7 @@ abstract class AbstractMedia implements ExportInterface, MediaCollectionInterfac
      * @param  Blueprint|null $blueprint
      * @return Medium|null
      */
-    public function createFromArray(array $items = [], Blueprint $blueprint = null)
+    public function createFromArray(array $items = [], ?Blueprint $blueprint = null)
     {
         return MediumFactory::fromArray($items, $blueprint);
     }

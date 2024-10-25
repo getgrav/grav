@@ -32,7 +32,7 @@ interface MediaUploadInterface
      * @return string
      * @throws RuntimeException
      */
-    public function checkUploadedFile(UploadedFileInterface $uploadedFile, string $filename = null, array $settings = null): string;
+    public function checkUploadedFile(UploadedFileInterface $uploadedFile, ?string $filename = null, ?array $settings = null): string;
 
     /**
      * Copy uploaded file to the media collection.
@@ -51,7 +51,7 @@ interface MediaUploadInterface
      * @return void
      * @throws RuntimeException
      */
-    public function copyUploadedFile(UploadedFileInterface $uploadedFile, string $filename, array $settings = null): void;
+    public function copyUploadedFile(UploadedFileInterface $uploadedFile, string $filename, ?array $settings = null): void;
 
     /**
      * Delete real file from the media collection.
@@ -60,7 +60,7 @@ interface MediaUploadInterface
      * @param array|null $settings
      * @return void
      */
-    public function deleteFile(string $filename, array $settings = null): void;
+    public function deleteFile(string $filename, ?array $settings = null): void;
 
     /**
      * Rename file inside the media collection.
@@ -69,5 +69,5 @@ interface MediaUploadInterface
      * @param string $to
      * @param array|null $settings
      */
-    public function renameFile(string $from, string $to, array $settings = null): void;
+    public function renameFile(string $from, string $to, ?array $settings = null): void;
 }

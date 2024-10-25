@@ -477,7 +477,7 @@ class Session implements SessionInterface
      * @param int|null $lifetime
      * @return array
      */
-    public function getCookieOptions(int $lifetime = null): array
+    public function getCookieOptions(?int $lifetime = null): array
     {
         $params = session_get_cookie_params();
 

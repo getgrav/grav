@@ -83,7 +83,7 @@ class FlexDirectoryForm implements FlexDirectoryFormInterface, JsonSerializable
      * @param FlexDirectory $directory
      * @param array|null $options
      */
-    public function __construct(string $name, FlexDirectory $directory, array $options = null)
+    public function __construct(string $name, FlexDirectory $directory, ?array $options = null)
     {
         $this->name = $name;
         $this->setDirectory($directory);
@@ -350,7 +350,7 @@ class FlexDirectoryForm implements FlexDirectoryFormInterface, JsonSerializable
      * @param string|null $extension
      * @return string
      */
-    public function getMediaTaskRoute(array $params = [], string $extension = null): string
+    public function getMediaTaskRoute(array $params = [], ?string $extension = null): string
     {
         return '';
     }

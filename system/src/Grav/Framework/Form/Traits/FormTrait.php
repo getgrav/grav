@@ -194,7 +194,7 @@ trait FormTrait
      * @param string|null $name
      * @return mixed
      */
-    public function getData(string $name = null)
+    public function getData(?string $name = null)
     {
         return null !== $name ? $this->data[$name] : $this->data;
     }
@@ -366,7 +366,7 @@ trait FormTrait
      * @param UploadedFileInterface[]|null $files
      * @return FormInterface|$this
      */
-    public function submit(array $data, array $files = null): FormInterface
+    public function submit(array $data, ?array $files = null): FormInterface
     {
         try {
             if ($this->isSubmitted()) {
@@ -502,7 +502,7 @@ trait FormTrait
      * {@inheritdoc}
      * @see FormInterface::render()
      */
-    public function render(string $layout = null, array $context = [])
+    public function render(?string $layout = null, array $context = [])
     {
         if (null === $layout) {
             $layout = 'default';

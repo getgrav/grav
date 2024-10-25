@@ -43,7 +43,7 @@ class Collection extends Iterator implements PageCollectionInterface
      * @param array      $params
      * @param Pages|null $pages
      */
-    public function __construct($items = [], array $params = [], Pages $pages = null)
+    public function __construct($items = [], array $params = [], ?Pages $pages = null)
     {
         parent::__construct($items);
 

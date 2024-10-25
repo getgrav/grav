@@ -29,5 +29,5 @@ interface FlexAuthorizeInterface
      * @param UserInterface|null $user
      * @return bool|null
      */
-    public function isAuthorized(string $action, string $scope = null, UserInterface $user = null): ?bool;
+    public function isAuthorized(string $action, ?string $scope = null, ?UserInterface $user = null): ?bool;
 }

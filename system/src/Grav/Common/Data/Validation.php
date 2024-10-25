@@ -162,7 +162,7 @@ class Validation
      * @param  UserInterface|null $user
      * @return bool
      */
-    public static function authorize($action, UserInterface $user = null)
+    public static function authorize($action, ?UserInterface $user = null)
     {
         if (!$user) {
             return false;

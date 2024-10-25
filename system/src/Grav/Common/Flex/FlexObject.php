@@ -32,7 +32,7 @@ abstract class FlexObject extends \Grav\Framework\Flex\FlexObject implements Med
      * {@inheritdoc}
      * @see FlexObjectInterface::getFormValue()
      */
-    public function getFormValue(string $name, $default = null, string $separator = null)
+    public function getFormValue(string $name, $default = null, ?string $separator = null)
     {
         $value = $this->getNestedProperty($name, null, $separator);
 

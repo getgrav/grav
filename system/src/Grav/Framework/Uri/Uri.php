@@ -209,7 +209,7 @@ class Uri extends AbstractUri
      * @return bool
      * @link https://tools.ietf.org/html/rfc3986#section-4.4
      */
-    public function isSameDocumentReference(UriInterface $base = null)
+    public function isSameDocumentReference(?UriInterface $base = null)
     {
         return GuzzleUri::isSameDocumentReference($this, $base);
     }

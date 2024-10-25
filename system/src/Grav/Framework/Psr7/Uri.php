@@ -128,7 +128,7 @@ class Uri implements UriInterface
      * @return bool
      * @link https://tools.ietf.org/html/rfc3986#section-4.4
      */
-    public function isSameDocumentReference(UriInterface $base = null): bool
+    public function isSameDocumentReference(?UriInterface $base = null): bool
     {
         return GuzzleUri::isSameDocumentReference($this, $base);
     }

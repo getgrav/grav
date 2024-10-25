@@ -23,7 +23,7 @@ class UserFileStorage extends FileStorage
      * {@inheritdoc}
      * @see FlexStorageInterface::getMediaPath()
      */
-    public function getMediaPath(string $key = null): ?string
+    public function getMediaPath(?string $key = null): ?string
     {
         // There is no media support for file storage (fallback to common location).
         return null;

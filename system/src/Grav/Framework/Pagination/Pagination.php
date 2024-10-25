@@ -25,7 +25,7 @@ class Pagination extends AbstractPagination
      * @param int|null $limit
      * @param array|null $options
      */
-    public function __construct(Route $route, int $total, int $pos = null, int $limit = null, array $options = null)
+    public function __construct(Route $route, int $total, ?int $pos = null, ?int $limit = null, ?array $options = null)
     {
         $this->initialize($route, $total, $pos, $limit, $options);
     }

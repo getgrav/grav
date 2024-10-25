@@ -25,7 +25,7 @@ class ToOneRelationship implements ToOneRelationshipInterface
     /** @var IdentifierInterface|null */
     protected $identifier = null;
 
-    public function __construct(IdentifierInterface $parent, string $name, array $options, IdentifierInterface $identifier = null)
+    public function __construct(IdentifierInterface $parent, string $name, array $options, ?IdentifierInterface $identifier = null)
     {
         $this->parent = $parent;
         $this->name = $name;
@@ -74,7 +74,7 @@ class ToOneRelationship implements ToOneRelationshipInterface
      * @return bool
      * @phpstan-pure
      */
-    public function has(string $id = null, string $type = null): bool
+    public function has(?string $id = null, ?string $type = null): bool
     {
         return $this->getIdentifier($id, $type) !== null;
     }
@@ -85,7 +85,7 @@ class ToOneRelationship implements ToOneRelationshipInterface
      * @return IdentifierInterface|null
      * @phpstan-pure
      */
-    public function getIdentifier(string $id = null, string $type = null): ?IdentifierInterface
+    public function getIdentifier(?string $id = null, ?string $type = null): ?IdentifierInterface
     {
         if ($id && $this->getType() === 'media' && !str_contains($id, '/')) {
             $name = $this->name;
@@ -105,7 +105,7 @@ class ToOneRelationship implements ToOneRelationshipInterface
      * @param string|null $type
      * @return T|null
      */
-    public function getObject(string $id = null, string $type = null): ?object
+    public function getObject(?string $id = null, ?string $type = null): ?object
     {
         $identifier = $this->getIdentifier($id, $type);
         if ($identifier && is_callable([$identifier, 'getObject'])) {
@@ -131,7 +131,7 @@ class ToOneRelationship implements ToOneRelationshipInterface
      * @param IdentifierInterface|null $identifier
      * @return bool
      */
-    public function replaceIdentifier(IdentifierInterface $identifier = null): bool
+    public function replaceIdentifier(?IdentifierInterface $identifier = null): bool
     {
         if ($identifier === null) {
             $this->identifier = null;
@@ -147,7 +147,7 @@ class ToOneRelationship implements ToOneRelationshipInterface
      * @param IdentifierInterface|null $identifier
      * @return bool
      */
-    public function removeIdentifier(IdentifierInterface $identifier = null): bool
+    public function removeIdentifier(?IdentifierInterface $identifier = null): bool
     {
         if (null === $identifier || $this->has($identifier->getId(), $identifier->getType())) {
             $this->identifier = null;

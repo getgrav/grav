@@ -42,7 +42,7 @@ class Excerpts
      * @param PageInterface|null $page
      * @param array|null $config
      */
-    public function __construct(PageInterface $page = null, array $config = null)
+    public function __construct(?PageInterface $page = null, ?array $config = null)
     {
         $this->page = $page ?? Grav::instance()['page'] ?? null;
 

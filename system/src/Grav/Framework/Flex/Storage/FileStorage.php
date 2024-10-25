@@ -42,7 +42,7 @@ class FileStorage extends FolderStorage
      * {@inheritdoc}
      * @see FlexStorageInterface::getMediaPath()
      */
-    public function getMediaPath(string $key = null): ?string
+    public function getMediaPath(?string $key = null): ?string
     {
         $path = $this->getStoragePath();
         if (!$path) {

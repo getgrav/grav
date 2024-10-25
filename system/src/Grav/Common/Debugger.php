@@ -544,7 +544,7 @@ class Debugger
      * @param string|null $message
      * @return mixed
      */
-    public function profile(callable $callable, string $message = null)
+    public function profile(callable $callable, ?string $message = null)
     {
         $this->startProfiling();
         $response = $callable();
@@ -585,7 +585,7 @@ class Debugger
      * @param string|null $message
      * @return array|null
      */
-    public function stopProfiling(string $message = null): ?array
+    public function stopProfiling(?string $message = null): ?array
     {
         $timings = null;
         if ($this->enabled && extension_loaded('tideways_xhprof')) {
@@ -776,7 +776,7 @@ class Debugger
      * @param float|null $time
      * @return $this
      */
-    public function addEvent(string $name, $event, EventDispatcherInterface $dispatcher, float $time = null)
+    public function addEvent(string $name, $event, EventDispatcherInterface $dispatcher, ?float $time = null)
     {
         if ($this->enabled && $this->clockwork) {
             $time = $time ?? microtime(true);

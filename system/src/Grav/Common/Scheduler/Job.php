@@ -188,7 +188,7 @@ class Job
      * @param  DateTime|null $date
      * @return bool
      */
-    public function isDue(DateTime $date = null)
+    public function isDue(?DateTime $date = null)
     {
         // The execution time is being defaulted if not defined
         if (!$this->executionTime) {
@@ -259,7 +259,7 @@ class Job
      * @param  callable|null $whenOverlapping A callback to ignore job overlapping
      * @return self
      */
-    public function onlyOne($tempDir = null, callable $whenOverlapping = null)
+    public function onlyOne($tempDir = null, ?callable $whenOverlapping = null)
     {
         if ($tempDir === null || !is_dir($tempDir)) {
             $tempDir = $this->tempDir;

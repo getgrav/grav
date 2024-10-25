@@ -551,14 +551,14 @@ abstract class AbstractIndexCollection implements CollectionInterface
      * @return array
      * @phpstan-return array<TKey,T>
      */
-    abstract protected function loadElements(array $entries = null): array;
+    abstract protected function loadElements(?array $entries = null): array;
 
     /**
      * @param array|null $entries
      * @return CollectionInterface
      * @phpstan-return C
      */
-    abstract protected function loadCollection(array $entries = null): CollectionInterface;
+    abstract protected function loadCollection(?array $entries = null): CollectionInterface;
 
     /**
      * @param mixed $value

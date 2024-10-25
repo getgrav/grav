@@ -85,7 +85,7 @@ final class VersionUpdater
      * @param string|null $name
      * @return string|null
      */
-    public function getExtensionVersion(string $name = null): ?string
+    public function getExtensionVersion(?string $name = null): ?string
     {
         return $this->versions->getVersion($name ?? $this->name);
     }
@@ -94,7 +94,7 @@ final class VersionUpdater
      * @param string|null $name
      * @return string|null
      */
-    public function getExtensionSchema(string $name = null): ?string
+    public function getExtensionSchema(?string $name = null): ?string
     {
         return $this->versions->getSchema($name ?? $this->name);
     }
@@ -103,7 +103,7 @@ final class VersionUpdater
      * @param string|null $name
      * @return array
      */
-    public function getExtensionHistory(string $name = null): array
+    public function getExtensionHistory(?string $name = null): array
     {
         return $this->versions->getHistory($name ?? $this->name);
     }

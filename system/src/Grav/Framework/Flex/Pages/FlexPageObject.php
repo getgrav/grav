@@ -186,7 +186,7 @@ class FlexPageObject extends FlexObject implements PageInterface, FlexTranslateI
     /**
      * @inheritdoc
      */
-    public function getFormValue(string $name, $default = null, string $separator = null)
+    public function getFormValue(string $name, $default = null, ?string $separator = null)
     {
         $test = new stdClass();
 
@@ -241,7 +241,7 @@ class FlexPageObject extends FlexObject implements PageInterface, FlexTranslateI
      * @param string|null $key
      * @return FlexObjectInterface
      */
-    public function createCopy(string $key = null)
+    public function createCopy(?string $key = null)
     {
         $this->copy();
 

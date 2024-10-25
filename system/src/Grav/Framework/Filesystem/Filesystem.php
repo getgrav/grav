@@ -40,7 +40,7 @@ class Filesystem implements FilesystemInterface
      * @param bool|null $normalize See $this->setNormalization()
      * @return Filesystem
      */
-    public static function getInstance(bool $normalize = null): Filesystem
+    public static function getInstance(?bool $normalize = null): Filesystem
     {
         if ($normalize === true) {
             $instance = &static::$safe;
@@ -63,7 +63,7 @@ class Filesystem implements FilesystemInterface
      * @param bool|null $normalize
      * @internal
      */
-    protected function __construct(bool $normalize = null)
+    protected function __construct(?bool $normalize = null)
     {
         $this->normalize = $normalize;
     }
@@ -78,7 +78,7 @@ class Filesystem implements FilesystemInterface
      * @param bool|null $normalize
      * @return Filesystem
      */
-    public function setNormalization(bool $normalize = null): self
+    public function setNormalization(?bool $normalize = null): self
     {
         return static::getInstance($normalize);
     }

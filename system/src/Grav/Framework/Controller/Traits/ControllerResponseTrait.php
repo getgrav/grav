@@ -49,7 +49,7 @@ trait ControllerResponseTrait
      * @param array|null $headers
      * @return Response
      */
-    protected function createHtmlResponse(string $content, int $code = null, array $headers = null): ResponseInterface
+    protected function createHtmlResponse(string $content, ?int $code = null, ?array $headers = null): ResponseInterface
     {
         $code = $code ?? 200;
         if ($code < 100 || $code > 599) {
@@ -66,7 +66,7 @@ trait ControllerResponseTrait
      * @param array|null $headers
      * @return Response
      */
-    protected function createJsonResponse(array $content, int $code = null, array $headers = null): ResponseInterface
+    protected function createJsonResponse(array $content, ?int $code = null, ?array $headers = null): ResponseInterface
     {
         $code = $code ?? $content['code'] ?? 200;
         if (null === $code || $code < 100 || $code > 599) {
@@ -87,7 +87,7 @@ trait ControllerResponseTrait
      * @param array|null $options
      * @return ResponseInterface
      */
-    protected function createDownloadResponse(string $filename, $resource, array $headers = null, array $options = null): ResponseInterface
+    protected function createDownloadResponse(string $filename, $resource, ?array $headers = null, ?array $options = null): ResponseInterface
     {
         // Required for IE, otherwise Content-Disposition may be ignored
         if (ini_get('zlib.output_compression')) {
@@ -134,7 +134,7 @@ trait ControllerResponseTrait
      * @param int|null $code
      * @return Response
      */
-    protected function createRedirectResponse(string $url, int $code = null): ResponseInterface
+    protected function createRedirectResponse(string $url, ?int $code = null): ResponseInterface
     {
         if (null === $code || $code < 301 || $code > 307) {
             $code = (int)$this->getConfig()->get('system.pages.redirect_default_code', 302);

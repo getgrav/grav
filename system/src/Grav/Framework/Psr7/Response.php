@@ -35,7 +35,7 @@ class Response implements ResponseInterface
      * @param string                               $version Protocol version
      * @param string|null                          $reason  Reason phrase (optional)
      */
-    public function __construct(int $status = 200, array $headers = [], $body = null, string $version = '1.1', string $reason = null)
+    public function __construct(int $status = 200, array $headers = [], $body = null, string $version = '1.1', ?string $reason = null)
     {
         $this->message = new \Nyholm\Psr7\Response($status, $headers, $body, $version, $reason);
     }
@@ -55,7 +55,7 @@ class Response implements ResponseInterface
      * @return static
      * @phpstan-param positive-int $depth
      */
-    public function withJson($data, int $status = null, int $options = 0, int $depth = 512): ResponseInterface
+    public function withJson($data, ?int $status = null, int $options = 0, int $depth = 512): ResponseInterface
     {
         $json = (string) json_encode($data, $options, $depth);
 

@@ -100,7 +100,7 @@ class FlexForm implements FlexObjectFormInterface, JsonSerializable
      * @param FlexObjectInterface $object
      * @param array|null $options
      */
-    public function __construct(string $name, FlexObjectInterface $object, array $options = null)
+    public function __construct(string $name, FlexObjectInterface $object, ?array $options = null)
     {
         $this->name = $name;
         $this->setObject($object);
@@ -428,7 +428,7 @@ class FlexForm implements FlexObjectFormInterface, JsonSerializable
      * @param string|null $extension
      * @return string
      */
-    public function getMediaTaskRoute(array $params = [], string $extension = null): string
+    public function getMediaTaskRoute(array $params = [], ?string $extension = null): string
     {
         $grav = Grav::instance();
         /** @var Flex $flex */

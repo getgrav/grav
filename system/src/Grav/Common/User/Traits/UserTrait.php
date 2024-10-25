@@ -76,7 +76,7 @@ trait UserTrait
      * @param  string|null $scope
      * @return bool|null
      */
-    public function authorize(string $action, string $scope = null): ?bool
+    public function authorize(string $action, ?string $scope = null): ?bool
     {
         // User needs to be enabled.
         if ($this->get('state', 'enabled') !== 'enabled') {

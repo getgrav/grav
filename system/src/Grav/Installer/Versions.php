@@ -34,7 +34,7 @@ final class Versions
      * @param string|null $filename
      * @return self
      */
-    public static function instance(string $filename = null): self
+    public static function instance(?string $filename = null): self
     {
         $filename = $filename ?? USER_DIR . 'config/versions.yaml';
 

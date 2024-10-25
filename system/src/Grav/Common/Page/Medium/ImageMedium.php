@@ -46,7 +46,7 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
      * @param array $items
      * @param Blueprint|null $blueprint
      */
-    public function __construct($items = [], Blueprint $blueprint = null)
+    public function __construct($items = [], ?Blueprint $blueprint = null)
     {
         parent::__construct($items, $blueprint);
 

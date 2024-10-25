@@ -45,7 +45,7 @@ class Access implements JsonSerializable, IteratorAggregate, Countable
      * @param array|null $rules
      * @param string $name
      */
-    public function __construct($acl = null, array $rules = null, string $name = '')
+    public function __construct($acl = null, ?array $rules = null, string $name = '')
     {
         $this->name = $name;
         $this->rules = $rules ?? [];
@@ -70,7 +70,7 @@ class Access implements JsonSerializable, IteratorAggregate, Countable
      * @param string|null $name
      * @return void
      */
-    public function inherit(Access $parent, string $name = null)
+    public function inherit(Access $parent, ?string $name = null)
     {
         // Remove cached null actions from acl.
         $acl = $this->getAllActions();
@@ -88,7 +88,7 @@ class Access implements JsonSerializable, IteratorAggregate, Countable
      * @param  string|null $scope
      * @return bool|null
      */
-    public function authorize(string $action, string $scope = null): ?bool
+    public function authorize(string $action, ?string $scope = null): ?bool
     {
         if (null !== $scope) {
             $action = $scope !== 'test' ? "{$scope}.{$action}" : $action;

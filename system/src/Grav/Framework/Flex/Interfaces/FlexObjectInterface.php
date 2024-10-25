@@ -55,7 +55,7 @@ interface FlexObjectInterface extends FlexCommonInterface, NestedObjectInterface
      * @return float                Returns a weight between 0 and 1.
      * @api
      */
-    public function search(string $search, $properties = null, array $options = null): float;
+    public function search(string $search, $properties = null, ?array $options = null): float;
 
     /**
      * Returns true if object has a key.
@@ -136,7 +136,7 @@ interface FlexObjectInterface extends FlexCommonInterface, NestedObjectInterface
      * @throws RuntimeException if object already exists.
      * @api
      */
-    public function create(string $key = null);
+    public function create(?string $key = null);
 
     /**
      * Save object into the storage.
@@ -175,7 +175,7 @@ interface FlexObjectInterface extends FlexCommonInterface, NestedObjectInterface
      * @return FlexFormInterface Returns a Form.
      * @api
      */
-    public function getForm(string $name = '', array $options = null);
+    public function getForm(string $name = '', ?array $options = null);
 
     /**
      * Returns default value suitable to be used in a form for the given property.
@@ -186,7 +186,7 @@ interface FlexObjectInterface extends FlexCommonInterface, NestedObjectInterface
      * @param  string|null $separator   Optional nested property separator.
      * @return mixed|null           Returns default value of the field, null if there is no default value.
      */
-    public function getDefaultValue(string $name, string $separator = null);
+    public function getDefaultValue(string $name, ?string $separator = null);
 
     /**
      * Returns default values suitable to be used in a form for the given property.
@@ -207,5 +207,5 @@ interface FlexObjectInterface extends FlexCommonInterface, NestedObjectInterface
      * @param  string|null $separator   Optional nested property separator.
      * @return mixed                Returns value of the field.
      */
-    public function getFormValue(string $name, $default = null, string $separator = null);
+    public function getFormValue(string $name, $default = null, ?string $separator = null);
 }

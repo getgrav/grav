@@ -72,7 +72,8 @@
         "phpunit/php-code-coverage": "~9.2",
         "getgrav/markdowndocs": "^2.0",
         "codeception/module-asserts": "*",
-        "codeception/module-phpbrowser": "*"
+        "codeception/module-phpbrowser": "*",
+        "rector/rector": "^1.2"
     },
     "repositories": [
         {

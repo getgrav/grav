@@ -34,5 +34,5 @@ interface RenderInterface
      * @return ContentBlockInterface|HtmlBlock Returns `HtmlBlock` containing the rendered output.
      * @api
      */
-    public function render(string $layout = null, array $context = []);
+    public function render(?string $layout = null, array $context = []);
 }

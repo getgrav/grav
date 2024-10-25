@@ -46,7 +46,7 @@ interface FlexInterface extends Countable
      * @param bool $keepMissing
      * @return array<FlexDirectory|null>
      */
-    public function getDirectories(array $types = null, bool $keepMissing = false): array;
+    public function getDirectories(?array $types = null, bool $keepMissing = false): array;
 
     /**
      * @param string $type
@@ -61,7 +61,7 @@ interface FlexInterface extends Countable
      * @return FlexCollectionInterface|null
      * @phpstan-return FlexCollectionInterface<FlexObjectInterface>|null
      */
-    public function getCollection(string $type, array $keys = null, string $keyField = null): ?FlexCollectionInterface;
+    public function getCollection(string $type, ?array $keys = null, ?string $keyField = null): ?FlexCollectionInterface;
 
     /**
      * @param array $keys
@@ -91,7 +91,7 @@ interface FlexInterface extends Countable
      * @param string|null $keyField
      * @return FlexObjectInterface|null
      */
-    public function getObject(string $key, string $type = null, string $keyField = null): ?FlexObjectInterface;
+    public function getObject(string $key, ?string $type = null, ?string $keyField = null): ?FlexObjectInterface;
 
     /**
      * @return int

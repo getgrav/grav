@@ -65,7 +65,7 @@ class PluginApplication extends Application
      * @return int
      * @throws Throwable
      */
-    public function run(InputInterface $input = null, OutputInterface $output = null): int
+    public function run(?InputInterface $input = null, ?OutputInterface $output = null): int
     {
         if (null === $input) {
             $argv = $_SERVER['argv'] ?? [];

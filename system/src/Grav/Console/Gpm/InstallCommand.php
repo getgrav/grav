@@ -573,7 +573,7 @@ class InstallCommand extends GpmCommand
      * @param string|null $license
      * @return string|null
      */
-    private function downloadPackage(Package $package, string $license = null)
+    private function downloadPackage(Package $package, ?string $license = null)
     {
         $io = $this->getIO();
 

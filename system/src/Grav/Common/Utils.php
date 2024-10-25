@@ -1005,7 +1005,7 @@ abstract class Utils
      * @param int|null $flags
      * @return array|string
      */
-    public static function pathinfo($path, int $flags = null)
+    public static function pathinfo($path, ?int $flags = null)
     {
         $path = str_replace(['%2F', '%5C'], ['/', '\\'], rawurlencode($path));
 
@@ -1618,7 +1618,7 @@ abstract class Utils
      * @return string
      * @throws RuntimeException
      */
-    public static function getPagePathFromToken($path, PageInterface $page = null)
+    public static function getPagePathFromToken($path, ?PageInterface $page = null)
     {
         return static::getPathFromToken($path, $page);
     }
@@ -1947,7 +1947,7 @@ abstract class Utils
      * @param array|null $defaults
      * @return array
      */
-    public static function getSupportPageTypes(array $defaults = null)
+    public static function getSupportPageTypes(?array $defaults = null)
     {
         $types = Grav::instance()['config']->get('system.pages.types', $defaults);
         if (!is_array($types)) {

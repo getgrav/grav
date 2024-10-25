@@ -50,7 +50,7 @@ class Messages implements \Serializable
      * @param string|null $scope
      * @return $this
      */
-    public function clear(string $scope = null): Messages
+    public function clear(?string $scope = null): Messages
     {
         if ($scope === null) {
             if ($this->messages !== []) {
@@ -83,7 +83,7 @@ class Messages implements \Serializable
      * @param string|null $scope
      * @return array
      */
-    public function all(string $scope = null): array
+    public function all(?string $scope = null): array
     {
         if ($scope === null) {
             return array_values($this->messages);
@@ -105,7 +105,7 @@ class Messages implements \Serializable
      * @param string|null $scope
      * @return array
      */
-    public function fetch(string $scope = null): array
+    public function fetch(?string $scope = null): array
     {
         $messages = $this->all($scope);
         $this->clear($scope);

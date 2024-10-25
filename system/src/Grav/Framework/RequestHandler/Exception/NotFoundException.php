@@ -26,7 +26,7 @@ class NotFoundException extends RequestException
      * @param ServerRequestInterface $request
      * @param Throwable|null $previous
      */
-    public function __construct(ServerRequestInterface $request, Throwable $previous = null)
+    public function __construct(ServerRequestInterface $request, ?Throwable $previous = null)
     {
         if (in_array(strtoupper($request->getMethod()), ['PUT', 'PATCH', 'DELETE'])) {
             parent::__construct($request, 'Method Not Allowed', 405, $previous);

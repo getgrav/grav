@@ -106,7 +106,7 @@ abstract class AbstractFormatter implements FileFormatterInterface
      * @param string|null $name Configuration option (optional)
      * @return mixed
      */
-    protected function getConfig(string $name = null)
+    protected function getConfig(?string $name = null)
     {
         if (null !== $name) {
             return $this->config[$name] ?? null;

@@ -116,7 +116,7 @@ trait PageAuthorsTrait
      * @param bool $isAuthor
      * @return bool|null
      */
-    public function isParentAuthorized(string $action, string $scope = null, UserInterface $user = null, bool $isAuthor = false): ?bool
+    public function isParentAuthorized(string $action, ?string $scope = null, ?UserInterface $user = null, bool $isAuthor = false): ?bool
     {
         $scope = $scope ?? $this->getAuthorizeScope();
 

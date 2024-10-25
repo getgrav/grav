@@ -75,21 +75,21 @@ abstract class Archiver
      * @param callable|null $status
      * @return $this
      */
-    abstract public function compress($folder, callable $status = null);
+    abstract public function compress($folder, ?callable $status = null);
 
     /**
      * @param string $destination
      * @param callable|null $status
      * @return $this
      */
-    abstract public function extract($destination, callable $status = null);
+    abstract public function extract($destination, ?callable $status = null);
 
     /**
      * @param array $folders
      * @param callable|null $status
      * @return $this
      */
-    abstract public function addEmptyFolders($folders, callable $status = null);
+    abstract public function addEmptyFolders($folders, ?callable $status = null);
 
     /**
      * @param string $rootPath

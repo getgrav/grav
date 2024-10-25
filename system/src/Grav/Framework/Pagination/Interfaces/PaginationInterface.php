@@ -72,33 +72,33 @@ interface PaginationInterface extends Countable, IteratorAggregate
      * @param string|null $label
      * @return PaginationPage|null
      */
-    public function getPage(int $page, string $label = null): ?PaginationPage;
+    public function getPage(int $page, ?string $label = null): ?PaginationPage;
 
     /**
      * @param string|null $label
      * @param int $count
      * @return PaginationPage|null
      */
-    public function getFirstPage(string $label = null, int $count = 0): ?PaginationPage;
+    public function getFirstPage(?string $label = null, int $count = 0): ?PaginationPage;
 
     /**
      * @param string|null $label
      * @param int $count
      * @return PaginationPage|null
      */
-    public function getPrevPage(string $label = null, int $count = 1): ?PaginationPage;
+    public function getPrevPage(?string $label = null, int $count = 1): ?PaginationPage;
 
     /**
      * @param string|null $label
      * @param int $count
      * @return PaginationPage|null
      */
-    public function getNextPage(string $label = null, int $count = 1): ?PaginationPage;
+    public function getNextPage(?string $label = null, int $count = 1): ?PaginationPage;
 
     /**
      * @param string|null $label
      * @param int $count
      * @return PaginationPage|null
      */
-    public function getLastPage(string $label = null, int $count = 0): ?PaginationPage;
+    public function getLastPage(?string $label = null, int $count = 0): ?PaginationPage;
 }
