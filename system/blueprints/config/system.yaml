@@ -1311,6 +1311,17 @@ form:
                 auto: Auto
                 sync: Sync
                 async: Async
+            
+            images.defaults.fetchpriority:
+              type: select
+              size: small
+              label: PLUGIN_ADMIN.IMAGES_FETCHPRIORITY
+              help: PLUGIN_ADMIN.IMAGES_FETCHPRIORITY_HELP
+              highlight: auto
+              options:
+                auto: Auto
+                high: High
+                low: Low
 
             images.seofriendly:
               type: toggle
