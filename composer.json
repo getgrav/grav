@@ -40,7 +40,7 @@
         "twig/twig": "^2.1",
         "monolog/monolog": "^2.0",
         "doctrine/cache": "^2.2",
-        "doctrine/collections": "^1.8",
+        "doctrine/collections": "^2.2",
         "pimple/pimple": "~3.5.0",
         "nyholm/psr7-server": "^1.1",
         "nyholm/psr7": "^1.8",

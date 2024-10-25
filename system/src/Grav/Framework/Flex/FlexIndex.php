@@ -9,6 +9,7 @@
 
 namespace Grav\Framework\Flex;
 
+use Closure;
 use Exception;
 use Grav\Common\Debugger;
 use Grav\Common\File\CompiledJsonFile;
@@ -927,4 +928,15 @@ class FlexIndex extends ObjectIndex implements FlexIndexInterface
 
         return $type . $this->getFlexType();
     }
+
+    public function findFirst(Closure $p)
+    {
+        // TODO: Implement findFirst() method.
+    }
+
+    public function reduce(Closure $func, mixed $initial = null)
+    {
+        // TODO: Implement reduce() method.
+    }
+
 }

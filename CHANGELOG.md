@@ -4,6 +4,7 @@
 1. [](#new)
     * Use `dev-master` branch of Clockwork to support Monolog2 / Monolog3
     * `AVIF` image support via updates to `getgrav/Image` library
+    * Upgrade to **Doctrine Collection 2.2**
 1. [](#improved) 
     * Updated composer libraries
     * Updated composer.php binary to `v2.8.1`
