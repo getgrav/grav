@@ -8,7 +8,7 @@
 1. [](#improved) 
     * Updated composer libraries
     * Updated composer.php binary to `v2.8.1`
-   
+    * Fixes for PHP 8.4 - Implicitly nullable parameter declarations deprecated
 
 # v1.8.0-beta.1
 ## 10/23/2024
