@@ -9,6 +9,7 @@
     * Updated composer libraries
     * Updated composer.php binary to `v2.8.1`
     * Fixes for PHP 8.4 - Implicitly nullable parameter declarations deprecated
+    * Added back Missing `RocketTheme\Toolbox\Event\EventSubscriberInterface` for Gantry5
 
 # v1.8.0-beta.1
 ## 10/23/2024
