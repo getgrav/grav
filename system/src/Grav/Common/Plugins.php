@@ -320,7 +320,7 @@ class Plugins extends Iterator
 
         // Log a warning if plugin cannot be found.
         if (null === $class) {
-            $grav['log']->addWarning(
+            $grav['log']->warning(
                 sprintf("Plugin '%s' enabled but not found! Try clearing cache with `bin/grav clearcache`", $name)
             );
         }

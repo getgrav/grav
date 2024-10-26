@@ -881,7 +881,7 @@ class FlexIndex extends ObjectIndex implements FlexIndexInterface
 
         /** @var Logger $logger */
         $logger = $grav['log'];
-        $logger->addAlert($e->getMessage());
+        $logger->alert($e->getMessage());
 
         /** @var Debugger $debugger */
         $debugger = $grav['debugger'];
