@@ -4,13 +4,15 @@
 1. [](#new)
     * Use `dev-master` branch of Clockwork to support Monolog2 / Monolog3
     * `AVIF` image support via updates to `getgrav/Image` library
-    * Upgrade to **Doctrine Collection 2.2**
+    * Upgraded to **Doctrine Collection 2.2**
 1. [](#improved) 
     * Updated composer libraries
     * Updated composer.php binary to `v2.8.1`
     * Fixes for PHP 8.4 - Implicitly nullable parameter declarations deprecated
     * Added back Missing `RocketTheme\Toolbox\Event\EventSubscriberInterface` for Gantry5
-
+1. [](#bugfix)
+    * Various fixes to use `$log->debug()`, `$log->info()`, `$log->warning()` and `$log->error()` For Monolog2 support
+   
 # v1.8.0-beta.1
 ## 10/23/2024
 
