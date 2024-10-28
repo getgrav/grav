@@ -1,3 +1,13 @@
+# v1.7.48
+## 10/28/2024
+
+1. [](#new)
+    * New Trait for fetchPriority attribute on images [#3850](https://github.com/getgrav/grav/pull/3850)
+1. [](#improved)
+    * Fix for #3164. Adds aliases as possible commands during lookup [#3863](https://github.com/getgrav/grav/pull/3863)
+1. [](#bugfix)
+    * Fix style conflict with Clockwork and tooltips [#3861](https://github.com/getgrav/grav/pull/3861)
+
 # v1.7.47
 ## 10/23/2024
 
