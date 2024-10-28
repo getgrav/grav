@@ -1,5 +1,5 @@
 # v1.7.48
-## mm/dd/2024
+## 10/28/2024
 
 1. [](#new)
     * New Trait for fetchPriority attribute on images [#3850](https://github.com/getgrav/grav/pull/3850)
