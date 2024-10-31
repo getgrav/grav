@@ -439,16 +439,16 @@
         },
         {
             "name": "donatj/phpuseragentparser",
-            "version": "v1.9.0",
+            "version": "v1.10.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/donatj/PhpUserAgent.git",
-                "reference": "e807895c848f0e4a0f0001bbb1c99cfb7181111e"
+                "reference": "3ba73057d2a4a275badb88b7708e91e159c40367"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/donatj/PhpUserAgent/zipball/e807895c848f0e4a0f0001bbb1c99cfb7181111e",
-                "reference": "e807895c848f0e4a0f0001bbb1c99cfb7181111e",
+                "url": "https://api.github.com/repos/donatj/PhpUserAgent/zipball/3ba73057d2a4a275badb88b7708e91e159c40367",
+                "reference": "3ba73057d2a4a275badb88b7708e91e159c40367",
                 "shasum": ""
             },
             "require": {
@@ -493,7 +493,7 @@
             ],
             "support": {
                 "issues": "https://github.com/donatj/PhpUserAgent/issues",
-                "source": "https://github.com/donatj/PhpUserAgent/tree/v1.9.0"
+                "source": "https://github.com/donatj/PhpUserAgent/tree/v1.10.0"
             },
             "funding": [
                 {
@@ -509,7 +509,7 @@
                     "type": "ko_fi"
                 }
             ],
-            "time": "2024-08-28T22:45:36+00:00"
+            "time": "2024-10-30T15:45:03+00:00"
         },
         {
             "name": "dragonmantank/cron-expression",
@@ -980,12 +980,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/itsgoingd/clockwork.git",
-                "reference": "4184f0a27aa67cd8d6370b5cd618b334fd27eb23"
+                "reference": "4c86b1a1c53cea09642773b2ff34676b88c3211a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/itsgoingd/clockwork/zipball/4184f0a27aa67cd8d6370b5cd618b334fd27eb23",
-                "reference": "4184f0a27aa67cd8d6370b5cd618b334fd27eb23",
+                "url": "https://api.github.com/repos/itsgoingd/clockwork/zipball/4c86b1a1c53cea09642773b2ff34676b88c3211a",
+                "reference": "4c86b1a1c53cea09642773b2ff34676b88c3211a",
                 "shasum": ""
             },
             "require": {
@@ -1049,20 +1049,20 @@
                     "type": "github"
                 }
             ],
-            "time": "2024-10-27T21:37:45+00:00"
+            "time": "2024-10-29T23:08:50+00:00"
         },
         {
             "name": "league/climate",
-            "version": "3.8.2",
+            "version": "3.9.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/climate.git",
-                "reference": "a785a3ac8f584eed4abd45e4e16fe64c46659a28"
+                "reference": "2bb5ad23cab8cddab0576ee5eebe4fb7f99515d6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/climate/zipball/a785a3ac8f584eed4abd45e4e16fe64c46659a28",
-                "reference": "a785a3ac8f584eed4abd45e4e16fe64c46659a28",
+                "url": "https://api.github.com/repos/thephpleague/climate/zipball/2bb5ad23cab8cddab0576ee5eebe4fb7f99515d6",
+                "reference": "2bb5ad23cab8cddab0576ee5eebe4fb7f99515d6",
                 "shasum": ""
             },
             "require": {
@@ -1071,9 +1071,10 @@
                 "seld/cli-prompt": "^1.0"
             },
             "require-dev": {
-                "mikey179/vfsstream": "^1.6.10",
-                "mockery/mockery": "^1.4.2",
-                "phpunit/phpunit": "^9.5.10"
+                "mikey179/vfsstream": "^1.6.12",
+                "mockery/mockery": "^1.6.12",
+                "phpunit/phpunit": "^9.5.10",
+                "squizlabs/php_codesniffer": "^3.10"
             },
             "suggest": {
                 "ext-mbstring": "If ext-mbstring is not available you MUST install symfony/polyfill-mbstring"
@@ -1112,9 +1113,9 @@
             ],
             "support": {
                 "issues": "https://github.com/thephpleague/climate/issues",
-                "source": "https://github.com/thephpleague/climate/tree/3.8.2"
+                "source": "https://github.com/thephpleague/climate/tree/3.9.0"
             },
-            "time": "2022-06-18T14:42:08+00:00"
+            "time": "2024-10-30T14:23:56+00:00"
         },
         {
             "name": "matthiasmullie/minify",
@@ -1242,16 +1243,16 @@
         },
         {
             "name": "maximebf/debugbar",
-            "version": "v1.23.2",
+            "version": "v1.23.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/maximebf/php-debugbar.git",
-                "reference": "689720d724c771ac4add859056744b7b3f2406da"
+                "reference": "687400043d77943ef95e8417cb44e1673ee57844"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/maximebf/php-debugbar/zipball/689720d724c771ac4add859056744b7b3f2406da",
-                "reference": "689720d724c771ac4add859056744b7b3f2406da",
+                "url": "https://api.github.com/repos/maximebf/php-debugbar/zipball/687400043d77943ef95e8417cb44e1673ee57844",
+                "reference": "687400043d77943ef95e8417cb44e1673ee57844",
                 "shasum": ""
             },
             "require": {
@@ -1304,9 +1305,9 @@
             ],
             "support": {
                 "issues": "https://github.com/maximebf/php-debugbar/issues",
-                "source": "https://github.com/maximebf/php-debugbar/tree/v1.23.2"
+                "source": "https://github.com/maximebf/php-debugbar/tree/v1.23.3"
             },
-            "time": "2024-09-16T11:23:09+00:00"
+            "time": "2024-10-29T12:24:25+00:00"
         },
         {
             "name": "miljar/php-exif",
