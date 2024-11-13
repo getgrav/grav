@@ -12,7 +12,7 @@ We are focusing our security updates on the following versions
 
 ## :pushpin: Note on Security Severity
 
-> NOTE: Please use the following guidlines when selecting a **Severity**.  Submitted advisories that are marked **High** or **Critical** that don't meet the guidelines below will be cliosed.
+> NOTE: Please use the following guidelines when selecting a **Severity**.  Submitted advisories that are marked **High** or **Critical** that don't meet the guidelines below will be closed.
 
 * **CRITICAL** - no account required, can modify content, or run malicious code or nefarious activity without any access.
 * **HIGH** - publisher level account able to run malicious code or nefarious activity, or other high level security things.
