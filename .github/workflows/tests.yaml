@@ -10,20 +10,18 @@ permissions:
   contents: read # to fetch code (actions/checkout)
 
 jobs:
-
   unit-tests:
+    strategy:
+      matrix:
+        php: ['8.3', '8.2', '8.1', '8.0', '7.4', '7.3']
+        os: [ubuntu-latest]
 
     runs-on: ${{ matrix.os }}
 
-    strategy:
-      matrix:
-        php: [8.3, 8.2, 8.1, 8.0, 7.4, 7.3]
-        os: [ubuntu-latest]
-
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
-      - name: Setup PHP
+      - name: Setup PHP ${{ matrix.php }}
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
@@ -31,20 +29,14 @@ jobs:
           tools: composer:v2
           coverage: none
         env:
-          COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-#      - name: Update composer
-#        run: composer update
-#
-#      - name: Validate composer.json and composer.lock
-#        run: composer validate
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Get composer cache directory
         id: composer-cache
-        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
 
       - name: Cache dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
