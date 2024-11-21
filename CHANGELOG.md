@@ -1,3 +1,9 @@
+# v1.8.0-beta.3
+## 11/21/2024
+
+1. [](#improved)
+    * Updated composer libraries to latest versions for compatibility fixes
+
 # v1.8.0-beta.2
 ## 10/28/2024
 
