@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "93cb46c384939d2a4edb42a301745aeb",
+    "content-hash": "444580006c702e8f8d9f8289f2e4ea61",
     "packages": [
         {
             "name": "antoligy/dom-string-iterators",
@@ -976,16 +976,16 @@
         },
         {
             "name": "itsgoingd/clockwork",
-            "version": "dev-master",
+            "version": "v5.3.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/itsgoingd/clockwork.git",
-                "reference": "11ac18bcca18e66376fa888d1e4d45e1206d9ac4"
+                "reference": "7b0c40418df761f7a78e88762a323386a139d83d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/itsgoingd/clockwork/zipball/11ac18bcca18e66376fa888d1e4d45e1206d9ac4",
-                "reference": "11ac18bcca18e66376fa888d1e4d45e1206d9ac4",
+                "url": "https://api.github.com/repos/itsgoingd/clockwork/zipball/7b0c40418df761f7a78e88762a323386a139d83d",
+                "reference": "7b0c40418df761f7a78e88762a323386a139d83d",
                 "shasum": ""
             },
             "require": {
@@ -1000,7 +1000,6 @@
                 "ext-redis": "Needed in order to use Redis for metadata storage",
                 "php-http/discovery": "Vanilla integration - required for the middleware zero-configuration setup"
             },
-            "default-branch": true,
             "type": "library",
             "extra": {
                 "laravel": {
@@ -1041,7 +1040,7 @@
             ],
             "support": {
                 "issues": "https://github.com/itsgoingd/clockwork/issues",
-                "source": "https://github.com/itsgoingd/clockwork/tree/v5.3.0"
+                "source": "https://github.com/itsgoingd/clockwork/tree/v5.3.1"
             },
             "funding": [
                 {
@@ -1049,7 +1048,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2024-11-17T23:36:36+00:00"
+            "time": "2024-11-19T17:25:22+00:00"
         },
         {
             "name": "league/climate",
@@ -7418,7 +7417,6 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "itsgoingd/clockwork": 20,
         "rockettheme/toolbox": 20
     },
     "prefer-stable": false,

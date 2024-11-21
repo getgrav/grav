@@ -56,7 +56,7 @@
         "donatj/phpuseragentparser": "~1.9",
         "guzzlehttp/psr7": "^2.7",
         "filp/whoops": "~2.16",
-        "itsgoingd/clockwork": "dev-master",
+        "itsgoingd/clockwork": "^5.3",
         "maximebf/debugbar": "~1.23",
         "getgrav/image": "^4.0",
         "getgrav/cache": "^2.0",
