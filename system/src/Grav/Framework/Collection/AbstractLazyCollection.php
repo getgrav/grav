@@ -26,7 +26,7 @@ abstract class AbstractLazyCollection extends BaseAbstractLazyCollection impleme
      * @par ArrayCollection
      * @phpstan-var ArrayCollection<TKey,T>
      */
-    protected $collection;
+    protected ?\Doctrine\Common\Collections\Collection $collection;
 
     /**
      * {@inheritDoc}
