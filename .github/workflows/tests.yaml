@@ -2,9 +2,9 @@ name: PHP Tests
 
 on:
   push:
-    branches: [ develop ]
+    branches: [ develop, 1.8 ]
   pull_request:
-    branches: [ develop ]
+    branches: [ develop, 1.8 ]
 
 permissions:
   contents: read # to fetch code (actions/checkout)
