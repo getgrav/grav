@@ -37,7 +37,7 @@
         "symfony/var-dumper": "^6.4",
         "symfony/process": "^6.4",
         "symfony/http-client": "^6.4",
-        "twig/twig": "^2.1",
+        "twig/twig": "^2.16",
         "monolog/monolog": "^2.0",
         "doctrine/cache": "^2.2",
         "doctrine/collections": "^2.2",
@@ -62,7 +62,7 @@
         "getgrav/cache": "^2.0",
         "antoligy/dom-string-iterators": "^1.0",
         "miljar/php-exif": "^0.6",
-        "league/climate": "^3.8",
+        "league/climate": "^3.10",
         "multiavatar/multiavatar-php": "^1.0"
     },
     "require-dev": {
@@ -126,8 +126,9 @@
         ]
     },
     "scripts": {
-        "api-17": "vendor/bin/phpdoc-md generate system/src > user/pages/14.api/default.17.md",
+        "api-18": "vendor/bin/phpdoc-md generate system/src > user/pages/14.api/default.18.md",
         "post-create-project-cmd": "bin/grav install",
+        "rector": "vendor/bin/rector",
         "phpstan": "vendor/bin/phpstan analyse -l 2 -c ./tests/phpstan/phpstan.neon --memory-limit=720M system/src",
         "phpstan-framework": "vendor/bin/phpstan analyse -l 6 -c ./tests/phpstan/phpstan.neon --memory-limit=480M system/src/Grav/Framework system/src/Grav/Events system/src/Grav/Installer",
         "phpstan-plugins": "vendor/bin/phpstan analyse -l 1 -c ./tests/phpstan/plugins.neon --memory-limit=400M user/plugins",
