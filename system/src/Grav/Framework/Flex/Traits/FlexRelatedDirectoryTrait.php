@@ -35,9 +35,7 @@ trait FlexRelatedDirectoryTrait
         $list = $this->getNestedProperty($property) ?: [];
 
         /** @var FlexCollectionInterface<FlexObjectInterface> $collection */
-        $collection = $collection->filter(static function ($object) use ($list) {
-            return in_array($object->getKey(), $list, true);
-        });
+        $collection = $collection->filter(static fn($object) => in_array($object->getKey(), $list, true));
 
         return $collection;
     }

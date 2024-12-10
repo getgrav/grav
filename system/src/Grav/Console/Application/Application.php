@@ -43,7 +43,7 @@ class Application extends \Symfony\Component\Console\Application
 
         // Add listener to prepare environment.
         $dispatcher = new EventDispatcher();
-        $dispatcher->addListener(ConsoleEvents::COMMAND, [$this, 'prepareEnvironment']);
+        $dispatcher->addListener(ConsoleEvents::COMMAND, $this->prepareEnvironment(...));
 
         $this->setDispatcher($dispatcher);
     }

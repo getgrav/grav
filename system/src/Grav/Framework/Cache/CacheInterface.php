@@ -19,18 +19,16 @@ interface CacheInterface extends SimpleCacheInterface
 {
     /**
      * @param string $key
-     * @param mixed $miss
      * @return mixed
      */
-    public function doGet($key, $miss);
+    public function doGet($key, mixed $miss);
 
     /**
      * @param string $key
-     * @param mixed $value
      * @param int|null $ttl
      * @return mixed
      */
-    public function doSet($key, $value, $ttl);
+    public function doSet($key, mixed $value, $ttl);
 
     /**
      * @param string $key
@@ -45,10 +43,9 @@ interface CacheInterface extends SimpleCacheInterface
 
     /**
      * @param string[] $keys
-     * @param mixed $miss
      * @return mixed
      */
-    public function doGetMultiple($keys, $miss);
+    public function doGetMultiple($keys, mixed $miss);
 
     /**
      * @param array<string, mixed> $values

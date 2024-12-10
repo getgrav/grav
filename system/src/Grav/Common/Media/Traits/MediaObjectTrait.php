@@ -182,7 +182,7 @@ trait MediaObjectTrait
         // join the strings
         $querystring = implode('&', $this->medium_querystring);
         // explode all strings
-        $query_parts = explode('&', $querystring);
+        $query_parts = explode('&', (string) $querystring);
         // Join them again now ensure the elements are unique
         $querystring = implode('&', array_unique($query_parts));
 
@@ -598,7 +598,7 @@ trait MediaObjectTrait
      * @param string|null $separator Separator, defaults to '.'
      * @return mixed Value.
      */
-    abstract public function get($name, $default = null, $separator = null);
+    abstract public function get($name, mixed $default = null, $separator = null);
 
         /**
      * Set value by using dot notation for nested arrays/objects.
@@ -610,7 +610,7 @@ trait MediaObjectTrait
      * @param string|null $separator Separator, defaults to '.'
      * @return $this
      */
-    abstract public function set($name, $value, $separator = null);
+    abstract public function set($name, mixed $value, $separator = null);
 
     /**
      * @param string $thumb

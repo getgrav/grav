@@ -57,14 +57,14 @@ interface ObjectCollectionInterface extends CollectionInterface, Selectable, Ser
      * @param  mixed    $value         New value.
      * @return $this
      */
-    public function setProperty($property, $value);
+    public function setProperty($property, mixed $value);
 
     /**
      * @param  string  $property        Object property to be defined.
      * @param  mixed   $default         Default value.
      * @return $this
      */
-    public function defProperty($property, $default);
+    public function defProperty($property, mixed $default);
 
     /**
      * @param  string  $property     Object property to be unset.

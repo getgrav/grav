@@ -23,11 +23,6 @@ class MediaObject implements MediaObjectInterface
     /** @var GravMediaObjectInterface|null */
     public $media;
 
-    /** @var string|null */
-    private $field;
-    /** @var string */
-    private $filename;
-
     /**
      * MediaObject constructor.
      * @param string|null $field
@@ -35,10 +30,8 @@ class MediaObject implements MediaObjectInterface
      * @param GravMediaObjectInterface|null $media
      * @param FlexObjectInterface $object
      */
-    public function __construct(?string $field, string $filename, ?GravMediaObjectInterface $media, FlexObjectInterface $object)
+    public function __construct(private readonly ?string $field, private readonly string $filename, ?GravMediaObjectInterface $media, FlexObjectInterface $object)
     {
-        $this->field = $field;
-        $this->filename = $filename;
         $this->media = $media;
         $this->object = $object;
     }
@@ -157,15 +150,15 @@ class MediaObject implements MediaObjectInterface
         foreach ($actions as $method => $params) {
             $matches = [];
 
-            if (preg_match('/\[(.*)]/', $params, $matches)) {
+            if (preg_match('/\[(.*)]/', (string) $params, $matches)) {
                 $args = [explode(',', $matches[1])];
             } else {
-                $args = explode(',', $params);
+                $args = explode(',', (string) $params);
             }
 
             try {
                 $medium->{$method}(...$args);
-            } catch (Throwable $e) {
+            } catch (Throwable) {
                 // Ignore all errors for now and just skip the action.
             }
         }

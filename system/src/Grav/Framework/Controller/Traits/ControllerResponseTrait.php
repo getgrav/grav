@@ -51,11 +51,11 @@ trait ControllerResponseTrait
      */
     protected function createHtmlResponse(string $content, ?int $code = null, ?array $headers = null): ResponseInterface
     {
-        $code = $code ?? 200;
+        $code ??= 200;
         if ($code < 100 || $code > 599) {
             $code = 500;
         }
-        $headers = $headers ?? [];
+        $headers ??= [];
 
         return new Response($code, $headers, $content);
     }
@@ -68,7 +68,7 @@ trait ControllerResponseTrait
      */
     protected function createJsonResponse(array $content, ?int $code = null, ?array $headers = null): ResponseInterface
     {
-        $code = $code ?? $content['code'] ?? 200;
+        $code ??= $content['code'] ?? 200;
         if (null === $code || $code < 100 || $code > 599) {
             $code = 200;
         }
@@ -94,8 +94,8 @@ trait ControllerResponseTrait
             @ini_set('zlib.output_compression', 'Off');
         }
 
-        $headers = $headers ?? [];
-        $options = $options ?? ['force_download' => true];
+        $headers ??= [];
+        $options ??= ['force_download' => true];
 
         $file_parts = Utils::pathinfo($filename);
 
@@ -228,7 +228,7 @@ trait ControllerResponseTrait
         $debugger = Grav::instance()['debugger'];
         if ($debugger->enabled()) {
             $response['error'] += [
-                'type' => get_class($e),
+                'type' => $e::class,
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
                 'trace' => explode("\n", $e->getTraceAsString())
@@ -264,7 +264,7 @@ trait ControllerResponseTrait
     {
         $accepted = [];
         foreach ($this->getRequest()->getHeader('Accept') as $accept) {
-            foreach (explode(',', $accept) as $item) {
+            foreach (explode(',', (string) $accept) as $item) {
                 if (!$item) {
                     continue;
                 }

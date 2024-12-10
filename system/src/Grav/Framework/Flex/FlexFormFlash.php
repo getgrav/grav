@@ -103,7 +103,7 @@ class FlexFormFlash extends FormFlash
     {
         parent::init($data, $config);
 
-        $data = $data ?? [];
+        $data ??= [];
         /** @var FlexObjectInterface|null $object */
         $object = $config['object'] ?? null;
         $create = true;

@@ -413,7 +413,7 @@ class FolderStorage extends AbstractFilesystemStorage
             if (isset($row[$this->keyField])) {
                 $key = $row[$this->keyField];
             }
-            if (strpos($key, '@@') !== false) {
+            if (str_contains((string) $key, '@@')) {
                 $key = $this->getNewKey();
             }
 
@@ -584,7 +584,7 @@ class FolderStorage extends AbstractFilesystemStorage
             return $this->meta[$key];
         }
 
-        if ($key && strpos($key, '@@') === false) {
+        if ($key && !str_contains($key, '@@')) {
             $filename = $this->getPathFromKey($key);
             $modified = is_file($filename) ? filemtime($filename) : 0;
         } else {
@@ -613,7 +613,7 @@ class FolderStorage extends AbstractFilesystemStorage
         $list = [];
         /** @var SplFileInfo $info */
         foreach ($iterator as $filename => $info) {
-            if (!$info->isDir() || strpos($info->getFilename(), '.') === 0) {
+            if (!$info->isDir() || str_starts_with($info->getFilename(), '.')) {
                 continue;
             }
 
@@ -639,7 +639,7 @@ class FolderStorage extends AbstractFilesystemStorage
         $list = [[]];
         /** @var SplFileInfo $info */
         foreach ($iterator as $filename => $info) {
-            if (!$info->isDir() || strpos($info->getFilename(), '.') === 0) {
+            if (!$info->isDir() || str_starts_with($info->getFilename(), '.')) {
                 continue;
             }
 

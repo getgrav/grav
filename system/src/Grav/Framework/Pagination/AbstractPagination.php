@@ -132,10 +132,10 @@ class AbstractPagination implements PaginationInterface
         $param = $this->getOptions()['param'];
         $useQuery = $this->getOptions()['use_query_param'];
         if ($type === 'page') {
-            $param = $param ?? 'page';
+            $param ??= 'page';
             $offset = $page;
         } else {
-            $param = $param ?? 'start';
+            $param ??= 'start';
             $offset = $start;
         }
 

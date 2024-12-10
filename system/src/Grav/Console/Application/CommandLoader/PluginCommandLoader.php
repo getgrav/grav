@@ -52,7 +52,7 @@ class PluginCommandLoader implements CommandLoaderInterface
             $full_path = $locator->findResource("plugins://{$name}/cli/{$command_path}");
             require_once $full_path;
 
-            $command_class = 'Grav\Plugin\Console\\' . preg_replace('/.php$/', '', $command_path);
+            $command_class = 'Grav\Plugin\Console\\' . preg_replace('/.php$/', '', (string) $command_path);
             if (class_exists($command_class)) {
                 $command = new $command_class();
                 if ($command instanceof Command) {

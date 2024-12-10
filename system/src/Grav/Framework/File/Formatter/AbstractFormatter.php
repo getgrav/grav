@@ -24,16 +24,12 @@ abstract class AbstractFormatter implements FileFormatterInterface
 {
     use Serializable;
 
-    /** @var array */
-    private $config;
-
     /**
      * IniFormatter constructor.
      * @param array $config
      */
-    public function __construct(array $config = [])
+    public function __construct(private array $config = [])
     {
-        $this->config = $config;
     }
 
     /**

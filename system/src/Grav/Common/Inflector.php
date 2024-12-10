@@ -72,7 +72,7 @@ class Inflector
 
         if (is_array(static::$uncountable)) {
             foreach (static::$uncountable as $_uncountable) {
-                if (substr($lowercased_word, -1 * strlen($_uncountable)) === $_uncountable) {
+                if (substr($lowercased_word, -1 * strlen((string) $_uncountable)) === $_uncountable) {
                     return $word;
                 }
             }
@@ -81,7 +81,7 @@ class Inflector
         if (is_array(static::$irregular)) {
             foreach (static::$irregular as $_plural => $_singular) {
                 if (preg_match('/(' . $_plural . ')$/i', $word, $arr)) {
-                    return preg_replace('/(' . $_plural . ')$/i', substr($arr[0], 0, 1) . substr($_singular, 1), $word);
+                    return preg_replace('/(' . $_plural . ')$/i', substr($arr[0], 0, 1) . substr((string) $_singular, 1), $word);
                 }
             }
         }
@@ -89,7 +89,7 @@ class Inflector
         if (is_array(static::$plural)) {
             foreach (static::$plural as $rule => $replacement) {
                 if (preg_match($rule, $word)) {
-                    return preg_replace($rule, $replacement, $word);
+                    return preg_replace($rule, (string) $replacement, $word);
                 }
             }
         }
@@ -117,7 +117,7 @@ class Inflector
 
         if (is_array(static::$uncountable)) {
             foreach (static::$uncountable as $_uncountable) {
-                if (substr($lowercased_word, -1 * strlen($_uncountable)) === $_uncountable) {
+                if (substr($lowercased_word, -1 * strlen((string) $_uncountable)) === $_uncountable) {
                     return $word;
                 }
             }
@@ -134,7 +134,7 @@ class Inflector
         if (is_array(static::$singular)) {
             foreach (static::$singular as $rule => $replacement) {
                 if (preg_match($rule, $word)) {
-                    return preg_replace($rule, $replacement, $word);
+                    return preg_replace($rule, (string) $replacement, $word);
                 }
             }
         }
@@ -186,7 +186,7 @@ class Inflector
      */
     public static function camelize($word)
     {
-        return str_replace(' ', '', ucwords(preg_replace('/[^\p{L}^0-9]+/', ' ', $word)));
+        return str_replace(' ', '', ucwords((string) preg_replace('/[^\p{L}^0-9]+/', ' ', $word)));
     }
 
     /**
@@ -203,10 +203,10 @@ class Inflector
     public static function underscorize($word)
     {
         $regex1 = preg_replace('/([A-Z]+)([A-Z][a-z])/', '\1_\2', $word);
-        $regex2 = preg_replace('/([a-zd])([A-Z])/', '\1_\2', $regex1);
-        $regex3 = preg_replace('/[^\p{L}^0-9]+/u', '_', $regex2);
+        $regex2 = preg_replace('/([a-zd])([A-Z])/', '\1_\2', (string) $regex1);
+        $regex3 = preg_replace('/[^\p{L}^0-9]+/u', '_', (string) $regex2);
 
-        return strtolower($regex3);
+        return strtolower((string) $regex3);
     }
 
     /**
@@ -223,11 +223,11 @@ class Inflector
     public static function hyphenize($word)
     {
         $regex1 = preg_replace('/([A-Z]+)([A-Z][a-z])/', '\1-\2', $word);
-        $regex2 = preg_replace('/([a-z])([A-Z])/', '\1-\2', $regex1);
-        $regex3 = preg_replace('/([0-9])([A-Z])/', '\1-\2', $regex2);
-        $regex4 = preg_replace('/[^\p{L}^0-9]+/', '-', $regex3);
+        $regex2 = preg_replace('/([a-z])([A-Z])/', '\1-\2', (string) $regex1);
+        $regex3 = preg_replace('/([0-9])([A-Z])/', '\1-\2', (string) $regex2);
+        $regex4 = preg_replace('/[^\p{L}^0-9]+/', '-', (string) $regex3);
 
-        $regex4 = trim($regex4, '-');
+        $regex4 = trim((string) $regex4, '-');
 
         return strtolower($regex4);
     }
@@ -326,16 +326,12 @@ class Inflector
             return $number . static::$ordinals['default'];
         }
 
-        switch ($number % 10) {
-            case 1:
-                return $number . static::$ordinals['first'];
-            case 2:
-                return $number . static::$ordinals['second'];
-            case 3:
-                return $number . static::$ordinals['third'];
-            default:
-                return $number . static::$ordinals['default'];
-        }
+        return match ($number % 10) {
+            1 => $number . static::$ordinals['first'],
+            2 => $number . static::$ordinals['second'],
+            3 => $number . static::$ordinals['third'],
+            default => $number . static::$ordinals['default'],
+        };
     }
 
     /**

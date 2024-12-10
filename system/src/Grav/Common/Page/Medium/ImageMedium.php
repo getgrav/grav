@@ -370,7 +370,7 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
         $watermark->resize($wwidth, $wheight);
 
         // Position operations
-        $position = !empty($args[1]) ? explode('-',  $args[1]) : ['center', 'center']; // todo change to config
+        $position = !empty($args[1]) ? explode('-',  (string) $args[1]) : ['center', 'center']; // todo change to config
         $positionY = $position[0] ?? $config->get('system.images.watermark.position_y', 'center');
         $positionX = $position[1] ?? $config->get('system.images.watermark.position_x', 'center');
 
@@ -491,7 +491,7 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
                 // Do the same call for alternative media.
                 $medium->__call($method, $args_copy);
             }
-        } catch (BadFunctionCallException $e) {
+        } catch (BadFunctionCallException) {
         }
 
         return $this;

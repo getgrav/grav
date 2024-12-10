@@ -77,7 +77,7 @@ class Themes extends Iterator
 
             try {
                 $instance = $themes->load();
-            } catch (InvalidArgumentException $e) {
+            } catch (InvalidArgumentException) {
                 throw new RuntimeException($this->current() . ' theme could not be found');
             }
 
@@ -377,7 +377,7 @@ class Themes extends Iterator
     protected function autoloadTheme($class)
     {
         $prefix = 'Grav\\Theme\\';
-        if (false !== strpos($class, $prefix)) {
+        if (str_contains($class, $prefix)) {
             // Remove prefix from class
             $class = substr($class, strlen($prefix));
             $locator = $this->grav['locator'];

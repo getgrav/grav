@@ -49,7 +49,7 @@ class Excerpts
         // Add defaults to the configuration.
         if (null === $config || !isset($config['markdown'], $config['images'])) {
             $c = Grav::instance()['config'];
-            $config = $config ?? [];
+            $config ??= [];
             $config += [
                 'markdown' => $c->get('system.pages.markdown', []),
                 'images' => $c->get('system.images', [])
@@ -96,13 +96,13 @@ class Excerpts
     public function processLinkExcerpt(array $excerpt, string $type = 'link'): array
     {
         $grav = Grav::instance();
-        $url = htmlspecialchars_decode(rawurldecode($excerpt['element']['attributes']['href']));
+        $url = htmlspecialchars_decode(rawurldecode((string) $excerpt['element']['attributes']['href']));
         $url_parts = $this->parseUrl($url);
 
         // If there is a query, then parse it and build action calls.
         if (isset($url_parts['query'])) {
             $actions = array_reduce(
-                explode('&', $url_parts['query']),
+                explode('&', (string) $url_parts['query']),
                 static function ($carry, $item) {
                     $parts = explode('=', $item, 2);
                     $value = isset($parts[1]) ? rawurldecode($parts[1]) : true;
@@ -119,7 +119,7 @@ class Excerpts
             $skip = [];
             // Unless told to not process, go through actions.
             if (array_key_exists('noprocess', $actions)) {
-                $skip = is_bool($actions['noprocess']) ? $actions : explode(',', $actions['noprocess']);
+                $skip = is_bool($actions['noprocess']) ? $actions : explode(',', (string) $actions['noprocess']);
                 unset($actions['noprocess']);
             }
 
@@ -185,7 +185,7 @@ class Excerpts
      */
     public function processImageExcerpt(array $excerpt): array
     {
-        $url = htmlspecialchars_decode(urldecode($excerpt['element']['attributes']['src']));
+        $url = htmlspecialchars_decode(urldecode((string) $excerpt['element']['attributes']['src']));
         $url_parts = $this->parseUrl($url);
 
         $media = null;
@@ -207,7 +207,7 @@ class Excerpts
 
             if ($local_file) {
                 $filename = Utils::basename($url_parts['path']);
-                $folder = dirname($url_parts['path']);
+                $folder = dirname((string) $url_parts['path']);
 
                 // Get the local path to page media if possible.
                 if ($this->page && $folder === $this->page->url(false, false, false)) {
@@ -268,7 +268,7 @@ class Excerpts
         // if there is a query, then parse it and build action calls
         if (isset($url_parts['query'])) {
             $actions = array_reduce(
-                explode('&', $url_parts['query']),
+                explode('&', (string) $url_parts['query']),
                 static function ($carry, $item) {
                     $parts = explode('=', $item, 2);
                     $value = $parts[1] ?? null;
@@ -296,10 +296,10 @@ class Excerpts
         foreach ($actions as $action) {
             $matches = [];
 
-            if (preg_match('/\[(.*)\]/', $action['params'], $matches)) {
+            if (preg_match('/\[(.*)\]/', (string) $action['params'], $matches)) {
                 $args = [explode(',', $matches[1])];
             } else {
-                $args = explode(',', $action['params']);
+                $args = explode(',', (string) $action['params']);
             }
 
             $medium = call_user_func_array([$medium, $action['method']], $args);

@@ -46,10 +46,9 @@ interface FlexDirectoryInterface extends FlexAuthorizeInterface
 
     /**
      * @param string|null $name
-     * @param mixed $default
      * @return mixed
      */
-    public function getConfig(?string $name = null, $default = null);
+    public function getConfig(?string $name = null, mixed $default = null);
 
     /**
      * @param string|null $name

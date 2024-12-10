@@ -202,7 +202,7 @@ class Setup extends Data
         $setupFile = defined('GRAV_SETUP_PATH') ? GRAV_SETUP_PATH : (getenv('GRAV_SETUP_PATH') ?: null);
         if (null !== $setupFile) {
             // Make sure that the custom setup file exists. Terminates the script if not.
-            if (!str_starts_with($setupFile, '/')) {
+            if (!str_starts_with((string) $setupFile, '/')) {
                 $setupFile = GRAV_WEBROOT . '/' . $setupFile;
             }
             if (!is_file($setupFile)) {

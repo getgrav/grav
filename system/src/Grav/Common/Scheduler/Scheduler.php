@@ -244,16 +244,12 @@ class Scheduler
      */
     public function getVerboseOutput($type = 'text')
     {
-        switch ($type) {
-            case 'text':
-                return implode("\n", $this->output_schedule);
-            case 'html':
-                return implode('<br>', $this->output_schedule);
-            case 'array':
-                return $this->output_schedule;
-            default:
-                throw new InvalidArgumentException('Invalid output type');
-        }
+        return match ($type) {
+            'text' => implode("\n", $this->output_schedule),
+            'html' => implode('<br>', $this->output_schedule),
+            'array' => $this->output_schedule,
+            default => throw new InvalidArgumentException('Invalid output type'),
+        };
     }
 
     /**
@@ -287,7 +283,7 @@ class Scheduler
     public function getSchedulerCommand($php = null)
     {
         $phpBinaryFinder = new PhpExecutableFinder();
-        $php = $php ?? $phpBinaryFinder->find();
+        $php ??= $phpBinaryFinder->find();
         $command = 'cd ' . str_replace(' ', '\ ', GRAV_ROOT) . ';' . $php . ' bin/grav scheduler';
 
         return $command;
@@ -439,7 +435,7 @@ class Scheduler
         if (is_callable($command)) {
             $command = is_string($command) ? $command : 'Closure';
         }
-        $output = trim($job->getOutput());
+        $output = trim((string) $job->getOutput());
         $this->addSchedulerVerboseOutput("<red>Error</red>:   <white>{$command}</white> → <normal>{$output}</normal>");
 
         return $job;

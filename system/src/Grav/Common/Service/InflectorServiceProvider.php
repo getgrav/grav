@@ -25,8 +25,6 @@ class InflectorServiceProvider implements ServiceProviderInterface
      */
     public function register(Container $container)
     {
-        $container['inflector'] = function () {
-            return new Inflector();
-        };
+        $container['inflector'] = fn() => new Inflector();
     }
 }

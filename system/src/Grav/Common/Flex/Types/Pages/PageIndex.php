@@ -239,10 +239,9 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
      * Set a parameter to the Collection
      *
      * @param string $name
-     * @param mixed $value
      * @return $this
      */
-    public function setParam(string $name, $value)
+    public function setParam(string $name, mixed $value)
     {
         $this->_params[$name] = $value;
 
@@ -495,7 +494,7 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
      */
     protected function getFallbackLanguages(?string $languageCode = null, ?bool $fallback = null): array
     {
-        $fallback = $fallback ?? true;
+        $fallback ??= true;
         if (!$fallback && null !== $languageCode) {
             return [$languageCode];
         }
@@ -504,7 +503,7 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
 
         /** @var Language $language */
         $language = $grav['language'];
-        $languageCode = $languageCode ?? '';
+        $languageCode ??= '';
         if ($languageCode === '' && $fallback) {
             return $language->getFallbackLanguages(null, true);
         }
@@ -533,7 +532,7 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
         // Handle leaf_route
         $leaf = null;
         if ($leaf_route && $route !== $leaf_route) {
-            $nodes = explode('/', $leaf_route);
+            $nodes = explode('/', (string) $leaf_route);
             $sub_route =  '/' . implode('/', array_slice($nodes, 1, $options['level']++));
             $options['route'] = $sub_route;
 
@@ -544,7 +543,7 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
         if (!$route) {
             $page = $this->getRoot();
         } else {
-            $page = $this->get(trim($route, '/'));
+            $page = $this->get(trim((string) $route, '/'));
         }
         $path = $page ? $page->path() : null;
 
@@ -558,7 +557,7 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
         // Clean up filter.
         $filter_type = (array)($filters['type'] ?? []);
         unset($filters['type']);
-        $filters = array_filter($filters, static function($val) { return $val !== null && $val !== ''; });
+        $filters = array_filter($filters, static fn($val) => $val !== null && $val !== '');
 
         if ($page) {
             $status = 'success';
@@ -682,9 +681,7 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
                         'tags' => $tags,
                         'actions' => $this->getListingActions($child, $user),
                     ];
-                    $extras = array_filter($extras, static function ($v) {
-                        return $v !== null;
-                    });
+                    $extras = array_filter($extras, static fn($v) => $v !== null);
 
                     /** @var PageIndex $tmp */
                     $tmp = $child->children()->getIndex();
@@ -698,7 +695,7 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
                         'title' => htmlspecialchars($child->menu()),
                         'route' => [
                             'display' => htmlspecialchars($route) ?: null,
-                            'raw' => htmlspecialchars($child->rawRoute()),
+                            'raw' => htmlspecialchars((string) $child->rawRoute()),
                         ],
                         'modified' => $this->jsDate($child->modified()),
                         'child_count' => $child_count ?: null,
@@ -706,9 +703,7 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
                         'filters_hit' => $filters ? ($child->filterBy($filters, false) ?: null) : null,
                         'extras' => $extras
                     ];
-                    $payload = array_filter($payload, static function ($v) {
-                        return $v !== null;
-                    });
+                    $payload = array_filter($payload, static fn($v) => $v !== null);
                 }
 
                 // Add children if any

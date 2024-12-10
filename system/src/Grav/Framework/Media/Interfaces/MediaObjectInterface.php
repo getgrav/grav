@@ -43,5 +43,5 @@ interface MediaObjectInterface
      * @param string|null $separator Separator, defaults to '.'
      * @return mixed Value.
      */
-    public function get($name, $default = null, $separator = null);
+    public function get($name, mixed $default = null, $separator = null);
 }

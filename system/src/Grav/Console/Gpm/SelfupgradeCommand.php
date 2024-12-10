@@ -186,9 +186,7 @@ class SelfupgradeCommand extends GpmCommand
                 $io->newLine();
                 foreach ($changelog as $version => $log) {
                     $title = $version . ' [' . $log['date'] . ']';
-                    $content = preg_replace_callback('/\d\.\s\[\]\(#(.*)\)/', static function ($match) {
-                        return "\n" . ucfirst($match[1]) . ':';
-                    }, $log['content']);
+                    $content = preg_replace_callback('/\d\.\s\[\]\(#(.*)\)/', static fn($match) => "\n" . ucfirst((string) $match[1]) . ':', (string) $log['content']);
 
                     $io->writeln($title);
                     $io->writeln(str_repeat('-', strlen($title)));
@@ -250,7 +248,7 @@ class SelfupgradeCommand extends GpmCommand
             'timeout' => $this->timeout,
         ];
 
-        $output = Response::get($package['download'], $options, [$this, 'progress']);
+        $output = Response::get($package['download'], $options, $this->progress(...));
 
         Folder::create($this->tmp);
 
@@ -299,7 +297,7 @@ class SelfupgradeCommand extends GpmCommand
 
         $io->write("\x0D");
         $io->write("  |- Downloading upgrade [{$this->formatBytes($progress['filesize']) }]... " . str_pad(
-            $progress['percent'],
+            (string) $progress['percent'],
             5,
             ' ',
             STR_PAD_LEFT
@@ -314,7 +312,7 @@ class SelfupgradeCommand extends GpmCommand
     public function formatBytes($size, int $precision = 2): string
     {
         $base = log($size) / log(1024);
-        $suffixes = array('', 'k', 'M', 'G', 'T');
+        $suffixes = ['', 'k', 'M', 'G', 'T'];
 
         return round(1024 ** ($base - floor($base)), $precision) . $suffixes[(int)floor($base)];
     }

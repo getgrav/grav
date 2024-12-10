@@ -31,8 +31,6 @@ use function array_slice;
  */
 class AbstractFileCollection extends AbstractLazyCollection implements FileCollectionInterface
 {
-    /** @var string */
-    protected $path;
     /** @var RecursiveDirectoryIterator|RecursiveUniformResourceIterator */
     protected $iterator;
     /** @var callable */
@@ -47,9 +45,8 @@ class AbstractFileCollection extends AbstractLazyCollection implements FileColle
     /**
      * @param string $path
      */
-    protected function __construct($path)
+    protected function __construct(protected $path)
     {
-        $this->path = $path;
         $this->flags = self::INCLUDE_FILES | self::INCLUDE_FOLDERS;
         $this->nestingLimit = 0;
         $this->createObjectFunction = [$this, 'createObject'];
@@ -139,9 +136,7 @@ class AbstractFileCollection extends AbstractLazyCollection implements FileColle
     {
         if ($this->filterFunction) {
             $oldFilterFunction = $this->filterFunction;
-            $this->filterFunction = function ($expr) use ($oldFilterFunction, $filterFunction) {
-                return $oldFilterFunction($expr) && $filterFunction($expr);
-            };
+            $this->filterFunction = fn($expr) => $oldFilterFunction($expr) && $filterFunction($expr);
         } else {
             $this->filterFunction = $filterFunction;
         }

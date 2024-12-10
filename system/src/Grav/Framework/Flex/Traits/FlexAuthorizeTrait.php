@@ -37,7 +37,7 @@ trait FlexAuthorizeTrait
     public function isAuthorized(string $action, ?string $scope = null, ?UserInterface $user = null): ?bool
     {
         $action = $this->getAuthorizeAction($action);
-        $scope = $scope ?? $this->getAuthorizeScope();
+        $scope ??= $this->getAuthorizeScope();
 
         $isMe = null === $user;
         if ($isMe) {

@@ -95,9 +95,7 @@ class ImageFile extends Image
 
         // Target file should be younger than all the current image
         // dependencies
-        $conditions = array(
-            'younger-than' => $this->getDependencies()
-        );
+        $conditions = ['younger-than' => $this->getDependencies()];
 
         // The generating function
         $generate = function ($target) use ($image, $type, $quality) {
@@ -113,7 +111,7 @@ class ImageFile extends Image
         // Asking the cache for the cacheFile
         try {
             $perms = $config->get('system.images.cache_perms', '0755');
-            $perms = octdec($perms);
+            $perms = octdec((string) $perms);
             $file = $this->getCacheSystem()->setDirectoryMode($perms)->getOrCreateFile($cacheFile, $conditions, $generate, $actual);
         } catch (GenerationError $e) {
             $file = $e->getNewFile();

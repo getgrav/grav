@@ -130,7 +130,7 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
             foreach ($items as $key => $rules) {
                 $type = $rules['type'] ?? '';
                 $ignore = (bool) array_filter((array)($rules['validate']['ignore'] ?? [])) ?? false;
-                if (!str_starts_with($type, '_') && !str_contains($key, '*') && $ignore !== true) {
+                if (!str_starts_with((string) $type, '_') && !str_contains((string) $key, '*') && $ignore !== true) {
                     $list[$prefix . $key] = null;
                 }
             }

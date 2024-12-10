@@ -57,15 +57,15 @@ trait MediaTrait
             return null;
         }
 
-        if (strpos($folder, '://')) {
+        if (strpos((string) $folder, '://')) {
             return $folder;
         }
 
        /** @var UniformResourceLocator $locator */
         $locator = Grav::instance()['locator'];
         $user = $locator->findResource('user://');
-        if (strpos($folder, $user) === 0) {
-            return 'user://' . substr($folder, strlen($user)+1);
+        if (str_starts_with((string) $folder, $user)) {
+            return 'user://' . substr((string) $folder, strlen($user)+1);
         }
 
         return null;

@@ -276,8 +276,8 @@ abstract class Utils
     public static function matchWildcard($wildcard_pattern, $haystack)
     {
         $regex = str_replace(
-            array("\*", "\?"), // wildcard chars
-            array('.*', '.'),   // regexp chars
+            ["\*", "\?"], // wildcard chars
+            ['.*', '.'],   // regexp chars
             preg_quote($wildcard_pattern, '/')
         );
 
@@ -296,10 +296,8 @@ abstract class Utils
     {
         $opening = $brackets[0] ?? '{';
         $closing = $brackets[1] ?? '}';
-        $expression = '/' . preg_quote($opening, '/') . '(.*?)' . preg_quote($closing, '/') . '/';
-        $callback = static function ($match) use ($variables) {
-            return $variables[$match[1]] ?? $match[0];
-        };
+        $expression = '/' . preg_quote((string) $opening, '/') . '(.*?)' . preg_quote((string) $closing, '/') . '/';
+        $callback = static fn($match) => $variables[$match[1]] ?? $match[0];
 
         return preg_replace_callback($expression, $callback, $template);
     }
@@ -468,7 +466,7 @@ abstract class Utils
      */
     public static function arrayDiffMultidimensional($array1, $array2)
     {
-        $result = array();
+        $result = [];
         foreach ($array1 as $key => $value) {
             if (!is_array($array2) || !array_key_exists($key, $array2)) {
                 $result[$key] = $value;
@@ -695,7 +693,7 @@ abstract class Utils
 
             // multipart-download and download resuming support
             if (isset($_SERVER['HTTP_RANGE'])) {
-                [$a, $range] = explode('=', $_SERVER['HTTP_RANGE'], 2);
+                [$a, $range] = explode('=', (string) $_SERVER['HTTP_RANGE'], 2);
                 [$range] = explode(',', $range, 2);
                 [$range, $range_end] = explode('-', $range);
                 $range = (int)$range;
@@ -725,7 +723,7 @@ abstract class Utils
 
                     // Return 304 Not Modified if the file is already cached in the browser
                     if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) &&
-                        strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) >= filemtime($file)) {
+                        strtotime((string) $_SERVER['HTTP_IF_MODIFIED_SINCE']) >= filemtime($file)) {
                         header('HTTP/1.1 304 Not Modified');
                         exit();
                     }
@@ -1233,7 +1231,7 @@ abstract class Utils
      */
     public static function arrayFlattenDotNotation($array, $prepend = '')
     {
-        $results = array();
+        $results = [];
         foreach ($array as $key => $value) {
             if (is_array($value)) {
                 $results = array_merge($results, static::arrayFlattenDotNotation($value, $prepend . $key . '.'));
@@ -1334,7 +1332,7 @@ abstract class Utils
         } else {
             try {
                 $datetime = new DateTime($date);
-            } catch (Exception $e) {
+            } catch (Exception) {
                 $datetime = false;
             }
         }
@@ -1357,7 +1355,7 @@ abstract class Utils
      */
     public static function resolve(array $array, $path, $default = null)
     {
-        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.5, use ->getDotNotation() method instead', E_USER_DEPRECATED);
+        user_error(self::class . '::' . __FUNCTION__ . '() is deprecated since Grav 1.5, use ->getDotNotation() method instead', E_USER_DEPRECATED);
 
         return static::getDotNotation($array, $path, $default);
     }
@@ -1511,12 +1509,10 @@ abstract class Utils
      *
      * @param array $array
      * @param string|int|null $key
-     * @param mixed $value
      * @param bool $merge
-     *
      * @return mixed
      */
-    public static function setDotNotation(&$array, $key, $value, $merge = false)
+    public static function setDotNotation(&$array, $key, mixed $value, $merge = false)
     {
         if (null === $key) {
             return $array = $value;
@@ -1528,7 +1524,7 @@ abstract class Utils
             $key = array_shift($keys);
 
             if (!isset($array[$key]) || !is_array($array[$key])) {
-                $array[$key] = array();
+                $array[$key] = [];
             }
 
             $array =& $array[$key];
@@ -1562,7 +1558,7 @@ abstract class Utils
      */
     public static function isApache()
     {
-        return isset($_SERVER['SERVER_SOFTWARE']) && strpos($_SERVER['SERVER_SOFTWARE'], 'Apache') !== false;
+        return isset($_SERVER['SERVER_SOFTWARE']) && str_contains((string) $_SERVER['SERVER_SOFTWARE'], 'Apache');
     }
 
     /**
@@ -1587,13 +1583,12 @@ abstract class Utils
     /**
      * Sort an array by a key value in the array
      *
-     * @param mixed $array
      * @param string|int $array_key
      * @param int $direction
      * @param int $sort_flags
      * @return array
      */
-    public static function sortArrayByKey($array, $array_key, $direction = SORT_DESC, $sort_flags = SORT_REGULAR)
+    public static function sortArrayByKey(mixed $array, $array_key, $direction = SORT_DESC, $sort_flags = SORT_REGULAR)
     {
         $output = [];
 
@@ -1724,7 +1719,7 @@ abstract class Utils
      */
     protected static function resolveTokenPath(string $path): ?array
     {
-        if (strpos($path, '@') !== false) {
+        if (str_contains($path, '@')) {
             $regex = '/^(@\w+|\w+@|@\w+@)([^:]*)(.*)$/u';
             if (preg_match($regex, $path, $matches)) {
                 return [
@@ -1773,11 +1768,7 @@ abstract class Utils
      */
     public static function convertSize($bytes, $to, $decimal_places = 1)
     {
-        $formulas = array(
-            'K' => number_format($bytes / 1024, $decimal_places),
-            'M' => number_format($bytes / 1048576, $decimal_places),
-            'G' => number_format($bytes / 1073741824, $decimal_places)
-        );
+        $formulas = ['K' => number_format($bytes / 1024, $decimal_places), 'M' => number_format($bytes / 1048576, $decimal_places), 'G' => number_format($bytes / 1073741824, $decimal_places)];
         return $formulas[$to] ?? 0;
     }
 
@@ -1790,7 +1781,7 @@ abstract class Utils
      */
     public static function prettySize($bytes, $precision = 2)
     {
-        $units = array('B', 'KB', 'MB', 'GB', 'TB');
+        $units = ['B', 'KB', 'MB', 'GB', 'TB'];
 
         $bytes = max($bytes, 0);
         $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
@@ -1832,13 +1823,11 @@ abstract class Utils
     {
         $enc_url = preg_replace_callback(
             '%[^:/@?&=#]+%usD',
-            static function ($matches) {
-                return urlencode($matches[0]);
-            },
+            static fn($matches) => urlencode((string) $matches[0]),
             $url
         );
 
-        $parts = parse_url($enc_url);
+        $parts = parse_url((string) $enc_url);
 
         if ($parts === false) {
             $parts = [];
@@ -1863,7 +1852,7 @@ abstract class Utils
     public static function processMarkdown($string, $block = true, $page = null)
     {
         $grav = Grav::instance();
-        $page = $page ?? $grav['page'] ?? null;
+        $page ??= $grav['page'] ?? null;
         $defaults = [
             'markdown' => $grav['config']->get('system.pages.markdown', []),
             'images' => $grav['config']->get('system.images', [])
@@ -1890,9 +1879,9 @@ abstract class Utils
 
     public static function toAscii(String $string): String
     {
-        return strtr(utf8_decode($string),
-            utf8_decode(
-            'ŠŒŽšœžŸ¥µÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝßàáâãäåæçèéêëìíîïðñòóôõöøùúûüýÿ'),
+        return strtr(mb_convert_encoding($string, 'ISO-8859-1'),
+            mb_convert_encoding(
+            'ŠŒŽšœžŸ¥µÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝßàáâãäåæçèéêëìíîïðñòóôõöøùúûüýÿ', 'ISO-8859-1'),
             'SOZsozYYuAAAAAAACEEEEIIIIDNOOOOOOUUUUYsaaaaaaaceeeeiiiionoooooouuuuyy');
     }
 
@@ -2078,11 +2067,11 @@ abstract class Utils
             return false;
         }
 
-        if (is_array($name) || strpos($name, ":") !== false) {
+        if (is_array($name) || str_contains($name, ":")) {
             return true;
         }
 
-        if (strpos($name, "\\") !== false) {
+        if (str_contains($name, "\\")) {
             return true;
         }
 

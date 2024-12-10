@@ -134,7 +134,7 @@ class IndexCommand extends GpmCommand
         }
 
         foreach ($data as $type => $packages) {
-            $io->writeln('<green>' . strtoupper($type) . '</green> [ ' . count($packages) . ' ]');
+            $io->writeln('<green>' . strtoupper((string) $type) . '</green> [ ' . count($packages) . ' ]');
 
             $packages = $this->sort($packages);
 
@@ -321,13 +321,9 @@ class IndexCommand extends GpmCommand
 
         // Sorting only works once.
         return $packages->sort(
-            function ($a, $b) use ($key) {
-                switch ($key) {
-                    case 'author':
-                        return strcmp($a->{$key}['name'], $b->{$key}['name']);
-                    default:
-                        return strcmp($a->$key, $b->$key);
-                }
+            fn($a, $b) => match ($key) {
+                'author' => strcmp((string) $a->{$key}['name'], (string) $b->{$key}['name']),
+                default => strcmp((string) $a->$key, (string) $b->$key),
             },
             $this->options['desc'] ? true : false
         );

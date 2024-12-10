@@ -168,7 +168,7 @@ class Blueprint extends BlueprintForm
             // Set dynamic property.
             foreach ($data as $property => $call) {
                 $action = $call['action'];
-                $method = 'dynamic' . ucfirst($action);
+                $method = 'dynamic' . ucfirst((string) $action);
                 $call['object'] = $this->object;
 
                 if (isset($this->handlers[$action])) {
@@ -434,7 +434,7 @@ class Blueprint extends BlueprintForm
             $params = [];
         }
 
-        [$o, $f] = explode('::', $function, 2);
+        [$o, $f] = explode('::', (string) $function, 2);
 
         $data = null;
         if (!$f) {
@@ -574,10 +574,9 @@ class Blueprint extends BlueprintForm
     /**
      * @param array $field
      * @param string $property
-     * @param mixed $value
      * @return void
      */
-    public static function addPropertyRecursive(array &$field, $property, $value)
+    public static function addPropertyRecursive(array &$field, $property, mixed $value)
     {
         if (is_array($value) && isset($field[$property]) && is_array($field[$property])) {
             $field[$property] = array_merge_recursive($field[$property], $value);

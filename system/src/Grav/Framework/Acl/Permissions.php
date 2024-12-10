@@ -181,10 +181,9 @@ class Permissions implements ArrayAccess, Countable, IteratorAggregate
 
     /**
      * @param int|string $offset
-     * @param mixed $value
      * @return void
      */
-    public function offsetSet($offset, $value): void
+    public function offsetSet($offset, mixed $value): void
     {
         throw new RuntimeException(__METHOD__ . '(): Not Supported');
     }

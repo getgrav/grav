@@ -54,7 +54,7 @@ class Backups
 
         /** @var EventDispatcher $dispatcher */
         $dispatcher = $grav['events'];
-        $dispatcher->addListener('onSchedulerInitialized', [$this, 'onSchedulerInitialized']);
+        $dispatcher->addListener('onSchedulerInitialized', $this->onSchedulerInitialized(...));
 
         $grav->fireEvent('onBackupsInitialized', new Event(['backups' => $this]));
     }
@@ -106,7 +106,7 @@ class Backups
     {
         $param_sep = Grav::instance()['config']->get('system.param_sep', ':');
         $download = urlencode(base64_encode(Utils::basename($backup)));
-        $url      = rtrim(Grav::instance()['uri']->rootUrl(true), '/') . '/' . trim(
+        $url      = rtrim((string) Grav::instance()['uri']->rootUrl(true), '/') . '/' . trim(
             $base_url,
             '/'
         ) . '/task' . $param_sep . 'backup/download' . $param_sep . $download . '/admin-nonce' . $param_sep . Utils::getNonce('admin-form');
@@ -158,7 +158,7 @@ class Backups
             static::$backups = [];
 
             $grav = Grav::instance();
-            $backups_itr = new GlobIterator(static::$backup_dir . '/*.zip', FilesystemIterator::KEY_AS_FILENAME);
+            $backups_itr = new GlobIterator(static::$backup_dir . '/*.zip', FilesystemIterator::KEY_AS_FILENAME | \FilesystemIterator::SKIP_DOTS);
             $inflector = $grav['inflector'];
             $long_date_format = DATE_RFC2822;
 
@@ -210,7 +210,7 @@ class Backups
 
         $name = $grav['inflector']->underscorize($backup->name);
         $date = date(static::BACKUP_DATE_FORMAT, time());
-        $filename = trim($name, '_') . '--' . $date . '.zip';
+        $filename = trim((string) $name, '_') . '--' . $date . '.zip';
         $destination = static::$backup_dir . DS . $filename;
         $max_execution_time = ini_set('max_execution_time', '600');
         $backup_root = $backup->root;

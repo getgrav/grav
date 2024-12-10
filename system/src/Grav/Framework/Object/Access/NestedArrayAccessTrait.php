@@ -22,7 +22,7 @@ trait NestedArrayAccessTrait
      * @return bool          Returns TRUE on success or FALSE on failure.
      */
     #[\ReturnTypeWillChange]
-    public function offsetExists($offset)
+    public function offsetExists(mixed $offset)
     {
         return $this->hasNestedProperty($offset);
     }
@@ -34,7 +34,7 @@ trait NestedArrayAccessTrait
      * @return mixed         Can return all value types.
      */
     #[\ReturnTypeWillChange]
-    public function offsetGet($offset)
+    public function offsetGet(mixed $offset)
     {
         return $this->getNestedProperty($offset);
     }
@@ -47,7 +47,7 @@ trait NestedArrayAccessTrait
      * @return void
      */
     #[\ReturnTypeWillChange]
-    public function offsetSet($offset, $value)
+    public function offsetSet(mixed $offset, mixed $value)
     {
         $this->setNestedProperty($offset, $value);
     }
@@ -59,7 +59,7 @@ trait NestedArrayAccessTrait
      * @return void
      */
     #[\ReturnTypeWillChange]
-    public function offsetUnset($offset)
+    public function offsetUnset(mixed $offset)
     {
         $this->unsetNestedProperty($offset);
     }

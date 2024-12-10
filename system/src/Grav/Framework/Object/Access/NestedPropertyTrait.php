@@ -82,7 +82,7 @@ trait NestedPropertyTrait
      * @return $this
      * @throws RuntimeException
      */
-    public function setNestedProperty($property, $value, $separator = null)
+    public function setNestedProperty($property, mixed $value, $separator = null)
     {
         $separator = $separator ?: '.';
         $path = explode($separator, $property);
@@ -169,7 +169,7 @@ trait NestedPropertyTrait
      * @return $this
      * @throws RuntimeException
      */
-    public function defNestedProperty($property, $default, $separator = null)
+    public function defNestedProperty($property, mixed $default, $separator = null)
     {
         if (!$this->hasNestedProperty($property, $separator)) {
             $this->setNestedProperty($property, $default, $separator);

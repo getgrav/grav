@@ -172,7 +172,7 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
      * @return static
      * @phpstan-return static<T>
      */
-    public function merge(PageCollectionInterface $collection)
+    public function merge(PageCollectionInterface $collection): never
     {
         throw new RuntimeException(__METHOD__ . '(): Not Implemented');
     }
@@ -184,7 +184,7 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
      * @return static
      * @phpstan-return static<T>
      */
-    public function intersect(PageCollectionInterface $collection)
+    public function intersect(PageCollectionInterface $collection): never
     {
         throw new RuntimeException(__METHOD__ . '(): Not Implemented');
     }
@@ -242,7 +242,7 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
      * @return static
      * @phpstan-return static<T>
      */
-    public function append($items)
+    public function append($items): never
     {
         throw new RuntimeException(__METHOD__ . '(): Not Implemented');
     }
@@ -303,7 +303,7 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
         // do this header query work only once
         $header_query = null;
         $header_default = null;
-        if (strpos($order_by, 'header.') === 0) {
+        if (str_starts_with($order_by, 'header.')) {
             $query = explode('|', str_replace('header.', '', $order_by), 2);
             $header_query = array_shift($query) ?? '';
             $header_default = array_shift($query);
@@ -373,9 +373,7 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
             if ($col) {
                 $col->setAttribute(Collator::NUMERIC_COLLATION, Collator::ON);
                 if (($sort_flags & SORT_NATURAL) === SORT_NATURAL) {
-                    $list = preg_replace_callback('~([0-9]+)\.~', static function ($number) {
-                        return sprintf('%032d.', $number[0]);
-                    }, $list);
+                    $list = preg_replace_callback('~([0-9]+)\.~', static fn($number) => sprintf('%032d.', $number[0]), $list);
                     if (!is_array($list)) {
                         throw new RuntimeException('Internal Error');
                     }
@@ -457,7 +455,7 @@ class PageCollection extends FlexPageCollection implements PageCollectionInterfa
                 continue;
             }
 
-            $date = $field ? strtotime($object->getNestedProperty($field)) : $object->date();
+            $date = $field ? strtotime((string) $object->getNestedProperty($field)) : $object->date();
 
             if ((!$start || $date >= $start) && (!$end || $date <= $end)) {
                 $entries[$key] = $object;

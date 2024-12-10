@@ -25,8 +25,6 @@ class FilesystemServiceProvider implements ServiceProviderInterface
      */
     public function register(Container $container)
     {
-        $container['filesystem'] = function () {
-            return Filesystem::getInstance();
-        };
+        $container['filesystem'] = fn() => Filesystem::getInstance();
     }
 }

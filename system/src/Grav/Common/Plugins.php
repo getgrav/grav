@@ -86,7 +86,7 @@ class Plugins extends Iterator
                     $blueprints["plugin://{$plugin->name}/blueprints"] = $plugin->features['blueprints'];
                 }
                 if (method_exists($plugin, 'getFormFieldTypes')) {
-                    $formFields[get_class($plugin)] = $plugin->features['formfields'] ?? 0;
+                    $formFields[$plugin::class] = $plugin->features['formfields'] ?? 0;
                 }
             }
         }
@@ -168,7 +168,7 @@ class Plugins extends Iterator
     public function add($plugin)
     {
         if (is_object($plugin)) {
-            $this->items[get_class($plugin)] = $plugin;
+            $this->items[$plugin::class] = $plugin;
         }
     }
 

@@ -43,9 +43,8 @@ interface PageLegacyInterface
      * Modify a header value directly
      *
      * @param string $key
-     * @param mixed $value
      */
-    public function modifyHeader($key, $value);
+    public function modifyHeader($key, mixed $value);
 
     /**
      * @return int
@@ -68,9 +67,8 @@ interface PageLegacyInterface
      * Add an entry to the page's contentMeta array
      *
      * @param string $name
-     * @param mixed $value
      */
-    public function addContentMeta($name, $value);
+    public function addContentMeta($name, mixed $value);
 
     /**
      * Return the whole contentMeta array as it currently stands

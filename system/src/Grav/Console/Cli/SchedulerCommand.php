@@ -137,7 +137,7 @@ class SchedulerCommand extends GravCommand
 
             foreach ($jobs as $job) {
                 $job_state = $job_states[$job->getId()];
-                $error = isset($job_state['error']) ? trim($job_state['error']) : false;
+                $error = isset($job_state['error']) ? trim((string) $job_state['error']) : false;
 
                 /** @var CronExpression $expression */
                 $expression = $job->getCronExpression();

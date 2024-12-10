@@ -46,7 +46,7 @@ class MediumFactory
 
         $config = Grav::instance()['config'];
 
-        $media_params = $ext ? $config->get('media.types.' . strtolower($ext)) : null;
+        $media_params = $ext ? $config->get('media.types.' . strtolower((string) $ext)) : null;
         if (!is_array($media_params)) {
             return null;
         }
@@ -111,7 +111,7 @@ class MediumFactory
 
         $config = Grav::instance()['config'];
 
-        $media_params = $ext ? $config->get('media.types.' . strtolower($ext)) : null;
+        $media_params = $ext ? $config->get('media.types.' . strtolower((string) $ext)) : null;
         if (!is_array($media_params)) {
             return null;
         }
@@ -154,22 +154,15 @@ class MediumFactory
     {
         $type = $items['type'] ?? null;
 
-        switch ($type) {
-            case 'image':
-                return new ImageMedium($items, $blueprint);
-            case 'thumbnail':
-                return new ThumbnailImageMedium($items, $blueprint);
-            case 'vector':
-                return new VectorImageMedium($items, $blueprint);
-            case 'animated':
-                return new StaticImageMedium($items, $blueprint);
-            case 'video':
-                return new VideoMedium($items, $blueprint);
-            case 'audio':
-                return new AudioMedium($items, $blueprint);
-            default:
-                return new Medium($items, $blueprint);
-        }
+        return match ($type) {
+            'image' => new ImageMedium($items, $blueprint),
+            'thumbnail' => new ThumbnailImageMedium($items, $blueprint),
+            'vector' => new VectorImageMedium($items, $blueprint),
+            'animated' => new StaticImageMedium($items, $blueprint),
+            'video' => new VideoMedium($items, $blueprint),
+            'audio' => new AudioMedium($items, $blueprint),
+            default => new Medium($items, $blueprint),
+        };
     }
 
     /**

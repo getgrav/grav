@@ -100,10 +100,9 @@ class UserGroupObject extends FlexObject implements UserGroupInterface
     }
 
     /**
-     * @param mixed $value
      * @return array
      */
-    protected function offsetLoad_access($value): array
+    protected function offsetLoad_access(mixed $value): array
     {
         if (!$value instanceof Access) {
             $value = new Access($value);
@@ -115,10 +114,9 @@ class UserGroupObject extends FlexObject implements UserGroupInterface
     }
 
     /**
-     * @param mixed $value
      * @return array
      */
-    protected function offsetPrepare_access($value): array
+    protected function offsetPrepare_access(mixed $value): array
     {
         return $this->offsetLoad_access($value);
     }

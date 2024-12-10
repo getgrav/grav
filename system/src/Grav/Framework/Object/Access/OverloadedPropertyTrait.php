@@ -22,7 +22,7 @@ trait OverloadedPropertyTrait
      * @return bool          Returns TRUE on success or FALSE on failure.
      */
     #[\ReturnTypeWillChange]
-    public function __isset($offset)
+    public function __isset(mixed $offset)
     {
         return $this->hasProperty($offset);
     }
@@ -34,7 +34,7 @@ trait OverloadedPropertyTrait
      * @return mixed         Can return all value types.
      */
     #[\ReturnTypeWillChange]
-    public function __get($offset)
+    public function __get(mixed $offset)
     {
         return $this->getProperty($offset);
     }
@@ -47,7 +47,7 @@ trait OverloadedPropertyTrait
      * @return void
      */
     #[\ReturnTypeWillChange]
-    public function __set($offset, $value)
+    public function __set(mixed $offset, mixed $value)
     {
         $this->setProperty($offset, $value);
     }
@@ -59,7 +59,7 @@ trait OverloadedPropertyTrait
      * @return void
      */
     #[\ReturnTypeWillChange]
-    public function __unset($offset)
+    public function __unset(mixed $offset)
     {
         $this->unsetProperty($offset);
     }

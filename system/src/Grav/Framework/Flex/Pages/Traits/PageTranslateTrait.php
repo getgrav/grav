@@ -232,7 +232,7 @@ trait PageTranslateTrait
             'lang',
             $var,
             function ($value) {
-                $value = $value ?? $this->getMetaData()['lang'] ?? '';
+                $value ??= $this->getMetaData()['lang'] ?? '';
 
                 return trim($value) ?: null;
             }
@@ -272,7 +272,7 @@ trait PageTranslateTrait
      */
     protected function getFallbackLanguages(?string $languageCode = null, ?bool $fallback = null): array
     {
-        $fallback = $fallback ?? true;
+        $fallback ??= true;
         if (!$fallback && null !== $languageCode) {
             return [$languageCode];
         }
@@ -281,7 +281,7 @@ trait PageTranslateTrait
 
         /** @var Language $language */
         $language = $grav['language'];
-        $languageCode = $languageCode ?? ($language->getLanguage() ?: '');
+        $languageCode ??= $language->getLanguage() ?: '';
         if ($languageCode === '' && $fallback) {
             return $language->getFallbackLanguages(null, true);
         }

@@ -148,11 +148,10 @@ class FlexDirectoryForm implements FlexDirectoryFormInterface, JsonSerializable
 
     /**
      * @param string $name
-     * @param mixed $default
      * @param string|null $separator
      * @return mixed
      */
-    public function get($name, $default = null, $separator = null)
+    public function get($name, mixed $default = null, $separator = null)
     {
         switch (strtolower($name)) {
             case 'id':
@@ -176,11 +175,10 @@ class FlexDirectoryForm implements FlexDirectoryFormInterface, JsonSerializable
 
     /**
      * @param string $name
-     * @param mixed $value
      * @param string|null $separator
      * @return $this
      */
-    public function set($name, $value, $separator = null)
+    public function set($name, mixed $value, $separator = null)
     {
         switch (strtolower($name)) {
             case 'id':
@@ -374,11 +372,10 @@ class FlexDirectoryForm implements FlexDirectoryFormInterface, JsonSerializable
 
     /**
      * @param string $name
-     * @param mixed $value
      * @return void
      */
     #[\ReturnTypeWillChange]
-    public function __set($name, $value)
+    public function __set($name, mixed $value)
     {
         $method = "set{$name}";
         if (method_exists($this, $method)) {

@@ -27,7 +27,7 @@ class Browser
     {
         try {
             $this->useragent = parse_user_agent();
-        } catch (InvalidArgumentException $e) {
+        } catch (InvalidArgumentException) {
             $this->useragent = parse_user_agent("Mozilla/5.0 (compatible; Unknown;)");
         }
     }

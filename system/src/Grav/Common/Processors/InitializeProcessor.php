@@ -126,9 +126,7 @@ class InitializeProcessor extends ProcessorBase
 
         // Wrap call to next handler so that debugger can profile it.
         /** @var Response $response */
-        $response = $debugger->profile(static function () use ($handler, $request) {
-            return $handler->handle($request);
-        });
+        $response = $debugger->profile(static fn() => $handler->handle($request));
 
         // Log both request and response and return the response.
         return $debugger->logRequest($request, $response);
@@ -448,7 +446,7 @@ class InitializeProcessor extends ProcessorBase
 
             try {
                 $session->init();
-            } catch (SessionException $e) {
+            } catch (SessionException) {
                 $session->init();
                 $message = 'Session corruption detected, restarting session...';
                 $this->addMessage($message);

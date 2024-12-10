@@ -69,9 +69,7 @@ trait PageRoutableTrait
         $value = $this->loadHeaderProperty(
             'routable',
             $var,
-            static function ($value) {
-                return $value ?? true;
-            }
+            static fn($value) => $value ?? true
         );
 
         return $value && $this->published() && !$this->isModule() && !$this->root() && $this->getLanguages(true);
@@ -300,9 +298,7 @@ trait PageRoutableTrait
         return $this->loadHeaderProperty(
             'redirect',
             $var,
-            static function ($value) {
-                return trim($value) ?: null;
-            }
+            static fn($value) => trim((string) $value) ?: null
         );
     }
 

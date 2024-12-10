@@ -14,7 +14,7 @@ use Grav\Common\Data\Data;
 /**
  * @property string $name
  */
-class Package
+class Package implements \Stringable
 {
     /** @var Data */
     protected $data;
@@ -53,11 +53,10 @@ class Package
 
     /**
      * @param string $key
-     * @param mixed $value
      * @return void
      */
     #[\ReturnTypeWillChange]
-    public function __set($key, $value)
+    public function __set($key, mixed $value)
     {
         $this->data->set($key, $value);
     }
@@ -76,7 +75,7 @@ class Package
      * @return string
      */
     #[\ReturnTypeWillChange]
-    public function __toString()
+    public function __toString(): string
     {
         return $this->toJson();
     }

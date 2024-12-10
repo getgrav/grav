@@ -152,14 +152,14 @@ class Media extends AbstractMedia
         foreach ($iterator as $file => $info) {
             // Ignore folders and Markdown files.
             $filename = $info->getFilename();
-            if (!$info->isFile() || $info->getExtension() === 'md' || $filename === 'frontmatter.yaml' || $filename === 'media.json' || strpos($filename, '.') === 0) {
+            if (!$info->isFile() || $info->getExtension() === 'md' || $filename === 'frontmatter.yaml' || $filename === 'media.json' || str_starts_with($filename, '.')) {
                 continue;
             }
 
             // Find out what type we're dealing with
             [$basename, $ext, $type, $extra] = $this->getFileParts($filename);
 
-            if (!in_array(strtolower($ext), $media_types, true)) {
+            if (!in_array(strtolower((string) $ext), $media_types, true)) {
                 continue;
             }
 

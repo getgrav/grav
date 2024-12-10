@@ -156,7 +156,7 @@ interface FileInterface extends Serializable
      * @throws RuntimeException
      * @api
      */
-    public function save($data): void;
+    public function save(mixed $data): void;
 
     /**
      * Rename file in the filesystem if it exists.

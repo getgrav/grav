@@ -48,7 +48,7 @@ trait ObjectTrait
             return $type . static::$type;
         }
 
-        $class = get_class($this);
+        $class = $this::class;
         return $type . strtolower(substr($class, strrpos($class, '\\') + 1));
     }
 
@@ -82,7 +82,7 @@ trait ObjectTrait
      * @param mixed $default        Default value if property has not been set.
      * @return mixed                Property value.
      */
-    public function getProperty($property, $default = null)
+    public function getProperty($property, mixed $default = null)
     {
         return $this->doGetProperty($property, $default);
     }
@@ -92,7 +92,7 @@ trait ObjectTrait
      * @param mixed  $value         New value.
      * @return $this
      */
-    public function setProperty($property, $value)
+    public function setProperty($property, mixed $value)
     {
         $this->doSetProperty($property, $value);
 
@@ -115,7 +115,7 @@ trait ObjectTrait
      * @param mixed   $default      Default value.
      * @return $this
      */
-    public function defProperty($property, $default)
+    public function defProperty($property, mixed $default)
     {
         if (!$this->hasProperty($property)) {
             $this->setProperty($property, $default);

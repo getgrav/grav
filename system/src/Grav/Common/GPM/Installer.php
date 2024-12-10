@@ -81,7 +81,7 @@ class Installer
     {
         $destination = rtrim($destination, DS);
         $options = array_merge(self::$options, $options);
-        $install_path = rtrim($destination . DS . ltrim($options['install_path'], DS), DS);
+        $install_path = rtrim($destination . DS . ltrim((string) $options['install_path'], DS), DS);
 
         if (!self::isGravInstance($destination) || !self::isValidDestination(
             $install_path,

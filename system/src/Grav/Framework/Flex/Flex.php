@@ -306,7 +306,7 @@ class Flex implements FlexInterface
     protected function resolveKeyAndType(string $flexKey, ?string $type = null): array
     {
         $guess = false;
-        if (strpos($flexKey, ':') !== false) {
+        if (str_contains($flexKey, ':')) {
             [$type, $key] = explode(':', $flexKey, 2);
 
             $type = $this->resolveType($type);
@@ -325,7 +325,7 @@ class Flex implements FlexInterface
      */
     protected function resolveType(?string $type = null): string
     {
-        if (null !== $type && strpos($type, '.') !== false) {
+        if (null !== $type && str_contains($type, '.')) {
             return preg_replace('|\.obj$|', '', $type) ?? $type;
         }
 

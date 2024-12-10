@@ -73,7 +73,7 @@ class RequestServiceProvider implements ServiceProviderInterface
                                 if (!is_array($post)) {
                                     $post = null;
                                 }
-                            } catch (JsonException $e) {
+                            } catch (JsonException) {
                                 $post = null;
                             }
                             break 2;
@@ -86,7 +86,7 @@ class RequestServiceProvider implements ServiceProviderInterface
             unset($get['_url']);
             if (isset($server['QUERY_STRING'])) {
                 $query = $server['QUERY_STRING'];
-                if (strpos($query, '_url=') !== false) {
+                if (str_contains($query, '_url=')) {
                     parse_str($query, $query);
                     unset($query['_url']);
                     $server['QUERY_STRING'] = http_build_query($query);
@@ -96,8 +96,6 @@ class RequestServiceProvider implements ServiceProviderInterface
             return $creator->fromArrays($server, $headers, $_COOKIE, $get, $post, $_FILES, fopen('php://input', 'rb') ?: null);
         };
 
-        $container['route'] = $container->factory(function () {
-            return clone Uri::getCurrentRoute();
-        });
+        $container['route'] = $container->factory(fn() => clone Uri::getCurrentRoute());
     }
 }

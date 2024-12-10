@@ -54,11 +54,7 @@ class SimplePageHandler extends Handler
             $code = Misc::translateErrorCode($code);
         }
 
-        $vars = array(
-            'stylesheet' => file_get_contents($cssFile),
-            'code'        => $code,
-            'message'     => htmlspecialchars(strip_tags(rawurldecode($message)), ENT_QUOTES, 'UTF-8'),
-        );
+        $vars = ['stylesheet' => file_get_contents($cssFile), 'code'        => $code, 'message'     => htmlspecialchars(strip_tags(rawurldecode($message)), ENT_QUOTES, 'UTF-8')];
 
         $helper->setVariables($vars);
         $helper->render($templateFile);

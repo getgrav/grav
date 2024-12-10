@@ -109,7 +109,7 @@ trait RelationshipTrait
             throw new RuntimeException(sprintf('Bad identifier type %s', $identifier->getType()));
         }
 
-        if (get_class($identifier) !== Identifier::class) {
+        if ($identifier::class !== Identifier::class) {
             return $identifier;
         }
 

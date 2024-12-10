@@ -30,7 +30,7 @@ trait UserObjectLegacyTrait
      */
     public function merge(array $data)
     {
-        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6, use ->update($data) method instead', E_USER_DEPRECATED);
+        user_error(self::class . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6, use ->update($data) method instead', E_USER_DEPRECATED);
 
         $this->setElements($this->getBlueprint()->mergeData($this->toArray(), $data));
 
@@ -45,7 +45,7 @@ trait UserObjectLegacyTrait
      */
     public function getAvatarMedia()
     {
-        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6, use ->getAvatarImage() method instead', E_USER_DEPRECATED);
+        user_error(self::class . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6, use ->getAvatarImage() method instead', E_USER_DEPRECATED);
 
         return $this->getAvatarImage();
     }
@@ -58,7 +58,7 @@ trait UserObjectLegacyTrait
      */
     public function avatarUrl()
     {
-        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6, use ->getAvatarUrl() method instead', E_USER_DEPRECATED);
+        user_error(self::class . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6, use ->getAvatarUrl() method instead', E_USER_DEPRECATED);
 
         return $this->getAvatarUrl();
     }
@@ -73,7 +73,7 @@ trait UserObjectLegacyTrait
      */
     public function authorise($action)
     {
-        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.5, use ->authorize() method instead', E_USER_DEPRECATED);
+        user_error(self::class . '::' . __FUNCTION__ . '() is deprecated since Grav 1.5, use ->authorize() method instead', E_USER_DEPRECATED);
 
         return $this->authorize($action) ?? false;
     }
@@ -87,7 +87,7 @@ trait UserObjectLegacyTrait
     #[\ReturnTypeWillChange]
     public function count()
     {
-        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6', E_USER_DEPRECATED);
+        user_error(self::class . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6', E_USER_DEPRECATED);
 
         return count($this->jsonSerialize());
     }

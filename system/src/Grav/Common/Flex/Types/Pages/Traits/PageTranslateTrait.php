@@ -92,9 +92,7 @@ trait PageTranslateTrait
             $list[$languageCode ?: $defaultCode] = $route ?? '';
         }
 
-        $list = array_filter($list, static function ($var) {
-            return null !== $var;
-        });
+        $list = array_filter($list, static fn($var) => null !== $var);
 
         // Hack to get the same result as with old pages.
         foreach ($list as &$path) {

@@ -62,7 +62,7 @@ class GpmCommand extends Command
 
         $io = $this->getIO();
         $io->newLine();
-        $io->writeln('GPM Releases Configuration: <yellow>' . ucfirst($config->get('system.gpm.releases')) . '</yellow>');
+        $io->writeln('GPM Releases Configuration: <yellow>' . ucfirst((string) $config->get('system.gpm.releases')) . '</yellow>');
         $io->newLine();
     }
 }

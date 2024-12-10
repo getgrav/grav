@@ -37,8 +37,6 @@ class GPM extends Iterator
     private $repository;
     /** @var Remote\GravCore|null Remove Grav Packages */
     private $grav;
-    /** @var bool */
-    private $refresh;
     /** @var callable|null */
     private $callback;
 
@@ -57,7 +55,7 @@ class GPM extends Iterator
      * @param bool $refresh Applies to Remote Packages only and forces a refetch of data
      * @param callable|null $callback Either a function or callback in array notation
      */
-    public function __construct($refresh = false, $callback = null)
+    public function __construct(private $refresh = false, $callback = null)
     {
         parent::__construct();
 
@@ -65,7 +63,6 @@ class GPM extends Iterator
 
         $this->cache = [];
         $this->installed = new Local\Packages();
-        $this->refresh = $refresh;
         $this->callback = $callback;
     }
 
@@ -78,12 +75,10 @@ class GPM extends Iterator
     #[\ReturnTypeWillChange]
     public function __get($offset)
     {
-        switch ($offset) {
-            case 'grav':
-                return $this->getGrav();
-        }
-
-        return parent::__get($offset);
+        return match ($offset) {
+            'grav' => $this->getGrav(),
+            default => parent::__get($offset),
+        };
     }
 
     /**
@@ -95,12 +90,10 @@ class GPM extends Iterator
     #[\ReturnTypeWillChange]
     public function __isset($offset)
     {
-        switch ($offset) {
-            case 'grav':
-                return $this->getGrav() !== null;
-        }
-
-        return parent::__isset($offset);
+        return match ($offset) {
+            'grav' => $this->getGrav() !== null,
+            default => parent::__isset($offset),
+        };
     }
 
     /**
@@ -550,7 +543,7 @@ class GPM extends Iterator
         if (null === $this->repository) {
             try {
                 $this->repository = new Remote\Packages($this->refresh, $this->callback);
-            } catch (Exception $e) {}
+            } catch (Exception) {}
         }
 
         return $this->repository;
@@ -566,7 +559,7 @@ class GPM extends Iterator
         if (null === $this->grav) {
             try {
                 $this->grav = new Remote\GravCore($this->refresh, $this->callback);
-            } catch (Exception $e) {}
+            } catch (Exception) {}
         }
 
         return $this->grav;
@@ -1220,7 +1213,7 @@ class GPM extends Iterator
      */
     public function versionFormatIsNextSignificantRelease($version): bool
     {
-        return strpos($version, '~') === 0;
+        return str_starts_with($version, '~');
     }
 
     /**
@@ -1233,7 +1226,7 @@ class GPM extends Iterator
      */
     public function versionFormatIsEqualOrHigher($version): bool
     {
-        return strpos($version, '>=') === 0;
+        return str_starts_with($version, '>=');
     }
 
     /**

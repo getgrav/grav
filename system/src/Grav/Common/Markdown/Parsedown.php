@@ -35,7 +35,7 @@ class Parsedown extends \Parsedown
                 $defaults = ['markdown' => $defaults];
             }
             $excerpts = new Excerpts($excerpts, $defaults);
-            user_error(__CLASS__ . '::' . __FUNCTION__ . '($page, $defaults) is deprecated since Grav 1.6.10, use new ' . __CLASS__ . '(new ' . Excerpts::class . '($page, [\'markdown\' => $defaults])) instead.', E_USER_DEPRECATED);
+            user_error(self::class . '::' . __FUNCTION__ . '($page, $defaults) is deprecated since Grav 1.6.10, use new ' . self::class . '(new ' . Excerpts::class . '($page, [\'markdown\' => $defaults])) instead.', E_USER_DEPRECATED);
         }
 
         $this->init($excerpts, $defaults);

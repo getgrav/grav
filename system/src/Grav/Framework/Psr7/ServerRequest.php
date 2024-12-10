@@ -50,11 +50,7 @@ class ServerRequest implements ServerRequestInterface
     {
         $mediaTypeParams = $this->getMediaTypeParams();
 
-        if (isset($mediaTypeParams['charset'])) {
-            return $mediaTypeParams['charset'];
-        }
-
-        return null;
+        return $mediaTypeParams['charset'] ?? null;
     }
 
     /**
@@ -95,7 +91,7 @@ class ServerRequest implements ServerRequestInterface
      *
      * @return mixed
      */
-    public function getCookieParam($key, $default = null)
+    public function getCookieParam($key, mixed $default = null)
     {
         $cookies = $this->getRequest()->getCookieParams();
 
@@ -202,11 +198,10 @@ class ServerRequest implements ServerRequestInterface
      * Note: This method is not part of the PSR-7 standard.
      *
      * @param string $key
-     * @param mixed $default
      *
      * @return mixed
      */
-    public function getParsedBodyParam($key, $default = null)
+    public function getParsedBodyParam($key, mixed $default = null)
     {
         $postParams = $this->getParsedBody();
         $result = $default;
@@ -226,11 +221,10 @@ class ServerRequest implements ServerRequestInterface
      * Note: This method is not part of the PSR-7 standard.
      *
      * @param string $key
-     * @param mixed $default
      *
      * @return mixed
      */
-    public function getQueryParam($key, $default = null)
+    public function getQueryParam($key, mixed $default = null)
     {
         $getParams = $this->getQueryParams();
 
@@ -243,10 +237,9 @@ class ServerRequest implements ServerRequestInterface
      * Note: This method is not part of the PSR-7 standard.
      *
      * @param  string $key
-     * @param  mixed  $default
      * @return mixed
      */
-    public function getServerParam($key, $default = null)
+    public function getServerParam($key, mixed $default = null)
     {
         $serverParams = $this->getRequest()->getServerParams();
 

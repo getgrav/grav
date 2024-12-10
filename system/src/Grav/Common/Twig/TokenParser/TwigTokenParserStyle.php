@@ -41,7 +41,7 @@ class TwigTokenParserStyle extends AbstractTokenParser
 
         $content = null;
         if (!$file) {
-            $content = $this->parser->subparse([$this, 'decideBlockEnd'], true);
+            $content = $this->parser->subparse($this->decideBlockEnd(...), true);
             $stream->expect(Token::BLOCK_END_TYPE);
         }
 

@@ -30,8 +30,6 @@ use function is_string;
  */
 class Plugin implements EventSubscriberInterface, ArrayAccess
 {
-    /** @var string */
-    public $name;
     /** @var array */
     public $features = [];
 
@@ -57,7 +55,7 @@ class Plugin implements EventSubscriberInterface, ArrayAccess
 
         $list = [];
         foreach ($methods as $method) {
-            if (strpos($method, 'on') === 0) {
+            if (str_starts_with($method, 'on')) {
                 $list[$method] = [$method, 0];
             }
         }
@@ -72,9 +70,8 @@ class Plugin implements EventSubscriberInterface, ArrayAccess
      * @param Grav   $grav
      * @param Config|null $config
      */
-    public function __construct($name, Grav $grav, ?Config $config = null)
+    public function __construct(public $name, Grav $grav, ?Config $config = null)
     {
-        $this->name = $name;
         $this->grav = $grav;
 
         if ($config) {
@@ -156,7 +153,7 @@ class Plugin implements EventSubscriberInterface, ArrayAccess
         /** @var Config $config */
         $config = $this->config ?? $this->grav['config'];
 
-        if (strpos($uri->path(), $config->get('plugins.admin.route') . '/' . $plugin_route) === false) {
+        if (!str_contains($uri->path(), $config->get('plugins.admin.route') . '/' . $plugin_route)) {
             $active = false;
         } elseif (isset($uri->paths()[1]) && $uri->paths()[1] === $plugin_route) {
             $active = true;
@@ -265,9 +262,9 @@ class Plugin implements EventSubscriberInterface, ArrayAccess
      * @throws LogicException
      */
     #[\ReturnTypeWillChange]
-    public function offsetSet($offset, $value)
+    public function offsetSet($offset, mixed $value)
     {
-        throw new LogicException(__CLASS__ . ' blueprints cannot be modified.');
+        throw new LogicException(self::class . ' blueprints cannot be modified.');
     }
 
     /**
@@ -279,7 +276,7 @@ class Plugin implements EventSubscriberInterface, ArrayAccess
     #[\ReturnTypeWillChange]
     public function offsetUnset($offset)
     {
-        throw new LogicException(__CLASS__ . ' blueprints cannot be modified.');
+        throw new LogicException(self::class . ' blueprints cannot be modified.');
     }
 
     /**
@@ -330,7 +327,7 @@ class Plugin implements EventSubscriberInterface, ArrayAccess
      * @param string $type Is this 'plugins' or 'themes'
      * @return Data
      */
-    protected function mergeConfig(PageInterface $page, $deep = false, $params = [], $type = 'plugins')
+    protected function mergeConfig(PageInterface $page, mixed $deep = false, $params = [], $type = 'plugins')
     {
         /** @var Config $config */
         $config = $this->config ?? $this->grav['config'];
@@ -419,7 +416,7 @@ class Plugin implements EventSubscriberInterface, ArrayAccess
         if (Utils::isAdminPlugin()) {
             $page = Grav::instance()['admin']->page() ?? null;
         } else {
-            $page = $page ?? Grav::instance()['page'] ?? null;
+            $page ??= Grav::instance()['page'] ?? null;
         }
 
         // Try to find var in the page headers

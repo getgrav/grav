@@ -89,7 +89,7 @@ trait UserTrait
         }
 
         // User needs to be authorized (2FA).
-        if (strpos($action, 'login') === false && !$this->get('authorized', true)) {
+        if (!str_contains($action, 'login') && !$this->get('authorized', true)) {
             return false;
         }
 
@@ -184,7 +184,7 @@ trait UserTrait
                 return '';
             }
 
-            $hash = md5(strtolower(trim($email)));
+            $hash = md5(strtolower(trim((string) $email)));
 
             return 'https://www.gravatar.com/avatar/' . $hash;
         }

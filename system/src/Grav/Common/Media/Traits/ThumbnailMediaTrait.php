@@ -138,7 +138,7 @@ trait ThumbnailMediaTrait
             $closure = [$parent, $method];
 
             if (!is_callable($closure)) {
-                throw new BadMethodCallException(get_class($parent) . '::' . $method . '() not found.');
+                throw new BadMethodCallException($parent::class . '::' . $method . '() not found.');
             }
 
             return $closure(...$arguments);

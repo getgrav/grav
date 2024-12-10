@@ -55,7 +55,7 @@ trait PageLegacyTrait
      * @param  string|null $extension
      * @return $this
      */
-    public function init(SplFileInfo $file, $extension = null)
+    public function init(SplFileInfo $file, $extension = null): never
     {
         // TODO:
         throw new RuntimeException(__METHOD__ . '(): Not Implemented');
@@ -159,7 +159,7 @@ trait PageLegacyTrait
 
         // Set Cache-Control header.
         if ($cache_control) {
-            $headers['Cache-Control'] = strtolower($cache_control);
+            $headers['Cache-Control'] = strtolower((string) $cache_control);
         }
 
         // Set Last-Modified header.
@@ -374,7 +374,7 @@ trait PageLegacyTrait
         }
 
         $post_value = $_POST['blueprint'];
-        $sanitized_value = htmlspecialchars(strip_tags($post_value), ENT_QUOTES, 'UTF-8');
+        $sanitized_value = htmlspecialchars(strip_tags((string) $post_value), ENT_QUOTES, 'UTF-8');
 
         return $sanitized_value ?: $this->template();
     }
@@ -467,7 +467,7 @@ trait PageLegacyTrait
             'name',
             $var,
             function ($value) {
-                $value = $value ?? $this->getMetaData()['template'] ?? 'default';
+                $value ??= $this->getMetaData()['template'] ?? 'default';
                 if (!preg_match('/\.md$/', $value)) {
                     $language = $this->language();
                     if ($language) {
@@ -507,9 +507,7 @@ trait PageLegacyTrait
         return $this->loadHeaderProperty(
             'template',
             $var,
-            function ($value) {
-                return trim($value ?? (($this->isModule() ? 'modular/' : '') . str_replace($this->extension(), '', $this->name())));
-            }
+            fn($value) => trim($value ?? (($this->isModule() ? 'modular/' : '') . str_replace($this->extension(), '', $this->name())))
         );
     }
 
@@ -525,9 +523,7 @@ trait PageLegacyTrait
         return $this->loadHeaderProperty(
             'template_format',
             $var,
-            function ($value) {
-                return ltrim($value ?? $this->getNestedProperty('header.append_url_extension') ?: Utils::getPageFormat(), '.');
-            }
+            fn($value) => ltrim((string) ($value ?? $this->getNestedProperty('header.append_url_extension') ?: Utils::getPageFormat()), '.')
         );
     }
 
@@ -563,9 +559,7 @@ trait PageLegacyTrait
         return $this->loadHeaderProperty(
             'expires',
             $var,
-            static function ($value) {
-                return (int)($value ?? Grav::instance()['config']->get('system.pages.expires'));
-            }
+            static fn($value) => (int)($value ?? Grav::instance()['config']->get('system.pages.expires'))
         );
     }
 
@@ -581,9 +575,7 @@ trait PageLegacyTrait
         return $this->loadHeaderProperty(
             'cache_control',
             $var,
-            static function ($value) {
-                return ((string)($value ?? Grav::instance()['config']->get('system.pages.cache_control'))) ?: null;
-            }
+            static fn($value) => ((string)($value ?? Grav::instance()['config']->get('system.pages.cache_control'))) ?: null
         );
     }
 
@@ -596,9 +588,7 @@ trait PageLegacyTrait
         return $this->loadHeaderProperty(
             'ssl',
             $var,
-            static function ($value) {
-                return $value ? (bool)$value : null;
-            }
+            static fn($value) => $value ? (bool)$value : null
         );
     }
 
@@ -655,7 +645,7 @@ trait PageLegacyTrait
                         $this->_metadata[$prop_key] = [
                             'name' => $prop_key,
                             'property' => $prop_key,
-                            'content' => $escape ? htmlspecialchars($prop_value, ENT_QUOTES | ENT_HTML5, 'UTF-8') : $prop_value
+                            'content' => $escape ? htmlspecialchars((string) $prop_value, ENT_QUOTES | ENT_HTML5, 'UTF-8') : $prop_value
                         ];
                     }
                 } elseif ($value) {
@@ -663,16 +653,16 @@ trait PageLegacyTrait
                     if (in_array($key, $header_tag_http_equivs, true)) {
                         $this->_metadata[$key] = [
                             'http_equiv' => $key,
-                            'content' => $escape ? htmlspecialchars($value, ENT_COMPAT, 'UTF-8') : $value
+                            'content' => $escape ? htmlspecialchars((string) $value, ENT_COMPAT, 'UTF-8') : $value
                         ];
                     } elseif ($key === 'charset') {
-                        $this->_metadata[$key] = ['charset' => $escape ? htmlspecialchars($value, ENT_QUOTES | ENT_HTML5, 'UTF-8') : $value];
+                        $this->_metadata[$key] = ['charset' => $escape ? htmlspecialchars((string) $value, ENT_QUOTES | ENT_HTML5, 'UTF-8') : $value];
                     } else {
                         // if it's a social metadata with separator, render as property
                         $separator = strpos($key, ':');
                         $hasSeparator = $separator && $separator < strlen($key) - 1;
                         $entry = [
-                            'content' => $escape ? htmlspecialchars($value, ENT_QUOTES | ENT_HTML5, 'UTF-8') : $value
+                            'content' => $escape ? htmlspecialchars((string) $value, ENT_QUOTES | ENT_HTML5, 'UTF-8') : $value
                         ];
 
                         if ($hasSeparator && !Utils::startsWith($key, 'twitter')) {
@@ -709,9 +699,7 @@ trait PageLegacyTrait
         return $this->loadHeaderProperty(
             'etag',
             $var,
-            static function ($value) {
-                return (bool)($value ?? Grav::instance()['config']->get('system.pages.etag'));
-            }
+            static fn($value) => (bool)($value ?? Grav::instance()['config']->get('system.pages.etag'))
         );
     }
 
@@ -770,9 +758,7 @@ trait PageLegacyTrait
         return $this->loadHeaderProperty(
             'order_dir',
             $var,
-            static function ($value) {
-                return strtolower(trim($value) ?: Grav::instance()['config']->get('system.pages.order.dir')) === 'desc' ? 'desc' : 'asc';
-            }
+            static fn($value) => strtolower((string) (trim((string) $value) ?: Grav::instance()['config']->get('system.pages.order.dir'))) === 'desc' ? 'desc' : 'asc'
         );
     }
 
@@ -792,9 +778,7 @@ trait PageLegacyTrait
         return $this->loadHeaderProperty(
             'order_by',
             $var,
-            static function ($value) {
-                return trim($value) ?: Grav::instance()['config']->get('system.pages.order.by');
-            }
+            static fn($value) => trim((string) $value) ?: Grav::instance()['config']->get('system.pages.order.by')
         );
     }
 
@@ -809,9 +793,7 @@ trait PageLegacyTrait
         return $this->loadHeaderProperty(
             'order_manual',
             $var,
-            static function ($value) {
-                return (array)$value;
-            }
+            static fn($value) => (array)$value
         );
     }
 
@@ -827,9 +809,7 @@ trait PageLegacyTrait
         return $this->loadHeaderProperty(
             'max_count',
             $var,
-            static function ($value) {
-                return (int)($value ?? Grav::instance()['config']->get('system.pages.list.count'));
-            }
+            static fn($value) => (int)($value ?? Grav::instance()['config']->get('system.pages.list.count'))
         );
     }
 
@@ -863,7 +843,7 @@ trait PageLegacyTrait
             }
         }
 
-        return (bool)($this->getProperty('modular_twig') ?? strpos($this->slug(), '_') === 0);
+        return (bool)($this->getProperty('modular_twig') ?? str_starts_with($this->slug(), '_'));
     }
 
     /**

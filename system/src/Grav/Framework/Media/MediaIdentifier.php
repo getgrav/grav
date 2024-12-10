@@ -121,7 +121,7 @@ class MediaIdentifier extends Identifier
         do {
             $part = array_shift($parts);
             $folder .= "/{$part}";
-        } while (!str_starts_with($part, 'flex-'));
+        } while (!str_starts_with((string) $part, 'flex-'));
 
         $uniqueId = array_shift($parts);
         $field = array_shift($parts);

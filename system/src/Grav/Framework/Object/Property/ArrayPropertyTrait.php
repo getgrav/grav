@@ -50,7 +50,7 @@ trait ArrayPropertyTrait
      * @param bool $doCreate        Set true to create variable.
      * @return mixed                Property value.
      */
-    protected function &doGetProperty($property, $default = null, $doCreate = false)
+    protected function &doGetProperty($property, mixed $default = null, $doCreate = false)
     {
         if (!array_key_exists($property, $this->_elements)) {
             if ($doCreate) {
@@ -68,7 +68,7 @@ trait ArrayPropertyTrait
      * @param mixed  $value         New value.
      * @return void
      */
-    protected function doSetProperty($property, $value)
+    protected function doSetProperty($property, mixed $value)
     {
         $this->_elements[$property] = $value;
     }
@@ -97,9 +97,7 @@ trait ArrayPropertyTrait
      */
     protected function getElements()
     {
-        return array_filter($this->_elements, static function ($val) {
-            return $val !== null;
-        });
+        return array_filter($this->_elements, static fn($val) => $val !== null);
     }
 
     /**

@@ -240,7 +240,7 @@ class PageSystemValidatorCommand extends GravCommand
                 $result = $page->$method(...$p);
                 if (in_array($method, ['summary', 'content', 'getRawContent'], true)) {
                     $result = preg_replace('/name="(form-nonce|__unique_form_id__)" value="[^"]+"/',
-                        'name="\\1" value="DYNAMIC"', $result);
+                        'name="\\1" value="DYNAMIC"', (string) $result);
                     $result = preg_replace('`src=("|\'|&quot;)/images/./././././[^"]+\\1`',
                         'src="\\1images/GENERATED\\1', $result);
                     $result = preg_replace('/\?\d{10}/', '?1234567890', $result);

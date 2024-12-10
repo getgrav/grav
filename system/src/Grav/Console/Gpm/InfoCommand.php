@@ -123,7 +123,7 @@ class InfoCommand extends GpmCommand
 
                 if ($info === 'date') {
                     $name = 'Last Update';
-                    $data = date('D, j M Y, H:i:s, P ', strtotime($data));
+                    $data = date('D, j M Y, H:i:s, P ', strtotime((string) $data));
                 }
 
                 $name = str_pad($name, 12);
@@ -156,9 +156,7 @@ class InfoCommand extends GpmCommand
             $io->newLine();
             foreach ($changelog as $version => $log) {
                 $title = $version . ' [' . $log['date'] . ']';
-                $content = preg_replace_callback('/\d\.\s\[\]\(#(.*)\)/', static function ($match) {
-                    return "\n" . ucfirst($match[1]) . ':';
-                }, $log['content']);
+                $content = preg_replace_callback('/\d\.\s\[\]\(#(.*)\)/', static fn($match) => "\n" . ucfirst((string) $match[1]) . ':', (string) $log['content']);
 
                 $io->writeln("<cyan>{$title}</cyan>");
                 $io->writeln(str_repeat('-', strlen($title)));

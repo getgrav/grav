@@ -39,8 +39,6 @@ class Job
     private $command;
     /** @var string */
     private $at;
-    /** @var array */
-    private $args = [];
     /** @var bool */
     private $runInBackground = true;
     /** @var DateTime */
@@ -85,7 +83,7 @@ class Job
      * @param  array $args
      * @param  string|null $id
      */
-    public function __construct($command, $args = [], $id = null)
+    public function __construct($command, private $args = [], $id = null)
     {
         if (is_string($id)) {
             $this->id = Grav::instance()['inflector']->hyphenize($id);
@@ -101,7 +99,6 @@ class Job
         // initialize the directory path for lock files
         $this->tempDir = sys_get_temp_dir();
         $this->command = $command;
-        $this->args = $args;
         // Set enabled state
         $status = Grav::instance()['config']->get('scheduler.status');
         $this->enabled = !(isset($status[$id]) && $status[$id] === 'disabled');
@@ -195,7 +192,7 @@ class Job
             $this->at('* * * * *');
         }
 
-        $date = $date ?? $this->creationTime;
+        $date ??= $this->creationTime;
 
         return $this->executionTime->isDue($date);
     }
@@ -271,9 +268,7 @@ class Job
         if ($whenOverlapping) {
             $this->whenOverlapping = $whenOverlapping;
         } else {
-            $this->whenOverlapping = static function () {
-                return false;
-            };
+            $this->whenOverlapping = static fn() => false;
         }
 
         return $this;
@@ -410,10 +405,9 @@ class Job
     /**
      * Create the job lock file.
      *
-     * @param  mixed $content
      * @return void
      */
-    private function createLockFile($content = null)
+    private function createLockFile(mixed $content = null)
     {
         if ($this->lockFile) {
             if ($content === null || !is_string($content)) {

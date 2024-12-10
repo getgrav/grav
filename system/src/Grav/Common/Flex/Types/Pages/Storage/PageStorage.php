@@ -394,14 +394,14 @@ class PageStorage extends FolderStorage
                 if ($oldFolder !== $newFolder && file_exists($oldFolder)) {
                     $isCopy = $row['__META']['copy'] ?? false;
                     if ($isCopy) {
-                        if (strpos($newFolder, $oldFolder . '/') === 0) {
+                        if (str_starts_with($newFolder, $oldFolder . '/')) {
                             throw new RuntimeException(sprintf('Page /%s cannot be copied to itself', $oldKey));
                         }
 
                         $this->copyRow($oldKey, $newKey);
                         $debugger->addMessage("Page copied: {$oldFolder} => {$newFolder}", 'debug');
                     } else {
-                        if (strpos($newFolder, $oldFolder . '/') === 0) {
+                        if (str_starts_with($newFolder, $oldFolder . '/')) {
                             throw new RuntimeException(sprintf('Page /%s cannot be moved to itself', $oldKey));
                         }
 
@@ -538,7 +538,7 @@ class PageStorage extends FolderStorage
         if ($reload || !isset($this->meta[$key])) {
             /** @var UniformResourceLocator $locator */
             $locator = Grav::instance()['locator'];
-            if (mb_strpos($key, '@@') === false) {
+            if (mb_strpos((string) $key, '@@') === false) {
                 $path = $this->getStoragePath($key);
                 if (is_string($path)) {
                     $path = $locator->isStream($path) ? $locator->findResource($path) : GRAV_ROOT . "/{$path}";

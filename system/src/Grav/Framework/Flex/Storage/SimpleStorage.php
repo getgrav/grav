@@ -119,7 +119,7 @@ class SimpleStorage extends AbstractFilesystemStorage
             $this->buildIndex();
         }
 
-        return $key && strpos($key, '@@') === false && isset($this->data[$key]);
+        return $key && !str_contains($key, '@@') && isset($this->data[$key]);
     }
 
     /**
@@ -355,7 +355,7 @@ class SimpleStorage extends AbstractFilesystemStorage
             if (isset($row[$this->keyField])) {
                 $key = $row[$this->keyField];
             }
-            if (strpos($key, '@@') !== false) {
+            if (str_contains((string) $key, '@@')) {
                 $key = $this->getNewKey();
             }
 

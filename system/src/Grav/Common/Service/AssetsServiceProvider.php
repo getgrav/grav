@@ -25,8 +25,6 @@ class AssetsServiceProvider implements ServiceProviderInterface
      */
     public function register(Container $container)
     {
-        $container['assets'] = function () {
-            return new Assets();
-        };
+        $container['assets'] = fn() => new Assets();
     }
 }

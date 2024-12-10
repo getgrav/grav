@@ -99,7 +99,7 @@ class Medium extends Data implements RenderableInterface, MediaFileInterface
      * @return string
      */
     #[\ReturnTypeWillChange]
-    public function __toString()
+    public function __toString(): string
     {
         return $this->html();
     }

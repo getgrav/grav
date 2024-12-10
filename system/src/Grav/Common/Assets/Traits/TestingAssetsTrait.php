@@ -338,7 +338,7 @@ trait TestingAssetsTrait
             $directory,
             FilesystemIterator::SKIP_DOTS
         )), $pattern);
-        $offset = strlen($ltrim);
+        $offset = strlen((string) $ltrim);
         $files = [];
 
         foreach ($iterator as $file) {

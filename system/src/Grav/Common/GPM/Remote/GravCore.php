@@ -46,7 +46,7 @@ class GravCore extends AbstractPackageCollection
 
         $this->fetch($refresh, $callback);
 
-        $this->data    = json_decode($this->raw, true);
+        $this->data    = json_decode((string) $this->raw, true);
         $this->version = $this->data['version'] ?? '-';
         $this->date    = $this->data['date'] ?? '-';
         $this->min_php = $this->data['min_php'] ?? null;

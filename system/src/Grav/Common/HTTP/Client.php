@@ -33,7 +33,7 @@ class Client
         // Use callback if provided
         if ($callback) {
             self::$callback = $callback;
-            $options->setOnProgress([Client::class, 'progress']);
+            $options->setOnProgress(Client::progress(...));
         }
 
         $settings = array_merge($options->toArray(), $overrides);
@@ -43,17 +43,11 @@ class Client
             $preferred_method = $config->get('system.gpm.method', 'auto');
         }
 
-        switch ($preferred_method) {
-            case 'curl':
-                $client = new CurlHttpClient($settings, $connections);
-                break;
-            case 'fopen':
-            case 'native':
-                $client = new NativeHttpClient($settings, $connections);
-                break;
-            default:
-                $client = HttpClient::create($settings, $connections);
-        }
+        $client = match ($preferred_method) {
+            'curl' => new CurlHttpClient($settings, $connections),
+            'fopen', 'native' => new NativeHttpClient($settings, $connections),
+            default => HttpClient::create($settings, $connections),
+        };
 
         return $client;
     }

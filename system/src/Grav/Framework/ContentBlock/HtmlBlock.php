@@ -182,7 +182,7 @@ class HtmlBlock extends ContentBlock implements HtmlBlockInterface
             $element['media']
         );
 
-        $this->styles[$location][md5($href) . sha1($href)] = [
+        $this->styles[$location][md5((string) $href) . sha1((string) $href)] = [
                 ':type' => 'file',
                 ':priority' => (int) $priority,
                 'href' => $href,
@@ -255,7 +255,7 @@ class HtmlBlock extends ContentBlock implements HtmlBlockInterface
 
         unset($element['src'], $element['type'], $element['loading'], $element['defer'], $element['async'], $element['handle']);
 
-        $this->scripts[$location][md5($src) . sha1($src)] = [
+        $this->scripts[$location][md5((string) $src) . sha1((string) $src)] = [
             ':type' => 'file',
             ':priority' => (int) $priority,
             'src' => $src,
@@ -483,9 +483,7 @@ class HtmlBlock extends ContentBlock implements HtmlBlockInterface
 
         uasort(
             $items,
-            static function ($a, $b) {
-                return $a[':priority'] <=> $b[':priority'] ?: $a[':order'] <=> $b[':order'];
-            }
+            static fn($a, $b) => $a[':priority'] <=> $b[':priority'] ?: $a[':order'] <=> $b[':order']
         );
     }
 

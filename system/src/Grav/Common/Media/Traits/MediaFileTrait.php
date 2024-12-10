@@ -88,7 +88,7 @@ trait MediaFileTrait
         }
 
         $path = $this->path(false);
-        $output = preg_replace('|^' . preg_quote(GRAV_ROOT, '|') . '|', '', $path) ?: $path;
+        $output = preg_replace('|^' . preg_quote(GRAV_ROOT, '|') . '|', '', (string) $path) ?: $path;
 
         /** @var UniformResourceLocator $locator */
         $locator = $this->getGrav()['locator'];

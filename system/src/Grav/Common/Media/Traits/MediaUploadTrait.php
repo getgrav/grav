@@ -206,11 +206,11 @@ trait MediaUploadTrait
                 break;
             }
 
-            $isMime = strstr($type, '/');
+            $isMime = strstr((string) $type, '/');
             $find = str_replace(['.', '*', '+'], ['\.', '.*', '\+'], $type);
 
             if ($isMime) {
-                $match = preg_match('#' . $find . '$#', $mime);
+                $match = preg_match('#' . $find . '$#', (string) $mime);
                 if (!$match) {
                     // TODO: translate
                     $errors[] = 'The MIME type "' . $mime . '" for the file "' . $filepath . '" is not an accepted.';
@@ -219,7 +219,7 @@ trait MediaUploadTrait
                     break;
                 }
             } else {
-                $match = preg_match('#' . $find . '$#', $filename);
+                $match = preg_match('#' . $find . '$#', (string) $filename);
                 if (!$match) {
                     // TODO: translate
                     $errors[] = 'The File Extension for the file "' . $filepath . '" is not an accepted.';
@@ -286,7 +286,7 @@ trait MediaUploadTrait
                 if ($uploadedFile->getError() === \UPLOAD_ERR_OK) {
                     // Move uploaded file.
                     $this->doMoveUploadedFile($uploadedFile, $filename, $path);
-                } elseif (strpos($filename, 'original/') === 0 && !$this->fileExists($filename, $path) && $this->fileExists($basename, $path)) {
+                } elseif (str_starts_with($filename, 'original/') && !$this->fileExists($filename, $path) && $this->fileExists($basename, $path)) {
                     // Original image support: override original image if it's the same as the uploaded image.
                     $this->doCopy($basename, $filename, $path);
                 }
@@ -558,7 +558,7 @@ trait MediaUploadTrait
         $fileParts = (array)$filesystem->pathinfo($filename);
 
         foreach ($dir as $file) {
-            $preg_name = preg_quote($fileParts['filename'], '`');
+            $preg_name = preg_quote((string) $fileParts['filename'], '`');
             $preg_ext = preg_quote($fileParts['extension'] ?? '.', '`');
             $preg_filename = preg_quote($basename, '`');
 

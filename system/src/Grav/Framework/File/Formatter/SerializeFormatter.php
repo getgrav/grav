@@ -77,12 +77,11 @@ class SerializeFormatter extends AbstractFormatter
     /**
      * Preserve new lines, recursive function.
      *
-     * @param mixed $data
      * @param array $search
      * @param array $replace
      * @return mixed
      */
-    protected function preserveLines($data, array $search, array $replace)
+    protected function preserveLines(mixed $data, array $search, array $replace)
     {
         if (is_string($data)) {
             $data = str_replace($search, $replace, $data);

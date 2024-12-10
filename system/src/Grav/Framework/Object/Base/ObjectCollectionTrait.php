@@ -54,7 +54,7 @@ trait ObjectCollectionTrait
             return $type . static::$type;
         }
 
-        $class = get_class($this);
+        $class = $this::class;
 
         return $type . strtolower(substr($class, strrpos($class, '\\') + 1));
     }
@@ -89,7 +89,7 @@ trait ObjectCollectionTrait
      * @param mixed $default        Default value if property has not been set.
      * @return mixed[]              Property values.
      */
-    public function getProperty($property, $default = null)
+    public function getProperty($property, mixed $default = null)
     {
         return $this->doGetProperty($property, $default);
     }
@@ -99,7 +99,7 @@ trait ObjectCollectionTrait
      * @param mixed  $value         New value.
      * @return $this
      */
-    public function setProperty($property, $value)
+    public function setProperty($property, mixed $value)
     {
         $this->doSetProperty($property, $value);
 
@@ -122,7 +122,7 @@ trait ObjectCollectionTrait
      * @param mixed   $default      Default value.
      * @return $this
      */
-    public function defProperty($property, $default)
+    public function defProperty($property, mixed $default)
     {
         if (!$this->hasProperty($property)) {
             $this->setProperty($property, $default);
@@ -259,7 +259,7 @@ trait ObjectCollectionTrait
      * @param bool $doCreate        Not being used.
      * @return mixed[]              Key/Value pairs of the properties.
      */
-    public function &doGetProperty($property, $default = null, $doCreate = false)
+    public function &doGetProperty($property, mixed $default = null, $doCreate = false)
     {
         $list = [];
 
@@ -276,7 +276,7 @@ trait ObjectCollectionTrait
      * @param mixed  $value     New value.
      * @return $this
      */
-    public function doSetProperty($property, $value)
+    public function doSetProperty($property, mixed $value)
     {
         /** @var ObjectInterface $element */
         foreach ($this->getIterator() as $element) {
@@ -305,7 +305,7 @@ trait ObjectCollectionTrait
      * @param mixed  $default   Default value.
      * @return $this
      */
-    public function doDefProperty($property, $default)
+    public function doDefProperty($property, mixed $default)
     {
         /** @var ObjectInterface $element */
         foreach ($this->getIterator() as $element) {

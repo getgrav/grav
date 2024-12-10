@@ -44,7 +44,7 @@ class IniFormatter extends AbstractFormatter
             $string .= $key . '="' .  preg_replace(
                 ['/"/', '/\\\/', "/\t/", "/\n/", "/\r/"],
                 ['\"',  '\\\\', '\t',   '\n',   '\r'],
-                $value
+                (string) $value
             ) . "\"\n";
         }
 

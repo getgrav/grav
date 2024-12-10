@@ -283,7 +283,7 @@ class Pipeline extends PropertyObject
             } else {
                 return str_replace($matches[2], $new_url, $matches[0]);
             }
-        }, $file);
+        }, (string) $file);
 
         return $file;
     }

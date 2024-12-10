@@ -99,8 +99,8 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
     public function __construct(array $entries = [], ?FlexDirectory $directory = null)
     {
         // @phpstan-ignore-next-line
-        if (get_class($this) === __CLASS__) {
-            user_error('Using ' . __CLASS__ . ' directly is deprecated since Grav 1.7, use \Grav\Common\Flex\Types\Generic\GenericCollection or your own class instead', E_USER_DEPRECATED);
+        if (static::class === self::class) {
+            user_error('Using ' . self::class . ' directly is deprecated since Grav 1.7, use \Grav\Common\Flex\Types\Generic\GenericCollection or your own class instead', E_USER_DEPRECATED);
         }
 
         parent::__construct($entries);
@@ -130,8 +130,8 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
 
         $list = [];
         foreach ($implements as $interface) {
-            if ($pos = strrpos($interface, '\\')) {
-                $interface = substr($interface, $pos+1);
+            if ($pos = strrpos((string) $interface, '\\')) {
+                $interface = substr((string) $interface, $pos+1);
             }
 
             $list[] = Inflector::hyphenize(str_replace('Interface', '', $interface));
@@ -400,10 +400,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
             $data = $cache && $key ? $cache->get($key) : null;
 
             $block = $data ? HtmlBlock::fromArray($data) : null;
-        } catch (InvalidArgumentException $e) {
-            $debugger->addException($e);
-            $block = null;
-        } catch (\InvalidArgumentException $e) {
+        } catch (InvalidArgumentException|\InvalidArgumentException $e) {
             $debugger->addException($e);
             $block = null;
         }
@@ -527,7 +524,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
     {
         if ($value) {
             foreach ($this as $element) {
-                if (mb_strtolower($element->getProperty($field)) === mb_strtolower($value)) {
+                if (mb_strtolower((string) $element->getProperty($field)) === mb_strtolower($value)) {
                     return $element;
                 }
             }
@@ -692,7 +689,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
      */
     public function getType($prefix = false)
     {
-        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6, use ->getFlexType() method instead', E_USER_DEPRECATED);
+        user_error(self::class . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6, use ->getFlexType() method instead', E_USER_DEPRECATED);
 
         $type = $prefix ? $this->getTypePrefix() : '';
 
@@ -716,7 +713,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
                 'collection' => $this
             ]);
         }
-        if (strpos($name, 'onFlexCollection') !== 0 && strpos($name, 'on') === 0) {
+        if (!str_starts_with($name, 'onFlexCollection') && str_starts_with($name, 'on')) {
             $name = 'onFlexCollection' . substr($name, 2);
         }
 

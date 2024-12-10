@@ -612,7 +612,7 @@ trait FormTrait
         $path = str_replace(array_keys($dataMap), array_values($dataMap), $flashLookupFolder);
 
         // Make sure we only return valid paths.
-        return strpos($path, '!!') === false ? rtrim($path, '/') : null;
+        return !str_contains($path, '!!') ? rtrim($path, '/') : null;
     }
 
     /**
@@ -634,7 +634,7 @@ trait FormTrait
         $path = str_replace(array_keys($dataMap), array_values($dataMap), $flashLookupFolder);
 
         // Make sure we only return valid paths.
-        return strpos($path, '!!') === false ? rtrim($path, '/') : null;
+        return !str_contains($path, '!!') ? rtrim($path, '/') : null;
     }
 
     /**
@@ -844,10 +844,10 @@ trait FormTrait
         foreach ($data as $key => &$value) {
             if (is_array($value)) {
                 $value = $this->jsonDecode($value);
-            } elseif (trim($value) === '') {
+            } elseif (trim((string) $value) === '') {
                 unset($data[$key]);
             } else {
-                $value = json_decode($value, true);
+                $value = json_decode((string) $value, true);
                 if ($value === null && json_last_error() !== JSON_ERROR_NONE) {
                     unset($data[$key]);
                     $this->setError("Badly encoded JSON data (for {$key}) was sent to the form");

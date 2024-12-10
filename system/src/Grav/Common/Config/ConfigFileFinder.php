@@ -178,9 +178,7 @@ class ConfigFileFinder
                 'filters' => [
                     'pre-key' => $this->base,
                     'key' => $pattern,
-                    'value' => function (RecursiveDirectoryIterator $file) use ($path) {
-                        return ['file' => "{$path}/{$file->getSubPathname()}", 'modified' => $file->getMTime()];
-                    }
+                    'value' => fn(RecursiveDirectoryIterator $file) => ['file' => "{$path}/{$file->getSubPathname()}", 'modified' => $file->getMTime()]
                 ],
                 'key' => 'SubPathname'
             ];
@@ -254,9 +252,7 @@ class ConfigFileFinder
                 'filters' => [
                     'pre-key' => $this->base,
                     'key' => $pattern,
-                    'value' => function (RecursiveDirectoryIterator $file) use ($path) {
-                        return ["{$path}/{$file->getSubPathname()}" => $file->getMTime()];
-                    }
+                    'value' => fn(RecursiveDirectoryIterator $file) => ["{$path}/{$file->getSubPathname()}" => $file->getMTime()]
                 ],
                 'key' => 'SubPathname'
             ];

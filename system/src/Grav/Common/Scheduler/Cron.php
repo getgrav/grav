@@ -224,8 +224,8 @@ class Cron
     public function getType()
     {
         $mask = preg_replace('/[^\* ]/', '-', $this->getCron());
-        $mask = preg_replace('/-+/', '-', $mask);
-        $mask = preg_replace('/[^-\*]/', '', $mask);
+        $mask = preg_replace('/-+/', '-', (string) $mask);
+        $mask = preg_replace('/[^-\*]/', '', (string) $mask);
 
         if ($mask === '*****') {
             return self::TYPE_MINUTE;
@@ -235,19 +235,19 @@ class Cron
             return self::TYPE_HOUR;
         }
 
-        if (substr($mask, -3) === '***') {
+        if (str_ends_with((string) $mask, '***')) {
             return self::TYPE_DAY;
         }
 
-        if (substr($mask, -3) === '-**') {
+        if (str_ends_with((string) $mask, '-**')) {
             return self::TYPE_MONTH;
         }
 
-        if (substr($mask, -3) === '**-') {
+        if (str_ends_with((string) $mask, '**-')) {
             return self::TYPE_WEEK;
         }
 
-        if (substr($mask, -2) === '-*') {
+        if (str_ends_with((string) $mask, '-*')) {
             return self::TYPE_YEAR;
         }
 
@@ -264,7 +264,7 @@ class Cron
         $cron = trim($cron);
         $cron = preg_replace('/\s+/', ' ', $cron);
         // explode
-        $elements = explode(' ', $cron);
+        $elements = explode(' ', (string) $cron);
         if (count($elements) !== 5) {
             throw new RuntimeException('Bad number of elements');
         }
@@ -415,7 +415,6 @@ class Cron
     }
 
     /**
-     * @param mixed $date
      * @param int $min
      * @param int $hour
      * @param int $day
@@ -423,7 +422,7 @@ class Cron
      * @param int $weekday
      * @return DateTime
      */
-    protected function parseDate($date, &$min, &$hour, &$day, &$month, &$weekday)
+    protected function parseDate(mixed $date, &$min, &$hour, &$day, &$month, &$weekday)
     {
         if (is_numeric($date) && (int)$date == $date) {
             $date = new DateTime('@' . $date);

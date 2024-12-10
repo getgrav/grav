@@ -20,8 +20,6 @@ use function is_string;
  */
 final class Versions
 {
-    /** @var string */
-    protected $filename;
     /** @var array */
     protected $items;
     /** @var bool */
@@ -36,7 +34,7 @@ final class Versions
      */
     public static function instance(?string $filename = null): self
     {
-        $filename = $filename ?? USER_DIR . 'config/versions.yaml';
+        $filename ??= USER_DIR . 'config/versions.yaml';
 
         if (!isset(self::$instance[$filename])) {
             self::$instance[$filename] = new self($filename);
@@ -250,7 +248,7 @@ final class Versions
      * @param mixed $default Default value (or null).
      * @return mixed Value.
      */
-    private function get(string $name, $default = null)
+    private function get(string $name, mixed $default = null)
     {
         $path = explode('/', $name);
         $current = $this->items;
@@ -272,7 +270,7 @@ final class Versions
      * @param string $name Slash separated path to the requested value.
      * @param mixed $value New value.
      */
-    private function set(string $name, $value): void
+    private function set(string $name, mixed $value): void
     {
         $path = explode('/', $name);
         $current = &$this->items;
@@ -317,10 +315,9 @@ final class Versions
         $this->updated = true;
     }
 
-    private function __construct(string $filename)
+    private function __construct(protected string $filename)
     {
-        $this->filename = $filename;
-        $content = is_file($filename) ? file_get_contents($filename) : null;
+        $content = is_file($this->filename) ? file_get_contents($this->filename) : null;
         if (false === $content) {
             throw new \RuntimeException('Versions file cannot be read');
         }

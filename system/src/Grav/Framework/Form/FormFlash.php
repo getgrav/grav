@@ -64,7 +64,7 @@ class FormFlash implements FormFlashInterface
     {
         // Backwards compatibility with Grav 1.6 plugins.
         if (!is_array($config)) {
-            user_error(__CLASS__ . '::' . __FUNCTION__ . '($sessionId, $uniqueId, $formName) is deprecated since Grav 1.6.11, use $config parameter instead', E_USER_DEPRECATED);
+            user_error(self::class . '::' . __FUNCTION__ . '($sessionId, $uniqueId, $formName) is deprecated since Grav 1.6.11, use $config parameter instead', E_USER_DEPRECATED);
 
             $args = func_get_args();
             $config = [
@@ -72,9 +72,7 @@ class FormFlash implements FormFlashInterface
                 'unique_id' => $args[1] ?? null,
                 'form_name' => $args[2] ?? null,
             ];
-            $config = array_filter($config, static function ($val) {
-                return $val !== null;
-            });
+            $config = array_filter($config, static fn($val) => $val !== null);
         }
 
         $this->id = $config['id'] ?? '';
@@ -131,7 +129,7 @@ class FormFlash implements FormFlashInterface
         if ($exists) {
             try {
                 $data = (array)$file->content();
-            } catch (Exception $e) {
+            } catch (Exception) {
             }
         }
 
@@ -168,7 +166,7 @@ class FormFlash implements FormFlashInterface
      */
     public function getUniqieId(): string
     {
-        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6.11, use ->getUniqueId() method instead', E_USER_DEPRECATED);
+        user_error(self::class . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6.11, use ->getUniqueId() method instead', E_USER_DEPRECATED);
 
         return $this->getUniqueId();
     }

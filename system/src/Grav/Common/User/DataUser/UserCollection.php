@@ -27,16 +27,12 @@ use function is_string;
  */
 class UserCollection implements UserCollectionInterface
 {
-    /** @var string */
-    private $className;
-
     /**
      * UserCollection constructor.
      * @param string $className
      */
-    public function __construct(string $className)
+    public function __construct(private readonly string $className)
     {
-        $this->className = $className;
     }
 
     /**
@@ -117,7 +113,7 @@ class UserCollection implements UserCollectionInterface
                 if (Utils::endsWith($file, YAML_EXT)) {
                     $find_user = $this->load(trim(Utils::pathinfo($file, PATHINFO_FILENAME)));
                     foreach ($fields as $field) {
-                        if (isset($find_user[$field]) && mb_strtolower($find_user[$field]) === $query) {
+                        if (isset($find_user[$field]) && mb_strtolower((string) $find_user[$field]) === $query) {
                             return $find_user;
                         }
                     }

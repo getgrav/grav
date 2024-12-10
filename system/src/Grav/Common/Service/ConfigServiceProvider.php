@@ -42,9 +42,7 @@ class ConfigServiceProvider implements ServiceProviderInterface
             return $setup;
         };
 
-        $container['blueprints'] = function ($c) {
-            return static::blueprints($c);
-        };
+        $container['blueprints'] = fn($c) => static::blueprints($c);
 
         $container['config'] = function ($c) {
             $config = static::load($c);
@@ -70,13 +68,9 @@ class ConfigServiceProvider implements ServiceProviderInterface
             return MimeTypes::createFromMimes($mimes);
         };
 
-        $container['languages'] = function ($c) {
-            return static::languages($c);
-        };
+        $container['languages'] = fn($c) => static::languages($c);
 
-        $container['language'] = function ($c) {
-            return new Language($c);
-        };
+        $container['language'] = fn($c) => new Language($c);
     }
 
     /**
@@ -129,9 +123,7 @@ class ConfigServiceProvider implements ServiceProviderInterface
         $files += (new ConfigFileFinder)->setBase('themes')->locateInFolders($paths);
 
         $compiled = new CompiledConfig($cache, $files, GRAV_ROOT);
-        $compiled->setBlueprints(function () use ($container) {
-            return $container['blueprints'];
-        });
+        $compiled->setBlueprints(fn() => $container['blueprints']);
 
         $config = $compiled->name("master-{$setup->environment}")->load();
         $config->environment = $setup->environment;

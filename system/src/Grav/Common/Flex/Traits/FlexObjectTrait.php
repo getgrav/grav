@@ -46,7 +46,7 @@ trait FlexObjectTrait
 
         if (isset($events['name'])) {
             $name = $events['name'];
-        } elseif (strpos($name, 'onFlexObject') !== 0 && strpos($name, 'on') === 0) {
+        } elseif (!str_starts_with($name, 'onFlexObject') && str_starts_with($name, 'on')) {
             $name = 'onFlexObject' . substr($name, 2);
         }
 

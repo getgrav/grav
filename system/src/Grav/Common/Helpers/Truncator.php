@@ -62,7 +62,7 @@ class Truncator
                 $curNode->nodeValue = substr(
                     $curNode->nodeValue,
                     0,
-                    $words[$offset][1] + strlen($words[$offset][0])
+                    $words[$offset][1] + strlen((string) $words[$offset][0])
                 );
 
                 self::removeProceedingNodes($curNode, $container);
@@ -216,7 +216,7 @@ class Truncator
      */
     private static function insertEllipsis($domNode, $ellipsis)
     {
-        $avoid = array('a', 'strong', 'em', 'h1', 'h2', 'h3', 'h4', 'h5'); //html tags to avoid appending the ellipsis to
+        $avoid = ['a', 'strong', 'em', 'h1', 'h2', 'h3', 'h4', 'h5']; //html tags to avoid appending the ellipsis to
 
         if ($domNode->parentNode->parentNode !== null && in_array($domNode->parentNode->nodeName, $avoid, true)) {
             // Append as text node to parent instead
@@ -252,7 +252,7 @@ class Truncator
     ) {
         if ($considerHtml) {
             // if the plain text is shorter than the maximum length, return the whole text
-            if (strlen(preg_replace('/<.*?>/', '', $text)) <= $length) {
+            if (strlen((string) preg_replace('/<.*?>/', '', $text)) <= $length) {
                 return $text;
             }
 
@@ -284,7 +284,7 @@ class Truncator
                     $truncate .= $line_matchings[1];
                 }
                 // calculate the length of the plain text part of the line; handle entities as one character
-                $content_length = strlen(preg_replace('/&[0-9a-z]{2,8};|&#[0-9]{1,7};|[0-9a-f]{1,6};/i', ' ', $line_matchings[2]));
+                $content_length = strlen((string) preg_replace('/&[0-9a-z]{2,8};|&#[0-9]{1,7};|[0-9a-f]{1,6};/i', ' ', $line_matchings[2]));
                 if ($total_length+$content_length> $length) {
                     // the number of characters which are left
                     $left = $length - $total_length;

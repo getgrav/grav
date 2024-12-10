@@ -40,7 +40,7 @@ trait NestedPropertyCollectionTrait
      * @param string|null $separator     Separator, defaults to '.'
      * @return array                Key/Value pairs of the properties.
      */
-    public function getNestedProperty($property, $default = null, $separator = null)
+    public function getNestedProperty($property, mixed $default = null, $separator = null)
     {
         $list = [];
 
@@ -58,7 +58,7 @@ trait NestedPropertyCollectionTrait
      * @param string|null $separator     Separator, defaults to '.'
      * @return $this
      */
-    public function setNestedProperty($property, $value, $separator = null)
+    public function setNestedProperty($property, mixed $value, $separator = null)
     {
         /** @var NestedObjectInterface $element */
         foreach ($this->getIterator() as $element) {

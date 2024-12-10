@@ -207,5 +207,5 @@ interface FlexObjectInterface extends FlexCommonInterface, NestedObjectInterface
      * @param  string|null $separator   Optional nested property separator.
      * @return mixed                Returns value of the field.
      */
-    public function getFormValue(string $name, $default = null, ?string $separator = null);
+    public function getFormValue(string $name, mixed $default = null, ?string $separator = null);
 }

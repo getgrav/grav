@@ -49,7 +49,7 @@ trait ParsedownGravTrait
                 $defaults = ['markdown' => $defaults];
             }
             $this->excerpts = new Excerpts($excerpts, $defaults);
-            user_error(__CLASS__ . '::' . __FUNCTION__ . '($page, $defaults) is deprecated since Grav 1.6.10, use ->init(new ' . Excerpts::class . '($page, [\'markdown\' => $defaults])) instead.', E_USER_DEPRECATED);
+            user_error(self::class . '::' . __FUNCTION__ . '($page, $defaults) is deprecated since Grav 1.6.10, use ->init(new ' . Excerpts::class . '($page, [\'markdown\' => $defaults])) instead.', E_USER_DEPRECATED);
         } else {
             $this->excerpts = $excerpts;
         }
@@ -133,7 +133,7 @@ trait ParsedownGravTrait
             array_splice($this->InlineTypes[$type], $index, 0, [$tag]);
         }
 
-        if (strpos($this->inlineMarkerList, $type) === false) {
+        if (!str_contains($this->inlineMarkerList, $type)) {
             $this->inlineMarkerList .= $type;
         }
     }
@@ -199,7 +199,7 @@ trait ParsedownGravTrait
      */
     protected function blockTwigTag($line)
     {
-        if (preg_match('/(?:{{|{%|{#)(.*)(?:}}|%}|#})/', $line['body'], $matches)) {
+        if (preg_match('/(?:{{|{%|{#)(.*)(?:}}|%}|#})/', (string) $line['body'], $matches)) {
             return ['markup' => $line['body']];
         }
 
@@ -212,7 +212,7 @@ trait ParsedownGravTrait
      */
     protected function inlineSpecialCharacter($excerpt)
     {
-        if ($excerpt['text'][0] === '&' && !preg_match('/^&#?\w+;/', $excerpt['text'])) {
+        if ($excerpt['text'][0] === '&' && !preg_match('/^&#?\w+;/', (string) $excerpt['text'])) {
             return [
                 'markup' => '&amp;',
                 'extent' => 1,
@@ -235,7 +235,7 @@ trait ParsedownGravTrait
      */
     protected function inlineImage($excerpt)
     {
-        if (preg_match($this->twig_link_regex, $excerpt['text'], $matches)) {
+        if (preg_match($this->twig_link_regex, (string) $excerpt['text'], $matches)) {
             $excerpt['text'] = str_replace($matches[1], '/', $excerpt['text']);
             $excerpt = parent::inlineImage($excerpt);
             $excerpt['element']['attributes']['src'] = $matches[1];
@@ -264,7 +264,7 @@ trait ParsedownGravTrait
         $type = $excerpt['type'] ?? 'link';
 
         // do some trickery to get around Parsedown requirement for valid URL if its Twig in there
-        if (preg_match($this->twig_link_regex, $excerpt['text'], $matches)) {
+        if (preg_match($this->twig_link_regex, (string) $excerpt['text'], $matches)) {
             $excerpt['text'] = str_replace($matches[1], '/', $excerpt['text']);
             $excerpt = parent::inlineLink($excerpt);
             $excerpt['element']['attributes']['href'] = $matches[1];

@@ -67,7 +67,7 @@ class VersionCommand extends GpmCommand
         }
 
         foreach ($packages as $package) {
-            $package = strtolower($package);
+            $package = strtolower((string) $package);
             $name = null;
             $version = null;
             $updatable = false;

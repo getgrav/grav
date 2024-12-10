@@ -62,7 +62,7 @@ class Exceptions implements MiddlewareInterface
             $debugger = Grav::instance()['debugger'];
             if ($debugger->enabled()) {
                 $response['error'] += [
-                    'type' => get_class($exception),
+                    'type' => $exception::class,
                     'file' => $exception->getFile(),
                     'line' => $exception->getLine(),
                     'trace' => explode("\n", $exception->getTraceAsString()),

@@ -146,7 +146,7 @@ class FileStorage extends FolderStorage
         $list = [];
         /** @var SplFileInfo $info */
         foreach ($iterator as $filename => $info) {
-            if (!$info->isFile() || !($key = $this->getKeyFromPath($filename)) || strpos($info->getFilename(), '.') === 0) {
+            if (!$info->isFile() || !($key = $this->getKeyFromPath($filename)) || str_starts_with($info->getFilename(), '.')) {
                 continue;
             }
 

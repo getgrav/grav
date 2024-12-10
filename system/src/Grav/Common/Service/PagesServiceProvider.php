@@ -32,9 +32,7 @@ class PagesServiceProvider implements ServiceProviderInterface
      */
     public function register(Container $container)
     {
-        $container['pages'] = function (Grav $grav) {
-            return new Pages($grav);
-        };
+        $container['pages'] = fn(Grav $grav) => new Pages($grav);
 
         if (defined('GRAV_CLI')) {
             $container['page'] = static function (Grav $grav) {

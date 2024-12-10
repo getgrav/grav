@@ -111,7 +111,7 @@ trait PageFormTrait
             $name = null;
         }
 
-        $name = $name ?? $form['name'] ?? $this->slug();
+        $name ??= $form['name'] ?? $this->slug();
 
         $formRules = $form['rules'] ?? null;
         if (!is_array($formRules)) {

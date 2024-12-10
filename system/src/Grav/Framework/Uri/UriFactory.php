@@ -59,10 +59,10 @@ class UriFactory
     {
         // Build scheme.
         if (isset($env['REQUEST_SCHEME'])) {
-            $scheme = strtolower($env['REQUEST_SCHEME']);
+            $scheme = strtolower((string) $env['REQUEST_SCHEME']);
         } else {
             $https = $env['HTTPS'] ?? '';
-            $scheme = (empty($https) || strtolower($https) === 'off') ? 'http' : 'https';
+            $scheme = (empty($https) || strtolower((string) $https) === 'off') ? 'http' : 'https';
         }
 
         // Build user and password.
@@ -77,7 +77,7 @@ class UriFactory
             $host = $env['SERVER_NAME'];
         }
         // Remove port from HTTP_HOST generated $hostname
-        $host = explode(':', $host)[0];
+        $host = explode(':', (string) $host)[0];
 
         // Build port.
         $port = isset($env['SERVER_PORT']) ? (int)$env['SERVER_PORT'] : null;
@@ -93,8 +93,8 @@ class UriFactory
         }
 
         // Support ngnix routes.
-        if (strpos((string) $query, '_url=') === 0) {
-            parse_str($query, $q);
+        if (str_starts_with((string) $query, '_url=')) {
+            parse_str((string) $query, $q);
             unset($q['_url']);
             $query = http_build_query($q);
         }
@@ -125,9 +125,7 @@ class UriFactory
 
         $encodedUrl = preg_replace_callback(
             '%[^:/@?&=#]+%u',
-            static function ($matches) {
-                return rawurlencode($matches[0]);
-            },
+            static fn($matches) => rawurlencode((string) $matches[0]),
             $url
         );
 

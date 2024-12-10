@@ -300,20 +300,18 @@ class FlexPageObject extends FlexObject implements PageInterface, FlexTranslateI
             return [];
         }
 
-        return array_map('trim', explode(',', $order));
+        return array_map('trim', explode(',', (string) $order));
     }
 
     // Overrides for header properties.
-
     /**
      * Common logic to load header properties.
      *
      * @param string $property
-     * @param mixed $var
      * @param callable $filter
      * @return mixed|null
      */
-    protected function loadHeaderProperty(string $property, $var, callable $filter)
+    protected function loadHeaderProperty(string $property, mixed $var, callable $filter)
     {
         // We have to use parent methods in order to avoid loops.
         $value = null === $var ? parent::getProperty($property) : null;
@@ -333,11 +331,10 @@ class FlexPageObject extends FlexObject implements PageInterface, FlexTranslateI
      * Common logic to load header properties.
      *
      * @param string $property
-     * @param mixed $var
      * @param callable $filter
      * @return mixed|null
      */
-    protected function loadProperty(string $property, $var, callable $filter)
+    protected function loadProperty(string $property, mixed $var, callable $filter)
     {
         // We have to use parent methods in order to avoid loops.
         $value = null === $var ? parent::getProperty($property) : null;
@@ -396,7 +393,7 @@ class FlexPageObject extends FlexObject implements PageInterface, FlexTranslateI
     public function setNestedProperty($property, $value, $separator = null)
     {
         $separator = $separator ?: '.';
-        if (strpos($property, 'header' . $separator) === 0) {
+        if (str_starts_with($property, 'header' . $separator)) {
             $this->getProperty('header')->set(str_replace('header' . $separator, '', $property), $value, $separator);
 
             return $this;
@@ -415,7 +412,7 @@ class FlexPageObject extends FlexObject implements PageInterface, FlexTranslateI
     public function unsetNestedProperty($property, $separator = null)
     {
         $separator = $separator ?: '.';
-        if (strpos($property, 'header' . $separator) === 0) {
+        if (str_starts_with($property, 'header' . $separator)) {
             $this->getProperty('header')->undef(str_replace('header' . $separator, '', $property), $separator);
 
             return $this;
@@ -440,7 +437,7 @@ class FlexPageObject extends FlexObject implements PageInterface, FlexTranslateI
         }
 
         if (!$extended) {
-            $folder = !empty($elements['folder']) ? trim($elements['folder']) : '';
+            $folder = !empty($elements['folder']) ? trim((string) $elements['folder']) : '';
 
             if ($folder) {
                 $order = !empty($elements['order']) ? (int)$elements['order'] : null;

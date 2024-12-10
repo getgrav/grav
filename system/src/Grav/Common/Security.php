@@ -129,7 +129,7 @@ class Security
                         $list[$page->rawRoute()] = $results;
                     }
                 }
-            } catch (Exception $e) {
+            } catch (Exception) {
                 continue;
             }
         }
@@ -196,7 +196,7 @@ class Security
         if (!$invalid_protocols) {
             $enabled_rules['invalid_protocols'] = false;
         }
-        $enabled_rules = array_filter($enabled_rules, static function ($val) { return !empty($val); });
+        $enabled_rules = array_filter($enabled_rules, static fn($val) => !empty($val));
         if (!$enabled_rules) {
             return null;
         }
@@ -208,19 +208,17 @@ class Security
         $string = urldecode($string);
 
         // Convert Hexadecimals
-        $string = (string)preg_replace_callback('!(&#|\\\)[xX]([0-9a-fA-F]+);?!u', static function ($m) {
-            return chr(hexdec($m[2]));
-        }, $string);
+        $string = (string)preg_replace_callback('!(&#|\\\)[xX]([0-9a-fA-F]+);?!u', static fn($m) => chr(hexdec((string) $m[2])), $string);
 
         // Clean up entities
         $string = preg_replace('!(&#[0-9]+);?!u', '$1;', $string);
 
         // Decode entities
-        $string = html_entity_decode($string, ENT_NOQUOTES | ENT_HTML5, 'UTF-8');
+        $string = html_entity_decode((string) $string, ENT_NOQUOTES | ENT_HTML5, 'UTF-8');
 
         // Strip whitespace characters
         $string = preg_replace('!\s!u', ' ', $string);
-        $stripped = preg_replace('!\s!u', '', $string);
+        $stripped = preg_replace('!\s!u', '', (string) $string);
 
         // Set the patterns we'll test against
         $patterns = [
@@ -243,7 +241,7 @@ class Security
         // Iterate over rules and return label if fail
         foreach ($patterns as $name => $regex) {
             if (!empty($enabled_rules[$name])) {
-                if (preg_match($regex, $string) || preg_match($regex, $stripped) || preg_match($regex, $orig)) {
+                if (preg_match($regex, (string) $string) || preg_match($regex, (string) $stripped) || preg_match($regex, $orig)) {
                     return $name;
                 }
             }

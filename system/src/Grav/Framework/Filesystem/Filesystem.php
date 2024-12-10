@@ -24,9 +24,6 @@ use function pathinfo;
  */
 class Filesystem implements FilesystemInterface
 {
-    /** @var bool|null */
-    private $normalize;
-
     /** @var static|null */
     protected static $default;
 
@@ -63,9 +60,8 @@ class Filesystem implements FilesystemInterface
      * @param bool|null $normalize
      * @internal
      */
-    protected function __construct(?bool $normalize = null)
+    protected function __construct(private readonly ?bool $normalize = null)
     {
-        $this->normalize = $normalize;
     }
 
     /**

@@ -67,7 +67,7 @@ class UserIndex extends FlexIndex implements UserCollectionInterface
         // Username can also be number and stored as such.
         $key = (string)($data['username'] ?? $meta['key'] ?? $meta['storage_key']);
         $meta['key'] = static::filterUsername($key, $storage);
-        $meta['email'] = isset($data['email']) ? mb_strtolower($data['email']) : null;
+        $meta['email'] = isset($data['email']) ? mb_strtolower((string) $data['email']) : null;
     }
 
     /**

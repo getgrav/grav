@@ -53,7 +53,7 @@ class TasksProcessor extends ProcessorBase
                     $this->stopTimer();
 
                     return $response;
-                } catch (NotFoundException $e) {
+                } catch (NotFoundException) {
                     // Task not found: Let it pass through.
                 }
             }

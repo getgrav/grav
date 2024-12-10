@@ -26,15 +26,9 @@ use function count;
  * @template C of CollectionInterface
  * @implements CollectionInterface<TKey,T>
  */
-abstract class AbstractIndexCollection implements CollectionInterface
+abstract class AbstractIndexCollection implements CollectionInterface, \Stringable
 {
     use Serializable;
-
-    /**
-     * @var array
-     * @phpstan-var array<TKey,T>
-     */
-    private $entries;
 
     /**
      * Initializes a new IndexCollection.
@@ -42,9 +36,13 @@ abstract class AbstractIndexCollection implements CollectionInterface
      * @param array $entries
      * @phpstan-param array<TKey,T> $entries
      */
-    public function __construct(array $entries = [])
+    public function __construct(
+        /**
+         * @phpstan-var array<TKey,T>
+         */
+        private array $entries = []
+    )
     {
-        $this->entries = $entries;
     }
 
     /**
@@ -174,12 +172,11 @@ abstract class AbstractIndexCollection implements CollectionInterface
      * Required by interface ArrayAccess.
      *
      * @param string|int|null $offset
-     * @param mixed $value
      * @return void
      * @phpstan-param TKey|null $offset
      */
     #[\ReturnTypeWillChange]
-    public function offsetSet($offset, $value)
+    public function offsetSet($offset, mixed $value)
     {
         if (null === $offset) {
             $this->add($value);
@@ -362,9 +359,9 @@ abstract class AbstractIndexCollection implements CollectionInterface
      * @return string
      */
     #[\ReturnTypeWillChange]
-    public function __toString()
+    public function __toString(): string
     {
-        return __CLASS__ . '@' . spl_object_hash($this);
+        return self::class . '@' . spl_object_hash($this);
     }
 
     /**
@@ -541,10 +538,9 @@ abstract class AbstractIndexCollection implements CollectionInterface
 
     /**
      * @param string $key
-     * @param mixed $value
      * @return mixed|null
      */
-    abstract protected function loadElement($key, $value);
+    abstract protected function loadElement($key, mixed $value);
 
     /**
      * @param array|null $entries
@@ -561,14 +557,12 @@ abstract class AbstractIndexCollection implements CollectionInterface
     abstract protected function loadCollection(?array $entries = null): CollectionInterface;
 
     /**
-     * @param mixed $value
      * @return bool
      */
-    abstract protected function isAllowedElement($value): bool;
+    abstract protected function isAllowedElement(mixed $value): bool;
 
     /**
-     * @param mixed $element
      * @return mixed
      */
-    abstract protected function getElementMeta($element);
+    abstract protected function getElementMeta(mixed $element);
 }

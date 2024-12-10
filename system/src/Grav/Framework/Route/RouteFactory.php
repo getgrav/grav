@@ -49,7 +49,7 @@ class RouteFactory
         $parts['grav'] += [
             'root' => self::$root,
             'language' => self::$language,
-            'route' => trim($path, '/'),
+            'route' => trim((string) $path, '/'),
             'params' => $parts['params'] ?? [],
         ];
 
@@ -198,7 +198,7 @@ class RouteFactory
         $params = explode('/', $str);
         $list = [];
         foreach ($params as $param) {
-            if (mb_strpos($param, $delimiter) === false) {
+            if (mb_strpos((string) $param, $delimiter) === false) {
                 $list[] = $param;
             }
         }
@@ -223,10 +223,10 @@ class RouteFactory
         $list = [];
         foreach ($params as &$param) {
             /** @var array $parts */
-            $parts = explode($delimiter, $param, 2);
+            $parts = explode($delimiter, (string) $param, 2);
             if (isset($parts[1])) {
-                $var = rawurldecode($parts[0]);
-                $val = rawurldecode($parts[1]);
+                $var = rawurldecode((string) $parts[0]);
+                $val = rawurldecode((string) $parts[1]);
                 $list[$var] = $val;
             }
         }

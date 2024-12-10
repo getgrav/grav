@@ -113,7 +113,7 @@ trait LegacyAssetsTrait
      */
     public function addAsyncJs($asset, $priority = 10, $pipeline = true, $group = 'head')
     {
-        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6, use dynamic method with [\'loading\' => \'async\']', E_USER_DEPRECATED);
+        user_error(self::class . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6, use dynamic method with [\'loading\' => \'async\']', E_USER_DEPRECATED);
 
         return $this->addJs($asset, $priority, $pipeline, 'async', $group);
     }
@@ -130,7 +130,7 @@ trait LegacyAssetsTrait
      */
     public function addDeferJs($asset, $priority = 10, $pipeline = true, $group = 'head')
     {
-        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6, use dynamic method with [\'loading\' => \'defer\']', E_USER_DEPRECATED);
+        user_error(self::class . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6, use dynamic method with [\'loading\' => \'defer\']', E_USER_DEPRECATED);
 
         return $this->addJs($asset, $priority, $pipeline, 'defer', $group);
     }

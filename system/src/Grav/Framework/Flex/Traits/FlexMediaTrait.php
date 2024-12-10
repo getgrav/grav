@@ -143,7 +143,7 @@ trait FlexMediaTrait
         // Set media folder for media fields.
         if (isset($var)) {
             $folder = $settings[$var] ?? '';
-            if (in_array(rtrim($folder, '/'), ['', '@self', 'self@', '@self@'], true)) {
+            if (in_array(rtrim((string) $folder, '/'), ['', '@self', 'self@', '@self@'], true)) {
                 $settings[$var] = $this->getMediaFolder();
                 $settings['self'] = true;
             } else {

@@ -118,7 +118,7 @@ class ContentBlock implements ContentBlockInterface
         }
 
         $array = [
-            '_type' => get_class($this),
+            '_type' => static::class,
             '_version' => $this->version,
             'id' => $this->id,
             'cached' => $this->cached
@@ -162,7 +162,7 @@ class ContentBlock implements ContentBlockInterface
      * @return string
      */
     #[\ReturnTypeWillChange]
-    public function __toString()
+    public function __toString(): string
     {
         try {
             return $this->toString();

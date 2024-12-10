@@ -76,7 +76,7 @@ class InstallCommand extends GravCommand
         $this->destination = $input->getArgument('destination') ?: GRAV_WEBROOT;
 
         // fix trailing slash
-        $this->destination = rtrim($this->destination, DS) . DS;
+        $this->destination = rtrim((string) $this->destination, DS) . DS;
         $this->user_path = $this->destination . GRAV_USER_PATH . DS;
         if ($local_config_file = $this->loadLocalConfig()) {
             $io->writeln('Read local config from <cyan>' . $local_config_file . '</cyan>');
@@ -222,7 +222,7 @@ class InstallCommand extends GravCommand
 
             $from = null;
             foreach ($locations as $location) {
-                $test = rtrim($location, '\\/') . DS . $src;
+                $test = rtrim((string) $location, '\\/') . DS . $src;
                 if (file_exists($test)) {
                     $from = $test;
                     continue;
@@ -264,8 +264,8 @@ class InstallCommand extends GravCommand
             $io->writeln("Processing <magenta>{$name}</magenta>");
             foreach ($hebe as $section => $symlinks) {
                 foreach ($symlinks as $symlink) {
-                    $src = trim($symlink['source'], '/');
-                    $dst = trim($symlink['destination'], '/');
+                    $src = trim((string) $symlink['source'], '/');
+                    $dst = trim((string) $symlink['destination'], '/');
                     $s = "{$from}/{$src}";
                     $d = "{$to}/{$dst}";
 

@@ -21,7 +21,7 @@ use function in_array;
  * Class Response
  * @package Slim\Http
  */
-class Response implements ResponseInterface
+class Response implements ResponseInterface, \Stringable
 {
     use ResponseDecoratorTrait;
 
@@ -55,7 +55,7 @@ class Response implements ResponseInterface
      * @return static
      * @phpstan-param positive-int $depth
      */
-    public function withJson($data, ?int $status = null, int $options = 0, int $depth = 512): ResponseInterface
+    public function withJson(mixed $data, ?int $status = null, int $options = 0, int $depth = 512): ResponseInterface
     {
         $json = (string) json_encode($data, $options, $depth);
 

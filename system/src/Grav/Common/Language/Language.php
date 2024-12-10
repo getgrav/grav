@@ -149,9 +149,7 @@ class Language
     {
         $languagesArray = $this->languages; //Make local copy
 
-        $languagesArray = array_map(static function ($value) use ($delimiter) {
-            return preg_quote($value, $delimiter);
-        }, $languagesArray);
+        $languagesArray = array_map(static fn($value) => preg_quote((string) $value, $delimiter), $languagesArray);
 
         sort($languagesArray);
 
@@ -593,7 +591,7 @@ class Language
      */
     public function getBrowserLanguages($accept_langs = [])
     {
-        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6, no longer used', E_USER_DEPRECATED);
+        user_error(self::class . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6, no longer used', E_USER_DEPRECATED);
 
         if (empty($this->http_accept_language)) {
             if (empty($accept_langs) && isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
@@ -604,7 +602,7 @@ class Language
 
             $langs = [];
 
-            foreach (explode(',', $accept_langs) as $k => $pref) {
+            foreach (explode(',', (string) $accept_langs) as $k => $pref) {
                 // split $pref again by ';q='
                 // and decorate the language entries by inverted position
                 if (false !== ($i = strpos($pref, ';q='))) {

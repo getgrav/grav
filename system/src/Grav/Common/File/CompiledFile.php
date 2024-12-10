@@ -28,10 +28,9 @@ trait CompiledFile
     /**
      * Get/set parsed file contents.
      *
-     * @param mixed $var
      * @return array
      */
-    public function content($var = null)
+    public function content(mixed $var = null)
     {
         try {
             $filename = $this->filename;
@@ -44,12 +43,12 @@ trait CompiledFile
                 if (!$modified) {
                     try {
                         return $this->decode($this->raw());
-                    } catch (Throwable $e) {
+                    } catch (Throwable) {
                         // If the compiled file is broken, we can safely ignore the error and continue.
                     }
                 }
 
-                $class = get_class($this);
+                $class = $this::class;
 
                 $size = filesize($filename);
                 $cache = $file->exists() ? $file->content() : null;
@@ -115,7 +114,7 @@ trait CompiledFile
      * @return void
      * @throws RuntimeException
      */
-    public function save($data = null)
+    public function save(mixed $data = null)
     {
         // Make sure that the cache file is always up to date!
         $key = md5($this->filename);
@@ -135,7 +134,7 @@ trait CompiledFile
         if ($locked) {
             $modified = $this->modified();
             $filename = $this->filename;
-            $class = get_class($this);
+            $class = $this::class;
             $size = filesize($filename);
 
             // windows doesn't play nicely with this as it can't read when locked

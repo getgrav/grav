@@ -197,7 +197,7 @@ class FileCache extends AbstractCache
      */
     private function write($file, $data, $expiresAt = null)
     {
-        set_error_handler(__CLASS__.'::throwError');
+        set_error_handler(self::class.'::throwError');
 
         try {
             if ($this->tmp === null) {
@@ -248,7 +248,7 @@ class FileCache extends AbstractCache
      * @internal
      * @throws ErrorException
      */
-    public static function throwError($type, $message, $file, $line)
+    public static function throwError($type, $message, $file, $line): never
     {
         throw new ErrorException($message, 0, $type, $file, $line);
     }

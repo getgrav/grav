@@ -24,7 +24,7 @@ use function is_object;
  * Class Iterator
  * @package Grav\Common
  */
-class Iterator implements \ArrayAccess, \Iterator, \Countable, \Serializable
+class Iterator implements \ArrayAccess, \Iterator, \Countable, \Serializable, \Stringable
 {
     use Constructor, ArrayAccessWithGetters, ArrayIterator, Countable, Serializable, Export;
 
@@ -35,11 +35,10 @@ class Iterator implements \ArrayAccess, \Iterator, \Countable, \Serializable
      * Convert function calls for the existing keys into their values.
      *
      * @param  string $key
-     * @param  mixed  $args
      * @return mixed
      */
     #[\ReturnTypeWillChange]
-    public function __call($key, $args)
+    public function __call($key, mixed $args)
     {
         return $this->items[$key] ?? null;
     }
@@ -63,7 +62,7 @@ class Iterator implements \ArrayAccess, \Iterator, \Countable, \Serializable
      * @return string
      */
     #[\ReturnTypeWillChange]
-    public function __toString()
+    public function __toString(): string
     {
         return implode(',', $this->items);
     }
@@ -143,7 +142,7 @@ class Iterator implements \ArrayAccess, \Iterator, \Countable, \Serializable
      *
      * @return string|int|false  Key if found, otherwise false.
      */
-    public function indexOf($needle)
+    public function indexOf(mixed $needle)
     {
         foreach (array_values($this->items) as $key => $value) {
             if ($value === $needle) {

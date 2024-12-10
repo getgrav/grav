@@ -194,12 +194,12 @@ class Assets extends PropertyObject
                 }
 
                 $params = array_merge([$location], $params);
-                call_user_func_array([$this, 'add'], $params);
+                call_user_func_array($this->add(...), $params);
             }
         } elseif (isset($this->collections[$asset])) {
             array_shift($args);
             $args = array_merge([$this->collections[$asset]], $args);
-            call_user_func_array([$this, 'add'], $args);
+            call_user_func_array($this->add(...), $args);
         } else {
             // Get extension
             $path = parse_url($asset, PHP_URL_PATH);
@@ -209,11 +209,11 @@ class Assets extends PropertyObject
             if ($extension !== '') {
                 $extension = strtolower($extension);
                 if ($extension === 'css') {
-                    call_user_func_array([$this, 'addCss'], $args);
+                    call_user_func_array($this->addCss(...), $args);
                 } elseif ($extension === 'js') {
-                    call_user_func_array([$this, 'addJs'], $args);
+                    call_user_func_array($this->addJs(...), $args);
                 } elseif ($extension === 'mjs') {
-                    call_user_func_array([$this, 'addJsModule'], $args);
+                    call_user_func_array($this->addJsModule(...), $args);
                 }
             }
         }
@@ -261,7 +261,7 @@ class Assets extends PropertyObject
                     $default = 'before';
                 }
 
-                $options['position'] = $options['position'] ?? $default;
+                $options['position'] ??= $default;
             }
 
             unset($options['pipeline']);
@@ -432,9 +432,7 @@ class Assets extends PropertyObject
      */
     protected function sortAssets($assets)
     {
-        uasort($assets, static function ($a, $b) {
-            return $b['priority'] <=> $a['priority'] ?: $a['order'] <=> $b['order'];
-        });
+        uasort($assets, static fn($a, $b) => $b['priority'] <=> $a['priority'] ?: $a['order'] <=> $b['order']);
 
         return $assets;
     }
@@ -577,18 +575,11 @@ class Assets extends PropertyObject
      */
     protected function getBaseType($type)
     {
-        switch ($type) {
-            case $this::JS_TYPE:
-            case $this::INLINE_JS_TYPE:
-                $base_type = $this::JS;
-                break;
-            case $this::JS_MODULE_TYPE:
-            case $this::INLINE_JS_MODULE_TYPE:
-                $base_type = $this::JS_MODULE;
-                break;
-            default:
-                $base_type = $this::CSS;
-        }
+        $base_type = match ($type) {
+            $this::JS_TYPE, $this::INLINE_JS_TYPE => $this::JS,
+            $this::JS_MODULE_TYPE, $this::INLINE_JS_MODULE_TYPE => $this::JS_MODULE,
+            default => $this::CSS,
+        };
 
         return $base_type;
     }

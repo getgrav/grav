@@ -28,8 +28,6 @@ use function strlen;
  */
 class Access implements JsonSerializable, IteratorAggregate, Countable
 {
-    /** @var string */
-    private $name;
     /** @var array */
     private $rules;
     /** @var array */
@@ -45,9 +43,8 @@ class Access implements JsonSerializable, IteratorAggregate, Countable
      * @param array|null $rules
      * @param string $name
      */
-    public function __construct($acl = null, ?array $rules = null, string $name = '')
+    public function __construct($acl = null, ?array $rules = null, private readonly string $name = '')
     {
-        $this->name = $name;
         $this->rules = $rules ?? [];
         $this->ops = ['+' => true, '-' => false];
         if (is_string($acl)) {
@@ -110,7 +107,7 @@ class Access implements JsonSerializable, IteratorAggregate, Countable
      */
     public function getAllActions(): array
     {
-        return array_filter($this->acl, static function($val) { return $val !== null; });
+        return array_filter($this->acl, static fn($val) => $val !== null);
     }
 
     /**

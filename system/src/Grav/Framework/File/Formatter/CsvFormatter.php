@@ -64,7 +64,7 @@ class CsvFormatter extends AbstractFormatter
         if (count($data) === 0) {
             return '';
         }
-        $delimiter = $delimiter ?? $this->getDelimiter();
+        $delimiter ??= $this->getDelimiter();
         $header = array_keys(reset($data));
 
         // Encode the field names
@@ -86,7 +86,7 @@ class CsvFormatter extends AbstractFormatter
      */
     public function decode($data, $delimiter = null): array
     {
-        $delimiter = $delimiter ?? $this->getDelimiter();
+        $delimiter ??= $this->getDelimiter();
         $lines = preg_split('/\r\n|\r|\n/', $data);
         if ($lines === false) {
             throw new RuntimeException('Decoding CSV failed');
@@ -120,7 +120,7 @@ class CsvFormatter extends AbstractFormatter
                     $list[] = array_combine($header, $csv_line);
                 }
             }
-        } catch (Exception $e) {
+        } catch (Exception) {
             throw new RuntimeException('Badly formatted CSV line: ' . $line);
         }
 

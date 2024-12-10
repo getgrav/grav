@@ -286,7 +286,7 @@ class UserObject extends FlexObject implements UserInterface, Countable
                 return false;
             }
 
-            if (strpos($action, 'login') === false && !$this->getProperty('authorized')) {
+            if (!str_contains($action, 'login') && !$this->getProperty('authorized')) {
                 // User needs to be authorized (2FA).
                 return false;
             }
@@ -401,7 +401,7 @@ class UserObject extends FlexObject implements UserInterface, Countable
      */
     public function join($name, $value, $separator = null)
     {
-        $separator = $separator ?? '.';
+        $separator ??= '.';
         $old = $this->get($name, null, $separator);
         if ($old !== null) {
             if (!is_array($old)) {
@@ -1027,10 +1027,9 @@ class UserObject extends FlexObject implements UserInterface, Countable
     }
 
     /**
-     * @param mixed $value
      * @return array
      */
-    protected function offsetLoad_access($value): array
+    protected function offsetLoad_access(mixed $value): array
     {
         if (!$value instanceof Access) {
             $value = new Access($value);
@@ -1040,10 +1039,9 @@ class UserObject extends FlexObject implements UserInterface, Countable
     }
 
     /**
-     * @param mixed $value
      * @return array
      */
-    protected function offsetPrepare_access($value): array
+    protected function offsetPrepare_access(mixed $value): array
     {
         return $this->offsetLoad_access($value);
     }

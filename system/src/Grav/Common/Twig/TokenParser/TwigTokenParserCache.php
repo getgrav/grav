@@ -55,7 +55,7 @@ class TwigTokenParserCache extends AbstractTokenParser
         $stream->expect(Token::BLOCK_END_TYPE);
 
         // Parse the content inside the cache block
-        $body = $this->parser->subparse([$this, 'decideCacheEnd'], true);
+        $body = $this->parser->subparse($this->decideCacheEnd(...), true);
 
         $stream->expect(Token::BLOCK_END_TYPE);
 

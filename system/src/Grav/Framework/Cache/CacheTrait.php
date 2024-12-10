@@ -95,12 +95,11 @@ trait CacheTrait
 
     /**
      * @param string $key
-     * @param mixed $value
      * @param null|int|DateInterval $ttl
      * @return bool
      * @throws InvalidArgumentException
      */
-    public function set($key, $value, $ttl = null)
+    public function set($key, mixed $value, $ttl = null)
     {
         $this->validateKey($key);
 
@@ -145,7 +144,7 @@ trait CacheTrait
             throw new InvalidArgumentException(
                 sprintf(
                     'Cache keys must be array or Traversable, "%s" given',
-                     $isObject ? get_class($keys) : gettype($keys)
+                     $isObject ? $keys::class : gettype($keys)
                 )
             );
         }
@@ -188,7 +187,7 @@ trait CacheTrait
             throw new InvalidArgumentException(
                 sprintf(
                     'Cache values must be array or Traversable, "%s" given',
-                    $isObject ? get_class($values) : gettype($values)
+                    $isObject ? $values::class : gettype($values)
                 )
             );
         }
@@ -221,7 +220,7 @@ trait CacheTrait
             throw new InvalidArgumentException(
                 sprintf(
                     'Cache keys must be array or Traversable, "%s" given',
-                    $isObject ? get_class($keys) : gettype($keys)
+                    $isObject ? $keys::class : gettype($keys)
                 )
             );
         }
@@ -249,10 +248,9 @@ trait CacheTrait
 
     /**
      * @param array $keys
-     * @param mixed $miss
      * @return array
      */
-    public function doGetMultiple($keys, $miss)
+    public function doGetMultiple($keys, mixed $miss)
     {
         $results = [];
 
@@ -308,7 +306,7 @@ trait CacheTrait
             throw new InvalidArgumentException(
                 sprintf(
                     'Cache key must be string, "%s" given',
-                    is_object($key) ? get_class($key) : gettype($key)
+                    get_debug_type($key)
                 )
             );
         }
@@ -366,7 +364,7 @@ trait CacheTrait
         throw new InvalidArgumentException(
             sprintf(
                 'Expiration date must be an integer, a DateInterval or null, "%s" given',
-                is_object($ttl) ? get_class($ttl) : gettype($ttl)
+                get_debug_type($ttl)
             )
         );
     }

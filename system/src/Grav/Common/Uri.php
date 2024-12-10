@@ -30,7 +30,7 @@ use function strlen;
  * Class Uri
  * @package Grav\Common
  */
-class Uri
+class Uri implements \Stringable
 {
     const HOSTNAME_REGEX = '/^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/';
 
@@ -165,7 +165,7 @@ class Uri
         }
 
         // Handle custom base
-        $custom_base = rtrim($grav['config']->get('system.custom_base_url', ''), '/');
+        $custom_base = rtrim((string) $grav['config']->get('system.custom_base_url', ''), '/');
         if ($custom_base) {
             $custom_parts = parse_url($custom_base);
             if ($custom_parts === false) {
@@ -195,7 +195,7 @@ class Uri
         // remove the setup.php based base if set:
         $setup_base = $grav['pages']->base();
         if ($setup_base) {
-            $uri = preg_replace('|^' . preg_quote($setup_base, '|') . '|', '', $uri);
+            $uri = preg_replace('|^' . preg_quote((string) $setup_base, '|') . '|', '', $uri);
         }
         $this->setup_base = $setup_base;
 
@@ -345,7 +345,7 @@ class Uri
     public function param($id, $default = false)
     {
         if (isset($this->params[$id])) {
-            return html_entity_decode(rawurldecode($this->params[$id]), ENT_COMPAT | ENT_HTML401, 'UTF-8');
+            return html_entity_decode(rawurldecode((string) $this->params[$id]), ENT_COMPAT | ENT_HTML401, 'UTF-8');
         }
 
         return $default;
@@ -412,10 +412,10 @@ class Uri
      */
     public function method()
     {
-        $method = isset($_SERVER['REQUEST_METHOD']) ? strtoupper($_SERVER['REQUEST_METHOD']) : 'GET';
+        $method = isset($_SERVER['REQUEST_METHOD']) ? strtoupper((string) $_SERVER['REQUEST_METHOD']) : 'GET';
 
         if ($method === 'POST' && isset($_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'])) {
-            $method = strtoupper($_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE']);
+            $method = strtoupper((string) $_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE']);
         }
 
         return $method;
@@ -625,7 +625,7 @@ class Uri
      * @return string
      */
     #[\ReturnTypeWillChange]
-    public function __toString()
+    public function __toString(): string
     {
         return static::buildUrl($this->toArray());
     }
@@ -743,7 +743,7 @@ class Uri
      */
     public static function isExternal($url)
     {
-        return (0 === strpos($url, 'http://') || 0 === strpos($url, 'https://') || 0 === strpos($url, '//') || 0 === strpos($url, 'mailto:') || 0 === strpos($url, 'tel:') || 0 === strpos($url, 'ftp://') || 0 === strpos($url, 'ftps://') || 0 === strpos($url, 'news:') || 0 === strpos($url, 'irc:') || 0 === strpos($url, 'gopher:') || 0 === strpos($url, 'nntp:') || 0 === strpos($url, 'feed:') || 0 === strpos($url, 'cvs:') || 0 === strpos($url, 'ssh:') || 0 === strpos($url, 'git:') || 0 === strpos($url, 'svn:') || 0 === strpos($url, 'hg:'));
+        return (str_starts_with($url, 'http://') || str_starts_with($url, 'https://') || str_starts_with($url, '//') || str_starts_with($url, 'mailto:') || str_starts_with($url, 'tel:') || str_starts_with($url, 'ftp://') || str_starts_with($url, 'ftps://') || str_starts_with($url, 'news:') || str_starts_with($url, 'irc:') || str_starts_with($url, 'gopher:') || str_starts_with($url, 'nntp:') || str_starts_with($url, 'feed:') || str_starts_with($url, 'cvs:') || str_starts_with($url, 'ssh:') || str_starts_with($url, 'git:') || str_starts_with($url, 'svn:') || str_starts_with($url, 'hg:'));
     }
 
     /**
@@ -762,7 +762,7 @@ class Uri
         $pass      = isset($parsed_url['pass']) ? ':' . $parsed_url['pass']  : '';
         $pass      = ($user || $pass) ? "{$pass}@" : '';
         $path      = $parsed_url['path'] ?? '';
-        $path      = !empty($parsed_url['params']) ? rtrim($path, '/') . static::buildParams($parsed_url['params']) : $path;
+        $path      = !empty($parsed_url['params']) ? rtrim((string) $path, '/') . static::buildParams($parsed_url['params']) : $path;
         $query     = !empty($parsed_url['query']) ? '?' . $parsed_url['query'] : '';
         $fragment  = isset($parsed_url['fragment']) ? '#' . $parsed_url['fragment'] : '';
 
@@ -835,7 +835,7 @@ class Uri
                 $normalized_path = Utils::normalizePath($pages_dir . $url_path);
             } else {
                 $page_route = ($page->home() && !empty($url_path)) ? $page->rawRoute() : $page->route();
-                $normalized_url = $base_url . Utils::normalizePath(rtrim($page_route, '/') . '/' . $url_path);
+                $normalized_url = $base_url . Utils::normalizePath(rtrim((string) $page_route, '/') . '/' . $url_path);
                 $normalized_path = Utils::normalizePath($page->path() . '/' . $url_path);
             }
 
@@ -846,7 +846,7 @@ class Uri
             } else {
                 $url_bits = static::parseUrl($normalized_path);
                 $full_path = $url_bits['path'];
-                $raw_full_path = rawurldecode($full_path);
+                $raw_full_path = rawurldecode((string) $full_path);
 
                 if (file_exists($raw_full_path)) {
                     $full_path = $raw_full_path;
@@ -877,7 +877,7 @@ class Uri
                     if (isset($instances[$page_path])) {
                         /** @var PageInterface $target */
                         $target = $instances[$page_path];
-                        $url_bits['path'] = $base_url . rtrim($target->route(), '/') . $filename;
+                        $url_bits['path'] = $base_url . rtrim((string) $target->route(), '/') . $filename;
 
                         $url_path = Uri::buildUrl($url_bits);
                     } else {
@@ -959,13 +959,11 @@ class Uri
 
         $encodedUrl = preg_replace_callback(
             '%[^:/@?&=#]+%usD',
-            static function ($matches) {
-                return rawurlencode($matches[0]);
-            },
-            $url
+            static fn($matches) => rawurlencode((string) $matches[0]),
+            (string) $url
         );
 
-        $parts = parse_url($encodedUrl);
+        $parts = parse_url((string) $encodedUrl);
 
         if (false === $parts) {
             return false;
@@ -998,7 +996,7 @@ class Uri
     {
         $params = [];
 
-        if (strpos($uri, $delimiter) !== false) {
+        if (str_contains($uri, $delimiter)) {
             preg_match_all(static::paramsRegex(), $uri, $matches, PREG_SET_ORDER);
 
             foreach ($matches as $match) {
@@ -1106,7 +1104,7 @@ class Uri
         if (isset($instances[$page_path])) {
             /** @var PageInterface $target */
             $target = $instances[$page_path];
-            $url_bits['path'] = $base_url . rtrim($target->route(), '/') . $filename;
+            $url_bits['path'] = $base_url . rtrim((string) $target->route(), '/') . $filename;
 
             return static::buildUrl($url_bits);
         }
@@ -1125,7 +1123,7 @@ class Uri
      */
     public static function addNonce($url, $action, $nonceParamName = 'nonce')
     {
-        $fake = $url && strpos($url, '/') === 0;
+        $fake = $url && str_starts_with($url, '/');
 
         if ($fake) {
             $url = 'http://domain.com' . $url;
@@ -1226,7 +1224,7 @@ class Uri
             $this->scheme = $env['REQUEST_SCHEME'];
         } else {
             $https = $env['HTTPS'] ?? '';
-            $this->scheme = (empty($https) || strtolower($https) === 'off') ? 'http' : 'https';
+            $this->scheme = (empty($https) || strtolower((string) $https) === 'off') ? 'http' : 'https';
         }
 
         // Build user and password.
@@ -1278,8 +1276,8 @@ class Uri
         }
 
         // Support ngnix routes.
-        if (strpos($this->query, '_url=') === 0) {
-            parse_str($this->query, $query);
+        if (str_starts_with((string) $this->query, '_url=')) {
+            parse_str((string) $this->query, $query);
             unset($query['_url']);
             $this->query = http_build_query($query);
         }
@@ -1388,7 +1386,7 @@ class Uri
             $item = Utils::getDotNotation($this->post, $element);
             if ($filter_type) {
                 if ($filter_type === FILTER_SANITIZE_STRING || $filter_type === GRAV_SANITIZE_STRING) {
-                    $item = htmlspecialchars(strip_tags($item), ENT_QUOTES, 'UTF-8');
+                    $item = htmlspecialchars(strip_tags((string) $item), ENT_QUOTES, 'UTF-8');
                 } else {
                     $item = filter_var($item, $filter_type);
                 }
@@ -1455,7 +1453,7 @@ class Uri
         if (!function_exists('getallheaders')) {
             $headers = [];
             foreach ($_SERVER as $name => $value) {
-                if (substr($name, 0, 5) == 'HTTP_') {
+                if (str_starts_with($name, 'HTTP_')) {
                     $headers[str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))))] = $value;
                 }
             }
@@ -1510,7 +1508,7 @@ class Uri
      */
     private function processParams(string $uri, string $delimiter = ':'): string
     {
-        if (strpos($uri, $delimiter) !== false) {
+        if (str_contains($uri, $delimiter)) {
             preg_match_all(static::paramsRegex(), $uri, $matches, PREG_SET_ORDER);
 
             foreach ($matches as $match) {

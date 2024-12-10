@@ -35,7 +35,7 @@ trait FlexCollectionTrait
                 'collection' => $this
             ]);
         }
-        if (strpos($name, 'onFlexCollection') !== 0 && strpos($name, 'on') === 0) {
+        if (!str_starts_with($name, 'onFlexCollection') && str_starts_with($name, 'on')) {
             $name = 'onFlexCollection' . substr($name, 2);
         }
 

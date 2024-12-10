@@ -203,14 +203,14 @@ class Page implements PageInterface
         $this->home_route = $this->adjustRouteCase($config->get('system.home.alias'));
         $this->filePath($file->getPathname());
         $this->modified($file->getMTime());
-        $this->id($this->modified() . md5($this->filePath()));
+        $this->id($this->modified() . md5((string) $this->filePath()));
         $this->routable(true);
         $this->header();
         $this->date();
         $this->metadata();
         $this->url();
         $this->visible();
-        $this->modularTwig(strpos($this->slug(), '_') === 0);
+        $this->modularTwig(str_starts_with($this->slug(), '_'));
         $this->setPublishState();
         $this->published();
         $this->urlExtension();
@@ -254,7 +254,7 @@ class Page implements PageInterface
                 }
             }
             $text_header = Grav::instance()['twig']->processString(json_encode($process_fields, JSON_UNESCAPED_UNICODE), ['page' => $this]);
-            $this->header((object)(json_decode($text_header, true) + $ignored_fields));
+            $this->header((object)(json_decode((string) $text_header, true) + $ignored_fields));
         }
     }
 
@@ -274,7 +274,7 @@ class Page implements PageInterface
         $languages = $language->getLanguages();
         $defaultCode = $language->getDefault();
 
-        $name = substr($this->name, 0, -strlen($this->extension()));
+        $name = substr((string) $this->name, 0, -strlen($this->extension()));
         $translatedLanguages = [];
 
         foreach ($languages as $languageCode) {
@@ -347,7 +347,7 @@ class Page implements PageInterface
 
             // Reset header and content.
             $this->modified = time();
-            $this->id($this->modified() . md5($this->filePath()));
+            $this->id($this->modified() . md5((string) $this->filePath()));
             $this->header = null;
             $this->content = null;
             $this->summary = null;
@@ -375,7 +375,7 @@ class Page implements PageInterface
             }
 
             // Force content re-processing.
-            $this->id(time() . md5($this->filePath()));
+            $this->id(time() . md5((string) $this->filePath()));
         }
         if (!$this->frontmatter) {
             $this->header();
@@ -402,7 +402,7 @@ class Page implements PageInterface
             }
 
             // Force content re-processing.
-            $this->id(time() . md5($this->filePath()));
+            $this->id(time() . md5((string) $this->filePath()));
         }
         if (!$this->header) {
             $file = $this->file();
@@ -742,7 +742,7 @@ class Page implements PageInterface
             }
 
             // Force re-processing.
-            $this->id(time() . md5($this->filePath()));
+            $this->id(time() . md5((string) $this->filePath()));
             $this->content = null;
         }
         // If no content, process it
@@ -842,7 +842,7 @@ class Page implements PageInterface
 
             // Handle summary divider
             $delimiter = $config->get('site.summary.delimiter', '===');
-            $divider_pos = mb_strpos($this->content, "<p>{$delimiter}</p>");
+            $divider_pos = mb_strpos((string) $this->content, "<p>{$delimiter}</p>");
             if ($divider_pos !== false) {
                 $this->summary_size = $divider_pos;
                 $this->content = str_replace("<p>{$delimiter}</p>", '', $this->content);
@@ -955,8 +955,8 @@ class Page implements PageInterface
             // Base64 encode any twig.
             $content = preg_replace_callback(
                 ['/({#.*?#})/mu', '/({{.*?}})/mu', '/({%.*?%})/mu'],
-                static function ($matches) use ($token) { return $token[0] . base64_encode($matches[1]) . $token[1]; },
-                $content
+                static fn($matches) => $token[0] . base64_encode((string) $matches[1]) . $token[1],
+                (string) $content
             );
         }
 
@@ -966,8 +966,8 @@ class Page implements PageInterface
             // Base64 decode the encoded twig.
             $content = preg_replace_callback(
                 ['`' . $token[0] . '([A-Za-z0-9+/]+={0,2})' . $token[1] . '`mu'],
-                static function ($matches) { return base64_decode($matches[1]); },
-                $content
+                static fn($matches) => base64_decode((string) $matches[1]),
+                (string) $content
             );
         }
 
@@ -1202,7 +1202,7 @@ class Page implements PageInterface
         }
 
         $this->parent($parent);
-        $this->id(time() . md5($this->filePath()));
+        $this->id(time() . md5((string) $this->filePath()));
 
         if ($parent->path()) {
             $this->path($parent->path() . '/' . $this->folder());
@@ -1288,7 +1288,7 @@ class Page implements PageInterface
         }
 
         $post_value = $_POST['blueprint'];
-        $sanitized_value = htmlspecialchars(strip_tags($post_value), ENT_QUOTES, 'UTF-8');
+        $sanitized_value = htmlspecialchars(strip_tags((string) $post_value), ENT_QUOTES, 'UTF-8');
 
         return $sanitized_value ?: $this->template();
     }
@@ -1761,7 +1761,7 @@ class Page implements PageInterface
                         $this->metadata[$prop_key] = [
                             'name' => $prop_key,
                             'property' => $prop_key,
-                            'content' => $escape ? htmlspecialchars($prop_value, ENT_QUOTES | ENT_HTML5, 'UTF-8') : $prop_value
+                            'content' => $escape ? htmlspecialchars((string) $prop_value, ENT_QUOTES | ENT_HTML5, 'UTF-8') : $prop_value
                         ];
                     }
                 } else {
@@ -1770,16 +1770,16 @@ class Page implements PageInterface
                         if (in_array($key, $header_tag_http_equivs, true)) {
                             $this->metadata[$key] = [
                                 'http_equiv' => $key,
-                                'content' => $escape ? htmlspecialchars($value, ENT_COMPAT, 'UTF-8') : $value
+                                'content' => $escape ? htmlspecialchars((string) $value, ENT_COMPAT, 'UTF-8') : $value
                             ];
                         } elseif ($key === 'charset') {
-                            $this->metadata[$key] = ['charset' => $escape ? htmlspecialchars($value, ENT_QUOTES | ENT_HTML5, 'UTF-8') : $value];
+                            $this->metadata[$key] = ['charset' => $escape ? htmlspecialchars((string) $value, ENT_QUOTES | ENT_HTML5, 'UTF-8') : $value];
                         } else {
                             // if it's a social metadata with separator, render as property
                             $separator = strpos($key, ':');
                             $hasSeparator = $separator && $separator < strlen($key) - 1;
                             $entry = [
-                                'content' => $escape ? htmlspecialchars($value, ENT_QUOTES | ENT_HTML5, 'UTF-8') : $value
+                                'content' => $escape ? htmlspecialchars((string) $value, ENT_QUOTES | ENT_HTML5, 'UTF-8') : $value
                             ];
 
                             if ($hasSeparator && !Utils::startsWith($key, ['twitter', 'flattr','fediverse'])) {
@@ -1919,7 +1919,7 @@ class Page implements PageInterface
 
         /** @var Uri $uri */
         $uri = $grav['uri'];
-        $url = $uri->rootUrl($include_host) . '/' . trim($route, '/') . $this->urlExtension();
+        $url = $uri->rootUrl($include_host) . '/' . trim((string) $route, '/') . $this->urlExtension();
 
         return Uri::filterPath($url);
     }
@@ -2044,7 +2044,7 @@ class Page implements PageInterface
     {
         if (null === $this->id) {
             // We need to set unique id to avoid potential cache conflicts between pages.
-            $var = time() . md5($this->filePath());
+            $var = time() . md5((string) $this->filePath());
         }
         if ($var !== null) {
             // store unique per language
@@ -2536,7 +2536,7 @@ class Page implements PageInterface
      */
     public function active()
     {
-        $uri_path = rtrim(urldecode(Grav::instance()['uri']->path()), '/') ?: '/';
+        $uri_path = rtrim(urldecode((string) Grav::instance()['uri']->path()), '/') ?: '/';
         $routes = Grav::instance()['pages']->routes();
 
         return isset($routes[$uri_path]) && $routes[$uri_path] === $this->path();
@@ -2794,7 +2794,7 @@ class Page implements PageInterface
     protected function cleanPath($path)
     {
         $lastchunk = strrchr($path, DS);
-        if (strpos($lastchunk, ':') !== false) {
+        if (str_contains($lastchunk, ':')) {
             $path = str_replace($lastchunk, '', $path);
         }
 
@@ -2827,7 +2827,7 @@ class Page implements PageInterface
 
             // Reorder all moved pages.
             foreach ($siblings as $slug => $page) {
-                $order = (int)trim($page->order(), '.');
+                $order = (int)trim((string) $page->order(), '.');
                 $counter++;
 
                 if ($order) {

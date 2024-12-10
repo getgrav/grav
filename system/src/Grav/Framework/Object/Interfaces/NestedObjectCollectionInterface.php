@@ -43,7 +43,7 @@ interface NestedObjectCollectionInterface extends ObjectCollectionInterface
      * @return $this
      * @throws RuntimeException
      */
-    public function setNestedProperty($property, $value, $separator = null);
+    public function setNestedProperty($property, mixed $value, $separator = null);
 
     /**
      * @param  string $property         Object property to be defined.
@@ -52,7 +52,7 @@ interface NestedObjectCollectionInterface extends ObjectCollectionInterface
      * @return $this
      * @throws RuntimeException
      */
-    public function defNestedProperty($property, $default, $separator = null);
+    public function defNestedProperty($property, mixed $default, $separator = null);
 
     /**
      * @param  string       $property   Object property to be unset.

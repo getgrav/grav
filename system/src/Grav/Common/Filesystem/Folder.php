@@ -153,8 +153,8 @@ abstract class Folder
         if ($base) {
             $base = preg_replace('![\\\/]+!', '/', $base);
             $path = preg_replace('![\\\/]+!', '/', $path);
-            if (strpos($path, $base) === 0) {
-                $path = ltrim(substr($path, strlen($base)), '/');
+            if (str_starts_with((string) $path, (string) $base)) {
+                $path = ltrim(substr((string) $path, strlen((string) $base)), '/');
             }
         }
 
@@ -178,8 +178,8 @@ abstract class Folder
             return '';
         }
 
-        $baseParts = explode('/', ltrim($base, '/'));
-        $pathParts = explode('/', ltrim($path, '/'));
+        $baseParts = explode('/', ltrim((string) $base, '/'));
+        $pathParts = explode('/', ltrim((string) $path, '/'));
 
         array_pop($baseParts);
         $lastPart = array_pop($pathParts);
@@ -194,7 +194,7 @@ abstract class Folder
         $path = str_repeat('../', count($baseParts)) . implode('/', $pathParts);
 
         return '' === $path
-        || strpos($path, '/') === 0
+        || str_starts_with($path, '/')
         || false !== ($colonPos = strpos($path, ':')) && ($colonPos < ($slashPos = strpos($path, '/')) || false === $slashPos)
             ? "./$path" : $path;
     }
@@ -266,7 +266,7 @@ abstract class Folder
         /** @var RecursiveDirectoryIterator $file */
         foreach ($iterator as $file) {
             // Ignore hidden files.
-            if (strpos($file->getFilename(), '.') === 0 && $file->isFile()) {
+            if (str_starts_with($file->getFilename(), '.') && $file->isFile()) {
                 continue;
             }
             if (!$folders && $file->isDir()) {
@@ -275,7 +275,7 @@ abstract class Folder
             if (!$files && $file->isFile()) {
                 continue;
             }
-            if ($compare && $pattern && !preg_match($pattern, $file->{$compare}())) {
+            if ($compare && $pattern && !preg_match($pattern, (string) $file->{$compare}())) {
                 continue;
             }
             $fileKey = $key ? $file->{$key}() : null;
@@ -283,14 +283,14 @@ abstract class Folder
             if ($filters) {
                 if (isset($filters['key'])) {
                     $pre = !empty($filters['pre-key']) ? $filters['pre-key'] : '';
-                    $fileKey = $pre . preg_replace($filters['key'], '', $fileKey);
+                    $fileKey = $pre . preg_replace($filters['key'], '', (string) $fileKey);
                 }
                 if (isset($filters['value'])) {
                     $filter = $filters['value'];
                     if (is_callable($filter)) {
                         $filePath = $filter($file);
                     } else {
-                        $filePath = preg_replace($filter, '', $filePath);
+                        $filePath = preg_replace($filter, '', (string) $filePath);
                     }
                 }
             }
@@ -331,7 +331,7 @@ abstract class Folder
         // Go through all sub-directories and copy everything.
         $files = self::all($source);
         foreach ($files as $file) {
-            if ($ignore && preg_match($ignore, $file)) {
+            if ($ignore && preg_match($ignore, (string) $file)) {
                 continue;
             }
             $src = $source .'/'. $file;
@@ -377,7 +377,7 @@ abstract class Folder
             return;
         }
 
-        if (strpos($target, $source . '/') === 0) {
+        if (str_starts_with($target, $source . '/')) {
             throw new RuntimeException('Cannot move folder to itself');
         }
 

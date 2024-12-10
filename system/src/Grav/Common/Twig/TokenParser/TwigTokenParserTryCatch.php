@@ -41,10 +41,10 @@ class TwigTokenParserTryCatch extends AbstractTokenParser
         $stream = $this->parser->getStream();
 
         $stream->expect(Token::BLOCK_END_TYPE);
-        $try = $this->parser->subparse([$this, 'decideCatch']);
+        $try = $this->parser->subparse($this->decideCatch(...));
         $stream->next();
         $stream->expect(Token::BLOCK_END_TYPE);
-        $catch = $this->parser->subparse([$this, 'decideEnd']);
+        $catch = $this->parser->subparse($this->decideEnd(...));
         $stream->next();
         $stream->expect(Token::BLOCK_END_TYPE);
 

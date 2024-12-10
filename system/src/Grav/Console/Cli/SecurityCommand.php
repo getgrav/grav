@@ -53,15 +53,13 @@ class SecurityCommand extends GravCommand
         $io->title('Grav Security Check');
         $io->newline(2);
 
-        $output = Security::detectXssFromPages($grav['pages'], false, [$this, 'outputProgress']);
+        $output = Security::detectXssFromPages($grav['pages'], false, $this->outputProgress(...));
 
         $error = 0;
         if (!empty($output)) {
             $counter = 1;
             foreach ($output as $route => $results) {
-                $results_parts = array_map(static function ($value, $key) {
-                    return $key.': \''.$value . '\'';
-                }, array_values($results), array_keys($results));
+                $results_parts = array_map(static fn($value, $key) => $key.': \''.$value . '\'', array_values($results), array_keys($results));
 
                 $io->writeln($counter++ .' - <cyan>' . $route . '</cyan> → <red>' . implode(', ', $results_parts) . '</red>');
             }

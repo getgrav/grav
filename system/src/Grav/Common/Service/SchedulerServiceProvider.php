@@ -25,8 +25,6 @@ class SchedulerServiceProvider implements ServiceProviderInterface
      */
     public function register(Container $container)
     {
-        $container['scheduler'] = function () {
-            return new Scheduler();
-        };
+        $container['scheduler'] = fn() => new Scheduler();
     }
 }

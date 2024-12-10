@@ -19,7 +19,7 @@ use function array_slice;
  *
  * @package Grav\Framework\Route
  */
-class Route
+class Route implements \Stringable
 {
     /** @var string */
     private $root = '';
@@ -270,20 +270,18 @@ class Route
 
     /**
      * @param string $param
-     * @param mixed $value
      * @return Route
      */
-    public function withGravParam($param, $value)
+    public function withGravParam($param, mixed $value)
     {
         return $this->withParam('gravParams', $param, null !== $value ? (string)$value : null);
     }
 
     /**
      * @param string $param
-     * @param mixed $value
      * @return Route
      */
-    public function withQueryParam($param, $value)
+    public function withQueryParam($param, mixed $value)
     {
         return $this->withParam('queryParams', $param, $value);
     }
@@ -346,9 +344,9 @@ class Route
      * @deprecated 1.6 Use ->toString(true) or ->getUri() instead.
      */
     #[\ReturnTypeWillChange]
-    public function __toString()
+    public function __toString(): string
     {
-        user_error(__CLASS__ . '::' . __FUNCTION__ . '() will change in the future to return route, not relative url: use ->toString(true) or ->getUri() instead.', E_USER_DEPRECATED);
+        user_error(self::class . '::' . __FUNCTION__ . '() will change in the future to return route, not relative url: use ->toString(true) or ->getUri() instead.', E_USER_DEPRECATED);
 
         return $this->toString(true);
     }
@@ -356,10 +354,9 @@ class Route
     /**
      * @param string $type
      * @param string $param
-     * @param mixed $value
      * @return Route
      */
-    protected function withParam($type, $param, $value)
+    protected function withParam($type, $param, mixed $value)
     {
         $values = $this->{$type} ?? [];
         $oldValue = $values[$param] ?? null;
@@ -438,7 +435,7 @@ class Route
 
             $path = $parts['path'] ?? '/';
             if (isset($parts['params'])) {
-                $this->route = trim(rawurldecode($path), '/');
+                $this->route = trim(rawurldecode((string) $path), '/');
                 $this->gravParams = $parts['params'];
             } else {
                 $this->route = trim(RouteFactory::stripParams($path, true), '/');

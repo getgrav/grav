@@ -163,19 +163,12 @@ abstract class AbstractFilesystemStorage implements FlexStorageInterface
         $filename = $this->resolvePath($filename);
 
         // TODO: start using the new file classes.
-        switch ($this->dataFormatter->getDefaultFileExtension()) {
-            case '.json':
-                $file = CompiledJsonFile::instance($filename);
-                break;
-            case '.yaml':
-                $file = CompiledYamlFile::instance($filename);
-                break;
-            case '.md':
-                $file = CompiledMarkdownFile::instance($filename);
-                break;
-            default:
-                throw new RuntimeException('Unknown extension type ' . $this->dataFormatter->getDefaultFileExtension());
-        }
+        $file = match ($this->dataFormatter->getDefaultFileExtension()) {
+            '.json' => CompiledJsonFile::instance($filename),
+            '.yaml' => CompiledYamlFile::instance($filename),
+            '.md' => CompiledMarkdownFile::instance($filename),
+            default => throw new RuntimeException('Unknown extension type ' . $this->dataFormatter->getDefaultFileExtension()),
+        };
 
         return $file;
     }

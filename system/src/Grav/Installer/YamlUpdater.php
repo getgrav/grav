@@ -103,9 +103,8 @@ final class YamlUpdater
 
     /**
      * @param string $variable
-     * @param mixed $value
      */
-    public function define(string $variable, $value): void
+    public function define(string $variable, mixed $value): void
     {
         // If variable has already value, we're good.
         if ($this->get($variable) !== null) {
@@ -206,7 +205,7 @@ final class YamlUpdater
 
             if ($test === true) {
                 $test = false;
-                $spaces = strlen($line) - strlen(ltrim($line, ' '));
+                $spaces = strlen((string) $line) - strlen(ltrim((string) $line, ' '));
                 if ($spaces <= $indent) {
                     $found[$current] = -$j;
 
@@ -218,10 +217,10 @@ final class YamlUpdater
             }
 
 
-            if (0 === \strncmp($line, $space, strlen($space))) {
+            if (str_starts_with((string) $line, $space)) {
                 $pattern = "/^{$space}(['\"]?){$current}\\1\:/";
 
-                if (preg_match($pattern, $line)) {
+                if (preg_match($pattern, (string) $line)) {
                     $found[$current] = $i;
                     $current = array_shift($parts);
                     if ($current === null) {
@@ -337,7 +336,7 @@ final class YamlUpdater
      * @param mixed $default Default value (or null).
      * @return mixed Value.
      */
-    private function get(string $name, $default = null)
+    private function get(string $name, mixed $default = null)
     {
         $path = explode('.', $name);
         $current = $this->items;
@@ -359,7 +358,7 @@ final class YamlUpdater
      * @param string $name Dot separated path to the requested value.
      * @param mixed $value New value.
      */
-    private function set(string $name, $value): void
+    private function set(string $name, mixed $value): void
     {
         $path = explode('.', $name);
         $current = &$this->items;

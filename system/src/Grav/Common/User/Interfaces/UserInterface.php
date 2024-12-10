@@ -48,7 +48,7 @@ interface UserInterface extends AuthorizeInterface, DataInterface, MediaInterfac
      * @param string|null  $separator  Separator, defaults to '.'
      * @return mixed  Value.
      */
-    public function get($name, $default = null, $separator = null);
+    public function get($name, mixed $default = null, $separator = null);
 
     /**
      * Set value by using dot notation for nested arrays/objects.
@@ -60,7 +60,7 @@ interface UserInterface extends AuthorizeInterface, DataInterface, MediaInterfac
      * @param string|null  $separator  Separator, defaults to '.'
      * @return $this
      */
-    public function set($name, $value, $separator = null);
+    public function set($name, mixed $value, $separator = null);
 
     /**
      * Unset value by using dot notation for nested arrays/objects.
@@ -83,7 +83,7 @@ interface UserInterface extends AuthorizeInterface, DataInterface, MediaInterfac
      * @param string|null  $separator  Separator, defaults to '.'
      * @return $this
      */
-    public function def($name, $default = null, $separator = null);
+    public function def($name, mixed $default = null, $separator = null);
 
     /**
      * Join nested values together by using blueprints.
@@ -94,7 +94,7 @@ interface UserInterface extends AuthorizeInterface, DataInterface, MediaInterfac
      * @return $this
      * @throws RuntimeException
      */
-    public function join($name, $value, $separator = '.');
+    public function join($name, mixed $value, $separator = '.');
 
     /**
      * Get nested structure containing default values defined in the blueprints.
@@ -113,7 +113,7 @@ interface UserInterface extends AuthorizeInterface, DataInterface, MediaInterfac
      * @param string  $separator  Separator, defaults to '.'
      * @return $this
      */
-    public function joinDefaults($name, $value, $separator = '.');
+    public function joinDefaults($name, mixed $value, $separator = '.');
 
     /**
      * Get value from the configuration and join it with given data.

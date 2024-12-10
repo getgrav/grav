@@ -106,7 +106,7 @@ trait ConsoleTrait
                 // Set used language.
                 $this->setLanguage($language);
             }
-        } catch (InvalidArgumentException $e) {}
+        } catch (InvalidArgumentException) {}
 
         // Initialize cache with CLI compatibility
         $grav = Grav::instance();

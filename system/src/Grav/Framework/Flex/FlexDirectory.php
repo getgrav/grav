@@ -402,7 +402,7 @@ class FlexDirectory implements FlexDirectoryInterface
      */
     public function getIndex(?array $keys = null, ?string $keyField = null): FlexIndexInterface
     {
-        $keyField = $keyField ?? '';
+        $keyField ??= '';
         $index = $this->indexes[$keyField] ?? $this->loadIndex($keyField);
         $index = clone $index;
 
@@ -429,7 +429,7 @@ class FlexDirectory implements FlexDirectoryInterface
             return $this->createObject([], '');
         }
 
-        $keyField = $keyField ?? '';
+        $keyField ??= '';
         $index = $this->indexes[$keyField] ?? $this->loadIndex($keyField);
 
         return $index->get($key);
@@ -908,14 +908,14 @@ class FlexDirectory implements FlexDirectoryInterface
         $object = $call['object'] ?? null;
         $method = array_shift($params);
         $not = false;
-        if (str_starts_with($method, '!')) {
-            $method = substr($method, 1);
+        if (str_starts_with((string) $method, '!')) {
+            $method = substr((string) $method, 1);
             $not = true;
-        } elseif (str_starts_with($method, 'not ')) {
-            $method = substr($method, 4);
+        } elseif (str_starts_with((string) $method, 'not ')) {
+            $method = substr((string) $method, 4);
             $not = true;
         }
-        $method = trim($method);
+        $method = trim((string) $method);
 
         if ($object && method_exists($object, $method)) {
             $value = $object->{$method}(...$params);
@@ -944,14 +944,14 @@ class FlexDirectory implements FlexDirectoryInterface
         $object = $call['object'] ?? null;
         $permission = array_shift($params);
         $not = false;
-        if (str_starts_with($permission, '!')) {
-            $permission = substr($permission, 1);
+        if (str_starts_with((string) $permission, '!')) {
+            $permission = substr((string) $permission, 1);
             $not = true;
-        } elseif (str_starts_with($permission, 'not ')) {
-            $permission = substr($permission, 4);
+        } elseif (str_starts_with((string) $permission, 'not ')) {
+            $permission = substr((string) $permission, 4);
             $not = true;
         }
-        $permission = trim($permission);
+        $permission = trim((string) $permission);
 
         if ($object) {
             $value = $object->isAuthorized($permission) ?? false;
@@ -1111,7 +1111,7 @@ class FlexDirectory implements FlexDirectoryInterface
      */
     public function getType(): string
     {
-        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6, use ->getFlexType() method instead', E_USER_DEPRECATED);
+        user_error(self::class . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6, use ->getFlexType() method instead', E_USER_DEPRECATED);
 
         return $this->type;
     }
@@ -1124,7 +1124,7 @@ class FlexDirectory implements FlexDirectoryInterface
      */
     public function update(array $data, ?string $key = null): FlexObjectInterface
     {
-        user_error(__CLASS__ . '::' . __FUNCTION__ . '() should not be used anymore: use $object->update()->save() instead.', E_USER_DEPRECATED);
+        user_error(self::class . '::' . __FUNCTION__ . '() should not be used anymore: use $object->update()->save() instead.', E_USER_DEPRECATED);
 
         $object = null !== $key ? $this->getIndex()->get($key): null;
 
@@ -1175,7 +1175,7 @@ class FlexDirectory implements FlexDirectoryInterface
      */
     public function remove(string $key): ?FlexObjectInterface
     {
-        user_error(__CLASS__ . '::' . __FUNCTION__ . '() should not be used anymore: use $object->delete() instead.', E_USER_DEPRECATED);
+        user_error(self::class . '::' . __FUNCTION__ . '() should not be used anymore: use $object->delete() instead.', E_USER_DEPRECATED);
 
         $object = $this->getIndex()->get($key);
         if (!$object) {

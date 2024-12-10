@@ -19,17 +19,8 @@ class UploadedMediaObject implements MediaObjectInterface
 
     /** @var FormFlashInterface */
     public $object;
-
-    /** @var string */
-    private $id;
-    /** @var string|null */
-    private $field;
-    /** @var string */
-    private $filename;
     /** @var array */
     private $meta;
-    /** @var UploadedFileInterface|null */
-    private $uploadedFile;
 
     /**
      * @param FlexFormFlash $flash
@@ -51,17 +42,13 @@ class UploadedMediaObject implements MediaObjectInterface
      * @param string $filename
      * @param UploadedFileInterface|null $uploadedFile
      */
-    public function __construct(string $id, ?string $field, string $filename, ?UploadedFileInterface $uploadedFile = null)
+    public function __construct(private readonly string $id, private readonly ?string $field, private readonly string $filename, private readonly ?UploadedFileInterface $uploadedFile = null)
     {
-        $this->id = $id;
-        $this->field = $field;
-        $this->filename = $filename;
-        $this->uploadedFile = $uploadedFile;
-        if ($uploadedFile) {
+        if ($this->uploadedFile) {
             $this->meta = [
-                'filename' => $uploadedFile->getClientFilename(),
-                'mime' => $uploadedFile->getClientMediaType(),
-                'size' => $uploadedFile->getSize()
+                'filename' => $this->uploadedFile->getClientFilename(),
+                'mime' => $this->uploadedFile->getClientMediaType(),
+                'size' => $this->uploadedFile->getSize()
             ];
         } else {
             $this->meta = [];

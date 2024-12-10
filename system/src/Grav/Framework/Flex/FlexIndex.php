@@ -44,9 +44,6 @@ use function in_array;
 class FlexIndex extends ObjectIndex implements FlexIndexInterface
 {
     const VERSION = 1;
-
-    /** @var FlexDirectory|null */
-    private $_flexDirectory;
     /** @var string */
     private $_keyField = 'storage_key';
     /** @var array */
@@ -104,18 +101,16 @@ class FlexIndex extends ObjectIndex implements FlexIndexInterface
      * Initializes a new FlexIndex.
      *
      * @param array $entries
-     * @param FlexDirectory|null $directory
+     * @param FlexDirectory|null $_flexDirectory
      */
-    public function __construct(array $entries = [], ?FlexDirectory $directory = null)
+    public function __construct(array $entries = [], private ?FlexDirectory $_flexDirectory = null)
     {
         // @phpstan-ignore-next-line
-        if (get_class($this) === __CLASS__) {
-            user_error('Using ' . __CLASS__ . ' directly is deprecated since Grav 1.7, use \Grav\Common\Flex\Types\Generic\GenericIndex or your own class instead', E_USER_DEPRECATED);
+        if (static::class === self::class) {
+            user_error('Using ' . self::class . ' directly is deprecated since Grav 1.7, use \Grav\Common\Flex\Types\Generic\GenericIndex or your own class instead', E_USER_DEPRECATED);
         }
 
         parent::__construct($entries);
-
-        $this->_flexDirectory = $directory;
         $this->setKeyField(null);
     }
 
@@ -147,8 +142,8 @@ class FlexIndex extends ObjectIndex implements FlexIndexInterface
 
         $list = [];
         foreach ($implements as $interface) {
-            if ($pos = strrpos($interface, '\\')) {
-                $interface = substr($interface, $pos+1);
+            if ($pos = strrpos((string) $interface, '\\')) {
+                $interface = substr((string) $interface, $pos+1);
             }
 
             $list[] = Inflector::hyphenize(str_replace('Interface', '', $interface));
@@ -421,7 +416,7 @@ class FlexIndex extends ObjectIndex implements FlexIndexInterface
             }
 
             // Order by current field.
-            if (strtoupper($ordering) === 'DESC') {
+            if (strtoupper((string) $ordering) === 'DESC') {
                 arsort($search, SORT_NATURAL | SORT_FLAG_CASE);
             } else {
                 asort($search, SORT_NATURAL | SORT_FLAG_CASE);
@@ -922,7 +917,7 @@ class FlexIndex extends ObjectIndex implements FlexIndexInterface
      */
     public function getType($prefix = false)
     {
-        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6, use ->getFlexType() method instead', E_USER_DEPRECATED);
+        user_error(self::class . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6, use ->getFlexType() method instead', E_USER_DEPRECATED);
 
         $type = $prefix ? $this->getTypePrefix() : '';
 

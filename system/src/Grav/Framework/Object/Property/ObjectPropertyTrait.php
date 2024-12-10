@@ -55,10 +55,9 @@ trait ObjectPropertyTrait
 
     /**
      * @param string $offset
-     * @param mixed $value
      * @return mixed
      */
-    protected function offsetLoad($offset, $value)
+    protected function offsetLoad($offset, mixed $value)
     {
         $methodName = "offsetLoad_{$offset}";
 
@@ -67,10 +66,9 @@ trait ObjectPropertyTrait
 
     /**
      * @param string $offset
-     * @param mixed $value
      * @return mixed
      */
-    protected function offsetPrepare($offset, $value)
+    protected function offsetPrepare($offset, mixed $value)
     {
         $methodName = "offsetPrepare_{$offset}";
 
@@ -79,10 +77,9 @@ trait ObjectPropertyTrait
 
     /**
      * @param string $offset
-     * @param mixed $value
      * @return mixed
      */
-    protected function offsetSerialize($offset, $value)
+    protected function offsetSerialize($offset, mixed $value)
     {
         $methodName = "offsetSerialize_{$offset}";
 
@@ -104,7 +101,7 @@ trait ObjectPropertyTrait
      * @param callable|bool $doCreate   Set true to create variable.
      * @return mixed                    Property value.
      */
-    protected function &doGetProperty($property, $default = null, $doCreate = false)
+    protected function &doGetProperty($property, mixed $default = null, $doCreate = false)
     {
         if (!array_key_exists($property, $this->_definedProperties)) {
             throw new InvalidArgumentException("Property '{$property}' does not exist in the object!");
@@ -131,7 +128,7 @@ trait ObjectPropertyTrait
      * @return void
      * @throws InvalidArgumentException
      */
-    protected function doSetProperty($property, $value)
+    protected function doSetProperty($property, mixed $value)
     {
         if (!array_key_exists($property, $this->_definedProperties)) {
             throw new InvalidArgumentException("Property '{$property}' does not exist in the object!");

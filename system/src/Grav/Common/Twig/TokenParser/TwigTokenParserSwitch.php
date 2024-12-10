@@ -74,7 +74,7 @@ class TwigTokenParserSwitch extends AbstractTokenParser
                     }
 
                     $stream->expect(Token::BLOCK_END_TYPE);
-                    $body = $this->parser->subparse([$this, 'decideIfFork']);
+                    $body = $this->parser->subparse($this->decideIfFork(...));
                     $cases[] = new Node([
                         'values' => new Node($values),
                         'body' => $body
@@ -83,7 +83,7 @@ class TwigTokenParserSwitch extends AbstractTokenParser
 
                 case 'default':
                     $stream->expect(Token::BLOCK_END_TYPE);
-                    $default = $this->parser->subparse([$this, 'decideIfEnd']);
+                    $default = $this->parser->subparse($this->decideIfEnd(...));
                     break;
 
                 case 'endswitch':

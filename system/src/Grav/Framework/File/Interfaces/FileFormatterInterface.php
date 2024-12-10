@@ -59,7 +59,7 @@ interface FileFormatterInterface extends Serializable
      * @return string Returns encoded data as a string.
      * @api
      */
-    public function encode($data): string;
+    public function encode(mixed $data): string;
 
     /**
      * Decode a string into data.

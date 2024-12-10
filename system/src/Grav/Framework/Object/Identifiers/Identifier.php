@@ -11,20 +11,13 @@ use Grav\Framework\Contracts\Object\IdentifierInterface;
  */
 class Identifier implements IdentifierInterface
 {
-    /** @var string */
-    private $id;
-    /** @var string */
-    private $type;
-
     /**
      * IdentifierInterface constructor.
      * @param string $id
      * @param string $type
      */
-    public function __construct(string $id, string $type)
+    public function __construct(private readonly string $id, private readonly string $type)
     {
-        $this->id = $id;
-        $this->type = $type;
     }
 
     /**

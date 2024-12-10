@@ -28,7 +28,7 @@ interface DataInterface
      * @param string  $separator  Separator, defaults to '.'
      * @return mixed  Value.
      */
-    public function value($name, $default = null, $separator = '.');
+    public function value($name, mixed $default = null, $separator = '.');
 
     /**
      * Merge external data.

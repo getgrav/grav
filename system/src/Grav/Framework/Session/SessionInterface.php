@@ -142,11 +142,10 @@ interface SessionInterface extends IteratorAggregate
      * Sets session variable.
      *
      * @param string $name
-     * @param mixed  $value
      * @return void
      */
     #[\ReturnTypeWillChange]
-    public function __set($name, $value);
+    public function __set($name, mixed $value);
 
     /**
      * Removes session variable.

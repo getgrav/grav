@@ -64,19 +64,14 @@ class RequestException extends \RuntimeException
         511 => 'Network Authentication Required',
     ];
 
-    /** @var ServerRequestInterface */
-    private $request;
-
     /**
      * @param ServerRequestInterface $request
      * @param string $message
      * @param int $code
      * @param Throwable|null $previous
      */
-    public function __construct(ServerRequestInterface $request, string $message, int $code = 500, ?Throwable $previous = null)
+    public function __construct(private readonly ServerRequestInterface $request, string $message, int $code = 500, ?Throwable $previous = null)
     {
-        $this->request = $request;
-
         parent::__construct($message, $code, $previous);
     }
 

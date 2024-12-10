@@ -285,7 +285,7 @@ class AbstractFile implements FileInterface
             if ($this->handle) {
                 $tmp = true;
                 // As we are using non-truncating locking, make sure that the file is empty before writing.
-                if (@ftruncate($this->handle, 0) === false || @fwrite($this->handle, $data) === false) {
+                if (@ftruncate($this->handle, 0) === false || @fwrite($this->handle, (string) $data) === false) {
                     // Writing file failed, throw an error.
                     $tmp = false;
                 }
@@ -305,7 +305,7 @@ class AbstractFile implements FileInterface
                     $tmp = false;
                 }
             }
-        } catch (Exception $e) {
+        } catch (Exception) {
             $tmp = false;
         }
 

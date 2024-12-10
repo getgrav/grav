@@ -31,7 +31,7 @@ class Session extends \Grav\Framework\Session\Session
      */
     public static function instance()
     {
-        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.5, use ->getInstance() method instead', E_USER_DEPRECATED);
+        user_error(self::class . '::' . __FUNCTION__ . '() is deprecated since Grav 1.5, use ->getInstance() method instead', E_USER_DEPRECATED);
 
         return static::getInstance();
     }
@@ -71,7 +71,7 @@ class Session extends \Grav\Framework\Session\Session
      */
     public function all()
     {
-        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.5, use ->getAll() method instead', E_USER_DEPRECATED);
+        user_error(self::class . '::' . __FUNCTION__ . '() is deprecated since Grav 1.5, use ->getAll() method instead', E_USER_DEPRECATED);
 
         return $this->getAll();
     }
@@ -84,7 +84,7 @@ class Session extends \Grav\Framework\Session\Session
      */
     public function started()
     {
-        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.5, use ->isStarted() method instead', E_USER_DEPRECATED);
+        user_error(self::class . '::' . __FUNCTION__ . '() is deprecated since Grav 1.5, use ->isStarted() method instead', E_USER_DEPRECATED);
 
         return $this->isStarted();
     }
@@ -93,10 +93,9 @@ class Session extends \Grav\Framework\Session\Session
      * Store something in session temporarily.
      *
      * @param string $name
-     * @param mixed $object
      * @return $this
      */
-    public function setFlashObject($name, $object)
+    public function setFlashObject($name, mixed $object)
     {
         $this->__set($name, serialize($object));
 
@@ -147,14 +146,13 @@ class Session extends \Grav\Framework\Session\Session
      * Store something in cookie temporarily.
      *
      * @param string $name
-     * @param mixed $object
      * @param int $time
      * @return $this
      * @throws JsonException
      */
-    public function setFlashCookieObject($name, $object, $time = 60)
+    public function setFlashCookieObject($name, mixed $object, $time = 60)
     {
-        setcookie($name, json_encode($object, JSON_THROW_ON_ERROR), $this->getCookieOptions($time));
+        setcookie($name, json_encode($object, JSON_THROW_ON_ERROR), ['expires' => $this->getCookieOptions($time)]);
 
         return $this;
     }
@@ -170,9 +168,9 @@ class Session extends \Grav\Framework\Session\Session
     {
         if (isset($_COOKIE[$name])) {
             $cookie = $_COOKIE[$name];
-            setcookie($name, '', $this->getCookieOptions(-42000));
+            setcookie($name, '', ['expires' => $this->getCookieOptions(-42000)]);
 
-            return json_decode($cookie, false, 512, JSON_THROW_ON_ERROR);
+            return json_decode((string) $cookie, false, 512, JSON_THROW_ON_ERROR);
         }
 
         return null;

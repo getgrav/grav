@@ -97,7 +97,7 @@ trait ImageMediaTrait
         }
 
         $basename = $this->get('basename');
-        if (preg_match('/[a-z0-9]{40}-(.*)/', $basename, $matches)) {
+        if (preg_match('/[a-z0-9]{40}-(.*)/', (string) $basename, $matches)) {
             $basename = $matches[1];
         }
         return $basename;

@@ -76,16 +76,15 @@ class Link implements RenderableInterface, MediaLinkInterface
      * Forward the call to the source element
      *
      * @param string $method
-     * @param mixed $args
      * @return mixed
      */
     #[\ReturnTypeWillChange]
-    public function __call($method, $args)
+    public function __call($method, mixed $args)
     {
         $object = $this->source;
         $callable = [$object, $method];
         if (!is_callable($callable)) {
-            throw new BadMethodCallException(get_class($object) . '::' . $method . '() not found.');
+            throw new BadMethodCallException($object::class . '::' . $method . '() not found.');
         }
 
         $object = call_user_func_array($callable, $args);

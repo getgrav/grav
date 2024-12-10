@@ -179,7 +179,7 @@ class InstallCommand extends GpmCommand
                 $this->installDependencies($dependencies, 'install', 'The following dependencies need to be installed...');
                 $this->installDependencies($dependencies, 'update', 'The following dependencies need to be updated...');
                 $this->installDependencies($dependencies, 'ignore', "The following dependencies can be updated as there is a newer version, but it's not mandatory...", false);
-            } catch (Exception $e) {
+            } catch (Exception) {
                 $io->writeln('<red>Installation aborted</red>');
 
                 return 1;
@@ -287,9 +287,7 @@ class InstallCommand extends GpmCommand
     public function installDependencies(array $dependencies, string $type, string $message, bool $required = true): void
     {
         $io = $this->getIO();
-        $packages = array_filter($dependencies, static function ($action) use ($type) {
-            return $action === $type;
-        });
+        $packages = array_filter($dependencies, static fn($action) => $action === $type);
         if (count($packages) > 0) {
             $io->writeln($message);
 
@@ -460,14 +458,14 @@ class InstallCommand extends GpmCommand
 
         foreach ($this->local_config as $paths) {
             if (Utils::endsWith($matches[2], '.git')) {
-                $repo_dir = preg_replace('/\.git$/', '', $matches[2]);
+                $repo_dir = preg_replace('/\.git$/', '', (string) $matches[2]);
             } else {
                 $repo_dir = $matches[2];
             }
 
             $paths = (array) $paths;
             foreach ($paths as $repo) {
-                $path = rtrim($repo, '/') . '/' . $repo_dir;
+                $path = rtrim((string) $repo, '/') . '/' . $repo_dir;
                 if (file_exists($path)) {
                     return $path;
                 }
@@ -598,7 +596,7 @@ class InstallCommand extends GpmCommand
         }
 
         try {
-            $output = Response::get($package->zipball_url . $query, [], [$this, 'progress']);
+            $output = Response::get($package->zipball_url . $query, [], $this->progress(...));
         } catch (Exception $e) {
             if (!empty($package->premium) && $e->getCode() === 401) {
                 $message = '<yellow>Unauthorized Premium License Key</yellow>';
@@ -717,7 +715,7 @@ class InstallCommand extends GpmCommand
 
         $io->write("\x0D");
         $io->write('  |- Downloading package... ' . str_pad(
-            $progress['percent'],
+            (string) $progress['percent'],
             5,
             ' ',
             STR_PAD_LEFT

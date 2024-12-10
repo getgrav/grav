@@ -19,18 +19,15 @@ final class VersionUpdate
     private $date;
     /** @var string */
     private $patch;
-    /** @var VersionUpdater */
-    private $updater;
     /** @var callable[] */
     private $methods;
 
-    public function __construct(string $file, VersionUpdater $updater)
+    public function __construct(string $file, private readonly VersionUpdater $updater)
     {
         $name = basename($file, '.php');
 
         $this->revision = $name;
         [$this->version, $this->date, $this->patch] = explode('_', $name);
-        $this->updater = $updater;
         $this->methods = require $file;
     }
 

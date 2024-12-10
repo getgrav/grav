@@ -160,7 +160,7 @@ class Cache extends Getters
 
         /** @var EventDispatcher $dispatcher */
         $dispatcher = Grav::instance()['events'];
-        $dispatcher->addListener('onSchedulerInitialized', [$this, 'onSchedulerInitialized']);
+        $dispatcher->addListener('onSchedulerInitialized', $this->onSchedulerInitialized(...));
     }
 
     /**
@@ -264,8 +264,8 @@ class Cache extends Getters
         }
 
         $this->driver_name = $driver_name;
-        $namespace = $namespace ?? $this->key;
-        $defaultLifetime = $defaultLifetime ?? 0;
+        $namespace ??= $this->key;
+        $defaultLifetime ??= 0;
 
         switch ($driver_name) {
             case 'apc':

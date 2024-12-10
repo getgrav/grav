@@ -202,7 +202,7 @@ abstract class CompiledBase
         $cache = include $filename;
         if (!is_array($cache)
             || !isset($cache['checksum'], $cache['data'], $cache['@class'])
-            || $cache['@class'] !== get_class($this)
+            || $cache['@class'] !== static::class
         ) {
             return false;
         }
@@ -235,7 +235,7 @@ abstract class CompiledBase
         // Attempt to lock the file for writing.
         try {
             $file->lock(false);
-        } catch (Exception $e) {
+        } catch (Exception) {
             // Another process has locked the file; we will check this in a bit.
         }
 
@@ -245,7 +245,7 @@ abstract class CompiledBase
         }
 
         $cache = [
-            '@class' => get_class($this),
+            '@class' => static::class,
             'timestamp' => time(),
             'checksum' => $this->checksum(),
             'files' => $this->files,

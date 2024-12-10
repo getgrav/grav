@@ -328,9 +328,7 @@ class Debugger
             return new Response(404, $headers, json_encode($response));
         }
 
-        $data = is_array($data) ? array_map(static function ($item) {
-            return $item->toArray();
-        }, $data) : $data->toArray();
+        $data = is_array($data) ? array_map(static fn($item) => $item->toArray(), $data) : $data->toArray();
 
         return new Response(200, $headers, json_encode($data));
     }
@@ -619,13 +617,9 @@ class Debugger
     protected function buildProfilerTimings(array $timings): array
     {
         // Filter method calls which take almost no time.
-        $timings = array_filter($timings, function ($value) {
-            return $value['wt'] > 50;
-        });
+        $timings = array_filter($timings, fn($value) => $value['wt'] > 50);
 
-        uasort($timings, function (array $a, array $b) {
-            return $b['wt'] <=> $a['wt'];
-        });
+        uasort($timings, fn(array $a, array $b) => $b['wt'] <=> $a['wt']);
 
         $table = [];
         foreach ($timings as $key => $timing) {
@@ -639,7 +633,7 @@ class Debugger
             }
 
             // Do not profile library calls.
-            if (strpos($context, 'Grav\\') !== 0) {
+            if (!str_starts_with((string) $context, 'Grav\\')) {
                 continue;
             }
 
@@ -721,12 +715,11 @@ class Debugger
     /**
      * Dump variables into the Messages tab of the Debug Bar
      *
-     * @param mixed  $message
      * @param string $label
      * @param mixed|bool $isString
      * @return $this
      */
-    public function addMessage($message, $label = 'info', $isString = true)
+    public function addMessage(mixed $message, $label = 'info', $isString = true)
     {
         if ($this->enabled) {
             if ($this->censored) {
@@ -779,7 +772,7 @@ class Debugger
     public function addEvent(string $name, $event, EventDispatcherInterface $dispatcher, ?float $time = null)
     {
         if ($this->enabled && $this->clockwork) {
-            $time = $time ?? microtime(true);
+            $time ??= microtime(true);
             $duration = (microtime(true) - $time) * 1000;
 
             $data = null;
@@ -829,7 +822,7 @@ class Debugger
     public function setErrorHandler()
     {
         $this->errorHandler = set_error_handler(
-            [$this, 'deprecatedErrorHandler']
+            $this->deprecatedErrorHandler(...)
         );
     }
 
@@ -858,7 +851,7 @@ class Debugger
         $scope = 'unknown';
         if (stripos($errstr, 'grav') !== false) {
             $scope = 'grav';
-        } elseif (strpos($errfile, '/twig/') !== false) {
+        } elseif (str_contains($errfile, '/twig/')) {
             $scope = 'twig';
             // TODO: remove when upgrading to Twig 2+
             if (str_contains($errstr, '#[\ReturnTypeWillChange]') || str_contains($errstr, 'Passing null to parameter')) {
@@ -866,7 +859,7 @@ class Debugger
             }
         } elseif (stripos($errfile, '/yaml/') !== false) {
             $scope = 'yaml';
-        } elseif (strpos($errfile, '/vendor/') !== false) {
+        } elseif (str_contains($errfile, '/vendor/')) {
             $scope = 'vendor';
         }
 
@@ -912,7 +905,7 @@ class Debugger
                     } elseif (is_scalar($arg)) {
                         $arg = $arg;
                     } elseif (is_object($arg)) {
-                        $arg = get_class($arg) . ' $object';
+                        $arg = $arg::class . ' $object';
                     } elseif (is_array($arg)) {
                         $arg = '$array';
                     } else {
@@ -938,7 +931,7 @@ class Debugger
             if ($object instanceof Template) {
                 $file = $current['file'] ?? null;
 
-                if (preg_match('`(Template.php|TemplateWrapper.php)$`', $file)) {
+                if (preg_match('`(Template.php|TemplateWrapper.php)$`', (string) $file)) {
                     $current = null;
                     continue;
                 }
@@ -998,7 +991,7 @@ class Debugger
             if (!isset($current['file'])) {
                 continue;
             }
-            if (strpos($current['file'], '/vendor/') !== false) {
+            if (str_contains($current['file'], '/vendor/')) {
                 $cut = $i + 1;
                 continue;
             }
@@ -1073,7 +1066,7 @@ class Debugger
 
         /** @var array $deprecated */
         foreach ($this->deprecations as $deprecated) {
-            list($message, $scope) = $this->getDepracatedMessage($deprecated);
+            [$message, $scope] = $this->getDepracatedMessage($deprecated);
 
             $collector->addMessage($message, $scope);
         }
@@ -1140,7 +1133,7 @@ class Debugger
     protected function resolveCallable(callable $callable)
     {
         if (is_array($callable)) {
-            return get_class($callable[0]) . '->' . $callable[1] . '()';
+            return $callable[0]::class . '->' . $callable[1] . '()';
         }
 
         return 'unknown';

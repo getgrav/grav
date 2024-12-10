@@ -77,7 +77,7 @@ class ZipArchiver extends Archiver
 
         foreach ($files as $file) {
             $filePath = $file->getPathname();
-            $relativePath = ltrim(substr($filePath, strlen($rootPath)), '/');
+            $relativePath = ltrim(substr((string) $filePath, strlen($rootPath)), '/');
 
             if ($file->isDir()) {
                 $zip->addEmptyDir($relativePath);

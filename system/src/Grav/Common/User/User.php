@@ -36,7 +36,7 @@ if (defined('GRAV_USER_INSTANCE') && GRAV_USER_INSTANCE === 'FLEX') {
          */
         public static function load($username)
         {
-            user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6, use $grav[\'accounts\']->' . __FUNCTION__ . '() instead', E_USER_DEPRECATED);
+            user_error(self::class . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6, use $grav[\'accounts\']->' . __FUNCTION__ . '() instead', E_USER_DEPRECATED);
 
             return static::getCollection()->load($username);
         }
@@ -53,7 +53,7 @@ if (defined('GRAV_USER_INSTANCE') && GRAV_USER_INSTANCE === 'FLEX') {
          */
         public static function find($query, $fields = ['username', 'email'])
         {
-            user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6, use $grav[\'accounts\']->' . __FUNCTION__ . '() instead', E_USER_DEPRECATED);
+            user_error(self::class . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6, use $grav[\'accounts\']->' . __FUNCTION__ . '() instead', E_USER_DEPRECATED);
 
             return static::getCollection()->find($query, $fields);
         }
@@ -67,7 +67,7 @@ if (defined('GRAV_USER_INSTANCE') && GRAV_USER_INSTANCE === 'FLEX') {
          */
         public static function remove($username)
         {
-            user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6, use $grav[\'accounts\']->delete() instead', E_USER_DEPRECATED);
+            user_error(self::class . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6, use $grav[\'accounts\']->delete() instead', E_USER_DEPRECATED);
 
             return static::getCollection()->delete($username);
         }
@@ -97,7 +97,7 @@ if (defined('GRAV_USER_INSTANCE') && GRAV_USER_INSTANCE === 'FLEX') {
          */
         public static function load($username)
         {
-            user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6, use $grav[\'accounts\']->' . __FUNCTION__ . '() instead', E_USER_DEPRECATED);
+            user_error(self::class . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6, use $grav[\'accounts\']->' . __FUNCTION__ . '() instead', E_USER_DEPRECATED);
 
             return static::getCollection()->load($username);
         }
@@ -114,7 +114,7 @@ if (defined('GRAV_USER_INSTANCE') && GRAV_USER_INSTANCE === 'FLEX') {
          */
         public static function find($query, $fields = ['username', 'email'])
         {
-            user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6, use $grav[\'accounts\']->' . __FUNCTION__ . '() instead', E_USER_DEPRECATED);
+            user_error(self::class . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6, use $grav[\'accounts\']->' . __FUNCTION__ . '() instead', E_USER_DEPRECATED);
 
             return static::getCollection()->find($query, $fields);
         }
@@ -128,7 +128,7 @@ if (defined('GRAV_USER_INSTANCE') && GRAV_USER_INSTANCE === 'FLEX') {
          */
         public static function remove($username)
         {
-            user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6, use $grav[\'accounts\']->delete() instead', E_USER_DEPRECATED);
+            user_error(self::class . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6, use $grav[\'accounts\']->delete() instead', E_USER_DEPRECATED);
 
             return static::getCollection()->delete($username);
         }

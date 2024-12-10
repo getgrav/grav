@@ -45,13 +45,13 @@ use function is_array;
 
 // Twig3 compatibility
 if (!class_exists('Twig_SimpleFunction')) {
-    class_alias('\Twig\TwigFunction', 'Twig_SimpleFunction');
+    class_alias(\Twig\TwigFunction::class, 'Twig_SimpleFunction');
 }
 if (!class_exists('Twig_SimpleFilter')) {
-    class_alias('\Twig\TwigFilter', 'Twig_SimpleFilter');
+    class_alias(\Twig\TwigFilter::class, 'Twig_SimpleFilter');
 }
 if (!class_exists('Twig_Extension')) {
-    class_alias('\Twig\Extension\AbstractExtension', 'Twig_Extension');
+    class_alias(\Twig\Extension\AbstractExtension::class, 'Twig_Extension');
 }
 
 /**
@@ -330,7 +330,7 @@ class Twig
      */
     public function processPage(PageInterface $item, $content = null)
     {
-        $content = $content ?? $item->content();
+        $content ??= $item->content();
         $content = Security::cleanDangerousTwig($content);
 
         // override the twig header vars for local resolution
@@ -580,7 +580,7 @@ class Twig
     public function setAutoescape($state)
     {
         if (!$state) {
-            user_error(__CLASS__ . '::' . __FUNCTION__ . '(false) is deprecated since Grav 1.5', E_USER_DEPRECATED);
+            user_error(self::class . '::' . __FUNCTION__ . '(false) is deprecated since Grav 1.5', E_USER_DEPRECATED);
         }
 
         $this->autoescape = (bool) $state;

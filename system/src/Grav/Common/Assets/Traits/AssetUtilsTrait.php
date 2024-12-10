@@ -55,7 +55,7 @@ trait AssetUtilsTrait
             return false;
         }
 
-        return (0 === strpos($link, 'http://') || 0 === strpos($link, 'https://') || 0 === strpos($link, '//'));
+        return (str_starts_with($link, 'http://') || str_starts_with($link, 'https://') || str_starts_with($link, '//'));
     }
 
     /**
@@ -76,18 +76,18 @@ trait AssetUtilsTrait
 
             if (static::isRemoteLink($link)) {
                 $local = false;
-                if (0 === strpos($link, '//')) {
+                if (str_starts_with((string) $link, '//')) {
                     $link = 'http:' . $link;
                 }
-                $relative_dir = dirname($relative_path);
+                $relative_dir = dirname((string) $relative_path);
             } else {
                 // Fix to remove relative dir if grav is in one
                 if (($this->base_url !== '/') && Utils::startsWith($relative_path, $this->base_url)) {
                     $base_url = '#' . preg_quote($this->base_url, '#') . '#';
-                    $relative_path = ltrim(preg_replace($base_url, '/', $link, 1), '/');
+                    $relative_path = ltrim(preg_replace($base_url, '/', (string) $link, 1), '/');
                 }
 
-                $relative_dir = dirname($relative_path);
+                $relative_dir = dirname((string) $relative_path);
                 $link = GRAV_ROOT . '/' . $relative_path;
             }
 
@@ -101,7 +101,7 @@ trait AssetUtilsTrait
 
             // Double check last character being
             if ($type === self::JS_ASSET || $type === self::JS_MODULE_ASSET) {
-                $file = rtrim($file, ' ;') . ';';
+                $file = rtrim((string) $file, ' ;') . ';';
             }
 
             // If this is CSS + the file is local + rewrite enabled
@@ -113,7 +113,7 @@ trait AssetUtilsTrait
                 $file = $this->jsRewrite($file, $relative_dir, $local);
             }
 
-            $file = rtrim($file) . PHP_EOL;
+            $file = rtrim((string) $file) . PHP_EOL;
             $buffer .= $file;
         }
 
@@ -191,7 +191,7 @@ trait AssetUtilsTrait
     {
         $querystring = '';
 
-        $asset = $asset ?? $this->asset;
+        $asset ??= $this->asset;
         $attributes = $this->attributes;
 
         if (!empty($this->query)) {

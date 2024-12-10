@@ -19,7 +19,7 @@ class FilesystemCache extends CacheProvider
      */
     public function __construct($directory, $extension = self::EXTENSION, $umask = 0002)
     {
-        user_error(__CLASS__ . ' is deprecated since Grav 1.8, use Symfony cache instead', E_USER_DEPRECATED);
+        user_error(self::class . ' is deprecated since Grav 1.8, use Symfony cache instead', E_USER_DEPRECATED);
 
         $this->pool = new FilesystemAdapter('', 0, $directory);
     }

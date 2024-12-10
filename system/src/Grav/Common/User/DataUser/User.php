@@ -122,7 +122,7 @@ class User extends Data implements UserInterface
         /** @var CompiledYamlFile|null $file */
         $file = $this->file();
         if (!$file || !$file->filename()) {
-            user_error(__CLASS__ . ': calling \$user = new ' . __CLASS__ . "() is deprecated since Grav 1.6, use \$grav['accounts']->load(\$username) or \$grav['accounts']->load('') instead", E_USER_DEPRECATED);
+            user_error(self::class . ': calling \$user = new ' . self::class . "() is deprecated since Grav 1.6, use \$grav['accounts']->load(\$username) or \$grav['accounts']->load('') instead", E_USER_DEPRECATED);
         }
 
         if ($file) {
@@ -244,7 +244,7 @@ class User extends Data implements UserInterface
      */
     public function merge(array $data)
     {
-        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6, use ->update($data) method instead', E_USER_DEPRECATED);
+        user_error(self::class . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6, use ->update($data) method instead', E_USER_DEPRECATED);
 
         return $this->update($data);
     }
@@ -257,7 +257,7 @@ class User extends Data implements UserInterface
      */
     public function getAvatarMedia()
     {
-        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6, use getAvatarImage() method instead', E_USER_DEPRECATED);
+        user_error(self::class . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6, use getAvatarImage() method instead', E_USER_DEPRECATED);
 
         return $this->getAvatarImage();
     }
@@ -270,7 +270,7 @@ class User extends Data implements UserInterface
      */
     public function avatarUrl()
     {
-        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6, use getAvatarUrl() method instead', E_USER_DEPRECATED);
+        user_error(self::class . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6, use getAvatarUrl() method instead', E_USER_DEPRECATED);
 
         return $this->getAvatarUrl();
     }
@@ -285,7 +285,7 @@ class User extends Data implements UserInterface
      */
     public function authorise($action)
     {
-        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.5, use authorize() method instead', E_USER_DEPRECATED);
+        user_error(self::class . '::' . __FUNCTION__ . '() is deprecated since Grav 1.5, use authorize() method instead', E_USER_DEPRECATED);
 
         return $this->authorize($action) ?? false;
     }
@@ -299,7 +299,7 @@ class User extends Data implements UserInterface
     #[\ReturnTypeWillChange]
     public function count()
     {
-        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6', E_USER_DEPRECATED);
+        user_error(self::class . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6', E_USER_DEPRECATED);
 
         return parent::count();
     }
