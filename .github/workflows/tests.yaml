@@ -17,7 +17,7 @@ jobs:
 
     strategy:
       matrix:
-        php: [8.3, 8.2, 8.1, 8.0, 7.4, 7.3]
+        php: [8.4, 8.3, 8.2]
         os: [ubuntu-latest]
 
     steps:
@@ -44,7 +44,7 @@ jobs:
         run: echo "::set-output name=dir::$(composer config cache-files-dir)"
 
       - name: Cache dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
