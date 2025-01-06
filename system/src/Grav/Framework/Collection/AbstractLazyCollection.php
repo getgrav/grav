@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Collection
  *
- * @copyright  Copyright (c) 2015 - 2024 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -26,7 +26,7 @@ abstract class AbstractLazyCollection extends BaseAbstractLazyCollection impleme
      * @par ArrayCollection
      * @phpstan-var ArrayCollection<TKey,T>
      */
-    protected ?\Doctrine\Common\Collections\Collection $collection = null;
+    protected ?\Doctrine\Common\Collections\Collection $collection;
 
     /**
      * {@inheritDoc}
