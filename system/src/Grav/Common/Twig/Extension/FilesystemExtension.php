@@ -272,13 +272,13 @@ class FilesystemExtension extends AbstractExtension
      * @param bool $read_thumbnail
      * @return array|false
      */
-    public function exif_read_data($filename, ?string $required_sections, bool $as_arrays = false, bool $read_thumbnail = false)
+    public function exif_read_data($filename, ?string $required_sections = null, bool $as_arrays = false, bool $read_thumbnail = false)
     {
         if (!Utils::functionExists('exif_read_data') || !$this->checkFilename($filename)) {
             return false;
         }
 
-        return exif_read_data($filename, $required_sections, $as_arrays, $read_thumbnail);
+        return @exif_read_data($filename, $required_sections, $as_arrays, $read_thumbnail);
     }
 
     /**
