@@ -624,7 +624,7 @@ class Validation
             $params['max'] = 320;
         }
 
-        $values = !is_array($value) ? explode(',', preg_replace('/\s+/', '', (string) $value)) : $value;
+        $values = !is_array($value) ? explode(',', (string) preg_replace('/\s+/', '', (string) $value)) : $value;
 
         foreach ($values as $val) {
             if (!(self::typeText($val, $params, $field) && strpos((string) $val, '@', 1))) {

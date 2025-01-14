@@ -84,7 +84,7 @@ trait AssetUtilsTrait
                 // Fix to remove relative dir if grav is in one
                 if (($this->base_url !== '/') && Utils::startsWith($relative_path, $this->base_url)) {
                     $base_url = '#' . preg_quote($this->base_url, '#') . '#';
-                    $relative_path = ltrim(preg_replace($base_url, '/', (string) $link, 1), '/');
+                    $relative_path = ltrim((string) preg_replace($base_url, '/', (string) $link, 1), '/');
                 }
 
                 $relative_dir = dirname((string) $relative_path);
