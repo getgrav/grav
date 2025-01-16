@@ -149,6 +149,7 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
             new TwigFilter('yaml_decode', [$this, 'yamlDecodeFilter']),
             new TwigFilter('nicecron', [$this, 'niceCronFilter']),
             new TwigFilter('replace_last', [$this, 'replaceLastFilter']),
+            new TwigFilter('transliterate', [$this, 'transliterateFilter']),
 
             // Translations
             new TwigFilter('t', [$this, 'translate'], ['needs_environment' => true]),
@@ -575,6 +576,22 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
             $str = mb_substr($str, 0, $pos) . $replace . mb_substr($str, $pos + mb_strlen($search));
         }
 
+        return $str;
+    }
+
+    /**
+     * transliterateFilter
+     *
+     * Transliterate is a Grav filter that converts accented characters to their ASCII equivalents. 
+     * For example, 'Ä' will become 'A'.
+     *
+     * @param  mixed $str
+     * @return void
+     */
+    public function transliterateFilter($str)
+    {
+        $str = iconv('UTF-8', 'ASCII//TRANSLIT', $str);
+        $str = preg_replace('/[^A-Za-z0-9 \-_]/', '', $str);
         return $str;
     }
 
