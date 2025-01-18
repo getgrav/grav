@@ -39,22 +39,22 @@ You can download a **ready-built** package from the [Downloads page on https://g
 
 You can create a new project with the latest **stable** Grav release with the following command:
 
-```
-$ composer create-project getgrav/grav ~/webroot/grav
+```bash
+composer create-project getgrav/grav ~/webroot/grav
 ```
 
 ### From GitHub
 
 1. Clone the Grav repository from [https://github.com/getgrav/grav]() to a folder in the webroot of your server, e.g. `~/webroot/grav`. Launch a **terminal** or **console** and navigate to the webroot folder:
-   ```
-   $ cd ~/webroot
-   $ git clone https://github.com/getgrav/grav.git
+   ```bash
+   cd ~/webroot
+   git clone https://github.com/getgrav/grav.git
    ```
 
 2. Install the **plugin** and **theme dependencies** by using the [Grav CLI application](https://learn.getgrav.org/advanced/grav-cli) `bin/grav`:
-   ```
-   $ cd ~/webroot/grav
-   $ bin/grav install
+   ```bash
+   cd ~/webroot/grav
+   bin/grav install
    ```
 
 Check out the [install procedures](https://learn.getgrav.org/basics/installation) for more information.
@@ -63,28 +63,28 @@ Check out the [install procedures](https://learn.getgrav.org/basics/installation
 
 You can download [plugins](https://getgrav.org/downloads/plugins) or [themes](https://getgrav.org/downloads/themes) manually from the appropriate tab on the [Downloads page on https://getgrav.org](https://getgrav.org/downloads), but the preferred solution is to use the [Grav Package Manager](https://learn.getgrav.org/advanced/grav-gpm) or `GPM`:
 
-```
-$ bin/gpm index
+```bash
+bin/gpm index
 ```
 
 This will display all the available plugins and then you can install one or more with:
 
-```
-$ bin/gpm install <plugin/theme>
+```bash
+bin/gpm install <plugin/theme>
 ```
 
 # Updating
 
 To update Grav you should use the [Grav Package Manager](https://learn.getgrav.org/advanced/grav-gpm) or `GPM`:
 
-```
-$ bin/gpm selfupgrade
+```bash
+bin/gpm selfupgrade
 ```
 
 To update plugins and themes:
 
-```
-$ bin/gpm update
+```bash
+bin/gpm update
 ```
 
 ## Upgrading from older version
