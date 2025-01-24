@@ -1268,7 +1268,7 @@ class Uri
         }
 
         // Build path.
-        $request_uri = $env['REQUEST_URI'] ?? '';
+        $request_uri = $env['REQUEST_URI'] ?? '/';
         $this->path = rawurldecode(parse_url('http://example.com' . $request_uri, PHP_URL_PATH));
 
         // Build query string.
