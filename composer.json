@@ -37,7 +37,7 @@
         "symfony/var-dumper": "^6.4",
         "symfony/process": "^6.4",
         "symfony/http-client": "^6.4",
-        "twig/twig": "^2.16",
+        "twig/twig": "2.x-dev",
         "monolog/monolog": "^2.0",
         "doctrine/cache": "^2.2",
         "doctrine/collections": "^2.2",
@@ -79,6 +79,10 @@
         {
             "type": "vcs",
             "url": "https://github.com/rockettheme/toolbox"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/getgrav/twig"
         }
     ],
     "replace": {

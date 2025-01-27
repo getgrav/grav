@@ -3,6 +3,13 @@
 
 1. [](#bugfix)
     * Fixed a PHP compatibility issue with `AbstractLazyCollection`
+1. [](#improved)
+    * Global PHP 8.2 code optimizations
+    * More PHP 8.4 compatibility fixes
+    * Twig 2.x forked to getgrav/twig 2.x for PHP 8.4 compatibility
+    * Switch to cache@v4 + limit PHP version for Github actions
+    * Trigger testing Github action for Grav 1.8
+    * Merge latest Grav 1.7 fixes into Grav 1.8
 
 # v1.8.0-beta.3
 ## 11/21/2024
