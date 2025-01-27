@@ -1,5 +1,5 @@
 # v1.8.0-beta.4
-## mm/dd/2024
+## 01/27/2025
 
 1. [](#bugfix)
     * Fixed a PHP compatibility issue with `AbstractLazyCollection`
