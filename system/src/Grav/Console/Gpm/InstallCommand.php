@@ -409,18 +409,22 @@ class InstallCommand extends GpmCommand
                 $answer = $this->all_yes ? true : $io->askQuestion($question);
 
                 if (!$answer) {
-                    $io->writeln("  '- <red>Skipped!</red>  ");
-                    $io->newLine();
-
-                    return;
-                }
-
-                // backup current pages folder
-                if (file_exists($dest_dir)) {
-                    if (rename($pages_dir, $dest_dir . DS . $pages_backup)) {
-                        $io->writeln('  |- Backing up pages...    <green>ok</green>');
+                    // If the user chooses NOT to create a backup, delete the contents of the pages folder
+                    if (file_exists($pages_dir)) {
+                        Folder::delete($pages_dir); // Recursively delete the contents of the pages folder
+                        $io->writeln('  |- Deleting pages folder contents...    <green>ok</green>');
                     } else {
-                        $io->writeln('  |- Backing up pages...    <red>failed</red>');
+                        $io->writeln('  |- Pages folder does not exist...    <yellow>skipped</yellow>');
+                    }
+                    $io->newLine();
+                } else {
+                    // If the user chooses to create a backup, proceed with the backup
+                    if (file_exists($dest_dir)) {
+                        if (rename($pages_dir, $dest_dir . DS . $pages_backup)) {
+                            $io->writeln('  |- Backing up pages...    <green>ok</green>');
+                        } else {
+                            $io->writeln('  |- Backing up pages...    <red>failed</red>');
+                        }
                     }
                 }
             }
