@@ -196,6 +196,38 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
 
                 $messages += Validation::validate($child, $rule);
 
+                if (isset($rule['validate']['match']) || isset($rule['validate']['match_exact']) || isset($rule['validate']['match_any'])) {
+                    $ruleKey = current(array_intersect(['match', 'match_exact', 'match_any'], array_keys($rule['validate'])));
+                    $otherKey = $rule['validate'][$ruleKey] ?? null;
+                    $otherVal = $data[$otherKey] ?? null;
+                    $otherLabel = $this->items[$otherKey]['label'] ?? $otherKey;
+                    $currentVal = $data[$key] ?? null;
+                    $currentLabel = $this->items[$key]['label'] ?? $key;
+
+                    // Determine comparison type (loose, strict, substring)
+                    // Perform comparison:
+                    $isValid = false;
+                    if ($ruleKey === 'match') {
+                        $isValid = ($currentVal == $otherVal);
+                    } elseif ($ruleKey === 'match_exact') {
+                        $isValid = ($currentVal === $otherVal);
+                    } elseif ($ruleKey === 'match_any') {
+                        // If strings:
+                        if (is_string($currentVal) && is_string($otherVal)) {
+                            $isValid = (strlen($currentVal) && strlen($otherVal) && (str_contains($currentVal,
+                                        $otherVal) || strpos($otherVal, $currentVal) !== false));
+                        }
+                        // If arrays:
+                        if (is_array($currentVal) && is_array($otherVal)) {
+                            $common = array_intersect($currentVal, $otherVal);
+                            $isValid = !empty($common);
+                        }
+                    }
+                    if (!$isValid) {
+                        $messages[$rule['name']][] = $currentLabel.' field does not match '. $otherLabel;
+                    }
+                }
+
             } elseif (is_array($child) && is_array($val)) {
                 // Array has been defined in blueprints.
                 $messages += $this->validateArray($child, $val, $strict);
