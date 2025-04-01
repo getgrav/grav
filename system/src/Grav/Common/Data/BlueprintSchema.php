@@ -224,7 +224,7 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
                         }
                     }
                     if (!$isValid) {
-                        $messages[$rule['name']][] = $currentLabel.' field does not match '. $otherLabel;
+                        $messages[$rule['name']][] = sprintf(Grav::instance()['language']->translate('PLUGIN_FORM.VALIDATION_MATCH'), $currentLabel, $otherLabel);
                     }
                 }
 
