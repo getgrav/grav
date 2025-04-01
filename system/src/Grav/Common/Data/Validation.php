@@ -47,12 +47,14 @@ class Validation
         }
 
         $validate = (array)($field['validate'] ?? null);
-        $type = $validate['type'] ?? $field['type'];
+        $validate_type = $validate['type'] ?? null;
         $required = $validate['required'] ?? false;
+        $type = $validate_type ?? $field['type'];
+
+        $required = $required && ($validate_type !== 'ignore');
 
         // If value isn't required, we will stop validation if empty value is given.
-        if ($required !== true && ($value === null || $value === '' || (($field['type'] === 'checkbox' || $field['type'] === 'switch') && $value == false))
-        ) {
+        if ($required !== true && ($value === null || $value === '' || empty($value) || (($field['type'] === 'checkbox' || $field['type'] === 'switch') && $value == false))) {
             return [];
         }
 
