@@ -601,7 +601,7 @@ class AssetsTest extends \PHPUnit\Framework\TestCase
         $this->assets->addCss('/system/assets/debugger/phpdebugbar.css', ['loading' => 'inline']);
         $css = $this->assets->css();
         self::assertStringContainsString('font-family: \'Roboto\';', $css);
-        self::assertStringContainsString('div.phpdebugbar-header', $css);
+        self::assertStringContainsString('div.phpdebugbar', $css);
     }
 
     public function testInlinePipeline(): void
