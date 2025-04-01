@@ -44,7 +44,11 @@ class RenderProcessor extends ProcessorBase
         }
 
         /** @var PageInterface $page */
-        $page = $this->container['page'];
+        $page = $container['page'];
+
+        if ($container['debugger']->enabled()) {
+            $page->cacheControl('no-store, no-cache, must-revalidate, max-age=0');
+        }
 
         // Use internal Grav output.
         $container->output = $output;

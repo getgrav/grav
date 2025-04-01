@@ -57,7 +57,7 @@
         "guzzlehttp/psr7": "^2.7",
         "filp/whoops": "~2.16",
         "itsgoingd/clockwork": "^5.3",
-        "maximebf/debugbar": "~1.23",
+        "php-debugbar/php-debugbar": "~2.1",
         "getgrav/image": "^4.0",
         "getgrav/cache": "^2.0",
         "antoligy/dom-string-iterators": "^1.0",
