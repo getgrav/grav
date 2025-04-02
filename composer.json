@@ -83,6 +83,10 @@
         {
             "type": "vcs",
             "url": "https://github.com/getgrav/twig"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/getgrav/parsedown"
         }
     ],
     "replace": {

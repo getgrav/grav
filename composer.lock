@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "13a833c3893fb2ac689e7f1f0bc1ee9e",
+    "content-hash": "f6800ed7303eb773f0fa817e9b93391b",
     "packages": [
         {
             "name": "antoligy/dom-string-iterators",
@@ -576,16 +576,16 @@
         },
         {
             "name": "erusev/parsedown",
-            "version": "1.7.4",
+            "version": "1.7.5",
             "source": {
                 "type": "git",
-                "url": "https://github.com/erusev/parsedown.git",
-                "reference": "cb17b6477dfff935958ba01325f2e8a2bfa6dab3"
+                "url": "https://github.com/getgrav/parsedown.git",
+                "reference": "ca2ce737830a9b19bb55fac5d653a577b78d2fb1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/erusev/parsedown/zipball/cb17b6477dfff935958ba01325f2e8a2bfa6dab3",
-                "reference": "cb17b6477dfff935958ba01325f2e8a2bfa6dab3",
+                "url": "https://api.github.com/repos/getgrav/parsedown/zipball/ca2ce737830a9b19bb55fac5d653a577b78d2fb1",
+                "reference": "ca2ce737830a9b19bb55fac5d653a577b78d2fb1",
                 "shasum": ""
             },
             "require": {
@@ -593,7 +593,8 @@
                 "php": ">=5.3.0"
             },
             "require-dev": {
-                "phpunit/phpunit": "^4.8.35"
+                "phpunit/phpunit": "^4.8|^5.7|^6.5|^7.5|^8.5|^9.6",
+                "rector/rector": "^2.0"
             },
             "type": "library",
             "autoload": {
@@ -601,7 +602,14 @@
                     "Parsedown": ""
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
+            "autoload-dev": {
+                "psr-0": {
+                    "TestParsedown": "test/",
+                    "ParsedownTest": "test/",
+                    "CommonMarkTest": "test/",
+                    "CommonMarkTestWeak": "test/"
+                }
+            },
             "license": [
                 "MIT"
             ],
@@ -619,10 +627,9 @@
                 "parser"
             ],
             "support": {
-                "issues": "https://github.com/erusev/parsedown/issues",
-                "source": "https://github.com/erusev/parsedown/tree/1.7.x"
+                "source": "https://github.com/getgrav/parsedown/tree/1.7.5"
             },
-            "time": "2019-12-30T22:54:17+00:00"
+            "time": "2025-04-02T11:30:04+00:00"
         },
         {
             "name": "erusev/parsedown-extra",
