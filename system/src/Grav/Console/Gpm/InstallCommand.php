@@ -392,50 +392,64 @@ class InstallCommand extends GpmCommand
             $io->writeln("<white>Attention: </white><cyan>{$package->name}</cyan> contains demo content");
 
             $question = new ConfirmationQuestion('Do you wish to install this demo content? [y|N] ', false);
-
+            
             $answer = $io->askQuestion($question);
 
             if (!$answer) {
-                $io->writeln("  '- <red>Skipped!</red>  ");
+                $io->writeln("  '- <yellow>Demo content installation skipped by user!</yellow>");
                 $io->newLine();
+            return;
+            }
 
+        // Check if demo contains pages
+        if (file_exists($demo_dir . DS . 'pages')) {
+            $pages_backup = 'pages.' . date('m-d-Y-H-i-s');
+
+            // Strong warning about requirement
+            $io->writeln("\n<yellow>IMPORTANT:</yellow> Demo installation REQUIRES a backup of your current pages.");
+            $io->writeln("<yellow>Without backup, demo content WILL NOT be installed.</yellow>");
+
+            $backupQuestion = new ConfirmationQuestion(
+                'Backup your current `user/pages` to `user/'.$pages_backup.'` and continue? [Y|n] ',
+                true
+            );
+
+            $backupAnswer = $this->all_yes ? true : $io->askQuestion($backupQuestion);
+
+            if (!$backupAnswer) {
+                // User refused backup - abort installation
+                $io->writeln("\n<red>DEMO CONTENT NOT INSTALLED!</red>");
+                $io->writeln("<yellow>Backup is required to install demo pages.</yellow>");
+                $io->writeln("  '- <red>Operation cancelled</red>");
+                $io->newLine();
                 return;
             }
 
-            // if pages folder exists in demo
-            if (file_exists($demo_dir . DS . 'pages')) {
-                $pages_backup = 'pages.' . date('m-d-Y-H-i-s');
-                $question = new ConfirmationQuestion('This will backup your current `user/pages` folder to `user/' . $pages_backup . '`, continue? [y|N]', false);
-                $answer = $this->all_yes ? true : $io->askQuestion($question);
-
-                if (!$answer) {
-                    // If the user chooses NOT to create a backup, delete the contents of the pages folder
-                    if (file_exists($pages_dir)) {
-                        Folder::delete($pages_dir); // Recursively delete the contents of the pages folder
-                        $io->writeln('  |- Deleting pages folder contents...    <green>ok</green>');
-                    } else {
-                        $io->writeln('  |- Pages folder does not exist...    <yellow>skipped</yellow>');
-                    }
-                    $io->newLine();
+            // Attempt backup
+            if (file_exists($dest_dir)) {
+                if (rename($pages_dir, $dest_dir . DS . $pages_backup)) {
+                    $io->writeln('  |- Backing up pages...    <green>ok</green>');
+                    // Create fresh pages directory for demo
+                    Folder::create($pages_dir);
                 } else {
-                    // If the user chooses to create a backup, proceed with the backup
-                    if (file_exists($dest_dir)) {
-                        if (rename($pages_dir, $dest_dir . DS . $pages_backup)) {
-                            $io->writeln('  |- Backing up pages...    <green>ok</green>');
-                        } else {
-                            $io->writeln('  |- Backing up pages...    <red>failed</red>');
-                        }
-                    }
+                    $io->writeln('  |- Backing up pages...    <red>failed</red>');
+                    $io->writeln("\n<red>DEMO CONTENT NOT INSTALLED!</red>");
+                    $io->writeln("<yellow>Backup failed - cannot proceed with installation.</yellow>");
+                    $io->writeln("  '- <red>Operation aborted</red>");
+                    $io->newLine();
+                    return;
                 }
             }
-
-            // Confirmation received, copy over the data
-            $io->writeln('  |- Installing demo content...    <green>ok</green>                             ');
-            Folder::rcopy($demo_dir, $dest_dir);
-            $io->writeln("  '- <green>Success!</green>  ");
-            $io->newLine();
         }
+
+        // Proceed with installation after successful backup
+        $io->writeln('  |- Installing demo content...');
+        Folder::rcopy($demo_dir, $dest_dir);
+        $io->writeln("  '- <green>Demo content successfully installed!</green>");
+        $io->writeln("<yellow>Note:</yellow> Your original pages were backed up to user/{$pages_backup}");
+        $io->newLine();
     }
+}
 
     /**
      * @param Package $package
