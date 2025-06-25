@@ -1198,10 +1198,17 @@ class Pages
     {
         $grav = Grav::instance();
 
-        /** @var Pages $pages */
-        $pages = $grav['pages'];
+        /** @var Cache $cache */
+        $cache = $grav['cache'];
+        $cache_id = 'parents-' . ($rawRoutes ? 'raw-' : '') . $grav['language']->getActive();
+        $parents = $cache->fetch($cache_id);
 
-        $parents = $pages->getList(null, 0, $rawRoutes);
+        if ($parents === false) {
+            /** @var Pages $pages */
+            $pages = $grav['pages'];
+            $parents = $pages->getList(null, 0, $rawRoutes);
+            $cache->save($cache_id, $parents);
+        }
 
         if (isset($grav['admin'])) {
             // Remove current route from parents
@@ -1844,7 +1851,6 @@ class Pages
             throw new RuntimeException('Fatal error when creating page instances.');
         }
 
-        // Build regular expression for all the allowed page extensions.
         $page_extensions = $language->getFallbackPageExtensions();
         $regex = '/^[^\.]*(' . implode('|', array_map(
             static fn($str) => preg_quote((string) $str, '/'),
@@ -1855,6 +1861,9 @@ class Pages
         $page_found = null;
         $page_extension = '.md';
         $last_modified = 0;
+
+        $ignore_files = array_flip($this->ignore_files);
+        $ignore_folders = array_flip($this->ignore_folders);
 
         $iterator = new FilesystemIterator($directory);
         foreach ($iterator as $file) {
@@ -1868,14 +1877,14 @@ class Pages
             // Handle folders later.
             if ($file->isDir()) {
                 // But ignore all folders in ignore list.
-                if (!in_array($filename, $this->ignore_folders, true)) {
+                if (!isset($ignore_folders[$filename])) {
                     $folders[] = $file;
                 }
                 continue;
             }
 
             // Ignore all files in ignore list.
-            if (in_array($filename, $this->ignore_files, true)) {
+            if (isset($ignore_files[$filename])) {
                 continue;
             }
 
