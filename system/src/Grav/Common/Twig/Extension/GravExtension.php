@@ -1202,7 +1202,7 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
      */
     public function nonceFieldFunc($action, $nonceParamName = 'nonce')
     {
-        $string = '<input type="hidden" name="' . $nonceParamName . '" value="' . Utils::getNonce($action) . '" />';
+        $string = '<input type="hidden" name="' . $nonceParamName . '" value="' . Utils::getNonce($action) . '">';
 
         return $string;
     }

@@ -76,15 +76,15 @@ class ExcerptsTest extends \Codeception\TestCase\Test
     }
 
 
-    public function testProcessImageHtml(): void
+   public function testProcessImageHtml(): void
     {
         self::assertRegexp(
-            '|<img alt="Sample Image" src="\/images\/.*-sample-image.jpe?g\" data-src="sample-image\.jpg\?cropZoom=300,300" \/>|',
-            Excerpts::processImageHtml('<img src="sample-image.jpg?cropZoom=300,300" alt="Sample Image" />', $this->page)
+            '|<img alt="Sample Image" src="/images/.*-sample-image.jpe?g" data-src="sample-image\.jpg\?cropZoom=300,300">|',
+            Excerpts::processImageHtml('<img src="sample-image.jpg?cropZoom=300,300" alt="Sample Image">', $this->page)
         );
         self::assertRegexp(
-            '|<img alt="Sample Image" class="foo" src="\/images\/.*-sample-image.jpe?g\" data-src="sample-image\.jpg\?classes=foo" \/>|',
-            Excerpts::processImageHtml('<img src="sample-image.jpg?classes=foo" alt="Sample Image" />', $this->page)
+            '|<img alt="Sample Image" class="foo" src="/images/.*-sample-image.jpe?g" data-src="sample-image\.jpg\?classes=foo">|',
+            Excerpts::processImageHtml('<img src="sample-image.jpg?classes=foo" alt="Sample Image">', $this->page)
         );
     }
 

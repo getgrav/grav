@@ -158,7 +158,7 @@ class UtilsTest extends \Codeception\TestCase\Test
         self::assertEquals('english', Utils::truncate('english'));
         self::assertEquals('This is a string to truncate', Utils::truncate('This is a string to truncate'));
         self::assertEquals('This' . '&hellip;', Utils::truncate('This is a string to truncate', 3, true));
-        self::assertEquals('<input' . '&hellip;', Utils::truncate('<input type="file" id="file" multiple />', 6, true));
+        self::assertEquals('<input' . '&hellip;', Utils::truncate('<input type="file" id="file" multiple>', 6, true));
     }
 
     public function testSafeTruncate(): void
@@ -176,7 +176,7 @@ class UtilsTest extends \Codeception\TestCase\Test
         self::assertEquals('<p>This...</p>', Utils::truncateHtml('<p>This is a string to truncate</p>', 4));
         self::assertEquals('<p>This is a...</p>', Utils::truncateHtml('<p>This is a string to truncate</p>', 10));
         self::assertEquals('<p>This is a string to truncate</p>', Utils::truncateHtml('<p>This is a string to truncate</p>', 100));
-        self::assertEquals('<input type="file" id="file" multiple />', Utils::truncateHtml('<input type="file" id="file" multiple />', 6));
+        self::assertEquals('<input type="file" id="file" multiple>', Utils::truncateHtml('<input type="file" id="file" multiple>', 6));
         self::assertEquals('<ol><li>item 1 <i>so...</i></li></ol>', Utils::truncateHtml('<ol><li>item 1 <i>something</i></li><li>item 2 <strong>bold</strong></li></ol>', 10));
         self::assertEquals("<p>This is a string.</p>\n<p>It splits two lines.</p>", Utils::truncateHtml("<p>This is a string.</p>\n<p>It splits two lines.</p>", 100));
     }
@@ -189,7 +189,7 @@ class UtilsTest extends \Codeception\TestCase\Test
         self::assertEquals('<p>This is...</p>', Utils::safeTruncateHtml('<p>This is a string to truncate</p>', 2));
         self::assertEquals('<p>This is a string to...</p>', Utils::safeTruncateHtml('<p>This is a string to truncate</p>', 5));
         self::assertEquals('<p>This is a string to truncate</p>', Utils::safeTruncateHtml('<p>This is a string to truncate</p>', 20));
-        self::assertEquals('<input type="file" id="file" multiple />', Utils::safeTruncateHtml('<input type="file" id="file" multiple />', 6));
+        self::assertEquals('<input type="file" id="file" multiple>', Utils::safeTruncateHtml('<input type="file" id="file" multiple>', 6));
         self::assertEquals('<ol><li>item 1 <i>something</i></li><li>item 2...</li></ol>', Utils::safeTruncateHtml('<ol><li>item 1 <i>something</i></li><li>item 2 <strong>bold</strong></li></ol>', 5));
     }
 
