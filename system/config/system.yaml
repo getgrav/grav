@@ -156,6 +156,7 @@ debugger:
     close_connection: true                       # Close the connection before calling onShutdown(). false for debugging
 
 images:
+  adapter: gd                                    # Image adapter to use: gd | imagick
   default_image_quality: 85                      # Default image quality to use when resampling images (85%)
   cache_all: false                               # Cache all image by default
   cache_perms: '0755'                            # MUST BE IN QUOTES!! Default cache folder perms. Usually '0755' or '0775'

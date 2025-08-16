@@ -1238,6 +1238,16 @@ form:
               title: PLUGIN_ADMIN.MEDIA
               underline: true
 
+            images.adapter:
+              type: select
+              size: small
+              label: PLUGIN_ADMIN.IMAGES_ADAPTER
+              help: PLUGIN_ADMIN.IMAGES_ADAPTER_HELP
+              highlight: gd
+              options:
+                  imagick: Imagick
+                  gd: GD (PHP built-in)
+
             images.default_image_quality:
               type: range
               append: '%'
