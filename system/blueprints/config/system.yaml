@@ -1245,8 +1245,8 @@ form:
               help: PLUGIN_ADMIN.IMAGES_ADAPTER_HELP
               highlight: gd
               options:
-                  imagick: Imagick
                   gd: GD (PHP built-in)
+                  imagick: Imagick
 
             images.default_image_quality:
               type: range
