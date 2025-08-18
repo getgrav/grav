@@ -329,17 +329,17 @@ class Installer
     }
 
     /**
-     * Uninstalls one or more given package
+     * Uninstalls one or more given packages
      *
-     * @param  string $path    The slug of the package(s)
+     * @param  string $path    The path of the package(s)
      * @param  array  $options Options to use for uninstalling
      * @return bool True if everything went fine, False otherwise.
      */
     public static function uninstall($path, $options = [])
     {
         $options = array_merge(self::$options, $options);
-        if (!self::isValidDestination($path, $options['exclude_checks'])
-        ) {
+        $config_folder_paths = false;
+        if (!self::isValidDestination($path, $options['exclude_checks'])) {
             return false;
         }
 
@@ -359,7 +359,29 @@ class Installer
             }
         }
 
-        $result = Folder::delete($path);
+        // Find corresponding config yaml file for the package.
+        $slug = end(explode(DS, $path));
+        $grav = Grav::instance();
+        $gpm = new GPM();
+        $locator = Grav::instance()['locator'];
+        $package = $gpm->findPackage($slug);
+
+        if ($package){
+            $package_type = $package->package_type;
+            $config_folder_paths = $locator->findResource('config://' . $package_type . '/' . $slug . '.yaml');
+        }
+
+        if (false !== $config_folder_paths) {
+            $config_result = unlink($config_folder_paths);
+        } else {
+            $config_result = true;
+        }
+
+
+        // Delete package folder.
+        $folder_result = Folder::delete($path);
+
+        $result = ($folder_result && $config_result);
 
         self::$message = '';
         if ($result && $installer && method_exists($installer, 'postUninstall')) {
