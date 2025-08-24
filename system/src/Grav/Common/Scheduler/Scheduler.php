@@ -76,6 +76,9 @@ class Scheduler
     /** @var string */
     protected $historyPath;
     
+    /** @var JobHistory|null */
+    protected $jobHistory = null;
+    
     /** @var array */
     protected $modernConfig = [];
 
@@ -474,6 +477,10 @@ class Scheduler
         // Initialize job queue
         $this->jobQueue = new JobQueue($this->queuePath);
         
+        // Initialize job history
+        $retentionDays = $this->modernConfig['history']['retention_days'] ?? 30;
+        $this->jobHistory = new JobHistory($this->historyPath, $retentionDays);
+        
         // Configure workers
         $this->maxWorkers = $this->modernConfig['workers'] ?? 1;
         
@@ -493,6 +500,16 @@ class Scheduler
     public function getQueue(): ?JobQueue
     {
         return $this->jobQueue;
+    }
+    
+    /**
+     * Get the job history
+     * 
+     * @return JobHistory|null
+     */
+    public function getHistory(): ?JobHistory
+    {
+        return $this->jobHistory;
     }
     
     /**
@@ -660,6 +677,15 @@ class Scheduler
                     if (isset($worker['job'])) {
                         $worker['job']->finalize();
                         $this->saveJobState($worker['job']);
+                        
+                        // Log background job completion to history
+                        if ($this->jobHistory) {
+                            $metadata = [
+                                'queue_id' => $worker['queueId'] ?? null,
+                                'background' => true
+                            ];
+                            $this->jobHistory->logExecution($worker['job'], $metadata);
+                        }
                     }
                     
                     // Update queue status for background jobs
@@ -746,6 +772,12 @@ class Scheduler
                 // Move from processing to failed
                 $this->jobQueue->fail($queueId, $job->getOutput() ?: 'Job execution failed');
             }
+        }
+        
+        // Log foreground jobs immediately
+        if (!$job->runInBackground() && $this->jobHistory) {
+            $metadata = ['queue_id' => $queueId];
+            $this->jobHistory->logExecution($job, $metadata);
         }
     }
     
