@@ -10,6 +10,7 @@
 namespace Grav\Common\Service;
 
 use Grav\Common\Scheduler\Scheduler;
+use Grav\Common\Scheduler\ModernScheduler;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 
@@ -25,7 +26,16 @@ class SchedulerServiceProvider implements ServiceProviderInterface
      */
     public function register(Container $container)
     {
-        $container['scheduler'] = function () {
+        $container['scheduler'] = function ($c) {
+            $config = $c['config'];
+            
+            // Use ModernScheduler if modern features are enabled
+            $modernEnabled = $config->get('scheduler.modern.enabled', false);
+            
+            if ($modernEnabled) {
+                return new ModernScheduler();
+            }
+            
             return new Scheduler();
         };
     }

@@ -55,7 +55,7 @@
         "league/climate": "^3.6",
         "miljar/php-exif": "^0.6",
         "composer/ca-bundle": "^1.2",
-        "dragonmantank/cron-expression": "^1.2",
+        "dragonmantank/cron-expression": "^3.3",
         "willdurand/negotiation": "^3.0",
         "itsgoingd/clockwork": "^5.0",
         "symfony/http-client": "^4.4",

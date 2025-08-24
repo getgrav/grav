@@ -1,0 +1,68 @@
+# Grav Scheduler Configuration
+
+# Default scheduler settings (backward compatible)
+defaults:
+  output: true
+  output_type: file
+  email: null
+
+# Status of individual jobs (enabled/disabled)
+status: {}
+
+# Custom scheduled jobs
+custom_jobs: {}
+
+# Modern scheduler features (disabled by default for backward compatibility)
+modern:
+  # Enable modern scheduler features
+  enabled: false
+  
+  # Number of concurrent workers (1 = sequential execution like legacy)
+  workers: 1
+  
+  # Job retry configuration
+  retry:
+    enabled: true
+    max_attempts: 3
+    backoff: exponential  # 'linear' or 'exponential'
+    
+  # Job queue configuration
+  queue:
+    path: user-data://scheduler/queue
+    max_size: 1000
+    
+  # Webhook trigger configuration
+  webhook:
+    enabled: false
+    token: null  # Set a secure token to enable webhook triggers
+    path: /scheduler/webhook
+    
+  # Health check endpoint
+  health:
+    enabled: true
+    path: /scheduler/health
+    
+  # Job execution history
+  history:
+    enabled: true
+    retention_days: 30
+    path: user-data://scheduler/history
+    
+  # Performance settings
+  performance:
+    job_timeout: 300  # Default timeout in seconds
+    lock_timeout: 10   # Lock acquisition timeout in seconds
+    
+  # Monitoring and alerts
+  monitoring:
+    enabled: false
+    alert_on_failure: true
+    alert_email: null
+    webhook_url: null
+    
+  # Trigger detection methods
+  triggers:
+    check_cron: true
+    check_systemd: true
+    check_webhook: true
+    check_external: true

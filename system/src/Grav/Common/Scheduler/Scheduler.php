@@ -379,6 +379,40 @@ class Scheduler
 
 
     /**
+     * Check if webhook is enabled
+     * 
+     * @return bool
+     */
+    public function isWebhookEnabled(): bool
+    {
+        // Check config for webhook settings even in base scheduler
+        $config = Grav::instance()['config'];
+        return $config->get('scheduler.modern.webhook.enabled', false);
+    }
+    
+    /**
+     * Get active trigger methods
+     * 
+     * @return array
+     */
+    public function getActiveTriggers(): array
+    {
+        $triggers = [];
+        
+        $cronStatus = $this->isCrontabSetup();
+        if ($cronStatus === 1) {
+            $triggers[] = 'cron';
+        }
+        
+        // Check if webhook is enabled
+        if ($this->isWebhookEnabled()) {
+            $triggers[] = 'webhook';
+        }
+        
+        return $triggers;
+    }
+    
+    /**
      * Queue a job for execution in the correct queue.
      *
      * @param  Job  $job
