@@ -250,47 +250,69 @@ form:
                                                         var statusEl = document.getElementById('scheduler-health-status');
                                                         if (!statusEl) return;
                                                         
-                                                        var html = '<div class="scheduler-health-info">';
+                                                        // Modern card-based layout
+                                                        var statusColor = '#6c757d';
+                                                        var statusLabel = data.status || 'unknown';
+                                                        if (data.status === 'healthy') statusColor = '#28a745';
+                                                        else if (data.status === 'warning') statusColor = '#ffc107';
+                                                        else if (data.status === 'critical') statusColor = '#dc3545';
                                                         
-                                                        // Status badge
-                                                        var badge = 'secondary';
-                                                        if (data.status === 'healthy') badge = 'success';
-                                                        else if (data.status === 'warning') badge = 'warning';
-                                                        else if (data.status === 'critical') badge = 'danger';
+                                                        var html = '<div style="display: flex; flex-direction: column; gap: 1rem;">';
                                                         
-                                                        html += '<p><strong>Status:</strong> <span class="badge badge-' + badge + '">' + 
-                                                                (data.status || 'Unknown').toUpperCase() + '</span></p>';
+                                                        // Status card
+                                                        html += '<div style="display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; background: linear-gradient(135deg, #f8f9fa 0%, #fff 100%); border-radius: 6px; border: 1px solid #e9ecef; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">';
+                                                        html += '<span style="font-weight: 500; color: #495057;">Status:</span>';
+                                                        html += '<span style="background: ' + statusColor + '; color: white; padding: 0.375rem 0.75rem; font-size: 0.875rem; font-weight: 500; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.025em;">' + statusLabel + '</span>';
+                                                        html += '</div>';
                                                         
-                                                        // Last run
+                                                        // Info grid
+                                                        html += '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">';
+                                                        
+                                                        // Last run card
+                                                        html += '<div style="background: white; border: 1px solid #e9ecef; border-radius: 6px; padding: 0.75rem; box-shadow: 0 1px 2px rgba(0,0,0,0.03);">';
+                                                        html += '<div style="color: #6c757d; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.25rem;">Last Run</div>';
                                                         if (data.last_run) {
                                                             var age = data.last_run_age;
                                                             var ageText = 'just now';
-                                                            if (age > 3600) {
+                                                            if (age > 86400) {
+                                                                ageText = Math.floor(age / 86400) + ' day(s) ago';
+                                                            } else if (age > 3600) {
                                                                 ageText = Math.floor(age / 3600) + ' hour(s) ago';
                                                             } else if (age > 60) {
                                                                 ageText = Math.floor(age / 60) + ' minute(s) ago';
                                                             } else if (age > 0) {
                                                                 ageText = age + ' second(s) ago';
                                                             }
-                                                            html += '<p><strong>Last Run:</strong> ' + ageText + '</p>';
+                                                            html += '<div style="font-size: 1rem; color: #212529; font-weight: 500;">' + ageText + '</div>';
                                                         } else {
-                                                            html += '<p><strong>Last Run:</strong> Never</p>';
+                                                            html += '<div style="font-size: 1rem; color: #6c757d;">Never</div>';
                                                         }
-                                                        
-                                                        // Jobs count
-                                                        html += '<p><strong>Scheduled Jobs:</strong> ' + (data.scheduled_jobs || 0) + '</p>';
-                                                        
-                                                        // Queue size (if modern features enabled)
-                                                        if (data.modern_features && data.queue_size !== undefined) {
-                                                            html += '<p><strong>Queue Size:</strong> ' + data.queue_size + '</p>';
-                                                        }
-                                                        
-                                                        // Failed jobs
-                                                        if (data.failed_jobs_24h > 0) {
-                                                            html += '<p class="text-danger"><strong>Failed (24h):</strong> ' + data.failed_jobs_24h + '</p>';
-                                                        }
-                                                        
                                                         html += '</div>';
+                                                        
+                                                        // Jobs count card
+                                                        html += '<div style="background: white; border: 1px solid #e9ecef; border-radius: 6px; padding: 0.75rem; box-shadow: 0 1px 2px rgba(0,0,0,0.03);">';
+                                                        html += '<div style="color: #6c757d; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.25rem;">Scheduled Jobs</div>';
+                                                        html += '<div style="font-size: 1rem; color: #212529; font-weight: 500;">' + (data.scheduled_jobs || 0) + '</div>';
+                                                        html += '</div>';
+                                                        
+                                                        html += '</div>'; // Close grid
+                                                        
+                                                        // Additional info if available
+                                                        if (data.modern_features && data.queue_size !== undefined) {
+                                                            html += '<div style="background: white; border: 1px solid #e9ecef; border-radius: 6px; padding: 0.75rem; box-shadow: 0 1px 2px rgba(0,0,0,0.03);">';
+                                                            html += '<span style="color: #6c757d; font-size: 0.875rem;">Queue Size: </span>';
+                                                            html += '<span style="font-weight: 500;">' + data.queue_size + '</span>';
+                                                            html += '</div>';
+                                                        }
+                                                        
+                                                        // Failed jobs warning
+                                                        if (data.failed_jobs_24h > 0) {
+                                                            html += '<div style="background: #fff5f5; border: 1px solid #feb2b2; border-radius: 6px; padding: 0.75rem; color: #c53030;">';
+                                                            html += '<strong>⚠️ Failed Jobs (24h):</strong> ' + data.failed_jobs_24h;
+                                                            html += '</div>';
+                                                        }
+                                                        
+                                                        html += '</div>'; // Close main container
                                                         statusEl.innerHTML = html;
                                                     })
                                                     .catch(error => {
@@ -339,26 +361,46 @@ form:
                                                         var triggersEl = document.getElementById('scheduler-triggers');
                                                         if (!triggersEl) return;
                                                         
-                                                        var html = '<ul class="list-unstyled">';
+                                                        var html = '<div style="display: flex; flex-direction: column; gap: 0.75rem;">';
                                                         
-                                                        // Cron status
-                                                        if (cronReady) {
-                                                            html += '<li>✅ <strong>Cron:</strong> <span class="badge badge-success">Active</span></li>';
-                                                        } else {
-                                                            html += '<li>❌ <strong>Cron:</strong> <span class="badge badge-secondary">Not Configured</span></li>';
-                                                        }
+                                                        // Cron trigger card
+                                                        var cronBg = cronReady ? 'linear-gradient(135deg, #d4edda 0%, #fff 100%)' : 'linear-gradient(135deg, #f8f9fa 0%, #fff 100%)';
+                                                        var cronBorder = cronReady ? '#c3e6cb' : '#dee2e6';
+                                                        var cronIcon = cronReady ? '✅' : '❌';
+                                                        var cronStatus = cronReady ? 'Active' : 'Not Configured';
+                                                        var cronColor = cronReady ? '#155724' : '#6c757d';
                                                         
-                                                        // Webhook status
+                                                        html += '<div style="display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; background: ' + cronBg + '; border: 1px solid ' + cronBorder + '; border-radius: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.03);">';
+                                                        html += '<div style="display: flex; align-items: center; gap: 0.5rem;">';
+                                                        html += '<span style="font-size: 1.1rem;">' + cronIcon + '</span>';
+                                                        html += '<span style="font-weight: 500; color: #495057;">Cron:</span>';
+                                                        html += '</div>';
+                                                        html += '<span style="background: ' + (cronReady ? '#28a745' : '#6c757d') + '; color: white; padding: 0.25rem 0.625rem; font-size: 0.8125rem; font-weight: 500; border-radius: 4px;">' + cronStatus + '</span>';
+                                                        html += '</div>';
+                                                        
+                                                        // Webhook trigger card
                                                         if (data.webhook_enabled) {
-                                                            html += '<li>✅ <strong>Webhook:</strong> <span class="badge badge-success">Active</span></li>';
+                                                            html += '<div style="display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; background: linear-gradient(135deg, #d4edda 0%, #fff 100%); border: 1px solid #c3e6cb; border-radius: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.03);">';
+                                                            html += '<div style="display: flex; align-items: center; gap: 0.5rem;">';
+                                                            html += '<span style="font-size: 1.1rem;">✅</span>';
+                                                            html += '<span style="font-weight: 500; color: #495057;">Webhook:</span>';
+                                                            html += '</div>';
+                                                            html += '<span style="background: #28a745; color: white; padding: 0.25rem 0.625rem; font-size: 0.8125rem; font-weight: 500; border-radius: 4px;">Active</span>';
+                                                            html += '</div>';
                                                         } else {
                                                             var modernEnabled = document.querySelector('[name="data[scheduler][modern][enabled]"]:checked');
                                                             if (modernEnabled && modernEnabled.value == '1') {
-                                                                html += '<li>⚠️ <strong>Webhook:</strong> <span class="badge badge-warning">Disabled</span></li>';
+                                                                html += '<div style="display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; background: linear-gradient(135deg, #fff3cd 0%, #fff 100%); border: 1px solid #ffeeba; border-radius: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.03);">';
+                                                                html += '<div style="display: flex; align-items: center; gap: 0.5rem;">';
+                                                                html += '<span style="font-size: 1.1rem;">⚠️</span>';
+                                                                html += '<span style="font-weight: 500; color: #495057;">Webhook:</span>';
+                                                                html += '</div>';
+                                                                html += '<span style="background: #ffc107; color: #212529; padding: 0.25rem 0.625rem; font-size: 0.8125rem; font-weight: 500; border-radius: 4px;">Disabled</span>';
+                                                                html += '</div>';
                                                             }
                                                         }
                                                         
-                                                        html += '</ul>';
+                                                        html += '</div>';
                                                         
                                                         // Add warning if no triggers active
                                                         if (!cronReady && !data.webhook_enabled) {

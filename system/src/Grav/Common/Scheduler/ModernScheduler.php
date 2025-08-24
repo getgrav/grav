@@ -80,6 +80,51 @@ class ModernScheduler extends Scheduler
     }
     
     /**
+     * Override to create ModernJob instances
+     * 
+     * @param callable $fn
+     * @param array $args
+     * @param string|null $id
+     * @return ModernJob
+     */
+    public function addFunction(callable $fn, $args = [], $id = null): Job
+    {
+        $job = new ModernJob($fn, $args, $id);
+        $this->queueJob($job->configure($this->config));
+        
+        return $job;
+    }
+    
+    /**
+     * Override to create ModernJob instances
+     * 
+     * @param string $command
+     * @param array $args
+     * @param string|null $id
+     * @return ModernJob
+     */
+    public function addCommand($command, $args = [], $id = null): Job
+    {
+        $job = new ModernJob($command, $args, $id);
+        $this->queueJob($job->configure($this->config));
+        
+        return $job;
+    }
+    
+    /**
+     * Override to create ModernJob instances
+     * 
+     * @param string $command
+     * @param array $args
+     * @param string|null $id
+     * @return ModernJob
+     */
+    public function raw($command, $args = [], $id = null): Job
+    {
+        return $this->addCommand($command, $args, $id);
+    }
+    
+    /**
      * Initialize modern scheduler features
      * 
      * @return void
@@ -178,13 +223,13 @@ class ModernScheduler extends Scheduler
      */
     protected function processQueuedJobs(): void
     {
-        $maxSize = $this->modernConfig['queue']['max_size'] ?? 1000;
-        
+        // Process existing queued jobs from previous runs
         while (!$this->jobQueue->isEmpty() && count($this->workers) < $this->maxWorkers) {
             $job = $this->jobQueue->pop();
             
             if ($job) {
                 $this->executeJob($job);
+                $this->jobs_run[] = $job;
             }
         }
     }
@@ -196,7 +241,28 @@ class ModernScheduler extends Scheduler
      */
     protected function processJobsWithWorkers(): void
     {
-        // Wait for all workers to complete
+        // Process all queued jobs
+        while (!$this->jobQueue->isEmpty()) {
+            // Wait if we've reached max workers
+            while (count($this->workers) >= $this->maxWorkers) {
+                foreach ($this->workers as $workerId => $process) {
+                    if ($process instanceof Process && !$process->isRunning()) {
+                        unset($this->workers[$workerId]);
+                    }
+                }
+                if (count($this->workers) >= $this->maxWorkers) {
+                    usleep(100000); // Wait 100ms
+                }
+            }
+            
+            // Get next job from queue
+            $job = $this->jobQueue->pop();
+            if ($job) {
+                $this->executeJob($job);
+            }
+        }
+        
+        // Wait for all remaining workers to complete
         foreach ($this->workers as $workerId => $process) {
             if ($process instanceof Process) {
                 $process->wait();

@@ -81,20 +81,18 @@ class JobQueue
             'id' => $queueId,
             'job_id' => $job->getId(),
             'command' => is_string($job->getCommand()) ? $job->getCommand() : 'Closure',
-            'arguments' => $job->getArguments(),
+            'arguments' => method_exists($job, 'getRawArguments') ? $job->getRawArguments() : $job->getArguments(),
             'priority' => $priority,
             'timestamp' => $timestamp,
             'attempts' => 0,
-            'max_attempts' => $job instanceof ModernJob ? $job->getMaxAttempts() : 1,
+            'max_attempts' => method_exists($job, 'getMaxAttempts') ? $job->getMaxAttempts() : 1,
             'created_at' => date('c'),
             'scheduled_for' => null,
             'metadata' => [],
         ];
         
-        // Serialize the job if it's a closure
-        if (!is_string($job->getCommand())) {
-            $queueItem['serialized_job'] = base64_encode(serialize($job));
-        }
+        // Always serialize the job to preserve its full state
+        $queueItem['serialized_job'] = base64_encode(serialize($job));
         
         $this->writeQueueItem($queueItem, 'pending');
         
@@ -130,7 +128,9 @@ class JobQueue
      */
     public function pop(): ?Job
     {
-        $this->lock();
+        if (!$this->lock()) {
+            return null;
+        }
         
         try {
             // Get all pending items
@@ -177,6 +177,78 @@ class JobQueue
                 
                 $this->unlock();
                 return $job;
+            }
+            
+            $this->unlock();
+            return null;
+            
+        } catch (\Exception $e) {
+            $this->unlock();
+            throw $e;
+        }
+    }
+    
+    /**
+     * Pop a job from the queue with its queue ID
+     * 
+     * @return array|null Array with 'job' and 'id' keys
+     */
+    public function popWithId(): ?array
+    {
+        if (!$this->lock()) {
+            return null;
+        }
+        
+        try {
+            // Get all pending items
+            $items = $this->getPendingItems();
+            
+            if (empty($items)) {
+                $this->unlock();
+                return null;
+            }
+            
+            // Sort by priority and timestamp
+            usort($items, function($a, $b) {
+                $priorityOrder = [
+                    self::PRIORITY_HIGH => 0,
+                    self::PRIORITY_NORMAL => 1,
+                    self::PRIORITY_LOW => 2,
+                ];
+                
+                $aPriority = $priorityOrder[$a['priority']] ?? 1;
+                $bPriority = $priorityOrder[$b['priority']] ?? 1;
+                
+                if ($aPriority !== $bPriority) {
+                    return $aPriority - $bPriority;
+                }
+                
+                return $a['timestamp'] <=> $b['timestamp'];
+            });
+            
+            // Get the first item that's ready to run
+            $now = new \DateTime();
+            foreach ($items as $item) {
+                if ($item['scheduled_for']) {
+                    $scheduledTime = new \DateTime($item['scheduled_for']);
+                    if ($scheduledTime > $now) {
+                        continue; // Skip items not yet due
+                    }
+                }
+                
+                // Reconstruct the job first before moving it
+                $job = $this->reconstructJob($item);
+                
+                if (!$job) {
+                    // Failed to reconstruct, skip this item
+                    continue;
+                }
+                
+                // Move to processing only if we can reconstruct the job
+                $this->moveQueueItem($item['id'], 'pending', 'processing');
+                
+                $this->unlock();
+                return ['job' => $job, 'id' => $item['id']];
             }
             
             $this->unlock();
@@ -470,21 +542,36 @@ class JobQueue
     /**
      * Acquire lock for queue operations
      * 
-     * @return void
+     * @return bool
      */
-    protected function lock(): void
+    protected function lock(): bool
     {
         $attempts = 0;
-        while (file_exists($this->lockFile) && $attempts < 10) {
-            usleep(100000); // 100ms
+        $maxAttempts = 50; // 5 seconds total
+        
+        while ($attempts < $maxAttempts) {
+            // Check if lock file exists and is stale (older than 30 seconds)
+            if (file_exists($this->lockFile)) {
+                $lockAge = time() - filemtime($this->lockFile);
+                if ($lockAge > 30) {
+                    // Stale lock, remove it
+                    @unlink($this->lockFile);
+                }
+            }
+            
+            // Try to acquire lock atomically
+            $handle = @fopen($this->lockFile, 'x');
+            if ($handle !== false) {
+                fclose($handle);
+                return true;
+            }
+            
             $attempts++;
+            usleep(100000); // 100ms
         }
         
-        if ($attempts >= 10) {
-            throw new RuntimeException('Could not acquire queue lock');
-        }
-        
-        touch($this->lockFile);
+        // Could not acquire lock
+        return false;
     }
     
     /**
