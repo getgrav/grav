@@ -80,8 +80,7 @@ form:
                             content: |
                                 <script>
                                 document.addEventListener('DOMContentLoaded', function() {
-                                    // Check if modern features are enabled
-                                    var modernEnabled = document.querySelector('[name="data[scheduler][modern][enabled]"]:checked');
+                                    // Check if webhook is enabled
                                     var webhookEnabled = document.querySelector('[name="data[scheduler][modern][webhook][enabled]"]:checked');
                                     var statusDiv = document.querySelector('.cronstatus-status');
                                     
@@ -106,7 +105,6 @@ form:
                                             });
                                         
                                         function updateStatusDisplay(healthData) {
-                                            var isModernEnabled = modernEnabled && modernEnabled.value == '1';
                                             var isWebhookEnabled = webhookEnabled && webhookEnabled.value == '1';
                                             var isWebhookReady = webhookPluginInstalled && isWebhookEnabled && healthData && healthData.webhook_enabled;
                                             
@@ -179,25 +177,23 @@ form:
                                                 }
                                                 
                                                 // Webhook setup
-                                                if (isModernEnabled) {
-                                                    if (!webhookPluginInstalled) {
-                                                        installHtml += '<p><strong>Option 2: Webhook Support</strong><br>';
-                                                        installHtml += '1. Install plugin: <code>bin/gpm install scheduler-webhook</code><br>';
-                                                        installHtml += '2. Configure webhook token in Modern Features tab<br>';
-                                                        installHtml += '3. Use webhook URL in your CI/CD or cloud scheduler</p>';
-                                                        hasInstructions = true;
-                                                    } else if (!isWebhookEnabled) {
-                                                        installHtml += '<p><strong>Webhook Plugin Installed</strong><br>';
-                                                        installHtml += 'Enable webhooks in Modern Features tab and set a secure token.</p>';
-                                                        hasInstructions = true;
-                                                    } else if (isWebhookReady) {
-                                                        installHtml += '<p><strong>✅ Webhook is Active!</strong><br>';
-                                                        installHtml += 'Trigger URL: <code>' + window.location.origin + '/grav-editor-pro/scheduler/webhook</code><br>';
-                                                        installHtml += 'Use with Authorization header: <code>Bearer YOUR_TOKEN</code></p>';
-                                                        
-                                                        if (!cronReady) {
-                                                            installHtml += '<p class="text-muted"><small>Note: No cron job configured. Scheduler runs only via webhook triggers.</small></p>';
-                                                        }
+                                                if (!webhookPluginInstalled) {
+                                                    installHtml += '<p><strong>Option 2: Webhook Support</strong><br>';
+                                                    installHtml += '1. Install plugin: <code>bin/gpm install scheduler-webhook</code><br>';
+                                                    installHtml += '2. Configure webhook token in Advanced Features tab<br>';
+                                                    installHtml += '3. Use webhook URL in your CI/CD or cloud scheduler</p>';
+                                                    hasInstructions = true;
+                                                } else if (!isWebhookEnabled) {
+                                                    installHtml += '<p><strong>Webhook Plugin Installed</strong><br>';
+                                                    installHtml += 'Enable webhooks in Advanced Features tab and set a secure token.</p>';
+                                                    hasInstructions = true;
+                                                } else if (isWebhookReady) {
+                                                    installHtml += '<p><strong>✅ Webhook is Active!</strong><br>';
+                                                    installHtml += 'Trigger URL: <code>' + window.location.origin + '/grav-editor-pro/scheduler/webhook</code><br>';
+                                                    installHtml += 'Use with Authorization header: <code>Bearer YOUR_TOKEN</code></p>';
+                                                    
+                                                    if (!cronReady) {
+                                                        installHtml += '<p class="text-muted"><small>Note: No cron job configured. Scheduler runs only via webhook triggers.</small></p>';
                                                     }
                                                 }
                                                 
@@ -205,9 +201,6 @@ form:
                                                     installHtml += '<p><strong>✅ Cron is configured and ready!</strong><br>';
                                                     installHtml += 'The scheduler runs automatically every minute via system cron.</p>';
                                                     
-                                                    if (!isModernEnabled) {
-                                                        installHtml += '<p class="text-muted"><small>Enable Modern Features for webhook support and advanced options.</small></p>';
-                                                    }
                                                 }
                                                 
                                                 installHtml += '</div>';
@@ -229,20 +222,15 @@ form:
                                 });
                                 </script>
 
-                        modern_status:
-                            type: conditional
-                            condition: config.scheduler.modern.enabled
-
-                            fields:
-                                modern_health:
-                                    type: display
-                                    label: Health Status
-                                    content: |
-                                        <div id="scheduler-health-status">
-                                            <div class="text-muted">Checking health...</div>
-                                        </div>
-                                        <script>
-                                        (function() {
+                        modern_health:
+                            type: display
+                            label: Health Status
+                            content: |
+                                <div id="scheduler-health-status">
+                                    <div class="text-muted">Checking health...</div>
+                                </div>
+                                <script>
+                                (function() {
                                             function loadHealthStatus() {
                                                 fetch(window.location.origin + '/grav-editor-pro/scheduler/health')
                                                     .then(response => response.json())
@@ -330,21 +318,21 @@ form:
                                                 loadHealthStatus();
                                             }
                                             
-                                            // Refresh every 30 seconds
-                                            setInterval(loadHealthStatus, 30000);
-                                        })();
-                                        </script>
-                                    markdown: false
+                                    // Refresh every 30 seconds
+                                    setInterval(loadHealthStatus, 30000);
+                                })();
+                                </script>
+                            markdown: false
 
-                                trigger_methods:
-                                    type: display
-                                    label: Active Triggers
-                                    content: |
-                                        <div id="scheduler-triggers">
-                                            <div class="text-muted">Checking triggers...</div>
-                                        </div>
-                                        <script>
-                                        (function() {
+                        trigger_methods:
+                            type: display
+                            label: Active Triggers
+                            content: |
+                                <div id="scheduler-triggers">
+                                    <div class="text-muted">Checking triggers...</div>
+                                </div>
+                                <script>
+                                (function() {
                                             function loadTriggers() {
                                                 // Check cron status from the main status field
                                                 var cronReady = false;
@@ -361,50 +349,47 @@ form:
                                                         var triggersEl = document.getElementById('scheduler-triggers');
                                                         if (!triggersEl) return;
                                                         
-                                                        var html = '<div style="display: flex; flex-direction: column; gap: 0.75rem;">';
+                                                        var html = '<div style="display: flex; flex-direction: column; gap: 0.5rem;">';
                                                         
                                                         // Cron trigger card
-                                                        var cronBg = cronReady ? 'linear-gradient(135deg, #d4edda 0%, #fff 100%)' : 'linear-gradient(135deg, #f8f9fa 0%, #fff 100%)';
-                                                        var cronBorder = cronReady ? '#c3e6cb' : '#dee2e6';
                                                         var cronIcon = cronReady ? '✅' : '❌';
                                                         var cronStatus = cronReady ? 'Active' : 'Not Configured';
-                                                        var cronColor = cronReady ? '#155724' : '#6c757d';
+                                                        var cronStatusColor = cronReady ? '#28a745' : '#6c757d';
+                                                        var cardBg = cronReady ? '#f8f9fa' : '#fff';
                                                         
-                                                        html += '<div style="display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; background: ' + cronBg + '; border: 1px solid ' + cronBorder + '; border-radius: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.03);">';
-                                                        html += '<div style="display: flex; align-items: center; gap: 0.5rem;">';
-                                                        html += '<span style="font-size: 1.1rem;">' + cronIcon + '</span>';
-                                                        html += '<span style="font-weight: 500; color: #495057;">Cron:</span>';
+                                                        html += '<div style="display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; background: ' + cardBg + '; border: 1px solid #e9ecef; border-radius: 4px;">';
+                                                        html += '<div style="display: flex; align-items: center; gap: 0.75rem;">';
+                                                        html += '<span style="font-size: 1.25rem; line-height: 1;">' + cronIcon + '</span>';
+                                                        html += '<span style="font-weight: 500; color: #212529; font-size: 1rem;">Cron:</span>';
                                                         html += '</div>';
-                                                        html += '<span style="background: ' + (cronReady ? '#28a745' : '#6c757d') + '; color: white; padding: 0.25rem 0.625rem; font-size: 0.8125rem; font-weight: 500; border-radius: 4px;">' + cronStatus + '</span>';
+                                                        html += '<span style="background: ' + cronStatusColor + '; color: white; padding: 0.25rem 0.75rem; font-size: 0.875rem; font-weight: 500; border-radius: 3px; text-transform: uppercase; letter-spacing: 0.025em;">' + cronStatus + '</span>';
                                                         html += '</div>';
                                                         
                                                         // Webhook trigger card
                                                         if (data.webhook_enabled) {
-                                                            html += '<div style="display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; background: linear-gradient(135deg, #d4edda 0%, #fff 100%); border: 1px solid #c3e6cb; border-radius: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.03);">';
-                                                            html += '<div style="display: flex; align-items: center; gap: 0.5rem;">';
-                                                            html += '<span style="font-size: 1.1rem;">✅</span>';
-                                                            html += '<span style="font-weight: 500; color: #495057;">Webhook:</span>';
+                                                            html += '<div style="display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 4px;">';
+                                                            html += '<div style="display: flex; align-items: center; gap: 0.75rem;">';
+                                                            html += '<span style="font-size: 1.25rem; line-height: 1;">✅</span>';
+                                                            html += '<span style="font-weight: 500; color: #212529; font-size: 1rem;">Webhook:</span>';
                                                             html += '</div>';
-                                                            html += '<span style="background: #28a745; color: white; padding: 0.25rem 0.625rem; font-size: 0.8125rem; font-weight: 500; border-radius: 4px;">Active</span>';
+                                                            html += '<span style="background: #28a745; color: white; padding: 0.25rem 0.75rem; font-size: 0.875rem; font-weight: 500; border-radius: 3px; text-transform: uppercase; letter-spacing: 0.025em;">ACTIVE</span>';
                                                             html += '</div>';
                                                         } else {
-                                                            var modernEnabled = document.querySelector('[name="data[scheduler][modern][enabled]"]:checked');
-                                                            if (modernEnabled && modernEnabled.value == '1') {
-                                                                html += '<div style="display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; background: linear-gradient(135deg, #fff3cd 0%, #fff 100%); border: 1px solid #ffeeba; border-radius: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.03);">';
-                                                                html += '<div style="display: flex; align-items: center; gap: 0.5rem;">';
-                                                                html += '<span style="font-size: 1.1rem;">⚠️</span>';
-                                                                html += '<span style="font-weight: 500; color: #495057;">Webhook:</span>';
-                                                                html += '</div>';
-                                                                html += '<span style="background: #ffc107; color: #212529; padding: 0.25rem 0.625rem; font-size: 0.8125rem; font-weight: 500; border-radius: 4px;">Disabled</span>';
-                                                                html += '</div>';
-                                                            }
+                                                            // Show webhook as not configured/disabled
+                                                            html += '<div style="display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; background: #fff; border: 1px solid #e9ecef; border-radius: 4px;">';
+                                                            html += '<div style="display: flex; align-items: center; gap: 0.75rem;">';
+                                                            html += '<span style="font-size: 1.25rem; line-height: 1;">⚠️</span>';
+                                                            html += '<span style="font-weight: 500; color: #212529; font-size: 1rem;">Webhook:</span>';
+                                                            html += '</div>';
+                                                            html += '<span style="background: #ffc107; color: #212529; padding: 0.25rem 0.75rem; font-size: 0.875rem; font-weight: 500; border-radius: 3px; text-transform: uppercase; letter-spacing: 0.025em;">DISABLED</span>';
+                                                            html += '</div>';
                                                         }
                                                         
                                                         html += '</div>';
                                                         
                                                         // Add warning if no triggers active
                                                         if (!cronReady && !data.webhook_enabled) {
-                                                            html += '<div class="alert alert-warning">No triggers active! Configure cron or enable webhooks.</div>';
+                                                            html += '<div class="alert alert-warning" style="margin-top: 1rem;"><i class="fa fa-exclamation-triangle"></i> No triggers active! Configure cron or enable webhooks.</div>';
                                                         }
                                                         
                                                         triggersEl.innerHTML = html;
@@ -431,10 +416,10 @@ form:
                                                 document.addEventListener('DOMContentLoaded', loadTriggers);
                                             } else {
                                                 loadTriggers();
-                                            }
-                                        })();
-                                        </script>
-                                    markdown: false
+                                    }
+                                })();
+                                </script>
+                            markdown: false
 
                 jobs_tab:
                     type: tab
@@ -501,233 +486,291 @@ form:
 
                 modern_tab:
                     type: tab
-                    title: Modern Features
+                    title: Advanced Features
 
                     fields:
-                        modern.enabled:
-                            type: toggle
-                            label: Enable Modern Scheduler
-                            help: Enable enhanced scheduler features (job queue, retry, webhooks, monitoring)
-                            highlight: 0
-                            default: 0
-                            options:
-                                1: PLUGIN_ADMIN.ENABLED
-                                0: PLUGIN_ADMIN.DISABLED
-                            validate:
-                                type: bool
-
-                        modern_features:
-                            type: conditional
-                            condition: config.scheduler.modern.enabled
+                        workers_section:
+                            type: section
+                            title: Worker Configuration
+                            underline: true
 
                             fields:
-                                workers_section:
-                                    type: section
-                                    title: Worker Configuration
-                                    underline: true
+                                modern.workers:
+                                    type: number
+                                    label: Concurrent Workers
+                                    help: Number of jobs that can run simultaneously (1 = sequential)
+                                    default: 4
+                                    size: x-small
+                                    append: workers
+                                    validate:
+                                        type: int
+                                        min: 1
+                                        max: 10
 
+                        retry_section:
+                            type: section
+                            title: Retry Configuration
+                            underline: true
+
+                            fields:
+                                modern.retry.enabled:
+                                    type: toggle
+                                    label: Enable Job Retry
+                                    help: Automatically retry failed jobs
+                                    highlight: 1
+                                    default: 1
+                                    options:
+                                        1: PLUGIN_ADMIN.ENABLED
+                                        0: PLUGIN_ADMIN.DISABLED
+                                    validate:
+                                        type: bool
+
+                                modern.retry.max_attempts:
+                                    type: number
+                                    label: Maximum Retry Attempts
+                                    help: Maximum number of times to retry a failed job
+                                    default: 3
+                                    size: x-small
+                                    append: retries
+                                    validate:
+                                        type: int
+                                        min: 1
+                                        max: 10
+
+                                modern.retry.backoff:
+                                    type: select
+                                    label: Retry Backoff Strategy
+                                    help: How to calculate delay between retries
+                                    default: exponential
+                                    options:
+                                        linear: Linear (fixed delay)
+                                        exponential: Exponential (increasing delay)
+
+                        queue_section:
+                            type: section
+                            title: Queue Configuration
+                            underline: true
+
+                            fields:
+                                modern.queue.path:
+                                    type: text
+                                    label: Queue Storage Path
+                                    help: Where to store queued jobs
+                                    default: 'user-data://scheduler/queue'
+                                    placeholder: 'user-data://scheduler/queue'
+
+                                modern.queue.max_size:
+                                    type: number
+                                    label: Maximum Queue Size
+                                    help: Maximum number of jobs that can be queued
+                                    default: 1000
+                                    size: x-small
+                                    append: jobs
+                                    validate:
+                                        type: int
+                                        min: 100
+                                        max: 10000
+
+                        history_section:
+                            type: section
+                            title: Job History
+                            underline: true
+
+                            fields:
+                                modern.history.enabled:
+                                    type: toggle
+                                    label: Enable Job History
+                                    help: Track execution history for all jobs
+                                    highlight: 1
+                                    default: 1
+                                    options:
+                                        1: PLUGIN_ADMIN.ENABLED
+                                        0: PLUGIN_ADMIN.DISABLED
+                                    validate:
+                                        type: bool
+
+                                modern.history.retention_days:
+                                    type: number
+                                    label: History Retention (days)
+                                    help: How long to keep job history
+                                    default: 30
+                                    size: x-small
+                                    append: days
+                                    validate:
+                                        type: int
+                                        min: 1
+                                        max: 365
+
+                        webhook_section:
+                            type: section
+                            title: Webhook Configuration
+                            underline: true
+
+                            fields:
+                                webhook_plugin_notice:
+                                    type: conditional
+                                    condition: config.plugins.scheduler-webhook.enabled == false
+                                    
                                     fields:
-                                        modern.workers:
-                                            type: number
-                                            label: Concurrent Workers
-                                            help: Number of jobs that can run simultaneously (1 = sequential)
-                                            default: 1
-                                            size: x-small
-                                            append: workers
-                                            validate:
-                                                type: int
-                                                min: 1
-                                                max: 10
-
-                                retry_section:
-                                    type: section
-                                    title: Retry Configuration
-                                    underline: true
-
-                                    fields:
-                                        modern.retry.enabled:
-                                            type: toggle
-                                            label: Enable Job Retry
-                                            help: Automatically retry failed jobs
-                                            highlight: 1
-                                            default: 1
-                                            options:
-                                                1: PLUGIN_ADMIN.ENABLED
-                                                0: PLUGIN_ADMIN.DISABLED
-                                            validate:
-                                                type: bool
-
-                                        modern.retry.max_attempts:
-                                            type: number
-                                            label: Maximum Retry Attempts
-                                            help: Maximum number of times to retry a failed job
-                                            default: 3
-                                            size: x-small
-                                            append: retries
-                                            validate:
-                                                type: int
-                                                min: 1
-                                                max: 10
-
-                                        modern.retry.backoff:
-                                            type: select
-                                            label: Retry Backoff Strategy
-                                            help: How to calculate delay between retries
-                                            default: exponential
-                                            options:
-                                                linear: Linear (fixed delay)
-                                                exponential: Exponential (increasing delay)
-
-                                queue_section:
-                                    type: section
-                                    title: Queue Configuration
-                                    underline: true
-
-                                    fields:
-                                        modern.queue.path:
-                                            type: text
-                                            label: Queue Storage Path
-                                            help: Where to store queued jobs
-                                            default: 'user-data://scheduler/queue'
-                                            placeholder: 'user-data://scheduler/queue'
-
-                                        modern.queue.max_size:
-                                            type: number
-                                            label: Maximum Queue Size
-                                            help: Maximum number of jobs that can be queued
-                                            default: 1000
-                                            size: x-small
-                                            append: jobs
-                                            validate:
-                                                type: int
-                                                min: 100
-                                                max: 10000
-
-                                history_section:
-                                    type: section
-                                    title: Job History
-                                    underline: true
-
-                                    fields:
-                                        modern.history.enabled:
-                                            type: toggle
-                                            label: Enable Job History
-                                            help: Track execution history for all jobs
-                                            highlight: 1
-                                            default: 1
-                                            options:
-                                                1: PLUGIN_ADMIN.ENABLED
-                                                0: PLUGIN_ADMIN.DISABLED
-                                            validate:
-                                                type: bool
-
-                                        modern.history.retention_days:
-                                            type: number
-                                            label: History Retention (days)
-                                            help: How long to keep job history
-                                            default: 30
-                                            size: x-small
-                                            append: days
-                                            validate:
-                                                type: int
-                                                min: 1
-                                                max: 365
-
-                                webhook_section:
-                                    type: section
-                                    title: Webhook Configuration
-                                    underline: true
-
-                                    fields:
-                                        webhook_plugin_notice:
+                                        webhook_install:
                                             type: display
                                             label:
                                             content: |
                                                 <div class="alert alert-warning">
-                                                    <strong>Plugin Required:</strong> The <code>scheduler-webhook</code> plugin must be installed and enabled for webhook functionality to work.
-                                                    <br><br>
-                                                    Install with: <code>bin/gpm install scheduler-webhook</code>
+                                                    <strong>Webhook Plugin Required</strong><br>
+                                                    The <code>scheduler-webhook</code> plugin is required for webhook functionality.<br><br>
+                                                    <a class="button button-primary" href="#" 
+                                                       data-remodal-target="add-package" 
+                                                       data-packages-slugs="scheduler-webhook" 
+                                                       data-plugin-action="start-package-installation">
+                                                        <i class="fa fa-download"></i> Install Plugin Now
+                                                    </a>
+                                                    <span class="hint" style="margin-left: 10px;">or run: <code>bin/gpm install scheduler-webhook</code></span>
                                                 </div>
                                             markdown: false
-                                        modern.webhook.enabled:
-                                            type: toggle
-                                            label: Enable Webhook Triggers
-                                            help: Allow triggering scheduler via HTTP webhook
-                                            highlight: 0
-                                            default: 0
-                                            options:
-                                                1: PLUGIN_ADMIN.ENABLED
-                                                0: PLUGIN_ADMIN.DISABLED
-                                            validate:
-                                                type: bool
-
-                                        modern.webhook.token:
-                                            type: text
-                                            label: Webhook Security Token
-                                            help: Secret token for authenticating webhook requests. Keep this secret!
-                                            placeholder: 'Click Generate to create a secure token'
                                             
-                                        webhook_token_generate:
+                                webhook_plugin_ready:
+                                    type: conditional
+                                    condition: config.plugins.scheduler-webhook.enabled == true
+                                    
+                                    fields:
+                                        webhook_ready:
                                             type: display
                                             label:
                                             content: |
-                                                <button type="button" class="button" onclick="generateWebhookToken()">Generate Token</button>
+                                                <div class="alert alert-success">
+                                                    <i class="fa fa-check-circle"></i> <strong>Webhook Plugin Ready!</strong><br>
+                                                    The scheduler-webhook plugin is installed and active. Configure your webhook settings below.
+                                                </div>
+                                            markdown: false
+                                modern.webhook.enabled:
+                                    type: toggle
+                                    label: Enable Webhook Triggers
+                                    help: Allow triggering scheduler via HTTP webhook
+                                    highlight: 0
+                                    default: 0
+                                    options:
+                                        1: PLUGIN_ADMIN.ENABLED
+                                        0: PLUGIN_ADMIN.DISABLED
+                                    validate:
+                                        type: bool
+
+                                modern.webhook.token:
+                                    type: text
+                                    label: Webhook Security Token
+                                    help: Secret token for authenticating webhook requests. Keep this secret!
+                                    placeholder: 'Click Generate to create a secure token'
+                                    autocomplete: 'off'
+                                            
+                                webhook_token_generate:
+                                    type: display
+                                    label:
+                                    content: |
+                                                <div style="margin-top: -10px; margin-bottom: 15px;">
+                                                    <button type="button" class="button button-primary" onclick="generateWebhookToken()">
+                                                        <i class="fa fa-refresh"></i> Generate Token
+                                                    </button>
+                                                </div>
                                                 <script>
                                                 function generateWebhookToken() {
-                                                    const array = new Uint8Array(32);
-                                                    crypto.getRandomValues(array);
-                                                    const token = Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
-                                                    const field = document.querySelector('[name="data[scheduler][modern][webhook][token]"]');
-                                                    if (field) {
-                                                        field.value = token;
-                                                        field.dispatchEvent(new Event('change', { bubbles: true }));
+                                                    try {
+                                                        // Generate token
+                                                        const array = new Uint8Array(32);
+                                                        crypto.getRandomValues(array);
+                                                        const token = Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+                                                        
+                                                        // Try multiple selectors to find the field
+                                                        let field = document.querySelector('[name="data[scheduler][modern][webhook][token]"]');
+                                                        if (!field) {
+                                                            field = document.querySelector('input[name*="webhook][token"]');
+                                                        }
+                                                        if (!field) {
+                                                            field = document.getElementById('scheduler-modern-webhook-token');
+                                                        }
+                                                        if (!field) {
+                                                            // Look for any text input in the webhook section
+                                                            const webhookSection = document.querySelector('.webhook_section');
+                                                            if (webhookSection) {
+                                                                const inputs = webhookSection.querySelectorAll('input[type="text"]');
+                                                                // Find the token field by checking for the placeholder
+                                                                for (let input of inputs) {
+                                                                    if (input.placeholder && input.placeholder.includes('Generate')) {
+                                                                        field = input;
+                                                                        break;
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                        
+                                                        if (field) {
+                                                            field.value = token;
+                                                            field.dispatchEvent(new Event('change', { bubbles: true }));
+                                                            field.dispatchEvent(new Event('input', { bubbles: true }));
+                                                            // Flash the field to show it was updated
+                                                            field.style.backgroundColor = '#d4edda';
+                                                            setTimeout(function() {
+                                                                field.style.backgroundColor = '';
+                                                            }, 500);
+                                                            // Also try to trigger Grav's form change detection
+                                                            if (window.jQuery) {
+                                                                jQuery(field).trigger('change');
+                                                            }
+                                                        } else {
+                                                            // Log more debugging info
+                                                            console.error('Token field not found. Looking for input fields...');
+                                                            console.log('All inputs:', document.querySelectorAll('input[type="text"]'));
+                                                            alert('Could not find the token field. Please ensure you are in the Advanced Features tab and the Webhook Configuration section is visible.');
+                                                        }
+                                                    } catch (e) {
+                                                        console.error('Error generating token:', e);
+                                                        alert('Error generating token: ' + e.message);
                                                     }
                                                 }
                                                 </script>
-                                            markdown: false
+                                    markdown: false
 
-                                        modern.webhook.path:
-                                            type: text
-                                            label: Webhook Path
-                                            help: URL path for webhook endpoint
-                                            default: '/scheduler/webhook'
-                                            placeholder: '/scheduler/webhook'
+                                modern.webhook.path:
+                                    type: text
+                                    label: Webhook Path
+                                    help: URL path for webhook endpoint
+                                    default: '/scheduler/webhook'
+                                    placeholder: '/scheduler/webhook'
 
-                                health_section:
-                                    type: section
-                                    title: Health Check Configuration
-                                    underline: true
+                        health_section:
+                            type: section
+                            title: Health Check Configuration
+                            underline: true
 
-                                    fields:
-                                        modern.health.enabled:
-                                            type: toggle
-                                            label: Enable Health Check
-                                            help: Provide health status endpoint for monitoring
-                                            highlight: 1
-                                            default: 1
-                                            options:
-                                                1: PLUGIN_ADMIN.ENABLED
-                                                0: PLUGIN_ADMIN.DISABLED
-                                            validate:
-                                                type: bool
+                            fields:
+                                modern.health.enabled:
+                                    type: toggle
+                                    label: Enable Health Check
+                                    help: Provide health status endpoint for monitoring
+                                    highlight: 1
+                                    default: 1
+                                    options:
+                                        1: PLUGIN_ADMIN.ENABLED
+                                        0: PLUGIN_ADMIN.DISABLED
+                                    validate:
+                                        type: bool
 
-                                        modern.health.path:
-                                            type: text
-                                            label: Health Check Path
-                                            help: URL path for health check endpoint
-                                            default: '/scheduler/health'
-                                            placeholder: '/scheduler/health'
+                                modern.health.path:
+                                    type: text
+                                    label: Health Check Path
+                                    help: URL path for health check endpoint
+                                    default: '/scheduler/health'
+                                    placeholder: '/scheduler/health'
                                             
-                                webhook_usage:
-                                    type: section
-                                    title: Usage Examples
-                                    underline: true
-                                    
-                                    fields:
-                                        webhook_examples:
-                                            type: display
-                                            label:
-                                            content: |
+                        webhook_usage:
+                            type: section
+                            title: Usage Examples
+                            underline: true
+                            
+                            fields:
+                                webhook_examples:
+                                    type: display
+                                    label:
+                                    content: |
                                                 <div class="alert alert-info">
                                                     <h4>How to use webhooks:</h4>
                                                     <p><strong>Trigger all due jobs (respects schedule):</strong></p>
@@ -747,7 +790,7 @@ form:
                                                     curl -X POST ${{ secrets.SITE_URL }}/scheduler/webhook \
                                                       -H "Authorization: Bearer ${{ secrets.WEBHOOK_TOKEN }}"</pre>
                                                 </div>
-                                            markdown: false
+                                    markdown: false
 
 
 

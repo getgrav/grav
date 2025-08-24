@@ -18,6 +18,8 @@ use Symfony\Component\Process\PhpExecutableFinder;
 use Symfony\Component\Process\Process;
 use RocketTheme\Toolbox\File\YamlFile;
 use Symfony\Component\Yaml\Yaml;
+use Monolog\Logger;
+use Monolog\Handler\StreamHandler;
 use function is_callable;
 use function is_string;
 
@@ -76,8 +78,8 @@ class Scheduler
     /** @var string */
     protected $historyPath;
     
-    /** @var JobHistory|null */
-    protected $jobHistory = null;
+    /** @var Logger|null */
+    protected $logger = null;
     
     /** @var array */
     protected $modernConfig = [];
@@ -97,11 +99,10 @@ class Scheduler
             Folder::create($this->status_path);
         }
         
-        // Initialize modern features if enabled
+        // Initialize modern features (always enabled now)
         $this->modernConfig = $grav['config']->get('scheduler.modern', []);
-        if ($this->modernConfig['enabled'] ?? false) {
-            $this->initializeModernFeatures($locator);
-        }
+        // Always initialize modern features - they're now part of core
+        $this->initializeModernFeatures($locator);
     }
 
     /**
@@ -249,14 +250,29 @@ class Scheduler
             $runTime = new DateTime('now');
         }
 
+        // Log scheduler run
+        if ($this->logger) {
+            $jobCount = count($alljobs);
+            $forceStr = $force ? ' (forced)' : '';
+            $this->logger->debug("Scheduler run started - {$jobCount} jobs available{$forceStr}", [
+                'time' => $runTime->format('Y-m-d H:i:s')
+            ]);
+        }
+
         // Process jobs based on modern features
         if ($this->jobQueue && ($this->modernConfig['queue']['enabled'] ?? false)) {
             // Queue jobs for processing
+            $queuedCount = 0;
             foreach ($alljobs as $job) {
                 if ($job->isDue($runTime) || $force) {
                     // Add to queue for concurrent processing
                     $this->jobQueue->push($job);
+                    $queuedCount++;
                 }
+            }
+            
+            if ($this->logger && $queuedCount > 0) {
+                $this->logger->debug("Queued {$queuedCount} job(s) for processing");
             }
             
             // Process queue with workers
@@ -284,6 +300,31 @@ class Scheduler
             // Save history if enabled
             if (($this->modernConfig['history']['enabled'] ?? false) && $this->historyPath) {
                 $this->saveJobHistory();
+            }
+        }
+
+        // Log run summary
+        if ($this->logger) {
+            $successCount = 0;
+            $failureCount = 0;
+            $executedJobs = array_merge($this->executed_jobs, $this->jobs_run);
+            
+            foreach ($executedJobs as $job) {
+                if ($job->isSuccessful()) {
+                    $successCount++;
+                } else {
+                    $failureCount++;
+                }
+            }
+            
+            if (count($executedJobs) > 0) {
+                if ($failureCount > 0) {
+                    $this->logger->warning("Scheduler completed: {$successCount} succeeded, {$failureCount} failed");
+                } else {
+                    $this->logger->info("Scheduler completed: {$successCount} job(s) succeeded");
+                }
+            } else {
+                $this->logger->debug('Scheduler completed: no jobs were due');
             }
         }
 
@@ -474,15 +515,14 @@ class Scheduler
             Folder::create($this->historyPath);
         }
         
-        // Initialize job queue
+        // Initialize job queue (always enabled)
         $this->jobQueue = new JobQueue($this->queuePath);
         
-        // Initialize job history
-        $retentionDays = $this->modernConfig['history']['retention_days'] ?? 30;
-        $this->jobHistory = new JobHistory($this->historyPath, $retentionDays);
+        // Initialize scheduler logger
+        $this->initializeLogger($locator);
         
-        // Configure workers
-        $this->maxWorkers = $this->modernConfig['workers'] ?? 1;
+        // Configure workers (default to 4 for concurrent processing)
+        $this->maxWorkers = $this->modernConfig['workers'] ?? 4;
         
         // Configure webhook
         $this->webhookEnabled = $this->modernConfig['webhook']['enabled'] ?? false;
@@ -503,13 +543,28 @@ class Scheduler
     }
     
     /**
-     * Get the job history
+     * Initialize the scheduler logger
      * 
-     * @return JobHistory|null
+     * @param $locator
+     * @return void
      */
-    public function getHistory(): ?JobHistory
+    protected function initializeLogger($locator): void
     {
-        return $this->jobHistory;
+        $this->logger = new Logger('scheduler');
+        
+        // Single scheduler log file - all levels
+        $logFile = $locator->findResource('log://scheduler.log', true, true);
+        $this->logger->pushHandler(new StreamHandler($logFile, Logger::DEBUG));
+    }
+    
+    /**
+     * Get the scheduler logger
+     * 
+     * @return Logger|null
+     */
+    public function getLogger(): ?Logger
+    {
+        return $this->logger;
     }
     
     /**
@@ -678,13 +733,26 @@ class Scheduler
                         $worker['job']->finalize();
                         $this->saveJobState($worker['job']);
                         
-                        // Log background job completion to history
-                        if ($this->jobHistory) {
-                            $metadata = [
-                                'queue_id' => $worker['queueId'] ?? null,
-                                'background' => true
-                            ];
-                            $this->jobHistory->logExecution($worker['job'], $metadata);
+                        // Log background job completion
+                        if ($this->logger) {
+                            $job = $worker['job'];
+                            $jobId = $job->getId();
+                            $command = is_string($job->getCommand()) ? $job->getCommand() : 'Closure';
+                            
+                            if ($job->isSuccessful()) {
+                                $execTime = method_exists($job, 'getExecutionTime') ? $job->getExecutionTime() : null;
+                                $timeStr = $execTime ? sprintf(' (%.2fs)', $execTime) : '';
+                                $this->logger->info("Job '{$jobId}' completed successfully{$timeStr}", [
+                                    'command' => $command,
+                                    'background' => true
+                                ]);
+                            } else {
+                                $error = trim($job->getOutput()) ?: 'Unknown error';
+                                $this->logger->error("Job '{$jobId}' failed: {$error}", [
+                                    'command' => $command,
+                                    'background' => true
+                                ]);
+                            }
                         }
                     }
                     
@@ -775,9 +843,22 @@ class Scheduler
         }
         
         // Log foreground jobs immediately
-        if (!$job->runInBackground() && $this->jobHistory) {
-            $metadata = ['queue_id' => $queueId];
-            $this->jobHistory->logExecution($job, $metadata);
+        if (!$job->runInBackground() && $this->logger) {
+            $jobId = $job->getId();
+            $command = is_string($job->getCommand()) ? $job->getCommand() : 'Closure';
+            
+            if ($job->isSuccessful()) {
+                $execTime = method_exists($job, 'getExecutionTime') ? $job->getExecutionTime() : null;
+                $timeStr = $execTime ? sprintf(' (%.2fs)', $execTime) : '';
+                $this->logger->info("Job '{$jobId}' completed successfully{$timeStr}", [
+                    'command' => $command
+                ]);
+            } else {
+                $error = trim($job->getOutput()) ?: 'Unknown error';
+                $this->logger->error("Job '{$jobId}' failed: {$error}", [
+                    'command' => $command
+                ]);
+            }
         }
     }
     
