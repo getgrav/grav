@@ -1,3 +1,9 @@
+# v1.7.49.1
+## 08/25/2025
+
+1. [](#new)
+    * Rerelease to include all updated plugins/theme etc.
+
 # v1.7.49
 ## 08/25/2025
 
