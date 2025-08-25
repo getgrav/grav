@@ -633,6 +633,19 @@ form:
               help: PLUGIN_ADMIN.CACHE_PREFIX_HELP
               placeholder: PLUGIN_ADMIN.CACHE_PREFIX_PLACEHOLDER
 
+            cache.purge_max_age_days:
+                type: text
+                size: x-small
+                append: GRAV.NICETIME.DAY_PLURAL
+                label: PLUGIN_ADMIN.CACHE_PURGE_AGE
+                help: PLUGIN_ADMIN.CACHE_PURGE_AGE_HELP
+                validate:
+                    type: number
+                    min: 1
+                    max: 365
+                    step: 1
+                default: 30
+
             cache.purge_at:
               type: cron
               label: PLUGIN_ADMIN.CACHE_PURGE_JOB
