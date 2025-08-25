@@ -241,6 +241,13 @@ class Scheduler
      */
     public function run(DateTime $runTime = null, $force = false)
     {
+        // Initialize system jobs if not already done
+        $grav = Grav::instance();
+        if (count($this->jobs) === 0) {
+            // Trigger event to load system jobs (cache-purge, cache-clear, backups, etc.)
+            $grav->fireEvent('onSchedulerInitialized', new \RocketTheme\Toolbox\Event\Event(['scheduler' => $this]));
+        }
+        
         $this->loadSavedJobs();
 
         [$background, $foreground] = $this->getQueuedJobs(false);
@@ -333,6 +340,9 @@ class Scheduler
 
         // Store run date
         file_put_contents("logs/lastcron.run", (new DateTime("now"))->format("Y-m-d H:i:s"), LOCK_EX);
+        
+        // Update last run timestamp for health checks
+        $this->updateLastRun();
     }
 
     /**
@@ -951,13 +961,24 @@ class Scheduler
         $lastRunFile = $this->status_path . '/last_run.txt';
         $lastRun = file_exists($lastRunFile) ? file_get_contents($lastRunFile) : null;
         
-        // Load all jobs and check how many are currently due
+        // Initialize system jobs if not already done
+        $grav = Grav::instance();
+        if (count($this->jobs) === 0) {
+            // Trigger event to load system jobs (cache-purge, cache-clear, backups, etc.)
+            $grav->fireEvent('onSchedulerInitialized', new \RocketTheme\Toolbox\Event\Event(['scheduler' => $this]));
+        }
+        
+        // Load custom jobs
         $this->loadSavedJobs();
-        $allJobs = $this->getAllJobs();
+        
+        // Get only enabled jobs for health status
+        [$background, $foreground] = $this->getQueuedJobs(false);
+        $enabledJobs = array_merge($background, $foreground);
+        
         $now = new DateTime('now');
         $dueJobs = 0;
         
-        foreach ($allJobs as $job) {
+        foreach ($enabledJobs as $job) {
             if ($job->isDue($now)) {
                 $dueJobs++;
             }
@@ -969,7 +990,7 @@ class Scheduler
             'last_run_age' => null,
             'queue_size' => 0,
             'failed_jobs_24h' => 0,
-            'scheduled_jobs' => count($allJobs),
+            'scheduled_jobs' => count($enabledJobs),
             'jobs_due' => $dueJobs,
             'webhook_enabled' => $this->webhookEnabled,
             'health_check_enabled' => $this->healthEnabled,
@@ -1021,6 +1042,16 @@ class Scheduler
         if ($this->webhookToken && $token !== $this->webhookToken) {
             return ['success' => false, 'message' => 'Invalid webhook token'];
         }
+        
+        // Initialize system jobs if not already done
+        $grav = Grav::instance();
+        if (count($this->jobs) === 0) {
+            // Trigger event to load system jobs (cache-purge, cache-clear, backups, etc.)
+            $grav->fireEvent('onSchedulerInitialized', new \RocketTheme\Toolbox\Event\Event(['scheduler' => $this]));
+        }
+        
+        // Load custom jobs
+        $this->loadSavedJobs();
         
         if ($jobId) {
             // Force run specific job
