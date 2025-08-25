@@ -157,6 +157,8 @@ class SchedulerController
         $lastRun = $health['last_run'] ?? null;
         $queueSize = $health['queue_size'] ?? 0;
         $failedJobs = $health['failed_jobs_24h'] ?? 0;
+        $jobsDue = $health['jobs_due'] ?? 0;
+        $message = $health['message'] ?? '';
         
         $statusBadge = match($status) {
             'healthy' => '<span class="badge badge-success">Healthy</span>',
@@ -166,7 +168,11 @@ class SchedulerController
         };
         
         $html = '<div class="scheduler-health">';
-        $html .= '<p>Status: ' . $statusBadge . '</p>';
+        $html .= '<p>Status: ' . $statusBadge;
+        if ($message) {
+            $html .= ' - ' . htmlspecialchars($message);
+        }
+        $html .= '</p>';
         
         if ($lastRun) {
             $lastRunTime = new \DateTime($lastRun);
@@ -189,6 +195,7 @@ class SchedulerController
             $html .= '<p>Last Run: <strong>Never</strong></p>';
         }
         
+        $html .= '<p>Jobs Due: <strong>' . $jobsDue . '</strong></p>';
         $html .= '<p>Queue Size: <strong>' . $queueSize . '</strong></p>';
         
         if ($failedJobs > 0) {

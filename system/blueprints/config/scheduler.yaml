@@ -324,6 +324,68 @@ form:
                                 </script>
                             markdown: false
 
+                        cron_setup:
+                            type: display
+                            label: Cron Setup Commands
+                            content: |
+                                <script src="{{ url('plugin://admin/themes/grav/js/clipboard-helper.js') }}"></script>
+                                <div class="cron-setup-commands">
+                                    <script>
+                                    
+                                    (function() {
+                                        // Get the Grav root path from the current location
+                                        var pathParts = window.location.pathname.split('/');
+                                        var gravPath = '/path/to/grav'; // Default fallback
+                                        
+                                        // Try to determine actual path (assuming we're in /admin or similar)
+                                        if (typeof GravAdmin !== 'undefined' && GravAdmin.config && GravAdmin.config.base_url_relative) {
+                                            // Remove admin path to get to root
+                                            gravPath = window.location.pathname.replace(/\/admin.*$/, '') || '/';
+                                            if (gravPath === '/') {
+                                                gravPath = '/var/www/html'; // Common server path
+                                            }
+                                        }
+                                        
+                                        // For local development, use the actual path
+                                        if (window.location.hostname === 'trilby.local') {
+                                            gravPath = '/Users/rhuk/workspace/trilby/grav-editor-pro';
+                                        }
+                                        
+                                        var quickInstallCmd = "(crontab -l 2>/dev/null; echo '* * * * * cd " + gravPath + " && bin/grav scheduler 1>> /dev/null 2>&1') | crontab -";
+                                        var manualEntryCmd = "* * * * * cd " + gravPath + " && bin/grav scheduler 1>> /dev/null 2>&1";
+                                        
+                                        document.addEventListener('DOMContentLoaded', function() {
+                                            var quickInput = document.getElementById('cron-quick-install');
+                                            var manualInput = document.getElementById('cron-manual-entry');
+                                            
+                                            if (quickInput) quickInput.value = quickInstallCmd;
+                                            if (manualInput) manualInput.value = manualEntryCmd;
+                                        });
+                                    })();
+                                    </script>
+                                    
+                                    <div style="margin-bottom: 1rem;">
+                                        <label style="display: block; margin-bottom: 0.25rem; font-weight: 500;">Quick Install (adds to existing crontab):</label>
+                                        <div class="form-input-wrapper form-input-addon-wrapper">
+                                            <input type="text" id="cron-quick-install" readonly value="Loading..." style="font-family: monospace; background: #f5f5f5;">
+                                            <div class="form-input-addon form-input-append" style="cursor: pointer;" onclick="GravClipboard.copy(this)"><i class="fa fa-copy"></i> Copy</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div style="margin-bottom: 1rem;">
+                                        <label style="display: block; margin-bottom: 0.25rem; font-weight: 500;">Manual Entry (add to crontab -e):</label>
+                                        <div class="form-input-wrapper form-input-addon-wrapper">
+                                            <input type="text" id="cron-manual-entry" readonly value="Loading..." style="font-family: monospace; background: #f5f5f5;">
+                                            <div class="form-input-addon form-input-append" style="cursor: pointer;" onclick="GravClipboard.copy(this)"><i class="fa fa-copy"></i> Copy</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="alert alert-info" style="margin-top: 0.5rem;">
+                                        <i class="fa fa-info-circle"></i> <strong>Note:</strong> These commands will run the scheduler every minute. Adjust the path if needed before copying.
+                                    </div>
+                                </div>
+                            markdown: false
+
                         trigger_methods:
                             type: display
                             label: Active Triggers
@@ -607,42 +669,9 @@ form:
                             underline: true
 
                             fields:
-                                webhook_plugin_notice:
-                                    type: conditional
-                                    condition: config.plugins.scheduler-webhook.enabled == false
-                                    
-                                    fields:
-                                        webhook_install:
-                                            type: display
-                                            label:
-                                            content: |
-                                                <div class="alert alert-warning">
-                                                    <strong>Webhook Plugin Required</strong><br>
-                                                    The <code>scheduler-webhook</code> plugin is required for webhook functionality.<br><br>
-                                                    <a class="button button-primary" href="#" 
-                                                       data-remodal-target="add-package" 
-                                                       data-packages-slugs="scheduler-webhook" 
-                                                       data-plugin-action="start-package-installation">
-                                                        <i class="fa fa-download"></i> Install Plugin Now
-                                                    </a>
-                                                    <span class="hint" style="margin-left: 10px;">or run: <code>bin/gpm install scheduler-webhook</code></span>
-                                                </div>
-                                            markdown: false
-                                            
-                                webhook_plugin_ready:
-                                    type: conditional
-                                    condition: config.plugins.scheduler-webhook.enabled == true
-                                    
-                                    fields:
-                                        webhook_ready:
-                                            type: display
-                                            label:
-                                            content: |
-                                                <div class="alert alert-success">
-                                                    <i class="fa fa-check-circle"></i> <strong>Webhook Plugin Ready!</strong><br>
-                                                    The scheduler-webhook plugin is installed and active. Configure your webhook settings below.
-                                                </div>
-                                            markdown: false
+                                webhook_plugin_status:
+                                    type: webhook-status
+                                    label:
                                 modern.webhook.enabled:
                                     type: toggle
                                     label: Enable Webhook Triggers
@@ -771,24 +800,52 @@ form:
                                     type: display
                                     label:
                                     content: |
-                                                <div class="alert alert-info">
-                                                    <h4>How to use webhooks:</h4>
-                                                    <p><strong>Trigger all due jobs (respects schedule):</strong></p>
-                                                    <pre>curl -X POST https://your-site.com/scheduler/webhook \
-                                                      -H "Authorization: Bearer YOUR_TOKEN"</pre>
+                                                <script src="{{ url('plugin://admin/themes/grav/js/clipboard-helper.js') }}"></script>
+                                                <div class="webhook-examples">
+                                                    <script>
+                                                    // Initialize webhook commands when page loads
+                                                    document.addEventListener('DOMContentLoaded', function() {
+                                                        if (typeof GravClipboard !== 'undefined') {
+                                                            GravClipboard.initWebhookCommands();
+                                                        }
+                                                    });
+                                                    </script>
                                                     
-                                                    <p><strong>Force-run specific job (ignores schedule):</strong></p>
-                                                    <pre>curl -X POST https://your-site.com/scheduler/webhook?job=backup \
-                                                      -H "Authorization: Bearer YOUR_TOKEN"</pre>
-                                                    
-                                                    <p><strong>Check health status:</strong></p>
-                                                    <pre>curl https://your-site.com/scheduler/health</pre>
-                                                    
-                                                    <p><strong>GitHub Actions example:</strong></p>
-                                                    <pre>- name: Trigger Scheduler
+                                                    <div class="alert alert-info">
+                                                        <h4>How to use webhooks:</h4>
+                                                        
+                                                        <div style="margin-bottom: 1rem;">
+                                                            <label style="display: block; margin-bottom: 0.25rem; font-weight: 500;">Trigger all due jobs (respects schedule):</label>
+                                                            <div class="form-input-wrapper form-input-addon-wrapper">
+                                                                <textarea id="webhook-all-cmd" readonly rows="2" style="font-family: monospace; background: #f5f5f5; resize: none;">Loading...</textarea>
+                                                                <div class="form-input-addon form-input-append" style="cursor: pointer;" onclick="GravClipboard.copy(this)"><i class="fa fa-copy"></i> Copy</div>
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        <div style="margin-bottom: 1rem;">
+                                                            <label style="display: block; margin-bottom: 0.25rem; font-weight: 500;">Force-run specific job (ignores schedule):</label>
+                                                            <div class="form-input-wrapper form-input-addon-wrapper">
+                                                                <textarea id="webhook-job-cmd" readonly rows="2" style="font-family: monospace; background: #f5f5f5; resize: none;">Loading...</textarea>
+                                                                <div class="form-input-addon form-input-append" style="cursor: pointer;" onclick="GravClipboard.copy(this)"><i class="fa fa-copy"></i> Copy</div>
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        <div style="margin-bottom: 1rem;">
+                                                            <label style="display: block; margin-bottom: 0.25rem; font-weight: 500;">Check health status:</label>
+                                                            <div class="form-input-wrapper form-input-addon-wrapper">
+                                                                <input type="text" id="webhook-health-cmd" readonly value="Loading..." style="font-family: monospace; background: #f5f5f5;">
+                                                                <div class="form-input-addon form-input-append" style="cursor: pointer;" onclick="GravClipboard.copy(this)"><i class="fa fa-copy"></i> Copy</div>
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        <div style="margin-top: 1rem;">
+                                                            <p><strong>GitHub Actions example:</strong></p>
+                                                            <pre>- name: Trigger Scheduler
                                                   run: |
                                                     curl -X POST ${{ secrets.SITE_URL }}/scheduler/webhook \
                                                       -H "Authorization: Bearer ${{ secrets.WEBHOOK_TOKEN }}"</pre>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                     markdown: false
 

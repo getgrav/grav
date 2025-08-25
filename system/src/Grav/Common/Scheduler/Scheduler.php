@@ -307,6 +307,7 @@ class Scheduler
         if ($this->logger) {
             $successCount = 0;
             $failureCount = 0;
+            $failedJobNames = [];
             $executedJobs = array_merge($this->executed_jobs, $this->jobs_run);
             
             foreach ($executedJobs as $job) {
@@ -314,12 +315,14 @@ class Scheduler
                     $successCount++;
                 } else {
                     $failureCount++;
+                    $failedJobNames[] = $job->getId();
                 }
             }
             
             if (count($executedJobs) > 0) {
                 if ($failureCount > 0) {
-                    $this->logger->warning("Scheduler completed: {$successCount} succeeded, {$failureCount} failed");
+                    $failedList = implode(', ', $failedJobNames);
+                    $this->logger->warning("Scheduler completed: {$successCount} succeeded, {$failureCount} failed (failed: {$failedList})");
                 } else {
                     $this->logger->info("Scheduler completed: {$successCount} job(s) succeeded");
                 }
@@ -948,14 +951,26 @@ class Scheduler
         $lastRunFile = $this->status_path . '/last_run.txt';
         $lastRun = file_exists($lastRunFile) ? file_get_contents($lastRunFile) : null;
         
+        // Load all jobs and check how many are currently due
+        $this->loadSavedJobs();
+        $allJobs = $this->getAllJobs();
+        $now = new DateTime('now');
+        $dueJobs = 0;
+        
+        foreach ($allJobs as $job) {
+            if ($job->isDue($now)) {
+                $dueJobs++;
+            }
+        }
+        
         $health = [
             'status' => 'healthy',
             'last_run' => $lastRun,
             'last_run_age' => null,
             'queue_size' => 0,
             'failed_jobs_24h' => 0,
-            'scheduled_jobs' => count($this->getAllJobs()),
-            'modern_features' => $this->modernConfig['enabled'] ?? false,
+            'scheduled_jobs' => count($allJobs),
+            'jobs_due' => $dueJobs,
             'webhook_enabled' => $this->webhookEnabled,
             'health_check_enabled' => $this->healthEnabled,
             'timestamp' => date('c'),
@@ -964,19 +979,20 @@ class Scheduler
         // Calculate last run age
         if ($lastRun) {
             $lastRunTime = new DateTime($lastRun);
-            $now = new DateTime('now');
             $health['last_run_age'] = $now->getTimestamp() - $lastRunTime->getTimestamp();
-            
-            // Determine status based on age
-            if ($health['last_run_age'] < 600) { // Less than 10 minutes
-                $health['status'] = 'healthy';
-            } elseif ($health['last_run_age'] < 3600) { // Less than 1 hour
+        }
+        
+        // Determine status based on whether jobs are due
+        if ($dueJobs > 0) {
+            // Jobs are due but haven't been run
+            if ($health['last_run_age'] === null || $health['last_run_age'] > 300) { // No run or older than 5 minutes
                 $health['status'] = 'warning';
-            } else {
-                $health['status'] = 'critical';
+                $health['message'] = $dueJobs . ' job(s) are due to run';
             }
         } else {
-            $health['status'] = 'unknown';
+            // No jobs are due - this is healthy
+            $health['status'] = 'healthy';
+            $health['message'] = 'No jobs currently due';
         }
         
         // Add queue stats if available
