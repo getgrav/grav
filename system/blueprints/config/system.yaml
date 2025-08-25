@@ -1254,8 +1254,8 @@ form:
             images.adapter:
               type: select
               size: small
-              label: PLUGIN_ADMIN.IMAGES_ADAPTER
-              help: PLUGIN_ADMIN.IMAGES_ADAPTER_HELP
+              label: PLUGIN_ADMIN.IMAGE_ADAPTER
+              help: PLUGIN_ADMIN.IMAGE_ADAPTER_HELP
               highlight: gd
               options:
                   gd: GD (PHP built-in)
