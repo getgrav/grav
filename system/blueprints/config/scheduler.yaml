@@ -4,74 +4,850 @@ form:
     validation: loose
 
     fields:
+        scheduler_tabs:
+            type: tabs
+            active: 1
 
-        status_title:
-            type: section
-            title: PLUGIN_ADMIN.SCHEDULER_STATUS
-            underline: true
+            fields:
+                status_tab:
+                    type: tab
+                    title: PLUGIN_ADMIN.SCHEDULER_STATUS
 
-        status:
-            type: cronstatus
-            validate:
-                type: commalist
+                    fields:
+                        status_title:
+                            type: section
+                            title: PLUGIN_ADMIN.SCHEDULER_STATUS
+                            underline: true
 
-        jobs_title:
-            type: section
-            title: PLUGIN_ADMIN.SCHEDULER_JOBS
-            underline: true
+                        status:
+                            type: cronstatus
+                            validate:
+                                type: commalist
+                                
+                        webhook_status_override:
+                            type: display
+                            label:
+                            content: |
+                                <script>
+                                (function() {
+                                    function updateSchedulerStatus() {
+                                        // Find all notice bars
+                                        var notices = document.querySelectorAll('.notice');
+                                        var webhookStatusChecked = false;
+                                        
+                                        // Check for modern scheduler and webhook settings
+                                        fetch(window.location.origin + '/grav-editor-pro/scheduler/health')
+                                            .then(response => response.json())
+                                            .then(data => {
+                                                if (data.webhook_enabled) {
+                                                    notices.forEach(function(notice) {
+                                                        if (notice.textContent.includes('Not Enabled for user:')) {
+                                                            // This is the cron status notice - replace it
+                                                            notice.className = 'notice info';
+                                                            notice.innerHTML = '<i class="fa fa-fw fa-check-circle"></i> <strong>Webhook Active</strong> - Scheduler can be triggered via webhook. Cron is not configured.';
+                                                        }
+                                                    });
+                                                    
+                                                    // Also update the main status if it exists
+                                                    var statusDiv = document.querySelector('.cronstatus-status');
+                                                    if (statusDiv && statusDiv.textContent.includes('Not Enabled')) {
+                                                        statusDiv.className = 'cronstatus-status success';
+                                                        statusDiv.innerHTML = '<i class="fa fa-fw fa-check"></i> Webhook Ready';
+                                                    }
+                                                }
+                                            })
+                                            .catch(error => {
+                                                console.log('Webhook status check failed:', error);
+                                            });
+                                    }
+                                    
+                                    // Run on page load
+                                    if (document.readyState === 'loading') {
+                                        document.addEventListener('DOMContentLoaded', updateSchedulerStatus);
+                                    } else {
+                                        updateSchedulerStatus();
+                                    }
+                                    
+                                    // Also run after a short delay to catch any late-rendered elements
+                                    setTimeout(updateSchedulerStatus, 500);
+                                })();
+                                </script>
+                            markdown: false
+                                
+                        status_enhanced:
+                            type: display
+                            label:
+                            content: |
+                                <script>
+                                document.addEventListener('DOMContentLoaded', function() {
+                                    // Check if webhook is enabled
+                                    var webhookEnabled = document.querySelector('[name="data[scheduler][modern][webhook][enabled]"]:checked');
+                                    var statusDiv = document.querySelector('.cronstatus-status');
+                                    
+                                    // Also find the parent notice bar
+                                    var noticeBar = document.querySelector('.notice.alert');
+                                    
+                                    if (statusDiv) {
+                                        var currentStatus = statusDiv.textContent || statusDiv.innerText;
+                                        var cronReady = currentStatus.includes('Ready');
+                                        var cronNotEnabled = currentStatus.includes('Not Enabled');
+                                        
+                                        // Check if scheduler-webhook plugin exists
+                                        var webhookPluginInstalled = false;
+                                        fetch(window.location.origin + '/grav-editor-pro/scheduler/health')
+                                            .then(response => response.json())
+                                            .then(data => {
+                                                webhookPluginInstalled = true;
+                                                updateStatusDisplay(data);
+                                            })
+                                            .catch(error => {
+                                                updateStatusDisplay(null);
+                                            });
+                                        
+                                        function updateStatusDisplay(healthData) {
+                                            var isWebhookEnabled = webhookEnabled && webhookEnabled.value == '1';
+                                            var isWebhookReady = webhookPluginInstalled && isWebhookEnabled && healthData && healthData.webhook_enabled;
+                                            
+                                            // Update the main status text
+                                            var mainStatusText = '';
+                                            var mainStatusClass = '';
+                                            
+                                            if (cronReady && isWebhookReady) {
+                                                mainStatusText = 'Cron and Webhook Ready';
+                                                mainStatusClass = 'success';
+                                            } else if (cronReady) {
+                                                mainStatusText = 'Cron Ready';
+                                                mainStatusClass = 'success';
+                                            } else if (isWebhookReady) {
+                                                mainStatusText = 'Webhook Ready (No Cron)';
+                                                mainStatusClass = 'success'; // Changed from warning to success
+                                            } else if (cronNotEnabled && !isWebhookReady) {
+                                                mainStatusText = 'Not Configured';
+                                                mainStatusClass = 'error';
+                                            } else {
+                                                mainStatusText = 'Configuration Pending';
+                                                mainStatusClass = 'warning';
+                                            }
+                                            
+                                            // Update the notice bar if webhooks are ready
+                                            if (noticeBar && isWebhookReady) {
+                                                // Change from error (red) to success (green) or info (blue)
+                                                noticeBar.classList.remove('alert');
+                                                noticeBar.classList.add('info');
+                                                
+                                                var noticeIcon = noticeBar.querySelector('i.fa');
+                                                if (noticeIcon) {
+                                                    noticeIcon.classList.remove('fa-times-circle');
+                                                    noticeIcon.classList.add('fa-check-circle');
+                                                }
+                                                
+                                                var noticeText = noticeBar.querySelector('strong') || noticeBar;
+                                                var username = noticeText.textContent.match(/user:\s*(\w+)/);
+                                                if (username) {
+                                                    noticeText.innerHTML = 'Webhook Ready for user: <b>' + username[1] + '</b> (Cron not configured)';
+                                                } else {
+                                                    noticeText.innerHTML = mainStatusText;
+                                                }
+                                            }
+                                            
+                                            // Update the main status div
+                                            if (statusDiv) {
+                                                statusDiv.innerHTML = '<i class="fa fa-fw fa-' + 
+                                                    (mainStatusClass === 'success' ? 'check' : mainStatusClass === 'warning' ? 'exclamation' : 'times') + 
+                                                    '"></i> ' + mainStatusText;
+                                                statusDiv.className = 'cronstatus-status ' + mainStatusClass;
+                                            }
+                                            
+                                            // Update install instructions button/content
+                                            var installButton = document.querySelector('.cronstatus-install-button');
+                                            var installDiv = document.querySelector('.cronstatus-install');
+                                            
+                                            if (installDiv) {
+                                                var installHtml = '<div class="alert alert-info">';
+                                                installHtml += '<h4>Setup Instructions:</h4>';
+                                                
+                                                var hasInstructions = false;
+                                                
+                                                // Cron setup
+                                                if (!cronReady) {
+                                                    installHtml += '<p><strong>Option 1: Traditional Cron</strong><br>';
+                                                    installHtml += 'Run: <code>bin/grav scheduler --install</code><br>';
+                                                    installHtml += 'This will add a cron job that runs every minute.</p>';
+                                                    hasInstructions = true;
+                                                }
+                                                
+                                                // Webhook setup
+                                                if (!webhookPluginInstalled) {
+                                                    installHtml += '<p><strong>Option 2: Webhook Support</strong><br>';
+                                                    installHtml += '1. Install plugin: <code>bin/gpm install scheduler-webhook</code><br>';
+                                                    installHtml += '2. Configure webhook token in Advanced Features tab<br>';
+                                                    installHtml += '3. Use webhook URL in your CI/CD or cloud scheduler</p>';
+                                                    hasInstructions = true;
+                                                } else if (!isWebhookEnabled) {
+                                                    installHtml += '<p><strong>Webhook Plugin Installed</strong><br>';
+                                                    installHtml += 'Enable webhooks in Advanced Features tab and set a secure token.</p>';
+                                                    hasInstructions = true;
+                                                } else if (isWebhookReady) {
+                                                    installHtml += '<p><strong>✅ Webhook is Active!</strong><br>';
+                                                    installHtml += 'Trigger URL: <code>' + window.location.origin + '/grav-editor-pro/scheduler/webhook</code><br>';
+                                                    installHtml += 'Use with Authorization header: <code>Bearer YOUR_TOKEN</code></p>';
+                                                    
+                                                    if (!cronReady) {
+                                                        installHtml += '<p class="text-muted"><small>Note: No cron job configured. Scheduler runs only via webhook triggers.</small></p>';
+                                                    }
+                                                }
+                                                
+                                                if (!hasInstructions && cronReady) {
+                                                    installHtml += '<p><strong>✅ Cron is configured and ready!</strong><br>';
+                                                    installHtml += 'The scheduler runs automatically every minute via system cron.</p>';
+                                                    
+                                                }
+                                                
+                                                installHtml += '</div>';
+                                                installDiv.innerHTML = installHtml;
+                                                
+                                                // Update button text based on status
+                                                if (installButton) {
+                                                    if (cronReady && isWebhookReady) {
+                                                        installButton.innerHTML = '<i class="fa fa-info-circle"></i> Configuration Details';
+                                                    } else if (cronReady || isWebhookReady) {
+                                                        installButton.innerHTML = '<i class="fa fa-plus-circle"></i> Add More Triggers';
+                                                    } else {
+                                                        installButton.innerHTML = '<i class="fa fa-exclamation-triangle"></i> Install Instructions';
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                });
+                                </script>
 
-        custom_jobs:
-          type: list
-          style: vertical
-          label:
-          classes: cron-job-list compact
-          key: id
-          fields:
-            .id:
-              type: key
-              label: ID
-              placeholder: 'process-name'
-              validate:
-                  required: true
-                  pattern: '[a-zа-я0-9_\-]+'
-                  max: 20
-                  message: 'ID must be lowercase with dashes/underscores only and less than 20 characters'
-            .command:
-              type: text
-              label: PLUGIN_ADMIN.COMMAND
-              placeholder: 'ls'
-              validate:
-                  required: true
-            .args:
-              type: text
-              label: PLUGIN_ADMIN.EXTRA_ARGUMENTS
-              placeholder: '-lah'
-            .at:
-              type: text
-              wrapper_classes: cron-selector
-              label: PLUGIN_ADMIN.SCHEDULER_RUNAT
-              help: PLUGIN_ADMIN.SCHEDULER_RUNAT_HELP
-              placeholder: '* * * * *'
-              validate:
-                  required: true
-            .output:
-              type: text
-              label: PLUGIN_ADMIN.SCHEDULER_OUTPUT
-              help: PLUGIN_ADMIN.SCHEDULER_OUTPUT_HELP
-              placeholder: 'logs/ls-cron.out'
-            .output_mode:
-              type: select
-              label: PLUGIN_ADMIN.SCHEDULER_OUTPUT_TYPE
-              help: PLUGIN_ADMIN.SCHEDULER_OUTPUT_TYPE_HELP
-              default: append
-              options:
-                  append: Append
-                  overwrite: Overwrite
-            .email:
-                type: text
-                label: PLUGIN_ADMIN.SCHEDULER_EMAIL
-                help: PLUGIN_ADMIN.SCHEDULER_EMAIL_HELP
-                placeholder: 'notifications@yoursite.com'
+                        modern_health:
+                            type: display
+                            label: Health Status
+                            content: |
+                                <div id="scheduler-health-status">
+                                    <div class="text-muted">Checking health...</div>
+                                </div>
+                                <script>
+                                (function() {
+                                            function loadHealthStatus() {
+                                                fetch(window.location.origin + '/grav-editor-pro/scheduler/health')
+                                                    .then(response => response.json())
+                                                    .then(data => {
+                                                        var statusEl = document.getElementById('scheduler-health-status');
+                                                        if (!statusEl) return;
+                                                        
+                                                        // Modern card-based layout
+                                                        var statusColor = '#6c757d';
+                                                        var statusLabel = data.status || 'unknown';
+                                                        if (data.status === 'healthy') statusColor = '#28a745';
+                                                        else if (data.status === 'warning') statusColor = '#ffc107';
+                                                        else if (data.status === 'critical') statusColor = '#dc3545';
+                                                        
+                                                        var html = '<div style="display: flex; flex-direction: column; gap: 1rem;">';
+                                                        
+                                                        // Status card
+                                                        html += '<div style="display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; background: linear-gradient(135deg, #f8f9fa 0%, #fff 100%); border-radius: 6px; border: 1px solid #e9ecef; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">';
+                                                        html += '<span style="font-weight: 500; color: #495057;">Status:</span>';
+                                                        html += '<span style="background: ' + statusColor + '; color: white; padding: 0.375rem 0.75rem; font-size: 0.875rem; font-weight: 500; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.025em;">' + statusLabel + '</span>';
+                                                        html += '</div>';
+                                                        
+                                                        // Info grid
+                                                        html += '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">';
+                                                        
+                                                        // Last run card
+                                                        html += '<div style="background: white; border: 1px solid #e9ecef; border-radius: 6px; padding: 0.75rem; box-shadow: 0 1px 2px rgba(0,0,0,0.03);">';
+                                                        html += '<div style="color: #6c757d; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.25rem;">Last Run</div>';
+                                                        if (data.last_run) {
+                                                            var age = data.last_run_age;
+                                                            var ageText = 'just now';
+                                                            if (age > 86400) {
+                                                                ageText = Math.floor(age / 86400) + ' day(s) ago';
+                                                            } else if (age > 3600) {
+                                                                ageText = Math.floor(age / 3600) + ' hour(s) ago';
+                                                            } else if (age > 60) {
+                                                                ageText = Math.floor(age / 60) + ' minute(s) ago';
+                                                            } else if (age > 0) {
+                                                                ageText = age + ' second(s) ago';
+                                                            }
+                                                            html += '<div style="font-size: 1rem; color: #212529; font-weight: 500;">' + ageText + '</div>';
+                                                        } else {
+                                                            html += '<div style="font-size: 1rem; color: #6c757d;">Never</div>';
+                                                        }
+                                                        html += '</div>';
+                                                        
+                                                        // Jobs count card
+                                                        html += '<div style="background: white; border: 1px solid #e9ecef; border-radius: 6px; padding: 0.75rem; box-shadow: 0 1px 2px rgba(0,0,0,0.03);">';
+                                                        html += '<div style="color: #6c757d; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.25rem;">Scheduled Jobs</div>';
+                                                        html += '<div style="font-size: 1rem; color: #212529; font-weight: 500;">' + (data.scheduled_jobs || 0) + '</div>';
+                                                        html += '</div>';
+                                                        
+                                                        html += '</div>'; // Close grid
+                                                        
+                                                        // Additional info if available
+                                                        if (data.modern_features && data.queue_size !== undefined) {
+                                                            html += '<div style="background: white; border: 1px solid #e9ecef; border-radius: 6px; padding: 0.75rem; box-shadow: 0 1px 2px rgba(0,0,0,0.03);">';
+                                                            html += '<span style="color: #6c757d; font-size: 0.875rem;">Queue Size: </span>';
+                                                            html += '<span style="font-weight: 500;">' + data.queue_size + '</span>';
+                                                            html += '</div>';
+                                                        }
+                                                        
+                                                        // Failed jobs warning
+                                                        if (data.failed_jobs_24h > 0) {
+                                                            html += '<div style="background: #fff5f5; border: 1px solid #feb2b2; border-radius: 6px; padding: 0.75rem; color: #c53030;">';
+                                                            html += '<strong>⚠️ Failed Jobs (24h):</strong> ' + data.failed_jobs_24h;
+                                                            html += '</div>';
+                                                        }
+                                                        
+                                                        html += '</div>'; // Close main container
+                                                        statusEl.innerHTML = html;
+                                                    })
+                                                    .catch(error => {
+                                                        var statusEl = document.getElementById('scheduler-health-status');
+                                                        if (statusEl) {
+                                                            statusEl.innerHTML = '<div class="alert alert-warning">Unable to fetch health status. Ensure scheduler-webhook plugin is installed.</div>';
+                                                        }
+                                                    });
+                                            }
+                                            
+                                            // Load on page ready
+                                            if (document.readyState === 'loading') {
+                                                document.addEventListener('DOMContentLoaded', loadHealthStatus);
+                                            } else {
+                                                loadHealthStatus();
+                                            }
+                                            
+                                    // Refresh every 30 seconds
+                                    setInterval(loadHealthStatus, 30000);
+                                })();
+                                </script>
+                            markdown: false
+
+                        cron_setup:
+                            type: display
+                            label: Cron Setup Commands
+                            content: |
+                                <script src="{{ url('plugin://admin/themes/grav/js/clipboard-helper.js') }}"></script>
+                                <div class="cron-setup-commands">
+                                    <script>
+                                    
+                                    (function() {
+                                        // Get the Grav root path from the current location
+                                        var pathParts = window.location.pathname.split('/');
+                                        var gravPath = '/path/to/grav'; // Default fallback
+                                        
+                                        // Try to determine actual path (assuming we're in /admin or similar)
+                                        if (typeof GravAdmin !== 'undefined' && GravAdmin.config && GravAdmin.config.base_url_relative) {
+                                            // Remove admin path to get to root
+                                            gravPath = window.location.pathname.replace(/\/admin.*$/, '') || '/';
+                                            if (gravPath === '/') {
+                                                gravPath = '/var/www/html'; // Common server path
+                                            }
+                                        }
+                                        
+                                        // For local development, use the actual path
+                                        if (window.location.hostname === 'trilby.local') {
+                                            gravPath = '/Users/rhuk/workspace/trilby/grav-editor-pro';
+                                        }
+                                        
+                                        var quickInstallCmd = "(crontab -l 2>/dev/null; echo '* * * * * cd " + gravPath + " && bin/grav scheduler 1>> /dev/null 2>&1') | crontab -";
+                                        var manualEntryCmd = "* * * * * cd " + gravPath + " && bin/grav scheduler 1>> /dev/null 2>&1";
+                                        
+                                        document.addEventListener('DOMContentLoaded', function() {
+                                            var quickInput = document.getElementById('cron-quick-install');
+                                            var manualInput = document.getElementById('cron-manual-entry');
+                                            
+                                            if (quickInput) quickInput.value = quickInstallCmd;
+                                            if (manualInput) manualInput.value = manualEntryCmd;
+                                        });
+                                    })();
+                                    </script>
+                                    
+                                    <div style="margin-bottom: 1rem;">
+                                        <label style="display: block; margin-bottom: 0.25rem; font-weight: 500;">Quick Install (adds to existing crontab):</label>
+                                        <div class="form-input-wrapper form-input-addon-wrapper">
+                                            <input type="text" id="cron-quick-install" readonly value="Loading..." style="font-family: monospace; background: #f5f5f5;">
+                                            <div class="form-input-addon form-input-append" style="cursor: pointer;" onclick="GravClipboard.copy(this)"><i class="fa fa-copy"></i> Copy</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div style="margin-bottom: 1rem;">
+                                        <label style="display: block; margin-bottom: 0.25rem; font-weight: 500;">Manual Entry (add to crontab -e):</label>
+                                        <div class="form-input-wrapper form-input-addon-wrapper">
+                                            <input type="text" id="cron-manual-entry" readonly value="Loading..." style="font-family: monospace; background: #f5f5f5;">
+                                            <div class="form-input-addon form-input-append" style="cursor: pointer;" onclick="GravClipboard.copy(this)"><i class="fa fa-copy"></i> Copy</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="alert alert-info" style="margin-top: 0.5rem;">
+                                        <i class="fa fa-info-circle"></i> <strong>Note:</strong> These commands will run the scheduler every minute. Adjust the path if needed before copying.
+                                    </div>
+                                </div>
+                            markdown: false
+
+                        trigger_methods:
+                            type: display
+                            label: Active Triggers
+                            content: |
+                                <div id="scheduler-triggers">
+                                    <div class="text-muted">Checking triggers...</div>
+                                </div>
+                                <script>
+                                (function() {
+                                            function loadTriggers() {
+                                                // Check cron status from the main status field
+                                                var cronReady = false;
+                                                var statusDiv = document.querySelector('.cronstatus-status');
+                                                if (statusDiv) {
+                                                    var statusText = statusDiv.textContent || statusDiv.innerText;
+                                                    cronReady = statusText.includes('Ready');
+                                                }
+                                                
+                                                // Check webhook status
+                                                fetch(window.location.origin + '/grav-editor-pro/scheduler/health')
+                                                    .then(response => response.json())
+                                                    .then(data => {
+                                                        var triggersEl = document.getElementById('scheduler-triggers');
+                                                        if (!triggersEl) return;
+                                                        
+                                                        var html = '<div style="display: flex; flex-direction: column; gap: 0.5rem;">';
+                                                        
+                                                        // Cron trigger card
+                                                        var cronIcon = cronReady ? '✅' : '❌';
+                                                        var cronStatus = cronReady ? 'Active' : 'Not Configured';
+                                                        var cronStatusColor = cronReady ? '#28a745' : '#6c757d';
+                                                        var cardBg = cronReady ? '#f8f9fa' : '#fff';
+                                                        
+                                                        html += '<div style="display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; background: ' + cardBg + '; border: 1px solid #e9ecef; border-radius: 4px;">';
+                                                        html += '<div style="display: flex; align-items: center; gap: 0.75rem;">';
+                                                        html += '<span style="font-size: 1.25rem; line-height: 1;">' + cronIcon + '</span>';
+                                                        html += '<span style="font-weight: 500; color: #212529; font-size: 1rem;">Cron:</span>';
+                                                        html += '</div>';
+                                                        html += '<span style="background: ' + cronStatusColor + '; color: white; padding: 0.25rem 0.75rem; font-size: 0.875rem; font-weight: 500; border-radius: 3px; text-transform: uppercase; letter-spacing: 0.025em;">' + cronStatus + '</span>';
+                                                        html += '</div>';
+                                                        
+                                                        // Webhook trigger card
+                                                        if (data.webhook_enabled) {
+                                                            html += '<div style="display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 4px;">';
+                                                            html += '<div style="display: flex; align-items: center; gap: 0.75rem;">';
+                                                            html += '<span style="font-size: 1.25rem; line-height: 1;">✅</span>';
+                                                            html += '<span style="font-weight: 500; color: #212529; font-size: 1rem;">Webhook:</span>';
+                                                            html += '</div>';
+                                                            html += '<span style="background: #28a745; color: white; padding: 0.25rem 0.75rem; font-size: 0.875rem; font-weight: 500; border-radius: 3px; text-transform: uppercase; letter-spacing: 0.025em;">ACTIVE</span>';
+                                                            html += '</div>';
+                                                        } else {
+                                                            // Show webhook as not configured/disabled
+                                                            html += '<div style="display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; background: #fff; border: 1px solid #e9ecef; border-radius: 4px;">';
+                                                            html += '<div style="display: flex; align-items: center; gap: 0.75rem;">';
+                                                            html += '<span style="font-size: 1.25rem; line-height: 1;">⚠️</span>';
+                                                            html += '<span style="font-weight: 500; color: #212529; font-size: 1rem;">Webhook:</span>';
+                                                            html += '</div>';
+                                                            html += '<span style="background: #ffc107; color: #212529; padding: 0.25rem 0.75rem; font-size: 0.875rem; font-weight: 500; border-radius: 3px; text-transform: uppercase; letter-spacing: 0.025em;">DISABLED</span>';
+                                                            html += '</div>';
+                                                        }
+                                                        
+                                                        html += '</div>';
+                                                        
+                                                        // Add warning if no triggers active
+                                                        if (!cronReady && !data.webhook_enabled) {
+                                                            html += '<div class="alert alert-warning" style="margin-top: 1rem;"><i class="fa fa-exclamation-triangle"></i> No triggers active! Configure cron or enable webhooks.</div>';
+                                                        }
+                                                        
+                                                        triggersEl.innerHTML = html;
+                                                    })
+                                                    .catch(error => {
+                                                        var triggersEl = document.getElementById('scheduler-triggers');
+                                                        if (triggersEl) {
+                                                            // Show just cron status if health endpoint not available
+                                                            var html = '<ul class="list-unstyled">';
+                                                            if (cronReady) {
+                                                                html += '<li>✅ <strong>Cron:</strong> <span class="badge badge-success">Active</span></li>';
+                                                            } else {
+                                                                html += '<li>❌ <strong>Cron:</strong> <span class="badge badge-secondary">Not Configured</span></li>';
+                                                            }
+                                                            html += '<li>⚠️ <strong>Webhook:</strong> <span class="badge badge-secondary">Plugin Not Installed</span></li>';
+                                                            html += '</ul>';
+                                                            triggersEl.innerHTML = html;
+                                                        }
+                                                    });
+                                            }
+                                            
+                                            // Load on page ready
+                                            if (document.readyState === 'loading') {
+                                                document.addEventListener('DOMContentLoaded', loadTriggers);
+                                            } else {
+                                                loadTriggers();
+                                    }
+                                })();
+                                </script>
+                            markdown: false
+
+                jobs_tab:
+                    type: tab
+                    title: PLUGIN_ADMIN.SCHEDULER_JOBS
+
+                    fields:
+                        jobs_title:
+                            type: section
+                            title: PLUGIN_ADMIN.SCHEDULER_JOBS
+                            underline: true
+
+                        custom_jobs:
+                            type: list
+                            style: vertical
+                            label:
+                            classes: cron-job-list compact
+                            key: id
+                            fields:
+                                .id:
+                                    type: key
+                                    label: ID
+                                    placeholder: 'process-name'
+                                    validate:
+                                        required: true
+                                        pattern: '[a-zа-я0-9_\-]+'
+                                        max: 20
+                                        message: 'ID must be lowercase with dashes/underscores only and less than 20 characters'
+                                .command:
+                                    type: text
+                                    label: PLUGIN_ADMIN.COMMAND
+                                    placeholder: 'ls'
+                                    validate:
+                                        required: true
+                                .args:
+                                    type: text
+                                    label: PLUGIN_ADMIN.EXTRA_ARGUMENTS
+                                    placeholder: '-lah'
+                                .at:
+                                    type: text
+                                    wrapper_classes: cron-selector
+                                    label: PLUGIN_ADMIN.SCHEDULER_RUNAT
+                                    help: PLUGIN_ADMIN.SCHEDULER_RUNAT_HELP
+                                    placeholder: '* * * * *'
+                                    validate:
+                                        required: true
+                                .output:
+                                    type: text
+                                    label: PLUGIN_ADMIN.SCHEDULER_OUTPUT
+                                    help: PLUGIN_ADMIN.SCHEDULER_OUTPUT_HELP
+                                    placeholder: 'logs/ls-cron.out'
+                                .output_mode:
+                                    type: select
+                                    label: PLUGIN_ADMIN.SCHEDULER_OUTPUT_TYPE
+                                    help: PLUGIN_ADMIN.SCHEDULER_OUTPUT_TYPE_HELP
+                                    default: append
+                                    options:
+                                        append: Append
+                                        overwrite: Overwrite
+                                .email:
+                                    type: text
+                                    label: PLUGIN_ADMIN.SCHEDULER_EMAIL
+                                    help: PLUGIN_ADMIN.SCHEDULER_EMAIL_HELP
+                                    placeholder: 'notifications@yoursite.com'
+
+                modern_tab:
+                    type: tab
+                    title: Advanced Features
+
+                    fields:
+                        workers_section:
+                            type: section
+                            title: Worker Configuration
+                            underline: true
+
+                            fields:
+                                modern.workers:
+                                    type: number
+                                    label: Concurrent Workers
+                                    help: Number of jobs that can run simultaneously (1 = sequential)
+                                    default: 4
+                                    size: x-small
+                                    append: workers
+                                    validate:
+                                        type: int
+                                        min: 1
+                                        max: 10
+
+                        retry_section:
+                            type: section
+                            title: Retry Configuration
+                            underline: true
+
+                            fields:
+                                modern.retry.enabled:
+                                    type: toggle
+                                    label: Enable Job Retry
+                                    help: Automatically retry failed jobs
+                                    highlight: 1
+                                    default: 1
+                                    options:
+                                        1: PLUGIN_ADMIN.ENABLED
+                                        0: PLUGIN_ADMIN.DISABLED
+                                    validate:
+                                        type: bool
+
+                                modern.retry.max_attempts:
+                                    type: number
+                                    label: Maximum Retry Attempts
+                                    help: Maximum number of times to retry a failed job
+                                    default: 3
+                                    size: x-small
+                                    append: retries
+                                    validate:
+                                        type: int
+                                        min: 1
+                                        max: 10
+
+                                modern.retry.backoff:
+                                    type: select
+                                    label: Retry Backoff Strategy
+                                    help: How to calculate delay between retries
+                                    default: exponential
+                                    options:
+                                        linear: Linear (fixed delay)
+                                        exponential: Exponential (increasing delay)
+
+                        queue_section:
+                            type: section
+                            title: Queue Configuration
+                            underline: true
+
+                            fields:
+                                modern.queue.path:
+                                    type: text
+                                    label: Queue Storage Path
+                                    help: Where to store queued jobs
+                                    default: 'user-data://scheduler/queue'
+                                    placeholder: 'user-data://scheduler/queue'
+
+                                modern.queue.max_size:
+                                    type: number
+                                    label: Maximum Queue Size
+                                    help: Maximum number of jobs that can be queued
+                                    default: 1000
+                                    size: x-small
+                                    append: jobs
+                                    validate:
+                                        type: int
+                                        min: 100
+                                        max: 10000
+
+                        history_section:
+                            type: section
+                            title: Job History
+                            underline: true
+
+                            fields:
+                                modern.history.enabled:
+                                    type: toggle
+                                    label: Enable Job History
+                                    help: Track execution history for all jobs
+                                    highlight: 1
+                                    default: 1
+                                    options:
+                                        1: PLUGIN_ADMIN.ENABLED
+                                        0: PLUGIN_ADMIN.DISABLED
+                                    validate:
+                                        type: bool
+
+                                modern.history.retention_days:
+                                    type: number
+                                    label: History Retention (days)
+                                    help: How long to keep job history
+                                    default: 30
+                                    size: x-small
+                                    append: days
+                                    validate:
+                                        type: int
+                                        min: 1
+                                        max: 365
+
+                        webhook_section:
+                            type: section
+                            title: Webhook Configuration
+                            underline: true
+
+                            fields:
+                                webhook_plugin_status:
+                                    type: webhook-status
+                                    label:
+                                modern.webhook.enabled:
+                                    type: toggle
+                                    label: Enable Webhook Triggers
+                                    help: Allow triggering scheduler via HTTP webhook
+                                    highlight: 0
+                                    default: 0
+                                    options:
+                                        1: PLUGIN_ADMIN.ENABLED
+                                        0: PLUGIN_ADMIN.DISABLED
+                                    validate:
+                                        type: bool
+
+                                modern.webhook.token:
+                                    type: text
+                                    label: Webhook Security Token
+                                    help: Secret token for authenticating webhook requests. Keep this secret!
+                                    placeholder: 'Click Generate to create a secure token'
+                                    autocomplete: 'off'
+                                            
+                                webhook_token_generate:
+                                    type: display
+                                    label:
+                                    content: |
+                                                <div style="margin-top: -10px; margin-bottom: 15px;">
+                                                    <button type="button" class="button button-primary" onclick="generateWebhookToken()">
+                                                        <i class="fa fa-refresh"></i> Generate Token
+                                                    </button>
+                                                </div>
+                                                <script>
+                                                function generateWebhookToken() {
+                                                    try {
+                                                        // Generate token
+                                                        const array = new Uint8Array(32);
+                                                        crypto.getRandomValues(array);
+                                                        const token = Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+                                                        
+                                                        // Try multiple selectors to find the field
+                                                        let field = document.querySelector('[name="data[scheduler][modern][webhook][token]"]');
+                                                        if (!field) {
+                                                            field = document.querySelector('input[name*="webhook][token"]');
+                                                        }
+                                                        if (!field) {
+                                                            field = document.getElementById('scheduler-modern-webhook-token');
+                                                        }
+                                                        if (!field) {
+                                                            // Look for any text input in the webhook section
+                                                            const webhookSection = document.querySelector('.webhook_section');
+                                                            if (webhookSection) {
+                                                                const inputs = webhookSection.querySelectorAll('input[type="text"]');
+                                                                // Find the token field by checking for the placeholder
+                                                                for (let input of inputs) {
+                                                                    if (input.placeholder && input.placeholder.includes('Generate')) {
+                                                                        field = input;
+                                                                        break;
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                        
+                                                        if (field) {
+                                                            field.value = token;
+                                                            field.dispatchEvent(new Event('change', { bubbles: true }));
+                                                            field.dispatchEvent(new Event('input', { bubbles: true }));
+                                                            // Flash the field to show it was updated
+                                                            field.style.backgroundColor = '#d4edda';
+                                                            setTimeout(function() {
+                                                                field.style.backgroundColor = '';
+                                                            }, 500);
+                                                            // Also try to trigger Grav's form change detection
+                                                            if (window.jQuery) {
+                                                                jQuery(field).trigger('change');
+                                                            }
+                                                        } else {
+                                                            // Log more debugging info
+                                                            console.error('Token field not found. Looking for input fields...');
+                                                            console.log('All inputs:', document.querySelectorAll('input[type="text"]'));
+                                                            alert('Could not find the token field. Please ensure you are in the Advanced Features tab and the Webhook Configuration section is visible.');
+                                                        }
+                                                    } catch (e) {
+                                                        console.error('Error generating token:', e);
+                                                        alert('Error generating token: ' + e.message);
+                                                    }
+                                                }
+                                                </script>
+                                    markdown: false
+
+                                modern.webhook.path:
+                                    type: text
+                                    label: Webhook Path
+                                    help: URL path for webhook endpoint
+                                    default: '/scheduler/webhook'
+                                    placeholder: '/scheduler/webhook'
+
+                        health_section:
+                            type: section
+                            title: Health Check Configuration
+                            underline: true
+
+                            fields:
+                                modern.health.enabled:
+                                    type: toggle
+                                    label: Enable Health Check
+                                    help: Provide health status endpoint for monitoring
+                                    highlight: 1
+                                    default: 1
+                                    options:
+                                        1: PLUGIN_ADMIN.ENABLED
+                                        0: PLUGIN_ADMIN.DISABLED
+                                    validate:
+                                        type: bool
+
+                                modern.health.path:
+                                    type: text
+                                    label: Health Check Path
+                                    help: URL path for health check endpoint
+                                    default: '/scheduler/health'
+                                    placeholder: '/scheduler/health'
+                                            
+                        webhook_usage:
+                            type: section
+                            title: Usage Examples
+                            underline: true
+                            
+                            fields:
+                                webhook_examples:
+                                    type: display
+                                    label:
+                                    content: |
+                                                <script src="{{ url('plugin://admin/themes/grav/js/clipboard-helper.js') }}"></script>
+                                                <div class="webhook-examples">
+                                                    <script>
+                                                    // Initialize webhook commands when page loads
+                                                    document.addEventListener('DOMContentLoaded', function() {
+                                                        if (typeof GravClipboard !== 'undefined') {
+                                                            GravClipboard.initWebhookCommands();
+                                                        }
+                                                    });
+                                                    </script>
+                                                    
+                                                    <div class="alert alert-info">
+                                                        <h4>How to use webhooks:</h4>
+                                                        
+                                                        <div style="margin-bottom: 1rem;">
+                                                            <label style="display: block; margin-bottom: 0.25rem; font-weight: 500;">Trigger all due jobs (respects schedule):</label>
+                                                            <div class="form-input-wrapper form-input-addon-wrapper">
+                                                                <textarea id="webhook-all-cmd" readonly rows="2" style="font-family: monospace; background: #f5f5f5; resize: none;">Loading...</textarea>
+                                                                <div class="form-input-addon form-input-append" style="cursor: pointer;" onclick="GravClipboard.copy(this)"><i class="fa fa-copy"></i> Copy</div>
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        <div style="margin-bottom: 1rem;">
+                                                            <label style="display: block; margin-bottom: 0.25rem; font-weight: 500;">Force-run specific job (ignores schedule):</label>
+                                                            <div class="form-input-wrapper form-input-addon-wrapper">
+                                                                <textarea id="webhook-job-cmd" readonly rows="2" style="font-family: monospace; background: #f5f5f5; resize: none;">Loading...</textarea>
+                                                                <div class="form-input-addon form-input-append" style="cursor: pointer;" onclick="GravClipboard.copy(this)"><i class="fa fa-copy"></i> Copy</div>
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        <div style="margin-bottom: 1rem;">
+                                                            <label style="display: block; margin-bottom: 0.25rem; font-weight: 500;">Check health status:</label>
+                                                            <div class="form-input-wrapper form-input-addon-wrapper">
+                                                                <input type="text" id="webhook-health-cmd" readonly value="Loading..." style="font-family: monospace; background: #f5f5f5;">
+                                                                <div class="form-input-addon form-input-append" style="cursor: pointer;" onclick="GravClipboard.copy(this)"><i class="fa fa-copy"></i> Copy</div>
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        <div style="margin-top: 1rem;">
+                                                            <p><strong>GitHub Actions example:</strong></p>
+                                                            <pre>- name: Trigger Scheduler
+                                                  run: |
+                                                    curl -X POST ${{ secrets.SITE_URL }}/scheduler/webhook \
+                                                      -H "Authorization: Bearer ${{ secrets.WEBHOOK_TOKEN }}"</pre>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                    markdown: false
 
 
 
