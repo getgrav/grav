@@ -1,3 +1,9 @@
+# v1.7.49.2
+## 08/28/2025
+
+1. [](#bugfix)
+    * Fix translation of key for image adapter [#3944](https://github.com/getgrav/grav/pull/3944)
+
 # v1.7.49.1
 ## 08/25/2025
 
