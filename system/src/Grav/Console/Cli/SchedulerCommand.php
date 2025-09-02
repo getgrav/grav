@@ -9,7 +9,7 @@
 
 namespace Grav\Console\Cli;
 
-use Dragonmantank\Cron\CronExpression;
+use Cron\CronExpression;
 use Grav\Common\Grav;
 use Grav\Common\Utils;
 use Grav\Common\Scheduler\Scheduler;
