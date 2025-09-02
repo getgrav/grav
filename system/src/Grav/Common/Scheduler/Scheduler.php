@@ -112,12 +112,33 @@ class Scheduler
      */
     public function loadSavedJobs()
     {
+        // Only load saved jobs if they haven't been loaded yet
+        if (!empty($this->saved_jobs)) {
+            return $this;
+        }
+        
         $this->saved_jobs = [];
         $saved_jobs = (array) Grav::instance()['config']->get('scheduler.custom_jobs', []);
 
         foreach ($saved_jobs as $id => $j) {
             $args = $j['args'] ?? [];
             $id = Grav::instance()['inflector']->hyphenize($id);
+            
+            // Check if job already exists to prevent duplicates
+            $existingJob = null;
+            foreach ($this->jobs as $existingJobItem) {
+                if ($existingJobItem->getId() === $id) {
+                    $existingJob = $existingJobItem;
+                    break;
+                }
+            }
+            
+            if ($existingJob) {
+                // Job already exists, just update saved_jobs reference
+                $this->saved_jobs[] = $existingJob;
+                continue;
+            }
+            
             $job = $this->addCommand($j['command'], $args, $id);
 
             if (isset($j['at'])) {
