@@ -324,68 +324,6 @@ form:
                                 </script>
                             markdown: false
 
-                        cron_setup:
-                            type: display
-                            label: Cron Setup Commands
-                            content: |
-                                <script src="{{ url('plugin://admin/themes/grav/js/clipboard-helper.js') }}"></script>
-                                <div class="cron-setup-commands">
-                                    <script>
-                                    
-                                    (function() {
-                                        // Get the Grav root path from the current location
-                                        var pathParts = window.location.pathname.split('/');
-                                        var gravPath = '/path/to/grav'; // Default fallback
-                                        
-                                        // Try to determine actual path (assuming we're in /admin or similar)
-                                        if (typeof GravAdmin !== 'undefined' && GravAdmin.config && GravAdmin.config.base_url_relative) {
-                                            // Remove admin path to get to root
-                                            gravPath = window.location.pathname.replace(/\/admin.*$/, '') || '/';
-                                            if (gravPath === '/') {
-                                                gravPath = '/var/www/html'; // Common server path
-                                            }
-                                        }
-                                        
-                                        // For local development, use the actual path
-                                        if (window.location.hostname === 'trilby.local') {
-                                            gravPath = '/Users/rhuk/workspace/trilby/grav-editor-pro';
-                                        }
-                                        
-                                        var quickInstallCmd = "(crontab -l 2>/dev/null; echo '* * * * * cd " + gravPath + " && bin/grav scheduler 1>> /dev/null 2>&1') | crontab -";
-                                        var manualEntryCmd = "* * * * * cd " + gravPath + " && bin/grav scheduler 1>> /dev/null 2>&1";
-                                        
-                                        document.addEventListener('DOMContentLoaded', function() {
-                                            var quickInput = document.getElementById('cron-quick-install');
-                                            var manualInput = document.getElementById('cron-manual-entry');
-                                            
-                                            if (quickInput) quickInput.value = quickInstallCmd;
-                                            if (manualInput) manualInput.value = manualEntryCmd;
-                                        });
-                                    })();
-                                    </script>
-                                    
-                                    <div style="margin-bottom: 1rem;">
-                                        <label style="display: block; margin-bottom: 0.25rem; font-weight: 500;">Quick Install (adds to existing crontab):</label>
-                                        <div class="form-input-wrapper form-input-addon-wrapper">
-                                            <input type="text" id="cron-quick-install" readonly value="Loading..." style="font-family: monospace; background: #f5f5f5;">
-                                            <div class="form-input-addon form-input-append" style="cursor: pointer;" onclick="GravClipboard.copy(this)"><i class="fa fa-copy"></i> Copy</div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div style="margin-bottom: 1rem;">
-                                        <label style="display: block; margin-bottom: 0.25rem; font-weight: 500;">Manual Entry (add to crontab -e):</label>
-                                        <div class="form-input-wrapper form-input-addon-wrapper">
-                                            <input type="text" id="cron-manual-entry" readonly value="Loading..." style="font-family: monospace; background: #f5f5f5;">
-                                            <div class="form-input-addon form-input-append" style="cursor: pointer;" onclick="GravClipboard.copy(this)"><i class="fa fa-copy"></i> Copy</div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="alert alert-info" style="margin-top: 0.5rem;">
-                                        <i class="fa fa-info-circle"></i> <strong>Note:</strong> These commands will run the scheduler every minute. Adjust the path if needed before copying.
-                                    </div>
-                                </div>
-                            markdown: false
-
                         trigger_methods:
                             type: display
                             label: Active Triggers

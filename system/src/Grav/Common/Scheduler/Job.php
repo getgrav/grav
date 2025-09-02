@@ -10,7 +10,7 @@
 namespace Grav\Common\Scheduler;
 
 use Closure;
-use Dragonmantank\Cron\CronExpression;
+use Cron\CronExpression;
 use DateTime;
 use Grav\Common\Grav;
 use InvalidArgumentException;
