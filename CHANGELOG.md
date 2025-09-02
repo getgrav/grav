@@ -2,7 +2,10 @@
 ## 09/02/2025
 
 1. [](#bugfix)
+    * Fixed an error in ZipArchive that was causing issues on some systems
     * Fixed namespace change for `Cron\Expression`
+    * Removed broken cron install field... use 'instructions' instead
+    * Fixed duplicate jobs listing in some CLI commands
 
 # v1.7.49.2
 ## 08/28/2025
