@@ -1,3 +1,9 @@
+# v1.7.49.3
+## 09/02/2025
+
+1. [](#bugfix)
+    * Fixed namespace change for `Cron\Expression`
+
 # v1.7.49.2
 ## 08/28/2025
 
