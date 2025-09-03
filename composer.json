@@ -87,10 +87,7 @@
         "ext-exif": "Needed to use exif data from images."
     },
     "config": {
-        "apcu-autoloader": true,
-        "platform": {
-            "php": "7.3.6"
-        }
+        "apcu-autoloader": true
     },
     "autoload": {
         "psr-4": {

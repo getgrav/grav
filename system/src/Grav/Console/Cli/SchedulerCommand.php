@@ -57,8 +57,14 @@ class SchedulerCommand extends GravCommand
                 'Force run all jobs or a specific job if you specify a specific Job ID',
                 false
             )
+            ->addOption(
+                'force',
+                'f',
+                InputOption::VALUE_NONE,
+                'Force all due jobs to run regardless of their schedule'
+            )
             ->setDescription('Run the Grav Scheduler.  Best when integrated with system cron')
-            ->setHelp("Running without any options will force the Scheduler to run through it's jobs and process them");
+            ->setHelp("Running without any options will process the Scheduler jobs based on their cron schedule. Use --force to run all jobs immediately.");
     }
 
     /**
@@ -84,6 +90,7 @@ class SchedulerCommand extends GravCommand
         $run = $input->getOption('run');
         $showDetails = $input->getOption('details');
         $showJobs = $input->getOption('jobs');
+        $forceRun = $input->getOption('force');
 
         // Handle running jobs first if -r flag is present
         if ($run !== false) {
@@ -256,7 +263,7 @@ class SchedulerCommand extends GravCommand
             }
         } elseif (!$showJobs && !$showDetails && $run === false) {
             // Run scheduler only if no other options were provided
-            $scheduler->run(null, true);
+            $scheduler->run(null, $forceRun);
 
             if ($input->getOption('verbose')) {
                 $io->title('Running Scheduled Jobs');
