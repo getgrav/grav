@@ -1,3 +1,9 @@
+# v1.7.49.4
+## 09/03/2025
+
+1. [](#bugfix)
+    * Fixed cron force running jobs severy minute! [#3951](https://github.com/getgrav/grav/issues/3951)
+
 # v1.7.49.3
 ## 09/02/2025
 
