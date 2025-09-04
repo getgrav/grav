@@ -315,7 +315,10 @@ class Backups
      */
     protected static function convertExclude($exclude)
     {
-        $lines = preg_split("/[\s,]+/", $exclude);
+        // Split by newlines, commas, or multiple spaces
+        $lines = preg_split("/[\r\n,]+|[\s]{2,}/", $exclude);
+        // Remove empty values and trim
+        $lines = array_filter(array_map('trim', $lines));
 
         return array_map('trim', $lines, array_fill(0, count($lines), '/'));
     }
