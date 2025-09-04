@@ -281,7 +281,13 @@ class Security
             'twig.safe_functions',
             'read_file',
         ];
+
         $string = preg_replace('/(({{\s*|{%\s*)[^}]*?(' . implode('|', $bad_twig) . ')[^}]*?(\s*}}|\s*%}))/i', '{# $1 #}', $string);
+
+        foreach ($bad_twig as $func) {
+            $string = preg_replace('/\b' . preg_quote($func, '/') . '(\s*\([^)]*\))?\b/i', '{# $1 #}', $string);
+        }
+
         return $string;
     }
 }
