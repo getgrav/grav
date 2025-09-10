@@ -1,3 +1,9 @@
+# v1.7.49.5
+## 09/10/2025
+
+1. [](#bugfix)
+    * Backup not honoring ignored paths [#3952](https://github.com/getgrav/grav/issues/3952)
+
 # v1.7.49.4
 ## 09/03/2025
 
