@@ -16,14 +16,11 @@ use InvalidArgumentException;
 use JsonSerializable;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UploadedFileInterface;
-use ReturnTypeWillChange;
 use RuntimeException;
 use function copy;
 use function fopen;
 use function is_string;
 use function sprintf;
-use const UPLOAD_ERR_NO_FILE;
-use const UPLOAD_ERR_OK;
 
 /**
  * Class FormFlashFile
@@ -32,15 +29,15 @@ use const UPLOAD_ERR_OK;
 class FormFlashFile implements UploadedFileInterface, JsonSerializable
 {
     /** @var string */
-    private string $id;
+    private $id;
     /** @var string */
-    private string $field;
+    private $field;
     /** @var bool */
-    private bool $moved = false;
+    private $moved = false;
     /** @var array */
-    private array $upload;
+    private $upload;
     /** @var FormFlash */
-    private FormFlash $flash;
+    private $flash;
 
     /**
      * FormFlashFile constructor.
@@ -57,7 +54,7 @@ class FormFlashFile implements UploadedFileInterface, JsonSerializable
 
         $tmpFile = $this->getTmpFile();
         if (!$tmpFile && $this->isOk()) {
-            $this->upload['error'] = UPLOAD_ERR_NO_FILE;
+            $this->upload['error'] = \UPLOAD_ERR_NO_FILE;
         }
 
         if (!isset($this->upload['size'])) {
@@ -68,7 +65,7 @@ class FormFlashFile implements UploadedFileInterface, JsonSerializable
     /**
      * @return StreamInterface
      */
-    public function getStream(): StreamInterface
+    public function getStream()
     {
         $this->validateActive();
 
@@ -89,7 +86,7 @@ class FormFlashFile implements UploadedFileInterface, JsonSerializable
      * @param string $targetPath
      * @return void
      */
-    public function moveTo($targetPath): void
+    public function moveTo($targetPath)
     {
         $this->validateActive();
 
@@ -129,7 +126,7 @@ class FormFlashFile implements UploadedFileInterface, JsonSerializable
     /**
      * @return int
      */
-    public function getSize(): int
+    public function getSize()
     {
         return $this->upload['size'];
     }
@@ -137,15 +134,15 @@ class FormFlashFile implements UploadedFileInterface, JsonSerializable
     /**
      * @return int
      */
-    public function getError(): int
+    public function getError()
     {
-        return $this->upload['error'] ?? UPLOAD_ERR_OK;
+        return $this->upload['error'] ?? \UPLOAD_ERR_OK;
     }
 
     /**
      * @return string
      */
-    public function getClientFilename(): string
+    public function getClientFilename()
     {
         return $this->upload['name'] ?? 'unknown';
     }
@@ -153,7 +150,7 @@ class FormFlashFile implements UploadedFileInterface, JsonSerializable
     /**
      * @return string
      */
-    public function getClientMediaType(): string
+    public function getClientMediaType()
     {
         return $this->upload['type'] ?? 'application/octet-stream';
     }
@@ -181,7 +178,7 @@ class FormFlashFile implements UploadedFileInterface, JsonSerializable
     /**
      * @return string
      */
-    public function getDestination(): string
+    public function getDestination()
     {
         return $this->upload['path'] ?? '';
     }
@@ -189,8 +186,8 @@ class FormFlashFile implements UploadedFileInterface, JsonSerializable
     /**
      * @return array
      */
-    #[ReturnTypeWillChange]
-    public function jsonSerialize(): array
+    #[\ReturnTypeWillChange]
+    public function jsonSerialize()
     {
         return $this->upload;
     }
@@ -229,7 +226,7 @@ class FormFlashFile implements UploadedFileInterface, JsonSerializable
     /**
      * @return array
      */
-    #[ReturnTypeWillChange]
+    #[\ReturnTypeWillChange]
     public function __debugInfo()
     {
         return [
@@ -264,6 +261,6 @@ class FormFlashFile implements UploadedFileInterface, JsonSerializable
      */
     private function isOk(): bool
     {
-        return UPLOAD_ERR_OK === $this->getError();
+        return \UPLOAD_ERR_OK === $this->getError();
     }
 }

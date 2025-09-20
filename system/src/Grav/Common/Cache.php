@@ -176,24 +176,75 @@ class Cache extends Getters
     }
 
     /**
-     * Deletes the old out of date file-based caches
+     * Deletes old cache files based on age
      *
      * @return int
      */
     public function purgeOldCache()
     {
+        // Get the max age for cache files from config (default 30 days)
+        $max_age_days = $this->config->get('system.cache.purge_max_age_days', 30);
+        $max_age_seconds = $max_age_days * 86400; // Convert days to seconds
+        $now = time();
+        $count = 0;
+        
+        // First, clean up old orphaned cache directories (not the current one)
         $cache_dir = dirname($this->cache_dir);
         $current = Utils::basename($this->cache_dir);
-        $count = 0;
-
+        
         foreach (new DirectoryIterator($cache_dir) as $file) {
             $dir = $file->getBasename();
             if ($dir === $current || $file->isDot() || $file->isFile()) {
                 continue;
             }
-
-            Folder::delete($file->getPathname());
-            $count++;
+            
+            // Check if directory is old and empty or very old (90+ days)
+            $dir_age = $now - $file->getMTime();
+            if ($dir_age > 7776000) { // 90 days
+                Folder::delete($file->getPathname());
+                $count++;
+            }
+        }
+        
+        // Now clean up old cache files within the current cache directory
+        if (is_dir($this->cache_dir)) {
+            $iterator = new \RecursiveIteratorIterator(
+                new \RecursiveDirectoryIterator($this->cache_dir, \RecursiveDirectoryIterator::SKIP_DOTS),
+                \RecursiveIteratorIterator::CHILD_FIRST
+            );
+            
+            foreach ($iterator as $file) {
+                if ($file->isFile()) {
+                    $file_age = $now - $file->getMTime();
+                    if ($file_age > $max_age_seconds) {
+                        @unlink($file->getPathname());
+                        $count++;
+                    }
+                }
+            }
+        }
+        
+        // Also clean up old files in compiled cache
+        $grav = Grav::instance();
+        $compiled_dir = $this->config->get('system.cache.compiled_dir', 'cache://compiled');
+        $compiled_path = $grav['locator']->findResource($compiled_dir, true);
+        
+        if ($compiled_path && is_dir($compiled_path)) {
+            $iterator = new \RecursiveIteratorIterator(
+                new \RecursiveDirectoryIterator($compiled_path, \RecursiveDirectoryIterator::SKIP_DOTS),
+                \RecursiveIteratorIterator::CHILD_FIRST
+            );
+            
+            foreach ($iterator as $file) {
+                if ($file->isFile()) {
+                    $file_age = $now - $file->getMTime();
+                    // Compiled files can be kept longer (60 days)
+                    if ($file_age > ($max_age_seconds * 2)) {
+                        @unlink($file->getPathname());
+                        $count++;
+                    }
+                }
+            }
         }
 
         return $count;
@@ -646,8 +697,10 @@ class Cache extends Getters
     {
         /** @var Cache $cache */
         $cache = Grav::instance()['cache'];
-        $deleted_folders = $cache->purgeOldCache();
-        $msg = 'Purged ' . $deleted_folders . ' old cache folders...';
+        $deleted_items = $cache->purgeOldCache();
+        
+        $max_age = $cache->config->get('system.cache.purge_max_age_days', 30);
+        $msg = 'Purged ' . $deleted_items . ' old cache items (files older than ' . $max_age . ' days)';
 
         if ($echo) {
             echo $msg;

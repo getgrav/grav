@@ -631,6 +631,19 @@ form:
               help: PLUGIN_ADMIN.CACHE_PREFIX_HELP
               placeholder: PLUGIN_ADMIN.CACHE_PREFIX_PLACEHOLDER
 
+            cache.purge_max_age_days:
+                type: text
+                size: x-small
+                append: GRAV.NICETIME.DAY_PLURAL
+                label: PLUGIN_ADMIN.CACHE_PURGE_AGE
+                help: PLUGIN_ADMIN.CACHE_PURGE_AGE_HELP
+                validate:
+                    type: number
+                    min: 1
+                    max: 365
+                    step: 1
+                default: 30
+
             cache.purge_at:
               type: cron
               label: PLUGIN_ADMIN.CACHE_PURGE_JOB
@@ -1210,6 +1223,16 @@ form:
               type: section
               title: PLUGIN_ADMIN.MEDIA
               underline: true
+
+            images.adapter:
+              type: select
+              size: small
+              label: PLUGIN_ADMIN.IMAGE_ADAPTER
+              help: PLUGIN_ADMIN.IMAGE_ADAPTER_HELP
+              highlight: gd
+              options:
+                  gd: GD (PHP built-in)
+                  imagick: Imagick
 
             images.default_image_quality:
               type: range

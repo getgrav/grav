@@ -101,6 +101,7 @@ cache:
   clear_images_by_default: false                 # By default grav does not include processed images in cache clear, this can be enabled
   cli_compatibility: false                       # Ensures only non-volatile drivers are used (file, redis, memcached, etc.)
   lifetime: 604800                               # Lifetime of cached data in seconds (0 = infinite)
+  purge_max_age_days: 30                         # Maximum age of cache items in days before they are purged
   gzip: false                                    # GZip compress the page output
   allow_webserver_gzip: false                    # If true, `content-encoding: identity` but connection isn't closed before `onShutDown()` event
   redis:
@@ -155,6 +156,7 @@ debugger:
     close_connection: true                       # Close the connection before calling onShutdown(). false for debugging
 
 images:
+  adapter: gd                                    # Image adapter to use: gd | imagick
   default_image_quality: 85                      # Default image quality to use when resampling images (85%)
   cache_all: false                               # Cache all image by default
   cache_perms: '0755'                            # MUST BE IN QUOTES!! Default cache folder perms. Usually '0755' or '0775'
