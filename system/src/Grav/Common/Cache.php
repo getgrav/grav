@@ -537,8 +537,17 @@ class Cache extends Getters
 
         // Delete entries in the doctrine cache if required
         if (in_array($remove, ['all', 'standard'])) {
-            $cache = Grav::instance()['cache'];
-            $cache->driver->deleteAll();
+            try {
+                $grav = Grav::instance();
+                if ($grav->offsetExists('cache')) {
+                    $cache = $grav['cache'];
+                    if (isset($cache->driver)) {
+                        $cache->driver->deleteAll();
+                    }
+                }
+            } catch (\Throwable $e) {
+                $output[] = 'cache: ' . $e->getMessage();
+            }
         }
 
         // Clearing cache event to add paths to clear

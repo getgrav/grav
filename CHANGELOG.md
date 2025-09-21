@@ -3,6 +3,7 @@
 
 1. [](#bugfix)
     * Deferred Extension support in Forked version of Twig 3
+    * Fix for cache blowing up when upgrading from 1.7 to 1.8
 
 # v1.8.0-beta.4
 ## 01/27/2025
