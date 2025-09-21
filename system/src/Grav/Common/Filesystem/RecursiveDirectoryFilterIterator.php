@@ -63,8 +63,8 @@ class RecursiveDirectoryFilterIterator extends RecursiveFilterIterator
             }
             // Check if any parent directory is in the ignore list
             foreach ($this::$ignore_folders as $ignore_folder) {
-                $ignore_folder = trim($ignore_folder, '/');
-                if (strpos($relative_filename, $ignore_folder . '/') === 0 || $relative_filename === $ignore_folder) {
+                $ignore_folder = trim((string) $ignore_folder, '/');
+                if (str_starts_with($relative_filename, $ignore_folder . '/') || $relative_filename === $ignore_folder) {
                     return false;
                 }
             }
@@ -92,12 +92,12 @@ class RecursiveDirectoryFilterIterator extends RecursiveFilterIterator
                 return true;
             }
             // Check for extension patterns like .pdf
-            if (strpos($pattern, '.') === 0 && substr($filename, -strlen($pattern)) === $pattern) {
+            if (str_starts_with((string) $pattern, '.') && str_ends_with($filename, (string) $pattern)) {
                 return true;
             }
             // Check for wildcard patterns
-            if (strpos($pattern, '*') !== false) {
-                $regex = '/^' . str_replace('\\*', '.*', preg_quote($pattern, '/')) . '$/';
+            if (str_contains((string) $pattern, '*')) {
+                $regex = '/^' . str_replace('\\*', '.*', preg_quote((string) $pattern, '/')) . '$/';
                 if (preg_match($regex, $filename)) {
                     return true;
                 }

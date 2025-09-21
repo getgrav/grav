@@ -47,7 +47,7 @@ class ImageFile extends Image
         $adapter = $grav['config']->get('system.images.adapter', 'gd');
         try {
             $this->setAdapter($adapter);
-        } catch (Exception $e) {
+        } catch (Exception) {
             $grav['log']->error(
                 'Image adapter "' . $adapter . '" is not available. Falling back to GD adapter.'
             );

@@ -40,12 +40,12 @@ use Grav\Common\Grav;
 use RocketTheme\Toolbox\Event\Event;
 
 // Get the Grav instance
-$grav = Grav::instance(array('loader' => $loader));
+$grav = Grav::instance(['loader' => $loader]);
 
 // Process the page
 try {
     $grav->process();
 } catch (\Error|\Exception $e) {
-    $grav->fireEvent('onFatalException', new Event(array('exception' => $e)));
+    $grav->fireEvent('onFatalException', new Event(['exception' => $e]));
     throw $e;
 }

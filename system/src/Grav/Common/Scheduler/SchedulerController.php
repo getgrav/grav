@@ -170,7 +170,7 @@ class SchedulerController
         $html = '<div class="scheduler-health">';
         $html .= '<p>Status: ' . $statusBadge;
         if ($message) {
-            $html .= ' - ' . htmlspecialchars($message);
+            $html .= ' - ' . htmlspecialchars((string) $message);
         }
         $html .= '</p>';
         
@@ -236,7 +236,7 @@ class SchedulerController
                 'systemd' => 'Systemd Timer',
                 'webhook' => 'Webhook Triggers',
                 'external' => 'External Triggers',
-                default => ucfirst($trigger)
+                default => ucfirst((string) $trigger)
             };
             
             $html .= '<li>' . $icon . ' <strong>' . $label . '</strong> <span class="badge badge-success">Active</span></li>';

@@ -98,15 +98,15 @@ class JobHistory
         $output = $job->getOutput();
         $truncated = false;
         
-        if (strlen($output) > $this->maxOutputLength) {
-            $output = substr($output, 0, $this->maxOutputLength);
+        if (strlen((string) $output) > $this->maxOutputLength) {
+            $output = substr((string) $output, 0, $this->maxOutputLength);
             $truncated = true;
         }
         
         return [
             'content' => $output,
             'truncated' => $truncated,
-            'length' => strlen($job->getOutput()),
+            'length' => strlen((string) $job->getOutput()),
         ];
     }
     
@@ -348,7 +348,7 @@ class JobHistory
             
             // Filter by output content
             if (isset($criteria['output_contains']) && 
-                stripos($entry['output']['content'], $criteria['output_contains']) === false) {
+                stripos((string) $entry['output']['content'], (string) $criteria['output_contains']) === false) {
                 $match = false;
             }
             

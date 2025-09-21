@@ -462,11 +462,11 @@ class JobQueue
         if (isset($item['serialized_job'])) {
             // Unserialize the job
             try {
-                $job = unserialize(base64_decode($item['serialized_job']));
+                $job = unserialize(base64_decode((string) $item['serialized_job']));
                 if ($job instanceof Job) {
                     return $job;
                 }
-            } catch (\Exception $e) {
+            } catch (\Exception) {
                 // Failed to unserialize
                 return null;
             }
@@ -490,7 +490,7 @@ class JobQueue
      */
     protected function calculateRetryTime(int $attempts): string
     {
-        $backoffSeconds = min(pow(2, $attempts) * 60, 3600); // Max 1 hour
+        $backoffSeconds = min(2 ** $attempts * 60, 3600); // Max 1 hour
         $retryTime = new \DateTime();
         $retryTime->modify("+{$backoffSeconds} seconds");
         return $retryTime->format('c');
@@ -558,14 +558,14 @@ class JobQueue
                     @unlink($this->lockFile);
                 }
             }
-            
+
             // Try to acquire lock atomically
             $handle = @fopen($this->lockFile, 'x');
             if ($handle !== false) {
                 fclose($handle);
                 return true;
             }
-            
+
             $attempts++;
             usleep(100000); // 100ms
         }

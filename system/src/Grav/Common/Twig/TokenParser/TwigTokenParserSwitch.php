@@ -44,7 +44,7 @@ class TwigTokenParserSwitch extends AbstractTokenParser
         $stream->expect(Token::BLOCK_END_TYPE);
 
         // There can be some whitespace between the {% switch %} and first {% case %} tag.
-        while ($stream->getCurrent()->getType() === Token::TEXT_TYPE && trim($stream->getCurrent()->getValue()) === '') {
+        while ($stream->getCurrent()->getType() === Token::TEXT_TYPE && trim((string) $stream->getCurrent()->getValue()) === '') {
             $stream->next();
         }
 

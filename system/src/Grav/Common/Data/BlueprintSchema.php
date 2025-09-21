@@ -215,7 +215,7 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
                         // If strings:
                         if (is_string($currentVal) && is_string($otherVal)) {
                             $isValid = (strlen($currentVal) && strlen($otherVal) && (str_contains($currentVal,
-                                        $otherVal) || strpos($otherVal, $currentVal) !== false));
+                                        $otherVal) || str_contains($otherVal, $currentVal)));
                         }
                         // If arrays:
                         if (is_array($currentVal) && is_array($otherVal)) {

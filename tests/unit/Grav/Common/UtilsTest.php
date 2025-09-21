@@ -132,8 +132,8 @@ class UtilsTest extends \PHPUnit\Framework\TestCase
 
         $objMerged = Utils::mergeObjects($obj1, $obj2);
 
-        self::arrayHasKey('test1', (array) $objMerged);
-        self::arrayHasKey('test2', (array) $objMerged);
+        self::arrayHasKey('test1');
+        self::arrayHasKey('test2');
     }
 
     public function testDateFormats(): void
@@ -282,9 +282,7 @@ class UtilsTest extends \PHPUnit\Framework\TestCase
             'test2' => 'test2'
         ];
 
-        $array = Utils::arrayFilterRecursive($array, function ($k, $v) {
-            return !(is_null($v) || $v === '');
-        });
+        $array = Utils::arrayFilterRecursive($array, fn($k, $v) => !(is_null($v) || $v === ''));
 
         self::assertContainsOnly('string', $array);
         self::assertArrayNotHasKey('test', $array);

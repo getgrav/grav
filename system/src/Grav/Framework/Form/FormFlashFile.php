@@ -30,12 +30,8 @@ class FormFlashFile implements UploadedFileInterface, JsonSerializable
 {
     /** @var string */
     private $id;
-    /** @var string */
-    private $field;
     /** @var bool */
     private $moved = false;
-    /** @var array */
-    private $upload;
     /** @var FormFlash */
     private $flash;
 
@@ -45,11 +41,9 @@ class FormFlashFile implements UploadedFileInterface, JsonSerializable
      * @param array $upload
      * @param FormFlash $flash
      */
-    public function __construct(string $field, array $upload, FormFlash $flash)
+    public function __construct(private readonly string $field, private array $upload, FormFlash $flash)
     {
         $this->id = $flash->getId() ?: $flash->getUniqueId();
-        $this->field = $field;
-        $this->upload = $upload;
         $this->flash = $flash;
 
         $tmpFile = $this->getTmpFile();

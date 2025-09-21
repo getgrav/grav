@@ -729,12 +729,11 @@ class Job
     
     /**
      * Add metadata to the job
-     * 
+     *
      * @param string $key
-     * @param mixed $value
      * @return self
      */
-    public function withMetadata(string $key, $value): self
+    public function withMetadata(string $key, mixed $value): self
     {
         $this->metadata[$key] = $value;
         return $this;
@@ -873,7 +872,7 @@ class Job
      * @param string|null $key
      * @return mixed
      */
-    public function getMetadata(string $key = null)
+    public function getMetadata(?string $key = null)
     {
         if ($key === null) {
             return $this->metadata;
@@ -944,7 +943,7 @@ class Job
     protected function calculateRetryDelay(int $attempt): int
     {
         if ($this->retryStrategy === 'exponential') {
-            return min($this->retryDelay * pow(2, $attempt - 1), 3600); // Max 1 hour
+            return min($this->retryDelay * 2 ** ($attempt - 1), 3600); // Max 1 hour
         }
         
         return $this->retryDelay;

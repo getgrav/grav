@@ -43,8 +43,8 @@ class GravExtensionTest extends \PHPUnit\Framework\TestCase
 
     public function testKsortFilter(): void
     {
-        $object = array("name"=>"Bob","age"=>8,"colour"=>"red");
-        self::assertSame(array("age"=>8,"colour"=>"red","name"=>"Bob"), $this->twig_ext->ksortFilter($object));
+        $object = ["name"=>"Bob", "age"=>8, "colour"=>"red"];
+        self::assertSame(["age"=>8, "colour"=>"red", "name"=>"Bob"], $this->twig_ext->ksortFilter($object));
     }
 
     public function testContainsFilter(): void
@@ -67,7 +67,7 @@ class GravExtensionTest extends \PHPUnit\Framework\TestCase
 
         for ($i=0; $i<count($measures); $i++) {
             $time = 'three' . ucfirst($measures[$i]);
-            self::assertSame('3 ' . $measures[$i] . ' ago', $this->twig_ext->nicetimeFunc($$time));
+            self::assertSame('3 ' . $measures[$i] . ' ago', $this->twig_ext->nicetimeFunc(${$time}));
         }
     }
 

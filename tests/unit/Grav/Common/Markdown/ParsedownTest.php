@@ -1245,7 +1245,7 @@ class ParsedownTest extends \PHPUnit\Framework\TestCase
      */
     private function stripLeadingWhitespace($string)
     {
-        return preg_replace('/^\s*(.*)/', '', $string);
+        return preg_replace('/^\s*(.*)/', '', (string) $string);
     }
 
     private function setImagesDefaults($defaults) {

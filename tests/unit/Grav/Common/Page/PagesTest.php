@@ -186,7 +186,7 @@ class PagesTest extends \PHPUnit\Framework\TestCase
 
         //Page existing
         $children = $this->pages->children($folder . '/fake/simple-site/user/pages/02.blog');
-        self::assertInstanceOf('Grav\Common\Page\Collection', $children);
+        self::assertInstanceOf(\Grav\Common\Page\Collection::class, $children);
 
         //Page not existing
         $children = $this->pages->children($folder . '/fake/whatever/non-existing');

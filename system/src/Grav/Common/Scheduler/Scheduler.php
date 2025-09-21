@@ -298,14 +298,14 @@ class Scheduler
                     $queuedCount++;
                 }
             }
-            
+
             if ($this->logger && $queuedCount > 0) {
                 $this->logger->debug("Queued {$queuedCount} job(s) for processing");
             }
-            
+
             // Process queue with workers
             $this->processJobsWithWorkers();
-            
+
             // When using queue, states are saved by executeJob when jobs complete
             // Don't save states here as jobs may still be processing
         } else {
@@ -523,11 +523,10 @@ class Scheduler
 
     /**
      * Initialize modern features
-     * 
-     * @param mixed $locator
+     *
      * @return void
      */
-    protected function initializeModernFeatures($locator): void
+    protected function initializeModernFeatures(mixed $locator): void
     {
         // Set up paths
         $this->queuePath = $this->modernConfig['queue']['path'] ?? 'user-data://scheduler/queue';
@@ -777,7 +776,7 @@ class Scheduler
                                     'background' => true
                                 ]);
                             } else {
-                                $error = trim($job->getOutput()) ?: 'Unknown error';
+                                $error = trim((string) $job->getOutput()) ?: 'Unknown error';
                                 $this->logger->error("Job '{$jobId}' failed: {$error}", [
                                     'command' => $command,
                                     'background' => true
@@ -884,7 +883,7 @@ class Scheduler
                     'command' => $command
                 ]);
             } else {
-                $error = trim($job->getOutput()) ?: 'Unknown error';
+                $error = trim((string) $job->getOutput()) ?: 'Unknown error';
                 $this->logger->error("Job '{$jobId}' failed: {$error}", [
                     'command' => $command
                 ]);
@@ -945,7 +944,7 @@ class Scheduler
                 'id' => $job->getId(),
                 'executed_at' => date('c'),
                 'success' => $job->isSuccessful(),
-                'output' => substr($job->getOutput(), 0, 1000),
+                'output' => substr((string) $job->getOutput(), 0, 1000),
             ];
         }
         

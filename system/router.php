@@ -18,17 +18,17 @@ $path = $_SERVER['SCRIPT_NAME'];
 if ($path !== '/index.php' && is_file($root . $path)) {
     if (!(
         // Block all direct access to files and folders beginning with a dot
-        strpos($path, '/.') !== false
+        str_contains((string) $path, '/.')
         // Block all direct access for these folders
-        || preg_match('`^/(\.git|cache|bin|logs|backup|webserver-configs|tests)/`ui', $path)
+        || preg_match('`^/(\.git|cache|bin|logs|backup|webserver-configs|tests)/`ui', (string) $path)
         // Block access to specific file types for these system folders
-        || preg_match('`^/(system|vendor)/(.*)\.(txt|xml|md|html|json|yaml|yml|php|pl|py|cgi|twig|sh|bat)$`ui', $path)
+        || preg_match('`^/(system|vendor)/(.*)\.(txt|xml|md|html|json|yaml|yml|php|pl|py|cgi|twig|sh|bat)$`ui', (string) $path)
         // Block access to specific file types for these user folders
-        || preg_match('`^/(user)/(.*)\.(txt|md|json|yaml|yml|php|pl|py|cgi|twig|sh|bat)$`ui', $path)
+        || preg_match('`^/(user)/(.*)\.(txt|md|json|yaml|yml|php|pl|py|cgi|twig|sh|bat)$`ui', (string) $path)
         // Block all direct access to .md files
-        || preg_match('`\.md$`ui', $path)
+        || preg_match('`\.md$`ui', (string) $path)
         // Block access to specific files in the root folder
-        || preg_match('`^/(LICENSE\.txt|composer\.lock|composer\.json|\.htaccess)$`ui', $path)
+        || preg_match('`^/(LICENSE\.txt|composer\.lock|composer\.json|\.htaccess)$`ui', (string) $path)
     )) {
         return false;
     }
