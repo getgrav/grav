@@ -904,9 +904,9 @@ class UriTest extends \PHPUnit\Framework\TestCase
             if ($method === 'query') {
                 parse_str((string) $expected, $queryParams);
                 foreach ($queryParams as $key => $value) {
-                    self::assertSame($value, $this->uri->{$method}(), "Test \$url->{$method}('{$key}') for {$url}");
+                    self::assertSame($value, $this->uri->{$method}($key), "Test \$url->{$method}('{$key}') for {$url}");
                 }
-                self::assertNull($this->uri->{$method}(), "Test \$url->{$method}('non-existing') for {$url}");
+                self::assertNull($this->uri->{$method}('non-existing'), "Test \$url->{$method}('non-existing') for {$url}");
             }
         }
     }

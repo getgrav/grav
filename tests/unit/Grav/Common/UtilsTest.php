@@ -132,8 +132,8 @@ class UtilsTest extends \PHPUnit\Framework\TestCase
 
         $objMerged = Utils::mergeObjects($obj1, $obj2);
 
-        self::arrayHasKey('test1');
-        self::arrayHasKey('test2');
+        self::assertArrayHasKey('test1', (array) $objMerged);
+        self::assertArrayHasKey('test2', (array) $objMerged);
     }
 
     public function testDateFormats(): void
