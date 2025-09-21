@@ -83,11 +83,11 @@ class InfoCommand extends GpmCommand
             return 1;
         }
 
-        $io->writeln("Found package <cyan>'{$input->getArgument('package')}'</cyan> under the '<green>" . ucfirst($foundPackage->package_type) . "</green>' section");
+        $io->writeln("Found package <cyan>'{$input->getArgument('package')}'</cyan> under the '<green>" . ucfirst((string) $foundPackage->package_type) . "</green>' section");
         $io->newLine();
         $io->writeln("<cyan>{$foundPackage->name}</cyan> [{$foundPackage->slug}]");
-        $io->writeln(str_repeat('-', strlen($foundPackage->name) + strlen($foundPackage->slug) + 3));
-        $io->writeln('<white>' . strip_tags($foundPackage->description_plain) . '</white>');
+        $io->writeln(str_repeat('-', strlen($foundPackage->name) + strlen((string) $foundPackage->slug) + 3));
+        $io->writeln('<white>' . strip_tags((string) $foundPackage->description_plain) . '</white>');
         $io->newLine();
 
         $packageURL = '';
@@ -131,7 +131,7 @@ class InfoCommand extends GpmCommand
             }
         }
 
-        $type = rtrim($foundPackage->package_type, 's');
+        $type = rtrim((string) $foundPackage->package_type, 's');
         $updatable = $this->gpm->{'is' . $type . 'Updatable'}($foundPackage->slug);
         $installed = $this->gpm->{'is' . $type . 'Installed'}($foundPackage->slug);
 

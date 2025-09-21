@@ -142,7 +142,7 @@ class Blueprint extends BlueprintForm
     {
         foreach ($this->dynamic as $key => $data) {
             // Locate field.
-            $path = explode('/', $key);
+            $path = explode('/', (string) $key);
             $current = &$this->items;
 
             foreach ($path as $field) {

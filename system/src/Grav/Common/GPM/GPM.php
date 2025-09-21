@@ -119,7 +119,7 @@ class GPM extends Iterator
             if ($type_installed === false) {
                 continue;
             }
-            $methodInstallableType = 'getInstalled' . ucfirst($type);
+            $methodInstallableType = 'getInstalled' . ucfirst((string) $type);
             $to_install = $this->$methodInstallableType();
             $items[$type] = $to_install;
             $items['total'] += count($to_install);
@@ -279,7 +279,7 @@ class GPM extends Iterator
             if ($type_updatable === false) {
                 continue;
             }
-            $methodUpdatableType = 'getUpdatable' . ucfirst($type);
+            $methodUpdatableType = 'getUpdatable' . ucfirst((string) $type);
             $to_update = $this->$methodUpdatableType();
             $items[$type] = $to_update;
             $items['total'] += count($to_update);

@@ -233,7 +233,7 @@ class FlexObject implements FlexObjectInterface, FlexAuthorizeInterface, \String
                 // Inject back elements which are missing in the filesystem.
                 $data = $this->getBlueprint()->flattenData($current);
                 foreach ($data as $property => $value) {
-                    if (!str_contains($property, '.')) {
+                    if (!str_contains((string) $property, '.')) {
                         $this->defProperty($property, $value);
                     } else {
                         $this->defNestedProperty($property, $value);

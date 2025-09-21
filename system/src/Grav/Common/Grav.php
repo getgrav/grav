@@ -505,7 +505,7 @@ class Grav extends Container
         header("HTTP/{$response->getProtocolVersion()} {$response->getStatusCode()} {$response->getReasonPhrase()}");
         foreach ($response->getHeaders() as $key => $values) {
             // Skip internal Grav headers.
-            if (str_starts_with($key, 'Grav-Internal-')) {
+            if (str_starts_with((string) $key, 'Grav-Internal-')) {
                 continue;
             }
             foreach ($values as $i => $value) {

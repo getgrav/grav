@@ -125,7 +125,7 @@ class Types implements \ArrayAccess, \Iterator, \Countable
     {
         $list = [];
         foreach ($this->items as $name => $file) {
-            if (strpos($name, '/')) {
+            if (strpos((string) $name, '/')) {
                 continue;
             }
             $list[$name] = ucfirst(str_replace('_', ' ', $name));
@@ -142,7 +142,7 @@ class Types implements \ArrayAccess, \Iterator, \Countable
     {
         $list = [];
         foreach ($this->items as $name => $file) {
-            if (!str_starts_with($name, 'modular/')) {
+            if (!str_starts_with((string) $name, 'modular/')) {
                 continue;
             }
             $list[$name] = ucfirst(trim(str_replace('_', ' ', Utils::basename($name))));

@@ -28,7 +28,7 @@ class FormFlash extends FrameworkFormFlash
     {
         $fields = [];
         foreach ($this->files as $field => $files) {
-            if (strpos($field, '/')) {
+            if (strpos((string) $field, '/')) {
                 continue;
             }
             foreach ($files as $file) {

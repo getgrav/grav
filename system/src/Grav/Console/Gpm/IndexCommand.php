@@ -181,7 +181,7 @@ class IndexCommand extends GpmCommand
     {
         $list      = $this->gpm->{'getUpdatable' . ucfirst($package->package_type)}();
         $package   = $list[$package->slug] ?? $package;
-        $type      = ucfirst(preg_replace('/s$/', '', $package->package_type));
+        $type      = ucfirst(preg_replace('/s$/', '', (string) $package->package_type));
         $updatable = $this->gpm->{'is' . $type . 'Updatable'}($package->slug);
         $installed = $this->gpm->{'is' . $type . 'Installed'}($package->slug);
         $local     = $this->gpm->{'getInstalled' . $type}($package->slug);
@@ -266,21 +266,21 @@ class IndexCommand extends GpmCommand
 
                     // Filtering updatables only
                     if ($filter && ($this->options['installed-only'] || $this->options['enabled'] || $this->options['disabled'])) {
-                        $method = ucfirst(preg_replace('/s$/', '', $package->package_type));
+                        $method = ucfirst(preg_replace('/s$/', '', (string) $package->package_type));
                         $function = 'is' . $method . 'Installed';
                         $filter = $this->gpm->{$function}($package->slug);
                     }
 
                     // Filtering updatables only
                     if ($filter && $this->options['updates-only']) {
-                        $method = ucfirst(preg_replace('/s$/', '', $package->package_type));
+                        $method = ucfirst(preg_replace('/s$/', '', (string) $package->package_type));
                         $function = 'is' . $method . 'Updatable';
                         $filter = $this->gpm->{$function}($package->slug);
                     }
 
                     // Filtering enabled only
                     if ($filter && $this->options['enabled']) {
-                        $method = ucfirst(preg_replace('/s$/', '', $package->package_type));
+                        $method = ucfirst(preg_replace('/s$/', '', (string) $package->package_type));
 
                         // Check if packaged is enabled.
                         $function = 'is' . $method . 'Enabled';
@@ -289,7 +289,7 @@ class IndexCommand extends GpmCommand
 
                     // Filtering disabled only
                     if ($filter && $this->options['disabled']) {
-                        $method = ucfirst(preg_replace('/s$/', '', $package->package_type));
+                        $method = ucfirst(preg_replace('/s$/', '', (string) $package->package_type));
 
                         // Check if package is disabled.
                         $function = 'is' . $method . 'Enabled';

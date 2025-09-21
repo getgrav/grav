@@ -970,7 +970,7 @@ class Uri implements \Stringable
         }
 
         foreach ($parts as $name => $value) {
-            $parts[$name] = rawurldecode($value);
+            $parts[$name] = rawurldecode((string) $value);
         }
 
         if (!isset($parts['path'])) {
@@ -1453,8 +1453,8 @@ class Uri implements \Stringable
         if (!function_exists('getallheaders')) {
             $headers = [];
             foreach ($_SERVER as $name => $value) {
-                if (str_starts_with($name, 'HTTP_')) {
-                    $headers[str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))))] = $value;
+                if (str_starts_with((string) $name, 'HTTP_')) {
+                    $headers[str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr((string) $name, 5)))))] = $value;
                 }
             }
             return $headers;

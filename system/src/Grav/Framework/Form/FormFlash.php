@@ -306,7 +306,7 @@ class FormFlash implements FormFlashInterface
     {
         $list = [];
         foreach ($this->files as $field => $values) {
-            if (!$includeOriginal && strpos($field, '/')) {
+            if (!$includeOriginal && strpos((string) $field, '/')) {
                 continue;
             }
             $list[$field] = $this->getFilesByField($field);

@@ -1752,7 +1752,7 @@ class Page implements PageInterface
             // Build an array of meta objects..
             foreach ((array)$metadata as $key => $value) {
                 // Lowercase the key
-                $key = strtolower($key);
+                $key = strtolower((string) $key);
                 // If this is a property type metadata: "og", "twitter", "facebook" etc
                 // Backward compatibility for nested arrays in metas
                 if (is_array($value)) {

@@ -1264,7 +1264,7 @@ abstract class Utils
     {
         $newArray = [];
         foreach ($array as $key => $value) {
-            $dots = explode($separator, $key);
+            $dots = explode($separator, (string) $key);
             if (count($dots) > 1) {
                 $last = &$newArray[$dots[0]];
                 foreach ($dots as $k => $dot) {
@@ -1834,7 +1834,7 @@ abstract class Utils
         }
 
         foreach ($parts as $name => $value) {
-            $parts[$name] = urldecode($value);
+            $parts[$name] = urldecode((string) $value);
         }
 
         return $parts;

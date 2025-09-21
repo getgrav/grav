@@ -205,14 +205,14 @@ class InitializeProcessor extends ProcessorBase
             $keys = $aliases = [];
             $env = $_ENV + $_SERVER;
             foreach ($env as $key => $value) {
-                if (!str_starts_with($key, $prefix)) {
+                if (!str_starts_with((string) $key, $prefix)) {
                     continue;
                 }
-                if (str_starts_with($key, $cPrefix)) {
-                    $key = str_replace('__', '.', substr($key, $cLen));
+                if (str_starts_with((string) $key, $cPrefix)) {
+                    $key = str_replace('__', '.', substr((string) $key, $cLen));
                     $keys[$key] = $value;
-                } elseif (str_starts_with($key, $aPrefix)) {
-                    $key = substr($key, $aLen);
+                } elseif (str_starts_with((string) $key, $aPrefix)) {
+                    $key = substr((string) $key, $aLen);
                     $aliases[$key] = $value;
                 }
             }

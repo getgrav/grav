@@ -635,7 +635,7 @@ trait PageLegacyTrait
             // Build an array of meta objects..
             foreach ($metadata as $key => $value) {
                 // Lowercase the key
-                $key = strtolower($key);
+                $key = strtolower((string) $key);
 
                 // If this is a property type metadata: "og", "twitter", "facebook" etc
                 // Backward compatibility for nested arrays in metas

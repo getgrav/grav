@@ -195,7 +195,7 @@ class FlexPageCollection extends FlexCollection
         $last = null;
         $order = 0;
         foreach ($keys as $folder => $key) {
-            preg_match(FlexPageIndex::ORDER_PREFIX_REGEX, $folder, $test);
+            preg_match(FlexPageIndex::ORDER_PREFIX_REGEX, (string) $folder, $test);
             $test = $test[0] ?? null;
             if ($test && $test > $order) {
                 $order = $test;

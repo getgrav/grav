@@ -61,7 +61,7 @@ class PluginListCommand extends ConsoleCommand
 
             $index++;
             $num = str_pad((string)$index, 2, '0', STR_PAD_LEFT);
-            $io->writeln('  ' . $num . '. <red>' . str_pad($name, 15) . "</red> <white>{$bin} {$name} list</white>");
+            $io->writeln('  ' . $num . '. <red>' . str_pad((string) $name, 15) . "</red> <white>{$bin} {$name} list</white>");
         }
 
         return 0;

@@ -1009,7 +1009,7 @@ class Pages
         } else {
             // Use reverse order because of B/C (previously matched multiple and returned the last match).
             foreach (array_reverse($site_routes, true) as $pattern => $replace) {
-                $pattern = '#^' . str_replace('/', '\/', ltrim($pattern, '^')) . '#';
+                $pattern = '#^' . str_replace('/', '\/', ltrim((string) $pattern, '^')) . '#';
                 try {
                     $found = preg_replace($pattern, (string) $replace, $route);
                     if ($found && $found !== $route) {
@@ -1089,7 +1089,7 @@ class Pages
         $site_redirects = $config->get('site.redirects');
         if (is_array($site_redirects)) {
             foreach ((array)$site_redirects as $pattern => $replace) {
-                $pattern = ltrim($pattern, '^');
+                $pattern = ltrim((string) $pattern, '^');
                 $pattern = '#^' . str_replace('/', '\/', $pattern) . '#';
                 try {
                     /** @var string $found */

@@ -623,7 +623,7 @@ class Debugger
 
         $table = [];
         foreach ($timings as $key => $timing) {
-            $parts = explode('==>', $key);
+            $parts = explode('==>', (string) $key);
             $method = $this->parseProfilerCall(array_pop($parts));
             $context = $this->parseProfilerCall(array_pop($parts));
 
@@ -924,7 +924,6 @@ class Debugger
             if ($object instanceof TemplateWrapper) {
                 $reflection = new ReflectionObject($object);
                 $property = $reflection->getProperty('template');
-                $property->setAccessible(true);
                 $object = $property->getValue($object);
             }
 

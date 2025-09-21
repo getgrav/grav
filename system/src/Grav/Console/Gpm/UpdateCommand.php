@@ -191,7 +191,7 @@ class UpdateCommand extends GpmCommand
                     // index
                     str_pad((string)$index++, 2, '0', STR_PAD_LEFT) . '. ' .
                     // name
-                    '<cyan>' . str_pad($package->name, 15) . '</cyan> ' .
+                    '<cyan>' . str_pad((string) $package->name, 15) . '</cyan> ' .
                     // version
                     "[v<magenta>{$package->version}</magenta> -> v<green>{$package->available}</green>]"
                 );

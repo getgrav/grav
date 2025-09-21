@@ -154,7 +154,7 @@ class Twig
 
                 $twig_paths = array_merge($twig_paths, $locator->findResources('theme://'.$prefix.'templates'));
 
-                $namespace = trim($prefix, '/');
+                $namespace = trim((string) $prefix, '/');
                 $this->loader->setPaths($twig_paths, $namespace);
             }
 
