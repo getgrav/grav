@@ -630,7 +630,7 @@ trait PageLegacyTrait
             $metadata = array_merge($defaultMetadata, $siteMetadata, $headerMetadata);
 
             $header_tag_http_equivs = ['content-type', 'default-style', 'refresh', 'x-ua-compatible', 'content-security-policy'];
-            $escape = !$config->get('system.strict_mode.twig_compat', false) || $config->get('system.twig.autoescape', true);
+            $escape = !$config->get('system.strict_mode.twig2_compat', false) || $config->get('system.twig.autoescape', true);
 
             // Build an array of meta objects..
             foreach ($metadata as $key => $value) {

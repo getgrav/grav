@@ -17,6 +17,8 @@ use Grav\Common\Language\LanguageCodes;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Page\Pages;
 use Grav\Common\Security;
+use Grav\Common\Twig\Compatibility\Twig3CompatibilityLoader;
+use Grav\Common\Twig\Compatibility\Twig3CompatibilityTransformer;
 use Grav\Common\Twig\Exception\TwigException;
 use Grav\Common\Twig\Extension\FilesystemExtension;
 use Grav\Common\Twig\Extension\GravExtension;
@@ -163,13 +165,19 @@ class Twig
             $this->loaderArray = new ArrayLoader([]);
             $loader_chain = new ChainLoader([$this->loaderArray, $this->loader]);
 
+            $activeLoader = $loader_chain;
+            if ($config->get('system.strict_mode.twig3_compat', false)) {
+                $transformer = new Twig3CompatibilityTransformer();
+                $activeLoader = new Twig3CompatibilityLoader($loader_chain, $transformer);
+            }
+
             $params = $config->get('system.twig');
             if (!empty($params['cache'])) {
                 $cachePath = $locator->findResource('cache://twig', true, true);
                 $params['cache'] = new FilesystemCache($cachePath, FilesystemCache::FORCE_BYTECODE_INVALIDATION);
             }
 
-            if (!$config->get('system.strict_mode.twig_compat', false)) {
+            if (!$config->get('system.strict_mode.twig2_compat', false)) {
                 // Force autoescape on for all files if in strict mode.
                 $params['autoescape'] = 'html';
             } elseif (!empty($this->autoescape)) {
@@ -177,10 +185,10 @@ class Twig
             }
 
             if (empty($params['autoescape'])) {
-                user_error('Grav 2.0 will have Twig auto-escaping forced on (can be emulated by turning off \'system.strict_mode.twig_compat\' setting in your configuration)', E_USER_DEPRECATED);
+                user_error('Grav 2.0 will have Twig auto-escaping forced on (can be emulated by turning off \'system.strict_mode.twig2_compat\' setting in your configuration)', E_USER_DEPRECATED);
             }
 
-            $this->twig = new TwigEnvironment($loader_chain, $params);
+            $this->twig = new TwigEnvironment($activeLoader, $params);
 
             $this->twig->registerUndefinedFunctionCallback(function (string $name) use ($config) {
                 $allowed = $config->get('system.twig.safe_functions');

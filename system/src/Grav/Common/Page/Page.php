@@ -1739,7 +1739,7 @@ class Page implements PageInterface
 
             $config = Grav::instance()['config'];
 
-            $escape = !$config->get('system.strict_mode.twig_compat', false) || $config->get('system.twig.autoescape', true);
+            $escape = !$config->get('system.strict_mode.twig2_compat', false) || $config->get('system.twig.autoescape', true);
 
             // Get initial metadata for the page
             $metadata = array_merge($metadata, $config->get('site.metadata', []));

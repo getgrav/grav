@@ -775,8 +775,8 @@ form:
             flex.cache.index.enabled:
               type: toggle
               label: PLUGIN_ADMIN.FLEX_INDEX_CACHE_ENABLED
-              highlight: 1
-              default: 1
+              highlight: 0
+              default: 0
               options:
                 1: PLUGIN_ADMIN.ENABLED
                 0: PLUGIN_ADMIN.DISABLED
@@ -793,8 +793,8 @@ form:
             flex.cache.object.enabled:
               type: toggle
               label: PLUGIN_ADMIN.FLEX_OBJECT_CACHE_ENABLED
-              highlight: 1
-              default: 1
+              highlight: 0
+              default: 0
               options:
                 1: PLUGIN_ADMIN.ENABLED
                 0: PLUGIN_ADMIN.DISABLED
@@ -1756,8 +1756,8 @@ form:
             http_x_forwarded.host:
               type: toggle
               label: HTTP_X_FORWARDED_HOST Enabled
-              highlight: 0
-              default: 0
+              highlight: 1
+              default: 1
               options:
                 1: PLUGIN_ADMIN.YES
                 0: PLUGIN_ADMIN.NO
@@ -1790,8 +1790,8 @@ form:
             strict_mode.blueprint_compat:
               type: toggle
               label: PLUGIN_ADMIN.STRICT_BLUEPRINT_COMPAT
-              highlight: 0
-              default: 0
+              highlight: 1
+              default: 1
               help: PLUGIN_ADMIN.STRICT_BLUEPRINT_COMPAT_HELP
               options:
                 1: PLUGIN_ADMIN.YES
@@ -1811,12 +1811,24 @@ form:
               validate:
                 type: bool
 
-            strict_mode.twig_compat:
+            strict_mode.twig2_compat:
               type: toggle
               label: PLUGIN_ADMIN.STRICT_TWIG_COMPAT
               highlight: 0
               default: 0
               help: PLUGIN_ADMIN.STRICT_TWIG_COMPAT_HELP
+              options:
+                1: PLUGIN_ADMIN.YES
+                0: PLUGIN_ADMIN.NO
+              validate:
+                type: bool
+
+            strict_mode.twig3_compat:
+              type: toggle
+              label: Twig 3 Compatibility
+              highlight: 0
+              default: 0
+              help: Enable automatic rewrites for legacy Twig 1/2 syntax that breaks on Twig 3 (e.g. `for ... if ...` guards)
               options:
                 1: PLUGIN_ADMIN.YES
                 0: PLUGIN_ADMIN.NO
@@ -1885,6 +1897,3 @@ form:
 #
 #            pages.type:
 #              type: hidden
-
-
-

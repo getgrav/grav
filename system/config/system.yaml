@@ -230,5 +230,6 @@ flex:
 
 strict_mode:
   yaml_compat: false                            # Set to true to enable YAML backwards compatibility
-  twig_compat: false                            # Set to true to enable deprecated Twig settings (autoescape: false)
+  twig2_compat: false                           # Set to true to enable deprecated Twig settings (autoescape: false)
+  twig3_compat: false                           # Set to true to enable automatic fixes for Twig 3 syntax changes
   blueprint_compat: false                       # Set to true to enable backward compatible strict support for blueprints
