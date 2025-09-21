@@ -25,9 +25,8 @@ class TwigEnvironment extends Environment
     /**
      * @inheritDoc
      *
-     * TODO: Needed for Twig 1 compatibility.
      */
-    public function resolveTemplate($names)
+    public function resolveTemplate($names): TemplateWrapper
     {
         if (!\is_array($names)) {
             $names = [$names];
@@ -52,7 +51,7 @@ class TwigEnvironment extends Environment
             }
 
             // Throws LoaderError: Unable to find template "%s".
-            return $this->loadTemplate($name);
+            return $this->load($name);
         }
 
         throw new LoaderError(sprintf('Unable to find one of the following templates: "%s".', implode('", "', $names)));

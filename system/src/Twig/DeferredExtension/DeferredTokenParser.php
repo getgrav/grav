@@ -55,8 +55,9 @@ final class DeferredTokenParser extends AbstractTokenParser
 
     private function replaceBlockNode(string $name) : void
     {
-        $block = $this->parser->getBlock($name)->getNode('0');
-        $this->parser->setBlock($name, $this->createDeferredBlockNode($block));
+        $blockContainer = $this->parser->getBlock($name);
+        $block = $blockContainer->getNode('0');
+        $blockContainer->setNode('0', $this->createDeferredBlockNode($block));
     }
 
     private function createDeferredBlockNode(BlockNode $block) : DeferredBlockNode

@@ -1,4 +1,9 @@
-<<<<<<< HEAD
+# v1.8.0-beta.5
+## mm/dd/2025
+
+1. [](#bugfix)
+    * Deferred Extension support in Forked version of Twig 3
+
 # v1.8.0-beta.4
 ## 01/27/2025
 
@@ -47,7 +52,7 @@
     * Removed unsupported **APC**, **WinCache**, **XCache** and **Memcache**, use apcu or memcached instead
     * Removed `system.umask_fix` setting for security reasons
     * Support phpstan level 6 in Framework classes
-=======
+
 # v1.7.49.5
 ## 09/10/2025
 
