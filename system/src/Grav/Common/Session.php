@@ -152,7 +152,7 @@ class Session extends \Grav\Framework\Session\Session
      */
     public function setFlashCookieObject($name, mixed $object, $time = 60)
     {
-        setcookie($name, json_encode($object, JSON_THROW_ON_ERROR), ['expires' => $this->getCookieOptions($time)]);
+        setcookie($name, json_encode($object, JSON_THROW_ON_ERROR), $this->getCookieOptions($time));
 
         return $this;
     }
@@ -168,7 +168,7 @@ class Session extends \Grav\Framework\Session\Session
     {
         if (isset($_COOKIE[$name])) {
             $cookie = $_COOKIE[$name];
-            setcookie($name, '', ['expires' => $this->getCookieOptions(-42000)]);
+            setcookie($name, '', $this->getCookieOptions(-42000));
 
             return json_decode((string) $cookie, false, 512, JSON_THROW_ON_ERROR);
         }

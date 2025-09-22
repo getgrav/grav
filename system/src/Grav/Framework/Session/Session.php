@@ -354,7 +354,7 @@ class Session implements SessionInterface
             setcookie(
                 $name,
                 '',
-                ['expires' => $this->getCookieOptions(-42000)]
+                $this->getCookieOptions(-42000)
             );
         }
 
@@ -507,7 +507,7 @@ class Session implements SessionInterface
         setcookie(
             $sessionName,
             $sessionId,
-            ['expires' => $this->getCookieOptions()]
+            $this->getCookieOptions()
         );
     }
 
