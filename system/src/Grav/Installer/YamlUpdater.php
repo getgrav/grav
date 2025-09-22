@@ -357,7 +357,7 @@ final class YamlUpdater
      * @param mixed $default Default value (or null).
      * @return mixed Value.
      */
-    private function get(string $name, mixed $default = null)
+    public function get(string $name, mixed $default = null)
     {
         $path = explode('.', $name);
         $current = $this->items;
@@ -379,7 +379,7 @@ final class YamlUpdater
      * @param string $name Dot separated path to the requested value.
      * @param mixed $value New value.
      */
-    private function set(string $name, mixed $value): void
+    public function set(string $name, mixed $value): void
     {
         $path = explode('.', $name);
         $current = &$this->items;

@@ -1,8 +1,15 @@
+# v1.8.0-beta.7
+## 09/22/2025
+
+1. [](#bugfix)
+    * Changed `private` to `public` for YamlUpdater::get() and YamUpdater::set() methods
+    * Fixed a session cookie issue that manifested when logging-in to client side
+
 # v1.8.0-beta.6
 ## 09/22/2025
 
 1. [](#bugfix)
-    * Fixed a missing YamlLinter::exists() method
+    * Fixed a missing YamlUpdater::exists() method
    
 # v1.8.0-beta.5
 ## 09/22/2025
