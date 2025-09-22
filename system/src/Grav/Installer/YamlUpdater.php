@@ -11,6 +11,7 @@ namespace Grav\Installer;
 
 use Grav\Common\Utils;
 use Symfony\Component\Yaml\Yaml;
+use function array_key_exists;
 use function assert;
 use function count;
 use function is_array;
@@ -146,6 +147,26 @@ final class YamlUpdater
         unset($line);
 
         array_splice($this->lines, abs($currentLine)+1, 0, $value);
+    }
+
+    /**
+     * Check if a value exists by using dot notation for nested arrays/objects.
+     */
+    public function exists(string $variable): bool
+    {
+        $path = explode('.', $variable);
+        $current = $this->items;
+
+        foreach ($path as $field) {
+            if (is_array($current) && array_key_exists($field, $current)) {
+                $current = $current[$field];
+                continue;
+            }
+
+            return false;
+        }
+
+        return true;
     }
 
     public function undefine(string $variable): void
