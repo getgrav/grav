@@ -48,6 +48,8 @@ use function in_array;
 use function is_array;
 use function is_int;
 use function is_string;
+use function json_encode;
+use function md5;
 
 /**
  * Class Pages
@@ -1730,13 +1732,8 @@ class Pages
             /** @var Language $language */
             $language = $this->grav['language'];
 
-            // how should we check for last modified? Default is by file
-            $hash = match ($this->check_method) {
-                'none', 'off' => 0,
-                'folder' => Folder::lastModifiedFolder($pages_dirs),
-                'hash' => Folder::hashAllFiles($pages_dirs),
-                default => Folder::lastModifiedFile($pages_dirs),
-            };
+            $interval = (int)$config->get('system.cache.check.interval', 0);
+            $hash = $this->resolvePagesHash($pages_dirs, $interval, (string)$this->check_method);
 
             $this->simple_pages_hash = json_encode($pages_dirs) . $hash . $config->checksum();
             $this->pages_cache_id = md5($this->simple_pages_hash . $language->getActive());
@@ -2218,6 +2215,47 @@ class Pages
         }
 
         return $new;
+    }
+
+    /**
+     * Resolve filesystem hash for pages with optional throttling to avoid expensive scans every request.
+     */
+    protected function resolvePagesHash(array $pagesDirs, int $interval, string $method): string|int
+    {
+        if ($method === 'none' || $method === 'off') {
+            return 0;
+        }
+
+        $resolver = static function () use ($pagesDirs, $method) {
+            return match ($method) {
+                'folder' => Folder::lastModifiedFolder($pagesDirs),
+                'hash' => Folder::hashAllFiles($pagesDirs),
+                default => Folder::lastModifiedFile($pagesDirs),
+            };
+        };
+
+        if ($interval <= 0) {
+            return $resolver();
+        }
+
+        /** @var Cache $cache */
+        $cache = $this->grav['cache'];
+        if (!$cache) {
+            return $resolver();
+        }
+
+        $configChecksum = $this->grav['config']->checksum();
+        $cacheKey = 'pages-hash-' . $method . '-' . md5(json_encode($pagesDirs) . $configChecksum);
+
+        $cached = $cache->fetch($cacheKey);
+        if ($cached !== false) {
+            return $cached;
+        }
+
+        $hash = $resolver();
+        $cache->save($cacheKey, $hash, $interval);
+
+        return $hash;
     }
 
     /**

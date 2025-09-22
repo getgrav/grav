@@ -610,6 +610,15 @@ form:
                 hash: All files timestamps
                 none: No timestamp checking
 
+            cache.check.interval:
+              type: number
+              size: x-small
+              label: Cache Check Interval
+              help: Seconds to reuse the previously computed filesystem hash before checking again. Zero keeps existing per-request checks.
+              validate:
+                type: int
+                min: 0
+
             cache.driver:
               type: select
               size: small

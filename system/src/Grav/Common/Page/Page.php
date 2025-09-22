@@ -13,6 +13,7 @@ use Exception;
 use Grav\Common\Cache;
 use Grav\Common\Config\Config;
 use Grav\Common\Data\Blueprint;
+use Grav\Common\File\CompiledMarkdownFile;
 use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\Grav;
@@ -31,7 +32,6 @@ use Grav\Common\Yaml;
 use Grav\Framework\Flex\Flex;
 use InvalidArgumentException;
 use RocketTheme\Toolbox\Event\Event;
-use RocketTheme\Toolbox\File\MarkdownFile;
 use RuntimeException;
 use SplFileInfo;
 use function dirname;
@@ -1132,12 +1132,12 @@ class Page implements PageInterface
     /**
      * Get file object to the page.
      *
-     * @return MarkdownFile|null
+     * @return CompiledMarkdownFile|null
      */
     public function file()
     {
         if ($this->name) {
-            return MarkdownFile::instance($this->filePath());
+            return CompiledMarkdownFile::instance($this->filePath());
         }
 
         return null;
