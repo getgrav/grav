@@ -1,11 +1,11 @@
 # v1.8.0-beta.5
-## mm/dd/2025
+## 09/22/2025
 
 1. [](#bugfix)
     * Deferred Extension support in Forked version of Twig 3
-    * Fix for cache blowing up when upgrading from 1.7 to 1.8
+    * Fix for cache blowing up when upgrading from 1.7 to 1.8 via CLI
 1. [](#new)
-    * Added separate `strict_mode.twig2_compat` and `strict_mode.twig3_compat` toggles to manage auto-escape behaviour and automatic Twig 3 template rewrites during upgrades
+    * Added separate `strict_mode.twig2_compat` and `strict_mode.twig3_compat` toggles to manage auto-escape behaviour and automatic Twig 3 compatible template rewrites
 
 # v1.8.0-beta.4
 ## 01/27/2025
