@@ -13,7 +13,10 @@ use BadMethodCallException;
 use Exception;
 use RocketTheme\Toolbox\File\PhpFile;
 use RuntimeException;
+use function filter_var;
+use function function_exists;
 use function get_class;
+use function ini_get;
 use function is_array;
 
 /**
@@ -254,6 +257,9 @@ abstract class CompiledBase
 
         $file->save($cache);
         $file->unlock();
+
+        $this->preloadOpcodeCache($file);
+
         $file->free();
 
         $this->modified();
@@ -265,5 +271,41 @@ abstract class CompiledBase
     protected function getState()
     {
         return $this->object->toArray();
+    }
+
+    /**
+     * Ensure compiled cache file is primed into OPcache when available.
+     */
+    protected function preloadOpcodeCache(PhpFile $file): void
+    {
+        if (!function_exists('opcache_invalidate') || !$this->isOpcacheEnabled()) {
+            return;
+        }
+
+        $filename = $file->filename();
+        if (!$filename) {
+            return;
+        }
+
+        // Silence errors for restricted functions while keeping best effort behavior.
+        @opcache_invalidate($filename, true);
+
+        if (function_exists('opcache_compile_file')) {
+            @opcache_compile_file($filename);
+        }
+    }
+
+    /**
+     * Detect if OPcache is active for current SAPI.
+     */
+    protected function isOpcacheEnabled(): bool
+    {
+        $enabled = filter_var(ini_get('opcache.enable'), \FILTER_VALIDATE_BOOLEAN);
+
+        if (PHP_SAPI === 'cli') {
+            $enabled = $enabled || filter_var(ini_get('opcache.enable_cli'), \FILTER_VALIDATE_BOOLEAN);
+        }
+
+        return $enabled;
     }
 }
