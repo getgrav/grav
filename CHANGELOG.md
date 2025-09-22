@@ -2,7 +2,8 @@
 ## 09/22/2025
 
 1. [](#bugfix)
-    * Fixed a bug with 
+    * Fixed a missing YamlLinter::exists() method
+   
 # v1.8.0-beta.5
 ## 09/22/2025
 
