@@ -23,26 +23,26 @@ abstract class AbstractUri implements UriInterface
 {
     /** @var array */
     protected static $defaultPorts = [
-        'http'  => 80,
-        'https' => 443
+        "http" => 80,
+        "https" => 443,
     ];
 
     /** @var string Uri scheme. */
-    private $scheme = '';
+    private $scheme = "";
     /** @var string Uri user. */
-    private $user = '';
+    private $user = "";
     /** @var string Uri password. */
-    private $password = '';
+    private $password = "";
     /** @var string Uri host. */
-    private $host = '';
+    private $host = "";
     /** @var int|null Uri port. */
     private $port;
     /** @var string Uri path. */
-    private $path = '';
+    private $path = "";
     /** @var string Uri query string (without ?). */
-    private $query = '';
+    private $query = "";
     /** @var string Uri fragment (without #). */
-    private $fragment = '';
+    private $fragment = "";
 
     /**
      * Please define constructor which calls $this->init().
@@ -52,7 +52,7 @@ abstract class AbstractUri implements UriInterface
     /**
      * @inheritdoc
      */
-    public function getScheme()
+    public function getScheme(): string
     {
         return $this->scheme;
     }
@@ -60,17 +60,17 @@ abstract class AbstractUri implements UriInterface
     /**
      * @inheritdoc
      */
-    public function getAuthority()
+    public function getAuthority(): string
     {
         $authority = $this->host;
 
         $userInfo = $this->getUserInfo();
-        if ($userInfo !== '') {
-            $authority = $userInfo . '@' . $authority;
+        if ($userInfo !== "") {
+            $authority = $userInfo . "@" . $authority;
         }
 
         if ($this->port !== null) {
-            $authority .= ':' . $this->port;
+            $authority .= ":" . $this->port;
         }
 
         return $authority;
@@ -79,12 +79,12 @@ abstract class AbstractUri implements UriInterface
     /**
      * @inheritdoc
      */
-    public function getUserInfo()
+    public function getUserInfo(): string
     {
         $userInfo = $this->user;
 
-        if ($this->password !== '') {
-            $userInfo .= ':' . $this->password;
+        if ($this->password !== "") {
+            $userInfo .= ":" . $this->password;
         }
 
         return $userInfo;
@@ -93,7 +93,7 @@ abstract class AbstractUri implements UriInterface
     /**
      * @inheritdoc
      */
-    public function getHost()
+    public function getHost(): string
     {
         return $this->host;
     }
@@ -101,7 +101,7 @@ abstract class AbstractUri implements UriInterface
     /**
      * @inheritdoc
      */
-    public function getPort()
+    public function getPort(): ?int
     {
         return $this->port;
     }
@@ -109,7 +109,7 @@ abstract class AbstractUri implements UriInterface
     /**
      * @inheritdoc
      */
-    public function getPath()
+    public function getPath(): string
     {
         return $this->path;
     }
@@ -117,7 +117,7 @@ abstract class AbstractUri implements UriInterface
     /**
      * @inheritdoc
      */
-    public function getQuery()
+    public function getQuery(): string
     {
         return $this->query;
     }
@@ -125,7 +125,7 @@ abstract class AbstractUri implements UriInterface
     /**
      * @inheritdoc
      */
-    public function getFragment()
+    public function getFragment(): string
     {
         return $this->fragment;
     }
@@ -133,7 +133,7 @@ abstract class AbstractUri implements UriInterface
     /**
      * @inheritdoc
      */
-    public function withScheme($scheme)
+    public function withScheme(string $scheme): UriInterface
     {
         $scheme = UriPartsFilter::filterScheme($scheme);
 
@@ -153,10 +153,10 @@ abstract class AbstractUri implements UriInterface
      * @inheritdoc
      * @throws InvalidArgumentException
      */
-    public function withUserInfo($user, $password = null)
+    public function withUserInfo(string $user, ?string $password = null): UriInterface
     {
         $user = UriPartsFilter::filterUserInfo($user);
-        $password = UriPartsFilter::filterUserInfo($password ?? '');
+        $password = UriPartsFilter::filterUserInfo($password ?? "");
 
         if ($this->user === $user && $this->password === $password) {
             return $this;
@@ -164,7 +164,7 @@ abstract class AbstractUri implements UriInterface
 
         $new = clone $this;
         $new->user = $user;
-        $new->password = $user !== '' ? $password : '';
+        $new->password = $user !== "" ? $password : "";
         $new->validate();
 
         return $new;
@@ -173,7 +173,7 @@ abstract class AbstractUri implements UriInterface
     /**
      * @inheritdoc
      */
-    public function withHost($host)
+    public function withHost(string $host): UriInterface
     {
         $host = UriPartsFilter::filterHost($host);
 
@@ -191,7 +191,7 @@ abstract class AbstractUri implements UriInterface
     /**
      * @inheritdoc
      */
-    public function withPort($port)
+    public function withPort(?int $port): UriInterface
     {
         $port = UriPartsFilter::filterPort($port);
 
@@ -210,7 +210,7 @@ abstract class AbstractUri implements UriInterface
     /**
      * @inheritdoc
      */
-    public function withPath($path)
+    public function withPath(string $path): UriInterface
     {
         $path = UriPartsFilter::filterPath($path);
 
@@ -228,7 +228,7 @@ abstract class AbstractUri implements UriInterface
     /**
      * @inheritdoc
      */
-    public function withQuery($query)
+    public function withQuery(string $query): UriInterface
     {
         $query = UriPartsFilter::filterQueryOrFragment($query);
 
@@ -246,7 +246,7 @@ abstract class AbstractUri implements UriInterface
      * @inheritdoc
      * @throws InvalidArgumentException
      */
-    public function withFragment($fragment)
+    public function withFragment(string $fragment): UriInterface
     {
         $fragment = UriPartsFilter::filterQueryOrFragment($fragment);
 
@@ -275,14 +275,14 @@ abstract class AbstractUri implements UriInterface
     protected function getParts()
     {
         return [
-            'scheme'    => $this->scheme,
-            'host'      => $this->host,
-            'port'      => $this->port,
-            'user'      => $this->user,
-            'pass'      => $this->password,
-            'path'      => $this->path,
-            'query'     => $this->query,
-            'fragment'  => $this->fragment
+            "scheme" => $this->scheme,
+            "host" => $this->host,
+            "port" => $this->port,
+            "user" => $this->user,
+            "pass" => $this->password,
+            "path" => $this->path,
+            "query" => $this->query,
+            "fragment" => $this->fragment,
         ];
     }
 
@@ -295,16 +295,16 @@ abstract class AbstractUri implements UriInterface
      */
     protected function getBaseUrl()
     {
-        $uri = '';
+        $uri = "";
 
         $scheme = $this->getScheme();
-        if ($scheme !== '') {
-            $uri .= $scheme . ':';
+        if ($scheme !== "") {
+            $uri .= $scheme . ":";
         }
 
         $authority = $this->getAuthority();
-        if ($authority !== '' || $scheme === 'file') {
-            $uri .= '//' . $authority;
+        if ($authority !== "" || $scheme === "file") {
+            $uri .= "//" . $authority;
         }
 
         return $uri;
@@ -318,13 +318,13 @@ abstract class AbstractUri implements UriInterface
         $uri = $this->getBaseUrl() . $this->getPath();
 
         $query = $this->getQuery();
-        if ($query !== '') {
-            $uri .= '?' . $query;
+        if ($query !== "") {
+            $uri .= "?" . $query;
         }
 
         $fragment = $this->getFragment();
-        if ($fragment !== '') {
-            $uri .= '#' . $fragment;
+        if ($fragment !== "") {
+            $uri .= "#" . $fragment;
         }
 
         return $uri;
@@ -353,14 +353,30 @@ abstract class AbstractUri implements UriInterface
      */
     protected function initParts(array $parts)
     {
-        $this->scheme = isset($parts['scheme']) ? UriPartsFilter::filterScheme($parts['scheme']) : '';
-        $this->user = isset($parts['user']) ? UriPartsFilter::filterUserInfo($parts['user']) : '';
-        $this->password = isset($parts['pass']) ? UriPartsFilter::filterUserInfo($parts['pass']) : '';
-        $this->host = isset($parts['host']) ? UriPartsFilter::filterHost($parts['host']) : '';
-        $this->port = isset($parts['port']) ? UriPartsFilter::filterPort((int)$parts['port']) : null;
-        $this->path = isset($parts['path']) ? UriPartsFilter::filterPath($parts['path']) : '';
-        $this->query = isset($parts['query']) ? UriPartsFilter::filterQueryOrFragment($parts['query']) : '';
-        $this->fragment = isset($parts['fragment']) ? UriPartsFilter::filterQueryOrFragment($parts['fragment']) : '';
+        $this->scheme = isset($parts["scheme"])
+            ? UriPartsFilter::filterScheme($parts["scheme"])
+            : "";
+        $this->user = isset($parts["user"])
+            ? UriPartsFilter::filterUserInfo($parts["user"])
+            : "";
+        $this->password = isset($parts["pass"])
+            ? UriPartsFilter::filterUserInfo($parts["pass"])
+            : "";
+        $this->host = isset($parts["host"])
+            ? UriPartsFilter::filterHost($parts["host"])
+            : "";
+        $this->port = isset($parts["port"])
+            ? UriPartsFilter::filterPort((int) $parts["port"])
+            : null;
+        $this->path = isset($parts["path"])
+            ? UriPartsFilter::filterPath($parts["path"])
+            : "";
+        $this->query = isset($parts["query"])
+            ? UriPartsFilter::filterQueryOrFragment($parts["query"])
+            : "";
+        $this->fragment = isset($parts["fragment"])
+            ? UriPartsFilter::filterQueryOrFragment($parts["fragment"])
+            : "";
 
         $this->unsetDefaultPort();
         $this->validate();
@@ -372,19 +388,33 @@ abstract class AbstractUri implements UriInterface
      */
     private function validate()
     {
-        if ($this->host === '' && ($this->scheme === 'http' || $this->scheme === 'https')) {
-            throw new InvalidArgumentException('Uri with a scheme must have a host');
+        if (
+            $this->host === "" &&
+            ($this->scheme === "http" || $this->scheme === "https")
+        ) {
+            throw new InvalidArgumentException(
+                "Uri with a scheme must have a host"
+            );
         }
 
-        if ($this->getAuthority() === '') {
-            if (str_starts_with($this->path, '//')) {
-                throw new InvalidArgumentException('The path of a URI without an authority must not start with two slashes \'//\'');
+        if ($this->getAuthority() === "") {
+            if (str_starts_with($this->path, "//")) {
+                throw new InvalidArgumentException(
+                    'The path of a URI without an authority must not start with two slashes \'//\''
+                );
             }
-            if ($this->scheme === '' && str_contains(explode('/', $this->path, 2)[0], ':')) {
-                throw new InvalidArgumentException('A relative URI must not have a path beginning with a segment containing a colon');
+            if (
+                $this->scheme === "" &&
+                str_contains(explode("/", $this->path, 2)[0], ":")
+            ) {
+                throw new InvalidArgumentException(
+                    "A relative URI must not have a path beginning with a segment containing a colon"
+                );
             }
-        } elseif (isset($this->path[0]) && $this->path[0] !== '/') {
-            throw new InvalidArgumentException('The path of a URI with an authority must start with a slash \'/\' or be empty');
+        } elseif (isset($this->path[0]) && $this->path[0] !== "/") {
+            throw new InvalidArgumentException(
+                'The path of a URI with an authority must start with a slash \'/\' or be empty'
+            );
         }
     }
 
@@ -396,8 +426,9 @@ abstract class AbstractUri implements UriInterface
         $scheme = $this->scheme;
         $port = $this->port;
 
-        return $this->port === null
-            || (isset(static::$defaultPorts[$scheme]) && $port === static::$defaultPorts[$scheme]);
+        return $this->port === null ||
+            (isset(static::$defaultPorts[$scheme]) &&
+                $port === static::$defaultPorts[$scheme]);
     }
 
     /**

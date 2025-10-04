@@ -36,7 +36,24 @@ class BlueprintTest extends \PHPUnit\Framework\TestCase
     {
         $blueprint = $this->loadBlueprint('strict');
 
-        $blueprint->validate(['test' => 'string', 'wrong' => 'field']);
+        $message = "Having extra key wrong in your data is deprecated with blueprint having 'validation: strict'";
+        $deprecationMessages = [];
+        set_error_handler(static function (int $errno, string $errstr) use (&$deprecationMessages): bool {
+            if ($errno === E_USER_DEPRECATED) {
+                $deprecationMessages[] = $errstr;
+                return true;
+            }
+
+            return false;
+        });
+
+        try {
+            $blueprint->validate(['test' => 'string', 'wrong' => 'field']);
+        } finally {
+            restore_error_handler();
+        }
+
+        self::assertContains($message, $deprecationMessages);
     }
 
     /**
