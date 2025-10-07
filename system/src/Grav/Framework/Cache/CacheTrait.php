@@ -46,7 +46,7 @@ trait CacheTrait
      * @return void
      * @throws InvalidArgumentException
      */
-    protected function init($namespace = '', $defaultLifetime = null)
+    protected function init(string $namespace = '', DateInterval|int|null $defaultLifetime = null): void
     {
         $this->namespace = (string) $namespace;
         $this->defaultLifetime = $this->convertTtl($defaultLifetime);
@@ -57,7 +57,7 @@ trait CacheTrait
      * @param bool $validation
      * @return void
      */
-    public function setValidation($validation)
+    public function setValidation(bool $validation): void
     {
         $this->validation = (bool) $validation;
     }
@@ -65,7 +65,7 @@ trait CacheTrait
     /**
      * @return string
      */
-    protected function getNamespace()
+    protected function getNamespace(): string
     {
         return $this->namespace;
     }
@@ -73,7 +73,7 @@ trait CacheTrait
     /**
      * @return int|null
      */
-    protected function getDefaultLifetime()
+    protected function getDefaultLifetime(): ?int
     {
         return $this->defaultLifetime;
     }
@@ -84,7 +84,7 @@ trait CacheTrait
      * @return mixed|null
      * @throws InvalidArgumentException
      */
-    public function get($key, $default = null)
+    public function get(string $key, mixed $default = null): mixed
     {
         $this->validateKey($key);
 
@@ -99,7 +99,7 @@ trait CacheTrait
      * @return bool
      * @throws InvalidArgumentException
      */
-    public function set($key, mixed $value, $ttl = null)
+    public function set(string $key, mixed $value, DateInterval|int|null $ttl = null): bool
     {
         $this->validateKey($key);
 
@@ -114,7 +114,7 @@ trait CacheTrait
      * @return bool
      * @throws InvalidArgumentException
      */
-    public function delete($key)
+    public function delete(string $key): bool
     {
         $this->validateKey($key);
 
@@ -124,7 +124,7 @@ trait CacheTrait
     /**
      * @return bool
      */
-    public function clear()
+    public function clear(): bool
     {
         return $this->doClear();
     }
@@ -135,7 +135,7 @@ trait CacheTrait
      * @return iterable
      * @throws InvalidArgumentException
      */
-    public function getMultiple($keys, $default = null)
+    public function getMultiple(iterable $keys, mixed $default = null): iterable
     {
         if ($keys instanceof Traversable) {
             $keys = iterator_to_array($keys, false);
@@ -178,7 +178,7 @@ trait CacheTrait
      * @return bool
      * @throws InvalidArgumentException
      */
-    public function setMultiple($values, $ttl = null)
+    public function setMultiple(iterable $values, DateInterval|int|null $ttl = null): bool
     {
         if ($values instanceof Traversable) {
             $values = iterator_to_array($values, true);
@@ -211,7 +211,7 @@ trait CacheTrait
      * @return bool
      * @throws InvalidArgumentException
      */
-    public function deleteMultiple($keys)
+    public function deleteMultiple(iterable $keys): bool
     {
         if ($keys instanceof Traversable) {
             $keys = iterator_to_array($keys, false);
@@ -239,7 +239,7 @@ trait CacheTrait
      * @return bool
      * @throws InvalidArgumentException
      */
-    public function has($key)
+    public function has(string $key): bool
     {
         $this->validateKey($key);
 
@@ -300,7 +300,7 @@ trait CacheTrait
      * @return void
      * @throws InvalidArgumentException
      */
-    protected function validateKey($key)
+    protected function validateKey(mixed $key): void
     {
         if (!is_string($key)) {
             throw new InvalidArgumentException(
@@ -330,7 +330,7 @@ trait CacheTrait
      * @return void
      * @throws InvalidArgumentException
      */
-    protected function validateKeys($keys)
+    protected function validateKeys(iterable $keys): void
     {
         if (!$this->validation) {
             return;
@@ -346,7 +346,7 @@ trait CacheTrait
      * @return int|null
      * @throws InvalidArgumentException
      */
-    protected function convertTtl($ttl)
+    protected function convertTtl(DateInterval|int|null $ttl): ?int
     {
         if ($ttl === null) {
             return $this->getDefaultLifetime();
@@ -359,6 +359,8 @@ trait CacheTrait
         if ($ttl instanceof DateInterval) {
             $date = DateTime::createFromFormat('U', '0');
             $ttl = $date ? (int)$date->add($ttl)->format('U') : 0;
+
+            return $ttl;
         }
 
         throw new InvalidArgumentException(

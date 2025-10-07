@@ -26,11 +26,13 @@ class ConsoleCommand extends Command
      * @param OutputInterface $output
      * @return int
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->setupConsole($input, $output);
 
-        return $this->serve();
+        $result = $this->serve();
+
+        return is_int($result) ? $result : self::SUCCESS;
     }
 
     /**

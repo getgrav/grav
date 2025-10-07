@@ -26,7 +26,7 @@ class GravCommand extends Command
      * @param OutputInterface $output
      * @return int
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->setupConsole($input, $output);
 
@@ -36,7 +36,9 @@ class GravCommand extends Command
             $this->initializeGrav();
         }
 
-        return $this->serve();
+        $result = $this->serve();
+
+        return is_int($result) ? $result : self::SUCCESS;
     }
 
     /**

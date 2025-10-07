@@ -21,6 +21,11 @@ class PluginListCommand extends ConsoleCommand
 {
     protected static $defaultName = 'plugins:list';
 
+    public function __construct()
+    {
+        parent::__construct(self::$defaultName);
+    }
+
     /**
      * @return void
      */

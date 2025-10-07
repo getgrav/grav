@@ -9,6 +9,7 @@
 
 namespace Grav\Console;
 
+use Closure;
 use Exception;
 use Grav\Common\Cache;
 use Grav\Common\Grav;
@@ -83,13 +84,14 @@ trait ConsoleTrait
      * @param int|null                      $mode        The option mode: One of the InputOption::VALUE_* constants
      * @param string                        $description A description text
      * @param string|string[]|int|bool|null $default     The default value (must be null for InputOption::VALUE_NONE)
+     * @param \Closure|array              $suggestedValues Suggested values or completion callback
      * @return $this
      * @throws InvalidArgumentException If option mode is invalid or incompatible
      */
-    public function addOption(string $name, array|string|null $shortcut = null, ?int $mode = null, string $description = '', mixed $default = null): static
+    public function addOption(string $name, array|string|null $shortcut = null, ?int $mode = null, string $description = '', mixed $default = null, Closure|array $suggestedValues = []): static
     {
         if ($name !== 'env' && $name !== 'lang') {
-            parent::addOption($name, $shortcut, $mode, $description, $default);
+            parent::addOption($name, $shortcut, $mode, $description, $default, $suggestedValues);
         }
 
         return $this;
