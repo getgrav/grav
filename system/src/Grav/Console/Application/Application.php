@@ -122,7 +122,7 @@ class Application extends \Symfony\Component\Console\Application
      * @param OutputInterface $output
      * @return void
      */
-    protected function configureIO(InputInterface $input, OutputInterface $output)
+    protected function configureIO(InputInterface $input, OutputInterface $output): void
     {
         $formatter = $output->getFormatter();
         $formatter->setStyle('normal', new OutputFormatterStyle('white'));

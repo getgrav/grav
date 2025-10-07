@@ -19,7 +19,6 @@ use Psr\Http\Message\UploadedFileInterface;
 use RuntimeException;
 use function copy;
 use function fopen;
-use function is_string;
 use function sprintf;
 
 /**
@@ -59,7 +58,7 @@ class FormFlashFile implements UploadedFileInterface, JsonSerializable
     /**
      * @return StreamInterface
      */
-    public function getStream()
+    public function getStream(): StreamInterface
     {
         $this->validateActive();
 
@@ -80,11 +79,11 @@ class FormFlashFile implements UploadedFileInterface, JsonSerializable
      * @param string $targetPath
      * @return void
      */
-    public function moveTo($targetPath)
+    public function moveTo(string $targetPath): void
     {
         $this->validateActive();
 
-        if (!is_string($targetPath) || empty($targetPath)) {
+        if ($targetPath === '') {
             throw new InvalidArgumentException('Invalid path provided for move operation; must be a non-empty string');
         }
         $tmpFile = $this->getTmpFile();
@@ -118,33 +117,33 @@ class FormFlashFile implements UploadedFileInterface, JsonSerializable
     }
 
     /**
-     * @return int
+     * @return int|null
      */
-    public function getSize()
+    public function getSize(): ?int
     {
-        return $this->upload['size'];
+        return $this->upload['size'] ?? null;
     }
 
     /**
      * @return int
      */
-    public function getError()
+    public function getError(): int
     {
         return $this->upload['error'] ?? \UPLOAD_ERR_OK;
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getClientFilename()
+    public function getClientFilename(): ?string
     {
         return $this->upload['name'] ?? 'unknown';
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getClientMediaType()
+    public function getClientMediaType(): ?string
     {
         return $this->upload['type'] ?? 'application/octet-stream';
     }
