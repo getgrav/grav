@@ -1,3 +1,15 @@
+# v1.8.0-beta.8
+## 10/14/2025
+
+1. [](#improved)
+    * Upgraded to latest Symfony 7 (might cause issues with some plugins)
+    * `wordCount` twig filter (merged from 1.7 branch)
+    * More PHP 8.4 compatibility fixes
+    * Update all vendor libraries to latest
+1. [](#bugfix)
+    * Fixed some CLI level bugs
+    * Fixed a Twig Sandbox bybpass issue
+
 # v1.8.0-beta.7
 ## 09/22/2025
 
