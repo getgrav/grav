@@ -262,7 +262,17 @@ ERR;
             $this->updater->install();
 
             if ($this->shouldUseSafeUpgrade()) {
-                $service = new SafeUpgradeService();
+                $options = [];
+                try {
+                    $grav = Grav::instance();
+                    if ($grav && isset($grav['config'])) {
+                        $options['staging_root'] = $grav['config']->get('system.updates.staging_root');
+                    }
+                } catch (\Throwable $e) {
+                    // ignore
+                }
+
+                $service = new SafeUpgradeService($options);
                 $service->promote($this->location, $this->getVersion(), $this->ignores);
                 Installer::setError(Installer::OK);
             } else {

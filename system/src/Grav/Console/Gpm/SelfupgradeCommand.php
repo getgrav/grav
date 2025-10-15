@@ -278,7 +278,18 @@ class SelfupgradeCommand extends GpmCommand
      */
     protected function createSafeUpgradeService(): SafeUpgradeService
     {
-        return new SafeUpgradeService();
+        $config = null;
+        try {
+            $config = Grav::instance()['config'] ?? null;
+        } catch (\Throwable $e) {
+            $config = null;
+        }
+
+        $stagingRoot = $config ? $config->get('system.updates.staging_root') : null;
+
+        return new SafeUpgradeService([
+            'staging_root' => $stagingRoot,
+        ]);
     }
 
     /**

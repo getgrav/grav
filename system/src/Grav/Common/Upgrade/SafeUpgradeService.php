@@ -39,6 +39,8 @@ use function uniqid;
 use function trim;
 use function strpos;
 use function unlink;
+use function ltrim;
+use function preg_replace;
 use const GRAV_ROOT;
 use const GLOB_ONLYDIR;
 use const JSON_PRETTY_PRINT;
@@ -75,15 +77,29 @@ class SafeUpgradeService
         $root = $options['root'] ?? GRAV_ROOT;
         $this->rootPath = rtrim($root, DIRECTORY_SEPARATOR);
         $this->parentDir = $options['parent_dir'] ?? dirname($this->rootPath);
-        $defaultStaging = $options['staging_root'] ?? ($this->parentDir . DIRECTORY_SEPARATOR . 'grav-upgrades');
-        if (!$this->ensureWritable($defaultStaging)) {
-            $fallback = getenv('HOME') ? getenv('HOME') . DIRECTORY_SEPARATOR . 'grav-upgrades' : sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'grav-upgrades';
-            if (!$this->ensureWritable($fallback)) {
-                throw new RuntimeException(sprintf('Unable to create staging directory at %s or fallback %s. Adjust permissions or configure system.updates.staging_root.', $defaultStaging, $fallback));
-            }
-            $defaultStaging = $fallback;
+
+        $candidates = [];
+        if (!empty($options['staging_root'])) {
+            $candidates[] = $options['staging_root'];
         }
-        $this->stagingRoot = realpath($defaultStaging) ?: $defaultStaging;
+        $candidates[] = $this->parentDir . DIRECTORY_SEPARATOR . 'grav-upgrades';
+        if (getenv('HOME')) {
+            $candidates[] = getenv('HOME') . DIRECTORY_SEPARATOR . 'grav-upgrades';
+        }
+        $candidates[] = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'grav-upgrades';
+
+        $this->stagingRoot = null;
+        foreach ($candidates as $candidate) {
+            $resolved = $this->resolveStagingPath($candidate);
+            if ($resolved) {
+                $this->stagingRoot = $resolved;
+                break;
+            }
+        }
+
+        if (null === $this->stagingRoot) {
+            throw new RuntimeException('Unable to locate writable staging directory. Configure system.updates.staging_root or adjust permissions.');
+        }
         $this->manifestStore = $options['manifest_store'] ?? ($this->rootPath . DIRECTORY_SEPARATOR . 'user' . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'upgrades');
         if (isset($options['ignored_dirs']) && is_array($options['ignored_dirs'])) {
             $this->ignoredDirs = $options['ignored_dirs'];
@@ -509,19 +525,54 @@ class SafeUpgradeService
      * @param string $path
      * @return bool
      */
-    private function ensureWritable(string $path): bool
+    private function resolveStagingPath(?string $path): ?string
     {
+        if (null === $path || $path === '') {
+            return null;
+        }
+
+        $expanded = $path;
+        if (0 === strpos($expanded, '~')) {
+            $home = getenv('HOME');
+            if ($home) {
+                $expanded = rtrim($home, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . ltrim($expanded, '~\/');
+            }
+        }
+        if (!$this->isAbsolutePath($expanded)) {
+            $expanded = $this->rootPath . DIRECTORY_SEPARATOR . ltrim($expanded, DIRECTORY_SEPARATOR);
+        }
+
+        $expanded = $this->normalizePath($expanded);
+
         try {
-            Folder::create($path);
+            Folder::create($expanded);
         } catch (\RuntimeException $e) {
+            return null;
+        }
+
+        return is_writable($expanded) ? $expanded : null;
+    }
+
+    private function isAbsolutePath(string $path): bool
+    {
+        if ($path === '') {
             return false;
         }
 
-        if (!is_writable($path)) {
-            return false;
+        if ($path[0] === '/' || $path[0] === '\\') {
+            return true;
         }
 
-        return true;
+        return (bool)preg_match('#^[A-Za-z]:[\\/]#', $path);
+    }
+
+    private function normalizePath(string $path): string
+    {
+        $path = str_replace('\\', '/', $path);
+        $path = preg_replace('#/+#', '/', $path);
+        $path = rtrim($path, '/');
+
+        return str_replace('/', DIRECTORY_SEPARATOR, $path);
     }
 
     /**
