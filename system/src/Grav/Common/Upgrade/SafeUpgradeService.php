@@ -15,6 +15,9 @@ use Grav\Common\Yaml;
 use InvalidArgumentException;
 use RuntimeException;
 use Throwable;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+use FilesystemIterator;
 use function basename;
 use function count;
 use function dirname;
@@ -94,16 +97,21 @@ class SafeUpgradeService
         }
 
         $psrLogConflicts = $this->detectPsrLogConflicts();
+        $monologConflicts = $this->detectMonologConflicts();
         if ($pending) {
             $warnings[] = 'One or more plugins/themes are not up to date.';
         }
         if ($psrLogConflicts) {
             $warnings[] = 'Potential psr/log signature conflicts detected.';
         }
+        if ($monologConflicts) {
+            $warnings[] = 'Potential Monolog logger API incompatibilities detected.';
+        }
 
         return [
             'plugins_pending' => $pending,
             'psr_log_conflicts' => $psrLogConflicts,
+            'monolog_conflicts' => $monologConflicts,
             'warnings' => $warnings,
         ];
     }
@@ -258,6 +266,47 @@ class SafeUpgradeService
                 'composer' => $composerFile,
                 'requires' => $rawConstraint,
             ];
+        }
+
+        return $conflicts;
+    }
+
+    /**
+     * Detect usage of deprecated Monolog `add*` methods removed in newer releases.
+     *
+     * @return array<string, array>
+     */
+    protected function detectMonologConflicts(): array
+    {
+        $conflicts = [];
+        $pluginRoots = glob($this->rootPath . '/user/plugins/*', GLOB_ONLYDIR) ?: [];
+        $pattern = '/->add(?:Debug|Info|Notice|Warning|Error|Critical|Alert|Emergency)\s*\(/i';
+
+        foreach ($pluginRoots as $path) {
+            $iterator = new RecursiveIteratorIterator(
+                new RecursiveDirectoryIterator($path, FilesystemIterator::SKIP_DOTS)
+            );
+
+            foreach ($iterator as $file) {
+                /** @var \SplFileInfo $file */
+                if (!$file->isFile() || strtolower($file->getExtension()) !== 'php') {
+                    continue;
+                }
+
+                $contents = @file_get_contents($file->getPathname());
+                if ($contents === false) {
+                    continue;
+                }
+
+                if (preg_match($pattern, $contents, $match)) {
+                    $slug = basename($path);
+                    $relative = str_replace($this->rootPath . '/', '', $file->getPathname());
+                    $conflicts[$slug][] = [
+                        'file' => $relative,
+                        'method' => trim($match[0]),
+                    ];
+                }
+            }
         }
 
         return $conflicts;

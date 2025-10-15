@@ -25,7 +25,7 @@ class PreflightCommand extends GpmCommand
         $service = $this->createSafeUpgradeService();
         $report = $service->preflight();
 
-        $hasIssues = !empty($report['plugins_pending']) || !empty($report['psr_log_conflicts']) || !empty($report['warnings']);
+        $hasIssues = !empty($report['plugins_pending']) || !empty($report['psr_log_conflicts']) || !empty($report['monolog_conflicts']) || !empty($report['warnings']);
 
         if ($this->getInput()->getOption('json')) {
             $io->writeln(json_encode($report, JSON_PRETTY_PRINT));
@@ -57,6 +57,19 @@ class PreflightCommand extends GpmCommand
                 $io->writeln(sprintf('  - %s (requires psr/log %s)', $slug, $info['requires'] ?? '*'));
             }
             $io->writeln('    › Update the plugin or add "replace": {"psr/log": "*"} to its composer.json and reinstall dependencies.');
+            $io->newLine();
+        }
+
+        if (!empty($report['monolog_conflicts'])) {
+            $io->writeln('<comment>Potential Monolog logger conflicts</comment>');
+            foreach ($report['monolog_conflicts'] as $slug => $entries) {
+                foreach ($entries as $entry) {
+                    $file = $entry['file'] ?? 'unknown file';
+                    $method = $entry['method'] ?? 'add*';
+                    $io->writeln(sprintf('  - %s (%s in %s)', $slug, $method, $file));
+                }
+            }
+            $io->writeln('    › Update the plugin to use PSR-3 style logger calls (e.g. $logger->error()).');
             $io->newLine();
         }
 

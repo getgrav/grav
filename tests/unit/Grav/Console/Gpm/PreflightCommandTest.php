@@ -14,6 +14,7 @@ class PreflightCommandTest extends \Codeception\TestCase\Test
         $service = new StubSafeUpgradeService([
             'plugins_pending' => [],
             'psr_log_conflicts' => [],
+            'monolog_conflicts' => [],
             'warnings' => []
         ]);
         $command = new TestPreflightCommand($service);
@@ -31,6 +32,7 @@ class PreflightCommandTest extends \Codeception\TestCase\Test
         $service = new StubSafeUpgradeService([
             'plugins_pending' => ['alpha' => ['type' => 'plugin', 'current' => '1', 'available' => '2']],
             'psr_log_conflicts' => ['beta' => ['requires' => '^1']],
+            'monolog_conflicts' => ['gamma' => [['file' => 'user/plugins/gamma/gamma.php', 'method' => '->addError(']]],
             'warnings' => ['pending updates']
         ]);
         $command = new TestPreflightCommand($service);
@@ -42,6 +44,7 @@ class PreflightCommandTest extends \Codeception\TestCase\Test
         $output = implode("\n", $style->messages);
         self::assertStringContainsString('pending updates', $output);
         self::assertStringContainsString('beta', $output);
+        self::assertStringContainsString('gamma', $output);
     }
 
     /**

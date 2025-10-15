@@ -22,6 +22,7 @@ use RuntimeException;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use ZipArchive;
 use function count;
 use function is_callable;
@@ -289,9 +290,10 @@ class SelfupgradeCommand extends GpmCommand
         $io = $this->getIO();
         $pending = $preflight['plugins_pending'] ?? [];
         $conflicts = $preflight['psr_log_conflicts'] ?? [];
+        $monologConflicts = $preflight['monolog_conflicts'] ?? [];
         $warnings = $preflight['warnings'] ?? [];
 
-        if (empty($pending) && empty($conflicts)) {
+        if (empty($pending) && empty($conflicts) && empty($monologConflicts)) {
             return true;
         }
 
@@ -319,24 +321,97 @@ class SelfupgradeCommand extends GpmCommand
             return false;
         }
 
-        if ($conflicts) {
-            $io->newLine();
-            $io->writeln('<yellow>Potential psr/log incompatibilities:</yellow>');
-            foreach ($conflicts as $slug => $info) {
-                $requires = $info['requires'] ?? '*';
-                $io->writeln(sprintf('  - %s (requires psr/log %s)', $slug, $requires));
-            }
-            $io->writeln('    › Update the plugin or add "replace": {"psr/log": "*"} to its composer.json and reinstall dependencies.');
-
-            if (!$this->all_yes) {
-                $question = new ConfirmationQuestion('Continue despite psr/log warnings? [y|N] ', false);
-                if (!$io->askQuestion($question)) {
-                    $io->writeln('Aborting self-upgrade. Adjust composer requirements or update affected plugins.');
-
-                    return false;
+        $handled = $this->handleConflicts(
+            $conflicts,
+            static function (SymfonyStyle $io, array $conflicts): void {
+                $io->newLine();
+                $io->writeln('<yellow>Potential psr/log incompatibilities:</yellow>');
+                foreach ($conflicts as $slug => $info) {
+                    $requires = $info['requires'] ?? '*';
+                    $io->writeln(sprintf('  - %s (requires psr/log %s)', $slug, $requires));
                 }
-            }
+            },
+            'Update the plugin or add "replace": {"psr/log": "*"} to its composer.json and reinstall dependencies.',
+            'Aborting self-upgrade. Adjust composer requirements or update affected plugins.',
+            'Proceeding with potential psr/log incompatibilities still active.',
+            'Disabled before upgrade because of psr/log conflict'
+        );
+
+        if (!$handled) {
+            return false;
         }
+
+        $handledMonolog = $this->handleConflicts(
+            $monologConflicts,
+            static function (SymfonyStyle $io, array $conflicts): void {
+                $io->newLine();
+                $io->writeln('<yellow>Potential Monolog logger API incompatibilities:</yellow>');
+                foreach ($conflicts as $slug => $entries) {
+                    foreach ($entries as $entry) {
+                        $file = $entry['file'] ?? 'unknown file';
+                        $method = $entry['method'] ?? 'add*';
+                        $io->writeln(sprintf('  - %s (%s in %s)', $slug, $method, $file));
+                    }
+                }
+            },
+            'Update the plugin to use PSR-3 style logger methods (e.g. $logger->error()) before upgrading.',
+            'Aborting self-upgrade. Update plugins to remove deprecated Monolog add* calls.',
+            'Proceeding with potential Monolog API incompatibilities still active.',
+            'Disabled before upgrade because of Monolog API conflict'
+        );
+
+        if (!$handledMonolog) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * @param array $conflicts
+     * @param callable $printer
+     * @param string $advice
+     * @param string $abortMessage
+     * @param string $continueMessage
+     * @param string $disableNote
+     * @return bool
+     */
+    private function handleConflicts(array $conflicts, callable $printer, string $advice, string $abortMessage, string $continueMessage, string $disableNote): bool
+    {
+        if (empty($conflicts)) {
+            return true;
+        }
+
+        $io = $this->getIO();
+        $printer($io, $conflicts);
+        $io->writeln('    › ' . $advice);
+
+        $choice = $this->all_yes ? 'abort' : $io->choice(
+            'How would you like to proceed?',
+            ['disable', 'continue', 'abort'],
+            'abort'
+        );
+
+        if ($choice === 'abort') {
+            $io->writeln($abortMessage);
+
+            return false;
+        }
+
+        /** @var \Grav\Common\Recovery\RecoveryManager $recovery */
+        $recovery = Grav::instance()['recovery'];
+
+        if ($choice === 'disable') {
+            foreach (array_keys($conflicts) as $slug) {
+                $recovery->disablePlugin($slug, ['message' => $disableNote]);
+                $io->writeln(sprintf('  - Disabled plugin %s.', $slug));
+            }
+            $io->writeln('Continuing with conflicted plugins disabled.');
+
+            return true;
+        }
+
+        $io->writeln($continueMessage);
 
         return true;
     }

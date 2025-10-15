@@ -185,7 +185,25 @@ class RecoveryManager
      * @param array $context
      * @return void
      */
-    private function quarantinePlugin(string $slug, array $context): void
+    public function disablePlugin(string $slug, array $context = []): void
+    {
+        $context += [
+            'message' => $context['message'] ?? 'Disabled during upgrade preflight',
+            'file' => $context['file'] ?? '',
+            'line' => $context['line'] ?? null,
+            'created_at' => $context['created_at'] ?? time(),
+            'plugin' => $context['plugin'] ?? $slug,
+        ];
+
+        $this->quarantinePlugin($slug, $context);
+    }
+
+    /**
+     * @param string $slug
+     * @param array $context
+     * @return void
+     */
+    protected function quarantinePlugin(string $slug, array $context): void
     {
         $slug = trim($slug);
         if ($slug === '') {

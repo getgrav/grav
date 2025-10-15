@@ -1,5 +1,6 @@
 <?php
 
+use Codeception\Util\Fixtures;
 use Grav\Console\Gpm\SelfupgradeCommand;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
@@ -43,7 +44,7 @@ class SelfupgradeCommandTest extends \Codeception\TestCase\Test
     public function testHandlePreflightReportAbortsOnPendingWhenDeclined(): void
     {
         $command = new TestSelfupgradeCommand();
-        [$style] = $this->injectIo($command, [false]);
+        [$style] = $this->injectIo($command);
         $this->setAllYes($command, false);
 
         $result = $command->runHandle([
@@ -59,7 +60,7 @@ class SelfupgradeCommandTest extends \Codeception\TestCase\Test
     public function testHandlePreflightReportAbortsOnConflictWhenDeclined(): void
     {
         $command = new TestSelfupgradeCommand();
-        [$style] = $this->injectIo($command, [false]);
+        [$style] = $this->injectIo($command, ['abort']);
         $this->setAllYes($command, false);
 
         $result = $command->runHandle([
@@ -70,6 +71,50 @@ class SelfupgradeCommandTest extends \Codeception\TestCase\Test
 
         self::assertFalse($result);
         self::assertStringContainsString('Adjust composer requirements', implode("\n", $style->messages));
+    }
+
+    public function testHandlePreflightReportDisablesPluginsWhenRequested(): void
+    {
+        $gravFactory = Fixtures::get('grav');
+        $grav = $gravFactory();
+        $stub = new class {
+            public $disabled = [];
+            public function disablePlugin(string $slug, array $context = []): void
+            {
+                $this->disabled[] = $slug;
+            }
+        };
+        $grav['recovery'] = $stub;
+
+        $command = new TestSelfupgradeCommand();
+        [$style] = $this->injectIo($command, ['disable']);
+
+        $result = $command->runHandle([
+            'plugins_pending' => [],
+            'psr_log_conflicts' => ['foo' => ['requires' => '^1.0']],
+            'warnings' => []
+        ]);
+
+        self::assertTrue($result);
+        self::assertSame(['foo'], $stub->disabled);
+        $output = implode("\n", $style->messages);
+        self::assertStringContainsString('Continuing with conflicted plugins disabled.', $output);
+    }
+
+    public function testHandlePreflightReportContinuesWhenRequested(): void
+    {
+        $command = new TestSelfupgradeCommand();
+        [$style] = $this->injectIo($command, ['continue']);
+
+        $result = $command->runHandle([
+            'plugins_pending' => [],
+            'psr_log_conflicts' => ['foo' => ['requires' => '^1.0']],
+            'warnings' => []
+        ]);
+
+        self::assertTrue($result);
+        $output = implode("\n", $style->messages);
+        self::assertStringContainsString('Proceeding with potential psr/log incompatibilities still active.', $output);
     }
 
     /**
@@ -155,5 +200,14 @@ class SelfUpgradeMemoryStyle extends SymfonyStyle
         }
 
         return parent::askQuestion($question);
+    }
+
+    public function choice($question, array $choices, $default = null, $attempts = null, $errorMessage = 'Invalid value.')
+    {
+        if ($this->responses) {
+            return array_shift($this->responses);
+        }
+
+        return parent::choice($question, $choices, $default, $attempts, $errorMessage);
     }
 }

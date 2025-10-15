@@ -120,4 +120,25 @@ class RecoveryManagerTest extends \Codeception\TestCase\Test
         $manager = new RecoveryManager($this->tmpDir);
         self::assertNull($manager->getContext());
     }
+
+    public function testDisablePluginRecordsQuarantineWithoutFlag(): void
+    {
+        $plugin = $this->tmpDir . '/user/plugins/problem';
+        Folder::create($plugin);
+
+        $manager = new RecoveryManager($this->tmpDir);
+        $manager->disablePlugin('problem', ['message' => 'Manual disable']);
+
+        $flag = $this->tmpDir . '/system/recovery.flag';
+        self::assertFileDoesNotExist($flag);
+
+        $configFile = $this->tmpDir . '/user/config/plugins/problem.yaml';
+        self::assertFileExists($configFile);
+        self::assertStringContainsString('enabled: false', file_get_contents($configFile));
+
+        $quarantine = $this->tmpDir . '/user/data/upgrades/quarantine.json';
+        self::assertFileExists($quarantine);
+        $decoded = json_decode(file_get_contents($quarantine), true);
+        self::assertSame('Manual disable', $decoded['problem']['message']);
+    }
 }

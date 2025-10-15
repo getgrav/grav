@@ -30,6 +30,11 @@ class SafeUpgradeServiceTest extends \Codeception\TestCase\Test
             public $conflicts = [
                 'beta' => ['requires' => '^1.0']
             ];
+            public $monolog = [
+                'gamma' => [
+                    ['file' => 'user/plugins/gamma/gamma.php', 'method' => '->addError(']
+                ]
+            ];
 
             protected function detectPendingPluginUpdates(): array
             {
@@ -40,14 +45,20 @@ class SafeUpgradeServiceTest extends \Codeception\TestCase\Test
             {
                 return $this->conflicts;
             }
+
+            protected function detectMonologConflicts(): array
+            {
+                return $this->monolog;
+            }
         };
 
         $result = $service->preflight();
 
         self::assertArrayHasKey('warnings', $result);
-        self::assertCount(2, $result['warnings']);
+        self::assertCount(3, $result['warnings']);
         self::assertArrayHasKey('alpha', $result['plugins_pending']);
         self::assertArrayHasKey('beta', $result['psr_log_conflicts']);
+        self::assertArrayHasKey('gamma', $result['monolog_conflicts']);
     }
 
     public function testPreflightHandlesDetectionFailure(): void
@@ -62,12 +73,18 @@ class SafeUpgradeServiceTest extends \Codeception\TestCase\Test
             {
                 return [];
             }
+
+            protected function detectMonologConflicts(): array
+            {
+                return [];
+            }
         };
 
         $result = $service->preflight();
 
         self::assertSame([], $result['plugins_pending']);
         self::assertSame([], $result['psr_log_conflicts']);
+        self::assertSame([], $result['monolog_conflicts']);
         self::assertCount(1, $result['warnings']);
         self::assertStringContainsString('Cannot reach GPM', $result['warnings'][0]);
     }
@@ -140,6 +157,37 @@ class SafeUpgradeServiceTest extends \Codeception\TestCase\Test
         self::assertArrayHasKey('problem', $conflicts);
     }
 
+    public function testDetectsMonologConflictsFromFilesystem(): void
+    {
+        [$root] = $this->prepareLiveEnvironment();
+        $plugin = $root . '/user/plugins/logger';
+        Folder::create($plugin . '/src');
+        $code = <<<'PHP'
+<?php
+class LoggerTest {
+    public function test(
+        \Monolog\Logger $logger
+    ) {
+        $logger->addError('deprecated');
+    }
+}
+PHP;
+        file_put_contents($plugin . '/src/logger.php', $code);
+
+        $service = new SafeUpgradeService([
+            'root' => $root,
+            'staging_root' => $this->tmpDir . '/staging',
+        ]);
+
+        $method = new ReflectionMethod(SafeUpgradeService::class, 'detectMonologConflicts');
+        $method->setAccessible(true);
+        $conflicts = $method->invoke($service);
+
+        self::assertArrayHasKey('logger', $conflicts);
+        self::assertNotEmpty($conflicts['logger']);
+        self::assertStringContainsString('addError', $conflicts['logger'][0]['method']);
+    }
+
     public function testClearRecoveryFlagRemovesFile(): void
     {
         [$root] = $this->prepareLiveEnvironment();
@@ -190,4 +238,3 @@ class SafeUpgradeServiceTest extends \Codeception\TestCase\Test
         return $package;
     }
 }
-
