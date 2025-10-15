@@ -74,7 +74,7 @@ class SafeUpgradeService
         $root = $options['root'] ?? GRAV_ROOT;
         $this->rootPath = rtrim($root, DIRECTORY_SEPARATOR);
         $this->parentDir = $options['parent_dir'] ?? dirname($this->rootPath);
-        $this->stagingRoot = $options['staging_root'] ?? ($this->parentDir . DIRECTORY_SEPARATOR . 'grav-upgrades');
+        $this->stagingRoot = $options['staging_root'] ?? ($this->rootPath . DIRECTORY_SEPARATOR . 'grav-upgrades');
         $this->manifestStore = $options['manifest_store'] ?? ($this->rootPath . DIRECTORY_SEPARATOR . 'user' . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'upgrades');
         if (isset($options['ignored_dirs']) && is_array($options['ignored_dirs'])) {
             $this->ignoredDirs = $options['ignored_dirs'];
@@ -135,6 +135,7 @@ class SafeUpgradeService
         $packagePath = $stagePath . DIRECTORY_SEPARATOR . 'package';
         $backupPath = $this->stagingRoot . DIRECTORY_SEPARATOR . 'rollback-' . $stageId;
 
+        Folder::create($this->stagingRoot);
         Folder::create($packagePath);
 
         // Copy extracted package into staging area.
@@ -179,6 +180,7 @@ class SafeUpgradeService
         $rotated = $this->rotateCurrentTree();
 
         $this->promoteBackup($backupPath);
+        $this->syncGitDirectory($rotated, $this->rootPath);
         $this->markRollback($manifest['id']);
         if ($rotated && is_dir($rotated)) {
             Folder::delete($rotated);
@@ -420,6 +422,8 @@ class SafeUpgradeService
             rename($backupPath, $liveRoot);
             throw new RuntimeException('Failed to promote staged Grav release.');
         }
+
+        $this->syncGitDirectory($backupPath, $liveRoot);
     }
 
     /**
