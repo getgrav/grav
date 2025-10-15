@@ -313,14 +313,10 @@ class SelfupgradeCommand extends GpmCommand
                 $io->writeln(sprintf('  - %s (%s) %s → %s', $slug, $type, $current, $available));
             }
 
-            if (!$this->all_yes) {
-                $question = new ConfirmationQuestion('Continue without updating these packages? [y|N] ', false);
-                if (!$io->askQuestion($question)) {
-                    $io->writeln('Aborting self-upgrade. Run `bin/gpm update` first.');
+            $io->writeln('    › Please run `bin/gpm update` to bring these packages current before upgrading Grav.');
+            $io->writeln('Aborting self-upgrade. Run `bin/gpm update` first.');
 
-                    return false;
-                }
-            }
+            return false;
         }
 
         if ($conflicts) {

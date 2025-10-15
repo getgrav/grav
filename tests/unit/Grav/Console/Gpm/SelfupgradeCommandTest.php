@@ -23,7 +23,7 @@ class SelfupgradeCommandTest extends \Codeception\TestCase\Test
         self::assertSame([], $style->messages);
     }
 
-    public function testHandlePreflightReportSkipsPromptsWhenAllYes(): void
+    public function testHandlePreflightReportFailsWhenPendingEvenWithAllYes(): void
     {
         $command = new TestSelfupgradeCommand();
         [$style] = $this->injectIo($command);
@@ -35,10 +35,9 @@ class SelfupgradeCommandTest extends \Codeception\TestCase\Test
             'warnings' => ['pending']
         ]);
 
-        self::assertTrue($result);
+        self::assertFalse($result);
         $output = implode("\n", $style->messages);
-        self::assertStringContainsString('pending', $output);
-        self::assertStringContainsString('psr/log', $output);
+        self::assertStringContainsString('Run `bin/gpm update` first', $output);
     }
 
     public function testHandlePreflightReportAbortsOnPendingWhenDeclined(): void
