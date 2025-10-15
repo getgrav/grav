@@ -1,3 +1,11 @@
+# v1.7.50
+## UNRELEASED
+
+1. [](#new)
+    * Added staged self-upgrade pipeline with manifest snapshots and atomic swaps for Grav core updates.
+    * Introduced recovery mode with token-gated UI, plugin quarantine, and CLI rollback support.
+    * Added `bin/gpm preflight` compatibility scanner and `bin/gpm rollback` utility.
+
 # v1.7.49.5
 ## 09/10/2025
 

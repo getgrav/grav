@@ -15,6 +15,7 @@ use Grav\Common\HTTP\Response;
 use Grav\Common\GPM\Installer;
 use Grav\Common\GPM\Upgrader;
 use Grav\Common\Grav;
+use Grav\Common\Upgrade\SafeUpgradeService;
 use Grav\Console\GpmCommand;
 use Grav\Installer\Install;
 use RuntimeException;
@@ -22,6 +23,7 @@ use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 use ZipArchive;
+use function count;
 use function is_callable;
 use function strlen;
 
@@ -107,6 +109,12 @@ class SelfupgradeCommand extends GpmCommand
         $this->timeout = (int) $input->getOption('timeout');
 
         $this->displayGPMRelease();
+
+        $safeUpgrade = $this->createSafeUpgradeService();
+        $preflight = $safeUpgrade->preflight();
+        if (!$this->handlePreflightReport($preflight)) {
+            return 1;
+        }
 
         $update = $this->upgrader->getAssets()['grav-update'];
 
@@ -227,6 +235,7 @@ class SelfupgradeCommand extends GpmCommand
         } else {
             $io->writeln("  '- <green>Success!</green>  ");
             $io->newLine();
+            $safeUpgrade->clearRecoveryFlag();
         }
 
         if ($this->tmp && is_dir($this->tmp)) {
@@ -261,6 +270,79 @@ class SelfupgradeCommand extends GpmCommand
         file_put_contents($this->tmp . DS . $package['name'], $output);
 
         return $this->tmp . DS . $package['name'];
+    }
+
+    /**
+     * @return SafeUpgradeService
+     */
+    protected function createSafeUpgradeService(): SafeUpgradeService
+    {
+        return new SafeUpgradeService();
+    }
+
+    /**
+     * @param array $preflight
+     * @return bool
+     */
+    protected function handlePreflightReport(array $preflight): bool
+    {
+        $io = $this->getIO();
+        $pending = $preflight['plugins_pending'] ?? [];
+        $conflicts = $preflight['psr_log_conflicts'] ?? [];
+        $warnings = $preflight['warnings'] ?? [];
+
+        if (empty($pending) && empty($conflicts)) {
+            return true;
+        }
+
+        if ($warnings) {
+            $io->newLine();
+            $io->writeln('<magenta>Preflight warnings detected:</magenta>');
+            foreach ($warnings as $warning) {
+                $io->writeln('  • ' . $warning);
+            }
+        }
+
+        if ($pending) {
+            $io->newLine();
+            $io->writeln('<yellow>The following packages need updating before Grav upgrade:</yellow>');
+            foreach ($pending as $slug => $info) {
+                $type = $info['type'] ?? 'plugin';
+                $current = $info['current'] ?? 'unknown';
+                $available = $info['available'] ?? 'unknown';
+                $io->writeln(sprintf('  - %s (%s) %s → %s', $slug, $type, $current, $available));
+            }
+
+            if (!$this->all_yes) {
+                $question = new ConfirmationQuestion('Continue without updating these packages? [y|N] ', false);
+                if (!$io->askQuestion($question)) {
+                    $io->writeln('Aborting self-upgrade. Run `bin/gpm update` first.');
+
+                    return false;
+                }
+            }
+        }
+
+        if ($conflicts) {
+            $io->newLine();
+            $io->writeln('<yellow>Potential psr/log incompatibilities:</yellow>');
+            foreach ($conflicts as $slug => $info) {
+                $requires = $info['requires'] ?? '*';
+                $io->writeln(sprintf('  - %s (requires psr/log %s)', $slug, $requires));
+            }
+            $io->writeln('    › Update the plugin or add "replace": {"psr/log": "*"} to its composer.json and reinstall dependencies.');
+
+            if (!$this->all_yes) {
+                $question = new ConfirmationQuestion('Continue despite psr/log warnings? [y|N] ', false);
+                if (!$io->askQuestion($question)) {
+                    $io->writeln('Aborting self-upgrade. Adjust composer requirements or update affected plugins.');
+
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 
     /**
