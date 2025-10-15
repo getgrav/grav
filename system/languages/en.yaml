@@ -124,3 +124,5 @@ PLUGIN_ADMIN:
     UPDATES_SECTION: Updates
     SAFE_UPGRADE: Safe self-upgrade
     SAFE_UPGRADE_HELP: When enabled, Grav core updates use staged installation with automatic rollback support.
+    SAFE_UPGRADE_STAGING: Staging directory
+    SAFE_UPGRADE_STAGING_HELP: Optional absolute path for storing upgrade backups. Leave empty to use the default inside the parent directory.

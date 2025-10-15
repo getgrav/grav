@@ -76,10 +76,12 @@ class SafeUpgradeService
         $this->rootPath = rtrim($root, DIRECTORY_SEPARATOR);
         $this->parentDir = $options['parent_dir'] ?? dirname($this->rootPath);
         $defaultStaging = $options['staging_root'] ?? ($this->parentDir . DIRECTORY_SEPARATOR . 'grav-upgrades');
-        try {
-            Folder::create($defaultStaging);
-        } catch (\RuntimeException $e) {
-            throw new RuntimeException(sprintf('Unable to create staging directory at %s. Adjust permissions or configure system.updates.staging_root.', $defaultStaging));
+        if (!$this->ensureWritable($defaultStaging)) {
+            $fallback = getenv('HOME') ? getenv('HOME') . DIRECTORY_SEPARATOR . 'grav-upgrades' : sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'grav-upgrades';
+            if (!$this->ensureWritable($fallback)) {
+                throw new RuntimeException(sprintf('Unable to create staging directory at %s or fallback %s. Adjust permissions or configure system.updates.staging_root.', $defaultStaging, $fallback));
+            }
+            $defaultStaging = $fallback;
         }
         $this->stagingRoot = realpath($defaultStaging) ?: $defaultStaging;
         $this->manifestStore = $options['manifest_store'] ?? ($this->rootPath . DIRECTORY_SEPARATOR . 'user' . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'upgrades');
@@ -499,6 +501,27 @@ class SafeUpgradeService
         Folder::create($this->manifestStore);
         $target = $this->manifestStore . DIRECTORY_SEPARATOR . $manifest['id'] . '.json';
         file_put_contents($target, json_encode($manifest, JSON_PRETTY_PRINT));
+    }
+
+    /**
+     * Ensure directory exists and is writable.
+     *
+     * @param string $path
+     * @return bool
+     */
+    private function ensureWritable(string $path): bool
+    {
+        try {
+            Folder::create($path);
+        } catch (\RuntimeException $e) {
+            return false;
+        }
+
+        if (!is_writable($path)) {
+            return false;
+        }
+
+        return true;
     }
 
     /**

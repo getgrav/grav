@@ -205,6 +205,7 @@ gpm:
 
 updates:
   safe_upgrade: true                             # Enable guarded staging+rollback pipeline for Grav self-updates
+  staging_root: ''                               # Optional absolute path for staging backups (default: <grav parent>/grav-upgrades)
 
 http:
   method: auto                                   # Either 'curl', 'fopen' or 'auto'. 'auto' will try fopen first and if not available cURL
