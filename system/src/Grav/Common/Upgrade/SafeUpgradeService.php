@@ -34,6 +34,7 @@ use function rename;
 use function rsort;
 use function sort;
 use function time;
+use function rtrim;
 use function uniqid;
 use function trim;
 use function strpos;
@@ -74,7 +75,13 @@ class SafeUpgradeService
         $root = $options['root'] ?? GRAV_ROOT;
         $this->rootPath = rtrim($root, DIRECTORY_SEPARATOR);
         $this->parentDir = $options['parent_dir'] ?? dirname($this->rootPath);
-        $this->stagingRoot = $options['staging_root'] ?? ($this->rootPath . DIRECTORY_SEPARATOR . 'grav-upgrades');
+        $defaultStaging = $options['staging_root'] ?? ($this->parentDir . DIRECTORY_SEPARATOR . 'grav-upgrades');
+        try {
+            Folder::create($defaultStaging);
+        } catch (\RuntimeException $e) {
+            throw new RuntimeException(sprintf('Unable to create staging directory at %s. Adjust permissions or configure system.updates.staging_root.', $defaultStaging));
+        }
+        $this->stagingRoot = realpath($defaultStaging) ?: $defaultStaging;
         $this->manifestStore = $options['manifest_store'] ?? ($this->rootPath . DIRECTORY_SEPARATOR . 'user' . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'upgrades');
         if (isset($options['ignored_dirs']) && is_array($options['ignored_dirs'])) {
             $this->ignoredDirs = $options['ignored_dirs'];
@@ -135,7 +142,6 @@ class SafeUpgradeService
         $packagePath = $stagePath . DIRECTORY_SEPARATOR . 'package';
         $backupPath = $this->stagingRoot . DIRECTORY_SEPARATOR . 'rollback-' . $stageId;
 
-        Folder::create($this->stagingRoot);
         Folder::create($packagePath);
 
         // Copy extracted package into staging area.
@@ -454,6 +460,32 @@ class SafeUpgradeService
         if (!rename($backupPath, $this->rootPath)) {
             throw new RuntimeException('Rollback failed: unable to move backup into live position.');
         }
+    }
+
+    /**
+     * Ensure Git metadata is retained after stage promotion.
+     *
+     * @param string $source
+     * @param string $destination
+     * @return void
+     */
+    private function syncGitDirectory(string $source, string $destination): void
+    {
+        if (!$source || !$destination) {
+            return;
+        }
+
+        $sourceGit = rtrim($source, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . '.git';
+        if (!is_dir($sourceGit)) {
+            return;
+        }
+
+        $destinationGit = rtrim($destination, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . '.git';
+        if (is_dir($destinationGit)) {
+            Folder::delete($destinationGit);
+        }
+
+        Folder::rcopy($sourceGit, $destinationGit);
     }
 
     /**
