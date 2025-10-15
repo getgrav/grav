@@ -47,9 +47,19 @@ class RecoveryManager
     /** @var string */
     private $userPath;
 
-    public function __construct(?string $rootPath = null)
+    /**
+     * @param mixed $context Container or root path.
+     */
+    public function __construct($context = null)
     {
-        $root = $rootPath ?? GRAV_ROOT;
+        if ($context instanceof \Grav\Common\Grav) {
+            $root = GRAV_ROOT;
+        } elseif (is_string($context) && $context !== '') {
+            $root = $context;
+        } else {
+            $root = GRAV_ROOT;
+        }
+
         $this->rootPath = rtrim($root, DIRECTORY_SEPARATOR);
         $this->userPath = $this->rootPath . '/user';
     }
