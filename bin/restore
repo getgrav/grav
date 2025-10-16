@@ -253,6 +253,15 @@ switch ($command) {
                 echo "  File:    {$file}\n";
                 echo "  Line:    {$line}\n";
                 echo "  Created: {$created}\n";
+
+                $window = $manager->getUpgradeWindow();
+                if ($window) {
+                    $expires = isset($window['expires_at']) ? date('c', (int)$window['expires_at']) : 'unknown';
+                    $reason = $window['reason'] ?? '(unknown)';
+                    echo "  Window:  active ({$reason}, expires {$expires})\n";
+                } else {
+                    echo "  Window:  inactive\n";
+                }
                 exit(0);
 
             default:

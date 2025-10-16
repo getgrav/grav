@@ -220,6 +220,13 @@ class SelfupgradeCommand extends GpmCommand
         $io->newLine();
         $io->writeln("Preparing to upgrade to v<cyan>{$remote}</cyan>..");
 
+        /** @var \Grav\Common\Recovery\RecoveryManager $recovery */
+        $recovery = Grav::instance()['recovery'];
+        $recovery->markUpgradeWindow('core-upgrade', [
+            'scope' => 'core',
+            'target_version' => $remote,
+        ]);
+
         $io->write("  |- Downloading upgrade [{$this->formatBytes($update['size'])}]...     0%");
         $this->file = $this->download($update);
 

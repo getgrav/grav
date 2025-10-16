@@ -20,6 +20,7 @@ use function is_array;
 use function is_file;
 use function json_decode;
 use function json_encode;
+use function max;
 use function md5;
 use function preg_match;
 use function random_bytes;
@@ -100,6 +101,8 @@ class RecoveryManager
         if (is_file($flag)) {
             @unlink($flag);
         }
+
+        $this->closeUpgradeWindow();
     }
 
     /**
@@ -121,6 +124,10 @@ class RecoveryManager
 
         $file = $error['file'] ?? '';
         $plugin = $this->detectPluginFromPath($file);
+        if (!$plugin) {
+            return;
+        }
+
         $context = [
             'created_at' => time(),
             'message' => $error['message'] ?? '',
@@ -129,6 +136,10 @@ class RecoveryManager
             'type' => $type,
             'plugin' => $plugin,
         ];
+
+        if (!$this->shouldEnterRecovery($context)) {
+            return;
+        }
 
         $this->activate($context);
         if ($plugin) {
@@ -289,6 +300,63 @@ class RecoveryManager
     /**
      * @return string
      */
+    private function windowPath(): string
+    {
+        return $this->rootPath . '/system/recovery.window';
+    }
+
+    /**
+     * @return array|null
+     */
+    private function resolveUpgradeWindow(): ?array
+    {
+        $path = $this->windowPath();
+        if (!is_file($path)) {
+            return null;
+        }
+
+        $decoded = json_decode(file_get_contents($path), true);
+        if (!is_array($decoded)) {
+            @unlink($path);
+
+            return null;
+        }
+
+        $expiresAt = (int)($decoded['expires_at'] ?? 0);
+        if ($expiresAt > 0 && $expiresAt < time()) {
+            @unlink($path);
+
+            return null;
+        }
+
+        return $decoded;
+    }
+
+    /**
+     * @param array $context
+     * @return bool
+     */
+    private function shouldEnterRecovery(array $context): bool
+    {
+        $window = $this->resolveUpgradeWindow();
+        if (null === $window) {
+            return false;
+        }
+
+        $scope = $window['scope'] ?? null;
+        if ($scope === 'plugin') {
+            $expected = $window['plugin'] ?? null;
+            if ($expected && ($context['plugin'] ?? null) !== $expected) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * @return string
+     */
     protected function generateToken(): string
     {
         try {
@@ -314,4 +382,54 @@ class RecoveryManager
     {
         return error_get_last();
     }
+
+    /**
+     * Begin an upgrade window; during this window fatal plugin errors may trigger recovery mode.
+     *
+     * @param string $reason
+     * @param array $metadata
+     * @param int $ttlSeconds
+     * @return void
+     */
+    public function markUpgradeWindow(string $reason, array $metadata = [], int $ttlSeconds = 604800): void
+    {
+        $ttl = max(60, $ttlSeconds);
+        $createdAt = time();
+
+        $payload = $metadata + [
+            'reason' => $reason,
+            'created_at' => $createdAt,
+            'expires_at' => $createdAt + $ttl,
+        ];
+
+        file_put_contents($this->windowPath(), json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
+    }
+
+    /**
+     * @return bool
+     */
+    public function isUpgradeWindowActive(): bool
+    {
+        return $this->resolveUpgradeWindow() !== null;
+    }
+
+    /**
+     * @return array|null
+     */
+    public function getUpgradeWindow(): ?array
+    {
+        return $this->resolveUpgradeWindow();
+    }
+
+    /**
+     * @return void
+     */
+    public function closeUpgradeWindow(): void
+    {
+        $window = $this->windowPath();
+        if (is_file($window)) {
+            @unlink($window);
+        }
+    }
+
 }

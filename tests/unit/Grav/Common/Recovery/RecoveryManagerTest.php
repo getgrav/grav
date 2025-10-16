@@ -60,6 +60,7 @@ class RecoveryManagerTest extends \PHPUnit\Framework\TestCase
             }
         };
 
+        $manager->markUpgradeWindow('core-upgrade', ['scope' => 'core']);
         $manager->handleShutdown();
 
         $flag = $this->tmpDir . '/system/recovery.flag';
