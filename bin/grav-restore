@@ -25,6 +25,7 @@ if (!file_exists($root . '/index.php')) {
     exit(1);
 }
 
+use Grav\Common\Recovery\RecoveryManager;
 use Grav\Common\Upgrade\SafeUpgradeService;
 use Symfony\Component\Yaml\Yaml;
 
@@ -38,6 +39,9 @@ Usage:
   bin/grav-restore apply <snapshot-id> [--staging-root=/absolute/path]
       Restores the specified snapshot created by safe-upgrade.
 
+  bin/grav-restore recovery [status|clear]
+      Shows the recovery flag context or clears it.
+
 Options:
   --staging-root     Overrides the staging directory (defaults to configured value).
 
@@ -45,6 +49,8 @@ Examples:
   bin/grav-restore list
   bin/grav-restore apply stage-68eff31cc4104
   bin/grav-restore apply stage-68eff31cc4104 --staging-root=/var/grav-backups
+  bin/grav-restore recovery status
+  bin/grav-restore recovery clear
 USAGE;
 
 /**
@@ -206,6 +212,53 @@ switch ($command) {
         $version = $manifest['target_version'] ?? 'unknown';
         echo "Restored snapshot {$snapshotId} (Grav {$version}).\n";
         exit(0);
+
+    case 'recovery':
+        $action = strtolower($arguments[0] ?? 'status');
+        $manager = new RecoveryManager(GRAV_ROOT);
+
+        switch ($action) {
+            case 'clear':
+                if ($manager->isActive()) {
+                    $manager->clear();
+                    echo "Recovery flag cleared.\n";
+                } else {
+                    echo "Recovery mode is not active.\n";
+                }
+                exit(0);
+
+            case 'status':
+                if (!$manager->isActive()) {
+                    echo "Recovery mode is not active.\n";
+                    exit(0);
+                }
+
+                $context = $manager->getContext();
+                if (!$context) {
+                    echo "Recovery flag present but context could not be parsed.\n";
+                    exit(1);
+                }
+
+                $created = isset($context['created_at']) ? date('c', (int)$context['created_at']) : 'unknown';
+                $token = $context['token'] ?? '(missing)';
+                $message = $context['message'] ?? '(no message)';
+                $plugin = $context['plugin'] ?? '(none detected)';
+                $file = $context['file'] ?? '(unknown file)';
+                $line = $context['line'] ?? '(unknown line)';
+
+                echo "Recovery flag context:\n";
+                echo "  Token:   {$token}\n";
+                echo "  Message: {$message}\n";
+                echo "  Plugin:  {$plugin}\n";
+                echo "  File:    {$file}\n";
+                echo "  Line:    {$line}\n";
+                echo "  Created: {$created}\n";
+                exit(0);
+
+            default:
+                echo "Unknown recovery action: {$action}\n\n" . RESTORE_USAGE . "\n";
+                exit(1);
+        }
 
     case 'help':
     default:
