@@ -56,6 +56,7 @@ class RecoveryManagerTest extends \Codeception\TestCase\Test
             }
         };
 
+        $manager->markUpgradeWindow('core-upgrade', ['scope' => 'core']);
         $manager->handleShutdown();
 
         $flag = $this->tmpDir . '/system/recovery.flag';
