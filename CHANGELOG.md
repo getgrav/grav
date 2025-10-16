@@ -81,6 +81,15 @@
     * Removed `system.umask_fix` setting for security reasons
     * Support phpstan level 6 in Framework classes
 
+
+# v1.7.50
+## UNRELEASED
+
+1. [](#new)
+    * Added staged self-upgrade pipeline with manifest snapshots and atomic swaps for Grav core updates.
+    * Introduced recovery mode with token-gated UI, plugin quarantine, and CLI rollback support.
+    * Added `bin/gpm preflight` compatibility scanner and `bin/gpm rollback` utility.
+
 # v1.7.49.5
 ## 09/10/2025
 
@@ -132,7 +141,6 @@
     * Bug in `exif_read_data` [#3878](https://github.com/getgrav/grav/pull/3878)
     * Fix parser error in URI: [#3894](https://github.com/getgrav/grav/issues/3894)
 
->>>>>>> develop
 
 # v1.7.48
 ## 10/28/2024

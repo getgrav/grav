@@ -1,0 +1,214 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * Grav Snapshot Restore Utility
+ *
+ * Lightweight CLI that can list and apply safe-upgrade snapshots without
+ * bootstrapping the full Grav application (or any plugins).
+ */
+
+$root = dirname(__DIR__);
+
+define('GRAV_CLI', true);
+define('GRAV_REQUEST_TIME', microtime(true));
+
+if (!file_exists($root . '/vendor/autoload.php')) {
+    fwrite(STDERR, "Unable to locate vendor/autoload.php. Run composer install first.\n");
+    exit(1);
+}
+
+$autoload = require $root . '/vendor/autoload.php';
+
+if (!file_exists($root . '/index.php')) {
+    fwrite(STDERR, "FATAL: Must be run from Grav root directory.\n");
+    exit(1);
+}
+
+use Grav\Common\Upgrade\SafeUpgradeService;
+use Symfony\Component\Yaml\Yaml;
+
+const RESTORE_USAGE = <<<USAGE
+Grav Restore Utility
+
+Usage:
+  bin/grav-restore list [--staging-root=/absolute/path]
+      Lists all available snapshots (most recent first).
+
+  bin/grav-restore apply <snapshot-id> [--staging-root=/absolute/path]
+      Restores the specified snapshot created by safe-upgrade.
+
+Options:
+  --staging-root     Overrides the staging directory (defaults to configured value).
+
+Examples:
+  bin/grav-restore list
+  bin/grav-restore apply stage-68eff31cc4104
+  bin/grav-restore apply stage-68eff31cc4104 --staging-root=/var/grav-backups
+USAGE;
+
+/**
+ * @param array $args
+ * @return array{command:string,arguments:array,options:array}
+ */
+function parseArguments(array $args): array
+{
+    array_shift($args); // remove script name
+
+    $command = $args[0] ?? 'help';
+    $arguments = [];
+    $options = [];
+
+    foreach (array_slice($args, 1) as $arg) {
+        if (strncmp($arg, '--staging-root=', 15) === 0) {
+            $options['staging_root'] = substr($arg, 15);
+            continue;
+        }
+
+        if (substr($arg, 0, 2) === '--') {
+            echo "Unknown option: {$arg}\n";
+            exit(1);
+        }
+
+        $arguments[] = $arg;
+    }
+
+    return [
+        'command' => $command,
+        'arguments' => $arguments,
+        'options' => $options,
+    ];
+}
+
+/**
+ * @return string|null
+ */
+function readConfiguredStagingRoot(): ?string
+{
+    $configFiles = [
+        GRAV_ROOT . '/user/config/system.yaml',
+        GRAV_ROOT . '/system/config/system.yaml'
+    ];
+
+    foreach ($configFiles as $file) {
+        if (!is_file($file)) {
+            continue;
+        }
+
+        try {
+            $data = Yaml::parseFile($file);
+        } catch (\Throwable $e) {
+            continue;
+        }
+
+        if (!is_array($data)) {
+            continue;
+        }
+
+        $current = $data['system']['updates']['staging_root'] ?? null;
+        if (null !== $current && $current !== '') {
+            return $current;
+        }
+    }
+
+    return null;
+}
+
+/**
+ * @param array $options
+ * @return SafeUpgradeService
+ */
+function createUpgradeService(array $options): SafeUpgradeService
+{
+    $config = readConfiguredStagingRoot();
+    if ($config !== null && empty($options['staging_root'])) {
+        $options['staging_root'] = $config;
+    } elseif (isset($options['staging_root']) && $options['staging_root'] === '') {
+        unset($options['staging_root']);
+    }
+
+    $options['root'] = GRAV_ROOT;
+
+    return new SafeUpgradeService($options);
+}
+
+/**
+ * @return list<array{id:string,target_version:?string,created_at:int}>
+ */
+function loadSnapshots(): array
+{
+    $manifestDir = GRAV_ROOT . '/user/data/upgrades';
+    if (!is_dir($manifestDir)) {
+        return [];
+    }
+
+    $files = glob($manifestDir . '/*.json') ?: [];
+    rsort($files);
+
+    $snapshots = [];
+    foreach ($files as $file) {
+        $decoded = json_decode(file_get_contents($file) ?: '', true);
+        if (!is_array($decoded) || empty($decoded['id'])) {
+            continue;
+        }
+
+        $snapshots[] = [
+            'id' => $decoded['id'],
+            'target_version' => $decoded['target_version'] ?? null,
+            'created_at' => $decoded['created_at'] ?? 0,
+        ];
+    }
+
+    return $snapshots;
+}
+
+$cli = parseArguments($argv);
+$command = $cli['command'];
+$arguments = $cli['arguments'];
+$options = $cli['options'];
+
+switch ($command) {
+    case 'list':
+        $snapshots = loadSnapshots();
+        if (!$snapshots) {
+            echo "No snapshots found. Run bin/gpm self-upgrade (with safe upgrade enabled) to create one.\n";
+            exit(0);
+        }
+
+        echo "Available snapshots:\n";
+        foreach ($snapshots as $snapshot) {
+            $time = $snapshot['created_at'] ? date('c', (int)$snapshot['created_at']) : 'unknown';
+            $version = $snapshot['target_version'] ?? 'unknown';
+            echo sprintf("  - %s (Grav %s, %s)\n", $snapshot['id'], $version, $time);
+        }
+        exit(0);
+
+    case 'apply':
+        $snapshotId = $arguments[0] ?? null;
+        if (!$snapshotId) {
+            echo "Missing snapshot id.\n\n" . RESTORE_USAGE . "\n";
+            exit(1);
+        }
+
+        try {
+            $service = createUpgradeService($options);
+            $manifest = $service->rollback($snapshotId);
+        } catch (\Throwable $e) {
+            fwrite(STDERR, "Restore failed: " . $e->getMessage() . "\n");
+            exit(1);
+        }
+
+        if (!$manifest) {
+            fwrite(STDERR, "Snapshot {$snapshotId} not found.\n");
+            exit(1);
+        }
+
+        $version = $manifest['target_version'] ?? 'unknown';
+        echo "Restored snapshot {$snapshotId} (Grav {$version}).\n";
+        exit(0);
+
+    case 'help':
+    default:
+        echo RESTORE_USAGE . "\n";
+        exit($command === 'help' ? 0 : 1);
+}

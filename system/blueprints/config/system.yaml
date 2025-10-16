@@ -1580,6 +1580,30 @@ form:
               validate:
                 type: bool
 
+            updates_section:
+              type: section
+              title: PLUGIN_ADMIN.UPDATES_SECTION
+
+            updates.safe_upgrade:
+              type: toggle
+              label: PLUGIN_ADMIN.SAFE_UPGRADE
+              help: PLUGIN_ADMIN.SAFE_UPGRADE_HELP
+              highlight: 1
+              default: true
+              options:
+                1: PLUGIN_ADMIN.YES
+                0: PLUGIN_ADMIN.NO
+              validate:
+                type: bool
+
+            updates.staging_root:
+              type: text
+              label: PLUGIN_ADMIN.SAFE_UPGRADE_STAGING
+              help: PLUGIN_ADMIN.SAFE_UPGRADE_STAGING_HELP
+              placeholder: '/absolute/path/to/grav-upgrades'
+              validate:
+                type: string
+
             http_section:
               type: section
               title: PLUGIN_ADMIN.HTTP_SECTION
@@ -1906,3 +1930,4 @@ form:
 #
 #            pages.type:
 #              type: hidden
+
