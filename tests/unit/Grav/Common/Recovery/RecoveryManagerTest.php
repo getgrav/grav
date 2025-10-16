@@ -3,7 +3,7 @@
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\Recovery\RecoveryManager;
 
-class RecoveryManagerTest extends \Codeception\TestCase\Test
+class RecoveryManagerTest extends \PHPUnit\Framework\TestCase
 {
     /** @var string */
     private $tmpDir;
