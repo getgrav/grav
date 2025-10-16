@@ -9,11 +9,21 @@
  */
 
 $root = dirname(__DIR__);
-define('GRAV_CLI', true);
-define('GRAV_ROOT', $root);
 
-require $root . '/system/defines.php';
-require $root . '/vendor/autoload.php';
+define('GRAV_CLI', true);
+define('GRAV_REQUEST_TIME', microtime(true));
+
+if (!file_exists($root . '/vendor/autoload.php')) {
+    fwrite(STDERR, "Unable to locate vendor/autoload.php. Run composer install first.\n");
+    exit(1);
+}
+
+$autoload = require $root . '/vendor/autoload.php';
+
+if (!file_exists($root . '/index.php')) {
+    fwrite(STDERR, "FATAL: Must be run from Grav root directory.\n");
+    exit(1);
+}
 
 use Grav\Common\Upgrade\SafeUpgradeService;
 use Symfony\Component\Yaml\Yaml;
