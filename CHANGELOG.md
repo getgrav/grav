@@ -1,3 +1,9 @@
+# v1.8.0-beta.9
+## 10/16/2025
+
+1. [](#new)
+    * Added new **core safe upgrade** installer with staging, validation, and rollback support
+
 # v1.8.0-beta.8
 ## 10/14/2025
 
