@@ -67,23 +67,85 @@ if (!defined('GRAV_BACKUP_PATH')) {
 unset($path);
 
 // INTERNAL: Do not use!
+/**
+ * @internal
+ */
 define('USER_DIR', GRAV_WEBROOT . '/' . GRAV_USER_PATH . '/');
+/**
+ * @internal
+ */
 define('CACHE_DIR', (!preg_match('`^(/|[a-z]:[\\\/])`ui', GRAV_CACHE_PATH) ? GRAV_ROOT . '/' : '') . GRAV_CACHE_PATH . '/');
 
 // DEPRECATED: Do not use!
+/**
+ * @internal
+ * @deprecated
+ */
 define('CACHE_PATH', GRAV_CACHE_PATH . DS);
+/**
+ * @internal
+ * @deprecated
+ */
 define('USER_PATH', GRAV_USER_PATH . DS);
+/**
+ * @internal
+ * @deprecated
+ */
 define('ROOT_DIR', GRAV_ROOT . DS);
+/**
+ * @internal
+ * @deprecated
+ */
 define('ASSETS_DIR', GRAV_WEBROOT . '/assets/');
+/**
+ * @internal
+ * @deprecated
+ */
 define('IMAGES_DIR', GRAV_WEBROOT . '/images/');
+/**
+ * @internal
+ * @deprecated
+ */
 define('ACCOUNTS_DIR', USER_DIR . 'accounts/');
+/**
+ * @internal
+ * @deprecated
+ */
 define('PAGES_DIR', USER_DIR . 'pages/');
+/**
+ * @internal
+ * @deprecated
+ */
 define('DATA_DIR', USER_DIR . 'data/');
+/**
+ * @internal
+ * @deprecated
+ */
 define('PLUGINS_DIR', USER_DIR . 'plugins/');
+/**
+ * @internal
+ * @deprecated
+ */
 define('THEMES_DIR', USER_DIR . 'themes/');
+/**
+ * @internal
+ * @deprecated
+ */
 define('SYSTEM_DIR', (!preg_match('`^(/|[a-z]:[\\\/])`ui', GRAV_SYSTEM_PATH) ? GRAV_ROOT . '/' : '') . GRAV_SYSTEM_PATH . '/');
+/**
+ * @internal
+ * @deprecated
+ */
 define('LIB_DIR', SYSTEM_DIR . 'src/');
+/**
+ * @internal
+ * @deprecated
+ */
 define('VENDOR_DIR', GRAV_ROOT . '/vendor/');
+/**
+ * @internal
+ * @deprecated
+ */
 define('LOG_DIR', (!preg_match('`^(/|[a-z]:[\\\/])`ui', GRAV_LOG_PATH) ? GRAV_ROOT . '/' : '') . GRAV_LOG_PATH . '/');
 // END DEPRECATED
 
