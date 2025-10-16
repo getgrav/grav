@@ -36,6 +36,12 @@ date_default_timezone_set(@date_default_timezone_get());
 @ini_set('default_charset', 'UTF-8');
 mb_internal_encoding('UTF-8');
 
+$recoveryFlag = __DIR__ . '/system/recovery.flag';
+if (PHP_SAPI !== 'cli' && is_file($recoveryFlag)) {
+    require __DIR__ . '/system/recovery.php';
+    return 0;
+}
+
 use Grav\Common\Grav;
 use RocketTheme\Toolbox\Event\Event;
 
