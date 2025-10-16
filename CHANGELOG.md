@@ -1,3 +1,9 @@
+# v1.8.0-beta.10
+## 10/16/2025
+
+1. [](#bugfix)
+    * Fixed an issue with **safe upgrade** losing dot files
+
 # v1.8.0-beta.9
 ## 10/16/2025
 
