@@ -139,7 +139,7 @@ function createUpgradeService(array $options): SafeUpgradeService
 }
 
 /**
- * @return list<array{id:string,target_version:?string,created_at:int}>
+ * @return list<array{id:string,source_version:?string,target_version:?string,created_at:int}>
  */
 function loadSnapshots(): array
 {
@@ -160,6 +160,7 @@ function loadSnapshots(): array
 
         $snapshots[] = [
             'id' => $decoded['id'],
+            'source_version' => $decoded['source_version'] ?? null,
             'target_version' => $decoded['target_version'] ?? null,
             'created_at' => $decoded['created_at'] ?? 0,
         ];
@@ -184,8 +185,8 @@ switch ($command) {
         echo "Available snapshots:\n";
         foreach ($snapshots as $snapshot) {
             $time = $snapshot['created_at'] ? date('c', (int)$snapshot['created_at']) : 'unknown';
-            $version = $snapshot['target_version'] ?? 'unknown';
-            echo sprintf("  - %s (Grav %s, %s)\n", $snapshot['id'], $version, $time);
+            $restoreVersion = $snapshot['source_version'] ?? $snapshot['target_version'] ?? 'unknown';
+            echo sprintf("  - %s (restore to Grav %s, %s)\n", $snapshot['id'], $restoreVersion, $time);
         }
         exit(0);
 
@@ -209,7 +210,7 @@ switch ($command) {
             exit(1);
         }
 
-        $version = $manifest['target_version'] ?? 'unknown';
+        $version = $manifest['source_version'] ?? $manifest['target_version'] ?? 'unknown';
         echo "Restored snapshot {$snapshotId} (Grav {$version}).\n";
         exit(0);
 
