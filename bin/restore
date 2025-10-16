@@ -33,24 +33,24 @@ const RESTORE_USAGE = <<<USAGE
 Grav Restore Utility
 
 Usage:
-  bin/grav-restore list [--staging-root=/absolute/path]
+  bin/restore list [--staging-root=/absolute/path]
       Lists all available snapshots (most recent first).
 
-  bin/grav-restore apply <snapshot-id> [--staging-root=/absolute/path]
+  bin/restore apply <snapshot-id> [--staging-root=/absolute/path]
       Restores the specified snapshot created by safe-upgrade.
 
-  bin/grav-restore recovery [status|clear]
+  bin/restore recovery [status|clear]
       Shows the recovery flag context or clears it.
 
 Options:
   --staging-root     Overrides the staging directory (defaults to configured value).
 
 Examples:
-  bin/grav-restore list
-  bin/grav-restore apply stage-68eff31cc4104
-  bin/grav-restore apply stage-68eff31cc4104 --staging-root=/var/grav-backups
-  bin/grav-restore recovery status
-  bin/grav-restore recovery clear
+  bin/restore list
+  bin/restore apply stage-68eff31cc4104
+  bin/restore apply stage-68eff31cc4104 --staging-root=/var/grav-backups
+  bin/restore recovery status
+  bin/restore recovery clear
 USAGE;
 
 /**
