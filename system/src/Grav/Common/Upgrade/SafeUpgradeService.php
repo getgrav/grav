@@ -9,6 +9,7 @@
 
 namespace Grav\Common\Upgrade;
 
+use DirectoryIterator;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\GPM\GPM;
 use Grav\Common\Yaml;
@@ -19,6 +20,7 @@ use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use FilesystemIterator;
 use function basename;
+use function copy;
 use function count;
 use function dirname;
 use function file_get_contents;
@@ -164,6 +166,8 @@ class SafeUpgradeService
 
         // Copy extracted package into staging area.
         Folder::rcopy($extractedPath, $packagePath);
+
+        $this->carryOverRootDotfiles($packagePath);
 
         // Ensure ignored directories are replaced with live copies.
         $this->hydrateIgnoredDirectories($packagePath, $ignores);
@@ -372,6 +376,49 @@ class SafeUpgradeService
 
             Folder::create(dirname($stage));
             Folder::rcopy($live, $stage);
+        }
+    }
+
+    /**
+     * Preserve critical root-level dotfiles that may not ship in update packages.
+     *
+     * @param string $packagePath
+     * @return void
+     */
+    private function carryOverRootDotfiles(string $packagePath): void
+    {
+        $skip = [
+            '.git',
+            '.DS_Store',
+        ];
+
+        $iterator = new DirectoryIterator($this->rootPath);
+        foreach ($iterator as $entry) {
+            if ($entry->isDot()) {
+                continue;
+            }
+
+            $name = $entry->getFilename();
+            if ($name === '' || $name[0] !== '.') {
+                continue;
+            }
+
+            if (in_array($name, $skip, true)) {
+                continue;
+            }
+
+            $target = $packagePath . DIRECTORY_SEPARATOR . $name;
+            if (file_exists($target)) {
+                continue;
+            }
+
+            $source = $entry->getPathname();
+            if ($entry->isDir()) {
+                Folder::rcopy($source, $target);
+            } elseif ($entry->isFile()) {
+                Folder::create(dirname($target));
+                copy($source, $target);
+            }
         }
     }
 
