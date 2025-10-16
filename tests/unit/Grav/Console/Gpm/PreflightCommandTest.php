@@ -7,7 +7,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-class PreflightCommandTest extends \Codeception\TestCase\Test
+class PreflightCommandTest extends \PHPUnit\Framework\TestCase
 {
     public function testServeOutputsJsonWhenRequested(): void
     {

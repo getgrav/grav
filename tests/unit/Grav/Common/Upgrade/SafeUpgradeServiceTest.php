@@ -3,7 +3,7 @@
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\Upgrade\SafeUpgradeService;
 
-class SafeUpgradeServiceTest extends \Codeception\TestCase\Test
+class SafeUpgradeServiceTest extends \PHPUnit\Framework\TestCase
 {
     /** @var string */
     private $tmpDir;

@@ -7,7 +7,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-class SelfupgradeCommandTest extends \Codeception\TestCase\Test
+class SelfupgradeCommandTest extends \PHPUnit\Framework\TestCase
 {
     public function testHandlePreflightReportSucceedsWithoutIssues(): void
     {
