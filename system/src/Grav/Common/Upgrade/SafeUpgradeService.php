@@ -165,7 +165,7 @@ class SafeUpgradeService
         Folder::create($packagePath);
 
         // Copy extracted package into staging area.
-        Folder::rcopy($extractedPath, $packagePath);
+        Folder::rcopy($extractedPath, $packagePath, true);
 
         $this->carryOverRootDotfiles($packagePath);
 
@@ -375,7 +375,7 @@ class SafeUpgradeService
             }
 
             Folder::create(dirname($stage));
-            Folder::rcopy($live, $stage);
+            Folder::rcopy($live, $stage, true);
         }
     }
 
@@ -414,7 +414,7 @@ class SafeUpgradeService
 
             $source = $entry->getPathname();
             if ($entry->isDir()) {
-                Folder::rcopy($source, $target);
+                Folder::rcopy($source, $target, true);
             } elseif ($entry->isFile()) {
                 Folder::create(dirname($target));
                 copy($source, $target);
@@ -550,7 +550,7 @@ class SafeUpgradeService
             Folder::delete($destinationGit);
         }
 
-        Folder::rcopy($sourceGit, $destinationGit);
+        Folder::rcopy($sourceGit, $destinationGit, true);
     }
 
     /**

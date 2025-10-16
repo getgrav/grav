@@ -478,12 +478,22 @@ abstract class Folder
      * @return bool
      * @throws RuntimeException
      */
-    public static function rcopy($src, $dest)
+    public static function rcopy($src, $dest, $preservePermissions = false)
     {
 
         // If the src is not a directory do a simple file copy
         if (!is_dir($src)) {
             copy($src, $dest);
+            if ($preservePermissions) {
+                $perm = @fileperms($src);
+                if ($perm !== false) {
+                    @chmod($dest, $perm & 0777);
+                }
+                $mtime = @filemtime($src);
+                if ($mtime !== false) {
+                    @touch($dest, $mtime);
+                }
+            }
             return true;
         }
 
@@ -492,14 +502,32 @@ abstract class Folder
             static::create($dest);
         }
 
+        if ($preservePermissions) {
+            $perm = @fileperms($src);
+            if ($perm !== false) {
+                @chmod($dest, $perm & 0777);
+            }
+        }
+
         // Open the source directory to read in files
         $i = new DirectoryIterator($src);
         foreach ($i as $f) {
             if ($f->isFile()) {
-                copy($f->getRealPath(), "{$dest}/" . $f->getFilename());
+                $target = "{$dest}/" . $f->getFilename();
+                copy($f->getRealPath(), $target);
+                if ($preservePermissions) {
+                    $perm = @fileperms($f->getRealPath());
+                    if ($perm !== false) {
+                        @chmod($target, $perm & 0777);
+                    }
+                    $mtime = @filemtime($f->getRealPath());
+                    if ($mtime !== false) {
+                        @touch($target, $mtime);
+                    }
+                }
             } else {
                 if (!$f->isDot() && $f->isDir()) {
-                    static::rcopy($f->getRealPath(), "{$dest}/{$f}");
+                    static::rcopy($f->getRealPath(), "{$dest}/{$f}", $preservePermissions);
                 }
             }
         }
