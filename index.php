@@ -29,6 +29,10 @@ if (!is_file($autoload)) {
 // Register the auto-loader.
 $loader = require $autoload;
 
+if (!class_exists(\Symfony\Component\ErrorHandler\Exception\FlattenException::class, false) && class_exists(\Symfony\Component\HttpKernel\Exception\FlattenException::class)) {
+    class_alias(\Symfony\Component\HttpKernel\Exception\FlattenException::class, \Symfony\Component\ErrorHandler\Exception\FlattenException::class);
+}
+
 // Set timezone to default, falls back to system if php.ini not set
 date_default_timezone_set(@date_default_timezone_get());
 
