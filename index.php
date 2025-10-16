@@ -33,6 +33,14 @@ if (!class_exists(\Symfony\Component\ErrorHandler\Exception\FlattenException::cl
     class_alias(\Symfony\Component\HttpKernel\Exception\FlattenException::class, \Symfony\Component\ErrorHandler\Exception\FlattenException::class);
 }
 
+if (!class_exists(\Monolog\Logger::class, false)) {
+    class_exists(\Monolog\Logger::class);
+}
+
+if (defined('Monolog\Logger::API') && \Monolog\Logger::API < 3) {
+    require_once __DIR__ . '/system/src/Grav/Framework/Compat/Monolog/bootstrap.php';
+}
+
 // Set timezone to default, falls back to system if php.ini not set
 date_default_timezone_set(@date_default_timezone_get());
 
