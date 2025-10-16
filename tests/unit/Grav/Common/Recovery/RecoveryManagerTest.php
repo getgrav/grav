@@ -8,19 +8,23 @@ class RecoveryManagerTest extends \PHPUnit\Framework\TestCase
     /** @var string */
     private $tmpDir;
 
-    protected function _before(): void
+    protected function setUp(): void
     {
+        parent::setUp();
+
         $this->tmpDir = sys_get_temp_dir() . '/grav-recovery-' . uniqid('', true);
         Folder::create($this->tmpDir);
         Folder::create($this->tmpDir . '/user');
         Folder::create($this->tmpDir . '/system');
     }
 
-    protected function _after(): void
+    protected function tearDown(): void
     {
         if (is_dir($this->tmpDir)) {
             Folder::delete($this->tmpDir);
         }
+
+        parent::tearDown();
     }
 
     public function testHandleShutdownQuarantinesPluginAndCreatesFlag(): void

@@ -5,6 +5,7 @@ use Grav\Console\Gpm\SelfupgradeCommand;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\BufferedOutput;
+use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 class SelfupgradeCommandTest extends \PHPUnit\Framework\TestCase
@@ -193,7 +194,7 @@ class SelfUpgradeMemoryStyle extends SymfonyStyle
         parent::writeln($messages, $type);
     }
 
-    public function askQuestion($question)
+    public function askQuestion(Question $question): mixed
     {
         if ($this->responses) {
             return array_shift($this->responses);
@@ -202,12 +203,12 @@ class SelfUpgradeMemoryStyle extends SymfonyStyle
         return parent::askQuestion($question);
     }
 
-    public function choice($question, array $choices, $default = null, $attempts = null, $errorMessage = 'Invalid value.')
+    public function choice(string $question, array $choices, mixed $default = null, bool $multiSelect = false): mixed
     {
         if ($this->responses) {
             return array_shift($this->responses);
         }
 
-        return parent::choice($question, $choices, $default, $attempts, $errorMessage);
+        return parent::choice($question, $choices, $default, $multiSelect);
     }
 }

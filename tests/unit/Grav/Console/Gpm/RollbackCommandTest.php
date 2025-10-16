@@ -5,6 +5,7 @@ use Grav\Common\Upgrade\SafeUpgradeService;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\BufferedOutput;
+use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 class RollbackCommandTest extends \PHPUnit\Framework\TestCase
@@ -233,7 +234,7 @@ class RollbackMemoryStyle extends SymfonyStyle
         parent::success($message);
     }
 
-    public function askQuestion($question)
+    public function askQuestion(Question $question): mixed
     {
         if ($this->responses) {
             return array_shift($this->responses);
