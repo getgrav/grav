@@ -171,6 +171,7 @@ class SafeUpgradeService
 
         // Ensure ignored directories are replaced with live copies.
         $this->hydrateIgnoredDirectories($packagePath, $ignores);
+        $this->carryOverRootFiles($packagePath, $ignores);
 
         $manifest = $this->buildManifest($stageId, $targetVersion, $packagePath, $backupPath);
         $manifestPath = $stagePath . DIRECTORY_SEPARATOR . 'manifest.json';
@@ -418,6 +419,57 @@ class SafeUpgradeService
             } elseif ($entry->isFile()) {
                 Folder::create(dirname($target));
                 copy($source, $target);
+            }
+        }
+    }
+
+    /**
+     * Carry over non-dot root files that are absent from the staged package.
+     *
+     * @param string $packagePath
+     * @param array<string> $ignores
+     * @return void
+     */
+    private function carryOverRootFiles(string $packagePath, array $ignores): void
+    {
+        $strategic = $ignores ?: $this->ignoredDirs;
+        $skip = array_map(static function ($value) {
+            return trim((string)$value, '/');
+        }, $strategic);
+        $skip = array_filter($skip, static function ($value) {
+            return $value !== '';
+        });
+        $skip = array_values(array_unique($skip));
+
+        $iterator = new DirectoryIterator($this->rootPath);
+        foreach ($iterator as $entry) {
+            if ($entry->isDot()) {
+                continue;
+            }
+
+            $name = $entry->getFilename();
+            if ($name === '' || $name[0] === '.') {
+                continue;
+            }
+
+            if (in_array($name, $skip, true)) {
+                continue;
+            }
+
+            $target = $packagePath . DIRECTORY_SEPARATOR . $name;
+            if (file_exists($target)) {
+                continue;
+            }
+
+            $source = $entry->getPathname();
+            Folder::create(dirname($target));
+
+            if ($entry->isDir() && !$entry->isLink()) {
+                Folder::rcopy($source, $target, true);
+            } elseif ($entry->isFile()) {
+                copy($source, $target);
+            } elseif ($entry->isLink()) {
+                @symlink(readlink($source), $target);
             }
         }
     }
