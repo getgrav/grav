@@ -457,6 +457,8 @@ class SelfupgradeCommand extends GpmCommand
         // extra white spaces to clear out the buffer properly
         $io->writeln('  |- Installing upgrade...    <green>ok</green>                             ');
 
+        $this->ensureExecutablePermissions();
+
         return true;
     }
 
@@ -510,6 +512,30 @@ class SelfupgradeCommand extends GpmCommand
             }
         } catch (Exception $e) {
             Installer::setError($e->getMessage());
+        }
+    }
+
+    private function ensureExecutablePermissions(): void
+    {
+        $executables = [
+            'bin/grav',
+            'bin/plugin',
+            'bin/gpm',
+            'bin/restore',
+            'bin/composer.phar'
+        ];
+
+        foreach ($executables as $relative) {
+            $path = GRAV_ROOT . '/' . $relative;
+            if (!is_file($path) || is_link($path)) {
+                continue;
+            }
+
+            $mode = @fileperms($path);
+            $desired = ($mode & 0777) | 0111;
+            if (($mode & 0111) !== 0111) {
+                @chmod($path, $desired);
+            }
         }
     }
 }
