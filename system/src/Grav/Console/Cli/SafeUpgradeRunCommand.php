@@ -75,17 +75,14 @@ class SafeUpgradeRunCommand extends GravCommand
 
         try {
             $result = $manager->run($options);
-            $manager->updateJob([
-                'result' => $result,
-            ]);
+            $manager->ensureJobResult($result);
 
             return ($result['status'] ?? null) === 'success' ? 0 : 1;
         } catch (Throwable $e) {
-            $manager->updateJob([
+            $manager->ensureJobResult([
                 'status' => 'error',
-                'error' => $e->getMessage(),
+                'message' => $e->getMessage(),
             ]);
-            $manager->markJobError($e->getMessage());
             $io->error($e->getMessage());
 
             return 1;
