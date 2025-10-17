@@ -60,6 +60,8 @@ class SafeUpgradeService
     private $stagingRoot;
     /** @var string */
     private $manifestStore;
+    /** @var \Grav\Common\Config\ConfigInterface|null */
+    private $config;
 
     /** @var array */
     private $ignoredDirs = [
@@ -79,6 +81,7 @@ class SafeUpgradeService
         $root = $options['root'] ?? GRAV_ROOT;
         $this->rootPath = rtrim($root, DIRECTORY_SEPARATOR);
         $this->parentDir = $options['parent_dir'] ?? dirname($this->rootPath);
+        $this->config = $options['config'] ?? null;
 
         $candidates = [];
         if (!empty($options['staging_root'])) {
@@ -278,6 +281,9 @@ class SafeUpgradeService
             }
 
             $slug = basename($path);
+            if (!$this->isPluginEnabled($slug)) {
+                continue;
+            }
             $rawConstraint = $json['require']['psr/log'] ?? ($json['require-dev']['psr/log'] ?? null);
             if (!$rawConstraint) {
                 continue;
@@ -302,6 +308,34 @@ class SafeUpgradeService
         return $conflicts;
     }
 
+    protected function isPluginEnabled(string $slug): bool
+    {
+        if ($this->config) {
+            try {
+                $value = $this->config->get("plugins.{$slug}.enabled");
+                if ($value !== null) {
+                    return (bool)$value;
+                }
+            } catch (Throwable $e) {
+                // ignore and fall back to file checks
+            }
+        }
+
+        $configPath = $this->rootPath . '/user/config/plugins/' . $slug . '.yaml';
+        if (is_file($configPath)) {
+            try {
+                $data = Yaml::parseFile($configPath);
+                if (is_array($data) && array_key_exists('enabled', $data)) {
+                    return (bool)$data['enabled'];
+                }
+            } catch (Throwable $e) {
+                // ignore parse errors and treat as enabled
+            }
+        }
+
+        return true;
+    }
+
     /**
      * Detect usage of deprecated Monolog `add*` methods removed in newer releases.
      *
@@ -314,6 +348,11 @@ class SafeUpgradeService
         $pattern = '/->add(?:Debug|Info|Notice|Warning|Error|Critical|Alert|Emergency)\s*\(/i';
 
         foreach ($pluginRoots as $path) {
+            $slug = basename($path);
+            if (!$this->isPluginEnabled($slug)) {
+                continue;
+            }
+
             $iterator = new RecursiveIteratorIterator(
                 new RecursiveDirectoryIterator($path, FilesystemIterator::SKIP_DOTS)
             );
@@ -330,7 +369,6 @@ class SafeUpgradeService
                 }
 
                 if (preg_match($pattern, $contents, $match)) {
-                    $slug = basename($path);
                     $relative = str_replace($this->rootPath . '/', '', $file->getPathname());
                     $conflicts[$slug][] = [
                         'file' => $relative,
