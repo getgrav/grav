@@ -94,6 +94,7 @@ class SafeUpgradeServiceTest extends \Codeception\TestCase\Test
         [$root, $staging, $manifestStore] = $this->prepareLiveEnvironment();
         $service = new SafeUpgradeService([
             'root' => $root,
+            'staging_root' => $staging,
             'manifest_store' => $manifestStore,
         ]);
 
@@ -111,8 +112,9 @@ class SafeUpgradeServiceTest extends \Codeception\TestCase\Test
         self::assertFileExists($root . '/ORIGINAL');
         self::assertFileDoesNotExist($root . '/system/new.txt');
 
-        $rotated = glob($staging . '/rotated-*');
-        self::assertEmpty($rotated);
+        $snapshots = glob($staging . '/snapshot-*');
+        self::assertNotEmpty($snapshots);
+        self::assertEmpty(glob($staging . '/stage-*'));
     }
 
     public function testPrunesOldSnapshots(): void
@@ -120,6 +122,7 @@ class SafeUpgradeServiceTest extends \Codeception\TestCase\Test
         [$root, $staging, $manifestStore] = $this->prepareLiveEnvironment();
         $service = new SafeUpgradeService([
             'root' => $root,
+            'staging_root' => $staging,
             'manifest_store' => $manifestStore,
         ]);
 
@@ -145,6 +148,7 @@ class SafeUpgradeServiceTest extends \Codeception\TestCase\Test
 
         $service = new SafeUpgradeService([
             'root' => $root,
+            'staging_root' => $this->tmpDir . '/staging',
         ]);
 
         $method = new ReflectionMethod(SafeUpgradeService::class, 'detectPsrLogConflicts');
@@ -173,6 +177,7 @@ PHP;
 
         $service = new SafeUpgradeService([
             'root' => $root,
+            'staging_root' => $this->tmpDir . '/staging',
         ]);
 
         $method = new ReflectionMethod(SafeUpgradeService::class, 'detectMonologConflicts');
@@ -193,6 +198,7 @@ PHP;
 
         $service = new SafeUpgradeService([
             'root' => $root,
+            'staging_root' => $this->tmpDir . '/staging',
         ]);
         $service->clearRecoveryFlag();
 
@@ -205,7 +211,7 @@ PHP;
     private function prepareLiveEnvironment(): array
     {
         $root = $this->tmpDir . '/root';
-        $staging = $root . '/tmp/grav-upgrades';
+        $staging = $this->tmpDir . '/staging';
         $manifestStore = $root . '/user/data/upgrades';
 
         Folder::create($root . '/user/plugins/sample');

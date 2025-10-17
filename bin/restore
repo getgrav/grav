@@ -66,11 +66,6 @@ function parseArguments(array $args): array
     $options = [];
 
     foreach (array_slice($args, 1) as $arg) {
-        if (strncmp($arg, '--staging-root=', 15) === 0) {
-            $options['staging_root'] = substr($arg, 15);
-            continue;
-        }
-
         if (substr($arg, 0, 2) === '--') {
             echo "Unknown option: {$arg}\n";
             exit(1);
@@ -89,50 +84,12 @@ function parseArguments(array $args): array
 /**
  * @return string|null
  */
-function readConfiguredStagingRoot(): ?string
-{
-    $configFiles = [
-        GRAV_ROOT . '/user/config/system.yaml',
-        GRAV_ROOT . '/system/config/system.yaml'
-    ];
-
-    foreach ($configFiles as $file) {
-        if (!is_file($file)) {
-            continue;
-        }
-
-        try {
-            $data = Yaml::parseFile($file);
-        } catch (\Throwable $e) {
-            continue;
-        }
-
-        if (!is_array($data)) {
-            continue;
-        }
-
-        $current = $data['system']['updates']['staging_root'] ?? null;
-        if (null !== $current && $current !== '') {
-            return $current;
-        }
-    }
-
-    return null;
-}
-
 /**
  * @param array $options
  * @return SafeUpgradeService
  */
 function createUpgradeService(array $options): SafeUpgradeService
 {
-    $config = readConfiguredStagingRoot();
-    if ($config !== null && empty($options['staging_root'])) {
-        $options['staging_root'] = $config;
-    } elseif (isset($options['staging_root']) && $options['staging_root'] === '') {
-        unset($options['staging_root']);
-    }
-
     $options['root'] = GRAV_ROOT;
 
     return new SafeUpgradeService($options);

@@ -16,13 +16,13 @@ This document tracks the design decisions behind the new self-upgrade prototype 
    - Refresh GPM metadata and require all plugins/themes to be on their latest compatible release.
    - Scan plugin `composer.json` files for dependencies that are known to break under Grav 1.8 (eg. `psr/log` < 3) and surface actionable warnings.
 2. **Stage**
-   - Download the Grav update archive into a staging area outside the live tree (`{parent}/grav-upgrades/{timestamp}`).
+  - Download the Grav update archive into a staging area (`tmp://grav-snapshots/{timestamp}`).
    - Extract the package, then write a manifest describing the target version, PHP info, and enabled packages.
    - Snapshot the live `user/` directory and relevant metadata into the same stage folder.
 3. **Promote**
-   - Switch the installation by renaming the live tree to a rollback folder and promoting the staged tree into place via atomic renames.
+   - Copy the staged package into place, overwriting Grav core files while leaving hydrated user content intact.
    - Clear caches in the staged tree before promotion.
-   - Run Grav CLI smoke checks (`bin/grav check`) while still holding maintenance state; swap back automatically on failure.
+   - Run Grav CLI smoke checks (`bin/grav check`) while still holding maintenance state; restore from the snapshot automatically on failure.
 4. **Finalize**
    - Record the manifest under `user/data/upgrades`.
    - Resume normal traffic by removing the maintenance flag.
@@ -46,4 +46,3 @@ This document tracks the design decisions behind the new self-upgrade prototype 
 - Finalize compatibility heuristics (initial pass focuses on `psr/log` and removed logging APIs).
 - UX polish for the Recovery UI (initial prototype will expose basic actions only).
 - Decide retention policy for old manifests and snapshots (prototype keeps the most recent three).
-

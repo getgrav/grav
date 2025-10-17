@@ -49,3 +49,4 @@ tests/error.log
 system/templates/testing/*
 /user/config/versions.yaml
 /system/recovery.window
+tmp/*
