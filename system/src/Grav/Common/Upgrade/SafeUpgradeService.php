@@ -456,6 +456,10 @@ class SafeUpgradeService
                 continue;
             }
 
+            if (!$entry->isDir() || $entry->isLink()) {
+                continue;
+            }
+
             $target = $packagePath . DIRECTORY_SEPARATOR . $name;
             if (file_exists($target)) {
                 continue;
@@ -464,13 +468,7 @@ class SafeUpgradeService
             $source = $entry->getPathname();
             Folder::create(dirname($target));
 
-            if ($entry->isDir() && !$entry->isLink()) {
-                Folder::rcopy($source, $target, true);
-            } elseif ($entry->isFile()) {
-                copy($source, $target);
-            } elseif ($entry->isLink()) {
-                @symlink(readlink($source), $target);
-            }
+            Folder::rcopy($source, $target, true);
         }
     }
 
