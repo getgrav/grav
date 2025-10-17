@@ -20,6 +20,36 @@ if (PHP_SAPI === 'cli-server') {
     }
 }
 
+if (PHP_SAPI !== 'cli') {
+    $requestUri = $_SERVER['REQUEST_URI'] ?? '';
+    $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
+    $path = parse_url($requestUri, PHP_URL_PATH) ?? '/';
+    $path = str_replace('\\', '/', $path);
+
+    $scriptDir = str_replace('\\', '/', dirname($scriptName));
+    if ($scriptDir && $scriptDir !== '/' && $scriptDir !== '.') {
+        if (strpos($path, $scriptDir) === 0) {
+            $path = substr($path, strlen($scriptDir));
+            $path = $path === '' ? '/' : $path;
+        }
+    }
+
+    if ($path === '/___safe-upgrade-status') {
+        $statusEndpoint = __DIR__ . '/user/plugins/admin/safe-upgrade-status.php';
+        header('Content-Type: application/json; charset=utf-8');
+        if (is_file($statusEndpoint)) {
+            require $statusEndpoint;
+        } else {
+            http_response_code(404);
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Safe upgrade status endpoint unavailable.',
+            ]);
+        }
+        exit;
+    }
+}
+
 // Ensure vendor libraries exist
 $autoload = __DIR__ . '/vendor/autoload.php';
 if (!is_file($autoload)) {
