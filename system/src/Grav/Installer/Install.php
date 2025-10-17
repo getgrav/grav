@@ -266,7 +266,7 @@ ERR;
                 try {
                     $grav = Grav::instance();
                     if ($grav && isset($grav['config'])) {
-                        $options['staging_root'] = $grav['config']->get('system.updates.staging_root');
+                        $options['config'] = $grav['config'];
                     }
                 } catch (\Throwable $e) {
                     // ignore

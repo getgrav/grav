@@ -292,10 +292,8 @@ class SelfupgradeCommand extends GpmCommand
             $config = null;
         }
 
-        $stagingRoot = $config ? $config->get('system.updates.staging_root') : null;
-
         return new SafeUpgradeService([
-            'staging_root' => $stagingRoot,
+            'config' => $config,
         ]);
     }
 

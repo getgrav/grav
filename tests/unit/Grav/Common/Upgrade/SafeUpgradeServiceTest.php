@@ -94,7 +94,6 @@ class SafeUpgradeServiceTest extends \Codeception\TestCase\Test
         [$root, $staging, $manifestStore] = $this->prepareLiveEnvironment();
         $service = new SafeUpgradeService([
             'root' => $root,
-            'staging_root' => $staging,
             'manifest_store' => $manifestStore,
         ]);
 
@@ -121,7 +120,6 @@ class SafeUpgradeServiceTest extends \Codeception\TestCase\Test
         [$root, $staging, $manifestStore] = $this->prepareLiveEnvironment();
         $service = new SafeUpgradeService([
             'root' => $root,
-            'staging_root' => $staging,
             'manifest_store' => $manifestStore,
         ]);
 
@@ -147,7 +145,6 @@ class SafeUpgradeServiceTest extends \Codeception\TestCase\Test
 
         $service = new SafeUpgradeService([
             'root' => $root,
-            'staging_root' => $this->tmpDir . '/staging',
         ]);
 
         $method = new ReflectionMethod(SafeUpgradeService::class, 'detectPsrLogConflicts');
@@ -176,7 +173,6 @@ PHP;
 
         $service = new SafeUpgradeService([
             'root' => $root,
-            'staging_root' => $this->tmpDir . '/staging',
         ]);
 
         $method = new ReflectionMethod(SafeUpgradeService::class, 'detectMonologConflicts');
@@ -197,7 +193,6 @@ PHP;
 
         $service = new SafeUpgradeService([
             'root' => $root,
-            'staging_root' => $this->tmpDir . '/staging',
         ]);
         $service->clearRecoveryFlag();
 
@@ -210,7 +205,7 @@ PHP;
     private function prepareLiveEnvironment(): array
     {
         $root = $this->tmpDir . '/root';
-        $staging = $this->tmpDir . '/staging';
+        $staging = $root . '/tmp/grav-upgrades';
         $manifestStore = $root . '/user/data/upgrades';
 
         Folder::create($root . '/user/plugins/sample');

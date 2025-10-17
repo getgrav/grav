@@ -12,6 +12,7 @@ namespace Grav\Common\Upgrade;
 use DirectoryIterator;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\GPM\GPM;
+use Grav\Common\Grav;
 use Grav\Common\Yaml;
 use InvalidArgumentException;
 use RuntimeException;
@@ -83,27 +84,30 @@ class SafeUpgradeService
         $this->parentDir = $options['parent_dir'] ?? dirname($this->rootPath);
         $this->config = $options['config'] ?? null;
 
-        $candidates = [];
-        if (!empty($options['staging_root'])) {
-            $candidates[] = $options['staging_root'];
+        $locator = null;
+        try {
+            $locator = Grav::instance()['locator'] ?? null;
+        } catch (Throwable $e) {
+            $locator = null;
         }
-        $candidates[] = $this->parentDir . DIRECTORY_SEPARATOR . 'grav-upgrades';
-        if (getenv('HOME')) {
-            $candidates[] = getenv('HOME') . DIRECTORY_SEPARATOR . 'grav-upgrades';
-        }
-        $candidates[] = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'grav-upgrades';
 
-        $this->stagingRoot = null;
-        foreach ($candidates as $candidate) {
-            $resolved = $this->resolveStagingPath($candidate);
-            if ($resolved) {
-                $this->stagingRoot = $resolved;
-                break;
+        $primary = null;
+        if ($locator && method_exists($locator, 'findResource')) {
+            try {
+                $primary = $locator->findResource('tmp://grav-upgrades', true, true);
+            } catch (Throwable $e) {
+                $primary = null;
             }
         }
 
+        if (!$primary) {
+            $primary = $this->rootPath . DIRECTORY_SEPARATOR . 'tmp' . DIRECTORY_SEPARATOR . 'grav-upgrades';
+        }
+
+        $this->stagingRoot = $this->resolveStagingPath($primary);
+
         if (null === $this->stagingRoot) {
-            throw new RuntimeException('Unable to locate writable staging directory. Configure system.updates.staging_root or adjust permissions.');
+            throw new RuntimeException('Unable to locate writable staging directory. Ensure tmp://grav-upgrades is writable.');
         }
         $this->manifestStore = $options['manifest_store'] ?? ($this->rootPath . DIRECTORY_SEPARATOR . 'user' . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'upgrades');
         if (isset($options['ignored_dirs']) && is_array($options['ignored_dirs'])) {
@@ -671,6 +675,8 @@ class SafeUpgradeService
             $home = getenv('HOME');
             if ($home) {
                 $expanded = rtrim($home, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . ltrim($expanded, '~\/');
+            } else {
+                return null;
             }
         }
         if (!$this->isAbsolutePath($expanded)) {
