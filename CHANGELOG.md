@@ -1,3 +1,15 @@
+# v1.8.0-beta.12
+## 10/17/2025
+
+1. [](#bugfix)
+    * new low-level routing for safe-upgrade check
+
+# v1.8.0-beta.11
+## 10/16/2025
+
+1. [](#bugfix)
+    * Sync 1.7 changes to 1.8 branch
+
 # v1.8.0-beta.10
 ## 10/16/2025
 
