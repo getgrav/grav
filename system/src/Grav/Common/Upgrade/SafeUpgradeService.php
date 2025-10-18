@@ -71,6 +71,8 @@ class SafeUpgradeService
         'cache',
         'user',
     ];
+    /** @var callable|null */
+    private $progressCallback = null;
 
     /**
      * @param array $options
@@ -170,6 +172,7 @@ class SafeUpgradeService
 
         // Copy extracted package into staging area.
         Folder::rcopy($extractedPath, $packagePath, true);
+        $this->reportProgress('installing', 'Preparing staged package...', null);
 
         $this->carryOverRootDotfiles($packagePath);
 
@@ -182,6 +185,7 @@ class SafeUpgradeService
             throw new RuntimeException('Staged package does not contain any files to promote.');
         }
 
+        $this->reportProgress('snapshot', 'Creating backup snapshot...', null);
         $this->createBackupSnapshot($entries, $backupPath);
         $this->syncGitDirectory($this->rootPath, $backupPath);
 
@@ -189,6 +193,8 @@ class SafeUpgradeService
         $manifestPath = $stagePath . DIRECTORY_SEPARATOR . 'manifest.json';
         Folder::create(dirname($manifestPath));
         file_put_contents($manifestPath, json_encode($manifest, JSON_PRETTY_PRINT));
+
+        $this->reportProgress('installing', 'Copying update files...', null);
 
         try {
             $this->copyEntries($entries, $packagePath, $this->rootPath);
@@ -198,6 +204,7 @@ class SafeUpgradeService
             throw new RuntimeException('Failed to promote staged Grav release.', 0, $e);
         }
 
+        $this->reportProgress('finalizing', 'Finalizing upgrade...', null);
         $this->syncGitDirectory($backupPath, $this->rootPath);
         $this->persistManifest($manifest);
         $this->pruneOldSnapshots();
@@ -274,6 +281,20 @@ class SafeUpgradeService
         }
     }
 
+    public function setProgressCallback(?callable $callback): self
+    {
+        $this->progressCallback = $callback;
+
+        return $this;
+    }
+
+    private function reportProgress(string $stage, string $message, ?int $percent = null, array $extra = []): void
+    {
+        if ($this->progressCallback) {
+            ($this->progressCallback)($stage, $message, $percent, $extra);
+        }
+    }
+
     /**
      * Roll back to the most recent snapshot.
      *
@@ -300,6 +321,7 @@ class SafeUpgradeService
             throw new RuntimeException('Rollback snapshot entries are missing from the manifest.');
         }
 
+        $this->reportProgress('rollback', 'Restoring snapshot...', null);
         $this->copyEntries($entries, $backupPath, $this->rootPath);
         $this->syncGitDirectory($backupPath, $this->rootPath);
         $this->markRollback($manifest['id']);

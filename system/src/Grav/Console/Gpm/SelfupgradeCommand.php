@@ -44,6 +44,8 @@ class SelfupgradeCommand extends GpmCommand
     private $tmp;
     /** @var Upgrader */
     private $upgrader;
+    /** @var string|null */
+    private $lastProgressMessage = null;
 
     /** @var string */
     protected $all_yes;
@@ -438,6 +440,7 @@ class SelfupgradeCommand extends GpmCommand
     private function upgrade(): bool
     {
         $io = $this->getIO();
+        $this->lastProgressMessage = null;
 
         $this->upgradeGrav($this->file);
 
@@ -496,14 +499,24 @@ class SelfupgradeCommand extends GpmCommand
      */
     private function upgradeGrav(string $zip): void
     {
+        $io = $this->getIO();
+
         try {
+            $io->write("\x0D  |- Extracting update...                    ");
             $folder = Installer::unZip($zip, $this->tmp . '/zip');
             if ($folder === false) {
                 throw new RuntimeException(Installer::lastErrorMsg());
             }
+            $io->write("\x0D");
+            $io->writeln('  |- Extracting update...    <green>ok</green>                ');
 
             $script = $folder . '/system/install.php';
             if ((file_exists($script) && $install = include $script) && is_callable($install)) {
+                if (is_object($install) && method_exists($install, 'setProgressCallback')) {
+                    $install->setProgressCallback(function (string $stage, string $message, ?int $percent = null, array $extra = []) {
+                        $this->handleServiceProgress($stage, $message, $percent);
+                    });
+                }
                 $install($zip);
             } else {
                 throw new RuntimeException('Uploaded archive file is not a valid Grav update package');
@@ -511,6 +524,17 @@ class SelfupgradeCommand extends GpmCommand
         } catch (Exception $e) {
             Installer::setError($e->getMessage());
         }
+    }
+
+    private function handleServiceProgress(string $stage, string $message, ?int $percent = null, array $extra = []): void
+    {
+        if ($this->lastProgressMessage === $message) {
+            return;
+        }
+
+        $this->lastProgressMessage = $message;
+        $io = $this->getIO();
+        $io->writeln(sprintf('  |- %s', $message));
     }
 
     private function ensureExecutablePermissions(): void

@@ -122,6 +122,8 @@ final class Install
 
     /** @var static */
     private static $instance;
+    /** @var callable|null */
+    private $progressCallback = null;
 
     /**
      * @return static
@@ -185,6 +187,20 @@ ERR;
         $this->prepare();
         $this->install();
         $this->finalize();
+    }
+
+    public function setProgressCallback(?callable $callback): self
+    {
+        $this->progressCallback = $callback;
+
+        return $this;
+    }
+
+    private function relayProgress(string $stage, string $message, ?int $percent = null): void
+    {
+        if ($this->progressCallback) {
+            ($this->progressCallback)($stage, $message, $percent);
+        }
     }
 
     /**
@@ -273,6 +289,11 @@ ERR;
                 }
 
                 $service = new SafeUpgradeService($options);
+                if ($this->progressCallback) {
+                    $service->setProgressCallback(function (string $stage, string $message, ?int $percent = null, array $extra = []) {
+                        $this->relayProgress($stage, $message, $percent);
+                    });
+                }
                 $service->promote($this->location, $this->getVersion(), $this->ignores);
                 Installer::setError(Installer::OK);
             } else {
