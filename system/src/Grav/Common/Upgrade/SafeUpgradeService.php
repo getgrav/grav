@@ -168,11 +168,10 @@ class SafeUpgradeService
         $packagePath = $stagePath . DIRECTORY_SEPARATOR . 'package';
         $backupPath = $this->stagingRoot . DIRECTORY_SEPARATOR . 'snapshot-' . $stageId;
 
-        Folder::create($packagePath);
+        Folder::create(dirname($packagePath));
 
-        // Copy extracted package into staging area.
-        Folder::rcopy($extractedPath, $packagePath, true);
         $this->reportProgress('installing', 'Preparing staged package...', null);
+        $this->stageExtractedPackage($extractedPath, $packagePath);
 
         $this->carryOverRootDotfiles($packagePath);
 
@@ -197,9 +196,9 @@ class SafeUpgradeService
         $this->reportProgress('installing', 'Copying update files...', null);
 
         try {
-            $this->copyEntries($entries, $packagePath, $this->rootPath);
+            $this->copyEntries($entries, $packagePath, $this->rootPath, 'installing', 'Deploying');
         } catch (Throwable $e) {
-            $this->copyEntries($entries, $backupPath, $this->rootPath);
+            $this->copyEntries($entries, $backupPath, $this->rootPath, 'installing', 'Restoring');
             $this->syncGitDirectory($backupPath, $this->rootPath);
             throw new RuntimeException('Failed to promote staged Grav release.', 0, $e);
         }
@@ -230,18 +229,51 @@ class SafeUpgradeService
         return $entries;
     }
 
+    private function stageExtractedPackage(string $sourcePath, string $packagePath): void
+    {
+        if (is_dir($packagePath)) {
+            Folder::delete($packagePath);
+        }
+
+        if (@rename($sourcePath, $packagePath)) {
+            return;
+        }
+
+        Folder::create($packagePath);
+        $entries = $this->collectPackageEntries($sourcePath);
+        $this->copyEntries($entries, $sourcePath, $packagePath, 'installing', 'Staging');
+        Folder::delete($sourcePath);
+    }
+
     private function createBackupSnapshot(array $entries, string $backupPath): void
     {
         Folder::create($backupPath);
-        $this->copyEntries($entries, $this->rootPath, $backupPath);
+        $this->copyEntries($entries, $this->rootPath, $backupPath, 'snapshot', 'Snapshotting');
     }
 
-    private function copyEntries(array $entries, string $sourceBase, string $targetBase): void
+    private function copyEntries(array $entries, string $sourceBase, string $targetBase, ?string $progressStage = null, ?string $progressPrefix = null): void
     {
-        foreach ($entries as $entry) {
+        $total = count($entries);
+        foreach ($entries as $index => $entry) {
             $source = $sourceBase . DIRECTORY_SEPARATOR . $entry;
             if (!is_file($source) && !is_dir($source) && !is_link($source)) {
                 continue;
+            }
+
+            if ($progressStage) {
+                $message = sprintf(
+                    '%s %s (%d/%d)',
+                    $progressPrefix ?? 'Processing',
+                    $entry,
+                    $index + 1,
+                    max($total, 1)
+                );
+                $percent = $total > 0 ? (int)floor(($index / $total) * 100) : null;
+                $this->reportProgress($progressStage, $message, $percent ?: null, [
+                    'entry' => $entry,
+                    'index' => $index + 1,
+                    'total' => $total,
+                ]);
             }
 
             $destination = $targetBase . DIRECTORY_SEPARATOR . $entry;
@@ -322,7 +354,7 @@ class SafeUpgradeService
         }
 
         $this->reportProgress('rollback', 'Restoring snapshot...', null);
-        $this->copyEntries($entries, $backupPath, $this->rootPath);
+        $this->copyEntries($entries, $backupPath, $this->rootPath, 'rollback', 'Restoring');
         $this->syncGitDirectory($backupPath, $this->rootPath);
         $this->markRollback($manifest['id']);
 
