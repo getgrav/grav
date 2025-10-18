@@ -1,3 +1,9 @@
+# v1.8.0-beta.13
+## 10/17/2025
+
+1. [](#improved)
+    * Refactored safe-upgrade check to use copy-based snapshot/install/restore system
+
 # v1.8.0-beta.12
 ## 10/17/2025
 
