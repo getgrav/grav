@@ -550,6 +550,9 @@ class Cache extends Getters
                                 $anything = true;
                             }
                         } elseif (is_dir($file)) {
+                            if (basename($file) === 'grav-snapshots') {
+                                continue;
+                            }
                             if (Folder::delete($file, false)) {
                                 $anything = true;
                             }
