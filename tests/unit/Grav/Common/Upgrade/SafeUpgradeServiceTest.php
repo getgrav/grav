@@ -95,10 +95,9 @@ class SafeUpgradeServiceTest extends \PHPUnit\Framework\TestCase
 
     public function testPromoteAndRollback(): void
     {
-        [$root, $staging, $manifestStore] = $this->prepareLiveEnvironment();
+        [$root, $manifestStore] = $this->prepareLiveEnvironment();
         $service = new SafeUpgradeService([
             'root' => $root,
-            'staging_root' => $staging,
             'manifest_store' => $manifestStore,
         ]);
 
@@ -106,7 +105,7 @@ class SafeUpgradeServiceTest extends \PHPUnit\Framework\TestCase
         $manifest = $service->promote($package, '1.8.0', ['backup', 'cache', 'images', 'logs', 'tmp', 'user']);
 
         self::assertFileExists($root . '/system/new.txt');
-        self::assertFileDoesNotExist($root . '/ORIGINAL');
+        self::assertFileExists($root . '/ORIGINAL');
 
         $manifestFile = $manifestStore . '/' . $manifest['id'] . '.json';
         self::assertFileExists($manifestFile);
@@ -116,16 +115,14 @@ class SafeUpgradeServiceTest extends \PHPUnit\Framework\TestCase
         self::assertFileExists($root . '/ORIGINAL');
         self::assertFileDoesNotExist($root . '/system/new.txt');
 
-        $rotated = glob($staging . '/rotated-*');
-        self::assertEmpty($rotated);
+        self::assertDirectoryExists($manifest['backup_path']);
     }
 
     public function testPrunesOldSnapshots(): void
     {
-        [$root, $staging, $manifestStore] = $this->prepareLiveEnvironment();
+        [$root, $manifestStore] = $this->prepareLiveEnvironment();
         $service = new SafeUpgradeService([
             'root' => $root,
-            'staging_root' => $staging,
             'manifest_store' => $manifestStore,
         ]);
 
@@ -151,7 +148,6 @@ class SafeUpgradeServiceTest extends \PHPUnit\Framework\TestCase
 
         $service = new SafeUpgradeService([
             'root' => $root,
-            'staging_root' => $this->tmpDir . '/staging',
         ]);
 
         $method = new ReflectionMethod(SafeUpgradeService::class, 'detectPsrLogConflicts');
@@ -180,7 +176,6 @@ PHP;
 
         $service = new SafeUpgradeService([
             'root' => $root,
-            'staging_root' => $this->tmpDir . '/staging',
         ]);
 
         $method = new ReflectionMethod(SafeUpgradeService::class, 'detectMonologConflicts');
@@ -201,7 +196,6 @@ PHP;
 
         $service = new SafeUpgradeService([
             'root' => $root,
-            'staging_root' => $this->tmpDir . '/staging',
         ]);
         $service->clearRecoveryFlag();
 
@@ -209,12 +203,11 @@ PHP;
     }
 
     /**
-     * @return array{0:string,1:string,2:string}
+     * @return array{0:string,1:string}
      */
     private function prepareLiveEnvironment(): array
     {
         $root = $this->tmpDir . '/root';
-        $staging = $this->tmpDir . '/staging';
         $manifestStore = $root . '/user/data/upgrades';
 
         Folder::create($root . '/user/plugins/sample');
@@ -224,7 +217,7 @@ PHP;
         file_put_contents($root . '/user/plugins/sample/blueprints.yaml', "name: Sample Plugin\nversion: 1.0.0\n");
         file_put_contents($root . '/user/plugins/sample/composer.json', json_encode(['require' => ['php' => '^8.0']], JSON_PRETTY_PRINT));
 
-        return [$root, $staging, $manifestStore];
+        return [$root, $manifestStore];
     }
 
     /**

@@ -12,6 +12,7 @@ namespace Grav\Common\Upgrade;
 use DirectoryIterator;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\GPM\GPM;
+use Grav\Common\Grav;
 use Grav\Common\Yaml;
 use InvalidArgumentException;
 use RuntimeException;
@@ -55,11 +56,11 @@ class SafeUpgradeService
     /** @var string */
     private $rootPath;
     /** @var string */
-    private $parentDir;
-    /** @var string */
     private $stagingRoot;
     /** @var string */
     private $manifestStore;
+    /** @var \Grav\Common\Config\ConfigInterface|null */
+    private $config;
 
     /** @var array */
     private $ignoredDirs = [
@@ -70,6 +71,8 @@ class SafeUpgradeService
         'cache',
         'user',
     ];
+    /** @var callable|null */
+    private $progressCallback = null;
 
     /**
      * @param array $options
@@ -78,29 +81,32 @@ class SafeUpgradeService
     {
         $root = $options['root'] ?? GRAV_ROOT;
         $this->rootPath = rtrim($root, DIRECTORY_SEPARATOR);
-        $this->parentDir = $options['parent_dir'] ?? dirname($this->rootPath);
+        $this->config = $options['config'] ?? null;
 
-        $candidates = [];
-        if (!empty($options['staging_root'])) {
-            $candidates[] = $options['staging_root'];
+        $locator = null;
+        try {
+            $locator = Grav::instance()['locator'] ?? null;
+        } catch (Throwable $e) {
+            $locator = null;
         }
-        $candidates[] = $this->parentDir . DIRECTORY_SEPARATOR . 'grav-upgrades';
-        if (getenv('HOME')) {
-            $candidates[] = getenv('HOME') . DIRECTORY_SEPARATOR . 'grav-upgrades';
-        }
-        $candidates[] = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'grav-upgrades';
 
-        $this->stagingRoot = null;
-        foreach ($candidates as $candidate) {
-            $resolved = $this->resolveStagingPath($candidate);
-            if ($resolved) {
-                $this->stagingRoot = $resolved;
-                break;
+        $primary = null;
+        if ($locator && method_exists($locator, 'findResource')) {
+            try {
+                $primary = $locator->findResource('tmp://grav-snapshots', true, true);
+            } catch (Throwable $e) {
+                $primary = null;
             }
         }
 
+        if (!$primary) {
+            $primary = $this->rootPath . DIRECTORY_SEPARATOR . 'tmp' . DIRECTORY_SEPARATOR . 'grav-snapshots';
+        }
+
+        $this->stagingRoot = $this->resolveStagingPath($primary);
+
         if (null === $this->stagingRoot) {
-            throw new RuntimeException('Unable to locate writable staging directory. Configure system.updates.staging_root or adjust permissions.');
+            throw new RuntimeException('Unable to locate writable staging directory. Ensure tmp://grav-snapshots is writable.');
         }
         $this->manifestStore = $options['manifest_store'] ?? ($this->rootPath . DIRECTORY_SEPARATOR . 'user' . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'upgrades');
         if (isset($options['ignored_dirs']) && is_array($options['ignored_dirs'])) {
@@ -160,12 +166,13 @@ class SafeUpgradeService
         $stageId = uniqid('stage-', false);
         $stagePath = $this->stagingRoot . DIRECTORY_SEPARATOR . $stageId;
         $packagePath = $stagePath . DIRECTORY_SEPARATOR . 'package';
-        $backupPath = $this->stagingRoot . DIRECTORY_SEPARATOR . 'rollback-' . $stageId;
+        $backupPath = $this->stagingRoot . DIRECTORY_SEPARATOR . 'snapshot-' . $stageId;
 
         Folder::create($packagePath);
 
         // Copy extracted package into staging area.
         Folder::rcopy($extractedPath, $packagePath, true);
+        $this->reportProgress('installing', 'Preparing staged package...', null);
 
         $this->carryOverRootDotfiles($packagePath);
 
@@ -173,18 +180,119 @@ class SafeUpgradeService
         $this->hydrateIgnoredDirectories($packagePath, $ignores);
         $this->carryOverRootFiles($packagePath, $ignores);
 
-        $manifest = $this->buildManifest($stageId, $targetVersion, $packagePath, $backupPath);
+        $entries = $this->collectPackageEntries($packagePath);
+        if (!$entries) {
+            throw new RuntimeException('Staged package does not contain any files to promote.');
+        }
+
+        $this->reportProgress('snapshot', 'Creating backup snapshot...', null);
+        $this->createBackupSnapshot($entries, $backupPath);
+        $this->syncGitDirectory($this->rootPath, $backupPath);
+
+        $manifest = $this->buildManifest($stageId, $targetVersion, $packagePath, $backupPath, $entries);
         $manifestPath = $stagePath . DIRECTORY_SEPARATOR . 'manifest.json';
         Folder::create(dirname($manifestPath));
         file_put_contents($manifestPath, json_encode($manifest, JSON_PRETTY_PRINT));
 
-        // Promote staged package into place.
-        $this->promoteStagedTree($packagePath, $backupPath);
+        $this->reportProgress('installing', 'Copying update files...', null);
+
+        try {
+            $this->copyEntries($entries, $packagePath, $this->rootPath);
+        } catch (Throwable $e) {
+            $this->copyEntries($entries, $backupPath, $this->rootPath);
+            $this->syncGitDirectory($backupPath, $this->rootPath);
+            throw new RuntimeException('Failed to promote staged Grav release.', 0, $e);
+        }
+
+        $this->reportProgress('finalizing', 'Finalizing upgrade...', null);
+        $this->syncGitDirectory($backupPath, $this->rootPath);
         $this->persistManifest($manifest);
         $this->pruneOldSnapshots();
         Folder::delete($stagePath);
 
         return $manifest;
+    }
+
+    private function collectPackageEntries(string $packagePath): array
+    {
+        $entries = [];
+        $iterator = new DirectoryIterator($packagePath);
+        foreach ($iterator as $fileinfo) {
+            if ($fileinfo->isDot()) {
+                continue;
+            }
+
+            $entries[] = $fileinfo->getFilename();
+        }
+
+        sort($entries);
+
+        return $entries;
+    }
+
+    private function createBackupSnapshot(array $entries, string $backupPath): void
+    {
+        Folder::create($backupPath);
+        $this->copyEntries($entries, $this->rootPath, $backupPath);
+    }
+
+    private function copyEntries(array $entries, string $sourceBase, string $targetBase): void
+    {
+        foreach ($entries as $entry) {
+            $source = $sourceBase . DIRECTORY_SEPARATOR . $entry;
+            if (!is_file($source) && !is_dir($source) && !is_link($source)) {
+                continue;
+            }
+
+            $destination = $targetBase . DIRECTORY_SEPARATOR . $entry;
+            $this->removeEntry($destination);
+
+            if (is_link($source)) {
+                Folder::create(dirname($destination));
+                if (!@symlink(readlink($source), $destination)) {
+                    throw new RuntimeException(sprintf('Failed to replicate symlink "%s".', $source));
+                }
+            } elseif (is_dir($source)) {
+                Folder::create(dirname($destination));
+                Folder::rcopy($source, $destination, true);
+            } else {
+                Folder::create(dirname($destination));
+                if (!@copy($source, $destination)) {
+                    throw new RuntimeException(sprintf('Failed to copy file "%s" to "%s".', $source, $destination));
+                }
+                $perm = @fileperms($source);
+                if ($perm !== false) {
+                    @chmod($destination, $perm & 0777);
+                }
+                $mtime = @filemtime($source);
+                if ($mtime !== false) {
+                    @touch($destination, $mtime);
+                }
+            }
+        }
+    }
+
+    private function removeEntry(string $path): void
+    {
+        if (is_link($path) || is_file($path)) {
+            @unlink($path);
+        } elseif (is_dir($path)) {
+            Folder::delete($path);
+        }
+    }
+
+    public function setProgressCallback(?callable $callback): self
+    {
+        $this->progressCallback = $callback;
+
+        return $this;
+    }
+
+    private function reportProgress(string $stage, string $message, ?int $percent = null, array $extra = []): void
+    {
+        if ($this->progressCallback) {
+            ($this->progressCallback)($stage, $message, $percent, $extra);
+        }
     }
 
     /**
@@ -205,15 +313,18 @@ class SafeUpgradeService
             throw new RuntimeException('Rollback snapshot is no longer available.');
         }
 
-        // Put the current tree aside before flip.
-        $rotated = $this->rotateCurrentTree();
-
-        $this->promoteBackup($backupPath);
-        $this->syncGitDirectory($rotated, $this->rootPath);
-        $this->markRollback($manifest['id']);
-        if ($rotated && is_dir($rotated)) {
-            Folder::delete($rotated);
+        $entries = $manifest['entries'] ?? [];
+        if (!$entries) {
+            $entries = $this->collectPackageEntries($backupPath);
         }
+        if (!$entries) {
+            throw new RuntimeException('Rollback snapshot entries are missing from the manifest.');
+        }
+
+        $this->reportProgress('rollback', 'Restoring snapshot...', null);
+        $this->copyEntries($entries, $backupPath, $this->rootPath);
+        $this->syncGitDirectory($backupPath, $this->rootPath);
+        $this->markRollback($manifest['id']);
 
         return $manifest;
     }
@@ -278,6 +389,9 @@ class SafeUpgradeService
             }
 
             $slug = basename($path);
+            if (!$this->isPluginEnabled($slug)) {
+                continue;
+            }
             $rawConstraint = $json['require']['psr/log'] ?? ($json['require-dev']['psr/log'] ?? null);
             if (!$rawConstraint) {
                 continue;
@@ -302,6 +416,34 @@ class SafeUpgradeService
         return $conflicts;
     }
 
+    protected function isPluginEnabled(string $slug): bool
+    {
+        if ($this->config) {
+            try {
+                $value = $this->config->get("plugins.{$slug}.enabled");
+                if ($value !== null) {
+                    return (bool)$value;
+                }
+            } catch (Throwable $e) {
+                // ignore and fall back to file checks
+            }
+        }
+
+        $configPath = $this->rootPath . '/user/config/plugins/' . $slug . '.yaml';
+        if (is_file($configPath)) {
+            try {
+                $data = Yaml::parseFile($configPath);
+                if (is_array($data) && array_key_exists('enabled', $data)) {
+                    return (bool)$data['enabled'];
+                }
+            } catch (Throwable $e) {
+                // ignore parse errors and treat as enabled
+            }
+        }
+
+        return true;
+    }
+
     /**
      * Detect usage of deprecated Monolog `add*` methods removed in newer releases.
      *
@@ -314,6 +456,11 @@ class SafeUpgradeService
         $pattern = '/->add(?:Debug|Info|Notice|Warning|Error|Critical|Alert|Emergency)\s*\(/i';
 
         foreach ($pluginRoots as $path) {
+            $slug = basename($path);
+            if (!$this->isPluginEnabled($slug)) {
+                continue;
+            }
+
             $iterator = new RecursiveIteratorIterator(
                 new RecursiveDirectoryIterator($path, FilesystemIterator::SKIP_DOTS)
             );
@@ -330,7 +477,6 @@ class SafeUpgradeService
                 }
 
                 if (preg_match($pattern, $contents, $match)) {
-                    $slug = basename($path);
                     $relative = str_replace($this->rootPath . '/', '', $file->getPathname());
                     $conflicts[$slug][] = [
                         'file' => $relative,
@@ -481,7 +627,7 @@ class SafeUpgradeService
      * @param string $backupPath
      * @return array
      */
-    private function buildManifest(string $stageId, string $targetVersion, string $packagePath, string $backupPath): array
+    private function buildManifest(string $stageId, string $targetVersion, string $packagePath, string $backupPath, array $entries): array
     {
         $plugins = [];
         $pluginRoots = glob($this->rootPath . '/user/plugins/*', GLOB_ONLYDIR) ?: [];
@@ -518,63 +664,9 @@ class SafeUpgradeService
             'php_version' => PHP_VERSION,
             'package_path' => $packagePath,
             'backup_path' => $backupPath,
+            'entries' => array_values($entries),
             'plugins' => $plugins,
         ];
-    }
-
-    /**
-     * Promote staged package by swapping directory names.
-     *
-     * @param string $packagePath
-     * @param string $backupPath
-     * @return void
-     */
-    private function promoteStagedTree(string $packagePath, string $backupPath): void
-    {
-        $liveRoot = $this->rootPath;
-        Folder::create(dirname($backupPath));
-
-        if (!rename($liveRoot, $backupPath)) {
-            throw new RuntimeException('Failed to move current Grav directory into backup.');
-        }
-
-        if (!rename($packagePath, $liveRoot)) {
-            // Attempt to restore live tree.
-            rename($backupPath, $liveRoot);
-            throw new RuntimeException('Failed to promote staged Grav release.');
-        }
-
-        $this->syncGitDirectory($backupPath, $liveRoot);
-    }
-
-    /**
-     * Move existing tree aside to allow rollback swap.
-     *
-     * @return void
-     */
-    private function rotateCurrentTree(): string
-    {
-        $liveRoot = $this->rootPath;
-        $target = $this->stagingRoot . DIRECTORY_SEPARATOR . 'rotated-' . time();
-        Folder::create($this->stagingRoot);
-        if (!rename($liveRoot, $target)) {
-            throw new RuntimeException('Unable to rotate live tree during rollback.');
-        }
-
-        return $target;
-    }
-
-    /**
-     * Promote a backup tree into the live position.
-     *
-     * @param string $backupPath
-     * @return void
-     */
-    private function promoteBackup(string $backupPath): void
-    {
-        if (!rename($backupPath, $this->rootPath)) {
-            throw new RuntimeException('Rollback failed: unable to move backup into live position.');
-        }
     }
 
     /**
@@ -633,6 +725,8 @@ class SafeUpgradeService
             $home = getenv('HOME');
             if ($home) {
                 $expanded = rtrim($home, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . ltrim($expanded, '~\/');
+            } else {
+                return null;
             }
         }
         if (!$this->isAbsolutePath($expanded)) {
