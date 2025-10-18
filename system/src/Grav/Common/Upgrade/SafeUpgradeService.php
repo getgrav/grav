@@ -221,7 +221,12 @@ class SafeUpgradeService
                 continue;
             }
 
-            $entries[] = $fileinfo->getFilename();
+            $name = $fileinfo->getFilename();
+            if (in_array($name, $this->ignoredDirs, true)) {
+                continue;
+            }
+
+            $entries[] = $name;
         }
 
         sort($entries);
@@ -268,7 +273,7 @@ class SafeUpgradeService
                     $index + 1,
                     max($total, 1)
                 );
-                $percent = $total > 0 ? (int)floor(($index / $total) * 100) : null;
+                $percent = $total > 0 ? (int)floor((($index + 1) / $total) * 100) : null;
                 $this->reportProgress($progressStage, $message, $percent ?: null, [
                     'entry' => $entry,
                     'index' => $index + 1,
