@@ -171,7 +171,8 @@ class SafeUpgradeService
         Folder::create(dirname($packagePath));
 
         $this->reportProgress('installing', 'Preparing staged package...', null);
-        $this->stageExtractedPackage($extractedPath, $packagePath);
+        $stagingMode = $this->stageExtractedPackage($extractedPath, $packagePath);
+        $this->reportProgress('installing', 'Preparing staged package...', null, ['mode' => $stagingMode]);
 
         $this->carryOverRootDotfiles($packagePath);
 
@@ -186,7 +187,6 @@ class SafeUpgradeService
 
         $this->reportProgress('snapshot', 'Creating backup snapshot...', null);
         $this->createBackupSnapshot($entries, $backupPath);
-        $this->syncGitDirectory($this->rootPath, $backupPath);
 
         $manifest = $this->buildManifest($stageId, $targetVersion, $packagePath, $backupPath, $entries);
         $manifestPath = $stagePath . DIRECTORY_SEPARATOR . 'manifest.json';
@@ -199,12 +199,10 @@ class SafeUpgradeService
             $this->copyEntries($entries, $packagePath, $this->rootPath, 'installing', 'Deploying');
         } catch (Throwable $e) {
             $this->copyEntries($entries, $backupPath, $this->rootPath, 'installing', 'Restoring');
-            $this->syncGitDirectory($backupPath, $this->rootPath);
             throw new RuntimeException('Failed to promote staged Grav release.', 0, $e);
         }
 
         $this->reportProgress('finalizing', 'Finalizing upgrade...', null);
-        $this->syncGitDirectory($backupPath, $this->rootPath);
         $this->persistManifest($manifest);
         $this->pruneOldSnapshots();
         Folder::delete($stagePath);
@@ -234,20 +232,22 @@ class SafeUpgradeService
         return $entries;
     }
 
-    private function stageExtractedPackage(string $sourcePath, string $packagePath): void
+    private function stageExtractedPackage(string $sourcePath, string $packagePath): string
     {
         if (is_dir($packagePath)) {
             Folder::delete($packagePath);
         }
 
         if (@rename($sourcePath, $packagePath)) {
-            return;
+            return 'move';
         }
 
         Folder::create($packagePath);
         $entries = $this->collectPackageEntries($sourcePath);
         $this->copyEntries($entries, $sourcePath, $packagePath, 'installing', 'Staging');
         Folder::delete($sourcePath);
+
+        return 'copy';
     }
 
     private function createBackupSnapshot(array $entries, string $backupPath): void
@@ -360,7 +360,6 @@ class SafeUpgradeService
 
         $this->reportProgress('rollback', 'Restoring snapshot...', null);
         $this->copyEntries($entries, $backupPath, $this->rootPath, 'rollback', 'Restoring');
-        $this->syncGitDirectory($backupPath, $this->rootPath);
         $this->markRollback($manifest['id']);
 
         return $manifest;
@@ -552,14 +551,8 @@ class SafeUpgradeService
                 continue;
             }
 
-            // Skip caches to avoid stale data.
-            if (in_array($relative, ['cache', 'tmp'], true)) {
-                Folder::create($stage);
-                continue;
-            }
-
-            Folder::create(dirname($stage));
-            Folder::rcopy($live, $stage, true);
+            // Use empty placeholders to preserve directory structure without duplicating data.
+            Folder::create($stage);
         }
     }
 
@@ -713,25 +706,6 @@ class SafeUpgradeService
      * @param string $destination
      * @return void
      */
-    private function syncGitDirectory(string $source, string $destination): void
-    {
-        if (!$source || !$destination) {
-            return;
-        }
-
-        $sourceGit = rtrim($source, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . '.git';
-        if (!is_dir($sourceGit)) {
-            return;
-        }
-
-        $destinationGit = rtrim($destination, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . '.git';
-        if (is_dir($destinationGit)) {
-            Folder::delete($destinationGit);
-        }
-
-        Folder::rcopy($sourceGit, $destinationGit, true);
-    }
-
     /**
      * Persist manifest into Grav data directory.
      *

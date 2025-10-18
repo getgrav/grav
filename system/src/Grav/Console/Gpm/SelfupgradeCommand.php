@@ -46,6 +46,14 @@ class SelfupgradeCommand extends GpmCommand
     private $upgrader;
     /** @var string|null */
     private $lastProgressMessage = null;
+    /** @var float|null */
+    private $operationTimerStart = null;
+    /** @var string|null */
+    private $currentProgressStage = null;
+    /** @var float|null */
+    private $currentStageStartedAt = null;
+    /** @var array */
+    private $currentStageExtras = [];
 
     /** @var string */
     protected $all_yes;
@@ -235,6 +243,7 @@ class SelfupgradeCommand extends GpmCommand
         $this->file = $this->download($update);
 
         $io->write('  |- Installing upgrade...  ');
+        $this->operationTimerStart = microtime(true);
         $installation = $this->upgrade();
 
         $error = 0;
@@ -443,6 +452,13 @@ class SelfupgradeCommand extends GpmCommand
         $this->lastProgressMessage = null;
 
         $this->upgradeGrav($this->file);
+        $this->finalizeStageTracking();
+
+        $elapsed = null;
+        if (null !== $this->operationTimerStart) {
+            $elapsed = microtime(true) - $this->operationTimerStart;
+            $this->operationTimerStart = null;
+        }
 
         $errorCode = Installer::lastErrorCode();
         if ($errorCode) {
@@ -452,6 +468,10 @@ class SelfupgradeCommand extends GpmCommand
             $io->writeln("  |  '- " . Installer::lastErrorMsg());
 
             return false;
+        }
+
+        if (null !== $elapsed) {
+            $io->writeln(sprintf('  |- Safe upgrade staging completed in %s', $this->formatDuration($elapsed)));
         }
 
         $io->write("\x0D");
@@ -528,13 +548,19 @@ class SelfupgradeCommand extends GpmCommand
 
     private function handleServiceProgress(string $stage, string $message, ?int $percent = null, array $extra = []): void
     {
+        $this->trackStageProgress($stage, $message, $extra);
+
         if ($this->lastProgressMessage === $message) {
             return;
         }
 
         $this->lastProgressMessage = $message;
         $io = $this->getIO();
-        $io->writeln(sprintf('  |- %s', $message));
+        $suffix = '';
+        if (null !== $percent) {
+            $suffix = sprintf(' (%d%%)', $percent);
+        }
+        $io->writeln(sprintf('  |- %s%s', $message, $suffix));
     }
 
     private function ensureExecutablePermissions(): void
@@ -559,5 +585,70 @@ class SelfupgradeCommand extends GpmCommand
                 @chmod($path, $desired);
             }
         }
+    }
+
+    private function trackStageProgress(string $stage, string $message, array $extra = []): void
+    {
+        $now = microtime(true);
+
+        if (null !== $this->currentProgressStage && $stage !== $this->currentProgressStage && null !== $this->currentStageStartedAt) {
+            $elapsed = $now - $this->currentStageStartedAt;
+            $this->emitStageSummary($this->currentProgressStage, $elapsed, $this->currentStageExtras);
+            $this->currentStageExtras = [];
+        }
+
+        if ($stage !== $this->currentProgressStage) {
+            $this->currentProgressStage = $stage;
+            $this->currentStageStartedAt = $now;
+            $this->currentStageExtras = [];
+        }
+
+        if (!isset($this->currentStageExtras['label'])) {
+            $this->currentStageExtras['label'] = $message;
+        }
+
+        if ($extra) {
+            $this->currentStageExtras = array_merge($this->currentStageExtras, $extra);
+        }
+    }
+
+    private function finalizeStageTracking(): void
+    {
+        if (null !== $this->currentProgressStage && null !== $this->currentStageStartedAt) {
+            $elapsed = microtime(true) - $this->currentStageStartedAt;
+            $this->emitStageSummary($this->currentProgressStage, $elapsed, $this->currentStageExtras);
+        }
+
+        $this->currentProgressStage = null;
+        $this->currentStageStartedAt = null;
+        $this->currentStageExtras = [];
+    }
+
+    private function emitStageSummary(string $stage, float $seconds, array $extra = []): void
+    {
+        $io = $this->getIO();
+        $label = $extra['label'] ?? ucfirst($stage);
+        $modeText = '';
+        if (isset($extra['mode'])) {
+            $modeText = sprintf(' [%s]', $extra['mode']);
+        }
+
+        $io->writeln(sprintf('  |- %s completed in %s%s', $label, $this->formatDuration($seconds), $modeText));
+    }
+
+    private function formatDuration(float $seconds): string
+    {
+        if ($seconds < 1) {
+            return sprintf('%0.3fs', $seconds);
+        }
+
+        $minutes = (int)floor($seconds / 60);
+        $remaining = $seconds - ($minutes * 60);
+
+        if ($minutes === 0) {
+            return sprintf('%0.1fs', $remaining);
+        }
+
+        return sprintf('%dm %0.1fs', $minutes, $remaining);
     }
 }
