@@ -74,7 +74,12 @@ class SafeUpgradeRunCommand extends GravCommand
         ]);
 
         try {
-            $result = $manager->run($options);
+            $operation = $options['operation'] ?? 'upgrade';
+            if ($operation === 'restore') {
+                $result = $manager->runRestore($options);
+            } else {
+                $result = $manager->run($options);
+            }
             $manager->ensureJobResult($result);
 
             return ($result['status'] ?? null) === 'success' ? 0 : 1;
