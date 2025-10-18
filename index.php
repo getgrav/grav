@@ -13,10 +13,6 @@ namespace Grav;
 
 \define('GRAV_PHP_MIN', '8.2.0');
 
-if (!\defined('GRAV_ROOT')) {
-    \define('GRAV_ROOT', __DIR__);
-}
-
 if (PHP_SAPI === 'cli-server') {
     $symfony_server = stripos(getenv('_'), 'symfony') !== false || stripos($_SERVER['SERVER_SOFTWARE'] ?? '', 'symfony') !== false || stripos($_ENV['SERVER_SOFTWARE'] ?? '', 'symfony') !== false;
 
@@ -41,6 +37,10 @@ if (PHP_SAPI !== 'cli') {
 
     if ($path === '/___safe-upgrade-status') {
         $statusEndpoint = __DIR__ . '/user/plugins/admin/safe-upgrade-status.php';
+        if (!\defined('GRAV_ROOT')) {
+            // Minimal bootstrap so the status script has the expected constants.
+            require_once __DIR__ . '/system/defines.php';
+        }
         header('Content-Type: application/json; charset=utf-8');
         if (is_file($statusEndpoint)) {
             require $statusEndpoint;
