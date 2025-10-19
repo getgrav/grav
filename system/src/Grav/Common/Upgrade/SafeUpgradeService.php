@@ -445,6 +445,14 @@ class SafeUpgradeService
                     continue;
                 }
 
+                if ($type === 'plugins' && !$this->isPluginEnabled($slug)) {
+                    continue;
+                }
+
+                if ($type === 'themes' && !$this->isThemeEnabled($slug)) {
+                    continue;
+                }
+
                 $pending[$slug] = [
                     'type' => $type,
                     'current' => $package->version ?? null,
@@ -561,6 +569,37 @@ class SafeUpgradeService
                 }
             } catch (Throwable $e) {
                 // ignore parse errors and treat as enabled
+            }
+        }
+
+        return true;
+    }
+
+    protected function isThemeEnabled(string $slug): bool
+    {
+        if ($this->config) {
+            try {
+                $active = $this->config->get('system.pages.theme');
+                if ($active !== null) {
+                    return $active === $slug;
+                }
+            } catch (Throwable $e) {
+                // ignore
+            }
+        }
+
+        $configPath = $this->rootPath . '/user/config/system.yaml';
+        if (is_file($configPath)) {
+            try {
+                $data = Yaml::parseFile($configPath);
+                if (is_array($data)) {
+                    $active = $data['pages']['theme'] ?? ($data['system']['pages']['theme'] ?? null);
+                    if ($active !== null) {
+                        return $active === $slug;
+                    }
+                }
+            } catch (Throwable $e) {
+                // ignore parse errors and assume current theme
             }
         }
 
