@@ -124,7 +124,7 @@ function createUpgradeService(array $options): SafeUpgradeService
 }
 
 /**
- * @return list<array{id:string,source_version:?string,target_version:?string,created_at:int}>
+ * @return list<array{id:string,label:?string,source_version:?string,target_version:?string,created_at:int}>
  */
 function loadSnapshots(): array
 {
@@ -145,6 +145,7 @@ function loadSnapshots(): array
 
         $snapshots[] = [
             'id' => $decoded['id'],
+            'label' => $decoded['label'] ?? null,
             'source_version' => $decoded['source_version'] ?? null,
             'target_version' => $decoded['target_version'] ?? null,
             'created_at' => (int)($decoded['created_at'] ?? 0),
@@ -155,15 +156,17 @@ function loadSnapshots(): array
 }
 
 /**
- * @param list<array{id:string,source_version:?string,target_version:?string,created_at:int}> $snapshots
+ * @param list<array{id:string,label:?string,source_version:?string,target_version:?string,created_at:int}> $snapshots
  * @return string
  */
 function formatSnapshotListLine(array $snapshot): string
 {
     $restoreVersion = $snapshot['source_version'] ?? $snapshot['target_version'] ?? 'unknown';
     $timeLabel = formatSnapshotTimestamp($snapshot['created_at']);
+    $label = $snapshot['label'] ?? null;
+    $display = $label ? sprintf('%s [%s]', $label, $snapshot['id']) : $snapshot['id'];
 
-    return sprintf('%s (restore to Grav %s, %s)', $snapshot['id'], $restoreVersion, $timeLabel);
+    return sprintf('%s (restore to Grav %s, %s)', $display, $restoreVersion, $timeLabel);
 }
 
 function formatSnapshotTimestamp(int $timestamp): string
