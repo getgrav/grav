@@ -879,19 +879,8 @@ class SafeUpgradeService
      */
     private function pruneOldSnapshots(): void
     {
-        $files = glob($this->manifestStore . DIRECTORY_SEPARATOR . '*.json') ?: [];
-        if (count($files) <= 3) {
-            return;
-        }
-
-        sort($files);
-        $excess = array_slice($files, 0, count($files) - 3);
-        foreach ($excess as $file) {
-            $data = json_decode(file_get_contents($file), true);
-            if (isset($data['backup_path']) && is_dir($data['backup_path'])) {
-                Folder::delete($data['backup_path']);
-            }
-            @unlink($file);
-        }
+        // Retain all snapshots; administrators can prune manually if desired.
+        // Legacy behaviour removed to ensure full history remains available.
+        return;
     }
 }
