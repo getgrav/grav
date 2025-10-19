@@ -10,6 +10,7 @@
 namespace Grav\Common\Upgrade;
 
 use DirectoryIterator;
+use Grav\Common\Data\Data;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\GPM\GPM;
 use Grav\Common\Grav;
@@ -20,6 +21,7 @@ use Throwable;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use FilesystemIterator;
+use function array_key_exists;
 use function basename;
 use function copy;
 use function count;
@@ -33,6 +35,7 @@ use function is_file;
 use function json_decode;
 use function json_encode;
 use function preg_match;
+use function property_exists;
 use function rename;
 use function rsort;
 use function sort;
@@ -438,6 +441,10 @@ class SafeUpgradeService
                 continue;
             }
             foreach ($packages as $slug => $package) {
+                if (!$this->isGpmPackagePublished($package)) {
+                    continue;
+                }
+
                 $pending[$slug] = [
                     'type' => $type,
                     'current' => $package->version ?? null,
@@ -447,6 +454,41 @@ class SafeUpgradeService
         }
 
         return $pending;
+    }
+
+    /**
+     * Determine if the provided GPM package metadata is marked as published.
+     *
+     * By default the GPM repository omits the `published` flag, so we only treat the package as unpublished
+     * when the value exists and evaluates to `false`.
+     *
+     * @param mixed $package
+     * @return bool
+     */
+    protected function isGpmPackagePublished($package): bool
+    {
+        if (is_object($package) && method_exists($package, 'getData')) {
+            $data = $package->getData();
+            if ($data instanceof Data) {
+                $published = $data->get('published');
+                return $published !== false;
+            }
+        }
+
+        if (is_array($package)) {
+            if (array_key_exists('published', $package)) {
+                return $package['published'] !== false;
+            }
+
+            return true;
+        }
+
+        $value = null;
+        if (is_object($package) && property_exists($package, 'published')) {
+            $value = $package->published;
+        }
+
+        return $value !== false;
     }
 
     /**
