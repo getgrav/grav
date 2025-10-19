@@ -303,7 +303,7 @@ class RecoveryManager
      */
     private function windowPath(): string
     {
-        return $this->rootPath . '/system/recovery.window';
+        return $this->userPath . '/data/recovery.window';
     }
 
     /**
@@ -403,7 +403,9 @@ class RecoveryManager
             'expires_at' => $createdAt + $ttl,
         ];
 
-        file_put_contents($this->windowPath(), json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
+        $path = $this->windowPath();
+        Folder::create(dirname($path));
+        file_put_contents($path, json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
     }
 
     /**

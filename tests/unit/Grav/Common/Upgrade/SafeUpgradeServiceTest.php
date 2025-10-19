@@ -191,8 +191,11 @@ PHP;
     {
         [$root] = $this->prepareLiveEnvironment();
         $flag = $root . '/user/data/recovery.flag';
+        $window = $root . '/user/data/recovery.window';
         Folder::create(dirname($flag));
         file_put_contents($flag, 'flag');
+        Folder::create(dirname($window));
+        file_put_contents($window, json_encode(['expires_at' => time() + 120]));
 
         $service = new SafeUpgradeService([
             'root' => $root,
@@ -200,6 +203,7 @@ PHP;
         $service->clearRecoveryFlag();
 
         self::assertFileDoesNotExist($flag);
+        self::assertFileDoesNotExist($window);
     }
 
     /**
