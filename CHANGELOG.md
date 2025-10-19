@@ -1,3 +1,10 @@
+# v1.8.0-beta.15
+## 10/19/2025
+
+1. [](#improved)
+    * Safe handling of disabled plugins
+    * Move `recover.flag` into `user://data`
+
 # v1.8.0-beta.14
 ## 10/18/2025
 
