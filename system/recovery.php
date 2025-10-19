@@ -116,7 +116,7 @@ header('Content-Type: text/html; charset=utf-8');
 
     <?php if (!$authenticated): ?>
         <p>This site is running in recovery mode because Grav detected a fatal error.</p>
-        <p>Locate the recovery token in <code>system/recovery.flag</code> and enter it below.</p>
+        <p>Locate the recovery token in <code>user/data/recovery.flag</code> and enter it below.</p>
         <form method="post">
             <input type="hidden" name="action" value="authenticate">
             <label for="token">Recovery token</label>

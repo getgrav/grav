@@ -156,6 +156,7 @@ class RecoveryManager
     public function activate(array $context): void
     {
         $flag = $this->flagPath();
+        Folder::create(dirname($flag));
         if (empty($context['token'])) {
             $context['token'] = $this->generateToken();
         }
@@ -294,7 +295,7 @@ class RecoveryManager
      */
     private function flagPath(): string
     {
-        return $this->rootPath . '/system/recovery.flag';
+        return $this->userPath . '/data/recovery.flag';
     }
 
     /**
