@@ -210,6 +210,51 @@ class SafeUpgradeService
         return $manifest;
     }
 
+    /**
+     * Create a manual snapshot of the current Grav installation.
+     *
+     * @param string|null $label
+     * @return array
+     */
+    public function createSnapshot(?string $label = null): array
+    {
+        $entries = $this->collectPackageEntries($this->rootPath);
+        if (!$entries) {
+            throw new RuntimeException('Unable to locate files to snapshot.');
+        }
+
+        $stageId = uniqid('snapshot-', false);
+        $backupPath = $this->stagingRoot . DIRECTORY_SEPARATOR . 'snapshot-' . $stageId;
+
+        $this->reportProgress('snapshot', 'Creating manual snapshot...', null, [
+            'operation' => 'snapshot',
+            'label' => $label,
+            'mode' => 'manual',
+        ]);
+
+        $this->createBackupSnapshot($entries, $backupPath);
+
+        $manifest = $this->buildManifest($stageId, GRAV_VERSION, $this->rootPath, $backupPath, $entries);
+        $manifest['package_path'] = null;
+        if ($label !== null && $label !== '') {
+            $manifest['label'] = $label;
+        }
+        $manifest['operation'] = 'snapshot';
+        $manifest['mode'] = 'manual';
+
+        $this->persistManifest($manifest);
+        $this->pruneOldSnapshots();
+
+        $this->reportProgress('complete', sprintf('Snapshot %s created.', $stageId), 100, [
+            'operation' => 'snapshot',
+            'snapshot' => $stageId,
+            'version' => $manifest['target_version'] ?? null,
+            'mode' => 'manual',
+        ]);
+
+        return $manifest;
+    }
+
     private function collectPackageEntries(string $packagePath): array
     {
         $entries = [];

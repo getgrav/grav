@@ -43,16 +43,21 @@ Usage:
   bin/restore remove [<snapshot-id> ...] [--staging-root=/absolute/path]
       Deletes one or more snapshots (interactive selection when no id provided).
 
+  bin/restore snapshot [--label=\"optional description\"] [--staging-root=/absolute/path]
+      Creates a manual snapshot of the current Grav core files.
+
   bin/restore recovery [status|clear]
       Shows the recovery flag context or clears it.
 
 Options:
   --staging-root     Overrides the staging directory (defaults to configured value).
+  --label            Optional label to store with the manual snapshot.
 
 Examples:
   bin/restore list
   bin/restore apply stage-68eff31cc4104
   bin/restore apply stage-68eff31cc4104 --staging-root=/var/grav-backups
+  bin/restore snapshot --label=\"Before plugin install\"
   bin/restore recovery status
   bin/restore recovery clear
 USAGE;
@@ -271,6 +276,45 @@ function applySnapshot(string $snapshotId, array $options): void
     if (!empty($manifest['backup_path'])) {
         echo "Snapshot path: {$manifest['backup_path']}\n";
     }
+    exit(0);
+}
+
+/**
+ * @param array $options
+ * @return void
+ */
+function createManualSnapshot(array $options): void
+{
+    $label = null;
+    if (isset($options['label']) && is_string($options['label'])) {
+        $label = trim($options['label']);
+        if ($label === '') {
+            $label = null;
+        }
+    }
+
+    try {
+        $service = createUpgradeService($options);
+        $manifest = $service->createSnapshot($label);
+    } catch (\Throwable $e) {
+        fwrite(STDERR, "Snapshot creation failed: " . $e->getMessage() . "\n");
+        exit(1);
+    }
+
+    $snapshotId = $manifest['id'] ?? null;
+    if (!$snapshotId) {
+        $snapshotId = 'unknown';
+    }
+    $version = $manifest['source_version'] ?? $manifest['target_version'] ?? 'unknown';
+
+    echo "Created snapshot {$snapshotId} (Grav {$version}).\n";
+    if ($label) {
+        echo "Label: {$label}\n";
+    }
+    if (!empty($manifest['backup_path'])) {
+        echo "Snapshot path: {$manifest['backup_path']}\n";
+    }
+
     exit(0);
 }
 
@@ -518,6 +562,10 @@ switch ($command) {
         }
 
         applySnapshot($snapshotId, $options);
+        break;
+
+    case 'snapshot':
+        createManualSnapshot($options);
         break;
 
     case 'recovery':
