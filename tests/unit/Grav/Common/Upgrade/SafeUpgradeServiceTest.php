@@ -199,7 +199,7 @@ PHP;
         $service->clearRecoveryFlag();
 
         self::assertFileDoesNotExist($flag);
-        self::assertFileDoesNotExist($window);
+        self::assertFileExists($window);
     }
 
     /**
