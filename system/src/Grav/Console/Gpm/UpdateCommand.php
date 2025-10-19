@@ -235,6 +235,8 @@ class UpdateCommand extends GpmCommand
             return 1;
         }
 
+        $recovery->closeUpgradeWindow();
+
         return 0;
     }
 
