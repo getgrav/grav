@@ -418,7 +418,7 @@ class SafeUpgradeService
      */
     public function clearRecoveryFlag(): void
     {
-        $flag = $this->rootPath . '/system/recovery.flag';
+        $flag = $this->rootPath . '/user/data/recovery.flag';
         if (is_file($flag)) {
             @unlink($flag);
         }

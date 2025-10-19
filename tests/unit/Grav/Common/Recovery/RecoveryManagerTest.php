@@ -13,6 +13,7 @@ class RecoveryManagerTest extends \Codeception\TestCase\Test
         $this->tmpDir = sys_get_temp_dir() . '/grav-recovery-' . uniqid('', true);
         Folder::create($this->tmpDir);
         Folder::create($this->tmpDir . '/user');
+        Folder::create($this->tmpDir . '/user/data');
         Folder::create($this->tmpDir . '/system');
     }
 
@@ -59,7 +60,7 @@ class RecoveryManagerTest extends \Codeception\TestCase\Test
         $manager->markUpgradeWindow('core-upgrade', ['scope' => 'core']);
         $manager->handleShutdown();
 
-        $flag = $this->tmpDir . '/system/recovery.flag';
+        $flag = $this->tmpDir . '/user/data/recovery.flag';
         self::assertFileExists($flag);
         $context = json_decode(file_get_contents($flag), true);
         self::assertSame('Fatal failure', $context['message']);
@@ -87,12 +88,12 @@ class RecoveryManagerTest extends \Codeception\TestCase\Test
 
         $manager->handleShutdown();
 
-        self::assertFileDoesNotExist($this->tmpDir . '/system/recovery.flag');
+        self::assertFileDoesNotExist($this->tmpDir . '/user/data/recovery.flag');
     }
 
     public function testClearRemovesFlag(): void
     {
-        $flag = $this->tmpDir . '/system/recovery.flag';
+        $flag = $this->tmpDir . '/user/data/recovery.flag';
         file_put_contents($flag, 'flag');
 
         $manager = new RecoveryManager($this->tmpDir);
@@ -130,7 +131,7 @@ class RecoveryManagerTest extends \Codeception\TestCase\Test
         $manager = new RecoveryManager($this->tmpDir);
         $manager->disablePlugin('problem', ['message' => 'Manual disable']);
 
-        $flag = $this->tmpDir . '/system/recovery.flag';
+        $flag = $this->tmpDir . '/user/data/recovery.flag';
         self::assertFileDoesNotExist($flag);
 
         $configFile = $this->tmpDir . '/user/config/plugins/problem.yaml';

@@ -186,7 +186,7 @@ PHP;
     public function testClearRecoveryFlagRemovesFile(): void
     {
         [$root] = $this->prepareLiveEnvironment();
-        $flag = $root . '/system/recovery.flag';
+        $flag = $root . '/user/data/recovery.flag';
         Folder::create(dirname($flag));
         file_put_contents($flag, 'flag');
 
