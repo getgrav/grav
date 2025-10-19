@@ -114,7 +114,7 @@ class SafeUpgradeServiceTest extends \Codeception\TestCase\Test
         self::assertDirectoryExists($manifest['backup_path']);
     }
 
-    public function testPrunesOldSnapshots(): void
+    public function testKeepsAllSnapshots(): void
     {
         [$root, $manifestStore] = $this->prepareLiveEnvironment();
         $service = new SafeUpgradeService([
@@ -131,8 +131,8 @@ class SafeUpgradeServiceTest extends \Codeception\TestCase\Test
         }
 
         $files = glob($manifestStore . '/*.json');
-        self::assertCount(3, $files);
-        self::assertFalse(is_dir($manifests[0]['backup_path']));
+        self::assertCount(4, $files);
+        self::assertTrue(is_dir($manifests[0]['backup_path']));
     }
 
     public function testDetectsPsrLogConflictsFromFilesystem(): void
