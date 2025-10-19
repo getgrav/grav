@@ -1,3 +1,9 @@
+# v1.8.0-beta.14
+## 10/18/2025
+
+1. [](#improved)
+    * Implemented more robust snapshot management via the `bin/restore` command
+
 # v1.8.0-beta.13
 ## 10/17/2025
 
