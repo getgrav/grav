@@ -1,3 +1,12 @@
+# v1.7.50
+## 10/19/2025
+
+1. [](#new)
+    * Added new **Safe Core Upgrade** process with snapshots for backup and restore, better preflight and postflight checks, as well as exception checking post-install for easy rollback.
+    * Introduced recovery mode with token-gated UI, plugin quarantine, and CLI rollback support.
+    * Added `bin/gpm preflight` compatibility scanner and `bin/gpm rollback` utility.
+    * Added `wordCount` Twig filter [#3957](https://github.com/getgrav/grav/pulls/3957)
+
 # v1.7.49.5
 ## 09/10/2025
 

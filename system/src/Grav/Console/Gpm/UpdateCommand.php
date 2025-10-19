@@ -12,6 +12,7 @@ namespace Grav\Console\Gpm;
 use Grav\Common\GPM\GPM;
 use Grav\Common\GPM\Installer;
 use Grav\Common\GPM\Upgrader;
+use Grav\Common\Grav;
 use Grav\Console\GpmCommand;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputArgument;
@@ -211,6 +212,10 @@ class UpdateCommand extends GpmCommand
                 return 1;
             }
         }
+
+        /** @var \Grav\Common\Recovery\RecoveryManager $recovery */
+        $recovery = Grav::instance()['recovery'];
+        $recovery->markUpgradeWindow('package-update', ['scope' => 'core']);
 
         // finally update
         $install_command = $this->getApplication()->find('install');

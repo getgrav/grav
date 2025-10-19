@@ -15,13 +15,16 @@ use Grav\Common\HTTP\Response;
 use Grav\Common\GPM\Installer;
 use Grav\Common\GPM\Upgrader;
 use Grav\Common\Grav;
+use Grav\Common\Upgrade\SafeUpgradeService;
 use Grav\Console\GpmCommand;
 use Grav\Installer\Install;
 use RuntimeException;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use ZipArchive;
+use function count;
 use function is_callable;
 use function strlen;
 
@@ -41,6 +44,16 @@ class SelfupgradeCommand extends GpmCommand
     private $tmp;
     /** @var Upgrader */
     private $upgrader;
+    /** @var string|null */
+    private $lastProgressMessage = null;
+    /** @var float|null */
+    private $operationTimerStart = null;
+    /** @var string|null */
+    private $currentProgressStage = null;
+    /** @var float|null */
+    private $currentStageStartedAt = null;
+    /** @var array */
+    private $currentStageExtras = [];
 
     /** @var string */
     protected $all_yes;
@@ -107,6 +120,12 @@ class SelfupgradeCommand extends GpmCommand
         $this->timeout = (int) $input->getOption('timeout');
 
         $this->displayGPMRelease();
+
+        $safeUpgrade = $this->createSafeUpgradeService();
+        $preflight = $safeUpgrade->preflight();
+        if (!$this->handlePreflightReport($preflight)) {
+            return 1;
+        }
 
         $update = $this->upgrader->getAssets()['grav-update'];
 
@@ -213,10 +232,18 @@ class SelfupgradeCommand extends GpmCommand
         $io->newLine();
         $io->writeln("Preparing to upgrade to v<cyan>{$remote}</cyan>..");
 
+        /** @var \Grav\Common\Recovery\RecoveryManager $recovery */
+        $recovery = Grav::instance()['recovery'];
+        $recovery->markUpgradeWindow('core-upgrade', [
+            'scope' => 'core',
+            'target_version' => $remote,
+        ]);
+
         $io->write("  |- Downloading upgrade [{$this->formatBytes($update['size'])}]...     0%");
         $this->file = $this->download($update);
 
         $io->write('  |- Installing upgrade...  ');
+        $this->operationTimerStart = microtime(true);
         $installation = $this->upgrade();
 
         $error = 0;
@@ -227,6 +254,7 @@ class SelfupgradeCommand extends GpmCommand
         } else {
             $io->writeln("  '- <green>Success!</green>  ");
             $io->newLine();
+            $safeUpgrade->clearRecoveryFlag();
         }
 
         if ($this->tmp && is_dir($this->tmp)) {
@@ -264,13 +292,173 @@ class SelfupgradeCommand extends GpmCommand
     }
 
     /**
+     * @return SafeUpgradeService
+     */
+    protected function createSafeUpgradeService(): SafeUpgradeService
+    {
+        $config = null;
+        try {
+            $config = Grav::instance()['config'] ?? null;
+        } catch (\Throwable $e) {
+            $config = null;
+        }
+
+        return new SafeUpgradeService([
+            'config' => $config,
+        ]);
+    }
+
+    /**
+     * @param array $preflight
+     * @return bool
+     */
+    protected function handlePreflightReport(array $preflight): bool
+    {
+        $io = $this->getIO();
+        $pending = $preflight['plugins_pending'] ?? [];
+        $conflicts = $preflight['psr_log_conflicts'] ?? [];
+        $monologConflicts = $preflight['monolog_conflicts'] ?? [];
+        $warnings = $preflight['warnings'] ?? [];
+
+        if (empty($pending) && empty($conflicts) && empty($monologConflicts)) {
+            return true;
+        }
+
+        if ($warnings) {
+            $io->newLine();
+            $io->writeln('<magenta>Preflight warnings detected:</magenta>');
+            foreach ($warnings as $warning) {
+                $io->writeln('  • ' . $warning);
+            }
+        }
+
+        if ($pending) {
+            $io->newLine();
+            $io->writeln('<yellow>The following packages need updating before Grav upgrade:</yellow>');
+            foreach ($pending as $slug => $info) {
+                $type = $info['type'] ?? 'plugin';
+                $current = $info['current'] ?? 'unknown';
+                $available = $info['available'] ?? 'unknown';
+                $io->writeln(sprintf('  - %s (%s) %s → %s', $slug, $type, $current, $available));
+            }
+
+            $io->writeln('    › Please run `bin/gpm update` to bring these packages current before upgrading Grav.');
+            $io->writeln('Aborting self-upgrade. Run `bin/gpm update` first.');
+
+            return false;
+        }
+
+        $handled = $this->handleConflicts(
+            $conflicts,
+            static function (SymfonyStyle $io, array $conflicts): void {
+                $io->newLine();
+                $io->writeln('<yellow>Potential psr/log incompatibilities:</yellow>');
+                foreach ($conflicts as $slug => $info) {
+                    $requires = $info['requires'] ?? '*';
+                    $io->writeln(sprintf('  - %s (requires psr/log %s)', $slug, $requires));
+                }
+            },
+            'Update the plugin or add "replace": {"psr/log": "*"} to its composer.json and reinstall dependencies.',
+            'Aborting self-upgrade. Adjust composer requirements or update affected plugins.',
+            'Proceeding with potential psr/log incompatibilities still active.',
+            'Disabled before upgrade because of psr/log conflict'
+        );
+
+        if (!$handled) {
+            return false;
+        }
+
+        $handledMonolog = $this->handleConflicts(
+            $monologConflicts,
+            static function (SymfonyStyle $io, array $conflicts): void {
+                $io->newLine();
+                $io->writeln('<yellow>Potential Monolog logger API incompatibilities:</yellow>');
+                foreach ($conflicts as $slug => $entries) {
+                    foreach ($entries as $entry) {
+                        $file = $entry['file'] ?? 'unknown file';
+                        $method = $entry['method'] ?? 'add*';
+                        $io->writeln(sprintf('  - %s (%s in %s)', $slug, $method, $file));
+                    }
+                }
+            },
+            'Update the plugin to use PSR-3 style logger methods (e.g. $logger->error()) before upgrading.',
+            'Aborting self-upgrade. Update plugins to remove deprecated Monolog add* calls.',
+            'Proceeding with potential Monolog API incompatibilities still active.',
+            'Disabled before upgrade because of Monolog API conflict'
+        );
+
+        if (!$handledMonolog) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * @param array $conflicts
+     * @param callable $printer
+     * @param string $advice
+     * @param string $abortMessage
+     * @param string $continueMessage
+     * @param string $disableNote
+     * @return bool
+     */
+    private function handleConflicts(array $conflicts, callable $printer, string $advice, string $abortMessage, string $continueMessage, string $disableNote): bool
+    {
+        if (empty($conflicts)) {
+            return true;
+        }
+
+        $io = $this->getIO();
+        $printer($io, $conflicts);
+        $io->writeln('    › ' . $advice);
+
+        $choice = $this->all_yes ? 'abort' : $io->choice(
+            'How would you like to proceed?',
+            ['disable', 'continue', 'abort'],
+            'abort'
+        );
+
+        if ($choice === 'abort') {
+            $io->writeln($abortMessage);
+
+            return false;
+        }
+
+        /** @var \Grav\Common\Recovery\RecoveryManager $recovery */
+        $recovery = Grav::instance()['recovery'];
+
+        if ($choice === 'disable') {
+            foreach (array_keys($conflicts) as $slug) {
+                $recovery->disablePlugin($slug, ['message' => $disableNote]);
+                $io->writeln(sprintf('  - Disabled plugin %s.', $slug));
+            }
+            $io->writeln('Continuing with conflicted plugins disabled.');
+
+            return true;
+        }
+
+        $io->writeln($continueMessage);
+
+        return true;
+    }
+
+    /**
      * @return bool
      */
     private function upgrade(): bool
     {
         $io = $this->getIO();
+        $this->lastProgressMessage = null;
 
         $this->upgradeGrav($this->file);
+        $this->finalizeStageTracking();
+
+        $elapsed = null;
+        if (null !== $this->operationTimerStart) {
+            $elapsed = microtime(true) - $this->operationTimerStart;
+            $this->operationTimerStart = null;
+        }
 
         $errorCode = Installer::lastErrorCode();
         if ($errorCode) {
@@ -282,9 +470,15 @@ class SelfupgradeCommand extends GpmCommand
             return false;
         }
 
+        if (null !== $elapsed) {
+            $io->writeln(sprintf('  |- Safe upgrade staging completed in %s', $this->formatDuration($elapsed)));
+        }
+
         $io->write("\x0D");
         // extra white spaces to clear out the buffer properly
         $io->writeln('  |- Installing upgrade...    <green>ok</green>                             ');
+
+        $this->ensureExecutablePermissions();
 
         return true;
     }
@@ -325,14 +519,24 @@ class SelfupgradeCommand extends GpmCommand
      */
     private function upgradeGrav(string $zip): void
     {
+        $io = $this->getIO();
+
         try {
+            $io->write("\x0D  |- Extracting update...                    ");
             $folder = Installer::unZip($zip, $this->tmp . '/zip');
             if ($folder === false) {
                 throw new RuntimeException(Installer::lastErrorMsg());
             }
+            $io->write("\x0D");
+            $io->writeln('  |- Extracting update...    <green>ok</green>                ');
 
             $script = $folder . '/system/install.php';
             if ((file_exists($script) && $install = include $script) && is_callable($install)) {
+                if (is_object($install) && method_exists($install, 'setProgressCallback')) {
+                    $install->setProgressCallback(function (string $stage, string $message, ?int $percent = null, array $extra = []) {
+                        $this->handleServiceProgress($stage, $message, $percent);
+                    });
+                }
                 $install($zip);
             } else {
                 throw new RuntimeException('Uploaded archive file is not a valid Grav update package');
@@ -340,5 +544,111 @@ class SelfupgradeCommand extends GpmCommand
         } catch (Exception $e) {
             Installer::setError($e->getMessage());
         }
+    }
+
+    private function handleServiceProgress(string $stage, string $message, ?int $percent = null, array $extra = []): void
+    {
+        $this->trackStageProgress($stage, $message, $extra);
+
+        if ($this->lastProgressMessage === $message) {
+            return;
+        }
+
+        $this->lastProgressMessage = $message;
+        $io = $this->getIO();
+        $suffix = '';
+        if (null !== $percent) {
+            $suffix = sprintf(' (%d%%)', $percent);
+        }
+        $io->writeln(sprintf('  |- %s%s', $message, $suffix));
+    }
+
+    private function ensureExecutablePermissions(): void
+    {
+        $executables = [
+            'bin/grav',
+            'bin/plugin',
+            'bin/gpm',
+            'bin/restore',
+            'bin/composer.phar'
+        ];
+
+        foreach ($executables as $relative) {
+            $path = GRAV_ROOT . '/' . $relative;
+            if (!is_file($path) || is_link($path)) {
+                continue;
+            }
+
+            $mode = @fileperms($path);
+            $desired = ($mode & 0777) | 0111;
+            if (($mode & 0111) !== 0111) {
+                @chmod($path, $desired);
+            }
+        }
+    }
+
+    private function trackStageProgress(string $stage, string $message, array $extra = []): void
+    {
+        $now = microtime(true);
+
+        if (null !== $this->currentProgressStage && $stage !== $this->currentProgressStage && null !== $this->currentStageStartedAt) {
+            $elapsed = $now - $this->currentStageStartedAt;
+            $this->emitStageSummary($this->currentProgressStage, $elapsed, $this->currentStageExtras);
+            $this->currentStageExtras = [];
+        }
+
+        if ($stage !== $this->currentProgressStage) {
+            $this->currentProgressStage = $stage;
+            $this->currentStageStartedAt = $now;
+            $this->currentStageExtras = [];
+        }
+
+        if (!isset($this->currentStageExtras['label'])) {
+            $this->currentStageExtras['label'] = $message;
+        }
+
+        if ($extra) {
+            $this->currentStageExtras = array_merge($this->currentStageExtras, $extra);
+        }
+    }
+
+    private function finalizeStageTracking(): void
+    {
+        if (null !== $this->currentProgressStage && null !== $this->currentStageStartedAt) {
+            $elapsed = microtime(true) - $this->currentStageStartedAt;
+            $this->emitStageSummary($this->currentProgressStage, $elapsed, $this->currentStageExtras);
+        }
+
+        $this->currentProgressStage = null;
+        $this->currentStageStartedAt = null;
+        $this->currentStageExtras = [];
+    }
+
+    private function emitStageSummary(string $stage, float $seconds, array $extra = []): void
+    {
+        $io = $this->getIO();
+        $label = $extra['label'] ?? ucfirst($stage);
+        $modeText = '';
+        if (isset($extra['mode'])) {
+            $modeText = sprintf(' [%s]', $extra['mode']);
+        }
+
+        $io->writeln(sprintf('  |- %s completed in %s%s', $label, $this->formatDuration($seconds), $modeText));
+    }
+
+    private function formatDuration(float $seconds): string
+    {
+        if ($seconds < 1) {
+            return sprintf('%0.3fs', $seconds);
+        }
+
+        $minutes = (int)floor($seconds / 60);
+        $remaining = $seconds - ($minutes * 60);
+
+        if ($minutes === 0) {
+            return sprintf('%0.1fs', $remaining);
+        }
+
+        return sprintf('%dm %0.1fs', $minutes, $remaining);
     }
 }

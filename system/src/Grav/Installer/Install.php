@@ -15,6 +15,7 @@ use Grav\Common\Cache;
 use Grav\Common\GPM\Installer;
 use Grav\Common\Grav;
 use Grav\Common\Plugins;
+use Grav\Common\Upgrade\SafeUpgradeService;
 use RuntimeException;
 use function class_exists;
 use function dirname;
@@ -121,6 +122,8 @@ final class Install
 
     /** @var static */
     private static $instance;
+    /** @var callable|null */
+    private $progressCallback = null;
 
     /**
      * @return static
@@ -184,6 +187,20 @@ ERR;
         $this->prepare();
         $this->install();
         $this->finalize();
+    }
+
+    public function setProgressCallback(?callable $callback): self
+    {
+        $this->progressCallback = $callback;
+
+        return $this;
+    }
+
+    private function relayProgress(string $stage, string $message, ?int $percent = null): void
+    {
+        if ($this->progressCallback) {
+            ($this->progressCallback)($stage, $message, $percent);
+        }
     }
 
     /**
@@ -260,13 +277,34 @@ ERR;
             // Update user/config/version.yaml before copying the files to avoid frontend from setting the version schema.
             $this->updater->install();
 
-            Installer::install(
-                $this->zip ?? '',
-                GRAV_ROOT,
-                ['sophisticated' => true, 'overwrite' => true, 'ignore_symlinks' => true, 'ignores' => $this->ignores],
-                $this->location,
-                !($this->zip && is_file($this->zip))
-            );
+            if ($this->shouldUseSafeUpgrade()) {
+                $options = [];
+                try {
+                    $grav = Grav::instance();
+                    if ($grav && isset($grav['config'])) {
+                        $options['config'] = $grav['config'];
+                    }
+                } catch (\Throwable $e) {
+                    // ignore
+                }
+
+                $service = new SafeUpgradeService($options);
+                if ($this->progressCallback) {
+                    $service->setProgressCallback(function (string $stage, string $message, ?int $percent = null, array $extra = []) {
+                        $this->relayProgress($stage, $message, $percent);
+                    });
+                }
+                $service->promote($this->location, $this->getVersion(), $this->ignores);
+                Installer::setError(Installer::OK);
+            } else {
+                Installer::install(
+                    $this->zip ?? '',
+                    GRAV_ROOT,
+                    ['sophisticated' => true, 'overwrite' => true, 'ignore_symlinks' => true, 'ignores' => $this->ignores],
+                    $this->location,
+                    !($this->zip && is_file($this->zip))
+                );
+            }
         } catch (Exception $e) {
             Installer::setError($e->getMessage());
         }
@@ -278,6 +316,27 @@ ERR;
         if (!$success) {
             throw new RuntimeException(Installer::lastErrorMsg());
         }
+    }
+
+    /**
+     * @return bool
+     */
+    private function shouldUseSafeUpgrade(): bool
+    {
+        if (!class_exists(SafeUpgradeService::class)) {
+            return false;
+        }
+
+        try {
+            $grav = Grav::instance();
+            if ($grav && isset($grav['config'])) {
+                return (bool) $grav['config']->get('system.updates.safe_upgrade', true);
+            }
+        } catch (\Throwable $e) {
+            // Grav container may not be initialised yet, default to safe upgrade.
+        }
+
+        return true;
     }
 
     /**

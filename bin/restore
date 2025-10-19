@@ -1,0 +1,634 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * Grav Snapshot Restore Utility
+ *
+ * Lightweight CLI that can list and apply safe-upgrade snapshots without
+ * bootstrapping the full Grav application (or any plugins).
+ */
+
+$root = dirname(__DIR__);
+
+define('GRAV_CLI', true);
+define('GRAV_REQUEST_TIME', microtime(true));
+
+if (!file_exists($root . '/vendor/autoload.php')) {
+    fwrite(STDERR, "Unable to locate vendor/autoload.php. Run composer install first.\n");
+    exit(1);
+}
+
+$autoload = require $root . '/vendor/autoload.php';
+
+if (!file_exists($root . '/index.php')) {
+    fwrite(STDERR, "FATAL: Must be run from Grav root directory.\n");
+    exit(1);
+}
+
+use Grav\Common\Filesystem\Folder;
+use Grav\Common\Recovery\RecoveryManager;
+use Grav\Common\Upgrade\SafeUpgradeService;
+use Symfony\Component\Yaml\Yaml;
+
+const RESTORE_USAGE = <<<USAGE
+Grav Restore Utility
+
+Usage:
+  bin/restore list [--staging-root=/absolute/path]
+      Lists all available snapshots (most recent first).
+
+  bin/restore apply <snapshot-id> [--staging-root=/absolute/path]
+      Restores the specified snapshot created by safe-upgrade.
+
+  bin/restore remove [<snapshot-id> ...] [--staging-root=/absolute/path]
+      Deletes one or more snapshots (interactive selection when no id provided).
+
+  bin/restore snapshot [--label=\"optional description\"] [--staging-root=/absolute/path]
+      Creates a manual snapshot of the current Grav core files.
+
+  bin/restore recovery [status|clear]
+      Shows the recovery flag context or clears it.
+
+Options:
+  --staging-root     Overrides the staging directory (defaults to configured value).
+  --label            Optional label to store with the manual snapshot.
+
+Examples:
+  bin/restore list
+  bin/restore apply stage-68eff31cc4104
+  bin/restore apply stage-68eff31cc4104 --staging-root=/var/grav-backups
+  bin/restore snapshot --label=\"Before plugin install\"
+  bin/restore recovery status
+  bin/restore recovery clear
+USAGE;
+
+/**
+ * @param array $args
+ * @return array{command:string,arguments:array,options:array}
+ */
+function parseArguments(array $args): array
+{
+    array_shift($args); // remove script name
+
+    $command = null;
+    $arguments = [];
+    $options = [];
+
+    while ($args) {
+        $arg = array_shift($args);
+        if (strncmp($arg, '--', 2) === 0) {
+            $parts = explode('=', substr($arg, 2), 2);
+            $name = $parts[0] ?? '';
+            if ($name === '') {
+                continue;
+            }
+            $value = $parts[1] ?? null;
+            if ($value === null && $args && substr($args[0], 0, 2) !== '--') {
+                $value = array_shift($args);
+            }
+            $options[$name] = $value ?? true;
+            continue;
+        }
+
+        if (null === $command) {
+            $command = $arg;
+        } else {
+            $arguments[] = $arg;
+        }
+    }
+
+    if (null === $command) {
+        $command = 'interactive';
+    }
+
+    return [
+        'command' => $command,
+        'arguments' => $arguments,
+        'options' => $options,
+    ];
+}
+
+/**
+ * @param array $options
+ * @return SafeUpgradeService
+ */
+function createUpgradeService(array $options): SafeUpgradeService
+{
+    $serviceOptions = ['root' => GRAV_ROOT];
+
+    if (isset($options['staging-root']) && is_string($options['staging-root']) && $options['staging-root'] !== '') {
+        $serviceOptions['staging_root'] = $options['staging-root'];
+    }
+
+    return new SafeUpgradeService($serviceOptions);
+}
+
+/**
+ * @return list<array{id:string,label:?string,source_version:?string,target_version:?string,created_at:int}>
+ */
+function loadSnapshots(): array
+{
+    $manifestDir = GRAV_ROOT . '/user/data/upgrades';
+    if (!is_dir($manifestDir)) {
+        return [];
+    }
+
+    $files = glob($manifestDir . '/*.json') ?: [];
+    rsort($files);
+
+    $snapshots = [];
+    foreach ($files as $file) {
+        $decoded = json_decode(file_get_contents($file) ?: '', true);
+        if (!is_array($decoded) || empty($decoded['id'])) {
+            continue;
+        }
+
+        $snapshots[] = [
+            'id' => $decoded['id'],
+            'label' => $decoded['label'] ?? null,
+            'source_version' => $decoded['source_version'] ?? null,
+            'target_version' => $decoded['target_version'] ?? null,
+            'created_at' => (int)($decoded['created_at'] ?? 0),
+        ];
+    }
+
+    return $snapshots;
+}
+
+/**
+ * @param list<array{id:string,label:?string,source_version:?string,target_version:?string,created_at:int}> $snapshots
+ * @return string
+ */
+function formatSnapshotListLine(array $snapshot): string
+{
+    $restoreVersion = $snapshot['source_version'] ?? $snapshot['target_version'] ?? 'unknown';
+    $timeLabel = formatSnapshotTimestamp($snapshot['created_at']);
+    $label = $snapshot['label'] ?? null;
+    $display = $label ? sprintf('%s [%s]', $label, $snapshot['id']) : $snapshot['id'];
+
+    return sprintf('%s (restore to Grav %s, %s)', $display, $restoreVersion, $timeLabel);
+}
+
+function formatSnapshotTimestamp(int $timestamp): string
+{
+    if ($timestamp <= 0) {
+        return 'time unknown';
+    }
+
+    try {
+        $timezone = resolveTimezone();
+        $dt = new DateTime('@' . $timestamp);
+        $dt->setTimezone($timezone);
+        $formatted = $dt->format('Y-m-d H:i:s T');
+    } catch (\Throwable $e) {
+        $formatted = date('Y-m-d H:i:s T', $timestamp);
+    }
+
+    return $formatted . ' (' . formatRelative(time() - $timestamp) . ')';
+}
+
+function resolveTimezone(): DateTimeZone
+{
+    static $resolved = null;
+    if ($resolved instanceof DateTimeZone) {
+        return $resolved;
+    }
+
+    $timezone = null;
+    $configFile = GRAV_ROOT . '/user/config/system.yaml';
+    if (is_file($configFile)) {
+        try {
+            $data = Yaml::parse(file_get_contents($configFile) ?: '') ?: [];
+            if (!empty($data['system']['timezone']) && is_string($data['system']['timezone'])) {
+                $timezone = $data['system']['timezone'];
+            }
+        } catch (\Throwable $e) {
+            // ignore parse errors, fallback below
+        }
+    }
+
+    if (!$timezone) {
+        $timezone = ini_get('date.timezone') ?: 'UTC';
+    }
+
+    try {
+        $resolved = new DateTimeZone($timezone);
+    } catch (\Throwable $e) {
+        $resolved = new DateTimeZone('UTC');
+    }
+
+    return $resolved;
+}
+
+function formatRelative(int $seconds): string
+{
+    if ($seconds < 5) {
+        return 'just now';
+    }
+    $negative = $seconds < 0;
+    $seconds = abs($seconds);
+    $units = [
+        31536000 => 'y',
+        2592000 => 'mo',
+        604800 => 'w',
+        86400 => 'd',
+        3600 => 'h',
+        60 => 'm',
+        1 => 's',
+    ];
+    foreach ($units as $size => $label) {
+        if ($seconds >= $size) {
+            $value = (int)floor($seconds / $size);
+            $suffix = $label === 'mo' ? 'month' : ($label === 'y' ? 'year' : ($label === 'w' ? 'week' : ($label === 'd' ? 'day' : ($label === 'h' ? 'hour' : ($label === 'm' ? 'minute' : 'second')))));
+            if ($value !== 1) {
+                $suffix .= 's';
+            }
+            $phrase = $value . ' ' . $suffix;
+            return $negative ? 'in ' . $phrase : $phrase . ' ago';
+        }
+    }
+
+    return $negative ? 'in 0 seconds' : '0 seconds ago';
+}
+
+/**
+ * @param string $snapshotId
+ * @param array $options
+ * @return void
+ */
+function applySnapshot(string $snapshotId, array $options): void
+{
+    try {
+        $service = createUpgradeService($options);
+        $manifest = $service->rollback($snapshotId);
+    } catch (\Throwable $e) {
+        fwrite(STDERR, "Restore failed: " . $e->getMessage() . "\n");
+        exit(1);
+    }
+
+    if (!$manifest) {
+        fwrite(STDERR, "Snapshot {$snapshotId} not found.\n");
+        exit(1);
+    }
+
+    $version = $manifest['source_version'] ?? $manifest['target_version'] ?? 'unknown';
+    echo "Restored snapshot {$snapshotId} (Grav {$version}).\n";
+    if (!empty($manifest['id'])) {
+        echo "Snapshot manifest: {$manifest['id']}\n";
+    }
+    if (!empty($manifest['backup_path'])) {
+        echo "Snapshot path: {$manifest['backup_path']}\n";
+    }
+    exit(0);
+}
+
+/**
+ * @param array $options
+ * @return void
+ */
+function createManualSnapshot(array $options): void
+{
+    $label = null;
+    if (isset($options['label']) && is_string($options['label'])) {
+        $label = trim($options['label']);
+        if ($label === '') {
+            $label = null;
+        }
+    }
+
+    try {
+        $service = createUpgradeService($options);
+        $manifest = $service->createSnapshot($label);
+    } catch (\Throwable $e) {
+        fwrite(STDERR, "Snapshot creation failed: " . $e->getMessage() . "\n");
+        exit(1);
+    }
+
+    $snapshotId = $manifest['id'] ?? null;
+    if (!$snapshotId) {
+        $snapshotId = 'unknown';
+    }
+    $version = $manifest['source_version'] ?? $manifest['target_version'] ?? 'unknown';
+
+    echo "Created snapshot {$snapshotId} (Grav {$version}).\n";
+    if ($label) {
+        echo "Label: {$label}\n";
+    }
+    if (!empty($manifest['backup_path'])) {
+        echo "Snapshot path: {$manifest['backup_path']}\n";
+    }
+
+    exit(0);
+}
+
+/**
+ * @param list<array{id:string,source_version:?string,target_version:?string,created_at:int}> $snapshots
+ * @return string|null
+ */
+function promptSnapshotSelection(array $snapshots): ?string
+{
+    echo "Available snapshots:\n";
+    foreach ($snapshots as $index => $snapshot) {
+        $line = formatSnapshotListLine($snapshot);
+        $number = $index + 1;
+        echo sprintf("  [%d] %s\n", $number, $line);
+    }
+
+    $default = $snapshots[0]['id'];
+    echo "\nSelect a snapshot to restore [1]: ";
+    $input = trim((string)fgets(STDIN));
+
+    if ($input === '') {
+        return $default;
+    }
+
+    if (ctype_digit($input)) {
+        $idx = (int)$input - 1;
+        if (isset($snapshots[$idx])) {
+            return $snapshots[$idx]['id'];
+        }
+    }
+
+    foreach ($snapshots as $snapshot) {
+        if (strcasecmp($snapshot['id'], $input) === 0) {
+            return $snapshot['id'];
+        }
+    }
+
+    echo "Invalid selection. Aborting.\n";
+    return null;
+}
+
+/**
+ * @param list<array{id:string,source_version:?string,target_version:?string,created_at:int}> $snapshots
+ * @return array<string>
+ */
+function promptSnapshotsRemoval(array $snapshots): array
+{
+    echo "Available snapshots:\n";
+    foreach ($snapshots as $index => $snapshot) {
+        $line = formatSnapshotListLine($snapshot);
+        $number = $index + 1;
+        echo sprintf("  [%d] %s\n", $number, $line);
+    }
+
+    echo "\nSelect snapshots to remove (comma or space separated numbers / ids, 'all' for everything, empty to cancel): ";
+    $input = trim((string)fgets(STDIN));
+
+    if ($input === '') {
+        return [];
+    }
+
+    $inputLower = strtolower($input);
+    if ($inputLower === 'all' || $inputLower === '*') {
+        return array_values(array_unique(array_column($snapshots, 'id')));
+    }
+
+    $tokens = preg_split('/[\\s,]+/', $input, -1, PREG_SPLIT_NO_EMPTY) ?: [];
+    $selected = [];
+    foreach ($tokens as $token) {
+        if (ctype_digit($token)) {
+            $idx = (int)$token - 1;
+            if (isset($snapshots[$idx])) {
+                $selected[] = $snapshots[$idx]['id'];
+                continue;
+            }
+        }
+
+        foreach ($snapshots as $snapshot) {
+            if (strcasecmp($snapshot['id'], $token) === 0) {
+                $selected[] = $snapshot['id'];
+                break;
+            }
+        }
+    }
+
+    return array_values(array_unique(array_filter($selected)));
+}
+
+/**
+ * @param string $snapshotId
+ * @return array{success:bool,message:string}
+ */
+function removeSnapshot(string $snapshotId): array
+{
+    $manifestDir = GRAV_ROOT . '/user/data/upgrades';
+    $manifestPath = $manifestDir . '/' . $snapshotId . '.json';
+    if (!is_file($manifestPath)) {
+        return [
+            'success' => false,
+            'message' => "Snapshot {$snapshotId} not found."
+        ];
+    }
+
+    $manifest = json_decode(file_get_contents($manifestPath) ?: '', true);
+    if (!is_array($manifest)) {
+        return [
+            'success' => false,
+            'message' => "Snapshot {$snapshotId} manifest is invalid."
+        ];
+    }
+
+    $pathsToDelete = [];
+    foreach (['package_path', 'backup_path'] as $key) {
+        if (!empty($manifest[$key]) && is_string($manifest[$key])) {
+            $pathsToDelete[] = $manifest[$key];
+        }
+    }
+
+    $errors = [];
+
+    foreach ($pathsToDelete as $path) {
+        if (!$path) {
+            continue;
+        }
+        if (!file_exists($path)) {
+            continue;
+        }
+        try {
+            if (is_dir($path)) {
+                Folder::delete($path);
+            } else {
+                @unlink($path);
+            }
+        } catch (\Throwable $e) {
+            $errors[] = "Unable to remove {$path}: " . $e->getMessage();
+        }
+    }
+
+    if (!@unlink($manifestPath)) {
+        $errors[] = "Unable to delete manifest file {$manifestPath}.";
+    }
+
+    if ($errors) {
+        return [
+            'success' => false,
+            'message' => implode(' ', $errors)
+        ];
+    }
+
+    return [
+        'success' => true,
+        'message' => "Removed snapshot {$snapshotId}."
+    ];
+}
+
+$cli = parseArguments($argv);
+$command = $cli['command'];
+$arguments = $cli['arguments'];
+$options = $cli['options'];
+
+switch ($command) {
+    case 'interactive':
+        $snapshots = loadSnapshots();
+        if (!$snapshots) {
+            echo "No snapshots found. Run bin/gpm self-upgrade (with safe upgrade enabled) to create one.\n";
+            exit(0);
+        }
+
+        $selection = promptSnapshotSelection($snapshots);
+        if (!$selection) {
+            exit(1);
+        }
+
+        applySnapshot($selection, $options);
+        break;
+
+    case 'list':
+        $snapshots = loadSnapshots();
+        if (!$snapshots) {
+            echo "No snapshots found. Run bin/gpm self-upgrade (with safe upgrade enabled) to create one.\n";
+            exit(0);
+        }
+
+        echo "Available snapshots:\n";
+        foreach ($snapshots as $snapshot) {
+            echo '  - ' . formatSnapshotListLine($snapshot) . "\n";
+        }
+        exit(0);
+
+    case 'remove':
+        $snapshots = loadSnapshots();
+        if (!$snapshots) {
+            echo "No snapshots found. Nothing to remove.\n";
+            exit(0);
+        }
+
+        $selectedIds = [];
+        if ($arguments) {
+            foreach ($arguments as $arg) {
+                if (!$arg) {
+                    continue;
+                }
+                $selectedIds[] = $arg;
+            }
+        } else {
+            $selectedIds = promptSnapshotsRemoval($snapshots);
+            if (!$selectedIds) {
+                echo "No snapshots selected. Aborting.\n";
+                exit(1);
+            }
+        }
+
+        $selectedIds = array_values(array_unique($selectedIds));
+        echo "Snapshots selected for removal:\n";
+        foreach ($selectedIds as $id) {
+            echo "  - {$id}\n";
+        }
+
+        $autoConfirm = isset($options['yes']) || isset($options['y']);
+        if (!$autoConfirm) {
+            echo "\nThis action cannot be undone. Proceed? [y/N] ";
+            $confirmation = strtolower(trim((string)fgets(STDIN)));
+            if (!in_array($confirmation, ['y', 'yes'], true)) {
+                echo "Aborted.\n";
+                exit(1);
+            }
+        }
+
+        $success = 0;
+        foreach ($selectedIds as $id) {
+            $result = removeSnapshot($id);
+            echo $result['message'] . "\n";
+            if ($result['success']) {
+                $success++;
+            }
+        }
+
+        exit($success > 0 ? 0 : 1);
+
+    case 'apply':
+        $snapshotId = $arguments[0] ?? null;
+        if (!$snapshotId) {
+            echo "Missing snapshot id.\n\n" . RESTORE_USAGE . "\n";
+            exit(1);
+        }
+
+        applySnapshot($snapshotId, $options);
+        break;
+
+    case 'snapshot':
+        createManualSnapshot($options);
+        break;
+
+    case 'recovery':
+        $action = strtolower($arguments[0] ?? 'status');
+        $manager = new RecoveryManager(GRAV_ROOT);
+
+        switch ($action) {
+            case 'clear':
+                if ($manager->isActive()) {
+                    $manager->clear();
+                    echo "Recovery flag cleared.\n";
+                } else {
+                    echo "Recovery mode is not active.\n";
+                }
+                exit(0);
+
+            case 'status':
+                if (!$manager->isActive()) {
+                    echo "Recovery mode is not active.\n";
+                    exit(0);
+                }
+
+                $context = $manager->getContext();
+                if (!$context) {
+                    echo "Recovery flag present but context could not be parsed.\n";
+                    exit(1);
+                }
+
+                $created = isset($context['created_at']) ? date('c', (int)$context['created_at']) : 'unknown';
+                $token = $context['token'] ?? '(missing)';
+                $message = $context['message'] ?? '(no message)';
+                $plugin = $context['plugin'] ?? '(none detected)';
+                $file = $context['file'] ?? '(unknown file)';
+                $line = $context['line'] ?? '(unknown line)';
+
+                echo "Recovery flag context:\n";
+                echo "  Token:   {$token}\n";
+                echo "  Message: {$message}\n";
+                echo "  Plugin:  {$plugin}\n";
+                echo "  File:    {$file}\n";
+                echo "  Line:    {$line}\n";
+                echo "  Created: {$created}\n";
+
+                $window = $manager->getUpgradeWindow();
+                if ($window) {
+                    $expires = isset($window['expires_at']) ? date('c', (int)$window['expires_at']) : 'unknown';
+                    $reason = $window['reason'] ?? '(unknown)';
+                    echo "  Window:  active ({$reason}, expires {$expires})\n";
+                } else {
+                    echo "  Window:  inactive\n";
+                }
+                exit(0);
+
+            default:
+                echo "Unknown recovery action: {$action}\n\n" . RESTORE_USAGE . "\n";
+                exit(1);
+        }
+
+    case 'help':
+    default:
+        echo RESTORE_USAGE . "\n";
+        exit($command === 'help' ? 0 : 1);
+}
