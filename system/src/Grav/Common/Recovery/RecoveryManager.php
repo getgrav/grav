@@ -124,9 +124,6 @@ class RecoveryManager
 
         $file = $error['file'] ?? '';
         $plugin = $this->detectPluginFromPath($file);
-        if (!$plugin) {
-            return;
-        }
 
         $context = [
             'created_at' => time(),
