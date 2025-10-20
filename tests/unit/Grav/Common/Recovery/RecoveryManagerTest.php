@@ -77,6 +77,49 @@ class RecoveryManagerTest extends \Codeception\TestCase\Test
         self::assertArrayHasKey('bad', $decoded);
     }
 
+    public function testHandleShutdownCreatesFlagWithoutPlugin(): void
+    {
+        $manager = new class($this->tmpDir) extends RecoveryManager {
+            protected $error;
+            public function __construct(string $rootPath)
+            {
+                parent::__construct($rootPath);
+                $this->error = [
+                    'type' => E_ERROR,
+                    'file' => $this->getRootPathValue() . '/system/index.php',
+                    'message' => 'Core failure',
+                    'line' => 13,
+                ];
+            }
+
+            protected function resolveLastError(): ?array
+            {
+                return $this->error;
+            }
+
+            private function getRootPathValue(): string
+            {
+                $prop = new \ReflectionProperty(RecoveryManager::class, 'rootPath');
+                $prop->setAccessible(true);
+
+                return $prop->getValue($this);
+            }
+        };
+
+        $manager->markUpgradeWindow('core-upgrade', ['scope' => 'core']);
+        $manager->handleShutdown();
+
+        $flag = $this->tmpDir . '/user/data/recovery.flag';
+        self::assertFileExists($flag);
+        $context = json_decode(file_get_contents($flag), true);
+        self::assertArrayHasKey('plugin', $context);
+        self::assertNull($context['plugin']);
+        self::assertSame('Core failure', $context['message']);
+
+        $quarantine = $this->tmpDir . '/user/data/upgrades/quarantine.json';
+        self::assertFileDoesNotExist($quarantine);
+    }
+
     public function testHandleShutdownIgnoresNonFatalErrors(): void
     {
         $manager = new class($this->tmpDir) extends RecoveryManager {
