@@ -120,6 +120,9 @@ final class Install
     /** @var VersionUpdater|null */
     private $updater;
 
+    /** @var array|null */
+    private $lastManifest = null;
+
     /** @var static */
     private static $instance;
     /** @var callable|null */
@@ -268,6 +271,8 @@ ERR;
             throw new RuntimeException('Oops, installer was run without prepare()!', 500);
         }
 
+        $this->lastManifest = null;
+
         try {
             if (null === $this->updater) {
                 $versions = Versions::instance(USER_DIR . 'config/versions.yaml');
@@ -294,7 +299,8 @@ ERR;
                         $this->relayProgress($stage, $message, $percent);
                     });
                 }
-                $service->promote($this->location, $this->getVersion(), $this->ignores);
+                $manifest = $service->promote($this->location, $this->getVersion(), $this->ignores);
+                $this->lastManifest = $service->getLastManifest() ?? $manifest;
                 Installer::setError(Installer::OK);
             } else {
                 Installer::install(
@@ -483,5 +489,13 @@ ERR;
 
             @chmod($path, $current | 0111);
         }
+    }
+
+    /**
+     * @return array|null
+     */
+    public function getLastManifest(): ?array
+    {
+        return $this->lastManifest;
     }
 }
