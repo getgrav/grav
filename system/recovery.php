@@ -177,6 +177,9 @@ header('Content-Type: text/html; charset=utf-8');
                     <p>
                         Latest snapshot:
                         <code><?php echo htmlspecialchars($latestSnapshot['id'], ENT_QUOTES, 'UTF-8'); ?></code>
+                        <?php if (!empty($latestSnapshot['label'])): ?>
+                            <br><small><?php echo htmlspecialchars($latestSnapshot['label'], ENT_QUOTES, 'UTF-8'); ?></small>
+                        <?php endif; ?>
                         — Grav <?php echo htmlspecialchars($latestSnapshot['target_version'] ?? 'unknown', ENT_QUOTES, 'UTF-8'); ?>
                         <?php if (!empty($latestSnapshot['created_at'])): ?>
                             <br><small>Created <?php echo htmlspecialchars(date('c', (int)$latestSnapshot['created_at']), ENT_QUOTES, 'UTF-8'); ?></small>
