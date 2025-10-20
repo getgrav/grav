@@ -97,6 +97,13 @@ $grav = Grav::instance(array('loader' => $loader));
 try {
     $grav->process();
 } catch (\Error|\Exception $e) {
-    $grav->fireEvent('onFatalException', new Event(array('exception' => $e)));
+    $grav->fireEvent('onFatalException', new Event(['exception' => $e]));
+
+    if (PHP_SAPI !== 'cli' && is_file($recoveryFlag)) {
+        require __DIR__ . '/system/recovery.php';
+        return 0;
+    }
+
     throw $e;
 }
+
