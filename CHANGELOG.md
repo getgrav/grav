@@ -1,3 +1,10 @@
+# v1.8.0-beta.16
+## 10/20/2025
+
+1. [](#improved)
+    * Set `bin/*` binaries to `+x` permission when upgrading via CLI
+    * Improved Twig3 compatibility fixes
+
 # v1.8.0-beta.15
 ## 10/19/2025
 
