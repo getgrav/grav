@@ -48,5 +48,5 @@ tests/cache/*
 tests/error.log
 system/templates/testing/*
 /user/config/versions.yaml
-/system/recovery.window
+/user/data/recovery.window
 tmp/*
