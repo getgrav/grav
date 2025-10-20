@@ -1,0 +1,505 @@
+ ------ ---------------------------------------------------- 
+  Line   src/Grav/Common/GPM/Response.php                    
+ ------ ---------------------------------------------------- 
+  3      Class Grav\Common\GPM\Response not found.           
+         🪪  class.notFound                                  
+         💡  Learn more at                                   
+         https://phpstan.org/user-guide/discovering-symbols  
+ ------ ---------------------------------------------------- 
+
+ ------ ----------------------------------------------------------- 
+  Line   src/Grav/Common/Grav.php                                   
+ ------ ----------------------------------------------------------- 
+  148    No error to ignore is reported on line 148.                
+  681    Unsafe usage of new static().                              
+         🪪  new.static                                             
+         💡  See:                                                   
+         https://phpstan.org/blog/solving-phpstan-error-unsafe-usa  
+         ge-of-new-static                                           
+ ------ ----------------------------------------------------------- 
+
+ ------ ----------------------------------------------------------- 
+  Line   src/Grav/Common/Page/Collection.php                        
+ ------ ----------------------------------------------------------- 
+  112    Unsafe usage of new static().                              
+         🪪  new.static                                             
+         💡  See:                                                   
+         https://phpstan.org/blog/solving-phpstan-error-unsafe-usa  
+         ge-of-new-static                                           
+  209    Unsafe usage of new static().                              
+         🪪  new.static                                             
+         💡  See:                                                   
+         https://phpstan.org/blog/solving-phpstan-error-unsafe-usa  
+         ge-of-new-static                                           
+ ------ ----------------------------------------------------------- 
+
+ ------ ----------------------------------------------------------- 
+  Line   src/Grav/Common/Processors/InitializeProcessor.php         
+ ------ ----------------------------------------------------------- 
+  58     Unsafe usage of new static().                              
+         🪪  new.static                                             
+         💡  See:                                                   
+         https://phpstan.org/blog/solving-phpstan-error-unsafe-usa  
+         ge-of-new-static                                           
+ ------ ----------------------------------------------------------- 
+
+ ------ ------------------------------------------------------- 
+  Line   src/Grav/Common/Scheduler/Job.php                      
+ ------ ------------------------------------------------------- 
+  574    Call to static method sendEmail() on an unknown class  
+         Grav\Plugin\Email\Utils.                               
+         🪪  class.notFound                                     
+         💡  Learn more at                                      
+         https://phpstan.org/user-guide/discovering-symbols     
+ ------ ------------------------------------------------------- 
+
+ ------ ---------------------------------------------------------- 
+  Line   src/Grav/Common/Scheduler/SchedulerController.php         
+ ------ ---------------------------------------------------------- 
+  41     Class Grav\Common\Scheduler\ModernScheduler not found.    
+         🪪  class.notFound                                        
+         💡  Learn more at                                         
+         https://phpstan.org/user-guide/discovering-symbols        
+  45     Instantiated class Grav\Common\Scheduler\ModernScheduler  
+         not found.                                                
+         🪪  class.notFound                                        
+         💡  Learn more at                                         
+         https://phpstan.org/user-guide/discovering-symbols        
+ ------ ---------------------------------------------------------- 
+
+ ------ -------------------------------------------------------- 
+  Line   src/Grav/Common/Service/SchedulerServiceProvider.php    
+ ------ -------------------------------------------------------- 
+  55     Instantiated class Grav\Common\Scheduler\JobWorker not  
+         found.                                                  
+         🪪  class.notFound                                      
+         💡  Learn more at                                       
+         https://phpstan.org/user-guide/discovering-symbols      
+ ------ -------------------------------------------------------- 
+
+ ------ --------------------------------------------- 
+  Line   src/Grav/Common/Session.php                  
+ ------ --------------------------------------------- 
+  132    No error to ignore is reported on line 132.  
+  137    No error to ignore is reported on line 137.  
+ ------ --------------------------------------------- 
+
+ ------ ----------------------------------------------------------- 
+  Line   src/Grav/Common/Uri.php                                    
+ ------ ----------------------------------------------------------- 
+  1131   Unsafe usage of new static().                              
+         🪪  new.static                                             
+         💡  See:                                                   
+         https://phpstan.org/blog/solving-phpstan-error-unsafe-usa  
+         ge-of-new-static                                           
+ ------ ----------------------------------------------------------- 
+
+ ------ -------------------------------------------------------- 
+  Line   src/Grav/Console/Application/Application.php            
+ ------ -------------------------------------------------------- 
+  125    Return type mixed of method                             
+         Grav\Console\Application\Application::configureIO() is  
+         not covariant with return type void of method           
+         Symfony\Component\Console\Application::configureIO().   
+ ------ -------------------------------------------------------- 
+
+ ------ --------------------------------------------------------- 
+  Line   src/Grav/Console/ConsoleCommand.php                      
+ ------ --------------------------------------------------------- 
+  29     Return type mixed of method                              
+         Grav\Console\ConsoleCommand::execute() is not covariant  
+         with return type int of method                           
+         Symfony\Component\Console\Command\Command::execute().    
+ ------ --------------------------------------------------------- 
+
+ ------ ----------------------------------------------------------- 
+  Line   src/Grav/Console/ConsoleTrait.php (in context of class     
+         Grav\Console\ConsoleCommand)                               
+ ------ ----------------------------------------------------------- 
+  89     Method Grav\Console\ConsoleCommand::addOption() overrides  
+         method                                                     
+         Symfony\Component\Console\Command\Command::addOption()     
+         but misses parameter #6 $suggestedValues.                  
+ ------ ----------------------------------------------------------- 
+
+ ------ -------------------------------------------------------- 
+  Line   src/Grav/Console/ConsoleTrait.php (in context of class  
+         Grav\Console\GpmCommand)                                
+ ------ -------------------------------------------------------- 
+  89     Method Grav\Console\GpmCommand::addOption() overrides   
+         method                                                  
+         Symfony\Component\Console\Command\Command::addOption()  
+         but misses parameter #6 $suggestedValues.               
+ ------ -------------------------------------------------------- 
+
+ ------ -------------------------------------------------------- 
+  Line   src/Grav/Console/ConsoleTrait.php (in context of class  
+         Grav\Console\GravCommand)                               
+ ------ -------------------------------------------------------- 
+  89     Method Grav\Console\GravCommand::addOption() overrides  
+         method                                                  
+         Symfony\Component\Console\Command\Command::addOption()  
+         but misses parameter #6 $suggestedValues.               
+ ------ -------------------------------------------------------- 
+
+ ------ ---------------------------------------------------------- 
+  Line   src/Grav/Console/GpmCommand.php                           
+ ------ ---------------------------------------------------------- 
+  31     Return type mixed of method                               
+         Grav\Console\GpmCommand::execute() is not covariant with  
+         return type int of method                                 
+         Symfony\Component\Console\Command\Command::execute().     
+  39     No error to ignore is reported on line 39.                
+ ------ ---------------------------------------------------------- 
+
+ ------ ----------------------------------------------------------- 
+  Line   src/Grav/Console/GravCommand.php                           
+ ------ ----------------------------------------------------------- 
+  29     Return type mixed of method                                
+         Grav\Console\GravCommand::execute() is not covariant with  
+         return type int of method                                  
+         Symfony\Component\Console\Command\Command::execute().      
+ ------ ----------------------------------------------------------- 
+
+ ------ ----------------------------------------------------------- 
+  Line   src/Grav/Framework/Acl/RecursiveActionIterator.php         
+ ------ ----------------------------------------------------------- 
+  62     Unsafe usage of new static().                              
+         🪪  new.static                                             
+         💡  See:                                                   
+         https://phpstan.org/blog/solving-phpstan-error-unsafe-usa  
+         ge-of-new-static                                           
+ ------ ----------------------------------------------------------- 
+
+ ------ ---------------------------------------------------------- 
+  Line   src/Grav/Framework/Cache/CacheTrait.php (in context of    
+         class Grav\Framework\Cache\AbstractCache)                 
+ ------ ---------------------------------------------------------- 
+  87     Return type mixed of method                               
+         Grav\Framework\Cache\AbstractCache::get() is not          
+         covariant with return type mixed of method                
+         Psr\SimpleCache\CacheInterface::get().                    
+  102    Return type mixed of method                               
+         Grav\Framework\Cache\AbstractCache::set() is not          
+         covariant with return type bool of method                 
+         Psr\SimpleCache\CacheInterface::set().                    
+  117    Return type mixed of method                               
+         Grav\Framework\Cache\AbstractCache::delete() is not       
+         covariant with return type bool of method                 
+         Psr\SimpleCache\CacheInterface::delete().                 
+  127    Return type mixed of method                               
+         Grav\Framework\Cache\AbstractCache::clear() is not        
+         covariant with return type bool of method                 
+         Psr\SimpleCache\CacheInterface::clear().                  
+  138    Return type mixed of method                               
+         Grav\Framework\Cache\AbstractCache::getMultiple() is not  
+         covariant with return type iterable of method             
+         Psr\SimpleCache\CacheInterface::getMultiple().            
+  181    Return type mixed of method                               
+         Grav\Framework\Cache\AbstractCache::setMultiple() is not  
+         covariant with return type bool of method                 
+         Psr\SimpleCache\CacheInterface::setMultiple().            
+  214    Return type mixed of method                               
+         Grav\Framework\Cache\AbstractCache::deleteMultiple() is   
+         not covariant with return type bool of method             
+         Psr\SimpleCache\CacheInterface::deleteMultiple().         
+  242    Return type mixed of method                               
+         Grav\Framework\Cache\AbstractCache::has() is not          
+         covariant with return type bool of method                 
+         Psr\SimpleCache\CacheInterface::has().                    
+ ------ ---------------------------------------------------------- 
+
+ ------ ---------------------------------------------------------- 
+  Line   src/Grav/Framework/Collection/AbstractFileCollection.php  
+ ------ ---------------------------------------------------------- 
+  95     No error to ignore is reported on line 95.                
+ ------ ---------------------------------------------------------- 
+
+ ------ ----------------------------------------------------------- 
+  Line   src/Grav/Framework/Collection/AbstractIndexCollection.php  
+ ------ ----------------------------------------------------------- 
+  154    No error to ignore is reported on line 154.                
+  168    No error to ignore is reported on line 168.                
+  185    No error to ignore is reported on line 185.                
+  201    No error to ignore is reported on line 201.                
+  507    Unsafe usage of new static().                              
+         🪪  new.static                                             
+         💡  See:                                                   
+         https://phpstan.org/blog/solving-phpstan-error-unsafe-usa  
+         ge-of-new-static                                           
+ ------ ----------------------------------------------------------- 
+
+ ------ ----------------------------------------------------------- 
+  Line   src/Grav/Framework/Collection/AbstractLazyCollection.php   
+ ------ ----------------------------------------------------------- 
+  29     Property                                                   
+         Grav\Framework\Collection\AbstractLazyCollection::$collec  
+         tion overriding property                                   
+         Doctrine\Common\Collections\AbstractLazyCollection<TKey o  
+         f (int|string),T>::$collection (Doctrine\Common\Collectio  
+         ns\Collection|null) should also have native type           
+         Doctrine\Common\Collections\Collection|null.               
+ ------ ----------------------------------------------------------- 
+
+ ------ ----------------------------------------------------------- 
+  Line   src/Grav/Framework/Contracts/Relationships/RelationshipIn  
+         terface.php                                                
+ ------ ----------------------------------------------------------- 
+  80     Return type iterable of method                             
+         Grav\Framework\Contracts\Relationships\RelationshipInterf  
+         ace::getIterator() is not covariant with tentative return  
+         type Traversable of method IteratorAggregate<string,T of   
+         Grav\Framework\Contracts\Object\IdentifierInterface>::get  
+         Iterator().                                                
+         💡  Make it covariant, or use the #[\ReturnTypeWillChange]  
+         attribute to temporarily suppress the error.               
+ ------ ----------------------------------------------------------- 
+
+ ------ ----------------------------------------------------------- 
+  Line   src/Grav/Framework/Filesystem/Filesystem.php               
+ ------ ----------------------------------------------------------- 
+  51     Unsafe usage of new static().                              
+         🪪  new.static                                             
+         💡  See:                                                   
+         https://phpstan.org/blog/solving-phpstan-error-unsafe-usa  
+         ge-of-new-static                                           
+  252    No error to ignore is reported on line 252.                
+ ------ ----------------------------------------------------------- 
+
+ ------ --------------------------------------------- 
+  Line   src/Grav/Framework/Flex/FlexCollection.php   
+ ------ --------------------------------------------- 
+  102    No error to ignore is reported on line 102.  
+ ------ --------------------------------------------- 
+
+ ------ ----------------------------------------------------------- 
+  Line   src/Grav/Framework/Flex/FlexIdentifier.php                 
+ ------ ----------------------------------------------------------- 
+  27     Unsafe usage of new static().                              
+         🪪  new.static                                             
+         💡  See:                                                   
+         https://phpstan.org/blog/solving-phpstan-error-unsafe-usa  
+         ge-of-new-static                                           
+ ------ ----------------------------------------------------------- 
+
+ ------ ---------------------------------------------------------- 
+  Line   src/Grav/Framework/Flex/FlexIndex.php                     
+ ------ ---------------------------------------------------------- 
+  109    No error to ignore is reported on line 109.               
+  934    Method Grav\Framework\Flex\FlexIndex::reduce() should     
+         return TInitial|TReturn but return statement is missing.  
+         🪪  return.missing                                        
+ ------ ---------------------------------------------------------- 
+
+ ------ ----------------------------------------------------------- 
+  Line   src/Grav/Framework/Form/FormFlashFile.php                  
+ ------ ----------------------------------------------------------- 
+  62     Return type mixed of method                                
+         Grav\Framework\Form\FormFlashFile::getStream() is not      
+         covariant with return type                                 
+         Psr\Http\Message\StreamInterface of method                 
+         Psr\Http\Message\UploadedFileInterface::getStream().       
+  83     Return type mixed of method                                
+         Grav\Framework\Form\FormFlashFile::moveTo() is not         
+         covariant with return type void of method                  
+         Psr\Http\Message\UploadedFileInterface::moveTo().          
+  123    Return type mixed of method                                
+         Grav\Framework\Form\FormFlashFile::getSize() is not        
+         covariant with return type int|null of method              
+         Psr\Http\Message\UploadedFileInterface::getSize().         
+  131    Return type mixed of method                                
+         Grav\Framework\Form\FormFlashFile::getError() is not       
+         covariant with return type int of method                   
+         Psr\Http\Message\UploadedFileInterface::getError().        
+  139    Return type mixed of method                                
+         Grav\Framework\Form\FormFlashFile::getClientFilename() is  
+         not covariant with return type string|null of method       
+         Psr\Http\Message\UploadedFileInterface::getClientFilename  
+         ().                                                        
+  147    Return type mixed of method                                
+         Grav\Framework\Form\FormFlashFile::getClientMediaType()    
+         is not covariant with return type string|null of method    
+         Psr\Http\Message\UploadedFileInterface::getClientMediaTyp  
+         e().                                                       
+ ------ ----------------------------------------------------------- 
+
+ ------ ----------------------------------------------------------- 
+  Line   src/Grav/Framework/Logger/Processors/UserProcessor.php     
+ ------ ----------------------------------------------------------- 
+  24     Parameter #1 $record (array) of method                     
+         Grav\Framework\Logger\Processors\UserProcessor::__invoke(  
+         ) is not contravariant with parameter #1 $record           
+         (Monolog\LogRecord) of method                              
+         Monolog\Processor\ProcessorInterface::__invoke().          
+ ------ ----------------------------------------------------------- 
+
+ ------ ----------------------------------------------------------- 
+  Line   src/Grav/Framework/Media/MediaIdentifier.php               
+ ------ ----------------------------------------------------------- 
+  30     Unsafe usage of new static().                              
+         🪪  new.static                                             
+         💡  See:                                                   
+         https://phpstan.org/blog/solving-phpstan-error-unsafe-usa  
+         ge-of-new-static                                           
+ ------ ----------------------------------------------------------- 
+
+ ------ ----------------------------------------------------------- 
+  Line   src/Grav/Framework/Media/UploadedMediaObject.php           
+ ------ ----------------------------------------------------------- 
+  36     Unsafe usage of new static().                              
+         🪪  new.static                                             
+         💡  See:                                                   
+         https://phpstan.org/blog/solving-phpstan-error-unsafe-usa  
+         ge-of-new-static                                           
+ ------ ----------------------------------------------------------- 
+
+ ------ ----------------------------------------------------------- 
+  Line   src/Grav/Framework/Mime/MimeTypes.php                      
+ ------ ----------------------------------------------------------- 
+  42     Unsafe usage of new static().                              
+         🪪  new.static                                             
+         💡  See:                                                   
+         https://phpstan.org/blog/solving-phpstan-error-unsafe-usa  
+         ge-of-new-static                                           
+ ------ ----------------------------------------------------------- 
+
+ ------ ------------------------------------------------ 
+  Line   src/Grav/Framework/Object/ObjectCollection.php  
+ ------ ------------------------------------------------ 
+  96     No error to ignore is reported on line 96.      
+ ------ ------------------------------------------------ 
+
+ ------ --------------------------------------------- 
+  Line   src/Grav/Framework/Object/ObjectIndex.php    
+ ------ --------------------------------------------- 
+  193    No error to ignore is reported on line 193.  
+ ------ --------------------------------------------- 
+
+ ------ ----------------------------------------------------------- 
+  Line   src/Grav/Framework/Psr7/Stream.php                         
+ ------ ----------------------------------------------------------- 
+  31     Unsafe usage of new static().                              
+         🪪  new.static                                             
+         💡  See:                                                   
+         https://phpstan.org/blog/solving-phpstan-error-unsafe-usa  
+         ge-of-new-static                                           
+ ------ ----------------------------------------------------------- 
+
+ ------ ----------------------------------------------------------- 
+  Line   src/Grav/Framework/Psr7/Traits/ServerRequestDecoratorTrai  
+         t.php (in context of class                                 
+         Grav\Framework\Psr7\ServerRequest)                         
+ ------ ----------------------------------------------------------- 
+  51     Return type mixed of method                                
+         Grav\Framework\Psr7\ServerRequest::getAttributes() is not  
+         covariant with return type array of method                 
+         Psr\Http\Message\ServerRequestInterface::getAttributes().  
+  60     Return type mixed of method                                
+         Grav\Framework\Psr7\ServerRequest::getCookieParams() is    
+         not covariant with return type array of method             
+         Psr\Http\Message\ServerRequestInterface::getCookieParams(  
+         ).                                                         
+  76     Return type mixed of method                                
+         Grav\Framework\Psr7\ServerRequest::getQueryParams() is     
+         not covariant with return type array of method             
+         Psr\Http\Message\ServerRequestInterface::getQueryParams()  
+         .                                                          
+  84     Return type mixed of method                                
+         Grav\Framework\Psr7\ServerRequest::getServerParams() is    
+         not covariant with return type array of method             
+         Psr\Http\Message\ServerRequestInterface::getServerParams(  
+         ).                                                         
+  92     Return type mixed of method                                
+         Grav\Framework\Psr7\ServerRequest::getUploadedFiles() is   
+         not covariant with return type array of method             
+         Psr\Http\Message\ServerRequestInterface::getUploadedFiles  
+         ().                                                        
+  100    Return type mixed of method                                
+         Grav\Framework\Psr7\ServerRequest::withAttribute() is not  
+         covariant with return type                                 
+         Psr\Http\Message\ServerRequestInterface of method          
+         Psr\Http\Message\ServerRequestInterface::withAttribute().  
+  125    Return type mixed of method                                
+         Grav\Framework\Psr7\ServerRequest::withoutAttribute() is   
+         not covariant with return type                             
+         Psr\Http\Message\ServerRequestInterface of method          
+         Psr\Http\Message\ServerRequestInterface::withoutAttribute  
+         ().                                                        
+  136    Return type mixed of method                                
+         Grav\Framework\Psr7\ServerRequest::withCookieParams() is   
+         not covariant with return type                             
+         Psr\Http\Message\ServerRequestInterface of method          
+         Psr\Http\Message\ServerRequestInterface::withCookieParams  
+         ().                                                        
+  147    Return type mixed of method                                
+         Grav\Framework\Psr7\ServerRequest::withParsedBody() is     
+         not covariant with return type                             
+         Psr\Http\Message\ServerRequestInterface of method          
+         Psr\Http\Message\ServerRequestInterface::withParsedBody()  
+         .                                                          
+  158    Return type mixed of method                                
+         Grav\Framework\Psr7\ServerRequest::withQueryParams() is    
+         not covariant with return type                             
+         Psr\Http\Message\ServerRequestInterface of method          
+         Psr\Http\Message\ServerRequestInterface::withQueryParams(  
+         ).                                                         
+  169    Return type mixed of method                                
+         Grav\Framework\Psr7\ServerRequest::withUploadedFiles() is  
+         not covariant with return type                             
+         Psr\Http\Message\ServerRequestInterface of method          
+         Psr\Http\Message\ServerRequestInterface::withUploadedFile  
+         s().                                                       
+ ------ ----------------------------------------------------------- 
+
+ ------ ----------------------------------------------------------- 
+  Line   src/Grav/Framework/Relationships/Relationships.php         
+ ------ ----------------------------------------------------------- 
+  107    Return type mixed of method                                
+         Grav\Framework\Relationships\Relationships::offsetSet()    
+         is not covariant with tentative return type void of        
+         method                                                     
+         ArrayAccess<string,Grav\Framework\Contracts\Relationships  
+         \RelationshipInterface<T of Grav\Framework\Contracts\Obje  
+         ct\IdentifierInterface, P of                               
+         Grav\Framework\Contracts\Object\IdentifierInterface>>::of  
+         fsetSet().                                                 
+         💡  Make it covariant, or use the #[\ReturnTypeWillChange]  
+         attribute to temporarily suppress the error.               
+  116    Return type mixed of method                                
+         Grav\Framework\Relationships\Relationships::offsetUnset()  
+         is not covariant with tentative return type void of        
+         method                                                     
+         ArrayAccess<string,Grav\Framework\Contracts\Relationships  
+         \RelationshipInterface<T of Grav\Framework\Contracts\Obje  
+         ct\IdentifierInterface, P of                               
+         Grav\Framework\Contracts\Object\IdentifierInterface>>::of  
+         fsetUnset().                                               
+         💡  Make it covariant, or use the #[\ReturnTypeWillChange]  
+         attribute to temporarily suppress the error.               
+ ------ ----------------------------------------------------------- 
+
+ ------ ----------------------------------------------------------- 
+  Line   src/Twig/DeferredExtension/DeferredNodeVisitorCompat.php   
+ ------ ----------------------------------------------------------- 
+  30     Parameter #1 $node (Twig_NodeInterface) of method          
+         Twig\DeferredExtension\DeferredNodeVisitorCompat::enterNo  
+         de() is not contravariant with parameter #1 $node          
+         (Twig\Node\Node) of method                                 
+         Twig\NodeVisitor\NodeVisitorInterface::enterNode().        
+  30     Parameter $node of method                                  
+         Twig\DeferredExtension\DeferredNodeVisitorCompat::enterNo  
+         de() has invalid type Twig_NodeInterface.                  
+         🪪  class.notFound                                         
+  46     Parameter #1 $node (Twig_NodeInterface) of method          
+         Twig\DeferredExtension\DeferredNodeVisitorCompat::leaveNo  
+         de() is not contravariant with parameter #1 $node          
+         (Twig\Node\Node) of method                                 
+         Twig\NodeVisitor\NodeVisitorInterface::leaveNode().        
+  46     Parameter $node of method                                  
+         Twig\DeferredExtension\DeferredNodeVisitorCompat::leaveNo  
+         de() has invalid type Twig_NodeInterface.                  
+         🪪  class.notFound                                         
+ ------ ----------------------------------------------------------- 
+
+ [ERROR] Found 74 errors                                            
+

@@ -11,9 +11,6 @@ namespace Grav;
 
 \define('GRAV_REQUEST_TIME', microtime(true));
 \define('GRAV_PHP_MIN', '7.3.6');
-if (!\defined('GRAV_ROOT')) {
-    \define('GRAV_ROOT', __DIR__);
-}
 
 if (PHP_SAPI === 'cli-server') {
     $symfony_server = stripos(getenv('_'), 'symfony') !== false || stripos($_SERVER['SERVER_SOFTWARE'] ?? '', 'symfony') !== false || stripos($_ENV['SERVER_SOFTWARE'] ?? '', 'symfony') !== false;
@@ -97,6 +94,13 @@ $grav = Grav::instance(array('loader' => $loader));
 try {
     $grav->process();
 } catch (\Error|\Exception $e) {
-    $grav->fireEvent('onFatalException', new Event(array('exception' => $e)));
+    $grav->fireEvent('onFatalException', new Event(['exception' => $e]));
+
+    if (PHP_SAPI !== 'cli' && is_file($recoveryFlag)) {
+        require __DIR__ . '/system/recovery.php';
+        return 0;
+    }
+
     throw $e;
 }
+

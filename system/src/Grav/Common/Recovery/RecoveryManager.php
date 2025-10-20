@@ -10,7 +10,9 @@
 namespace Grav\Common\Recovery;
 
 use Grav\Common\Filesystem\Folder;
+use Grav\Common\Grav;
 use Grav\Common\Yaml;
+use RocketTheme\Toolbox\Event\Event;
 use function bin2hex;
 use function dirname;
 use function file_get_contents;
@@ -32,6 +34,7 @@ use const E_COMPILE_ERROR;
 use const E_CORE_ERROR;
 use const E_ERROR;
 use const E_PARSE;
+use const E_USER_ERROR;
 use const GRAV_ROOT;
 use const JSON_PRETTY_PRINT;
 use const JSON_UNESCAPED_SLASHES;
@@ -47,6 +50,8 @@ class RecoveryManager
     private $rootPath;
     /** @var string */
     private $userPath;
+    /** @var bool */
+    private $failureCaptured = false;
 
     /**
      * @param mixed $context Container or root path.
@@ -77,6 +82,15 @@ class RecoveryManager
         }
 
         register_shutdown_function([$this, 'handleShutdown']);
+        $events = null;
+        try {
+            $events = Grav::instance()['events'] ?? null;
+        } catch (\Throwable $e) {
+            $events = null;
+        }
+        if ($events && method_exists($events, 'addListener')) {
+            $events->addListener('onFatalException', [$this, 'onFatalException']);
+        }
         $this->registered = true;
     }
 
@@ -103,6 +117,7 @@ class RecoveryManager
         }
 
         $this->closeUpgradeWindow();
+        $this->failureCaptured = false;
     }
 
     /**
@@ -112,38 +127,49 @@ class RecoveryManager
      */
     public function handleShutdown(): void
     {
+        if ($this->failureCaptured) {
+            return;
+        }
+
         $error = $this->resolveLastError();
         if (!$error) {
             return;
         }
 
-        $type = $error['type'] ?? 0;
-        if (!$this->isFatal($type)) {
+        $this->processFailure($error);
+    }
+
+    /**
+     * Handle uncaught exceptions bubbled to the top-level handler.
+     *
+     * @param \Throwable $exception
+     * @return void
+     */
+    public function handleException(\Throwable $exception): void
+    {
+        if ($this->failureCaptured) {
             return;
         }
 
-        $file = $error['file'] ?? '';
-        $plugin = $this->detectPluginFromPath($file);
-        if (!$plugin) {
-            return;
-        }
-
-        $context = [
-            'created_at' => time(),
-            'message' => $error['message'] ?? '',
-            'file' => $file,
-            'line' => $error['line'] ?? null,
-            'type' => $type,
-            'plugin' => $plugin,
+        $error = [
+            'type' => E_ERROR,
+            'message' => $exception->getMessage(),
+            'file' => $exception->getFile(),
+            'line' => $exception->getLine(),
         ];
 
-        if (!$this->shouldEnterRecovery($context)) {
-            return;
-        }
+        $this->processFailure($error);
+    }
 
-        $this->activate($context);
-        if ($plugin) {
-            $this->quarantinePlugin($plugin, $context);
+    /**
+     * @param Event $event
+     * @return void
+     */
+    public function onFatalException(Event $event): void
+    {
+        $exception = $event['exception'] ?? null;
+        if ($exception instanceof \Throwable) {
+            $this->handleException($exception);
         }
     }
 
@@ -173,6 +199,41 @@ class RecoveryManager
             }
             file_put_contents($flag, json_encode($context, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
         }
+    }
+
+    /**
+     * @param array $error
+     * @return void
+     */
+    private function processFailure(array $error): void
+    {
+        $type = (int)($error['type'] ?? 0);
+        if (!$this->isFatal($type)) {
+            return;
+        }
+
+        $file = $error['file'] ?? '';
+        $plugin = $this->detectPluginFromPath($file);
+
+        $context = [
+            'created_at' => time(),
+            'message' => $error['message'] ?? '',
+            'file' => $file,
+            'line' => $error['line'] ?? null,
+            'type' => $type,
+            'plugin' => $plugin,
+        ];
+
+        if (!$this->shouldEnterRecovery($context)) {
+            return;
+        }
+
+        $this->activate($context);
+        if ($plugin) {
+            $this->quarantinePlugin($plugin, $context);
+        }
+
+        $this->failureCaptured = true;
     }
 
     /**
@@ -268,7 +329,7 @@ class RecoveryManager
      */
     private function isFatal(int $type): bool
     {
-        return in_array($type, [E_ERROR, E_CORE_ERROR, E_COMPILE_ERROR, E_PARSE], true);
+        return in_array($type, [E_ERROR, E_CORE_ERROR, E_COMPILE_ERROR, E_PARSE, E_USER_ERROR], true);
     }
 
     /**
@@ -303,7 +364,7 @@ class RecoveryManager
      */
     private function windowPath(): string
     {
-        return $this->rootPath . '/system/recovery.window';
+        return $this->userPath . '/data/recovery.window';
     }
 
     /**
@@ -403,7 +464,10 @@ class RecoveryManager
             'expires_at' => $createdAt + $ttl,
         ];
 
-        file_put_contents($this->windowPath(), json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
+        $path = $this->windowPath();
+        Folder::create(dirname($path));
+        file_put_contents($path, json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
+        $this->failureCaptured = false;
     }
 
     /**

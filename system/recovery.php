@@ -63,20 +63,36 @@ if (is_file($quarantineFile)) {
 }
 
 $manifestDir = GRAV_ROOT . '/user/data/upgrades';
-$manifests = [];
+$snapshots = [];
 if (is_dir($manifestDir)) {
     $files = glob($manifestDir . '/*.json');
     if ($files) {
-        rsort($files);
         foreach ($files as $file) {
             $decoded = json_decode(file_get_contents($file), true);
-            if (is_array($decoded)) {
-                $decoded['file'] = basename($file);
-                $manifests[] = $decoded;
+            if (!is_array($decoded)) {
+                continue;
             }
+
+            $id = $decoded['id'] ?? pathinfo($file, PATHINFO_FILENAME);
+            if (!is_string($id) || $id === '' || strncmp($id, 'snapshot-', 9) !== 0) {
+                continue;
+            }
+
+            $decoded['id'] = $id;
+            $decoded['file'] = basename($file);
+            $decoded['created_at'] = (int)($decoded['created_at'] ?? filemtime($file) ?: 0);
+            $snapshots[] = $decoded;
+        }
+
+        if ($snapshots) {
+            usort($snapshots, static function (array $a, array $b): int {
+                return ($b['created_at'] ?? 0) <=> ($a['created_at'] ?? 0);
+            });
         }
     }
 }
+
+$latestSnapshot = $snapshots[0] ?? null;
 
 header('Content-Type: text/html; charset=utf-8');
 
@@ -89,7 +105,8 @@ header('Content-Type: text/html; charset=utf-8');
     <style>
         body { font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif; margin: 0; padding: 40px; background: #111; color: #eee; }
         .panel { max-width: 720px; margin: 0 auto; background: #1d1d1f; padding: 24px 32px; border-radius: 12px; box-shadow: 0 10px 45px rgba(0,0,0,0.4); }
-        h1 { margin-top: 0; color: #9ef; }
+        h1 { font-size: 2.5rem; margin-top: 0; color: #fff; display:flex;align-items:center; }
+        h1 > img {margin-right:1rem;}
         code { background: rgba(255,255,255,0.08); padding: 2px 4px; border-radius: 4px; }
         form { margin-top: 16px; }
         input[type="text"] { width: 100%; padding: 10px; border: 1px solid #333; border-radius: 6px; background: #151517; color: #fff; }
@@ -106,7 +123,7 @@ header('Content-Type: text/html; charset=utf-8');
 </head>
 <body>
 <div class="panel">
-    <h1>Grav Recovery Mode</h1>
+    <h1><img src="system/assets/grav.png">Grav Recovery Mode</h1>
     <?php if ($notice): ?>
         <div class="message notice"><?php echo htmlspecialchars($notice, ENT_QUOTES, 'UTF-8'); ?></div>
     <?php endif; ?>
@@ -153,18 +170,22 @@ header('Content-Type: text/html; charset=utf-8');
 
         <div class="card">
             <h3>Rollback</h3>
-            <?php if ($manifests): ?>
+            <?php if ($latestSnapshot): ?>
                 <form method="post">
                     <input type="hidden" name="action" value="rollback">
-                    <label for="manifest">Choose a snapshot</label>
-                    <select id="manifest" name="manifest">
-                        <?php foreach ($manifests as $manifest): ?>
-                            <option value="<?php echo htmlspecialchars($manifest['id'], ENT_QUOTES, 'UTF-8'); ?>">
-                                <?php echo htmlspecialchars($manifest['id'], ENT_QUOTES, 'UTF-8'); ?> — Grav <?php echo htmlspecialchars($manifest['target_version'] ?? 'unknown', ENT_QUOTES, 'UTF-8'); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                    <button type="submit" class="secondary">Rollback to Selected Snapshot</button>
+                    <input type="hidden" name="manifest" value="<?php echo htmlspecialchars($latestSnapshot['id'], ENT_QUOTES, 'UTF-8'); ?>">
+                    <p>
+                        Latest snapshot:
+                        <code><?php echo htmlspecialchars($latestSnapshot['id'], ENT_QUOTES, 'UTF-8'); ?></code>
+                        <?php if (!empty($latestSnapshot['label'])): ?>
+                            <br><small><?php echo htmlspecialchars($latestSnapshot['label'], ENT_QUOTES, 'UTF-8'); ?></small>
+                        <?php endif; ?>
+                        — Grav <?php echo htmlspecialchars($latestSnapshot['target_version'] ?? 'unknown', ENT_QUOTES, 'UTF-8'); ?>
+                        <?php if (!empty($latestSnapshot['created_at'])): ?>
+                            <br><small>Created <?php echo htmlspecialchars(date('c', (int)$latestSnapshot['created_at']), ENT_QUOTES, 'UTF-8'); ?></small>
+                        <?php endif; ?>
+                    </p>
+                    <button type="submit" class="secondary">Rollback to Latest Snapshot</button>
                 </form>
             <?php else: ?>
                 <p>No upgrade snapshots were found.</p>
