@@ -2,6 +2,7 @@
 
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\Recovery\RecoveryManager;
+use RocketTheme\Toolbox\Event\Event;
 
 class RecoveryManagerTest extends \Codeception\TestCase\Test
 {
@@ -118,6 +119,38 @@ class RecoveryManagerTest extends \Codeception\TestCase\Test
 
         $quarantine = $this->tmpDir . '/user/data/upgrades/quarantine.json';
         self::assertFileDoesNotExist($quarantine);
+    }
+
+    public function testHandleExceptionCreatesFlag(): void
+    {
+        $manager = new RecoveryManager($this->tmpDir);
+        $manager->markUpgradeWindow('core-upgrade', ['scope' => 'core']);
+
+        $manager->handleException(new \RuntimeException('Unhandled failure'));
+
+        $flag = $this->tmpDir . '/user/data/recovery.flag';
+        self::assertFileExists($flag);
+        $context = json_decode(file_get_contents($flag), true);
+        self::assertSame('Unhandled failure', $context['message']);
+        self::assertArrayHasKey('plugin', $context);
+        self::assertNull($context['plugin']);
+
+        $manager->clear();
+    }
+
+    public function testOnFatalExceptionDispatchesToHandler(): void
+    {
+        $manager = new RecoveryManager($this->tmpDir);
+        $manager->markUpgradeWindow('core-upgrade', ['scope' => 'core']);
+
+        $manager->onFatalException(new Event(['exception' => new \RuntimeException('Event failure')]));
+
+        $flag = $this->tmpDir . '/user/data/recovery.flag';
+        self::assertFileExists($flag);
+        $context = json_decode(file_get_contents($flag), true);
+        self::assertSame('Event failure', $context['message']);
+
+        $manager->clear();
     }
 
     public function testHandleShutdownIgnoresNonFatalErrors(): void
