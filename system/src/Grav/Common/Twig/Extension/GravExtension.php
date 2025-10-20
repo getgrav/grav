@@ -1745,6 +1745,10 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
             throw new RuntimeError('Twig |filter("' . $arrow . '") is not allowed.');
         }
 
+        if ($array === null) {
+            $array = [];
+        }
+
         return twig_array_filter($env, $array, $arrow);
     }
 
@@ -1761,6 +1765,10 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
             throw new RuntimeError('Twig |map("' . $arrow . '") is not allowed.');
         }
 
+        if ($array === null) {
+            $array = [];
+        }
+
         return twig_array_map($env, $array, $arrow);
     }
 
@@ -1775,6 +1783,10 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
     {
         if (!$arrow instanceof \Closure && !is_string($arrow) || Utils::isDangerousFunction($arrow)) {
             throw new RuntimeError('Twig |reduce("' . $arrow . '") is not allowed.');
+        }
+
+        if ($array === null) {
+            $array = [];
         }
 
         return twig_array_map($env, $array, $arrow);
