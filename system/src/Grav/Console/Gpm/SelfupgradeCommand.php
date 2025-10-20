@@ -24,6 +24,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use ZipArchive;
+use function date;
 use function count;
 use function is_callable;
 use function strlen;
@@ -253,6 +254,44 @@ class SelfupgradeCommand extends GpmCommand
             $error = 1;
         } else {
             $io->writeln("  '- <green>Success!</green>  ");
+
+            $manifest = Install::instance()->getLastManifest();
+            if (is_array($manifest) && ($manifest['id'] ?? null)) {
+                $snapshotId = (string) $manifest['id'];
+                $snapshotTimestamp = isset($manifest['created_at']) ? (int) $manifest['created_at'] : null;
+                $manifestPath = null;
+                if (isset($manifest['id'])) {
+                    $manifestPath = 'user/data/upgrades/' . $manifest['id'] . '.json';
+                }
+                $metadata = [
+                    'scope' => 'core',
+                    'target_version' => $remote,
+                    'snapshot' => $snapshotId,
+                ];
+                if (null !== $snapshotTimestamp) {
+                    $metadata['snapshot_created_at'] = $snapshotTimestamp;
+                }
+                if ($manifestPath) {
+                    $metadata['snapshot_manifest'] = $manifestPath;
+                }
+
+                $recovery->markUpgradeWindow('core-upgrade', $metadata);
+
+                $io->writeln(sprintf("  |- Recovery snapshot: <cyan>%s</cyan>", $snapshotId));
+                if (null !== $snapshotTimestamp) {
+                    $io->writeln(sprintf("  |- Snapshot captured: <white>%s</white>", date('c', $snapshotTimestamp)));
+                }
+                if ($manifestPath) {
+                    $io->writeln(sprintf("  |- Manifest stored at: <white>%s</white>", $manifestPath));
+                }
+            } else {
+                // Ensure recovery window remains active even if manifest could not be resolved.
+                $recovery->markUpgradeWindow('core-upgrade', [
+                    'scope' => 'core',
+                    'target_version' => $remote,
+                ]);
+            }
+
             $io->newLine();
             $safeUpgrade->clearRecoveryFlag();
         }

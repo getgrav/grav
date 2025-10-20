@@ -64,6 +64,8 @@ class SafeUpgradeService
     private $manifestStore;
     /** @var \Grav\Common\Config\ConfigInterface|null */
     private $config;
+    /** @var array|null */
+    private $lastManifest = null;
 
     /** @var array */
     private $ignoredDirs = [
@@ -207,6 +209,7 @@ class SafeUpgradeService
 
         $this->reportProgress('finalizing', 'Finalizing upgrade...', null);
         $this->persistManifest($manifest);
+        $this->lastManifest = $manifest;
         $this->pruneOldSnapshots();
         Folder::delete($stagePath);
 
@@ -246,6 +249,7 @@ class SafeUpgradeService
         $manifest['mode'] = 'manual';
 
         $this->persistManifest($manifest);
+        $this->lastManifest = $manifest;
         $this->pruneOldSnapshots();
 
         $this->reportProgress('complete', sprintf('Snapshot %s created.', $stageId), 100, [
@@ -409,6 +413,7 @@ class SafeUpgradeService
         $this->reportProgress('rollback', 'Restoring snapshot...', null);
         $this->copyEntries($entries, $backupPath, $this->rootPath, 'rollback', 'Restoring');
         $this->markRollback($manifest['id']);
+        $this->lastManifest = $manifest;
 
         return $manifest;
     }
@@ -422,6 +427,14 @@ class SafeUpgradeService
         if (is_file($flag)) {
             @unlink($flag);
         }
+    }
+
+    /**
+     * @return array|null
+     */
+    public function getLastManifest(): ?array
+    {
+        return $this->lastManifest;
     }
 
     /**

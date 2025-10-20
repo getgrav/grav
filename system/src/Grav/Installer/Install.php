@@ -120,6 +120,9 @@ final class Install
     /** @var VersionUpdater|null */
     private $updater;
 
+    /** @var array|null */
+    private $lastManifest = null;
+
     /** @var static */
     private static $instance;
     /** @var callable|null */
@@ -268,6 +271,8 @@ ERR;
             throw new RuntimeException('Oops, installer was run without prepare()!', 500);
         }
 
+        $this->lastManifest = null;
+
         try {
             if (null === $this->updater) {
                 $versions = Versions::instance(USER_DIR . 'config/versions.yaml');
@@ -294,7 +299,8 @@ ERR;
                         $this->relayProgress($stage, $message, $percent);
                     });
                 }
-                $service->promote($this->location, $this->getVersion(), $this->ignores);
+                $manifest = $service->promote($this->location, $this->getVersion(), $this->ignores);
+                $this->lastManifest = $service->getLastManifest() ?? $manifest;
                 Installer::setError(Installer::OK);
             } else {
                 Installer::install(
@@ -353,6 +359,8 @@ ERR;
         }
 
         $this->updater->postflight();
+
+        $this->ensureExecutablePermissions();
 
         Cache::clearCache('all');
 
@@ -455,5 +463,39 @@ ERR;
     {
         // Support install for Grav 1.6.0 - 1.6.20 by loading the original class from the older version of Grav.
         class_exists(\Grav\Console\Cli\CacheCommand::class, true);
+    }
+
+    private function ensureExecutablePermissions(): void
+    {
+        $executables = [
+            'bin/grav',
+            'bin/plugin',
+            'bin/gpm',
+            'bin/restore',
+            'bin/composer.phar'
+        ];
+
+        foreach ($executables as $relative) {
+            $path = GRAV_ROOT . '/' . $relative;
+            if (!is_file($path) || is_link($path)) {
+                continue;
+            }
+
+            $mode = @fileperms($path);
+            $current = $mode !== false ? ($mode & 0777) : 0644;
+            if (($current & 0111) === 0111) {
+                continue;
+            }
+
+            @chmod($path, $current | 0111);
+        }
+    }
+
+    /**
+     * @return array|null
+     */
+    public function getLastManifest(): ?array
+    {
+        return $this->lastManifest;
     }
 }
