@@ -1,3 +1,9 @@
+# v1.7.50.2
+## 10/21/2025
+
+1. [](#bugfix)
+    * Fix for `SafeUpgradeService::getLastManifest()` fatal error on upgrade [#3966](https://github.com/getgrav/grav/issues/3966)
+
 # v1.7.50.1
 ## 10/20/2025
 
