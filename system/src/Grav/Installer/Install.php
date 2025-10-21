@@ -300,7 +300,14 @@ ERR;
                     });
                 }
                 $manifest = $service->promote($this->location, $this->getVersion(), $this->ignores);
-                $this->lastManifest = $service->getLastManifest() ?? $manifest;
+                $this->lastManifest = $manifest;
+                if (method_exists($service, 'getLastManifest')) {
+                    // SafeUpgradeService in Grav < 1.7.50.1 does not expose getLastManifest().
+                    $lastManifest = $service->getLastManifest();
+                    if (null !== $lastManifest) {
+                        $this->lastManifest = $lastManifest;
+                    }
+                }
                 Installer::setError(Installer::OK);
             } else {
                 Installer::install(
