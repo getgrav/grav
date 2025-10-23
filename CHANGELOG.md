@@ -1,3 +1,9 @@
+# v1.7.50.3
+## 10/21/2025
+
+1. [](#bugfix)
+    * Restored `user/config/system.yaml` to 1.7 branch version (testing mode off)
+
 # v1.7.50.2
 ## 10/21/2025
 
