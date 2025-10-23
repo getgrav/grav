@@ -1,3 +1,11 @@
+# v1.8.0-beta.17
+## 10/23/2025
+
+1. [](#improved)
+    * Reworked `Monolog3` ship for better compatibility
+    * Latest vendor libraries
+    * Don't crash if `getManifest()` is not available
+
 # v1.8.0-beta.16
 ## 10/20/2025
 
