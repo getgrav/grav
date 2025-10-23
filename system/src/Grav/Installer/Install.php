@@ -300,7 +300,10 @@ ERR;
                     });
                 }
                 $manifest = $service->promote($this->location, $this->getVersion(), $this->ignores);
-                $this->lastManifest = $service->getLastManifest() ?? $manifest;
+                if (method_exists($service, 'getLastManifest')) {
+                    $manifest = $service->getLastManifest() ?? $manifest;
+                }
+                $this->lastManifest = $manifest;
                 Installer::setError(Installer::OK);
             } else {
                 Installer::install(
