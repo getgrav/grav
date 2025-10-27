@@ -13,7 +13,7 @@ jobs:
   unit-tests:
     strategy:
       matrix:
-        php: [8.4, 8.3]
+        php: [8.5, 8.4, 8.3]
         os: [ubuntu-latest]
 
     runs-on: ${{ matrix.os }}
@@ -46,7 +46,7 @@ jobs:
         run: composer install --prefer-dist --no-progress
 
       - name: Run test suite
-        run: vendor/bin/codecept run
+        run: php -d register_argc_argv=On vendor/bin/codecept run
 
 #  slack:
 #      name: Slack
