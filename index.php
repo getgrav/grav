@@ -22,6 +22,12 @@ if (PHP_SAPI === 'cli-server') {
 }
 
 if (PHP_SAPI !== 'cli') {
+    if (!isset($_SERVER['argv']) && !ini_get('register_argc_argv')) {
+        $queryString = $_SERVER['QUERY_STRING'] ?? '';
+        $_SERVER['argv'] = $queryString !== '' ? [$queryString] : [];
+        $_SERVER['argc'] = $queryString !== '' ? 1 : 0;
+    }
+
     $requestUri = $_SERVER['REQUEST_URI'] ?? '';
     $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
     $path = parse_url($requestUri, PHP_URL_PATH) ?? '/';
@@ -96,4 +102,3 @@ try {
 
     throw $e;
 }
-
