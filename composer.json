@@ -39,7 +39,6 @@
         "symfony/http-client": "^6.4 || ^7.0",
         "twig/twig": "3.x-dev",
         "monolog/monolog": "^3.0",
-        "doctrine/cache": "^2.2",
         "doctrine/collections": "^2.2",
         "pimple/pimple": "~3.5.0",
         "nyholm/psr7-server": "^1.1",

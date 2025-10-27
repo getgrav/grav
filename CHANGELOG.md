@@ -1,3 +1,9 @@
+# v1.8.0-beta.18
+## mm/dd/2025
+
+1. [](#improved)
+    * Replaced legacy Doctrine cache dependency with Symfony-backed provider while keeping compatibility layer
+    
 # v1.8.0-beta.17
 ## 10/23/2025
 
@@ -5,7 +11,7 @@
     * Reworked `Monolog3` ship for better compatibility
     * Latest vendor libraries
     * Don't crash if `getManifest()` is not available
-
+    
 # v1.8.0-beta.16
 ## 10/20/2025
 

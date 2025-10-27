@@ -11,11 +11,11 @@ namespace Grav\Common;
 
 use DirectoryIterator;
 use Doctrine\Common\Cache\CacheProvider;
-use Doctrine\Common\Cache\Psr6\DoctrineProvider;
 use Exception;
 use Grav\Common\Config\Config;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\Scheduler\Scheduler;
+use Grav\Common\Cache\SymfonyCacheProvider;
 use LogicException;
 use Psr\SimpleCache\CacheInterface;
 use RocketTheme\Toolbox\Event\Event;
@@ -34,7 +34,7 @@ use function is_array;
 
 /**
  * The GravCache object is used throughout Grav to store and retrieve cached data.
- * It uses Symfony library (adding backward compatibility to Doctrine Cache) and supports a variety of caching mechanisms. Those include:
+ * It uses Symfony cache pools (while exposing the historic Doctrine cache API for backward compatibility) and supports a variety of caching mechanisms. Those include:
  *
  * APCu
  * RedisCache
@@ -390,12 +390,12 @@ class Cache extends Getters
             $adapter = $this->getCacheAdapter();
         }
 
-        $cache = DoctrineProvider::wrap($adapter);
-        if (!$cache instanceof CacheProvider) {
-            throw new \RuntimeException('Internal error');
+        $driver = new SymfonyCacheProvider($adapter);
+        if ($adapter === $this->adapter) {
+            $driver->setNamespace($this->key);
         }
 
-        return $cache;
+        return $driver;
     }
 
     /**
@@ -493,7 +493,10 @@ class Cache extends Getters
     public function setKey($key)
     {
         $this->key = $key;
-        $this->driver->setNamespace($this->key);
+        if ($this->driver instanceof CacheProvider) {
+            $this->driver->setNamespace($this->key);
+        }
+        $this->simpleCache = null;
     }
 
     /**
