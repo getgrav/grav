@@ -143,6 +143,7 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
             new TwigFilter('wordcount', [$this, 'wordCountFilter']),
             new TwigFilter('json_decode', [$this, 'jsonDecodeFilter']),
             new TwigFilter('array_unique', 'array_unique'),
+            new TwigFilter('array_group_by', [$this, 'arrayGroupByFilter'], ['needs_environment' => true]),
             new TwigFilter('basename', 'basename'),
             new TwigFilter('dirname', 'dirname'),
             new TwigFilter('print_r', [$this, 'print_r']),
@@ -192,6 +193,7 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
             new TwigFunction('array_key_exists', 'array_key_exists'),
             new TwigFunction('array_unique', 'array_unique'),
             new TwigFunction('array_intersect', [$this, 'arrayIntersectFunc']),
+            new TwigFunction('array_group_by', [$this, 'arrayGroupByFilter'], ['needs_environment' => true]),
             new TwigFunction('array_diff', 'array_diff'),
             new TwigFunction('authorize', [$this, 'authorize']),
             new TwigFunction('debug', [$this, 'dump'], ['needs_context' => true, 'needs_environment' => true]),
@@ -1279,6 +1281,67 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
             $str = '';
         }
         return json_decode(html_entity_decode($str, ENT_COMPAT | ENT_HTML401, 'UTF-8'), $assoc, $depth, $options);
+    }
+
+    /**
+     * Group items in an array by the results of a callback function
+     *
+     * @param Environment $env The Twig environment
+     * @param array|\Traversable $array The array or collection to group
+     * @param string|callable $callback Property name or callable to determine group key
+     * @return array Grouped array with keys as group identifiers and values as arrays of items
+     */
+    public function arrayGroupByFilter(Environment $env, $array, $callback): array
+    {
+        $groups = [];
+        
+        // Convert to array if it's a Traversable object (like Grav Collections)
+        if ($array instanceof \Traversable) {
+            $array = iterator_to_array($array);
+        }
+        
+        if (!is_array($array)) {
+            return [];
+        }
+        
+        foreach ($array as $key => $item) {
+            // If callback is a string, treat it as a property/method name
+            if (is_string($callback)) {
+                // Try to get the value using different methods
+                if (is_array($item) && isset($item[$callback])) {
+                    $groupKey = $item[$callback];
+                } elseif (is_object($item)) {
+                    if (method_exists($item, $callback)) {
+                        $groupKey = $item->$callback();
+                    } elseif (property_exists($item, $callback)) {
+                        $groupKey = $item->$callback;
+                    } elseif (method_exists($item, '__get')) {
+                        $groupKey = $item->$callback;
+                    } else {
+                        $groupKey = 'undefined';
+                    }
+                } else {
+                    $groupKey = 'undefined';
+                }
+            } else {
+                // Execute the callback function
+                try {
+                    $groupKey = call_user_func($callback, $item, $key, $env);
+                } catch (\Exception $e) {
+                    $groupKey = 'undefined';
+                }
+            }
+            
+            // Initialize group array if it doesn't exist
+            if (!isset($groups[$groupKey])) {
+                $groups[$groupKey] = [];
+            }
+            
+            // Add item to its group
+            $groups[$groupKey][] = $item;
+        }
+        
+        return $groups;
     }
 
     /**
