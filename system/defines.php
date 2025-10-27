@@ -15,7 +15,7 @@ define('GRAV_TESTING', true);
 
 // PHP minimum requirement
 if (!defined('GRAV_PHP_MIN')) {
-    define('GRAV_PHP_MIN', '8.2.0');
+    define('GRAV_PHP_MIN', '8.3.0');
 }
 
 // Directory separator

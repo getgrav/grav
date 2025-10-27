@@ -128,7 +128,7 @@
 ## 10/23/2024
 
 1. [](#new)
-    * Set minimum requirements to **PHP 8.2**
+    * Set minimum requirements to **PHP 8.3**
     * Updated to **Twig 2.14**
     * Updated to **Symfony 6.4**
     * Updated to **Monolog 2.3**
