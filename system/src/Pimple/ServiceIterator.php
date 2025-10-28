@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of Pimple.
  *
@@ -26,15 +28,23 @@
 
 namespace Pimple;
 
+use Iterator;
+use function current;
+use function key;
+use function next;
+use function reset;
+
 /**
  * Lazy service iterator.
  *
  * @author Pascal Luna <skalpa@zetareticuli.org>
  */
-final class ServiceIterator implements \Iterator
+final class ServiceIterator implements Iterator
 {
-    private $container;
-    private $ids;
+    private Container $container;
+
+    /** @var list<string|int> */
+    private array $ids;
 
     public function __construct(Container $container, array $ids)
     {
@@ -42,48 +52,30 @@ final class ServiceIterator implements \Iterator
         $this->ids = $ids;
     }
 
-    /**
-     * @return void
-     */
-    #[\ReturnTypeWillChange]
-    public function rewind()
+    public function rewind(): void
     {
-        \reset($this->ids);
+        reset($this->ids);
     }
 
-    /**
-     * @return mixed
-     */
-    #[\ReturnTypeWillChange]
-    public function current()
+    public function current(): mixed
     {
-        return $this->container[\current($this->ids)];
+        return $this->container[current($this->ids)];
     }
 
-    /**
-     * @return mixed
-     */
-    #[\ReturnTypeWillChange]
-    public function key()
+    public function key(): string|int|null
     {
-        return \current($this->ids);
+        $key = current($this->ids);
+
+        return $key === false ? null : $key;
     }
 
-    /**
-     * @return void
-     */
-    #[\ReturnTypeWillChange]
-    public function next()
+    public function next(): void
     {
-        \next($this->ids);
+        next($this->ids);
     }
 
-    /**
-     * @return bool
-     */
-    #[\ReturnTypeWillChange]
-    public function valid()
+    public function valid(): bool
     {
-        return null !== \key($this->ids);
+        return null !== key($this->ids);
     }
 }

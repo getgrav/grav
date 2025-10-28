@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of Pimple.
  *
@@ -26,24 +28,41 @@
 
 namespace Pimple;
 
+use ArrayAccess;
 use Pimple\Exception\ExpectedInvokableException;
 use Pimple\Exception\FrozenServiceException;
 use Pimple\Exception\InvalidServiceIdentifierException;
 use Pimple\Exception\UnknownIdentifierException;
+use SplObjectStorage;
+use function array_keys;
+use function is_object;
+use function is_string;
+use function method_exists;
+use function sprintf;
+use function trigger_error;
 
 /**
  * Container main class.
  *
  * @author Fabien Potencier
  */
-class Container implements \ArrayAccess
+class Container implements ArrayAccess
 {
-    private $values = [];
-    private $factories;
-    private $protected;
-    private $frozen = [];
-    private $raw = [];
-    private $keys = [];
+    /** @var array<string,mixed> */
+    private array $values = [];
+
+    private SplObjectStorage $factories;
+
+    private SplObjectStorage $protected;
+
+    /** @var array<string,bool> */
+    private array $frozen = [];
+
+    /** @var array<string,mixed> */
+    private array $raw = [];
+
+    /** @var array<string,bool> */
+    private array $keys = [];
 
     /**
      * Instantiates the container.
@@ -54,8 +73,8 @@ class Container implements \ArrayAccess
      */
     public function __construct(array $values = [])
     {
-        $this->factories = new \SplObjectStorage();
-        $this->protected = new \SplObjectStorage();
+        $this->factories = new SplObjectStorage();
+        $this->protected = new SplObjectStorage();
 
         foreach ($values as $key => $value) {
             $this->offsetSet($key, $value);
@@ -78,9 +97,12 @@ class Container implements \ArrayAccess
      *
      * @throws FrozenServiceException Prevent override of a frozen service
      */
-    #[\ReturnTypeWillChange]
-    public function offsetSet($id, $value)
+    public function offsetSet(mixed $id, mixed $value): void
     {
+        if (!is_string($id)) {
+            throw new InvalidServiceIdentifierException($id);
+        }
+
         if (isset($this->frozen[$id])) {
             throw new FrozenServiceException($id);
         }
@@ -98,18 +120,21 @@ class Container implements \ArrayAccess
      *
      * @throws UnknownIdentifierException If the identifier is not defined
      */
-    #[\ReturnTypeWillChange]
-    public function offsetGet($id)
+    public function offsetGet(mixed $id): mixed
     {
+        if (!is_string($id)) {
+            throw new InvalidServiceIdentifierException($id);
+        }
+
         if (!isset($this->keys[$id])) {
             throw new UnknownIdentifierException($id);
         }
 
         if (
             isset($this->raw[$id])
-            || !\is_object($this->values[$id])
+            || !is_object($this->values[$id])
             || isset($this->protected[$this->values[$id]])
-            || !\method_exists($this->values[$id], '__invoke')
+            || !method_exists($this->values[$id], '__invoke')
         ) {
             return $this->values[$id];
         }
@@ -134,10 +159,9 @@ class Container implements \ArrayAccess
      *
      * @return bool
      */
-    #[\ReturnTypeWillChange]
-    public function offsetExists($id)
+    public function offsetExists(mixed $id): bool
     {
-        return isset($this->keys[$id]);
+        return is_string($id) && isset($this->keys[$id]);
     }
 
     /**
@@ -147,11 +171,14 @@ class Container implements \ArrayAccess
      *
      * @return void
      */
-    #[\ReturnTypeWillChange]
-    public function offsetUnset($id)
+    public function offsetUnset(mixed $id): void
     {
+        if (!is_string($id)) {
+            throw new InvalidServiceIdentifierException($id);
+        }
+
         if (isset($this->keys[$id])) {
-            if (\is_object($this->values[$id])) {
+            if (is_object($this->values[$id])) {
                 unset($this->factories[$this->values[$id]], $this->protected[$this->values[$id]]);
             }
 
@@ -168,9 +195,9 @@ class Container implements \ArrayAccess
      *
      * @throws ExpectedInvokableException Service definition has to be a closure or an invokable object
      */
-    public function factory($callable)
+    public function factory(object $callable): object
     {
-        if (!\is_object($callable) || !\method_exists($callable, '__invoke')) {
+        if (!method_exists($callable, '__invoke')) {
             throw new ExpectedInvokableException('Service definition is not a Closure or invokable object.');
         }
 
@@ -190,9 +217,9 @@ class Container implements \ArrayAccess
      *
      * @throws ExpectedInvokableException Service definition has to be a closure or an invokable object
      */
-    public function protect($callable)
+    public function protect(object $callable): object
     {
-        if (!\is_object($callable) || !\method_exists($callable, '__invoke')) {
+        if (!method_exists($callable, '__invoke')) {
             throw new ExpectedInvokableException('Callable is not a Closure or invokable object.');
         }
 
@@ -210,7 +237,7 @@ class Container implements \ArrayAccess
      *
      * @throws UnknownIdentifierException If the identifier is not defined
      */
-    public function raw($id)
+    public function raw(string $id): mixed
     {
         if (!isset($this->keys[$id])) {
             throw new UnknownIdentifierException($id);
@@ -239,7 +266,7 @@ class Container implements \ArrayAccess
      * @throws InvalidServiceIdentifierException If the identifier belongs to a parameter
      * @throws ExpectedInvokableException        If the extension callable is not a closure or an invokable object
      */
-    public function extend($id, $callable)
+    public function extend(string $id, object $callable): object
     {
         if (!isset($this->keys[$id])) {
             throw new UnknownIdentifierException($id);
@@ -249,22 +276,22 @@ class Container implements \ArrayAccess
             throw new FrozenServiceException($id);
         }
 
-        if (!\is_object($this->values[$id]) || !\method_exists($this->values[$id], '__invoke')) {
+        if (!is_object($this->values[$id]) || !method_exists($this->values[$id], '__invoke')) {
             throw new InvalidServiceIdentifierException($id);
         }
 
         if (isset($this->protected[$this->values[$id]])) {
-            @\trigger_error(\sprintf('How Pimple behaves when extending protected closures will be fixed in Pimple 4. Are you sure "%s" should be protected?', $id), E_USER_DEPRECATED);
+            @trigger_error(sprintf('How Pimple behaves when extending protected closures will be fixed in Pimple 4. Are you sure "%s" should be protected?', $id), E_USER_DEPRECATED);
         }
 
-        if (!\is_object($callable) || !\method_exists($callable, '__invoke')) {
+        if (!method_exists($callable, '__invoke')) {
             throw new ExpectedInvokableException('Extension service definition is not a Closure or invokable object.');
         }
 
         $factory = $this->values[$id];
 
-        $extended = function ($c) use ($callable, $factory) {
-            return $callable($factory($c), $c);
+        $extended = function (self $container) use ($callable, $factory): mixed {
+            return $callable($factory($container), $container);
         };
 
         if (isset($this->factories[$factory])) {
@@ -280,9 +307,9 @@ class Container implements \ArrayAccess
      *
      * @return array An array of value names
      */
-    public function keys()
+    public function keys(): array
     {
-        return \array_keys($this->values);
+        return array_keys($this->values);
     }
 
     /**
@@ -292,7 +319,7 @@ class Container implements \ArrayAccess
      *
      * @return static
      */
-    public function register(ServiceProviderInterface $provider, array $values = [])
+    public function register(ServiceProviderInterface $provider, array $values = []): static
     {
         $provider->register($this);
 
