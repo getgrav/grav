@@ -50,3 +50,4 @@ system/templates/testing/*
 /user/config/versions.yaml
 /user/data/recovery.window
 tmp/*
+/AGENTS.md

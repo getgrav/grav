@@ -40,7 +40,6 @@
         "twig/twig": "3.x-dev",
         "monolog/monolog": "^3.0",
         "doctrine/collections": "^2.2",
-        "pimple/pimple": "~3.5.0",
         "nyholm/psr7-server": "^1.1",
         "nyholm/psr7": "^1.8",
         "erusev/parsedown": "^1.7",
@@ -114,7 +113,8 @@
             "Grav\\": "system/src/Grav",
             "Doctrine\\": "system/src/Doctrine",
             "RocketTheme\\": "system/src/RocketTheme",
-            "Twig\\": "system/src/Twig"
+            "Twig\\": "system/src/Twig",
+            "Pimple\\": "system/src/Pimple"
         },
         "files": [
             "system/defines.php",
