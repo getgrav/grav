@@ -51,3 +51,4 @@ system/templates/testing/*
 /system/recovery.window
 tmp/*
 #needs_fixing.txt
+/AGENTS.md

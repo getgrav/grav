@@ -23,30 +23,39 @@ use RecursiveIteratorIterator;
 use FilesystemIterator;
 use function array_key_exists;
 use function basename;
+use function chgrp;
+use function chmod;
+use function chown;
 use function copy;
 use function count;
 use function dirname;
 use function file_get_contents;
 use function file_put_contents;
+use function filegroup;
+use function fileowner;
 use function glob;
 use function in_array;
 use function is_dir;
 use function is_file;
 use function json_decode;
 use function json_encode;
+use function lchgrp;
+use function lchown;
 use function preg_match;
+use function preg_replace;
 use function property_exists;
 use function rename;
 use function rsort;
 use function sort;
-use function time;
 use function rtrim;
-use function uniqid;
-use function trim;
 use function strpos;
+use function time;
+use function trim;
+use function uniqid;
 use function unlink;
 use function ltrim;
-use function preg_replace;
+use function posix_getgrgid;
+use function posix_getpwuid;
 use const GRAV_ROOT;
 use const GLOB_ONLYDIR;
 use const JSON_PRETTY_PRINT;
@@ -179,21 +188,26 @@ class SafeUpgradeService
         $stagingMode = $this->stageExtractedPackage($extractedPath, $packagePath);
         $this->reportProgress('installing', 'Preparing staged package...', null, ['mode' => $stagingMode]);
 
+        $packageEntries = $this->collectPackageEntries($packagePath);
+
         $this->carryOverRootDotfiles($packagePath);
 
         // Ensure ignored directories are replaced with live copies.
         $this->hydrateIgnoredDirectories($packagePath, $ignores);
         $this->carryOverRootFiles($packagePath, $ignores);
 
-        $entries = $this->collectPackageEntries($packagePath);
-        if (!$entries) {
+        $snapshotEntries = $this->collectPackageEntries($packagePath);
+        if (!$packageEntries) {
             throw new RuntimeException('Staged package does not contain any files to promote.');
+        }
+        if (!$snapshotEntries) {
+            $snapshotEntries = $packageEntries;
         }
 
         $this->reportProgress('snapshot', 'Creating backup snapshot...', null);
-        $this->createBackupSnapshot($entries, $backupPath);
+        $this->createBackupSnapshot($snapshotEntries, $backupPath);
 
-        $manifest = $this->buildManifest($stageId, $targetVersion, $packagePath, $backupPath, $entries);
+        $manifest = $this->buildManifest($stageId, $targetVersion, $packagePath, $backupPath, $snapshotEntries);
         $manifestPath = $stagePath . DIRECTORY_SEPARATOR . 'manifest.json';
         Folder::create(dirname($manifestPath));
         file_put_contents($manifestPath, json_encode($manifest, JSON_PRETTY_PRINT));
@@ -201,9 +215,9 @@ class SafeUpgradeService
         $this->reportProgress('installing', 'Copying update files...', null);
 
         try {
-            $this->copyEntries($entries, $packagePath, $this->rootPath, 'installing', 'Deploying');
+            $this->copyEntries($packageEntries, $packagePath, $this->rootPath, 'installing', 'Deploying');
         } catch (Throwable $e) {
-            $this->copyEntries($entries, $backupPath, $this->rootPath, 'installing', 'Restoring');
+            $this->copyEntries($snapshotEntries, $backupPath, $this->rootPath, 'installing', 'Restoring');
             throw new RuntimeException('Failed to promote staged Grav release.', 0, $e);
         }
 
@@ -334,6 +348,7 @@ class SafeUpgradeService
             }
 
             $destination = $targetBase . DIRECTORY_SEPARATOR . $entry;
+            $metadata = $this->captureEntryMeta($destination);
             $this->removeEntry($destination);
 
             if (is_link($source)) {
@@ -341,9 +356,13 @@ class SafeUpgradeService
                 if (!@symlink(readlink($source), $destination)) {
                     throw new RuntimeException(sprintf('Failed to replicate symlink "%s".', $source));
                 }
+                $this->applyEntryMeta($destination, $metadata);
+                continue;
             } elseif (is_dir($source)) {
                 Folder::create(dirname($destination));
                 Folder::rcopy($source, $destination, true);
+                $this->applyEntryMeta($destination, $metadata);
+                continue;
             } else {
                 Folder::create(dirname($destination));
                 if (!@copy($source, $destination)) {
@@ -358,6 +377,8 @@ class SafeUpgradeService
                     @touch($destination, $mtime);
                 }
             }
+
+            $this->applyEntryMeta($destination, $metadata);
         }
     }
 
@@ -368,6 +389,122 @@ class SafeUpgradeService
         } elseif (is_dir($path)) {
             Folder::delete($path);
         }
+    }
+
+    /**
+     * Capture ownership and permission data for an existing filesystem entry.
+     *
+     * @param string $path
+     * @return array<string, mixed>
+     */
+    private function captureEntryMeta(string $path): array
+    {
+        if (!file_exists($path) && !is_link($path)) {
+            return [];
+        }
+
+        $meta = [
+            'link' => is_link($path),
+        ];
+
+        $perms = @fileperms($path);
+        if ($perms !== false) {
+            $meta['perms'] = $perms & 0777;
+        }
+
+        $owner = @fileowner($path);
+        if ($owner !== false) {
+            $meta['owner'] = $owner;
+        }
+
+        $group = @filegroup($path);
+        if ($group !== false) {
+            $meta['group'] = $group;
+        }
+
+        return $meta;
+    }
+
+    /**
+     * Reapply ownership and permission data to a copied entry when possible.
+     *
+     * @param string $path
+     * @param array<string, mixed> $meta
+     * @return void
+     */
+    private function applyEntryMeta(string $path, array $meta): void
+    {
+        if (!$meta) {
+            return;
+        }
+
+        if (isset($meta['perms'])) {
+            @chmod($path, (int) $meta['perms']);
+        }
+
+        $isLink = !empty($meta['link']);
+
+        if (isset($meta['owner'])) {
+            $owner = $this->resolveOwner($meta['owner']);
+            if ($isLink && function_exists('lchown')) {
+                @lchown($path, $owner);
+            } elseif (!$isLink && function_exists('chown')) {
+                @chown($path, $owner);
+            }
+        }
+
+        if (isset($meta['group'])) {
+            $group = $this->resolveGroup($meta['group']);
+            if ($isLink && function_exists('lchgrp')) {
+                @lchgrp($path, $group);
+            } elseif (!$isLink && function_exists('chgrp')) {
+                @chgrp($path, $group);
+            }
+        }
+    }
+
+    /**
+     * Resolve stored owner identifier to a format accepted by chown/lchown.
+     *
+     * @param int|string $owner
+     * @return int|string
+     */
+    private function resolveOwner($owner)
+    {
+        if (is_string($owner)) {
+            return $owner;
+        }
+
+        if (function_exists('posix_getpwuid')) {
+            $info = @posix_getpwuid((int) $owner);
+            if (is_array($info) && isset($info['name'])) {
+                return $info['name'];
+            }
+        }
+
+        return (int) $owner;
+    }
+
+    /**
+     * Resolve stored group identifier to a format accepted by chgrp/lchgrp.
+     *
+     * @param int|string $group
+     * @return int|string
+     */
+    private function resolveGroup($group)
+    {
+        if (is_string($group)) {
+            return $group;
+        }
+
+        if (function_exists('posix_getgrgid')) {
+            $info = @posix_getgrgid((int) $group);
+            if (is_array($info) && isset($info['name'])) {
+                return $info['name'];
+            }
+        }
+
+        return (int) $group;
     }
 
     public function setProgressCallback(?callable $callback): self
