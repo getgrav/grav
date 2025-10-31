@@ -1,3 +1,9 @@
+# v1.7.50.4
+## 10/31/2025
+
+1. [](#improved)
+    * More fixes and improvements for safe-uprade process
+
 # v1.7.50.3
 ## 10/21/2025
 
