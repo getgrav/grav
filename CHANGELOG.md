@@ -1,8 +1,9 @@
 # v1.8.0-beta.18
-## mm/dd/2025
+## 10/31/2025
 
 1. [](#improved)
     * Replaced legacy Doctrine cache dependency with Symfony-backed provider while keeping compatibility layer
+    * More safe-upgrade improvements
     
 # v1.8.0-beta.17
 ## 10/23/2025
