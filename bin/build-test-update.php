@@ -1,0 +1,209 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+use Grav\Common\Filesystem\Folder;
+
+
+require __DIR__ . '/../vendor/autoload.php';
+
+if (!\defined('GRAV_ROOT')) {
+    \define('GRAV_ROOT', realpath(__DIR__ . '/..') ?: getcwd());
+}
+
+if (!\extension_loaded('zip')) {
+    fwrite(STDERR, "The PHP zip extension is required.\n");
+    exit(1);
+}
+
+$options = getopt('', [
+    'version:',
+    'output::',
+    'port::',
+    'base-url::',
+    'serve',
+]);
+
+if (!isset($options['version'])) {
+    fwrite(
+        STDERR,
+        "Usage: php bin/build-test-update.php --version=1.7.999 [--output=tmp/test-gpm] [--port=8043] [--base-url=http://127.0.0.1:8043] [--serve]\n"
+    );
+    exit(1);
+}
+
+$version = trim((string) $options['version']);
+if ($version === '') {
+    fwrite(STDERR, "A non-empty --version value is required.\n");
+    exit(1);
+}
+
+$root = GRAV_ROOT;
+
+$output = $options['output'] ?? $root . '/tmp/test-gpm';
+if (!str_starts_with($output, DIRECTORY_SEPARATOR)) {
+    $output = $root . '/' . ltrim($output, '/');
+}
+$output = rtrim($output, DIRECTORY_SEPARATOR);
+
+$defaultPort = isset($options['port']) ? (int) $options['port'] : 8043;
+$baseUrl = $options['base-url'] ?? sprintf('http://127.0.0.1:%d', $defaultPort);
+$serve = array_key_exists('serve', $options);
+
+Folder::create($output);
+
+$downloadName = sprintf('grav-update-%s.zip', $version);
+$zipPath = $output . '/' . $downloadName;
+$jsonPath = $output . '/grav.json';
+$zipPrefix = 'grav-update/';
+
+$excludeDirs = [
+    '.build',
+    '.crush',
+    '.ddev',
+    '.git',
+    '.github',
+    '.gitlab',
+    '.circleci',
+    '.idea',
+    '.vscode',
+    '.pytest_cache',
+    'backup',
+    'cache',
+    'images',
+    'logs',
+    'node_modules',
+    'tests',
+    'tmp',
+    'user',
+];
+
+$excludeFiles = [
+    '.htaccess',
+    '.DS_Store',
+    'robots.txt',
+];
+
+$directory = new RecursiveDirectoryIterator($root, RecursiveDirectoryIterator::SKIP_DOTS);
+$filtered = new RecursiveCallbackFilterIterator(
+    $directory,
+    function (SplFileInfo $current) use ($root, $excludeDirs, $excludeFiles): bool {
+        $relative = ltrim(str_replace($root, '', $current->getPathname()), DIRECTORY_SEPARATOR);
+        $relative = str_replace('\\', '/', $relative);
+
+        if ($relative === '') {
+            return true;
+        }
+
+        if (str_contains($relative, '..')) {
+            return false;
+        }
+
+        foreach ($excludeDirs as $prefix) {
+            $prefix = trim($prefix, '/');
+            if ($prefix === '') {
+                continue;
+            }
+
+            if ($relative === $prefix || str_starts_with($relative, $prefix . '/')) {
+                return false;
+            }
+        }
+
+        if (in_array($current->getFilename(), $excludeFiles, true)) {
+            return false;
+        }
+
+        return true;
+    }
+);
+
+$zip = new ZipArchive();
+if ($zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) {
+    throw new RuntimeException(sprintf('Unable to open archive at %s', $zipPath));
+}
+
+$zip->addEmptyDir($zipPrefix);
+
+$iterator = new RecursiveIteratorIterator($filtered, RecursiveIteratorIterator::SELF_FIRST);
+/** @var SplFileInfo $fileInfo */
+foreach ($iterator as $fileInfo) {
+    $fullPath = $fileInfo->getPathname();
+    $relative = ltrim(str_replace($root, '', $fullPath), DIRECTORY_SEPARATOR);
+    $relative = str_replace('\\', '/', $relative);
+    $targetPath = $zipPrefix . $relative;
+
+    if ($fileInfo->isDir()) {
+        $zip->addEmptyDir(rtrim($targetPath, '/') . '/');
+        continue;
+    }
+
+    if ($fileInfo->isLink()) {
+        $target = readlink($fullPath);
+        $zip->addFromString($targetPath, $target === false ? '' : $target);
+        $zip->setExternalAttributesName($targetPath, ZipArchive::OPSYS_UNIX, 0120000 << 16);
+        continue;
+    }
+
+    $zip->addFile($fullPath, $targetPath);
+
+    $perms = @fileperms($fullPath);
+    if ($perms !== false) {
+        $zip->setExternalAttributesName($targetPath, ZipArchive::OPSYS_UNIX, ($perms & 0xFFFF) << 16);
+    }
+}
+
+$zip->close();
+
+$size = filesize($zipPath);
+$sha256 = hash_file('sha256', $zipPath);
+$timestamp = date('c');
+$downloadUrl = rtrim($baseUrl, '/') . '/' . rawurlencode($downloadName);
+
+$manifest = [
+    'version' => $version,
+    'date' => $timestamp,
+    'min_php' => '8.3.0',
+    'assets' => [
+        'grav-update' => [
+            'name' => $downloadName,
+            'slug' => 'grav-update',
+            'version' => $version,
+            'date' => $timestamp,
+            'testing' => false,
+            'description' => 'Local test update package generated for safe-upgrade validation.',
+            'download' => $downloadUrl,
+            'size' => $size,
+            'checksum' => 'sha256:' . $sha256,
+            'sha256' => $sha256,
+            'host' => parse_url($downloadUrl, PHP_URL_HOST),
+        ],
+    ],
+    'changelog' => [
+        $version => [
+            'date' => $timestamp,
+            'content' => "- Local test update package generated by build-test-update.\n",
+        ],
+    ],
+];
+
+file_put_contents($jsonPath, json_encode($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . PHP_EOL);
+
+$manifestUrl = rtrim($baseUrl, '/') . '/grav.json';
+
+echo "Update package created at: {$zipPath}\n";
+echo "Manifest written to: {$jsonPath}\n";
+echo "Manifest URL: {$manifestUrl}\n";
+echo "Download URL: {$downloadUrl}\n";
+echo "Archive size: {$size} bytes\n";
+echo "SHA256: {$sha256}\n";
+
+if ($serve) {
+    $host = parse_url($baseUrl, PHP_URL_HOST) ?: '127.0.0.1';
+    $port = parse_url($baseUrl, PHP_URL_PORT) ?: $defaultPort;
+    $command = sprintf('php -S %s:%d -t %s', $host, $port, escapeshellarg($output));
+    echo "\nServing files using PHP built-in server. Press Ctrl+C to stop.\n";
+    echo $command . "\n\n";
+    passthru($command);
+}
