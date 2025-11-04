@@ -125,6 +125,8 @@ final class Install
 
     /** @var static */
     private static $instance;
+    /** @var bool|null */
+    private static $forceSafeUpgrade = null;
     /** @var callable|null */
     private $progressCallback = null;
 
@@ -138,6 +140,17 @@ final class Install
         }
 
         return self::$instance;
+    }
+
+    /**
+     * Force safe-upgrade mode independently of system configuration.
+     *
+     * @param bool|null $state
+     * @return void
+     */
+    public static function forceSafeUpgrade(?bool $state = true): void
+    {
+        self::$forceSafeUpgrade = $state;
     }
 
     private function __construct()
@@ -334,6 +347,10 @@ ERR;
     {
         if (!class_exists(SafeUpgradeService::class)) {
             return false;
+        }
+
+        if (null !== self::$forceSafeUpgrade) {
+            return self::$forceSafeUpgrade;
         }
 
         try {
