@@ -247,7 +247,9 @@ class SelfupgradeCommand extends GpmCommand
                     $io->newLine();
                     foreach ($changelog as $version => $log) {
                         $title = $version . ' [' . $log['date'] . ']';
-                        $content = preg_replace_callback('/\d\.\s\[\]\(#(.*)\)/', static fn($match) => "\n" . ucfirst((string) $match[1]) . ':', (string) $log['content']);
+                        $content = preg_replace_callback('/\d\.\s\[\]\(#(.*)\)/', static function ($match) {
+                            return "\n" . ucfirst((string) $match[1]) . ':';
+                        }, (string) $log['content']);
 
                         $io->writeln($title);
                         $io->writeln(str_repeat('-', strlen($title)));
