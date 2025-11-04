@@ -20,12 +20,14 @@ use LogicException;
 use Psr\SimpleCache\CacheInterface;
 use RocketTheme\Toolbox\Event\Event;
 use Symfony\Component\Cache\Adapter\AdapterInterface;
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Cache\Adapter\ApcuAdapter;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Cache\Adapter\MemcachedAdapter;
 use Symfony\Component\Cache\Adapter\RedisAdapter;
 use Symfony\Component\Cache\Psr16Cache;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Throwable;
 use function dirname;
 use function extension_loaded;
 use function function_exists;
@@ -295,10 +297,28 @@ class Cache extends Getters
     public function getCacheAdapter(?string $namespace = null, ?int $defaultLifetime = null): AdapterInterface
     {
         $setting = $this->driver_setting ?? 'auto';
+        $original_setting = $setting;
         $driver_name = 'file';
+        $adapter = null;
+        $compatibility = [
+            'filesystem' => 'file',
+            'files' => 'file',
+            'doctrine' => 'file',
+            'apc' => 'apcu',
+            'memcache' => 'memcached',
+        ];
 
-        if (in_array($setting, ['apc', 'xcache', 'wincache', 'memcache'], true)) {
-            throw new LogicException(sprintf('Cache driver for %s has been removed, use auto, file, apcu or memcached instead!', $setting));
+        if (isset($compatibility[$setting])) {
+            $mapped = $compatibility[$setting];
+            if ($mapped !== $setting) {
+                $this->logCacheFallback($original_setting, $mapped, 'legacy cache driver detected');
+            }
+            $setting = $mapped;
+        }
+
+        if (in_array($setting, ['xcache', 'wincache'], true)) {
+            $this->logCacheFallback($original_setting, 'file', 'unsupported cache driver removed in Grav 1.8');
+            $setting = 'file';
         }
 
         // CLI compatibility requires a non-volatile cache driver
@@ -314,67 +334,121 @@ class Cache extends Getters
             $driver_name = $setting;
         }
 
-        $this->driver_name = $driver_name;
         $namespace ??= $this->key;
         $defaultLifetime ??= 0;
+        $resolved_driver_name = $driver_name;
 
         switch ($driver_name) {
             case 'apc':
             case 'apcu':
-                $adapter = new ApcuAdapter($namespace, $defaultLifetime);
+                if (extension_loaded('apcu')) {
+                    $adapter = new ApcuAdapter($namespace, $defaultLifetime);
+                    $resolved_driver_name = 'apcu';
+                } else {
+                    $this->logCacheFallback($driver_name, 'file', 'APCu extension not loaded');
+                    $adapter = $this->createFilesystemAdapter($namespace, $defaultLifetime);
+                    $resolved_driver_name = 'file';
+                }
                 break;
 
             case 'memcached':
                 if (extension_loaded('memcached')) {
                     $memcached = new \Memcached();
-                    $memcached->addServer(
+                    $connected = $memcached->addServer(
                         $this->config->get('system.cache.memcached.server', 'localhost'),
                         $this->config->get('system.cache.memcached.port', 11211)
                     );
-                    $adapter = new MemcachedAdapter($memcached, $namespace, $defaultLifetime);
+                    if ($connected) {
+                        $adapter = new MemcachedAdapter($memcached, $namespace, $defaultLifetime);
+                        $resolved_driver_name = 'memcached';
+                    } else {
+                        $this->logCacheFallback($driver_name, 'file', 'Memcached server configuration failed');
+                        $adapter = $this->createFilesystemAdapter($namespace, $defaultLifetime);
+                        $resolved_driver_name = 'file';
+                    }
                 } else {
-                    throw new LogicException('Memcached PHP extension has not been installed');
+                    $this->logCacheFallback($driver_name, 'file', 'Memcached extension not installed');
+                    $adapter = $this->createFilesystemAdapter($namespace, $defaultLifetime);
+                    $resolved_driver_name = 'file';
                 }
                 break;
 
             case 'redis':
                 if (extension_loaded('redis')) {
                     $redis = new \Redis();
-                    $socket = $this->config->get('system.cache.redis.socket', false);
-                    $password = $this->config->get('system.cache.redis.password', false);
-                    $databaseId = $this->config->get('system.cache.redis.database', 0);
+                    try {
+                        $socket = $this->config->get('system.cache.redis.socket', false);
+                        $password = $this->config->get('system.cache.redis.password', false);
+                        $databaseId = $this->config->get('system.cache.redis.database', 0);
 
-                    if ($socket) {
-                        $redis->connect($socket);
-                    } else {
-                        $redis->connect(
-                            $this->config->get('system.cache.redis.server', 'localhost'),
-                            $this->config->get('system.cache.redis.port', 6379)
-                        );
+                        if ($socket) {
+                            $redis->connect($socket);
+                        } else {
+                            $redis->connect(
+                                $this->config->get('system.cache.redis.server', 'localhost'),
+                                $this->config->get('system.cache.redis.port', 6379)
+                            );
+                        }
+
+                        // Authenticate with password if set
+                        if ($password && !$redis->auth($password)) {
+                            throw new \RedisException('Redis authentication failed');
+                        }
+
+                        // Select alternate ( !=0 ) database ID if set
+                        if ($databaseId && !$redis->select($databaseId)) {
+                            throw new \RedisException('Could not select alternate Redis database ID');
+                        }
+
+                        $adapter = new RedisAdapter($redis, $namespace, $defaultLifetime);
+                        $resolved_driver_name = 'redis';
+                    } catch (Throwable $e) {
+                        $this->logCacheFallback($driver_name, 'file', $e->getMessage());
+                        $adapter = $this->createFilesystemAdapter($namespace, $defaultLifetime);
+                        $resolved_driver_name = 'file';
                     }
-
-                    // Authenticate with password if set
-                    if ($password && !$redis->auth($password)) {
-                        throw new \RedisException('Redis authentication failed');
-                    }
-
-                    // Select alternate ( !=0 ) database ID if set
-                    if ($databaseId && !$redis->select($databaseId)) {
-                        throw new \RedisException('Could not select alternate Redis database ID');
-                    }
-
-                    $adapter = new RedisAdapter($redis, $namespace, $defaultLifetime);
                 } else {
-                    throw new LogicException('Redis PHP extension has not been installed');
+                    $this->logCacheFallback($driver_name, 'file', 'Redis extension not installed');
+                    $adapter = $this->createFilesystemAdapter($namespace, $defaultLifetime);
+                    $resolved_driver_name = 'file';
                 }
                 break;
 
+            case 'array':
+                $adapter = new ArrayAdapter($defaultLifetime, false);
+                $adapter->setNamespace($namespace);
+                $resolved_driver_name = 'array';
+                break;
+
             default:
-                $adapter = new FilesystemAdapter($namespace, $defaultLifetime, $this->cache_dir);
+                if (!in_array($driver_name, ['file', 'filesystem'], true)) {
+                    $this->logCacheFallback($driver_name, 'file', 'unknown cache driver');
+                }
+                $adapter = $this->createFilesystemAdapter($namespace, $defaultLifetime);
+                $resolved_driver_name = 'file';
                 break;
         }
 
+        $this->driver_name = $resolved_driver_name;
+
         return $adapter;
+    }
+
+    protected function createFilesystemAdapter(string $namespace, int $defaultLifetime): FilesystemAdapter
+    {
+        return new FilesystemAdapter($namespace, $defaultLifetime, $this->cache_dir);
+    }
+
+    protected function logCacheFallback(string $from, string $to, string $reason): void
+    {
+        try {
+            $log = Grav::instance()['log'] ?? null;
+            if ($log) {
+                $log->warning(sprintf('Cache driver "%s" unavailable (%s); falling back to "%s".', $from, $reason, $to));
+            }
+        } catch (Throwable) {
+            // Logging failed, continue silently.
+        }
     }
 
     /**
@@ -698,7 +772,7 @@ class Cache extends Getters
      */
     public function isVolatileDriver($setting)
     {
-        return $setting === 'apcu';
+        return in_array($setting, ['apcu', 'array'], true);
     }
 
     /**
