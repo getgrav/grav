@@ -206,12 +206,12 @@ class SafeUpgradeService
         $this->hydrateIgnoredDirectories($packagePath, $ignores);
         $this->carryOverRootFiles($packagePath, $ignores);
 
-        $snapshotEntries = $this->collectPackageEntries($packagePath);
+        // IMPORTANT: Snapshot should ONLY include files from the original package, NOT custom directories
+        // that were carried over. This prevents snapshotting huge custom folders like /media-test, /downloads, etc.
+        // The carryOverRootFiles() method preserves custom files during upgrade, but they should not be snapshotted
+        // because they are not being replaced and don't need to be rolled back.
         if (!$packageEntries) {
             throw new RuntimeException('Staged package does not contain any files to promote.');
-        }
-        if (!$snapshotEntries) {
-            $snapshotEntries = $packageEntries;
         }
 
         // FINAL SAFETY CHECK: Verify 'user' is not in the entries that will be deployed
@@ -223,9 +223,9 @@ class SafeUpgradeService
         }
 
         $this->reportProgress('snapshot', 'Creating backup snapshot...', null);
-        $this->createBackupSnapshot($snapshotEntries, $backupPath);
+        $this->createBackupSnapshot($packageEntries, $backupPath);
 
-        $manifest = $this->buildManifest($stageId, $targetVersion, $packagePath, $backupPath, $snapshotEntries);
+        $manifest = $this->buildManifest($stageId, $targetVersion, $packagePath, $backupPath, $packageEntries);
         $manifestPath = $stagePath . DIRECTORY_SEPARATOR . 'manifest.json';
         Folder::create(dirname($manifestPath));
         file_put_contents($manifestPath, json_encode($manifest, JSON_PRETTY_PRINT));
