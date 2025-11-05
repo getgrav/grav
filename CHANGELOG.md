@@ -1,3 +1,12 @@
+# v1.7.50.7
+## 11/05/2025
+
+1. [](#improved)
+    * Exclude dev files from exports
+1. [](#bugfix)
+    * Ignore .github and .phan folders during self-upgrade
+    * Fixed path check in self-upgrade
+
 # v1.7.50.6
 ## 11/05/2025
 
