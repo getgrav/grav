@@ -1,3 +1,9 @@
+# v1.7.50.6
+## 11/05/2025
+
+1. [](#bugfix)
+    * Fixed an issue where non-upgradable root-level folders were snapshotted
+
 # v1.7.50.5
 ## 11/05/2025
 
