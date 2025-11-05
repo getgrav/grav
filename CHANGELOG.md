@@ -1,3 +1,12 @@
+# v1.8.0-beta.21
+## 11/05/2025
+
+1. [](#improved)
+    * Exclude dev files from exports
+1. [](#bugfix)
+    * Ignore .github and .phan folders during self-upgrade
+    * Fixed path check in self-upgrade
+
 # v1.8.0-beta.20
 ## 11/05/2025
 
