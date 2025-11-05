@@ -1,0 +1,8 @@
+# Exclude development and CI/CD files from release archives
+/.github export-ignore
+/.phan export-ignore
+/tests export-ignore
+/codeception.yml export-ignore
+/.travis.yml export-ignore
+/.dependencies export-ignore
+/.editorconfig export-ignore
