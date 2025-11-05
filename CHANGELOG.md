@@ -3,6 +3,7 @@
 
 1. [](#improved)
     * Exclude dev files from exports
+    * Remove dev file in clean command
 1. [](#bugfix)
     * Ignore .github and .phan folders during self-upgrade
     * Fixed path check in self-upgrade
