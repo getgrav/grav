@@ -87,6 +87,8 @@ class SafeUpgradeService
     ];
     /** @var callable|null */
     private $progressCallback = null;
+    /** @var int */
+    private $metadataWarningCount = 0;
 
     /**
      * @param array $options
@@ -190,6 +192,14 @@ class SafeUpgradeService
 
         $packageEntries = $this->collectPackageEntries($packagePath);
 
+        // CRITICAL SAFETY CHECK: Verify 'user' is never in package entries before proceeding
+        if (in_array('user', $packageEntries, true)) {
+            throw new RuntimeException(
+                'SAFETY VIOLATION: user directory found in package entries. ' .
+                'This should never happen and could result in data loss. Aborting upgrade.'
+            );
+        }
+
         $this->carryOverRootDotfiles($packagePath);
 
         // Ensure ignored directories are replaced with live copies.
@@ -202,6 +212,14 @@ class SafeUpgradeService
         }
         if (!$snapshotEntries) {
             $snapshotEntries = $packageEntries;
+        }
+
+        // FINAL SAFETY CHECK: Verify 'user' is not in the entries that will be deployed
+        if (in_array('user', $packageEntries, true)) {
+            throw new RuntimeException(
+                'SAFETY VIOLATION: user directory found in deployment entries. ' .
+                'Aborting upgrade to protect user data.'
+            );
         }
 
         $this->reportProgress('snapshot', 'Creating backup snapshot...', null);
@@ -290,6 +308,12 @@ class SafeUpgradeService
                 continue;
             }
 
+            // CRITICAL SAFETY CHECK: Never allow 'user' directory to be collected
+            // This prevents any scenario where user/ could be overwritten during upgrade
+            if ($name === 'user') {
+                continue;
+            }
+
             $entries[] = $name;
         }
 
@@ -326,6 +350,15 @@ class SafeUpgradeService
     {
         $total = count($entries);
         foreach ($entries as $index => $entry) {
+            // CRITICAL SAFETY CHECK: Absolutely prevent any operations on 'user' directory
+            // This is a fail-safe to ensure user data is never touched during upgrades
+            if ($entry === 'user' || strpos($entry, 'user' . DIRECTORY_SEPARATOR) === 0) {
+                throw new RuntimeException(
+                    'SAFETY VIOLATION: Attempted to copy user directory during upgrade. ' .
+                    'This should never happen. Aborting upgrade to protect user data.'
+                );
+            }
+
             $source = $sourceBase . DIRECTORY_SEPARATOR . $entry;
             if (!is_file($source) && !is_dir($source) && !is_link($source)) {
                 continue;
@@ -439,28 +472,78 @@ class SafeUpgradeService
         }
 
         if (isset($meta['perms'])) {
-            @chmod($path, (int) $meta['perms']);
+            $result = @chmod($path, (int) $meta['perms']);
+            if ($result === false) {
+                $this->logMetadataWarning('chmod', $path, $meta['perms']);
+            }
         }
 
         $isLink = !empty($meta['link']);
 
         if (isset($meta['owner'])) {
             $owner = $this->resolveOwner($meta['owner']);
+            $result = false;
             if ($isLink && function_exists('lchown')) {
-                @lchown($path, $owner);
+                $result = @lchown($path, $owner);
             } elseif (!$isLink && function_exists('chown')) {
-                @chown($path, $owner);
+                $result = @chown($path, $owner);
+            }
+            if ($result === false) {
+                $this->logMetadataWarning('chown', $path, $owner);
             }
         }
 
         if (isset($meta['group'])) {
             $group = $this->resolveGroup($meta['group']);
+            $result = false;
             if ($isLink && function_exists('lchgrp')) {
-                @lchgrp($path, $group);
+                $result = @lchgrp($path, $group);
             } elseif (!$isLink && function_exists('chgrp')) {
-                @chgrp($path, $group);
+                $result = @chgrp($path, $group);
+            }
+            if ($result === false) {
+                $this->logMetadataWarning('chgrp', $path, $group);
             }
         }
+    }
+
+    /**
+     * Log a warning when metadata operations fail.
+     *
+     * @param string $operation Operation that failed (chmod, chown, chgrp)
+     * @param string $path Path to the file/directory
+     * @param mixed $value Value that was attempted (permissions, owner, group)
+     * @return void
+     */
+    private function logMetadataWarning(string $operation, string $path, $value): void
+    {
+        $this->metadataWarningCount++;
+
+        // Try to get Grav logger if available
+        try {
+            $grav = Grav::instance();
+            if (isset($grav['log'])) {
+                $grav['log']->warning(sprintf(
+                    'Safe-upgrade: Failed to apply %s(%s, %s). File permissions/ownership may not be preserved correctly. ' .
+                    'This is usually not critical but may require manual permission fixes after upgrade.',
+                    $operation,
+                    $path,
+                    is_scalar($value) ? $value : gettype($value)
+                ));
+            }
+        } catch (\Throwable $e) {
+            // Silently continue if logging fails - don't break the upgrade
+        }
+    }
+
+    /**
+     * Get count of metadata warnings during upgrade.
+     *
+     * @return int
+     */
+    public function getMetadataWarningCount(): int
+    {
+        return $this->metadataWarningCount;
     }
 
     /**
@@ -818,8 +901,24 @@ class SafeUpgradeService
                 continue;
             }
 
+            // CRITICAL: Ensure 'user' is always in the ignored directories list
+            if (!in_array('user', $strategic, true)) {
+                throw new RuntimeException(
+                    'SAFETY VIOLATION: user directory is not in the ignored directories list. ' .
+                    'This is a critical configuration error that could result in data loss.'
+                );
+            }
+
             $live = $this->rootPath . '/' . $relative;
             $stage = $packagePath . '/' . $relative;
+
+            // Only delete from staging area, NEVER from live installation
+            if (strpos($stage, $this->rootPath . DIRECTORY_SEPARATOR) === 0) {
+                throw new RuntimeException(
+                    'SAFETY VIOLATION: Attempted to delete directory from live installation during hydration. ' .
+                    'Stage path appears to be within live root. This should never happen.'
+                );
+            }
 
             Folder::delete($stage);
 
@@ -893,6 +992,11 @@ class SafeUpgradeService
         });
         $skip = array_values(array_unique($skip));
 
+        // CRITICAL: Ensure 'user' is always in the skip list
+        if (!in_array('user', $skip, true)) {
+            $skip[] = 'user';
+        }
+
         $iterator = new DirectoryIterator($this->rootPath);
         foreach ($iterator as $entry) {
             if ($entry->isDot()) {
@@ -901,6 +1005,11 @@ class SafeUpgradeService
 
             $name = $entry->getFilename();
             if ($name === '' || $name[0] === '.') {
+                continue;
+            }
+
+            // CRITICAL SAFETY CHECK: Never copy 'user' directory
+            if ($name === 'user') {
                 continue;
             }
 
