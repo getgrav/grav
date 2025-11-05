@@ -1,3 +1,16 @@
+# v1.8.0-beta.19
+## 11/05/2025
+
+1. [](#new)
+    * Added new `bin/gpm preflight` command
+    * Added `--safe` and `--legacy` overrides for `bin/gpm self-upgrade` command
+1. [](#improved)
+    * Improved JS assets pipeline handling to support different loading strategies
+    * Cache fallbacks for unsupported Cache drivers
+    * More safe-upgrade fixes around safe guarding `/user/` and maintaining permissions better
+1. [](#bugfix)
+   * Fixed a regex issue that corrupted safe-upgrade output
+
 # v1.8.0-beta.18
 ## 10/31/2025
 
