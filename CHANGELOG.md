@@ -1,3 +1,10 @@
+# v1.8.0-beta.22
+## 11/06/2025
+
+1. [](#bugfix)
+    * Removed over zealous safety checks
+    * Removed .gitattributes which was causing some unintended issues
+
 # v1.8.0-beta.21
 ## 11/05/2025
 
