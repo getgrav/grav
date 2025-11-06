@@ -914,18 +914,6 @@ class SafeUpgradeService
             $live = $this->rootPath . '/' . $relative;
             $stage = $packagePath . '/' . $relative;
 
-            // Only delete from staging area, NEVER from live installation
-            // Check if stage path is directly under root (e.g., /home/grav/user)
-            // but allow subdirectories (e.g., /home/grav/tmp/.../package/user)
-            $realStage = realpath(dirname($stage));
-            $realRoot = realpath($this->rootPath);
-            if ($realStage === $realRoot) {
-                throw new RuntimeException(
-                    'SAFETY VIOLATION: Attempted to delete directory from live installation during hydration. ' .
-                    'Stage path appears to be directly in live root. This should never happen.'
-                );
-            }
-
             Folder::delete($stage);
 
             if (!is_dir($live)) {
