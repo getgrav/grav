@@ -1,3 +1,10 @@
+# v1.7.50.8
+## 11/06/2025
+
+1. [](#bugfix)
+    * Removed over zealous safety checks
+    * Removed .gitattributes which was causing some unintended issues
+
 # v1.7.50.7
 ## 11/05/2025
 
