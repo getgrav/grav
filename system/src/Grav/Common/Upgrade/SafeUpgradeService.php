@@ -256,7 +256,16 @@ class SafeUpgradeService
         $this->persistManifest($manifest);
         $this->lastManifest = $manifest;
         $this->pruneOldSnapshots();
-        Folder::delete($stagePath);
+
+        // Clean up staging directory
+        // Wrap in try-catch because autoloader may have stale paths after file copy
+        try {
+            Folder::delete($stagePath);
+        } catch (\Throwable $e) {
+            // Staging cleanup failed, but upgrade succeeded
+            // Directory will be cleaned up on next request
+            error_log('Warning: Failed to delete staging directory: ' . $e->getMessage());
+        }
 
         return $manifest;
     }
