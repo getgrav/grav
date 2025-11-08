@@ -65,6 +65,17 @@ use const JSON_PRETTY_PRINT;
  */
 class SafeUpgradeService
 {
+    /**
+     * Version identifier for this SafeUpgradeService implementation.
+     * This is used to verify that the correct version is loaded during upgrades.
+     *
+     * IMPORTANT: Increment this with each release that changes SafeUpgradeService.
+     * Format: YYYYMMDD (release date)
+     *
+     * @var string
+     */
+    public const IMPLEMENTATION_VERSION = '20251106'; // 2025-11-06 - Added preflight to Install.php
+
     /** @var string */
     private $rootPath;
     /** @var string */
