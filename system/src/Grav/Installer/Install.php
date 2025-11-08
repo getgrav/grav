@@ -311,23 +311,18 @@ ERR;
                     $expectedReal = realpath($expectedPath) ?: $expectedPath;
 
                     if ($loadedFromReal !== $expectedReal) {
-                        // OLD SafeUpgradeService is already loaded - we cannot proceed safely
-                        throw new RuntimeException(
-                            sprintf(
-                                "CRITICAL: SafeUpgradeService was already loaded from the old installation.\n" .
-                                "This prevents the new version from being used and will cause bugs to persist.\n\n" .
-                                "Loaded from: %s\n" .
-                                "Expected:    %s\n\n" .
-                                "WORKAROUND: This is a known issue in Grav < 1.7.50.9.\n" .
-                                "The old CLI/Admin code loads SafeUpgradeService before downloading the package.\n" .
-                                "Once you upgrade to 1.7.50.9+, this issue will be fixed.\n\n" .
-                                "For now, you have two options:\n" .
-                                "1. Use manual upgrade: Download zip, extract, copy files\n" .
-                                "2. Wait for automatic fix in next release",
-                                $loadedFromReal,
-                                $expectedReal
-                            )
-                        );
+                        // OLD SafeUpgradeService is already loaded - fall back to traditional upgrade
+                        error_log(sprintf(
+                            'WARNING: SafeUpgradeService was loaded from old installation (%s). ' .
+                            'Falling back to traditional upgrade method.',
+                            $loadedFromReal
+                        ));
+
+                        // Force traditional upgrade by disabling safe upgrade
+                        Install::forceSafeUpgrade(false);
+
+                        // Skip to traditional upgrade below
+                        goto traditional_upgrade;
                     }
                 }
 
@@ -411,6 +406,7 @@ ERR;
                 $this->lastManifest = $manifest;
                 Installer::setError(Installer::OK);
             } else {
+                traditional_upgrade:
                 Installer::install(
                     $this->zip ?? '',
                     GRAV_ROOT,
