@@ -20,8 +20,7 @@ use InvalidArgumentException;
 class GravCore extends AbstractPackageCollection
 {
     /** @var string */
-//    protected $repository = 'https://getgrav.org/downloads/grav.json';
-    protected $repository = 'http://localhost:8043/grav.json';
+    protected $repository = 'https://getgrav.org/downloads/grav.json';
     /** @var array */
     private $data;
     /** @var string */
