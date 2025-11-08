@@ -333,7 +333,7 @@ class SelfupgradeCommand extends GpmCommand
 
                 $io->newLine();
                 // Clear recovery flag - upgrade completed successfully
-                $recovery->clearUpgradeWindow('core-upgrade');
+                $recovery->closeUpgradeWindow();
             }
 
             if ($this->tmp && is_dir($this->tmp)) {
