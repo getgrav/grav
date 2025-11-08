@@ -15,8 +15,9 @@ use Grav\Common\HTTP\Response;
 use Grav\Common\GPM\Installer;
 use Grav\Common\GPM\Upgrader;
 use Grav\Common\Grav;
-use Grav\Common\Upgrade\SafeUpgradeService;
 use Grav\Console\GpmCommand;
+// NOTE: SafeUpgradeService removed - no longer used in this file
+// Preflight is now handled in Install.php after downloading the package
 use Grav\Installer\Install;
 use RuntimeException;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -163,11 +164,9 @@ class SelfupgradeCommand extends GpmCommand
 
             $this->displayGPMRelease();
 
-            $safeUpgrade = $this->createSafeUpgradeService();
-            $preflight = $safeUpgrade->preflight();
-            if (!$this->handlePreflightReport($preflight)) {
-                return 1;
-            }
+            // NOTE: Preflight checks are now run in Install.php AFTER downloading the package.
+            // This ensures we use the NEW SafeUpgradeService from the package, not the old one.
+            // Running preflight here would load the OLD class into memory and prevent the new one from loading.
 
             $update = $this->upgrader->getAssets()['grav-update'];
 
@@ -334,7 +333,8 @@ class SelfupgradeCommand extends GpmCommand
                 }
 
                 $io->newLine();
-                $safeUpgrade->clearRecoveryFlag();
+                // Clear recovery flag - upgrade completed successfully
+                $recovery->clearUpgradeWindow('core-upgrade');
             }
 
             if ($this->tmp && is_dir($this->tmp)) {
@@ -374,23 +374,6 @@ class SelfupgradeCommand extends GpmCommand
         file_put_contents($this->tmp . DS . $package['name'], $output);
 
         return $this->tmp . DS . $package['name'];
-    }
-
-    /**
-     * @return SafeUpgradeService
-     */
-    protected function createSafeUpgradeService(): SafeUpgradeService
-    {
-        $config = null;
-        try {
-            $config = Grav::instance()['config'] ?? null;
-        } catch (\Throwable $e) {
-            $config = null;
-        }
-
-        return new SafeUpgradeService([
-            'config' => $config,
-        ]);
     }
 
     /**
