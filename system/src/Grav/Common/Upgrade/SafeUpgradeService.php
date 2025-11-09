@@ -23,24 +23,18 @@ use RecursiveIteratorIterator;
 use FilesystemIterator;
 use function array_key_exists;
 use function basename;
-use function chgrp;
 use function chmod;
-use function chown;
 use function copy;
 use function count;
 use function dirname;
 use function file_get_contents;
 use function file_put_contents;
-use function filegroup;
-use function fileowner;
 use function glob;
 use function in_array;
 use function is_dir;
 use function is_file;
 use function json_decode;
 use function json_encode;
-use function lchgrp;
-use function lchown;
 use function preg_match;
 use function preg_replace;
 use function property_exists;
@@ -54,8 +48,6 @@ use function trim;
 use function uniqid;
 use function unlink;
 use function ltrim;
-use function posix_getgrgid;
-use function posix_getpwuid;
 use const GRAV_ROOT;
 use const GLOB_ONLYDIR;
 use const JSON_PRETTY_PRINT;
@@ -74,7 +66,7 @@ class SafeUpgradeService
      *
      * @var string
      */
-    public const IMPLEMENTATION_VERSION = '20251106'; // 2025-11-06 - Added preflight to Install.php
+    public const IMPLEMENTATION_VERSION = '20251109'; // 2025-11-09 - Simplified to match traditional upgrade
 
     /** @var string */
     private $rootPath;
@@ -100,8 +92,6 @@ class SafeUpgradeService
     ];
     /** @var callable|null */
     private $progressCallback = null;
-    /** @var int */
-    private $metadataWarningCount = 0;
 
     /**
      * @param array $options
@@ -428,7 +418,9 @@ class SafeUpgradeService
             }
 
             $destination = $targetBase . DIRECTORY_SEPARATOR . $entry;
-            $metadata = $this->captureEntryMeta($destination);
+
+            // Use the same simple approach as traditional upgrade:
+            // Delete old, copy new, let filesystem handle ownership
             $this->removeEntry($destination);
 
             if (is_link($source)) {
@@ -436,29 +428,25 @@ class SafeUpgradeService
                 if (!@symlink(readlink($source), $destination)) {
                     throw new RuntimeException(sprintf('Failed to replicate symlink "%s".', $source));
                 }
-                $this->applyEntryMeta($destination, $metadata);
-                continue;
             } elseif (is_dir($source)) {
                 Folder::create(dirname($destination));
-                Folder::rcopy($source, $destination, true);
-                $this->applyEntryMeta($destination, $metadata);
-                continue;
+                // DON'T preserve permissions - let filesystem inherit from parent
+                // This matches traditional upgrade behavior
+                Folder::rcopy($source, $destination, false);
+
+                // Set bin/ permissions like traditional upgrade does
+                if ($entry === 'bin') {
+                    $binFiles = glob($destination . DIRECTORY_SEPARATOR . '*') ?: [];
+                    foreach ($binFiles as $binFile) {
+                        @chmod($binFile, 0755);
+                    }
+                }
             } else {
                 Folder::create(dirname($destination));
                 if (!@copy($source, $destination)) {
                     throw new RuntimeException(sprintf('Failed to copy file "%s" to "%s".', $source, $destination));
                 }
-                $perm = @fileperms($source);
-                if ($perm !== false) {
-                    @chmod($destination, $perm & 0777);
-                }
-                $mtime = @filemtime($source);
-                if ($mtime !== false) {
-                    @touch($destination, $mtime);
-                }
             }
-
-            $this->applyEntryMeta($destination, $metadata);
         }
     }
 
@@ -469,172 +457,6 @@ class SafeUpgradeService
         } elseif (is_dir($path)) {
             Folder::delete($path);
         }
-    }
-
-    /**
-     * Capture ownership and permission data for an existing filesystem entry.
-     *
-     * @param string $path
-     * @return array<string, mixed>
-     */
-    private function captureEntryMeta(string $path): array
-    {
-        if (!file_exists($path) && !is_link($path)) {
-            return [];
-        }
-
-        $meta = [
-            'link' => is_link($path),
-        ];
-
-        $perms = @fileperms($path);
-        if ($perms !== false) {
-            $meta['perms'] = $perms & 0777;
-        }
-
-        $owner = @fileowner($path);
-        if ($owner !== false) {
-            $meta['owner'] = $owner;
-        }
-
-        $group = @filegroup($path);
-        if ($group !== false) {
-            $meta['group'] = $group;
-        }
-
-        return $meta;
-    }
-
-    /**
-     * Reapply ownership and permission data to a copied entry when possible.
-     *
-     * @param string $path
-     * @param array<string, mixed> $meta
-     * @return void
-     */
-    private function applyEntryMeta(string $path, array $meta): void
-    {
-        if (!$meta) {
-            return;
-        }
-
-        if (isset($meta['perms'])) {
-            $result = @chmod($path, (int) $meta['perms']);
-            if ($result === false) {
-                $this->logMetadataWarning('chmod', $path, $meta['perms']);
-            }
-        }
-
-        $isLink = !empty($meta['link']);
-
-        if (isset($meta['owner'])) {
-            $owner = $this->resolveOwner($meta['owner']);
-            $result = false;
-            if ($isLink && function_exists('lchown')) {
-                $result = @lchown($path, $owner);
-            } elseif (!$isLink && function_exists('chown')) {
-                $result = @chown($path, $owner);
-            }
-            if ($result === false) {
-                $this->logMetadataWarning('chown', $path, $owner);
-            }
-        }
-
-        if (isset($meta['group'])) {
-            $group = $this->resolveGroup($meta['group']);
-            $result = false;
-            if ($isLink && function_exists('lchgrp')) {
-                $result = @lchgrp($path, $group);
-            } elseif (!$isLink && function_exists('chgrp')) {
-                $result = @chgrp($path, $group);
-            }
-            if ($result === false) {
-                $this->logMetadataWarning('chgrp', $path, $group);
-            }
-        }
-    }
-
-    /**
-     * Log a warning when metadata operations fail.
-     *
-     * @param string $operation Operation that failed (chmod, chown, chgrp)
-     * @param string $path Path to the file/directory
-     * @param mixed $value Value that was attempted (permissions, owner, group)
-     * @return void
-     */
-    private function logMetadataWarning(string $operation, string $path, $value): void
-    {
-        $this->metadataWarningCount++;
-
-        // Try to get Grav logger if available
-        try {
-            $grav = Grav::instance();
-            if (isset($grav['log'])) {
-                $grav['log']->warning(sprintf(
-                    'Safe-upgrade: Failed to apply %s(%s, %s). File permissions/ownership may not be preserved correctly. ' .
-                    'This is usually not critical but may require manual permission fixes after upgrade.',
-                    $operation,
-                    $path,
-                    is_scalar($value) ? $value : gettype($value)
-                ));
-            }
-        } catch (\Throwable $e) {
-            // Silently continue if logging fails - don't break the upgrade
-        }
-    }
-
-    /**
-     * Get count of metadata warnings during upgrade.
-     *
-     * @return int
-     */
-    public function getMetadataWarningCount(): int
-    {
-        return $this->metadataWarningCount;
-    }
-
-    /**
-     * Resolve stored owner identifier to a format accepted by chown/lchown.
-     *
-     * @param int|string $owner
-     * @return int|string
-     */
-    private function resolveOwner($owner)
-    {
-        if (is_string($owner)) {
-            return $owner;
-        }
-
-        if (function_exists('posix_getpwuid')) {
-            $info = @posix_getpwuid((int) $owner);
-            if (is_array($info) && isset($info['name'])) {
-                return $info['name'];
-            }
-        }
-
-        return (int) $owner;
-    }
-
-    /**
-     * Resolve stored group identifier to a format accepted by chgrp/lchgrp.
-     *
-     * @param int|string $group
-     * @return int|string
-     */
-    private function resolveGroup($group)
-    {
-        if (is_string($group)) {
-            return $group;
-        }
-
-        if (function_exists('posix_getgrgid')) {
-            $info = @posix_getgrgid((int) $group);
-            if (is_array($info) && isset($info['name'])) {
-                return $info['name'];
-            }
-        }
-
-        return (int) $group;
     }
 
     public function setProgressCallback(?callable $callback): self
