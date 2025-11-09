@@ -405,7 +405,7 @@ class SelfupgradeCommand extends GpmCommand
             $isMajorMinorUpgrade = $preflight['is_major_minor_upgrade'] ?? false;
 
             // Fall back to calculating it if not provided (for backwards compatibility)
-            if (!isset($preflight['is_major_minor_upgrade'])) {
+            if (!isset($preflight['is_major_minor_upgrade']) && $this->upgrader) {
                 $local = $this->upgrader->getLocalVersion();
                 $remote = $this->upgrader->getRemoteVersion();
                 $localParts = explode('.', $local);
@@ -419,8 +419,8 @@ class SelfupgradeCommand extends GpmCommand
                 $isMajorMinorUpgrade = ($localMajor !== $remoteMajor) || ($localMinor !== $remoteMinor);
             }
 
-            $local = $this->upgrader->getLocalVersion();
-            $remote = $this->upgrader->getRemoteVersion();
+            $local = $this->upgrader ? $this->upgrader->getLocalVersion() : 'unknown';
+            $remote = $this->upgrader ? $this->upgrader->getRemoteVersion() : 'unknown';
 
             $io->newLine();
             $io->writeln('<yellow>The following packages need updating before Grav upgrade:</yellow>');
