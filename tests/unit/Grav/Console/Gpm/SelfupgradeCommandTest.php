@@ -18,7 +18,8 @@ class SelfupgradeCommandTest extends \PHPUnit\Framework\TestCase
         $result = $command->runHandle([
             'plugins_pending' => [],
             'psr_log_conflicts' => [],
-            'warnings' => []
+            'warnings' => [],
+            'is_major_minor_upgrade' => false
         ]);
 
         self::assertTrue($result);
@@ -34,7 +35,8 @@ class SelfupgradeCommandTest extends \PHPUnit\Framework\TestCase
         $result = $command->runHandle([
             'plugins_pending' => ['foo' => ['type' => 'plugin', 'current' => '1', 'available' => '2']],
             'psr_log_conflicts' => ['bar' => ['requires' => '^1.0']],
-            'warnings' => ['pending']
+            'warnings' => ['pending'],
+            'is_major_minor_upgrade' => true
         ]);
 
         self::assertFalse($result);
@@ -51,7 +53,8 @@ class SelfupgradeCommandTest extends \PHPUnit\Framework\TestCase
         $result = $command->runHandle([
             'plugins_pending' => ['foo' => ['type' => 'plugin', 'current' => '1', 'available' => '2']],
             'psr_log_conflicts' => [],
-            'warnings' => []
+            'warnings' => [],
+            'is_major_minor_upgrade' => true
         ]);
 
         self::assertFalse($result);
@@ -67,7 +70,8 @@ class SelfupgradeCommandTest extends \PHPUnit\Framework\TestCase
         $result = $command->runHandle([
             'plugins_pending' => [],
             'psr_log_conflicts' => ['foo' => ['requires' => '^1.0']],
-            'warnings' => []
+            'warnings' => [],
+            'is_major_minor_upgrade' => false
         ]);
 
         self::assertFalse($result);
@@ -93,7 +97,8 @@ class SelfupgradeCommandTest extends \PHPUnit\Framework\TestCase
         $result = $command->runHandle([
             'plugins_pending' => [],
             'psr_log_conflicts' => ['foo' => ['requires' => '^1.0']],
-            'warnings' => []
+            'warnings' => [],
+            'is_major_minor_upgrade' => false
         ]);
 
         self::assertTrue($result);
@@ -110,7 +115,8 @@ class SelfupgradeCommandTest extends \PHPUnit\Framework\TestCase
         $result = $command->runHandle([
             'plugins_pending' => [],
             'psr_log_conflicts' => ['foo' => ['requires' => '^1.0']],
-            'warnings' => []
+            'warnings' => [],
+            'is_major_minor_upgrade' => false
         ]);
 
         self::assertTrue($result);

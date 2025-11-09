@@ -106,7 +106,7 @@ class StubSafeUpgradeService extends SafeUpgradeService
         parent::__construct([]);
     }
 
-    public function preflight(): array
+    public function preflight(?string $targetVersion = null): array
     {
         return $this->report;
     }
