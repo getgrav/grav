@@ -471,33 +471,19 @@ ERR;
         }
 
         // CRITICAL CHECK: Ensure current installation supports SafeUpgradeService
-        // This must be checked BEFORE reading config, because the NEW package's system.yaml
-        // has safe_upgrade:true as default, which would be returned even for old installations
+        // Must check this BEFORE reading config to prevent using safe-upgrade on old installations
         $currentServiceFile = GRAV_ROOT . '/system/src/Grav/Common/Upgrade/SafeUpgradeService.php';
         if (!file_exists($currentServiceFile)) {
             // Current installation doesn't have SafeUpgradeService (upgrading from < 1.7.50)
-            // Use traditional upgrade method regardless of config
+            // Use traditional upgrade method
             return false;
         }
 
-        // PRIMARY CHECK: Check Grav config setting
-        // Only use safe-upgrade if explicitly enabled in user configuration
+        // PRIMARY CHECK: Check Grav config setting using proper config system
+        // This respects the fallback chain: user/config/system.yaml -> system/config/system.yaml
         try {
             $grav = Grav::instance();
             if ($grav && isset($grav['config'])) {
-                // IMPORTANT: Read from USER config only, not merged config
-                // This prevents the NEW package's default (true) from being used
-                $userConfigFile = USER_DIR . 'config/system.yaml';
-                if (file_exists($userConfigFile)) {
-                    $userConfig = \Grav\Common\Yaml::parseFile($userConfigFile);
-                    if (is_array($userConfig) && isset($userConfig['updates']['safe_upgrade'])) {
-                        // User has explicitly set this in their config
-                        return (bool) $userConfig['updates']['safe_upgrade'];
-                    }
-                }
-
-                // Fallback: try reading from merged config
-                // This is safe now because we already verified current installation has SafeUpgradeService
                 $configValue = $grav['config']->get('system.updates.safe_upgrade');
                 if ($configValue !== null) {
                     return (bool) $configValue;
@@ -505,7 +491,7 @@ ERR;
             }
         } catch (\Throwable $e) {
             // Grav container may not be initialised yet
-            // Fall through to default behavior
+            // Fall through to load SafeUpgradeService and return false
         }
 
         // FINAL STEP: Load SafeUpgradeService from NEW package if needed

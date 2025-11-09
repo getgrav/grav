@@ -263,7 +263,9 @@ class SafeUpgradeService
         try {
             $this->copyEntries($packageEntries, $packagePath, $this->rootPath, 'installing', 'Deploying');
         } catch (Throwable $e) {
-            $this->copyEntries($snapshotEntries, $backupPath, $this->rootPath, 'installing', 'Restoring');
+            // Rollback: restore from snapshot
+            $this->reportProgress('rollback', 'Upgrade failed, restoring from snapshot...', null);
+            $this->copyEntries($packageEntries, $backupPath, $this->rootPath, 'rollback', 'Restoring');
             throw new RuntimeException('Failed to promote staged Grav release.', 0, $e);
         }
 
@@ -430,9 +432,9 @@ class SafeUpgradeService
                 }
             } elseif (is_dir($source)) {
                 Folder::create(dirname($destination));
-                // DON'T preserve permissions - let filesystem inherit from parent
-                // This matches traditional upgrade behavior
-                Folder::rcopy($source, $destination, false);
+                // Use move() like traditional upgrade - faster than copy
+                // Snapshot is already taken before this, so we don't need to preserve source
+                Folder::move($source, $destination);
 
                 // Set bin/ permissions like traditional upgrade does
                 if ($entry === 'bin') {
