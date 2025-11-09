@@ -346,7 +346,9 @@ ERR;
                 // Run preflight checks using the NEW SafeUpgradeService
                 // This ensures preflight logic is from the package being installed, not the old installation
                 try {
-                    $preflight = $service->preflight();
+                    $targetVersion = $this->getVersion();
+                    $preflight = $service->preflight($targetVersion);
+                    $isMajorMinorUpgrade = $preflight['is_major_minor_upgrade'] ?? false;
 
                     // Check for pending plugin/theme updates
                     if (!empty($preflight['plugins_pending'])) {
@@ -358,11 +360,31 @@ ERR;
                             $list[] = sprintf('%s (v%s → v%s)', $slug, $current, $available);
                         }
 
-                        throw new RuntimeException(
-                            'Please update the following plugins/themes before upgrading Grav: ' .
-                            implode(', ', $list) . '. ' .
-                            'Run "bin/gpm update" or update via Admin panel first.'
-                        );
+                        if ($isMajorMinorUpgrade) {
+                            // For major/minor upgrades, block until plugins are updated
+                            // This allows the NEW package to define and enforce the upgrade policy
+                            $currentVersion = GRAV_VERSION;
+                            $targetVersion = $this->getVersion();
+                            throw new RuntimeException(
+                                sprintf(
+                                    "Major version upgrade detected (v%s → v%s).\n\n" .
+                                    "The following plugins/themes have updates available:\n  - %s\n\n" .
+                                    "For major version upgrades, plugins and themes must be updated FIRST.\n" .
+                                    "Please run 'bin/gpm update' to update these packages, then retry the upgrade.\n" .
+                                    "This ensures plugins have necessary compatibility fixes for the new Grav version.",
+                                    $currentVersion,
+                                    $targetVersion,
+                                    implode("\n  - ", $list)
+                                )
+                            );
+                        } else {
+                            // For patch upgrades, just log a warning but allow upgrade
+                            error_log(
+                                'WARNING: The following plugins/themes have updates available: ' .
+                                implode(', ', $list) . '. ' .
+                                'Consider updating them after upgrading Grav.'
+                            );
+                        }
                     }
 
                     // PSR log conflicts - log warning but don't block for now
