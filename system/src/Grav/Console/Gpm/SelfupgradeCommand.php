@@ -233,6 +233,29 @@ class SelfupgradeCommand extends GpmCommand
             $io->writeln("Grav v<cyan>{$remote}</cyan> is now available [release date: {$release}].");
             $io->writeln('You are currently using v<cyan>' . GRAV_VERSION . '</cyan>.');
 
+            // Determine if this is a major/minor version upgrade
+            $localParts = explode('.', $local);
+            $remoteParts = explode('.', $remote);
+
+            $localMajor = (int)($localParts[0] ?? 0);
+            $localMinor = (int)($localParts[1] ?? 0);
+            $remoteMajor = (int)($remoteParts[0] ?? 0);
+            $remoteMinor = (int)($remoteParts[1] ?? 0);
+
+            // Check if this is a major/minor version change (e.g., 1.7.x -> 1.8.y)
+            $isMajorMinorUpgrade = ($localMajor !== $remoteMajor) || ($localMinor !== $remoteMinor);
+
+            if ($isMajorMinorUpgrade) {
+                $io->newLine();
+                $io->writeln('<yellow>NOTE</yellow>: This is a major version upgrade.');
+                $io->writeln('It is recommended to run `<cyan>bin/gpm update</cyan>` first to update all plugins and themes');
+                $io->writeln('to their latest compatible versions before upgrading Grav core.');
+            } else {
+                $io->newLine();
+                $io->writeln('<green>NOTE</green>: This is a patch version upgrade.');
+                $io->writeln('You can safely proceed. Grav will check for any plugin compatibility issues during the upgrade.');
+            }
+
             if (!$this->all_yes) {
                 $question = new ConfirmationQuestion(
                     'Would you like to read the changelog before proceeding? [y|N] ',
