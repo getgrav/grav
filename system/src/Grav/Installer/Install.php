@@ -455,19 +455,7 @@ ERR;
      */
     private function shouldUseSafeUpgrade(): bool
     {
-        // CRITICAL: Check if class exists WITHOUT triggering autoloader
-        // If not loaded yet, manually load the NEW one from this package
-        if (!class_exists('Grav\\Common\\Upgrade\\SafeUpgradeService', false)) {
-            // Class not loaded yet - try to load from NEW package
-            $serviceFile = $this->location . '/system/src/Grav/Common/Upgrade/SafeUpgradeService.php';
-            if (!file_exists($serviceFile)) {
-                return false; // SafeUpgradeService not available in this package
-            }
-            // Load the NEW SafeUpgradeService from this package
-            require_once $serviceFile;
-        }
-
-        // Check static override first
+        // Check static override first (for programmatic control)
         if (null !== self::$forceSafeUpgrade) {
             return self::$forceSafeUpgrade;
         }
@@ -478,17 +466,60 @@ ERR;
             return $envValue === '1';
         }
 
-        // Check Grav config
+        // CRITICAL CHECK: Ensure current installation supports SafeUpgradeService
+        // This must be checked BEFORE reading config, because the NEW package's system.yaml
+        // has safe_upgrade:true as default, which would be returned even for old installations
+        $currentServiceFile = GRAV_ROOT . '/system/src/Grav/Common/Upgrade/SafeUpgradeService.php';
+        if (!file_exists($currentServiceFile)) {
+            // Current installation doesn't have SafeUpgradeService (upgrading from < 1.7.50)
+            // Use traditional upgrade method regardless of config
+            return false;
+        }
+
+        // PRIMARY CHECK: Check Grav config setting
+        // Only use safe-upgrade if explicitly enabled in user configuration
         try {
             $grav = Grav::instance();
             if ($grav && isset($grav['config'])) {
-                return (bool) $grav['config']->get('system.updates.safe_upgrade', true);
+                // IMPORTANT: Read from USER config only, not merged config
+                // This prevents the NEW package's default (true) from being used
+                $userConfigFile = USER_DIR . 'config/system.yaml';
+                if (file_exists($userConfigFile)) {
+                    $userConfig = \Grav\Common\Yaml::parseFile($userConfigFile);
+                    if (is_array($userConfig) && isset($userConfig['updates']['safe_upgrade'])) {
+                        // User has explicitly set this in their config
+                        return (bool) $userConfig['updates']['safe_upgrade'];
+                    }
+                }
+
+                // Fallback: try reading from merged config
+                // This is safe now because we already verified current installation has SafeUpgradeService
+                $configValue = $grav['config']->get('system.updates.safe_upgrade');
+                if ($configValue !== null) {
+                    return (bool) $configValue;
+                }
             }
         } catch (\Throwable $e) {
-            // Grav container may not be initialised yet, default to safe upgrade.
+            // Grav container may not be initialised yet
+            // Fall through to default behavior
         }
 
-        return true;
+        // FINAL STEP: Load SafeUpgradeService from NEW package if needed
+        // Only reached if current installation HAS SafeUpgradeService but config is not set
+        if (!class_exists('Grav\\Common\\Upgrade\\SafeUpgradeService', false)) {
+            // Class not loaded yet - try to load from NEW package
+            $serviceFile = $this->location . '/system/src/Grav/Common/Upgrade/SafeUpgradeService.php';
+            if (!file_exists($serviceFile)) {
+                return false; // SafeUpgradeService not available in this package
+            }
+            // Load the NEW SafeUpgradeService from this package
+            require_once $serviceFile;
+        }
+
+        // If we get here: current installation HAS SafeUpgradeService, but config is not explicitly set
+        // Default to FALSE (traditional upgrade) for safety
+        // Users must explicitly enable system.updates.safe_upgrade to use it
+        return false;
     }
 
     /**
