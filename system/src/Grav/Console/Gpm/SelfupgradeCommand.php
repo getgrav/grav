@@ -132,14 +132,17 @@ class SelfupgradeCommand extends GpmCommand
 
         if ($forceSafe || $forceLegacy) {
             $forcedMode = $forceSafe ? true : false;
-            Install::forceSafeUpgrade($forcedMode);
+            // NOTE: Do not call Install::forceSafeUpgrade() here as it would load the old Install class
+            // before the upgrade package is extracted, causing a class redeclaration error.
+            // Instead, we set the config and also use an environment variable as a fallback.
+            putenv('GRAV_FORCE_SAFE_UPGRADE=' . ($forcedMode ? '1' : '0'));
             try {
                 $grav = Grav::instance();
                 if ($grav && isset($grav['config'])) {
                     $grav['config']->set('system.updates.safe_upgrade', $forcedMode);
                 }
             } catch (\Throwable $e) {
-                // Ignore container bootstrap failures; mode override still applies.
+                // Ignore container bootstrap failures; mode override still applies via env var.
             }
 
             if ($forceSafe) {
@@ -344,7 +347,12 @@ class SelfupgradeCommand extends GpmCommand
             return $error;
         } finally {
             if (null !== $forcedMode) {
-                Install::forceSafeUpgrade(null);
+                // Clean up environment variable
+                putenv('GRAV_FORCE_SAFE_UPGRADE');
+                // Only call Install::forceSafeUpgrade if Install class has been loaded
+                if (class_exists(\Grav\Installer\Install::class, false)) {
+                    Install::forceSafeUpgrade(null);
+                }
             }
         }
     }
