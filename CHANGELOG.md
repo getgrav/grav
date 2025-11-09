@@ -1,3 +1,12 @@
+# v1.7.50.9
+## 11/09/2025
+
+1. [](#improved)
+    * Better error warnings regarding upgrading from 1.7 -> 1.7 vs 1.7 -> 1.8
+1. [](#bugfix)
+    * Fix for update-provided `Install.php` not used if local version called first
+    * Fix class loading error when trying to use `bin/gpm self-upgrade --safe`
+
 # v1.7.50.8
 ## 11/06/2025
 

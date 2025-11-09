@@ -15,8 +15,9 @@ use Grav\Common\HTTP\Response;
 use Grav\Common\GPM\Installer;
 use Grav\Common\GPM\Upgrader;
 use Grav\Common\Grav;
-use Grav\Common\Upgrade\SafeUpgradeService;
 use Grav\Console\GpmCommand;
+// NOTE: SafeUpgradeService removed - no longer used in this file
+// Preflight is now handled in Install.php after downloading the package
 use Grav\Installer\Install;
 use RuntimeException;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -131,14 +132,17 @@ class SelfupgradeCommand extends GpmCommand
 
         if ($forceSafe || $forceLegacy) {
             $forcedMode = $forceSafe ? true : false;
-            Install::forceSafeUpgrade($forcedMode);
+            // NOTE: Do not call Install::forceSafeUpgrade() here as it would load the old Install class
+            // before the upgrade package is extracted, causing a class redeclaration error.
+            // Instead, we set the config and also use an environment variable as a fallback.
+            putenv('GRAV_FORCE_SAFE_UPGRADE=' . ($forcedMode ? '1' : '0'));
             try {
                 $grav = Grav::instance();
                 if ($grav && isset($grav['config'])) {
                     $grav['config']->set('system.updates.safe_upgrade', $forcedMode);
                 }
             } catch (\Throwable $e) {
-                // Ignore container bootstrap failures; mode override still applies.
+                // Ignore container bootstrap failures; mode override still applies via env var.
             }
 
             if ($forceSafe) {
@@ -163,11 +167,9 @@ class SelfupgradeCommand extends GpmCommand
 
             $this->displayGPMRelease();
 
-            $safeUpgrade = $this->createSafeUpgradeService();
-            $preflight = $safeUpgrade->preflight();
-            if (!$this->handlePreflightReport($preflight)) {
-                return 1;
-            }
+            // NOTE: Preflight checks are now run in Install.php AFTER downloading the package.
+            // This ensures we use the NEW SafeUpgradeService from the package, not the old one.
+            // Running preflight here would load the OLD class into memory and prevent the new one from loading.
 
             $update = $this->upgrader->getAssets()['grav-update'];
 
@@ -334,7 +336,8 @@ class SelfupgradeCommand extends GpmCommand
                 }
 
                 $io->newLine();
-                $safeUpgrade->clearRecoveryFlag();
+                // Clear recovery flag - upgrade completed successfully
+                $recovery->closeUpgradeWindow();
             }
 
             if ($this->tmp && is_dir($this->tmp)) {
@@ -344,7 +347,12 @@ class SelfupgradeCommand extends GpmCommand
             return $error;
         } finally {
             if (null !== $forcedMode) {
-                Install::forceSafeUpgrade(null);
+                // Clean up environment variable
+                putenv('GRAV_FORCE_SAFE_UPGRADE');
+                // Only call Install::forceSafeUpgrade if Install class has been loaded
+                if (class_exists(\Grav\Installer\Install::class, false)) {
+                    Install::forceSafeUpgrade(null);
+                }
             }
         }
     }
@@ -377,23 +385,6 @@ class SelfupgradeCommand extends GpmCommand
     }
 
     /**
-     * @return SafeUpgradeService
-     */
-    protected function createSafeUpgradeService(): SafeUpgradeService
-    {
-        $config = null;
-        try {
-            $config = Grav::instance()['config'] ?? null;
-        } catch (\Throwable $e) {
-            $config = null;
-        }
-
-        return new SafeUpgradeService([
-            'config' => $config,
-        ]);
-    }
-
-    /**
      * @param array $preflight
      * @return bool
      */
@@ -418,6 +409,27 @@ class SelfupgradeCommand extends GpmCommand
         }
 
         if ($pending) {
+            // Use the is_major_minor_upgrade flag from preflight result if available
+            $isMajorMinorUpgrade = $preflight['is_major_minor_upgrade'] ?? false;
+
+            // Fall back to calculating it if not provided (for backwards compatibility)
+            if (!isset($preflight['is_major_minor_upgrade']) && $this->upgrader) {
+                $local = $this->upgrader->getLocalVersion();
+                $remote = $this->upgrader->getRemoteVersion();
+                $localParts = explode('.', $local);
+                $remoteParts = explode('.', $remote);
+
+                $localMajor = (int)($localParts[0] ?? 0);
+                $localMinor = (int)($localParts[1] ?? 0);
+                $remoteMajor = (int)($remoteParts[0] ?? 0);
+                $remoteMinor = (int)($remoteParts[1] ?? 0);
+
+                $isMajorMinorUpgrade = ($localMajor !== $remoteMajor) || ($localMinor !== $remoteMinor);
+            }
+
+            $local = $this->upgrader ? $this->upgrader->getLocalVersion() : 'unknown';
+            $remote = $this->upgrader ? $this->upgrader->getRemoteVersion() : 'unknown';
+
             $io->newLine();
             $io->writeln('<yellow>The following packages need updating before Grav upgrade:</yellow>');
             foreach ($pending as $slug => $info) {
@@ -427,7 +439,16 @@ class SelfupgradeCommand extends GpmCommand
                 $io->writeln(sprintf('  - %s (%s) %s → %s', $slug, $type, $current, $available));
             }
 
-            $io->writeln('    › Please run `bin/gpm update` to bring these packages current before upgrading Grav.');
+            if ($isMajorMinorUpgrade) {
+                // For major/minor upgrades, this is EXPECTED behavior - updating plugins first is REQUIRED
+                $io->writeln('    › For major version upgrades (v' . $local . ' → v' . $remote . '), plugins must be updated to their latest');
+                $io->writeln('      compatible versions BEFORE upgrading Grav core to ensure compatibility.');
+                $io->writeln('      Please run `bin/gpm update` to update these packages, then retry self-upgrade.');
+            } else {
+                // For patch upgrades, this shouldn't normally happen but plugins still need updating
+                $io->writeln('    › Please run `bin/gpm update` to bring these packages current before upgrading Grav.');
+            }
+
             $io->writeln('Aborting self-upgrade. Run `bin/gpm update` first.');
 
             return false;

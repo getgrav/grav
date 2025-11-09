@@ -65,6 +65,17 @@ use const JSON_PRETTY_PRINT;
  */
 class SafeUpgradeService
 {
+    /**
+     * Version identifier for this SafeUpgradeService implementation.
+     * This is used to verify that the correct version is loaded during upgrades.
+     *
+     * IMPORTANT: Increment this with each release that changes SafeUpgradeService.
+     * Format: YYYYMMDD (release date)
+     *
+     * @var string
+     */
+    public const IMPLEMENTATION_VERSION = '20251106'; // 2025-11-06 - Added preflight to Install.php
+
     /** @var string */
     private $rootPath;
     /** @var string */
@@ -135,11 +146,28 @@ class SafeUpgradeService
     /**
      * Run preflight validations before attempting an upgrade.
      *
-     * @return array{plugins_pending: array<string, array>, psr_log_conflicts: array<string, array>, warnings: string[]}
+     * @param string|null $targetVersion The target Grav version being upgraded to (e.g., '1.8.0')
+     * @return array{plugins_pending: array<string, array>, psr_log_conflicts: array<string, array>, warnings: string[], is_major_minor_upgrade: bool}
      */
-    public function preflight(): array
+    public function preflight(?string $targetVersion = null): array
     {
         $warnings = [];
+        $isMajorMinorUpgrade = false;
+
+        // Determine if this is a major/minor version upgrade (e.g., 1.7.x -> 1.8.y)
+        if ($targetVersion !== null) {
+            $currentVersion = GRAV_VERSION;
+            $currentParts = explode('.', $currentVersion);
+            $targetParts = explode('.', $targetVersion);
+
+            $currentMajor = (int)($currentParts[0] ?? 0);
+            $currentMinor = (int)($currentParts[1] ?? 0);
+            $targetMajor = (int)($targetParts[0] ?? 0);
+            $targetMinor = (int)($targetParts[1] ?? 0);
+
+            $isMajorMinorUpgrade = ($currentMajor !== $targetMajor) || ($currentMinor !== $targetMinor);
+        }
+
         try {
             $pending = $this->detectPendingPluginUpdates();
         } catch (RuntimeException $e) {
@@ -149,8 +177,15 @@ class SafeUpgradeService
 
         $psrLogConflicts = $this->detectPsrLogConflicts();
         $monologConflicts = $this->detectMonologConflicts();
+
+        // Only enforce plugin updates for major/minor upgrades
+        // For patch upgrades, just warn but don't block
         if ($pending) {
-            $warnings[] = 'One or more plugins/themes are not up to date.';
+            if ($isMajorMinorUpgrade) {
+                $warnings[] = 'One or more plugins/themes are not up to date and must be updated for major version upgrades.';
+            } else {
+                $warnings[] = 'One or more plugins/themes are not up to date.';
+            }
         }
         if ($psrLogConflicts) {
             $warnings[] = 'Potential psr/log signature conflicts detected.';
@@ -164,6 +199,7 @@ class SafeUpgradeService
             'psr_log_conflicts' => $psrLogConflicts,
             'monolog_conflicts' => $monologConflicts,
             'warnings' => $warnings,
+            'is_major_minor_upgrade' => $isMajorMinorUpgrade,
         ];
     }
 
@@ -245,7 +281,16 @@ class SafeUpgradeService
         $this->persistManifest($manifest);
         $this->lastManifest = $manifest;
         $this->pruneOldSnapshots();
-        Folder::delete($stagePath);
+
+        // Clean up staging directory
+        // Wrap in try-catch because autoloader may have stale paths after file copy
+        try {
+            Folder::delete($stagePath);
+        } catch (\Throwable $e) {
+            // Staging cleanup failed, but upgrade succeeded
+            // Directory will be cleaned up on next request
+            error_log('Warning: Failed to delete staging directory: ' . $e->getMessage());
+        }
 
         return $manifest;
     }
