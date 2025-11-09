@@ -232,29 +232,6 @@ class SelfupgradeCommand extends GpmCommand
             $io->writeln("Grav v<cyan>{$remote}</cyan> is now available [release date: {$release}].");
             $io->writeln('You are currently using v<cyan>' . GRAV_VERSION . '</cyan>.');
 
-            // Determine if this is a major/minor version upgrade
-            $localParts = explode('.', $local);
-            $remoteParts = explode('.', $remote);
-
-            $localMajor = (int)($localParts[0] ?? 0);
-            $localMinor = (int)($localParts[1] ?? 0);
-            $remoteMajor = (int)($remoteParts[0] ?? 0);
-            $remoteMinor = (int)($remoteParts[1] ?? 0);
-
-            // Check if this is a major/minor version change (e.g., 1.7.x -> 1.8.y)
-            $isMajorMinorUpgrade = ($localMajor !== $remoteMajor) || ($localMinor !== $remoteMinor);
-
-            if ($isMajorMinorUpgrade) {
-                $io->newLine();
-                $io->writeln('<yellow>NOTE</yellow>: This is a major version upgrade.');
-                $io->writeln('It is recommended to run `<cyan>bin/gpm update</cyan>` first to update all plugins and themes');
-                $io->writeln('to their latest compatible versions before upgrading Grav core.');
-            } else {
-                $io->newLine();
-                $io->writeln('<green>NOTE</green>: This is a patch version upgrade.');
-                $io->writeln('You can safely proceed. Grav will check for any plugin compatibility issues during the upgrade.');
-            }
-
             if (!$this->all_yes) {
                 $question = new ConfirmationQuestion(
                     'Would you like to read the changelog before proceeding? [y|N] ',
@@ -423,6 +400,27 @@ class SelfupgradeCommand extends GpmCommand
         }
 
         if ($pending) {
+            // Use the is_major_minor_upgrade flag from preflight result if available
+            $isMajorMinorUpgrade = $preflight['is_major_minor_upgrade'] ?? false;
+
+            // Fall back to calculating it if not provided (for backwards compatibility)
+            if (!isset($preflight['is_major_minor_upgrade'])) {
+                $local = $this->upgrader->getLocalVersion();
+                $remote = $this->upgrader->getRemoteVersion();
+                $localParts = explode('.', $local);
+                $remoteParts = explode('.', $remote);
+
+                $localMajor = (int)($localParts[0] ?? 0);
+                $localMinor = (int)($localParts[1] ?? 0);
+                $remoteMajor = (int)($remoteParts[0] ?? 0);
+                $remoteMinor = (int)($remoteParts[1] ?? 0);
+
+                $isMajorMinorUpgrade = ($localMajor !== $remoteMajor) || ($localMinor !== $remoteMinor);
+            }
+
+            $local = $this->upgrader->getLocalVersion();
+            $remote = $this->upgrader->getRemoteVersion();
+
             $io->newLine();
             $io->writeln('<yellow>The following packages need updating before Grav upgrade:</yellow>');
             foreach ($pending as $slug => $info) {
@@ -432,7 +430,16 @@ class SelfupgradeCommand extends GpmCommand
                 $io->writeln(sprintf('  - %s (%s) %s → %s', $slug, $type, $current, $available));
             }
 
-            $io->writeln('    › Please run `bin/gpm update` to bring these packages current before upgrading Grav.');
+            if ($isMajorMinorUpgrade) {
+                // For major/minor upgrades, this is EXPECTED behavior - updating plugins first is REQUIRED
+                $io->writeln('    › For major version upgrades (v' . $local . ' → v' . $remote . '), plugins must be updated to their latest');
+                $io->writeln('      compatible versions BEFORE upgrading Grav core to ensure compatibility.');
+                $io->writeln('      Please run `bin/gpm update` to update these packages, then retry self-upgrade.');
+            } else {
+                // For patch upgrades, this shouldn't normally happen but plugins still need updating
+                $io->writeln('    › Please run `bin/gpm update` to bring these packages current before upgrading Grav.');
+            }
+
             $io->writeln('Aborting self-upgrade. Run `bin/gpm update` first.');
 
             return false;
