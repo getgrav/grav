@@ -467,10 +467,18 @@ ERR;
             require_once $serviceFile;
         }
 
+        // Check static override first
         if (null !== self::$forceSafeUpgrade) {
             return self::$forceSafeUpgrade;
         }
 
+        // Check environment variable set by SelfupgradeCommand (avoids early class loading)
+        $envValue = getenv('GRAV_FORCE_SAFE_UPGRADE');
+        if (false !== $envValue && '' !== $envValue) {
+            return $envValue === '1';
+        }
+
+        // Check Grav config
         try {
             $grav = Grav::instance();
             if ($grav && isset($grav['config'])) {
