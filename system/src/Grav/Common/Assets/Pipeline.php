@@ -16,8 +16,8 @@ use Grav\Common\Grav;
 use Grav\Common\Uri;
 use Grav\Common\Utils;
 use Grav\Framework\Object\PropertyObject;
-use MatthiasMullie\Minify\CSS;
-use MatthiasMullie\Minify\JS;
+use tubalmartin\CssMin\Minifier as CSSMinifier;
+use JShrink\Minifier as JSMinifier;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use function array_key_exists;
 
@@ -144,9 +144,8 @@ class Pipeline extends PropertyObject
 
             // Minify if required
             if ($this->shouldMinify('css')) {
-                $minifier = new CSS();
-                $minifier->add($buffer);
-                $buffer = $minifier->minify();
+                $minifier = new CSSMinifier();
+                $buffer = $minifier->run($buffer);
             }
 
             // Write file
@@ -206,9 +205,7 @@ class Pipeline extends PropertyObject
 
             // Minify if required
             if ($this->shouldMinify('js')) {
-                $minifier = new JS();
-                $minifier->add($buffer);
-                $buffer = $minifier->minify();
+                $buffer = JSMinifier::minify($buffer);
             }
 
             // Write file
