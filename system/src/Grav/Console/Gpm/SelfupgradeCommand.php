@@ -213,7 +213,7 @@ class SelfupgradeCommand extends GpmCommand
                         Install::instance()->finalize();
 
                         $io->write('  |- Running post-install scripts...  ');
-                        $io->writeln("  '- <green>Success!</green>  ");
+                        $io->writeln("  |- <green>Success!</green>  ");
                         $io->newLine();
                     }
                 }
@@ -292,11 +292,11 @@ class SelfupgradeCommand extends GpmCommand
 
             $error = 0;
             if (!$installation) {
-                $io->writeln("  '- <red>Installation failed or aborted.</red>");
+                $io->writeln("  |- <red>Installation failed or aborted.</red>");
                 $io->newLine();
                 $error = 1;
             } else {
-                $io->writeln("  '- <green>Success!</green>  ");
+                $io->writeln("  |- <green>Success!</green>  ");
 
                 $manifest = Install::instance()->getLastManifest();
                 if (is_array($manifest) && ($manifest['id'] ?? null)) {

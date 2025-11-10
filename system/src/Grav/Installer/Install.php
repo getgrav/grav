@@ -323,13 +323,9 @@ ERR;
                 }
             }
             $progressMessage = $safeUpgradeRequested
-                ? 'Safe upgrade temporarily using legacy installer...'
-                : 'Running legacy installer...';
+                ? 'Running Grav standard installer (safe mode)...'
+                : 'Running Grav standard installer...';
             $this->relayProgress('installing', $progressMessage, null);
-
-            if ($safeUpgradeRequested) {
-                error_log('[Grav Upgrade] Safe upgrade requested but staging is currently disabled; running legacy installer.');
-            }
 
             Installer::install(
                 $this->zip ?? '',
@@ -339,7 +335,7 @@ ERR;
                 !($this->zip && is_file($this->zip))
             );
 
-            $this->relayProgress('complete', 'Legacy installer finished.', 100);
+            $this->relayProgress('complete', 'Grav standard installer finished.', 100);
         } catch (Exception $e) {
             Installer::setError($e->getMessage());
         }
