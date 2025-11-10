@@ -333,6 +333,51 @@ class SafeUpgradeService
         return $manifest;
     }
 
+    /**
+     * Create a snapshot specifically for automated upgrades.
+     *
+     * @param string $targetVersion
+     * @param string|null $label
+     * @return array
+     */
+    public function createUpgradeSnapshot(string $targetVersion, ?string $label = null): array
+    {
+        $entries = $this->collectPackageEntries($this->rootPath);
+        if (!$entries) {
+            throw new RuntimeException('Unable to locate files to snapshot.');
+        }
+
+        $stageId = uniqid('upgrade-', false);
+        $backupPath = $this->stagingRoot . DIRECTORY_SEPARATOR . 'snapshot-' . $stageId;
+
+        $this->reportProgress('snapshot', sprintf('Capturing snapshot before upgrading to %s...', $targetVersion), null, [
+            'operation' => 'upgrade',
+            'target_version' => $targetVersion,
+        ]);
+
+        $this->createBackupSnapshot($entries, $backupPath);
+
+        $manifest = $this->buildManifest($stageId, $targetVersion, $this->rootPath, $backupPath, $entries);
+        $manifest['package_path'] = null;
+        if ($label !== null && $label !== '') {
+            $manifest['label'] = $label;
+        }
+        $manifest['operation'] = 'upgrade';
+        $manifest['mode'] = 'pre-upgrade';
+
+        $this->persistManifest($manifest);
+        $this->lastManifest = $manifest;
+        $this->pruneOldSnapshots();
+
+        $this->reportProgress('snapshot', sprintf('Snapshot %s captured.', $stageId), 100, [
+            'operation' => 'upgrade',
+            'snapshot' => $stageId,
+            'target_version' => $targetVersion,
+        ]);
+
+        return $manifest;
+    }
+
     private function collectPackageEntries(string $packagePath): array
     {
         $entries = [];
