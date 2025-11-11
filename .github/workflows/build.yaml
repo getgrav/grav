@@ -16,6 +16,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.ref }}
 
       - name: Extract Tag
         run: echo "PACKAGE_VERSION=${{ github.ref }}" >> $GITHUB_ENV
