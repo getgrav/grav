@@ -205,6 +205,7 @@ gpm:
 
 updates:
   safe_upgrade: true                             # Enable guarded staging+rollback pipeline for Grav self-updates
+  safe_upgrade_snapshot_limit: 5                 # Maximum number of safe-upgrade snapshots to retain (0 = unlimited)
 
 http:
   method: auto                                   # Either 'curl', 'fopen' or 'auto'. 'auto' will try fopen first and if not available cURL

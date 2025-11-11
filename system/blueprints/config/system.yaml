@@ -1596,6 +1596,15 @@ form:
               validate:
                 type: bool
 
+            updates.safe_upgrade_snapshot_limit:
+              type: number
+              label: PLUGIN_ADMIN.SAFE_UPGRADE_SNAPSHOT_LIMIT
+              help: PLUGIN_ADMIN.SAFE_UPGRADE_SNAPSHOT_LIMIT_HELP
+              default: 5
+              validate:
+                type: int
+                min: 0
+
             http_section:
               type: section
               title: PLUGIN_ADMIN.HTTP_SECTION
