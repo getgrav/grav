@@ -20,13 +20,16 @@ use Grav\Common\Plugins;
 use Grav\Common\Yaml;
 use RuntimeException;
 use Throwable;
+use function array_slice;
 use function basename;
 use function class_exists;
+use function count;
 use function date;
 use function dirname;
 use function explode;
 use function floor;
 use function function_exists;
+use function file_get_contents;
 use function glob;
 use function iterator_to_array;
 use function is_dir;
@@ -42,6 +45,7 @@ use function array_fill_keys;
 use function array_map;
 use function array_pad;
 use function array_key_exists;
+use function rsort;
 use function sort;
 use function sprintf;
 use function strtolower;
@@ -161,6 +165,8 @@ final class Install
     private static $forceSafeUpgrade = null;
     /** @var bool */
     private static $allowPendingOverride = false;
+    /** @var int|null */
+    private static $snapshotLimit = null;
     /** @var callable|null */
     private $progressCallback = null;
     /** @var array|null */
@@ -430,6 +436,35 @@ ERR;
         return false;
     }
 
+    private function getSafeUpgradeSnapshotLimit(): int
+    {
+        if (null !== self::$snapshotLimit) {
+            return self::$snapshotLimit;
+        }
+
+        $limit = 5;
+
+        try {
+            $grav = Grav::instance();
+            if ($grav && isset($grav['config'])) {
+                $configured = $grav['config']->get('system.updates.safe_upgrade_snapshot_limit');
+                if ($configured !== null) {
+                    $limit = (int)$configured;
+                }
+            }
+        } catch (\Throwable $e) {
+            // ignore bootstrap failures
+        }
+
+        if ($limit < 0) {
+            $limit = 0;
+        }
+
+        self::$snapshotLimit = $limit;
+
+        return $limit;
+    }
+
     private function captureCoreSnapshot(string $targetVersion): ?array
     {
         $entries = $this->collectSnapshotEntries();
@@ -484,6 +519,7 @@ ERR;
 
         $this->persistSnapshotManifest($manifest);
         $this->lastManifest = $manifest;
+        $this->pruneOldSnapshots($snapshotRoot);
 
         return $manifest;
     }
@@ -593,6 +629,83 @@ ERR;
             @file_put_contents($path, json_encode($manifest, JSON_PRETTY_PRINT));
         } catch (\Throwable $e) {
             error_log('[Grav Upgrade] Unable to write snapshot manifest: ' . $e->getMessage());
+        }
+    }
+
+    private function pruneOldSnapshots(?string $snapshotRoot): void
+    {
+        $limit = $this->getSafeUpgradeSnapshotLimit();
+        if ($limit <= 0) {
+            return;
+        }
+
+        $manifestDir = GRAV_ROOT . '/user/data/upgrades';
+        $files = glob($manifestDir . '/*.json');
+        if (!$files) {
+            return;
+        }
+
+        rsort($files);
+        if (count($files) <= $limit) {
+            return;
+        }
+
+        $obsolete = array_slice($files, $limit);
+        $removed = 0;
+
+        foreach ($obsolete as $manifestPath) {
+            $manifest = null;
+            try {
+                $contents = @file_get_contents($manifestPath);
+                if ($contents !== false) {
+                    $decoded = json_decode($contents, true);
+                    if (is_array($decoded)) {
+                        $manifest = $decoded;
+                    }
+                }
+            } catch (\Throwable $e) {
+                // ignore malformed manifests
+            }
+
+            $snapshotId = $manifest['id'] ?? basename($manifestPath, '.json');
+            $backupPath = $manifest['backup_path'] ?? null;
+
+            if ($backupPath && is_dir($backupPath)) {
+                try {
+                    Folder::delete($backupPath);
+                } catch (\Throwable $e) {
+                    error_log('[Grav Upgrade] Unable to delete snapshot directory ' . $backupPath . ': ' . $e->getMessage());
+                }
+            } elseif ($snapshotRoot && $snapshotId) {
+                $candidate = $snapshotRoot . '/' . $snapshotId;
+                if (is_dir($candidate)) {
+                    try {
+                        Folder::delete($candidate);
+                    } catch (\Throwable $e) {
+                        error_log('[Grav Upgrade] Unable to delete snapshot directory ' . $candidate . ': ' . $e->getMessage());
+                    }
+                }
+            }
+
+            if (!@unlink($manifestPath)) {
+                error_log('[Grav Upgrade] Unable to remove snapshot manifest: ' . $manifestPath);
+                continue;
+            }
+
+            $removed++;
+        }
+
+        if ($removed > 0) {
+            $this->relayProgress(
+                'snapshot',
+                sprintf(
+                    'Pruned %d old snapshot%s (keeping latest %d).',
+                    $removed,
+                    $removed === 1 ? '' : 's',
+                    $limit
+                ),
+                null
+            );
         }
     }
 
