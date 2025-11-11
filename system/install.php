@@ -14,14 +14,10 @@ if (!defined('GRAV_ROOT')) {
 // This happens when upgrading from older versions where the OLD Install class
 // was loaded via autoloader before extracting the update package (e.g., via Install::forceSafeUpgrade())
 $logInstallerSource = static function ($install, string $source) {
-    try {
-        $reflection = new \ReflectionClass($install);
-        $path = $reflection->getFileName() ?: 'unknown';
-    } catch (\Throwable $e) {
-        $path = 'unknown';
+    $sourceLabel = $source === 'extracted update package' ? 'update package' : 'existing installation';
+    if (PHP_SAPI === 'cli' || PHP_SAPI === 'phpdbg') {
+        echo sprintf("  |- Using installer from %s\n", $sourceLabel);
     }
-
-    error_log(sprintf('[Grav Upgrade] Installer loaded from %s: %s', $source, $path));
 };
 
 if (class_exists('Grav\\Installer\\Install', false)) {

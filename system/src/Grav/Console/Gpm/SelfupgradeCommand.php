@@ -392,13 +392,10 @@ class SelfupgradeCommand extends GpmCommand
     {
         $io = $this->getIO();
         $pending = $preflight['plugins_pending'] ?? [];
+        $blocking = $preflight['blocking'] ?? [];
         $conflicts = $preflight['psr_log_conflicts'] ?? [];
         $monologConflicts = $preflight['monolog_conflicts'] ?? [];
         $warnings = $preflight['warnings'] ?? [];
-
-        if (empty($pending) && empty($conflicts) && empty($monologConflicts)) {
-            return true;
-        }
 
         if ($warnings) {
             $io->newLine();
@@ -406,6 +403,20 @@ class SelfupgradeCommand extends GpmCommand
             foreach ($warnings as $warning) {
                 $io->writeln('  • ' . $warning);
             }
+        }
+
+        if ($blocking && empty($pending)) {
+            $io->newLine();
+            $io->writeln('<red>Upgrade blocked:</red>');
+            foreach ($blocking as $reason) {
+                $io->writeln('  - ' . $reason);
+            }
+
+            return false;
+        }
+
+        if (empty($pending) && empty($conflicts) && empty($monologConflicts)) {
+            return true;
         }
 
         if ($pending) {
@@ -449,9 +460,20 @@ class SelfupgradeCommand extends GpmCommand
                 $io->writeln('    › Please run `bin/gpm update` to bring these packages current before upgrading Grav.');
             }
 
-            $io->writeln('Aborting self-upgrade. Run `bin/gpm update` first.');
+            $proceed = false;
+            if (!$this->all_yes) {
+                $question = new ConfirmationQuestion('Proceed anyway? [y|N] ', false);
+                $proceed = $io->askQuestion($question);
+            }
 
-            return false;
+            if (!$proceed) {
+                $io->writeln('Aborting self-upgrade. Run `bin/gpm update` first.');
+
+                return false;
+            }
+
+            Install::allowPendingPackageOverride(true);
+            $io->writeln('    › Proceeding despite pending plugin/theme updates.');
         }
 
         $handled = $this->handleConflicts(
@@ -642,6 +664,14 @@ class SelfupgradeCommand extends GpmCommand
                     $install->setProgressCallback(function (string $stage, string $message, ?int $percent = null, array $extra = []) {
                         $this->handleServiceProgress($stage, $message, $percent);
                     });
+                }
+                if (is_object($install) && method_exists($install, 'generatePreflightReport')) {
+                    $report = $install->generatePreflightReport();
+                    if (!$this->handlePreflightReport($report)) {
+                        Installer::setError('Upgrade aborted due to preflight requirements.');
+
+                        return;
+                    }
                 }
                 $install($zip);
             } else {
