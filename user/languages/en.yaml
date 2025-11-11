@@ -98,3 +98,120 @@ GRAV:
         MISSING_REQUIRED_FIELD: 'Missing required field:'
         XSS_ISSUES: "Potential XSS issues detected in '%s' field"
 
+
+# ============================================
+# ddCMS Admin Panel Language Overrides
+# Replace "Grav" branding with "ddCMS"
+# ============================================
+
+PLUGIN_ADMIN:
+    # Main Branding
+    ADMIN: 'ddCMS Admin'
+    ADMIN_PANEL: 'ddCMS Admin Panel'
+    ADMIN_BETA_MSG: 'Welcome to ddCMS - A Professional CMS by Dixon Digital'
+    LOGGED_IN: 'Logged into ddCMS'
+    
+    # Dashboard
+    DASHBOARD: 'Dashboard'
+    WELCOME: 'Welcome to ddCMS'
+    DASHBOARD_TITLE: 'ddCMS Dashboard'
+    STATS: 'Statistics'
+    
+    # Pages
+    PAGES: 'Pages'
+    MANAGE_PAGES: 'Manage Pages'
+    PAGE_MANAGER: 'Page Manager'
+    ADD_PAGE: 'Add Page'
+    EDIT_PAGE: 'Edit Page'
+    
+    # Configuration
+    CONFIGURATION: 'Configuration'
+    SYSTEM: 'System'
+    SITE: 'Site'
+    
+    # Plugins & Themes
+    PLUGINS: 'Plugins'
+    THEMES: 'Themes'
+    MANAGE_PLUGINS: 'Manage Plugins'
+    MANAGE_THEMES: 'Manage Themes'
+    
+    # Users
+    USERS: 'Users'
+    MANAGE_USERS: 'Manage Users'
+    ADD_USER: 'Add User'
+    
+    # Tools
+    TOOLS: 'Tools'
+    BACKUP: 'Backup'
+    CLEAR_CACHE: 'Clear Cache'
+    
+    # Updates (hide Grav references)
+    UPDATES_AVAILABLE: 'System Updates Available'
+    CHECK_FOR_UPDATES: 'Check for Updates'
+    UPDATE_SYSTEM: 'Update System'
+    
+    # Media
+    MEDIA: 'Media'
+    MEDIA_MANAGER: 'Media Manager'
+    UPLOAD: 'Upload'
+    
+    # Footer
+    FOOTER_POWERED_BY: 'Powered by Dixon Digital'
+    FOOTER_VERSION: 'ddCMS Version'
+    
+    # Login
+    LOGIN: 'Login'
+    LOGIN_BTN: 'Login'
+    LOGOUT: 'Logout'
+    USERNAME: 'Username'
+    PASSWORD: 'Password'
+    REMEMBER_ME: 'Remember Me'
+    FORGOT_PASSWORD: 'Forgot Password?'
+    
+    # Messages
+    SUCCESS: 'Success'
+    ERROR: 'Error'
+    WARNING: 'Warning'
+    INFO: 'Information'
+    
+    # Common Actions
+    SAVE: 'Save'
+    CANCEL: 'Cancel'
+    DELETE: 'Delete'
+    EDIT: 'Edit'
+    COPY: 'Copy'
+    MOVE: 'Move'
+    PUBLISH: 'Publish'
+    UNPUBLISH: 'Unpublish'
+    
+    # Help & Support
+    HELP: 'Help'
+    DOCUMENTATION: 'Documentation'
+    SUPPORT: 'Dixon Digital Support'
+    REPORT_ISSUE: 'Report Issue to Dixon Digital'
+    
+    # Notifications
+    PAGE_SAVED: 'Page saved successfully'
+    PAGE_DELETED: 'Page deleted successfully'
+    CONFIGURATION_SAVED: 'Configuration saved successfully'
+    CACHE_CLEARED: 'Cache cleared successfully'
+    
+    # Installation
+    INSTALLATION: 'Installation'
+    INSTALLED: 'Installed'
+    NOT_INSTALLED: 'Not Installed'
+    
+    # Version Info
+    VERSION: 'Version'
+    LATEST_VERSION: 'Latest Version'
+    CURRENT_VERSION: 'Current Version'
+
+# ============================================
+# Site-Specific Customizations (OCEDC)
+# ============================================
+
+SITE:
+    TITLE: 'Ogle County Economic Development Corporation'
+    DESCRIPTION: 'Building Economic Prosperity in Ogle County'
+    COPYRIGHT: '© 2024 OCEDC. All rights reserved.'
+

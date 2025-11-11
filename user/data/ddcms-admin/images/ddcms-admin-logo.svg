@@ -1,0 +1,17 @@
+<svg width="160" height="40" xmlns="http://www.w3.org/2000/svg">
+  <!-- ddCMS Admin Logo - White version for dark header -->
+  <defs>
+    <linearGradient id="dd-icon-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#60a5fa;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#3b82f6;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Icon -->
+  <rect x="0" y="0" width="36" height="36" rx="6" fill="url(#dd-icon-gradient)"/>
+  <text x="18" y="26" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="white" text-anchor="middle">DD</text>
+
+  <!-- Text -->
+  <text x="44" y="22" font-family="Arial, sans-serif" font-size="20" font-weight="bold" fill="white">ddCMS</text>
+  <text x="44" y="34" font-family="Arial, sans-serif" font-size="9" fill="rgba(255,255,255,0.7)">Dixon Digital</text>
+</svg>

@@ -23,13 +23,38 @@
         <meta name="description" content="{{ description|e('html') }}">
         <meta name="keywords" content="{{ keywords|e('html') }}">
         <meta name="author" content="{{ site.author.name|default('')|e('html') }}">
-        
+
         {% if page.metadata.robots %}
             <meta name="robots" content="{{ page.metadata.robots }}">
         {% endif %}
-        
+
         <link rel="canonical" href="{{ page.url(true, true) }}" />
-        
+
+        {# Favicons #}
+        <link rel="icon" type="image/svg+xml" href="{{ url('theme://images/favicons/favicon-source.svg') }}">
+        <link rel="alternate icon" type="image/x-icon" href="{{ url('theme://images/favicons/favicon.ico') }}">
+        <link rel="apple-touch-icon" sizes="180x180" href="{{ url('theme://images/favicons/apple-touch-icon.png') }}">
+        <meta name="theme-color" content="#1a4d8f">
+
+        {# OpenGraph / Facebook #}
+        <meta property="og:type" content="website">
+        <meta property="og:url" content="{{ page.url(true, true) }}">
+        <meta property="og:title" content="{% if header.title %}{{ header.title|e('html') }}{% else %}{{ site.title|e('html') }}{% endif %}">
+        <meta property="og:description" content="{{ description|e('html') }}">
+        <meta property="og:site_name" content="{{ site.title|e('html') }}">
+        {% if page.media.images|first %}
+            <meta property="og:image" content="{{ page.media.images|first.url(true) }}">
+        {% endif %}
+
+        {# Twitter Card #}
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:url" content="{{ page.url(true, true) }}">
+        <meta name="twitter:title" content="{% if header.title %}{{ header.title|e('html') }}{% else %}{{ site.title|e('html') }}{% endif %}">
+        <meta name="twitter:description" content="{{ description|e('html') }}">
+        {% if page.media.images|first %}
+            <meta name="twitter:image" content="{{ page.media.images|first.url(true) }}">
+        {% endif %}
+
         {% block stylesheets %}
             {% do assets.addCss('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css', 101) %}
             {% do assets.addCss('theme://css/main.css', 100) %}
@@ -60,8 +85,44 @@
     {% block footer %}
         {% include 'partials/footer.html.twig' %}
     {% endblock %}
-    
+
     {{ assets.js('bottom')|raw }}
+
+    {# Structured Data (Schema.org JSON-LD) for SEO #}
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "GovernmentOrganization",
+        "name": "Ogle County Economic Development Corporation",
+        "alternateName": "OCEDC",
+        "url": "{{ site.url }}",
+        "logo": "{{ url('theme://images/logos/logo-ocedc.svg', true) }}",
+        "description": "Ogle County Economic Development Corporation promotes economic growth and business development in Ogle County, Illinois.",
+        "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "123 Main Street",
+            "addressLocality": "Oregon",
+            "addressRegion": "IL",
+            "postalCode": "61061",
+            "addressCountry": "US"
+        },
+        "telephone": "+1-815-555-1234",
+        "email": "info@oglecoedg.org",
+        "areaServed": {
+            "@type": "City",
+            "name": "Ogle County",
+            "containedInPlace": {
+                "@type": "State",
+                "name": "Illinois"
+            }
+        },
+        "sameAs": [
+            "https://www.facebook.com/ocedc",
+            "https://www.linkedin.com/company/ocedc",
+            "https://twitter.com/ocedc"
+        ]
+    }
+    </script>
 </body>
 </html>
 

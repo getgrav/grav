@@ -1,6 +1,10 @@
 ---
 title: Business Resources
 menu: Resources
+metadata:
+    description: 'Access comprehensive business resources for Ogle County. Find information on starting a business, available sites, incentives, financing, and key contacts.'
+    keywords: 'business resources, Ogle County incentives, site selection, business financing, tax incentives, Illinois business support, economic development resources'
+    robots: 'index, follow'
 ---
 
 # Business Resources

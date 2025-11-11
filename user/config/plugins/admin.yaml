@@ -1,1 +1,90 @@
 enabled: true
+
+# ddCMS Admin Panel Configuration
+# White-label branding by Dixon Digital
+
+# Logo and Branding
+logo_text: 'ddCMS'
+body_classes: 'ddcms-admin'
+
+# Custom CSS - Load ddCMS branded styles
+add_css:
+  - 'user://data/ddcms-admin/css/ddcms-admin.css'
+
+# Dashboard Configuration
+dashboard:
+  days_of_stats: 7
+  show_updates: false        # Hide Grav update notifications
+  show_latest: true
+
+
+show_github_msg: false        # Hide GitHub contribution messages
+show_beta_msg: false          # Hide beta version messages
+
+# Content Editor
+content_padding: false
+twofa_enabled: false          # Two-factor auth (can enable for security)
+
+# Notifications
+notifications:
+  feed: false                 # Disable Grav news feed
+  dashboard: false
+
+# Hide certain elements
+popularity:
+  enabled: false              # Disable anonymous data collection
+
+# Login Configuration
+login:
+  redirect_to_login: true
+  redirect_after_login: '/'
+
+# Session Configuration
+session:
+  timeout: 1800              # 30 minutes
+
+# Sidebar customization
+sidebar:
+  activate: true
+  hover_delay: 100
+  size: 'auto'
+
+# Custom quick tray links (top right)
+tray:
+  links:
+    - text: 'Dixon Digital Support'
+      url: 'https://dixondigital.com/support'
+      icon: 'fa-life-ring'
+      target: '_blank'
+    - text: 'ddCMS Documentation'
+      url: 'https://dixondigital.com/ddcms/docs'
+      icon: 'fa-book'
+      target: '_blank'
+
+# Media Manager
+media:
+  enable_media_timestamp: false
+
+# Edit mode
+edit_mode:
+  normal: true
+  expert: true
+  default: 'normal'
+
+# Frontend Preview
+frontend_preview_target: 'inline'  # or 'inline' or 'iframe'
+
+# Permissions (can be customized per user role)
+admin:
+  pagesmanager:
+    enabled: true
+  media:
+    enabled: true
+  config:
+    enabled: true
+  plugins:
+    enabled: true
+  themes:
+    enabled: true
+  users:
+    enabled: true

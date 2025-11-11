@@ -1,0 +1,12 @@
+<svg width="280" height="70" xmlns="http://www.w3.org/2000/svg">
+  <!-- OCEDC Logo Placeholder - Replace with professional logo -->
+
+  <!-- Icon circle with colors -->
+  <circle cx="35" cy="35" r="30" fill="#1a4d8f"/>
+  <circle cx="35" cy="35" r="20" fill="#6cb541"/>
+  <circle cx="35" cy="35" r="10" fill="#f39c12"/>
+
+  <!-- OCEDC text -->
+  <text x="75" y="32" font-family="Arial, sans-serif" font-size="28" font-weight="bold" fill="#1a4d8f">OCEDC</text>
+  <text x="75" y="52" font-family="Arial, sans-serif" font-size="11" fill="#64748b">Ogle County Economic Development</text>
+</svg>

@@ -1,1 +1,69 @@
 enabled: true
+
+# Email Configuration for OCEDC Website
+# Update these settings with your actual email provider details
+
+# From address (used for all outgoing emails)
+from: 'noreply@ocedc.org'
+from_name: 'OCEDC Website'
+
+# To address (where contact form submissions will be sent)
+to: 'info@oglecoedg.org'
+to_name: 'OCEDC Admin'
+
+# Email engine: 'mail' (PHP mail) or 'smtp' (recommended for production)
+mailer:
+  engine: smtp
+  smtp:
+    server: 'smtp.example.com'        # CHANGE THIS: Your SMTP server (e.g., smtp.gmail.com, smtp.office365.com)
+    port: 587                          # Common ports: 587 (TLS), 465 (SSL), 25 (unsecured)
+    encryption: tls                    # Options: tls, ssl, or none
+    user: 'your-email@example.com'    # CHANGE THIS: Your SMTP username/email
+    password: 'your-password'          # CHANGE THIS: Your SMTP password or app password
+
+# Alternative: Use PHP mail() function (less reliable, may go to spam)
+# mailer:
+#   engine: mail
+
+# Email content type
+content_type: 'text/html'
+
+# Character set
+charset: 'UTF-8'
+
+# Enable debug mode (set to false in production)
+debug: false
+
+# Queue emails (requires additional configuration)
+queue:
+  enabled: false
+
+# IMPORTANT: Popular SMTP Provider Examples
+#
+# Gmail:
+#   server: smtp.gmail.com
+#   port: 587
+#   encryption: tls
+#   user: your-email@gmail.com
+#   password: your-app-password (use App Password, not regular password)
+#
+# Office 365:
+#   server: smtp.office365.com
+#   port: 587
+#   encryption: tls
+#   user: your-email@yourdomain.com
+#   password: your-password
+#
+# SendGrid:
+#   server: smtp.sendgrid.net
+#   port: 587
+#   encryption: tls
+#   user: apikey
+#   password: YOUR_SENDGRID_API_KEY
+#
+# Mailgun:
+#   server: smtp.mailgun.org
+#   port: 587
+#   encryption: tls
+#   user: postmaster@your-domain.mailgun.org
+#   password: your-mailgun-password

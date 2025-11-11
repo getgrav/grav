@@ -1,0 +1,584 @@
+/**
+ * ddCMS Admin Panel Custom Styles
+ * White-label branding for Dixon Digital
+ *
+ * This file customizes the Grav admin panel with ddCMS branding
+ */
+
+/* ============================================
+   COLOR VARIABLES (Dixon Digital Brand)
+   ============================================ */
+:root {
+    --ddcms-primary: #2563eb;
+    --ddcms-primary-hover: #1d4ed8;
+    --ddcms-primary-light: #3b82f6;
+    --ddcms-secondary: #64748b;
+    --ddcms-accent: #f59e0b;
+    --ddcms-success: #10b981;
+    --ddcms-danger: #ef4444;
+    --ddcms-dark: #0f172a;
+    --ddcms-light: #f8fafc;
+}
+
+/* ============================================
+   ADMIN HEADER / TOPBAR
+   ============================================ */
+
+/* Header Background - ddCMS Blue Gradient */
+#admin-topbar,
+.admin-topbar {
+    background: linear-gradient(135deg, var(--ddcms-primary) 0%, var(--ddcms-primary-light) 100%) !important;
+    border-bottom: 2px solid var(--ddcms-primary-hover);
+}
+
+/* Logo Area */
+#admin-logo,
+.admin-logo {
+    background-image: url('../images/ddcms-admin-logo.svg') !important;
+    background-size: contain !important;
+    background-repeat: no-repeat !important;
+    background-position: left center !important;
+    width: 160px !important;
+    height: 40px !important;
+}
+
+/* Hide default Grav logo text */
+#admin-logo span,
+.admin-logo span,
+.admin-logo-text {
+    display: none !important;
+}
+
+/* Topbar Navigation Links */
+#admin-topbar a,
+.admin-topbar a {
+    color: rgba(255, 255, 255, 0.95) !important;
+}
+
+#admin-topbar a:hover,
+.admin-topbar a:hover {
+    color: white !important;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* User Menu in Header */
+#admin-user-menu,
+.admin-user-menu {
+    color: white !important;
+}
+
+/* ============================================
+   SIDEBAR NAVIGATION
+   ============================================ */
+
+/* Sidebar Background */
+#admin-sidebar,
+.admin-sidebar,
+.admin-menu {
+    background: var(--ddcms-dark) !important;
+}
+
+/* Sidebar Links */
+#admin-sidebar a,
+.admin-sidebar a,
+.admin-menu a {
+    color: #e2e8f0 !important;
+    transition: all 0.2s ease;
+}
+
+#admin-sidebar a:hover,
+.admin-sidebar a:hover,
+.admin-menu a:hover {
+    background: #1e293b !important;
+    color: white !important;
+    border-left: 3px solid var(--ddcms-primary);
+}
+
+/* Active Menu Item */
+#admin-sidebar a.active,
+.admin-sidebar a.active,
+.admin-menu a.active {
+    background: #1e293b !important;
+    border-left: 3px solid var(--ddcms-primary) !important;
+    color: white !important;
+}
+
+/* Sidebar Icons */
+#admin-sidebar i,
+.admin-sidebar i,
+.admin-menu i {
+    color: var(--ddcms-accent);
+}
+
+/* ============================================
+   BUTTONS & FORMS
+   ============================================ */
+
+/* Primary Buttons */
+.button.primary,
+.button-primary,
+button.primary,
+input[type="submit"].primary,
+a.button.primary {
+    background: var(--ddcms-primary) !important;
+    border-color: var(--ddcms-primary) !important;
+    color: white !important;
+    transition: all 0.2s ease;
+}
+
+.button.primary:hover,
+.button-primary:hover,
+button.primary:hover {
+    background: var(--ddcms-primary-hover) !important;
+    border-color: var(--ddcms-primary-hover) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+/* Secondary Buttons */
+.button.secondary,
+.button-secondary {
+    background: var(--ddcms-secondary) !important;
+    border-color: var(--ddcms-secondary) !important;
+}
+
+/* Success Buttons */
+.button.success {
+    background: var(--ddcms-success) !important;
+    border-color: var(--ddcms-success) !important;
+}
+
+/* Danger/Delete Buttons */
+.button.danger,
+.button-danger {
+    background: var(--ddcms-danger) !important;
+    border-color: var(--ddcms-danger) !important;
+}
+
+/* Form Focus States */
+input:focus,
+textarea:focus,
+select:focus {
+    border-color: var(--ddcms-primary) !important;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1) !important;
+}
+
+/* ============================================
+   LINKS
+   ============================================ */
+
+/* Primary Links */
+a,
+a:link {
+    color: var(--ddcms-primary);
+    transition: color 0.2s ease;
+}
+
+a:hover {
+    color: var(--ddcms-primary-hover);
+}
+
+/* ============================================
+   CARDS & PANELS
+   ============================================ */
+
+/* Card Styling */
+.card,
+.panel,
+.notice {
+    border-top: 3px solid var(--ddcms-primary);
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* Card Headers */
+.card-header,
+.panel-heading {
+    background: var(--ddcms-light);
+    border-bottom: 1px solid #e2e8f0;
+    font-weight: 600;
+    color: var(--ddcms-dark);
+}
+
+/* ============================================
+   DASHBOARD
+   ============================================ */
+
+/* Dashboard Widgets */
+.dashboard-widget {
+    border-top: 3px solid var(--ddcms-primary);
+    transition: transform 0.2s ease;
+}
+
+.dashboard-widget:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Dashboard Statistics */
+.stat-box {
+    background: linear-gradient(135deg, var(--ddcms-primary) 0%, var(--ddcms-primary-light) 100%);
+    color: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: bold;
+    color: white;
+}
+
+/* ============================================
+   NOTIFICATIONS & ALERTS
+   ============================================ */
+
+/* Success Notifications */
+.notice.success,
+.alert.success {
+    border-left: 4px solid var(--ddcms-success);
+    background: rgba(16, 185, 129, 0.1);
+}
+
+/* Error Notifications */
+.notice.error,
+.alert.error,
+.notice.danger {
+    border-left: 4px solid var(--ddcms-danger);
+    background: rgba(239, 68, 68, 0.1);
+}
+
+/* Warning Notifications */
+.notice.warning,
+.alert.warning {
+    border-left: 4px solid var(--ddcms-accent);
+    background: rgba(245, 158, 11, 0.1);
+}
+
+/* Info Notifications */
+.notice.info,
+.alert.info {
+    border-left: 4px solid var(--ddcms-primary);
+    background: rgba(37, 99, 235, 0.1);
+}
+
+/* ============================================
+   TABS
+   ============================================ */
+
+/* Tab Navigation */
+.tabs-nav li.active a,
+.tabs-nav li a:hover {
+    border-bottom: 3px solid var(--ddcms-primary);
+    color: var(--ddcms-primary);
+}
+
+/* ============================================
+   TABLES
+   ============================================ */
+
+/* Table Headers */
+table thead th,
+.table thead th {
+    background: var(--ddcms-light);
+    color: var(--ddcms-dark);
+    font-weight: 600;
+    border-bottom: 2px solid var(--ddcms-primary);
+}
+
+/* Table Row Hover */
+table tbody tr:hover,
+.table tbody tr:hover {
+    background: rgba(37, 99, 235, 0.05);
+}
+
+/* ============================================
+   FOOTER
+   ============================================ */
+
+/* Admin Footer */
+#admin-footer,
+.admin-footer {
+    background: var(--ddcms-light);
+    border-top: 1px solid #e2e8f0;
+    padding: 1rem;
+    text-align: center;
+}
+
+/* Hide default Grav footer text */
+#admin-footer .footer-branding {
+    display: none;
+}
+
+/* Add ddCMS branding */
+#admin-footer::after {
+    content: 'Powered by ddCMS — A Dixon Digital Product';
+    display: block;
+    color: var(--ddcms-secondary);
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+}
+
+/* ============================================
+   LOGIN PAGE
+   ============================================ */
+
+/* Login Page Background */
+body.admin-login,
+.login-page {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background-attachment: fixed;
+}
+
+/* Login Form Container */
+.login-form,
+.login-container {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    padding: 3rem;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+/* Login Logo */
+.login-logo,
+#grav-login-logo {
+    background-image: url('../images/ddcms-login-logo.svg') !important;
+    background-size: contain !important;
+    background-repeat: no-repeat !important;
+    background-position: center !important;
+    height: 80px !important;
+    width: 100% !important;
+    margin-bottom: 2rem;
+}
+
+/* Hide default logo */
+.login-logo img,
+#grav-login-logo img {
+    display: none !important;
+}
+
+/* Login Form Title */
+.login-form h1,
+.login-container h1 {
+    color: var(--ddcms-dark);
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+/* Login Form Inputs */
+.login-form input[type="text"],
+.login-form input[type="password"],
+.login-form input[type="email"] {
+    border: 2px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 12px 16px;
+    font-size: 1rem;
+    transition: border-color 0.2s;
+}
+
+.login-form input:focus {
+    border-color: var(--ddcms-primary);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* Login Submit Button */
+.login-form button[type="submit"],
+.login-form input[type="submit"] {
+    background: var(--ddcms-primary) !important;
+    border: none !important;
+    border-radius: 6px;
+    padding: 12px 24px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    width: 100%;
+}
+
+.login-form button[type="submit"]:hover,
+.login-form input[type="submit"]:hover {
+    background: var(--ddcms-primary-hover) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+}
+
+/* Login Footer Text */
+.login-footer,
+.login-form .footer-text {
+    text-align: center;
+    margin-top: 2rem;
+    font-size: 0.875rem;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.login-footer a {
+    color: white;
+    text-decoration: underline;
+}
+
+/* ============================================
+   MEDIA MANAGER
+   ============================================ */
+
+/* Media Grid Items */
+.media-item:hover {
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    transform: translateY(-2px);
+}
+
+/* Media Selected State */
+.media-item.selected {
+    border: 2px solid var(--ddcms-primary);
+}
+
+/* ============================================
+   PLUGIN & THEME PAGES
+   ============================================ */
+
+/* Plugin Cards */
+.plugin-item,
+.theme-item {
+    border-top: 3px solid var(--ddcms-secondary);
+    transition: border-color 0.2s;
+}
+
+.plugin-item:hover,
+.theme-item:hover {
+    border-top-color: var(--ddcms-primary);
+}
+
+/* Install Buttons */
+.plugin-install-button,
+.theme-install-button {
+    background: var(--ddcms-success) !important;
+}
+
+/* ============================================
+   RESPONSIVE ADJUSTMENTS
+   ============================================ */
+
+@media (max-width: 768px) {
+    /* Mobile Adjustments */
+    #admin-logo,
+    .admin-logo {
+        width: 120px !important;
+    }
+
+    .login-form,
+    .login-container {
+        padding: 2rem;
+        margin: 1rem;
+    }
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+
+/* ddCMS Badge */
+.ddcms-badge {
+    background: var(--ddcms-primary);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* ddCMS Success Badge */
+.ddcms-badge-success {
+    background: var(--ddcms-success);
+}
+
+/* ddCMS Warning Badge */
+.ddcms-badge-warning {
+    background: var(--ddcms-accent);
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+
+/* Smooth transitions for all interactive elements */
+button,
+a,
+input,
+.card,
+.panel {
+    transition: all 0.2s ease;
+}
+
+/* Fade-in animation for loaded content */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.3s ease;
+}
+
+/* ============================================
+   CUSTOM DASHBOARD WELCOME
+   ============================================ */
+
+/* Welcome Banner */
+.ddcms-welcome-banner {
+    background: linear-gradient(135deg, var(--ddcms-primary) 0%, var(--ddcms-primary-light) 100%);
+    color: white;
+    padding: 2rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+}
+
+.ddcms-welcome-banner h2 {
+    color: white;
+    margin: 0 0 0.5rem 0;
+    font-size: 1.5rem;
+}
+
+.ddcms-welcome-banner p {
+    color: rgba(255, 255, 255, 0.9);
+    margin: 0;
+}
+
+/* ============================================
+   PRINT STYLES
+   ============================================ */
+
+@media print {
+    /* Hide navigation when printing */
+    #admin-sidebar,
+    #admin-topbar,
+    #admin-footer {
+        display: none !important;
+    }
+}
+
+/* ============================================
+   DARK MODE SUPPORT (Future Enhancement)
+   ============================================ */
+
+@media (prefers-color-scheme: dark) {
+    /* Dark mode adjustments can be added here */
+}
+
+/* ============================================
+   END OF ddCMS ADMIN STYLES
+   ============================================ */
+
+/* Version: 1.0.0 */
+/* Last Updated: 2024 */
+/* Author: Dixon Digital */

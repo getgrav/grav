@@ -1,6 +1,10 @@
 ---
 title: Why Ogle County
 menu: Why Ogle County
+metadata:
+    description: 'Discover why Ogle County, Illinois is the perfect location for your business. Strategic I-39 access, skilled workforce, competitive costs, and exceptional quality of life.'
+    keywords: 'why Ogle County, business location Illinois, I-39 corridor, workforce development, business advantages, site selection, Northern Illinois'
+    robots: 'index, follow'
 ---
 
 # Why Ogle County?

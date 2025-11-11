@@ -2,13 +2,16 @@
     <div class="container">
         <div class="header-inner">
             <div class="logo">
-                {% if theme.header.logo %}
-                    <a href="{{ base_url }}" class="logo-image">
-                        <img src="{{ url('theme://images/' ~ theme.header.logo) }}" alt="{{ site.title|e('html') }}" />
+                {% if theme.header.use_logo_image and theme.header.logo %}
+                    <a href="{{ base_url }}" class="logo-link">
+                        <img src="{{ url('theme://images/logos/' ~ theme.header.logo) }}"
+                             alt="{{ theme.header.logo_alt|default(site.title)|e('html') }}"
+                             class="logo-image"
+                             height="50" />
                     </a>
                 {% else %}
-                    <a href="{{ base_url }}" class="logo-text">
-                        {{ theme.header.logo_text|default(site.title)|e('html') }}
+                    <a href="{{ base_url }}" class="logo-link">
+                        <span class="logo-text">{{ theme.header.logo_text|default(site.title)|e('html') }}</span>
                     </a>
                 {% endif %}
             </div>

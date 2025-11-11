@@ -3,8 +3,11 @@ dropdown:
   enabled: false
 
 header:
-  logo_text: 'OCEDC'
+  logo: 'logo-ocedc.svg'               # Logo file from theme://images/logos/
+  logo_alt: 'OCEDC - Ogle County Economic Development Corporation'
+  logo_text: 'OCEDC'                   # Fallback text if logo not available
   tagline: 'Building Economic Prosperity in Ogle County'
+  use_logo_image: true                 # Set to false to use text-only logo
 
 footer:
   copyright: '© 2024 Ogle County Economic Development Corporation. All rights reserved.'
