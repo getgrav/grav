@@ -1,0 +1,27 @@
+<nav class="main-navigation" role="navigation" aria-label="Main navigation">
+    {% set root = pages.root() %}
+    {% set pages_list = root.children.visible %}
+    
+    {% if pages_list|length > 0 %}
+        <ul class="nav-menu">
+            {% for page_item in pages_list %}
+                <li class="nav-item {{ page_item.active ? 'active' : '' }}">
+                    <a href="{{ page_item.url }}" class="nav-link">
+                        {{ page_item.menu ?: page_item.title }}
+                    </a>
+                    
+                    {% if page_item.children.visible|length > 0 %}
+                        <ul class="submenu">
+                            {% for child in page_item.children.visible %}
+                                <li class="submenu-item">
+                                    <a href="{{ child.url }}" class="submenu-link">{{ child.menu ?: child.title }}</a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+</nav>
+

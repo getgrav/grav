@@ -1,0 +1,32 @@
+<header class="site-header" role="banner">
+    <div class="container">
+        <div class="header-inner">
+            <div class="logo">
+                {% if theme.header.logo %}
+                    <a href="{{ base_url }}" class="logo-image">
+                        <img src="{{ url('theme://images/' ~ theme.header.logo) }}" alt="{{ site.title|e('html') }}" />
+                    </a>
+                {% else %}
+                    <a href="{{ base_url }}" class="logo-text">
+                        {{ theme.header.logo_text|default(site.title)|e('html') }}
+                    </a>
+                {% endif %}
+            </div>
+            
+            {% if theme.header.tagline %}
+                <p class="tagline">{{ theme.header.tagline|e('html') }}</p>
+            {% endif %}
+            
+            {% block navigation %}
+                {% include 'partials/navigation.html.twig' %}
+            {% endblock %}
+            
+            <button class="mobile-menu-toggle" aria-label="Toggle menu" aria-expanded="false">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </div>
+</header>
+

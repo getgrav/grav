@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="{{ grav.language.getActive ?: grav.config.site.default_lang }}">
+<head>
+    {% block head %}
+        <meta charset="utf-8" />
+        <title>{% if header.title %}{{ header.title|e('html') }} | {% endif %}{{ site.title|e('html') }}</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        {% set page_desc = page.metadata.description|default('') %}
+        {% set site_desc = site.metadata.description|default('') %}
+        {% set description = page_desc ?: site_desc %}
+        {% if description is iterable %}
+            {% set description = description|join(', ') %}
+        {% endif %}
+        
+        {% set page_keywords = page.metadata.keywords|default('') %}
+        {% set site_keywords = site.metadata.keywords|default('') %}
+        {% set keywords = page_keywords ?: site_keywords %}
+        {% if keywords is iterable %}
+            {% set keywords = keywords|join(', ') %}
+        {% endif %}
+        
+        <meta name="description" content="{{ description|e('html') }}">
+        <meta name="keywords" content="{{ keywords|e('html') }}">
+        <meta name="author" content="{{ site.author.name|default('')|e('html') }}">
+        
+        {% if page.metadata.robots %}
+            <meta name="robots" content="{{ page.metadata.robots }}">
+        {% endif %}
+        
+        <link rel="canonical" href="{{ page.url(true, true) }}" />
+        
+        {% block stylesheets %}
+            {% do assets.addCss('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css', 101) %}
+            {% do assets.addCss('theme://css/main.css', 100) %}
+            {% do assets.addCss('theme://css/custom.css', 99) %}
+            {% do assets.addCss('theme://css/ocedc.css', 98) %}
+        {% endblock %}
+        
+        {{ assets.css()|raw }}
+        
+        {% block javascripts %}
+            {% do assets.addJs('theme://js/main.js', {'group': 'bottom'}) %}
+        {% endblock %}
+        
+        {{ assets.js('head')|raw }}
+    {% endblock head %}
+</head>
+<body id="top" class="{{ page.header.body_classes ?: page.template }} {{ page.header.class }}">
+    {% block header %}
+        {% include 'partials/header.html.twig' %}
+    {% endblock %}
+    
+    {% block body %}
+        <main id="main-content">
+            {% block content %}{% endblock %}
+        </main>
+    {% endblock %}
+    
+    {% block footer %}
+        {% include 'partials/footer.html.twig' %}
+    {% endblock %}
+    
+    {{ assets.js('bottom')|raw }}
+</body>
+</html>
+

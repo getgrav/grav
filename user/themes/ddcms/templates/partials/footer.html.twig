@@ -1,0 +1,38 @@
+<footer class="site-footer" role="contentinfo">
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>{{ site.title|e('html') }}</h3>
+                {% if site.metadata.description %}
+                    {% set desc = site.metadata.description %}
+                    {% if desc is iterable %}
+                        {% set desc = desc|join(', ') %}
+                    {% endif %}
+                    <p>{{ desc|e('html') }}</p>
+                {% endif %}
+            </div>
+            
+            {% if theme.footer.social_links %}
+                <div class="footer-section">
+                    <h4>Connect</h4>
+                    <ul class="social-links">
+                        {% for link in theme.footer.social_links %}
+                            <li>
+                                <a href="{{ link.url }}" target="_blank" rel="noopener noreferrer" aria-label="{{ link.icon|replace({'fab fa-': '', 'fas fa-': ''}) }}">
+                                    <i class="{{ link.icon }}"></i>
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="footer-bottom">
+            {% set copyright = theme.footer.copyright|default('© 2024 ' ~ site.title|e('html') ~ '. All rights reserved.') %}
+            <p class="copyright">{{ copyright|raw }}</p>
+            <p class="powered-by">Powered by <a href="https://dixondigital.com" target="_blank" rel="noopener">ddCMS</a></p>
+        </div>
+    </div>
+</footer>
+

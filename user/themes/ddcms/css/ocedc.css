@@ -1,0 +1,300 @@
+/* OCEDC Brand Colors & Customizations */
+/* Ogle County Economic Development Corporation */
+
+:root {
+    /* OCEDC Brand Colors */
+    --ocedc-navy: #1a4d8f;
+    --ocedc-green: #6cb541;
+    --ocedc-gold: #f39c12;
+    
+    /* Override theme defaults with OCEDC colors */
+    --primary-color: var(--ocedc-navy);
+    --secondary-color: var(--ocedc-green);
+    --accent-color: var(--ocedc-gold);
+    
+    /* Additional OCEDC-specific colors */
+    --ocedc-navy-light: #2d5fa0;
+    --ocedc-navy-dark: #0f3a6b;
+    --ocedc-green-light: #7fc855;
+    --ocedc-green-dark: #5a9a35;
+    --ocedc-gold-light: #f5b041;
+    --ocedc-gold-dark: #d68910;
+    
+    /* Text colors for better contrast */
+    --text-on-navy: #ffffff;
+    --text-on-green: #ffffff;
+    --text-on-gold: #1a4d8f;
+}
+
+/* Enhanced Header for EDC */
+.site-header {
+    background: linear-gradient(135deg, var(--ocedc-navy) 0%, var(--ocedc-navy-dark) 100%);
+    border-bottom: 3px solid var(--ocedc-gold);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.logo-text {
+    color: var(--text-on-navy);
+    font-weight: 700;
+    font-size: 1.5rem;
+    letter-spacing: -0.5px;
+}
+
+.nav-link {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.nav-link:hover,
+.nav-item.active .nav-link {
+    color: var(--ocedc-gold);
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Enhanced Buttons */
+.btn-primary {
+    background: linear-gradient(135deg, var(--ocedc-navy) 0%, var(--ocedc-navy-light) 100%);
+    border: none;
+    box-shadow: 0 4px 6px rgba(26, 77, 143, 0.3);
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, var(--ocedc-navy-light) 0%, var(--ocedc-navy) 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(26, 77, 143, 0.4);
+}
+
+.btn-secondary {
+    background-color: var(--ocedc-green);
+    color: var(--text-on-green);
+}
+
+.btn-secondary:hover {
+    background-color: var(--ocedc-green-dark);
+}
+
+.btn-accent {
+    background-color: var(--ocedc-gold);
+    color: var(--text-on-gold);
+    font-weight: 600;
+}
+
+.btn-accent:hover {
+    background-color: var(--ocedc-gold-dark);
+    color: var(--text-on-gold);
+}
+
+/* Hero Section with OCEDC Branding */
+.hero-section {
+    background: linear-gradient(135deg, var(--ocedc-navy) 0%, var(--ocedc-navy-dark) 50%, var(--ocedc-green) 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="2" fill="rgba(255,255,255,0.1)"/></svg>');
+    opacity: 0.3;
+}
+
+.hero-section .container {
+    position: relative;
+    z-index: 1;
+}
+
+.hero-section h1 {
+    font-size: 3.5rem;
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 1.5rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.hero-subtitle {
+    font-size: 1.5rem;
+    font-weight: 300;
+    line-height: 1.6;
+    max-width: 800px;
+    margin: 0 auto 2rem;
+    opacity: 0.95;
+}
+
+/* Feature Cards Enhanced */
+.feature-card {
+    border-top: 4px solid var(--ocedc-gold);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.feature-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 24px rgba(26, 77, 143, 0.15);
+    border-top-color: var(--ocedc-green);
+}
+
+.feature-icon {
+    color: var(--ocedc-navy);
+    margin-bottom: 1rem;
+}
+
+.feature-card h3 {
+    color: var(--ocedc-navy);
+    font-weight: 700;
+}
+
+/* Callout Section */
+.callout-section {
+    background: linear-gradient(135deg, var(--ocedc-green) 0%, var(--ocedc-green-dark) 100%);
+    color: var(--text-on-green);
+    border: none;
+}
+
+.callout-section h2 {
+    color: var(--text-on-green);
+}
+
+.callout-message {
+    color: rgba(255, 255, 255, 0.95);
+    font-size: 1.25rem;
+}
+
+/* Footer Enhanced */
+.site-footer {
+    background: linear-gradient(135deg, var(--ocedc-navy-dark) 0%, var(--ocedc-navy) 100%);
+    border-top: 3px solid var(--ocedc-gold);
+}
+
+.footer-section h3,
+.footer-section h4 {
+    color: var(--ocedc-gold);
+    font-weight: 700;
+}
+
+.social-links a:hover {
+    background-color: var(--ocedc-gold);
+    transform: translateY(-3px) scale(1.1);
+}
+
+/* Statistics/Data Display */
+.stat-box {
+    background: linear-gradient(135deg, var(--ocedc-navy) 0%, var(--ocedc-navy-light) 100%);
+    color: var(--text-on-navy);
+    padding: 2rem;
+    border-radius: var(--border-radius-lg);
+    text-align: center;
+    box-shadow: var(--shadow-lg);
+}
+
+.stat-number {
+    font-size: 3rem;
+    font-weight: 800;
+    color: var(--ocedc-gold);
+    display: block;
+    line-height: 1;
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    opacity: 0.9;
+}
+
+/* Testimonial Cards */
+.testimonial-card {
+    background: var(--bg-color);
+    border-left: 4px solid var(--ocedc-gold);
+    padding: 2rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-md);
+    margin-bottom: 2rem;
+}
+
+.testimonial-text {
+    font-style: italic;
+    font-size: 1.1rem;
+    color: var(--text-color);
+    margin-bottom: 1rem;
+}
+
+.testimonial-author {
+    font-weight: 600;
+    color: var(--ocedc-navy);
+}
+
+/* Location Highlights */
+.location-highlight {
+    background: linear-gradient(135deg, rgba(26, 77, 143, 0.05) 0%, rgba(108, 181, 65, 0.05) 100%);
+    border-left: 4px solid var(--ocedc-green);
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+    border-radius: var(--border-radius);
+}
+
+/* Table Styles for Site Data */
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 2rem 0;
+    box-shadow: var(--shadow-md);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+}
+
+.data-table thead {
+    background: linear-gradient(135deg, var(--ocedc-navy) 0%, var(--ocedc-navy-light) 100%);
+    color: var(--text-on-navy);
+}
+
+.data-table th {
+    padding: 1rem;
+    text-align: left;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.875rem;
+    letter-spacing: 0.5px;
+}
+
+.data-table td {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.data-table tbody tr:hover {
+    background-color: var(--bg-light);
+}
+
+.data-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Responsive Typography */
+@media (max-width: 768px) {
+    .hero-section h1 {
+        font-size: 2.5rem;
+    }
+    
+    .hero-subtitle {
+        font-size: 1.25rem;
+    }
+    
+    .stat-number {
+        font-size: 2.5rem;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .site-header,
+    .site-footer,
+    .btn,
+    .callout-section {
+        background: white !important;
+        color: black !important;
+    }
+}
+

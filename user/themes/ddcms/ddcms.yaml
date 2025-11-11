@@ -1,0 +1,21 @@
+enabled: true
+dropdown:
+  enabled: false
+
+header:
+  logo_text: 'OCEDC'
+  tagline: 'Building Economic Prosperity in Ogle County'
+
+footer:
+  copyright: '© 2024 Ogle County Economic Development Corporation. All rights reserved.'
+  social_links:
+    -
+      icon: 'fab fa-linkedin'
+      url: '#'
+    -
+      icon: 'fab fa-facebook'
+      url: '#'
+    -
+      icon: 'fab fa-twitter'
+      url: '#'
+

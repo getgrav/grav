@@ -1,0 +1,5 @@
+<svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
+  <rect width="800" height="600" fill="#2563eb"/>
+  <text x="400" y="280" font-family="Arial, sans-serif" font-size="72" font-weight="bold" fill="white" text-anchor="middle">ddCMS</text>
+  <text x="400" y="360" font-family="Arial, sans-serif" font-size="36" fill="white" text-anchor="middle">Theme Preview</text>
+</svg>

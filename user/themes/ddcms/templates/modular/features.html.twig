@@ -1,0 +1,36 @@
+{% set features = page.header.features ?: [] %}
+
+<section class="features-section">
+    <div class="container">
+        {% if page.header.title %}
+            <h2 class="section-title">{{ page.header.title }}</h2>
+        {% endif %}
+        
+        {% if page.header.subtitle %}
+            <p class="section-subtitle">{{ page.header.subtitle }}</p>
+        {% endif %}
+        
+        {% if features|length > 0 %}
+            <div class="features-grid">
+                {% for feature in features %}
+                    <div class="feature-card">
+                        {% if feature.icon %}
+                            <div class="feature-icon">
+                                <i class="{{ feature.icon }}"></i>
+                            </div>
+                        {% endif %}
+                        {% if feature.title %}
+                            <h3>{{ feature.title }}</h3>
+                        {% endif %}
+                        {% if feature.description %}
+                            <p>{{ feature.description }}</p>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        
+        {{ page.content|raw }}
+    </div>
+</section>
+

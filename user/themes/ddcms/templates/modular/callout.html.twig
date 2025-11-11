@@ -1,0 +1,24 @@
+{% set callout_title = page.header.callout_title ?: page.title %}
+{% set callout_message = page.header.callout_message %}
+{% set callout_button = page.header.callout_button %}
+
+<section class="callout-section">
+    <div class="container">
+        {% if callout_title %}
+            <h2>{{ callout_title }}</h2>
+        {% endif %}
+        
+        {% if callout_message %}
+            <p class="callout-message">{{ callout_message }}</p>
+        {% endif %}
+        
+        {% if callout_button %}
+            <a href="{{ callout_button.url }}" class="btn btn-primary">
+                {{ callout_button.text ?: 'Get Started' }}
+            </a>
+        {% endif %}
+        
+        {{ page.content|raw }}
+    </div>
+</section>
+

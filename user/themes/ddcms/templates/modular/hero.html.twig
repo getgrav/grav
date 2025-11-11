@@ -1,0 +1,28 @@
+{% set hero_title = page.header.hero_title ?: page.title %}
+{% set hero_subtitle = page.header.hero_subtitle %}
+{% set hero_buttons = page.header.hero_buttons ?: [] %}
+
+<section class="hero-section">
+    <div class="container">
+        {% if hero_title %}
+            <h1>{{ hero_title }}</h1>
+        {% endif %}
+        
+        {% if hero_subtitle %}
+            <p class="hero-subtitle">{{ hero_subtitle }}</p>
+        {% endif %}
+        
+        {% if hero_buttons %}
+            <div class="hero-buttons">
+                {% for button in hero_buttons %}
+                    <a href="{{ button.url }}" class="btn {{ button.class ?: 'btn-primary' }}">
+                        {{ button.text }}
+                    </a>
+                {% endfor %}
+            </div>
+        {% endif %}
+        
+        {{ page.content|raw }}
+    </div>
+</section>
+

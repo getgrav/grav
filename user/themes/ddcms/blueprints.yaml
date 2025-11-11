@@ -1,0 +1,85 @@
+name: ddCMS
+version: 1.0.0
+description: 'Modern, professional theme for ddCMS by Dixon Digital'
+icon: crosshairs
+author:
+  name: Dixon Digital
+  email: info@dixondigital.com
+homepage: https://dixondigital.com
+demo: null
+keywords: 'ddcms, dixon digital, modern, professional, responsive'
+bugs: null
+license: MIT
+
+form:
+  validation: loose
+  fields:
+    tabs:
+      type: tabs
+      active: 1
+      fields:
+        content:
+          type: tab
+          title: Content
+          fields:
+            header.logo:
+              type: filepicker
+              folder: 'theme://images'
+              label: Logo
+              preview_images: true
+              accept:
+                - .png
+                - .jpg
+                - .svg
+            header.logo_text:
+              type: text
+              label: Logo Text
+              default: 'ddCMS'
+            header.tagline:
+              type: text
+              label: Tagline
+              placeholder: 'Your site tagline'
+        style:
+          type: tab
+          title: Style
+          fields:
+            primary_color:
+              type: colorpicker
+              label: Primary Color
+              default: '#2563eb'
+            secondary_color:
+              type: colorpicker
+              label: Secondary Color
+              default: '#64748b'
+            accent_color:
+              type: colorpicker
+              label: Accent Color
+              default: '#f59e0b'
+            font_family:
+              type: select
+              label: Font Family
+              default: 'system'
+              options:
+                system: 'System Font Stack'
+                serif: 'Serif'
+                sans-serif: 'Sans Serif'
+        footer:
+          type: tab
+          title: Footer
+          fields:
+            footer.copyright:
+              type: text
+              label: Copyright Text
+              default: '© 2024 Dixon Digital. All rights reserved.'
+            footer.social_links:
+              type: list
+              label: Social Links
+              fields:
+                icon:
+                  type: text
+                  label: Icon Class
+                  placeholder: 'fab fa-twitter'
+                url:
+                  type: url
+                  label: URL
+

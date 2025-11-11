@@ -1,15 +1,17 @@
 {
-    "name": "getgrav/grav",
+    "name": "dixondigital/ddcms",
     "type": "project",
-    "description": "Modern, Crazy Fast, Ridiculously Easy and Amazingly Powerful Flat-File CMS",
+    "description": "ddCMS (Dixon Digital CMS) - Modern, Fast, and Flexible Flat-File Content Management System",
     "keywords": [
+        "ddcms",
+        "dixon digital",
         "cms",
         "flat-file cms",
         "flat cms",
         "flatfile cms",
         "php"
     ],
-    "homepage": "https://getgrav.org",
+    "homepage": "https://dixondigital.com",
     "license": "MIT",
     "require": {
         "php": "^7.3.6 || ^8.0",

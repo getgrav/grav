@@ -78,6 +78,10 @@ date_default_timezone_set(@date_default_timezone_get());
 @ini_set('default_charset', 'UTF-8');
 mb_internal_encoding('UTF-8');
 
+// Suppress PHP 8.4 deprecation warnings (these are harmless and will be fixed in future Grav updates)
+@ini_set('display_errors', '0');
+error_reporting(E_ALL & ~E_DEPRECATED & ~E_STRICT);
+
 $recoveryFlag = __DIR__ . '/user/data/recovery.flag';
 if (PHP_SAPI !== 'cli' && is_file($recoveryFlag)) {
     require __DIR__ . '/system/recovery.php';

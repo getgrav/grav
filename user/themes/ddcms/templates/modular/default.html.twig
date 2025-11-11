@@ -1,0 +1,25 @@
+{% extends 'partials/base.html.twig' %}
+
+{% block content %}
+    {% set modules = page.collection() %}
+    {% if modules|length > 0 %}
+        {% for module in modules %}
+            {% set module_template = module.template() %}
+            {% if module_template %}
+                {% set template_file = module_template ~ '.html.twig' %}
+                {% include template_file with {'page': module} ignore missing %}
+            {% else %}
+                <section class="modular-section {{ module.header.class|default('') }}">
+                    <div class="container">
+                        {{ module.content|raw }}
+                    </div>
+                </section>
+            {% endif %}
+        {% endfor %}
+    {% else %}
+        <div class="container">
+            <p>No modules found. Please check your page configuration.</p>
+        </div>
+    {% endif %}
+{% endblock %}
+

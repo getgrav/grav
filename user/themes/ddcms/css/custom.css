@@ -1,0 +1,132 @@
+/* ddCMS Theme - Custom Styles */
+/* Agency-specific customizations and overrides */
+
+/* Hero Section */
+.hero-section {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+    color: #ffffff;
+    padding: var(--spacing-3xl) 0;
+    text-align: center;
+}
+
+.hero-section h1,
+.hero-section h2 {
+    color: #ffffff;
+    margin-bottom: var(--spacing-lg);
+}
+
+.hero-subtitle {
+    font-size: var(--font-size-xl);
+    margin-bottom: var(--spacing-xl);
+    opacity: 0.95;
+}
+
+.hero-buttons {
+    display: flex;
+    gap: var(--spacing-md);
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: var(--spacing-xl);
+}
+
+.hero-buttons .btn {
+    min-width: 150px;
+}
+
+/* Features Section */
+.features-section {
+    padding: var(--spacing-3xl) 0;
+}
+
+.section-title {
+    text-align: center;
+    margin-bottom: var(--spacing-md);
+}
+
+.section-subtitle {
+    text-align: center;
+    font-size: var(--font-size-lg);
+    color: var(--text-light);
+    margin-bottom: var(--spacing-2xl);
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--spacing-xl);
+    margin: var(--spacing-2xl) 0;
+}
+
+.feature-card {
+    padding: var(--spacing-xl);
+    background-color: var(--bg-light);
+    border-radius: var(--border-radius-lg);
+    transition: transform var(--transition-base), box-shadow var(--transition-base);
+    text-align: center;
+}
+
+.feature-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+}
+
+.feature-icon {
+    font-size: var(--font-size-4xl);
+    color: var(--primary-color);
+    margin-bottom: var(--spacing-md);
+}
+
+.feature-card h3 {
+    color: var(--primary-color);
+    margin-bottom: var(--spacing-md);
+}
+
+/* Callout Section */
+.callout-section {
+    background-color: var(--bg-light);
+    padding: var(--spacing-2xl);
+    border-radius: var(--border-radius-lg);
+    text-align: center;
+    margin: var(--spacing-2xl) 0;
+}
+
+.callout-section h2 {
+    margin-bottom: var(--spacing-lg);
+}
+
+.callout-message {
+    font-size: var(--font-size-lg);
+    margin-bottom: var(--spacing-xl);
+    color: var(--text-light);
+}
+
+/* Utility Classes */
+.text-center {
+    text-align: center;
+}
+
+.text-left {
+    text-align: left;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.mt-1 { margin-top: var(--spacing-sm); }
+.mt-2 { margin-top: var(--spacing-md); }
+.mt-3 { margin-top: var(--spacing-lg); }
+.mt-4 { margin-top: var(--spacing-xl); }
+
+.mb-1 { margin-bottom: var(--spacing-sm); }
+.mb-2 { margin-bottom: var(--spacing-md); }
+.mb-3 { margin-bottom: var(--spacing-lg); }
+.mb-4 { margin-bottom: var(--spacing-xl); }
+
+.p-1 { padding: var(--spacing-sm); }
+.p-2 { padding: var(--spacing-md); }
+.p-3 { padding: var(--spacing-lg); }
+.p-4 { padding: var(--spacing-xl); }

@@ -1,0 +1,26 @@
+{% set stats = page.header.stats ?: [] %}
+
+<section class="stats-section" style="background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); padding: 4rem 0;">
+    <div class="container">
+        {% if page.header.title %}
+            <h2 class="section-title" style="text-align: center; margin-bottom: 3rem; color: var(--ocedc-navy);">{{ page.header.title }}</h2>
+        {% endif %}
+        
+        {% if stats|length > 0 %}
+            <div class="stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem;">
+                {% for stat in stats %}
+                    <div class="stat-box">
+                        <span class="stat-number">{{ stat.number }}</span>
+                        <span class="stat-label">{{ stat.label }}</span>
+                        {% if stat.description %}
+                            <p style="margin-top: 0.5rem; font-size: 0.9rem; opacity: 0.9;">{{ stat.description }}</p>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        
+        {{ page.content|raw }}
+    </div>
+</section>
+

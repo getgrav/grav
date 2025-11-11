@@ -1,0 +1,14 @@
+{% extends 'partials/base.html.twig' %}
+
+{% block content %}
+    <article class="content">
+        <div class="container">
+            {% if page.header.title %}
+                <h1 class="page-title">{{ page.header.title }}</h1>
+            {% endif %}
+            
+            {{ page.content|raw }}
+        </div>
+    </article>
+{% endblock %}
+
