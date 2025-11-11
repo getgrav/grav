@@ -13,24 +13,40 @@ use Composer\Autoload\ClassLoader;
 use Exception;
 use Grav\Common\Cache;
 use Grav\Common\Filesystem\Folder;
+use Grav\Common\GPM\GPM;
 use Grav\Common\GPM\Installer;
 use Grav\Common\Grav;
 use Grav\Common\Plugins;
+use Grav\Common\Yaml;
 use RuntimeException;
+use Throwable;
+use function basename;
 use function class_exists;
 use function date;
 use function dirname;
+use function explode;
 use function floor;
 use function function_exists;
+use function glob;
+use function iterator_to_array;
 use function is_dir;
 use function is_file;
 use function is_link;
+use function method_exists;
 use function is_string;
 use function is_writable;
 use function json_encode;
+use function json_decode;
 use function readlink;
+use function array_fill_keys;
+use function array_map;
+use function array_pad;
+use function array_key_exists;
 use function sort;
 use function sprintf;
+use function strtolower;
+use function strpos;
+use function preg_match;
 use function symlink;
 use function time;
 use function uniqid;
@@ -143,8 +159,12 @@ final class Install
     private static $instance;
     /** @var bool|null */
     private static $forceSafeUpgrade = null;
+    /** @var bool */
+    private static $allowPendingOverride = false;
     /** @var callable|null */
     private $progressCallback = null;
+    /** @var array|null */
+    private $pendingPreflight = null;
 
     /**
      * @return static
@@ -173,6 +193,25 @@ final class Install
     {
     }
 
+    public static function allowPendingPackageOverride(?bool $state = true): void
+    {
+        if ($state === null) {
+            self::$allowPendingOverride = false;
+        } else {
+            self::$allowPendingOverride = (bool)$state;
+        }
+    }
+
+    private function ensureLocation(): void
+    {
+        if (null === $this->location) {
+            $path = realpath(__DIR__);
+            if ($path) {
+                $this->location = dirname($path, 4);
+            }
+        }
+    }
+
     /**
      * @param string|null $zip
      * @return $this
@@ -192,6 +231,7 @@ final class Install
     public function __invoke(?string $zip)
     {
         $this->zip = $zip;
+        $this->pendingPreflight = null;
 
         $failedRequirements = $this->checkRequirements();
         if ($failedRequirements) {
@@ -258,6 +298,7 @@ ERR;
     public function prepare(): void
     {
         // Locate the new Grav update and the target site from the filesystem.
+        $this->ensureLocation();
         $location = realpath(__DIR__);
         $target = realpath(GRAV_ROOT . '/index.php');
 
@@ -313,6 +354,15 @@ ERR;
 
             $safeUpgradeRequested = $this->shouldUseSafeUpgrade();
             $targetVersion = $this->getVersion();
+            if (null === $this->pendingPreflight) {
+                $this->pendingPreflight = $this->runPreflightChecks($targetVersion);
+            }
+            if (!empty($this->pendingPreflight['blocking'] ?? [])) {
+                $this->relayProgress('error', 'Upgrade blocked by preflight checks.', null);
+                Installer::setError('Upgrade preflight checks failed.');
+
+                return;
+            }
             $snapshotManifest = null;
             if ($safeUpgradeRequested) {
                 $snapshotManifest = $this->captureCoreSnapshot($targetVersion);
@@ -338,6 +388,8 @@ ERR;
             $this->relayProgress('complete', 'Grav standard installer finished.', 100);
         } catch (Exception $e) {
             Installer::setError($e->getMessage());
+        } finally {
+            self::$allowPendingOverride = false;
         }
 
         $errorCode = Installer::lastErrorCode();
@@ -551,6 +603,8 @@ ERR;
      */
     public function finalize(): void
     {
+        $start = microtime(true);
+        $this->relayProgress('postflight', 'Running postflight tasks...', null);
         // Finalize can be run without installing Grav first.
         if (null === $this->updater) {
             $versions = Versions::instance(USER_DIR . 'config/versions.yaml');
@@ -568,6 +622,9 @@ ERR;
         if (function_exists('opcache_reset')) {
             @opcache_reset();
         }
+
+        $elapsed = microtime(true) - $start;
+        $this->relayProgress('postflight', sprintf('Postflight tasks complete in %.3fs.', $elapsed), null);
     }
 
     /**
@@ -699,5 +756,391 @@ ERR;
     public function getLastManifest(): ?array
     {
         return $this->lastManifest;
+    }
+
+    public function generatePreflightReport(): array
+    {
+        $this->ensureLocation();
+        $version = $this->getVersion();
+
+        $report = $this->runPreflightChecks($version ?: GRAV_VERSION);
+        $this->pendingPreflight = $report;
+
+        return $report;
+    }
+
+    public function getPreflightReport(): ?array
+    {
+        return $this->pendingPreflight;
+    }
+
+    private function runPreflightChecks(string $targetVersion): array
+    {
+        $start = microtime(true);
+        $this->relayProgress('preflight', 'Running preflight checks...', null);
+        $report = [
+            'warnings' => [],
+            'psr_log_conflicts' => [],
+            'monolog_conflicts' => [],
+            'plugins_pending' => [],
+            'is_major_minor_upgrade' => $this->isMajorMinorUpgrade($targetVersion),
+            'blocking' => [],
+        ];
+
+        $report['plugins_pending'] = $this->detectPendingPackageUpdates();
+        $report['psr_log_conflicts'] = $this->detectPsrLogConflicts();
+        $report['monolog_conflicts'] = $this->detectMonologConflicts();
+
+        if ($report['plugins_pending']) {
+            if (self::$allowPendingOverride) {
+                $report['warnings'][] = 'Pending plugin/theme updates ignored for this upgrade run.';
+            } elseif ($report['is_major_minor_upgrade']) {
+                $report['blocking'][] = 'Plugin and theme updates must be applied before upgrading Grav.';
+            } else {
+                $report['warnings'][] = 'Pending plugin/theme updates detected; updating before upgrading Grav is recommended.';
+            }
+        }
+
+        $elapsed = microtime(true) - $start;
+        $this->relayProgress('preflight', sprintf('Preflight checks complete in %.3fs.', $elapsed), null);
+
+        return $report;
+    }
+
+    private function isMajorMinorUpgrade(string $targetVersion): bool
+    {
+        [$currentMajor, $currentMinor] = array_map('intval', array_pad(explode('.', GRAV_VERSION), 2, 0));
+        [$targetMajor, $targetMinor] = array_map('intval', array_pad(explode('.', $targetVersion), 2, 0));
+
+        return $currentMajor !== $targetMajor || $currentMinor !== $targetMinor;
+    }
+
+    private function detectPendingPackageUpdates(): array
+    {
+        $pending = [];
+
+        if (!class_exists(GPM::class)) {
+            return $pending;
+        }
+
+        try {
+            $gpm = new GPM();
+        } catch (Throwable $e) {
+            $this->relayProgress('warning', 'Unable to query GPM: ' . $e->getMessage(), null);
+
+            return $pending;
+        }
+
+        $repoPlugins = $this->packagesToArray($gpm->getRepositoryPlugins());
+        $repoThemes = $this->packagesToArray($gpm->getRepositoryThemes());
+
+        $scanRoot = GRAV_ROOT ?: getcwd();
+
+        $localPlugins = $this->scanLocalPackageVersions($scanRoot . '/user/plugins');
+        foreach ($localPlugins as $slug => $version) {
+            $remote = $repoPlugins[$slug] ?? null;
+            if (!$this->isGpmPackagePublished($remote)) {
+                continue;
+            }
+            $remoteVersion = $this->resolveRemotePackageVersion($remote);
+            if (!$remoteVersion || !$version) {
+                continue;
+            }
+            if (!$this->isPluginEnabled($slug)) {
+                if (str_contains($version, 'dev-')) {
+                    $this->relayProgress('warning', sprintf('Skipping dev plugin %s (%s).', $slug, $version), null);
+                    continue;
+                }
+            }
+
+            if (version_compare($remoteVersion, $version, '>')) {
+                $pending[$slug] = [
+                    'type' => 'plugins',
+                    'current' => $version,
+                    'available' => $remoteVersion,
+                ];
+            }
+        }
+
+        $localThemes = $this->scanLocalPackageVersions($scanRoot . '/user/themes');
+        foreach ($localThemes as $slug => $version) {
+            $remote = $repoThemes[$slug] ?? null;
+            if (!$this->isGpmPackagePublished($remote)) {
+                if (str_contains($version, 'dev-')) {
+                    $this->relayProgress('warning', sprintf('Skipping dev theme %s (%s).', $slug, $version), null);
+                    continue;
+                }
+            }
+            $remoteVersion = $this->resolveRemotePackageVersion($remote);
+            if (!$remoteVersion || !$version) {
+                continue;
+            }
+            if (!$this->isThemeEnabled($slug)) {
+                continue;
+            }
+
+            if (version_compare($remoteVersion, $version, '>')) {
+                $pending[$slug] = [
+                    'type' => 'themes',
+                    'current' => $version,
+                    'available' => $remoteVersion,
+                ];
+            }
+        }
+
+        $this->relayProgress('preflight', sprintf('Detected %d updatable packages (including symlinks).', count($pending)), null);
+
+        return $pending;
+    }
+
+    private function scanLocalPackageVersions(string $path): array
+    {
+        $versions = [];
+        if (!is_dir($path)) {
+            return $versions;
+        }
+
+        $entries = glob($path . '/*', GLOB_ONLYDIR) ?: [];
+        foreach ($entries as $dir) {
+            $slug = basename($dir);
+            $version = $this->readBlueprintVersion($dir) ?? $this->readComposerVersion($dir);
+            if ($version !== null) {
+                $versions[$slug] = $version;
+            }
+        }
+
+        return $versions;
+    }
+
+    private function readBlueprintVersion(string $dir): ?string
+    {
+        $file = $dir . '/blueprints.yaml';
+        if (!is_file($file)) {
+            return null;
+        }
+
+        try {
+            $contents = @file_get_contents($file);
+            if ($contents === false) {
+                return null;
+            }
+            $data = Yaml::parse($contents);
+            if (is_array($data) && isset($data['version'])) {
+                return (string)$data['version'];
+            }
+        } catch (Throwable $e) {
+            // ignore parse errors
+        }
+
+        return null;
+    }
+
+    private function readComposerVersion(string $dir): ?string
+    {
+        $file = $dir . '/composer.json';
+        if (!is_file($file)) {
+            return null;
+        }
+
+        $data = json_decode(file_get_contents($file), true);
+        if (is_array($data) && isset($data['version'])) {
+            return (string)$data['version'];
+        }
+
+        return null;
+    }
+
+    private function packagesToArray($packages): array
+    {
+        if (!$packages) {
+            return [];
+        }
+
+        if (is_array($packages)) {
+            return $packages;
+        }
+
+        if ($packages instanceof \Traversable) {
+            return iterator_to_array($packages, true);
+        }
+
+        return [];
+    }
+
+    private function resolveRemotePackageVersion($package): ?string
+    {
+        if (!$package) {
+            return null;
+        }
+
+        if (is_array($package)) {
+            return $package['version'] ?? null;
+        }
+
+        if (is_object($package)) {
+            if (isset($package->version)) {
+                return (string)$package->version;
+            }
+            if (method_exists($package, 'offsetGet')) {
+                try {
+                    return (string)$package->offsetGet('version');
+                } catch (Throwable $e) {
+                    return null;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private function detectPsrLogConflicts(): array
+    {
+        $conflicts = [];
+        $pluginRoots = glob(GRAV_ROOT . '/user/plugins/*', GLOB_ONLYDIR) ?: [];
+        foreach ($pluginRoots as $path) {
+            $composerFile = $path . '/composer.json';
+            if (!is_file($composerFile)) {
+                continue;
+            }
+
+            $json = json_decode(file_get_contents($composerFile), true);
+            if (!is_array($json)) {
+                continue;
+            }
+
+            $slug = basename($path);
+            if (!$this->isPluginEnabled($slug)) {
+                continue;
+            }
+            $rawConstraint = $json['require']['psr/log'] ?? ($json['require-dev']['psr/log'] ?? null);
+            if (!$rawConstraint) {
+                continue;
+            }
+
+            $constraint = strtolower((string)$rawConstraint);
+            $compatible = $constraint === '*'
+                || false !== strpos($constraint, '3')
+                || false !== strpos($constraint, '4')
+                || (false !== strpos($constraint, '>=') && preg_match('/>=\s*3/', $constraint));
+
+            if ($compatible) {
+                continue;
+            }
+
+            $conflicts[$slug] = [
+                'composer' => $composerFile,
+                'requires' => $rawConstraint,
+            ];
+        }
+
+        return $conflicts;
+    }
+
+    private function detectMonologConflicts(): array
+    {
+        $conflicts = [];
+        $pluginRoots = glob(GRAV_ROOT . '/user/plugins/*', GLOB_ONLYDIR) ?: [];
+        $pattern = '/->add(?:Debug|Info|Notice|Warning|Error|Critical|Alert|Emergency)\s*\(/i';
+
+        foreach ($pluginRoots as $path) {
+            $slug = basename($path);
+            if (!$this->isPluginEnabled($slug)) {
+                continue;
+            }
+
+            $iterator = new \RecursiveIteratorIterator(
+                new \RecursiveDirectoryIterator($path, \FilesystemIterator::SKIP_DOTS)
+            );
+
+            foreach ($iterator as $file) {
+                if (!$file->isFile() || strtolower($file->getExtension()) !== 'php') {
+                    continue;
+                }
+
+                $contents = @file_get_contents($file->getPathname());
+                if ($contents === false) {
+                    continue;
+                }
+
+                if (preg_match($pattern, $contents, $match)) {
+                    $relative = str_replace(GRAV_ROOT . '/', '', $file->getPathname());
+                    $conflicts[$slug][] = [
+                        'file' => $relative,
+                        'method' => trim($match[0]),
+                    ];
+                }
+            }
+        }
+
+        return $conflicts;
+    }
+
+    private function isPluginEnabled(string $slug): bool
+    {
+        $configPath = GRAV_ROOT . '/user/config/plugins/' . $slug . '.yaml';
+        if (is_file($configPath)) {
+            try {
+                $contents = @file_get_contents($configPath);
+                if ($contents !== false) {
+                    $data = Yaml::parse($contents);
+                    if (is_array($data) && array_key_exists('enabled', $data)) {
+                        return (bool)$data['enabled'];
+                    }
+                }
+            } catch (Throwable $e) {
+                // ignore parse errors
+            }
+        }
+
+        return true;
+    }
+
+    private function isThemeEnabled(string $slug): bool
+    {
+        $configPath = GRAV_ROOT . '/user/config/system.yaml';
+        if (is_file($configPath)) {
+            try {
+                $contents = @file_get_contents($configPath);
+                if ($contents !== false) {
+                    $data = Yaml::parse($contents);
+                    if (is_array($data)) {
+                        $active = $data['pages']['theme'] ?? ($data['system']['pages']['theme'] ?? null);
+                        if ($active !== null) {
+                            return $active === $slug;
+                        }
+                    }
+                }
+            } catch (Throwable $e) {
+                // ignore parse errors
+            }
+        }
+
+        return true;
+    }
+
+    private function isGpmPackagePublished($package): bool
+    {
+        if (is_object($package) && method_exists($package, 'getData')) {
+            $data = $package->getData();
+            if ($data instanceof \Grav\Common\Data\Data) {
+                $published = $data->get('published');
+
+                return $published !== false;
+            }
+        }
+
+        if (is_array($package)) {
+            if (array_key_exists('published', $package)) {
+                return $package['published'] !== false;
+            }
+
+            return true;
+        }
+
+        if (is_object($package) && property_exists($package, 'published')) {
+            return $package->published !== false;
+        }
+
+        return true;
     }
 }
