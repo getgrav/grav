@@ -4,7 +4,7 @@ home:
   alias: '/home'
 
 pages:
-  theme: quark
+  theme: ddcms
   markdown:
     extra: false
   process:
@@ -33,7 +33,7 @@ assets:
   js_minify: true
 
 errors:
-  display: true
+  display: false
   log: true
 
 debugger:

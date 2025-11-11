@@ -1,7 +1,10 @@
-title: Grav
+title: Ogle County Economic Development Corporation
 author:
-  name: Joe Bloggs
-  email: 'joe@example.com'
+  name: Ogle County EDC
+  email: 'info@oglecoedg.org'
 metadata:
-    description: 'Grav is an easy to use, yet powerful, open source flat-file CMS'
+  description: 'Ogle County Economic Development Corporation - Building economic prosperity in Northern Illinois. Strategic location on I-39 and US Route 20, just 2 hours from Chicago.'
+taxonomy:
+  - category
+  - tag
 

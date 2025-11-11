@@ -80,7 +80,8 @@ mb_internal_encoding('UTF-8');
 
 // Suppress PHP 8.4 deprecation warnings (these are harmless and will be fixed in future Grav updates)
 @ini_set('display_errors', '0');
-error_reporting(E_ALL & ~E_DEPRECATED & ~E_STRICT);
+// E_STRICT is deprecated in PHP 8.4, removed from error_reporting
+error_reporting(E_ALL & ~E_DEPRECATED);
 
 $recoveryFlag = __DIR__ . '/user/data/recovery.flag';
 if (PHP_SAPI !== 'cli' && is_file($recoveryFlag)) {

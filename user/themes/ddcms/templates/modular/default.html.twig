@@ -6,8 +6,7 @@
         {% for module in modules %}
             {% set module_template = module.template() %}
             {% if module_template %}
-                {% set template_file = module_template ~ '.html.twig' %}
-                {% include template_file with {'page': module} ignore missing %}
+                {% include [module_template ~ '.html.twig', 'modular/default.html.twig'] with {'page': module, 'header': module.header} %}
             {% else %}
                 <section class="modular-section {{ module.header.class|default('') }}">
                     <div class="container">

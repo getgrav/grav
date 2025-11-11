@@ -288,3 +288,4 @@ bin/grav cache-clear
 
 Grav CMS is licensed under MIT License. See LICENSE.txt for details.
 
+

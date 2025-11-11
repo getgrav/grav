@@ -3,7 +3,15 @@
 <head>
     {% block head %}
         <meta charset="utf-8" />
-        <title>{% if header.title %}{{ header.title|e('html') }} | {% endif %}{{ site.title|e('html') }}</title>
+        {% set page_title = header.title|default('') %}
+        {% if page_title is iterable %}
+            {% set page_title = page_title|join(', ') %}
+        {% endif %}
+        {% set site_title = site.title|default('') %}
+        {% if site_title is iterable %}
+            {% set site_title = site_title|join(', ') %}
+        {% endif %}
+        <title>{% if page_title %}{{ page_title|e('html') }} | {% endif %}{{ site_title|e('html') }}</title>
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
         {% set page_desc = page.metadata.description|default('') %}
@@ -22,26 +30,34 @@
         
         <meta name="description" content="{{ description|e('html') }}">
         <meta name="keywords" content="{{ keywords|e('html') }}">
-        <meta name="author" content="{{ site.author.name|default('')|e('html') }}">
+        {% set author_name = site.author.name|default('') %}
+        {% if author_name is iterable %}
+            {% set author_name = author_name|join(', ') %}
+        {% endif %}
+        <meta name="author" content="{{ author_name|e('html') }}">
 
         {% if page.metadata.robots %}
-            <meta name="robots" content="{{ page.metadata.robots }}">
+            {% set robots = page.metadata.robots %}
+            {% if robots is iterable %}
+                {% set robots = robots|join(', ') %}
+            {% endif %}
+            <meta name="robots" content="{{ robots|e('html') }}">
         {% endif %}
 
         <link rel="canonical" href="{{ page.url(true, true) }}" />
 
-        {# Favicons #}
-        <link rel="icon" type="image/svg+xml" href="{{ url('theme://images/favicons/favicon-source.svg') }}">
+        {# Favicons - commented out until favicon files are created #}
+        {# <link rel="icon" type="image/svg+xml" href="{{ url('theme://images/favicons/favicon-source.svg') }}">
         <link rel="alternate icon" type="image/x-icon" href="{{ url('theme://images/favicons/favicon.ico') }}">
-        <link rel="apple-touch-icon" sizes="180x180" href="{{ url('theme://images/favicons/apple-touch-icon.png') }}">
+        <link rel="apple-touch-icon" sizes="180x180" href="{{ url('theme://images/favicons/apple-touch-icon.png') }}"> #}
         <meta name="theme-color" content="#1a4d8f">
 
         {# OpenGraph / Facebook #}
         <meta property="og:type" content="website">
         <meta property="og:url" content="{{ page.url(true, true) }}">
-        <meta property="og:title" content="{% if header.title %}{{ header.title|e('html') }}{% else %}{{ site.title|e('html') }}{% endif %}">
+        <meta property="og:title" content="{% if page_title %}{{ page_title|e('html') }}{% else %}{{ site_title|e('html') }}{% endif %}">
         <meta property="og:description" content="{{ description|e('html') }}">
-        <meta property="og:site_name" content="{{ site.title|e('html') }}">
+        <meta property="og:site_name" content="{{ site_title|e('html') }}">
         {% if page.media.images|first %}
             <meta property="og:image" content="{{ page.media.images|first.url(true) }}">
         {% endif %}
@@ -49,7 +65,7 @@
         {# Twitter Card #}
         <meta name="twitter:card" content="summary_large_image">
         <meta name="twitter:url" content="{{ page.url(true, true) }}">
-        <meta name="twitter:title" content="{% if header.title %}{{ header.title|e('html') }}{% else %}{{ site.title|e('html') }}{% endif %}">
+        <meta name="twitter:title" content="{% if page_title %}{{ page_title|e('html') }}{% else %}{{ site_title|e('html') }}{% endif %}">
         <meta name="twitter:description" content="{{ description|e('html') }}">
         {% if page.media.images|first %}
             <meta name="twitter:image" content="{{ page.media.images|first.url(true) }}">
