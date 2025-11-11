@@ -604,7 +604,7 @@ ERR;
     public function finalize(): void
     {
         $start = microtime(true);
-        $this->relayProgress('postflight', 'Running postflight tasks...', null);
+        $this->relayProgress('finalizing', 'Running postflight tasks...', null);
         // Finalize can be run without installing Grav first.
         if (null === $this->updater) {
             $versions = Versions::instance(USER_DIR . 'config/versions.yaml');
@@ -624,7 +624,7 @@ ERR;
         }
 
         $elapsed = microtime(true) - $start;
-        $this->relayProgress('postflight', sprintf('Postflight tasks complete in %.3fs.', $elapsed), null);
+        $this->relayProgress('finalizing', sprintf('Postflight tasks complete in %.3fs.', $elapsed), null);
     }
 
     /**
@@ -777,7 +777,7 @@ ERR;
     private function runPreflightChecks(string $targetVersion): array
     {
         $start = microtime(true);
-        $this->relayProgress('preflight', 'Running preflight checks...', null);
+        $this->relayProgress('initializing', 'Running preflight checks...', null);
         $report = [
             'warnings' => [],
             'psr_log_conflicts' => [],
@@ -802,7 +802,7 @@ ERR;
         }
 
         $elapsed = microtime(true) - $start;
-        $this->relayProgress('preflight', sprintf('Preflight checks complete in %.3fs.', $elapsed), null);
+        $this->relayProgress('initializing', sprintf('Preflight checks complete in %.3fs.', $elapsed), null);
 
         return $report;
     }
@@ -888,7 +888,7 @@ ERR;
             }
         }
 
-        $this->relayProgress('preflight', sprintf('Detected %d updatable packages (including symlinks).', count($pending)), null);
+        $this->relayProgress('initializing', sprintf('Detected %d updatable packages (including symlinks).', count($pending)), null);
 
         return $pending;
     }
