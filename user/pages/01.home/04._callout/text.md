@@ -1,11 +1,12 @@
 ---
-title: Ready to Grow Your Business in Ogle County?
+title: Ready to get started? Contact us today!
 template: modular/callout
 modular_twig: true
-callout_title: 'Ready to Grow Your Business in Ogle County?'
+label: 'DO BUSINESS IN OGLE COUNTY'
+callout_title: 'Ready to get started? Contact us today!'
 callout_message: 'Let our team help you discover the opportunities waiting for your business. From site selection to workforce development, we''re here to support your success.'
 callout_button:
-    text: 'Get Started Today'
+    text: 'CONTACT US'
     url: '/contact'
 ---
 

@@ -1,24 +1,47 @@
+<div class="top-bar">
+    <div class="container">
+        <div class="top-bar-content">
+            <div class="top-bar-left">
+                <a href="/support" class="support-link">
+                    <i class="fas fa-heart"></i>
+                    Support Ogle County
+                </a>
+            </div>
+            <div class="top-bar-center">
+                <a href="tel:+18155551234" class="phone-link">
+                    <i class="fas fa-phone"></i>
+                    (815) 555-1234
+                </a>
+                <a href="/contact" class="contact-link">Contact Us</a>
+            </div>
+            <div class="top-bar-right">
+                <a href="/investors" class="investor-link">
+                    INVEST IN OGLE COUNTY
+                    <i class="fas fa-chevron-up"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
 <header class="site-header" role="banner">
     <div class="container">
         <div class="header-inner">
             <div class="logo">
+                {% set logo_path = 'theme://images/logos/logo-ocedc.svg' %}
                 {% if theme.header.use_logo_image and theme.header.logo %}
-                    <a href="{{ base_url }}" class="logo-link">
-                        <img src="{{ url('theme://images/logos/' ~ theme.header.logo) }}"
-                             alt="{{ theme.header.logo_alt|default(site.title)|e('html') }}"
-                             class="logo-image"
-                             height="50" />
-                    </a>
-                {% else %}
-                    <a href="{{ base_url }}" class="logo-link">
-                        <span class="logo-text">{{ theme.header.logo_text|default(site.title)|e('html') }}</span>
-                    </a>
+                    {% set logo_path = 'theme://images/logos/' ~ theme.header.logo %}
                 {% endif %}
+                <a href="{{ base_url }}" class="logo-link">
+                    <img src="{{ url(logo_path) }}"
+                         alt="{{ theme.header.logo_alt|default(site.title)|e('html') }}"
+                         class="logo-image"
+                         height="50" />
+                    {% if theme.header.tagline %}
+                        <div class="logo-tagline">{{ theme.header.tagline|e('html') }}</div>
+                    {% endif %}
+                </a>
             </div>
-            
-            {% if theme.header.tagline %}
-                <p class="tagline">{{ theme.header.tagline|e('html') }}</p>
-            {% endif %}
             
             {% block navigation %}
                 {% include 'partials/navigation.html.twig' %}

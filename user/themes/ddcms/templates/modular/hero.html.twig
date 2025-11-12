@@ -4,25 +4,34 @@
 
 <section class="hero-section">
     <div class="container">
-        {% if hero_title %}
-            <h1>{{ hero_title }}</h1>
-        {% endif %}
-        
-        {% if hero_subtitle %}
-            <p class="hero-subtitle">{{ hero_subtitle }}</p>
-        {% endif %}
-        
-        {% if hero_buttons %}
-            <div class="hero-buttons">
-                {% for button in hero_buttons %}
-                    <a href="{{ button.url }}" class="btn {{ button.class ?: 'btn-primary' }}">
-                        {{ button.text }}
-                    </a>
-                {% endfor %}
-            </div>
-        {% endif %}
-        
-        {{ page.content|raw }}
+        <div class="hero-content">
+            {% if hero_title %}
+                <h1>{{ hero_title }}</h1>
+            {% endif %}
+            
+            {% if hero_subtitle %}
+                <p class="hero-subtitle">{{ hero_subtitle }}</p>
+            {% endif %}
+            
+            {% if hero_buttons %}
+                <div class="hero-buttons">
+                    {% for button in hero_buttons %}
+                        <a href="{{ button.url }}" class="btn {{ button.class ?: 'btn-primary' }}">
+                            {{ button.text }}
+                            {% if button.icon %}
+                                <i class="{{ button.icon }}"></i>
+                            {% endif %}
+                        </a>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            
+            {% if page.content %}
+                <div class="hero-description">
+                    {{ page.content|raw }}
+                </div>
+            {% endif %}
+        </div>
     </div>
 </section>
 

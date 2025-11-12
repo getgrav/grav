@@ -2,90 +2,97 @@
 /* Ogle County Economic Development Corporation */
 
 :root {
-    /* OCEDC Brand Colors */
-    --ocedc-navy: #1a4d8f;
-    --ocedc-green: #6cb541;
-    --ocedc-gold: #f39c12;
+    /* OCEDC Brand Colors - Matching Logo */
+    /* Logo: Dark gray (#4a4a4a) for "O" and "C", Golden-brown (#b8860b / #daa520) for arrow and "EDC" */
+    --ocedc-dark-gray: #4a4a4a;
+    --ocedc-golden-brown: #b8860b;
+    --ocedc-golden-brown-light: #daa520;
+    --ocedc-golden-brown-dark: #996515;
     
-    /* Override theme defaults with OCEDC colors */
-    --primary-color: var(--ocedc-navy);
-    --secondary-color: var(--ocedc-green);
-    --accent-color: var(--ocedc-gold);
+    /* Legacy color names for compatibility - using logo colors */
+    --ocedc-navy: var(--ocedc-dark-gray);
+    --ocedc-green: var(--ocedc-golden-brown);
+    --ocedc-gold: var(--ocedc-golden-brown-light);
+    
+    /* Override theme defaults with OCEDC logo colors */
+    --primary-color: var(--ocedc-dark-gray);
+    --secondary-color: var(--ocedc-golden-brown);
+    --accent-color: var(--ocedc-golden-brown-light);
     
     /* Additional OCEDC-specific colors */
-    --ocedc-navy-light: #2d5fa0;
-    --ocedc-navy-dark: #0f3a6b;
-    --ocedc-green-light: #7fc855;
-    --ocedc-green-dark: #5a9a35;
-    --ocedc-gold-light: #f5b041;
-    --ocedc-gold-dark: #d68910;
+    --ocedc-navy-light: #6a6a6a;
+    --ocedc-navy-dark: #2a2a2a;
+    --ocedc-green-light: var(--ocedc-golden-brown-light);
+    --ocedc-green-dark: var(--ocedc-golden-brown-dark);
+    --ocedc-gold-light: #f4d03f;
+    --ocedc-gold-dark: var(--ocedc-golden-brown-dark);
     
     /* Text colors for better contrast */
     --text-on-navy: #ffffff;
     --text-on-green: #ffffff;
-    --text-on-gold: #1a4d8f;
+    --text-on-gold: var(--ocedc-dark-gray);
 }
 
 /* Enhanced Header for EDC */
 .site-header {
-    background: linear-gradient(135deg, var(--ocedc-navy) 0%, var(--ocedc-navy-dark) 100%);
-    border-bottom: 3px solid var(--ocedc-gold);
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    background: #ffffff;
+    border-bottom: 1px solid var(--border-color);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .logo-text {
-    color: var(--text-on-navy);
+    color: var(--ocedc-dark-gray);
     font-weight: 700;
     font-size: 1.5rem;
     letter-spacing: -0.5px;
 }
 
 .nav-link {
-    color: rgba(255, 255, 255, 0.9);
+    color: var(--ocedc-dark-gray);
 }
 
 .nav-link:hover,
 .nav-item.active .nav-link {
-    color: var(--ocedc-gold);
-    background-color: rgba(255, 255, 255, 0.1);
+    color: var(--ocedc-golden-brown);
+    background-color: rgba(184, 134, 11, 0.1);
 }
 
 /* Enhanced Buttons */
 .btn-primary {
-    background: linear-gradient(135deg, var(--ocedc-navy) 0%, var(--ocedc-navy-light) 100%);
+    background: linear-gradient(135deg, var(--ocedc-dark-gray) 0%, var(--ocedc-navy-light) 100%);
     border: none;
-    box-shadow: 0 4px 6px rgba(26, 77, 143, 0.3);
+    box-shadow: 0 4px 6px rgba(74, 74, 74, 0.3);
 }
 
 .btn-primary:hover {
-    background: linear-gradient(135deg, var(--ocedc-navy-light) 0%, var(--ocedc-navy) 100%);
+    background: linear-gradient(135deg, var(--ocedc-navy-light) 0%, var(--ocedc-dark-gray) 100%);
     transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(26, 77, 143, 0.4);
+    box-shadow: 0 6px 12px rgba(74, 74, 74, 0.4);
 }
 
 .btn-secondary {
-    background-color: var(--ocedc-green);
+    background-color: var(--ocedc-golden-brown);
     color: var(--text-on-green);
 }
 
 .btn-secondary:hover {
-    background-color: var(--ocedc-green-dark);
+    background-color: var(--ocedc-golden-brown-dark);
 }
 
 .btn-accent {
-    background-color: var(--ocedc-gold);
+    background-color: var(--ocedc-golden-brown-light);
     color: var(--text-on-gold);
     font-weight: 600;
 }
 
 .btn-accent:hover {
-    background-color: var(--ocedc-gold-dark);
+    background-color: var(--ocedc-golden-brown-dark);
     color: var(--text-on-gold);
 }
 
 /* Hero Section with OCEDC Branding */
 .hero-section {
-    background: linear-gradient(135deg, var(--ocedc-navy) 0%, var(--ocedc-navy-dark) 50%, var(--ocedc-green) 100%);
+    background: linear-gradient(135deg, var(--ocedc-dark-gray) 0%, var(--ocedc-navy-dark) 50%, var(--ocedc-golden-brown) 100%);
     position: relative;
     overflow: hidden;
 }
@@ -125,29 +132,29 @@
 
 /* Feature Cards Enhanced */
 .feature-card {
-    border-top: 4px solid var(--ocedc-gold);
+    border-top: 4px solid var(--ocedc-golden-brown);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .feature-card:hover {
     transform: translateY(-8px);
-    box-shadow: 0 12px 24px rgba(26, 77, 143, 0.15);
-    border-top-color: var(--ocedc-green);
+    box-shadow: 0 12px 24px rgba(74, 74, 74, 0.15);
+    border-top-color: var(--ocedc-golden-brown-light);
 }
 
 .feature-icon {
-    color: var(--ocedc-navy);
+    color: var(--ocedc-dark-gray);
     margin-bottom: 1rem;
 }
 
 .feature-card h3 {
-    color: var(--ocedc-navy);
+    color: var(--ocedc-dark-gray);
     font-weight: 700;
 }
 
 /* Callout Section */
 .callout-section {
-    background: linear-gradient(135deg, var(--ocedc-green) 0%, var(--ocedc-green-dark) 100%);
+    background: linear-gradient(135deg, var(--ocedc-golden-brown) 0%, var(--ocedc-golden-brown-dark) 100%);
     color: var(--text-on-green);
     border: none;
 }
@@ -163,24 +170,24 @@
 
 /* Footer Enhanced */
 .site-footer {
-    background: linear-gradient(135deg, var(--ocedc-navy-dark) 0%, var(--ocedc-navy) 100%);
-    border-top: 3px solid var(--ocedc-gold);
+    background: linear-gradient(135deg, var(--ocedc-navy-dark) 0%, var(--ocedc-dark-gray) 100%);
+    border-top: 3px solid var(--ocedc-golden-brown);
 }
 
 .footer-section h3,
 .footer-section h4 {
-    color: var(--ocedc-gold);
+    color: var(--ocedc-golden-brown);
     font-weight: 700;
 }
 
 .social-links a:hover {
-    background-color: var(--ocedc-gold);
+    background-color: var(--ocedc-golden-brown);
     transform: translateY(-3px) scale(1.1);
 }
 
 /* Statistics/Data Display */
 .stat-box {
-    background: linear-gradient(135deg, var(--ocedc-navy) 0%, var(--ocedc-navy-light) 100%);
+    background: linear-gradient(135deg, var(--ocedc-dark-gray) 0%, var(--ocedc-navy-light) 100%);
     color: var(--text-on-navy);
     padding: 2rem;
     border-radius: var(--border-radius-lg);
@@ -191,7 +198,7 @@
 .stat-number {
     font-size: 3rem;
     font-weight: 800;
-    color: var(--ocedc-gold);
+    color: var(--ocedc-golden-brown);
     display: block;
     line-height: 1;
     margin-bottom: 0.5rem;
@@ -207,7 +214,7 @@
 /* Testimonial Cards */
 .testimonial-card {
     background: var(--bg-color);
-    border-left: 4px solid var(--ocedc-gold);
+    border-left: 4px solid var(--ocedc-golden-brown);
     padding: 2rem;
     border-radius: var(--border-radius);
     box-shadow: var(--shadow-md);
@@ -223,13 +230,13 @@
 
 .testimonial-author {
     font-weight: 600;
-    color: var(--ocedc-navy);
+    color: var(--ocedc-dark-gray);
 }
 
 /* Location Highlights */
 .location-highlight {
-    background: linear-gradient(135deg, rgba(26, 77, 143, 0.05) 0%, rgba(108, 181, 65, 0.05) 100%);
-    border-left: 4px solid var(--ocedc-green);
+    background: linear-gradient(135deg, rgba(74, 74, 74, 0.05) 0%, rgba(184, 134, 11, 0.05) 100%);
+    border-left: 4px solid var(--ocedc-golden-brown);
     padding: 1.5rem;
     margin: 1.5rem 0;
     border-radius: var(--border-radius);
@@ -246,7 +253,7 @@
 }
 
 .data-table thead {
-    background: linear-gradient(135deg, var(--ocedc-navy) 0%, var(--ocedc-navy-light) 100%);
+    background: linear-gradient(135deg, var(--ocedc-dark-gray) 0%, var(--ocedc-navy-light) 100%);
     color: var(--text-on-navy);
 }
 

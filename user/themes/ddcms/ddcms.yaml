@@ -6,7 +6,7 @@ header:
   logo: 'logo-ocedc.svg'               # Logo file from theme://images/logos/
   logo_alt: 'OCEDC - Ogle County Economic Development Corporation'
   logo_text: 'OCEDC'                   # Fallback text if logo not available
-  tagline: 'Building Economic Prosperity in Ogle County'
+  tagline: 'A Catalyst for Economic Development'
   use_logo_image: true                 # Set to false to use text-only logo
 
 footer:

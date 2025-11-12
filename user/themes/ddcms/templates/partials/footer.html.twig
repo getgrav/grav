@@ -10,22 +10,53 @@
                     {% endif %}
                     <p>{{ desc|e('html') }}</p>
                 {% endif %}
+                <div class="footer-contact">
+                    <p><i class="fas fa-map-marker-alt"></i> 123 Main Street, Oregon, IL 61061</p>
+                    <p><i class="fas fa-envelope"></i> <a href="mailto:info@oglecoedg.org">info@oglecoedg.org</a></p>
+                    <p><i class="fas fa-phone"></i> <a href="tel:+18155551234">(815) 555-1234</a></p>
+                </div>
             </div>
             
-            {% if theme.footer.social_links %}
-                <div class="footer-section">
-                    <h4>Connect</h4>
-                    <ul class="social-links">
-                        {% for link in theme.footer.social_links %}
-                            <li>
-                                <a href="{{ link.url }}" target="_blank" rel="noopener noreferrer" aria-label="{{ link.icon|replace({'fab fa-': '', 'fas fa-': ''}) }}">
-                                    <i class="{{ link.icon }}"></i>
-                                </a>
-                            </li>
-                        {% endfor %}
-                    </ul>
-                </div>
-            {% endif %}
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul class="footer-links">
+                    <li><a href="/support">Support Ogle County</a></li>
+                    <li><a href="/privacy">Privacy Policy</a></li>
+                    <li><a href="/accessibility">Accessibility Statement</a></li>
+                    <li><a href="/sitemap">Sitemap</a></li>
+                </ul>
+                
+                {% if theme.footer.social_links %}
+                    <div class="social-links-wrapper">
+                        <h4>Connect</h4>
+                        <ul class="social-links">
+                            {% for link in theme.footer.social_links %}
+                                <li>
+                                    <a href="{{ link.url }}" target="_blank" rel="noopener noreferrer" aria-label="{{ link.icon|replace({'fab fa-': '', 'fas fa-': ''}) }}">
+                                        <i class="{{ link.icon }}"></i>
+                                    </a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="footer-section">
+                <h4>Stay Informed</h4>
+                <p>Subscribe to our newsletter for the latest news and updates.</p>
+                <form class="newsletter-form" action="/newsletter/subscribe" method="post">
+                    <div class="form-row">
+                        <input type="text" name="first_name" placeholder="First Name" required>
+                        <input type="text" name="last_name" placeholder="Last Name" required>
+                    </div>
+                    <input type="email" name="email" placeholder="Email" required>
+                    <button type="submit" class="btn btn-accent">
+                        SIGN UP
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+                </form>
+            </div>
         </div>
         
         <div class="footer-bottom">

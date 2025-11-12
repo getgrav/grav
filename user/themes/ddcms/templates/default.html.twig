@@ -1,14 +1,40 @@
 {% extends 'partials/base.html.twig' %}
 
 {% block content %}
-    <article class="content">
-        <div class="container">
-            {% if page.header.title %}
-                <h1 class="page-title">{{ page.header.title }}</h1>
+    {# Check if this page uses modular content #}
+    {% set content_items = page.header.content.items|default('@self.children') %}
+    {% set is_modular = content_items == '@self.modular' or page.template == 'modular/default' %}
+    
+    {% if is_modular %}
+        {# Render as modular page #}
+        {% include 'modular/default.html.twig' %}
+    {% else %}
+        {# Render as standard content page with enhanced styling #}
+        <article class="content-page">
+            {% if page.header.featured_image %}
+                <div class="page-header-image">
+                    <img src="{{ url(page.header.featured_image) }}" alt="{{ page.title }}" />
+                </div>
             {% endif %}
             
-            {{ page.content|raw }}
-        </div>
-    </article>
+            <div class="container">
+                {% if page.header.title %}
+                    <header class="page-header">
+                        {% if page.header.label %}
+                            <span class="page-label">{{ page.header.label }}</span>
+                        {% endif %}
+                        <h1 class="page-title">{{ page.header.title }}</h1>
+                        {% if page.header.subtitle %}
+                            <p class="page-subtitle">{{ page.header.subtitle }}</p>
+                        {% endif %}
+                    </header>
+                {% endif %}
+                
+                <div class="page-content">
+                    {{ page.content|raw }}
+                </div>
+            </div>
+        </article>
+    {% endif %}
 {% endblock %}
 

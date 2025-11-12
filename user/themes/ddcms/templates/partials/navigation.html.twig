@@ -1,27 +1,32 @@
 <nav class="main-navigation" role="navigation" aria-label="Main navigation">
-    {% set root = pages.root() %}
-    {% set pages_list = root.children.visible %}
+    {% set pages_list = pages.children %}
     
     {% if pages_list|length > 0 %}
         <ul class="nav-menu">
             {% for page_item in pages_list %}
-                <li class="nav-item {{ page_item.active ? 'active' : '' }}">
-                    <a href="{{ page_item.url }}" class="nav-link">
-                        {{ page_item.menu ?: page_item.title }}
-                    </a>
-                    
-                    {% if page_item.children.visible|length > 0 %}
-                        <ul class="submenu">
-                            {% for child in page_item.children.visible %}
-                                <li class="submenu-item">
-                                    <a href="{{ child.url }}" class="submenu-link">{{ child.menu ?: child.title }}</a>
-                                </li>
-                            {% endfor %}
-                        </ul>
+                {% if page_item.routable() and page_item.visible() %}
+                    {% set menu_text = page_item.header.menu ?: page_item.title %}
+                    {% if menu_text %}
+                        <li class="nav-item {{ page_item.active ? 'active' : '' }}">
+                            <a href="{{ page_item.url }}" class="nav-link">
+                                {{ menu_text }}
+                            </a>
+                            
+                            {% if page_item.children.visible|length > 0 %}
+                                <ul class="submenu">
+                                    {% for child in page_item.children.visible %}
+                                        {% if child.routable() %}
+                                            <li class="submenu-item">
+                                                <a href="{{ child.url }}" class="submenu-link">{{ child.header.menu ?: child.title }}</a>
+                                            </li>
+                                        {% endif %}
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
+                        </li>
                     {% endif %}
-                </li>
+                {% endif %}
             {% endfor %}
         </ul>
     {% endif %}
 </nav>
-

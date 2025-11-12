@@ -1,24 +1,35 @@
 {% extends 'partials/base.html.twig' %}
 
 {% block content %}
-    {% set modules = page.collection() %}
+    {% set modules = page.collection('content') %}
+    {% set seen = [] %}
+    
     {% if modules|length > 0 %}
         {% for module in modules %}
-            {% set module_template = module.template() %}
-            {% if module_template %}
-                {% include [module_template ~ '.html.twig', 'modular/default.html.twig'] with {'page': module, 'header': module.header} %}
-            {% else %}
-                <section class="modular-section {{ module.header.class|default('') }}">
-                    <div class="container">
-                        {{ module.content|raw }}
-                    </div>
-                </section>
+            {% set module_slug = module.slug() %}
+            {% if module_slug not in seen and not module.routable() %}
+                {% set seen = seen|merge([module_slug]) %}
+                {% set module_template = module.template() %}
+                
+                {# Try to include the specific template, fallback to default-section #}
+                {% if module_template %}
+                    {% set template_path = module_template ~ '.html.twig' %}
+                    {% if template_path starts with 'modular/' %}
+                        {% include [template_path, 'modular/default-section.html.twig'] with {'page': module, 'header': module.header} %}
+                    {% else %}
+                        {% include ['modular/' ~ template_path, template_path, 'modular/default-section.html.twig'] with {'page': module, 'header': module.header} %}
+                    {% endif %}
+                {% else %}
+                    {% include 'modular/default-section.html.twig' with {'page': module, 'header': module.header} %}
+                {% endif %}
             {% endif %}
         {% endfor %}
     {% else %}
         <div class="container">
-            <p>No modules found. Please check your page configuration.</p>
+            <div class="no-modules-message">
+                <p>No modules found. Add modules to this page to display content.</p>
+                <p><small>In Grav Admin, create child pages with names starting with underscore (e.g., <code>01._hero</code>) to add modules.</small></p>
+            </div>
         </div>
     {% endif %}
 {% endblock %}
-

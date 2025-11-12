@@ -2,13 +2,23 @@
 
 <section class="features-section">
     <div class="container">
-        {% if page.header.title %}
-            <h2 class="section-title">{{ page.header.title }}</h2>
-        {% endif %}
-        
-        {% if page.header.subtitle %}
-            <p class="section-subtitle">{{ page.header.subtitle }}</p>
-        {% endif %}
+        <div class="section-title-wrapper">
+            {% if page.header.label %}
+                <span class="section-label">{{ page.header.label }}</span>
+            {% endif %}
+            {% if page.header.title %}
+                <h2 class="section-title">
+                    {{ page.header.title }}
+                    {% if page.header.title_divider %}
+                        <span class="section-title-divider"></span>
+                        {{ page.header.title_divider }}
+                    {% endif %}
+                </h2>
+            {% endif %}
+            {% if page.header.subtitle %}
+                <p class="section-subtitle">{{ page.header.subtitle }}</p>
+            {% endif %}
+        </div>
         
         {% if features|length > 0 %}
             <div class="features-grid">
@@ -24,6 +34,12 @@
                         {% endif %}
                         {% if feature.description %}
                             <p>{{ feature.description }}</p>
+                        {% endif %}
+                        {% if feature.link %}
+                            <a href="{{ feature.link.url }}" class="learn-more">
+                                {{ feature.link.text|default('Learn More') }}
+                                <i class="fas fa-arrow-right"></i>
+                            </a>
                         {% endif %}
                     </div>
                 {% endfor %}

@@ -15,18 +15,36 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
         {% set page_desc = page.metadata.description|default('') %}
-        {% set site_desc = site.metadata.description|default('') %}
-        {% set description = page_desc ?: site_desc %}
-        {% if description is iterable %}
-            {% set description = description|join(', ') %}
+        {% if page_desc is iterable %}
+            {% if page_desc.description is defined %}
+                {% set page_desc = page_desc.description %}
+            {% else %}
+                {% set page_desc = '' %}
+            {% endif %}
         {% endif %}
+        {% set site_desc = site.metadata.description|default('') %}
+        {% if site_desc is iterable %}
+            {% if site_desc.description is defined %}
+                {% set site_desc = site_desc.description %}
+            {% endif %}
+        {% endif %}
+        {% set description = page_desc ?: site_desc %}
         
         {% set page_keywords = page.metadata.keywords|default('') %}
-        {% set site_keywords = site.metadata.keywords|default('') %}
-        {% set keywords = page_keywords ?: site_keywords %}
-        {% if keywords is iterable %}
-            {% set keywords = keywords|join(', ') %}
+        {% if page_keywords is iterable %}
+            {% if page_keywords.keywords is defined %}
+                {% set page_keywords = page_keywords.keywords %}
+            {% else %}
+                {% set page_keywords = '' %}
+            {% endif %}
         {% endif %}
+        {% set site_keywords = site.metadata.keywords|default('') %}
+        {% if site_keywords is iterable %}
+            {% if site_keywords.keywords is defined %}
+                {% set site_keywords = site_keywords.keywords %}
+            {% endif %}
+        {% endif %}
+        {% set keywords = page_keywords ?: site_keywords %}
         
         <meta name="description" content="{{ description|e('html') }}">
         <meta name="keywords" content="{{ keywords|e('html') }}">
@@ -39,9 +57,15 @@
         {% if page.metadata.robots %}
             {% set robots = page.metadata.robots %}
             {% if robots is iterable %}
-                {% set robots = robots|join(', ') %}
+                {% if robots.robots is defined %}
+                    {% set robots = robots.robots %}
+                {% else %}
+                    {% set robots = '' %}
+                {% endif %}
             {% endif %}
-            <meta name="robots" content="{{ robots|e('html') }}">
+            {% if robots %}
+                <meta name="robots" content="{{ robots|e('html') }}">
+            {% endif %}
         {% endif %}
 
         <link rel="canonical" href="{{ page.url(true, true) }}" />
@@ -76,12 +100,19 @@
             {% do assets.addCss('theme://css/main.css', 100) %}
             {% do assets.addCss('theme://css/custom.css', 99) %}
             {% do assets.addCss('theme://css/ocedc.css', 98) %}
+            {% do assets.addCss('theme://css/enhancements.css', 97) %}
+            {% do assets.addCss('theme://css/douglas-style.css', 96) %}
+            {% do assets.addCss('theme://css/content.css', 95) %}
+            {% do assets.addCss('theme://css/modules.css', 94) %}
         {% endblock %}
         
         {{ assets.css()|raw }}
         
         {% block javascripts %}
             {% do assets.addJs('theme://js/main.js', {'group': 'bottom'}) %}
+            {% do assets.addJs('theme://js/faq.js', {'group': 'bottom'}) %}
+            {% do assets.addJs('theme://js/gallery.js', {'group': 'bottom'}) %}
+            {% do assets.addJs('theme://js/testimonials.js', {'group': 'bottom'}) %}
         {% endblock %}
         
         {{ assets.js('head')|raw }}

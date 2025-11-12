@@ -254,7 +254,12 @@ a:hover {
 /* Main Content */
 #main-content {
     min-height: calc(100vh - 200px);
-    padding: var(--spacing-2xl) 0;
+    padding: 0 0 var(--spacing-2xl) 0;
+}
+
+/* Remove top padding for hero section when it's the first child */
+#main-content > .hero-section:first-child {
+    margin-top: 0;
 }
 
 .content {
