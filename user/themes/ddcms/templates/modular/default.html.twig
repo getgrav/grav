@@ -1,27 +1,66 @@
 {% extends 'partials/base.html.twig' %}
 
 {% block content %}
-    {% set modules = page.collection('content') %}
-    {% set seen = [] %}
+    {# Get modules from collection #}
+    {% set all_modules = page.collection('content') %}
     
+    {# Build unique list by iterating and storing in dictionary #}
+    {% set unique_modules_dict = {} %}
+    {% for module in all_modules %}
+        {% if module.isModule() %}
+            {% set module_id = module.id() ?: module.path() %}
+            {% if module_id not in unique_modules_dict %}
+                {% set unique_modules_dict = unique_modules_dict|merge({(module_id): module}) %}
+            {% endif %}
+        {% endif %}
+    {% endfor %}
+    
+    {# Convert dictionary to array maintaining custom order if specified #}
+    {% set modules = [] %}
+    {% if page.header.content.order.custom is defined and page.header.content.order.custom|length > 0 %}
+        {% set custom_order = page.header.content.order.custom %}
+        {# First add modules in custom order #}
+        {% for order_item in custom_order %}
+            {% for id, module in unique_modules_dict %}
+                {% if module.folder == order_item %}
+                    {% set modules = modules|merge([module]) %}
+                {% endif %}
+            {% endfor %}
+        {% endfor %}
+        {# Then add remaining modules #}
+        {% for id, module in unique_modules_dict %}
+            {% set module_in_custom = false %}
+            {% for order_item in custom_order %}
+                {% if module.folder == order_item %}
+                    {% set module_in_custom = true %}
+                {% endif %}
+            {% endfor %}
+            {% if not module_in_custom %}
+                {% set modules = modules|merge([module]) %}
+            {% endif %}
+        {% endfor %}
+    {% else %}
+        {# No custom order, just add all modules #}
+        {% for id, module in unique_modules_dict %}
+            {% set modules = modules|merge([module]) %}
+        {% endfor %}
+    {% endif %}
+    
+    {# Render modules #}
     {% if modules|length > 0 %}
         {% for module in modules %}
-            {% set module_slug = module.slug() %}
-            {% if module_slug not in seen and not module.routable() %}
-                {% set seen = seen|merge([module_slug]) %}
-                {% set module_template = module.template() %}
-                
-                {# Try to include the specific template, fallback to default-section #}
-                {% if module_template %}
-                    {% set template_path = module_template ~ '.html.twig' %}
-                    {% if template_path starts with 'modular/' %}
-                        {% include [template_path, 'modular/default-section.html.twig'] with {'page': module, 'header': module.header} %}
-                    {% else %}
-                        {% include ['modular/' ~ template_path, template_path, 'modular/default-section.html.twig'] with {'page': module, 'header': module.header} %}
-                    {% endif %}
+            {% set module_template = module.template() %}
+            
+            {# Try to include the specific template, fallback to default-section #}
+            {% if module_template %}
+                {% set template_path = module_template ~ '.html.twig' %}
+                {% if template_path starts with 'modular/' %}
+                    {% include [template_path, 'modular/default-section.html.twig'] with {'page': module, 'header': module.header} %}
                 {% else %}
-                    {% include 'modular/default-section.html.twig' with {'page': module, 'header': module.header} %}
+                    {% include ['modular/' ~ template_path, template_path, 'modular/default-section.html.twig'] with {'page': module, 'header': module.header} %}
                 {% endif %}
+            {% else %}
+                {% include 'modular/default-section.html.twig' with {'page': module, 'header': module.header} %}
             {% endif %}
         {% endfor %}
     {% else %}

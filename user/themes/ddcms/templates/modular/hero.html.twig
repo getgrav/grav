@@ -26,7 +26,12 @@
                 </div>
             {% endif %}
             
-            {% if page.content %}
+            {# Only render raw markdown content, not processed template output #}
+            {% if page.rawContent and not (page.content starts with '<') %}
+                <div class="hero-description">
+                    {{ page.rawContent|markdown|raw }}
+                </div>
+            {% elseif page.content and page.content|trim|slice(0, 1) != '<' %}
                 <div class="hero-description">
                     {{ page.content|raw }}
                 </div>

@@ -6,8 +6,11 @@
     {% set is_modular = content_items == '@self.modular' or page.template == 'modular/default' %}
     
     {% if is_modular %}
-        {# Render as modular page #}
-        {% include 'modular/default.html.twig' %}
+        {# For modular pages, let the modular template handle everything #}
+        {# Don't include here if template is already modular/default - it will render automatically #}
+        {% if page.template != 'modular/default' %}
+            {% include 'modular/default.html.twig' %}
+        {% endif %}
     {% else %}
         {# Render as standard content page with enhanced styling #}
         <article class="content-page">

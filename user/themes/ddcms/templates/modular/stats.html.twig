@@ -20,7 +20,10 @@
             </div>
         {% endif %}
         
-        {{ page.content|raw }}
+        {# Only render raw markdown content, not processed template output #}
+        {% if page.content and page.content|trim|slice(0, 1) != '<' %}
+            {{ page.content|raw }}
+        {% endif %}
     </div>
 </section>
 
