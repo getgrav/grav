@@ -7,6 +7,9 @@ enabled: true
 logo_text: 'ddCMS'
 body_classes: 'ddcms-admin'
 
+# Custom Footer - Remove Grav/Trilby Media credit
+custom_admin_footer: '<span class="ddcms-footer">ddCMS by <a href="https://dixondigital.com" target="_blank">Dixon Digital</a> &copy; 2025</span>'
+
 # Custom CSS - Load ddCMS branded styles
 add_css:
   - 'user://data/ddcms-admin/css/ddcms-admin.css'
