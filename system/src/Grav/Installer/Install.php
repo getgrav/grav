@@ -908,9 +908,7 @@ ERR;
             if (self::$allowPendingOverride) {
                 $report['warnings'][] = 'Pending plugin/theme updates ignored for this upgrade run.';
             } elseif ($report['is_major_minor_upgrade']) {
-                $report['blocking'][] = 'Plugin and theme updates must be applied before upgrading Grav.';
-            } else {
-                $report['warnings'][] = 'Pending plugin/theme updates detected; updating before upgrading Grav is recommended.';
+                $report['blocking'][] = 'Pending plugin/theme updates detected. Because this is a major Grav upgrade, update them before continuing.';
             }
         }
 

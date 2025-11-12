@@ -29,6 +29,7 @@ use function date;
 use function count;
 use function is_callable;
 use function strlen;
+use function stripos;
 
 /**
  * Class SelfupgradeCommand
@@ -395,6 +396,21 @@ class SelfupgradeCommand extends GpmCommand
         $conflicts = $preflight['psr_log_conflicts'] ?? [];
         $monologConflicts = $preflight['monolog_conflicts'] ?? [];
         $warnings = $preflight['warnings'] ?? [];
+        $isMajorMinorUpgrade = $preflight['is_major_minor_upgrade'] ?? null;
+        if ($isMajorMinorUpgrade === null && $this->upgrader) {
+            $local = $this->upgrader->getLocalVersion();
+            $remote = $this->upgrader->getRemoteVersion();
+            $localParts = explode('.', $local);
+            $remoteParts = explode('.', $remote);
+
+            $localMajor = (int)($localParts[0] ?? 0);
+            $localMinor = (int)($localParts[1] ?? 0);
+            $remoteMajor = (int)($remoteParts[0] ?? 0);
+            $remoteMinor = (int)($remoteParts[1] ?? 0);
+
+            $isMajorMinorUpgrade = ($localMajor !== $remoteMajor) || ($localMinor !== $remoteMinor);
+        }
+        $isMajorMinorUpgrade = (bool)$isMajorMinorUpgrade;
 
         if ($warnings) {
             $io->newLine();
@@ -418,25 +434,7 @@ class SelfupgradeCommand extends GpmCommand
             return true;
         }
 
-        if ($pending) {
-            // Use the is_major_minor_upgrade flag from preflight result if available
-            $isMajorMinorUpgrade = $preflight['is_major_minor_upgrade'] ?? false;
-
-            // Fall back to calculating it if not provided (for backwards compatibility)
-            if (!isset($preflight['is_major_minor_upgrade']) && $this->upgrader) {
-                $local = $this->upgrader->getLocalVersion();
-                $remote = $this->upgrader->getRemoteVersion();
-                $localParts = explode('.', $local);
-                $remoteParts = explode('.', $remote);
-
-                $localMajor = (int)($localParts[0] ?? 0);
-                $localMinor = (int)($localParts[1] ?? 0);
-                $remoteMajor = (int)($remoteParts[0] ?? 0);
-                $remoteMinor = (int)($remoteParts[1] ?? 0);
-
-                $isMajorMinorUpgrade = ($localMajor !== $remoteMajor) || ($localMinor !== $remoteMinor);
-            }
-
+        if ($pending && $isMajorMinorUpgrade) {
             $local = $this->upgrader ? $this->upgrader->getLocalVersion() : 'unknown';
             $remote = $this->upgrader ? $this->upgrader->getRemoteVersion() : 'unknown';
 
@@ -449,15 +447,9 @@ class SelfupgradeCommand extends GpmCommand
                 $io->writeln(sprintf('  - %s (%s) %s → %s', $slug, $type, $current, $available));
             }
 
-            if ($isMajorMinorUpgrade) {
-                // For major/minor upgrades, this is EXPECTED behavior - updating plugins first is REQUIRED
-                $io->writeln('    › For major version upgrades (v' . $local . ' → v' . $remote . '), plugins must be updated to their latest');
-                $io->writeln('      compatible versions BEFORE upgrading Grav core to ensure compatibility.');
-                $io->writeln('      Please run `bin/gpm update` to update these packages, then retry self-upgrade.');
-            } else {
-                // For patch upgrades, this shouldn't normally happen but plugins still need updating
-                $io->writeln('    › Please run `bin/gpm update` to bring these packages current before upgrading Grav.');
-            }
+            $io->writeln('    › For major version upgrades (v' . $local . ' → v' . $remote . '), plugins must be updated to their latest');
+            $io->writeln('      compatible versions BEFORE upgrading Grav core to ensure compatibility.');
+            $io->writeln('      Please run `bin/gpm update` to update these packages, then retry self-upgrade.');
 
             $proceed = false;
             if (!$this->all_yes) {
