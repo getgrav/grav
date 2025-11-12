@@ -1,5 +1,5 @@
 ---
-title: About Us
+title: 'About Us'
 menu: About
 metadata:
     description: 'Learn about OCEDC - Ogle County Economic Development Corporation. We promote business growth, attract investment, and support job creation throughout Ogle County, Illinois.'

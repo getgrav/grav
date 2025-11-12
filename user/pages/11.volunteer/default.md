@@ -1,5 +1,5 @@
 ---
-title: Volunteer with OCEDC
+title: 'Volunteer with OCEDC'
 menu: Volunteer
 visible: false
 metadata:

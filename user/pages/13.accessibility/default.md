@@ -1,6 +1,6 @@
 ---
-title: Accessibility Statement
-menu: Accessibility Statement
+title: 'Accessibility Statement'
+menu: 'Accessibility Statement'
 visible: false
 metadata:
     description: 'Accessibility Statement for the Ogle County Economic Development Corporation website. Our commitment to making our website accessible to all users.'

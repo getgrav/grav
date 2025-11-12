@@ -1,5 +1,5 @@
 ---
-title: Donate to OCEDC
+title: 'Donate to OCEDC'
 menu: Donate
 visible: false
 metadata:

@@ -1,6 +1,6 @@
 ---
-title: Privacy Policy
-menu: Privacy Policy
+title: 'Privacy Policy'
+menu: 'Privacy Policy'
 visible: false
 metadata:
     description: 'Privacy Policy for the Ogle County Economic Development Corporation website. Learn how we collect, use, and protect your personal information.'

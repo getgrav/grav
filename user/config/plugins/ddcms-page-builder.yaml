@@ -1,0 +1,8 @@
+enabled: true
+route: /admin/page-builder
+admin_route: /admin/page-builder
+admin_menu: true
+admin_menu_label: Page Builder
+admin_menu_icon: fa-puzzle-piece
+admin_menu_priority: 10
+

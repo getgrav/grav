@@ -1,5 +1,5 @@
 ---
-title: News & Updates
+title: 'News & Updates'
 menu: News
 metadata:
     description: 'Stay updated with the latest news, events, and developments in Ogle County economic development. Business announcements, success stories, and community updates.'
@@ -12,6 +12,7 @@ content:
         dir: desc
     limit: 10
     pagination: true
+template: default
 ---
 
 # News & Updates

@@ -1,5 +1,5 @@
 ---
-title: Become an Investor
+title: 'Become an Investor'
 menu: Investors
 visible: false
 metadata:

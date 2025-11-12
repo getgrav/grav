@@ -13,6 +13,8 @@ custom_admin_footer: '<span class="ddcms-footer">ddCMS by <a href="https://dixon
 # Custom CSS - Load ddCMS branded styles
 add_css:
   - 'user://data/ddcms-admin/css/ddcms-admin.css'
+  - custom_admin_footer: '<span class="ddcms-footer">ddCMS by <a href="https://dixondigital.co" target="_blank">Dixon Digital</a> &copy; 2025</span>'
+
 
 # Dashboard Configuration
 dashboard:
@@ -56,11 +58,11 @@ sidebar:
 tray:
   links:
     - text: 'Dixon Digital Support'
-      url: 'https://dixondigital.com/support'
+      url: 'https://dixondigital.co/support'
       icon: 'fa-life-ring'
       target: '_blank'
     - text: 'ddCMS Documentation'
-      url: 'https://dixondigital.com/ddcms/docs'
+      url: 'https://dixondigital.co/ddcms/docs'
       icon: 'fa-book'
       target: '_blank'
 

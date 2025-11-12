@@ -1,5 +1,5 @@
 ---
-title: Business Resources
+title: 'Business Resources'
 menu: Resources
 metadata:
     description: 'Access comprehensive business resources for Ogle County. Find information on starting a business, available sites, incentives, financing, and key contacts.'
