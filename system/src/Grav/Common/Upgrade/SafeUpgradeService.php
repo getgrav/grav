@@ -168,13 +168,11 @@ class SafeUpgradeService
         $psrLogConflicts = $this->detectPsrLogConflicts();
         $monologConflicts = $this->detectMonologConflicts();
 
-        // Only enforce plugin updates for major/minor upgrades
-        // For patch upgrades, just warn but don't block
         if ($pending) {
             if ($isMajorMinorUpgrade) {
-                $warnings[] = 'One or more plugins/themes are not up to date and must be updated for major version upgrades.';
+                $warnings[] = 'Because this is a major Grav upgrade, update pending plugins and themes before continuing.';
             } else {
-                $warnings[] = 'One or more plugins/themes are not up to date.';
+                $warnings[] = 'Pending plugin/theme updates detected. Update them before running Grav upgrade.';
             }
         }
         if ($psrLogConflicts) {

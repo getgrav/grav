@@ -46,7 +46,7 @@ class SelfupgradeCommandTest extends \Codeception\TestCase\Test
     public function testHandlePreflightReportAbortsOnPendingWhenDeclined(): void
     {
         $command = new TestSelfupgradeCommand();
-        [$style] = $this->injectIo($command);
+        [$style] = $this->injectIo($command, [false]);
         $this->setAllYes($command, false);
 
         $result = $command->runHandle([
