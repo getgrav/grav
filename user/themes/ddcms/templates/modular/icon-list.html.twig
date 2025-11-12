@@ -1,0 +1,198 @@
+{% set items = page.header.items|default([]) %}
+{% set columns = page.header.columns|default(2) %}
+{% set bg_color = page.header.bg_color|default('white') %}
+
+<section class="icon-list-section bg-{{ bg_color }} content-section animate-on-scroll fade-in">
+    <div class="container">
+        {% if page.header.label %}
+            <span class="section-label">{{ page.header.label }}</span>
+        {% endif %}
+
+        {% if page.header.title %}
+            <h2 class="section-title">{{ page.header.title }}</h2>
+        {% endif %}
+
+        {% if page.header.subtitle %}
+            <p class="section-subtitle">{{ page.header.subtitle }}</p>
+        {% endif %}
+
+        {% if items|length > 0 %}
+            <div class="icon-list-grid columns-{{ columns }}">
+                {% for item in items %}
+                    <div class="icon-list-item animate-on-scroll fade-in-up">
+                        {% if item.icon %}
+                            <div class="icon-list-icon">
+                                <i class="{{ item.icon }}"></i>
+                            </div>
+                        {% endif %}
+                        <div class="icon-list-content">
+                            {% if item.title %}
+                                <h3>{{ item.title }}</h3>
+                            {% endif %}
+                            {% if item.description %}
+                                <p>{{ item.description }}</p>
+                            {% endif %}
+                            {% if item.link %}
+                                <a href="{{ item.link.url }}" class="icon-list-link">
+                                    {{ item.link.text|default('Learn More') }}
+                                    <i class="fas fa-arrow-right"></i>
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% if page.content %}
+            <div class="icon-list-footer">
+                {{ page.content|raw }}
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+<style>
+.icon-list-section {
+    padding: var(--spacing-3xl) 0;
+}
+
+.icon-list-section.bg-light {
+    background-color: var(--bg-light);
+}
+
+.icon-list-section.bg-gray {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+}
+
+.icon-list-section .section-label,
+.icon-list-section .section-title,
+.icon-list-section .section-subtitle {
+    text-align: center;
+}
+
+.icon-list-section .section-title {
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.icon-list-section .section-subtitle {
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: var(--spacing-2xl);
+}
+
+.icon-list-grid {
+    display: grid;
+    gap: var(--spacing-xl);
+    margin: var(--spacing-2xl) 0;
+}
+
+.icon-list-grid.columns-1 {
+    grid-template-columns: 1fr;
+}
+
+.icon-list-grid.columns-2 {
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+}
+
+.icon-list-grid.columns-3 {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+.icon-list-item {
+    display: flex;
+    gap: var(--spacing-lg);
+    padding: var(--spacing-xl);
+    background-color: var(--bg-color);
+    border-radius: var(--border-radius-lg);
+    border-left: 4px solid var(--ocedc-golden-brown);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: var(--shadow-sm);
+}
+
+.icon-list-item:hover {
+    transform: translateX(8px);
+    box-shadow: var(--shadow-md);
+    border-left-color: var(--ocedc-golden-brown-light);
+}
+
+.icon-list-icon {
+    flex-shrink: 0;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--ocedc-dark-gray) 0%, var(--ocedc-navy-light) 100%);
+    color: #ffffff;
+    border-radius: var(--border-radius);
+    font-size: var(--font-size-2xl);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.icon-list-item:hover .icon-list-icon {
+    transform: scale(1.1) rotate(5deg);
+}
+
+.icon-list-content {
+    flex: 1;
+}
+
+.icon-list-content h3 {
+    color: var(--ocedc-dark-gray);
+    font-size: var(--font-size-xl);
+    margin-bottom: var(--spacing-sm);
+}
+
+.icon-list-content p {
+    color: var(--text-color);
+    line-height: 1.7;
+    margin-bottom: var(--spacing-sm);
+}
+
+.icon-list-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    color: var(--ocedc-golden-brown);
+    font-weight: 600;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.icon-list-link:hover {
+    color: var(--ocedc-golden-brown-dark);
+    gap: var(--spacing-sm);
+}
+
+.icon-list-link i {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.icon-list-link:hover i {
+    transform: translateX(4px);
+}
+
+.icon-list-footer {
+    margin-top: var(--spacing-2xl);
+    text-align: center;
+}
+
+@media (max-width: 768px) {
+    .icon-list-grid.columns-2,
+    .icon-list-grid.columns-3 {
+        grid-template-columns: 1fr;
+    }
+
+    .icon-list-item {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .icon-list-icon {
+        margin: 0 auto;
+    }
+}
+</style>

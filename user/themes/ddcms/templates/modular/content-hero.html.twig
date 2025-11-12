@@ -1,0 +1,143 @@
+{% set hero_title = page.header.title %}
+{% set hero_subtitle = page.header.subtitle %}
+{% set hero_image = page.header.image %}
+{% set hero_overlay = page.header.overlay|default(true) %}
+{% set hero_size = page.header.size|default('medium') %}
+
+<section class="content-hero-section hero-size-{{ hero_size }} animate-on-scroll fade-in">
+    {% if hero_image %}
+        <div class="content-hero-background" style="background-image: url('{{ url(hero_image) }}');">
+            {% if hero_overlay %}
+                <div class="content-hero-overlay"></div>
+            {% endif %}
+        </div>
+    {% endif %}
+
+    <div class="container">
+        <div class="content-hero-content">
+            {% if page.header.label %}
+                <span class="content-hero-label">{{ page.header.label }}</span>
+            {% endif %}
+
+            {% if hero_title %}
+                <h1 class="content-hero-title">{{ hero_title }}</h1>
+            {% endif %}
+
+            {% if hero_subtitle %}
+                <p class="content-hero-subtitle">{{ hero_subtitle }}</p>
+            {% endif %}
+
+            {% if page.header.buttons %}
+                <div class="content-hero-buttons">
+                    {% for button in page.header.buttons %}
+                        <a href="{{ button.url }}" class="btn {{ button.class|default('btn-primary') }}">
+                            {{ button.text }}
+                            {% if button.icon %}
+                                <i class="{{ button.icon }}"></i>
+                            {% endif %}
+                        </a>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<style>
+.content-hero-section {
+    position: relative;
+    padding: var(--spacing-3xl) 0;
+    text-align: center;
+    overflow: hidden;
+}
+
+.content-hero-section.hero-size-small {
+    padding: var(--spacing-2xl) 0;
+}
+
+.content-hero-section.hero-size-large {
+    padding: 6rem 0;
+}
+
+.content-hero-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-size: cover;
+    background-position: center;
+    z-index: 0;
+}
+
+.content-hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(74, 74, 74, 0.85) 0%, rgba(184, 134, 11, 0.85) 100%);
+    z-index: 1;
+}
+
+.content-hero-content {
+    position: relative;
+    z-index: 2;
+}
+
+.content-hero-section .content-hero-background ~ .container {
+    color: #ffffff;
+}
+
+.content-hero-section .content-hero-background ~ .container h1 {
+    color: #ffffff;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.content-hero-label {
+    display: inline-block;
+    padding: var(--spacing-xs) var(--spacing-md);
+    background: rgba(184, 134, 11, 0.2);
+    color: var(--ocedc-golden-brown-light);
+    border-radius: var(--border-radius);
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: var(--spacing-md);
+    border: 1px solid var(--ocedc-golden-brown);
+}
+
+.content-hero-title {
+    font-size: var(--font-size-4xl);
+    font-weight: 800;
+    margin-bottom: var(--spacing-md);
+    line-height: 1.2;
+}
+
+.content-hero-subtitle {
+    font-size: var(--font-size-xl);
+    margin-bottom: var(--spacing-xl);
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+    opacity: 0.9;
+}
+
+.content-hero-buttons {
+    display: flex;
+    gap: var(--spacing-md);
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+    .content-hero-title {
+        font-size: var(--font-size-3xl);
+    }
+
+    .content-hero-subtitle {
+        font-size: var(--font-size-lg);
+    }
+}
+</style>

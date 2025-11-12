@@ -1,0 +1,145 @@
+{% set section_title = page.header.title %}
+{% set section_subtitle = page.header.subtitle %}
+{% set bg_color = page.header.bg_color|default('white') %}
+{% set text_align = page.header.text_align|default('left') %}
+{% set max_width = page.header.max_width|default('800px') %}
+
+<section class="text-section bg-{{ bg_color }} text-{{ text_align }} content-section animate-on-scroll fade-in-up">
+    <div class="container">
+        <div class="text-section-inner" style="max-width: {{ max_width }}; margin: 0 auto;">
+            {% if page.header.label %}
+                <span class="section-label">{{ page.header.label }}</span>
+            {% endif %}
+
+            {% if section_title %}
+                <h2 class="section-title">{{ section_title }}</h2>
+            {% endif %}
+
+            {% if section_subtitle %}
+                <p class="section-subtitle">{{ section_subtitle }}</p>
+            {% endif %}
+
+            <div class="text-section-content">
+                {{ page.content|raw }}
+            </div>
+
+            {% if page.header.button %}
+                <div class="text-section-button">
+                    <a href="{{ page.header.button.url }}" class="btn {{ page.header.button.class|default('btn-primary') }}">
+                        {{ page.header.button.text }}
+                        {% if page.header.button.icon %}
+                            <i class="{{ page.header.button.icon }}"></i>
+                        {% endif %}
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<style>
+.text-section {
+    padding: var(--spacing-3xl) 0;
+}
+
+.text-section.bg-white {
+    background-color: var(--bg-color);
+}
+
+.text-section.bg-light {
+    background-color: var(--bg-light);
+}
+
+.text-section.bg-gray {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+}
+
+.text-section.bg-primary {
+    background: linear-gradient(135deg, var(--ocedc-dark-gray) 0%, var(--ocedc-navy-dark) 100%);
+    color: #ffffff;
+}
+
+.text-section.bg-primary h2,
+.text-section.bg-primary h3,
+.text-section.bg-primary h4 {
+    color: #ffffff;
+}
+
+.text-section.bg-accent {
+    background: linear-gradient(135deg, var(--ocedc-golden-brown) 0%, var(--ocedc-golden-brown-dark) 100%);
+    color: #ffffff;
+}
+
+.text-section.bg-accent h2,
+.text-section.bg-accent h3,
+.text-section.bg-accent h4 {
+    color: #ffffff;
+}
+
+.section-label {
+    display: inline-block;
+    padding: var(--spacing-xs) var(--spacing-md);
+    background: rgba(184, 134, 11, 0.15);
+    color: var(--ocedc-golden-brown);
+    border-radius: var(--border-radius);
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: var(--spacing-md);
+    border: 1px solid var(--ocedc-golden-brown);
+}
+
+.section-title {
+    font-size: var(--font-size-3xl);
+    margin-bottom: var(--spacing-md);
+    color: var(--ocedc-dark-gray);
+}
+
+.section-subtitle {
+    font-size: var(--font-size-lg);
+    color: var(--text-light);
+    margin-bottom: var(--spacing-xl);
+}
+
+.text-section-content {
+    line-height: 1.8;
+    font-size: var(--font-size-lg);
+}
+
+.text-section-content h3 {
+    margin-top: var(--spacing-xl);
+    margin-bottom: var(--spacing-md);
+    color: var(--ocedc-dark-gray);
+}
+
+.text-section-content ul,
+.text-section-content ol {
+    margin: var(--spacing-md) 0;
+    padding-left: var(--spacing-xl);
+}
+
+.text-section-content li {
+    margin-bottom: var(--spacing-sm);
+}
+
+.text-section-button {
+    margin-top: var(--spacing-xl);
+}
+
+.text-center .section-label,
+.text-center .section-title,
+.text-center .section-subtitle {
+    text-align: center;
+}
+
+@media (max-width: 768px) {
+    .text-section {
+        padding: var(--spacing-2xl) 0;
+    }
+
+    .section-title {
+        font-size: var(--font-size-2xl);
+    }
+}
+</style>

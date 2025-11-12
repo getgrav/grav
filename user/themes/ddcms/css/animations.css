@@ -1,0 +1,382 @@
+/* ddCMS Theme - Enhanced Animations */
+/* Smooth, minimalist animations for subtle interactions */
+
+/* ========================================
+   SCROLL ANIMATIONS - Fade in on scroll
+   ======================================== */
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* ========================================
+   ANIMATION CLASSES
+   ======================================== */
+
+.animate-on-scroll {
+    opacity: 0;
+}
+
+.animate-on-scroll.animated {
+    animation-duration: 0.8s;
+    animation-fill-mode: both;
+    animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.fade-in-up.animated {
+    animation-name: fadeInUp;
+}
+
+.fade-in.animated {
+    animation-name: fadeIn;
+}
+
+.slide-in-left.animated {
+    animation-name: slideInLeft;
+}
+
+.slide-in-right.animated {
+    animation-name: slideInRight;
+}
+
+.scale-in.animated {
+    animation-name: scaleIn;
+}
+
+/* Staggered delays for grid items */
+.animate-on-scroll:nth-child(1) { animation-delay: 0s; }
+.animate-on-scroll:nth-child(2) { animation-delay: 0.1s; }
+.animate-on-scroll:nth-child(3) { animation-delay: 0.2s; }
+.animate-on-scroll:nth-child(4) { animation-delay: 0.3s; }
+.animate-on-scroll:nth-child(5) { animation-delay: 0.4s; }
+.animate-on-scroll:nth-child(6) { animation-delay: 0.5s; }
+.animate-on-scroll:nth-child(7) { animation-delay: 0.6s; }
+.animate-on-scroll:nth-child(8) { animation-delay: 0.7s; }
+
+/* ========================================
+   MICRO-INTERACTIONS
+   ======================================== */
+
+/* Enhanced button hover effects */
+.btn {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.btn:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+.btn:active {
+    transform: translateY(-1px) scale(0.98);
+}
+
+/* Link underline animation */
+.nav-link,
+.learn-more,
+a:not(.btn) {
+    position: relative;
+}
+
+.nav-link::after,
+.learn-more::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: currentColor;
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.nav-link:hover::after,
+.learn-more:hover::after {
+    width: 100%;
+}
+
+/* Feature card enhanced hover */
+.feature-card {
+    position: relative;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.feature-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: inherit;
+    box-shadow: 0 20px 40px rgba(74, 74, 74, 0.15);
+    opacity: 0;
+    transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: -1;
+}
+
+.feature-card:hover::after {
+    opacity: 1;
+}
+
+.feature-card:hover {
+    transform: translateY(-8px);
+}
+
+/* Icon rotation on hover */
+.feature-icon {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.feature-card:hover .feature-icon {
+    transform: scale(1.1) rotate(5deg);
+}
+
+/* ========================================
+   STAT NUMBER COUNT-UP EFFECT
+   ======================================== */
+
+.stat-number {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.stat-box:hover .stat-number {
+    transform: scale(1.1);
+}
+
+/* ========================================
+   HERO SECTION ANIMATIONS
+   ======================================== */
+
+.hero-section {
+    position: relative;
+}
+
+.hero-content {
+    animation: fadeInUp 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hero-section h1 {
+    animation: fadeInUp 1s cubic-bezier(0.4, 0, 0.2, 1) 0.1s both;
+}
+
+.hero-subtitle {
+    animation: fadeInUp 1s cubic-bezier(0.4, 0, 0.2, 1) 0.2s both;
+}
+
+.hero-buttons {
+    animation: fadeInUp 1s cubic-bezier(0.4, 0, 0.2, 1) 0.3s both;
+}
+
+/* ========================================
+   SECTION TRANSITIONS
+   ======================================== */
+
+.features-section,
+.stats-section,
+.callout-section,
+.content-section,
+.text-section,
+.image-text-section {
+    animation: fadeIn 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ========================================
+   IMAGE HOVER EFFECTS
+   ======================================== */
+
+.page-header-image img,
+.image-text-image img {
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.page-header-image:hover img,
+.image-text-image:hover img {
+    transform: scale(1.05);
+}
+
+.page-header-image,
+.image-text-image {
+    overflow: hidden;
+    border-radius: var(--border-radius-lg);
+}
+
+/* ========================================
+   LOADING STATES
+   ======================================== */
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+.loading {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* ========================================
+   SMOOTH SCROLLING
+   ======================================== */
+
+html {
+    scroll-behavior: smooth;
+}
+
+/* ========================================
+   ACCESSIBILITY - REDUCED MOTION
+   ======================================== */
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* ========================================
+   CALLOUT SECTION PULSE EFFECT
+   ======================================== */
+
+.callout-section {
+    position: relative;
+}
+
+.callout-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: inherit;
+    opacity: 0;
+    transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.callout-section:hover::before {
+    opacity: 0.1;
+}
+
+/* ========================================
+   NAVIGATION DROPDOWN ANIMATIONS
+   ======================================== */
+
+.submenu {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.nav-item:hover .submenu {
+    animation: fadeInUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ========================================
+   SOCIAL ICONS BOUNCE
+   ======================================== */
+
+.social-links a {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.social-links a:hover {
+    animation: none;
+    transform: translateY(-4px) scale(1.1);
+}
+
+/* ========================================
+   PAGE CONTENT FADE IN
+   ======================================== */
+
+.page-content {
+    animation: fadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.2s both;
+}
+
+.page-header {
+    animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ========================================
+   MODULAR SECTION SPACING
+   ======================================== */
+
+.modular-section {
+    opacity: 0;
+    animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.modular-section:nth-child(1) { animation-delay: 0s; }
+.modular-section:nth-child(2) { animation-delay: 0.1s; }
+.modular-section:nth-child(3) { animation-delay: 0.2s; }
+.modular-section:nth-child(4) { animation-delay: 0.3s; }
+.modular-section:nth-child(5) { animation-delay: 0.4s; }

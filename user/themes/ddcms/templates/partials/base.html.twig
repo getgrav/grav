@@ -104,12 +104,14 @@
             {% do assets.addCss('theme://css/douglas-style.css', 96) %}
             {% do assets.addCss('theme://css/content.css', 95) %}
             {% do assets.addCss('theme://css/modules.css', 94) %}
+            {% do assets.addCss('theme://css/animations.css', 93) %}
         {% endblock %}
         
         {{ assets.css()|raw }}
         
         {% block javascripts %}
             {% do assets.addJs('theme://js/main.js', {'group': 'bottom'}) %}
+            {% do assets.addJs('theme://js/animations.js', {'group': 'bottom'}) %}
             {% do assets.addJs('theme://js/faq.js', {'group': 'bottom'}) %}
             {% do assets.addJs('theme://js/gallery.js', {'group': 'bottom'}) %}
             {% do assets.addJs('theme://js/testimonials.js', {'group': 'bottom'}) %}

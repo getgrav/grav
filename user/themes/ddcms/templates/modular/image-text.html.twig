@@ -1,0 +1,149 @@
+{% set image = page.header.image %}
+{% set image_position = page.header.image_position|default('left') %}
+{% set bg_color = page.header.bg_color|default('white') %}
+{% set title = page.header.title %}
+{% set subtitle = page.header.subtitle %}
+
+<section class="image-text-section bg-{{ bg_color }} image-{{ image_position }} animate-on-scroll">
+    <div class="container">
+        <div class="image-text-grid">
+            {% if image %}
+                <div class="image-text-image">
+                    <img src="{{ url(image) }}" alt="{{ page.header.image_alt|default(title) }}" loading="lazy" />
+                </div>
+            {% endif %}
+
+            <div class="image-text-content">
+                {% if page.header.label %}
+                    <span class="section-label">{{ page.header.label }}</span>
+                {% endif %}
+
+                {% if title %}
+                    <h2>{{ title }}</h2>
+                {% endif %}
+
+                {% if subtitle %}
+                    <p class="image-text-subtitle">{{ subtitle }}</p>
+                {% endif %}
+
+                <div class="image-text-body">
+                    {{ page.content|raw }}
+                </div>
+
+                {% if page.header.buttons %}
+                    <div class="image-text-buttons">
+                        {% for button in page.header.buttons %}
+                            <a href="{{ button.url }}" class="btn {{ button.class|default('btn-primary') }}">
+                                {{ button.text }}
+                                {% if button.icon %}
+                                    <i class="{{ button.icon }}"></i>
+                                {% endif %}
+                            </a>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+.image-text-section {
+    padding: var(--spacing-3xl) 0;
+}
+
+.image-text-section.bg-light {
+    background-color: var(--bg-light);
+}
+
+.image-text-section.bg-gray {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+}
+
+.image-text-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-3xl);
+    align-items: center;
+}
+
+.image-text-section.image-right .image-text-grid {
+    direction: rtl;
+}
+
+.image-text-section.image-right .image-text-content {
+    direction: ltr;
+}
+
+.image-text-image {
+    position: relative;
+    border-radius: var(--border-radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+}
+
+.image-text-image img {
+    width: 100%;
+    height: auto;
+    display: block;
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.image-text-image:hover img {
+    transform: scale(1.05);
+}
+
+.image-text-content h2 {
+    font-size: var(--font-size-3xl);
+    color: var(--ocedc-dark-gray);
+    margin-bottom: var(--spacing-md);
+}
+
+.image-text-subtitle {
+    font-size: var(--font-size-lg);
+    color: var(--text-light);
+    margin-bottom: var(--spacing-lg);
+}
+
+.image-text-body {
+    line-height: 1.8;
+    margin-bottom: var(--spacing-lg);
+}
+
+.image-text-body h3 {
+    color: var(--ocedc-dark-gray);
+    margin-top: var(--spacing-xl);
+    margin-bottom: var(--spacing-md);
+}
+
+.image-text-body ul,
+.image-text-body ol {
+    margin: var(--spacing-md) 0;
+    padding-left: var(--spacing-xl);
+}
+
+.image-text-body li {
+    margin-bottom: var(--spacing-sm);
+}
+
+.image-text-buttons {
+    display: flex;
+    gap: var(--spacing-md);
+    flex-wrap: wrap;
+}
+
+@media (max-width: 968px) {
+    .image-text-grid {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-xl);
+    }
+
+    .image-text-section.image-right .image-text-grid {
+        direction: ltr;
+    }
+
+    .image-text-content h2 {
+        font-size: var(--font-size-2xl);
+    }
+}
+</style>
