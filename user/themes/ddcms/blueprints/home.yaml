@@ -1,0 +1,211 @@
+title: Home Page Template
+'@extends':
+  type: default
+  context: blueprints://pages
+
+form:
+  fields:
+    tabs:
+      type: tabs
+      active: 1
+
+      fields:
+        content:
+          type: tab
+          title: Content
+
+          fields:
+            header.title:
+              type: text
+              label: Page Title
+              size: large
+
+            header.metadata:
+              type: array
+              label: Metadata
+              placeholder_key: Name
+              placeholder_value: Value
+
+            # Hero Section
+            hero_section:
+              type: section
+              title: Hero Section
+              underline: true
+
+            header.hero.title:
+              type: text
+              label: Hero Title
+              size: large
+              default: 'OGLE COUNTY ECONOMIC DEVELOPMENT CORPORATION'
+
+            header.hero.subtitle:
+              type: textarea
+              label: Hero Subtitle
+              rows: 3
+
+            header.hero.content:
+              type: markdown
+              label: Hero Content
+              rows: 4
+
+            header.hero.buttons:
+              type: list
+              label: Hero Buttons
+              style: vertical
+              fields:
+                .text:
+                  type: text
+                  label: Button Text
+                .url:
+                  type: text
+                  label: Button URL
+                .class:
+                  type: select
+                  label: Button Style
+                  options:
+                    btn-primary: Primary (Navy)
+                    btn-accent: Accent (Gold)
+                    btn-secondary: Secondary (Green)
+                .icon:
+                  type: text
+                  label: Font Awesome Icon
+                  placeholder: 'fas fa-arrow-right'
+
+            # Features Section
+            features_section:
+              type: section
+              title: Features Section
+              underline: true
+
+            header.features.label:
+              type: text
+              label: Section Label
+              default: 'GET TO KNOW US'
+
+            header.features.title:
+              type: text
+              label: Section Title
+              default: 'What We Do'
+
+            header.features.title_divider:
+              type: text
+              label: Title Divider Text
+              default: '& Why'
+              help: Text that appears after the title in a different color
+
+            header.features.subtitle:
+              type: text
+              label: Section Subtitle
+
+            header.features.items:
+              type: list
+              label: Feature Items
+              style: vertical
+              fields:
+                .icon:
+                  type: text
+                  label: Font Awesome Icon
+                  placeholder: 'fas fa-bullseye'
+                .title:
+                  type: text
+                  label: Feature Title
+                .description:
+                  type: textarea
+                  label: Feature Description
+                  rows: 3
+                .link:
+                  type: section
+                  title: Link
+                  fields:
+                    .text:
+                      type: text
+                      label: Link Text
+                    .url:
+                      type: text
+                      label: Link URL
+
+            # Stats Section
+            stats_section:
+              type: section
+              title: Stats Section
+              underline: true
+
+            header.stats.title:
+              type: text
+              label: Stats Section Title
+              default: 'Ogle County by the Numbers'
+
+            header.stats.items:
+              type: list
+              label: Stat Items
+              style: vertical
+              fields:
+                .number:
+                  type: text
+                  label: Stat Number
+                  placeholder: '100+'
+                .label:
+                  type: text
+                  label: Stat Label
+                .description:
+                  type: text
+                  label: Stat Description
+
+            # Callout Section
+            callout_section:
+              type: section
+              title: Callout Section
+              underline: true
+
+            header.callout.label:
+              type: text
+              label: Callout Label
+              default: 'DO BUSINESS IN OGLE COUNTY'
+
+            header.callout.title:
+              type: text
+              label: Callout Title
+              size: large
+
+            header.callout.message:
+              type: textarea
+              label: Callout Message
+              rows: 3
+
+            header.callout.button:
+              type: section
+              title: Callout Button
+              fields:
+                .text:
+                  type: text
+                  label: Button Text
+                .url:
+                  type: text
+                  label: Button URL
+
+        options:
+          type: tab
+          title: Options
+
+          fields:
+            header.visible:
+              type: toggle
+              label: Visible
+              highlight: 1
+              default: 1
+              options:
+                1: PLUGIN_ADMIN.ENABLED
+                0: PLUGIN_ADMIN.DISABLED
+              validate:
+                type: bool
+
+            header.published:
+              type: toggle
+              label: Published
+              highlight: 1
+              default: 1
+              options:
+                1: PLUGIN_ADMIN.ENABLED
+                0: PLUGIN_ADMIN.DISABLED
+              validate:
+                type: bool

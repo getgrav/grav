@@ -1,0 +1,120 @@
+title: Contact Page Template
+'@extends':
+  type: default
+  context: blueprints://pages
+
+form:
+  fields:
+    tabs:
+      type: tabs
+      active: 1
+
+      fields:
+        content:
+          type: tab
+          title: Content
+
+          fields:
+            header.title:
+              type: text
+              label: Page Title
+              size: large
+
+            header.menu:
+              type: text
+              label: Menu Title
+              help: Title to show in navigation menu
+
+            header.metadata:
+              type: array
+              label: Metadata
+              placeholder_key: Name
+              placeholder_value: Value
+
+            content:
+              type: markdown
+              label: Page Content
+              help: Main content that appears above the contact form
+              rows: 15
+
+            # Contact Information Section
+            contact_info_section:
+              type: section
+              title: Contact Information
+              underline: true
+
+            header.contact_info.organization:
+              type: text
+              label: Organization Name
+              default: 'Ogle County Economic Development Corporation'
+
+            header.contact_info.address.street:
+              type: text
+              label: Street Address
+              placeholder: '123 Main Street'
+
+            header.contact_info.address.city:
+              type: text
+              label: City
+              placeholder: 'Oregon'
+
+            header.contact_info.address.state:
+              type: text
+              label: State
+              placeholder: 'IL'
+              size: small
+
+            header.contact_info.address.zip:
+              type: text
+              label: ZIP Code
+              placeholder: '61061'
+              size: small
+
+            header.contact_info.phone:
+              type: text
+              label: Phone Number
+              placeholder: '(815) 555-1234'
+
+            header.contact_info.email:
+              type: email
+              label: Email Address
+              placeholder: 'info@oglecoedg.org'
+
+            header.contact_info.hours:
+              type: text
+              label: Business Hours
+              placeholder: 'Monday - Friday, 8:00 AM - 5:00 PM'
+
+            # Contact Form Configuration
+            form_section:
+              type: section
+              title: Contact Form Settings
+              underline: true
+              text: The contact form configuration is managed in the page frontmatter. Edit the page directly to modify form fields and processing.
+
+        options:
+          type: tab
+          title: Options
+
+          fields:
+            header.visible:
+              type: toggle
+              label: Visible
+              highlight: 1
+              default: 1
+              options:
+                1: PLUGIN_ADMIN.ENABLED
+                0: PLUGIN_ADMIN.DISABLED
+              validate:
+                type: bool
+
+            header.published:
+              type: toggle
+              label: Published
+              highlight: 1
+              default: 1
+              options:
+                1: PLUGIN_ADMIN.ENABLED
+                0: PLUGIN_ADMIN.DISABLED
+              validate:
+                type: bool

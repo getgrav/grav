@@ -1,0 +1,214 @@
+title: Resources Page Template
+'@extends':
+  type: default
+  context: blueprints://pages
+
+form:
+  fields:
+    tabs:
+      type: tabs
+      active: 1
+
+      fields:
+        content:
+          type: tab
+          title: Content
+
+          fields:
+            header.title:
+              type: text
+              label: Page Title
+              size: large
+
+            header.menu:
+              type: text
+              label: Menu Title
+              help: Title to show in navigation menu
+
+            header.metadata:
+              type: array
+              label: Metadata
+              placeholder_key: Name
+              placeholder_value: Value
+
+            # Hero Section
+            hero_section:
+              type: section
+              title: Hero Section
+              underline: true
+
+            header.hero.label:
+              type: text
+              label: Hero Label
+              default: 'Everything You Need'
+
+            header.hero.title:
+              type: text
+              label: Hero Title
+              size: large
+
+            header.hero.subtitle:
+              type: textarea
+              label: Hero Subtitle
+              rows: 4
+
+            header.hero.buttons:
+              type: list
+              label: Hero Buttons
+              style: vertical
+              fields:
+                .text:
+                  type: text
+                  label: Button Text
+                .url:
+                  type: text
+                  label: Button URL
+                .class:
+                  type: select
+                  label: Button Style
+                  options:
+                    btn-primary: Primary (Navy)
+                    btn-accent: Accent (Gold)
+                    btn-secondary: Secondary (Green)
+                .icon:
+                  type: text
+                  label: Font Awesome Icon
+                  placeholder: 'fas fa-map-marker-alt'
+
+            # Resources Section
+            resources_section:
+              type: section
+              title: Resources Section
+              underline: true
+
+            header.resources.label:
+              type: text
+              label: Section Label
+              default: 'Explore Our Resources'
+
+            header.resources.title:
+              type: text
+              label: Section Title
+              default: 'Resources Available'
+
+            header.resources.subtitle:
+              type: text
+              label: Section Subtitle
+
+            header.resources.items:
+              type: list
+              label: Resource Items
+              style: vertical
+              fields:
+                .icon:
+                  type: text
+                  label: Font Awesome Icon
+                  placeholder: 'fas fa-rocket'
+                .title:
+                  type: text
+                  label: Resource Title
+                .description:
+                  type: textarea
+                  label: Resource Description
+                  rows: 3
+                .link:
+                  type: section
+                  title: Link
+                  fields:
+                    .text:
+                      type: text
+                      label: Link Text
+                    .url:
+                      type: text
+                      label: Link URL
+
+            # Support Section
+            support_section:
+              type: section
+              title: Support Section
+              underline: true
+
+            header.support.label:
+              type: text
+              label: Section Label
+              default: 'We Support You'
+
+            header.support.title:
+              type: text
+              label: Section Title
+              default: 'Personalized Assistance'
+
+            header.support.items:
+              type: list
+              label: Support Items
+              style: vertical
+              fields:
+                .icon:
+                  type: text
+                  label: Font Awesome Icon
+                  placeholder: 'fas fa-handshake'
+                .title:
+                  type: text
+                  label: Support Title
+                .description:
+                  type: textarea
+                  label: Support Description
+                  rows: 2
+
+            # Callout Section
+            callout_section:
+              type: section
+              title: Callout Section
+              underline: true
+
+            header.callout.label:
+              type: text
+              label: Callout Label
+
+            header.callout.title:
+              type: text
+              label: Callout Title
+              size: large
+
+            header.callout.message:
+              type: textarea
+              label: Callout Message
+              rows: 3
+
+            header.callout.button:
+              type: section
+              title: Callout Button
+              fields:
+                .text:
+                  type: text
+                  label: Button Text
+                .url:
+                  type: text
+                  label: Button URL
+
+        options:
+          type: tab
+          title: Options
+
+          fields:
+            header.visible:
+              type: toggle
+              label: Visible
+              highlight: 1
+              default: 1
+              options:
+                1: PLUGIN_ADMIN.ENABLED
+                0: PLUGIN_ADMIN.DISABLED
+              validate:
+                type: bool
+
+            header.published:
+              type: toggle
+              label: Published
+              highlight: 1
+              default: 1
+              options:
+                1: PLUGIN_ADMIN.ENABLED
+                0: PLUGIN_ADMIN.DISABLED
+              validate:
+                type: bool

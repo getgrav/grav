@@ -1,0 +1,285 @@
+title: Invest Page Template
+'@extends':
+  type: default
+  context: blueprints://pages
+
+form:
+  fields:
+    tabs:
+      type: tabs
+      active: 1
+
+      fields:
+        content:
+          type: tab
+          title: Content
+
+          fields:
+            header.title:
+              type: text
+              label: Page Title
+              size: large
+
+            header.menu:
+              type: text
+              label: Menu Title
+              help: Title to show in navigation menu
+
+            header.metadata:
+              type: array
+              label: Metadata
+              placeholder_key: Name
+              placeholder_value: Value
+
+            # Hero Section
+            hero_section:
+              type: section
+              title: Hero Section
+              underline: true
+
+            header.hero.label:
+              type: text
+              label: Hero Label
+              default: 'Your Business Destination'
+
+            header.hero.title:
+              type: text
+              label: Hero Title
+              size: large
+
+            header.hero.subtitle:
+              type: textarea
+              label: Hero Subtitle
+              rows: 4
+
+            header.hero.buttons:
+              type: list
+              label: Hero Buttons
+              style: vertical
+              fields:
+                .text:
+                  type: text
+                  label: Button Text
+                .url:
+                  type: text
+                  label: Button URL
+                .class:
+                  type: select
+                  label: Button Style
+                  options:
+                    btn-primary: Primary (Navy)
+                    btn-accent: Accent (Gold)
+                    btn-secondary: Secondary (Green)
+                .icon:
+                  type: text
+                  label: Font Awesome Icon
+                  placeholder: 'fas fa-map-marker-alt'
+
+            # Location/Transportation Section
+            location_section:
+              type: section
+              title: Location & Transportation Section
+              underline: true
+
+            header.location.label:
+              type: text
+              label: Section Label
+              default: 'Prime Location'
+
+            header.location.title:
+              type: text
+              label: Section Title
+              default: 'Strategic Location & Transportation Access'
+
+            header.location.subtitle:
+              type: text
+              label: Section Subtitle
+
+            header.location.items:
+              type: list
+              label: Location Benefits
+              style: vertical
+              fields:
+                .icon:
+                  type: text
+                  label: Font Awesome Icon
+                  placeholder: 'fas fa-road'
+                .title:
+                  type: text
+                  label: Benefit Title
+                .description:
+                  type: textarea
+                  label: Benefit Description
+                  rows: 2
+
+            # Workforce Section
+            workforce_section:
+              type: section
+              title: Workforce Section
+              underline: true
+
+            header.workforce.label:
+              type: text
+              label: Section Label
+              default: 'Skilled Workforce'
+
+            header.workforce.title:
+              type: text
+              label: Section Title
+              default: 'Talented, Dedicated Workforce'
+
+            header.workforce.content:
+              type: markdown
+              label: Workforce Content
+              help: Add information about the workforce
+              rows: 10
+
+            # Available Sites Section
+            sites_section:
+              type: section
+              title: Available Sites Section
+              underline: true
+
+            header.sites.label:
+              type: text
+              label: Section Label
+              default: 'Available Properties'
+
+            header.sites.title:
+              type: text
+              label: Section Title
+              default: 'Ready-to-Develop Sites'
+
+            header.sites.subtitle:
+              type: text
+              label: Section Subtitle
+
+            header.sites.items:
+              type: list
+              label: Site Features
+              style: vertical
+              fields:
+                .icon:
+                  type: text
+                  label: Font Awesome Icon
+                  placeholder: 'fas fa-industry'
+                .title:
+                  type: text
+                  label: Feature Title
+                .description:
+                  type: textarea
+                  label: Feature Description
+                  rows: 3
+
+            # Business Support Section
+            support_section:
+              type: section
+              title: Business Support Section
+              underline: true
+
+            header.support.label:
+              type: text
+              label: Section Label
+              default: 'We Support You'
+
+            header.support.title:
+              type: text
+              label: Section Title
+              default: 'Comprehensive Business Support'
+
+            header.support.items:
+              type: list
+              label: Support Items
+              style: vertical
+              fields:
+                .icon:
+                  type: text
+                  label: Font Awesome Icon
+                  placeholder: 'fas fa-handshake'
+                .title:
+                  type: text
+                  label: Support Title
+                .description:
+                  type: textarea
+                  label: Support Description
+                  rows: 2
+
+            # Quality of Life Section
+            quality_section:
+              type: section
+              title: Quality of Life Section
+              underline: true
+
+            header.quality.label:
+              type: text
+              label: Section Label
+              default: 'Live, Work, Thrive'
+
+            header.quality.title:
+              type: text
+              label: Section Title
+              default: 'Exceptional Quality of Life'
+
+            header.quality.content:
+              type: markdown
+              label: Quality of Life Content
+              help: Add information about quality of life in Ogle County
+              rows: 10
+
+            # Callout Section
+            callout_section:
+              type: section
+              title: Callout Section
+              underline: true
+
+            header.callout.label:
+              type: text
+              label: Callout Label
+
+            header.callout.title:
+              type: text
+              label: Callout Title
+              size: large
+
+            header.callout.message:
+              type: textarea
+              label: Callout Message
+              rows: 3
+
+            header.callout.button:
+              type: section
+              title: Callout Button
+              fields:
+                .text:
+                  type: text
+                  label: Button Text
+                .url:
+                  type: text
+                  label: Button URL
+
+        options:
+          type: tab
+          title: Options
+
+          fields:
+            header.visible:
+              type: toggle
+              label: Visible
+              highlight: 1
+              default: 1
+              options:
+                1: PLUGIN_ADMIN.ENABLED
+                0: PLUGIN_ADMIN.DISABLED
+              validate:
+                type: bool
+
+            header.published:
+              type: toggle
+              label: Published
+              highlight: 1
+              default: 1
+              options:
+                1: PLUGIN_ADMIN.ENABLED
+                0: PLUGIN_ADMIN.DISABLED
+              validate:
+                type: bool

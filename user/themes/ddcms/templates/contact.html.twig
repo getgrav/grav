@@ -1,0 +1,63 @@
+{% extends 'partials/base.html.twig' %}
+
+{% block content %}
+
+<section class="content-section">
+    <div class="container">
+        <div class="content-wrapper" style="max-width: 900px; margin: 0 auto;">
+            {# Page Title #}
+            {% if page.header.title %}
+                <h1 class="page-title">{{ page.header.title }}</h1>
+            {% endif %}
+
+            {# Main Page Content #}
+            {% if page.content %}
+                <div class="page-content">
+                    {{ page.content|raw }}
+                </div>
+            {% endif %}
+
+            {# Contact Information Section #}
+            {% if page.header.contact_info %}
+            <div class="contact-info-section" style="margin: 3rem 0; padding: 2rem; background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); border-radius: 8px;">
+                {% if page.header.contact_info.organization %}
+                    <h2 style="margin-bottom: 1.5rem; color: var(--ocedc-navy);">{{ page.header.contact_info.organization }}</h2>
+                {% endif %}
+
+                <div class="contact-details" style="display: grid; gap: 1rem;">
+                    {% if page.header.contact_info.address %}
+                        <div class="contact-item">
+                            <strong><i class="fas fa-map-marker-alt" style="margin-right: 0.5rem; color: var(--ocedc-golden-brown);"></i>Address:</strong><br>
+                            {{ page.header.contact_info.address.street }}<br>
+                            {{ page.header.contact_info.address.city }}, {{ page.header.contact_info.address.state }} {{ page.header.contact_info.address.zip }}
+                        </div>
+                    {% endif %}
+
+                    {% if page.header.contact_info.phone %}
+                        <div class="contact-item">
+                            <strong><i class="fas fa-phone" style="margin-right: 0.5rem; color: var(--ocedc-golden-brown);"></i>Phone:</strong>
+                            <a href="tel:{{ page.header.contact_info.phone|replace({' ': '', '(': '', ')': '', '-': ''}) }}">{{ page.header.contact_info.phone }}</a>
+                        </div>
+                    {% endif %}
+
+                    {% if page.header.contact_info.email %}
+                        <div class="contact-item">
+                            <strong><i class="fas fa-envelope" style="margin-right: 0.5rem; color: var(--ocedc-golden-brown);"></i>Email:</strong>
+                            <a href="mailto:{{ page.header.contact_info.email }}">{{ page.header.contact_info.email }}</a>
+                        </div>
+                    {% endif %}
+
+                    {% if page.header.contact_info.hours %}
+                        <div class="contact-item">
+                            <strong><i class="fas fa-clock" style="margin-right: 0.5rem; color: var(--ocedc-golden-brown);"></i>Hours:</strong>
+                            {{ page.header.contact_info.hours }}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+{% endblock %}

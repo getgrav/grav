@@ -1,0 +1,215 @@
+title: About Page Template
+'@extends':
+  type: default
+  context: blueprints://pages
+
+form:
+  fields:
+    tabs:
+      type: tabs
+      active: 1
+
+      fields:
+        content:
+          type: tab
+          title: Content
+
+          fields:
+            header.title:
+              type: text
+              label: Page Title
+              size: large
+
+            header.menu:
+              type: text
+              label: Menu Title
+              help: Title to show in navigation menu
+
+            header.metadata:
+              type: array
+              label: Metadata
+              placeholder_key: Name
+              placeholder_value: Value
+
+            # Hero Section
+            hero_section:
+              type: section
+              title: Hero Section
+              underline: true
+
+            header.hero.label:
+              type: text
+              label: Hero Label
+              default: 'Who We Are'
+
+            header.hero.title:
+              type: text
+              label: Hero Title
+              size: large
+
+            header.hero.subtitle:
+              type: textarea
+              label: Hero Subtitle
+              rows: 4
+
+            header.hero.buttons:
+              type: list
+              label: Hero Buttons
+              style: vertical
+              fields:
+                .text:
+                  type: text
+                  label: Button Text
+                .url:
+                  type: text
+                  label: Button URL
+                .class:
+                  type: select
+                  label: Button Style
+                  options:
+                    btn-primary: Primary (Navy)
+                    btn-accent: Accent (Gold)
+                    btn-secondary: Secondary (Green)
+                .icon:
+                  type: text
+                  label: Font Awesome Icon
+                  placeholder: 'fas fa-envelope'
+
+            # Mission & Vision Section
+            mission_section:
+              type: section
+              title: Mission & Vision Section
+              underline: true
+
+            header.mission.label:
+              type: text
+              label: Section Label
+              default: 'What Drives Us'
+
+            header.mission.title:
+              type: text
+              label: Section Title
+              default: 'Our Mission & Vision'
+
+            header.mission.content:
+              type: markdown
+              label: Mission & Vision Content
+              help: Use markdown to format mission statement, vision, and commitment
+              rows: 15
+
+            # Services Section
+            services_section:
+              type: section
+              title: Services Section
+              underline: true
+
+            header.services.label:
+              type: text
+              label: Section Label
+              default: 'Our Services'
+
+            header.services.title:
+              type: text
+              label: Section Title
+              default: 'What We Do'
+
+            header.services.subtitle:
+              type: text
+              label: Section Subtitle
+
+            header.services.items:
+              type: list
+              label: Service Items
+              style: vertical
+              fields:
+                .icon:
+                  type: text
+                  label: Font Awesome Icon
+                  placeholder: 'fas fa-bullseye'
+                .title:
+                  type: text
+                  label: Service Title
+                .description:
+                  type: textarea
+                  label: Service Description
+                  rows: 3
+
+            # Leadership Section
+            leadership_section:
+              type: section
+              title: Leadership Section
+              underline: true
+
+            header.leadership.label:
+              type: text
+              label: Section Label
+              default: 'Our Team'
+
+            header.leadership.title:
+              type: text
+              label: Section Title
+              default: 'Leadership Team'
+
+            header.leadership.content:
+              type: markdown
+              label: Leadership Content
+              help: Add information about your leadership team
+              rows: 10
+
+            # Callout Section
+            callout_section:
+              type: section
+              title: Callout Section
+              underline: true
+
+            header.callout.label:
+              type: text
+              label: Callout Label
+
+            header.callout.title:
+              type: text
+              label: Callout Title
+              size: large
+
+            header.callout.message:
+              type: textarea
+              label: Callout Message
+              rows: 3
+
+            header.callout.button:
+              type: section
+              title: Callout Button
+              fields:
+                .text:
+                  type: text
+                  label: Button Text
+                .url:
+                  type: text
+                  label: Button URL
+
+        options:
+          type: tab
+          title: Options
+
+          fields:
+            header.visible:
+              type: toggle
+              label: Visible
+              highlight: 1
+              default: 1
+              options:
+                1: PLUGIN_ADMIN.ENABLED
+                0: PLUGIN_ADMIN.DISABLED
+              validate:
+                type: bool
+
+            header.published:
+              type: toggle
+              label: Published
+              highlight: 1
+              default: 1
+              options:
+                1: PLUGIN_ADMIN.ENABLED
+                0: PLUGIN_ADMIN.DISABLED
+              validate:
+                type: bool

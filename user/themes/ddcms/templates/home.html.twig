@@ -1,0 +1,144 @@
+{% extends 'partials/base.html.twig' %}
+
+{% block content %}
+
+{# Hero Section #}
+{% if page.header.hero %}
+<section class="hero-section">
+    <div class="container">
+        <div class="hero-content">
+            {% if page.header.hero.title %}
+                <h1>{{ page.header.hero.title }}</h1>
+            {% endif %}
+
+            {% if page.header.hero.subtitle %}
+                <p class="hero-subtitle">{{ page.header.hero.subtitle }}</p>
+            {% endif %}
+
+            {% if page.header.hero.content %}
+                <div class="hero-description">
+                    {{ page.header.hero.content|markdown|raw }}
+                </div>
+            {% endif %}
+
+            {% if page.header.hero.buttons %}
+                <div class="hero-buttons">
+                    {% for button in page.header.hero.buttons %}
+                        <a href="{{ button.url }}" class="btn {{ button.class ?: 'btn-primary' }}">
+                            {{ button.text }}
+                            {% if button.icon %}
+                                <i class="{{ button.icon }}"></i>
+                            {% endif %}
+                        </a>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+{# Features Section #}
+{% if page.header.features %}
+<section class="features-section">
+    <div class="container">
+        <div class="section-title-wrapper">
+            {% if page.header.features.label %}
+                <span class="section-label">{{ page.header.features.label }}</span>
+            {% endif %}
+            {% if page.header.features.title %}
+                <h2 class="section-title">
+                    {{ page.header.features.title }}
+                    {% if page.header.features.title_divider %}
+                        <span class="section-title-divider"></span>
+                        {{ page.header.features.title_divider }}
+                    {% endif %}
+                </h2>
+            {% endif %}
+            {% if page.header.features.subtitle %}
+                <p class="section-subtitle">{{ page.header.features.subtitle }}</p>
+            {% endif %}
+        </div>
+
+        {% if page.header.features.items %}
+            <div class="features-grid">
+                {% for feature in page.header.features.items %}
+                    <div class="feature-card">
+                        {% if feature.icon %}
+                            <div class="feature-icon">
+                                <i class="{{ feature.icon }}"></i>
+                            </div>
+                        {% endif %}
+                        {% if feature.title %}
+                            <h3>{{ feature.title }}</h3>
+                        {% endif %}
+                        {% if feature.description %}
+                            <p>{{ feature.description }}</p>
+                        {% endif %}
+                        {% if feature.link %}
+                            <a href="{{ feature.link.url }}" class="learn-more">
+                                {{ feature.link.text|default('Learn More') }}
+                                <i class="fas fa-arrow-right"></i>
+                            </a>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endif %}
+
+{# Stats Section #}
+{% if page.header.stats %}
+<section class="stats-section" style="background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); padding: 4rem 0;">
+    <div class="container">
+        {% if page.header.stats.title %}
+            <h2 class="section-title" style="text-align: center; margin-bottom: 3rem; color: var(--ocedc-navy);">{{ page.header.stats.title }}</h2>
+        {% endif %}
+
+        {% if page.header.stats.items %}
+            <div class="stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem;">
+                {% for stat in page.header.stats.items %}
+                    <div class="stat-box">
+                        <span class="stat-number">{{ stat.number }}</span>
+                        <span class="stat-label">{{ stat.label }}</span>
+                        {% if stat.description %}
+                            <p style="margin-top: 0.5rem; font-size: 0.9rem; opacity: 0.9;">{{ stat.description }}</p>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endif %}
+
+{# Callout Section #}
+{% if page.header.callout %}
+<section class="callout-section">
+    <div class="container">
+        <div class="callout-content">
+            {% if page.header.callout.label %}
+                <span class="callout-label">{{ page.header.callout.label }}</span>
+            {% endif %}
+            {% if page.header.callout.title %}
+                <h2>{{ page.header.callout.title }}</h2>
+            {% endif %}
+
+            {% if page.header.callout.message %}
+                <p class="callout-message">{{ page.header.callout.message }}</p>
+            {% endif %}
+
+            {% if page.header.callout.button %}
+                <a href="{{ page.header.callout.button.url }}" class="btn btn-callout">
+                    {{ page.header.callout.button.text ?: 'Get Started' }}
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+{% endblock %}

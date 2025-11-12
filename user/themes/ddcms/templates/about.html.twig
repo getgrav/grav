@@ -1,0 +1,157 @@
+{% extends 'partials/base.html.twig' %}
+
+{% block content %}
+
+{# Hero Section #}
+{% if page.header.hero %}
+<section class="content-hero-section hero-size-medium animate-on-scroll fade-in">
+    {% if page.header.hero.image %}
+        <div class="content-hero-background" style="background-image: url('{{ url(page.header.hero.image) }}');">
+            <div class="content-hero-overlay"></div>
+        </div>
+    {% endif %}
+
+    <div class="container">
+        <div class="content-hero-content">
+            {% if page.header.hero.label %}
+                <span class="content-hero-label">{{ page.header.hero.label }}</span>
+            {% endif %}
+
+            {% if page.header.hero.title %}
+                <h1 class="content-hero-title">{{ page.header.hero.title }}</h1>
+            {% endif %}
+
+            {% if page.header.hero.subtitle %}
+                <p class="content-hero-subtitle">{{ page.header.hero.subtitle }}</p>
+            {% endif %}
+
+            {% if page.header.hero.buttons %}
+                <div class="content-hero-buttons">
+                    {% for button in page.header.hero.buttons %}
+                        <a href="{{ button.url }}" class="btn {{ button.class|default('btn-primary') }}">
+                            {{ button.text }}
+                            {% if button.icon %}
+                                <i class="{{ button.icon }}"></i>
+                            {% endif %}
+                        </a>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+{# Mission & Vision Section #}
+{% if page.header.mission %}
+<section class="text-section bg-light text-center content-section animate-on-scroll fade-in-up">
+    <div class="container">
+        <div class="text-section-inner" style="max-width: 900px; margin: 0 auto;">
+            {% if page.header.mission.label %}
+                <span class="section-label">{{ page.header.mission.label }}</span>
+            {% endif %}
+
+            {% if page.header.mission.title %}
+                <h2 class="section-title">{{ page.header.mission.title }}</h2>
+            {% endif %}
+
+            {% if page.header.mission.content %}
+                <div class="text-section-content">
+                    {{ page.header.mission.content|markdown|raw }}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+{# Services Section #}
+{% if page.header.services %}
+<section class="features-section">
+    <div class="container">
+        <div class="section-title-wrapper">
+            {% if page.header.services.label %}
+                <span class="section-label">{{ page.header.services.label }}</span>
+            {% endif %}
+            {% if page.header.services.title %}
+                <h2 class="section-title">{{ page.header.services.title }}</h2>
+            {% endif %}
+            {% if page.header.services.subtitle %}
+                <p class="section-subtitle">{{ page.header.services.subtitle }}</p>
+            {% endif %}
+        </div>
+
+        {% if page.header.services.items %}
+            <div class="features-grid">
+                {% for service in page.header.services.items %}
+                    <div class="feature-card">
+                        {% if service.icon %}
+                            <div class="feature-icon">
+                                <i class="{{ service.icon }}"></i>
+                            </div>
+                        {% endif %}
+                        {% if service.title %}
+                            <h3>{{ service.title }}</h3>
+                        {% endif %}
+                        {% if service.description %}
+                            <p>{{ service.description }}</p>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endif %}
+
+{# Leadership Section #}
+{% if page.header.leadership %}
+<section class="text-section bg-white text-left content-section animate-on-scroll fade-in-up">
+    <div class="container">
+        <div class="text-section-inner" style="max-width: 800px; margin: 0 auto;">
+            {% if page.header.leadership.label %}
+                <span class="section-label">{{ page.header.leadership.label }}</span>
+            {% endif %}
+
+            {% if page.header.leadership.title %}
+                <h2 class="section-title">{{ page.header.leadership.title }}</h2>
+            {% endif %}
+
+            {% if page.header.leadership.content %}
+                <div class="text-section-content">
+                    {{ page.header.leadership.content|markdown|raw }}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+{# Callout Section #}
+{% if page.header.callout %}
+<section class="callout-section">
+    <div class="container">
+        <div class="callout-content">
+            {% if page.header.callout.label %}
+                <span class="callout-label">{{ page.header.callout.label }}</span>
+            {% endif %}
+            {% if page.header.callout.title %}
+                <h2>{{ page.header.callout.title }}</h2>
+            {% endif %}
+
+            {% if page.header.callout.message %}
+                <p class="callout-message">{{ page.header.callout.message }}</p>
+            {% endif %}
+
+            {% if page.header.callout.button %}
+                <a href="{{ page.header.callout.button.url }}" class="btn btn-callout">
+                    {{ page.header.callout.button.text ?: 'Get Started' }}
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+{% endblock %}
