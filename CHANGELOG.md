@@ -1,3 +1,9 @@
+# v1.8.0-beta.23
+## 11/14/2025
+
+1. [](#improved)
+    * Refactored safe-upgrade from scratch with simplified 'install' step
+
 # v1.8.0-beta.22
 ## 11/06/2025
 
