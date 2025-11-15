@@ -2070,6 +2070,32 @@ abstract class Utils
             'forward_static_call_array',
         ];
 
+        // Network and remote request functions that can be used for SSRF/remote requests
+        static $networkFunctions = [
+            'curl_init',
+            'curl_exec',
+            'curl_multi_exec',
+            'curl_multi_init',
+            'curl_setopt',
+            'curl_setopt_array',
+            'curl_close',
+            'curl_multi_close',
+            'curl_copy_handle',
+            'stream_socket_client',
+            'stream_socket_server',
+            'stream_context_create',
+            'socket_create',
+            'socket_connect',
+            'socket_write',
+            'socket_read',
+            'socket_send',
+            'socket_recv',
+            'gethostbyname',
+            'gethostbynamel',
+            'dns_get_record',
+            'getaddrinfo',
+        ];
+
         if (is_string($name)) {
             $name = strtolower($name);
         }
@@ -2103,6 +2129,10 @@ abstract class Utils
         }
 
         if (in_array($name, $otherFunctions)) {
+            return true;
+        }
+
+        if (in_array($name, $networkFunctions)) {
             return true;
         }
 
