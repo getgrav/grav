@@ -30,6 +30,14 @@ xss_dangerous_tags:
     - bgsound
     - title
     - base
+    # Common media and SVG tags that can contain event handlers or embedded scripts
+    - svg
+    - img
+    - video
+    - audio
+    - source
+    - picture
+    - track
 uploads_dangerous_extensions:
     - php
     - php2
