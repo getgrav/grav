@@ -1,3 +1,132 @@
+# v1.7.50.9
+## 11/09/2025
+
+1. [](#improved)
+    * Better error warnings regarding upgrading from 1.7 -> 1.7 vs 1.7 -> 1.8
+1. [](#bugfix)
+    * Fix for update-provided `Install.php` not used if local version called first
+    * Fix class loading error when trying to use `bin/gpm self-upgrade --safe`
+
+# v1.7.50.8
+## 11/06/2025
+
+1. [](#bugfix)
+    * Removed over zealous safety checks
+    * Removed .gitattributes which was causing some unintended issues
+
+# v1.7.50.7
+## 11/05/2025
+
+1. [](#improved)
+    * Exclude dev files from exports
+    * Remove dev file in clean command
+1. [](#bugfix)
+    * Ignore .github and .phan folders during self-upgrade
+    * Fixed path check in self-upgrade
+
+# v1.7.50.6
+## 11/05/2025
+
+1. [](#bugfix)
+    * Fixed an issue where non-upgradable root-level folders were snapshotted
+
+# v1.7.50.5
+## 11/05/2025
+
+1. [](#new)
+    * Added new `bin/gpm preflight` command
+    * Added `--safe` and `--legacy` overrides for `bin/gpm self-upgrade` command
+1. [](#improved)
+    * Improved JS assets pipeline handling to support different loading strategies
+    * More safe-upgrade fixes around safe guarding `/user/` and maintaining permissions better
+1. [](#bugfix)
+   * Fixed a regex issue that corrupted safe-upgrade output
+
+# v1.7.50.4
+## 10/31/2025
+
+1. [](#improved)
+    * More fixes and improvements for safe-uprade process
+
+# v1.7.50.3
+## 10/21/2025
+
+1. [](#bugfix)
+    * Restored `user/config/system.yaml` to 1.7 branch version (testing mode off)
+
+# v1.7.50.2
+## 10/21/2025
+
+1. [](#bugfix)
+    * Fix for `SafeUpgradeService::getLastManifest()` fatal error on upgrade [#3966](https://github.com/getgrav/grav/issues/3966)
+
+# v1.7.50.1
+## 10/20/2025
+
+1. [](#bugfix)
+    * Fix for broken `GRAV_ROOT`
+
+# v1.7.50
+## 10/19/2025
+
+1. [](#new)
+    * Added new **Safe Core Upgrade** process with snapshots for backup and restore, better preflight and postflight checks, as well as exception checking post-install for easy rollback.
+    * Introduced recovery mode with token-gated UI, plugin quarantine, and CLI rollback support.
+    * Added `bin/gpm preflight` compatibility scanner and `bin/gpm rollback` utility.
+    * Added `wordCount` Twig filter [#3957](https://github.com/getgrav/grav/pulls/3957)
+
+# v1.7.49.5
+## 09/10/2025
+
+1. [](#bugfix)
+    * Backup not honoring ignored paths [#3952](https://github.com/getgrav/grav/issues/3952)
+
+# v1.7.49.4
+## 09/03/2025
+
+1. [](#bugfix)
+    * Fixed cron force running jobs severy minute! [#3951](https://github.com/getgrav/grav/issues/3951)
+
+# v1.7.49.3
+## 09/02/2025
+
+1. [](#bugfix)
+    * Fixed an error in ZipArchive that was causing issues on some systems
+    * Fixed namespace change for `Cron\Expression`
+    * Removed broken cron install field... use 'instructions' instead
+    * Fixed duplicate jobs listing in some CLI commands
+
+# v1.7.49.2
+## 08/28/2025
+
+1. [](#bugfix)
+    * Fix translation of key for image adapter [#3944](https://github.com/getgrav/grav/pull/3944)
+
+# v1.7.49.1
+## 08/25/2025
+
+1. [](#new)
+    * Rerelease to include all updated plugins/theme etc.
+
+# v1.7.49
+## 08/25/2025
+
+1. [](#new)
+    * Revamped Grav Scheduler to support webhook to call call scheduler + concurrent jobs + jobs queue + logging, and other improvements
+    * Revamped Grav Cache purge capabilities to only clear obsolete old cache items
+    * Added full imagick support in Grav Image library
+    * Added support for Validate `match` and `match_any` in forms
+1. [](#improved)
+    * Handle empty values on require with ignore fields in Forms
+    * Use `actions/cache@v4` in github workflows
+    * Use `actions/checkout@v4`in github workflows [#3867](https://github.com/getgrav/grav/pull/3867)
+    * Update code block in README.md [#3886](https://github.com/getgrav/grav/pull/3886)
+    * Updated vendor libs to latest
+1. [](#bugfix)
+    * Bug in `exif_read_data` [#3878](https://github.com/getgrav/grav/pull/3878)
+    * Fix parser error in URI: [#3894](https://github.com/getgrav/grav/issues/3894)
+
+
 # v1.7.48
 ## 10/28/2024
 

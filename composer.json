@@ -46,7 +46,7 @@
         "filp/whoops": "~2.9",
         "matthiasmullie/minify": "^1.3",
         "monolog/monolog": "~1.25",
-        "getgrav/image": "^3.0",
+        "getgrav/image": "^4.0",
         "getgrav/cache": "^2.0",
         "donatj/phpuseragentparser": "~1.1",
         "pimple/pimple": "~3.5.0",
@@ -55,7 +55,7 @@
         "league/climate": "^3.6",
         "miljar/php-exif": "^0.6",
         "composer/ca-bundle": "^1.2",
-        "dragonmantank/cron-expression": "^1.2",
+        "dragonmantank/cron-expression": "^3.3",
         "willdurand/negotiation": "^3.0",
         "itsgoingd/clockwork": "^5.0",
         "symfony/http-client": "^4.4",
@@ -87,10 +87,7 @@
         "ext-exif": "Needed to use exif data from images."
     },
     "config": {
-        "apcu-autoloader": true,
-        "platform": {
-            "php": "7.3.6"
-        }
+        "apcu-autoloader": true
     },
     "autoload": {
         "psr-4": {

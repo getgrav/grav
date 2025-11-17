@@ -57,14 +57,51 @@ class RecursiveDirectoryFilterIterator extends RecursiveFilterIterator
         $relative_filename = str_replace($this::$root . '/', '', $file->getPathname());
 
         if ($file->isDir()) {
+            // Check if the directory path is in the ignore list
             if (in_array($relative_filename, $this::$ignore_folders, true)) {
                 return false;
             }
-            if (!in_array($filename, $this::$ignore_files, true)) {
+            // Check if any parent directory is in the ignore list
+            foreach ($this::$ignore_folders as $ignore_folder) {
+                $ignore_folder = trim($ignore_folder, '/');
+                if (strpos($relative_filename, $ignore_folder . '/') === 0 || $relative_filename === $ignore_folder) {
+                    return false;
+                }
+            }
+            if (!$this->matchesPattern($filename, $this::$ignore_files)) {
                 return true;
             }
-        } elseif ($file->isFile() && !in_array($filename, $this::$ignore_files, true)) {
+        } elseif ($file->isFile() && !$this->matchesPattern($filename, $this::$ignore_files)) {
             return true;
+        }
+        return false;
+    }
+    
+    /**
+     * Check if filename matches any pattern in the list
+     *
+     * @param string $filename
+     * @param array $patterns
+     * @return bool
+     */
+    protected function matchesPattern($filename, $patterns)
+    {
+        foreach ($patterns as $pattern) {
+            // Check for exact match
+            if ($filename === $pattern) {
+                return true;
+            }
+            // Check for extension patterns like .pdf
+            if (strpos($pattern, '.') === 0 && substr($filename, -strlen($pattern)) === $pattern) {
+                return true;
+            }
+            // Check for wildcard patterns
+            if (strpos($pattern, '*') !== false) {
+                $regex = '/^' . str_replace('\\*', '.*', preg_quote($pattern, '/')) . '$/';
+                if (preg_match($regex, $filename)) {
+                    return true;
+                }
+            }
         }
         return false;
     }

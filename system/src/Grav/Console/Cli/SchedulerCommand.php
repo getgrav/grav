@@ -57,8 +57,14 @@ class SchedulerCommand extends GravCommand
                 'Force run all jobs or a specific job if you specify a specific Job ID',
                 false
             )
+            ->addOption(
+                'force',
+                'f',
+                InputOption::VALUE_NONE,
+                'Force all due jobs to run regardless of their schedule'
+            )
             ->setDescription('Run the Grav Scheduler.  Best when integrated with system cron')
-            ->setHelp("Running without any options will force the Scheduler to run through it's jobs and process them");
+            ->setHelp("Running without any options will process the Scheduler jobs based on their cron schedule. Use --force to run all jobs immediately.");
     }
 
     /**
@@ -82,8 +88,76 @@ class SchedulerCommand extends GravCommand
         $error = 0;
 
         $run = $input->getOption('run');
+        $showDetails = $input->getOption('details');
+        $showJobs = $input->getOption('jobs');
+        $forceRun = $input->getOption('force');
 
-        if ($input->getOption('jobs')) {
+        // Handle running jobs first if -r flag is present
+        if ($run !== false) {
+            if ($run === null || $run === '') {
+                // Run all jobs when -r is provided without a specific job ID
+                $io->title('Force Run All Jobs');
+                
+                $jobs = $scheduler->getAllJobs();
+                $hasOutput = false;
+                
+                foreach ($jobs as $job) {
+                    if ($job->getEnabled()) {
+                        $io->section('Running: ' . $job->getId());
+                        $job->inForeground()->run();
+                        
+                        if ($job->isSuccessful()) {
+                            $io->success('Job ' . $job->getId() . ' ran successfully');
+                        } else {
+                            $error = 1;
+                            $io->error('Job ' . $job->getId() . ' failed to run');
+                        }
+                        
+                        $output = $job->getOutput();
+                        if ($output) {
+                            $io->write($output);
+                            $hasOutput = true;
+                        }
+                    }
+                }
+                
+                if (!$hasOutput) {
+                    $io->note('All enabled jobs completed');
+                }
+            } else {
+                // Run specific job
+                $io->title('Force Run Job: ' . $run);
+
+                $job = $scheduler->getJob($run);
+
+                if ($job) {
+                    $job->inForeground()->run();
+
+                    if ($job->isSuccessful()) {
+                        $io->success('Job ran successfully...');
+                    } else {
+                        $error = 1;
+                        $io->error('Job failed to run successfully...');
+                    }
+
+                    $output = $job->getOutput();
+
+                    if ($output) {
+                        $io->write($output);
+                    }
+                } else {
+                    $error = 1;
+                    $io->error('Could not find a job with id: ' . $run);
+                }
+            }
+
+            // Add separator if we're going to show details after
+            if ($showDetails) {
+                $io->newLine();
+            }
+        }
+
+        if ($showJobs) {
             // Show jobs list
 
             $jobs = $scheduler->getAllJobs();
@@ -124,7 +198,9 @@ class SchedulerCommand extends GravCommand
             $io->newLine();
             $io->note('For error details run "bin/grav scheduler -d"');
             $io->newLine();
-        } elseif ($input->getOption('details')) {
+        }
+        
+        if ($showDetails) {
             $jobs = $scheduler->getAllJobs();
             $job_states = (array)$scheduler->getJobStates()->content();
 
@@ -162,31 +238,9 @@ class SchedulerCommand extends GravCommand
 
             $table->setRows($rows);
             $table->render();
-        } elseif ($run !== false && $run !== null) {
-            $io->title('Force Run Job: ' . $run);
-
-            $job = $scheduler->getJob($run);
-
-            if ($job) {
-                $job->inForeground()->run();
-
-                if ($job->isSuccessful()) {
-                    $io->success('Job ran successfully...');
-                } else {
-                    $error = 1;
-                    $io->error('Job failed to run successfully...');
-                }
-
-                $output = $job->getOutput();
-
-                if ($output) {
-                    $io->write($output);
-                }
-            } else {
-                $error = 1;
-                $io->error('Could not find a job with id: ' . $run);
-            }
-        } elseif ($input->getOption('install')) {
+        }
+        
+        if ($input->getOption('install')) {
             $io->title('Install Scheduler');
 
             $verb = 'install';
@@ -207,10 +261,9 @@ class SchedulerCommand extends GravCommand
                 $io->note("To $verb, create a scheduled task in Windows.");
                 $io->text('Learn more at https://learn.getgrav.org/advanced/scheduler');
             }
-        } else {
-            // Run scheduler
-            $force = $run === null;
-            $scheduler->run(null, $force);
+        } elseif (!$showJobs && !$showDetails && $run === false) {
+            // Run scheduler only if no other options were provided
+            $scheduler->run(null, $forceRun);
 
             if ($input->getOption('verbose')) {
                 $io->title('Running Scheduled Jobs');

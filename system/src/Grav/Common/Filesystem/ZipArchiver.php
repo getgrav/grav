@@ -64,8 +64,21 @@ class ZipArchiver extends Archiver
         }
 
         $zip = new ZipArchive();
-        if (!$zip->open($this->archive_file, ZipArchive::CREATE)) {
-            throw new InvalidArgumentException('ZipArchiver:' . $this->archive_file . ' cannot be created...');
+        $result = $zip->open($this->archive_file, ZipArchive::CREATE);
+        if ($result !== true) {
+            $error = 'unknown error';
+            if ($result === ZipArchive::ER_NOENT) {
+                $error = 'file does not exist';
+            } elseif ($result === ZipArchive::ER_EXISTS) {
+                $error = 'file already exists';
+            } elseif ($result === ZipArchive::ER_OPEN) {
+                $error = 'cannot open file';
+            } elseif ($result === ZipArchive::ER_READ) {
+                $error = 'read error';
+            } elseif ($result === ZipArchive::ER_SEEK) {
+                $error = 'seek error';
+            }
+            throw new InvalidArgumentException('ZipArchiver: ' . $this->archive_file . ' cannot be created: ' . $error);
         }
 
         $files = $this->getArchiveFiles($rootPath);
@@ -112,8 +125,21 @@ class ZipArchiver extends Archiver
         }
 
         $zip = new ZipArchive();
-        if (!$zip->open($this->archive_file)) {
-            throw new InvalidArgumentException('ZipArchiver: ' . $this->archive_file . ' cannot be opened...');
+        $result = $zip->open($this->archive_file);
+        if ($result !== true) {
+            $error = 'unknown error';
+            if ($result === ZipArchive::ER_NOENT) {
+                $error = 'file does not exist';
+            } elseif ($result === ZipArchive::ER_EXISTS) {
+                $error = 'file already exists';
+            } elseif ($result === ZipArchive::ER_OPEN) {
+                $error = 'cannot open file';
+            } elseif ($result === ZipArchive::ER_READ) {
+                $error = 'read error';
+            } elseif ($result === ZipArchive::ER_SEEK) {
+                $error = 'seek error';
+            }
+            throw new InvalidArgumentException('ZipArchiver: ' . $this->archive_file . ' cannot be opened: ' . $error);
         }
 
         $status && $status([
@@ -122,7 +148,12 @@ class ZipArchiver extends Archiver
         ]);
 
         foreach ($folders as $folder) {
-            $zip->addEmptyDir($folder);
+            if ($zip->addEmptyDir($folder) === false) {
+                $status && $status([
+                    'type' => 'message',
+                    'message' => 'Warning: Could not add empty directory: ' . $folder
+                ]);
+            }
             $status && $status([
                 'type' => 'progress',
             ]);
