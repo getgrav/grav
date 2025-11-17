@@ -23,6 +23,7 @@ use RecursiveIteratorIterator;
 use FilesystemIterator;
 use function array_key_exists;
 use function basename;
+use function chmod;
 use function copy;
 use function count;
 use function dirname;
@@ -35,18 +36,18 @@ use function is_file;
 use function json_decode;
 use function json_encode;
 use function preg_match;
+use function preg_replace;
 use function property_exists;
 use function rename;
 use function rsort;
 use function sort;
-use function time;
 use function rtrim;
-use function uniqid;
-use function trim;
 use function strpos;
+use function time;
+use function trim;
+use function uniqid;
 use function unlink;
 use function ltrim;
-use function preg_replace;
 use const GRAV_ROOT;
 use const GLOB_ONLYDIR;
 use const JSON_PRETTY_PRINT;
@@ -56,6 +57,17 @@ use const JSON_PRETTY_PRINT;
  */
 class SafeUpgradeService
 {
+    /**
+     * Version identifier for this SafeUpgradeService implementation.
+     * This is used to verify that the correct version is loaded during upgrades.
+     *
+     * IMPORTANT: Increment this with each release that changes SafeUpgradeService.
+     * Format: YYYYMMDD (release date)
+     *
+     * @var string
+     */
+    public const IMPLEMENTATION_VERSION = '20251109'; // 2025-11-09 - Simplified to match traditional upgrade
+
     /** @var string */
     private $rootPath;
     /** @var string */
@@ -75,6 +87,8 @@ class SafeUpgradeService
         'tmp',
         'cache',
         'user',
+        '.github',
+        '.phan',
     ];
     /** @var callable|null */
     private $progressCallback = null;
@@ -122,11 +136,28 @@ class SafeUpgradeService
     /**
      * Run preflight validations before attempting an upgrade.
      *
-     * @return array{plugins_pending: array<string, array>, psr_log_conflicts: array<string, array>, warnings: string[]}
+     * @param string|null $targetVersion The target Grav version being upgraded to (e.g., '1.8.0')
+     * @return array{plugins_pending: array<string, array>, psr_log_conflicts: array<string, array>, warnings: string[], is_major_minor_upgrade: bool}
      */
-    public function preflight(): array
+    public function preflight(?string $targetVersion = null): array
     {
         $warnings = [];
+        $isMajorMinorUpgrade = false;
+
+        // Determine if this is a major/minor version upgrade (e.g., 1.7.x -> 1.8.y)
+        if ($targetVersion !== null) {
+            $currentVersion = GRAV_VERSION;
+            $currentParts = explode('.', $currentVersion);
+            $targetParts = explode('.', $targetVersion);
+
+            $currentMajor = (int)($currentParts[0] ?? 0);
+            $currentMinor = (int)($currentParts[1] ?? 0);
+            $targetMajor = (int)($targetParts[0] ?? 0);
+            $targetMinor = (int)($targetParts[1] ?? 0);
+
+            $isMajorMinorUpgrade = ($currentMajor !== $targetMajor) || ($currentMinor !== $targetMinor);
+        }
+
         try {
             $pending = $this->detectPendingPluginUpdates();
         } catch (RuntimeException $e) {
@@ -136,8 +167,15 @@ class SafeUpgradeService
 
         $psrLogConflicts = $this->detectPsrLogConflicts();
         $monologConflicts = $this->detectMonologConflicts();
+
+        // Only enforce plugin updates for major/minor upgrades
+        // For patch upgrades, just warn but don't block
         if ($pending) {
-            $warnings[] = 'One or more plugins/themes are not up to date.';
+            if ($isMajorMinorUpgrade) {
+                $warnings[] = 'One or more plugins/themes are not up to date and must be updated for major version upgrades.';
+            } else {
+                $warnings[] = 'One or more plugins/themes are not up to date.';
+            }
         }
         if ($psrLogConflicts) {
             $warnings[] = 'Potential psr/log signature conflicts detected.';
@@ -151,6 +189,7 @@ class SafeUpgradeService
             'psr_log_conflicts' => $psrLogConflicts,
             'monolog_conflicts' => $monologConflicts,
             'warnings' => $warnings,
+            'is_major_minor_upgrade' => $isMajorMinorUpgrade,
         ];
     }
 
@@ -179,21 +218,42 @@ class SafeUpgradeService
         $stagingMode = $this->stageExtractedPackage($extractedPath, $packagePath);
         $this->reportProgress('installing', 'Preparing staged package...', null, ['mode' => $stagingMode]);
 
+        $packageEntries = $this->collectPackageEntries($packagePath);
+
+        // CRITICAL SAFETY CHECK: Verify 'user' is never in package entries before proceeding
+        if (in_array('user', $packageEntries, true)) {
+            throw new RuntimeException(
+                'SAFETY VIOLATION: user directory found in package entries. ' .
+                'This should never happen and could result in data loss. Aborting upgrade.'
+            );
+        }
+
         $this->carryOverRootDotfiles($packagePath);
 
         // Ensure ignored directories are replaced with live copies.
         $this->hydrateIgnoredDirectories($packagePath, $ignores);
         $this->carryOverRootFiles($packagePath, $ignores);
 
-        $entries = $this->collectPackageEntries($packagePath);
-        if (!$entries) {
+        // IMPORTANT: Snapshot should ONLY include files from the original package, NOT custom directories
+        // that were carried over. This prevents snapshotting huge custom folders like /media-test, /downloads, etc.
+        // The carryOverRootFiles() method preserves custom files during upgrade, but they should not be snapshotted
+        // because they are not being replaced and don't need to be rolled back.
+        if (!$packageEntries) {
             throw new RuntimeException('Staged package does not contain any files to promote.');
         }
 
-        $this->reportProgress('snapshot', 'Creating backup snapshot...', null);
-        $this->createBackupSnapshot($entries, $backupPath);
+        // FINAL SAFETY CHECK: Verify 'user' is not in the entries that will be deployed
+        if (in_array('user', $packageEntries, true)) {
+            throw new RuntimeException(
+                'SAFETY VIOLATION: user directory found in deployment entries. ' .
+                'Aborting upgrade to protect user data.'
+            );
+        }
 
-        $manifest = $this->buildManifest($stageId, $targetVersion, $packagePath, $backupPath, $entries);
+        $this->reportProgress('snapshot', 'Creating backup snapshot...', null);
+        $this->createBackupSnapshot($packageEntries, $backupPath);
+
+        $manifest = $this->buildManifest($stageId, $targetVersion, $packagePath, $backupPath, $packageEntries);
         $manifestPath = $stagePath . DIRECTORY_SEPARATOR . 'manifest.json';
         Folder::create(dirname($manifestPath));
         file_put_contents($manifestPath, json_encode($manifest, JSON_PRETTY_PRINT));
@@ -201,9 +261,11 @@ class SafeUpgradeService
         $this->reportProgress('installing', 'Copying update files...', null);
 
         try {
-            $this->copyEntries($entries, $packagePath, $this->rootPath, 'installing', 'Deploying');
+            $this->copyEntries($packageEntries, $packagePath, $this->rootPath, 'installing', 'Deploying');
         } catch (Throwable $e) {
-            $this->copyEntries($entries, $backupPath, $this->rootPath, 'installing', 'Restoring');
+            // Rollback: restore from snapshot
+            $this->reportProgress('rollback', 'Upgrade failed, restoring from snapshot...', null);
+            $this->copyEntries($packageEntries, $backupPath, $this->rootPath, 'rollback', 'Restoring');
             throw new RuntimeException('Failed to promote staged Grav release.', 0, $e);
         }
 
@@ -211,7 +273,16 @@ class SafeUpgradeService
         $this->persistManifest($manifest);
         $this->lastManifest = $manifest;
         $this->pruneOldSnapshots();
-        Folder::delete($stagePath);
+
+        // Clean up staging directory
+        // Wrap in try-catch because autoloader may have stale paths after file copy
+        try {
+            Folder::delete($stagePath);
+        } catch (\Throwable $e) {
+            // Staging cleanup failed, but upgrade succeeded
+            // Directory will be cleaned up on next request
+            error_log('Warning: Failed to delete staging directory: ' . $e->getMessage());
+        }
 
         return $manifest;
     }
@@ -262,6 +333,51 @@ class SafeUpgradeService
         return $manifest;
     }
 
+    /**
+     * Create a snapshot specifically for automated upgrades.
+     *
+     * @param string $targetVersion
+     * @param string|null $label
+     * @return array
+     */
+    public function createUpgradeSnapshot(string $targetVersion, ?string $label = null): array
+    {
+        $entries = $this->collectPackageEntries($this->rootPath);
+        if (!$entries) {
+            throw new RuntimeException('Unable to locate files to snapshot.');
+        }
+
+        $stageId = uniqid('upgrade-', false);
+        $backupPath = $this->stagingRoot . DIRECTORY_SEPARATOR . 'snapshot-' . $stageId;
+
+        $this->reportProgress('snapshot', sprintf('Capturing snapshot before upgrading to %s...', $targetVersion), null, [
+            'operation' => 'upgrade',
+            'target_version' => $targetVersion,
+        ]);
+
+        $this->createBackupSnapshot($entries, $backupPath);
+
+        $manifest = $this->buildManifest($stageId, $targetVersion, $this->rootPath, $backupPath, $entries);
+        $manifest['package_path'] = null;
+        if ($label !== null && $label !== '') {
+            $manifest['label'] = $label;
+        }
+        $manifest['operation'] = 'upgrade';
+        $manifest['mode'] = 'pre-upgrade';
+
+        $this->persistManifest($manifest);
+        $this->lastManifest = $manifest;
+        $this->pruneOldSnapshots();
+
+        $this->reportProgress('snapshot', sprintf('Snapshot %s captured.', $stageId), 100, [
+            'operation' => 'upgrade',
+            'snapshot' => $stageId,
+            'target_version' => $targetVersion,
+        ]);
+
+        return $manifest;
+    }
+
     private function collectPackageEntries(string $packagePath): array
     {
         $entries = [];
@@ -273,6 +389,12 @@ class SafeUpgradeService
 
             $name = $fileinfo->getFilename();
             if (in_array($name, $this->ignoredDirs, true)) {
+                continue;
+            }
+
+            // CRITICAL SAFETY CHECK: Never allow 'user' directory to be collected
+            // This prevents any scenario where user/ could be overwritten during upgrade
+            if ($name === 'user') {
                 continue;
             }
 
@@ -312,6 +434,15 @@ class SafeUpgradeService
     {
         $total = count($entries);
         foreach ($entries as $index => $entry) {
+            // CRITICAL SAFETY CHECK: Absolutely prevent any operations on 'user' directory
+            // This is a fail-safe to ensure user data is never touched during upgrades
+            if ($entry === 'user' || strpos($entry, 'user' . DIRECTORY_SEPARATOR) === 0) {
+                throw new RuntimeException(
+                    'SAFETY VIOLATION: Attempted to copy user directory during upgrade. ' .
+                    'This should never happen. Aborting upgrade to protect user data.'
+                );
+            }
+
             $source = $sourceBase . DIRECTORY_SEPARATOR . $entry;
             if (!is_file($source) && !is_dir($source) && !is_link($source)) {
                 continue;
@@ -334,6 +465,9 @@ class SafeUpgradeService
             }
 
             $destination = $targetBase . DIRECTORY_SEPARATOR . $entry;
+
+            // Use the same simple approach as traditional upgrade:
+            // Delete old, copy new, let filesystem handle ownership
             $this->removeEntry($destination);
 
             if (is_link($source)) {
@@ -343,19 +477,21 @@ class SafeUpgradeService
                 }
             } elseif (is_dir($source)) {
                 Folder::create(dirname($destination));
-                Folder::rcopy($source, $destination, true);
+                // Use move() like traditional upgrade - faster than copy
+                // Snapshot is already taken before this, so we don't need to preserve source
+                Folder::move($source, $destination);
+
+                // Set bin/ permissions like traditional upgrade does
+                if ($entry === 'bin') {
+                    $binFiles = glob($destination . DIRECTORY_SEPARATOR . '*') ?: [];
+                    foreach ($binFiles as $binFile) {
+                        @chmod($binFile, 0755);
+                    }
+                }
             } else {
                 Folder::create(dirname($destination));
                 if (!@copy($source, $destination)) {
                     throw new RuntimeException(sprintf('Failed to copy file "%s" to "%s".', $source, $destination));
-                }
-                $perm = @fileperms($source);
-                if ($perm !== false) {
-                    @chmod($destination, $perm & 0777);
-                }
-                $mtime = @filemtime($source);
-                if ($mtime !== false) {
-                    @touch($destination, $mtime);
                 }
             }
         }
@@ -681,6 +817,14 @@ class SafeUpgradeService
                 continue;
             }
 
+            // CRITICAL: Ensure 'user' is always in the ignored directories list
+            if (!in_array('user', $strategic, true)) {
+                throw new RuntimeException(
+                    'SAFETY VIOLATION: user directory is not in the ignored directories list. ' .
+                    'This is a critical configuration error that could result in data loss.'
+                );
+            }
+
             $live = $this->rootPath . '/' . $relative;
             $stage = $packagePath . '/' . $relative;
 
@@ -756,6 +900,11 @@ class SafeUpgradeService
         });
         $skip = array_values(array_unique($skip));
 
+        // CRITICAL: Ensure 'user' is always in the skip list
+        if (!in_array('user', $skip, true)) {
+            $skip[] = 'user';
+        }
+
         $iterator = new DirectoryIterator($this->rootPath);
         foreach ($iterator as $entry) {
             if ($entry->isDot()) {
@@ -764,6 +913,11 @@ class SafeUpgradeService
 
             $name = $entry->getFilename();
             if ($name === '' || $name[0] === '.') {
+                continue;
+            }
+
+            // CRITICAL SAFETY CHECK: Never copy 'user' directory
+            if ($name === 'user') {
                 continue;
             }
 

@@ -1,3 +1,53 @@
+# v1.7.50.9
+## 11/09/2025
+
+1. [](#improved)
+    * Better error warnings regarding upgrading from 1.7 -> 1.7 vs 1.7 -> 1.8
+1. [](#bugfix)
+    * Fix for update-provided `Install.php` not used if local version called first
+    * Fix class loading error when trying to use `bin/gpm self-upgrade --safe`
+
+# v1.7.50.8
+## 11/06/2025
+
+1. [](#bugfix)
+    * Removed over zealous safety checks
+    * Removed .gitattributes which was causing some unintended issues
+
+# v1.7.50.7
+## 11/05/2025
+
+1. [](#improved)
+    * Exclude dev files from exports
+    * Remove dev file in clean command
+1. [](#bugfix)
+    * Ignore .github and .phan folders during self-upgrade
+    * Fixed path check in self-upgrade
+
+# v1.7.50.6
+## 11/05/2025
+
+1. [](#bugfix)
+    * Fixed an issue where non-upgradable root-level folders were snapshotted
+
+# v1.7.50.5
+## 11/05/2025
+
+1. [](#new)
+    * Added new `bin/gpm preflight` command
+    * Added `--safe` and `--legacy` overrides for `bin/gpm self-upgrade` command
+1. [](#improved)
+    * Improved JS assets pipeline handling to support different loading strategies
+    * More safe-upgrade fixes around safe guarding `/user/` and maintaining permissions better
+1. [](#bugfix)
+   * Fixed a regex issue that corrupted safe-upgrade output
+
+# v1.7.50.4
+## 10/31/2025
+
+1. [](#improved)
+    * More fixes and improvements for safe-uprade process
+
 # v1.7.50.3
 ## 10/21/2025
 

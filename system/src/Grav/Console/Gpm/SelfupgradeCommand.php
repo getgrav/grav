@@ -15,8 +15,9 @@ use Grav\Common\HTTP\Response;
 use Grav\Common\GPM\Installer;
 use Grav\Common\GPM\Upgrader;
 use Grav\Common\Grav;
-use Grav\Common\Upgrade\SafeUpgradeService;
 use Grav\Console\GpmCommand;
+// NOTE: SafeUpgradeService removed - no longer used in this file
+// Preflight is now handled in Install.php after downloading the package
 use Grav\Installer\Install;
 use RuntimeException;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -96,6 +97,18 @@ class SelfupgradeCommand extends GpmCommand
                 'Option to set the timeout in seconds when downloading the update (0 for no timeout)',
                 30
             )
+            ->addOption(
+                'safe',
+                null,
+                InputOption::VALUE_NONE,
+                'Force safe upgrade staging even if disabled in configuration'
+            )
+            ->addOption(
+                'legacy',
+                null,
+                InputOption::VALUE_NONE,
+                'Force legacy in-place upgrade even if safe upgrade is enabled'
+            )
             ->setDescription('Detects and performs an update of Grav itself when available')
             ->setHelp('The <info>update</info> command updates Grav itself when a new version is available');
     }
@@ -107,200 +120,241 @@ class SelfupgradeCommand extends GpmCommand
     {
         $input = $this->getInput();
         $io = $this->getIO();
+        $forceSafe = (bool) $input->getOption('safe');
+        $forceLegacy = (bool) $input->getOption('legacy');
+        $forcedMode = null;
 
-        if (!class_exists(ZipArchive::class)) {
-            $io->title('GPM Self Upgrade');
-            $io->error('php-zip extension needs to be enabled!');
-
-            return 1;
-        }
-
-        $this->upgrader = new Upgrader($input->getOption('force'));
-        $this->all_yes = $input->getOption('all-yes');
-        $this->overwrite = $input->getOption('overwrite');
-        $this->timeout = (int) $input->getOption('timeout');
-
-        $this->displayGPMRelease();
-
-        $safeUpgrade = $this->createSafeUpgradeService();
-        $preflight = $safeUpgrade->preflight();
-        if (!$this->handlePreflightReport($preflight)) {
-            return 1;
-        }
-
-        $update = $this->upgrader->getAssets()['grav-update'];
-
-        $local = $this->upgrader->getLocalVersion();
-        $remote = $this->upgrader->getRemoteVersion();
-        $release = strftime('%c', strtotime($this->upgrader->getReleaseDate()));
-
-        if (!$this->upgrader->meetsRequirements()) {
-            $io->writeln('<red>ATTENTION:</red>');
-            $io->writeln('   Grav has increased the minimum PHP requirement.');
-            $io->writeln('   You are currently running PHP <red>' . phpversion() . '</red>, but PHP <green>' . $this->upgrader->minPHPVersion() . '</green> is required.');
-            $io->writeln('   Additional information: <white>http://getgrav.org/blog/changing-php-requirements</white>');
-            $io->newLine();
-            $io->writeln('Selfupgrade aborted.');
-            $io->newLine();
+        if ($forceSafe && $forceLegacy) {
+            $io->error('Cannot force safe and legacy upgrade modes simultaneously.');
 
             return 1;
         }
 
-        if (!$this->overwrite && !$this->upgrader->isUpgradable()) {
-            $io->writeln("You are already running the latest version of <green>Grav v{$local}</green>");
-            $io->writeln("which was released on {$release}");
-
-            $config = Grav::instance()['config'];
-            $schema = $config->get('versions.core.grav.schema');
-            if ($schema !== GRAV_SCHEMA && version_compare($schema, GRAV_SCHEMA, '<')) {
-                $io->newLine();
-                $io->writeln('However post-install scripts have not been run.');
-                if (!$this->all_yes) {
-                    $question = new ConfirmationQuestion(
-                        'Would you like to run the scripts? [Y|n] ',
-                        true
-                    );
-                    $answer = $io->askQuestion($question);
-                } else {
-                    $answer = true;
+        if ($forceSafe || $forceLegacy) {
+            $forcedMode = $forceSafe ? true : false;
+            // NOTE: Do not call Install::forceSafeUpgrade() here as it would load the old Install class
+            // before the upgrade package is extracted, causing a class redeclaration error.
+            // Instead, we set the config and also use an environment variable as a fallback.
+            putenv('GRAV_FORCE_SAFE_UPGRADE=' . ($forcedMode ? '1' : '0'));
+            try {
+                $grav = Grav::instance();
+                if ($grav && isset($grav['config'])) {
+                    $grav['config']->set('system.updates.safe_upgrade', $forcedMode);
                 }
-
-                if ($answer) {
-                    // Finalize installation.
-                    Install::instance()->finalize();
-
-                    $io->write('  |- Running post-install scripts...  ');
-                    $io->writeln("  '- <green>Success!</green>  ");
-                    $io->newLine();
-                }
+            } catch (\Throwable $e) {
+                // Ignore container bootstrap failures; mode override still applies via env var.
             }
 
-            return 0;
-        }
-
-        Installer::isValidDestination(GRAV_ROOT . '/system');
-        if (Installer::IS_LINK === Installer::lastErrorCode()) {
-            $io->writeln('<red>ATTENTION:</red> Grav is symlinked, cannot upgrade, aborting...');
-            $io->newLine();
-            $io->writeln("You are currently running a symbolically linked Grav v{$local}. Latest available is v{$remote}.");
-
-            return 1;
-        }
-
-        // not used but preloaded just in case!
-        new ArrayInput([]);
-
-        $io->writeln("Grav v<cyan>{$remote}</cyan> is now available [release date: {$release}].");
-        $io->writeln('You are currently using v<cyan>' . GRAV_VERSION . '</cyan>.');
-
-        if (!$this->all_yes) {
-            $question = new ConfirmationQuestion(
-                'Would you like to read the changelog before proceeding? [y|N] ',
-                false
-            );
-            $answer = $io->askQuestion($question);
-
-            if ($answer) {
-                $changelog = $this->upgrader->getChangelog(GRAV_VERSION);
-
-                $io->newLine();
-                foreach ($changelog as $version => $log) {
-                    $title = $version . ' [' . $log['date'] . ']';
-                    $content = preg_replace_callback('/\d\.\s\[\]\(#(.*)\)/', static function ($match) {
-                        return "\n" . ucfirst($match[1]) . ':';
-                    }, $log['content']);
-
-                    $io->writeln($title);
-                    $io->writeln(str_repeat('-', strlen($title)));
-                    $io->writeln($content);
-                    $io->newLine();
-                }
-
-                $question = new ConfirmationQuestion('Press [ENTER] to continue.', true);
-                $io->askQuestion($question);
+            if ($forceSafe) {
+                $io->note('Safe upgrade staging forced for this run.');
+            } else {
+                $io->warning('Legacy in-place upgrade forced for this run.');
             }
+        }
 
-            $question = new ConfirmationQuestion('Would you like to upgrade now? [y|N] ', false);
-            $answer = $io->askQuestion($question);
-
-            if (!$answer) {
-                $io->writeln('Aborting...');
+        try {
+            if (!class_exists(ZipArchive::class)) {
+                $io->title('GPM Self Upgrade');
+                $io->error('php-zip extension needs to be enabled!');
 
                 return 1;
             }
-        }
 
-        $io->newLine();
-        $io->writeln("Preparing to upgrade to v<cyan>{$remote}</cyan>..");
+            $this->upgrader = new Upgrader($input->getOption('force'));
+            $this->all_yes = $input->getOption('all-yes');
+            $this->overwrite = $input->getOption('overwrite');
+            $this->timeout = (int) $input->getOption('timeout');
 
-        /** @var \Grav\Common\Recovery\RecoveryManager $recovery */
-        $recovery = Grav::instance()['recovery'];
-        $recovery->markUpgradeWindow('core-upgrade', [
-            'scope' => 'core',
-            'target_version' => $remote,
-        ]);
+            $this->displayGPMRelease();
 
-        $io->write("  |- Downloading upgrade [{$this->formatBytes($update['size'])}]...     0%");
-        $this->file = $this->download($update);
+            // NOTE: Preflight checks are now run in Install.php AFTER downloading the package.
+            // This ensures we use the NEW SafeUpgradeService from the package, not the old one.
+            // Running preflight here would load the OLD class into memory and prevent the new one from loading.
 
-        $io->write('  |- Installing upgrade...  ');
-        $this->operationTimerStart = microtime(true);
-        $installation = $this->upgrade();
+            $update = $this->upgrader->getAssets()['grav-update'];
 
-        $error = 0;
-        if (!$installation) {
-            $io->writeln("  '- <red>Installation failed or aborted.</red>");
-            $io->newLine();
-            $error = 1;
-        } else {
-            $io->writeln("  '- <green>Success!</green>  ");
+            $local = $this->upgrader->getLocalVersion();
+            $remote = $this->upgrader->getRemoteVersion();
+            $release = strftime('%c', strtotime($this->upgrader->getReleaseDate()));
 
-            $manifest = Install::instance()->getLastManifest();
-            if (is_array($manifest) && ($manifest['id'] ?? null)) {
-                $snapshotId = (string) $manifest['id'];
-                $snapshotTimestamp = isset($manifest['created_at']) ? (int) $manifest['created_at'] : null;
-                $manifestPath = null;
-                if (isset($manifest['id'])) {
-                    $manifestPath = 'user/data/upgrades/' . $manifest['id'] . '.json';
+            if (!$this->upgrader->meetsRequirements()) {
+                $io->writeln('<red>ATTENTION:</red>');
+                $io->writeln('   Grav has increased the minimum PHP requirement.');
+                $io->writeln('   You are currently running PHP <red>' . phpversion() . '</red>, but PHP <green>' . $this->upgrader->minPHPVersion() . '</green> is required.');
+                $io->writeln('   Additional information: <white>http://getgrav.org/blog/changing-php-requirements</white>');
+                $io->newLine();
+                $io->writeln('Selfupgrade aborted.');
+                $io->newLine();
+
+                return 1;
+            }
+
+            if (!$this->overwrite && !$this->upgrader->isUpgradable()) {
+                $io->writeln("You are already running the latest version of <green>Grav v{$local}</green>");
+                $io->writeln("which was released on {$release}");
+
+                $config = Grav::instance()['config'];
+                $schema = $config->get('versions.core.grav.schema');
+                if ($schema !== GRAV_SCHEMA && version_compare($schema, GRAV_SCHEMA, '<')) {
+                    $io->newLine();
+                    $io->writeln('However post-install scripts have not been run.');
+                    if (!$this->all_yes) {
+                        $question = new ConfirmationQuestion(
+                            'Would you like to run the scripts? [Y|n] ',
+                            true
+                        );
+                        $answer = $io->askQuestion($question);
+                    } else {
+                        $answer = true;
+                    }
+
+                    if ($answer) {
+                        // Finalize installation.
+                        Install::instance()->finalize();
+
+                        $io->write('  |- Running post-install scripts...  ');
+                        $io->writeln("  |- <green>Success!</green>  ");
+                        $io->newLine();
+                    }
                 }
-                $metadata = [
-                    'scope' => 'core',
-                    'target_version' => $remote,
-                    'snapshot' => $snapshotId,
-                ];
-                if (null !== $snapshotTimestamp) {
-                    $metadata['snapshot_created_at'] = $snapshotTimestamp;
-                }
-                if ($manifestPath) {
-                    $metadata['snapshot_manifest'] = $manifestPath;
+
+                return 0;
+            }
+
+            Installer::isValidDestination(GRAV_ROOT . '/system');
+            if (Installer::IS_LINK === Installer::lastErrorCode()) {
+                $io->writeln('<red>ATTENTION:</red> Grav is symlinked, cannot upgrade, aborting...');
+                $io->newLine();
+                $io->writeln("You are currently running a symbolically linked Grav v{$local}. Latest available is v{$remote}.");
+
+                return 1;
+            }
+
+            // not used but preloaded just in case!
+            new ArrayInput([]);
+
+            $io->writeln("Grav v<cyan>{$remote}</cyan> is now available [release date: {$release}].");
+            $io->writeln('You are currently using v<cyan>' . GRAV_VERSION . '</cyan>.');
+
+            if (!$this->all_yes) {
+                $question = new ConfirmationQuestion(
+                    'Would you like to read the changelog before proceeding? [y|N] ',
+                    false
+                );
+                $answer = $io->askQuestion($question);
+
+                if ($answer) {
+                    $changelog = $this->upgrader->getChangelog(GRAV_VERSION);
+
+                    $io->newLine();
+                    foreach ($changelog as $version => $log) {
+                        $title = $version . ' [' . $log['date'] . ']';
+                        $content = preg_replace_callback('/\d\.\s\[\]\(#(.*)\)/', static function ($match) {
+                            return "\n" . ucfirst((string) $match[1]) . ':';
+                        }, (string) $log['content']);
+
+                        $io->writeln($title);
+                        $io->writeln(str_repeat('-', strlen($title)));
+                        $io->writeln($content);
+                        $io->newLine();
+                    }
+
+                    $question = new ConfirmationQuestion('Press [ENTER] to continue.', true);
+                    $io->askQuestion($question);
                 }
 
-                $recovery->markUpgradeWindow('core-upgrade', $metadata);
+                $question = new ConfirmationQuestion('Would you like to upgrade now? [y|N] ', false);
+                $answer = $io->askQuestion($question);
 
-                $io->writeln(sprintf("  |- Recovery snapshot: <cyan>%s</cyan>", $snapshotId));
-                if (null !== $snapshotTimestamp) {
-                    $io->writeln(sprintf("  |- Snapshot captured: <white>%s</white>", date('c', $snapshotTimestamp)));
+                if (!$answer) {
+                    $io->writeln('Aborting...');
+
+                    return 1;
                 }
-                if ($manifestPath) {
-                    $io->writeln(sprintf("  |- Manifest stored at: <white>%s</white>", $manifestPath));
-                }
-            } else {
-                // Ensure recovery window remains active even if manifest could not be resolved.
-                $recovery->markUpgradeWindow('core-upgrade', [
-                    'scope' => 'core',
-                    'target_version' => $remote,
-                ]);
             }
 
             $io->newLine();
-            $safeUpgrade->clearRecoveryFlag();
-        }
+            $io->writeln("Preparing to upgrade to v<cyan>{$remote}</cyan>..");
 
-        if ($this->tmp && is_dir($this->tmp)) {
-            Folder::delete($this->tmp);
-        }
+            /** @var \Grav\Common\Recovery\RecoveryManager $recovery */
+            $recovery = Grav::instance()['recovery'];
+            $recovery->markUpgradeWindow('core-upgrade', [
+                'scope' => 'core',
+                'target_version' => $remote,
+            ]);
 
-        return $error;
+            $io->write("  |- Downloading upgrade [{$this->formatBytes($update['size'])}]...     0%");
+            $this->file = $this->download($update);
+
+            $io->write('  |- Installing upgrade...  ');
+            $this->operationTimerStart = microtime(true);
+            $installation = $this->upgrade();
+
+            $error = 0;
+            if (!$installation) {
+                $io->writeln("  |- <red>Installation failed or aborted.</red>");
+                $io->newLine();
+                $error = 1;
+            } else {
+                $io->writeln("  |- <green>Success!</green>  ");
+
+                $manifest = Install::instance()->getLastManifest();
+                if (is_array($manifest) && ($manifest['id'] ?? null)) {
+                    $snapshotId = (string) $manifest['id'];
+                    $snapshotTimestamp = isset($manifest['created_at']) ? (int) $manifest['created_at'] : null;
+                    $manifestPath = null;
+                    if (isset($manifest['id'])) {
+                        $manifestPath = 'user/data/upgrades/' . $manifest['id'] . '.json';
+                    }
+                    $metadata = [
+                        'scope' => 'core',
+                        'target_version' => $remote,
+                        'snapshot' => $snapshotId,
+                    ];
+                    if (null !== $snapshotTimestamp) {
+                        $metadata['snapshot_created_at'] = $snapshotTimestamp;
+                    }
+                    if ($manifestPath) {
+                        $metadata['snapshot_manifest'] = $manifestPath;
+                    }
+
+                    $recovery->markUpgradeWindow('core-upgrade', $metadata);
+
+                    $io->writeln(sprintf("  |- Recovery snapshot: <cyan>%s</cyan>", $snapshotId));
+                    if (null !== $snapshotTimestamp) {
+                        $io->writeln(sprintf("  |- Snapshot captured: <white>%s</white>", date('c', $snapshotTimestamp)));
+                    }
+                    if ($manifestPath) {
+                        $io->writeln(sprintf("  |- Manifest stored at: <white>%s</white>", $manifestPath));
+                    }
+                } else {
+                    // Ensure recovery window remains active even if manifest could not be resolved.
+                    $recovery->markUpgradeWindow('core-upgrade', [
+                        'scope' => 'core',
+                        'target_version' => $remote,
+                    ]);
+                }
+
+                $io->newLine();
+                // Clear recovery flag - upgrade completed successfully
+                $recovery->closeUpgradeWindow();
+            }
+
+            if ($this->tmp && is_dir($this->tmp)) {
+                Folder::delete($this->tmp);
+            }
+
+            return $error;
+        } finally {
+            if (null !== $forcedMode) {
+                // Clean up environment variable
+                putenv('GRAV_FORCE_SAFE_UPGRADE');
+                // Only call Install::forceSafeUpgrade if Install class has been loaded
+                if (class_exists(\Grav\Installer\Install::class, false)) {
+                    Install::forceSafeUpgrade(null);
+                }
+            }
+        }
     }
 
     /**
@@ -331,23 +385,6 @@ class SelfupgradeCommand extends GpmCommand
     }
 
     /**
-     * @return SafeUpgradeService
-     */
-    protected function createSafeUpgradeService(): SafeUpgradeService
-    {
-        $config = null;
-        try {
-            $config = Grav::instance()['config'] ?? null;
-        } catch (\Throwable $e) {
-            $config = null;
-        }
-
-        return new SafeUpgradeService([
-            'config' => $config,
-        ]);
-    }
-
-    /**
      * @param array $preflight
      * @return bool
      */
@@ -355,13 +392,10 @@ class SelfupgradeCommand extends GpmCommand
     {
         $io = $this->getIO();
         $pending = $preflight['plugins_pending'] ?? [];
+        $blocking = $preflight['blocking'] ?? [];
         $conflicts = $preflight['psr_log_conflicts'] ?? [];
         $monologConflicts = $preflight['monolog_conflicts'] ?? [];
         $warnings = $preflight['warnings'] ?? [];
-
-        if (empty($pending) && empty($conflicts) && empty($monologConflicts)) {
-            return true;
-        }
 
         if ($warnings) {
             $io->newLine();
@@ -371,7 +405,42 @@ class SelfupgradeCommand extends GpmCommand
             }
         }
 
+        if ($blocking && empty($pending)) {
+            $io->newLine();
+            $io->writeln('<red>Upgrade blocked:</red>');
+            foreach ($blocking as $reason) {
+                $io->writeln('  - ' . $reason);
+            }
+
+            return false;
+        }
+
+        if (empty($pending) && empty($conflicts) && empty($monologConflicts)) {
+            return true;
+        }
+
         if ($pending) {
+            // Use the is_major_minor_upgrade flag from preflight result if available
+            $isMajorMinorUpgrade = $preflight['is_major_minor_upgrade'] ?? false;
+
+            // Fall back to calculating it if not provided (for backwards compatibility)
+            if (!isset($preflight['is_major_minor_upgrade']) && $this->upgrader) {
+                $local = $this->upgrader->getLocalVersion();
+                $remote = $this->upgrader->getRemoteVersion();
+                $localParts = explode('.', $local);
+                $remoteParts = explode('.', $remote);
+
+                $localMajor = (int)($localParts[0] ?? 0);
+                $localMinor = (int)($localParts[1] ?? 0);
+                $remoteMajor = (int)($remoteParts[0] ?? 0);
+                $remoteMinor = (int)($remoteParts[1] ?? 0);
+
+                $isMajorMinorUpgrade = ($localMajor !== $remoteMajor) || ($localMinor !== $remoteMinor);
+            }
+
+            $local = $this->upgrader ? $this->upgrader->getLocalVersion() : 'unknown';
+            $remote = $this->upgrader ? $this->upgrader->getRemoteVersion() : 'unknown';
+
             $io->newLine();
             $io->writeln('<yellow>The following packages need updating before Grav upgrade:</yellow>');
             foreach ($pending as $slug => $info) {
@@ -381,10 +450,30 @@ class SelfupgradeCommand extends GpmCommand
                 $io->writeln(sprintf('  - %s (%s) %s → %s', $slug, $type, $current, $available));
             }
 
-            $io->writeln('    › Please run `bin/gpm update` to bring these packages current before upgrading Grav.');
-            $io->writeln('Aborting self-upgrade. Run `bin/gpm update` first.');
+            if ($isMajorMinorUpgrade) {
+                // For major/minor upgrades, this is EXPECTED behavior - updating plugins first is REQUIRED
+                $io->writeln('    › For major version upgrades (v' . $local . ' → v' . $remote . '), plugins must be updated to their latest');
+                $io->writeln('      compatible versions BEFORE upgrading Grav core to ensure compatibility.');
+                $io->writeln('      Please run `bin/gpm update` to update these packages, then retry self-upgrade.');
+            } else {
+                // For patch upgrades, this shouldn't normally happen but plugins still need updating
+                $io->writeln('    › Please run `bin/gpm update` to bring these packages current before upgrading Grav.');
+            }
 
-            return false;
+            $proceed = false;
+            if (!$this->all_yes) {
+                $question = new ConfirmationQuestion('Proceed anyway? [y|N] ', false);
+                $proceed = $io->askQuestion($question);
+            }
+
+            if (!$proceed) {
+                $io->writeln('Aborting self-upgrade. Run `bin/gpm update` first.');
+
+                return false;
+            }
+
+            Install::allowPendingPackageOverride(true);
+            $io->writeln('    › Proceeding despite pending plugin/theme updates.');
         }
 
         $handled = $this->handleConflicts(
@@ -575,6 +664,14 @@ class SelfupgradeCommand extends GpmCommand
                     $install->setProgressCallback(function (string $stage, string $message, ?int $percent = null, array $extra = []) {
                         $this->handleServiceProgress($stage, $message, $percent);
                     });
+                }
+                if (is_object($install) && method_exists($install, 'generatePreflightReport')) {
+                    $report = $install->generatePreflightReport();
+                    if (!$this->handlePreflightReport($report)) {
+                        Installer::setError('Upgrade aborted due to preflight requirements.');
+
+                        return;
+                    }
                 }
                 $install($zip);
             } else {

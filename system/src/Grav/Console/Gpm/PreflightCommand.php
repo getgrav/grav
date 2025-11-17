@@ -2,10 +2,10 @@
 
 namespace Grav\Console\Gpm;
 
+use Grav\Common\Grav;
 use Grav\Common\Upgrade\SafeUpgradeService;
 use Grav\Console\GpmCommand;
 use Symfony\Component\Console\Input\InputOption;
-use function count;
 use function json_encode;
 use const JSON_PRETTY_PRINT;
 
@@ -87,6 +87,15 @@ class PreflightCommand extends GpmCommand
      */
     protected function createSafeUpgradeService(): SafeUpgradeService
     {
-        return new SafeUpgradeService();
+        $config = null;
+        try {
+            $config = Grav::instance()['config'] ?? null;
+        } catch (\Throwable $e) {
+            $config = null;
+        }
+
+        return new SafeUpgradeService([
+            'config' => $config,
+        ]);
     }
 }

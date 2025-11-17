@@ -143,7 +143,31 @@ class Plugins extends Iterator
                 $instance->setConfig($config);
                 // Register autoloader.
                 if (method_exists($instance, 'autoload')) {
-                    $instance->setAutoloader($instance->autoload());
+                    try {
+                        $instance->setAutoloader($instance->autoload());
+                    } catch (\Throwable $e) {
+                        // Log the autoload failure and disable the plugin
+                        $grav['log']->error(
+                            sprintf("Plugin '%s' autoload failed: %s", $instance->name, $e->getMessage())
+                        );
+
+                        // Disable the plugin to prevent further errors
+                        $config["plugins.{$instance->name}.enabled"] = false;
+
+                        // If we're in an upgrade window, quarantine the plugin
+                        if (isset($grav['recovery']) && method_exists($grav['recovery'], 'isUpgradeWindowActive')) {
+                            $recovery = $grav['recovery'];
+                            if ($recovery->isUpgradeWindowActive()) {
+                                $recovery->disablePlugin($instance->name, [
+                                    'message' => 'Autoloader failed: ' . $e->getMessage(),
+                                    'file' => $e->getFile(),
+                                    'line' => $e->getLine(),
+                                ]);
+                            }
+                        }
+
+                        continue;
+                    }
                 }
                 // Register event listeners.
                 $events->addSubscriber($instance);
