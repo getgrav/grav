@@ -66,7 +66,7 @@ class SafeUpgradeService
      *
      * @var string
      */
-    public const IMPLEMENTATION_VERSION = '20251109'; // 2025-11-09 - Simplified to match traditional upgrade
+    public const IMPLEMENTATION_VERSION = '20251118'; // 2025-11-18 - Fixed snapshot creation (copy vs move) and implemented pruning
 
     /** @var string */
     private $rootPath;
@@ -259,11 +259,11 @@ class SafeUpgradeService
         $this->reportProgress('installing', 'Copying update files...', null);
 
         try {
-            $this->copyEntries($packageEntries, $packagePath, $this->rootPath, 'installing', 'Deploying');
+            $this->copyEntries($packageEntries, $packagePath, $this->rootPath, 'installing', 'Deploying', true);
         } catch (Throwable $e) {
             // Rollback: restore from snapshot
             $this->reportProgress('rollback', 'Upgrade failed, restoring from snapshot...', null);
-            $this->copyEntries($packageEntries, $backupPath, $this->rootPath, 'rollback', 'Restoring');
+            $this->copyEntries($packageEntries, $backupPath, $this->rootPath, 'rollback', 'Restoring', false);
             throw new RuntimeException('Failed to promote staged Grav release.', 0, $e);
         }
 
@@ -416,7 +416,7 @@ class SafeUpgradeService
 
         Folder::create($packagePath);
         $entries = $this->collectPackageEntries($sourcePath);
-        $this->copyEntries($entries, $sourcePath, $packagePath, 'installing', 'Staging');
+        $this->copyEntries($entries, $sourcePath, $packagePath, 'installing', 'Staging', true);
         Folder::delete($sourcePath);
 
         return 'copy';
@@ -425,10 +425,10 @@ class SafeUpgradeService
     private function createBackupSnapshot(array $entries, string $backupPath): void
     {
         Folder::create($backupPath);
-        $this->copyEntries($entries, $this->rootPath, $backupPath, 'snapshot', 'Snapshotting');
+        $this->copyEntries($entries, $this->rootPath, $backupPath, 'snapshot', 'Snapshotting', false);
     }
 
-    private function copyEntries(array $entries, string $sourceBase, string $targetBase, ?string $progressStage = null, ?string $progressPrefix = null): void
+    private function copyEntries(array $entries, string $sourceBase, string $targetBase, ?string $progressStage = null, ?string $progressPrefix = null, bool $useMove = false): void
     {
         $total = count($entries);
         foreach ($entries as $index => $entry) {
@@ -475,9 +475,13 @@ class SafeUpgradeService
                 }
             } elseif (is_dir($source)) {
                 Folder::create(dirname($destination));
-                // Use move() like traditional upgrade - faster than copy
-                // Snapshot is already taken before this, so we don't need to preserve source
-                Folder::move($source, $destination);
+                
+                if ($useMove) {
+                    // Use move() like traditional upgrade - faster than copy
+                    Folder::move($source, $destination);
+                } else {
+                    Folder::rcopy($source, $destination, true);
+                }
 
                 // Set bin/ permissions like traditional upgrade does
                 if ($entry === 'bin') {
@@ -488,8 +492,17 @@ class SafeUpgradeService
                 }
             } else {
                 Folder::create(dirname($destination));
-                if (!@copy($source, $destination)) {
-                    throw new RuntimeException(sprintf('Failed to copy file "%s" to "%s".', $source, $destination));
+                if ($useMove) {
+                    if (!@rename($source, $destination)) {
+                        if (!@copy($source, $destination)) {
+                            throw new RuntimeException(sprintf('Failed to move file "%s" to "%s".', $source, $destination));
+                        }
+                        @unlink($source);
+                    }
+                } else {
+                    if (!@copy($source, $destination)) {
+                        throw new RuntimeException(sprintf('Failed to copy file "%s" to "%s".', $source, $destination));
+                    }
                 }
             }
         }
@@ -545,7 +558,7 @@ class SafeUpgradeService
         }
 
         $this->reportProgress('rollback', 'Restoring snapshot...', null);
-        $this->copyEntries($entries, $backupPath, $this->rootPath, 'rollback', 'Restoring');
+        $this->copyEntries($entries, $backupPath, $this->rootPath, 'rollback', 'Restoring', false);
         $this->markRollback($manifest['id']);
         $this->lastManifest = $manifest;
 
@@ -1119,14 +1132,70 @@ class SafeUpgradeService
     }
 
     /**
-     * Keep only the three newest snapshots.
+     * Keep only the newest snapshots based on configuration.
      *
      * @return void
      */
     private function pruneOldSnapshots(): void
     {
-        // Retain all snapshots; administrators can prune manually if desired.
-        // Legacy behaviour removed to ensure full history remains available.
-        return;
+        $limit = 5;
+
+        if ($this->config) {
+            $limit = (int)$this->config->get('system.updates.safe_upgrade_snapshot_limit', 5);
+        } else {
+            try {
+                $grav = Grav::instance();
+                if (isset($grav['config'])) {
+                    $limit = (int)$grav['config']->get('system.updates.safe_upgrade_snapshot_limit', 5);
+                }
+            } catch (Throwable $e) {
+                // Fallback to default
+            }
+        }
+
+        if ($limit <= 0) {
+            return;
+        }
+
+        $files = glob($this->manifestStore . DIRECTORY_SEPARATOR . '*.json') ?: [];
+        if (count($files) <= $limit) {
+            return;
+        }
+
+        $manifests = [];
+        foreach ($files as $file) {
+            $content = file_get_contents($file);
+            if ($content === false) {
+                continue;
+            }
+            $data = json_decode($content, true);
+            if (is_array($data) && isset($data['created_at'])) {
+                $manifests[] = [
+                    'path' => $file,
+                    'created_at' => $data['created_at'],
+                    'backup_path' => $data['backup_path'] ?? null
+                ];
+            }
+        }
+
+        // Sort by created_at descending
+        usort($manifests, static function ($a, $b) {
+            return $b['created_at'] <=> $a['created_at'];
+        });
+
+        $toDelete = array_slice($manifests, $limit);
+
+        foreach ($toDelete as $item) {
+            // Delete manifest
+            @unlink($item['path']);
+
+            // Delete backup directory if it exists
+            if ($item['backup_path'] && is_dir($item['backup_path'])) {
+                // Ensure we are deleting a directory inside staging root to be safe
+                if (strpos($item['backup_path'], $this->stagingRoot) === 0) {
+                    Folder::delete($item['backup_path']);
+                }
+            }
+        }
     }
 }
