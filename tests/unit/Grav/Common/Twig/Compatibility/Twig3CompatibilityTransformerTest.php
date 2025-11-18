@@ -31,6 +31,11 @@ class Twig3CompatibilityTransformerTest extends \PHPUnit\Framework\TestCase
         );
 
         $this->assertSame(
+            '{% if foo is not same as bar %}',
+            $this->transformer->transform('{% if foo is not sameas bar %}')
+        );
+
+        $this->assertSame(
             "'foo is sameas(bar)'",
             $this->transformer->transform("'foo is sameas(bar)'")
         );
@@ -100,6 +105,50 @@ class Twig3CompatibilityTransformerTest extends \PHPUnit\Framework\TestCase
         $this->assertSame(
             '{{ "hello world"|replace({"hello": "goodbye"}) }}',
             $this->transformer->transform('{{ "hello world"|replace("hello", "goodbye") }}')
+        );
+    }
+
+    public function testRewriteRawBlocks(): void
+    {
+        $this->assertSame(
+            '{% verbatim %}foo{% endverbatim %}',
+            $this->transformer->transform('{% raw %}foo{% endraw %}')
+        );
+
+        $this->assertSame(
+            '{%- verbatim -%}foo{%- endverbatim -%}',
+            $this->transformer->transform('{%- raw -%}foo{%- endraw -%}')
+        );
+    }
+
+    public function testRewriteDivisibleBy(): void
+    {
+        $this->assertSame(
+            '{% if loop.index is divisible by(3) %}',
+            $this->transformer->transform('{% if loop.index is divisibleby(3) %}')
+        );
+
+        $this->assertSame(
+            '{% if loop.index is divisible by (3) %}',
+            $this->transformer->transform('{% if loop.index is divisibleby (3) %}')
+        );
+
+        $this->assertSame(
+            '{% if loop.index is not divisible by(3) %}',
+            $this->transformer->transform('{% if loop.index is not divisibleby(3) %}')
+        );
+    }
+
+    public function testRewriteNoneTest(): void
+    {
+        $this->assertSame(
+            '{% if var is null %}',
+            $this->transformer->transform('{% if var is none %}')
+        );
+
+        $this->assertSame(
+            '{% if var is not null %}',
+            $this->transformer->transform('{% if var is not none %}')
         );
     }
 }

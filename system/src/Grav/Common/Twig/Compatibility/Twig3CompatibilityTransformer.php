@@ -18,7 +18,10 @@ class Twig3CompatibilityTransformer
         $code = $this->rewriteSpacelessBlocks($code);
         $code = $this->rewriteFilterBlocks($code);
         $code = $this->rewriteSameAsTests($code);
+        $code = $this->rewriteDivisibleByTests($code);
+        $code = $this->rewriteNoneTests($code);
         $code = $this->rewriteReplaceFilterSignatures($code);
+        $code = $this->rewriteRawBlocks($code);
 
         return $code;
     }
@@ -135,12 +138,12 @@ class Twig3CompatibilityTransformer
 
     private function rewriteSameAsTests(string $code): string
     {
-        $pattern = '/([\'"])(?:\\\\.|(?!\\1).)*\\1|\\bis\\s+sameas\\b/is';
+        $pattern = '/([\'"])(?:\\\\.|(?!\\1).)*\\1|\\bis\\s+(?:not\\s+)?sameas\\b/is';
 
         return (string) preg_replace_callback($pattern, static function ($matches) {
             // If group 1 is not set, it means 'is sameas' was matched.
             if (!isset($matches[1])) {
-                return str_ireplace('is sameas', 'is same as', $matches[0]);
+                return str_ireplace('sameas', 'same as', $matches[0]);
             }
 
             // Otherwise, it's a quoted string, so return it as is.
@@ -161,6 +164,56 @@ class Twig3CompatibilityTransformer
         }, $code);
 
         return $code;
+    }
+
+    private function rewriteRawBlocks(string $code): string
+    {
+        $openPattern = '/\{%(\-?)\s*raw\s*(\-?)%\}/i';
+        $code = (string) preg_replace_callback($openPattern, static function (array $matches): string {
+            $leading = $matches[1] === '-' ? '-' : '';
+            $trailing = $matches[2] === '-' ? '-' : '';
+
+            return '{%' . $leading . ' verbatim ' . $trailing . '%}';
+        }, $code);
+
+        $closePattern = '/\{%(\-?)\s*endraw\s*(\-?)%\}/i';
+
+        return (string) preg_replace_callback($closePattern, static function (array $matches): string {
+            $leading = $matches[1] === '-' ? '-' : '';
+            $trailing = $matches[2] === '-' ? '-' : '';
+
+            return '{%' . $leading . ' endverbatim ' . $trailing . '%}';
+        }, $code);
+    }
+
+    private function rewriteDivisibleByTests(string $code): string
+    {
+        $pattern = '/([\'"])(?:\\\\.|(?!\\1).)*\\1|\\bis\\s+(?:not\\s+)?divisibleby\\b/is';
+
+        return (string) preg_replace_callback($pattern, static function ($matches) {
+            // If group 1 is not set, it means 'is divisibleby' was matched.
+            if (!isset($matches[1])) {
+                return str_ireplace('divisibleby', 'divisible by', $matches[0]);
+            }
+
+            // Otherwise, it's a quoted string, so return it as is.
+            return $matches[0];
+        }, $code);
+    }
+
+    private function rewriteNoneTests(string $code): string
+    {
+        $pattern = '/([\'"])(?:\\\\.|(?!\\1).)*\\1|\\bis\\s+(?:not\\s+)?none\\b/is';
+
+        return (string) preg_replace_callback($pattern, static function ($matches) {
+            // If group 1 is not set, it means 'is none' was matched.
+            if (!isset($matches[1])) {
+                return str_ireplace('none', 'null', $matches[0]);
+            }
+
+            // Otherwise, it's a quoted string, so return it as is.
+            return $matches[0];
+        }, $code);
     }
 
     private function ensureWrapped(string $expression): string
