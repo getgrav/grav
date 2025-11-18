@@ -98,6 +98,8 @@ class Pages
     protected $initialized = false;
     /** @var string */
     protected $active_lang;
+    /** @var string|null */
+    protected $page_extension_regex;
     /** @var bool */
     protected $fire_events = false;
     /** @var Types|null */
@@ -1848,11 +1850,15 @@ class Pages
             throw new RuntimeException('Fatal error when creating page instances.');
         }
 
-        $page_extensions = $language->getFallbackPageExtensions();
-        $regex = '/^[^\.]*(' . implode('|', array_map(
-            static fn($str) => preg_quote((string) $str, '/'),
-            $page_extensions
-        )) . ')$/';
+        if (null === $this->page_extension_regex) {
+            $page_extensions = $language->getFallbackPageExtensions();
+            $this->page_extension_regex = '/^[^\.]*(' . implode('|', array_map(
+                static fn($str) => preg_quote((string) $str, '/'),
+                $page_extensions
+            )) . ')$/';
+        }
+
+        $regex = $this->page_extension_regex;
 
         $folders = [];
         $page_found = null;
