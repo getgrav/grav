@@ -408,7 +408,6 @@ class Page implements PageInterface
             $file = $this->file();
             if ($file) {
                 try {
-                    $this->raw_content = $file->markdown();
                     $this->frontmatter = $file->frontmatter();
                     $this->header = (object)$file->header();
 
@@ -443,6 +442,7 @@ class Page implements PageInterface
                     $this->frontmatter = $file->frontmatter();
                     $this->header = (object)$file->header();
                 }
+                $file->free();
                 $var = true;
             }
         }
@@ -788,7 +788,7 @@ class Page implements PageInterface
             // if no cached-content run everything
             if ($never_cache_twig) {
                 if ($this->content === false || $cache_enable === false) {
-                    $this->content = $this->raw_content;
+                    $this->content = $this->rawMarkdown();
                     Grav::instance()->fireEvent('onPageContentRaw', new Event(['page' => $this]));
 
                     if ($process_markdown) {
@@ -808,7 +808,7 @@ class Page implements PageInterface
                 }
             } else {
                 if ($this->content === false || $cache_enable === false) {
-                    $this->content = $this->raw_content;
+                    $this->content = $this->rawMarkdown();
                     Grav::instance()->fireEvent('onPageContentRaw', new Event(['page' => $this]));
 
                     if ($twig_first) {
@@ -1031,7 +1031,7 @@ class Page implements PageInterface
     public function value($name, $default = null)
     {
         if ($name === 'content') {
-            return $this->raw_content;
+            return $this->rawMarkdown();
         }
         if ($name === 'route') {
             $parent = $this->parent();
@@ -1117,6 +1117,14 @@ class Page implements PageInterface
             $this->raw_content = $var;
         }
 
+        if ($this->raw_content === null) {
+            $file = $this->file();
+            if ($file) {
+                $this->raw_content = $file->markdown();
+                $file->free();
+            }
+        }
+
         return $this->raw_content;
     }
 
@@ -1157,7 +1165,7 @@ class Page implements PageInterface
         if ($file) {
             $file->filename($this->filePath());
             $file->header((array)$this->header());
-            $file->markdown($this->raw_content);
+            $file->markdown($this->rawMarkdown());
             $file->save();
         }
 
