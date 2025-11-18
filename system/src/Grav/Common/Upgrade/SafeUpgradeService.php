@@ -503,6 +503,10 @@ class SafeUpgradeService
                     if (!@copy($source, $destination)) {
                         throw new RuntimeException(sprintf('Failed to copy file "%s" to "%s".', $source, $destination));
                     }
+                    $perms = @fileperms($source);
+                    if ($perms !== false) {
+                        @chmod($destination, $perms & 0777);
+                    }
                 }
             }
         }
