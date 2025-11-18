@@ -135,14 +135,22 @@ class Twig3CompatibilityTransformer
 
     private function rewriteSameAsTests(string $code): string
     {
-        $pattern = '/\bis\s+sameas(\s*\()/i';
+        $pattern = '/([\'"])(?:\\\\.|(?!\\1).)*\\1|\\bis\\s+sameas\\b/is';
 
-        return (string) preg_replace($pattern, 'is same as$1', $code);
+        return (string) preg_replace_callback($pattern, static function ($matches) {
+            // If group 1 is not set, it means 'is sameas' was matched.
+            if (!isset($matches[1])) {
+                return str_ireplace('is sameas', 'is same as', $matches[0]);
+            }
+
+            // Otherwise, it's a quoted string, so return it as is.
+            return $matches[0];
+        }, $code);
     }
 
     private function rewriteReplaceFilterSignatures(string $code): string
     {
-        $pattern = '/\|replace\(\s*(["\])(.*?)\1\s*,\s*(["\])(.*?)\3\s*\)/';
+        $pattern = '/\|replace\(\s*(["\'])(.*?)\1\s*,\s*(["\'])(.*?)\3\s*\)/';
         $code = (string) preg_replace_callback($pattern, static function (array $matches): string {
             $keyQuote = $matches[1];
             $key = $matches[2];
