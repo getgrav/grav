@@ -118,7 +118,7 @@ class SafeUpgradeServiceTest extends \PHPUnit\Framework\TestCase
         self::assertDirectoryExists($manifest['backup_path']);
     }
 
-    public function testKeepsAllSnapshots(): void
+    public function testPrunesOldSnapshots(): void
     {
         [$root, $manifestStore] = $this->prepareLiveEnvironment();
         $service = new SafeUpgradeService([
@@ -127,16 +127,28 @@ class SafeUpgradeServiceTest extends \PHPUnit\Framework\TestCase
         ]);
 
         $manifests = [];
-        for ($i = 0; $i < 4; $i++) {
+        for ($i = 0; $i < 6; $i++) {
             $package = $this->preparePackage((string)$i);
             $manifests[] = $service->promote($package, '1.8.' . $i, ['backup', 'cache', 'images', 'logs', 'tmp', 'user']);
             // Ensure subsequent promotions have a marker to restore.
             file_put_contents($root . '/ORIGINAL', 'state-' . $i);
+            // Sleep to ensure different timestamps for sorting (time() has 1s resolution)
+            sleep(1);
+            usleep(100000); // +100ms to be sure
         }
 
         $files = glob($manifestStore . '/*.json');
-        self::assertCount(4, $files);
-        self::assertTrue(is_dir($manifests[0]['backup_path']));
+        self::assertCount(5, $files);
+        
+        // Verify the oldest one (index 0) is gone
+        $oldestManifestId = $manifests[0]['id'];
+        self::assertFileDoesNotExist($manifestStore . '/' . $oldestManifestId . '.json');
+        self::assertDirectoryDoesNotExist($manifests[0]['backup_path']);
+        
+        // Verify the newest one (index 5) exists
+        $newestManifestId = $manifests[5]['id'];
+        self::assertFileExists($manifestStore . '/' . $newestManifestId . '.json');
+        self::assertDirectoryExists($manifests[5]['backup_path']);
     }
 
     public function testDetectsPsrLogConflictsFromFilesystem(): void
