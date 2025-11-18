@@ -572,7 +572,9 @@ class Grav extends Container
 
         /** @var Debugger $debugger */
         $debugger = $this['debugger'];
-        $debugger->addEvent($eventName, $event, $events, $timestamp);
+        if ($debugger->enabled()) {
+            $debugger->addEvent($eventName, $event, $events, $timestamp);
+        }
 
         return $event;
     }
