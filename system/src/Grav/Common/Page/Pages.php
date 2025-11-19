@@ -1850,8 +1850,8 @@ class Pages
             throw new RuntimeException('Fatal error when creating page instances.');
         }
 
+        $page_extensions = $language->getFallbackPageExtensions();
         if (null === $this->page_extension_regex) {
-            $page_extensions = $language->getFallbackPageExtensions();
             $this->page_extension_regex = '/^[^\.]*(' . implode('|', array_map(
                 static fn($str) => preg_quote((string) $str, '/'),
                 $page_extensions
