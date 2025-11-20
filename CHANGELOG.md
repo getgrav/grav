@@ -1,3 +1,16 @@
+# v1.8.0-beta.24
+## 11/20/2025
+
+1. [](#improved)
+    * More Twig3 compatibility fixes and tests
+    * Changed snapshot creationg to use copy instead of move for improved reliability
+    * Lazy load page optimization
+    * Regex caching optimization
+    * Gated Debugger `addEvent()` optimization
+    * Various SafeUpgrade performance optimizations
+1. [](#bugfix)
+    * Fixed slow purge snapshot functionality and test
+
 # v1.8.0-beta.23
 ## 11/14/2025
 
