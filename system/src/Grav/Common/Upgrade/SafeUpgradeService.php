@@ -1184,7 +1184,12 @@ class SafeUpgradeService
 
         // Sort by created_at descending
         usort($manifests, static function ($a, $b) {
-            return $b['created_at'] <=> $a['created_at'];
+            $result = $b['created_at'] <=> $a['created_at'];
+            if ($result === 0) {
+                return strcmp($b['path'], $a['path']);
+            }
+
+            return $result;
         });
 
         $toDelete = array_slice($manifests, $limit);
