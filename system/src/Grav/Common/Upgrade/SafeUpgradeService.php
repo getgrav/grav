@@ -18,6 +18,7 @@ use Grav\Common\Yaml;
 use InvalidArgumentException;
 use RuntimeException;
 use Throwable;
+use RecursiveCallbackFilterIterator;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use FilesystemIterator;
@@ -787,16 +788,24 @@ class SafeUpgradeService
                 continue;
             }
 
-            $iterator = new RecursiveIteratorIterator(
-                new RecursiveDirectoryIterator($path, FilesystemIterator::SKIP_DOTS)
-            );
+            $directory = new RecursiveDirectoryIterator($path, FilesystemIterator::SKIP_DOTS);
+            $filter = new RecursiveCallbackFilterIterator($directory, static function ($current, $key, $iterator) {
+                // Skip hidden files/dirs (starting with .)
+                if ($current->getFilename()[0] === '.') {
+                    return false;
+                }
+                if ($iterator->hasChildren()) {
+                    // Exclude vendor and node_modules directories
+                    return !in_array($current->getFilename(), ['vendor', 'node_modules'], true);
+                }
+                // Only include PHP files
+                return $current->getExtension() === 'php';
+            });
+
+            $iterator = new RecursiveIteratorIterator($filter);
 
             foreach ($iterator as $file) {
                 /** @var \SplFileInfo $file */
-                if (!$file->isFile() || strtolower($file->getExtension()) !== 'php') {
-                    continue;
-                }
-
                 $contents = @file_get_contents($file->getPathname());
                 if ($contents === false) {
                     continue;
