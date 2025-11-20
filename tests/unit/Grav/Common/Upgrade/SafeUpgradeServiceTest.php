@@ -128,9 +128,6 @@ class SafeUpgradeServiceTest extends \Codeception\TestCase\Test
             $manifests[] = $service->promote($package, '1.8.' . $i, ['backup', 'cache', 'images', 'logs', 'tmp', 'user']);
             // Ensure subsequent promotions have a marker to restore.
             file_put_contents($root . '/ORIGINAL', 'state-' . $i);
-            // Sleep to ensure different timestamps for sorting (time() has 1s resolution)
-            sleep(1);
-            usleep(100000); // +100ms to be sure
         }
 
         $files = glob($manifestStore . '/*.json');
