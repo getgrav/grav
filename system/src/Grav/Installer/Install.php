@@ -237,7 +237,6 @@ final class Install
     public function __invoke(?string $zip)
     {
         $this->zip = $zip;
-        $this->pendingPreflight = null;
 
         $failedRequirements = $this->checkRequirements();
         if ($failedRequirements) {
