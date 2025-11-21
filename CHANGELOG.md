@@ -8,7 +8,9 @@
     * Regex caching optimization
     * Gated Debugger `addEvent()` optimization
     * Various SafeUpgrade performance optimizations
+    * Improved Twig Deferred block implementation
 1. [](#bugfix)
+    * Fix various Twig3 deprecated notices
     * Fixed slow purge snapshot functionality and test
 
 # v1.8.0-beta.23
