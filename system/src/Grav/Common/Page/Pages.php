@@ -904,7 +904,6 @@ class Pages
     public function children($path)
     {
         $children = $this->children[(string)$path] ?? [];
-
         return new Collection($children, [], $this);
     }
 
@@ -1850,15 +1849,9 @@ class Pages
             throw new RuntimeException('Fatal error when creating page instances.');
         }
 
-        $page_extensions = $language->getFallbackPageExtensions();
-        if (null === $this->page_extension_regex) {
-            $this->page_extension_regex = '/^[^\.]*(' . implode('|', array_map(
-                static fn($str) => preg_quote((string) $str, '/'),
-                $page_extensions
-            )) . ')$/';
-        }
-
-        $regex = $this->page_extension_regex;
+        $page_extensions = array_flip($language->getFallbackPageExtensions());
+        
+        // $regex = $this->page_extension_regex;
 
         $folders = [];
         $page_found = null;
@@ -1898,12 +1891,15 @@ class Pages
             }
 
             // Page is the one that matches to $page_extensions list with the lowest index number.
-            if (preg_match($regex, $filename, $matches, PREG_OFFSET_CAPTURE)) {
-                $ext = $matches[1][0];
-
-                if ($page_found === null || array_search($ext, $page_extensions, true) < array_search($page_extension, $page_extensions, true)) {
-                    $page_found = $file;
-                    $page_extension = $ext;
+            // Optimized version avoiding preg_match
+            $pos = strpos($filename, '.');
+            if ($pos !== false && $pos > 0) {
+                $ext = substr($filename, $pos);
+                if (isset($page_extensions[$ext])) {
+                    if ($page_found === null || $page_extensions[$ext] < $page_extensions[$page_extension]) {
+                        $page_found = $file;
+                        $page_extension = $ext;
+                    }
                 }
             }
         }
