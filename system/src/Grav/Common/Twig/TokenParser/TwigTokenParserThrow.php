@@ -37,7 +37,7 @@ class TwigTokenParserThrow extends AbstractTokenParser
         $stream = $this->parser->getStream();
 
         $code = $stream->expect(Token::NUMBER_TYPE)->getValue();
-        $message = $this->parser->getExpressionParser()->parseExpression();
+        $message = $this->parser->parseExpression();
         $stream->expect(Token::BLOCK_END_TYPE);
 
         return new TwigNodeThrow((int)$code, $message, $lineno, $this->getTag());

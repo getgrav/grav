@@ -44,9 +44,9 @@ class TwigTokenParserCache extends AbstractTokenParser
         $lifetime = null;
         while (!$stream->test(Token::BLOCK_END_TYPE)) {
             if ($stream->test(Token::STRING_TYPE)) {
-                $key = $this->parser->getExpressionParser()->parseExpression();
+                $key = $this->parser->parseExpression();
             } elseif ($stream->test(Token::NUMBER_TYPE)) {
-                $lifetime = $this->parser->getExpressionParser()->parseExpression();
+                $lifetime = $this->parser->parseExpression();
             } else {
                 throw new \Twig\Error\SyntaxError("Unexpected token type in cache tag.", $token->getLine(), $stream->getSourceContext());
             }

@@ -11,8 +11,11 @@ namespace Grav\Common\Twig;
 
 use Twig\Environment;
 use Twig\Error\LoaderError;
+use Twig\Extension\EscaperExtension;
+use Twig\Extension\ExtensionInterface;
 use Twig\Loader\ExistsLoaderInterface;
 use Twig\Loader\LoaderInterface;
+use Twig\Runtime\EscaperRuntime;
 use Twig\Template;
 use Twig\TemplateWrapper;
 
@@ -22,6 +25,39 @@ use Twig\TemplateWrapper;
  */
 class TwigEnvironment extends Environment
 {
+    /**
+     * @inheritDoc
+     */
+    public function getExtension(string $name): ExtensionInterface
+    {
+        $extension = parent::getExtension($name);
+
+        if ($name === EscaperExtension::class && class_exists(EscaperRuntime::class)) {
+            return new class($extension, $this) extends EscaperExtension {
+                private $original;
+                private $env;
+
+                public function __construct($original, $env)
+                {
+                    $this->original = $original;
+                    $this->env = $env;
+                }
+
+                public function setEscaper($strategy, $callable)
+                {
+                    $this->env->getRuntime(EscaperRuntime::class)->setEscaper($strategy, $callable);
+                }
+
+                public function getDefaultStrategy($filename)
+                {
+                    return $this->original->getDefaultStrategy($filename);
+                }
+            };
+        }
+
+        return $extension;
+    }
+
     /**
      * @inheritDoc
      *

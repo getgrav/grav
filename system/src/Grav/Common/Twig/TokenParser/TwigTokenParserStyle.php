@@ -74,23 +74,23 @@ class TwigTokenParserStyle extends AbstractTokenParser
 
         $file = null;
         if (!$stream->test(Token::NAME_TYPE) && !$stream->test(Token::OPERATOR_TYPE, 'in') && !$stream->test(Token::BLOCK_END_TYPE)) {
-            $file = $this->parser->getExpressionParser()->parseExpression();
+            $file = $this->parser->parseExpression();
         }
 
         $group = null;
         if ($stream->nextIf(Token::NAME_TYPE, 'at') || $stream->nextIf(Token::OPERATOR_TYPE, 'in')) {
-            $group = $this->parser->getExpressionParser()->parseExpression();
+            $group = $this->parser->parseExpression();
         }
 
         $priority = null;
         if ($stream->nextIf(Token::NAME_TYPE, 'priority')) {
             $stream->expect(Token::PUNCTUATION_TYPE, ':');
-            $priority = $this->parser->getExpressionParser()->parseExpression();
+            $priority = $this->parser->parseExpression();
         }
 
         $attributes = null;
         if ($stream->nextIf(Token::NAME_TYPE, 'with')) {
-            $attributes = $this->parser->getExpressionParser()->parseExpression();
+            $attributes = $this->parser->parseExpression();
         }
 
         $stream->expect(Token::BLOCK_END_TYPE);
