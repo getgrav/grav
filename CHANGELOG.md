@@ -1,3 +1,9 @@
+# v1.8.0-beta.25
+## 11/22/2025
+
+1. [](#bugfix)
+   * Fixed Twig version
+
 # v1.8.0-beta.24
 ## 11/20/2025
 
