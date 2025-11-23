@@ -691,6 +691,17 @@ abstract class Utils
                 header('Content-Disposition: attachment; filename="' . ($options['download_name'] ?? $file_parts['basename']) . '"');
             }
 
+            if ($grav['config']->get('system.cache.enabled')) {
+                $expires = $options['expires'] ?? $grav['config']->get('system.pages.expires');
+                if ($expires > 0) {
+                    $expires_date = gmdate('D, d M Y H:i:s T', time() + $expires);
+                    header('Cache-Control: max-age=' . $expires);
+                    header('Expires: ' . $expires_date);
+                    header('Pragma: cache');
+                }
+                header('Last-Modified: ' . gmdate('D, d M Y H:i:s T', filemtime($file)));
+            }
+
             // multipart-download and download resuming support
             if (isset($_SERVER['HTTP_RANGE'])) {
                 [$a, $range] = explode('=', (string) $_SERVER['HTTP_RANGE'], 2);
@@ -703,7 +714,7 @@ abstract class Utils
                     $range_end = (int)$range_end;
                 }
                 $new_length = $range_end - $range + 1;
-                header('HTTP/1.1 206 Partial Content');
+                http_response_code(206);
                 header("Content-Length: {$new_length}");
                 header("Content-Range: bytes {$range}-{$range_end}/{$size}");
             } else {
@@ -712,19 +723,10 @@ abstract class Utils
                 header('Content-Length: ' . $size);
 
                 if ($grav['config']->get('system.cache.enabled')) {
-                    $expires = $options['expires'] ?? $grav['config']->get('system.pages.expires');
-                    if ($expires > 0) {
-                        $expires_date = gmdate('D, d M Y H:i:s T', time() + $expires);
-                        header('Cache-Control: max-age=' . $expires);
-                        header('Expires: ' . $expires_date);
-                        header('Pragma: cache');
-                    }
-                    header('Last-Modified: ' . gmdate('D, d M Y H:i:s T', filemtime($file)));
-
                     // Return 304 Not Modified if the file is already cached in the browser
                     if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) &&
                         strtotime((string) $_SERVER['HTTP_IF_MODIFIED_SINCE']) >= filemtime($file)) {
-                        header('HTTP/1.1 304 Not Modified');
+                        http_response_code(304);
                         exit();
                     }
                 }
