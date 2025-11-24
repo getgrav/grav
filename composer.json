@@ -56,7 +56,8 @@
         "league/climate": "^3.6",
         "miljar/php-exif": "^0.6",
         "composer/ca-bundle": "^1.2",
-        "dragonmantank/cron-expression": "^3.3",
+        "dragonmantank/cron-expression": "~3.3.0",
+        "symfony/deprecation-contracts": "^2.2",
         "willdurand/negotiation": "^3.0",
         "itsgoingd/clockwork": "^5.0",
         "symfony/http-client": "^4.4",
@@ -72,7 +73,8 @@
         "phpunit/php-code-coverage": "~9.2",
         "getgrav/markdowndocs": "^2.0",
         "codeception/module-asserts": "^1.3",
-        "codeception/module-phpbrowser": "^1.0"
+        "codeception/module-phpbrowser": "^1.0",
+        "doctrine/instantiator": "^1.4"
     },
     "replace": {
         "symfony/polyfill-php72": "*",
