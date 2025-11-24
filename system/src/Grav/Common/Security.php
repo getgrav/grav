@@ -51,6 +51,7 @@ class Security
     {
         if (Grav::instance()['config']->get('security.sanitize_svg')) {
             $sanitizer = new DOMSanitizer(DOMSanitizer::SVG);
+            $sanitizer->addDisallowedAttributes(['href', 'xlink:href']);
             $sanitized = $sanitizer->sanitize($svg);
             if (is_string($sanitized)) {
                 $svg = $sanitized;
@@ -70,6 +71,7 @@ class Security
     {
         if (file_exists($file) && Grav::instance()['config']->get('security.sanitize_svg')) {
             $sanitizer = new DOMSanitizer(DOMSanitizer::SVG);
+            $sanitizer->addDisallowedAttributes(['href', 'xlink:href']);
             $original_svg = file_get_contents($file);
             $clean_svg = $sanitizer->sanitize($original_svg);
 
