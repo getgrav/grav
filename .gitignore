@@ -52,3 +52,4 @@ system/templates/testing/*
 tmp/*
 #needs_fixing.txt
 /AGENTS.md
+/.claude
