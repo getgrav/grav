@@ -20,7 +20,6 @@ use Grav\Framework\Object\PropertyObject;
 use tubalmartin\CssMin\Minifier as CSSMinifier;
 use JShrink\Minifier as JSMinifier;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
-use RuntimeException;
 use function array_key_exists;
 
 /**
@@ -172,7 +171,9 @@ class Pipeline extends PropertyObject
      * @param array $assets
      * @param string $group
      * @param array $attributes
-     * @return bool|string     URL or generated content if available, else false
+     * @param int $type
+     * @return array{output: string, failed: array}|string|false  Returns array with output and failed assets when minifying,
+     *                                                             string when not minifying, or false if no assets
      */
     public function renderJs($assets, $group, $attributes = [], $type = self::JS_ASSET)
     {
@@ -187,40 +188,53 @@ class Pipeline extends PropertyObject
         // Store Attributes
         $this->attributes = $attributes;
 
-        // Compute uid based on assets and timestamp
-        $json_assets = json_encode($assets);
-        $uid = md5($json_assets . $this->js_minify . $group);
-        $file = $uid . '.js';
-        $relative_path = "{$this->base_url}{$this->assets_url}/{$file}";
-
-        $filepath = "{$this->assets_dir}/{$file}";
-        if (file_exists($filepath)) {
-            $buffer = file_get_contents($filepath) . "\n";
-        } else {
-            //if nothing found get out of here!
-            if (empty($assets)) {
-                return false;
-            }
-
-            // Concatenate files
-            $buffer = $this->gatherLinks($assets, $type);
-
-            // Minify if required
-            if ($this->shouldMinify('js')) {
-                $buffer = $this->minifyJs($buffer, $assets);
-            }
-
-            // Write file
-            if (trim($buffer) !== '') {
-                file_put_contents($filepath, $buffer);
-            }
+        //if nothing found get out of here!
+        if (empty($assets)) {
+            return false;
         }
 
-        if ($inline_group) {
+        $shouldMinify = $this->shouldMinify('js');
+        $failedAssets = [];
+
+        // When minifying, process each file individually to isolate failures
+        if ($shouldMinify) {
+            $result = $this->gatherAndMinifyJs($assets, $type);
+            $buffer = $result['buffer'];
+            $failedAssets = $result['failed'];
+
+            // Compute uid based on successful assets only
+            $successfulAssets = array_diff_key($assets, array_flip(array_keys($failedAssets)));
+            $json_assets = json_encode($successfulAssets);
+        } else {
+            $buffer = $this->gatherLinks($assets, $type);
+            $json_assets = json_encode($assets);
+        }
+
+        $uid = md5($json_assets . (int)$shouldMinify . $group);
+        $file = $uid . '.js';
+        $relative_path = "{$this->base_url}{$this->assets_url}/{$file}";
+        $filepath = "{$this->assets_dir}/{$file}";
+
+        // Check for cached version (only if no failed assets, as cache key changes)
+        if (empty($failedAssets) && file_exists($filepath)) {
+            $buffer = file_get_contents($filepath) . "\n";
+        } elseif (trim($buffer) !== '') {
+            // Write file
+            file_put_contents($filepath, $buffer);
+        }
+
+        if (trim($buffer) === '') {
+            $output = '';
+        } elseif ($inline_group) {
             $output = '<script' . $this->renderAttributes(). ">\n" . $buffer . "\n</script>\n";
         } else {
             $this->asset = $relative_path;
             $output = '<script src="' . $relative_path . $this->renderQueryString() . '"' . $this->renderAttributes() . BaseAsset::integrityHash($this->asset) . "></script>\n";
+        }
+
+        // Return array with failed assets if minifying, otherwise just the output string
+        if ($shouldMinify) {
+            return ['output' => $output, 'failed' => $failedAssets];
         }
 
         return $output;
@@ -345,82 +359,73 @@ class Pipeline extends PropertyObject
     }
 
     /**
-     * Minify JavaScript with error handling to identify problematic files
-     *
-     * @param string $buffer Combined JS content
-     * @param array $assets Array of asset objects for error reporting
-     * @return string Minified JS or original buffer on failure
-     * @throws RuntimeException When minification fails and debug mode is enabled
-     */
-    private function minifyJs(string $buffer, array $assets): string
-    {
-        try {
-            return JSMinifier::minify($buffer);
-        } catch (\Exception $e) {
-            // Try to identify the problematic file by minifying each asset individually
-            $problematicFiles = $this->findProblematicJsAssets($assets);
-            $assetList = array_map(fn($asset) => $asset->getAsset(), $assets);
-
-            /** @var Debugger $debugger */
-            $debugger = Grav::instance()['debugger'];
-
-            $message = "JS Minification failed: {$e->getMessage()}";
-            if (!empty($problematicFiles)) {
-                $message .= "\nProblematic file(s): " . implode(', ', $problematicFiles);
-            }
-            $message .= "\nAll files in pipeline: " . implode(', ', $assetList);
-
-            $debugger->addMessage($message, 'error');
-
-            // In debug mode, throw to help developers identify the issue
-            if (Grav::instance()['config']->get('system.debugger.enabled', false)) {
-                throw new RuntimeException($message, 0, $e);
-            }
-
-            // In production, return unminified buffer and log the error
-            Grav::instance()['log']->error($message);
-            return $buffer;
-        }
-    }
-
-    /**
-     * Find which JS assets fail minification by testing each one individually
+     * Gather JS files and minify each one individually.
+     * Files that fail minification are tracked and returned separately.
      *
      * @param array $assets Array of asset objects
-     * @return array List of problematic asset paths
+     * @param int $type Asset type (JS_ASSET or JS_MODULE_ASSET)
+     * @return array{buffer: string, failed: array} Combined minified content and failed assets
      */
-    private function findProblematicJsAssets(array $assets): array
+    private function gatherAndMinifyJs(array $assets, int $type): array
     {
-        $problematic = [];
+        $buffer = '';
+        $failed = [];
 
-        foreach ($assets as $asset) {
+        /** @var Debugger $debugger */
+        $debugger = Grav::instance()['debugger'];
+
+        foreach ($assets as $key => $asset) {
+            $local = true;
             $link = $asset->getAsset();
+            $relative_path = $link;
 
-            // Get the file content
             if (static::isRemoteLink($link)) {
+                $local = false;
                 if (str_starts_with((string) $link, '//')) {
                     $link = 'http:' . $link;
                 }
+                $relative_dir = dirname((string) $relative_path);
             } else {
-                if (($this->base_url !== '/') && Utils::startsWith($link, $this->base_url)) {
+                // Fix to remove relative dir if grav is in one
+                if (($this->base_url !== '/') && Utils::startsWith($relative_path, $this->base_url)) {
                     $base_url = '#' . preg_quote($this->base_url, '#') . '#';
-                    $link = ltrim((string) preg_replace($base_url, '/', $link, 1), '/');
+                    $relative_path = ltrim((string) preg_replace($base_url, '/', (string) $link, 1), '/');
                 }
-                $link = GRAV_ROOT . '/' . $link;
+
+                $relative_dir = dirname((string) $relative_path);
+                $link = GRAV_ROOT . '/' . $relative_path;
             }
 
-            $content = @file_get_contents($link);
-            if ($content === false) {
+            $file = $this->fetch_command instanceof \Closure ? @$this->fetch_command->__invoke($link) : @file_get_contents($link);
+
+            // No file found, skip it...
+            if ($file === false) {
                 continue;
             }
 
+            // Ensure proper termination
+            $file = rtrim((string) $file, ' ;') . ';';
+
+            // Rewrite imports for JS modules
+            if ($type === self::JS_MODULE_ASSET) {
+                $file = $this->jsRewrite($file, $relative_dir, $local);
+            }
+
+            // Try to minify this individual file
             try {
-                JSMinifier::minify($content);
+                $file = JSMinifier::minify($file);
+                $file = rtrim($file) . PHP_EOL;
+                $buffer .= $file;
             } catch (\Exception $e) {
-                $problematic[] = $asset->getAsset() . ' (' . $e->getMessage() . ')';
+                // Track failed asset for individual rendering
+                $failed[$key] = $asset;
+
+                $message = "JS Minification failed for '{$asset->getAsset()}': {$e->getMessage()}";
+                $debugger->addMessage($message, 'error');
+                Grav::instance()['log']->error($message);
             }
         }
 
-        return $problematic;
+        return ['buffer' => $buffer, 'failed' => $failed];
     }
 }

@@ -472,7 +472,23 @@ class Assets extends PropertyObject
                 $group_attributes = array_merge($attributes, $pipeline_group['attributes']);
 
                 $pipeline = new Pipeline($options);
-                $pipeline_output .= $pipeline->$render_pipeline($pipeline_group['assets'], $group, $group_attributes);
+                $result = $pipeline->$render_pipeline($pipeline_group['assets'], $group, $group_attributes);
+
+                // Handle different return types from pipeline
+                if ($result === false) {
+                    // No assets to render
+                    continue;
+                } elseif (is_array($result)) {
+                    // Array result contains pipelined output and any failed assets
+                    $pipeline_output .= $result['output'];
+                    // Render failed assets individually (they couldn't be minified)
+                    foreach ($result['failed'] as $asset) {
+                        $pipeline_output .= $asset->render();
+                    }
+                } else {
+                    // String result (no minification or CSS)
+                    $pipeline_output .= $result;
+                }
             }
         } else {
             foreach ($pipeline_assets as $asset) {
