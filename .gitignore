@@ -51,3 +51,4 @@ system/templates/testing/*
 /user/data/recovery.window
 tmp/*
 /AGENTS.md
+/.claude

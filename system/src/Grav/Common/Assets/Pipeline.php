@@ -11,6 +11,7 @@ namespace Grav\Common\Assets;
 
 use Grav\Common\Assets\Traits\AssetUtilsTrait;
 use Grav\Common\Config\Config;
+use Grav\Common\Debugger;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\Grav;
 use Grav\Common\Uri;
@@ -19,6 +20,7 @@ use Grav\Framework\Object\PropertyObject;
 use tubalmartin\CssMin\Minifier as CSSMinifier;
 use JShrink\Minifier as JSMinifier;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
+use RuntimeException;
 use function array_key_exists;
 
 /**
@@ -205,7 +207,7 @@ class Pipeline extends PropertyObject
 
             // Minify if required
             if ($this->shouldMinify('js')) {
-                $buffer = JSMinifier::minify($buffer);
+                $buffer = $this->minifyJs($buffer, $assets);
             }
 
             // Write file
@@ -340,5 +342,85 @@ class Pipeline extends PropertyObject
         }
 
         return $minify;
+    }
+
+    /**
+     * Minify JavaScript with error handling to identify problematic files
+     *
+     * @param string $buffer Combined JS content
+     * @param array $assets Array of asset objects for error reporting
+     * @return string Minified JS or original buffer on failure
+     * @throws RuntimeException When minification fails and debug mode is enabled
+     */
+    private function minifyJs(string $buffer, array $assets): string
+    {
+        try {
+            return JSMinifier::minify($buffer);
+        } catch (\Exception $e) {
+            // Try to identify the problematic file by minifying each asset individually
+            $problematicFiles = $this->findProblematicJsAssets($assets);
+            $assetList = array_map(fn($asset) => $asset->getAsset(), $assets);
+
+            /** @var Debugger $debugger */
+            $debugger = Grav::instance()['debugger'];
+
+            $message = "JS Minification failed: {$e->getMessage()}";
+            if (!empty($problematicFiles)) {
+                $message .= "\nProblematic file(s): " . implode(', ', $problematicFiles);
+            }
+            $message .= "\nAll files in pipeline: " . implode(', ', $assetList);
+
+            $debugger->addMessage($message, 'error');
+
+            // In debug mode, throw to help developers identify the issue
+            if (Grav::instance()['config']->get('system.debugger.enabled', false)) {
+                throw new RuntimeException($message, 0, $e);
+            }
+
+            // In production, return unminified buffer and log the error
+            Grav::instance()['log']->error($message);
+            return $buffer;
+        }
+    }
+
+    /**
+     * Find which JS assets fail minification by testing each one individually
+     *
+     * @param array $assets Array of asset objects
+     * @return array List of problematic asset paths
+     */
+    private function findProblematicJsAssets(array $assets): array
+    {
+        $problematic = [];
+
+        foreach ($assets as $asset) {
+            $link = $asset->getAsset();
+
+            // Get the file content
+            if (static::isRemoteLink($link)) {
+                if (str_starts_with((string) $link, '//')) {
+                    $link = 'http:' . $link;
+                }
+            } else {
+                if (($this->base_url !== '/') && Utils::startsWith($link, $this->base_url)) {
+                    $base_url = '#' . preg_quote($this->base_url, '#') . '#';
+                    $link = ltrim((string) preg_replace($base_url, '/', $link, 1), '/');
+                }
+                $link = GRAV_ROOT . '/' . $link;
+            }
+
+            $content = @file_get_contents($link);
+            if ($content === false) {
+                continue;
+            }
+
+            try {
+                JSMinifier::minify($content);
+            } catch (\Exception $e) {
+                $problematic[] = $asset->getAsset() . ' (' . $e->getMessage() . ')';
+            }
+        }
+
+        return $problematic;
     }
 }
