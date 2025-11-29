@@ -9,6 +9,9 @@
 
 namespace Grav\Common\Media\Traits;
 
+use Grav\Common\Page\Medium\MediumFactory;
+use Grav\Common\Page\Medium\ThumbnailImageMedium;
+
 /**
  * Trait VideoMediaTrait
  * @package Grav\Common\Media\Traits
@@ -51,13 +54,26 @@ trait VideoMediaTrait
     /**
      * Parsedown element for source display mode
      *
-     * @param  array $attributes
-     * @param  bool $reset
+     * @param array $attributes
+     * @param bool $reset
      * @return array
      */
     protected function sourceParsedownElement(array $attributes, $reset = true)
     {
         $location = $this->url($reset);
+
+        if (!isset($attributes['poster']) || ($attributes['poster'] !== 0 && $attributes['poster'] !== '0')) {
+            if ($this->thumbnailExists('page')) {
+                $thumb = $this->get("thumbnails.page", false);
+                if ($thumb) {
+                    $thumb = $thumb instanceof ThumbnailImageMedium ? $thumb : MediumFactory::fromFile($thumb, ['type' => 'thumbnail']);
+                    $attributes['poster'] = $thumb->url();
+                }
+            }
+        }
+        if (isset($attributes['poster']) && ($attributes['poster'] === 0 || $attributes['poster'] === '0')) {
+            unset($attributes['poster']);
+        }
 
         return [
             'name' => 'video',
