@@ -638,11 +638,16 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
      * Get Cron object for a crontab 'at' format
      *
      * @param string $at
-     * @return CronExpression
+     * @return CronExpression|null
      */
     public function cronFunc($at)
     {
-        return CronExpression::factory($at);
+        try {
+            return CronExpression::factory($at);
+        } catch (\InvalidArgumentException $e) {
+            // Invalid cron expression - return null to prevent DoS
+            return null;
+        }
     }
 
     /**

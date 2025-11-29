@@ -350,6 +350,22 @@ class UserObject extends FlexObject implements UserInterface, Countable
     }
 
     /**
+     * {@inheritdoc}
+     * Override to filter out sensitive fields like password hashes
+     */
+    public function jsonSerialize(): array
+    {
+        $elements = parent::jsonSerialize();
+
+        // Security: Remove sensitive fields that should never be exposed to frontend
+        unset($elements['hashed_password']);
+        unset($elements['secret']);  // 2FA secret
+        unset($elements['twofa_secret']);  // Alternative 2FA field name
+
+        return $elements;
+    }
+
+    /**
      * Convert object into an array.
      *
      * @return array

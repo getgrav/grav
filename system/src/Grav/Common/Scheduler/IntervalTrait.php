@@ -21,14 +21,19 @@ trait IntervalTrait
 {
     /**
      * Set the Job execution time.
-     *compo
+     *
      * @param  string  $expression
      * @return self
      */
     public function at($expression)
     {
         $this->at = $expression;
-        $this->executionTime = CronExpression::factory($expression);
+        try {
+            $this->executionTime = CronExpression::factory($expression);
+        } catch (InvalidArgumentException $e) {
+            // Invalid cron expression - set to null to prevent DoS
+            $this->executionTime = null;
+        }
 
         return $this;
     }

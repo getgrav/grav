@@ -215,9 +215,8 @@ class SchedulerCommand extends GravCommand
                 $job_state = $job_states[$job->getId()];
                 $error = isset($job_state['error']) ? trim((string) $job_state['error']) : false;
 
-                /** @var CronExpression $expression */
+                /** @var CronExpression|null $expression */
                 $expression = $job->getCronExpression();
-                $next_run = $expression->getNextRunDate();
 
                 $row = [];
                 $row[] = $job->getId();
@@ -226,7 +225,13 @@ class SchedulerCommand extends GravCommand
                 } else {
                     $row[] = '<yellow>Never</yellow>';
                 }
-                $row[] = '<yellow>' . $next_run->format('Y-m-d H:i') . '</yellow>';
+
+                if ($expression) {
+                    $next_run = $expression->getNextRunDate();
+                    $row[] = '<yellow>' . $next_run->format('Y-m-d H:i') . '</yellow>';
+                } else {
+                    $row[] = '<error>Invalid cron</error>';
+                }
 
                 if ($error) {
                     $row[] = "<error>{$error}</error>";
