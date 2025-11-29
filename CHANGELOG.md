@@ -1,3 +1,13 @@
+# v1.8.0-beta.26
+## 11/29/2025
+
+1. [](#improved)
+    * Improvements for JS minification and now pulls any broken JS out of pipeline
+    * Disallow xref/xhref in SVGs
+    * Upgraded to recently released Symfony 7.4
+1. [](#bugfix)
+   * fix range requests for partial content in Utils::downloads() - Fixes [#3990](https://github.com/getgrav/grav-plugin-admin/issues/3990)
+
 # v1.8.0-beta.25
 ## 11/22/2025
 
