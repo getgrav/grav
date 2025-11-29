@@ -583,10 +583,19 @@ class UserObject extends FlexObject implements UserInterface, Countable
     {
         // TODO: We may want to handle this in the storage layer in the future.
         $key = $this->getStorageKey();
-        if (!$key || strpos($key, '@@')) {
+        $isNewUser = !$key || strpos($key, '@@');
+
+        if ($isNewUser) {
             $storage = $this->getFlexDirectory()->getStorage();
             if ($storage instanceof FileStorage) {
-                $this->setStorageKey($this->getKey());
+                $newKey = $this->getKey();
+
+                // Check if a user with this username already exists (prevent overwriting)
+                if ($storage->hasKey($newKey)) {
+                    throw new RuntimeException('User account with this username already exists');
+                }
+
+                $this->setStorageKey($newKey);
             }
         }
 

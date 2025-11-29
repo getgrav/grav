@@ -220,6 +220,39 @@ abstract class AbstractFilesystemStorage implements FlexStorageInterface
      */
     protected function validateKey(string $key): bool
     {
-        return $key && (bool) preg_match('/^[^\\/?*:;{}\\\\\\n]+$/u', $key);
+        // Key must not be empty
+        if (!$key) {
+            return false;
+        }
+
+        // Key must not contain filesystem-dangerous characters: \ / ? * : ; { } or newlines
+        if (!preg_match('/^[^\\/?*:;{}\\\\\\n]+$/u', $key)) {
+            return false;
+        }
+
+        // Key must not contain path traversal sequences (..)
+        if (str_contains($key, '..')) {
+            return false;
+        }
+
+        // Key must not start with a dot (hidden files)
+        if (str_starts_with($key, '.')) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Validates a key and throws an exception if invalid.
+     *
+     * @param string $key
+     * @throws \InvalidArgumentException
+     */
+    public function assertValidKey(string $key): void
+    {
+        if (!$this->validateKey($key)) {
+            throw new \InvalidArgumentException(sprintf('Invalid storage key: "%s"', $key));
+        }
     }
 }

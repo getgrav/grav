@@ -128,8 +128,20 @@ class User extends Data implements UserInterface
         if ($file) {
             $username = $this->filterUsername((string)$this->get('username'));
 
+            // Validate username to prevent path traversal attacks
+            if (!self::isValidUsername($username)) {
+                throw new \RuntimeException('Invalid username: contains invalid characters or sequences');
+            }
+
             if (!$file->filename()) {
                 $locator = Grav::instance()['locator'];
+
+                // Check if a user with this username already exists (prevent overwriting)
+                $existingFile = $locator->findResource('account://' . $username . YAML_EXT);
+                if ($existingFile) {
+                    throw new \RuntimeException('User account with this username already exists');
+                }
+
                 $file->filename($locator->findResource('account://' . $username . YAML_EXT, true, true));
             }
 
@@ -311,6 +323,37 @@ class User extends Data implements UserInterface
     protected function filterUsername(string $username): string
     {
         return mb_strtolower($username);
+    }
+
+    /**
+     * Validates a username to prevent path traversal and other attacks.
+     *
+     * @param string $username
+     * @return bool
+     */
+    public static function isValidUsername(string $username): bool
+    {
+        // Username must not be empty
+        if (!$username) {
+            return false;
+        }
+
+        // Username must not contain filesystem-dangerous characters: \ / ? * : ; { } or newlines
+        if (!preg_match('/^[^\\/?*:;{}\\\\\\n]+$/u', $username)) {
+            return false;
+        }
+
+        // Username must not contain path traversal sequences (..)
+        if (str_contains($username, '..')) {
+            return false;
+        }
+
+        // Username must not start with a dot (hidden files)
+        if (str_starts_with($username, '.')) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
