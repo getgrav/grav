@@ -134,7 +134,17 @@ class Language
      */
     public function setLanguages($langs)
     {
-        $this->languages = $langs;
+        // Validate and sanitize language codes to prevent regex injection
+        $validLangs = [];
+        foreach ((array)$langs as $lang) {
+            $lang = (string)$lang;
+            // Only allow valid language codes (alphanumeric, hyphens, underscores)
+            // Examples: en, en-US, en_US, zh-Hans, pt-BR
+            if (preg_match('/^[a-zA-Z]{2,3}(?:[-_][a-zA-Z0-9]{2,8})?$/', $lang)) {
+                $validLangs[] = $lang;
+            }
+        }
+        $this->languages = $validLangs;
 
         $this->init();
     }
@@ -234,7 +244,8 @@ class Language
      */
     public function setActiveFromUri($uri)
     {
-        $regex = '/(^\/(' . $this->getAvailable() . '))(?:\/|\?|$)/i';
+        // Pass delimiter '/' to getAvailable() to properly escape language codes for regex
+        $regex = '/(^\/(' . $this->getAvailable('/') . '))(?:\/|\?|$)/i';
 
         // if languages set
         if ($this->enabled()) {
