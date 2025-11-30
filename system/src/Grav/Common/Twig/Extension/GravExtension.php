@@ -1438,11 +1438,42 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
             $filepath = $locator->findResource($filepath);
         }
 
-        if ($filepath && file_exists($filepath)) {
-            return file_get_contents($filepath);
+        if (!$filepath || !file_exists($filepath)) {
+            return false;
         }
 
-        return false;
+        // Security: Get the real path to prevent path traversal
+        $realpath = realpath($filepath);
+        if ($realpath === false) {
+            return false;
+        }
+
+        // Security: Ensure the file is within GRAV_ROOT
+        $gravRoot = realpath(GRAV_ROOT);
+        if ($gravRoot === false || strpos($realpath, $gravRoot) !== 0) {
+            return false;
+        }
+
+        // Security: Block access to sensitive files and directories
+        $blockedPatterns = [
+            '/\/accounts\/[^\/]+\.yaml$/',      // User account files
+            '/\/config\/security\.yaml$/',       // Security config
+            '/\/\.env/',                         // Environment files
+            '/\/\.git/',                         // Git directory
+            '/\/\.htaccess/',                    // Apache config
+            '/\/\.htpasswd/',                    // Apache passwords
+            '/\/vendor\//',                      // Composer vendor (may contain sensitive info)
+            '/\/logs\//',                        // Log files
+            '/\/backup\//',                      // Backup files
+        ];
+
+        foreach ($blockedPatterns as $pattern) {
+            if (preg_match($pattern, $realpath)) {
+                return false;
+            }
+        }
+
+        return file_get_contents($realpath);
     }
 
     /**

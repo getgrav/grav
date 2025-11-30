@@ -225,6 +225,25 @@ class Backups
             throw new RuntimeException("Backup location: {$backup_root} does not exist...");
         }
 
+        // Security: Resolve real path and ensure it's within GRAV_ROOT to prevent path traversal
+        $realBackupRoot = realpath($backup_root);
+        $realGravRoot = realpath(GRAV_ROOT);
+
+        if ($realBackupRoot === false || $realGravRoot === false) {
+            throw new RuntimeException("Invalid backup location: {$backup_root}");
+        }
+
+        // Ensure the backup root is within GRAV_ROOT or a parent thereof (for backing up GRAV itself)
+        // Block access to system directories outside the web root
+        $blockedPaths = ['/etc', '/root', '/home', '/var', '/usr', '/bin', '/sbin', '/tmp', '/proc', '/sys', '/dev'];
+        foreach ($blockedPaths as $blocked) {
+            if (strpos($realBackupRoot, $blocked) === 0) {
+                throw new RuntimeException("Backup location not allowed: {$backup_root}");
+            }
+        }
+
+        $backup_root = $realBackupRoot;
+
         $options = [
             'exclude_files' => static::convertExclude($backup->exclude_files ?? ''),
             'exclude_paths' => static::convertExclude($backup->exclude_paths ?? ''),
