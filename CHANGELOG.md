@@ -1,3 +1,20 @@
+# v1.8.0-beta.27
+## mm/dd/2025
+
+1. [](#improved)
+    * Hardened Twig sandbox with expanded blacklist blocking 150+ dangerous functions and attack patterns
+    * Added static regex caching in Security class for improved performance
+    * Added path traversal protection to backup root configuration
+    * Added validation for language codes to prevent regex injection DoS
+1. [](#bugfix)
+    * Fixed path traversal vulnerability in username during account creation
+    * Fixed username uniqueness bypass allowing duplicate accounts
+    * Fixed arbitrary file read via `read_file()` Twig function
+    * Fixed DoS via malformed cron expressions in scheduler
+    * Fixed password hash exposure to frontend via JSON serialization
+    * Fixed email disclosure in user edit page title
+    * Fixed XSS via `isindex` tag bypass (CVE-2023-31506)
+
 # v1.8.0-beta.26
 ## 11/29/2025
 
