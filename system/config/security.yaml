@@ -31,6 +31,7 @@ xss_dangerous_tags:
   - bgsound
   - title
   - base
+  - isindex
 uploads_dangerous_extensions:
   - php
   - php2
