@@ -72,7 +72,7 @@ config:
     # Edit view
     edit:
       title:
-        template: "{{ form.value('fullname') ?? form.value('username') }} &lt;{{ form.value('email') }}&gt;"
+        template: "{{ form.value('fullname') ?? form.value('username') }}"
 
     # Configure view
     configure:
