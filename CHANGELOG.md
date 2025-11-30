@@ -1,5 +1,5 @@
 # v1.8.0-beta.27
-## mm/dd/2025
+## 11/30/2025
 
 1. [](#improved)
     * Hardened Twig sandbox with expanded blacklist blocking 150+ dangerous functions and attack patterns
