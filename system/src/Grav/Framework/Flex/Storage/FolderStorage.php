@@ -419,6 +419,9 @@ class FolderStorage extends AbstractFilesystemStorage
 
             $key = $this->normalizeKey($key);
 
+            // Validate the key to prevent path traversal and other attacks
+            $this->assertValidKey($key);
+
             // Check if the row already exists and if the key has been changed.
             $oldKey = $row['__META']['storage_key'] ?? null;
             if (is_string($oldKey) && $oldKey !== $key) {
