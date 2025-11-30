@@ -14,6 +14,7 @@
     * Fixed password hash exposure to frontend via JSON serialization
     * Fixed email disclosure in user edit page title
     * Fixed XSS via `isindex` tag bypass (CVE-2023-31506)
+    * Fixed issue with FlexObjects caching [flex-objects#187](https://github.com/trilbymedia/grav-plugin-flex-objects/issues/187)
 
 # v1.8.0-beta.26
 ## 11/29/2025

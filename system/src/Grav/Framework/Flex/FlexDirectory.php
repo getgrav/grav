@@ -480,6 +480,29 @@ class FlexDirectory implements FlexDirectoryInterface
     }
 
     /**
+     * Encode a storage key for use as a cache key.
+     * Symfony cache reserves characters: {}()/\@:
+     *
+     * @param string $key
+     * @return string
+     */
+    protected function encodeCacheKey(string $key): string
+    {
+        return str_replace(['/', '\\', '@', ':'], ['__SLASH__', '__BSLASH__', '__AT__', '__COLON__'], $key);
+    }
+
+    /**
+     * Decode a cache key back to the original storage key.
+     *
+     * @param string $key
+     * @return string
+     */
+    protected function decodeCacheKey(string $key): string
+    {
+        return str_replace(['__SLASH__', '__BSLASH__', '__AT__', '__COLON__'], ['/', '\\', '@', ':'], $key);
+    }
+
+    /**
      * @return $this
      */
     public function clearCache()
@@ -720,7 +743,12 @@ class FlexDirectory implements FlexDirectoryInterface
                 //$debugger->addMessage(sprintf('Flex: Caching %d %s', \count($entries), $this->type), 'debug');
             }
             try {
-                $cache->setMultiple($updated);
+                // Encode storage keys for cache compatibility (Symfony cache reserves certain characters)
+                $encodedUpdated = [];
+                foreach ($updated as $key => $value) {
+                    $encodedUpdated[$this->encodeCacheKey($key)] = $value;
+                }
+                $cache->setMultiple($encodedUpdated);
             } catch (InvalidArgumentException $e) {
                 $debugger->addException($e);
                 // TODO: log about the issue.
@@ -752,7 +780,15 @@ class FlexDirectory implements FlexDirectoryInterface
 
             $debugger->startTimer('flex-objects', sprintf('Flex: Loading %d %s', $loading, $this->type));
 
-            $fetched = (array)$cache->getMultiple($fetch);
+            // Encode storage keys for cache compatibility (Symfony cache reserves certain characters)
+            $encodedFetch = array_map([$this, 'encodeCacheKey'], $fetch);
+            $encodedFetched = (array)$cache->getMultiple($encodedFetch);
+
+            // Decode the keys back to original storage keys
+            foreach ($encodedFetched as $encodedKey => $value) {
+                $fetched[$this->decodeCacheKey($encodedKey)] = $value;
+            }
+
             if ($fetched) {
                 $index = $this->loadIndex('storage_key');
 
