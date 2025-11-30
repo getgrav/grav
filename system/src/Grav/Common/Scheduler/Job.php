@@ -193,11 +193,32 @@ class Job
     }
 
     /**
-     * @return CronExpression
+     * @return CronExpression|null
      */
     public function getCronExpression()
     {
-        return CronExpression::factory($this->at);
+        try {
+            return CronExpression::factory($this->at);
+        } catch (\InvalidArgumentException $e) {
+            // Invalid cron expression - return null to prevent DoS
+            return null;
+        }
+    }
+
+    /**
+     * Validate a cron expression
+     *
+     * @param string $expression
+     * @return bool
+     */
+    public static function isValidCronExpression(string $expression): bool
+    {
+        try {
+            CronExpression::factory($expression);
+            return true;
+        } catch (\InvalidArgumentException $e) {
+            return false;
+        }
     }
 
     /**
