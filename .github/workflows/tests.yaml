@@ -13,7 +13,7 @@ jobs:
   unit-tests:
     strategy:
       matrix:
-        php: ['8.3', '8.2', '8.1', '8.0', '7.4', '7.3']
+        php: ['8.4', '8.3', '8.2', '8.1', '8.0', '7.4', '7.3']
         os: [ubuntu-latest]
 
     runs-on: ${{ matrix.os }}
