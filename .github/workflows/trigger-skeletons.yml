@@ -22,7 +22,7 @@ jobs:
       WORKFLOW: "build-skeleton.yml"
       AUTH: ":${{secrets.GLOBAL_TOKEN}}"
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v6
       - name: Make it rain ☔️
         run: |
           SKELETONS=`curl -s "${{secrets.SKELETONS_JSON_LIST}}"`
