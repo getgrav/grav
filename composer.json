@@ -40,7 +40,7 @@
         "symfony/console": "~4.4",
         "symfony/event-dispatcher": "~4.4",
         "symfony/var-dumper": "~4.4",
-        "symfony/process": "~4.4",
+        "symfony/process": "~5.4",
         "doctrine/cache": "^1.10",
         "doctrine/collections": "^1.6",
         "guzzlehttp/psr7": "^1.7",
