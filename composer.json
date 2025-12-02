@@ -60,7 +60,7 @@
         "symfony/deprecation-contracts": "^2.2",
         "willdurand/negotiation": "^3.0",
         "itsgoingd/clockwork": "^5.0",
-        "symfony/http-client": "^4.4",
+        "symfony/http-client": "^5.4",
         "composer/semver": "^1.4",
         "rhukster/dom-sanitizer": "^1.0",
         "multiavatar/multiavatar-php": "^1.0"
