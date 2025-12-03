@@ -89,8 +89,9 @@ class Backups
             $at = $profile['schedule_at'];
             $name = $inflector::hyphenize($profile['name']);
             $logs = 'logs/backup-' . $name . '.out';
+            $environment = $profile['schedule_environment'] ?? null;
             /** @var Job $job */
-            $job = $scheduler->addFunction('Grav\Common\Backup\Backups::backup', [$id], $name);
+            $job = $scheduler->addFunction('Grav\Common\Backup\Backups::backup', [$id, null, $environment], $name);
             $job->at($at);
             $job->output($logs);
             $job->backlink('/tools/backups');
@@ -192,11 +193,18 @@ class Backups
      *
      * @param int $id
      * @param callable|null $status
+     * @param string|null $environment Optional environment to load config from
      * @return string|null
      */
-    public static function backup($id = 0, ?callable $status = null)
+    public static function backup($id = 0, ?callable $status = null, ?string $environment = null)
     {
         $grav = Grav::instance();
+
+        // If environment is specified and different from current, reload config
+        if ($environment && $environment !== $grav['config']->get('setup.environment')) {
+            $grav->setup($environment);
+            $grav['config']->reload();
+        }
 
         $profiles = static::getBackupProfiles();
         /** @var UniformResourceLocator $locator */

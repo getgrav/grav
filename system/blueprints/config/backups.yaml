@@ -122,4 +122,13 @@ form:
                 default: '* 3 * * *'
                 validate:
                     required: true
+            .schedule_environment:
+                type: select
+                label: PLUGIN_ADMIN.BACKUPS_PROFILE_ENVIRONMENT
+                help: PLUGIN_ADMIN.BACKUPS_PROFILE_ENVIRONMENT_HELP
+                default: ''
+                options:
+                    '': 'Default (cli)'
+                    localhost: 'Localhost'
+                    cli: 'CLI'
 
