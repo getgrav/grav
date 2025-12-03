@@ -224,8 +224,9 @@ class Security
 
         // Set the patterns we'll test against
         $patterns = [
-            // Match any attribute starting with "on" or xmlns
-            'on_events' => '#(<[^>]+[a-z\x00-\x20\"\'\/])(on[a-z]+|xmlns)\s*=[\s|\'\"].*[\s|\'\"]>#iUu',
+            // Match any attribute starting with "on" or xmlns (must be preceded by whitespace/special chars)
+            // Allow optional whitespace between 'on' and event name to catch obfuscation attempts
+            'on_events' => '#(<[^>]+[\s\x00-\x20\"\'\/])(on\s*[a-z]+|xmlns)\s*=[\s|\'\"].*[\s|\'\"]>#iUu',
 
             // Match javascript:, livescript:, vbscript:, mocha:, feed: and data: protocols
             'invalid_protocols' => '#(' . implode('|', array_map('preg_quote', $invalid_protocols, ['#'])) . ')(:|\&\#58)\S.*?#iUu',
@@ -243,8 +244,16 @@ class Security
         // Iterate over rules and return label if fail
         foreach ($patterns as $name => $regex) {
             if (!empty($enabled_rules[$name])) {
-                if (preg_match($regex, (string) $string) || preg_match($regex, (string) $stripped) || preg_match($regex, $orig)) {
-                    return $name;
+                // Skip testing 'on_events' against stripped version to avoid false positives
+                // with tags like <caption>, <button>, <section> that end with 'on' or contain 'on'
+                if ($name === 'on_events') {
+                    if (preg_match($regex, (string) $string) || preg_match($regex, $orig)) {
+                        return $name;
+                    }
+                } else {
+                    if (preg_match($regex, (string) $string) || preg_match($regex, (string) $stripped) || preg_match($regex, $orig)) {
+                        return $name;
+                    }
                 }
             }
         }
