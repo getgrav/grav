@@ -1,3 +1,10 @@
+# v1.8.0-beta.28
+## 12/03/2025
+
+1. [](#bugfix)
+    * Fixed backup restriction preventing backups on systems with Grav installed under `/var/www` - Fixes [#4002](https://github.com/getgrav/grav/issues/4002)
+    * Fixed XSS false positives for legitimate HTML tags containing 'on' (caption, button, section) - Fixes [grav-plugin-admin#2472](https://github.com/getgrav/grav-plugin-admin/issues/2472)
+
 # v1.8.0-beta.27
 ## 11/30/2025
 

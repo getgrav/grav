@@ -241,12 +241,17 @@ class Backups
             throw new RuntimeException("Invalid backup location: {$backup_root}");
         }
 
-        // Ensure the backup root is within GRAV_ROOT or a parent thereof (for backing up GRAV itself)
-        // Block access to system directories outside the web root
-        $blockedPaths = ['/etc', '/root', '/home', '/var', '/usr', '/bin', '/sbin', '/tmp', '/proc', '/sys', '/dev'];
-        foreach ($blockedPaths as $blocked) {
-            if (strpos($realBackupRoot, $blocked) === 0) {
-                throw new RuntimeException("Backup location not allowed: {$backup_root}");
+        // Check if backup root is within GRAV_ROOT
+        $isWithinGravRoot = strpos($realBackupRoot, $realGravRoot) === 0;
+
+        // Only apply blocklist to paths outside GRAV_ROOT to prevent backing up system directories
+        // This allows backups within Grav installations under /var/www while still blocking /var/log, etc.
+        if (!$isWithinGravRoot) {
+            $blockedPaths = ['/etc', '/root', '/home', '/var', '/usr', '/bin', '/sbin', '/tmp', '/proc', '/sys', '/dev'];
+            foreach ($blockedPaths as $blocked) {
+                if (strpos($realBackupRoot, $blocked) === 0) {
+                    throw new RuntimeException("Backup location not allowed: {$backup_root}");
+                }
             }
         }
 
