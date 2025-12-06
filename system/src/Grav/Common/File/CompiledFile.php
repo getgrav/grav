@@ -28,6 +28,7 @@ trait CompiledFile
     /**
      * Get/set parsed file contents.
      *
+     * @param mixed $var
      * @return array
      */
     public function content(mixed $var = null)
@@ -36,19 +37,47 @@ trait CompiledFile
             $filename = $this->filename;
             // If nothing has been loaded, attempt to get pre-compiled version of the file first.
             if ($var === null && $this->raw === null && $this->content === null) {
-                $key = md5((string) $filename);
+                $key = md5($filename);
                 $file = PhpFile::instance(CACHE_DIR . "compiled/files/{$key}{$this->extension}.php");
+                $cacheFilename = $file->filename();
 
-                $modified = $this->modified();
-                if (!$modified) {
+                // Improved support for opcache
+                // Do not check timestamp if opcache.validate_timestamps = 0
+                // https://www.php.net/manual/en/opcache.configuration.php#ini.opcache.validate-timestamps
+                $modified = false;
+
+                if (!filter_var(ini_get('opcache.enable'), \FILTER_VALIDATE_BOOLEAN) ||
+                    filter_var(ini_get('opcache.validate_timestamps'), \FILTER_VALIDATE_BOOLEAN)) {
+                    $modified = $this->modified();
+                }
+
+                // Improved support for opcache
+                //
+                // If not modified and file exists in opcache
+                // This requires opcache.enable_file_override = 1
+                // https://www.php.net/manual/en/opcache.configuration.php#ini.opcache.enable-file-override
+                if (!$modified && is_file($cacheFilename)) {
                     try {
-                        return $this->decode($this->raw());
+                        // Include the file directly to trigger loading from opcache
+                        $var = (array) include $cacheFilename;
+
+                        if (is_array($var) && isset($var['data'])) {
+                            $var = $var['data'];
+                        } else {
+                            $var = null;
+                        }
+
+                        if (!is_array($var)) {
+                            $var = $this->decode($this->raw());
+                        }
+
+                        return $var;
                     } catch (Throwable) {
                         // If the compiled file is broken, we can safely ignore the error and continue.
                     }
                 }
 
-                $class = $this::class;
+                $class = get_class($this);
 
                 $size = filesize($filename);
                 $cache = $file->exists() ? $file->content() : null;
@@ -88,11 +117,9 @@ trait CompiledFile
 
                         // Compile cached file into bytecode cache
                         if (function_exists('opcache_invalidate') && filter_var(ini_get('opcache.enable'), \FILTER_VALIDATE_BOOLEAN)) {
-                            $lockName = $file->filename();
-
                             // Silence error if function exists, but is restricted.
-                            @opcache_invalidate($lockName, true);
-                            @opcache_compile_file($lockName);
+                            @opcache_invalidate($cacheFilename, true);
+                            @opcache_compile_file($cacheFilename);
                         }
                     }
                 }
@@ -134,7 +161,7 @@ trait CompiledFile
         if ($locked) {
             $modified = $this->modified();
             $filename = $this->filename;
-            $class = $this::class;
+            $class = get_class($this);
             $size = filesize($filename);
 
             // windows doesn't play nicely with this as it can't read when locked
@@ -158,10 +185,10 @@ trait CompiledFile
 
             // Compile cached file into bytecode cache
             if (function_exists('opcache_invalidate') && filter_var(ini_get('opcache.enable'), \FILTER_VALIDATE_BOOLEAN)) {
-                $lockName = $file->filename();
+                $cacheFilename = $file->filename();
                 // Silence error if function exists, but is restricted.
-                @opcache_invalidate($lockName, true);
-                @opcache_compile_file($lockName);
+                @opcache_invalidate($cacheFilename, true);
+                @opcache_compile_file($cacheFilename);
             }
         }
     }
