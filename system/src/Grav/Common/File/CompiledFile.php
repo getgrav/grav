@@ -79,6 +79,11 @@ trait CompiledFile
 
                 $class = get_class($this);
 
+                // Check if the source file exists before getting its size
+                if (!is_file($filename)) {
+                    return parent::content($var);
+                }
+
                 $size = filesize($filename);
                 $cache = $file->exists() ? $file->content() : null;
 
