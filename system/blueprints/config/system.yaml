@@ -1605,6 +1605,18 @@ form:
                 type: int
                 min: 0
 
+            updates.recovery_mode:
+              type: toggle
+              label: PLUGIN_ADMIN.RECOVERY_MODE
+              help: PLUGIN_ADMIN.RECOVERY_MODE_HELP
+              highlight: 1
+              default: true
+              options:
+                1: PLUGIN_ADMIN.YES
+                0: PLUGIN_ADMIN.NO
+              validate:
+                type: bool
+
             http_section:
               type: section
               title: PLUGIN_ADMIN.HTTP_SECTION

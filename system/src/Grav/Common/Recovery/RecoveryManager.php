@@ -156,6 +156,7 @@ class RecoveryManager
             'message' => $exception->getMessage(),
             'file' => $exception->getFile(),
             'line' => $exception->getLine(),
+            'trace' => $exception->getTraceAsString(),
         ];
 
         $this->processFailure($error);
@@ -222,6 +223,7 @@ class RecoveryManager
             'line' => $error['line'] ?? null,
             'type' => $type,
             'plugin' => $plugin,
+            'trace' => $error['trace'] ?? null,
         ];
 
         if (!$this->shouldEnterRecovery($context)) {
@@ -344,7 +346,13 @@ class RecoveryManager
             return null;
         }
 
+        // Standard path: /user/plugins/plugin-name/
         if (preg_match('#/user/plugins/([^/]+)/#', $file, $matches)) {
+            return $matches[1] ?? null;
+        }
+
+        // Symlinked plugin path: /grav-plugin-plugin-name/ (common dev setup)
+        if (preg_match('#/grav-plugin-([^/]+)/#', $file, $matches)) {
             return $matches[1] ?? null;
         }
 
@@ -400,6 +408,11 @@ class RecoveryManager
      */
     private function shouldEnterRecovery(array $context): bool
     {
+        // Check if recovery mode is enabled in config
+        if (!$this->isEnabled()) {
+            return false;
+        }
+
         $window = $this->resolveUpgradeWindow();
         if (null === $window) {
             return false;
@@ -414,6 +427,31 @@ class RecoveryManager
         }
 
         return true;
+    }
+
+    /**
+     * Check if recovery mode is enabled in system config (updates.recovery_mode).
+     *
+     * @return bool
+     */
+    public function isEnabled(): bool
+    {
+        $configFile = $this->userPath . '/config/system.yaml';
+        if (!is_file($configFile)) {
+            return true; // Default enabled
+        }
+
+        $content = file_get_contents($configFile);
+        if ($content === false) {
+            return true;
+        }
+
+        // Simple regex-based check to avoid loading full YAML parser
+        if (preg_match('/^\s*updates:\s*\n(?:\s+\w+:.*\n)*?\s+recovery_mode:\s*(true|false|1|0)\s*$/m', $content, $matches)) {
+            return in_array(strtolower($matches[1]), ['true', '1'], true);
+        }
+
+        return true; // Default enabled
     }
 
     /**

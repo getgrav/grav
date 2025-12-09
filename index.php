@@ -77,8 +77,30 @@ date_default_timezone_set(@date_default_timezone_get());
 @ini_set('default_charset', 'UTF-8');
 mb_internal_encoding('UTF-8');
 
-$recoveryFlag = __DIR__ . '/user/data/recovery.flag';
-if (PHP_SAPI !== 'cli' && is_file($recoveryFlag)) {
+// Use getcwd() for paths to support symlinked index.php (GRAV_ROOT uses getcwd())
+$gravRoot = rtrim(str_replace(DIRECTORY_SEPARATOR, '/', getenv('GRAV_ROOT') ?: getcwd()), '/');
+
+// Helper function to check if recovery mode is enabled in config (updates.recovery_mode)
+$isRecoveryEnabled = static function () use ($gravRoot) {
+    $userConfig = $gravRoot . '/user/config/system.yaml';
+    if (!is_file($userConfig)) {
+        return true; // Default enabled
+    }
+    $content = file_get_contents($userConfig);
+    if ($content === false) {
+        return true;
+    }
+    if (preg_match('/^\s*updates:\s*\n(?:\s+\w+:.*\n)*?\s+recovery_mode:\s*(true|false|1|0)\s*$/m', $content, $matches)) {
+        return in_array(strtolower($matches[1]), ['true', '1'], true);
+    }
+    return true; // Default enabled
+};
+
+$recoveryFlag = $gravRoot . '/user/data/recovery.flag';
+if (PHP_SAPI !== 'cli' && is_file($recoveryFlag) && $isRecoveryEnabled()) {
+    if (!defined('GRAV_ROOT')) {
+        define('GRAV_ROOT', $gravRoot);
+    }
     require __DIR__ . '/system/recovery.php';
     return 0;
 }
@@ -95,7 +117,7 @@ try {
 } catch (\Error|\Exception $e) {
     $grav->fireEvent('onFatalException', new Event(['exception' => $e]));
 
-    if (PHP_SAPI !== 'cli' && is_file($recoveryFlag)) {
+    if (PHP_SAPI !== 'cli' && is_file($recoveryFlag) && $isRecoveryEnabled()) {
         require __DIR__ . '/system/recovery.php';
         return 0;
     }

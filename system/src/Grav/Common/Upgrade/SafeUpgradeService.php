@@ -49,6 +49,7 @@ use function trim;
 use function uniqid;
 use function unlink;
 use function ltrim;
+use const GRAV_PHP_MIN;
 use const GRAV_ROOT;
 use const GLOB_ONLYDIR;
 use const JSON_PRETTY_PRINT;
@@ -204,6 +205,17 @@ class SafeUpgradeService
     {
         if (!is_dir($extractedPath)) {
             throw new InvalidArgumentException(sprintf('Extracted package path "%s" is not a directory.', $extractedPath));
+        }
+
+        // Check PHP requirements from the package before proceeding
+        $phpCheck = $this->checkPackagePhpRequirements($extractedPath);
+        if (!$phpCheck['meets_requirements']) {
+            throw new RuntimeException(sprintf(
+                'PHP version requirement not met. Grav %s requires PHP %s or higher, but you are running PHP %s.',
+                $targetVersion,
+                $phpCheck['required_version'],
+                PHP_VERSION
+            ));
         }
 
         $stageId = uniqid('stage-', false);
@@ -1215,5 +1227,55 @@ class SafeUpgradeService
                 }
             }
         }
+    }
+
+    /**
+     * Check PHP requirements from the package's defines.php file.
+     *
+     * @param string $extractedPath Path to extracted package
+     * @return array{meets_requirements: bool, required_version: string, current_version: string}
+     */
+    private function checkPackagePhpRequirements(string $extractedPath): array
+    {
+        $result = [
+            'meets_requirements' => true,
+            'required_version' => GRAV_PHP_MIN,
+            'current_version' => PHP_VERSION,
+        ];
+
+        // Look for defines.php in the package (could be at root or in system/)
+        $definesPath = null;
+        $candidates = [
+            $extractedPath . DIRECTORY_SEPARATOR . 'system' . DIRECTORY_SEPARATOR . 'defines.php',
+            $extractedPath . DIRECTORY_SEPARATOR . 'defines.php',
+        ];
+
+        foreach ($candidates as $candidate) {
+            if (is_file($candidate)) {
+                $definesPath = $candidate;
+                break;
+            }
+        }
+
+        if ($definesPath === null) {
+            // No defines.php found, fall back to current GRAV_PHP_MIN
+            $result['meets_requirements'] = version_compare(PHP_VERSION, GRAV_PHP_MIN, '>=');
+            return $result;
+        }
+
+        // Read and parse the defines.php to extract GRAV_PHP_MIN
+        $content = file_get_contents($definesPath);
+        if ($content === false) {
+            $result['meets_requirements'] = version_compare(PHP_VERSION, GRAV_PHP_MIN, '>=');
+            return $result;
+        }
+
+        // Match patterns like: define('GRAV_PHP_MIN', '8.3.0'); or define("GRAV_PHP_MIN", "8.3.0");
+        if (preg_match('/define\s*\(\s*[\'"]GRAV_PHP_MIN[\'"]\s*,\s*[\'"]([^"\']+)[\'"]\s*\)/', $content, $matches)) {
+            $result['required_version'] = $matches[1];
+            $result['meets_requirements'] = version_compare(PHP_VERSION, $matches[1], '>=');
+        }
+
+        return $result;
     }
 }

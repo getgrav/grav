@@ -1,3 +1,20 @@
+# v1.8.0-beta.29
+## 12/08/2025
+
+1. [](#new)
+    * Added `updates.recovery_mode` config option to enable/disable recovery mode
+    * Added admin blueprint toggle for recovery mode setting
+1. [](#improved)
+    * Redesigned recovery mode screen with clearer messaging and modern UI
+    * Added collapsible stack trace details to recovery mode screen
+    * Added "Clear Recovery Mode" button that works without token authentication
+    * Added "Disable Recovery Mode" option to disable via config from recovery screen
+    * Added stack trace capture for exceptions in recovery context
+    * Added PHP version validation from package's `defines.php` during safe upgrade
+    * Added proxy methods to `Twig3CompatibilityLoader` for backwards compatibility with plugins that call loader methods directly (addPath, prependPath, getPaths, etc.)
+1. [](#bugfix)
+    * Fixed recovery mode image path for Grav installations in subdirectories
+
 # v1.8.0-beta.28
 ## 12/03/2025
 
