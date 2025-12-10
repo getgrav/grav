@@ -10,6 +10,7 @@
 namespace Grav\Common\GPM;
 
 use Exception;
+use Grav\Common\Data\Data;
 use Grav\Common\Grav;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\HTTP\Response;
@@ -24,6 +25,7 @@ use function count;
 use function in_array;
 use function is_array;
 use function is_object;
+use function property_exists;
 
 /**
  * Class GPM
@@ -322,6 +324,10 @@ class GPM extends Iterator
                 continue;
             }
 
+            if (!$this->isRemotePackagePublished($plugins[$slug])) {
+                continue;
+            }
+
             $local_version = $plugin->version ?? 'Unknown';
             $remote_version = $plugins[$slug]->version;
 
@@ -414,6 +420,10 @@ class GPM extends Iterator
                 continue;
             }
 
+            if (!$this->isRemotePackagePublished($themes[$slug])) {
+                continue;
+            }
+
             $local_version = $plugin->version ?? 'Unknown';
             $remote_version = $themes[$slug]->version;
 
@@ -466,6 +476,42 @@ class GPM extends Iterator
         }
 
         return null;
+    }
+
+    /**
+     * Determine whether a remote package is marked as published.
+     *
+     * Remote package metadata introduced a `published` flag to hide releases that are not yet public.
+     * Older repository payloads may omit the key, so we default to treating packages as published
+     * unless the flag is explicitly set to `false`.
+     *
+     * @param object|array $package
+     * @return bool
+     */
+    protected function isRemotePackagePublished($package): bool
+    {
+        if (is_object($package) && method_exists($package, 'getData')) {
+            $data = $package->getData();
+            if ($data instanceof Data) {
+                $published = $data->get('published');
+                return $published !== false;
+            }
+        }
+
+        if (is_array($package)) {
+            if (array_key_exists('published', $package)) {
+                return $package['published'] !== false;
+            }
+
+            return true;
+        }
+
+        $value = null;
+        if (is_object($package) && property_exists($package, 'published')) {
+            $value = $package->published;
+        }
+
+        return $value !== false;
     }
 
     /**

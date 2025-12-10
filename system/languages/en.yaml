@@ -119,3 +119,8 @@ GRAV:
         ERROR2: Bad number of elements
         ERROR3: The jquery_element should be set into jqCron settings
         ERROR4: Unrecognized expression
+
+PLUGIN_ADMIN:
+    UPDATES_SECTION: Updates
+    SAFE_UPGRADE: Safe self-upgrade
+    SAFE_UPGRADE_HELP: When enabled, Grav core updates use staged installation with automatic rollback support.
