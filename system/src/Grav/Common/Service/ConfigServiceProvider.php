@@ -103,6 +103,12 @@ class ConfigServiceProvider implements ServiceProviderInterface
 
             // Save file list cache for next request
             static::saveCachedFileList($locator, $cache, 'blueprints', $setup->environment, $files);
+
+            // Also invalidate the compiled blueprints cache to force rebuild
+            $masterBlueprints = "{$cache}/master-{$setup->environment}.php";
+            if (file_exists($masterBlueprints)) {
+                @unlink($masterBlueprints);
+            }
         }
 
         $blueprints = new CompiledBlueprints($cache, $files, GRAV_ROOT);
@@ -139,6 +145,12 @@ class ConfigServiceProvider implements ServiceProviderInterface
 
             // Save file list cache for next request
             static::saveCachedFileList($locator, $cache, 'config', $setup->environment, $files);
+
+            // Also invalidate the compiled config cache to force rebuild
+            $masterConfig = "{$cache}/master-{$setup->environment}.php";
+            if (file_exists($masterConfig)) {
+                @unlink($masterConfig);
+            }
         }
 
         $compiled = new CompiledConfig($cache, $files, GRAV_ROOT);
@@ -185,6 +197,12 @@ class ConfigServiceProvider implements ServiceProviderInterface
 
                 // Save file list cache for next request
                 static::saveCachedFileList($locator, $cache, 'languages', $setup->environment, $files);
+
+                // Also invalidate the compiled languages cache to force rebuild
+                $masterLanguages = "{$cache}/master-{$setup->environment}.php";
+                if (file_exists($masterLanguages)) {
+                    @unlink($masterLanguages);
+                }
             }
         }
 
@@ -226,7 +244,7 @@ class ConfigServiceProvider implements ServiceProviderInterface
     }
 
     /**
-     * Load cached file list if still valid (based on directory mtimes).
+     * Load cached file list if still valid (based on directory and file mtimes).
      *
      * @param UniformResourceLocator $locator
      * @param string $cacheDir
@@ -257,11 +275,21 @@ class ConfigServiceProvider implements ServiceProviderInterface
             }
         }
 
+        // Validate cache by checking individual file mtimes
+        if (isset($cache['file_mtimes'])) {
+            foreach ($cache['file_mtimes'] as $file => $mtime) {
+                $currentMtime = @filemtime($file);
+                if ($currentMtime === false || $currentMtime !== $mtime) {
+                    return null;
+                }
+            }
+        }
+
         return $cache['files'];
     }
 
     /**
-     * Save file list to cache with directory mtimes for validation.
+     * Save file list to cache with directory and file mtimes for validation.
      *
      * @param UniformResourceLocator $locator
      * @param string $cacheDir
@@ -274,6 +302,19 @@ class ConfigServiceProvider implements ServiceProviderInterface
     {
         // Collect all directories that were scanned based on type
         $directories = [];
+
+        // Collect mtimes for all individual config files
+        $fileMtimes = [];
+        foreach ($files as $group) {
+            foreach ($group as $item) {
+                if (isset($item['file'])) {
+                    $filePath = GRAV_ROOT . '/' . $item['file'];
+                    if (file_exists($filePath)) {
+                        $fileMtimes[$filePath] = filemtime($filePath);
+                    }
+                }
+            }
+        }
 
         // Type-specific base directories
         if ($type === 'config') {
@@ -337,6 +378,7 @@ class ConfigServiceProvider implements ServiceProviderInterface
             'environment' => $environment,
             'timestamp' => time(),
             'directories' => $directories,
+            'file_mtimes' => $fileMtimes,
             'files' => $files,
         ];
 

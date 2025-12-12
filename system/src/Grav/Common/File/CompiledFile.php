@@ -41,21 +41,13 @@ trait CompiledFile
                 $file = PhpFile::instance(CACHE_DIR . "compiled/files/{$key}{$this->extension}.php");
                 $cacheFilename = $file->filename();
 
-                // Improved support for opcache
-                // Do not check timestamp if opcache.validate_timestamps = 0
-                // https://www.php.net/manual/en/opcache.configuration.php#ini.opcache.validate-timestamps
-                $modified = false;
+                // Always check file modification time for cache invalidation.
+                // This respects Grav's cache.check.method setting and user expectations.
+                // filemtime() is cheap and ensures changes are detected.
+                $modified = $this->modified();
 
-                if (!filter_var(ini_get('opcache.enable'), \FILTER_VALIDATE_BOOLEAN) ||
-                    filter_var(ini_get('opcache.validate_timestamps'), \FILTER_VALIDATE_BOOLEAN)) {
-                    $modified = $this->modified();
-                }
-
-                // Improved support for opcache
-                //
-                // If not modified and file exists in opcache
-                // This requires opcache.enable_file_override = 1
-                // https://www.php.net/manual/en/opcache.configuration.php#ini.opcache.enable-file-override
+                // If file hasn't been modified and cache exists, load from compiled cache.
+                // When opcache is enabled, this benefits from bytecode caching.
                 if (!$modified && is_file($cacheFilename)) {
                     try {
                         // Include the file directly to trigger loading from opcache
