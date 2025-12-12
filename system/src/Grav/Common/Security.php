@@ -379,7 +379,8 @@ class Security
             ];
 
             // Build combined patterns (compile once, use many times)
-            $quotedFunctions = array_map(fn($f) => preg_quote($f, '/'), $bad_twig_functions);
+            // Use word boundaries to avoid false positives (e.g., 'mail' matching 'email')
+            $quotedFunctions = array_map(fn($f) => '\b' . preg_quote($f, '/') . '\b', $bad_twig_functions);
             $functionsPattern = implode('|', $quotedFunctions);
 
             // Pattern for functions in Twig blocks
