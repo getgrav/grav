@@ -1670,11 +1670,14 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
             $matched = false;
 
             //Remove xml tag if it exists
-            $svg = preg_replace('/^<\?xml.*\?>/','', $svg);
+            $svg = preg_replace('/^<\?xml.*\?>/','', trim($svg));
+
+            //Strip comments
+            $svg = preg_replace('/<!--[\s\S]*?-->/', '', trim($svg));
 
             //Strip style if needed
             if ($strip_style) {
-                $svg = preg_replace('/<style.*<\/style>/s', '', (string) $svg);
+                $svg = preg_replace('/<style.*<\/style>/s', '', trim($svg));
             }
 
             //Look for existing class
@@ -1691,7 +1694,10 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
             // no matches found just add the class
             if (!$matched) {
                 $classes = trim($classes);
-                $svg = str_replace('<svg ', "<svg class=\"$classes\" ", $svg);
+                if (!$matched) {
+                    $classes = trim($classes);
+                    $svg = str_replace('<svg', "<svg class=\"$classes\" ", trim($svg));
+                }
             }
 
             return trim((string) $svg);
