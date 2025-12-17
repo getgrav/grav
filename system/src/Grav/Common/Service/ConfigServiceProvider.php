@@ -322,6 +322,13 @@ class ConfigServiceProvider implements ServiceProviderInterface
             foreach ($basePaths as $path) {
                 if (is_dir($path)) {
                     $directories[$path] = filemtime($path);
+                    // Also track config subdirectories for granular invalidation (e.g., plugins/, themes/)
+                    $iterator = new DirectoryIterator($path);
+                    foreach ($iterator as $dir) {
+                        if ($dir->isDir() && !$dir->isDot()) {
+                            $directories[$dir->getPathname()] = $dir->getMTime();
+                        }
+                    }
                 }
             }
         } elseif ($type === 'blueprints') {
