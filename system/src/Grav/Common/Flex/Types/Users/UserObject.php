@@ -991,6 +991,12 @@ class UserObject extends FlexObject implements UserInterface, Countable
     }
 
     /**
+     * Override doSerialize to preserve sensitive fields during PHP serialization (caching).
+     *
+     * Note: jsonSerialize() and toArray() strip sensitive fields for frontend security,
+     * but we need to preserve them when serializing for cache storage to ensure
+     * password hashes and 2FA secrets are not lost.
+     *
      * @return array
      */
     protected function doSerialize(): array
@@ -998,7 +1004,7 @@ class UserObject extends FlexObject implements UserInterface, Countable
         return [
             'type' => $this->getFlexType(),
             'key' => $this->getKey(),
-            'elements' => $this->jsonSerialize(),
+            'elements' => $this->getElements(),
             'storage' => $this->getMetaData()
         ];
     }
