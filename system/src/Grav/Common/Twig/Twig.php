@@ -33,12 +33,14 @@ use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Extension\CoreExtension;
 use Twig\Extension\DebugExtension;
+use Twig\Extension\EscaperExtension;
 use Twig\Extension\StringLoaderExtension;
 use Twig\Loader\ArrayLoader;
 use Twig\Loader\ChainLoader;
 use Twig\Loader\ExistsLoaderInterface;
 use Twig\Loader\FilesystemLoader;
 use Twig\Profiler\Profile;
+use Twig\Runtime\EscaperRuntime;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
 use function function_exists;
@@ -592,6 +594,36 @@ class Twig
         }
 
         $this->autoescape = (bool) $state;
+    }
+
+    /**
+     * Register a custom escaper strategy.
+     *
+     * This method handles the differences between Twig versions:
+     * - Twig 1.x: Uses CoreExtension::setEscaper()
+     * - Twig 2.x/3.x (< 3.9): Uses EscaperExtension::setEscaper()
+     * - Twig 3.9+: Uses EscaperRuntime::setEscaper()
+     *
+     * @param string $strategy The escaper strategy name (e.g., 'yaml', 'json')
+     * @param callable $callable The escaper callable: function($twig, $string, $charset)
+     * @return void
+     */
+    public function setEscaper(string $strategy, callable $callable): void
+    {
+        // Twig 3.9+ moved setEscaper to EscaperRuntime
+        if (class_exists(EscaperRuntime::class)) {
+            $this->twig->getRuntime(EscaperRuntime::class)->setEscaper($strategy, $callable);
+            return;
+        }
+
+        // Twig 2.x/3.x (before 3.9) uses EscaperExtension
+        if (class_exists(EscaperExtension::class)) {
+            $this->twig->getExtension(EscaperExtension::class)->setEscaper($strategy, $callable);
+            return;
+        }
+
+        // Twig 1.x fallback (uses CoreExtension)
+        $this->twig->getExtension(CoreExtension::class)->setEscaper($strategy, $callable);
     }
 
 }

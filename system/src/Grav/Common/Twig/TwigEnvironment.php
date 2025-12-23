@@ -9,6 +9,7 @@
 
 namespace Grav\Common\Twig;
 
+use ReflectionClass;
 use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Extension\EscaperExtension;
@@ -32,27 +33,35 @@ class TwigEnvironment extends Environment
     {
         $extension = parent::getExtension($name);
 
+        // Provide setEscaper() compatibility shim for older code calling it on the extension.
+        // In Twig 3.9+, setEscaper() moved to EscaperRuntime.
+        // In Twig 3.10+, EscaperExtension is final and cannot be extended.
         if ($name === EscaperExtension::class && class_exists(EscaperRuntime::class)) {
-            return new class($extension, $this) extends EscaperExtension {
-                private $original;
-                private $env;
+            $reflection = new ReflectionClass(EscaperExtension::class);
+            if (!$reflection->isFinal()) {
+                return new class($extension, $this) extends EscaperExtension {
+                    private $original;
+                    private $env;
 
-                public function __construct($original, $env)
-                {
-                    $this->original = $original;
-                    $this->env = $env;
-                }
+                    public function __construct($original, $env)
+                    {
+                        $this->original = $original;
+                        $this->env = $env;
+                    }
 
-                public function setEscaper($strategy, $callable)
-                {
-                    $this->env->getRuntime(EscaperRuntime::class)->setEscaper($strategy, $callable);
-                }
+                    public function setEscaper($strategy, $callable)
+                    {
+                        $this->env->getRuntime(EscaperRuntime::class)->setEscaper($strategy, $callable);
+                    }
 
-                public function getDefaultStrategy($filename)
-                {
-                    return $this->original->getDefaultStrategy($filename);
-                }
-            };
+                    public function getDefaultStrategy($filename)
+                    {
+                        return $this->original->getDefaultStrategy($filename);
+                    }
+                };
+            }
+            // When EscaperExtension is final (Twig 3.10+), setEscaper() must be called
+            // directly on the runtime: $twig->getRuntime(EscaperRuntime::class)->setEscaper(...)
         }
 
         return $extension;
