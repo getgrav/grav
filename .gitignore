@@ -52,3 +52,7 @@ system/templates/testing/*
 tmp/*
 /AGENTS.md
 /.claude
+
+# PHPDoc tools
+tools/phpdoc/vendor/
+tools/phpdoc/output/

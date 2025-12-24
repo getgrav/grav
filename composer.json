@@ -134,7 +134,7 @@
         ]
     },
     "scripts": {
-        "api-18": "vendor/bin/phpdoc-md generate system/src > user/pages/14.api/default.18.md",
+        "api": "vendor/bin/phpdoc-md generate system/src > user/pages/17/14.api/default.md",
         "post-create-project-cmd": "bin/grav install",
         "rector": "vendor/bin/rector",
         "rector:php-compat": "@php vendor/bin/rector process --config=system/rector.php --ansi --no-progress-bar",
