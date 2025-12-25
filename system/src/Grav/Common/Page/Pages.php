@@ -1870,6 +1870,11 @@ class Pages
                 continue;
             }
 
+            // Skip broken symlinks.
+            if ($file->isLink() && $file->getRealPath() === false) {
+                continue;
+            }
+
             // Handle folders later.
             if ($file->isDir()) {
                 // But ignore all folders in ignore list.
