@@ -608,23 +608,25 @@ class Grav extends Container
                 // Unfortunately without FastCGI there is no way to force close the connection.
                 // We need to ask browser to close the connection for us.
 
-                if ($config->get('system.cache.gzip')) {
-                    // Flush gzhandler buffer if gzip setting was enabled to get the size of the compressed output.
-                    ob_end_flush();
-                } elseif ($config->get('system.cache.allow_webserver_gzip')) {
-                    // Let web server to do the hard work.
-                    header('Content-Encoding: identity');
-                } elseif (function_exists('apache_setenv')) {
-                    // Without gzip we have no other choice than to prevent server from compressing the output.
-                    // This action turns off mod_deflate which would prevent us from closing the connection.
-                    @apache_setenv('no-gzip', '1');
-                } else {
-                    // Fall back to unknown content encoding, it prevents most servers from deflating the content.
-                    header('Content-Encoding: none');
+                // With zlib.output_compression enabled, PHP handles compression automatically.
+                // We cannot set Content-Length when compression is active (size unknown until compressed).
+                if (!$config->get('system.cache.gzip') && !ini_get('zlib.output_compression')) {
+                    if ($config->get('system.cache.allow_webserver_gzip')) {
+                        // Let web server to do the hard work.
+                        header('Content-Encoding: identity');
+                    } elseif (function_exists('apache_setenv')) {
+                        // Without gzip we have no other choice than to prevent server from compressing the output.
+                        // This action turns off mod_deflate which would prevent us from closing the connection.
+                        @apache_setenv('no-gzip', '1');
+                    } else {
+                        // Fall back to unknown content encoding, it prevents most servers from deflating the content.
+                        header('Content-Encoding: none');
+                    }
+
+                    // Get length and close the connection (only when not using compression).
+                    header('Content-Length: ' . ob_get_length());
                 }
 
-                // Get length and close the connection.
-                header('Content-Length: ' . ob_get_length());
                 header('Connection: close');
 
                 ob_end_flush();
