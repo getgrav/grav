@@ -608,11 +608,10 @@ class Grav extends Container
                 // Unfortunately without FastCGI there is no way to force close the connection.
                 // We need to ask browser to close the connection for us.
 
-                // With zlib.output_compression enabled, PHP handles compression automatically.
-                // We cannot set Content-Length when compression is active (size unknown until compressed).
-                if (!$config->get('system.cache.gzip') && !ini_get('zlib.output_compression')) {
-                    if ($config->get('system.cache.allow_webserver_gzip')) {
-                        // Let web server to do the hard work.
+                // Check if external compression is active (e.g., zlib.output_compression in php.ini).
+                if (!ini_get('zlib.output_compression')) {
+                    if ($config->get('system.cache.gzip') || $config->get('system.cache.allow_webserver_gzip')) {
+                        // Let web server handle compression.
                         header('Content-Encoding: identity');
                     } elseif (function_exists('apache_setenv')) {
                         // Without gzip we have no other choice than to prevent server from compressing the output.

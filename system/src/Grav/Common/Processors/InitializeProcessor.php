@@ -345,12 +345,6 @@ class InitializeProcessor extends ProcessorBase
 
         // Use output buffering to prevent headers from being sent too early.
         ob_start();
-        if ($config->get('system.cache.gzip')) {
-            // Try to use zlib.output_compression instead of ob_gzhandler (more robust)
-            if (!ini_get('zlib.output_compression') && !headers_sent()) {
-                ini_set('zlib.output_compression', '4096');
-            }
-        }
 
         $this->stopTimer('_init_ob');
     }
