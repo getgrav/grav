@@ -1,3 +1,18 @@
+# v1.8.0-beta.29
+## 12/27/2025
+
+1. [](#improved)
+    * Avoid mail in twig content trigger security error
+    * Don’t do internal grav-based gzip, rely on webserver
+    * Updated vendor libs
+1. [](#bugfix)
+    * Fix for grav not picking up config + page changes
+    * Fix for unusual format SVGs
+    * Fix for nested config changes
+    * Fix for user editing causing `hashed_password` to be removed
+    * Fix of setEscaper move in Twig 3.9+
+    * Fix for broken symlinks
+
 # v1.8.0-beta.28
 ## 12/08/2025
 
