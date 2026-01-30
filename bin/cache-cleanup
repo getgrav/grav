@@ -1,0 +1,36 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * Cache Cleanup Script for Grav CMS
+ *
+ * This is a wrapper script that calls the proper Grav CLI command.
+ * For full help and options, run: bin/grav cache-cleanup --help
+ *
+ * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @license    MIT License; see LICENSE file for details.
+ */
+
+// Get the directory where this script lives
+$binDir = __DIR__;
+$gravBin = $binDir . '/grav';
+
+// Check if the grav binary exists
+if (!file_exists($gravBin)) {
+    fwrite(STDERR, "Error: grav binary not found at {$gravBin}\n");
+    exit(1);
+}
+
+// Build the command arguments, prepending 'cache-cleanup'
+$args = array_slice($_SERVER['argv'], 1);
+array_unshift($args, 'cache-cleanup');
+
+// Build the full command
+$command = escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg($gravBin);
+foreach ($args as $arg) {
+    $command .= ' ' . escapeshellarg($arg);
+}
+
+// Execute and pass through the exit code
+passthru($command, $exitCode);
+exit($exitCode);
