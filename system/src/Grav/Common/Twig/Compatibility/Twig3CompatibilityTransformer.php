@@ -196,6 +196,7 @@ class Twig3CompatibilityTransformer
     {
         // Use possessive quantifiers (*+) to prevent catastrophic backtracking
         // that can cause JIT stack exhaustion with certain Unicode content.
+        // Pattern matches: single-quoted strings | double-quoted strings | (keyword to replace)
         $pattern = '/\'[^\'\\\\]*+(?:\\\\.[^\'\\\\]*+)*+\'|"[^"\\\\]*+(?:\\\\.[^"\\\\]*+)*+"|(\\bis\\s+(?:not\\s+)?divisibleby\\b)/is';
 
         $result = preg_replace_callback($pattern, static function ($matches) {
