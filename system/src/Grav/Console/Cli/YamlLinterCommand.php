@@ -53,60 +53,86 @@ class YamlLinterCommand extends GravCommand
 
         $io->title('Yaml Linter');
 
+        $verbose = $io->isVerbose();
+        $checked = 0;
+        $callback = $verbose ? function (string $file, bool $success, ?string $error) use ($io, &$checked) {
+            $checked++;
+            if ($success) {
+                $io->writeln("<green>[OK]</green> {$file}");
+            } else {
+                $io->writeln("<red>[ERROR]</red> {$file}");
+            }
+        } : null;
+
         $error = 0;
         if ($input->getOption('all')) {
             $io->section('All');
-            $errors = YamlLinter::lint('');
+            $errors = YamlLinter::lint('', $callback);
 
-            if (empty($errors)) {
-                $io->success('No YAML Linting issues found');
-            } else {
+            $this->displayResult($errors, $io, 'No YAML Linting issues found', $verbose, $checked);
+            if (!empty($errors)) {
                 $error = 1;
-                $this->displayErrors($errors, $io);
             }
         } elseif ($folder = $input->getOption('folder')) {
             $io->section($folder);
-            $errors = YamlLinter::lint($folder);
+            $errors = YamlLinter::lint($folder, $callback);
 
-            if (empty($errors)) {
-                $io->success('No YAML Linting issues found');
-            } else {
+            $this->displayResult($errors, $io, 'No YAML Linting issues found', $verbose, $checked);
+            if (!empty($errors)) {
                 $error = 1;
-                $this->displayErrors($errors, $io);
             }
         } else {
             $io->section('User Configuration');
-            $errors = YamlLinter::lintConfig();
+            $checked = 0;
+            $errors = YamlLinter::lintConfig($callback);
 
-            if (empty($errors)) {
-                $io->success('No YAML Linting issues with configuration');
-            } else {
+            $this->displayResult($errors, $io, 'No YAML Linting issues with configuration', $verbose, $checked);
+            if (!empty($errors)) {
                 $error = 1;
-                $this->displayErrors($errors, $io);
             }
 
             $io->section('Pages Frontmatter');
-            $errors = YamlLinter::lintPages();
+            $checked = 0;
+            $errors = YamlLinter::lintPages($callback);
 
-            if (empty($errors)) {
-                $io->success('No YAML Linting issues with pages');
-            } else {
+            $this->displayResult($errors, $io, 'No YAML Linting issues with pages', $verbose, $checked);
+            if (!empty($errors)) {
                 $error = 1;
-                $this->displayErrors($errors, $io);
             }
 
             $io->section('Page Blueprints');
-            $errors = YamlLinter::lintBlueprints();
+            $checked = 0;
+            $errors = YamlLinter::lintBlueprints($callback);
 
-            if (empty($errors)) {
-                $io->success('No YAML Linting issues with blueprints');
-            } else {
+            $this->displayResult($errors, $io, 'No YAML Linting issues with blueprints', $verbose, $checked);
+            if (!empty($errors)) {
                 $error = 1;
-                $this->displayErrors($errors, $io);
             }
         }
 
         return $error;
+    }
+
+    /**
+     * @param array $errors
+     * @param SymfonyStyle $io
+     * @param string $successMessage
+     * @param bool $verbose
+     * @param int $checked
+     * @return void
+     */
+    protected function displayResult(array $errors, SymfonyStyle $io, string $successMessage, bool $verbose, int $checked): void
+    {
+        if ($verbose) {
+            $io->newLine();
+            $io->writeln("Files checked: <info>{$checked}</info>");
+        }
+
+        if (empty($errors)) {
+            $io->success($successMessage);
+        } else {
+            $this->displayErrors($errors, $io);
+        }
     }
 
     /**

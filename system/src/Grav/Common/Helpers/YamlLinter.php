@@ -27,39 +27,47 @@ class YamlLinter
 {
     /**
      * @param string|null $folder
+     * @param callable|null $callback Optional callback for progress: function(string $file, bool $success, ?string $error)
      * @return array
      */
-    public static function lint(?string $folder = null)
+    public static function lint(?string $folder = null, ?callable $callback = null)
     {
         if (null !== $folder) {
             $folder = $folder ?: GRAV_ROOT;
 
-            return static::recurseFolder($folder);
+            return static::recurseFolder($folder, '(md|yaml)', $callback);
         }
 
-        return array_merge(static::lintConfig(), static::lintPages(), static::lintBlueprints());
+        return array_merge(
+            static::lintConfig($callback),
+            static::lintPages($callback),
+            static::lintBlueprints($callback)
+        );
     }
 
     /**
+     * @param callable|null $callback Optional callback for progress: function(string $file, bool $success, ?string $error)
      * @return array
      */
-    public static function lintPages()
+    public static function lintPages(?callable $callback = null)
     {
-        return static::recurseFolder('page://');
+        return static::recurseFolder('page://', '(md|yaml)', $callback);
     }
 
     /**
+     * @param callable|null $callback Optional callback for progress: function(string $file, bool $success, ?string $error)
      * @return array
      */
-    public static function lintConfig()
+    public static function lintConfig(?callable $callback = null)
     {
-        return static::recurseFolder('config://');
+        return static::recurseFolder('config://', '(md|yaml)', $callback);
     }
 
     /**
+     * @param callable|null $callback Optional callback for progress: function(string $file, bool $success, ?string $error)
      * @return array
      */
-    public static function lintBlueprints()
+    public static function lintBlueprints(?callable $callback = null)
     {
         /** @var UniformResourceLocator $locator */
         $locator = Grav::instance()['locator'];
@@ -68,15 +76,16 @@ class YamlLinter
         $theme_path = 'themes://' . $current_theme . '/blueprints';
 
         $locator->addPath('blueprints', '', [$theme_path]);
-        return static::recurseFolder('blueprints://');
+        return static::recurseFolder('blueprints://', '(md|yaml)', $callback);
     }
 
     /**
      * @param string $path
      * @param string $extensions
+     * @param callable|null $callback Optional callback for progress: function(string $file, bool $success, ?string $error)
      * @return array
      */
-    public static function recurseFolder($path, $extensions = '(md|yaml)')
+    public static function recurseFolder($path, $extensions = '(md|yaml)', ?callable $callback = null)
     {
         $lint_errors = [];
 
@@ -93,10 +102,17 @@ class YamlLinter
 
         /** @var RecursiveDirectoryIterator $file */
         foreach ($iterator as $filepath => $file) {
+            $relativePath = str_replace(GRAV_ROOT, '', $filepath);
             try {
                 Yaml::parse(static::extractYaml($filepath));
+                if ($callback) {
+                    $callback($relativePath, true, null);
+                }
             } catch (Exception $e) {
-                $lint_errors[str_replace(GRAV_ROOT, '', $filepath)] = $e->getMessage();
+                $lint_errors[$relativePath] = $e->getMessage();
+                if ($callback) {
+                    $callback($relativePath, false, $e->getMessage());
+                }
             }
         }
 
