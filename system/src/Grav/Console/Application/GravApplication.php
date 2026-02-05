@@ -10,6 +10,7 @@
 namespace Grav\Console\Application;
 
 use Grav\Console\Cli\BackupCommand;
+use Grav\Console\Cli\CacheCleanupCommand;
 use Grav\Console\Cli\CleanCommand;
 use Grav\Console\Cli\ClearCacheCommand;
 use Grav\Console\Cli\ComposerCommand;
@@ -39,6 +40,7 @@ class GravApplication extends Application
             new SandboxCommand(),
             new CleanCommand(),
             new ClearCacheCommand(),
+            new CacheCleanupCommand(),
             new BackupCommand(),
             new NewProjectCommand(),
             new SchedulerCommand(),

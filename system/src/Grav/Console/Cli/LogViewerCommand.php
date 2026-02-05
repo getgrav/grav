@@ -78,7 +78,7 @@ class LogViewerCommand extends GravCommand
             $level_color = LogViewer::levelColor($log['level']);
 
             if ($date instanceof DateTime) {
-                $output = "<yellow>{$log['date']->format('Y-m-d h:i:s')}</yellow> [<{$level_color}>{$log['level']}</{$level_color}>]";
+                $output = "<yellow>{$log['date']->format('Y-m-d H:i:s')}</yellow> [<{$level_color}>{$log['level']}</{$level_color}>]";
                 if ($log['trace'] && $verbose) {
                     $output .= " <white>{$log['message']}</white>\n";
                     foreach ((array) $log['trace'] as $index => $tracerow) {
