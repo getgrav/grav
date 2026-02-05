@@ -39,6 +39,12 @@ class YamlLinterCommand extends GravCommand
                 InputOption::VALUE_OPTIONAL,
                 'Go through specific folder'
             )
+            ->addOption(
+                'strict',
+                's',
+                InputOption::VALUE_NONE,
+                'Use the stricter Compat YAML parser that matches runtime behavior'
+            )
             ->setDescription('Checks various files for YAML errors')
             ->setHelp('Checks various files for YAML errors');
     }
@@ -54,6 +60,7 @@ class YamlLinterCommand extends GravCommand
         $io->title('Yaml Linter');
 
         $verbose = $io->isVerbose();
+        $strict = (bool) $input->getOption('strict');
         $checked = 0;
         $callback = $verbose ? function (string $file, bool $success, ?string $error) use ($io, &$checked) {
             $checked++;
@@ -64,10 +71,14 @@ class YamlLinterCommand extends GravCommand
             }
         } : null;
 
+        if ($strict) {
+            $io->note('Using strict Compat YAML parser (matches runtime behavior)');
+        }
+
         $error = 0;
         if ($input->getOption('all')) {
             $io->section('All');
-            $errors = YamlLinter::lint('', $callback);
+            $errors = YamlLinter::lint('', $callback, $strict);
 
             $this->displayResult($errors, $io, 'No YAML Linting issues found', $verbose, $checked);
             if (!empty($errors)) {
@@ -75,7 +86,7 @@ class YamlLinterCommand extends GravCommand
             }
         } elseif ($folder = $input->getOption('folder')) {
             $io->section($folder);
-            $errors = YamlLinter::lint($folder, $callback);
+            $errors = YamlLinter::lint($folder, $callback, $strict);
 
             $this->displayResult($errors, $io, 'No YAML Linting issues found', $verbose, $checked);
             if (!empty($errors)) {
@@ -84,7 +95,7 @@ class YamlLinterCommand extends GravCommand
         } else {
             $io->section('User Configuration');
             $checked = 0;
-            $errors = YamlLinter::lintConfig($callback);
+            $errors = YamlLinter::lintConfig($callback, $strict);
 
             $this->displayResult($errors, $io, 'No YAML Linting issues with configuration', $verbose, $checked);
             if (!empty($errors)) {
@@ -93,7 +104,7 @@ class YamlLinterCommand extends GravCommand
 
             $io->section('Pages Frontmatter');
             $checked = 0;
-            $errors = YamlLinter::lintPages($callback);
+            $errors = YamlLinter::lintPages($callback, $strict);
 
             $this->displayResult($errors, $io, 'No YAML Linting issues with pages', $verbose, $checked);
             if (!empty($errors)) {
@@ -102,9 +113,18 @@ class YamlLinterCommand extends GravCommand
 
             $io->section('Page Blueprints');
             $checked = 0;
-            $errors = YamlLinter::lintBlueprints($callback);
+            $errors = YamlLinter::lintBlueprints($callback, $strict);
 
             $this->displayResult($errors, $io, 'No YAML Linting issues with blueprints', $verbose, $checked);
+            if (!empty($errors)) {
+                $error = 1;
+            }
+
+            $io->section('Environment Configuration');
+            $checked = 0;
+            $errors = YamlLinter::lintEnvironments($callback, $strict);
+
+            $this->displayResult($errors, $io, 'No YAML Linting issues with environment configs', $verbose, $checked);
             if (!empty($errors)) {
                 $error = 1;
             }
