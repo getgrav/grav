@@ -15,6 +15,7 @@ use Grav\Common\Cache;
 use Grav\Common\GPM\Installer;
 use Grav\Common\Grav;
 use Grav\Common\Plugins;
+use Grav\Common\Upgrade\SafeUpgradeService;
 use RuntimeException;
 use function class_exists;
 use function dirname;
@@ -119,8 +120,15 @@ final class Install
     /** @var VersionUpdater|null */
     private $updater;
 
+    /** @var array|null */
+    private $lastManifest = null;
+
     /** @var static */
     private static $instance;
+    /** @var bool|null */
+    private static $forceSafeUpgrade = null;
+    /** @var callable|null */
+    private $progressCallback = null;
 
     /**
      * @return static
@@ -132,6 +140,17 @@ final class Install
         }
 
         return self::$instance;
+    }
+
+    /**
+     * Force safe-upgrade mode independently of system configuration.
+     *
+     * @param bool|null $state
+     * @return void
+     */
+    public static function forceSafeUpgrade(?bool $state = true): void
+    {
+        self::$forceSafeUpgrade = $state;
     }
 
     private function __construct()
@@ -184,6 +203,20 @@ ERR;
         $this->prepare();
         $this->install();
         $this->finalize();
+    }
+
+    public function setProgressCallback(?callable $callback): self
+    {
+        $this->progressCallback = $callback;
+
+        return $this;
+    }
+
+    private function relayProgress(string $stage, string $message, ?int $percent = null): void
+    {
+        if ($this->progressCallback) {
+            ($this->progressCallback)($stage, $message, $percent);
+        }
     }
 
     /**
@@ -251,6 +284,8 @@ ERR;
             throw new RuntimeException('Oops, installer was run without prepare()!', 500);
         }
 
+        $this->lastManifest = null;
+
         try {
             if (null === $this->updater) {
                 $versions = Versions::instance(USER_DIR . 'config/versions.yaml');
@@ -260,13 +295,42 @@ ERR;
             // Update user/config/version.yaml before copying the files to avoid frontend from setting the version schema.
             $this->updater->install();
 
-            Installer::install(
-                $this->zip ?? '',
-                GRAV_ROOT,
-                ['sophisticated' => true, 'overwrite' => true, 'ignore_symlinks' => true, 'ignores' => $this->ignores],
-                $this->location,
-                !($this->zip && is_file($this->zip))
-            );
+            if ($this->shouldUseSafeUpgrade()) {
+                $options = [];
+                try {
+                    $grav = Grav::instance();
+                    if ($grav && isset($grav['config'])) {
+                        $options['config'] = $grav['config'];
+                    }
+                } catch (\Throwable $e) {
+                    // ignore
+                }
+
+                $service = new SafeUpgradeService($options);
+                if ($this->progressCallback) {
+                    $service->setProgressCallback(function (string $stage, string $message, ?int $percent = null, array $extra = []) {
+                        $this->relayProgress($stage, $message, $percent);
+                    });
+                }
+                $manifest = $service->promote($this->location, $this->getVersion(), $this->ignores);
+                $this->lastManifest = $manifest;
+                if (method_exists($service, 'getLastManifest')) {
+                    // SafeUpgradeService in Grav < 1.7.50.1 does not expose getLastManifest().
+                    $lastManifest = $service->getLastManifest();
+                    if (null !== $lastManifest) {
+                        $this->lastManifest = $lastManifest;
+                    }
+                }
+                Installer::setError(Installer::OK);
+            } else {
+                Installer::install(
+                    $this->zip ?? '',
+                    GRAV_ROOT,
+                    ['sophisticated' => true, 'overwrite' => true, 'ignore_symlinks' => true, 'ignores' => $this->ignores],
+                    $this->location,
+                    !($this->zip && is_file($this->zip))
+                );
+            }
         } catch (Exception $e) {
             Installer::setError($e->getMessage());
         }
@@ -278,6 +342,31 @@ ERR;
         if (!$success) {
             throw new RuntimeException(Installer::lastErrorMsg());
         }
+    }
+
+    /**
+     * @return bool
+     */
+    private function shouldUseSafeUpgrade(): bool
+    {
+        if (!class_exists(SafeUpgradeService::class)) {
+            return false;
+        }
+
+        if (null !== self::$forceSafeUpgrade) {
+            return self::$forceSafeUpgrade;
+        }
+
+        try {
+            $grav = Grav::instance();
+            if ($grav && isset($grav['config'])) {
+                return (bool) $grav['config']->get('system.updates.safe_upgrade', true);
+            }
+        } catch (\Throwable $e) {
+            // Grav container may not be initialised yet, default to safe upgrade.
+        }
+
+        return true;
     }
 
     /**
@@ -294,6 +383,8 @@ ERR;
         }
 
         $this->updater->postflight();
+
+        $this->ensureExecutablePermissions();
 
         Cache::clearCache('all');
 
@@ -396,5 +487,39 @@ ERR;
     {
         // Support install for Grav 1.6.0 - 1.6.20 by loading the original class from the older version of Grav.
         class_exists(\Grav\Console\Cli\CacheCommand::class, true);
+    }
+
+    private function ensureExecutablePermissions(): void
+    {
+        $executables = [
+            'bin/grav',
+            'bin/plugin',
+            'bin/gpm',
+            'bin/restore',
+            'bin/composer.phar'
+        ];
+
+        foreach ($executables as $relative) {
+            $path = GRAV_ROOT . '/' . $relative;
+            if (!is_file($path) || is_link($path)) {
+                continue;
+            }
+
+            $mode = @fileperms($path);
+            $current = $mode !== false ? ($mode & 0777) : 0644;
+            if (($current & 0111) === 0111) {
+                continue;
+            }
+
+            @chmod($path, $current | 0111);
+        }
+    }
+
+    /**
+     * @return array|null
+     */
+    public function getLastManifest(): ?array
+    {
+        return $this->lastManifest;
     }
 }

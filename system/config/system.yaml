@@ -184,6 +184,7 @@ media:
   unsupported_inline_types: []                   # Array of supported media types to try to display inline
   allowed_fallback_types: []                     # Array of allowed media types of files found if accessed via Page route
   auto_metadata_exif: false                      # Automatically create metadata files from Exif data where possible
+  auto_delete_metadata: true                     # Automatically delete metadata when deleting media files
 
 session:
   enabled: true                                  # Enable Session support
@@ -202,6 +203,9 @@ session:
 gpm:
   releases: stable                               # Set to either 'stable' or 'testing'
   official_gpm_only: true                        # By default GPM direct-install will only allow URLs via the official GPM proxy to ensure security
+
+updates:
+  safe_upgrade: true                             # Enable guarded staging+rollback pipeline for Grav self-updates
 
 http:
   method: auto                                   # Either 'curl', 'fopen' or 'auto'. 'auto' will try fopen first and if not available cURL

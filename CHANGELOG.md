@@ -1,3 +1,36 @@
+# v1.7.50.4
+## 10/31/2025
+
+1. [](#improved)
+    * More fixes and improvements for safe-uprade process
+
+# v1.7.50.3
+## 10/21/2025
+
+1. [](#bugfix)
+    * Restored `user/config/system.yaml` to 1.7 branch version (testing mode off)
+
+# v1.7.50.2
+## 10/21/2025
+
+1. [](#bugfix)
+    * Fix for `SafeUpgradeService::getLastManifest()` fatal error on upgrade [#3966](https://github.com/getgrav/grav/issues/3966)
+
+# v1.7.50.1
+## 10/20/2025
+
+1. [](#bugfix)
+    * Fix for broken `GRAV_ROOT`
+
+# v1.7.50
+## 10/19/2025
+
+1. [](#new)
+    * Added new **Safe Core Upgrade** process with snapshots for backup and restore, better preflight and postflight checks, as well as exception checking post-install for easy rollback.
+    * Introduced recovery mode with token-gated UI, plugin quarantine, and CLI rollback support.
+    * Added `bin/gpm preflight` compatibility scanner and `bin/gpm rollback` utility.
+    * Added `wordCount` Twig filter [#3957](https://github.com/getgrav/grav/pulls/3957)
+
 # v1.7.49.5
 ## 09/10/2025
 

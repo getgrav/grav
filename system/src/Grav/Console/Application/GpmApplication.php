@@ -13,6 +13,8 @@ use Grav\Console\Gpm\DirectInstallCommand;
 use Grav\Console\Gpm\IndexCommand;
 use Grav\Console\Gpm\InfoCommand;
 use Grav\Console\Gpm\InstallCommand;
+use Grav\Console\Gpm\PreflightCommand;
+use Grav\Console\Gpm\RollbackCommand;
 use Grav\Console\Gpm\SelfupgradeCommand;
 use Grav\Console\Gpm\UninstallCommand;
 use Grav\Console\Gpm\UpdateCommand;
@@ -36,6 +38,8 @@ class GpmApplication extends Application
             new UninstallCommand(),
             new UpdateCommand(),
             new SelfupgradeCommand(),
+            new PreflightCommand(),
+            new RollbackCommand(),
             new DirectInstallCommand(),
         ]);
     }

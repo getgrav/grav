@@ -20,6 +20,7 @@ use Grav\Console\Cli\NewProjectCommand;
 use Grav\Console\Cli\PageSystemValidatorCommand;
 use Grav\Console\Cli\SandboxCommand;
 use Grav\Console\Cli\SchedulerCommand;
+use Grav\Console\Cli\SafeUpgradeRunCommand;
 use Grav\Console\Cli\SecurityCommand;
 use Grav\Console\Cli\ServerCommand;
 use Grav\Console\Cli\YamlLinterCommand;
@@ -49,6 +50,7 @@ class GravApplication extends Application
             new YamlLinterCommand(),
             new ServerCommand(),
             new PageSystemValidatorCommand(),
+            new SafeUpgradeRunCommand(),
         ]);
     }
 }

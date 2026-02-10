@@ -464,8 +464,18 @@ class Assets extends PropertyObject
         if ($this->{$pipeline_enabled} ?? false) {
             $options = array_merge($this->pipeline_options, ['timestamp' => $this->timestamp]);
 
-            $pipeline = new Pipeline($options);
-            $pipeline_output = $pipeline->$render_pipeline($pipeline_assets, $group, $attributes);
+            $grouped_pipeline_assets = $this->splitPipelineAssetsByAttribute($pipeline_assets, 'loading');
+
+            foreach ($grouped_pipeline_assets as $pipeline_group) {
+                if (empty($pipeline_group['assets'])) {
+                    continue;
+                }
+
+                $group_attributes = array_merge($attributes, $pipeline_group['attributes']);
+
+                $pipeline = new Pipeline($options);
+                $pipeline_output .= $pipeline->$render_pipeline($pipeline_group['assets'], $group, $group_attributes);
+            }
         } else {
             foreach ($pipeline_assets as $asset) {
                 $pipeline_output .= $asset->render();
@@ -591,5 +601,72 @@ class Assets extends PropertyObject
         }
 
         return $base_type;
+    }
+
+    /**
+     * Split pipeline assets into ordered groups based on the value of a given attribute.
+     *
+     * This preserves the original order of the assets while ensuring assets that require
+     * special handling (such as different loading strategies) are rendered separately.
+     *
+     * @param array $assets
+     * @param string $attribute
+     * @return array<int, array{assets: array, attributes: array}>
+     */
+    protected function splitPipelineAssetsByAttribute(array $assets, string $attribute): array
+    {
+        $groups = [];
+        $currentAssets = [];
+        $currentValue = null;
+        $hasCurrentGroup = false;
+
+        foreach ($assets as $key => $asset) {
+            $value = null;
+
+            if (method_exists($asset, 'hasNestedProperty')) {
+                if ($asset->hasNestedProperty($attribute)) {
+                    $value = $asset->getNestedProperty($attribute);
+                } elseif ($asset->hasNestedProperty('attributes.' . $attribute)) {
+                    $value = $asset->getNestedProperty('attributes.' . $attribute);
+                }
+            }
+
+            if ($value === null && isset($asset[$attribute])) {
+                $value = $asset[$attribute];
+            }
+
+            if ($value === '' || $value === false) {
+                $value = null;
+            }
+
+            if (!$hasCurrentGroup) {
+                $currentAssets = [$key => $asset];
+                $currentValue = $value;
+                $hasCurrentGroup = true;
+                continue;
+            }
+
+            if ($value === $currentValue) {
+                $currentAssets[$key] = $asset;
+                continue;
+            }
+
+            $groups[] = [
+                'assets' => $currentAssets,
+                'attributes' => $currentValue !== null ? [$attribute => $currentValue] : []
+            ];
+
+            $currentAssets = [$key => $asset];
+            $currentValue = $value;
+        }
+
+        if ($hasCurrentGroup) {
+            $groups[] = [
+                'assets' => $currentAssets,
+                'attributes' => $currentValue !== null ? [$attribute => $currentValue] : []
+            ];
+        }
+
+        return $groups;
     }
 }
