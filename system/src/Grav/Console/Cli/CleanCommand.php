@@ -29,6 +29,9 @@ class CleanCommand extends Command
 
     /** @var array */
     protected $paths_to_remove = [
+        '.gitattributes',
+        '.github/',
+        '.phan/',
         'codeception.yml',
         'tests/',
         'user/plugins/admin/vendor/bacon/bacon-qr-code/tests',

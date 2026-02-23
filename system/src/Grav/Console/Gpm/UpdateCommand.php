@@ -12,6 +12,7 @@ namespace Grav\Console\Gpm;
 use Grav\Common\GPM\GPM;
 use Grav\Common\GPM\Installer;
 use Grav\Common\GPM\Upgrader;
+use Grav\Common\Grav;
 use Grav\Console\GpmCommand;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputArgument;
@@ -116,15 +117,38 @@ class UpdateCommand extends GpmCommand
         $local = $this->upgrader->getLocalVersion();
         $remote = $this->upgrader->getRemoteVersion();
         if ($local !== $remote) {
-            $io->writeln('<yellow>WARNING</yellow>: A new version of Grav is available. You should update Grav before updating plugins and themes. If you continue without updating Grav, some plugins or themes may stop working.');
-            $io->newLine();
-            $question = new ConfirmationQuestion('Continue with the update process? [Y|n] ', true);
-            $answer = $io->askQuestion($question);
+            // Determine if this is a major/minor version upgrade by comparing versions
+            $localParts = explode('.', $local);
+            $remoteParts = explode('.', $remote);
 
-            if (!$answer) {
-                $io->writeln('<red>Update aborted. Exiting...</red>');
+            $localMajor = (int)($localParts[0] ?? 0);
+            $localMinor = (int)($localParts[1] ?? 0);
+            $remoteMajor = (int)($remoteParts[0] ?? 0);
+            $remoteMinor = (int)($remoteParts[1] ?? 0);
 
-                return 1;
+            // Check if this is a major/minor version change (e.g., 1.7.x -> 1.8.y)
+            $isMajorMinorUpgrade = ($localMajor !== $remoteMajor) || ($localMinor !== $remoteMinor);
+
+            if ($isMajorMinorUpgrade) {
+                // For major/minor upgrades (e.g., 1.7.x -> 1.8.y), recommend updating plugins FIRST
+                $io->writeln('<yellow>WARNING</yellow>: A new major version of Grav is available (v' . $local . ' -> v' . $remote . ').');
+                $io->writeln('For major version upgrades, you should update plugins and themes to their latest compatible versions BEFORE upgrading Grav core.');
+                $io->writeln('This ensures plugins have any necessary compatibility fixes for the new Grav version.');
+                $io->newLine();
+                $io->writeln('<green>It is recommended to proceed with updating plugins and themes now.</green>');
+            } else {
+                // For patch upgrades (e.g., 1.7.45 -> 1.7.46), recommend updating Grav FIRST
+                $io->writeln('<yellow>WARNING</yellow>: A new version of Grav is available (v' . $local . ' -> v' . $remote . ').');
+                $io->writeln('You should update Grav before updating plugins and themes. If you continue without updating Grav, some plugins or themes may stop working.');
+                $io->newLine();
+                $question = new ConfirmationQuestion('Continue with the update process? [Y|n] ', true);
+                $answer = $io->askQuestion($question);
+
+                if (!$answer) {
+                    $io->writeln('<red>Update aborted. Exiting...</red>');
+
+                    return 1;
+                }
             }
         }
 
@@ -211,6 +235,10 @@ class UpdateCommand extends GpmCommand
                 return 1;
             }
         }
+
+        /** @var \Grav\Common\Recovery\RecoveryManager $recovery */
+        $recovery = Grav::instance()['recovery'];
+        $recovery->markUpgradeWindow('package-update', ['scope' => 'core']);
 
         // finally update
         $install_command = $this->getApplication()->find('install');

@@ -140,6 +140,7 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
             new TwigFilter('starts_with', [$this, 'startsWithFilter']),
             new TwigFilter('truncate', [Utils::class, 'truncate']),
             new TwigFilter('truncate_html', [Utils::class, 'truncateHTML']),
+            new TwigFilter('wordcount', [$this, 'wordCountFilter']),
             new TwigFilter('json_decode', [$this, 'jsonDecodeFilter']),
             new TwigFilter('array_unique', 'array_unique'),
             new TwigFilter('basename', 'basename'),
@@ -576,6 +577,62 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
         }
 
         return $str;
+    }
+
+    /**
+     * Count words in text with improved accuracy for multiple languages
+     *
+     * @param string $text The text to count words from
+     * @param string $locale Optional locale for language-specific counting (default: 'en')
+     * @return int Number of words
+     */
+    public function wordCountFilter($text, string $locale = 'en'): int
+    {
+        if (empty($text)) {
+            return 0;
+        }
+
+        // Strip HTML tags and decode entities
+        $cleanText = html_entity_decode(strip_tags($text), ENT_QUOTES, 'UTF-8');
+        
+        // Remove extra whitespace and normalize
+        $cleanText = trim(preg_replace('/\s+/', ' ', $cleanText));
+        
+        if (empty($cleanText)) {
+            return 0;
+        }
+
+        // Handle different languages
+        switch (strtolower($locale)) {
+            case 'zh':
+            case 'zh-cn':
+            case 'zh-tw':
+            case 'chinese':
+                // Chinese: count characters (excluding spaces and punctuation)
+                return mb_strlen(preg_replace('/[\s\p{P}]/u', '', $cleanText), 'UTF-8');
+                
+            case 'ja':
+            case 'japanese':
+                // Japanese: count characters (excluding spaces)
+                return mb_strlen(preg_replace('/\s/', '', $cleanText), 'UTF-8');
+                
+            case 'ko':
+            case 'korean':
+                // Korean: count characters (excluding spaces)
+                return mb_strlen(preg_replace('/\s/', '', $cleanText), 'UTF-8');
+                
+            default:
+                // Western languages: use improved word counting
+                // Handle contractions, hyphenated words, and numbers better
+                $words = preg_split('/\s+/', $cleanText, -1, PREG_SPLIT_NO_EMPTY);
+                
+                // Filter out pure punctuation
+                $words = array_filter($words, function($word) {
+                    return preg_match('/\w/', $word);
+                });
+                
+                return count($words);
+        }
     }
 
     /**

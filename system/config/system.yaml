@@ -203,6 +203,9 @@ gpm:
   releases: stable                               # Set to either 'stable' or 'testing'
   official_gpm_only: true                        # By default GPM direct-install will only allow URLs via the official GPM proxy to ensure security
 
+updates:
+  safe_upgrade: true                             # Enable guarded staging+rollback pipeline for Grav self-updates
+
 http:
   method: auto                                   # Either 'curl', 'fopen' or 'auto'. 'auto' will try fopen first and if not available cURL
   enable_proxy: true                             # Enable proxy server configuration
