@@ -12,10 +12,8 @@ status: {}
 # Custom scheduled jobs
 custom_jobs: {}
 
-# Modern scheduler features (disabled by default for backward compatibility)
+# Modern scheduler features
 modern:
-  # Enable modern scheduler features
-  enabled: false
   
   # Number of concurrent workers (1 = sequential execution like legacy)
   workers: 1

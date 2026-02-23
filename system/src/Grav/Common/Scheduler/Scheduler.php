@@ -603,12 +603,29 @@ class Scheduler
     
     /**
      * Check if webhook is enabled
-     * 
+     *
      * @return bool
      */
     public function isWebhookEnabled(): bool
     {
-        return $this->webhookEnabled;
+        // Requires both: the config toggle enabled AND the scheduler-webhook plugin installed
+        if (!$this->webhookEnabled) {
+            return false;
+        }
+
+        $grav = Grav::instance();
+        return (bool) $grav['config']->get('plugins.scheduler-webhook.enabled', false);
+    }
+
+    /**
+     * Check if the scheduler-webhook plugin is installed and enabled
+     *
+     * @return bool
+     */
+    public function isWebhookPluginReady(): bool
+    {
+        $grav = Grav::instance();
+        return (bool) $grav['config']->get('plugins.scheduler-webhook.enabled', false);
     }
     
     /**
@@ -1013,7 +1030,7 @@ class Scheduler
             'failed_jobs_24h' => 0,
             'scheduled_jobs' => count($enabledJobs),
             'jobs_due' => $dueJobs,
-            'webhook_enabled' => $this->webhookEnabled,
+            'webhook_enabled' => $this->isWebhookEnabled(),
             'health_check_enabled' => $this->healthEnabled,
             'timestamp' => date('c'),
         ];
