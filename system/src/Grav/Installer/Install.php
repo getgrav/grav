@@ -123,6 +123,33 @@ final class Install
     private static $instance;
 
     /**
+     * Backward-compatibility: older versions (e.g. 1.7.50) with safe-upgrade call
+     * forceSafeUpgrade() / getLastManifest() on the Install singleton loaded from
+     * the update package.  These stubs prevent fatal errors when downgrading from
+     * a safe-upgrade-aware release to one that removed it.
+     */
+
+    /** @var bool|null */
+    private static $forceSafeUpgrade = null;
+
+    /**
+     * @param bool|null $state
+     * @return void
+     */
+    public static function forceSafeUpgrade(?bool $state = true): void
+    {
+        self::$forceSafeUpgrade = $state;
+    }
+
+    /**
+     * @return array|null
+     */
+    public function getLastManifest(): ?array
+    {
+        return null;
+    }
+
+    /**
      * @return static
      */
     public static function instance()
