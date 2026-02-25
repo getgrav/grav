@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b39160710f90a14d6be86b6c7237404a",
+    "content-hash": "853eaabfa780ccf3609b909cc345eb0b",
     "packages": [
         {
             "name": "antoligy/dom-string-iterators",
@@ -4902,20 +4902,21 @@
         },
         {
             "name": "getgrav/markdowndocs",
-            "version": "2.0.1",
+            "version": "3.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/getgrav/PHP-Markdown-Documentation-Generator.git",
-                "reference": "4a24d1b64a88da17e8f1696dc64969f5ca769064"
+                "reference": "b441b225709cf08a62c21c7c5dd775c59b7aaffe"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/getgrav/PHP-Markdown-Documentation-Generator/zipball/4a24d1b64a88da17e8f1696dc64969f5ca769064",
-                "reference": "4a24d1b64a88da17e8f1696dc64969f5ca769064",
+                "url": "https://api.github.com/repos/getgrav/PHP-Markdown-Documentation-Generator/zipball/b441b225709cf08a62c21c7c5dd775c59b7aaffe",
+                "reference": "b441b225709cf08a62c21c7c5dd775c59b7aaffe",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.5.0",
+                "erusev/parsedown": "^1.7",
+                "php": ">=8.0",
                 "symfony/console": ">=2.6"
             },
             "require-dev": {
@@ -4948,9 +4949,9 @@
             "description": "Command line tool for generating markdown-formatted class documentation",
             "homepage": "https://github.com/victorjonsson/PHP-Markdown-Documentation-Generator",
             "support": {
-                "source": "https://github.com/getgrav/PHP-Markdown-Documentation-Generator/tree/2.0.1"
+                "source": "https://github.com/getgrav/PHP-Markdown-Documentation-Generator/tree/3.0.1"
             },
-            "time": "2021-04-20T06:04:42+00:00"
+            "time": "2026-02-17T01:09:39+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",

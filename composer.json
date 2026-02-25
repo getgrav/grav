@@ -69,7 +69,7 @@
         "phpstan/phpstan": "^2.1",
         "phpstan/phpstan-deprecation-rules": "^2.0",
         "phpunit/php-code-coverage": "^11.0",
-        "getgrav/markdowndocs": "^2.0",
+        "getgrav/markdowndocs": "^3.0",
         "codeception/module-asserts": "*",
         "codeception/module-phpbrowser": "*",
         "rector/rector": "^2.1"
@@ -134,7 +134,7 @@
         ]
     },
     "scripts": {
-        "api": "vendor/bin/phpdoc-md generate system/src > user/pages/17/14.api/default.md",
+        "api": "vendor/bin/phpdoc-md generate --html system/src > ~/workspace/grav-learn/user/pages/api/default.md",
         "post-create-project-cmd": "bin/grav install",
         "rector": "vendor/bin/rector",
         "rector:php-compat": "@php vendor/bin/rector process --config=system/rector.php --ansi --no-progress-bar",

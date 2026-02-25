@@ -64,7 +64,10 @@ final class YamlUpdater
 
                 $items = Yaml::parse($yaml);
                 if ($items !== $this->items) {
-                    throw new \RuntimeException('Failed saving the content');
+                    // Lines and items are out of sync — fall back to dumping
+                    // from items directly.  Loses original formatting but
+                    // guarantees the file content matches the intended state.
+                    $yaml = Yaml::dump($this->items, 5, 2);
                 }
             }
 
@@ -186,7 +189,46 @@ final class YamlUpdater
             return;
         }
 
-        // TODO: support also removing property from handwritten configuration file.
+        $parts = explode('.', $variable);
+        $lineNos = $this->findPath($this->lines, $parts);
+
+        // Get the line number of the target property itself (last in the path).
+        $targetLine = end($lineNos);
+
+        // Negative value means the property was not found in the lines.
+        if ($targetLine === false || $targetLine < 0) {
+            return;
+        }
+
+        // Determine how many lines to remove: the target line plus any
+        // more-deeply-indented child lines that follow it.
+        $targetIndent = $this->getLineIndentation($this->lines[$targetLine]);
+        $endLine = $targetLine + 1;
+        $total = count($this->lines);
+
+        while ($endLine < $total) {
+            $line = $this->lines[$endLine];
+            if ($this->isLineEmpty($line)) {
+                // Blank/comment lines — tentatively include them; they may
+                // belong to the block being removed or to a following sibling.
+                $endLine++;
+                continue;
+            }
+            if ($this->getLineIndentation($line) > $targetIndent) {
+                // Child line — part of the value being removed.
+                $endLine++;
+                continue;
+            }
+            // Reached a sibling or parent — stop.
+            break;
+        }
+
+        // Don't swallow trailing blank lines that belong to the next section.
+        while ($endLine > $targetLine + 1 && $this->isLineBlank($this->lines[$endLine - 1])) {
+            $endLine--;
+        }
+
+        array_splice($this->lines, $targetLine, $endLine - $targetLine);
     }
 
     private function __construct(string $filename)

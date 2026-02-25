@@ -13,6 +13,14 @@ use Grav\Console\Application\GravApplication;
 \define('GRAV_CLI', true);
 \define('GRAV_REQUEST_TIME', microtime(true));
 
+// Early PHP version check before loading any Grav code
+if (PHP_VERSION_ID < 80300) {
+    echo "Grav 1.8 requires PHP 8.3.0+. You are running PHP " . PHP_VERSION . "\n";
+    echo "Your web server may use a different PHP version.\n";
+    echo "Check your hosting control panel for the correct CLI PHP path.\n";
+    exit(1);
+}
+
 if (!file_exists(__DIR__ . '/../vendor/autoload.php')){
     // Before we can even start, we need to run composer first
     require_once __DIR__ . '/../system/src/Grav/Common/Composer.php';

@@ -83,8 +83,8 @@ final class Install
         'grav' => [
             'name' => 'Grav',
             'versions' => [
-                '1.7' => '1.7.50',
-                '' => '1.7.50'
+                '1.7' => '1.7.51',
+                '' => '1.7.51'
             ]
         ],
         'plugins' => [
@@ -249,12 +249,25 @@ final class Install
             $errors = implode("<br />\n", $error);
             if (\defined('GRAV_CLI') && GRAV_CLI) {
                 $errors = "\n\n" . strip_tags($errors) . "\n\n";
-                $errors .= <<<ERR
-Please install Grav 1.7.50 first by running following commands:
 
-wget -q https://getgrav.org/download/core/grav-update/1.7.50 -O tmp/grav-update-v1.7.50.zip
-bin/gpm direct-install -y tmp/grav-update-v1.7.50.zip
-rm tmp/grav-update-v1.7.50.zip
+                // Check for PHP CLI vs web mismatch
+                $phpFailed = isset($failedRequirements['php']);
+                if ($phpFailed) {
+                    $errors .= <<<ERR
+Note: Your CLI PHP version may differ from your web server's PHP version.
+If your web server runs PHP 8.3+, upgrade via the Admin panel instead.
+Or configure your hosting to use PHP 8.3 for CLI (check your hosting control panel).
+You can also try: php8.3 bin/gpm self-upgrade
+
+ERR;
+                }
+
+                $errors .= <<<ERR
+Please install Grav 1.7.51 first by running following commands:
+
+wget -q https://getgrav.org/download/core/grav-update/1.7.51 -O tmp/grav-update-v1.7.51.zip
+bin/gpm direct-install -y tmp/grav-update-v1.7.51.zip
+rm tmp/grav-update-v1.7.51.zip
 ERR;
             }
 
