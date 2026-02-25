@@ -30,6 +30,7 @@ use function uniqid;
 use function time;
 use function trim;
 use function unlink;
+use function strtolower;
 use const E_COMPILE_ERROR;
 use const E_CORE_ERROR;
 use const E_ERROR;
@@ -436,14 +437,34 @@ class RecoveryManager
      */
     public function isEnabled(): bool
     {
+        if ($this->rootPath === rtrim(GRAV_ROOT, DIRECTORY_SEPARATOR)) {
+            try {
+                $grav = Grav::instance();
+                if ($grav && isset($grav['config'])) {
+                    $value = $grav['config']->get('system.updates.recovery_mode', false);
+                    if (is_bool($value)) {
+                        return $value;
+                    }
+                    if (is_int($value)) {
+                        return $value === 1;
+                    }
+                    if (is_string($value)) {
+                        return in_array(strtolower($value), ['true', '1', 'yes', 'on'], true);
+                    }
+                }
+            } catch (\Throwable $e) {
+                // fall back to file-based read below
+            }
+        }
+
         $configFile = $this->userPath . '/config/system.yaml';
         if (!is_file($configFile)) {
-            return true; // Default enabled
+            return false; // Default disabled
         }
 
         $content = file_get_contents($configFile);
         if ($content === false) {
-            return true;
+            return false;
         }
 
         // Simple regex-based check to avoid loading full YAML parser
@@ -451,7 +472,7 @@ class RecoveryManager
             return in_array(strtolower($matches[1]), ['true', '1'], true);
         }
 
-        return true; // Default enabled
+        return false; // Default disabled
     }
 
     /**
@@ -491,7 +512,7 @@ class RecoveryManager
      * @param int $ttlSeconds
      * @return void
      */
-    public function markUpgradeWindow(string $reason, array $metadata = [], int $ttlSeconds = 604800): void
+    public function markUpgradeWindow(string $reason, array $metadata = [], int $ttlSeconds = 3600): void
     {
         $ttl = max(60, $ttlSeconds);
         $createdAt = time();

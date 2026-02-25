@@ -240,25 +240,29 @@ class UpdateCommand extends GpmCommand
         $recovery = Grav::instance()['recovery'];
         $recovery->markUpgradeWindow('package-update', ['scope' => 'core']);
 
-        // finally update
-        $install_command = $this->getApplication()->find('install');
+        try {
+            // finally update
+            $install_command = $this->getApplication()->find('install');
 
-        $args = new ArrayInput([
-            'command' => 'install',
-            'package' => $slugs,
-            '-f' => $input->getOption('force'),
-            '-d' => $this->destination,
-            '-y' => true
-        ]);
-        $command_exec = $install_command->run($args, $io);
+            $args = new ArrayInput([
+                'command' => 'install',
+                'package' => $slugs,
+                '-f' => $input->getOption('force'),
+                '-d' => $this->destination,
+                '-y' => true
+            ]);
+            $command_exec = $install_command->run($args, $io);
 
-        if ($command_exec != 0) {
-            $io->writeln('<red>Error:</red> An error occurred while trying to install the packages');
+            if ($command_exec != 0) {
+                $io->writeln('<red>Error:</red> An error occurred while trying to install the packages');
 
-            return 1;
+                return 1;
+            }
+
+            return 0;
+        } finally {
+            $recovery->closeUpgradeWindow();
         }
-
-        return 0;
     }
 
     /**

@@ -387,7 +387,10 @@ ERR;
                 if ($snapshotManifest) {
                     $this->relayProgress('snapshot', sprintf('Snapshot %s captured.', $snapshotManifest['id']), 100);
                 } else {
-                    $this->relayProgress('snapshot', 'Snapshot capture unavailable; continuing without it.', null);
+                    $this->relayProgress('error', 'Safe upgrade requires a recovery snapshot, but snapshot capture failed.', null);
+                    Installer::setError('Safe upgrade requires a recovery snapshot. Ensure tmp://grav-snapshots is writable and retry.');
+
+                    return;
                 }
             }
             $progressMessage = $safeUpgradeRequested
@@ -657,27 +660,51 @@ ERR;
             return;
         }
 
-        rsort($files);
-        if (count($files) <= $limit) {
-            return;
-        }
-
-        $obsolete = array_slice($files, $limit);
-        $removed = 0;
-
-        foreach ($obsolete as $manifestPath) {
-            $manifest = null;
+        $manifests = [];
+        foreach ($files as $path) {
+            $decoded = null;
             try {
-                $contents = @file_get_contents($manifestPath);
+                $contents = @file_get_contents($path);
                 if ($contents !== false) {
-                    $decoded = json_decode($contents, true);
-                    if (is_array($decoded)) {
-                        $manifest = $decoded;
+                    $candidate = json_decode($contents, true);
+                    if (is_array($candidate)) {
+                        $decoded = $candidate;
                     }
                 }
             } catch (\Throwable $e) {
-                // ignore malformed manifests
+                $decoded = null;
             }
+
+            if (!$decoded || !$this->isSnapshotManifest($decoded)) {
+                continue;
+            }
+
+            $manifests[] = [
+                'path' => $path,
+                'manifest' => $decoded,
+                'created_at' => (int)($decoded['created_at'] ?? 0),
+            ];
+        }
+
+        if (count($manifests) <= $limit) {
+            return;
+        }
+
+        \usort($manifests, static function (array $a, array $b): int {
+            $delta = $b['created_at'] <=> $a['created_at'];
+            if ($delta !== 0) {
+                return $delta;
+            }
+
+            return strcmp((string)$b['path'], (string)$a['path']);
+        });
+
+        $obsolete = array_slice($manifests, $limit);
+        $removed = 0;
+
+        foreach ($obsolete as $entry) {
+            $manifestPath = (string)$entry['path'];
+            $manifest = $entry['manifest'] ?? null;
 
             $snapshotId = $manifest['id'] ?? basename($manifestPath, '.json');
             $backupPath = $manifest['backup_path'] ?? null;
@@ -719,6 +746,25 @@ ERR;
                 null
             );
         }
+    }
+
+    private function isSnapshotManifest(array $manifest): bool
+    {
+        $id = isset($manifest['id']) ? (string)$manifest['id'] : '';
+        if ($id === '') {
+            return false;
+        }
+
+        if (strpos($id, 'snapshot-') !== 0 && strpos($id, 'upgrade-') !== 0 && strpos($id, 'stage-') !== 0) {
+            return false;
+        }
+
+        $backupPath = $manifest['backup_path'] ?? null;
+        if (!is_string($backupPath) || $backupPath === '') {
+            return false;
+        }
+
+        return is_array($manifest['entries'] ?? null);
     }
 
 

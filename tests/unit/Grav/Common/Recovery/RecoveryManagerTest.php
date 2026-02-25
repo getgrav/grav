@@ -17,7 +17,12 @@ class RecoveryManagerTest extends \PHPUnit\Framework\TestCase
         Folder::create($this->tmpDir);
         Folder::create($this->tmpDir . '/user');
         Folder::create($this->tmpDir . '/user/data');
+        Folder::create($this->tmpDir . '/user/config');
         Folder::create($this->tmpDir . '/system');
+        file_put_contents(
+            $this->tmpDir . '/user/config/system.yaml',
+            "updates:\n  recovery_mode: true\n"
+        );
     }
 
     protected function tearDown(): void
@@ -222,5 +227,57 @@ class RecoveryManagerTest extends \PHPUnit\Framework\TestCase
         self::assertFileExists($quarantine);
         $decoded = json_decode(file_get_contents($quarantine), true);
         self::assertSame('Manual disable', $decoded['problem']['message']);
+    }
+
+    public function testIsEnabledDefaultsFalseWhenNotConfigured(): void
+    {
+        @unlink($this->tmpDir . '/user/config/system.yaml');
+
+        $manager = new RecoveryManager($this->tmpDir);
+        self::assertFalse($manager->isEnabled());
+    }
+
+    public function testIsEnabledReadsConfigFromSystemYaml(): void
+    {
+        file_put_contents(
+            $this->tmpDir . '/user/config/system.yaml',
+            "updates:\n  recovery_mode: false\n"
+        );
+
+        $manager = new RecoveryManager($this->tmpDir);
+        self::assertFalse($manager->isEnabled());
+
+        file_put_contents(
+            $this->tmpDir . '/user/config/system.yaml',
+            "updates:\n  recovery_mode: true\n"
+        );
+
+        self::assertTrue($manager->isEnabled());
+    }
+
+    public function testMarkUpgradeWindowUsesOneHourDefaultTtl(): void
+    {
+        $manager = new RecoveryManager($this->tmpDir);
+        $manager->markUpgradeWindow('core-upgrade', ['scope' => 'core']);
+
+        $window = $manager->getUpgradeWindow();
+        self::assertIsArray($window);
+        self::assertSame('core', $window['scope']);
+        self::assertSame('core-upgrade', $window['reason']);
+        self::assertSame(3600, $window['expires_at'] - $window['created_at']);
+    }
+
+    public function testHandleExceptionDoesNothingWhenRecoveryDisabled(): void
+    {
+        file_put_contents(
+            $this->tmpDir . '/user/config/system.yaml',
+            "updates:\n  recovery_mode: false\n"
+        );
+
+        $manager = new RecoveryManager($this->tmpDir);
+        $manager->markUpgradeWindow('core-upgrade', ['scope' => 'core']);
+        $manager->handleException(new \RuntimeException('Should not activate recovery'));
+
+        self::assertFileDoesNotExist($this->tmpDir . '/user/data/recovery.flag');
     }
 }
