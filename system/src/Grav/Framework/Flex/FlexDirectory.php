@@ -31,6 +31,7 @@ use Grav\Framework\Flex\Interfaces\FlexStorageInterface;
 use Grav\Framework\Flex\Storage\SimpleStorage;
 use Grav\Framework\Flex\Traits\FlexAuthorizeTrait;
 use Psr\SimpleCache\InvalidArgumentException;
+use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\File\YamlFile;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use RuntimeException;
@@ -267,6 +268,12 @@ class FlexDirectory implements FlexDirectoryInterface
             $dirname = $locator->findResource($dirname, true) ?: $locator->findResource($dirname, true, true);
             $filename = "{$dirname}/{$basename}";
         }
+
+        $grav->fireEvent('onFlexDirectoryConfigBeforeSave', new Event([
+            'directory' => $this,
+            'name' => $name,
+            'data' => &$data,
+        ]));
 
         $file = YamlFile::instance($filename);
         if (!empty($data)) {
