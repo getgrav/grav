@@ -263,22 +263,36 @@ class Language
                     $this->grav['session']->active_language = $this->active;
                 }
             } else {
-                // Try getting language from the session, else no active.
-                if (isset($this->grav['session']) && $this->grav['session']->isStarted() &&
-                    $this->config->get('system.languages.session_store_active', true)) {
-                    $this->setActive($this->grav['session']->active_language ?: null);
-                }
-                // if still null, try from http_accept_language header
-                if ($this->active === null &&
-                    $this->config->get('system.languages.http_accept_language') &&
-                    $accept = $_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? false) {
-                    $negotiator = new LanguageNegotiator();
-                    $best_language = $negotiator->getBest($accept, $this->languages);
+                if ($this->config->get('system.languages.include_default_lang') === false) {
+                    // When include_default_lang is false, the default language has no URL prefix.
+                    // A URL without a language prefix IS the default language explicitly.
+                    $this->setActive($this->getDefault());
 
-                    if ($best_language instanceof AcceptLanguage) {
-                        $this->setActive($best_language->getType());
-                    } else {
-                        $this->setActive($this->getDefault());
+                    // Store in session if language is different.
+                    if (isset($this->grav['session']) && $this->grav['session']->isStarted()
+                        && $this->config->get('system.languages.session_store_active', true)
+                        && $this->grav['session']->active_language != $this->active
+                    ) {
+                        $this->grav['session']->active_language = $this->active;
+                    }
+                } else {
+                    // Try getting language from the session, else no active.
+                    if (isset($this->grav['session']) && $this->grav['session']->isStarted() &&
+                        $this->config->get('system.languages.session_store_active', true)) {
+                        $this->setActive($this->grav['session']->active_language ?: null);
+                    }
+                    // if still null, try from http_accept_language header
+                    if ($this->active === null &&
+                        $this->config->get('system.languages.http_accept_language') &&
+                        $accept = $_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? false) {
+                        $negotiator = new LanguageNegotiator();
+                        $best_language = $negotiator->getBest($accept, $this->languages);
+
+                        if ($best_language instanceof AcceptLanguage) {
+                            $this->setActive($best_language->getType());
+                        } else {
+                            $this->setActive($this->getDefault());
+                        }
                     }
                 }
             }
