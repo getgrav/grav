@@ -73,6 +73,38 @@ use function strlen;
 /**
  * Grav container is the heart of Grav.
  *
+ * Core Services:
+ * @property-read \Grav\Common\User\Interfaces\UserCollectionInterface $accounts
+ * @property-read \Grav\Common\Assets $assets
+ * @property-read \Grav\Common\Backup\Backups $backups
+ * @property-read \Grav\Common\Browser $browser
+ * @property-read \Grav\Common\Cache $cache
+ * @property-read \Grav\Common\Config\Config $config
+ * @property-read \Grav\Common\Config\Languages $languages
+ * @property-read \Grav\Common\Config\Setup $setup
+ * @property-read \Grav\Common\Debugger $debugger
+ * @property-read \Grav\Common\Errors\Errors $errors
+ * @property-read \Grav\Common\Inflector $inflector
+ * @property-read \Grav\Common\Language\Language $language
+ * @property-read \Grav\Common\Page\Pages $pages
+ * @property-read \Grav\Common\Page\Interfaces\PageInterface $page
+ * @property-read \Grav\Common\Scheduler\Scheduler $scheduler
+ * @property-read \Grav\Common\Taxonomy $taxonomy
+ * @property-read \Grav\Common\Themes $themes
+ * @property-read \Grav\Common\Twig\Twig $twig
+ * @property-read \Grav\Common\Uri $uri
+ * @property-read \Grav\Common\User\User $user
+ * @property-read \Grav\Framework\Filesystem\Filesystem $filesystem
+ * @property-read \Grav\Framework\Flex\Flex $flex
+ * @property-read \Grav\Framework\Session\Messages $messages
+ * @property-read \Grav\Framework\Session\Session $session
+ * @property-read \Monolog\Logger $log
+ * @property-read \RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator $locator
+ * @property-read \Symfony\Component\EventDispatcher\EventDispatcher $events
+ *
+ * Popular Plugin Services:
+ * @property-read \Grav\Plugin\Admin\Admin $admin
+ *
  * @package Grav\Common
  */
 class Grav extends Container
