@@ -102,3 +102,12 @@ GRAV:
     ERROR2: Pogrešan broj elemenata.
     ERROR3: jquery_element treba postaviti u postavke jqCron
     ERROR4: Izraz nije prepoznat
+
+PLUGIN_ADMIN:
+    MEDIA: "Medijske datoteke"
+    MEDIA_TYPES: "Vrste medija"
+    IMAGE_OPTIONS: "Mogućnosti slike"
+    MIME_TYPE: "Mime tip"
+    THUMB: "Sličica"
+    TYPE: "Vrsta"
+    FILE_EXTENSION: "Nastavak datoteke"

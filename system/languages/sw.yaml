@@ -145,3 +145,12 @@ GRAV:
     ERROR2: Idadi mbaya ya vitu
     ERROR3: Jquery_element inapaswa kuwekwa kwenye mipangilio ya jqCron
     ERROR4: Maneno yasiyotambulika
+
+PLUGIN_ADMIN:
+    MEDIA: "Media"
+    MEDIA_TYPES: "Media Types"
+    IMAGE_OPTIONS: "Image options"
+    MIME_TYPE: "Mime Type"
+    THUMB: "Thumb"
+    TYPE: "Type"
+    FILE_EXTENSION: "File Extension"

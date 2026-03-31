@@ -105,3 +105,12 @@ GRAV:
     ERROR2: El número de elementos es erróneo
     ERROR3: El jquery_element debería establecerse en la configuración del jqCron
     ERROR4: Expresión no reconocida
+
+PLUGIN_ADMIN:
+    MEDIA: "Multimedia"
+    MEDIA_TYPES: "Tipos de multimedia"
+    IMAGE_OPTIONS: "Opciones de imágenes"
+    MIME_TYPE: "Tipo Mime"
+    THUMB: "Miniatura"
+    TYPE: "Tipo"
+    FILE_EXTENSION: "Extensión de Archivo"

@@ -80,3 +80,12 @@ GRAV:
     EVERY: hver
     EVERY_HOUR: hver time
     EVERY_MINUTE: hvert minutt
+
+PLUGIN_ADMIN:
+    MEDIA: "Media"
+    MEDIA_TYPES: "Mediatyper"
+    IMAGE_OPTIONS: "Bilde-tilvalg"
+    MIME_TYPE: "Mimetype"
+    THUMB: "Miniatyr"
+    TYPE: "Type"
+    FILE_EXTENSION: "Fil-endinger"

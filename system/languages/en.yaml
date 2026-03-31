@@ -126,3 +126,10 @@ PLUGIN_ADMIN:
     SAFE_UPGRADE_HELP: When enabled, Grav core updates use staged installation with automatic rollback support.
     SAFE_UPGRADE_SNAPSHOT_LIMIT: Safe-upgrade snapshots to keep
     SAFE_UPGRADE_SNAPSHOT_LIMIT_HELP: Maximum number of snapshots to retain for safe upgrades (0 disables pruning).
+    MEDIA: Media
+    MEDIA_TYPES: Media Types
+    FILE_EXTENSION: File Extension
+    TYPE: Type
+    THUMB: Thumb
+    MIME_TYPE: Mime Type
+    IMAGE_OPTIONS: Image options

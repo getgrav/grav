@@ -112,3 +112,12 @@ GRAV:
     ERROR2: Неверное количество элементов
     ERROR3: jquery_element должен быть установлен в настройки jqCron
     ERROR4: Выражение не распознано
+
+PLUGIN_ADMIN:
+    MEDIA: "Медиа"
+    MEDIA_TYPES: "Типы вложений"
+    IMAGE_OPTIONS: "Параметры изображения"
+    MIME_TYPE: "Mime-тип"
+    THUMB: "Миниатюра"
+    TYPE: "Тип"
+    FILE_EXTENSION: "Расширение файла"

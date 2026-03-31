@@ -145,3 +145,8 @@ GRAV:
     ERROR2: Número de elementos inválido
     ERROR3: O jquery_element deve ser definido nas configurações do jqCron
     ERROR4: Expressão não reconhecida
+
+PLUGIN_ADMIN:
+    MEDIA: "Suporte multimédia"
+    THUMB: "Miniatura"
+    TYPE: "Tipo"

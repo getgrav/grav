@@ -88,3 +88,12 @@ GRAV:
     TEXT_MINS: ' ved <b /> minut(ter) over timen'
     ERROR1: Tagget %s understøttes ikke!
     ERROR2: Ugyldigt antal elementer
+
+PLUGIN_ADMIN:
+    MEDIA: "Medier"
+    MEDIA_TYPES: "Medietyper"
+    IMAGE_OPTIONS: "Billedmuligheder"
+    MIME_TYPE: "MIME-type"
+    THUMB: "Miniature"
+    TYPE: "Type"
+    FILE_EXTENSION: "Filendelse"

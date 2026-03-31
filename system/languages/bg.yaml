@@ -70,3 +70,6 @@ GRAV:
     EVERY_DAY_OF_WEEK: Всеки ден от седмицата
     EVERY_DAY_OF_MONTH: Всеки ден от месеца
     EVERY_MONTH: Всеки месец
+
+PLUGIN_ADMIN:
+    MEDIA: "Медиа"

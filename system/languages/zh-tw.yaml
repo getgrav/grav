@@ -77,3 +77,12 @@ GRAV:
     TEXT_DOW: ' 的 <b />'
     TEXT_MONTH: ' 的 <b />'
     TEXT_DOM: ' 的 <b />'
+
+PLUGIN_ADMIN:
+    MEDIA: "媒體"
+    MEDIA_TYPES: "媒體類型"
+    IMAGE_OPTIONS: "圖像選項"
+    MIME_TYPE: "Mime 類型"
+    THUMB: "縮圖"
+    TYPE: "類型"
+    FILE_EXTENSION: "檔案延伸檔名"

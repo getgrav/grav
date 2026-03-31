@@ -98,3 +98,12 @@ GRAV:
     ERROR1: Znacznik %s nie jest wspierany!
     ERROR2: Nieprawidłowa liczba elementów
     ERROR4: Wyrażenie nierozpoznane
+
+PLUGIN_ADMIN:
+    MEDIA: "Media"
+    MEDIA_TYPES: "Typy mediów"
+    IMAGE_OPTIONS: "Opcje obrazu"
+    MIME_TYPE: "Typ MIME"
+    THUMB: "Miniatura"
+    TYPE: "Typ"
+    FILE_EXTENSION: "Rozszerzenie pliku"

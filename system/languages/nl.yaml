@@ -145,3 +145,12 @@ GRAV:
     ERROR2: Slecht aantal elementen
     ERROR3: Het jquery_element moet ingesteld worden in de jqCron instellingen
     ERROR4: Onbekende expressie
+
+PLUGIN_ADMIN:
+    MEDIA: "Media"
+    MEDIA_TYPES: "Media types"
+    IMAGE_OPTIONS: "Afbeelding opties"
+    MIME_TYPE: "MIME type"
+    THUMB: "Miniatuur"
+    TYPE: "Type"
+    FILE_EXTENSION: "Bestandsextensie"

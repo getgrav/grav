@@ -142,3 +142,12 @@ GRAV:
     ERROR2: Chybný počet položiek
     ERROR3: jquery_element musí byť nastavený v nastaveniach pre jqCron
     ERROR4: Neznámy výraz
+
+PLUGIN_ADMIN:
+    MEDIA: "Médiá"
+    MEDIA_TYPES: "Typy médií"
+    IMAGE_OPTIONS: "Možnosti obrázku"
+    MIME_TYPE: "Mime Typ"
+    THUMB: "Náhľad"
+    TYPE: "Typ"
+    FILE_EXTENSION: "Prípona súboru"
