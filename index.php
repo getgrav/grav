@@ -41,6 +41,39 @@ if (PHP_SAPI !== 'cli') {
         }
     }
 
+    // Fast static asset serving for plugins that bundle SPA apps.
+    // Checks for a plugin-asset-map.php file that maps route prefixes to
+    // physical directories, serving files directly without booting Grav.
+    $assetMapFile = __DIR__ . '/user/config/plugin-asset-map.php';
+    if (is_file($assetMapFile)) {
+        $assetMap = require $assetMapFile;
+        foreach ($assetMap as $routePrefix => $diskPath) {
+            if (str_starts_with($path, $routePrefix)) {
+                $relPath = substr($path, strlen($routePrefix));
+                $filePath = __DIR__ . '/' . ltrim($diskPath, '/') . $relPath;
+                $realFile = realpath($filePath);
+                $realBase = realpath(__DIR__ . '/' . ltrim($diskPath, '/'));
+                if ($realFile && $realBase && str_starts_with($realFile, $realBase) && is_file($realFile)) {
+                    $ext = strtolower(pathinfo($realFile, PATHINFO_EXTENSION));
+                    $mimeMap = [
+                        'js' => 'text/javascript', 'mjs' => 'text/javascript',
+                        'css' => 'text/css', 'json' => 'application/json',
+                        'svg' => 'image/svg+xml', 'png' => 'image/png',
+                        'jpg' => 'image/jpeg', 'jpeg' => 'image/jpeg',
+                        'webp' => 'image/webp', 'avif' => 'image/avif',
+                        'woff2' => 'font/woff2', 'woff' => 'font/woff',
+                        'ico' => 'image/x-icon',
+                    ];
+                    header('Content-Type: ' . ($mimeMap[$ext] ?? 'application/octet-stream'));
+                    header('Content-Length: ' . filesize($realFile));
+                    header('Cache-Control: ' . (str_contains($relPath, '/immutable/') ? 'public, max-age=31536000, immutable' : 'public, max-age=3600'));
+                    readfile($realFile);
+                    exit;
+                }
+            }
+        }
+    }
+
     if ($path === '/___safe-upgrade-status') {
         $statusEndpoint = __DIR__ . '/user/plugins/admin/safe-upgrade-status.php';
         if (!\defined('GRAV_ROOT')) {
