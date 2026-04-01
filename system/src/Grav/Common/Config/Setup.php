@@ -140,6 +140,12 @@ class Setup extends Data
                 '' => ['user://images', 'system://images']
             ]
         ],
+        'media' => [
+            'type' => 'Stream',
+            'prefixes' => [
+                '' => ['user://media']
+            ]
+        ],
         'page' => [
             'type' => 'ReadOnlyStream',
             'prefixes' => [
