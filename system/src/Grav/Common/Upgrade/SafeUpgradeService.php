@@ -184,10 +184,19 @@ class SafeUpgradeService
             $warnings[] = 'Potential Monolog logger API incompatibilities detected.';
         }
 
+        $incompatible = ['blocking' => [], 'warnings' => [], 'target' => ''];
+        if ($isMajorMinorUpgrade && $targetVersion !== null) {
+            $incompatible = $this->detectIncompatiblePackages($targetVersion);
+            if (!empty($incompatible['blocking'])) {
+                $warnings[] = 'Some enabled plugins/themes have not been marked as compatible with Grav ' . $incompatible['target'] . '.';
+            }
+        }
+
         return [
             'plugins_pending' => $pending,
             'psr_log_conflicts' => $psrLogConflicts,
             'monolog_conflicts' => $monologConflicts,
+            'incompatible_packages' => $incompatible,
             'warnings' => $warnings,
             'is_major_minor_upgrade' => $isMajorMinorUpgrade,
         ];
@@ -834,6 +843,174 @@ class SafeUpgradeService
         }
 
         return $conflicts;
+    }
+
+    /**
+     * Detect installed plugins/themes not compatible with the target Grav version.
+     *
+     * @param string $targetVersion Target Grav version (e.g. '1.8.0')
+     * @return array{blocking: array, warnings: array, target: string}
+     */
+    protected function detectIncompatiblePackages(string $targetVersion): array
+    {
+        $parts = explode('.', $targetVersion);
+        $targetMajorMinor = ($parts[0] ?? '1') . '.' . ($parts[1] ?? '7');
+
+        $blocking = [];
+        $warnings = [];
+
+        $pluginDirs = glob($this->rootPath . '/user/plugins/*', GLOB_ONLYDIR) ?: [];
+        foreach ($pluginDirs as $dir) {
+            $slug = basename($dir);
+            $compat = $this->readBlueprintCompatibility($dir);
+
+            if (in_array($targetMajorMinor, $compat['grav'], true)) {
+                continue;
+            }
+
+            $version = $this->readBlueprintVersion($dir) ?? 'unknown';
+            $enabled = $this->isPluginEnabled($slug);
+
+            $entry = [
+                'type' => 'plugin',
+                'version' => $version,
+                'compatibility' => $compat,
+                'enabled' => $enabled,
+            ];
+
+            if ($enabled) {
+                $blocking[$slug] = $entry;
+            } else {
+                $warnings[$slug] = $entry;
+            }
+        }
+
+        $themeDirs = glob($this->rootPath . '/user/themes/*', GLOB_ONLYDIR) ?: [];
+        foreach ($themeDirs as $dir) {
+            $slug = basename($dir);
+            $compat = $this->readBlueprintCompatibility($dir);
+
+            if (in_array($targetMajorMinor, $compat['grav'], true)) {
+                continue;
+            }
+
+            $version = $this->readBlueprintVersion($dir) ?? 'unknown';
+            $active = $this->isThemeEnabled($slug);
+
+            $entry = [
+                'type' => 'theme',
+                'version' => $version,
+                'compatibility' => $compat,
+                'enabled' => $active,
+            ];
+
+            if ($active) {
+                $blocking[$slug] = $entry;
+            } else {
+                $warnings[$slug] = $entry;
+            }
+        }
+
+        return [
+            'blocking' => $blocking,
+            'warnings' => $warnings,
+            'target' => $targetMajorMinor,
+        ];
+    }
+
+    /**
+     * Read the compatible Grav versions from a package's blueprints.yaml.
+     *
+     * @param string $dir Package directory
+     * @return array{grav: string[], api: string[]}
+     */
+    protected function readBlueprintCompatibility(string $dir): array
+    {
+        $file = $dir . '/blueprints.yaml';
+        if (!is_file($file)) {
+            return ['grav' => [], 'api' => []];
+        }
+
+        try {
+            $contents = @file_get_contents($file);
+            if ($contents === false) {
+                return ['grav' => [], 'api' => []];
+            }
+            $data = Yaml::parse($contents);
+            if (!is_array($data)) {
+                return ['grav' => [], 'api' => []];
+            }
+
+            if (isset($data['compatibility']['grav']) && is_array($data['compatibility']['grav'])) {
+                return [
+                    'grav' => array_map('strval', $data['compatibility']['grav']),
+                    'api'  => isset($data['compatibility']['api']) && is_array($data['compatibility']['api'])
+                        ? array_map('strval', $data['compatibility']['api'])
+                        : [],
+                ];
+            }
+
+            return $this->inferCompatibleVersions($data['dependencies'] ?? []);
+        } catch (\Throwable $e) {
+            return ['grav' => [], 'api' => []];
+        }
+    }
+
+    /**
+     * Infer compatible Grav versions from a package's dependency list.
+     *
+     * @param array $dependencies
+     * @return array{grav: string[], api: string[]}
+     */
+    protected function inferCompatibleVersions(array $dependencies): array
+    {
+        foreach ($dependencies as $dep) {
+            if (!is_array($dep) || ($dep['name'] ?? '') !== 'grav') {
+                continue;
+            }
+            $version = $dep['version'] ?? '';
+
+            if (!preg_match('/(\d+\.\d+(?:\.\d+)?)/', $version, $m)) {
+                continue;
+            }
+
+            if (version_compare($m[1], '1.8', '>=')) {
+                return ['grav' => ['1.8'], 'api' => []];
+            }
+
+            return ['grav' => ['1.7'], 'api' => []];
+        }
+
+        return ['grav' => ['1.7'], 'api' => []];
+    }
+
+    /**
+     * Read the version string from a package's blueprints.yaml.
+     *
+     * @param string $dir Package directory
+     * @return string|null
+     */
+    protected function readBlueprintVersion(string $dir): ?string
+    {
+        $file = $dir . '/blueprints.yaml';
+        if (!is_file($file)) {
+            return null;
+        }
+
+        try {
+            $contents = @file_get_contents($file);
+            if ($contents === false) {
+                return null;
+            }
+            $data = Yaml::parse($contents);
+            if (is_array($data) && isset($data['version'])) {
+                return (string)$data['version'];
+            }
+        } catch (\Throwable $e) {
+            // ignore
+        }
+
+        return null;
     }
 
     /**

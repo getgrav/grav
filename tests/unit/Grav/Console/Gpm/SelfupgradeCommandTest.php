@@ -124,6 +124,111 @@ class SelfupgradeCommandTest extends \PHPUnit\Framework\TestCase
         self::assertStringContainsString('Proceeding with potential psr/log incompatibilities still active.', $output);
     }
 
+    public function testHandlePreflightReportBlocksOnIncompatiblePackages(): void
+    {
+        $command = new TestSelfupgradeCommand();
+        [$style] = $this->injectIo($command);
+        $this->setAllYes($command, true);
+
+        $result = $command->runHandle([
+            'plugins_pending' => [],
+            'psr_log_conflicts' => [],
+            'monolog_conflicts' => [],
+            'warnings' => [],
+            'is_major_minor_upgrade' => true,
+            'blocking' => [],
+            'incompatible_packages' => [
+                'blocking' => [
+                    'old-plugin' => [
+                        'type' => 'plugin',
+                        'version' => '1.0.0',
+                        'compatibility' => ['grav' => ['1.7'], 'api' => []],
+                        'enabled' => true,
+                    ],
+                ],
+                'warnings' => [],
+                'target' => '1.8',
+            ],
+        ]);
+
+        self::assertFalse($result);
+        $output = implode("\n", $style->messages);
+        self::assertStringContainsString('old-plugin', $output);
+        self::assertStringContainsString('not marked as compatible', $output);
+    }
+
+    public function testHandlePreflightReportDisablesIncompatibleWhenRequested(): void
+    {
+        $gravFactory = Fixtures::get('grav');
+        $grav = $gravFactory();
+        $stub = new class {
+            public $disabled = [];
+            public function disablePlugin(string $slug, array $context = []): void
+            {
+                $this->disabled[] = $slug;
+            }
+        };
+        $grav['recovery'] = $stub;
+
+        $command = new TestSelfupgradeCommand();
+        [$style] = $this->injectIo($command, ['disable']);
+
+        $result = $command->runHandle([
+            'plugins_pending' => [],
+            'psr_log_conflicts' => [],
+            'monolog_conflicts' => [],
+            'warnings' => [],
+            'is_major_minor_upgrade' => true,
+            'blocking' => [],
+            'incompatible_packages' => [
+                'blocking' => [
+                    'old-plugin' => [
+                        'type' => 'plugin',
+                        'version' => '1.0.0',
+                        'compatibility' => ['grav' => ['1.7'], 'api' => []],
+                        'enabled' => true,
+                    ],
+                ],
+                'warnings' => [],
+                'target' => '1.8',
+            ],
+        ]);
+
+        self::assertTrue($result);
+        self::assertSame(['old-plugin'], $stub->disabled);
+    }
+
+    public function testHandlePreflightReportContinuesWithIncompatibleOverride(): void
+    {
+        $command = new TestSelfupgradeCommand();
+        [$style] = $this->injectIo($command, ['continue']);
+
+        $result = $command->runHandle([
+            'plugins_pending' => [],
+            'psr_log_conflicts' => [],
+            'monolog_conflicts' => [],
+            'warnings' => [],
+            'is_major_minor_upgrade' => true,
+            'blocking' => [],
+            'incompatible_packages' => [
+                'blocking' => [
+                    'old-plugin' => [
+                        'type' => 'plugin',
+                        'version' => '1.0.0',
+                        'compatibility' => ['grav' => ['1.7'], 'api' => []],
+                        'enabled' => true,
+                    ],
+                ],
+                'warnings' => [],
+                'target' => '1.8',
+            ],
+        ]);
+
+        self::assertTrue($result);
+        $output = implode("\n", $style->messages);
+        self::assertStringContainsString('Proceeding despite incompatible', $output);
+    }
+
     /**
      * @param TestSelfupgradeCommand $command
      * @param array<int, mixed> $responses

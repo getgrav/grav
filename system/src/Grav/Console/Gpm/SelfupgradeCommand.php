@@ -396,6 +396,9 @@ class SelfupgradeCommand extends GpmCommand
         $conflicts = $preflight['psr_log_conflicts'] ?? [];
         $monologConflicts = $preflight['monolog_conflicts'] ?? [];
         $warnings = $preflight['warnings'] ?? [];
+        $incompatible = $preflight['incompatible_packages'] ?? [];
+        $incompatibleBlocking = $incompatible['blocking'] ?? [];
+        $incompatibleTarget = $incompatible['target'] ?? '';
         $isMajorMinorUpgrade = $preflight['is_major_minor_upgrade'] ?? null;
         if ($isMajorMinorUpgrade === null && $this->upgrader) {
             $local = $this->upgrader->getLocalVersion();
@@ -420,17 +423,22 @@ class SelfupgradeCommand extends GpmCommand
             }
         }
 
-        if ($blocking && empty($pending)) {
+        // Filter out the incompatible-packages blocker (handled separately below)
+        $filteredBlocking = array_filter($blocking, static function ($reason) {
+            return !stripos($reason, 'not been marked as compatible');
+        });
+
+        if ($filteredBlocking && empty($pending)) {
             $io->newLine();
             $io->writeln('<red>Upgrade blocked:</red>');
-            foreach ($blocking as $reason) {
+            foreach ($filteredBlocking as $reason) {
                 $io->writeln('  - ' . $reason);
             }
 
             return false;
         }
 
-        if (empty($pending) && empty($conflicts) && empty($monologConflicts)) {
+        if (empty($pending) && empty($conflicts) && empty($monologConflicts) && empty($incompatibleBlocking)) {
             return true;
         }
 
@@ -465,6 +473,58 @@ class SelfupgradeCommand extends GpmCommand
 
             Install::allowPendingPackageOverride(true);
             $io->writeln('    › Proceeding despite pending plugin/theme updates.');
+        }
+
+        // Handle incompatible packages
+        if ($incompatibleBlocking) {
+            $io->newLine();
+            $io->writeln('<yellow>The following enabled plugins/themes are not marked as compatible with Grav ' . $incompatibleTarget . ':</yellow>');
+            foreach ($incompatibleBlocking as $slug => $info) {
+                $type = $info['type'] ?? 'plugin';
+                $ver = $info['version'] ?? 'unknown';
+                $gravCompat = implode(', ', $info['compatibility']['grav'] ?? ['?']);
+                $io->writeln(sprintf('  - %s (%s v%s) — compatible with: %s', $slug, $type, $ver, $gravCompat));
+            }
+            $io->writeln('    › Plugins/themes must be marked as compatible with Grav ' . $incompatibleTarget . ' before upgrading.');
+            $io->writeln('      Either update the plugins, or disable them to proceed.');
+
+            $choice = $this->all_yes ? 'abort' : $io->choice(
+                'How would you like to proceed?',
+                ['disable', 'continue', 'abort'],
+                'abort'
+            );
+
+            if ($choice === 'abort') {
+                $io->writeln('Aborting self-upgrade. Update or disable incompatible plugins first.');
+
+                return false;
+            }
+
+            /** @var \Grav\Common\Recovery\RecoveryManager $recovery */
+            $recovery = Grav::instance()['recovery'];
+
+            if ($choice === 'disable') {
+                foreach (array_keys($incompatibleBlocking) as $slug) {
+                    $recovery->disablePlugin($slug, ['message' => 'Disabled before upgrade — not marked as compatible with Grav ' . $incompatibleTarget]);
+                    $io->writeln(sprintf('  - Disabled %s.', $slug));
+                }
+                $io->writeln('Continuing with incompatible plugins disabled.');
+            } else {
+                Install::allowIncompatibleOverride(true);
+                $io->writeln('    › Proceeding despite incompatible plugins/themes.');
+            }
+        }
+
+        // Show incompatible warnings (disabled packages) — informational only
+        $incompatibleWarnings = $incompatible['warnings'] ?? [];
+        if ($incompatibleWarnings) {
+            $io->newLine();
+            $io->writeln('<cyan>Disabled plugins/themes not yet compatible with Grav ' . $incompatibleTarget . ' (will not block upgrade):</cyan>');
+            foreach ($incompatibleWarnings as $slug => $info) {
+                $type = $info['type'] ?? 'plugin';
+                $ver = $info['version'] ?? 'unknown';
+                $io->writeln(sprintf('  - %s (%s v%s)', $slug, $type, $ver));
+            }
         }
 
         $handled = $this->handleConflicts(
