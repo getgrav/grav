@@ -94,7 +94,6 @@ class Pipeline extends PropertyObject
         $this->base_url = rtrim($uri->rootUrl($config->get('system.absolute_urls')), '/') . '/';
         $this->assets_dir = $locator->findResource('asset://');
         if (!$this->assets_dir) {
-            error_log('b');
             // Attempt to create assets folder if it doesn't exist yet.
             $this->assets_dir = $locator->findResource('asset://', true, true);
             Folder::mkdir($this->assets_dir);
