@@ -38,6 +38,11 @@ if (!defined('GRAV_USER_PATH')) {
     $path = rtrim(getenv('GRAV_USER_PATH') ?: 'user', DS);
     define('GRAV_USER_PATH', $path);
 }
+// Absolute or relative path to cache folder. Defaults to GRAV_ROOT/cache
+if (!defined('GRAV_RUN_PATH')) {
+    $path = rtrim(getenv('GRAV_CACHE_PATH') ?: 'run', DS);
+    define('GRAV_RUN_PATH', $path);
+}
 // Absolute or relative path to system folder. Defaults to GRAV_ROOT/system
 // If system folder is outside of webroot, see https://github.com/getgrav/grav/issues/3297#issuecomment-810294972
 if (!defined('GRAV_SYSTEM_PATH')) {
@@ -46,22 +51,22 @@ if (!defined('GRAV_SYSTEM_PATH')) {
 }
 // Absolute or relative path to cache folder. Defaults to GRAV_ROOT/cache
 if (!defined('GRAV_CACHE_PATH')) {
-    $path = rtrim(getenv('GRAV_CACHE_PATH') ?: 'cache', DS);
+    $path = rtrim(getenv('GRAV_CACHE_PATH') ?: GRAV_RUN_PATH . '/cache', DS);
     define('GRAV_CACHE_PATH', $path);
 }
 // Absolute or relative path to logs folder. Defaults to GRAV_ROOT/logs
 if (!defined('GRAV_LOG_PATH')) {
-    $path = rtrim(getenv('GRAV_LOG_PATH') ?: 'logs', DS);
+    $path = rtrim(getenv('GRAV_LOG_PATH') ?: GRAV_RUN_PATH . '/logs', DS);
     define('GRAV_LOG_PATH', $path);
 }
 // Absolute or relative path to tmp folder. Defaults to GRAV_ROOT/tmp
 if (!defined('GRAV_TMP_PATH')) {
-    $path = rtrim(getenv('GRAV_TMP_PATH') ?: 'tmp', DS);
+    $path = rtrim(getenv('GRAV_TMP_PATH') ?: GRAV_RUN_PATH . '/tmp', DS);
     define('GRAV_TMP_PATH', $path);
 }
 // Absolute or relative path to backup folder. Defaults to GRAV_ROOT/backup
 if (!defined('GRAV_BACKUP_PATH')) {
-    $path = rtrim(getenv('GRAV_BACKUP_PATH') ?: 'backup', DS);
+    $path = rtrim(getenv('GRAV_BACKUP_PATH') ?: GRAV_RUN_PATH . '/backup', DS);
     define('GRAV_BACKUP_PATH', $path);
 }
 unset($path);

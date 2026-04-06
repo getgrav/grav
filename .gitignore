@@ -7,20 +7,20 @@ vendor/*
 .sass-cache
 
 # Grav Specific
-backup/*
-!backup/.*
-cache/*
-!cache/.*
-assets/*
-!assets/.*
-logs/*
-!logs/.*
-images/*
-!images/.*
-user/accounts/*
-!user/accounts/.*
-user/data/*
-!user/data/.*
+run/backup/*
+!run/backup/.*
+run/cache/*
+!run/cache/.*
+run/assets/*
+!run/assets/.*
+run/logs/*
+!run/logs/.*
+run/images/*
+!run/images/.*
+run/accounts/*
+!run/accounts/.*
+run/data/*
+!run/data/.*
 user/plugins/*
 !user/plugins/.*
 user/themes/*
