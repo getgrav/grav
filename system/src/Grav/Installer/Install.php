@@ -882,9 +882,9 @@ ERR;
         return $conflicts;
     }
 
-    private function isPluginEnabled(string $slug): bool
+    private function isPluginEnabled(string $slug, ?string $root = null): bool
     {
-        $configPath = GRAV_ROOT . '/user/config/plugins/' . $slug . '.yaml';
+        $configPath = ($root ?? GRAV_ROOT) . '/user/config/plugins/' . $slug . '.yaml';
         if (is_file($configPath)) {
             try {
                 $contents = @file_get_contents($configPath);
@@ -902,9 +902,9 @@ ERR;
         return true;
     }
 
-    private function isThemeEnabled(string $slug): bool
+    private function isThemeEnabled(string $slug, ?string $root = null): bool
     {
-        $configPath = GRAV_ROOT . '/user/config/system.yaml';
+        $configPath = ($root ?? GRAV_ROOT) . '/user/config/system.yaml';
         if (is_file($configPath)) {
             try {
                 $contents = @file_get_contents($configPath);
@@ -931,14 +931,14 @@ ERR;
      * @param string $targetVersion Target Grav version (e.g. '1.8.0')
      * @return array{blocking: array, warnings: array, target: string}
      */
-    private function detectIncompatiblePackages(string $targetVersion): array
+    private function detectIncompatiblePackages(string $targetVersion, ?string $root = null): array
     {
         $parts = explode('.', $targetVersion);
         $targetMajorMinor = ($parts[0] ?? '1') . '.' . ($parts[1] ?? '7');
 
         $blocking = [];
         $warnings = [];
-        $scanRoot = GRAV_ROOT ?: getcwd();
+        $scanRoot = $root ?? GRAV_ROOT ?? getcwd();
 
         // Scan plugins
         $pluginDirs = glob($scanRoot . '/user/plugins/*', GLOB_ONLYDIR) ?: [];
@@ -951,7 +951,7 @@ ERR;
             }
 
             $version = $this->readBlueprintVersion($dir) ?? 'unknown';
-            $enabled = $this->isPluginEnabled($slug);
+            $enabled = $this->isPluginEnabled($slug, $scanRoot);
 
             $entry = [
                 'type' => 'plugin',
@@ -978,7 +978,7 @@ ERR;
             }
 
             $version = $this->readBlueprintVersion($dir) ?? 'unknown';
-            $active = $this->isThemeEnabled($slug);
+            $active = $this->isThemeEnabled($slug, $scanRoot);
 
             $entry = [
                 'type' => 'theme',

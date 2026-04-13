@@ -121,7 +121,7 @@ class InstallCompatibilityTest extends \PHPUnit\Framework\TestCase
         ]);
         // Plugin enabled by default (no config file = enabled)
 
-        $result = $this->callMethod('detectIncompatiblePackages', ['1.8.0']);
+        $result = $this->callMethod('detectIncompatiblePackages', ['1.8.0', $this->tmpDir]);
         self::assertArrayHasKey('incompatible-enabled', $result['blocking']);
         self::assertSame('1.8', $result['target']);
     }
@@ -139,7 +139,7 @@ class InstallCompatibilityTest extends \PHPUnit\Framework\TestCase
             "enabled: false\n"
         );
 
-        $result = $this->callMethod('detectIncompatiblePackages', ['1.8.0']);
+        $result = $this->callMethod('detectIncompatiblePackages', ['1.8.0', $this->tmpDir]);
         self::assertArrayHasKey('incompatible-disabled', $result['warnings']);
         self::assertEmpty($result['blocking']);
     }
@@ -152,7 +152,7 @@ class InstallCompatibilityTest extends \PHPUnit\Framework\TestCase
             'compatibility' => ['grav' => ['1.7', '1.8']],
         ]);
 
-        $result = $this->callMethod('detectIncompatiblePackages', ['1.8.0']);
+        $result = $this->callMethod('detectIncompatiblePackages', ['1.8.0', $this->tmpDir]);
         self::assertArrayNotHasKey('compatible-plugin', $result['blocking']);
         self::assertArrayNotHasKey('compatible-plugin', $result['warnings']);
     }
@@ -173,18 +173,12 @@ class InstallCompatibilityTest extends \PHPUnit\Framework\TestCase
 
     /**
      * Call a private/protected method on the Install singleton via reflection.
-     * We temporarily override GRAV_ROOT for the detection methods.
      */
     private function callMethod(string $method, array $args): mixed
     {
         $install = Install::instance();
         $ref = new \ReflectionMethod($install, $method);
         $ref->setAccessible(true);
-
-        // For methods that use GRAV_ROOT, we need to define it if not set
-        if (!defined('GRAV_ROOT')) {
-            define('GRAV_ROOT', $this->tmpDir);
-        }
 
         return $ref->invoke($install, ...$args);
     }
