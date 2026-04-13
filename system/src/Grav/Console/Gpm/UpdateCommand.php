@@ -198,6 +198,9 @@ class UpdateCommand extends GpmCommand
                     if (in_array('1.8', $compat['grav'], true)) {
                         $badges[] = '<green>1.8</green>';
                     }
+                    if (in_array('2.0', $compat['grav'], true)) {
+                        $badges[] = '<magenta>2.0</magenta>';
+                    }
                     $compatStr = ' ' . implode(' ', $badges);
                 }
 
