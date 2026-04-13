@@ -63,7 +63,7 @@ $gravVersion   = 'unknown';
 if (file_exists($changelogFile)) {
     $first = fopen($changelogFile, 'r');
     while (($line = fgets($first)) !== false) {
-        if (preg_match('/^#\s+([\d]+\.[\d]+\.[\d]+(?:[-\w.]+)?)/', $line, $m)) {
+        if (preg_match('/^#\s+v?([\d]+\.[\d]+\.[\d]+(?:[-\w.]+)?)/', $line, $m)) {
             $gravVersion = $m[1];
             break;
         }
