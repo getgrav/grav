@@ -365,9 +365,8 @@ form:
                   classes: fancy
                   default: 'collection'
                   options:
-                    'default': 'Ordered by Folder name (default)'
                     'collection': 'Ordered by Collection definition'
-
+                    'default': 'Ordered by Folder name'
 
                 header.order_by:
                   type: hidden
