@@ -135,17 +135,49 @@ class Upgrader
     }
 
     /**
-     * Returns true when a newer major version is available (e.g. currently on 1.x, remote offers 2.x).
-     * Intended for informational notices — does not imply an automatic upgrade will occur.
+     * Returns true when the remote has advertised a newer major via the `next_major` hint.
+     * Used for informational notices — never implies an automatic upgrade.
+     *
+     * The server sends `next_major` to older-family clients (e.g. 1.7.x) alongside the
+     * family-appropriate release, so comparing raw remote/local versions here would miss it.
      *
      * @return bool
      */
     public function isNextMajorAvailable(): bool
     {
-        $localMajor  = (int) explode('.', $this->getLocalVersion())[0];
-        $remoteMajor = (int) explode('.', $this->getRemoteVersion())[0];
+        $next = $this->remote->getNextMajor();
+        if (!$next || empty($next['version'])) {
+            return false;
+        }
 
-        return $remoteMajor > $localMajor;
+        $localMajor = (int) explode('.', $this->getLocalVersion())[0];
+        $nextMajor  = (int) explode('.', (string) $next['version'])[0];
+
+        return $nextMajor > $localMajor;
+    }
+
+    /**
+     * Returns the next-major version advertised by the remote, or null when none is offered.
+     *
+     * @return string|null
+     */
+    public function getNextMajorVersion(): ?string
+    {
+        $next = $this->remote->getNextMajor();
+
+        return $next['version'] ?? null;
+    }
+
+    /**
+     * Returns the migration URL advertised by the remote alongside the next-major hint.
+     *
+     * @return string|null
+     */
+    public function getMigrationUrl(): ?string
+    {
+        $next = $this->remote->getNextMajor();
+
+        return $next['migration_url'] ?? null;
     }
 
     /**
