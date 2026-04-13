@@ -1448,6 +1448,10 @@ ERR;
                 continue;
             }
 
+            if (version_compare($m[1], '2.0', '>=')) {
+                return ['grav' => ['2.0'], 'api' => []];
+            }
+
             if (version_compare($m[1], '1.8', '>=')) {
                 return ['grav' => ['1.8'], 'api' => []];
             }
