@@ -20,43 +20,28 @@ use Grav\Common\Plugins;
 use Grav\Common\Yaml;
 use RuntimeException;
 use Throwable;
-use function array_slice;
 use function basename;
 use function class_exists;
 use function count;
-use function date;
 use function dirname;
 use function explode;
-use function floor;
 use function function_exists;
 use function file_get_contents;
 use function glob;
 use function iterator_to_array;
 use function is_dir;
 use function is_file;
-use function is_link;
 use function method_exists;
 use function is_string;
-use function is_writable;
-use function json_encode;
 use function json_decode;
-use function readlink;
-use function array_fill_keys;
 use function array_map;
 use function array_pad;
 use function array_key_exists;
-use function rsort;
-use function sort;
 use function sprintf;
 use function strtolower;
 use function strpos;
 use function preg_match;
-use function symlink;
-use function time;
-use function uniqid;
-use function unlink;
 use const GRAV_ROOT;
-use const JSON_PRETTY_PRINT;
 
 /**
  * Grav installer.
@@ -156,19 +141,12 @@ final class Install
     /** @var VersionUpdater|null */
     private $updater;
 
-    /** @var array|null */
-    private $lastManifest = null;
-
     /** @var static */
     private static $instance;
-    /** @var bool|null */
-    private static $forceSafeUpgrade = null;
     /** @var bool */
     private static $allowPendingOverride = false;
     /** @var bool */
     private static $allowIncompatibleOverride = false;
-    /** @var int|null */
-    private static $snapshotLimit = null;
     /** @var callable|null */
     private $progressCallback = null;
     /** @var array|null */
@@ -187,14 +165,10 @@ final class Install
     }
 
     /**
-     * Force safe-upgrade mode independently of system configuration.
-     *
-     * @param bool|null $state
-     * @return void
+     * @deprecated No-op stub kept for backward compatibility with pre-2.0 upgrade scripts.
      */
     public static function forceSafeUpgrade(?bool $state = true): void
     {
-        self::$forceSafeUpgrade = $state;
     }
 
     private function __construct()
@@ -370,8 +344,6 @@ ERR;
             throw new RuntimeException('Oops, installer was run without prepare()!', 500);
         }
 
-        $this->lastManifest = null;
-
         try {
             if (null === $this->updater) {
                 $versions = Versions::instance(USER_DIR . 'config/versions.yaml');
@@ -381,7 +353,6 @@ ERR;
             // Update user/config/version.yaml before copying the files to avoid frontend from setting the version schema.
             $this->updater->install();
 
-            $safeUpgradeRequested = $this->shouldUseSafeUpgrade();
             $targetVersion = $this->getVersion();
             if (null === $this->pendingPreflight) {
                 $this->pendingPreflight = $this->runPreflightChecks($targetVersion);
@@ -392,22 +363,7 @@ ERR;
 
                 return;
             }
-            $snapshotManifest = null;
-            if ($safeUpgradeRequested) {
-                $snapshotManifest = $this->captureCoreSnapshot($targetVersion);
-                if ($snapshotManifest) {
-                    $this->relayProgress('snapshot', sprintf('Snapshot %s captured.', $snapshotManifest['id']), 100);
-                } else {
-                    $this->relayProgress('error', 'Safe upgrade requires a recovery snapshot, but snapshot capture failed.', null);
-                    Installer::setError('Safe upgrade requires a recovery snapshot. Ensure tmp://grav-snapshots is writable and retry.');
-
-                    return;
-                }
-            }
-            $progressMessage = $safeUpgradeRequested
-                ? 'Running Grav standard installer (safe mode)...'
-                : 'Running Grav standard installer...';
-            $this->relayProgress('installing', $progressMessage, null);
+            $this->relayProgress('installing', 'Running Grav standard installer...', null);
 
             Installer::install(
                 $this->zip ?? '',
@@ -432,352 +388,6 @@ ERR;
             throw new RuntimeException(Installer::lastErrorMsg());
         }
     }
-
-    /**
-     * @return bool
-     */
-    private function shouldUseSafeUpgrade(): bool
-    {
-        if (null !== self::$forceSafeUpgrade) {
-            return self::$forceSafeUpgrade;
-        }
-
-        $envValue = getenv('GRAV_FORCE_SAFE_UPGRADE');
-        if (false !== $envValue && '' !== $envValue) {
-            return $envValue === '1';
-        }
-
-        try {
-            $grav = Grav::instance();
-            if ($grav && isset($grav['config'])) {
-                $configValue = $grav['config']->get('system.updates.safe_upgrade');
-                if ($configValue !== null) {
-                    return (bool) $configValue;
-                }
-            }
-        } catch (\Throwable $e) {
-            // ignore bootstrap failures
-        }
-
-        return false;
-    }
-
-    private function getSafeUpgradeSnapshotLimit(): int
-    {
-        if (null !== self::$snapshotLimit) {
-            return self::$snapshotLimit;
-        }
-
-        $limit = 5;
-
-        try {
-            $grav = Grav::instance();
-            if ($grav && isset($grav['config'])) {
-                $configured = $grav['config']->get('system.updates.safe_upgrade_snapshot_limit');
-                if ($configured !== null) {
-                    $limit = (int)$configured;
-                }
-            }
-        } catch (\Throwable $e) {
-            // ignore bootstrap failures
-        }
-
-        if ($limit < 0) {
-            $limit = 0;
-        }
-
-        self::$snapshotLimit = $limit;
-
-        return $limit;
-    }
-
-    private function captureCoreSnapshot(string $targetVersion): ?array
-    {
-        $entries = $this->collectSnapshotEntries();
-        if (!$entries) {
-            return null;
-        }
-
-        $snapshotRoot = $this->resolveSnapshotStore();
-        if (!$snapshotRoot) {
-            return null;
-        }
-
-        $snapshotId = 'snapshot-' . date('YmdHis');
-        $snapshotPath = $snapshotRoot . '/' . $snapshotId;
-        try {
-            Folder::create($snapshotPath);
-        } catch (\Throwable $e) {
-            error_log('[Grav Upgrade] Unable to create snapshot directory: ' . $e->getMessage());
-
-            return null;
-        }
-
-        $total = count($entries);
-        foreach ($entries as $index => $entry) {
-            $percent = $total > 0 ? (int)floor((($index + 1) / $total) * 100) : null;
-            $this->relayProgress('snapshot', sprintf('Snapshotting %s (%d/%d)', $entry, $index + 1, $total), $percent);
-
-            $source = GRAV_ROOT . '/' . $entry;
-            $destination = $snapshotPath . '/' . $entry;
-
-            try {
-                $this->snapshotCopyEntry($source, $destination);
-            } catch (\Throwable $e) {
-                error_log('[Grav Upgrade] Snapshot copy failed for ' . $entry . ': ' . $e->getMessage());
-
-                return null;
-            }
-        }
-
-        $manifest = [
-            'id' => $snapshotId,
-            'created_at' => time(),
-            'source_version' => GRAV_VERSION,
-            'target_version' => $targetVersion,
-            'php_version' => PHP_VERSION,
-            'entries' => $entries,
-            'package_path' => null,
-            'backup_path' => $snapshotPath,
-            'operation' => 'upgrade',
-            'mode' => 'pre-upgrade',
-        ];
-
-        $this->persistSnapshotManifest($manifest);
-        $this->lastManifest = $manifest;
-        $this->pruneOldSnapshots($snapshotRoot);
-
-        return $manifest;
-    }
-
-    private function collectSnapshotEntries(): array
-    {
-        $ignores = array_fill_keys($this->ignores, true);
-        $ignores['user'] = true;
-
-        $entries = [];
-        try {
-            $iterator = new \DirectoryIterator(GRAV_ROOT);
-            foreach ($iterator as $item) {
-                if ($item->isDot()) {
-                    continue;
-                }
-
-                $name = $item->getFilename();
-                if (isset($ignores[$name])) {
-                    continue;
-                }
-
-                $entries[] = $name;
-            }
-        } catch (\Throwable $e) {
-            error_log('[Grav Upgrade] Unable to enumerate snapshot entries: ' . $e->getMessage());
-
-            return [];
-        }
-
-        sort($entries);
-
-        return $entries;
-    }
-
-    private function snapshotCopyEntry(string $source, string $destination): void
-    {
-        if (is_link($source)) {
-            $linkTarget = readlink($source);
-            Folder::create(dirname($destination));
-            if (is_link($destination) || is_file($destination)) {
-                @unlink($destination);
-            }
-            if ($linkTarget !== false) {
-                @symlink($linkTarget, $destination);
-            }
-
-            return;
-        }
-
-        if (is_dir($source)) {
-            Folder::rcopy($source, $destination);
-
-            return;
-        }
-
-        Folder::create(dirname($destination));
-        if (!@copy($source, $destination)) {
-            throw new RuntimeException(sprintf('Failed to copy file %s during snapshot.', $source));
-        }
-    }
-
-    private function resolveSnapshotStore(): ?string
-    {
-        $candidates = [];
-        try {
-            $grav = Grav::instance();
-            if ($grav && isset($grav['locator'])) {
-                $path = $grav['locator']->findResource('tmp://grav-snapshots', true, true);
-                if ($path) {
-                    $candidates[] = $path;
-                }
-            }
-        } catch (\Throwable $e) {
-            // ignore locator issues
-        }
-        $candidates[] = GRAV_ROOT . '/tmp/grav-snapshots';
-
-        foreach ($candidates as $candidate) {
-            if (!$candidate) {
-                continue;
-            }
-
-            try {
-                Folder::create($candidate);
-            } catch (\Throwable $e) {
-                continue;
-            }
-
-            if (is_dir($candidate) && is_writable($candidate)) {
-                return rtrim($candidate, '\\/');
-            }
-        }
-
-        error_log('[Grav Upgrade] Unable to locate writable snapshot directory; skipping snapshot.');
-
-        return null;
-    }
-
-    private function persistSnapshotManifest(array $manifest): void
-    {
-        $store = GRAV_ROOT . '/user/data/upgrades';
-
-        try {
-            Folder::create($store);
-            $path = $store . '/' . $manifest['id'] . '.json';
-            @file_put_contents($path, json_encode($manifest, JSON_PRETTY_PRINT));
-        } catch (\Throwable $e) {
-            error_log('[Grav Upgrade] Unable to write snapshot manifest: ' . $e->getMessage());
-        }
-    }
-
-    private function pruneOldSnapshots(?string $snapshotRoot): void
-    {
-        $limit = $this->getSafeUpgradeSnapshotLimit();
-        if ($limit <= 0) {
-            return;
-        }
-
-        $manifestDir = GRAV_ROOT . '/user/data/upgrades';
-        $files = glob($manifestDir . '/*.json');
-        if (!$files) {
-            return;
-        }
-
-        $manifests = [];
-        foreach ($files as $path) {
-            $decoded = null;
-            try {
-                $contents = @file_get_contents($path);
-                if ($contents !== false) {
-                    $candidate = json_decode($contents, true);
-                    if (is_array($candidate)) {
-                        $decoded = $candidate;
-                    }
-                }
-            } catch (\Throwable $e) {
-                $decoded = null;
-            }
-
-            if (!$decoded || !$this->isSnapshotManifest($decoded)) {
-                continue;
-            }
-
-            $manifests[] = [
-                'path' => $path,
-                'manifest' => $decoded,
-                'created_at' => (int)($decoded['created_at'] ?? 0),
-            ];
-        }
-
-        if (count($manifests) <= $limit) {
-            return;
-        }
-
-        \usort($manifests, static function (array $a, array $b): int {
-            $delta = $b['created_at'] <=> $a['created_at'];
-            if ($delta !== 0) {
-                return $delta;
-            }
-
-            return strcmp((string)$b['path'], (string)$a['path']);
-        });
-
-        $obsolete = array_slice($manifests, $limit);
-        $removed = 0;
-
-        foreach ($obsolete as $entry) {
-            $manifestPath = (string)$entry['path'];
-            $manifest = $entry['manifest'] ?? null;
-
-            $snapshotId = $manifest['id'] ?? basename($manifestPath, '.json');
-            $backupPath = $manifest['backup_path'] ?? null;
-
-            if ($backupPath && is_dir($backupPath)) {
-                try {
-                    Folder::delete($backupPath);
-                } catch (\Throwable $e) {
-                    error_log('[Grav Upgrade] Unable to delete snapshot directory ' . $backupPath . ': ' . $e->getMessage());
-                }
-            } elseif ($snapshotRoot && $snapshotId) {
-                $candidate = $snapshotRoot . '/' . $snapshotId;
-                if (is_dir($candidate)) {
-                    try {
-                        Folder::delete($candidate);
-                    } catch (\Throwable $e) {
-                        error_log('[Grav Upgrade] Unable to delete snapshot directory ' . $candidate . ': ' . $e->getMessage());
-                    }
-                }
-            }
-
-            if (!@unlink($manifestPath)) {
-                error_log('[Grav Upgrade] Unable to remove snapshot manifest: ' . $manifestPath);
-                continue;
-            }
-
-            $removed++;
-        }
-
-        if ($removed > 0) {
-            $this->relayProgress(
-                'snapshot',
-                sprintf(
-                    'Pruned %d old snapshot%s (keeping latest %d).',
-                    $removed,
-                    $removed === 1 ? '' : 's',
-                    $limit
-                ),
-                null
-            );
-        }
-    }
-
-    private function isSnapshotManifest(array $manifest): bool
-    {
-        $id = isset($manifest['id']) ? (string)$manifest['id'] : '';
-        if ($id === '') {
-            return false;
-        }
-
-        if (strpos($id, 'snapshot-') !== 0 && strpos($id, 'upgrade-') !== 0 && strpos($id, 'stage-') !== 0) {
-            return false;
-        }
-
-        $backupPath = $manifest['backup_path'] ?? null;
-        if (!is_string($backupPath) || $backupPath === '') {
-            return false;
-        }
-
-        return is_array($manifest['entries'] ?? null);
-    }
-
 
     /**
      * @return void
@@ -912,7 +522,6 @@ ERR;
             'bin/grav',
             'bin/plugin',
             'bin/gpm',
-            'bin/restore',
             'bin/composer.phar'
         ];
 
@@ -933,11 +542,11 @@ ERR;
     }
 
     /**
-     * @return array|null
+     * @deprecated Always returns null; snapshots removed in 2.0.
      */
     public function getLastManifest(): ?array
     {
-        return $this->lastManifest;
+        return null;
     }
 
     public function generatePreflightReport(): array

@@ -117,13 +117,51 @@ class Upgrader
     }
 
     /**
-     * Checks if the currently installed Grav is upgradable to a newer version
+     * Checks if the currently installed Grav is upgradable to a newer version.
      *
-     * @return bool True if it's upgradable, False otherwise.
+     * Returns false when the remote version is from a different major.minor family
+     * (e.g. local is 1.8.x and remote is 2.0.x), so that installs are never
+     * silently jumped across a major boundary.
+     *
+     * @return bool True if it's upgradable within the same major.minor family.
      */
     public function isUpgradable()
     {
+        if ($this->isCrossFamilyUpgrade()) {
+            return false;
+        }
+
         return version_compare($this->getLocalVersion(), $this->getRemoteVersion(), '<');
+    }
+
+    /**
+     * Returns true when a newer major version is available (e.g. currently on 1.x, remote offers 2.x).
+     * Intended for informational notices — does not imply an automatic upgrade will occur.
+     *
+     * @return bool
+     */
+    public function isNextMajorAvailable(): bool
+    {
+        $localMajor  = (int) explode('.', $this->getLocalVersion())[0];
+        $remoteMajor = (int) explode('.', $this->getRemoteVersion())[0];
+
+        return $remoteMajor > $localMajor;
+    }
+
+    /**
+     * Returns true when the remote version belongs to a different major.minor family than the local version.
+     *
+     * @return bool
+     */
+    private function isCrossFamilyUpgrade(): bool
+    {
+        $localParts  = explode('.', $this->getLocalVersion());
+        $remoteParts = explode('.', $this->getRemoteVersion());
+
+        $localFamily  = ($localParts[0] ?? '0') . '.' . ($localParts[1] ?? '0');
+        $remoteFamily = ($remoteParts[0] ?? '0') . '.' . ($remoteParts[1] ?? '0');
+
+        return $localFamily !== $remoteFamily;
     }
 
     /**

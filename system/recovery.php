@@ -2,7 +2,6 @@
 
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\Recovery\RecoveryManager;
-use Grav\Common\Upgrade\SafeUpgradeService;
 
 if (!\defined('GRAV_ROOT')) {
     \define('GRAV_ROOT', dirname(__DIR__));
@@ -17,28 +16,15 @@ session_start([
 
 $manager = new RecoveryManager();
 $context = $manager->getContext() ?? [];
-$token = $context['token'] ?? null;
-$authenticated = $token && isset($_SESSION['grav_recovery_authenticated']) && hash_equals($_SESSION['grav_recovery_authenticated'], $token);
 $errorMessage = null;
 $notice = null;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
-    if ($action === 'authenticate') {
-        $provided = trim($_POST['token'] ?? '');
-        if ($token && hash_equals($token, $provided)) {
-            $_SESSION['grav_recovery_authenticated'] = $token;
-            header('Location: ' . $_SERVER['REQUEST_URI']);
-            exit;
-        }
-        $errorMessage = 'Invalid recovery token.';
-    } elseif ($action === 'clear-flag') {
-        // Clear recovery flag - allowed without authentication
+    if ($action === 'clear-flag') {
         $manager->clear();
-        $_SESSION['grav_recovery_authenticated'] = null;
         $notice = 'Recovery flag cleared. <a href="' . htmlspecialchars($_SERVER['REQUEST_URI'], ENT_QUOTES, 'UTF-8') . '">Reload the page</a> to continue.';
     } elseif ($action === 'disable-recovery') {
-        // Disable recovery mode in config (updates.recovery_mode) - allowed without authentication
         $configDir = GRAV_ROOT . '/user/config';
         $configFile = $configDir . '/system.yaml';
         Folder::create($configDir);
@@ -47,7 +33,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (is_file($configFile)) {
             $content = file_get_contents($configFile);
             if ($content !== false) {
-                // Simple YAML parsing for this specific case
                 $config = \Symfony\Component\Yaml\Yaml::parse($content) ?? [];
             }
         }
@@ -59,67 +44,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $yaml = \Symfony\Component\Yaml\Yaml::dump($config, 4, 2);
         file_put_contents($configFile, $yaml);
 
-        // Also clear the recovery flag
         $manager->clear();
-        $_SESSION['grav_recovery_authenticated'] = null;
         $notice = 'Recovery mode has been disabled. <a href="' . htmlspecialchars($_SERVER['REQUEST_URI'], ENT_QUOTES, 'UTF-8') . '">Reload the page</a> to continue.';
-    } elseif ($authenticated) {
-        $service = new SafeUpgradeService();
-        try {
-            if ($action === 'rollback' && !empty($_POST['manifest'])) {
-                $service->rollback(trim($_POST['manifest']));
-                $manager->clear();
-                $_SESSION['grav_recovery_authenticated'] = null;
-                $notice = 'Rollback complete. Please reload Grav.';
-            }
-        } catch (\Throwable $e) {
-            $errorMessage = $e->getMessage();
-        }
-    } else {
-        $errorMessage = 'Authentication required for this action.';
     }
 }
-
-$quarantineFile = GRAV_ROOT . '/user/data/upgrades/quarantine.json';
-$quarantine = [];
-if (is_file($quarantineFile)) {
-    $decoded = json_decode(file_get_contents($quarantineFile), true);
-    if (is_array($decoded)) {
-        $quarantine = $decoded;
-    }
-}
-
-$manifestDir = GRAV_ROOT . '/user/data/upgrades';
-$snapshots = [];
-if (is_dir($manifestDir)) {
-    $files = glob($manifestDir . '/*.json');
-    if ($files) {
-        foreach ($files as $file) {
-            $decoded = json_decode(file_get_contents($file), true);
-            if (!is_array($decoded)) {
-                continue;
-            }
-
-            $id = $decoded['id'] ?? pathinfo($file, PATHINFO_FILENAME);
-            if (!is_string($id) || $id === '' || strncmp($id, 'snapshot-', 9) !== 0) {
-                continue;
-            }
-
-            $decoded['id'] = $id;
-            $decoded['file'] = basename($file);
-            $decoded['created_at'] = (int)($decoded['created_at'] ?? filemtime($file) ?: 0);
-            $snapshots[] = $decoded;
-        }
-
-        if ($snapshots) {
-            usort($snapshots, static function (array $a, array $b): int {
-                return ($b['created_at'] ?? 0) <=> ($a['created_at'] ?? 0);
-            });
-        }
-    }
-}
-
-$latestSnapshot = $snapshots[0] ?? null;
 
 // Determine base URL for assets
 $scriptName = $_SERVER['SCRIPT_NAME'] ?? '/index.php';
@@ -333,24 +261,6 @@ header('Content-Type: text/html; charset=utf-8');
             color: #e8e8e8;
             word-break: break-word;
         }
-        input[type="text"] {
-            width: 100%;
-            padding: 12px 16px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 8px;
-            background: rgba(0, 0, 0, 0.2);
-            color: #fff;
-            font-size: 0.95rem;
-            margin-top: 8px;
-        }
-        input[type="text"]:focus {
-            outline: none;
-            border-color: #3b82f6;
-        }
-        label {
-            color: #94a3b8;
-            font-size: 0.9rem;
-        }
         .help-text {
             color: #64748b;
             font-size: 0.85rem;
@@ -362,39 +272,6 @@ header('Content-Type: text/html; charset=utf-8');
             border-radius: 4px;
             font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
             font-size: 0.85rem;
-        }
-        .quarantine-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-        .quarantine-list li {
-            padding: 12px;
-            background: rgba(245, 158, 11, 0.1);
-            border-radius: 6px;
-            margin-bottom: 8px;
-        }
-        .quarantine-list .plugin-name {
-            font-weight: 600;
-            color: #fcd34d;
-        }
-        .quarantine-list .plugin-time {
-            color: #94a3b8;
-            font-size: 0.85rem;
-        }
-        .snapshot-info {
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 8px;
-            padding: 12px 16px;
-            margin: 12px 0;
-        }
-        .snapshot-info code {
-            color: #60a5fa;
-        }
-        .snapshot-info small {
-            color: #64748b;
-            display: block;
-            margin-top: 4px;
         }
         @media (max-width: 600px) {
             body { padding: 12px; }
@@ -470,23 +347,6 @@ header('Content-Type: text/html; charset=utf-8');
         <?php endif; ?>
     </div>
 
-    <?php if ($quarantine): ?>
-        <div class="card">
-            <h2>Quarantined Plugins</h2>
-            <p class="help-text" style="margin-top: 0;">These plugins have been automatically disabled due to errors:</p>
-            <ul class="quarantine-list">
-                <?php foreach ($quarantine as $entry): ?>
-                    <li>
-                        <span class="plugin-name"><?php echo htmlspecialchars($entry['slug'], ENT_QUOTES, 'UTF-8'); ?></span>
-                        <span class="plugin-time">Disabled at <?php echo date('Y-m-d H:i:s', $entry['disabled_at']); ?></span>
-                        <?php if (!empty($entry['message'])): ?>
-                            <div style="margin-top: 4px; font-size: 0.85rem; color: #94a3b8;"><?php echo htmlspecialchars($entry['message'], ENT_QUOTES, 'UTF-8'); ?></div>
-                        <?php endif; ?>
-                    </li>
-                <?php endforeach; ?>
-            </ul>
-        </div>
-    <?php endif; ?>
 
     <div class="card">
         <h2>What would you like to do?</h2>
@@ -508,40 +368,6 @@ header('Content-Type: text/html; charset=utf-8');
         </p>
     </div>
 
-    <?php if ($latestSnapshot): ?>
-        <div class="card">
-            <h2>Rollback to Previous Version</h2>
-            <p style="margin-top: 0; color: #94a3b8;">If the error persists, you can rollback to a previous Grav version.</p>
-
-            <div class="snapshot-info">
-                <code><?php echo htmlspecialchars($latestSnapshot['id'], ENT_QUOTES, 'UTF-8'); ?></code>
-                <?php if (!empty($latestSnapshot['label'])): ?>
-                    <small><?php echo htmlspecialchars($latestSnapshot['label'], ENT_QUOTES, 'UTF-8'); ?></small>
-                <?php endif; ?>
-                <small>Grav <?php echo htmlspecialchars($latestSnapshot['target_version'] ?? 'unknown', ENT_QUOTES, 'UTF-8'); ?> &mdash; Created <?php echo date('Y-m-d H:i:s', (int)$latestSnapshot['created_at']); ?></small>
-            </div>
-
-            <?php if (!$authenticated): ?>
-                <p class="help-text">To rollback, enter the recovery token found in <code>user/data/recovery.flag</code></p>
-                <form method="post">
-                    <input type="hidden" name="action" value="authenticate">
-                    <label for="token">Recovery Token</label>
-                    <input id="token" name="token" type="text" autocomplete="one-time-code" placeholder="Enter token from recovery.flag" required>
-                    <div class="btn-group">
-                        <button type="submit" class="btn btn-secondary">Authenticate for Rollback</button>
-                    </div>
-                </form>
-            <?php else: ?>
-                <form method="post">
-                    <input type="hidden" name="action" value="rollback">
-                    <input type="hidden" name="manifest" value="<?php echo htmlspecialchars($latestSnapshot['id'], ENT_QUOTES, 'UTF-8'); ?>">
-                    <div class="btn-group">
-                        <button type="submit" class="btn btn-danger">Rollback to This Snapshot</button>
-                    </div>
-                </form>
-            <?php endif; ?>
-        </div>
-    <?php endif; ?>
 </div>
 </body>
 </html>

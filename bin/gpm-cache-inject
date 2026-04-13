@@ -1,0 +1,160 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * GPM cache injector for testing family-aware upgrade behavior.
+ *
+ * Writes a fake GPM JSON response into the Grav file cache so you can test
+ * what happens when the server reports a particular version (e.g. 2.0.0)
+ * without actually deploying server-side changes.
+ *
+ * Usage:
+ *   php bin/gpm-cache-inject [fake-version] [channel]
+ *
+ * Examples:
+ *   php bin/gpm-cache-inject 2.0.0          # fake server returning 2.0.0 (stable channel)
+ *   php bin/gpm-cache-inject 1.8.0-beta.29  # fake a specific 1.8 beta
+ *   php bin/gpm-cache-inject 2.0.0 testing  # fake 2.0.0 on the testing channel
+ *   php bin/gpm-cache-inject --clear        # delete cached GPM data (forces re-fetch)
+ *
+ * After running this, execute:
+ *   bin/gpm selfupgrade
+ *
+ * Then restore real data with:
+ *   php bin/gpm-cache-inject --clear
+ */
+
+if (!defined('GRAV_ROOT')) {
+    define('GRAV_ROOT', dirname(__DIR__));
+}
+define('DS', DIRECTORY_SEPARATOR);
+
+// We only need the autoloader — no full Grav bootstrap
+$autoload = GRAV_ROOT . '/vendor/autoload.php';
+if (!file_exists($autoload)) {
+    fwrite(STDERR, "ERROR: vendor/autoload.php not found. Run: composer install\n");
+    exit(1);
+}
+require $autoload;
+
+use Doctrine\Common\Cache\FilesystemCache;
+
+// ── Parse arguments ───────────────────────────────────────────────────────────
+
+$fakeVersion = null;
+$channel     = 'stable';
+$clear       = false;
+
+foreach (array_slice($argv, 1) as $arg) {
+    if ($arg === '--clear') {
+        $clear = true;
+    } elseif ($arg === 'stable' || $arg === 'testing') {
+        $channel = $arg;
+    } else {
+        $fakeVersion = $arg;
+    }
+}
+
+// ── Resolve GRAV_VERSION from this install ────────────────────────────────────
+
+// Read from the system/src/defines.php or CHANGELOG rather than bootstrapping Grav
+$changelogFile = GRAV_ROOT . '/CHANGELOG.md';
+$gravVersion   = 'unknown';
+if (file_exists($changelogFile)) {
+    $first = fopen($changelogFile, 'r');
+    while (($line = fgets($first)) !== false) {
+        if (preg_match('/^#\s+([\d]+\.[\d]+\.[\d]+(?:[-\w.]+)?)/', $line, $m)) {
+            $gravVersion = $m[1];
+            break;
+        }
+    }
+    fclose($first);
+}
+
+if ($gravVersion === 'unknown') {
+    fwrite(STDERR, "ERROR: Could not determine GRAV_VERSION from CHANGELOG.md\n");
+    exit(1);
+}
+
+// ── Build the exact repository URL GravCore uses ─────────────────────────────
+
+$repositoryUrl = 'https://getgrav.org/downloads/grav.json?v=' . $gravVersion . '&' . $channel . '=1';
+$cacheKey      = md5($repositoryUrl);
+$cacheDir      = GRAV_ROOT . '/cache/gpm';
+
+echo "GRAV_VERSION : $gravVersion\n";
+echo "Channel      : $channel\n";
+echo "URL (key)    : $repositoryUrl\n";
+echo "Cache key    : $cacheKey\n";
+echo "Cache dir    : $cacheDir\n\n";
+
+$cache = new FilesystemCache($cacheDir);
+
+// ── Clear mode ────────────────────────────────────────────────────────────────
+
+if ($clear) {
+    $cache->delete($cacheKey);
+    echo "Cache cleared. Next GPM call will fetch live data from getgrav.org.\n";
+    exit(0);
+}
+
+// ── Inject mode ───────────────────────────────────────────────────────────────
+
+if (!$fakeVersion) {
+    fwrite(STDERR, "ERROR: Provide a version to inject, e.g.:\n  php bin/gpm-cache-inject 2.0.0\n");
+    exit(1);
+}
+
+$fakeJson = json_encode([
+    'version'   => $fakeVersion,
+    'date'      => date('Y-m-d\TH:i:s\Z'),
+    'assets'    => [
+        'grav' => [
+            'name'     => "grav-v{$fakeVersion}.zip",
+            'type'     => 'application/zip',
+            'size'     => 1000000,
+            'download' => "https://getgrav.org/download/core/grav/{$fakeVersion}",
+        ],
+        'grav-admin' => [
+            'name'     => "grav-admin-v{$fakeVersion}.zip",
+            'type'     => 'application/zip',
+            'size'     => 1500000,
+            'download' => "https://getgrav.org/download/core/grav-admin/{$fakeVersion}",
+        ],
+    ],
+    'url'       => "https://github.com/getgrav/grav/releases/tag/{$fakeVersion}",
+    'min_php'   => '8.1.0',
+    'changelog' => new stdClass(),
+], JSON_PRETTY_PRINT);
+
+$lifetime = 86400; // match GravCore's lifetime
+$saved    = $cache->save($cacheKey, $fakeJson, $lifetime);
+
+if ($saved) {
+    echo "Injected fake GPM response:\n";
+    echo "  Fake version : $fakeVersion\n";
+    echo "  Channel      : $channel\n\n";
+    echo "Now run:\n";
+    echo "  bin/gpm selfupgrade\n\n";
+    echo "Expected results with the family gate active:\n";
+    $localParts  = explode('.', $gravVersion);
+    $remoteParts = explode('.', ltrim($fakeVersion, 'v'));
+    $localFamily  = ($localParts[0] ?? '0') . '.' . ($localParts[1] ?? '0');
+    $remoteFamily = ($remoteParts[0] ?? '0') . '.' . ($remoteParts[1] ?? '0');
+    if ($localFamily !== $remoteFamily) {
+        echo "  isUpgradable()        → FALSE  (cross-family: $localFamily → $remoteFamily)\n";
+        $localMajor  = (int)($localParts[0] ?? 0);
+        $remoteMajor = (int)($remoteParts[0] ?? 0);
+        $notice = $remoteMajor > $localMajor ? 'TRUE' : 'false';
+        echo "  isNextMajorAvailable()→ $notice\n";
+    } else {
+        $upgradable = version_compare($gravVersion, $fakeVersion, '<') ? 'TRUE' : 'false';
+        echo "  isUpgradable()        → $upgradable  (same family: $localFamily)\n";
+        echo "  isNextMajorAvailable()→ false\n";
+    }
+    echo "\nClean up with:\n";
+    echo "  php bin/gpm-cache-inject --clear\n";
+} else {
+    fwrite(STDERR, "ERROR: Failed to write cache. Check that $cacheDir is writable.\n");
+    exit(1);
+}

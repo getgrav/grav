@@ -16,8 +16,6 @@ use Grav\Common\GPM\Installer;
 use Grav\Common\GPM\Upgrader;
 use Grav\Common\Grav;
 use Grav\Console\GpmCommand;
-// NOTE: SafeUpgradeService removed - no longer used in this file
-// Preflight is now handled in Install.php after downloading the package
 use Grav\Installer\Install;
 use RuntimeException;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -98,18 +96,6 @@ class SelfupgradeCommand extends GpmCommand
                 'Option to set the timeout in seconds when downloading the update (0 for no timeout)',
                 30
             )
-            ->addOption(
-                'safe',
-                null,
-                InputOption::VALUE_NONE,
-                'Force safe upgrade staging even if disabled in configuration'
-            )
-            ->addOption(
-                'legacy',
-                null,
-                InputOption::VALUE_NONE,
-                'Force legacy in-place upgrade even if safe upgrade is enabled'
-            )
             ->setDescription('Detects and performs an update of Grav itself when available')
             ->setHelp('The <info>update</info> command updates Grav itself when a new version is available');
     }
@@ -121,39 +107,8 @@ class SelfupgradeCommand extends GpmCommand
     {
         $input = $this->getInput();
         $io = $this->getIO();
-        $forceSafe = (bool) $input->getOption('safe');
-        $forceLegacy = (bool) $input->getOption('legacy');
-        $forcedMode = null;
 
-        if ($forceSafe && $forceLegacy) {
-            $io->error('Cannot force safe and legacy upgrade modes simultaneously.');
-
-            return 1;
-        }
-
-        if ($forceSafe || $forceLegacy) {
-            $forcedMode = $forceSafe ? true : false;
-            // NOTE: Do not call Install::forceSafeUpgrade() here as it would load the old Install class
-            // before the upgrade package is extracted, causing a class redeclaration error.
-            // Instead, we set the config and also use an environment variable as a fallback.
-            putenv('GRAV_FORCE_SAFE_UPGRADE=' . ($forcedMode ? '1' : '0'));
-            try {
-                $grav = Grav::instance();
-                if ($grav && isset($grav['config'])) {
-                    $grav['config']->set('system.updates.safe_upgrade', $forcedMode);
-                }
-            } catch (\Throwable $e) {
-                // Ignore container bootstrap failures; mode override still applies via env var.
-            }
-            if ($forceSafe) {
-                $io->note('Safe upgrade staging forced for this run.');
-            } else {
-                $io->warning('Legacy in-place upgrade forced for this run.');
-            }
-        }
-
-        try {
-            if (!class_exists(ZipArchive::class)) {
+        if (!class_exists(ZipArchive::class)) {
                 $io->title('GPM Self Upgrade');
                 $io->error('php-zip extension needs to be enabled!');
 
@@ -166,10 +121,6 @@ class SelfupgradeCommand extends GpmCommand
             $this->timeout = (int) $input->getOption('timeout');
 
             $this->displayGPMRelease();
-
-            // NOTE: Preflight checks are now run in Install.php AFTER downloading the package.
-            // This ensures we use the NEW SafeUpgradeService from the package, not the old one.
-            // Running preflight here would load the OLD class into memory and prevent the new one from loading.
 
             $update = $this->upgrader->getAssets()['grav-update'];
 
@@ -276,13 +227,6 @@ class SelfupgradeCommand extends GpmCommand
             $io->newLine();
             $io->writeln("Preparing to upgrade to v<cyan>{$remote}</cyan>..");
 
-            /** @var \Grav\Common\Recovery\RecoveryManager $recovery */
-            $recovery = Grav::instance()['recovery'];
-            $recovery->markUpgradeWindow('core-upgrade', [
-                'scope' => 'core',
-                'target_version' => $remote,
-            ]);
-
             $io->write("  |- Downloading upgrade [{$this->formatBytes($update['size'])}]...     0%");
             $this->file = $this->download($update);
 
@@ -297,47 +241,7 @@ class SelfupgradeCommand extends GpmCommand
                 $error = 1;
             } else {
                 $io->writeln("  |- <green>Success!</green>  ");
-
-                $manifest = Install::instance()->getLastManifest();
-                if (is_array($manifest) && ($manifest['id'] ?? null)) {
-                    $snapshotId = (string) $manifest['id'];
-                    $snapshotTimestamp = isset($manifest['created_at']) ? (int) $manifest['created_at'] : null;
-                    $manifestPath = null;
-                    if (isset($manifest['id'])) {
-                        $manifestPath = 'user/data/upgrades/' . $manifest['id'] . '.json';
-                    }
-                    $metadata = [
-                        'scope' => 'core',
-                        'target_version' => $remote,
-                        'snapshot' => $snapshotId,
-                    ];
-                    if (null !== $snapshotTimestamp) {
-                        $metadata['snapshot_created_at'] = $snapshotTimestamp;
-                    }
-                    if ($manifestPath) {
-                        $metadata['snapshot_manifest'] = $manifestPath;
-                    }
-
-                    $recovery->markUpgradeWindow('core-upgrade', $metadata);
-
-                    $io->writeln(sprintf("  |- Recovery snapshot: <cyan>%s</cyan>", $snapshotId));
-                    if (null !== $snapshotTimestamp) {
-                        $io->writeln(sprintf("  |- Snapshot captured: <white>%s</white>", date('c', $snapshotTimestamp)));
-                    }
-                    if ($manifestPath) {
-                        $io->writeln(sprintf("  |- Manifest stored at: <white>%s</white>", $manifestPath));
-                    }
-                } else {
-                    // Ensure recovery window remains active even if manifest could not be resolved.
-                    $recovery->markUpgradeWindow('core-upgrade', [
-                        'scope' => 'core',
-                        'target_version' => $remote,
-                    ]);
-                }
-
                 $io->newLine();
-                // Clear recovery flag - upgrade completed successfully
-                $recovery->closeUpgradeWindow();
             }
 
             if ($this->tmp && is_dir($this->tmp)) {
@@ -345,16 +249,6 @@ class SelfupgradeCommand extends GpmCommand
             }
 
             return $error;
-        } finally {
-            if (null !== $forcedMode) {
-                // Clean up environment variable
-                putenv('GRAV_FORCE_SAFE_UPGRADE');
-                // Only call Install::forceSafeUpgrade if Install class has been loaded
-                if (class_exists(\Grav\Installer\Install::class, false)) {
-                    Install::forceSafeUpgrade(null);
-                }
-            }
-        }
     }
 
     /**
@@ -756,7 +650,6 @@ class SelfupgradeCommand extends GpmCommand
             'bin/grav',
             'bin/plugin',
             'bin/gpm',
-            'bin/restore',
             'bin/composer.phar'
         ];
 

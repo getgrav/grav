@@ -2,9 +2,8 @@
 
 namespace Grav\Console\Gpm;
 
-use Grav\Common\Grav;
-use Grav\Common\Upgrade\SafeUpgradeService;
 use Grav\Console\GpmCommand;
+use Grav\Installer\Install;
 use Symfony\Component\Console\Input\InputOption;
 use function json_encode;
 use const JSON_PRETTY_PRINT;
@@ -22,8 +21,7 @@ class PreflightCommand extends GpmCommand
     protected function serve(): int
     {
         $io = $this->getIO();
-        $service = $this->createSafeUpgradeService();
-        $report = $service->preflight();
+        $report = Install::instance()->generatePreflightReport();
 
         $hasIssues = !empty($report['plugins_pending']) || !empty($report['psr_log_conflicts']) || !empty($report['monolog_conflicts']) || !empty($report['warnings']);
 
@@ -80,22 +78,5 @@ class PreflightCommand extends GpmCommand
         }
 
         return $hasIssues ? 2 : 0;
-    }
-
-    /**
-     * @return SafeUpgradeService
-     */
-    protected function createSafeUpgradeService(): SafeUpgradeService
-    {
-        $config = null;
-        try {
-            $config = Grav::instance()['config'] ?? null;
-        } catch (\Throwable $e) {
-            $config = null;
-        }
-
-        return new SafeUpgradeService([
-            'config' => $config,
-        ]);
     }
 }
