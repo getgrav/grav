@@ -10,8 +10,10 @@ use PHPUnit\Framework\TestCase;
  */
 class TestableUpgrader extends Upgrader
 {
-    private string $localVersion;
-    private string $remoteVersion;
+    /** @var string */
+    private $localVersion;
+    /** @var string */
+    private $remoteVersion;
 
     public function __construct(string $local, string $remote)
     {
