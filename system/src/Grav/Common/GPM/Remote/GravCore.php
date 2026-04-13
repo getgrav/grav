@@ -29,6 +29,8 @@ class GravCore extends AbstractPackageCollection
     private $date;
     /** @var string|null */
     private $min_php;
+    /** @var array|null */
+    private $next_major;
 
     /**
      * @param bool $refresh
@@ -45,10 +47,13 @@ class GravCore extends AbstractPackageCollection
 
         $this->fetch($refresh, $callback);
 
-        $this->data    = json_decode((string) $this->raw, true);
-        $this->version = $this->data['version'] ?? '-';
-        $this->date    = $this->data['date'] ?? '-';
-        $this->min_php = $this->data['min_php'] ?? null;
+        $this->data       = json_decode((string) $this->raw, true);
+        $this->version    = $this->data['version'] ?? '-';
+        $this->date       = $this->data['date'] ?? '-';
+        $this->min_php    = $this->data['min_php'] ?? null;
+        $this->next_major = isset($this->data['next_major']) && is_array($this->data['next_major'])
+            ? $this->data['next_major']
+            : null;
 
         if (isset($this->data['assets'])) {
             foreach ((array)$this->data['assets'] as $slug => $data) {
@@ -146,5 +151,16 @@ class GravCore extends AbstractPackageCollection
     public function isSymlink()
     {
         return is_link(GRAV_ROOT . DS . 'index.php');
+    }
+
+    /**
+     * Returns the `next_major` hint block from the remote response, if present.
+     * Expected shape: ['version' => '2.0.0', 'migration_url' => 'https://...'].
+     *
+     * @return array|null
+     */
+    public function getNextMajor(): ?array
+    {
+        return $this->next_major;
     }
 }
