@@ -2,32 +2,39 @@
 title: Typography
 ---
 
-! Details on the full capabilities of Spectre.css can be found in the [Official Spectre Documentation](https://picturepan2.github.io/spectre/elements.html)
+> [!NOTE]
+> Quark 2 is Grav 2.0's default theme. It uses [Pico CSS](https://picocss.com) as a classless foundation, layered with a Cal.com-inspired design system. Full Pico capabilities are documented in the [Official Pico CSS Docs](https://picocss.com/docs).
 
-The [Quark theme](https://github.com/getgrav/grav-theme-quark) is the new default theme for Grav built with [Spectre.css](https://picturepan2.github.io/spectre/) the lightweight, responsive and modern CSS framework. Spectre provides  basic styles for typography, elements, and a responsive layout system that utilizes best practices and consistent language design.
+The [Quark 2 theme](https://github.com/getgrav/grav-theme-quark2) is Grav's new default, replacing the long-serving Quark (1.x) theme. It pairs a pure-grayscale palette with **Cal Sans** for display and **Inter** for body text (both hosted locally), Font Awesome 7 icons, and auto/light/dark appearance that persists in the user's browser. The layout system is CSS Grid + modern custom properties rather than a framework grid.
 
 ### Headings
 
-# H1 Heading `40px`
+Quark 2 uses **Cal Sans** for display headings and treats `h1` / `h2` distinctly — `h1` sits at a lighter display weight while `h2` is bolder and gains a small accent bar to mark section breaks. `h6` is rendered as an uppercase eyebrow label.
 
-## H2 Heading `32px`
+# H1 Heading — airy, display weight
 
-### H3 Heading `28px`
+## H2 Heading — confident, with accent bar
 
-#### H4 Heading `24px`
+### H3 Heading — workhorse section heading
 
-##### H5 Heading `20px`
+#### H4 Heading
 
-###### H6 Heading `16px`
+##### H5 Heading
 
-```html
+###### H6 Heading — uppercase eyebrow
+
+```markdown
 # H1 Heading
-# H1 Heading `40px`</small>`
-
-<span class="h1">H1 Heading</span>
+## H2 Heading
+### H3 Heading
+#### H4 Heading
+##### H5 Heading
+###### H6 Heading
 ```
 
 ### Paragraphs
+
+Body copy is set in **Inter** at 16px with a 1.7 line-height and subtle tracking. Links adopt the theme's **accent color** — by default a restrained charcoal, but configurable to any hex via `Themes → Quark 2 → Accent Color`.
 
 Lorem ipsum dolor sit amet, consectetur [adipiscing elit. Praesent risus leo, dictum in vehicula sit amet](#), feugiat tempus tellus. Duis quis sodales risus. Etiam euismod ornare consequat.
 
@@ -131,25 +138,39 @@ Text<sub>Subscripted</sub> `<sub>`
 | Se7en                       | Crime, Drama, Mystery         | 22 September 1995    |
 ```
 
-### Notices
+### Alerts
 
-The notices styles are actually provided by the `markdown-notices` plugin but are useful enough to include here:
+Grav 2.0 replaces the legacy `markdown-notices` plugin with [`github-markdown-alerts`](https://github.com/grav/grav-plugin-github-markdown-alerts), which renders [GitHub-flavored Markdown alerts](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax#alerts). Five types are available, each with an accent stripe, icon, and label:
 
-! This is a warning notification
+> [!NOTE]
+> Highlights information that users should take into account, even when skimming.
 
-!! This is a error notification
+> [!TIP]
+> Optional information to help a user be more successful.
 
-!!! This is a default notification
+> [!IMPORTANT]
+> Crucial information necessary for users to succeed.
 
-!!!! This is a success notification
+> [!WARNING]
+> Critical content demanding immediate user attention due to potential risks.
+
+> [!CAUTION]
+> Negative potential consequences of an action.
 
 ```markdown
-! This is a warning notification
+> [!NOTE]
+> Highlights information that users should take into account, even when skimming.
 
-!! This is a error notification
+> [!TIP]
+> Optional information to help a user be more successful.
 
-!!! This is a default notification
+> [!IMPORTANT]
+> Crucial information necessary for users to succeed.
 
-!!!! This is a success notification
+> [!WARNING]
+> Critical content demanding immediate user attention due to potential risks.
+
+> [!CAUTION]
+> Negative potential consequences of an action.
 ```
 

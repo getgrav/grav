@@ -1,3 +1,12 @@
+# v2.0.0-beta.1
+## 04/15/2026
+
+1. [](#new)
+    * Rebrand 1.8beta as 2.0beta
+    * Default to new Quark2 theme
+    * Migrate Grav plugin required to get to 2.0
+    * Utilize Github Markdown Alerts over Markdown Notices
+
 # v1.8.0-beta.30
 ## 04/15/2026
 

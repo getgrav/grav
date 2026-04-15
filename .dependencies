@@ -7,13 +7,13 @@ git:
         url: https://github.com/getgrav/grav-plugin-error
         path: user/plugins/error
         branch: master
-    markdown-notices:
-        url: https://github.com/getgrav/grav-plugin-markdown-notices
-        path: user/plugins/markdown-notices
+    github-markdown-alerts:
+        url: https://github.com/trilbymedia/grav-plugin-github-markdown-alerts
+        path: user/plugins/github-markdown-alerts
         branch: master
-    quark:
-        url: https://github.com/getgrav/grav-theme-quark
-        path: user/themes/quark
+    quark2:
+        url: https://github.com/getgrav/grav-theme-quark2
+        path: user/themes/quark2
         branch: master
 links:
     problems:
@@ -24,11 +24,11 @@ links:
         src: grav-plugin-error
         path: user/plugins/error
         scm: github
-    markdown-notices:
-        src: grav-plugin-markdown-notices
-        path: user/plugins/markdown-notices
+    github-markdown-alerts:
+        src: grav-plugin-github-markdown-alerts
+        path: user/plugins/github-markdown-alerts
         scm: github
-    quark:
-        src: grav-theme-quark
-        path: user/themes/quark
+    quark2:
+        src: grav-theme-quark2
+        path: user/themes/quark2
         scm: github

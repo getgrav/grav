@@ -2,7 +2,7 @@ home:
   alias: '/home'
 
 pages:
-  theme: quark
+  theme: quark2
 
 cache:
   enabled: true
