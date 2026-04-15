@@ -22,6 +22,7 @@ use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\Yaml\Yaml;
 use ZipArchive;
 use function date;
 use function count;
@@ -394,12 +395,9 @@ class SelfupgradeCommand extends GpmCommand
                 return false;
             }
 
-            /** @var \Grav\Common\Recovery\RecoveryManager $recovery */
-            $recovery = Grav::instance()['recovery'];
-
             if ($choice === 'disable') {
                 foreach (array_keys($incompatibleBlocking) as $slug) {
-                    $recovery->disablePlugin($slug, ['message' => 'Disabled before upgrade — not marked as compatible with Grav ' . $incompatibleTarget]);
+                    $this->disablePluginConfig($slug);
                     $io->writeln(sprintf('  - Disabled %s.', $slug));
                 }
                 $io->writeln('Continuing with incompatible plugins disabled.');
@@ -498,12 +496,9 @@ class SelfupgradeCommand extends GpmCommand
             return false;
         }
 
-        /** @var \Grav\Common\Recovery\RecoveryManager $recovery */
-        $recovery = Grav::instance()['recovery'];
-
         if ($choice === 'disable') {
             foreach (array_keys($conflicts) as $slug) {
-                $recovery->disablePlugin($slug, ['message' => $disableNote]);
+                $this->disablePluginConfig($slug);
                 $io->writeln(sprintf('  - Disabled plugin %s.', $slug));
             }
             $io->writeln('Continuing with conflicted plugins disabled.');
@@ -730,5 +725,31 @@ class SelfupgradeCommand extends GpmCommand
         }
 
         return sprintf('%dm %0.1fs', $minutes, $remaining);
+    }
+
+    /**
+     * Mark a plugin as disabled by writing enabled:false to its user config.
+     */
+    protected function disablePluginConfig(string $slug): void
+    {
+        $slug = trim($slug);
+        if ($slug === '') {
+            return;
+        }
+
+        $configPath = GRAV_ROOT . '/user/config/plugins/' . $slug . '.yaml';
+        Folder::create(dirname($configPath));
+
+        $configuration = is_file($configPath) ? Yaml::parse(file_get_contents($configPath)) : [];
+        if (!is_array($configuration)) {
+            $configuration = [];
+        }
+
+        if (($configuration['enabled'] ?? true) === false) {
+            return;
+        }
+
+        $configuration['enabled'] = false;
+        file_put_contents($configPath, Yaml::dump($configuration));
     }
 }

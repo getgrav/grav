@@ -154,18 +154,6 @@ class Plugins extends Iterator
                         // Disable the plugin to prevent further errors
                         $config["plugins.{$instance->name}.enabled"] = false;
 
-                        // If we're in an upgrade window, quarantine the plugin
-                        if (isset($grav['recovery']) && method_exists($grav['recovery'], 'isUpgradeWindowActive')) {
-                            $recovery = $grav['recovery'];
-                            if ($recovery->isUpgradeWindowActive()) {
-                                $recovery->disablePlugin($instance->name, [
-                                    'message' => 'Autoloader failed: ' . $e->getMessage(),
-                                    'file' => $e->getFile(),
-                                    'line' => $e->getLine(),
-                                ]);
-                            }
-                        }
-
                         continue;
                     }
                 }

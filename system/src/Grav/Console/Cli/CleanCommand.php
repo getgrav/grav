@@ -32,6 +32,7 @@ class CleanCommand extends Command
         '.gitattributes',
         '.github/',
         '.phan/',
+        'bin/test-selfupgrade.sh',
         'codeception.yml',
         'tests/',
         'user/plugins/admin/vendor/bacon/bacon-qr-code/tests',

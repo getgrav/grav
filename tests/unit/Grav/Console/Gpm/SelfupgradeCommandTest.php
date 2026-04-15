@@ -1,6 +1,5 @@
 <?php
 
-use Codeception\Util\Fixtures;
 use Grav\Console\Gpm\SelfupgradeCommand;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
@@ -80,17 +79,6 @@ class SelfupgradeCommandTest extends \PHPUnit\Framework\TestCase
 
     public function testHandlePreflightReportDisablesPluginsWhenRequested(): void
     {
-        $gravFactory = Fixtures::get('grav');
-        $grav = $gravFactory();
-        $stub = new class {
-            public $disabled = [];
-            public function disablePlugin(string $slug, array $context = []): void
-            {
-                $this->disabled[] = $slug;
-            }
-        };
-        $grav['recovery'] = $stub;
-
         $command = new TestSelfupgradeCommand();
         [$style] = $this->injectIo($command, ['disable']);
 
@@ -102,7 +90,7 @@ class SelfupgradeCommandTest extends \PHPUnit\Framework\TestCase
         ]);
 
         self::assertTrue($result);
-        self::assertSame(['foo'], $stub->disabled);
+        self::assertSame(['foo'], $command->disabled);
         $output = implode("\n", $style->messages);
         self::assertStringContainsString('Continuing with conflicted plugins disabled.', $output);
     }
@@ -159,17 +147,6 @@ class SelfupgradeCommandTest extends \PHPUnit\Framework\TestCase
 
     public function testHandlePreflightReportDisablesIncompatibleWhenRequested(): void
     {
-        $gravFactory = Fixtures::get('grav');
-        $grav = $gravFactory();
-        $stub = new class {
-            public $disabled = [];
-            public function disablePlugin(string $slug, array $context = []): void
-            {
-                $this->disabled[] = $slug;
-            }
-        };
-        $grav['recovery'] = $stub;
-
         $command = new TestSelfupgradeCommand();
         [$style] = $this->injectIo($command, ['disable']);
 
@@ -195,7 +172,7 @@ class SelfupgradeCommandTest extends \PHPUnit\Framework\TestCase
         ]);
 
         self::assertTrue($result);
-        self::assertSame(['old-plugin'], $stub->disabled);
+        self::assertSame(['old-plugin'], $command->disabled);
     }
 
     public function testHandlePreflightReportContinuesWithIncompatibleOverride(): void
@@ -265,9 +242,17 @@ class SelfupgradeCommandTest extends \PHPUnit\Framework\TestCase
 
 class TestSelfupgradeCommand extends SelfupgradeCommand
 {
+    /** @var array<int, string> */
+    public $disabled = [];
+
     public function runHandle(array $report): bool
     {
         return $this->handlePreflightReport($report);
+    }
+
+    protected function disablePluginConfig(string $slug): void
+    {
+        $this->disabled[] = $slug;
     }
 }
 

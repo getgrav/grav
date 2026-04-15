@@ -46,7 +46,6 @@ use Grav\Common\Service\SessionServiceProvider;
 use Grav\Common\Service\StreamsServiceProvider;
 use Grav\Common\Service\TaskServiceProvider;
 use Grav\Common\Twig\Twig;
-use Grav\Common\Recovery\RecoveryManager;
 use Grav\Framework\DI\Container;
 use Grav\Framework\Psr7\Response;
 use Grav\Framework\RequestHandler\Middlewares\MultipartRequestSupport;
@@ -111,7 +110,6 @@ class Grav extends Container
         'scheduler'  => Scheduler::class,
         'taxonomy'   => Taxonomy::class,
         'themes'     => Themes::class,
-        'recovery'   => RecoveryManager::class,
         'twig'       => Twig::class,
         'uri'        => Uri::class,
     ];
