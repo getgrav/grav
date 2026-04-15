@@ -1,3 +1,30 @@
+# v1.8.0-beta.30
+## 04/15/2026
+
+1. [](#new)
+    * Added family-aware GPM upgrade gate: blocks cross-major.minor auto-upgrades (e.g. 1.8 → 2.0) and points users at the `migrate-grav` plugin
+    * Added `next_major` hint surfaced from the remote GPM feed so admin/CLI can display upcoming major-version availability
+    * Added compatibility blueprint support for major-version upgrade gating
+    * Added `media://` stream for a site-level media directory
+    * Added fast static asset serving for plugin-bundled SPA apps
+    * Added `onFlexDirectoryConfigBeforeSave` event
+    * Added `cache-cleanup` CLI command
+    * Added `-v` verbose flag to `yamllinter` command
+1. [](#improved)
+    * Moved media config blueprint and translations from admin plugin to core
+    * `yamllinter` now uses Grav's built-in YAML parser for more detailed errors
+    * More readable date/time output in `LogViewerCommand` (#4007, #4009)
+    * Postflight cleanup removes stale `upgrade.php` and `needs_fixing.txt` from existing 1.8 beta installs
+    * Updated vendor libs
+1. [](#bugfix)
+    * Fix for undefined array key path triggered through URL-encoded characters (#4012)
+    * Fix for default language loading when using session store
+    * Fix for `schedule` flag being ignored in backup profiles
+    * Fixes for modern scheduler
+1. [](#removed)
+    * Removed `SafeUpgradeService`, `RecoveryManager`, `system/recovery.php`, and the standalone `upgrade.php` fallback script — replaced by the `migrate-grav` plugin for major-version migrations
+    * Removed recovery-mode config options from `system.yaml`
+
 # v1.8.0-beta.29
 ## 12/27/2025
 
