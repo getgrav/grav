@@ -16,14 +16,13 @@
     * More readable date/time output in `LogViewerCommand` (#4007, #4009)
     * Postflight cleanup removes stale `upgrade.php` and `needs_fixing.txt` from existing 1.8 beta installs
     * Updated vendor libs
+    * Removed `SafeUpgradeService`, `RecoveryManager`, `system/recovery.php`, and the standalone `upgrade.php` fallback script — replaced by the `migrate-grav` plugin for major-version migrations
+    * Removed recovery-mode config options from `system.yaml`
 1. [](#bugfix)
     * Fix for undefined array key path triggered through URL-encoded characters (#4012)
     * Fix for default language loading when using session store
     * Fix for `schedule` flag being ignored in backup profiles
     * Fixes for modern scheduler
-1. [](#removed)
-    * Removed `SafeUpgradeService`, `RecoveryManager`, `system/recovery.php`, and the standalone `upgrade.php` fallback script — replaced by the `migrate-grav` plugin for major-version migrations
-    * Removed recovery-mode config options from `system.yaml`
 
 # v1.8.0-beta.29
 ## 12/27/2025
