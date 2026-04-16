@@ -10,11 +10,11 @@ git:
     github-markdown-alerts:
         url: https://github.com/trilbymedia/grav-plugin-github-markdown-alerts
         path: user/plugins/github-markdown-alerts
-        branch: master
+        branch: main
     quark2:
         url: https://github.com/getgrav/grav-theme-quark2
         path: user/themes/quark2
-        branch: master
+        branch: main
 links:
     problems:
         src: grav-plugin-problems
