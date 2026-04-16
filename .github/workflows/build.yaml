@@ -43,7 +43,7 @@ jobs:
           http_code=$(curl --silent --write-out "%{http_code}" \
             -H "Authorization: token ${{ secrets.GLOBAL_TOKEN }}" \
             -H "Accept: application/vnd.github.v3.raw" \
-            "${{ secrets.BUILD_SCRIPT_URL_18 }}" \
+            "${{ secrets.BUILD_SCRIPT_URL_20 }}" \
             --output build-grav.sh)
           if [ "$http_code" != "200" ] || ! head -1 build-grav.sh | grep -q '^#!'; then
             echo "ERROR: failed to fetch build script (HTTP $http_code). Response body:"
@@ -53,7 +53,7 @@ jobs:
           echo "Fetched build script ($(wc -l < build-grav.sh) lines)"
 
           # Development Local URL
-          # curl ${{ secrets.BUILD_SCRIPT_URL_18 }} --output build-grav.sh
+          # curl ${{ secrets.BUILD_SCRIPT_URL_20 }} --output build-grav.sh
 
       - name: Grav Builder
         run: |
