@@ -1,11 +1,13 @@
 # v2.0.0-beta.1
-## 04/15/2026
+## 04/16/2026
 
 1. [](#new)
-    * Rebrand 1.8beta as 2.0beta
-    * Default to new Quark2 theme
-    * Migrate Grav plugin required to get to 2.0
-    * Utilize Github Markdown Alerts over Markdown Notices
+    * Rebrand 1.8-beta as 2.0-beta
+    * **NEW** Quark2 theme fro Grav 2.0
+    * **NEW** Migrate Grav plugin required to get from 1.x to 2.0
+    * **NEW** API support plugin support required for Admin2
+    * **NEW** Admin2 is the new default Admin for Grav 2.0
+    * Moved to Github Markdown Alerts over Markdown Notices
 
 # v1.8.0-beta.30
 ## 04/15/2026
