@@ -19,6 +19,8 @@ on:
 
 jobs:
   trigger:
+    # Only dispatch docker builds for stable releases (non-prerelease) or manual runs
+    if: github.event_name == 'workflow_dispatch' || github.event.release.prerelease == false
     runs-on: ubuntu-latest
     steps:
       - name: Trigger docker-grav build
