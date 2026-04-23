@@ -283,8 +283,12 @@ class Security
      * Property access (e.g. {{ page.header }}) is allowed; calls (header(...), obj.header(...), |header) are blocked.
      */
     private const CALLABLE_DANGEROUS_NAMES = [
-        // Twig internals
-        'twig_array_map', 'twig_array_filter', 'call_user_func', 'call_user_func_array',
+        // Twig internals — every callback-taking helper. GHSA-vj3m-2g9h-vm4p (#5)
+        // called out the missing `twig_array_reduce`; adding the other Twig 3
+        // callback predicates (some/every) at the same time as defense-in-depth.
+        'twig_array_map', 'twig_array_filter', 'twig_array_reduce',
+        'twig_array_some', 'twig_array_every',
+        'call_user_func', 'call_user_func_array',
         'forward_static_call', 'forward_static_call_array',
         // Twig environment manipulation
         'registerUndefinedFunctionCallback', 'registerUndefinedFilterCallback',

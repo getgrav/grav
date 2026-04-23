@@ -366,6 +366,11 @@ class CleanDangerousTwigTest extends \PHPUnit\Framework\TestCase
             ['{{ array_map("system", ["id"]) }}', 'array_map with callback'],
             ['{{ array_filter(arr, "system") }}', 'array_filter with callback'],
             ['{{ usort(arr, "system") }}', 'usort with callback'],
+            // GHSA-vj3m-2g9h-vm4p (#5): twig_array_reduce was missing from the
+            // blocklist alongside its already-listed twig_array_map/filter siblings.
+            ['{{ twig_array_reduce(arr, "system", "") }}', 'twig_array_reduce GHSA-vj3m'],
+            ['{{ twig_array_some(arr, "system") }}', 'twig_array_some'],
+            ['{{ twig_array_every(arr, "system") }}', 'twig_array_every'],
         ];
     }
 

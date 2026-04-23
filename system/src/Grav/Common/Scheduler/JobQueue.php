@@ -9,6 +9,7 @@
 
 namespace Grav\Common\Scheduler;
 
+use Grav\Common\Security;
 use RocketTheme\Toolbox\File\JsonFile;
 use RuntimeException;
 
@@ -91,8 +92,13 @@ class JobQueue
             'metadata' => [],
         ];
         
-        // Always serialize the job to preserve its full state
-        $queueItem['serialized_job'] = base64_encode(serialize($job));
+        // Always serialize the job to preserve its full state. The blob is HMAC-signed
+        // with the per-site nonce key so that a tampered queue file cannot be used to
+        // smuggle a forged Job (which would gain RCE via Job::exec → call_user_func_array).
+        // GHSA-vj3m-2g9h-vm4p (#1).
+        $serialized = serialize($job);
+        $queueItem['serialized_job'] = base64_encode($serialized);
+        $queueItem['serialized_job_hmac'] = hash_hmac('sha256', $serialized, Security::getNonceKey());
         
         $this->writeQueueItem($queueItem, 'pending');
         
@@ -459,26 +465,37 @@ class JobQueue
      */
     protected function reconstructJob(array $item): ?Job
     {
-        if (isset($item['serialized_job'])) {
-            // Unserialize the job
-            try {
-                $job = unserialize(base64_decode((string) $item['serialized_job']));
-                if ($job instanceof Job) {
-                    return $job;
+        // GHSA-vj3m-2g9h-vm4p (#1): refuse to unserialize a queue item whose
+        // HMAC is missing or doesn't match — a tampered or attacker-planted
+        // queue file could otherwise inject a forged Job for direct RCE.
+        if (isset($item['serialized_job'], $item['serialized_job_hmac'])) {
+            $serialized = base64_decode((string) $item['serialized_job'], true);
+            if ($serialized !== false) {
+                $expected = hash_hmac('sha256', $serialized, Security::getNonceKey());
+                if (hash_equals((string) $item['serialized_job_hmac'], $expected)) {
+                    try {
+                        $job = unserialize($serialized, ['allowed_classes' => true]);
+                        if ($job instanceof Job) {
+                            return $job;
+                        }
+                    } catch (\Exception) {
+                        return null;
+                    }
                 }
-            } catch (\Exception) {
-                // Failed to unserialize
-                return null;
             }
+            // HMAC missing/mismatched/decode failed — fall through to the
+            // structured-fields rebuild below so legitimate queue items
+            // written before this fix still run, but without trusting their
+            // serialized state.
         }
-        
+
         // Create a new job from command
         if (isset($item['command'])) {
             $args = $item['arguments'] ?? [];
             $job = new Job($item['command'], $args, $item['job_id']);
             return $job;
         }
-        
+
         return null;
     }
     

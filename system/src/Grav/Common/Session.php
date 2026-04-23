@@ -97,7 +97,11 @@ class Session extends \Grav\Framework\Session\Session
      */
     public function setFlashObject($name, mixed $object)
     {
-        $this->__set($name, serialize($object));
+        // GHSA-vj3m-2g9h-vm4p (#3): wrap the serialized payload with an HMAC so a
+        // tampered session file can't smuggle in arbitrary class instantiation.
+        $serialized = serialize($object);
+        $hmac = hash_hmac('sha256', $serialized, Security::getNonceKey());
+        $this->__set($name, "v2|{$hmac}|" . $serialized);
 
         return $this;
     }
@@ -110,9 +114,28 @@ class Session extends \Grav\Framework\Session\Session
      */
     public function getFlashObject($name)
     {
-        $serialized = $this->__get($name);
+        $stored = $this->__get($name);
 
-        $object = is_string($serialized) ? unserialize($serialized, ['allowed_classes' => true]) : $serialized;
+        $object = null;
+        if (is_string($stored) && str_starts_with($stored, 'v2|')) {
+            // 3-field format: v2|<hmac>|<serialized>. The serialized payload may
+            // itself contain `|`, so split with limit=3.
+            $parts = explode('|', $stored, 3);
+            if (count($parts) === 3) {
+                [, $expectedHmac, $serialized] = $parts;
+                $actualHmac = hash_hmac('sha256', $serialized, Security::getNonceKey());
+                if (hash_equals($expectedHmac, $actualHmac)) {
+                    try {
+                        $object = unserialize($serialized, ['allowed_classes' => true]);
+                    } catch (\Throwable) {
+                        $object = null;
+                    }
+                }
+            }
+        } elseif (!is_string($stored)) {
+            $object = $stored;
+        }
+        // Legacy unsigned strings or HMAC mismatches fall through with $object = null.
 
         $this->__unset($name);
 

@@ -147,7 +147,19 @@ class InstallCommand extends GravCommand
         foreach ($this->config['git'] as $repo => $data) {
             $path = $this->destination . DS . $data['path'];
             if (!file_exists($path)) {
-                exec('cd ' . escapeshellarg($this->destination) . ' && git clone -b ' . $data['branch'] . ' --depth 1 ' . $data['url'] . ' ' . $data['path'], $output, $return);
+                // GHSA-vj3m-2g9h-vm4p (#4): branch/url/path come from user/.dependencies
+                // and must be shell-escaped before reaching exec() — otherwise a planted
+                // .dependencies file gains command injection when an admin runs install.
+                // The bare `--` blocks option-injection in url/path positions
+                // (e.g. a `path` value like `--upload-pack=evil`).
+                $cmd = sprintf(
+                    'cd %s && git clone -b %s --depth 1 -- %s %s',
+                    escapeshellarg($this->destination),
+                    escapeshellarg((string) $data['branch']),
+                    escapeshellarg((string) $data['url']),
+                    escapeshellarg((string) $data['path'])
+                );
+                exec($cmd, $output, $return);
 
                 if (!$return) {
                     $io->writeln('<green>SUCCESS</green> cloned <magenta>' . $data['url'] . '</magenta> -> <cyan>' . $path . '</cyan>');
