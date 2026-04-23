@@ -15,6 +15,9 @@ use Grav\Common\Filesystem\Folder;
 use Grav\Common\Page\Pages;
 use Grav\Common\Twig\Sandbox\GravSecurityPolicy;
 use Rhukster\DomSanitizer\DOMSanitizer;
+use RocketTheme\Toolbox\File\YamlFile;
+use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
+use RuntimeException;
 use Twig\Sandbox\SecurityPolicyInterface;
 use function chr;
 use function count;
@@ -807,5 +810,96 @@ class Security
             }
         }
         return $clean;
+    }
+
+    /** @var string|null in-process cache for the nonce key */
+    private static ?string $nonceKey = null;
+
+    /**
+     * Per-site HMAC key used for CSRF nonce signing, admin rate-limit key hashing,
+     * and (when configured) session-name derivation. Backed by a local PHP file
+     * outside the Config tree, so sandboxed Twig cannot reach it via
+     * `grav.config.get('security.salt')` or `Config::toArray()` (GHSA-3f29-pqwf-v4j4).
+     *
+     * Migration: if the legacy `security.salt` key is present in the loaded Config
+     * (i.e. from an older install's `user/config/security.yaml`), its value is
+     * copied into the private file on first call and scrubbed from both the live
+     * Config and the on-disk YAML. Existing CSRF nonces and sessions survive the
+     * upgrade because the key value is preserved.
+     *
+     * To rotate the key manually, delete `user/config/security-private.php`; the
+     * next request generates a fresh 64-char random value. Rotation invalidates
+     * in-flight CSRF nonces and — if `system.session.uniqueness` is set to
+     * `security` — existing sessions.
+     */
+    public static function getNonceKey(): string
+    {
+        if (self::$nonceKey !== null) {
+            return self::$nonceKey;
+        }
+
+        $grav = Grav::instance();
+        /** @var UniformResourceLocator $locator */
+        $locator = $grav['locator'];
+        $configFolder = $locator->findResource('config://', true) ?: $locator->findResource('config://', true, true);
+        $privateFile = "{$configFolder}/security-private.php";
+
+        if (is_file($privateFile)) {
+            $value = @include $privateFile;
+            if (is_string($value) && $value !== '') {
+                return self::$nonceKey = $value;
+            }
+            // Corrupt/empty file — fall through to regenerate.
+        }
+
+        // One-time migration out of Config for sites upgrading from <= v2.0.0-beta.2.
+        /** @var Config $config */
+        $config = $grav['config'];
+        $legacy = $config->get('security.salt');
+        if (is_string($legacy) && $legacy !== '') {
+            self::writeNonceKey($privateFile, $legacy);
+            $config->set('security.salt', null);
+
+            $securityYaml = "{$configFolder}/security.yaml";
+            if (is_file($securityYaml)) {
+                $file = YamlFile::instance($securityYaml);
+                $content = (array) $file->content();
+                if (array_key_exists('salt', $content)) {
+                    unset($content['salt']);
+                    $file->content($content);
+                    $file->save();
+                    $file->free();
+                }
+            }
+
+            return self::$nonceKey = $legacy;
+        }
+
+        $generated = bin2hex(random_bytes(32));
+        self::writeNonceKey($privateFile, $generated);
+
+        return self::$nonceKey = $generated;
+    }
+
+    private static function writeNonceKey(string $path, string $value): void
+    {
+        $escaped = var_export($value, true);
+        $contents = "<?php\n\n// Auto-generated private secret. Do NOT commit to version control.\n// Used for CSRF nonce signing and admin rate-limit hashing. Regenerate by\n// deleting this file; the next request will write a new value.\n\nreturn {$escaped};\n";
+
+        $dir = dirname($path);
+        if (!is_dir($dir)) {
+            Folder::create($dir);
+        }
+
+        // Atomic write: stage to a temp file, fsync via rename.
+        $tmp = $path . '.tmp';
+        if (@file_put_contents($tmp, $contents, LOCK_EX) === false) {
+            throw new RuntimeException('Failed to write nonce key file');
+        }
+        @chmod($tmp, 0600);
+        if (!@rename($tmp, $path)) {
+            @unlink($tmp);
+            throw new RuntimeException('Failed to commit nonce key file');
+        }
     }
 }

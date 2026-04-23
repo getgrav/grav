@@ -174,6 +174,29 @@ class TwigSandboxTest extends \PHPUnit\Framework\TestCase
         $this->assertDoesNotThrow(fn() => $policy->checkMethodAllowed($config, 'get'));
     }
 
+    /**
+     * GHSA-58hj-46fw-rcfm: a low-privilege editor with page-update access
+     * injected `{% set x = grav['accounts'].load(...) %} {{ x.set(...) }} {{ x.save() }}`
+     * from page content to mint a super-admin. The sandbox allows
+     * `grav.offsetGet('accounts')` (container traversal is deliberately permitted),
+     * but the returned UserCollection is not in `allowed_methods`, so `load()` /
+     * `save()` / `set()` on it must be denied.
+     */
+    public function testBuildPolicy_GHSA58hj_BlocksAccountsCollectionMethods(): void
+    {
+        $policy = Security::buildTwigSandboxPolicy();
+        $accounts = new \Grav\Common\User\DataUser\UserCollection(\Grav\Common\User\User::class);
+
+        foreach (['load', 'save', 'set', '__set'] as $method) {
+            try {
+                $policy->checkMethodAllowed($accounts, $method);
+                self::fail("UserCollection::{$method} must be blocked (GHSA-58hj-46fw-rcfm)");
+            } catch (SecurityNotAllowedMethodError $e) {
+                $this->addToAssertionCount(1);
+            }
+        }
+    }
+
     // =========================================================================
     // End-to-end render: SecurityError is raised when a disallowed primitive runs
     // =========================================================================

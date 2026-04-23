@@ -37,7 +37,6 @@ use Grav\Framework\File\Formatter\YamlFormatter;
 use Grav\Framework\Filesystem\Filesystem;
 use Grav\Framework\Flex\Flex;
 use Grav\Framework\Flex\FlexDirectory;
-use Grav\Framework\Flex\Storage\FileStorage;
 use Grav\Framework\Flex\Traits\FlexMediaTrait;
 use Grav\Framework\Flex\Traits\FlexRelationshipsTrait;
 use Grav\Framework\Form\FormFlashFile;
@@ -599,20 +598,24 @@ class UserObject extends FlexObject implements UserInterface, Countable
     {
         // TODO: We may want to handle this in the storage layer in the future.
         $key = $this->getStorageKey();
-        $isNewUser = !$key || strpos($key, '@@');
+        // `@@` is Flex's marker for an in-memory (not-yet-persisted) storage key.
+        // `str_contains` is the correct predicate here — `strpos` returns 0 when
+        // the marker is at position 0 (e.g. `@@hash`), which is falsy and would
+        // have skipped the uniqueness check below.
+        $isNewUser = $key === '' || str_contains($key, '@@');
 
         if ($isNewUser) {
+            $newKey = $this->getKey();
+
+            // Prevent overwriting an existing account when a low-privileged user
+            // creates a new user with an already-taken username (GHSA-rr73-568v-28f8).
+            // Applies to every storage implementation, not just FileStorage.
             $storage = $this->getFlexDirectory()->getStorage();
-            if ($storage instanceof FileStorage) {
-                $newKey = $this->getKey();
-
-                // Check if a user with this username already exists (prevent overwriting)
-                if ($storage->hasKey($newKey)) {
-                    throw new RuntimeException('User account with this username already exists');
-                }
-
-                $this->setStorageKey($newKey);
+            if ($storage->hasKey($newKey)) {
+                throw new RuntimeException('User account with this username already exists');
             }
+
+            $this->setStorageKey($newKey);
         }
 
         $password = $this->getProperty('password') ?? $this->getProperty('password1');

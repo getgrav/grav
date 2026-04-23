@@ -12,7 +12,6 @@ namespace Grav\Common\Config;
 use BadMethodCallException;
 use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Data\Data;
-use Grav\Common\Utils;
 use InvalidArgumentException;
 use Pimple\Container;
 use Psr\Http\Message\ServerRequestInterface;
@@ -407,21 +406,9 @@ class Setup extends Data
                 $this->initializeLocator($locator);
             }
 
-            // Create security.yaml salt if it doesn't exist into existing configuration environment if possible.
-            $securityFile = Utils::basename(static::$securityFile);
-            $securityFolder = substr(static::$securityFile, 0, -\strlen($securityFile));
-            $securityFolder = $locator->findResource($securityFolder, true) ?: $locator->findResource($securityFolder, true, true);
-            $filename = "{$securityFolder}/{$securityFile}";
-
-            $security_file = CompiledYamlFile::instance($filename);
-            $security_content = (array)$security_file->content();
-
-            if (!isset($security_content['salt'])) {
-                $security_content = array_merge($security_content, ['salt' => Utils::generateRandomString(14)]);
-                $security_file->content($security_content);
-                $security_file->save();
-                $security_file->free();
-            }
+            // Legacy `security.salt` auto-gen was removed in v2.0 (GHSA-3f29-pqwf-v4j4);
+            // Security::getNonceKey() now manages the equivalent value in a private
+            // PHP file outside the Config tree so sandboxed Twig cannot read it.
         } catch (RuntimeException $e) {
             throw new RuntimeException(sprintf('Grav failed to initialize: %s', $e->getMessage()), 500, $e);
         }

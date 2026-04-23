@@ -1405,7 +1405,7 @@ abstract class Utils
             $i--;
         }
 
-        return ($i . '|' . $action . '|' . $username . '|' . $token . '|' . $grav['config']->get('security.salt'));
+        return ($i . '|' . $action . '|' . $username . '|' . $token . '|' . Security::getNonceKey());
     }
 
     /**

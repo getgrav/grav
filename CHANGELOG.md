@@ -9,6 +9,10 @@
     * Smarter dangerous-Twig filter — fixes false positives like `{{ page.header.user.mail }}` getting blocked because they happened to contain a dangerous function name.
     * Soft-fail on sandbox violations — the rest of the page still renders, visitors see a small placeholder, admins see a pointer to the log entry.
     * Escape hatch — the sandbox can be disabled from the admin UI (or YAML) if a site genuinely needs the old, unrestricted behaviour.
+1. [](#bugfix)
+    * [security] Fixed unauthenticated path traversal in `FormFlash` (GHSA-hmcx-ch82-3fv2): `session_id` and `unique_id` now pass through a strict allowlist before being used to build on-disk paths, preventing arbitrary directory creation via the `__form-flash-id` parameter.
+    * [security] Fixed salt disclosure via sandboxed Twig (GHSA-3f29-pqwf-v4j4): the HMAC key used for CSRF nonces and admin rate-limit hashing has moved out of Config into `user/config/security-private.php` (blocked from web access by the default `user/*.php` htaccess rule), so `{{ grav.config.get('security.salt') }}` no longer leaks it. Existing sites are migrated automatically on first request — existing nonces and sessions survive the upgrade.
+    * [security] Hardened the new-user uniqueness guard in `UserObject::save` (GHSA-rr73-568v-28f8): `strpos(..., '@@')` replaced with `str_contains` (the old form was falsy when the transient-key marker was at position 0, silently bypassing the check) and the check now runs for every `FlexStorageInterface` backend rather than only `FileStorage`. A low-privileged user with `admin.users.create` can no longer disrupt a super-admin account by submitting the admin's username through the "add user" form.
 
 # v2.0.0-beta.1
 ## 04/16/2026

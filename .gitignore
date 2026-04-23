@@ -26,6 +26,8 @@ user/plugins/*
 user/themes/*
 !user/themes/.*
 user/**/config/security.yaml
+user/**/config/security-private.php
+user/**/config/security-private.php.tmp
 
 # Environments
 .env

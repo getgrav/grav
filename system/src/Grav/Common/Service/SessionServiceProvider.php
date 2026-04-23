@@ -11,6 +11,7 @@ namespace Grav\Common\Service;
 
 use Grav\Common\Config\Config;
 use Grav\Common\Debugger;
+use Grav\Common\Security;
 use Grav\Common\Session;
 use Grav\Common\Uri;
 use Grav\Common\Utils;
@@ -86,7 +87,7 @@ class SessionServiceProvider implements ServiceProviderInterface
             }
 
             $session_prefix = $c['inflector']->hyphenize($config->get('system.session.name', 'grav-site'));
-            $session_uniqueness = $config->get('system.session.uniqueness', 'path') === 'path' ?  substr(md5(GRAV_ROOT), 0, 7) :  md5((string) $config->get('security.salt'));
+            $session_uniqueness = $config->get('system.session.uniqueness', 'path') === 'path' ?  substr(md5(GRAV_ROOT), 0, 7) :  md5(Security::getNonceKey());
 
             $session_name = $session_prefix . '-' . $session_uniqueness;
 

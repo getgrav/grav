@@ -298,4 +298,7 @@ twig_sandbox:
     # Wildcard on stdClass for {{ page.header.<any_yaml_key> }}
     - class: 'stdClass'
       methods: '*'
-salt: SbmgUJQ62MqNc0
+# NOTE: `salt:` was removed in v2.0.0-beta.2 (GHSA-3f29-pqwf-v4j4). The equivalent
+# HMAC key is now stored in `user/config/security-private.php`, outside the Config
+# tree, so sandboxed Twig cannot read it via `grav.config.get(...)`. On upgrade,
+# any legacy `salt:` in `user/config/security.yaml` is migrated automatically.
