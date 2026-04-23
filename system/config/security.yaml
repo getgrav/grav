@@ -32,6 +32,16 @@ xss_dangerous_tags:
   - title
   - base
   - isindex
+  # GHSA-w8cg-7jcj-4vv2: svg/math allow inline scripting via XML namespaces
+  # and event-handler attributes; flag them as dangerous in user-editable
+  # content so the on_events regex bypass (now fixed for GHSA-9695) has
+  # belt-and-suspenders coverage.
+  - svg
+  - math
+  # GHSA-c2q3-p4jr-c55f: option/select are used by attackers to break out
+  # of the admin select-template context.
+  - option
+  - select
 uploads_dangerous_extensions:
   - php
   - php2

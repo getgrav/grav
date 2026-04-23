@@ -325,16 +325,49 @@ trait MediaObjectTrait
     /**
      * Add custom attribute to medium.
      *
+     * Reachable from Markdown via `?attribute=name,value` on image excerpts, so
+     * the attribute NAME is editor-controlled. We restrict it to plain HTML
+     * attribute identifiers (alphanumerics + `-`/`:`/`_`) and reject any name
+     * that would inject script when rendered onto an `<img>` tag — event
+     * handlers (`on*`), inline style, the XML namespace, srcdoc, and the
+     * various `form*` attributes whose URL targets are themselves trusted as
+     * actions. GHSA-r7fx-8g49-7hhr.
+     *
      * @param string $attribute
      * @param string $value
      * @return $this
      */
     public function attribute($attribute = null, $value = '')
     {
-        if (!empty($attribute)) {
-            $this->attributes[$attribute] = $value;
+        if (empty($attribute) || !is_string($attribute)) {
+            return $this;
         }
+        if (!self::isSafeAttributeName($attribute)) {
+            return $this;
+        }
+        $this->attributes[$attribute] = $value;
         return $this;
+    }
+
+    /** @internal */
+    private static function isSafeAttributeName(string $name): bool
+    {
+        // Strict shape: HTML attribute names are letter-led, then alnum/-/_/:/./$
+        // Anything else (whitespace, quotes, `<>`, etc.) is rejected outright.
+        if (!preg_match('/^[A-Za-z][A-Za-z0-9_:.\-]*$/', $name)) {
+            return false;
+        }
+        $lower = strtolower($name);
+        // Event handlers — primary GHSA-r7fx-8g49-7hhr vector.
+        if (str_starts_with($lower, 'on')) {
+            return false;
+        }
+        // Attribute names that open a scripting context regardless of value.
+        // We deliberately do NOT deny `src` / `href` here — themes legitimately
+        // call `$image->attribute('src', $signed_url)` from PHP, and the
+        // primary script-injection surface is the event-handler family above.
+        $denylist = ['style', 'xmlns', 'srcdoc', 'formaction'];
+        return !in_array($lower, $denylist, true);
     }
 
     /**

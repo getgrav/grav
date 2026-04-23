@@ -179,6 +179,24 @@ class Installer
         $archive = $zip->open($zip_file);
 
         if ($archive === true) {
+            // GHSA-w48r-jppp-rcfw: validate every entry name before extraction.
+            // ZipArchive::extractTo would otherwise honour `../` segments and
+            // absolute paths, letting a crafted plugin/theme ZIP write files
+            // anywhere the web server can reach (Zip Slip, CVE-2018-1000544
+            // family). Note: this hardens the path layer; it does NOT and
+            // cannot defend against a well-formed but malicious plugin whose
+            // own PHP code is the payload — that's a "trust the source"
+            // problem the admin must own when using directInstall.
+            $numFiles = $zip->numFiles;
+            for ($i = 0; $i < $numFiles; $i++) {
+                $entryName = (string) $zip->getNameIndex($i);
+                if (!self::isSafeArchiveEntry($entryName)) {
+                    self::$error = self::ZIP_EXTRACT_ERROR;
+                    $zip->close();
+                    return false;
+                }
+            }
+
             Folder::create($destination);
 
             $unzip = $zip->extractTo($destination);
@@ -205,6 +223,35 @@ class Installer
         self::$error_zip = $archive;
 
         return false;
+    }
+
+    /**
+     * Reject Zip Slip primitives in archive entry names: empty names, NUL
+     * bytes, absolute paths, or any path segment that is `..`. Forward and
+     * back slashes are both treated as separators so Windows-authored
+     * archives are also covered.
+     *
+     * @internal Public for testing.
+     */
+    public static function isSafeArchiveEntry(string $name): bool
+    {
+        if ($name === '' || str_contains($name, "\0")) {
+            return false;
+        }
+        if (str_starts_with($name, '/') || str_starts_with($name, '\\')) {
+            return false;
+        }
+        // Windows drive letter: C:\..., D:/...
+        if (preg_match('#^[A-Za-z]:[/\\\\]#', $name) === 1) {
+            return false;
+        }
+        // Any `..` path segment, regardless of slash flavour.
+        foreach (preg_split('#[\\\\/]+#', $name) as $segment) {
+            if ($segment === '..') {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**

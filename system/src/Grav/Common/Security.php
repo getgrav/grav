@@ -229,9 +229,16 @@ class Security
 
         // Set the patterns we'll test against
         $patterns = [
-            // Match any attribute starting with "on" or xmlns (must be preceded by whitespace/special chars)
-            // Allow optional whitespace between 'on' and event name to catch obfuscation attempts
-            'on_events' => '#(<[^>]+[\s\x00-\x20\"\'\/])(on\s*[a-z]+|xmlns)\s*=[\s|\'\"].*[\s|\'\"]>#iUu',
+            // Match any attribute starting with "on" or xmlns (must be preceded by an
+            // attribute boundary: whitespace, NUL, quote or slash). We deliberately
+            // do NOT try to match the attribute value itself — the previous regex
+            // required quotes-or-spaces around the `=` sign and was bypassed by
+            // unquoted handlers like `<img src=x onerror=alert(1)>`
+            // (GHSA-9695-8fr9-hw5q, also exploited by GHSA-c2q3-p4jr-c55f and
+            // GHSA-w8cg-7jcj-4vv2). Detecting the attribute name + `=` is enough
+            // for a tripwire; trade-off is occasional false positives when an
+            // unrelated `on*=` substring appears inside another attribute's value.
+            'on_events' => '#<[^>]*?[\s\x00-\x20\"\'\/](on\s*[a-z]+|xmlns)\s*=#iu',
 
             // Match javascript:, livescript:, vbscript:, mocha:, feed: and data: protocols
             'invalid_protocols' => '#(' . implode('|', array_map('preg_quote', $invalid_protocols, ['#'])) . ')(:|\&\#58)\S.*?#iUu',
