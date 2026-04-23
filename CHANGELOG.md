@@ -1,3 +1,15 @@
+# v2.0.0-beta.2
+## 04/23/2026
+
+1. [](#new)
+    * **NEW** Twig content sandbox — editor-authored page content now renders inside a Twig sandbox with an allowlist-based policy, blocking the whole class of SSTI attacks covered by recent advisories. Theme templates are unaffected.
+    * **NEW** Dedicated `logs/security.log` — every blocked Twig expression is logged with the page route and a hint pointing at the exact setting to change.
+    * **NEW** "Twig Sandbox" section in Admin → Configuration → Security, with toggles and editable allowlists for tags, filters, functions, methods and properties.
+1. [](#improved)
+    * Smarter dangerous-Twig filter — fixes false positives like `{{ page.header.user.mail }}` getting blocked because they happened to contain a dangerous function name.
+    * Soft-fail on sandbox violations — the rest of the page still renders, visitors see a small placeholder, admins see a pointer to the log entry.
+    * Escape hatch — the sandbox can be disabled from the admin UI (or YAML) if a site genuinely needs the old, unrestricted behaviour.
+
 # v2.0.0-beta.1
 ## 04/16/2026
 

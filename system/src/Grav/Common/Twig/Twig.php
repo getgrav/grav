@@ -17,6 +17,7 @@ use Grav\Common\Language\LanguageCodes;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Page\Pages;
 use Grav\Common\Security;
+use Grav\Common\Twig\Sandbox\GravSourcePolicy;
 use Grav\Common\Twig\Compatibility\Twig3CompatibilityLoader;
 use Grav\Common\Twig\Compatibility\Twig3CompatibilityTransformer;
 use Grav\Common\Twig\Exception\TwigException;
@@ -34,7 +35,14 @@ use Twig\Error\RuntimeError;
 use Twig\Extension\CoreExtension;
 use Twig\Extension\DebugExtension;
 use Twig\Extension\EscaperExtension;
+use Twig\Extension\SandboxExtension;
 use Twig\Extension\StringLoaderExtension;
+use Twig\Sandbox\SecurityError;
+use Twig\Sandbox\SecurityNotAllowedFilterError;
+use Twig\Sandbox\SecurityNotAllowedFunctionError;
+use Twig\Sandbox\SecurityNotAllowedMethodError;
+use Twig\Sandbox\SecurityNotAllowedPropertyError;
+use Twig\Sandbox\SecurityNotAllowedTagError;
 use Twig\Loader\ArrayLoader;
 use Twig\Loader\ChainLoader;
 use Twig\Loader\ExistsLoaderInterface;
@@ -257,6 +265,19 @@ class Twig
             $this->twig->addExtension(new DeferredExtension());
             $this->twig->addExtension(new StringLoaderExtension());
 
+            // Content sandbox — a SourcePolicy selects per-template whether to
+            // enforce. Only editor-authored string templates (@Page: / @Var:)
+            // are sandboxed; theme files on disk are always trusted. This means
+            // we don't need to toggle the sandbox around specific render calls,
+            // and {% include %}ing a theme partial from editor content is safe.
+            if ($config->get('security.twig_sandbox.enabled', true)) {
+                $this->twig->addExtension(new SandboxExtension(
+                    Security::buildTwigSandboxPolicy(),
+                    false,
+                    new GravSourcePolicy()
+                ));
+            }
+
             /** @var Debugger $debugger */
             $debugger = $this->grav['debugger'];
             $debugger->addTwigProfiler($this->twig);
@@ -341,7 +362,7 @@ class Twig
     public function processPage(PageInterface $item, $content = null)
     {
         $content ??= $item->content();
-        $content = Security::cleanDangerousTwig($content);
+        [$content, $filtered] = Security::cleanDangerousTwigWithStatus($content);
 
         // override the twig header vars for local resolution
         $this->grav->fireEvent('onTwigPageVariables', new Event(['page' => $item]));
@@ -355,21 +376,40 @@ class Twig
         $output = '';
 
         try {
+            // Theme modular template render (loaded from disk) — trusted,
+            // not sandboxed by our SourcePolicy. Editor content arrives as
+            // a `content` string variable; Twig doesn't re-evaluate strings.
             if ($item->isModule()) {
                 $twig_vars['content'] = $content;
                 $template = $this->getPageTwigTemplate($item);
                 $output = $content = $local_twig->render($template, $twig_vars);
             }
 
-            // Process in-page Twig
+            // In-page Twig — `content` becomes an @Page: string template;
+            // the SourcePolicy sandboxes that source but still lets it
+            // {% include %} trusted theme partials.
             if ($item->shouldProcess('twig')) {
                 $name = '@Page:' . $item->path();
                 $this->setTemplate($name, $content);
-                $output = $local_twig->render($name, $twig_vars);
+                try {
+                    $output = $local_twig->render($name, $twig_vars);
+                } catch (SecurityError $e) {
+                    $this->logSandboxViolation($e);
+                    // Soft-fail: fall back to the pre-template content so the
+                    // page isn't blank. Any {{ }} / {% %} tags in it will
+                    // appear as literal text — that's intentional so the site
+                    // owner can see what was blocked.
+                    $output = $content;
+                    $filtered = true;
+                }
             }
 
         } catch (LoaderError $e) {
             throw new RuntimeException($e->getRawMessage(), 400, $e);
+        }
+
+        if ($filtered) {
+            $output = $this->appendTwigFilterAdminHint($output);
         }
 
         return $output;
@@ -415,15 +455,25 @@ class Twig
         $this->grav->fireEvent('onTwigStringVariables');
         $vars += $this->twig_vars;
 
-        $string = Security::cleanDangerousTwig($string);
+        [$string, $filtered] = Security::cleanDangerousTwigWithStatus($string);
 
         $name = '@Var:' . $string;
         $this->setTemplate($name, $string);
 
+        // SourcePolicy sandboxes @Var: sources automatically; no toggle needed.
         try {
             $output = $this->twig->render($name, $vars);
         } catch (LoaderError $e) {
             throw new RuntimeException($e->getRawMessage(), 404, $e);
+        } catch (SecurityError $e) {
+            $this->logSandboxViolation($e);
+            // Soft-fail: return the original (unrendered) string.
+            $output = $string;
+            $filtered = true;
+        }
+
+        if ($filtered) {
+            $output = $this->appendTwigFilterAdminHint($output);
         }
 
         return $output;
@@ -452,7 +502,7 @@ class Twig
             /** @var PageInterface $page */
             $page = $grav['page'];
 
-            $content = Security::cleanDangerousTwig($page->content());
+            [$content, $filtered] = Security::cleanDangerousTwigWithStatus($page->content());
 
             $twig_vars = $this->twig_vars;
             $twig_vars['theme'] = $grav['config']->get('theme');
@@ -501,7 +551,70 @@ class Twig
             throw $e;
         }
 
+        if ($filtered) {
+            $output = $this->appendTwigFilterAdminHint($output);
+        }
+
         return $output;
+    }
+
+    /**
+     * Log a sandbox SecurityError via the security log channel. Soft-fail output
+     * is handled by the caller (fall back to raw content + admin hint comment).
+     */
+    private function logSandboxViolation(SecurityError $e): void
+    {
+        [$rule, $token, $class] = $this->describeSandboxViolation($e);
+        Security::logTwigSandboxViolation($rule, $token, $class, $e->getMessage());
+    }
+
+    /**
+     * @return array{0: string, 1: string, 2: string} [rule, token, classname]
+     */
+    private function describeSandboxViolation(SecurityError $e): array
+    {
+        if ($e instanceof SecurityNotAllowedTagError) {
+            return ['tag', $e->getTagName(), ''];
+        }
+        if ($e instanceof SecurityNotAllowedFilterError) {
+            return ['filter', $e->getFilterName(), ''];
+        }
+        if ($e instanceof SecurityNotAllowedFunctionError) {
+            return ['function', $e->getFunctionName(), ''];
+        }
+        if ($e instanceof SecurityNotAllowedMethodError) {
+            return ['method', $e->getMethodName(), $e->getClassName()];
+        }
+        if ($e instanceof SecurityNotAllowedPropertyError) {
+            return ['property', $e->getPropertyName(), $e->getClassName()];
+        }
+        return ['security', '', ''];
+    }
+
+    /**
+     * Append a one-line HTML comment to output when the dangerous-Twig filter fired
+     * and the current user is admin.super. Regular visitors see nothing.
+     * Honors system config `security.twig_filter.admin_hint` (default: true).
+     */
+    private function appendTwigFilterAdminHint(string $output): string
+    {
+        $grav = $this->grav;
+
+        /** @var Config $config */
+        $config = $grav['config'];
+        if (!$config->get('security.twig_filter.admin_hint', true)) {
+            return $output;
+        }
+
+        if (!$grav->offsetExists('user')) {
+            return $output;
+        }
+        $user = $grav['user'];
+        if (!$user || !method_exists($user, 'authorize') || !$user->authorize('admin.super')) {
+            return $output;
+        }
+
+        return $output . "\n<!-- Grav security: Twig content was filtered. See logs/security.log for details. -->\n";
     }
 
     /**

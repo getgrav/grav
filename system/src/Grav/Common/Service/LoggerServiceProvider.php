@@ -38,5 +38,17 @@ class LoggerServiceProvider implements ServiceProviderInterface
 
             return $log;
         };
+
+        $container['log.security'] = function ($c) {
+            $log = new Logger('grav-security');
+
+            /** @var UniformResourceLocator $locator */
+            $locator = $c['locator'];
+
+            $log_file = $locator->findResource('log://security.log', true, true);
+            $log->pushHandler(new StreamHandler($log_file, Logger::WARNING));
+
+            return $log;
+        };
     }
 }

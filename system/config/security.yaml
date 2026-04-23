@@ -47,4 +47,255 @@ uploads_dangerous_extensions:
   - js
   - exe
 sanitize_svg: true
+twig_filter:
+  enabled: true
+  logging: true
+  admin_hint: true
+  whitelist:
+    functions: []
+    properties: []
+    filters: []
+# Twig sandbox for editor-authored page content. Applies to Twig::processPage()
+# and Twig::processString() — theme templates on disk are unaffected. When
+# enabled, twig_filter above demotes to log-only (the sandbox is the enforcement
+# layer). Set enabled: false to restore the legacy regex-only filtering, e.g.
+# if a site depends on container access from page content.
+twig_sandbox:
+  enabled: true
+  logging: true
+  allowed_tags:
+    - apply
+    - autoescape
+    - block
+    - deprecated
+    - do
+    - embed
+    - extends
+    - for
+    - from
+    - if
+    - import
+    - include
+    - macro
+    - sandbox
+    - set
+    - spaceless
+    - types
+    - use
+    - verbatim
+    - with
+  allowed_filters:
+    # Twig core
+    - abs
+    - batch
+    - capitalize
+    - column
+    - convert_encoding
+    - country_name
+    - currency_name
+    - currency_symbol
+    - data_uri
+    - date
+    - date_modify
+    - default
+    - e
+    - escape
+    - filter
+    - first
+    - format
+    - format_currency
+    - format_date
+    - format_datetime
+    - format_number
+    - format_time
+    - html_to_markdown
+    - inline_css
+    - inky_to_html
+    - join
+    - json_encode
+    - keys
+    - language_name
+    - last
+    - length
+    - locale_name
+    - lower
+    - map
+    - markdown_to_html
+    - merge
+    - nl2br
+    - number_format
+    - raw
+    - reduce
+    - replace
+    - reverse
+    - round
+    - slice
+    - slug
+    - sort
+    - split
+    - striptags
+    - timezone_name
+    - title
+    - trim
+    - u
+    - upper
+    - url_encode
+    # Grav extras (safe)
+    - absolute_url
+    - array
+    - array_diff
+    - array_unique
+    - base32_decode
+    - base32_encode
+    - base64_decode
+    - base64_encode
+    - basename
+    - bool
+    - chunk_split
+    - contains
+    - count
+    - defined
+    - dirname
+    - ends_with
+    - fieldName
+    - float
+    - get_type
+    - int
+    - json_decode
+    - ksort
+    - ltrim
+    - markdown
+    - md5
+    - modulus
+    - nicecron
+    - nicefilesize
+    - nicenumber
+    - nicetime
+    - of_type
+    - pad
+    - parent_field
+    - print_r
+    - randomize
+    - regex_replace
+    - replace_last
+    - rtrim
+    - safe_email
+    - safe_truncate
+    - safe_truncate_html
+    - sort_by_key
+    - starts_with
+    - string
+    - t
+    - ta
+    - tl
+    - truncate
+    - truncate_html
+    - wordcount
+    - yaml
+    - yaml_decode
+    - yaml_encode
+  allowed_functions:
+    # Twig core (safe subset — NO `include`/`source`/`template_from_string`/`constant`)
+    - attribute
+    - block
+    - cycle
+    - date
+    - max
+    - min
+    - parent
+    - random
+    - range
+    # Grav extras (safe subset — NO evaluate/evaluate_twig/svg_image/read_file/redirect_me/http_response_code and no FilesystemExtension probes)
+    # dump/debug are gated by $env->isDebug() and are no-ops in production; vardump is a common dev aid.
+    - array
+    - array_diff
+    - array_intersect
+    - array_key_exists
+    - array_key_value
+    - array_unique
+    - authorize
+    - body_class
+    - count
+    - cron
+    - debug
+    - dump
+    - get_cookie
+    - get_type
+    - gist
+    - header_var
+    - is_array
+    - is_countable
+    - is_iterable
+    - is_null
+    - is_numeric
+    - is_object
+    - is_string
+    - isajaxrequest
+    - json_decode
+    - media_directory
+    - nicefilesize
+    - nicenumber
+    - nicetime
+    - of_type
+    - random_string
+    - regex_filter
+    - regex_match
+    - regex_replace
+    - regex_split
+    - repeat
+    - string
+    - t
+    - ta
+    - theme_var
+    - tl
+    - unique_id
+    - url
+    - vardump
+    - xss
+  # Per-class method/property allowlists — list-of-rows shape so the admin UI's
+  # list field can round-trip without a shape translator. Method names must be
+  # lowercase (Twig compiler lowercases before the check). Property names are
+  # case-sensitive. Use '*' to mean "any member" (only for data-only classes
+  # like stdClass where member access carries no executable risk).
+  allowed_methods:
+    - class: 'Grav\Common\Grav'
+      methods: 'offsetget, offsetexists, __get, getversion, theme'
+    - class: 'Grav\Common\Config\Config'
+      methods: 'get, toarray, value, default, offsetget, offsetexists'
+    - class: 'Grav\Common\Page\Interfaces\PageInterface'
+      methods: 'content, header, title, menu, slug, route, rawroute, url, path, permalink, template, templateformat, filepath, date, dateformat, modified, media, parent, children, collection, find, findmedia, value, summary, taxonomy, visible, published, publishdate, unpublishdate, routable, language, modular, modulartwig, ismodule, ispage, isfirst, islast, adjacentsibling, prevsibling, nextsibling, metadata, id, order, breadcrumbs, home, tostring, __tostring'
+    - class: 'Grav\Common\Page\Pages'
+      methods: 'root, base, dispatch, home, all, children, instances, routes, sort'
+    - class: 'Grav\Common\Uri'
+      methods: 'path, url, params, param, query, host, port, scheme, route, base, extension, method, referrer, ip, addr, toarray, __tostring'
+    - class: 'Grav\Common\Page\Media'
+      methods: 'images, videos, audios, files, all, get, offsetget, offsetexists, __tostring'
+    - class: 'Grav\Common\Page\MediaCollectionInterface'
+      methods: 'images, videos, audios, files, all, get, offsetget, offsetexists, __tostring'
+    - class: 'Grav\Common\Page\Medium\MediumInterface'
+      methods: 'url, html, filepath, filename, metadata, thumbnail, parsedownelement, __tostring'
+    - class: 'Grav\Common\User\Interfaces\UserInterface'
+      methods: 'authorize, authorized, authenticated, username, fullname, email, language, offsetget, offsetexists'
+    - class: 'Grav\Common\Taxonomy'
+      methods: 'taxonomy'
+    - class: 'Grav\Common\Language\Language'
+      methods: 'getactive, getdefault, getlanguages, getlanguage, enabled'
+    - class: 'Grav\Common\Assets'
+      methods: '__tostring, addcss, addjs'
+    # stdClass wildcard: Page::header() returns a stdClass built from YAML
+    # frontmatter, so the property set is fully dynamic. stdClass has no methods
+    # so wildcard member access carries no executable risk.
+    - class: 'stdClass'
+      methods: '*'
+    # Array-like data wrappers Grav uses for config/header/data access
+    - class: 'Grav\Common\Data\Data'
+      methods: 'get, value, toarray, items, offsetget, offsetexists, __tostring'
+  allowed_properties:
+    - class: 'Grav\Common\Page\Interfaces\PageInterface'
+      methods: 'header, media, taxonomy'
+    - class: 'Grav\Common\Grav'
+      methods: 'theme'
+    # Wildcard on stdClass for {{ page.header.<any_yaml_key> }}
+    - class: 'stdClass'
+      methods: '*'
 salt: SbmgUJQ62MqNc0
