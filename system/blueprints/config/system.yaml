@@ -1677,6 +1677,26 @@ form:
               label: PLUGIN_ADMIN.PWD_REGEX
               help: PLUGIN_ADMIN.PWD_REGEX_HELP
 
+            pwd_rules:
+              type: list
+              label: PLUGIN_ADMIN.PWD_RULES
+              help: PLUGIN_ADMIN.PWD_RULES_HELP
+              style: vertical
+              collapsed: true
+              fields:
+                .id:
+                  type: text
+                  label: PLUGIN_ADMIN.PWD_RULES_ID
+                  size: small
+                .label:
+                  type: text
+                  label: PLUGIN_ADMIN.PWD_RULES_LABEL
+                  size: medium
+                .pattern:
+                  type: text
+                  label: PLUGIN_ADMIN.PWD_RULES_PATTERN
+                  size: medium
+
             intl_enabled:
               type: toggle
               label: PLUGIN_ADMIN.INTL_ENABLED
