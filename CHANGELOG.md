@@ -1,5 +1,5 @@
 # v2.0.0-beta.2
-## 04/23/2026
+## 04/25/2026
 
 1. [](#new)
     * **NEW** Twig content sandbox — editor-authored page content now renders inside a Twig sandbox with an allowlist-based policy, blocking the whole class of SSTI attacks covered by recent advisories. Theme templates are unaffected.
