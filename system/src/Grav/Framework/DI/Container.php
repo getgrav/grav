@@ -32,4 +32,21 @@ class Container extends \Pimple\Container implements ContainerInterface
     {
         return $this->offsetExists($id);
     }
+
+    /**
+     * Magic property access — bridges `$container->service` to `$container['service']`.
+     * Enables IDE autocomplete via `@property-read` annotations on subclasses.
+     *
+     * @noinspection MagicMethodsValidityInspection
+     */
+    public function __get(string $id): mixed
+    {
+        return $this->get($id);
+    }
+
+    /** @noinspection MagicMethodsValidityInspection */
+    public function __isset(string $id): bool
+    {
+        return $this->has($id);
+    }
 }
