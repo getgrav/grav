@@ -813,6 +813,11 @@ class Validation
         $options = $field['options'] ?? [];
         $use = $field['use'] ?? 'values';
 
+        // When `selectize.store_keys: true`, the form submits option keys rather
+        // than option labels (the legacy default), so validate against keys.
+        $selectizeStoreKeys = is_array($field['selectize'] ?? null)
+            && !empty($field['selectize']['store_keys']);
+
         if ($validateOptions) {
             // Use custom options structure.
             foreach ($options as &$option) {
@@ -820,7 +825,7 @@ class Validation
             }
             unset($option);
             $options = array_values($options);
-        } elseif (empty($field['selectize']) || empty($field['multiple'])) {
+        } elseif (empty($field['selectize']) || empty($field['multiple']) || $selectizeStoreKeys) {
             $options = array_keys($options);
         }
         if ($use === 'keys') {
