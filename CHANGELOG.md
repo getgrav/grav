@@ -1,3 +1,26 @@
+# v1.7.51
+## 04/28/2026
+
+1. [](#new)
+    * Added foundation for migrating to Grav 2.0: cross-major auto-upgrades are blocked in GPM, and core now surfaces a `next_major` hint so admin can point users at the new `migrate-grav` plugin
+    * Added `compatibility:` blueprint support so plugins/themes can declare which Grav versions they support
+    * Added self-upgrade preflight that flags incompatible plugins/themes and `psr/log` / Monolog conflicts before proceeding
+    * Added upgrade resilience with automatic maintenance mode and opcache reset during self-upgrade
+    * Added new `cache-cleanup` CLI command to prune obsolete cache entries
+    * Added new `onFlexDirectoryConfigBeforeSave` event for Flex
+1. [](#improved)
+    * More readable time output in `bin/grav logviewer` [#4009](https://github.com/getgrav/grav/pull/4009)
+    * Removed legacy standalone binary build
+    * Updated vendor libraries to latest versions
+1. [](#bugfix)
+    * Fixed `selectize` field losing values when keyed options were used
+    * Fixed wrong date output in `bin/grav logviewer` [#4007](https://github.com/getgrav/grav/pull/4007)
+    * Fixed undefined array key error triggered by URL-encoded characters in paths [#4012](https://github.com/getgrav/grav/pull/4012)
+    * Fixed assorted issues in the revamped scheduler
+    * Fixed `schedule` flag not being honored in backup profiles
+    * Fixed default-language loading when using the session-based language store
+    * Allow `lang` query parameter to switch back to the default language
+
 # v1.7.49.5
 ## 09/10/2025
 

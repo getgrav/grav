@@ -86,6 +86,10 @@ class Backups
         $inflector = $grav['inflector'];
 
         foreach (static::getBackupProfiles() as $id => $profile) {
+            if (!($profile['schedule'] ?? false)) {
+                continue;
+            }
+
             $at = $profile['schedule_at'];
             $name = $inflector::hyphenize($profile['name']);
             $logs = 'logs/backup-' . $name . '.out';

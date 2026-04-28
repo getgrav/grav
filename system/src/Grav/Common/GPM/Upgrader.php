@@ -117,13 +117,83 @@ class Upgrader
     }
 
     /**
-     * Checks if the currently installed Grav is upgradable to a newer version
+     * Checks if the currently installed Grav is upgradable to a newer version.
      *
-     * @return bool True if it's upgradable, False otherwise.
+     * Returns false when the remote version is from a different major.minor family
+     * (e.g. local is 1.8.x and remote is 2.0.x), so that installs are never
+     * silently jumped across a major boundary.
+     *
+     * @return bool True if it's upgradable within the same major.minor family.
      */
     public function isUpgradable()
     {
+        if ($this->isCrossFamilyUpgrade()) {
+            return false;
+        }
+
         return version_compare($this->getLocalVersion(), $this->getRemoteVersion(), '<');
+    }
+
+    /**
+     * Returns true when the remote has advertised a newer major via the `next_major` hint.
+     * Used for informational notices — never implies an automatic upgrade.
+     *
+     * The server sends `next_major` to older-family clients (e.g. 1.7.x) alongside the
+     * family-appropriate release, so comparing raw remote/local versions here would miss it.
+     *
+     * @return bool
+     */
+    public function isNextMajorAvailable(): bool
+    {
+        $next = $this->remote->getNextMajor();
+        if (!$next || empty($next['version'])) {
+            return false;
+        }
+
+        $localMajor = (int) explode('.', $this->getLocalVersion())[0];
+        $nextMajor  = (int) explode('.', (string) $next['version'])[0];
+
+        return $nextMajor > $localMajor;
+    }
+
+    /**
+     * Returns the next-major version advertised by the remote, or null when none is offered.
+     *
+     * @return string|null
+     */
+    public function getNextMajorVersion(): ?string
+    {
+        $next = $this->remote->getNextMajor();
+
+        return $next['version'] ?? null;
+    }
+
+    /**
+     * Returns the migration URL advertised by the remote alongside the next-major hint.
+     *
+     * @return string|null
+     */
+    public function getMigrationUrl(): ?string
+    {
+        $next = $this->remote->getNextMajor();
+
+        return $next['migration_url'] ?? null;
+    }
+
+    /**
+     * Returns true when the remote version belongs to a different major.minor family than the local version.
+     *
+     * @return bool
+     */
+    private function isCrossFamilyUpgrade(): bool
+    {
+        $localParts  = explode('.', $this->getLocalVersion());
+        $remoteParts = explode('.', $this->getRemoteVersion());
+
+        $localFamily  = ($localParts[0] ?? '0') . '.' . ($localParts[1] ?? '0');
+        $remoteFamily = ($remoteParts[0] ?? '0') . '.' . ($remoteParts[1] ?? '0');
+
+        return $localFamily !== $remoteFamily;
     }
 
     /**

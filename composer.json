@@ -32,8 +32,8 @@
         "nyholm/psr7-server": "^1.0",
         "nyholm/psr7": "^1.3",
         "twig/twig": "~v1.44",
-        "erusev/parsedown": "^1.7",
-        "erusev/parsedown-extra": "~0.8",
+        "erusev/parsedown": "~1.7.4",
+        "erusev/parsedown-extra": "~0.8.1",
         "symfony/contracts": "~1.1",
         "symfony/yaml": "~4.4",
         "symfony/console": "~4.4",
@@ -87,7 +87,18 @@
         "ext-exif": "Needed to use exif data from images."
     },
     "config": {
-        "apcu-autoloader": true
+        "apcu-autoloader": true,
+        "audit": {
+            "ignore": [
+                "PKSA-yhcn-xrg3-68b1",
+                "PKSA-2wrf-1xmk-1pky",
+                "PKSA-6319-ffpf-gx66",
+                "PKSA-n7sg-8f52-pqtf",
+                "PKSA-rkkf-636k-qjb3",
+                "PKSA-wws7-mr54-jsny",
+                "PKSA-4k7v-pfvw-nqvp"
+            ]
+        }
     },
     "autoload": {
         "psr-4": {

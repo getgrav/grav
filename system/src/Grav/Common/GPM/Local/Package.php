@@ -39,6 +39,7 @@ class Package extends BasePackage
         $this->data->set('description_html', $html_description);
         $this->data->set('description_plain', strip_tags($html_description));
         $this->data->set('symlink', is_link(USER_DIR . $package_type . DS . $this->__get('slug')));
+        $this->data->set('compatibility', $this->resolveCompatibility($data));
     }
 
     /**
@@ -47,5 +48,57 @@ class Package extends BasePackage
     public function isEnabled()
     {
         return (bool)$this->settings['enabled'];
+    }
+
+    /**
+     * Resolve the compatibility metadata for this package.
+     *
+     * @param Data $data Blueprint data
+     * @return array{grav: string[], api: string[]}
+     */
+    protected function resolveCompatibility(Data $data): array
+    {
+        $raw = $data->get('compatibility');
+
+        if (is_array($raw) && isset($raw['grav']) && is_array($raw['grav'])) {
+            return [
+                'grav' => array_map('strval', $raw['grav']),
+                'api'  => isset($raw['api']) && is_array($raw['api']) ? array_map('strval', $raw['api']) : [],
+            ];
+        }
+
+        return $this->inferCompatibility($data->get('dependencies') ?? []);
+    }
+
+    /**
+     * Infer Grav compatibility from the dependencies array.
+     *
+     * @param array $dependencies
+     * @return array{grav: string[], api: string[]}
+     */
+    protected function inferCompatibility(array $dependencies): array
+    {
+        foreach ($dependencies as $dep) {
+            if (!is_array($dep) || ($dep['name'] ?? '') !== 'grav') {
+                continue;
+            }
+            $version = $dep['version'] ?? '';
+
+            if (!preg_match('/(\d+\.\d+(?:\.\d+)?)/', $version, $m)) {
+                continue;
+            }
+
+            if (version_compare($m[1], '2.0', '>=')) {
+                return ['grav' => ['2.0'], 'api' => []];
+            }
+
+            if (version_compare($m[1], '1.8', '>=')) {
+                return ['grav' => ['1.8'], 'api' => []];
+            }
+
+            return ['grav' => ['1.7'], 'api' => []];
+        }
+
+        return ['grav' => ['1.7'], 'api' => []];
     }
 }

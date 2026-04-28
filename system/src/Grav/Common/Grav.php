@@ -769,7 +769,7 @@ class Grav extends Container
         $supported_types = $config->get('media.types');
 
         $parsed_url = parse_url(rawurldecode($uri->basename()));
-        $media_file = $parsed_url['path'];
+        $media_file = isset($parsed_url['path']) ? $parsed_url['path'] : '';
 
         $event = new Event([
             'uri' => $uri,

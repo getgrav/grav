@@ -141,7 +141,7 @@ class IndexCommand extends GpmCommand
             if (!empty($packages)) {
                 $io->section('Packages table');
                 $table = new Table($io);
-                $table->setHeaders(['Count', 'Name', 'Slug', 'Version', 'Installed', 'Enabled']);
+                $table->setHeaders(['Count', 'Name', 'Slug', 'Version', 'Compat', 'Installed', 'Enabled']);
 
                 $index = 0;
                 foreach ($packages as $slug => $package) {
@@ -150,6 +150,7 @@ class IndexCommand extends GpmCommand
                         'Name' => '<cyan>' . Utils::truncate($package->name, 20, false, ' ', '...') . '</cyan> ',
                         'Slug' => $slug,
                         'Version'=> $this->version($package),
+                        'Compat' => $this->compatBadges($package),
                         'Installed' => $this->installed($package),
                         'Enabled' => $this->enabled($package),
                     ];
@@ -229,6 +230,41 @@ class IndexCommand extends GpmCommand
         }
 
         return $result;
+    }
+
+    /**
+     * @param Package $package
+     * @return string
+     */
+    private function compatBadges(Package $package): string
+    {
+        $type = ucfirst(preg_replace('/s$/', '', $package->package_type));
+        $method = 'is' . $type . 'Installed';
+        $installed = $this->gpm->{$method}($package->slug);
+
+        if ($installed) {
+            $local = $this->gpm->{'getInstalled' . $type}($package->slug);
+            $compat = $local->compatibility ?? null;
+        } else {
+            $compat = $package->compatibility ?? null;
+        }
+
+        if (!is_array($compat) || empty($compat['grav'])) {
+            return '<blue>1.7</blue>';
+        }
+
+        $badges = [];
+        if (in_array('1.7', $compat['grav'], true)) {
+            $badges[] = '<blue>1.7</blue>';
+        }
+        if (in_array('1.8', $compat['grav'], true)) {
+            $badges[] = '<green>1.8</green>';
+        }
+        if (in_array('2.0', $compat['grav'], true)) {
+            $badges[] = '<magenta>2.0</magenta>';
+        }
+
+        return implode(' ', $badges);
     }
 
     /**

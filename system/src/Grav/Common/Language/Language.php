@@ -240,6 +240,26 @@ class Language
 
         // if languages set
         if ($this->enabled()) {
+            // Check for explicit language override via ?lang= query parameter.
+            // This allows switching to any language (including the default language
+            // when include_default_lang is false and the URL has no language prefix).
+            $requestedLang = $_GET['lang'] ?? null;
+            if ($requestedLang) {
+                $requestedLang = strtolower($requestedLang);
+                if (in_array($requestedLang, $this->languages, true)) {
+                    $this->setActive($requestedLang);
+
+                    // Store in session.
+                    if (isset($this->grav['session']) && $this->grav['session']->isStarted()
+                        && $this->config->get('system.languages.session_store_active', true)
+                    ) {
+                        $this->grav['session']->active_language = $this->active;
+                    }
+
+                    return $uri;
+                }
+            }
+
             // Try setting language from prefix of URL (/en/blah/blah).
             if (preg_match($regex, $uri, $matches)) {
                 $this->lang_in_url = true;

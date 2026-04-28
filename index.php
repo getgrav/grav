@@ -20,6 +20,19 @@ if (PHP_SAPI === 'cli-server') {
     }
 }
 
+// Maintenance mode during core upgrade
+if (file_exists(__DIR__ . '/.upgrading')) {
+    if (time() - filemtime(__DIR__ . '/.upgrading') > 300) {
+        @unlink(__DIR__ . '/.upgrading'); // Stale flag (>5 min), remove it
+    } else {
+        http_response_code(503);
+        header('Retry-After: 60');
+        echo '<!DOCTYPE html><html><head><title>Upgrading</title></head>';
+        echo '<body><h1>Site Upgrading</h1><p>Please try again in a moment.</p></body></html>';
+        exit;
+    }
+}
+
 // Ensure vendor libraries exist
 $autoload = __DIR__ . '/vendor/autoload.php';
 if (!is_file($autoload)) {

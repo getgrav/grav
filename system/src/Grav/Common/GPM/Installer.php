@@ -298,6 +298,12 @@ class Installer
      */
     public static function sophisticatedInstall($source_path, $install_path, $ignores = [], $keep_source = false)
     {
+        // Set maintenance mode flag and clear opcache before file operations
+        @file_put_contents(GRAV_ROOT . '/.upgrading', date('Y-m-d H:i:s'));
+        if (function_exists('opcache_reset')) {
+            @opcache_reset();
+        }
+
         foreach (new DirectoryIterator($source_path) as $file) {
             if ($file->isLink() || $file->isDot() || in_array($file->getFilename(), $ignores, true)) {
                 continue;
@@ -323,6 +329,13 @@ class Installer
                 @unlink($path);
                 @copy($file->getPathname(), $path);
             }
+        }
+
+        // Remove maintenance mode flag and clear opcache after file operations
+        @unlink(GRAV_ROOT . '/.upgrading');
+        clearstatcache(true);
+        if (function_exists('opcache_reset')) {
+            @opcache_reset();
         }
 
         return true;

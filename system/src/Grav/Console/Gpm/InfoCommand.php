@@ -131,9 +131,39 @@ class InfoCommand extends GpmCommand
             }
         }
 
+        // Display compatibility badges
         $type = rtrim($foundPackage->package_type, 's');
-        $updatable = $this->gpm->{'is' . $type . 'Updatable'}($foundPackage->slug);
         $installed = $this->gpm->{'is' . $type . 'Installed'}($foundPackage->slug);
+        if ($installed) {
+            $local = $this->gpm->{'getInstalled' . $type}($foundPackage->slug);
+            $compat = $local->compatibility ?? null;
+        } else {
+            $compat = $foundPackage->compatibility ?? null;
+        }
+
+        $compatStr = '';
+        if (is_array($compat) && !empty($compat['grav'])) {
+            $badges = [];
+            if (in_array('1.7', $compat['grav'], true)) {
+                $badges[] = '<blue>1.7</blue>';
+            }
+            if (in_array('1.8', $compat['grav'], true)) {
+                $badges[] = '<green>1.8</green>';
+            }
+            if (in_array('2.0', $compat['grav'], true)) {
+                $badges[] = '<magenta>2.0</magenta>';
+            }
+            $compatStr = implode(' ', $badges);
+        } else {
+            $compatStr = '<blue>1.7</blue>';
+        }
+        $io->writeln('<green>' . str_pad('Compatibility', 12) . ':</green> ' . $compatStr);
+
+        if (is_array($compat) && !empty($compat['api'])) {
+            $io->writeln('<green>' . str_pad('API', 12) . ':</green> ' . implode(', ', $compat['api']));
+        }
+
+        $updatable = $this->gpm->{'is' . $type . 'Updatable'}($foundPackage->slug);
 
         // display current version if installed and different
         if ($installed && $updatable) {
