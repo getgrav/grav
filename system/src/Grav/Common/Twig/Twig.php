@@ -362,7 +362,7 @@ class Twig
     public function processPage(PageInterface $item, $content = null)
     {
         $content ??= $item->content();
-        [$content, $filtered] = Security::cleanDangerousTwigWithStatus($content);
+        $filtered = false;
 
         // override the twig header vars for local resolution
         $this->grav->fireEvent('onTwigPageVariables', new Event(['page' => $item]));
@@ -409,7 +409,7 @@ class Twig
         }
 
         if ($filtered) {
-            $output = $this->appendTwigFilterAdminHint($output);
+            $output = $this->appendSandboxAdminHint($output);
         }
 
         return $output;
@@ -455,7 +455,7 @@ class Twig
         $this->grav->fireEvent('onTwigStringVariables');
         $vars += $this->twig_vars;
 
-        [$string, $filtered] = Security::cleanDangerousTwigWithStatus($string);
+        $filtered = false;
 
         $name = '@Var:' . $string;
         $this->setTemplate($name, $string);
@@ -473,7 +473,7 @@ class Twig
         }
 
         if ($filtered) {
-            $output = $this->appendTwigFilterAdminHint($output);
+            $output = $this->appendSandboxAdminHint($output);
         }
 
         return $output;
@@ -502,7 +502,8 @@ class Twig
             /** @var PageInterface $page */
             $page = $grav['page'];
 
-            [$content, $filtered] = Security::cleanDangerousTwigWithStatus($page->content());
+            $content = $page->content();
+            $filtered = false;
 
             $twig_vars = $this->twig_vars;
             $twig_vars['theme'] = $grav['config']->get('theme');
@@ -552,7 +553,7 @@ class Twig
         }
 
         if ($filtered) {
-            $output = $this->appendTwigFilterAdminHint($output);
+            $output = $this->appendSandboxAdminHint($output);
         }
 
         return $output;
@@ -592,17 +593,17 @@ class Twig
     }
 
     /**
-     * Append a one-line HTML comment to output when the dangerous-Twig filter fired
-     * and the current user is admin.super. Regular visitors see nothing.
-     * Honors system config `security.twig_filter.admin_hint` (default: true).
+     * Append a one-line HTML comment to output when the Twig sandbox blocked
+     * an expression and the current user is admin.super. Regular visitors see
+     * nothing. Honors `security.twig_sandbox.admin_hint` (default: true).
      */
-    private function appendTwigFilterAdminHint(string $output): string
+    private function appendSandboxAdminHint(string $output): string
     {
         $grav = $this->grav;
 
         /** @var Config $config */
         $config = $grav['config'];
-        if (!$config->get('security.twig_filter.admin_hint', true)) {
+        if (!$config->get('security.twig_sandbox.admin_hint', true)) {
             return $output;
         }
 
@@ -614,7 +615,7 @@ class Twig
             return $output;
         }
 
-        return $output . "\n<!-- Grav security: Twig content was filtered. See logs/security.log for details. -->\n";
+        return $output . "\n<!-- Grav security: Twig sandbox blocked an expression. See logs/security.log for details. -->\n";
     }
 
     /**

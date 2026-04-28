@@ -17,7 +17,7 @@ use Twig\TwigFunction;
  * Tests for the Twig sandbox policy wired up by Security::buildTwigSandboxPolicy()
  * and the SandboxExtension integration in Twig::processPage()/processString().
  *
- * Covers advisory vectors that static cleanDangerousTwig() can't catch:
+ * Covers SSTI advisory vectors:
  * - attribute(grav, 'scheduler') + bracket notation runtime-constructed names
  * - base64 / concat-constructed function names resolved at runtime
  * - svg_image / read_file / evaluate / evaluate_twig / template_from_string / constant

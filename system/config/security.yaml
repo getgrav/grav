@@ -57,22 +57,18 @@ uploads_dangerous_extensions:
   - js
   - exe
 sanitize_svg: true
-twig_filter:
-  enabled: true
-  logging: true
-  admin_hint: true
-  whitelist:
-    functions: []
-    properties: []
-    filters: []
 # Twig sandbox for editor-authored page content. Applies to Twig::processPage()
 # and Twig::processString() — theme templates on disk are unaffected. When
-# enabled, twig_filter above demotes to log-only (the sandbox is the enforcement
-# layer). Set enabled: false to restore the legacy regex-only filtering, e.g.
-# if a site depends on container access from page content.
+# enabled, page-content Twig is parsed inside an allowlist-based SecurityPolicy
+# (tags / filters / functions / methods / properties below); violations soft-fail
+# with a placeholder + a logs/security.log entry. Disabling removes the only
+# layer of SSTI protection on editor-authored content — any site member with
+# page-edit access (or anyone who compromises the file system) can execute
+# arbitrary PHP via Twig.
 twig_sandbox:
   enabled: true
   logging: true
+  admin_hint: true
   allowed_tags:
     - apply
     - autoescape

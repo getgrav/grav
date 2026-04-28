@@ -1,3 +1,9 @@
+# v2.0.0-beta.3
+## 04/28/2026
+
+1. [](#improved)
+    * **Twig sandbox is now the sole layer of SSTI protection on editor-authored content — the legacy regex pre-filter has been retired.** With the sandbox stable in beta.2 (allowlist-based `Twig\Sandbox\SecurityPolicy` covering tags / filters / functions / methods / properties), the `security.twig_filter.*` blacklist + whitelist that pre-dated it served only as a logging fallback when the sandbox was disabled. Removed across the board: blueprint section + 6 fields (`twig_filter.enabled`, `logging`, `admin_hint`, `whitelist.{functions,filters,properties}`); the `twig_filter:` block in `system/config/security.yaml`; `Security::cleanDangerousTwig()` / `cleanDangerousTwigWithStatus()` / `getDangerousTwigPatterns()`; the `CALLABLE_DANGEROUS_NAMES` and `INTROSPECTION_NAMES` constants and their compiled-pattern caches; `Security::logTwigBlock()` / `twigWhitelistHint()` and the per-request dedup map; the three `Twig::process{Page,String,Site}` call sites that used to wrap content in the regex pass before handing it to Twig; and `tests/unit/Grav/Common/Security/CleanDangerousTwigTest.php`. The sandbox remains toggleable via `security.twig_sandbox.enabled` for sites that genuinely need container access from page content; the toggle now ships with an explicit warning that disabling it removes the only SSTI protection on editor-authored content. The admin-hint comment Twig appended after a filtered render moves with the rename: `appendTwigFilterAdminHint` → `appendSandboxAdminHint`, reading from the new `security.twig_sandbox.admin_hint` config (default `true`). Net effect: a single, clean enforcement layer; ~350 fewer lines of regex; one config story to document; the sandbox is what catches a violation, the sandbox is what logs it. No upgrade action needed — `security.twig_filter.*` keys in user yaml are silently ignored.
+
 # v2.0.0-beta.2
 ## 04/25/2026
 

@@ -90,74 +90,6 @@ form:
             validate:
                 type: commalist
 
-        twig_filter_section:
-            type: section
-            title: PLUGIN_ADMIN.TWIG_FILTER
-            underline: true
-
-        twig_filter.enabled:
-            type: toggle
-            label: PLUGIN_ADMIN.TWIG_FILTER_ENABLED
-            help: PLUGIN_ADMIN.TWIG_FILTER_ENABLED_HELP
-            highlight: 1
-            options:
-                1: PLUGIN_ADMIN.YES
-                0: PLUGIN_ADMIN.NO
-            default: true
-            validate:
-                type: bool
-
-        twig_filter.logging:
-            type: toggle
-            label: PLUGIN_ADMIN.TWIG_FILTER_LOGGING
-            help: PLUGIN_ADMIN.TWIG_FILTER_LOGGING_HELP
-            highlight: 1
-            options:
-                1: PLUGIN_ADMIN.YES
-                0: PLUGIN_ADMIN.NO
-            default: true
-            validate:
-                type: bool
-
-        twig_filter.admin_hint:
-            type: toggle
-            label: PLUGIN_ADMIN.TWIG_FILTER_ADMIN_HINT
-            help: PLUGIN_ADMIN.TWIG_FILTER_ADMIN_HINT_HELP
-            highlight: 1
-            options:
-                1: PLUGIN_ADMIN.YES
-                0: PLUGIN_ADMIN.NO
-            default: true
-            validate:
-                type: bool
-
-        twig_filter.whitelist.functions:
-            type: selectize
-            size: large
-            label: PLUGIN_ADMIN.TWIG_FILTER_WHITELIST_FUNCTIONS
-            help: PLUGIN_ADMIN.TWIG_FILTER_WHITELIST_FUNCTIONS_HELP
-            classes: fancy
-            validate:
-                type: commalist
-
-        twig_filter.whitelist.filters:
-            type: selectize
-            size: large
-            label: PLUGIN_ADMIN.TWIG_FILTER_WHITELIST_FILTERS
-            help: PLUGIN_ADMIN.TWIG_FILTER_WHITELIST_FILTERS_HELP
-            classes: fancy
-            validate:
-                type: commalist
-
-        twig_filter.whitelist.properties:
-            type: selectize
-            size: large
-            label: PLUGIN_ADMIN.TWIG_FILTER_WHITELIST_PROPERTIES
-            help: PLUGIN_ADMIN.TWIG_FILTER_WHITELIST_PROPERTIES_HELP
-            classes: fancy
-            validate:
-                type: commalist
-
         twig_sandbox_section:
             type: section
             title: PLUGIN_ADMIN.TWIG_SANDBOX
@@ -167,7 +99,7 @@ form:
         twig_sandbox.enabled:
             type: toggle
             label: PLUGIN_ADMIN.TWIG_SANDBOX_ENABLED
-            help: PLUGIN_ADMIN.TWIG_SANDBOX_ENABLED_HELP
+            help: 'Renders editor-authored page content inside an allowlist-based Twig SecurityPolicy. <strong>Disabling removes the only protection against template-injection attacks via page content</strong>: any account with editor-level access (or anyone who compromises the file system) can execute arbitrary PHP via Twig. Only turn off if a site genuinely needs container access from page content and you fully trust every author.'
             highlight: 1
             options:
                 1: PLUGIN_ADMIN.YES
@@ -180,6 +112,18 @@ form:
             type: toggle
             label: PLUGIN_ADMIN.TWIG_SANDBOX_LOGGING
             help: PLUGIN_ADMIN.TWIG_SANDBOX_LOGGING_HELP
+            highlight: 1
+            options:
+                1: PLUGIN_ADMIN.YES
+                0: PLUGIN_ADMIN.NO
+            default: true
+            validate:
+                type: bool
+
+        twig_sandbox.admin_hint:
+            type: toggle
+            label: PLUGIN_ADMIN.TWIG_SANDBOX_ADMIN_HINT
+            help: 'When the sandbox blocks an expression, append a one-line HTML comment to the rendered page so super-admins viewing the source see that something was filtered. Visitors and non-admins see nothing.'
             highlight: 1
             options:
                 1: PLUGIN_ADMIN.YES
