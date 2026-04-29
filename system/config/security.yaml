@@ -44,4 +44,12 @@ uploads_dangerous_extensions:
     - shtm
     - js
     - exe
+    # Page-content extensions: writing these into a page directory turns
+    # an upload into arbitrary page-content takeover (GHSA-w4rc-p66m-x6qq).
+    - md
+    - yaml
+    - yml
+    - json
+    - twig
+    - ini
 sanitize_svg: true
