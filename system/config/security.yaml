@@ -56,6 +56,15 @@ uploads_dangerous_extensions:
   - shtm
   - js
   - exe
+  # GHSA-w4rc-p66m-x6qq: writing these into a page directory (e.g. via a
+  # form upload with destination: self@) turns an upload into arbitrary
+  # page-content takeover. Block by default alongside the Form 9.1.0 fix.
+  - md
+  - yaml
+  - yml
+  - json
+  - twig
+  - ini
 sanitize_svg: true
 # Twig sandbox for editor-authored page content. Applies to Twig::processPage()
 # and Twig::processString() — theme templates on disk are unaffected. When

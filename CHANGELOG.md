@@ -1,3 +1,9 @@
+# v2.0.0-beta.4
+## 04/29/2026
+
+1. [](#bugfix)
+    * [security] Extended default `uploads_dangerous_extensions` to include `md`, `yaml`, `yml`, `json`, `twig`, `ini` — page-content extensions that can be weaponised via permissive form-upload `accept` policies (GHSA-w4rc-p66m-x6qq, defense-in-depth alongside the Form 9.1.0 plugin fix).
+
 # v2.0.0-beta.3
 ## 04/28/2026
 
