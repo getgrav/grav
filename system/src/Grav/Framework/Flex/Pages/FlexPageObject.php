@@ -441,8 +441,20 @@ class FlexPageObject extends FlexObject implements PageInterface, FlexTranslateI
 
             if ($folder) {
                 $order = !empty($elements['order']) ? (int)$elements['order'] : null;
-                // TODO: broken
-                $elements['storage_key'] = $order ? sprintf('%02d.%s', $order, $folder) : $folder;
+                // Preserve the original prefix width from the existing storage
+                // key so editing e.g. "005.test" does not silently rename it
+                // to "05.test". Falls back to the configured default for new
+                // pages and reorders.
+                $digits = $elements['order_digits'] ?? null;
+                if ($digits === null) {
+                    $existingKey = $this->getStorageKey();
+                    if ($existingKey !== '') {
+                        $digits = \Grav\Common\Page\PageOrdering::digitsFromFolder(basename($existingKey));
+                    }
+                }
+                $elements['storage_key'] = $order
+                    ? \Grav\Common\Page\PageOrdering::key($order, $folder, $digits)
+                    : $folder;
             }
         }
 

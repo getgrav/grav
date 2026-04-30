@@ -1,3 +1,11 @@
+# v2.0.0-beta.5
+## 04/30/2026
+
+1. [](#new)
+    * New `system.pages.order_digits` setting (default `2`) lets sites that use 3- or 4-digit folder prefixes — e.g. `005.about` — set the width once and have all admin/API page operations honor it.
+1. [](#bugfix)
+    * Editing and saving a page no longer rewrites its folder prefix to a different width. A page on disk as `005.about` stays `005.about` after save; previously it silently became `05.about`, which under flex pages produced a duplicate page rather than an in-place rename ([grav-plugin-admin#2492](https://github.com/getgrav/grav-plugin-admin/issues/2492)).
+
 # v2.0.0-beta.4
 ## 04/29/2026
 

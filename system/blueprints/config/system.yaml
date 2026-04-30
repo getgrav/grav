@@ -141,6 +141,22 @@ form:
                 asc: PLUGIN_ADMIN.ASCENDING
                 desc: PLUGIN_ADMIN.DESCENDING
 
+            pages.order_digits:
+              type: select
+              size: x-small
+              label: PLUGIN_ADMIN.ORDER_DIGITS
+              help: PLUGIN_ADMIN.ORDER_DIGITS_HELP
+              default: 2
+              options:
+                1: '1 (e.g. 5.about)'
+                2: '2 (e.g. 05.about)'
+                3: '3 (e.g. 005.about)'
+                4: '4 (e.g. 0005.about)'
+              validate:
+                type: int
+                min: 1
+                max: 6
+
             pages.list.count:
               type: text
               size: x-small

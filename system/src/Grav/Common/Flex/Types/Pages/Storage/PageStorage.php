@@ -153,7 +153,10 @@ class PageStorage extends FolderStorage
             }
             $order = $keys['order'] ?? null;
             $folder = $keys['folder'] ?? 'undefined';
-            $key .= is_numeric($order) ? sprintf('%02d.%s', $order, $folder) : $folder;
+            $digits = $keys['order_digits'] ?? null;
+            $key .= is_numeric($order)
+                ? \Grav\Common\Page\PageOrdering::key($order, $folder, $digits)
+                : $folder;
         }
 
         $params = $includeParams ? $this->buildStorageKeyParams($keys) : '';
@@ -280,8 +283,10 @@ class PageStorage extends FolderStorage
         $objectKey = Utils::basename($key);
         if (preg_match('|^(\d+)\.(.+)$|', $objectKey, $matches)) {
             [, $order, $folder] = $matches;
+            $orderDigits = strlen($order);
         } else {
             [$order, $folder] = ['', $objectKey];
+            $orderDigits = null;
         }
 
         $filesystem = Filesystem::getInstance(false);
@@ -293,6 +298,7 @@ class PageStorage extends FolderStorage
             'params' => $params,
             'parent_key' => $parentKey,
             'order' => is_numeric($order) ? (int)$order : null,
+            'order_digits' => $orderDigits,
             'folder' => $folder,
             'template' => $template,
             'lang' => $language

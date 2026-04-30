@@ -41,6 +41,7 @@ pages:
   order:
     by: default                                  # Order pages by "default", "alpha" or "date"
     dir: asc                                     # Default ordering direction, "asc" or "desc"
+  order_digits: 2                                # Zero-pad width of folder order prefix (1-6). Default 2 = "05.foo". Use 3 for "005.foo".
   list:
     count: 20                                    # Default item count per page
   dateformat:

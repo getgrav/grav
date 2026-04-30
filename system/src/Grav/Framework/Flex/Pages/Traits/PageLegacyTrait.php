@@ -351,7 +351,7 @@ trait PageLegacyTrait
         if ($parentStorageKey !== '') {
             $parts[] = $parentStorageKey;
         }
-        $parts[] = $order ? sprintf('%02d.%s', $order, $folder) : $folder;
+        $parts[] = $order ? \Grav\Common\Page\PageOrdering::key($order, $folder) : $folder;
 
         // Finally update the object.
         $this->setKey($key);

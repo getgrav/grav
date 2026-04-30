@@ -344,7 +344,15 @@ trait PageContentTrait
             }
         );
 
-        return $property !== false ? sprintf('%02d.', $property) : false;
+        if ($property === false) {
+            return false;
+        }
+
+        // Preserve the original prefix width from the current folder so saves
+        // do not normalize "005." → "05." across a load/edit/save round trip.
+        $digits = \Grav\Common\Page\PageOrdering::digitsFromFolder($this->folder());
+
+        return \Grav\Common\Page\PageOrdering::prefix($property, $digits);
     }
 
     /**

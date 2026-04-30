@@ -1843,7 +1843,11 @@ class Page implements PageInterface
     public function order($var = null)
     {
         if ($var !== null) {
-            $order = $var ? sprintf('%02d.', (int)$var) : '';
+            // Preserve the existing folder's prefix width when one is present,
+            // so re-saving a "005.test" page does not silently shrink it to
+            // "05.test". New pages fall back to the configured default.
+            $digits = PageOrdering::digitsFromFolder($this->folder);
+            $order = $var ? PageOrdering::prefix((int)$var, $digits) : '';
             $this->folder($order . preg_replace(PAGE_ORDER_PREFIX_REGEX, '', $this->folder));
 
             return $order;
