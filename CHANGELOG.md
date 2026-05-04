@@ -1,5 +1,5 @@
-# v2.0.0-beta.5
-## 04/30/2026
+# v2.0.0-rc.1
+## 05/04/2026
 
 1. [](#new)
     * New `system.pages.order_digits` setting (default `2`) lets sites that use 3- or 4-digit folder prefixes — e.g. `005.about` — set the width once and have all admin/API page operations honor it.
