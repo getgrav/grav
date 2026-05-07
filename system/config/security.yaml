@@ -220,7 +220,9 @@ twig_sandbox:
     - parent
     - random
     - range
-    # Grav extras (safe subset — NO evaluate/evaluate_twig/svg_image/read_file/redirect_me/http_response_code and no FilesystemExtension probes)
+    # Grav extras (safe subset — NO evaluate/evaluate_twig/svg_image/redirect_me/http_response_code and no FilesystemExtension probes)
+    # `read_file` is allow-listed; it self-restricts to streams + extensions
+    # configured under `security.read_file.*` below.
     # dump/debug are gated by $env->isDebug() and are no-ops in production; vardump is a common dev aid.
     - array
     - array_diff
@@ -253,6 +255,7 @@ twig_sandbox:
     - nicetime
     - of_type
     - random_string
+    - read_file
     - regex_filter
     - regex_match
     - regex_replace
@@ -313,6 +316,38 @@ twig_sandbox:
     # Wildcard on stdClass for {{ page.header.<any_yaml_key> }}
     - class: 'stdClass'
       methods: '*'
+# Constraints applied to the Twig `read_file()` function. The function is
+# enforced to operate only on Grav stream URIs (e.g. `theme://foo.md`); raw
+# filesystem paths are always rejected. After the stream is resolved the
+# resulting realpath must live inside a realpath of one of the stream's
+# configured roots — this is the actual traversal defence and is immune to
+# encoded `..` tricks because every form of traversal collapses to a single
+# canonical absolute path.
+read_file:
+  # Streams that read_file may resolve. Defaults cover content-reading needs
+  # (active theme, all themes, page tree, user data) without exposing
+  # accounts, configs, logs, cache, vendor, system, etc. Add more carefully.
+  allowed_streams:
+    - theme
+    - themes
+    - page
+    - user-data
+  # File extensions read_file will read. Restricted to text/content formats
+  # by design — adding `php`, `yaml`, `env`, `htaccess`, etc. here is a
+  # foot-gun and not recommended.
+  allowed_extensions:
+    - md
+    - markdown
+    - txt
+    - html
+    - htm
+    - json
+    - csv
+    - xml
+    - svg
+  # Maximum file size in bytes. Files larger than this return false rather
+  # than being slurped into memory. Set to 0 to disable the size cap.
+  max_size: 1048576
 # NOTE: `salt:` was removed in v2.0.0-beta.2 (GHSA-3f29-pqwf-v4j4). The equivalent
 # HMAC key is now stored in `user/config/security-private.php`, outside the Config
 # tree, so sandboxed Twig cannot read it via `grav.config.get(...)`. On upgrade,

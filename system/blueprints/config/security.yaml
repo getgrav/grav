@@ -197,6 +197,40 @@ form:
                     size: large
                     placeholder: 'header, media'
 
+        read_file_section:
+            type: section
+            title: PLUGIN_ADMIN_NEXT.READ_FILE_SECTION_TITLE
+            text: PLUGIN_ADMIN_NEXT.READ_FILE_SECTION_HELP
+            underline: true
+
+        read_file.allowed_streams:
+            type: selectize
+            size: large
+            label: PLUGIN_ADMIN_NEXT.READ_FILE_ALLOWED_STREAMS
+            help: PLUGIN_ADMIN_NEXT.READ_FILE_ALLOWED_STREAMS_HELP
+            classes: fancy
+            validate:
+                type: commalist
+
+        read_file.allowed_extensions:
+            type: selectize
+            size: large
+            label: PLUGIN_ADMIN_NEXT.READ_FILE_ALLOWED_EXTENSIONS
+            help: PLUGIN_ADMIN_NEXT.READ_FILE_ALLOWED_EXTENSIONS_HELP
+            classes: fancy
+            validate:
+                type: commalist
+
+        read_file.max_size:
+            type: text
+            size: small
+            label: PLUGIN_ADMIN_NEXT.READ_FILE_MAX_SIZE
+            help: PLUGIN_ADMIN_NEXT.READ_FILE_MAX_SIZE_HELP
+            default: 1048576
+            validate:
+                type: int
+                min: 0
+
         uploads_section:
             type: section
             title: PLUGIN_ADMIN.UPLOADS_SECURITY

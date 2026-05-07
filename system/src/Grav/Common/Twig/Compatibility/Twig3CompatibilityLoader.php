@@ -128,6 +128,21 @@ class Twig3CompatibilityLoader implements LoaderInterface
         }
     }
 
+    /**
+     * Proxy addLoader to the inner ChainLoader.
+     *
+     * Plugins (notably Admin) call `$twig->getLoader()->addLoader(...)` to register
+     * additional FilesystemLoader instances at runtime. In Grav 1.7 the loader was
+     * the bare ChainLoader; in Grav 2 it's wrapped by this compatibility loader,
+     * so the call would otherwise fail with "undefined method addLoader()".
+     */
+    public function addLoader(LoaderInterface $loader): void
+    {
+        if ($this->inner instanceof ChainLoader) {
+            $this->inner->addLoader($loader);
+        }
+    }
+
     public function getSourceContext(string $name): Source
     {
         $source = $this->inner->getSourceContext($name);

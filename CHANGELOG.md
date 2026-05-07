@@ -1,3 +1,11 @@
+# v2.0.0-rc.2
+## 05/06/2026
+
+1. [](#improved)
+    * Hardened the Twig `read_file()` function and re-enabled it in the sandbox. The function is now restricted to Grav stream URIs (e.g. `theme://foo.md`), an allow-listed set of streams (`theme`, `themes`, `page`, `user-data` by default), an allow-listed set of text/content extensions (`md`, `markdown`, `txt`, `html`, `htm`, `json`, `csv`, `xml`, `svg` by default), and a configurable max file size (1 MB default). Traversal defence is a canonical-realpath containment check against the stream's resolved roots — immune to encoded-`..`, double-encoded-`..` and symlink tricks because every form of traversal collapses to a single absolute path. Tunable under `security.read_file.*` in `system/config/security.yaml`. `read_file` was excluded from the default Twig sandbox allowlist in beta.2; with the hardening it is now back on the default allowlist, restoring `{{ read_file('theme://...') }}` for themes like Typhoon ([grav-premium-issues#573](https://github.com/getgrav/grav-premium-issues/issues/573)).
+1. [](#bugfix)
+    * Restored `addLoader()` on the Twig loader. In Grav 1.7 the loader returned by `$twig->getLoader()` was the bare `ChainLoader`; in Grav 2 it is wrapped by `Twig3CompatibilityLoader`, which proxied `addPath`/`prependPath`/`getPaths`/etc. but not `addLoader`. The Admin plugin (and any plugin doing `$twig->getLoader()->addLoader(new FilesystemLoader(...))`) was crashing with "Call to undefined method ...Twig3CompatibilityLoader::addLoader()". The compatibility loader now proxies `addLoader` through to the inner `ChainLoader`.
+
 # v2.0.0-rc.1
 ## 05/04/2026
 
