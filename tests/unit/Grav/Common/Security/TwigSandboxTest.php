@@ -298,6 +298,112 @@ class TwigSandboxTest extends \PHPUnit\Framework\TestCase
     // Helpers
     // =========================================================================
 
+    // =========================================================================
+    // GHSA-j274-39qw-32c9 — `config.toArray()` plugin-secret exfiltration.
+    //
+    // The fix lives across three layers:
+    //  1. `toarray` is removed from the Config and Data sandbox allow-lists so
+    //     a real Config reachable via `grav['config']` cannot bulk-dump.
+    //  2. SandboxConfig replaces the injected `config` Twig variable inside
+    //     editor renders and filters denied dot-prefixes from get/value/
+    //     offsetGet/offsetExists/toArray.
+    //  3. `security.twig_sandbox.config_denied_paths` lists the prefixes
+    //     (defaults: plugins, streams, security, backups, scheduler).
+    //
+    // These tests cover (1) and (2). Layer (3) is exercised by config defaults
+    // in production — the unit tests in SandboxConfigTest assert the filtering
+    // logic itself.
+    // =========================================================================
+
+    public function testGhsaJ274_RawConfigToArrayBlockedBySandbox(): void
+    {
+        // After dropping `toarray` from Grav\Common\Config\Config and the
+        // parent Grav\Common\Data\Data allow-lists, the policy must reject
+        // toArray() on a real Config.
+        $policy = Security::buildTwigSandboxPolicy();
+        $config = new \Grav\Common\Config\Config([
+            'plugins' => ['email' => ['smtp' => ['password' => 'super-secret']]],
+        ]);
+        $this->expectException(SecurityNotAllowedMethodError::class);
+        $policy->checkMethodAllowed($config, 'toarray');
+    }
+
+    public function testGhsaJ274_RawDataToArrayBlockedBySandbox(): void
+    {
+        $policy = Security::buildTwigSandboxPolicy();
+        $data = new \Grav\Common\Data\Data(['secret' => 'x']);
+        $this->expectException(SecurityNotAllowedMethodError::class);
+        $policy->checkMethodAllowed($data, 'toarray');
+    }
+
+    public function testGhsaJ274_SandboxConfigToArrayAllowed(): void
+    {
+        $policy = Security::buildTwigSandboxPolicy();
+        $facade = new \Grav\Common\Twig\Sandbox\SandboxConfig(
+            new \Grav\Common\Config\Config([]),
+            []
+        );
+        $this->assertDoesNotThrow(fn() => $policy->checkMethodAllowed($facade, 'toarray'));
+    }
+
+    public function testGhsaJ274_RenderViaSandboxConfigStripsPluginSecrets(): void
+    {
+        // Full advisory PoC: editor saves a page body of
+        //   {{ config.toArray()|json_encode|raw }}
+        // With the SandboxConfig facade injected as `config`, the rendered
+        // output must NOT contain plugin secrets.
+        $real = new \Grav\Common\Config\Config([
+            'site' => ['title' => 'Public Title'],
+            'plugins' => [
+                'email' => ['smtp' => ['password' => 'PLUGIN_SECRET_42']],
+                'recaptcha' => ['secret_key' => 'RC_SECRET_99'],
+            ],
+            'streams' => ['schemes' => ['user' => 'user://']],
+        ]);
+        $facade = new \Grav\Common\Twig\Sandbox\SandboxConfig(
+            $real,
+            ['plugins', 'streams']
+        );
+
+        $env = $this->sandboxEnv(['poc' => '{{ config.toArray()|json_encode|raw }}']);
+        $output = $env->render('poc', ['config' => $facade]);
+
+        self::assertStringContainsString('Public Title', $output, 'site.* must remain readable');
+        self::assertStringNotContainsString('PLUGIN_SECRET_42', $output, 'plugin secrets must be stripped');
+        self::assertStringNotContainsString('RC_SECRET_99', $output, 'plugin secrets must be stripped');
+        self::assertStringNotContainsString('user://', $output, 'streams.* must be stripped');
+    }
+
+    public function testGhsaJ274_RenderRawConfigToArrayRaisesSecurityError(): void
+    {
+        // Belt-and-suspenders: even if the SandboxConfig wiring is bypassed
+        // and a raw Config is passed as `config`, the policy must reject
+        // toArray() at render time (regression guard for layer 1 of the fix).
+        $real = new \Grav\Common\Config\Config([
+            'plugins' => ['email' => ['smtp' => ['password' => 'PLUGIN_SECRET_42']]],
+        ]);
+        $env = $this->sandboxEnv(['poc' => '{{ config.toArray()|json_encode|raw }}']);
+        $this->expectException(SecurityNotAllowedMethodError::class);
+        $env->render('poc', ['config' => $real]);
+    }
+
+    public function testGhsaJ274_RenderConfigGetOnDeniedPathReturnsNull(): void
+    {
+        // Per-key reads through the facade must also be filtered.
+        $real = new \Grav\Common\Config\Config([
+            'plugins' => ['email' => ['smtp' => ['password' => 'PLUGIN_SECRET_42']]],
+            'site' => ['title' => 'Public Title'],
+        ]);
+        $facade = new \Grav\Common\Twig\Sandbox\SandboxConfig($real, ['plugins']);
+
+        $env = $this->sandboxEnv([
+            'denied' => "[{{ config.get('plugins.email.smtp.password', 'BLOCKED') }}]",
+            'allowed' => "[{{ config.get('site.title') }}]",
+        ]);
+        self::assertSame('[BLOCKED]', $env->render('denied', ['config' => $facade]));
+        self::assertSame('[Public Title]', $env->render('allowed', ['config' => $facade]));
+    }
+
     /**
      * Build a minimal sandboxed Twig environment preloaded with the current
      * security policy. Templates is a name => source map.

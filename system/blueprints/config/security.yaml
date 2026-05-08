@@ -99,7 +99,7 @@ form:
         twig_sandbox.enabled:
             type: toggle
             label: PLUGIN_ADMIN.TWIG_SANDBOX_ENABLED
-            help: 'Renders editor-authored page content inside an allowlist-based Twig SecurityPolicy. <strong>Disabling removes the only protection against template-injection attacks via page content</strong>: any account with editor-level access (or anyone who compromises the file system) can execute arbitrary PHP via Twig. Only turn off if a site genuinely needs container access from page content and you fully trust every author.'
+            help: PLUGIN_ADMIN.TWIG_SANDBOX_ENABLED_HELP
             highlight: 1
             options:
                 1: PLUGIN_ADMIN.YES
@@ -123,7 +123,7 @@ form:
         twig_sandbox.admin_hint:
             type: toggle
             label: PLUGIN_ADMIN.TWIG_SANDBOX_ADMIN_HINT
-            help: 'When the sandbox blocks an expression, append a one-line HTML comment to the rendered page so super-admins viewing the source see that something was filtered. Visitors and non-admins see nothing.'
+            help: PLUGIN_ADMIN.TWIG_SANDBOX_ADMIN_HINT_HELP
             highlight: 1
             options:
                 1: PLUGIN_ADMIN.YES
@@ -199,15 +199,15 @@ form:
 
         read_file_section:
             type: section
-            title: PLUGIN_ADMIN_NEXT.READ_FILE_SECTION_TITLE
-            text: PLUGIN_ADMIN_NEXT.READ_FILE_SECTION_HELP
+            title: PLUGIN_ADMIN.READ_FILE_SECTION_TITLE
+            text: PLUGIN_ADMIN.READ_FILE_SECTION_HELP
             underline: true
 
         read_file.allowed_streams:
             type: selectize
             size: large
-            label: PLUGIN_ADMIN_NEXT.READ_FILE_ALLOWED_STREAMS
-            help: PLUGIN_ADMIN_NEXT.READ_FILE_ALLOWED_STREAMS_HELP
+            label: PLUGIN_ADMIN.READ_FILE_ALLOWED_STREAMS
+            help: PLUGIN_ADMIN.READ_FILE_ALLOWED_STREAMS_HELP
             classes: fancy
             validate:
                 type: commalist
@@ -215,8 +215,8 @@ form:
         read_file.allowed_extensions:
             type: selectize
             size: large
-            label: PLUGIN_ADMIN_NEXT.READ_FILE_ALLOWED_EXTENSIONS
-            help: PLUGIN_ADMIN_NEXT.READ_FILE_ALLOWED_EXTENSIONS_HELP
+            label: PLUGIN_ADMIN.READ_FILE_ALLOWED_EXTENSIONS
+            help: PLUGIN_ADMIN.READ_FILE_ALLOWED_EXTENSIONS_HELP
             classes: fancy
             validate:
                 type: commalist
@@ -224,8 +224,8 @@ form:
         read_file.max_size:
             type: text
             size: small
-            label: PLUGIN_ADMIN_NEXT.READ_FILE_MAX_SIZE
-            help: PLUGIN_ADMIN_NEXT.READ_FILE_MAX_SIZE_HELP
+            label: PLUGIN_ADMIN.READ_FILE_MAX_SIZE
+            help: PLUGIN_ADMIN.READ_FILE_MAX_SIZE_HELP
             default: 1048576
             validate:
                 type: int

@@ -545,7 +545,7 @@ form:
 
             pages.markdown.extra:
               type: toggle
-              label: Markdown extra
+              label: PLUGIN_ADMIN.MARKDOWN_EXTRA
               help: PLUGIN_ADMIN.MARKDOWN_EXTRA_HELP
               highlight: 0
               options:
@@ -629,8 +629,8 @@ form:
             cache.check.interval:
               type: number
               size: x-small
-              label: Cache Check Interval
-              help: Seconds to reuse the previously computed filesystem hash before checking again. Zero keeps existing per-request checks.
+              label: PLUGIN_ADMIN.CACHE_CHECK_INTERVAL
+              help: PLUGIN_ADMIN.CACHE_CHECK_INTERVAL_HELP
               validate:
                 type: int
                 min: 0
@@ -1789,7 +1789,7 @@ form:
 
             http_x_forwarded.protocol:
               type: toggle
-              label: HTTP_X_FORWARDED_PROTO Enabled
+              label: PLUGIN_ADMIN.HTTP_X_FORWARDED_PROTO_ENABLED
               highlight: 1
               default: 1
               options:
@@ -1800,7 +1800,7 @@ form:
 
             http_x_forwarded.host:
               type: toggle
-              label: HTTP_X_FORWARDED_HOST Enabled
+              label: PLUGIN_ADMIN.HTTP_X_FORWARDED_HOST_ENABLED
               highlight: 1
               default: 1
               options:
@@ -1811,7 +1811,7 @@ form:
 
             http_x_forwarded.port:
               type: toggle
-              label: HTTP_X_FORWARDED_PORT Enabled
+              label: PLUGIN_ADMIN.HTTP_X_FORWARDED_PORT_ENABLED
               highlight: 1
               default: 1
               options:
@@ -1822,7 +1822,7 @@ form:
 
             http_x_forwarded.ip:
               type: toggle
-              label: HTTP_X_FORWARDED IP Enabled
+              label: PLUGIN_ADMIN.HTTP_X_FORWARDED_IP_ENABLED
               highlight: 1
               default: 1
               options:
@@ -1870,10 +1870,10 @@ form:
 
             strict_mode.twig3_compat:
               type: toggle
-              label: Twig 3 Compatibility
+              label: PLUGIN_ADMIN.TWIG_3_COMPATIBILITY
               highlight: 0
               default: 0
-              help: Enable automatic rewrites for legacy Twig 1/2 syntax that breaks on Twig 3 (e.g. `for ... if ...` guards)
+              help: PLUGIN_ADMIN.TWIG_3_COMPATIBILITY_HELP
               options:
                 1: PLUGIN_ADMIN.YES
                 0: PLUGIN_ADMIN.NO
@@ -1888,7 +1888,7 @@ form:
           fields:
             flex_accounts:
               type: section
-              title: User Accounts
+              title: PLUGIN_ADMIN.USER_ACCOUNTS
 
             accounts.type:
               type: select

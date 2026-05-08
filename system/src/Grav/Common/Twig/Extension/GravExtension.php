@@ -1429,130 +1429,21 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
     }
 
     /**
-     * Read a file via a Grav stream URI (e.g. `theme://foo.md`) and return its contents.
+     * Read a file via a Grav stream URI (e.g. `theme://foo.md`) and return its
+     * contents. Delegates to {@see \Grav\Common\Helpers\FileReader::read}, which
+     * is shared with shortcode-core's `[read-file]` shortcode so both paths get
+     * the same stream / extension / containment / size enforcement.
      *
-     * Hardened against directory traversal, encoded-path tricks and accidental
-     * exposure of sensitive files. The defence is layered:
-     *
-     *   1. Reject obviously hostile inputs (null bytes, URL encoding, backslashes,
-     *      `..` segments) — cheap string checks, not the security boundary.
-     *   2. Require a Grav stream URI and an allow-listed scheme.
-     *   3. Require an allow-listed file extension (text/content formats only).
-     *   4. Resolve via the locator, then verify the file's `realpath()` is
-     *      contained inside `realpath()` of one of the stream's roots — this
-     *      is the actual security boundary, immune to encoding tricks because
-     *      every form of traversal collapses to a single canonical path.
-     *   5. Enforce a max file size.
-     *
-     * Defaults can be tuned via `security.read_file.*` in `system/config/security.yaml`.
+     * Off the default sandbox allow-list. Editors who want this from page
+     * content should use the shortcode; theme templates can use either form
+     * since theme `.html.twig` files aren't sandboxed.
      *
      * @param string $filepath
-     * @return false|string  File contents on success, false on any rejection.
+     * @return false|string
      */
     public function readFileFunc($filepath)
     {
-        if (!is_string($filepath) || $filepath === '') {
-            return false;
-        }
-
-        // (1) Cheap input hygiene. None of these are the security boundary —
-        // the canonical containment check below is — but they short-circuit
-        // obvious abuse early and keep error reporting clean.
-        if (str_contains($filepath, "\0") || str_contains($filepath, '\\')) {
-            return false;
-        }
-        // No URL encoding inside a filesystem helper. Collapses %2e%2e%2f,
-        // %252e%252e%252f, etc. — every encoded `..` fails to round-trip.
-        if (rawurldecode($filepath) !== $filepath) {
-            return false;
-        }
-
-        /** @var UniformResourceLocator $locator */
-        $locator = $this->grav['locator'];
-
-        // (2) Stream-only. Raw filesystem paths are no longer accepted.
-        if (!$locator->isStream($filepath)) {
-            return false;
-        }
-
-        $parts = explode('://', $filepath, 2);
-        if (count($parts) !== 2) {
-            return false;
-        }
-        [$scheme, $streamPath] = $parts;
-
-        // Reject any `..` *segment*. Substring matching is fooled by `....//`,
-        // mixed separators, etc.; segment-wise comparison is bypass-proof for
-        // any string that already passed the URL-decode round-trip above.
-        foreach (explode('/', $streamPath) as $segment) {
-            if ($segment === '..') {
-                return false;
-            }
-        }
-
-        /** @var Config $config */
-        $config = $this->grav['config'];
-
-        // Stream allow-list. Defaults cover the common content-reading cases
-        // (active theme, all themes, page tree, user data) without exposing
-        // accounts, configs, logs, cache, vendor, etc.
-        $allowedStreams = (array) $config->get('security.read_file.allowed_streams', [
-            'theme', 'themes', 'page', 'user-data'
-        ]);
-        if (!in_array($scheme, $allowedStreams, true)) {
-            return false;
-        }
-
-        // (3) Extension allow-list. Default set is text/content formats only.
-        $extension = strtolower((string) pathinfo($streamPath, PATHINFO_EXTENSION));
-        $allowedExtensions = (array) $config->get('security.read_file.allowed_extensions', [
-            'md', 'markdown', 'txt', 'html', 'htm', 'json', 'csv', 'xml', 'svg'
-        ]);
-        if ($extension === '' || !in_array($extension, $allowedExtensions, true)) {
-            return false;
-        }
-
-        // (4) Resolve and verify canonical containment. This is the actual
-        // security boundary: realpath() collapses any traversal/symlink trick
-        // to a single absolute path that we strict-prefix-check against the
-        // realpath of each root the stream resolves to. The trailing
-        // separator is essential — without it, `/var/grav/user/themes/quark`
-        // would prefix-match `/var/grav/user/themes/quark-evil`.
-        $resolved = $locator->findResource($filepath);
-        if (!$resolved) {
-            return false;
-        }
-        $realFile = realpath($resolved);
-        if ($realFile === false || !is_file($realFile)) {
-            return false;
-        }
-
-        $contained = false;
-        foreach ($locator->findResources($scheme . '://', true, true) as $root) {
-            $realRoot = realpath($root);
-            if ($realRoot === false) {
-                continue;
-            }
-            $realRoot .= DIRECTORY_SEPARATOR;
-            if (strncmp($realFile . DIRECTORY_SEPARATOR, $realRoot, strlen($realRoot)) === 0) {
-                $contained = true;
-                break;
-            }
-        }
-        if (!$contained) {
-            return false;
-        }
-
-        // (5) Size cap (bytes). Set to 0 to disable.
-        $maxSize = (int) $config->get('security.read_file.max_size', 1048576);
-        if ($maxSize > 0) {
-            $size = filesize($realFile);
-            if ($size === false || $size > $maxSize) {
-                return false;
-            }
-        }
-
-        return file_get_contents($realFile);
+        return \Grav\Common\Helpers\FileReader::read($filepath);
     }
 
     /**

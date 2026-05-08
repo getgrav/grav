@@ -31,6 +31,6 @@ form:
             header.content.order.dir:
               type: text
               label: PLUGIN_ADMIN.ORDER
-              help: '"desc" or "asc" are valid values'
+              help: PLUGIN_ADMIN.ORDER_DIR_HELP
               placeholder: desc
               size: small

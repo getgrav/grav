@@ -33,7 +33,7 @@ form:
     _admin:
       security@: {or: [admin.super, admin.configuration.pages]}
       type: section
-      title: PLUGIN_ADMIN.PAGE PERMISSIONS
+      title: PLUGIN_ADMIN.PAGE_PERMISSIONS
       underline: true
 
       fields:

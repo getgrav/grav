@@ -78,6 +78,22 @@ twig_sandbox:
   enabled: true
   logging: true
   admin_hint: true
+  # Dot-notation prefixes redacted from the `config` Twig variable inside
+  # sandboxed renders. Replaces the raw Config object with a SandboxConfig
+  # facade that returns null/default for these subtrees and strips them
+  # from `config.toArray()` output. Trusted theme/plugin templates are not
+  # sandboxed and continue to receive the unfiltered Config.
+  #
+  # Defaults block the categories that typically hold credentials,
+  # filesystem layout, or other operator-only state. Add more as needed —
+  # e.g. a custom plugin that stores secrets under `site.integrations.*`.
+  # (GHSA-j274-39qw-32c9)
+  config_denied_paths:
+    - plugins
+    - streams
+    - security
+    - backups
+    - scheduler
   allowed_tags:
     - apply
     - autoescape
@@ -220,9 +236,13 @@ twig_sandbox:
     - parent
     - random
     - range
-    # Grav extras (safe subset — NO evaluate/evaluate_twig/svg_image/redirect_me/http_response_code and no FilesystemExtension probes)
-    # `read_file` is allow-listed; it self-restricts to streams + extensions
-    # configured under `security.read_file.*` below.
+    # Grav extras (safe subset — NO evaluate/evaluate_twig/svg_image/read_file/redirect_me/http_response_code and no FilesystemExtension probes)
+    # `read_file` is hardened (stream-only, extension allow-list, canonical
+    # containment, size cap — see security.read_file.* below) but stays *off*
+    # this list by default so editor-authored page content can't pull arbitrary
+    # files. Theme templates (`.html.twig`) are unsandboxed and can call it
+    # directly. From page content, use the `[read-file]` shortcode (in the
+    # shortcode-core plugin) which goes through the same hardening.
     # dump/debug are gated by $env->isDebug() and are no-ops in production; vardump is a common dev aid.
     - array
     - array_diff
@@ -255,7 +275,6 @@ twig_sandbox:
     - nicetime
     - of_type
     - random_string
-    - read_file
     - regex_filter
     - regex_match
     - regex_replace
@@ -278,8 +297,16 @@ twig_sandbox:
   allowed_methods:
     - class: 'Grav\Common\Grav'
       methods: 'offsetget, offsetexists, __get, getversion, theme'
+    # `toarray` is intentionally NOT allow-listed on the raw Config or Data
+    # classes. The sandboxed `config` Twig variable is replaced with a
+    # SandboxConfig facade in Twig::processPage()/processString(), and that
+    # facade has its own toarray entry below — bulk-dump always flows through
+    # the path filter. Editors who reach a real Config via grav['config']
+    # therefore cannot exfiltrate the full tree in one call (GHSA-j274-39qw-32c9).
     - class: 'Grav\Common\Config\Config'
-      methods: 'get, toarray, value, default, offsetget, offsetexists'
+      methods: 'get, value, default, offsetget, offsetexists'
+    - class: 'Grav\Common\Twig\Sandbox\SandboxConfig'
+      methods: 'get, toarray, value, offsetget, offsetexists'
     - class: 'Grav\Common\Page\Interfaces\PageInterface'
       methods: 'content, header, title, menu, slug, route, rawroute, url, path, permalink, template, templateformat, filepath, date, dateformat, modified, media, parent, children, collection, find, findmedia, value, summary, taxonomy, visible, published, publishdate, unpublishdate, routable, language, modular, modulartwig, ismodule, ispage, isfirst, islast, adjacentsibling, prevsibling, nextsibling, metadata, id, order, breadcrumbs, home, tostring, __tostring'
     - class: 'Grav\Common\Page\Pages'
@@ -305,9 +332,14 @@ twig_sandbox:
     # so wildcard member access carries no executable risk.
     - class: 'stdClass'
       methods: '*'
-    # Array-like data wrappers Grav uses for config/header/data access
+    # Array-like data wrappers Grav uses for config/header/data access.
+    # `toarray` is omitted: bulk-dump must go through SandboxConfig (the
+    # injected `config` var) so denied paths are honored. Per-key reads
+    # (get/value/offsetget) remain available — editors who already know a
+    # path can still read it; the filter blocks enumeration, not targeted
+    # access. (GHSA-j274-39qw-32c9)
     - class: 'Grav\Common\Data\Data'
-      methods: 'get, value, toarray, items, offsetget, offsetexists, __tostring'
+      methods: 'get, value, items, offsetget, offsetexists, __tostring'
   allowed_properties:
     - class: 'Grav\Common\Page\Interfaces\PageInterface'
       methods: 'header, media, taxonomy'

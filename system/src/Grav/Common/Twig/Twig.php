@@ -18,6 +18,7 @@ use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Page\Pages;
 use Grav\Common\Security;
 use Grav\Common\Twig\Sandbox\GravSourcePolicy;
+use Grav\Common\Twig\Sandbox\SandboxConfig;
 use Grav\Common\Twig\Compatibility\Twig3CompatibilityLoader;
 use Grav\Common\Twig\Compatibility\Twig3CompatibilityTransformer;
 use Grav\Common\Twig\Exception\TwigException;
@@ -391,8 +392,14 @@ class Twig
             if ($item->shouldProcess('twig')) {
                 $name = '@Page:' . $item->path();
                 $this->setTemplate($name, $content);
+                // Replace `config` with a denied-path-filtered facade for the
+                // sandboxed render so editors can't exfiltrate plugin secrets
+                // via `config.toArray()` (GHSA-j274-39qw-32c9). The modular
+                // theme render above is unsandboxed and keeps the raw Config.
+                $sandbox_vars = $twig_vars;
+                $sandbox_vars['config'] = $this->buildSandboxConfig();
                 try {
-                    $output = $local_twig->render($name, $twig_vars);
+                    $output = $local_twig->render($name, $sandbox_vars);
                 } catch (SecurityError $e) {
                     $this->logSandboxViolation($e);
                     // Soft-fail: fall back to the pre-template content so the
@@ -454,6 +461,16 @@ class Twig
         // override the twig header vars for local resolution
         $this->grav->fireEvent('onTwigStringVariables');
         $vars += $this->twig_vars;
+
+        // @Var: sources are always sandboxed (GravSourcePolicy). Replace
+        // the inherited `config` with a denied-path-filtered facade so
+        // editor-derivable strings can't exfiltrate plugin secrets via
+        // `config.toArray()` (GHSA-j274-39qw-32c9). A caller-supplied
+        // `config` is left alone — internal call sites that need a custom
+        // value (e.g. tests) can still pass it through.
+        if (($vars['config'] ?? null) === ($this->twig_vars['config'] ?? null)) {
+            $vars['config'] = $this->buildSandboxConfig();
+        }
 
         $filtered = false;
 
@@ -557,6 +574,21 @@ class Twig
         }
 
         return $output;
+    }
+
+    /**
+     * Build the read-only Config facade that replaces the `config` Twig
+     * variable inside sandboxed renders. The denied-path list is read from
+     * `security.twig_sandbox.config_denied_paths` on every call so admins
+     * can tighten the filter at runtime without rebuilding the Twig
+     * environment.
+     */
+    private function buildSandboxConfig(): SandboxConfig
+    {
+        /** @var Config $config */
+        $config = $this->grav['config'];
+        $denied = (array) $config->get('security.twig_sandbox.config_denied_paths', []);
+        return new SandboxConfig($config, $denied);
     }
 
     /**
