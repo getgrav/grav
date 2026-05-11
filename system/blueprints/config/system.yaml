@@ -1790,8 +1790,9 @@ form:
             http_x_forwarded.protocol:
               type: toggle
               label: PLUGIN_ADMIN.HTTP_X_FORWARDED_PROTO_ENABLED
-              highlight: 1
-              default: 1
+              help: PLUGIN_ADMIN.HTTP_X_FORWARDED_PROTO_HELP
+              highlight: 0
+              default: 0
               options:
                 1: PLUGIN_ADMIN.YES
                 0: PLUGIN_ADMIN.NO
@@ -1801,8 +1802,9 @@ form:
             http_x_forwarded.host:
               type: toggle
               label: PLUGIN_ADMIN.HTTP_X_FORWARDED_HOST_ENABLED
-              highlight: 1
-              default: 1
+              help: PLUGIN_ADMIN.HTTP_X_FORWARDED_HOST_HELP
+              highlight: 0
+              default: 0
               options:
                 1: PLUGIN_ADMIN.YES
                 0: PLUGIN_ADMIN.NO
@@ -1812,8 +1814,9 @@ form:
             http_x_forwarded.port:
               type: toggle
               label: PLUGIN_ADMIN.HTTP_X_FORWARDED_PORT_ENABLED
-              highlight: 1
-              default: 1
+              help: PLUGIN_ADMIN.HTTP_X_FORWARDED_PORT_HELP
+              highlight: 0
+              default: 0
               options:
                 1: PLUGIN_ADMIN.YES
                 0: PLUGIN_ADMIN.NO
@@ -1823,8 +1826,33 @@ form:
             http_x_forwarded.ip:
               type: toggle
               label: PLUGIN_ADMIN.HTTP_X_FORWARDED_IP_ENABLED
-              highlight: 1
-              default: 1
+              help: PLUGIN_ADMIN.HTTP_X_FORWARDED_IP_HELP
+              highlight: 0
+              default: 0
+              options:
+                1: PLUGIN_ADMIN.YES
+                0: PLUGIN_ADMIN.NO
+              validate:
+                type: bool
+
+            http_x_forwarded.client_ip:
+              type: toggle
+              label: PLUGIN_ADMIN.HTTP_CLIENT_IP_ENABLED
+              help: PLUGIN_ADMIN.HTTP_CLIENT_IP_HELP
+              highlight: 0
+              default: 0
+              options:
+                1: PLUGIN_ADMIN.YES
+                0: PLUGIN_ADMIN.NO
+              validate:
+                type: bool
+
+            http_x_forwarded.cf_connecting_ip:
+              type: toggle
+              label: PLUGIN_ADMIN.HTTP_CF_CONNECTING_IP_ENABLED
+              help: PLUGIN_ADMIN.HTTP_CF_CONNECTING_IP_HELP
+              highlight: 0
+              default: 0
               options:
                 1: PLUGIN_ADMIN.YES
                 0: PLUGIN_ADMIN.NO

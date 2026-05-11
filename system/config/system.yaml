@@ -10,11 +10,13 @@ custom_base_url: ''                              # Set the base_url manually, e.
 username_regex: '^[a-z0-9_-]{3,16}$'             # Only lowercase chars, digits, dashes, underscores. 3 - 16 chars
 pwd_regex: '(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}' # At least one number, one uppercase and lowercase letter, and be at least 8+ chars
 intl_enabled: true                               # Special logic for PHP International Extension (mod_intl)
-http_x_forwarded:                                # Configuration options for the various HTTP_X_FORWARD headers
-  protocol: true
-  host: false
-  port: true
-  ip: true
+http_x_forwarded:                                # Each header is opt-in: only enable when the site is genuinely behind a proxy that sets and overwrites that header. Defaults are off in Grav 2.0 to prevent client-supplied spoofing of client IP, host, port, or protocol.
+  protocol: false                                #   X-Forwarded-Proto
+  host: false                                    #   X-Forwarded-Host
+  port: false                                    #   X-Forwarded-Port
+  ip: false                                      #   X-Forwarded-For / X-Forwarded / Forwarded-For / Forwarded
+  client_ip: false                               #   Client-IP (rare; usually only set by specific load balancers)
+  cf_connecting_ip: false                        #   CF-Connecting-IP (enable when behind Cloudflare)
 
 languages:
   supported: []                                  # List of languages supported. eg: [en, fr, de]

@@ -682,26 +682,47 @@ class Uri implements \Stringable
      */
     public static function ip()
     {
-        $ip = 'UNKNOWN';
+        $forwarded = (array)Grav::instance()['config']->get('system.http_x_forwarded', []);
 
-        if (getenv('HTTP_CLIENT_IP')) {
-            $ip = getenv('HTTP_CLIENT_IP');
-        } elseif (getenv('HTTP_CF_CONNECTING_IP')) {
-            $ip = getenv('HTTP_CF_CONNECTING_IP');
-        } elseif (getenv('HTTP_X_FORWARDED_FOR') && Grav::instance()['config']->get('system.http_x_forwarded.ip')) {
-            $ips = array_map('trim', explode(',', getenv('HTTP_X_FORWARDED_FOR')));
-            $ip = array_shift($ips);
-        } elseif (getenv('HTTP_X_FORWARDED') && Grav::instance()['config']->get('system.http_x_forwarded.ip')) {
-            $ip = getenv('HTTP_X_FORWARDED');
-        } elseif (getenv('HTTP_FORWARDED_FOR')) {
-            $ip = getenv('HTTP_FORWARDED_FOR');
-        } elseif (getenv('HTTP_FORWARDED')) {
-            $ip = getenv('HTTP_FORWARDED');
-        } elseif (getenv('REMOTE_ADDR')) {
-            $ip = getenv('REMOTE_ADDR');
+        // Each forwarded header is opt-in. Defaults ship as false in Grav 2.0:
+        // only enable for a header when the request genuinely comes through a
+        // proxy that sets and overwrites it (e.g. cf_connecting_ip behind
+        // Cloudflare, ip behind nginx that sets X-Forwarded-For). Without the
+        // gate, any client can spoof these headers and bypass IP-based
+        // throttling, banning, or audit logging.
+        $candidates = [];
+
+        if (!empty($forwarded['client_ip']) && getenv('HTTP_CLIENT_IP')) {
+            $candidates[] = getenv('HTTP_CLIENT_IP');
+        }
+        if (!empty($forwarded['cf_connecting_ip']) && getenv('HTTP_CF_CONNECTING_IP')) {
+            $candidates[] = getenv('HTTP_CF_CONNECTING_IP');
+        }
+        if (!empty($forwarded['ip'])) {
+            if (getenv('HTTP_X_FORWARDED_FOR')) {
+                $ips = array_map('trim', explode(',', getenv('HTTP_X_FORWARDED_FOR')));
+                $candidates[] = array_shift($ips);
+            }
+            if (getenv('HTTP_X_FORWARDED')) {
+                $candidates[] = getenv('HTTP_X_FORWARDED');
+            }
+            if (getenv('HTTP_FORWARDED_FOR')) {
+                $candidates[] = getenv('HTTP_FORWARDED_FOR');
+            }
+            if (getenv('HTTP_FORWARDED')) {
+                $candidates[] = getenv('HTTP_FORWARDED');
+            }
         }
 
-        return $ip;
+        foreach ($candidates as $candidate) {
+            if ($candidate && filter_var($candidate, FILTER_VALIDATE_IP)) {
+                return $candidate;
+            }
+        }
+
+        $remote = getenv('REMOTE_ADDR');
+
+        return $remote && filter_var($remote, FILTER_VALIDATE_IP) ? $remote : 'UNKNOWN';
     }
 
     /**
