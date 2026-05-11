@@ -1,67 +1,73 @@
+# v2.0.0-rc.3
+## 05/11/2026
+
+1. [](#bugfix)
+    * Fixed `bin/gpm` commands silently exiting with no error on a fresh Grav 2.0 + Admin install before any user accounts had been created ([#4079](https://github.com/getgrav/grav/issues/4079)).
+
 # v2.0.0-rc.2
 ## 05/08/2026
 
 1. [](#improved)
-    * Hardened the Twig `read_file()` function and refactored it into a shared helper, `Grav\Common\Helpers\FileReader::read()`. The helper restricts reads to Grav stream URIs (e.g. `theme://foo.md`), an allow-listed set of streams (`theme`, `themes`, `page`, `user-data` by default), an allow-listed set of text/content extensions (`md`, `markdown`, `txt`, `html`, `htm`, `json`, `csv`, `xml`, `svg` by default), and a configurable max file size (1 MB default). Traversal defence is a canonical-realpath containment check against the stream's resolved roots — immune to encoded-`..`, double-encoded-`..` and symlink tricks because every form of traversal collapses to a single absolute path. Tunable under `security.read_file.*` in `system/config/security.yaml`, with admin UI fields under Configuration → Security → Twig read_file. `read_file` is **off** the default Twig sandbox allowlist: theme `.html.twig` files are unsandboxed and can call it directly, but editor-authored page content cannot. From page content, use the `[read-file file="theme://..." /]` shortcode in shortcode-core ≥ 5.4.0, which goes through the same `FileReader` and so inherits the same constraints. ([grav-premium-issues#573](https://github.com/getgrav/grav-premium-issues/issues/573))
-    * All hardcoded English in core blueprints converted to `PLUGIN_ADMIN.*` translation keys — covers `system/blueprints/config/{security,system,scheduler}.yaml`, `pages/modular.yaml`, and the `flex/*` set. Twig sandbox + read_file help paragraphs were inline strings; scheduler labels were never i18n-ified at all. With the matching `grav-plugin-admin2 ≥ 2.0.0-rc.5` lang port, every blueprint label/help now translates correctly without admin classic installed.
+    * Hardened the Twig `read_file()` function with strict allow-lists for streams, file extensions, and a configurable max file size, all tunable under `security.read_file.*` and surfaced in the admin under Configuration → Security ([grav-premium-issues#573](https://github.com/getgrav/grav-premium-issues/issues/573)).
+    * All hardcoded English in core blueprints now uses `PLUGIN_ADMIN.*` translation keys, so admin labels and help text translate correctly even without admin classic installed.
 1. [](#bugfix)
-    * [security] Closed a sandbox hole that let editor-role users dump every plugin secret (SMTP passwords, API tokens, OAuth keys) by saving a page with Twig enabled and a one-line `config.toArray()` payload (GHSA-j274-39qw-32c9). Editor renders now see a filtered `config` facade that hides `plugins`, `streams`, `security`, `backups`, and `scheduler` by default; the list is configurable under `security.twig_sandbox.config_denied_paths`.
-    * Restored `addLoader()` on the Twig loader. In Grav 1.7 the loader returned by `$twig->getLoader()` was the bare `ChainLoader`; in Grav 2 it is wrapped by `Twig3CompatibilityLoader`, which proxied `addPath`/`prependPath`/`getPaths`/etc. but not `addLoader`. The Admin plugin (and any plugin doing `$twig->getLoader()->addLoader(new FilesystemLoader(...))`) was crashing with "Call to undefined method ...Twig3CompatibilityLoader::addLoader()". The compatibility loader now proxies `addLoader` through to the inner `ChainLoader`.
-    * Fixed a section title typo in `pages/partials/security.yaml` — `PLUGIN_ADMIN.PAGE PERMISSIONS` (space-in-key) is now `PLUGIN_ADMIN.PAGE_PERMISSIONS`. Affected the Page Permissions section header on per-page security tabs.
+    * [security] Closed a Twig sandbox hole that let editor-role users dump plugin secrets like SMTP passwords, API tokens, and OAuth keys via `config.toArray()` (GHSA-j274-39qw-32c9).
+    * Restored `addLoader()` on the Twig loader so plugins that extend Twig with their own loaders (including Admin) no longer crash on Grav 2.
+    * Fixed a typo in the Page Permissions section header on per-page security tabs.
 
 # v2.0.0-rc.1
 ## 05/04/2026
 
 1. [](#new)
-    * New `system.pages.order_digits` setting (default `2`) lets sites that use 3- or 4-digit folder prefixes — e.g. `005.about` — set the width once and have all admin/API page operations honor it.
+    * New `system.pages.order_digits` setting (default `2`) lets sites that use 3- or 4-digit folder prefixes (e.g. `005.about`) set the width once and have all admin and API page operations honor it.
 1. [](#bugfix)
-    * Editing and saving a page no longer rewrites its folder prefix to a different width. A page on disk as `005.about` stays `005.about` after save; previously it silently became `05.about`, which under flex pages produced a duplicate page rather than an in-place rename ([grav-plugin-admin#2492](https://github.com/getgrav/grav-plugin-admin/issues/2492)).
+    * Editing and saving a page no longer rewrites its folder prefix to a different width, which previously turned `005.about` into `05.about` and produced a duplicate page under flex pages ([grav-plugin-admin#2492](https://github.com/getgrav/grav-plugin-admin/issues/2492)).
 
 # v2.0.0-beta.4
 ## 04/29/2026
 
 1. [](#bugfix)
-    * [security] Extended default `uploads_dangerous_extensions` to include `md`, `yaml`, `yml`, `json`, `twig`, `ini` — page-content extensions that can be weaponised via permissive form-upload `accept` policies (GHSA-w4rc-p66m-x6qq, defense-in-depth alongside the Form 9.1.0 plugin fix).
+    * [security] Extended default `uploads_dangerous_extensions` to include `md`, `yaml`, `yml`, `json`, `twig`, and `ini`, blocking page-content extensions from being uploaded via permissive form `accept` policies (GHSA-w4rc-p66m-x6qq).
 
 # v2.0.0-beta.3
 ## 04/28/2026
 
 1. [](#improved)
-    * **Twig sandbox is now the sole layer of SSTI protection on editor-authored content — the legacy regex pre-filter has been retired.** With the sandbox stable in beta.2 (allowlist-based `Twig\Sandbox\SecurityPolicy` covering tags / filters / functions / methods / properties), the `security.twig_filter.*` blacklist + whitelist that pre-dated it served only as a logging fallback when the sandbox was disabled. Removed across the board: blueprint section + 6 fields (`twig_filter.enabled`, `logging`, `admin_hint`, `whitelist.{functions,filters,properties}`); the `twig_filter:` block in `system/config/security.yaml`; `Security::cleanDangerousTwig()` / `cleanDangerousTwigWithStatus()` / `getDangerousTwigPatterns()`; the `CALLABLE_DANGEROUS_NAMES` and `INTROSPECTION_NAMES` constants and their compiled-pattern caches; `Security::logTwigBlock()` / `twigWhitelistHint()` and the per-request dedup map; the three `Twig::process{Page,String,Site}` call sites that used to wrap content in the regex pass before handing it to Twig; and `tests/unit/Grav/Common/Security/CleanDangerousTwigTest.php`. The sandbox remains toggleable via `security.twig_sandbox.enabled` for sites that genuinely need container access from page content; the toggle now ships with an explicit warning that disabling it removes the only SSTI protection on editor-authored content. The admin-hint comment Twig appended after a filtered render moves with the rename: `appendTwigFilterAdminHint` → `appendSandboxAdminHint`, reading from the new `security.twig_sandbox.admin_hint` config (default `true`). Net effect: a single, clean enforcement layer; ~350 fewer lines of regex; one config story to document; the sandbox is what catches a violation, the sandbox is what logs it. No upgrade action needed — `security.twig_filter.*` keys in user yaml are silently ignored.
+    * Retired the legacy `security.twig_filter.*` regex pre-filter for editor-authored Twig; the Twig sandbox introduced in beta.2 is now the sole SSTI protection, toggleable via `security.twig_sandbox.enabled`, with no upgrade action needed.
 
 # v2.0.0-beta.2
 ## 04/25/2026
 
 1. [](#new)
-    * **NEW** Twig content sandbox — editor-authored page content now renders inside a Twig sandbox with an allowlist-based policy, blocking the whole class of SSTI attacks covered by recent advisories. Theme templates are unaffected.
-    * **NEW** Dedicated `logs/security.log` — every blocked Twig expression is logged with the page route and a hint pointing at the exact setting to change.
-    * **NEW** "Twig Sandbox" section in Admin → Configuration → Security, with toggles and editable allowlists for tags, filters, functions, methods and properties.
+    * **NEW** Twig content sandbox so editor-authored page content renders inside an allowlist-based Twig sandbox, blocking SSTI attacks while leaving theme templates unaffected.
+    * **NEW** Dedicated `logs/security.log` that records every blocked Twig expression with the page route and a hint pointing at the setting to change.
+    * **NEW** "Twig Sandbox" section under Admin → Configuration → Security with toggles and editable allowlists for tags, filters, functions, methods, and properties.
 1. [](#improved)
-    * Smarter dangerous-Twig filter — fixes false positives like `{{ page.header.user.mail }}` getting blocked because they happened to contain a dangerous function name.
-    * Soft-fail on sandbox violations — the rest of the page still renders, visitors see a small placeholder, admins see a pointer to the log entry.
-    * Escape hatch — the sandbox can be disabled from the admin UI (or YAML) if a site genuinely needs the old, unrestricted behaviour.
+    * Smarter dangerous-Twig filter that no longer flags safe expressions like `{{ page.header.user.mail }}` for containing a substring that matches a dangerous function name.
+    * Sandbox violations now soft-fail so the rest of the page still renders, with visitors seeing a small placeholder and admins seeing a pointer to the log entry.
+    * The sandbox can be disabled from the admin UI or YAML if a site genuinely needs the unrestricted behaviour.
 1. [](#bugfix)
-    * [security] Fixed unauthenticated path traversal in `FormFlash` (GHSA-hmcx-ch82-3fv2): `session_id` and `unique_id` now pass through a strict allowlist before being used to build on-disk paths, preventing arbitrary directory creation via the `__form-flash-id` parameter.
-    * [security] Fixed salt disclosure via sandboxed Twig (GHSA-3f29-pqwf-v4j4): the HMAC key used for CSRF nonces and admin rate-limit hashing has moved out of Config into `user/config/security-private.php` (blocked from web access by the default `user/*.php` htaccess rule), so `{{ grav.config.get('security.salt') }}` no longer leaks it. Existing sites are migrated automatically on first request — existing nonces and sessions survive the upgrade.
-    * [security] Hardened the new-user uniqueness guard in `UserObject::save` (GHSA-rr73-568v-28f8): `strpos(..., '@@')` replaced with `str_contains` (the old form was falsy when the transient-key marker was at position 0, silently bypassing the check) and the check now runs for every `FlexStorageInterface` backend rather than only `FileStorage`. A low-privileged user with `admin.users.create` can no longer disrupt a super-admin account by submitting the admin's username through the "add user" form.
-    * [security] Added HMAC integrity to `Framework\Cache\Adapter\FileCache` (GHSA-gwfr-jfjf-92vv): every cache payload is signed with `Security::getNonceKey()` on write and verified on read; tampered, attacker-planted, or pre-upgrade files are treated as cache misses and removed instead of being unserialized. The on-disk format is now versioned (`v2\n<expires>\n<key>\n<hmac>\n<serialized>`); existing caches rebuild transparently on first read.
-    * [security] Closed GHSA-vj3m-2g9h-vm4p (5-part advisory): (#1) `JobQueue` now HMAC-signs the `serialized_job` blob — a tampered queue file can no longer smuggle a forged `Job` for direct RCE via `Job::exec → call_user_func_array`; legitimate items still execute via the structured-fields fallback. (#3) `Session::getFlashObject` now wraps its payload in a versioned HMAC envelope, refusing to unserialize legacy/forged values. (#4) `InstallCommand` git-clone arguments (`branch`, `url`, `path` from `user/.dependencies`) now go through `escapeshellarg`, with a `--` separator before url/path to block option-injection. (#5) `twig_array_reduce` (plus `twig_array_some`/`twig_array_every`) added to `cleanDangerousTwig`'s callable blocklist alongside the existing `twig_array_map`/`filter`. (#2) was the same FileCache issue addressed by GHSA-gwfr above.
-    * [security] Tightened `Security::detectXss` `on_events` regex (GHSA-9695-8fr9-hw5q): the previous form required quotes/whitespace around the `=` sign and was bypassed by `<img onerror=alert(1)>`. Same fix knocks down the regex-bypass half of GHSA-c2q3-p4jr-c55f and GHSA-w8cg-7jcj-4vv2.
-    * [security] Added `svg`, `math`, `option`, `select` to default `security.xss_dangerous_tags` (GHSA-w8cg-7jcj-4vv2, GHSA-c2q3-p4jr-c55f) — XML-namespace tags that allow inline scripting plus the select-context break used to escape admin form templates.
-    * [security] `MediaObjectTrait::attribute()` now gates the attribute name through a strict identifier regex + denylist (`on*`, `style`, `xmlns`, `srcdoc`, `formaction`) so a Markdown image like `![alt](img.gif?attribute=onload,alert(1))` no longer injects an event handler onto the rendered tag (GHSA-r7fx-8g49-7hhr).
-    * [security] Hardened SVG dimension reading in `VectorImageMedium` against XXE / billion-laughs (GHSA-3446-6mgw-f79p): DOCTYPE/ENTITY declarations are stripped before parse and `simplexml_load_string` is now called with `LIBXML_NONET` (and `libxml_disable_entity_loader` for PHP < 8). The companion fix lives in rhukster/dom-sanitizer for SVG sanitization paths.
-    * [security] `Installer::unZip` now pre-validates every archive entry and refuses Zip Slip primitives — `..` segments, absolute paths, Windows drive letters, NUL bytes (GHSA-w48r-jppp-rcfw). Note: this hardens the path layer only; a well-formed but malicious plugin whose own PHP code is the payload remains a "trust the source" problem when using directInstall.
+    * [security] Fixed unauthenticated path traversal in `FormFlash` so the `__form-flash-id` parameter can no longer be used to create arbitrary directories on disk (GHSA-hmcx-ch82-3fv2).
+    * [security] Moved the HMAC key for CSRF nonces and admin rate-limit hashing out of Config and into `user/config/security-private.php` so it can no longer leak through sandboxed Twig; existing sessions and nonces survive the upgrade (GHSA-3f29-pqwf-v4j4).
+    * [security] Hardened the new-user uniqueness check so a low-privileged user with `admin.users.create` can no longer disrupt a super-admin account by reusing its username on the add-user form (GHSA-rr73-568v-28f8).
+    * [security] Added HMAC integrity to file-based cache entries so tampered or attacker-planted cache files are treated as misses and removed instead of being deserialized; existing caches rebuild transparently on first read (GHSA-gwfr-jfjf-92vv).
+    * [security] Closed a five-part advisory covering tampered job queues, forged session flash payloads, shell-injection in `bin/gpm install` git arguments, and additional Twig callables added to the dangerous-Twig blocklist (GHSA-vj3m-2g9h-vm4p).
+    * [security] Tightened the XSS detector's `on*` event-handler regex so attributes without quotes or whitespace around `=` (e.g. `<img onerror=alert(1)>`) are no longer missed (GHSA-9695-8fr9-hw5q, GHSA-c2q3-p4jr-c55f, GHSA-w8cg-7jcj-4vv2).
+    * [security] Added `svg`, `math`, `option`, and `select` to default `security.xss_dangerous_tags` to block XML-namespace inline scripting and the select-context escape used against admin form templates (GHSA-w8cg-7jcj-4vv2, GHSA-c2q3-p4jr-c55f).
+    * [security] Markdown images can no longer inject event-handler attributes via `?attribute=onload,…` query strings; attribute names now pass a strict identifier check and denylist (GHSA-r7fx-8g49-7hhr).
+    * [security] Hardened SVG dimension reading against XXE and billion-laughs attacks by stripping DOCTYPE/ENTITY declarations before parse and parsing with `LIBXML_NONET` (GHSA-3446-6mgw-f79p).
+    * [security] `Installer::unZip` now refuses Zip Slip archive entries (paths containing `..`, absolute paths, Windows drive letters, or NUL bytes) before extraction (GHSA-w48r-jppp-rcfw).
 
 # v2.0.0-beta.1
 ## 04/16/2026
 
 1. [](#new)
-    * Rebrand 1.8-beta as 2.0-beta
-    * **NEW** Quark2 theme fro Grav 2.0
-    * **NEW** Migrate Grav plugin required to get from 1.x to 2.0
-    * **NEW** API support plugin support required for Admin2
-    * **NEW** Admin2 is the new default Admin for Grav 2.0
-    * Moved to Github Markdown Alerts over Markdown Notices
+    * Rebranded 1.8-beta as 2.0-beta.
+    * **NEW** Quark2 theme for Grav 2.0.
+    * **NEW** Migrate Grav plugin required to upgrade from 1.x to 2.0.
+    * **NEW** API plugin now required to support Admin 2.0.
+    * **NEW** Admin 2.0 is the new default admin for Grav 2.0.
+    * Switched from Markdown Notices to GitHub Markdown Alerts.
 
 # v1.8.0-beta.30
 ## 04/15/2026
