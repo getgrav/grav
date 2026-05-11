@@ -53,6 +53,7 @@ use Grav\Framework\RequestHandler\RequestHandler;
 use Grav\Framework\Route\Route;
 use Grav\Framework\Session\Messages;
 use InvalidArgumentException;
+use RuntimeException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use RocketTheme\Toolbox\Event\Event;
@@ -345,6 +346,16 @@ class Grav extends Container
      */
     public function close(ResponseInterface $response): void
     {
+        // In CLI, throw instead of exit() so commands can report the problem
+        // rather than terminate silently. A plugin calling redirect()/close()
+        // during a console command (e.g. inside onPluginsInitialized) would
+        // otherwise kill the process with no error visible to the user.
+        if (\PHP_SAPI === 'cli') {
+            $location = $response->getHeaderLine('Location');
+            $detail = $location !== '' ? " (redirect to {$location})" : '';
+            throw new RuntimeException("Grav::close() called in CLI context{$detail}");
+        }
+
         $this->cleanOutputBuffers();
 
         // Close the session.
