@@ -5,6 +5,7 @@
     * [security] Hardened client-IP resolution against forwarded-header spoofing: every `X-Forwarded-*`, `CF-Connecting-IP`, and `Client-IP` header is now opt-in via its own `system.http_x_forwarded.*` toggle (defaults all `false` in 2.0), with `FILTER_VALIDATE_IP` enforced on the result ([#4078](https://github.com/getgrav/grav/issues/4078)).
 1. [](#bugfix)
     * Fixed `bin/gpm` commands silently exiting with no error on a fresh Grav 2.0 + Admin install before any user accounts had been created ([#4079](https://github.com/getgrav/grav/issues/4079)).
+    * Fixed JIT stack exhaustion in `Twig3CompatibilityTransformer` when processing content with many Unicode characters (e.g. middle-dots), caused by catastrophic backtracking in the negative-lookahead regex of `rewriteSameAsTests`, `rewriteDivisibleByTests`, and `rewriteNoneTests` ([#4015](https://github.com/getgrav/grav/issues/4015)).
 
 # v2.0.0-rc.2
 ## 05/08/2026
