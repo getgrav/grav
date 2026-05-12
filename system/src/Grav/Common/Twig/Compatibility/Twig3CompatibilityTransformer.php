@@ -138,17 +138,23 @@ class Twig3CompatibilityTransformer
 
     private function rewriteSameAsTests(string $code): string
     {
-        $pattern = '/([\'"])(?:\\\\.|(?!\\1).)*\\1|\\bis\\s+(?:not\\s+)?sameas\\b/is';
+        // Use possessive quantifiers (*+) to prevent catastrophic backtracking
+        // that can cause JIT stack exhaustion with certain Unicode content.
+        // Pattern matches: single-quoted strings | double-quoted strings | (keyword to replace)
+        $pattern = '/\'[^\'\\\\]*+(?:\\\\.[^\'\\\\]*+)*+\'|"[^"\\\\]*+(?:\\\\.[^"\\\\]*+)*+"|(\\bis\\s+(?:not\\s+)?sameas\\b)/is';
 
-        return (string) preg_replace_callback($pattern, static function ($matches) {
-            // If group 1 is not set, it means 'is sameas' was matched.
-            if (!isset($matches[1])) {
-                return str_ireplace('sameas', 'same as', $matches[0]);
+        $result = preg_replace_callback($pattern, static function ($matches) {
+            // Group 1 captures the keyword when matched (not inside a quoted string)
+            if (isset($matches[1]) && $matches[1] !== '') {
+                return str_ireplace('sameas', 'same as', $matches[1]);
             }
 
             // Otherwise, it's a quoted string, so return it as is.
             return $matches[0];
         }, $code);
+
+        // Fall back to original content on regex failure
+        return $result ?? $code;
     }
 
     private function rewriteReplaceFilterSignatures(string $code): string
@@ -188,32 +194,42 @@ class Twig3CompatibilityTransformer
 
     private function rewriteDivisibleByTests(string $code): string
     {
-        $pattern = '/([\'"])(?:\\\\.|(?!\\1).)*\\1|\\bis\\s+(?:not\\s+)?divisibleby\\b/is';
+        // Use possessive quantifiers (*+) to prevent catastrophic backtracking
+        // that can cause JIT stack exhaustion with certain Unicode content.
+        $pattern = '/\'[^\'\\\\]*+(?:\\\\.[^\'\\\\]*+)*+\'|"[^"\\\\]*+(?:\\\\.[^"\\\\]*+)*+"|(\\bis\\s+(?:not\\s+)?divisibleby\\b)/is';
 
-        return (string) preg_replace_callback($pattern, static function ($matches) {
-            // If group 1 is not set, it means 'is divisibleby' was matched.
-            if (!isset($matches[1])) {
-                return str_ireplace('divisibleby', 'divisible by', $matches[0]);
+        $result = preg_replace_callback($pattern, static function ($matches) {
+            // Group 1 captures the keyword when matched (not inside a quoted string)
+            if (isset($matches[1]) && $matches[1] !== '') {
+                return str_ireplace('divisibleby', 'divisible by', $matches[1]);
             }
 
             // Otherwise, it's a quoted string, so return it as is.
             return $matches[0];
         }, $code);
+
+        // Fall back to original content on regex failure
+        return $result ?? $code;
     }
 
     private function rewriteNoneTests(string $code): string
     {
-        $pattern = '/([\'"])(?:\\\\.|(?!\\1).)*\\1|\\bis\\s+(?:not\\s+)?none\\b/is';
+        // Use possessive quantifiers (*+) to prevent catastrophic backtracking
+        // that can cause JIT stack exhaustion with certain Unicode content.
+        $pattern = '/\'[^\'\\\\]*+(?:\\\\.[^\'\\\\]*+)*+\'|"[^"\\\\]*+(?:\\\\.[^"\\\\]*+)*+"|(\\bis\\s+(?:not\\s+)?none\\b)/is';
 
-        return (string) preg_replace_callback($pattern, static function ($matches) {
-            // If group 1 is not set, it means 'is none' was matched.
-            if (!isset($matches[1])) {
-                return str_ireplace('none', 'null', $matches[0]);
+        $result = preg_replace_callback($pattern, static function ($matches) {
+            // Group 1 captures the keyword when matched (not inside a quoted string)
+            if (isset($matches[1]) && $matches[1] !== '') {
+                return str_ireplace('none', 'null', $matches[1]);
             }
 
             // Otherwise, it's a quoted string, so return it as is.
             return $matches[0];
         }, $code);
+
+        // Fall back to original content on regex failure
+        return $result ?? $code;
     }
 
     private function ensureWrapped(string $expression): string
