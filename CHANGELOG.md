@@ -1,5 +1,5 @@
 # v2.0.0-rc.3
-## 05/11/2026
+## 05/13/2026
 
 1. [](#improved)
     * [security] Hardened client-IP resolution against forwarded-header spoofing: every `X-Forwarded-*`, `CF-Connecting-IP`, and `Client-IP` header is now opt-in via its own `system.http_x_forwarded.*` toggle (defaults all `false` in 2.0), with `FILTER_VALIDATE_IP` enforced on the result ([#4078](https://github.com/getgrav/grav/issues/4078)).
