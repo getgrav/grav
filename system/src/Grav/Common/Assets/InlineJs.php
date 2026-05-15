@@ -26,7 +26,6 @@ class InlineJs extends BaseAsset
     {
         $base_options = [
             'asset_type' => 'js',
-            'position' => 'after'
         ];
 
         $merged_attributes = Utils::arrayMergeRecursiveUnique($base_options, $elements);

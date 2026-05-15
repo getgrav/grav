@@ -555,6 +555,28 @@ class AssetsTest extends \Codeception\TestCase\Test
         self::assertSame('<link href="/test-before.css" type="text/css" rel="stylesheet">' . PHP_EOL .
             '<link href="/test.css" type="text/css" rel="stylesheet">' . PHP_EOL .
             '<link href="/test-after.css" type="text/css" rel="stylesheet">' . PHP_EOL, $css);
+
+        //----------------
+        $this->assets->reset();
+        $inline1 = "console.log('position 1');";
+        $inline2 = "console.log('position 4');";
+        $this->assets->addInlineJs($inline1, 100);
+        $this->assets->add('position2.js', 90);
+        $this->assets->add('position3.js', 80);
+        $this->assets->addInlineJs($inline2, 70);
+        $this->assets->add('position5.js', 60);
+
+        $js = $this->assets->js();
+        $expectedLines = [
+            '<script>', $inline1, '</script>',
+            '<script src="/position2.js"></script>',
+            '<script src="/position3.js"></script>',
+            '<script>', $inline2, '</script>',
+            '<script src="/position5.js"></script>',
+            ];
+        $expected = implode(PHP_EOL, $expectedLines) . PHP_EOL;
+        self::assertSame($expected, $js);
+
     }
 
     public function testPipeline(): void
