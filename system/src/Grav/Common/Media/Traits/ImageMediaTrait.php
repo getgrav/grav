@@ -183,6 +183,9 @@ trait ImageMediaTrait
                 $derivative->resize($width, $height);
                 $derivative->set('width', $width);
                 $derivative->set('height', $height);
+                if ($base->format !== 'guess') {
+                    $derivative->format($base->format);
+                }
 
                 $this->addAlternative($ratio, $derivative);
             }
