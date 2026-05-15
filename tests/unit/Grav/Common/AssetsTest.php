@@ -565,12 +565,12 @@ class AssetsTest extends \Codeception\TestCase\Test
         $this->assets->add('test.css', null, true);
         $this->assets->setCssPipeline(true);
         $css = $this->assets->css();
-        self::assertRegExp('#<link href=\"\/assets\/(.*).css\" type=\"text\/css\" rel=\"stylesheet\">#', $css);
+        self::assertRegExp('#<link href=\"\/run\/assets\/(.*).css\" type=\"text\/css\" rel=\"stylesheet\">#', $css);
 
         //Add a core Grav CSS file, which is found. Pipeline will now return a file
         $this->assets->add('/system/assets/debugger/phpdebugbar', null, true);
         $css = $this->assets->css();
-        self::assertRegExp('#<link href=\"\/assets\/(.*).css\" type=\"text\/css\" rel=\"stylesheet\">#', $css);
+        self::assertRegExp('#<link href=\"\/run\/assets\/(.*).css\" type=\"text\/css\" rel=\"stylesheet\">#', $css);
     }
 
     public function testPipelineWithTimestamp(): void
@@ -582,7 +582,7 @@ class AssetsTest extends \Codeception\TestCase\Test
         //Add a core Grav CSS file, which is found. Pipeline will now return a file
         $this->assets->add('/system/assets/debugger.css', null, true);
         $css = $this->assets->css();
-        self::assertRegExp('#<link href=\"\/assets\/(.*).css\?foo\" type=\"text\/css\" rel=\"stylesheet\">#', $css);
+        self::assertRegExp('#<link href=\"\/run\/assets\/(.*).css\?foo\" type=\"text\/css\" rel=\"stylesheet\">#', $css);
     }
 
     public function testInline(): void
