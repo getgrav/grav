@@ -92,6 +92,8 @@ class Page implements PageInterface
     protected $url;
     /** @var array */
     protected $routes;
+    /** @var array */
+    protected $languageRoutes;
     /** @var bool */
     protected $routable;
     /** @var int */
@@ -1964,6 +1966,54 @@ class Page implements PageInterface
     }
 
     /**
+     * @param string|null $language
+     * @return string
+     */
+    public function languageRoute(?string $language = null): string
+    {
+        if ($language === null || !array_key_exists($language, $this->translatedLanguages())) {
+            return $this->route();
+        }
+
+        if (!empty($this->languageRoutes[$language])) {
+            return $this->languageRoutes[$language];
+        }
+
+        $currentLanguage = trim(basename($this->extension, 'md'), '.') ?: null;
+
+        if ($language === $currentLanguage) {
+            return $this->route();
+        }
+
+        $excludeLanguage = false;
+        $defaultLanguage = Grav::instance()['language']->getDefault();
+
+        if ($language === $defaultLanguage) {
+            $includeDefaultLanguage = (bool)Grav::instance()['config']->get('system.languages.include_default_lang_file_extension');
+            $excludeLanguage = !$includeDefaultLanguage;
+        }
+
+        $path = sprintf('%1$s%2$s%3$s%2$s', $this->path, DS, $this->folder);
+        $name = str_replace(
+            sprintf('.%s.md', $currentLanguage),
+            $excludeLanguage ? '.md' : sprintf('.%s.md', $language),
+            $this->name
+        );
+
+        $filePath = sprintf('%s%s', $path, $name);
+
+        if (file_exists($filePath)) {
+            $page = new Page();
+            $page->parent(new Page());
+            $page->init(new \SplFileInfo($filePath));
+
+            return $page->route();
+        }
+
+        return $this->route();
+    }
+
+    /**
      * Helper method to clear the route out so it regenerates next time you use it
      */
     public function unsetRouteSlug()
@@ -2044,7 +2094,7 @@ class Page implements PageInterface
     {
         if (null === $this->id) {
             // We need to set unique id to avoid potential cache conflicts between pages.
-            $var = time() . md5($this->filePath());
+            $var = $var ?? time() . md5($this->filePath());
         }
         if ($var !== null) {
             // store unique per language
