@@ -53,10 +53,9 @@ form:
               type: checkboxes
               label: PLUGIN_ADMIN.PROCESS
               help: PLUGIN_ADMIN.PROCESS_HELP
-              default: [markdown: true, twig: true]
+              default: [markdown: true]
               options:
                 markdown: Markdown
-                twig: Twig
               use: keys
 
             pages.types:

@@ -309,7 +309,23 @@ class Security
         $methods    = self::normalizeMethodsMap($config->get('security.twig_sandbox.allowed_methods', []), true);
         $properties = self::normalizeMethodsMap($config->get('security.twig_sandbox.allowed_properties', []), false);
 
-        $cacheKey = md5(serialize([$tags, $filters, $functions, $methods, $properties]));
+        // security.twig_content.config_access also closes the `grav.config`
+        // back-door: with the toggle off, the injected `config` variable is a
+        // deny-all SandboxConfig (handled in Twig::buildSandboxConfig), but
+        // `grav.config` and `grav['config']` still resolve to the raw Config
+        // service. Strip the Config and Data class entries from the sandbox's
+        // method allowlist so any reach into the raw container soft-fails via
+        // SecurityError instead of leaking values. The SandboxConfig class
+        // entry stays — that's the variable editors are meant to read.
+        $configAccess = (bool) $config->get('security.twig_content.config_access', false);
+        if (!$configAccess) {
+            unset(
+                $methods['Grav\\Common\\Config\\Config'],
+                $methods['Grav\\Common\\Data\\Data']
+            );
+        }
+
+        $cacheKey = md5(serialize([$tags, $filters, $functions, $methods, $properties, $configAccess]));
         if (self::$twigSandboxPolicy !== null && self::$twigSandboxPolicyKey === $cacheKey) {
             return self::$twigSandboxPolicy;
         }
@@ -358,6 +374,84 @@ class Security
                     'route' => $route,
                     'extra' => $extra,
                     'hint' => $hint,
+                ]
+            );
+        } catch (Exception) {
+            // Never let a logging failure break rendering.
+        }
+    }
+
+    /**
+     * Options resolver for the `header.process` checkboxes field in the page
+     * editor blueprint. Removes the `twig` checkbox when either the master
+     * gate is off or the current user lacks permission to enable Twig in
+     * content. Wired via `data-options@` in system/blueprints/pages/default.yaml.
+     *
+     * Visibility rules (any failure → twig option omitted):
+     *   - security.twig_content.process_enabled must be true
+     *   - security.twig_content.editor_enabled must be true OR the current
+     *     user must hold `admin.super` or `admin.pages_twig`
+     *
+     * @return array<string,string>
+     */
+    public static function pageProcessOptions(): array
+    {
+        $options = ['markdown' => 'Markdown'];
+
+        try {
+            $grav = Grav::instance();
+            /** @var Config $config */
+            $config = $grav['config'];
+
+            if ((bool) $config->get('security.twig_content.process_enabled', false) === false) {
+                return $options;
+            }
+
+            if ((bool) $config->get('security.twig_content.editor_enabled', false) === true) {
+                $options['twig'] = 'Twig';
+                return $options;
+            }
+
+            $user = $grav['user'] ?? null;
+            if ($user !== null && (
+                $user->authorize('admin.super') === true
+                || $user->authorize('admin.pages_twig') === true
+            )) {
+                $options['twig'] = 'Twig';
+            }
+        } catch (Exception) {
+            // Conservative default: markdown only.
+        }
+
+        return $options;
+    }
+
+    /**
+     * Log when the security.twig_content.process_enabled gate blocks page-content
+     * Twig processing. Called from Page::content() and Page::processFrontmatter()
+     * paths. Deduped per-route per-request so a single page render emits one entry.
+     */
+    public static function logTwigContentGateBlocked(string $route, string $source = 'content'): void
+    {
+        try {
+            $grav = Grav::instance();
+            if (!$grav->offsetExists('log.security')) {
+                return;
+            }
+
+            static $logged = [];
+            $key = $source . '|' . $route;
+            if (isset($logged[$key])) {
+                return;
+            }
+            $logged[$key] = true;
+
+            $grav['log.security']->warning(
+                sprintf('[TwigContentGate] blocked source=%s route=%s', $source, $route),
+                [
+                    'source' => $source,
+                    'route'  => $route,
+                    'hint'   => 'Enable security.twig_content.process_enabled to allow Twig processing in page content.',
                 ]
             );
         } catch (Exception) {

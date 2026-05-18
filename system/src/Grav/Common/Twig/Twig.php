@@ -578,16 +578,30 @@ class Twig
 
     /**
      * Build the read-only Config facade that replaces the `config` Twig
-     * variable inside sandboxed renders. The denied-path list is read from
-     * `security.twig_sandbox.config_denied_paths` on every call so admins
-     * can tighten the filter at runtime without rebuilding the Twig
-     * environment.
+     * variable inside sandboxed renders.
+     *
+     * Two modes, controlled by `security.twig_content.config_access`:
+     *   - false (default) — the entire config tree is denied. Every read
+     *     returns its supplied default; `toArray()` returns `[]`. This is
+     *     the safest mode for editor-authored content.
+     *   - true — only the prefixes listed in
+     *     `security.twig_sandbox.config_denied_paths` are denied.
+     *
+     * Both lists are read on every call so admins can tighten the filter at
+     * runtime without rebuilding the Twig environment.
      */
     private function buildSandboxConfig(): SandboxConfig
     {
         /** @var Config $config */
         $config = $this->grav['config'];
-        $denied = (array) $config->get('security.twig_sandbox.config_denied_paths', []);
+
+        if ((bool) $config->get('security.twig_content.config_access', false) === false) {
+            // Deny every top-level subtree → `config` is effectively empty.
+            $denied = array_keys($config->toArray());
+        } else {
+            $denied = (array) $config->get('security.twig_sandbox.config_denied_paths', []);
+        }
+
         return new SandboxConfig($config, $denied);
     }
 

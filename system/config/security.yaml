@@ -66,14 +66,40 @@ uploads_dangerous_extensions:
   - twig
   - ini
 sanitize_svg: true
-# Twig sandbox for editor-authored page content. Applies to Twig::processPage()
-# and Twig::processString() — theme templates on disk are unaffected. When
-# enabled, page-content Twig is parsed inside an allowlist-based SecurityPolicy
-# (tags / filters / functions / methods / properties below); violations soft-fail
-# with a placeholder + a logs/security.log entry. Disabling removes the only
-# layer of SSTI protection on editor-authored content — any site member with
-# page-edit access (or anyone who compromises the file system) can execute
-# arbitrary PHP via Twig.
+# Twig in Content — gate for editor-authored Twig inside page content.
+# Applies to Twig::processPage() and Twig::processString(). Theme templates
+# on disk are unaffected by these settings.
+#
+# Three layers, evaluated in order:
+#
+#   1. twig_content.process_enabled — the master gate. If false, page-content
+#      Twig is not parsed at all. `process: { twig: true }` in frontmatter
+#      and `system.pages.frontmatter.process_twig` in system.yaml are both
+#      ignored. Default false on fresh 2.0 installs — sites that need Twig
+#      in content must opt in.
+#   2. twig_sandbox.enabled — when the gate is open, restricts what page-
+#      content Twig can do (allowlisted tags / filters / functions / methods
+#      / properties below). Violations soft-fail with a placeholder + a
+#      logs/security.log entry. Disabling the sandbox removes the only layer
+#      of SSTI protection on editor-authored content — any site member with
+#      page-edit access (or anyone who compromises the file system) can
+#      execute arbitrary PHP via Twig.
+#   3. twig_sandbox.config_denied_paths — when the sandbox is on and
+#      twig_content.config_access is true, redacts specific config subtrees
+#      from the `config` Twig variable.
+#
+# twig_content.editor_enabled: when false (default), only users with the
+# `admin.pages_twig` permission can toggle `process: twig` in the page
+# editor. When true, anyone with page-edit access can.
+#
+# twig_content.config_access: when false (default), the `config` Twig
+# variable is empty inside sandboxed renders. When true, `config` is the
+# SandboxConfig facade with config_denied_paths redaction applied.
+twig_content:
+  process_enabled: false
+  editor_enabled: false
+  config_access: false
+
 twig_sandbox:
   enabled: true
   logging: true

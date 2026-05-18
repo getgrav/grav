@@ -25,6 +25,7 @@ use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Media\Traits\MediaTrait;
 use Grav\Common\Page\Markdown\Excerpts;
 use Grav\Common\Page\Traits\PageFormTrait;
+use Grav\Common\Security;
 use Grav\Common\Twig\Twig;
 use Grav\Common\Uri;
 use Grav\Common\Utils;
@@ -425,9 +426,17 @@ class Page implements PageInterface
                             $frontmatter_file->free();
                         }
 
-                        // Process frontmatter with Twig if enabled
+                        // Process frontmatter with Twig if enabled. The
+                        // security.twig_content.process_enabled master gate must
+                        // also be on — frontmatter values run through
+                        // Twig::processString() which is the same SSTI surface
+                        // as page-content Twig.
                         if (Grav::instance()['config']->get('system.pages.frontmatter.process_twig') === true) {
-                            $this->processFrontmatter();
+                            if (Grav::instance()['config']->get('security.twig_content.process_enabled', false) === true) {
+                                $this->processFrontmatter();
+                            } else {
+                                Security::logTwigContentGateBlocked((string) ($this->route() ?? $this->filePath() ?? 'unknown'), 'frontmatter');
+                            }
                         }
                     }
                 } catch (Exception $e) {
@@ -768,7 +777,17 @@ class Page implements PageInterface
 
 
             $process_markdown = $this->shouldProcess('markdown');
-            $process_twig = $this->shouldProcess('twig') || $this->modularTwig();
+
+            // security.twig_content.process_enabled gates editor-authored Twig
+            // in page content. modularTwig() is theme-controlled (modular
+            // templates render their own children with Twig) and stays
+            // unconditionally enabled. See system/config/security.yaml.
+            $content_twig_requested = $this->shouldProcess('twig');
+            $content_twig_allowed = (bool) $config->get('security.twig_content.process_enabled', false);
+            if ($content_twig_requested && !$content_twig_allowed) {
+                Security::logTwigContentGateBlocked((string) ($this->route() ?? $this->filePath() ?? 'unknown'), 'content');
+            }
+            $process_twig = ($content_twig_requested && $content_twig_allowed) || $this->modularTwig();
 
             $cache_enable = $this->header->cache_enable ?? $config->get(
                 'system.cache.enabled',

@@ -218,9 +218,7 @@ form:
                   default:
                     markdown: true
                     twig: false
-                  options:
-                    markdown: Markdown
-                    twig: Twig
+                  data-options@: '\Grav\Common\Security::pageProcessOptions'
                   use: keys
 
                 header.twig_first:
