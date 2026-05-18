@@ -1,3 +1,9 @@
+# v2.0.0-rc.4
+## 05/17/2026
+
+1. [](#improved)
+    * Refreshed the `bin/grav clean` distribution-trim list for Grav 2.0: stripped stale entries for packages no longer shipped (Gregwar Image/Cache, MaximeBF DebugBar, MatthiasMullie Minify, PHIVE Twig Extensions Deferred, monolithic Symfony Contracts, Swiftmailer, Antimatter theme, Admin Classic vendor bundles) and added coverage for the new ones (Getgrav Image, Multiavatar, Tubalmartin CSSMin, Tedivm JShrink, PHP-DebugBar, Doctrine Deprecations, PSR Event Dispatcher, and the split Symfony Cache / String / Var-Exporter / Polyfill packages), shrinking the release zip and incidentally clearing a Sanesecurity `phpcomment.UNOFFICIAL` antivirus false positive against a test fixture image ([#4088](https://github.com/getgrav/grav/issues/4088)).
+
 # v2.0.0-rc.3
 ## 05/13/2026
 
