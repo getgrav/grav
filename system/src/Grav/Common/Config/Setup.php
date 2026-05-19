@@ -258,7 +258,37 @@ class Setup extends Data
 
         // Set up environment.
         $this->def('environment', static::$environment);
-        $this->def('streams.schemes.environment.prefixes', ['' => [$envPath]]);
+
+        // Refuse to register a non-existent per-host env folder as a writable
+        // stream target. A multi-site config save that reaches the server with
+        // a hostname variant the operator never set up (e.g. bare host vs.
+        // `www.`, mismatched proxy headers) would otherwise materialize a
+        // brand-new `user/env/<host>/` directory and divert writes there.
+        // The dir must already exist on disk to be a valid env target — same
+        // invariant the Grav 1.7 admin enforced via `findResource()`.
+        $envAbsolute = $this->resolveEnvAbsolutePath($envPath);
+        if ($envAbsolute !== null && !is_dir($envAbsolute)) {
+            $this->def('streams.schemes.environment.prefixes', ['' => []]);
+        } else {
+            $this->def('streams.schemes.environment.prefixes', ['' => [$envPath]]);
+        }
+    }
+
+    /**
+     * Resolve a configured env path to an absolute filesystem path for an
+     * is_dir() check. Returns null when the path uses a stream other than
+     * `user://` (custom GRAV_ENVIRONMENT_PATH) — those are trusted as-is and
+     * cleaned up later by check() if missing.
+     */
+    private function resolveEnvAbsolutePath(string $envPath): ?string
+    {
+        if (str_starts_with($envPath, 'user://')) {
+            return GRAV_WEBROOT . '/' . GRAV_USER_PATH . '/' . substr($envPath, 7);
+        }
+        if (str_starts_with($envPath, '/')) {
+            return $envPath;
+        }
+        return null;
     }
 
     /**
@@ -371,29 +401,29 @@ class Setup extends Data
         }
 
         try {
-            // If environment is found, remove all missing override locations (B/C compatibility).
-            if ($locator->findResource('environment://', true)) {
-                $force = $this->get('streams.schemes.environment.force', false);
-                if (!$force) {
-                    $prefixes = $this->get('streams.schemes.environment.prefixes.');
-                    $update = false;
-                    foreach ($prefixes as $i => $prefix) {
-                        if ($locator->isStream($prefix)) {
-                            if ($locator->findResource($prefix, true)) {
-                                break;
-                            }
-                        } elseif (file_exists($prefix)) {
+            // Strip missing override locations from environment://. Runs even when the env
+            // dir itself does not exist on disk, otherwise the stale prefix lingers and a
+            // later write (e.g. config save under a hostname variant) materializes the dir.
+            $force = $this->get('streams.schemes.environment.force', false);
+            if (!$force) {
+                $prefixes = $this->get('streams.schemes.environment.prefixes.');
+                $update = false;
+                foreach ($prefixes as $i => $prefix) {
+                    if ($locator->isStream($prefix)) {
+                        if ($locator->findResource($prefix, true)) {
                             break;
                         }
-
-                        unset($prefixes[$i]);
-                        $update = true;
+                    } elseif (file_exists($prefix)) {
+                        break;
                     }
 
-                    if ($update) {
-                        $this->set('streams.schemes.environment.prefixes', ['' => array_values($prefixes)]);
-                        $this->initializeLocator($locator);
-                    }
+                    unset($prefixes[$i]);
+                    $update = true;
+                }
+
+                if ($update) {
+                    $this->set('streams.schemes.environment.prefixes', ['' => array_values($prefixes)]);
+                    $this->initializeLocator($locator);
                 }
             }
 
