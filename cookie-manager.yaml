@@ -1,0 +1,22 @@
+name: cookie-manager
+slug: cookie-manager
+type: plugin
+
+version: 1.0.0
+
+icon: shield
+
+github:
+  url: https://github.com/DevSynthAC/grav-plugin-cookie-manager
+
+homepage: https://github.com/DevSynthAC/grav-plugin-cookie-manager
+
+demo: null
+
+keywords: grav, plugin, cookie, consent, analytics, gdpr
+
+bugs: https://github.com/DevSynthAC/grav-plugin-cookie-manager/issues
+
+license: MIT
+
+description: Advanced customizable cookie consent manager plugin for Grav CMS with Google Analytics integration, configurable durations, dynamic layouts, and responsive UI.
