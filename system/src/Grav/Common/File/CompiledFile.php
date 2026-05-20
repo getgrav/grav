@@ -197,11 +197,13 @@ trait CompiledFile
      */
     public function __sleep()
     {
+        // Intentionally omit 'raw' and 'content' so a serialized
+        // CompiledFile (e.g. stored inside the session user) does not
+        // freeze a stale snapshot of the file's data across requests.
+        // The compiled cache on disk + opcache make re-reading cheap.
         return [
             'filename',
             'extension',
-            'raw',
-            'content',
             'settings'
         ];
     }
@@ -211,6 +213,15 @@ trait CompiledFile
      */
     public function __wakeup()
     {
+        // Drop any data fields carried over from an older session blob.
+        // The current __sleep no longer serializes raw/content, but
+        // existing sessions written by older code can still restore
+        // stale data here and would otherwise short-circuit the cache
+        // re-read in content(), making admin permission changes invisible
+        // until the session is destroyed.
+        $this->raw = null;
+        $this->content = null;
+
         if (!isset(static::$instances[$this->filename])) {
             static::$instances[$this->filename] = $this;
         }

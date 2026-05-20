@@ -1,5 +1,5 @@
 # v2.0.0-rc.4
-## 05/18/2026
+## 05/19/2026
 
 1. [](#new)
     * [security] Twig processing in page content is now off by default and configurable under Configuration > Security > Twig in Content, with separate toggles for enabling it site-wide, letting trusted editors turn it on per page, and exposing the `config` variable to sandboxed renders. Pages that used Twig on the source site are detected during migration and the gate is flipped back on automatically.
@@ -7,6 +7,7 @@
     * Refreshed the `bin/grav clean` distribution-trim list for Grav 2.0: stripped stale entries for packages no longer shipped (Gregwar Image/Cache, MaximeBF DebugBar, MatthiasMullie Minify, PHIVE Twig Extensions Deferred, monolithic Symfony Contracts, Swiftmailer, Antimatter theme, Admin Classic vendor bundles) and added coverage for the new ones (Getgrav Image, Multiavatar, Tubalmartin CSSMin, Tedivm JShrink, PHP-DebugBar, Doctrine Deprecations, PSR Event Dispatcher, and the split Symfony Cache / String / Var-Exporter / Polyfill packages), shrinking the release zip and incidentally clearing a Sanesecurity `phpcomment.UNOFFICIAL` antivirus false positive against a test fixture image ([#4088](https://github.com/getgrav/grav/issues/4088)).
 1. [](#bugfix)
     * Fixed a multi-site issue where saving a theme, plugin, or system config from the admin panel could silently create a stray `user/env/<host>/` folder when the request hostname differed from the page-load hostname (for example a proxy quirk delivering a bare hostname for the POST while page loads arrive as `www.`). Grav now refuses to materialize a per-host environment folder that does not already exist on disk and falls back to the shared `user/config/` instead, matching the long-standing Grav 1.7 admin behavior ([#4086](https://github.com/getgrav/grav/issues/4086)).
+    * Fixed an issue where `CompiledFile` (used for account, config, and other YAML reads) cached its parsed contents into the PHP session, so an admin's permission changes to a logged-in user wouldn't take effect until that user's session was destroyed. The file is now re-read fresh on each request.
 
 # v2.0.0-rc.3
 ## 05/13/2026
