@@ -21,6 +21,19 @@ class AssetsTest extends \PHPUnit\Framework\TestCase
         $grav = Fixtures::get('grav');
         $this->grav = $grav();
         $this->assets = $this->grav['assets'];
+
+        // The pipeline writes minified output to a deterministic UID file in
+        // GRAV_ROOT/assets and re-uses it on subsequent runs. If a previous
+        // run hit a transient remote-fetch failure (e.g. flaky network when
+        // pulling Google Fonts CSS), that partial result is baked in and the
+        // testInlinePipeline assertion fails until the cache is cleared by
+        // hand. Sweep the pipeline cache for each test to keep runs hermetic.
+        $assetsDir = GRAV_ROOT . '/assets';
+        if (is_dir($assetsDir)) {
+            foreach (glob($assetsDir . '/*.{css,js}', GLOB_BRACE) ?: [] as $file) {
+                @unlink($file);
+            }
+        }
     }
 
     protected function tearDown(): void

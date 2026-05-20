@@ -169,9 +169,21 @@ class TwigSandboxTest extends \PHPUnit\Framework\TestCase
 
     public function testBuildPolicy_AllowsConfigGet(): void
     {
-        $policy = Security::buildTwigSandboxPolicy();
-        $config = new \Grav\Common\Config\Config([]);
-        $this->assertDoesNotThrow(fn() => $policy->checkMethodAllowed($config, 'get'));
+        // Config.get is in the YAML allowlist, but the policy builder strips
+        // the whole Config class when security.twig_content.config_access is
+        // off (the 2.0 default). Enable the gate here so we exercise the
+        // YAML-configured allowlist; the strip behavior is covered separately
+        // by the SandboxConfig facade tests below.
+        $grav = \Grav\Common\Grav::instance();
+        $previous = $grav['config']->get('security.twig_content.config_access');
+        $grav['config']->set('security.twig_content.config_access', true);
+        try {
+            $policy = Security::buildTwigSandboxPolicy();
+            $config = new \Grav\Common\Config\Config([]);
+            $this->assertDoesNotThrow(fn() => $policy->checkMethodAllowed($config, 'get'));
+        } finally {
+            $grav['config']->set('security.twig_content.config_access', $previous);
+        }
     }
 
     /**
