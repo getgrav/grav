@@ -13,9 +13,11 @@ declare(strict_types=1);
 
 namespace Twig\DeferredExtension;
 
+use Twig\Attribute\YieldReady;
 use Twig\Compiler;
 use Twig\Node\BlockNode;
 
+#[YieldReady]
 final class DeferredBlockNode extends BlockNode
 {
     public function compile(Compiler $compiler) : void

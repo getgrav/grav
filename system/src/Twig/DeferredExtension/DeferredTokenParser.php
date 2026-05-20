@@ -33,10 +33,6 @@ final class DeferredTokenParser extends AbstractTokenParser
         
         $deferred = $stream->nextIf(Token::NAME_TYPE, 'deferred');
 
-        if ($this->parser->hasBlock($name)) {
-            throw new SyntaxError(\sprintf("The block '%s' has already been defined line %d.", $name, $this->parser->getBlock($name)->getTemplateLine()), $stream->getCurrent()->getLine(), $stream->getSourceContext());
-        }
-
         if ($deferred) {
             $block = new DeferredBlockNode($name, new EmptyNode(), $lineno);
         } else {
