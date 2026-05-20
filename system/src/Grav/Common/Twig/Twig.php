@@ -101,6 +101,8 @@ class Twig
     protected $autoescape;
     /** @var Profile */
     protected $profile;
+    /** @var string[]|null */
+    protected ?array $sandboxDeniedConfigKeys = null;
 
     /**
      * Constructor
@@ -597,7 +599,7 @@ class Twig
 
         if ((bool) $config->get('security.twig_content.config_access', false) === false) {
             // Deny every top-level subtree → `config` is effectively empty.
-            $denied = array_keys($config->toArray());
+            $denied = $this->sandboxDeniedConfigKeys ??= array_keys($config->toArray());
         } else {
             $denied = (array) $config->get('security.twig_sandbox.config_denied_paths', []);
         }
