@@ -4235,12 +4235,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/getgrav/Twig.git",
-                "reference": "62c58c8977110b2be0e30362f381aa30cc2d2db5"
+                "reference": "24d7a0e821cf573496d99e05d6bd9d1a42f822c7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/getgrav/Twig/zipball/62c58c8977110b2be0e30362f381aa30cc2d2db5",
-                "reference": "62c58c8977110b2be0e30362f381aa30cc2d2db5",
+                "url": "https://api.github.com/repos/getgrav/Twig/zipball/24d7a0e821cf573496d99e05d6bd9d1a42f822c7",
+                "reference": "24d7a0e821cf573496d99e05d6bd9d1a42f822c7",
                 "shasum": ""
             },
             "require": {
@@ -4250,7 +4250,8 @@
                 "symfony/polyfill-mbstring": "^1.3"
             },
             "require-dev": {
-                "phpstan/phpstan": "^2.0",
+                "php-cs-fixer/shim": "^3.0@stable",
+                "phpstan/phpstan": "^2.0@stable",
                 "psr/container": "^1.0|^2.0",
                 "symfony/phpunit-bridge": "^5.4.9|^6.4|^7.0"
             },
@@ -4300,7 +4301,7 @@
             "support": {
                 "source": "https://github.com/getgrav/Twig/tree/3.x"
             },
-            "time": "2025-11-21T12:04:18+00:00"
+            "time": "2026-05-20T12:11:09+00:00"
         },
         {
             "name": "willdurand/negotiation",
