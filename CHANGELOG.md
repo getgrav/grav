@@ -1,5 +1,5 @@
 # v2.0.0-rc.4
-## 05/20/2026
+## 05/21/2026
 
 1. [](#new)
     * [security] Twig processing in page content is now off by default and configurable under Configuration > Security > Twig in Content, with separate toggles for enabling it site-wide, letting trusted editors turn it on per page, and exposing the `config` variable to sandboxed renders. Pages that used Twig on the source site are detected during migration and the gate is flipped back on automatically.
