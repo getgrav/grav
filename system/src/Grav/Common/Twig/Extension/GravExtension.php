@@ -45,7 +45,6 @@ use Twig\Environment;
 use Twig\Error\RuntimeError;
 use Twig\Extension\AbstractExtension;
 use Twig\Extension\GlobalsInterface;
-use Twig\Loader\FilesystemLoader;
 use Twig\Markup;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
@@ -1036,34 +1035,46 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
     }
 
     /**
-     * This function will evaluate Twig $twig through the $environment, and return its results.
+     * Render a Twig source string and return the result.
      *
-     * @param array $context
-     * @param string $twig
+     * Goes through Twig::processString() so the same `@Var:` source-policy
+     * sandbox and SandboxConfig facade apply as anywhere else editor-derivable
+     * content is parsed. The previous implementation built a fresh
+     * `Twig\Environment` with no SandboxExtension or SourcePolicy, which
+     * meant any call like `{{ evaluate_twig(page.content|raw, ...) }}` from
+     * a trusted theme would render editor-authored Twig with the full
+     * unrestricted Twig surface — a complete sandbox bypass.
+     *
+     * @param array $context   Parent template context (auto-injected because
+     *                         the function is registered with `needs_context`).
+     * @param string $twig     Twig source to render.
+     * @param array $variables Caller-supplied variables, merged over the parent
+     *                         context. Caller wins. Without this parameter the
+     *                         second argument was silently dropped — the docs
+     *                         example `{{ evaluate_twig('{{ foo }}', {foo: 'bar'}) }}`
+     *                         relies on it.
      * @return mixed
      */
-    public function evaluateTwigFunc($context, $twig)
+    public function evaluateTwigFunc($context, $twig, array $variables = [])
     {
-
-        $loader = new FilesystemLoader('.');
-        $env = new Environment($loader);
-        $env->addExtension($this);
-
-        $template = $env->createTemplate($twig);
-
-        return $template->render($context);
+        return $this->grav['twig']->processString($twig, $variables + $context);
     }
 
     /**
-     * This function will evaluate a $string through the $environment, and return its results.
+     * Evaluate a Twig expression with the surrounding context.
      *
-     * @param array $context
-     * @param string $string
+     * Wraps the expression in `{{ ... }}` and delegates to
+     * {@see evaluateTwigFunc()} so the same sandboxed path is used.
+     *
+     * @param array $context   Parent template context (auto-injected).
+     * @param string $string   Twig expression (no braces).
+     * @param array $variables Caller-supplied variables, merged over the
+     *                         parent context. Caller wins.
      * @return mixed
      */
-    public function evaluateStringFunc($context, $string)
+    public function evaluateStringFunc($context, $string, array $variables = [])
     {
-        return $this->evaluateTwigFunc($context, "{{ $string }}");
+        return $this->evaluateTwigFunc($context, "{{ $string }}", $variables);
     }
 
     /**

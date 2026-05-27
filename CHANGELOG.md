@@ -1,3 +1,12 @@
+# v2.0.0-rc.5
+## 05/27/2026
+
+1. [](#bugfix)
+    * Loading the page index no longer returns a 500 when a single broken symlink or otherwise unreadable file sits inside a page folder; the offending path is logged to `grav.log` and skipped so the rest of the pages still load.
+    * **[security] The `evaluate_twig` and `evaluate` Twig functions are now rendered through the same `@Var:` sandbox as `Twig::processString()`.** Before this fix, both built a fresh `Twig\Environment` with no `SandboxExtension` or `SourcePolicy`, so a trusted theme that called `{{ evaluate_twig(page.content|raw, {page: page}) }}` rendered editor-authored Twig with the full unrestricted Twig surface — a complete sandbox bypass for any editor with page-edit access. The internal implementation now delegates to `Twig::processString()` so the same source policy, allowed-method/property/filter/function lists, and `SandboxConfig` denied-path facade all apply.
+    * **The second argument to `{{ evaluate_twig(twig, variables) }}` and `{{ evaluate(expression, variables) }}` is now honored.** Both functions were registered with `needs_context: true` but their PHP signature only declared two parameters, so the caller's variables array was silently dropped and the docs example `{{ evaluate_twig('{{ foo }}', {foo: 'bar'}) }}` rendered nothing for `foo`. Caller variables now merge over the parent template context with caller winning. Fixes [getgrav/grav#4098](https://github.com/getgrav/grav/issues/4098).
+    * **Per-page content cache now invalidates on configuration changes, matching the pages-index cache.** The page-content cache id now mixes in `$config->checksum()` alongside the page identity, so any change to system, site, security, or plugin configuration evicts previously rendered output — including the new `security.twig_content.*` gates, every markdown rendering option, `system.pages.twig_first`, sandbox allow-lists, the summary delimiter, and the active plugin set. Previously the content cache only watched the page file's mtime, so toggling a security setting or enabling a plugin that subscribes to `onPageContent*` did nothing until a manual `bin/grav cache --clear-all`. The pages-index cache has used this strategy since 1.7; the per-page content cache was overlooked. Fixes [getgrav/grav#4098](https://github.com/getgrav/grav/issues/4098).
+
 # v2.0.0-rc.4
 ## 05/21/2026
 

@@ -583,7 +583,22 @@ class PageStorage extends FolderStorage
                             continue;
                         }
 
-                        $timestamp = $info->getMTime();
+                        try {
+                            $timestamp = $info->getMTime();
+                        } catch (\Throwable $e) {
+                            // Broken symlink, unreadable file, or similar — log and skip so a single
+                            // bad entry doesn't blow up the entire page index.
+                            $logger = Grav::instance()['log'] ?? null;
+                            if ($logger) {
+                                $logger->warning(sprintf(
+                                    'PageStorage: skipping unreadable file "%s" in "%s": %s',
+                                    $k,
+                                    $path,
+                                    $e->getMessage()
+                                ));
+                            }
+                            continue;
+                        }
 
                         // Page is the one that matches to $page_extensions list with the lowest index number.
                         if (preg_match($this->regex, $k, $matches)) {

@@ -765,7 +765,7 @@ class Page implements PageInterface
             // Load cached content
             /** @var Cache $cache */
             $cache = Grav::instance()['cache'];
-            $cache_id = md5('page' . $this->getCacheKey());
+            $cache_id = md5('page' . $this->getPageContentCacheKey($config));
             $content_obj = $cache->fetch($cache_id);
 
             if (is_array($content_obj)) {
@@ -1015,8 +1015,25 @@ class Page implements PageInterface
     {
         /** @var Cache $cache */
         $cache = Grav::instance()['cache'];
-        $cache_id = md5('page' . $this->getCacheKey());
+        $cache_id = md5('page' . $this->getPageContentCacheKey(Grav::instance()['config']));
         $cache->save($cache_id, ['content' => $this->content, 'content_meta' => $this->content_meta]);
+    }
+
+    /**
+     * Page-content cache key. Combines the page identity with the global
+     * config checksum so that any change to system / site / security / plugin
+     * configuration invalidates previously cached output — including the
+     * security.twig_content.* gates, every markdown rendering option,
+     * `system.pages.twig_first`, sandbox allow-lists, the summary delimiter,
+     * the active plugin set (plugins subscribed to onPageContent* events),
+     * and any future setting that affects how a page renders.
+     *
+     * Matches the invalidation strategy Pages::buildPages() already uses for
+     * the pages-index cache (Pages.php) — they should evict in lockstep.
+     */
+    private function getPageContentCacheKey(Config $config): string
+    {
+        return $this->getCacheKey() . ':cfg=' . (string) $config->checksum();
     }
 
     /**
