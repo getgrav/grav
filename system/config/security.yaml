@@ -76,7 +76,9 @@ sanitize_svg: true
 #      Twig is not parsed at all. `process: { twig: true }` in frontmatter
 #      and `system.pages.frontmatter.process_twig` in system.yaml are both
 #      ignored. Default false on fresh 2.0 installs — sites that need Twig
-#      in content must opt in.
+#      in content must opt in. This gate also provides the per-page default
+#      for `process.twig`: flipping it on is sufficient for Twig in content
+#      to render across the site (per-page frontmatter still overrides).
 #   2. twig_sandbox.enabled — when the gate is open, restricts what page-
 #      content Twig can do (allowlisted tags / filters / functions / methods
 #      / properties below). Violations soft-fail with a placeholder + a

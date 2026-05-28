@@ -427,6 +427,37 @@ class Security
     }
 
     /**
+     * Per-page `process` field defaults for the page editor blueprint.
+     * Pulls markdown/twig defaults from `system.pages.process`, but when
+     * `twig` is unset there, falls back to the `security.twig_content.process_enabled`
+     * gate so the admin UI per-page checkbox matches what the runtime will
+     * actually render. Wired via `data-default@` in pages/default.yaml.
+     *
+     * @return array<string,bool>
+     */
+    public static function pageProcessDefaults(): array
+    {
+        $defaults = ['markdown' => true, 'twig' => false];
+
+        try {
+            $config = Grav::instance()['config'];
+            $configured = (array) $config->get('system.pages.process', []);
+            $defaults = array_replace($defaults, $configured);
+            if (!array_key_exists('twig', $configured)) {
+                $defaults['twig'] = (bool) $config->get('security.twig_content.process_enabled', false);
+            }
+        } catch (Exception) {
+            // Conservative default already set above.
+        }
+
+        foreach ($defaults as $key => $val) {
+            $defaults[$key] = (bool) $val;
+        }
+
+        return $defaults;
+    }
+
+    /**
      * Log when the security.twig_content.process_enabled gate blocks page-content
      * Twig processing. Called from Page::content() and Page::processFrontmatter()
      * paths. Deduped per-route per-request so a single page render emits one entry.

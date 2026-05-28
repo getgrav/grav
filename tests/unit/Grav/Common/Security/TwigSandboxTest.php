@@ -416,6 +416,53 @@ class TwigSandboxTest extends \PHPUnit\Framework\TestCase
         self::assertSame('[Public Title]', $env->render('allowed', ['config' => $facade]));
     }
 
+    // =========================================================================
+    // Per-page process defaults wired through Security::pageProcessDefaults():
+    // when system.pages.process.twig is unset, the per-page twig flag inherits
+    // the security.twig_content.process_enabled gate so the admin UI and the
+    // runtime agree on whether Twig in content will render.
+    // =========================================================================
+
+    public function testPageProcessDefaults_TwigFallsBackToGateWhenUnset(): void
+    {
+        $grav = \Grav\Common\Grav::instance();
+        $config = $grav['config'];
+        $prevProcess = $config->get('system.pages.process');
+        $prevGate    = $config->get('security.twig_content.process_enabled');
+
+        try {
+            $config->set('system.pages.process', ['markdown' => true]);
+
+            $config->set('security.twig_content.process_enabled', false);
+            self::assertSame(['markdown' => true, 'twig' => false], Security::pageProcessDefaults());
+
+            $config->set('security.twig_content.process_enabled', true);
+            self::assertSame(['markdown' => true, 'twig' => true], Security::pageProcessDefaults());
+        } finally {
+            $config->set('system.pages.process', $prevProcess);
+            $config->set('security.twig_content.process_enabled', $prevGate);
+        }
+    }
+
+    public function testPageProcessDefaults_ExplicitTwigWinsOverGate(): void
+    {
+        $grav = \Grav\Common\Grav::instance();
+        $config = $grav['config'];
+        $prevProcess = $config->get('system.pages.process');
+        $prevGate    = $config->get('security.twig_content.process_enabled');
+
+        try {
+            // Operator explicitly sets twig: false even with the gate on —
+            // a deliberate site-wide opt-out that must be honored.
+            $config->set('system.pages.process', ['markdown' => true, 'twig' => false]);
+            $config->set('security.twig_content.process_enabled', true);
+            self::assertSame(['markdown' => true, 'twig' => false], Security::pageProcessDefaults());
+        } finally {
+            $config->set('system.pages.process', $prevProcess);
+            $config->set('security.twig_content.process_enabled', $prevGate);
+        }
+    }
+
     /**
      * Build a minimal sandboxed Twig environment preloaded with the current
      * security policy. Templates is a name => source map.

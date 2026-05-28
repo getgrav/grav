@@ -1,6 +1,9 @@
 # v2.0.0-rc.5
 ## 05/27/2026
 
+1. [](#improved)
+    * The `security.twig_content.process_enabled` gate is now the single source of truth for Twig in page content: when the per-page `process.twig` flag isn't explicitly set in `system.pages.process`, it defaults from the gate. Flipping the gate on is now sufficient to enable Twig in content site-wide — the legacy `system.pages.process.twig: true` is no longer required (operators can still set it explicitly, including a `false` opt-out that overrides the gate). The per-page admin checkbox follows the same defaulting via the new `Security::pageProcessDefaults()` blueprint helper, so the UI and the runtime always agree.
+    * The Flex page content renderer now honors the `security.twig_content.process_enabled` gate the same way classic `Page` does, closing an asymmetry where Flex pages would render editor-authored Twig in content even when the gate was off.
 1. [](#bugfix)
     * Loading the page index no longer returns a 500 when a single broken symlink or otherwise unreadable file sits inside a page folder; the offending path is logged to `grav.log` and skipped so the rest of the pages still load.
     * **[security] The `evaluate_twig` and `evaluate` Twig functions are now rendered through the same `@Var:` sandbox as `Twig::processString()`.** Before this fix, both built a fresh `Twig\Environment` with no `SandboxExtension` or `SourcePolicy`, so a trusted theme that called `{{ evaluate_twig(page.content|raw, {page: page}) }}` rendered editor-authored Twig with the full unrestricted Twig surface — a complete sandbox bypass for any editor with page-edit access. The internal implementation now delegates to `Twig::processString()` so the same source policy, allowed-method/property/filter/function lists, and `SandboxConfig` denied-path facade all apply.

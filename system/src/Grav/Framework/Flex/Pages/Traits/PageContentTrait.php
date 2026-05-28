@@ -18,6 +18,7 @@ use Grav\Common\Page\Header;
 use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Page\Markdown\Excerpts;
 use Grav\Common\Page\Media;
+use Grav\Common\Security;
 use Grav\Common\Twig\Twig;
 use Grav\Common\Utils;
 use Grav\Framework\File\Formatter\YamlFormatter;
@@ -277,7 +278,16 @@ trait PageContentTrait
             'process',
             $var,
             function ($value) {
-                $value = array_replace(Grav::instance()['config']->get('system.pages.process', []), is_array($value) ? $value : []);
+                $config = Grav::instance()['config'];
+                $defaults = (array) $config->get('system.pages.process', []);
+                // When the per-page twig flag isn't explicitly set in system
+                // config, default it from security.twig_content.process_enabled
+                // so the gate is the single source of truth for editor-Twig in
+                // content.
+                if (!array_key_exists('twig', $defaults)) {
+                    $defaults['twig'] = (bool) $config->get('security.twig_content.process_enabled', false);
+                }
+                $value = array_replace($defaults, is_array($value) ? $value : []);
                 foreach ($value as $process => $status) {
                     $value[$process] = (bool)$status;
                 }
@@ -664,7 +674,18 @@ trait PageContentTrait
         $config = $grav['config'];
 
         $process_markdown = $this->shouldProcess('markdown');
-        $process_twig = $this->shouldProcess('twig') || $this->isModule();
+
+        // security.twig_content.process_enabled gates editor-authored Twig
+        // in page content. isModule() is theme-controlled (modular templates
+        // render their own children with Twig) and stays unconditionally
+        // enabled. See system/config/security.yaml.
+        $content_twig_requested = $this->shouldProcess('twig');
+        $content_twig_allowed = (bool) $config->get('security.twig_content.process_enabled', false);
+        if ($content_twig_requested && !$content_twig_allowed) {
+            Security::logTwigContentGateBlocked((string) ($this->route() ?? $this->filePath() ?? 'unknown'), 'content');
+        }
+        $process_twig = ($content_twig_requested && $content_twig_allowed) || $this->isModule();
+
         $cache_enable = $this->getNestedProperty('header.cache_enable') ?? $config->get('system.cache.enabled', true);
 
         $twig_first = $this->getNestedProperty('header.twig_first') ?? $config->get('system.pages.twig_first', false);

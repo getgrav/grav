@@ -214,10 +214,7 @@ form:
                   type: checkboxes
                   label: PLUGIN_ADMIN.PROCESS
                   toggleable: true
-                  config-default@: system.pages.process
-                  default:
-                    markdown: true
-                    twig: false
+                  data-default@: '\Grav\Common\Security::pageProcessDefaults'
                   data-options@: '\Grav\Common\Security::pageProcessOptions'
                   use: keys
 

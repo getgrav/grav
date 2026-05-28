@@ -172,7 +172,13 @@ class Page implements PageInterface
         $config = Grav::instance()['config'];
 
         $this->taxonomy = [];
-        $this->process = $config->get('system.pages.process');
+        $this->process = (array) $config->get('system.pages.process');
+        // When the per-page twig flag isn't explicitly set in system config,
+        // default it from security.twig_content.process_enabled so the gate
+        // is the single source of truth for editor-Twig in content.
+        if (!array_key_exists('twig', $this->process)) {
+            $this->process['twig'] = (bool) $config->get('security.twig_content.process_enabled', false);
+        }
         $this->published = true;
     }
 
