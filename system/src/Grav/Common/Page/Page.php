@@ -172,13 +172,21 @@ class Page implements PageInterface
         $config = Grav::instance()['config'];
 
         $this->taxonomy = [];
-        $this->process = (array) $config->get('system.pages.process');
-        // When the per-page twig flag isn't explicitly set in system config,
-        // default it from security.twig_content.process_enabled so the gate
-        // is the single source of truth for editor-Twig in content.
-        if (!array_key_exists('twig', $this->process)) {
-            $this->process['twig'] = (bool) $config->get('security.twig_content.process_enabled', false);
+        $raw = $config->get('system.pages.process');
+        if ($raw !== null && !is_array($raw)) {
+            // Misconfigured: system.pages.process should be a mapping. Warn
+            // once per request via the security log so the operator notices
+            // instead of silently normalizing to an empty array.
+            static $warned = false;
+            if (!$warned && Grav::instance()->offsetExists('log')) {
+                $warned = true;
+                Grav::instance()['log']->warning(
+                    sprintf('system.pages.process must be a mapping; got %s. Normalizing to empty.', gettype($raw))
+                );
+            }
+            $raw = [];
         }
+        $this->process = Security::applyTwigContentDefault((array) $raw);
         $this->published = true;
     }
 
@@ -790,7 +798,10 @@ class Page implements PageInterface
             // unconditionally enabled. See system/config/security.yaml.
             $content_twig_requested = $this->shouldProcess('twig');
             $content_twig_allowed = (bool) $config->get('security.twig_content.process_enabled', false);
-            if ($content_twig_requested && !$content_twig_allowed) {
+            // Only log when the gate actually stops a render; modular pages
+            // bypass the gate so they're not blocked and shouldn't appear in
+            // the gate-blocked audit log.
+            if ($content_twig_requested && !$content_twig_allowed && !$this->modularTwig()) {
                 Security::logTwigContentGateBlocked((string) ($this->route() ?? $this->filePath() ?? 'unknown'), 'content');
             }
             $process_twig = ($content_twig_requested && $content_twig_allowed) || $this->modularTwig();

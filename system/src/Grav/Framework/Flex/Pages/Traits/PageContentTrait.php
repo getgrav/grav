@@ -278,15 +278,9 @@ trait PageContentTrait
             'process',
             $var,
             function ($value) {
-                $config = Grav::instance()['config'];
-                $defaults = (array) $config->get('system.pages.process', []);
-                // When the per-page twig flag isn't explicitly set in system
-                // config, default it from security.twig_content.process_enabled
-                // so the gate is the single source of truth for editor-Twig in
-                // content.
-                if (!array_key_exists('twig', $defaults)) {
-                    $defaults['twig'] = (bool) $config->get('security.twig_content.process_enabled', false);
-                }
+                $defaults = Security::applyTwigContentDefault(
+                    (array) Grav::instance()['config']->get('system.pages.process', [])
+                );
                 $value = array_replace($defaults, is_array($value) ? $value : []);
                 foreach ($value as $process => $status) {
                     $value[$process] = (bool)$status;
@@ -681,7 +675,10 @@ trait PageContentTrait
         // enabled. See system/config/security.yaml.
         $content_twig_requested = $this->shouldProcess('twig');
         $content_twig_allowed = (bool) $config->get('security.twig_content.process_enabled', false);
-        if ($content_twig_requested && !$content_twig_allowed) {
+        // Only log when the gate actually stops a render; modular pages
+        // bypass the gate so they're not blocked and shouldn't appear in
+        // the gate-blocked audit log.
+        if ($content_twig_requested && !$content_twig_allowed && !$this->isModule()) {
             Security::logTwigContentGateBlocked((string) ($this->route() ?? $this->filePath() ?? 'unknown'), 'content');
         }
         $process_twig = ($content_twig_requested && $content_twig_allowed) || $this->isModule();
@@ -693,7 +690,12 @@ trait PageContentTrait
 
         if ($cache_enable) {
             $cache = $this->getCache('render');
-            $key = md5($this->getCacheKey() . '-content');
+            // Mix the full config checksum into the cache id so any change
+            // to system, site, security, or plugin config (including the
+            // security.twig_content gates) evicts previously rendered output.
+            // Matches the invalidation strategy classic Page uses in
+            // getPageContentCacheKey().
+            $key = md5($this->getCacheKey() . '-content:cfg=' . (string) $config->checksum());
             $cached = $cache->get($key);
             if ($cached && $cached['checksum'] === $this->getCacheChecksum()) {
                 $this->_content = $cached['content'] ?? '';

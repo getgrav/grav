@@ -439,7 +439,30 @@ class TwigSandboxTest extends \PHPUnit\Framework\TestCase
             $config->set('security.twig_content.process_enabled', true);
             self::assertSame(['markdown' => true, 'twig' => true], Security::pageProcessDefaults());
         } finally {
-            $config->set('system.pages.process', $prevProcess);
+            // Guard against leaking explicit null into Config: if prev was
+            // null (system.yaml not fully merged in this test bootstrap),
+            // restore to an empty array shape callers expect.
+            $config->set('system.pages.process', $prevProcess ?? []);
+            $config->set('security.twig_content.process_enabled', $prevGate);
+        }
+    }
+
+    public function testPageProcessDefaults_NullConfigStillHonorsGate(): void
+    {
+        // Fresh-install / minimal-config shape: system.pages.process is null.
+        // pageProcessDefaults must still produce a sane array with twig
+        // defaulted from the gate.
+        $grav = \Grav\Common\Grav::instance();
+        $config = $grav['config'];
+        $prevProcess = $config->get('system.pages.process');
+        $prevGate    = $config->get('security.twig_content.process_enabled');
+
+        try {
+            $config->set('system.pages.process', null);
+            $config->set('security.twig_content.process_enabled', true);
+            self::assertSame(['markdown' => true, 'twig' => true], Security::pageProcessDefaults());
+        } finally {
+            $config->set('system.pages.process', $prevProcess ?? []);
             $config->set('security.twig_content.process_enabled', $prevGate);
         }
     }
@@ -458,7 +481,10 @@ class TwigSandboxTest extends \PHPUnit\Framework\TestCase
             $config->set('security.twig_content.process_enabled', true);
             self::assertSame(['markdown' => true, 'twig' => false], Security::pageProcessDefaults());
         } finally {
-            $config->set('system.pages.process', $prevProcess);
+            // Guard against leaking explicit null into Config: if prev was
+            // null (system.yaml not fully merged in this test bootstrap),
+            // restore to an empty array shape callers expect.
+            $config->set('system.pages.process', $prevProcess ?? []);
             $config->set('security.twig_content.process_enabled', $prevGate);
         }
     }

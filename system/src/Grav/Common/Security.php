@@ -427,11 +427,38 @@ class Security
     }
 
     /**
+     * Default the per-page `process.twig` flag from
+     * `security.twig_content.process_enabled` when the key isn't explicitly
+     * set in the configured `process` array. The security gate is the single
+     * source of truth for editor-Twig in content; an explicit value (true or
+     * false) in `system.pages.process` or per-page frontmatter still wins.
+     *
+     * Treats explicit YAML null (`twig: ~`) as "unset" so it inherits the gate.
+     *
+     * @param array<string,mixed> $process Configured process array (may be empty).
+     * @return array<string,mixed> Same array with `twig` populated when it was missing or null.
+     */
+    public static function applyTwigContentDefault(array $process): array
+    {
+        if (isset($process['twig'])) {
+            return $process;
+        }
+        try {
+            $process['twig'] = (bool) Grav::instance()['config']->get('security.twig_content.process_enabled', false);
+        } catch (\Throwable) {
+            $process['twig'] = false;
+        }
+        return $process;
+    }
+
+    /**
      * Per-page `process` field defaults for the page editor blueprint.
-     * Pulls markdown/twig defaults from `system.pages.process`, but when
-     * `twig` is unset there, falls back to the `security.twig_content.process_enabled`
-     * gate so the admin UI per-page checkbox matches what the runtime will
-     * actually render. Wired via `data-default@` in pages/default.yaml.
+     * Pulls markdown/twig defaults from `system.pages.process`, defaults
+     * `twig` from the security gate when unset, and intersects the result
+     * down to the keys advertised by pageProcessOptions() so plugin-
+     * contributed keys outside the {markdown, twig} contract don't leak
+     * into the form's `default:` block. Wired via `data-default@` in
+     * pages/default.yaml.
      *
      * @return array<string,bool>
      */
@@ -441,12 +468,19 @@ class Security
 
         try {
             $config = Grav::instance()['config'];
-            $configured = (array) $config->get('system.pages.process', []);
-            $defaults = array_replace($defaults, $configured);
-            if (!array_key_exists('twig', $configured)) {
-                $defaults['twig'] = (bool) $config->get('security.twig_content.process_enabled', false);
-            }
-        } catch (Exception) {
+            // Apply the gate fallback to the configured value FIRST so an
+            // unset twig key inherits from the gate; only then overlay onto
+            // the schema seed (markdown defaulting to true).
+            $configured = self::applyTwigContentDefault((array) $config->get('system.pages.process', []));
+            $merged = array_replace($defaults, $configured);
+            // Restrict to the keys pageProcessOptions() actually renders so
+            // stray plugin-contributed keys don't appear in the form default.
+            // Always keep markdown + twig in the schema even if the current
+            // user's options view hides twig — the field still expects both
+            // checkboxes' defaults available.
+            $allowed = array_unique(array_merge(array_keys(self::pageProcessOptions()), ['markdown', 'twig']));
+            $defaults = array_intersect_key($merged, array_flip($allowed));
+        } catch (\Throwable) {
             // Conservative default already set above.
         }
 

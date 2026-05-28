@@ -214,6 +214,11 @@ form:
                   type: checkboxes
                   label: PLUGIN_ADMIN.PROCESS
                   toggleable: true
+                  # Do NOT add an inline `default:` block here. Blueprint::dynamicData
+                  # merges the callback result via PHP `+=` (left wins), so a static
+                  # `default: { twig: false }` would silently override the gate-derived
+                  # twig default from pageProcessDefaults() and re-introduce the
+                  # admin-UI / runtime mismatch this helper exists to prevent.
                   data-default@: '\Grav\Common\Security::pageProcessDefaults'
                   data-options@: '\Grav\Common\Security::pageProcessOptions'
                   use: keys
