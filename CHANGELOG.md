@@ -1,5 +1,5 @@
 # v2.0.0-rc.5
-## 05/27/2026
+## 05/29/2026
 
 1. [](#improved)
     * Enabling Twig in content under Configuration > Security > Twig in Content is now the only setting needed to allow editor-authored Twig site-wide, and the per-page checkbox in the page editor follows the same setting so the admin UI and the live render always agree.
@@ -254,7 +254,7 @@
 1. [](#improved)
     * Replaced legacy Doctrine cache dependency with Symfony-backed provider while keeping compatibility layer
     * More safe-upgrade improvements
-    
+
 # v1.8.0-beta.17
 ## 10/23/2025
 
@@ -262,7 +262,7 @@
     * Reworked `Monolog3` ship for better compatibility
     * Latest vendor libraries
     * Don't crash if `getManifest()` is not available
-    
+
 # v1.8.0-beta.16
 ## 10/20/2025
 
@@ -337,12 +337,12 @@
 
 1. [](#bugfix)
     * Fixed a missing YamlUpdater::exists() method
-   
+
 # v1.8.0-beta.5
 ## 09/22/2025
 
 1. [](#new)
-    * Deferred Extension support in Forked version of Twig 3    
+    * Deferred Extension support in Forked version of Twig 3
     * Added separate `strict_mode.twig2_compat` and `strict_mode.twig3_compat` toggles to manage auto-escape behaviour and automatic Twig 3 compatible template rewrites
 1. [](#bugfix)
     * Fix for cache blowing up when upgrading from 1.7 to 1.8 via CLI
@@ -373,14 +373,14 @@
     * Use `dev-master` branch of Clockwork to support Monolog2 / Monolog3
     * `AVIF` image support via updates to `getgrav/Image` library
     * Upgraded to **Doctrine Collection 2.2**
-1. [](#improved) 
+1. [](#improved)
     * Updated composer libraries
     * Updated composer.php binary to `v2.8.1`
     * Fixes for PHP 8.4 - Implicitly nullable parameter declarations deprecated
     * Added back Missing `RocketTheme\Toolbox\Event\EventSubscriberInterface` for Gantry5
 1. [](#bugfix)
     * Various fixes to use `$log->debug()`, `$log->info()`, `$log->warning()` and `$log->error()` For Monolog2 support
-   
+
 # v1.8.0-beta.1
 ## 10/23/2024
 
@@ -395,4 +395,3 @@
     * Removed unsupported **APC**, **WinCache**, **XCache** and **Memcache**, use apcu or memcached instead
     * Removed `system.umask_fix` setting for security reasons
     * Support phpstan level 6 in Framework classes
-
