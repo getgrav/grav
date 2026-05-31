@@ -13,6 +13,8 @@ use InvalidArgumentException;
 use RuntimeException;
 use ZipArchive;
 use function extension_loaded;
+use function realpath;
+use function str_starts_with;
 use function strlen;
 
 /**
@@ -33,6 +35,30 @@ class ZipArchiver extends Archiver
 
         if ($archive === true) {
             Folder::create($destination);
+
+            // Validate every entry path before extracting to prevent Zip Slip
+            // (path traversal via crafted entry names such as "../../evil.php").
+            $destination = rtrim((string) realpath($destination) ?: $destination, '/\\') . DIRECTORY_SEPARATOR;
+            for ($i = 0, $count = $zip->count(); $i < $count; $i++) {
+                $name = $zip->getNameIndex($i);
+                if ($name === false) {
+                    continue;
+                }
+                // Resolve the entry's target path and ensure it stays within $destination.
+                $entryPath = realpath($destination . $name);
+                if ($entryPath === false) {
+                    // realpath() returns false for non-existent paths; build a normalised path instead.
+                    $entryPath = $destination . $name;
+                }
+                // Normalise directory separators before the prefix check.
+                $entryPath = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $entryPath);
+                if (!str_starts_with($entryPath, $destination)) {
+                    $zip->close();
+                    throw new RuntimeException(
+                        'ZipArchiver: Zip Slip detected — entry "' . $name . '" would extract outside destination directory.'
+                    );
+                }
+            }
 
             if (!$zip->extractTo($destination)) {
                 throw new RuntimeException('ZipArchiver: ZIP failed to extract ' . $this->archive_file . ' to ' . $destination);
