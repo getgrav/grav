@@ -460,9 +460,10 @@ class JobQueue
     protected function reconstructJob(array $item): ?Job
     {
         if (isset($item['serialized_job'])) {
-            // Unserialize the job
+            // Unserialize the job; restrict to Job::class to prevent PHP Object Injection
+            // via a crafted queue backend entry that could trigger a gadget chain.
             try {
-                $job = unserialize(base64_decode($item['serialized_job']));
+                $job = unserialize(base64_decode($item['serialized_job']), ['allowed_classes' => [Job::class]]);
                 if ($job instanceof Job) {
                     return $job;
                 }
