@@ -1,3 +1,9 @@
+# v2.0.0-rc.6
+## 05/31/2026
+
+1. [](#bugfix)
+    * `bin/grav server` no longer shows the "PHP webserver requires a router" message and serves the site correctly when the Symfony local server falls back to PHP's built-in web server (for example on systems without php-fpm). Fixes [getgrav/grav#4099](https://github.com/getgrav/grav/issues/4099).
+
 # v2.0.0-rc.5
 ## 05/29/2026
 

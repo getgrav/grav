@@ -14,7 +14,18 @@ namespace Grav;
 \define('GRAV_PHP_MIN', '8.3.0');
 
 if (PHP_SAPI === 'cli-server') {
-    $symfony_server = stripos(getenv('_'), 'symfony') !== false || stripos($_SERVER['SERVER_SOFTWARE'] ?? '', 'symfony') !== false || stripos($_ENV['SERVER_SOFTWARE'] ?? '', 'symfony') !== false;
+    // The Symfony local server (`symfony server:start`, also used by `bin/grav server`)
+    // handles routing and static files itself, so Grav's own router is not needed. When
+    // php-fpm is unavailable Symfony falls back to PHP's built-in server (this cli-server
+    // SAPI), where SERVER_SOFTWARE is set by PHP ("PHP x.y.z Development Server") and the
+    // `_` env var points at php rather than symfony, so neither is reliable. The
+    // SYMFONY_* route variables that the Symfony CLI injects into the worker's environment
+    // are the dependable signal in that case.
+    $symfony_server = stripos((string) getenv('_'), 'symfony') !== false
+        || stripos($_SERVER['SERVER_SOFTWARE'] ?? '', 'symfony') !== false
+        || stripos($_ENV['SERVER_SOFTWARE'] ?? '', 'symfony') !== false
+        || getenv('SYMFONY_DEFAULT_ROUTE_HOST') !== false
+        || isset($_SERVER['SYMFONY_DEFAULT_ROUTE_HOST']);
 
     if (!isset($_SERVER['PHP_CLI_ROUTER']) && !$symfony_server) {
         die("PHP webserver requires a router to run Grav, please use: <pre>php -S {$_SERVER['SERVER_NAME']}:{$_SERVER['SERVER_PORT']} system/router.php</pre>");
