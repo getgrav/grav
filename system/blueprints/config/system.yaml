@@ -632,6 +632,26 @@ form:
                 0: PLUGIN_ADMIN.NO
               validate:
                 type: bool
+            pages.markdown.tables.headerless:
+              type: toggle
+              label: Header-less Tables
+              help: 'Non-standard: a table may start with the divider row, with no header row above it.'
+              highlight: 0
+              options:
+                1: PLUGIN_ADMIN.YES
+                0: PLUGIN_ADMIN.NO
+              validate:
+                type: bool
+            pages.markdown.tables.captions:
+              type: toggle
+              label: Table Captions
+              help: 'Non-standard: a `[Caption]` line immediately after a table becomes a `<caption>` element.'
+              highlight: 0
+              options:
+                1: PLUGIN_ADMIN.YES
+                0: PLUGIN_ADMIN.NO
+              validate:
+                type: bool
             pages.markdown.valid_link_attributes:
               type: selectize
               size: large

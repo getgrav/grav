@@ -6,7 +6,7 @@
     * Added `==highlight==`, `~subscript~`, and `^superscript^` inline syntax, rendering as `<mark>`, `<sub>`, and `<sup>`. Can be turned off under Markdown settings.
     * Disallowed raw HTML tags in page content (`script`, `iframe`, `style`, `textarea`, and similar) are now escaped in the output to match GitHub Flavored Markdown. Can be turned off under Markdown settings.
     * Bare `www.` URLs and email addresses in content are now turned into links automatically (GitHub Flavored Markdown autolinks). Can be turned off under Markdown settings.
-    * Tables can optionally merge an empty cell into the cell on its left (colspan). Off by default; enable under Markdown settings.
+    * Tables gained three optional extensions, all off by default and toggled under Markdown settings: an empty cell can merge into the cell on its left (colspan), a table can start at the divider row with no header row (header-less), and a `[Caption]` line immediately after a table becomes a caption.
     * Plugins can now add custom markdown block and inline syntax through a documented extension API with an element builder, instead of injecting closures and hand-building element arrays. The previous approach still works.
 1. [](#bugfix)
     * `bin/grav server` no longer shows the "PHP webserver requires a router" message and serves the site correctly when the Symfony local server falls back to PHP's built-in web server (for example on systems without php-fpm). Fixes [getgrav/grav#4099](https://github.com/getgrav/grav/issues/4099).

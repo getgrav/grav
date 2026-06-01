@@ -45,6 +45,10 @@ trait ParsedownGravTrait
     protected $gfm_autolinks = true;
     /** @var bool Non-GFM table extension: an empty cell merges into the cell on its left (colspan). */
     protected $table_colspan = false;
+    /** @var bool Non-GFM table extension: a table may start with the divider row (no header). */
+    protected $table_headerless = false;
+    /** @var bool Non-GFM table extension: a `[Caption]` line after a table becomes a `<caption>`. */
+    protected $table_captions = false;
 
     /**
      * Initialization function to setup key variables needed by the MarkdownGravLinkTrait
@@ -89,7 +93,10 @@ trait ParsedownGravTrait
         $this->gfm_task_lists = (bool)($gfm['task_lists'] ?? true);
         $this->gfm_tagfilter = (bool)($gfm['tagfilter'] ?? true);
         $this->gfm_autolinks = (bool)($gfm['autolinks'] ?? true);
-        $this->table_colspan = (bool)($defaults['markdown']['tables']['colspan'] ?? false);
+        $tables = $defaults['markdown']['tables'] ?? [];
+        $this->table_colspan = (bool)($tables['colspan'] ?? false);
+        $this->table_headerless = (bool)($tables['headerless'] ?? false);
+        $this->table_captions = (bool)($tables['captions'] ?? false);
         if ($gfm['marks'] ?? true) {
             // Subscript shares the `~` marker with strikethrough; register it
             // after so `~~strike~~` is matched first and a single `~sub~` falls through.
@@ -515,34 +522,156 @@ trait ParsedownGravTrait
     }
 
     /**
-     * Finalize a parsed table. Opt-in colspan support: an empty cell merges
-     * into the cell on its left (incrementing its colspan), the MultiMarkdown
-     * convention. Off by default, so standard GFM tables (which may contain
-     * intentionally empty cells) are untouched.
+     * Header-less tables (opt-in, non-GFM): a table that starts directly with
+     * the alignment/divider row, with no header row above it. Emits a
+     * `<tbody>`-only table. The standard GFM header+divider table is handled by
+     * the parent unchanged; this only kicks in when the parent declines.
+     *
+     * @param array      $Line
+     * @param array|null $Block
+     * @return array|null
+     */
+    protected function blockTable($Line, ?array $Block = null)
+    {
+        $table = parent::blockTable($Line, $Block);
+        if ($table !== null || !$this->table_headerless) {
+            return $table;
+        }
+
+        // Only when there is no live header paragraph to consume above the
+        // divider (start of document, after a blank line, or a different block).
+        // A live paragraph above is left intact rather than split.
+        if (isset($Block) && !isset($Block['type']) && !isset($Block['interrupted'])) {
+            return null;
+        }
+
+        $text = (string)$Line['text'];
+        if (!str_contains($text, '|') || rtrim($text, ' -:|') !== '') {
+            return null;
+        }
+
+        // Placeholder <thead> keeps the parent's blockTableContinue() happy (it
+        // appends rows to index 1); blockTableComplete() strips it afterwards.
+        return [
+            'alignments' => $this->parseTableAlignments($text),
+            'headerless' => true,
+            'element' => [
+                'name' => 'table',
+                'handler' => 'elements',
+                'text' => [
+                    ['name' => 'thead', 'handler' => 'elements', 'text' => []],
+                    ['name' => 'tbody', 'handler' => 'elements', 'text' => []],
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * Captures an opt-in `[Caption]` line that immediately follows a table and
+     * attaches it to the block; blockTableComplete() renders it as `<caption>`.
+     * Everything else defers to the parent row parser.
+     *
+     * @param array $Line
+     * @param array $Block
+     * @return array|null
+     */
+    protected function blockTableContinue($Line, array $Block)
+    {
+        if ($this->table_captions && !isset($Block['caption']) && !isset($Block['interrupted'])) {
+            $trimmed = trim((string)$Line['text']);
+            if ($trimmed !== '' && $trimmed[0] === '['
+                && preg_match('/^\[(.+?)\](?:\[.+?\])?$/', $trimmed, $m)) {
+                $Block['caption'] = $m[1];
+
+                return $Block;
+            }
+        }
+
+        return parent::blockTableContinue($Line, $Block);
+    }
+
+    /**
+     * Finalize a parsed table: apply opt-in colspan, drop the placeholder
+     * header of a header-less table, and inject a captured caption as the first
+     * child (HTML requires `<caption>` to precede the rows). Standard GFM tables
+     * with all extensions off pass through untouched.
      *
      * @param array $Block
      * @return array
      */
     protected function blockTableComplete(array $Block)
     {
-        if (!$this->table_colspan || !isset($Block['element']['text'])) {
+        if (!isset($Block['element']['text']) || !is_array($Block['element']['text'])) {
             return $Block;
         }
 
-        foreach ($Block['element']['text'] as &$section) {
-            if (!isset($section['text']) || !is_array($section['text'])) {
-                continue;
-            }
-            foreach ($section['text'] as &$row) {
-                if (isset($row['text']) && is_array($row['text'])) {
-                    $row['text'] = $this->mergeColspanCells($row['text']);
+        // Colspan: an empty cell merges into the cell on its left (incrementing
+        // its colspan), the MultiMarkdown convention.
+        if ($this->table_colspan) {
+            foreach ($Block['element']['text'] as &$section) {
+                if (!isset($section['text']) || !is_array($section['text'])) {
+                    continue;
                 }
+                foreach ($section['text'] as &$row) {
+                    if (isset($row['text']) && is_array($row['text'])) {
+                        $row['text'] = $this->mergeColspanCells($row['text']);
+                    }
+                }
+                unset($row);
             }
-            unset($row);
+            unset($section);
         }
-        unset($section);
+
+        // Header-less: remove the empty placeholder <thead> created in blockTable().
+        if (!empty($Block['headerless'])) {
+            $Block['element']['text'] = array_values(array_filter(
+                $Block['element']['text'],
+                static fn($section) => ($section['name'] ?? null) !== 'thead'
+            ));
+        }
+
+        // Caption: prepend as the first child of the table.
+        if (isset($Block['caption']) && $Block['caption'] !== '') {
+            array_unshift($Block['element']['text'], [
+                'name' => 'caption',
+                'handler' => 'line',
+                'text' => $Block['caption'],
+            ]);
+        }
 
         return $Block;
+    }
+
+    /**
+     * Parse a table divider row into a per-column alignment list (mirrors the
+     * parent's inline logic so header-less tables align identically).
+     *
+     * @param string $divider
+     * @return array
+     */
+    private function parseTableAlignments(string $divider)
+    {
+        $alignments = [];
+        $divider = trim(trim($divider), '|');
+
+        foreach (explode('|', $divider) as $cell) {
+            $cell = trim($cell);
+            if ($cell === '') {
+                continue;
+            }
+
+            $alignment = null;
+            if ($cell[0] === ':') {
+                $alignment = 'left';
+            }
+            if (str_ends_with($cell, ':')) {
+                $alignment = $alignment === 'left' ? 'center' : 'right';
+            }
+
+            $alignments[] = $alignment;
+        }
+
+        return $alignments;
     }
 
     /**
