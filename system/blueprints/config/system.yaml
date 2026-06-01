@@ -652,6 +652,16 @@ form:
                 0: PLUGIN_ADMIN.NO
               validate:
                 type: bool
+            pages.markdown.tables.attributes:
+              type: toggle
+              label: Table Attributes
+              help: 'Non-standard: a `{.class #id}` (or `{:.class}`) line immediately after a table sets the class and id on the table element.'
+              highlight: 0
+              options:
+                1: PLUGIN_ADMIN.YES
+                0: PLUGIN_ADMIN.NO
+              validate:
+                type: bool
             pages.markdown.valid_link_attributes:
               type: selectize
               size: large

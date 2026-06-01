@@ -167,4 +167,93 @@ class TableExtensionsTest extends \PHPUnit\Framework\TestCase
         self::assertStringNotContainsString('<thead>', $html);
         self::assertLessThan(strpos($html, '<tbody>'), strpos($html, '<caption>'));
     }
+
+    protected function basicTable(): string
+    {
+        return "| a | b |\n| - | - |\n| 1 | 2 |";
+    }
+
+    /**
+     * By default a trailing `{.class}` line is not consumed as table attributes.
+     */
+    public function testAttributesDisabledByDefault(): void
+    {
+        $html = $this->parser()->text($this->basicTable() . "\n{.striped}");
+        self::assertStringContainsString('<table>', $html);
+        self::assertStringNotContainsString('class="striped"', $html);
+    }
+
+    /**
+     * The `.class` shortcut sets one or more classes on the <table>.
+     */
+    public function testAttributesClassShortcut(): void
+    {
+        $html = $this->parser(['attributes' => true])->text($this->basicTable() . "\n{.striped .responsive}");
+        self::assertStringContainsString('<table class="striped responsive">', $html);
+    }
+
+    /**
+     * The `#id` shortcut sets the id on the <table>.
+     */
+    public function testAttributesIdShortcut(): void
+    {
+        $html = $this->parser(['attributes' => true])->text($this->basicTable() . "\n{#sales}");
+        self::assertStringContainsString('id="sales"', $html);
+    }
+
+    /**
+     * The kramdown leading-colon form is also accepted.
+     */
+    public function testAttributesColonForm(): void
+    {
+        $html = $this->parser(['attributes' => true])->text($this->basicTable() . "\n{:.striped}");
+        self::assertStringContainsString('<table class="striped">', $html);
+    }
+
+    /**
+     * Explicit class="..." with multiple values is supported.
+     */
+    public function testAttributesExplicitClass(): void
+    {
+        $html = $this->parser(['attributes' => true])->text($this->basicTable() . "\n{class=\"foo bar\" #t}");
+        self::assertStringContainsString('class="foo bar"', $html);
+        self::assertStringContainsString('id="t"', $html);
+    }
+
+    /**
+     * Arbitrary/dangerous attributes are rejected — the line is left as content.
+     */
+    public function testAttributesRejectsArbitrary(): void
+    {
+        $html = $this->parser(['attributes' => true])->text($this->basicTable() . "\n{onclick=\"x\"}");
+        self::assertStringNotContainsString('onclick', $this->tableTag($html));
+    }
+
+    /**
+     * A brace line that is not a pure attribute block is left untouched.
+     */
+    public function testAttributesIgnoresNonAttributeBraces(): void
+    {
+        $html = $this->parser(['attributes' => true])->text($this->basicTable() . "\n{ not an attribute }");
+        self::assertStringContainsString('<table>', $html);
+    }
+
+    /**
+     * Captions and attributes compose on the same table.
+     */
+    public function testAttributesWithCaption(): void
+    {
+        $html = $this->parser(['attributes' => true, 'captions' => true])
+            ->text($this->basicTable() . "\n[Cap]\n{.striped}");
+        self::assertStringContainsString('<table class="striped">', $html);
+        self::assertStringContainsString('<caption>Cap</caption>', $html);
+    }
+
+    /**
+     * Helper: return just the opening <table ...> tag from rendered HTML.
+     */
+    protected function tableTag(string $html): string
+    {
+        return preg_match('/<table[^>]*>/', $html, $m) ? $m[0] : '';
+    }
 }

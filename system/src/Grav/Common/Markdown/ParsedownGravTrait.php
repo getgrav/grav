@@ -49,6 +49,8 @@ trait ParsedownGravTrait
     protected $table_headerless = false;
     /** @var bool Non-GFM table extension: a `[Caption]` line after a table becomes a `<caption>`. */
     protected $table_captions = false;
+    /** @var bool Non-GFM table extension: a `{.class #id}` line after a table sets attributes on `<table>`. */
+    protected $table_attributes = false;
 
     /**
      * Initialization function to setup key variables needed by the MarkdownGravLinkTrait
@@ -97,6 +99,7 @@ trait ParsedownGravTrait
         $this->table_colspan = (bool)($tables['colspan'] ?? false);
         $this->table_headerless = (bool)($tables['headerless'] ?? false);
         $this->table_captions = (bool)($tables['captions'] ?? false);
+        $this->table_attributes = (bool)($tables['attributes'] ?? false);
         if ($gfm['marks'] ?? true) {
             // Subscript shares the `~` marker with strikethrough; register it
             // after so `~~strike~~` is matched first and a single `~sub~` falls through.
@@ -567,8 +570,10 @@ trait ParsedownGravTrait
     }
 
     /**
-     * Captures an opt-in `[Caption]` line that immediately follows a table and
-     * attaches it to the block; blockTableComplete() renders it as `<caption>`.
+     * Captures two opt-in trailing lines that immediately follow a table and
+     * attaches them to the block (blockTableComplete() renders them):
+     *  - a `[Caption]` line  -> `<caption>`
+     *  - a `{.class #id}` (or kramdown `{:.class}`) line -> attributes on `<table>`
      * Everything else defers to the parent row parser.
      *
      * @param array $Line
@@ -577,13 +582,25 @@ trait ParsedownGravTrait
      */
     protected function blockTableContinue($Line, array $Block)
     {
-        if ($this->table_captions && !isset($Block['caption']) && !isset($Block['interrupted'])) {
+        if (!isset($Block['interrupted'])) {
             $trimmed = trim((string)$Line['text']);
-            if ($trimmed !== '' && $trimmed[0] === '['
+
+            if ($this->table_captions && !isset($Block['caption'])
+                && $trimmed !== '' && $trimmed[0] === '['
                 && preg_match('/^\[(.+?)\](?:\[.+?\])?$/', $trimmed, $m)) {
                 $Block['caption'] = $m[1];
 
                 return $Block;
+            }
+
+            if ($this->table_attributes && !isset($Block['table_attributes'])
+                && $trimmed !== '' && $trimmed[0] === '{') {
+                $attributes = $this->parseTableAttributes($trimmed);
+                if ($attributes !== null) {
+                    $Block['table_attributes'] = $attributes;
+
+                    return $Block;
+                }
             }
         }
 
@@ -639,7 +656,77 @@ trait ParsedownGravTrait
             ]);
         }
 
+        // Attributes: apply captured class/id to the <table> element itself.
+        if (isset($Block['table_attributes']) && is_array($Block['table_attributes'])) {
+            $attributes = $Block['element']['attributes'] ?? [];
+            if (isset($Block['table_attributes']['class'])) {
+                $existing = isset($attributes['class']) ? $attributes['class'] . ' ' : '';
+                $attributes['class'] = $existing . $Block['table_attributes']['class'];
+            }
+            if (isset($Block['table_attributes']['id'])) {
+                $attributes['id'] = $Block['table_attributes']['id'];
+            }
+            if ($attributes !== []) {
+                $Block['element']['attributes'] = $attributes;
+            }
+        }
+
         return $Block;
+    }
+
+    /**
+     * Parse a trailing `{.class #id}` / `{:.class #id}` line into a safe
+     * attribute set for a `<table>`. Accepts the `.class` / `#id` shortcuts and
+     * explicit `class="..."` / `id="..."` only (kramdown's leading colon is
+     * optional); any other token rejects the whole line so literal `{...}`
+     * content (Twig tags, prose) is never swallowed. Returns null when the line
+     * is not a pure, recognised attribute block.
+     *
+     * @param string $line
+     * @return array|null
+     */
+    private function parseTableAttributes(string $line)
+    {
+        if (!preg_match('/^\{:?\s*(.*?)\s*\}$/', $line, $m) || $m[1] === '') {
+            return null;
+        }
+        $body = $m[1];
+
+        // A valid token is `.name`, `#name`, or class="..."/id="..." (either quote).
+        $token = '([.#][^\s"\'.#]+)|((?:class|id)\s*=\s*(?:"[^"]*"|\'[^\']*\'))';
+
+        // If anything other than valid tokens / whitespace remains, this is not
+        // an attribute line — defer so the content is rendered as-is.
+        if (trim(preg_replace('/' . $token . '/', '', $body)) !== '') {
+            return null;
+        }
+
+        preg_match_all('/' . $token . '/', $body, $tokens, PREG_SET_ORDER);
+
+        $classes = [];
+        $attributes = [];
+        foreach ($tokens as $t) {
+            $tok = $t[0];
+            if ($tok[0] === '.') {
+                $classes[] = substr($tok, 1);
+            } elseif ($tok[0] === '#') {
+                $attributes['id'] = substr($tok, 1);
+            } else {
+                [$key, $value] = explode('=', $tok, 2);
+                $value = trim(trim($value), '"\'');
+                if (trim($key) === 'class') {
+                    $classes = array_merge($classes, preg_split('/\s+/', $value, -1, PREG_SPLIT_NO_EMPTY));
+                } else {
+                    $attributes['id'] = $value;
+                }
+            }
+        }
+
+        if ($classes !== []) {
+            $attributes['class'] = implode(' ', $classes);
+        }
+
+        return $attributes !== [] ? $attributes : null;
     }
 
     /**
