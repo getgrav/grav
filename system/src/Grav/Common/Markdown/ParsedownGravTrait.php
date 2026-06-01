@@ -26,6 +26,10 @@ trait ParsedownGravTrait
     /** @var array */
     public $continuable_blocks = [];
     public $plugins = [];
+    /** @var array<string,object> Block handler objects keyed by StudlyCase tag (extension API). */
+    public $block_handlers = [];
+    /** @var array<string,object> Inline handler objects keyed by StudlyCase tag (extension API). */
+    public $inline_handlers = [];
 
     /** @var Excerpts */
     protected $excerpts;
@@ -139,6 +143,33 @@ trait ParsedownGravTrait
     }
 
     /**
+     * Register a block handler object for the extension API. The engine's
+     * block{Tag} / block{Tag}Continue / block{Tag}Complete dispatch is routed
+     * to this handler via __call().
+     *
+     * @param string $tag
+     * @param object $handler
+     * @return void
+     */
+    public function setBlockHandler($tag, $handler)
+    {
+        $this->block_handlers[$tag] = $handler;
+    }
+
+    /**
+     * Register an inline handler object for the extension API. The engine's
+     * inline{Tag} dispatch is routed to this handler via __call().
+     *
+     * @param string $tag
+     * @param object $handler
+     * @return void
+     */
+    public function setInlineHandler($tag, $handler)
+    {
+        $this->inline_handlers[$tag] = $handler;
+    }
+
+    /**
      * Overrides the default behavior to allow for plugin-provided blocks to be continuable
      *
      * @param string $Type
@@ -147,7 +178,8 @@ trait ParsedownGravTrait
     protected function isBlockContinuable($Type)
     {
         $continuable = in_array($Type, $this->continuable_blocks, true)
-            || method_exists($this, 'block' . $Type . 'Continue');
+            || method_exists($this, 'block' . $Type . 'Continue')
+            || (isset($this->block_handlers[$Type]) && method_exists($this->block_handlers[$Type], 'blockContinue'));
 
         return $continuable;
     }
@@ -161,7 +193,8 @@ trait ParsedownGravTrait
     protected function isBlockCompletable($Type)
     {
         $completable = in_array($Type, $this->completable_blocks, true)
-            || method_exists($this, 'block' . $Type . 'Complete');
+            || method_exists($this, 'block' . $Type . 'Complete')
+            || (isset($this->block_handlers[$Type]) && method_exists($this->block_handlers[$Type], 'blockComplete'));
 
         return $completable;
     }
@@ -293,15 +326,36 @@ trait ParsedownGravTrait
     #[\ReturnTypeWillChange]
     public function __call($method, $args)
     {
-
+        // 1. Legacy closure path (highest priority — must not be shadowed by the routing below).
         if (isset($this->plugins[$method]) === true) {
-            $func = $this->plugins[$method];
+            return call_user_func_array($this->plugins[$method], $args);
+        }
 
-            return call_user_func_array($func, $args);
-        } elseif (isset($this->{$method}) === true) {
-            $func = $this->{$method};
+        // 2. Extension API: route the engine's block/inline dispatch to a registered handler object.
+        if (str_starts_with($method, 'block')) {
+            foreach (['Complete', 'Continue'] as $suffix) {
+                if (str_ends_with($method, $suffix)) {
+                    $handler = $this->block_handlers[substr($method, 5, -strlen($suffix))] ?? null;
+                    if ($handler !== null) {
+                        $fn = 'block' . $suffix;
+                        return method_exists($handler, $fn) ? $handler->{$fn}(...$args) : null;
+                    }
+                }
+            }
+            $handler = $this->block_handlers[substr($method, 5)] ?? null;
+            if ($handler !== null) {
+                return method_exists($handler, 'block') ? $handler->block(...$args) : null;
+            }
+        } elseif (str_starts_with($method, 'inline')) {
+            $handler = $this->inline_handlers[substr($method, 6)] ?? null;
+            if ($handler !== null) {
+                return method_exists($handler, 'inline') ? $handler->inline(...$args) : null;
+            }
+        }
 
-            return call_user_func_array($func, $args);
+        // 3. Legacy dynamic-property fallback.
+        if (isset($this->{$method}) === true) {
+            return call_user_func_array($this->{$method}, $args);
         }
 
         return null;
