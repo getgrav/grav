@@ -86,6 +86,10 @@
         {
             "type": "vcs",
             "url": "https://github.com/getgrav/parsedown"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/getgrav/parsedown-extra"
         }
     ],
     "replace": {

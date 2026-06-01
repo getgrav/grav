@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "61b1e3df09fdf731cd805b064b052386",
+    "content-hash": "8d0ed5a190a081340f8731489edc6e7e",
     "packages": [
         {
             "name": "antoligy/dom-string-iterators",
@@ -534,16 +534,16 @@
         },
         {
             "name": "erusev/parsedown-extra",
-            "version": "0.8.1",
+            "version": "0.8.2",
             "source": {
                 "type": "git",
-                "url": "https://github.com/erusev/parsedown-extra.git",
-                "reference": "91ac3ff98f0cea243bdccc688df43810f044dcef"
+                "url": "https://github.com/getgrav/parsedown-extra.git",
+                "reference": "ab9b0fd392ee2adfe6c69de6a37897c708018faf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/erusev/parsedown-extra/zipball/91ac3ff98f0cea243bdccc688df43810f044dcef",
-                "reference": "91ac3ff98f0cea243bdccc688df43810f044dcef",
+                "url": "https://api.github.com/repos/getgrav/parsedown-extra/zipball/ab9b0fd392ee2adfe6c69de6a37897c708018faf",
+                "reference": "ab9b0fd392ee2adfe6c69de6a37897c708018faf",
                 "shasum": ""
             },
             "require": {
@@ -558,7 +558,15 @@
                     "ParsedownExtra": ""
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
+            "autoload-dev": {
+                "psr-0": {
+                    "TestParsedown": "test/",
+                    "ParsedownExtraTest": "test/",
+                    "ParsedownTest": "vendor/erusev/parsedown/test/",
+                    "CommonMarkTest": "vendor/erusev/parsedown/test/",
+                    "CommonMarkTestWeak": "vendor/erusev/parsedown/test/"
+                }
+            },
             "license": [
                 "MIT"
             ],
@@ -578,10 +586,9 @@
                 "parser"
             ],
             "support": {
-                "issues": "https://github.com/erusev/parsedown-extra/issues",
-                "source": "https://github.com/erusev/parsedown-extra/tree/0.8.x"
+                "source": "https://github.com/getgrav/parsedown-extra/tree/0.8.2"
             },
-            "time": "2019-12-30T23:20:37+00:00"
+            "time": "2026-06-01T14:56:15+00:00"
         },
         {
             "name": "filp/whoops",
