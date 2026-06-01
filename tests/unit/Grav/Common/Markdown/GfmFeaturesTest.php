@@ -99,4 +99,56 @@ class GfmFeaturesTest extends \PHPUnit\Framework\TestCase
         $html = $this->parser(['task_lists' => false])->text('- [ ] todo');
         self::assertStringContainsString('<li>[ ] todo</li>', $html);
     }
+
+    public function testWwwAutolink(): void
+    {
+        self::assertSame(
+            '<p>see <a href="http://www.example.com">www.example.com</a> now</p>',
+            $this->parser()->text('see www.example.com now')
+        );
+    }
+
+    public function testEmailAutolink(): void
+    {
+        self::assertSame(
+            '<p>mail <a href="mailto:foo@example.com">foo@example.com</a> please</p>',
+            $this->parser()->text('mail foo@example.com please')
+        );
+    }
+
+    /**
+     * Trailing sentence punctuation stays outside the link (GFM behavior).
+     */
+    public function testAutolinkTrimsTrailingPunctuation(): void
+    {
+        self::assertSame(
+            '<p>visit www.example.com.</p>',
+            str_replace(
+                '<a href="http://www.example.com">www.example.com</a>',
+                'www.example.com',
+                $this->parser()->text('visit www.example.com.')
+            )
+        );
+        // and the link itself excludes the trailing dot
+        self::assertStringContainsString('<a href="http://www.example.com">www.example.com</a>.', $this->parser()->text('visit www.example.com.'));
+    }
+
+    /**
+     * Autolinking must not touch URLs already inside an explicit markdown link.
+     */
+    public function testExplicitLinkNotDoubleLinked(): void
+    {
+        self::assertSame(
+            '<p><a href="http://www.example.com">site</a></p>',
+            $this->parser()->text('[site](http://www.example.com)')
+        );
+    }
+
+    /**
+     * Autolinks can be disabled via config.
+     */
+    public function testAutolinksCanBeDisabled(): void
+    {
+        self::assertSame('<p>see www.example.com now</p>', $this->parser(['autolinks' => false])->text('see www.example.com now'));
+    }
 }

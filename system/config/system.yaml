@@ -76,6 +76,7 @@ pages:
       task_lists: true                           # Render `- [ ]` / `- [x]` list items as checkboxes
       marks: true                                # Enable `==highlight==`, `~subscript~`, `^superscript^`
       tagfilter: true                            # Escape disallowed raw HTML tags (script, iframe, style, etc.)
+      autolinks: true                            # Autolink bare `www.` URLs and email addresses
   types: [html,htm,xml,txt,json,rss,atom]        # list of valid page types
   append_url_extension: ''                       # Append page's extension in Page urls (e.g. '.html' results in /path/page.html)
   expires: 604800                                # Page expires time in seconds (604800 seconds = 7 days)

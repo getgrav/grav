@@ -41,6 +41,8 @@ trait ParsedownGravTrait
     protected $gfm_task_lists = true;
     /** @var bool Escape the GFM "disallowed raw HTML" tag denylist in output (tagfilter). */
     protected $gfm_tagfilter = true;
+    /** @var bool Autolink bare `www.` URLs and email addresses (GFM extended autolinks). */
+    protected $gfm_autolinks = true;
 
     /**
      * Initialization function to setup key variables needed by the MarkdownGravLinkTrait
@@ -84,6 +86,7 @@ trait ParsedownGravTrait
         $gfm = $defaults['markdown']['gfm'] ?? [];
         $this->gfm_task_lists = (bool)($gfm['task_lists'] ?? true);
         $this->gfm_tagfilter = (bool)($gfm['tagfilter'] ?? true);
+        $this->gfm_autolinks = (bool)($gfm['autolinks'] ?? true);
         if ($gfm['marks'] ?? true) {
             // Subscript shares the `~` marker with strikethrough; register it
             // after so `~~strike~~` is matched first and a single `~sub~` falls through.
@@ -444,6 +447,68 @@ trait ParsedownGravTrait
             '&lt;$1',
             (string) $markup
         );
+    }
+
+    /**
+     * GFM extended autolinks: turn bare `www.` URLs and email addresses into
+     * links. Runs on unmarked text only (segments outside other inlines), so it
+     * never relinks inside an existing link, code span, or raw HTML.
+     *
+     * @param string $text
+     * @return string
+     */
+    protected function unmarkedText($text)
+    {
+        $text = parent::unmarkedText($text);
+
+        if ($this->gfm_autolinks) {
+            $text = $this->autolinkExtended((string) $text);
+        }
+
+        return $text;
+    }
+
+    /**
+     * @param string $text
+     * @return string
+     */
+    protected function autolinkExtended($text)
+    {
+        return preg_replace_callback(
+            '~(?<![\w@./])(www\.[\w-]+(?:\.[\w-]+)+(?:[/?#][^\s<]*)?|[\w.+-]+@[\w-]+(?:\.[\w-]+)+)~i',
+            function ($matches) {
+                [$token, $trailing] = $this->trimAutolinkTrailing($matches[1]);
+                if (stripos($token, 'www.') === 0) {
+                    return '<a href="http://' . $token . '">' . $token . '</a>' . $trailing;
+                }
+
+                return '<a href="mailto:' . $token . '">' . $token . '</a>' . $trailing;
+            },
+            (string) $text
+        );
+    }
+
+    /**
+     * Strip trailing punctuation (and unbalanced closing parens) from an
+     * autolink token, matching GFM behavior. Returns [linked, trailing].
+     *
+     * @param string $token
+     * @return array
+     */
+    protected function trimAutolinkTrailing($token)
+    {
+        $trailing = '';
+        while ($token !== '' && strpbrk($token[strlen($token) - 1], '?!.,:*_~') !== false) {
+            $trailing = $token[strlen($token) - 1] . $trailing;
+            $token = substr($token, 0, -1);
+        }
+        while ($token !== '' && $token[strlen($token) - 1] === ')'
+            && substr_count($token, ')') > substr_count($token, '(')) {
+            $trailing = ')' . $trailing;
+            $token = substr($token, 0, -1);
+        }
+
+        return [$token, $trailing];
     }
 
     /**
