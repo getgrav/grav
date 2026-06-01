@@ -477,16 +477,16 @@
         },
         {
             "name": "erusev/parsedown",
-            "version": "2.0.0",
+            "version": "2.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/getgrav/parsedown.git",
-                "reference": "b948af21eff0e8fbe73f22ac561f05bbf77afb86"
+                "reference": "aec784e653d02788b23a2130274c862f2010735b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/getgrav/parsedown/zipball/b948af21eff0e8fbe73f22ac561f05bbf77afb86",
-                "reference": "b948af21eff0e8fbe73f22ac561f05bbf77afb86",
+                "url": "https://api.github.com/repos/getgrav/parsedown/zipball/aec784e653d02788b23a2130274c862f2010735b",
+                "reference": "aec784e653d02788b23a2130274c862f2010735b",
                 "shasum": ""
             },
             "require": {
@@ -528,9 +528,9 @@
                 "parser"
             ],
             "support": {
-                "source": "https://github.com/getgrav/parsedown/tree/2.0.0"
+                "source": "https://github.com/getgrav/parsedown/tree/2.0.1"
             },
-            "time": "2026-06-01T16:54:13+00:00"
+            "time": "2026-06-01T22:02:07+00:00"
         },
         {
             "name": "erusev/parsedown-extra",
