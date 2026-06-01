@@ -250,6 +250,60 @@ class TableExtensionsTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
+     * By default a trailing backslash does not continue a row onto the next line.
+     */
+    public function testMultilineDisabledByDefault(): void
+    {
+        $html = $this->parser()->text("| a | b |\n| - | - |\n| 1 | 2 \\\n| 3 | 4 |");
+        self::assertStringNotContainsString('<br>', $html);
+        self::assertStringContainsString('<td>3</td>', $html);
+    }
+
+    /**
+     * A normal table is unaffected when multiline is on but no row ends in `\`.
+     */
+    public function testMultilineNormalTableUnaffected(): void
+    {
+        $src = "| a | b |\n| - | - |\n| 1 | 2 |";
+        $on = $this->parser(['multiline' => true])->text($src);
+        $off = $this->parser()->text($src);
+        self::assertSame($off, $on);
+    }
+
+    /**
+     * A row ending in `\` merges the next line's cells into it (joined with <br>).
+     */
+    public function testMultilineMergesContinuation(): void
+    {
+        $html = $this->parser(['multiline' => true])
+            ->text("| Name | Notes |\n| - | - |\n| Widget | First line \\\n| | second line |");
+        self::assertStringContainsString('First line<br>second line', $html);
+        self::assertStringNotContainsString('<td></td>', $html);
+        self::assertSame(1, substr_count($html, '<td>Widget</td>'));
+    }
+
+    /**
+     * Continuation accumulates across multiple trailing-backslash rows.
+     */
+    public function testMultilineAccumulatesAcrossRows(): void
+    {
+        $html = $this->parser(['multiline' => true])
+            ->text("| Step | Detail |\n| - | - |\n| 1 | alpha \\\n| | beta \\\n| | gamma |");
+        self::assertStringContainsString('alpha<br>beta<br>gamma', $html);
+    }
+
+    /**
+     * Every column of a continued row merges, not just one.
+     */
+    public function testMultilineMergesAllColumns(): void
+    {
+        $html = $this->parser(['multiline' => true])
+            ->text("| A | B |\n| - | - |\n| x1 | y1 \\\n| x2 | y2 |");
+        self::assertStringContainsString('x1<br>x2', $html);
+        self::assertStringContainsString('y1<br>y2', $html);
+    }
+
+    /**
      * Helper: return just the opening <table ...> tag from rendered HTML.
      */
     protected function tableTag(string $html): string

@@ -82,6 +82,7 @@ pages:
       headerless: false                          # A table may start with the divider row (no header row)
       captions: false                            # A `[Caption]` line after a table becomes a `<caption>`
       attributes: false                          # A `{.class #id}` line after a table sets attributes on the table
+      multiline: false                           # A row ending in `\` continues into the next line (multi-line cells)
   types: [html,htm,xml,txt,json,rss,atom]        # list of valid page types
   append_url_extension: ''                       # Append page's extension in Page urls (e.g. '.html' results in /path/page.html)
   expires: 604800                                # Page expires time in seconds (604800 seconds = 7 days)

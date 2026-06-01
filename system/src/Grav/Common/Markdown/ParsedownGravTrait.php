@@ -51,6 +51,8 @@ trait ParsedownGravTrait
     protected $table_captions = false;
     /** @var bool Non-GFM table extension: a `{.class #id}` line after a table sets attributes on `<table>`. */
     protected $table_attributes = false;
+    /** @var bool Non-GFM table extension: a row ending in `\` continues into the next line (multi-line cells). */
+    protected $table_multiline = false;
 
     /**
      * Initialization function to setup key variables needed by the MarkdownGravLinkTrait
@@ -100,6 +102,7 @@ trait ParsedownGravTrait
         $this->table_headerless = (bool)($tables['headerless'] ?? false);
         $this->table_captions = (bool)($tables['captions'] ?? false);
         $this->table_attributes = (bool)($tables['attributes'] ?? false);
+        $this->table_multiline = (bool)($tables['multiline'] ?? false);
         if ($gfm['marks'] ?? true) {
             // Subscript shares the `~` marker with strikethrough; register it
             // after so `~~strike~~` is matched first and a single `~sub~` falls through.
@@ -602,9 +605,86 @@ trait ParsedownGravTrait
                     return $Block;
                 }
             }
+
+            if ($this->table_multiline) {
+                $continues = $trimmed !== '' && str_ends_with($trimmed, '\\');
+
+                // A previous row armed continuation: merge this line's cells
+                // column-wise into the last row instead of starting a new one.
+                if (!empty($Block['table_continue'])) {
+                    $cells = $this->parseTableRowCells($continues ? rtrim(substr($trimmed, 0, -1)) : $trimmed);
+                    $Block = $this->mergeTableContinuation($Block, $cells);
+                    $Block['table_continue'] = $continues;
+
+                    return $Block;
+                }
+
+                // A normal row that ends in `\` opts into continuation: let the
+                // parent build the row from the de-backslashed line, then arm it.
+                if ($continues && str_contains($trimmed, '|')) {
+                    $LineStripped = $Line;
+                    $LineStripped['text'] = rtrim(substr(rtrim((string)$Line['text']), 0, -1));
+                    $result = parent::blockTableContinue($LineStripped, $Block);
+                    if ($result !== null) {
+                        $result['table_continue'] = true;
+
+                        return $result;
+                    }
+                }
+            }
         }
 
         return parent::blockTableContinue($Line, $Block);
+    }
+
+    /**
+     * Split a table row into its trimmed cell strings (mirrors the parent's
+     * cell-extraction regex so continuation rows tokenize identically).
+     *
+     * @param string $text
+     * @return array
+     */
+    private function parseTableRowCells(string $text)
+    {
+        $row = trim(trim($text), '|');
+        preg_match_all('/(?:(\\\\[|])|[^|`]|`[^`]+`|`)+/', $row, $matches);
+
+        return array_map('trim', $matches[0]);
+    }
+
+    /**
+     * Append a continuation row's cells onto the last body row, joining each
+     * non-empty cell to the one above it with a `<br>` (multi-line cells).
+     *
+     * @param array $Block
+     * @param array $cells
+     * @return array
+     */
+    private function mergeTableContinuation(array $Block, array $cells)
+    {
+        // Rows live in the tbody section (index 1 in the parent's layout).
+        if (!isset($Block['element']['text'][1]['text']) || !is_array($Block['element']['text'][1]['text'])) {
+            return $Block;
+        }
+        $rows = &$Block['element']['text'][1]['text'];
+        $last = count($rows) - 1;
+        if ($last < 0 || !isset($rows[$last]['text']) || !is_array($rows[$last]['text'])) {
+            unset($rows);
+
+            return $Block;
+        }
+
+        $tds = &$rows[$last]['text'];
+        foreach ($cells as $i => $cell) {
+            if ($cell === '' || !isset($tds[$i])) {
+                continue;
+            }
+            $existing = (string)($tds[$i]['text'] ?? '');
+            $tds[$i]['text'] = $existing === '' ? $cell : $existing . '<br>' . $cell;
+        }
+        unset($tds, $rows);
+
+        return $Block;
     }
 
     /**

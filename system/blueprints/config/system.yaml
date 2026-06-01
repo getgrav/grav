@@ -662,6 +662,16 @@ form:
                 0: PLUGIN_ADMIN.NO
               validate:
                 type: bool
+            pages.markdown.tables.multiline:
+              type: toggle
+              label: Multi-line Table Cells
+              help: 'Non-standard: a table row ending in a backslash continues onto the next line, joining cells with a line break.'
+              highlight: 0
+              options:
+                1: PLUGIN_ADMIN.YES
+                0: PLUGIN_ADMIN.NO
+              validate:
+                type: bool
             pages.markdown.valid_link_attributes:
               type: selectize
               size: large
