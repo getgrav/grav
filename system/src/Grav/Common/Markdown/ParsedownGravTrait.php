@@ -438,6 +438,11 @@ trait ParsedownGravTrait
      */
     protected function renderTaskLists($markup)
     {
+        // The pattern requires a literal "[" (after a "<li>"); skip when absent.
+        if (strpos((string) $markup, '[') === false) {
+            return (string) $markup;
+        }
+
         return preg_replace_callback(
             '/<li>(\s*(?:<p>)?)\[([ xX])\]\s+/',
             static function ($m) {
@@ -490,6 +495,13 @@ trait ParsedownGravTrait
      */
     protected function autolinkExtended($text)
     {
+        // Cheap gate: the pattern can only match text containing "www." or "@".
+        // unmarkedText() runs once per text fragment, so skipping the regex for
+        // the common case (neither present) is a large win on real documents.
+        if (strpos($text, '@') === false && stripos($text, 'www.') === false) {
+            return $text;
+        }
+
         return preg_replace_callback(
             '~(?<![\w@./])(www\.[\w-]+(?:\.[\w-]+)+(?:[/?#][^\s<]*)?|[\w.+-]+@[\w-]+(?:\.[\w-]+)+)~i',
             function ($matches) {
