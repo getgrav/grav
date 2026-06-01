@@ -1,6 +1,11 @@
 # v2.0.0-rc.6
 ## 06/01/2026
 
+1. [](#new)
+    * Added GitHub-style task lists: `- [ ]` and `- [x]` now render as (disabled) checkboxes. Can be turned off under Configuration > System > Markdown.
+    * Added `==highlight==`, `~subscript~`, and `^superscript^` inline syntax, rendering as `<mark>`, `<sub>`, and `<sup>`. Can be turned off under Markdown settings.
+    * Disallowed raw HTML tags in page content (`script`, `iframe`, `style`, `textarea`, and similar) are now escaped in the output to match GitHub Flavored Markdown. Can be turned off under Markdown settings.
+    * Plugins can now add custom markdown block and inline syntax through a documented extension API with an element builder, instead of injecting closures and hand-building element arrays. The previous approach still works.
 1. [](#bugfix)
     * `bin/grav server` no longer shows the "PHP webserver requires a router" message and serves the site correctly when the Symfony local server falls back to PHP's built-in web server (for example on systems without php-fpm). Fixes [getgrav/grav#4099](https://github.com/getgrav/grav/issues/4099).
     * Markdown Extra no longer triggers an "implicitly marking parameter as nullable is deprecated" notice on PHP 8.4 and newer; the bundled Markdown Extra parser is now a maintained fork with the fix applied.

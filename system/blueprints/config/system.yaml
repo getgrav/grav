@@ -582,6 +582,36 @@ form:
                 0: PLUGIN_ADMIN.NO
               validate:
                 type: bool
+            pages.markdown.gfm.task_lists:
+              type: toggle
+              label: GFM Task Lists
+              help: 'Render `- [ ]` and `- [x]` list items as checkboxes.'
+              highlight: 1
+              options:
+                1: PLUGIN_ADMIN.YES
+                0: PLUGIN_ADMIN.NO
+              validate:
+                type: bool
+            pages.markdown.gfm.marks:
+              type: toggle
+              label: GFM Highlight / Sub / Superscript
+              help: 'Enable ==highlight==, ~subscript~, and ^superscript^ inline syntax.'
+              highlight: 1
+              options:
+                1: PLUGIN_ADMIN.YES
+                0: PLUGIN_ADMIN.NO
+              validate:
+                type: bool
+            pages.markdown.gfm.tagfilter:
+              type: toggle
+              label: GFM Tag Filter
+              help: 'Escape disallowed raw HTML tags (script, iframe, style, and similar) in output.'
+              highlight: 1
+              options:
+                1: PLUGIN_ADMIN.YES
+                0: PLUGIN_ADMIN.NO
+              validate:
+                type: bool
             pages.markdown.valid_link_attributes:
               type: selectize
               size: large

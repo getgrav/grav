@@ -90,11 +90,11 @@ class MarkdownExtensionTest extends \PHPUnit\Framework\TestCase
         $extension = new class extends AbstractMarkdownExtension implements InlineHandlerInterface {
             public function getName(): string { return 'mark'; }
             public function register(MarkdownExtensionRegistry $r): void {
-                $r->registerInline('Highlight', '=', $this);
+                $r->registerInline('Cite', '@', $this);
             }
             public function inline(array $excerpt): ?array {
-                if (preg_match('/^==(?=\S)(.+?)==/', $excerpt['text'], $m)) {
-                    return ['extent' => strlen($m[0]), 'element' => Element::create('mark')->setInlineText($m[1])->toArray()];
+                if (preg_match('/^@@(?=\S)(.+?)@@/', $excerpt['text'], $m)) {
+                    return ['extent' => strlen($m[0]), 'element' => Element::create('cite')->setInlineText($m[1])->toArray()];
                 }
                 return null;
             }
@@ -102,7 +102,7 @@ class MarkdownExtensionTest extends \PHPUnit\Framework\TestCase
 
         (new MarkdownExtensionRegistry($parsedown))->add($extension);
 
-        self::assertSame('<p>a <mark>b c</mark> d</p>', $parsedown->text('a ==b c== d'));
+        self::assertSame('<p>a <cite>b c</cite> d</p>', $parsedown->text('a @@b c@@ d'));
     }
 
     /**
@@ -115,16 +115,16 @@ class MarkdownExtensionTest extends \PHPUnit\Framework\TestCase
             public function getName(): string { return 'mark'; }
             public function isEnabled(): bool { return false; }
             public function register(MarkdownExtensionRegistry $r): void {
-                $r->registerInline('Highlight', '=', $this);
+                $r->registerInline('Cite', '@', $this);
             }
             public function inline(array $excerpt): ?array {
-                return ['extent' => 2, 'element' => ['name' => 'mark']];
+                return ['extent' => 2, 'element' => ['name' => 'cite']];
             }
         };
 
         (new MarkdownExtensionRegistry($parsedown))->add($extension);
 
-        self::assertSame('<p>a ==b== d</p>', $parsedown->text('a ==b== d'));
+        self::assertSame('<p>a @@b@@ d</p>', $parsedown->text('a @@b@@ d'));
     }
 
     /**
@@ -170,10 +170,10 @@ class MarkdownExtensionTest extends \PHPUnit\Framework\TestCase
         // New API inline
         $inline = new class extends AbstractMarkdownExtension implements InlineHandlerInterface {
             public function getName(): string { return 'mark'; }
-            public function register(MarkdownExtensionRegistry $r): void { $r->registerInline('Highlight', '=', $this); }
+            public function register(MarkdownExtensionRegistry $r): void { $r->registerInline('Cite', '@', $this); }
             public function inline(array $excerpt): ?array {
-                if (preg_match('/^==(?=\S)(.+?)==/', $excerpt['text'], $m)) {
-                    return ['extent' => strlen($m[0]), 'element' => Element::create('mark')->setInlineText($m[1])->toArray()];
+                if (preg_match('/^@@(?=\S)(.+?)@@/', $excerpt['text'], $m)) {
+                    return ['extent' => strlen($m[0]), 'element' => Element::create('cite')->setInlineText($m[1])->toArray()];
                 }
                 return null;
             }
@@ -189,6 +189,6 @@ class MarkdownExtensionTest extends \PHPUnit\Framework\TestCase
         };
         $parsedown->addInlineType('+', 'LegacyIns');
 
-        self::assertSame('<p><mark>new</mark> and <ins>old</ins></p>', $parsedown->text('==new== and ++old++'));
+        self::assertSame('<p><cite>new</cite> and <ins>old</ins></p>', $parsedown->text('@@new@@ and ++old++'));
     }
 }

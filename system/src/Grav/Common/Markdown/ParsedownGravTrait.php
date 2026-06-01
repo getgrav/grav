@@ -37,6 +37,10 @@ trait ParsedownGravTrait
     protected $special_chars;
     /** @var string */
     protected $twig_link_regex = '/\!*\[(?:.*)\]\((\{([\{%#])\s*(.*?)\s*(?:\2|\})\})\)/';
+    /** @var bool Render `- [ ]` / `- [x]` list items as checkboxes (GFM task lists). */
+    protected $gfm_task_lists = true;
+    /** @var bool Escape the GFM "disallowed raw HTML" tag denylist in output (tagfilter). */
+    protected $gfm_tagfilter = true;
 
     /**
      * Initialization function to setup key variables needed by the MarkdownGravLinkTrait
@@ -74,6 +78,18 @@ trait ParsedownGravTrait
         }
         if (isset($defaults['markdown']['special_chars'])) {
             $this->setSpecialChars($defaults['markdown']['special_chars']);
+        }
+
+        // GitHub Flavored Markdown extensions (on by default).
+        $gfm = $defaults['markdown']['gfm'] ?? [];
+        $this->gfm_task_lists = (bool)($gfm['task_lists'] ?? true);
+        $this->gfm_tagfilter = (bool)($gfm['tagfilter'] ?? true);
+        if ($gfm['marks'] ?? true) {
+            // Subscript shares the `~` marker with strikethrough; register it
+            // after so `~~strike~~` is matched first and a single `~sub~` falls through.
+            $this->addInlineType('=', 'Highlight');
+            $this->addInlineType('~', 'Subscript');
+            $this->addInlineType('^', 'Superscript');
         }
 
         $this->excerpts->fireInitializedEvent($this);
@@ -314,6 +330,120 @@ trait ParsedownGravTrait
         }
 
         return $excerpt;
+    }
+
+    /**
+     * Inline `==highlight==` to a <mark> element (GFM-adjacent extended syntax).
+     *
+     * @param array $excerpt
+     * @return array|null
+     */
+    protected function inlineHighlight($excerpt)
+    {
+        if (preg_match('/^==(?=\S)(.+?)==/s', (string) $excerpt['text'], $matches)) {
+            return [
+                'extent' => strlen($matches[0]),
+                'element' => Element::create('mark')->setInlineText($matches[1])->toArray(),
+            ];
+        }
+
+        return null;
+    }
+
+    /**
+     * Inline `~subscript~` to a <sub> element. Shares the `~` marker with
+     * strikethrough, which is registered first and matched first, so only a
+     * single-tilde span reaches here.
+     *
+     * @param array $excerpt
+     * @return array|null
+     */
+    protected function inlineSubscript($excerpt)
+    {
+        if (preg_match('/^~(?!~)([^~\s]+)~/', (string) $excerpt['text'], $matches)) {
+            return [
+                'extent' => strlen($matches[0]),
+                'element' => Element::create('sub')->setInlineText($matches[1])->toArray(),
+            ];
+        }
+
+        return null;
+    }
+
+    /**
+     * Inline `^superscript^` to a <sup> element.
+     *
+     * @param array $excerpt
+     * @return array|null
+     */
+    protected function inlineSuperscript($excerpt)
+    {
+        if (preg_match('/^\^([^\^\s]+)\^/', (string) $excerpt['text'], $matches)) {
+            return [
+                'extent' => strlen($matches[0]),
+                'element' => Element::create('sup')->setInlineText($matches[1])->toArray(),
+            ];
+        }
+
+        return null;
+    }
+
+    /**
+     * Apply GFM output post-passes (task lists, tagfilter) after rendering.
+     *
+     * @param string $text
+     * @return string
+     */
+    #[\ReturnTypeWillChange]
+    public function text($text)
+    {
+        $markup = parent::text($text);
+
+        if ($this->gfm_task_lists) {
+            $markup = $this->renderTaskLists($markup);
+        }
+        if ($this->gfm_tagfilter) {
+            $markup = $this->filterDisallowedRawHtml($markup);
+        }
+
+        return $markup;
+    }
+
+    /**
+     * Turn `- [ ]` / `- [x]` list items into disabled checkboxes (GFM task
+     * lists). Runs on rendered list HTML; fenced/indented code escapes `<`, so
+     * a `<li>` here is always a real list item.
+     *
+     * @param string $markup
+     * @return string
+     */
+    protected function renderTaskLists($markup)
+    {
+        return preg_replace_callback(
+            '/<li>(\s*(?:<p>)?)\[([ xX])\]\s+/',
+            static function ($m) {
+                $checked = strtolower($m[2]) === 'x' ? ' checked=""' : '';
+                return '<li class="task-list-item">' . $m[1] . '<input type="checkbox" disabled=""' . $checked . ' /> ';
+            },
+            (string) $markup
+        );
+    }
+
+    /**
+     * Escape the leading `<` of GFM's disallowed-raw-HTML tag denylist so those
+     * tags render as inert text instead of active markup (tagfilter extension).
+     * Broad XSS protection remains the Security layer's responsibility.
+     *
+     * @param string $markup
+     * @return string
+     */
+    protected function filterDisallowedRawHtml($markup)
+    {
+        return preg_replace(
+            '#<(/?(?:title|textarea|style|xmp|iframe|noembed|noframes|script|plaintext)\b)#i',
+            '&lt;$1',
+            (string) $markup
+        );
     }
 
     /**
