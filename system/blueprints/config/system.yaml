@@ -622,6 +622,16 @@ form:
                 0: PLUGIN_ADMIN.NO
               validate:
                 type: bool
+            pages.markdown.tables.colspan:
+              type: toggle
+              label: Table Cell Colspan
+              help: 'Non-standard: an empty table cell merges into the cell on its left (colspan).'
+              highlight: 0
+              options:
+                1: PLUGIN_ADMIN.YES
+                0: PLUGIN_ADMIN.NO
+              validate:
+                type: bool
             pages.markdown.valid_link_attributes:
               type: selectize
               size: large

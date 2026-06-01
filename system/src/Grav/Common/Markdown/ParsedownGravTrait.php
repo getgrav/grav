@@ -43,6 +43,8 @@ trait ParsedownGravTrait
     protected $gfm_tagfilter = true;
     /** @var bool Autolink bare `www.` URLs and email addresses (GFM extended autolinks). */
     protected $gfm_autolinks = true;
+    /** @var bool Non-GFM table extension: an empty cell merges into the cell on its left (colspan). */
+    protected $table_colspan = false;
 
     /**
      * Initialization function to setup key variables needed by the MarkdownGravLinkTrait
@@ -87,6 +89,7 @@ trait ParsedownGravTrait
         $this->gfm_task_lists = (bool)($gfm['task_lists'] ?? true);
         $this->gfm_tagfilter = (bool)($gfm['tagfilter'] ?? true);
         $this->gfm_autolinks = (bool)($gfm['autolinks'] ?? true);
+        $this->table_colspan = (bool)($defaults['markdown']['tables']['colspan'] ?? false);
         if ($gfm['marks'] ?? true) {
             // Subscript shares the `~` marker with strikethrough; register it
             // after so `~~strike~~` is matched first and a single `~sub~` falls through.
@@ -509,6 +512,60 @@ trait ParsedownGravTrait
         }
 
         return [$token, $trailing];
+    }
+
+    /**
+     * Finalize a parsed table. Opt-in colspan support: an empty cell merges
+     * into the cell on its left (incrementing its colspan), the MultiMarkdown
+     * convention. Off by default, so standard GFM tables (which may contain
+     * intentionally empty cells) are untouched.
+     *
+     * @param array $Block
+     * @return array
+     */
+    protected function blockTableComplete(array $Block)
+    {
+        if (!$this->table_colspan || !isset($Block['element']['text'])) {
+            return $Block;
+        }
+
+        foreach ($Block['element']['text'] as &$section) {
+            if (!isset($section['text']) || !is_array($section['text'])) {
+                continue;
+            }
+            foreach ($section['text'] as &$row) {
+                if (isset($row['text']) && is_array($row['text'])) {
+                    $row['text'] = $this->mergeColspanCells($row['text']);
+                }
+            }
+            unset($row);
+        }
+        unset($section);
+
+        return $Block;
+    }
+
+    /**
+     * Merge empty cells into the preceding cell as colspan.
+     *
+     * @param array $cells
+     * @return array
+     */
+    protected function mergeColspanCells(array $cells)
+    {
+        $merged = [];
+        foreach ($cells as $cell) {
+            $isEmpty = trim((string)($cell['text'] ?? '')) === '';
+            if ($isEmpty && $merged !== []) {
+                $last = count($merged) - 1;
+                $span = (int)($merged[$last]['attributes']['colspan'] ?? 1) + 1;
+                $merged[$last]['attributes']['colspan'] = (string)$span;
+                continue;
+            }
+            $merged[] = $cell;
+        }
+
+        return $merged;
     }
 
     /**
