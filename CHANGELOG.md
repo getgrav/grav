@@ -4,6 +4,7 @@
 1. [](#bugfix)
     * `bin/grav server` no longer shows the "PHP webserver requires a router" message and serves the site correctly when the Symfony local server falls back to PHP's built-in web server (for example on systems without php-fpm). Fixes [getgrav/grav#4099](https://github.com/getgrav/grav/issues/4099).
     * Markdown Extra no longer triggers an "implicitly marking parameter as nullable is deprecated" notice on PHP 8.4 and newer; the bundled Markdown Extra parser is now a maintained fork with the fix applied.
+    * Fenced code blocks with a trailing attribute block (for example ` ```python {#id .class} `) now apply the id and classes to the code element instead of corrupting the language class. Requires Markdown Extra to be enabled.
 
 # v2.0.0-rc.5
 ## 05/29/2026
