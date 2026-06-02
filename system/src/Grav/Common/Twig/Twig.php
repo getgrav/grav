@@ -379,38 +379,46 @@ class Twig
         $output = '';
 
         try {
-            // Theme modular template render (loaded from disk) — trusted,
-            // not sandboxed by our SourcePolicy. Editor content arrives as
-            // a `content` string variable; Twig doesn't re-evaluate strings.
-            if ($item->isModule()) {
-                $twig_vars['content'] = $content;
-                $template = $this->getPageTwigTemplate($item);
-                $output = $content = $local_twig->render($template, $twig_vars);
-            }
-
-            // In-page Twig — `content` becomes an @Page: string template;
-            // the SourcePolicy sandboxes that source but still lets it
-            // {% include %} trusted theme partials.
+            // In-page Twig runs FIRST and in isolation. The editor-authored
+            // body becomes an @Page: string template that the SourcePolicy
+            // sandboxes (it can still {% include %} trusted theme partials).
+            // Doing this before the modular template render keeps the two
+            // concerns cleanly separated: content is always sandboxed, the
+            // template never is. The body is resolved to plain HTML up front,
+            // so the trusted template below only ever receives a finished
+            // string — its own Twig is never re-parsed under the sandbox — and
+            // the @Page: source stays stable (the raw body) rather than
+            // changing with every template/media tweak.
             if ($item->shouldProcess('twig')) {
                 $name = '@Page:' . $item->path();
                 $this->setTemplate($name, $content);
                 // Replace `config` with a denied-path-filtered facade for the
                 // sandboxed render so editors can't exfiltrate plugin secrets
                 // via `config.toArray()` (GHSA-j274-39qw-32c9). The modular
-                // theme render above is unsandboxed and keeps the raw Config.
+                // theme render below is unsandboxed and keeps the raw Config.
                 $sandbox_vars = $twig_vars;
                 $sandbox_vars['config'] = $this->buildSandboxConfig();
                 try {
-                    $output = $local_twig->render($name, $sandbox_vars);
+                    $output = $content = $local_twig->render($name, $sandbox_vars);
                 } catch (SecurityError $e) {
                     $this->logSandboxViolation($e);
-                    // Soft-fail: fall back to the pre-template content so the
+                    // Soft-fail: fall back to the pre-render content so the
                     // page isn't blank. Any {{ }} / {% %} tags in it will
                     // appear as literal text — that's intentional so the site
                     // owner can see what was blocked.
                     $output = $content;
                     $filtered = true;
                 }
+            }
+
+            // Modular theme template render (loaded from disk) — trusted, not
+            // sandboxed by our SourcePolicy. The already-resolved content is
+            // handed in as the `content` variable; Twig emits it as a string
+            // and does not re-evaluate it.
+            if ($item->isModule()) {
+                $twig_vars['content'] = $content;
+                $template = $this->getPageTwigTemplate($item);
+                $output = $local_twig->render($template, $twig_vars);
             }
 
         } catch (LoaderError $e) {

@@ -1,5 +1,5 @@
 # v2.0.0-rc.6
-## 06/01/2026
+## 06/02/2026
 
 1. [](#new)
     * Added GitHub-style task lists: `- [ ]` and `- [x]` now render as (disabled) checkboxes. Can be turned off under Configuration > System > Markdown.
@@ -8,12 +8,14 @@
     * Bare `www.` URLs and email addresses in content are now turned into links automatically (GitHub Flavored Markdown autolinks). Can be turned off under Markdown settings.
     * Tables gained five optional extensions, all off by default and toggled under Markdown settings: an empty cell can merge into the cell on its left (colspan), a table can start at the divider row with no header row (header-less), a `[Caption]` line immediately after a table becomes a caption, a `{.class #id}` line immediately after a table sets the class and id on the table element (the kramdown `{:.class}` form is accepted too), and a row ending in a backslash continues onto the next line so a cell can span multiple lines.
     * Plugins can now add custom markdown block and inline syntax through a documented extension API with an element builder, instead of injecting closures and hand-building element arrays. The previous approach still works.
+    * Plugins can now register their own safe Twig functions for use inside sandboxed page content, so a plugin's custom functions work in editor-authored Twig without turning the security sandbox off.
 1. [](#bugfix)
     * [security] The `ZipArchiver` extraction helper now refuses any archive entry whose path would escape the destination directory, bringing it in line with the Zip Slip guard already on the GPM installer (CWE-22). Thanks to @XananasX7 for the report.
     * [security] Restricted scheduler job queue deserialization to the `Job` class as defense in depth, on top of the existing HMAC integrity check on queue entries (CWE-502). Thanks to @XananasX7 for the report.
     * `bin/grav server` no longer shows the "PHP webserver requires a router" message and serves the site correctly when the Symfony local server falls back to PHP's built-in web server (for example on systems without php-fpm). Fixes [getgrav/grav#4099](https://github.com/getgrav/grav/issues/4099).
     * Markdown Extra no longer triggers an "implicitly marking parameter as nullable is deprecated" notice on PHP 8.4 and newer; the bundled Markdown Extra parser is now a maintained fork with the fix applied.
     * Fenced code blocks with a trailing attribute block (for example ` ```python {#id .class} `) now apply the id and classes to the code element instead of corrupting the language class. Requires Markdown Extra to be enabled.
+    * Twig in modular and editor page content can read page media again while the security sandbox is enabled, so expressions like `{{ page.media['photo.jpg'].url }}` work without disabling the sandbox. Fixes [getgrav/grav#4105](https://github.com/getgrav/grav/issues/4105).
 
 # v2.0.0-rc.5
 ## 05/29/2026

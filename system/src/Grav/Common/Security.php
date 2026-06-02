@@ -15,6 +15,7 @@ use Grav\Common\Filesystem\Folder;
 use Grav\Common\Page\Pages;
 use Grav\Common\Twig\Sandbox\GravSecurityPolicy;
 use Rhukster\DomSanitizer\DOMSanitizer;
+use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\File\YamlFile;
 use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 use RuntimeException;
@@ -301,13 +302,59 @@ class Security
         /** @var Config $config */
         $config = Grav::instance()['config'];
 
-        $tags       = self::normalizeStringList($config->get('security.twig_sandbox.allowed_tags', []));
-        $filters    = self::normalizeStringList($config->get('security.twig_sandbox.allowed_filters', []));
-        $functions  = self::normalizeStringList($config->get('security.twig_sandbox.allowed_functions', []));
+        // Raw, as-authored allowlists from config (system + user merged). The
+        // friendly shapes here — flat lists for tags/filters/functions, the
+        // list-of-rows shape for methods/properties — are exactly what the
+        // onBuildTwigSandboxPolicy event hands to plugins, so a plugin appends
+        // entries the same way they're written in security.yaml.
+        $rawTags       = $config->get('security.twig_sandbox.allowed_tags', []);
+        $rawFilters    = $config->get('security.twig_sandbox.allowed_filters', []);
+        $rawFunctions  = $config->get('security.twig_sandbox.allowed_functions', []);
+        $rawMethods    = $config->get('security.twig_sandbox.allowed_methods', []);
+        $rawProperties = $config->get('security.twig_sandbox.allowed_properties', []);
+        $configAccess  = (bool) $config->get('security.twig_content.config_access', false);
+
+        $cacheKey = md5(serialize([$rawTags, $rawFilters, $rawFunctions, $rawMethods, $rawProperties, $configAccess]));
+        if (self::$twigSandboxPolicy !== null && self::$twigSandboxPolicyKey === $cacheKey) {
+            return self::$twigSandboxPolicy;
+        }
+
+        // Let plugins extend the allowlists for their own safe Twig members so
+        // editor-authored page content can use them under the sandbox. A plugin
+        // that ships a Twig function subscribes to `onBuildTwigSandboxPolicy`
+        // and appends to the relevant list — it is asserting that member is
+        // safe to expose to content authors, the same trust boundary as
+        // registering it in the first place. Example handler (read-modify-write
+        // because the event arguments are returned by value):
+        //
+        //     $functions = $event['functions'];
+        //     $functions[] = 'unite_gallery';
+        //     $event['functions'] = $functions;
+        //
+        //     $methods = $event['methods'];
+        //     $methods[] = ['class' => Gallery::class, 'methods' => 'render'];
+        //     $event['methods'] = $methods;
+        //
+        // Fired only on a genuine (re)build, never on the memoized path above:
+        // the policy is built once per request and the active plugin set is
+        // constant for the request, so the config-derived key memoizes the
+        // event's additions correctly with no per-render cost.
+        $event = new Event([
+            'tags'       => $rawTags,
+            'filters'    => $rawFilters,
+            'functions'  => $rawFunctions,
+            'methods'    => $rawMethods,
+            'properties' => $rawProperties,
+        ]);
+        Grav::instance()->fireEvent('onBuildTwigSandboxPolicy', $event);
+
         // Method names get lowercased to match Twig's sandbox comparison.
         // Property names are CASE-SENSITIVE and preserved as-authored.
-        $methods    = self::normalizeMethodsMap($config->get('security.twig_sandbox.allowed_methods', []), true);
-        $properties = self::normalizeMethodsMap($config->get('security.twig_sandbox.allowed_properties', []), false);
+        $tags       = self::normalizeStringList($event['tags']);
+        $filters    = self::normalizeStringList($event['filters']);
+        $functions  = self::normalizeStringList($event['functions']);
+        $methods    = self::normalizeMethodsMap($event['methods'], true);
+        $properties = self::normalizeMethodsMap($event['properties'], false);
 
         // security.twig_content.config_access also closes the `grav.config`
         // back-door: with the toggle off, the injected `config` variable is a
@@ -317,17 +364,11 @@ class Security
         // method allowlist so any reach into the raw container soft-fails via
         // SecurityError instead of leaking values. The SandboxConfig class
         // entry stays — that's the variable editors are meant to read.
-        $configAccess = (bool) $config->get('security.twig_content.config_access', false);
         if (!$configAccess) {
             unset(
                 $methods['Grav\\Common\\Config\\Config'],
                 $methods['Grav\\Common\\Data\\Data']
             );
-        }
-
-        $cacheKey = md5(serialize([$tags, $filters, $functions, $methods, $properties, $configAccess]));
-        if (self::$twigSandboxPolicy !== null && self::$twigSandboxPolicyKey === $cacheKey) {
-            return self::$twigSandboxPolicy;
         }
 
         self::$twigSandboxPolicy = new GravSecurityPolicy($tags, $filters, $methods, $properties, $functions);

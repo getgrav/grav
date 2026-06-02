@@ -210,6 +210,92 @@ class TwigSandboxTest extends \PHPUnit\Framework\TestCase
     }
 
     // =========================================================================
+    // Media access: page-content Twig must be able to read media members under
+    // the sandbox. Regression for getgrav/grav#4105 — a modular page with
+    // `{{ page.media['x.png'].url }}` only worked with the sandbox disabled,
+    // because the allowlist row was keyed on a non-existent `MediumInterface`
+    // and matched no object. The row is now keyed on the concrete base class
+    // `Medium`, which every media type (ImageMedium, VideoMedium, AudioMedium,
+    // StaticImageMedium) extends.
+    // =========================================================================
+
+    public function testBuildPolicy_AllowsMediumMembers(): void
+    {
+        $policy = Security::buildTwigSandboxPolicy();
+        $medium = new \Grav\Common\Page\Medium\Medium([]);
+
+        foreach (['url', 'html', 'metadata', 'thumbnail', '__tostring'] as $method) {
+            $this->assertDoesNotThrow(fn() => $policy->checkMethodAllowed($medium, $method));
+        }
+    }
+
+    public function testBuildPolicy_BlocksNonAllowlistedMediumMethod(): void
+    {
+        // The row is members-only: a medium method that is NOT on the list
+        // (here the Data mutator `set`) must still be blocked. The Data
+        // fallback row is stripped when config_access is off (the default),
+        // so it cannot rescue this either.
+        $policy = Security::buildTwigSandboxPolicy();
+        $medium = new \Grav\Common\Page\Medium\Medium([]);
+
+        $this->expectException(SecurityNotAllowedMethodError::class);
+        $policy->checkMethodAllowed($medium, 'set');
+    }
+
+    // =========================================================================
+    // Plugin extension point: onBuildTwigSandboxPolicy lets a plugin allow its
+    // own safe Twig members for editor-authored content under the sandbox.
+    // =========================================================================
+
+    public function testBuildPolicy_PluginEventCanAllowCustomFunction(): void
+    {
+        $grav = \Grav\Common\Grav::instance();
+        $listener = static function ($event): void {
+            $functions = $event['functions'];
+            $functions[] = 'unite_gallery';
+            $event['functions'] = $functions;
+        };
+        $grav['events']->addListener('onBuildTwigSandboxPolicy', $listener);
+
+        try {
+            // setUp() cleared the memo, so this builds fresh and fires the event.
+            $policy = Security::buildTwigSandboxPolicy();
+            $this->assertDoesNotThrow(fn() => $policy->checkSecurity([], [], ['unite_gallery']));
+
+            // A function nobody registered is still blocked.
+            try {
+                $policy->checkSecurity([], [], ['some_unregistered_fn']);
+                self::fail('Unregistered function should still be blocked');
+            } catch (SecurityNotAllowedFunctionError $e) {
+                $this->addToAssertionCount(1);
+            }
+        } finally {
+            $grav['events']->removeListener('onBuildTwigSandboxPolicy', $listener);
+        }
+    }
+
+    public function testBuildPolicy_PluginEventCanAllowCustomMethod(): void
+    {
+        $grav = \Grav\Common\Grav::instance();
+        $listener = static function ($event): void {
+            // Same list-of-rows shape as security.yaml; merged into any
+            // existing row for the class.
+            $methods = $event['methods'];
+            $methods[] = ['class' => \Grav\Common\Page\Medium\Medium::class, 'methods' => 'reset'];
+            $event['methods'] = $methods;
+        };
+        $grav['events']->addListener('onBuildTwigSandboxPolicy', $listener);
+
+        try {
+            $policy = Security::buildTwigSandboxPolicy();
+            $medium = new \Grav\Common\Page\Medium\Medium([]);
+            $this->assertDoesNotThrow(fn() => $policy->checkMethodAllowed($medium, 'reset'));
+        } finally {
+            $grav['events']->removeListener('onBuildTwigSandboxPolicy', $listener);
+        }
+    }
+
+    // =========================================================================
     // End-to-end render: SecurityError is raised when a disallowed primitive runs
     // =========================================================================
 
