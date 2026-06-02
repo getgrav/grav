@@ -128,10 +128,8 @@ twig:
   debug: true                                    # Enable Twig debug
   auto_reload: true                              # Refresh cache on changes
   autoescape: true                               # Autoescape Twig vars (DEPRECATED, always enabled in strict mode)
-  undefined_functions: true                      # Allow undefined functions
-  undefined_filters: true                        # Allow undefined filters
-  safe_functions: []                             # List of PHP functions which are allowed to be used as Twig functions
-  safe_filters: []                               # List of PHP functions which are allowed to be used as Twig filters
+  safe_functions: []                             # Opt-in allow-list of PHP functions callable from trusted templates (dangerous functions are always refused)
+  safe_filters: []                               # Opt-in allow-list of PHP functions usable as filters in trusted templates (dangerous functions are always refused)
 
 assets:                                          # Configuration for Assets Manager (JS, CSS)
   css_pipeline: false                            # The CSS pipeline is the unification of multiple CSS resources into one file

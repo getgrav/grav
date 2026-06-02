@@ -16,6 +16,7 @@
     * Markdown Extra no longer triggers an "implicitly marking parameter as nullable is deprecated" notice on PHP 8.4 and newer; the bundled Markdown Extra parser is now a maintained fork with the fix applied.
     * Fenced code blocks with a trailing attribute block (for example ` ```python {#id .class} `) now apply the id and classes to the code element instead of corrupting the language class. Requires Markdown Extra to be enabled.
     * Twig in modular and editor page content can read page media again while the security sandbox is enabled, so expressions like `{{ page.media['photo.jpg'].url }}` work without disabling the sandbox. Fixes [getgrav/grav#4105](https://github.com/getgrav/grav/issues/4105).
+    * [security] Removed the `undefined_functions` and `undefined_filters` Twig settings, which let any non-blocklisted PHP function be called from a template by default (deprecated since Grav 1.7). The `safe_functions` and `safe_filters` allow-lists remain as an explicit opt-in, empty by default, and now refuse command and code-execution functions outright so they can no longer be used to enable `system`, `exec`, and similar. Templates that called PHP functions directly will need those functions added to the allow-list, or registered through a plugin.
 
 # v2.0.0-rc.5
 ## 05/29/2026

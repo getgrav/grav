@@ -203,25 +203,23 @@ class Twig
 
             $this->twig = new TwigEnvironment($activeLoader, $params);
 
+            // Calling a PHP function by name from a template is opt-in only.
+            // Grav 2.0 dropped the old `undefined_functions` / `undefined_filters`
+            // auto-allow (which exposed every non-blocklisted PHP function by
+            // default). What remains is the explicit `safe_functions` /
+            // `safe_filters` allow-list, empty by default, and it is now gated by
+            // `Utils::isDangerousFunction()` so command/code-execution functions
+            // (`system`, `exec`, `assert`, ...) can never be enabled this way.
+            // This closes the precedence flaw where a `safe_functions` entry was
+            // honored ahead of the blocklist (GHSA-9wg2-prc3-vx89). An unknown
+            // function/filter that is not allow-listed is a hard error. These
+            // allow-lists only affect trusted (unsandboxed) templates; editor
+            // page content answers to the Twig content sandbox in security.yaml.
             $this->twig->registerUndefinedFunctionCallback(function (string $name) use ($config) {
                 $allowed = $config->get('system.twig.safe_functions');
-                if (is_array($allowed) && in_array($name, $allowed, true) && function_exists($name)) {
+                if (is_array($allowed) && in_array($name, $allowed, true)
+                    && function_exists($name) && !Utils::isDangerousFunction($name)) {
                     return new TwigFunction($name, $name);
-                }
-                if ($config->get('system.twig.undefined_functions')) {
-                    if (function_exists($name)) {
-                        if (!Utils::isDangerousFunction($name)) {
-                            user_error("PHP function {$name}() was used as Twig function. This is deprecated in Grav 1.7. Please add it to system configuration: `system.twig.safe_functions`", E_USER_DEPRECATED);
-
-                            return new TwigFunction($name, $name);
-                        }
-
-                        /** @var Debugger $debugger */
-                        $debugger = $this->grav['debugger'];
-                        $debugger->addException(new RuntimeException("Blocked potentially dangerous PHP function {$name}() being used as Twig function. If you really want to use it, please add it to system configuration: `system.twig.safe_functions`"));
-                    }
-
-                    return new TwigFunction($name, static function () {});
                 }
 
                 return false;
@@ -229,23 +227,9 @@ class Twig
 
             $this->twig->registerUndefinedFilterCallback(function (string $name) use ($config) {
                 $allowed = $config->get('system.twig.safe_filters');
-                if (is_array($allowed) && in_array($name, $allowed, true) && function_exists($name)) {
+                if (is_array($allowed) && in_array($name, $allowed, true)
+                    && function_exists($name) && !Utils::isDangerousFunction($name)) {
                     return new TwigFilter($name, $name);
-                }
-                if ($config->get('system.twig.undefined_filters')) {
-                    if (function_exists($name)) {
-                        if (!Utils::isDangerousFunction($name)) {
-                            user_error("PHP function {$name}() used as Twig filter. This is deprecated in Grav 1.7. Please add it to system configuration: `system.twig.safe_filters`", E_USER_DEPRECATED);
-
-                            return new TwigFilter($name, $name);
-                        }
-
-                        /** @var Debugger $debugger */
-                        $debugger = $this->grav['debugger'];
-                        $debugger->addException(new RuntimeException("Blocked potentially dangerous PHP function {$name}() being used as Twig filter. If you really want to use it, please add it to system configuration: `system.twig.safe_filters`"));
-                    }
-
-                    return new TwigFilter($name, static function () {});
                 }
 
                 return false;
