@@ -474,7 +474,10 @@ class JobQueue
                 $expected = hash_hmac('sha256', $serialized, Security::getNonceKey());
                 if (hash_equals((string) $item['serialized_job_hmac'], $expected)) {
                     try {
-                        $job = unserialize($serialized, ['allowed_classes' => true]);
+                        // Defense in depth: the HMAC check above already rejects
+                        // tampered items, but restrict deserialization to Job to
+                        // avoid instantiating arbitrary classes (PHP Object Injection).
+                        $job = unserialize($serialized, ['allowed_classes' => [Job::class]]);
                         if ($job instanceof Job) {
                             return $job;
                         }

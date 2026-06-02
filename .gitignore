@@ -58,3 +58,4 @@ tmp/*
 # PHPDoc tools
 tools/phpdoc/vendor/
 tools/phpdoc/output/
+/.phpactor.json

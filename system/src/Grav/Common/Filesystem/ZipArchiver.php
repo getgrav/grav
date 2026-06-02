@@ -34,6 +34,17 @@ class ZipArchiver extends Archiver
         if ($archive === true) {
             Folder::create($destination);
 
+            // Guard against Zip Slip: reject any entry whose path would resolve
+            // outside the destination directory (e.g. "../../evil.php") before
+            // extracting anything. CWE-22.
+            for ($i = 0, $count = $zip->count(); $i < $count; $i++) {
+                $name = $zip->getNameIndex($i);
+                if ($name !== false && !$this->isSafeEntryPath($name)) {
+                    $zip->close();
+                    throw new RuntimeException('ZipArchiver: refused to extract ' . $this->archive_file . '. Entry "' . $name . '" would escape the destination directory (Zip Slip).');
+                }
+            }
+
             if (!$zip->extractTo($destination)) {
                 throw new RuntimeException('ZipArchiver: ZIP failed to extract ' . $this->archive_file . ' to ' . $destination);
             }
@@ -44,6 +55,44 @@ class ZipArchiver extends Archiver
         }
 
         throw new RuntimeException('ZipArchiver: Failed to open ' . $this->archive_file);
+    }
+
+    /**
+     * Returns true if a ZIP entry name stays inside the extraction root.
+     *
+     * Resolves "." and ".." lexically (no filesystem access, so it also covers
+     * entries that do not exist on disk yet) and rejects absolute paths and
+     * Windows drive letters.
+     *
+     * @param string $name
+     * @return bool
+     */
+    protected function isSafeEntryPath(string $name): bool
+    {
+        $name = str_replace('\\', '/', $name);
+
+        // Absolute paths and Windows drive letters never belong in an archive entry.
+        if (str_starts_with($name, '/') || preg_match('#^[a-zA-Z]:#', $name)) {
+            return false;
+        }
+
+        // Walk the path segments, tracking depth below the extraction root. If any
+        // prefix dips below zero, the entry has climbed out of the destination.
+        $depth = 0;
+        foreach (explode('/', $name) as $segment) {
+            if ($segment === '' || $segment === '.') {
+                continue;
+            }
+            if ($segment === '..') {
+                if (--$depth < 0) {
+                    return false;
+                }
+                continue;
+            }
+            $depth++;
+        }
+
+        return true;
     }
 
     /**

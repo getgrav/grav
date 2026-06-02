@@ -210,6 +210,13 @@ form:
                   toggleable: true
                   help: PLUGIN_ADMIN.REDIRECT_HELP
 
+                header.external_url:
+                  type: text
+                  label: PLUGIN_ADMIN.EXTERNAL_URL
+                  toggleable: true
+                  help: PLUGIN_ADMIN.EXTERNAL_URL_HELP
+                  placeholder: https://getgrav.org
+
                 header.process:
                   type: checkboxes
                   label: PLUGIN_ADMIN.PROCESS
