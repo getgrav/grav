@@ -345,7 +345,16 @@ twig_sandbox:
       methods: 'images, videos, audios, files, all, get, offsetget, offsetexists, __tostring'
     - class: 'Grav\Common\Page\MediaCollectionInterface'
       methods: 'images, videos, audios, files, all, get, offsetget, offsetexists, __tostring'
-    - class: 'Grav\Common\Page\Medium\MediumInterface'
+    # Every media type (ImageMedium, VideoMedium, AudioMedium,
+    # StaticImageMedium) extends this base class; url() / html() / metadata()
+    # / thumbnail() / parsedownElement() resolve on it via traits. Keyed on the
+    # concrete base rather than an interface: the old `MediumInterface` key was
+    # removed in the media overhaul and never existed here, so it matched no
+    # object and page-content Twig could not read any media member under the
+    # sandbox (e.g. `{{ page.media['x.png'].url }}`). __tostring lives here too
+    # so printing a medium keeps working when config_access is off (which
+    # strips the Data fallback below).
+    - class: 'Grav\Common\Page\Medium\Medium'
       methods: 'url, html, filepath, filename, metadata, thumbnail, parsedownelement, __tostring'
     - class: 'Grav\Common\User\Interfaces\UserInterface'
       methods: 'authorize, authorized, authenticated, username, fullname, email, language, offsetget, offsetexists'
