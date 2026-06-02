@@ -35,6 +35,18 @@ form:
               validate:
                 required: true
 
+        advanced:
+          fields:
+
+            overrides:
+              fields:
+
+                # Suppress the toggleable override inherited from default.yaml;
+                # the external type already has a required external_url on the
+                # Content tab, so this would be a confusing duplicate.
+                header.external_url:
+                  unset@: true
+
         options:
           fields:
 
