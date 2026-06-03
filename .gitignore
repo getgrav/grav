@@ -31,6 +31,8 @@ user/**/config/security-private.php.tmp
 
 # Environments
 .env
+.env.local
+.env.*.local
 .gravenv
 
 # OS Generated

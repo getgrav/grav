@@ -23,6 +23,19 @@ if (!defined("DS")) {
     define("DS", "/");
 }
 
+// Native .env support: load environment variables from .env file(s) at the Grav
+// root before any GRAV_* constant is defined, so a .env can drive the path
+// constants below, the environment name read by Setup, and GRAV_CONFIG__*
+// overrides. Real server-set environment variables always take precedence.
+if (!defined("GRAV_DOTENV_DISABLE")) {
+    $root = rtrim(
+        str_replace(DIRECTORY_SEPARATOR, DS, getenv("GRAV_ROOT") ?: getcwd()),
+        DS,
+    );
+    \Grav\Common\Config\Env::load($root ?: DS);
+    unset($root);
+}
+
 // Absolute path to Grav root. This is where Grav is installed into.
 if (!defined("GRAV_ROOT")) {
     $path = rtrim(
