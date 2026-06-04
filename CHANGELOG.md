@@ -1,5 +1,5 @@
 # v2.0.0-rc.6
-## 06/02/2026
+## 06/04/2026
 
 1. [](#new)
     * Added GitHub-style task lists: `- [ ]` and `- [x]` now render as (disabled) checkboxes. Can be turned off under Configuration > System > Markdown.
