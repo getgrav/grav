@@ -773,18 +773,22 @@ abstract class Utils
             return ($uri_extension);
         }
 
-        // Use content negotiation via the `accept:` header
+        // Use content negotiation via the `accept:` header. An empty (but present) or malformed
+        // header makes the negotiator throw, so guard against it and fall back to html.
         $http_accept = $_SERVER['HTTP_ACCEPT'] ?? null;
-        if (is_string($http_accept)) {
-            $negotiator = new Negotiator();
-
+        if (is_string($http_accept) && trim($http_accept) !== '') {
             $supported_types = static::getSupportPageTypes(['html', 'json']);
             $priorities = static::getMimeTypes($supported_types);
 
-            $media_type = $negotiator->getBest($http_accept, $priorities);
-            $mimetype = $media_type instanceof Accept ? $media_type->getValue() : '';
+            try {
+                $negotiator = new Negotiator();
+                $media_type = $negotiator->getBest($http_accept, $priorities);
+                $mimetype = $media_type instanceof Accept ? $media_type->getValue() : '';
 
-            return static::getExtensionByMime($mimetype);
+                return static::getExtensionByMime($mimetype);
+            } catch (\Exception $e) {
+                return 'html';
+            }
         }
 
         return 'html';

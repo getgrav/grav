@@ -27,7 +27,9 @@ if (!defined("DS")) {
 // root before any GRAV_* constant is defined, so a .env can drive the path
 // constants below, the environment name read by Setup, and GRAV_CONFIG__*
 // overrides. Real server-set environment variables always take precedence.
-if (!defined("GRAV_DOTENV_DISABLE")) {
+// The class_exists() guard keeps this file safe to include on its own (e.g. a
+// build step reading GRAV_VERSION), where the Composer autoloader isn't present.
+if (!defined("GRAV_DOTENV_DISABLE") && class_exists(\Grav\Common\Config\Env::class)) {
     $root = rtrim(
         str_replace(DIRECTORY_SEPARATOR, DS, getenv("GRAV_ROOT") ?: getcwd()),
         DS,
