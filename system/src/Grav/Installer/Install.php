@@ -503,9 +503,16 @@ ERR;
             return '';
         }
 
-        preg_match("/define\('GRAV_VERSION', '([^']+)'\);/mu", $content, $matches);
+        // Match GRAV_VERSION regardless of single/double quotes around the name or value.
+        preg_match('/define\(\s*[\'"]GRAV_VERSION[\'"]\s*,\s*[\'"]([^\'"]+)[\'"]\s*\);/mu', $content, $matches);
 
-        return $matches[1] ?? '';
+        $version = $matches[1] ?? '';
+        if ('' === $version) {
+            // Never fail silently: an empty version poisons the preflight checks below.
+            $this->relayProgress('warning', "Could not read GRAV_VERSION from {$definesFile}.", null);
+        }
+
+        return $version;
     }
 
 
@@ -608,6 +615,12 @@ ERR;
 
     private function isMajorMinorUpgrade(string $targetVersion): bool
     {
+        // An unreadable target version must never be treated as a major/minor upgrade,
+        // otherwise it parses to 0.0 and wrongly triggers the incompatible-package gate.
+        if (!preg_match('/^\d+\.\d+/', $targetVersion)) {
+            return false;
+        }
+
         [$currentMajor, $currentMinor] = array_map('intval', array_pad(explode('.', GRAV_VERSION), 2, 0));
         [$targetMajor, $targetMinor] = array_map('intval', array_pad(explode('.', $targetVersion), 2, 0));
 
@@ -933,8 +946,11 @@ ERR;
      */
     private function detectIncompatiblePackages(string $targetVersion, ?string $root = null): array
     {
-        $parts = explode('.', $targetVersion);
-        $targetMajorMinor = ($parts[0] ?? '1') . '.' . ($parts[1] ?? '7');
+        // A target version we cannot parse must not flag every package as incompatible.
+        if (!preg_match('/^(\d+)\.(\d+)/', $targetVersion, $tv)) {
+            return ['blocking' => [], 'warnings' => [], 'target' => $targetVersion];
+        }
+        $targetMajorMinor = $tv[1] . '.' . $tv[2];
 
         $blocking = [];
         $warnings = [];

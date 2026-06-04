@@ -1,3 +1,9 @@
+# v2.0.0-rc.7
+## 06/04/2026
+
+1. [](#bugfix)
+    * Upgrading Grav core from the Admin panel no longer fails with "Failed to upgrade Grav core" because the installer misread the incoming release version and then wrongly flagged every installed plugin as incompatible; command line upgrades were unaffected.
+
 # v2.0.0-rc.6
 ## 06/04/2026
 
