@@ -3,6 +3,7 @@
 
 1. [](#bugfix)
     * [security] URL-based image resizing (e.g. `image.jpg?resize=2000,2000`) is now off by default and, when enabled, capped by a configurable total-pixel limit, so an unauthenticated visitor can no longer exhaust server memory by requesting oversized image transforms (CWE-400). Thanks to @iliaal for the report.
+    * [security] With error display off, an uncaught error no longer leaks the file path, line, and exception message to a JSON or AJAX request, which now receives a generic JSON error instead (CWE-209). Thanks to @iliaal for the report.
     * The default theme is now `quark2` to match the theme bundled with Grav 2.0, so reverting the theme setting in the Admin panel no longer leaves the site pointing at the missing `quark` theme. Fixes [getgrav/grav#4108](https://github.com/getgrav/grav/issues/4108).
     * A missing theme no longer takes the Admin panel and API down along with the frontend, so the site stays reachable to fix the theme setting.
     * A Twig template that calls a function or filter which isn't registered in the current context, such as a plugin function referenced in a template while that plugin is inactive in the Admin panel, now renders as empty again instead of failing with an "Unknown function" error. Calls to real PHP functions still require an explicit `safe_functions` entry. Fixes [getgrav/grav#4110](https://github.com/getgrav/grav/issues/4110).

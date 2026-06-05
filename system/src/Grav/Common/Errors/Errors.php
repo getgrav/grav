@@ -63,7 +63,15 @@ class Errors
         }
 
         if ($jsonRequest || Misc::isAjaxRequest()) {
-            $whoops->prependHandler(new JsonResponseHandler());
+            // Only expose full exception detail (type, message, file, line) to a
+            // JSON/AJAX client when error display is on. With display suppressed
+            // (`errors.display: 0`/`-1`) fall back to a sanitized JSON body that
+            // leaks nothing, mirroring the generic page the HTML path returns.
+            if ($verbosity > 0) {
+                $whoops->prependHandler(new JsonResponseHandler());
+            } else {
+                $whoops->prependHandler(new SimpleJsonHandler());
+            }
         }
 
         if (isset($config['log']) && $config['log']) {
