@@ -222,6 +222,17 @@ class Twig
                     return new TwigFunction($name, $name);
                 }
 
+                // A name that maps to no PHP function carries no code-execution
+                // risk. Treat it as a soft no-op (rc.5 behavior) so a plugin or
+                // theme function that simply isn't registered in this context —
+                // e.g. a plugin that deactivates in admin while a template still
+                // references its function — renders as empty instead of throwing
+                // a hard "Unknown function" error. A real PHP function that is
+                // not allow-listed still falls through to a hard error below.
+                if (!function_exists($name)) {
+                    return new TwigFunction($name, static fn() => null);
+                }
+
                 return false;
             });
 
@@ -230,6 +241,13 @@ class Twig
                 if (is_array($allowed) && in_array($name, $allowed, true)
                     && function_exists($name) && !Utils::isDangerousFunction($name)) {
                     return new TwigFilter($name, $name);
+                }
+
+                // See the function callback above: an undefined name that is not
+                // a real PHP function is a harmless no-op rather than a fatal
+                // error. A real PHP function not on the allow-list still errors.
+                if (!function_exists($name)) {
+                    return new TwigFilter($name, static fn($value = null) => $value);
                 }
 
                 return false;

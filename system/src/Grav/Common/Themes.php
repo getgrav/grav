@@ -237,7 +237,10 @@ class Themes extends Iterator
             if (!\is_object($class) || !is_subclass_of($class, Theme::class, true)) {
                 $class = null;
             }
-        } elseif (!$locator('theme://') && !defined('GRAV_CLI')) {
+        } elseif (!$locator('theme://') && !defined('GRAV_CLI') && $this->isFrontendRequest()) {
+            // A missing theme only prevents the frontend from rendering. Admin and API requests
+            // do not need a theme, so let them through to keep the site recoverable (e.g. so the
+            // theme can be reconfigured) instead of locking the whole install out.
             $response = new Response(500, [], "Theme '$name' does not exist, unable to display page.");
 
             $grav->close($response);
@@ -266,6 +269,40 @@ class Themes extends Iterator
         $this->config->set('theme', $config->get('themes.' . $name));
 
         return $class;
+    }
+
+    /**
+     * Determine whether the current request targets the frontend (as opposed to the admin or API).
+     *
+     * Admin and API requests do not render a theme, so they must not be shut down when the
+     * configured theme is missing.
+     *
+     * @return bool
+     */
+    protected function isFrontendRequest()
+    {
+        /** @var Uri $uri */
+        $uri = $this->grav['uri'];
+        $current = '/' . trim((string) $uri->route(), '/');
+
+        $routes = [
+            $this->config->get('plugins.admin2.route'),
+            $this->config->get('plugins.admin.route'),
+            $this->config->get('plugins.api.route', '/api'),
+        ];
+
+        foreach ($routes as $route) {
+            if (!$route) {
+                continue;
+            }
+
+            $base = '/' . trim((string) $route, '/');
+            if ($base !== '/' && ($current === $base || str_starts_with($current, $base . '/'))) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
