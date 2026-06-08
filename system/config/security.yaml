@@ -343,7 +343,7 @@ twig_sandbox:
       methods: 'path, url, params, param, query, host, port, scheme, route, base, extension, method, referrer, ip, addr, toarray, __tostring'
     - class: 'Grav\Common\Page\Media'
       methods: 'images, videos, audios, files, all, get, offsetget, offsetexists, __tostring'
-    - class: 'Grav\Common\Page\MediaCollectionInterface'
+    - class: 'Grav\Common\Media\Interfaces\MediaCollectionInterface'
       methods: 'images, videos, audios, files, all, get, offsetget, offsetexists, __tostring'
     # Every media type (ImageMedium, VideoMedium, AudioMedium,
     # StaticImageMedium) extends this base class; url() / html() / metadata()
@@ -382,6 +382,25 @@ twig_sandbox:
       methods: 'header, media, taxonomy'
     - class: 'Grav\Common\Grav'
       methods: 'theme'
+    # Media collections are ArrayAccess and are read by dynamic filename key,
+    # e.g. {{ page.media['photo.jpg'].url }}. Twig's sandbox treats a subscript
+    # on any ArrayAccess object that isn't a built-in (ArrayObject, SplStack,
+    # ...) as a PROPERTY read, using the key as the property name — so it calls
+    # checkPropertyAllowed(Media, 'photo.jpg') before it ever reaches offsetGet.
+    # A filename can't be enumerated in an allowlist, so wildcard the property
+    # gate for the collection classes; the value still comes back through
+    # offsetGet (a Medium), whose own methods (url, html, ...) stay restricted
+    # by allowed_methods. Without this, page-content media access soft-fails
+    # under the sandbox and the raw `{{ ... }}` leaks into output. Fixes #4114.
+    - class: 'Grav\Common\Media\Interfaces\MediaCollectionInterface'
+      methods: '*'
+    - class: 'Grav\Common\Page\Media'
+      methods: '*'
+    # Individual media items are Data-backed and also ArrayAccess, so a chained
+    # subscript like {{ page.media['photo.jpg']['meta_key'] }} hits the same
+    # property gate. Reading a medium's own metadata carries no executable risk.
+    - class: 'Grav\Common\Page\Medium\Medium'
+      methods: '*'
     # Wildcard on stdClass for {{ page.header.<any_yaml_key> }}
     - class: 'stdClass'
       methods: '*'
