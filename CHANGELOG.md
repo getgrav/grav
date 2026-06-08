@@ -1,7 +1,9 @@
 # v2.0.0-rc.8
-## 06/05/2026
+## 06/08/2026
 
-1. [](#bugfix)
+1. [](#improved)
+    * Page Authors in a page's Security settings is now picked from a searchable list of the users who can edit pages, instead of typed-in usernames.
+2. [](#bugfix)
     * [security] URL-based image resizing (e.g. `image.jpg?resize=2000,2000`) is now off by default and, when enabled, capped by a configurable total-pixel limit, so an unauthenticated visitor can no longer exhaust server memory by requesting oversized image transforms (CWE-400). Thanks to @iliaal for the report.
     * [security] With error display off, an uncaught error no longer leaks the file path, line, and exception message to a JSON or AJAX request, which now receives a generic JSON error instead (CWE-209). Thanks to @iliaal for the report.
     * The default theme is now `quark2` to match the theme bundled with Grav 2.0, so reverting the theme setting in the Admin panel no longer leaves the site pointing at the missing `quark` theme. Fixes [getgrav/grav#4108](https://github.com/getgrav/grav/issues/4108).
