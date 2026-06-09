@@ -15,6 +15,9 @@ php_fastcgi 127.0.0.1:9000
 # deny all direct access for these folders
 rewrite /(\.git|cache|bin|logs|backups|tests)/.* /403
 
+# deny all direct access to these sensitive user folders, whatever the file type
+rewrite /user/(accounts|config|data|env)/.* /403
+
 # deny running scripts inside core system folders
 rewrite /(system|vendor)/.*\.(txt|xml|md|html|htm|shtml|shtm|yaml|yml|php|php2|php3|php4|php5|phar|phtml|pl|py|cgi|twig|sh|bat)$ /403
 
