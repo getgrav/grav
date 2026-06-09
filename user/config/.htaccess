@@ -1,0 +1,10 @@
+# Deny all direct web access to this folder and everything beneath it.
+# Grav reads these files server-side; they must never be served over HTTP.
+# This is a defense-in-depth backup for the rules in the site root .htaccess.
+<IfModule mod_authz_core.c>
+    Require all denied
+</IfModule>
+<IfModule !mod_authz_core.c>
+    Order allow,deny
+    Deny from all
+</IfModule>
