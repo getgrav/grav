@@ -1,5 +1,5 @@
 # v2.0.0-rc.8
-## 06/08/2026
+## 06/09/2026
 
 1. [](#improved)
     * Page Authors in a page's Security settings is now picked from a searchable list of the users who can edit pages, instead of typed-in usernames.
