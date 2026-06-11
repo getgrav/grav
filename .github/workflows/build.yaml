@@ -20,7 +20,9 @@ jobs:
           ref: ${{ github.ref }}
 
       - name: Extract Tag
-        run: echo "PACKAGE_VERSION=${{ github.ref }}" >> $GITHUB_ENV
+        env:
+          GITHUB_REF: ${{ github.ref }}
+        run: echo "PACKAGE_VERSION=$GITHUB_REF" >> "$GITHUB_ENV"
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2

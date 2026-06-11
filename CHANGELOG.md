@@ -5,6 +5,7 @@
     * [security] Direct web access to the `user/accounts`, `user/config`, `user/data` and `user/env` folders is now blocked outright in every bundled webserver config, closing a hole where files such as certificates, tokens and databases stored under `user/data` with an unlisted extension could be downloaded directly.
     * [security] A backup deny-all `.htaccess` now ships inside `user/accounts`, `user/config` and `user/data` so Apache installs stay protected even when the site root `.htaccess` has been customised or is out of date.
     * [security] The upgrade postflight now patches an existing stock root `.htaccess` to add the folder block automatically, so installs that updated from an earlier version are protected without editing the file by hand.
+    * [security] The Twig filesystem helpers such as `read_file` and `file_exists` now reject `../` path traversal and null bytes in their argument, an extra safeguard on top of the sandbox that already keeps these functions out of editor-authored page content.
 
 # v2.0.0-rc.8
 ## 06/09/2026

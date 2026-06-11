@@ -382,6 +382,20 @@ class FilesystemExtension extends AbstractExtension
      */
     private function checkFilename($filename): bool
     {
-        return is_string($filename) && (!str_contains($filename, '://') || $this->locator->isStream($filename));
+        if (!is_string($filename)) {
+            return false;
+        }
+
+        // Reject null bytes and parent-directory traversal before anything
+        // touches the filesystem. Defense in depth: these helpers are not
+        // exposed to the page-author Twig sandbox, but the guard keeps them
+        // safe wherever the extension is reachable. CWE-22.
+        if (str_contains($filename, "\0")
+            || str_contains($filename, '../')
+            || str_contains($filename, '..\\')) {
+            return false;
+        }
+
+        return !str_contains($filename, '://') || $this->locator->isStream($filename);
     }
 }
