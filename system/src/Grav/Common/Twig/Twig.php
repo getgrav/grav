@@ -509,6 +509,51 @@ class Twig
     }
 
     /**
+     * Render a Twig string as TRUSTED (operator-authored) code — i.e. without
+     * the content sandbox.
+     *
+     * Use this for strings that are part of a site's configuration rather than
+     * its content: email subjects/bodies and other `process:`-style action
+     * templates defined in page frontmatter or plugin/theme config. These are
+     * authored by whoever can configure the site's server-side actions, the
+     * same trust tier as a theme partial — not visitor-supplied content — so
+     * they get the full Twig container, the real (unfiltered) `config`, and
+     * are NOT subject to the `@Var:` source policy.
+     *
+     * DO NOT pass visitor-supplied or page-content strings here; those must go
+     * through {@see processString()} so the sandbox applies. The trust call is
+     * the caller's to make — every use site should be auditable by grepping for
+     * this method.
+     *
+     * @param string $string string to render.
+     * @param array  $vars   Optional variables
+     *
+     * @return string
+     */
+    public function processTemplateString($string, array $vars = [])
+    {
+        // override the twig header vars for local resolution
+        $this->grav->fireEvent('onTwigStringVariables');
+        $vars += $this->twig_vars;
+
+        // Trusted render: register under a name the GravSourcePolicy does NOT
+        // sandbox (anything not prefixed @Page:/@Var:). No SecurityError can be
+        // raised, so there's nothing to soft-fail — a literal {% include %}
+        // could only ever be returned raw when the sandbox blocks it, which is
+        // exactly the case this method exists to avoid.
+        $name = '@Template:' . $string;
+        $this->setTemplate($name, $string);
+
+        try {
+            $output = $this->twig->render($name, $vars);
+        } catch (LoaderError $e) {
+            throw new RuntimeException($e->getRawMessage(), 404, $e);
+        }
+
+        return $output;
+    }
+
+    /**
      * Twig process that renders the site layout. This is the main twig process that renders the overall
      * page and handles all the layout for the site display.
      *
