@@ -16,11 +16,15 @@ class EnvTest extends \PHPUnit\Framework\TestCase
     /** @var string[] Variable names touched by a test, cleared on tearDown. */
     private $touched = [];
 
+    /** @var string|null Secondary directory used by the GRAV_ENV_PATH tests. */
+    private $overrideDir = null;
+
     protected function setUp(): void
     {
         // Isolate from any GRAV_ENVIRONMENT / dotenv state the suite may carry.
         $this->savedEnvironment = getenv('GRAV_ENVIRONMENT');
         $this->clearVar('GRAV_ENVIRONMENT');
+        $this->clearVar('GRAV_ENV_PATH');
         $this->clearVar('SYMFONY_DOTENV_VARS');
 
         $this->dir = sys_get_temp_dir() . '/grav-env-' . uniqid('', true);
@@ -34,10 +38,19 @@ class EnvTest extends \PHPUnit\Framework\TestCase
         }
         @rmdir($this->dir);
 
+        if ($this->overrideDir !== null) {
+            foreach (array_merge(glob($this->overrideDir . '/*') ?: [], glob($this->overrideDir . '/.env*') ?: []) as $file) {
+                @unlink($file);
+            }
+            @rmdir($this->overrideDir);
+            $this->overrideDir = null;
+        }
+
         foreach ($this->touched as $name) {
             $this->clearVar($name);
         }
         $this->clearVar('SYMFONY_DOTENV_VARS');
+        $this->clearVar('GRAV_ENV_PATH');
         $this->clearVar('GRAV_ENVIRONMENT');
 
         if ($this->savedEnvironment !== false) {
@@ -128,6 +141,41 @@ class EnvTest extends \PHPUnit\Framework\TestCase
         self::assertFalse(getenv('GRAV_ENVIRONMENT'));
     }
 
+    public function testGravEnvPathDirectoryLoadsFromOutsideRoot(): void
+    {
+        $this->touched[] = 'DOTENV_TEST_OUTSIDE';
+        $this->touched[] = 'GRAV_ENV_PATH';
+
+        // The .env lives in a directory separate from the Grav root.
+        $this->overrideDir = sys_get_temp_dir() . '/grav-env-ext-' . uniqid('', true);
+        mkdir($this->overrideDir);
+        file_put_contents($this->overrideDir . '/.env', "DOTENV_TEST_OUTSIDE=external\n");
+
+        $this->setVar('GRAV_ENV_PATH', $this->overrideDir);
+
+        // The root has no .env, so a hit can only come from the override directory.
+        Env::load($this->dir);
+
+        self::assertSame('external', getenv('DOTENV_TEST_OUTSIDE'));
+    }
+
+    public function testGravEnvPathFileIsUsedVerbatim(): void
+    {
+        $this->touched[] = 'DOTENV_TEST_FILE';
+        $this->touched[] = 'GRAV_ENV_PATH';
+
+        $this->overrideDir = sys_get_temp_dir() . '/grav-env-ext-' . uniqid('', true);
+        mkdir($this->overrideDir);
+        file_put_contents($this->overrideDir . '/secret.env', "DOTENV_TEST_FILE=fromfile\n");
+
+        // A non-directory GRAV_ENV_PATH is used verbatim as the base file path.
+        $this->setVar('GRAV_ENV_PATH', $this->overrideDir . '/secret.env');
+
+        Env::load($this->dir);
+
+        self::assertSame('fromfile', getenv('DOTENV_TEST_FILE'));
+    }
+
     /**
      * @param string $name
      * @param string $contents
@@ -135,6 +183,16 @@ class EnvTest extends \PHPUnit\Framework\TestCase
     private function writeEnv(string $name, string $contents): void
     {
         file_put_contents($this->dir . '/' . $name, $contents);
+    }
+
+    /**
+     * @param string $name
+     * @param string $value
+     */
+    private function setVar(string $name, string $value): void
+    {
+        putenv($name . '=' . $value);
+        $_ENV[$name] = $_SERVER[$name] = $value;
     }
 
     /**

@@ -10,6 +10,7 @@
 namespace Grav\Common\Config;
 
 use Symfony\Component\Dotenv\Dotenv;
+use function is_dir;
 use function is_file;
 
 /**
@@ -33,11 +34,23 @@ use function is_file;
  *   2. .env.local
  *   3. .env.$GRAV_ENVIRONMENT          (only when an environment is set)
  *   4. .env.$GRAV_ENVIRONMENT.local    (only when an environment is set)
+ *
+ * By default the files are read from the Grav root. Set the real (server-set)
+ * `GRAV_ENV_PATH` environment variable to a directory (or to a specific base
+ * file) to load them from outside the web root instead, which keeps secrets
+ * such as API keys out of a publicly served docroot.
  */
 final class Env
 {
     /** @var string Environment variable that selects the per-environment layer. */
     public const ENV_KEY = 'GRAV_ENVIRONMENT';
+
+    /**
+     * @var string Optional environment variable pointing at the `.env` location,
+     *             either a directory holding it or a specific base file path, so
+     *             the file can live outside the web root.
+     */
+    public const ENV_PATH_KEY = 'GRAV_ENV_PATH';
 
     /**
      * Load .env file(s) from the given root directory into the environment.
@@ -55,7 +68,7 @@ final class Env
             return;
         }
 
-        $base = $root . '/.env';
+        $base = self::resolveBase($root);
 
         // Fast bail-out: nothing to do when no env files exist.
         $env = $_SERVER[self::ENV_KEY] ?? $_ENV[self::ENV_KEY] ?? (getenv(self::ENV_KEY) ?: null);
@@ -98,5 +111,28 @@ final class Env
         } catch (\Throwable $e) {
             error_log('Grav .env loading failed: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Resolve the base `.env` path whose layered variants are loaded.
+     *
+     * Defaults to `<root>/.env`. A real (server-set) `GRAV_ENV_PATH` overrides
+     * it: a directory is treated as the folder holding the `.env` (and its
+     * `.local`/per-environment layers), while any other value is used verbatim
+     * as the base file path. Lets the file live outside the web root.
+     *
+     * @param string $root Absolute path to the Grav root (no trailing slash).
+     * @return string Absolute base path (the `.env` file or its base name).
+     */
+    private static function resolveBase(string $root): string
+    {
+        $override = $_SERVER[self::ENV_PATH_KEY] ?? $_ENV[self::ENV_PATH_KEY] ?? (getenv(self::ENV_PATH_KEY) ?: null);
+        if (is_string($override) && $override !== '') {
+            $override = rtrim(str_replace('\\', '/', $override), '/');
+
+            return is_dir($override) ? $override . '/.env' : $override;
+        }
+
+        return $root . '/.env';
     }
 }

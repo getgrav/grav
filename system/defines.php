@@ -24,7 +24,8 @@ if (!defined("DS")) {
 }
 
 // Native .env support: load environment variables from .env file(s) at the Grav
-// root before any GRAV_* constant is defined, so a .env can drive the path
+// root (or the GRAV_ENV_PATH location when set, which may live outside the web
+// root) before any GRAV_* constant is defined, so a .env can drive the path
 // constants below, the environment name read by Setup, and GRAV_CONFIG__*
 // overrides. Real server-set environment variables always take precedence.
 // The class_exists() guard keeps this file safe to include on its own (e.g. a
