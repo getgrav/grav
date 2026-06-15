@@ -3,6 +3,7 @@
 
 1. [](#new)
     * Added a `GRAV_ENV_PATH` environment variable that loads the `.env` file(s) from a directory or file path outside the web root, so secrets such as API keys no longer have to live in the publicly served document root.
+    * Added an `onFlexObjectMedia` event so a plugin can rewrite a flex object's media links, letting the original files be served through a controlled route while resized or cropped versions still load straight from the image cache.
 2. [](#bugfix)
     * [security] Direct web access to the `user/accounts`, `user/config`, `user/data` and `user/env` folders is now blocked in every bundled webserver config, closing a hole where files such as certificates, tokens and databases stored under `user/data` with an unlisted extension could be downloaded directly.
     * [security] A backup deny-all `.htaccess` now ships inside `user/accounts`, `user/config` and `user/data` so Apache installs stay protected even when the site root `.htaccess` has been customised or is out of date.

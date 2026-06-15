@@ -11,6 +11,7 @@ namespace Grav\Framework\Flex\Traits;
 
 use Grav\Common\Config\Config;
 use Grav\Common\Grav;
+use RocketTheme\Toolbox\Event\Event;
 use Grav\Common\Media\Interfaces\MediaCollectionInterface;
 use Grav\Common\Media\Interfaces\MediaUploadInterface;
 use Grav\Common\Media\Traits\MediaTrait;
@@ -75,6 +76,17 @@ trait FlexMediaTrait
 
             // Include uploaded media to the object media.
             $this->addUpdatedMedia($media);
+
+            // Let plugins rewrite this object's media URLs — e.g. route the
+            // originals through a permission-aware proxy instead of linking them
+            // directly under user://data. Fired once per object (the result is
+            // cached); a listener can stamp a `url` override on individual items.
+            Grav::instance()->fireEvent('onFlexObjectMedia', new Event([
+                'type' => 'flex',
+                'directory' => $this->getFlexDirectory(),
+                'object' => $this,
+                'media' => $media,
+            ]));
         }
 
         return $media;

@@ -196,6 +196,22 @@ class ImageMedium extends Medium implements ImageMediaInterface, ImageManipulate
             $output = (string)($locator->findResource($output, false) ?: $locator->findResource($output, false, true));
         }
 
+        // Serving the unmodified original (no image operations queued — the same
+        // condition under which saveImage() returns the source file). Honor a
+        // `url` override here, and only here, so the original can be routed
+        // through a proxy while resized / cropped derivatives keep serving
+        // straight from `images/`. Mirrors MediaFileTrait::url().
+        if (empty($this->image)) {
+            $url = $this->get('url');
+            if ($url) {
+                if ($reset) {
+                    $this->reset();
+                }
+
+                return $url;
+            }
+        }
+
         if (Utils::startsWith($output, $image_path)) {
             $image_dir = $locator->findResource('cache://images', false);
             $output = '/' . $image_dir . preg_replace('|^' . preg_quote($image_path, '|') . '|', '', $output);
