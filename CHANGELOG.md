@@ -4,9 +4,10 @@
 1. [](#new)
     * Added a `GRAV_ENV_PATH` environment variable that loads the `.env` file(s) from a directory or file path outside the web root, so secrets such as API keys no longer have to live in the publicly served document root.
 2. [](#bugfix)
-    * [security] Direct web access to the `user/accounts`, `user/config`, `user/data` and `user/env` folders is now blocked outright in every bundled webserver config, closing a hole where files such as certificates, tokens and databases stored under `user/data` with an unlisted extension could be downloaded directly.
+    * [security] Direct web access to the `user/accounts`, `user/config`, `user/data` and `user/env` folders is now blocked in every bundled webserver config, closing a hole where files such as certificates, tokens and databases stored under `user/data` with an unlisted extension could be downloaded directly.
     * [security] A backup deny-all `.htaccess` now ships inside `user/accounts`, `user/config` and `user/data` so Apache installs stay protected even when the site root `.htaccess` has been customised or is out of date.
     * [security] The upgrade postflight now patches an existing stock root `.htaccess` to add the folder block automatically, so installs that updated from an earlier version are protected without editing the file by hand.
+    * The new `user/data` block now makes an exception for public media uploads, such as Flex Object images, so they keep displaying instead of returning a 403, while data files, databases and keys stay blocked. Fixes [getgrav/grav#4129](https://github.com/getgrav/grav/issues/4129).
     * [security] The Twig filesystem helpers such as `read_file` and `file_exists` now reject `../` path traversal and null bytes in their argument, an extra safeguard on top of the sandbox that already keeps these functions out of editor-authored page content.
 
 # v2.0.0-rc.8
