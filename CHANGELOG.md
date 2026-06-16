@@ -1,5 +1,5 @@
 # v2.0.0-rc.9
-## 06/14/2026
+## 06/16/2026
 
 1. [](#new)
     * Added a `GRAV_ENV_PATH` environment variable that loads the `.env` file(s) from a directory or file path outside the web root, so secrets such as API keys no longer have to live in the publicly served document root.
