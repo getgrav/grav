@@ -797,11 +797,38 @@ class Grav extends Container
             if (isset($media[$media_file])) {
                 /** @var Medium $medium */
                 $medium = $media[$media_file];
-                foreach ($uri->query(null, true) as $action => $params) {
-                    if (in_array($action, ImageMedium::$magic_actions, true)) {
-                        call_user_func_array([&$medium, $action], explode(',', $params));
+
+                // URL-based media actions (e.g. `image.jpg?resize=600,400`) let an
+                // unauthenticated visitor drive image transforms straight from the
+                // query string. They are opt-in and disabled by default: the normal
+                // resize path is Twig/Markdown media methods, which run with
+                // developer-controlled arguments and are unaffected by this toggle.
+                if ($config->get('system.images.url_actions', false)) {
+                    $max_pixels = (int) $config->get('system.images.max_pixels', 25000000);
+                    foreach ($uri->query(null, true) as $action => $params) {
+                        if (in_array($action, ImageMedium::$magic_actions, true)) {
+                            $args = explode(',', (string) $params);
+                            // Reject request-derived resize dimensions above the
+                            // total-pixel ceiling. The GD/Imagick output buffer is
+                            // allocated as width*height*4 bytes outside PHP's
+                            // memory_limit, so an unbounded request exhausts RAM.
+                            // The output width/height are the last two positions in
+                            // each $magic_resize_actions entry (crop is x,y,w,h).
+                            if ($max_pixels > 0 && isset(ImageMedium::$magic_resize_actions[$action])) {
+                                $positions = ImageMedium::$magic_resize_actions[$action];
+                                $w_pos = $positions[count($positions) - 2] ?? null;
+                                $h_pos = $positions[count($positions) - 1] ?? null;
+                                $width = ($w_pos !== null && isset($args[$w_pos]) && is_numeric($args[$w_pos])) ? (int) $args[$w_pos] : 0;
+                                $height = ($h_pos !== null && isset($args[$h_pos]) && is_numeric($args[$h_pos])) ? (int) $args[$h_pos] : 0;
+                                if ($width > 0 && $height > 0 && ($width * $height) > $max_pixels) {
+                                    return false;
+                                }
+                            }
+                            call_user_func_array([&$medium, $action], $args);
+                        }
                     }
                 }
+
                 Utils::download($medium->path(), false);
             }
 

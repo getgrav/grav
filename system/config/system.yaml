@@ -164,6 +164,8 @@ images:
   debug: false                                   # Show an overlay over images indicating the pixel depth of the image when working with retina for example
   auto_fix_orientation: true                     # Automatically fix the image orientation based on the Exif data
   seofriendly: false                             # SEO-friendly processed image names
+  url_actions: false                             # Allow URL query-based image transforms (e.g. `image.jpg?resize=600,400`). Off by default; normal Twig/Markdown resizing is unaffected
+  max_pixels: 25000000                           # Total-pixel ceiling (width*height) for URL-based resize actions. Requests above this are refused. 0 disables the check
   cls:                                           # Cumulative Layout Shift: See https://web.dev/optimize-cls/
     auto_sizes: false                            # Automatically add height/width to image
     aspect_ratio: false                          # Reserve space with aspect ratio style
