@@ -513,14 +513,82 @@ trait MediaObjectTrait
      * Allows to add an inline style attribute from Markdown or Twig
      * Example: ![Example](myimg.png?style=float:left)
      *
+     * Reachable from Markdown via `?style=…` on image excerpts, so the CSS is
+     * editor-controlled and is written verbatim into the rendered
+     * `<img style="…">`. We validate each declaration and silently drop the
+     * whole value if any of it would open a phishing-overlay, clickjacking, or
+     * CSS-exfiltration primitive. This is the sibling sink to the `attribute()`
+     * `style` denylist entry. GHSA-pmf8-g7c8-7v54 (follow-up to
+     * GHSA-r7fx-8g49-7hhr).
+     *
      * @param string $style
      * @return $this
      */
     public function style($style)
     {
+        if (!is_string($style) || !self::isSafeStyleValue($style)) {
+            return $this;
+        }
         $this->styleAttributes[] = rtrim($style, ';') . ';';
 
         return $this;
+    }
+
+    /**
+     * Validate an editor-supplied inline-style value.
+     *
+     * Inline `<img style="…">` CSS can't break out into a new HTML attribute
+     * (Parsedown runs the value through htmlspecialchars), but unconstrained
+     * CSS is still a stored-content weapon against a higher-privilege viewer:
+     * a full-viewport `position:fixed` overlay (phishing / clickjacking / UI
+     * DoS), or `background:url(…)`-style data exfiltration. We parse the value
+     * into `property: value` declarations and require each one to be benign:
+     *
+     *  - the property is a plain CSS identifier and not a positioning/stacking
+     *    primitive (`position`, `z-index`, `behavior`, `-moz-binding`), and
+     *  - the value contains no `(` (kills `url(…)` / `expression(…)`), no at-rule
+     *    (`@import`), and no markup or quoting characters.
+     *
+     * Anything outside that shape causes the entire value to be rejected, the
+     * same fail-closed behavior as {@see isSafeAttributeName()}.
+     *
+     * @internal
+     */
+    private static function isSafeStyleValue(string $style): bool
+    {
+        foreach (explode(';', $style) as $declaration) {
+            $declaration = trim($declaration);
+            if ($declaration === '') {
+                continue;
+            }
+
+            $parts = explode(':', $declaration, 2);
+            if (count($parts) !== 2) {
+                return false;
+            }
+
+            $property = strtolower(trim($parts[0]));
+            $value = trim($parts[1]);
+
+            // Property must be a plain (optionally vendor-prefixed) CSS
+            // identifier — rejects whitespace, quotes, `<>`, etc.
+            if (!preg_match('/^-?[a-z][a-z-]*$/', $property)) {
+                return false;
+            }
+
+            // Positioning / stacking primitives are the phishing-overlay vector.
+            if (in_array($property, ['position', 'z-index', 'behavior', '-moz-binding'], true)) {
+                return false;
+            }
+
+            // Values may not call functions (`url(…)`, `expression(…)`), open an
+            // at-rule, or carry markup / quoting characters.
+            if (preg_match('/[()<>@{}"\'\\\\]/', $value)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
