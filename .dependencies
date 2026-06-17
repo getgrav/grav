@@ -11,6 +11,10 @@ git:
         url: https://github.com/trilbymedia/grav-plugin-github-markdown-alerts
         path: user/plugins/github-markdown-alerts
         branch: main
+    shortcode-core:
+        url: https://github.com/getgrav/grav-plugin-shortcode-core
+        path: user/plugins/shortcode-core
+        branch: master
     quark2:
         url: https://github.com/getgrav/grav-theme-quark2
         path: user/themes/quark2
@@ -27,6 +31,10 @@ links:
     github-markdown-alerts:
         src: grav-plugin-github-markdown-alerts
         path: user/plugins/github-markdown-alerts
+        scm: github
+    shortcode-core:
+        src: grav-plugin-shortcode-core
+        path: user/plugins/shortcode-core
         scm: github
     quark2:
         src: grav-theme-quark2
