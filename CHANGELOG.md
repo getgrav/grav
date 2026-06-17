@@ -1,3 +1,9 @@
+# v2.0.0-rc.10
+## 06/17/2026
+
+1. [](#bugfix)
+    * Twig in page content that puts an output tag inside an `if` block, such as `{% if x %}{{ y }}{% endif %}`, no longer fails with an "Unknown endif tag" error when Markdown runs first. Fixes [getgrav/grav#4126](https://github.com/getgrav/grav/issues/4126).
+
 # v2.0.0-rc.9
 ## 06/16/2026
 
