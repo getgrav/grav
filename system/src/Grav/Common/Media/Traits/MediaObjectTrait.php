@@ -243,7 +243,14 @@ trait MediaObjectTrait
             if (is_numeric($key)) { // Special case for inline style attributes, refer to style() method
                 $style .= $value;
             } else {
-                $style .= $key . ': ' . $value . ';';
+                // Keyed declarations come from media actions such as resize().
+                // Validate the serialized declaration so a value can't carry
+                // extra CSS past the intended property, the same fail-closed
+                // check style() applies. GHSA-ffmg-hfvg-jhg9.
+                $declaration = $key . ': ' . $value;
+                if (self::isSafeStyleValue($declaration)) {
+                    $style .= $declaration . ';';
+                }
             }
         }
         if ($style) {
