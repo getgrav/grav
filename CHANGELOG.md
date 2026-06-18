@@ -5,6 +5,7 @@
     * [security] Image `resize` in page content (for example `![logo](img.png?resize=...)`) now only accepts numeric dimensions, closing a stored CSS injection where a crafted resize value could write extra style declarations, such as a full-page overlay, into the image for a higher-privileged viewer (CWE-79). Media actions in an image URL are now limited to the documented set, so page content can no longer reach other internal methods on a media object, and inline styles are validated again when the image is rendered. Thanks to @DavidCarliez for the report.
     * Twig in page content that puts an output tag inside an `if` block, such as `{% if x %}{{ y }}{% endif %}`, no longer fails with an "Unknown endif tag" error when Markdown runs first. Fixes [getgrav/grav#4126](https://github.com/getgrav/grav/issues/4126).
     * Twig in the content of a modular page's modules, such as a `{% include %}` tag, is now processed the same way it is in a regular page instead of being left as literal text. Fixes [getgrav/grav#4142](https://github.com/getgrav/grav/issues/4142).
+    * Hyphenized anchors and slugs now keep accented and other Unicode letters such as `ä`, `ö` and `ü` instead of mangling them, so on-page menu links to modules with those characters point to the right place. Thanks to @Xoriander. [getgrav/grav#4143](https://github.com/getgrav/grav/pull/4143)
 
 # v2.0.0-rc.9
 ## 06/16/2026

@@ -86,6 +86,7 @@ class InflectorTest extends \PHPUnit\Framework\TestCase
         self::assertSame('this-string-is-hyphenized', $this->inflector->hyphenize('ThisStringIsHyphenized'));
         self::assertSame('this-string-is-hyphenized', $this->inflector->hyphenize('This-String-Is-Hyphenized'));
         self::assertSame('this-string-is-hyphenized', $this->inflector->hyphenize('This_String_Is_Hyphenized'));
+        self::assertSame('wörter-mit-bindestrich-getrennt', $this->inflector->hyphenize('Wörter_mit_Bindestrich_getrennt'));
     }
 
     public function testHumanize(): void

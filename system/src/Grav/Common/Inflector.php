@@ -225,7 +225,7 @@ class Inflector
         $regex1 = preg_replace('/([A-Z]+)([A-Z][a-z])/', '\1-\2', $word);
         $regex2 = preg_replace('/([a-z])([A-Z])/', '\1-\2', (string) $regex1);
         $regex3 = preg_replace('/([0-9])([A-Z])/', '\1-\2', (string) $regex2);
-        $regex4 = preg_replace('/[^\p{L}^0-9]+/', '-', (string) $regex3);
+        $regex4 = preg_replace('/[^\p{L}^0-9]+/u', '-', (string) $regex3);
 
         $regex4 = trim((string) $regex4, '-');
 
