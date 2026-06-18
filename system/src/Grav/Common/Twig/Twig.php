@@ -391,7 +391,17 @@ class Twig
             // string — its own Twig is never re-parsed under the sandbox — and
             // the @Page: source stays stable (the raw body) rather than
             // changing with every template/media tweak.
-            if ($item->shouldProcess('twig')) {
+            //
+            // Modular children process their body Twig unconditionally
+            // (isModule()), independent of the security.twig_content gate —
+            // matching the $process_twig decision in Page::content() and
+            // FlexPages::processContent(), both of which OR in modularTwig().
+            // Without this, a module whose header doesn't explicitly set
+            // process.twig (e.g. when system.pages.process.twig defaults to
+            // false) would have its content handed to the modular template
+            // raw, leaving {% include %}/{{ }} tags as literal text even
+            // though the caller already decided to process them.
+            if ($item->shouldProcess('twig') || $item->isModule()) {
                 $name = '@Page:' . $item->path();
                 $this->setTemplate($name, $content);
                 // Replace `config` with a denied-path-filtered facade for the

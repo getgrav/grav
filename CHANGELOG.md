@@ -1,8 +1,9 @@
 # v2.0.0-rc.10
-## 06/17/2026
+## 06/18/2026
 
 1. [](#bugfix)
     * Twig in page content that puts an output tag inside an `if` block, such as `{% if x %}{{ y }}{% endif %}`, no longer fails with an "Unknown endif tag" error when Markdown runs first. Fixes [getgrav/grav#4126](https://github.com/getgrav/grav/issues/4126).
+    * Twig in the content of a modular page's modules, such as a `{% include %}` tag, is now processed the same way it is in a regular page instead of being left as literal text. Fixes [getgrav/grav#4142](https://github.com/getgrav/grav/issues/4142).
 
 # v2.0.0-rc.9
 ## 06/16/2026
