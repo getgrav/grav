@@ -3,6 +3,7 @@
 namespace Grav\Framework\Media;
 
 use Grav\Common\Page\Medium\ImageMedium;
+use Grav\Common\Page\Medium\Medium;
 use Grav\Framework\Contracts\Media\MediaObjectInterface;
 use Grav\Framework\Flex\Interfaces\FlexObjectInterface;
 use Grav\Framework\Media\Interfaces\MediaObjectInterface as GravMediaObjectInterface;
@@ -148,6 +149,14 @@ class MediaObject implements MediaObjectInterface
     {
         // loop through actions for the image and call them
         foreach ($actions as $method => $params) {
+            // Block real, undocumented medium methods from being invoked by a
+            // request URL; only documented actions may be called. Names that
+            // aren't real methods fall through to the medium's __call() URL
+            // passthrough, which runs no code. GHSA-ffmg-hfvg-jhg9.
+            if (method_exists($medium, (string) $method) && !Medium::isAllowedAction((string) $method)) {
+                continue;
+            }
+
             $matches = [];
 
             if (preg_match('/\[(.*)]/', (string) $params, $matches)) {

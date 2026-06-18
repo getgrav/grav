@@ -38,6 +38,69 @@ class Medium extends Data implements RenderableInterface, MediaFileInterface
     use ParsedownHtmlTrait;
 
     /**
+     * Media actions that may be invoked from an editor-authored Markdown image
+     * URL (e.g. `![x](img.png?resize=100,200&grayscale&class=foo)`) or a media
+     * URL request. Excerpts::processMediaActions() and the Flex media response
+     * builder call these by method name. The gate blocks any *real* public
+     * method that is not on this allowlist, so untrusted page content can't reach
+     * arbitrary methods on a medium (the enabler behind GHSA-ffmg-hfvg-jhg9 and
+     * the earlier style/attribute advisories). Names that aren't real methods
+     * still fall through to the medium's __call() handler, which only appends
+     * them to the image URL's querystring (where image filters like `grayscale`
+     * are applied during image generation, and unknown params are reflected,
+     * escaped, into the `src`); that path invokes no code, so it stays open.
+     *
+     * This list mirrors the actions documented at
+     * https://learn.getgrav.org/content/media.
+     *
+     * Matching is case-insensitive (see {@see isAllowedAction()}) because PHP
+     * method dispatch is, so each action is listed once in its documented
+     * casing. This list is intentionally not configurable; add newly documented
+     * actions here in core as needed.
+     *
+     * @var string[]
+     */
+    public const ALLOWED_ACTIONS = [
+        // Image manipulation (cf. ImageMediaTrait::$magic_actions). zoomCrop and
+        // its legacy alias cropZoom are both kept for backwards compatibility.
+        'resize', 'forceResize', 'cropResize', 'crop', 'zoomCrop', 'cropZoom',
+        'negate', 'brightness', 'contrast', 'grayscale', 'emboss', 'smooth',
+        'sharp', 'edge', 'colorize', 'sepia', 'enableProgressive', 'rotate',
+        'flip', 'fixOrientation', 'gaussianBlur', 'format', 'quality',
+        'watermark', 'derivatives', 'cache',
+        // Rendering, layout, and HTML attributes
+        'lightbox', 'link', 'classes', 'style', 'id', 'attribute',
+        'width', 'height', 'sizes', 'autoSizes', 'aspectRatio', 'retinaScale',
+        'loading', 'decoding', 'fetchpriority', 'display', 'thumbnail', 'reset',
+        // Audio / video players
+        'controls', 'controlsList', 'loop', 'autoplay', 'muted', 'preload',
+        'playsinline', 'poster',
+    ];
+
+    /** @var array<string,true>|null Memoized lower-cased ALLOWED_ACTIONS lookup. */
+    private static $allowedActionLookup = null;
+
+    /**
+     * Whether a media action may be invoked from an editor-authored URL.
+     * Case-insensitive, matching PHP's method-name dispatch so that e.g.
+     * `?Resize=` cannot slip past the allowlist while still calling resize().
+     *
+     * @param string $method
+     * @return bool
+     */
+    public static function isAllowedAction(string $method): bool
+    {
+        if (self::$allowedActionLookup === null) {
+            self::$allowedActionLookup = array_fill_keys(
+                array_map('strtolower', self::ALLOWED_ACTIONS),
+                true
+            );
+        }
+
+        return isset(self::$allowedActionLookup[strtolower($method)]);
+    }
+
+    /**
      * Construct.
      *
      * @param array $items

@@ -280,6 +280,19 @@ class Excerpts
             );
         }
 
+        // Block any real, undocumented medium method from being invoked by an
+        // editor-authored image URL — only documented actions may be called.
+        // Names that aren't real methods are left alone so the medium's __call()
+        // URL-querystring passthrough (image filters, cache-busting params, …)
+        // keeps working; that path runs no code. Operator-defined
+        // images.defaults below are server config (trusted) and not filtered.
+        // GHSA-ffmg-hfvg-jhg9.
+        $actions = array_values(array_filter(
+            $actions,
+            static fn($action) => !method_exists($medium, (string) $action['method'])
+                || Medium::isAllowedAction((string) $action['method'])
+        ));
+
         $defaults = $this->config['images']['defaults'] ?? [];
         if (count($defaults)) {
             foreach ($defaults as $method => $params) {
