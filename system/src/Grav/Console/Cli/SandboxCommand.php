@@ -25,6 +25,7 @@ class SandboxCommand extends GravCommand
 {
     /** @var array */
     protected $directories = [
+        '/run',
         '/assets',
         '/backup',
         '/cache',

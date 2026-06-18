@@ -46,6 +46,13 @@ class Setup extends Data
 
     /** @var array */
     protected $streams = [
+        'run' => [
+            'type' => 'Stream',
+            'force' => true,
+            'prefixes' => [
+                '' => [], // Set in constructor
+            ]
+        ],
         'user' => [
             'type' => 'ReadOnlyStream',
             'force' => true,
@@ -57,29 +64,29 @@ class Setup extends Data
             'type' => 'Stream',
             'force' => true,
             'prefixes' => [
-                '' => [], // Set in constructor
-                'images' => ['images']
+                '' => ['run://cache'], // Set in constructor
+                'images' => ['run://images']
             ]
         ],
         'log' => [
             'type' => 'Stream',
             'force' => true,
             'prefixes' => [
-                '' => [] // Set in constructor
+                '' => ['run://logs']
             ]
         ],
         'tmp' => [
             'type' => 'Stream',
             'force' => true,
             'prefixes' => [
-                '' => [] // Set in constructor
+                '' => ['run://tmp'] // Set in constructor
             ]
         ],
         'backup' => [
             'type' => 'Stream',
             'force' => true,
             'prefixes' => [
-                '' => [] // Set in constructor
+                '' => ['run://backup']
             ]
         ],
         'environment' => [
@@ -94,8 +101,9 @@ class Setup extends Data
         ],
         'asset' => [
             'type' => 'Stream',
+            'force' => true,
             'prefixes' => [
-                '' => ['assets'],
+                '' => ['run://assets'],
             ]
         ],
         'blueprints' => [
@@ -150,13 +158,13 @@ class Setup extends Data
             'type' => 'Stream',
             'force' => true,
             'prefixes' => [
-                '' => ['user://data']
+                '' => ['run://data']
             ]
         ],
         'account' => [
             'type' => 'ReadOnlyStream',
             'prefixes' => [
-                '' => ['user://accounts']
+                '' => ['run://accounts']
             ]
         ],
     ];
@@ -170,10 +178,8 @@ class Setup extends Data
         $abs = str_starts_with(GRAV_SYSTEM_PATH, '/');
         $this->streams['system']['prefixes'][''] = $abs ? ['system', GRAV_SYSTEM_PATH] : ['system'];
         $this->streams['user']['prefixes'][''] = [GRAV_USER_PATH];
-        $this->streams['cache']['prefixes'][''] = [GRAV_CACHE_PATH];
-        $this->streams['log']['prefixes'][''] = [GRAV_LOG_PATH];
+        $this->streams['run']['prefixes'][''] = [GRAV_RUN_PATH];
         $this->streams['tmp']['prefixes'][''] = [GRAV_TMP_PATH];
-        $this->streams['backup']['prefixes'][''] = [GRAV_BACKUP_PATH];
 
         // If environment is not set, look for the environment variable and then the constant.
         $environment = static::$environment ??
