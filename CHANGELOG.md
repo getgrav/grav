@@ -1,6 +1,8 @@
-# v2.0.0-rc.11
+# v2.0.0
 ## 06/20/2026
 
+1. [](#new)
+    * Grav Version 2.0 stable is released - read all about it here: https://getgrav.org/blog/grav-2-stable-released
 1. [](#bugfix)
     * [security] Install packages uploaded through Direct Install are now rejected when their contents exceed safe limits on total uncompressed size, file count, or folder nesting depth, so a crafted archive can no longer fill the disk, exhaust inodes, or crash extraction (GHSA-2vcx-h8p2-9pg9).
 
