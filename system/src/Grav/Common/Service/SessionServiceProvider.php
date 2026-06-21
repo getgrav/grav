@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Service
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -11,6 +11,7 @@ namespace Grav\Common\Service;
 
 use Grav\Common\Config\Config;
 use Grav\Common\Debugger;
+use Grav\Common\Security;
 use Grav\Common\Session;
 use Grav\Common\Uri;
 use Grav\Common\Utils;
@@ -64,7 +65,7 @@ class SessionServiceProvider implements ServiceProviderInterface
             // Activate admin if we're inside the admin path.
             $is_admin = false;
             if ($config->get('plugins.admin.enabled')) {
-                $admin_base = '/' . trim($config->get('plugins.admin.route'), '/');
+                $admin_base = '/' . trim((string) $config->get('plugins.admin.route'), '/');
 
                 // Uri::route() is not processed yet, let's quickly get what we need.
                 $current_route = str_replace(Uri::filterPath($uri->rootUrl(false)), '', parse_url($uri->url(true), PHP_URL_PATH));
@@ -86,7 +87,7 @@ class SessionServiceProvider implements ServiceProviderInterface
             }
 
             $session_prefix = $c['inflector']->hyphenize($config->get('system.session.name', 'grav-site'));
-            $session_uniqueness = $config->get('system.session.uniqueness', 'path') === 'path' ?  substr(md5(GRAV_ROOT), 0, 7) :  md5($config->get('security.salt'));
+            $session_uniqueness = $config->get('system.session.uniqueness', 'path') === 'path' ?  substr(md5(GRAV_ROOT), 0, 7) :  md5(Security::getNonceKey());
 
             $session_name = $session_prefix . '-' . $session_uniqueness;
 

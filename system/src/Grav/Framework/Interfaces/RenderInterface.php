@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * @package    Grav\Framework\Interfaces
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -34,5 +34,5 @@ interface RenderInterface
      * @return ContentBlockInterface|HtmlBlock Returns `HtmlBlock` containing the rendered output.
      * @api
      */
-    public function render(string $layout = null, array $context = []);
+    public function render(?string $layout = null, array $context = []);
 }

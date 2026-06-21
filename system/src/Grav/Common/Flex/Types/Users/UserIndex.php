@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * @package    Grav\Common\Flex
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -67,7 +67,7 @@ class UserIndex extends FlexIndex implements UserCollectionInterface
         // Username can also be number and stored as such.
         $key = (string)($data['username'] ?? $meta['key'] ?? $meta['storage_key']);
         $meta['key'] = static::filterUsername($key, $storage);
-        $meta['email'] = isset($data['email']) ? mb_strtolower($data['email']) : null;
+        $meta['email'] = isset($data['email']) ? mb_strtolower((string) $data['email']) : null;
     }
 
     /**
@@ -197,7 +197,7 @@ class UserIndex extends FlexIndex implements UserCollectionInterface
 
         /** @var Logger $logger */
         $logger = $grav['log'];
-        $logger->addDebug($message);
+        $logger->debug($message);
 
         /** @var Debugger $debugger */
         $debugger = $grav['debugger'];

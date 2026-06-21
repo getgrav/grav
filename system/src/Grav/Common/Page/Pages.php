@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Page
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -48,6 +48,8 @@ use function in_array;
 use function is_array;
 use function is_int;
 use function is_string;
+use function json_encode;
+use function md5;
 
 /**
  * Class Pages
@@ -96,6 +98,8 @@ class Pages
     protected $initialized = false;
     /** @var string */
     protected $active_lang;
+    /** @var string|null */
+    protected $page_extension_regex;
     /** @var bool */
     protected $fire_events = false;
     /** @var Types|null */
@@ -168,7 +172,7 @@ class Pages
      */
     public function baseRoute($lang = null)
     {
-        $key = $lang ?: $this->active_lang ?: 'default';
+        $key = ($lang ?: $this->active_lang) ?: 'default';
 
         if (!isset($this->baseRoute[$key])) {
             /** @var Language $language */
@@ -217,7 +221,7 @@ class Pages
 
         // Start by checking that referrer came from our site.
         $root = $this->grav['base_url_absolute'];
-        if (!is_string($referrer) || !str_starts_with($referrer, $root)) {
+        if (!is_string($referrer) || !str_starts_with($referrer, (string) $root)) {
             return null;
         }
 
@@ -470,7 +474,7 @@ class Pages
             /** @var Uri $uri */
             $uri = $this->grav['uri'];
             foreach ($context['taxonomies'] as $taxonomy) {
-                $param = $uri->param(rawurlencode($taxonomy));
+                $param = $uri->param(rawurlencode((string) $taxonomy));
                 $items = is_string($param) ? explode(',', $param) : [];
                 foreach ($items as $item) {
                     $params['taxonomies'][$taxonomy][] = htmlspecialchars_decode(rawurldecode($item), ENT_QUOTES);
@@ -534,8 +538,8 @@ class Pages
             }
 
             // Convert non-type to type.
-            if (str_starts_with($type, 'non-')) {
-                $type = substr($type, 4);
+            if (str_starts_with((string) $type, 'non-')) {
+                $type = substr((string) $type, 4);
                 $filter = !$filter;
             }
 
@@ -610,9 +614,7 @@ class Pages
 
             if (is_array($sort_flags)) {
                 $sort_flags = array_map('constant', $sort_flags); //transform strings to constant value
-                $sort_flags = array_reduce($sort_flags, static function ($a, $b) {
-                    return $a | $b;
-                }, 0); //merge constant values using bit or
+                $sort_flags = array_reduce($sort_flags, static fn($a, $b) => $a | $b, 0); //merge constant values using bit or
             }
 
             $collection = $collection->order($by, $dir, $custom, $sort_flags);
@@ -645,7 +647,7 @@ class Pages
      * @param PageInterface|null $self
      * @return Collection
      */
-    protected function evaluate($value, PageInterface $self = null)
+    protected function evaluate($value, ?PageInterface $self = null)
     {
         // Parse command.
         if (is_string($value)) {
@@ -755,6 +757,10 @@ class Pages
                 // Unknown type; return empty collection.
                 $collection = new Collection();
                 break;
+        }
+
+        if (!$collection instanceof Collection) {
+            $collection = new Collection($collection->toArray());
         }
 
         return $collection;
@@ -898,7 +904,6 @@ class Pages
     public function children($path)
     {
         $children = $this->children[(string)$path] ?? [];
-
         return new Collection($children, [], $this);
     }
 
@@ -1007,9 +1012,9 @@ class Pages
         } else {
             // Use reverse order because of B/C (previously matched multiple and returned the last match).
             foreach (array_reverse($site_routes, true) as $pattern => $replace) {
-                $pattern = '#^' . str_replace('/', '\/', ltrim($pattern, '^')) . '#';
+                $pattern = '#^' . str_replace('/', '\/', ltrim((string) $pattern, '^')) . '#';
                 try {
-                    $found = preg_replace($pattern, $replace, $route);
+                    $found = preg_replace($pattern, (string) $replace, $route);
                     if ($found && $found !== $route) {
                         $page = $this->find($found);
                         if ($page) {
@@ -1087,11 +1092,11 @@ class Pages
         $site_redirects = $config->get('site.redirects');
         if (is_array($site_redirects)) {
             foreach ((array)$site_redirects as $pattern => $replace) {
-                $pattern = ltrim($pattern, '^');
+                $pattern = ltrim((string) $pattern, '^');
                 $pattern = '#^' . str_replace('/', '\/', $pattern) . '#';
                 try {
                     /** @var string $found */
-                    $found = preg_replace($pattern, $replace, $source_url);
+                    $found = preg_replace($pattern, (string) $replace, $source_url);
                     if ($found && $found !== $source_url) {
                         $this->grav->redirectLangSafe($found);
                     }
@@ -1138,7 +1143,7 @@ class Pages
 
         try {
             $blueprint = $this->blueprints->get($type);
-        } catch (RuntimeException $e) {
+        } catch (RuntimeException) {
             $blueprint = $this->blueprints->get('default');
         }
 
@@ -1156,7 +1161,7 @@ class Pages
      * @param PageInterface|null $current
      * @return Collection
      */
-    public function all(PageInterface $current = null)
+    public function all(?PageInterface $current = null)
     {
         $all = new Collection();
 
@@ -1196,10 +1201,17 @@ class Pages
     {
         $grav = Grav::instance();
 
-        /** @var Pages $pages */
-        $pages = $grav['pages'];
+        /** @var Cache $cache */
+        $cache = $grav['cache'];
+        $cache_id = 'parents-' . ($rawRoutes ? 'raw-' : '') . $grav['language']->getActive();
+        $parents = $cache->fetch($cache_id);
 
-        $parents = $pages->getList(null, 0, $rawRoutes);
+        if ($parents === false) {
+            /** @var Pages $pages */
+            $pages = $grav['pages'];
+            $parents = $pages->getList(null, 0, $rawRoutes);
+            $cache->save($cache_id, $parents);
+        }
 
         if (isset($grav['admin'])) {
             // Remove current route from parents
@@ -1230,7 +1242,7 @@ class Pages
      * @param bool $limitLevels
      * @return array
      */
-    public function getList(PageInterface $current = null, $level = 0, $rawRoutes = false, $showAll = true, $showFullpath = false, $showSlug = false, $showModular = false, $limitLevels = false)
+    public function getList(?PageInterface $current = null, $level = 0, $rawRoutes = false, $showAll = true, $showFullpath = false, $showSlug = false, $showModular = false, $limitLevels = false)
     {
         if (!$current) {
             if ($level) {
@@ -1250,7 +1262,7 @@ class Pages
             }
 
             if ($showFullpath) {
-                $option = htmlspecialchars($current->route());
+                $option = htmlspecialchars((string) $current->route());
             } else {
                 $extra  = $showSlug ? '(' . $current->slug() . ') ' : '';
                 $option = str_repeat('&mdash;-', $level). '&rtrif; ' . $extra . htmlspecialchars($current->title());
@@ -1333,7 +1345,7 @@ class Pages
             $locator = $grav['locator'];
             foreach ($types as $type => $paths) {
                 foreach ($paths as $k => $path) {
-                    if (strpos($path, 'blueprints://') === 0) {
+                    if (str_starts_with((string) $path, 'blueprints://')) {
                         unset($paths[$k]);
                     }
                 }
@@ -1389,15 +1401,11 @@ class Pages
 
             $type = $page && $page->isModule() ? 'modular' : 'standard';
         }
-
-        switch ($type) {
-            case 'standard':
-                return static::types();
-            case 'modular':
-                return static::modularTypes();
-        }
-
-        return [];
+        return match ($type) {
+            'standard' => static::types(),
+            'modular' => static::modularTypes(),
+            default => [],
+        };
     }
 
     /**
@@ -1471,13 +1479,13 @@ class Pages
                         } else {
                             $home = $home_aliases[$default];
                         }
-                    } catch (ErrorException $e) {
+                    } catch (ErrorException) {
                         $home = $home_aliases[$default];
                     }
                 }
             }
 
-            self::$home_route = trim($home, '/');
+            self::$home_route = trim((string) $home, '/');
         }
 
         return self::$home_route;
@@ -1725,21 +1733,8 @@ class Pages
             /** @var Language $language */
             $language = $this->grav['language'];
 
-            // how should we check for last modified? Default is by file
-            switch ($this->check_method) {
-                case 'none':
-                case 'off':
-                    $hash = 0;
-                    break;
-                case 'folder':
-                    $hash = Folder::lastModifiedFolder($pages_dirs);
-                    break;
-                case 'hash':
-                    $hash = Folder::hashAllFiles($pages_dirs);
-                    break;
-                default:
-                    $hash = Folder::lastModifiedFile($pages_dirs);
-            }
+            $interval = (int)$config->get('system.cache.check.interval', 0);
+            $hash = $this->resolvePagesHash($pages_dirs, $interval, (string)$this->check_method);
 
             $this->simple_pages_hash = json_encode($pages_dirs) . $hash . $config->checksum();
             $this->pages_cache_id = md5($this->simple_pages_hash . $language->getActive());
@@ -1818,7 +1813,7 @@ class Pages
      * @throws RuntimeException
      * @internal
      */
-    protected function recurse(string $directory, PageInterface $parent = null)
+    protected function recurse(string $directory, ?PageInterface $parent = null)
     {
         $directory = rtrim($directory, DS);
         $page = new Page;
@@ -1854,40 +1849,43 @@ class Pages
             throw new RuntimeException('Fatal error when creating page instances.');
         }
 
-        // Build regular expression for all the allowed page extensions.
-        $page_extensions = $language->getFallbackPageExtensions();
-        $regex = '/^[^\.]*(' . implode('|', array_map(
-            static function ($str) {
-                return preg_quote($str, '/');
-            },
-            $page_extensions
-        )) . ')$/';
+        $page_extensions = array_flip($language->getFallbackPageExtensions());
+        
+        // $regex = $this->page_extension_regex;
 
         $folders = [];
         $page_found = null;
         $page_extension = '.md';
         $last_modified = 0;
 
+        $ignore_files = array_flip($this->ignore_files);
+        $ignore_folders = array_flip($this->ignore_folders);
+
         $iterator = new FilesystemIterator($directory);
         foreach ($iterator as $file) {
             $filename = $file->getFilename();
 
             // Ignore all hidden files if set.
-            if ($this->ignore_hidden && $filename && strpos($filename, '.') === 0) {
+            if ($this->ignore_hidden && $filename && str_starts_with($filename, '.')) {
+                continue;
+            }
+
+            // Skip broken symlinks.
+            if ($file->isLink() && $file->getRealPath() === false) {
                 continue;
             }
 
             // Handle folders later.
             if ($file->isDir()) {
                 // But ignore all folders in ignore list.
-                if (!in_array($filename, $this->ignore_folders, true)) {
+                if (!isset($ignore_folders[$filename])) {
                     $folders[] = $file;
                 }
                 continue;
             }
 
             // Ignore all files in ignore list.
-            if (in_array($filename, $this->ignore_files, true)) {
+            if (isset($ignore_files[$filename])) {
                 continue;
             }
 
@@ -1898,12 +1896,15 @@ class Pages
             }
 
             // Page is the one that matches to $page_extensions list with the lowest index number.
-            if (preg_match($regex, $filename, $matches, PREG_OFFSET_CAPTURE)) {
-                $ext = $matches[1][0];
-
-                if ($page_found === null || array_search($ext, $page_extensions, true) < array_search($page_extension, $page_extensions, true)) {
-                    $page_found = $file;
-                    $page_extension = $ext;
+            // Optimized version avoiding preg_match
+            $pos = strpos($filename, '.');
+            if ($pos !== false && $pos > 0) {
+                $ext = substr($filename, $pos);
+                if (isset($page_extensions[$ext])) {
+                    if ($page_found === null || $page_extensions[$ext] < $page_extensions[$page_extension]) {
+                        $page_found = $file;
+                        $page_extension = $ext;
+                    }
                 }
             }
         }
@@ -2075,7 +2076,7 @@ class Pages
         $header_default = null;
 
         // do this header query work only once
-        if (strpos($order_by, 'header.') === 0) {
+        if (str_starts_with($order_by, 'header.')) {
             $query = explode('|', str_replace('header.', '', $order_by), 2);
             $header_query = array_shift($query) ?? '';
             $header_default = array_shift($query);
@@ -2155,9 +2156,7 @@ class Pages
                 if ($col) {
                     $col->setAttribute(Collator::NUMERIC_COLLATION, Collator::ON);
                     if (($sort_flags & SORT_NATURAL) === SORT_NATURAL) {
-                        $list = preg_replace_callback('~([0-9]+)\.~', static function ($number) {
-                            return sprintf('%032d.', $number[0]);
-                        }, $list);
+                        $list = preg_replace_callback('~([0-9]+)\.~', static fn($number) => sprintf('%032d.', $number[0]), $list);
                         if (!is_array($list)) {
                             throw new RuntimeException('Internal Error');
                         }
@@ -2223,6 +2222,47 @@ class Pages
         }
 
         return $new;
+    }
+
+    /**
+     * Resolve filesystem hash for pages with optional throttling to avoid expensive scans every request.
+     */
+    protected function resolvePagesHash(array $pagesDirs, int $interval, string $method): string|int
+    {
+        if ($method === 'none' || $method === 'off') {
+            return 0;
+        }
+
+        $resolver = static function () use ($pagesDirs, $method) {
+            return match ($method) {
+                'folder' => Folder::lastModifiedFolder($pagesDirs),
+                'hash' => Folder::hashAllFiles($pagesDirs),
+                default => Folder::lastModifiedFile($pagesDirs),
+            };
+        };
+
+        if ($interval <= 0) {
+            return $resolver();
+        }
+
+        /** @var Cache $cache */
+        $cache = $this->grav['cache'];
+        if (!$cache) {
+            return $resolver();
+        }
+
+        $configChecksum = $this->grav['config']->checksum();
+        $cacheKey = 'pages-hash-' . $method . '-' . md5(json_encode($pagesDirs) . $configChecksum);
+
+        $cached = $cache->fetch($cacheKey);
+        if ($cached !== false) {
+            return $cached;
+        }
+
+        $hash = $resolver();
+        $cache->save($cacheKey, $hash, $interval);
+
+        return $hash;
     }
 
     /**

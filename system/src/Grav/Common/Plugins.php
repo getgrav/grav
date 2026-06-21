@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -86,7 +86,7 @@ class Plugins extends Iterator
                     $blueprints["plugin://{$plugin->name}/blueprints"] = $plugin->features['blueprints'];
                 }
                 if (method_exists($plugin, 'getFormFieldTypes')) {
-                    $formFields[get_class($plugin)] = $plugin->features['formfields'] ?? 0;
+                    $formFields[$plugin::class] = $plugin->features['formfields'] ?? 0;
                 }
             }
         }
@@ -143,7 +143,19 @@ class Plugins extends Iterator
                 $instance->setConfig($config);
                 // Register autoloader.
                 if (method_exists($instance, 'autoload')) {
-                    $instance->setAutoloader($instance->autoload());
+                    try {
+                        $instance->setAutoloader($instance->autoload());
+                    } catch (\Throwable $e) {
+                        // Log the autoload failure and disable the plugin
+                        $grav['log']->error(
+                            sprintf("Plugin '%s' autoload failed: %s", $instance->name, $e->getMessage())
+                        );
+
+                        // Disable the plugin to prevent further errors
+                        $config["plugins.{$instance->name}.enabled"] = false;
+
+                        continue;
+                    }
                 }
                 // Register event listeners.
                 $events->addSubscriber($instance);
@@ -168,7 +180,7 @@ class Plugins extends Iterator
     public function add($plugin)
     {
         if (is_object($plugin)) {
-            $this->items[get_class($plugin)] = $plugin;
+            $this->items[$plugin::class] = $plugin;
         }
     }
 
@@ -320,7 +332,7 @@ class Plugins extends Iterator
 
         // Log a warning if plugin cannot be found.
         if (null === $class) {
-            $grav['log']->addWarning(
+            $grav['log']->warning(
                 sprintf("Plugin '%s' enabled but not found! Try clearing cache with `bin/grav clearcache`", $name)
             );
         }

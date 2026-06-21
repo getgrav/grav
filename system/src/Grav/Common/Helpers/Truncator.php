@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Helpers
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -60,9 +60,9 @@ class Truncator
                 $words = $currentWordPosition[2];
 
                 $curNode->nodeValue = substr(
-                    $curNode->nodeValue,
+                    (string) $curNode->nodeValue,
                     0,
-                    $words[$offset][1] + strlen($words[$offset][0])
+                    $words[$offset][1] + strlen((string) $words[$offset][0])
                 );
 
                 self::removeProceedingNodes($curNode, $container);
@@ -110,7 +110,7 @@ class Truncator
             // If we have exceeded the limit, we want to delete the remainder of this document.
             if ($letters->key() >= $limit) {
                 $currentText = $letters->currentTextPosition();
-                $currentText[0]->nodeValue = mb_substr($currentText[0]->nodeValue, 0, $currentText[1] + 1);
+                $currentText[0]->nodeValue = mb_substr((string) $currentText[0]->nodeValue, 0, $currentText[1] + 1);
                 self::removeProceedingNodes($currentText[0], $container);
 
                 if (!empty($ellipsis)) {
@@ -216,7 +216,7 @@ class Truncator
      */
     private static function insertEllipsis($domNode, $ellipsis)
     {
-        $avoid = array('a', 'strong', 'em', 'h1', 'h2', 'h3', 'h4', 'h5'); //html tags to avoid appending the ellipsis to
+        $avoid = ['a', 'strong', 'em', 'h1', 'h2', 'h3', 'h4', 'h5']; //html tags to avoid appending the ellipsis to
 
         if ($domNode->parentNode->parentNode !== null && in_array($domNode->parentNode->nodeName, $avoid, true)) {
             // Append as text node to parent instead
@@ -231,7 +231,7 @@ class Truncator
             }
         } else {
             // Append to current node
-            $domNode->nodeValue = rtrim($domNode->nodeValue) . $ellipsis;
+            $domNode->nodeValue = rtrim((string) $domNode->nodeValue) . $ellipsis;
         }
     }
 
@@ -252,7 +252,7 @@ class Truncator
     ) {
         if ($considerHtml) {
             // if the plain text is shorter than the maximum length, return the whole text
-            if (strlen(preg_replace('/<.*?>/', '', $text)) <= $length) {
+            if (strlen((string) preg_replace('/<.*?>/', '', $text)) <= $length) {
                 return $text;
             }
 
@@ -284,7 +284,7 @@ class Truncator
                     $truncate .= $line_matchings[1];
                 }
                 // calculate the length of the plain text part of the line; handle entities as one character
-                $content_length = strlen(preg_replace('/&[0-9a-z]{2,8};|&#[0-9]{1,7};|[0-9a-f]{1,6};/i', ' ', $line_matchings[2]));
+                $content_length = strlen((string) preg_replace('/&[0-9a-z]{2,8};|&#[0-9]{1,7};|[0-9a-f]{1,6};/i', ' ', $line_matchings[2]));
                 if ($total_length+$content_length> $length) {
                     // the number of characters which are left
                     $left = $length - $total_length;

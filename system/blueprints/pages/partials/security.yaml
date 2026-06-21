@@ -33,7 +33,7 @@ form:
     _admin:
       security@: {or: [admin.super, admin.configuration.pages]}
       type: section
-      title: PLUGIN_ADMIN.PAGE PERMISSIONS
+      title: PLUGIN_ADMIN.PAGE_PERMISSIONS
       underline: true
 
       fields:
@@ -51,10 +51,11 @@ form:
             type: bool
 
         header.permissions.authors:
-          type: array
+          type: users
+          array: true
           toggleable: true
           value_only: true
-          placeholder_value: PLUGIN_ADMIN.USERNAME
+          access: api.pages.write
           label: PLUGIN_ADMIN.PAGE_AUTHORS
           help: PLUGIN_ADMIN.PAGE_AUTHORS_HELP
 

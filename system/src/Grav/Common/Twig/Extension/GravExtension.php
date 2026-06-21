@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Twig
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -45,7 +45,6 @@ use Twig\Environment;
 use Twig\Error\RuntimeError;
 use Twig\Extension\AbstractExtension;
 use Twig\Extension\GlobalsInterface;
-use Twig\Loader\FilesystemLoader;
 use Twig\Markup;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
@@ -109,72 +108,73 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
     public function getFilters(): array
     {
         return [
-            new TwigFilter('*ize', [$this, 'inflectorFilter']),
-            new TwigFilter('absolute_url', [$this, 'absoluteUrlFilter']),
-            new TwigFilter('contains', [$this, 'containsFilter']),
-            new TwigFilter('chunk_split', [$this, 'chunkSplitFilter']),
-            new TwigFilter('nicenumber', [$this, 'niceNumberFunc']),
-            new TwigFilter('nicefilesize', [$this, 'niceFilesizeFunc']),
-            new TwigFilter('nicetime', [$this, 'nicetimeFunc']),
-            new TwigFilter('defined', [$this, 'definedDefaultFilter']),
-            new TwigFilter('ends_with', [$this, 'endsWithFilter']),
-            new TwigFilter('fieldName', [$this, 'fieldNameFilter']),
-            new TwigFilter('parent_field', [$this, 'fieldParentFilter']),
-            new TwigFilter('ksort', [$this, 'ksortFilter']),
-            new TwigFilter('ltrim', [$this, 'ltrimFilter']),
-            new TwigFilter('markdown', [$this, 'markdownFunction'], ['needs_context' => true, 'is_safe' => ['html']]),
-            new TwigFilter('md5', [$this, 'md5Filter']),
-            new TwigFilter('base32_encode', [$this, 'base32EncodeFilter']),
-            new TwigFilter('base32_decode', [$this, 'base32DecodeFilter']),
-            new TwigFilter('base64_encode', [$this, 'base64EncodeFilter']),
-            new TwigFilter('base64_decode', [$this, 'base64DecodeFilter']),
-            new TwigFilter('randomize', [$this, 'randomizeFilter']),
-            new TwigFilter('modulus', [$this, 'modulusFilter']),
-            new TwigFilter('rtrim', [$this, 'rtrimFilter']),
-            new TwigFilter('pad', [$this, 'padFilter']),
-            new TwigFilter('regex_replace', [$this, 'regexReplace']),
-            new TwigFilter('safe_email', [$this, 'safeEmailFilter'], ['is_safe' => ['html']]),
-            new TwigFilter('safe_truncate', [Utils::class, 'safeTruncate']),
-            new TwigFilter('safe_truncate_html', [Utils::class, 'safeTruncateHTML']),
-            new TwigFilter('sort_by_key', [$this, 'sortByKeyFilter']),
-            new TwigFilter('starts_with', [$this, 'startsWithFilter']),
-            new TwigFilter('truncate', [Utils::class, 'truncate']),
-            new TwigFilter('truncate_html', [Utils::class, 'truncateHTML']),
-            new TwigFilter('json_decode', [$this, 'jsonDecodeFilter']),
+            new TwigFilter('*ize', $this->inflectorFilter(...)),
+            new TwigFilter('absolute_url', $this->absoluteUrlFilter(...)),
+            new TwigFilter('contains', $this->containsFilter(...)),
+            new TwigFilter('chunk_split', $this->chunkSplitFilter(...)),
+            new TwigFilter('nicenumber', $this->niceNumberFunc(...)),
+            new TwigFilter('nicefilesize', $this->niceFilesizeFunc(...)),
+            new TwigFilter('nicetime', $this->nicetimeFunc(...)),
+            new TwigFilter('defined', $this->definedDefaultFilter(...)),
+            new TwigFilter('ends_with', $this->endsWithFilter(...)),
+            new TwigFilter('fieldName', $this->fieldNameFilter(...)),
+            new TwigFilter('parent_field', $this->fieldParentFilter(...)),
+            new TwigFilter('ksort', $this->ksortFilter(...)),
+            new TwigFilter('ltrim', $this->ltrimFilter(...)),
+            new TwigFilter('markdown', $this->markdownFunction(...), ['needs_context' => true, 'is_safe' => ['html']]),
+            new TwigFilter('md5', $this->md5Filter(...)),
+            new TwigFilter('base32_encode', $this->base32EncodeFilter(...)),
+            new TwigFilter('base32_decode', $this->base32DecodeFilter(...)),
+            new TwigFilter('base64_encode', $this->base64EncodeFilter(...)),
+            new TwigFilter('base64_decode', $this->base64DecodeFilter(...)),
+            new TwigFilter('randomize', $this->randomizeFilter(...)),
+            new TwigFilter('modulus', $this->modulusFilter(...)),
+            new TwigFilter('rtrim', $this->rtrimFilter(...)),
+            new TwigFilter('pad', $this->padFilter(...)),
+            new TwigFilter('regex_replace', $this->regexReplace(...)),
+            new TwigFilter('safe_email', $this->safeEmailFilter(...), ['is_safe' => ['html']]),
+            new TwigFilter('safe_truncate', Utils::safeTruncate(...)),
+            new TwigFilter('safe_truncate_html', Utils::safeTruncateHTML(...)),
+            new TwigFilter('sort_by_key', $this->sortByKeyFilter(...)),
+            new TwigFilter('starts_with', $this->startsWithFilter(...)),
+            new TwigFilter('truncate', Utils::truncate(...)),
+            new TwigFilter('truncate_html', Utils::truncateHTML(...)),
+            new TwigFilter('wordcount', [$this, 'wordCountFilter']),
+            new TwigFilter('json_decode', $this->jsonDecodeFilter(...)),
             new TwigFilter('array_unique', 'array_unique'),
             new TwigFilter('basename', 'basename'),
             new TwigFilter('dirname', 'dirname'),
-            new TwigFilter('print_r', [$this, 'print_r']),
-            new TwigFilter('yaml_encode', [$this, 'yamlEncodeFilter']),
-            new TwigFilter('yaml_decode', [$this, 'yamlDecodeFilter']),
-            new TwigFilter('nicecron', [$this, 'niceCronFilter']),
-            new TwigFilter('replace_last', [$this, 'replaceLastFilter']),
+            new TwigFilter('print_r', $this->print_r(...)),
+            new TwigFilter('yaml_encode', $this->yamlEncodeFilter(...)),
+            new TwigFilter('yaml_decode', $this->yamlDecodeFilter(...)),
+            new TwigFilter('nicecron', $this->niceCronFilter(...)),
+            new TwigFilter('replace_last', $this->replaceLastFilter(...)),
 
             // Translations
-            new TwigFilter('t', [$this, 'translate'], ['needs_environment' => true]),
-            new TwigFilter('tl', [$this, 'translateLanguage']),
-            new TwigFilter('ta', [$this, 'translateArray']),
+            new TwigFilter('t', $this->translate(...), ['needs_environment' => true]),
+            new TwigFilter('tl', $this->translateLanguage(...)),
+            new TwigFilter('ta', $this->translateArray(...)),
 
             // Casting values
-            new TwigFilter('string', [$this, 'stringFilter']),
-            new TwigFilter('int', [$this, 'intFilter'], ['is_safe' => ['all']]),
-            new TwigFilter('bool', [$this, 'boolFilter']),
-            new TwigFilter('float', [$this, 'floatFilter'], ['is_safe' => ['all']]),
-            new TwigFilter('array', [$this, 'arrayFilter']),
-            new TwigFilter('yaml', [$this, 'yamlFilter']),
+            new TwigFilter('string', $this->stringFilter(...)),
+            new TwigFilter('int', $this->intFilter(...), ['is_safe' => ['all']]),
+            new TwigFilter('bool', $this->boolFilter(...)),
+            new TwigFilter('float', $this->floatFilter(...), ['is_safe' => ['all']]),
+            new TwigFilter('array', $this->arrayFilter(...)),
+            new TwigFilter('yaml', $this->yamlFilter(...)),
 
             // Object Types
-            new TwigFilter('get_type', [$this, 'getTypeFunc']),
-            new TwigFilter('of_type', [$this, 'ofTypeFunc']),
+            new TwigFilter('get_type', $this->getTypeFunc(...)),
+            new TwigFilter('of_type', $this->ofTypeFunc(...)),
 
             // PHP methods
             new TwigFilter('count', 'count'),
             new TwigFilter('array_diff', 'array_diff'),
 
             // Security fixes
-            new TwigFilter('filter', [$this, 'filterFunc'], ['needs_environment' => true]),
-            new TwigFilter('map', [$this, 'mapFunc'], ['needs_environment' => true]),
-            new TwigFilter('reduce', [$this, 'reduceFunc'], ['needs_environment' => true]),
+            new TwigFilter('filter', $this->filterFunc(...), ['needs_environment' => true]),
+            new TwigFilter('map', $this->mapFunc(...), ['needs_environment' => true]),
+            new TwigFilter('reduce', $this->reduceFunc(...), ['needs_environment' => true]),
         ];
     }
 
@@ -186,59 +186,59 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
     public function getFunctions(): array
     {
         return [
-            new TwigFunction('array', [$this, 'arrayFilter']),
-            new TwigFunction('array_key_value', [$this, 'arrayKeyValueFunc']),
+            new TwigFunction('array', $this->arrayFilter(...)),
+            new TwigFunction('array_key_value', $this->arrayKeyValueFunc(...)),
             new TwigFunction('array_key_exists', 'array_key_exists'),
             new TwigFunction('array_unique', 'array_unique'),
-            new TwigFunction('array_intersect', [$this, 'arrayIntersectFunc']),
+            new TwigFunction('array_intersect', $this->arrayIntersectFunc(...)),
             new TwigFunction('array_diff', 'array_diff'),
-            new TwigFunction('authorize', [$this, 'authorize']),
-            new TwigFunction('debug', [$this, 'dump'], ['needs_context' => true, 'needs_environment' => true]),
-            new TwigFunction('dump', [$this, 'dump'], ['needs_context' => true, 'needs_environment' => true]),
-            new TwigFunction('vardump', [$this, 'vardumpFunc']),
-            new TwigFunction('print_r', [$this, 'print_r']),
+            new TwigFunction('authorize', $this->authorize(...)),
+            new TwigFunction('debug', $this->dump(...), ['needs_context' => true, 'needs_environment' => true]),
+            new TwigFunction('dump', $this->dump(...), ['needs_context' => true, 'needs_environment' => true]),
+            new TwigFunction('vardump', $this->vardumpFunc(...)),
+            new TwigFunction('print_r', $this->print_r(...)),
             new TwigFunction('http_response_code', 'http_response_code'),
-            new TwigFunction('evaluate', [$this, 'evaluateStringFunc'], ['needs_context' => true]),
-            new TwigFunction('evaluate_twig', [$this, 'evaluateTwigFunc'], ['needs_context' => true]),
-            new TwigFunction('gist', [$this, 'gistFunc']),
-            new TwigFunction('nonce_field', [$this, 'nonceFieldFunc']),
+            new TwigFunction('evaluate', $this->evaluateStringFunc(...), ['needs_context' => true]),
+            new TwigFunction('evaluate_twig', $this->evaluateTwigFunc(...), ['needs_context' => true]),
+            new TwigFunction('gist', $this->gistFunc(...)),
+            new TwigFunction('nonce_field', $this->nonceFieldFunc(...)),
             new TwigFunction('pathinfo', 'pathinfo'),
             new TwigFunction('parseurl', 'parse_url'),
-            new TwigFunction('random_string', [$this, 'randomStringFunc']),
-            new TwigFunction('repeat', [$this, 'repeatFunc']),
-            new TwigFunction('regex_replace', [$this, 'regexReplace']),
-            new TwigFunction('regex_filter', [$this, 'regexFilter']),
-            new TwigFunction('regex_match', [$this, 'regexMatch']),
-            new TwigFunction('regex_split', [$this, 'regexSplit']),
-            new TwigFunction('string', [$this, 'stringFilter']),
-            new TwigFunction('url', [$this, 'urlFunc']),
-            new TwigFunction('json_decode', [$this, 'jsonDecodeFilter']),
-            new TwigFunction('get_cookie', [$this, 'getCookie']),
-            new TwigFunction('redirect_me', [$this, 'redirectFunc']),
-            new TwigFunction('range', [$this, 'rangeFunc']),
-            new TwigFunction('isajaxrequest', [$this, 'isAjaxFunc']),
-            new TwigFunction('exif', [$this, 'exifFunc']),
-            new TwigFunction('media_directory', [$this, 'mediaDirFunc']),
-            new TwigFunction('body_class', [$this, 'bodyClassFunc'], ['needs_context' => true]),
-            new TwigFunction('theme_var', [$this, 'themeVarFunc'], ['needs_context' => true]),
-            new TwigFunction('header_var', [$this, 'pageHeaderVarFunc'], ['needs_context' => true]),
-            new TwigFunction('read_file', [$this, 'readFileFunc']),
-            new TwigFunction('nicenumber', [$this, 'niceNumberFunc']),
-            new TwigFunction('nicefilesize', [$this, 'niceFilesizeFunc']),
-            new TwigFunction('nicetime', [$this, 'nicetimeFunc']),
-            new TwigFunction('cron', [$this, 'cronFunc']),
-            new TwigFunction('svg_image', [$this, 'svgImageFunction']),
-            new TwigFunction('xss', [$this, 'xssFunc']),
-            new TwigFunction('unique_id', [$this, 'uniqueId']),
+            new TwigFunction('random_string', $this->randomStringFunc(...)),
+            new TwigFunction('repeat', $this->repeatFunc(...)),
+            new TwigFunction('regex_replace', $this->regexReplace(...)),
+            new TwigFunction('regex_filter', $this->regexFilter(...)),
+            new TwigFunction('regex_match', $this->regexMatch(...)),
+            new TwigFunction('regex_split', $this->regexSplit(...)),
+            new TwigFunction('string', $this->stringFilter(...)),
+            new TwigFunction('url', $this->urlFunc(...)),
+            new TwigFunction('json_decode', $this->jsonDecodeFilter(...)),
+            new TwigFunction('get_cookie', $this->getCookie(...)),
+            new TwigFunction('redirect_me', $this->redirectFunc(...)),
+            new TwigFunction('range', $this->rangeFunc(...)),
+            new TwigFunction('isajaxrequest', $this->isAjaxFunc(...)),
+            new TwigFunction('exif', $this->exifFunc(...)),
+            new TwigFunction('media_directory', $this->mediaDirFunc(...)),
+            new TwigFunction('body_class', $this->bodyClassFunc(...), ['needs_context' => true]),
+            new TwigFunction('theme_var', $this->themeVarFunc(...), ['needs_context' => true]),
+            new TwigFunction('header_var', $this->pageHeaderVarFunc(...), ['needs_context' => true]),
+            new TwigFunction('read_file', $this->readFileFunc(...)),
+            new TwigFunction('nicenumber', $this->niceNumberFunc(...)),
+            new TwigFunction('nicefilesize', $this->niceFilesizeFunc(...)),
+            new TwigFunction('nicetime', $this->nicetimeFunc(...)),
+            new TwigFunction('cron', $this->cronFunc(...)),
+            new TwigFunction('svg_image', $this->svgImageFunction(...)),
+            new TwigFunction('xss', $this->xssFunc(...)),
+            new TwigFunction('unique_id', $this->uniqueId(...)),
 
             // Translations
-            new TwigFunction('t', [$this, 'translate'], ['needs_environment' => true]),
-            new TwigFunction('tl', [$this, 'translateLanguage']),
-            new TwigFunction('ta', [$this, 'translateArray']),
+            new TwigFunction('t', $this->translate(...), ['needs_environment' => true]),
+            new TwigFunction('tl', $this->translateLanguage(...)),
+            new TwigFunction('ta', $this->translateArray(...)),
 
             // Object Types
-            new TwigFunction('get_type', [$this, 'getTypeFunc']),
-            new TwigFunction('of_type', [$this, 'ofTypeFunc']),
+            new TwigFunction('get_type', $this->getTypeFunc(...)),
+            new TwigFunction('of_type', $this->ofTypeFunc(...)),
 
             // PHP methods
             new TwigFunction('is_numeric', 'is_numeric'),
@@ -253,9 +253,9 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
             new TwigFunction('parse_url', 'parse_url'),
 
             // Security fixes
-            new TwigFunction('filter', [$this, 'filterFunc'], ['needs_environment' => true]),
-            new TwigFunction('map', [$this, 'mapFunc'], ['needs_environment' => true]),
-            new TwigFunction('reduce', [$this, 'reduceFunc'], ['needs_environment' => true]),
+            new TwigFunction('filter', $this->filterFunc(...), ['needs_environment' => true]),
+            new TwigFunction('map', $this->mapFunc(...), ['needs_environment' => true]),
+            new TwigFunction('reduce', $this->reduceFunc(...), ['needs_environment' => true]),
         ];
     }
 
@@ -278,10 +278,9 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
     }
 
     /**
-     * @param mixed $var
      * @return string
      */
-    public function print_r($var)
+    public function print_r(mixed $var)
     {
         return print_r($var, true);
     }
@@ -548,7 +547,7 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
             return $haystack;
         }
 
-        return (strpos($haystack, (string) $needle) !== false);
+        return (str_contains($haystack, (string) $needle));
     }
 
     /**
@@ -579,14 +578,75 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
     }
 
     /**
+     * Count words in text with improved accuracy for multiple languages
+     *
+     * @param string $text The text to count words from
+     * @param string $locale Optional locale for language-specific counting (default: 'en')
+     * @return int Number of words
+     */
+    public function wordCountFilter($text, string $locale = 'en'): int
+    {
+        if (empty($text)) {
+            return 0;
+        }
+
+        // Strip HTML tags and decode entities
+        $cleanText = html_entity_decode(strip_tags($text), ENT_QUOTES, 'UTF-8');
+        
+        // Remove extra whitespace and normalize
+        $cleanText = trim(preg_replace('/\s+/', ' ', $cleanText));
+        
+        if (empty($cleanText)) {
+            return 0;
+        }
+
+        // Handle different languages
+        switch (strtolower($locale)) {
+            case 'zh':
+            case 'zh-cn':
+            case 'zh-tw':
+            case 'chinese':
+                // Chinese: count characters (excluding spaces and punctuation)
+                return mb_strlen(preg_replace('/[\s\p{P}]/u', '', $cleanText), 'UTF-8');
+                
+            case 'ja':
+            case 'japanese':
+                // Japanese: count characters (excluding spaces)
+                return mb_strlen(preg_replace('/\s/', '', $cleanText), 'UTF-8');
+                
+            case 'ko':
+            case 'korean':
+                // Korean: count characters (excluding spaces)
+                return mb_strlen(preg_replace('/\s/', '', $cleanText), 'UTF-8');
+                
+            default:
+                // Western languages: use improved word counting
+                // Handle contractions, hyphenated words, and numbers better
+                $words = preg_split('/\s+/', $cleanText, -1, PREG_SPLIT_NO_EMPTY);
+                
+                // Filter out pure punctuation
+                $words = array_filter($words, function($word) {
+                    return preg_match('/\w/', $word);
+                });
+                
+                return count($words);
+        }
+    }
+
+    /**
      * Get Cron object for a crontab 'at' format
      *
      * @param string $at
-     * @return CronExpression
+     * @return CronExpression|null
      */
     public function cronFunc($at)
     {
-        return CronExpression::factory($at);
+        try {
+            return CronExpression::factory($at);
+        } catch (\InvalidArgumentException $e) {
+            // Invalid cron expression - return null to prevent DoS
+            return null;
+        }
     }
 
     /**
@@ -700,9 +760,7 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
         }
 
         $results = Security::detectXssFromArray($data);
-        $results_parts = array_map(static function ($value, $key) {
-            return $key.': \''.$value . '\'';
-        }, array_values($results), array_keys($results));
+        $results_parts = array_map(static fn($value, $key) => $key.': \''.$value . '\'', array_values($results), array_keys($results));
 
         return implode(', ', $results_parts);
     }
@@ -766,11 +824,10 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
     }
 
     /**
-     * @param mixed $value
      * @param null $default
      * @return mixed|null
      */
-    public function definedDefaultFilter($value, $default = null)
+    public function definedDefaultFilter(mixed $value, $default = null)
     {
         return $value ?? $default;
     }
@@ -798,10 +855,9 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
     /**
      * Returns a string from a value. If the value is array, return it json encoded
      *
-     * @param mixed $value
      * @return string
      */
-    public function stringFilter($value)
+    public function stringFilter(mixed $value)
     {
         // Format the array as a string
         if (is_array($value)) {
@@ -820,10 +876,9 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
     /**
      * Casts input to int.
      *
-     * @param mixed $input
      * @return int
      */
-    public function intFilter($input)
+    public function intFilter(mixed $input)
     {
         return (int) $input;
     }
@@ -831,10 +886,9 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
     /**
      * Casts input to bool.
      *
-     * @param mixed $input
      * @return bool
      */
-    public function boolFilter($input)
+    public function boolFilter(mixed $input)
     {
         return (bool) $input;
     }
@@ -842,10 +896,9 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
     /**
      * Casts input to float.
      *
-     * @param mixed $input
      * @return float
      */
-    public function floatFilter($input)
+    public function floatFilter(mixed $input)
     {
         return (float) $input;
     }
@@ -853,10 +906,9 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
     /**
      * Casts input to array.
      *
-     * @param mixed $input
      * @return array
      */
-    public function arrayFilter($input)
+    public function arrayFilter(mixed $input)
     {
         if (is_array($input)) {
             return $input;
@@ -932,7 +984,7 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
      * @param bool $html_out
      * @return string
      */
-    public function translateLanguage($args, array $languages = null, $array_support = false, $html_out = false)
+    public function translateLanguage($args, ?array $languages = null, $array_support = false, $html_out = false)
     {
         /** @var Language $language */
         $language = $this->grav['language'];
@@ -983,34 +1035,46 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
     }
 
     /**
-     * This function will evaluate Twig $twig through the $environment, and return its results.
+     * Render a Twig source string and return the result.
      *
-     * @param array $context
-     * @param string $twig
+     * Goes through Twig::processString() so the same `@Var:` source-policy
+     * sandbox and SandboxConfig facade apply as anywhere else editor-derivable
+     * content is parsed. The previous implementation built a fresh
+     * `Twig\Environment` with no SandboxExtension or SourcePolicy, which
+     * meant any call like `{{ evaluate_twig(page.content|raw, ...) }}` from
+     * a trusted theme would render editor-authored Twig with the full
+     * unrestricted Twig surface — a complete sandbox bypass.
+     *
+     * @param array $context   Parent template context (auto-injected because
+     *                         the function is registered with `needs_context`).
+     * @param string $twig     Twig source to render.
+     * @param array $variables Caller-supplied variables, merged over the parent
+     *                         context. Caller wins. Without this parameter the
+     *                         second argument was silently dropped — the docs
+     *                         example `{{ evaluate_twig('{{ foo }}', {foo: 'bar'}) }}`
+     *                         relies on it.
      * @return mixed
      */
-    public function evaluateTwigFunc($context, $twig)
+    public function evaluateTwigFunc($context, $twig, array $variables = [])
     {
-
-        $loader = new FilesystemLoader('.');
-        $env = new Environment($loader);
-        $env->addExtension($this);
-
-        $template = $env->createTemplate($twig);
-
-        return $template->render($context);
+        return $this->grav['twig']->processString($twig, $variables + $context);
     }
 
     /**
-     * This function will evaluate a $string through the $environment, and return its results.
+     * Evaluate a Twig expression with the surrounding context.
      *
-     * @param array $context
-     * @param string $string
+     * Wraps the expression in `{{ ... }}` and delegates to
+     * {@see evaluateTwigFunc()} so the same sandboxed path is used.
+     *
+     * @param array $context   Parent template context (auto-injected).
+     * @param string $string   Twig expression (no braces).
+     * @param array $variables Caller-supplied variables, merged over the
+     *                         parent context. Caller wins.
      * @return mixed
      */
-    public function evaluateStringFunc($context, $string)
+    public function evaluateStringFunc($context, $string, array $variables = [])
     {
-        return $this->evaluateTwigFunc($context, "{{ $string }}");
+        return $this->evaluateTwigFunc($context, "{{ $string }}", $variables);
     }
 
     /**
@@ -1034,7 +1098,7 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
                     if (method_exists($value, 'toArray')) {
                         $data[$key] = $value->toArray();
                     } else {
-                        $data[$key] = 'Object (' . get_class($value) . ')';
+                        $data[$key] = 'Object (' . $value::class . ')';
                     }
                 } else {
                     $data[$key] = $value;
@@ -1102,7 +1166,7 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
     public function arrayKeyValueFunc($key, $val, $current_array = null)
     {
         if (empty($current_array)) {
-            return array($key => $val);
+            return [$key => $val];
         }
 
         $current_array[$key] = $val;
@@ -1337,7 +1401,7 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
     {
         return (
             !empty($_SERVER['HTTP_X_REQUESTED_WITH'])
-            && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest');
+            && strtolower((string) $_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest');
     }
 
     /**
@@ -1376,25 +1440,21 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
     }
 
     /**
-     * Simple function to read a file based on a filepath and output it
+     * Read a file via a Grav stream URI (e.g. `theme://foo.md`) and return its
+     * contents. Delegates to {@see \Grav\Common\Helpers\FileReader::read}, which
+     * is shared with shortcode-core's `[read-file]` shortcode so both paths get
+     * the same stream / extension / containment / size enforcement.
+     *
+     * Off the default sandbox allow-list. Editors who want this from page
+     * content should use the shortcode; theme templates can use either form
+     * since theme `.html.twig` files aren't sandboxed.
      *
      * @param string $filepath
-     * @return bool|string
+     * @return false|string
      */
     public function readFileFunc($filepath)
     {
-        /** @var UniformResourceLocator $locator */
-        $locator = $this->grav['locator'];
-
-        if ($locator->isStream($filepath)) {
-            $filepath = $locator->findResource($filepath);
-        }
-
-        if ($filepath && file_exists($filepath)) {
-            return file_get_contents($filepath);
-        }
-
-        return false;
+        return \Grav\Common\Helpers\FileReader::read($filepath);
     }
 
     /**
@@ -1422,10 +1482,9 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
     /**
      * Dump a variable to the browser
      *
-     * @param mixed $var
      * @return void
      */
-    public function vardumpFunc($var)
+    public function vardumpFunc(mixed $var)
     {
         dump($var);
     }
@@ -1497,7 +1556,7 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
      */
     public function themeVarFunc($context, $var, $default = null, $page = null, $exists = false)
     {
-        $page = $page ?? $context['page'] ?? Grav::instance()['page'] ?? null;
+        $page ??= $context['page'] ?? Grav::instance()['page'] ?? null;
 
         // Try to find var in the page headers
         if ($page instanceof PageInterface && $page->exists()) {
@@ -1587,11 +1646,14 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
             $matched = false;
 
             //Remove xml tag if it exists
-            $svg = preg_replace('/^<\?xml.*\?>/','', $svg);
+            $svg = preg_replace('/^<\?xml.*\?>/','', trim($svg));
+
+            //Strip comments
+            $svg = preg_replace('/<!--[\s\S]*?-->/', '', trim($svg));
 
             //Strip style if needed
             if ($strip_style) {
-                $svg = preg_replace('/<style.*<\/style>/s', '', $svg);
+                $svg = preg_replace('/<style.*<\/style>/s', '', trim($svg));
             }
 
             //Look for existing class
@@ -1602,16 +1664,19 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
                     return str_replace($matches[1], "class=\"$new_classes\"", $matches[0]);
                 }
                 return $matches[0];
-            }, $svg
+            }, (string) $svg
             );
 
             // no matches found just add the class
             if (!$matched) {
                 $classes = trim($classes);
-                $svg = str_replace('<svg ', "<svg class=\"$classes\" ", $svg);
+                if (!$matched) {
+                    $classes = trim($classes);
+                    $svg = str_replace('<svg', "<svg class=\"$classes\" ", trim($svg));
+                }
             }
 
-            return trim($svg);
+            return trim((string) $svg);
         }
 
         return null;
@@ -1654,10 +1719,9 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
     /**
      * Function/Filter to return the type of variable
      *
-     * @param mixed $var
      * @return string
      */
-    public function getTypeFunc($var)
+    public function getTypeFunc(mixed $var)
     {
         return gettype($var);
     }
@@ -1665,45 +1729,25 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
     /**
      * Function/Filter to test type of variable
      *
-     * @param mixed $var
      * @param string|null $typeTest
      * @param string|null $className
      * @return bool
      */
-    public function ofTypeFunc($var, $typeTest = null, $className = null)
+    public function ofTypeFunc(mixed $var, $typeTest = null, $className = null)
     {
 
-        switch ($typeTest) {
-            default:
-                return false;
-
-            case 'array':
-                return is_array($var);
-
-            case 'bool':
-                return is_bool($var);
-
-            case 'class':
-                return is_object($var) === true && get_class($var) === $className;
-
-            case 'float':
-                return is_float($var);
-
-            case 'int':
-                return is_int($var);
-
-            case 'numeric':
-                return is_numeric($var);
-
-            case 'object':
-                return is_object($var);
-
-            case 'scalar':
-                return is_scalar($var);
-
-            case 'string':
-                return is_string($var);
-        }
+        return match ($typeTest) {
+            'array' => is_array($var),
+            'bool' => is_bool($var),
+            'class' => is_object($var) === true && $var::class === $className,
+            'float' => is_float($var),
+            'int' => is_int($var),
+            'numeric' => is_numeric($var),
+            'object' => is_object($var),
+            'scalar' => is_scalar($var),
+            'string' => is_string($var),
+            default => false,
+        };
     }
 
     /**
@@ -1717,6 +1761,10 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
     {
         if (!$arrow instanceof \Closure && !is_string($arrow) || Utils::isDangerousFunction($arrow)) {
             throw new RuntimeError('Twig |filter("' . $arrow . '") is not allowed.');
+        }
+
+        if ($array === null) {
+            $array = [];
         }
 
         return twig_array_filter($env, $array, $arrow);
@@ -1735,6 +1783,10 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
             throw new RuntimeError('Twig |map("' . $arrow . '") is not allowed.');
         }
 
+        if ($array === null) {
+            $array = [];
+        }
+
         return twig_array_map($env, $array, $arrow);
     }
 
@@ -1749,6 +1801,10 @@ class GravExtension extends AbstractExtension implements GlobalsInterface
     {
         if (!$arrow instanceof \Closure && !is_string($arrow) || Utils::isDangerousFunction($arrow)) {
             throw new RuntimeError('Twig |reduce("' . $arrow . '") is not allowed.');
+        }
+
+        if ($array === null) {
+            $array = [];
         }
 
         return twig_array_map($env, $array, $arrow);

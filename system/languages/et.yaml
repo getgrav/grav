@@ -106,3 +106,12 @@ GRAV:
     ERROR2: Vale elementide arv
     ERROR3: jqCron seadetes peaks olema määratud jquery_element
     ERROR4: Tundmatu väljend
+
+PLUGIN_ADMIN:
+    MEDIA: "Meedia"
+    MEDIA_TYPES: "Meedia tüübid"
+    IMAGE_OPTIONS: "Pildi valikud"
+    MIME_TYPE: "Failitüübid"
+    THUMB: "Pisipilt"
+    TYPE: "Tüüp"
+    FILE_EXTENSION: "Faililaiendid"

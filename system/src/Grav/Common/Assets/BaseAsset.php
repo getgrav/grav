@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Assets
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -114,7 +114,7 @@ abstract class BaseAsset extends PropertyObject
 
         // Do some special stuff for CSS/JS (not inline)
         if (!Utils::startsWith($this->getType(), 'inline')) {
-            $this->base_url = rtrim($uri->rootUrl($config->get('system.absolute_urls')), '/') . '/';
+            $this->base_url = rtrim((string) $uri->rootUrl($config->get('system.absolute_urls')), '/') . '/';
             $this->remote = static::isRemoteLink($asset);
 
             // Move this to render?

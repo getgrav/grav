@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Page
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -13,6 +13,7 @@ use Exception;
 use Grav\Common\Cache;
 use Grav\Common\Config\Config;
 use Grav\Common\Data\Blueprint;
+use Grav\Common\File\CompiledMarkdownFile;
 use Grav\Common\File\CompiledYamlFile;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\Grav;
@@ -24,6 +25,7 @@ use Grav\Common\Page\Interfaces\PageInterface;
 use Grav\Common\Media\Traits\MediaTrait;
 use Grav\Common\Page\Markdown\Excerpts;
 use Grav\Common\Page\Traits\PageFormTrait;
+use Grav\Common\Security;
 use Grav\Common\Twig\Twig;
 use Grav\Common\Uri;
 use Grav\Common\Utils;
@@ -31,7 +33,6 @@ use Grav\Common\Yaml;
 use Grav\Framework\Flex\Flex;
 use InvalidArgumentException;
 use RocketTheme\Toolbox\Event\Event;
-use RocketTheme\Toolbox\File\MarkdownFile;
 use RuntimeException;
 use SplFileInfo;
 use function dirname;
@@ -171,7 +172,21 @@ class Page implements PageInterface
         $config = Grav::instance()['config'];
 
         $this->taxonomy = [];
-        $this->process = $config->get('system.pages.process');
+        $raw = $config->get('system.pages.process');
+        if ($raw !== null && !is_array($raw)) {
+            // Misconfigured: system.pages.process should be a mapping. Warn
+            // once per request via the security log so the operator notices
+            // instead of silently normalizing to an empty array.
+            static $warned = false;
+            if (!$warned && Grav::instance()->offsetExists('log')) {
+                $warned = true;
+                Grav::instance()['log']->warning(
+                    sprintf('system.pages.process must be a mapping; got %s. Normalizing to empty.', gettype($raw))
+                );
+            }
+            $raw = [];
+        }
+        $this->process = Security::applyTwigContentDefault((array) $raw);
         $this->published = true;
     }
 
@@ -203,14 +218,14 @@ class Page implements PageInterface
         $this->home_route = $this->adjustRouteCase($config->get('system.home.alias'));
         $this->filePath($file->getPathname());
         $this->modified($file->getMTime());
-        $this->id($this->modified() . md5($this->filePath()));
+        $this->id($this->modified() . md5((string) $this->filePath()));
         $this->routable(true);
         $this->header();
         $this->date();
         $this->metadata();
         $this->url();
         $this->visible();
-        $this->modularTwig(strpos($this->slug(), '_') === 0);
+        $this->modularTwig(str_starts_with($this->slug(), '_'));
         $this->setPublishState();
         $this->published();
         $this->urlExtension();
@@ -254,7 +269,7 @@ class Page implements PageInterface
                 }
             }
             $text_header = Grav::instance()['twig']->processString(json_encode($process_fields, JSON_UNESCAPED_UNICODE), ['page' => $this]);
-            $this->header((object)(json_decode($text_header, true) + $ignored_fields));
+            $this->header((object)(json_decode((string) $text_header, true) + $ignored_fields));
         }
     }
 
@@ -274,7 +289,7 @@ class Page implements PageInterface
         $languages = $language->getLanguages();
         $defaultCode = $language->getDefault();
 
-        $name = substr($this->name, 0, -strlen($this->extension()));
+        $name = substr((string) $this->name, 0, -strlen($this->extension()));
         $translatedLanguages = [];
 
         foreach ($languages as $languageCode) {
@@ -347,7 +362,7 @@ class Page implements PageInterface
 
             // Reset header and content.
             $this->modified = time();
-            $this->id($this->modified() . md5($this->filePath()));
+            $this->id($this->modified() . md5((string) $this->filePath()));
             $this->header = null;
             $this->content = null;
             $this->summary = null;
@@ -375,7 +390,7 @@ class Page implements PageInterface
             }
 
             // Force content re-processing.
-            $this->id(time() . md5($this->filePath()));
+            $this->id(time() . md5((string) $this->filePath()));
         }
         if (!$this->frontmatter) {
             $this->header();
@@ -402,13 +417,12 @@ class Page implements PageInterface
             }
 
             // Force content re-processing.
-            $this->id(time() . md5($this->filePath()));
+            $this->id(time() . md5((string) $this->filePath()));
         }
         if (!$this->header) {
             $file = $this->file();
             if ($file) {
                 try {
-                    $this->raw_content = $file->markdown();
                     $this->frontmatter = $file->frontmatter();
                     $this->header = (object)$file->header();
 
@@ -426,9 +440,17 @@ class Page implements PageInterface
                             $frontmatter_file->free();
                         }
 
-                        // Process frontmatter with Twig if enabled
+                        // Process frontmatter with Twig if enabled. The
+                        // security.twig_content.process_enabled master gate must
+                        // also be on — frontmatter values run through
+                        // Twig::processString() which is the same SSTI surface
+                        // as page-content Twig.
                         if (Grav::instance()['config']->get('system.pages.frontmatter.process_twig') === true) {
-                            $this->processFrontmatter();
+                            if (Grav::instance()['config']->get('security.twig_content.process_enabled', false) === true) {
+                                $this->processFrontmatter();
+                            } else {
+                                Security::logTwigContentGateBlocked((string) ($this->route() ?? $this->filePath() ?? 'unknown'), 'frontmatter');
+                            }
                         }
                     }
                 } catch (Exception $e) {
@@ -443,6 +465,7 @@ class Page implements PageInterface
                     $this->frontmatter = $file->frontmatter();
                     $this->header = (object)$file->header();
                 }
+                $file->free();
                 $var = true;
             }
         }
@@ -742,7 +765,7 @@ class Page implements PageInterface
             }
 
             // Force re-processing.
-            $this->id(time() . md5($this->filePath()));
+            $this->id(time() . md5((string) $this->filePath()));
             $this->content = null;
         }
         // If no content, process it
@@ -756,7 +779,7 @@ class Page implements PageInterface
             // Load cached content
             /** @var Cache $cache */
             $cache = Grav::instance()['cache'];
-            $cache_id = md5('page' . $this->getCacheKey());
+            $cache_id = md5('page' . $this->getPageContentCacheKey($config));
             $content_obj = $cache->fetch($cache_id);
 
             if (is_array($content_obj)) {
@@ -768,7 +791,20 @@ class Page implements PageInterface
 
 
             $process_markdown = $this->shouldProcess('markdown');
-            $process_twig = $this->shouldProcess('twig') || $this->modularTwig();
+
+            // security.twig_content.process_enabled gates editor-authored Twig
+            // in page content. modularTwig() is theme-controlled (modular
+            // templates render their own children with Twig) and stays
+            // unconditionally enabled. See system/config/security.yaml.
+            $content_twig_requested = $this->shouldProcess('twig');
+            $content_twig_allowed = (bool) $config->get('security.twig_content.process_enabled', false);
+            // Only log when the gate actually stops a render; modular pages
+            // bypass the gate so they're not blocked and shouldn't appear in
+            // the gate-blocked audit log.
+            if ($content_twig_requested && !$content_twig_allowed && !$this->modularTwig()) {
+                Security::logTwigContentGateBlocked((string) ($this->route() ?? $this->filePath() ?? 'unknown'), 'content');
+            }
+            $process_twig = ($content_twig_requested && $content_twig_allowed) || $this->modularTwig();
 
             $cache_enable = $this->header->cache_enable ?? $config->get(
                 'system.cache.enabled',
@@ -782,13 +818,13 @@ class Page implements PageInterface
             // never cache twig means it's always run after content
             $never_cache_twig = $this->header->never_cache_twig ?? $config->get(
                 'system.pages.never_cache_twig',
-                true
+                false
             );
 
             // if no cached-content run everything
             if ($never_cache_twig) {
                 if ($this->content === false || $cache_enable === false) {
-                    $this->content = $this->raw_content;
+                    $this->content = $this->rawMarkdown();
                     Grav::instance()->fireEvent('onPageContentRaw', new Event(['page' => $this]));
 
                     if ($process_markdown) {
@@ -808,7 +844,7 @@ class Page implements PageInterface
                 }
             } else {
                 if ($this->content === false || $cache_enable === false) {
-                    $this->content = $this->raw_content;
+                    $this->content = $this->rawMarkdown();
                     Grav::instance()->fireEvent('onPageContentRaw', new Event(['page' => $this]));
 
                     if ($twig_first) {
@@ -842,7 +878,7 @@ class Page implements PageInterface
 
             // Handle summary divider
             $delimiter = $config->get('site.summary.delimiter', '===');
-            $divider_pos = mb_strpos($this->content, "<p>{$delimiter}</p>");
+            $divider_pos = mb_strpos((string) $this->content, "<p>{$delimiter}</p>");
             if ($divider_pos !== false) {
                 $this->summary_size = $divider_pos;
                 $this->content = str_replace("<p>{$delimiter}</p>", '', $this->content);
@@ -952,22 +988,27 @@ class Page implements PageInterface
                 '/' . Utils::generateRandomString(3),
                 Utils::generateRandomString(3) . '/'
             ];
-            // Base64 encode any twig.
+            // Hex-encode any twig. Hex is [0-9a-f] with no padding, so the
+            // placeholder can't collide with Markdown syntax. base64 was unsafe:
+            // its '==' padding (and '+/' alphabet) got parsed by Parsedown — two
+            // adjacent encoded tags, each padded with '==', formed an '==..=='
+            // highlight span that Parsedown turned into <mark>, splitting the
+            // placeholder so the tag never decoded and left unbalanced Twig.
             $content = preg_replace_callback(
                 ['/({#.*?#})/mu', '/({{.*?}})/mu', '/({%.*?%})/mu'],
-                static function ($matches) use ($token) { return $token[0] . base64_encode($matches[1]) . $token[1]; },
-                $content
+                static fn($matches) => $token[0] . bin2hex((string) $matches[1]) . $token[1],
+                (string) $content
             );
         }
 
         $content = $parsedown->text($content);
 
         if ($keepTwig) {
-            // Base64 decode the encoded twig.
+            // Hex decode the encoded twig.
             $content = preg_replace_callback(
-                ['`' . $token[0] . '([A-Za-z0-9+/]+={0,2})' . $token[1] . '`mu'],
-                static function ($matches) { return base64_decode($matches[1]); },
-                $content
+                ['`' . $token[0] . '([0-9a-f]+)' . $token[1] . '`mu'],
+                static fn($matches) => hex2bin((string) $matches[1]),
+                (string) $content
             );
         }
 
@@ -996,8 +1037,25 @@ class Page implements PageInterface
     {
         /** @var Cache $cache */
         $cache = Grav::instance()['cache'];
-        $cache_id = md5('page' . $this->getCacheKey());
+        $cache_id = md5('page' . $this->getPageContentCacheKey(Grav::instance()['config']));
         $cache->save($cache_id, ['content' => $this->content, 'content_meta' => $this->content_meta]);
+    }
+
+    /**
+     * Page-content cache key. Combines the page identity with the global
+     * config checksum so that any change to system / site / security / plugin
+     * configuration invalidates previously cached output — including the
+     * security.twig_content.* gates, every markdown rendering option,
+     * `system.pages.twig_first`, sandbox allow-lists, the summary delimiter,
+     * the active plugin set (plugins subscribed to onPageContent* events),
+     * and any future setting that affects how a page renders.
+     *
+     * Matches the invalidation strategy Pages::buildPages() already uses for
+     * the pages-index cache (Pages.php) — they should evict in lockstep.
+     */
+    private function getPageContentCacheKey(Config $config): string
+    {
+        return $this->getCacheKey() . ':cfg=' . (string) $config->checksum();
     }
 
     /**
@@ -1031,7 +1089,7 @@ class Page implements PageInterface
     public function value($name, $default = null)
     {
         if ($name === 'content') {
-            return $this->raw_content;
+            return $this->rawMarkdown();
         }
         if ($name === 'route') {
             $parent = $this->parent();
@@ -1117,6 +1175,14 @@ class Page implements PageInterface
             $this->raw_content = $var;
         }
 
+        if ($this->raw_content === null) {
+            $file = $this->file();
+            if ($file) {
+                $this->raw_content = $file->markdown();
+                $file->free();
+            }
+        }
+
         return $this->raw_content;
     }
 
@@ -1132,12 +1198,12 @@ class Page implements PageInterface
     /**
      * Get file object to the page.
      *
-     * @return MarkdownFile|null
+     * @return CompiledMarkdownFile|null
      */
     public function file()
     {
         if ($this->name) {
-            return MarkdownFile::instance($this->filePath());
+            return CompiledMarkdownFile::instance($this->filePath());
         }
 
         return null;
@@ -1157,7 +1223,7 @@ class Page implements PageInterface
         if ($file) {
             $file->filename($this->filePath());
             $file->header((array)$this->header());
-            $file->markdown($this->raw_content);
+            $file->markdown($this->rawMarkdown());
             $file->save();
         }
 
@@ -1202,7 +1268,7 @@ class Page implements PageInterface
         }
 
         $this->parent($parent);
-        $this->id(time() . md5($this->filePath()));
+        $this->id(time() . md5((string) $this->filePath()));
 
         if ($parent->path()) {
             $this->path($parent->path() . '/' . $this->folder());
@@ -1288,7 +1354,7 @@ class Page implements PageInterface
         }
 
         $post_value = $_POST['blueprint'];
-        $sanitized_value = htmlspecialchars(strip_tags($post_value), ENT_QUOTES, 'UTF-8');
+        $sanitized_value = htmlspecialchars(strip_tags((string) $post_value), ENT_QUOTES, 'UTF-8');
 
         return $sanitized_value ?: $this->template();
     }
@@ -1739,7 +1805,7 @@ class Page implements PageInterface
 
             $config = Grav::instance()['config'];
 
-            $escape = !$config->get('system.strict_mode.twig_compat', false) || $config->get('system.twig.autoescape', true);
+            $escape = !$config->get('system.strict_mode.twig2_compat', false) || $config->get('system.twig.autoescape', true);
 
             // Get initial metadata for the page
             $metadata = array_merge($metadata, $config->get('site.metadata', []));
@@ -1752,7 +1818,7 @@ class Page implements PageInterface
             // Build an array of meta objects..
             foreach ((array)$metadata as $key => $value) {
                 // Lowercase the key
-                $key = strtolower($key);
+                $key = strtolower((string) $key);
                 // If this is a property type metadata: "og", "twitter", "facebook" etc
                 // Backward compatibility for nested arrays in metas
                 if (is_array($value)) {
@@ -1761,7 +1827,7 @@ class Page implements PageInterface
                         $this->metadata[$prop_key] = [
                             'name' => $prop_key,
                             'property' => $prop_key,
-                            'content' => $escape ? htmlspecialchars($prop_value, ENT_QUOTES | ENT_HTML5, 'UTF-8') : $prop_value
+                            'content' => $escape ? htmlspecialchars((string) $prop_value, ENT_QUOTES | ENT_HTML5, 'UTF-8') : $prop_value
                         ];
                     }
                 } else {
@@ -1770,16 +1836,16 @@ class Page implements PageInterface
                         if (in_array($key, $header_tag_http_equivs, true)) {
                             $this->metadata[$key] = [
                                 'http_equiv' => $key,
-                                'content' => $escape ? htmlspecialchars($value, ENT_COMPAT, 'UTF-8') : $value
+                                'content' => $escape ? htmlspecialchars((string) $value, ENT_COMPAT, 'UTF-8') : $value
                             ];
                         } elseif ($key === 'charset') {
-                            $this->metadata[$key] = ['charset' => $escape ? htmlspecialchars($value, ENT_QUOTES | ENT_HTML5, 'UTF-8') : $value];
+                            $this->metadata[$key] = ['charset' => $escape ? htmlspecialchars((string) $value, ENT_QUOTES | ENT_HTML5, 'UTF-8') : $value];
                         } else {
                             // if it's a social metadata with separator, render as property
                             $separator = strpos($key, ':');
                             $hasSeparator = $separator && $separator < strlen($key) - 1;
                             $entry = [
-                                'content' => $escape ? htmlspecialchars($value, ENT_QUOTES | ENT_HTML5, 'UTF-8') : $value
+                                'content' => $escape ? htmlspecialchars((string) $value, ENT_QUOTES | ENT_HTML5, 'UTF-8') : $value
                             ];
 
                             if ($hasSeparator && !Utils::startsWith($key, ['twitter', 'flattr','fediverse'])) {
@@ -1835,7 +1901,11 @@ class Page implements PageInterface
     public function order($var = null)
     {
         if ($var !== null) {
-            $order = $var ? sprintf('%02d.', (int)$var) : '';
+            // Preserve the existing folder's prefix width when one is present,
+            // so re-saving a "005.test" page does not silently shrink it to
+            // "05.test". New pages fall back to the configured default.
+            $digits = PageOrdering::digitsFromFolder($this->folder);
+            $order = $var ? PageOrdering::prefix((int)$var, $digits) : '';
             $this->folder($order . preg_replace(PAGE_ORDER_PREFIX_REGEX, '', $this->folder));
 
             return $order;
@@ -1919,7 +1989,7 @@ class Page implements PageInterface
 
         /** @var Uri $uri */
         $uri = $grav['uri'];
-        $url = $uri->rootUrl($include_host) . '/' . trim($route, '/') . $this->urlExtension();
+        $url = $uri->rootUrl($include_host) . '/' . trim((string) $route, '/') . $this->urlExtension();
 
         return Uri::filterPath($url);
     }
@@ -2044,7 +2114,7 @@ class Page implements PageInterface
     {
         if (null === $this->id) {
             // We need to set unique id to avoid potential cache conflicts between pages.
-            $var = time() . md5($this->filePath());
+            $var = time() . md5((string) $this->filePath());
         }
         if ($var !== null) {
             // store unique per language
@@ -2395,7 +2465,7 @@ class Page implements PageInterface
      * @param  PageInterface|null $var the parent page object
      * @return PageInterface|null the parent page object if it exists.
      */
-    public function parent(PageInterface $var = null)
+    public function parent(?PageInterface $var = null)
     {
         if ($var) {
             $this->parent = $var->path();
@@ -2536,7 +2606,7 @@ class Page implements PageInterface
      */
     public function active()
     {
-        $uri_path = rtrim(urldecode(Grav::instance()['uri']->path()), '/') ?: '/';
+        $uri_path = rtrim(urldecode((string) Grav::instance()['uri']->path()), '/') ?: '/';
         $routes = Grav::instance()['pages']->routes();
 
         return isset($routes[$uri_path]) && $routes[$uri_path] === $this->path();
@@ -2794,7 +2864,7 @@ class Page implements PageInterface
     protected function cleanPath($path)
     {
         $lastchunk = strrchr($path, DS);
-        if (strpos($lastchunk, ':') !== false) {
+        if (str_contains($lastchunk, ':')) {
             $path = str_replace($lastchunk, '', $path);
         }
 
@@ -2827,7 +2897,7 @@ class Page implements PageInterface
 
             // Reorder all moved pages.
             foreach ($siblings as $slug => $page) {
-                $order = (int)trim($page->order(), '.');
+                $order = (int)trim((string) $page->order(), '.');
                 $counter++;
 
                 if ($order) {

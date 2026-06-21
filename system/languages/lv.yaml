@@ -82,3 +82,9 @@ GRAV:
     ERROR2: Nederīgs elementu skaits
     ERROR3: jquery_element nevajadzētu definēt jqCron iestatījumos
     ERROR4: Neatpazīta izteiksme
+
+PLUGIN_ADMIN:
+    MEDIA: "Multivide"
+    MEDIA_TYPES: "Mēdiju veidi"
+    IMAGE_OPTIONS: "Attēla uzstādījumi"
+    FILE_EXTENSION: "Faila paplašinājums"

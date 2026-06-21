@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Cache
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -52,7 +52,7 @@ class ChainCache extends AbstractCache
                 throw new InvalidArgumentException(
                     sprintf(
                         "The class '%s' does not implement the '%s' interface",
-                        get_class($cache),
+                        $cache::class,
                         CacheInterface::class
                     )
                 );

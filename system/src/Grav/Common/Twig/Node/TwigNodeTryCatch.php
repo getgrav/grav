@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Twig
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -26,7 +26,7 @@ class TwigNodeTryCatch extends Node
      * @param int $lineno
      * @param string|null $tag
      */
-    public function __construct(Node $try, Node $catch = null, $lineno = 0, $tag = null)
+    public function __construct(Node $try, ?Node $catch = null, $lineno = 0, $tag = null)
     {
         $nodes = ['try' => $try, 'catch' => $catch];
         $nodes = array_filter($nodes);

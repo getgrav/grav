@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * @package    Grav\Framework\File\Formatter
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -77,12 +77,11 @@ class SerializeFormatter extends AbstractFormatter
     /**
      * Preserve new lines, recursive function.
      *
-     * @param mixed $data
      * @param array $search
      * @param array $replace
      * @return mixed
      */
-    protected function preserveLines($data, array $search, array $replace)
+    protected function preserveLines(mixed $data, array $search, array $replace)
     {
         if (is_string($data)) {
             $data = str_replace($search, $replace, $data);

@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * @package    Grav\Framework\Flex
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -42,7 +42,7 @@ class FileStorage extends FolderStorage
      * {@inheritdoc}
      * @see FlexStorageInterface::getMediaPath()
      */
-    public function getMediaPath(string $key = null): ?string
+    public function getMediaPath(?string $key = null): ?string
     {
         $path = $this->getStoragePath();
         if (!$path) {
@@ -146,7 +146,7 @@ class FileStorage extends FolderStorage
         $list = [];
         /** @var SplFileInfo $info */
         foreach ($iterator as $filename => $info) {
-            if (!$info->isFile() || !($key = $this->getKeyFromPath($filename)) || strpos($info->getFilename(), '.') === 0) {
+            if (!$info->isFile() || !($key = $this->getKeyFromPath($filename)) || str_starts_with($info->getFilename(), '.')) {
                 continue;
             }
 

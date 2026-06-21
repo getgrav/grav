@@ -3,12 +3,13 @@
 /**
  * @package    Grav\Framework\Flex
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Framework\Flex;
 
+use Closure;
 use Exception;
 use Grav\Common\Debugger;
 use Grav\Common\File\CompiledJsonFile;
@@ -43,9 +44,6 @@ use function in_array;
 class FlexIndex extends ObjectIndex implements FlexIndexInterface
 {
     const VERSION = 1;
-
-    /** @var FlexDirectory|null */
-    private $_flexDirectory;
     /** @var string */
     private $_keyField = 'storage_key';
     /** @var array */
@@ -65,7 +63,7 @@ class FlexIndex extends ObjectIndex implements FlexIndexInterface
      * {@inheritdoc}
      * @see FlexCollectionInterface::createFromArray()
      */
-    public static function createFromArray(array $entries, FlexDirectory $directory, string $keyField = null)
+    public static function createFromArray(array $entries, FlexDirectory $directory, ?string $keyField = null)
     {
         $instance = new static($entries, $directory);
         $instance->setKeyField($keyField);
@@ -103,18 +101,16 @@ class FlexIndex extends ObjectIndex implements FlexIndexInterface
      * Initializes a new FlexIndex.
      *
      * @param array $entries
-     * @param FlexDirectory|null $directory
+     * @param FlexDirectory|null $_flexDirectory
      */
-    public function __construct(array $entries = [], FlexDirectory $directory = null)
+    public function __construct(array $entries = [], private ?FlexDirectory $_flexDirectory = null)
     {
         // @phpstan-ignore-next-line
-        if (get_class($this) === __CLASS__) {
-            user_error('Using ' . __CLASS__ . ' directly is deprecated since Grav 1.7, use \Grav\Common\Flex\Types\Generic\GenericIndex or your own class instead', E_USER_DEPRECATED);
+        if (static::class === self::class) {
+            user_error('Using ' . self::class . ' directly is deprecated since Grav 1.7, use \Grav\Common\Flex\Types\Generic\GenericIndex or your own class instead', E_USER_DEPRECATED);
         }
 
         parent::__construct($entries);
-
-        $this->_flexDirectory = $directory;
         $this->setKeyField(null);
     }
 
@@ -146,8 +142,8 @@ class FlexIndex extends ObjectIndex implements FlexIndexInterface
 
         $list = [];
         foreach ($implements as $interface) {
-            if ($pos = strrpos($interface, '\\')) {
-                $interface = substr($interface, $pos+1);
+            if ($pos = strrpos((string) $interface, '\\')) {
+                $interface = substr((string) $interface, $pos+1);
             }
 
             $list[] = Inflector::hyphenize(str_replace('Interface', '', $interface));
@@ -160,7 +156,7 @@ class FlexIndex extends ObjectIndex implements FlexIndexInterface
      * {@inheritdoc}
      * @see FlexCollectionInterface::search()
      */
-    public function search(string $search, $properties = null, array $options = null)
+    public function search(string $search, $properties = null, ?array $options = null)
     {
         $directory = $this->getFlexDirectory();
         $properties = $directory->getSearchProperties($properties);
@@ -282,7 +278,7 @@ class FlexIndex extends ObjectIndex implements FlexIndexInterface
      * {@inheritdoc}
      * @see FlexIndexInterface::withKeyField()
      */
-    public function withKeyField(string $keyField = null)
+    public function withKeyField(?string $keyField = null)
     {
         $keyField = $keyField ?: 'key';
         if ($keyField === $this->getKeyField()) {
@@ -328,7 +324,7 @@ class FlexIndex extends ObjectIndex implements FlexIndexInterface
      * {@inheritdoc}
      * @see FlexCollectionInterface::render()
      */
-    public function render(string $layout = null, array $context = [])
+    public function render(?string $layout = null, array $context = [])
     {
         return $this->__call('render', [$layout, $context]);
     }
@@ -337,7 +333,7 @@ class FlexIndex extends ObjectIndex implements FlexIndexInterface
      * {@inheritdoc}
      * @see FlexIndexInterface::getFlexKeys()
      */
-    public function getIndexMap(string $indexKey = null)
+    public function getIndexMap(?string $indexKey = null)
     {
         if (null === $indexKey) {
             return $this->getEntries();
@@ -373,7 +369,7 @@ class FlexIndex extends ObjectIndex implements FlexIndexInterface
      * @param string|null $namespace
      * @return CacheInterface
      */
-    public function getCache(string $namespace = null)
+    public function getCache(?string $namespace = null)
     {
         return $this->getFlexDirectory()->getCache($namespace);
     }
@@ -420,7 +416,7 @@ class FlexIndex extends ObjectIndex implements FlexIndexInterface
             }
 
             // Order by current field.
-            if (strtoupper($ordering) === 'DESC') {
+            if (strtoupper((string) $ordering) === 'DESC') {
                 arsort($search, SORT_NATURAL | SORT_FLAG_CASE);
             } else {
                 asort($search, SORT_NATURAL | SORT_FLAG_CASE);
@@ -557,7 +553,7 @@ class FlexIndex extends ObjectIndex implements FlexIndexInterface
      * @return static
      * @phpstan-return static<T,C>
      */
-    protected function createFrom(array $entries, string $keyField = null)
+    protected function createFrom(array $entries, ?string $keyField = null)
     {
         /** @phpstan-var static<T,C> $index */
         $index = new static($entries, $this->getFlexDirectory());
@@ -570,7 +566,7 @@ class FlexIndex extends ObjectIndex implements FlexIndexInterface
      * @param string|null $keyField
      * @return void
      */
-    protected function setKeyField(string $keyField = null)
+    protected function setKeyField(?string $keyField = null)
     {
         $this->_keyField = $keyField ?? 'storage_key';
     }
@@ -641,7 +637,7 @@ class FlexIndex extends ObjectIndex implements FlexIndexInterface
      * @return ObjectInterface[]
      * @phpstan-return T[]
      */
-    protected function loadElements(array $entries = null): array
+    protected function loadElements(?array $entries = null): array
     {
         /** @phpstan-var T[] $objects */
         $objects = $this->getFlexDirectory()->loadObjects($entries ?? $this->getEntries());
@@ -654,7 +650,7 @@ class FlexIndex extends ObjectIndex implements FlexIndexInterface
      * @return CollectionInterface
      * @phpstan-return C
      */
-    protected function loadCollection(array $entries = null): CollectionInterface
+    protected function loadCollection(?array $entries = null): CollectionInterface
     {
         /** @var C $collection */
         $collection = $this->getFlexDirectory()->loadCollection($entries ?? $this->getEntries(), $this->_keyField);
@@ -880,7 +876,7 @@ class FlexIndex extends ObjectIndex implements FlexIndexInterface
 
         /** @var Logger $logger */
         $logger = $grav['log'];
-        $logger->addAlert($e->getMessage());
+        $logger->alert($e->getMessage());
 
         /** @var Debugger $debugger */
         $debugger = $grav['debugger'];
@@ -921,10 +917,21 @@ class FlexIndex extends ObjectIndex implements FlexIndexInterface
      */
     public function getType($prefix = false)
     {
-        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6, use ->getFlexType() method instead', E_USER_DEPRECATED);
+        user_error(self::class . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6, use ->getFlexType() method instead', E_USER_DEPRECATED);
 
         $type = $prefix ? $this->getTypePrefix() : '';
 
         return $type . $this->getFlexType();
     }
+
+    public function findFirst(Closure $p)
+    {
+        // TODO: Implement findFirst() method.
+    }
+
+    public function reduce(Closure $func, mixed $initial = null)
+    {
+        // TODO: Implement reduce() method.
+    }
+
 }

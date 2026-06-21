@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Twig
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -44,17 +44,17 @@ class TwigTokenParserRender extends AbstractTokenParser
     {
         $stream = $this->parser->getStream();
 
-        $object = $this->parser->getExpressionParser()->parseExpression();
+        $object = $this->parser->parseExpression();
 
         $layout = null;
         if ($stream->nextIf(Token::NAME_TYPE, 'layout')) {
             $stream->expect(Token::PUNCTUATION_TYPE, ':');
-            $layout = $this->parser->getExpressionParser()->parseExpression();
+            $layout = $this->parser->parseExpression();
         }
 
         $context = null;
         if ($stream->nextIf(Token::NAME_TYPE, 'with')) {
-            $context = $this->parser->getExpressionParser()->parseExpression();
+            $context = $this->parser->parseExpression();
         }
 
         $stream->expect(Token::BLOCK_END_TYPE);

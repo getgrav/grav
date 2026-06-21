@@ -19,7 +19,7 @@ interface ToOneRelationshipInterface extends RelationshipInterface
      * @return T|null
      * @phpstan-pure
      */
-    public function getIdentifier(string $id = null, string $type = null): ?IdentifierInterface;
+    public function getIdentifier(?string $id = null, ?string $type = null): ?IdentifierInterface;
 
     /**
      * @param string|null $id
@@ -27,11 +27,11 @@ interface ToOneRelationshipInterface extends RelationshipInterface
      * @return T|null
      * @phpstan-pure
      */
-    public function getObject(string $id = null, string $type = null): ?object;
+    public function getObject(?string $id = null, ?string $type = null): ?object;
 
     /**
      * @param T|null $identifier
      * @return bool
      */
-    public function replaceIdentifier(IdentifierInterface $identifier = null): bool;
+    public function replaceIdentifier(?IdentifierInterface $identifier = null): bool;
 }

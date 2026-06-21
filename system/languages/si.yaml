@@ -118,3 +118,12 @@ GRAV:
     ERROR2: නරක මූලද්රව්ය සංඛ්යාව
     ERROR3: jquery_element jqCron සැකසුම් වලට සැකසිය යුතුය
     ERROR4: හඳුනා නොගත් ප්‍රකාශනය
+
+PLUGIN_ADMIN:
+    MEDIA: "මාධ්යය"
+    MEDIA_TYPES: "මාධ්ය වර්ග"
+    IMAGE_OPTIONS: "රූප විකල්ප"
+    MIME_TYPE: "මයිම් වර්ගය"
+    THUMB: "මහපටැඟිල්ල"
+    TYPE: "ටයිප් කරන්න"
+    FILE_EXTENSION: "ගොනු දිගුව"

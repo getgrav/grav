@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Console\Gpm
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -51,6 +51,8 @@ class InstallCommand extends GpmCommand
     protected $demo_processing = [];
     /** @var string */
     protected $all_yes;
+    /** @var array */
+    protected $requested_versions = [];
 
     /**
      * @return void
@@ -81,7 +83,7 @@ class InstallCommand extends GpmCommand
             ->addArgument(
                 'package',
                 InputArgument::IS_ARRAY | InputArgument::REQUIRED,
-                'Package(s) to install. Use "bin/gpm index" to list packages. Use "bin/gpm direct-install" to install a specific version'
+                'Package(s) to install. Use "bin/gpm index" to list packages. Append :version to install a specific version (e.g., typhoon:2.4.8)'
             )
             ->setDescription('Performs the installation of plugins and themes')
             ->setHelp('The <info>install</info> command allows to install plugins and themes');
@@ -121,6 +123,18 @@ class InstallCommand extends GpmCommand
         $this->destination = realpath($input->getOption('destination'));
 
         $packages = array_map('strtolower', $input->getArgument('package'));
+
+        // Parse package:version syntax (e.g., typhoon:2.4.8)
+        $this->requested_versions = [];
+        foreach ($packages as &$package) {
+            if (str_contains($package, ':')) {
+                [$slug, $version] = explode(':', $package, 2);
+                $package = $slug;
+                $this->requested_versions[$slug] = ltrim($version, 'v');
+            }
+        }
+        unset($package);
+
         $this->data = $this->gpm->findPackages($packages);
         $this->loadLocalConfig();
 
@@ -179,7 +193,7 @@ class InstallCommand extends GpmCommand
                 $this->installDependencies($dependencies, 'install', 'The following dependencies need to be installed...');
                 $this->installDependencies($dependencies, 'update', 'The following dependencies need to be updated...');
                 $this->installDependencies($dependencies, 'ignore', "The following dependencies can be updated as there is a newer version, but it's not mandatory...", false);
-            } catch (Exception $e) {
+            } catch (Exception) {
                 $io->writeln('<red>Installation aborted</red>');
 
                 return 1;
@@ -287,9 +301,7 @@ class InstallCommand extends GpmCommand
     public function installDependencies(array $dependencies, string $type, string $message, bool $required = true): void
     {
         $io = $this->getIO();
-        $packages = array_filter($dependencies, static function ($action) use ($type) {
-            return $action === $type;
-        });
+        $packages = array_filter($dependencies, static fn($action) => $action === $type);
         if (count($packages) > 0) {
             $io->writeln($message);
 
@@ -460,14 +472,14 @@ class InstallCommand extends GpmCommand
 
         foreach ($this->local_config as $paths) {
             if (Utils::endsWith($matches[2], '.git')) {
-                $repo_dir = preg_replace('/\.git$/', '', $matches[2]);
+                $repo_dir = preg_replace('/\.git$/', '', (string) $matches[2]);
             } else {
                 $repo_dir = $matches[2];
             }
 
             $paths = (array) $paths;
             foreach ($paths as $repo) {
-                $path = rtrim($repo, '/') . '/' . $repo_dir;
+                $path = rtrim((string) $repo, '/') . '/' . $repo_dir;
                 if (file_exists($path)) {
                     return $path;
                 }
@@ -530,6 +542,43 @@ class InstallCommand extends GpmCommand
     {
         $io = $this->getIO();
 
+        // Handle specific version request (e.g., typhoon:2.4.8)
+        $requestedVersion = $this->requested_versions[$package->slug] ?? null;
+        if ($requestedVersion) {
+            $changelog = $package->getChangelog();
+            $versionValid = version_compare($package->version, $requestedVersion, '==');
+
+            if (!$versionValid && $changelog) {
+                foreach ($changelog as $changelogVersion => $entry) {
+                    preg_match("/[\w\-.]+/", (string) $changelogVersion, $cleanVersion);
+                    if ($cleanVersion && version_compare($cleanVersion[0], $requestedVersion, '==')) {
+                        $versionValid = true;
+                        break;
+                    }
+                }
+            }
+
+            if (!$versionValid) {
+                $io->writeln("<red>Version <white>{$requestedVersion}</white> not found for </red><cyan>{$package->name}</cyan>");
+                if ($changelog) {
+                    $versions = [];
+                    foreach ($changelog as $v => $entry) {
+                        preg_match("/[\w\-.]+/", (string) $v, $clean);
+                        if ($clean) {
+                            $versions[] = $clean[0];
+                        }
+                    }
+                    $io->writeln('Known versions: <yellow>' . implode('</yellow>, <yellow>', $versions) . '</yellow>');
+                }
+                $io->newLine();
+                return false;
+            }
+
+            // Override version and download URL for the specific version
+            $package->zipball_url = "https://getgrav.org/download/{$package->package_type}/{$package->slug}/{$requestedVersion}";
+            $package->version = $requestedVersion;
+        }
+
         $version = $package->available ?? $package->version;
         $license = Licenses::get($package->slug);
 
@@ -573,7 +622,7 @@ class InstallCommand extends GpmCommand
      * @param string|null $license
      * @return string|null
      */
-    private function downloadPackage(Package $package, string $license = null)
+    private function downloadPackage(Package $package, ?string $license = null)
     {
         $io = $this->getIO();
 
@@ -598,7 +647,7 @@ class InstallCommand extends GpmCommand
         }
 
         try {
-            $output = Response::get($package->zipball_url . $query, [], [$this, 'progress']);
+            $output = Response::get($package->zipball_url . $query, [], $this->progress(...));
         } catch (Exception $e) {
             if (!empty($package->premium) && $e->getCode() === 401) {
                 $message = '<yellow>Unauthorized Premium License Key</yellow>';
@@ -717,7 +766,7 @@ class InstallCommand extends GpmCommand
 
         $io->write("\x0D");
         $io->write('  |- Downloading package... ' . str_pad(
-            $progress['percent'],
+            (string) $progress['percent'],
             5,
             ' ',
             STR_PAD_LEFT

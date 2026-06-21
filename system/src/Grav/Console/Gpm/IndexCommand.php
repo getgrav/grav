@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Console\Gpm
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -134,7 +134,7 @@ class IndexCommand extends GpmCommand
         }
 
         foreach ($data as $type => $packages) {
-            $io->writeln('<green>' . strtoupper($type) . '</green> [ ' . count($packages) . ' ]');
+            $io->writeln('<green>' . strtoupper((string) $type) . '</green> [ ' . count($packages) . ' ]');
 
             $packages = $this->sort($packages);
 
@@ -182,7 +182,7 @@ class IndexCommand extends GpmCommand
     {
         $list      = $this->gpm->{'getUpdatable' . ucfirst($package->package_type)}();
         $package   = $list[$package->slug] ?? $package;
-        $type      = ucfirst(preg_replace('/s$/', '', $package->package_type));
+        $type      = ucfirst(preg_replace('/s$/', '', (string) $package->package_type));
         $updatable = $this->gpm->{'is' . $type . 'Updatable'}($package->slug);
         $installed = $this->gpm->{'is' . $type . 'Installed'}($package->slug);
         $local     = $this->gpm->{'getInstalled' . $type}($package->slug);
@@ -302,21 +302,21 @@ class IndexCommand extends GpmCommand
 
                     // Filtering updatables only
                     if ($filter && ($this->options['installed-only'] || $this->options['enabled'] || $this->options['disabled'])) {
-                        $method = ucfirst(preg_replace('/s$/', '', $package->package_type));
+                        $method = ucfirst(preg_replace('/s$/', '', (string) $package->package_type));
                         $function = 'is' . $method . 'Installed';
                         $filter = $this->gpm->{$function}($package->slug);
                     }
 
                     // Filtering updatables only
                     if ($filter && $this->options['updates-only']) {
-                        $method = ucfirst(preg_replace('/s$/', '', $package->package_type));
+                        $method = ucfirst(preg_replace('/s$/', '', (string) $package->package_type));
                         $function = 'is' . $method . 'Updatable';
                         $filter = $this->gpm->{$function}($package->slug);
                     }
 
                     // Filtering enabled only
                     if ($filter && $this->options['enabled']) {
-                        $method = ucfirst(preg_replace('/s$/', '', $package->package_type));
+                        $method = ucfirst(preg_replace('/s$/', '', (string) $package->package_type));
 
                         // Check if packaged is enabled.
                         $function = 'is' . $method . 'Enabled';
@@ -325,7 +325,7 @@ class IndexCommand extends GpmCommand
 
                     // Filtering disabled only
                     if ($filter && $this->options['disabled']) {
-                        $method = ucfirst(preg_replace('/s$/', '', $package->package_type));
+                        $method = ucfirst(preg_replace('/s$/', '', (string) $package->package_type));
 
                         // Check if package is disabled.
                         $function = 'is' . $method . 'Enabled';
@@ -357,13 +357,9 @@ class IndexCommand extends GpmCommand
 
         // Sorting only works once.
         return $packages->sort(
-            function ($a, $b) use ($key) {
-                switch ($key) {
-                    case 'author':
-                        return strcmp($a->{$key}['name'], $b->{$key}['name']);
-                    default:
-                        return strcmp($a->$key, $b->$key);
-                }
+            fn($a, $b) => match ($key) {
+                'author' => strcmp((string) $a->{$key}['name'], (string) $b->{$key}['name']),
+                default => strcmp((string) $a->$key, (string) $b->$key),
             },
             $this->options['desc'] ? true : false
         );

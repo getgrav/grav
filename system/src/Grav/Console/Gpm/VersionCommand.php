@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Console\Gpm
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -67,7 +67,7 @@ class VersionCommand extends GpmCommand
         }
 
         foreach ($packages as $package) {
-            $package = strtolower($package);
+            $package = strtolower((string) $package);
             $name = null;
             $version = null;
             $updatable = false;

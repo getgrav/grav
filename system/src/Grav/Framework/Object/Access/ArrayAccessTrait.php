@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Object
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -22,7 +22,7 @@ trait ArrayAccessTrait
      * @return bool          Returns TRUE on success or FALSE on failure.
      */
     #[\ReturnTypeWillChange]
-    public function offsetExists($offset)
+    public function offsetExists(mixed $offset)
     {
         return $this->hasProperty($offset);
     }
@@ -34,7 +34,7 @@ trait ArrayAccessTrait
      * @return mixed         Can return all value types.
      */
     #[\ReturnTypeWillChange]
-    public function offsetGet($offset)
+    public function offsetGet(mixed $offset)
     {
         return $this->getProperty($offset);
     }
@@ -47,7 +47,7 @@ trait ArrayAccessTrait
      * @return void
      */
     #[\ReturnTypeWillChange]
-    public function offsetSet($offset, $value)
+    public function offsetSet(mixed $offset, mixed $value)
     {
         $this->setProperty($offset, $value);
     }
@@ -59,7 +59,7 @@ trait ArrayAccessTrait
      * @return void
      */
     #[\ReturnTypeWillChange]
-    public function offsetUnset($offset)
+    public function offsetUnset(mixed $offset)
     {
         $this->unsetProperty($offset);
     }

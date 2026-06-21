@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Console\Gpm
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -83,11 +83,11 @@ class InfoCommand extends GpmCommand
             return 1;
         }
 
-        $io->writeln("Found package <cyan>'{$input->getArgument('package')}'</cyan> under the '<green>" . ucfirst($foundPackage->package_type) . "</green>' section");
+        $io->writeln("Found package <cyan>'{$input->getArgument('package')}'</cyan> under the '<green>" . ucfirst((string) $foundPackage->package_type) . "</green>' section");
         $io->newLine();
         $io->writeln("<cyan>{$foundPackage->name}</cyan> [{$foundPackage->slug}]");
-        $io->writeln(str_repeat('-', strlen($foundPackage->name) + strlen($foundPackage->slug) + 3));
-        $io->writeln('<white>' . strip_tags($foundPackage->description_plain) . '</white>');
+        $io->writeln(str_repeat('-', strlen($foundPackage->name) + strlen((string) $foundPackage->slug) + 3));
+        $io->writeln('<white>' . strip_tags((string) $foundPackage->description_plain) . '</white>');
         $io->newLine();
 
         $packageURL = '';
@@ -123,7 +123,7 @@ class InfoCommand extends GpmCommand
 
                 if ($info === 'date') {
                     $name = 'Last Update';
-                    $data = date('D, j M Y, H:i:s, P ', strtotime($data));
+                    $data = date('D, j M Y, H:i:s, P ', strtotime((string) $data));
                 }
 
                 $name = str_pad($name, 12);
@@ -132,7 +132,7 @@ class InfoCommand extends GpmCommand
         }
 
         // Display compatibility badges
-        $type = rtrim($foundPackage->package_type, 's');
+        $type = rtrim((string) $foundPackage->package_type, 's');
         $installed = $this->gpm->{'is' . $type . 'Installed'}($foundPackage->slug);
         if ($installed) {
             $local = $this->gpm->{'getInstalled' . $type}($foundPackage->slug);
@@ -186,9 +186,7 @@ class InfoCommand extends GpmCommand
             $io->newLine();
             foreach ($changelog as $version => $log) {
                 $title = $version . ' [' . $log['date'] . ']';
-                $content = preg_replace_callback('/\d\.\s\[\]\(#(.*)\)/', static function ($match) {
-                    return "\n" . ucfirst($match[1]) . ':';
-                }, $log['content']);
+                $content = preg_replace_callback('/\d\.\s\[\]\(#(.*)\)/', static fn($match) => "\n" . ucfirst((string) $match[1]) . ':', (string) $log['content']);
 
                 $io->writeln("<cyan>{$title}</cyan>");
                 $io->writeln(str_repeat('-', strlen($title)));

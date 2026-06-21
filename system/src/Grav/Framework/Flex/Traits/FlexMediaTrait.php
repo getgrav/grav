@@ -5,12 +5,13 @@ namespace Grav\Framework\Flex\Traits;
 /**
  * @package    Grav\Framework\Flex
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 use Grav\Common\Config\Config;
 use Grav\Common\Grav;
+use RocketTheme\Toolbox\Event\Event;
 use Grav\Common\Media\Interfaces\MediaCollectionInterface;
 use Grav\Common\Media\Interfaces\MediaUploadInterface;
 use Grav\Common\Media\Traits\MediaTrait;
@@ -75,6 +76,17 @@ trait FlexMediaTrait
 
             // Include uploaded media to the object media.
             $this->addUpdatedMedia($media);
+
+            // Let plugins rewrite this object's media URLs — e.g. route the
+            // originals through a permission-aware proxy instead of linking them
+            // directly under user://data. Fired once per object (the result is
+            // cached); a listener can stamp a `url` override on individual items.
+            Grav::instance()->fireEvent('onFlexObjectMedia', new Event([
+                'type' => 'flex',
+                'directory' => $this->getFlexDirectory(),
+                'object' => $this,
+                'media' => $media,
+            ]));
         }
 
         return $media;
@@ -143,7 +155,7 @@ trait FlexMediaTrait
         // Set media folder for media fields.
         if (isset($var)) {
             $folder = $settings[$var] ?? '';
-            if (in_array(rtrim($folder, '/'), ['', '@self', 'self@', '@self@'], true)) {
+            if (in_array(rtrim((string) $folder, '/'), ['', '@self', 'self@', '@self@'], true)) {
                 $settings[$var] = $this->getMediaFolder();
                 $settings['self'] = true;
             } else {
@@ -241,7 +253,7 @@ trait FlexMediaTrait
      * @return void
      * @internal
      */
-    public function checkUploadedMediaFile(UploadedFileInterface $uploadedFile, string $filename = null, string $field = null)
+    public function checkUploadedMediaFile(UploadedFileInterface $uploadedFile, ?string $filename = null, ?string $field = null)
     {
         $media = $this->getMedia();
         if (!$media instanceof MediaUploadInterface) {
@@ -258,7 +270,7 @@ trait FlexMediaTrait
      * @return void
      * @internal
      */
-    public function uploadMediaFile(UploadedFileInterface $uploadedFile, string $filename = null, string $field = null): void
+    public function uploadMediaFile(UploadedFileInterface $uploadedFile, ?string $filename = null, ?string $field = null): void
     {
         $settings = $this->getMediaFieldSettings($field ?? '');
 
@@ -305,7 +317,7 @@ trait FlexMediaTrait
      * @param MediaObjectInterface|null $image
      * @return MediaObject|UploadedMediaObject
      */
-    protected function buildMediaObject(?string $field, string $filename, MediaObjectInterface $image = null)
+    protected function buildMediaObject(?string $field, string $filename, ?MediaObjectInterface $image = null)
     {
         if (!$image) {
             $media = $field ? $this->getMediaField($field) : null;

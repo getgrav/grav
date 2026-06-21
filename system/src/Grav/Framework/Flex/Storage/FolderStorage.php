@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * @package    Grav\Framework\Flex
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -135,7 +135,7 @@ class FolderStorage extends AbstractFilesystemStorage
      * {@inheritdoc}
      * @see FlexStorageInterface::readRows()
      */
-    public function readRows(array $rows, array &$fetched = null): array
+    public function readRows(array $rows, ?array &$fetched = null): array
     {
         $list = [];
         foreach ($rows as $key => $row) {
@@ -277,7 +277,7 @@ class FolderStorage extends AbstractFilesystemStorage
      * {@inheritdoc}
      * @see FlexStorageInterface::getStoragePath()
      */
-    public function getStoragePath(string $key = null): ?string
+    public function getStoragePath(?string $key = null): ?string
     {
         if (null === $key || $key === '') {
             $path = $this->dataFolder;
@@ -301,7 +301,7 @@ class FolderStorage extends AbstractFilesystemStorage
      * {@inheritdoc}
      * @see FlexStorageInterface::getMediaPath()
      */
-    public function getMediaPath(string $key = null): ?string
+    public function getMediaPath(?string $key = null): ?string
     {
         return $this->getStoragePath($key);
     }
@@ -413,11 +413,14 @@ class FolderStorage extends AbstractFilesystemStorage
             if (isset($row[$this->keyField])) {
                 $key = $row[$this->keyField];
             }
-            if (strpos($key, '@@') !== false) {
+            if (str_contains((string) $key, '@@')) {
                 $key = $this->getNewKey();
             }
 
             $key = $this->normalizeKey($key);
+
+            // Validate the key to prevent path traversal and other attacks
+            $this->assertValidKey($key);
 
             // Check if the row already exists and if the key has been changed.
             $oldKey = $row['__META']['storage_key'] ?? null;
@@ -584,7 +587,7 @@ class FolderStorage extends AbstractFilesystemStorage
             return $this->meta[$key];
         }
 
-        if ($key && strpos($key, '@@') === false) {
+        if ($key && !str_contains($key, '@@')) {
             $filename = $this->getPathFromKey($key);
             $modified = is_file($filename) ? filemtime($filename) : 0;
         } else {
@@ -613,7 +616,7 @@ class FolderStorage extends AbstractFilesystemStorage
         $list = [];
         /** @var SplFileInfo $info */
         foreach ($iterator as $filename => $info) {
-            if (!$info->isDir() || strpos($info->getFilename(), '.') === 0) {
+            if (!$info->isDir() || str_starts_with($info->getFilename(), '.')) {
                 continue;
             }
 
@@ -639,7 +642,7 @@ class FolderStorage extends AbstractFilesystemStorage
         $list = [[]];
         /** @var SplFileInfo $info */
         foreach ($iterator as $filename => $info) {
-            if (!$info->isDir() || strpos($info->getFilename(), '.') === 0) {
+            if (!$info->isDir() || str_starts_with($info->getFilename(), '.')) {
                 continue;
             }
 

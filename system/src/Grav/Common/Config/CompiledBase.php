@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Config
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -13,7 +13,10 @@ use BadMethodCallException;
 use Exception;
 use RocketTheme\Toolbox\File\PhpFile;
 use RuntimeException;
+use function filter_var;
+use function function_exists;
 use function get_class;
+use function ini_get;
 use function is_array;
 
 /**
@@ -202,7 +205,7 @@ abstract class CompiledBase
         $cache = include $filename;
         if (!is_array($cache)
             || !isset($cache['checksum'], $cache['data'], $cache['@class'])
-            || $cache['@class'] !== get_class($this)
+            || $cache['@class'] !== static::class
         ) {
             return false;
         }
@@ -235,7 +238,7 @@ abstract class CompiledBase
         // Attempt to lock the file for writing.
         try {
             $file->lock(false);
-        } catch (Exception $e) {
+        } catch (Exception) {
             // Another process has locked the file; we will check this in a bit.
         }
 
@@ -245,7 +248,7 @@ abstract class CompiledBase
         }
 
         $cache = [
-            '@class' => get_class($this),
+            '@class' => static::class,
             'timestamp' => time(),
             'checksum' => $this->checksum(),
             'files' => $this->files,
@@ -254,6 +257,9 @@ abstract class CompiledBase
 
         $file->save($cache);
         $file->unlock();
+
+        $this->preloadOpcodeCache($file);
+
         $file->free();
 
         $this->modified();
@@ -265,5 +271,41 @@ abstract class CompiledBase
     protected function getState()
     {
         return $this->object->toArray();
+    }
+
+    /**
+     * Ensure compiled cache file is primed into OPcache when available.
+     */
+    protected function preloadOpcodeCache(PhpFile $file): void
+    {
+        if (!function_exists('opcache_invalidate') || !$this->isOpcacheEnabled()) {
+            return;
+        }
+
+        $filename = $file->filename();
+        if (!$filename) {
+            return;
+        }
+
+        // Silence errors for restricted functions while keeping best effort behavior.
+        @opcache_invalidate($filename, true);
+
+        if (function_exists('opcache_compile_file')) {
+            @opcache_compile_file($filename);
+        }
+    }
+
+    /**
+     * Detect if OPcache is active for current SAPI.
+     */
+    protected function isOpcacheEnabled(): bool
+    {
+        $enabled = filter_var(ini_get('opcache.enable'), \FILTER_VALIDATE_BOOLEAN);
+
+        if (PHP_SAPI === 'cli') {
+            $enabled = $enabled || filter_var(ini_get('opcache.enable_cli'), \FILTER_VALIDATE_BOOLEAN);
+        }
+
+        return $enabled;
     }
 }

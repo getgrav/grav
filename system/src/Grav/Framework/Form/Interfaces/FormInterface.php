@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Form
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -140,7 +140,7 @@ interface FormInterface extends RenderInterface, \Serializable
      * @param UploadedFileInterface[]|null $files
      * @return $this
      */
-    public function submit(array $data, array $files = null): FormInterface;
+    public function submit(array $data, ?array $files = null): FormInterface;
 
     /**
      * @return bool

@@ -8,7 +8,7 @@ use Grav\Common\Utils;
 /**
  * Class UtilsTest
  */
-class UtilsTest extends \Codeception\TestCase\Test
+class UtilsTest extends \PHPUnit\Framework\TestCase
 {
     /** @var Grav $grav */
     protected $grav;
@@ -16,14 +16,15 @@ class UtilsTest extends \Codeception\TestCase\Test
     /** @var Uri $uri */
     protected $uri;
 
-    protected function _before(): void
+    protected function setUp(): void
     {
+        parent::setUp();
         $grav = Fixtures::get('grav');
         $this->grav = $grav();
         $this->uri = $this->grav['uri'];
     }
 
-    protected function _after(): void
+    protected function tearDown(): void
     {
     }
 
@@ -131,8 +132,8 @@ class UtilsTest extends \Codeception\TestCase\Test
 
         $objMerged = Utils::mergeObjects($obj1, $obj2);
 
-        self::arrayHasKey('test1', (array) $objMerged);
-        self::arrayHasKey('test2', (array) $objMerged);
+        self::assertArrayHasKey('test1', (array) $objMerged);
+        self::assertArrayHasKey('test2', (array) $objMerged);
     }
 
     public function testDateFormats(): void
@@ -281,9 +282,7 @@ class UtilsTest extends \Codeception\TestCase\Test
             'test2' => 'test2'
         ];
 
-        $array = Utils::arrayFilterRecursive($array, function ($k, $v) {
-            return !(is_null($v) || $v === '');
-        });
+        $array = Utils::arrayFilterRecursive($array, fn($k, $v) => !(is_null($v) || $v === ''));
 
         self::assertContainsOnly('string', $array);
         self::assertArrayNotHasKey('test', $array);

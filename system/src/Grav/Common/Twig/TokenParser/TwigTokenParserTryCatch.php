@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Twig
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -41,10 +41,10 @@ class TwigTokenParserTryCatch extends AbstractTokenParser
         $stream = $this->parser->getStream();
 
         $stream->expect(Token::BLOCK_END_TYPE);
-        $try = $this->parser->subparse([$this, 'decideCatch']);
+        $try = $this->parser->subparse($this->decideCatch(...));
         $stream->next();
         $stream->expect(Token::BLOCK_END_TYPE);
-        $catch = $this->parser->subparse([$this, 'decideEnd']);
+        $catch = $this->parser->subparse($this->decideEnd(...));
         $stream->next();
         $stream->expect(Token::BLOCK_END_TYPE);
 

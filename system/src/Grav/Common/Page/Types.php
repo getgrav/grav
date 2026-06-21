@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Page
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -125,7 +125,7 @@ class Types implements \ArrayAccess, \Iterator, \Countable
     {
         $list = [];
         foreach ($this->items as $name => $file) {
-            if (strpos($name, '/')) {
+            if (strpos((string) $name, '/')) {
                 continue;
             }
             $list[$name] = ucfirst(str_replace('_', ' ', $name));
@@ -142,7 +142,7 @@ class Types implements \ArrayAccess, \Iterator, \Countable
     {
         $list = [];
         foreach ($this->items as $name => $file) {
-            if (strpos($name, 'modular/') !== 0) {
+            if (!str_starts_with((string) $name, 'modular/')) {
                 continue;
             }
             $list[$name] = ucfirst(trim(str_replace('_', ' ', Utils::basename($name))));

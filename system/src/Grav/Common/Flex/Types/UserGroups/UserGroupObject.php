@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * @package    Grav\Common\Flex
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -57,7 +57,7 @@ class UserGroupObject extends FlexObject implements UserGroupInterface
      * @param  string|null $scope
      * @return bool|null
      */
-    public function authorize(string $action, string $scope = null): ?bool
+    public function authorize(string $action, ?string $scope = null): ?bool
     {
         if ($scope === 'test') {
             $scope = null;
@@ -100,10 +100,9 @@ class UserGroupObject extends FlexObject implements UserGroupInterface
     }
 
     /**
-     * @param mixed $value
      * @return array
      */
-    protected function offsetLoad_access($value): array
+    protected function offsetLoad_access(mixed $value): array
     {
         if (!$value instanceof Access) {
             $value = new Access($value);
@@ -115,10 +114,9 @@ class UserGroupObject extends FlexObject implements UserGroupInterface
     }
 
     /**
-     * @param mixed $value
      * @return array
      */
-    protected function offsetPrepare_access($value): array
+    protected function offsetPrepare_access(mixed $value): array
     {
         return $this->offsetLoad_access($value);
     }

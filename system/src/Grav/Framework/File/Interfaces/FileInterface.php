@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * @package    Grav\Framework\File
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -156,7 +156,7 @@ interface FileInterface extends Serializable
      * @throws RuntimeException
      * @api
      */
-    public function save($data): void;
+    public function save(mixed $data): void;
 
     /**
      * Rename file in the filesystem if it exists.

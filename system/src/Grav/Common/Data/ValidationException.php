@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Data
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -37,7 +37,7 @@ class ValidationException extends RuntimeException implements JsonSerializable
         foreach ($messages as $list) {
             $list = array_unique($list);
             foreach ($list as $message) {
-                $this->message .= '<br/>' . htmlspecialchars($message, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+                $this->message .= '<br/>' . htmlspecialchars((string) $message, ENT_QUOTES | ENT_HTML5, 'UTF-8');
             }
         }
 
@@ -49,7 +49,7 @@ class ValidationException extends RuntimeException implements JsonSerializable
         $first = reset($this->messages);
         $message = reset($first);
 
-        $this->message = $escape ? htmlspecialchars($message, ENT_QUOTES | ENT_HTML5, 'UTF-8') : $message;
+        $this->message = $escape ? htmlspecialchars((string) $message, ENT_QUOTES | ENT_HTML5, 'UTF-8') : $message;
     }
 
     /**

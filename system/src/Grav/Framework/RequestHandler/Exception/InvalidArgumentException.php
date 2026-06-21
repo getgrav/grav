@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\RequestHandler
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -19,9 +19,6 @@ use Throwable;
  */
 class InvalidArgumentException extends \InvalidArgumentException
 {
-    /** @var mixed|null */
-    private $invalidMiddleware;
-
     /**
      * InvalidArgumentException constructor.
      *
@@ -30,11 +27,9 @@ class InvalidArgumentException extends \InvalidArgumentException
      * @param int $code
      * @param Throwable|null $previous
      */
-    public function __construct($message = '', $invalidMiddleware = null, $code = 0, Throwable $previous = null)
+    public function __construct($message = '', private $invalidMiddleware = null, $code = 0, ?Throwable $previous = null)
     {
         parent::__construct($message, $code, $previous);
-
-        $this->invalidMiddleware = $invalidMiddleware;
     }
 
     /**

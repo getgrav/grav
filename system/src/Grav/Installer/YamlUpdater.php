@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Installer
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -11,6 +11,7 @@ namespace Grav\Installer;
 
 use Grav\Common\Utils;
 use Symfony\Component\Yaml\Yaml;
+use function array_key_exists;
 use function assert;
 use function count;
 use function is_array;
@@ -63,7 +64,10 @@ final class YamlUpdater
 
                 $items = Yaml::parse($yaml);
                 if ($items !== $this->items) {
-                    throw new \RuntimeException('Failed saving the content');
+                    // Lines and items are out of sync — fall back to dumping
+                    // from items directly.  Loses original formatting but
+                    // guarantees the file content matches the intended state.
+                    $yaml = Yaml::dump($this->items, 5, 2);
                 }
             }
 
@@ -103,9 +107,8 @@ final class YamlUpdater
 
     /**
      * @param string $variable
-     * @param mixed $value
      */
-    public function define(string $variable, $value): void
+    public function define(string $variable, mixed $value): void
     {
         // If variable has already value, we're good.
         if ($this->get($variable) !== null) {
@@ -149,6 +152,26 @@ final class YamlUpdater
         array_splice($this->lines, abs($currentLine)+1, 0, $value);
     }
 
+    /**
+     * Check if a value exists by using dot notation for nested arrays/objects.
+     */
+    public function exists(string $variable): bool
+    {
+        $path = explode('.', $variable);
+        $current = $this->items;
+
+        foreach ($path as $field) {
+            if (is_array($current) && array_key_exists($field, $current)) {
+                $current = $current[$field];
+                continue;
+            }
+
+            return false;
+        }
+
+        return true;
+    }
+
     public function undefine(string $variable): void
     {
         // If variable does not have value, we're good.
@@ -166,7 +189,46 @@ final class YamlUpdater
             return;
         }
 
-        // TODO: support also removing property from handwritten configuration file.
+        $parts = explode('.', $variable);
+        $lineNos = $this->findPath($this->lines, $parts);
+
+        // Get the line number of the target property itself (last in the path).
+        $targetLine = end($lineNos);
+
+        // Negative value means the property was not found in the lines.
+        if ($targetLine === false || $targetLine < 0) {
+            return;
+        }
+
+        // Determine how many lines to remove: the target line plus any
+        // more-deeply-indented child lines that follow it.
+        $targetIndent = $this->getLineIndentation($this->lines[$targetLine]);
+        $endLine = $targetLine + 1;
+        $total = count($this->lines);
+
+        while ($endLine < $total) {
+            $line = $this->lines[$endLine];
+            if ($this->isLineEmpty($line)) {
+                // Blank/comment lines — tentatively include them; they may
+                // belong to the block being removed or to a following sibling.
+                $endLine++;
+                continue;
+            }
+            if ($this->getLineIndentation($line) > $targetIndent) {
+                // Child line — part of the value being removed.
+                $endLine++;
+                continue;
+            }
+            // Reached a sibling or parent — stop.
+            break;
+        }
+
+        // Don't swallow trailing blank lines that belong to the next section.
+        while ($endLine > $targetLine + 1 && $this->isLineBlank($this->lines[$endLine - 1])) {
+            $endLine--;
+        }
+
+        array_splice($this->lines, $targetLine, $endLine - $targetLine);
     }
 
     private function __construct(string $filename)
@@ -206,7 +268,7 @@ final class YamlUpdater
 
             if ($test === true) {
                 $test = false;
-                $spaces = strlen($line) - strlen(ltrim($line, ' '));
+                $spaces = strlen((string) $line) - strlen(ltrim((string) $line, ' '));
                 if ($spaces <= $indent) {
                     $found[$current] = -$j;
 
@@ -218,10 +280,10 @@ final class YamlUpdater
             }
 
 
-            if (0 === \strncmp($line, $space, strlen($space))) {
+            if (str_starts_with((string) $line, $space)) {
                 $pattern = "/^{$space}(['\"]?){$current}\\1\:/";
 
-                if (preg_match($pattern, $line)) {
+                if (preg_match($pattern, (string) $line)) {
                     $found[$current] = $i;
                     $current = array_shift($parts);
                     if ($current === null) {
@@ -337,7 +399,7 @@ final class YamlUpdater
      * @param mixed $default Default value (or null).
      * @return mixed Value.
      */
-    private function get(string $name, $default = null)
+    public function get(string $name, mixed $default = null)
     {
         $path = explode('.', $name);
         $current = $this->items;
@@ -359,7 +421,7 @@ final class YamlUpdater
      * @param string $name Dot separated path to the requested value.
      * @param mixed $value New value.
      */
-    private function set(string $name, $value): void
+    public function set(string $name, mixed $value): void
     {
         $path = explode('.', $name);
         $current = &$this->items;

@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * @package    Grav\Common\Flex
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -57,7 +57,7 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
     public const ORDER_LIST_REGEX = '/(\/\d+)\.[^\/]+/u';
     public const PAGE_ROUTE_REGEX = '/\/\d+\./u';
 
-    /** @var PageObject|array */
+    /** @var T|array */
     protected $_root;
     /** @var array|null */
     protected $_params;
@@ -66,7 +66,7 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
      * @param array $entries
      * @param FlexDirectory|null $directory
      */
-    public function __construct(array $entries = [], FlexDirectory $directory = null)
+    public function __construct(array $entries = [], ?FlexDirectory $directory = null)
     {
         // Remove root if it's taken.
         if (isset($entries[''])) {
@@ -181,7 +181,7 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
      * @return static
      * @phpstan-return static<T,C>
      */
-    public function withTranslated(string $languageCode = null, bool $fallback = null)
+    public function withTranslated(?string $languageCode = null, ?bool $fallback = null)
     {
         if (null === $languageCode) {
             return $this;
@@ -239,10 +239,9 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
      * Set a parameter to the Collection
      *
      * @param string $name
-     * @param mixed $value
      * @return $this
      */
-    public function setParam(string $name, $value)
+    public function setParam(string $name, mixed $value)
     {
         $this->_params[$name] = $value;
 
@@ -413,7 +412,7 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
      * @return static
      * @phpstan-return static<T,C>
      */
-    protected function createFrom(array $entries, string $keyField = null)
+    protected function createFrom(array $entries, ?string $keyField = null)
     {
         /** @var static $index */
         $index = parent::createFrom($entries, $keyField);
@@ -428,7 +427,7 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
      * @param bool|null $fallback
      * @return array
      */
-    protected function translateEntries(array $entries, string $lang, bool $fallback = null): array
+    protected function translateEntries(array $entries, string $lang, ?bool $fallback = null): array
     {
         $languages = $this->getFallbackLanguages($lang, $fallback);
         foreach ($entries as $key => &$entry) {
@@ -493,9 +492,9 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
      * @param bool|null $fallback
      * @return array
      */
-    protected function getFallbackLanguages(string $languageCode = null, bool $fallback = null): array
+    protected function getFallbackLanguages(?string $languageCode = null, ?bool $fallback = null): array
     {
-        $fallback = $fallback ?? true;
+        $fallback ??= true;
         if (!$fallback && null !== $languageCode) {
             return [$languageCode];
         }
@@ -504,7 +503,7 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
 
         /** @var Language $language */
         $language = $grav['language'];
-        $languageCode = $languageCode ?? '';
+        $languageCode ??= '';
         if ($languageCode === '' && $fallback) {
             return $language->getFallbackLanguages(null, true);
         }
@@ -533,7 +532,7 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
         // Handle leaf_route
         $leaf = null;
         if ($leaf_route && $route !== $leaf_route) {
-            $nodes = explode('/', $leaf_route);
+            $nodes = explode('/', (string) $leaf_route);
             $sub_route =  '/' . implode('/', array_slice($nodes, 1, $options['level']++));
             $options['route'] = $sub_route;
 
@@ -544,7 +543,7 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
         if (!$route) {
             $page = $this->getRoot();
         } else {
-            $page = $this->get(trim($route, '/'));
+            $page = $this->get(trim((string) $route, '/'));
         }
         $path = $page ? $page->path() : null;
 
@@ -558,7 +557,7 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
         // Clean up filter.
         $filter_type = (array)($filters['type'] ?? []);
         unset($filters['type']);
-        $filters = array_filter($filters, static function($val) { return $val !== null && $val !== ''; });
+        $filters = array_filter($filters, static fn($val) => $val !== null && $val !== '');
 
         if ($page) {
             $status = 'success';
@@ -682,9 +681,7 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
                         'tags' => $tags,
                         'actions' => $this->getListingActions($child, $user),
                     ];
-                    $extras = array_filter($extras, static function ($v) {
-                        return $v !== null;
-                    });
+                    $extras = array_filter($extras, static fn($v) => $v !== null);
 
                     /** @var PageIndex $tmp */
                     $tmp = $child->children()->getIndex();
@@ -698,7 +695,7 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
                         'title' => htmlspecialchars($child->menu()),
                         'route' => [
                             'display' => htmlspecialchars($route) ?: null,
-                            'raw' => htmlspecialchars($child->rawRoute()),
+                            'raw' => htmlspecialchars((string) $child->rawRoute()),
                         ],
                         'modified' => $this->jsDate($child->modified()),
                         'child_count' => $child_count ?: null,
@@ -706,9 +703,7 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
                         'filters_hit' => $filters ? ($child->filterBy($filters, false) ?: null) : null,
                         'extras' => $extras
                     ];
-                    $payload = array_filter($payload, static function ($v) {
-                        return $v !== null;
-                    });
+                    $payload = array_filter($payload, static fn($v) => $v !== null);
                 }
 
                 // Add children if any
@@ -781,7 +776,7 @@ class PageIndex extends FlexPageIndex implements PageCollectionInterface
      * @param int|null $timestamp
      * @return string|null
      */
-    private function jsDate(int $timestamp = null): ?string
+    private function jsDate(?int $timestamp = null): ?string
     {
         if (!$timestamp) {
             return null;

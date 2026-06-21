@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Twig
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -44,9 +44,9 @@ class TwigTokenParserCache extends AbstractTokenParser
         $lifetime = null;
         while (!$stream->test(Token::BLOCK_END_TYPE)) {
             if ($stream->test(Token::STRING_TYPE)) {
-                $key = $this->parser->getExpressionParser()->parseExpression();
+                $key = $this->parser->parseExpression();
             } elseif ($stream->test(Token::NUMBER_TYPE)) {
-                $lifetime = $this->parser->getExpressionParser()->parseExpression();
+                $lifetime = $this->parser->parseExpression();
             } else {
                 throw new \Twig\Error\SyntaxError("Unexpected token type in cache tag.", $token->getLine(), $stream->getSourceContext());
             }
@@ -55,7 +55,7 @@ class TwigTokenParserCache extends AbstractTokenParser
         $stream->expect(Token::BLOCK_END_TYPE);
 
         // Parse the content inside the cache block
-        $body = $this->parser->subparse([$this, 'decideCacheEnd'], true);
+        $body = $this->parser->subparse($this->decideCacheEnd(...), true);
 
         $stream->expect(Token::BLOCK_END_TYPE);
 

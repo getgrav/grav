@@ -60,3 +60,12 @@ GRAV:
     - 'جمعه'
     - 'شنبه'
     - 'یک‌شنبه'
+
+PLUGIN_ADMIN:
+    MEDIA: "رسانه"
+    MEDIA_TYPES: "نوع رسانه"
+    IMAGE_OPTIONS: "گزینه های تصویر"
+    MIME_TYPE: "نوع فایل"
+    THUMB: "نما"
+    TYPE: "نوع"
+    FILE_EXTENSION: "پسوند فایل"

@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * @package    Grav\Common\Flex
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -32,7 +32,7 @@ trait PageRoutableTrait
      * @return PageInterface|null the parent page object if it exists.
      */
 
-    public function parent(PageInterface $var = null)
+    public function parent(?PageInterface $var = null)
     {
         if (Utils::isAdminPlugin()) {
             return parent::parent();

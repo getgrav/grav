@@ -98,3 +98,12 @@ GRAV:
     ERROR2: Kötü eleman sayısı
     ERROR3: jquery_element jqCron ayarları içinde tanımlanmalı
     ERROR4: Tanınmayan ifade
+
+PLUGIN_ADMIN:
+    MEDIA: "Ortam"
+    MEDIA_TYPES: "Ortam Türleri"
+    IMAGE_OPTIONS: "Görüntü Seçenekleri"
+    MIME_TYPE: "Mime Türü"
+    THUMB: "Küçük Resim"
+    TYPE: "Tür"
+    FILE_EXTENSION: "Dosya Uzantısı"

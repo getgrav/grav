@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Flex
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -39,6 +39,7 @@ class FlexPageObject extends FlexObject implements PageInterface, FlexTranslateI
     use PageAuthorsTrait;
     use PageContentTrait;
     use PageFormTrait;
+    /** @phpstan-use PageLegacyTrait<string,FlexPageObject> */
     use PageLegacyTrait;
     use PageRoutableTrait;
     use PageTranslateTrait;
@@ -185,7 +186,7 @@ class FlexPageObject extends FlexObject implements PageInterface, FlexTranslateI
     /**
      * @inheritdoc
      */
-    public function getFormValue(string $name, $default = null, string $separator = null)
+    public function getFormValue(string $name, $default = null, ?string $separator = null)
     {
         $test = new stdClass();
 
@@ -240,7 +241,7 @@ class FlexPageObject extends FlexObject implements PageInterface, FlexTranslateI
      * @param string|null $key
      * @return FlexObjectInterface
      */
-    public function createCopy(string $key = null)
+    public function createCopy(?string $key = null)
     {
         $this->copy();
 
@@ -299,20 +300,18 @@ class FlexPageObject extends FlexObject implements PageInterface, FlexTranslateI
             return [];
         }
 
-        return array_map('trim', explode(',', $order));
+        return array_map('trim', explode(',', (string) $order));
     }
 
     // Overrides for header properties.
-
     /**
      * Common logic to load header properties.
      *
      * @param string $property
-     * @param mixed $var
      * @param callable $filter
      * @return mixed|null
      */
-    protected function loadHeaderProperty(string $property, $var, callable $filter)
+    protected function loadHeaderProperty(string $property, mixed $var, callable $filter)
     {
         // We have to use parent methods in order to avoid loops.
         $value = null === $var ? parent::getProperty($property) : null;
@@ -332,11 +331,10 @@ class FlexPageObject extends FlexObject implements PageInterface, FlexTranslateI
      * Common logic to load header properties.
      *
      * @param string $property
-     * @param mixed $var
      * @param callable $filter
      * @return mixed|null
      */
-    protected function loadProperty(string $property, $var, callable $filter)
+    protected function loadProperty(string $property, mixed $var, callable $filter)
     {
         // We have to use parent methods in order to avoid loops.
         $value = null === $var ? parent::getProperty($property) : null;
@@ -395,7 +393,7 @@ class FlexPageObject extends FlexObject implements PageInterface, FlexTranslateI
     public function setNestedProperty($property, $value, $separator = null)
     {
         $separator = $separator ?: '.';
-        if (strpos($property, 'header' . $separator) === 0) {
+        if (str_starts_with($property, 'header' . $separator)) {
             $this->getProperty('header')->set(str_replace('header' . $separator, '', $property), $value, $separator);
 
             return $this;
@@ -414,7 +412,7 @@ class FlexPageObject extends FlexObject implements PageInterface, FlexTranslateI
     public function unsetNestedProperty($property, $separator = null)
     {
         $separator = $separator ?: '.';
-        if (strpos($property, 'header' . $separator) === 0) {
+        if (str_starts_with($property, 'header' . $separator)) {
             $this->getProperty('header')->undef(str_replace('header' . $separator, '', $property), $separator);
 
             return $this;
@@ -439,12 +437,24 @@ class FlexPageObject extends FlexObject implements PageInterface, FlexTranslateI
         }
 
         if (!$extended) {
-            $folder = !empty($elements['folder']) ? trim($elements['folder']) : '';
+            $folder = !empty($elements['folder']) ? trim((string) $elements['folder']) : '';
 
             if ($folder) {
                 $order = !empty($elements['order']) ? (int)$elements['order'] : null;
-                // TODO: broken
-                $elements['storage_key'] = $order ? sprintf('%02d.%s', $order, $folder) : $folder;
+                // Preserve the original prefix width from the existing storage
+                // key so editing e.g. "005.test" does not silently rename it
+                // to "05.test". Falls back to the configured default for new
+                // pages and reorders.
+                $digits = $elements['order_digits'] ?? null;
+                if ($digits === null) {
+                    $existingKey = $this->getStorageKey();
+                    if ($existingKey !== '') {
+                        $digits = \Grav\Common\Page\PageOrdering::digitsFromFolder(basename($existingKey));
+                    }
+                }
+                $elements['storage_key'] = $order
+                    ? \Grav\Common\Page\PageOrdering::key($order, $folder, $digits)
+                    : $folder;
             }
         }
 

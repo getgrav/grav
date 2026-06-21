@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Media
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -138,7 +138,7 @@ trait ThumbnailMediaTrait
             $closure = [$parent, $method];
 
             if (!is_callable($closure)) {
-                throw new BadMethodCallException(get_class($parent) . '::' . $method . '() not found.');
+                throw new BadMethodCallException($parent::class . '::' . $method . '() not found.');
             }
 
             return $closure(...$arguments);

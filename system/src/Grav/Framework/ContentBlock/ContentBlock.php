@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\ContentBlock
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -118,7 +118,7 @@ class ContentBlock implements ContentBlockInterface
         }
 
         $array = [
-            '_type' => get_class($this),
+            '_type' => static::class,
             '_version' => $this->version,
             'id' => $this->id,
             'cached' => $this->cached
@@ -162,7 +162,7 @@ class ContentBlock implements ContentBlockInterface
      * @return string
      */
     #[\ReturnTypeWillChange]
-    public function __toString()
+    public function __toString(): string
     {
         try {
             return $this->toString();

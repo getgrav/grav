@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Errors
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -63,14 +63,22 @@ class Errors
         }
 
         if ($jsonRequest || Misc::isAjaxRequest()) {
-            $whoops->prependHandler(new JsonResponseHandler());
+            // Only expose full exception detail (type, message, file, line) to a
+            // JSON/AJAX client when error display is on. With display suppressed
+            // (`errors.display: 0`/`-1`) fall back to a sanitized JSON body that
+            // leaks nothing, mirroring the generic page the HTML path returns.
+            if ($verbosity > 0) {
+                $whoops->prependHandler(new JsonResponseHandler());
+            } else {
+                $whoops->prependHandler(new SimpleJsonHandler());
+            }
         }
 
         if (isset($config['log']) && $config['log']) {
             $logger = $grav['log'];
             $whoops->pushHandler(function ($exception, $inspector, $run) use ($logger) {
                 try {
-                    $logger->addCritical($exception->getMessage() . ' - Trace: ' . $exception->getTraceAsString());
+                    $logger->critical($exception->getMessage() . ' - Trace: ' . $exception->getTraceAsString());
                 } catch (Exception $e) {
                     echo $e;
                 }

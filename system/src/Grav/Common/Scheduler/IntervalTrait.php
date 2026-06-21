@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Scheduler
  * @author     Originally based on peppeocchi/php-cron-scheduler modified for Grav integration
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -21,14 +21,19 @@ trait IntervalTrait
 {
     /**
      * Set the Job execution time.
-     *compo
+     *
      * @param  string  $expression
      * @return self
      */
     public function at($expression)
     {
         $this->at = $expression;
-        $this->executionTime = CronExpression::factory($expression);
+        try {
+            $this->executionTime = CronExpression::factory($expression);
+        } catch (InvalidArgumentException $e) {
+            // Invalid cron expression - set to null to prevent DoS
+            $this->executionTime = null;
+        }
 
         return $this;
     }

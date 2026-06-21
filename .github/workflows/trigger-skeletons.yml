@@ -10,7 +10,7 @@ on:
       admin:
         description: 'Create also a package with Admin'
         required: true
-        default: true
+        default: 'true'
 
 permissions:
   contents: read # to fetch code (actions/checkout)

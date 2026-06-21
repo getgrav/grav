@@ -8,6 +8,9 @@ actions:
   admin.pages:
     type: access
     label: Pages
+  admin.pages_twig:
+    type: access
+    label: Toggle Twig Processing in Pages
   admin.users:
     type: access
     label: User Accounts

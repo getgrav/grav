@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Object
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -57,14 +57,14 @@ interface ObjectCollectionInterface extends CollectionInterface, Selectable, Ser
      * @param  mixed    $value         New value.
      * @return $this
      */
-    public function setProperty($property, $value);
+    public function setProperty($property, mixed $value);
 
     /**
      * @param  string  $property        Object property to be defined.
      * @param  mixed   $default         Default value.
      * @return $this
      */
-    public function defProperty($property, $default);
+    public function defProperty($property, mixed $default);
 
     /**
      * @param  string  $property     Object property to be unset.

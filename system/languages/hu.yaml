@@ -95,3 +95,12 @@ GRAV:
     ERROR2: Hibás elemszám
     ERROR3: A jquery_element-et a jqCron beállítsokban kell meghatározni
     ERROR4: Ismeretlen kifejezés
+
+PLUGIN_ADMIN:
+    MEDIA: "Média"
+    MEDIA_TYPES: "Médiatípusok"
+    IMAGE_OPTIONS: "Képbeállítások"
+    MIME_TYPE: "MIME-típus"
+    THUMB: "Bélyegkép"
+    TYPE: "Típus"
+    FILE_EXTENSION: "Fájlkiterjesztés"

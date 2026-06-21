@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Acl
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -156,7 +156,7 @@ class Permissions implements ArrayAccess, Countable, IteratorAggregate
      * @param array|null $access
      * @return Access
      */
-    public function getAccess(array $access = null): Access
+    public function getAccess(?array $access = null): Access
     {
         return new Access($access ?? []);
     }
@@ -181,10 +181,9 @@ class Permissions implements ArrayAccess, Countable, IteratorAggregate
 
     /**
      * @param int|string $offset
-     * @param mixed $value
      * @return void
      */
-    public function offsetSet($offset, $value): void
+    public function offsetSet($offset, mixed $value): void
     {
         throw new RuntimeException(__METHOD__ . '(): Not Supported');
     }

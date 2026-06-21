@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Flex
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -84,7 +84,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
      * {@inheritdoc}
      * @see FlexCollectionInterface::createFromArray()
      */
-    public static function createFromArray(array $entries, FlexDirectory $directory, string $keyField = null)
+    public static function createFromArray(array $entries, FlexDirectory $directory, ?string $keyField = null)
     {
         $instance = new static($entries, $directory);
         $instance->setKeyField($keyField);
@@ -96,11 +96,11 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
      * {@inheritdoc}
      * @see FlexCollectionInterface::__construct()
      */
-    public function __construct(array $entries = [], FlexDirectory $directory = null)
+    public function __construct(array $entries = [], ?FlexDirectory $directory = null)
     {
         // @phpstan-ignore-next-line
-        if (get_class($this) === __CLASS__) {
-            user_error('Using ' . __CLASS__ . ' directly is deprecated since Grav 1.7, use \Grav\Common\Flex\Types\Generic\GenericCollection or your own class instead', E_USER_DEPRECATED);
+        if (static::class === self::class) {
+            user_error('Using ' . self::class . ' directly is deprecated since Grav 1.7, use \Grav\Common\Flex\Types\Generic\GenericCollection or your own class instead', E_USER_DEPRECATED);
         }
 
         parent::__construct($entries);
@@ -130,8 +130,8 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
 
         $list = [];
         foreach ($implements as $interface) {
-            if ($pos = strrpos($interface, '\\')) {
-                $interface = substr($interface, $pos+1);
+            if ($pos = strrpos((string) $interface, '\\')) {
+                $interface = substr((string) $interface, $pos+1);
             }
 
             $list[] = Inflector::hyphenize(str_replace('Interface', '', $interface));
@@ -145,7 +145,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
      * {@inheritdoc}
      * @see FlexCollectionInterface::search()
      */
-    public function search(string $search, $properties = null, array $options = null)
+    public function search(string $search, $properties = null, ?array $options = null)
     {
         $directory = $this->getFlexDirectory();
         $properties = $directory->getSearchProperties($properties);
@@ -298,7 +298,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
      * @param string|null $separator     Separator, defaults to '.'
      * @return array
      */
-    public function getDistinctValues(string $property, string $separator = null): array
+    public function getDistinctValues(string $property, ?string $separator = null): array
     {
         $list = [];
 
@@ -320,7 +320,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
      * {@inheritdoc}
      * @see FlexCollectionInterface::withKeyField()
      */
-    public function withKeyField(string $keyField = null)
+    public function withKeyField(?string $keyField = null)
     {
         $keyField = $keyField ?: 'key';
         if ($keyField === $this->getKeyField()) {
@@ -366,7 +366,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
      * {@inheritdoc}
      * @see FlexCollectionInterface::render()
      */
-    public function render(string $layout = null, array $context = [])
+    public function render(?string $layout = null, array $context = [])
     {
         if (!$layout) {
             $config = $this->getTemplateConfig();
@@ -400,10 +400,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
             $data = $cache && $key ? $cache->get($key) : null;
 
             $block = $data ? HtmlBlock::fromArray($data) : null;
-        } catch (InvalidArgumentException $e) {
-            $debugger->addException($e);
-            $block = null;
-        } catch (\InvalidArgumentException $e) {
+        } catch (InvalidArgumentException|\InvalidArgumentException $e) {
             $debugger->addException($e);
             $block = null;
         }
@@ -485,7 +482,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
      * @param string|null $namespace
      * @return CacheInterface
      */
-    public function getCache(string $namespace = null)
+    public function getCache(?string $namespace = null)
     {
         return $this->_flexDirectory->getCache($namespace);
     }
@@ -505,7 +502,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
      * @return static
      * @phpstan-return static<T>
      */
-    public function isAuthorized(string $action, string $scope = null, UserInterface $user = null)
+    public function isAuthorized(string $action, ?string $scope = null, ?UserInterface $user = null)
     {
         $list = $this->call('isAuthorized', [$action, $scope, $user]);
         $list = array_filter($list);
@@ -527,7 +524,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
     {
         if ($value) {
             foreach ($this as $element) {
-                if (mb_strtolower($element->getProperty($field)) === mb_strtolower($value)) {
+                if (mb_strtolower((string) $element->getProperty($field)) === mb_strtolower($value)) {
                     return $element;
                 }
             }
@@ -692,7 +689,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
      */
     public function getType($prefix = false)
     {
-        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6, use ->getFlexType() method instead', E_USER_DEPRECATED);
+        user_error(self::class . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6, use ->getFlexType() method instead', E_USER_DEPRECATED);
 
         $type = $prefix ? $this->getTypePrefix() : '';
 
@@ -716,7 +713,7 @@ class FlexCollection extends ObjectCollection implements FlexCollectionInterface
                 'collection' => $this
             ]);
         }
-        if (strpos($name, 'onFlexCollection') !== 0 && strpos($name, 'on') === 0) {
+        if (!str_starts_with($name, 'onFlexCollection') && str_starts_with($name, 'on')) {
             $name = 'onFlexCollection' . substr($name, 2);
         }
 

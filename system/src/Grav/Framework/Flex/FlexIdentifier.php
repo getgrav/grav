@@ -15,8 +15,6 @@ use RuntimeException;
  */
 class FlexIdentifier extends Identifier
 {
-    /** @var string */
-    private $keyField;
     /** @var FlexObjectInterface|null */
     private $object = null;
 
@@ -38,11 +36,9 @@ class FlexIdentifier extends Identifier
      * @param string $type
      * @param string $keyField
      */
-    public function __construct(string $id, string $type, string $keyField = 'key')
+    public function __construct(string $id, string $type, private readonly string $keyField = 'key')
     {
         parent::__construct($id, $type);
-
-        $this->keyField = $keyField;
     }
 
     /**

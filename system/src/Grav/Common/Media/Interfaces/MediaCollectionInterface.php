@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Media
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -105,7 +105,7 @@ interface MediaCollectionInterface extends \Grav\Framework\Media\Interfaces\Medi
      * @param  Blueprint|null $blueprint
      * @return Medium|null
      */
-    public function createFromArray(array $items = [], Blueprint $blueprint = null);
+    public function createFromArray(array $items = [], ?Blueprint $blueprint = null);
 
     /**
      * @param MediaObjectInterface $mediaObject

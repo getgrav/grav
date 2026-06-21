@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Console\Cli
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -76,7 +76,7 @@ class InstallCommand extends GravCommand
         $this->destination = $input->getArgument('destination') ?: GRAV_WEBROOT;
 
         // fix trailing slash
-        $this->destination = rtrim($this->destination, DS) . DS;
+        $this->destination = rtrim((string) $this->destination, DS) . DS;
         $this->user_path = $this->destination . GRAV_USER_PATH . DS;
         if ($local_config_file = $this->loadLocalConfig()) {
             $io->writeln('Read local config from <cyan>' . $local_config_file . '</cyan>');
@@ -147,7 +147,19 @@ class InstallCommand extends GravCommand
         foreach ($this->config['git'] as $repo => $data) {
             $path = $this->destination . DS . $data['path'];
             if (!file_exists($path)) {
-                exec('cd ' . escapeshellarg($this->destination) . ' && git clone -b ' . $data['branch'] . ' --depth 1 ' . $data['url'] . ' ' . $data['path'], $output, $return);
+                // GHSA-vj3m-2g9h-vm4p (#4): branch/url/path come from user/.dependencies
+                // and must be shell-escaped before reaching exec() — otherwise a planted
+                // .dependencies file gains command injection when an admin runs install.
+                // The bare `--` blocks option-injection in url/path positions
+                // (e.g. a `path` value like `--upload-pack=evil`).
+                $cmd = sprintf(
+                    'cd %s && git clone -b %s --depth 1 -- %s %s',
+                    escapeshellarg($this->destination),
+                    escapeshellarg((string) $data['branch']),
+                    escapeshellarg((string) $data['url']),
+                    escapeshellarg((string) $data['path'])
+                );
+                exec($cmd, $output, $return);
 
                 if (!$return) {
                     $io->writeln('<green>SUCCESS</green> cloned <magenta>' . $data['url'] . '</magenta> -> <cyan>' . $path . '</cyan>');
@@ -173,7 +185,7 @@ class InstallCommand extends GravCommand
      * @param string|null $type
      * @return int
      */
-    private function symlink(string $name = null, string $type = null): int
+    private function symlink(?string $name = null, ?string $type = null): int
     {
         $io = $this->getIO();
 
@@ -222,7 +234,7 @@ class InstallCommand extends GravCommand
 
             $from = null;
             foreach ($locations as $location) {
-                $test = rtrim($location, '\\/') . DS . $src;
+                $test = rtrim((string) $location, '\\/') . DS . $src;
                 if (file_exists($test)) {
                     $from = $test;
                     continue;
@@ -264,8 +276,8 @@ class InstallCommand extends GravCommand
             $io->writeln("Processing <magenta>{$name}</magenta>");
             foreach ($hebe as $section => $symlinks) {
                 foreach ($symlinks as $symlink) {
-                    $src = trim($symlink['source'], '/');
-                    $dst = trim($symlink['destination'], '/');
+                    $src = trim((string) $symlink['source'], '/');
+                    $dst = trim((string) $symlink['destination'], '/');
                     $s = "{$from}/{$src}";
                     $d = "{$to}/{$dst}";
 

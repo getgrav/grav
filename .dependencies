@@ -7,14 +7,18 @@ git:
         url: https://github.com/getgrav/grav-plugin-error
         path: user/plugins/error
         branch: master
-    markdown-notices:
-        url: https://github.com/getgrav/grav-plugin-markdown-notices
-        path: user/plugins/markdown-notices
+    github-markdown-alerts:
+        url: https://github.com/trilbymedia/grav-plugin-github-markdown-alerts
+        path: user/plugins/github-markdown-alerts
+        branch: main
+    shortcode-core:
+        url: https://github.com/getgrav/grav-plugin-shortcode-core
+        path: user/plugins/shortcode-core
         branch: master
-    quark:
-        url: https://github.com/getgrav/grav-theme-quark
-        path: user/themes/quark
-        branch: master
+    quark2:
+        url: https://github.com/getgrav/grav-theme-quark2
+        path: user/themes/quark2
+        branch: main
 links:
     problems:
         src: grav-plugin-problems
@@ -24,11 +28,15 @@ links:
         src: grav-plugin-error
         path: user/plugins/error
         scm: github
-    markdown-notices:
-        src: grav-plugin-markdown-notices
-        path: user/plugins/markdown-notices
+    github-markdown-alerts:
+        src: grav-plugin-github-markdown-alerts
+        path: user/plugins/github-markdown-alerts
         scm: github
-    quark:
-        src: grav-theme-quark
-        path: user/themes/quark
+    shortcode-core:
+        src: grav-plugin-shortcode-core
+        path: user/plugins/shortcode-core
+        scm: github
+    quark2:
+        src: grav-theme-quark2
+        path: user/themes/quark2
         scm: github

@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Scheduler
  * @author     Originally based on peppeocchi/php-cron-scheduler modified for Grav integration
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -39,8 +39,6 @@ class Job
     private $command;
     /** @var string */
     private $at;
-    /** @var array */
-    private $args = [];
     /** @var bool */
     private $runInBackground = true;
     /** @var DateTime */
@@ -119,7 +117,7 @@ class Job
      * @param  array $args
      * @param  string|null $id
      */
-    public function __construct($command, $args = [], $id = null)
+    public function __construct($command, private $args = [], $id = null)
     {
         if (is_string($id)) {
             $this->id = Grav::instance()['inflector']->hyphenize($id);
@@ -135,7 +133,6 @@ class Job
         // initialize the directory path for lock files
         $this->tempDir = sys_get_temp_dir();
         $this->command = $command;
-        $this->args = $args;
         // Set enabled state
         $status = Grav::instance()['config']->get('scheduler.status');
         $this->enabled = !(isset($status[$id]) && $status[$id] === 'disabled');
@@ -196,11 +193,32 @@ class Job
     }
 
     /**
-     * @return CronExpression
+     * @return CronExpression|null
      */
     public function getCronExpression()
     {
-        return CronExpression::factory($this->at);
+        try {
+            return CronExpression::factory($this->at);
+        } catch (\InvalidArgumentException $e) {
+            // Invalid cron expression - return null to prevent DoS
+            return null;
+        }
+    }
+
+    /**
+     * Validate a cron expression
+     *
+     * @param string $expression
+     * @return bool
+     */
+    public static function isValidCronExpression(string $expression): bool
+    {
+        try {
+            CronExpression::factory($expression);
+            return true;
+        } catch (\InvalidArgumentException $e) {
+            return false;
+        }
     }
 
     /**
@@ -232,14 +250,14 @@ class Job
      * @param  DateTime|null $date
      * @return bool
      */
-    public function isDue(DateTime $date = null)
+    public function isDue(?DateTime $date = null)
     {
         // The execution time is being defaulted if not defined
         if (!$this->executionTime) {
             $this->at('* * * * *');
         }
 
-        $date = $date ?? $this->creationTime;
+        $date ??= $this->creationTime;
 
         return $this->executionTime->isDue($date);
     }
@@ -303,7 +321,7 @@ class Job
      * @param  callable|null $whenOverlapping A callback to ignore job overlapping
      * @return self
      */
-    public function onlyOne($tempDir = null, callable $whenOverlapping = null)
+    public function onlyOne($tempDir = null, ?callable $whenOverlapping = null)
     {
         if ($tempDir === null || !is_dir($tempDir)) {
             $tempDir = $this->tempDir;
@@ -315,9 +333,7 @@ class Job
         if ($whenOverlapping) {
             $this->whenOverlapping = $whenOverlapping;
         } else {
-            $this->whenOverlapping = static function () {
-                return false;
-            };
+            $this->whenOverlapping = static fn() => false;
         }
 
         return $this;
@@ -466,10 +482,9 @@ class Job
     /**
      * Create the job lock file.
      *
-     * @param  mixed $content
      * @return void
      */
-    private function createLockFile($content = null)
+    private function createLockFile(mixed $content = null)
     {
         if ($this->lockFile) {
             if ($content === null || !is_string($content)) {
@@ -735,12 +750,11 @@ class Job
     
     /**
      * Add metadata to the job
-     * 
+     *
      * @param string $key
-     * @param mixed $value
      * @return self
      */
-    public function withMetadata(string $key, $value): self
+    public function withMetadata(string $key, mixed $value): self
     {
         $this->metadata[$key] = $value;
         return $this;
@@ -879,7 +893,7 @@ class Job
      * @param string|null $key
      * @return mixed
      */
-    public function getMetadata(string $key = null)
+    public function getMetadata(?string $key = null)
     {
         if ($key === null) {
             return $this->metadata;
@@ -950,7 +964,7 @@ class Job
     protected function calculateRetryDelay(int $attempt): int
     {
         if ($this->retryStrategy === 'exponential') {
-            return min($this->retryDelay * pow(2, $attempt - 1), 3600); // Max 1 hour
+            return min($this->retryDelay * 2 ** ($attempt - 1), 3600); // Max 1 hour
         }
         
         return $this->retryDelay;

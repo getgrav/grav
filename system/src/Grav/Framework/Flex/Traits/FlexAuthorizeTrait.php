@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * @package    Grav\Framework\Flex
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -34,10 +34,10 @@ trait FlexAuthorizeTrait
      * @return bool|null
      * @final
      */
-    public function isAuthorized(string $action, string $scope = null, UserInterface $user = null): ?bool
+    public function isAuthorized(string $action, ?string $scope = null, ?UserInterface $user = null): ?bool
     {
         $action = $this->getAuthorizeAction($action);
-        $scope = $scope ?? $this->getAuthorizeScope();
+        $scope ??= $this->getAuthorizeScope();
 
         $isMe = null === $user;
         if ($isMe) {

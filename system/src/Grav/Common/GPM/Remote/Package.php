@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\GPM
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -52,7 +52,7 @@ class Package extends BasePackage implements \JsonSerializable
 
         $diffLog = [];
         foreach ((array)$this->data['changelog'] as $version => $changelog) {
-            preg_match("/[\w\-.]+/", $version, $cleanVersion);
+            preg_match("/[\w\-.]+/", (string) $version, $cleanVersion);
 
             if (!$cleanVersion || version_compare($diff, $cleanVersion[0], '>=')) {
                 continue;

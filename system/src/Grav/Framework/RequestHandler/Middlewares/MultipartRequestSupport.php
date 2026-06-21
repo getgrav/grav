@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\RequestHandler
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -83,14 +83,14 @@ class MultipartRequestSupport implements MiddlewareInterface
 
         // Parse content disposition header.
         $contentDisposition = $headers['content-disposition'];
-        preg_match('/^(.+); *name="([^"]+)"(; *filename="([^"]+)")?/', $contentDisposition, $matches);
+        preg_match('/^(.+); *name="([^"]+)"(; *filename="([^"]+)")?/', (string) $contentDisposition, $matches);
         $name = $matches[2];
         $filename = $matches[4] ?? null;
 
         if ($filename !== null) {
             $stream = Stream::create($body);
             $this->addFile($files, $name, new UploadedFile($stream, strlen($body), UPLOAD_ERR_OK, $filename, $headers['content-type'] ?? null));
-        } elseif (strpos($contentDisposition, 'filename') !== false) {
+        } elseif (str_contains((string) $contentDisposition, 'filename')) {
             // Not uploaded file.
              $stream = Stream::create('');
             $this->addFile($files, $name, new UploadedFile($stream, 0, UPLOAD_ERR_NO_FILE));

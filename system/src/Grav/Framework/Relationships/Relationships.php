@@ -102,10 +102,9 @@ class Relationships implements RelationshipsInterface
 
     /**
      * @param string $offset
-     * @param mixed $value
      * @return never-return
      */
-    public function offsetSet($offset, $value)
+    public function offsetSet($offset, mixed $value)
     {
         throw new RuntimeException('Setting relationship is not supported', 500);
     }
@@ -184,7 +183,7 @@ class Relationships implements RelationshipsInterface
     /**
      * @param string $name
      * @param array $options
-     * @return ToOneRelationship|ToManyRelationship
+     * @return ToOneRelationship<T,P>|ToManyRelationship<T,P>
      */
     private function createRelationship(string $name, array $options): RelationshipInterface
     {
@@ -201,16 +200,11 @@ class Relationships implements RelationshipsInterface
         }
 
         $cardinality = $options['cardinality'] ?? '';
-        switch ($cardinality) {
-            case 'to-one':
-                $relationship = new ToOneRelationship($parent, $name, $options, $data);
-                break;
-            case 'to-many':
-                $relationship = new ToManyRelationship($parent, $name, $options, $data ?? []);
-                break;
-            default:
-                throw new RuntimeException(sprintf('Bad relationship cardinality %s', $cardinality), 500);
-        }
+        $relationship = match ($cardinality) {
+            'to-one' => new ToOneRelationship($parent, $name, $options, $data),
+            'to-many' => new ToManyRelationship($parent, $name, $options, $data ?? []),
+            default => throw new RuntimeException(sprintf('Bad relationship cardinality %s', $cardinality), 500),
+        };
 
         return $relationship;
     }

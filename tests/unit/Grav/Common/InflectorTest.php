@@ -8,7 +8,7 @@ use Grav\Common\Utils;
 /**
  * Class InflectorTest
  */
-class InflectorTest extends \Codeception\TestCase\Test
+class InflectorTest extends \PHPUnit\Framework\TestCase
 {
     /** @var Grav $grav */
     protected $grav;
@@ -16,14 +16,15 @@ class InflectorTest extends \Codeception\TestCase\Test
     /** @var Inflector $uri */
     protected $inflector;
 
-    protected function _before(): void
+    protected function setUp(): void
     {
+        parent::setUp();
         $grav = Fixtures::get('grav');
         $this->grav = $grav();
         $this->inflector = $this->grav['inflector'];
     }
 
-    protected function _after(): void
+    protected function tearDown(): void
     {
     }
 

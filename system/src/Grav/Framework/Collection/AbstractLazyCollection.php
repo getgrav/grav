@@ -3,13 +3,14 @@
 /**
  * @package    Grav\Framework\Collection
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Framework\Collection;
 
 use Doctrine\Common\Collections\AbstractLazyCollection as BaseAbstractLazyCollection;
+use Doctrine\Common\Collections\Collection as DoctrineCollection;
 
 /**
  * General JSON serializable collection.
@@ -26,7 +27,7 @@ abstract class AbstractLazyCollection extends BaseAbstractLazyCollection impleme
      * @par ArrayCollection
      * @phpstan-var ArrayCollection<TKey,T>
      */
-    protected $collection;
+    protected ?DoctrineCollection $collection = null;
 
     /**
      * {@inheritDoc}

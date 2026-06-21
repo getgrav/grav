@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * @package    Grav\Framework\File
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -59,7 +59,7 @@ interface FileFormatterInterface extends Serializable
      * @return string Returns encoded data as a string.
      * @api
      */
-    public function encode($data): string;
+    public function encode(mixed $data): string;
 
     /**
      * Decode a string into data.

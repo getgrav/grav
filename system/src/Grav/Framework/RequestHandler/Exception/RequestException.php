@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\RequestHandler
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -64,19 +64,14 @@ class RequestException extends \RuntimeException
         511 => 'Network Authentication Required',
     ];
 
-    /** @var ServerRequestInterface */
-    private $request;
-
     /**
      * @param ServerRequestInterface $request
      * @param string $message
      * @param int $code
      * @param Throwable|null $previous
      */
-    public function __construct(ServerRequestInterface $request, string $message, int $code = 500, Throwable $previous = null)
+    public function __construct(private readonly ServerRequestInterface $request, string $message, int $code = 500, ?Throwable $previous = null)
     {
-        $this->request = $request;
-
         parent::__construct($message, $code, $previous);
     }
 

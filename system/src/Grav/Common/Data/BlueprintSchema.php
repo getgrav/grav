@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Data
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -130,7 +130,7 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
             foreach ($items as $key => $rules) {
                 $type = $rules['type'] ?? '';
                 $ignore = (bool) array_filter((array)($rules['validate']['ignore'] ?? [])) ?? false;
-                if (!str_starts_with($type, '_') && !str_contains($key, '*') && $ignore !== true) {
+                if (!str_starts_with((string) $type, '_') && !str_contains((string) $key, '*') && $ignore !== true) {
                     $list[$prefix . $key] = null;
                 }
             }
@@ -215,7 +215,7 @@ class BlueprintSchema extends BlueprintSchemaBase implements ExportInterface
                         // If strings:
                         if (is_string($currentVal) && is_string($otherVal)) {
                             $isValid = (strlen($currentVal) && strlen($otherVal) && (str_contains($currentVal,
-                                        $otherVal) || strpos($otherVal, $currentVal) !== false));
+                                        $otherVal) || str_contains($otherVal, $currentVal)));
                         }
                         // If arrays:
                         if (is_array($currentVal) && is_array($otherVal)) {

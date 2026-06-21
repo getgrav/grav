@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Console
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -65,7 +65,7 @@ class PluginApplication extends Application
      * @return int
      * @throws Throwable
      */
-    public function run(InputInterface $input = null, OutputInterface $output = null): int
+    public function run(?InputInterface $input = null, ?OutputInterface $output = null): int
     {
         if (null === $input) {
             $argv = $_SERVER['argv'] ?? [];

@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Media
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -207,11 +207,10 @@ interface MediaObjectInterface extends \Grav\Framework\Media\Interfaces\MediaObj
      * Allow any action to be called on this medium from twig or markdown
      *
      * @param string $method
-     * @param mixed $args
      * @return $this
      */
     #[\ReturnTypeWillChange]
-    public function __call($method, $args);
+    public function __call($method, mixed $args);
 
     /**
      * Set value by using dot notation for nested arrays/objects.
@@ -223,5 +222,5 @@ interface MediaObjectInterface extends \Grav\Framework\Media\Interfaces\MediaObj
      * @param string|null $separator Separator, defaults to '.'
      * @return $this
      */
-    public function set($name, $value, $separator = null);
+    public function set($name, mixed $value, $separator = null);
 }

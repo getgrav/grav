@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Flex
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -103,7 +103,7 @@ class FlexFormFlash extends FormFlash
     {
         parent::init($data, $config);
 
-        $data = $data ?? [];
+        $data ??= [];
         /** @var FlexObjectInterface|null $object */
         $object = $config['object'] ?? null;
         $create = true;

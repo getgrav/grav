@@ -83,7 +83,7 @@ class ToManyRelationship implements ToManyRelationshipInterface
      * @return bool
      * @phpstan-pure
      */
-    public function has(string $id, string $type = null): bool
+    public function has(string $id, ?string $type = null): bool
     {
         return $this->getIdentifier($id, $type) !== null;
     }
@@ -109,7 +109,7 @@ class ToManyRelationship implements ToManyRelationshipInterface
      * @return IdentifierInterface|null
      * @phpstan-pure
      */
-    public function getIdentifier(string $id, string $type = null): ?IdentifierInterface
+    public function getIdentifier(string $id, ?string $type = null): ?IdentifierInterface
     {
         if (null === $type) {
             $type = $this->getType();
@@ -130,7 +130,7 @@ class ToManyRelationship implements ToManyRelationshipInterface
      * @param string|null $type
      * @return T|null
      */
-    public function getObject(string $id, string $type = null): ?object
+    public function getObject(string $id, ?string $type = null): ?object
     {
         $identifier = $this->getIdentifier($id, $type);
         if ($identifier && is_callable([$identifier, 'getObject'])) {
@@ -153,7 +153,7 @@ class ToManyRelationship implements ToManyRelationshipInterface
      * @param IdentifierInterface|null $identifier
      * @return bool
      */
-    public function removeIdentifier(IdentifierInterface $identifier = null): bool
+    public function removeIdentifier(?IdentifierInterface $identifier = null): bool
     {
         return !$identifier || $this->removeIdentifiers([$identifier]);
     }

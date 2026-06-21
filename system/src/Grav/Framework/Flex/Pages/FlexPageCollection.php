@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * @package    Grav\Framework\Flex
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -195,7 +195,7 @@ class FlexPageCollection extends FlexCollection
         $last = null;
         $order = 0;
         foreach ($keys as $folder => $key) {
-            preg_match(FlexPageIndex::ORDER_PREFIX_REGEX, $folder, $test);
+            preg_match(FlexPageIndex::ORDER_PREFIX_REGEX, (string) $folder, $test);
             $test = $test[0] ?? null;
             if ($test && $test > $order) {
                 $order = $test;

@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * @package    Grav\Common\Flex
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -35,9 +35,7 @@ trait FlexRelatedDirectoryTrait
         $list = $this->getNestedProperty($property) ?: [];
 
         /** @var FlexCollectionInterface<FlexObjectInterface> $collection */
-        $collection = $collection->filter(static function ($object) use ($list) {
-            return in_array($object->getKey(), $list, true);
-        });
+        $collection = $collection->filter(static fn($object) => in_array($object->getKey(), $list, true));
 
         return $collection;
     }

@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Service
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -35,6 +35,18 @@ class LoggerServiceProvider implements ServiceProviderInterface
 
             $log_file = $locator->findResource('log://grav.log', true, true);
             $log->pushHandler(new StreamHandler($log_file, Logger::DEBUG));
+
+            return $log;
+        };
+
+        $container['log.security'] = function ($c) {
+            $log = new Logger('grav-security');
+
+            /** @var UniformResourceLocator $locator */
+            $locator = $c['locator'];
+
+            $log_file = $locator->findResource('log://security.log', true, true);
+            $log->pushHandler(new StreamHandler($log_file, Logger::WARNING));
 
             return $log;
         };

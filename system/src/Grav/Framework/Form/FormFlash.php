@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Form
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -64,7 +64,7 @@ class FormFlash implements FormFlashInterface
     {
         // Backwards compatibility with Grav 1.6 plugins.
         if (!is_array($config)) {
-            user_error(__CLASS__ . '::' . __FUNCTION__ . '($sessionId, $uniqueId, $formName) is deprecated since Grav 1.6.11, use $config parameter instead', E_USER_DEPRECATED);
+            user_error(self::class . '::' . __FUNCTION__ . '($sessionId, $uniqueId, $formName) is deprecated since Grav 1.6.11, use $config parameter instead', E_USER_DEPRECATED);
 
             $args = func_get_args();
             $config = [
@@ -72,14 +72,17 @@ class FormFlash implements FormFlashInterface
                 'unique_id' => $args[1] ?? null,
                 'form_name' => $args[2] ?? null,
             ];
-            $config = array_filter($config, static function ($val) {
-                return $val !== null;
-            });
+            $config = array_filter($config, static fn($val) => $val !== null);
         }
 
-        $this->id = $config['id'] ?? '';
-        $this->sessionId = $config['session_id'] ?? '';
-        $this->uniqueId = $config['unique_id'] ?? '';
+        // Identifiers are used to build filesystem paths (tmp://forms/<sessionId>/<uniqueId>)
+        // and can reach this constructor from request input (e.g. __form-flash-id).
+        // Reject anything outside a strict alphanumeric+[,_-] allowlist to prevent path
+        // traversal into arbitrary directories. Invalid values blank out, which disables
+        // flash storage for the request rather than failing hard.
+        $this->id = self::sanitizeId($config['id'] ?? '');
+        $this->sessionId = self::sanitizeId($config['session_id'] ?? '');
+        $this->uniqueId = self::sanitizeId($config['unique_id'] ?? '');
 
         $this->setUser($config['user'] ?? null);
 
@@ -131,7 +134,7 @@ class FormFlash implements FormFlashInterface
         if ($exists) {
             try {
                 $data = (array)$file->content();
-            } catch (Exception $e) {
+            } catch (Exception) {
             }
         }
 
@@ -168,7 +171,7 @@ class FormFlash implements FormFlashInterface
      */
     public function getUniqieId(): string
     {
-        user_error(__CLASS__ . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6.11, use ->getUniqueId() method instead', E_USER_DEPRECATED);
+        user_error(self::class . '::' . __FUNCTION__ . '() is deprecated since Grav 1.6.11, use ->getUniqueId() method instead', E_USER_DEPRECATED);
 
         return $this->getUniqueId();
     }
@@ -308,7 +311,7 @@ class FormFlash implements FormFlashInterface
     {
         $list = [];
         foreach ($this->files as $field => $values) {
-            if (!$includeOriginal && strpos($field, '/')) {
+            if (!$includeOriginal && strpos((string) $field, '/')) {
                 continue;
             }
             $list[$field] = $this->getFilesByField($field);
@@ -320,7 +323,7 @@ class FormFlash implements FormFlashInterface
     /**
      * @inheritDoc
      */
-    public function addUploadedFile(UploadedFileInterface $upload, string $field = null, array $crop = null): string
+    public function addUploadedFile(UploadedFileInterface $upload, ?string $field = null, ?array $crop = null): string
     {
         $tmp_dir = $this->getTmpDir();
         $tmp_name = Utils::generateRandomString(12);
@@ -348,7 +351,7 @@ class FormFlash implements FormFlashInterface
     /**
      * @inheritDoc
      */
-    public function addFile(string $filename, string $field, array $crop = null): bool
+    public function addFile(string $filename, string $field, ?array $crop = null): bool
     {
         if (!file_exists($filename)) {
             throw new RuntimeException("File not found: {$filename}");
@@ -369,7 +372,7 @@ class FormFlash implements FormFlashInterface
     /**
      * @inheritDoc
      */
-    public function removeFile(string $name, string $field = null): bool
+    public function removeFile(string $name, ?string $field = null): bool
     {
         if (!$name) {
             return false;
@@ -447,7 +450,7 @@ class FormFlash implements FormFlashInterface
      * @param UserInterface|null $user
      * @return $this
      */
-    public function setUser(UserInterface $user = null)
+    public function setUser(?UserInterface $user = null)
     {
         if ($user && $user->username) {
             $this->user = [
@@ -465,7 +468,7 @@ class FormFlash implements FormFlashInterface
      * @param string|null $username
      * @return $this
      */
-    public function setUserName(string $username = null): self
+    public function setUserName(?string $username = null): self
     {
         $this->user['username'] = $username;
 
@@ -476,7 +479,7 @@ class FormFlash implements FormFlashInterface
      * @param string|null $email
      * @return $this
      */
-    public function setUserEmail(string $email = null): self
+    public function setUserEmail(?string $email = null): self
     {
         $this->user['email'] = $email;
 
@@ -489,6 +492,22 @@ class FormFlash implements FormFlashInterface
     public function getTmpDir(): string
     {
         return $this->folder && $this->uniqueId ? "{$this->folder}/{$this->uniqueId}" : '';
+    }
+
+    /**
+     * Gate for identifiers used in filesystem paths. Accepts the character
+     * set produced by PHP session IDs and Grav's form unique-id generators
+     * (alphanumerics, comma, underscore, hyphen). Anything else — including
+     * empty/non-string values — collapses to an empty string, which causes
+     * save()/delete()/getTmpDir() to become no-ops.
+     */
+    private static function sanitizeId($id): string
+    {
+        if (!is_string($id) || $id === '') {
+            return '';
+        }
+
+        return preg_match('/^[A-Za-z0-9,_-]{1,64}$/', $id) ? $id : '';
     }
 
     /**
@@ -538,7 +557,7 @@ class FormFlash implements FormFlashInterface
      * @param array|null $crop
      * @return void
      */
-    protected function addFileInternal(?string $field, string $name, array $data, array $crop = null): void
+    protected function addFileInternal(?string $field, string $name, array $data, ?array $crop = null): void
     {
         if (!($this->folder && $this->uniqueId)) {
             throw new RuntimeException('Cannot upload files: form flash folder not defined');

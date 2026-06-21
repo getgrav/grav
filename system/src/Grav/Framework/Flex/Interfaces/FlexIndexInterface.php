@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * @package    Grav\Framework\Flex
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -54,11 +54,11 @@ interface FlexIndexInterface extends FlexCollectionInterface
      * @phpstan-return static<T>
      * @api
      */
-    public function withKeyField(string $keyField = null);
+    public function withKeyField(?string $keyField = null);
 
     /**
      * @param string|null $indexKey
      * @return array
      */
-    public function getIndexMap(string $indexKey = null);
+    public function getIndexMap(?string $indexKey = null);
 }

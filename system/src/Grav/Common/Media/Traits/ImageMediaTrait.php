@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Media
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -97,7 +97,7 @@ trait ImageMediaTrait
         }
 
         $basename = $this->get('basename');
-        if (preg_match('/[a-z0-9]{40}-(.*)/', $basename, $matches)) {
+        if (preg_match('/[a-z0-9]{40}-(.*)/', (string) $basename, $matches)) {
             $basename = $matches[1];
         }
         return $basename;

@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Form
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -194,7 +194,7 @@ trait FormTrait
      * @param string|null $name
      * @return mixed
      */
-    public function getData(string $name = null)
+    public function getData(?string $name = null)
     {
         return null !== $name ? $this->data[$name] : $this->data;
     }
@@ -366,7 +366,7 @@ trait FormTrait
      * @param UploadedFileInterface[]|null $files
      * @return FormInterface|$this
      */
-    public function submit(array $data, array $files = null): FormInterface
+    public function submit(array $data, ?array $files = null): FormInterface
     {
         try {
             if ($this->isSubmitted()) {
@@ -502,7 +502,7 @@ trait FormTrait
      * {@inheritdoc}
      * @see FormInterface::render()
      */
-    public function render(string $layout = null, array $context = [])
+    public function render(?string $layout = null, array $context = [])
     {
         if (null === $layout) {
             $layout = 'default';
@@ -612,7 +612,7 @@ trait FormTrait
         $path = str_replace(array_keys($dataMap), array_values($dataMap), $flashLookupFolder);
 
         // Make sure we only return valid paths.
-        return strpos($path, '!!') === false ? rtrim($path, '/') : null;
+        return !str_contains($path, '!!') ? rtrim($path, '/') : null;
     }
 
     /**
@@ -634,7 +634,7 @@ trait FormTrait
         $path = str_replace(array_keys($dataMap), array_values($dataMap), $flashLookupFolder);
 
         // Make sure we only return valid paths.
-        return strpos($path, '!!') === false ? rtrim($path, '/') : null;
+        return !str_contains($path, '!!') ? rtrim($path, '/') : null;
     }
 
     /**
@@ -844,10 +844,10 @@ trait FormTrait
         foreach ($data as $key => &$value) {
             if (is_array($value)) {
                 $value = $this->jsonDecode($value);
-            } elseif (trim($value) === '') {
+            } elseif (trim((string) $value) === '') {
                 unset($data[$key]);
             } else {
-                $value = json_decode($value, true);
+                $value = json_decode((string) $value, true);
                 if ($value === null && json_last_error() !== JSON_ERROR_NONE) {
                     unset($data[$key]);
                     $this->setError("Badly encoded JSON data (for {$key}) was sent to the form");

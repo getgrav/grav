@@ -3,13 +3,14 @@
 /**
  * @package    Grav\Common\GPM
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
 namespace Grav\Common\GPM;
 
 use Exception;
+use Grav\Common\Data\Data;
 use Grav\Common\Grav;
 use Grav\Common\Filesystem\Folder;
 use Grav\Common\HTTP\Response;
@@ -24,6 +25,7 @@ use function count;
 use function in_array;
 use function is_array;
 use function is_object;
+use function property_exists;
 
 /**
  * Class GPM
@@ -37,8 +39,6 @@ class GPM extends Iterator
     private $repository;
     /** @var Remote\GravCore|null Remove Grav Packages */
     private $grav;
-    /** @var bool */
-    private $refresh;
     /** @var callable|null */
     private $callback;
 
@@ -57,7 +57,7 @@ class GPM extends Iterator
      * @param bool $refresh Applies to Remote Packages only and forces a refetch of data
      * @param callable|null $callback Either a function or callback in array notation
      */
-    public function __construct($refresh = false, $callback = null)
+    public function __construct(private $refresh = false, $callback = null)
     {
         parent::__construct();
 
@@ -65,7 +65,6 @@ class GPM extends Iterator
 
         $this->cache = [];
         $this->installed = new Local\Packages();
-        $this->refresh = $refresh;
         $this->callback = $callback;
     }
 
@@ -78,12 +77,10 @@ class GPM extends Iterator
     #[\ReturnTypeWillChange]
     public function __get($offset)
     {
-        switch ($offset) {
-            case 'grav':
-                return $this->getGrav();
-        }
-
-        return parent::__get($offset);
+        return match ($offset) {
+            'grav' => $this->getGrav(),
+            default => parent::__get($offset),
+        };
     }
 
     /**
@@ -95,12 +92,10 @@ class GPM extends Iterator
     #[\ReturnTypeWillChange]
     public function __isset($offset)
     {
-        switch ($offset) {
-            case 'grav':
-                return $this->getGrav() !== null;
-        }
-
-        return parent::__isset($offset);
+        return match ($offset) {
+            'grav' => $this->getGrav() !== null,
+            default => parent::__isset($offset),
+        };
     }
 
     /**
@@ -126,7 +121,7 @@ class GPM extends Iterator
             if ($type_installed === false) {
                 continue;
             }
-            $methodInstallableType = 'getInstalled' . ucfirst($type);
+            $methodInstallableType = 'getInstalled' . ucfirst((string) $type);
             $to_install = $this->$methodInstallableType();
             $items[$type] = $to_install;
             $items['total'] += count($to_install);
@@ -286,7 +281,7 @@ class GPM extends Iterator
             if ($type_updatable === false) {
                 continue;
             }
-            $methodUpdatableType = 'getUpdatable' . ucfirst($type);
+            $methodUpdatableType = 'getUpdatable' . ucfirst((string) $type);
             $to_update = $this->$methodUpdatableType();
             $items[$type] = $to_update;
             $items['total'] += count($to_update);
@@ -319,6 +314,10 @@ class GPM extends Iterator
 
         foreach ($this->installed['plugins'] as $slug => $plugin) {
             if (!isset($plugins[$slug]) || $plugin->symlink || !$plugin->version || $plugin->gpm === false) {
+                continue;
+            }
+
+            if (!$this->isRemotePackagePublished($plugins[$slug])) {
                 continue;
             }
 
@@ -414,6 +413,10 @@ class GPM extends Iterator
                 continue;
             }
 
+            if (!$this->isRemotePackagePublished($themes[$slug])) {
+                continue;
+            }
+
             $local_version = $plugin->version ?? 'Unknown';
             $remote_version = $themes[$slug]->version;
 
@@ -466,6 +469,42 @@ class GPM extends Iterator
         }
 
         return null;
+    }
+
+    /**
+     * Determine whether a remote package is marked as published.
+     *
+     * Remote package metadata introduced a `published` flag to hide releases that are not yet public.
+     * Older repository payloads may omit the key, so we default to treating packages as published
+     * unless the flag is explicitly set to `false`.
+     *
+     * @param object|array $package
+     * @return bool
+     */
+    protected function isRemotePackagePublished($package): bool
+    {
+        if (is_object($package) && method_exists($package, 'getData')) {
+            $data = $package->getData();
+            if ($data instanceof Data) {
+                $published = $data->get('published');
+                return $published !== false;
+            }
+        }
+
+        if (is_array($package)) {
+            if (array_key_exists('published', $package)) {
+                return $package['published'] !== false;
+            }
+
+            return true;
+        }
+
+        $value = null;
+        if (is_object($package) && property_exists($package, 'published')) {
+            $value = $package->published;
+        }
+
+        return $value !== false;
     }
 
     /**
@@ -550,7 +589,7 @@ class GPM extends Iterator
         if (null === $this->repository) {
             try {
                 $this->repository = new Remote\Packages($this->refresh, $this->callback);
-            } catch (Exception $e) {}
+            } catch (Exception) {}
         }
 
         return $this->repository;
@@ -566,7 +605,7 @@ class GPM extends Iterator
         if (null === $this->grav) {
             try {
                 $this->grav = new Remote\GravCore($this->refresh, $this->callback);
-            } catch (Exception $e) {}
+            } catch (Exception) {}
         }
 
         return $this->grav;
@@ -1220,7 +1259,7 @@ class GPM extends Iterator
      */
     public function versionFormatIsNextSignificantRelease($version): bool
     {
-        return strpos($version, '~') === 0;
+        return str_starts_with($version, '~');
     }
 
     /**
@@ -1233,7 +1272,7 @@ class GPM extends Iterator
      */
     public function versionFormatIsEqualOrHigher($version): bool
     {
-        return strpos($version, '>=') === 0;
+        return str_starts_with($version, '>=');
     }
 
     /**

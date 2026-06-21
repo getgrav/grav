@@ -3,13 +3,13 @@
 use Codeception\Util\Fixtures;
 use Grav\Common\Composer;
 
-class ComposerTest extends \Codeception\TestCase\Test
+class ComposerTest extends \PHPUnit\Framework\TestCase
 {
-    protected function _before(): void
+    protected function setUp(): void
     {
     }
 
-    protected function _after(): void
+    protected function tearDown(): void
     {
     }
 

@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Console\Gpm
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -19,14 +19,16 @@ use Grav\Console\GpmCommand;
 use Grav\Installer\Install;
 use RuntimeException;
 use Symfony\Component\Console\Input\ArrayInput;
-use Grav\Common\Yaml;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Throwable;
+use Symfony\Component\Yaml\Yaml;
 use ZipArchive;
+use function date;
+use function count;
 use function is_callable;
 use function strlen;
+use function stripos;
 
 /**
  * Class SelfupgradeCommand
@@ -44,6 +46,16 @@ class SelfupgradeCommand extends GpmCommand
     private $tmp;
     /** @var Upgrader */
     private $upgrader;
+    /** @var string|null */
+    private $lastProgressMessage = null;
+    /** @var float|null */
+    private $operationTimerStart = null;
+    /** @var string|null */
+    private $currentProgressStage = null;
+    /** @var float|null */
+    private $currentStageStartedAt = null;
+    /** @var array */
+    private $currentStageExtras = [];
 
     /** @var string */
     protected $all_yes;
@@ -98,145 +110,146 @@ class SelfupgradeCommand extends GpmCommand
         $io = $this->getIO();
 
         if (!class_exists(ZipArchive::class)) {
-            $io->title('GPM Self Upgrade');
-            $io->error('php-zip extension needs to be enabled!');
-
-            return 1;
-        }
-
-        $this->upgrader = new Upgrader($input->getOption('force'));
-        $this->all_yes = $input->getOption('all-yes');
-        $this->overwrite = $input->getOption('overwrite');
-        $this->timeout = (int) $input->getOption('timeout');
-
-        $this->displayGPMRelease();
-
-        $update = $this->upgrader->getAssets()['grav-update'];
-
-        $local = $this->upgrader->getLocalVersion();
-        $remote = $this->upgrader->getRemoteVersion();
-        $release = strftime('%c', strtotime($this->upgrader->getReleaseDate()));
-
-        if (!$this->upgrader->meetsRequirements()) {
-            $io->writeln('<red>ATTENTION:</red>');
-            $io->writeln('   Grav has increased the minimum PHP requirement.');
-            $io->writeln('   You are currently running PHP <red>' . phpversion() . '</red>, but PHP <green>' . $this->upgrader->minPHPVersion() . '</green> is required.');
-            $io->writeln('   Additional information: <white>http://getgrav.org/blog/changing-php-requirements</white>');
-            $io->newLine();
-            $io->writeln('Selfupgrade aborted.');
-            $io->newLine();
-
-            return 1;
-        }
-
-        if (!$this->overwrite && !$this->upgrader->isUpgradable()) {
-            $io->writeln("You are already running the latest version of <green>Grav v{$local}</green>");
-            $io->writeln("which was released on {$release}");
-
-            $config = Grav::instance()['config'];
-            $schema = $config->get('versions.core.grav.schema');
-            if ($schema !== GRAV_SCHEMA && version_compare($schema, GRAV_SCHEMA, '<')) {
-                $io->newLine();
-                $io->writeln('However post-install scripts have not been run.');
-                if (!$this->all_yes) {
-                    $question = new ConfirmationQuestion(
-                        'Would you like to run the scripts? [Y|n] ',
-                        true
-                    );
-                    $answer = $io->askQuestion($question);
-                } else {
-                    $answer = true;
-                }
-
-                if ($answer) {
-                    // Finalize installation.
-                    Install::instance()->finalize();
-
-                    $io->write('  |- Running post-install scripts...  ');
-                    $io->writeln("  '- <green>Success!</green>  ");
-                    $io->newLine();
-                }
-            }
-
-            return 0;
-        }
-
-        Installer::isValidDestination(GRAV_ROOT . '/system');
-        if (Installer::IS_LINK === Installer::lastErrorCode()) {
-            $io->writeln('<red>ATTENTION:</red> Grav is symlinked, cannot upgrade, aborting...');
-            $io->newLine();
-            $io->writeln("You are currently running a symbolically linked Grav v{$local}. Latest available is v{$remote}.");
-
-            return 1;
-        }
-
-        // not used but preloaded just in case!
-        new ArrayInput([]);
-
-        $io->writeln("Grav v<cyan>{$remote}</cyan> is now available [release date: {$release}].");
-        $io->writeln('You are currently using v<cyan>' . GRAV_VERSION . '</cyan>.');
-
-        if (!$this->all_yes) {
-            $question = new ConfirmationQuestion(
-                'Would you like to read the changelog before proceeding? [y|N] ',
-                false
-            );
-            $answer = $io->askQuestion($question);
-
-            if ($answer) {
-                $changelog = $this->upgrader->getChangelog(GRAV_VERSION);
-
-                $io->newLine();
-                foreach ($changelog as $version => $log) {
-                    $title = $version . ' [' . $log['date'] . ']';
-                    $content = preg_replace_callback('/\d\.\s\[\]\(#(.*)\)/', static function ($match) {
-                        return "\n" . ucfirst($match[1]) . ':';
-                    }, $log['content']);
-
-                    $io->writeln($title);
-                    $io->writeln(str_repeat('-', strlen($title)));
-                    $io->writeln($content);
-                    $io->newLine();
-                }
-
-                $question = new ConfirmationQuestion('Press [ENTER] to continue.', true);
-                $io->askQuestion($question);
-            }
-
-            $question = new ConfirmationQuestion('Would you like to upgrade now? [y|N] ', false);
-            $answer = $io->askQuestion($question);
-
-            if (!$answer) {
-                $io->writeln('Aborting...');
+                $io->title('GPM Self Upgrade');
+                $io->error('php-zip extension needs to be enabled!');
 
                 return 1;
             }
-        }
 
-        $io->newLine();
-        $io->writeln("Preparing to upgrade to v<cyan>{$remote}</cyan>..");
+            $this->upgrader = new Upgrader($input->getOption('force'));
+            $this->all_yes = $input->getOption('all-yes');
+            $this->overwrite = $input->getOption('overwrite');
+            $this->timeout = (int) $input->getOption('timeout');
 
-        $io->write("  |- Downloading upgrade [{$this->formatBytes($update['size'])}]...     0%");
-        $this->file = $this->download($update);
+            $this->displayGPMRelease();
 
-        $io->write('  |- Installing upgrade...  ');
-        $installation = $this->upgrade();
+            $update = $this->upgrader->getAssets()['grav-update'];
 
-        $error = 0;
-        if (!$installation) {
-            $io->writeln("  '- <red>Installation failed or aborted.</red>");
+            $local = $this->upgrader->getLocalVersion();
+            $remote = $this->upgrader->getRemoteVersion();
+            $release = strftime('%c', strtotime($this->upgrader->getReleaseDate()));
+
+            if (!$this->upgrader->meetsRequirements()) {
+                $io->writeln('<red>ATTENTION:</red>');
+                $io->writeln('   Grav has increased the minimum PHP requirement.');
+                $io->writeln('   You are currently running PHP <red>' . phpversion() . '</red>, but PHP <green>' . $this->upgrader->minPHPVersion() . '</green> is required.');
+                $io->writeln('   Additional information: <white>http://getgrav.org/blog/changing-php-requirements</white>');
+                $io->newLine();
+                $io->writeln('Selfupgrade aborted.');
+                $io->newLine();
+
+                return 1;
+            }
+
+            if (!$this->overwrite && !$this->upgrader->isUpgradable()) {
+                $io->writeln("You are already running the latest version of <green>Grav v{$local}</green>");
+                $io->writeln("which was released on {$release}");
+
+                $config = Grav::instance()['config'];
+                $schema = $config->get('versions.core.grav.schema');
+                if ($schema !== GRAV_SCHEMA && version_compare($schema, GRAV_SCHEMA, '<')) {
+                    $io->newLine();
+                    $io->writeln('However post-install scripts have not been run.');
+                    if (!$this->all_yes) {
+                        $question = new ConfirmationQuestion(
+                            'Would you like to run the scripts? [Y|n] ',
+                            true
+                        );
+                        $answer = $io->askQuestion($question);
+                    } else {
+                        $answer = true;
+                    }
+
+                    if ($answer) {
+                        // Finalize installation.
+                        Install::instance()->finalize();
+
+                        $io->write('  |- Running post-install scripts...  ');
+                        $io->writeln("  |- <green>Success!</green>  ");
+                        $io->newLine();
+                    }
+                }
+
+                return 0;
+            }
+
+            Installer::isValidDestination(GRAV_ROOT . '/system');
+            if (Installer::IS_LINK === Installer::lastErrorCode()) {
+                $io->writeln('<red>ATTENTION:</red> Grav is symlinked, cannot upgrade, aborting...');
+                $io->newLine();
+                $io->writeln("You are currently running a symbolically linked Grav v{$local}. Latest available is v{$remote}.");
+
+                return 1;
+            }
+
+            // not used but preloaded just in case!
+            new ArrayInput([]);
+
+            $io->writeln("Grav v<cyan>{$remote}</cyan> is now available [release date: {$release}].");
+            $io->writeln('You are currently using v<cyan>' . GRAV_VERSION . '</cyan>.');
+
+            if (!$this->all_yes) {
+                $question = new ConfirmationQuestion(
+                    'Would you like to read the changelog before proceeding? [y|N] ',
+                    false
+                );
+                $answer = $io->askQuestion($question);
+
+                if ($answer) {
+                    $changelog = $this->upgrader->getChangelog(GRAV_VERSION);
+
+                    $io->newLine();
+                    foreach ($changelog as $version => $log) {
+                        $title = $version . ' [' . $log['date'] . ']';
+                        $content = preg_replace_callback('/\d\.\s\[\]\(#(.*)\)/', static function ($match) {
+                            return "\n" . ucfirst((string) $match[1]) . ':';
+                        }, (string) $log['content']);
+
+                        $io->writeln($title);
+                        $io->writeln(str_repeat('-', strlen($title)));
+                        $io->writeln($content);
+                        $io->newLine();
+                    }
+
+                    $question = new ConfirmationQuestion('Press [ENTER] to continue.', true);
+                    $io->askQuestion($question);
+                }
+
+                $question = new ConfirmationQuestion('Would you like to upgrade now? [y|N] ', false);
+                $answer = $io->askQuestion($question);
+
+                if (!$answer) {
+                    $io->writeln('Aborting...');
+
+                    return 1;
+                }
+            }
+
             $io->newLine();
-            $error = 1;
-        } else {
-            $io->writeln("  '- <green>Success!</green>  ");
-            $io->newLine();
-        }
+            $io->writeln("Preparing to upgrade to v<cyan>{$remote}</cyan>..");
 
-        if ($this->tmp && is_dir($this->tmp)) {
-            Folder::delete($this->tmp);
-        }
+            $io->write("  |- Downloading upgrade [{$this->formatBytes($update['size'])}]...     0%");
+            $this->file = $this->download($update);
 
-        return $error;
+            $io->write('  |- Installing upgrade...  ');
+            $this->operationTimerStart = microtime(true);
+            $installation = $this->upgrade();
+
+            $error = 0;
+            if (!$installation) {
+                $io->writeln("  |- <red>Installation failed or aborted.</red>");
+                $io->newLine();
+                $error = 1;
+            } else {
+                $io->writeln("  |- <green>Success!</green>  ");
+                $io->newLine();
+            }
+
+            if ($this->tmp && is_dir($this->tmp)) {
+                Folder::delete($this->tmp);
+            }
+
+            return $error;
     }
 
     /**
@@ -253,7 +266,7 @@ class SelfupgradeCommand extends GpmCommand
             'timeout' => $this->timeout,
         ];
 
-        $output = Response::get($package['download'], $options, [$this, 'progress']);
+        $output = Response::get($package['download'], $options, $this->progress(...));
 
         Folder::create($this->tmp);
 
@@ -267,97 +280,8 @@ class SelfupgradeCommand extends GpmCommand
     }
 
     /**
-     * @return bool
-     */
-    private function upgrade(): bool
-    {
-        $io = $this->getIO();
-
-        $this->upgradeGrav($this->file);
-
-        $errorCode = Installer::lastErrorCode();
-        if ($errorCode) {
-            $io->write("\x0D");
-            // extra white spaces to clear out the buffer properly
-            $io->writeln('  |- Installing upgrade...    <red>error</red>                             ');
-            $io->writeln("  |  '- " . Installer::lastErrorMsg());
-
-            return false;
-        }
-
-        $io->write("\x0D");
-        // extra white spaces to clear out the buffer properly
-        $io->writeln('  |- Installing upgrade...    <green>ok</green>                             ');
-
-        return true;
-    }
-
-    /**
-     * @param array $progress
-     * @return void
-     */
-    public function progress(array $progress): void
-    {
-        $io = $this->getIO();
-
-        $io->write("\x0D");
-        $io->write("  |- Downloading upgrade [{$this->formatBytes($progress['filesize']) }]... " . str_pad(
-            $progress['percent'],
-            5,
-            ' ',
-            STR_PAD_LEFT
-        ) . '%');
-    }
-
-    /**
-     * @param int|float $size
-     * @param int $precision
-     * @return string
-     */
-    public function formatBytes($size, int $precision = 2): string
-    {
-        $base = log($size) / log(1024);
-        $suffixes = array('', 'k', 'M', 'G', 'T');
-
-        return round(1024 ** ($base - floor($base)), $precision) . $suffixes[(int)floor($base)];
-    }
-
-    /**
-     * @param string $zip
-     * @return void
-     */
-    private function upgradeGrav(string $zip): void
-    {
-        try {
-            $folder = Installer::unZip($zip, $this->tmp . '/zip');
-            if ($folder === false) {
-                throw new RuntimeException(Installer::lastErrorMsg());
-            }
-
-            $script = $folder . '/system/install.php';
-            if ((file_exists($script) && $install = include $script) && is_callable($install)) {
-                // Run preflight from the NEW package's installer if available
-                if (is_object($install) && method_exists($install, 'generatePreflightReport')) {
-                    $report = $install->generatePreflightReport();
-                    if (!$this->handlePreflightReport($report)) {
-                        Installer::setError('Upgrade aborted due to preflight requirements.');
-                        return;
-                    }
-                }
-                $install($zip);
-            } else {
-                throw new RuntimeException('Uploaded archive file is not a valid Grav update package');
-            }
-        } catch (Exception $e) {
-            Installer::setError($e->getMessage());
-        }
-    }
-
-    /**
-     * Process a preflight report from the target package's installer.
-     *
      * @param array $preflight
-     * @return bool True to proceed, false to abort
+     * @return bool
      */
     protected function handlePreflightReport(array $preflight): bool
     {
@@ -370,7 +294,21 @@ class SelfupgradeCommand extends GpmCommand
         $incompatible = $preflight['incompatible_packages'] ?? [];
         $incompatibleBlocking = $incompatible['blocking'] ?? [];
         $incompatibleTarget = $incompatible['target'] ?? '';
-        $isMajorMinorUpgrade = $preflight['is_major_minor_upgrade'] ?? false;
+        $isMajorMinorUpgrade = $preflight['is_major_minor_upgrade'] ?? null;
+        if ($isMajorMinorUpgrade === null && $this->upgrader) {
+            $local = $this->upgrader->getLocalVersion();
+            $remote = $this->upgrader->getRemoteVersion();
+            $localParts = explode('.', $local);
+            $remoteParts = explode('.', $remote);
+
+            $localMajor = (int)($localParts[0] ?? 0);
+            $localMinor = (int)($localParts[1] ?? 0);
+            $remoteMajor = (int)($remoteParts[0] ?? 0);
+            $remoteMinor = (int)($remoteParts[1] ?? 0);
+
+            $isMajorMinorUpgrade = ($localMajor !== $remoteMajor) || ($localMinor !== $remoteMinor);
+        }
+        $isMajorMinorUpgrade = (bool)$isMajorMinorUpgrade;
 
         if ($warnings) {
             $io->newLine();
@@ -412,7 +350,8 @@ class SelfupgradeCommand extends GpmCommand
                 $io->writeln(sprintf('  - %s (%s) %s → %s', $slug, $type, $current, $available));
             }
 
-            $io->writeln('    › For major version upgrades (v' . $local . ' → v' . $remote . '), plugins must be updated first.');
+            $io->writeln('    › For major version upgrades (v' . $local . ' → v' . $remote . '), plugins must be updated to their latest');
+            $io->writeln('      compatible versions BEFORE upgrading Grav core to ensure compatibility.');
             $io->writeln('      Please run `bin/gpm update` to update these packages, then retry self-upgrade.');
 
             $proceed = false;
@@ -427,9 +366,7 @@ class SelfupgradeCommand extends GpmCommand
                 return false;
             }
 
-            if (method_exists(Install::class, 'allowPendingPackageOverride')) {
-                Install::allowPendingPackageOverride(true);
-            }
+            Install::allowPendingPackageOverride(true);
             $io->writeln('    › Proceeding despite pending plugin/theme updates.');
         }
 
@@ -465,9 +402,7 @@ class SelfupgradeCommand extends GpmCommand
                 }
                 $io->writeln('Continuing with incompatible plugins disabled.');
             } else {
-                if (method_exists(Install::class, 'allowIncompatibleOverride')) {
-                    Install::allowIncompatibleOverride(true);
-                }
+                Install::allowIncompatibleOverride(true);
                 $io->writeln('    › Proceeding despite incompatible plugins/themes.');
             }
         }
@@ -494,9 +429,10 @@ class SelfupgradeCommand extends GpmCommand
                     $io->writeln(sprintf('  - %s (requires psr/log %s)', $slug, $requires));
                 }
             },
-            'Update the plugin or add "replace": {"psr/log": "*"} to its composer.json.',
+            'Update the plugin or add "replace": {"psr/log": "*"} to its composer.json and reinstall dependencies.',
             'Aborting self-upgrade. Adjust composer requirements or update affected plugins.',
-            'Proceeding with potential psr/log incompatibilities still active.'
+            'Proceeding with potential psr/log incompatibilities still active.',
+            'Disabled before upgrade because of psr/log conflict'
         );
 
         if (!$handled) {
@@ -516,9 +452,10 @@ class SelfupgradeCommand extends GpmCommand
                     }
                 }
             },
-            'Update the plugin to use PSR-3 style logger methods before upgrading.',
+            'Update the plugin to use PSR-3 style logger methods (e.g. $logger->error()) before upgrading.',
             'Aborting self-upgrade. Update plugins to remove deprecated Monolog add* calls.',
-            'Proceeding with potential Monolog API incompatibilities still active.'
+            'Proceeding with potential Monolog API incompatibilities still active.',
+            'Disabled before upgrade because of Monolog API conflict'
         );
 
         if (!$handledMonolog) {
@@ -529,16 +466,15 @@ class SelfupgradeCommand extends GpmCommand
     }
 
     /**
-     * Handle a set of conflicts with user choice (disable/continue/abort).
-     *
      * @param array $conflicts
      * @param callable $printer
      * @param string $advice
      * @param string $abortMessage
      * @param string $continueMessage
+     * @param string $disableNote
      * @return bool
      */
-    private function handleConflicts(array $conflicts, callable $printer, string $advice, string $abortMessage, string $continueMessage): bool
+    private function handleConflicts(array $conflicts, callable $printer, string $advice, string $abortMessage, string $continueMessage, string $disableNote): bool
     {
         if (empty($conflicts)) {
             return true;
@@ -576,30 +512,244 @@ class SelfupgradeCommand extends GpmCommand
     }
 
     /**
-     * Disable a plugin by writing enabled: false to its config file.
-     * Used on 1.7 where RecoveryManager may not be available.
-     *
-     * @param string $slug
+     * @return bool
      */
-    private function disablePluginConfig(string $slug): void
+    private function upgrade(): bool
     {
-        $configPath = GRAV_ROOT . '/user/config/plugins/' . $slug . '.yaml';
+        $io = $this->getIO();
+        $this->lastProgressMessage = null;
+
+        $this->upgradeGrav($this->file);
+        $this->finalizeStageTracking();
+
+        $elapsed = null;
+        if (null !== $this->operationTimerStart) {
+            $elapsed = microtime(true) - $this->operationTimerStart;
+            $this->operationTimerStart = null;
+        }
+
+        $errorCode = Installer::lastErrorCode();
+        if ($errorCode) {
+            $io->write("\x0D");
+            // extra white spaces to clear out the buffer properly
+            $io->writeln('  |- Installing upgrade...    <red>error</red>                             ');
+            $io->writeln("  |  '- " . Installer::lastErrorMsg());
+
+            return false;
+        }
+
+        if (null !== $elapsed) {
+            $io->writeln(sprintf('  |- Safe upgrade staging completed in %s', $this->formatDuration($elapsed)));
+        }
+
+        $io->write("\x0D");
+        // extra white spaces to clear out the buffer properly
+        $io->writeln('  |- Installing upgrade...    <green>ok</green>                             ');
+
+        $this->ensureExecutablePermissions();
+
+        return true;
+    }
+
+    /**
+     * @param array $progress
+     * @return void
+     */
+    public function progress(array $progress): void
+    {
+        $io = $this->getIO();
+
+        $io->write("\x0D");
+        $io->write("  |- Downloading upgrade [{$this->formatBytes($progress['filesize']) }]... " . str_pad(
+            (string) $progress['percent'],
+            5,
+            ' ',
+            STR_PAD_LEFT
+        ) . '%');
+    }
+
+    /**
+     * @param int|float $size
+     * @param int $precision
+     * @return string
+     */
+    public function formatBytes($size, int $precision = 2): string
+    {
+        $base = log($size) / log(1024);
+        $suffixes = ['', 'k', 'M', 'G', 'T'];
+
+        return round(1024 ** ($base - floor($base)), $precision) . $suffixes[(int)floor($base)];
+    }
+
+    /**
+     * @param string $zip
+     * @return void
+     */
+    private function upgradeGrav(string $zip): void
+    {
+        $io = $this->getIO();
 
         try {
-            if (is_file($configPath)) {
-                $contents = @file_get_contents($configPath);
-                $data = $contents !== false ? Yaml::parse($contents) : [];
-                if (!is_array($data)) {
-                    $data = [];
+            $io->write("\x0D  |- Extracting update...                    ");
+            $folder = Installer::unZip($zip, $this->tmp . '/zip');
+            if ($folder === false) {
+                throw new RuntimeException(Installer::lastErrorMsg());
+            }
+            $io->write("\x0D");
+            $io->writeln('  |- Extracting update...    <green>ok</green>                ');
+
+            $script = $folder . '/system/install.php';
+            if ((file_exists($script) && $install = include $script) && is_callable($install)) {
+                if (is_object($install) && method_exists($install, 'setProgressCallback')) {
+                    $install->setProgressCallback(function (string $stage, string $message, ?int $percent = null, array $extra = []) {
+                        $this->handleServiceProgress($stage, $message, $percent);
+                    });
                 }
+                if (is_object($install) && method_exists($install, 'generatePreflightReport')) {
+                    $report = $install->generatePreflightReport();
+                    if (!$this->handlePreflightReport($report)) {
+                        Installer::setError('Upgrade aborted due to preflight requirements.');
+
+                        return;
+                    }
+                }
+                $install($zip);
             } else {
-                $data = [];
+                throw new RuntimeException('Uploaded archive file is not a valid Grav update package');
+            }
+        } catch (Exception $e) {
+            Installer::setError($e->getMessage());
+        }
+    }
+
+    private function handleServiceProgress(string $stage, string $message, ?int $percent = null, array $extra = []): void
+    {
+        $this->trackStageProgress($stage, $message, $extra);
+
+        if ($this->lastProgressMessage === $message) {
+            return;
+        }
+
+        $this->lastProgressMessage = $message;
+        $io = $this->getIO();
+        $suffix = '';
+        if (null !== $percent) {
+            $suffix = sprintf(' (%d%%)', $percent);
+        }
+        $io->writeln(sprintf('  |- %s%s', $message, $suffix));
+    }
+
+    private function ensureExecutablePermissions(): void
+    {
+        $executables = [
+            'bin/grav',
+            'bin/plugin',
+            'bin/gpm',
+            'bin/composer.phar'
+        ];
+
+        foreach ($executables as $relative) {
+            $path = GRAV_ROOT . '/' . $relative;
+            if (!is_file($path) || is_link($path)) {
+                continue;
             }
 
-            $data['enabled'] = false;
-            file_put_contents($configPath, Yaml::dump($data));
-        } catch (Throwable $e) {
-            // best effort — if config write fails, upgrade will be blocked by Install.php
+            $mode = @fileperms($path);
+            $desired = ($mode & 0777) | 0111;
+            if (($mode & 0111) !== 0111) {
+                @chmod($path, $desired);
+            }
         }
+    }
+
+    private function trackStageProgress(string $stage, string $message, array $extra = []): void
+    {
+        $now = microtime(true);
+
+        if (null !== $this->currentProgressStage && $stage !== $this->currentProgressStage && null !== $this->currentStageStartedAt) {
+            $elapsed = $now - $this->currentStageStartedAt;
+            $this->emitStageSummary($this->currentProgressStage, $elapsed, $this->currentStageExtras);
+            $this->currentStageExtras = [];
+        }
+
+        if ($stage !== $this->currentProgressStage) {
+            $this->currentProgressStage = $stage;
+            $this->currentStageStartedAt = $now;
+            $this->currentStageExtras = [];
+        }
+
+        if (!isset($this->currentStageExtras['label'])) {
+            $this->currentStageExtras['label'] = $message;
+        }
+
+        if ($extra) {
+            $this->currentStageExtras = array_merge($this->currentStageExtras, $extra);
+        }
+    }
+
+    private function finalizeStageTracking(): void
+    {
+        if (null !== $this->currentProgressStage && null !== $this->currentStageStartedAt) {
+            $elapsed = microtime(true) - $this->currentStageStartedAt;
+            $this->emitStageSummary($this->currentProgressStage, $elapsed, $this->currentStageExtras);
+        }
+
+        $this->currentProgressStage = null;
+        $this->currentStageStartedAt = null;
+        $this->currentStageExtras = [];
+    }
+
+    private function emitStageSummary(string $stage, float $seconds, array $extra = []): void
+    {
+        $io = $this->getIO();
+        $label = $extra['label'] ?? ucfirst($stage);
+        $modeText = '';
+        if (isset($extra['mode'])) {
+            $modeText = sprintf(' [%s]', $extra['mode']);
+        }
+
+        $io->writeln(sprintf('  |- %s completed in %s%s', $label, $this->formatDuration($seconds), $modeText));
+    }
+
+    private function formatDuration(float $seconds): string
+    {
+        if ($seconds < 1) {
+            return sprintf('%0.3fs', $seconds);
+        }
+
+        $minutes = (int)floor($seconds / 60);
+        $remaining = $seconds - ($minutes * 60);
+
+        if ($minutes === 0) {
+            return sprintf('%0.1fs', $remaining);
+        }
+
+        return sprintf('%dm %0.1fs', $minutes, $remaining);
+    }
+
+    /**
+     * Mark a plugin as disabled by writing enabled:false to its user config.
+     */
+    protected function disablePluginConfig(string $slug): void
+    {
+        $slug = trim($slug);
+        if ($slug === '') {
+            return;
+        }
+
+        $configPath = GRAV_ROOT . '/user/config/plugins/' . $slug . '.yaml';
+        Folder::create(dirname($configPath));
+
+        $configuration = is_file($configPath) ? Yaml::parse(file_get_contents($configPath)) : [];
+        if (!is_array($configuration)) {
+            $configuration = [];
+        }
+
+        if (($configuration['enabled'] ?? true) === false) {
+            return;
+        }
+
+        $configuration['enabled'] = false;
+        file_put_contents($configPath, Yaml::dump($configuration));
     }
 }

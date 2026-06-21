@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * @package    Grav\Common\Flex
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -38,7 +38,7 @@ class UserGroupCollection extends FlexCollection
      * @param  string|null $scope
      * @return bool|null
      */
-    public function authorize(string $action, string $scope = null): ?bool
+    public function authorize(string $action, ?string $scope = null): ?bool
     {
         $authorized = null;
         /** @var UserGroupObject $object */

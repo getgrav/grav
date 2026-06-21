@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * @package    Grav\Framework\Filesystem
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -24,9 +24,6 @@ use function pathinfo;
  */
 class Filesystem implements FilesystemInterface
 {
-    /** @var bool|null */
-    private $normalize;
-
     /** @var static|null */
     protected static $default;
 
@@ -40,7 +37,7 @@ class Filesystem implements FilesystemInterface
      * @param bool|null $normalize See $this->setNormalization()
      * @return Filesystem
      */
-    public static function getInstance(bool $normalize = null): Filesystem
+    public static function getInstance(?bool $normalize = null): Filesystem
     {
         if ($normalize === true) {
             $instance = &static::$safe;
@@ -63,9 +60,8 @@ class Filesystem implements FilesystemInterface
      * @param bool|null $normalize
      * @internal
      */
-    protected function __construct(bool $normalize = null)
+    protected function __construct(private readonly ?bool $normalize = null)
     {
-        $this->normalize = $normalize;
     }
 
     /**
@@ -78,7 +74,7 @@ class Filesystem implements FilesystemInterface
      * @param bool|null $normalize
      * @return Filesystem
      */
-    public function setNormalization(bool $normalize = null): self
+    public function setNormalization(?bool $normalize = null): self
     {
         return static::getInstance($normalize);
     }

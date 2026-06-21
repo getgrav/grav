@@ -145,3 +145,12 @@ GRAV:
     ERROR2: လိုအပ်သောထည့်သွင်း နာပတ် အမှားဖြစ်နေသည်
     ERROR3: jquery_element ကို jqCron ဆက်တင် တွင်ထားရမည်
     ERROR4: အသိအမှတ်မပြုသော အသုံးအနှုန်း
+
+PLUGIN_ADMIN:
+    MEDIA: "Media"
+    MEDIA_TYPES: "Media Types"
+    IMAGE_OPTIONS: "Image options"
+    MIME_TYPE: "Mime Type"
+    THUMB: "Thumb"
+    TYPE: "Type"
+    FILE_EXTENSION: "File Extension"

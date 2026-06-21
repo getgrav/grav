@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Flex
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -100,7 +100,7 @@ class FlexForm implements FlexObjectFormInterface, JsonSerializable
      * @param FlexObjectInterface $object
      * @param array|null $options
      */
-    public function __construct(string $name, FlexObjectInterface $object, array $options = null)
+    public function __construct(string $name, FlexObjectInterface $object, ?array $options = null)
     {
         $this->name = $name;
         $this->setObject($object);
@@ -191,11 +191,10 @@ class FlexForm implements FlexObjectFormInterface, JsonSerializable
 
     /**
      * @param string $name
-     * @param mixed $default
      * @param string|null $separator
      * @return mixed
      */
-    public function get($name, $default = null, $separator = null)
+    public function get($name, mixed $default = null, $separator = null)
     {
         switch (strtolower($name)) {
             case 'id':
@@ -219,11 +218,10 @@ class FlexForm implements FlexObjectFormInterface, JsonSerializable
 
     /**
      * @param string $name
-     * @param mixed $value
      * @param string|null $separator
      * @return FlexForm
      */
-    public function set($name, $value, $separator = null)
+    public function set($name, mixed $value, $separator = null)
     {
         switch (strtolower($name)) {
             case 'id':
@@ -428,7 +426,7 @@ class FlexForm implements FlexObjectFormInterface, JsonSerializable
      * @param string|null $extension
      * @return string
      */
-    public function getMediaTaskRoute(array $params = [], string $extension = null): string
+    public function getMediaTaskRoute(array $params = [], ?string $extension = null): string
     {
         $grav = Grav::instance();
         /** @var Flex $flex */
@@ -460,11 +458,10 @@ class FlexForm implements FlexObjectFormInterface, JsonSerializable
 
     /**
      * @param string $name
-     * @param mixed $value
      * @return void
      */
     #[\ReturnTypeWillChange]
-    public function __set($name, $value)
+    public function __set($name, mixed $value)
     {
         $method = "set{$name}";
         if (method_exists($this, $method)) {

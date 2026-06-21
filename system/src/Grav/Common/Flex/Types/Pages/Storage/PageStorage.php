@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * @package    Grav\Common\Flex
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -153,7 +153,10 @@ class PageStorage extends FolderStorage
             }
             $order = $keys['order'] ?? null;
             $folder = $keys['folder'] ?? 'undefined';
-            $key .= is_numeric($order) ? sprintf('%02d.%s', $order, $folder) : $folder;
+            $digits = $keys['order_digits'] ?? null;
+            $key .= is_numeric($order)
+                ? \Grav\Common\Page\PageOrdering::key($order, $folder, $digits)
+                : $folder;
         }
 
         $params = $includeParams ? $this->buildStorageKeyParams($keys) : '';
@@ -280,8 +283,10 @@ class PageStorage extends FolderStorage
         $objectKey = Utils::basename($key);
         if (preg_match('|^(\d+)\.(.+)$|', $objectKey, $matches)) {
             [, $order, $folder] = $matches;
+            $orderDigits = strlen($order);
         } else {
             [$order, $folder] = ['', $objectKey];
+            $orderDigits = null;
         }
 
         $filesystem = Filesystem::getInstance(false);
@@ -293,6 +298,7 @@ class PageStorage extends FolderStorage
             'params' => $params,
             'parent_key' => $parentKey,
             'order' => is_numeric($order) ? (int)$order : null,
+            'order_digits' => $orderDigits,
             'folder' => $folder,
             'template' => $template,
             'lang' => $language
@@ -394,14 +400,14 @@ class PageStorage extends FolderStorage
                 if ($oldFolder !== $newFolder && file_exists($oldFolder)) {
                     $isCopy = $row['__META']['copy'] ?? false;
                     if ($isCopy) {
-                        if (strpos($newFolder, $oldFolder . '/') === 0) {
+                        if (str_starts_with($newFolder, $oldFolder . '/')) {
                             throw new RuntimeException(sprintf('Page /%s cannot be copied to itself', $oldKey));
                         }
 
                         $this->copyRow($oldKey, $newKey);
                         $debugger->addMessage("Page copied: {$oldFolder} => {$newFolder}", 'debug');
                     } else {
-                        if (strpos($newFolder, $oldFolder . '/') === 0) {
+                        if (str_starts_with($newFolder, $oldFolder . '/')) {
                             throw new RuntimeException(sprintf('Page /%s cannot be moved to itself', $oldKey));
                         }
 
@@ -538,7 +544,7 @@ class PageStorage extends FolderStorage
         if ($reload || !isset($this->meta[$key])) {
             /** @var UniformResourceLocator $locator */
             $locator = Grav::instance()['locator'];
-            if (mb_strpos($key, '@@') === false) {
+            if (mb_strpos((string) $key, '@@') === false) {
                 $path = $this->getStoragePath($key);
                 if (is_string($path)) {
                     $path = $locator->isStream($path) ? $locator->findResource($path) : GRAV_ROOT . "/{$path}";
@@ -577,7 +583,22 @@ class PageStorage extends FolderStorage
                             continue;
                         }
 
-                        $timestamp = $info->getMTime();
+                        try {
+                            $timestamp = $info->getMTime();
+                        } catch (\Throwable $e) {
+                            // Broken symlink, unreadable file, or similar — log and skip so a single
+                            // bad entry doesn't blow up the entire page index.
+                            $logger = Grav::instance()['log'] ?? null;
+                            if ($logger) {
+                                $logger->warning(sprintf(
+                                    'PageStorage: skipping unreadable file "%s" in "%s": %s',
+                                    $k,
+                                    $path,
+                                    $e->getMessage()
+                                ));
+                            }
+                            continue;
+                        }
 
                         // Page is the one that matches to $page_extensions list with the lowest index number.
                         if (preg_match($this->regex, $k, $matches)) {

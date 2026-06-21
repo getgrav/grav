@@ -142,3 +142,12 @@ GRAV:
     ERROR2: Μη έγκυρος αριθμός στοιχείων
     ERROR3: Το jquery_element θα έπρεπε να οριστεί στις ρυθμίσεις του jqCron
     ERROR4: Μη αναγνωρισμένη έκφραση
+
+PLUGIN_ADMIN:
+    MEDIA: "Πολυμέσα"
+    MEDIA_TYPES: "Τύποι μέσων"
+    IMAGE_OPTIONS: "Επιλογές εικόνας"
+    MIME_TYPE: "Τύπος MIME"
+    THUMB: "Μικρογραφία"
+    TYPE: "Τύπος"
+    FILE_EXTENSION: "Επέκταση αρχείου"

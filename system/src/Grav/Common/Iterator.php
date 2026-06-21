@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -24,7 +24,7 @@ use function is_object;
  * Class Iterator
  * @package Grav\Common
  */
-class Iterator implements \ArrayAccess, \Iterator, \Countable, \Serializable
+class Iterator implements \ArrayAccess, \Iterator, \Countable, \Serializable, \Stringable
 {
     use Constructor, ArrayAccessWithGetters, ArrayIterator, Countable, Serializable, Export;
 
@@ -35,11 +35,10 @@ class Iterator implements \ArrayAccess, \Iterator, \Countable, \Serializable
      * Convert function calls for the existing keys into their values.
      *
      * @param  string $key
-     * @param  mixed  $args
      * @return mixed
      */
     #[\ReturnTypeWillChange]
-    public function __call($key, $args)
+    public function __call($key, mixed $args)
     {
         return $this->items[$key] ?? null;
     }
@@ -63,7 +62,7 @@ class Iterator implements \ArrayAccess, \Iterator, \Countable, \Serializable
      * @return string
      */
     #[\ReturnTypeWillChange]
-    public function __toString()
+    public function __toString(): string
     {
         return implode(',', $this->items);
     }
@@ -143,7 +142,7 @@ class Iterator implements \ArrayAccess, \Iterator, \Countable, \Serializable
      *
      * @return string|int|false  Key if found, otherwise false.
      */
-    public function indexOf($needle)
+    public function indexOf(mixed $needle)
     {
         foreach (array_values($this->items) as $key => $value) {
             if ($value === $needle) {
@@ -230,7 +229,7 @@ class Iterator implements \ArrayAccess, \Iterator, \Countable, \Serializable
      *
      * @return $this
      */
-    public function filter(callable $callback = null)
+    public function filter(?callable $callback = null)
     {
         foreach ($this->items as $key => $value) {
             if ((!$callback && !(bool)$value) || ($callback && !$callback($value, $key))) {
@@ -250,7 +249,7 @@ class Iterator implements \ArrayAccess, \Iterator, \Countable, \Serializable
      * @return $this|array
      *
      */
-    public function sort(callable $callback = null, $desc = false)
+    public function sort(?callable $callback = null, $desc = false)
     {
         if (!$callback || !is_callable($callback)) {
             return $this;

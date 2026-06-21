@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\Object
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -57,7 +57,7 @@ trait MixedPropertyTrait
      * @param bool $doCreate
      * @return mixed                Property value.
      */
-    protected function &doGetProperty($property, $default = null, $doCreate = false)
+    protected function &doGetProperty($property, mixed $default = null, $doCreate = false)
     {
         if ($this->hasObjectProperty($property)) {
             return $this->getObjectProperty($property);
@@ -71,7 +71,7 @@ trait MixedPropertyTrait
      * @param mixed  $value         New value.
      * @return void
      */
-    protected function doSetProperty($property, $value)
+    protected function doSetProperty($property, mixed $value)
     {
         $this->hasObjectProperty($property)
             ? $this->setObjectProperty($property, $value) : $this->setArrayProperty($property, $value);

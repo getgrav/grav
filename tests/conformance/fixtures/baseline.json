@@ -1,0 +1,291 @@
+{
+    "CommonMark": {
+        "ATX headings": {
+            "total": 18,
+            "strict": 12,
+            "loose": 12
+        },
+        "Autolinks": {
+            "total": 19,
+            "strict": 12,
+            "loose": 12
+        },
+        "Backslash escapes": {
+            "total": 13,
+            "strict": 2,
+            "loose": 2
+        },
+        "Blank lines": {
+            "total": 1,
+            "strict": 1,
+            "loose": 1
+        },
+        "Block quotes": {
+            "total": 25,
+            "strict": 15,
+            "loose": 15
+        },
+        "Code spans": {
+            "total": 22,
+            "strict": 11,
+            "loose": 12
+        },
+        "Emphasis and strong emphasis": {
+            "total": 132,
+            "strict": 69,
+            "loose": 69
+        },
+        "Entity and numeric character references": {
+            "total": 17,
+            "strict": 3,
+            "loose": 3
+        },
+        "Fenced code blocks": {
+            "total": 29,
+            "strict": 5,
+            "loose": 5
+        },
+        "HTML blocks": {
+            "total": 44,
+            "strict": 15,
+            "loose": 17
+        },
+        "Hard line breaks": {
+            "total": 15,
+            "strict": 10,
+            "loose": 10
+        },
+        "Images": {
+            "total": 22,
+            "strict": 12,
+            "loose": 12
+        },
+        "Indented code blocks": {
+            "total": 12,
+            "strict": 3,
+            "loose": 3
+        },
+        "Inlines": {
+            "total": 1,
+            "strict": 1,
+            "loose": 1
+        },
+        "Link reference definitions": {
+            "total": 27,
+            "strict": 11,
+            "loose": 11
+        },
+        "Links": {
+            "total": 90,
+            "strict": 41,
+            "loose": 41
+        },
+        "List items": {
+            "total": 48,
+            "strict": 17,
+            "loose": 20
+        },
+        "Lists": {
+            "total": 26,
+            "strict": 9,
+            "loose": 12
+        },
+        "Paragraphs": {
+            "total": 8,
+            "strict": 6,
+            "loose": 6
+        },
+        "Precedence": {
+            "total": 1,
+            "strict": 1,
+            "loose": 1
+        },
+        "Raw HTML": {
+            "total": 20,
+            "strict": 10,
+            "loose": 10
+        },
+        "Setext headings": {
+            "total": 27,
+            "strict": 15,
+            "loose": 16
+        },
+        "Soft line breaks": {
+            "total": 2,
+            "strict": 2,
+            "loose": 2
+        },
+        "Tabs": {
+            "total": 11,
+            "strict": 3,
+            "loose": 4
+        },
+        "Textual content": {
+            "total": 3,
+            "strict": 3,
+            "loose": 3
+        },
+        "Thematic breaks": {
+            "total": 19,
+            "strict": 14,
+            "loose": 14
+        }
+    },
+    "GFM": {
+        "ATX headings": {
+            "total": 18,
+            "strict": 12,
+            "loose": 12
+        },
+        "Autolinks": {
+            "total": 19,
+            "strict": 9,
+            "loose": 9
+        },
+        "Backslash escapes": {
+            "total": 13,
+            "strict": 2,
+            "loose": 2
+        },
+        "Blank lines": {
+            "total": 1,
+            "strict": 1,
+            "loose": 1
+        },
+        "Block quotes": {
+            "total": 25,
+            "strict": 15,
+            "loose": 15
+        },
+        "Code spans": {
+            "total": 22,
+            "strict": 11,
+            "loose": 12
+        },
+        "Emphasis and strong emphasis": {
+            "total": 131,
+            "strict": 67,
+            "loose": 67
+        },
+        "Entity and numeric character references": {
+            "total": 17,
+            "strict": 3,
+            "loose": 3
+        },
+        "Fenced code blocks": {
+            "total": 29,
+            "strict": 5,
+            "loose": 5
+        },
+        "HTML blocks": {
+            "total": 43,
+            "strict": 14,
+            "loose": 16
+        },
+        "Hard line breaks": {
+            "total": 15,
+            "strict": 10,
+            "loose": 10
+        },
+        "Images": {
+            "total": 22,
+            "strict": 12,
+            "loose": 12
+        },
+        "Indented code blocks": {
+            "total": 12,
+            "strict": 3,
+            "loose": 3
+        },
+        "Inlines": {
+            "total": 1,
+            "strict": 1,
+            "loose": 1
+        },
+        "Link reference definitions": {
+            "total": 28,
+            "strict": 12,
+            "loose": 12
+        },
+        "Links": {
+            "total": 87,
+            "strict": 40,
+            "loose": 40
+        },
+        "List items": {
+            "total": 48,
+            "strict": 17,
+            "loose": 20
+        },
+        "Lists": {
+            "total": 26,
+            "strict": 9,
+            "loose": 12
+        },
+        "Paragraphs": {
+            "total": 8,
+            "strict": 6,
+            "loose": 6
+        },
+        "Precedence": {
+            "total": 1,
+            "strict": 1,
+            "loose": 1
+        },
+        "Raw HTML": {
+            "total": 20,
+            "strict": 10,
+            "loose": 10
+        },
+        "Setext headings": {
+            "total": 27,
+            "strict": 15,
+            "loose": 16
+        },
+        "Soft line breaks": {
+            "total": 2,
+            "strict": 2,
+            "loose": 2
+        },
+        "Tabs": {
+            "total": 11,
+            "strict": 3,
+            "loose": 4
+        },
+        "Textual content": {
+            "total": 3,
+            "strict": 3,
+            "loose": 3
+        },
+        "Thematic breaks": {
+            "total": 19,
+            "strict": 14,
+            "loose": 14
+        },
+        "[ext] Autolinks (extension)": {
+            "total": 11,
+            "strict": 0,
+            "loose": 0
+        },
+        "[ext] Disallowed Raw HTML (extension)": {
+            "total": 1,
+            "strict": 0,
+            "loose": 0
+        },
+        "[ext] Strikethrough (extension)": {
+            "total": 2,
+            "strict": 2,
+            "loose": 2
+        },
+        "[ext] Tables (extension)": {
+            "total": 8,
+            "strict": 2,
+            "loose": 2
+        },
+        "[ext] Task list items (extension)": {
+            "total": 2,
+            "strict": 0,
+            "loose": 0
+        }
+    }
+}

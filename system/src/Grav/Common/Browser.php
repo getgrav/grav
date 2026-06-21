@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -27,7 +27,7 @@ class Browser
     {
         try {
             $this->useragent = parse_user_agent();
-        } catch (InvalidArgumentException $e) {
+        } catch (InvalidArgumentException) {
             $this->useragent = parse_user_agent("Mozilla/5.0 (compatible; Unknown;)");
         }
     }

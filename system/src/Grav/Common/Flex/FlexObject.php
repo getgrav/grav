@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * @package    Grav\Common\Flex
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -32,7 +32,7 @@ abstract class FlexObject extends \Grav\Framework\Flex\FlexObject implements Med
      * {@inheritdoc}
      * @see FlexObjectInterface::getFormValue()
      */
-    public function getFormValue(string $name, $default = null, string $separator = null)
+    public function getFormValue(string $name, $default = null, ?string $separator = null)
     {
         $value = $this->getNestedProperty($name, null, $separator);
 

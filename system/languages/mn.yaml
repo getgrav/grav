@@ -145,3 +145,12 @@ GRAV:
     ERROR2: Элементүүдийн тоо хэмжээ буруу
     ERROR3: jquery_element нь jqCron тохиргоонд хийгдсэн байх ёстой
     ERROR4: Танигдаагүй илэрхийлэл
+
+PLUGIN_ADMIN:
+    MEDIA: "Медиа"
+    MEDIA_TYPES: "Медиа төрөл"
+    IMAGE_OPTIONS: "Зургийн тохиргоонууд"
+    MIME_TYPE: "Mime төрөл"
+    THUMB: "Жижиг дүрслэл"
+    TYPE: "Төрөл"
+    FILE_EXTENSION: "Файлын өргөтгөл"

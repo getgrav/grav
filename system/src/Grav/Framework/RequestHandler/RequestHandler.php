@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Framework\RequestHandler
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -33,7 +33,7 @@ class RequestHandler implements RequestHandlerInterface
      * @param callable $default
      * @param ContainerInterface|null $container
      */
-    public function __construct(array $middleware, callable $default, ContainerInterface $container = null)
+    public function __construct(array $middleware, callable $default, ?ContainerInterface $container = null)
     {
         $this->middleware = $middleware;
         $this->handler = $default;

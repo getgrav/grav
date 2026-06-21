@@ -13,9 +13,11 @@ declare(strict_types=1);
 
 namespace Twig\DeferredExtension;
 
+use Twig\Attribute\YieldReady;
 use Twig\Compiler;
 use Twig\Node\BlockNode;
 
+#[YieldReady]
 final class DeferredBlockNode extends BlockNode
 {
     public function compile(Compiler $compiler) : void
@@ -23,19 +25,30 @@ final class DeferredBlockNode extends BlockNode
         $name = $this->getAttribute('name');
 
         $compiler
-            ->write("public function block_$name(\$context, array \$blocks = [])\n", "{\n")
+            ->addDebugInfo($this)
+            ->write("/**\n")
+            ->write(" * @return iterable<null|scalar|\\Stringable>\n")
+            ->write(" */\n")
+            ->write("public function block_$name(array \$context, array \$blocks = []): iterable\n", "{\n")
             ->indent()
+            ->write("\$macros = \$this->macros;\n")
             ->write("\$this->deferred->defer(\$this, '$name');\n")
+            ->write("yield from [];\n")
             ->outdent()
             ->write("}\n\n")
         ;
 
         $compiler
             ->addDebugInfo($this)
-            ->write("public function block_{$name}_deferred(\$context, array \$blocks = [])\n", "{\n")
+            ->write("/**\n")
+            ->write(" * @return iterable<null|scalar|\\Stringable>\n")
+            ->write(" */\n")
+            ->write("public function block_{$name}_deferred(array \$context, array \$blocks = []): iterable\n", "{\n")
             ->indent()
+            ->write("\$macros = \$this->macros;\n")
             ->subcompile($this->getNode('body'))
             ->write("\$this->deferred->resolve(\$this, \$context, \$blocks);\n")
+            ->write("yield from [];\n")
             ->outdent()
             ->write("}\n\n")
         ;

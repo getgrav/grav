@@ -98,3 +98,12 @@ GRAV:
     ERROR1: Taggen %s stöds inte!
     ERROR2: Ogiltigt antal element
     ERROR4: Uttrycket känns inte igen
+
+PLUGIN_ADMIN:
+    MEDIA: "Media"
+    MEDIA_TYPES: "Mediatyper"
+    IMAGE_OPTIONS: "Bildalternativ"
+    MIME_TYPE: "MIME-typ"
+    THUMB: "Miniatyr"
+    TYPE: "Typ"
+    FILE_EXTENSION: "Filändelse"

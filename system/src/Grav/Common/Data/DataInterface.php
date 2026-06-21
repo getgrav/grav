@@ -3,7 +3,7 @@
 /**
  * @package    Grav\Common\Data
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -28,7 +28,7 @@ interface DataInterface
      * @param string  $separator  Separator, defaults to '.'
      * @return mixed  Value.
      */
-    public function value($name, $default = null, $separator = '.');
+    public function value($name, mixed $default = null, $separator = '.');
 
     /**
      * Merge external data.
@@ -80,5 +80,5 @@ interface DataInterface
      * @param FileInterface|null $storage Optionally enter a new storage.
      * @return FileInterface
      */
-    public function file(FileInterface $storage = null);
+    public function file(?FileInterface $storage = null);
 }

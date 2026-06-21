@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * @package    Grav\Framework\Flex
  *
- * @copyright  Copyright (c) 2015 - 2025 Trilby Media, LLC. All rights reserved.
+ * @copyright  Copyright (c) 2015 - 2026 Trilby Media, LLC. All rights reserved.
  * @license    MIT License; see LICENSE file for details.
  */
 
@@ -23,7 +23,7 @@ interface FlexTranslateInterface
      * @param bool|null $fallback
      * @return bool
      */
-    public function hasTranslation(string $languageCode = null, bool $fallback = null): bool;
+    public function hasTranslation(?string $languageCode = null, ?bool $fallback = null): bool;
 
     /**
      * Get translation.
@@ -32,7 +32,7 @@ interface FlexTranslateInterface
      * @param bool|null $fallback
      * @return static|null
      */
-    public function getTranslation(string $languageCode = null, bool $fallback = null);
+    public function getTranslation(?string $languageCode = null, ?bool $fallback = null);
 
     /**
      * Returns all translated languages.
