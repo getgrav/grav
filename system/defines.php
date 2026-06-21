@@ -9,9 +9,9 @@
 
 // Some standard defines
 define("GRAV", true);
-define("GRAV_VERSION", "2.0.0-rc.11");
+define("GRAV_VERSION", "2.0.0");
 define("GRAV_SCHEMA", "1.8.0_2026-06-09_0");
-define("GRAV_TESTING", true);
+define("GRAV_TESTING", false);
 
 // PHP minimum requirement
 if (!defined("GRAV_PHP_MIN")) {
@@ -30,7 +30,10 @@ if (!defined("DS")) {
 // overrides. Real server-set environment variables always take precedence.
 // The class_exists() guard keeps this file safe to include on its own (e.g. a
 // build step reading GRAV_VERSION), where the Composer autoloader isn't present.
-if (!defined("GRAV_DOTENV_DISABLE") && class_exists(\Grav\Common\Config\Env::class)) {
+if (
+    !defined("GRAV_DOTENV_DISABLE") &&
+    class_exists(\Grav\Common\Config\Env::class)
+) {
     $root = rtrim(
         str_replace(DIRECTORY_SEPARATOR, DS, getenv("GRAV_ROOT") ?: getcwd()),
         DS,
